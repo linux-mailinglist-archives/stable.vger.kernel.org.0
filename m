@@ -2,128 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 833F23A0562
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 22:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7F73A0570
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 23:02:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233354AbhFHU62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 16:58:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60712 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229526AbhFHU62 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 16:58:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7782F61183;
-        Tue,  8 Jun 2021 20:56:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1623185794;
-        bh=OJGgtBm3q7tcqDwa9BJEaBavdukZSO3qBK6MijhoVOg=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=MQXq/Hx3fjxqEhCexwtfrIC4TuKeq0UtnAQnOl5JKeaOWFHZ+zyWV4fTfIiaIlw4K
-         SxaE7nlGyVrx0rFi9o1tWINlsPPixyQqqyXOZEM9yFm0rul6G3zhMr9fo6POaZlDJ4
-         bUyXf6NboSgc8nM6iqvfiiqoaIlkxRjXPgzyf0jI=
-Date:   Tue, 8 Jun 2021 13:56:33 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Marco Elver <elver@google.com>, "Lin, Zhenpeng" <zplin@psu.edu>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Roman Gushchin <guro@fb.com>, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-mm@kvack.org,
-        "Lin, Zhenpeng" <zplin@psu.edu>
-Subject: Re: [PATCH v4 3/3] mm/slub: Actually fix freelist pointer vs
- redzoning
-Message-Id: <20210608135633.167bd07cf8011a792a128976@linux-foundation.org>
-In-Reply-To: <20210608183955.280836-4-keescook@chromium.org>
-References: <20210608183955.280836-1-keescook@chromium.org>
-        <20210608183955.280836-4-keescook@chromium.org>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S230169AbhFHVD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 17:03:57 -0400
+Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:42833 "EHLO
+        EX13-EDG-OU-002.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229526AbhFHVD5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 17:03:57 -0400
+Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
+ EX13-EDG-OU-002.vmware.com (10.113.208.156) with Microsoft SMTP Server id
+ 15.0.1156.6; Tue, 8 Jun 2021 14:02:02 -0700
+Received: from amakhalov-virtual-machine.eng.vmware.com (unknown [10.118.101.187])
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 0ABCC20151;
+        Tue,  8 Jun 2021 14:02:04 -0700 (PDT)
+From:   Alexey Makhalov <amakhalov@vmware.com>
+To:     <stable@vger.kernel.org>
+CC:     Alexey Makhalov <amakhalov@vmware.com>,
+        Theodore Ts'o <tytso@mit.edu>
+Subject: [PATCH] ext4: fix memory leak in ext4_fill_super
+Date:   Tue, 8 Jun 2021 14:02:03 -0700
+Message-ID: <20210608210203.91286-1-amakhalov@vmware.com>
+X-Mailer: git-send-email 2.11.0
+In-Reply-To: <162315503023234@kroah.com>
+References: <162315503023234@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Received-SPF: None (EX13-EDG-OU-002.vmware.com: amakhalov@vmware.com does not
+ designate permitted sender hosts)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue,  8 Jun 2021 11:39:55 -0700 Kees Cook <keescook@chromium.org> wrote:
+commit afd09b617db3786b6ef3dc43e28fe728cfea84df upstream.
+Note: this backport is only targeted for the following LTS branches:
+v5.4, v4.19, v4.14, v4.9 and v4.4.
 
-> It turns out that SLUB redzoning ("slub_debug=Z") checks from
-> s->object_size rather than from s->inuse (which is normally bumped
-> to make room for the freelist pointer), so a cache created with an
-> object size less than 24 would have the freelist pointer written beyond
-> s->object_size, causing the redzone to be corrupted by the freelist
-> pointer. This was very visible with "slub_debug=ZF":
-> 
-> BUG test (Tainted: G    B            ): Right Redzone overwritten
-> -----------------------------------------------------------------------------
-> 
-> INFO: 0xffff957ead1c05de-0xffff957ead1c05df @offset=1502. First byte 0x1a instead of 0xbb
-> INFO: Slab 0xffffef3950b47000 objects=170 used=170 fp=0x0000000000000000 flags=0x8000000000000200
-> INFO: Object 0xffff957ead1c05d8 @offset=1496 fp=0xffff957ead1c0620
-> 
-> Redzone  (____ptrval____): bb bb bb bb bb bb bb bb               ........
-> Object   (____ptrval____): 00 00 00 00 00 f6 f4 a5               ........
-> Redzone  (____ptrval____): 40 1d e8 1a aa                        @....
-> Padding  (____ptrval____): 00 00 00 00 00 00 00 00               ........
-> 
-> Adjust the offset to stay within s->object_size.
-> 
-> (Note that no caches of in this size range are known to exist in the
-> kernel currently.)
+Buffer head references must be released before calling kill_bdev();
+otherwise the buffer head (and its page referenced by b_data) will not
+be freed by kill_bdev, and subsequently that bh will be leaked.
 
-We already have
-https://lkml.kernel.org/r/6746FEEA-FD69-4792-8DDA-C78F5FE7DA02@psu.edu.
-Is this patch better?
+If blocksizes differ, sb_set_blocksize() will kill current buffers and
+page cache by using kill_bdev(). And then super block will be reread
+again but using correct blocksize this time. sb_set_blocksize() didn't
+fully free superblock page and buffer head, and being busy, they were
+not freed and instead leaked.
 
-> --- a/mm/slub.c
-> +++ b/mm/slub.c
-> @@ -3689,7 +3689,6 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
->  {
->  	slab_flags_t flags = s->flags;
->  	unsigned int size = s->object_size;
-> -	unsigned int freepointer_area;
->  	unsigned int order;
->  
->  	/*
-> @@ -3698,13 +3697,6 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
->  	 * the possible location of the free pointer.
->  	 */
->  	size = ALIGN(size, sizeof(void *));
-> -	/*
-> -	 * This is the area of the object where a freepointer can be
-> -	 * safely written. If redzoning adds more to the inuse size, we
-> -	 * can't use that portion for writing the freepointer, so
-> -	 * s->offset must be limited within this for the general case.
-> -	 */
-> -	freepointer_area = size;
->  
->  #ifdef CONFIG_SLUB_DEBUG
->  	/*
-> @@ -3730,7 +3722,7 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
->  
->  	/*
->  	 * With that we have determined the number of bytes in actual use
-> -	 * by the object. This is the potential offset to the free pointer.
-> +	 * by the object and redzoning.
->  	 */
->  	s->inuse = size;
->  
-> @@ -3753,13 +3745,13 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
->  		 */
->  		s->offset = size;
->  		size += sizeof(void *);
-> -	} else if (freepointer_area > sizeof(void *)) {
-> +	} else {
->  		/*
->  		 * Store freelist pointer near middle of object to keep
->  		 * it away from the edges of the object to avoid small
->  		 * sized over/underflows from neighboring allocations.
->  		 */
-> -		s->offset = ALIGN(freepointer_area / 2, sizeof(void *));
-> +		s->offset = ALIGN_DOWN(s->object_size / 2, sizeof(void *));
->  	}
->  
->  #ifdef CONFIG_SLUB_DEBUG
-> -- 
-> 2.25.1
+This can easily be reproduced by calling an infinite loop of:
+
+  systemctl start <ext4_on_lvm>.mount, and
+  systemctl stop <ext4_on_lvm>.mount
+
+... since systemd creates a cgroup for each slice which it mounts, and
+the bh leak get amplified by a dying memory cgroup that also never
+gets freed, and memory consumption is much more easily noticed.
+
+Fixes: ce40733ce93d ("ext4: Check for return value from sb_set_blocksize")
+Fixes: ac27a0ec112a ("ext4: initial copy of files from ext3")
+Link: https://lore.kernel.org/r/20210521075533.95732-1-amakhalov@vmware.com
+Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@vger.kernel.org # v5.4 and prior
+---
+ fs/ext4/super.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 0b364f5e6fdf..8650511ae6af 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4066,14 +4066,20 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 	}
+ 
+ 	if (sb->s_blocksize != blocksize) {
++		/*
++		 * bh must be released before kill_bdev(), otherwise
++		 * it won't be freed and its page also. kill_bdev()
++		 * is called by sb_set_blocksize().
++		 */
++		brelse(bh);
+ 		/* Validate the filesystem blocksize */
+ 		if (!sb_set_blocksize(sb, blocksize)) {
+ 			ext4_msg(sb, KERN_ERR, "bad block size %d",
+ 					blocksize);
++			bh = NULL;
+ 			goto failed_mount;
+ 		}
+ 
+-		brelse(bh);
+ 		logical_sb_block = sb_block * EXT4_MIN_BLOCK_SIZE;
+ 		offset = do_div(logical_sb_block, blocksize);
+ 		bh = sb_bread_unmovable(sb, logical_sb_block);
+@@ -4748,8 +4754,9 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
+ 		kfree(get_qf_name(sb, sbi, i));
+ #endif
+-	ext4_blkdev_remove(sbi);
++	/* ext4_blkdev_remove() calls kill_bdev(), release bh before it. */
+ 	brelse(bh);
++	ext4_blkdev_remove(sbi);
+ out_fail:
+ 	sb->s_fs_info = NULL;
+ 	kfree(sbi->s_blockgroup_lock);
+-- 
+2.11.0
+
