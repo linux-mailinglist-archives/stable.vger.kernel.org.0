@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C873A02DF
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A01883A01FE
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236106AbhFHTLE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:11:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44294 "EHLO mail.kernel.org"
+        id S235847AbhFHS6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:58:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233653AbhFHTH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:07:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA88461929;
-        Tue,  8 Jun 2021 18:47:22 +0000 (UTC)
+        id S235424AbhFHS4Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:56:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C106E61440;
+        Tue,  8 Jun 2021 18:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178043;
-        bh=b1o0J+qm2OGbUjXzAJtvzIJpkbR7WsVxXKhKcQaDh7E=;
+        s=korg; t=1623177732;
+        bh=ulqp14ncRz99IFnRnoK4gAcAvw50NDbvbRNzwcuHx4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZL6m2AhznFSyGfft1wJLH4Kxp4n5+kEDV65LfJmtEjjuU5CyfhEmB+O8nSKrntEq
-         luTUBtdPBhTEYMOgliYwiRcTq/DHR+i9HBpP64FX0SLY3RVnQnkRK2aoeh/pZiodyY
-         r3pFIj6Z9pYrMU13FjMw+ojDZvDW8iQ+auyuy+I0=
+        b=ZLvL8IEFS4gWoY20PyojlQpeUTuIZmsNXwGNVjaMKDMXaXBHSeb7/VcADr2t7VRPu
+         82O/W8R2Zex0wJd62cGKdJcSquYhRd08OUt5ZRyRTnjI0221m67/l09tyCxZZfnqIz
+         fcfkm8REt/u9qNcDx6a0pA2yKc+sK+Bnw+W10V8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 056/161] ice: Allow all LLDP packets from PF to Tx
+Subject: [PATCH 5.10 046/137] ice: Fix VFR issues for AVF drivers that expect ATQLEN cleared
 Date:   Tue,  8 Jun 2021 20:26:26 +0200
-Message-Id: <20210608175947.362582160@linuxfoundation.org>
+Message-Id: <20210608175943.963482722@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Ertman <david.m.ertman@intel.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit f9f83202b7263ac371d616d6894a2c9ed79158ef ]
+[ Upstream commit 8679f07a9922068b9b6be81b632f52cac45d1b91 ]
 
-Currently in the ice driver, the check whether to
-allow a LLDP packet to egress the interface from the
-PF_VSI is being based on the SKB's priority field.
-It checks to see if the packets priority is equal to
-TC_PRIO_CONTROL.  Injected LLDP packets do not always
-meet this condition.
+Some AVF drivers expect the VF_MBX_ATQLEN register to be cleared for any
+type of VFR/VFLR. Fix this by clearing the VF_MBX_ATQLEN register at the
+same time as VF_MBX_ARQLEN.
 
-SCAPY defaults to a sk_buff->protocol value of ETH_P_ALL
-(0x0003) and does not set the priority field.  There will
-be other injection methods (even ones used by end users)
-that will not correctly configure the socket so that
-SKB fields are correctly populated.
-
-Then ethernet header has to have to correct value for
-the protocol though.
-
-Add a check to also allow packets whose ethhdr->h_proto
-matches ETH_P_LLDP (0x88CC).
-
-Fixes: 0c3a6101ff2d ("ice: Allow egress control packets from PF_VSI")
-Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Fixes: 82ba01282cf8 ("ice: clear VF ARQLEN register on reset")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_txrx.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_hw_autogen.h  |  1 +
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 12 +++++++-----
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.c b/drivers/net/ethernet/intel/ice/ice_txrx.c
-index b91dcfd12727..44b6849ec008 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.c
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.c
-@@ -2331,6 +2331,7 @@ ice_xmit_frame_ring(struct sk_buff *skb, struct ice_ring *tx_ring)
- 	struct ice_tx_offload_params offload = { 0 };
- 	struct ice_vsi *vsi = tx_ring->vsi;
- 	struct ice_tx_buf *first;
-+	struct ethhdr *eth;
- 	unsigned int count;
- 	int tso, csum;
+diff --git a/drivers/net/ethernet/intel/ice/ice_hw_autogen.h b/drivers/net/ethernet/intel/ice/ice_hw_autogen.h
+index 90abc8612a6a..406dd6bd97a7 100644
+--- a/drivers/net/ethernet/intel/ice/ice_hw_autogen.h
++++ b/drivers/net/ethernet/intel/ice/ice_hw_autogen.h
+@@ -31,6 +31,7 @@
+ #define PF_FW_ATQLEN_ATQOVFL_M			BIT(29)
+ #define PF_FW_ATQLEN_ATQCRIT_M			BIT(30)
+ #define VF_MBX_ARQLEN(_VF)			(0x0022BC00 + ((_VF) * 4))
++#define VF_MBX_ATQLEN(_VF)			(0x0022A800 + ((_VF) * 4))
+ #define PF_FW_ATQLEN_ATQENABLE_M		BIT(31)
+ #define PF_FW_ATQT				0x00080400
+ #define PF_MBX_ARQBAH				0x0022E400
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+index b3161c5def46..374ccce2a784 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -435,13 +435,15 @@ static void ice_trigger_vf_reset(struct ice_vf *vf, bool is_vflr, bool is_pfr)
+ 	 */
+ 	clear_bit(ICE_VF_STATE_INIT, vf->vf_states);
  
-@@ -2377,7 +2378,9 @@ ice_xmit_frame_ring(struct sk_buff *skb, struct ice_ring *tx_ring)
- 		goto out_drop;
+-	/* VF_MBX_ARQLEN is cleared by PFR, so the driver needs to clear it
+-	 * in the case of VFR. If this is done for PFR, it can mess up VF
+-	 * resets because the VF driver may already have started cleanup
+-	 * by the time we get here.
++	/* VF_MBX_ARQLEN and VF_MBX_ATQLEN are cleared by PFR, so the driver
++	 * needs to clear them in the case of VFR/VFLR. If this is done for
++	 * PFR, it can mess up VF resets because the VF driver may already
++	 * have started cleanup by the time we get here.
+ 	 */
+-	if (!is_pfr)
++	if (!is_pfr) {
+ 		wr32(hw, VF_MBX_ARQLEN(vf->vf_id), 0);
++		wr32(hw, VF_MBX_ATQLEN(vf->vf_id), 0);
++	}
  
- 	/* allow CONTROL frames egress from main VSI if FW LLDP disabled */
--	if (unlikely(skb->priority == TC_PRIO_CONTROL &&
-+	eth = (struct ethhdr *)skb_mac_header(skb);
-+	if (unlikely((skb->priority == TC_PRIO_CONTROL ||
-+		      eth->h_proto == htons(ETH_P_LLDP)) &&
- 		     vsi->type == ICE_VSI_PF &&
- 		     vsi->port_info->qos_cfg.is_sw_lldp))
- 		offload.cd_qw1 |= (u64)(ICE_TX_DESC_DTYPE_CTX |
+ 	/* In the case of a VFLR, the HW has already reset the VF and we
+ 	 * just need to clean up, so don't hit the VFRTRIG register.
 -- 
 2.30.2
 
