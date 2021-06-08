@@ -2,135 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D03539EDC0
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 06:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C00E839EDD1
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 06:53:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229678AbhFHEln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 00:41:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42232 "EHLO
+        id S229526AbhFHEz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 00:55:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229548AbhFHElm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 00:41:42 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06698C061574;
-        Mon,  7 Jun 2021 21:39:49 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id f5so17967608eds.0;
-        Mon, 07 Jun 2021 21:39:49 -0700 (PDT)
+        with ESMTP id S229457AbhFHEz0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 00:55:26 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEBA5C061574;
+        Mon,  7 Jun 2021 21:53:19 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id l1so30391317ejb.6;
+        Mon, 07 Jun 2021 21:53:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=LQ327vLf2sAX9sBZj4rwUXDi/YVyuwzwG/5bRkeSlQ0=;
-        b=oIc3qYWdS/Aix0YmXu+hclQVy6hCkQOX88bQOG1+ihlh53aBNDvkk7iME9lD+yOowI
-         j6hhdzojIMNghYHMIcLNHYZGIa03in0uTUEFgrxloNgCj7CRBw5MVdqGD3caZidCiSix
-         STlpMCcMFcKFSyaIfRzlWjP8QiK0mofw8x4hHyNvKVhwmxHT1dPIc3OiDOGqV03IMvW8
-         ETGNw5aoQ8QCOp1Olei8Zj0roSXfcrdGAbBuRZkNl7P3WaFQMOiaw5wMBpef2w8iuMid
-         PvLpQvRGMcaO46yJcmwO1ksVumRfniQ2lSSIvv++cvHrg/DyOotNtTJMq0zJf8YYLA2s
-         iUew==
+        bh=HhTJvhXQRpXrK1DarhAlRYbBfua3nyn/yHyOslBWJcs=;
+        b=ioZ3BNAMIpb4kBehQ3jJ7ZUK3o7D5uE0qxuvePy6skLatGTSbTmt0EFQasHk2IC8UC
+         qZgBez6I9509CoyWBVRNGfYAaXFf+VUfxuXflzzIbZZM+YaWTywQ3ZWBFlQmJCsYKBn5
+         +NPHQFVwQDP7zm2JmvfeIee5TT61w7AzVMWCr4SyKwKtral77QymPtCDom4YxaxBdwnd
+         +JY3DL+QLD6eiqZqQUPwuYkxZrE4/fyCaANWEryi26ZKyzMEe21psLSBjNInbdlAZHlR
+         NZhbCDylPspsaA5GjBgBWAz5qx6B/48lmflyY3T7lSWnYOmfhz/tu3/KD5b39MYu5prh
+         ATKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to;
-        bh=LQ327vLf2sAX9sBZj4rwUXDi/YVyuwzwG/5bRkeSlQ0=;
-        b=b84MlDbrfVea0fVf3w62+Slnes16qgU+DkNxZPx1L7cyfB7ABVuiasOP6YNtAFfhK4
-         E4y9urWTW8lPd0Zw8wvhiWoV2eWbSXjOGVrvpA1qKNGD3DmjbVjAiBlgRPRmnRzTayV5
-         lI1HTenb0aFJYMokfCbfGQfWGEsoKFtY9djH8IJlA1kzHUVAFUr5fo1Iq+psJiaHeIPj
-         wk47f6u9rxbdM21OjXrc9cNcWyl40Yyn4ZPGg1Ird75IyW1kX3R7X/3en2ZM/s8jidh7
-         uM9wJJrVwE+lXxjhgFyGVJR/oQqHfd+D5aUnFlAk7xPmMEMWE4lCzPQ2jVQy9qRJJuGQ
-         fovg==
-X-Gm-Message-State: AOAM531YK3uoTby1+CrZclwnLzylUt891k6qrYfnPslql1B03SXZTRGX
-        koUvTMVAMYaYuqi4xs3szq4=
-X-Google-Smtp-Source: ABdhPJy4xt0G+/1aglGwDilU0Vo8L84hZxB28vs9FoD7yiBgTCbbBgQhXaz49hJ/mhjSdKNy4JO5Kg==
-X-Received: by 2002:aa7:d798:: with SMTP id s24mr19190983edq.243.1623127188453;
-        Mon, 07 Jun 2021 21:39:48 -0700 (PDT)
+        bh=HhTJvhXQRpXrK1DarhAlRYbBfua3nyn/yHyOslBWJcs=;
+        b=G/7F7j1I4AAGhglIGHww5jzGWKZk2iWOpwc1t5fEqziUJlJ030h1GxIivWIYyNFGq2
+         KRMCsTDhyWKLFzVVBK0BWrNx9km19s7VW/Pdei1/szgbIjWHe7s3LToMWnUkEOzIb2k5
+         zHxbAX+1LdUHfS9W29fdXcB+9Dzds4xCS8BKjHBcxZ173aV/QpCXGKwAfG7zK3I60FZ/
+         EX0ocggdnC3YNUgM9LTRA3N+2n8egp4JLW72k2iFcOtfKzJgCWXSAAs9bwP9M4Ap6ZKI
+         b2v/eOMmDmF1v/EZ5Wxy+/r1FyiO/+CmuIn/i3wznLj6WsZS6jUQJLIQOw1H/ruVQyP0
+         tcxg==
+X-Gm-Message-State: AOAM532yF8+l48VJxxILaDXMHycHb8V8zel9RQexomcHH+dFwjFOW9cI
+        TE9V4x9oq5H2ZE/H268JveyGHT7gMP/qqA==
+X-Google-Smtp-Source: ABdhPJwOGDkpPewucg2h667ejKhMAaKvXo7/m9DONKIyJ4jEepIVd+ykVanF4zO4tHR7NDs1ZDDbqg==
+X-Received: by 2002:a17:906:2c1b:: with SMTP id e27mr21626901ejh.5.1623127998599;
+        Mon, 07 Jun 2021 21:53:18 -0700 (PDT)
 Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id g11sm915975eds.24.2021.06.07.21.39.47
+        by smtp.gmail.com with ESMTPSA id d5sm8460426edt.49.2021.06.07.21.53.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Jun 2021 21:39:47 -0700 (PDT)
+        Mon, 07 Jun 2021 21:53:17 -0700 (PDT)
 Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Tue, 8 Jun 2021 06:39:46 +0200
+Date:   Tue, 8 Jun 2021 06:53:17 +0200
 From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        stable@vger.kernel.org, Wanpeng Li <kernellwp@gmail.com>
-Subject: Re: [PATCH 1/2] KVM: SVM: avoid infinite loop on NPF from bad address
-Message-ID: <YL70kh5/vLW8gmAY@eldamar.lan>
-References: <20200417163843.71624-1-pbonzini@redhat.com>
- <20200417163843.71624-2-pbonzini@redhat.com>
+To:     Marcel Holtmann <marcel@holtmann.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        linma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-bluetooth <linux-bluetooth@vger.kernel.org>,
+        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Hao Xiong <mart1n@zju.edu.cn>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] Bluetooth: fix the erroneous flush_work() order
+Message-ID: <YL73vTBtgWkaup+A@eldamar.lan>
+References: <20210525123902.189012-1-gregkh@linuxfoundation.org>
+ <BF0493D4-AB96-44D3-8229-9EA6D084D260@holtmann.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200417163843.71624-2-pbonzini@redhat.com>
+In-Reply-To: <BF0493D4-AB96-44D3-8229-9EA6D084D260@holtmann.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Paolo,
+Hi Greg,
 
-On Fri, Apr 17, 2020 at 12:38:42PM -0400, Paolo Bonzini wrote:
-> When a nested page fault is taken from an address that does not have
-> a memslot associated to it, kvm_mmu_do_page_fault returns RET_PF_EMULATE
-> (via mmu_set_spte) and kvm_mmu_page_fault then invokes svm_need_emulation_on_page_fault.
+On Thu, May 27, 2021 at 10:14:59PM +0200, Marcel Holtmann wrote:
+> Hi Greg,
 > 
-> The default answer there is to return false, but in this case this just
-> causes the page fault to be retried ad libitum.  Since this is not a
-> fast path, and the only other case where it is taken is an erratum,
-> just stick a kvm_vcpu_gfn_to_memslot check in there to detect the
-> common case where the erratum is not happening.
+> > In the cleanup routine for failed initialization of HCI device,
+> > the flush_work(&hdev->rx_work) need to be finished before the
+> > flush_work(&hdev->cmd_work). Otherwise, the hci_rx_work() can
+> > possibly invoke new cmd_work and cause a bug, like double free,
+> > in late processings.
+> > 
+> > This was assigned CVE-2021-3564.
+> > 
+> > This patch reorder the flush_work() to fix this bug.
+> > 
+> > Cc: Marcel Holtmann <marcel@holtmann.org>
+> > Cc: Johan Hedberg <johan.hedberg@gmail.com>
+> > Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+> > Cc: "David S. Miller" <davem@davemloft.net>
+> > Cc: Jakub Kicinski <kuba@kernel.org>
+> > Cc: linux-bluetooth@vger.kernel.org
+> > Cc: netdev@vger.kernel.org
+> > Cc: linux-kernel@vger.kernel.org
+> > Signed-off-by: Lin Ma <linma@zju.edu.cn>
+> > Signed-off-by: Hao Xiong <mart1n@zju.edu.cn>
+> > Cc: stable <stable@vger.kernel.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > ---
+> > net/bluetooth/hci_core.c | 7 ++++++-
+> > 1 file changed, 6 insertions(+), 1 deletion(-)
 > 
-> This fixes an infinite loop in the new set_memory_region_test.
-> 
-> Fixes: 05d5a4863525 ("KVM: SVM: Workaround errata#1096 (insn_len maybe zero on SMAP violation)")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  arch/x86/kvm/svm/svm.c | 7 +++++++
->  virt/kvm/kvm_main.c    | 1 +
->  2 files changed, 8 insertions(+)
-> 
-> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-> index a91e397d6750..c86f7278509b 100644
-> --- a/arch/x86/kvm/svm/svm.c
-> +++ b/arch/x86/kvm/svm/svm.c
-> @@ -3837,6 +3837,13 @@ static bool svm_need_emulation_on_page_fault(struct kvm_vcpu *vcpu)
->  	bool smap = cr4 & X86_CR4_SMAP;
->  	bool is_user = svm_get_cpl(vcpu) == 3;
->  
-> +	/*
-> +	 * If RIP is invalid, go ahead with emulation which will cause an
-> +	 * internal error exit.
-> +	 */
-> +	if (!kvm_vcpu_gfn_to_memslot(vcpu, kvm_rip_read(vcpu) >> PAGE_SHIFT))
-> +		return true;
-> +
->  	/*
->  	 * Detect and workaround Errata 1096 Fam_17h_00_0Fh.
->  	 *
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index e2f60e313c87..e7436d054305 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1602,6 +1602,7 @@ struct kvm_memory_slot *kvm_vcpu_gfn_to_memslot(struct kvm_vcpu *vcpu, gfn_t gfn
->  {
->  	return __gfn_to_memslot(kvm_vcpu_memslots(vcpu), gfn);
->  }
-> +EXPORT_SYMBOL_GPL(kvm_vcpu_gfn_to_memslot);
->  
->  bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn)
->  {
-> -- 
-> 2.18.2
+> patch has been applied to bluetooth-stable tree.
 
-I noticed that this patch, whilst beeing CC'ed for stable, appers to
-not have been applied to stable branches back then. There was first a
-mail from Sasha's bot that patches do not apply and Wanpeng Li.
-
-Did this simply felt through the cracks here or is it not worth
-backporting to older series? At least
-https://bugzilla.redhat.com/show_bug.cgi?id=1947982#c3 seem to
-indicate it might not be worth of if there is risk for regression if I
-understand Wanpeng Li. Is this right?
+Can you queue this one as well for the stable series? It is
+6a137caec23aeb9e036cdfd8a46dd8a366460e5d commit upstream and in
+5.13-rc5.
 
 Regards,
 Salvatore
