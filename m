@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A29523A0073
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1D4B39FFC9
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235101AbhFHSn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:43:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37652 "EHLO mail.kernel.org"
+        id S234355AbhFHSgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:36:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235108AbhFHSlW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:41:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59BFA61439;
-        Tue,  8 Jun 2021 18:35:14 +0000 (UTC)
+        id S234388AbhFHSem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:34:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA17C613B9;
+        Tue,  8 Jun 2021 18:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177314;
-        bh=JMC0ZDdJYN5mh4Dd9SGXk9gzGcYabtw+NxbZdtMdboo=;
+        s=korg; t=1623177114;
+        bh=YWx7Wpz/nixlUUeiM88xb7Aa0wPZrmfma7RLTzvvMLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kOk9rDyf4oYToeAu7QAHxlGmeqhTURHiOosPKUWfUwWD+x97Uf/4K2kJg7/gS9Odf
-         XQE93cgnVwwDjR8zVtSQGv59KX1AJouGr8YX5rd6yC/EMIASChHqMOJrUpAP4IArTh
-         49gBebqHA+yTBOUhn1DqoTNnqJzesFla6y1BoT/8=
+        b=bxEob4yHrTq6Xh47BrOw1xgQoLdlesewW0tYy64MBThemc3fwfJFw6gIsxgztVuSw
+         9rE1JhH6/Qde7B+aL0CNzfAN3PHUfE/6M1g0WGUDM0LMH9u7SZbMFCwztdh3ksYL5M
+         eriaeLEuH7mIvn4VNyUh1H+ev0xuel5AxgUUEHCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 39/58] mm, hugetlb: fix simple resv_huge_pages underflow on UFFDIO_COPY
+        Jann Horn <jannh@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Frank van der Linden <fllinden@amazon.com>
+Subject: [PATCH 4.14 37/47] bpf/verifier: disallow pointer subtraction
 Date:   Tue,  8 Jun 2021 20:27:20 +0200
-Message-Id: <20210608175933.560654165@linuxfoundation.org>
+Message-Id: <20210608175931.695295703@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
+References: <20210608175930.477274100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mina Almasry <almasrymina@google.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit d84cf06e3dd8c5c5b547b5d8931015fc536678e5 ]
+commit dd066823db2ac4e22f721ec85190817b58059a54 upstream.
 
-The userfaultfd hugetlb tests cause a resv_huge_pages underflow.  This
-happens when hugetlb_mcopy_atomic_pte() is called with !is_continue on
-an index for which we already have a page in the cache.  When this
-happens, we allocate a second page, double consuming the reservation,
-and then fail to insert the page into the cache and return -EEXIST.
+Subtraction of pointers was accidentally allowed for unpriv programs
+by commit 82abbf8d2fc4. Revert that part of commit.
 
-To fix this, we first check if there is a page in the cache which
-already consumed the reservation, and return -EEXIST immediately if so.
-
-There is still a rare condition where we fail to copy the page contents
-AND race with a call for hugetlb_no_page() for this index and again we
-will underflow resv_huge_pages.  That is fixed in a more complicated
-patch not targeted for -stable.
-
-Test:
-
-  Hacked the code locally such that resv_huge_pages underflows produce a
-  warning, then:
-
-  ./tools/testing/selftests/vm/userfaultfd hugetlb_shared 10
-	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-  ./tools/testing/selftests/vm/userfaultfd hugetlb 10
-	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-
-Both tests succeed and produce no warnings.  After the test runs number
-of free/resv hugepages is correct.
-
-[mike.kravetz@oracle.com: changelog fixes]
-
-Link: https://lkml.kernel.org/r/20210528004649.85298-1-almasrymina@google.com
-Fixes: 8fb5debc5fcd ("userfaultfd: hugetlbfs: add hugetlb_mcopy_atomic_pte for userfaultfd support")
-Signed-off-by: Mina Almasry <almasrymina@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 82abbf8d2fc4 ("bpf: do not allow root to mangle valid pointers")
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+[fllinden@amazon.com: backport to 4.14]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 2f769a661568..c69f12e4c149 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4154,10 +4154,20 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 	struct page *page;
- 
- 	if (!*pagep) {
--		ret = -ENOMEM;
-+		/* If a page already exists, then it's UFFDIO_COPY for
-+		 * a non-missing case. Return -EEXIST.
-+		 */
-+		if (vm_shared &&
-+		    hugetlbfs_pagecache_present(h, dst_vma, dst_addr)) {
-+			ret = -EEXIST;
-+			goto out;
-+		}
-+
- 		page = alloc_huge_page(dst_vma, dst_addr, 0);
--		if (IS_ERR(page))
-+		if (IS_ERR(page)) {
-+			ret = -ENOMEM;
- 			goto out;
-+		}
- 
- 		ret = copy_huge_page_from_user(page,
- 						(const void __user *) src_addr,
--- 
-2.30.2
-
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2754,7 +2754,7 @@ static int adjust_reg_min_max_vals(struc
+ 				 * an arbitrary scalar. Disallow all math except
+ 				 * pointer subtraction
+ 				 */
+-				if (opcode == BPF_SUB){
++				if (opcode == BPF_SUB && env->allow_ptr_leaks) {
+ 					mark_reg_unknown(regs, insn->dst_reg);
+ 					return 0;
+ 				}
 
 
