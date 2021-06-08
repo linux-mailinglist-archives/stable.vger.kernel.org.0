@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E39F3A0388
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CBF3A0253
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237085AbhFHTSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:18:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39610 "EHLO mail.kernel.org"
+        id S236302AbhFHTC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:02:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234614AbhFHTQI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:16:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D1AA61954;
-        Tue,  8 Jun 2021 18:50:47 +0000 (UTC)
+        id S237588AbhFHTA6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:00:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA53261874;
+        Tue,  8 Jun 2021 18:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178247;
-        bh=IWzbsvazQ/Rv68RMwi2/R6ZolNNYvus/0NQQowmYP0o=;
+        s=korg; t=1623177846;
+        bh=sjLsm0m61TxduIh14j8qvimTjjhrJSGvg02VhThmiRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ov9A4YTH0s/hNXeu8t2KQyZ84wP7Z1MVmLiLWo7+mjEh9TZXqCVWoiClUiIs3+j10
-         Ly2bvxJM3B0ozm8bXXdWFyQCOWsrDdQs+CjU2QmhBCgtMlNBbR9D2QwskC1lD7MPU5
-         4gsEoUNORArg0XVDQEpc0d1DeNkL6XkT736/8VbA=
+        b=mt1TbwruA+CVuHOYkLaBH+euS7kic/jlqQ5NFOM/RXV5fKzg9Wj03OwJXECenBdjY
+         93JEXIio4F0iOsjMvybJyt1rxJMcWxnhB4l0lRFuEu1KG4c9POjjyMG9kvOKVgeLP8
+         ie/vuAnWKsJSoyAvrqNQnd2DVV9BGPllFLIuWWR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pu Wen <puwen@hygon.cn>,
-        Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 5.12 132/161] x86/sev: Check SME/SEV support in CPUID first
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 122/137] btrfs: fixup error handling in fixup_inode_link_counts
 Date:   Tue,  8 Jun 2021 20:27:42 +0200
-Message-Id: <20210608175949.910197372@linuxfoundation.org>
+Message-Id: <20210608175946.504062873@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pu Wen <puwen@hygon.cn>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 009767dbf42ac0dbe3cf48c1ee224f6b778aa85a upstream.
+commit 011b28acf940eb61c000059dd9e2cfcbf52ed96b upstream.
 
-The first two bits of the CPUID leaf 0x8000001F EAX indicate whether SEV
-or SME is supported, respectively. It's better to check whether SEV or
-SME is actually supported before accessing the MSR_AMD64_SEV to check
-whether SEV or SME is enabled.
+This function has the following pattern
 
-This is both a bare-metal issue and a guest/VM issue. Since the first
-generation Hygon Dhyana CPU doesn't support the MSR_AMD64_SEV, reading that
-MSR results in a #GP - either directly from hardware in the bare-metal
-case or via the hypervisor (because the RDMSR is actually intercepted)
-in the guest/VM case, resulting in a failed boot. And since this is very
-early in the boot phase, rdmsrl_safe()/native_read_msr_safe() can't be
-used.
+	while (1) {
+		ret = whatever();
+		if (ret)
+			goto out;
+	}
+	ret = 0
+out:
+	return ret;
 
-So check the CPUID bits first, before accessing the MSR.
+However several places in this while loop we simply break; when there's
+a problem, thus clearing the return value, and in one case we do a
+return -EIO, and leak the memory for the path.
 
- [ tlendacky: Expand and improve commit message. ]
- [ bp: Massage commit message. ]
+Fix this by re-arranging the loop to deal with ret == 1 coming from
+btrfs_search_slot, and then simply delete the
 
-Fixes: eab696d8e8b9 ("x86/sev: Do not require Hypervisor CPUID bit for SEV guests")
-Signed-off-by: Pu Wen <puwen@hygon.cn>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: <stable@vger.kernel.org> # v5.10+
-Link: https://lkml.kernel.org/r/20210602070207.2480-1-puwen@hygon.cn
+	ret = 0;
+out:
+
+bit so everybody can break if there is an error, which will allow for
+proper error handling to occur.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/mem_encrypt_identity.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/btrfs/tree-log.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -504,10 +504,6 @@ void __init sme_enable(struct boot_param
- #define AMD_SME_BIT	BIT(0)
- #define AMD_SEV_BIT	BIT(1)
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1752,6 +1752,7 @@ static noinline int fixup_inode_link_cou
+ 			break;
  
--	/* Check the SEV MSR whether SEV or SME is enabled */
--	sev_status   = __rdmsr(MSR_AMD64_SEV);
--	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
--
- 	/*
- 	 * Check for the SME/SEV feature:
- 	 *   CPUID Fn8000_001F[EAX]
-@@ -519,11 +515,16 @@ void __init sme_enable(struct boot_param
- 	eax = 0x8000001f;
- 	ecx = 0;
- 	native_cpuid(&eax, &ebx, &ecx, &edx);
--	if (!(eax & feature_mask))
-+	/* Check whether SEV or SME is supported */
-+	if (!(eax & (AMD_SEV_BIT | AMD_SME_BIT)))
- 		return;
+ 		if (ret == 1) {
++			ret = 0;
+ 			if (path->slots[0] == 0)
+ 				break;
+ 			path->slots[0]--;
+@@ -1764,17 +1765,19 @@ static noinline int fixup_inode_link_cou
  
- 	me_mask = 1UL << (ebx & 0x3f);
+ 		ret = btrfs_del_item(trans, root, path);
+ 		if (ret)
+-			goto out;
++			break;
  
-+	/* Check the SEV MSR whether SEV or SME is enabled */
-+	sev_status   = __rdmsr(MSR_AMD64_SEV);
-+	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
-+
- 	/* Check if memory encryption is enabled */
- 	if (feature_mask == AMD_SME_BIT) {
+ 		btrfs_release_path(path);
+ 		inode = read_one_inode(root, key.offset);
+-		if (!inode)
+-			return -EIO;
++		if (!inode) {
++			ret = -EIO;
++			break;
++		}
+ 
+ 		ret = fixup_inode_link_count(trans, root, inode);
+ 		iput(inode);
+ 		if (ret)
+-			goto out;
++			break;
+ 
  		/*
+ 		 * fixup on a directory may create new entries,
+@@ -1783,8 +1786,6 @@ static noinline int fixup_inode_link_cou
+ 		 */
+ 		key.offset = (u64)-1;
+ 	}
+-	ret = 0;
+-out:
+ 	btrfs_release_path(path);
+ 	return ret;
+ }
 
 
