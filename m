@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 033B439FFAA
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7DA83A0021
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234809AbhFHSfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:35:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57600 "EHLO mail.kernel.org"
+        id S234578AbhFHSkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:40:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233360AbhFHSdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:33:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7C1E613DD;
-        Tue,  8 Jun 2021 18:31:22 +0000 (UTC)
+        id S233678AbhFHSid (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:38:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C722361407;
+        Tue,  8 Jun 2021 18:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177083;
-        bh=AV02ipyOdh3kjpYE7YbxqgoBr8BU02OKe5XbkPla8F4=;
+        s=korg; t=1623177214;
+        bh=6cJV/bFTBWuirAyc+fLW5eUUVNh2lfc29lMgUHvFxnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFZkt/Q/z0o7DFKPBsbzI18ednjJ/7SHwZ7mjRP2mXhsXqFScEsOdxDQt/kXKY3EC
-         OhukBYcY6oAL12s2+KBHW20ymAtZ0f/IcH7Ofc0v3cHE3GTZXdbBJGukJdVcmhkwQO
-         Oxd/iXHWINSLpgHQvkL2NC0LQn0MOyBcqAez3HjI=
+        b=pmBd3w3tXSpvCjveccEgo57RecheHLvmh5U5UuwYyxQIU5IzzkfTdPj5vdcLfQWv8
+         lf5+/njQBabrfC/MaxYa8SlZRL23l4QRy2f4VQkO8yucMcf40hZWlRRqRIQJu4aPyE
+         Y4BvXl/JI06btLY8hzINDVkp5MVOuhr79+TR7OKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 26/47] mm, hugetlb: fix simple resv_huge_pages underflow on UFFDIO_COPY
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Marek Vasut <marex@denx.de>,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Ludwig Zenz <lzenz@dh-electronics.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.19 28/58] ARM: dts: imx6q-dhcom: Add PU,VDD1P1,VDD2P5 regulators
 Date:   Tue,  8 Jun 2021 20:27:09 +0200
-Message-Id: <20210608175931.337829867@linuxfoundation.org>
+Message-Id: <20210608175933.214613488@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
-References: <20210608175930.477274100@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mina Almasry <almasrymina@google.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit d84cf06e3dd8c5c5b547b5d8931015fc536678e5 ]
+commit 8967b27a6c1c19251989c7ab33c058d16e4a5f53 upstream.
 
-The userfaultfd hugetlb tests cause a resv_huge_pages underflow.  This
-happens when hugetlb_mcopy_atomic_pte() is called with !is_continue on
-an index for which we already have a page in the cache.  When this
-happens, we allocate a second page, double consuming the reservation,
-and then fail to insert the page into the cache and return -EEXIST.
+Per schematic, both PU and SOC regulator are supplied from LTC3676 SW1
+via VDDSOC_IN rail, add the PU input. Both VDD1P1, VDD2P5 are supplied
+from LTC3676 SW2 via VDDHIGH_IN rail, add both inputs.
 
-To fix this, we first check if there is a page in the cache which
-already consumed the reservation, and return -EEXIST immediately if so.
+While no instability or problems are currently observed, the regulators
+should be fully described in DT and that description should fully match
+the hardware, else this might lead to unforseen issues later. Fix this.
 
-There is still a rare condition where we fail to copy the page contents
-AND race with a call for hugetlb_no_page() for this index and again we
-will underflow resv_huge_pages.  That is fixed in a more complicated
-patch not targeted for -stable.
-
-Test:
-
-  Hacked the code locally such that resv_huge_pages underflows produce a
-  warning, then:
-
-  ./tools/testing/selftests/vm/userfaultfd hugetlb_shared 10
-	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-  ./tools/testing/selftests/vm/userfaultfd hugetlb 10
-	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-
-Both tests succeed and produce no warnings.  After the test runs number
-of free/resv hugepages is correct.
-
-[mike.kravetz@oracle.com: changelog fixes]
-
-Link: https://lkml.kernel.org/r/20210528004649.85298-1-almasrymina@google.com
-Fixes: 8fb5debc5fcd ("userfaultfd: hugetlbfs: add hugetlb_mcopy_atomic_pte for userfaultfd support")
-Signed-off-by: Mina Almasry <almasrymina@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM and PDK2")
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Ludwig Zenz <lzenz@dh-electronics.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6q-dhcom-som.dtsi |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index e59e0f7ed562..0dc181290d1f 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4099,10 +4099,20 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 	struct page *page;
+--- a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
++++ b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+@@ -407,6 +407,18 @@
+ 	vin-supply = <&sw1_reg>;
+ };
  
- 	if (!*pagep) {
--		ret = -ENOMEM;
-+		/* If a page already exists, then it's UFFDIO_COPY for
-+		 * a non-missing case. Return -EEXIST.
-+		 */
-+		if (vm_shared &&
-+		    hugetlbfs_pagecache_present(h, dst_vma, dst_addr)) {
-+			ret = -EEXIST;
-+			goto out;
-+		}
++&reg_pu {
++	vin-supply = <&sw1_reg>;
++};
 +
- 		page = alloc_huge_page(dst_vma, dst_addr, 0);
--		if (IS_ERR(page))
-+		if (IS_ERR(page)) {
-+			ret = -ENOMEM;
- 			goto out;
-+		}
- 
- 		ret = copy_huge_page_from_user(page,
- 						(const void __user *) src_addr,
--- 
-2.30.2
-
++&reg_vdd1p1 {
++	vin-supply = <&sw2_reg>;
++};
++
++&reg_vdd2p5 {
++	vin-supply = <&sw2_reg>;
++};
++
+ &uart1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart1>;
 
 
