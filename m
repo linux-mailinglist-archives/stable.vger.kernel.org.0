@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6527339FF78
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7147F3A00C2
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234438AbhFHSda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:33:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
+        id S235277AbhFHSqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:46:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234430AbhFHSca (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B488613BC;
-        Tue,  8 Jun 2021 18:30:36 +0000 (UTC)
+        id S235778AbhFHSpC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:45:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BCEB613AC;
+        Tue,  8 Jun 2021 18:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177037;
-        bh=u/YoHiPNvaOjM6DSUbtCv9cuDvMIjhzS/H0FsmXQYhk=;
+        s=korg; t=1623177413;
+        bh=Yl7IPL85YzCd2CUddMcgindgnXZi0j50a/KS615JKeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1ecqlHdMex9EDLjmMArCL1OmZoCNlowmcIcaOATCHtaalPenNWr4LL0soVc9i4tn
-         2KsFI6I/LMYVakcqZsh+iN9XGYxMf++t3IB/hWRaCQHF2jTOocPSqiheL28HOjY+1w
-         iuSUR3l01Jmv7xotMtNXd6nvDP9nnpp7iKXukY9o=
+        b=whQqnslZcSy6+dRw4ElvTaVfIuOfoYnXplSeMkTyeii3pT91n/QfQOFZUpnE3ku6t
+         ZXzNMnDRmtUvRVYsRBfpFuavHJdooPJdzDkKDMFN112bHUKXg0duMW4szzG2b9p9cL
+         KAQR06no0FWLjX/gw5xM2ac1qr9VvEAZ7P7KUkR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 18/29] net: caif: fix memory leak in cfusbl_device_notify
+Subject: [PATCH 5.4 43/78] net: caif: fix memory leak in cfusbl_device_notify
 Date:   Tue,  8 Jun 2021 20:27:12 +0200
-Message-Id: <20210608175928.416437286@linuxfoundation.org>
+Message-Id: <20210608175936.713580543@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,7 +59,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/caif/caif_usb.c
 +++ b/net/caif/caif_usb.c
-@@ -116,6 +116,11 @@ static struct cflayer *cfusbl_create(int
+@@ -115,6 +115,11 @@ static struct cflayer *cfusbl_create(int
  	return (struct cflayer *) this;
  }
  
@@ -71,7 +71,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static struct packet_type caif_usb_type __read_mostly = {
  	.type = cpu_to_be16(ETH_P_802_EX1),
  };
-@@ -128,6 +133,7 @@ static int cfusbl_device_notify(struct n
+@@ -127,6 +132,7 @@ static int cfusbl_device_notify(struct n
  	struct cflayer *layer, *link_support;
  	struct usbnet *usbnet;
  	struct usb_device *usbdev;
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	/* Check whether we have a NCM device, and find its VID/PID. */
  	if (!(dev->dev.parent && dev->dev.parent->driver &&
-@@ -170,8 +176,11 @@ static int cfusbl_device_notify(struct n
+@@ -169,8 +175,11 @@ static int cfusbl_device_notify(struct n
  	if (dev->num_tx_queues > 1)
  		pr_warn("USB device uses more than one tx queue\n");
  
@@ -92,8 +92,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	if (!pack_added)
  		dev_add_pack(&caif_usb_type);
  	pack_added = true;
-@@ -181,6 +190,9 @@ static int cfusbl_device_notify(struct n
- 	layer->name[sizeof(layer->name) - 1] = 0;
+@@ -178,6 +187,9 @@ static int cfusbl_device_notify(struct n
+ 	strlcpy(layer->name, dev->name, sizeof(layer->name));
  
  	return 0;
 +err:
