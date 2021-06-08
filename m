@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1B13A0047
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B82D3A0100
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235115AbhFHSl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:41:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37652 "EHLO mail.kernel.org"
+        id S234156AbhFHSur (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:50:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235391AbhFHSj4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:39:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F13E6142D;
-        Tue,  8 Jun 2021 18:34:28 +0000 (UTC)
+        id S234350AbhFHSrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:47:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E3FC613DD;
+        Tue,  8 Jun 2021 18:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177269;
-        bh=W8PC+5cy/PBfmPbNY6yr9Y0XcPs97LVB5bTj8otjupU=;
+        s=korg; t=1623177473;
+        bh=L17dMDqViDJjliDQM2ImeP0qsqt21qLjtnutnvdm9kY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rf7P3Yyc1k1eFtuSB+ZZn8MF7JouBHr3NloJ43avI/lnSplzDjvQjIW0Sipx81EGB
-         2nXWRCOWQ0MII5v8EqwZpsTf7MvLMYPoMQpJCC+75S9GNLXGJr06y6mLHRQ5xYASLw
-         cfBg38+MOFcEo4hKcu7Wn71hbbgUmBLnFqjl9i40=
+        b=gsEvYUAGlXOHkGmFXCBAxAYSROzjx20lD8+Bqk1iHzMqnJnEO6WaSIi+qyEUbXsm8
+         b1iUzUPSWEnziFcVGW1TMCZW4IhbHWe7Wk6jSW77+2PkvvVUJYs0v6nIUWZEFIC2Rl
+         wpsSAdxOWSNEf4rIL+QbSGjnIpYZ//O/DAPY1D+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Borislav Petkov <bp@alien8.de>, Jiri Olsa <jolsa@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
+        stable@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@kernel.org>,
-        Wen Yang <wenyang@linux.alibaba.com>
-Subject: [PATCH 4.19 50/58] perf/cgroups: Dont rotate events for cgroups unnecessarily
-Date:   Tue,  8 Jun 2021 20:27:31 +0200
-Message-Id: <20210608175933.924635262@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 63/78] mm, hugetlb: fix simple resv_huge_pages underflow on UFFDIO_COPY
+Date:   Tue,  8 Jun 2021 20:27:32 +0200
+Message-Id: <20210608175937.401008718@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,149 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Mina Almasry <almasrymina@google.com>
 
-commit fd7d55172d1e2e501e6da0a5c1de25f06612dc2e upstream.
+[ Upstream commit d84cf06e3dd8c5c5b547b5d8931015fc536678e5 ]
 
-Currently perf_rotate_context assumes that if the context's nr_events !=
-nr_active a rotation is necessary for perf event multiplexing. With
-cgroups, nr_events is the total count of events for all cgroups and
-nr_active will not include events in a cgroup other than the current
-task's. This makes rotation appear necessary for cgroups when it is not.
+The userfaultfd hugetlb tests cause a resv_huge_pages underflow.  This
+happens when hugetlb_mcopy_atomic_pte() is called with !is_continue on
+an index for which we already have a page in the cache.  When this
+happens, we allocate a second page, double consuming the reservation,
+and then fail to insert the page into the cache and return -EEXIST.
 
-Add a perf_event_context flag that is set when rotation is necessary.
-Clear the flag during sched_out and set it when a flexible sched_in
-fails due to resources.
+To fix this, we first check if there is a page in the cache which
+already consumed the reservation, and return -EEXIST immediately if so.
 
-Signed-off-by: Ian Rogers <irogers@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Link: https://lkml.kernel.org/r/20190601082722.44543-1-irogers@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There is still a rare condition where we fail to copy the page contents
+AND race with a call for hugetlb_no_page() for this index and again we
+will underflow resv_huge_pages.  That is fixed in a more complicated
+patch not targeted for -stable.
+
+Test:
+
+  Hacked the code locally such that resv_huge_pages underflows produce a
+  warning, then:
+
+  ./tools/testing/selftests/vm/userfaultfd hugetlb_shared 10
+	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
+  ./tools/testing/selftests/vm/userfaultfd hugetlb 10
+	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
+
+Both tests succeed and produce no warnings.  After the test runs number
+of free/resv hugepages is correct.
+
+[mike.kravetz@oracle.com: changelog fixes]
+
+Link: https://lkml.kernel.org/r/20210528004649.85298-1-almasrymina@google.com
+Fixes: 8fb5debc5fcd ("userfaultfd: hugetlbfs: add hugetlb_mcopy_atomic_pte for userfaultfd support")
+Signed-off-by: Mina Almasry <almasrymina@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/perf_event.h |    5 +++++
- kernel/events/core.c       |   42 ++++++++++++++++++++++--------------------
- 2 files changed, 27 insertions(+), 20 deletions(-)
+ mm/hugetlb.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -747,6 +747,11 @@ struct perf_event_context {
- 	int				nr_stat;
- 	int				nr_freq;
- 	int				rotate_disable;
-+	/*
-+	 * Set when nr_events != nr_active, except tolerant to events not
-+	 * necessary to be active due to scheduling constraints, such as cgroups.
-+	 */
-+	int				rotate_necessary;
- 	atomic_t			refcount;
- 	struct task_struct		*task;
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 3b08e34a775d..fe15e7d8220a 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4338,10 +4338,20 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 	struct page *page;
  
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -2952,6 +2952,12 @@ static void ctx_sched_out(struct perf_ev
- 	if (!ctx->nr_active || !(is_active & EVENT_ALL))
- 		return;
- 
-+	/*
-+	 * If we had been multiplexing, no rotations are necessary, now no events
-+	 * are active.
-+	 */
-+	ctx->rotate_necessary = 0;
-+
- 	perf_pmu_disable(ctx->pmu);
- 	if (is_active & EVENT_PINNED) {
- 		list_for_each_entry_safe(event, tmp, &ctx->pinned_active, active_list)
-@@ -3319,10 +3325,13 @@ static int flexible_sched_in(struct perf
- 		return 0;
- 
- 	if (group_can_go_on(event, sid->cpuctx, sid->can_add_hw)) {
--		if (!group_sched_in(event, sid->cpuctx, sid->ctx))
--			list_add_tail(&event->active_list, &sid->ctx->flexible_active);
--		else
-+		int ret = group_sched_in(event, sid->cpuctx, sid->ctx);
-+		if (ret) {
- 			sid->can_add_hw = 0;
-+			sid->ctx->rotate_necessary = 1;
-+			return 0;
+ 	if (!*pagep) {
+-		ret = -ENOMEM;
++		/* If a page already exists, then it's UFFDIO_COPY for
++		 * a non-missing case. Return -EEXIST.
++		 */
++		if (vm_shared &&
++		    hugetlbfs_pagecache_present(h, dst_vma, dst_addr)) {
++			ret = -EEXIST;
++			goto out;
 +		}
-+		list_add_tail(&event->active_list, &sid->ctx->flexible_active);
- 	}
++
+ 		page = alloc_huge_page(dst_vma, dst_addr, 0);
+-		if (IS_ERR(page))
++		if (IS_ERR(page)) {
++			ret = -ENOMEM;
+ 			goto out;
++		}
  
- 	return 0;
-@@ -3690,24 +3699,17 @@ ctx_first_active(struct perf_event_conte
- static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
- {
- 	struct perf_event *cpu_event = NULL, *task_event = NULL;
--	bool cpu_rotate = false, task_rotate = false;
--	struct perf_event_context *ctx = NULL;
-+	struct perf_event_context *task_ctx = NULL;
-+	int cpu_rotate, task_rotate;
- 
- 	/*
- 	 * Since we run this from IRQ context, nobody can install new
- 	 * events, thus the event count values are stable.
- 	 */
- 
--	if (cpuctx->ctx.nr_events) {
--		if (cpuctx->ctx.nr_events != cpuctx->ctx.nr_active)
--			cpu_rotate = true;
--	}
--
--	ctx = cpuctx->task_ctx;
--	if (ctx && ctx->nr_events) {
--		if (ctx->nr_events != ctx->nr_active)
--			task_rotate = true;
--	}
-+	cpu_rotate = cpuctx->ctx.rotate_necessary;
-+	task_ctx = cpuctx->task_ctx;
-+	task_rotate = task_ctx ? task_ctx->rotate_necessary : 0;
- 
- 	if (!(cpu_rotate || task_rotate))
- 		return false;
-@@ -3716,7 +3718,7 @@ static bool perf_rotate_context(struct p
- 	perf_pmu_disable(cpuctx->ctx.pmu);
- 
- 	if (task_rotate)
--		task_event = ctx_first_active(ctx);
-+		task_event = ctx_first_active(task_ctx);
- 	if (cpu_rotate)
- 		cpu_event = ctx_first_active(&cpuctx->ctx);
- 
-@@ -3724,17 +3726,17 @@ static bool perf_rotate_context(struct p
- 	 * As per the order given at ctx_resched() first 'pop' task flexible
- 	 * and then, if needed CPU flexible.
- 	 */
--	if (task_event || (ctx && cpu_event))
--		ctx_sched_out(ctx, cpuctx, EVENT_FLEXIBLE);
-+	if (task_event || (task_ctx && cpu_event))
-+		ctx_sched_out(task_ctx, cpuctx, EVENT_FLEXIBLE);
- 	if (cpu_event)
- 		cpu_ctx_sched_out(cpuctx, EVENT_FLEXIBLE);
- 
- 	if (task_event)
--		rotate_ctx(ctx, task_event);
-+		rotate_ctx(task_ctx, task_event);
- 	if (cpu_event)
- 		rotate_ctx(&cpuctx->ctx, cpu_event);
- 
--	perf_event_sched_in(cpuctx, ctx, current);
-+	perf_event_sched_in(cpuctx, task_ctx, current);
- 
- 	perf_pmu_enable(cpuctx->ctx.pmu);
- 	perf_ctx_unlock(cpuctx, cpuctx->task_ctx);
+ 		ret = copy_huge_page_from_user(page,
+ 						(const void __user *) src_addr,
+-- 
+2.30.2
+
 
 
