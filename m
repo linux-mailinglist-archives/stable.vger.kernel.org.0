@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C71E3A0234
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A22D43A0365
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235687AbhFHTBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33092 "EHLO mail.kernel.org"
+        id S237536AbhFHTQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:16:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236374AbhFHS7Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:59:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BCD861445;
-        Tue,  8 Jun 2021 18:43:17 +0000 (UTC)
+        id S237103AbhFHTOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:14:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CABC2610A2;
+        Tue,  8 Jun 2021 18:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177798;
-        bh=68GdZ998arAE01h8FdAc62IQtcrv7/RKbR8ZMV5Q5nc=;
+        s=korg; t=1623178201;
+        bh=AMWQ/w5E8AQa19L0RESJPij7OIgsmldXTH4+NicuEP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nIYIhzjpg3kXuSGGjuj9cTbwN5dyjH1IyXXT5rkqsP75GKpe0oP+glZPJ1ir3gout
-         nA0ZbOdBcka7OVo2sRsqvmnel8bTe18xigkByc40SfoW6T87lBNws6Hr3eXdGir2f+
-         PCaMuufMHBcXBVipzTpSElraSyu8/ce0j4mI64VM=
+        b=MEKj/CAhwyouwJQaXmltpy9/P/5W6SI9P8ehfv0xZ84TsurfsYV7kyu6cJCAcrk+5
+         LAvNoFQFB3hHlLpQ2qH23ll+jmG7u1xfUO7uYzeP5DBqWuJv09f+MACGV6J8LG7Hk/
+         41y21aN6vDH0rP76hQd2Uf3LDzcvpQQhTc81YzNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 103/137] ext4: fix bug on in ext4_es_cache_extent as ext4_split_extent_at failed
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 113/161] ALSA: hda: update the power_state during the direct-complete
 Date:   Tue,  8 Jun 2021 20:27:23 +0200
-Message-Id: <20210608175945.871224813@linuxfoundation.org>
+Message-Id: <20210608175949.280251795@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,114 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 082cd4ec240b8734a82a89ffb890216ac98fec68 upstream.
+commit b8b90c17602689eeaa5b219d104bbc215d1225cc upstream.
 
-We got follow bug_on when run fsstress with injecting IO fault:
-[130747.323114] kernel BUG at fs/ext4/extents_status.c:762!
-[130747.323117] Internal error: Oops - BUG: 0 [#1] SMP
-......
-[130747.334329] Call trace:
-[130747.334553]  ext4_es_cache_extent+0x150/0x168 [ext4]
-[130747.334975]  ext4_cache_extents+0x64/0xe8 [ext4]
-[130747.335368]  ext4_find_extent+0x300/0x330 [ext4]
-[130747.335759]  ext4_ext_map_blocks+0x74/0x1178 [ext4]
-[130747.336179]  ext4_map_blocks+0x2f4/0x5f0 [ext4]
-[130747.336567]  ext4_mpage_readpages+0x4a8/0x7a8 [ext4]
-[130747.336995]  ext4_readpage+0x54/0x100 [ext4]
-[130747.337359]  generic_file_buffered_read+0x410/0xae8
-[130747.337767]  generic_file_read_iter+0x114/0x190
-[130747.338152]  ext4_file_read_iter+0x5c/0x140 [ext4]
-[130747.338556]  __vfs_read+0x11c/0x188
-[130747.338851]  vfs_read+0x94/0x150
-[130747.339110]  ksys_read+0x74/0xf0
+The patch_realtek.c needs to check if the power_state.event equals
+PM_EVENT_SUSPEND, after using the direct-complete, the suspend() and
+resume() will be skipped if the codec is already rt_suspended, in this
+case, the patch_realtek.c will always get PM_EVENT_ON even the system
+is really resumed from S3.
 
-This patch's modification is according to Jan Kara's suggestion in:
-https://patchwork.ozlabs.org/project/linux-ext4/patch/20210428085158.3728201-1-yebin10@huawei.com/
-"I see. Now I understand your patch. Honestly, seeing how fragile is trying
-to fix extent tree after split has failed in the middle, I would probably
-go even further and make sure we fix the tree properly in case of ENOSPC
-and EDQUOT (those are easily user triggerable).  Anything else indicates a
-HW problem or fs corruption so I'd rather leave the extent tree as is and
-don't try to fix it (which also means we will not create overlapping
-extents)."
+We could set power_state to PMSG_SUSPEND in the prepare(), if other
+PM functions are called before complete(), those functions will
+override power_state; if no other PM functions are called before
+complete(), we could know the suspend() and resume() are skipped since
+only S3 pm functions could be skipped by direct-complete, in this case
+set power_state to PMSG_RESUME in the complete(). This could guarantee
+the first time of calling hda_codec_runtime_resume() after complete()
+has the correct power_state.
 
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210506141042.3298679-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 215a22ed31a1 ("ALSA: hda: Refactor codec PM to use direct-complete optimization")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210602145424.3132-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents.c |   43 +++++++++++++++++++++++--------------------
- 1 file changed, 23 insertions(+), 20 deletions(-)
+ sound/pci/hda/hda_codec.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -3206,7 +3206,10 @@ static int ext4_split_extent_at(handle_t
- 		ext4_ext_mark_unwritten(ex2);
- 
- 	err = ext4_ext_insert_extent(handle, inode, ppath, &newex, flags);
--	if (err == -ENOSPC && (EXT4_EXT_MAY_ZEROOUT & split_flag)) {
-+	if (err != -ENOSPC && err != -EDQUOT)
-+		goto out;
-+
-+	if (EXT4_EXT_MAY_ZEROOUT & split_flag) {
- 		if (split_flag & (EXT4_EXT_DATA_VALID1|EXT4_EXT_DATA_VALID2)) {
- 			if (split_flag & EXT4_EXT_DATA_VALID1) {
- 				err = ext4_ext_zeroout(inode, ex2);
-@@ -3232,25 +3235,22 @@ static int ext4_split_extent_at(handle_t
- 					      ext4_ext_pblock(&orig_ex));
- 		}
- 
--		if (err)
--			goto fix_extent_len;
--		/* update the extent length and mark as initialized */
--		ex->ee_len = cpu_to_le16(ee_len);
--		ext4_ext_try_to_merge(handle, inode, path, ex);
--		err = ext4_ext_dirty(handle, inode, path + path->p_depth);
--		if (err)
--			goto fix_extent_len;
--
--		/* update extent status tree */
--		err = ext4_zeroout_es(inode, &zero_ex);
--
--		goto out;
--	} else if (err)
--		goto fix_extent_len;
--
--out:
--	ext4_ext_show_leaf(inode, path);
--	return err;
-+		if (!err) {
-+			/* update the extent length and mark as initialized */
-+			ex->ee_len = cpu_to_le16(ee_len);
-+			ext4_ext_try_to_merge(handle, inode, path, ex);
-+			err = ext4_ext_dirty(handle, inode, path + path->p_depth);
-+			if (!err)
-+				/* update extent status tree */
-+				err = ext4_zeroout_es(inode, &zero_ex);
-+			/* If we failed at this point, we don't know in which
-+			 * state the extent tree exactly is so don't try to fix
-+			 * length of the original extent as it may do even more
-+			 * damage.
-+			 */
-+			goto out;
-+		}
-+	}
- 
- fix_extent_len:
- 	ex->ee_len = orig_ex.ee_len;
-@@ -3260,6 +3260,9 @@ fix_extent_len:
- 	 */
- 	ext4_ext_dirty(handle, inode, path + path->p_depth);
- 	return err;
-+out:
-+	ext4_ext_show_leaf(inode, path);
-+	return err;
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -2973,6 +2973,7 @@ static int hda_codec_runtime_resume(stru
+ #ifdef CONFIG_PM_SLEEP
+ static int hda_codec_pm_prepare(struct device *dev)
+ {
++	dev->power.power_state = PMSG_SUSPEND;
+ 	return pm_runtime_suspended(dev);
  }
  
- /*
+@@ -2980,6 +2981,10 @@ static void hda_codec_pm_complete(struct
+ {
+ 	struct hda_codec *codec = dev_to_hda_codec(dev);
+ 
++	/* If no other pm-functions are called between prepare() and complete() */
++	if (dev->power.power_state.event == PM_EVENT_SUSPEND)
++		dev->power.power_state = PMSG_RESUME;
++
+ 	if (pm_runtime_suspended(dev) && (codec->jackpoll_interval ||
+ 	    hda_codec_need_resume(codec) || codec->forced_resume))
+ 		pm_request_resume(dev);
 
 
