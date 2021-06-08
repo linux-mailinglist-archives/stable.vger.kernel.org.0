@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F252B3A01B5
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 450D53A0323
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:23:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234237AbhFHSz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:55:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
+        id S237760AbhFHTNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:13:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236039AbhFHSwN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:52:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1874C61437;
-        Tue,  8 Jun 2021 18:40:13 +0000 (UTC)
+        id S235638AbhFHTLJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:11:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61C596198D;
+        Tue,  8 Jun 2021 18:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177614;
-        bh=pUEkEKH47uM49R0RYwPW4vj88ZTNp1U1Qmym9ij0Lvw=;
+        s=korg; t=1623178133;
+        bh=tqoV/Xwjut6DEwcg/4mFsrEXaywVMFNdFvEo1H/Npc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A2GOzXEripgaIzMdX2ohW92qdGupVivSu1oeRZ1reQQcH5TcMtfQloujsBbIVjet+
-         sj22dHsZKIHGRhtgx8p6CBRZRKrEbB4LTVrzKoUZr0R8uiXRf/k+E2+stf8MEViNi4
-         B9Jvt6ztfWHBMdSDtMx+3+F5EpUVOd2Xy+//1x+I=
+        b=oylZdIJzJBWpzS+zMq9vui/xPc03LqIH17ho7CVgE+Q9jBW0DNea9WjPI4AYm/qUC
+         sG3Bv0rgqmj8C17QoAOoIcsdraVzo7I/BJhSgQHlmf2YcmmURnjlpshjLVZSCQZDVZ
+         fgh1vN7diVRcYR3yTklO3419PJtf+fT8TJZjTJaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/137] netfilter: nfnetlink_cthelper: hit EBUSY on updates if size mismatches
+Subject: [PATCH 5.12 045/161] ieee802154: fix error return code in ieee802154_llsec_getparams()
 Date:   Tue,  8 Jun 2021 20:26:15 +0200
-Message-Id: <20210608175943.601575756@linuxfoundation.org>
+Message-Id: <20210608175946.989033328@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 8971ee8b087750a23f3cd4dc55bff2d0303fd267 ]
+[ Upstream commit 373e864cf52403b0974c2f23ca8faf9104234555 ]
 
-The private helper data size cannot be updated. However, updates that
-contain NFCTH_PRIV_DATA_LEN might bogusly hit EBUSY even if the size is
-the same.
+Fix to return negative error code -ENOBUFS from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 12f7a505331e ("netfilter: add user-space connection tracking helper infrastructure")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 3e9c156e2c21 ("ieee802154: add netlink interfaces for llsec")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20210519141614.3040055-1-weiyongjun1@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_cthelper.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/ieee802154/nl-mac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nfnetlink_cthelper.c b/net/netfilter/nfnetlink_cthelper.c
-index 5b0d0a77379c..91afbf8ac8cf 100644
---- a/net/netfilter/nfnetlink_cthelper.c
-+++ b/net/netfilter/nfnetlink_cthelper.c
-@@ -380,10 +380,14 @@ static int
- nfnl_cthelper_update(const struct nlattr * const tb[],
- 		     struct nf_conntrack_helper *helper)
- {
-+	u32 size;
- 	int ret;
- 
--	if (tb[NFCTH_PRIV_DATA_LEN])
--		return -EBUSY;
-+	if (tb[NFCTH_PRIV_DATA_LEN]) {
-+		size = ntohl(nla_get_be32(tb[NFCTH_PRIV_DATA_LEN]));
-+		if (size != helper->data_len)
-+			return -EBUSY;
+diff --git a/net/ieee802154/nl-mac.c b/net/ieee802154/nl-mac.c
+index 0c1b0770c59e..c23c152860b7 100644
+--- a/net/ieee802154/nl-mac.c
++++ b/net/ieee802154/nl-mac.c
+@@ -680,8 +680,10 @@ int ieee802154_llsec_getparams(struct sk_buff *skb, struct genl_info *info)
+ 	    nla_put_u8(msg, IEEE802154_ATTR_LLSEC_SECLEVEL, params.out_level) ||
+ 	    nla_put_u32(msg, IEEE802154_ATTR_LLSEC_FRAME_COUNTER,
+ 			be32_to_cpu(params.frame_counter)) ||
+-	    ieee802154_llsec_fill_key_id(msg, &params.out_key))
++	    ieee802154_llsec_fill_key_id(msg, &params.out_key)) {
++		rc = -ENOBUFS;
+ 		goto out_free;
 +	}
  
- 	if (tb[NFCTH_POLICY]) {
- 		ret = nfnl_cthelper_update_policy(helper, tb[NFCTH_POLICY]);
+ 	dev_put(dev);
+ 
 -- 
 2.30.2
 
