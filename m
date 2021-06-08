@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4DE53A0102
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A117F3A00FF
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:48:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234118AbhFHSus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:50:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42532 "EHLO mail.kernel.org"
+        id S234371AbhFHSuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:50:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235107AbhFHSrU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:47:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A95E6613C3;
-        Tue,  8 Jun 2021 18:37:55 +0000 (UTC)
+        id S235615AbhFHSrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:47:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4177761406;
+        Tue,  8 Jun 2021 18:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177476;
-        bh=jqKA3ceQSt2X0YUX2MLM3uyTurwTYgRVoeoavKSo7Gk=;
+        s=korg; t=1623177479;
+        bh=BtUMkyt4Ii44XjnnzVn2lkfQX5Yt3RcOKD83rvHMfwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbCKoLqUe1p3BAjZTO72mrb9/4B7Wkbo1op1d1OT127c5JF9MLESrReq4L98SGfVc
-         xUhXuqjYFfoJyq07KqtGpcxnvCAXXK6mpDbH+grdyCBkSSF17cnDptHbQCfG0vUCue
-         ZyTazzV7c39+mIc+lCinjfxacKD+4lAkqbnyPNxA=
+        b=uJ5V0M499dVw/fEoAIYOEqUD9x2ZJblacjDMKxS0f5CXm9Sh2XjpLmuwZCHf+fDpv
+         9uMwtUS3fJT8slXLBim87uDPX8fJNSydMqUnlTt5Hr5Gw3skCAHakK+/oS2mCvUnQS
+         sZw8v8xrcw6M6tf6EYrD3RDMaO8LFOXbxa1nFCNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH 5.4 64/78] bnxt_en: Remove the setting of dev_port.
-Date:   Tue,  8 Jun 2021 20:27:33 +0200
-Message-Id: <20210608175937.432125502@linuxfoundation.org>
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        William Kucharski <william.kucharski@oracle.com>,
+        Zi Yan <ziy@nvidia.com>, David Hildenbrand <david@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 65/78] mm: add thp_order
+Date:   Tue,  8 Jun 2021 20:27:34 +0200
+Message-Id: <20210608175937.462236794@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
 References: <20210608175935.254388043@linuxfoundation.org>
@@ -40,32 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-commit 1d86859fdf31a0d50cc82b5d0d6bfb5fe98f6c00 upstream.
+commit 6ffbb45826f5d9ae09aa60cd88594b7816c96190 upstream
 
-The dev_port is meant to distinguish the network ports belonging to
-the same PCI function.  Our devices only have one network port
-associated with each PCI function and so we should not set it for
-correctness.
+This function returns the order of a transparent huge page.  It compiles
+to 0 if CONFIG_TRANSPARENT_HUGEPAGE is disabled.
 
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: William Kucharski <william.kucharski@oracle.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Link: http://lkml.kernel.org/r/20200629151959.15779-4-willy@infradead.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    1 -
- 1 file changed, 1 deletion(-)
+ include/linux/huge_mm.h |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -7003,7 +7003,6 @@ static int __bnxt_hwrm_func_qcaps(struct
+--- a/include/linux/huge_mm.h
++++ b/include/linux/huge_mm.h
+@@ -231,6 +231,19 @@ static inline spinlock_t *pud_trans_huge
+ 	else
+ 		return NULL;
+ }
++
++/**
++ * thp_order - Order of a transparent huge page.
++ * @page: Head page of a transparent huge page.
++ */
++static inline unsigned int thp_order(struct page *page)
++{
++	VM_BUG_ON_PGFLAGS(PageTail(page), page);
++	if (PageHead(page))
++		return HPAGE_PMD_ORDER;
++	return 0;
++}
++
+ static inline int hpage_nr_pages(struct page *page)
+ {
+ 	if (unlikely(PageTransHuge(page)))
+@@ -290,6 +303,12 @@ static inline struct list_head *page_def
+ #define HPAGE_PUD_MASK ({ BUILD_BUG(); 0; })
+ #define HPAGE_PUD_SIZE ({ BUILD_BUG(); 0; })
  
- 		pf->fw_fid = le16_to_cpu(resp->fid);
- 		pf->port_id = le16_to_cpu(resp->port_id);
--		bp->dev->dev_port = pf->port_id;
- 		memcpy(pf->mac_addr, resp->mac_address, ETH_ALEN);
- 		pf->first_vf_id = le16_to_cpu(resp->first_vf_id);
- 		pf->max_vfs = le16_to_cpu(resp->max_vfs);
++static inline unsigned int thp_order(struct page *page)
++{
++	VM_BUG_ON_PGFLAGS(PageTail(page), page);
++	return 0;
++}
++
+ #define hpage_nr_pages(x) 1
+ 
+ static inline bool __transparent_hugepage_enabled(struct vm_area_struct *vma)
 
 
