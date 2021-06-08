@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D7F3A01BA
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2087D3A02F4
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236269AbhFHS4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:56:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52366 "EHLO mail.kernel.org"
+        id S236689AbhFHTL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236128AbhFHSxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:53:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CE6161581;
-        Tue,  8 Jun 2021 18:40:46 +0000 (UTC)
+        id S236587AbhFHTHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:07:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56E0261936;
+        Tue,  8 Jun 2021 18:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177647;
-        bh=+t6uQPZcqPVlDATyiK+NAmZrqVo6tWTJWsMDATrYTIM=;
+        s=korg; t=1623178050;
+        bh=8PJQ36XYeX7phTM+gqsIOFqb+x2uLV62kLU0PZKccTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zgeiJZiMbH1frgwlVHWYCcW+RzEmB4X7vsWtMYgEUxaLkTvDB6cEQ5XwoH6y4DbZ0
-         f8mF3kVNooKGmEksbUEV4JkvpxUI6eQhWnLpR6tw/8101UyPwCxkGhptrhkTMtTFi8
-         LSPNldcBvVIZkhY0bUa1FqjLcc9AbRx3uRP1/YgE=
+        b=y7KedI61gOmlvD7WciT+VXVkWQARfWayxKw6HODZr8tkjRpI/XP6zOOidMozLxFm3
+         Y1zaZe2wH7VYeQ3WmsiM8pXsWWSK//+9LZk63CJk86EU8gtxXLUQh2ZAjKe1hCAPMQ
+         HvqxFjV6AH1qVItvE1nyjKR5utQGzAHJBb3eDIJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/137] ice: Allow all LLDP packets from PF to Tx
+Subject: [PATCH 5.12 059/161] cxgb4: avoid link re-train during TC-MQPRIO configuration
 Date:   Tue,  8 Jun 2021 20:26:29 +0200
-Message-Id: <20210608175944.062320025@linuxfoundation.org>
+Message-Id: <20210608175947.463909161@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +41,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Ertman <david.m.ertman@intel.com>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit f9f83202b7263ac371d616d6894a2c9ed79158ef ]
+[ Upstream commit 3822d0670c9d4342794d73e0d0e615322b40438e ]
 
-Currently in the ice driver, the check whether to
-allow a LLDP packet to egress the interface from the
-PF_VSI is being based on the SKB's priority field.
-It checks to see if the packets priority is equal to
-TC_PRIO_CONTROL.  Injected LLDP packets do not always
-meet this condition.
+When configuring TC-MQPRIO offload, only turn off netdev carrier and
+don't bring physical link down in hardware. Otherwise, when the
+physical link is brought up again after configuration, it gets
+re-trained and stalls ongoing traffic.
 
-SCAPY defaults to a sk_buff->protocol value of ETH_P_ALL
-(0x0003) and does not set the priority field.  There will
-be other injection methods (even ones used by end users)
-that will not correctly configure the socket so that
-SKB fields are correctly populated.
+Also, when firmware is no longer accessible or crashed, avoid sending
+FLOWC and waiting for reply that will never come.
 
-Then ethernet header has to have to correct value for
-the protocol though.
+Fix following hung_task_timeout_secs trace seen in these cases.
 
-Add a check to also allow packets whose ethhdr->h_proto
-matches ETH_P_LLDP (0x88CC).
+INFO: task tc:20807 blocked for more than 122 seconds.
+      Tainted: G S                5.13.0-rc3+ #122
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:tc   state:D stack:14768 pid:20807 ppid: 19366 flags:0x00000000
+Call Trace:
+ __schedule+0x27b/0x6a0
+ schedule+0x37/0xa0
+ schedule_preempt_disabled+0x5/0x10
+ __mutex_lock.isra.14+0x2a0/0x4a0
+ ? netlink_lookup+0x120/0x1a0
+ ? rtnl_fill_ifinfo+0x10f0/0x10f0
+ __netlink_dump_start+0x70/0x250
+ rtnetlink_rcv_msg+0x28b/0x380
+ ? rtnl_fill_ifinfo+0x10f0/0x10f0
+ ? rtnl_calcit.isra.42+0x120/0x120
+ netlink_rcv_skb+0x4b/0xf0
+ netlink_unicast+0x1a0/0x280
+ netlink_sendmsg+0x216/0x440
+ sock_sendmsg+0x56/0x60
+ __sys_sendto+0xe9/0x150
+ ? handle_mm_fault+0x6d/0x1b0
+ ? do_user_addr_fault+0x1c5/0x620
+ __x64_sys_sendto+0x1f/0x30
+ do_syscall_64+0x3c/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f7f73218321
+RSP: 002b:00007ffd19626208 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 000055b7c0a8b240 RCX: 00007f7f73218321
+RDX: 0000000000000028 RSI: 00007ffd19626210 RDI: 0000000000000003
+RBP: 000055b7c08680ff R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000055b7c085f5f6
+R13: 000055b7c085f60a R14: 00007ffd19636470 R15: 00007ffd196262a0
 
-Fixes: 0c3a6101ff2d ("ice: Allow egress control packets from PF_VSI")
-Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: b1396c2bd675 ("cxgb4: parse and configure TC-MQPRIO offload")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_txrx.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4.h           | 2 --
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c      | 4 ++--
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c | 9 ++++++---
+ drivers/net/ethernet/chelsio/cxgb4/sge.c             | 6 ++++++
+ 4 files changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.c b/drivers/net/ethernet/intel/ice/ice_txrx.c
-index 0f2544c420ac..1510091a63e8 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.c
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.c
-@@ -2373,6 +2373,7 @@ ice_xmit_frame_ring(struct sk_buff *skb, struct ice_ring *tx_ring)
- 	struct ice_tx_offload_params offload = { 0 };
- 	struct ice_vsi *vsi = tx_ring->vsi;
- 	struct ice_tx_buf *first;
-+	struct ethhdr *eth;
- 	unsigned int count;
- 	int tso, csum;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4.h
+index 314f8d806723..9058f09f921e 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4.h
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4.h
+@@ -2177,8 +2177,6 @@ int cxgb4_update_mac_filt(struct port_info *pi, unsigned int viid,
+ 			  bool persistent, u8 *smt_idx);
+ int cxgb4_get_msix_idx_from_bmap(struct adapter *adap);
+ void cxgb4_free_msix_idx_in_bmap(struct adapter *adap, u32 msix_idx);
+-int cxgb_open(struct net_device *dev);
+-int cxgb_close(struct net_device *dev);
+ void cxgb4_enable_rx(struct adapter *adap, struct sge_rspq *q);
+ void cxgb4_quiesce_rx(struct sge_rspq *q);
+ int cxgb4_port_mirror_alloc(struct net_device *dev);
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+index 421bd9b88028..1f601de02e70 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+@@ -2834,7 +2834,7 @@ static void cxgb_down(struct adapter *adapter)
+ /*
+  * net_device operations
+  */
+-int cxgb_open(struct net_device *dev)
++static int cxgb_open(struct net_device *dev)
+ {
+ 	struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;
+@@ -2882,7 +2882,7 @@ out_unlock:
+ 	return err;
+ }
  
-@@ -2419,7 +2420,9 @@ ice_xmit_frame_ring(struct sk_buff *skb, struct ice_ring *tx_ring)
- 		goto out_drop;
+-int cxgb_close(struct net_device *dev)
++static int cxgb_close(struct net_device *dev)
+ {
+ 	struct port_info *pi = netdev_priv(dev);
+ 	struct adapter *adapter = pi->adapter;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c
+index 6c259de96f96..338b04f339b3 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c
+@@ -589,7 +589,8 @@ int cxgb4_setup_tc_mqprio(struct net_device *dev,
+ 	 * down before configuring tc params.
+ 	 */
+ 	if (netif_running(dev)) {
+-		cxgb_close(dev);
++		netif_tx_stop_all_queues(dev);
++		netif_carrier_off(dev);
+ 		needs_bring_up = true;
+ 	}
  
- 	/* allow CONTROL frames egress from main VSI if FW LLDP disabled */
--	if (unlikely(skb->priority == TC_PRIO_CONTROL &&
-+	eth = (struct ethhdr *)skb_mac_header(skb);
-+	if (unlikely((skb->priority == TC_PRIO_CONTROL ||
-+		      eth->h_proto == htons(ETH_P_LLDP)) &&
- 		     vsi->type == ICE_VSI_PF &&
- 		     vsi->port_info->qos_cfg.is_sw_lldp))
- 		offload.cd_qw1 |= (u64)(ICE_TX_DESC_DTYPE_CTX |
+@@ -615,8 +616,10 @@ int cxgb4_setup_tc_mqprio(struct net_device *dev,
+ 	}
+ 
+ out:
+-	if (needs_bring_up)
+-		cxgb_open(dev);
++	if (needs_bring_up) {
++		netif_tx_start_all_queues(dev);
++		netif_carrier_on(dev);
++	}
+ 
+ 	mutex_unlock(&adap->tc_mqprio->mqprio_mutex);
+ 	return ret;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/sge.c b/drivers/net/ethernet/chelsio/cxgb4/sge.c
+index 1e5f2edb70cf..6a099cb34b12 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
+@@ -2556,6 +2556,12 @@ int cxgb4_ethofld_send_flowc(struct net_device *dev, u32 eotid, u32 tc)
+ 	if (!eosw_txq)
+ 		return -ENOMEM;
+ 
++	if (!(adap->flags & CXGB4_FW_OK)) {
++		/* Don't stall caller when access to FW is lost */
++		complete(&eosw_txq->completion);
++		return -EIO;
++	}
++
+ 	skb = alloc_skb(len, GFP_KERNEL);
+ 	if (!skb)
+ 		return -ENOMEM;
 -- 
 2.30.2
 
