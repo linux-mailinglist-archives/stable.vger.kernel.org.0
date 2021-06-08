@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E139639FF18
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:28:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6492F39FF3D
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233498AbhFHSam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:30:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55022 "EHLO mail.kernel.org"
+        id S234207AbhFHSbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:31:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233355AbhFHSal (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:30:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F336261352;
-        Tue,  8 Jun 2021 18:28:33 +0000 (UTC)
+        id S234102AbhFHSbW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:31:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3097761380;
+        Tue,  8 Jun 2021 18:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176914;
-        bh=Ue9lbIDJj0P2m0BfjmqXGYFaocepRpggYF4jKEqrpKY=;
+        s=korg; t=1623176969;
+        bh=/Ueu+gHi1Uho74xw/9eGVNvSu23XZzuEm36YJ+QvgP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kap+4WyI+Cco9tXD1Ni2MR9p3Pq1bV8jruJsEYeeO+w2MHXjShf27pyv4JeaJyigl
-         3KtW8LwvVy2ASyRHNo9DhMkI5Kx7QjXW8NvhnohvUKPI45s2oRUwWkLaBkwbySgeUw
-         66wNbOWRO1j0jCnVlnJWPsaLpSebIDLw+afgROdk=
+        b=FaYfXJNsBs3rQm/7rprBWIQh4v8rx7nvRM60mJ4NT/h314/Ij9r0FikmbXj4J/9Fi
+         Ltk+xJMeRQbGWNr+8P0DT6dmZ8e5mz9OKZPXmoauoC18ad8yzm3XnV8OnctKV2KXbt
+         /Z9T7dptzAXhytK9adWYBs+SqhyjmHFWCfXx5JXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Grant Grundler <grundler@chromium.org>,
+        Hayes Wang <hayeswang@realtek.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/23] vfio/pci: Fix error return code in vfio_ecap_init()
-Date:   Tue,  8 Jun 2021 20:26:54 +0200
-Message-Id: <20210608175926.609575454@linuxfoundation.org>
+Subject: [PATCH 4.9 01/29] net: usb: cdc_ncm: dont spew notifications
+Date:   Tue,  8 Jun 2021 20:26:55 +0200
+Message-Id: <20210608175927.872295539@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175926.524658689@linuxfoundation.org>
-References: <20210608175926.524658689@linuxfoundation.org>
+In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
+References: <20210608175927.821075974@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,37 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Grant Grundler <grundler@chromium.org>
 
-[ Upstream commit d1ce2c79156d3baf0830990ab06d296477b93c26 ]
+[ Upstream commit de658a195ee23ca6aaffe197d1d2ea040beea0a2 ]
 
-The error code returned from vfio_ext_cap_len() is stored in 'len', not
-in 'ret'.
+RTL8156 sends notifications about every 32ms.
+Only display/log notifications when something changes.
 
-Fixes: 89e1f7d4c66d ("vfio: Add PCI device driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Message-Id: <20210515020458.6771-1-thunder.leizhen@huawei.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+This issue has been reported by others:
+	https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1832472
+	https://lkml.org/lkml/2020/8/27/1083
+
+...
+[785962.779840] usb 1-1: new high-speed USB device number 5 using xhci_hcd
+[785962.929944] usb 1-1: New USB device found, idVendor=0bda, idProduct=8156, bcdDevice=30.00
+[785962.929949] usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=6
+[785962.929952] usb 1-1: Product: USB 10/100/1G/2.5G LAN
+[785962.929954] usb 1-1: Manufacturer: Realtek
+[785962.929956] usb 1-1: SerialNumber: 000000001
+[785962.991755] usbcore: registered new interface driver cdc_ether
+[785963.017068] cdc_ncm 1-1:2.0: MAC-Address: 00:24:27:88:08:15
+[785963.017072] cdc_ncm 1-1:2.0: setting rx_max = 16384
+[785963.017169] cdc_ncm 1-1:2.0: setting tx_max = 16384
+[785963.017682] cdc_ncm 1-1:2.0 usb0: register 'cdc_ncm' at usb-0000:00:14.0-1, CDC NCM, 00:24:27:88:08:15
+[785963.019211] usbcore: registered new interface driver cdc_ncm
+[785963.023856] usbcore: registered new interface driver cdc_wdm
+[785963.025461] usbcore: registered new interface driver cdc_mbim
+[785963.038824] cdc_ncm 1-1:2.0 enx002427880815: renamed from usb0
+[785963.089586] cdc_ncm 1-1:2.0 enx002427880815: network connection: disconnected
+[785963.121673] cdc_ncm 1-1:2.0 enx002427880815: network connection: disconnected
+[785963.153682] cdc_ncm 1-1:2.0 enx002427880815: network connection: disconnected
+...
+
+This is about 2KB per second and will overwrite all contents of a 1MB
+dmesg buffer in under 10 minutes rendering them useless for debugging
+many kernel problems.
+
+This is also an extra 180 MB/day in /var/logs (or 1GB per week) rendering
+the majority of those logs useless too.
+
+When the link is up (expected state), spew amount is >2x higher:
+...
+[786139.600992] cdc_ncm 2-1:2.0 enx002427880815: network connection: connected
+[786139.632997] cdc_ncm 2-1:2.0 enx002427880815: 2500 mbit/s downlink 2500 mbit/s uplink
+[786139.665097] cdc_ncm 2-1:2.0 enx002427880815: network connection: connected
+[786139.697100] cdc_ncm 2-1:2.0 enx002427880815: 2500 mbit/s downlink 2500 mbit/s uplink
+[786139.729094] cdc_ncm 2-1:2.0 enx002427880815: network connection: connected
+[786139.761108] cdc_ncm 2-1:2.0 enx002427880815: 2500 mbit/s downlink 2500 mbit/s uplink
+...
+
+Chrome OS cannot support RTL8156 until this is fixed.
+
+Signed-off-by: Grant Grundler <grundler@chromium.org>
+Reviewed-by: Hayes Wang <hayeswang@realtek.com>
+Link: https://lore.kernel.org/r/20210120011208.3768105-1-grundler@chromium.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_config.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/cdc_ncm.c  | 12 +++++++++++-
+ include/linux/usb/usbnet.h |  2 ++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index 666b234acca0..9891001244ea 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -1488,7 +1488,7 @@ static int vfio_ecap_init(struct vfio_pci_device *vdev)
- 			if (len == 0xFF) {
- 				len = vfio_ext_cap_len(vdev, ecap, epos);
- 				if (len < 0)
--					return ret;
-+					return len;
- 			}
- 		}
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index d418542924e1..297d3f599efd 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1563,6 +1563,15 @@ cdc_ncm_speed_change(struct usbnet *dev,
+ 	uint32_t rx_speed = le32_to_cpu(data->DLBitRRate);
+ 	uint32_t tx_speed = le32_to_cpu(data->ULBitRate);
  
++	/* if the speed hasn't changed, don't report it.
++	 * RTL8156 shipped before 2021 sends notification about every 32ms.
++	 */
++	if (dev->rx_speed == rx_speed && dev->tx_speed == tx_speed)
++		return;
++
++	dev->rx_speed = rx_speed;
++	dev->tx_speed = tx_speed;
++
+ 	/*
+ 	 * Currently the USB-NET API does not support reporting the actual
+ 	 * device speed. Do print it instead.
+@@ -1606,7 +1615,8 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
+ 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
+ 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
+ 		 */
+-		usbnet_link_change(dev, !!event->wValue, 0);
++		if (netif_carrier_ok(dev->net) != !!event->wValue)
++			usbnet_link_change(dev, !!event->wValue, 0);
+ 		break;
+ 
+ 	case USB_CDC_NOTIFY_SPEED_CHANGE:
+diff --git a/include/linux/usb/usbnet.h b/include/linux/usb/usbnet.h
+index fde7550754df..52f47c2944f8 100644
+--- a/include/linux/usb/usbnet.h
++++ b/include/linux/usb/usbnet.h
+@@ -80,6 +80,8 @@ struct usbnet {
+ #		define EVENT_LINK_CHANGE	11
+ #		define EVENT_SET_RX_MODE	12
+ #		define EVENT_NO_IP_ALIGN	13
++	u32			rx_speed;	/* in bps - NOT Mbps */
++	u32			tx_speed;	/* in bps - NOT Mbps */
+ };
+ 
+ static inline struct usb_driver *driver_of(struct usb_interface *intf)
 -- 
 2.30.2
 
