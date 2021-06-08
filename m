@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 257DF3A03D0
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A63B3A03D3
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236998AbhFHTWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:22:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39610 "EHLO mail.kernel.org"
+        id S237073AbhFHTWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:22:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237979AbhFHTSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:18:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4672613D5;
-        Tue,  8 Jun 2021 18:51:48 +0000 (UTC)
+        id S238002AbhFHTS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:18:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3553613DC;
+        Tue,  8 Jun 2021 18:51:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178309;
-        bh=DVBeyatvDebWri3AZG/X69iLC0EkFGCYVNKbWGyVWy4=;
+        s=korg; t=1623178312;
+        bh=MZRgdcwTak35JCmwkrToVUJ54ErTgwQqssS1fik8Kik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9yMbukU9JHbFaRZECQ94oPwHbNlkTwoJ2sP670pu/rCs/S9NTWW4MCM8rMs52t6x
-         h2yQokEywtHmz6REivwdUNcs84WnM5aYcfkI4Opk0DxN8air2NKGDp/mjNJ9r0ZK1b
-         UscOCN1onI7+yCAJmL1pryGPvpNHB3ZEF5V0iUOY=
+        b=VzD9KSFytkZ5JgwegBt9Ry45tRIviKh5INS1UDjqktmnx3pbdMZRdL5MqHHwdFvJs
+         KVScOWa/nwXu1RpksNd+cmS1eHRm+HF0nqn5sgQd/EEokkykf2ICBF/wbOo43TgrkZ
+         n3DEQloYC/6rY8WJ/l8gIPynFcMOaM/Pxw5i+iTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH 5.12 153/161] x86/kvm: Disable all PV features on crash
-Date:   Tue,  8 Jun 2021 20:28:03 +0200
-Message-Id: <20210608175950.623160501@linuxfoundation.org>
+        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.12 154/161] KVM: arm64: Commit pending PC adjustemnts before returning to userspace
+Date:   Tue,  8 Jun 2021 20:28:04 +0200
+Message-Id: <20210608175950.654918120@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -40,198 +40,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 3d6b84132d2a57b5a74100f6923a8feb679ac2ce upstream.
+commit 26778aaa134a9aefdf5dbaad904054d7be9d656d upstream.
 
-Crash shutdown handler only disables kvmclock and steal time, other PV
-features remain active so we risk corrupting memory or getting some
-side-effects in kdump kernel. Move crash handler to kvm.c and unify
-with CPU offline.
+KVM currently updates PC (and the corresponding exception state)
+using a two phase approach: first by setting a set of flags,
+then by converting these flags into a state update when the vcpu
+is about to enter the guest.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20210414123544.1060604-5-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+However, this creates a disconnect with userspace if the vcpu thread
+returns there with any exception/PC flag set. In this case, the exposed
+context is wrong, as userspace doesn't have access to these flags
+(they aren't architectural). It also means that these flags are
+preserved across a reset, which isn't expected.
+
+To solve this problem, force an explicit synchronisation of the
+exception state on vcpu exit to userspace. As an optimisation
+for nVHE systems, only perform this when there is something pending.
+
+Reported-by: Zenghui Yu <yuzenghui@huawei.com>
+Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Reviewed-by: Zenghui Yu <yuzenghui@huawei.com>
+Tested-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org # 5.11
+[yuz: stable-5.12.y backport: allocate a new number (15) for
+ __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc to keep the host_hcall array
+ tightly packed]
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kvm_para.h |    6 -----
- arch/x86/kernel/kvm.c           |   44 +++++++++++++++++++++++++++++-----------
- arch/x86/kernel/kvmclock.c      |   21 -------------------
- 3 files changed, 32 insertions(+), 39 deletions(-)
+ arch/arm64/include/asm/kvm_asm.h   |    1 +
+ arch/arm64/kvm/arm.c               |   11 +++++++++++
+ arch/arm64/kvm/hyp/exception.c     |    4 ++--
+ arch/arm64/kvm/hyp/nvhe/hyp-main.c |    8 ++++++++
+ 4 files changed, 22 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/kvm_para.h
-+++ b/arch/x86/include/asm/kvm_para.h
-@@ -92,7 +92,6 @@ unsigned int kvm_arch_para_hints(void);
- void kvm_async_pf_task_wait_schedule(u32 token);
- void kvm_async_pf_task_wake(u32 token);
- u32 kvm_read_and_reset_apf_flags(void);
--void kvm_disable_steal_time(void);
- bool __kvm_handle_async_pf(struct pt_regs *regs, u32 token);
+--- a/arch/arm64/include/asm/kvm_asm.h
++++ b/arch/arm64/include/asm/kvm_asm.h
+@@ -57,6 +57,7 @@
+ #define __KVM_HOST_SMCCC_FUNC___kvm_get_mdcr_el2		12
+ #define __KVM_HOST_SMCCC_FUNC___vgic_v3_save_aprs		13
+ #define __KVM_HOST_SMCCC_FUNC___vgic_v3_restore_aprs		14
++#define __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc			15
  
- DECLARE_STATIC_KEY_FALSE(kvm_async_pf_enabled);
-@@ -137,11 +136,6 @@ static inline u32 kvm_read_and_reset_apf
- 	return 0;
- }
+ #ifndef __ASSEMBLY__
  
--static inline void kvm_disable_steal_time(void)
--{
--	return;
--}
--
- static __always_inline bool kvm_handle_async_pf(struct pt_regs *regs, u32 token)
- {
- 	return false;
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -38,6 +38,7 @@
- #include <asm/tlb.h>
- #include <asm/cpuidle_haltpoll.h>
- #include <asm/ptrace.h>
-+#include <asm/reboot.h>
- #include <asm/svm.h>
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -892,6 +892,17 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_v
  
- DEFINE_STATIC_KEY_FALSE(kvm_async_pf_enabled);
-@@ -375,6 +376,14 @@ static void kvm_pv_disable_apf(void)
- 	pr_info("Unregister pv shared memory for cpu %d\n", smp_processor_id());
- }
+ 	kvm_sigset_deactivate(vcpu);
  
-+static void kvm_disable_steal_time(void)
-+{
-+	if (!has_steal_clock)
-+		return;
++	/*
++	 * In the unlikely event that we are returning to userspace
++	 * with pending exceptions or PC adjustment, commit these
++	 * adjustments in order to give userspace a consistent view of
++	 * the vcpu state. Note that this relies on __kvm_adjust_pc()
++	 * being preempt-safe on VHE.
++	 */
++	if (unlikely(vcpu->arch.flags & (KVM_ARM64_PENDING_EXCEPTION |
++					 KVM_ARM64_INCREMENT_PC)))
++		kvm_call_hyp(__kvm_adjust_pc, vcpu);
 +
-+	wrmsr(MSR_KVM_STEAL_TIME, 0, 0);
+ 	vcpu_put(vcpu);
+ 	return ret;
+ }
+--- a/arch/arm64/kvm/hyp/exception.c
++++ b/arch/arm64/kvm/hyp/exception.c
+@@ -331,8 +331,8 @@ static void kvm_inject_exception(struct
+ }
+ 
+ /*
+- * Adjust the guest PC on entry, depending on flags provided by EL1
+- * for the purpose of emulation (MMIO, sysreg) or exception injection.
++ * Adjust the guest PC (and potentially exception state) depending on
++ * flags provided by the emulation code.
+  */
+ void __kvm_adjust_pc(struct kvm_vcpu *vcpu)
+ {
+--- a/arch/arm64/kvm/hyp/nvhe/hyp-main.c
++++ b/arch/arm64/kvm/hyp/nvhe/hyp-main.c
+@@ -25,6 +25,13 @@ static void handle___kvm_vcpu_run(struct
+ 	cpu_reg(host_ctxt, 1) =  __kvm_vcpu_run(kern_hyp_va(vcpu));
+ }
+ 
++static void handle___kvm_adjust_pc(struct kvm_cpu_context *host_ctxt)
++{
++	DECLARE_REG(struct kvm_vcpu *, vcpu, host_ctxt, 1);
++
++	__kvm_adjust_pc(kern_hyp_va(vcpu));
 +}
 +
- static void kvm_pv_guest_cpu_reboot(void *unused)
+ static void handle___kvm_flush_vm_context(struct kvm_cpu_context *host_ctxt)
  {
- 	/*
-@@ -417,14 +426,6 @@ static u64 kvm_steal_clock(int cpu)
- 	return steal;
- }
+ 	__kvm_flush_vm_context();
+@@ -112,6 +119,7 @@ typedef void (*hcall_t)(struct kvm_cpu_c
  
--void kvm_disable_steal_time(void)
--{
--	if (!has_steal_clock)
--		return;
--
--	wrmsr(MSR_KVM_STEAL_TIME, 0, 0);
--}
--
- static inline void __set_percpu_decrypted(void *ptr, unsigned long size)
- {
- 	early_set_memory_decrypted((unsigned long) ptr, size);
-@@ -461,13 +462,14 @@ static bool pv_tlb_flush_supported(void)
- 
- static DEFINE_PER_CPU(cpumask_var_t, __pv_cpu_mask);
- 
--static void kvm_guest_cpu_offline(void)
-+static void kvm_guest_cpu_offline(bool shutdown)
- {
- 	kvm_disable_steal_time();
- 	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
- 		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
- 	kvm_pv_disable_apf();
--	apf_task_wake_all();
-+	if (!shutdown)
-+		apf_task_wake_all();
- 	kvmclock_disable();
- }
- 
-@@ -613,7 +615,7 @@ static int kvm_cpu_down_prepare(unsigned
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
--	kvm_guest_cpu_offline();
-+	kvm_guest_cpu_offline(false);
- 	local_irq_restore(flags);
- 	return 0;
- }
-@@ -622,7 +624,7 @@ static int kvm_cpu_down_prepare(unsigned
- 
- static int kvm_suspend(void)
- {
--	kvm_guest_cpu_offline();
-+	kvm_guest_cpu_offline(false);
- 
- 	return 0;
- }
-@@ -637,6 +639,20 @@ static struct syscore_ops kvm_syscore_op
- 	.resume		= kvm_resume,
- };
- 
-+/*
-+ * After a PV feature is registered, the host will keep writing to the
-+ * registered memory location. If the guest happens to shutdown, this memory
-+ * won't be valid. In cases like kexec, in which you install a new kernel, this
-+ * means a random memory location will be kept being written.
-+ */
-+#ifdef CONFIG_KEXEC_CORE
-+static void kvm_crash_shutdown(struct pt_regs *regs)
-+{
-+	kvm_guest_cpu_offline(true);
-+	native_machine_crash_shutdown(regs);
-+}
-+#endif
-+
- static void kvm_flush_tlb_others(const struct cpumask *cpumask,
- 			const struct flush_tlb_info *info)
- {
-@@ -705,6 +721,10 @@ static void __init kvm_guest_init(void)
- 	kvm_guest_cpu_init();
- #endif
- 
-+#ifdef CONFIG_KEXEC_CORE
-+	machine_ops.crash_shutdown = kvm_crash_shutdown;
-+#endif
-+
- 	register_syscore_ops(&kvm_syscore_ops);
- 
- 	/*
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -20,7 +20,6 @@
- #include <asm/hypervisor.h>
- #include <asm/mem_encrypt.h>
- #include <asm/x86_init.h>
--#include <asm/reboot.h>
- #include <asm/kvmclock.h>
- 
- static int kvmclock __initdata = 1;
-@@ -203,23 +202,6 @@ static void kvm_setup_secondary_clock(vo
- }
- #endif
- 
--/*
-- * After the clock is registered, the host will keep writing to the
-- * registered memory location. If the guest happens to shutdown, this memory
-- * won't be valid. In cases like kexec, in which you install a new kernel, this
-- * means a random memory location will be kept being written. So before any
-- * kind of shutdown from our side, we unregister the clock by writing anything
-- * that does not have the 'enable' bit set in the msr
-- */
--#ifdef CONFIG_KEXEC_CORE
--static void kvm_crash_shutdown(struct pt_regs *regs)
--{
--	native_write_msr(msr_kvm_system_time, 0, 0);
--	kvm_disable_steal_time();
--	native_machine_crash_shutdown(regs);
--}
--#endif
--
- void kvmclock_disable(void)
- {
- 	native_write_msr(msr_kvm_system_time, 0, 0);
-@@ -349,9 +331,6 @@ void __init kvmclock_init(void)
- #endif
- 	x86_platform.save_sched_clock_state = kvm_save_sched_clock_state;
- 	x86_platform.restore_sched_clock_state = kvm_restore_sched_clock_state;
--#ifdef CONFIG_KEXEC_CORE
--	machine_ops.crash_shutdown  = kvm_crash_shutdown;
--#endif
- 	kvm_get_preset_lpj();
- 
- 	/*
+ static const hcall_t host_hcall[] = {
+ 	HANDLE_FUNC(__kvm_vcpu_run),
++	HANDLE_FUNC(__kvm_adjust_pc),
+ 	HANDLE_FUNC(__kvm_flush_vm_context),
+ 	HANDLE_FUNC(__kvm_tlb_flush_vmid_ipa),
+ 	HANDLE_FUNC(__kvm_tlb_flush_vmid),
 
 
