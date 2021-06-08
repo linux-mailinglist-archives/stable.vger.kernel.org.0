@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E43F3A0399
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 177A03A039B
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238087AbhFHTSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:18:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38704 "EHLO mail.kernel.org"
+        id S236864AbhFHTS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:18:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237135AbhFHTQx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:16:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BD2D61476;
-        Tue,  8 Jun 2021 18:51:08 +0000 (UTC)
+        id S237461AbhFHTQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:16:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3699161970;
+        Tue,  8 Jun 2021 18:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178269;
-        bh=4FxsOxl0IxUm91bhDt+hrgMMQPhGIbt4bIOedGfT3gk=;
+        s=korg; t=1623178271;
+        bh=/vS0BFpXf5eRM0ok6OPvRgxT8FL8iGC2B8FcFJtAcgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QI0yRamoFrcdq1u3t/sO1CmFAV4QwfVS+LFIpjTK1VFCIlh+1obPi0dzvUeUvymeg
-         GksqvorEYywHLik1LUF0H4/rB8YHfe0bcU/OdNzC6tcalxdAC5dPFNW9QwiYCc5P3J
-         7h2Fs0jPXeggKepsM+gdhrY8twf+3N/uhc1041fE=
+        b=h+j43rP3M1JN0Oqex3LbG4yZrXrt485eBGl5BUdX2fAoIk33Lqi8oWmct827H8PnO
+         yC7jumU+SVbFTqJ1i7cXdhmWeNgHlsVTPfZyhWNYG7T3UOCBufK8/6QqrHnSe5KsE0
+         hMftQcgnhKVo/EnE85azHGfM3b/3iZk8r5yIb9U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.12 139/161] powerpc/kprobes: Fix validation of prefixed instructions across page boundary
-Date:   Tue,  8 Jun 2021 20:27:49 +0200
-Message-Id: <20210608175950.145668740@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 140/161] btrfs: mark ordered extent and inode with error if we fail to finish
+Date:   Tue,  8 Jun 2021 20:27:50 +0200
+Message-Id: <20210608175950.178027783@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -41,53 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 82123a3d1d5a306fdf50c968a474cc60fe43a80f upstream.
+commit d61bec08b904cf171835db98168f82bc338e92e4 upstream.
 
-When checking if the probed instruction is the suffix of a prefixed
-instruction, we access the instruction at the previous word. If the
-probed instruction is the very first word of a module, we can end up
-trying to access an invalid page.
+While doing error injection testing I saw that sometimes we'd get an
+abort that wouldn't stop the current transaction commit from completing.
+This abort was coming from finish ordered IO, but at this point in the
+transaction commit we should have gotten an error and stopped.
 
-Fix this by skipping the check for all instructions at the beginning of
-a page. Prefixed instructions cannot cross a 64-byte boundary and as
-such, we don't expect to encounter a suffix as the very first word in a
-page for kernel text. Even if there are prefixed instructions crossing
-a page boundary (from a module, for instance), the instruction will be
-illegal, so preventing probing on the suffix of such prefix instructions
-isn't worthwhile.
+It turns out the abort came from finish ordered io while trying to write
+out the free space cache.  It occurred to me that any failure inside of
+finish_ordered_io isn't actually raised to the person doing the writing,
+so we could have any number of failures in this path and think the
+ordered extent completed successfully and the inode was fine.
 
-Fixes: b4657f7650ba ("powerpc/kprobes: Don't allow breakpoints on suffixes")
-Cc: stable@vger.kernel.org # v5.8+
-Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0df9a032a05576a2fa8e97d1b769af2ff0eafbd6.1621416666.git.naveen.n.rao@linux.vnet.ibm.com
+Fix this by marking the ordered extent with BTRFS_ORDERED_IOERR, and
+marking the mapping of the inode with mapping_set_error, so any callers
+that simply call fdatawait will also get the error.
+
+With this we're seeing the IO error on the free space inode when we fail
+to do the finish_ordered_io.
+
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/kprobes.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/inode.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/arch/powerpc/kernel/kprobes.c
-+++ b/arch/powerpc/kernel/kprobes.c
-@@ -108,7 +108,6 @@ int arch_prepare_kprobe(struct kprobe *p
- 	int ret = 0;
- 	struct kprobe *prev;
- 	struct ppc_inst insn = ppc_inst_read((struct ppc_inst *)p->addr);
--	struct ppc_inst prefix = ppc_inst_read((struct ppc_inst *)(p->addr - 1));
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -3011,6 +3011,18 @@ out:
+ 	if (ret || truncated) {
+ 		u64 unwritten_start = start;
  
- 	if ((unsigned long)p->addr & 0x03) {
- 		printk("Attempt to register kprobe at an unaligned address\n");
-@@ -116,7 +115,8 @@ int arch_prepare_kprobe(struct kprobe *p
- 	} else if (IS_MTMSRD(insn) || IS_RFID(insn) || IS_RFI(insn)) {
- 		printk("Cannot register a kprobe on rfi/rfid or mtmsr[d]\n");
- 		ret = -EINVAL;
--	} else if (ppc_inst_prefixed(prefix)) {
-+	} else if ((unsigned long)p->addr & ~PAGE_MASK &&
-+		   ppc_inst_prefixed(ppc_inst_read((struct ppc_inst *)(p->addr - 1)))) {
- 		printk("Cannot register a kprobe on the second word of prefixed instruction\n");
- 		ret = -EINVAL;
- 	}
++		/*
++		 * If we failed to finish this ordered extent for any reason we
++		 * need to make sure BTRFS_ORDERED_IOERR is set on the ordered
++		 * extent, and mark the inode with the error if it wasn't
++		 * already set.  Any error during writeback would have already
++		 * set the mapping error, so we need to set it if we're the ones
++		 * marking this ordered extent as failed.
++		 */
++		if (ret && !test_and_set_bit(BTRFS_ORDERED_IOERR,
++					     &ordered_extent->flags))
++			mapping_set_error(ordered_extent->inode->i_mapping, -EIO);
++
+ 		if (truncated)
+ 			unwritten_start += logical_len;
+ 		clear_extent_uptodate(io_tree, unwritten_start, end, NULL);
 
 
