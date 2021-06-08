@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1AC3A0159
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 592703A03DC
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235036AbhFHSvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44348 "EHLO mail.kernel.org"
+        id S237255AbhFHTWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:22:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235786AbhFHStN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:49:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FC6B61460;
-        Tue,  8 Jun 2021 18:38:53 +0000 (UTC)
+        id S237766AbhFHTTD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:19:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C63E861430;
+        Tue,  8 Jun 2021 18:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177534;
-        bh=Jss5QohljpTZK5YQFe2a/he3ZQtbDuqj2C0MBXBnO2o=;
+        s=korg; t=1623178327;
+        bh=MbsscMw7MYl62lVCu41/poMHHkHLkqFTbvMqYnPY72Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFFgmqaT/C9I+THPsPDjkiusuYjC/2Wg45kgYnXbT9fO+IW/iP8U3IZ+OZOsRX2+X
-         u/wmNFPlrQxUwQEv8r8eLGtUtT0h4jB40wEGBeAgcNOER3f7bme0lZxJ/kPHCgUIum
-         LLUJLN7KyFroQaBOEpsjy1fXDtCp+ZBlQlx+b4ys=
+        b=WSqVeZ/BHwcvgq72fAj+QKOFrj/olNZVpXXtlaVF71PmcR+Bv3D1M7SOP8T9yNC4H
+         a3KwmpiJFp3/LFDWDgHdOOWoGVEf/TiF/VEyzer4s9JpXNVlz8vo7+kC6BrGqSaYvQ
+         aHoQ1Loce7quDgBVZD0TW2FPsViuds/8F+yxDq/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 69/78] btrfs: fix unmountable seed device after fstrim
+        stable@vger.kernel.org, Ding Hui <dinghui@sangfor.com.cn>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 128/161] mm/page_alloc: fix counting of free pages after take off from buddy
 Date:   Tue,  8 Jun 2021 20:27:38 +0200
-Message-Id: <20210608175937.602886335@linuxfoundation.org>
+Message-Id: <20210608175949.771631072@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
-References: <20210608175935.254388043@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,111 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Ding Hui <dinghui@sangfor.com.cn>
 
-commit 5e753a817b2d5991dfe8a801b7b1e8e79a1c5a20 upstream.
+commit bac9c6fa1f929213bbd0ac9cdf21e8e2f0916828 upstream.
 
-The following test case reproduces an issue of wrongly freeing in-use
-blocks on the readonly seed device when fstrim is called on the rw sprout
-device. As shown below.
+Recently we found that there is a lot MemFree left in /proc/meminfo
+after do a lot of pages soft offline, it's not quite correct.
 
-Create a seed device and add a sprout device to it:
+Before Oscar's rework of soft offline for free pages [1], if we soft
+offline free pages, these pages are left in buddy with HWPoison flag,
+and NR_FREE_PAGES is not updated immediately.  So the difference between
+NR_FREE_PAGES and real number of available free pages is also even big
+at the beginning.
 
-  $ mkfs.btrfs -fq -dsingle -msingle /dev/loop0
-  $ btrfstune -S 1 /dev/loop0
-  $ mount /dev/loop0 /btrfs
-  $ btrfs dev add -f /dev/loop1 /btrfs
-  BTRFS info (device loop0): relocating block group 290455552 flags system
-  BTRFS info (device loop0): relocating block group 1048576 flags system
-  BTRFS info (device loop0): disk added /dev/loop1
-  $ umount /btrfs
+However, with the workload running, when we catch HWPoison page in any
+alloc functions subsequently, we will remove it from buddy, meanwhile
+update the NR_FREE_PAGES and try again, so the NR_FREE_PAGES will get
+more and more closer to the real number of available free pages.
+(regardless of unpoison_memory())
 
-Mount the sprout device and run fstrim:
+Now, for offline free pages, after a successful call
+take_page_off_buddy(), the page is no longer belong to buddy allocator,
+and will not be used any more, but we missed accounting NR_FREE_PAGES in
+this situation, and there is no chance to be updated later.
 
-  $ mount /dev/loop1 /btrfs
-  $ fstrim /btrfs
-  $ umount /btrfs
+Do update in take_page_off_buddy() like rmqueue() does, but avoid double
+counting if some one already set_migratetype_isolate() on the page.
 
-Now try to mount the seed device, and it fails:
+[1]: commit 06be6ff3d2ec ("mm,hwpoison: rework soft offline for free pages")
 
-  $ mount /dev/loop0 /btrfs
-  mount: /btrfs: wrong fs type, bad option, bad superblock on /dev/loop0, missing codepage or helper program, or other error.
-
-Block 5292032 is missing on the readonly seed device:
-
- $ dmesg -kt | tail
- <snip>
- BTRFS error (device loop0): bad tree block start, want 5292032 have 0
- BTRFS warning (device loop0): couldn't read-tree root
- BTRFS error (device loop0): open_ctree failed
-
->From the dump-tree of the seed device (taken before the fstrim). Block
-5292032 belonged to the block group starting at 5242880:
-
-  $ btrfs inspect dump-tree -e /dev/loop0 | grep -A1 BLOCK_GROUP
-  <snip>
-  item 3 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16169 itemsize 24
-  	block group used 114688 chunk_objectid 256 flags METADATA
-  <snip>
-
->From the dump-tree of the sprout device (taken before the fstrim).
-fstrim used block-group 5242880 to find the related free space to free:
-
-  $ btrfs inspect dump-tree -e /dev/loop1 | grep -A1 BLOCK_GROUP
-  <snip>
-  item 1 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16226 itemsize 24
-  	block group used 32768 chunk_objectid 256 flags METADATA
-  <snip>
-
-BPF kernel tracing the fstrim command finds the missing block 5292032
-within the range of the discarded blocks as below:
-
-  kprobe:btrfs_discard_extent {
-  	printf("freeing start %llu end %llu num_bytes %llu:\n",
-  		arg1, arg1+arg2, arg2);
-  }
-
-  freeing start 5259264 end 5406720 num_bytes 147456
-  <snip>
-
-Fix this by avoiding the discard command to the readonly seed device.
-
-Reported-by: Chris Murphy <lists@colorremedies.com>
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Link: https://lkml.kernel.org/r/20210526075247.11130-1-dinghui@sangfor.com.cn
+Fixes: 06be6ff3d2ec ("mm,hwpoison: rework soft offline for free pages")
+Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
+Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent-tree.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ mm/page_alloc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -1338,16 +1338,20 @@ int btrfs_discard_extent(struct btrfs_fs
- 		for (i = 0; i < bbio->num_stripes; i++, stripe++) {
- 			u64 bytes;
- 			struct request_queue *req_q;
-+			struct btrfs_device *device = stripe->dev;
- 
--			if (!stripe->dev->bdev) {
-+			if (!device->bdev) {
- 				ASSERT(btrfs_test_opt(fs_info, DEGRADED));
- 				continue;
- 			}
--			req_q = bdev_get_queue(stripe->dev->bdev);
-+			req_q = bdev_get_queue(device->bdev);
- 			if (!blk_queue_discard(req_q))
- 				continue;
- 
--			ret = btrfs_issue_discard(stripe->dev->bdev,
-+			if (!test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state))
-+				continue;
-+
-+			ret = btrfs_issue_discard(device->bdev,
- 						  stripe->physical,
- 						  stripe->length,
- 						  &bytes);
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -8951,6 +8951,8 @@ bool take_page_off_buddy(struct page *pa
+ 			del_page_from_free_list(page_head, zone, page_order);
+ 			break_down_buddy_pages(zone, page_head, page, 0,
+ 						page_order, migratetype);
++			if (!is_migrate_isolate(migratetype))
++				__mod_zone_freepage_state(zone, -1, migratetype);
+ 			ret = true;
+ 			break;
+ 		}
 
 
