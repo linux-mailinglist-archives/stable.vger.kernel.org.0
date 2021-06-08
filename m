@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ACEE3A001A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BBE439FF7A
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234716AbhFHSkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:40:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36504 "EHLO mail.kernel.org"
+        id S234444AbhFHSdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:33:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234982AbhFHShp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:37:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA9D4613CA;
-        Tue,  8 Jun 2021 18:33:15 +0000 (UTC)
+        id S234440AbhFHScd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:32:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E8A61380;
+        Tue,  8 Jun 2021 18:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177196;
-        bh=JIqR2d9k85K+6meQDMDQKCgigSKlIN8rtOHnK/L1HC0=;
+        s=korg; t=1623177039;
+        bh=RGpMOJ16txcZmIJsuu42MGUiZJmBuqBIh/pHaydqCmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OLz71VhYV/182vAyt7DihcCjPFcdZmm34cnSIcry898B6iBNOWKQfNsm2f8++jLVD
-         hcBUK/lL91hhn+nXA+8BswNvVTJJvgwSHqIvS4Rx7GG0XWJgjPK87PtpEuNGinW6Fs
-         Quk/xTVU+116DpE3bwvhycaA4h/zEdn+KCj3LGKI=
+        b=cyBB/yQ6Wp/VsVDMO0N9oL1DWapC9C74uMi3qSsMe5FFN8Ms/7fd/XXh6+j3zlVbO
+         K0CW3hrVpEOxobtdGGIQ8gJKaToZJHGDpsPYdouMTx6pPqnyhywFZVOHYjAqyBF+Zf
+         H+cT08XspUcKZEblT7bZm3zENv/LU3Lg8GO2rXB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 22/58] net: caif: add proper error handling
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 09/29] HID: i2c-hid: fix format string mismatch
 Date:   Tue,  8 Jun 2021 20:27:03 +0200
-Message-Id: <20210608175933.017675078@linuxfoundation.org>
+Message-Id: <20210608175928.120985240@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
+References: <20210608175927.821075974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,152 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit a2805dca5107d5603f4bbc027e81e20d93476e96 upstream.
+[ Upstream commit dc5f9f55502e13ba05731d5046a14620aa2ff456 ]
 
-caif_enroll_dev() can fail in some cases. Ingnoring
-these cases can lead to memory leak due to not assigning
-link_support pointer to anywhere.
+clang doesn't like printing a 32-bit integer using %hX format string:
 
-Fixes: 7c18d2205ea7 ("caif: Restructure how link caif link layer enroll")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/hid/i2c-hid/i2c-hid-core.c:994:18: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
+                 client->name, hid->vendor, hid->product);
+                               ^~~~~~~~~~~
+drivers/hid/i2c-hid/i2c-hid-core.c:994:31: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
+                 client->name, hid->vendor, hid->product);
+                                            ^~~~~~~~~~~~
+
+Use an explicit cast to truncate it to the low 16 bits instead.
+
+Fixes: 9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/caif/caif_dev.h |    2 +-
- include/net/caif/cfcnfg.h   |    2 +-
- net/caif/caif_dev.c         |    8 +++++---
- net/caif/cfcnfg.c           |   16 +++++++++++-----
- 4 files changed, 18 insertions(+), 10 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/net/caif/caif_dev.h
-+++ b/include/net/caif/caif_dev.h
-@@ -119,7 +119,7 @@ void caif_free_client(struct cflayer *ad
-  * The link_support layer is used to add any Link Layer specific
-  * framing.
-  */
--void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
-+int caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
- 			struct cflayer *link_support, int head_room,
- 			struct cflayer **layer, int (**rcv_func)(
- 				struct sk_buff *, struct net_device *,
---- a/include/net/caif/cfcnfg.h
-+++ b/include/net/caif/cfcnfg.h
-@@ -62,7 +62,7 @@ void cfcnfg_remove(struct cfcnfg *cfg);
-  * @fcs:	Specify if checksum is used in CAIF Framing Layer.
-  * @head_room:	Head space needed by link specific protocol.
-  */
--void
-+int
- cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
- 		     struct net_device *dev, struct cflayer *phy_layer,
- 		     enum cfcnfg_phy_preference pref,
---- a/net/caif/caif_dev.c
-+++ b/net/caif/caif_dev.c
-@@ -303,7 +303,7 @@ static void dev_flowctrl(struct net_devi
- 	caifd_put(caifd);
- }
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 606fd875740c..800c477dd076 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -1157,8 +1157,8 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
+ 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
  
--void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
-+int caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
- 		     struct cflayer *link_support, int head_room,
- 		     struct cflayer **layer,
- 		     int (**rcv_func)(struct sk_buff *, struct net_device *,
-@@ -314,11 +314,12 @@ void caif_enroll_dev(struct net_device *
- 	enum cfcnfg_phy_preference pref;
- 	struct cfcnfg *cfg = get_cfcnfg(dev_net(dev));
- 	struct caif_device_entry_list *caifdevs;
-+	int res;
+-	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
+-		 client->name, hid->vendor, hid->product);
++	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
++		 client->name, (u16)hid->vendor, (u16)hid->product);
+ 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
  
- 	caifdevs = caif_device_list(dev_net(dev));
- 	caifd = caif_device_alloc(dev);
- 	if (!caifd)
--		return;
-+		return -ENOMEM;
- 	*layer = &caifd->layer;
- 	spin_lock_init(&caifd->flow_lock);
- 
-@@ -339,7 +340,7 @@ void caif_enroll_dev(struct net_device *
- 	strlcpy(caifd->layer.name, dev->name,
- 		sizeof(caifd->layer.name));
- 	caifd->layer.transmit = transmit;
--	cfcnfg_add_phy_layer(cfg,
-+	res = cfcnfg_add_phy_layer(cfg,
- 				dev,
- 				&caifd->layer,
- 				pref,
-@@ -349,6 +350,7 @@ void caif_enroll_dev(struct net_device *
- 	mutex_unlock(&caifdevs->lock);
- 	if (rcv_func)
- 		*rcv_func = receive;
-+	return res;
- }
- EXPORT_SYMBOL(caif_enroll_dev);
- 
---- a/net/caif/cfcnfg.c
-+++ b/net/caif/cfcnfg.c
-@@ -450,7 +450,7 @@ unlock:
- 	rcu_read_unlock();
- }
- 
--void
-+int
- cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
- 		     struct net_device *dev, struct cflayer *phy_layer,
- 		     enum cfcnfg_phy_preference pref,
-@@ -459,7 +459,7 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg
- {
- 	struct cflayer *frml;
- 	struct cfcnfg_phyinfo *phyinfo = NULL;
--	int i;
-+	int i, res = 0;
- 	u8 phyid;
- 
- 	mutex_lock(&cnfg->lock);
-@@ -473,12 +473,15 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg
- 			goto got_phyid;
- 	}
- 	pr_warn("Too many CAIF Link Layers (max 6)\n");
-+	res = -EEXIST;
- 	goto out;
- 
- got_phyid:
- 	phyinfo = kzalloc(sizeof(struct cfcnfg_phyinfo), GFP_ATOMIC);
--	if (!phyinfo)
-+	if (!phyinfo) {
-+		res = -ENOMEM;
- 		goto out_err;
-+	}
- 
- 	phy_layer->id = phyid;
- 	phyinfo->pref = pref;
-@@ -492,8 +495,10 @@ got_phyid:
- 
- 	frml = cffrml_create(phyid, fcs);
- 
--	if (!frml)
-+	if (!frml) {
-+		res = -ENOMEM;
- 		goto out_err;
-+	}
- 	phyinfo->frm_layer = frml;
- 	layer_set_up(frml, cnfg->mux);
- 
-@@ -511,11 +516,12 @@ got_phyid:
- 	list_add_rcu(&phyinfo->node, &cnfg->phys);
- out:
- 	mutex_unlock(&cnfg->lock);
--	return;
-+	return res;
- 
- out_err:
- 	kfree(phyinfo);
- 	mutex_unlock(&cnfg->lock);
-+	return res;
- }
- EXPORT_SYMBOL(cfcnfg_add_phy_layer);
- 
+ 	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
+-- 
+2.30.2
+
 
 
