@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE6A39FF52
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6E113A0018
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234192AbhFHScR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:32:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56654 "EHLO mail.kernel.org"
+        id S234358AbhFHSkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:40:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234191AbhFHSbk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:31:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EA35613B9;
-        Tue,  8 Jun 2021 18:29:46 +0000 (UTC)
+        id S234867AbhFHShc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:37:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 384F9613D0;
+        Tue,  8 Jun 2021 18:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176986;
-        bh=lKpCVtXD3B8w7NgXNJYxyJ62U+u4UoNXBhi14EH6Lao=;
+        s=korg; t=1623177193;
+        bh=rsED8s3r44/lFHHL2PzzG5LOJomieDVl4CR1CyvZD0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W5IbkbhrpLp2syOJP3QXcn4CmZLiqVfoMJDlHOpMiWxXB3SXP7eP3jbDvuIHyTlwo
-         2IcZQum1hyD90U1ah2/kG+cljfkbWYWIenRXTw/GRHm9iSW9IB6N/4STI43vlNvCt8
-         FMHXGTxsmAgQxlsJ4Kx7luc0SeUKCaKiSEANm4dE=
+        b=bS3YJoxkfarr5wiT/XTECmet1xA6AKLfxnpu1kxMmf2vtF1lrcJyKFJZ1rcNm2Seq
+         cKssvNU3vnmKO20drFYf3OueWl8w9LB3sesTj4oYBpZDxIuccVMFjMGmTDz+N5iI+d
+         iwJ+cxX6bm4ytsi6GjXkN3ztq0RzniGCDHiJXA9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/29] HID: pidff: fix error return code in hid_pidff_init()
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 21/58] net: caif: added cfserl_release function
 Date:   Tue,  8 Jun 2021 20:27:02 +0200
-Message-Id: <20210608175928.089643488@linuxfoundation.org>
+Message-Id: <20210608175932.978268887@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 3dd653c077efda8152f4dd395359617d577a54cd ]
+commit bce130e7f392ddde8cfcb09927808ebd5f9c8669 upstream.
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+Added cfserl_release() function.
 
-Fixes: 224ee88fe395 ("Input: add force feedback driver for PID devices")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/usbhid/hid-pidff.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/caif/cfserl.h |    1 +
+ net/caif/cfserl.c         |    5 +++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index 08174d341f4a..bc75f1efa0f4 100644
---- a/drivers/hid/usbhid/hid-pidff.c
-+++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -1304,6 +1304,7 @@ int hid_pidff_init(struct hid_device *hid)
+--- a/include/net/caif/cfserl.h
++++ b/include/net/caif/cfserl.h
+@@ -9,4 +9,5 @@
+ #include <net/caif/caif_layer.h>
  
- 	if (pidff->pool[PID_DEVICE_MANAGED_POOL].value &&
- 	    pidff->pool[PID_DEVICE_MANAGED_POOL].value[0] == 0) {
-+		error = -EPERM;
- 		hid_notice(hid,
- 			   "device does not support device managed pool\n");
- 		goto fail;
--- 
-2.30.2
-
+ struct cflayer *cfserl_create(int instance, bool use_stx);
++void cfserl_release(struct cflayer *layer);
+ #endif
+--- a/net/caif/cfserl.c
++++ b/net/caif/cfserl.c
+@@ -31,6 +31,11 @@ static int cfserl_transmit(struct cflaye
+ static void cfserl_ctrlcmd(struct cflayer *layr, enum caif_ctrlcmd ctrl,
+ 			   int phyid);
+ 
++void cfserl_release(struct cflayer *layer)
++{
++	kfree(layer);
++}
++
+ struct cflayer *cfserl_create(int instance, bool use_stx)
+ {
+ 	struct cfserl *this = kzalloc(sizeof(struct cfserl), GFP_ATOMIC);
 
 
