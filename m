@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1FD63A03DB
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EDE33A03DE
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237106AbhFHTWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:22:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
+        id S237304AbhFHTWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:22:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235339AbhFHTTA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:19:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E21661985;
-        Tue,  8 Jun 2021 18:52:13 +0000 (UTC)
+        id S238638AbhFHTTb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:19:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E624F61432;
+        Tue,  8 Jun 2021 18:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178334;
-        bh=RqSRDX5Barl8n8jyZcpiKh1veqPiaBxY7tkD23nobLw=;
+        s=korg; t=1623178337;
+        bh=oI1Gcw5iYbmyceXcrYOim1sfboeXONWKu14l+TQTLQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FijGGj0SwZMzzwIPNlDsVFSkU5OZaxU1BSEg8CN5AOG4Ru11XdwtB0Q4xgnkZ7vu3
-         3yDJDPfPpc/Ls2zBR2XnnLyVCKyJop32iZRUaQpcziyv0KT3iDi6Jneejxp6XZCAmf
-         8YPOgWQnNWzM5uu+pX9JG9Z6xo7m20GxLxq9quLc=
+        b=W+9lCCKlroMhaFNeKXCFSAPCCR+UpCVCtIGxf/2CZcU92GEJohcFnF4urIXKH11g4
+         BH6b3QVlfS3NPN+h/eaDfT1hSDzPcJiHFUjBbxwD0oMjJ2WWDGeDIVkiX5lMAKKFFo
+         vJxw1wGmdcw+Y5NWPJ/3ExbQ9nALOOmDjTqGSxaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roja Rani Yarubandi <rojay@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.12 157/161] i2c: qcom-geni: Suspend and resume the bus during SYSTEM_SLEEP_PM ops
-Date:   Tue,  8 Jun 2021 20:28:07 +0200
-Message-Id: <20210608175950.763974851@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Jiashuo Liang <liangjs@pku.edu.cn>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.12 158/161] x86/fault: Dont send SIGSEGV twice on SEGV_PKUERR
+Date:   Tue,  8 Jun 2021 20:28:08 +0200
+Message-Id: <20210608175950.794678689@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -40,50 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roja Rani Yarubandi <rojay@codeaurora.org>
+From: Jiashuo Liang <liangjs@pku.edu.cn>
 
-commit 57648e860485de39c800a89f849fdd03c2d31d15 upstream.
+commit 5405b42c2f08efe67b531799ba2fdb35bac93e70 upstream.
 
-Mark bus as suspended during system suspend to block the future
-transfers. Implement geni_i2c_resume_noirq() to resume the bus.
+__bad_area_nosemaphore() calls both force_sig_pkuerr() and
+force_sig_fault() when handling SEGV_PKUERR. This does not cause
+problems because the second signal is filtered by the legacy_queue()
+check in __send_signal() because in both cases, the signal is SIGSEGV,
+the second one seeing that the first one is already pending.
 
-Fixes: 37692de5d523 ("i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller")
-Signed-off-by: Roja Rani Yarubandi <rojay@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+This causes the kernel to do unnecessary work so send the signal only
+once for SEGV_PKUERR.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 9db812dbb29d ("signal/x86: Call force_sig_pkuerr from __bad_area_nosemaphore")
+Suggested-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Jiashuo Liang <liangjs@pku.edu.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Link: https://lkml.kernel.org/r/20210601085203.40214-1-liangjs@pku.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/x86/mm/fault.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -698,6 +698,8 @@ static int __maybe_unused geni_i2c_suspe
- {
- 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -836,8 +836,8 @@ __bad_area_nosemaphore(struct pt_regs *r
  
-+	i2c_mark_adapter_suspended(&gi2c->adap);
-+
- 	if (!gi2c->suspended) {
- 		geni_i2c_runtime_suspend(dev);
- 		pm_runtime_disable(dev);
-@@ -707,8 +709,16 @@ static int __maybe_unused geni_i2c_suspe
- 	return 0;
+ 	if (si_code == SEGV_PKUERR)
+ 		force_sig_pkuerr((void __user *)address, pkey);
+-
+-	force_sig_fault(SIGSEGV, si_code, (void __user *)address);
++	else
++		force_sig_fault(SIGSEGV, si_code, (void __user *)address);
+ 
+ 	local_irq_disable();
  }
- 
-+static int __maybe_unused geni_i2c_resume_noirq(struct device *dev)
-+{
-+	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
-+
-+	i2c_mark_adapter_resumed(&gi2c->adap);
-+	return 0;
-+}
-+
- static const struct dev_pm_ops geni_i2c_pm_ops = {
--	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq, NULL)
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq, geni_i2c_resume_noirq)
- 	SET_RUNTIME_PM_OPS(geni_i2c_runtime_suspend, geni_i2c_runtime_resume,
- 									NULL)
- };
 
 
