@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5248039FF14
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:28:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9762639FF17
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:28:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233090AbhFHSai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:30:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55134 "EHLO mail.kernel.org"
+        id S233337AbhFHSal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:30:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232746AbhFHSah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:30:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8B49613AE;
-        Tue,  8 Jun 2021 18:28:43 +0000 (UTC)
+        id S233235AbhFHSaj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:30:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39B42613BC;
+        Tue,  8 Jun 2021 18:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176924;
-        bh=u/YoHiPNvaOjM6DSUbtCv9cuDvMIjhzS/H0FsmXQYhk=;
+        s=korg; t=1623176926;
+        bh=skfRBhuDqDwhe9k4MPq5LuK1GjND8gtF8MVXYQX9T6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5/LnCkLpEHweH/O60HG8Qe1oeFbHrfmTCLAL6IuKzzCrWiOc+DKhI/MguXARH/dz
-         j2ujYOkn126XzU+ghhl5cdJvwTF9DKfrRq9hOyXbOaCzWKJ+sy8amkJvBb0K0cS5Qb
-         Jumsw1QV+grUjpbyvZPh4BCYSx8OdOqY2hOR2pZ0=
+        b=dAKVOaJ6t4LbNtcKLDt4UzZXeYl/tWNRWeSnS0ME903Gv0RKKweWsjVbNHhRK0B38
+         iMigfKR/IR6NAtluxsqrA1hSLxS5JBi6BddeTbTqfjoAfi88NXUvQ2w0+0fGMDVvt0
+         Y+QH2rkFAreKq4OqcrwA9n/4vxGyie3hwgnaCoNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 14/23] net: caif: fix memory leak in cfusbl_device_notify
-Date:   Tue,  8 Jun 2021 20:27:06 +0200
-Message-Id: <20210608175926.999530831@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+d102fa5b35335a7e544e@syzkaller.appspotmail.com,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 15/23] ALSA: timer: Fix master timer notification
+Date:   Tue,  8 Jun 2021 20:27:07 +0200
+Message-Id: <20210608175927.029876951@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175926.524658689@linuxfoundation.org>
 References: <20210608175926.524658689@linuxfoundation.org>
@@ -39,68 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 7f5d86669fa4d485523ddb1d212e0a2d90bd62bb upstream.
+commit 9c1fe96bded935369f8340c2ac2e9e189f697d5d upstream.
 
-In case of caif_enroll_dev() fail, allocated
-link_support won't be assigned to the corresponding
-structure. So simply free allocated pointer in case
-of error.
+snd_timer_notify1() calls the notification to each slave for a master
+event, but it passes a wrong event number.  It should be +10 offset,
+corresponding to SNDRV_TIMER_EVENT_MXXX, but it's incorrectly with
++100 offset.  Casually this was spotted by UBSAN check via syzkaller.
 
-Fixes: 7ad65bf68d70 ("caif: Add support for CAIF over CDC NCM USB interface")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot+d102fa5b35335a7e544e@syzkaller.appspotmail.com
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000e5560e05c3bd1d63@google.com
+Link: https://lore.kernel.org/r/20210602113823.23777-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/caif/caif_usb.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ sound/core/timer.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/caif/caif_usb.c
-+++ b/net/caif/caif_usb.c
-@@ -116,6 +116,11 @@ static struct cflayer *cfusbl_create(int
- 	return (struct cflayer *) this;
+--- a/sound/core/timer.c
++++ b/sound/core/timer.c
+@@ -432,9 +432,10 @@ static void snd_timer_notify1(struct snd
+ 		return;
+ 	if (timer->hw.flags & SNDRV_TIMER_HW_SLAVE)
+ 		return;
++	event += 10; /* convert to SNDRV_TIMER_EVENT_MXXX */
+ 	list_for_each_entry(ts, &ti->slave_active_head, active_list)
+ 		if (ts->ccallback)
+-			ts->ccallback(ts, event + 100, &tstamp, resolution);
++			ts->ccallback(ts, event, &tstamp, resolution);
  }
  
-+static void cfusbl_release(struct cflayer *layer)
-+{
-+	kfree(layer);
-+}
-+
- static struct packet_type caif_usb_type __read_mostly = {
- 	.type = cpu_to_be16(ETH_P_802_EX1),
- };
-@@ -128,6 +133,7 @@ static int cfusbl_device_notify(struct n
- 	struct cflayer *layer, *link_support;
- 	struct usbnet *usbnet;
- 	struct usb_device *usbdev;
-+	int res;
- 
- 	/* Check whether we have a NCM device, and find its VID/PID. */
- 	if (!(dev->dev.parent && dev->dev.parent->driver &&
-@@ -170,8 +176,11 @@ static int cfusbl_device_notify(struct n
- 	if (dev->num_tx_queues > 1)
- 		pr_warn("USB device uses more than one tx queue\n");
- 
--	caif_enroll_dev(dev, &common, link_support, CFUSB_MAX_HEADLEN,
-+	res = caif_enroll_dev(dev, &common, link_support, CFUSB_MAX_HEADLEN,
- 			&layer, &caif_usb_type.func);
-+	if (res)
-+		goto err;
-+
- 	if (!pack_added)
- 		dev_add_pack(&caif_usb_type);
- 	pack_added = true;
-@@ -181,6 +190,9 @@ static int cfusbl_device_notify(struct n
- 	layer->name[sizeof(layer->name) - 1] = 0;
- 
- 	return 0;
-+err:
-+	cfusbl_release(link_support);
-+	return res;
- }
- 
- static struct notifier_block caif_device_notifier = {
+ /* start/continue a master timer */
 
 
