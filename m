@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 846AA3A030A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5583B3A01FD
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237059AbhFHTMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:12:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59566 "EHLO mail.kernel.org"
+        id S235102AbhFHS6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:58:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237519AbhFHTJy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:09:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5623861941;
-        Tue,  8 Jun 2021 18:48:35 +0000 (UTC)
+        id S237032AbhFHS4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:56:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 717D4613DB;
+        Tue,  8 Jun 2021 18:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178115;
-        bh=mpooxyqvfrAzMhHxntMDVhFerXLYMjxumW4cPBYV+RU=;
+        s=korg; t=1623177714;
+        bh=64SedMtTXsCToj38gJA+zdgBl2Hkxkjinwf0jUMnrLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMniwmm1p+CN91QyU3nSojwXR07nw7LIA7WfcgN4FyG26ruCIMlkfRUA5Qyx8MzsV
-         /vUM6r1qE8gbYMRSmRkfUTZuhEp+9dBbvk1s6pOelmK9Au2gCRRd3Bz1k07NSldO9K
-         lUyowDpaTJvuIpDAVd+g/TnhzWZW50mISk+SibuU=
+        b=bxByLzeAK6RzuwCZuZdB1TwNBjRrUZeZcm2XIcHqyXFs7lZPUK3oZPO4nhaDc7nBM
+         vE8BK4piuIqHl8M2eb8NiBstKhy9OoQmd69pYgdvktnE6yWCtKGWXyANcTaj7VZXl3
+         LiYB5cUmGVIfBlgdC/mIwThALrj4NaWZCFOZkb10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Valentin Caron <valentin.caron@foss.st.com>,
         Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 081/161] serial: stm32: fix threaded interrupt handling
+Subject: [PATCH 5.10 071/137] serial: stm32: fix threaded interrupt handling
 Date:   Tue,  8 Jun 2021 20:26:51 +0200
-Message-Id: <20210608175948.180271741@linuxfoundation.org>
+Message-Id: <20210608175944.757961898@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -81,10 +81,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 99dfa884cbef..68c6535bbf7f 100644
+index 2cf9fc915510..844059861f9e 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -214,14 +214,11 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
+@@ -213,14 +213,11 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
  	struct tty_port *tport = &port->state->port;
  	struct stm32_port *stm32_port = to_stm32_port(port);
  	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
@@ -101,7 +101,7 @@ index 99dfa884cbef..68c6535bbf7f 100644
  
  	while (stm32_usart_pending_rx(port, &sr, &stm32_port->last_res,
  				      threaded)) {
-@@ -278,10 +275,7 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
+@@ -277,10 +274,7 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
  		uart_insert_char(port, sr, USART_SR_ORE, c, flag);
  	}
  
@@ -113,7 +113,7 @@ index 99dfa884cbef..68c6535bbf7f 100644
  
  	tty_flip_buffer_push(tport);
  }
-@@ -654,7 +648,8 @@ static int stm32_usart_startup(struct uart_port *port)
+@@ -653,7 +647,8 @@ static int stm32_usart_startup(struct uart_port *port)
  
  	ret = request_threaded_irq(port->irq, stm32_usart_interrupt,
  				   stm32_usart_threaded_interrupt,
@@ -123,7 +123,7 @@ index 99dfa884cbef..68c6535bbf7f 100644
  	if (ret)
  		return ret;
  
-@@ -1136,6 +1131,13 @@ static int stm32_usart_of_dma_rx_probe(struct stm32_port *stm32port,
+@@ -1126,6 +1121,13 @@ static int stm32_usart_of_dma_rx_probe(struct stm32_port *stm32port,
  	struct dma_async_tx_descriptor *desc = NULL;
  	int ret;
  
