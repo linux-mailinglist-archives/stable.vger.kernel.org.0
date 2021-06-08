@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3506B3A0293
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86A683A01B4
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234764AbhFHTGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:06:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45022 "EHLO mail.kernel.org"
+        id S236932AbhFHSz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:55:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236986AbhFHTDl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:03:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 643D0613C0;
-        Tue,  8 Jun 2021 18:45:50 +0000 (UTC)
+        id S234057AbhFHSxk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:53:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF43A61494;
+        Tue,  8 Jun 2021 18:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177951;
-        bh=JiNZlSikyQwZnPoSF3ec5ikNZ5ygRYEjh3PqydSZK+k=;
+        s=korg; t=1623177639;
+        bh=OXMgJZdyGVlDOsLY8gbihH51ZPYK7DN7QiWKhOqYGhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xoQXTelzktkqv+DxXvu5hGXQXbNQle8KwO11BOzxKdhk2ZUDLCf2qiU+/Zckn0ct4
-         BwdmU7oee2u+bZDRly0JWUfOgU0Wv3F8kHe1sYuSfGlHw+OSz3iB5yvnjst05g3C+0
-         is8CdSLcbp6YURvIkHt8xqBFG9ybYoSQmDI6mc3Y=
+        b=HoICLtUeQprXlvgNVa3MjxseNIWWf/jTn100F7dd95SAYkzuyiX6Ogx8FG327qA6R
+         lU28mEejNVCmvHdcqzkY3PT6iqiAZhSjygBlNUw3liMcw5mNyZdZ1C8IpdncDb77TB
+         k2GenDKj9Zhvkr1v9IAmh/0cA1WW26c7t7PafVS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oz Shlomo <ozsh@nvidia.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Paul Blakey <paulb@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 022/161] net/sched: act_ct: Offload connections with commit action
+Subject: [PATCH 5.10 012/137] samples: vfio-mdev: fix error handing in mdpy_fb_probe()
 Date:   Tue,  8 Jun 2021 20:25:52 +0200
-Message-Id: <20210608175946.199786615@linuxfoundation.org>
+Message-Id: <20210608175942.798881844@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Blakey <paulb@nvidia.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 0cc254e5aa37cf05f65bcdcdc0ac5c58010feb33 ]
+[ Upstream commit 752774ce7793a1f8baa55aae31f3b4caac49cbe4 ]
 
-Currently established connections are not offloaded if the filter has a
-"ct commit" action. This behavior will not offload connections of the
-following scenario:
+Fix to return a negative error code from the framebuffer_alloc() error
+handling case instead of 0, also release regions in some error handing
+cases.
 
-$ tc_filter add dev $DEV ingress protocol ip prio 1 flower \
-  ct_state -trk \
-  action ct commit action goto chain 1
-
-$ tc_filter add dev $DEV ingress protocol ip chain 1 prio 1 flower \
-  action mirred egress redirect dev $DEV2
-
-$ tc_filter add dev $DEV2 ingress protocol ip prio 1 flower \
-  action ct commit action goto chain 1
-
-$ tc_filter add dev $DEV2 ingress protocol ip prio 1 chain 1 flower \
-  ct_state +trk+est \
-  action mirred egress redirect dev $DEV
-
-Offload established connections, regardless of the commit flag.
-
-Fixes: 46475bb20f4b ("net/sched: act_ct: Software offload of established flows")
-Reviewed-by: Oz Shlomo <ozsh@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Paul Blakey <paulb@nvidia.com>
-Link: https://lore.kernel.org/r/1622029449-27060-1-git-send-email-paulb@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: cacade1946a4 ("sample: vfio mdev display - guest driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Message-Id: <20210520133641.1421378-1-weiyongjun1@huawei.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_ct.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ samples/vfio-mdev/mdpy-fb.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index 48fdf7293dea..371fd64638d2 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -984,7 +984,7 @@ static int tcf_ct_act(struct sk_buff *skb, const struct tc_action *a,
- 	 */
- 	cached = tcf_ct_skb_nfct_cached(net, skb, p->zone, force);
- 	if (!cached) {
--		if (!commit && tcf_ct_flow_table_lookup(p, skb, family)) {
-+		if (tcf_ct_flow_table_lookup(p, skb, family)) {
- 			skip_add = true;
- 			goto do_nat;
- 		}
-@@ -1024,10 +1024,11 @@ do_nat:
- 		 * even if the connection is already confirmed.
- 		 */
- 		nf_conntrack_confirm(skb);
--	} else if (!skip_add) {
--		tcf_ct_flow_table_process_conn(p->ct_ft, ct, ctinfo);
+diff --git a/samples/vfio-mdev/mdpy-fb.c b/samples/vfio-mdev/mdpy-fb.c
+index 21dbf63d6e41..9ec93d90e8a5 100644
+--- a/samples/vfio-mdev/mdpy-fb.c
++++ b/samples/vfio-mdev/mdpy-fb.c
+@@ -117,22 +117,27 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
+ 	if (format != DRM_FORMAT_XRGB8888) {
+ 		pci_err(pdev, "format mismatch (0x%x != 0x%x)\n",
+ 			format, DRM_FORMAT_XRGB8888);
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_release_regions;
  	}
+ 	if (width < 100	 || width > 10000) {
+ 		pci_err(pdev, "width (%d) out of range\n", width);
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_release_regions;
+ 	}
+ 	if (height < 100 || height > 10000) {
+ 		pci_err(pdev, "height (%d) out of range\n", height);
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_release_regions;
+ 	}
+ 	pci_info(pdev, "mdpy found: %dx%d framebuffer\n",
+ 		 width, height);
  
-+	if (!skip_add)
-+		tcf_ct_flow_table_process_conn(p->ct_ft, ct, ctinfo);
-+
- out_push:
- 	skb_push_rcsum(skb, nh_ofs);
+ 	info = framebuffer_alloc(sizeof(struct mdpy_fb_par), &pdev->dev);
+-	if (!info)
++	if (!info) {
++		ret = -ENOMEM;
+ 		goto err_release_regions;
++	}
+ 	pci_set_drvdata(pdev, info);
+ 	par = info->par;
  
 -- 
 2.30.2
