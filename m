@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EACCA3A02B6
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 958B53A018E
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236927AbhFHTHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:07:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41040 "EHLO mail.kernel.org"
+        id S236097AbhFHSyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:54:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234326AbhFHTGT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:06:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14B8A61931;
-        Tue,  8 Jun 2021 18:46:53 +0000 (UTC)
+        id S235976AbhFHSwH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:52:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71A3061376;
+        Tue,  8 Jun 2021 18:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178013;
-        bh=zjYl6VGIpFj4na9V7rreV38zUf/6npxLGjjdOrZxQFI=;
+        s=korg; t=1623177609;
+        bh=Bwe6XoLtofniYeM5aZxEBFbkK0EPzcC2VDo/n+04e+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iXOhU7VJU6GI5W9manWbK5tOPz1L0rrK7B1N1lvs8H6GrYXm+eXRFVC2zlXnL12dD
-         LoRvTAuoVJvsqZJ1DUYj5xgDgUsvBwm9lVhuz5wguV6YHC/Ye1Icp30qXki3Yt89ka
-         QilszMD/iI372jJ+K2Oh0t5EeyFiOBr9DEruhFAE=
+        b=HOIZrc5ns7Vz//rRPr+LDDPheUvbIs9KxDfdqvXB1A2IJ77adbzUXS/M1cmXk46S8
+         A/OzKL1QLwaCv7HQNhvxcQaHzOEvMEtPt2dqqsaGXEo2drR2wAD8Nf9Yn3q3Z2F8Gp
+         t018Sb4eW/Zzo5gq/iiE20FpWYFmjuul1gStidlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Jakub Hrozek <jhrozek@redhat.com>,
-        Serhei Makarov <smakarov@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Jerome Marchand <jmarchan@redhat.com>,
-        Frank Eigler <fche@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 043/161] bpf, lockdown, audit: Fix buggy SELinux lockdown permission checks
+        stable@vger.kernel.org, Israel Rukshin <israelr@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 033/137] nvmet: fix freeing unallocated p2pmem
 Date:   Tue,  8 Jun 2021 20:26:13 +0200
-Message-Id: <20210608175946.926326504@linuxfoundation.org>
+Message-Id: <20210608175943.532766707@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,276 +42,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
 
-[ Upstream commit ff40e51043af63715ab413995ff46996ecf9583f ]
+[ Upstream commit bcd9a0797d73eeff659582f23277e7ab6e5f18f3 ]
 
-Commit 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
-added an implementation of the locked_down LSM hook to SELinux, with the aim
-to restrict which domains are allowed to perform operations that would breach
-lockdown. This is indirectly also getting audit subsystem involved to report
-events. The latter is problematic, as reported by Ondrej and Serhei, since it
-can bring down the whole system via audit:
+In case p2p device was found but the p2p pool is empty, the nvme target
+is still trying to free the sgl from the p2p pool instead of the
+regular sgl pool and causing a crash (BUG() is called). Instead, assign
+the p2p_dev for the request only if it was allocated from p2p pool.
 
-  1) The audit events that are triggered due to calls to security_locked_down()
-     can OOM kill a machine, see below details [0].
+This is the crash that was caused:
 
-  2) It also seems to be causing a deadlock via avc_has_perm()/slow_avc_audit()
-     when trying to wake up kauditd, for example, when using trace_sched_switch()
-     tracepoint, see details in [1]. Triggering this was not via some hypothetical
-     corner case, but with existing tools like runqlat & runqslower from bcc, for
-     example, which make use of this tracepoint. Rough call sequence goes like:
+[Sun May 30 19:13:53 2021] ------------[ cut here ]------------
+[Sun May 30 19:13:53 2021] kernel BUG at lib/genalloc.c:518!
+[Sun May 30 19:13:53 2021] invalid opcode: 0000 [#1] SMP PTI
+...
+[Sun May 30 19:13:53 2021] kernel BUG at lib/genalloc.c:518!
+...
+[Sun May 30 19:13:53 2021] RIP: 0010:gen_pool_free_owner+0xa8/0xb0
+...
+[Sun May 30 19:13:53 2021] Call Trace:
+[Sun May 30 19:13:53 2021] ------------[ cut here ]------------
+[Sun May 30 19:13:53 2021]  pci_free_p2pmem+0x2b/0x70
+[Sun May 30 19:13:53 2021]  pci_p2pmem_free_sgl+0x4f/0x80
+[Sun May 30 19:13:53 2021]  nvmet_req_free_sgls+0x1e/0x80 [nvmet]
+[Sun May 30 19:13:53 2021] kernel BUG at lib/genalloc.c:518!
+[Sun May 30 19:13:53 2021]  nvmet_rdma_release_rsp+0x4e/0x1f0 [nvmet_rdma]
+[Sun May 30 19:13:53 2021]  nvmet_rdma_send_done+0x1c/0x60 [nvmet_rdma]
 
-     rq_lock(rq) -> -------------------------+
-       trace_sched_switch() ->               |
-         bpf_prog_xyz() ->                   +-> deadlock
-           selinux_lockdown() ->             |
-             audit_log_end() ->              |
-               wake_up_interruptible() ->    |
-                 try_to_wake_up() ->         |
-                   rq_lock(rq) --------------+
-
-What's worse is that the intention of 59438b46471a to further restrict lockdown
-settings for specific applications in respect to the global lockdown policy is
-completely broken for BPF. The SELinux policy rule for the current lockdown check
-looks something like this:
-
-  allow <who> <who> : lockdown { <reason> };
-
-However, this doesn't match with the 'current' task where the security_locked_down()
-is executed, example: httpd does a syscall. There is a tracing program attached
-to the syscall which triggers a BPF program to run, which ends up doing a
-bpf_probe_read_kernel{,_str}() helper call. The selinux_lockdown() hook does
-the permission check against 'current', that is, httpd in this example. httpd
-has literally zero relation to this tracing program, and it would be nonsensical
-having to write an SELinux policy rule against httpd to let the tracing helper
-pass. The policy in this case needs to be against the entity that is installing
-the BPF program. For example, if bpftrace would generate a histogram of syscall
-counts by user space application:
-
-  bpftrace -e 'tracepoint:raw_syscalls:sys_enter { @[comm] = count(); }'
-
-bpftrace would then go and generate a BPF program from this internally. One way
-of doing it [for the sake of the example] could be to call bpf_get_current_task()
-helper and then access current->comm via one of bpf_probe_read_kernel{,_str}()
-helpers. So the program itself has nothing to do with httpd or any other random
-app doing a syscall here. The BPF program _explicitly initiated_ the lockdown
-check. The allow/deny policy belongs in the context of bpftrace: meaning, you
-want to grant bpftrace access to use these helpers, but other tracers on the
-system like my_random_tracer _not_.
-
-Therefore fix all three issues at the same time by taking a completely different
-approach for the security_locked_down() hook, that is, move the check into the
-program verification phase where we actually retrieve the BPF func proto. This
-also reliably gets the task (current) that is trying to install the BPF tracing
-program, e.g. bpftrace/bcc/perf/systemtap/etc, and it also fixes the OOM since
-we're moving this out of the BPF helper's fast-path which can be called several
-millions of times per second.
-
-The check is then also in line with other security_locked_down() hooks in the
-system where the enforcement is performed at open/load time, for example,
-open_kcore() for /proc/kcore access or module_sig_check() for module signatures
-just to pick few random ones. What's out of scope in the fix as well as in
-other security_locked_down() hook locations /outside/ of BPF subsystem is that
-if the lockdown policy changes on the fly there is no retrospective action.
-This requires a different discussion, potentially complex infrastructure, and
-it's also not clear whether this can be solved generically. Either way, it is
-out of scope for a suitable stable fix which this one is targeting. Note that
-the breakage is specifically on 59438b46471a where it started to rely on 'current'
-as UAPI behavior, and _not_ earlier infrastructure such as 9d1f8be5cf42 ("bpf:
-Restrict bpf when kernel lockdown is in confidentiality mode").
-
-[0] https://bugzilla.redhat.com/show_bug.cgi?id=1955585, Jakub Hrozek says:
-
-  I starting seeing this with F-34. When I run a container that is traced with
-  BPF to record the syscalls it is doing, auditd is flooded with messages like:
-
-  type=AVC msg=audit(1619784520.593:282387): avc:  denied  { confidentiality }
-    for pid=476 comm="auditd" lockdown_reason="use of bpf to read kernel RAM"
-      scontext=system_u:system_r:auditd_t:s0 tcontext=system_u:system_r:auditd_t:s0
-        tclass=lockdown permissive=0
-
-  This seems to be leading to auditd running out of space in the backlog buffer
-  and eventually OOMs the machine.
-
-  [...]
-  auditd running at 99% CPU presumably processing all the messages, eventually I get:
-  Apr 30 12:20:42 fedora kernel: audit: backlog limit exceeded
-  Apr 30 12:20:42 fedora kernel: audit: backlog limit exceeded
-  Apr 30 12:20:42 fedora kernel: audit: audit_backlog=2152579 > audit_backlog_limit=64
-  Apr 30 12:20:42 fedora kernel: audit: audit_backlog=2152626 > audit_backlog_limit=64
-  Apr 30 12:20:42 fedora kernel: audit: audit_backlog=2152694 > audit_backlog_limit=64
-  Apr 30 12:20:42 fedora kernel: audit: audit_lost=6878426 audit_rate_limit=0 audit_backlog_limit=64
-  Apr 30 12:20:45 fedora kernel: oci-seccomp-bpf invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=-1000
-  Apr 30 12:20:45 fedora kernel: CPU: 0 PID: 13284 Comm: oci-seccomp-bpf Not tainted 5.11.12-300.fc34.x86_64 #1
-  Apr 30 12:20:45 fedora kernel: Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
-  [...]
-
-[1] https://lore.kernel.org/linux-audit/CANYvDQN7H5tVp47fbYcRasv4XF07eUbsDwT_eDCHXJUj43J7jQ@mail.gmail.com/,
-    Serhei Makarov says:
-
-  Upstream kernel 5.11.0-rc7 and later was found to deadlock during a
-  bpf_probe_read_compat() call within a sched_switch tracepoint. The problem
-  is reproducible with the reg_alloc3 testcase from SystemTap's BPF backend
-  testsuite on x86_64 as well as the runqlat, runqslower tools from bcc on
-  ppc64le. Example stack trace:
-
-  [...]
-  [  730.868702] stack backtrace:
-  [  730.869590] CPU: 1 PID: 701 Comm: in:imjournal Not tainted, 5.12.0-0.rc2.20210309git144c79ef3353.166.fc35.x86_64 #1
-  [  730.871605] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  [  730.873278] Call Trace:
-  [  730.873770]  dump_stack+0x7f/0xa1
-  [  730.874433]  check_noncircular+0xdf/0x100
-  [  730.875232]  __lock_acquire+0x1202/0x1e10
-  [  730.876031]  ? __lock_acquire+0xfc0/0x1e10
-  [  730.876844]  lock_acquire+0xc2/0x3a0
-  [  730.877551]  ? __wake_up_common_lock+0x52/0x90
-  [  730.878434]  ? lock_acquire+0xc2/0x3a0
-  [  730.879186]  ? lock_is_held_type+0xa7/0x120
-  [  730.880044]  ? skb_queue_tail+0x1b/0x50
-  [  730.880800]  _raw_spin_lock_irqsave+0x4d/0x90
-  [  730.881656]  ? __wake_up_common_lock+0x52/0x90
-  [  730.882532]  __wake_up_common_lock+0x52/0x90
-  [  730.883375]  audit_log_end+0x5b/0x100
-  [  730.884104]  slow_avc_audit+0x69/0x90
-  [  730.884836]  avc_has_perm+0x8b/0xb0
-  [  730.885532]  selinux_lockdown+0xa5/0xd0
-  [  730.886297]  security_locked_down+0x20/0x40
-  [  730.887133]  bpf_probe_read_compat+0x66/0xd0
-  [  730.887983]  bpf_prog_250599c5469ac7b5+0x10f/0x820
-  [  730.888917]  trace_call_bpf+0xe9/0x240
-  [  730.889672]  perf_trace_run_bpf_submit+0x4d/0xc0
-  [  730.890579]  perf_trace_sched_switch+0x142/0x180
-  [  730.891485]  ? __schedule+0x6d8/0xb20
-  [  730.892209]  __schedule+0x6d8/0xb20
-  [  730.892899]  schedule+0x5b/0xc0
-  [  730.893522]  exit_to_user_mode_prepare+0x11d/0x240
-  [  730.894457]  syscall_exit_to_user_mode+0x27/0x70
-  [  730.895361]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-  [...]
-
-Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
-Reported-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reported-by: Jakub Hrozek <jhrozek@redhat.com>
-Reported-by: Serhei Makarov <smakarov@redhat.com>
-Reported-by: Jiri Olsa <jolsa@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Tested-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: James Morris <jamorris@linux.microsoft.com>
-Cc: Jerome Marchand <jmarchan@redhat.com>
-Cc: Frank Eigler <fche@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Link: https://lore.kernel.org/bpf/01135120-8bf7-df2e-cff0-1d73f1f841c3@iogearbox.net
+Fixes: c6e3f1339812 ("nvmet: add metadata support for block devices")
+Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/helpers.c     |  7 +++++--
- kernel/trace/bpf_trace.c | 32 ++++++++++++--------------------
- 2 files changed, 17 insertions(+), 22 deletions(-)
+ drivers/nvme/target/core.c | 33 ++++++++++++++++-----------------
+ 1 file changed, 16 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/bpf/helpers.c b/kernel/bpf/helpers.c
-index 308427fe03a3..6140e91e9c89 100644
---- a/kernel/bpf/helpers.c
-+++ b/kernel/bpf/helpers.c
-@@ -14,6 +14,7 @@
- #include <linux/jiffies.h>
- #include <linux/pid_namespace.h>
- #include <linux/proc_ns.h>
-+#include <linux/security.h>
- 
- #include "../../lib/kstrtox.h"
- 
-@@ -741,11 +742,13 @@ bpf_base_func_proto(enum bpf_func_id func_id)
- 	case BPF_FUNC_probe_read_user:
- 		return &bpf_probe_read_user_proto;
- 	case BPF_FUNC_probe_read_kernel:
--		return &bpf_probe_read_kernel_proto;
-+		return security_locked_down(LOCKDOWN_BPF_READ) < 0 ?
-+		       NULL : &bpf_probe_read_kernel_proto;
- 	case BPF_FUNC_probe_read_user_str:
- 		return &bpf_probe_read_user_str_proto;
- 	case BPF_FUNC_probe_read_kernel_str:
--		return &bpf_probe_read_kernel_str_proto;
-+		return security_locked_down(LOCKDOWN_BPF_READ) < 0 ?
-+		       NULL : &bpf_probe_read_kernel_str_proto;
- 	case BPF_FUNC_snprintf_btf:
- 		return &bpf_snprintf_btf_proto;
- 	default:
-diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
-index b0c45d923f0f..9bb3d2823f44 100644
---- a/kernel/trace/bpf_trace.c
-+++ b/kernel/trace/bpf_trace.c
-@@ -215,16 +215,11 @@ const struct bpf_func_proto bpf_probe_read_user_str_proto = {
- static __always_inline int
- bpf_probe_read_kernel_common(void *dst, u32 size, const void *unsafe_ptr)
- {
--	int ret = security_locked_down(LOCKDOWN_BPF_READ);
-+	int ret;
- 
--	if (unlikely(ret < 0))
--		goto fail;
- 	ret = copy_from_kernel_nofault(dst, unsafe_ptr, size);
- 	if (unlikely(ret < 0))
--		goto fail;
--	return ret;
--fail:
--	memset(dst, 0, size);
-+		memset(dst, 0, size);
- 	return ret;
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 46e4f7ea34c8..8b939e9db470 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -988,19 +988,23 @@ static unsigned int nvmet_data_transfer_len(struct nvmet_req *req)
+ 	return req->transfer_len - req->metadata_len;
  }
  
-@@ -246,10 +241,7 @@ const struct bpf_func_proto bpf_probe_read_kernel_proto = {
- static __always_inline int
- bpf_probe_read_kernel_str_common(void *dst, u32 size, const void *unsafe_ptr)
+-static int nvmet_req_alloc_p2pmem_sgls(struct nvmet_req *req)
++static int nvmet_req_alloc_p2pmem_sgls(struct pci_dev *p2p_dev,
++		struct nvmet_req *req)
  {
--	int ret = security_locked_down(LOCKDOWN_BPF_READ);
--
--	if (unlikely(ret < 0))
--		goto fail;
-+	int ret;
+-	req->sg = pci_p2pmem_alloc_sgl(req->p2p_dev, &req->sg_cnt,
++	req->sg = pci_p2pmem_alloc_sgl(p2p_dev, &req->sg_cnt,
+ 			nvmet_data_transfer_len(req));
+ 	if (!req->sg)
+ 		goto out_err;
  
- 	/*
- 	 * The strncpy_from_kernel_nofault() call will likely not fill the
-@@ -262,11 +254,7 @@ bpf_probe_read_kernel_str_common(void *dst, u32 size, const void *unsafe_ptr)
- 	 */
- 	ret = strncpy_from_kernel_nofault(dst, unsafe_ptr, size);
- 	if (unlikely(ret < 0))
--		goto fail;
--
--	return ret;
--fail:
--	memset(dst, 0, size);
-+		memset(dst, 0, size);
- 	return ret;
+ 	if (req->metadata_len) {
+-		req->metadata_sg = pci_p2pmem_alloc_sgl(req->p2p_dev,
++		req->metadata_sg = pci_p2pmem_alloc_sgl(p2p_dev,
+ 				&req->metadata_sg_cnt, req->metadata_len);
+ 		if (!req->metadata_sg)
+ 			goto out_free_sg;
+ 	}
++
++	req->p2p_dev = p2p_dev;
++
+ 	return 0;
+ out_free_sg:
+ 	pci_p2pmem_free_sgl(req->p2p_dev, req->sg);
+@@ -1008,25 +1012,19 @@ out_err:
+ 	return -ENOMEM;
  }
  
-@@ -1322,16 +1310,20 @@ bpf_tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
- 	case BPF_FUNC_probe_read_user:
- 		return &bpf_probe_read_user_proto;
- 	case BPF_FUNC_probe_read_kernel:
--		return &bpf_probe_read_kernel_proto;
-+		return security_locked_down(LOCKDOWN_BPF_READ) < 0 ?
-+		       NULL : &bpf_probe_read_kernel_proto;
- 	case BPF_FUNC_probe_read_user_str:
- 		return &bpf_probe_read_user_str_proto;
- 	case BPF_FUNC_probe_read_kernel_str:
--		return &bpf_probe_read_kernel_str_proto;
-+		return security_locked_down(LOCKDOWN_BPF_READ) < 0 ?
-+		       NULL : &bpf_probe_read_kernel_str_proto;
- #ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
- 	case BPF_FUNC_probe_read:
--		return &bpf_probe_read_compat_proto;
-+		return security_locked_down(LOCKDOWN_BPF_READ) < 0 ?
-+		       NULL : &bpf_probe_read_compat_proto;
- 	case BPF_FUNC_probe_read_str:
--		return &bpf_probe_read_compat_str_proto;
-+		return security_locked_down(LOCKDOWN_BPF_READ) < 0 ?
-+		       NULL : &bpf_probe_read_compat_str_proto;
- #endif
- #ifdef CONFIG_CGROUPS
- 	case BPF_FUNC_get_current_cgroup_id:
+-static bool nvmet_req_find_p2p_dev(struct nvmet_req *req)
++static struct pci_dev *nvmet_req_find_p2p_dev(struct nvmet_req *req)
+ {
+-	if (!IS_ENABLED(CONFIG_PCI_P2PDMA))
+-		return false;
+-
+-	if (req->sq->ctrl && req->sq->qid && req->ns) {
+-		req->p2p_dev = radix_tree_lookup(&req->sq->ctrl->p2p_ns_map,
+-						 req->ns->nsid);
+-		if (req->p2p_dev)
+-			return true;
+-	}
+-
+-	req->p2p_dev = NULL;
+-	return false;
++	if (!IS_ENABLED(CONFIG_PCI_P2PDMA) ||
++	    !req->sq->ctrl || !req->sq->qid || !req->ns)
++		return NULL;
++	return radix_tree_lookup(&req->sq->ctrl->p2p_ns_map, req->ns->nsid);
+ }
+ 
+ int nvmet_req_alloc_sgls(struct nvmet_req *req)
+ {
+-	if (nvmet_req_find_p2p_dev(req) && !nvmet_req_alloc_p2pmem_sgls(req))
++	struct pci_dev *p2p_dev = nvmet_req_find_p2p_dev(req);
++
++	if (p2p_dev && !nvmet_req_alloc_p2pmem_sgls(p2p_dev, req))
+ 		return 0;
+ 
+ 	req->sg = sgl_alloc(nvmet_data_transfer_len(req), GFP_KERNEL,
+@@ -1055,6 +1053,7 @@ void nvmet_req_free_sgls(struct nvmet_req *req)
+ 		pci_p2pmem_free_sgl(req->p2p_dev, req->sg);
+ 		if (req->metadata_sg)
+ 			pci_p2pmem_free_sgl(req->p2p_dev, req->metadata_sg);
++		req->p2p_dev = NULL;
+ 	} else {
+ 		sgl_free(req->sg);
+ 		if (req->metadata_sg)
 -- 
 2.30.2
 
