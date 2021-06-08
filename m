@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C80A93A038A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 170443A0256
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236336AbhFHTSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39732 "EHLO mail.kernel.org"
+        id S236362AbhFHTDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236062AbhFHTQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:16:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95CD161969;
-        Tue,  8 Jun 2021 18:50:52 +0000 (UTC)
+        id S237608AbhFHTBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:01:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C6B66144E;
+        Tue,  8 Jun 2021 18:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178253;
-        bh=XP8RtZB5I8hcyEmuu0P6ZC+uh588io2AMGX5lGpuJJs=;
+        s=korg; t=1623177851;
+        bh=F2ETnJw9S0rl4zRvVb2Cq54LEp82vMjREJ+qusaerX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s513FVk3HQp7sLTYSjQl1CJpEl7f4Vad8NfutD2Au08l/ey0B7bqdVsjb60MymbjZ
-         pK4wZxqcVjZJcwhBz1MjQyeaCeUkFePyJIwPSzv8bC6waVdCxjnUfkTLu8BI67+4IE
-         RuLx5V73HgMK5+Bl+dTrWSkMQ8WkzUTwdIjwUY9A=
+        b=vEa6H+koS+4iDE9bAgiSTelL3agmbhZ7U0JxsWfwtT9fZTV94IehZcCgHORYdC/jr
+         7ADA1WmM4C9kn76pebSpmTOG+oiB/yP5IPOAo5jQyI6ecDxpSSYisyFy3TeSVGcnej
+         nvOcQlP8BCAuSlo0noCxxolhIEtaHvgh+YbzPOJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.12 134/161] nfc: fix NULL ptr dereference in llcp_sock_getname() after failed connect
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 124/137] btrfs: fix deadlock when cloning inline extents and low on available space
 Date:   Tue,  8 Jun 2021 20:27:44 +0200
-Message-Id: <20210608175949.976605371@linuxfoundation.org>
+Message-Id: <20210608175946.571794673@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +39,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 4ac06a1e013cf5fdd963317ffd3b968560f33bba upstream.
+commit 76a6d5cd74479e7ec8a7f9a29bce63d5549b6b2e upstream.
 
-It's possible to trigger NULL pointer dereference by local unprivileged
-user, when calling getsockname() after failed bind() (e.g. the bind
-fails because LLCP_SAP_MAX used as SAP):
+There are a few cases where cloning an inline extent requires copying data
+into a page of the destination inode. For these cases we are allocating
+the required data and metadata space while holding a leaf locked. This can
+result in a deadlock when we are low on available space because allocating
+the space may flush delalloc and two deadlock scenarios can happen:
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  CPU: 1 PID: 426 Comm: llcp_sock_getna Not tainted 5.13.0-rc2-next-20210521+ #9
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1 04/01/2014
-  Call Trace:
-   llcp_sock_getname+0xb1/0xe0
-   __sys_getpeername+0x95/0xc0
-   ? lockdep_hardirqs_on_prepare+0xd5/0x180
-   ? syscall_enter_from_user_mode+0x1c/0x40
-   __x64_sys_getpeername+0x11/0x20
-   do_syscall_64+0x36/0x70
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+1) When starting writeback for an inode with a very small dirty range that
+   fits in an inline extent, we deadlock during the writeback when trying
+   to insert the inline extent, at cow_file_range_inline(), if the extent
+   is going to be located in the leaf for which we are already holding a
+   read lock;
 
-This can be reproduced with Syzkaller C repro (bind followed by
-getpeername):
-https://syzkaller.appspot.com/x/repro.c?x=14def446e00000
+2) After successfully starting writeback, for non-inline extent cases,
+   the async reclaim thread will hang waiting for an ordered extent to
+   complete if the ordered extent completion needs to modify the leaf
+   for which the clone task is holding a read lock (for adding or
+   replacing file extent items). So the cloning task will wait forever
+   on the async reclaim thread to make progress, which in turn is
+   waiting for the ordered extent completion which in turn is waiting
+   to acquire a write lock on the same leaf.
 
-Cc: <stable@vger.kernel.org>
-Fixes: d646960f7986 ("NFC: Initial LLCP support")
-Reported-by: syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210531072138.5219-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+So fix this by making sure we release the path (and therefore the leaf)
+every time we need to copy the inline extent's data into a page of the
+destination inode, as by that time we do not need to have the leaf locked.
+
+Fixes: 05a5a7621ce66c ("Btrfs: implement full reflink support for inline extents")
+CC: stable@vger.kernel.org # 5.10+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/reflink.c |   38 ++++++++++++++++++++++----------------
+ 1 file changed, 22 insertions(+), 16 deletions(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -110,6 +110,7 @@ static int llcp_sock_bind(struct socket
- 	if (!llcp_sock->service_name) {
- 		nfc_llcp_local_put(llcp_sock->local);
- 		llcp_sock->local = NULL;
-+		llcp_sock->dev = NULL;
- 		ret = -ENOMEM;
- 		goto put_dev;
+--- a/fs/btrfs/reflink.c
++++ b/fs/btrfs/reflink.c
+@@ -207,10 +207,7 @@ static int clone_copy_inline_extent(stru
+ 			 * inline extent's data to the page.
+ 			 */
+ 			ASSERT(key.offset > 0);
+-			ret = copy_inline_to_page(BTRFS_I(dst), new_key->offset,
+-						  inline_data, size, datal,
+-						  comp_type);
+-			goto out;
++			goto copy_to_page;
+ 		}
+ 	} else if (i_size_read(dst) <= datal) {
+ 		struct btrfs_file_extent_item *ei;
+@@ -226,13 +223,10 @@ static int clone_copy_inline_extent(stru
+ 		    BTRFS_FILE_EXTENT_INLINE)
+ 			goto copy_inline_extent;
+ 
+-		ret = copy_inline_to_page(BTRFS_I(dst), new_key->offset,
+-					  inline_data, size, datal, comp_type);
+-		goto out;
++		goto copy_to_page;
  	}
-@@ -119,6 +120,7 @@ static int llcp_sock_bind(struct socket
- 		llcp_sock->local = NULL;
- 		kfree(llcp_sock->service_name);
- 		llcp_sock->service_name = NULL;
-+		llcp_sock->dev = NULL;
- 		ret = -EADDRINUSE;
- 		goto put_dev;
+ 
+ copy_inline_extent:
+-	ret = 0;
+ 	/*
+ 	 * We have no extent items, or we have an extent at offset 0 which may
+ 	 * or may not be inlined. All these cases are dealt the same way.
+@@ -244,11 +238,13 @@ copy_inline_extent:
+ 		 * clone. Deal with all these cases by copying the inline extent
+ 		 * data into the respective page at the destination inode.
+ 		 */
+-		ret = copy_inline_to_page(BTRFS_I(dst), new_key->offset,
+-					  inline_data, size, datal, comp_type);
+-		goto out;
++		goto copy_to_page;
  	}
+ 
++	/*
++	 * Release path before starting a new transaction so we don't hold locks
++	 * that would confuse lockdep.
++	 */
+ 	btrfs_release_path(path);
+ 	/*
+ 	 * If we end up here it means were copy the inline extent into a leaf
+@@ -282,11 +278,6 @@ copy_inline_extent:
+ out:
+ 	if (!ret && !trans) {
+ 		/*
+-		 * Release path before starting a new transaction so we don't
+-		 * hold locks that would confuse lockdep.
+-		 */
+-		btrfs_release_path(path);
+-		/*
+ 		 * No transaction here means we copied the inline extent into a
+ 		 * page of the destination inode.
+ 		 *
+@@ -306,6 +297,21 @@ out:
+ 		*trans_out = trans;
+ 
+ 	return ret;
++
++copy_to_page:
++	/*
++	 * Release our path because we don't need it anymore and also because
++	 * copy_inline_to_page() needs to reserve data and metadata, which may
++	 * need to flush delalloc when we are low on available space and
++	 * therefore cause a deadlock if writeback of an inline extent needs to
++	 * write to the same leaf or an ordered extent completion needs to write
++	 * to the same leaf.
++	 */
++	btrfs_release_path(path);
++
++	ret = copy_inline_to_page(BTRFS_I(dst), new_key->offset,
++				  inline_data, size, datal, comp_type);
++	goto out;
+ }
+ 
+ /**
 
 
