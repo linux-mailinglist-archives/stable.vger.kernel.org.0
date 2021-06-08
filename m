@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69BA3A01F8
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E114B3A02E1
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236119AbhFHS6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:58:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60140 "EHLO mail.kernel.org"
+        id S236361AbhFHTLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237027AbhFHS4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:56:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27C94613F9;
-        Tue,  8 Jun 2021 18:42:08 +0000 (UTC)
+        id S234024AbhFHTH1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:07:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3929561417;
+        Tue,  8 Jun 2021 18:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177729;
-        bh=OgKfNeI2oG7uHvlnPSOFO1pQizsjZQuqll09ekzwXO0=;
+        s=korg; t=1623178040;
+        bh=srhBDEFx0xTqgdnx3K5z7j6GsU6W1qaAeE5pQdYItfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uwpCYM8SZIV4cgXICvJW9if/NW4W4J7fS0N2lUku6AecqjSWixKA5Dl1NgYOcvL8u
-         oPqI0gtHwo5DO7ibZAFisJuMWfvJ86tO3MgTZpq1yjGkb8FrV6ox5vFFbw49w/h3ia
-         f2v9lC7h5WnUKeoYL6g7A9cCn/PtdXLgDsuz41ds=
+        b=Ca0v4l8Z5UMU1QnRSeoH6PjoPyzn8Te1KaIoB4zS/q1k7sLD6q8hwhh6oNkmdIdWS
+         GKT6J8nBbdKUWD33sUYZ7plDVe/JvfL43NI+255Ouy57o6ti2FKh9qDtJZ9jhWgEVu
+         0amquczV9q4fRkp5VT5oNImYM32V5z2I/4yqVsWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        stable@vger.kernel.org, Paul Greenwalt <paul.greenwalt@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/137] ice: Fix allowing VF to request more/less queues via virtchnl
+Subject: [PATCH 5.12 055/161] ice: report supported and advertised autoneg using PHY capabilities
 Date:   Tue,  8 Jun 2021 20:26:25 +0200
-Message-Id: <20210608175943.933631997@linuxfoundation.org>
+Message-Id: <20210608175947.330419286@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Paul Greenwalt <paul.greenwalt@intel.com>
 
-[ Upstream commit f0457690af56673cb0c47af6e25430389a149225 ]
+[ Upstream commit 5cd349c349d6ec52862e550d3576893d35ab8ac2 ]
 
-Commit 12bb018c538c ("ice: Refactor VF reset") caused a regression
-that removes the ability for a VF to request a different amount of
-queues via VIRTCHNL_OP_REQUEST_QUEUES. This prevents VF drivers to
-either increase or decrease the number of queue pairs they are
-allocated. Fix this by using the variable vf->num_req_qs when
-determining the vf->num_vf_qs during VF VSI creation.
+Ethtool incorrectly reported supported and advertised auto-negotiation
+settings for a backplane PHY image which did not support auto-negotiation.
+This can occur when using media or PHY type for reporting ethtool
+supported and advertised auto-negotiation settings.
 
-Fixes: 12bb018c538c ("ice: Refactor VF reset")
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Remove setting supported and advertised auto-negotiation settings based
+on PHY type in ice_phy_type_to_ethtool(), and MAC type in
+ice_get_link_ksettings().
+
+Ethtool supported and advertised auto-negotiation settings should be
+based on the PHY image using the AQ command get PHY capabilities with
+media. Add setting supported and advertised auto-negotiation settings
+based get PHY capabilities with media in ice_get_link_ksettings().
+
+Fixes: 48cb27f2fd18 ("ice: Implement handlers for ethtool PHY/link operations")
+Signed-off-by: Paul Greenwalt <paul.greenwalt@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lib.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 51 +++-----------------
+ 1 file changed, 6 insertions(+), 45 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index e1384503dd4d..fb20c6971f4c 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -192,6 +192,8 @@ static void ice_vsi_set_num_qs(struct ice_vsi *vsi, u16 vf_id)
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index 32ba71a16165..f80fff97d8dc 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -1797,49 +1797,6 @@ ice_phy_type_to_ethtool(struct net_device *netdev,
+ 		ice_ethtool_advertise_link_mode(ICE_AQ_LINK_SPEED_100GB,
+ 						100000baseKR4_Full);
+ 	}
+-
+-	/* Autoneg PHY types */
+-	if (phy_types_low & ICE_PHY_TYPE_LOW_100BASE_TX ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_1000BASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_1000BASE_KX ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_2500BASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_2500BASE_KX ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_5GBASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_5GBASE_KR ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_10GBASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_10GBASE_KR_CR1 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_CR ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_CR_S ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_CR1 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_KR ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_KR_S ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_KR1 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_40GBASE_CR4 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_40GBASE_KR4) {
+-		ethtool_link_ksettings_add_link_mode(ks, supported,
+-						     Autoneg);
+-		ethtool_link_ksettings_add_link_mode(ks, advertising,
+-						     Autoneg);
+-	}
+-	if (phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_CR2 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_KR2 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_CP ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_KR_PAM4) {
+-		ethtool_link_ksettings_add_link_mode(ks, supported,
+-						     Autoneg);
+-		ethtool_link_ksettings_add_link_mode(ks, advertising,
+-						     Autoneg);
+-	}
+-	if (phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_CR4 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_KR4 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_KR_PAM4 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_CP2) {
+-		ethtool_link_ksettings_add_link_mode(ks, supported,
+-						     Autoneg);
+-		ethtool_link_ksettings_add_link_mode(ks, advertising,
+-						     Autoneg);
+-	}
+ }
+ 
+ #define TEST_SET_BITS_TIMEOUT	50
+@@ -1996,9 +1953,7 @@ ice_get_link_ksettings(struct net_device *netdev,
+ 		ks->base.port = PORT_TP;
  		break;
- 	case ICE_VSI_VF:
- 		vf = &pf->vf[vsi->vf_id];
-+		if (vf->num_req_qs)
-+			vf->num_vf_qs = vf->num_req_qs;
- 		vsi->alloc_txq = vf->num_vf_qs;
- 		vsi->alloc_rxq = vf->num_vf_qs;
- 		/* pf->num_msix_per_vf includes (VF miscellaneous vector +
+ 	case ICE_MEDIA_BACKPLANE:
+-		ethtool_link_ksettings_add_link_mode(ks, supported, Autoneg);
+ 		ethtool_link_ksettings_add_link_mode(ks, supported, Backplane);
+-		ethtool_link_ksettings_add_link_mode(ks, advertising, Autoneg);
+ 		ethtool_link_ksettings_add_link_mode(ks, advertising,
+ 						     Backplane);
+ 		ks->base.port = PORT_NONE;
+@@ -2073,6 +2028,12 @@ ice_get_link_ksettings(struct net_device *netdev,
+ 	if (caps->link_fec_options & ICE_AQC_PHY_FEC_25G_RS_CLAUSE91_EN)
+ 		ethtool_link_ksettings_add_link_mode(ks, supported, FEC_RS);
+ 
++	/* Set supported and advertised autoneg */
++	if (ice_is_phy_caps_an_enabled(caps)) {
++		ethtool_link_ksettings_add_link_mode(ks, supported, Autoneg);
++		ethtool_link_ksettings_add_link_mode(ks, advertising, Autoneg);
++	}
++
+ done:
+ 	kfree(caps);
+ 	return err;
 -- 
 2.30.2
 
