@@ -2,66 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28EDA3A058C
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 23:08:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AC673A0594
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 23:13:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231246AbhFHVJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 17:09:52 -0400
-Received: from mail-pg1-f175.google.com ([209.85.215.175]:42612 "EHLO
-        mail-pg1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233158AbhFHVJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 17:09:51 -0400
-Received: by mail-pg1-f175.google.com with SMTP id i34so11144151pgl.9
-        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 14:07:58 -0700 (PDT)
+        id S230251AbhFHVPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 17:15:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36352 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229845AbhFHVPI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 17:15:08 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6985CC061787
+        for <stable@vger.kernel.org>; Tue,  8 Jun 2021 14:13:00 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id y11so9445527pgp.11
+        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 14:13:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=MGLCdeBLiTe2f4V4JEmoMnndE97yDmCfVG4Iupoew3g=;
-        b=Lcy0tVg50qiIXFLitPVl7wFqCgojIT3/y16tRAlET+JCs6q4bYgceWNDzEdqV9KgW6
-         ZHGtAz329S9MYTMjBYenEev8FR6ivu6g2q/+Mqd6EOaJxN0IMlGd2TO+mbnEEX1iUnc1
-         eHAm5IMwQz+eh9WsZmj861E4mYsIO7Qhn5PrO3DRMKlcWxGPFzPujef+K1PMIPo9tRon
-         m6/k0euiSDYpDE210TP5gPBhLkAwr7sP/5b/LdhSVfPtJAdqo9fuQ3mSZANZaCijtFv5
-         aoPRinn5JroIRjhrHbACMdGltgN0yDdEKPEwpfLop3zLjKpIKb9X3eGdH6P5USCu7fOI
-         5V/w==
+        bh=kavbhkV/CORp2/ogdB7Rtj7eAxktrXq37FhU19x+nUk=;
+        b=KBB/iKjh3n+I7dWpm/bbRMzFGylRHvlUJnpGGDzQn9hQPT/1v7BuDyRtaCFGDKsSZ/
+         SRRD+GY8TuRx1wgYJ3SRVc5v1Ag1KqgrPh1waNhykvt68RxtIsq/robvfeAPC3r7Oq6L
+         WEvRA8PBW42xemmkJkwsvPK9rKm7VDGZeeS+gjiBUXfGDtsK2CKptCOPrlakKqK/Fl9K
+         +17fXokO4vcrugo4LOrIh5ot/kmLgVjs0fhf+ZCwRxaB2RfiugsyFgiFPIB7xR+rtWCk
+         HL3lFxRDtXGzjXg3c0sP4rFGJ3baV4MU2YQ5PpkQIzdlC6U8NtT6KpfvPwlfairR12AA
+         k2ew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=MGLCdeBLiTe2f4V4JEmoMnndE97yDmCfVG4Iupoew3g=;
-        b=Ag/CScZ/vENNPJDuRgdIyGbaUaxRVBnDBrmv6XlGWdK0z/sBvx0Chx7IcaV5pIAq/v
-         y6kdgp7nHnVfsLJKMTV6aduUFCLPs+hZUQGMcw9GlCZLsQBfw7MRyDcweo9vvFsJlfZl
-         5yA+ap+1tZzHkUDI+JWxY6Qdr/s7uqrPSpVKIJw9fJhmVDSAMEjLrIZgAZesLGDjuIxZ
-         UnbmO9CnkdBQugJU1oweFxwjD/KQQgalJgYNAby0w9gypmiDCQzzB9fDaEgX7cHQKldH
-         ntsNj7T5MyJ0fFkSlL/vDmK7XposNaxqO7nTvvqm5raTuYpYFb2NvmOWHAN8CnHklm7R
-         eBoA==
-X-Gm-Message-State: AOAM530aBuT1IABATiOSSZ3FbSaFTrM0D1EeZPQc0UyP90xWyhVzUlyC
-        Cvgj95I5kvEhXZ26ZKJWHgN5R9TXjooQkw==
-X-Google-Smtp-Source: ABdhPJyPUM9RmrARRoAMIYu+eAF/uIHsBtMmhfg9qdBeQ0TOpf+UNFscT7GvhJKO0ez+MF086oMoxQ==
-X-Received: by 2002:aa7:8119:0:b029:2b5:7e51:274b with SMTP id b25-20020aa781190000b02902b57e51274bmr1666573pfi.32.1623186417402;
-        Tue, 08 Jun 2021 14:06:57 -0700 (PDT)
+        bh=kavbhkV/CORp2/ogdB7Rtj7eAxktrXq37FhU19x+nUk=;
+        b=sVUb7oNlyY463Rvc1PMr5n87iiZoLciK9845VJ0CjHjcTJ2GXxk1plJsdV81k6PGgD
+         Q59ZYsaWPjsCikQXFelPQvLC0zboov8bt931e+s1WoUSsNSNJBJx3HWE2PL/UxSiT3rJ
+         9J++q7OquMYCNgNAqE4zKw6QDnyImpgZIlGY3OFDs5IMztBEjm2tcJBKy6YR0GLAcrBl
+         zZfHHscKI7S82+HJz+IOJhPHkhQfRAKRMRMugLWm92ET07VH9SRe0+YTfUnnJXDvoQlt
+         Mohxt0afUQT4KInBBeTf5/VoNQ+bmCKDvUz+S4ZwWBTvY1IXx0Zn6clHKrfGoYB+tviA
+         Ghzg==
+X-Gm-Message-State: AOAM531VY13QsIxK0atauDir8QOUcbJpwemm0EzBVlIndjib+MUiUGEe
+        PHq6EMCEsHEAe8e3nlrNvKP4ywuWXmzSCg==
+X-Google-Smtp-Source: ABdhPJztTQV6zqfvIRBqvDAZKkQMbx3QWBPtGYGL9c7JROWyN/H0l4/bHq1BZ7/QpT4C3oZu1RTidQ==
+X-Received: by 2002:a62:3344:0:b029:28c:6f0f:cb90 with SMTP id z65-20020a6233440000b029028c6f0fcb90mr1727257pfz.58.1623186779130;
+        Tue, 08 Jun 2021 14:12:59 -0700 (PDT)
 Received: from [192.168.4.41] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
-        by smtp.gmail.com with ESMTPSA id mi10sm2974329pjb.10.2021.06.08.14.06.55
+        by smtp.gmail.com with ESMTPSA id c20sm3036209pjr.35.2021.06.08.14.12.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Jun 2021 14:06:56 -0700 (PDT)
-Subject: Re: [Patch v3] block: return the correct bvec when checking for gaps
-To:     longli@linuxonhyperv.com, linux-block@vger.kernel.org
-Cc:     Long Li <longli@microsoft.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Ming Lei <ming.lei@redhat.com>, Tejun Heo <tj@kernel.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jeffle Xu <jefflexu@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <1623094445-22332-1-git-send-email-longli@linuxonhyperv.com>
+        Tue, 08 Jun 2021 14:12:58 -0700 (PDT)
+Subject: Re: [PATCH] rq-qos: fix missed wake-ups in rq_qos_throttle try two
+To:     Jan Kara <jack@suse.cz>
+Cc:     Josef Bacik <josef@toxicpanda.com>,
+        Oleg Nesterov <oleg@redhat.com>, linux-block@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20210607112613.25344-1-jack@suse.cz>
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <6691cb0d-d368-7115-87f2-ae5950699b7d@kernel.dk>
-Date:   Tue, 8 Jun 2021 15:07:15 -0600
+Message-ID: <e14aeaa7-45a3-b2f0-7738-3613189ae1d4@kernel.dk>
+Date:   Tue, 8 Jun 2021 15:13:16 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <1623094445-22332-1-git-send-email-longli@linuxonhyperv.com>
+In-Reply-To: <20210607112613.25344-1-jack@suse.cz>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -69,24 +68,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/7/21 1:34 PM, longli@linuxonhyperv.com wrote:
-> From: Long Li <longli@microsoft.com>
+On 6/7/21 5:26 AM, Jan Kara wrote:
+> Commit 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
+> tried to fix a problem that a process could be sleeping in rq_qos_wait()
+> without anyone to wake it up. However the fix is not complete and the
+> following can still happen:
 > 
-> After commit 07173c3ec276 ("block: enable multipage bvecs"), a bvec can
-> have multiple pages. But bio_will_gap() still assumes one page bvec while
-> checking for merging. If the pages in the bvec go across the
-> seg_boundary_mask, this check for merging can potentially succeed if only
-> the 1st page is tested, and can fail if all the pages are tested.
+> CPU1 (waiter1)		CPU2 (waiter2)		CPU3 (waker)
+> rq_qos_wait()		rq_qos_wait()
+>   acquire_inflight_cb() -> fails
+> 			  acquire_inflight_cb() -> fails
 > 
-> Later, when SCSI builds the SG list the same check for merging is done in
-> __blk_segment_map_sg_merge() with all the pages in the bvec tested. This
-> time the check may fail if the pages in bvec go across the
-> seg_boundary_mask (but tested okay in bio_will_gap() earlier, so those
-> BIOs were merged). If this check fails, we end up with a broken SG list
-> for drivers assuming the SG list not having offsets in intermediate pages.
-> This results in incorrect pages written to the disk.
+> 						completes IOs, inflight
+> 						  decreased
+>   prepare_to_wait_exclusive()
+> 			  prepare_to_wait_exclusive()
+>   has_sleeper = !wq_has_single_sleeper() -> true as there are two sleepers
+> 			  has_sleeper = !wq_has_single_sleeper() -> true
+>   io_schedule()		  io_schedule()
 > 
-> Fix this by returning the multi-page bvec when testing gaps for merging.
+> Deadlock as now there's nobody to wakeup the two waiters. The logic
+> automatically blocking when there are already sleepers is really subtle
+> and the only way to make it work reliably is that we check whether there
+> are some waiters in the queue when adding ourselves there. That way, we
+> are guaranteed that at least the first process to enter the wait queue
+> will recheck the waiting condition before going to sleep and thus
+> guarantee forward progress.
 
 Applied, thanks.
 
