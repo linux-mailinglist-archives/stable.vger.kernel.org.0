@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3FF3A03CF
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54ACB3A03C5
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236955AbhFHTWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:22:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40916 "EHLO mail.kernel.org"
+        id S234090AbhFHTV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:21:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237971AbhFHTSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:18:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80D6A61287;
-        Tue,  8 Jun 2021 18:51:40 +0000 (UTC)
+        id S235662AbhFHTSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:18:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2496961182;
+        Tue,  8 Jun 2021 18:51:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178301;
-        bh=mDZoKamUHJ/eaM4PwyRczgJCs+m1j/E+jOasr9heF6U=;
+        s=korg; t=1623178303;
+        bh=RnamPyzzLgDAjpmq5+G3y1v3oSxEB4jU6/3szJu2PRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2bFctP3xo0hALIkYxpEMtwy5z8MTEsQEL/FPkGZZVs/+9Gbz1Tzsx7qTGOd4whua
-         xFUMQs+AsT5FHy4kP5Z3OLO48vCB543HyavJxzvTOKI05vCWkrn1ddoiBnZKTEA7k/
-         077ffXs4hQvg8MWXMBnQ3lJ+D56F0+tHhJ+VdLZM=
+        b=Nk0Xuv7v+eFN/if5AwMFyRCfnzh1P8Y8NfRO0YO5846skG8uYM1PFMz45OvVDVogr
+         5Zfvwr/eWUtZN8LuYVasfuQvYmh4sIrUu5KpKelLIFBrJjj6LrJDgsT0aPLxd4EUQf
+         F75sYMCkjzHlwNQ892ayYCDnmR51viubUFYuquUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.12 150/161] KVM: SVM: Truncate GPR value for DR and CR accesses in !64-bit mode
-Date:   Tue,  8 Jun 2021 20:28:00 +0200
-Message-Id: <20210608175950.515924683@linuxfoundation.org>
+        Andrea Righi <andrea.righi@canonical.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 5.12 151/161] x86/kvm: Teardown PV features on boot CPU as well
+Date:   Tue,  8 Jun 2021 20:28:01 +0200
+Message-Id: <20210608175950.551225770@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -40,63 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 0884335a2e653b8a045083aa1d57ce74269ac81d upstream.
+commit 8b79feffeca28c5459458fe78676b081e87c93a4 upstream.
 
-Drop bits 63:32 on loads/stores to/from DRs and CRs when the vCPU is not
-in 64-bit mode.  The APM states bits 63:32 are dropped for both DRs and
-CRs:
+Various PV features (Async PF, PV EOI, steal time) work through memory
+shared with hypervisor and when we restore from hibernation we must
+properly teardown all these features to make sure hypervisor doesn't
+write to stale locations after we jump to the previously hibernated kernel
+(which can try to place anything there). For secondary CPUs the job is
+already done by kvm_cpu_down_prepare(), register syscore ops to do
+the same for boot CPU.
 
-  In 64-bit mode, the operand size is fixed at 64 bits without the need
-  for a REX prefix. In non-64-bit mode, the operand size is fixed at 32
-  bits and the upper 32 bits of the destination are forced to 0.
+Krzysztof:
+This fixes memory corruption visible after second resume from
+hibernation:
 
-Fixes: 7ff76d58a9dc ("KVM: SVM: enhance MOV CR intercept handler")
-Fixes: cae3797a4639 ("KVM: SVM: enhance mov DR intercept handler")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210422022128.3464144-4-seanjc@google.com>
+  BUG: Bad page state in process dbus-daemon  pfn:18b01
+  page:ffffea000062c040 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 compound_mapcount: -30591
+  flags: 0xfffffc0078141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+  raw: 000fffffc0078141 dead0000000002d0 dead000000000100 0000000000000000
+  raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+  page dumped because: PAGE_FLAGS_CHECK_AT_PREP flag set
+  bad because of flags: 0x78141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20210414123544.1060604-3-vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+[krzysztof: Extend the commit message, adjust for v5.10 context]
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/svm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kernel/kvm.c |   57 +++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 41 insertions(+), 16 deletions(-)
 
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -2532,7 +2532,7 @@ static int cr_interception(struct vcpu_s
- 	err = 0;
- 	if (cr >= 16) { /* mov to cr */
- 		cr -= 16;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		trace_kvm_cr_write(cr, val);
- 		switch (cr) {
- 		case 0:
-@@ -2578,7 +2578,7 @@ static int cr_interception(struct vcpu_s
- 			kvm_queue_exception(&svm->vcpu, UD_VECTOR);
- 			return 1;
- 		}
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
- 		trace_kvm_cr_read(cr, val);
- 	}
- 	return kvm_complete_insn_gp(&svm->vcpu, err);
-@@ -2643,11 +2643,11 @@ static int dr_interception(struct vcpu_s
- 	dr = svm->vmcb->control.exit_code - SVM_EXIT_READ_DR0;
- 	if (dr >= 16) { /* mov to DRn  */
- 		dr -= 16;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		err = kvm_set_dr(&svm->vcpu, dr, val);
- 	} else {
- 		kvm_get_dr(&svm->vcpu, dr, &val);
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
- 	}
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -26,6 +26,7 @@
+ #include <linux/kprobes.h>
+ #include <linux/nmi.h>
+ #include <linux/swait.h>
++#include <linux/syscore_ops.h>
+ #include <asm/timer.h>
+ #include <asm/cpu.h>
+ #include <asm/traps.h>
+@@ -460,6 +461,25 @@ static bool pv_tlb_flush_supported(void)
  
- 	return kvm_complete_insn_gp(&svm->vcpu, err);
+ static DEFINE_PER_CPU(cpumask_var_t, __pv_cpu_mask);
+ 
++static void kvm_guest_cpu_offline(void)
++{
++	kvm_disable_steal_time();
++	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
++		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
++	kvm_pv_disable_apf();
++	apf_task_wake_all();
++}
++
++static int kvm_cpu_online(unsigned int cpu)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	kvm_guest_cpu_init();
++	local_irq_restore(flags);
++	return 0;
++}
++
+ #ifdef CONFIG_SMP
+ 
+ static bool pv_ipi_supported(void)
+@@ -587,31 +607,34 @@ static void __init kvm_smp_prepare_boot_
+ 	kvm_spinlock_init();
+ }
+ 
+-static void kvm_guest_cpu_offline(void)
++static int kvm_cpu_down_prepare(unsigned int cpu)
+ {
+-	kvm_disable_steal_time();
+-	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
+-		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
+-	kvm_pv_disable_apf();
+-	apf_task_wake_all();
+-}
++	unsigned long flags;
+ 
+-static int kvm_cpu_online(unsigned int cpu)
+-{
+-	local_irq_disable();
+-	kvm_guest_cpu_init();
+-	local_irq_enable();
++	local_irq_save(flags);
++	kvm_guest_cpu_offline();
++	local_irq_restore(flags);
+ 	return 0;
+ }
+ 
+-static int kvm_cpu_down_prepare(unsigned int cpu)
++#endif
++
++static int kvm_suspend(void)
+ {
+-	local_irq_disable();
+ 	kvm_guest_cpu_offline();
+-	local_irq_enable();
++
+ 	return 0;
+ }
+-#endif
++
++static void kvm_resume(void)
++{
++	kvm_cpu_online(raw_smp_processor_id());
++}
++
++static struct syscore_ops kvm_syscore_ops = {
++	.suspend	= kvm_suspend,
++	.resume		= kvm_resume,
++};
+ 
+ static void kvm_flush_tlb_others(const struct cpumask *cpumask,
+ 			const struct flush_tlb_info *info)
+@@ -681,6 +704,8 @@ static void __init kvm_guest_init(void)
+ 	kvm_guest_cpu_init();
+ #endif
+ 
++	register_syscore_ops(&kvm_syscore_ops);
++
+ 	/*
+ 	 * Hard lockup detection is enabled by default. Disable it, as guests
+ 	 * can get false positives too easily, for example if the host is
 
 
