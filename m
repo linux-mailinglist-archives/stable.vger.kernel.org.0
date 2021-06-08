@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AFBB39FFEB
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 836EF3A00E4
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234954AbhFHSh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:37:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57560 "EHLO mail.kernel.org"
+        id S235684AbhFHSsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:48:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234858AbhFHSf1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:35:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CD3A613F9;
-        Tue,  8 Jun 2021 18:32:18 +0000 (UTC)
+        id S235163AbhFHSqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:46:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FD2461457;
+        Tue,  8 Jun 2021 18:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177139;
-        bh=shz5xA4uenEmO6NUnq5K3dZdPpj+Lg6KmyzudpB8yJQ=;
+        s=korg; t=1623177462;
+        bh=MkMB8LnhR/wQ2FgkNkkfsqVwkK5F68zjorlKDzb9t8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=orHyf/g370ppLl4oP0LHq/IHZw6Z4EGGjiXOIgawjtPLWl23OxYRs+0QDl8DztRA9
-         Nsi9MO16qeF3oFdUDCQ91Ju16x8DciuwOpgf6jLhjGCoq9Pfwh4578kF3zcAjAh+a3
-         1hFEeOqQTC4hXnNZ3ICQ7tvKktlXrjA0dvB/AQlk=
+        b=deLvTEdKsDxFZXRgEIvl4WwKe7y1MgM4Ar46A2YvjFGzZ4t8y6fGeN0g9qJet4KFN
+         nhL5ddS3okZjSX+hFgtOmpNwXIQWwwQ2IeybTQ04oIEJBCsctKjRxWjcgwZsFIKaiP
+         z8NXVzr+G0tgIz5+ye29QP8fx2EoaqPAW6xCqalg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cheng Jian <cj.chengjian@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Yang Wei <yang.wei@linux.alibaba.com>
-Subject: [PATCH 4.14 46/47] sched/fair: Optimize select_idle_cpu
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 60/78] btrfs: fix error handling in btrfs_del_csums
 Date:   Tue,  8 Jun 2021 20:27:29 +0200
-Message-Id: <20210608175932.005035051@linuxfoundation.org>
+Message-Id: <20210608175937.302704632@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
-References: <20210608175930.477274100@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +40,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Jian <cj.chengjian@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 60588bfa223ff675b95f866249f90616613fbe31 upstream.
+commit b86652be7c83f70bf406bed18ecf55adb9bfb91b upstream.
 
-select_idle_cpu() will scan the LLC domain for idle CPUs,
-it's always expensive. so the next commit :
+Error injection stress would sometimes fail with checksums on disk that
+did not have a corresponding extent.  This occurred because the pattern
+in btrfs_del_csums was
 
-	1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
+	while (1) {
+		ret = btrfs_search_slot();
+		if (ret < 0)
+			break;
+	}
+	ret = 0;
+out:
+	btrfs_free_path(path);
+	return ret;
 
-introduces a way to limit how many CPUs we scan.
+If we got an error from btrfs_search_slot we'd clear the error because
+we were breaking instead of goto out.  Instead of using goto out, simply
+handle the cases where we may leave a random value in ret, and get rid
+of the
 
-But it consume some CPUs out of 'nr' that are not allowed
-for the task and thus waste our attempts. The function
-always return nr_cpumask_bits, and we can't find a CPU
-which our task is allowed to run.
+	ret = 0;
+out:
 
-Cpumask may be too big, similar to select_idle_core(), use
-per_cpu_ptr 'select_idle_mask' to prevent stack overflow.
+pattern and simply allow break to have the proper error reporting.  With
+this fix we properly abort the transaction and do not commit thinking we
+successfully deleted the csum.
 
-Fixes: 1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
-Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20191213024530.28052-1-cj.chengjian@huawei.com
-Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
-Tested-by: Yang Wei <yang.wei@linux.alibaba.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/btrfs/file-item.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5779,6 +5779,7 @@ static inline int select_idle_smt(struct
-  */
- static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int target)
- {
-+	struct cpumask *cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
- 	struct sched_domain *this_sd;
- 	u64 avg_cost, avg_idle;
- 	u64 time, cost;
-@@ -5809,11 +5810,11 @@ static int select_idle_cpu(struct task_s
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -599,7 +599,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 	u64 end_byte = bytenr + len;
+ 	u64 csum_end;
+ 	struct extent_buffer *leaf;
+-	int ret;
++	int ret = 0;
+ 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
+ 	int blocksize_bits = fs_info->sb->s_blocksize_bits;
  
- 	time = local_clock();
+@@ -618,6 +618,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 		path->leave_spinning = 1;
+ 		ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+ 		if (ret > 0) {
++			ret = 0;
+ 			if (path->slots[0] == 0)
+ 				break;
+ 			path->slots[0]--;
+@@ -674,7 +675,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 			ret = btrfs_del_items(trans, root, path,
+ 					      path->slots[0], del_nr);
+ 			if (ret)
+-				goto out;
++				break;
+ 			if (key.offset == bytenr)
+ 				break;
+ 		} else if (key.offset < bytenr && csum_end > end_byte) {
+@@ -718,8 +719,9 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 			ret = btrfs_split_item(trans, root, path, &key, offset);
+ 			if (ret && ret != -EAGAIN) {
+ 				btrfs_abort_transaction(trans, ret);
+-				goto out;
++				break;
+ 			}
++			ret = 0;
  
--	for_each_cpu_wrap(cpu, sched_domain_span(sd), target) {
-+	cpumask_and(cpus, sched_domain_span(sd), &p->cpus_allowed);
-+
-+	for_each_cpu_wrap(cpu, cpus, target) {
- 		if (!--nr)
- 			return -1;
--		if (!cpumask_test_cpu(cpu, &p->cpus_allowed))
--			continue;
- 		if (idle_cpu(cpu))
- 			break;
+ 			key.offset = end_byte - 1;
+ 		} else {
+@@ -729,8 +731,6 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 		}
+ 		btrfs_release_path(path);
  	}
+-	ret = 0;
+-out:
+ 	btrfs_free_path(path);
+ 	return ret;
+ }
 
 
