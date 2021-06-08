@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1D4B39FFC9
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 552873A00D3
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234355AbhFHSgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:36:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
+        id S235307AbhFHSrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:47:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234388AbhFHSem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:34:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA17C613B9;
-        Tue,  8 Jun 2021 18:31:53 +0000 (UTC)
+        id S236003AbhFHSps (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:45:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D4BA61352;
+        Tue,  8 Jun 2021 18:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177114;
-        bh=YWx7Wpz/nixlUUeiM88xb7Aa0wPZrmfma7RLTzvvMLI=;
+        s=korg; t=1623177434;
+        bh=Y3/bT0eXXMxXy8velYvf/Cz/KZ/3wAqzHR27H3RNpNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bxEob4yHrTq6Xh47BrOw1xgQoLdlesewW0tYy64MBThemc3fwfJFw6gIsxgztVuSw
-         9rE1JhH6/Qde7B+aL0CNzfAN3PHUfE/6M1g0WGUDM0LMH9u7SZbMFCwztdh3ksYL5M
-         eriaeLEuH7mIvn4VNyUh1H+ev0xuel5AxgUUEHCc=
+        b=C9pBMRSVio3ZGUx3f8+GLReowwqwSzqveIbgYiNvFg0hK6CNOPIkKolsJcNcT9Ofe
+         JPNnHPcOqmgsHY6hIXVsAyyRGqmYFFJFuLLcaPZ3ZXZSJckH6d08SKDEJxy1/ken4J
+         y2LxkBag0+kE3GC3ARfp+XfHO917HeQ7TXjm+/ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jann Horn <jannh@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Frank van der Linden <fllinden@amazon.com>
-Subject: [PATCH 4.14 37/47] bpf/verifier: disallow pointer subtraction
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 51/78] ext4: fix bug on in ext4_es_cache_extent as ext4_split_extent_at failed
 Date:   Tue,  8 Jun 2021 20:27:20 +0200
-Message-Id: <20210608175931.695295703@linuxfoundation.org>
+Message-Id: <20210608175937.006341214@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
-References: <20210608175930.477274100@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+From: Ye Bin <yebin10@huawei.com>
 
-commit dd066823db2ac4e22f721ec85190817b58059a54 upstream.
+commit 082cd4ec240b8734a82a89ffb890216ac98fec68 upstream.
 
-Subtraction of pointers was accidentally allowed for unpriv programs
-by commit 82abbf8d2fc4. Revert that part of commit.
+We got follow bug_on when run fsstress with injecting IO fault:
+[130747.323114] kernel BUG at fs/ext4/extents_status.c:762!
+[130747.323117] Internal error: Oops - BUG: 0 [#1] SMP
+......
+[130747.334329] Call trace:
+[130747.334553]  ext4_es_cache_extent+0x150/0x168 [ext4]
+[130747.334975]  ext4_cache_extents+0x64/0xe8 [ext4]
+[130747.335368]  ext4_find_extent+0x300/0x330 [ext4]
+[130747.335759]  ext4_ext_map_blocks+0x74/0x1178 [ext4]
+[130747.336179]  ext4_map_blocks+0x2f4/0x5f0 [ext4]
+[130747.336567]  ext4_mpage_readpages+0x4a8/0x7a8 [ext4]
+[130747.336995]  ext4_readpage+0x54/0x100 [ext4]
+[130747.337359]  generic_file_buffered_read+0x410/0xae8
+[130747.337767]  generic_file_read_iter+0x114/0x190
+[130747.338152]  ext4_file_read_iter+0x5c/0x140 [ext4]
+[130747.338556]  __vfs_read+0x11c/0x188
+[130747.338851]  vfs_read+0x94/0x150
+[130747.339110]  ksys_read+0x74/0xf0
 
-Fixes: 82abbf8d2fc4 ("bpf: do not allow root to mangle valid pointers")
-Reported-by: Jann Horn <jannh@google.com>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-[fllinden@amazon.com: backport to 4.14]
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+This patch's modification is according to Jan Kara's suggestion in:
+https://patchwork.ozlabs.org/project/linux-ext4/patch/20210428085158.3728201-1-yebin10@huawei.com/
+"I see. Now I understand your patch. Honestly, seeing how fragile is trying
+to fix extent tree after split has failed in the middle, I would probably
+go even further and make sure we fix the tree properly in case of ENOSPC
+and EDQUOT (those are easily user triggerable).  Anything else indicates a
+HW problem or fs corruption so I'd rather leave the extent tree as is and
+don't try to fix it (which also means we will not create overlapping
+extents)."
+
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210506141042.3298679-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/extents.c |   43 +++++++++++++++++++++++--------------------
+ 1 file changed, 23 insertions(+), 20 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2754,7 +2754,7 @@ static int adjust_reg_min_max_vals(struc
- 				 * an arbitrary scalar. Disallow all math except
- 				 * pointer subtraction
- 				 */
--				if (opcode == BPF_SUB){
-+				if (opcode == BPF_SUB && env->allow_ptr_leaks) {
- 					mark_reg_unknown(regs, insn->dst_reg);
- 					return 0;
- 				}
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -3378,7 +3378,10 @@ static int ext4_split_extent_at(handle_t
+ 		ext4_ext_mark_unwritten(ex2);
+ 
+ 	err = ext4_ext_insert_extent(handle, inode, ppath, &newex, flags);
+-	if (err == -ENOSPC && (EXT4_EXT_MAY_ZEROOUT & split_flag)) {
++	if (err != -ENOSPC && err != -EDQUOT)
++		goto out;
++
++	if (EXT4_EXT_MAY_ZEROOUT & split_flag) {
+ 		if (split_flag & (EXT4_EXT_DATA_VALID1|EXT4_EXT_DATA_VALID2)) {
+ 			if (split_flag & EXT4_EXT_DATA_VALID1) {
+ 				err = ext4_ext_zeroout(inode, ex2);
+@@ -3404,30 +3407,30 @@ static int ext4_split_extent_at(handle_t
+ 					      ext4_ext_pblock(&orig_ex));
+ 		}
+ 
+-		if (err)
+-			goto fix_extent_len;
+-		/* update the extent length and mark as initialized */
+-		ex->ee_len = cpu_to_le16(ee_len);
+-		ext4_ext_try_to_merge(handle, inode, path, ex);
+-		err = ext4_ext_dirty(handle, inode, path + path->p_depth);
+-		if (err)
+-			goto fix_extent_len;
+-
+-		/* update extent status tree */
+-		err = ext4_zeroout_es(inode, &zero_ex);
+-
+-		goto out;
+-	} else if (err)
+-		goto fix_extent_len;
+-
+-out:
+-	ext4_ext_show_leaf(inode, path);
+-	return err;
++		if (!err) {
++			/* update the extent length and mark as initialized */
++			ex->ee_len = cpu_to_le16(ee_len);
++			ext4_ext_try_to_merge(handle, inode, path, ex);
++			err = ext4_ext_dirty(handle, inode, path + path->p_depth);
++			if (!err)
++				/* update extent status tree */
++				err = ext4_zeroout_es(inode, &zero_ex);
++			/* If we failed at this point, we don't know in which
++			 * state the extent tree exactly is so don't try to fix
++			 * length of the original extent as it may do even more
++			 * damage.
++			 */
++			goto out;
++		}
++	}
+ 
+ fix_extent_len:
+ 	ex->ee_len = orig_ex.ee_len;
+ 	ext4_ext_dirty(handle, inode, path + path->p_depth);
+ 	return err;
++out:
++	ext4_ext_show_leaf(inode, path);
++	return err;
+ }
+ 
+ /*
 
 
