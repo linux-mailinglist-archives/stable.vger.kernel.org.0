@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC563A005C
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55E0E3A0062
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235073AbhFHSmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36258 "EHLO mail.kernel.org"
+        id S234546AbhFHSm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:42:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234674AbhFHSkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:40:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D526261351;
-        Tue,  8 Jun 2021 18:34:46 +0000 (UTC)
+        id S234445AbhFHSkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:40:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A59B613D2;
+        Tue,  8 Jun 2021 18:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177287;
-        bh=pIIGlN9EPcfE33lJxRnT5yrbrIVU1+ivFW8PN9HZ+A8=;
+        s=korg; t=1623177290;
+        bh=iu8iH5BljOLDJvmRbikySsVS7kvTFPstiA2Va6sYKng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCEfNaNte5AIT705vNBNyw/KDQyyawQhJL7fUyVgo6qaiJDgOC7DOiAbr/AMCOf0x
-         rPFwrw8Y068FaBnd2m158hslSHamz33Oyeq3VGoiUvAXcKqu7Y5MDYt7SJjBKgkUb9
-         ZD2CaqIqKoCpQVuLqxKSIpj+QNolj6kLsTlEPXBg=
+        b=pA5Z9jxT+FOxhY2g8iDTRQhLzgJ6UVi3r2AL5I4u3OpUnHv1Ywxe4o1Qhl0eDfbRP
+         POVaEVlehrlGFH4Z6za4xS5Lvmb1s2TcruqQVuOpTZmbX0F3j2miRUvgwIzChBCo3n
+         4yOrd4Jr60yWqp0wKeKPA0WalfmKg0lhTQcAfLq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cheng Jian <cj.chengjian@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Yang Wei <yang.wei@linux.alibaba.com>
-Subject: [PATCH 4.19 57/58] sched/fair: Optimize select_idle_cpu
-Date:   Tue,  8 Jun 2021 20:27:38 +0200
-Message-Id: <20210608175934.158307657@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.19 58/58] xen-pciback: redo VF placement in the virtual topology
+Date:   Tue,  8 Jun 2021 20:27:39 +0200
+Message-Id: <20210608175934.188638088@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
 References: <20210608175932.263480586@linuxfoundation.org>
@@ -43,63 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Jian <cj.chengjian@huawei.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit 60588bfa223ff675b95f866249f90616613fbe31 upstream.
+The commit referenced below was incomplete: It merely affected what
+would get written to the vdev-<N> xenstore node. The guest would still
+find the function at the original function number as long as
+__xen_pcibk_get_pci_dev() wouldn't be in sync. The same goes for AER wrt
+__xen_pcibk_get_pcifront_dev().
 
-select_idle_cpu() will scan the LLC domain for idle CPUs,
-it's always expensive. so the next commit :
+Undo overriding the function to zero and instead make sure that VFs at
+function zero remain alone in their slot. This has the added benefit of
+improving overall capacity, considering that there's only a total of 32
+slots available right now (PCI segment and bus can both only ever be
+zero at present).
 
-	1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
+This is upstream commit 4ba50e7c423c29639878c00573288869aa627068.
 
-introduces a way to limit how many CPUs we scan.
-
-But it consume some CPUs out of 'nr' that are not allowed
-for the task and thus waste our attempts. The function
-always return nr_cpumask_bits, and we can't find a CPU
-which our task is allowed to run.
-
-Cpumask may be too big, similar to select_idle_core(), use
-per_cpu_ptr 'select_idle_mask' to prevent stack overflow.
-
-Fixes: 1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
-Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20191213024530.28052-1-cj.chengjian@huawei.com
-Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
-Tested-by: Yang Wei <yang.wei@linux.alibaba.com>
+Fixes: 8a5248fe10b1 ("xen PV passthru: assign SR-IOV virtual functions to 
+separate virtual slots")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/8def783b-404c-3452-196d-3f3fd4d72c9e@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/xen/xen-pciback/vpci.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6154,6 +6154,7 @@ static inline int select_idle_smt(struct
-  */
- static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int target)
+--- a/drivers/xen/xen-pciback/vpci.c
++++ b/drivers/xen/xen-pciback/vpci.c
+@@ -69,7 +69,7 @@ static int __xen_pcibk_add_pci_dev(struc
+ 				   struct pci_dev *dev, int devid,
+ 				   publish_pci_dev_cb publish_cb)
  {
-+	struct cpumask *cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
- 	struct sched_domain *this_sd;
- 	u64 avg_cost, avg_idle;
- 	u64 time, cost;
-@@ -6184,11 +6185,11 @@ static int select_idle_cpu(struct task_s
+-	int err = 0, slot, func = -1;
++	int err = 0, slot, func = PCI_FUNC(dev->devfn);
+ 	struct pci_dev_entry *t, *dev_entry;
+ 	struct vpci_dev_data *vpci_dev = pdev->pci_dev_data;
  
- 	time = local_clock();
+@@ -94,23 +94,26 @@ static int __xen_pcibk_add_pci_dev(struc
  
--	for_each_cpu_wrap(cpu, sched_domain_span(sd), target) {
-+	cpumask_and(cpus, sched_domain_span(sd), &p->cpus_allowed);
-+
-+	for_each_cpu_wrap(cpu, cpus, target) {
- 		if (!--nr)
- 			return -1;
--		if (!cpumask_test_cpu(cpu, &p->cpus_allowed))
--			continue;
- 		if (available_idle_cpu(cpu))
- 			break;
+ 	/*
+ 	 * Keep multi-function devices together on the virtual PCI bus, except
+-	 * virtual functions.
++	 * that we want to keep virtual functions at func 0 on their own. They
++	 * aren't multi-function devices and hence their presence at func 0
++	 * may cause guests to not scan the other functions.
+ 	 */
+-	if (!dev->is_virtfn) {
++	if (!dev->is_virtfn || func) {
+ 		for (slot = 0; slot < PCI_SLOT_MAX; slot++) {
+ 			if (list_empty(&vpci_dev->dev_list[slot]))
+ 				continue;
+ 
+ 			t = list_entry(list_first(&vpci_dev->dev_list[slot]),
+ 				       struct pci_dev_entry, list);
++			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
++				continue;
+ 
+ 			if (match_slot(dev, t->dev)) {
+ 				pr_info("vpci: %s: assign to virtual slot %d func %d\n",
+ 					pci_name(dev), slot,
+-					PCI_FUNC(dev->devfn));
++					func);
+ 				list_add_tail(&dev_entry->list,
+ 					      &vpci_dev->dev_list[slot]);
+-				func = PCI_FUNC(dev->devfn);
+ 				goto unlock;
+ 			}
+ 		}
+@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struc
+ 				pci_name(dev), slot);
+ 			list_add_tail(&dev_entry->list,
+ 				      &vpci_dev->dev_list[slot]);
+-			func = dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
+ 			goto unlock;
+ 		}
  	}
 
 
