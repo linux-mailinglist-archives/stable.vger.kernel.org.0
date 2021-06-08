@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B70D53A02DB
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29C393A0177
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234010AbhFHTLD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:11:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53504 "EHLO mail.kernel.org"
+        id S235549AbhFHSwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:52:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235281AbhFHTHE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:07:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53BD161452;
-        Tue,  8 Jun 2021 18:47:01 +0000 (UTC)
+        id S236289AbhFHSuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:50:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEF0261467;
+        Tue,  8 Jun 2021 18:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178021;
-        bh=RUkEhQ11yLrhZHjul4v8CVpXeI6koCZDnNdHEQYrz+Y=;
+        s=korg; t=1623177575;
+        bh=SR7TwnqRT9aOFTBruccWbgoF5gRaRBe/+emlZzBKv+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zIaPcD3BVG48xLp+wrgDyuy6ia/pNzCDWyBzuy5tpbl+p0Ro/HGkAkYGI7Hr5+4gV
-         l1bFc2yah8SktBIvt7DpGbXzC9Cn1AzFQeE4jD+oaD5Vv9EzytNfalHvT+aUuo5IBZ
-         vua3zo/T7NHDsaI/5PdYjslx+GuPTUE3WJqatKyQ=
+        b=vQNwzLH6ibltPuMVLfP6t/2gfbBGm3ZdLRm57Qi9BUyLK1zcs+CtCkELuGeniIVQo
+         Ygq1+jRDpfB2tovziGBm+kMwXb8vt+hVJccdEXsV1OvspdAAWUp3n5V7VpTEDjtSTo
+         +zSW1m/ZEVXMgigyTdRj8eqlDmzAF8vsTriFs1qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 014/161] vfio/platform: fix module_put call in error flow
-Date:   Tue,  8 Jun 2021 20:25:44 +0200
-Message-Id: <20210608175945.944074146@linuxfoundation.org>
+Subject: [PATCH 5.10 005/137] netfilter: conntrack: unregister ipv4 sockopts on error unwind
+Date:   Tue,  8 Jun 2021 20:25:45 +0200
+Message-Id: <20210608175942.559938626@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit dc51ff91cf2d1e9a2d941da483602f71d4a51472 ]
+[ Upstream commit 22cbdbcfb61acc78d5fc21ebb13ccc0d7e29f793 ]
 
-The ->parent_module is the one that use in try_module_get. It should
-also be the one the we use in module_put during vfio_platform_open().
+When ipv6 sockopt register fails, the ipv4 one needs to be removed.
 
-Fixes: 32a2d71c4e80 ("vfio: platform: introduce vfio-platform-base module")
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Message-Id: <20210518192133.59195-1-mgurtovoy@nvidia.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: a0ae2562c6c ("netfilter: conntrack: remove l3proto abstraction")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/platform/vfio_platform_common.c | 2 +-
+ net/netfilter/nf_conntrack_proto.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
-index fb4b385191f2..e83a7cd15c95 100644
---- a/drivers/vfio/platform/vfio_platform_common.c
-+++ b/drivers/vfio/platform/vfio_platform_common.c
-@@ -289,7 +289,7 @@ err_irq:
- 	vfio_platform_regions_cleanup(vdev);
- err_reg:
- 	mutex_unlock(&driver_lock);
--	module_put(THIS_MODULE);
-+	module_put(vdev->parent_module);
+diff --git a/net/netfilter/nf_conntrack_proto.c b/net/netfilter/nf_conntrack_proto.c
+index 47e9319d2cf3..71892822bbf5 100644
+--- a/net/netfilter/nf_conntrack_proto.c
++++ b/net/netfilter/nf_conntrack_proto.c
+@@ -660,7 +660,7 @@ int nf_conntrack_proto_init(void)
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+ cleanup_sockopt:
+-	nf_unregister_sockopt(&so_getorigdst6);
++	nf_unregister_sockopt(&so_getorigdst);
+ #endif
  	return ret;
  }
- 
 -- 
 2.30.2
 
