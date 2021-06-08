@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD7273A00E5
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15BD33A006B
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235689AbhFHSsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:48:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42132 "EHLO mail.kernel.org"
+        id S235374AbhFHSnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:43:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235109AbhFHSqt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:46:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D255A61452;
-        Tue,  8 Jun 2021 18:37:38 +0000 (UTC)
+        id S235043AbhFHSlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:41:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C072B61438;
+        Tue,  8 Jun 2021 18:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177459;
-        bh=FulF1Xb9hlzLZfuiYiFX5B6zWG5zxUaEkZhB++mYu2o=;
+        s=korg; t=1623177309;
+        bh=D3uiFNGSp8hXAmUSZZcMPtlbeCo4G5JIXuUd4UoHDBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oHPBVsF7l47zIndvxpMPOLb92H03JBl4nywAA3gRSqTU50gLC3Lz+UHP+pTT9+t+a
-         JnLH6zdZnRfTHDBrTwch/1icaAdVqVOIHeWa5tGMT0ObB1NtCyZBVanD1Wy6Bt2CqL
-         S4h0dDuKwhcT6CPaq2OuHWxWGYq5GMkD9uPioOFc=
+        b=jfwcagGpO3KLu+eBYAUDZ3C09TU724wQDkMZm2hQTX2u0IFUpzhy6DvhVFrKX0rbA
+         UCtXgM4Jh46mUUJzepuoGoFPFt7RfWzVtEZrR64cDEIxj55GiU4s9qkLbtc5Ok89ry
+         dBHOsRD81hsk5rJzeexyGUhxwrztS1am9yd2hvd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 59/78] btrfs: mark ordered extent and inode with error if we fail to finish
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: [PATCH 4.19 47/58] selftests/bpf: add "any alignment" annotation for some tests
 Date:   Tue,  8 Jun 2021 20:27:28 +0200
-Message-Id: <20210608175937.268335857@linuxfoundation.org>
+Message-Id: <20210608175933.826274506@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
-References: <20210608175935.254388043@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Björn Töpel <bjorn.topel@gmail.com>
 
-commit d61bec08b904cf171835db98168f82bc338e92e4 upstream.
+commit e2c6f50e48849298bed694de03cceb537d95cdc4 upstream
 
-While doing error injection testing I saw that sometimes we'd get an
-abort that wouldn't stop the current transaction commit from completing.
-This abort was coming from finish ordered IO, but at this point in the
-transaction commit we should have gotten an error and stopped.
+RISC-V does, in-general, not have "efficient unaligned access". When
+testing the RISC-V BPF JIT, some selftests failed in the verification
+due to misaligned access. Annotate these tests with the
+F_NEEDS_EFFICIENT_UNALIGNED_ACCESS flag.
 
-It turns out the abort came from finish ordered io while trying to write
-out the free space cache.  It occurred to me that any failure inside of
-finish_ordered_io isn't actually raised to the person doing the writing,
-so we could have any number of failures in this path and think the
-ordered extent completed successfully and the inode was fine.
-
-Fix this by marking the ordered extent with BTRFS_ORDERED_IOERR, and
-marking the mapping of the inode with mapping_set_error, so any callers
-that simply call fdatawait will also get the error.
-
-With this we're seeing the IO error on the free space inode when we fail
-to do the finish_ordered_io.
-
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Björn Töpel <bjorn.topel@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ tools/testing/selftests/bpf/test_verifier.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -3359,6 +3359,18 @@ out:
- 	if (ret || truncated) {
- 		u64 start, end;
- 
-+		/*
-+		 * If we failed to finish this ordered extent for any reason we
-+		 * need to make sure BTRFS_ORDERED_IOERR is set on the ordered
-+		 * extent, and mark the inode with the error if it wasn't
-+		 * already set.  Any error during writeback would have already
-+		 * set the mapping error, so we need to set it if we're the ones
-+		 * marking this ordered extent as failed.
-+		 */
-+		if (ret && !test_and_set_bit(BTRFS_ORDERED_IOERR,
-+					     &ordered_extent->flags))
-+			mapping_set_error(ordered_extent->inode->i_mapping, -EIO);
-+
- 		if (truncated)
- 			start = ordered_extent->file_offset + logical_len;
- 		else
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -963,6 +963,7 @@ static struct bpf_test tests[] = {
+ 		.errstr_unpriv = "attempt to corrupt spilled",
+ 		.errstr = "corrupted spill",
+ 		.result = REJECT,
++		.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
+ 	},
+ 	{
+ 		"invalid src register in STX",
+@@ -1777,6 +1778,7 @@ static struct bpf_test tests[] = {
+ 		.errstr = "invalid bpf_context access",
+ 		.result = REJECT,
+ 		.prog_type = BPF_PROG_TYPE_SK_MSG,
++		.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
+ 	},
+ 	{
+ 		"invalid read past end of SK_MSG",
+@@ -2176,6 +2178,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.errstr = "invalid bpf_context access",
+ 		.result = REJECT,
++		.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
+ 	},
+ 	{
+ 		"check skb->hash half load not permitted, unaligned 3",
 
 
