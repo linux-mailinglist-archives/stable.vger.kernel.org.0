@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4893A029B
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555CF3A0171
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236781AbhFHTHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:07:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39970 "EHLO mail.kernel.org"
+        id S235479AbhFHSwO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:52:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237376AbhFHTE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:04:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CE62613CA;
-        Tue,  8 Jun 2021 18:46:01 +0000 (UTC)
+        id S236061AbhFHSts (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:49:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E608061426;
+        Tue,  8 Jun 2021 18:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177962;
-        bh=hj6mXvnoMal4PRcF2xTdllekSdclgOAcdrlzJ429Zv8=;
+        s=korg; t=1623177556;
+        bh=Y+x07ts2834sKo/W/TEPkYGXiOK6fWJ6EvOPwwmPx4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgLmCBGQHx2g9XwYz7y5hhLVa29tkDPEIpXALruAMv+Dl3qcvn3acJ0K+Ducl5jAl
-         z+5zVLHXjsDbGvBzbqeFQ2g3nOXX3k0PP3WThx5EbcT4GBhW3JwNX9UQb8M7mu3Mfc
-         SKNXHcc8FAlvbBLH6RztYmDtCZJ72TWF2jokpKtU=
+        b=plicAHLlNsMoEEwOA7fSfvMklp5kGLe7yUh995KLXrhcwikZr3wgVn3TUGywcNWJv
+         +tN+b99P8pMB18USomxXk66qul+1OdwrlzXKehE4KRxTrT4TF36BWB02pGQhA2NxSx
+         yevVT2g+pc86HE+WaLyQfW4dK14RpRx2ngseKzd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 026/161] mptcp: do not reset MP_CAPABLE subflow on mapping errors
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 016/137] HID: pidff: fix error return code in hid_pidff_init()
 Date:   Tue,  8 Jun 2021 20:25:56 +0200
-Message-Id: <20210608175946.334186622@linuxfoundation.org>
+Message-Id: <20210608175942.954406863@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,109 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit dea2b1ea9c705c5ba351a9174403fd83dbb68fc3 ]
+[ Upstream commit 3dd653c077efda8152f4dd395359617d577a54cd ]
 
-When some mapping related errors occurs we close the main
-MPC subflow with a RST. We should instead fallback gracefully
-to TCP, and do the reset only for MPJ subflows.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: d22f4988ffec ("mptcp: process MP_CAPABLE data option")
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/192
-Reported-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 224ee88fe395 ("Input: add force feedback driver for PID devices")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/subflow.c | 59 +++++++++++++++++++++++----------------------
- 1 file changed, 30 insertions(+), 29 deletions(-)
+ drivers/hid/usbhid/hid-pidff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 8878317b4386..8425cd393bf3 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -984,22 +984,11 @@ static bool subflow_check_data_avail(struct sock *ssk)
- 		u64 old_ack;
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index fddac7c72f64..07a9fe97d2e0 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -1292,6 +1292,7 @@ int hid_pidff_init(struct hid_device *hid)
  
- 		status = get_mapping_status(ssk, msk);
--		pr_debug("msk=%p ssk=%p status=%d", msk, ssk, status);
--		if (status == MAPPING_INVALID) {
--			ssk->sk_err = EBADMSG;
--			goto fatal;
--		}
--		if (status == MAPPING_DUMMY) {
--			__mptcp_do_fallback(msk);
--			skb = skb_peek(&ssk->sk_receive_queue);
--			subflow->map_valid = 1;
--			subflow->map_seq = READ_ONCE(msk->ack_seq);
--			subflow->map_data_len = skb->len;
--			subflow->map_subflow_seq = tcp_sk(ssk)->copied_seq -
--						   subflow->ssn_offset;
--			subflow->data_avail = MPTCP_SUBFLOW_DATA_AVAIL;
--			return true;
--		}
-+		if (unlikely(status == MAPPING_INVALID))
-+			goto fallback;
-+
-+		if (unlikely(status == MAPPING_DUMMY))
-+			goto fallback;
- 
- 		if (status != MAPPING_OK)
- 			goto no_data;
-@@ -1012,10 +1001,8 @@ static bool subflow_check_data_avail(struct sock *ssk)
- 		 * MP_CAPABLE-based mapping
- 		 */
- 		if (unlikely(!READ_ONCE(msk->can_ack))) {
--			if (!subflow->mpc_map) {
--				ssk->sk_err = EBADMSG;
--				goto fatal;
--			}
-+			if (!subflow->mpc_map)
-+				goto fallback;
- 			WRITE_ONCE(msk->remote_key, subflow->remote_key);
- 			WRITE_ONCE(msk->ack_seq, subflow->map_seq);
- 			WRITE_ONCE(msk->can_ack, true);
-@@ -1043,15 +1030,29 @@ static bool subflow_check_data_avail(struct sock *ssk)
- no_data:
- 	subflow_sched_work_if_closed(msk, ssk);
- 	return false;
--fatal:
--	/* fatal protocol error, close the socket */
--	/* This barrier is coupled with smp_rmb() in tcp_poll() */
--	smp_wmb();
--	ssk->sk_error_report(ssk);
--	tcp_set_state(ssk, TCP_CLOSE);
--	tcp_send_active_reset(ssk, GFP_ATOMIC);
--	subflow->data_avail = 0;
--	return false;
-+
-+fallback:
-+	/* RFC 8684 section 3.7. */
-+	if (subflow->mp_join || subflow->fully_established) {
-+		/* fatal protocol error, close the socket.
-+		 * subflow_error_report() will introduce the appropriate barriers
-+		 */
-+		ssk->sk_err = EBADMSG;
-+		ssk->sk_error_report(ssk);
-+		tcp_set_state(ssk, TCP_CLOSE);
-+		tcp_send_active_reset(ssk, GFP_ATOMIC);
-+		subflow->data_avail = 0;
-+		return false;
-+	}
-+
-+	__mptcp_do_fallback(msk);
-+	skb = skb_peek(&ssk->sk_receive_queue);
-+	subflow->map_valid = 1;
-+	subflow->map_seq = READ_ONCE(msk->ack_seq);
-+	subflow->map_data_len = skb->len;
-+	subflow->map_subflow_seq = tcp_sk(ssk)->copied_seq - subflow->ssn_offset;
-+	subflow->data_avail = MPTCP_SUBFLOW_DATA_AVAIL;
-+	return true;
- }
- 
- bool mptcp_subflow_data_available(struct sock *sk)
+ 	if (pidff->pool[PID_DEVICE_MANAGED_POOL].value &&
+ 	    pidff->pool[PID_DEVICE_MANAGED_POOL].value[0] == 0) {
++		error = -EPERM;
+ 		hid_notice(hid,
+ 			   "device does not support device managed pool\n");
+ 		goto fail;
 -- 
 2.30.2
 
