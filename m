@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A46A13A01A7
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F252B3A01B5
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236906AbhFHSzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:55:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49572 "EHLO mail.kernel.org"
+        id S234237AbhFHSz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:55:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236356AbhFHSwJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:52:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3868C61432;
-        Tue,  8 Jun 2021 18:40:11 +0000 (UTC)
+        id S236039AbhFHSwN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:52:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1874C61437;
+        Tue,  8 Jun 2021 18:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177611;
-        bh=ZZ/7M4Jf4qTjZHlkvSCNJEhhJ75h516yewIVZPSvmx4=;
+        s=korg; t=1623177614;
+        bh=pUEkEKH47uM49R0RYwPW4vj88ZTNp1U1Qmym9ij0Lvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BW964WVOKeedS/btfEnydTK6I9q4abyjVybCgNPxl6ycA7RembEQsWNCuGIUQ7ALL
-         hOSUFEt06Q2G07bSjEq8EHKCiQrzDC6im38wErvi1vkWQHTKYNK1J/QU46mr3X3eK+
-         DpXvu1CGYZy1FuXhbVOKtrb4foyAEg+vfuq/a84Q=
+        b=A2GOzXEripgaIzMdX2ohW92qdGupVivSu1oeRZ1reQQcH5TcMtfQloujsBbIVjet+
+         sj22dHsZKIHGRhtgx8p6CBRZRKrEbB4LTVrzKoUZr0R8uiXRf/k+E2+stf8MEViNi4
+         B9Jvt6ztfWHBMdSDtMx+3+F5EpUVOd2Xy+//1x+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 034/137] netfilter: nft_ct: skip expectations for confirmed conntrack
-Date:   Tue,  8 Jun 2021 20:26:14 +0200
-Message-Id: <20210608175943.562222816@linuxfoundation.org>
+Subject: [PATCH 5.10 035/137] netfilter: nfnetlink_cthelper: hit EBUSY on updates if size mismatches
+Date:   Tue,  8 Jun 2021 20:26:15 +0200
+Message-Id: <20210608175943.601575756@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -41,60 +41,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 1710eb913bdcda3917f44d383c32de6bdabfc836 ]
+[ Upstream commit 8971ee8b087750a23f3cd4dc55bff2d0303fd267 ]
 
-nft_ct_expect_obj_eval() calls nf_ct_ext_add() for a confirmed
-conntrack entry. However, nf_ct_ext_add() can only be called for
-!nf_ct_is_confirmed().
+The private helper data size cannot be updated. However, updates that
+contain NFCTH_PRIV_DATA_LEN might bogusly hit EBUSY even if the size is
+the same.
 
-[ 1825.349056] WARNING: CPU: 0 PID: 1279 at net/netfilter/nf_conntrack_extend.c:48 nf_ct_xt_add+0x18e/0x1a0 [nf_conntrack]
-[ 1825.351391] RIP: 0010:nf_ct_ext_add+0x18e/0x1a0 [nf_conntrack]
-[ 1825.351493] Code: 41 5c 41 5d 41 5e 41 5f c3 41 bc 0a 00 00 00 e9 15 ff ff ff ba 09 00 00 00 31 f6 4c 89 ff e8 69 6c 3d e9 eb 96 45 31 ed eb cd <0f> 0b e9 b1 fe ff ff e8 86 79 14 e9 eb bf 0f 1f 40 00 0f 1f 44 00
-[ 1825.351721] RSP: 0018:ffffc90002e1f1e8 EFLAGS: 00010202
-[ 1825.351790] RAX: 000000000000000e RBX: ffff88814f5783c0 RCX: ffffffffc0e4f887
-[ 1825.351881] RDX: dffffc0000000000 RSI: 0000000000000008 RDI: ffff88814f578440
-[ 1825.351971] RBP: 0000000000000000 R08: 0000000000000000 R09: ffff88814f578447
-[ 1825.352060] R10: ffffed1029eaf088 R11: 0000000000000001 R12: ffff88814f578440
-[ 1825.352150] R13: ffff8882053f3a00 R14: 0000000000000000 R15: 0000000000000a20
-[ 1825.352240] FS:  00007f992261c900(0000) GS:ffff889faec00000(0000) knlGS:0000000000000000
-[ 1825.352343] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1825.352417] CR2: 000056070a4d1158 CR3: 000000015efe0000 CR4: 0000000000350ee0
-[ 1825.352508] Call Trace:
-[ 1825.352544]  nf_ct_helper_ext_add+0x10/0x60 [nf_conntrack]
-[ 1825.352641]  nft_ct_expect_obj_eval+0x1b8/0x1e0 [nft_ct]
-[ 1825.352716]  nft_do_chain+0x232/0x850 [nf_tables]
-
-Add the ct helper extension only for unconfirmed conntrack. Skip rule
-evaluation if the ct helper extension does not exist. Thus, you can
-only create expectations from the first packet.
-
-It should be possible to remove this limitation by adding a new action
-to attach a generic ct helper to the first packet. Then, use this ct
-helper extension from follow up packets to create the ct expectation.
-
-While at it, add a missing check to skip the template conntrack too
-and remove check for IPCT_UNTRACK which is implicit to !ct.
-
-Fixes: 857b46027d6f ("netfilter: nft_ct: add ct expectations support")
+Fixes: 12f7a505331e ("netfilter: add user-space connection tracking helper infrastructure")
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_ct.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nfnetlink_cthelper.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
-index a1b0aac46e9e..70d46e0bbf06 100644
---- a/net/netfilter/nft_ct.c
-+++ b/net/netfilter/nft_ct.c
-@@ -1218,7 +1218,7 @@ static void nft_ct_expect_obj_eval(struct nft_object *obj,
- 	struct nf_conn *ct;
+diff --git a/net/netfilter/nfnetlink_cthelper.c b/net/netfilter/nfnetlink_cthelper.c
+index 5b0d0a77379c..91afbf8ac8cf 100644
+--- a/net/netfilter/nfnetlink_cthelper.c
++++ b/net/netfilter/nfnetlink_cthelper.c
+@@ -380,10 +380,14 @@ static int
+ nfnl_cthelper_update(const struct nlattr * const tb[],
+ 		     struct nf_conntrack_helper *helper)
+ {
++	u32 size;
+ 	int ret;
  
- 	ct = nf_ct_get(pkt->skb, &ctinfo);
--	if (!ct || ctinfo == IP_CT_UNTRACKED) {
-+	if (!ct || nf_ct_is_confirmed(ct) || nf_ct_is_template(ct)) {
- 		regs->verdict.code = NFT_BREAK;
- 		return;
- 	}
+-	if (tb[NFCTH_PRIV_DATA_LEN])
+-		return -EBUSY;
++	if (tb[NFCTH_PRIV_DATA_LEN]) {
++		size = ntohl(nla_get_be32(tb[NFCTH_PRIV_DATA_LEN]));
++		if (size != helper->data_len)
++			return -EBUSY;
++	}
+ 
+ 	if (tb[NFCTH_POLICY]) {
+ 		ret = nfnl_cthelper_update_policy(helper, tb[NFCTH_POLICY]);
 -- 
 2.30.2
 
