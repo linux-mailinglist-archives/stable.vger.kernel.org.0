@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 637BA3A01DA
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF96E3A01E2
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236341AbhFHS45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:56:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50330 "EHLO mail.kernel.org"
+        id S235447AbhFHS5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236651AbhFHSyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:54:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9E756144A;
-        Tue,  8 Jun 2021 18:41:25 +0000 (UTC)
+        id S236797AbhFHSzP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:55:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B59B661582;
+        Tue,  8 Jun 2021 18:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177686;
-        bh=rO3U3bL8yhdhgNm3jnOG4k7OWjg088jczsRJPl+DgIA=;
+        s=korg; t=1623177689;
+        bh=Jzdl3VcUwsbDAXA9FX5I2CTgVD/+ynGxlxahcn+8BTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IRiOBkNETtWidOnULQb7lKXxbWnxiGxZVnZ42qlHb+vegWPZUb0PCzSxSapaB20gj
-         UBtGha/0aNNhua6/1cH1LL419JFQVjpiuM5uKUzzY5QrUWQrmiwJyRscSx0BASv5h/
-         2knV6Oc92ZZMxj1we0uJ0nDgvFGnwW6El5IFO1BI=
+        b=v1it/8SWtExndXUvBIhNrSnd7R687EyNI3mc+nxwWQM6xmJ/LAtKDL37+5sCl56ea
+         g/pzgVDOL72AO28X28YNipZyshHpqtGELrQ+J61FfwNrlxBa4N4tBGnCCpdVLlNGW1
+         gPud2CttduSCHgHGeL+auAsu0mqS+o6XV6smQ1k0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/137] arm64: dts: ls1028a: fix memory node
-Date:   Tue,  8 Jun 2021 20:26:42 +0200
-Message-Id: <20210608175944.473514364@linuxfoundation.org>
+Subject: [PATCH 5.10 063/137] arm64: dts: zii-ultra: fix 12V_MAIN voltage
+Date:   Tue,  8 Jun 2021 20:26:43 +0200
+Message-Id: <20210608175944.506049574@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -40,46 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit dabea675faf16e8682aa478ff3ce65dd775620bc ]
+[ Upstream commit ac0cbf9d13dccfd09bebc2f8f5697b6d3ffe27c4 ]
 
-While enabling EDAC support for the LS1028A it was discovered that the
-memory node has a wrong endianness setting as well as a wrong interrupt
-assignment. Fix both.
+As this is a fixed regulator on the board there was no harm in the wrong
+voltage being specified, apart from a confusing reporting to userspace.
 
-This was tested on a sl28 board. To force ECC errors, you can use the
-error injection supported by the controller in hardware (with
-CONFIG_EDAC_DEBUG enabled):
-
- # enable error injection
- $ echo 0x100 > /sys/devices/system/edac/mc/mc0/inject_ctrl
- # flip lowest bit of the data
- $ echo 0x1 > /sys/devices/system/edac/mc/mc0/inject_data_lo
-
-Fixes: 8897f3255c9c ("arm64: dts: Add support for NXP LS1028A SoC")
-Signed-off-by: Michael Walle <michael@walle.cc>
+Fixes: 4a13b3bec3b4 ("arm64: dts: imx: add Zii Ultra board support")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 4 ++--
+ arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-index 62f4dcb96e70..f3b58bb9b840 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-@@ -192,8 +192,8 @@
- 		ddr: memory-controller@1080000 {
- 			compatible = "fsl,qoriq-memory-controller";
- 			reg = <0x0 0x1080000 0x0 0x1000>;
--			interrupts = <GIC_SPI 144 IRQ_TYPE_LEVEL_HIGH>;
--			big-endian;
-+			interrupts = <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
-+			little-endian;
- 		};
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
+index fa7a041ffcfd..825c83c71a9f 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
+@@ -45,8 +45,8 @@
+ 	reg_12p0_main: regulator-12p0-main {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "12V_MAIN";
+-		regulator-min-microvolt = <5000000>;
+-		regulator-max-microvolt = <5000000>;
++		regulator-min-microvolt = <12000000>;
++		regulator-max-microvolt = <12000000>;
+ 		regulator-always-on;
+ 	};
  
- 		dcfg: syscon@1e00000 {
 -- 
 2.30.2
 
