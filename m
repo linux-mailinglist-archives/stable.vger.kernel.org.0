@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A22D43A0365
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 992D63A0358
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237536AbhFHTQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:16:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
+        id S235394AbhFHTQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:16:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237103AbhFHTOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:14:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CABC2610A2;
-        Tue,  8 Jun 2021 18:50:00 +0000 (UTC)
+        id S237000AbhFHTOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:14:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81C976195E;
+        Tue,  8 Jun 2021 18:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178201;
-        bh=AMWQ/w5E8AQa19L0RESJPij7OIgsmldXTH4+NicuEP0=;
+        s=korg; t=1623178204;
+        bh=nZrT3fieOAgx0W68wom3CT2u2lo1QSQHplfGTL3oKaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEKj/CAhwyouwJQaXmltpy9/P/5W6SI9P8ehfv0xZ84TsurfsYV7kyu6cJCAcrk+5
-         LAvNoFQFB3hHlLpQ2qH23ll+jmG7u1xfUO7uYzeP5DBqWuJv09f+MACGV6J8LG7Hk/
-         41y21aN6vDH0rP76hQd2Uf3LDzcvpQQhTc81YzNE=
+        b=iaEFsejSRrjbg9GQBB2zOQLS+kDRmnoJhiN6oqAYvDybOCwilTvkYJMpkQ2bZRyrh
+         YsPepaJR4NAmZY+HSOcPAKW5hAAP58lDOxS8bk7uDTw/RIIJNXzJ7Xd8mmjGZiiHHX
+         sU6T+P3ttvxMcup9QTjc+vjWycyi686n1M1+3ddY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 113/161] ALSA: hda: update the power_state during the direct-complete
-Date:   Tue,  8 Jun 2021 20:27:23 +0200
-Message-Id: <20210608175949.280251795@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
+        Andrew Lunn <andrew@lunn.ch>, Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.12 114/161] ARM: dts: imx6dl-yapp4: Fix RGMII connection to QCA8334 switch
+Date:   Tue,  8 Jun 2021 20:27:24 +0200
+Message-Id: <20210608175949.311455757@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -39,55 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Michal Vokáč <michal.vokac@ysoft.com>
 
-commit b8b90c17602689eeaa5b219d104bbc215d1225cc upstream.
+commit 0e4a4a08cd78efcaddbc2e4c5ed86b5a5cb8a15e upstream.
 
-The patch_realtek.c needs to check if the power_state.event equals
-PM_EVENT_SUSPEND, after using the direct-complete, the suspend() and
-resume() will be skipped if the codec is already rt_suspended, in this
-case, the patch_realtek.c will always get PM_EVENT_ON even the system
-is really resumed from S3.
+The FEC does not have a PHY so it should not have a phy-handle. It is
+connected to the switch at RGMII level so we need a fixed-link sub-node
+on both ends.
 
-We could set power_state to PMSG_SUSPEND in the prepare(), if other
-PM functions are called before complete(), those functions will
-override power_state; if no other PM functions are called before
-complete(), we could know the suspend() and resume() are skipped since
-only S3 pm functions could be skipped by direct-complete, in this case
-set power_state to PMSG_RESUME in the complete(). This could guarantee
-the first time of calling hda_codec_runtime_resume() after complete()
-has the correct power_state.
+This was not a problem until the qca8k.c driver was converted to PHYLINK
+by commit b3591c2a3661 ("net: dsa: qca8k: Switch to PHYLINK instead of
+PHYLIB"). That commit revealed the FEC configuration was not correct.
 
-Fixes: 215a22ed31a1 ("ALSA: hda: Refactor codec PM to use direct-complete optimization")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20210602145424.3132-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 87489ec3a77f ("ARM: dts: imx: Add Y Soft IOTA Draco, Hydra and Ursa boards")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_codec.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/boot/dts/imx6dl-yapp4-common.dtsi |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -2973,6 +2973,7 @@ static int hda_codec_runtime_resume(stru
- #ifdef CONFIG_PM_SLEEP
- static int hda_codec_pm_prepare(struct device *dev)
- {
-+	dev->power.power_state = PMSG_SUSPEND;
- 	return pm_runtime_suspended(dev);
- }
+--- a/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
++++ b/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
+@@ -105,9 +105,13 @@
+ 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
+ 	phy-reset-duration = <20>;
+ 	phy-supply = <&sw2_reg>;
+-	phy-handle = <&ethphy0>;
+ 	status = "okay";
  
-@@ -2980,6 +2981,10 @@ static void hda_codec_pm_complete(struct
- {
- 	struct hda_codec *codec = dev_to_hda_codec(dev);
- 
-+	/* If no other pm-functions are called between prepare() and complete() */
-+	if (dev->power.power_state.event == PM_EVENT_SUSPEND)
-+		dev->power.power_state = PMSG_RESUME;
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
 +
- 	if (pm_runtime_suspended(dev) && (codec->jackpoll_interval ||
- 	    hda_codec_need_resume(codec) || codec->forced_resume))
- 		pm_request_resume(dev);
+ 	mdio {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
 
 
