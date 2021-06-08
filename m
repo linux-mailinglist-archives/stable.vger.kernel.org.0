@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA9F3A0301
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1A63A01EC
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236959AbhFHTLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:11:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59084 "EHLO mail.kernel.org"
+        id S235916AbhFHS6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:58:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237466AbhFHTJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:09:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E900761940;
-        Tue,  8 Jun 2021 18:48:29 +0000 (UTC)
+        id S236113AbhFHS4F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:56:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 315E96161F;
+        Tue,  8 Jun 2021 18:41:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178110;
-        bh=83dKCjv/PEH3kpbwUXkBkXvls8NuhA5l8fur53N6sEc=;
+        s=korg; t=1623177708;
+        bh=hGpHrxPJFTHRe914mBWq5bLxdT6Mt3DJxIsnS0tpQqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQeoZmQxzjz1LXbU51RKREdZCxaOz9iFwbRBJzapqfTxAC9GsSujYzYLvHWR5DS6N
-         Z7HwMjq+odYWMeRR1bfXgIBSrRbpUzE3Rizjy2Hl/24fH0iso6KATqITlnXBIHk1k4
-         qZfrDnuxsbOd9Q+vuVylptpuiHxyeGXldJEtbdpU=
+        b=Yr9rFIxYlHRQMqSe/MyYrA33VtZ5yC6PyvJY7lUaOBh5Rux6TVWjR/yKSRYX6dEEU
+         K+b/pTz0liLfosjzdv6vTb+zoqM1L8QYRqYGAFHjZknFb+YNOZ5LY8ZHOgSyuGnOAz
+         M+qxWSOnN3uesw588ovbpa5n1pu3Vb8NQktCxQts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hoang Le <hoang.h.le@dektech.com.au>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 079/161] tipc: add extack messages for bearer/media failure
+Subject: [PATCH 5.10 069/137] tipc: add extack messages for bearer/media failure
 Date:   Tue,  8 Jun 2021 20:26:49 +0200
-Message-Id: <20210608175948.115539015@linuxfoundation.org>
+Message-Id: <20210608175944.696859031@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,10 +57,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 40 insertions(+), 10 deletions(-)
 
 diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
-index a4389ef08a98..1090f21fcfac 100644
+index 650414110452..4d0e11623e5c 100644
 --- a/net/tipc/bearer.c
 +++ b/net/tipc/bearer.c
-@@ -243,7 +243,8 @@ void tipc_bearer_remove_dest(struct net *net, u32 bearer_id, u32 dest)
+@@ -234,7 +234,8 @@ void tipc_bearer_remove_dest(struct net *net, u32 bearer_id, u32 dest)
   */
  static int tipc_enable_bearer(struct net *net, const char *name,
  			      u32 disc_domain, u32 prio,
@@ -70,7 +70,7 @@ index a4389ef08a98..1090f21fcfac 100644
  {
  	struct tipc_net *tn = tipc_net(net);
  	struct tipc_bearer_names b_names;
-@@ -257,17 +258,20 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+@@ -248,17 +249,20 @@ static int tipc_enable_bearer(struct net *net, const char *name,
  
  	if (!bearer_name_validate(name, &b_names)) {
  		errstr = "illegal name";
@@ -91,7 +91,7 @@ index a4389ef08a98..1090f21fcfac 100644
  		goto rejected;
  	}
  
-@@ -281,6 +285,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+@@ -272,6 +276,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
  			break;
  		if (!strcmp(name, b->name)) {
  			errstr = "already enabled";
@@ -99,7 +99,7 @@ index a4389ef08a98..1090f21fcfac 100644
  			goto rejected;
  		}
  		bearer_id++;
-@@ -292,6 +297,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+@@ -283,6 +288,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
  			name, prio);
  		if (prio == TIPC_MIN_LINK_PRI) {
  			errstr = "cannot adjust to lower";
@@ -107,7 +107,7 @@ index a4389ef08a98..1090f21fcfac 100644
  			goto rejected;
  		}
  		pr_warn("Bearer <%s>: trying with adjusted priority\n", name);
-@@ -302,6 +308,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+@@ -293,6 +299,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
  
  	if (bearer_id >= MAX_BEARERS) {
  		errstr = "max 3 bearers permitted";
@@ -115,7 +115,7 @@ index a4389ef08a98..1090f21fcfac 100644
  		goto rejected;
  	}
  
-@@ -315,6 +322,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+@@ -306,6 +313,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
  	if (res) {
  		kfree(b);
  		errstr = "failed to enable media";
@@ -123,7 +123,7 @@ index a4389ef08a98..1090f21fcfac 100644
  		goto rejected;
  	}
  
-@@ -331,6 +339,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+@@ -322,6 +330,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
  	if (res) {
  		bearer_disable(net, b);
  		errstr = "failed to create discoverer";
@@ -131,7 +131,7 @@ index a4389ef08a98..1090f21fcfac 100644
  		goto rejected;
  	}
  
-@@ -909,6 +918,7 @@ int tipc_nl_bearer_get(struct sk_buff *skb, struct genl_info *info)
+@@ -894,6 +903,7 @@ int tipc_nl_bearer_get(struct sk_buff *skb, struct genl_info *info)
  	bearer = tipc_bearer_find(net, name);
  	if (!bearer) {
  		err = -EINVAL;
@@ -139,7 +139,7 @@ index a4389ef08a98..1090f21fcfac 100644
  		goto err_out;
  	}
  
-@@ -948,8 +958,10 @@ int __tipc_nl_bearer_disable(struct sk_buff *skb, struct genl_info *info)
+@@ -933,8 +943,10 @@ int __tipc_nl_bearer_disable(struct sk_buff *skb, struct genl_info *info)
  	name = nla_data(attrs[TIPC_NLA_BEARER_NAME]);
  
  	bearer = tipc_bearer_find(net, name);
@@ -151,7 +151,7 @@ index a4389ef08a98..1090f21fcfac 100644
  
  	bearer_disable(net, bearer);
  
-@@ -1007,7 +1019,8 @@ int __tipc_nl_bearer_enable(struct sk_buff *skb, struct genl_info *info)
+@@ -992,7 +1004,8 @@ int __tipc_nl_bearer_enable(struct sk_buff *skb, struct genl_info *info)
  			prio = nla_get_u32(props[TIPC_NLA_PROP_PRIO]);
  	}
  
@@ -161,7 +161,7 @@ index a4389ef08a98..1090f21fcfac 100644
  }
  
  int tipc_nl_bearer_enable(struct sk_buff *skb, struct genl_info *info)
-@@ -1046,6 +1059,7 @@ int tipc_nl_bearer_add(struct sk_buff *skb, struct genl_info *info)
+@@ -1031,6 +1044,7 @@ int tipc_nl_bearer_add(struct sk_buff *skb, struct genl_info *info)
  	b = tipc_bearer_find(net, name);
  	if (!b) {
  		rtnl_unlock();
@@ -169,7 +169,7 @@ index a4389ef08a98..1090f21fcfac 100644
  		return -EINVAL;
  	}
  
-@@ -1086,8 +1100,10 @@ int __tipc_nl_bearer_set(struct sk_buff *skb, struct genl_info *info)
+@@ -1071,8 +1085,10 @@ int __tipc_nl_bearer_set(struct sk_buff *skb, struct genl_info *info)
  	name = nla_data(attrs[TIPC_NLA_BEARER_NAME]);
  
  	b = tipc_bearer_find(net, name);
@@ -181,7 +181,7 @@ index a4389ef08a98..1090f21fcfac 100644
  
  	if (attrs[TIPC_NLA_BEARER_PROP]) {
  		struct nlattr *props[TIPC_NLA_PROP_MAX + 1];
-@@ -1106,12 +1122,18 @@ int __tipc_nl_bearer_set(struct sk_buff *skb, struct genl_info *info)
+@@ -1091,12 +1107,18 @@ int __tipc_nl_bearer_set(struct sk_buff *skb, struct genl_info *info)
  		if (props[TIPC_NLA_PROP_WIN])
  			b->max_win = nla_get_u32(props[TIPC_NLA_PROP_WIN]);
  		if (props[TIPC_NLA_PROP_MTU]) {
@@ -202,7 +202,7 @@ index a4389ef08a98..1090f21fcfac 100644
  			b->mtu = nla_get_u32(props[TIPC_NLA_PROP_MTU]);
  			tipc_node_apply_property(net, b, TIPC_NLA_PROP_MTU);
  #endif
-@@ -1239,6 +1261,7 @@ int tipc_nl_media_get(struct sk_buff *skb, struct genl_info *info)
+@@ -1224,6 +1246,7 @@ int tipc_nl_media_get(struct sk_buff *skb, struct genl_info *info)
  	rtnl_lock();
  	media = tipc_media_find(name);
  	if (!media) {
@@ -210,7 +210,7 @@ index a4389ef08a98..1090f21fcfac 100644
  		err = -EINVAL;
  		goto err_out;
  	}
-@@ -1275,9 +1298,10 @@ int __tipc_nl_media_set(struct sk_buff *skb, struct genl_info *info)
+@@ -1260,9 +1283,10 @@ int __tipc_nl_media_set(struct sk_buff *skb, struct genl_info *info)
  	name = nla_data(attrs[TIPC_NLA_MEDIA_NAME]);
  
  	m = tipc_media_find(name);
@@ -223,7 +223,7 @@ index a4389ef08a98..1090f21fcfac 100644
  	if (attrs[TIPC_NLA_MEDIA_PROP]) {
  		struct nlattr *props[TIPC_NLA_PROP_MAX + 1];
  
-@@ -1293,12 +1317,18 @@ int __tipc_nl_media_set(struct sk_buff *skb, struct genl_info *info)
+@@ -1278,12 +1302,18 @@ int __tipc_nl_media_set(struct sk_buff *skb, struct genl_info *info)
  		if (props[TIPC_NLA_PROP_WIN])
  			m->max_win = nla_get_u32(props[TIPC_NLA_PROP_WIN]);
  		if (props[TIPC_NLA_PROP_MTU]) {
