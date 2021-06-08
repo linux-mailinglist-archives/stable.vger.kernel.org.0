@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 157F53A0262
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 666AC3A039E
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236811AbhFHTDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:03:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39704 "EHLO mail.kernel.org"
+        id S238144AbhFHTTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:19:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235701AbhFHTBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:01:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 711E06191D;
-        Tue,  8 Jun 2021 18:44:41 +0000 (UTC)
+        id S237556AbhFHTQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:16:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCAB66197D;
+        Tue,  8 Jun 2021 18:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177881;
-        bh=3Knt/p6gxjwP3rHduVf86R+bAs5epNkKlJqzv2gft4w=;
+        s=korg; t=1623178282;
+        bh=vAPH0TNGLrjtCoRIcq5nfXMuSLVkb6lKfxUQIrkhNrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnpburDvgekDvEbitYtdDw1AfLL0FEsrcX1jiwxpWafoREY8MYIYuJNYwAYU5JndQ
-         QFvQS300tz0PpiBBsq/OFFPukOp6sWIB1N+pzLNxf+vaas2qHRnH8pq+R0fYVreOVH
-         n8RsB43bsgP4yeRJzys3L6y/ApuxfAmk9ERKjGls=
+        b=O2htL8Bn3VSijtMFBskiNs64UgjNjlgSSFrcCxZ5rFUmuj05eZj0w50v20nSwThke
+         LJ3UIC05c21gZpN7B4NK9wgksSVqQT2wLkAxIpkI26bvVTdkHekF0ybfPKjHLM2iA3
+         KD5lnE0R5yUAksi/Vibk3QCE4D/1Bs6SQUCTocpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roja Rani Yarubandi <rojay@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.10 134/137] i2c: qcom-geni: Suspend and resume the bus during SYSTEM_SLEEP_PM ops
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Qu Wenruo <wqu@suse.com>, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 144/161] btrfs: check error value from btrfs_update_inode in tree log
 Date:   Tue,  8 Jun 2021 20:27:54 +0200
-Message-Id: <20210608175946.913126731@linuxfoundation.org>
+Message-Id: <20210608175950.317992821@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roja Rani Yarubandi <rojay@codeaurora.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 57648e860485de39c800a89f849fdd03c2d31d15 upstream.
+commit f96d44743a44e3332f75d23d2075bb8270900e1d upstream.
 
-Mark bus as suspended during system suspend to block the future
-transfers. Implement geni_i2c_resume_noirq() to resume the bus.
+Error injection testing uncovered a case where we ended up with invalid
+link counts on an inode.  This happened because we failed to notice an
+error when updating the inode while replaying the tree log, and
+committed the transaction with an invalid file system.
 
-Fixes: 37692de5d523 ("i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller")
-Signed-off-by: Roja Rani Yarubandi <rojay@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fix this by checking the return value of btrfs_update_inode.  This
+resolved the link count errors I was seeing, and we already properly
+handle passing up the error values in these paths.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/btrfs/tree-log.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -702,6 +702,8 @@ static int __maybe_unused geni_i2c_suspe
- {
- 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1574,7 +1574,9 @@ static noinline int add_inode_ref(struct
+ 			if (ret)
+ 				goto out;
  
-+	i2c_mark_adapter_suspended(&gi2c->adap);
-+
- 	if (!gi2c->suspended) {
- 		geni_i2c_runtime_suspend(dev);
- 		pm_runtime_disable(dev);
-@@ -711,8 +713,16 @@ static int __maybe_unused geni_i2c_suspe
- 	return 0;
- }
+-			btrfs_update_inode(trans, root, BTRFS_I(inode));
++			ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
++			if (ret)
++				goto out;
+ 		}
  
-+static int __maybe_unused geni_i2c_resume_noirq(struct device *dev)
-+{
-+	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
-+
-+	i2c_mark_adapter_resumed(&gi2c->adap);
-+	return 0;
-+}
-+
- static const struct dev_pm_ops geni_i2c_pm_ops = {
--	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq, NULL)
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq, geni_i2c_resume_noirq)
- 	SET_RUNTIME_PM_OPS(geni_i2c_runtime_suspend, geni_i2c_runtime_resume,
- 									NULL)
- };
+ 		ref_ptr = (unsigned long)(ref_ptr + ref_struct_size) + namelen;
+@@ -1749,7 +1751,9 @@ static noinline int fixup_inode_link_cou
+ 
+ 	if (nlink != inode->i_nlink) {
+ 		set_nlink(inode, nlink);
+-		btrfs_update_inode(trans, root, BTRFS_I(inode));
++		ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
++		if (ret)
++			goto out;
+ 	}
+ 	BTRFS_I(inode)->index_cnt = (u64)-1;
+ 
 
 
