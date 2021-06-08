@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F6B3A01F7
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DE183A01F9
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235312AbhFHS6c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:58:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
+        id S236135AbhFHS6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:58:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236419AbhFHS4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:56:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 088766161E;
-        Tue,  8 Jun 2021 18:42:03 +0000 (UTC)
+        id S235654AbhFHS4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:56:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1FA2613D6;
+        Tue,  8 Jun 2021 18:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177724;
-        bh=9xJJhDQNyfp0aWz5jPAS8nOngbPYQVpdSHWmLb4rIrw=;
+        s=korg; t=1623177727;
+        bh=uiP6tHT4VSoQBtvmHE837Swaxbcba14Eq1Zpus0SqZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LTknFLkbfLRDPoI0bpVu7TkoeMqINbtaEaZK2YM9ih/OL8UgKddtjAndmAFUAeZAS
-         4MM9+sIn3L6HlE3jF6sQUAA2rbVc13TYgtmkefo48pAKLq7273ABYbz8xgCE/DJje1
-         ZlAi4btPXQvziqG6s9NvTql6ex3Pt/nvsAPWvXhM=
+        b=r6wFgtMkMN9X5JVceA6ADSu2KYGBDXNaM0OF3JukaJrNWlliVNpGzE9H1W077ZRiz
+         uZN2LBTlKdkmneVpith3mWpaRs5JTCnQnKJ/N0rw48OWnRMnPLdtRqjP7rM2rC4EwR
+         4RWWO4Zqu938cNVYJT0UjJBO/+znR4raUVezrN74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        stable@vger.kernel.org, Coco Li <lixiaoyan@google.com>,
+        David Ahern <dsahern@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/137] cxgb4: fix regression with HASH tc prio value update
-Date:   Tue,  8 Jun 2021 20:26:23 +0200
-Message-Id: <20210608175943.869784734@linuxfoundation.org>
+Subject: [PATCH 5.10 044/137] ipv6: Fix KASAN: slab-out-of-bounds Read in fib6_nh_flush_exceptions
+Date:   Tue,  8 Jun 2021 20:26:24 +0200
+Message-Id: <20210608175943.899666639@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -41,55 +42,230 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: Coco Li <lixiaoyan@google.com>
 
-[ Upstream commit a27fb314cba8cb84cd6456a4699c3330a83c326d ]
+[ Upstream commit 821bbf79fe46a8b1d18aa456e8ed0a3c208c3754 ]
 
-commit db43b30cd89c ("cxgb4: add ethtool n-tuple filter deletion")
-has moved searching for next highest priority HASH filter rule to
-cxgb4_flow_rule_destroy(), which searches the rhashtable before the
-the rule is removed from it and hence always finds at least 1 entry.
-Fix by removing the rule from rhashtable first before calling
-cxgb4_flow_rule_destroy() and hence avoid fetching stale info.
+Reported by syzbot:
+HEAD commit:    90c911ad Merge tag 'fixes' of git://git.kernel.org/pub/scm..
+git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
+dashboard link: https://syzkaller.appspot.com/bug?extid=123aa35098fd3c000eb7
+compiler:       Debian clang version 11.0.1-2
 
-Fixes: db43b30cd89c ("cxgb4: add ethtool n-tuple filter deletion")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+==================================================================
+BUG: KASAN: slab-out-of-bounds in fib6_nh_get_excptn_bucket net/ipv6/route.c:1604 [inline]
+BUG: KASAN: slab-out-of-bounds in fib6_nh_flush_exceptions+0xbd/0x360 net/ipv6/route.c:1732
+Read of size 8 at addr ffff8880145c78f8 by task syz-executor.4/17760
+
+CPU: 0 PID: 17760 Comm: syz-executor.4 Not tainted 5.12.0-rc8-syzkaller #0
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x202/0x31e lib/dump_stack.c:120
+ print_address_description+0x5f/0x3b0 mm/kasan/report.c:232
+ __kasan_report mm/kasan/report.c:399 [inline]
+ kasan_report+0x15c/0x200 mm/kasan/report.c:416
+ fib6_nh_get_excptn_bucket net/ipv6/route.c:1604 [inline]
+ fib6_nh_flush_exceptions+0xbd/0x360 net/ipv6/route.c:1732
+ fib6_nh_release+0x9a/0x430 net/ipv6/route.c:3536
+ fib6_info_destroy_rcu+0xcb/0x1c0 net/ipv6/ip6_fib.c:174
+ rcu_do_batch kernel/rcu/tree.c:2559 [inline]
+ rcu_core+0x8f6/0x1450 kernel/rcu/tree.c:2794
+ __do_softirq+0x372/0x7a6 kernel/softirq.c:345
+ invoke_softirq kernel/softirq.c:221 [inline]
+ __irq_exit_rcu+0x22c/0x260 kernel/softirq.c:422
+ irq_exit_rcu+0x5/0x20 kernel/softirq.c:434
+ sysvec_apic_timer_interrupt+0x91/0xb0 arch/x86/kernel/apic/apic.c:1100
+ </IRQ>
+ asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:632
+RIP: 0010:lock_acquire+0x1f6/0x720 kernel/locking/lockdep.c:5515
+Code: f6 84 24 a1 00 00 00 02 0f 85 8d 02 00 00 f7 c3 00 02 00 00 49 bd 00 00 00 00 00 fc ff df 74 01 fb 48 c7 44 24 40 0e 36 e0 45 <4b> c7 44 3d 00 00 00 00 00 4b c7 44 3d 09 00 00 00 00 43 c7 44 3d
+RSP: 0018:ffffc90009e06560 EFLAGS: 00000206
+RAX: 1ffff920013c0cc0 RBX: 0000000000000246 RCX: dffffc0000000000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: ffffc90009e066e0 R08: dffffc0000000000 R09: fffffbfff1f992b1
+R10: fffffbfff1f992b1 R11: 0000000000000000 R12: 0000000000000000
+R13: dffffc0000000000 R14: 0000000000000000 R15: 1ffff920013c0cb4
+ rcu_lock_acquire+0x2a/0x30 include/linux/rcupdate.h:267
+ rcu_read_lock include/linux/rcupdate.h:656 [inline]
+ ext4_get_group_info+0xea/0x340 fs/ext4/ext4.h:3231
+ ext4_mb_prefetch+0x123/0x5d0 fs/ext4/mballoc.c:2212
+ ext4_mb_regular_allocator+0x8a5/0x28f0 fs/ext4/mballoc.c:2379
+ ext4_mb_new_blocks+0xc6e/0x24f0 fs/ext4/mballoc.c:4982
+ ext4_ext_map_blocks+0x2be3/0x7210 fs/ext4/extents.c:4238
+ ext4_map_blocks+0xab3/0x1cb0 fs/ext4/inode.c:638
+ ext4_getblk+0x187/0x6c0 fs/ext4/inode.c:848
+ ext4_bread+0x2a/0x1c0 fs/ext4/inode.c:900
+ ext4_append+0x1a4/0x360 fs/ext4/namei.c:67
+ ext4_init_new_dir+0x337/0xa10 fs/ext4/namei.c:2768
+ ext4_mkdir+0x4b8/0xc00 fs/ext4/namei.c:2814
+ vfs_mkdir+0x45b/0x640 fs/namei.c:3819
+ ovl_do_mkdir fs/overlayfs/overlayfs.h:161 [inline]
+ ovl_mkdir_real+0x53/0x1a0 fs/overlayfs/dir.c:146
+ ovl_create_real+0x280/0x490 fs/overlayfs/dir.c:193
+ ovl_workdir_create+0x425/0x600 fs/overlayfs/super.c:788
+ ovl_make_workdir+0xed/0x1140 fs/overlayfs/super.c:1355
+ ovl_get_workdir fs/overlayfs/super.c:1492 [inline]
+ ovl_fill_super+0x39ee/0x5370 fs/overlayfs/super.c:2035
+ mount_nodev+0x52/0xe0 fs/super.c:1413
+ legacy_get_tree+0xea/0x180 fs/fs_context.c:592
+ vfs_get_tree+0x86/0x270 fs/super.c:1497
+ do_new_mount fs/namespace.c:2903 [inline]
+ path_mount+0x196f/0x2be0 fs/namespace.c:3233
+ do_mount fs/namespace.c:3246 [inline]
+ __do_sys_mount fs/namespace.c:3454 [inline]
+ __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3431
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x4665f9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f68f2b87188 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
+RAX: ffffffffffffffda RBX: 000000000056bf60 RCX: 00000000004665f9
+RDX: 00000000200000c0 RSI: 0000000020000000 RDI: 000000000040000a
+RBP: 00000000004bfbb9 R08: 0000000020000100 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000056bf60
+R13: 00007ffe19002dff R14: 00007f68f2b87300 R15: 0000000000022000
+
+Allocated by task 17768:
+ kasan_save_stack mm/kasan/common.c:38 [inline]
+ kasan_set_track mm/kasan/common.c:46 [inline]
+ set_alloc_info mm/kasan/common.c:427 [inline]
+ ____kasan_kmalloc+0xc2/0xf0 mm/kasan/common.c:506
+ kasan_kmalloc include/linux/kasan.h:233 [inline]
+ __kmalloc+0xb4/0x380 mm/slub.c:4055
+ kmalloc include/linux/slab.h:559 [inline]
+ kzalloc include/linux/slab.h:684 [inline]
+ fib6_info_alloc+0x2c/0xd0 net/ipv6/ip6_fib.c:154
+ ip6_route_info_create+0x55d/0x1a10 net/ipv6/route.c:3638
+ ip6_route_add+0x22/0x120 net/ipv6/route.c:3728
+ inet6_rtm_newroute+0x2cd/0x2260 net/ipv6/route.c:5352
+ rtnetlink_rcv_msg+0xb34/0xe70 net/core/rtnetlink.c:5553
+ netlink_rcv_skb+0x1f0/0x460 net/netlink/af_netlink.c:2502
+ netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+ netlink_unicast+0x7de/0x9b0 net/netlink/af_netlink.c:1338
+ netlink_sendmsg+0xaa6/0xe90 net/netlink/af_netlink.c:1927
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg net/socket.c:674 [inline]
+ ____sys_sendmsg+0x5a2/0x900 net/socket.c:2350
+ ___sys_sendmsg net/socket.c:2404 [inline]
+ __sys_sendmsg+0x319/0x400 net/socket.c:2433
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Last potentially related work creation:
+ kasan_save_stack+0x27/0x50 mm/kasan/common.c:38
+ kasan_record_aux_stack+0xee/0x120 mm/kasan/generic.c:345
+ __call_rcu kernel/rcu/tree.c:3039 [inline]
+ call_rcu+0x1b1/0xa30 kernel/rcu/tree.c:3114
+ fib6_info_release include/net/ip6_fib.h:337 [inline]
+ ip6_route_info_create+0x10c4/0x1a10 net/ipv6/route.c:3718
+ ip6_route_add+0x22/0x120 net/ipv6/route.c:3728
+ inet6_rtm_newroute+0x2cd/0x2260 net/ipv6/route.c:5352
+ rtnetlink_rcv_msg+0xb34/0xe70 net/core/rtnetlink.c:5553
+ netlink_rcv_skb+0x1f0/0x460 net/netlink/af_netlink.c:2502
+ netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+ netlink_unicast+0x7de/0x9b0 net/netlink/af_netlink.c:1338
+ netlink_sendmsg+0xaa6/0xe90 net/netlink/af_netlink.c:1927
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg net/socket.c:674 [inline]
+ ____sys_sendmsg+0x5a2/0x900 net/socket.c:2350
+ ___sys_sendmsg net/socket.c:2404 [inline]
+ __sys_sendmsg+0x319/0x400 net/socket.c:2433
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Second to last potentially related work creation:
+ kasan_save_stack+0x27/0x50 mm/kasan/common.c:38
+ kasan_record_aux_stack+0xee/0x120 mm/kasan/generic.c:345
+ insert_work+0x54/0x400 kernel/workqueue.c:1331
+ __queue_work+0x981/0xcc0 kernel/workqueue.c:1497
+ queue_work_on+0x111/0x200 kernel/workqueue.c:1524
+ queue_work include/linux/workqueue.h:507 [inline]
+ call_usermodehelper_exec+0x283/0x470 kernel/umh.c:433
+ kobject_uevent_env+0x1349/0x1730 lib/kobject_uevent.c:617
+ kvm_uevent_notify_change+0x309/0x3b0 arch/x86/kvm/../../../virt/kvm/kvm_main.c:4809
+ kvm_destroy_vm arch/x86/kvm/../../../virt/kvm/kvm_main.c:877 [inline]
+ kvm_put_kvm+0x9c/0xd10 arch/x86/kvm/../../../virt/kvm/kvm_main.c:920
+ kvm_vcpu_release+0x53/0x60 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3120
+ __fput+0x352/0x7b0 fs/file_table.c:280
+ task_work_run+0x146/0x1c0 kernel/task_work.c:140
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:174 [inline]
+ exit_to_user_mode_prepare+0x10b/0x1e0 kernel/entry/common.c:208
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:290 [inline]
+ syscall_exit_to_user_mode+0x26/0x70 kernel/entry/common.c:301
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The buggy address belongs to the object at ffff8880145c7800
+ which belongs to the cache kmalloc-192 of size 192
+The buggy address is located 56 bytes to the right of
+ 192-byte region [ffff8880145c7800, ffff8880145c78c0)
+The buggy address belongs to the page:
+page:ffffea00005171c0 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x145c7
+flags: 0xfff00000000200(slab)
+raw: 00fff00000000200 ffffea00006474c0 0000000200000002 ffff888010c41a00
+raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8880145c7780: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+ ffff8880145c7800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff8880145c7880: 00 00 00 00 fc fc fc fc fc fc fc fc fc fc fc fc
+                                                                ^
+ ffff8880145c7900: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8880145c7980: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+==================================================================
+
+In the ip6_route_info_create function, in the case that the nh pointer
+is not NULL, the fib6_nh in fib6_info has not been allocated.
+Therefore, when trying to free fib6_info in this error case using
+fib6_info_release, the function will call fib6_info_destroy_rcu,
+which it will access fib6_nh_release(f6i->fib6_nh);
+However, f6i->fib6_nh doesn't have any refcount yet given the lack of allocation
+causing the reported memory issue above.
+Therefore, releasing the empty pointer directly instead would be the solution.
+
+Fixes: f88d8ea67fbdb ("ipv6: Plumb support for nexthop object in a fib6_info")
+Fixes: 706ec91916462 ("ipv6: Fix nexthop refcnt leak when creating ipv6 route info")
+Signed-off-by: Coco Li <lixiaoyan@google.com>
+Cc: David Ahern <dsahern@kernel.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c   | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ net/ipv6/route.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
-index 1b88bd1c2dbe..dd9be229819a 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
-@@ -997,20 +997,16 @@ int cxgb4_tc_flower_destroy(struct net_device *dev,
- 	if (!ch_flower)
- 		return -ENOENT;
- 
-+	rhashtable_remove_fast(&adap->flower_tbl, &ch_flower->node,
-+			       adap->flower_ht_params);
-+
- 	ret = cxgb4_flow_rule_destroy(dev, ch_flower->fs.tc_prio,
- 				      &ch_flower->fs, ch_flower->filter_id);
- 	if (ret)
--		goto err;
-+		netdev_err(dev, "Flow rule destroy failed for tid: %u, ret: %d",
-+			   ch_flower->filter_id, ret);
- 
--	ret = rhashtable_remove_fast(&adap->flower_tbl, &ch_flower->node,
--				     adap->flower_ht_params);
--	if (ret) {
--		netdev_err(dev, "Flow remove from rhashtable failed");
--		goto err;
--	}
- 	kfree_rcu(ch_flower, rcu);
--
--err:
- 	return ret;
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index 71e578ed8699..ccff4738313c 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -3671,11 +3671,11 @@ static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,
+ 	if (nh) {
+ 		if (rt->fib6_src.plen) {
+ 			NL_SET_ERR_MSG(extack, "Nexthops can not be used with source routing");
+-			goto out;
++			goto out_free;
+ 		}
+ 		if (!nexthop_get(nh)) {
+ 			NL_SET_ERR_MSG(extack, "Nexthop has been deleted");
+-			goto out;
++			goto out_free;
+ 		}
+ 		rt->nh = nh;
+ 		fib6_nh = nexthop_fib6_nh(rt->nh);
+@@ -3712,6 +3712,10 @@ static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,
+ out:
+ 	fib6_info_release(rt);
+ 	return ERR_PTR(err);
++out_free:
++	ip_fib_metrics_put(rt->fib6_metrics);
++	kfree(rt);
++	return ERR_PTR(err);
  }
  
+ int ip6_route_add(struct fib6_config *cfg, gfp_t gfp_flags,
 -- 
 2.30.2
 
