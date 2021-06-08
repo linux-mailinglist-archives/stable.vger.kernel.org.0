@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DA83A0021
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D5A39FF82
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234578AbhFHSkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:40:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37490 "EHLO mail.kernel.org"
+        id S234446AbhFHSdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:33:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233678AbhFHSid (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:38:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C722361407;
-        Tue,  8 Jun 2021 18:33:33 +0000 (UTC)
+        id S234269AbhFHScm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:32:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 553CD61376;
+        Tue,  8 Jun 2021 18:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177214;
-        bh=6cJV/bFTBWuirAyc+fLW5eUUVNh2lfc29lMgUHvFxnc=;
+        s=korg; t=1623177032;
+        bh=dOmcRJm6Y37kvcI1vAX4/vWOo7WEzddVyjrsNS8JqB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmBd3w3tXSpvCjveccEgo57RecheHLvmh5U5UuwYyxQIU5IzzkfTdPj5vdcLfQWv8
-         lf5+/njQBabrfC/MaxYa8SlZRL23l4QRy2f4VQkO8yucMcf40hZWlRRqRIQJu4aPyE
-         Y4BvXl/JI06btLY8hzINDVkp5MVOuhr79+TR7OKc=
+        b=D8RW81/DCRrZznPzEWaN16cSc2sfbz/gUd0ZomgsgvwTTbRc8lw91WbTAPsu9foS1
+         iOrryIJh1MAjjD/mok0B/g1yktR4XcqmSVaufuCSDGIPXCLeR0bz5M4E8AJ/sf+9DA
+         kWDleF8avRMjFZ76WGMp1AJU0x2QNvK9+qteEHY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Marek Vasut <marex@denx.de>,
-        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
-        Ludwig Zenz <lzenz@dh-electronics.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.19 28/58] ARM: dts: imx6q-dhcom: Add PU,VDD1P1,VDD2P5 regulators
-Date:   Tue,  8 Jun 2021 20:27:09 +0200
-Message-Id: <20210608175933.214613488@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 16/29] net: caif: add proper error handling
+Date:   Tue,  8 Jun 2021 20:27:10 +0200
+Message-Id: <20210608175928.347383299@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
+References: <20210608175927.821075974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +39,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 8967b27a6c1c19251989c7ab33c058d16e4a5f53 upstream.
+commit a2805dca5107d5603f4bbc027e81e20d93476e96 upstream.
 
-Per schematic, both PU and SOC regulator are supplied from LTC3676 SW1
-via VDDSOC_IN rail, add the PU input. Both VDD1P1, VDD2P5 are supplied
-from LTC3676 SW2 via VDDHIGH_IN rail, add both inputs.
+caif_enroll_dev() can fail in some cases. Ingnoring
+these cases can lead to memory leak due to not assigning
+link_support pointer to anywhere.
 
-While no instability or problems are currently observed, the regulators
-should be fully described in DT and that description should fully match
-the hardware, else this might lead to unforseen issues later. Fix this.
-
-Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM and PDK2")
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Ludwig Zenz <lzenz@dh-electronics.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
+Fixes: 7c18d2205ea7 ("caif: Restructure how link caif link layer enroll")
 Cc: stable@vger.kernel.org
-Reviewed-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6q-dhcom-som.dtsi |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ include/net/caif/caif_dev.h |    2 +-
+ include/net/caif/cfcnfg.h   |    2 +-
+ net/caif/caif_dev.c         |    8 +++++---
+ net/caif/cfcnfg.c           |   16 +++++++++++-----
+ 4 files changed, 18 insertions(+), 10 deletions(-)
 
---- a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
-+++ b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
-@@ -407,6 +407,18 @@
- 	vin-supply = <&sw1_reg>;
- };
+--- a/include/net/caif/caif_dev.h
++++ b/include/net/caif/caif_dev.h
+@@ -119,7 +119,7 @@ void caif_free_client(struct cflayer *ad
+  * The link_support layer is used to add any Link Layer specific
+  * framing.
+  */
+-void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
++int caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
+ 			struct cflayer *link_support, int head_room,
+ 			struct cflayer **layer, int (**rcv_func)(
+ 				struct sk_buff *, struct net_device *,
+--- a/include/net/caif/cfcnfg.h
++++ b/include/net/caif/cfcnfg.h
+@@ -62,7 +62,7 @@ void cfcnfg_remove(struct cfcnfg *cfg);
+  * @fcs:	Specify if checksum is used in CAIF Framing Layer.
+  * @head_room:	Head space needed by link specific protocol.
+  */
+-void
++int
+ cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
+ 		     struct net_device *dev, struct cflayer *phy_layer,
+ 		     enum cfcnfg_phy_preference pref,
+--- a/net/caif/caif_dev.c
++++ b/net/caif/caif_dev.c
+@@ -303,7 +303,7 @@ static void dev_flowctrl(struct net_devi
+ 	caifd_put(caifd);
+ }
  
-+&reg_pu {
-+	vin-supply = <&sw1_reg>;
-+};
-+
-+&reg_vdd1p1 {
-+	vin-supply = <&sw2_reg>;
-+};
-+
-+&reg_vdd2p5 {
-+	vin-supply = <&sw2_reg>;
-+};
-+
- &uart1 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_uart1>;
+-void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
++int caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
+ 		     struct cflayer *link_support, int head_room,
+ 		     struct cflayer **layer,
+ 		     int (**rcv_func)(struct sk_buff *, struct net_device *,
+@@ -314,11 +314,12 @@ void caif_enroll_dev(struct net_device *
+ 	enum cfcnfg_phy_preference pref;
+ 	struct cfcnfg *cfg = get_cfcnfg(dev_net(dev));
+ 	struct caif_device_entry_list *caifdevs;
++	int res;
+ 
+ 	caifdevs = caif_device_list(dev_net(dev));
+ 	caifd = caif_device_alloc(dev);
+ 	if (!caifd)
+-		return;
++		return -ENOMEM;
+ 	*layer = &caifd->layer;
+ 	spin_lock_init(&caifd->flow_lock);
+ 
+@@ -340,7 +341,7 @@ void caif_enroll_dev(struct net_device *
+ 		sizeof(caifd->layer.name) - 1);
+ 	caifd->layer.name[sizeof(caifd->layer.name) - 1] = 0;
+ 	caifd->layer.transmit = transmit;
+-	cfcnfg_add_phy_layer(cfg,
++	res = cfcnfg_add_phy_layer(cfg,
+ 				dev,
+ 				&caifd->layer,
+ 				pref,
+@@ -350,6 +351,7 @@ void caif_enroll_dev(struct net_device *
+ 	mutex_unlock(&caifdevs->lock);
+ 	if (rcv_func)
+ 		*rcv_func = receive;
++	return res;
+ }
+ EXPORT_SYMBOL(caif_enroll_dev);
+ 
+--- a/net/caif/cfcnfg.c
++++ b/net/caif/cfcnfg.c
+@@ -455,7 +455,7 @@ unlock:
+ 	rcu_read_unlock();
+ }
+ 
+-void
++int
+ cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
+ 		     struct net_device *dev, struct cflayer *phy_layer,
+ 		     enum cfcnfg_phy_preference pref,
+@@ -464,7 +464,7 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg
+ {
+ 	struct cflayer *frml;
+ 	struct cfcnfg_phyinfo *phyinfo = NULL;
+-	int i;
++	int i, res = 0;
+ 	u8 phyid;
+ 
+ 	mutex_lock(&cnfg->lock);
+@@ -478,12 +478,15 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg
+ 			goto got_phyid;
+ 	}
+ 	pr_warn("Too many CAIF Link Layers (max 6)\n");
++	res = -EEXIST;
+ 	goto out;
+ 
+ got_phyid:
+ 	phyinfo = kzalloc(sizeof(struct cfcnfg_phyinfo), GFP_ATOMIC);
+-	if (!phyinfo)
++	if (!phyinfo) {
++		res = -ENOMEM;
+ 		goto out_err;
++	}
+ 
+ 	phy_layer->id = phyid;
+ 	phyinfo->pref = pref;
+@@ -497,8 +500,10 @@ got_phyid:
+ 
+ 	frml = cffrml_create(phyid, fcs);
+ 
+-	if (!frml)
++	if (!frml) {
++		res = -ENOMEM;
+ 		goto out_err;
++	}
+ 	phyinfo->frm_layer = frml;
+ 	layer_set_up(frml, cnfg->mux);
+ 
+@@ -516,11 +521,12 @@ got_phyid:
+ 	list_add_rcu(&phyinfo->node, &cnfg->phys);
+ out:
+ 	mutex_unlock(&cnfg->lock);
+-	return;
++	return res;
+ 
+ out_err:
+ 	kfree(phyinfo);
+ 	mutex_unlock(&cnfg->lock);
++	return res;
+ }
+ EXPORT_SYMBOL(cfcnfg_add_phy_layer);
+ 
 
 
