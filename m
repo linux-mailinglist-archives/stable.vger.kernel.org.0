@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3488239F7E7
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 15:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BEDF39F7E8
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 15:37:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232776AbhFHNi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 09:38:59 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:40523 "EHLO
+        id S232804AbhFHNjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 09:39:12 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:52665 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231162AbhFHNi5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 09:38:57 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id 3B3ED1CD8;
-        Tue,  8 Jun 2021 09:37:03 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Tue, 08 Jun 2021 09:37:03 -0400
+        by vger.kernel.org with ESMTP id S232797AbhFHNjH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 09:39:07 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 0B66E1C44;
+        Tue,  8 Jun 2021 09:37:07 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Tue, 08 Jun 2021 09:37:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Mz1n8h
-        Hc302MqBkbolt5T/6xBRJttnVqrQq6q0e7qYw=; b=LhvrGHzfb2Y/sB7XVm+z7N
-        dn0r9+UqM1uMbiRo+nSBqplAgg2ijptsgYcqSU9qpLINmfpttHLW07DTIUR5bqLz
-        Cl0lDvJOV7yv6/RQZH9eMo0D1xtvHJPyiCjo94H3mm0UCH/DC/JvXuINj1lRVrWS
-        Ljo9EZO+fMG6oWIuhMJj/GL/181xT61p2b1Elt8729BoUn07n1FCqfFd52fYboSF
-        HIV4mDtmQgCWOf3/oEiggaxFnwFyod2yJpp9HhcS9FNKf0jyijPwSZr9ZmqMiuKm
-        bsQO5hVqhWxLFF+Rdm5eVS+OGUjkmHTU4nKz9i+FoiM2QII0XP0tJr4XNfNrFuAA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PjdLwF
+        9sLXB6VXXm3MTYRl8fuxp0RNgs7vwu1/8jlwE=; b=r9O7TVm4GbhlJB2BtPVpuV
+        AaHWwbS4+FsiBQ62NRXJ/kZFEV3w4SXhQ48RTcxY4GLX4anyPNp7qPhktcbTvcVw
+        P0OudMEVLptlliL6Qu3dOC3AtAUgy0wDdkqMWVCT7oDV1G/qj+5i487/MrweutR7
+        1VmSFl2HjpjfcHrc4FJ1IMZfTJUpI7qHAB+rrhkvToOkIpXXLNdmbITuAhusQcqV
+        MHTSOwrZKl7kx0fI1FX/e70bGBwB/2f7Jb4pPPe44aggT1Hr2XBZip0sm70ncaWp
+        iSOTm81mM8IMAdVNkSSZJ8FA0wAsaN23gkvWqmkDQgYC1yo0J7hI/kDz27CmLQ1A
         ==
-X-ME-Sender: <xms:fnK_YPF7iFi0bFnop3yUKSRbPG-ikgt1GjFgZ6gm6ZGUwxQ8tss4xg>
-    <xme:fnK_YMVnmdlcieDdcSNxEiHABUPYlCO5-s9Drt2mRQc0GXqcb4k2zjqtxp-IoHn8J
-    D1RPQU3GjoQ-Q>
-X-ME-Received: <xmr:fnK_YBKFiPDBwg78Pxe2auJs7RlQcx_YOVRiU6ZJXw3w78Uz_s9Vikh8uvAk-T22T7_WGRohGOgv3RIOZC-1a30w48uVXt6s>
+X-ME-Sender: <xms:g3K_YLlRvmNkFUAEhNVMygFevPqLgYieMPQ-d-2dR39qz8rpXW2hFg>
+    <xme:g3K_YO0d94G9Y9sISlgiguEK6FGzA5hB0hAY5H01032ijcLSFoGHb82ZGrA3heil0
+    jfNZBUzWE7yAw>
+X-ME-Received: <xmr:g3K_YBoE9258_rhh1xu0bCW8eLXoS5Aa_MZe0ZsEs_9XVfH44CcmM65v5NKVBJaNY-AoX7dWP97htNrv2ysiePlYx_5DsQLG>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedtledgheduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucgoufhorhhtvggutfgvtghiphdvucdlgedtmdenuc
@@ -39,21 +39,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedtledgheduucetufdoteggod
     dvgeefleeltdetgedugeffgffhudffuddukeegfeelgeeigeekjefhleevnecuffhomhgr
     ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
     epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:fnK_YNFAKp_ZfbWxKhYuz9grc16ndRtOkXMwgYr9h3XKBf0WTe3pQQ>
-    <xmx:fnK_YFUjKfasfWVz9YcdNCrgtnt3v8XRwDo-Dnpkl91cc1avtzxofg>
-    <xmx:fnK_YIMFhY46Jzobj_Bivi1rJ0IvQ2i5YgxxPcVGVtE4Oeb6ImgkCw>
-    <xmx:fnK_YHK_QMBhHXD3jyra_UTEG4xei3aF4coUZeAY4NzSKJ5sKdHG89E2MTA>
+X-ME-Proxy: <xmx:g3K_YDmHt8WOFbDZNSVyMTbwIjz8LIt8hWjijcECcZyuzNmTWe7aHQ>
+    <xmx:g3K_YJ2NcWV924cnN3yjZp7xYrp97-Wnh4wQRTxJbI6XI5vSS-gmWA>
+    <xmx:g3K_YCv2NmprESNPMVUhxNoyBBy57feMuovDm8Ae3dnMMak2XgL7Dw>
+    <xmx:g3K_YDqXN-Mu7Z92MEjR6qzNCzB8yqKHKru50bhWpNDRcU_843VzjeyuQEE>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 8 Jun 2021 09:37:02 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm, hugetlb: fix simple resv_huge_pages underflow on" failed to apply to 5.10-stable tree
+ 8 Jun 2021 09:37:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm, hugetlb: fix simple resv_huge_pages underflow on" failed to apply to 5.4-stable tree
 To:     almasrymina@google.com, akpm@linux-foundation.org,
         axelrasmussen@google.com, mike.kravetz@oracle.com,
         peterx@redhat.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Jun 2021 15:36:52 +0200
-Message-ID: <1623159412208211@kroah.com>
+Date:   Tue, 08 Jun 2021 15:36:53 +0200
+Message-ID: <16231594136129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
