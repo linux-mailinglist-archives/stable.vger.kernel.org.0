@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B60C53A0165
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B70D53A02DB
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235188AbhFHSvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:51:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44790 "EHLO mail.kernel.org"
+        id S234010AbhFHTLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235985AbhFHSti (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:49:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDDFE61428;
-        Tue,  8 Jun 2021 18:39:04 +0000 (UTC)
+        id S235281AbhFHTHE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:07:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53BD161452;
+        Tue,  8 Jun 2021 18:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177545;
-        bh=UZ0dkuC+x+kHuHmGpk/J6BTUmARBUBZWs9Ie1Qxd+i8=;
+        s=korg; t=1623178021;
+        bh=RUkEhQ11yLrhZHjul4v8CVpXeI6koCZDnNdHEQYrz+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gUW4WIAYL/XzfuAHGnAnLbMQSLcmffvL+bQDKWgwwihveG/lLByJcEHeYIGZSFxGs
-         VhJzwFk8o3F2VviZZXdhJcatOPoOJfD2TN3B8hAqKfmqWZOoKqGAUMJcTMF9DEJueZ
-         3PohSZVuRsOqxSBROA/PuZZQohKZwCirXfOROWjM=
+        b=zIaPcD3BVG48xLp+wrgDyuy6ia/pNzCDWyBzuy5tpbl+p0Ro/HGkAkYGI7Hr5+4gV
+         l1bFc2yah8SktBIvt7DpGbXzC9Cn1AzFQeE4jD+oaD5Vv9EzytNfalHvT+aUuo5IBZ
+         vua3zo/T7NHDsaI/5PdYjslx+GuPTUE3WJqatKyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grant Peltier <grantpeltier93@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 004/137] hwmon: (pmbus/isl68137) remove READ_TEMPERATURE_3 for RAA228228
+Subject: [PATCH 5.12 014/161] vfio/platform: fix module_put call in error flow
 Date:   Tue,  8 Jun 2021 20:25:44 +0200
-Message-Id: <20210608175942.528004559@linuxfoundation.org>
+Message-Id: <20210608175945.944074146@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grant Peltier <grantpeltier93@gmail.com>
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
 
-[ Upstream commit 2a29db088c7ae7121801a0d7a60740ed2d18c4f3 ]
+[ Upstream commit dc51ff91cf2d1e9a2d941da483602f71d4a51472 ]
 
-The initial version of the RAA228228 datasheet claimed that the device
-supported READ_TEMPERATURE_3 but not READ_TEMPERATURE_1. It has since been
-discovered that the datasheet was incorrect. The RAA228228 does support
-READ_TEMPERATURE_1 but does not support READ_TEMPERATURE_3.
+The ->parent_module is the one that use in try_module_get. It should
+also be the one the we use in module_put during vfio_platform_open().
 
-Signed-off-by: Grant Peltier <grantpeltier93@gmail.com>
-Fixes: 51fb91ed5a6f ("hwmon: (pmbus/isl68137) remove READ_TEMPERATURE_1 telemetry for RAA228228")
-Link: https://lore.kernel.org/r/20210514211954.GA24646@raspberrypi
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 32a2d71c4e80 ("vfio: platform: introduce vfio-platform-base module")
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Message-Id: <20210518192133.59195-1-mgurtovoy@nvidia.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/isl68137.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/vfio/platform/vfio_platform_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pmbus/isl68137.c b/drivers/hwmon/pmbus/isl68137.c
-index 7cad76e07f70..3f1b826dac8a 100644
---- a/drivers/hwmon/pmbus/isl68137.c
-+++ b/drivers/hwmon/pmbus/isl68137.c
-@@ -244,8 +244,8 @@ static int isl68137_probe(struct i2c_client *client)
- 		info->read_word_data = raa_dmpvr2_read_word_data;
- 		break;
- 	case raa_dmpvr2_2rail_nontc:
--		info->func[0] &= ~PMBUS_HAVE_TEMP;
--		info->func[1] &= ~PMBUS_HAVE_TEMP;
-+		info->func[0] &= ~PMBUS_HAVE_TEMP3;
-+		info->func[1] &= ~PMBUS_HAVE_TEMP3;
- 		fallthrough;
- 	case raa_dmpvr2_2rail:
- 		info->pages = 2;
+diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
+index fb4b385191f2..e83a7cd15c95 100644
+--- a/drivers/vfio/platform/vfio_platform_common.c
++++ b/drivers/vfio/platform/vfio_platform_common.c
+@@ -289,7 +289,7 @@ err_irq:
+ 	vfio_platform_regions_cleanup(vdev);
+ err_reg:
+ 	mutex_unlock(&driver_lock);
+-	module_put(THIS_MODULE);
++	module_put(vdev->parent_module);
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
