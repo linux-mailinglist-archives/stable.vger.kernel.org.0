@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9E33A0384
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C3693A015B
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237884AbhFHTSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:18:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35180 "EHLO mail.kernel.org"
+        id S235438AbhFHSvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236098AbhFHTQA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:16:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A08361964;
-        Tue,  8 Jun 2021 18:50:55 +0000 (UTC)
+        id S235791AbhFHStO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:49:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33A7E61461;
+        Tue,  8 Jun 2021 18:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178255;
-        bh=GtcUDaoux+cyQJqgTS8H+JezRHbXc+bM0XZNSnmBlnY=;
+        s=korg; t=1623177525;
+        bh=iu8iH5BljOLDJvmRbikySsVS7kvTFPstiA2Va6sYKng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUZNO1KDH2iZ0n2k5FzdBCnlGNZt8y1meDw3T/t7pqv52Y+5K0sdl+Vvu743iBuJ/
-         2tCA/K53SXOmosrlmlV+ZvtTeXfgvGwEACXMpMVo3QGs1GLexwdJ+mz3EvWmEANtsh
-         hi/ERQtWJw18uzpM66STEOBZZ8tYF9Qx36NMFsGA=
+        b=03BWQ8XX2AHakXmh8l0+Oj1J05O17g7/lX0iFn/KRtBlXd39OIBR2TgWEW0Oc7ujT
+         0QCFS4hMaiasxC3Wyneu4VgCBKH5ErnIl7ZWErj0Eg/UPUtJd5hixJkTA2Sc7ieOyW
+         mSjYSZ4KjjGrMT+7hCFKX7Rd44AxFwI13IKScZWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Deucher <Alexander.Deucher@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.12 135/161] drm/amdgpu: Dont query CE and UE errors
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.4 76/78] xen-pciback: redo VF placement in the virtual topology
 Date:   Tue,  8 Jun 2021 20:27:45 +0200
-Message-Id: <20210608175950.013630783@linuxfoundation.org>
+Message-Id: <20210608175937.829569842@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luben Tuikov <luben.tuikov@amd.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit dce3d8e1d070900e0feeb06787a319ff9379212c upstream.
+The commit referenced below was incomplete: It merely affected what
+would get written to the vdev-<N> xenstore node. The guest would still
+find the function at the original function number as long as
+__xen_pcibk_get_pci_dev() wouldn't be in sync. The same goes for AER wrt
+__xen_pcibk_get_pcifront_dev().
 
-On QUERY2 IOCTL don't query counts of correctable
-and uncorrectable errors, since when RAS is
-enabled and supported on Vega20 server boards,
-this takes insurmountably long time, in O(n^3),
-which slows the system down to the point of it
-being unusable when we have GUI up.
+Undo overriding the function to zero and instead make sure that VFs at
+function zero remain alone in their slot. This has the added benefit of
+improving overall capacity, considering that there's only a total of 32
+slots available right now (PCI segment and bus can both only ever be
+zero at present).
 
-Fixes: ae363a212b14 ("drm/amdgpu: Add a new flag to AMDGPU_CTX_OP_QUERY_STATE2")
-Cc: Alexander Deucher <Alexander.Deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
-Reviewed-by: Alexander Deucher <Alexander.Deucher@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This is upstream commit 4ba50e7c423c29639878c00573288869aa627068.
+
+Fixes: 8a5248fe10b1 ("xen PV passthru: assign SR-IOV virtual functions to 
+separate virtual slots")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/8def783b-404c-3452-196d-3f3fd4d72c9e@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c |   16 ----------------
- 1 file changed, 16 deletions(-)
+ drivers/xen/xen-pciback/vpci.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-@@ -337,7 +337,6 @@ static int amdgpu_ctx_query2(struct amdg
+--- a/drivers/xen/xen-pciback/vpci.c
++++ b/drivers/xen/xen-pciback/vpci.c
+@@ -69,7 +69,7 @@ static int __xen_pcibk_add_pci_dev(struc
+ 				   struct pci_dev *dev, int devid,
+ 				   publish_pci_dev_cb publish_cb)
  {
- 	struct amdgpu_ctx *ctx;
- 	struct amdgpu_ctx_mgr *mgr;
--	unsigned long ras_counter;
+-	int err = 0, slot, func = -1;
++	int err = 0, slot, func = PCI_FUNC(dev->devfn);
+ 	struct pci_dev_entry *t, *dev_entry;
+ 	struct vpci_dev_data *vpci_dev = pdev->pci_dev_data;
  
- 	if (!fpriv)
- 		return -EINVAL;
-@@ -362,21 +361,6 @@ static int amdgpu_ctx_query2(struct amdg
- 	if (atomic_read(&ctx->guilty))
- 		out->state.flags |= AMDGPU_CTX_QUERY2_FLAGS_GUILTY;
+@@ -94,23 +94,26 @@ static int __xen_pcibk_add_pci_dev(struc
  
--	/*query ue count*/
--	ras_counter = amdgpu_ras_query_error_count(adev, false);
--	/*ras counter is monotonic increasing*/
--	if (ras_counter != ctx->ras_counter_ue) {
--		out->state.flags |= AMDGPU_CTX_QUERY2_FLAGS_RAS_UE;
--		ctx->ras_counter_ue = ras_counter;
--	}
--
--	/*query ce count*/
--	ras_counter = amdgpu_ras_query_error_count(adev, true);
--	if (ras_counter != ctx->ras_counter_ce) {
--		out->state.flags |= AMDGPU_CTX_QUERY2_FLAGS_RAS_CE;
--		ctx->ras_counter_ce = ras_counter;
--	}
--
- 	mutex_unlock(&mgr->lock);
- 	return 0;
- }
+ 	/*
+ 	 * Keep multi-function devices together on the virtual PCI bus, except
+-	 * virtual functions.
++	 * that we want to keep virtual functions at func 0 on their own. They
++	 * aren't multi-function devices and hence their presence at func 0
++	 * may cause guests to not scan the other functions.
+ 	 */
+-	if (!dev->is_virtfn) {
++	if (!dev->is_virtfn || func) {
+ 		for (slot = 0; slot < PCI_SLOT_MAX; slot++) {
+ 			if (list_empty(&vpci_dev->dev_list[slot]))
+ 				continue;
+ 
+ 			t = list_entry(list_first(&vpci_dev->dev_list[slot]),
+ 				       struct pci_dev_entry, list);
++			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
++				continue;
+ 
+ 			if (match_slot(dev, t->dev)) {
+ 				pr_info("vpci: %s: assign to virtual slot %d func %d\n",
+ 					pci_name(dev), slot,
+-					PCI_FUNC(dev->devfn));
++					func);
+ 				list_add_tail(&dev_entry->list,
+ 					      &vpci_dev->dev_list[slot]);
+-				func = PCI_FUNC(dev->devfn);
+ 				goto unlock;
+ 			}
+ 		}
+@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struc
+ 				pci_name(dev), slot);
+ 			list_add_tail(&dev_entry->list,
+ 				      &vpci_dev->dev_list[slot]);
+-			func = dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
+ 			goto unlock;
+ 		}
+ 	}
 
 
