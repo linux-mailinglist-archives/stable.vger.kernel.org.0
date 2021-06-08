@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B04D33A02FB
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83DE23A01C8
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236774AbhFHTLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:11:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53504 "EHLO mail.kernel.org"
+        id S237019AbhFHS4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:56:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236347AbhFHTJE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:09:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D71361027;
-        Tue,  8 Jun 2021 18:47:57 +0000 (UTC)
+        id S236462AbhFHSyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:54:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B619761380;
+        Tue,  8 Jun 2021 18:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178077;
-        bh=6KshZUQDtbu1sKvreYNSK6mM5Rt9oPAV4HI+Rh5mYsM=;
+        s=korg; t=1623177672;
+        bh=cwq7Ez0lq08bTQeMoR26Yn+K4gWm8Pk52eGqW6LoxAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEk4wk+pnAc7s+4E5sk27y7x5n4rh4D5hF3679H6iddxEieI4P08zCdgih1I6mqT7
-         mRVcdoZm1+AMd4+l1d3YKag2KeNw5Sy21suHBV70U97g4RE/zusIcmvfoOopUHe/Xb
-         onJR89eQs9DBc/49pE6JBulMtUZbzY0lfPgueLrM=
+        b=EgfMZiwCsqbWSTJLmxpwkkMiwJDd/YGoJ9LSZWCEUbW7/hqbOVEfKX5UeXZYDrJcl
+         vKqb4HfaAJYxsbsT1B5mwd7CosPiCQvTnziUlBDxHw0jPYfAI9QsNb64BXFP0dXG28
+         ddILInVnhVwDMQFJdDV4DY8eUR7ViOuQlJY+KDBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Gerlach <d-gerlach@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Vishakha Jambekar <vishakha.jambekar@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 068/161] bus: ti-sysc: Fix am335x resume hang for usb otg module
+Subject: [PATCH 5.10 058/137] ixgbe: add correct exception tracing for XDP
 Date:   Tue,  8 Jun 2021 20:26:38 +0200
-Message-Id: <20210608175947.760179341@linuxfoundation.org>
+Message-Id: <20210608175944.345198093@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,150 +42,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-[ Upstream commit 4d7b324e231366ea772ab10df46be31273ca39af ]
+[ Upstream commit 8281356b1cab1cccc71412eb4cf28b99d6bb2c19 ]
 
-On am335x, suspend and resume only works once, and the system hangs if
-suspend is attempted again. However, turns out suspend and resume works
-fine multiple times if the USB OTG driver for musb controller is loaded.
+Add missing exception tracing to XDP when a number of different
+errors can occur. The support was only partial. Several errors
+where not logged which would confuse the user quite a lot not
+knowing where and why the packets disappeared.
 
-The issue is caused my the interconnect target module losing context
-during suspend, and it needs a restore on resume to be reconfigure again
-as debugged earlier by Dave Gerlach <d-gerlach@ti.com>.
-
-There are also other modules that need a restore on resume, like gpmc as
-noted by Dave. So let's add a common way to restore an interconnect
-target module based on a quirk flag. For now, let's enable the quirk for
-am335x otg only to fix the suspend and resume issue.
-
-As gpmc is not causing hangs based on tests with BeagleBone, let's patch
-gpmc separately. For gpmc, we also need a hardware reset done before
-restore according to Dave.
-
-To reinit the modules, we decouple system suspend from PM runtime. We
-replace calls to pm_runtime_force_suspend() and pm_runtime_force_resume()
-with direct calls to internal functions and rely on the driver internal
-state. There no point trying to handle complex system suspend and resume
-quirks via PM runtime.
-
-This is issue should have already been noticed with commit 1819ef2e2d12
-("bus: ti-sysc: Use swsup quirks also for am335x musb") when quirk
-handling was added for am335x otg for swsup. But the issue went unnoticed
-as having musb driver loaded hides the issue, and suspend and resume works
-once without the driver loaded.
-
-Fixes: 1819ef2e2d12 ("bus: ti-sysc: Use swsup quirks also for am335x musb")
-Suggested-by: Dave Gerlach <d-gerlach@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 33fdc82f0883 ("ixgbe: add support for XDP_TX action")
+Fixes: d0bcacd0a130 ("ixgbe: add AF_XDP zero-copy Rx support")
+Reported-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Tested-by: Vishakha Jambekar <vishakha.jambekar@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c                 | 53 +++++++++++++++++++++++++--
- include/linux/platform_data/ti-sysc.h |  1 +
- 2 files changed, 51 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 16 ++++++++--------
+ drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c  | 14 ++++++++------
+ 2 files changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 68145e326eb9..49c47b939f21 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -1334,6 +1334,34 @@ static int __maybe_unused sysc_runtime_resume(struct device *dev)
- 	return error;
- }
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 0b9fddbc5db4..1bfba87f1ff6 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -2218,23 +2218,23 @@ static struct sk_buff *ixgbe_run_xdp(struct ixgbe_adapter *adapter,
+ 		break;
+ 	case XDP_TX:
+ 		xdpf = xdp_convert_buff_to_frame(xdp);
+-		if (unlikely(!xdpf)) {
+-			result = IXGBE_XDP_CONSUMED;
+-			break;
+-		}
++		if (unlikely(!xdpf))
++			goto out_failure;
+ 		result = ixgbe_xmit_xdp_ring(adapter, xdpf);
++		if (result == IXGBE_XDP_CONSUMED)
++			goto out_failure;
+ 		break;
+ 	case XDP_REDIRECT:
+ 		err = xdp_do_redirect(adapter->netdev, xdp, xdp_prog);
+-		if (!err)
+-			result = IXGBE_XDP_REDIR;
+-		else
+-			result = IXGBE_XDP_CONSUMED;
++		if (err)
++			goto out_failure;
++		result = IXGBE_XDP_REDIR;
+ 		break;
+ 	default:
+ 		bpf_warn_invalid_xdp_action(act);
+ 		fallthrough;
+ 	case XDP_ABORTED:
++out_failure:
+ 		trace_xdp_exception(rx_ring->netdev, xdp_prog, act);
+ 		fallthrough; /* handle aborts by dropping packet */
+ 	case XDP_DROP:
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
+index 91ad5b902673..f72d2978263b 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
+@@ -106,9 +106,10 @@ static int ixgbe_run_xdp_zc(struct ixgbe_adapter *adapter,
  
-+static int sysc_reinit_module(struct sysc *ddata, bool leave_enabled)
-+{
-+	struct device *dev = ddata->dev;
-+	int error;
-+
-+	/* Disable target module if it is enabled */
-+	if (ddata->enabled) {
-+		error = sysc_runtime_suspend(dev);
-+		if (error)
-+			dev_warn(dev, "reinit suspend failed: %i\n", error);
-+	}
-+
-+	/* Enable target module */
-+	error = sysc_runtime_resume(dev);
-+	if (error)
-+		dev_warn(dev, "reinit resume failed: %i\n", error);
-+
-+	if (leave_enabled)
-+		return error;
-+
-+	/* Disable target module if no leave_enabled was set */
-+	error = sysc_runtime_suspend(dev);
-+	if (error)
-+		dev_warn(dev, "reinit suspend failed: %i\n", error);
-+
-+	return error;
-+}
-+
- static int __maybe_unused sysc_noirq_suspend(struct device *dev)
- {
- 	struct sysc *ddata;
-@@ -1344,12 +1372,18 @@ static int __maybe_unused sysc_noirq_suspend(struct device *dev)
- 	    (SYSC_QUIRK_LEGACY_IDLE | SYSC_QUIRK_NO_IDLE))
- 		return 0;
+ 	if (likely(act == XDP_REDIRECT)) {
+ 		err = xdp_do_redirect(rx_ring->netdev, xdp, xdp_prog);
+-		result = !err ? IXGBE_XDP_REDIR : IXGBE_XDP_CONSUMED;
++		if (err)
++			goto out_failure;
+ 		rcu_read_unlock();
+-		return result;
++		return IXGBE_XDP_REDIR;
+ 	}
  
--	return pm_runtime_force_suspend(dev);
-+	if (!ddata->enabled)
-+		return 0;
-+
-+	ddata->needs_resume = 1;
-+
-+	return sysc_runtime_suspend(dev);
- }
- 
- static int __maybe_unused sysc_noirq_resume(struct device *dev)
- {
- 	struct sysc *ddata;
-+	int error = 0;
- 
- 	ddata = dev_get_drvdata(dev);
- 
-@@ -1357,7 +1391,19 @@ static int __maybe_unused sysc_noirq_resume(struct device *dev)
- 	    (SYSC_QUIRK_LEGACY_IDLE | SYSC_QUIRK_NO_IDLE))
- 		return 0;
- 
--	return pm_runtime_force_resume(dev);
-+	if (ddata->cfg.quirks & SYSC_QUIRK_REINIT_ON_RESUME) {
-+		error = sysc_reinit_module(ddata, ddata->needs_resume);
-+		if (error)
-+			dev_warn(dev, "noirq_resume failed: %i\n", error);
-+	} else if (ddata->needs_resume) {
-+		error = sysc_runtime_resume(dev);
-+		if (error)
-+			dev_warn(dev, "noirq_resume failed: %i\n", error);
-+	}
-+
-+	ddata->needs_resume = 0;
-+
-+	return error;
- }
- 
- static const struct dev_pm_ops sysc_pm_ops = {
-@@ -1466,7 +1512,8 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
- 	SYSC_QUIRK("usb_otg_hs", 0, 0x400, 0x404, 0x408, 0x00000050,
- 		   0xffffffff, SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
- 	SYSC_QUIRK("usb_otg_hs", 0, 0, 0x10, -ENODEV, 0x4ea2080d, 0xffffffff,
--		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
-+		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY |
-+		   SYSC_QUIRK_REINIT_ON_RESUME),
- 	SYSC_QUIRK("wdt", 0, 0, 0x10, 0x14, 0x502a0500, 0xfffff0f0,
- 		   SYSC_MODULE_QUIRK_WDT),
- 	/* PRUSS on am3, am4 and am5 */
-diff --git a/include/linux/platform_data/ti-sysc.h b/include/linux/platform_data/ti-sysc.h
-index fafc1beea504..9837fb011f2f 100644
---- a/include/linux/platform_data/ti-sysc.h
-+++ b/include/linux/platform_data/ti-sysc.h
-@@ -50,6 +50,7 @@ struct sysc_regbits {
- 	s8 emufree_shift;
- };
- 
-+#define SYSC_QUIRK_REINIT_ON_RESUME	BIT(27)
- #define SYSC_QUIRK_GPMC_DEBUG		BIT(26)
- #define SYSC_MODULE_QUIRK_ENA_RESETDONE	BIT(25)
- #define SYSC_MODULE_QUIRK_PRUSS		BIT(24)
+ 	switch (act) {
+@@ -116,16 +117,17 @@ static int ixgbe_run_xdp_zc(struct ixgbe_adapter *adapter,
+ 		break;
+ 	case XDP_TX:
+ 		xdpf = xdp_convert_buff_to_frame(xdp);
+-		if (unlikely(!xdpf)) {
+-			result = IXGBE_XDP_CONSUMED;
+-			break;
+-		}
++		if (unlikely(!xdpf))
++			goto out_failure;
+ 		result = ixgbe_xmit_xdp_ring(adapter, xdpf);
++		if (result == IXGBE_XDP_CONSUMED)
++			goto out_failure;
+ 		break;
+ 	default:
+ 		bpf_warn_invalid_xdp_action(act);
+ 		fallthrough;
+ 	case XDP_ABORTED:
++out_failure:
+ 		trace_xdp_exception(rx_ring->netdev, xdp_prog, act);
+ 		fallthrough; /* handle aborts by dropping packet */
+ 	case XDP_DROP:
 -- 
 2.30.2
 
