@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5303A007D
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB1C3A000A
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235428AbhFHSn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:43:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37964 "EHLO mail.kernel.org"
+        id S234573AbhFHSio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:38:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234607AbhFHSl5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:41:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E153613D6;
-        Tue,  8 Jun 2021 18:35:27 +0000 (UTC)
+        id S234589AbhFHSgv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:36:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24A8A613EF;
+        Tue,  8 Jun 2021 18:32:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177328;
-        bh=3lEcLAkJaf2S+rXtUTrO5MvnJmNz7wRFlMfIAdQMIj0=;
+        s=korg; t=1623177162;
+        bh=yi/cYojqO+xXBwjtIA4+VWUBUFcFIVlCg0igrPPHSKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2lnma3+ZuDqqwDXc1amqf5jUh1apYaPzfDD86mPMEpjvUZ5pgTgK3RcpxTkhIBT+
-         XEmBh39kINRlMs3z+TsUA8IGdmew6XAYbaHOpkm+cLmHuzBayNRRnrFWTDMlYSpDdP
-         Ayhsvf0z/UpQQgXGODGC6STAVAB7s1YDrnRIrP1g=
+        b=Na5due/FrYkYMJ9yYPc5w+CVDqN80d/7vYIWG9Osq0s95xTz7XcNVNh9vGqUoFLv7
+         89Smo+KRyfusSpISydTq+jbWbb78A5pxKmSR0s7ilykfcgmW3LvgeKvredDvFGYM4u
+         rqCGlLpZxVHW+sMEnY+d8BNmHiiBAhiTg5LgwP8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+e562383183e4b1766930@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 13/78] ipvs: ignore IP_VS_SVC_F_HASHED flag when adding service
+        stable@vger.kernel.org, Grant Grundler <grundler@chromium.org>,
+        Hayes Wang <hayeswang@realtek.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 01/58] net: usb: cdc_ncm: dont spew notifications
 Date:   Tue,  8 Jun 2021 20:26:42 +0200
-Message-Id: <20210608175935.726672648@linuxfoundation.org>
+Message-Id: <20210608175932.311886575@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
-References: <20210608175935.254388043@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,60 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Anastasov <ja@ssi.bg>
+From: Grant Grundler <grundler@chromium.org>
 
-[ Upstream commit 56e4ee82e850026d71223262c07df7d6af3bd872 ]
+[ Upstream commit de658a195ee23ca6aaffe197d1d2ea040beea0a2 ]
 
-syzbot reported memory leak [1] when adding service with
-HASHED flag. We should ignore this flag both from sockopt
-and netlink provided data, otherwise the service is not
-hashed and not visible while releasing resources.
+RTL8156 sends notifications about every 32ms.
+Only display/log notifications when something changes.
 
-[1]
-BUG: memory leak
-unreferenced object 0xffff888115227800 (size 512):
-  comm "syz-executor263", pid 8658, jiffies 4294951882 (age 12.560s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff83977188>] kmalloc include/linux/slab.h:556 [inline]
-    [<ffffffff83977188>] kzalloc include/linux/slab.h:686 [inline]
-    [<ffffffff83977188>] ip_vs_add_service+0x598/0x7c0 net/netfilter/ipvs/ip_vs_ctl.c:1343
-    [<ffffffff8397d770>] do_ip_vs_set_ctl+0x810/0xa40 net/netfilter/ipvs/ip_vs_ctl.c:2570
-    [<ffffffff838449a8>] nf_setsockopt+0x68/0xa0 net/netfilter/nf_sockopt.c:101
-    [<ffffffff839ae4e9>] ip_setsockopt+0x259/0x1ff0 net/ipv4/ip_sockglue.c:1435
-    [<ffffffff839fa03c>] raw_setsockopt+0x18c/0x1b0 net/ipv4/raw.c:857
-    [<ffffffff83691f20>] __sys_setsockopt+0x1b0/0x360 net/socket.c:2117
-    [<ffffffff836920f2>] __do_sys_setsockopt net/socket.c:2128 [inline]
-    [<ffffffff836920f2>] __se_sys_setsockopt net/socket.c:2125 [inline]
-    [<ffffffff836920f2>] __x64_sys_setsockopt+0x22/0x30 net/socket.c:2125
-    [<ffffffff84350efa>] do_syscall_64+0x3a/0xb0 arch/x86/entry/common.c:47
-    [<ffffffff84400068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+This issue has been reported by others:
+	https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1832472
+	https://lkml.org/lkml/2020/8/27/1083
 
-Reported-and-tested-by: syzbot+e562383183e4b1766930@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Reviewed-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+...
+[785962.779840] usb 1-1: new high-speed USB device number 5 using xhci_hcd
+[785962.929944] usb 1-1: New USB device found, idVendor=0bda, idProduct=8156, bcdDevice=30.00
+[785962.929949] usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=6
+[785962.929952] usb 1-1: Product: USB 10/100/1G/2.5G LAN
+[785962.929954] usb 1-1: Manufacturer: Realtek
+[785962.929956] usb 1-1: SerialNumber: 000000001
+[785962.991755] usbcore: registered new interface driver cdc_ether
+[785963.017068] cdc_ncm 1-1:2.0: MAC-Address: 00:24:27:88:08:15
+[785963.017072] cdc_ncm 1-1:2.0: setting rx_max = 16384
+[785963.017169] cdc_ncm 1-1:2.0: setting tx_max = 16384
+[785963.017682] cdc_ncm 1-1:2.0 usb0: register 'cdc_ncm' at usb-0000:00:14.0-1, CDC NCM, 00:24:27:88:08:15
+[785963.019211] usbcore: registered new interface driver cdc_ncm
+[785963.023856] usbcore: registered new interface driver cdc_wdm
+[785963.025461] usbcore: registered new interface driver cdc_mbim
+[785963.038824] cdc_ncm 1-1:2.0 enx002427880815: renamed from usb0
+[785963.089586] cdc_ncm 1-1:2.0 enx002427880815: network connection: disconnected
+[785963.121673] cdc_ncm 1-1:2.0 enx002427880815: network connection: disconnected
+[785963.153682] cdc_ncm 1-1:2.0 enx002427880815: network connection: disconnected
+...
+
+This is about 2KB per second and will overwrite all contents of a 1MB
+dmesg buffer in under 10 minutes rendering them useless for debugging
+many kernel problems.
+
+This is also an extra 180 MB/day in /var/logs (or 1GB per week) rendering
+the majority of those logs useless too.
+
+When the link is up (expected state), spew amount is >2x higher:
+...
+[786139.600992] cdc_ncm 2-1:2.0 enx002427880815: network connection: connected
+[786139.632997] cdc_ncm 2-1:2.0 enx002427880815: 2500 mbit/s downlink 2500 mbit/s uplink
+[786139.665097] cdc_ncm 2-1:2.0 enx002427880815: network connection: connected
+[786139.697100] cdc_ncm 2-1:2.0 enx002427880815: 2500 mbit/s downlink 2500 mbit/s uplink
+[786139.729094] cdc_ncm 2-1:2.0 enx002427880815: network connection: connected
+[786139.761108] cdc_ncm 2-1:2.0 enx002427880815: 2500 mbit/s downlink 2500 mbit/s uplink
+...
+
+Chrome OS cannot support RTL8156 until this is fixed.
+
+Signed-off-by: Grant Grundler <grundler@chromium.org>
+Reviewed-by: Hayes Wang <hayeswang@realtek.com>
+Link: https://lore.kernel.org/r/20210120011208.3768105-1-grundler@chromium.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_ctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/cdc_ncm.c  | 12 +++++++++++-
+ include/linux/usb/usbnet.h |  2 ++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index 99168af0c28d..f93fa0e21097 100644
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -1340,7 +1340,7 @@ ip_vs_add_service(struct netns_ipvs *ipvs, struct ip_vs_service_user_kern *u,
- 	ip_vs_addr_copy(svc->af, &svc->addr, &u->addr);
- 	svc->port = u->port;
- 	svc->fwmark = u->fwmark;
--	svc->flags = u->flags;
-+	svc->flags = u->flags & ~IP_VS_SVC_F_HASHED;
- 	svc->timeout = u->timeout * HZ;
- 	svc->netmask = u->netmask;
- 	svc->ipvs = ipvs;
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index faca70c3647d..82ec00a7370d 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1590,6 +1590,15 @@ cdc_ncm_speed_change(struct usbnet *dev,
+ 	uint32_t rx_speed = le32_to_cpu(data->DLBitRRate);
+ 	uint32_t tx_speed = le32_to_cpu(data->ULBitRate);
+ 
++	/* if the speed hasn't changed, don't report it.
++	 * RTL8156 shipped before 2021 sends notification about every 32ms.
++	 */
++	if (dev->rx_speed == rx_speed && dev->tx_speed == tx_speed)
++		return;
++
++	dev->rx_speed = rx_speed;
++	dev->tx_speed = tx_speed;
++
+ 	/*
+ 	 * Currently the USB-NET API does not support reporting the actual
+ 	 * device speed. Do print it instead.
+@@ -1633,7 +1642,8 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
+ 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
+ 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
+ 		 */
+-		usbnet_link_change(dev, !!event->wValue, 0);
++		if (netif_carrier_ok(dev->net) != !!event->wValue)
++			usbnet_link_change(dev, !!event->wValue, 0);
+ 		break;
+ 
+ 	case USB_CDC_NOTIFY_SPEED_CHANGE:
+diff --git a/include/linux/usb/usbnet.h b/include/linux/usb/usbnet.h
+index e2ec3582e549..452ca06ed253 100644
+--- a/include/linux/usb/usbnet.h
++++ b/include/linux/usb/usbnet.h
+@@ -83,6 +83,8 @@ struct usbnet {
+ #		define EVENT_LINK_CHANGE	11
+ #		define EVENT_SET_RX_MODE	12
+ #		define EVENT_NO_IP_ALIGN	13
++	u32			rx_speed;	/* in bps - NOT Mbps */
++	u32			tx_speed;	/* in bps - NOT Mbps */
+ };
+ 
+ static inline struct usb_driver *driver_of(struct usb_interface *intf)
 -- 
 2.30.2
 
