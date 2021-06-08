@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3DC3A0261
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EC173A03C2
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236805AbhFHTDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:03:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34008 "EHLO mail.kernel.org"
+        id S234600AbhFHTVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:21:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235888AbhFHTBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:01:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A24861924;
-        Tue,  8 Jun 2021 18:44:47 +0000 (UTC)
+        id S237855AbhFHTSC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:18:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D985B61978;
+        Tue,  8 Jun 2021 18:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177887;
-        bh=a1XFhjAURRn7MxXheEXwBt1QgSC+no1XbrUDlLmF2NA=;
+        s=korg; t=1623178290;
+        bh=n7pG4w/2rTfxpet/fCl9Stkv5gQqX6+XHsU/tbXwW+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VDKpYPTVnscSbEdeRVM682xAW4mzJ93JI4SiEHu2V1lL8ptx8JjmCGd68d2wS9j1p
-         4aVHyiDdqfV2wGb9BkLzKsjThzt4OmguRRK7eDHadEVOodwOaUdWAJ7tbmleRVcExQ
-         qrR9n6xK+a2hGOFrSeymLYjrcbMxmqATqNJimdN0=
+        b=nFXTGbBhwZap9hVJeRrtjzb6nQkqas08XJ9dP5HsQQQxsNf9Pt9s0kS/LK60RYSfp
+         LhOune/hpUQppWUaMOiVEu8YMMR20OlVlr0o/nP9fHscOztKI34TmSgzem/IvSiQMW
+         vi5CTWtKBNptKEOH+HGcnO8cOK3BN3LQyRRWkdFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.10 136/137] xen-netback: take a reference to the RX task thread
-Date:   Tue,  8 Jun 2021 20:27:56 +0200
-Message-Id: <20210608175946.975084172@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 147/161] btrfs: fix deadlock when cloning inline extents and low on available space
+Date:   Tue,  8 Jun 2021 20:27:57 +0200
+Message-Id: <20210608175950.415896811@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +39,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 107866a8eb0b664675a260f1ba0655010fac1e08 upstream.
+commit 76a6d5cd74479e7ec8a7f9a29bce63d5549b6b2e upstream.
 
-Do this in order to prevent the task from being freed if the thread
-returns (which can be triggered by the frontend) before the call to
-kthread_stop done as part of the backend tear down. Not taking the
-reference will lead to a use-after-free in that scenario. Such
-reference was taken before but dropped as part of the rework done in
-2ac061ce97f4.
+There are a few cases where cloning an inline extent requires copying data
+into a page of the destination inode. For these cases we are allocating
+the required data and metadata space while holding a leaf locked. This can
+result in a deadlock when we are low on available space because allocating
+the space may flush delalloc and two deadlock scenarios can happen:
 
-Reintroduce the reference taking and add a comment this time
-explaining why it's needed.
+1) When starting writeback for an inode with a very small dirty range that
+   fits in an inline extent, we deadlock during the writeback when trying
+   to insert the inline extent, at cow_file_range_inline(), if the extent
+   is going to be located in the leaf for which we are already holding a
+   read lock;
 
-This is XSA-374 / CVE-2021-28691.
+2) After successfully starting writeback, for non-inline extent cases,
+   the async reclaim thread will hang waiting for an ordered extent to
+   complete if the ordered extent completion needs to modify the leaf
+   for which the clone task is holding a read lock (for adding or
+   replacing file extent items). So the cloning task will wait forever
+   on the async reclaim thread to make progress, which in turn is
+   waiting for the ordered extent completion which in turn is waiting
+   to acquire a write lock on the same leaf.
 
-Fixes: 2ac061ce97f4 ('xen/netback: cleanup init and deinit code')
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+So fix this by making sure we release the path (and therefore the leaf)
+every time we need to copy the inline extent's data into a page of the
+destination inode, as by that time we do not need to have the leaf locked.
+
+Fixes: 05a5a7621ce66c ("Btrfs: implement full reflink support for inline extents")
+CC: stable@vger.kernel.org # 5.10+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/interface.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/btrfs/reflink.c |   38 ++++++++++++++++++++++----------------
+ 1 file changed, 22 insertions(+), 16 deletions(-)
 
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -685,6 +685,7 @@ static void xenvif_disconnect_queue(stru
- {
- 	if (queue->task) {
- 		kthread_stop(queue->task);
-+		put_task_struct(queue->task);
- 		queue->task = NULL;
+--- a/fs/btrfs/reflink.c
++++ b/fs/btrfs/reflink.c
+@@ -207,10 +207,7 @@ static int clone_copy_inline_extent(stru
+ 			 * inline extent's data to the page.
+ 			 */
+ 			ASSERT(key.offset > 0);
+-			ret = copy_inline_to_page(BTRFS_I(dst), new_key->offset,
+-						  inline_data, size, datal,
+-						  comp_type);
+-			goto out;
++			goto copy_to_page;
+ 		}
+ 	} else if (i_size_read(dst) <= datal) {
+ 		struct btrfs_file_extent_item *ei;
+@@ -226,13 +223,10 @@ static int clone_copy_inline_extent(stru
+ 		    BTRFS_FILE_EXTENT_INLINE)
+ 			goto copy_inline_extent;
+ 
+-		ret = copy_inline_to_page(BTRFS_I(dst), new_key->offset,
+-					  inline_data, size, datal, comp_type);
+-		goto out;
++		goto copy_to_page;
  	}
  
-@@ -745,6 +746,11 @@ int xenvif_connect_data(struct xenvif_qu
- 	if (IS_ERR(task))
- 		goto kthread_err;
- 	queue->task = task;
-+	/*
-+	 * Take a reference to the task in order to prevent it from being freed
-+	 * if the thread function returns before kthread_stop is called.
-+	 */
-+	get_task_struct(task);
+ copy_inline_extent:
+-	ret = 0;
+ 	/*
+ 	 * We have no extent items, or we have an extent at offset 0 which may
+ 	 * or may not be inlined. All these cases are dealt the same way.
+@@ -244,11 +238,13 @@ copy_inline_extent:
+ 		 * clone. Deal with all these cases by copying the inline extent
+ 		 * data into the respective page at the destination inode.
+ 		 */
+-		ret = copy_inline_to_page(BTRFS_I(dst), new_key->offset,
+-					  inline_data, size, datal, comp_type);
+-		goto out;
++		goto copy_to_page;
+ 	}
  
- 	task = kthread_run(xenvif_dealloc_kthread, queue,
- 			   "%s-dealloc", queue->name);
++	/*
++	 * Release path before starting a new transaction so we don't hold locks
++	 * that would confuse lockdep.
++	 */
+ 	btrfs_release_path(path);
+ 	/*
+ 	 * If we end up here it means were copy the inline extent into a leaf
+@@ -286,11 +282,6 @@ copy_inline_extent:
+ out:
+ 	if (!ret && !trans) {
+ 		/*
+-		 * Release path before starting a new transaction so we don't
+-		 * hold locks that would confuse lockdep.
+-		 */
+-		btrfs_release_path(path);
+-		/*
+ 		 * No transaction here means we copied the inline extent into a
+ 		 * page of the destination inode.
+ 		 *
+@@ -310,6 +301,21 @@ out:
+ 		*trans_out = trans;
+ 
+ 	return ret;
++
++copy_to_page:
++	/*
++	 * Release our path because we don't need it anymore and also because
++	 * copy_inline_to_page() needs to reserve data and metadata, which may
++	 * need to flush delalloc when we are low on available space and
++	 * therefore cause a deadlock if writeback of an inline extent needs to
++	 * write to the same leaf or an ordered extent completion needs to write
++	 * to the same leaf.
++	 */
++	btrfs_release_path(path);
++
++	ret = copy_inline_to_page(BTRFS_I(dst), new_key->offset,
++				  inline_data, size, datal, comp_type);
++	goto out;
+ }
+ 
+ /**
 
 
