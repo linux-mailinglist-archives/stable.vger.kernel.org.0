@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0F53A025A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F233A03D1
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236604AbhFHTDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:03:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35478 "EHLO mail.kernel.org"
+        id S237020AbhFHTWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:22:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237649AbhFHTBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:01:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4349961919;
-        Tue,  8 Jun 2021 18:44:33 +0000 (UTC)
+        id S235156AbhFHTSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:18:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A01ED61987;
+        Tue,  8 Jun 2021 18:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177873;
-        bh=XP8RtZB5I8hcyEmuu0P6ZC+uh588io2AMGX5lGpuJJs=;
+        s=korg; t=1623178317;
+        bh=0BCgrFCewNvWVUUHpFKWhVwnot4uLMCRIhqbXWz+pu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uHDgRDxoSXyZl2Bjb41CXUzyBo95nAbdIs3EEb8tvlpAHpV+6Hse3aAfJMD4hhZ/B
-         uhuxx3FZPxKs6nco3OPC4qWLsVpzhgcrk9gwqfVvp1N/T7tdxcK3qMIwvaU4tP/Q+c
-         Nid/1DukJAMr35W3uAO6s6wdilKAbes0rhJM8GIE=
+        b=wfezEIGqSbKIv8XTiUWWeDwwrEkhaGfXfDVO/M9VCyveT+8W/HbhC0g8LId1TOZnQ
+         sS4sw1H19zMgzMdOuu7t7chJDtetmhnl7Um2ghxTUaUP5n28Dlgk34wJpHOW8T9RrZ
+         9SzJmlrhPdLtIHU1edlDnfwY+Rf0Jy3g8ZsOXYLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 114/137] nfc: fix NULL ptr dereference in llcp_sock_getname() after failed connect
+        stable@vger.kernel.org, Marco Elver <elver@google.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Hillf Danton <hdanton@sina.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 124/161] kfence: use TASK_IDLE when awaiting allocation
 Date:   Tue,  8 Jun 2021 20:27:34 +0200
-Message-Id: <20210608175946.239429284@linuxfoundation.org>
+Message-Id: <20210608175949.638879750@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Marco Elver <elver@google.com>
 
-commit 4ac06a1e013cf5fdd963317ffd3b968560f33bba upstream.
+commit 8fd0e995cc7b6a7a8a40bc03d52a2cd445beeff4 upstream.
 
-It's possible to trigger NULL pointer dereference by local unprivileged
-user, when calling getsockname() after failed bind() (e.g. the bind
-fails because LLCP_SAP_MAX used as SAP):
+Since wait_event() uses TASK_UNINTERRUPTIBLE by default, waiting for an
+allocation counts towards load.  However, for KFENCE, this does not make
+any sense, since there is no busy work we're awaiting.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  CPU: 1 PID: 426 Comm: llcp_sock_getna Not tainted 5.13.0-rc2-next-20210521+ #9
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1 04/01/2014
-  Call Trace:
-   llcp_sock_getname+0xb1/0xe0
-   __sys_getpeername+0x95/0xc0
-   ? lockdep_hardirqs_on_prepare+0xd5/0x180
-   ? syscall_enter_from_user_mode+0x1c/0x40
-   __x64_sys_getpeername+0x11/0x20
-   do_syscall_64+0x36/0x70
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+Instead, use TASK_IDLE via wait_event_idle() to not count towards load.
 
-This can be reproduced with Syzkaller C repro (bind followed by
-getpeername):
-https://syzkaller.appspot.com/x/repro.c?x=14def446e00000
-
-Cc: <stable@vger.kernel.org>
-Fixes: d646960f7986 ("NFC: Initial LLCP support")
-Reported-by: syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210531072138.5219-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1185565
+Link: https://lkml.kernel.org/r/20210521083209.3740269-1-elver@google.com
+Fixes: 407f1d8c1b5f ("kfence: await for allocation using wait_event")
+Signed-off-by: Marco Elver <elver@google.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: David Laight <David.Laight@ACULAB.COM>
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: <stable@vger.kernel.org>	[5.12+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    2 ++
- 1 file changed, 2 insertions(+)
+ mm/kfence/core.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -110,6 +110,7 @@ static int llcp_sock_bind(struct socket
- 	if (!llcp_sock->service_name) {
- 		nfc_llcp_local_put(llcp_sock->local);
- 		llcp_sock->local = NULL;
-+		llcp_sock->dev = NULL;
- 		ret = -ENOMEM;
- 		goto put_dev;
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -626,10 +626,10 @@ static void toggle_allocation_gate(struc
+ 		 * During low activity with no allocations we might wait a
+ 		 * while; let's avoid the hung task warning.
+ 		 */
+-		wait_event_timeout(allocation_wait, atomic_read(&kfence_allocation_gate),
+-				   sysctl_hung_task_timeout_secs * HZ / 2);
++		wait_event_idle_timeout(allocation_wait, atomic_read(&kfence_allocation_gate),
++					sysctl_hung_task_timeout_secs * HZ / 2);
+ 	} else {
+-		wait_event(allocation_wait, atomic_read(&kfence_allocation_gate));
++		wait_event_idle(allocation_wait, atomic_read(&kfence_allocation_gate));
  	}
-@@ -119,6 +120,7 @@ static int llcp_sock_bind(struct socket
- 		llcp_sock->local = NULL;
- 		kfree(llcp_sock->service_name);
- 		llcp_sock->service_name = NULL;
-+		llcp_sock->dev = NULL;
- 		ret = -EADDRINUSE;
- 		goto put_dev;
- 	}
+ 
+ 	/* Disable static key and reset timer. */
 
 
