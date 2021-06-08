@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7877D3A0337
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2100A3A0369
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236073AbhFHTN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:13:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59566 "EHLO mail.kernel.org"
+        id S233603AbhFHTQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:16:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236608AbhFHTLy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:11:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C02E6194D;
-        Tue,  8 Jun 2021 18:49:24 +0000 (UTC)
+        id S236304AbhFHTNz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:13:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB27461959;
+        Tue,  8 Jun 2021 18:49:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178165;
-        bh=3W2Tzm+mG+BA2BmAu51mShZvg8h/D8aUTpgZoZzMNdQ=;
+        s=korg; t=1623178195;
+        bh=weSRea2QOkWVWpA1lEqEn9Cg7/2yqFa+Gce8M538pxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yfzL7fLGiMpivVRIxoXzCrcbMhGufMGnvdhXJJD2wAVydgDwr/B+Sg4+hpjvumm3e
-         l9L2socn6hZqOTqLm9aEXtD2ED2N7EYG1DAsC6dEttG9Ktxu3pe+HUr0X0obPS/cde
-         rf+Nr0WPyKZXR7ub2hbLyzf31/SF3CEXdsalpBkE=
+        b=U17GE7+YecRSk9hOILi1CbuUZEGLnsIzZLk9p2KSzVtTNxbr025x5G2zyrGsexHt3
+         eM7La5NoruRYDxO27IpRmXOZCkcngsk/T9/gheYEUh3EagnPlASJ49k/fUyqlmgrT6
+         6oNxMBvkNr+Mi1ZFV2GHmHFd0f4LBDxG9hgnG4hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Ser <contact@emersion.fr>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Harry Wentland <hwentlan@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 084/161] amdgpu: fix GEM obj leak in amdgpu_display_user_framebuffer_create
-Date:   Tue,  8 Jun 2021 20:26:54 +0200
-Message-Id: <20210608175948.278276680@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 085/161] io_uring: fix link timeout refs
+Date:   Tue,  8 Jun 2021 20:26:55 +0200
+Message-Id: <20210608175948.308619441@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -44,39 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Ser <contact@emersion.fr>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit e0c16eb4b3610298a74ae5504c7f6939b12be991 ]
+[ Upstream commit a298232ee6b9a1d5d732aa497ff8be0d45b5bd82 ]
 
-This error code-path is missing a drm_gem_object_put call. Other
-error code-paths are fine.
+WARNING: CPU: 0 PID: 10242 at lib/refcount.c:28 refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
+RIP: 0010:refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
+Call Trace:
+ __refcount_sub_and_test include/linux/refcount.h:283 [inline]
+ __refcount_dec_and_test include/linux/refcount.h:315 [inline]
+ refcount_dec_and_test include/linux/refcount.h:333 [inline]
+ io_put_req fs/io_uring.c:2140 [inline]
+ io_queue_linked_timeout fs/io_uring.c:6300 [inline]
+ __io_queue_sqe+0xbef/0xec0 fs/io_uring.c:6354
+ io_submit_sqe fs/io_uring.c:6534 [inline]
+ io_submit_sqes+0x2bbd/0x7c50 fs/io_uring.c:6660
+ __do_sys_io_uring_enter fs/io_uring.c:9240 [inline]
+ __se_sys_io_uring_enter+0x256/0x1d60 fs/io_uring.c:9182
 
-Signed-off-by: Simon Ser <contact@emersion.fr>
-Fixes: 1769152ac64b ("drm/amdgpu: Fail fb creation from imported dma-bufs. (v2)")
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Harry Wentland <hwentlan@amd.com>
-Cc: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Cc: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+io_link_timeout_fn() should put only one reference of the linked timeout
+request, however in case of racing with the master request's completion
+first io_req_complete() puts one and then io_put_req_deferred() is
+called.
+
+Cc: stable@vger.kernel.org # 5.12+
+Fixes: 9ae1f8dd372e0 ("io_uring: fix inconsistent lock state")
+Reported-by: syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/ff51018ff29de5ffa76f09273ef48cb24c720368.1620417627.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 1 +
+ fs/io_uring.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-index a2ac44cc2a6d..e80cc2928b58 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -944,6 +944,7 @@ amdgpu_display_user_framebuffer_create(struct drm_device *dev,
- 	domains = amdgpu_display_supported_domains(drm_to_adev(dev), bo->flags);
- 	if (obj->import_attach && !(domains & AMDGPU_GEM_DOMAIN_GTT)) {
- 		drm_dbg_kms(dev, "Cannot create framebuffer from imported dma_buf\n");
-+		drm_gem_object_put(obj);
- 		return ERR_PTR(-EINVAL);
- 	}
- 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 144056b0cac9..89f4e5e80b9e 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6272,6 +6272,7 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+ 	if (prev) {
+ 		io_async_find_and_cancel(ctx, req, prev->user_data, -ETIME);
+ 		io_put_req_deferred(prev, 1);
++		io_put_req_deferred(req, 1);
+ 	} else {
+ 		io_req_complete_post(req, -ETIME, 0);
+ 		io_put_req_deferred(req, 1);
 -- 
 2.30.2
 
