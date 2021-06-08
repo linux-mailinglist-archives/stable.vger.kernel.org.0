@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A51D739FF7B
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E2783A0020
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234608AbhFHSdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:33:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57560 "EHLO mail.kernel.org"
+        id S233851AbhFHSkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:40:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234124AbhFHSce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D70DC613CD;
-        Tue,  8 Jun 2021 18:30:24 +0000 (UTC)
+        id S235034AbhFHSi2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:38:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C093F61406;
+        Tue,  8 Jun 2021 18:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177025;
-        bh=jl8Z6ZgrA67B1nrcFs3fiCeBUftXiBdarqG5ygOvl9Q=;
+        s=korg; t=1623177209;
+        bh=0F9K0CUqK2VMd7A4DDsHuctUE+bP9NpzxPeBU/UiFi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pI/22bxZRt7qPlSGGd3+J+ZP0NDcqMYF7cx3B+0VLCqEvuNhSWkzY9LJBH43MmMwf
-         Ydr5Rt2Fg0aLOfKqblgMektOf3KynEv8j7my2dCN1KLo70xWVTZBnCBNBitQ73RLQB
-         T1p3GLb9GYca3pNF3dudTxtoBZMwfJ7HnhBVRD9Y=
+        b=Y3TvUqe3ITNhy/RKzX/qBRWXGun/hLj3drYr+xcAjlZiMrdpTiuRo7PqDw26LcWM6
+         VO/tu8ouChqaiDRb61EUQsm5QcEnWk/OwwxZJi3oCJIGpu2196OPv7o4xNRZqvC5Pa
+         JThkUQTK5UuyLMwkijynoSX02AMoWzApzD12MvmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
-        Lin Ma <linma@zju.edu.cn>, Hao Xiong <mart1n@zju.edu.cn>
-Subject: [PATCH 4.9 13/29] Bluetooth: fix the erroneous flush_work() order
+        stable@vger.kernel.org,
+        syzbot+d102fa5b35335a7e544e@syzkaller.appspotmail.com,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 26/58] ALSA: timer: Fix master timer notification
 Date:   Tue,  8 Jun 2021 20:27:07 +0200
-Message-Id: <20210608175928.248830114@linuxfoundation.org>
+Message-Id: <20210608175933.149165609@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 6a137caec23aeb9e036cdfd8a46dd8a366460e5d upstream.
+commit 9c1fe96bded935369f8340c2ac2e9e189f697d5d upstream.
 
-In the cleanup routine for failed initialization of HCI device,
-the flush_work(&hdev->rx_work) need to be finished before the
-flush_work(&hdev->cmd_work). Otherwise, the hci_rx_work() can
-possibly invoke new cmd_work and cause a bug, like double free,
-in late processings.
+snd_timer_notify1() calls the notification to each slave for a master
+event, but it passes a wrong event number.  It should be +10 offset,
+corresponding to SNDRV_TIMER_EVENT_MXXX, but it's incorrectly with
++100 offset.  Casually this was spotted by UBSAN check via syzkaller.
 
-This was assigned CVE-2021-3564.
-
-This patch reorder the flush_work() to fix this bug.
-
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: Johan Hedberg <johan.hedberg@gmail.com>
-Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: linux-bluetooth@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: Hao Xiong <mart1n@zju.edu.cn>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reported-by: syzbot+d102fa5b35335a7e544e@syzkaller.appspotmail.com
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000e5560e05c3bd1d63@google.com
+Link: https://lore.kernel.org/r/20210602113823.23777-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_core.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ sound/core/timer.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1422,8 +1422,13 @@ static int hci_dev_do_open(struct hci_de
- 	} else {
- 		/* Init failed, cleanup */
- 		flush_work(&hdev->tx_work);
--		flush_work(&hdev->cmd_work);
-+
-+		/* Since hci_rx_work() is possible to awake new cmd_work
-+		 * it should be flushed first to avoid unexpected call of
-+		 * hci_cmd_work()
-+		 */
- 		flush_work(&hdev->rx_work);
-+		flush_work(&hdev->cmd_work);
+--- a/sound/core/timer.c
++++ b/sound/core/timer.c
+@@ -500,9 +500,10 @@ static void snd_timer_notify1(struct snd
+ 		return;
+ 	if (timer->hw.flags & SNDRV_TIMER_HW_SLAVE)
+ 		return;
++	event += 10; /* convert to SNDRV_TIMER_EVENT_MXXX */
+ 	list_for_each_entry(ts, &ti->slave_active_head, active_list)
+ 		if (ts->ccallback)
+-			ts->ccallback(ts, event + 100, &tstamp, resolution);
++			ts->ccallback(ts, event, &tstamp, resolution);
+ }
  
- 		skb_queue_purge(&hdev->cmd_q);
- 		skb_queue_purge(&hdev->rx_q);
+ /* start/continue a master timer */
 
 
