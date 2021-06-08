@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9903A0260
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4103A038B
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236795AbhFHTDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:03:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33880 "EHLO mail.kernel.org"
+        id S234642AbhFHTSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:18:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234142AbhFHTBS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:01:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C11660FEA;
-        Tue,  8 Jun 2021 18:44:19 +0000 (UTC)
+        id S236281AbhFHTQK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:16:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DC5A6195C;
+        Tue,  8 Jun 2021 18:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177860;
-        bh=aR6QnCtBE47cE0pFzkuLpENCA5vOFSjeC6SulkNuY/M=;
+        s=korg; t=1623178263;
+        bh=gE52k/E7YkBeezIjTARd346XAL1t1SFknehX2+IJJTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHw16F1cEtSDXpaxmRKcCIyL3Knn3gVoQztR4I63mppItceNizz9CKDt3EpJcQZZx
-         uiSlh1VocZKP2ICYZfBL+HNpvqwvqio6QaOZHn7LmWFepNh/wAnVUOkSG+LW/YZsjO
-         3soxBpcT4DHGHp76eYc3FpSH5cJ/RLCaZgQ7xhe4=
+        b=KTyzaB4U7DxP1AojoTUItYGtyCDmteHHn9g9lalf+wxPQ8r2D9LqMPeZhaOseaguj
+         RgmT/DqY5OYbdHDDPn81/0H5iwZVB/w4UJzw2yv84YNKw39xEN3comRvmSXIipjISK
+         /a5kQ5VwtF4bF9PL0IH3TkJtsYvMsTXLpwpcxGGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.10 127/137] btrfs: fix unmountable seed device after fstrim
-Date:   Tue,  8 Jun 2021 20:27:47 +0200
-Message-Id: <20210608175946.679122079@linuxfoundation.org>
+        stable@vger.kernel.org, James Feeney <james@nurealm.net>,
+        Borislav Petkov <bp@suse.de>, Zhang Rui <rui.zhang@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 5.12 138/161] x86/thermal: Fix LVT thermal setup for SMI delivery mode
+Date:   Tue,  8 Jun 2021 20:27:48 +0200
+Message-Id: <20210608175950.109625741@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,111 +40,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit 5e753a817b2d5991dfe8a801b7b1e8e79a1c5a20 upstream.
+commit 9a90ed065a155d13db0d0ffeaad5cc54e51c90c6 upstream.
 
-The following test case reproduces an issue of wrongly freeing in-use
-blocks on the readonly seed device when fstrim is called on the rw sprout
-device. As shown below.
+There are machines out there with added value crap^WBIOS which provide an
+SMI handler for the local APIC thermal sensor interrupt. Out of reset,
+the BSP on those machines has something like 0x200 in that APIC register
+(timestamps left in because this whole issue is timing sensitive):
 
-Create a seed device and add a sprout device to it:
+  [    0.033858] read lvtthmr: 0x330, val: 0x200
 
-  $ mkfs.btrfs -fq -dsingle -msingle /dev/loop0
-  $ btrfstune -S 1 /dev/loop0
-  $ mount /dev/loop0 /btrfs
-  $ btrfs dev add -f /dev/loop1 /btrfs
-  BTRFS info (device loop0): relocating block group 290455552 flags system
-  BTRFS info (device loop0): relocating block group 1048576 flags system
-  BTRFS info (device loop0): disk added /dev/loop1
-  $ umount /btrfs
+which means:
 
-Mount the sprout device and run fstrim:
+ - bit 16 - the interrupt mask bit is clear and thus that interrupt is enabled
+ - bits [10:8] have 010b which means SMI delivery mode.
 
-  $ mount /dev/loop1 /btrfs
-  $ fstrim /btrfs
-  $ umount /btrfs
+Now, later during boot, when the kernel programs the local APIC, it
+soft-disables it temporarily through the spurious vector register:
 
-Now try to mount the seed device, and it fails:
+  setup_local_APIC:
 
-  $ mount /dev/loop0 /btrfs
-  mount: /btrfs: wrong fs type, bad option, bad superblock on /dev/loop0, missing codepage or helper program, or other error.
+  	...
 
-Block 5292032 is missing on the readonly seed device:
+	/*
+	 * If this comes from kexec/kcrash the APIC might be enabled in
+	 * SPIV. Soft disable it before doing further initialization.
+	 */
+	value = apic_read(APIC_SPIV);
+	value &= ~APIC_SPIV_APIC_ENABLED;
+	apic_write(APIC_SPIV, value);
 
- $ dmesg -kt | tail
- <snip>
- BTRFS error (device loop0): bad tree block start, want 5292032 have 0
- BTRFS warning (device loop0): couldn't read-tree root
- BTRFS error (device loop0): open_ctree failed
+which means (from the SDM):
 
->From the dump-tree of the seed device (taken before the fstrim). Block
-5292032 belonged to the block group starting at 5242880:
+"10.4.7.2 Local APIC State After It Has Been Software Disabled
 
-  $ btrfs inspect dump-tree -e /dev/loop0 | grep -A1 BLOCK_GROUP
-  <snip>
-  item 3 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16169 itemsize 24
-  	block group used 114688 chunk_objectid 256 flags METADATA
-  <snip>
+...
 
->From the dump-tree of the sprout device (taken before the fstrim).
-fstrim used block-group 5242880 to find the related free space to free:
+* The mask bits for all the LVT entries are set. Attempts to reset these
+bits will be ignored."
 
-  $ btrfs inspect dump-tree -e /dev/loop1 | grep -A1 BLOCK_GROUP
-  <snip>
-  item 1 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16226 itemsize 24
-  	block group used 32768 chunk_objectid 256 flags METADATA
-  <snip>
+And this happens too:
 
-BPF kernel tracing the fstrim command finds the missing block 5292032
-within the range of the discarded blocks as below:
+  [    0.124111] APIC: Switch to symmetric I/O mode setup
+  [    0.124117] lvtthmr 0x200 before write 0xf to APIC 0xf0
+  [    0.124118] lvtthmr 0x10200 after write 0xf to APIC 0xf0
 
-  kprobe:btrfs_discard_extent {
-  	printf("freeing start %llu end %llu num_bytes %llu:\n",
-  		arg1, arg1+arg2, arg2);
-  }
+This results in CPU 0 soft lockups depending on the placement in time
+when the APIC soft-disable happens. Those soft lockups are not 100%
+reproducible and the reason for that can only be speculated as no one
+tells you what SMM does. Likely, it confuses the SMM code that the APIC
+is disabled and the thermal interrupt doesn't doesn't fire at all,
+leading to CPU 0 stuck in SMM forever...
 
-  freeing start 5259264 end 5406720 num_bytes 147456
-  <snip>
+Now, before
 
-Fix this by avoiding the discard command to the readonly seed device.
+  4f432e8bb15b ("x86/mce: Get rid of mcheck_intel_therm_init()")
 
-Reported-by: Chris Murphy <lists@colorremedies.com>
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+due to how the APIC_LVTTHMR was read before APIC initialization in
+mcheck_intel_therm_init(), it would read the value with the mask bit 16
+clear and then intel_init_thermal() would replicate it onto the APs and
+all would be peachy - the thermal interrupt would remain enabled.
+
+But that commit moved that reading to a later moment in
+intel_init_thermal(), resulting in reading APIC_LVTTHMR on the BSP too
+late and with its interrupt mask bit set.
+
+Thus, revert back to the old behavior of reading the thermal LVT
+register before the APIC gets initialized.
+
+Fixes: 4f432e8bb15b ("x86/mce: Get rid of mcheck_intel_therm_init()")
+Reported-by: James Feeney <james@nurealm.net>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Cc: Zhang Rui <rui.zhang@intel.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Link: https://lkml.kernel.org/r/YKIqDdFNaXYd39wz@zn.tnic
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent-tree.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/thermal.h      |    4 +++-
+ arch/x86/kernel/setup.c             |    9 +++++++++
+ drivers/thermal/intel/therm_throt.c |   15 +++++++++++----
+ 3 files changed, 23 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -1297,16 +1297,20 @@ int btrfs_discard_extent(struct btrfs_fs
- 		for (i = 0; i < bbio->num_stripes; i++, stripe++) {
- 			u64 bytes;
- 			struct request_queue *req_q;
-+			struct btrfs_device *device = stripe->dev;
+--- a/arch/x86/include/asm/thermal.h
++++ b/arch/x86/include/asm/thermal.h
+@@ -3,11 +3,13 @@
+ #define _ASM_X86_THERMAL_H
  
--			if (!stripe->dev->bdev) {
-+			if (!device->bdev) {
- 				ASSERT(btrfs_test_opt(fs_info, DEGRADED));
- 				continue;
- 			}
--			req_q = bdev_get_queue(stripe->dev->bdev);
-+			req_q = bdev_get_queue(device->bdev);
- 			if (!blk_queue_discard(req_q))
- 				continue;
+ #ifdef CONFIG_X86_THERMAL_VECTOR
++void therm_lvt_init(void);
+ void intel_init_thermal(struct cpuinfo_x86 *c);
+ bool x86_thermal_enabled(void);
+ void intel_thermal_interrupt(void);
+ #else
+-static inline void intel_init_thermal(struct cpuinfo_x86 *c) { }
++static inline void therm_lvt_init(void)				{ }
++static inline void intel_init_thermal(struct cpuinfo_x86 *c)	{ }
+ #endif
  
--			ret = btrfs_issue_discard(stripe->dev->bdev,
-+			if (!test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state))
-+				continue;
+ #endif /* _ASM_X86_THERMAL_H */
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -44,6 +44,7 @@
+ #include <asm/pci-direct.h>
+ #include <asm/prom.h>
+ #include <asm/proto.h>
++#include <asm/thermal.h>
+ #include <asm/unwind.h>
+ #include <asm/vsyscall.h>
+ #include <linux/vmalloc.h>
+@@ -1220,6 +1221,14 @@ void __init setup_arch(char **cmdline_p)
+ 
+ 	x86_init.timers.wallclock_init();
+ 
++	/*
++	 * This needs to run before setup_local_APIC() which soft-disables the
++	 * local APIC temporarily and that masks the thermal LVT interrupt,
++	 * leading to softlockups on machines which have configured SMI
++	 * interrupt delivery.
++	 */
++	therm_lvt_init();
 +
-+			ret = btrfs_issue_discard(device->bdev,
- 						  stripe->physical,
- 						  stripe->length,
- 						  &bytes);
+ 	mcheck_init();
+ 
+ 	register_refined_jiffies(CLOCK_TICK_RATE);
+--- a/drivers/thermal/intel/therm_throt.c
++++ b/drivers/thermal/intel/therm_throt.c
+@@ -621,6 +621,17 @@ bool x86_thermal_enabled(void)
+ 	return atomic_read(&therm_throt_en);
+ }
+ 
++void __init therm_lvt_init(void)
++{
++	/*
++	 * This function is only called on boot CPU. Save the init thermal
++	 * LVT value on BSP and use that value to restore APs' thermal LVT
++	 * entry BIOS programmed later
++	 */
++	if (intel_thermal_supported(&boot_cpu_data))
++		lvtthmr_init = apic_read(APIC_LVTTHMR);
++}
++
+ void intel_init_thermal(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int cpu = smp_processor_id();
+@@ -630,10 +641,6 @@ void intel_init_thermal(struct cpuinfo_x
+ 	if (!intel_thermal_supported(c))
+ 		return;
+ 
+-	/* On the BSP? */
+-	if (c == &boot_cpu_data)
+-		lvtthmr_init = apic_read(APIC_LVTTHMR);
+-
+ 	/*
+ 	 * First check if its enabled already, in which case there might
+ 	 * be some SMM goo which handles it, so we can't even put a handler
 
 
