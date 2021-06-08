@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31FE13A007F
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49383A000C
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235221AbhFHSoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:44:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
+        id S234598AbhFHSip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:38:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235218AbhFHSmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:42:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A35B3613F9;
-        Tue,  8 Jun 2021 18:35:35 +0000 (UTC)
+        id S234791AbhFHSgx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:36:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD242613AC;
+        Tue,  8 Jun 2021 18:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177336;
-        bh=IvrP3YfhhYkYUECsX0Lr7/Ijq4XLCcdj/PEOmIFUSZQ=;
+        s=korg; t=1623177171;
+        bh=podLt0Q3vRWbWw6k5D1sRvkgt8TqwjcT4GxfTMqQ2H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsExUbyNIfod+oDO8elio78f8d/EfD8K0j+h7NwWFvGOATzzZoUoUEmkBbL0y24Xc
-         +NX5ddfZ4TMrmgctA9/rZSs277S0Wg/vxQFGjAgo4LuCGpFwAtarweHSQP3mmRBZMt
-         6ivMNm+PdxYZfqTILtZqEu1YU/B8cCHknepMnxbg=
+        b=zeF0CboJNHbg0RTI8AaKiQ737MWk7PROJl5dTSPY/YN/Bm1FAUssAtUqwz53FhhxS
+         ipUmduiT+yt3qpoLWQvOqLKLh+7PNp9yPg4UTQfTsq495ff3wfDdIq5xK4PiwFbseA
+         IzRf2Ox+X0WBsvsVOEOo9goRkqRrReJpZmkk8EUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ariel Levkovich <lariel@nvidia.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/78] net/sched: act_ct: Fix ct template allocation for zone 0
+Subject: [PATCH 4.19 04/58] efi: Allow EFI_MEMORY_XP and EFI_MEMORY_RO both to be cleared
 Date:   Tue,  8 Jun 2021 20:26:45 +0200
-Message-Id: <20210608175935.821304198@linuxfoundation.org>
+Message-Id: <20210608175932.415213638@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
-References: <20210608175935.254388043@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ariel Levkovich <lariel@nvidia.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit fb91702b743dec78d6507c53a2dec8a8883f509d ]
+[ Upstream commit 45add3cc99feaaf57d4b6f01d52d532c16a1caee ]
 
-Fix current behavior of skipping template allocation in case the
-ct action is in zone 0.
+UEFI spec 2.9, p.108, table 4-1 lists the scenario that both attributes
+are cleared with the description "No memory access protection is
+possible for Entry". So we can have valid entries where both attributes
+are cleared, so remove the check.
 
-Skipping the allocation may cause the datapath ct code to ignore the
-entire ct action with all its attributes (commit, nat) in case the ct
-action in zone 0 was preceded by a ct clear action.
-
-The ct clear action sets the ct_state to untracked and resets the
-skb->_nfct pointer. Under these conditions and without an allocated
-ct template, the skb->_nfct pointer will remain NULL which will
-cause the tc ct action handler to exit without handling commit and nat
-actions, if such exist.
-
-For example, the following rule in OVS dp:
-recirc_id(0x2),ct_state(+new-est-rel-rpl+trk),ct_label(0/0x1), \
-in_port(eth0),actions:ct_clear,ct(commit,nat(src=10.11.0.12)), \
-recirc(0x37a)
-
-Will result in act_ct skipping the commit and nat actions in zone 0.
-
-The change removes the skipping of template allocation for zone 0 and
-treats it the same as any other zone.
-
-Fixes: b57dc7c13ea9 ("net/sched: Introduce action ct")
-Signed-off-by: Ariel Levkovich <lariel@nvidia.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Link: https://lore.kernel.org/r/20210526170110.54864-1-lariel@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: 10f0d2f577053 ("efi: Implement generic support for the Memory Attributes table")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_ct.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/firmware/efi/memattr.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index 6119c31dcd07..31eb8eefc868 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -648,9 +648,6 @@ static int tcf_ct_fill_params(struct net *net,
- 				   sizeof(p->zone));
+diff --git a/drivers/firmware/efi/memattr.c b/drivers/firmware/efi/memattr.c
+index aac972b056d9..e0889922cc6d 100644
+--- a/drivers/firmware/efi/memattr.c
++++ b/drivers/firmware/efi/memattr.c
+@@ -69,11 +69,6 @@ static bool entry_is_valid(const efi_memory_desc_t *in, efi_memory_desc_t *out)
+ 		return false;
  	}
  
--	if (p->zone == NF_CT_DEFAULT_ZONE_ID)
--		return 0;
+-	if (!(in->attribute & (EFI_MEMORY_RO | EFI_MEMORY_XP))) {
+-		pr_warn("Entry attributes invalid: RO and XP bits both cleared\n");
+-		return false;
+-	}
 -
- 	nf_ct_zone_init(&zone, p->zone, NF_CT_DEFAULT_ZONE_DIR, 0);
- 	tmpl = nf_ct_tmpl_alloc(net, &zone, GFP_KERNEL);
- 	if (!tmpl) {
+ 	if (PAGE_SIZE > EFI_PAGE_SIZE &&
+ 	    (!PAGE_ALIGNED(in->phys_addr) ||
+ 	     !PAGE_ALIGNED(in->num_pages << EFI_PAGE_SHIFT))) {
 -- 
 2.30.2
 
