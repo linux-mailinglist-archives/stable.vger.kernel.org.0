@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A105D3A0294
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03CB33A0297
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236492AbhFHTG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:06:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45766 "EHLO mail.kernel.org"
+        id S236168AbhFHTG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:06:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235291AbhFHTDt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:03:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D60A7613C1;
-        Tue,  8 Jun 2021 18:45:55 +0000 (UTC)
+        id S237121AbhFHTEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:04:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F04D461352;
+        Tue,  8 Jun 2021 18:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177956;
-        bh=Km3k4y4r7QTpjJ911KmV5kWAD7VlX7z81i/NQACShCs=;
+        s=korg; t=1623177959;
+        bh=e7tfVzAIhSE1lqXwp9d2grNhkhxH/7cdTqBQYWGu11Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5RmuYF06mdo+s4OdUkASIgnhd21xOGKDdm+KCKG3WpkdHTyTh4OZGM3D5qTywSj3
-         BJnXKMUOjBqLlnWjUfkFojKCzPl5ZuA0BEW9bfdKqyDoapRMs3dWJ2RmMAhplrvg9Q
-         LSZs0Ac/W5N14116Aj0/0RetZ9TXtTvzsiluqkyc=
+        b=qaQBvovUwPgW5E4jTI5HxkqqVTDWZqvebVwRJakkEyOLy+WQk5dza7wYCCWFsyw1J
+         pTS/oMj1LwnvvgyGL08tBuYFIxz8yCV/4qKv0oPtrxkrA1bAXM3agtwhm9qkRLFVNt
+         tjC1vqFbtf3AorXBZMt/XFdXpGNECwFCR6e6BnNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,9 +29,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 024/161] mptcp: fix sk_forward_memory corruption on retransmission
-Date:   Tue,  8 Jun 2021 20:25:54 +0200
-Message-Id: <20210608175946.266983139@linuxfoundation.org>
+Subject: [PATCH 5.12 025/161] mptcp: always parse mptcp options for MPC reqsk
+Date:   Tue,  8 Jun 2021 20:25:55 +0200
+Message-Id: <20210608175946.301772230@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -45,81 +45,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit b5941f066b4ca331db225a976dae1d6ca8cf0ae3 ]
+[ Upstream commit 06f9a435b3aa12f4de6da91f11fdce8ce7b46205 ]
 
-MPTCP sk_forward_memory handling is a bit special, as such field
-is protected by the msk socket spin_lock, instead of the plain
-socket lock.
+In subflow_syn_recv_sock() we currently skip options parsing
+for OoO packet, given that such packets may not carry the relevant
+MPC option.
 
-Currently we have a code path updating such field without handling
-the relevant lock:
+If the peer generates an MPC+data TSO packet and some of the early
+segments are lost or get reorder, we server will ignore the peer key,
+causing transient, unexpected fallback to TCP.
 
-__mptcp_retrans() -> __mptcp_clean_una_wakeup()
+The solution is always parsing the incoming MPTCP options, and
+do the fallback only for in-order packets. This actually cleans
+the existing code a bit.
 
-Several helpers in __mptcp_clean_una_wakeup() will update
-sk_forward_alloc, possibly causing such field corruption, as reported
-by Matthieu.
-
-Address the issue providing and using a new variant of blamed function
-which explicitly acquires the msk spin lock.
-
-Fixes: 64b9cea7a0af ("mptcp: fix spurious retransmissions")
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/172
+Fixes: d22f4988ffec ("mptcp: process MP_CAPABLE data option")
 Reported-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Tested-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ net/mptcp/subflow.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 228dd40828c4..225b98821517 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -937,6 +937,10 @@ static void __mptcp_update_wmem(struct sock *sk)
- {
- 	struct mptcp_sock *msk = mptcp_sk(sk);
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 1936db3574d2..8878317b4386 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -608,21 +608,20 @@ static struct sock *subflow_syn_recv_sock(const struct sock *sk,
  
-+#ifdef CONFIG_LOCKDEP
-+	WARN_ON_ONCE(!lockdep_is_held(&sk->sk_lock.slock));
-+#endif
-+
- 	if (!msk->wmem_reserved)
- 		return;
+ 	/* if the sk is MP_CAPABLE, we try to fetch the client key */
+ 	if (subflow_req->mp_capable) {
+-		if (TCP_SKB_CB(skb)->seq != subflow_req->ssn_offset + 1) {
+-			/* here we can receive and accept an in-window,
+-			 * out-of-order pkt, which will not carry the MP_CAPABLE
+-			 * opt even on mptcp enabled paths
+-			 */
+-			goto create_msk;
+-		}
+-
++		/* we can receive and accept an in-window, out-of-order pkt,
++		 * which may not carry the MP_CAPABLE opt even on mptcp enabled
++		 * paths: always try to extract the peer key, and fallback
++		 * for packets missing it.
++		 * Even OoO DSS packets coming legitly after dropped or
++		 * reordered MPC will cause fallback, but we don't have other
++		 * options.
++		 */
+ 		mptcp_get_options(skb, &mp_opt);
+ 		if (!mp_opt.mp_capable) {
+ 			fallback = true;
+ 			goto create_child;
+ 		}
  
-@@ -1075,10 +1079,20 @@ out:
- 
- static void __mptcp_clean_una_wakeup(struct sock *sk)
- {
-+#ifdef CONFIG_LOCKDEP
-+	WARN_ON_ONCE(!lockdep_is_held(&sk->sk_lock.slock));
-+#endif
- 	__mptcp_clean_una(sk);
- 	mptcp_write_space(sk);
- }
- 
-+static void mptcp_clean_una_wakeup(struct sock *sk)
-+{
-+	mptcp_data_lock(sk);
-+	__mptcp_clean_una_wakeup(sk);
-+	mptcp_data_unlock(sk);
-+}
-+
- static void mptcp_enter_memory_pressure(struct sock *sk)
- {
- 	struct mptcp_subflow_context *subflow;
-@@ -2288,7 +2302,7 @@ static void __mptcp_retrans(struct sock *sk)
- 	struct sock *ssk;
- 	int ret;
- 
--	__mptcp_clean_una_wakeup(sk);
-+	mptcp_clean_una_wakeup(sk);
- 	dfrag = mptcp_rtx_head(sk);
- 	if (!dfrag) {
- 		if (mptcp_data_fin_enabled(msk)) {
+-create_msk:
+ 		new_msk = mptcp_sk_clone(listener->conn, &mp_opt, req);
+ 		if (!new_msk)
+ 			fallback = true;
 -- 
 2.30.2
 
