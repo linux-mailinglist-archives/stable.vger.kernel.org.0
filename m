@@ -2,58 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E233F39F7E9
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 15:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBA2739F825
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 15:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232797AbhFHNjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 09:39:12 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:35555 "EHLO
+        id S233072AbhFHNyt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 09:54:49 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:49533 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232807AbhFHNjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 09:39:11 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id 077CDA93;
-        Tue,  8 Jun 2021 09:37:14 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 08 Jun 2021 09:37:15 -0400
+        by vger.kernel.org with ESMTP id S231162AbhFHNyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 09:54:49 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 79DFC1946;
+        Tue,  8 Jun 2021 09:52:56 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Tue, 08 Jun 2021 09:52:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=asHLw3
-        rQoYDpH2cgrb8nQfnhtdRMI80DGd9bgZBFjPg=; b=Ul3v6B+Z6VoDtubWDkbh6B
-        tuIISm/wPtnYCn26ujyc9zUdvh5G0Zxl62tP165QuQxA8H5PP+hDcr5Vmg+xHNnS
-        s+rItZbGc20w53/H2eMO72FdijYc5WjLkWhoUSFh4AlEOSevlZ1b8NqV5oNz8sgG
-        oSFWmYPoBSC3YtSksda4FPM8VzAJ8xcc7SZiUf/OWVi2+HrsHKBXzMvoi6RVgPQx
-        Wn7iPulIBxbcKAYEbgzfsHkkSSaXs3haKMPGfPf37irFY6b0UyCQYqNNmvAa4A1j
-        M5koHBebfkTJ+PHkC2xmcMZTD2ukgDwazthlPMT+hgHDR2kus/krDbn66VNd/GrA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=xWzGUn
+        ukW/pmF0+7TEVPtixgZ3paXHEuETnHzzrv9hU=; b=Zkf/Eep35GTuieo9yAH9ZU
+        mIlTPHP6Eu09ecmyw7my/9huhw0Lkf46PoQH0kioq7HpZFGYBjkXE+/iDLnvz/xR
+        cvRNXNTtlkABMTGyq0XwAf2xMLTfHYXSNR+05pyNt19bwpuG2gQzzHwkJoSsjhsX
+        G6UPZEC7qHVFmAHjIEK8KqB1icrLDqiJpglqHYO0q8uQMt2AbWa0v/vcLy3VGSqJ
+        y4kVOYwiajEz6vfOYM7EiJ6CM33eXC9QnVc57nm9S1u0DTZDIYD5x232OaGe1dHA
+        zao7tMlGqidBcv0w3WP5gn+FM4u2IYgdocMhrphqhkx3nLmgCIyBHDNUlWzFqJsg
         ==
-X-ME-Sender: <xms:inK_YLLn9IqLfizV-DAB7ftFVpsAU7k_H0fs4_aGpBE_rnnDVhkN0Q>
-    <xme:inK_YPKufm7433Is7iIcJa1YY_lr6Y4lV4XtClp35Y7dgiN6UUhj1YuDUL9p1_1Iw
-    rMpMa1KSNqH7A>
-X-ME-Received: <xmr:inK_YDtBlvc15aUF7t3pOyilKppCkLoaqOjHm9XtgQpF7_DMVWQHCe8Fen8vKrqcVDWUIz5ytn7RnArufU8xIBBbtXt71nFU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedtledgheduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:OHa_YKa82auaOmW2LaC_5ZLNtR8vH5IWYO2tBhSqNgah2NiOtpGfog>
+    <xme:OHa_YNaSMPCCCM590WbtRiBJ9yERvvY2o2RLUQ9qnx_NXutbZV8iKzujx6y3WyMIf
+    ELlduSFb2uttQ>
+X-ME-Received: <xmr:OHa_YE8hQ9EIxjxfBJUEh3OICG8oy1G8CinOqFDW3ncgEoSjy3Bsgw0j-9otzJKeeIGCjQmi0ywRrTnMQt5-QRke06YcWFO8>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedtledgheegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucgoufhorhhtvggutfgvtghiphdvucdlgedtmdenuc
-    fjughrpefuvffhfffkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhhes
-    lhhinhhugihfohhunhgurghtihhonhdrohhrgheqnecuggftrfgrthhtvghrnhepleelle
-    dvgeefleeltdetgedugeffgffhudffuddukeegfeelgeeigeekjefhleevnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:inK_YEY03Pq4g9k14ohdXRVN0YGjnjNMVXLlbpTktUn2Gx-Jmy0D9Q>
-    <xmx:inK_YCbqhMfVdKPyBpuf14bulbMD0OaaxSKuvck1clVAmT7aEz22Pw>
-    <xmx:inK_YIBy5K0zpxc260lj4ojq1_ylyIyZV4uFm6F5XnbmtM7df7aWIg>
-    <xmx:inK_YHOdE5r0TjRrTYniHg-i5DnXxijDOKTAhW5U1luFh_X0DKVluzQGwYo>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepfedvhfevhfdtkeffjeetffdvfeeifeetueetheelve
+    elhfefkeeiteelffelhfehnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdprhhmhhgr
+    nhgulhgvrhhsrdhssgenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:OHa_YMqUOeWIvaA4z3kkeNFPkhU-ik4RJ_RnnTe8zYri-_-8KH2eXA>
+    <xmx:OHa_YFqaredys1Tp_PPpoLsE9zzYxLHymGHxgRyYeRuOd1p7fooe6A>
+    <xmx:OHa_YKQwdnUE8-JWHPJ-V4ECVickJclm-9e5HuGi1MtplAh1_oR33Q>
+    <xmx:OHa_YM3YC6J-3byR4xiW0AkugQiDk9fme0m71Hxtl97vNj4d64x16bvkgbI>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 8 Jun 2021 09:37:13 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm, hugetlb: fix simple resv_huge_pages underflow on" failed to apply to 4.14-stable tree
-To:     almasrymina@google.com, akpm@linux-foundation.org,
-        axelrasmussen@google.com, mike.kravetz@oracle.com,
-        peterx@redhat.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
+ 8 Jun 2021 09:52:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: PPC: Book3S HV: Save host FSCR in the P7/8 path" failed to apply to 5.4-stable tree
+To:     npiggin@gmail.com, farosas@linux.ibm.com, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Jun 2021 15:36:55 +0200
-Message-ID: <16231594155643@kroah.com>
+Date:   Tue, 08 Jun 2021 15:52:45 +0200
+Message-ID: <1623160365124171@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,76 +70,69 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d84cf06e3dd8c5c5b547b5d8931015fc536678e5 Mon Sep 17 00:00:00 2001
-From: Mina Almasry <almasrymina@google.com>
-Date: Fri, 4 Jun 2021 20:01:36 -0700
-Subject: [PATCH] mm, hugetlb: fix simple resv_huge_pages underflow on
- UFFDIO_COPY
+From 1438709e6328925ef496dafd467dbd0353137434 Mon Sep 17 00:00:00 2001
+From: Nicholas Piggin <npiggin@gmail.com>
+Date: Wed, 26 May 2021 22:58:51 +1000
+Subject: [PATCH] KVM: PPC: Book3S HV: Save host FSCR in the P7/8 path
 
-The userfaultfd hugetlb tests cause a resv_huge_pages underflow.  This
-happens when hugetlb_mcopy_atomic_pte() is called with !is_continue on
-an index for which we already have a page in the cache.  When this
-happens, we allocate a second page, double consuming the reservation,
-and then fail to insert the page into the cache and return -EEXIST.
+Similar to commit 25edcc50d76c ("KVM: PPC: Book3S HV: Save and restore
+FSCR in the P9 path"), ensure the P7/8 path saves and restores the host
+FSCR. The logic explained in that patch actually applies there to the
+old path well: a context switch can be made before kvmppc_vcpu_run_hv
+restores the host FSCR and returns.
 
-To fix this, we first check if there is a page in the cache which
-already consumed the reservation, and return -EEXIST immediately if so.
+Now both the p9 and the p7/8 paths now save and restore their FSCR, it
+no longer needs to be restored at the end of kvmppc_vcpu_run_hv
 
-There is still a rare condition where we fail to copy the page contents
-AND race with a call for hugetlb_no_page() for this index and again we
-will underflow resv_huge_pages.  That is fixed in a more complicated
-patch not targeted for -stable.
+Fixes: b005255e12a3 ("KVM: PPC: Book3S HV: Context-switch new POWER8 SPRs")
+Cc: stable@vger.kernel.org # v3.14+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210526125851.3436735-1-npiggin@gmail.com
 
-Test:
-
-  Hacked the code locally such that resv_huge_pages underflows produce a
-  warning, then:
-
-  ./tools/testing/selftests/vm/userfaultfd hugetlb_shared 10
-	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-  ./tools/testing/selftests/vm/userfaultfd hugetlb 10
-	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-
-Both tests succeed and produce no warnings.  After the test runs number
-of free/resv hugepages is correct.
-
-[mike.kravetz@oracle.com: changelog fixes]
-
-Link: https://lkml.kernel.org/r/20210528004649.85298-1-almasrymina@google.com
-Fixes: 8fb5debc5fcd ("userfaultfd: hugetlbfs: add hugetlb_mcopy_atomic_pte for userfaultfd support")
-Signed-off-by: Mina Almasry <almasrymina@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 470f7b5b437e..5560b50876fb 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4889,10 +4889,20 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 		if (!page)
- 			goto out;
- 	} else if (!*pagep) {
--		ret = -ENOMEM;
-+		/* If a page already exists, then it's UFFDIO_COPY for
-+		 * a non-missing case. Return -EEXIST.
-+		 */
-+		if (vm_shared &&
-+		    hugetlbfs_pagecache_present(h, dst_vma, dst_addr)) {
-+			ret = -EEXIST;
-+			goto out;
-+		}
-+
- 		page = alloc_huge_page(dst_vma, dst_addr, 0);
--		if (IS_ERR(page))
-+		if (IS_ERR(page)) {
-+			ret = -ENOMEM;
- 			goto out;
-+		}
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 28a80d240b76..13728495ac66 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -4455,7 +4455,6 @@ static int kvmppc_vcpu_run_hv(struct kvm_vcpu *vcpu)
+ 		mtspr(SPRN_EBBRR, ebb_regs[1]);
+ 		mtspr(SPRN_BESCR, ebb_regs[2]);
+ 		mtspr(SPRN_TAR, user_tar);
+-		mtspr(SPRN_FSCR, current->thread.fscr);
+ 	}
+ 	mtspr(SPRN_VRSAVE, user_vrsave);
  
- 		ret = copy_huge_page_from_user(page,
- 						(const void __user *) src_addr,
+diff --git a/arch/powerpc/kvm/book3s_hv_rmhandlers.S b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+index 5e634db4809b..004f0d4e665f 100644
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -59,6 +59,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_ARCH_300)
+ #define STACK_SLOT_UAMOR	(SFS-88)
+ #define STACK_SLOT_DAWR1	(SFS-96)
+ #define STACK_SLOT_DAWRX1	(SFS-104)
++#define STACK_SLOT_FSCR		(SFS-112)
+ /* the following is used by the P9 short path */
+ #define STACK_SLOT_NVGPRS	(SFS-152)	/* 18 gprs */
+ 
+@@ -686,6 +687,8 @@ BEGIN_FTR_SECTION
+ 	std	r6, STACK_SLOT_DAWR0(r1)
+ 	std	r7, STACK_SLOT_DAWRX0(r1)
+ 	std	r8, STACK_SLOT_IAMR(r1)
++	mfspr	r5, SPRN_FSCR
++	std	r5, STACK_SLOT_FSCR(r1)
+ END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
+ BEGIN_FTR_SECTION
+ 	mfspr	r6, SPRN_DAWR1
+@@ -1663,6 +1666,10 @@ FTR_SECTION_ELSE
+ 	ld	r7, STACK_SLOT_HFSCR(r1)
+ 	mtspr	SPRN_HFSCR, r7
+ ALT_FTR_SECTION_END_IFCLR(CPU_FTR_ARCH_300)
++BEGIN_FTR_SECTION
++	ld	r5, STACK_SLOT_FSCR(r1)
++	mtspr	SPRN_FSCR, r5
++END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
+ 	/*
+ 	 * Restore various registers to 0, where non-zero values
+ 	 * set by the guest could disrupt the host.
 
