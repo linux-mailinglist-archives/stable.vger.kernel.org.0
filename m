@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BAF53A0169
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E08283A0174
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235226AbhFHSwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:52:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49370 "EHLO mail.kernel.org"
+        id S235514AbhFHSwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:52:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236198AbhFHSuE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:50:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FC126142F;
-        Tue,  8 Jun 2021 18:39:18 +0000 (UTC)
+        id S236274AbhFHSuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:50:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2748E6145E;
+        Tue,  8 Jun 2021 18:39:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177559;
-        bh=q9xBeJXdMN2qa/6xNirppkC5JiZwWBqkJ8o+Rd9sPcw=;
+        s=korg; t=1623177562;
+        bh=tetxd/RZLmn66Og0bFywcMxcgiqFfvJVJwi7tEvv/MI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ra1Y9mSpJ3uiq+UnUPkjHKaRaCMOEnebsCjUUBL26DHtR3RSGNRL4ux03GIvK5e8D
-         6nN/z+X+A4jPwWqE5in74abJEJwzd6I6cWrb6ijJAZuv7RSQJej5cEpDizAfbztRQy
-         eGFLqbp8/BCglm2aWWkyeh8FlrkQxcnzR3AKGfWo=
+        b=yDpMtpeThslYjTc5a9UAuBc7JwlM96LqeaBcRTW8RabCgMIrKactqWlNO/xwTPdGL
+         lBKY5LTtXSy/yLX3dIK/yc8jT60E4oxngpHoKCztJcPHlDVJ1YPKaK2/XC4F8Ha6bl
+         HVxeP5a2vcpZ4vjHAVwQrCt//w4070vtQrvWtsDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 017/137] HID: i2c-hid: fix format string mismatch
-Date:   Tue,  8 Jun 2021 20:25:57 +0200
-Message-Id: <20210608175942.989042965@linuxfoundation.org>
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 018/137] devlink: Correct VIRTUAL port to not have phys_port attributes
+Date:   Tue,  8 Jun 2021 20:25:58 +0200
+Message-Id: <20210608175943.020843822@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -40,45 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit dc5f9f55502e13ba05731d5046a14620aa2ff456 ]
+[ Upstream commit b28d8f0c25a9b0355116cace5f53ea52bd4020c8 ]
 
-clang doesn't like printing a 32-bit integer using %hX format string:
+Physical port name, port number attributes do not belong to virtual port
+flavour. When VF or SF virtual ports are registered they incorrectly
+append "np0" string in the netdevice name of the VF/SF.
 
-drivers/hid/i2c-hid/i2c-hid-core.c:994:18: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
-                 client->name, hid->vendor, hid->product);
-                               ^~~~~~~~~~~
-drivers/hid/i2c-hid/i2c-hid-core.c:994:31: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
-                 client->name, hid->vendor, hid->product);
-                                            ^~~~~~~~~~~~
+Before this fix, VF netdevice name were ens2f0np0v0, ens2f0np0v1 for VF
+0 and 1 respectively.
 
-Use an explicit cast to truncate it to the low 16 bits instead.
+After the fix, they are ens2f0v0, ens2f0v1.
 
-Fixes: 9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+With this fix, reading /sys/class/net/ens2f0v0/phys_port_name returns
+-EOPNOTSUPP.
+
+Also devlink port show example for 2 VFs on one PF to ensure that any
+physical port attributes are not exposed.
+
+$ devlink port show
+pci/0000:06:00.0/65535: type eth netdev ens2f0np0 flavour physical port 0 splittable false
+pci/0000:06:00.3/196608: type eth netdev ens2f0v0 flavour virtual splittable false
+pci/0000:06:00.4/262144: type eth netdev ens2f0v1 flavour virtual splittable false
+
+This change introduces a netdevice name change on systemd/udev
+version 245 and higher which honors phys_port_name sysfs file for
+generation of netdevice name.
+
+This also aligns to phys_port_name usage which is limited to switchdev
+ports as described in [1].
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/tree/Documentation/networking/switchdev.rst
+
+Fixes: acf1ee44ca5d ("devlink: Introduce devlink port flavour virtual")
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Link: https://lore.kernel.org/r/20210526200027.14008-1-parav@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-core.c | 4 ++--
+ net/core/devlink.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index cb7758d59014..13bc59ed1d9e 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -1131,8 +1131,8 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
- 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+diff --git a/net/core/devlink.c b/net/core/devlink.c
+index 5d397838bceb..90badb6f7227 100644
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -693,7 +693,6 @@ static int devlink_nl_port_attrs_put(struct sk_buff *msg,
+ 	case DEVLINK_PORT_FLAVOUR_PHYSICAL:
+ 	case DEVLINK_PORT_FLAVOUR_CPU:
+ 	case DEVLINK_PORT_FLAVOUR_DSA:
+-	case DEVLINK_PORT_FLAVOUR_VIRTUAL:
+ 		if (nla_put_u32(msg, DEVLINK_ATTR_PORT_NUMBER,
+ 				attrs->phys.port_number))
+ 			return -EMSGSIZE;
+@@ -8376,7 +8375,6 @@ static int __devlink_port_phys_port_name_get(struct devlink_port *devlink_port,
  
--	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
--		 client->name, hid->vendor, hid->product);
-+	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
-+		 client->name, (u16)hid->vendor, (u16)hid->product);
- 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+ 	switch (attrs->flavour) {
+ 	case DEVLINK_PORT_FLAVOUR_PHYSICAL:
+-	case DEVLINK_PORT_FLAVOUR_VIRTUAL:
+ 		if (!attrs->split)
+ 			n = snprintf(name, len, "p%u", attrs->phys.port_number);
+ 		else
+@@ -8413,6 +8411,8 @@ static int __devlink_port_phys_port_name_get(struct devlink_port *devlink_port,
+ 		n = snprintf(name, len, "pf%uvf%u",
+ 			     attrs->pci_vf.pf, attrs->pci_vf.vf);
+ 		break;
++	case DEVLINK_PORT_FLAVOUR_VIRTUAL:
++		return -EOPNOTSUPP;
+ 	}
  
- 	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
+ 	if (n >= len)
 -- 
 2.30.2
 
