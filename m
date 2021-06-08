@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D2A23A01E3
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD0D33A0305
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237139AbhFHS51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:57:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33092 "EHLO mail.kernel.org"
+        id S236625AbhFHTLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236839AbhFHSzY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:55:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6452F615FF;
-        Tue,  8 Jun 2021 18:41:31 +0000 (UTC)
+        id S237491AbhFHTJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:09:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E3A161453;
+        Tue,  8 Jun 2021 18:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177692;
-        bh=5zsrGqPiGGHX8N9zvnwKY4FLF7y4J3m1Ota+cUvpMks=;
+        s=korg; t=1623178099;
+        bh=FZOgNyFYW71rj/Sd22iZOOneX91E65viA/dUBhiaIJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2RplC11gBKEpQwYN57sIpWdsuJSA0cYpwVlWzegNdMCbfjNiopfoPsZ7JZ/p6vtTO
-         ivP5kmI3/TnmNHIBeKAlvYgK0I1wKI9o0LVUPZ5LfpbHVJJj1PVGSfA8RzPATxiQfZ
-         Y2jZ21hcHuZ3PXOgpFgwklfH2SUatUu8JcNUcpJQ=
+        b=MZIkzDDfBisY55MgD8Kxkf5LPB90dyiNVEEywwAVA2YWeC480TfQiGJZeQejmTwQL
+         3k8ALzYBJIJ+KJvcXF+7epKiWXTZexYQT0Zsu2Vq7yyNbVqQeer54+PwX3v/WKdTRf
+         BZvljh2bjvp8F9l1Qj9Nzwc7phvmYcxtjbhH81Z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/137] arm64: dts: freescale: sl28: var4: fix RGMII clock and voltage
-Date:   Tue,  8 Jun 2021 20:26:44 +0200
-Message-Id: <20210608175944.536424145@linuxfoundation.org>
+Subject: [PATCH 5.12 075/161] ARM: dts: imx7d-pico: Fix the tuning-step property
+Date:   Tue,  8 Jun 2021 20:26:45 +0200
+Message-Id: <20210608175947.979670851@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 25201269c6ec3e9398426962ccdd55428261f7d0 ]
+[ Upstream commit 0e2fa4959c4f44815ce33e46e4054eeb0f346053 ]
 
-During hardware validation it was noticed that the clock isn't
-continuously enabled when there is no link. This is because the 125MHz
-clock is derived from the internal PLL which seems to go into some kind
-of power-down mode every once in a while. The LS1028A expects a contiuous
-clock. Thus enable the PLL all the time.
+According to Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml, the
+correct name of the property is 'fsl,tuning-step'.
 
-Also, the RGMII pad voltage is wrong. It was configured to 2.5V (that is
-the VDDH regulator). The correct voltage is 1.8V, i.e. the VDDIO
-regulator.
+Fix it accordingly.
 
-This fix is for the freescale/fsl-ls1028a-kontron-sl28-var4.dts.
-
-Fixes: 815364d0424e ("arm64: dts: freescale: add Kontron sl28 support")
-Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Fixes: f13f571ac8a1 ("ARM: dts: imx7d-pico: Extend peripherals support")
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/freescale/fsl-ls1028a-kontron-sl28-var4.dts     | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/imx7d-pico.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var4.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var4.dts
-index df212ed5bb94..e65d1c477e2c 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var4.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var4.dts
-@@ -31,11 +31,10 @@
- 			reg = <0x4>;
- 			eee-broken-1000t;
- 			eee-broken-100tx;
--
- 			qca,clk-out-frequency = <125000000>;
- 			qca,clk-out-strength = <AR803X_STRENGTH_FULL>;
--
--			vddio-supply = <&vddh>;
-+			qca,keep-pll-enabled;
-+			vddio-supply = <&vddio>;
- 
- 			vddio: vddio-regulator {
- 				regulator-name = "VDDIO";
+diff --git a/arch/arm/boot/dts/imx7d-pico.dtsi b/arch/arm/boot/dts/imx7d-pico.dtsi
+index e57da0d32b98..e519897fae08 100644
+--- a/arch/arm/boot/dts/imx7d-pico.dtsi
++++ b/arch/arm/boot/dts/imx7d-pico.dtsi
+@@ -351,7 +351,7 @@
+ 	pinctrl-2 = <&pinctrl_usdhc1_200mhz>;
+ 	cd-gpios = <&gpio5 0 GPIO_ACTIVE_LOW>;
+ 	bus-width = <4>;
+-	tuning-step = <2>;
++	fsl,tuning-step = <2>;
+ 	vmmc-supply = <&reg_3p3v>;
+ 	wakeup-source;
+ 	no-1-8-v;
 -- 
 2.30.2
 
