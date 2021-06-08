@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1DC439FF5D
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A4FE3A0039
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234435AbhFHScc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:32:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56958 "EHLO mail.kernel.org"
+        id S234932AbhFHSky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:40:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233603AbhFHSbv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:31:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F3D3613BD;
-        Tue,  8 Jun 2021 18:29:57 +0000 (UTC)
+        id S235223AbhFHSjX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:39:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FC40610A2;
+        Tue,  8 Jun 2021 18:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176998;
-        bh=6SU8kpbSsRnPbOKNw1kw0rqc+7ngXbluko5dKSxa0wc=;
+        s=korg; t=1623177232;
+        bh=iLquYFQGc36tzS2IGf49pFhAqIJlBaSmQNEKjYqIFG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlvSkVa59a7luLP1c0ue2NS19QjUgblRBMAO/4gPuvoLECNmlK2ri22Pb7++QrQjc
-         oznd/uc+XTJrmAwkxv5ghklTi2i0lWG+WlvAu56iPX7eQEqbWGQ4sPMUzAsw7lXgDo
-         CEaRBXWN+LJUvkTVZ/NiRcfisONP9G1V5RIOc8fg=
+        b=vjhCA+B9gbiKhPVvzfbTf0iS7t1VO3+3HM1K4gICRlyT6H+awqPvjc89jav32xNVQ
+         OSt5xBlkqYTF4SrIXAsZqaDXFJIM/fgXX46bbbC0Lmt3Yng2J4d2CJCoLkZPSM20iZ
+         2aJnZFX0/RptRAL8HNTL4pVO6PdBhCt6/ijalXNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Cedric Le Goater <clg@fr.ibm.com>,
-        Christian Brauner <christian@brauner.io>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 21/29] pid: take a reference when initializing `cad_pid`
+        stable@vger.kernel.org, Imran Khan <imran.f.khan@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.19 34/58] x86/apic: Mark _all_ legacy interrupts when IO/APIC is missing
 Date:   Tue,  8 Jun 2021 20:27:15 +0200
-Message-Id: <20210608175928.505394675@linuxfoundation.org>
+Message-Id: <20210608175933.402993436@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,138 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 0711f0d7050b9e07c44bc159bbc64ac0a1022c7f upstream.
+commit 7d65f9e80646c595e8c853640a9d0768a33e204c upstream.
 
-During boot, kernel_init_freeable() initializes `cad_pid` to the init
-task's struct pid.  Later on, we may change `cad_pid` via a sysctl, and
-when this happens proc_do_cad_pid() will increment the refcount on the
-new pid via get_pid(), and will decrement the refcount on the old pid
-via put_pid().  As we never called get_pid() when we initialized
-`cad_pid`, we decrement a reference we never incremented, can therefore
-free the init task's struct pid early.  As there can be dangling
-references to the struct pid, we can later encounter a use-after-free
-(e.g.  when delivering signals).
+PIC interrupts do not support affinity setting and they can end up on
+any online CPU. Therefore, it's required to mark the associated vectors
+as system-wide reserved. Otherwise, the corresponding irq descriptors
+are copied to the secondary CPUs but the vectors are not marked as
+assigned or reserved. This works correctly for the IO/APIC case.
 
-This was spotted when fuzzing v5.13-rc3 with Syzkaller, but seems to
-have been around since the conversion of `cad_pid` to struct pid in
-commit 9ec52099e4b8 ("[PATCH] replace cad_pid by a struct pid") from the
-pre-KASAN stone age of v2.6.19.
+When the IO/APIC is disabled via config, kernel command line or lack of
+enumeration then all legacy interrupts are routed through the PIC, but
+nothing marks them as system-wide reserved vectors.
 
-Fix this by getting a reference to the init task's struct pid when we
-assign it to `cad_pid`.
+As a consequence, a subsequent allocation on a secondary CPU can result in
+allocating one of these vectors, which triggers the BUG() in
+apic_update_vector() because the interrupt descriptor slot is not empty.
 
-Full KASAN splat below.
+Imran tried to work around that by marking those interrupts as allocated
+when a CPU comes online. But that's wrong in case that the IO/APIC is
+available and one of the legacy interrupts, e.g. IRQ0, has been switched to
+PIC mode because then marking them as allocated will fail as they are
+already marked as system vectors.
 
-   ==================================================================
-   BUG: KASAN: use-after-free in ns_of_pid include/linux/pid.h:153 [inline]
-   BUG: KASAN: use-after-free in task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
-   Read of size 4 at addr ffff23794dda0004 by task syz-executor.0/273
+Stay consistent and update the legacy vectors after attempting IO/APIC
+initialization and mark them as system vectors in case that no IO/APIC is
+available.
 
-   CPU: 1 PID: 273 Comm: syz-executor.0 Not tainted 5.12.0-00001-g9aef892b2d15 #1
-   Hardware name: linux,dummy-virt (DT)
-   Call trace:
-    ns_of_pid include/linux/pid.h:153 [inline]
-    task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
-    do_notify_parent+0x308/0xe60 kernel/signal.c:1950
-    exit_notify kernel/exit.c:682 [inline]
-    do_exit+0x2334/0x2bd0 kernel/exit.c:845
-    do_group_exit+0x108/0x2c8 kernel/exit.c:922
-    get_signal+0x4e4/0x2a88 kernel/signal.c:2781
-    do_signal arch/arm64/kernel/signal.c:882 [inline]
-    do_notify_resume+0x300/0x970 arch/arm64/kernel/signal.c:936
-    work_pending+0xc/0x2dc
-
-   Allocated by task 0:
-    slab_post_alloc_hook+0x50/0x5c0 mm/slab.h:516
-    slab_alloc_node mm/slub.c:2907 [inline]
-    slab_alloc mm/slub.c:2915 [inline]
-    kmem_cache_alloc+0x1f4/0x4c0 mm/slub.c:2920
-    alloc_pid+0xdc/0xc00 kernel/pid.c:180
-    copy_process+0x2794/0x5e18 kernel/fork.c:2129
-    kernel_clone+0x194/0x13c8 kernel/fork.c:2500
-    kernel_thread+0xd4/0x110 kernel/fork.c:2552
-    rest_init+0x44/0x4a0 init/main.c:687
-    arch_call_rest_init+0x1c/0x28
-    start_kernel+0x520/0x554 init/main.c:1064
-    0x0
-
-   Freed by task 270:
-    slab_free_hook mm/slub.c:1562 [inline]
-    slab_free_freelist_hook+0x98/0x260 mm/slub.c:1600
-    slab_free mm/slub.c:3161 [inline]
-    kmem_cache_free+0x224/0x8e0 mm/slub.c:3177
-    put_pid.part.4+0xe0/0x1a8 kernel/pid.c:114
-    put_pid+0x30/0x48 kernel/pid.c:109
-    proc_do_cad_pid+0x190/0x1b0 kernel/sysctl.c:1401
-    proc_sys_call_handler+0x338/0x4b0 fs/proc/proc_sysctl.c:591
-    proc_sys_write+0x34/0x48 fs/proc/proc_sysctl.c:617
-    call_write_iter include/linux/fs.h:1977 [inline]
-    new_sync_write+0x3ac/0x510 fs/read_write.c:518
-    vfs_write fs/read_write.c:605 [inline]
-    vfs_write+0x9c4/0x1018 fs/read_write.c:585
-    ksys_write+0x124/0x240 fs/read_write.c:658
-    __do_sys_write fs/read_write.c:670 [inline]
-    __se_sys_write fs/read_write.c:667 [inline]
-    __arm64_sys_write+0x78/0xb0 fs/read_write.c:667
-    __invoke_syscall arch/arm64/kernel/syscall.c:37 [inline]
-    invoke_syscall arch/arm64/kernel/syscall.c:49 [inline]
-    el0_svc_common.constprop.1+0x16c/0x388 arch/arm64/kernel/syscall.c:129
-    do_el0_svc+0xf8/0x150 arch/arm64/kernel/syscall.c:168
-    el0_svc+0x28/0x38 arch/arm64/kernel/entry-common.c:416
-    el0_sync_handler+0x134/0x180 arch/arm64/kernel/entry-common.c:432
-    el0_sync+0x154/0x180 arch/arm64/kernel/entry.S:701
-
-   The buggy address belongs to the object at ffff23794dda0000
-    which belongs to the cache pid of size 224
-   The buggy address is located 4 bytes inside of
-    224-byte region [ffff23794dda0000, ffff23794dda00e0)
-   The buggy address belongs to the page:
-   page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x4dda0
-   head:(____ptrval____) order:1 compound_mapcount:0
-   flags: 0x3fffc0000010200(slab|head)
-   raw: 03fffc0000010200 dead000000000100 dead000000000122 ffff23794d40d080
-   raw: 0000000000000000 0000000000190019 00000001ffffffff 0000000000000000
-   page dumped because: kasan: bad access detected
-
-   Memory state around the buggy address:
-    ffff23794dd9ff00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-    ffff23794dd9ff80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-   >ffff23794dda0000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
-    ffff23794dda0080: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-    ffff23794dda0100: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
-   ==================================================================
-
-Link: https://lkml.kernel.org/r/20210524172230.38715-1-mark.rutland@arm.com
-Fixes: 9ec52099e4b8678a ("[PATCH] replace cad_pid by a struct pid")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Christian Brauner <christian@brauner.io>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Kees Cook <keescook@chromium.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 69cde0004a4b ("x86/vector: Use matrix allocator for vector assignment")
+Reported-by: Imran Khan <imran.f.khan@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20210519233928.2157496-1-imran.f.khan@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- init/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/apic.h   |    1 +
+ arch/x86/kernel/apic/apic.c   |    1 +
+ arch/x86/kernel/apic/vector.c |   20 ++++++++++++++++++++
+ 3 files changed, 22 insertions(+)
 
---- a/init/main.c
-+++ b/init/main.c
-@@ -1005,7 +1005,7 @@ static noinline void __init kernel_init_
- 	 */
- 	set_cpus_allowed_ptr(current, cpu_all_mask);
+--- a/arch/x86/include/asm/apic.h
++++ b/arch/x86/include/asm/apic.h
+@@ -172,6 +172,7 @@ static inline int apic_is_clustered_box(
+ extern int setup_APIC_eilvt(u8 lvt_off, u8 vector, u8 msg_type, u8 mask);
+ extern void lapic_assign_system_vectors(void);
+ extern void lapic_assign_legacy_vector(unsigned int isairq, bool replace);
++extern void lapic_update_legacy_vectors(void);
+ extern void lapic_online(void);
+ extern void lapic_offline(void);
  
--	cad_pid = task_pid(current);
-+	cad_pid = get_pid(task_pid(current));
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -2507,6 +2507,7 @@ void __init apic_bsp_setup(bool upmode)
+ 	end_local_APIC_setup();
+ 	irq_remap_enable_fault_handling();
+ 	setup_IO_APIC();
++	lapic_update_legacy_vectors();
+ }
  
- 	smp_prepare_cpus(setup_max_cpus);
+ #ifdef CONFIG_UP_LATE_INIT
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -682,6 +682,26 @@ void lapic_assign_legacy_vector(unsigned
+ 	irq_matrix_assign_system(vector_matrix, ISA_IRQ_VECTOR(irq), replace);
+ }
  
++void __init lapic_update_legacy_vectors(void)
++{
++	unsigned int i;
++
++	if (IS_ENABLED(CONFIG_X86_IO_APIC) && nr_ioapics > 0)
++		return;
++
++	/*
++	 * If the IO/APIC is disabled via config, kernel command line or
++	 * lack of enumeration then all legacy interrupts are routed
++	 * through the PIC. Make sure that they are marked as legacy
++	 * vectors. PIC_CASCADE_IRQ has already been marked in
++	 * lapic_assign_system_vectors().
++	 */
++	for (i = 0; i < nr_legacy_irqs(); i++) {
++		if (i != PIC_CASCADE_IR)
++			lapic_assign_legacy_vector(i, true);
++	}
++}
++
+ void __init lapic_assign_system_vectors(void)
+ {
+ 	unsigned int i, vector = 0;
 
 
