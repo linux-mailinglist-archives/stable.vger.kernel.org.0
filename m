@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F0BE39FF94
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC98D3A009C
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234484AbhFHSeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:34:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
+        id S234981AbhFHSpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:45:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234153AbhFHSc6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEF10613E1;
-        Tue,  8 Jun 2021 18:30:55 +0000 (UTC)
+        id S235311AbhFHSmy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:42:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCAA16143F;
+        Tue,  8 Jun 2021 18:35:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177056;
-        bh=OlYM4uU7dcHYDWIgV7VBUOb0qCFrh7mCXrtNJMPBMtU=;
+        s=korg; t=1623177350;
+        bh=iq+OnzuHjjjIKLdJUOmHU1txjGZ6gPhhdHnQeA8Ec8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u2Yj39Te8Bl1gY13CfdQFGVPmXnJyhKH3voiSgCIQbmBx4m/me0CjGYAH/7VwY6wY
-         v5eujotzIK+zbsUqpkg/ksOg7WPpCfm4OADgytoM5js2QBcmhQbbdJeMuxSofE0muf
-         7jWuLunxCY5kkX20PSPDori//knOIc+ehPVYFPxU=
+        b=O5KOhVEPCmyFbMKNXkCI+4+i3Mzjx5mxRZaQtElS1b5B8kQrLDlOTt69+NITw+Ks5
+         JMAOLcIYgil1fc21Wg/NkG3NfsTKaOZgEO++CWDMseNL4GPt/ZeQShzRDV1lwxHkhk
+         HZR6T4WOTm0YJ0ePY1VON6lIJXnX7+WOYYTq2yYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/47] vfio/platform: fix module_put call in error flow
+Subject: [PATCH 5.4 20/78] ieee802154: fix error return code in ieee802154_add_iface()
 Date:   Tue,  8 Jun 2021 20:26:49 +0200
-Message-Id: <20210608175930.686322795@linuxfoundation.org>
+Message-Id: <20210608175935.948250760@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
-References: <20210608175930.477274100@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit dc51ff91cf2d1e9a2d941da483602f71d4a51472 ]
+[ Upstream commit 79c6b8ed30e54b401c873dbad2511f2a1c525fd5 ]
 
-The ->parent_module is the one that use in try_module_get. It should
-also be the one the we use in module_put during vfio_platform_open().
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 32a2d71c4e80 ("vfio: platform: introduce vfio-platform-base module")
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Message-Id: <20210518192133.59195-1-mgurtovoy@nvidia.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: be51da0f3e34 ("ieee802154: Stop using NLA_PUT*().")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210508062517.2574-1-thunder.leizhen@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/platform/vfio_platform_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ieee802154/nl-phy.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
-index aa9e792110e3..f42acc830c24 100644
---- a/drivers/vfio/platform/vfio_platform_common.c
-+++ b/drivers/vfio/platform/vfio_platform_common.c
-@@ -288,7 +288,7 @@ err_irq:
- 	vfio_platform_regions_cleanup(vdev);
- err_reg:
- 	mutex_unlock(&driver_lock);
--	module_put(THIS_MODULE);
-+	module_put(vdev->parent_module);
- 	return ret;
- }
+diff --git a/net/ieee802154/nl-phy.c b/net/ieee802154/nl-phy.c
+index 2cdc7e63fe17..88215b5c93aa 100644
+--- a/net/ieee802154/nl-phy.c
++++ b/net/ieee802154/nl-phy.c
+@@ -241,8 +241,10 @@ int ieee802154_add_iface(struct sk_buff *skb, struct genl_info *info)
+ 	}
  
+ 	if (nla_put_string(msg, IEEE802154_ATTR_PHY_NAME, wpan_phy_name(phy)) ||
+-	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name))
++	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name)) {
++		rc = -EMSGSIZE;
+ 		goto nla_put_failure;
++	}
+ 	dev_put(dev);
+ 
+ 	wpan_phy_put(phy);
 -- 
 2.30.2
 
