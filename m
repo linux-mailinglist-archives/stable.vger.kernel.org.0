@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C703A035B
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A9743A0362
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235451AbhFHTQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:16:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35256 "EHLO mail.kernel.org"
+        id S235546AbhFHTQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:16:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236782AbhFHTOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:14:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E11C261073;
-        Tue,  8 Jun 2021 18:50:08 +0000 (UTC)
+        id S238211AbhFHTOU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:14:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F9B16142C;
+        Tue,  8 Jun 2021 18:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178209;
-        bh=/+3ckbT6BnX6a0X4PQWmAEUEhKk6Q2QBjmkxwAJVV8o=;
+        s=korg; t=1623178212;
+        bh=68GdZ998arAE01h8FdAc62IQtcrv7/RKbR8ZMV5Q5nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z3ZpuNyjF7ZMOZItMuoLENaEdjYzBBixWSGGKCNtw+IBHik+FR294ol+VmbFiCuju
-         kTUg38CN0XhCRHU/f/4zBJza3sJ52MfTXBwB8RFBtO2IEuVtIP7LwdudKY5RBKHiIN
-         ob+8AqEV6gcD5ixlOJJrL9ovDZqj+LlXGIV06K5Y=
+        b=AvOEpoMJmk1xtwW09XSl0FIzmDDUle7xYcRXGVIJEZLBen4xOdTsbJjepFx/rvW+p
+         qHmBPb4FqrCM6tlvHSc2y8zGNumuqTcmboq3f0UU2ranxAmjRWBgjPUYvCekjBVEui
+         0uKOHvkW0GNUHnUIpZAjVBMtmew3HYMAJgT5S8dY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Makhalov <amakhalov@vmware.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.12 116/161] ext4: fix memory leak in ext4_fill_super
-Date:   Tue,  8 Jun 2021 20:27:26 +0200
-Message-Id: <20210608175949.374028752@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.12 117/161] ext4: fix bug on in ext4_es_cache_extent as ext4_split_extent_at failed
+Date:   Tue,  8 Jun 2021 20:27:27 +0200
+Message-Id: <20210608175949.411745907@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -39,74 +40,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Makhalov <amakhalov@vmware.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit afd09b617db3786b6ef3dc43e28fe728cfea84df upstream.
+commit 082cd4ec240b8734a82a89ffb890216ac98fec68 upstream.
 
-Buffer head references must be released before calling kill_bdev();
-otherwise the buffer head (and its page referenced by b_data) will not
-be freed by kill_bdev, and subsequently that bh will be leaked.
+We got follow bug_on when run fsstress with injecting IO fault:
+[130747.323114] kernel BUG at fs/ext4/extents_status.c:762!
+[130747.323117] Internal error: Oops - BUG: 0 [#1] SMP
+......
+[130747.334329] Call trace:
+[130747.334553]  ext4_es_cache_extent+0x150/0x168 [ext4]
+[130747.334975]  ext4_cache_extents+0x64/0xe8 [ext4]
+[130747.335368]  ext4_find_extent+0x300/0x330 [ext4]
+[130747.335759]  ext4_ext_map_blocks+0x74/0x1178 [ext4]
+[130747.336179]  ext4_map_blocks+0x2f4/0x5f0 [ext4]
+[130747.336567]  ext4_mpage_readpages+0x4a8/0x7a8 [ext4]
+[130747.336995]  ext4_readpage+0x54/0x100 [ext4]
+[130747.337359]  generic_file_buffered_read+0x410/0xae8
+[130747.337767]  generic_file_read_iter+0x114/0x190
+[130747.338152]  ext4_file_read_iter+0x5c/0x140 [ext4]
+[130747.338556]  __vfs_read+0x11c/0x188
+[130747.338851]  vfs_read+0x94/0x150
+[130747.339110]  ksys_read+0x74/0xf0
 
-If blocksizes differ, sb_set_blocksize() will kill current buffers and
-page cache by using kill_bdev(). And then super block will be reread
-again but using correct blocksize this time. sb_set_blocksize() didn't
-fully free superblock page and buffer head, and being busy, they were
-not freed and instead leaked.
+This patch's modification is according to Jan Kara's suggestion in:
+https://patchwork.ozlabs.org/project/linux-ext4/patch/20210428085158.3728201-1-yebin10@huawei.com/
+"I see. Now I understand your patch. Honestly, seeing how fragile is trying
+to fix extent tree after split has failed in the middle, I would probably
+go even further and make sure we fix the tree properly in case of ENOSPC
+and EDQUOT (those are easily user triggerable).  Anything else indicates a
+HW problem or fs corruption so I'd rather leave the extent tree as is and
+don't try to fix it (which also means we will not create overlapping
+extents)."
 
-This can easily be reproduced by calling an infinite loop of:
-
-  systemctl start <ext4_on_lvm>.mount, and
-  systemctl stop <ext4_on_lvm>.mount
-
-... since systemd creates a cgroup for each slice which it mounts, and
-the bh leak get amplified by a dying memory cgroup that also never
-gets freed, and memory consumption is much more easily noticed.
-
-Fixes: ce40733ce93d ("ext4: Check for return value from sb_set_blocksize")
-Fixes: ac27a0ec112a ("ext4: initial copy of files from ext3")
-Link: https://lore.kernel.org/r/20210521075533.95732-1-amakhalov@vmware.com
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210506141042.3298679-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ fs/ext4/extents.c |   43 +++++++++++++++++++++++--------------------
+ 1 file changed, 23 insertions(+), 20 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4449,14 +4449,20 @@ static int ext4_fill_super(struct super_
- 	}
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -3206,7 +3206,10 @@ static int ext4_split_extent_at(handle_t
+ 		ext4_ext_mark_unwritten(ex2);
  
- 	if (sb->s_blocksize != blocksize) {
-+		/*
-+		 * bh must be released before kill_bdev(), otherwise
-+		 * it won't be freed and its page also. kill_bdev()
-+		 * is called by sb_set_blocksize().
-+		 */
-+		brelse(bh);
- 		/* Validate the filesystem blocksize */
- 		if (!sb_set_blocksize(sb, blocksize)) {
- 			ext4_msg(sb, KERN_ERR, "bad block size %d",
- 					blocksize);
-+			bh = NULL;
- 			goto failed_mount;
+ 	err = ext4_ext_insert_extent(handle, inode, ppath, &newex, flags);
+-	if (err == -ENOSPC && (EXT4_EXT_MAY_ZEROOUT & split_flag)) {
++	if (err != -ENOSPC && err != -EDQUOT)
++		goto out;
++
++	if (EXT4_EXT_MAY_ZEROOUT & split_flag) {
+ 		if (split_flag & (EXT4_EXT_DATA_VALID1|EXT4_EXT_DATA_VALID2)) {
+ 			if (split_flag & EXT4_EXT_DATA_VALID1) {
+ 				err = ext4_ext_zeroout(inode, ex2);
+@@ -3232,25 +3235,22 @@ static int ext4_split_extent_at(handle_t
+ 					      ext4_ext_pblock(&orig_ex));
  		}
  
--		brelse(bh);
- 		logical_sb_block = sb_block * EXT4_MIN_BLOCK_SIZE;
- 		offset = do_div(logical_sb_block, blocksize);
- 		bh = ext4_sb_bread_unmovable(sb, logical_sb_block);
-@@ -5176,8 +5182,9 @@ failed_mount:
- 		kfree(get_qf_name(sb, sbi, i));
- #endif
- 	fscrypt_free_dummy_policy(&sbi->s_dummy_enc_policy);
--	ext4_blkdev_remove(sbi);
-+	/* ext4_blkdev_remove() calls kill_bdev(), release bh before it. */
- 	brelse(bh);
-+	ext4_blkdev_remove(sbi);
- out_fail:
- 	sb->s_fs_info = NULL;
- 	kfree(sbi->s_blockgroup_lock);
+-		if (err)
+-			goto fix_extent_len;
+-		/* update the extent length and mark as initialized */
+-		ex->ee_len = cpu_to_le16(ee_len);
+-		ext4_ext_try_to_merge(handle, inode, path, ex);
+-		err = ext4_ext_dirty(handle, inode, path + path->p_depth);
+-		if (err)
+-			goto fix_extent_len;
+-
+-		/* update extent status tree */
+-		err = ext4_zeroout_es(inode, &zero_ex);
+-
+-		goto out;
+-	} else if (err)
+-		goto fix_extent_len;
+-
+-out:
+-	ext4_ext_show_leaf(inode, path);
+-	return err;
++		if (!err) {
++			/* update the extent length and mark as initialized */
++			ex->ee_len = cpu_to_le16(ee_len);
++			ext4_ext_try_to_merge(handle, inode, path, ex);
++			err = ext4_ext_dirty(handle, inode, path + path->p_depth);
++			if (!err)
++				/* update extent status tree */
++				err = ext4_zeroout_es(inode, &zero_ex);
++			/* If we failed at this point, we don't know in which
++			 * state the extent tree exactly is so don't try to fix
++			 * length of the original extent as it may do even more
++			 * damage.
++			 */
++			goto out;
++		}
++	}
+ 
+ fix_extent_len:
+ 	ex->ee_len = orig_ex.ee_len;
+@@ -3260,6 +3260,9 @@ fix_extent_len:
+ 	 */
+ 	ext4_ext_dirty(handle, inode, path + path->p_depth);
+ 	return err;
++out:
++	ext4_ext_show_leaf(inode, path);
++	return err;
+ }
+ 
+ /*
 
 
