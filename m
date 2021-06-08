@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 208F63A028D
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 846C93A028B
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236297AbhFHTGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:06:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35576 "EHLO mail.kernel.org"
+        id S236071AbhFHTGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:06:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236810AbhFHTDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236823AbhFHTDZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Jun 2021 15:03:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9B8B6144B;
-        Tue,  8 Jun 2021 18:45:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8999561456;
+        Tue,  8 Jun 2021 18:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177920;
-        bh=Fw9RNyDj5A6BRIdFN41J096U8mq9I9cyHyEfJB6ky4Y=;
+        s=korg; t=1623177923;
+        bh=nUB/Ap4eZ/hR5xEvf/2VZdkW/1M2N1RdoizMM+wCb1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zylFssSVh/gkptU4yc4Fg0/EULrX4Kab4RcJDRAUS+NJ58xcwpYHcV6bDoRCJy4d0
-         aCUdgHKFhYAx2D2RveW9QOgI2Yw5iNox0PSUfiNjQg0dbGpIwieO+1EK8t6v6xYEdK
-         tvi5C0RD/5wctjf5gq8jK6E/pIGyxRtGrxjxo0xU=
+        b=AQx0LiSVEo9ctbd2J3iJhTHcOuVhVvqLMYBuZ/hOzh9AoM7AGwCCMbA3MS6GPl7yA
+         qNyP5XtwqKm+PK3s2okBnAYSoqucgs41Fmboj+JgJKKRu2/Q2/UWrHimzpgbpsjefA
+         xvLQIqyi9acGULUJP5HsJ0NstqfyAWTrXAX7lWrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Trombin <luca.trombin@gmail.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 003/161] mt76: mt76x0e: fix device hang during suspend/resume
-Date:   Tue,  8 Jun 2021 20:25:33 +0200
-Message-Id: <20210608175945.587547202@linuxfoundation.org>
+Subject: [PATCH 5.12 004/161] hwmon: (dell-smm-hwmon) Fix index values
+Date:   Tue,  8 Jun 2021 20:25:34 +0200
+Message-Id: <20210608175945.625209507@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -41,150 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit 509559c35bcd23d5a046624b225cb3e99a9f1481 ]
+[ Upstream commit 35d470b5fbc9f82feb77b56bb0d5d0b5cd73e9da ]
 
-Similar to usb device, re-initialize mt76x0e device after resume in order
-to fix mt7630e hang during suspend/resume
+When support for up to 10 temp sensors and for disabling automatic BIOS
+fan control was added, noone updated the index values used for
+disallowing fan support and fan type calls.
+Fix those values.
 
-Reported-by: Luca Trombin <luca.trombin@gmail.com>
-Fixes: c2a4d9fbabfb9 ("mt76x0: inital split between pci and usb")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/4812f9611624b34053c1592fd9c175b67d4ffcb4.1620406022.git.lorenzo@kernel.org
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Reviewed-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20210513154546.12430-1-W_Armin@gmx.de
+Fixes: 1bb46a20e73b ("hwmon: (dell-smm) Support up to 10 temp sensors")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt76x0/pci.c   | 81 ++++++++++++++++++-
- 1 file changed, 77 insertions(+), 4 deletions(-)
+ drivers/hwmon/dell-smm-hwmon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/pci.c b/drivers/net/wireless/mediatek/mt76/mt76x0/pci.c
-index 02d0aa0b815e..d2489dc9dc13 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x0/pci.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x0/pci.c
-@@ -87,7 +87,7 @@ static const struct ieee80211_ops mt76x0e_ops = {
- 	.reconfig_complete = mt76x02_reconfig_complete,
- };
- 
--static int mt76x0e_register_device(struct mt76x02_dev *dev)
-+static int mt76x0e_init_hardware(struct mt76x02_dev *dev, bool resume)
+diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
+index 73b9db9e3aab..63b74e781c5d 100644
+--- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -838,10 +838,10 @@ static struct attribute *i8k_attrs[] = {
+ static umode_t i8k_is_visible(struct kobject *kobj, struct attribute *attr,
+ 			      int index)
  {
- 	int err;
- 
-@@ -100,9 +100,11 @@ static int mt76x0e_register_device(struct mt76x02_dev *dev)
- 	if (err < 0)
- 		return err;
- 
--	err = mt76x02_dma_init(dev);
--	if (err < 0)
--		return err;
-+	if (!resume) {
-+		err = mt76x02_dma_init(dev);
-+		if (err < 0)
-+			return err;
-+	}
- 
- 	err = mt76x0_init_hardware(dev);
- 	if (err < 0)
-@@ -123,6 +125,17 @@ static int mt76x0e_register_device(struct mt76x02_dev *dev)
- 	mt76_clear(dev, 0x110, BIT(9));
- 	mt76_set(dev, MT_MAX_LEN_CFG, BIT(13));
- 
-+	return 0;
-+}
-+
-+static int mt76x0e_register_device(struct mt76x02_dev *dev)
-+{
-+	int err;
-+
-+	err = mt76x0e_init_hardware(dev, false);
-+	if (err < 0)
-+		return err;
-+
- 	err = mt76x0_register_device(dev);
- 	if (err < 0)
- 		return err;
-@@ -167,6 +180,8 @@ mt76x0e_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	if (ret)
- 		return ret;
- 
-+	mt76_pci_disable_aspm(pdev);
-+
- 	mdev = mt76_alloc_device(&pdev->dev, sizeof(*dev), &mt76x0e_ops,
- 				 &drv_ops);
- 	if (!mdev)
-@@ -220,6 +235,60 @@ mt76x0e_remove(struct pci_dev *pdev)
- 	mt76_free_device(mdev);
- }
- 
-+#ifdef CONFIG_PM
-+static int mt76x0e_suspend(struct pci_dev *pdev, pm_message_t state)
-+{
-+	struct mt76_dev *mdev = pci_get_drvdata(pdev);
-+	struct mt76x02_dev *dev = container_of(mdev, struct mt76x02_dev, mt76);
-+	int i;
-+
-+	mt76_worker_disable(&mdev->tx_worker);
-+	for (i = 0; i < ARRAY_SIZE(mdev->phy.q_tx); i++)
-+		mt76_queue_tx_cleanup(dev, mdev->phy.q_tx[i], true);
-+	for (i = 0; i < ARRAY_SIZE(mdev->q_mcu); i++)
-+		mt76_queue_tx_cleanup(dev, mdev->q_mcu[i], true);
-+	napi_disable(&mdev->tx_napi);
-+
-+	mt76_for_each_q_rx(mdev, i)
-+		napi_disable(&mdev->napi[i]);
-+
-+	mt76x02_dma_disable(dev);
-+	mt76x02_mcu_cleanup(dev);
-+	mt76x0_chip_onoff(dev, false, false);
-+
-+	pci_enable_wake(pdev, pci_choose_state(pdev, state), true);
-+	pci_save_state(pdev);
-+
-+	return pci_set_power_state(pdev, pci_choose_state(pdev, state));
-+}
-+
-+static int mt76x0e_resume(struct pci_dev *pdev)
-+{
-+	struct mt76_dev *mdev = pci_get_drvdata(pdev);
-+	struct mt76x02_dev *dev = container_of(mdev, struct mt76x02_dev, mt76);
-+	int err, i;
-+
-+	err = pci_set_power_state(pdev, PCI_D0);
-+	if (err)
-+		return err;
-+
-+	pci_restore_state(pdev);
-+
-+	mt76_worker_enable(&mdev->tx_worker);
-+
-+	mt76_for_each_q_rx(mdev, i) {
-+		mt76_queue_rx_reset(dev, i);
-+		napi_enable(&mdev->napi[i]);
-+		napi_schedule(&mdev->napi[i]);
-+	}
-+
-+	napi_enable(&mdev->tx_napi);
-+	napi_schedule(&mdev->tx_napi);
-+
-+	return mt76x0e_init_hardware(dev, true);
-+}
-+#endif /* CONFIG_PM */
-+
- static const struct pci_device_id mt76x0e_device_table[] = {
- 	{ PCI_DEVICE(0x14c3, 0x7610) },
- 	{ PCI_DEVICE(0x14c3, 0x7630) },
-@@ -237,6 +306,10 @@ static struct pci_driver mt76x0e_driver = {
- 	.id_table	= mt76x0e_device_table,
- 	.probe		= mt76x0e_probe,
- 	.remove		= mt76x0e_remove,
-+#ifdef CONFIG_PM
-+	.suspend	= mt76x0e_suspend,
-+	.resume		= mt76x0e_resume,
-+#endif /* CONFIG_PM */
- };
- 
- module_pci_driver(mt76x0e_driver);
+-	if (disallow_fan_support && index >= 8)
++	if (disallow_fan_support && index >= 20)
+ 		return 0;
+ 	if (disallow_fan_type_call &&
+-	    (index == 9 || index == 12 || index == 15))
++	    (index == 21 || index == 25 || index == 28))
+ 		return 0;
+ 	if (index >= 0 && index <= 1 &&
+ 	    !(i8k_hwmon_flags & I8K_HWMON_HAVE_TEMP1))
 -- 
 2.30.2
 
