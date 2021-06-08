@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA3D3A0269
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5F43A0394
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236945AbhFHTDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:03:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40100 "EHLO mail.kernel.org"
+        id S232056AbhFHTSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:18:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236121AbhFHTBX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:01:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0182461451;
-        Tue,  8 Jun 2021 18:44:27 +0000 (UTC)
+        id S235513AbhFHTQq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:16:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB4C561976;
+        Tue,  8 Jun 2021 18:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177868;
-        bh=RnamPyzzLgDAjpmq5+G3y1v3oSxEB4jU6/3szJu2PRc=;
+        s=korg; t=1623178274;
+        bh=twcGeTYzNJlBKwZxhVdTINqIPiMEIB8QqXYKoc+MPHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hdJXOHmFe/7hoO9FE5XgkQx/3FJx2e9j6ojtwI+d95826n+REzoDsAH8TcxgNVUQ4
-         HOMXlG2ZjvqPXdBiEvT4xEh4y5M45Mh5tXDzDAmTSXgmcuVwm9VsXTALwKajrz7o0l
-         tqjnucIl4SpM6vWG3cL3AuU+w4gAPCr+npKWKbnU=
+        b=Y3J5o1DzA7WLk8M4CFuDI0tOIYDrvvtLFTtBgZLvZAKvGfT5B6wPYEhCKXSLtrPrc
+         A5Ja30F9hAKdFH6RJZ3AliYmyiOD0mm7hhilvtGOaeG/yXMVR7Zo5HdI7qEOludclk
+         lHAgwN5UX09X2q5INRW2T23tuv+ga4bv8weXRp1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Andrea Righi <andrea.righi@canonical.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH 5.10 130/137] x86/kvm: Teardown PV features on boot CPU as well
-Date:   Tue,  8 Jun 2021 20:27:50 +0200
-Message-Id: <20210608175946.781960137@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 141/161] btrfs: fix error handling in btrfs_del_csums
+Date:   Tue,  8 Jun 2021 20:27:51 +0200
+Message-Id: <20210608175950.219304466@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,136 +40,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 8b79feffeca28c5459458fe78676b081e87c93a4 upstream.
+commit b86652be7c83f70bf406bed18ecf55adb9bfb91b upstream.
 
-Various PV features (Async PF, PV EOI, steal time) work through memory
-shared with hypervisor and when we restore from hibernation we must
-properly teardown all these features to make sure hypervisor doesn't
-write to stale locations after we jump to the previously hibernated kernel
-(which can try to place anything there). For secondary CPUs the job is
-already done by kvm_cpu_down_prepare(), register syscore ops to do
-the same for boot CPU.
+Error injection stress would sometimes fail with checksums on disk that
+did not have a corresponding extent.  This occurred because the pattern
+in btrfs_del_csums was
 
-Krzysztof:
-This fixes memory corruption visible after second resume from
-hibernation:
+	while (1) {
+		ret = btrfs_search_slot();
+		if (ret < 0)
+			break;
+	}
+	ret = 0;
+out:
+	btrfs_free_path(path);
+	return ret;
 
-  BUG: Bad page state in process dbus-daemon  pfn:18b01
-  page:ffffea000062c040 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 compound_mapcount: -30591
-  flags: 0xfffffc0078141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
-  raw: 000fffffc0078141 dead0000000002d0 dead000000000100 0000000000000000
-  raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
-  page dumped because: PAGE_FLAGS_CHECK_AT_PREP flag set
-  bad because of flags: 0x78141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+If we got an error from btrfs_search_slot we'd clear the error because
+we were breaking instead of goto out.  Instead of using goto out, simply
+handle the cases where we may leave a random value in ret, and get rid
+of the
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20210414123544.1060604-3-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-[krzysztof: Extend the commit message, adjust for v5.10 context]
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+	ret = 0;
+out:
+
+pattern and simply allow break to have the proper error reporting.  With
+this fix we properly abort the transaction and do not commit thinking we
+successfully deleted the csum.
+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/kvm.c |   57 +++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 41 insertions(+), 16 deletions(-)
+ fs/btrfs/file-item.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -26,6 +26,7 @@
- #include <linux/kprobes.h>
- #include <linux/nmi.h>
- #include <linux/swait.h>
-+#include <linux/syscore_ops.h>
- #include <asm/timer.h>
- #include <asm/cpu.h>
- #include <asm/traps.h>
-@@ -460,6 +461,25 @@ static bool pv_tlb_flush_supported(void)
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -787,7 +787,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 	u64 end_byte = bytenr + len;
+ 	u64 csum_end;
+ 	struct extent_buffer *leaf;
+-	int ret;
++	int ret = 0;
+ 	const u32 csum_size = fs_info->csum_size;
+ 	u32 blocksize_bits = fs_info->sectorsize_bits;
  
- static DEFINE_PER_CPU(cpumask_var_t, __pv_cpu_mask);
+@@ -805,6 +805,7 @@ int btrfs_del_csums(struct btrfs_trans_h
  
-+static void kvm_guest_cpu_offline(void)
-+{
-+	kvm_disable_steal_time();
-+	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
-+		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
-+	kvm_pv_disable_apf();
-+	apf_task_wake_all();
-+}
-+
-+static int kvm_cpu_online(unsigned int cpu)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	kvm_guest_cpu_init();
-+	local_irq_restore(flags);
-+	return 0;
-+}
-+
- #ifdef CONFIG_SMP
+ 		ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+ 		if (ret > 0) {
++			ret = 0;
+ 			if (path->slots[0] == 0)
+ 				break;
+ 			path->slots[0]--;
+@@ -861,7 +862,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 			ret = btrfs_del_items(trans, root, path,
+ 					      path->slots[0], del_nr);
+ 			if (ret)
+-				goto out;
++				break;
+ 			if (key.offset == bytenr)
+ 				break;
+ 		} else if (key.offset < bytenr && csum_end > end_byte) {
+@@ -905,8 +906,9 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 			ret = btrfs_split_item(trans, root, path, &key, offset);
+ 			if (ret && ret != -EAGAIN) {
+ 				btrfs_abort_transaction(trans, ret);
+-				goto out;
++				break;
+ 			}
++			ret = 0;
  
- static bool pv_ipi_supported(void)
-@@ -587,31 +607,34 @@ static void __init kvm_smp_prepare_boot_
- 	kvm_spinlock_init();
+ 			key.offset = end_byte - 1;
+ 		} else {
+@@ -916,8 +918,6 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 		}
+ 		btrfs_release_path(path);
+ 	}
+-	ret = 0;
+-out:
+ 	btrfs_free_path(path);
+ 	return ret;
  }
- 
--static void kvm_guest_cpu_offline(void)
-+static int kvm_cpu_down_prepare(unsigned int cpu)
- {
--	kvm_disable_steal_time();
--	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
--		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
--	kvm_pv_disable_apf();
--	apf_task_wake_all();
--}
-+	unsigned long flags;
- 
--static int kvm_cpu_online(unsigned int cpu)
--{
--	local_irq_disable();
--	kvm_guest_cpu_init();
--	local_irq_enable();
-+	local_irq_save(flags);
-+	kvm_guest_cpu_offline();
-+	local_irq_restore(flags);
- 	return 0;
- }
- 
--static int kvm_cpu_down_prepare(unsigned int cpu)
-+#endif
-+
-+static int kvm_suspend(void)
- {
--	local_irq_disable();
- 	kvm_guest_cpu_offline();
--	local_irq_enable();
-+
- 	return 0;
- }
--#endif
-+
-+static void kvm_resume(void)
-+{
-+	kvm_cpu_online(raw_smp_processor_id());
-+}
-+
-+static struct syscore_ops kvm_syscore_ops = {
-+	.suspend	= kvm_suspend,
-+	.resume		= kvm_resume,
-+};
- 
- static void kvm_flush_tlb_others(const struct cpumask *cpumask,
- 			const struct flush_tlb_info *info)
-@@ -681,6 +704,8 @@ static void __init kvm_guest_init(void)
- 	kvm_guest_cpu_init();
- #endif
- 
-+	register_syscore_ops(&kvm_syscore_ops);
-+
- 	/*
- 	 * Hard lockup detection is enabled by default. Disable it, as guests
- 	 * can get false positives too easily, for example if the host is
 
 
