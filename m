@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E2783A0020
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3099539FFA5
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233851AbhFHSkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:40:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34878 "EHLO mail.kernel.org"
+        id S234647AbhFHSey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:34:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235034AbhFHSi2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:38:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C093F61406;
-        Tue,  8 Jun 2021 18:33:28 +0000 (UTC)
+        id S234434AbhFHSd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:33:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2663613E3;
+        Tue,  8 Jun 2021 18:31:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177209;
-        bh=0F9K0CUqK2VMd7A4DDsHuctUE+bP9NpzxPeBU/UiFi8=;
+        s=korg; t=1623177078;
+        bh=FhuMOzjwoHRjltgVuDX12qfBEpLyI8/y3rqoGjJGeFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3TvUqe3ITNhy/RKzX/qBRWXGun/hLj3drYr+xcAjlZiMrdpTiuRo7PqDw26LcWM6
-         VO/tu8ouChqaiDRb61EUQsm5QcEnWk/OwwxZJi3oCJIGpu2196OPv7o4xNRZqvC5Pa
-         JThkUQTK5UuyLMwkijynoSX02AMoWzApzD12MvmI=
+        b=q93t8HQslD4sxs5zob4q35G6ntufUZzvXbbhSAIZ2fzIPSx1Zr9D6hmqwvzoKzfMQ
+         DA5hBZBbsyJZtJgxSFasZjv/4OUf0GBbVQ+BebyRbVX0nFdcMP9iRP0vnhGsiJqtLo
+         Dq9ILgnhYAgTlClk7w/LTU+YcDjhcnGF46g1NGIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d102fa5b35335a7e544e@syzkaller.appspotmail.com,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 26/58] ALSA: timer: Fix master timer notification
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 24/47] btrfs: fix error handling in btrfs_del_csums
 Date:   Tue,  8 Jun 2021 20:27:07 +0200
-Message-Id: <20210608175933.149165609@linuxfoundation.org>
+Message-Id: <20210608175931.272544367@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
+References: <20210608175930.477274100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 9c1fe96bded935369f8340c2ac2e9e189f697d5d upstream.
+commit b86652be7c83f70bf406bed18ecf55adb9bfb91b upstream.
 
-snd_timer_notify1() calls the notification to each slave for a master
-event, but it passes a wrong event number.  It should be +10 offset,
-corresponding to SNDRV_TIMER_EVENT_MXXX, but it's incorrectly with
-+100 offset.  Casually this was spotted by UBSAN check via syzkaller.
+Error injection stress would sometimes fail with checksums on disk that
+did not have a corresponding extent.  This occurred because the pattern
+in btrfs_del_csums was
 
-Reported-by: syzbot+d102fa5b35335a7e544e@syzkaller.appspotmail.com
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/000000000000e5560e05c3bd1d63@google.com
-Link: https://lore.kernel.org/r/20210602113823.23777-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+	while (1) {
+		ret = btrfs_search_slot();
+		if (ret < 0)
+			break;
+	}
+	ret = 0;
+out:
+	btrfs_free_path(path);
+	return ret;
+
+If we got an error from btrfs_search_slot we'd clear the error because
+we were breaking instead of goto out.  Instead of using goto out, simply
+handle the cases where we may leave a random value in ret, and get rid
+of the
+
+	ret = 0;
+out:
+
+pattern and simply allow break to have the proper error reporting.  With
+this fix we properly abort the transaction and do not commit thinking we
+successfully deleted the csum.
+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/timer.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/file-item.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -500,9 +500,10 @@ static void snd_timer_notify1(struct snd
- 		return;
- 	if (timer->hw.flags & SNDRV_TIMER_HW_SLAVE)
- 		return;
-+	event += 10; /* convert to SNDRV_TIMER_EVENT_MXXX */
- 	list_for_each_entry(ts, &ti->slave_active_head, active_list)
- 		if (ts->ccallback)
--			ts->ccallback(ts, event + 100, &tstamp, resolution);
-+			ts->ccallback(ts, event, &tstamp, resolution);
- }
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -599,7 +599,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 	u64 end_byte = bytenr + len;
+ 	u64 csum_end;
+ 	struct extent_buffer *leaf;
+-	int ret;
++	int ret = 0;
+ 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
+ 	int blocksize_bits = fs_info->sb->s_blocksize_bits;
  
- /* start/continue a master timer */
+@@ -615,6 +615,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 		path->leave_spinning = 1;
+ 		ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+ 		if (ret > 0) {
++			ret = 0;
+ 			if (path->slots[0] == 0)
+ 				break;
+ 			path->slots[0]--;
+@@ -671,7 +672,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 			ret = btrfs_del_items(trans, root, path,
+ 					      path->slots[0], del_nr);
+ 			if (ret)
+-				goto out;
++				break;
+ 			if (key.offset == bytenr)
+ 				break;
+ 		} else if (key.offset < bytenr && csum_end > end_byte) {
+@@ -715,8 +716,9 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 			ret = btrfs_split_item(trans, root, path, &key, offset);
+ 			if (ret && ret != -EAGAIN) {
+ 				btrfs_abort_transaction(trans, ret);
+-				goto out;
++				break;
+ 			}
++			ret = 0;
+ 
+ 			key.offset = end_byte - 1;
+ 		} else {
+@@ -726,8 +728,6 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 		}
+ 		btrfs_release_path(path);
+ 	}
+-	ret = 0;
+-out:
+ 	btrfs_free_path(path);
+ 	return ret;
+ }
 
 
