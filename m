@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A87B3A0326
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:23:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42EAB3A0200
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234896AbhFHTNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:13:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58760 "EHLO mail.kernel.org"
+        id S233922AbhFHS7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:59:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236890AbhFHTLc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:11:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1358361460;
-        Tue,  8 Jun 2021 18:48:55 +0000 (UTC)
+        id S234957AbhFHS4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:56:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9C58613CB;
+        Tue,  8 Jun 2021 18:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178136;
-        bh=n5tBM1JDehct6Cw7E6PCpVT+Ew808yQHibPN7Nr+1wo=;
+        s=korg; t=1623177719;
+        bh=sYxK+/vy8Vr8G9MP6hr0q7cht+k6XJ3CPzCBSsjZd9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHjYt6cAIWm+1QiIACSsid03QY2sG5pX65vyrEwt1WcYJfKM7eM+/bGk17lFbYGA5
-         SL37mdYmfrunJAwQodLRdPxg2VjL0I5LXrsbjwxINnwM/qmVdvIWL4U7KLWwdg/eh0
-         YVgaIdYSEsp5js/hf+B7W64EF92rCG7RpyJcb+yA=
+        b=xWSVrD3BDewlKbPMs+cDmfBG2mR7hQtloxXmh7RzxCjMf3XshEXylIiqaw5A7LmQY
+         SgyzHBh6IL2BZ5KxUnagVtOlS6gmjfVX9PQA/9e2XC9eyKBulqQFGythkLh3fLakrt
+         OKbFqvRW0mfeHFqe2eTJ/9qUr46WxbwCwkqkPGuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
-        Sage Weil <sage@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 083/161] libceph: dont set global_id until we get an auth ticket
+        stable@vger.kernel.org,
+        syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 073/137] io_uring: fix link timeout refs
 Date:   Tue,  8 Jun 2021 20:26:53 +0200
-Message-Id: <20210608175948.243493420@linuxfoundation.org>
+Message-Id: <20210608175944.829057777@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,104 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Dryomov <idryomov@gmail.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 61ca49a9105faefa003b37542cebad8722f8ae22 ]
+[ Upstream commit a298232ee6b9a1d5d732aa497ff8be0d45b5bd82 ]
 
-With the introduction of enforcing mode, setting global_id as soon
-as we get it in the first MAuth reply will result in EACCES if the
-connection is reset before we get the second MAuth reply containing
-an auth ticket -- because on retry we would attempt to reclaim that
-global_id with no auth ticket at hand.
+WARNING: CPU: 0 PID: 10242 at lib/refcount.c:28 refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
+RIP: 0010:refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
+Call Trace:
+ __refcount_sub_and_test include/linux/refcount.h:283 [inline]
+ __refcount_dec_and_test include/linux/refcount.h:315 [inline]
+ refcount_dec_and_test include/linux/refcount.h:333 [inline]
+ io_put_req fs/io_uring.c:2140 [inline]
+ io_queue_linked_timeout fs/io_uring.c:6300 [inline]
+ __io_queue_sqe+0xbef/0xec0 fs/io_uring.c:6354
+ io_submit_sqe fs/io_uring.c:6534 [inline]
+ io_submit_sqes+0x2bbd/0x7c50 fs/io_uring.c:6660
+ __do_sys_io_uring_enter fs/io_uring.c:9240 [inline]
+ __se_sys_io_uring_enter+0x256/0x1d60 fs/io_uring.c:9182
 
-Neither ceph_auth_client nor ceph_mon_client depend on global_id
-being set ealy, so just delay the setting until we get and process
-the second MAuth reply.  While at it, complain if the monitor sends
-a zero global_id or changes our global_id as the session is likely
-to fail after that.
+io_link_timeout_fn() should put only one reference of the linked timeout
+request, however in case of racing with the master request's completion
+first io_req_complete() puts one and then io_put_req_deferred() is
+called.
 
-Cc: stable@vger.kernel.org # needs backporting for < 5.11
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Reviewed-by: Sage Weil <sage@redhat.com>
+Cc: stable@vger.kernel.org # 5.12+
+Fixes: 9ae1f8dd372e0 ("io_uring: fix inconsistent lock state")
+Reported-by: syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/ff51018ff29de5ffa76f09273ef48cb24c720368.1620417627.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ceph/auth.c | 36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ fs/io_uring.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ceph/auth.c b/net/ceph/auth.c
-index eb261aa5fe18..de407e8feb97 100644
---- a/net/ceph/auth.c
-+++ b/net/ceph/auth.c
-@@ -36,6 +36,20 @@ static int init_protocol(struct ceph_auth_client *ac, int proto)
- 	}
- }
- 
-+static void set_global_id(struct ceph_auth_client *ac, u64 global_id)
-+{
-+	dout("%s global_id %llu\n", __func__, global_id);
-+
-+	if (!global_id)
-+		pr_err("got zero global_id\n");
-+
-+	if (ac->global_id && global_id != ac->global_id)
-+		pr_err("global_id changed from %llu to %llu\n", ac->global_id,
-+		       global_id);
-+
-+	ac->global_id = global_id;
-+}
-+
- /*
-  * setup, teardown.
-  */
-@@ -222,11 +236,6 @@ int ceph_handle_auth_reply(struct ceph_auth_client *ac,
- 
- 	payload_end = payload + payload_len;
- 
--	if (global_id && ac->global_id != global_id) {
--		dout(" set global_id %lld -> %lld\n", ac->global_id, global_id);
--		ac->global_id = global_id;
--	}
--
- 	if (ac->negotiating) {
- 		/* server does not support our protocols? */
- 		if (!protocol && result < 0) {
-@@ -253,11 +262,16 @@ int ceph_handle_auth_reply(struct ceph_auth_client *ac,
- 
- 	ret = ac->ops->handle_reply(ac, result, payload, payload_end,
- 				    NULL, NULL, NULL, NULL);
--	if (ret == -EAGAIN)
-+	if (ret == -EAGAIN) {
- 		ret = build_request(ac, true, reply_buf, reply_len);
--	else if (ret)
-+		goto out;
-+	} else if (ret) {
- 		pr_err("auth protocol '%s' mauth authentication failed: %d\n",
- 		       ceph_auth_proto_name(ac->protocol), result);
-+		goto out;
-+	}
-+
-+	set_global_id(ac, global_id);
- 
- out:
- 	mutex_unlock(&ac->mutex);
-@@ -484,15 +498,11 @@ int ceph_auth_handle_reply_done(struct ceph_auth_client *ac,
- 	int ret;
- 
- 	mutex_lock(&ac->mutex);
--	if (global_id && ac->global_id != global_id) {
--		dout("%s global_id %llu -> %llu\n", __func__, ac->global_id,
--		     global_id);
--		ac->global_id = global_id;
--	}
--
- 	ret = ac->ops->handle_reply(ac, 0, reply, reply + reply_len,
- 				    session_key, session_key_len,
- 				    con_secret, con_secret_len);
-+	if (!ret)
-+		set_global_id(ac, global_id);
- 	mutex_unlock(&ac->mutex);
- 	return ret;
- }
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 369ec81033d6..958c463c11eb 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6266,6 +6266,7 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+ 	if (prev) {
+ 		io_async_find_and_cancel(ctx, req, prev->user_data, -ETIME);
+ 		io_put_req_deferred(prev, 1);
++		io_put_req_deferred(req, 1);
+ 	} else {
+ 		io_cqring_add_event(req, -ETIME, 0);
+ 		io_put_req_deferred(req, 1);
 -- 
 2.30.2
 
