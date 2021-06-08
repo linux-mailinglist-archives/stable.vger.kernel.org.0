@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A26A539FF76
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A51D739FF7B
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234597AbhFHSd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:33:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57488 "EHLO mail.kernel.org"
+        id S234608AbhFHSdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:33:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234084AbhFHSc3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CE37613D4;
-        Tue,  8 Jun 2021 18:30:22 +0000 (UTC)
+        id S234124AbhFHSce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:32:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D70DC613CD;
+        Tue,  8 Jun 2021 18:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177023;
-        bh=/Kk5XFC71RKixZ0KeWmKO2J/s1lNjqmgXRxjBCww5eM=;
+        s=korg; t=1623177025;
+        bh=jl8Z6ZgrA67B1nrcFs3fiCeBUftXiBdarqG5ygOvl9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=om/ftAHuErnsu2vXbXs7lbawbQbhl18uGTyKtVwMKN9RK9eSzPqIxAgZznbK7Rv0Y
-         18jyzPY1nD9pC9drPNHK9afSCVoqGYpcVrMh8/3xNEH6JDJflvJnZ8z9KMku0xwRlg
-         gmHKNqKf3L2okjeAI7dOoPoT4R1DuHDqaCP3UcIQ=
+        b=pI/22bxZRt7qPlSGGd3+J+ZP0NDcqMYF7cx3B+0VLCqEvuNhSWkzY9LJBH43MmMwf
+         Ydr5Rt2Fg0aLOfKqblgMektOf3KynEv8j7my2dCN1KLo70xWVTZBnCBNBitQ73RLQB
+         T1p3GLb9GYca3pNF3dudTxtoBZMwfJ7HnhBVRD9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 12/29] ieee802154: fix error return code in ieee802154_llsec_getparams()
-Date:   Tue,  8 Jun 2021 20:27:06 +0200
-Message-Id: <20210608175928.217990188@linuxfoundation.org>
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
+        Lin Ma <linma@zju.edu.cn>, Hao Xiong <mart1n@zju.edu.cn>
+Subject: [PATCH 4.9 13/29] Bluetooth: fix the erroneous flush_work() order
+Date:   Tue,  8 Jun 2021 20:27:07 +0200
+Message-Id: <20210608175928.248830114@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
 References: <20210608175927.821075974@linuxfoundation.org>
@@ -41,41 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 373e864cf52403b0974c2f23ca8faf9104234555 ]
+commit 6a137caec23aeb9e036cdfd8a46dd8a366460e5d upstream.
 
-Fix to return negative error code -ENOBUFS from the error handling
-case instead of 0, as done elsewhere in this function.
+In the cleanup routine for failed initialization of HCI device,
+the flush_work(&hdev->rx_work) need to be finished before the
+flush_work(&hdev->cmd_work). Otherwise, the hci_rx_work() can
+possibly invoke new cmd_work and cause a bug, like double free,
+in late processings.
 
-Fixes: 3e9c156e2c21 ("ieee802154: add netlink interfaces for llsec")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20210519141614.3040055-1-weiyongjun1@huawei.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This was assigned CVE-2021-3564.
+
+This patch reorder the flush_work() to fix this bug.
+
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Cc: Johan Hedberg <johan.hedberg@gmail.com>
+Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: linux-bluetooth@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Hao Xiong <mart1n@zju.edu.cn>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ieee802154/nl-mac.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/bluetooth/hci_core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/ieee802154/nl-mac.c b/net/ieee802154/nl-mac.c
-index c0930b9fe848..7531cb1665d2 100644
---- a/net/ieee802154/nl-mac.c
-+++ b/net/ieee802154/nl-mac.c
-@@ -688,8 +688,10 @@ int ieee802154_llsec_getparams(struct sk_buff *skb, struct genl_info *info)
- 	    nla_put_u8(msg, IEEE802154_ATTR_LLSEC_SECLEVEL, params.out_level) ||
- 	    nla_put_u32(msg, IEEE802154_ATTR_LLSEC_FRAME_COUNTER,
- 			be32_to_cpu(params.frame_counter)) ||
--	    ieee802154_llsec_fill_key_id(msg, &params.out_key))
-+	    ieee802154_llsec_fill_key_id(msg, &params.out_key)) {
-+		rc = -ENOBUFS;
- 		goto out_free;
-+	}
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1422,8 +1422,13 @@ static int hci_dev_do_open(struct hci_de
+ 	} else {
+ 		/* Init failed, cleanup */
+ 		flush_work(&hdev->tx_work);
+-		flush_work(&hdev->cmd_work);
++
++		/* Since hci_rx_work() is possible to awake new cmd_work
++		 * it should be flushed first to avoid unexpected call of
++		 * hci_cmd_work()
++		 */
+ 		flush_work(&hdev->rx_work);
++		flush_work(&hdev->cmd_work);
  
- 	dev_put(dev);
- 
--- 
-2.30.2
-
+ 		skb_queue_purge(&hdev->cmd_q);
+ 		skb_queue_purge(&hdev->rx_q);
 
 
