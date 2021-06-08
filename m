@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 958B53A018E
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62EB73A02B7
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236097AbhFHSyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:54:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48452 "EHLO mail.kernel.org"
+        id S236189AbhFHTH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235976AbhFHSwH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:52:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71A3061376;
-        Tue,  8 Jun 2021 18:40:08 +0000 (UTC)
+        id S235151AbhFHTG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:06:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5AC36192E;
+        Tue,  8 Jun 2021 18:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177609;
-        bh=Bwe6XoLtofniYeM5aZxEBFbkK0EPzcC2VDo/n+04e+I=;
+        s=korg; t=1623178016;
+        bh=iq+OnzuHjjjIKLdJUOmHU1txjGZ6gPhhdHnQeA8Ec8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HOIZrc5ns7Vz//rRPr+LDDPheUvbIs9KxDfdqvXB1A2IJ77adbzUXS/M1cmXk46S8
-         A/OzKL1QLwaCv7HQNhvxcQaHzOEvMEtPt2dqqsaGXEo2drR2wAD8Nf9Yn3q3Z2F8Gp
-         t018Sb4eW/Zzo5gq/iiE20FpWYFmjuul1gStidlA=
+        b=qg7rdq9HxHzb40Sua/7rJuE38nPa5mCrd8v+pFhyWkiSNXZDVnlrCmkoOZaDruAVD
+         XO89yvJ9Q2ipuMmuOVvZUaRgEYsiUrnAE8HC/W/SF/5sSXNt/kkmxeXWyZro2/2R7a
+         C1RtzUYbGk8gZ8YKq5q2aUMWJx168/AjxHcymauU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Israel Rukshin <israelr@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/137] nvmet: fix freeing unallocated p2pmem
-Date:   Tue,  8 Jun 2021 20:26:13 +0200
-Message-Id: <20210608175943.532766707@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 044/161] ieee802154: fix error return code in ieee802154_add_iface()
+Date:   Tue,  8 Jun 2021 20:26:14 +0200
+Message-Id: <20210608175946.957393109@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,118 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit bcd9a0797d73eeff659582f23277e7ab6e5f18f3 ]
+[ Upstream commit 79c6b8ed30e54b401c873dbad2511f2a1c525fd5 ]
 
-In case p2p device was found but the p2p pool is empty, the nvme target
-is still trying to free the sgl from the p2p pool instead of the
-regular sgl pool and causing a crash (BUG() is called). Instead, assign
-the p2p_dev for the request only if it was allocated from p2p pool.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-This is the crash that was caused:
-
-[Sun May 30 19:13:53 2021] ------------[ cut here ]------------
-[Sun May 30 19:13:53 2021] kernel BUG at lib/genalloc.c:518!
-[Sun May 30 19:13:53 2021] invalid opcode: 0000 [#1] SMP PTI
-...
-[Sun May 30 19:13:53 2021] kernel BUG at lib/genalloc.c:518!
-...
-[Sun May 30 19:13:53 2021] RIP: 0010:gen_pool_free_owner+0xa8/0xb0
-...
-[Sun May 30 19:13:53 2021] Call Trace:
-[Sun May 30 19:13:53 2021] ------------[ cut here ]------------
-[Sun May 30 19:13:53 2021]  pci_free_p2pmem+0x2b/0x70
-[Sun May 30 19:13:53 2021]  pci_p2pmem_free_sgl+0x4f/0x80
-[Sun May 30 19:13:53 2021]  nvmet_req_free_sgls+0x1e/0x80 [nvmet]
-[Sun May 30 19:13:53 2021] kernel BUG at lib/genalloc.c:518!
-[Sun May 30 19:13:53 2021]  nvmet_rdma_release_rsp+0x4e/0x1f0 [nvmet_rdma]
-[Sun May 30 19:13:53 2021]  nvmet_rdma_send_done+0x1c/0x60 [nvmet_rdma]
-
-Fixes: c6e3f1339812 ("nvmet: add metadata support for block devices")
-Reviewed-by: Israel Rukshin <israelr@nvidia.com>
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: be51da0f3e34 ("ieee802154: Stop using NLA_PUT*().")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210508062517.2574-1-thunder.leizhen@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c | 33 ++++++++++++++++-----------------
- 1 file changed, 16 insertions(+), 17 deletions(-)
+ net/ieee802154/nl-phy.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index 46e4f7ea34c8..8b939e9db470 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -988,19 +988,23 @@ static unsigned int nvmet_data_transfer_len(struct nvmet_req *req)
- 	return req->transfer_len - req->metadata_len;
- }
- 
--static int nvmet_req_alloc_p2pmem_sgls(struct nvmet_req *req)
-+static int nvmet_req_alloc_p2pmem_sgls(struct pci_dev *p2p_dev,
-+		struct nvmet_req *req)
- {
--	req->sg = pci_p2pmem_alloc_sgl(req->p2p_dev, &req->sg_cnt,
-+	req->sg = pci_p2pmem_alloc_sgl(p2p_dev, &req->sg_cnt,
- 			nvmet_data_transfer_len(req));
- 	if (!req->sg)
- 		goto out_err;
- 
- 	if (req->metadata_len) {
--		req->metadata_sg = pci_p2pmem_alloc_sgl(req->p2p_dev,
-+		req->metadata_sg = pci_p2pmem_alloc_sgl(p2p_dev,
- 				&req->metadata_sg_cnt, req->metadata_len);
- 		if (!req->metadata_sg)
- 			goto out_free_sg;
+diff --git a/net/ieee802154/nl-phy.c b/net/ieee802154/nl-phy.c
+index 2cdc7e63fe17..88215b5c93aa 100644
+--- a/net/ieee802154/nl-phy.c
++++ b/net/ieee802154/nl-phy.c
+@@ -241,8 +241,10 @@ int ieee802154_add_iface(struct sk_buff *skb, struct genl_info *info)
  	}
-+
-+	req->p2p_dev = p2p_dev;
-+
- 	return 0;
- out_free_sg:
- 	pci_p2pmem_free_sgl(req->p2p_dev, req->sg);
-@@ -1008,25 +1012,19 @@ out_err:
- 	return -ENOMEM;
- }
  
--static bool nvmet_req_find_p2p_dev(struct nvmet_req *req)
-+static struct pci_dev *nvmet_req_find_p2p_dev(struct nvmet_req *req)
- {
--	if (!IS_ENABLED(CONFIG_PCI_P2PDMA))
--		return false;
--
--	if (req->sq->ctrl && req->sq->qid && req->ns) {
--		req->p2p_dev = radix_tree_lookup(&req->sq->ctrl->p2p_ns_map,
--						 req->ns->nsid);
--		if (req->p2p_dev)
--			return true;
--	}
--
--	req->p2p_dev = NULL;
--	return false;
-+	if (!IS_ENABLED(CONFIG_PCI_P2PDMA) ||
-+	    !req->sq->ctrl || !req->sq->qid || !req->ns)
-+		return NULL;
-+	return radix_tree_lookup(&req->sq->ctrl->p2p_ns_map, req->ns->nsid);
- }
+ 	if (nla_put_string(msg, IEEE802154_ATTR_PHY_NAME, wpan_phy_name(phy)) ||
+-	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name))
++	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name)) {
++		rc = -EMSGSIZE;
+ 		goto nla_put_failure;
++	}
+ 	dev_put(dev);
  
- int nvmet_req_alloc_sgls(struct nvmet_req *req)
- {
--	if (nvmet_req_find_p2p_dev(req) && !nvmet_req_alloc_p2pmem_sgls(req))
-+	struct pci_dev *p2p_dev = nvmet_req_find_p2p_dev(req);
-+
-+	if (p2p_dev && !nvmet_req_alloc_p2pmem_sgls(p2p_dev, req))
- 		return 0;
- 
- 	req->sg = sgl_alloc(nvmet_data_transfer_len(req), GFP_KERNEL,
-@@ -1055,6 +1053,7 @@ void nvmet_req_free_sgls(struct nvmet_req *req)
- 		pci_p2pmem_free_sgl(req->p2p_dev, req->sg);
- 		if (req->metadata_sg)
- 			pci_p2pmem_free_sgl(req->p2p_dev, req->metadata_sg);
-+		req->p2p_dev = NULL;
- 	} else {
- 		sgl_free(req->sg);
- 		if (req->metadata_sg)
+ 	wpan_phy_put(phy);
 -- 
 2.30.2
 
