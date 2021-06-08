@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA7D3A01E5
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E5C3A0201
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237143AbhFHS52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:57:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33118 "EHLO mail.kernel.org"
+        id S235548AbhFHS7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:59:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236863AbhFHSz0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:55:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D8D66108D;
-        Tue,  8 Jun 2021 18:41:34 +0000 (UTC)
+        id S236981AbhFHS4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:56:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0C4A61439;
+        Tue,  8 Jun 2021 18:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177694;
-        bh=alPiG3oO3ieF+/mwVevg6cMJgzPtbTOF1/swSLIfGMU=;
+        s=korg; t=1623177697;
+        bh=FZOgNyFYW71rj/Sd22iZOOneX91E65viA/dUBhiaIJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uS2Bwl1PJS0X24yno5d1fPVLLz9lB7Y8Rip3HsPJMhmNu/xuaiw7CdV7sEUzuc4H8
-         Jh7lKYeQBbQvw56Cke6cGkcvrS61/lZfuDm2gSxw8Q29i8GnAGR1sWfxtis3mJOUWw
-         4Dryc7KlvgIZ1ofq9GfyUFblclfbQH2lqN0O72i8=
+        b=I6p43fVNfSre502iMkIUO4fL1IRxjOLENvAnG17OOfy/ftK1epwRS3i/lgSWt/xrd
+         N/TE/shL2K3CCEp5HDyI0O6/ClHmDL0XwqQSwacU12h2b6Ifuo2TwDOdJzhU/nTPDg
+         tegl2hEc8Q/at2DnJHKWJVGJ+PBiaW31Dd4BmrlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 065/137] ARM: dts: imx7d-meerkat96: Fix the tuning-step property
-Date:   Tue,  8 Jun 2021 20:26:45 +0200
-Message-Id: <20210608175944.574770885@linuxfoundation.org>
+Subject: [PATCH 5.10 066/137] ARM: dts: imx7d-pico: Fix the tuning-step property
+Date:   Tue,  8 Jun 2021 20:26:46 +0200
+Message-Id: <20210608175944.606757191@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -42,7 +42,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 7c8f0338cdacc90fdf6468adafa8e27952987f00 ]
+[ Upstream commit 0e2fa4959c4f44815ce33e46e4054eeb0f346053 ]
 
 According to Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml, the
 correct name of the property is 'fsl,tuning-step'.
@@ -50,26 +50,26 @@ correct name of the property is 'fsl,tuning-step'.
 Fix it accordingly.
 
 Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Fixes: ae7b3384b61b ("ARM: dts: Add support for 96Boards Meerkat96 board")
+Fixes: f13f571ac8a1 ("ARM: dts: imx7d-pico: Extend peripherals support")
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx7d-meerkat96.dts | 2 +-
+ arch/arm/boot/dts/imx7d-pico.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx7d-meerkat96.dts b/arch/arm/boot/dts/imx7d-meerkat96.dts
-index 5339210b63d0..dd8003bd1fc0 100644
---- a/arch/arm/boot/dts/imx7d-meerkat96.dts
-+++ b/arch/arm/boot/dts/imx7d-meerkat96.dts
-@@ -193,7 +193,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_usdhc1>;
- 	keep-power-in-suspend;
+diff --git a/arch/arm/boot/dts/imx7d-pico.dtsi b/arch/arm/boot/dts/imx7d-pico.dtsi
+index e57da0d32b98..e519897fae08 100644
+--- a/arch/arm/boot/dts/imx7d-pico.dtsi
++++ b/arch/arm/boot/dts/imx7d-pico.dtsi
+@@ -351,7 +351,7 @@
+ 	pinctrl-2 = <&pinctrl_usdhc1_200mhz>;
+ 	cd-gpios = <&gpio5 0 GPIO_ACTIVE_LOW>;
+ 	bus-width = <4>;
 -	tuning-step = <2>;
 +	fsl,tuning-step = <2>;
  	vmmc-supply = <&reg_3p3v>;
+ 	wakeup-source;
  	no-1-8-v;
- 	broken-cd;
 -- 
 2.30.2
 
