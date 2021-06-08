@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAF6239FF87
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D9B63A0049
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234644AbhFHSdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:33:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58040 "EHLO mail.kernel.org"
+        id S235135AbhFHSlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:41:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234282AbhFHScv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B89EE613CB;
-        Tue,  8 Jun 2021 18:30:41 +0000 (UTC)
+        id S235423AbhFHSkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:40:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D3BB61432;
+        Tue,  8 Jun 2021 18:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177042;
-        bh=HkpylNl/oX0EwpUXPbrxhDQDIMWj9P9nZwwWM6tSgo8=;
+        s=korg; t=1623177260;
+        bh=oq9QYBIfGAmnu47+FU5gD4+Wlr4SR9e3u9R3vc7h6Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgpUGUpagi9aoDY+OyYW5cr6PMFulStU1NusRRsDDZYLBnI7xm9imacBdOloEUfDX
-         UWtnuPPlbgWQUfMusQg5e2JtNsWBIgzGXtem2PGZNC4SNhVrJ++UduCBoFRXphYKiK
-         cTzlGufvFbwx0rjqHLUj+6M8vqL7O2Ixt8WKacSY=
+        b=OzGAX8aYEKpWVXdp8HmQ2MFWoG9JP2WR3Ig7xj43bsOXA6Cj7IykuxRlFskwl3a8N
+         4N/hJDclNVMAoyXwl0sHIieEC5Cr3Mt8YGftF+iDmrvkN5OvrAiKqezcTtTcrYHvtS
+         mICM/ZsTzPMScQHEs9RqUpIFqGBwzT0xNkDuB9ZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grant Grundler <grundler@chromium.org>,
-        Hayes Wang <hayeswang@realtek.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+49d4cab497c2142ee170@syzkaller.appspotmail.com,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Zubin Mithra <zsm@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/47] net: usb: cdc_ncm: dont spew notifications
+Subject: [PATCH 4.19 03/58] nl80211: validate key indexes for cfg80211_registered_device
 Date:   Tue,  8 Jun 2021 20:26:44 +0200
-Message-Id: <20210608175930.527223517@linuxfoundation.org>
+Message-Id: <20210608175932.382250541@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
-References: <20210608175930.477274100@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,110 +44,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grant Grundler <grundler@chromium.org>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit de658a195ee23ca6aaffe197d1d2ea040beea0a2 ]
+commit 2d9463083ce92636a1bdd3e30d1236e3e95d859e upstream
 
-RTL8156 sends notifications about every 32ms.
-Only display/log notifications when something changes.
+syzbot discovered a bug in which an OOB access was being made because
+an unsuitable key_idx value was wrongly considered to be acceptable
+while deleting a key in nl80211_del_key().
 
-This issue has been reported by others:
-	https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1832472
-	https://lkml.org/lkml/2020/8/27/1083
+Since we don't know the cipher at the time of deletion, if
+cfg80211_validate_key_settings() were to be called directly in
+nl80211_del_key(), even valid keys would be wrongly determined invalid,
+and deletion wouldn't occur correctly.
+For this reason, a new function - cfg80211_valid_key_idx(), has been
+created, to determine if the key_idx value provided is valid or not.
+cfg80211_valid_key_idx() is directly called in 2 places -
+nl80211_del_key(), and cfg80211_validate_key_settings().
 
-...
-[785962.779840] usb 1-1: new high-speed USB device number 5 using xhci_hcd
-[785962.929944] usb 1-1: New USB device found, idVendor=0bda, idProduct=8156, bcdDevice=30.00
-[785962.929949] usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=6
-[785962.929952] usb 1-1: Product: USB 10/100/1G/2.5G LAN
-[785962.929954] usb 1-1: Manufacturer: Realtek
-[785962.929956] usb 1-1: SerialNumber: 000000001
-[785962.991755] usbcore: registered new interface driver cdc_ether
-[785963.017068] cdc_ncm 1-1:2.0: MAC-Address: 00:24:27:88:08:15
-[785963.017072] cdc_ncm 1-1:2.0: setting rx_max = 16384
-[785963.017169] cdc_ncm 1-1:2.0: setting tx_max = 16384
-[785963.017682] cdc_ncm 1-1:2.0 usb0: register 'cdc_ncm' at usb-0000:00:14.0-1, CDC NCM, 00:24:27:88:08:15
-[785963.019211] usbcore: registered new interface driver cdc_ncm
-[785963.023856] usbcore: registered new interface driver cdc_wdm
-[785963.025461] usbcore: registered new interface driver cdc_mbim
-[785963.038824] cdc_ncm 1-1:2.0 enx002427880815: renamed from usb0
-[785963.089586] cdc_ncm 1-1:2.0 enx002427880815: network connection: disconnected
-[785963.121673] cdc_ncm 1-1:2.0 enx002427880815: network connection: disconnected
-[785963.153682] cdc_ncm 1-1:2.0 enx002427880815: network connection: disconnected
-...
-
-This is about 2KB per second and will overwrite all contents of a 1MB
-dmesg buffer in under 10 minutes rendering them useless for debugging
-many kernel problems.
-
-This is also an extra 180 MB/day in /var/logs (or 1GB per week) rendering
-the majority of those logs useless too.
-
-When the link is up (expected state), spew amount is >2x higher:
-...
-[786139.600992] cdc_ncm 2-1:2.0 enx002427880815: network connection: connected
-[786139.632997] cdc_ncm 2-1:2.0 enx002427880815: 2500 mbit/s downlink 2500 mbit/s uplink
-[786139.665097] cdc_ncm 2-1:2.0 enx002427880815: network connection: connected
-[786139.697100] cdc_ncm 2-1:2.0 enx002427880815: 2500 mbit/s downlink 2500 mbit/s uplink
-[786139.729094] cdc_ncm 2-1:2.0 enx002427880815: network connection: connected
-[786139.761108] cdc_ncm 2-1:2.0 enx002427880815: 2500 mbit/s downlink 2500 mbit/s uplink
-...
-
-Chrome OS cannot support RTL8156 until this is fixed.
-
-Signed-off-by: Grant Grundler <grundler@chromium.org>
-Reviewed-by: Hayes Wang <hayeswang@realtek.com>
-Link: https://lore.kernel.org/r/20210120011208.3768105-1-grundler@chromium.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: syzbot+49d4cab497c2142ee170@syzkaller.appspotmail.com
+Tested-by: syzbot+49d4cab497c2142ee170@syzkaller.appspotmail.com
+Suggested-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201204215825.129879-1-anant.thazhemadam@gmail.com
+Cc: stable@vger.kernel.org
+[also disallow IGTK key IDs if no IGTK cipher is supported]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ncm.c  | 12 +++++++++++-
- include/linux/usb/usbnet.h |  2 ++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ net/wireless/core.h    |  2 ++
+ net/wireless/nl80211.c |  7 ++++---
+ net/wireless/util.c    | 39 ++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 44 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
-index eef1412c058d..468db50eb5e7 100644
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -1591,6 +1591,15 @@ cdc_ncm_speed_change(struct usbnet *dev,
- 	uint32_t rx_speed = le32_to_cpu(data->DLBitRRate);
- 	uint32_t tx_speed = le32_to_cpu(data->ULBitRate);
+diff --git a/net/wireless/core.h b/net/wireless/core.h
+index f5d58652108d..5f177dad2fa8 100644
+--- a/net/wireless/core.h
++++ b/net/wireless/core.h
+@@ -404,6 +404,8 @@ void cfg80211_sme_abandon_assoc(struct wireless_dev *wdev);
  
-+	/* if the speed hasn't changed, don't report it.
-+	 * RTL8156 shipped before 2021 sends notification about every 32ms.
-+	 */
-+	if (dev->rx_speed == rx_speed && dev->tx_speed == tx_speed)
-+		return;
+ /* internal helpers */
+ bool cfg80211_supported_cipher_suite(struct wiphy *wiphy, u32 cipher);
++bool cfg80211_valid_key_idx(struct cfg80211_registered_device *rdev,
++			    int key_idx, bool pairwise);
+ int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
+ 				   struct key_params *params, int key_idx,
+ 				   bool pairwise, const u8 *mac_addr);
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 5f0605275fa3..04c4fd376e1d 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -3624,9 +3624,6 @@ static int nl80211_del_key(struct sk_buff *skb, struct genl_info *info)
+ 	if (err)
+ 		return err;
+ 
+-	if (key.idx < 0)
+-		return -EINVAL;
+-
+ 	if (info->attrs[NL80211_ATTR_MAC])
+ 		mac_addr = nla_data(info->attrs[NL80211_ATTR_MAC]);
+ 
+@@ -3642,6 +3639,10 @@ static int nl80211_del_key(struct sk_buff *skb, struct genl_info *info)
+ 	    key.type != NL80211_KEYTYPE_GROUP)
+ 		return -EINVAL;
+ 
++	if (!cfg80211_valid_key_idx(rdev, key.idx,
++				    key.type == NL80211_KEYTYPE_PAIRWISE))
++		return -EINVAL;
 +
-+	dev->rx_speed = rx_speed;
-+	dev->tx_speed = tx_speed;
+ 	if (!rdev->ops->del_key)
+ 		return -EOPNOTSUPP;
+ 
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index 6f9cff2ee795..c4536468dfbe 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -214,11 +214,48 @@ bool cfg80211_supported_cipher_suite(struct wiphy *wiphy, u32 cipher)
+ 	return false;
+ }
+ 
++static bool
++cfg80211_igtk_cipher_supported(struct cfg80211_registered_device *rdev)
++{
++	struct wiphy *wiphy = &rdev->wiphy;
++	int i;
 +
- 	/*
- 	 * Currently the USB-NET API does not support reporting the actual
- 	 * device speed. Do print it instead.
-@@ -1634,7 +1643,8 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
- 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
- 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
- 		 */
--		usbnet_link_change(dev, !!event->wValue, 0);
-+		if (netif_carrier_ok(dev->net) != !!event->wValue)
-+			usbnet_link_change(dev, !!event->wValue, 0);
- 		break;
++	for (i = 0; i < wiphy->n_cipher_suites; i++) {
++		switch (wiphy->cipher_suites[i]) {
++		case WLAN_CIPHER_SUITE_AES_CMAC:
++		case WLAN_CIPHER_SUITE_BIP_CMAC_256:
++		case WLAN_CIPHER_SUITE_BIP_GMAC_128:
++		case WLAN_CIPHER_SUITE_BIP_GMAC_256:
++			return true;
++		}
++	}
++
++	return false;
++}
++
++bool cfg80211_valid_key_idx(struct cfg80211_registered_device *rdev,
++			    int key_idx, bool pairwise)
++{
++	int max_key_idx;
++
++	if (pairwise)
++		max_key_idx = 3;
++	else if (cfg80211_igtk_cipher_supported(rdev))
++		max_key_idx = 5;
++	else
++		max_key_idx = 3;
++
++	if (key_idx < 0 || key_idx > max_key_idx)
++		return false;
++
++	return true;
++}
++
+ int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
+ 				   struct key_params *params, int key_idx,
+ 				   bool pairwise, const u8 *mac_addr)
+ {
+-	if (key_idx < 0 || key_idx > 5)
++	if (!cfg80211_valid_key_idx(rdev, key_idx, pairwise))
+ 		return -EINVAL;
  
- 	case USB_CDC_NOTIFY_SPEED_CHANGE:
-diff --git a/include/linux/usb/usbnet.h b/include/linux/usb/usbnet.h
-index e87a805cbfef..5df465dc7af8 100644
---- a/include/linux/usb/usbnet.h
-+++ b/include/linux/usb/usbnet.h
-@@ -82,6 +82,8 @@ struct usbnet {
- #		define EVENT_LINK_CHANGE	11
- #		define EVENT_SET_RX_MODE	12
- #		define EVENT_NO_IP_ALIGN	13
-+	u32			rx_speed;	/* in bps - NOT Mbps */
-+	u32			tx_speed;	/* in bps - NOT Mbps */
- };
- 
- static inline struct usb_driver *driver_of(struct usb_interface *intf)
+ 	if (!pairwise && mac_addr && !(rdev->wiphy.flags & WIPHY_FLAG_IBSS_RSN))
 -- 
 2.30.2
 
