@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D8639FF72
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 507B73A0069
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234588AbhFHSdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:33:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57406 "EHLO mail.kernel.org"
+        id S235015AbhFHSnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:43:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234389AbhFHScV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DF86613CC;
-        Tue,  8 Jun 2021 18:30:14 +0000 (UTC)
+        id S234901AbhFHSky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:40:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CE1E61435;
+        Tue,  8 Jun 2021 18:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177015;
-        bh=MmRXoHVfQm9eZj+KJphfdg8lo9nB1RfG2eYSEECiXdw=;
+        s=korg; t=1623177292;
+        bh=2pFcPZItDWmiWl6oTayWIQ/fes7yNRaMSMigEXO5N5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ex5A948qXJSTqTFNaXkmRlofkSTQw7ak6GzUF6FhFv3u0pMu3GIJfBQNfzZZxzSYI
-         vberP4B2HW21eSfLv28Kl71DL8b7UWUm40H1dkp+U5qBlznZ5gDbXJvkbF0FmllIj8
-         SNbYSoVbwSwRuWoaoUtI2qHOh9cLFMW6Ci9OW17w=
+        b=kIdDFx89ab3gBQ9fRtLM0AS87VuvPsnQiap7pjfQM1tQbD2TgxwTG+ifB0KPmUVTr
+         +ve0ycny9E5tVdX4cKbrUN5DCznF9SJOmfFs8NpLfEeYqFLeFHdYSiD2v345nnu5S3
+         RiEOUIMVHJ2qgq4OCFGyAeAOCoLWXJZCktK628/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Michael Weiser <michael.weiser@gmx.de>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.9 28/29] arm64: Remove unimplemented syscall log message
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>
+Subject: [PATCH 4.19 41/58] bpf: test make sure to run unpriv test cases in test_verifier
 Date:   Tue,  8 Jun 2021 20:27:22 +0200
-Message-Id: <20210608175928.730163589@linuxfoundation.org>
+Message-Id: <20210608175933.627022745@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Weiser <michael.weiser@gmx.de>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 1962682d2b2fbe6cfa995a85c53c069fadda473e upstream.
+commit 832c6f2c29ec519b766923937f4f93fb1008b47d upstream
 
-Stop printing a (ratelimited) kernel message for each instance of an
-unimplemented syscall being called. Userland making an unimplemented
-syscall is not necessarily misbehaviour and to be expected with a
-current userland running on an older kernel. Also, the current message
-looks scary to users but does not actually indicate a real problem nor
-help them narrow down the cause. Just rely on sys_ni_syscall() to return
--ENOSYS.
+Right now unprivileged tests are never executed as a BPF test run,
+only loaded. Allow for running them as well so that we can check
+the outcome and probe for regressions.
 
-Cc: <stable@vger.kernel.org>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Michael Weiser <michael.weiser@gmx.de>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/kernel/traps.c |    8 --------
- 1 file changed, 8 deletions(-)
+ tools/testing/selftests/bpf/test_verifier.c |   71 +++++++++++++++-------------
+ 1 file changed, 40 insertions(+), 31 deletions(-)
 
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -543,14 +543,6 @@ asmlinkage long do_ni_syscall(struct pt_
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -70,7 +70,7 @@ struct bpf_test {
+ 	int fixup_cgroup_storage[MAX_FIXUPS];
+ 	const char *errstr;
+ 	const char *errstr_unpriv;
+-	uint32_t retval;
++	uint32_t retval, retval_unpriv;
+ 	enum {
+ 		UNDEF,
+ 		ACCEPT,
+@@ -2986,6 +2986,8 @@ static struct bpf_test tests[] = {
+ 		.fixup_prog1 = { 2 },
+ 		.result = ACCEPT,
+ 		.retval = 42,
++		/* Verifier rewrite for unpriv skips tail call here. */
++		.retval_unpriv = 2,
+ 	},
+ 	{
+ 		"stack pointer arithmetic",
+@@ -12811,6 +12813,33 @@ static void do_test_fixup(struct bpf_tes
  	}
- #endif
- 
--	if (show_unhandled_signals_ratelimited()) {
--		pr_info("%s[%d]: syscall %d\n", current->comm,
--			task_pid_nr(current), (int)regs->syscallno);
--		dump_instr("", regs);
--		if (user_mode(regs))
--			__show_regs(regs);
--	}
--
- 	return sys_ni_syscall();
  }
  
++static int set_admin(bool admin)
++{
++	cap_t caps;
++	const cap_value_t cap_val = CAP_SYS_ADMIN;
++	int ret = -1;
++
++	caps = cap_get_proc();
++	if (!caps) {
++		perror("cap_get_proc");
++		return -1;
++	}
++	if (cap_set_flag(caps, CAP_EFFECTIVE, 1, &cap_val,
++				admin ? CAP_SET : CAP_CLEAR)) {
++		perror("cap_set_flag");
++		goto out;
++	}
++	if (cap_set_proc(caps)) {
++		perror("cap_set_proc");
++		goto out;
++	}
++	ret = 0;
++out:
++	if (cap_free(caps))
++		perror("cap_free");
++	return ret;
++}
++
+ static void do_test_single(struct bpf_test *test, bool unpriv,
+ 			   int *passes, int *errors)
+ {
+@@ -12819,6 +12848,7 @@ static void do_test_single(struct bpf_te
+ 	struct bpf_insn *prog = test->insns;
+ 	int map_fds[MAX_NR_MAPS];
+ 	const char *expected_err;
++	uint32_t expected_val;
+ 	uint32_t retval;
+ 	int i, err;
+ 
+@@ -12836,6 +12866,8 @@ static void do_test_single(struct bpf_te
+ 		       test->result_unpriv : test->result;
+ 	expected_err = unpriv && test->errstr_unpriv ?
+ 		       test->errstr_unpriv : test->errstr;
++	expected_val = unpriv && test->retval_unpriv ?
++		       test->retval_unpriv : test->retval;
+ 
+ 	reject_from_alignment = fd_prog < 0 &&
+ 				(test->flags & F_NEEDS_EFFICIENT_UNALIGNED_ACCESS) &&
+@@ -12869,16 +12901,20 @@ static void do_test_single(struct bpf_te
+ 		__u8 tmp[TEST_DATA_LEN << 2];
+ 		__u32 size_tmp = sizeof(tmp);
+ 
++		if (unpriv)
++			set_admin(true);
+ 		err = bpf_prog_test_run(fd_prog, 1, test->data,
+ 					sizeof(test->data), tmp, &size_tmp,
+ 					&retval, NULL);
++		if (unpriv)
++			set_admin(false);
+ 		if (err && errno != 524/*ENOTSUPP*/ && errno != EPERM) {
+ 			printf("Unexpected bpf_prog_test_run error\n");
+ 			goto fail_log;
+ 		}
+-		if (!err && retval != test->retval &&
+-		    test->retval != POINTER_VALUE) {
+-			printf("FAIL retval %d != %d\n", retval, test->retval);
++		if (!err && retval != expected_val &&
++		    expected_val != POINTER_VALUE) {
++			printf("FAIL retval %d != %d\n", retval, expected_val);
+ 			goto fail_log;
+ 		}
+ 	}
+@@ -12921,33 +12957,6 @@ static bool is_admin(void)
+ 	return (sysadmin == CAP_SET);
+ }
+ 
+-static int set_admin(bool admin)
+-{
+-	cap_t caps;
+-	const cap_value_t cap_val = CAP_SYS_ADMIN;
+-	int ret = -1;
+-
+-	caps = cap_get_proc();
+-	if (!caps) {
+-		perror("cap_get_proc");
+-		return -1;
+-	}
+-	if (cap_set_flag(caps, CAP_EFFECTIVE, 1, &cap_val,
+-				admin ? CAP_SET : CAP_CLEAR)) {
+-		perror("cap_set_flag");
+-		goto out;
+-	}
+-	if (cap_set_proc(caps)) {
+-		perror("cap_set_proc");
+-		goto out;
+-	}
+-	ret = 0;
+-out:
+-	if (cap_free(caps))
+-		perror("cap_free");
+-	return ret;
+-}
+-
+ static void get_unpriv_disabled()
+ {
+ 	char buf[2];
 
 
