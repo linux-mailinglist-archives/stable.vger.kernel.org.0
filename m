@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAA7639FF67
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7404A3A003A
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234338AbhFHSc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:32:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56100 "EHLO mail.kernel.org"
+        id S234982AbhFHSkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:40:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234339AbhFHScJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC681613C7;
-        Tue,  8 Jun 2021 18:29:59 +0000 (UTC)
+        id S235224AbhFHSjX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:39:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBA9961073;
+        Tue,  8 Jun 2021 18:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177000;
-        bh=yHRN7I+ZeID/JRlimvH6QP0ZLujQO5RRLhCFHJKFofc=;
+        s=korg; t=1623177235;
+        bh=lO3mVJln+IxH/bAsYlmlKebgQtj7tEKiC9rSVb3jzVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uunBUYLwM++1h2gO7lSbqJ70C9HQOqWFd5duFm6NxrZOJwM9xvrQgnStprRk7dvij
-         +W2SsCNNKH3gScyb9RWKGIuBa1Lfyj2lm00C3pLyrlvXIPYfNal/Tg8kyTT827UkL3
-         yDKEBu6x5FwV3laP0KoYoJ++I7YYJ6Jl0qCrkDKY=
+        b=pKyCtZjtVoBzumd7B1ytXpgRo6/V2zIUFpIBuZ7etQDt3BaHXKNbtuLYMHKKYRSif
+         /fTTU3iUYxJrosOlSRetXkjmGA/X3X9WxF4U/i5Tz6EZgKpa8tXG6+wYJJkJyc5fJ7
+         CDRGMKTvtjT2poscKwpcl/YximRGeW0zF50r6Xus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Jan Kara <jack@suse.cz>, Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 22/29] ocfs2: fix data corruption by fallocate
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 35/58] btrfs: mark ordered extent and inode with error if we fail to finish
 Date:   Tue,  8 Jun 2021 20:27:16 +0200
-Message-Id: <20210608175928.538636040@linuxfoundation.org>
+Message-Id: <20210608175933.432227186@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,148 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 6bba4471f0cc1296fe3c2089b9e52442d3074b2e upstream.
+commit d61bec08b904cf171835db98168f82bc338e92e4 upstream.
 
-When fallocate punches holes out of inode size, if original isize is in
-the middle of last cluster, then the part from isize to the end of the
-cluster will be zeroed with buffer write, at that time isize is not yet
-updated to match the new size, if writeback is kicked in, it will invoke
-ocfs2_writepage()->block_write_full_page() where the pages out of inode
-size will be dropped.  That will cause file corruption.  Fix this by
-zero out eof blocks when extending the inode size.
+While doing error injection testing I saw that sometimes we'd get an
+abort that wouldn't stop the current transaction commit from completing.
+This abort was coming from finish ordered IO, but at this point in the
+transaction commit we should have gotten an error and stopped.
 
-Running the following command with qemu-image 4.2.1 can get a corrupted
-coverted image file easily.
+It turns out the abort came from finish ordered io while trying to write
+out the free space cache.  It occurred to me that any failure inside of
+finish_ordered_io isn't actually raised to the person doing the writing,
+so we could have any number of failures in this path and think the
+ordered extent completed successfully and the inode was fine.
 
-    qemu-img convert -p -t none -T none -f qcow2 $qcow_image \
-             -O qcow2 -o compat=1.1 $qcow_image.conv
+Fix this by marking the ordered extent with BTRFS_ORDERED_IOERR, and
+marking the mapping of the inode with mapping_set_error, so any callers
+that simply call fdatawait will also get the error.
 
-The usage of fallocate in qemu is like this, it first punches holes out
-of inode size, then extend the inode size.
+With this we're seeing the IO error on the free space inode when we fail
+to do the finish_ordered_io.
 
-    fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2276196352, 65536) = 0
-    fallocate(11, 0, 2276196352, 65536) = 0
-
-v1: https://www.spinics.net/lists/linux-fsdevel/msg193999.html
-v2: https://lore.kernel.org/linux-fsdevel/20210525093034.GB4112@quack2.suse.cz/T/
-
-Link: https://lkml.kernel.org/r/20210528210648.9124-1-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/file.c |   55 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 50 insertions(+), 5 deletions(-)
+ fs/btrfs/inode.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1839,6 +1839,45 @@ out:
- }
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -3162,6 +3162,18 @@ out:
+ 	if (ret || truncated) {
+ 		u64 start, end;
  
- /*
-+ * zero out partial blocks of one cluster.
-+ *
-+ * start: file offset where zero starts, will be made upper block aligned.
-+ * len: it will be trimmed to the end of current cluster if "start + len"
-+ *      is bigger than it.
-+ */
-+static int ocfs2_zeroout_partial_cluster(struct inode *inode,
-+					u64 start, u64 len)
-+{
-+	int ret;
-+	u64 start_block, end_block, nr_blocks;
-+	u64 p_block, offset;
-+	u32 cluster, p_cluster, nr_clusters;
-+	struct super_block *sb = inode->i_sb;
-+	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
++		/*
++		 * If we failed to finish this ordered extent for any reason we
++		 * need to make sure BTRFS_ORDERED_IOERR is set on the ordered
++		 * extent, and mark the inode with the error if it wasn't
++		 * already set.  Any error during writeback would have already
++		 * set the mapping error, so we need to set it if we're the ones
++		 * marking this ordered extent as failed.
++		 */
++		if (ret && !test_and_set_bit(BTRFS_ORDERED_IOERR,
++					     &ordered_extent->flags))
++			mapping_set_error(ordered_extent->inode->i_mapping, -EIO);
 +
-+	if (start + len < end)
-+		end = start + len;
-+
-+	start_block = ocfs2_blocks_for_bytes(sb, start);
-+	end_block = ocfs2_blocks_for_bytes(sb, end);
-+	nr_blocks = end_block - start_block;
-+	if (!nr_blocks)
-+		return 0;
-+
-+	cluster = ocfs2_bytes_to_clusters(sb, start);
-+	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
-+				&nr_clusters, NULL);
-+	if (ret)
-+		return ret;
-+	if (!p_cluster)
-+		return 0;
-+
-+	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
-+	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
-+	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
-+}
-+
-+/*
-  * Parts of this function taken from xfs_change_file_space()
-  */
- static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
-@@ -1848,7 +1887,7 @@ static int __ocfs2_change_file_space(str
- {
- 	int ret;
- 	s64 llen;
--	loff_t size;
-+	loff_t size, orig_isize;
- 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
- 	struct buffer_head *di_bh = NULL;
- 	handle_t *handle;
-@@ -1879,6 +1918,7 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
-+	orig_isize = i_size_read(inode);
- 	switch (sr->l_whence) {
- 	case 0: /*SEEK_SET*/
- 		break;
-@@ -1886,7 +1926,7 @@ static int __ocfs2_change_file_space(str
- 		sr->l_start += f_pos;
- 		break;
- 	case 2: /*SEEK_END*/
--		sr->l_start += i_size_read(inode);
-+		sr->l_start += orig_isize;
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -1940,6 +1980,14 @@ static int __ocfs2_change_file_space(str
- 	default:
- 		ret = -EINVAL;
- 	}
-+
-+	/* zeroout eof blocks in the cluster. */
-+	if (!ret && change_size && orig_isize < size) {
-+		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
-+					size - orig_isize);
-+		if (!ret)
-+			i_size_write(inode, size);
-+	}
- 	up_write(&OCFS2_I(inode)->ip_alloc_sem);
- 	if (ret) {
- 		mlog_errno(ret);
-@@ -1956,9 +2004,6 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
--	if (change_size && i_size_read(inode) < size)
--		i_size_write(inode, size);
--
- 	inode->i_ctime = inode->i_mtime = current_time(inode);
- 	ret = ocfs2_mark_inode_dirty(handle, inode, di_bh);
- 	if (ret < 0)
+ 		if (truncated)
+ 			start = ordered_extent->file_offset + logical_len;
+ 		else
 
 
