@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A683A01B4
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7E23A0170
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236932AbhFHSz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:55:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48990 "EHLO mail.kernel.org"
+        id S235238AbhFHSwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:52:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234057AbhFHSxk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:53:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF43A61494;
-        Tue,  8 Jun 2021 18:40:38 +0000 (UTC)
+        id S236088AbhFHStu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:49:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 696C4610A2;
+        Tue,  8 Jun 2021 18:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177639;
-        bh=OXMgJZdyGVlDOsLY8gbihH51ZPYK7DN7QiWKhOqYGhc=;
+        s=korg; t=1623177548;
+        bh=RUkEhQ11yLrhZHjul4v8CVpXeI6koCZDnNdHEQYrz+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HoICLtUeQprXlvgNVa3MjxseNIWWf/jTn100F7dd95SAYkzuyiX6Ogx8FG327qA6R
-         lU28mEejNVCmvHdcqzkY3PT6iqiAZhSjygBlNUw3liMcw5mNyZdZ1C8IpdncDb77TB
-         k2GenDKj9Zhvkr1v9IAmh/0cA1WW26c7t7PafVS4=
+        b=0XK2mJbNLuM0ucILlAkV6Dc+8CTnoUM0+Dz14D0ynSyILu7nPRrWzmiDcSBPZRMg7
+         BuqaaYINYZ/CPRgPPCKDRClQVmUI5PKKnAtk7GBLh7/cuOQ6ygkv7xL+IsFcdK4fom
+         CIdku6QGTpluw5sWSkFP6Aza+mwQXxdcZ/pLBLRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
+        stable@vger.kernel.org, Max Gurtovoy <mgurtovoy@nvidia.com>,
         Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 012/137] samples: vfio-mdev: fix error handing in mdpy_fb_probe()
-Date:   Tue,  8 Jun 2021 20:25:52 +0200
-Message-Id: <20210608175942.798881844@linuxfoundation.org>
+Subject: [PATCH 5.10 013/137] vfio/platform: fix module_put call in error flow
+Date:   Tue,  8 Jun 2021 20:25:53 +0200
+Message-Id: <20210608175942.839760450@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -41,59 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
 
-[ Upstream commit 752774ce7793a1f8baa55aae31f3b4caac49cbe4 ]
+[ Upstream commit dc51ff91cf2d1e9a2d941da483602f71d4a51472 ]
 
-Fix to return a negative error code from the framebuffer_alloc() error
-handling case instead of 0, also release regions in some error handing
-cases.
+The ->parent_module is the one that use in try_module_get. It should
+also be the one the we use in module_put during vfio_platform_open().
 
-Fixes: cacade1946a4 ("sample: vfio mdev display - guest driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Message-Id: <20210520133641.1421378-1-weiyongjun1@huawei.com>
+Fixes: 32a2d71c4e80 ("vfio: platform: introduce vfio-platform-base module")
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Message-Id: <20210518192133.59195-1-mgurtovoy@nvidia.com>
 Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/vfio-mdev/mdpy-fb.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/vfio/platform/vfio_platform_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/samples/vfio-mdev/mdpy-fb.c b/samples/vfio-mdev/mdpy-fb.c
-index 21dbf63d6e41..9ec93d90e8a5 100644
---- a/samples/vfio-mdev/mdpy-fb.c
-+++ b/samples/vfio-mdev/mdpy-fb.c
-@@ -117,22 +117,27 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
- 	if (format != DRM_FORMAT_XRGB8888) {
- 		pci_err(pdev, "format mismatch (0x%x != 0x%x)\n",
- 			format, DRM_FORMAT_XRGB8888);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_release_regions;
- 	}
- 	if (width < 100	 || width > 10000) {
- 		pci_err(pdev, "width (%d) out of range\n", width);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_release_regions;
- 	}
- 	if (height < 100 || height > 10000) {
- 		pci_err(pdev, "height (%d) out of range\n", height);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_release_regions;
- 	}
- 	pci_info(pdev, "mdpy found: %dx%d framebuffer\n",
- 		 width, height);
- 
- 	info = framebuffer_alloc(sizeof(struct mdpy_fb_par), &pdev->dev);
--	if (!info)
-+	if (!info) {
-+		ret = -ENOMEM;
- 		goto err_release_regions;
-+	}
- 	pci_set_drvdata(pdev, info);
- 	par = info->par;
+diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
+index fb4b385191f2..e83a7cd15c95 100644
+--- a/drivers/vfio/platform/vfio_platform_common.c
++++ b/drivers/vfio/platform/vfio_platform_common.c
+@@ -289,7 +289,7 @@ err_irq:
+ 	vfio_platform_regions_cleanup(vdev);
+ err_reg:
+ 	mutex_unlock(&driver_lock);
+-	module_put(THIS_MODULE);
++	module_put(vdev->parent_module);
+ 	return ret;
+ }
  
 -- 
 2.30.2
