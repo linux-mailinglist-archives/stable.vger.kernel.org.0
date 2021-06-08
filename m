@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2974A39FF41
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C14139FF3F
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234225AbhFHSbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:31:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56134 "EHLO mail.kernel.org"
+        id S234107AbhFHSbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:31:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234131AbhFHSb0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:31:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C4BD61352;
-        Tue,  8 Jun 2021 18:29:19 +0000 (UTC)
+        id S234106AbhFHSbX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:31:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1203613BD;
+        Tue,  8 Jun 2021 18:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176960;
-        bh=Dqzs51n09CBzyeBLLoDNn/q8ALuPLbQcOST6ertR6kQ=;
+        s=korg; t=1623176962;
+        bh=GjZLYadtShdseGMv6xryN9ZrYJlOObDaAjWxe9xYudU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vT866J9fe9VqdtkBtyJGwliPQYKPUWbsf1FEUco/AsICDyr37wFT59UDrPOc+ihhc
-         eE0tgo5DVrRtOYUspPOluC5uoStHIg4E1tdYN8uogPWeAPF/YirCD+Va+lSBPgZJuo
-         3tQS1dOvAKPFaOH9peEnfXuk8SjvrJl3E/jiXYco=
+        b=jhlzSwzQR/0U6vakIR4nSlvZTKniZ1uVdsU5Zq/ZeXiuo26mtnUK6DcnFHf3W47mr
+         usmMMkQeIiJr5JJfv44GsVLhAj0Z3rrgT0HXE7iYppyVBZttvu/REVFzpeZhJQaZ2c
+         0uM81NRtm5/zCH5JB8mgmmbKbTefBPiAu00atPg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 21/23] KVM: SVM: Truncate GPR value for DR and CR accesses in !64-bit mode
-Date:   Tue,  8 Jun 2021 20:27:13 +0200
-Message-Id: <20210608175927.219476997@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Michael Weiser <michael.weiser@gmx.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.4 22/23] arm64: Remove unimplemented syscall log message
+Date:   Tue,  8 Jun 2021 20:27:14 +0200
+Message-Id: <20210608175927.252349365@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175926.524658689@linuxfoundation.org>
 References: <20210608175926.524658689@linuxfoundation.org>
@@ -40,66 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Michael Weiser <michael.weiser@gmx.de>
 
-commit 0884335a2e653b8a045083aa1d57ce74269ac81d upstream.
+commit 1962682d2b2fbe6cfa995a85c53c069fadda473e upstream.
 
-Drop bits 63:32 on loads/stores to/from DRs and CRs when the vCPU is not
-in 64-bit mode.  The APM states bits 63:32 are dropped for both DRs and
-CRs:
+Stop printing a (ratelimited) kernel message for each instance of an
+unimplemented syscall being called. Userland making an unimplemented
+syscall is not necessarily misbehaviour and to be expected with a
+current userland running on an older kernel. Also, the current message
+looks scary to users but does not actually indicate a real problem nor
+help them narrow down the cause. Just rely on sys_ni_syscall() to return
+-ENOSYS.
 
-  In 64-bit mode, the operand size is fixed at 64 bits without the need
-  for a REX prefix. In non-64-bit mode, the operand size is fixed at 32
-  bits and the upper 32 bits of the destination are forced to 0.
-
-Fixes: 7ff76d58a9dc ("KVM: SVM: enhance MOV CR intercept handler")
-Fixes: cae3797a4639 ("KVM: SVM: enhance mov DR intercept handler")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210422022128.3464144-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[sudip: manual backport to old file]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: <stable@vger.kernel.org>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Michael Weiser <michael.weiser@gmx.de>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kvm/svm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -2927,7 +2927,7 @@ static int cr_interception(struct vcpu_s
- 	err = 0;
- 	if (cr >= 16) { /* mov to cr */
- 		cr -= 16;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		switch (cr) {
- 		case 0:
- 			if (!check_selective_cr0_intercepted(svm, val))
-@@ -2972,7 +2972,7 @@ static int cr_interception(struct vcpu_s
- 			kvm_queue_exception(&svm->vcpu, UD_VECTOR);
- 			return 1;
- 		}
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
+---
+ arch/arm64/kernel/traps.c |    8 --------
+ 1 file changed, 8 deletions(-)
+
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -381,14 +381,6 @@ asmlinkage long do_ni_syscall(struct pt_
  	}
- 	kvm_complete_insn_gp(&svm->vcpu, err);
+ #endif
  
-@@ -3004,13 +3004,13 @@ static int dr_interception(struct vcpu_s
- 	if (dr >= 16) { /* mov to DRn */
- 		if (!kvm_require_dr(&svm->vcpu, dr - 16))
- 			return 1;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		kvm_set_dr(&svm->vcpu, dr - 16, val);
- 	} else {
- 		if (!kvm_require_dr(&svm->vcpu, dr))
- 			return 1;
- 		kvm_get_dr(&svm->vcpu, dr, &val);
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
- 	}
+-	if (show_unhandled_signals_ratelimited()) {
+-		pr_info("%s[%d]: syscall %d\n", current->comm,
+-			task_pid_nr(current), (int)regs->syscallno);
+-		dump_instr("", regs);
+-		if (user_mode(regs))
+-			__show_regs(regs);
+-	}
+-
+ 	return sys_ni_syscall();
+ }
  
- 	skip_emulated_instruction(&svm->vcpu);
 
 
