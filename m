@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B079D3A0038
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5AA39FF6D
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234921AbhFHSky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:40:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35816 "EHLO mail.kernel.org"
+        id S234533AbhFHSdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:33:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235219AbhFHSjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:39:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D462613CC;
-        Tue,  8 Jun 2021 18:34:02 +0000 (UTC)
+        id S234352AbhFHScN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:32:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C18B613C1;
+        Tue,  8 Jun 2021 18:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177242;
-        bh=2APocfDjz0qG4uOXuqNChhRUgIpmZ5ufesWxVRnU2Z8=;
+        s=korg; t=1623177008;
+        bh=dSyeHuNH5G6Zk5YC/0ejhgdsju/WCR3ntE2LanrYy6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3v+9okr/77fhCVnTqMA866O/6a58R0HTUi8qhE61T4vCXvV5Wnj7KKAICp7s+6Rq
-         Dc5xqBQavo4m1/IwD5VGaxhDrdETeP/r+VBr6kpvcYelF3dOEs1svv9QaSnZPklfsl
-         YnqikBbJhS11y5U5AK4pa3l8nk9/a4XY7ew5fNvY=
+        b=Eu4KZuRdFa0uwDUAbLGRJCKT70P7dSxOSiX9jjqSRIxtVj8NQ1OwrIPhUj90ILZ0N
+         RP2CU6LVG67Jv/Hd9FG/rJ12YRC87HQSeJIJn8HOizu2KXJyLVyGy39Qy9h0lXAbbw
+         tnHp1PGuKZ34R37cfgY8uybiniPbWJEnM5LdPSlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 38/58] btrfs: fixup error handling in fixup_inode_link_counts
+Subject: [PATCH 4.9 25/29] btrfs: fixup error handling in fixup_inode_link_counts
 Date:   Tue,  8 Jun 2021 20:27:19 +0200
-Message-Id: <20210608175933.529291084@linuxfoundation.org>
+Message-Id: <20210608175928.637405503@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
+References: <20210608175927.821075974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -78,7 +78,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/btrfs/tree-log.c
 +++ b/fs/btrfs/tree-log.c
-@@ -1699,6 +1699,7 @@ static noinline int fixup_inode_link_cou
+@@ -1529,6 +1529,7 @@ static noinline int fixup_inode_link_cou
  			break;
  
  		if (ret == 1) {
@@ -86,7 +86,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			if (path->slots[0] == 0)
  				break;
  			path->slots[0]--;
-@@ -1711,17 +1712,19 @@ static noinline int fixup_inode_link_cou
+@@ -1541,17 +1542,19 @@ static noinline int fixup_inode_link_cou
  
  		ret = btrfs_del_item(trans, root, path);
  		if (ret)
@@ -110,7 +110,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  		/*
  		 * fixup on a directory may create new entries,
-@@ -1730,8 +1733,6 @@ static noinline int fixup_inode_link_cou
+@@ -1560,8 +1563,6 @@ static noinline int fixup_inode_link_cou
  		 */
  		key.offset = (u64)-1;
  	}
