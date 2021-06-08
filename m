@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 555CF3A0171
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BAF53A0169
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235479AbhFHSwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:52:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47360 "EHLO mail.kernel.org"
+        id S235226AbhFHSwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:52:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236061AbhFHSts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:49:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E608061426;
-        Tue,  8 Jun 2021 18:39:15 +0000 (UTC)
+        id S236198AbhFHSuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:50:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FC126142F;
+        Tue,  8 Jun 2021 18:39:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177556;
-        bh=Y+x07ts2834sKo/W/TEPkYGXiOK6fWJ6EvOPwwmPx4I=;
+        s=korg; t=1623177559;
+        bh=q9xBeJXdMN2qa/6xNirppkC5JiZwWBqkJ8o+Rd9sPcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plicAHLlNsMoEEwOA7fSfvMklp5kGLe7yUh995KLXrhcwikZr3wgVn3TUGywcNWJv
-         +tN+b99P8pMB18USomxXk66qul+1OdwrlzXKehE4KRxTrT4TF36BWB02pGQhA2NxSx
-         yevVT2g+pc86HE+WaLyQfW4dK14RpRx2ngseKzd8=
+        b=ra1Y9mSpJ3uiq+UnUPkjHKaRaCMOEnebsCjUUBL26DHtR3RSGNRL4ux03GIvK5e8D
+         6nN/z+X+A4jPwWqE5in74abJEJwzd6I6cWrb6ijJAZuv7RSQJej5cEpDizAfbztRQy
+         eGFLqbp8/BCglm2aWWkyeh8FlrkQxcnzR3AKGfWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 016/137] HID: pidff: fix error return code in hid_pidff_init()
-Date:   Tue,  8 Jun 2021 20:25:56 +0200
-Message-Id: <20210608175942.954406863@linuxfoundation.org>
+Subject: [PATCH 5.10 017/137] HID: i2c-hid: fix format string mismatch
+Date:   Tue,  8 Jun 2021 20:25:57 +0200
+Message-Id: <20210608175942.989042965@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -40,34 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 3dd653c077efda8152f4dd395359617d577a54cd ]
+[ Upstream commit dc5f9f55502e13ba05731d5046a14620aa2ff456 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+clang doesn't like printing a 32-bit integer using %hX format string:
 
-Fixes: 224ee88fe395 ("Input: add force feedback driver for PID devices")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+drivers/hid/i2c-hid/i2c-hid-core.c:994:18: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
+                 client->name, hid->vendor, hid->product);
+                               ^~~~~~~~~~~
+drivers/hid/i2c-hid/i2c-hid-core.c:994:31: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
+                 client->name, hid->vendor, hid->product);
+                                            ^~~~~~~~~~~~
+
+Use an explicit cast to truncate it to the low 16 bits instead.
+
+Fixes: 9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/usbhid/hid-pidff.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index fddac7c72f64..07a9fe97d2e0 100644
---- a/drivers/hid/usbhid/hid-pidff.c
-+++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -1292,6 +1292,7 @@ int hid_pidff_init(struct hid_device *hid)
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index cb7758d59014..13bc59ed1d9e 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -1131,8 +1131,8 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
+ 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
  
- 	if (pidff->pool[PID_DEVICE_MANAGED_POOL].value &&
- 	    pidff->pool[PID_DEVICE_MANAGED_POOL].value[0] == 0) {
-+		error = -EPERM;
- 		hid_notice(hid,
- 			   "device does not support device managed pool\n");
- 		goto fail;
+-	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
+-		 client->name, hid->vendor, hid->product);
++	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
++		 client->name, (u16)hid->vendor, (u16)hid->product);
+ 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+ 
+ 	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
 -- 
 2.30.2
 
