@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C47003A03DD
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1FD63A03DB
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236479AbhFHTWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:22:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38996 "EHLO mail.kernel.org"
+        id S237106AbhFHTWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:22:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236719AbhFHTTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:19:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A13F16197E;
-        Tue,  8 Jun 2021 18:52:11 +0000 (UTC)
+        id S235339AbhFHTTA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:19:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E21661985;
+        Tue,  8 Jun 2021 18:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178332;
-        bh=bjayC/n86ZXi4aIJto0xq4nLfZ8YEKcpop3tqEa+Coo=;
+        s=korg; t=1623178334;
+        bh=RqSRDX5Barl8n8jyZcpiKh1veqPiaBxY7tkD23nobLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=crIv1icAsceKXFmjiIt2YigAYd6+zKNPflfa5TWlM3dupUd69er3JIiOBJNI8OcPo
-         Rz0cLST/PUSpMu1FJBXjTT00JU0M3/LINNqLixy3BeewomtL++Xpk2K5hxIqq0v5jh
-         81C5YnLAV5KfqgLFkxHzuZDeC/hT2IPPVyctJHJo=
+        b=FijGGj0SwZMzzwIPNlDsVFSkU5OZaxU1BSEg8CN5AOG4Ru11XdwtB0Q4xgnkZ7vu3
+         3yDJDPfPpc/Ls2zBR2XnnLyVCKyJop32iZRUaQpcziyv0KT3iDi6Jneejxp6XZCAmf
+         8YPOgWQnNWzM5uu+pX9JG9Z6xo7m20GxLxq9quLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Falkowski <maciej.falkowski9@gmail.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.12 156/161] ARM: OMAP1: isp1301-omap: Add missing gpiod_add_lookup_table function
-Date:   Tue,  8 Jun 2021 20:28:06 +0200
-Message-Id: <20210608175950.733646511@linuxfoundation.org>
+        stable@vger.kernel.org, Roja Rani Yarubandi <rojay@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.12 157/161] i2c: qcom-geni: Suspend and resume the bus during SYSTEM_SLEEP_PM ops
+Date:   Tue,  8 Jun 2021 20:28:07 +0200
+Message-Id: <20210608175950.763974851@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -40,49 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Falkowski <maciej.falkowski9@gmail.com>
+From: Roja Rani Yarubandi <rojay@codeaurora.org>
 
-commit 7c302314f37b44595f180198fca5ca646bce4a5f upstream.
+commit 57648e860485de39c800a89f849fdd03c2d31d15 upstream.
 
-The gpiod table was added without any usage making it unused
-as reported by Clang compilation from omap1_defconfig on linux-next:
+Mark bus as suspended during system suspend to block the future
+transfers. Implement geni_i2c_resume_noirq() to resume the bus.
 
-arch/arm/mach-omap1/board-h2.c:347:34: warning: unused variable
-'isp1301_gpiod_table' [-Wunused-variable]
-static struct gpiod_lookup_table isp1301_gpiod_table = {
-                                 ^
-1 warning generated.
-
-The patch adds the missing gpiod_add_lookup_table() function.
-
-Signed-off-by: Maciej Falkowski <maciej.falkowski9@gmail.com>
-Fixes: f3ef38160e3d ("usb: isp1301-omap: Convert to use GPIO descriptors")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1325
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 37692de5d523 ("i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller")
+Signed-off-by: Roja Rani Yarubandi <rojay@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-omap1/board-h2.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-qcom-geni.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mach-omap1/board-h2.c
-+++ b/arch/arm/mach-omap1/board-h2.c
-@@ -320,7 +320,7 @@ static int tps_setup(struct i2c_client *
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -698,6 +698,8 @@ static int __maybe_unused geni_i2c_suspe
  {
- 	if (!IS_BUILTIN(CONFIG_TPS65010))
- 		return -ENOSYS;
--	
+ 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+ 
++	i2c_mark_adapter_suspended(&gi2c->adap);
 +
- 	tps65010_config_vregs1(TPS_LDO2_ENABLE | TPS_VLDO2_3_0V |
- 				TPS_LDO1_ENABLE | TPS_VLDO1_3_0V);
+ 	if (!gi2c->suspended) {
+ 		geni_i2c_runtime_suspend(dev);
+ 		pm_runtime_disable(dev);
+@@ -707,8 +709,16 @@ static int __maybe_unused geni_i2c_suspe
+ 	return 0;
+ }
  
-@@ -394,6 +394,8 @@ static void __init h2_init(void)
- 	BUG_ON(gpio_request(H2_NAND_RB_GPIO_PIN, "NAND ready") < 0);
- 	gpio_direction_input(H2_NAND_RB_GPIO_PIN);
- 
-+	gpiod_add_lookup_table(&isp1301_gpiod_table);
++static int __maybe_unused geni_i2c_resume_noirq(struct device *dev)
++{
++	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
 +
- 	omap_cfg_reg(L3_1610_FLASH_CS2B_OE);
- 	omap_cfg_reg(M8_1610_FLASH_CS2B_WE);
- 
++	i2c_mark_adapter_resumed(&gi2c->adap);
++	return 0;
++}
++
+ static const struct dev_pm_ops geni_i2c_pm_ops = {
+-	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq, NULL)
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq, geni_i2c_resume_noirq)
+ 	SET_RUNTIME_PM_OPS(geni_i2c_runtime_suspend, geni_i2c_runtime_resume,
+ 									NULL)
+ };
 
 
