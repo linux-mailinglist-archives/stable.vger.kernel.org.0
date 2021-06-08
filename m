@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 681193A037B
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A87B3A0326
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:23:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237240AbhFHTRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:17:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37984 "EHLO mail.kernel.org"
+        id S234896AbhFHTNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:13:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237237AbhFHTPt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:15:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16F9F61953;
-        Tue,  8 Jun 2021 18:50:33 +0000 (UTC)
+        id S236890AbhFHTLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:11:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1358361460;
+        Tue,  8 Jun 2021 18:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178234;
-        bh=+wQ8+LE8IG7lh9L8LyganhbGoLUbeFd4VZGjTbTX/E8=;
+        s=korg; t=1623178136;
+        bh=n5tBM1JDehct6Cw7E6PCpVT+Ew808yQHibPN7Nr+1wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DiszrmjOzRVA2COPLjyGZ/dZVK3JyhR1auKghbovu640qANpQv0Ms+OS+oYdiaYiL
-         aYJ27u1jQTMJHAlkZXs7c26d7RK41IAF87BW3Z3USQp636yUPSUObRx+pFBLftxEW9
-         b4VZ3+WTwnEc33u8OAj1gCU8f4xrVAF35RbIxGAU=
+        b=eHjYt6cAIWm+1QiIACSsid03QY2sG5pX65vyrEwt1WcYJfKM7eM+/bGk17lFbYGA5
+         SL37mdYmfrunJAwQodLRdPxg2VjL0I5LXrsbjwxINnwM/qmVdvIWL4U7KLWwdg/eh0
+         YVgaIdYSEsp5js/hf+B7W64EF92rCG7RpyJcb+yA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 082/161] riscv: vdso: fix and clean-up Makefile
-Date:   Tue,  8 Jun 2021 20:26:52 +0200
-Message-Id: <20210608175948.212710173@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
+        Sage Weil <sage@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 083/161] libceph: dont set global_id until we get an auth ticket
+Date:   Tue,  8 Jun 2021 20:26:53 +0200
+Message-Id: <20210608175948.243493420@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -40,72 +39,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Ilya Dryomov <idryomov@gmail.com>
 
-[ Upstream commit 772d7891e8b3b0baae7bb88a294d61fd07ba6d15 ]
+[ Upstream commit 61ca49a9105faefa003b37542cebad8722f8ae22 ]
 
-Running "make" on an already compiled kernel tree will rebuild the
-kernel even without any modifications:
+With the introduction of enforcing mode, setting global_id as soon
+as we get it in the first MAuth reply will result in EACCES if the
+connection is reset before we get the second MAuth reply containing
+an auth ticket -- because on retry we would attempt to reclaim that
+global_id with no auth ticket at hand.
 
-  CALL    linux/scripts/checksyscalls.sh
-  CALL    linux/scripts/atomic/check-atomics.sh
-  CHK     include/generated/compile.h
-  SO2S    arch/riscv/kernel/vdso/vdso-syms.S
-  AS      arch/riscv/kernel/vdso/vdso-syms.o
-  AR      arch/riscv/kernel/vdso/built-in.a
-  AR      arch/riscv/kernel/built-in.a
-  AR      arch/riscv/built-in.a
-  GEN     .version
-  CHK     include/generated/compile.h
-  UPD     include/generated/compile.h
-  CC      init/version.o
-  AR      init/built-in.a
-  LD      vmlinux.o
+Neither ceph_auth_client nor ceph_mon_client depend on global_id
+being set ealy, so just delay the setting until we get and process
+the second MAuth reply.  While at it, complain if the monitor sends
+a zero global_id or changes our global_id as the session is likely
+to fail after that.
 
-The reason is "Any target that utilizes if_changed must be listed in
-$(targets), otherwise the command line check will fail, and the target
-will always be built" as explained by Documentation/kbuild/makefiles.rst
-
-Fix this build bug by adding vdso-syms.S to $(targets)
-
-At the same time, there are two trivial clean up modifications:
-
-- the vdso-dummy.o is not needed any more after so remove it.
-
-- vdso.lds is a generated file, so it should be prefixed with
-  $(obj)/ instead of $(src)/
-
-Fixes: c2c81bb2f691 ("RISC-V: Fix the VDSO symbol generaton for binutils-2.35+")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Cc: stable@vger.kernel.org # needs backporting for < 5.11
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Sage Weil <sage@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/vdso/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ceph/auth.c | 36 +++++++++++++++++++++++-------------
+ 1 file changed, 23 insertions(+), 13 deletions(-)
 
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index ca2b40dfd24b..24d936c147cd 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -23,7 +23,7 @@ ifneq ($(c-gettimeofday-y),)
- endif
+diff --git a/net/ceph/auth.c b/net/ceph/auth.c
+index eb261aa5fe18..de407e8feb97 100644
+--- a/net/ceph/auth.c
++++ b/net/ceph/auth.c
+@@ -36,6 +36,20 @@ static int init_protocol(struct ceph_auth_client *ac, int proto)
+ 	}
+ }
  
- # Build rules
--targets := $(obj-vdso) vdso.so vdso.so.dbg vdso.lds vdso-dummy.o
-+targets := $(obj-vdso) vdso.so vdso.so.dbg vdso.lds vdso-syms.S
- obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
++static void set_global_id(struct ceph_auth_client *ac, u64 global_id)
++{
++	dout("%s global_id %llu\n", __func__, global_id);
++
++	if (!global_id)
++		pr_err("got zero global_id\n");
++
++	if (ac->global_id && global_id != ac->global_id)
++		pr_err("global_id changed from %llu to %llu\n", ac->global_id,
++		       global_id);
++
++	ac->global_id = global_id;
++}
++
+ /*
+  * setup, teardown.
+  */
+@@ -222,11 +236,6 @@ int ceph_handle_auth_reply(struct ceph_auth_client *ac,
  
- obj-y += vdso.o vdso-syms.o
-@@ -41,7 +41,7 @@ KASAN_SANITIZE := n
- $(obj)/vdso.o: $(obj)/vdso.so
+ 	payload_end = payload + payload_len;
  
- # link rule for the .so file, .lds has to be first
--$(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
-+$(obj)/vdso.so.dbg: $(obj)/vdso.lds $(obj-vdso) FORCE
- 	$(call if_changed,vdsold)
- LDFLAGS_vdso.so.dbg = -shared -s -soname=linux-vdso.so.1 \
- 	--build-id=sha1 --hash-style=both --eh-frame-hdr
+-	if (global_id && ac->global_id != global_id) {
+-		dout(" set global_id %lld -> %lld\n", ac->global_id, global_id);
+-		ac->global_id = global_id;
+-	}
+-
+ 	if (ac->negotiating) {
+ 		/* server does not support our protocols? */
+ 		if (!protocol && result < 0) {
+@@ -253,11 +262,16 @@ int ceph_handle_auth_reply(struct ceph_auth_client *ac,
+ 
+ 	ret = ac->ops->handle_reply(ac, result, payload, payload_end,
+ 				    NULL, NULL, NULL, NULL);
+-	if (ret == -EAGAIN)
++	if (ret == -EAGAIN) {
+ 		ret = build_request(ac, true, reply_buf, reply_len);
+-	else if (ret)
++		goto out;
++	} else if (ret) {
+ 		pr_err("auth protocol '%s' mauth authentication failed: %d\n",
+ 		       ceph_auth_proto_name(ac->protocol), result);
++		goto out;
++	}
++
++	set_global_id(ac, global_id);
+ 
+ out:
+ 	mutex_unlock(&ac->mutex);
+@@ -484,15 +498,11 @@ int ceph_auth_handle_reply_done(struct ceph_auth_client *ac,
+ 	int ret;
+ 
+ 	mutex_lock(&ac->mutex);
+-	if (global_id && ac->global_id != global_id) {
+-		dout("%s global_id %llu -> %llu\n", __func__, ac->global_id,
+-		     global_id);
+-		ac->global_id = global_id;
+-	}
+-
+ 	ret = ac->ops->handle_reply(ac, 0, reply, reply + reply_len,
+ 				    session_key, session_key_len,
+ 				    con_secret, con_secret_len);
++	if (!ret)
++		set_global_id(ac, global_id);
+ 	mutex_unlock(&ac->mutex);
+ 	return ret;
+ }
 -- 
 2.30.2
 
