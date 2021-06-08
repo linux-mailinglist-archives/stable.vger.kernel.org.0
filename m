@@ -2,149 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09E4B3A037F
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E9C3A0398
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237052AbhFHTRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:17:55 -0400
-Received: from mail-pf1-f173.google.com ([209.85.210.173]:33550 "EHLO
-        mail-pf1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237333AbhFHTPz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 15:15:55 -0400
-Received: by mail-pf1-f173.google.com with SMTP id p13so6906631pfw.0
-        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 12:13:48 -0700 (PDT)
+        id S235918AbhFHTSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:18:53 -0400
+Received: from mail-ej1-f43.google.com ([209.85.218.43]:36409 "EHLO
+        mail-ej1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236252AbhFHTQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 15:16:52 -0400
+Received: by mail-ej1-f43.google.com with SMTP id a11so33685589ejf.3
+        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 12:14:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=YxQSusmx8T5L8S7biIXV1dXxO+941V6yVdwZYVYn9Ls=;
-        b=s8wMkRBbtHIoaBlXU3Tsibz9fJHt3qAgmRZnOytvmKJtq3f7Smrs3VdvKoUaVCchog
-         67RL8XvYiecbaKXGBtTmWZLmDv/r+7aGhe69IFVVhqhbDMKtyNgTS88q3cNNiWa8oQaA
-         hpUJIN364gcTzADNOTYejCaVBcQgcStsd0VKD4rxUGPlptpk9zzVADpWHd38o2JeU/U0
-         SgovR1IR5lRfqQOTCyE5NzQEvmZcFgplcWy28C8htSz9vdBJ7DLi6gdELKYYI3I9KdLZ
-         J1hpNXv5EFcTXaor6m5BbmSX6l7Q5lFPXf2jhhLUGQVaEZQyrmVNo/pXATlCb6Kcuw7I
-         vgaA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=TnPZuLFfXVjs03glCG/NEJe45z/p4M5cwaRAiE/dZNE=;
+        b=WjT/1t2hnc4lrL4Ov/OK3JtI3+VvdnBj7mss5S7l/BhvmXoZE1KANhdBp1KkZZzpKu
+         G+uGjS9LYODYL6KBgUvGq1TTC4RIXocqoKJxDQ6SB7HgDrbqLPXQqPwOKQcpqWkOusm3
+         m83//r9c1JL8PIDzzXEJfxiurG4HuvGmtwy30ze513+UgDO6ezlP13pNKZgYC6zaRlz6
+         cvJjfMfTL2hNI2y3ZbW1mcbsRR/iONAwW1rqQF0iFje1gM1UpRLNn4UIq4OXg7hBW2uz
+         jmuomuGQxkY+XYb9Sll8fWADSACRerwSK1BdJsFN9BZLifqWAQp+C26HCw3gE+afPZR3
+         5wWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=YxQSusmx8T5L8S7biIXV1dXxO+941V6yVdwZYVYn9Ls=;
-        b=OXrBM8MkP7nJFZ8+kgW712PaPLAGAikGsSQkU4PtfMgFp3MTXVQosBTLBN1y5aZvKw
-         68d0hHSUVU49A+NLZ4nbQ45Yk1Oktyw6eBZ7lyCpISWlgmCsWDPITZv/lRMtqPdX+30B
-         WJUB56EnApO2foY208XswR6407+MQxhTg5cveRuVBqveCrXVbOwoONMyYgTBWsoE0TTd
-         xHBO0mFcjL4Kr8Q3QAa68fddE4cWxVNWj40EVbkfSxs7CeioYO9AniUQh2oLP0zz7aZ7
-         bLP+wwUbujgVwYQJnuvz0kvi3PI3eB7qo6qxAfV8oNH5wjPNqdwEq2aNjS0uv7MJ/JcA
-         TuuA==
-X-Gm-Message-State: AOAM531I8OzVa/tyhxVU5Qm8e2Ug5ZMB5gujIIA66BUbWhyuNXqbtsdy
-        aZbKqUkn8VAa/es8cYlE2LPQ5dqqwtIp+lGg
-X-Google-Smtp-Source: ABdhPJw0kbcvi0/zN/zm6qEeKC/zuTS+RVlM4pDH/uYWdjLbf2srXjWAbGcdA7O2DqliFIdjiTFs9w==
-X-Received: by 2002:a63:1022:: with SMTP id f34mr9117161pgl.334.1623179567949;
-        Tue, 08 Jun 2021 12:12:47 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 60sm16151663pjz.42.2021.06.08.12.12.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Jun 2021 12:12:47 -0700 (PDT)
-Message-ID: <60bfc12f.1c69fb81.625f4.0978@mx.google.com>
-Date:   Tue, 08 Jun 2021 12:12:47 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=TnPZuLFfXVjs03glCG/NEJe45z/p4M5cwaRAiE/dZNE=;
+        b=VR6TvsaNV//VmDzWY8CV/pb4PWWyylicY+raFouuVAzQDra7m9Y1lvYWMcs5cIMaGi
+         n16PQBQNqHJswQonBuSf2ohGE2cZMuAEHNOMy8V2oVx6EmJatM3DkYvkrbCXmXG7zafG
+         WnzzAR88T5n743AQ9n0LM02ZT4HNG8SD6SoXBCG29yRLXQWVW/D3DvsG/Lnueqo8Dblw
+         dY5HWtcYz/ojkk/zYTrb3jPj848a+Eq80QcMyUWzYh2AbNcv1V/WiOfDO+A7070ueXam
+         EV3mqa8fBcMAlHsQ9PW66q0rDZgZVqnZhBWXZKyljBX47azLCXM7roEKW3/iwdJjKQW0
+         co+A==
+X-Gm-Message-State: AOAM531pxgG6RG/W+jWxex6/QGolVSdyZ42LNbv7NQExUMJ5qL2qRiIU
+        jz0IDDSU4je4R0bmngzxWF9imNWkKhmFJuav4k6cpg==
+X-Google-Smtp-Source: ABdhPJzx1yEoxWuOvBxfGpFn/VsQvEyHafi5CLg/00k/rhXeTQuSL9yeai5MeFwcTWD34e1XDH3vIRVStp8vnYebQ7Q=
+X-Received: by 2002:a17:906:9d05:: with SMTP id fn5mr24814568ejc.133.1623179638149;
+ Tue, 08 Jun 2021 12:13:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.235-26-g02688240b8ec
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 135 runs,
- 2 regressions (v4.14.235-26-g02688240b8ec)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20210608175932.263480586@linuxfoundation.org> <20210608175933.214613488@linuxfoundation.org>
+In-Reply-To: <20210608175933.214613488@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 9 Jun 2021 00:43:46 +0530
+Message-ID: <CA+G9fYvFujaoUqbLh_gcfnPjUVVQD=VHqi6k2ruf57BO1tR5ag@mail.gmail.com>
+Subject: Re: [PATCH 4.19 28/58] ARM: dts: imx6q-dhcom: Add PU,VDD1P1,VDD2P5 regulators
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Marek Vasut <marex@denx.de>,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Ludwig Zenz <lzenz@dh-electronics.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 135 runs, 2 regressions (v4.14.235-26-g02688=
-240b8ec)
+On Wed, 9 Jun 2021 at 00:08, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> From: Marek Vasut <marex@denx.de>
+>
+> commit 8967b27a6c1c19251989c7ab33c058d16e4a5f53 upstream.
+>
+> Per schematic, both PU and SOC regulator are supplied from LTC3676 SW1
+> via VDDSOC_IN rail, add the PU input. Both VDD1P1, VDD2P5 are supplied
+> from LTC3676 SW2 via VDDHIGH_IN rail, add both inputs.
+>
+> While no instability or problems are currently observed, the regulators
+> should be fully described in DT and that description should fully match
+> the hardware, else this might lead to unforseen issues later. Fix this.
+>
+> Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM and PDK2")
+> Reviewed-by: Fabio Estevam <festevam@gmail.com>
+> Signed-off-by: Marek Vasut <marex@denx.de>
+> Cc: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+> Cc: Fabio Estevam <festevam@gmail.com>
+> Cc: Ludwig Zenz <lzenz@dh-electronics.com>
+> Cc: NXP Linux Team <linux-imx@nxp.com>
+> Cc: Shawn Guo <shawnguo@kernel.org>
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+> Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  arch/arm/boot/dts/imx6q-dhcom-som.dtsi |   12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+>
+> --- a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+> +++ b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+> @@ -407,6 +407,18 @@
+>         vin-supply = <&sw1_reg>;
+>  };
+>
+> +&reg_pu {
+> +       vin-supply = <&sw1_reg>;
+> +};
+> +
+> +&reg_vdd1p1 {
+> +       vin-supply = <&sw2_reg>;
+> +};
+> +
+> +&reg_vdd2p5 {
+> +       vin-supply = <&sw2_reg>;
+> +};
+> +
+>  &uart1 {
+>         pinctrl-names = "default";
+>         pinctrl-0 = <&pinctrl_uart1>;
 
-Regressions Summary
--------------------
+arm dtb build failed on stable rc 4.19
 
-platform       | arch  | lab           | compiler | defconfig | regressions
----------------+-------+---------------+----------+-----------+------------
-hip07-d05      | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
+make --silent --keep-going --jobs=8
+O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm
+CROSS_COMPILE=arm-linux-gnueabihf- 'CC=sccache
+arm-linux-gnueabihf-gcc' 'HOSTCC=sccache gcc'
+Error: /builds/linux/arch/arm/boot/dts/imx6q-dhcom-som.dtsi:414.1-12
+Label or path reg_vdd1p1 not found
+Error: /builds/linux/arch/arm/boot/dts/imx6q-dhcom-som.dtsi:418.1-12
+Label or path reg_vdd2p5 not found
+FATAL ERROR: Syntax error parsing input tree
+make[2]: *** [scripts/Makefile.lib:294:
+arch/arm/boot/dts/imx6q-dhcom-pdk2.dtb] Error 1
 
-meson-gxm-q200 | arm64 | lab-baylibre  | gcc-8    | defconfig | 1          =
+Reported-by:  Linux Kernel Functional Testing <lkft@linaro.org>
 
+build url:
+https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1328891505#L477
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.235-26-g02688240b8ec/plan/baseline/
+Config:
+https://builds.tuxbuild.com/1tg0YjTz4ow5CkHv0bzTc05pVs5/config
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.235-26-g02688240b8ec
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      02688240b8ec6e0c75cdc65fee1f79921235b56f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch  | lab           | compiler | defconfig | regressions
----------------+-------+---------------+----------+-----------+------------
-hip07-d05      | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60bf880e19e289726c0c0e10
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.235=
--26-g02688240b8ec/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.235=
--26-g02688240b8ec/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60bf880e19e289726c0c0=
-e11
-        new failure (last pass: v4.14.235-21-g36ad1594e5ec) =
-
- =
-
-
-
-platform       | arch  | lab           | compiler | defconfig | regressions
----------------+-------+---------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre  | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60bf8b330e40eb5cec0c0e01
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.235=
--26-g02688240b8ec/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.235=
--26-g02688240b8ec/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60bf8b330e40eb5cec0c0=
-e02
-        failing since 99 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
-t fail: v4.14.222-120-gdc8887cba23e) =
-
- =20
+--
+Linaro LKFT
+https://lkft.linaro.org
