@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E20403A0057
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91B8B3A00E7
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235079AbhFHSmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:42:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37490 "EHLO mail.kernel.org"
+        id S235023AbhFHSsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234451AbhFHSkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:40:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9986461437;
-        Tue,  8 Jun 2021 18:34:25 +0000 (UTC)
+        id S235366AbhFHSqv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:46:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38A0D61458;
+        Tue,  8 Jun 2021 18:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177266;
-        bh=yPtKWMWo7kM/5S8rQ6Z4ur1Kt93A49PMqdCvRwMRGAo=;
+        s=korg; t=1623177464;
+        bh=okPnwSyk/eDFRpJneyrocSJ+HJF7uB8oW6Q2IjRwK9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ol0OMuoKje3/5b2EZO5bKyxp9R8z7kjbbp/HKmpjD56UuSgFYp/0GgvPdZpjNu9G3
-         tG5Syg6uts1v9jzGwmtngzqv4+eMAiAZlfkBLrnlONYPljdBPTigUGIsTnTNBUOhgh
-         4zGq1obQAOrgEvGNOAYM8BN9hjaxd/QmgBKbiXME=
+        b=ZIvPMNB6EvCYClznNYze63kHk0YNFA62/qpGopkUUGlzuWs5BybNpKT770Y/u2H98
+         p9mLIImRNEecYskeLEd2E/p8cV38gZqXxUpUQ647fkcxaLtgmHvsI+wozLwqwLDEUJ
+         GYUGFsNy4wb8JTyOIdP/irQLpg9G9UcTLcFuuGjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH 4.19 49/58] bnxt_en: Remove the setting of dev_port.
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 61/78] btrfs: return errors from btrfs_del_csums in cleanup_ref_head
 Date:   Tue,  8 Jun 2021 20:27:30 +0200
-Message-Id: <20210608175933.892776465@linuxfoundation.org>
+Message-Id: <20210608175937.334295481@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 1d86859fdf31a0d50cc82b5d0d6bfb5fe98f6c00 upstream.
+commit 856bd270dc4db209c779ce1e9555c7641ffbc88e upstream.
 
-The dev_port is meant to distinguish the network ports belonging to
-the same PCI function.  Our devices only have one network port
-associated with each PCI function and so we should not set it for
-correctness.
+We are unconditionally returning 0 in cleanup_ref_head, despite the fact
+that btrfs_del_csums could fail.  We need to return the error so the
+transaction gets aborted properly, fix this by returning ret from
+btrfs_del_csums in cleanup_ref_head.
 
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/btrfs/extent-tree.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -5252,7 +5252,6 @@ static int __bnxt_hwrm_func_qcaps(struct
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -1879,7 +1879,7 @@ static int cleanup_ref_head(struct btrfs
+ 	trace_run_delayed_ref_head(fs_info, head, 0);
+ 	btrfs_delayed_ref_unlock(head);
+ 	btrfs_put_delayed_ref_head(head);
+-	return 0;
++	return ret;
+ }
  
- 		pf->fw_fid = le16_to_cpu(resp->fid);
- 		pf->port_id = le16_to_cpu(resp->port_id);
--		bp->dev->dev_port = pf->port_id;
- 		memcpy(pf->mac_addr, resp->mac_address, ETH_ALEN);
- 		pf->first_vf_id = le16_to_cpu(resp->first_vf_id);
- 		pf->max_vfs = le16_to_cpu(resp->max_vfs);
+ static struct btrfs_delayed_ref_head *btrfs_obtain_ref_head(
 
 
