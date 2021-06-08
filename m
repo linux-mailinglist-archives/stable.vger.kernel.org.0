@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9229339FF6C
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBB7B3A0029
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234346AbhFHSdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:33:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57090 "EHLO mail.kernel.org"
+        id S234963AbhFHSkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234032AbhFHScM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E111613B6;
-        Tue,  8 Jun 2021 18:30:02 +0000 (UTC)
+        id S235124AbhFHSjH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:39:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 308C761027;
+        Tue,  8 Jun 2021 18:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177002;
-        bh=BjwMVZV29dd47sjI8xClz0qNUCf6RXp1w1uXhyzZKOU=;
+        s=korg; t=1623177237;
+        bh=4+1yte7jhTdz7NboCFWqBUsW1EGS/+n9JNpTFRzG1Zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vPKnaeiR8IP2W8VYYTDP95FhJXrbUCAUMDMost4fyw2fqbSemyouZ87QgrCmXAIXg
-         Rn7nvaXK7MTef+TV8ZaEJ2BUOasYHedcWBjDIWIk58Rqkm9ef5uGMzaBD8TOpF6Uv8
-         Kz+kFHUXoafJcqWPIXeJkYuZCbxq4xpzk5c5NvRA=
+        b=mMdf2+izO6XSIhLFitU1YDYQvU2XdY8fzSozikIWDALR0Q05Un96ADT+sT+OU5EyK
+         /1+dBERRYNzOLxX3eyfhsUHaiUoJ8aluaP2qspi3w/O3TqPSdDxRllsO9J/KGLbnSR
+         Vy9SPk1iXftdVn4MMRBBHsaeJcYrw2bW3KChgOEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 23/29] nfc: fix NULL ptr dereference in llcp_sock_getname() after failed connect
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 36/58] btrfs: fix error handling in btrfs_del_csums
 Date:   Tue,  8 Jun 2021 20:27:17 +0200
-Message-Id: <20210608175928.571940894@linuxfoundation.org>
+Message-Id: <20210608175933.464050533@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +40,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 4ac06a1e013cf5fdd963317ffd3b968560f33bba upstream.
+commit b86652be7c83f70bf406bed18ecf55adb9bfb91b upstream.
 
-It's possible to trigger NULL pointer dereference by local unprivileged
-user, when calling getsockname() after failed bind() (e.g. the bind
-fails because LLCP_SAP_MAX used as SAP):
+Error injection stress would sometimes fail with checksums on disk that
+did not have a corresponding extent.  This occurred because the pattern
+in btrfs_del_csums was
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  CPU: 1 PID: 426 Comm: llcp_sock_getna Not tainted 5.13.0-rc2-next-20210521+ #9
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1 04/01/2014
-  Call Trace:
-   llcp_sock_getname+0xb1/0xe0
-   __sys_getpeername+0x95/0xc0
-   ? lockdep_hardirqs_on_prepare+0xd5/0x180
-   ? syscall_enter_from_user_mode+0x1c/0x40
-   __x64_sys_getpeername+0x11/0x20
-   do_syscall_64+0x36/0x70
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+	while (1) {
+		ret = btrfs_search_slot();
+		if (ret < 0)
+			break;
+	}
+	ret = 0;
+out:
+	btrfs_free_path(path);
+	return ret;
 
-This can be reproduced with Syzkaller C repro (bind followed by
-getpeername):
-https://syzkaller.appspot.com/x/repro.c?x=14def446e00000
+If we got an error from btrfs_search_slot we'd clear the error because
+we were breaking instead of goto out.  Instead of using goto out, simply
+handle the cases where we may leave a random value in ret, and get rid
+of the
 
-Cc: <stable@vger.kernel.org>
-Fixes: d646960f7986 ("NFC: Initial LLCP support")
-Reported-by: syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210531072138.5219-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+	ret = 0;
+out:
+
+pattern and simply allow break to have the proper error reporting.  With
+this fix we properly abort the transaction and do not commit thinking we
+successfully deleted the csum.
+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/file-item.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -121,6 +121,7 @@ static int llcp_sock_bind(struct socket
- 	if (!llcp_sock->service_name) {
- 		nfc_llcp_local_put(llcp_sock->local);
- 		llcp_sock->local = NULL;
-+		llcp_sock->dev = NULL;
- 		ret = -ENOMEM;
- 		goto put_dev;
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -586,7 +586,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 	u64 end_byte = bytenr + len;
+ 	u64 csum_end;
+ 	struct extent_buffer *leaf;
+-	int ret;
++	int ret = 0;
+ 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
+ 	int blocksize_bits = fs_info->sb->s_blocksize_bits;
+ 
+@@ -605,6 +605,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 		path->leave_spinning = 1;
+ 		ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+ 		if (ret > 0) {
++			ret = 0;
+ 			if (path->slots[0] == 0)
+ 				break;
+ 			path->slots[0]--;
+@@ -661,7 +662,7 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 			ret = btrfs_del_items(trans, root, path,
+ 					      path->slots[0], del_nr);
+ 			if (ret)
+-				goto out;
++				break;
+ 			if (key.offset == bytenr)
+ 				break;
+ 		} else if (key.offset < bytenr && csum_end > end_byte) {
+@@ -705,8 +706,9 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 			ret = btrfs_split_item(trans, root, path, &key, offset);
+ 			if (ret && ret != -EAGAIN) {
+ 				btrfs_abort_transaction(trans, ret);
+-				goto out;
++				break;
+ 			}
++			ret = 0;
+ 
+ 			key.offset = end_byte - 1;
+ 		} else {
+@@ -716,8 +718,6 @@ int btrfs_del_csums(struct btrfs_trans_h
+ 		}
+ 		btrfs_release_path(path);
  	}
-@@ -130,6 +131,7 @@ static int llcp_sock_bind(struct socket
- 		llcp_sock->local = NULL;
- 		kfree(llcp_sock->service_name);
- 		llcp_sock->service_name = NULL;
-+		llcp_sock->dev = NULL;
- 		ret = -EADDRINUSE;
- 		goto put_dev;
- 	}
+-	ret = 0;
+-out:
+ 	btrfs_free_path(path);
+ 	return ret;
+ }
 
 
