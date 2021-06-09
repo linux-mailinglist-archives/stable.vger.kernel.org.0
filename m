@@ -2,138 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B583A1DFB
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 22:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C4193A1E2E
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 22:38:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229792AbhFIUMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 16:12:02 -0400
-Received: from mail-lf1-f50.google.com ([209.85.167.50]:35791 "EHLO
-        mail-lf1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229472AbhFIUMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Jun 2021 16:12:02 -0400
-Received: by mail-lf1-f50.google.com with SMTP id i10so39979586lfj.2
-        for <stable@vger.kernel.org>; Wed, 09 Jun 2021 13:09:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lH+j2KiVN2G/yHhVjeQt6p3BwbyIHnyM+0CcxE7yrDU=;
-        b=AA02DUQuVWJT5MsI3unO8Y7QIOeiM7ojSOf+tqLac1WvD6nIyHkv7Pa0qjcMI+hTcR
-         0zNRwRgAg7m2VsUhZD7G21UqsG1aPq/XdzJPGqoO5RrowffR7FXb+T/ICZxJJuMRYvvw
-         NdivjzlAyufhdDOwqw5p5T7ogMbkumjfEy93w=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lH+j2KiVN2G/yHhVjeQt6p3BwbyIHnyM+0CcxE7yrDU=;
-        b=i5V65TluzI7+fGtQkYp03J32MIR0Y9GJNV6WBhftR3KYlSuQSrV+Ep3DIfcYUDsCLb
-         l5A/SPqGQ9ON3zdoL026G9sa1WU1XxAQwKkKHi6oOnQk0CXxfzX0uxwX3XcU59YgKxYW
-         nuZndVEFG2U/Vf+hj0Gcdtq1PO2eoEmn9vVevd9t3r8b5jYUs8Xio+4DU6HcvA96AaOz
-         k++UIUySGBXqp8tBB3B38xCWpkVkGbgD8AqHnRviZ/pXEy8xpsmgaAzrETg1QbOMvVrm
-         MdlkEsdp/L9zE51CrRXaHUaaRA+RnwUjpOt6B+wl5lyOb6kzwGhb0DnzjAr2CotoKvME
-         T9AQ==
-X-Gm-Message-State: AOAM530283eoJyFBZsPyl+l2chBnX5dBi+TACzXGbaIcOIKl9tRTbbxN
-        GzhbyAb3B3eEEG7G4Zj+uyHKSLyRMNLHZ0VPlAA=
-X-Google-Smtp-Source: ABdhPJz1itouhvFCV33Am+tpokWCh6t0mOSbO9xB0j+k9+1LHTeCv1VmdhGriVE8ryMv5wML35221A==
-X-Received: by 2002:ac2:41cf:: with SMTP id d15mr693943lfi.574.1623269332416;
-        Wed, 09 Jun 2021 13:08:52 -0700 (PDT)
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com. [209.85.167.46])
-        by smtp.gmail.com with ESMTPSA id y4sm78408lfe.275.2021.06.09.13.08.50
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Jun 2021 13:08:51 -0700 (PDT)
-Received: by mail-lf1-f46.google.com with SMTP id j20so10662256lfe.8
-        for <stable@vger.kernel.org>; Wed, 09 Jun 2021 13:08:50 -0700 (PDT)
-X-Received: by 2002:a19:7d04:: with SMTP id y4mr684978lfc.201.1623269330357;
- Wed, 09 Jun 2021 13:08:50 -0700 (PDT)
+        id S229527AbhFIUkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 16:40:36 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:49748 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229517AbhFIUkf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Jun 2021 16:40:35 -0400
+Received: from mailhost.synopsys.com (sv1-mailhost1.synopsys.com [10.205.2.131])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 8988840137;
+        Wed,  9 Jun 2021 20:38:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1623271120; bh=x5FZ7s0gV3TtZbTpP8ZsfARwbUhd7+uaV2J4rMMqm00=;
+        h=From:To:Cc:Subject:Date:From;
+        b=POuVRDtyBlXcMS9O86zOEcpQMRthj9jSEcMlEoy/JCbVnjS8IdDSNMWfwzVZVAJ3F
+         QycEpLZDRgdmWyCtD7efSUeHZsJ8Y1ce7VaVsySiFnNuNGbF/IlxXo3/jk9VAfdGpH
+         45fyqinxauXZaVeECkP9bC12GaHDQH0ZNxMqWC6jORkic/Kh49DUIq0GU1ahOIi2tm
+         nIbHFR6FVT16oiB1egf1t3Ms3FD4fLG+ZPpVIkw68s+h+7p/koTfVdPeTQMNXj33T/
+         uQzY4S1z4WrYlMS63hiR01M5yr6UadCztUayftRncFuAx/toKZmO+/usK9yJekDEH7
+         bdTnKx8zo6iWA==
+Received: from vineetg-Latitude-7400.internal.synopsys.com (snps-fugpbdpduq.internal.synopsys.com [10.202.17.37])
+        by mailhost.synopsys.com (Postfix) with ESMTP id 64D4BA005E;
+        Wed,  9 Jun 2021 20:38:38 +0000 (UTC)
+X-SNPS-Relay: synopsys.com
+From:   Vineet Gupta <Vineet.Gupta1@synopsys.com>
+To:     linux-snps-arc@lists.infradead.org
+Cc:     linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
+        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
+        stable@vger.kernel.org,
+        Vladimir Isaev <Vladimir.Isaev@synopsys.com>
+Subject: [PATCH] ARCv2: save ABI registers across signal handling
+Date:   Wed,  9 Jun 2021 13:38:36 -0700
+Message-Id: <20210609203836.2213688-1-vgupta@synopsys.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20210607125734.1770447-1-liangyan.peng@linux.alibaba.com> <71fa2e69-a60b-0795-5fef-31658f89591a@linux.alibaba.com>
-In-Reply-To: <71fa2e69-a60b-0795-5fef-31658f89591a@linux.alibaba.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 9 Jun 2021 13:08:34 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whKbJkuVmzb0hD3N6q7veprUrSpiBHRxVY=AffWZPtxmg@mail.gmail.com>
-Message-ID: <CAHk-=whKbJkuVmzb0hD3N6q7veprUrSpiBHRxVY=AffWZPtxmg@mail.gmail.com>
-Subject: Re: [PATCH] tracing: Correct the length check which causes memory corruption
-To:     James Wang <jnwang@linux.alibaba.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Cc:     Liangyan <liangyan.peng@linux.alibaba.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        yinbinbin@alibabacloud.com, wetp <wetp.zy@linux.alibaba.com>,
-        stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Steven?
+ARCv2 has some configuration dependent registers (r30, r58, r59) which
+could be targetted by the compiler. To keep the ABI stable, these were
+unconditionally part of the glibc ABI
+(sysdeps/unix/sysv/linux/arc/sys/ucontext.h:mcontext_t) however we
+missed populating them (by saving/restoring them across signal
+handling).
 
-On Mon, Jun 7, 2021 at 6:46 AM James Wang <jnwang@linux.alibaba.com> wrote:
->
-> >
-> > James Wang has reproduced it stably on the latest 4.19 LTS.
-> > After some debugging, we finally proved that it's due to ftrace
-> > buffer out-of-bound access using a debug tool as follows:
-[..]
+This patch fixes the issue by
+ - adding arcv2 ABI regs to kernel struct sigcontext
+ - populating them during signal handling
 
-Looks about right:
+Change to struct sigcontext might seem like a glibc ABI change (although
+it primarily uses ucontext_t:mcontext_t) but the fact is
+ - it has only been extended (existing fields are not touched)
+ - the old sigcontext was ABI incomplete to begin with anyways
 
-> > diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-> > index a21ef9cd2aae..9299057feb56 100644
-> > --- a/kernel/trace/trace.c
-> > +++ b/kernel/trace/trace.c
-> > @@ -2736,7 +2736,7 @@ trace_event_buffer_lock_reserve(struct trace_buffer **current_rb,
-> >           (entry = this_cpu_read(trace_buffered_event))) {
-> >               /* Try to use the per cpu buffer first */
-> >               val = this_cpu_inc_return(trace_buffered_event_cnt);
-> > -             if ((len < (PAGE_SIZE - sizeof(*entry))) && val == 1) {
-> > +             if ((len < (PAGE_SIZE - sizeof(*entry) - sizeof(entry->array[0]))) && val == 1) {
-> >                       trace_event_setup(entry, type, trace_ctx);
-> >                       entry->array[0] = len;
-> >                       return entry;
+Fixes: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/53
+Cc: <stable@vger.kernel.org>
+Reported-by: Vladimir Isaev <isaev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+---
+ arch/arc/include/uapi/asm/sigcontext.h |  1 +
+ arch/arc/kernel/signal.c               | 29 ++++++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
-I have to say that I don't love that code. Not before, and not with the fix.
+diff --git a/arch/arc/include/uapi/asm/sigcontext.h b/arch/arc/include/uapi/asm/sigcontext.h
+index 95f8a4380e11..7a5449dfcb29 100644
+--- a/arch/arc/include/uapi/asm/sigcontext.h
++++ b/arch/arc/include/uapi/asm/sigcontext.h
+@@ -18,6 +18,7 @@
+  */
+ struct sigcontext {
+ 	struct user_regs_struct regs;
++	struct user_regs_arcv2 v2abi;
+ };
+ 
+ #endif /* _ASM_ARC_SIGCONTEXT_H */
+diff --git a/arch/arc/kernel/signal.c b/arch/arc/kernel/signal.c
+index b3ccb9e5ffe4..534b3d9bafc8 100644
+--- a/arch/arc/kernel/signal.c
++++ b/arch/arc/kernel/signal.c
+@@ -94,6 +94,21 @@ stash_usr_regs(struct rt_sigframe __user *sf, struct pt_regs *regs,
+ 
+ 	err = __copy_to_user(&(sf->uc.uc_mcontext.regs.scratch), &uregs.scratch,
+ 			     sizeof(sf->uc.uc_mcontext.regs.scratch));
++
++	if (is_isa_arcv2()) {
++		struct user_regs_arcv2 v2abi;
++
++		v2abi.r30 = regs->r30;
++#ifdef CONFIG_ARC_HAS_ACCL_REGS
++		v2abi.r58 = regs->r58;
++		v2abi.r59 = regs->r59;
++#else
++		v2abi.r58 = v2abi.r59 = 0;
++#endif
++		err |= __copy_to_user(&(sf->uc.uc_mcontext.v2abi), &v2abi,
++				      sizeof(sf->uc.uc_mcontext.v2abi));
++	}
++
+ 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(sigset_t));
+ 
+ 	return err ? -EFAULT : 0;
+@@ -109,6 +124,20 @@ static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
+ 	err |= __copy_from_user(&uregs.scratch,
+ 				&(sf->uc.uc_mcontext.regs.scratch),
+ 				sizeof(sf->uc.uc_mcontext.regs.scratch));
++
++	if (is_isa_arcv2()) {
++		struct user_regs_arcv2 v2abi;
++
++		err |= __copy_from_user(&v2abi,	&(sf->uc.uc_mcontext.v2abi),
++					sizeof(sf->uc.uc_mcontext.v2abi));
++
++		regs->r30 = v2abi.r30;
++#ifdef CONFIG_ARC_HAS_ACCL_REGS
++		regs->r58 = v2abi.r58;
++		regs->r59 = v2abi.r59;
++#endif
++	}
++
+ 	if (err)
+ 		return -EFAULT;
+ 
+-- 
+2.25.1
 
-That "sizeof(*entry)" is clearly wrong, because it doesn't take the
-unsized array into account.
-
-But adding the sizeof() for a single array entry doesn't make that
-already unreadable and buggy code much more readable.
-
-It would probably be better to use "struct_size(entry, buffer, 1)"
-instead, and I think it would be good to just split things up a bit to
-be more legibe:
-
-        unsigned long max_len = PAGE_SIZE - struct_size(entry, array, 1);
-
-        if (val == 1 && len < max_len && val == 1) {
-                trace_event_setup(entry, type, trace_ctx);
-                ..
-
-instead.
-
-However, I have a few questions:
-
- - why "len < max_offset" rather than "<="?
-
- - why don't we check the length before we even try to reserve that
-percpu buffer with the expensive atomic this_cpu_inc_return()?
-
- - is the size of that array guaranteed to always be 1? If so, why is
-it unsized? Why is it an array at all?
-
- - clearly the array{} size must not be guaranteed to be 1, but why a
-size of 1 then always sufficient here? Clearly a size of 1 is the
-minimum required since we do that
-
-        entry->array[0] = len;
-
-   and thus use one entry, but what is it that makes it ok that it
-really is just one entry?
-
-Steven, please excuse the above stupid questions of mine, but that
-code looks really odd.
-
-               Linus
