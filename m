@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4C93A1D2C
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 20:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 994DB3A1D2E
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 20:50:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230220AbhFISwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 14:52:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45200 "EHLO mail.kernel.org"
+        id S229578AbhFISwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 14:52:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
         id S230245AbhFISwQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 9 Jun 2021 14:52:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E104D613E3;
-        Wed,  9 Jun 2021 18:50:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E34A613EF;
+        Wed,  9 Jun 2021 18:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623264621;
-        bh=Ydf51SeUXKyxQ5Pr7wwXis8NA+OOCby1yQanJJJNjPo=;
+        s=k20201202; t=1623264622;
+        bh=kcI1xHVT7nDaM/8YII52py4VxFNx9/HKQeHX/LSESlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njsAVziXe+M67RtB+mTaZ29Ze5ARbLTtcJuzp879y5DkijSvhdE1z9gkcDhkJkufo
-         vrOO858Q0KuBRb2CRdSeIZGcEiQOzZda0Xastz65JXF7LaQmkY0bqBZeWBchrvVwa8
-         9OST3GJZdacOIjfM7J6v7MPAvw0fVITxCYJUKbaYh+IXdxDWJ9TLbM+TKj1daWAi8D
-         J6ir/tayhlSivbFgyDTmYxeQQxZLXJ06YtBA9l3tYmKq+lF0MPgD9X/SCwSsYH4ABY
-         44IZ5Q4x74giP0n571/qlWyztt9qpclZ5K0ZsrdCKHLPOAnDH6LV7+LS5x+50omJOc
-         waBuirl7w2iwA==
+        b=U1ud/7Z9aradeNq+86lte9uQZQVekM+7h3Dz9pcJqkFKOHZA7rJiTtLAxElyIAHQ4
+         7vfG3557SZ1s9/BoLmA40UvcyPLRlIJ+FKcT7CpftN/3LECd1ITfUO0A8eAkR/S4zu
+         Ap8BbGHjGJdp7dU7Ph22OXicsyR7NE6x5MKff0ptvRJvViy0zz25O5lS0QZz4jLs2G
+         p2qAQpJgXhWCG2BHCpeNgGCf7Xmjl8lWCENoibfMFPdaV2MMg7snrh97RSVSZf7BGP
+         jZJkMBItD7jb6xsoWCpeEzd2P72TQHIvhAgi81f4Xnfjlk4Gi8x1OOCUHRktRQI99y
+         NLwvaFTUjVvlA==
 From:   Dinh Nguyen <dinguyen@kernel.org>
 To:     linux-clk@vger.kernel.org
 Cc:     dinguyen@kernel.org, sboyd@kernel.org, mturquette@baylibre.com,
         stable@vger.kernel.org
-Subject: [PATCH 2/4] clk: agilex/stratix10: fix bypass representation
-Date:   Wed,  9 Jun 2021 13:50:06 -0500
-Message-Id: <20210609185008.36056-2-dinguyen@kernel.org>
+Subject: [PATCH 3/4] clk: agilex/stratix10: add support for the 2nd bypass
+Date:   Wed,  9 Jun 2021 13:50:07 -0500
+Message-Id: <20210609185008.36056-3-dinguyen@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210609185008.36056-1-dinguyen@kernel.org>
 References: <20210609185008.36056-1-dinguyen@kernel.org>
@@ -39,174 +39,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Each of these clocks(s2f_usr0/1, sdmmc_clk, gpio_db, emac_ptp,
-emac0/1/2) have a bypass setting that can use the boot_clk. The
-previous representation was not correct.
+The EMAC clocks on Stratix10/Agilex/N5X have an additional bypass that
+was not being accounted for. The bypass selects between
+emaca_clk/emacb_clk and boot_clk.
 
-Fix the representation.
+Because the bypass register offset is different between Stratix10 and
+Agilex/N5X, it's best to create a new function to calculate the bypass.
 
 Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
 Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 ---
- drivers/clk/socfpga/clk-agilex.c | 57 ++++++++++++++++++++++++++------
- drivers/clk/socfpga/clk-s10.c    | 55 ++++++++++++++++++++++++------
- 2 files changed, 91 insertions(+), 21 deletions(-)
+ drivers/clk/socfpga/clk-agilex.c    |   4 +-
+ drivers/clk/socfpga/clk-gate-s10.c  | 119 +++++++++++++++++++++++++++-
+ drivers/clk/socfpga/stratix10-clk.h |   2 +
+ 3 files changed, 123 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/clk/socfpga/clk-agilex.c b/drivers/clk/socfpga/clk-agilex.c
-index 5b8131542218..edfa87d0cd76 100644
+index edfa87d0cd76..1cb21ea79c64 100644
 --- a/drivers/clk/socfpga/clk-agilex.c
 +++ b/drivers/clk/socfpga/clk-agilex.c
-@@ -186,6 +186,41 @@ static const struct clk_parent_data noc_mux[] = {
- 	  .name = "boot_clk", },
+@@ -177,6 +177,8 @@ static const struct clk_parent_data emac_mux[] = {
+ 	  .name = "emaca_free_clk", },
+ 	{ .fw_name = "emacb_free_clk",
+ 	  .name = "emacb_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
  };
  
-+static const struct clk_parent_data sdmmc_mux[] = {
-+	{ .fw_name = "sdmmc_free_clk",
-+	  .name = "sdmmc_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
+ static const struct clk_parent_data noc_mux[] = {
+@@ -399,7 +401,7 @@ static int agilex_clk_register_gate(const struct stratix10_gate_clock *clks,
+ 	int i;
+ 
+ 	for (i = 0; i < nums; i++) {
+-		hw_clk = s10_register_gate(&clks[i], base);
++		hw_clk = agilex_register_gate(&clks[i], base);
+ 		if (IS_ERR(hw_clk)) {
+ 			pr_err("%s: failed to register clock %s\n",
+ 			       __func__, clks[i].name);
+diff --git a/drivers/clk/socfpga/clk-gate-s10.c b/drivers/clk/socfpga/clk-gate-s10.c
+index b84f2627551e..32567795765f 100644
+--- a/drivers/clk/socfpga/clk-gate-s10.c
++++ b/drivers/clk/socfpga/clk-gate-s10.c
+@@ -11,6 +11,13 @@
+ #define SOCFPGA_CS_PDBG_CLK	"cs_pdbg_clk"
+ #define to_socfpga_gate_clk(p) container_of(p, struct socfpga_gate_clk, hw.hw)
+ 
++#define SOCFPGA_EMAC0_CLK		"emac0_clk"
++#define SOCFPGA_EMAC1_CLK		"emac1_clk"
++#define SOCFPGA_EMAC2_CLK		"emac2_clk"
++#define AGILEX_BYPASS_OFFSET		0xC
++#define STRATIX10_BYPASS_OFFSET		0x2C
++#define BOOTCLK_BYPASS			2
 +
-+static const struct clk_parent_data s2f_user1_mux[] = {
-+	{ .fw_name = "s2f_user1_free_clk",
-+	  .name = "s2f_user1_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
+ static unsigned long socfpga_gate_clk_recalc_rate(struct clk_hw *hwclk,
+ 						  unsigned long parent_rate)
+ {
+@@ -44,14 +51,61 @@ static unsigned long socfpga_dbg_clk_recalc_rate(struct clk_hw *hwclk,
+ static u8 socfpga_gate_get_parent(struct clk_hw *hwclk)
+ {
+ 	struct socfpga_gate_clk *socfpgaclk = to_socfpga_gate_clk(hwclk);
+-	u32 mask;
++	u32 mask, second_bypass;
++	u8 parent = 0;
++	const char *name = clk_hw_get_name(hwclk);
 +
-+static const struct clk_parent_data psi_mux[] = {
-+	{ .fw_name = "psi_ref_free_clk",
-+	  .name = "psi_ref_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
++	if (socfpgaclk->bypass_reg) {
++		mask = (0x1 << socfpgaclk->bypass_shift);
++		parent = ((readl(socfpgaclk->bypass_reg) & mask) >>
++			  socfpgaclk->bypass_shift);
++	}
 +
-+static const struct clk_parent_data gpio_db_mux[] = {
-+	{ .fw_name = "gpio_db_free_clk",
-+	  .name = "gpio_db_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
++	if (streq(name, SOCFPGA_EMAC0_CLK) ||
++	    streq(name, SOCFPGA_EMAC1_CLK) ||
++	    streq(name, SOCFPGA_EMAC2_CLK)) {
++		second_bypass = readl(socfpgaclk->bypass_reg -
++				      STRATIX10_BYPASS_OFFSET);
++		/* EMACA bypass to bootclk @0xB0 offset */
++		if (second_bypass & 0x1)
++			if (parent == 0) /* only applicable if parent is maca */
++				parent = BOOTCLK_BYPASS;
 +
-+static const struct clk_parent_data emac_ptp_mux[] = {
-+	{ .fw_name = "emac_ptp_free_clk",
-+	  .name = "emac_ptp_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
++		if (second_bypass & 0x2)
++			if (parent == 1) /* only applicable if parent is macb */
++				parent = BOOTCLK_BYPASS;
++	}
++	return parent;
++}
 +
- /* clocks in AO (always on) controller */
- static const struct stratix10_pll_clock agilex_pll_clks[] = {
- 	{ AGILEX_BOOT_CLK, "boot_clk", boot_mux, ARRAY_SIZE(boot_mux), 0,
-@@ -234,7 +269,7 @@ static const struct stratix10_perip_cnt_clock agilex_main_perip_cnt_clks[] = {
- 	{ AGILEX_GPIO_DB_FREE_CLK, "gpio_db_free_clk", NULL, gpio_db_free_mux,
- 	  ARRAY_SIZE(gpio_db_free_mux), 0, 0xE0, 0, 0x88, 3},
- 	{ AGILEX_SDMMC_FREE_CLK, "sdmmc_free_clk", NULL, sdmmc_free_mux,
--	  ARRAY_SIZE(sdmmc_free_mux), 0, 0xE4, 0, 0x88, 4},
-+	  ARRAY_SIZE(sdmmc_free_mux), 0, 0xE4, 0, 0, 0},
- 	{ AGILEX_S2F_USER0_FREE_CLK, "s2f_user0_free_clk", NULL, s2f_usr0_free_mux,
- 	  ARRAY_SIZE(s2f_usr0_free_mux), 0, 0xE8, 0, 0, 0},
- 	{ AGILEX_S2F_USER1_FREE_CLK, "s2f_user1_free_clk", NULL, s2f_usr1_free_mux,
-@@ -276,16 +311,16 @@ static const struct stratix10_gate_clock agilex_gate_clks[] = {
- 	  1, 0, 0, 0, 0x94, 27, 0},
- 	{ AGILEX_EMAC2_CLK, "emac2_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0x7C,
- 	  2, 0, 0, 0, 0x94, 28, 0},
--	{ AGILEX_EMAC_PTP_CLK, "emac_ptp_clk", "emac_ptp_free_clk", NULL, 1, 0, 0x7C,
--	  3, 0, 0, 0, 0, 0, 0},
--	{ AGILEX_GPIO_DB_CLK, "gpio_db_clk", "gpio_db_free_clk", NULL, 1, 0, 0x7C,
--	  4, 0x98, 0, 16, 0, 0, 0},
--	{ AGILEX_SDMMC_CLK, "sdmmc_clk", "sdmmc_free_clk", NULL, 1, 0, 0x7C,
--	  5, 0, 0, 0, 0, 0, 4},
--	{ AGILEX_S2F_USER1_CLK, "s2f_user1_clk", "s2f_user1_free_clk", NULL, 1, 0, 0x7C,
--	  6, 0, 0, 0, 0, 0, 0},
--	{ AGILEX_PSI_REF_CLK, "psi_ref_clk", "psi_ref_free_clk", NULL, 1, 0, 0x7C,
--	  7, 0, 0, 0, 0, 0, 0},
-+	{ AGILEX_EMAC_PTP_CLK, "emac_ptp_clk", NULL, emac_ptp_mux, ARRAY_SIZE(emac_ptp_mux), 0, 0x7C,
-+	  3, 0, 0, 0, 0x88, 2, 0},
-+	{ AGILEX_GPIO_DB_CLK, "gpio_db_clk", NULL, gpio_db_mux, ARRAY_SIZE(gpio_db_mux), 0, 0x7C,
-+	  4, 0x98, 0, 16, 0x88, 3, 0},
-+	{ AGILEX_SDMMC_CLK, "sdmmc_clk", NULL, sdmmc_mux, ARRAY_SIZE(sdmmc_mux), 0, 0x7C,
-+	  5, 0, 0, 0, 0x88, 4, 4},
-+	{ AGILEX_S2F_USER1_CLK, "s2f_user1_clk", NULL, s2f_user1_mux, ARRAY_SIZE(s2f_user1_mux), 0, 0x7C,
-+	  6, 0, 0, 0, 0x88, 5, 0},
-+	{ AGILEX_PSI_REF_CLK, "psi_ref_clk", NULL, psi_mux, ARRAY_SIZE(psi_mux), 0, 0x7C,
-+	  7, 0, 0, 0, 0x88, 6, 0},
- 	{ AGILEX_USB_CLK, "usb_clk", "l4_mp_clk", NULL, 1, 0, 0x7C,
- 	  8, 0, 0, 0, 0, 0, 0},
- 	{ AGILEX_SPI_M_CLK, "spi_m_clk", "l4_mp_clk", NULL, 1, 0, 0x7C,
-diff --git a/drivers/clk/socfpga/clk-s10.c b/drivers/clk/socfpga/clk-s10.c
-index 0199cffe4d77..b532d51faaee 100644
---- a/drivers/clk/socfpga/clk-s10.c
-+++ b/drivers/clk/socfpga/clk-s10.c
-@@ -144,6 +144,41 @@ static const struct clk_parent_data mpu_free_mux[] = {
- 	  .name = "f2s-free-clk", },
++static u8 socfpga_agilex_gate_get_parent(struct clk_hw *hwclk)
++{
++	struct socfpga_gate_clk *socfpgaclk = to_socfpga_gate_clk(hwclk);
++	u32 mask, second_bypass;
+ 	u8 parent = 0;
++	const char *name = clk_hw_get_name(hwclk);
+ 
+ 	if (socfpgaclk->bypass_reg) {
+ 		mask = (0x1 << socfpgaclk->bypass_shift);
+ 		parent = ((readl(socfpgaclk->bypass_reg) & mask) >>
+ 			  socfpgaclk->bypass_shift);
+ 	}
++
++	if (streq(name, SOCFPGA_EMAC0_CLK) ||
++	    streq(name, SOCFPGA_EMAC1_CLK) ||
++	    streq(name, SOCFPGA_EMAC2_CLK)) {
++		second_bypass = readl(socfpgaclk->bypass_reg -
++				      AGILEX_BYPASS_OFFSET);
++		/* EMACA bypass to bootclk @0x88 offset */
++		if (second_bypass & 0x1)
++			if (parent == 0) /* only applicable if parent is maca */
++				parent = BOOTCLK_BYPASS;
++
++		if (second_bypass & 0x2)
++			if (parent == 1) /* only applicable if parent is macb */
++				parent = BOOTCLK_BYPASS;
++	}
++
+ 	return parent;
+ }
+ 
+@@ -60,6 +114,11 @@ static struct clk_ops gateclk_ops = {
+ 	.get_parent = socfpga_gate_get_parent,
  };
  
-+static const struct clk_parent_data sdmmc_mux[] = {
-+	{ .fw_name = "sdmmc_free_clk",
-+	  .name = "sdmmc_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
++static const struct clk_ops agilex_gateclk_ops = {
++	.recalc_rate = socfpga_gate_clk_recalc_rate,
++	.get_parent = socfpga_agilex_gate_get_parent,
 +};
 +
-+static const struct clk_parent_data s2f_user1_mux[] = {
-+	{ .fw_name = "s2f_user1_free_clk",
-+	  .name = "s2f_user1_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
+ static const struct clk_ops dbgclk_ops = {
+ 	.recalc_rate = socfpga_dbg_clk_recalc_rate,
+ 	.get_parent = socfpga_gate_get_parent,
+@@ -122,3 +181,61 @@ struct clk_hw *s10_register_gate(const struct stratix10_gate_clock *clks, void _
+ 	}
+ 	return hw_clk;
+ }
 +
-+static const struct clk_parent_data psi_mux[] = {
-+	{ .fw_name = "psi_ref_free_clk",
-+	  .name = "psi_ref_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
++struct clk_hw *agilex_register_gate(const struct stratix10_gate_clock *clks, void __iomem *regbase)
++{
++	struct clk_hw *hw_clk;
++	struct socfpga_gate_clk *socfpga_clk;
++	struct clk_init_data init;
++	const char *parent_name = clks->parent_name;
++	int ret;
 +
-+static const struct clk_parent_data gpio_db_mux[] = {
-+	{ .fw_name = "gpio_db_free_clk",
-+	  .name = "gpio_db_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
++	socfpga_clk = kzalloc(sizeof(*socfpga_clk), GFP_KERNEL);
++	if (!socfpga_clk)
++		return NULL;
 +
-+static const struct clk_parent_data emac_ptp_mux[] = {
-+	{ .fw_name = "emac_ptp_free_clk",
-+	  .name = "emac_ptp_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
++	socfpga_clk->hw.reg = regbase + clks->gate_reg;
++	socfpga_clk->hw.bit_idx = clks->gate_idx;
 +
- /* clocks in AO (always on) controller */
- static const struct stratix10_pll_clock s10_pll_clks[] = {
- 	{ STRATIX10_BOOT_CLK, "boot_clk", boot_mux, ARRAY_SIZE(boot_mux), 0,
-@@ -247,16 +282,16 @@ static const struct stratix10_gate_clock s10_gate_clks[] = {
- 	  1, 0, 0, 0, 0xDC, 27, 0},
- 	{ STRATIX10_EMAC2_CLK, "emac2_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0xA4,
- 	  2, 0, 0, 0, 0xDC, 28, 0},
--	{ STRATIX10_EMAC_PTP_CLK, "emac_ptp_clk", "emac_ptp_free_clk", NULL, 1, 0, 0xA4,
--	  3, 0, 0, 0, 0, 0, 0},
--	{ STRATIX10_GPIO_DB_CLK, "gpio_db_clk", "gpio_db_free_clk", NULL, 1, 0, 0xA4,
--	  4, 0xE0, 0, 16, 0, 0, 0},
--	{ STRATIX10_SDMMC_CLK, "sdmmc_clk", "sdmmc_free_clk", NULL, 1, 0, 0xA4,
--	  5, 0, 0, 0, 0, 0, 4},
--	{ STRATIX10_S2F_USER1_CLK, "s2f_user1_clk", "s2f_user1_free_clk", NULL, 1, 0, 0xA4,
--	  6, 0, 0, 0, 0, 0, 0},
--	{ STRATIX10_PSI_REF_CLK, "psi_ref_clk", "psi_ref_free_clk", NULL, 1, 0, 0xA4,
--	  7, 0, 0, 0, 0, 0, 0},
-+	{ STRATIX10_EMAC_PTP_CLK, "emac_ptp_clk", NULL, emac_ptp_mux, ARRAY_SIZE(emac_ptp_mux), 0, 0xA4,
-+	  3, 0, 0, 0, 0xB0, 2, 0},
-+	{ STRATIX10_GPIO_DB_CLK, "gpio_db_clk", NULL, gpio_db_mux, ARRAY_SIZE(gpio_db_mux), 0, 0xA4,
-+	  4, 0xE0, 0, 16, 0xB0, 3, 0},
-+	{ STRATIX10_SDMMC_CLK, "sdmmc_clk", NULL, sdmmc_mux, ARRAY_SIZE(sdmmc_mux), 0, 0xA4,
-+	  5, 0, 0, 0, 0xB0, 4, 4},
-+	{ STRATIX10_S2F_USER1_CLK, "s2f_user1_clk", NULL, s2f_user1_mux, ARRAY_SIZE(s2f_user1_mux), 0, 0xA4,
-+	  6, 0, 0, 0, 0xB0, 5, 0},
-+	{ STRATIX10_PSI_REF_CLK, "psi_ref_clk", NULL, psi_mux, ARRAY_SIZE(psi_mux), 0, 0xA4,
-+	  7, 0, 0, 0, 0xB0, 6, 0},
- 	{ STRATIX10_USB_CLK, "usb_clk", "l4_mp_clk", NULL, 1, 0, 0xA4,
- 	  8, 0, 0, 0, 0, 0, 0},
- 	{ STRATIX10_SPI_M_CLK, "spi_m_clk", "l4_mp_clk", NULL, 1, 0, 0xA4,
++	gateclk_ops.enable = clk_gate_ops.enable;
++	gateclk_ops.disable = clk_gate_ops.disable;
++
++	socfpga_clk->fixed_div = clks->fixed_div;
++
++	if (clks->div_reg)
++		socfpga_clk->div_reg = regbase + clks->div_reg;
++	else
++		socfpga_clk->div_reg = NULL;
++
++	socfpga_clk->width = clks->div_width;
++	socfpga_clk->shift = clks->div_offset;
++
++	if (clks->bypass_reg)
++		socfpga_clk->bypass_reg = regbase + clks->bypass_reg;
++	else
++		socfpga_clk->bypass_reg = NULL;
++	socfpga_clk->bypass_shift = clks->bypass_shift;
++
++	if (streq(clks->name, "cs_pdbg_clk"))
++		init.ops = &dbgclk_ops;
++	else
++		init.ops = &agilex_gateclk_ops;
++
++	init.name = clks->name;
++	init.flags = clks->flags;
++
++	init.num_parents = clks->num_parents;
++	init.parent_names = parent_name ? &parent_name : NULL;
++	if (init.parent_names == NULL)
++		init.parent_data = clks->parent_data;
++	socfpga_clk->hw.hw.init = &init;
++
++	hw_clk = &socfpga_clk->hw.hw;
++
++	ret = clk_hw_register(NULL, &socfpga_clk->hw.hw);
++	if (ret) {
++		kfree(socfpga_clk);
++		return ERR_PTR(ret);
++	}
++	return hw_clk;
++}
+diff --git a/drivers/clk/socfpga/stratix10-clk.h b/drivers/clk/socfpga/stratix10-clk.h
+index 61eaf3a41fbb..75234e0783e1 100644
+--- a/drivers/clk/socfpga/stratix10-clk.h
++++ b/drivers/clk/socfpga/stratix10-clk.h
+@@ -85,4 +85,6 @@ struct clk_hw *s10_register_cnt_periph(const struct stratix10_perip_cnt_clock *c
+ 				    void __iomem *reg);
+ struct clk_hw *s10_register_gate(const struct stratix10_gate_clock *clks,
+ 			      void __iomem *reg);
++struct clk_hw *agilex_register_gate(const struct stratix10_gate_clock *clks,
++			      void __iomem *reg);
+ #endif	/* __STRATIX10_CLK_H */
 -- 
 2.25.1
 
