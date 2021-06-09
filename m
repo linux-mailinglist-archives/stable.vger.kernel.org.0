@@ -2,121 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D8973A0ED5
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 10:40:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8F743A0EEC
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 10:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233832AbhFIIma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 04:42:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41624 "EHLO mail.kernel.org"
+        id S237679AbhFIIwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 04:52:13 -0400
+Received: from muru.com ([72.249.23.125]:39892 "EHLO muru.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231626AbhFIIma (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Jun 2021 04:42:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1793961359;
-        Wed,  9 Jun 2021 08:40:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623228023;
-        bh=+7C7e/GvEXzVtBIUpu7Ytye+6udl3LOfR2QjK0EU4KQ=;
-        h=Subject:To:From:Date:From;
-        b=KZC1ShrEl2ZDRBWWTG+P//bW8acdT2q0ClKXBno4KSE1nkTXotSC0RDia/0TltcPe
-         0VJ4Hq0iod5j3I3THifYdfKJOqaOVjphGC6fHT0g5CLRY+phELYnfqr9Mv86f1/fjm
-         QfD+Leu5vwyolFTI/D1Sfrih5l9tiO16KfyFSXzI=
-Subject: patch "usb: fix various gadget panics on 10gbps cabling" added to usb-linus
-To:     maze@google.com, balbi@kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Jun 2021 10:40:21 +0200
-Message-ID: <162322802125252@kroah.com>
+        id S229740AbhFIIwN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Jun 2021 04:52:13 -0400
+Received: from atomide.com (localhost [127.0.0.1])
+        by muru.com (Postfix) with ESMTPS id C759780F5;
+        Wed,  9 Jun 2021 08:50:24 +0000 (UTC)
+Date:   Wed, 9 Jun 2021 11:50:13 +0300
+From:   Tony Lindgren <tony@atomide.com>
+To:     Greg KH <greg@kroah.com>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-omap@vger.kernel.org,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Keerthy <j-keerthy@ti.com>, Tero Kristo <kristo@kernel.org>
+Subject: Re: [Backport for linux-5.4.y PATCH 2/4] ARM: OMAP2+: Prepare timer
+ code to backport dra7 timer wrap errata i940
+Message-ID: <YMCAxXPUkSR1yxK3@atomide.com>
+References: <20210602104625.6079-1-tony@atomide.com>
+ <20210602104625.6079-2-tony@atomide.com>
+ <YL+lOumPYQ1fNoYw@kroah.com>
+ <YMBcIbBPfr6W19j5@atomide.com>
+ <YMBeI4aOMmWMRsu/@kroah.com>
+ <YMBmpAY04FRKOLMT@atomide.com>
+ <YMBuVJBzGjm+aVbV@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YMBuVJBzGjm+aVbV@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+* Greg KH <greg@kroah.com> [210609 07:31]:
+> On Wed, Jun 09, 2021 at 09:58:44AM +0300, Tony Lindgren wrote:
+> > * Greg KH <greg@kroah.com> [210609 06:22]:
+> > > On Wed, Jun 09, 2021 at 09:13:53AM +0300, Tony Lindgren wrote:
+> > > > How about the following for the description:
+> > > > 
+> > > > Upstream commit 52762fbd1c4778ac9b173624ca0faacd22ef4724 usage of
+> > > > struct dmtimer_clockevent backported to the platform timer code
+> > > > still used in linux-5.4.y stable kernel. Needed to backport upstream
+> > > > commit 3efe7a878a11c13b5297057bfc1e5639ce1241ce and commit
+> > > > 25de4ce5ed02994aea8bc111d133308f6fd62566. Earlier kernels use
+> > > > mach-omap2/timer instead of drivers/clocksource as these kernels still
+> > > > depend on legacy platform code for booting.
+> > > 
+> > > Why are you combining 2 commits into one here?
+> > 
+> > OK so still too confusing, how about let's just have:
+> > 
+> > Upstream commit 52762fbd1c4778ac9b173624ca0faacd22ef4724 usage of
+> > struct dmtimer_clockevent backported to the platform timer code
+> > still used in linux-5.4.y stable kernel.
+> 
+> Why not just use the normal commit message with the "upstream commit..."
+> message as the first line, and then in the s-o-b area add
+> [backported to 5.4.y - tony]
+> 
+> That's the normal thing we do here for backporting.
 
-This is a note to let you know that I've just added the patch titled
+OK sure works for me thanks. I will repost the series with
+updated patch descriptions.
 
-    usb: fix various gadget panics on 10gbps cabling
+Regards,
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 032e288097a553db5653af552dd8035cd2a0ba96 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Date: Tue, 8 Jun 2021 19:44:59 -0700
-Subject: usb: fix various gadget panics on 10gbps cabling
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-usb_assign_descriptors() is called with 5 parameters,
-the last 4 of which are the usb_descriptor_header for:
-  full-speed (USB1.1 - 12Mbps [including USB1.0 low-speed @ 1.5Mbps),
-  high-speed (USB2.0 - 480Mbps),
-  super-speed (USB3.0 - 5Gbps),
-  super-speed-plus (USB3.1 - 10Gbps).
-
-The differences between full/high/super-speed descriptors are usually
-substantial (due to changes in the maximum usb block size from 64 to 512
-to 1024 bytes and other differences in the specs), while the difference
-between 5 and 10Gbps descriptors may be as little as nothing
-(in many cases the same tuning is simply good enough).
-
-However if a gadget driver calls usb_assign_descriptors() with
-a NULL descriptor for super-speed-plus and is then used on a max 10gbps
-configuration, the kernel will crash with a null pointer dereference,
-when a 10gbps capable device port + cable + host port combination shows up.
-(This wouldn't happen if the gadget max-speed was set to 5gbps, but
-it of course defaults to the maximum, and there's no real reason to
-artificially limit it)
-
-The fix is to simply use the 5gbps descriptor as the 10gbps descriptor,
-if a 10gbps descriptor wasn't provided.
-
-Obviously this won't fix the problem if the 5gbps descriptor is also
-NULL, but such cases can't be so trivially solved (and any such gadgets
-are unlikely to be used with USB3 ports any way).
-
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210609024459.1126080-1-zenczykowski@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/gadget/config.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/drivers/usb/gadget/config.c b/drivers/usb/gadget/config.c
-index 8bb25773b61e..05507606b2b4 100644
---- a/drivers/usb/gadget/config.c
-+++ b/drivers/usb/gadget/config.c
-@@ -164,6 +164,14 @@ int usb_assign_descriptors(struct usb_function *f,
- {
- 	struct usb_gadget *g = f->config->cdev->gadget;
- 
-+	/* super-speed-plus descriptor falls back to super-speed one,
-+	 * if such a descriptor was provided, thus avoiding a NULL
-+	 * pointer dereference if a 5gbps capable gadget is used with
-+	 * a 10gbps capable config (device port + cable + host port)
-+	 */
-+	if (!ssp)
-+		ssp = ss;
-+
- 	if (fs) {
- 		f->fs_descriptors = usb_copy_descriptors(fs);
- 		if (!f->fs_descriptors)
--- 
-2.32.0
-
+Tony
 
