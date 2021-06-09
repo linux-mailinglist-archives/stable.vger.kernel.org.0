@@ -2,133 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C4193A1E2E
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 22:38:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D2253A1E45
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 22:47:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229527AbhFIUkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 16:40:36 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:49748 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229517AbhFIUkf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Jun 2021 16:40:35 -0400
-Received: from mailhost.synopsys.com (sv1-mailhost1.synopsys.com [10.205.2.131])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 8988840137;
-        Wed,  9 Jun 2021 20:38:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1623271120; bh=x5FZ7s0gV3TtZbTpP8ZsfARwbUhd7+uaV2J4rMMqm00=;
-        h=From:To:Cc:Subject:Date:From;
-        b=POuVRDtyBlXcMS9O86zOEcpQMRthj9jSEcMlEoy/JCbVnjS8IdDSNMWfwzVZVAJ3F
-         QycEpLZDRgdmWyCtD7efSUeHZsJ8Y1ce7VaVsySiFnNuNGbF/IlxXo3/jk9VAfdGpH
-         45fyqinxauXZaVeECkP9bC12GaHDQH0ZNxMqWC6jORkic/Kh49DUIq0GU1ahOIi2tm
-         nIbHFR6FVT16oiB1egf1t3Ms3FD4fLG+ZPpVIkw68s+h+7p/koTfVdPeTQMNXj33T/
-         uQzY4S1z4WrYlMS63hiR01M5yr6UadCztUayftRncFuAx/toKZmO+/usK9yJekDEH7
-         bdTnKx8zo6iWA==
-Received: from vineetg-Latitude-7400.internal.synopsys.com (snps-fugpbdpduq.internal.synopsys.com [10.202.17.37])
-        by mailhost.synopsys.com (Postfix) with ESMTP id 64D4BA005E;
-        Wed,  9 Jun 2021 20:38:38 +0000 (UTC)
-X-SNPS-Relay: synopsys.com
-From:   Vineet Gupta <Vineet.Gupta1@synopsys.com>
-To:     linux-snps-arc@lists.infradead.org
-Cc:     linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
-        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
-        stable@vger.kernel.org,
-        Vladimir Isaev <Vladimir.Isaev@synopsys.com>
-Subject: [PATCH] ARCv2: save ABI registers across signal handling
-Date:   Wed,  9 Jun 2021 13:38:36 -0700
-Message-Id: <20210609203836.2213688-1-vgupta@synopsys.com>
-X-Mailer: git-send-email 2.25.1
+        id S229639AbhFIUta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 16:49:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37950 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229638AbhFIUta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Jun 2021 16:49:30 -0400
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4792C061574
+        for <stable@vger.kernel.org>; Wed,  9 Jun 2021 13:47:35 -0700 (PDT)
+Received: by mail-oi1-x22f.google.com with SMTP id t140so21217738oih.0
+        for <stable@vger.kernel.org>; Wed, 09 Jun 2021 13:47:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Vag9/8FGjqghdTKqiSl5++HoCdqg8Zzpy0nJ6KQYlnM=;
+        b=Gk46LPTsRJwhdO4Mq0mczuTqy9D71hvSrzLmzsONzqmFveakXEoJbycoXHWqyPOADE
+         ZawIb1zHD43HYqE33YpUBKQ+3haAmnTaD4DaylWOc8sb+0BPey4ntvo59kOmdawm1u+3
+         ReJ3sl72BAv7W8zyQtJ3L1mwzrKsul9pj98Ww=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Vag9/8FGjqghdTKqiSl5++HoCdqg8Zzpy0nJ6KQYlnM=;
+        b=RUsW3FVCQ7ntm5vIQafNQzVfmPWm4szxmOH4x/M34cEWRiGXXiTGly5syrJ2+Lt7MD
+         E36IiLQX7arPceEUiFDnNxRcyT+bVZBdrg1piHSsM8gMHUz6buk0GsxdRyeDFOS54K3l
+         PYIt98BVpE1g7lUo5Fakcr4vXC8PDEErz/9JtykEV/dFqMr9UA5kIHvSVOB1klf5b/T3
+         kK+lBUY+JiJy/6HRAn2q9GYQW7hMCeysZd3i0utR7ngDzpjhObNii4DrnJX3UEqV1axF
+         jjmN5V58WwWN419wnNiYOZ44KK78JJvsjJpn8HMrC2ActtDtykcDXjMxwKJP+c2ze3cX
+         nJkg==
+X-Gm-Message-State: AOAM533zf5xpDBv+p/gBmK7O3JbLT8Dxp/Uw/EO5StIjZZBiGHTdwm6N
+        uroFxvGXL5bBL3GqPKQNaBUEyg==
+X-Google-Smtp-Source: ABdhPJyCT9ck33g0zuGnxXSHtj1f7rz/k3dKU1Ck2ttC50/KWazu1v0WwUj5hUl/9SGgavMOVzoz6Q==
+X-Received: by 2002:aca:4bd7:: with SMTP id y206mr1020458oia.40.1623271653388;
+        Wed, 09 Jun 2021 13:47:33 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id 22sm225896otv.8.2021.06.09.13.47.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Jun 2021 13:47:32 -0700 (PDT)
+Date:   Wed, 9 Jun 2021 15:47:31 -0500
+From:   Justin Forbes <jmforbes@linuxtx.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.12 000/161] 5.12.10-rc1 review
+Message-ID: <YMEo40AhQipABk3u@fedora64.linuxtx.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ARCv2 has some configuration dependent registers (r30, r58, r59) which
-could be targetted by the compiler. To keep the ABI stable, these were
-unconditionally part of the glibc ABI
-(sysdeps/unix/sysv/linux/arc/sys/ucontext.h:mcontext_t) however we
-missed populating them (by saving/restoring them across signal
-handling).
+On Tue, Jun 08, 2021 at 08:25:30PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.12.10 release.
+> There are 161 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 10 Jun 2021 17:59:18 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-This patch fixes the issue by
- - adding arcv2 ABI regs to kernel struct sigcontext
- - populating them during signal handling
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Change to struct sigcontext might seem like a glibc ABI change (although
-it primarily uses ucontext_t:mcontext_t) but the fact is
- - it has only been extended (existing fields are not touched)
- - the old sigcontext was ABI incomplete to begin with anyways
-
-Fixes: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/53
-Cc: <stable@vger.kernel.org>
-Reported-by: Vladimir Isaev <isaev@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
----
- arch/arc/include/uapi/asm/sigcontext.h |  1 +
- arch/arc/kernel/signal.c               | 29 ++++++++++++++++++++++++++
- 2 files changed, 30 insertions(+)
-
-diff --git a/arch/arc/include/uapi/asm/sigcontext.h b/arch/arc/include/uapi/asm/sigcontext.h
-index 95f8a4380e11..7a5449dfcb29 100644
---- a/arch/arc/include/uapi/asm/sigcontext.h
-+++ b/arch/arc/include/uapi/asm/sigcontext.h
-@@ -18,6 +18,7 @@
-  */
- struct sigcontext {
- 	struct user_regs_struct regs;
-+	struct user_regs_arcv2 v2abi;
- };
- 
- #endif /* _ASM_ARC_SIGCONTEXT_H */
-diff --git a/arch/arc/kernel/signal.c b/arch/arc/kernel/signal.c
-index b3ccb9e5ffe4..534b3d9bafc8 100644
---- a/arch/arc/kernel/signal.c
-+++ b/arch/arc/kernel/signal.c
-@@ -94,6 +94,21 @@ stash_usr_regs(struct rt_sigframe __user *sf, struct pt_regs *regs,
- 
- 	err = __copy_to_user(&(sf->uc.uc_mcontext.regs.scratch), &uregs.scratch,
- 			     sizeof(sf->uc.uc_mcontext.regs.scratch));
-+
-+	if (is_isa_arcv2()) {
-+		struct user_regs_arcv2 v2abi;
-+
-+		v2abi.r30 = regs->r30;
-+#ifdef CONFIG_ARC_HAS_ACCL_REGS
-+		v2abi.r58 = regs->r58;
-+		v2abi.r59 = regs->r59;
-+#else
-+		v2abi.r58 = v2abi.r59 = 0;
-+#endif
-+		err |= __copy_to_user(&(sf->uc.uc_mcontext.v2abi), &v2abi,
-+				      sizeof(sf->uc.uc_mcontext.v2abi));
-+	}
-+
- 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(sigset_t));
- 
- 	return err ? -EFAULT : 0;
-@@ -109,6 +124,20 @@ static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
- 	err |= __copy_from_user(&uregs.scratch,
- 				&(sf->uc.uc_mcontext.regs.scratch),
- 				sizeof(sf->uc.uc_mcontext.regs.scratch));
-+
-+	if (is_isa_arcv2()) {
-+		struct user_regs_arcv2 v2abi;
-+
-+		err |= __copy_from_user(&v2abi,	&(sf->uc.uc_mcontext.v2abi),
-+					sizeof(sf->uc.uc_mcontext.v2abi));
-+
-+		regs->r30 = v2abi.r30;
-+#ifdef CONFIG_ARC_HAS_ACCL_REGS
-+		regs->r58 = v2abi.r58;
-+		regs->r59 = v2abi.r59;
-+#endif
-+	}
-+
- 	if (err)
- 		return -EFAULT;
- 
--- 
-2.25.1
-
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
