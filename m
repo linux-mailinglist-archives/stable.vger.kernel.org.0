@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 552413A1D54
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 20:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9966C3A1D5A
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 20:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbhFIS7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 14:59:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54918 "EHLO mail.kernel.org"
+        id S230364AbhFITAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 15:00:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230293AbhFIS7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Jun 2021 14:59:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3C7661364;
-        Wed,  9 Jun 2021 18:57:37 +0000 (UTC)
-Date:   Wed, 9 Jun 2021 20:57:35 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        Hans de Goede <hdegoede@redhat.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>
-Subject: Re: [PATCH v3] tpm: Replace WARN_ONCE() with dev_err_once() in
- tpm_tis_status()
-Message-ID: <YMEPHy2rnMvAnWt6@kroah.com>
-References: <20210609132619.45017-1-jarkko@kernel.org>
+        id S230334AbhFIS74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Jun 2021 14:59:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53F0C613AC;
+        Wed,  9 Jun 2021 18:58:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623265081;
+        bh=P+QABQYjPRkSiYEChLz+GW9EQTDElNgOh+61zoofl4w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WbcQhdLxGUHTitqFgvxTWNXnnV4sK+gBW3MQo+RBKr+RYUR+PEcJ60uOs4ZfNXUoU
+         K4IvpiNPVXkjbN3QEql9QA8Rw1jXRuqwV50twLuxENSa1yJuKoY8lKZbHk5inPoyPh
+         ohbYu513I2lE7/LS+9QfyisuBaip5wjTxN38VQ7w=
+Date:   Wed, 9 Jun 2021 20:57:59 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Dinh Nguyen <dinguyen@kernel.org>
+Cc:     linux-clk@vger.kernel.org, sboyd@kernel.org,
+        mturquette@baylibre.com, stable@vger.kernel.org
+Subject: Re: [PATCH 1/4] clk: agilex/stratix10: remove noc_clk
+Message-ID: <YMEPN1cMjLZxfNJ6@kroah.com>
+References: <20210609185008.36056-1-dinguyen@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210609132619.45017-1-jarkko@kernel.org>
+In-Reply-To: <20210609185008.36056-1-dinguyen@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 09, 2021 at 04:26:19PM +0300, Jarkko Sakkinen wrote:
-> Do not tear down the system when getting invalid status from a TPM chip.
-> This can happen when panic-on-warn is used.
+On Wed, Jun 09, 2021 at 01:50:05PM -0500, Dinh Nguyen wrote:
+> Early documentation had a noc_clk, but in reality, it's just the
+> noc_free_clk. Remove the noc_clk clock and just use the noc_free_clk.
 > 
-> Instead, introduce TPM_TIS_INVALID_STATUS bitflag and use it to trigger
-> once the error reporting per chip. In addition, print out the value of
-> TPM_STS for improved forensics.
-> 
-> Link: https://lore.kernel.org/keyrings/YKzlTR1AzUigShtZ@kroah.com/
-> Fixes: 55707d531af6 ("tpm_tis: Add a check for invalid status")
-> Cc: stable@vger.kernel.org
-> Cc: Hans de Goede <hdegoede@redhat.com>
-> Cc: Greg KH <greg@kroah.com>
-> Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+> Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
+> Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 > ---
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+<formletter>
+
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
