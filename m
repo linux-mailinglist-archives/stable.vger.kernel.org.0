@@ -2,107 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C05C03A1F2D
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 23:45:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 671303A1FC8
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 00:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229626AbhFIVrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 17:47:19 -0400
-Received: from mail-lf1-f49.google.com ([209.85.167.49]:44920 "EHLO
-        mail-lf1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229557AbhFIVrT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Jun 2021 17:47:19 -0400
-Received: by mail-lf1-f49.google.com with SMTP id r198so37039512lff.11
-        for <stable@vger.kernel.org>; Wed, 09 Jun 2021 14:45:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=aaXF2yQYlF3XaWxmnf9WH9rzEvbnGjon/80g8w4+GyI=;
-        b=I0Uv1/Obcy6RZhS3152uYEHuLVSidy2Itl/6Pz8iSIW5HjbdZiHIic91RTMHJu5nBU
-         W1zV/GRWkSf8fG3bTYSYA7A1IUfcQ7z+NLf6Pc+4PlIpLqHS3KhxsY5r4DnUxChi0o2U
-         JGC6Ia6Pgrb6fYuxAFQpZcxJZ7vJMdjMpMdbA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=aaXF2yQYlF3XaWxmnf9WH9rzEvbnGjon/80g8w4+GyI=;
-        b=beu/uSkpom69yU4Ual7ATEBaFREiqjvvg5MxQx9UkoppOjnOtsQv4PO386Bu5F/SXd
-         cyi9LOHX/tXQlxVAwvMpE0Z5BCx1Lp+KPlXgO4oS7027Gom5zs/u2mtAcFeaQAs9MxbU
-         6z3xJRHVVbrHHvDrKEe795ZMuOw3b45llaqip0UM5cTto360N8Ohz8kojFsb4pBlvx26
-         AU7StVvedMHTxAZfhTcKV77hKJHD763Ipc1zoQiGLOumXBbxWrkn5xIqNiEvwK1Nidsz
-         TDYdui0mjHRuveOQMcxm6uQ7lt6XQwCdY7V5zxW21HWgOXLfmfcTbRSZHGc/fdCuWlfP
-         HDpw==
-X-Gm-Message-State: AOAM530rwZ41mbptA/m2VTh0Dkb0d81H28V/1ZVNWw1Ojjh2nAxFJ3rb
-        wqrr7iqX44nVZou1UFPN31ix+2qR+jUNlVEqSg4=
-X-Google-Smtp-Source: ABdhPJzU5j9aseQgnw6e8R5ETXveZkY2+1FJGYos/29/VxhVwMxHfCPs3cbS6hLZu3Md/dIc0isFFg==
-X-Received: by 2002:a19:480b:: with SMTP id v11mr991323lfa.126.1623275050134;
-        Wed, 09 Jun 2021 14:44:10 -0700 (PDT)
-Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com. [209.85.208.171])
-        by smtp.gmail.com with ESMTPSA id p5sm107242ljc.117.2021.06.09.14.44.07
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Jun 2021 14:44:08 -0700 (PDT)
-Received: by mail-lj1-f171.google.com with SMTP id 131so1796124ljj.3
-        for <stable@vger.kernel.org>; Wed, 09 Jun 2021 14:44:07 -0700 (PDT)
-X-Received: by 2002:a2e:8587:: with SMTP id b7mr1307218lji.465.1623275047231;
- Wed, 09 Jun 2021 14:44:07 -0700 (PDT)
+        id S229678AbhFIWJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 18:09:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52732 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229536AbhFIWJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Jun 2021 18:09:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F91F613E6;
+        Wed,  9 Jun 2021 22:07:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623276463;
+        bh=8lohqtM5vYcUit3TkCLDiatbG5BOUIFupvfsoJAgZVs=;
+        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
+        b=Dpq4tsWzzfgouXFbPB6MnBua7diTMUdEPq1vRp4HUQoJuDTkTs8asWG7LjkNz+sgr
+         iwOTikU/+dMsuCik0vqqoCKP9Q7bL6KWotIUEUzJQ0VdeNr13z5Z3dw5402gaLIR7/
+         YRWue5r5yGbzEMPONI3/hm6peAwzDdrXjUuTbs5KZRfJYSYCsEEIT3H45m1OQkiFlr
+         CXnZpkoi+GYVOP0ELdlWwJv9br/IVDZsit4tYSDM7SZvMEWSCt8DriLQBQbOuLgcOB
+         VTeGzGDLCN3gzUTi0o9MWZArclFDw7oBN+x3N+aInQitzBgUKmxEyTo4UwRn9m9QQG
+         soVe5TDQwu87A==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210607125734.1770447-1-liangyan.peng@linux.alibaba.com>
- <71fa2e69-a60b-0795-5fef-31658f89591a@linux.alibaba.com> <CAHk-=whKbJkuVmzb0hD3N6q7veprUrSpiBHRxVY=AffWZPtxmg@mail.gmail.com>
- <20210609165154.3eab1749@oasis.local.home>
-In-Reply-To: <20210609165154.3eab1749@oasis.local.home>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 9 Jun 2021 14:43:51 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wiGWjxs7EVUpccZEi6esvjpHJdgHQ=vtUeJ5crL62hx9A@mail.gmail.com>
-Message-ID: <CAHk-=wiGWjxs7EVUpccZEi6esvjpHJdgHQ=vtUeJ5crL62hx9A@mail.gmail.com>
-Subject: Re: [PATCH] tracing: Correct the length check which causes memory corruption
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     James Wang <jnwang@linux.alibaba.com>,
-        Liangyan <liangyan.peng@linux.alibaba.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        yinbinbin@alibabacloud.com, wetp <wetp.zy@linux.alibaba.com>,
-        stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210609191736.39668-4-dinguyen@kernel.org>
+References: <20210609191736.39668-1-dinguyen@kernel.org> <20210609191736.39668-4-dinguyen@kernel.org>
+Subject: Re: [PATCHv2 4/4] clk: agilex/stratix10/n5x: fix how the bypass_reg is handled
+From:   Stephen Boyd <sboyd@kernel.org>
+Cc:     dinguyen@kernel.org, mturquette@baylibre.com,
+        stable@vger.kernel.org
+To:     Dinh Nguyen <dinguyen@kernel.org>, linux-clk@vger.kernel.org
+Date:   Wed, 09 Jun 2021 15:07:42 -0700
+Message-ID: <162327646225.9598.494770537412694156@swboyd.mtv.corp.google.com>
+User-Agent: alot/0.9.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 9, 2021 at 1:52 PM Steven Rostedt <rostedt@goodmis.org> wrote:
-> >
-> > That "sizeof(*entry)" is clearly wrong, because it doesn't take the
-> > unsized array into account.
->
-> Correct. That's because I forgot that the structure has that empty array :-(
+Quoting Dinh Nguyen (2021-06-09 12:17:36)
+> If the bypass_reg is set, then we can return the bypass parent, however,
+> if there is not a bypass_reg, we need to figure what the correct parent
+> mux is.
+>=20
+> The previous code never handled the parent mux if there was a
+> bypass_reg.
+>=20
+> Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agil=
+ex platform")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+> ---
+>  drivers/clk/socfpga/clk-periph-s10.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/clk/socfpga/clk-periph-s10.c b/drivers/clk/socfpga/c=
+lk-periph-s10.c
+> index e5a5fef76df7..e2aad5d37611 100644
+> --- a/drivers/clk/socfpga/clk-periph-s10.c
+> +++ b/drivers/clk/socfpga/clk-periph-s10.c
+> @@ -66,14 +66,19 @@ static u8 clk_periclk_get_parent(struct clk_hw *hwclk)
+>         u32 clk_src, mask;
+>         u8 parent;
+> =20
+> +       /* handle the bypass first */
+>         if (socfpgaclk->bypass_reg) {
+>                 mask =3D (0x1 << socfpgaclk->bypass_shift);
+>                 parent =3D ((readl(socfpgaclk->bypass_reg) & mask) >>
+>                            socfpgaclk->bypass_shift);
+> -       } else {
+> +               if (parent)
+> +                       return parent;
+> +       }
+> +
 
-Note that 'sparse' does have the option to warn about odd flexible
-array uses. Including 'sizeof()'.
+This seems to cause a smatch warning
 
-You can do something like
+drivers/clk/socfpga/clk-periph-s10.c:83 clk_periclk_get_parent() error: uni=
+nitialized symbol 'parent'.
 
-    CF='-Wflexible-array-sizeof' make C=2 kernel/trace/trace.o
-
-and you'll see
-
-  kernel/trace/trace.c:1022:17: warning: using sizeof on a flexible structure
-  kernel/trace/trace.c:2645:17: warning: using sizeof on a flexible structure
-  kernel/trace/trace.c:2739:41: warning: using sizeof on a flexible structure
-  kernel/trace/trace.c:3290:16: warning: using sizeof on a flexible structure
-  kernel/trace/trace.c:3350:16: warning: using sizeof on a flexible structure
-  kernel/trace/trace.c:6989:16: warning: using sizeof on a flexible structure
-  kernel/trace/trace.c:7070:16: warning: using sizeof on a flexible structure
-
-and I suspect every single one of those should be using
-'struct_size()' instead for a sizeof() on the base structure plus some
-manual arithmetic (or, as in the case of this bug, _without_ the extra
-arithmetic).
-
-And yeah, it isn't just the tracing code that does this. We have it
-all over, so that sparse check isn't on by default. Sparse is pretty
-darn noisy even without it, but it can be worth using that
-CF='-Wflexible-array-sizeof' on individual files that you want to
-check.
-
-               Linus
+> +       if (socfpgaclk->hw.reg) {
+>                 clk_src =3D readl(socfpgaclk->hw.reg);
+>                 parent =3D (clk_src >> CLK_MGR_FREE_SHIFT) &
+> -                       CLK_MGR_FREE_MASK;
+> +                         CLK_MGR_FREE_MASK;
+>         }
+>         return parent;
+>  }
