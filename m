@@ -2,35 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E872B3A0ED3
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 10:37:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D8973A0ED5
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 10:40:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236702AbhFIIjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 04:39:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
+        id S233832AbhFIIma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 04:42:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232333AbhFIIjj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Jun 2021 04:39:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D53B60FDC;
-        Wed,  9 Jun 2021 08:37:31 +0000 (UTC)
+        id S231626AbhFIIma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Jun 2021 04:42:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1793961359;
+        Wed,  9 Jun 2021 08:40:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623227851;
-        bh=v1Nz/471WSL8r4GRDByc4BiqV5PYcsm7se2Q+DwX17w=;
+        s=korg; t=1623228023;
+        bh=+7C7e/GvEXzVtBIUpu7Ytye+6udl3LOfR2QjK0EU4KQ=;
         h=Subject:To:From:Date:From;
-        b=lu/rdHLWU+U2VJOab6+dQFxzYT8bU/Ji8pbwayPjm1PH5znWsEc9cT1FN0j5orrvQ
-         GuPXOWgNZakXRPpsDsku2KWrNlbuiTSOvMLvadaDQarIOY3ng75tE/oDU2dyZXv+YM
-         7MxPlXy6CtIOw1JXelt2suOlZrBUKSZ2JWttBxM8=
-Subject: patch "usb: fix various gadgets null ptr deref on 10gbps cabling." added to usb-linus
-To:     maze@google.com, balbi@kernel.org, christophe.jaillet@wanadoo.fr,
-        gregkh@linuxfoundation.org, gustavoars@kernel.org,
-        jj251510319013@gmail.com, lorenzo@google.com,
-        martin.petersen@oracle.com, michael.christie@oracle.com,
-        msweet@msweet.org, pawell@cadence.com, peter.chen@nxp.com,
-        qiang.zhang@windriver.com, stable@vger.kernel.org,
-        sudhakar.panneerselvam@oracle.com, willmcvicker@google.com
+        b=KZC1ShrEl2ZDRBWWTG+P//bW8acdT2q0ClKXBno4KSE1nkTXotSC0RDia/0TltcPe
+         0VJ4Hq0iod5j3I3THifYdfKJOqaOVjphGC6fHT0g5CLRY+phELYnfqr9Mv86f1/fjm
+         QfD+Leu5vwyolFTI/D1Sfrih5l9tiO16KfyFSXzI=
+Subject: patch "usb: fix various gadget panics on 10gbps cabling" added to usb-linus
+To:     maze@google.com, balbi@kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Jun 2021 10:37:29 +0200
-Message-ID: <162322784940113@kroah.com>
+Date:   Wed, 09 Jun 2021 10:40:21 +0200
+Message-ID: <162322802125252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: fix various gadgets null ptr deref on 10gbps cabling.
+    usb: fix various gadget panics on 10gbps cabling
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -56,184 +51,71 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 90c4d05780d47e14a50e11a7f17373104cd47d25 Mon Sep 17 00:00:00 2001
+From 032e288097a553db5653af552dd8035cd2a0ba96 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Date: Mon, 7 Jun 2021 21:41:41 -0700
-Subject: usb: fix various gadgets null ptr deref on 10gbps cabling.
+Date: Tue, 8 Jun 2021 19:44:59 -0700
+Subject: usb: fix various gadget panics on 10gbps cabling
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-This avoids a null pointer dereference in
-f_{ecm,eem,hid,loopback,printer,rndis,serial,sourcesink,subset,tcm}
-by simply reusing the 5gbps config for 10gbps.
+usb_assign_descriptors() is called with 5 parameters,
+the last 4 of which are the usb_descriptor_header for:
+  full-speed (USB1.1 - 12Mbps [including USB1.0 low-speed @ 1.5Mbps),
+  high-speed (USB2.0 - 480Mbps),
+  super-speed (USB3.0 - 5Gbps),
+  super-speed-plus (USB3.1 - 10Gbps).
 
-Fixes: eaef50c76057 ("usb: gadget: Update usb_assign_descriptors for SuperSpeedPlus")
-Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+The differences between full/high/super-speed descriptors are usually
+substantial (due to changes in the maximum usb block size from 64 to 512
+to 1024 bytes and other differences in the specs), while the difference
+between 5 and 10Gbps descriptors may be as little as nothing
+(in many cases the same tuning is simply good enough).
+
+However if a gadget driver calls usb_assign_descriptors() with
+a NULL descriptor for super-speed-plus and is then used on a max 10gbps
+configuration, the kernel will crash with a null pointer dereference,
+when a 10gbps capable device port + cable + host port combination shows up.
+(This wouldn't happen if the gadget max-speed was set to 5gbps, but
+it of course defaults to the maximum, and there's no real reason to
+artificially limit it)
+
+The fix is to simply use the 5gbps descriptor as the 10gbps descriptor,
+if a 10gbps descriptor wasn't provided.
+
+Obviously this won't fix the problem if the 5gbps descriptor is also
+NULL, but such cases can't be so trivially solved (and any such gadgets
+are unlikely to be used with USB3 ports any way).
+
 Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: Michael R Sweet <msweet@msweet.org>
-Cc: Mike Christie <michael.christie@oracle.com>
-Cc: Pawel Laszczak <pawell@cadence.com>
-Cc: Peter Chen <peter.chen@nxp.com>
-Cc: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
-Cc: Wei Ming Chen <jj251510319013@gmail.com>
-Cc: Will McVicker <willmcvicker@google.com>
-Cc: Zqiang <qiang.zhang@windriver.com>
-Reviewed-By: Lorenzo Colitti <lorenzo@google.com>
-Cc: stable <stable@vger.kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20210608044141.3898496-1-zenczykowski@gmail.com
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210609024459.1126080-1-zenczykowski@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ecm.c        | 2 +-
- drivers/usb/gadget/function/f_eem.c        | 2 +-
- drivers/usb/gadget/function/f_hid.c        | 3 ++-
- drivers/usb/gadget/function/f_loopback.c   | 2 +-
- drivers/usb/gadget/function/f_printer.c    | 3 ++-
- drivers/usb/gadget/function/f_rndis.c      | 2 +-
- drivers/usb/gadget/function/f_serial.c     | 2 +-
- drivers/usb/gadget/function/f_sourcesink.c | 3 ++-
- drivers/usb/gadget/function/f_subset.c     | 2 +-
- drivers/usb/gadget/function/f_tcm.c        | 3 ++-
- 10 files changed, 14 insertions(+), 10 deletions(-)
+ drivers/usb/gadget/config.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_ecm.c b/drivers/usb/gadget/function/f_ecm.c
-index 7f5cf488b2b1..ffe2486fce71 100644
---- a/drivers/usb/gadget/function/f_ecm.c
-+++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -791,7 +791,7 @@ ecm_bind(struct usb_configuration *c, struct usb_function *f)
- 		fs_ecm_notify_desc.bEndpointAddress;
+diff --git a/drivers/usb/gadget/config.c b/drivers/usb/gadget/config.c
+index 8bb25773b61e..05507606b2b4 100644
+--- a/drivers/usb/gadget/config.c
++++ b/drivers/usb/gadget/config.c
+@@ -164,6 +164,14 @@ int usb_assign_descriptors(struct usb_function *f,
+ {
+ 	struct usb_gadget *g = f->config->cdev->gadget;
  
- 	status = usb_assign_descriptors(f, ecm_fs_function, ecm_hs_function,
--			ecm_ss_function, NULL);
-+			ecm_ss_function, ecm_ss_function);
- 	if (status)
- 		goto fail;
- 
-diff --git a/drivers/usb/gadget/function/f_eem.c b/drivers/usb/gadget/function/f_eem.c
-index cfcc4e81fb77..e6cb38439c41 100644
---- a/drivers/usb/gadget/function/f_eem.c
-+++ b/drivers/usb/gadget/function/f_eem.c
-@@ -302,7 +302,7 @@ static int eem_bind(struct usb_configuration *c, struct usb_function *f)
- 	eem_ss_out_desc.bEndpointAddress = eem_fs_out_desc.bEndpointAddress;
- 
- 	status = usb_assign_descriptors(f, eem_fs_function, eem_hs_function,
--			eem_ss_function, NULL);
-+			eem_ss_function, eem_ss_function);
- 	if (status)
- 		goto fail;
- 
-diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
-index 1125f4715830..e55699308117 100644
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -802,7 +802,8 @@ static int hidg_bind(struct usb_configuration *c, struct usb_function *f)
- 		hidg_fs_out_ep_desc.bEndpointAddress;
- 
- 	status = usb_assign_descriptors(f, hidg_fs_descriptors,
--			hidg_hs_descriptors, hidg_ss_descriptors, NULL);
-+			hidg_hs_descriptors, hidg_ss_descriptors,
-+			hidg_ss_descriptors);
- 	if (status)
- 		goto fail;
- 
-diff --git a/drivers/usb/gadget/function/f_loopback.c b/drivers/usb/gadget/function/f_loopback.c
-index b56ad7c3838b..ae41f556eb75 100644
---- a/drivers/usb/gadget/function/f_loopback.c
-+++ b/drivers/usb/gadget/function/f_loopback.c
-@@ -207,7 +207,7 @@ static int loopback_bind(struct usb_configuration *c, struct usb_function *f)
- 	ss_loop_sink_desc.bEndpointAddress = fs_loop_sink_desc.bEndpointAddress;
- 
- 	ret = usb_assign_descriptors(f, fs_loopback_descs, hs_loopback_descs,
--			ss_loopback_descs, NULL);
-+			ss_loopback_descs, ss_loopback_descs);
- 	if (ret)
- 		return ret;
- 
-diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
-index f47fdc1fa7f1..59d382fe1bbf 100644
---- a/drivers/usb/gadget/function/f_printer.c
-+++ b/drivers/usb/gadget/function/f_printer.c
-@@ -1101,7 +1101,8 @@ static int printer_func_bind(struct usb_configuration *c,
- 	ss_ep_out_desc.bEndpointAddress = fs_ep_out_desc.bEndpointAddress;
- 
- 	ret = usb_assign_descriptors(f, fs_printer_function,
--			hs_printer_function, ss_printer_function, NULL);
-+			hs_printer_function, ss_printer_function,
-+			ss_printer_function);
- 	if (ret)
- 		return ret;
- 
-diff --git a/drivers/usb/gadget/function/f_rndis.c b/drivers/usb/gadget/function/f_rndis.c
-index 0739b05a0ef7..ee95e8f5f9d4 100644
---- a/drivers/usb/gadget/function/f_rndis.c
-+++ b/drivers/usb/gadget/function/f_rndis.c
-@@ -789,7 +789,7 @@ rndis_bind(struct usb_configuration *c, struct usb_function *f)
- 	ss_notify_desc.bEndpointAddress = fs_notify_desc.bEndpointAddress;
- 
- 	status = usb_assign_descriptors(f, eth_fs_function, eth_hs_function,
--			eth_ss_function, NULL);
-+			eth_ss_function, eth_ss_function);
- 	if (status)
- 		goto fail;
- 
-diff --git a/drivers/usb/gadget/function/f_serial.c b/drivers/usb/gadget/function/f_serial.c
-index e62713846350..1ed8ff0ac2d3 100644
---- a/drivers/usb/gadget/function/f_serial.c
-+++ b/drivers/usb/gadget/function/f_serial.c
-@@ -233,7 +233,7 @@ static int gser_bind(struct usb_configuration *c, struct usb_function *f)
- 	gser_ss_out_desc.bEndpointAddress = gser_fs_out_desc.bEndpointAddress;
- 
- 	status = usb_assign_descriptors(f, gser_fs_function, gser_hs_function,
--			gser_ss_function, NULL);
-+			gser_ss_function, gser_ss_function);
- 	if (status)
- 		goto fail;
- 	dev_dbg(&cdev->gadget->dev, "generic ttyGS%d: %s speed IN/%s OUT/%s\n",
-diff --git a/drivers/usb/gadget/function/f_sourcesink.c b/drivers/usb/gadget/function/f_sourcesink.c
-index 5a201ba7b155..1abf08e5164a 100644
---- a/drivers/usb/gadget/function/f_sourcesink.c
-+++ b/drivers/usb/gadget/function/f_sourcesink.c
-@@ -431,7 +431,8 @@ sourcesink_bind(struct usb_configuration *c, struct usb_function *f)
- 	ss_iso_sink_desc.bEndpointAddress = fs_iso_sink_desc.bEndpointAddress;
- 
- 	ret = usb_assign_descriptors(f, fs_source_sink_descs,
--			hs_source_sink_descs, ss_source_sink_descs, NULL);
-+			hs_source_sink_descs, ss_source_sink_descs,
-+			ss_source_sink_descs);
- 	if (ret)
- 		return ret;
- 
-diff --git a/drivers/usb/gadget/function/f_subset.c b/drivers/usb/gadget/function/f_subset.c
-index 4d945254905d..51c1cae162d9 100644
---- a/drivers/usb/gadget/function/f_subset.c
-+++ b/drivers/usb/gadget/function/f_subset.c
-@@ -358,7 +358,7 @@ geth_bind(struct usb_configuration *c, struct usb_function *f)
- 		fs_subset_out_desc.bEndpointAddress;
- 
- 	status = usb_assign_descriptors(f, fs_eth_function, hs_eth_function,
--			ss_eth_function, NULL);
-+			ss_eth_function, ss_eth_function);
- 	if (status)
- 		goto fail;
- 
-diff --git a/drivers/usb/gadget/function/f_tcm.c b/drivers/usb/gadget/function/f_tcm.c
-index 7acb507946e6..de161ee0b1f9 100644
---- a/drivers/usb/gadget/function/f_tcm.c
-+++ b/drivers/usb/gadget/function/f_tcm.c
-@@ -2057,7 +2057,8 @@ static int tcm_bind(struct usb_configuration *c, struct usb_function *f)
- 	uasp_fs_cmd_desc.bEndpointAddress = uasp_ss_cmd_desc.bEndpointAddress;
- 
- 	ret = usb_assign_descriptors(f, uasp_fs_function_desc,
--			uasp_hs_function_desc, uasp_ss_function_desc, NULL);
-+			uasp_hs_function_desc, uasp_ss_function_desc,
-+			uasp_ss_function_desc);
- 	if (ret)
- 		goto ep_fail;
- 
++	/* super-speed-plus descriptor falls back to super-speed one,
++	 * if such a descriptor was provided, thus avoiding a NULL
++	 * pointer dereference if a 5gbps capable gadget is used with
++	 * a 10gbps capable config (device port + cable + host port)
++	 */
++	if (!ssp)
++		ssp = ss;
++
+ 	if (fs) {
+ 		f->fs_descriptors = usb_copy_descriptors(fs);
+ 		if (!f->fs_descriptors)
 -- 
 2.32.0
 
