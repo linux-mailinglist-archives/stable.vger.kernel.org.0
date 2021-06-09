@@ -2,71 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2B3F3A1D2F
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 20:50:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABFE93A1D46
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 20:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230258AbhFISwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 14:52:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
+        id S229957AbhFIS70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 14:59:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230252AbhFISwR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Jun 2021 14:52:17 -0400
-Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E647C061574;
-        Wed,  9 Jun 2021 11:50:10 -0700 (PDT)
-Received: by mail-oi1-x22a.google.com with SMTP id r17so15865404oic.7;
-        Wed, 09 Jun 2021 11:50:10 -0700 (PDT)
+        with ESMTP id S229638AbhFIS7Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Jun 2021 14:59:25 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EFD8C061574;
+        Wed,  9 Jun 2021 11:57:17 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id pi6-20020a17090b1e46b029015cec51d7cdso2050020pjb.5;
+        Wed, 09 Jun 2021 11:57:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Jo3zkaVre167PVOcWcJgjhWeDF1nsY7cQ7aHMY03MHw=;
-        b=leHCOPoU4FsUwoXSAuE5exszK+CfJMeOmDUP1/IZEng3URkegtHUh3oyRUBKgKqrY5
-         FNTBWarrkjOPXQsqqUa7VFwdnrVLco0o/PEUxEV9VpID//1Fgo6BQcqKRaLYDul/4dmx
-         ZGegAv6GPkXXEDg7pVFoVv5IVh9O25HIuBVa20ve3eBFKjPOTqg3g3uDZPV665lt1Ipf
-         t4LLEHbIG5jO6dxVSbBv5/ggi9Yx6WKGr5hkln8IAw9g2iGPR6PJCCaRGm8egcbUr3S0
-         VKnrh4OYddngbbJRgfWGpC8NlcAJrCM7Kv0wyhREG9Dr/QuaTGo/AbXXnvx3ZzqzNVBo
-         ZDjg==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=CvxEU/y35Z5QN5sL8S8hykpRPTn1Es2BsdTK3qOc3+I=;
+        b=fE0Ww7iNwkGqvdAWPbgomHkAdJbjGyU2V+FE1Q4UwsuOgdWc64qwFAyS5oEYhbQPUb
+         Je4WMohE3sqLsKgI2uIOvUuX6ZoOlrrbWutgNqBKK6yW0KuAeWflWjmMNMUxkRJwK6uH
+         s/mvtpvqDnTbc/ukvienMrXpGbMAEIXMPzZ5uwgFD8EzRpd2mroOYQsoo8iJGA2de1Xf
+         6pKATcR2ad4BBw475PhfQnxPgJbHu92n7SGqOCLXRSxUkyi0PVgG3PoJ7/EquMMris/o
+         ciD0/zkCYBkvbFaSBNTqvDQXS9zrKE1gNzTGywapAuLT4Ie/s0XuRGf4+ey2XZWtl+ZW
+         tAmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=Jo3zkaVre167PVOcWcJgjhWeDF1nsY7cQ7aHMY03MHw=;
-        b=eeBwa3ssYhsXqK31ERkC6z3bKLaAP0P4EixC5mEnpsMQVM75NsR+rdU3T8MjNhNufo
-         1dC/2tNSi7O5HjV+AMNWAhRyNnemiYciDGGPx1tZU+V92+XPCEX6xQkJmMLSDbJa6Sww
-         iTE3zQYZl7ABOZuP7Be8htyDdhbqc00YgjXzr+vRaw3t0+z74Dxh3YwTMGliPXsXs0v8
-         zp3dVAzuT2l/Hds6aRtJPXcnIdDjIgY0HSZAxKBfPJPd/fla87AeWkSe4PS0JpmtL7/x
-         LnbB1ZccalvbSeVRyIRURoEdytOavoMyz0+tDm6cJYJN8eD2jzqZIPZkh/dd2vfzM8b8
-         obvw==
-X-Gm-Message-State: AOAM533uLQoYNFogIb+jGO26WK1SQ1JWkpsInaA0uxx0V5Jzq74BE87S
-        n/AD5ifwm777dmECqUemmeo=
-X-Google-Smtp-Source: ABdhPJxwRGthdc3xAZ9sCa7E97KcZBrMwMck3mPzYbd94ZSqkCATvSBZyBw7GI+E9isCu2GJZ+oevQ==
-X-Received: by 2002:a54:4f99:: with SMTP id g25mr7487460oiy.132.1623264609974;
-        Wed, 09 Jun 2021 11:50:09 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d20sm159134otq.62.2021.06.09.11.50.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Jun 2021 11:50:09 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 9 Jun 2021 11:50:08 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=CvxEU/y35Z5QN5sL8S8hykpRPTn1Es2BsdTK3qOc3+I=;
+        b=eP61DnxYiPs2+lYtDOYbxO/PhzHpzzMMyy/KSfBJgiumU/wBJ3/vC+tjrXyvD0orqC
+         XTfK9fOS3JOvJ79EwvLtGIEVFX1z4npkyxRIRVGyvVBsbwQn4cJnw0T5OkuXI5jG3nP9
+         fdqN32JvSSM5hI0+OxAeEzk5t/lR/O8MNaQj8UUFehc6eewkKIScOB+kvvIsTOoGPpZl
+         6LjgPAzYRljg9p64FP5PMEgysNgTRquT5oDJuHyxo3phsdDSGFE/ssrVjbGBiaVQNPDL
+         AuVxIDqfv9KCnfjHjXL2r6KFTpxWUQf9WpB1k2Biiryt4v6QeZvuBenS7pAgsbdrwB0f
+         9b3A==
+X-Gm-Message-State: AOAM531/N9amgKkcQFHJcObVjM8p+a85Z5ZCDnrPcSEbDGzDsEQJ8tG/
+        jFR6KQt2D5nGZIdvVxEaUlnLyVatL9k=
+X-Google-Smtp-Source: ABdhPJyUfcNXUJdVNNXso7nr+i/I4ht//3UF6nRgO45MisFQct3BB6DP/w1UIX52/W2oaZIZ8741cg==
+X-Received: by 2002:a17:90a:17ad:: with SMTP id q42mr12223103pja.181.1623265035308;
+        Wed, 09 Jun 2021 11:57:15 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id i21sm263276pfd.219.2021.06.09.11.57.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Jun 2021 11:57:14 -0700 (PDT)
 Subject: Re: [PATCH 5.12 000/161] 5.12.10-rc1 review
-Message-ID: <20210609185008.GG2531680@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
 References: <20210608175945.476074951@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <c7f17da8-7099-9e7e-a71e-24ee5f578f7f@gmail.com>
+Date:   Wed, 9 Jun 2021 11:57:07 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.10.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 08, 2021 at 08:25:30PM +0200, Greg Kroah-Hartman wrote:
+
+
+On 6/8/2021 11:25 AM, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.12.10 release.
 > There are 161 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
@@ -75,12 +81,17 @@ On Tue, Jun 08, 2021 at 08:25:30PM +0200, Greg Kroah-Hartman wrote:
 > Responses should be made by Thu, 10 Jun 2021 17:59:18 +0000.
 > Anything received after that time might be too late.
 > 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-Build results:
-	total: 151 pass: 151 fail: 0
-Qemu test results:
-	total: 462 pass: 462 fail: 0
-
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-Guenter
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
