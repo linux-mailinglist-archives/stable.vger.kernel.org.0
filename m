@@ -2,129 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 079213A1050
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 12:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D523A10D8
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 12:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233975AbhFIJk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 05:40:26 -0400
-Received: from mail-mw2nam10on2059.outbound.protection.outlook.com ([40.107.94.59]:38209
-        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S238097AbhFIJkZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Jun 2021 05:40:25 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ukg7DpBImwUHiNnUWQ5v5D3R8KIxyn1kLyGXRZH7Y0hrZIZ5mHpaNlC7pOSUwrMt7+9efRtJOF0ASlkj5ZZxUpxi3tQSakKpAdW/rfokDmoBZajDNFSwebndX3/ODOULSnUCFe0SgueKlKQtQAzmnW0K7FNmV9pivxnYilEW0Csv4lXRbZaI2+YiA2dF6anqolg+0GpZZcKUPrz4sINacJFyU3qo4VnMVhEh4h+CbesxvPfAPVQQTWaKPLk0jofXYiSxbE7IysSVERjtLbnJsGzZfsLuAWdh+5muie5giX/CcZopL6m/WWcRXw1oZxmdmghHjLc8HXOR5HTySICO4Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LOtkZq5+F+mHODFZSPd6JPf4CYe7crdJ20u0N/ZFPLU=;
- b=OuKBcvJ40k5Eej/rQq3rRgTPwpsCTz+dFsvdjpIauHwhXco61GaSo8lNiOZm89sYaUAUQCgitklGLwEkjy4Aeqo0+lsdkfUJkDqrzQskFQo0JtaukSBCq9vi/3Tl/9Lm8Scz4gdXC2BOofmuTU4KwrhP89TFTxn9eNHHS445cIAtTDTVOe5LLWZkuM9ynEFCAdGwyMYeIO0XPj3NNdozZRIsxghiRPhtz42jjdS/foO3vXPga0nglAbwi6xb4+tcPyO1I7bZw+H8nwRv3AI6Ver3fI+Wr83h6L5cTtGBHQOIhJ7UVxjpklU/EvZ5z9mqFdBHyPfnOTGNVgTxmcAawg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.32) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LOtkZq5+F+mHODFZSPd6JPf4CYe7crdJ20u0N/ZFPLU=;
- b=X0iq93hBBwJXk0NUXjxCBlMXiMBRe4JUvx8ao689vwJnI/PYbiSCXlPtRRoU15nwRTuZLcHy28C9mClQaDHaB9urJdPsZH21Vbz/E8WWCPwNgtLC0akLYf0ih+a4lxGEmMgM9tQm1lZGrvBjigbfFj11OSe1EyaT0VVlPmxFR1kLP0b9v0v4UK/rweP+l2wIio6oQUNyDtQBll9kXRolRqEeTVUMgl4TbMbVeJuZwVcVgs8TXc6G8juj4kgY9NjJIQ2kmzSqZgmu02lFJPiifLJP1Zf05Ha2SMF6JbfLfj2NhjwJqvEgo7ubPKARdJSxH4fo9TZ/vcybJw5+fDYAdQ==
-Received: from BN9PR03CA0542.namprd03.prod.outlook.com (2603:10b6:408:138::7)
- by CY4PR1201MB0264.namprd12.prod.outlook.com (2603:10b6:910:1e::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4195.25; Wed, 9 Jun
- 2021 09:38:30 +0000
-Received: from BN8NAM11FT019.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:138:cafe::1b) by BN9PR03CA0542.outlook.office365.com
- (2603:10b6:408:138::7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.20 via Frontend
- Transport; Wed, 9 Jun 2021 09:38:29 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.32)
- smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
- header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.32 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.32; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.32) by
- BN8NAM11FT019.mail.protection.outlook.com (10.13.176.158) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4195.22 via Frontend Transport; Wed, 9 Jun 2021 09:38:29 +0000
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL109.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 9 Jun
- 2021 02:38:28 -0700
-Received: from jonathanh-vm-01.nvidia.com (172.20.187.5) by mail.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
- Transport; Wed, 9 Jun 2021 09:38:29 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 4.4 00/23] 4.4.272-rc1 review
-In-Reply-To: <20210608175926.524658689@linuxfoundation.org>
-References: <20210608175926.524658689@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S235099AbhFIKI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 06:08:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56744 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238578AbhFIKIw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Jun 2021 06:08:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB30B61029;
+        Wed,  9 Jun 2021 10:06:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623233203;
+        bh=++xPd7JCTY3bkHv7quM2fCSIe+HM/kcrLfUgvuFe/gk=;
+        h=Subject:To:From:Date:From;
+        b=cnKAuvvx43r/m1tKqpFva49A/H7yiMLGItmt+iR+rUWbbSpYCQcmHqCF/jwvjkB8K
+         N6ICSS3VtlmgvHFEGw9XIGRgDwSKiT72eCKTFAbxrWrd7izEBB3bEIDet7lW8UVLfI
+         rF4FG7klYfJXJERdYyYWOqt6ws/BZ6VUzqqcXCi8=
+Subject: patch "staging: rtl8723bs: Fix uninitialized variables" added to staging-linus
+To:     wlooi@ucalgary.ca, dan.carpenter@oracle.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 09 Jun 2021 12:06:41 +0200
+Message-ID: <16232332019208@kroah.com>
 MIME-Version: 1.0
-Message-ID: <7b1fe09c788e4c10821b4fdf52b5d0df@HQMAIL107.nvidia.com>
-Date:   Wed, 9 Jun 2021 09:38:29 +0000
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 99c6bbdd-4aa0-481e-7caf-08d92b2a5710
-X-MS-TrafficTypeDiagnostic: CY4PR1201MB0264:
-X-Microsoft-Antispam-PRVS: <CY4PR1201MB0264AA7EF50A64E1678B69FAD9369@CY4PR1201MB0264.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 1ZeL1ldM15JjbxLVX6vCVzqYlI8IXS91jE3VMQJaRa8cgqo9ec1DrurXgomFukkFELbv3rxlr62kOO7cEKd6EWfZ/puCkdhhngMI8gLtJzC+N7Jyb+vR3F9wXdtAxx2TaK0hhHvnKTYvYtSSXkdT+3KjJyVGWccBwJKf1wyBx6dtpP2ak+moJs9KwrN4psIxWp5HtlQKYHSWN9GL1sl1vnJ8HEwFQ0duavCwILzzgJUTUhmUz7gb+b1oVzG3vz/lEmTfvCBFLJzJ92PKCdVv/srscmMvWL08bd1r40nDbeTW1dzx6FiKMHYr9DTAC56PEs6gmpuRdatlS0cv0p0ntXUwuuW1xNO9C6Sc4A/r+DT1HeJoXJPeK6bGBhpe913LCtEcfgmqp4978kDEE3YPPlohYLslqZi7yVxzOzeyCfiXt4TTIlTpyQqrGtitOEkduoYr+w7kGfaFggOf+7UX+IQpsfG/TcBxl4r6xgRMkCQOOmi9DFZnkqy5pDJEsg/L85drc2zbqL5GwaH6vBYII+jWWcg7nfA3k/TGk5zIei9iBRHN47IcS4MRMpIn2LM3CI3XIqm9r5qvSwLTmxRSOvHuv6+0vy54YFdtEPlrH6+2prq/cQjF/0YgYLOf1s3lfeAOtLD0S+fBydf7kg78pALn0C1wows6obuXFD+B4jznnL3g33NUqUmTXOPIUaXaKkLq0ZKvNnDTIUOweiP2XS5IGAy9l09L6n7w3JUN6pBs7IL0Jp3Bc9z0htH2SJpvZMbcncOToopAjBUX3PZQXw==
-X-Forefront-Antispam-Report: CIP:216.228.112.32;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid01.nvidia.com;CAT:NONE;SFS:(4636009)(396003)(346002)(136003)(376002)(39860400002)(46966006)(36840700001)(108616005)(478600001)(54906003)(966005)(24736004)(186003)(6916009)(86362001)(7416002)(316002)(426003)(26005)(4326008)(70206006)(70586007)(356005)(5660300002)(82310400003)(82740400003)(7636003)(336012)(36860700001)(2906002)(8936002)(47076005)(8676002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2021 09:38:29.7302
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 99c6bbdd-4aa0-481e-7caf-08d92b2a5710
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.32];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT019.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR1201MB0264
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 08 Jun 2021 20:26:52 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.272 release.
-> There are 23 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 10 Jun 2021 17:59:18 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.272-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
 
-All tests passing for Tegra ...
+This is a note to let you know that I've just added the patch titled
 
-Test results for stable-v4.4:
-    6 builds:	6 pass, 0 fail
-    12 boots:	12 pass, 0 fail
-    30 tests:	30 pass, 0 fail
+    staging: rtl8723bs: Fix uninitialized variables
 
-Linux version:	4.4.272-rc1-g1aa9f2da3002
-Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
-                tegra30-cardhu-a04
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Jon
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 43c85d770db80cb135f576f8fde6ff1a08e707a4 Mon Sep 17 00:00:00 2001
+From: Wenli Looi <wlooi@ucalgary.ca>
+Date: Mon, 7 Jun 2021 23:46:20 -0700
+Subject: staging: rtl8723bs: Fix uninitialized variables
+
+The sinfo.pertid and sinfo.generation variables are not initialized and
+it causes a crash when we use this as a wireless access point.
+
+[  456.873025] ------------[ cut here ]------------
+[  456.878198] kernel BUG at mm/slub.c:3968!
+[  456.882680] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
+
+  [ snip ]
+
+[  457.271004] Backtrace:
+[  457.273733] [<c02b7ee4>] (kfree) from [<c0e2a470>] (nl80211_send_station+0x954/0xfc4)
+[  457.282481]  r9:eccca0c0 r8:e8edfec0 r7:00000000 r6:00000011 r5:e80a9480 r4:e8edfe00
+[  457.291132] [<c0e29b1c>] (nl80211_send_station) from [<c0e2b18c>] (cfg80211_new_sta+0x90/0x1cc)
+[  457.300850]  r10:e80a9480 r9:e8edfe00 r8:ea678cca r7:00000a20 r6:00000000 r5:ec46d000
+[  457.309586]  r4:ec46d9e0
+[  457.312433] [<c0e2b0fc>] (cfg80211_new_sta) from [<bf086684>] (rtw_cfg80211_indicate_sta_assoc+0x80/0x9c [r8723bs])
+[  457.324095]  r10:00009930 r9:e85b9d80 r8:bf091050 r7:00000000 r6:00000000 r5:0000001c
+[  457.332831]  r4:c1606788
+[  457.335692] [<bf086604>] (rtw_cfg80211_indicate_sta_assoc [r8723bs]) from [<bf03df38>] (rtw_stassoc_event_callback+0x1c8/0x1d4 [r8723bs])
+[  457.349489]  r7:ea678cc0 r6:000000a1 r5:f1225f84 r4:f086b000
+[  457.355845] [<bf03dd70>] (rtw_stassoc_event_callback [r8723bs]) from [<bf048e4c>] (mlme_evt_hdl+0x8c/0xb4 [r8723bs])
+[  457.367601]  r7:c1604900 r6:f086c4b8 r5:00000000 r4:f086c000
+[  457.373959] [<bf048dc0>] (mlme_evt_hdl [r8723bs]) from [<bf03693c>] (rtw_cmd_thread+0x198/0x3d8 [r8723bs])
+[  457.384744]  r5:f086e000 r4:f086c000
+[  457.388754] [<bf0367a4>] (rtw_cmd_thread [r8723bs]) from [<c014a214>] (kthread+0x170/0x174)
+[  457.398083]  r10:ed7a57e8 r9:bf0367a4 r8:f086b000 r7:e8ede000 r6:00000000 r5:e9975200
+[  457.406828]  r4:e8369900
+[  457.409653] [<c014a0a4>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
+[  457.417718] Exception stack(0xe8edffb0 to 0xe8edfff8)
+[  457.423356] ffa0:                                     00000000 00000000 00000000 00000000
+[  457.432492] ffc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[  457.441618] ffe0: 00000000 00000000 00000000 00000000 00000013 00000000
+[  457.449006]  r10:00000000 r9:00000000 r8:00000000 r7:00000000 r6:00000000 r5:c014a0a4
+[  457.457750]  r4:e9975200
+[  457.460574] Code: 1a000003 e5953004 e3130001 1a000000 (e7f001f2)
+[  457.467381] ---[ end trace 4acbc8c15e9e6aa7 ]---
+
+Link: https://forum.armbian.com/topic/14727-wifi-ap-kernel-bug-in-kernel-5444/
+Fixes: 8689c051a201 ("cfg80211: dynamically allocate per-tid stats for station info")
+Fixes: f5ea9120be2e ("nl80211: add generation number to all dumps")
+Signed-off-by: Wenli Looi <wlooi@ucalgary.ca>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210608064620.74059-1-wlooi@ucalgary.ca
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
+index a6d731e959a2..ffa1cf4f9a82 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
+@@ -2091,7 +2091,7 @@ void rtw_cfg80211_indicate_sta_assoc(struct adapter *padapter, u8 *pmgmt_frame,
+ 	struct net_device *ndev = padapter->pnetdev;
+ 
+ 	{
+-		struct station_info sinfo;
++		struct station_info sinfo = {};
+ 		u8 ie_offset;
+ 		if (GetFrameSubType(pmgmt_frame) == WIFI_ASSOCREQ)
+ 			ie_offset = _ASOCREQ_IE_OFFSET_;
+-- 
+2.32.0
+
+
