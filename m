@@ -2,75 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F743A0EEC
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 10:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D260F3A0F02
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 10:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237679AbhFIIwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 04:52:13 -0400
-Received: from muru.com ([72.249.23.125]:39892 "EHLO muru.com"
+        id S237819AbhFIIyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 04:54:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229740AbhFIIwN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Jun 2021 04:52:13 -0400
-Received: from atomide.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id C759780F5;
-        Wed,  9 Jun 2021 08:50:24 +0000 (UTC)
-Date:   Wed, 9 Jun 2021 11:50:13 +0300
-From:   Tony Lindgren <tony@atomide.com>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-omap@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Keerthy <j-keerthy@ti.com>, Tero Kristo <kristo@kernel.org>
-Subject: Re: [Backport for linux-5.4.y PATCH 2/4] ARM: OMAP2+: Prepare timer
- code to backport dra7 timer wrap errata i940
-Message-ID: <YMCAxXPUkSR1yxK3@atomide.com>
-References: <20210602104625.6079-1-tony@atomide.com>
- <20210602104625.6079-2-tony@atomide.com>
- <YL+lOumPYQ1fNoYw@kroah.com>
- <YMBcIbBPfr6W19j5@atomide.com>
- <YMBeI4aOMmWMRsu/@kroah.com>
- <YMBmpAY04FRKOLMT@atomide.com>
- <YMBuVJBzGjm+aVbV@kroah.com>
+        id S237807AbhFIIyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Jun 2021 04:54:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFECD61263;
+        Wed,  9 Jun 2021 08:52:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623228748;
+        bh=Z8wCLmYnd4ndL+wBiKq2/4RoK20g/jfGN0eE9LM/37o=;
+        h=Subject:To:From:Date:From;
+        b=DgPo2ldD32Wrrb0RMwy2SRxBnR+kT08hdhl4AxhhKX+SyxlUi9mx0Lqn18ty2TWcC
+         uf6ASuCw5gQT+MrWNFjwyXv7ZMHkCWgGdtB19h39KhbjP6MonvMB1f3c2ducuRBs3v
+         EJS3hBa+8QaYp8r2ooCm4puZPs9z94fAky+a/nyo=
+Subject: patch "usb: typec: tcpm: Do not finish VDM AMS for retrying Responses" added to usb-linus
+To:     kyletso@google.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 09 Jun 2021 10:52:25 +0200
+Message-ID: <16232287458213@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YMBuVJBzGjm+aVbV@kroah.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* Greg KH <greg@kroah.com> [210609 07:31]:
-> On Wed, Jun 09, 2021 at 09:58:44AM +0300, Tony Lindgren wrote:
-> > * Greg KH <greg@kroah.com> [210609 06:22]:
-> > > On Wed, Jun 09, 2021 at 09:13:53AM +0300, Tony Lindgren wrote:
-> > > > How about the following for the description:
-> > > > 
-> > > > Upstream commit 52762fbd1c4778ac9b173624ca0faacd22ef4724 usage of
-> > > > struct dmtimer_clockevent backported to the platform timer code
-> > > > still used in linux-5.4.y stable kernel. Needed to backport upstream
-> > > > commit 3efe7a878a11c13b5297057bfc1e5639ce1241ce and commit
-> > > > 25de4ce5ed02994aea8bc111d133308f6fd62566. Earlier kernels use
-> > > > mach-omap2/timer instead of drivers/clocksource as these kernels still
-> > > > depend on legacy platform code for booting.
-> > > 
-> > > Why are you combining 2 commits into one here?
-> > 
-> > OK so still too confusing, how about let's just have:
-> > 
-> > Upstream commit 52762fbd1c4778ac9b173624ca0faacd22ef4724 usage of
-> > struct dmtimer_clockevent backported to the platform timer code
-> > still used in linux-5.4.y stable kernel.
-> 
-> Why not just use the normal commit message with the "upstream commit..."
-> message as the first line, and then in the s-o-b area add
-> [backported to 5.4.y - tony]
-> 
-> That's the normal thing we do here for backporting.
 
-OK sure works for me thanks. I will repost the series with
-updated patch descriptions.
+This is a note to let you know that I've just added the patch titled
 
-Regards,
+    usb: typec: tcpm: Do not finish VDM AMS for retrying Responses
 
-Tony
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 5ab14ab1f2db24ffae6c5c39a689660486962e6e Mon Sep 17 00:00:00 2001
+From: Kyle Tso <kyletso@google.com>
+Date: Sun, 6 Jun 2021 16:14:52 +0800
+Subject: usb: typec: tcpm: Do not finish VDM AMS for retrying Responses
+
+If the VDM responses couldn't be sent successfully, it doesn't need to
+finish the AMS until the retry count reaches the limit.
+
+Fixes: 0908c5aca31e ("usb: typec: tcpm: AMS and Collision Avoidance")
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Link: https://lore.kernel.org/r/20210606081452.764032-1-kyletso@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/typec/tcpm/tcpm.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index a7c336f56849..63470cf7f4cd 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -1942,6 +1942,9 @@ static void vdm_run_state_machine(struct tcpm_port *port)
+ 			tcpm_log(port, "VDM Tx error, retry");
+ 			port->vdm_retries++;
+ 			port->vdm_state = VDM_STATE_READY;
++			if (PD_VDO_SVDM(vdo_hdr) && PD_VDO_CMDT(vdo_hdr) == CMDT_INIT)
++				tcpm_ams_finish(port);
++		} else {
+ 			tcpm_ams_finish(port);
+ 		}
+ 		break;
+-- 
+2.32.0
+
 
