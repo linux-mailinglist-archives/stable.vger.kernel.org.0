@@ -2,126 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2C563A17B8
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 16:46:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1DAB3A1AB9
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 18:17:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238157AbhFIOsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 10:48:46 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:55002 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238111AbhFIOsp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Jun 2021 10:48:45 -0400
-Date:   Wed, 09 Jun 2021 14:46:48 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1623250009;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=uoNSXecwPTM8KLMLKvqKdv/yoVNFbm4SZsZ81D/wnus=;
-        b=BFwdXAQ/MUq9/OvvfimhkotJwL61rjulhUzZ1XHjbG9tCEGanE2PRVJd0xejLAPKUfClMe
-        cuY35RlAOBIF3nrdr9deDVbxd2MVDltVFX1Rkw7sxyPZp22s1+MGCRVDbbYnOVEjyj+WnP
-        nht38GRCBmk+fDG0l5KIb/ZETNSjSyzR/Q6os5B7MnCeHFUs4aG32nfzOBLaKgjtPW6lkK
-        MZr8aiJgqF3+c+s7yyv1ft6QayI3yNHysgSPc4RaYx/CkCchVpS93mwOKEd5IWx4xfiyP8
-        R6NvGWtjsZ2EqzwvuJ/d4D+x7pFQMcpitaMvlcAW7bhvHcYkWB/EMQ/UxVcYjw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1623250009;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=uoNSXecwPTM8KLMLKvqKdv/yoVNFbm4SZsZ81D/wnus=;
-        b=h3/XVeFarSdYuEwcYV8rSuNDXethdaHJBQXOeZSt3pxJ+bScD1Og4USHMH710evAlyxuc/
-        AqAGASUmAi3Ug0Dw==
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/fpu: Prevent state corruption in __fpu__restore_sig()
-Cc:     syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Rik van Riel <riel@surriel.com>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210608144345.611833074@linutronix.de>
-References: <20210608144345.611833074@linutronix.de>
+        id S237400AbhFIQS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 12:18:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53358 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232495AbhFIQS5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Jun 2021 12:18:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1777A6139A;
+        Wed,  9 Jun 2021 16:17:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623255422;
+        bh=aoS4Nnr3dcAhxk6EA9eUFcd5+UkcmrXUimOJqrEi27k=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=h2/qkVBVtviahH0/vxhJxxYc5ZZmxxync5cEbVkLZxWTNQtdocwCcw+MaZdOpGzhK
+         WnhN2QqOr+A6UutFN+UiAp2JnghVrq8QG+tYwhDq98r+CnRXNntNV154VpBdhXmbJt
+         yF4vTm+V5D2Aj8kUOoIqNfAji2GAoSmPGiauLmUHC0DU1rxJ9k+n6agUmAu+rJCD8b
+         u8kCbVunw3EhV4u4X3HIBEM43lerqqj45rAjRqe7We+iVGy3c/q0RUZkH5LOmMhvvC
+         s2tTnfQAXhCgsfbUZzTgVC53qJyaGYnrPVq2uImCfRDPttnQqbcm4U4nl6GyxBgMqS
+         nDWGz7+w9HYMQ==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1lr0sx-0002Tp-3m; Wed, 09 Jun 2021 18:16:55 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     David Frey <dpfrey@gmail.com>,
+        =?UTF-8?q?Alex=20Villac=C3=ADs=20Lasso?= <a_villacis@palosanto.com>
+Cc:     linux-usb@vger.kernel.org, Pho Tran <pho.tran@silabs.com>,
+        Tung Pham <tung.pham@silabs.com>, Hung.Nguyen@silabs.com,
+        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] USB: serial: cp210x: fix CP2102N-A01 modem control
+Date:   Wed,  9 Jun 2021 18:15:09 +0200
+Message-Id: <20210609161509.9459-1-johan@kernel.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <YL87Na0MycRA6/fW@hovoldconsulting.com>
+References: <YL87Na0MycRA6/fW@hovoldconsulting.com>
 MIME-Version: 1.0
-Message-ID: <162325000866.29796.4167433091280111109.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+CP2102N revision A01 (firmware version <= 1.0.4) has a buggy
+flow-control implementation that uses the ulXonLimit instead of
+ulFlowReplace field of the flow-control settings structure (erratum
+CP2102N_E104).
 
-Commit-ID:     484cea4f362e1eeb5c869abbfb5f90eae6421b38
-Gitweb:        https://git.kernel.org/tip/484cea4f362e1eeb5c869abbfb5f90eae6421b38
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Tue, 08 Jun 2021 16:36:18 +02:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Wed, 09 Jun 2021 09:28:21 +02:00
+A recent change that set the input software flow-control limits
+incidentally broke RTS control for these devices when CRTSCTS is not set
+as the new limits would always enable hardware flow control.
 
-x86/fpu: Prevent state corruption in __fpu__restore_sig()
+Fix this by explicitly disabling flow control for the buggy firmware
+versions and only updating the input software flow-control limits when
+IXOFF is requested. This makes sure that the terminal settings matches
+the default zero ulXonLimit (ulFlowReplace) for these devices.
 
-The non-compacted slowpath uses __copy_from_user() and copies the entire
-user buffer into the kernel buffer, verbatim.  This means that the kernel
-buffer may now contain entirely invalid state on which XRSTOR will #GP.
-validate_user_xstate_header() can detect some of that corruption, but that
-leaves the onus on callers to clear the buffer.
-
-Prior to XSAVES support, it was possible just to reinitialize the buffer,
-completely, but with supervisor states that is not longer possible as the
-buffer clearing code split got it backwards. Fixing that is possible but
-not corrupting the state in the first place is more robust.
-
-Avoid corruption of the kernel XSAVE buffer by using copy_user_to_xstate()
-which validates the XSAVE header contents before copying the actual states
-to the kernel. copy_user_to_xstate() was previously only called for
-compacted-format kernel buffers, but it works for both compacted and
-non-compacted forms.
-
-Using it for the non-compacted form is slower because of multiple
-__copy_from_user() operations, but that cost is less important than robust
-code in an already slow path.
-
-[ Changelog polished by Dave Hansen ]
-
-Fixes: b860eb8dce59 ("x86/fpu/xstate: Define new functions for clearing fpregs and xstates")
-Reported-by: syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Rik van Riel <riel@surriel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210608144345.611833074@linutronix.de
+Reported-by: David Frey <dpfrey@gmail.com>
+Reported-by: Alex Villacís Lasso <a_villacis@palosanto.com>
+Fixes: f61309d9c96a ("USB: serial: cp210x: set IXOFF thresholds")
+Cc: stable@vger.kernel.org      # 5.12
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- arch/x86/kernel/fpu/signal.c |  9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/usb/serial/cp210x.c | 64 ++++++++++++++++++++++++++++++++++---
+ 1 file changed, 59 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
-index a4ec653..d5bc96a 100644
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -405,14 +405,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
- 	if (use_xsave() && !fx_only) {
- 		u64 init_bv = xfeatures_mask_user() & ~user_xfeatures;
+David and Alex,
+
+Would you mind testing this one with your CP2108N-A01? I've verified it
+against a CP2108N-A02 (fw 1.0.8) here.
+
+Johan
+
+
+diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
+index ee595d1bea0a..910bc965e6cd 100644
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -252,9 +252,11 @@ struct cp210x_serial_private {
+ 	u8			gpio_input;
+ #endif
+ 	u8			partnum;
++	u32			fw_version;
+ 	speed_t			min_speed;
+ 	speed_t			max_speed;
+ 	bool			use_actual_rate;
++	bool			no_flow_control;
+ };
  
--		if (using_compacted_format()) {
--			ret = copy_user_to_xstate(&fpu->state.xsave, buf_fx);
--		} else {
--			ret = __copy_from_user(&fpu->state.xsave, buf_fx, state_size);
+ enum cp210x_event_state {
+@@ -398,6 +400,7 @@ struct cp210x_special_chars {
+ 
+ /* CP210X_VENDOR_SPECIFIC values */
+ #define CP210X_READ_2NCONFIG	0x000E
++#define CP210X_GET_FW_VER_2N	0x0010
+ #define CP210X_READ_LATCH	0x00C2
+ #define CP210X_GET_PARTNUM	0x370B
+ #define CP210X_GET_PORTCONFIG	0x370C
+@@ -1122,6 +1125,7 @@ static bool cp210x_termios_change(const struct ktermios *a, const struct ktermio
+ static void cp210x_set_flow_control(struct tty_struct *tty,
+ 		struct usb_serial_port *port, struct ktermios *old_termios)
+ {
++	struct cp210x_serial_private *priv = usb_get_serial_data(port->serial);
+ 	struct cp210x_port_private *port_priv = usb_get_serial_port_data(port);
+ 	struct cp210x_special_chars chars;
+ 	struct cp210x_flow_ctl flow_ctl;
+@@ -1129,6 +1133,15 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
+ 	u32 ctl_hs;
+ 	int ret;
+ 
++	/*
++	 * Some CP2102N interpret ulXonLimit as ulFlowReplace (erratum
++	 * CP2102N_E104). Report back that flow control is not supported.
++	 */
++	if (priv->no_flow_control) {
++		tty->termios.c_cflag &= ~CRTSCTS;
++		tty->termios.c_iflag &= ~(IXON | IXOFF);
++	}
++
+ 	if (old_termios &&
+ 			C_CRTSCTS(tty) == (old_termios->c_cflag & CRTSCTS) &&
+ 			I_IXON(tty) == (old_termios->c_iflag & IXON) &&
+@@ -1185,19 +1198,20 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
+ 		port_priv->crtscts = false;
+ 	}
+ 
+-	if (I_IXOFF(tty))
++	if (I_IXOFF(tty)) {
+ 		flow_repl |= CP210X_SERIAL_AUTO_RECEIVE;
+-	else
++
++		flow_ctl.ulXonLimit = cpu_to_le32(128);
++		flow_ctl.ulXoffLimit = cpu_to_le32(128);
++	} else {
+ 		flow_repl &= ~CP210X_SERIAL_AUTO_RECEIVE;
++	}
+ 
+ 	if (I_IXON(tty))
+ 		flow_repl |= CP210X_SERIAL_AUTO_TRANSMIT;
+ 	else
+ 		flow_repl &= ~CP210X_SERIAL_AUTO_TRANSMIT;
+ 
+-	flow_ctl.ulXonLimit = cpu_to_le32(128);
+-	flow_ctl.ulXoffLimit = cpu_to_le32(128);
 -
--			if (!ret && state_size > offsetof(struct xregs_state, header))
--				ret = validate_user_xstate_header(&fpu->state.xsave.header);
--		}
-+		ret = copy_user_to_xstate(&fpu->state.xsave, buf_fx);
- 		if (ret)
- 			goto err_out;
+ 	dev_dbg(&port->dev, "%s - ctrl = 0x%02x, flow = 0x%02x\n", __func__,
+ 			ctl_hs, flow_repl);
  
+@@ -1908,6 +1922,45 @@ static void cp210x_init_max_speed(struct usb_serial *serial)
+ 	priv->use_actual_rate = use_actual_rate;
+ }
+ 
++static int cp210x_get_fw_version(struct usb_serial *serial, u16 value)
++{
++	struct cp210x_serial_private *priv = usb_get_serial_data(serial);
++	u8 ver[3];
++	int ret;
++
++	ret = cp210x_read_vendor_block(serial, REQTYPE_DEVICE_TO_HOST, value,
++			ver, sizeof(ver));
++	if (ret)
++		return ret;
++
++	dev_dbg(&serial->interface->dev, "%s - %d.%d.%d\n", __func__,
++			ver[0], ver[1], ver[2]);
++
++	priv->fw_version = ver[0] << 16 | ver[1] << 8 | ver[2];
++
++	return 0;
++}
++
++static void cp210x_determine_quirks(struct usb_serial *serial)
++{
++	struct cp210x_serial_private *priv = usb_get_serial_data(serial);
++	int ret;
++
++	switch (priv->partnum) {
++	case CP210X_PARTNUM_CP2102N_QFN28:
++	case CP210X_PARTNUM_CP2102N_QFN24:
++	case CP210X_PARTNUM_CP2102N_QFN20:
++		ret = cp210x_get_fw_version(serial, CP210X_GET_FW_VER_2N);
++		if (ret)
++			break;
++		if (priv->fw_version <= 0x10004)
++			priv->no_flow_control = true;
++		break;
++	default:
++		break;
++	}
++}
++
+ static int cp210x_attach(struct usb_serial *serial)
+ {
+ 	int result;
+@@ -1928,6 +1981,7 @@ static int cp210x_attach(struct usb_serial *serial)
+ 
+ 	usb_set_serial_data(serial, priv);
+ 
++	cp210x_determine_quirks(serial);
+ 	cp210x_init_max_speed(serial);
+ 
+ 	result = cp210x_gpio_init(serial);
+-- 
+2.31.1
+
