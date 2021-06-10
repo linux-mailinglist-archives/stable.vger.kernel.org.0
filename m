@@ -2,29 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BA763A32A8
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 20:02:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B74793A32A7
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 20:02:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229941AbhFJSEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 14:04:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42570 "EHLO mail.kernel.org"
+        id S230130AbhFJSEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 14:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229823AbhFJSEo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Jun 2021 14:04:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB304613F1;
-        Thu, 10 Jun 2021 18:02:33 +0000 (UTC)
+        id S229823AbhFJSEh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Jun 2021 14:04:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4CE0613CA;
+        Thu, 10 Jun 2021 18:02:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623348154;
-        bh=amib4PGevbgjiEIp2raeUzTI9UUnkvqa1yT1lTBW3l8=;
+        s=korg; t=1623348145;
+        bh=EhiZiYQ3p32kI8CqMXr9uyytvHHFD095oAEvjguYRxo=;
         h=Subject:To:From:Date:From;
-        b=X8WvL2RV3e8jBVio/clnPZzlN6SU3ciKXI11sm3NNE/SnRLH6gwb0WnE1mV3BoJ4o
-         TepILT4FArnia0NGoIfNnH0LXOf2ikm1orsodz1oFtQcC2kb+UjIT6/0HNEDi5pJyO
-         /vqmH/7GowK/MNXsfJ3i+K4M/wrFDs+wCjkaAR5A=
-Subject: patch "usb: gadget: fsl: Re-enable driver for ARM SoCs" added to usb-linus
-To:     joel@jms.id.au, gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=eDNF+y0Yo0EZwtAyBQFx7RSLtUn/ZZiXtdMW4GHO8ZZAwrfh2QHNkjT8vJwiXiZnl
+         kxydMZD4zQBTL5SbXR8vHW2W+a4qgx2kl5i3cfsc6ntGjwTN1M63GhyFb6vZdbNljk
+         MxgSjNj54uNmd8BbBF8/TrDlvWyjO4j9N/fjgwJ4=
+Subject: patch "usb: typec: wcove: Use LE to CPU conversion when accessing" added to usb-linus
+To:     andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, linux@roeck-us.net, lkp@intel.com,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 10 Jun 2021 20:02:23 +0200
-Message-ID: <162334814333203@kroah.com>
+Message-ID: <1623348143180129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: fsl: Re-enable driver for ARM SoCs
+    usb: typec: wcove: Use LE to CPU conversion when accessing
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -50,53 +52,45 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From e0e8b6abe8c862229ba00cdd806e8598cdef00bb Mon Sep 17 00:00:00 2001
-From: Joel Stanley <joel@jms.id.au>
-Date: Thu, 10 Jun 2021 13:19:57 +0930
-Subject: usb: gadget: fsl: Re-enable driver for ARM SoCs
+From d5ab95da2a41567440097c277c5771ad13928dad Mon Sep 17 00:00:00 2001
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Wed, 9 Jun 2021 20:22:02 +0300
+Subject: usb: typec: wcove: Use LE to CPU conversion when accessing
+ msg->header
 
-The commit a390bef7db1f ("usb: gadget: fsl_mxc_udc: Remove the driver")
-dropped the ARCH_MXC dependency from USB_FSL_USB2, leaving it depending
-solely on FSL_SOC.
+As LKP noticed the Sparse is not happy about strict type handling:
+   .../typec/tcpm/wcove.c:380:50: sparse:     expected unsigned short [usertype] header
+   .../typec/tcpm/wcove.c:380:50: sparse:     got restricted __le16 const [usertype] header
 
-FSL_SOC is powerpc only; it was briefly available on ARM in 2014 but was
-removed by commit cfd074ad8600 ("ARM: imx: temporarily remove
-CONFIG_SOC_FSL from LS1021A"). Therefore the driver can no longer be
-enabled on ARM platforms.
+Fix this by switching to use pd_header_cnt_le() instead of pd_header_cnt()
+in the affected code.
 
-This appears to be a mistake as arm64's ARCH_LAYERSCAPE and arm32
-SOC_LS1021A SoCs use this symbol. It's enabled in these defconfigs:
-
-arch/arm/configs/imx_v6_v7_defconfig:CONFIG_USB_FSL_USB2=y
-arch/arm/configs/multi_v7_defconfig:CONFIG_USB_FSL_USB2=y
-arch/powerpc/configs/mgcoge_defconfig:CONFIG_USB_FSL_USB2=y
-arch/powerpc/configs/mpc512x_defconfig:CONFIG_USB_FSL_USB2=y
-
-To fix, expand the dependencies so USB_FSL_USB2 can be enabled on the
-ARM platforms, and with COMPILE_TEST.
-
-Fixes: a390bef7db1f ("usb: gadget: fsl_mxc_udc: Remove the driver")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20210610034957.93376-1-joel@jms.id.au
+Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
+Fixes: 3c4fb9f16921 ("usb: typec: wcove: start using tcpm for USB PD support")
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210609172202.83377-1-andriy.shevchenko@linux.intel.com
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/Kconfig | 2 +-
+ drivers/usb/typec/tcpm/wcove.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
-index 8c614bb86c66..7348acbdc560 100644
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -90,7 +90,7 @@ config USB_BCM63XX_UDC
+diff --git a/drivers/usb/typec/tcpm/wcove.c b/drivers/usb/typec/tcpm/wcove.c
+index 79ae63950050..5d125339687a 100644
+--- a/drivers/usb/typec/tcpm/wcove.c
++++ b/drivers/usb/typec/tcpm/wcove.c
+@@ -378,7 +378,7 @@ static int wcove_pd_transmit(struct tcpc_dev *tcpc,
+ 		const u8 *data = (void *)msg;
+ 		int i;
  
- config USB_FSL_USB2
- 	tristate "Freescale Highspeed USB DR Peripheral Controller"
--	depends on FSL_SOC
-+	depends on FSL_SOC || ARCH_LAYERSCAPE || SOC_LS1021A || COMPILE_TEST
- 	help
- 	   Some of Freescale PowerPC and i.MX processors have a High Speed
- 	   Dual-Role(DR) USB controller, which supports device mode.
+-		for (i = 0; i < pd_header_cnt(msg->header) * 4 + 2; i++) {
++		for (i = 0; i < pd_header_cnt_le(msg->header) * 4 + 2; i++) {
+ 			ret = regmap_write(wcove->regmap, USBC_TX_DATA + i,
+ 					   data[i]);
+ 			if (ret)
 -- 
 2.32.0
 
