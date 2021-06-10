@@ -2,114 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB22D3A33DA
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 21:19:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF6C3A33DE
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 21:21:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230281AbhFJTVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 15:21:22 -0400
-Received: from mail-pj1-f53.google.com ([209.85.216.53]:38851 "EHLO
-        mail-pj1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230217AbhFJTVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 15:21:21 -0400
-Received: by mail-pj1-f53.google.com with SMTP id m13-20020a17090b068db02901656cc93a75so4349488pjz.3
-        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 12:19:11 -0700 (PDT)
+        id S230113AbhFJTXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 15:23:42 -0400
+Received: from mail-lj1-f179.google.com ([209.85.208.179]:38901 "EHLO
+        mail-lj1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230083AbhFJTXm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 15:23:42 -0400
+Received: by mail-lj1-f179.google.com with SMTP id s22so6412708ljg.5
+        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 12:21:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=tb+KHOyiVMXUY39PCFMxylMrmMk1pdo9yXPaAoPyvrg=;
-        b=VIia0GRSmtQraN6Ti4aDf9UBaBiTc3YyCcVMeFND+PdJz29GfffEFfri1TdFVU0ti5
-         lrLe7B9dPEpZHJ09EwdL14QR2lKjLQwsQFso3Bhl5CCaE8mnnOW5wjHnmDmeZ9KKK4bg
-         rr3bou4iHl+GrCZhaXe8jishczTpTceS7vULo3Hn3C+WVehS9ufvCJEMxj8uW7gwpsG7
-         XbZjrZm2W1+jTfK/0QQTHWNx1SmQPgu6ezIZqFDDLpfOS6tEDfdcGcwNA+scZmh6XBtJ
-         R7/YoDj+qfno1xxmnkCxBxbqhIgfCgvMS60raUIYgfElZJIyQobxVHEY7mlXqxrlqCgK
-         Tauw==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=TCR4wjdITK+kupOKjLE86TVEkMZcR5bv/LNyb8r3Nyc=;
+        b=LL56kf5WNorUp6A/BtmQdId+ZgvFAEKdiDs120Ls5oqTDleh+FXwNezoG3o0xz3/qX
+         tzp/Tfx6PsqR4ov6sucNa7m8+gshcxH0LmYKavfQPwjKFyKdaKiSxYpfcsPwM7mD9755
+         GE2QRdjM3hpFMYUfu8UQ+W9K3wJJvRe2x67ACeH5hxm2QWlKs0BA3+A2nS+ZBWA70Vb6
+         l8Qd3G55ifmzUzKGWWglKBZVhItqKzdGF9ufZ4xGiqOmNhcLMMTef6WmJGl8rTFMJEty
+         r5GAHe1wLdD2VjyhpAbEH3Js0/66tRhnoRYvDj4q2t01eG/LQf9Pb/hTvnZ235m0nTBO
+         9Gyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=tb+KHOyiVMXUY39PCFMxylMrmMk1pdo9yXPaAoPyvrg=;
-        b=sc9LFWZxMV5+leJyuEs0J585MGw/8dyIQ8itndoJ2yBGWftu81pXSkoSHc1apbLLVd
-         y1CVhThGYbInlhTAdrSEbNaopBbceTm2fyQ+4vp6ql1aKmT7fL5WISyqF+6reLYol1VO
-         7obsAEHy2eiLfinCFVNuEuK61BiF8mGEDlFGzgKhPssXGwWLC3FItp2Cgl9ghT13k+V5
-         aBjgHiRipp8BI0GOsXZ0VtpN/FkBjQHsjl/8z1viZ92aaABf/Cludea4vgOa2XU2FStA
-         gv+rOrMr1FdHu+D5S6qvIsfjBfbfA7sz28svCF+IMB6KRbNBnJQaWXEdnLSQrY7clqJ4
-         B6Tw==
-X-Gm-Message-State: AOAM53219WqOgK01e7GYMWycudb716svofR+w5WY1rUbH1rFUD3HRlFx
-        9o/8hPnnTafmn4k/dhJmloWPXbsc+wlGY5kW
-X-Google-Smtp-Source: ABdhPJymeCKGlya2W54we16Rn53SlmHTMRQgSJYor12J5jg0H+mEjBZXydmieTXfQteWOXG56hy8+A==
-X-Received: by 2002:a17:902:8f8f:b029:107:810b:9ee5 with SMTP id z15-20020a1709028f8fb0290107810b9ee5mr280372plo.4.1623352690996;
-        Thu, 10 Jun 2021 12:18:10 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u8sm3500948pgg.51.2021.06.10.12.18.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Jun 2021 12:18:10 -0700 (PDT)
-Message-ID: <60c26572.1c69fb81.39377.b2e5@mx.google.com>
-Date:   Thu, 10 Jun 2021 12:18:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=TCR4wjdITK+kupOKjLE86TVEkMZcR5bv/LNyb8r3Nyc=;
+        b=c50EQHgPydG8NG3dmsXurpVDMNh7iHyExrBUhLkNxJlGhIGT12Mr2qcgdMQfMe6KM5
+         IYVVWCCTAWBY0A0lJ6AJemkF6pF51sgRow8sAoWksLQLOf8i70LqPARhOLyfSpY07PSj
+         BcPBbcav43UUfEJxZgboVPOvT+PSg2aT4hjRHRuAPLMvfG0yWuqc4fCCB+w1CdeS7A3O
+         dt0CDxk08l7tcEZ3q4GHhKpR1toio4w9cVcUjg4sTge6RutkUGYHBXsZYamDRrPBLcxY
+         X/bR/8rJh+aR0IgteWRg3/52OcO/DkARG5VO9xRoH977PNZ9YP+5o7pp5j9TsGaL1W6w
+         5YcQ==
+X-Gm-Message-State: AOAM533vwbes/ikjKnmGavu+HMe70PrOEbcGP4lt+YCem5zv37DzKPBB
+        e2eSdGn04ezIV5colV0/JU0iT0zArM6rHBXE8jLAxQ==
+X-Google-Smtp-Source: ABdhPJwYronnVnbnK1r+c0d0G/spznSfvXGbR2w+pI1zmGgTDYwtqcPNQtfMoPAVK7KUn572JWNGeJgWW+pvsbQQA3w=
+X-Received: by 2002:a2e:b5b5:: with SMTP id f21mr79310ljn.479.1623352844553;
+ Thu, 10 Jun 2021 12:20:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.43
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable/linux-5.10.y baseline: 175 runs, 1 regressions (v5.10.43)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <214134496.67043.1623317284090@office.mailbox.org>
+In-Reply-To: <214134496.67043.1623317284090@office.mailbox.org>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Thu, 10 Jun 2021 12:20:33 -0700
+Message-ID: <CAKwvOdmU9TUiZ6AatJja=ksneRKP5saNCkx0qodLMOi_BshSSg@mail.gmail.com>
+Subject: Re: [PATCH] x86/Makefile: make -stack-alignment conditional on LLD < 13.0.0
+To:     Tor Vic <torvic9@mailbox.org>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "nathan@kernel.org" <nathan@kernel.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "clang-built-linux@googlegroups.com" 
+        <clang-built-linux@googlegroups.com>,
+        "x86@kernel.org" <x86@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 175 runs, 1 regressions (v5.10.43)
+On Thu, Jun 10, 2021 at 2:28 AM <torvic9@mailbox.org> wrote:
+>
+> Since LLVM commit 3787ee4, the '-stack-alignment' flag has been dropped [1],
+> leading to the following error message when building a LTO kernel with
+> Clang-13 and LLD-13:
+>
+>     ld.lld: error: -plugin-opt=-: ld.lld: Unknown command line argument
+>     '-stack-alignment=8'.  Try 'ld.lld --help'
+>     ld.lld: Did you mean '--stackrealign=8'?
+>
+> It also appears that the '-code-model' flag is not necessary anymore starting
+> with LLVM-9 [2].
+>
+> Drop '-code-model' and make '-stack-alignment' conditional on LLD < 13.0.0.
 
-Regressions Summary
--------------------
+Please include this additional context in v2:
+```
+These flags were necessary because these flags were not encoded in the
+IR properly, so the link would restart optimizations without them. Now
+there are properly encoded in the IR, and these flags exposing
+implementation details are no longer necessary.
+```
+That way it doesn't sound like we're not using an 8B stack alignment
+on x86; we very much are so; AMDGPU GPFs without it!
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+Cut the below paragraph out on v2.  Thanks for the patch and keep up
+the good work!
 
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.43/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.43
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      951358a824f96be927ae50fad1e72e05bbb57b56 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c23274be7918333e0c0e07
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.43/a=
-rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.43/a=
-rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+>
+> This is for linux-stable 5.12.
+> Another patch will be submitted for 5.13 shortly (unless there are objections).
+>
+> Discussion: https://github.com/ClangBuiltLinux/linux/issues/1377
+> [1]: https://reviews.llvm.org/D103048
+> [2]: https://reviews.llvm.org/D52322
+>
+> Signed-off-by: Tor Vic <torvic9@mailbox.org>
+> ---
+>  arch/x86/Makefile | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+> index 1f2e5bf..2855a1a 100644
+> --- a/arch/x86/Makefile
+> +++ b/arch/x86/Makefile
+> @@ -192,8 +192,9 @@ endif
+>  KBUILD_LDFLAGS += -m elf_$(UTS_MACHINE)
+>
+>  ifdef CONFIG_LTO_CLANG
+> -KBUILD_LDFLAGS += -plugin-opt=-code-model=kernel \
+> -                  -plugin-opt=-stack-alignment=$(if $(CONFIG_X86_32),4,8)
+> +ifeq ($(shell test $(CONFIG_LLD_VERSION) -lt 130000; echo $$?),0)
+> +KBUILD_LDFLAGS += -plugin-opt=-stack-alignment=$(if $(CONFIG_X86_32),4,8)
+> +endif
+>  endif
+>
+>  ifdef CONFIG_X86_NEED_RELOCS
+> --
+> 2.32.0
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/60c23274be7918333e0c0=
-e08
-        failing since 12 days (last pass: v5.10.40, first fail: v5.10.41) =
-
- =20
+-- 
+Thanks,
+~Nick Desaulniers
