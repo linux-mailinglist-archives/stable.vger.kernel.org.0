@@ -2,70 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ABD53A24C1
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 08:51:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6383A2561
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 09:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229845AbhFJGxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 02:53:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47536 "EHLO mail.kernel.org"
+        id S230042AbhFJHZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 03:25:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229634AbhFJGxL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Jun 2021 02:53:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C750C613E2;
-        Thu, 10 Jun 2021 06:50:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623307859;
-        bh=gL9kKCK+CsHPorwNub9yfvx7kZWcnzWe/A3bbR9fiEs=;
+        id S230381AbhFJHZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Jun 2021 03:25:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE849613BC;
+        Thu, 10 Jun 2021 07:23:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623309836;
+        bh=B1IcCG+KuCmNUwhkJc/FlqjT5JB0FoFOqKtap1NCQGY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=v+A9wTWYBeEPqHsjLU+9uhEJGoaY2/nO4wsOyPnz9s/yEypfQInZrN7mWgLcfnkXE
-         9rO7xJnPs+CEgzOsrpcdogwRvxBIIOTa1UNZBhjL2wnEL351+hNcJJ4JgJ1IqJvDSz
-         E4esok7hx70R0ZO86KlDLi++yBH/iYLVlnx/y0cI=
-Date:   Thu, 10 Jun 2021 08:50:57 +0200
-From:   'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>
-To:     linyyuan@codeaurora.org
-Cc:     'Felipe Balbi' <balbi@kernel.org>, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] usb: gadget: eem: fix command packet transfer issue
-Message-ID: <YMG2UWeqodfTRRnQ@kroah.com>
-References: <000201d75dbf$58d1cc40$0a7564c0$@codeaurora.org>
+        b=QvB/prxQbCJKSHWv2x4oW6qS1FGMfOp2qrszKhQYI4iWt1ya5aYNn6i33UhSOpn53
+         uxAQ04UlfPxfmTgsq9jEwQhFFY2LsuSFQOLpMpzdjC68x1bv3fp0E9Mdw9tQWDQbVd
+         ssQQ/LBNgTh0x2+FTm+B/ub2A9ygUEwIt+zB7xqRBu8dA55rydMZ5wpbePNTO6860s
+         PuaPbQJ/YV6ToJZdrFOHkvILBTBJLJ2gaJaCq/9x3yyXJXrBAZBsHcnujmDkmFvww3
+         6f8YKKM3SkKei8AT6jo+wYoAyMPU+RcIefyGfx4ivj71cpaoHHtNYQF3eAvMNtzDH6
+         KFC3uj/22gh+g==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1lrF2b-00030X-7l; Thu, 10 Jun 2021 09:23:50 +0200
+Date:   Thu, 10 Jun 2021 09:23:49 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Alex =?utf-8?B?VmlsbGFjw61z?= Lasso <a_villacis@palosanto.com>
+Cc:     David Frey <dpfrey@gmail.com>, linux-usb@vger.kernel.org,
+        Pho Tran <pho.tran@silabs.com>,
+        Tung Pham <tung.pham@silabs.com>, Hung.Nguyen@silabs.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] USB: serial: cp210x: fix CP2102N-A01 modem control
+Message-ID: <YMG+Be220/sZ4QIC@hovoldconsulting.com>
+References: <YL87Na0MycRA6/fW@hovoldconsulting.com>
+ <20210609161509.9459-1-johan@kernel.org>
+ <22113673-a359-f783-166f-acbe5dbc9298@palosanto.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <000201d75dbf$58d1cc40$0a7564c0$@codeaurora.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <22113673-a359-f783-166f-acbe5dbc9298@palosanto.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 10, 2021 at 02:10:40PM +0800, linyyuan@codeaurora.org wrote:
-> From: Linyu Yuan <linyyuan@codeaurora.com>
+On Wed, Jun 09, 2021 at 12:00:36PM -0500, Alex Villacís Lasso wrote:
+> El 9/6/21 a las 11:15, Johan Hovold escribió:
+> > CP2102N revision A01 (firmware version <= 1.0.4) has a buggy
+> > flow-control implementation that uses the ulXonLimit instead of
+> > ulFlowReplace field of the flow-control settings structure (erratum
+> > CP2102N_E104).
+> >
+> > A recent change that set the input software flow-control limits
+> > incidentally broke RTS control for these devices when CRTSCTS is not set
+> > as the new limits would always enable hardware flow control.
+> >
+> > Fix this by explicitly disabling flow control for the buggy firmware
+> > versions and only updating the input software flow-control limits when
+> > IXOFF is requested. This makes sure that the terminal settings matches
+> > the default zero ulXonLimit (ulFlowReplace) for these devices.
+> >
+> > Reported-by: David Frey <dpfrey@gmail.com>
+> > Reported-by: Alex Villacís Lasso <a_villacis@palosanto.com>
+> > Fixes: f61309d9c96a ("USB: serial: cp210x: set IXOFF thresholds")
+> > Cc: stable@vger.kernel.org      # 5.12
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > ---
+> >   drivers/usb/serial/cp210x.c | 64 ++++++++++++++++++++++++++++++++++---
+> >   1 file changed, 59 insertions(+), 5 deletions(-)
+> >
+> > David and Alex,
+> >
+> > Would you mind testing this one with your CP2108N-A01? I've verified it
+> > against a CP2108N-A02 (fw 1.0.8) here.
+
+I meant CP2102N here of course. It had been a long day...
+
+> Applied patch and tested with ESP32 board under kernel 5.12.9:
+
+> jun 09 11:56:00 karlalex-asus kernel: cp210x 1-9:1.0: 
+> cp210x_get_fw_version - 1.0.4
+
+> $ miniterm.py /dev/ttyUSB0 115200
+> <successful connect>
 > 
-> there is following warning,
-> [<ffffff8008905a94>] dwc3_gadget_ep_queue+0x1b4/0x1c8
-> [<ffffff800895ec9c>] usb_ep_queue+0x3c/0x120
-> [<ffffff80089677a0>] eem_unwrap+0x180/0x330
-> [<ffffff80089634f8>] rx_complete+0x70/0x230
-> [<ffffff800895edbc>] usb_gadget_giveback_request+0x3c/0xe8
-> [<ffffff8008901e7c>] dwc3_gadget_giveback+0xb4/0x190
-> [<ffffff8008905254>] dwc3_endpoint_transfer_complete+0x32c/0x410
-> [<ffffff80089060fc>] dwc3_bh_work+0x654/0x12e8
-> [<ffffff80080c63fc>] process_one_work+0x1d4/0x4a8
-> [<ffffff80080c6720>] worker_thread+0x50/0x4a8
-> [<ffffff80080cc8e8>] kthread+0xe8/0x100
-> [<ffffff8008083980>] ret_from_fork+0x10/0x50
-> request ffffffc0716bf200 belongs to 'ep0out'
+> jun 09 11:56:50 karlalex-asus kernel: cp210x ttyUSB0: 
+> cp210x_change_speed - setting baud rate to 9600
+> jun 09 11:56:50 karlalex-asus kernel: cp210x ttyUSB0: 
+> cp210x_set_flow_control - ctrl = 0x00, flow = 0x00
+> jun 09 11:56:50 karlalex-asus kernel: cp210x ttyUSB0: 
+> cp210x_tiocmset_port - control = 0x0303
+> jun 09 11:56:50 karlalex-asus kernel: cp210x ttyUSB0: 
+> cp210x_change_speed - setting baud rate to 115384
+> jun 09 11:56:50 karlalex-asus kernel: cp210x ttyUSB0: 
+> cp210x_tiocmset_port - control = 0x0101
+> jun 09 11:56:50 karlalex-asus kernel: cp210x ttyUSB0: 
+> cp210x_tiocmset_port - control = 0x0202
 > 
-> when gadget receive a eem command packet from host, it need to response,
-> but queue usb request to wrong endpoint.
+> At least in my case, this patch fixes the regression for my workflow.
 
-What is the full warning here?  THe above traceback is a bit odd and
-does not show what is happening.
+Thanks for confirming. Can I add a "Tested-by" tag for you as well?
 
-> fix it by queue usb request to eem IN endpoint and allow host read it.
+And again, thanks for the detailed report, bisection and thorough
+testing throughout.
 
-I do not understand how this matches up with your kernel patch, when you
-resend this, can you please expand on this and make it more obvious what
-you are doing here?
-
-thanks,
-
-greg k-h
+Johan
