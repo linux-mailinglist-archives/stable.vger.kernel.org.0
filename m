@@ -2,100 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3263A2A77
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 13:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B71733A2B02
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 14:05:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbhFJLmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 07:42:14 -0400
-Received: from phobos.denx.de ([85.214.62.61]:32794 "EHLO phobos.denx.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229895AbhFJLmO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Jun 2021 07:42:14 -0400
-Received: from [IPv6:::1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 1F80780377;
-        Thu, 10 Jun 2021 13:40:15 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1623325216;
-        bh=QgKx5oO4Z591gMrIQUt06NCiI0Sey0sQtM2qsJJpE4M=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=SAoi4tuZUOrddSNcUQzcjpGa/Q4M6VUpwfnCbzhgdShoqS5XfvxWPAQcAsPGFL8BN
-         Nt5t2q+fl28qku1qv8wGf/uop3ISEaYFj6+UbT01OmeR3/q/J/5E784/hGSujhZiAS
-         WwUwwvuX1RV/oTC5fLh0+WmhPpNG0jHKeCXcpmxVcRDDU0VpkmTjqyOdI7/y8PdWKS
-         mFEvC3cWgaDklysROBAeEIMmBIJUFAE09axUCtAB7llF0jpuY3uDNQBp46D7I28Y3B
-         hri0BT8FM4gxcFn6Zqucbtj/ssuyaFJhE/4lb6GaGKw5pJ8TkUqMBc+WIr4Hl4a+2G
-         JMFwIdQBPQi+Q==
-Subject: Re: [PATCH 4.19 00/58] 4.19.194-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Machek <pavel@denx.de>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Fabio Estevam <festevam@gmail.com>,
-        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
-        Ludwig Zenz <lzenz@dh-electronics.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>
-References: <20210608175932.263480586@linuxfoundation.org>
- <CA+G9fYu3URCR6_ZL+KPYFEOVL4f=8TjjyFncmvoLuYrR_YR3=A@mail.gmail.com>
- <20210608224155.GA31308@amd> <YMBe9/7mJ+dGiGJA@kroah.com>
-From:   Marek Vasut <marex@denx.de>
-Message-ID: <439102f7-e05f-cb25-72ed-2de64a9a2560@denx.de>
-Date:   Thu, 10 Jun 2021 13:40:14 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S230252AbhFJMHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 08:07:18 -0400
+Received: from mail-ed1-f50.google.com ([209.85.208.50]:40533 "EHLO
+        mail-ed1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230245AbhFJMHO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 08:07:14 -0400
+Received: by mail-ed1-f50.google.com with SMTP id t3so32701963edc.7
+        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 05:05:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=uyvb0KXxpyWq3qgClhEraKLbShn/5Bbg2WwPvVCXfZI=;
+        b=R2QTvvFGONS5s4TaVG6tqiMLak2GgyzRPyzHUQhEQBzKk6CebQa1MVhWLTdmy7awPo
+         oXL3PmVuZBozjOz1QYWelanvjWtEGY1Vw/nhGnarHMPIkSulq9GZxupTKfdjClHwuxJV
+         SdRpGGkT62YSfvM7WYqSmOqwLgSozS5midYQAPk3Y8jNLz9WJs/JIyh1W9Lwinb51oYK
+         EY2xfhbcB1mOvPVJ9bY0V/bU6WII+SzMEv1VbYDtv+RtMW5+9Mywh6nILtTbrFGVeOj4
+         qay4W7+5ll/pFZNTTvCskx/klF+QVe6jgyTgiiKRgZpPwHtAzWv7MFc/F71g3OdSsNpY
+         KyVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=uyvb0KXxpyWq3qgClhEraKLbShn/5Bbg2WwPvVCXfZI=;
+        b=t+BO0NdgQHzDrC8kfcfQIKKY3GGmOEv+YBXThIZH8sXKXYujmgLBLqiusxXyz99xpq
+         U74EOT9yW9AQ3Duo3bL4p18s1Epn6++pkl+T/mfzklMumbR1Ycf5yXjjjWlal+X19ITo
+         Y5oji992Vqh3nMrp0oPHyCaDP3SWzBgx+Un0AagUx51u9kaPB28bqQX3woYmkpH0Vtby
+         Snd6S8tAZTFMGXsrMs1DARHUCW5yJS0h/gQdHnx5sjYM7G6T5Oh3afwdMdPSm9XYksNn
+         7jLVa2IvwmZ5R+dYWdOzZWa2xWGcq4jjTfpB80dh8bCHhYDKcUbN0l/Ms8abL9cbwzvZ
+         +Mpg==
+X-Gm-Message-State: AOAM531absHupETHZhnd29YzgIL5xAQsHqIXdG4ASAT5CLTTyXQkaewp
+        p8J4BPu1zbf83k9W85iUwvGXTg==
+X-Google-Smtp-Source: ABdhPJztlClfs8oow/rAkwsgfiXH4D4o4+lQ7cHv2vO45L2aVCUEctZpKCYGdI+ZBZQQqP6QWzXNtg==
+X-Received: by 2002:a05:6402:1a:: with SMTP id d26mr4397408edu.105.1623326657676;
+        Thu, 10 Jun 2021 05:04:17 -0700 (PDT)
+Received: from debil.vdiclient.nvidia.com (84-238-136-197.ip.btc-net.bg. [84.238.136.197])
+        by smtp.gmail.com with ESMTPSA id e18sm967193ejh.64.2021.06.10.05.04.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Jun 2021 05:04:17 -0700 (PDT)
+From:   Nikolay Aleksandrov <razor@blackwall.org>
+To:     netdev@vger.kernel.org
+Cc:     roopa@nvidia.com, davem@davemloft.net,
+        bridge@lists.linux-foundation.org,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        stable@vger.kernel.org
+Subject: [PATCH net 1/2 v2] net: bridge: fix vlan tunnel dst null pointer dereference
+Date:   Thu, 10 Jun 2021 15:04:10 +0300
+Message-Id: <20210610120411.128339-2-razor@blackwall.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210610120411.128339-1-razor@blackwall.org>
+References: <20210610120411.128339-1-razor@blackwall.org>
 MIME-Version: 1.0
-In-Reply-To: <YMBe9/7mJ+dGiGJA@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.102.4 at phobos.denx.de
-X-Virus-Status: Clean
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/9/21 8:25 AM, Greg Kroah-Hartman wrote:
-> On Wed, Jun 09, 2021 at 12:41:55AM +0200, Pavel Machek wrote:
->> Hi!
->>
->>>> This is the start of the stable review cycle for the 4.19.194 release.
->>>> There are 58 patches in this series, all will be posted as a response
->>>> to this one.  If anyone has any issues with these being applied, please
->>>> let me know.
->> ...
->>>> Marek Vasut <marex@denx.de>
->>>>      ARM: dts: imx6q-dhcom: Add PU,VDD1P1,VDD2P5 regulators
->>>
->>> make --silent --keep-going --jobs=8
->>> O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm
->>> CROSS_COMPILE=arm-linux-gnueabihf- 'CC=sccache
->>> arm-linux-gnueabihf-gcc' 'HOSTCC=sccache gcc'
->>> Error: /builds/linux/arch/arm/boot/dts/imx6q-dhcom-som.dtsi:414.1-12
->>> Label or path reg_vdd1p1 not found
->>> Error: /builds/linux/arch/arm/boot/dts/imx6q-dhcom-som.dtsi:418.1-12
->>> Label or path reg_vdd2p5 not found
->>> FATAL ERROR: Syntax error parsing input tree
->>> make[2]: *** [scripts/Makefile.lib:294:
->>> arch/arm/boot/dts/imx6q-dhcom-pdk2.dtb] Error 1
->>
->> For the record, we see same build error in our testing:
->>
->> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/jobs/1328869295
-> 
-> Will fix this and push out a -rc2.
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-I suspect for 4.19.y , you will need to pick the following as 
-dependency. It looks like board DT patch, but it also adds the missing 
-labels to imx6qdl.dtsi
+This patch fixes a tunnel_dst null pointer dereference due to lockless
+access in the tunnel egress path. When deleting a vlan tunnel the
+tunnel_dst pointer is set to NULL without waiting a grace period (i.e.
+while it's still usable) and packets egressing are dereferencing it
+without checking. Use READ/WRITE_ONCE to annotate the lockless use of
+tunnel_id, use RCU for accessing tunnel_dst and make sure it is read
+only once and checked in the egress path. The dst is already properly RCU
+protected so we don't need to do anything fancy than to make sure
+tunnel_id and tunnel_dst are read only once and checked in the egress path.
 
-93385546ba36 ("ARM: dts: imx6qdl-sabresd: Assign corresponding power 
-supply for LDOs")
+Cc: stable@vger.kernel.org
+Fixes: 11538d039ac6 ("bridge: vlan dst_metadata hooks in ingress and egress paths")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+---
+ net/bridge/br_private.h     |  4 ++--
+ net/bridge/br_vlan_tunnel.c | 38 +++++++++++++++++++++++--------------
+ 2 files changed, 26 insertions(+), 16 deletions(-)
+
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 7ce8a77cc6b6..e013d33f1c7c 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -90,8 +90,8 @@ struct bridge_mcast_stats {
+ #endif
+ 
+ struct br_tunnel_info {
+-	__be64			tunnel_id;
+-	struct metadata_dst	*tunnel_dst;
++	__be64				tunnel_id;
++	struct metadata_dst __rcu	*tunnel_dst;
+ };
+ 
+ /* private vlan flags */
+diff --git a/net/bridge/br_vlan_tunnel.c b/net/bridge/br_vlan_tunnel.c
+index 0d3a8c01552e..03de461a0d44 100644
+--- a/net/bridge/br_vlan_tunnel.c
++++ b/net/bridge/br_vlan_tunnel.c
+@@ -41,26 +41,33 @@ static struct net_bridge_vlan *br_vlan_tunnel_lookup(struct rhashtable *tbl,
+ 				      br_vlan_tunnel_rht_params);
+ }
+ 
++static void vlan_tunnel_info_release(struct net_bridge_vlan *vlan)
++{
++	struct metadata_dst *tdst = rtnl_dereference(vlan->tinfo.tunnel_dst);
++
++	WRITE_ONCE(vlan->tinfo.tunnel_id, 0);
++	RCU_INIT_POINTER(vlan->tinfo.tunnel_dst, NULL);
++	dst_release(&tdst->dst);
++}
++
+ void vlan_tunnel_info_del(struct net_bridge_vlan_group *vg,
+ 			  struct net_bridge_vlan *vlan)
+ {
+-	if (!vlan->tinfo.tunnel_dst)
++	if (!rcu_access_pointer(vlan->tinfo.tunnel_dst))
+ 		return;
+ 	rhashtable_remove_fast(&vg->tunnel_hash, &vlan->tnode,
+ 			       br_vlan_tunnel_rht_params);
+-	vlan->tinfo.tunnel_id = 0;
+-	dst_release(&vlan->tinfo.tunnel_dst->dst);
+-	vlan->tinfo.tunnel_dst = NULL;
++	vlan_tunnel_info_release(vlan);
+ }
+ 
+ static int __vlan_tunnel_info_add(struct net_bridge_vlan_group *vg,
+ 				  struct net_bridge_vlan *vlan, u32 tun_id)
+ {
+-	struct metadata_dst *metadata = NULL;
++	struct metadata_dst *metadata = rtnl_dereference(vlan->tinfo.tunnel_dst);
+ 	__be64 key = key32_to_tunnel_id(cpu_to_be32(tun_id));
+ 	int err;
+ 
+-	if (vlan->tinfo.tunnel_dst)
++	if (metadata)
+ 		return -EEXIST;
+ 
+ 	metadata = __ip_tun_set_dst(0, 0, 0, 0, 0, TUNNEL_KEY,
+@@ -69,8 +76,8 @@ static int __vlan_tunnel_info_add(struct net_bridge_vlan_group *vg,
+ 		return -EINVAL;
+ 
+ 	metadata->u.tun_info.mode |= IP_TUNNEL_INFO_TX | IP_TUNNEL_INFO_BRIDGE;
+-	vlan->tinfo.tunnel_dst = metadata;
+-	vlan->tinfo.tunnel_id = key;
++	rcu_assign_pointer(vlan->tinfo.tunnel_dst, metadata);
++	WRITE_ONCE(vlan->tinfo.tunnel_id, key);
+ 
+ 	err = rhashtable_lookup_insert_fast(&vg->tunnel_hash, &vlan->tnode,
+ 					    br_vlan_tunnel_rht_params);
+@@ -79,9 +86,7 @@ static int __vlan_tunnel_info_add(struct net_bridge_vlan_group *vg,
+ 
+ 	return 0;
+ out:
+-	dst_release(&vlan->tinfo.tunnel_dst->dst);
+-	vlan->tinfo.tunnel_dst = NULL;
+-	vlan->tinfo.tunnel_id = 0;
++	vlan_tunnel_info_release(vlan);
+ 
+ 	return err;
+ }
+@@ -182,12 +187,15 @@ int br_handle_ingress_vlan_tunnel(struct sk_buff *skb,
+ int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
+ 				 struct net_bridge_vlan *vlan)
+ {
++	struct metadata_dst *tunnel_dst;
++	__be64 tunnel_id;
+ 	int err;
+ 
+-	if (!vlan || !vlan->tinfo.tunnel_id)
++	if (!vlan)
+ 		return 0;
+ 
+-	if (unlikely(!skb_vlan_tag_present(skb)))
++	tunnel_id = READ_ONCE(vlan->tinfo.tunnel_id);
++	if (!tunnel_id || unlikely(!skb_vlan_tag_present(skb)))
+ 		return 0;
+ 
+ 	skb_dst_drop(skb);
+@@ -195,7 +203,9 @@ int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
+ 	if (err)
+ 		return err;
+ 
+-	skb_dst_set(skb, dst_clone(&vlan->tinfo.tunnel_dst->dst));
++	tunnel_dst = rcu_dereference(vlan->tinfo.tunnel_dst);
++	if (tunnel_dst)
++		skb_dst_set(skb, dst_clone(&tunnel_dst->dst));
+ 
+ 	return 0;
+ }
+-- 
+2.31.1
+
