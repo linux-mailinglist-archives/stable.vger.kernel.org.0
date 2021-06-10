@@ -2,116 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0474A3A283E
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 11:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 443AB3A28F7
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 12:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229990AbhFJJaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 05:30:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35358 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229715AbhFJJaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 05:30:15 -0400
-Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [IPv6:2001:67c:2050::465:201])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55688C061574;
-        Thu, 10 Jun 2021 02:28:19 -0700 (PDT)
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:105:465:1:2:0])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4G0zDJ1JgPzQk27;
-        Thu, 10 Jun 2021 11:28:16 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mailbox.org; h=
-        content-transfer-encoding:content-type:content-type:mime-version
-        :subject:subject:message-id:from:from:date:date:received; s=
-        mail20150812; t=1623317284; bh=4hSIxgHAWpB4uGZWppZafLhGwOCvmS3rz
-        GvjZTINgmE=; b=lddhgl0aMot4oG6bqhkJiIiv1ObqUzxsGn3vZZ0QYj/NBDk3o
-        TtyjKaXgqVtNdMO5yATKU4PLkhmZCcPSU/xcNiNaiRPZ72KVBIUtmPbWIBuHIFP+
-        eJiC9WkvbiCJ2DOJ2wAPBAcY8eWvEaH37zn3wyAlGkL9VmP0Q42noLskUaRZXSIu
-        QK8w+T6a8qcUoGm+tNXAC53WkoutZb3ycwiG/phYOJtaXvUX4G5E6cgdrwM/TOky
-        Lr8srOWEukVpT20RegdwHOqUEy+7JV4vCjdsfVpWJDkOLmVzft9fkA0s2C4cFbIi
-        6UF8xhYex7ApdD9mbqnqtoKN/G2xyuTLuIjXg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-        t=1623317289;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=+5/kdhJ1QddJK81vRh3OO6rMlzIyFuqMZwmf8YHz1N4=;
-        b=eZkwL6Ao1O2t6K8HTwSLEbKGSyxGwAM3SnhDl5PGzUeZlz7wO/wLkCMe6qDi8YZ6yHe+ew
-        qpbWV3AcgmG2xEL03/4oebVmXqfy1mjoI7Q4HlkrOp19c64bZQYVUq6U5TsCL5x8HuSxAN
-        bWPXRSyKnH3m48t77d0nF/F68AtcrK7HF+XRL29+1ndPPZ53ksZoiUwZGeVZupdB0d6Dk6
-        6x/p4jMwBLq7S59r21tBEKyavloXJhVENE3O7mEZZTiwLRaV3svw9oCaHUsjtPvL62vSt8
-        qCFTplzA5vKs0eIKfA8lZSXXycvu5fql7dd5fz69U08WzxwN4slFWRDp4gpUgQ==
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-Received: from smtp2.mailbox.org ([80.241.60.241])
-        by spamfilter02.heinlein-hosting.de (spamfilter02.heinlein-hosting.de [80.241.56.116]) (amavisd-new, port 10030)
-        with ESMTP id mOch9IlfOmlB; Thu, 10 Jun 2021 11:28:04 +0200 (CEST)
-Date:   Thu, 10 Jun 2021 11:28:04 +0200 (CEST)
-From:   torvic9@mailbox.org
-To:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        id S230212AbhFJKGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 06:06:21 -0400
+Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:52605 "EHLO
+        wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230230AbhFJKGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 06:06:20 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailnew.west.internal (Postfix) with ESMTP id 554BD2333;
+        Thu, 10 Jun 2021 06:04:23 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 10 Jun 2021 06:04:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=9WI5xCILPDtfU2J23fyUihMeujs
+        p3+nvIZghW3iHRHc=; b=IZFkCK0xZ/bXtTr+WlMMF8ItwBhwYM/KoXNNu+FfCc9
+        AyI3tT+au+cKpKHm6qser7g2DdoSVhjoNlM9T3TcOsNdrofSugaOT0I/AV5PsNzI
+        i7n0b5RJBW4NXBqq6Bzzh9wOaMC8HSB1ZB6Jl/lxuztGf9hfTTajjnIQ0Qs74vkG
+        egJHDMsQWZpQ6dntUDSV5vbshi3oNzIJ3Wk6Q6m4ggxGpd9uZam9o3MIY7dfqtKH
+        HdUlVRFYCTxp5OtTSSDOmPUx2TlzLZ/549hzusz8YWdf/Ni2iX69X32FAMId571I
+        dcbLxZ0zW/KBPM+b/HaQsk3JFSTGu83pHgbQWjSSqPQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9WI5xC
+        ILPDtfU2J23fyUihMeujsp3+nvIZghW3iHRHc=; b=kYI4GDlQ0LwiIMhaUcPMYb
+        UFjQhLahV8ujxVLzU3h8/dPDinCC/laG2rs0U8Kcv9o3ED62wgRlm4uxuiyNnwCW
+        v//OF7HEXOzDEuI30gh5XULJJ+gvSlVmAbWIID9avgZc/FmYYBlPh8m04kIaxUDO
+        WK34wTnZR4zQtDNI0iXeSNe1Il4JKbGuh8i0FtQFI1q6Ng5UsSyEUT+kNqAj/QFT
+        3OixEgRp8RwxMHnxuzl1V7j4sEjqk8vOv/riBi1np+86H0c0kwtzRQvoBcV7REfJ
+        IHrwFJ+Ag2gCCgtMWCxHpxPCVjURwTL+KOKVwzQt9ofu6JHJlGUptAOxuxcHx5Cw
+        ==
+X-ME-Sender: <xms:puPBYJ2rGiTcw9mMPSndnojwvdYaaCYxBghmU_yaN9aR_y6ArQYszQ>
+    <xme:puPBYAE8PPhPseYkhU_FgqbUfaNYLuKO-9lLrSDD6esFZDuM9kqEJPgx_qNz5ZCgE
+    jbXPuh5Eyy2cw>
+X-ME-Received: <xmr:puPBYJ7K2vWRG4-AqXQmW7ulfdhwodtDwf2umovs1sCb-gOQtOdvc3D-IyRJ1eO92LHiLV04HQCcAdtZl4tJdAFwVmdF8Qks>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedufedgvdduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujgesthdtre
+    dttddtvdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
+    necuggftrfgrthhtvghrnhepueelledtheekleethfeludduvdfhffeuvdffudevgeehke
+    egieffveehgeeftefgnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:puPBYG2lvVJlbkqWJV-UJ9vbc3V8jdN9r7rm1IXwGYW-8KtQH05ASg>
+    <xmx:puPBYMEhH-DERttWqIZe3P0gl_s6dYWjidWIXHsvWf79rsxbsLKdrw>
+    <xmx:puPBYH9hZ2K9zTjDDwleNARCz25DoYgVmik1fmW77Z2SN2Z9SpfwEw>
+    <xmx:puPBYKXv0Wz-Zjxi2H81HdSOEsEumRk85e_FaBgRlmFW1TJ0RQC50EMzKd4>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 10 Jun 2021 06:04:21 -0400 (EDT)
+Date:   Thu, 10 Jun 2021 12:04:18 +0200
+From:   Greg KH <greg@kroah.com>
+To:     torvic9@mailbox.org
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "nathan@kernel.org" <nathan@kernel.org>,
         "ndesaulniers@google.com" <ndesaulniers@google.com>,
         "tglx@linutronix.de" <tglx@linutronix.de>,
-        "mingo@redhat.com" <mingo@redhat.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
         "clang-built-linux@googlegroups.com" 
         <clang-built-linux@googlegroups.com>,
         "x86@kernel.org" <x86@kernel.org>
-Message-ID: <214134496.67043.1623317284090@office.mailbox.org>
-Subject: [PATCH] x86/Makefile: make -stack-alignment conditional on LLD <
+Subject: Re: [PATCH] x86/Makefile: make -stack-alignment conditional on LLD <
  13.0.0
+Message-ID: <YMHjomyjH/RwrHKQ@kroah.com>
+References: <214134496.67043.1623317284090@office.mailbox.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-Importance: Normal
-X-MBO-SPAM-Probability: 
-X-Rspamd-Score: -5.56 / 15.00 / 15.00
-X-Rspamd-Queue-Id: C9D4117F3
-X-Rspamd-UID: 513dc9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <214134496.67043.1623317284090@office.mailbox.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since LLVM commit 3787ee4, the '-stack-alignment' flag has been dropped [1],
-leading to the following error message when building a LTO kernel with
-Clang-13 and LLD-13:
+On Thu, Jun 10, 2021 at 11:28:04AM +0200, torvic9@mailbox.org wrote:
+> Since LLVM commit 3787ee4, the '-stack-alignment' flag has been dropped [1],
+> leading to the following error message when building a LTO kernel with
+> Clang-13 and LLD-13:
+> 
+>     ld.lld: error: -plugin-opt=-: ld.lld: Unknown command line argument 
+>     '-stack-alignment=8'.  Try 'ld.lld --help'
+>     ld.lld: Did you mean '--stackrealign=8'?
+> 
+> It also appears that the '-code-model' flag is not necessary anymore starting
+> with LLVM-9 [2].
+> 
+> Drop '-code-model' and make '-stack-alignment' conditional on LLD < 13.0.0.
+> 
+> This is for linux-stable 5.12.
+> Another patch will be submitted for 5.13 shortly (unless there are objections).
 
-    ld.lld: error: -plugin-opt=-: ld.lld: Unknown command line argument 
-    '-stack-alignment=8'.  Try 'ld.lld --help'
-    ld.lld: Did you mean '--stackrealign=8'?
 
-It also appears that the '-code-model' flag is not necessary anymore starting
-with LLVM-9 [2].
+<formletter>
 
-Drop '-code-model' and make '-stack-alignment' conditional on LLD < 13.0.0.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-This is for linux-stable 5.12.
-Another patch will be submitted for 5.13 shortly (unless there are objections).
-
-Discussion: https://github.com/ClangBuiltLinux/linux/issues/1377
-[1]: https://reviews.llvm.org/D103048
-[2]: https://reviews.llvm.org/D52322
-
-Signed-off-by: Tor Vic <torvic9@mailbox.org>
----
- arch/x86/Makefile | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 1f2e5bf..2855a1a 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -192,8 +192,9 @@ endif
- KBUILD_LDFLAGS += -m elf_$(UTS_MACHINE)
- 
- ifdef CONFIG_LTO_CLANG
--KBUILD_LDFLAGS	+= -plugin-opt=-code-model=kernel \
--		   -plugin-opt=-stack-alignment=$(if $(CONFIG_X86_32),4,8)
-+ifeq ($(shell test $(CONFIG_LLD_VERSION) -lt 130000; echo $$?),0)
-+KBUILD_LDFLAGS	+= -plugin-opt=-stack-alignment=$(if $(CONFIG_X86_32),4,8)
-+endif
- endif
- 
- ifdef CONFIG_X86_NEED_RELOCS
--- 
-2.32.0
+</formletter>
