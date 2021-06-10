@@ -2,133 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D22993A326C
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 19:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D395A3A3288
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 19:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230160AbhFJRtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 13:49:36 -0400
-Received: from mail-pl1-f201.google.com ([209.85.214.201]:49670 "EHLO
-        mail-pl1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230155AbhFJRtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 13:49:35 -0400
-Received: by mail-pl1-f201.google.com with SMTP id z10-20020a170903018ab02901108a797206so1498525plg.16
-        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 10:47:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=npvYPdo+ovjaaLetvI24CjlELW8jh9ZY/+gEZUAZto4=;
-        b=b2CfgZT+sCaVhK01cDEyze2k672fRxI2/nC9KJD6mjgmZDx0wXgC7w8wkpXRFj3sw8
-         tp8f9VmYBbwvmop4BKquwVQrrGQXaL2MfJ7MwrD2/aw6jeTGfHIiJN1v7IS+GoVhfMtf
-         7Fhj2u9tjuzA+AJCbZNZ1ds4TheXpiGD7c9V1A/+YP+aPre7ypaO8A+D2Srw79I4jtGf
-         rP/2YO1Pt4ho2YytPPzhF07V2OW2MlQdlWibTz5fGSkLjHducQp5UM0VuF1s66ZZHlX7
-         Lc7BtlxuPUof5A/OrZy5VQzogyuGSbZZEfmtJte1uRgtEDGLJpOzkJRpJk/9dmtWB6Nx
-         cbAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=npvYPdo+ovjaaLetvI24CjlELW8jh9ZY/+gEZUAZto4=;
-        b=bDNZ1Bar4nkAJBK2KZYqXCmTgxjBYPk3p5XqIhFTTRI2+DH6um795u9UfLfTGuRFBS
-         UrEvtwwOCFhKd7DqqVcmBF12rXC7b0zaixelnZrQG0LZ8Y9Wf25ahz/k1CMfetiaKIA3
-         RTA9HOL5V+wmPubPhiUf/8AioJSlQ8bSkY42/uyEtiCeYz4/7lZwYdPt4q7BjC4F+od+
-         cHMVod6/VgUOo/Gt2KGb3LZTfFiiYmCwpb5XBMYFNdlfJD4pFGQCLg0syHEcOJKv6g0P
-         qqWeHfRotLPoi9mMjlmviEJZbxLXq4hpPRx5d4hhsMgI1l7RVWZJZgGppDTediVdx2N3
-         NjBw==
-X-Gm-Message-State: AOAM530ncm2RVyPyLytXQqs70r5UrzxVx0ikgxd9pm4/omqqyx9eHAve
-        yE3730TgR+b4TD9aq0gfoOIqoitiZgEIdw==
-X-Google-Smtp-Source: ABdhPJxArp6iWEZuuwuFJCVgzw61I/tPIpsRjxBCSOpislYR1Exj211/ys9XjlGPl+3Pu0TqkUAQwg8r+L9UVg==
-X-Received: from alperct.c.googlers.com ([fda3:e722:ac3:10:24:72f4:c0a8:466b])
- (user=alpergun job=sendgmr) by 2002:a17:90a:2a08:: with SMTP id
- i8mr4659321pjd.122.1623347182655; Thu, 10 Jun 2021 10:46:22 -0700 (PDT)
-Date:   Thu, 10 Jun 2021 17:46:04 +0000
-Message-Id: <20210610174604.2554090-1-alpergun@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.32.0.272.g935e593368-goog
-Subject: [PATCH] KVM: SVM: Call SEV Guest Decommission if ASID binding fails
-From:   Alper Gun <alpergun@google.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>,
-        Brijesh Singh <brijesh.singh@amd.com>
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Marc Orr <marcorr@google.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Alper Gun <alpergun@google.com>,
-        stable@vger.kernel.org, Peter Gonda <pgonda@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S229941AbhFJR5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 13:57:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34466 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229823AbhFJR5G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Jun 2021 13:57:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D993613F5;
+        Thu, 10 Jun 2021 17:55:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623347709;
+        bh=OwrkHobkXzquMpU9PzKF3WD7+4oWRdlNoLd7KWyiLqc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=L5DjSuXmkRPgL120FMIf/hG0g9k/W64y3w453XmXNzNDMBK2L2T2TWnQoi090QQ5S
+         nml4NGk/gVF6pJX+qQiAyUziIcbXONFVBC7/JMmvIrBK7Xl/GffHXRCZ2YL8+tJDYs
+         jAZLu+4exXeZ2ZcuXTANyEWHTlBnpLz03J+A7j0BBfFuQdv6+uUlawVAgwkMbKZtDq
+         OCXdWMUV2JlvpuolAaIC8R1hRBG3ox4sPgB0jGqPqpiVVRQ+7aSzczDCS4jZu9nqMU
+         cO55I/5FEUKEBVAwWWO5wGFt57Svy2fKusDBBxaxp1ZxbQ8Zf8pq3wlEP/LFL/82Sw
+         O+6NXBiQTLpCQ==
+Date:   Thu, 10 Jun 2021 13:55:08 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Lukas Wunner <lukas@wunner.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Saravana Kannan <saravanak@google.com>,
+        Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.12 03/43] spi: Fix spi device unregister flow
+Message-ID: <YMJR/FNCwDllHIDG@sashalap>
+References: <20210603170734.3168284-1-sashal@kernel.org>
+ <20210603170734.3168284-3-sashal@kernel.org>
+ <20210606111028.GA20948@wunner.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20210606111028.GA20948@wunner.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Send SEV_CMD_DECOMMISSION command to PSP firmware if ASID binding
-fails. If a failure happens after  a successful LAUNCH_START command,
-a decommission command should be executed. Otherwise, guest context
-will be unfreed inside the AMD SP. After the firmware will not have
-memory to allocate more SEV guest context, LAUNCH_START command will
-begin to fail with SEV_RET_RESOURCE_LIMIT error.
+On Sun, Jun 06, 2021 at 01:10:28PM +0200, Lukas Wunner wrote:
+>On Thu, Jun 03, 2021 at 01:06:53PM -0400, Sasha Levin wrote:
+>> From: Saravana Kannan <saravanak@google.com>
+>>
+>> [ Upstream commit c7299fea67696db5bd09d924d1f1080d894f92ef ]
+>
+>This commit shouldn't be backported to stable by itself, it requires
+>that the following fixups are applied on top of it:
+>
+>* Upstream commit 27e7db56cf3d ("spi: Don't have controller clean up spi
+>  device before driver unbind")
+>
+>* spi.git commit 2ec6f20b33eb ("spi: Cleanup on failure of initial setup")
+>  https://git.kernel.org/broonie/spi/c/2ec6f20b33eb
+>
+>Note that the latter is queued for v5.13, but hasn't landed there yet.
+>So you probably need to back out c7299fea6769 from the stable queue and
+>wait for 2ec6f20b33eb to land in upstream.
+>
+>Since you've applied c7299fea6769 to v5.12, v5.10, v5.4, v4.14 and v4.19
+>stable trees, the two fixups listed above need to be backported to all
+>of them.
 
-The existing code calls decommission inside sev_unbind_asid, but it is
-not called if a failure happens before guest activation succeeds. If
-sev_bind_asid fails, decommission is never called. PSP firmware has a
-limit for the number of guests. If sev_asid_binding fails many times,
-PSP firmware will not have resources to create another guest context.
+I took those two patches into 5.12-5.4, but as they needed a more
+complex backport for 4.14 and 4.19, I've dropped c7299fea67 from those
+trees.
 
-Cc: stable@vger.kernel.org
-Fixes: 59414c989220 ("KVM: SVM: Add support for KVM_SEV_LAUNCH_START command")
-Reported-by: Peter Gonda <pgonda@google.com>
-Signed-off-by: Alper Gun <alpergun@google.com>
----
- arch/x86/kvm/svm/sev.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
-
-diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-index e0ce5da97fc2..8d36f0c73071 100644
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -199,9 +199,19 @@ static void sev_asid_free(struct kvm_sev_info *sev)
- 	sev->misc_cg = NULL;
- }
- 
--static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
-+static void sev_decommission(unsigned int handle)
- {
- 	struct sev_data_decommission decommission;
-+
-+	if (!handle)
-+		return;
-+
-+	decommission.handle = handle;
-+	sev_guest_decommission(&decommission, NULL);
-+}
-+
-+static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
-+{
- 	struct sev_data_deactivate deactivate;
- 
- 	if (!handle)
-@@ -214,9 +224,7 @@ static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
- 	sev_guest_deactivate(&deactivate, NULL);
- 	up_read(&sev_deactivate_lock);
- 
--	/* decommission handle */
--	decommission.handle = handle;
--	sev_guest_decommission(&decommission, NULL);
-+	sev_decommission(handle);
- }
- 
- static int sev_guest_init(struct kvm *kvm, struct kvm_sev_cmd *argp)
-@@ -341,8 +349,10 @@ static int sev_launch_start(struct kvm *kvm, struct kvm_sev_cmd *argp)
- 
- 	/* Bind ASID to this guest */
- 	ret = sev_bind_asid(kvm, start.handle, error);
--	if (ret)
-+	if (ret) {
-+		sev_decommission(start.handle);
- 		goto e_free_session;
-+	}
- 
- 	/* return handle to userspace */
- 	params.handle = start.handle;
 -- 
-2.32.0.272.g935e593368-goog
-
+Thanks,
+Sasha
