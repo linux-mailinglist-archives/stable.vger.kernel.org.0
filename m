@@ -2,96 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B74793A32A7
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 20:02:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 944F43A32CA
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 20:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230130AbhFJSEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 14:04:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42368 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229823AbhFJSEh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Jun 2021 14:04:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4CE0613CA;
-        Thu, 10 Jun 2021 18:02:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623348145;
-        bh=EhiZiYQ3p32kI8CqMXr9uyytvHHFD095oAEvjguYRxo=;
-        h=Subject:To:From:Date:From;
-        b=eDNF+y0Yo0EZwtAyBQFx7RSLtUn/ZZiXtdMW4GHO8ZZAwrfh2QHNkjT8vJwiXiZnl
-         kxydMZD4zQBTL5SbXR8vHW2W+a4qgx2kl5i3cfsc6ntGjwTN1M63GhyFb6vZdbNljk
-         MxgSjNj54uNmd8BbBF8/TrDlvWyjO4j9N/fjgwJ4=
-Subject: patch "usb: typec: wcove: Use LE to CPU conversion when accessing" added to usb-linus
-To:     andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net, lkp@intel.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 10 Jun 2021 20:02:23 +0200
-Message-ID: <1623348143180129@kroah.com>
+        id S230136AbhFJSOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 14:14:38 -0400
+Received: from mail-pg1-f181.google.com ([209.85.215.181]:44917 "EHLO
+        mail-pg1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229941AbhFJSOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 14:14:37 -0400
+Received: by mail-pg1-f181.google.com with SMTP id y11so389254pgp.11
+        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 11:12:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8GbXMoyZhwHBsSihKlYi17MWlrqdb/Mu57tmE25+lZc=;
+        b=B4bog32usueve1W9Z3BHwSy2rwCZzDhEdDsC1azKk0I8hSy9McHOjz4HT7btx09Toj
+         O0Q3xxzOdfhQUSYp6DAOtsx0ygrWfixZ7zNkyZCCdTEDlM1nmQQmK9BmP8hQdfDvzHWN
+         FyEOqgyVhIQZbjxmpUNBxAS5fdcZocctK+UBezDeQkM+GPMyDIsbtiM9ezxpzTli+owW
+         5eQ4RIAaFsawq906J2Ki502u7lm2IDSkhzSwIowMjhqSLOv1gTZcS4bg1m+WsVaplrIZ
+         EdElwQLg7N2DBCkfLq0NyNx9rD61SOjXm5jIWYYNizHv4RYMgP3IjiF+hV1oeftKRYAR
+         treQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8GbXMoyZhwHBsSihKlYi17MWlrqdb/Mu57tmE25+lZc=;
+        b=ovkABHqQkVxhuff9xFLBe75gGjiB8Q0T6HzDKvEndBddnSrNrM9MKmSSLfhDWKEOW4
+         O9w4VMWdnhzBimvRRlKqgSH//Em6fdqX1q2we/7oLw92GVgIdXt2criRR9cLPq7rt+WM
+         1mmFcyxUZv6ow6XZ79wAVxaV2rYR8iFKjVP/JsogwW+hJULsF3FJmDXYpiuVdFfpkbwL
+         6blUpih1BXpHuFWRWeMH/Wt04+dgLFVGGZC4bgx09IcrXvsHZHelJe+KAcWCT7wu5FNT
+         FzAJ4iVf6dlc9yCgYyo0DE8b6CQOqpI8PqrdN3zmFjUre7JSiWP8sKL9awPodcNizlKW
+         Im7A==
+X-Gm-Message-State: AOAM53097MdchrJJ2EovbwxCAY3tTbIkKGii9AObS9Tx8txDPxK6YsxF
+        hPQHwpVs7ga5GFU0RiUfZh2RqkHQobMSfsq1
+X-Google-Smtp-Source: ABdhPJzwVG9dZl/bfQ2y1Ib/96wVJXVBSGgrh3+3lADhHbSJtVdNQjSCQbd85RgxvRUCcrBPp6BnOw==
+X-Received: by 2002:a62:4e86:0:b029:2ea:25ce:b946 with SMTP id c128-20020a624e860000b02902ea25ceb946mr4300110pfb.30.1623348687971;
+        Thu, 10 Jun 2021 11:11:27 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b133sm3125277pfb.36.2021.06.10.11.11.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Jun 2021 11:11:27 -0700 (PDT)
+Message-ID: <60c255cf.1c69fb81.6c004.9cdd@mx.google.com>
+Date:   Thu, 10 Jun 2021 11:11:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.42-137-g42a95aa58d3b
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 172 runs,
+ 2 regressions (v5.10.42-137-g42a95aa58d3b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 172 runs, 2 regressions (v5.10.42-137-g42a95=
+aa58d3b)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    usb: typec: wcove: Use LE to CPU conversion when accessing
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+imx8mp-evk           | arm64 | lab-nxp      | gcc-8    | defconfig | 1     =
+     =
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From d5ab95da2a41567440097c277c5771ad13928dad Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Wed, 9 Jun 2021 20:22:02 +0300
-Subject: usb: typec: wcove: Use LE to CPU conversion when accessing
- msg->header
-
-As LKP noticed the Sparse is not happy about strict type handling:
-   .../typec/tcpm/wcove.c:380:50: sparse:     expected unsigned short [usertype] header
-   .../typec/tcpm/wcove.c:380:50: sparse:     got restricted __le16 const [usertype] header
-
-Fix this by switching to use pd_header_cnt_le() instead of pd_header_cnt()
-in the affected code.
-
-Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
-Fixes: 3c4fb9f16921 ("usb: typec: wcove: start using tcpm for USB PD support")
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210609172202.83377-1-andriy.shevchenko@linux.intel.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/tcpm/wcove.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/usb/typec/tcpm/wcove.c b/drivers/usb/typec/tcpm/wcove.c
-index 79ae63950050..5d125339687a 100644
---- a/drivers/usb/typec/tcpm/wcove.c
-+++ b/drivers/usb/typec/tcpm/wcove.c
-@@ -378,7 +378,7 @@ static int wcove_pd_transmit(struct tcpc_dev *tcpc,
- 		const u8 *data = (void *)msg;
- 		int i;
- 
--		for (i = 0; i < pd_header_cnt(msg->header) * 4 + 2; i++) {
-+		for (i = 0; i < pd_header_cnt_le(msg->header) * 4 + 2; i++) {
- 			ret = regmap_write(wcove->regmap, USBC_TX_DATA + i,
- 					   data[i]);
- 			if (ret)
--- 
-2.32.0
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-8    | defconfig | 1     =
+     =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.42-137-g42a95aa58d3b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.42-137-g42a95aa58d3b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      42a95aa58d3b1ffd8012db8aeb41274635397395 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+imx8mp-evk           | arm64 | lab-nxp      | gcc-8    | defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/60c226fbfced7502750c0e0f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.42-=
+137-g42a95aa58d3b/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.42-=
+137-g42a95aa58d3b/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60c226fbfced7502750c0=
+e10
+        new failure (last pass: v5.10.42-137-gf24aff0aeb21) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-8    | defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/60c226f8fced7502750c0e03
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.42-=
+137-g42a95aa58d3b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s90=
+5d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.42-=
+137-g42a95aa58d3b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s90=
+5d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60c226f8fced7502750c0=
+e04
+        new failure (last pass: v5.10.42-137-gf24aff0aeb21) =
+
+ =20
