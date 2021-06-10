@@ -2,179 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 793C43A244A
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 08:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B69463A249B
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 08:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229715AbhFJGM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 02:12:59 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:47709 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229634AbhFJGM7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Jun 2021 02:12:59 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1623305463; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: Date: Subject: Cc: To: From: Sender;
- bh=jIX3aYx1BMoqk5WRI/kxfbys7dPIfQcOTPn3b00X2m8=; b=nr5mpD9ZlYiG4YPru8KtMaDtaJ30HHdVaS41rjQ1BBm6akwt6OrnWo6P08QW4k9vsLrIvdoV
- BdhqTVd2LJjJReChMjH2Ys86n0MqOopZxkFuzZeNOveNz8jbOZLo4FH546Vf7rmMcDk1rONW
- g1yIeIEt2ETbWPwfshfT87mJMgc=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n02.prod.us-east-1.postgun.com with SMTP id
- 60c1ace6e27c0cc77f672760 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 10 Jun 2021 06:10:46
- GMT
-Sender: linyyuan=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 19601C43460; Thu, 10 Jun 2021 06:10:46 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
-Received: from linyyuan (unknown [180.166.53.21])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: linyyuan)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id B270CC433D3;
-        Thu, 10 Jun 2021 06:10:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org B270CC433D3
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=linyyuan@codeaurora.org
-From:   <linyyuan@codeaurora.org>
-To:     "'Felipe Balbi'" <balbi@kernel.org>,
-        "'Greg Kroah-Hartman'" <gregkh@linuxfoundation.org>,
-        <linux-usb@vger.kernel.org>
-Cc:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: [PATCH] usb: gadget: eem: fix command packet transfer issue
-Date:   Thu, 10 Jun 2021 14:10:40 +0800
-Message-ID: <000201d75dbf$58d1cc40$0a7564c0$@codeaurora.org>
+        id S229715AbhFJGla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 02:41:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54164 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229705AbhFJGl2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 02:41:28 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBFCC061574;
+        Wed,  9 Jun 2021 23:39:32 -0700 (PDT)
+Date:   Thu, 10 Jun 2021 06:39:27 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1623307168;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pHfBmgSSl0LVj0j/mIks/eDK1NXKCYXj541XDw2jgp8=;
+        b=G+6GumO1S0lYEs3+FOoZZE3bhxdSiq8/J0eJJk48lx+JX2GpEDTS2UvBT+kUM2/bKByrOA
+        WnFM2OEWOJCpqHMpdMJZx8tZ6MsJ2aH6J/OHGoXdAxsT95654yLuUzlaocK7OAWrOjaBMo
+        ylk2ie0pZk4/PxIcdNeBkGAVkFi78FuMCgkx/SAhIfJ1O6CEHaGmBmf/DqsX2UkFloOT72
+        xl7ch28e4IENsMYIRetnTEZHPmXB0fLKmN/EVluUqaNg+85L+k/4K3CZU9KkHvLJ3RvFZn
+        AOgwdBXvgWIPAsejv93eal7RyDa0w7pS3JJpdEuuG5tWMktmFqNiOiavnlleNQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1623307168;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pHfBmgSSl0LVj0j/mIks/eDK1NXKCYXj541XDw2jgp8=;
+        b=ilb+VLgXgKZc9sZQyMSoP9oGDa2TMKk2a7NaLnNUPDRbXpuftWMJ1o6t4fedoIjz7eu/6x
+        6pIjC36oU31SOtAw==
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/fpu: Reset state for all signal restore failures
+Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <87mtryyhhz.ffs@nanos.tec.linutronix.de>
+References: <87mtryyhhz.ffs@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="us-ascii"
+Message-ID: <162330716797.29796.6651101584652382146.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Content-Language: en-us
-Thread-Index: AdddvrdSHyFlR9ZoTh6zFIq8vt/Gcg==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linyu Yuan <linyyuan@codeaurora.com>
+The following commit has been merged into the x86/urgent branch of tip:
 
-there is following warning,
-[<ffffff8008905a94>] dwc3_gadget_ep_queue+0x1b4/0x1c8
-[<ffffff800895ec9c>] usb_ep_queue+0x3c/0x120
-[<ffffff80089677a0>] eem_unwrap+0x180/0x330
-[<ffffff80089634f8>] rx_complete+0x70/0x230
-[<ffffff800895edbc>] usb_gadget_giveback_request+0x3c/0xe8
-[<ffffff8008901e7c>] dwc3_gadget_giveback+0xb4/0x190
-[<ffffff8008905254>] dwc3_endpoint_transfer_complete+0x32c/0x410
-[<ffffff80089060fc>] dwc3_bh_work+0x654/0x12e8
-[<ffffff80080c63fc>] process_one_work+0x1d4/0x4a8
-[<ffffff80080c6720>] worker_thread+0x50/0x4a8
-[<ffffff80080cc8e8>] kthread+0xe8/0x100
-[<ffffff8008083980>] ret_from_fork+0x10/0x50
-request ffffffc0716bf200 belongs to 'ep0out'
+Commit-ID:     efa165504943f2128d50f63de0c02faf6dcceb0d
+Gitweb:        https://git.kernel.org/tip/efa165504943f2128d50f63de0c02faf6dcceb0d
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Wed, 09 Jun 2021 21:18:00 +02:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Thu, 10 Jun 2021 08:04:24 +02:00
 
-when gadget receive a eem command packet from host, it need to response,
-but queue usb request to wrong endpoint.
-fix it by queue usb request to eem IN endpoint and allow host read it.
+x86/fpu: Reset state for all signal restore failures
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Linyu Yuan <linyyuan@codeaurora.org>
+If access_ok() or fpregs_soft_set() fails in __fpu__restore_sig() then the
+function just returns but does not clear the FPU state as it does for all
+other fatal failures.
+
+Clear the FPU state for these failures as well.
+
+Fixes: 72a671ced66d ("x86, fpu: Unify signal handling code paths for x86 and x86_64 kernels")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/87mtryyhhz.ffs@nanos.tec.linutronix.de
 ---
- drivers/usb/gadget/function/f_eem.c | 44
-++++++++++++++++++++++++++++++++-----
- 1 file changed, 39 insertions(+), 5 deletions(-)
+ arch/x86/kernel/fpu/signal.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_eem.c
-b/drivers/usb/gadget/function/f_eem.c
-index 2cd9942..2c2ca1e 100644
---- a/drivers/usb/gadget/function/f_eem.c
-+++ b/drivers/usb/gadget/function/f_eem.c
-@@ -30,6 +30,11 @@ struct f_eem {
- 	u8				ctrl_id;
- };
+diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
+index 4ab9aeb..ec3ae30 100644
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -307,13 +307,17 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 		return 0;
+ 	}
  
-+struct in_context {
-+	struct sk_buff	*skb;
-+	struct usb_ep	*ep;
-+};
-+
- static inline struct f_eem *func_to_eem(struct usb_function *f)
- {
- 	return container_of(f, struct f_eem, port.func);
-@@ -320,9 +325,12 @@ static int eem_bind(struct usb_configuration *c, struct
-usb_function *f)
+-	if (!access_ok(buf, size))
+-		return -EACCES;
++	if (!access_ok(buf, size)) {
++		ret = -EACCES;
++		goto out;
++	}
  
- static void eem_cmd_complete(struct usb_ep *ep, struct usb_request *req)
- {
--	struct sk_buff *skb = (struct sk_buff *)req->context;
-+	struct in_context *ctx = req->context;
+-	if (!static_cpu_has(X86_FEATURE_FPU))
+-		return fpregs_soft_set(current, NULL,
+-				       0, sizeof(struct user_i387_ia32_struct),
+-				       NULL, buf) != 0;
++	if (!static_cpu_has(X86_FEATURE_FPU)) {
++		ret = fpregs_soft_set(current, NULL, 0,
++				      sizeof(struct user_i387_ia32_struct),
++				      NULL, buf);
++		goto out;
++	}
  
--	dev_kfree_skb_any(skb);
-+	kfree(req->buf);
-+	dev_kfree_skb_any(ctx->skb);
-+	usb_ep_free_request(ctx->ep, req);
-+	kfree(ctx);
- }
- 
- /*
-@@ -410,7 +418,9 @@ static int eem_unwrap(struct gether *port,
- 		 * b15:		bmType (0 == data, 1 == command)
+ 	if (use_xsave()) {
+ 		struct _fpx_sw_bytes fx_sw_user;
+@@ -396,7 +400,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
  		 */
- 		if (header & BIT(15)) {
--			struct usb_request	*req = cdev->req;
-+			struct usb_request	*req;
-+			struct in_context	*ctx;
-+			struct usb_ep		*ep;
- 			u16			bmEEMCmd;
+ 		ret = __copy_from_user(&env, buf, sizeof(env));
+ 		if (ret)
+-			goto err_out;
++			goto out;
+ 		envp = &env;
+ 	}
  
- 			/* EEM command packet format:
-@@ -439,13 +449,37 @@ static int eem_unwrap(struct gether *port,
- 				skb_trim(skb2, len);
- 				put_unaligned_le16(BIT(15) | BIT(11) | len,
- 							skb_push(skb2, 2));
-+
-+				ep = port->in_ep;
-+				req = usb_ep_alloc_request(ep, GFP_ATOMIC);
-+				if (!req) {
-+					dev_kfree_skb_any(skb2);
-+					break;
-+				}
-+
-+				ctx = kmalloc(sizeof(*ctx), GFP_KERNEL);
-+				if (!ctx)
-+					goto nomem;
-+				ctx->skb = skb2;
-+				ctx->ep = ep;
-+
-+				req->buf = kmalloc(skb2->len, GFP_KERNEL);
-+				if (!req->buf)
-+					goto nomem;
-+
- 				skb_copy_bits(skb2, 0, req->buf, skb2->len);
- 				req->length = skb2->len;
- 				req->complete = eem_cmd_complete;
- 				req->zero = 1;
--				req->context = skb2;
--				if (usb_ep_queue(port->in_ep, req,
-GFP_ATOMIC))
-+				req->context = ctx;
-+				if (usb_ep_queue(ep, req, GFP_ATOMIC)) {
- 					DBG(cdev, "echo response queue
-fail\n");
-+nomem:
-+					kfree(req->buf);
-+					usb_ep_free_request(ep, req);
-+					dev_kfree_skb_any(skb2);
-+					kfree(ctx);
-+				}
- 				break;
+@@ -426,7 +430,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
  
- 			case 1:  /* echo response */
--- 
-2.7.4
-
+ 		ret = copy_user_to_xstate(&fpu->state.xsave, buf_fx);
+ 		if (ret)
+-			goto err_out;
++			goto out;
+ 
+ 		sanitize_restored_user_xstate(&fpu->state, envp, user_xfeatures,
+ 					      fx_only);
+@@ -446,7 +450,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 		ret = __copy_from_user(&fpu->state.fxsave, buf_fx, state_size);
+ 		if (ret) {
+ 			ret = -EFAULT;
+-			goto err_out;
++			goto out;
+ 		}
+ 
+ 		sanitize_restored_user_xstate(&fpu->state, envp, user_xfeatures,
+@@ -464,7 +468,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 	} else {
+ 		ret = __copy_from_user(&fpu->state.fsave, buf_fx, state_size);
+ 		if (ret)
+-			goto err_out;
++			goto out;
+ 
+ 		fpregs_lock();
+ 		ret = copy_kernel_to_fregs_err(&fpu->state.fsave);
+@@ -475,7 +479,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 		fpregs_deactivate(fpu);
+ 	fpregs_unlock();
+ 
+-err_out:
++out:
+ 	if (ret)
+ 		fpu__clear_user_states(fpu);
+ 	return ret;
