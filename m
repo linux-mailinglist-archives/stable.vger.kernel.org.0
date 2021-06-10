@@ -2,97 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F1293A23DC
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 07:23:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 793C43A244A
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 08:11:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230134AbhFJFY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 01:24:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49828 "EHLO mail.kernel.org"
+        id S229715AbhFJGM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 02:12:59 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:47709 "EHLO m43-7.mailgun.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230154AbhFJFY5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Jun 2021 01:24:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72635613E1;
-        Thu, 10 Jun 2021 05:22:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623302566;
-        bh=kKp8oU7QwWVcxL3bQAssMPPgzG6/DfWTtdrYTafZCoc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R6Ye10hhufA/hdgGi3PrCWos3nqsMj0z2K+vp2phrtLj+tKIkHYnbxMRIjBcbcixv
-         L2ZXSltM7yJcJFb8uo4Pf+jk3XqMH3DvP1qzY5W/o5ZXcF650En0iIfHsEslM3O6lQ
-         FWSQycXuLbFhHSEKWkpbSS6I//mdskUeQgBj66PQ=
-Date:   Thu, 10 Jun 2021 07:22:42 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Pascal Giard <pascal.giard@etsmtl.ca>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Daniel Nguyen <daniel.nguyen.1@ens.etsmtl.ca>
-Subject: Re: [PATCH] HID: sony: fix freeze when inserting ghlive ps3/wii
- dongles
-Message-ID: <YMGhotmI1kHFe3gL@kroah.com>
-References: <20210604161023.1498582-1-pascal.giard@etsmtl.ca>
- <YLsdEtbAWJxLB+GF@kroah.com>
- <CAJNNDmk7z=aJtx00C+8kpBOk0j_XVOk2fDMG9Xf9Na_ChXM2OA@mail.gmail.com>
+        id S229634AbhFJGM7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Jun 2021 02:12:59 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1623305463; h=Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Message-ID: Date: Subject: Cc: To: From: Sender;
+ bh=jIX3aYx1BMoqk5WRI/kxfbys7dPIfQcOTPn3b00X2m8=; b=nr5mpD9ZlYiG4YPru8KtMaDtaJ30HHdVaS41rjQ1BBm6akwt6OrnWo6P08QW4k9vsLrIvdoV
+ BdhqTVd2LJjJReChMjH2Ys86n0MqOopZxkFuzZeNOveNz8jbOZLo4FH546Vf7rmMcDk1rONW
+ g1yIeIEt2ETbWPwfshfT87mJMgc=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n02.prod.us-east-1.postgun.com with SMTP id
+ 60c1ace6e27c0cc77f672760 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 10 Jun 2021 06:10:46
+ GMT
+Sender: linyyuan=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 19601C43460; Thu, 10 Jun 2021 06:10:46 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from linyyuan (unknown [180.166.53.21])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: linyyuan)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id B270CC433D3;
+        Thu, 10 Jun 2021 06:10:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org B270CC433D3
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=linyyuan@codeaurora.org
+From:   <linyyuan@codeaurora.org>
+To:     "'Felipe Balbi'" <balbi@kernel.org>,
+        "'Greg Kroah-Hartman'" <gregkh@linuxfoundation.org>,
+        <linux-usb@vger.kernel.org>
+Cc:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+Subject: [PATCH] usb: gadget: eem: fix command packet transfer issue
+Date:   Thu, 10 Jun 2021 14:10:40 +0800
+Message-ID: <000201d75dbf$58d1cc40$0a7564c0$@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJNNDmk7z=aJtx00C+8kpBOk0j_XVOk2fDMG9Xf9Na_ChXM2OA@mail.gmail.com>
+Content-Type: text/plain;
+        charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Outlook 16.0
+Content-Language: en-us
+Thread-Index: AdddvrdSHyFlR9ZoTh6zFIq8vt/Gcg==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 09, 2021 at 08:25:47PM -0400, Pascal Giard wrote:
-> On Sat, Jun 5, 2021 at 2:44 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Fri, Jun 04, 2021 at 12:10:23PM -0400, Pascal Giard wrote:
-> > > This commit fixes a freeze on insertion of a Guitar Hero Live PS3/WiiU
-> > > USB dongle. Indeed, with the current implementation, inserting one of
-> > > those USB dongles will lead to a hard freeze. I apologize for not
-> > > catching this earlier, it didn't occur on my old laptop.
-> > >
-> > > While the issue was isolated to memory alloc/free, I could not figure
-> > > out why it causes a freeze. So this patch fixes this issue by
-> > > simplifying memory allocation and usage.
-> > >
-> > > We remind that for the dongle to work properly, a control URB needs to
-> > > be sent periodically. We used to alloc/free the URB each time this URB
-> > > needed to be sent.
-> > >
-> > > With this patch, the memory for the URB is allocated on the probe, reused
-> > > for as long as the dongle is plugged in, and freed once the dongle is
-> > > unplugged.
-> > >
-> > > Signed-off-by: Pascal Giard <pascal.giard@etsmtl.ca>
-> > > ---
-> > >  drivers/hid/hid-sony.c | 98 +++++++++++++++++++++---------------------
-> > >  1 file changed, 49 insertions(+), 49 deletions(-)
-> >
-> > <formletter>
-> >
-> > This is not the correct way to submit patches for inclusion in the
-> > stable kernel tree.  Please read:
-> >     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> > for how to do this properly.
-> >
-> > </formletter>
-> 
-> Dear Greg,
-> 
-> I apologize for failing to follow the procedure. I had already read
-> these guidelines, and I actually thought I was following Option 1 :-/
+From: Linyu Yuan <linyyuan@codeaurora.com>
 
-Is this commit already in Linus's tree?  If so then we just need a git
-commit id and we can queue it up.
+there is following warning,
+[<ffffff8008905a94>] dwc3_gadget_ep_queue+0x1b4/0x1c8
+[<ffffff800895ec9c>] usb_ep_queue+0x3c/0x120
+[<ffffff80089677a0>] eem_unwrap+0x180/0x330
+[<ffffff80089634f8>] rx_complete+0x70/0x230
+[<ffffff800895edbc>] usb_gadget_giveback_request+0x3c/0xe8
+[<ffffff8008901e7c>] dwc3_gadget_giveback+0xb4/0x190
+[<ffffff8008905254>] dwc3_endpoint_transfer_complete+0x32c/0x410
+[<ffffff80089060fc>] dwc3_bh_work+0x654/0x12e8
+[<ffffff80080c63fc>] process_one_work+0x1d4/0x4a8
+[<ffffff80080c6720>] worker_thread+0x50/0x4a8
+[<ffffff80080cc8e8>] kthread+0xe8/0x100
+[<ffffff8008083980>] ret_from_fork+0x10/0x50
+request ffffffc0716bf200 belongs to 'ep0out'
 
-> I thought that I had to get my patch merged into next first (patch
-> against dtor's git) and that by adding stable@ as CC, it would
-> automatically get considered for inclusion into stable once merged
-> into Linus' tree. Based on your email, I got that wrong...
+when gadget receive a eem command packet from host, it need to response,
+but queue usb request to wrong endpoint.
+fix it by queue usb request to eem IN endpoint and allow host read it.
 
-It will, but you need to add that to the signed-off-by: area, as the
-document says.
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Linyu Yuan <linyyuan@codeaurora.org>
+---
+ drivers/usb/gadget/function/f_eem.c | 44
+++++++++++++++++++++++++++++++++-----
+ 1 file changed, 39 insertions(+), 5 deletions(-)
 
-thanks,
+diff --git a/drivers/usb/gadget/function/f_eem.c
+b/drivers/usb/gadget/function/f_eem.c
+index 2cd9942..2c2ca1e 100644
+--- a/drivers/usb/gadget/function/f_eem.c
++++ b/drivers/usb/gadget/function/f_eem.c
+@@ -30,6 +30,11 @@ struct f_eem {
+ 	u8				ctrl_id;
+ };
+ 
++struct in_context {
++	struct sk_buff	*skb;
++	struct usb_ep	*ep;
++};
++
+ static inline struct f_eem *func_to_eem(struct usb_function *f)
+ {
+ 	return container_of(f, struct f_eem, port.func);
+@@ -320,9 +325,12 @@ static int eem_bind(struct usb_configuration *c, struct
+usb_function *f)
+ 
+ static void eem_cmd_complete(struct usb_ep *ep, struct usb_request *req)
+ {
+-	struct sk_buff *skb = (struct sk_buff *)req->context;
++	struct in_context *ctx = req->context;
+ 
+-	dev_kfree_skb_any(skb);
++	kfree(req->buf);
++	dev_kfree_skb_any(ctx->skb);
++	usb_ep_free_request(ctx->ep, req);
++	kfree(ctx);
+ }
+ 
+ /*
+@@ -410,7 +418,9 @@ static int eem_unwrap(struct gether *port,
+ 		 * b15:		bmType (0 == data, 1 == command)
+ 		 */
+ 		if (header & BIT(15)) {
+-			struct usb_request	*req = cdev->req;
++			struct usb_request	*req;
++			struct in_context	*ctx;
++			struct usb_ep		*ep;
+ 			u16			bmEEMCmd;
+ 
+ 			/* EEM command packet format:
+@@ -439,13 +449,37 @@ static int eem_unwrap(struct gether *port,
+ 				skb_trim(skb2, len);
+ 				put_unaligned_le16(BIT(15) | BIT(11) | len,
+ 							skb_push(skb2, 2));
++
++				ep = port->in_ep;
++				req = usb_ep_alloc_request(ep, GFP_ATOMIC);
++				if (!req) {
++					dev_kfree_skb_any(skb2);
++					break;
++				}
++
++				ctx = kmalloc(sizeof(*ctx), GFP_KERNEL);
++				if (!ctx)
++					goto nomem;
++				ctx->skb = skb2;
++				ctx->ep = ep;
++
++				req->buf = kmalloc(skb2->len, GFP_KERNEL);
++				if (!req->buf)
++					goto nomem;
++
+ 				skb_copy_bits(skb2, 0, req->buf, skb2->len);
+ 				req->length = skb2->len;
+ 				req->complete = eem_cmd_complete;
+ 				req->zero = 1;
+-				req->context = skb2;
+-				if (usb_ep_queue(port->in_ep, req,
+GFP_ATOMIC))
++				req->context = ctx;
++				if (usb_ep_queue(ep, req, GFP_ATOMIC)) {
+ 					DBG(cdev, "echo response queue
+fail\n");
++nomem:
++					kfree(req->buf);
++					usb_ep_free_request(ep, req);
++					dev_kfree_skb_any(skb2);
++					kfree(ctx);
++				}
+ 				break;
+ 
+ 			case 1:  /* echo response */
+-- 
+2.7.4
 
-greg k-h
