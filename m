@@ -2,2054 +2,258 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 987BC3A2A59
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 13:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A993A2A5B
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 13:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230387AbhFJLh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 07:37:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48956 "EHLO mail.kernel.org"
+        id S230409AbhFJLhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 07:37:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229983AbhFJLh0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Jun 2021 07:37:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73C7A613FE;
-        Thu, 10 Jun 2021 11:35:15 +0000 (UTC)
+        id S230389AbhFJLhe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Jun 2021 07:37:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F03261412;
+        Thu, 10 Jun 2021 11:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623324916;
-        bh=uJDixDxt9+jEtsI8sy22En4mKT7iT4Syzq8+p50DtJA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J470RqqM4ThXQkycjKLcAAmTWRfY1AaJJQ5gVhepar+BnUjBAt6yH5K9qiezJnh+x
-         80B67bPYUYZr5ig3m7Vj4n+MuHXcuuPioVkQuYR/UNlF0zzSWfbSQ4WD88A5i8ZC0h
-         0oZkK5MaytDjUYvnzWI0KqVzqLcfJTfkLqqe+a7o=
+        s=korg; t=1623324922;
+        bh=NftKmhKQyJMqe9VFtzaomRGYJTuzG87sC+dGlXJ9boA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=LerNOYCmwT3C0hznk9mu611ng+CXEJUu0JCys8vtPbKv65UW/VmSWhJNQamts1Dvp
+         3djnmszDHvQX/XXcKJbLZE0NuX5oZZMgK4hMx8LM4n66NSm84Fm4iPdiqdVtUY/1iT
+         7c2hcRJRIJemnoN3ZZr4FRSf4b2g5Mi+qAa+H1Jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.14.236
-Date:   Thu, 10 Jun 2021 13:35:07 +0200
-Message-Id: <1623324907146198@kroah.com>
+Subject: Linux 4.19.194
+Date:   Thu, 10 Jun 2021 13:35:12 +0200
+Message-Id: <162332491244163@kroah.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <162332490712962@kroah.com>
-References: <162332490712962@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 8849d79161a3..3d162ef034d4 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 14
--SUBLEVEL = 235
-+SUBLEVEL = 236
- EXTRAVERSION =
- NAME = Petit Gorille
- 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index cfd6e58e824b..3571253b8690 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -3532,7 +3532,7 @@ static int cr_interception(struct vcpu_svm *svm)
- 	err = 0;
- 	if (cr >= 16) { /* mov to cr */
- 		cr -= 16;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		switch (cr) {
- 		case 0:
- 			if (!check_selective_cr0_intercepted(svm, val))
-@@ -3577,7 +3577,7 @@ static int cr_interception(struct vcpu_svm *svm)
- 			kvm_queue_exception(&svm->vcpu, UD_VECTOR);
- 			return 1;
- 		}
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
- 	}
- 	return kvm_complete_insn_gp(&svm->vcpu, err);
- }
-@@ -3607,13 +3607,13 @@ static int dr_interception(struct vcpu_svm *svm)
- 	if (dr >= 16) { /* mov to DRn */
- 		if (!kvm_require_dr(&svm->vcpu, dr - 16))
- 			return 1;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		kvm_set_dr(&svm->vcpu, dr - 16, val);
- 	} else {
- 		if (!kvm_require_dr(&svm->vcpu, dr))
- 			return 1;
- 		kvm_get_dr(&svm->vcpu, dr, &val);
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
- 	}
- 
- 	return kvm_skip_emulated_instruction(&svm->vcpu);
-diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
-index 209dc5aefc31..efbb13c6581e 100644
---- a/drivers/firmware/efi/cper.c
-+++ b/drivers/firmware/efi/cper.c
-@@ -380,8 +380,7 @@ static int cper_dimm_err_location(struct cper_mem_err_compact *mem, char *msg)
- 	if (!msg || !(mem->validation_bits & CPER_MEM_VALID_MODULE_HANDLE))
- 		return 0;
- 
--	n = 0;
--	len = CPER_REC_LEN - 1;
-+	len = CPER_REC_LEN;
- 	dmi_memdev_name(mem->mem_dev_handle, &bank, &device);
- 	if (bank && device)
- 		n = snprintf(msg, len, "DIMM location: %s %s ", bank, device);
-@@ -390,7 +389,6 @@ static int cper_dimm_err_location(struct cper_mem_err_compact *mem, char *msg)
- 			     "DIMM location: not present. DMI handle: 0x%.4x ",
- 			     mem->mem_dev_handle);
- 
--	msg[n] = '\0';
- 	return n;
- }
- 
-diff --git a/drivers/firmware/efi/memattr.c b/drivers/firmware/efi/memattr.c
-index aac972b056d9..e0889922cc6d 100644
---- a/drivers/firmware/efi/memattr.c
-+++ b/drivers/firmware/efi/memattr.c
-@@ -69,11 +69,6 @@ static bool entry_is_valid(const efi_memory_desc_t *in, efi_memory_desc_t *out)
- 		return false;
- 	}
- 
--	if (!(in->attribute & (EFI_MEMORY_RO | EFI_MEMORY_XP))) {
--		pr_warn("Entry attributes invalid: RO and XP bits both cleared\n");
--		return false;
--	}
--
- 	if (PAGE_SIZE > EFI_PAGE_SIZE &&
- 	    (!PAGE_ALIGNED(in->phys_addr) ||
- 	     !PAGE_ALIGNED(in->num_pages << EFI_PAGE_SHIFT))) {
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 0294cac4c856..b16bf4358485 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -1092,8 +1092,8 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
- 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
- 
--	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
--		 client->name, hid->vendor, hid->product);
-+	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
-+		 client->name, (u16)hid->vendor, (u16)hid->product);
- 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
- 
- 	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
-diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index 08174d341f4a..bc75f1efa0f4 100644
---- a/drivers/hid/usbhid/hid-pidff.c
-+++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -1304,6 +1304,7 @@ int hid_pidff_init(struct hid_device *hid)
- 
- 	if (pidff->pool[PID_DEVICE_MANAGED_POOL].value &&
- 	    pidff->pool[PID_DEVICE_MANAGED_POOL].value[0] == 0) {
-+		error = -EPERM;
- 		hid_notice(hid,
- 			   "device does not support device managed pool\n");
- 		goto fail;
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 42af96f2b5f6..9135c3eccb58 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -4791,7 +4791,6 @@ static int bnxt_hwrm_func_qcaps(struct bnxt *bp)
- 
- 		pf->fw_fid = le16_to_cpu(resp->fid);
- 		pf->port_id = le16_to_cpu(resp->port_id);
--		bp->dev->dev_port = pf->port_id;
- 		memcpy(pf->mac_addr, resp->mac_address, ETH_ALEN);
- 		pf->max_rsscos_ctxs = le16_to_cpu(resp->max_rsscos_ctx);
- 		pf->max_cp_rings = le16_to_cpu(resp->max_cmpl_rings);
-diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
-index eef1412c058d..468db50eb5e7 100644
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -1591,6 +1591,15 @@ cdc_ncm_speed_change(struct usbnet *dev,
- 	uint32_t rx_speed = le32_to_cpu(data->DLBitRRate);
- 	uint32_t tx_speed = le32_to_cpu(data->ULBitRate);
- 
-+	/* if the speed hasn't changed, don't report it.
-+	 * RTL8156 shipped before 2021 sends notification about every 32ms.
-+	 */
-+	if (dev->rx_speed == rx_speed && dev->tx_speed == tx_speed)
-+		return;
-+
-+	dev->rx_speed = rx_speed;
-+	dev->tx_speed = tx_speed;
-+
- 	/*
- 	 * Currently the USB-NET API does not support reporting the actual
- 	 * device speed. Do print it instead.
-@@ -1634,7 +1643,8 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
- 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
- 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
- 		 */
--		usbnet_link_change(dev, !!event->wValue, 0);
-+		if (netif_carrier_ok(dev->net) != !!event->wValue)
-+			usbnet_link_change(dev, !!event->wValue, 0);
- 		break;
- 
- 	case USB_CDC_NOTIFY_SPEED_CHANGE:
-diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
-index 24ee2605b9f0..0da884bfc7a8 100644
---- a/drivers/vfio/pci/Kconfig
-+++ b/drivers/vfio/pci/Kconfig
-@@ -1,6 +1,7 @@
- config VFIO_PCI
- 	tristate "VFIO support for PCI devices"
- 	depends on VFIO && PCI && EVENTFD
-+	depends on MMU
- 	select VFIO_VIRQFD
- 	select IRQ_BYPASS_MANAGER
- 	help
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index a1a26465d224..86e917f1cc21 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -1579,7 +1579,7 @@ static int vfio_ecap_init(struct vfio_pci_device *vdev)
- 			if (len == 0xFF) {
- 				len = vfio_ext_cap_len(vdev, ecap, epos);
- 				if (len < 0)
--					return ret;
-+					return len;
- 			}
- 		}
- 
-diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
-index aa9e792110e3..f42acc830c24 100644
---- a/drivers/vfio/platform/vfio_platform_common.c
-+++ b/drivers/vfio/platform/vfio_platform_common.c
-@@ -288,7 +288,7 @@ static int vfio_platform_open(void *device_data)
- 	vfio_platform_regions_cleanup(vdev);
- err_reg:
- 	mutex_unlock(&driver_lock);
--	module_put(THIS_MODULE);
-+	module_put(vdev->parent_module);
- 	return ret;
- }
- 
-diff --git a/drivers/xen/xen-pciback/vpci.c b/drivers/xen/xen-pciback/vpci.c
-index f6ba18191c0f..30313084f06c 100644
---- a/drivers/xen/xen-pciback/vpci.c
-+++ b/drivers/xen/xen-pciback/vpci.c
-@@ -69,7 +69,7 @@ static int __xen_pcibk_add_pci_dev(struct xen_pcibk_device *pdev,
- 				   struct pci_dev *dev, int devid,
- 				   publish_pci_dev_cb publish_cb)
- {
--	int err = 0, slot, func = -1;
-+	int err = 0, slot, func = PCI_FUNC(dev->devfn);
- 	struct pci_dev_entry *t, *dev_entry;
- 	struct vpci_dev_data *vpci_dev = pdev->pci_dev_data;
- 
-@@ -94,23 +94,26 @@ static int __xen_pcibk_add_pci_dev(struct xen_pcibk_device *pdev,
- 
- 	/*
- 	 * Keep multi-function devices together on the virtual PCI bus, except
--	 * virtual functions.
-+	 * that we want to keep virtual functions at func 0 on their own. They
-+	 * aren't multi-function devices and hence their presence at func 0
-+	 * may cause guests to not scan the other functions.
- 	 */
--	if (!dev->is_virtfn) {
-+	if (!dev->is_virtfn || func) {
- 		for (slot = 0; slot < PCI_SLOT_MAX; slot++) {
- 			if (list_empty(&vpci_dev->dev_list[slot]))
- 				continue;
- 
- 			t = list_entry(list_first(&vpci_dev->dev_list[slot]),
- 				       struct pci_dev_entry, list);
-+			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
-+				continue;
- 
- 			if (match_slot(dev, t->dev)) {
- 				pr_info("vpci: %s: assign to virtual slot %d func %d\n",
- 					pci_name(dev), slot,
--					PCI_FUNC(dev->devfn));
-+					func);
- 				list_add_tail(&dev_entry->list,
- 					      &vpci_dev->dev_list[slot]);
--				func = PCI_FUNC(dev->devfn);
- 				goto unlock;
- 			}
- 		}
-@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struct xen_pcibk_device *pdev,
- 				pci_name(dev), slot);
- 			list_add_tail(&dev_entry->list,
- 				      &vpci_dev->dev_list[slot]);
--			func = dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
- 			goto unlock;
- 		}
- 	}
-diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
-index edd5f152e448..684517086138 100644
---- a/fs/btrfs/file-item.c
-+++ b/fs/btrfs/file-item.c
-@@ -599,7 +599,7 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
- 	u64 end_byte = bytenr + len;
- 	u64 csum_end;
- 	struct extent_buffer *leaf;
--	int ret;
-+	int ret = 0;
- 	u16 csum_size = btrfs_super_csum_size(fs_info->super_copy);
- 	int blocksize_bits = fs_info->sb->s_blocksize_bits;
- 
-@@ -615,6 +615,7 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
- 		path->leave_spinning = 1;
- 		ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
- 		if (ret > 0) {
-+			ret = 0;
- 			if (path->slots[0] == 0)
- 				break;
- 			path->slots[0]--;
-@@ -671,7 +672,7 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
- 			ret = btrfs_del_items(trans, root, path,
- 					      path->slots[0], del_nr);
- 			if (ret)
--				goto out;
-+				break;
- 			if (key.offset == bytenr)
- 				break;
- 		} else if (key.offset < bytenr && csum_end > end_byte) {
-@@ -715,8 +716,9 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
- 			ret = btrfs_split_item(trans, root, path, &key, offset);
- 			if (ret && ret != -EAGAIN) {
- 				btrfs_abort_transaction(trans, ret);
--				goto out;
-+				break;
- 			}
-+			ret = 0;
- 
- 			key.offset = end_byte - 1;
- 		} else {
-@@ -726,8 +728,6 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
- 		}
- 		btrfs_release_path(path);
- 	}
--	ret = 0;
--out:
- 	btrfs_free_path(path);
- 	return ret;
- }
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 035a2e2be156..f890fdb59915 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -1558,6 +1558,7 @@ static noinline int fixup_inode_link_counts(struct btrfs_trans_handle *trans,
- 			break;
- 
- 		if (ret == 1) {
-+			ret = 0;
- 			if (path->slots[0] == 0)
- 				break;
- 			path->slots[0]--;
-@@ -1570,17 +1571,19 @@ static noinline int fixup_inode_link_counts(struct btrfs_trans_handle *trans,
- 
- 		ret = btrfs_del_item(trans, root, path);
- 		if (ret)
--			goto out;
-+			break;
- 
- 		btrfs_release_path(path);
- 		inode = read_one_inode(root, key.offset);
--		if (!inode)
--			return -EIO;
-+		if (!inode) {
-+			ret = -EIO;
-+			break;
-+		}
- 
- 		ret = fixup_inode_link_count(trans, root, inode);
- 		iput(inode);
- 		if (ret)
--			goto out;
-+			break;
- 
- 		/*
- 		 * fixup on a directory may create new entries,
-@@ -1589,8 +1592,6 @@ static noinline int fixup_inode_link_counts(struct btrfs_trans_handle *trans,
- 		 */
- 		key.offset = (u64)-1;
- 	}
--	ret = 0;
--out:
- 	btrfs_release_path(path);
- 	return ret;
- }
-diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-index 264332fb0e77..17f6d995576f 100644
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -3275,7 +3275,10 @@ static int ext4_split_extent_at(handle_t *handle,
- 		ext4_ext_mark_unwritten(ex2);
- 
- 	err = ext4_ext_insert_extent(handle, inode, ppath, &newex, flags);
--	if (err == -ENOSPC && (EXT4_EXT_MAY_ZEROOUT & split_flag)) {
-+	if (err != -ENOSPC && err != -EDQUOT)
-+		goto out;
-+
-+	if (EXT4_EXT_MAY_ZEROOUT & split_flag) {
- 		if (split_flag & (EXT4_EXT_DATA_VALID1|EXT4_EXT_DATA_VALID2)) {
- 			if (split_flag & EXT4_EXT_DATA_VALID1) {
- 				err = ext4_ext_zeroout(inode, ex2);
-@@ -3301,30 +3304,30 @@ static int ext4_split_extent_at(handle_t *handle,
- 					      ext4_ext_pblock(&orig_ex));
- 		}
- 
--		if (err)
--			goto fix_extent_len;
--		/* update the extent length and mark as initialized */
--		ex->ee_len = cpu_to_le16(ee_len);
--		ext4_ext_try_to_merge(handle, inode, path, ex);
--		err = ext4_ext_dirty(handle, inode, path + path->p_depth);
--		if (err)
--			goto fix_extent_len;
--
--		/* update extent status tree */
--		err = ext4_zeroout_es(inode, &zero_ex);
--
--		goto out;
--	} else if (err)
--		goto fix_extent_len;
--
--out:
--	ext4_ext_show_leaf(inode, path);
--	return err;
-+		if (!err) {
-+			/* update the extent length and mark as initialized */
-+			ex->ee_len = cpu_to_le16(ee_len);
-+			ext4_ext_try_to_merge(handle, inode, path, ex);
-+			err = ext4_ext_dirty(handle, inode, path + path->p_depth);
-+			if (!err)
-+				/* update extent status tree */
-+				err = ext4_zeroout_es(inode, &zero_ex);
-+			/* If we failed at this point, we don't know in which
-+			 * state the extent tree exactly is so don't try to fix
-+			 * length of the original extent as it may do even more
-+			 * damage.
-+			 */
-+			goto out;
-+		}
-+	}
- 
- fix_extent_len:
- 	ex->ee_len = orig_ex.ee_len;
- 	ext4_ext_dirty(handle, inode, path + path->p_depth);
- 	return err;
-+out:
-+	ext4_ext_show_leaf(inode, path);
-+	return err;
- }
- 
- /*
-diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
-index baf5c4028fd6..90e658caa8de 100644
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1861,6 +1861,45 @@ int ocfs2_remove_inode_range(struct inode *inode,
- 	return ret;
- }
- 
-+/*
-+ * zero out partial blocks of one cluster.
-+ *
-+ * start: file offset where zero starts, will be made upper block aligned.
-+ * len: it will be trimmed to the end of current cluster if "start + len"
-+ *      is bigger than it.
-+ */
-+static int ocfs2_zeroout_partial_cluster(struct inode *inode,
-+					u64 start, u64 len)
-+{
-+	int ret;
-+	u64 start_block, end_block, nr_blocks;
-+	u64 p_block, offset;
-+	u32 cluster, p_cluster, nr_clusters;
-+	struct super_block *sb = inode->i_sb;
-+	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
-+
-+	if (start + len < end)
-+		end = start + len;
-+
-+	start_block = ocfs2_blocks_for_bytes(sb, start);
-+	end_block = ocfs2_blocks_for_bytes(sb, end);
-+	nr_blocks = end_block - start_block;
-+	if (!nr_blocks)
-+		return 0;
-+
-+	cluster = ocfs2_bytes_to_clusters(sb, start);
-+	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
-+				&nr_clusters, NULL);
-+	if (ret)
-+		return ret;
-+	if (!p_cluster)
-+		return 0;
-+
-+	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
-+	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
-+	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
-+}
-+
- /*
-  * Parts of this function taken from xfs_change_file_space()
-  */
-@@ -1871,7 +1910,7 @@ static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
- {
- 	int ret;
- 	s64 llen;
--	loff_t size;
-+	loff_t size, orig_isize;
- 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
- 	struct buffer_head *di_bh = NULL;
- 	handle_t *handle;
-@@ -1902,6 +1941,7 @@ static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
- 		goto out_inode_unlock;
- 	}
- 
-+	orig_isize = i_size_read(inode);
- 	switch (sr->l_whence) {
- 	case 0: /*SEEK_SET*/
- 		break;
-@@ -1909,7 +1949,7 @@ static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
- 		sr->l_start += f_pos;
- 		break;
- 	case 2: /*SEEK_END*/
--		sr->l_start += i_size_read(inode);
-+		sr->l_start += orig_isize;
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -1963,6 +2003,14 @@ static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
- 	default:
- 		ret = -EINVAL;
- 	}
-+
-+	/* zeroout eof blocks in the cluster. */
-+	if (!ret && change_size && orig_isize < size) {
-+		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
-+					size - orig_isize);
-+		if (!ret)
-+			i_size_write(inode, size);
-+	}
- 	up_write(&OCFS2_I(inode)->ip_alloc_sem);
- 	if (ret) {
- 		mlog_errno(ret);
-@@ -1979,9 +2027,6 @@ static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
- 		goto out_inode_unlock;
- 	}
- 
--	if (change_size && i_size_read(inode) < size)
--		i_size_write(inode, size);
--
- 	inode->i_ctime = inode->i_mtime = current_time(inode);
- 	ret = ocfs2_mark_inode_dirty(handle, inode, di_bh);
- 	if (ret < 0)
-diff --git a/include/linux/bpf_verifier.h b/include/linux/bpf_verifier.h
-index d8b3240cfe6e..8509484cada4 100644
---- a/include/linux/bpf_verifier.h
-+++ b/include/linux/bpf_verifier.h
-@@ -114,10 +114,11 @@ struct bpf_verifier_state_list {
- };
- 
- /* Possible states for alu_state member. */
--#define BPF_ALU_SANITIZE_SRC		1U
--#define BPF_ALU_SANITIZE_DST		2U
-+#define BPF_ALU_SANITIZE_SRC		(1U << 0)
-+#define BPF_ALU_SANITIZE_DST		(1U << 1)
- #define BPF_ALU_NEG_VALUE		(1U << 2)
- #define BPF_ALU_NON_POINTER		(1U << 3)
-+#define BPF_ALU_IMMEDIATE		(1U << 4)
- #define BPF_ALU_SANITIZE		(BPF_ALU_SANITIZE_SRC | \
- 					 BPF_ALU_SANITIZE_DST)
- 
-diff --git a/include/linux/usb/usbnet.h b/include/linux/usb/usbnet.h
-index e87a805cbfef..5df465dc7af8 100644
---- a/include/linux/usb/usbnet.h
-+++ b/include/linux/usb/usbnet.h
-@@ -82,6 +82,8 @@ struct usbnet {
- #		define EVENT_LINK_CHANGE	11
- #		define EVENT_SET_RX_MODE	12
- #		define EVENT_NO_IP_ALIGN	13
-+	u32			rx_speed;	/* in bps - NOT Mbps */
-+	u32			tx_speed;	/* in bps - NOT Mbps */
- };
- 
- static inline struct usb_driver *driver_of(struct usb_interface *intf)
-diff --git a/include/net/caif/caif_dev.h b/include/net/caif/caif_dev.h
-index 028b754ae9b1..0baf2e21a533 100644
---- a/include/net/caif/caif_dev.h
-+++ b/include/net/caif/caif_dev.h
-@@ -119,7 +119,7 @@ void caif_free_client(struct cflayer *adap_layer);
-  * The link_support layer is used to add any Link Layer specific
-  * framing.
-  */
--void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
-+int caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
- 			struct cflayer *link_support, int head_room,
- 			struct cflayer **layer, int (**rcv_func)(
- 				struct sk_buff *, struct net_device *,
-diff --git a/include/net/caif/cfcnfg.h b/include/net/caif/cfcnfg.h
-index 70bfd017581f..219094ace893 100644
---- a/include/net/caif/cfcnfg.h
-+++ b/include/net/caif/cfcnfg.h
-@@ -62,7 +62,7 @@ void cfcnfg_remove(struct cfcnfg *cfg);
-  * @fcs:	Specify if checksum is used in CAIF Framing Layer.
-  * @head_room:	Head space needed by link specific protocol.
-  */
--void
-+int
- cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
- 		     struct net_device *dev, struct cflayer *phy_layer,
- 		     enum cfcnfg_phy_preference pref,
-diff --git a/include/net/caif/cfserl.h b/include/net/caif/cfserl.h
-index b5b020f3c72e..bc3fae07a25f 100644
---- a/include/net/caif/cfserl.h
-+++ b/include/net/caif/cfserl.h
-@@ -9,4 +9,5 @@
- #include <net/caif/caif_layer.h>
- 
- struct cflayer *cfserl_create(int instance, bool use_stx);
-+void cfserl_release(struct cflayer *layer);
- #endif
-diff --git a/init/main.c b/init/main.c
-index 603b1ad88cb6..f0b2411a5fbf 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -1054,7 +1054,7 @@ static noinline void __init kernel_init_freeable(void)
- 	 */
- 	set_mems_allowed(node_states[N_MEMORY]);
- 
--	cad_pid = task_pid(current);
-+	cad_pid = get_pid(task_pid(current));
- 
- 	smp_prepare_cpus(setup_max_cpus);
- 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index f28ba90a43a7..4a3333039bf2 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2024,37 +2024,43 @@ static struct bpf_insn_aux_data *cur_aux(struct bpf_verifier_env *env)
- 	return &env->insn_aux_data[env->insn_idx];
- }
- 
-+enum {
-+	REASON_BOUNDS	= -1,
-+	REASON_TYPE	= -2,
-+	REASON_PATHS	= -3,
-+	REASON_LIMIT	= -4,
-+	REASON_STACK	= -5,
-+};
-+
- static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
--			      u32 *ptr_limit, u8 opcode, bool off_is_neg)
-+			      u32 *alu_limit, bool mask_to_left)
- {
--	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
--			    (opcode == BPF_SUB && !off_is_neg);
--	u32 off, max;
-+	u32 max = 0, ptr_limit = 0;
- 
- 	switch (ptr_reg->type) {
- 	case PTR_TO_STACK:
- 		/* Offset 0 is out-of-bounds, but acceptable start for the
--		 * left direction, see BPF_REG_FP.
-+		 * left direction, see BPF_REG_FP. Also, unknown scalar
-+		 * offset where we would need to deal with min/max bounds is
-+		 * currently prohibited for unprivileged.
- 		 */
- 		max = MAX_BPF_STACK + mask_to_left;
--		off = ptr_reg->off + ptr_reg->var_off.value;
--		if (mask_to_left)
--			*ptr_limit = MAX_BPF_STACK + off;
--		else
--			*ptr_limit = -off - 1;
--		return *ptr_limit >= max ? -ERANGE : 0;
-+		ptr_limit = -(ptr_reg->var_off.value + ptr_reg->off);
-+		break;
- 	case PTR_TO_MAP_VALUE:
- 		max = ptr_reg->map_ptr->value_size;
--		if (mask_to_left) {
--			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
--		} else {
--			off = ptr_reg->smin_value + ptr_reg->off;
--			*ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
--		}
--		return *ptr_limit >= max ? -ERANGE : 0;
-+		ptr_limit = (mask_to_left ?
-+			     ptr_reg->smin_value :
-+			     ptr_reg->umax_value) + ptr_reg->off;
-+		break;
- 	default:
--		return -EINVAL;
-+		return REASON_TYPE;
- 	}
-+
-+	if (ptr_limit >= max)
-+		return REASON_LIMIT;
-+	*alu_limit = ptr_limit;
-+	return 0;
- }
- 
- static bool can_skip_alu_sanitation(const struct bpf_verifier_env *env,
-@@ -2072,7 +2078,7 @@ static int update_alu_sanitation_state(struct bpf_insn_aux_data *aux,
- 	if (aux->alu_state &&
- 	    (aux->alu_state != alu_state ||
- 	     aux->alu_limit != alu_limit))
--		return -EACCES;
-+		return REASON_PATHS;
- 
- 	/* Corresponding fixup done in fixup_bpf_calls(). */
- 	aux->alu_state = alu_state;
-@@ -2091,14 +2097,28 @@ static int sanitize_val_alu(struct bpf_verifier_env *env,
- 	return update_alu_sanitation_state(aux, BPF_ALU_NON_POINTER, 0);
- }
- 
-+static bool sanitize_needed(u8 opcode)
-+{
-+	return opcode == BPF_ADD || opcode == BPF_SUB;
-+}
-+
-+struct bpf_sanitize_info {
-+	struct bpf_insn_aux_data aux;
-+	bool mask_to_left;
-+};
-+
- static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 			    struct bpf_insn *insn,
- 			    const struct bpf_reg_state *ptr_reg,
-+			    const struct bpf_reg_state *off_reg,
- 			    struct bpf_reg_state *dst_reg,
--			    bool off_is_neg)
-+			    struct bpf_sanitize_info *info,
-+			    const bool commit_window)
- {
-+	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : &info->aux;
- 	struct bpf_verifier_state *vstate = env->cur_state;
--	struct bpf_insn_aux_data *aux = cur_aux(env);
-+	bool off_is_imm = tnum_is_const(off_reg->var_off);
-+	bool off_is_neg = off_reg->smin_value < 0;
- 	bool ptr_is_dst_reg = ptr_reg == dst_reg;
- 	u8 opcode = BPF_OP(insn->code);
- 	u32 alu_state, alu_limit;
-@@ -2116,18 +2136,47 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 	if (vstate->speculative)
- 		goto do_sim;
- 
--	alu_state  = off_is_neg ? BPF_ALU_NEG_VALUE : 0;
--	alu_state |= ptr_is_dst_reg ?
--		     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
-+	if (!commit_window) {
-+		if (!tnum_is_const(off_reg->var_off) &&
-+		    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
-+			return REASON_BOUNDS;
- 
--	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
-+		info->mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
-+				     (opcode == BPF_SUB && !off_is_neg);
-+	}
-+
-+	err = retrieve_ptr_limit(ptr_reg, &alu_limit, info->mask_to_left);
- 	if (err < 0)
- 		return err;
- 
-+	if (commit_window) {
-+		/* In commit phase we narrow the masking window based on
-+		 * the observed pointer move after the simulated operation.
-+		 */
-+		alu_state = info->aux.alu_state;
-+		alu_limit = abs(info->aux.alu_limit - alu_limit);
-+	} else {
-+		alu_state  = off_is_neg ? BPF_ALU_NEG_VALUE : 0;
-+		alu_state |= off_is_imm ? BPF_ALU_IMMEDIATE : 0;
-+		alu_state |= ptr_is_dst_reg ?
-+			     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
-+	}
-+
- 	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
- 	if (err < 0)
- 		return err;
- do_sim:
-+	/* If we're in commit phase, we're done here given we already
-+	 * pushed the truncated dst_reg into the speculative verification
-+	 * stack.
-+	 *
-+	 * Also, when register is a known constant, we rewrite register-based
-+	 * operation to immediate-based, and thus do not need masking (and as
-+	 * a consequence, do not need to simulate the zero-truncation either).
-+	 */
-+	if (commit_window || off_is_imm)
-+		return 0;
-+
- 	/* Simulate and find potential out-of-bounds access under
- 	 * speculative execution from truncation as a result of
- 	 * masking when off was not within expected range. If off
-@@ -2144,7 +2193,81 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 	ret = push_stack(env, env->insn_idx + 1, env->insn_idx, true);
- 	if (!ptr_is_dst_reg && ret)
- 		*dst_reg = tmp;
--	return !ret ? -EFAULT : 0;
-+	return !ret ? REASON_STACK : 0;
-+}
-+
-+static int sanitize_err(struct bpf_verifier_env *env,
-+			const struct bpf_insn *insn, int reason,
-+			const struct bpf_reg_state *off_reg,
-+			const struct bpf_reg_state *dst_reg)
-+{
-+	static const char *err = "pointer arithmetic with it prohibited for !root";
-+	const char *op = BPF_OP(insn->code) == BPF_ADD ? "add" : "sub";
-+	u32 dst = insn->dst_reg, src = insn->src_reg;
-+
-+	switch (reason) {
-+	case REASON_BOUNDS:
-+		verbose("R%d has unknown scalar with mixed signed bounds, %s\n",
-+			off_reg == dst_reg ? dst : src, err);
-+		break;
-+	case REASON_TYPE:
-+		verbose("R%d has pointer with unsupported alu operation, %s\n",
-+			off_reg == dst_reg ? src : dst, err);
-+		break;
-+	case REASON_PATHS:
-+		verbose("R%d tried to %s from different maps, paths or scalars, %s\n",
-+			dst, op, err);
-+		break;
-+	case REASON_LIMIT:
-+		verbose("R%d tried to %s beyond pointer bounds, %s\n",
-+			dst, op, err);
-+		break;
-+	case REASON_STACK:
-+		verbose("R%d could not be pushed for speculative verification, %s\n",
-+			dst, err);
-+		break;
-+	default:
-+		verbose("verifier internal error: unknown reason (%d)\n",
-+			reason);
-+		break;
-+	}
-+
-+	return -EACCES;
-+}
-+
-+static int sanitize_check_bounds(struct bpf_verifier_env *env,
-+				 const struct bpf_insn *insn,
-+				 const struct bpf_reg_state *dst_reg)
-+{
-+	u32 dst = insn->dst_reg;
-+
-+	/* For unprivileged we require that resulting offset must be in bounds
-+	 * in order to be able to sanitize access later on.
-+	 */
-+	if (env->allow_ptr_leaks)
-+		return 0;
-+
-+	switch (dst_reg->type) {
-+	case PTR_TO_STACK:
-+		if (check_stack_access(env, dst_reg, dst_reg->off +
-+				       dst_reg->var_off.value, 1)) {
-+			verbose("R%d stack pointer arithmetic goes out of range, "
-+				"prohibited for !root\n", dst);
-+			return -EACCES;
-+		}
-+		break;
-+	case PTR_TO_MAP_VALUE:
-+		if (check_map_access(env, dst, dst_reg->off, 1)) {
-+			verbose("R%d pointer arithmetic of map value goes out of range, "
-+				"prohibited for !root\n", dst);
-+			return -EACCES;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return 0;
- }
- 
- /* Handles arithmetic on a pointer and a scalar: computes new min/max and var_off.
-@@ -2163,8 +2286,9 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	    smin_ptr = ptr_reg->smin_value, smax_ptr = ptr_reg->smax_value;
- 	u64 umin_val = off_reg->umin_value, umax_val = off_reg->umax_value,
- 	    umin_ptr = ptr_reg->umin_value, umax_ptr = ptr_reg->umax_value;
--	u32 dst = insn->dst_reg, src = insn->src_reg;
-+	struct bpf_sanitize_info info = {};
- 	u8 opcode = BPF_OP(insn->code);
-+	u32 dst = insn->dst_reg;
- 	int ret;
- 
- 	dst_reg = &regs[dst];
-@@ -2180,37 +2304,26 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 
- 	if (BPF_CLASS(insn->code) != BPF_ALU64) {
- 		/* 32-bit ALU ops on pointers produce (meaningless) scalars */
--		if (!env->allow_ptr_leaks)
--			verbose("R%d 32-bit pointer arithmetic prohibited\n",
--				dst);
-+		verbose("R%d 32-bit pointer arithmetic prohibited\n",
-+			dst);
- 		return -EACCES;
- 	}
- 
- 	if (ptr_reg->type == PTR_TO_MAP_VALUE_OR_NULL) {
--		if (!env->allow_ptr_leaks)
--			verbose("R%d pointer arithmetic on PTR_TO_MAP_VALUE_OR_NULL prohibited, null-check it first\n",
--				dst);
-+		verbose("R%d pointer arithmetic on PTR_TO_MAP_VALUE_OR_NULL prohibited, null-check it first\n",
-+			dst);
- 		return -EACCES;
- 	}
- 	if (ptr_reg->type == CONST_PTR_TO_MAP) {
--		if (!env->allow_ptr_leaks)
--			verbose("R%d pointer arithmetic on CONST_PTR_TO_MAP prohibited\n",
--				dst);
-+		verbose("R%d pointer arithmetic on CONST_PTR_TO_MAP prohibited\n",
-+			dst);
- 		return -EACCES;
- 	}
- 	if (ptr_reg->type == PTR_TO_PACKET_END) {
--		if (!env->allow_ptr_leaks)
--			verbose("R%d pointer arithmetic on PTR_TO_PACKET_END prohibited\n",
--				dst);
-+		verbose("R%d pointer arithmetic on PTR_TO_PACKET_END prohibited\n",
-+			dst);
- 		return -EACCES;
- 	}
--	if (ptr_reg->type == PTR_TO_MAP_VALUE) {
--		if (!env->allow_ptr_leaks && !known && (smin_val < 0) != (smax_val < 0)) {
--			verbose("R%d has unknown scalar with mixed signed bounds, pointer arithmetic with it prohibited for !root\n",
--				off_reg == dst_reg ? dst : src);
--			return -EACCES;
--		}
--	}
- 
- 	/* In case of 'scalar += pointer', dst_reg inherits pointer type and id.
- 	 * The id may be overwritten later if we create a new variable offset.
-@@ -2222,13 +2335,15 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	    !check_reg_sane_offset(env, ptr_reg, ptr_reg->type))
- 		return -EINVAL;
- 
-+	if (sanitize_needed(opcode)) {
-+		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg,
-+				       &info, false);
-+		if (ret < 0)
-+			return sanitize_err(env, insn, ret, off_reg, dst_reg);
-+	}
-+
- 	switch (opcode) {
- 	case BPF_ADD:
--		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
--		if (ret < 0) {
--			verbose("R%d tried to add from different maps, paths, or prohibited types\n", dst);
--			return ret;
--		}
- 		/* We can take a fixed offset as long as it doesn't overflow
- 		 * the s32 'off' field
- 		 */
-@@ -2279,16 +2394,10 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 		}
- 		break;
- 	case BPF_SUB:
--		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
--		if (ret < 0) {
--			verbose("R%d tried to sub from different maps, paths, or prohibited types\n", dst);
--			return ret;
--		}
- 		if (dst_reg == off_reg) {
- 			/* scalar -= pointer.  Creates an unknown scalar */
--			if (!env->allow_ptr_leaks)
--				verbose("R%d tried to subtract pointer from scalar\n",
--					dst);
-+			verbose("R%d tried to subtract pointer from scalar\n",
-+				dst);
- 			return -EACCES;
- 		}
- 		/* We don't allow subtraction from FP, because (according to
-@@ -2296,9 +2405,8 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 		 * be able to deal with it.
- 		 */
- 		if (ptr_reg->type == PTR_TO_STACK) {
--			if (!env->allow_ptr_leaks)
--				verbose("R%d subtraction from stack pointer prohibited\n",
--					dst);
-+			verbose("R%d subtraction from stack pointer prohibited\n",
-+				dst);
- 			return -EACCES;
- 		}
- 		if (known && (ptr_reg->off - smin_val ==
-@@ -2348,19 +2456,14 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	case BPF_AND:
- 	case BPF_OR:
- 	case BPF_XOR:
--		/* bitwise ops on pointers are troublesome, prohibit for now.
--		 * (However, in principle we could allow some cases, e.g.
--		 * ptr &= ~3 which would reduce min_value by 3.)
--		 */
--		if (!env->allow_ptr_leaks)
--			verbose("R%d bitwise operator %s on pointer prohibited\n",
--				dst, bpf_alu_string[opcode >> 4]);
-+		/* bitwise ops on pointers are troublesome. */
-+		verbose("R%d bitwise operator %s on pointer prohibited\n",
-+			dst, bpf_alu_string[opcode >> 4]);
- 		return -EACCES;
- 	default:
- 		/* other operators (e.g. MUL,LSH) produce non-pointer results */
--		if (!env->allow_ptr_leaks)
--			verbose("R%d pointer arithmetic with %s operator prohibited\n",
--				dst, bpf_alu_string[opcode >> 4]);
-+		verbose("R%d pointer arithmetic with %s operator prohibited\n",
-+			dst, bpf_alu_string[opcode >> 4]);
- 		return -EACCES;
- 	}
- 
-@@ -2371,22 +2474,13 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	__reg_deduce_bounds(dst_reg);
- 	__reg_bound_offset(dst_reg);
- 
--	/* For unprivileged we require that resulting offset must be in bounds
--	 * in order to be able to sanitize access later on.
--	 */
--	if (!env->allow_ptr_leaks) {
--		if (dst_reg->type == PTR_TO_MAP_VALUE &&
--		    check_map_access(env, dst, dst_reg->off, 1)) {
--			verbose("R%d pointer arithmetic of map value goes out of range, "
--				"prohibited for !root\n", dst);
--			return -EACCES;
--		} else if (dst_reg->type == PTR_TO_STACK &&
--			   check_stack_access(env, dst_reg, dst_reg->off +
--					      dst_reg->var_off.value, 1)) {
--			verbose("R%d stack pointer arithmetic goes out of range, "
--				"prohibited for !root\n", dst);
--			return -EACCES;
--		}
-+	if (sanitize_check_bounds(env, insn, dst_reg) < 0)
-+		return -EACCES;
-+	if (sanitize_needed(opcode)) {
-+		ret = sanitize_ptr_alu(env, insn, dst_reg, off_reg, dst_reg,
-+				       &info, true);
-+		if (ret < 0)
-+			return sanitize_err(env, insn, ret, off_reg, dst_reg);
- 	}
- 
- 	return 0;
-@@ -2407,7 +2501,6 @@ static int adjust_scalar_min_max_vals(struct bpf_verifier_env *env,
- 	s64 smin_val, smax_val;
- 	u64 umin_val, umax_val;
- 	u64 insn_bitness = (BPF_CLASS(insn->code) == BPF_ALU64) ? 64 : 32;
--	u32 dst = insn->dst_reg;
- 	int ret;
- 
- 	if (insn_bitness == 32) {
-@@ -2441,13 +2534,14 @@ static int adjust_scalar_min_max_vals(struct bpf_verifier_env *env,
- 		return 0;
- 	}
- 
-+	if (sanitize_needed(opcode)) {
-+		ret = sanitize_val_alu(env, insn);
-+		if (ret < 0)
-+			return sanitize_err(env, insn, ret, NULL, NULL);
-+	}
-+
- 	switch (opcode) {
- 	case BPF_ADD:
--		ret = sanitize_val_alu(env, insn);
--		if (ret < 0) {
--			verbose("R%d tried to add from different pointers or scalars\n", dst);
--			return ret;
--		}
- 		if (signed_add_overflows(dst_reg->smin_value, smin_val) ||
- 		    signed_add_overflows(dst_reg->smax_value, smax_val)) {
- 			dst_reg->smin_value = S64_MIN;
-@@ -2467,11 +2561,6 @@ static int adjust_scalar_min_max_vals(struct bpf_verifier_env *env,
- 		dst_reg->var_off = tnum_add(dst_reg->var_off, src_reg.var_off);
- 		break;
- 	case BPF_SUB:
--		ret = sanitize_val_alu(env, insn);
--		if (ret < 0) {
--			verbose("R%d tried to sub from different pointers or scalars\n", dst);
--			return ret;
--		}
- 		if (signed_sub_overflows(dst_reg->smin_value, smax_val) ||
- 		    signed_sub_overflows(dst_reg->smax_value, smin_val)) {
- 			/* Overflow possible, we know nothing */
-@@ -2664,7 +2753,6 @@ static int adjust_reg_min_max_vals(struct bpf_verifier_env *env,
- 	struct bpf_reg_state *regs = cur_regs(env), *dst_reg, *src_reg;
- 	struct bpf_reg_state *ptr_reg = NULL, off_reg = {0};
- 	u8 opcode = BPF_OP(insn->code);
--	int rc;
- 
- 	dst_reg = &regs[insn->dst_reg];
- 	src_reg = NULL;
-@@ -2675,43 +2763,29 @@ static int adjust_reg_min_max_vals(struct bpf_verifier_env *env,
- 		if (src_reg->type != SCALAR_VALUE) {
- 			if (dst_reg->type != SCALAR_VALUE) {
- 				/* Combining two pointers by any ALU op yields
--				 * an arbitrary scalar.
-+				 * an arbitrary scalar. Disallow all math except
-+				 * pointer subtraction
- 				 */
--				if (!env->allow_ptr_leaks) {
--					verbose("R%d pointer %s pointer prohibited\n",
--						insn->dst_reg,
--						bpf_alu_string[opcode >> 4]);
--					return -EACCES;
-+				if (opcode == BPF_SUB && env->allow_ptr_leaks) {
-+					mark_reg_unknown(regs, insn->dst_reg);
-+					return 0;
- 				}
--				mark_reg_unknown(regs, insn->dst_reg);
--				return 0;
-+				verbose("R%d pointer %s pointer prohibited\n",
-+					insn->dst_reg,
-+					bpf_alu_string[opcode >> 4]);
-+				return -EACCES;
- 			} else {
- 				/* scalar += pointer
- 				 * This is legal, but we have to reverse our
- 				 * src/dest handling in computing the range
- 				 */
--				rc = adjust_ptr_min_max_vals(env, insn,
--							     src_reg, dst_reg);
--				if (rc == -EACCES && env->allow_ptr_leaks) {
--					/* scalar += unknown scalar */
--					__mark_reg_unknown(&off_reg);
--					return adjust_scalar_min_max_vals(
--							env, insn,
--							dst_reg, off_reg);
--				}
--				return rc;
-+				return adjust_ptr_min_max_vals(env, insn,
-+							       src_reg, dst_reg);
- 			}
- 		} else if (ptr_reg) {
- 			/* pointer += scalar */
--			rc = adjust_ptr_min_max_vals(env, insn,
--						     dst_reg, src_reg);
--			if (rc == -EACCES && env->allow_ptr_leaks) {
--				/* unknown scalar += scalar */
--				__mark_reg_unknown(dst_reg);
--				return adjust_scalar_min_max_vals(
--						env, insn, dst_reg, *src_reg);
--			}
--			return rc;
-+			return adjust_ptr_min_max_vals(env, insn,
-+						       dst_reg, src_reg);
- 		}
- 	} else {
- 		/* Pretend the src is a reg with a known value, since we only
-@@ -2720,17 +2794,9 @@ static int adjust_reg_min_max_vals(struct bpf_verifier_env *env,
- 		off_reg.type = SCALAR_VALUE;
- 		__mark_reg_known(&off_reg, insn->imm);
- 		src_reg = &off_reg;
--		if (ptr_reg) { /* pointer += K */
--			rc = adjust_ptr_min_max_vals(env, insn,
--						     ptr_reg, src_reg);
--			if (rc == -EACCES && env->allow_ptr_leaks) {
--				/* unknown scalar += K */
--				__mark_reg_unknown(dst_reg);
--				return adjust_scalar_min_max_vals(
--						env, insn, dst_reg, off_reg);
--			}
--			return rc;
--		}
-+		if (ptr_reg) /* pointer += K */
-+			return adjust_ptr_min_max_vals(env, insn,
-+						       ptr_reg, src_reg);
- 	}
- 
- 	/* Got here implies adding two SCALAR_VALUEs */
-@@ -4796,7 +4862,7 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 			const u8 code_sub = BPF_ALU64 | BPF_SUB | BPF_X;
- 			struct bpf_insn insn_buf[16];
- 			struct bpf_insn *patch = &insn_buf[0];
--			bool issrc, isneg;
-+			bool issrc, isneg, isimm;
- 			u32 off_reg;
- 
- 			aux = &env->insn_aux_data[i + delta];
-@@ -4807,16 +4873,21 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 			isneg = aux->alu_state & BPF_ALU_NEG_VALUE;
- 			issrc = (aux->alu_state & BPF_ALU_SANITIZE) ==
- 				BPF_ALU_SANITIZE_SRC;
-+			isimm = aux->alu_state & BPF_ALU_IMMEDIATE;
- 
- 			off_reg = issrc ? insn->src_reg : insn->dst_reg;
--			if (isneg)
--				*patch++ = BPF_ALU64_IMM(BPF_MUL, off_reg, -1);
--			*patch++ = BPF_MOV32_IMM(BPF_REG_AX, aux->alu_limit);
--			*patch++ = BPF_ALU64_REG(BPF_SUB, BPF_REG_AX, off_reg);
--			*patch++ = BPF_ALU64_REG(BPF_OR, BPF_REG_AX, off_reg);
--			*patch++ = BPF_ALU64_IMM(BPF_NEG, BPF_REG_AX, 0);
--			*patch++ = BPF_ALU64_IMM(BPF_ARSH, BPF_REG_AX, 63);
--			*patch++ = BPF_ALU64_REG(BPF_AND, BPF_REG_AX, off_reg);
-+			if (isimm) {
-+				*patch++ = BPF_MOV32_IMM(BPF_REG_AX, aux->alu_limit);
-+			} else {
-+				if (isneg)
-+					*patch++ = BPF_ALU64_IMM(BPF_MUL, off_reg, -1);
-+				*patch++ = BPF_MOV32_IMM(BPF_REG_AX, aux->alu_limit);
-+				*patch++ = BPF_ALU64_REG(BPF_SUB, BPF_REG_AX, off_reg);
-+				*patch++ = BPF_ALU64_REG(BPF_OR, BPF_REG_AX, off_reg);
-+				*patch++ = BPF_ALU64_IMM(BPF_NEG, BPF_REG_AX, 0);
-+				*patch++ = BPF_ALU64_IMM(BPF_ARSH, BPF_REG_AX, 63);
-+				*patch++ = BPF_ALU64_REG(BPF_AND, BPF_REG_AX, off_reg);
-+			}
- 			if (!issrc)
- 				*patch++ = BPF_MOV64_REG(insn->dst_reg, insn->src_reg);
- 			insn->src_reg = BPF_REG_AX;
-@@ -4824,7 +4895,7 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 				insn->code = insn->code == code_add ?
- 					     code_sub : code_add;
- 			*patch++ = *insn;
--			if (issrc && isneg)
-+			if (issrc && isneg && !isimm)
- 				*patch++ = BPF_ALU64_IMM(BPF_MUL, off_reg, -1);
- 			cnt = patch - insn_buf;
- 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 81096dd0ca0c..37ac76dce908 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5779,6 +5779,7 @@ static inline int select_idle_smt(struct task_struct *p, struct sched_domain *sd
-  */
- static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int target)
- {
-+	struct cpumask *cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
- 	struct sched_domain *this_sd;
- 	u64 avg_cost, avg_idle;
- 	u64 time, cost;
-@@ -5809,11 +5810,11 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int t
- 
- 	time = local_clock();
- 
--	for_each_cpu_wrap(cpu, sched_domain_span(sd), target) {
-+	cpumask_and(cpus, sched_domain_span(sd), &p->cpus_allowed);
-+
-+	for_each_cpu_wrap(cpu, cpus, target) {
- 		if (!--nr)
- 			return -1;
--		if (!cpumask_test_cpu(cpu, &p->cpus_allowed))
--			continue;
- 		if (idle_cpu(cpu))
- 			break;
- 	}
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index e59e0f7ed562..0dc181290d1f 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4099,10 +4099,20 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 	struct page *page;
- 
- 	if (!*pagep) {
--		ret = -ENOMEM;
-+		/* If a page already exists, then it's UFFDIO_COPY for
-+		 * a non-missing case. Return -EEXIST.
-+		 */
-+		if (vm_shared &&
-+		    hugetlbfs_pagecache_present(h, dst_vma, dst_addr)) {
-+			ret = -EEXIST;
-+			goto out;
-+		}
-+
- 		page = alloc_huge_page(dst_vma, dst_addr, 0);
--		if (IS_ERR(page))
-+		if (IS_ERR(page)) {
-+			ret = -ENOMEM;
- 			goto out;
-+		}
- 
- 		ret = copy_huge_page_from_user(page,
- 						(const void __user *) src_addr,
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index bf1263c1bc76..ba5c899d1edf 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1458,8 +1458,13 @@ static int hci_dev_do_open(struct hci_dev *hdev)
- 	} else {
- 		/* Init failed, cleanup */
- 		flush_work(&hdev->tx_work);
--		flush_work(&hdev->cmd_work);
-+
-+		/* Since hci_rx_work() is possible to awake new cmd_work
-+		 * it should be flushed first to avoid unexpected call of
-+		 * hci_cmd_work()
-+		 */
- 		flush_work(&hdev->rx_work);
-+		flush_work(&hdev->cmd_work);
- 
- 		skb_queue_purge(&hdev->cmd_q);
- 		skb_queue_purge(&hdev->rx_q);
-diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
-index 93093d7c3824..120064e9cb2b 100644
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -750,7 +750,7 @@ void hci_sock_dev_event(struct hci_dev *hdev, int event)
- 		/* Detach sockets from device */
- 		read_lock(&hci_sk_list.lock);
- 		sk_for_each(sk, &hci_sk_list.head) {
--			bh_lock_sock_nested(sk);
-+			lock_sock(sk);
- 			if (hci_pi(sk)->hdev == hdev) {
- 				hci_pi(sk)->hdev = NULL;
- 				sk->sk_err = EPIPE;
-@@ -759,7 +759,7 @@ void hci_sock_dev_event(struct hci_dev *hdev, int event)
- 
- 				hci_dev_put(hdev);
- 			}
--			bh_unlock_sock(sk);
-+			release_sock(sk);
- 		}
- 		read_unlock(&hci_sk_list.lock);
- 	}
-diff --git a/net/caif/caif_dev.c b/net/caif/caif_dev.c
-index 98b62a7990aa..e1f9c9537e0f 100644
---- a/net/caif/caif_dev.c
-+++ b/net/caif/caif_dev.c
-@@ -303,7 +303,7 @@ static void dev_flowctrl(struct net_device *dev, int on)
- 	caifd_put(caifd);
- }
- 
--void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
-+int caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
- 		     struct cflayer *link_support, int head_room,
- 		     struct cflayer **layer,
- 		     int (**rcv_func)(struct sk_buff *, struct net_device *,
-@@ -314,11 +314,12 @@ void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
- 	enum cfcnfg_phy_preference pref;
- 	struct cfcnfg *cfg = get_cfcnfg(dev_net(dev));
- 	struct caif_device_entry_list *caifdevs;
-+	int res;
- 
- 	caifdevs = caif_device_list(dev_net(dev));
- 	caifd = caif_device_alloc(dev);
- 	if (!caifd)
--		return;
-+		return -ENOMEM;
- 	*layer = &caifd->layer;
- 	spin_lock_init(&caifd->flow_lock);
- 
-@@ -340,7 +341,7 @@ void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
- 		sizeof(caifd->layer.name) - 1);
- 	caifd->layer.name[sizeof(caifd->layer.name) - 1] = 0;
- 	caifd->layer.transmit = transmit;
--	cfcnfg_add_phy_layer(cfg,
-+	res = cfcnfg_add_phy_layer(cfg,
- 				dev,
- 				&caifd->layer,
- 				pref,
-@@ -350,6 +351,7 @@ void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
- 	mutex_unlock(&caifdevs->lock);
- 	if (rcv_func)
- 		*rcv_func = receive;
-+	return res;
- }
- EXPORT_SYMBOL(caif_enroll_dev);
- 
-@@ -364,6 +366,7 @@ static int caif_device_notify(struct notifier_block *me, unsigned long what,
- 	struct cflayer *layer, *link_support;
- 	int head_room = 0;
- 	struct caif_device_entry_list *caifdevs;
-+	int res;
- 
- 	cfg = get_cfcnfg(dev_net(dev));
- 	caifdevs = caif_device_list(dev_net(dev));
-@@ -389,8 +392,10 @@ static int caif_device_notify(struct notifier_block *me, unsigned long what,
- 				break;
- 			}
- 		}
--		caif_enroll_dev(dev, caifdev, link_support, head_room,
-+		res = caif_enroll_dev(dev, caifdev, link_support, head_room,
- 				&layer, NULL);
-+		if (res)
-+			cfserl_release(link_support);
- 		caifdev->flowctrl = dev_flowctrl;
- 		break;
- 
-diff --git a/net/caif/caif_usb.c b/net/caif/caif_usb.c
-index 5cd44f001f64..485dde566c1a 100644
---- a/net/caif/caif_usb.c
-+++ b/net/caif/caif_usb.c
-@@ -116,6 +116,11 @@ static struct cflayer *cfusbl_create(int phyid, u8 ethaddr[ETH_ALEN],
- 	return (struct cflayer *) this;
- }
- 
-+static void cfusbl_release(struct cflayer *layer)
-+{
-+	kfree(layer);
-+}
-+
- static struct packet_type caif_usb_type __read_mostly = {
- 	.type = cpu_to_be16(ETH_P_802_EX1),
- };
-@@ -128,6 +133,7 @@ static int cfusbl_device_notify(struct notifier_block *me, unsigned long what,
- 	struct cflayer *layer, *link_support;
- 	struct usbnet *usbnet;
- 	struct usb_device *usbdev;
-+	int res;
- 
- 	/* Check whether we have a NCM device, and find its VID/PID. */
- 	if (!(dev->dev.parent && dev->dev.parent->driver &&
-@@ -170,8 +176,11 @@ static int cfusbl_device_notify(struct notifier_block *me, unsigned long what,
- 	if (dev->num_tx_queues > 1)
- 		pr_warn("USB device uses more than one tx queue\n");
- 
--	caif_enroll_dev(dev, &common, link_support, CFUSB_MAX_HEADLEN,
-+	res = caif_enroll_dev(dev, &common, link_support, CFUSB_MAX_HEADLEN,
- 			&layer, &caif_usb_type.func);
-+	if (res)
-+		goto err;
-+
- 	if (!pack_added)
- 		dev_add_pack(&caif_usb_type);
- 	pack_added = true;
-@@ -181,6 +190,9 @@ static int cfusbl_device_notify(struct notifier_block *me, unsigned long what,
- 	layer->name[sizeof(layer->name) - 1] = 0;
- 
- 	return 0;
-+err:
-+	cfusbl_release(link_support);
-+	return res;
- }
- 
- static struct notifier_block caif_device_notifier = {
-diff --git a/net/caif/cfcnfg.c b/net/caif/cfcnfg.c
-index 273cb07f57d8..2e4aea9f00ef 100644
---- a/net/caif/cfcnfg.c
-+++ b/net/caif/cfcnfg.c
-@@ -452,7 +452,7 @@ cfcnfg_linkup_rsp(struct cflayer *layer, u8 channel_id, enum cfctrl_srv serv,
- 	rcu_read_unlock();
- }
- 
--void
-+int
- cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
- 		     struct net_device *dev, struct cflayer *phy_layer,
- 		     enum cfcnfg_phy_preference pref,
-@@ -461,7 +461,7 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
- {
- 	struct cflayer *frml;
- 	struct cfcnfg_phyinfo *phyinfo = NULL;
--	int i;
-+	int i, res = 0;
- 	u8 phyid;
- 
- 	mutex_lock(&cnfg->lock);
-@@ -475,12 +475,15 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
- 			goto got_phyid;
- 	}
- 	pr_warn("Too many CAIF Link Layers (max 6)\n");
-+	res = -EEXIST;
- 	goto out;
- 
- got_phyid:
- 	phyinfo = kzalloc(sizeof(struct cfcnfg_phyinfo), GFP_ATOMIC);
--	if (!phyinfo)
-+	if (!phyinfo) {
-+		res = -ENOMEM;
- 		goto out_err;
-+	}
- 
- 	phy_layer->id = phyid;
- 	phyinfo->pref = pref;
-@@ -494,8 +497,10 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
- 
- 	frml = cffrml_create(phyid, fcs);
- 
--	if (!frml)
-+	if (!frml) {
-+		res = -ENOMEM;
- 		goto out_err;
-+	}
- 	phyinfo->frm_layer = frml;
- 	layer_set_up(frml, cnfg->mux);
- 
-@@ -513,11 +518,12 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
- 	list_add_rcu(&phyinfo->node, &cnfg->phys);
- out:
- 	mutex_unlock(&cnfg->lock);
--	return;
-+	return res;
- 
- out_err:
- 	kfree(phyinfo);
- 	mutex_unlock(&cnfg->lock);
-+	return res;
- }
- EXPORT_SYMBOL(cfcnfg_add_phy_layer);
- 
-diff --git a/net/caif/cfserl.c b/net/caif/cfserl.c
-index ce60f06d76de..af1e1e36dc90 100644
---- a/net/caif/cfserl.c
-+++ b/net/caif/cfserl.c
-@@ -31,6 +31,11 @@ static int cfserl_transmit(struct cflayer *layr, struct cfpkt *pkt);
- static void cfserl_ctrlcmd(struct cflayer *layr, enum caif_ctrlcmd ctrl,
- 			   int phyid);
- 
-+void cfserl_release(struct cflayer *layer)
-+{
-+	kfree(layer);
-+}
-+
- struct cflayer *cfserl_create(int instance, bool use_stx)
- {
- 	struct cfserl *this = kzalloc(sizeof(struct cfserl), GFP_ATOMIC);
-diff --git a/net/ieee802154/nl-mac.c b/net/ieee802154/nl-mac.c
-index c0930b9fe848..7531cb1665d2 100644
---- a/net/ieee802154/nl-mac.c
-+++ b/net/ieee802154/nl-mac.c
-@@ -688,8 +688,10 @@ int ieee802154_llsec_getparams(struct sk_buff *skb, struct genl_info *info)
- 	    nla_put_u8(msg, IEEE802154_ATTR_LLSEC_SECLEVEL, params.out_level) ||
- 	    nla_put_u32(msg, IEEE802154_ATTR_LLSEC_FRAME_COUNTER,
- 			be32_to_cpu(params.frame_counter)) ||
--	    ieee802154_llsec_fill_key_id(msg, &params.out_key))
-+	    ieee802154_llsec_fill_key_id(msg, &params.out_key)) {
-+		rc = -ENOBUFS;
- 		goto out_free;
-+	}
- 
- 	dev_put(dev);
- 
-diff --git a/net/ieee802154/nl-phy.c b/net/ieee802154/nl-phy.c
-index dc2960be51e0..6a7fe415d5f4 100644
---- a/net/ieee802154/nl-phy.c
-+++ b/net/ieee802154/nl-phy.c
-@@ -249,8 +249,10 @@ int ieee802154_add_iface(struct sk_buff *skb, struct genl_info *info)
- 	}
- 
- 	if (nla_put_string(msg, IEEE802154_ATTR_PHY_NAME, wpan_phy_name(phy)) ||
--	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name))
-+	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name)) {
-+		rc = -EMSGSIZE;
- 		goto nla_put_failure;
-+	}
- 	dev_put(dev);
- 
- 	wpan_phy_put(phy);
-diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index c1672ff00963..eea0144aada7 100644
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -1262,7 +1262,7 @@ ip_vs_add_service(struct netns_ipvs *ipvs, struct ip_vs_service_user_kern *u,
- 	ip_vs_addr_copy(svc->af, &svc->addr, &u->addr);
- 	svc->port = u->port;
- 	svc->fwmark = u->fwmark;
--	svc->flags = u->flags;
-+	svc->flags = u->flags & ~IP_VS_SVC_F_HASHED;
- 	svc->timeout = u->timeout * HZ;
- 	svc->netmask = u->netmask;
- 	svc->ipvs = ipvs;
-diff --git a/net/netfilter/nfnetlink_cthelper.c b/net/netfilter/nfnetlink_cthelper.c
-index dfe4e6787219..2ebeb615db15 100644
---- a/net/netfilter/nfnetlink_cthelper.c
-+++ b/net/netfilter/nfnetlink_cthelper.c
-@@ -370,10 +370,14 @@ static int
- nfnl_cthelper_update(const struct nlattr * const tb[],
- 		     struct nf_conntrack_helper *helper)
- {
-+	u32 size;
- 	int ret;
- 
--	if (tb[NFCTH_PRIV_DATA_LEN])
--		return -EBUSY;
-+	if (tb[NFCTH_PRIV_DATA_LEN]) {
-+		size = ntohl(nla_get_be32(tb[NFCTH_PRIV_DATA_LEN]));
-+		if (size != helper->data_len)
-+			return -EBUSY;
-+	}
- 
- 	if (tb[NFCTH_POLICY]) {
- 		ret = nfnl_cthelper_update_policy(helper, tb[NFCTH_POLICY]);
-diff --git a/net/nfc/llcp_sock.c b/net/nfc/llcp_sock.c
-index 76f47b911221..02aebc318763 100644
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -122,6 +122,7 @@ static int llcp_sock_bind(struct socket *sock, struct sockaddr *addr, int alen)
- 	if (!llcp_sock->service_name) {
- 		nfc_llcp_local_put(llcp_sock->local);
- 		llcp_sock->local = NULL;
-+		llcp_sock->dev = NULL;
- 		ret = -ENOMEM;
- 		goto put_dev;
- 	}
-@@ -131,6 +132,7 @@ static int llcp_sock_bind(struct socket *sock, struct sockaddr *addr, int alen)
- 		llcp_sock->local = NULL;
- 		kfree(llcp_sock->service_name);
- 		llcp_sock->service_name = NULL;
-+		llcp_sock->dev = NULL;
- 		ret = -EADDRINUSE;
- 		goto put_dev;
- 	}
-diff --git a/sound/core/timer.c b/sound/core/timer.c
-index 22589a073423..eb31c13c8ed0 100644
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -490,9 +490,10 @@ static void snd_timer_notify1(struct snd_timer_instance *ti, int event)
- 		return;
- 	if (timer->hw.flags & SNDRV_TIMER_HW_SLAVE)
- 		return;
-+	event += 10; /* convert to SNDRV_TIMER_EVENT_MXXX */
- 	list_for_each_entry(ts, &ti->slave_active_head, active_list)
- 		if (ts->ccallback)
--			ts->ccallback(ts, event + 100, &tstamp, resolution);
-+			ts->ccallback(ts, event, &tstamp, resolution);
- }
- 
- /* start/continue a master timer */
-diff --git a/tools/testing/selftests/bpf/test_align.c b/tools/testing/selftests/bpf/test_align.c
-index 8591c89c0828..5d530c90779e 100644
---- a/tools/testing/selftests/bpf/test_align.c
-+++ b/tools/testing/selftests/bpf/test_align.c
-@@ -446,11 +446,9 @@ static struct bpf_align_test tests[] = {
- 		.insns = {
- 			PREP_PKT_POINTERS,
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
--			/* ptr & const => unknown & const */
--			BPF_MOV64_REG(BPF_REG_5, BPF_REG_2),
--			BPF_ALU64_IMM(BPF_AND, BPF_REG_5, 0x40),
--			/* ptr << const => unknown << const */
--			BPF_MOV64_REG(BPF_REG_5, BPF_REG_2),
-+			/* (ptr - ptr) << 2 */
-+			BPF_MOV64_REG(BPF_REG_5, BPF_REG_3),
-+			BPF_ALU64_REG(BPF_SUB, BPF_REG_5, BPF_REG_2),
- 			BPF_ALU64_IMM(BPF_LSH, BPF_REG_5, 2),
- 			/* We have a (4n) value.  Let's make a packet offset
- 			 * out of it.  First add 14, to make it a (4n+2)
-@@ -473,20 +471,18 @@ static struct bpf_align_test tests[] = {
- 		.prog_type = BPF_PROG_TYPE_SCHED_CLS,
- 		.result = REJECT,
- 		.matches = {
--			{4, "R5=pkt(id=0,off=0,r=0,imm=0)"},
--			/* ptr & 0x40 == either 0 or 0x40 */
--			{5, "R5=inv(id=0,umax_value=64,var_off=(0x0; 0x40))"},
--			/* ptr << 2 == unknown, (4n) */
--			{7, "R5=inv(id=0,smax_value=9223372036854775804,umax_value=18446744073709551612,var_off=(0x0; 0xfffffffffffffffc))"},
-+			{4, "R5=pkt_end(id=0,off=0,imm=0)"},
-+			/* (ptr - ptr) << 2 == unknown, (4n) */
-+			{6, "R5=inv(id=0,smax_value=9223372036854775804,umax_value=18446744073709551612,var_off=(0x0; 0xfffffffffffffffc))"},
- 			/* (4n) + 14 == (4n+2).  We blow our bounds, because
- 			 * the add could overflow.
- 			 */
--			{8, "R5=inv(id=0,var_off=(0x2; 0xfffffffffffffffc))"},
-+			{7, "R5=inv(id=0,var_off=(0x2; 0xfffffffffffffffc))"},
- 			/* Checked s>=0 */
--			{10, "R5=inv(id=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
-+			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
- 			/* packet pointer + nonnegative (4n+2) */
--			{12, "R6=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
--			{14, "R4=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
-+			{11, "R6=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
-+			{13, "R4=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
- 			/* NET_IP_ALIGN + (4n+2) == (4n), alignment is fine.
- 			 * We checked the bounds, but it might have been able
- 			 * to overflow if the packet pointer started in the
-@@ -494,7 +490,7 @@ static struct bpf_align_test tests[] = {
- 			 * So we did not get a 'range' on R6, and the access
- 			 * attempt will fail.
- 			 */
--			{16, "R6=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
-+			{15, "R6=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc))"},
- 		}
- 	},
- 	{
-diff --git a/tools/testing/selftests/bpf/test_verifier.c b/tools/testing/selftests/bpf/test_verifier.c
-index 9f7fc30d247d..d4f611546fc0 100644
---- a/tools/testing/selftests/bpf/test_verifier.c
-+++ b/tools/testing/selftests/bpf/test_verifier.c
-@@ -462,9 +462,7 @@ static struct bpf_test tests[] = {
- 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_0, 0),
- 			BPF_EXIT_INSN(),
- 		},
--		.errstr_unpriv = "R1 subtraction from stack pointer",
--		.result_unpriv = REJECT,
--		.errstr = "R1 invalid mem access",
-+		.errstr = "R1 subtraction from stack pointer",
- 		.result = REJECT,
- 	},
- 	{
-@@ -1900,9 +1898,8 @@ static struct bpf_test tests[] = {
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = ACCEPT,
--		.result_unpriv = REJECT,
--		.errstr_unpriv = "R1 pointer += pointer",
-+		.result = REJECT,
-+		.errstr = "R1 pointer += pointer",
- 	},
- 	{
- 		"unpriv: neg pointer",
-@@ -2235,7 +2232,7 @@ static struct bpf_test tests[] = {
- 		.result = ACCEPT,
- 	},
- 	{
--		"unpriv: adding of fp",
-+		"unpriv: adding of fp, reg",
- 		.insns = {
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
- 			BPF_MOV64_IMM(BPF_REG_1, 0),
-@@ -2243,9 +2240,22 @@ static struct bpf_test tests[] = {
- 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_0, -8),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = ACCEPT,
-+		.errstr_unpriv = "R1 stack pointer arithmetic goes out of range",
- 		.result_unpriv = REJECT,
-+		.result = ACCEPT,
-+	},
-+	{
-+		"unpriv: adding of fp, imm",
-+		.insns = {
-+			BPF_MOV64_IMM(BPF_REG_0, 0),
-+			BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
-+			BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, 0),
-+			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_0, -8),
-+			BPF_EXIT_INSN(),
-+		},
- 		.errstr_unpriv = "R1 stack pointer arithmetic goes out of range",
-+		.result_unpriv = REJECT,
-+		.result = ACCEPT,
- 	},
- 	{
- 		"unpriv: cmp of stack pointer",
-@@ -2681,7 +2691,8 @@ static struct bpf_test tests[] = {
- 			BPF_LDX_MEM(BPF_W, BPF_REG_3, BPF_REG_1,
- 				    offsetof(struct __sk_buff, data)),
- 			BPF_ALU64_REG(BPF_ADD, BPF_REG_3, BPF_REG_4),
--			BPF_MOV64_REG(BPF_REG_2, BPF_REG_1),
-+			BPF_LDX_MEM(BPF_W, BPF_REG_2, BPF_REG_1,
-+				    offsetof(struct __sk_buff, len)),
- 			BPF_ALU64_IMM(BPF_LSH, BPF_REG_2, 49),
- 			BPF_ALU64_IMM(BPF_RSH, BPF_REG_2, 49),
- 			BPF_ALU64_REG(BPF_ADD, BPF_REG_3, BPF_REG_2),
-@@ -2988,7 +2999,7 @@ static struct bpf_test tests[] = {
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
- 			BPF_EXIT_INSN(),
- 		},
--		.errstr = "invalid access to packet",
-+		.errstr = "R3 pointer arithmetic on PTR_TO_PACKET_END",
- 		.result = REJECT,
- 		.prog_type = BPF_PROG_TYPE_SCHED_CLS,
- 	},
-@@ -3975,9 +3986,7 @@ static struct bpf_test tests[] = {
- 			BPF_EXIT_INSN(),
- 		},
- 		.fixup_map2 = { 3, 11 },
--		.errstr_unpriv = "R0 pointer += pointer",
--		.errstr = "R0 invalid mem access 'inv'",
--		.result_unpriv = REJECT,
-+		.errstr = "R0 pointer += pointer",
- 		.result = REJECT,
- 		.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
- 	},
-@@ -4018,7 +4027,7 @@ static struct bpf_test tests[] = {
- 			BPF_EXIT_INSN(),
- 		},
- 		.fixup_map1 = { 4 },
--		.errstr = "R4 invalid mem access",
-+		.errstr = "R4 pointer arithmetic on PTR_TO_MAP_VALUE_OR_NULL",
- 		.result = REJECT,
- 		.prog_type = BPF_PROG_TYPE_SCHED_CLS
- 	},
-@@ -4039,7 +4048,7 @@ static struct bpf_test tests[] = {
- 			BPF_EXIT_INSN(),
- 		},
- 		.fixup_map1 = { 4 },
--		.errstr = "R4 invalid mem access",
-+		.errstr = "R4 pointer arithmetic on PTR_TO_MAP_VALUE_OR_NULL",
- 		.result = REJECT,
- 		.prog_type = BPF_PROG_TYPE_SCHED_CLS
- 	},
-@@ -4060,7 +4069,7 @@ static struct bpf_test tests[] = {
- 			BPF_EXIT_INSN(),
- 		},
- 		.fixup_map1 = { 4 },
--		.errstr = "R4 invalid mem access",
-+		.errstr = "R4 pointer arithmetic on PTR_TO_MAP_VALUE_OR_NULL",
- 		.result = REJECT,
- 		.prog_type = BPF_PROG_TYPE_SCHED_CLS
- 	},
-@@ -5291,10 +5300,8 @@ static struct bpf_test tests[] = {
- 			BPF_EXIT_INSN(),
- 		},
- 		.fixup_map2 = { 3 },
--		.errstr_unpriv = "R0 bitwise operator &= on pointer",
--		.errstr = "invalid mem access 'inv'",
-+		.errstr = "R0 bitwise operator &= on pointer",
- 		.result = REJECT,
--		.result_unpriv = REJECT,
- 	},
- 	{
- 		"map element value illegal alu op, 2",
-@@ -5310,10 +5317,8 @@ static struct bpf_test tests[] = {
- 			BPF_EXIT_INSN(),
- 		},
- 		.fixup_map2 = { 3 },
--		.errstr_unpriv = "R0 32-bit pointer arithmetic prohibited",
--		.errstr = "invalid mem access 'inv'",
-+		.errstr = "R0 32-bit pointer arithmetic prohibited",
- 		.result = REJECT,
--		.result_unpriv = REJECT,
- 	},
- 	{
- 		"map element value illegal alu op, 3",
-@@ -5329,10 +5334,8 @@ static struct bpf_test tests[] = {
- 			BPF_EXIT_INSN(),
- 		},
- 		.fixup_map2 = { 3 },
--		.errstr_unpriv = "R0 pointer arithmetic with /= operator",
--		.errstr = "invalid mem access 'inv'",
-+		.errstr = "R0 pointer arithmetic with /= operator",
- 		.result = REJECT,
--		.result_unpriv = REJECT,
- 	},
- 	{
- 		"map element value illegal alu op, 4",
-@@ -5925,8 +5928,7 @@ static struct bpf_test tests[] = {
- 			BPF_EXIT_INSN(),
- 		},
- 		.fixup_map_in_map = { 3 },
--		.errstr = "R1 type=inv expected=map_ptr",
--		.errstr_unpriv = "R1 pointer arithmetic on CONST_PTR_TO_MAP prohibited",
-+		.errstr = "R1 pointer arithmetic on CONST_PTR_TO_MAP prohibited",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6207,7 +6209,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6232,7 +6233,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6259,7 +6259,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R8 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6285,7 +6284,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R8 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6334,7 +6332,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6406,7 +6403,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6458,7 +6454,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6486,7 +6481,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6513,7 +6507,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6543,7 +6536,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R7 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 	},
- 	{
-@@ -6602,7 +6594,6 @@ static struct bpf_test tests[] = {
- 		},
- 		.fixup_map1 = { 3 },
- 		.errstr = "unbounded min value",
--		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
- 		.result = REJECT,
- 		.result_unpriv = REJECT,
- 	},
-@@ -7297,6 +7288,19 @@ static struct bpf_test tests[] = {
- 		.result = REJECT,
- 		.prog_type = BPF_PROG_TYPE_SCHED_CLS,
- 	},
-+	{
-+		"pkt_end - pkt_start is allowed",
-+		.insns = {
-+			BPF_LDX_MEM(BPF_W, BPF_REG_0, BPF_REG_1,
-+				    offsetof(struct __sk_buff, data_end)),
-+			BPF_LDX_MEM(BPF_W, BPF_REG_2, BPF_REG_1,
-+				    offsetof(struct __sk_buff, data)),
-+			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_2),
-+			BPF_EXIT_INSN(),
-+		},
-+		.result = ACCEPT,
-+		.prog_type = BPF_PROG_TYPE_SCHED_CLS,
-+	},
- 	{
- 		"XDP pkt read, pkt_end mangling, bad access 1",
- 		.insns = {
-@@ -7312,7 +7316,7 @@ static struct bpf_test tests[] = {
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
- 			BPF_EXIT_INSN(),
- 		},
--		.errstr = "R1 offset is outside of the packet",
-+		.errstr = "R3 pointer arithmetic on PTR_TO_PACKET_END",
- 		.result = REJECT,
- 		.prog_type = BPF_PROG_TYPE_XDP,
- 	},
-@@ -7331,7 +7335,7 @@ static struct bpf_test tests[] = {
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
- 			BPF_EXIT_INSN(),
- 		},
--		.errstr = "R1 offset is outside of the packet",
-+		.errstr = "R3 pointer arithmetic on PTR_TO_PACKET_END",
- 		.result = REJECT,
- 		.prog_type = BPF_PROG_TYPE_XDP,
- 	},
-@@ -7766,8 +7770,9 @@ static struct bpf_test tests[] = {
- 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = REJECT,
-+		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
- 		.errstr = "R0 tried to subtract pointer from scalar",
-+		.result = REJECT,
- 	},
- 	{
- 		"check deducing bounds from const, 2",
-@@ -7780,6 +7785,8 @@ static struct bpf_test tests[] = {
- 			BPF_ALU64_REG(BPF_SUB, BPF_REG_1, BPF_REG_0),
- 			BPF_EXIT_INSN(),
- 		},
-+		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
-+		.result_unpriv = REJECT,
- 		.result = ACCEPT,
- 	},
- 	{
-@@ -7790,20 +7797,24 @@ static struct bpf_test tests[] = {
- 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = REJECT,
-+		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
- 		.errstr = "R0 tried to subtract pointer from scalar",
-+		.result = REJECT,
- 	},
- 	{
- 		"check deducing bounds from const, 4",
- 		.insns = {
-+			BPF_MOV64_REG(BPF_REG_6, BPF_REG_1),
- 			BPF_MOV64_IMM(BPF_REG_0, 0),
- 			BPF_JMP_IMM(BPF_JSLE, BPF_REG_0, 0, 1),
- 			BPF_EXIT_INSN(),
- 			BPF_JMP_IMM(BPF_JSGE, BPF_REG_0, 0, 1),
- 			BPF_EXIT_INSN(),
--			BPF_ALU64_REG(BPF_SUB, BPF_REG_1, BPF_REG_0),
-+			BPF_ALU64_REG(BPF_SUB, BPF_REG_6, BPF_REG_0),
- 			BPF_EXIT_INSN(),
- 		},
-+		.errstr_unpriv = "R6 has pointer with unsupported alu operation",
-+		.result_unpriv = REJECT,
- 		.result = ACCEPT,
- 	},
- 	{
-@@ -7814,8 +7825,9 @@ static struct bpf_test tests[] = {
- 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = REJECT,
-+		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
- 		.errstr = "R0 tried to subtract pointer from scalar",
-+		.result = REJECT,
- 	},
- 	{
- 		"check deducing bounds from const, 6",
-@@ -7826,8 +7838,9 @@ static struct bpf_test tests[] = {
- 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = REJECT,
-+		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
- 		.errstr = "R0 tried to subtract pointer from scalar",
-+		.result = REJECT,
- 	},
- 	{
- 		"check deducing bounds from const, 7",
-@@ -7839,8 +7852,9 @@ static struct bpf_test tests[] = {
- 				    offsetof(struct __sk_buff, mark)),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = REJECT,
-+		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
- 		.errstr = "dereference of modified ctx ptr",
-+		.result = REJECT,
- 	},
- 	{
- 		"check deducing bounds from const, 8",
-@@ -7852,8 +7866,9 @@ static struct bpf_test tests[] = {
- 				    offsetof(struct __sk_buff, mark)),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = REJECT,
-+		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
- 		.errstr = "dereference of modified ctx ptr",
-+		.result = REJECT,
- 	},
- 	{
- 		"check deducing bounds from const, 9",
-@@ -7863,8 +7878,9 @@ static struct bpf_test tests[] = {
- 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = REJECT,
-+		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
- 		.errstr = "R0 tried to subtract pointer from scalar",
-+		.result = REJECT,
- 	},
- 	{
- 		"check deducing bounds from const, 10",
-@@ -7876,8 +7892,8 @@ static struct bpf_test tests[] = {
- 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = REJECT,
- 		.errstr = "math between ctx pointer and register with unbounded min value is not allowed",
-+		.result = REJECT,
- 	},
- 	{
- 		"XDP pkt read, pkt_end <= pkt_data', bad access 2",
+I'm announcing the release of the 4.19.194 kernel.
+
+All users of the 4.19 kernel series must upgrade.
+
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                          |    2 
+ arch/arm64/kvm/sys_regs.c                         |   42 ++--
+ arch/x86/include/asm/apic.h                       |    1 
+ arch/x86/kernel/apic/apic.c                       |    1 
+ arch/x86/kernel/apic/vector.c                     |   20 +
+ arch/x86/kvm/svm.c                                |    8 
+ drivers/acpi/bus.c                                |   42 +---
+ drivers/firmware/efi/cper.c                       |    4 
+ drivers/firmware/efi/memattr.c                    |    5 
+ drivers/hid/hid-multitouch.c                      |   10 
+ drivers/hid/i2c-hid/i2c-hid-core.c                |    4 
+ drivers/hid/usbhid/hid-pidff.c                    |    1 
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c         |    1 
+ drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c |    3 
+ drivers/net/usb/cdc_ncm.c                         |   12 +
+ drivers/usb/dwc2/core_intr.c                      |    4 
+ drivers/vfio/pci/Kconfig                          |    1 
+ drivers/vfio/pci/vfio_pci_config.c                |    2 
+ drivers/vfio/platform/vfio_platform_common.c      |    2 
+ drivers/xen/xen-pciback/vpci.c                    |   14 -
+ fs/btrfs/extent-tree.c                            |   12 -
+ fs/btrfs/file-item.c                              |   10 
+ fs/btrfs/inode.c                                  |   12 +
+ fs/btrfs/tree-log.c                               |   13 -
+ fs/ext4/extents.c                                 |   43 ++--
+ fs/ocfs2/file.c                                   |   55 ++++-
+ include/linux/perf_event.h                        |    5 
+ include/linux/usb/usbnet.h                        |    2 
+ include/net/caif/caif_dev.h                       |    2 
+ include/net/caif/cfcnfg.h                         |    2 
+ include/net/caif/cfserl.h                         |    1 
+ include/uapi/linux/bpf.h                          |   14 +
+ init/main.c                                       |    2 
+ kernel/bpf/syscall.c                              |    7 
+ kernel/bpf/verifier.c                             |    3 
+ kernel/events/core.c                              |   62 +++---
+ kernel/sched/fair.c                               |    7 
+ mm/hugetlb.c                                      |   14 +
+ net/bluetooth/hci_core.c                          |    7 
+ net/bluetooth/hci_sock.c                          |    4 
+ net/caif/caif_dev.c                               |   13 -
+ net/caif/caif_usb.c                               |   14 +
+ net/caif/cfcnfg.c                                 |   16 +
+ net/caif/cfserl.c                                 |    5 
+ net/ieee802154/nl-mac.c                           |    4 
+ net/ieee802154/nl-phy.c                           |    4 
+ net/netfilter/ipvs/ip_vs_ctl.c                    |    2 
+ net/netfilter/nfnetlink_cthelper.c                |    8 
+ net/nfc/llcp_sock.c                               |    2 
+ net/tipc/bearer.c                                 |   94 ++++++---
+ net/wireless/core.h                               |    2 
+ net/wireless/nl80211.c                            |    7 
+ net/wireless/util.c                               |   39 +++
+ samples/vfio-mdev/mdpy-fb.c                       |   13 -
+ sound/core/timer.c                                |    3 
+ sound/pci/hda/patch_realtek.c                     |    1 
+ sound/usb/mixer_quirks.c                          |    2 
+ tools/include/uapi/linux/bpf.h                    |   14 +
+ tools/lib/bpf/bpf.c                               |    8 
+ tools/lib/bpf/bpf.h                               |    2 
+ tools/testing/selftests/bpf/test_align.c          |    4 
+ tools/testing/selftests/bpf/test_verifier.c       |  224 +++++++++++++++-------
+ 62 files changed, 663 insertions(+), 274 deletions(-)
+
+Ahelenia Ziemiańska (1):
+      HID: multitouch: require Finger field to mark Win8 reports as MT
+
+Anand Jain (1):
+      btrfs: fix unmountable seed device after fstrim
+
+Anant Thazhemadam (1):
+      nl80211: validate key indexes for cfg80211_registered_device
+
+Arnd Bergmann (1):
+      HID: i2c-hid: fix format string mismatch
+
+Björn Töpel (2):
+      selftests/bpf: add "any alignment" annotation for some tests
+      selftests/bpf: Avoid running unprivileged tests with alignment requirements
+
+Carlos M (1):
+      ALSA: hda: Fix for mute key LED for HP Pavilion 15-CK0xx
+
+Cheng Jian (1):
+      sched/fair: Optimize select_idle_cpu
+
+Daniel Borkmann (2):
+      bpf: fix test suite to enable all unpriv program types
+      bpf: test make sure to run unpriv test cases in test_verifier
+
+David S. Miller (4):
+      bpf: Add BPF_F_ANY_ALIGNMENT.
+      bpf: Adjust F_NEEDS_EFFICIENT_UNALIGNED_ACCESS handling in test_verifier.c
+      bpf: Make more use of 'any' alignment in test_verifier.c
+      bpf: Apply F_NEEDS_EFFICIENT_UNALIGNED_ACCESS to more ACCEPT test cases.
+
+Erik Schmauss (1):
+      ACPI: probe ECDT before loading AML tables regardless of module-level code flag
+
+Grant Grundler (1):
+      net: usb: cdc_ncm: don't spew notifications
+
+Greg Kroah-Hartman (1):
+      Linux 4.19.194
+
+Heiner Kallweit (1):
+      efi: Allow EFI_MEMORY_XP and EFI_MEMORY_RO both to be cleared
+
+Hoang Le (2):
+      tipc: add extack messages for bearer/media failure
+      tipc: fix unique bearer names sanity check
+
+Ian Rogers (1):
+      perf/cgroups: Don't rotate events for cgroups unnecessarily
+
+Jan Beulich (1):
+      xen-pciback: redo VF placement in the virtual topology
+
+Joe Stringer (1):
+      selftests/bpf: Generalize dummy program types
+
+Josef Bacik (4):
+      btrfs: mark ordered extent and inode with error if we fail to finish
+      btrfs: fix error handling in btrfs_del_csums
+      btrfs: return errors from btrfs_del_csums in cleanup_ref_head
+      btrfs: fixup error handling in fixup_inode_link_counts
+
+Julian Anastasov (1):
+      ipvs: ignore IP_VS_SVC_F_HASHED flag when adding service
+
+Junxiao Bi (1):
+      ocfs2: fix data corruption by fallocate
+
+Krzysztof Kozlowski (1):
+      nfc: fix NULL ptr dereference in llcp_sock_getname() after failed connect
+
+Lin Ma (2):
+      Bluetooth: fix the erroneous flush_work() order
+      Bluetooth: use correct lock to prevent UAF of hdev object
+
+Magnus Karlsson (1):
+      ixgbevf: add correct exception tracing for XDP
+
+Marc Zyngier (1):
+      KVM: arm64: Fix debug register indexing
+
+Mark Rutland (1):
+      pid: take a reference when initializing `cad_pid`
+
+Max Gurtovoy (1):
+      vfio/platform: fix module_put call in error flow
+
+Michael Chan (1):
+      bnxt_en: Remove the setting of dev_port.
+
+Mina Almasry (1):
+      mm, hugetlb: fix simple resv_huge_pages underflow on UFFDIO_COPY
+
+Pablo Neira Ayuso (1):
+      netfilter: nfnetlink_cthelper: hit EBUSY on updates if size mismatches
+
+Pavel Skripkin (4):
+      net: caif: added cfserl_release function
+      net: caif: add proper error handling
+      net: caif: fix memory leak in caif_device_notify
+      net: caif: fix memory leak in cfusbl_device_notify
+
+Phil Elwell (1):
+      usb: dwc2: Fix build in periphal-only mode
+
+Pierre-Louis Bossart (1):
+      ALSA: usb: update old-style static const declaration
+
+Rafael J. Wysocki (1):
+      ACPI: EC: Look for ECDT EC after calling acpi_load_tables()
+
+Randy Dunlap (1):
+      vfio/pci: zap_vma_ptes() needs MMU
+
+Rasmus Villemoes (1):
+      efi: cper: fix snprintf() use in cper_dimm_err_location()
+
+Sean Christopherson (1):
+      KVM: SVM: Truncate GPR value for DR and CR accesses in !64-bit mode
+
+Song Liu (1):
+      perf/core: Fix corner case in perf_rotate_context()
+
+Takashi Iwai (1):
+      ALSA: timer: Fix master timer notification
+
+Thomas Gleixner (1):
+      x86/apic: Mark _all_ legacy interrupts when IO/APIC is missing
+
+Wei Yongjun (2):
+      samples: vfio-mdev: fix error handing in mdpy_fb_probe()
+      ieee802154: fix error return code in ieee802154_llsec_getparams()
+
+Ye Bin (1):
+      ext4: fix bug on in ext4_es_cache_extent as ext4_split_extent_at failed
+
+Zhen Lei (3):
+      vfio/pci: Fix error return code in vfio_ecap_init()
+      HID: pidff: fix error return code in hid_pidff_init()
+      ieee802154: fix error return code in ieee802154_add_iface()
+
