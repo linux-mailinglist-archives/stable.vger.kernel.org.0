@@ -2,119 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A95313A3221
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 19:30:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D22993A326C
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 19:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230084AbhFJRcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 13:32:43 -0400
-Received: from mail-pf1-f178.google.com ([209.85.210.178]:41883 "EHLO
-        mail-pf1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230059AbhFJRcm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 13:32:42 -0400
-Received: by mail-pf1-f178.google.com with SMTP id x73so2194309pfc.8
-        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 10:30:46 -0700 (PDT)
+        id S230160AbhFJRtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 13:49:36 -0400
+Received: from mail-pl1-f201.google.com ([209.85.214.201]:49670 "EHLO
+        mail-pl1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230155AbhFJRtf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 13:49:35 -0400
+Received: by mail-pl1-f201.google.com with SMTP id z10-20020a170903018ab02901108a797206so1498525plg.16
+        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 10:47:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pr2ht/jeAn4kQ2w4KB1tHN+N5HXJH+sEW/wHfexG3m0=;
-        b=OvmsnUqcjbbsRyHt0QxWRALqCmKHzhbreLeoVsAfoejHTMqHBKefKD5q29zvh3GXP6
-         sC+t00EyWOiAihSLa0NowXM685a4iYoXZ5DIEqWs7hrUtef7jUzhcNfobRe+8429tiuj
-         llUmFGfGwG3f0vbgrHoXtPhUf9fYhw2xNrzM4eaFItO8cD7313TEaCkr7J21E3inAw1u
-         7MmM8r/GHpoL9TKIUlIhTBNR1Jo0z93wxI3uPhTJDVvCoeNCUqEloHIoRfCp7pL19za8
-         95GUiJJJ/brw4D7FKSD39PstrYYMp1Lgvj7oxcCrLlKjTGThX9FpNk2CQ958HeNa2Mpa
-         bVlg==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=npvYPdo+ovjaaLetvI24CjlELW8jh9ZY/+gEZUAZto4=;
+        b=b2CfgZT+sCaVhK01cDEyze2k672fRxI2/nC9KJD6mjgmZDx0wXgC7w8wkpXRFj3sw8
+         tp8f9VmYBbwvmop4BKquwVQrrGQXaL2MfJ7MwrD2/aw6jeTGfHIiJN1v7IS+GoVhfMtf
+         7Fhj2u9tjuzA+AJCbZNZ1ds4TheXpiGD7c9V1A/+YP+aPre7ypaO8A+D2Srw79I4jtGf
+         rP/2YO1Pt4ho2YytPPzhF07V2OW2MlQdlWibTz5fGSkLjHducQp5UM0VuF1s66ZZHlX7
+         Lc7BtlxuPUof5A/OrZy5VQzogyuGSbZZEfmtJte1uRgtEDGLJpOzkJRpJk/9dmtWB6Nx
+         cbAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pr2ht/jeAn4kQ2w4KB1tHN+N5HXJH+sEW/wHfexG3m0=;
-        b=hHThvrvc73EU0C3JVvy0H2a/T+RohWW+dj/LmM7BKuJ+fsrY4XURhdtkDYUflVBfpp
-         6JEqIcK6fYb65u95FDblGqddNXkJGm5eGaObpjmzRfcqeQbNXvprIWCVOSb4deS2NTHA
-         kSSeDYC39okKBdxlEGNS9UbqE0xbxOrvR7f7fWuCF3+vvK9taOLckv/sQVeX4v+bnAth
-         wKcAGIglmPByqcJLHoTgQeVhOeOaGqOg4ISOk3Hhd/n3oev8Y0HXvKgusk+9oYBP/UXD
-         jqxffHyJqAr/3mIiTWUPgpafma9+frvi7R5HZ3D1cIy8h2tqrCOzb+q7+khoiCA6r5gZ
-         KByQ==
-X-Gm-Message-State: AOAM533kiIncFrLx+OOFsD6S5FEjJg9jqRdRpcQWzTLVR9hM7qWy9uh4
-        P5RXgh+B2vMcJrpfqEFYtywzgzU48/HVaKQ/
-X-Google-Smtp-Source: ABdhPJyCD+31JaewoOma3Dzu2FkyYpLyDTe3ngJJJSVkshsZQU0WuVxXPwn4TCQejflpsyQa4NiT3A==
-X-Received: by 2002:a63:e709:: with SMTP id b9mr5971462pgi.153.1623346186116;
-        Thu, 10 Jun 2021 10:29:46 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r24sm8122427pjz.11.2021.06.10.10.29.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Jun 2021 10:29:45 -0700 (PDT)
-Message-ID: <60c24c09.1c69fb81.3b3f3.920e@mx.google.com>
-Date:   Thu, 10 Jun 2021 10:29:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.235-47-gbc8ebc13e05b
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 135 runs,
- 1 regressions (v4.14.235-47-gbc8ebc13e05b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=npvYPdo+ovjaaLetvI24CjlELW8jh9ZY/+gEZUAZto4=;
+        b=bDNZ1Bar4nkAJBK2KZYqXCmTgxjBYPk3p5XqIhFTTRI2+DH6um795u9UfLfTGuRFBS
+         UrEvtwwOCFhKd7DqqVcmBF12rXC7b0zaixelnZrQG0LZ8Y9Wf25ahz/k1CMfetiaKIA3
+         RTA9HOL5V+wmPubPhiUf/8AioJSlQ8bSkY42/uyEtiCeYz4/7lZwYdPt4q7BjC4F+od+
+         cHMVod6/VgUOo/Gt2KGb3LZTfFiiYmCwpb5XBMYFNdlfJD4pFGQCLg0syHEcOJKv6g0P
+         qqWeHfRotLPoi9mMjlmviEJZbxLXq4hpPRx5d4hhsMgI1l7RVWZJZgGppDTediVdx2N3
+         NjBw==
+X-Gm-Message-State: AOAM530ncm2RVyPyLytXQqs70r5UrzxVx0ikgxd9pm4/omqqyx9eHAve
+        yE3730TgR+b4TD9aq0gfoOIqoitiZgEIdw==
+X-Google-Smtp-Source: ABdhPJxArp6iWEZuuwuFJCVgzw61I/tPIpsRjxBCSOpislYR1Exj211/ys9XjlGPl+3Pu0TqkUAQwg8r+L9UVg==
+X-Received: from alperct.c.googlers.com ([fda3:e722:ac3:10:24:72f4:c0a8:466b])
+ (user=alpergun job=sendgmr) by 2002:a17:90a:2a08:: with SMTP id
+ i8mr4659321pjd.122.1623347182655; Thu, 10 Jun 2021 10:46:22 -0700 (PDT)
+Date:   Thu, 10 Jun 2021 17:46:04 +0000
+Message-Id: <20210610174604.2554090-1-alpergun@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.32.0.272.g935e593368-goog
+Subject: [PATCH] KVM: SVM: Call SEV Guest Decommission if ASID binding fails
+From:   Alper Gun <alpergun@google.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Brijesh Singh <brijesh.singh@amd.com>
+Cc:     Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Marc Orr <marcorr@google.com>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Alper Gun <alpergun@google.com>,
+        stable@vger.kernel.org, Peter Gonda <pgonda@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 135 runs, 1 regressions (v4.14.235-47-gbc8eb=
-c13e05b)
+Send SEV_CMD_DECOMMISSION command to PSP firmware if ASID binding
+fails. If a failure happens after  a successful LAUNCH_START command,
+a decommission command should be executed. Otherwise, guest context
+will be unfreed inside the AMD SP. After the firmware will not have
+memory to allocate more SEV guest context, LAUNCH_START command will
+begin to fail with SEV_RET_RESOURCE_LIMIT error.
 
-Regressions Summary
--------------------
+The existing code calls decommission inside sev_unbind_asid, but it is
+not called if a failure happens before guest activation succeeds. If
+sev_bind_asid fails, decommission is never called. PSP firmware has a
+limit for the number of guests. If sev_asid_binding fails many times,
+PSP firmware will not have resources to create another guest context.
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+Cc: stable@vger.kernel.org
+Fixes: 59414c989220 ("KVM: SVM: Add support for KVM_SEV_LAUNCH_START command")
+Reported-by: Peter Gonda <pgonda@google.com>
+Signed-off-by: Alper Gun <alpergun@google.com>
+---
+ arch/x86/kvm/svm/sev.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
+diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+index e0ce5da97fc2..8d36f0c73071 100644
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -199,9 +199,19 @@ static void sev_asid_free(struct kvm_sev_info *sev)
+ 	sev->misc_cg = NULL;
+ }
+ 
+-static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
++static void sev_decommission(unsigned int handle)
+ {
+ 	struct sev_data_decommission decommission;
++
++	if (!handle)
++		return;
++
++	decommission.handle = handle;
++	sev_guest_decommission(&decommission, NULL);
++}
++
++static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
++{
+ 	struct sev_data_deactivate deactivate;
+ 
+ 	if (!handle)
+@@ -214,9 +224,7 @@ static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
+ 	sev_guest_deactivate(&deactivate, NULL);
+ 	up_read(&sev_deactivate_lock);
+ 
+-	/* decommission handle */
+-	decommission.handle = handle;
+-	sev_guest_decommission(&decommission, NULL);
++	sev_decommission(handle);
+ }
+ 
+ static int sev_guest_init(struct kvm *kvm, struct kvm_sev_cmd *argp)
+@@ -341,8 +349,10 @@ static int sev_launch_start(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 
+ 	/* Bind ASID to this guest */
+ 	ret = sev_bind_asid(kvm, start.handle, error);
+-	if (ret)
++	if (ret) {
++		sev_decommission(start.handle);
+ 		goto e_free_session;
++	}
+ 
+ 	/* return handle to userspace */
+ 	params.handle = start.handle;
+-- 
+2.32.0.272.g935e593368-goog
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.235-47-gbc8ebc13e05b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.235-47-gbc8ebc13e05b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      bc8ebc13e05b3f583cdce535c5fe93c6db7668bb =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c225b86b733987180c0dfe
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.235=
--47-gbc8ebc13e05b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.235=
--47-gbc8ebc13e05b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c225b86b733987180c0=
-dff
-        failing since 101 days (last pass: v4.14.222-11-g13b8482a0f700, fir=
-st fail: v4.14.222-120-gdc8887cba23e) =
-
- =20
