@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC2A3A24BA
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 08:49:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABD53A24C1
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 08:51:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229990AbhFJGvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 02:51:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46162 "EHLO mail.kernel.org"
+        id S229845AbhFJGxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 02:53:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229634AbhFJGvF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Jun 2021 02:51:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A418613CA;
-        Thu, 10 Jun 2021 06:49:08 +0000 (UTC)
+        id S229634AbhFJGxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Jun 2021 02:53:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C750C613E2;
+        Thu, 10 Jun 2021 06:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623307749;
-        bh=iIkVGEdZ6nVOvPq75U9lbg5Ox4Vh5/72oUnE/OZA/bc=;
+        s=korg; t=1623307859;
+        bh=gL9kKCK+CsHPorwNub9yfvx7kZWcnzWe/A3bbR9fiEs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QB4gOl+EsIvP5QsweNEAYkLbiEjI3pWQwjomUchuL2PfwIp/zEtOjKbE9F2hlDdpX
-         OmIKO0TbL/jsB/pJK6Oov3SCFutZZ4NqXnSRZ4dnaFVrFBJHMBdUCLS/zT+0IIMZND
-         ULdlWuTbv+5ZUMshzIzBvnv4KIlFDhWAaQ+kfJRs=
-Date:   Thu, 10 Jun 2021 08:49:06 +0200
+        b=v+A9wTWYBeEPqHsjLU+9uhEJGoaY2/nO4wsOyPnz9s/yEypfQInZrN7mWgLcfnkXE
+         9rO7xJnPs+CEgzOsrpcdogwRvxBIIOTa1UNZBhjL2wnEL351+hNcJJ4JgJ1IqJvDSz
+         E4esok7hx70R0ZO86KlDLi++yBH/iYLVlnx/y0cI=
+Date:   Thu, 10 Jun 2021 08:50:57 +0200
 From:   'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>
 To:     linyyuan@codeaurora.org
 Cc:     'Felipe Balbi' <balbi@kernel.org>, linux-usb@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Subject: Re: [PATCH] usb: gadget: eem: fix command packet transfer issue
-Message-ID: <YMG14paBDjYmrxhs@kroah.com>
+Message-ID: <YMG2UWeqodfTRRnQ@kroah.com>
 References: <000201d75dbf$58d1cc40$0a7564c0$@codeaurora.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -56,17 +56,15 @@ On Thu, Jun 10, 2021 at 02:10:40PM +0800, linyyuan@codeaurora.org wrote:
 > 
 > when gadget receive a eem command packet from host, it need to response,
 > but queue usb request to wrong endpoint.
+
+What is the full warning here?  THe above traceback is a bit odd and
+does not show what is happening.
+
 > fix it by queue usb request to eem IN endpoint and allow host read it.
-> 
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Linyu Yuan <linyyuan@codeaurora.org>
-> ---
->  drivers/usb/gadget/function/f_eem.c | 44
-> ++++++++++++++++++++++++++++++++-----
 
-Your patch is line-wrapped and can not be applied :(
-
-Please fix your email client to properly send patches correctly.
+I do not understand how this matches up with your kernel patch, when you
+resend this, can you please expand on this and make it more obvious what
+you are doing here?
 
 thanks,
 
