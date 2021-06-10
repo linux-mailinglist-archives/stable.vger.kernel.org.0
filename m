@@ -2,73 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D395A3A3288
-	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 19:55:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BA763A32A8
+	for <lists+stable@lfdr.de>; Thu, 10 Jun 2021 20:02:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229941AbhFJR5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 13:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34466 "EHLO mail.kernel.org"
+        id S229941AbhFJSEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 14:04:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229823AbhFJR5G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Jun 2021 13:57:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D993613F5;
-        Thu, 10 Jun 2021 17:55:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623347709;
-        bh=OwrkHobkXzquMpU9PzKF3WD7+4oWRdlNoLd7KWyiLqc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=L5DjSuXmkRPgL120FMIf/hG0g9k/W64y3w453XmXNzNDMBK2L2T2TWnQoi090QQ5S
-         nml4NGk/gVF6pJX+qQiAyUziIcbXONFVBC7/JMmvIrBK7Xl/GffHXRCZ2YL8+tJDYs
-         jAZLu+4exXeZ2ZcuXTANyEWHTlBnpLz03J+A7j0BBfFuQdv6+uUlawVAgwkMbKZtDq
-         OCXdWMUV2JlvpuolAaIC8R1hRBG3ox4sPgB0jGqPqpiVVRQ+7aSzczDCS4jZu9nqMU
-         cO55I/5FEUKEBVAwWWO5wGFt57Svy2fKusDBBxaxp1ZxbQ8Zf8pq3wlEP/LFL/82Sw
-         O+6NXBiQTLpCQ==
-Date:   Thu, 10 Jun 2021 13:55:08 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Lukas Wunner <lukas@wunner.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Saravana Kannan <saravanak@google.com>,
-        Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.12 03/43] spi: Fix spi device unregister flow
-Message-ID: <YMJR/FNCwDllHIDG@sashalap>
-References: <20210603170734.3168284-1-sashal@kernel.org>
- <20210603170734.3168284-3-sashal@kernel.org>
- <20210606111028.GA20948@wunner.de>
+        id S229823AbhFJSEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Jun 2021 14:04:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB304613F1;
+        Thu, 10 Jun 2021 18:02:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623348154;
+        bh=amib4PGevbgjiEIp2raeUzTI9UUnkvqa1yT1lTBW3l8=;
+        h=Subject:To:From:Date:From;
+        b=X8WvL2RV3e8jBVio/clnPZzlN6SU3ciKXI11sm3NNE/SnRLH6gwb0WnE1mV3BoJ4o
+         TepILT4FArnia0NGoIfNnH0LXOf2ikm1orsodz1oFtQcC2kb+UjIT6/0HNEDi5pJyO
+         /vqmH/7GowK/MNXsfJ3i+K4M/wrFDs+wCjkaAR5A=
+Subject: patch "usb: gadget: fsl: Re-enable driver for ARM SoCs" added to usb-linus
+To:     joel@jms.id.au, gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 10 Jun 2021 20:02:23 +0200
+Message-ID: <162334814333203@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20210606111028.GA20948@wunner.de>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 06, 2021 at 01:10:28PM +0200, Lukas Wunner wrote:
->On Thu, Jun 03, 2021 at 01:06:53PM -0400, Sasha Levin wrote:
->> From: Saravana Kannan <saravanak@google.com>
->>
->> [ Upstream commit c7299fea67696db5bd09d924d1f1080d894f92ef ]
->
->This commit shouldn't be backported to stable by itself, it requires
->that the following fixups are applied on top of it:
->
->* Upstream commit 27e7db56cf3d ("spi: Don't have controller clean up spi
->  device before driver unbind")
->
->* spi.git commit 2ec6f20b33eb ("spi: Cleanup on failure of initial setup")
->  https://git.kernel.org/broonie/spi/c/2ec6f20b33eb
->
->Note that the latter is queued for v5.13, but hasn't landed there yet.
->So you probably need to back out c7299fea6769 from the stable queue and
->wait for 2ec6f20b33eb to land in upstream.
->
->Since you've applied c7299fea6769 to v5.12, v5.10, v5.4, v4.14 and v4.19
->stable trees, the two fixups listed above need to be backported to all
->of them.
 
-I took those two patches into 5.12-5.4, but as they needed a more
-complex backport for 4.14 and 4.19, I've dropped c7299fea67 from those
-trees.
+This is a note to let you know that I've just added the patch titled
 
+    usb: gadget: fsl: Re-enable driver for ARM SoCs
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From e0e8b6abe8c862229ba00cdd806e8598cdef00bb Mon Sep 17 00:00:00 2001
+From: Joel Stanley <joel@jms.id.au>
+Date: Thu, 10 Jun 2021 13:19:57 +0930
+Subject: usb: gadget: fsl: Re-enable driver for ARM SoCs
+
+The commit a390bef7db1f ("usb: gadget: fsl_mxc_udc: Remove the driver")
+dropped the ARCH_MXC dependency from USB_FSL_USB2, leaving it depending
+solely on FSL_SOC.
+
+FSL_SOC is powerpc only; it was briefly available on ARM in 2014 but was
+removed by commit cfd074ad8600 ("ARM: imx: temporarily remove
+CONFIG_SOC_FSL from LS1021A"). Therefore the driver can no longer be
+enabled on ARM platforms.
+
+This appears to be a mistake as arm64's ARCH_LAYERSCAPE and arm32
+SOC_LS1021A SoCs use this symbol. It's enabled in these defconfigs:
+
+arch/arm/configs/imx_v6_v7_defconfig:CONFIG_USB_FSL_USB2=y
+arch/arm/configs/multi_v7_defconfig:CONFIG_USB_FSL_USB2=y
+arch/powerpc/configs/mgcoge_defconfig:CONFIG_USB_FSL_USB2=y
+arch/powerpc/configs/mpc512x_defconfig:CONFIG_USB_FSL_USB2=y
+
+To fix, expand the dependencies so USB_FSL_USB2 can be enabled on the
+ARM platforms, and with COMPILE_TEST.
+
+Fixes: a390bef7db1f ("usb: gadget: fsl_mxc_udc: Remove the driver")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20210610034957.93376-1-joel@jms.id.au
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/gadget/udc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
+index 8c614bb86c66..7348acbdc560 100644
+--- a/drivers/usb/gadget/udc/Kconfig
++++ b/drivers/usb/gadget/udc/Kconfig
+@@ -90,7 +90,7 @@ config USB_BCM63XX_UDC
+ 
+ config USB_FSL_USB2
+ 	tristate "Freescale Highspeed USB DR Peripheral Controller"
+-	depends on FSL_SOC
++	depends on FSL_SOC || ARCH_LAYERSCAPE || SOC_LS1021A || COMPILE_TEST
+ 	help
+ 	   Some of Freescale PowerPC and i.MX processors have a High Speed
+ 	   Dual-Role(DR) USB controller, which supports device mode.
 -- 
-Thanks,
-Sasha
+2.32.0
+
+
