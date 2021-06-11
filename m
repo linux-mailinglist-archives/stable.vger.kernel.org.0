@@ -2,333 +2,285 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA84F3A3824
-	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 01:57:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E762D3A3862
+	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 02:14:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230034AbhFJX7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 19:59:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
+        id S231230AbhFKAQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 20:16:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229578AbhFJX7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 19:59:42 -0400
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE180C061574
-        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 16:57:34 -0700 (PDT)
-Received: by mail-pg1-x531.google.com with SMTP id l1so1040321pgm.1
-        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 16:57:34 -0700 (PDT)
+        with ESMTP id S230417AbhFKAQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 20:16:47 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D33C061574;
+        Thu, 10 Jun 2021 17:14:36 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id d5-20020a17090ab305b02901675357c371so4777935pjr.1;
+        Thu, 10 Jun 2021 17:14:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=AYbg03Igh1alhxDsrkhrPl6+DKLrLVSVmbai3S9VH2w=;
-        b=Xgj3cvqTE/9LmXZp2Sz+W87LRGPoSnDX5spOl8ZeIQOz2VdZY+BqC6loD+EHSxxUo9
-         Vk7bOwwGw8BBwxBrLYnFgvn7hAEfMSwXlNCox5PM0CCJ8mLuvZZBs7tnw2rC/PPfrQBh
-         90OGsaKzkSQmto0o+JjtDLSoQrO79KtLK00VhSUtxcOBZZuV5FD121JSKQGfwDPds7MV
-         44J5q8jP5s23XOj2oiqZ4tI9GTUMTYgTXyp0OYoLthCVQIpErRavyzxMIL5INj7eI9gO
-         xgI/BVqXW66jbIXs+a5Nrt3cWtWtQo7i4n4LDjiLeARpHaW87e8NsZa432tiRIkjOFzS
-         a/Wg==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6kKK8GvRx3Km5hfKC6h4WhcE1sVd72a9N244SiCTaxc=;
+        b=aIsRV7Xz0deSGi9/tu+UnHO63jhyM3AzHQ75FH9hnx3ayttVvxYFd8NQkaIvSiZvWW
+         yJfjxuEiGs9Pe97LvF7qBnufi04QnTNr9U4hxPX3pxd83lbDQLd3RIRWhNozTA0quaP+
+         ELo9tt1arwk4w76kjQlSB8+2C3ZP0BZEqDkcjCALPAbo7z/Gr/AxExMsyyCXQiYxzjiu
+         Zf5FAawJDiK73eRXVr5HDpkVmVWuI1vbuFaYOHB9ThE4FhVjeDBemb/UNRl512l8dlLI
+         PecsxBPeleVqHkwZVpj4rXCS8pVRU9PzHbHVnH25OU7+kFwE4qGZruqaQnK4j2YzQvZG
+         B43w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=AYbg03Igh1alhxDsrkhrPl6+DKLrLVSVmbai3S9VH2w=;
-        b=IYPXcHQjyHLj2aDy/xis6e4wfLOvG/sV1fVXczoT64cfinu8xZpzBTLZ774ENFVocE
-         6vCV9hpTu0TuB71RRYVD3H8Wcilw0PskDQjUZxOfqQ0lRNNRLcrEF7Cn/dMIo3+ITInh
-         k6MMeX7rQcS6sJws+dq34bLJUQkKCB9RTOpfzLjHSUz3xmmo1ZbFd+Lzn9x90nyr3fwq
-         +JtKrIuYQTTt3Tp2xJlSDDc2HwQ5JaROWusU/X7I3NUSkvkF/bsMO4Q+BsmZh1gOZWY+
-         Rfssz2ic88qxp/4DIlGr1wZ2+juPxAliROxFbxICftoR/sOseWMbOx8uY1dtIGORHr77
-         GbFQ==
-X-Gm-Message-State: AOAM533A4xiZ8Q6YT09HjwD0BJUQ3uHQrylawKh0UQNnkXuNLWUiq1hk
-        ff+7SGi9gIURQ33YtYfyr6VI6tgf5vgM9GCX
-X-Google-Smtp-Source: ABdhPJxawFRPXbCEASCX4pOMXHgK72ZsymUwm2bzNTHk+Tl7XGPstKJpirPhu8grJZR5Jn1hWBT9pQ==
-X-Received: by 2002:a05:6a00:2307:b029:2f0:206a:ee13 with SMTP id h7-20020a056a002307b02902f0206aee13mr5361084pfh.79.1623369452381;
-        Thu, 10 Jun 2021 16:57:32 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h6sm3311849pfk.40.2021.06.10.16.57.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Jun 2021 16:57:32 -0700 (PDT)
-Message-ID: <60c2a6ec.1c69fb81.a7dda.ad87@mx.google.com>
-Date:   Thu, 10 Jun 2021 16:57:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6kKK8GvRx3Km5hfKC6h4WhcE1sVd72a9N244SiCTaxc=;
+        b=uiblMZFVO8Zm3z65Z0hwmCyzNFCxjAO2hghyRfYUK8Mp7NwnF61M64UYDhLlRSb0yQ
+         9uro08ZlHpv88S5mo3yD5wJ9PTBnBEiPBXVqowMez5uUvFb6orkPtvr1eWPBkAixJTC+
+         SlKh7LFYsMff6WYP35QLzssWrkCWqC/+gzCAkhW0m22Vq/EI0gs3LUuNcttsqZ5+etaO
+         JXN7LKSCtBabI837P4v6fEJxP7iQS9gJeskaFKsKxmC3tUPRQjr5NIZ3zdPc2wLsFU0n
+         7zrJU0rTJPnB6SfgrDGo9Vm1I3RPaknwQlosVhxVE6Z5s9xKRN1uXI9+I5N+BfI30Pr4
+         3P5A==
+X-Gm-Message-State: AOAM530896OaYl3AHHea3JcqLFDkqXA/CMT3M/n2plNuTl4Kn0VIsPAu
+        YV0aoTE7bxDiPNi7qCooc+HM79+NnU8RgbCV96GSegrBWioy1A==
+X-Google-Smtp-Source: ABdhPJxp9eI7LaA8Rv1tY9uLuQ84ORHgW0K9AJXJjNF6e1pPE9YO2vKgPepj9VvhZbf9ZlDaAekzbaWWvnJzPnY1Syw=
+X-Received: by 2002:a17:902:a60a:b029:f0:ad94:70bf with SMTP id
+ u10-20020a170902a60ab02900f0ad9470bfmr1234281plq.31.1623370475667; Thu, 10
+ Jun 2021 17:14:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.236
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y baseline: 131 runs, 7 regressions (v4.14.236)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20210531153410.93150-1-changbin.du@gmail.com> <20210531220128.26c0cb36@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+ <CAM_iQpUEjBDK44=mD5shkmmoDYhmHQaSZtR34rLRkgd9wSWiQQ@mail.gmail.com>
+ <20210602091451.kbdul6nhobilwqvi@wittgenstein> <CAM_iQpUqgeoY_mA6cazUPCWwMK6yw9SaD6DRg-Ja4r6r_zOmLg@mail.gmail.com>
+ <20210604095451.nkfgpsibm5nrqt3f@wittgenstein> <CAM_iQpUqp1PRKfS6WcsZ16yjF4jjOrkTHX7Zdhrqo0nrE2VH1Q@mail.gmail.com>
+ <20210607090844.mje2xgdkcnqsezlu@wittgenstein>
+In-Reply-To: <20210607090844.mje2xgdkcnqsezlu@wittgenstein>
+From:   Cong Wang <xiyou.wangcong@gmail.com>
+Date:   Thu, 10 Jun 2021 17:14:24 -0700
+Message-ID: <CAM_iQpWTrpSQPuVg4VLjKsOYb8i_evYux0pL_bwrTHK0uXTh0g@mail.gmail.com>
+Subject: Re: [PATCH] nsfs: fix oops when ns->ops is not provided
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Jakub Kicinski <kuba@kernel.org>,
+        Changbin Du <changbin.du@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Linux Kernel Network Developers <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        David Laight <David.Laight@aculab.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 131 runs, 7 regressions (v4.14.236)
-
-Regressions Summary
--------------------
-
-platform             | arch   | lab           | compiler | defconfig       =
-    | regressions
----------------------+--------+---------------+----------+-----------------=
-----+------------
-meson-gxbb-p200      | arm64  | lab-baylibre  | gcc-8    | defconfig       =
-    | 1          =
-
-meson-gxm-q200       | arm64  | lab-baylibre  | gcc-8    | defconfig       =
-    | 1          =
-
-qemu_arm-versatilepb | arm    | lab-baylibre  | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm    | lab-broonie   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm    | lab-cip       | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm    | lab-collabora | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_x86_64          | x86_64 | lab-broonie   | gcc-8    | x86_64_defconfig=
-    | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.236/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.236
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3d3abdc8ebd3c3082e4398fc73ceb4c852b66e85 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-    | regressions
----------------------+--------+---------------+----------+-----------------=
-----+------------
-meson-gxbb-p200      | arm64  | lab-baylibre  | gcc-8    | defconfig       =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c275c6a721fbbc930c0df8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c275c6a721fbbc930c0=
-df9
-        failing since 436 days (last pass: v4.14.172-114-g734382e2d26e, fir=
-st fail: v4.14.174-131-g234ce78cac23) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-    | regressions
----------------------+--------+---------------+----------+-----------------=
-----+------------
-meson-gxm-q200       | arm64  | lab-baylibre  | gcc-8    | defconfig       =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c27919f33b79473c0c0e0a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c27919f33b79473c0c0=
-e0b
-        failing since 77 days (last pass: v4.14.226-44-gdbfdb55a0970, first=
- fail: v4.14.227) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-    | regressions
----------------------+--------+---------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm    | lab-baylibre  | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c272ce248ecbda0c0c0e10
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c272ce248ecbda0c0c0=
-e11
-        failing since 208 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-    | regressions
----------------------+--------+---------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm    | lab-broonie   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c285bcd66aec6d310c0df5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c285bcd66aec6d310c0=
-df6
-        failing since 208 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-    | regressions
----------------------+--------+---------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm    | lab-cip       | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c272c5248ecbda0c0c0df8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c272c5248ecbda0c0c0=
-df9
-        failing since 208 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-    | regressions
----------------------+--------+---------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm    | lab-collabora | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c272bf385cfedeb90c0df9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c272bf385cfedeb90c0=
-dfa
-        failing since 208 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-    | regressions
----------------------+--------+---------------+----------+-----------------=
-----+------------
-qemu_x86_64          | x86_64 | lab-broonie   | gcc-8    | x86_64_defconfig=
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c286d4754b2602b60c0df7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-36/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c286d4754b2602b60c0=
-df8
-        new failure (last pass: v4.14.235-48-g872e045a48f8) =
-
- =20
+On Mon, Jun 7, 2021 at 2:08 AM Christian Brauner
+<christian.brauner@ubuntu.com> wrote:
+>
+> On Sun, Jun 06, 2021 at 05:37:40PM -0700, Cong Wang wrote:
+> > On Fri, Jun 4, 2021 at 2:54 AM Christian Brauner
+> > <christian.brauner@ubuntu.com> wrote:
+> > >
+> > > On Thu, Jun 03, 2021 at 03:52:29PM -0700, Cong Wang wrote:
+> > > > On Wed, Jun 2, 2021 at 2:14 AM Christian Brauner
+> > > > <christian.brauner@ubuntu.com> wrote:
+> > > > > But the point is that ns->ops should never be accessed when that
+> > > > > namespace type is disabled. Or in other words, the bug is that something
+> > > > > in netns makes use of namespace features when they are disabled. If we
+> > > > > handle ->ops being NULL we might be tapering over a real bug somewhere.
+> > > >
+> > > > It is merely a protocol between fs/nsfs.c and other namespace users,
+> > > > so there is certainly no right or wrong here, the only question is which
+> > > > one is better.
+> > > >
+> > > > >
+> > > > > Jakub's proposal in the other mail makes sense and falls in line with
+> > > > > how the rest of the netns getters are implemented. For example
+> > > > > get_net_ns_fd_fd():
+> > > >
+> > > > It does not make any sense to me. get_net_ns() merely increases
+> > > > the netns refcount, which is certainly fine for init_net too, no matter
+> > > > CONFIG_NET_NS is enabled or disabled. Returning EOPNOTSUPP
+> > > > there is literally saying we do not support increasing init_net refcount,
+> > > > which is of course false.
+> > > >
+> > > > > struct net *get_net_ns_by_fd(int fd)
+> > > > > {
+> > > > >         return ERR_PTR(-EINVAL);
+> > > > > }
+> > > >
+> > > > There is a huge difference between just increasing netns refcount
+> > > > and retrieving it by fd, right? I have no idea why you bring this up,
+> > > > calling them getters is missing their difference.
+> > >
+> > > This argument doesn't hold up. All netns helpers ultimately increase the
+> > > reference count of the net namespace they find. And if any of them
+> > > perform operations where they are called in environments wherey they
+> > > need CONFIG_NET_NS they handle this case at compile time.
+> >
+> > Let me explain it in this more straight way: what is the protocol here
+> > for indication of !CONFIG_XXX_NS? Clearly it must be ns->ops==NULL,
+> > because all namespaces use the following similar pattern:
+> >
+> > #ifdef CONFIG_NET_NS
+> >         net->ns.ops = &netns_operations;
+> > #endif
+> >
+> > Now you are arguing the protocol is not this, but it is the getter of
+> > open_related_ns() returns an error pointer.
+>
+> I don't understand what this is supposed to tell me.
+
+This tells you whatever you called a bug, it is just a protocol.
+
+You are trying to justify it as bug by interpreting is as a getter
+like get_net_ns_by_fd(). None of them makes sense, neither
+is this bug, nor it is any similar to get_net_ns_by_fd().
+
+
+>
+> >
+> > >
+> > > (Pluse they are defined in a central place in net/net_namespace.{c,h}.
+> > > That includes the low-level get_net() function and all the others.
+> > > get_net_ns() is the only one that's defined out of band. So get_net_ns()
+> > > currently is arguably also misplaced.)
+> >
+> > Of course they do, only struct ns_common is generic. What's your
+> > point? Each ns.ops is defined by each namespace too.
+>
+> All netns helpers should arguably be located in a central place
+> including get_net_ns(). There's no need to spread such helpers
+> everywhere. This is completely orthogonaly to struct ns_common.
+
+I have no idea why you want to argue on something I don't disagree
+with. Actually, the proposal from me only changes fs/nsfs.c, so you
+do not even need to worry about file locations at all.
+
+>
+> >
+> > >
+> > > The problem I have with fixing this in nsfs is that it gives the
+> > > impression that this is a bug in nsfs whereas it isn't and it
+> > > potentially helps tapering over other bugs.
+> >
+> > Like I keep saying, this is just a protocol, there is no right or
+> > wrong here. If the protocol is just ops==NULL, then there is nothing
+> > wrong use it.
+> >
+> > (BTW, we have a lot of places that use ops==NULL as a protocol,
+> > they work really well.)
+> >
+> > >
+> > > get_net_ns() is only called for codepaths that call into nsfs via
+> > > open_related_ns() and it's the only namespace that does this. But
+> >
+> > I am pretty sure userns does the same:
+> >
+> > 197         case NS_GET_USERNS:
+> > 198                 return open_related_ns(ns, ns_get_owner);
+>
+> Maybe I wasn't clear enough, open_related_ns() is the only namespace
+> that calls into nsfs via open_related_ns() __outside__ of fs/nsfs.c I
+> thought that was pretty clear.
+
+Why it matter which calls open_related_ns() here? The point is
+ns_get_owner() and get_net_ns() are defined by each ns, IOW,
+outside of fs/nsfs.c.
+
+>
+> But also...
+>
+> #ifdef CONFIG_USER_NS
+> struct ns_common *ns_get_owner(struct ns_common *ns);
+> #else
+> static inline struct ns_common *ns_get_owner(struct ns_common *ns)
+> {
+>         return ERR_PTR(-EPERM);
+> }
+> #endif
+>
+> So ns_get_owner() returns -EPERM when !CONFIG_USER_NS so the callback
+> handles the !CONFIG_USER_NS case. And that's what we were saying
+> get_net_ns() should do.
+
+Sure, thanks for pointing this out. This is unnecessary too, like I said,
+if the protocol is simply ns.ops==NULL. No one says the current code
+is perfect, all code can be improved, so using existing code can't justify
+it.
+
+>
+> >
+> >
+> > > open_related_ns() is only well defined if CONFIG_<NAMESPACE_TYPE> is
+> > > set. For example, none of the procfs namespace f_ops will be set for
+> > > !CONFIG_NET_NS. So clearly the socket specific getter here is buggy as
+> > > it doesn't account for !CONFIG_NET_NS and it should be fixed.
+> >
+> > If the protocol is just ops==NULL, then the core part should just check
+> > ops==NULL. Pure and simple. I have no idea why you do not admit the
+> > fact that every namespace intentionally leaves ops as NULL when its
+> > config is disabled.
+>
+> I'm just going to quote myself:
+>
+> > > set. For example, none of the procfs namespace f_ops will be set for
+> > > !CONFIG_NET_NS.
+>
+> If a given namespace type isn't selected then it will never appear in
+> /proc/<pid>/ns/* which is why the proc_ns_operations aren't defined in
+> fs/proc/namespaces.c.
+>
+> In other words, you can't get a file descriptor for a given namespace
+> through proc or rather the nsfs part of proc when that namespace type
+> isn't selected.
+
+Who said open_related_ns() should return a fd in such a case?
+Clearly it must return an error here.
+
+>
+> The open_related_ns() function is a function that is just there to give
+> you a namespace fd and it assumes that when it is called that the
+> namespace type is selected for or that the callback you're passing it
+> handles that case.
+
+Once again, this is just a protocol. Let me compare your protocol
+with mine:
+
+1. You want to use the getter as a protocol for indicating a ns is
+disabled;
+
+2. I prefer to use ns.ops==NULL as a protocol here.
+
+And let me explain why 2) is better than 1):
+
+a) The final code is less with 2), because all those ugly #ifdef's
+are all gone. The getter would not even be called if ns.ops==NULL.
+
+b) The code is more readable. The point of the getter is to increase
+refcnt of a specific ns. There is nothing wrong to at least literally
+increase the refcnt of init_net. With your approach, it simply says
+getting init_net is not supported if !CONFIG_NET_NS, this is just
+false.
+
+c) It is slightly faster to error out. open_related_ns() would return
+an error even before get_unused_fd_flags(). With your approach,
+it defers to the getter, that is, after get_unused_fd_flags().
+
+
+>
+> For example, see you're own example about ns_get_owner() above.
+>
+> >
+> > >
+> > > Plus your fix leaks references to init netns without fixing get_net_ns()
+> > > too.
+> >
+> > I thought it is 100% clear that this patch is not from me?
+> >
+> > Plus, the PoC patch from me actually suggests to change
+> > open_related_ns(), not __ns_get_path(). I have no idea why you
+> > both miss it.
+>
+> Turning this around, I'm not sure what your resistance to just doing it
+> like ns_get_owner() is doing it is.
+
+I have the same doubt. See above on why.
+
+Thanks.
