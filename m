@@ -2,86 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2072C3A3DBD
-	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 10:08:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A75C33A3DDA
+	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 10:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbhFKIJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Jun 2021 04:09:58 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:46101 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229584AbhFKIJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Jun 2021 04:09:58 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-206-L8ys3hEWPauhtMu7NFL4nA-1; Fri, 11 Jun 2021 09:07:55 +0100
-X-MC-Unique: L8ys3hEWPauhtMu7NFL4nA-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.18; Fri, 11 Jun 2021 09:07:54 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.018; Fri, 11 Jun 2021 09:07:54 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Nick Desaulniers' <ndesaulniers@google.com>,
-        Tor Vic <torvic9@mailbox.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "nathan@kernel.org" <nathan@kernel.org>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "clang-built-linux@googlegroups.com" 
-        <clang-built-linux@googlegroups.com>,
-        "x86@kernel.org" <x86@kernel.org>
-Subject: RE: [PATCH] x86/Makefile: make -stack-alignment conditional on LLD <
- 13.0.0
-Thread-Topic: [PATCH] x86/Makefile: make -stack-alignment conditional on LLD <
- 13.0.0
-Thread-Index: AQHXXi3hDa/SX38CoUOUtr2ZTdzJmqsOdORg
-Date:   Fri, 11 Jun 2021 08:07:54 +0000
-Message-ID: <6c8315ef3ebb45b59dd531c634bcff48@AcuMS.aculab.com>
-References: <214134496.67043.1623317284090@office.mailbox.org>
- <CAKwvOdmU9TUiZ6AatJja=ksneRKP5saNCkx0qodLMOi_BshSSg@mail.gmail.com>
-In-Reply-To: <CAKwvOdmU9TUiZ6AatJja=ksneRKP5saNCkx0qodLMOi_BshSSg@mail.gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S230361AbhFKIOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Jun 2021 04:14:06 -0400
+Received: from mail-pl1-f173.google.com ([209.85.214.173]:34729 "EHLO
+        mail-pl1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231150AbhFKIOF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Jun 2021 04:14:05 -0400
+Received: by mail-pl1-f173.google.com with SMTP id h1so2464684plt.1
+        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 01:12:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hSmUKsvuss7qsEfZf0c9SBwFbQJ9zX7hfMZNMWUPi4g=;
+        b=PoFVrUAMSNrxX/fduH9zprPWNfpXIeWKAiSgWDRJFJ/DJsEMDw5FRSUFSfj+FoDudc
+         GxTuyuHWCHyeKKSaJoJtFs0qnFG43yBtOOT2oj7uHk7TQSrsOOtPaqVHpVbp8pCdj9Up
+         mpMaqDX0uDBivW13guiItjo4aOKVHnOh+lenOchboJSMosrO4Y533N00plbEEqn+MW16
+         kHKZXkvSCgGXqqer/kIq3R1MkmyZ7HO79xiQWLPHafOSiIOaWj53270eCkl5BXHSSS+T
+         ZZ+2GZDleh4v0CUlwOTewJW7OdWEV+b1/eXW51i6AUnyVTbjrSEnvyuUfMivs7P+iqCV
+         PwPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hSmUKsvuss7qsEfZf0c9SBwFbQJ9zX7hfMZNMWUPi4g=;
+        b=AFzHXdxwzacRfwVQEJyvJnE/zC53UfjYtF8+/zbTnzK4/q5+vcKQcV5PTMc5yib+OY
+         19zA+pXAu+LEhCqovCjhQX31wE8PAM+rAoiTUDN2zSASWQtIT5mj7EPGFJoyJpkXuCXT
+         703IB9x41YACMeIXa3tqD70uXHEKoQMuSwJLLgXaTxXn0JBPmHcgPKGHH24tqgpcv7x5
+         5yBTSc2TFoTBdi6ey5S/vruUok8qPxxaKAMyR0MQa4x8E1cDQ2At/Q2Rf2+ebsLdGqoR
+         SNil7x3uj/1Kzdn3UN0bxhSd0uYKZN8YJ4SMpHwlpD+x5xuw+iScN14lE8KREil3t6JL
+         L0Zw==
+X-Gm-Message-State: AOAM533qpySAvHKFbDG14Xkbqg8nC+uyg8HpxVnICsAW1iJwkbEXXSZg
+        6PP5DuiJGkwN2IAzo0vHLO/+kVg0D3AzEOhA
+X-Google-Smtp-Source: ABdhPJyHgm7/XjBPNeaD5yurxOgoLrMQeZzEk+X0TzFR2+IwWRpGbR1pqhgHXNN01CgtkZOCLKuBgQ==
+X-Received: by 2002:a17:902:e843:b029:109:4dbc:d4ed with SMTP id t3-20020a170902e843b02901094dbcd4edmr2863112plg.74.1623399060696;
+        Fri, 11 Jun 2021 01:11:00 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t6sm9595057pjo.4.2021.06.11.01.10.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Jun 2021 01:11:00 -0700 (PDT)
+Message-ID: <60c31a94.1c69fb81.bf6e1.e38f@mx.google.com>
+Date:   Fri, 11 Jun 2021 01:11:00 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.236-20-g3f7ac3761509
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 109 runs,
+ 1 regressions (v4.14.236-20-g3f7ac3761509)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogTmljayBEZXNhdWxuaWVycw0KPiBTZW50OiAxMCBKdW5lIDIwMjEgMjA6MjENCj4gDQo+
-IE9uIFRodSwgSnVuIDEwLCAyMDIxIGF0IDI6MjggQU0gPHRvcnZpYzlAbWFpbGJveC5vcmc+IHdy
-b3RlOg0KPiA+DQo+ID4gU2luY2UgTExWTSBjb21taXQgMzc4N2VlNCwgdGhlICctc3RhY2stYWxp
-Z25tZW50JyBmbGFnIGhhcyBiZWVuIGRyb3BwZWQgWzFdLA0KPiA+IGxlYWRpbmcgdG8gdGhlIGZv
-bGxvd2luZyBlcnJvciBtZXNzYWdlIHdoZW4gYnVpbGRpbmcgYSBMVE8ga2VybmVsIHdpdGgNCj4g
-PiBDbGFuZy0xMyBhbmQgTExELTEzOg0KPiA+DQo+ID4gICAgIGxkLmxsZDogZXJyb3I6IC1wbHVn
-aW4tb3B0PS06IGxkLmxsZDogVW5rbm93biBjb21tYW5kIGxpbmUgYXJndW1lbnQNCj4gPiAgICAg
-Jy1zdGFjay1hbGlnbm1lbnQ9OCcuICBUcnkgJ2xkLmxsZCAtLWhlbHAnDQo+ID4gICAgIGxkLmxs
-ZDogRGlkIHlvdSBtZWFuICctLXN0YWNrcmVhbGlnbj04Jz8NCj4gPg0KPiA+IEl0IGFsc28gYXBw
-ZWFycyB0aGF0IHRoZSAnLWNvZGUtbW9kZWwnIGZsYWcgaXMgbm90IG5lY2Vzc2FyeSBhbnltb3Jl
-IHN0YXJ0aW5nDQo+ID4gd2l0aCBMTFZNLTkgWzJdLg0KPiA+DQo+ID4gRHJvcCAnLWNvZGUtbW9k
-ZWwnIGFuZCBtYWtlICctc3RhY2stYWxpZ25tZW50JyBjb25kaXRpb25hbCBvbiBMTEQgPCAxMy4w
-LjAuDQo+IA0KPiBQbGVhc2UgaW5jbHVkZSB0aGlzIGFkZGl0aW9uYWwgY29udGV4dCBpbiB2MjoN
-Cj4gYGBgDQo+IFRoZXNlIGZsYWdzIHdlcmUgbmVjZXNzYXJ5IGJlY2F1c2UgdGhlc2UgZmxhZ3Mg
-d2VyZSBub3QgZW5jb2RlZCBpbiB0aGUNCj4gSVIgcHJvcGVybHksIHNvIHRoZSBsaW5rIHdvdWxk
-IHJlc3RhcnQgb3B0aW1pemF0aW9ucyB3aXRob3V0IHRoZW0uIE5vdw0KPiB0aGVyZSBhcmUgcHJv
-cGVybHkgZW5jb2RlZCBpbiB0aGUgSVIsIGFuZCB0aGVzZSBmbGFncyBleHBvc2luZw0KPiBpbXBs
-ZW1lbnRhdGlvbiBkZXRhaWxzIGFyZSBubyBsb25nZXIgbmVjZXNzYXJ5Lg0KPiBgYGANCj4gVGhh
-dCB3YXkgaXQgZG9lc24ndCBzb3VuZCBsaWtlIHdlJ3JlIG5vdCB1c2luZyBhbiA4QiBzdGFjayBh
-bGlnbm1lbnQNCj4gb24geDg2OyB3ZSB2ZXJ5IG11Y2ggYXJlIHNvOyBBTURHUFUgR1BGcyB3aXRo
-b3V0IGl0IQ0KDQpBY3R1YWxseSwgZ2l2ZSB0aGF0IExUTyBpcyBzdGlsbCAnZXhwZXJpbWVudGFs
-JyBpcyBpdCB3b3J0aCBqdXN0DQpyZW1vdmluZyB0aGUgZmxhZ3MgYW5kIHJlcXVpcmluZyBjbGFu
-Zy0xMyBmb3IgTFRPIGJ1aWxkcz8NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBM
-YWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBU
-LCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
+stable-rc/queue/4.14 baseline: 109 runs, 1 regressions (v4.14.236-20-g3f7ac=
+3761509)
 
+Regressions Summary
+-------------------
+
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.236-20-g3f7ac3761509/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.236-20-g3f7ac3761509
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      3f7ac3761509258038dfdf0d1e3bd8f136221154 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60c2e7e437a3ae4d990c0dfd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.236=
+-20-g3f7ac3761509/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.236=
+-20-g3f7ac3761509/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60c2e7e437a3ae4d990c0=
+dfe
+        failing since 101 days (last pass: v4.14.222-11-g13b8482a0f700, fir=
+st fail: v4.14.222-120-gdc8887cba23e) =
+
+ =20
