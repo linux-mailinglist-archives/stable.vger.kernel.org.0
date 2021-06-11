@@ -2,131 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E013A4820
-	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 19:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D76633A48CF
+	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 20:44:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229969AbhFKR4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Jun 2021 13:56:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43674 "EHLO
+        id S229540AbhFKSqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Jun 2021 14:46:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229965AbhFKR4w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Jun 2021 13:56:52 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A31EAC0617AF
-        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 10:54:53 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id r7so23676877edv.12
-        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 10:54:53 -0700 (PDT)
+        with ESMTP id S230168AbhFKSqH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Jun 2021 14:46:07 -0400
+Received: from mail-ua1-x944.google.com (mail-ua1-x944.google.com [IPv6:2607:f8b0:4864:20::944])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65973C061574
+        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 11:44:09 -0700 (PDT)
+Received: by mail-ua1-x944.google.com with SMTP id w5so2913583uaq.9
+        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 11:44:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=essensium.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=DuwjVu2ah8R74VEunsWVfDwhHMrlU5qQzdUQ6C052p4=;
-        b=aEIc9uZwe+u9+svEykjNBa6wj8i514+l/hkd6EuCzc8CM9yYfATHUKIjl51aNACgMC
-         ksCox/b9uWsZEoXL09PdpyRopHgsbzTmMj+lniYnOsJrkKJ51n4UXW70Gog3ZKkkh24f
-         akOu/j5U0fbnuxa4P2IInNkEA2vXY/Ub6BX9MlyUPCaUvzWwUy80Ks13JK/reShiN8KG
-         58CyX1xEy/SrVJLjo3YLZQKS5l1oBHYTpQ+DJh23nQgCijXsK4V1qMVCjV8eKEW/jHIM
-         wBF7ja1FLRZDRkcG48NkzSpyvsjTCzgkmhaFV0r7tNLacANFAcsfVzL1pQnnCAkyXkVY
-         78yw==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=5H5ALHrNMjmKGQwI4W8u2/Vi9ZSVyV56k25KvekbtdU=;
+        b=pniJpShBfCP5EEPttFx0+yZWWZcGVmTjS6cNAHXHY9lugMOSTwBTwuKg4V/mm/L0aB
+         sXZ18m9Oqjzwb/WViU1/1PPltQ3lv282GkhU0dLjgvgyt7MBy1Nna3PqjcIgSp4zfKte
+         7TRnvpixzOveIfV3zZ5nrF808mMKizOz7OQECz7ut/Vugbg8QOxG7ls9BYGzEbkXS5Bk
+         Kir+VgbJEfnYWvqcZO+jMvJ9sc1t23nyLRo3xDvtIM/N/0qTuFYQ4g2EFPwvUB0Zl4ke
+         6GNWMb6gxyNyrmIMi5Axdgssa/tewhS+2KrQ6AD9RQLDDGdLJVJxA6lTjP5ISZEsLt+s
+         vNeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=DuwjVu2ah8R74VEunsWVfDwhHMrlU5qQzdUQ6C052p4=;
-        b=tWbXRddMPl42LTF1IC0mRPFqKTGp/swzOn6vWe1L4rGWf5lybe4GieBlPjdVqlrvxe
-         Y+bK7P/L4KEuW1eO8Y43pO6gxTQ1beLSBHQlzkJr7R7pO6fTcodWOs1RZB1wNc8ZLtrq
-         G+TPINUpdctDnI7jAL+G9j3R/sJgmkZPNocrfjRXcp/nE2jKDdhw+nEBJJPIs4Di4yKr
-         9iuFTe7ZeLL+2kI2jWfg17xs3l+erpo28ghu26OVl7Crr5vzjoXWExNIGWGr4XGZhhQa
-         V1vjDlSoU8l6U3BWWDxBYWs/5Z1M+mCRp6L/zMSzPvGmAIvLCHWnq5SomqZxuMTVasTL
-         v/hg==
-X-Gm-Message-State: AOAM531pInVWCjLSjOFQdoSgnndHupf7mo9T8WRHE/OhGMNBGB56GT7W
-        hhL8zdklZdwmkqN8MJewvtdA1w==
-X-Google-Smtp-Source: ABdhPJzX0K7xMLtbbSp/J2M82Ugtlqu5gL7Kezy/X6FaNm1QAbvBPQibDqxe4EXb3WZcU3YDvUH/0A==
-X-Received: by 2002:a50:9345:: with SMTP id n5mr5010249eda.289.1623434091734;
-        Fri, 11 Jun 2021 10:54:51 -0700 (PDT)
-Received: from cephalopod (168.7-181-91.adsl-dyn.isp.belgacom.be. [91.181.7.168])
-        by smtp.gmail.com with ESMTPSA id h8sm2351459ejj.22.2021.06.11.10.54.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Jun 2021 10:54:51 -0700 (PDT)
-Date:   Fri, 11 Jun 2021 19:54:49 +0200
-From:   Ben Hutchings <ben.hutchings@essensium.com>
-To:     Grygorii Strashko <grygorii.strashko@ti.com>
-Cc:     "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-omap@vger.kernel.org, Lokesh Vutla <lokeshvutla@ti.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH net] net: ethernet: ti: cpsw: fix min eth packet size for
- non-switch use-cases
-Message-ID: <20210611175448.GA25728@cephalopod>
-References: <20210611132732.10690-1-grygorii.strashko@ti.com>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=5H5ALHrNMjmKGQwI4W8u2/Vi9ZSVyV56k25KvekbtdU=;
+        b=kop3266vitply6bRvPfaxUSftf0Kr8vPoReUeIdDgK1GxUYOQ1O9jE/9n4uxo+Fw1A
+         YYh5wetGL/Az/SJsnz5T/5k4nW8ZoVc0vAqnJE3djL0Mr96BvYI9+djInzvIshrULhPx
+         RpN5ovNRZw2r3Up9sXf3dmtkypRUiyS5/JVg0C6UIqBkzeUOMNex+G3x/OeYp2Ck271O
+         2VefZ2eBvMdNkThda20oswm3gN+T896wqGguphWI1z4QIpVEOPS40V5LfC6zaNufl8e0
+         bgpxqQ4rIdEWMQU7ZHL0pqUtLb0lmlFbl9EOayLKpNEtSBeMm3gKWlFspjdr71WqVKL6
+         sjcA==
+X-Gm-Message-State: AOAM5325A4h3+A/Sjhno5naQlovIL5oEke6dEFClKC7bjgKiouOVpJGe
+        zFSgLCPJdk9JrD/KKIHWDqVwPgOskop4t0n/LfQ=
+X-Google-Smtp-Source: ABdhPJzw+ycQAicF0FA4qN9ofWvvWESj8rcByVvqx7zFHO/39XTt78/GPRrsyExELOXg+DzJ/fHcGc+wSUikwZ6T9iY=
+X-Received: by 2002:ab0:77c7:: with SMTP id y7mr4850704uar.119.1623437047609;
+ Fri, 11 Jun 2021 11:44:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210611132732.10690-1-grygorii.strashko@ti.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Received: by 2002:ab0:6599:0:0:0:0:0 with HTTP; Fri, 11 Jun 2021 11:44:06
+ -0700 (PDT)
+Reply-To: piercekaren605@outlook.com
+From:   "Ms. Karen Pierce" <kaylorhickman100@gmail.com>
+Date:   Fri, 11 Jun 2021 11:44:06 -0700
+Message-ID: <CAGZPi1ObgT8QR471JFHRFiFix1Ov_ScGeA92FScs-80_N7uN3w@mail.gmail.com>
+Subject: Re. I am looking forward to hear from you
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 11, 2021 at 04:27:32PM +0300, Grygorii Strashko wrote:
-[...]
-> --- a/drivers/net/ethernet/ti/cpsw_new.c
-> +++ b/drivers/net/ethernet/ti/cpsw_new.c
-> @@ -918,14 +918,17 @@ static netdev_tx_t cpsw_ndo_start_xmit(struct sk_buff *skb,
->  	struct cpts *cpts = cpsw->cpts;
->  	struct netdev_queue *txq;
->  	struct cpdma_chan *txch;
-> +	unsigned int len;
->  	int ret, q_idx;
->  
-> -	if (skb_padto(skb, CPSW_MIN_PACKET_SIZE)) {
-> +	if (skb_padto(skb, priv->tx_packet_min)) {
->  		cpsw_err(priv, tx_err, "packet pad failed\n");
->  		ndev->stats.tx_dropped++;
->  		return NET_XMIT_DROP;
->  	}
->  
-> +	len = skb->len < priv->tx_packet_min ? priv->tx_packet_min : skb->len;
-> +
->  	if (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP &&
->  	    priv->tx_ts_enabled && cpts_can_timestamp(cpts, skb))
->  		skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
-> @@ -937,7 +940,7 @@ static netdev_tx_t cpsw_ndo_start_xmit(struct sk_buff *skb,
->  	txch = cpsw->txv[q_idx].ch;
->  	txq = netdev_get_tx_queue(ndev, q_idx);
->  	skb_tx_timestamp(skb);
-> -	ret = cpdma_chan_submit(txch, skb, skb->data, skb->len,
-> +	ret = cpdma_chan_submit(txch, skb, skb->data, len,
->  				priv->emac_port);
->  	if (unlikely(ret != 0)) {
->  		cpsw_err(priv, tx_err, "desc submit failed\n");
+Hello dear,
 
-This change is odd because cpdma_chan_submit() already pads the DMA
-length.
+My name is Ms. Karen Pierce Vittal. I worked with Vedanta Resources
+Ltd, the United Kingdom for 25 years, but I retired in the year 2013.
+I didn't marry and I have no child of my own due to my health issues.
 
-Would it not make more sense to update cpdma_params::min_packet_size
-instead of adding a second minimum?
+Presently, I am 68 years old and suffering from chronic tract cancer.
+From doctor's indications, my condition is really deteriorating and is
+quite obvious that my death is very close to me as  I can see my life
+quickly ebbing away. I am bedridden and in constant pain. The stage is
+worst for more than two months now and I have been hospitalized which
+affected my ability to talk.
 
-[...]
-> @@ -1686,6 +1690,7 @@ static int cpsw_dl_switch_mode_set(struct devlink *dl, u32 id,
->  
->  			priv = netdev_priv(sl_ndev);
->  			slave->port_vlan = vlan;
-> +			priv->tx_packet_min = CPSW_MIN_PACKET_SIZE_VLAN;
->  			if (netif_running(sl_ndev))
->  				cpsw_port_add_switch_def_ale_entries(priv,
->  								     slave);
-> @@ -1714,6 +1719,7 @@ static int cpsw_dl_switch_mode_set(struct devlink *dl, u32 id,
->  
->  			priv = netdev_priv(slave->ndev);
->  			slave->port_vlan = slave->data->dual_emac_res_vlan;
-> +			priv->tx_packet_min = CPSW_MIN_PACKET_SIZE;
->  			cpsw_port_add_dual_emac_def_ale_entries(priv, slave);
->  		}
->
-[...]
+I  am an orphan, no Parents, no brother, no sister but my country home
+origin is India. I was  working with Vedanta Resources Ltd in India
+before I was posted to the company's headquarters here in the United
+Kingdom where I worked as deputy accountant general for 10years.
 
-What happens if this races with the TX path?  Should there be a
-netif_tx_lock() / netif_tx_unlock() around this change?
+When I was working with Vedanta Resources Ltd, the United Kingdom, I
+deposited the sum of USD $6,750.000.00 in a Bank of America. This money
+is still with the bank, but due to my poor health  condition and based
+on doctor's indications, I am scared that my life is almost at the
+end, so I have decided to donate this $6,750.000.00 to the Charity. I
+took this decision because I don't have any child that will inherit
+this money.
 
-Ben.
+Please, I want the Bank of America to transfer this $6,750.000.00 to
+you so that you can help me to donate 80% of the money to any Charity
+Organization in India, while you take the remaining 20% of the money
+as your reward for your assistance in fulfilling my heart desire.
+
+I know that I have never met you before, I got your email address from
+Google and my confidence reposed on you.
+
+
+If I receive your reply, I will write to the Bank of America to
+transfer the money to
+you. Send your response to my private email at:  piercekaren605@outlook.com
+
+I expect your prompt reply and wish you will put me in your prayers henceforth.
+
+Thanks and God bless you.
+
+Ms. Karen Pierce.
