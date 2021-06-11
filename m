@@ -2,161 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A38D3A3901
-	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 02:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08FB23A38FA
+	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 02:43:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230469AbhFKAv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Jun 2021 20:51:58 -0400
-Received: from mailout2.samsung.com ([203.254.224.25]:46168 "EHLO
-        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229578AbhFKAv5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 20:51:57 -0400
-Received: from epcas1p3.samsung.com (unknown [182.195.41.47])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20210611004958epoutp02e0f254c8aaa6c340fd93be97bb9b2fd0~HYMcKPcRB0475804758epoutp02e
-        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 00:49:58 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20210611004958epoutp02e0f254c8aaa6c340fd93be97bb9b2fd0~HYMcKPcRB0475804758epoutp02e
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1623372598;
-        bh=ZV21zXbl07d7cp0KvB+WQtAe5AHBkLEtsV1joA1DbWQ=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=dZA9cuEUblKFJHorJcONG0KdK4D/epAIhJjI5aA9+X/4ZmNqfVmz2/RNece7q1nsZ
-         +14JVSzkP+YOqA2iqCb4bVKQP4dNbJVM/8YxkZ93Htq+2RwI8AgH7XVhZJHObOCYEY
-         0ZiO+eNbQVM+8bsYIpuS2+wfXKNjjsI3/yCc7l74=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20210611004958epcas1p15b8a8cfc43a0b30b595a62ba4559eebb~HYMbwS0ha1177411774epcas1p1u;
-        Fri, 11 Jun 2021 00:49:58 +0000 (GMT)
-Received: from epsmges1p4.samsung.com (unknown [182.195.40.161]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4G1Mgn0vc9z4x9Q7; Fri, 11 Jun
-        2021 00:49:57 +0000 (GMT)
-Received: from epcas1p4.samsung.com ( [182.195.41.48]) by
-        epsmges1p4.samsung.com (Symantec Messaging Gateway) with SMTP id
-        4A.A0.10258.433B2C06; Fri, 11 Jun 2021 09:49:56 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20210611004956epcas1p262dc7907165782173692d7cf9e571dfe~HYMaTmy4k0189501895epcas1p29;
-        Fri, 11 Jun 2021 00:49:56 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20210611004956epsmtrp18166ae745678cd1e66c34303c4f0b915~HYMaTAWdk0756907569epsmtrp11;
-        Fri, 11 Jun 2021 00:49:56 +0000 (GMT)
-X-AuditID: b6c32a38-419ff70000002812-9d-60c2b334c995
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        33.1D.08163.433B2C06; Fri, 11 Jun 2021 09:49:56 +0900 (KST)
-Received: from localhost.localdomain (unknown [10.89.31.219]) by
-        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20210611004956epsmtip1cb09a8fd89adf58c7ae43308b1dc1836~HYMaKgubk0118401184epsmtip1-;
-        Fri, 11 Jun 2021 00:49:56 +0000 (GMT)
-From:   Namjae Jeon <namjae.jeon@samsung.com>
-To:     linux-fsdevel@vger.kernel.org
-Cc:     flrncrmr@gmail.com, Namjae Jeon <namjae.jeon@samsung.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] exfat: handle wrong stream entry size in exfat_readdir()
-Date:   Fri, 11 Jun 2021 09:40:24 +0900
-Message-Id: <20210611004024.2925-1-namjae.jeon@samsung.com>
-X-Mailer: git-send-email 2.17.1
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrMKsWRmVeSWpSXmKPExsWy7bCmga7J5kMJBou32Vj0rl3AZrFn70kW
-        ix/T6y0WbHzE6MDisXPWXXaPvi2rGD0+b5ILYI7KsclITUxJLVJIzUvOT8nMS7dV8g6Od443
-        NTMw1DW0tDBXUshLzE21VXLxCdB1y8wBWqakUJaYUwoUCkgsLlbSt7Mpyi8tSVXIyC8usVVK
-        LUjJKTA0KNArTswtLs1L10vOz7UyNDAwMgWqTMjJ2P5uC1PBa+GKu//3sjQwbhboYuTkkBAw
-        kfjV8JK9i5GLQ0hgB6NEw/FfbBDOJ0aJjv+PoDKfGSWePu9nhmm53beaBSKxi1Fi858nTHAt
-        B/f8Y+xi5OBgE9CW+LNFFMQUEVCUuPzeCaSXWSBcYtfzFSwgtrCAp8Sb5lVg1SwCqhILlvmC
-        hHkFrCXmz9gJtUpeYvWGA8wg0yUEutklXl88zw6RcJGY0X+IBcIWlnh1fAtUXEriZX8blF0u
-        ceLkLyYIu0Ziw7x97CC7JASMJXpelICYzAKaEut36UNUKErs/D2XEeJKPol3X3tYIap5JTra
-        hCBKVCX6Lh2GGigt0dX+AWqRh8TphffAjhESiJWYNn01+wRG2VkICxYwMq5iFEstKM5NTy02
-        LDBBjqFNjODUo2Wxg3Hu2w96hxiZOBgPMUpwMCuJ8O5ceShBiDclsbIqtSg/vqg0J7X4EKMp
-        MLQmMkuJJucDk19eSbyhqZGxsbGFiZm5mamxkjjvTjagJoH0xJLU7NTUgtQimD4mDk6pBqY5
-        WnKcnwNWB4Vstjuw5tf0TXGzmRawGhfEh1/i8nyxfdpiN6n3azauE7/588uZ+eetQqy6BZ6t
-        VNSaOPv11Osvat/Ux+nHJDawXnjeeiNd68O1U4r2M4ySuXOjFq+w+Bc86/bSliUxb51PPxNT
-        fPB8f98VtfRNy6S7l2w/c3r353UXc3I7DQuZ6yUD6oS1Im5/2vKDzeMAz8ej95fccrnz4WT2
-        ZOVc9dhtSrvvsnMLCZh2t+6tzPG2VTf2WRAYt/36BhH+a941fQJmj27vWm4/e4NKMvcuprgX
-        rlvfHVrVeuvbxAgPhsf+PZvey7Cs/tgiv4fjlJHhrqI2a79dG74XHLLqfnMx661zplhWr+F7
-        JZbijERDLeai4kQA/aXDY8YDAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrAJMWRmVeSWpSXmKPExsWy7bCSnK7J5kMJBpsvqVr0rl3AZrFn70kW
-        ix/T6y0WbHzE6MDisXPWXXaPvi2rGD0+b5ILYI7isklJzcksSy3St0vgytj+bgtTwWvhirv/
-        97I0MG4W6GLk5JAQMJG43beapYuRi0NIYAejxNVLXUwQCWmJYyfOMHcxcgDZwhKHDxeDhIUE
-        PjBK/N5pCxJmE9CW+LNFFMQUEVCUuPzeCaSCWSBSYtmOi4wgtrCAp8Sb5lWMICUsAqoSC5b5
-        goR5Bawl5s/YyQyxR15i9YYDzBMYeRYwMqxilEwtKM5Nzy02LDDKSy3XK07MLS7NS9dLzs/d
-        xAgOBC2tHYx7Vn3QO8TIxMF4iFGCg1lJhHfnykMJQrwpiZVVqUX58UWlOanFhxilOViUxHkv
-        dJ2MFxJITyxJzU5NLUgtgskycXBKNTCVW1r3BFUXXpVjeti+R9ht5TIjJ9tPzrWJ4te1Srlu
-        veF/3R8jtCDhWEyu8d35/2xKDQq1/wRJmOaeUO6befuW0VJ709uzLSSiFG3lPVcc3Klb9NpO
-        76PowjtruL/2m0a4XzsYnpxnHncysD/heLVXaVZXUOjtX+LP2CZ4OES+1Lq7b+6FiXOl/0/b
-        OOXL64iAhoKtMWJxJz2fZ0Wu+fdj6+HvXfzrm2c8Xqx1T9jw7n/HwyI/A7Z0e8qx8tbfXOeR
-        0PD5c6xUw1s2DUeut3uOyP79sEnT8cK+2sIEfp79llsyDOJaDlx9dqRqq+q3vZuUG7bsn9LQ
-        71Bu9ahjt7Uzi3moQvbpjPXHLxUW8yqxFGckGmoxFxUnAgBk6l6FcwIAAA==
-X-CMS-MailID: 20210611004956epcas1p262dc7907165782173692d7cf9e571dfe
-X-Msg-Generator: CA
+        id S230443AbhFKApH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Jun 2021 20:45:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40604 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230230AbhFKApG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Jun 2021 20:45:06 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5913C061574
+        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 17:42:57 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id u18so1318404plc.0
+        for <stable@vger.kernel.org>; Thu, 10 Jun 2021 17:42:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=y+kyyNQxS5VA6vnu/XbRvQ3ZWYND6g6Zvq4rBokdEII=;
+        b=UnRhZIZZYZ1iOQTbCj3uX+EYmpgvuDDIc/QprJY0LYc8OxeDv/DGq2DdfS8k+W8WvR
+         GZOpJY/8VeHhwE7+E2jvcENHgA0OnBCf7ZJwgI3ruIcWy9jnDf/2mUgaRnDuaSd0GPjV
+         GftAC7yBxfRhSl/rP3eLFp1CO6ek4RcjOwfES/wAkhyEZ+hsgTjmeZhw/6HSMdSHWdTT
+         IJTP5qJJ52f4qxgaU8FmOgV0Oe04F0FOv8F3xjAp5MvWLVRuaZKJw1zZkzTC8+3eGMJT
+         I3/qwTnT7Mp9YTdzhh1iumj3fkDHSAYGV2WtYCeo4evm6TDRJTXeQfknXK8Kj8lJ+dTU
+         p1FQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=y+kyyNQxS5VA6vnu/XbRvQ3ZWYND6g6Zvq4rBokdEII=;
+        b=nivDDj+6Bu8Ocicr0r/TzAFcJe8dAENNl3txw0+UshH2x+6KGni/o+eX6d7SvBoHi8
+         bqEgGCGxQP+hLee01RGqUHPGEI8htQ04UXZ90sd8IdkZFlsoAlyTzywwiuA54svwbd26
+         Cwp7v3X09f5vApv/goWkN+L6B2hBKt4QN8fGRkxLvjt+Uld8vQ9Gn/ui5NLFmO3UcQT4
+         qO/OF0HsmmwaC5vtfsxM5gq+m7N98PLrdsBbzd0rdYsmvx5AFrcWFKL/Al7BDrSPSkH0
+         YCYRYcCWPTDeSV8l7z0kZeFqhAbj+naaUXAw3yu4ndvdvPxmLw2X+VsAB+xWU0fdIPeM
+         k8hA==
+X-Gm-Message-State: AOAM530Vid56Y8GijEgVNguirzm7k/QecePy+Gf5Aku47zlC442smrvg
+        tyq66YuALVIjjpaI7LGxpUSpSenRNsXzJjQe
+X-Google-Smtp-Source: ABdhPJzPC+UibUs+KKEn6dgvEpNDq6uRlZodVPVGEyWOQEJMu0q0j9G18tU/0cxYaZC5TsgHpl4pjQ==
+X-Received: by 2002:a17:90a:ad82:: with SMTP id s2mr1574342pjq.69.1623372177080;
+        Thu, 10 Jun 2021 17:42:57 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 18sm3287423pfx.71.2021.06.10.17.42.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Jun 2021 17:42:56 -0700 (PDT)
+Message-ID: <60c2b190.1c69fb81.1947d.b706@mx.google.com>
+Date:   Thu, 10 Jun 2021 17:42:56 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20210611004956epcas1p262dc7907165782173692d7cf9e571dfe
-References: <CGME20210611004956epcas1p262dc7907165782173692d7cf9e571dfe@epcas1p2.samsung.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.194
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y baseline: 146 runs, 5 regressions (v4.19.194)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The compatibility issue between linux exfat and exfat of some camera
-company was reported from Florian. In their exfat, if the number of files
-exceeds any limit, the DataLength in stream entry of the directory is
-no longer updated. So some files created from camera does not show in
-linux exfat. because linux exfat doesn't allow that cpos becomes larger
-than DataLength of stream entry. This patch check DataLength in stream
-entry only if the type is ALLOC_NO_FAT_CHAIN and add the check ensure
-that dentry offset does not exceed max dentries size(256 MB) to avoid
-the circular FAT chain issue.
+stable-rc/linux-4.19.y baseline: 146 runs, 5 regressions (v4.19.194)
 
-Fixes: ca06197382bd ("exfat: add directory operations")
-Cc: stable@vger.kernel.org # v5.9
-Reported-by: Florian Cramer <flrncrmr@gmail.com>
-Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
----
- fs/exfat/dir.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+Regressions Summary
+-------------------
 
-diff --git a/fs/exfat/dir.c b/fs/exfat/dir.c
-index c4523648472a..f4e4d8d9894d 100644
---- a/fs/exfat/dir.c
-+++ b/fs/exfat/dir.c
-@@ -63,7 +63,7 @@ static void exfat_get_uniname_from_ext_entry(struct super_block *sb,
- static int exfat_readdir(struct inode *inode, loff_t *cpos, struct exfat_dir_entry *dir_entry)
- {
- 	int i, dentries_per_clu, dentries_per_clu_bits = 0, num_ext;
--	unsigned int type, clu_offset;
-+	unsigned int type, clu_offset, max_dentries;
- 	sector_t sector;
- 	struct exfat_chain dir, clu;
- 	struct exfat_uni_name uni_name;
-@@ -86,6 +86,8 @@ static int exfat_readdir(struct inode *inode, loff_t *cpos, struct exfat_dir_ent
- 
- 	dentries_per_clu = sbi->dentries_per_clu;
- 	dentries_per_clu_bits = ilog2(dentries_per_clu);
-+	max_dentries = (unsigned int)min_t(u64, MAX_EXFAT_DENTRIES,
-+					   (u64)sbi->num_clusters << dentries_per_clu_bits);
- 
- 	clu_offset = dentry >> dentries_per_clu_bits;
- 	exfat_chain_dup(&clu, &dir);
-@@ -109,7 +111,7 @@ static int exfat_readdir(struct inode *inode, loff_t *cpos, struct exfat_dir_ent
- 		}
- 	}
- 
--	while (clu.dir != EXFAT_EOF_CLUSTER) {
-+	while (clu.dir != EXFAT_EOF_CLUSTER && dentry < max_dentries) {
- 		i = dentry & (dentries_per_clu - 1);
- 
- 		for ( ; i < dentries_per_clu; i++, dentry++) {
-@@ -245,7 +247,7 @@ static int exfat_iterate(struct file *filp, struct dir_context *ctx)
- 	if (err)
- 		goto unlock;
- get_new:
--	if (cpos >= i_size_read(inode))
-+	if (ei->flags == ALLOC_NO_FAT_CHAIN && cpos >= i_size_read(inode))
- 		goto end_of_dir;
- 
- 	err = exfat_readdir(inode, &cpos, &de);
--- 
-2.17.1
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+beaglebone-black     | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 1          =
 
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.194/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.194
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9a2dc0e6c531d595bcdf2c66d0be131679bd02df =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+beaglebone-black     | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60c27f0dd766ce3e6f0c0e08
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-beaglebone-black.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-beaglebone-black.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60c27f0dd766ce3e6f0c0=
+e09
+        new failure (last pass: v4.19.193-58-g3a6c65ec05c0) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60c27c5a95281c2da40c0e05
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60c27c5a95281c2da40c0=
+e06
+        failing since 204 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60c28a1d095b7e5ea20c0e08
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60c28a1d095b7e5ea20c0=
+e09
+        failing since 204 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60c27c61cd8db8536d0c0df9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60c27c61cd8db8536d0c0=
+dfa
+        failing since 204 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60c27c019947791d4e0c0dfe
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+94/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60c27c019947791d4e0c0=
+dff
+        failing since 204 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =20
