@@ -2,37 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 444493A4AF8
-	for <lists+stable@lfdr.de>; Sat, 12 Jun 2021 00:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CFFE3A4B1C
+	for <lists+stable@lfdr.de>; Sat, 12 Jun 2021 01:16:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229777AbhFKWil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Jun 2021 18:38:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44374 "EHLO mail.kernel.org"
+        id S230410AbhFKXSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Jun 2021 19:18:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229572AbhFKWik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Jun 2021 18:38:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97E4C613DE;
-        Fri, 11 Jun 2021 22:36:24 +0000 (UTC)
+        id S229976AbhFKXSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Jun 2021 19:18:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 898A76124C;
+        Fri, 11 Jun 2021 23:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1623450984;
-        bh=HtVrjP1NzBtomUQjA4d5/nvjnishSzc5bPaQjZfmId4=;
+        s=korg; t=1623453416;
+        bh=lMxz0DjlyuQqZF5qJPG3f9aj+1mihATa36IM+sjVrMI=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=ZQjgx8w0tK9x3x1IXhtV3DANxaEfxnBiu6iGsyUMj86+A2djnyx6DFkH7/GZjrtph
-         M2X7nECiT6fijvOobbjC9KqdBUUVRU+EUoaelTpkXvh1pWLBXUb5PPud7ZIhndDrjn
-         d1v9mQ86n34Eb+wNhvhhBVMk6+O3qWKSCHUOhCxg=
-Date:   Fri, 11 Jun 2021 15:36:24 -0700
+        b=x2P3F19NBmj0X25SPv0T7/C1OWmNI0B4X1G1Smzk/tpOHcskH3da9D5FjsBNJeDGI
+         EgyobsuGaTlfVOxZ29asRHSQ6kwFdc50XducX/Fy+IUTf/cGIG3lRWvOY0X6/DIo8C
+         0fMoyUWvrfwTqbCFl8OmwEAXDYhnje56ZAB3HoZY=
+Date:   Fri, 11 Jun 2021 16:16:55 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Jann Horn <jannh@google.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Matthew Wilcox <willy@infradead.org>,
-        "Kirill A . Shutemov" <kirill@shutemov.name>,
-        John Hubbard <jhubbard@nvidia.com>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH resend] mm/gup: fix try_grab_compound_head() race with
- split_huge_page()
-Message-Id: <20210611153624.65badf761078f86f76365ab9@linux-foundation.org>
-In-Reply-To: <20210611161545.998858-1-jannh@google.com>
-References: <20210611161545.998858-1-jannh@google.com>
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>, Shuah Khan <shuah@kernel.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Serge Hallyn <serge@hallyn.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Charles Haithcock <chaithco@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Yafang Shao <laoar.shao@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        YiFei Zhu <yifeifz2@illinois.edu>,
+        Adrian Reber <areber@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jens Axboe <axboe@kernel.dk>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-kselftest@vger.kernel.org,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v9] exec: Fix dead-lock in de_thread with ptrace_attach
+Message-Id: <20210611161655.0a3076495e59add166bac58a@linux-foundation.org>
+In-Reply-To: <AM8PR10MB470896FBC519ABCC20486958E4349@AM8PR10MB4708.EURPRD10.PROD.OUTLOOK.COM>
+References: <AM8PR10MB4708AFBD838138A84CE89EF8E4359@AM8PR10MB4708.EURPRD10.PROD.OUTLOOK.COM>
+        <20210610143642.e4535dbdc0db0b1bd3ee5367@linux-foundation.org>
+        <AM8PR10MB470896FBC519ABCC20486958E4349@AM8PR10MB4708.EURPRD10.PROD.OUTLOOK.COM>
 X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -41,69 +60,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 11 Jun 2021 18:15:45 +0200 Jann Horn <jannh@google.com> wrote:
+On Fri, 11 Jun 2021 17:55:09 +0200 Bernd Edlinger <bernd.edlinger@hotmail.de> wrote:
 
-> try_grab_compound_head() is used to grab a reference to a page from
-> get_user_pages_fast(), which is only protected against concurrent
-> freeing of page tables (via local_irq_save()), but not against
-> concurrent TLB flushes, freeing of data pages, or splitting of compound
-> pages.
+> This introduces signal->unsafe_execve_in_progress,
+> which is used to fix the case when at least one of the
+> sibling threads is traced, and therefore the trace
+> process may dead-lock in ptrace_attach, but de_thread
+> will need to wait for the tracer to continue execution.
 > 
-> Because no reference is held to the page when try_grab_compound_head()
-> is called, the page may have been freed and reallocated by the time its
-> refcount has been elevated; therefore, once we're holding a stable
-> reference to the page, the caller re-checks whether the PTE still points
-> to the same page (with the same access rights).
+> The solution is to detect this situation and allow
+> ptrace_attach to continue, while de_thread() is still
+> waiting for traced zombies to be eventually released.
+> When the current thread changed the ptrace status from
+> non-traced to traced, we can simply abort the whole
+> execve and restart it by returning -ERESTARTSYS.
+> This needs to be done before changing the thread leader,
+> because the PTRACE_EVENT_EXEC needs to know the old
+> thread pid.
 > 
-> The problem is that try_grab_compound_head() has to grab a reference on
-> the head page; but between the time we look up what the head page is and
-> the time we actually grab a reference on the head page, the compound
-> page may have been split up (either explicitly through split_huge_page()
-> or by freeing the compound page to the buddy allocator and then
-> allocating its individual order-0 pages).
-> If that happens, get_user_pages_fast() may end up returning the right
-> page but lifting the refcount on a now-unrelated page, leading to
-> use-after-free of pages.
+> Although it is technically after the point of no return,
+> we just have to reset bprm->point_of_no_return here,
+> since at this time only the other threads have received
+> a fatal signal, not the current thread.
 > 
-> To fix it:
-> Re-check whether the pages still belong together after lifting the
-> refcount on the head page.
-> Move anything else that checks compound_head(page) below the refcount
-> increment.
+> >From the user's point of view the whole execve was
+> simply delayed until after the ptrace_attach.
 > 
-> This can't actually happen on bare-metal x86 (because there, disabling
-> IRQs locks out remote TLB flushes), but it can happen on virtualized x86
-> (e.g. under KVM) and probably also on arm64. The race window is pretty
-> narrow, and constantly allocating and shattering hugepages isn't exactly
-> fast; for now I've only managed to reproduce this in an x86 KVM guest with
-> an artificially widened timing window (by adding a loop that repeatedly
-> calls `inl(0x3f8 + 5)` in `try_get_compound_head()` to force VM exits,
-> so that PV TLB flushes are used instead of IPIs).
+> Other threads die quickly since the cred_guard_mutex
+> is released, but a deadly signal is already pending.
+> In case the mutex_lock_killable misses the signal,
+> ->unsafe_execve_in_progress makes sure they release
+> the mutex immediately and return with -ERESTARTNOINTR.
 > 
-> ...
->
-> --- a/mm/gup.c
-> +++ b/mm/gup.c
-> @@ -43,8 +43,21 @@ static void hpage_pincount_sub(struct page *page, int refs)
->  
->  	atomic_sub(refs, compound_pincount_ptr(page));
->  }
->  
-> +/* Equivalent to calling put_page() @refs times. */
-> +static void put_page_refs(struct page *page, int refs)
-> +{
-> +	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
+> This means there is no API change, unlike the previous
+> version of this patch which was discussed here:
+> 
+> https://lore.kernel.org/lkml/b6537ae6-31b1-5c50-f32b-8b8332ace882@hotmail.de/
+> 
+> See tools/testing/selftests/ptrace/vmaccess.c
+> for a test case that gets fixed by this change.
+> 
+> Note that since the test case was originally designed to
+> test the ptrace_attach returning an error in this situation,
+> the test expectation needed to be adjusted, to allow the
+> API to succeed at the first attempt.
+> 
 
-I don't think there's a need to nuke the whole kernel in this case. 
-Can we warn then simply leak the page?  That way we have a much better
-chance of getting a good bug report.
+err, sorry.  I replied to the v8 patch, not to v9.
 
-> +	/*
-> +	 * Calling put_page() for each ref is unnecessarily slow. Only the last
-> +	 * ref needs a put_page().
-> +	 */
-> +	if (refs > 1)
-> +		page_ref_sub(page, refs - 1);
-> +	put_page(page);
-> +}
+--- a/fs/exec.c~exec-fix-dead-lock-in-de_thread-with-ptrace_attach-v9
++++ a/fs/exec.c
+@@ -1056,29 +1056,31 @@ static int de_thread(struct task_struct
+ 		return -EAGAIN;
+ 	}
+ 
+-	while_each_thread(tsk, t) {
+-		if (unlikely(t->ptrace) && t != tsk->group_leader)
+-			sig->unsafe_execve_in_progress = true;
+-	}
+-
+ 	sig->group_exit_task = tsk;
+ 	sig->notify_count = zap_other_threads(tsk);
+ 	if (!thread_group_leader(tsk))
+ 		sig->notify_count--;
+-	spin_unlock_irq(lock);
+ 
+-	if (unlikely(sig->unsafe_execve_in_progress))
++	while_each_thread(tsk, t) {
++		if (unlikely(t->ptrace) && t != tsk->group_leader)
++			sig->unsafe_execve_in_progress = true;
++	}
++
++	if (unlikely(sig->unsafe_execve_in_progress)) {
++		spin_unlock_irq(lock);
+ 		mutex_unlock(&sig->cred_guard_mutex);
++		spin_lock_irq(lock);
++	}
+ 
+-	for (;;) {
+-		set_current_state(TASK_KILLABLE);
+-		if (!sig->notify_count)
+-			break;
++	while (sig->notify_count) {
++		__set_current_state(TASK_KILLABLE);
++		spin_unlock_irq(lock);
+ 		schedule();
+ 		if (__fatal_signal_pending(tsk))
+ 			goto killed;
++		spin_lock_irq(lock);
+ 	}
+-	__set_current_state(TASK_RUNNING);
++	spin_unlock_irq(lock);
+ 
+ 	if (unlikely(sig->unsafe_execve_in_progress)) {
+ 		if (mutex_lock_killable(&sig->cred_guard_mutex))
+_
 
