@@ -2,98 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B76263A3DFF
-	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 10:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0AEA3A3ED7
+	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 11:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231151AbhFKIcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Jun 2021 04:32:32 -0400
-Received: from mout.kundenserver.de ([217.72.192.73]:59717 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230188AbhFKIcc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Jun 2021 04:32:32 -0400
-Received: from mail-wm1-f52.google.com ([209.85.128.52]) by
- mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1M894P-1lvAvy0ox1-005Kkm for <stable@vger.kernel.org>; Fri, 11 Jun 2021
- 10:30:33 +0200
-Received: by mail-wm1-f52.google.com with SMTP id f16-20020a05600c1550b02901b00c1be4abso8152489wmg.2
-        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 01:30:32 -0700 (PDT)
-X-Gm-Message-State: AOAM533JJl80k9U5NAZpqMiHtDCrW/RYbc9yDuKmrfcvCbSvp94LsNhC
-        TrhpgadndM1KM0gn2dAfstLy2N8BVf8et1DC6Ts=
-X-Google-Smtp-Source: ABdhPJz5Igdr7qTUilfDsDACAHaQ+LGylgdqQEDBESDj5FplcsbbM+x3QQF6svtMO8+ld43ggKMptlP9isNLRtBMKG0=
-X-Received: by 2002:a1c:7d15:: with SMTP id y21mr18762498wmc.120.1623400232374;
- Fri, 11 Jun 2021 01:30:32 -0700 (PDT)
+        id S231667AbhFKJPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Jun 2021 05:15:13 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:33798 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231514AbhFKJPM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Jun 2021 05:15:12 -0400
+Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 3235721998;
+        Fri, 11 Jun 2021 09:13:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1623402794; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+G3rNiOHk3zk/0EyrxwKT4BIDO7RSBdoaLonmAI4lAM=;
+        b=bCQ9MwUoiEl86eXlAlLGrRWW71bm2TKp5m/Rb8oPDVagVCd802ePiJkgsQCeOxC89W0xrU
+        nbwCiNpoQTAPuR4QOJZK8JQ1ACAYHcAVmFJVRFmcRzqfr6Tq+iOWMVnsYyvUuLYuLxkCi4
+        1r91V5dTB9dJKH7FddUNwf10NbqgPX4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1623402794;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+G3rNiOHk3zk/0EyrxwKT4BIDO7RSBdoaLonmAI4lAM=;
+        b=zqLYEfI+MYlUx42I9T+KYjRCIyJo/PSta0tII1+MpAU5mwBQ5uoSjcrBBr9ro8DBKOEw5G
+        RFA8TLrbWrJNhfDg==
+Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        by imap.suse.de (Postfix) with ESMTP id 05711118DD;
+        Fri, 11 Jun 2021 09:13:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1623402794; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+G3rNiOHk3zk/0EyrxwKT4BIDO7RSBdoaLonmAI4lAM=;
+        b=bCQ9MwUoiEl86eXlAlLGrRWW71bm2TKp5m/Rb8oPDVagVCd802ePiJkgsQCeOxC89W0xrU
+        nbwCiNpoQTAPuR4QOJZK8JQ1ACAYHcAVmFJVRFmcRzqfr6Tq+iOWMVnsYyvUuLYuLxkCi4
+        1r91V5dTB9dJKH7FddUNwf10NbqgPX4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1623402794;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+G3rNiOHk3zk/0EyrxwKT4BIDO7RSBdoaLonmAI4lAM=;
+        b=zqLYEfI+MYlUx42I9T+KYjRCIyJo/PSta0tII1+MpAU5mwBQ5uoSjcrBBr9ro8DBKOEw5G
+        RFA8TLrbWrJNhfDg==
+Received: from director2.suse.de ([192.168.254.72])
+        by imap3-int with ESMTPSA
+        id ymvUACopw2BkTQAALh3uQQ
+        (envelope-from <vbabka@suse.cz>); Fri, 11 Jun 2021 09:13:14 +0000
+Subject: Re: [PATCH v4 2/3] mm/slub: Fix redzoning for small allocations
+To:     Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     stable@vger.kernel.org, Marco Elver <elver@google.com>,
+        Christoph Lameter <cl@linux.com>,
+        "Lin, Zhenpeng" <zplin@psu.edu>, Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Roman Gushchin <guro@fb.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-mm@kvack.org
+References: <20210608183955.280836-1-keescook@chromium.org>
+ <20210608183955.280836-3-keescook@chromium.org>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <e2857753-210c-da73-6e43-0bbd7e0efe80@suse.cz>
+Date:   Fri, 11 Jun 2021 11:13:13 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.2
 MIME-Version: 1.0
-References: <1623396129105150@kroah.com>
-In-Reply-To: <1623396129105150@kroah.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Fri, 11 Jun 2021 10:28:35 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1Y2g+-tKy=zD3yKhxjhVuWdMQvuP_MRbxzdeQFvAB-pQ@mail.gmail.com>
-Message-ID: <CAK8P3a1Y2g+-tKy=zD3yKhxjhVuWdMQvuP_MRbxzdeQFvAB-pQ@mail.gmail.com>
-Subject: Re: patch "Revert "usb: gadget: fsl: Re-enable driver for ARM SoCs""
- added to usb-linus
-To:     gregkh <gregkh@linuxfoundation.org>
-Cc:     Felipe Balbi <balbi@kernel.org>, Joel Stanley <joel@jms.id.au>,
-        Leo Li <leoyang.li@nxp.com>, kbuild test robot <lkp@intel.com>,
-        Peter Chen <peter.chen@nxp.com>, ran.wang_1@nxp.com,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Shawn Guo <shawnguo@kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:0hrjQA/Mve+eLmDmdjM6dU9mZG6aoA4T2/X9nuRAQyrRnB8mzuH
- aJ412+9vC61v47EUbYeTf1us0sRj2qsjr6e9oezS6oaSgzuCV+zG3dCuR0ITN11fzj1gyK0
- wJnLJUYRSuIQ8PPyMaojp7FlP/yYXh0krNcuw45Q+1OjntYIvWBq6AR48rcxIeWwDtw4Jss
- nizGIrxzDsKOwXoP9IwYw==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:ARgLt286pT0=:wWJzETKACzk6DZGy9RHo0H
- v6EQGtNmmx1UhSNyNeUvem22tDBkX/8jaEkIWFzpGVs0ytLXCg9Aukyoih4RQz19rFv3Sm0yj
- k76X/HDgEurfDKYg5i/+3GksucgybyuD2lS7pKeiuzxCEqRGnn9EHb0CEDPJBS0c0bTodpdl1
- hybwogP6ZlvYLKnvvTdhMMDGRYP7gmL8353txemFrRdCJVhdm/KMMVztm0ElSO54tA0ndflkE
- va3VB1Y2nej6ECXkk2cdvsEjz18t5KJaVPO/j9QpAEiBQkRtOJlpoHdD5pXONoqkUxlEB/eJZ
- S61TewirIQmsHc+fSVCYtiCk9d9RBpsX+Vb6g+AIvqGl5YE1t8Y4wRRu4KycBRkX3ssi+WuYL
- Ox3geOFAM4aqgeMRtAu0yDdO1Pw2jjYfOnUa2b/jgJAEaVs6FRrl//9hkz7UmZ98iu4vK3cyc
- 5WkqOrF+9S7k3NztOv1z0MhzYRmYhLadevSxUzTJ7TAx/inQ2mzZc+vMQtRjwFjyZ3KVS1a7M
- oifNVXwzN5HOG/ujgyDela4w/oWgTFl2km6RShZdoo8gve9ipSHcqBUbIuQ8dZkff6nWyDHYb
- k/m/QnoADTqRFNrf55sPAQjAYIC4u1UB9CT+XnwK5MH1LnN169TetdteQr6SYEMIM/syX9bRX
- Ep3U=
+In-Reply-To: <20210608183955.280836-3-keescook@chromium.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 11, 2021 at 9:22 AM <gregkh@linuxfoundation.org> wrote:
->
-> Turns out this breaks the build.  We had numerous reports of problems
-> from linux-next and 0-day about this not working properly, so revert it
-> for now until it can be figured out properly.
->
-> The build errors are:
->         arm-linux-gnueabi-ld: fsl_udc_core.c:(.text+0x29d4): undefined reference to `fsl_udc_clk_finalize'
->         arm-linux-gnueabi-ld: fsl_udc_core.c:(.text+0x2ba8): undefined reference to `fsl_udc_clk_release'
->         fsl_udc_core.c:(.text+0x2848): undefined reference to `fsl_udc_clk_init'
->         fsl_udc_core.c:(.text+0xe88): undefined reference to `fsl_udc_clk_release'
->
-> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> Reported-by: kernel test robot <lkp@intel.com>
-> Fixes: e0e8b6abe8c8 ("usb: gadget: fsl: Re-enable driver for ARM SoCs")
+On 6/8/21 8:39 PM, Kees Cook wrote:
+> The redzone area for SLUB exists between s->object_size and s->inuse
+> (which is at least the word-aligned object_size). If a cache were created
+> with an object_size smaller than sizeof(void *), the in-object stored
+> freelist pointer would overwrite the redzone (e.g. with boot param
+> "slub_debug=ZF"):
+> 
+> BUG test (Tainted: G    B            ): Right Redzone overwritten
+> -----------------------------------------------------------------------------
+> 
+> INFO: 0xffff957ead1c05de-0xffff957ead1c05df @offset=1502. First byte 0x1a instead of 0xbb
+> INFO: Slab 0xffffef3950b47000 objects=170 used=170 fp=0x0000000000000000 flags=0x8000000000000200
+> INFO: Object 0xffff957ead1c05d8 @offset=1496 fp=0xffff957ead1c0620
+> 
+> Redzone  (____ptrval____): bb bb bb bb bb bb bb bb    ........
+> Object   (____ptrval____): f6 f4 a5 40 1d e8          ...@..
+> Redzone  (____ptrval____): 1a aa                      ..
+> Padding  (____ptrval____): 00 00 00 00 00 00 00 00    ........
+> 
+> Store the freelist pointer out of line when object_size is smaller than
+> sizeof(void *) and redzoning is enabled.
+> 
+> Additionally remove the "smaller than sizeof(void *)" check under
+> CONFIG_DEBUG_VM in kmem_cache_sanity_check() as it is now redundant:
+> SLAB and SLOB both handle small sizes.
+> 
+> (Note that no caches within this size range are known to exist in the
+> kernel currently.)
+> 
+> Fixes: 81819f0fc828 ("SLUB core")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Adding Fabio and Guennadi to Cc.
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
 
-I can see that the missing symbols were in a driver that got removed in commit
-a390bef7db1f ("usb: gadget: fsl_mxc_udc: Remove the driver").
+> ---
+>  mm/slab_common.c | 3 +--
+>  mm/slub.c        | 8 +++++---
+>  2 files changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/mm/slab_common.c b/mm/slab_common.c
+> index a4a571428c51..7cab77655f11 100644
+> --- a/mm/slab_common.c
+> +++ b/mm/slab_common.c
+> @@ -97,8 +97,7 @@ EXPORT_SYMBOL(kmem_cache_size);
+>  #ifdef CONFIG_DEBUG_VM
+>  static int kmem_cache_sanity_check(const char *name, unsigned int size)
+>  {
+> -	if (!name || in_interrupt() || size < sizeof(void *) ||
+> -		size > KMALLOC_MAX_SIZE) {
+> +	if (!name || in_interrupt() || size > KMALLOC_MAX_SIZE) {
+>  		pr_err("kmem_cache_create(%s) integrity check failed\n", name);
+>  		return -EINVAL;
+>  	}
+> diff --git a/mm/slub.c b/mm/slub.c
+> index f91d9fe7d0d8..f58cfd456548 100644
+> --- a/mm/slub.c
+> +++ b/mm/slub.c
+> @@ -3734,15 +3734,17 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
+>  	 */
+>  	s->inuse = size;
+>  
+> -	if (((flags & (SLAB_TYPESAFE_BY_RCU | SLAB_POISON)) ||
+> -		s->ctor)) {
+> +	if ((flags & (SLAB_TYPESAFE_BY_RCU | SLAB_POISON)) ||
+> +	    ((flags & SLAB_RED_ZONE) && s->object_size < sizeof(void *)) ||
+> +	    s->ctor) {
+>  		/*
+>  		 * Relocate free pointer after the object if it is not
+>  		 * permitted to overwrite the first word of the object on
+>  		 * kmem_cache_free.
+>  		 *
+>  		 * This is the case if we do RCU, have a constructor or
+> -		 * destructor or are poisoning the objects.
+> +		 * destructor, are poisoning the objects, or are
+> +		 * redzoning an object smaller than sizeof(void *).
+>  		 *
+>  		 * The assumption that s->offset >= s->inuse means free
+>  		 * pointer is outside of the object is used in the
+> 
 
-If CONFIG_ARCH_MXC is disabled, these are stubbed out in the header file.
-These were added a long time ago by Guennadi Liakhovetski 54e4026b64a9
-("USB: gadget: Add i.MX3x support to the fsl_usb2_udc driver"). I also
-see that this patch added  a few #ifdef CONFIG_ARCH_MXC checks to the
-driver that still remain today. This is clearly broken as it must be possible
-to use the same driver module on both SOC_LS1021A and i.MX using
-a runtime check.
-
-I also don't see any i.MX variant actually using this driver, but instead see
-the dts files declaring fsl,imx27-usb devices, which bind to the
-drivers/usb/chipidea/ci_hdrc_imx.c driver. Is this one of those cases
-where we have two separate drivers for the same hardware, or is this
-for a different device?
-
-        Arnd
