@@ -2,119 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FC493A442B
-	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 16:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B2813A445F
+	for <lists+stable@lfdr.de>; Fri, 11 Jun 2021 16:51:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231535AbhFKOiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Jun 2021 10:38:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55992 "EHLO
+        id S231230AbhFKOxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Jun 2021 10:53:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231244AbhFKOiO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Jun 2021 10:38:14 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8D91C0617AF
-        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 07:36:01 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id o10-20020a17090aac0ab029016e92770073so160194pjq.5
-        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 07:36:01 -0700 (PDT)
+        with ESMTP id S230508AbhFKOxs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Jun 2021 10:53:48 -0400
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A84BAC061574
+        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 07:51:35 -0700 (PDT)
+Received: by mail-lf1-x131.google.com with SMTP id f30so8985220lfj.1
+        for <stable@vger.kernel.org>; Fri, 11 Jun 2021 07:51:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Dnxgw57Cd3Vq8bD04Zr6+vuwl4WvqGq4Oz5oevdWRg8=;
-        b=JieXbi0RICu0zOVn3khQInagV0tRWe1ngrWldTHU3AwdNg76Cqd9WtyiD8rhxbTGdr
-         OJKFKp8QdB2sWZhySoxz172FLGc0QWqwk8vPSLeBgUcpRPxJ/rSejiQhReUzm++0vnc9
-         aHVfOPY/65/zC8DmCIqe3x5NkS/xfdkOFgmvRdUGQPm5EEjI5IgduBeKwcHZQSZmqJlr
-         ZWYlotQPRWMXJ93neASpbdobDDCVnC0t498emEVzLDmh46fkXsS7hrDRMyjc9n8hXu7r
-         u7ZcYj26fK11R/8KDKvn4ToU4QLGJYkX68Q+1kns7XOg8ySfxd1AhKQWHlurGULOGtRg
-         i59A==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kkDDh1yzT46Hj6VhjlRWjIm6z4MIgg8IBmcKp1CHS28=;
+        b=OEuElD0NE0KfnyKoiC00NixBsjP4q2d1pquZtVpPB1+HKBoncIYXE0n6cft9mNklKP
+         NxkgRinoE4CbBfzBuikyeXIPR4s+TeHuCLg5GtBN8O8p08IdccmCP1bpBY6kpzVM+MZG
+         QCfLrV34d6tqdAKBfxVEhju4Ekap9tFNJzorLKpaxSM/t0IKl0y4HShX3zXjDc+jKvCC
+         D2SUP/ElraH03HQuPgTTIUKjJ8tNoP+j90xTnl7Hy5Q1GKdrItH/POjfnZh5xvDsgPho
+         N8MNHW4R1oiRyQxQIRPN6CPgsQE8f+sRk7+pVCnssWOTYJk0eUepjG6s9w67FPb64QlC
+         pkZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Dnxgw57Cd3Vq8bD04Zr6+vuwl4WvqGq4Oz5oevdWRg8=;
-        b=h7AhFv2Q6j8dDlbhQ+46J23x4CCq4mMo+iPYnfyNmBWrF6lo2H7jUk0DmpI9NdTpK6
-         DwHIY8AWhJh/JYVPIOHacA2em3HyJrw8IueJG1rNu7dYxYRN1GWXrDwKTzfR54ePaXTv
-         5vwZ1rBkWK/q0FBK3Rzfbu7AdhqFH0oEbfPd0pOSJ1uxV4kr90f316ghxIIVCTj4i6go
-         U8ay5wJhSm3WXQNN7F0JF/VF5vF0AsR1vjM1sz3PIv1M86IB8gnxZCUIimKYepmbEJWJ
-         5EFb9ryX2eeVyMlwk8DJdSehvzKP9UT6UXT2h1wh/wRyLvgQockbDEyi+86D0c9pjmRH
-         B2hw==
-X-Gm-Message-State: AOAM532z7byHNvWw6XNlWWa+uwLfSpArynh+eiQ7Aiy8cofnodL8eyoR
-        t6Gny26wTGRudaB+nNGF6Ucr6UJnkX5Ux+m1
-X-Google-Smtp-Source: ABdhPJxaHFQ0mC8TpLpdn84QRd5N/FC3GUWcy3cN2qc7GFZtwsEI/y5/EZWh3MRFTnA2WrDZS8fKXg==
-X-Received: by 2002:a17:90b:b18:: with SMTP id bf24mr4818353pjb.220.1623422161188;
-        Fri, 11 Jun 2021 07:36:01 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y5sm5649115pfo.25.2021.06.11.07.36.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Jun 2021 07:36:00 -0700 (PDT)
-Message-ID: <60c374d0.1c69fb81.a3727.0a06@mx.google.com>
-Date:   Fri, 11 Jun 2021 07:36:00 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kkDDh1yzT46Hj6VhjlRWjIm6z4MIgg8IBmcKp1CHS28=;
+        b=HlvrklizrpvJUdBYc5sS02TVP0k8+c1cCvFJ5/GOp5zMjV72MEZhGTVXNfmRItCZtZ
+         Th6qiSZNX4tJm0sp0AIcIRLL9fFLmAm7CiEo1cGQ5CRcRvx12LjX4BHjOAWdIik6dHW7
+         QkqVFnVZCv3hfljr97K2/+yalCSuJmTawT8xFhYLaW9rPTxD/JZM7ddxdDhlCrDbZgKD
+         tupRm6k35x2/F/j1f5kRKJUWXcOo88H3Uw1PnLHAtJAIO5DB20Qwv9e1TlhIS5wRg/rK
+         XNvwScCmwfQZ4ZPUzZPF3oH7UJIZIvE1uNmp0pRgIOZ8k9Bj2JXtA+rbN21jCvP2bhP2
+         r9KA==
+X-Gm-Message-State: AOAM530Id3As+NYdRfFuyixjez5rMLdl3Cxos4eOs0llm8rWHJwOlB4d
+        kd/CfiZQFKJPWiAA5PC0lHOGklKtaQY6R3J1PkE=
+X-Google-Smtp-Source: ABdhPJynLhEMY55wYj+momMHsg2XTxicaBAZG8IWlN/tljHGL1buqIxU77umTwBXUprfBVtjXVvKNMgOLw1/mSeFaw4=
+X-Received: by 2002:ac2:51a9:: with SMTP id f9mr2799386lfk.223.1623423093890;
+ Fri, 11 Jun 2021 07:51:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.12.10-48-ge647b3c62a13
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.12
-Subject: stable-rc/queue/5.12 baseline: 191 runs,
- 1 regressions (v5.12.10-48-ge647b3c62a13)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <1623396129105150@kroah.com> <CAK8P3a1Y2g+-tKy=zD3yKhxjhVuWdMQvuP_MRbxzdeQFvAB-pQ@mail.gmail.com>
+In-Reply-To: <CAK8P3a1Y2g+-tKy=zD3yKhxjhVuWdMQvuP_MRbxzdeQFvAB-pQ@mail.gmail.com>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Fri, 11 Jun 2021 11:51:22 -0300
+Message-ID: <CAOMZO5DMQJ6GG+jfKO1a_HmfN_hwuL3De=KEV=g9WN7ejmMK6A@mail.gmail.com>
+Subject: Re: patch "Revert "usb: gadget: fsl: Re-enable driver for ARM SoCs""
+ added to usb-linus
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     gregkh <gregkh@linuxfoundation.org>,
+        Felipe Balbi <balbi@kernel.org>, Joel Stanley <joel@jms.id.au>,
+        Leo Li <leoyang.li@nxp.com>, kbuild test robot <lkp@intel.com>,
+        Peter Chen <peter.chen@nxp.com>, Ran Wang <ran.wang_1@nxp.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Shawn Guo <shawnguo@kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.12 baseline: 191 runs, 1 regressions (v5.12.10-48-ge647b3=
-c62a13)
+Hi Arnd,
 
-Regressions Summary
--------------------
+On Fri, Jun 11, 2021 at 5:30 AM Arnd Bergmann <arnd@arndb.de> wrote:
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+> Adding Fabio and Guennadi to Cc.
+>
+> I can see that the missing symbols were in a driver that got removed in commit
+> a390bef7db1f ("usb: gadget: fsl_mxc_udc: Remove the driver").
+>
+> If CONFIG_ARCH_MXC is disabled, these are stubbed out in the header file.
+> These were added a long time ago by Guennadi Liakhovetski 54e4026b64a9
+> ("USB: gadget: Add i.MX3x support to the fsl_usb2_udc driver"). I also
+> see that this patch added  a few #ifdef CONFIG_ARCH_MXC checks to the
+> driver that still remain today. This is clearly broken as it must be possible
+> to use the same driver module on both SOC_LS1021A and i.MX using
+> a runtime check.
+>
+> I also don't see any i.MX variant actually using this driver, but instead see
+> the dts files declaring fsl,imx27-usb devices, which bind to the
+> drivers/usb/chipidea/ci_hdrc_imx.c driver. Is this one of those cases
+> where we have two separate drivers for the same hardware, or is this
+> for a different device?
 
+Exactly. The USB IP on several i.MX devices comes from ChipIdea.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
-nel/v5.12.10-48-ge647b3c62a13/plan/baseline/
+Prior to using devicetree, we had the fsl_mxc_udc driver to handle the
+gadget side.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.12
-  Describe: v5.12.10-48-ge647b3c62a13
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e647b3c62a136fb152ee168e06bfd772705f9f02 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c3459787483b4bbc0c0e30
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.10-=
-48-ge647b3c62a13/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.10-=
-48-ge647b3c62a13/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c3459787483b4bbc0c0=
-e31
-        new failure (last pass: v5.12.10-48-gb06b6d506b83) =
-
- =20
+Since i.MX has been converted to a DT-only platform, we no longer need
+fsl_mxc_udc, as
+drivers/usb/chipidea is used nowadays.
