@@ -2,127 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26C753A5834
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:05:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0FB43A5851
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231697AbhFMMHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 08:07:46 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:52143 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231658AbhFMMHq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:07:46 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E06BC19405EF;
-        Sun, 13 Jun 2021 08:05:44 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 13 Jun 2021 08:05:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kMSIpO
-        IoB6jBCq5XNGEeHZXmDentOewPxvHHGWobxP0=; b=a+BN9tzX29pnCyxVgJ8LRN
-        v+MoRPVV6/MWsXdmAifk75SCGIjagCNQFWaPjlSfLMe+TwjdjLB3qqRjrIaGHCAN
-        3f00YA25QKysHuwzR9eZBpBgaP68ngUGD4nrbNXKuSSCU0DLvJk77hqqIHP0kyXl
-        hN6x9WeCnjXorWs6LVEbLj21iIeasreBn6J2RKOfA5ry0BOuI6idU3bBdz5LfPjk
-        GTEFzCXcEujyjcQPXhnWTVayDNc4a5Sgq/OxofLZEJ/A1uo03OZSCcaUhVCJRgr6
-        purGqBemqb1OT1p2SyFg1OZiKFjdn37bWBknOnmK+NHwzLACIP7GkvWMXuyou8Ag
-        ==
-X-ME-Sender: <xms:mPTFYJIozB_MZvSPoFahQJLFgxbufWfUdS0ic_HoCxSqyCj-9itPJw>
-    <xme:mPTFYFKO7kD1rwFpJZsXr5yJquodJ9kyaOpXRKCLEDlqztIr8qyiohbFw88mthAXJ
-    rlaRf1hzfcIoQ>
-X-ME-Received: <xmr:mPTFYBudaEB33dcwKWYSE2lBrG_taooOvzhHywTs-FpQ87omPPMepSybW_RkK9HNBL2TIP2Y4riK6PYAKujhW21Es1y6sFIB>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedghedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
-    grhhdrtghomh
-X-ME-Proxy: <xmx:mPTFYKaSeO0uzy8mgCNd-639QFMqhxJFUHINU5zyoG9NoEON4YgMnw>
-    <xmx:mPTFYAZZY9HyF08pmpOoHI-AjT9ZM414oZ-3NYJLBu5yQ1A9fJvYGg>
-    <xmx:mPTFYODnti_vBZu5n_LT20A6yLJptBV49H4xlobdyqsmBzR7paQSvg>
-    <xmx:mPTFYHVxlnHLmVlqLITyvJDDqVwq-LHuuXqp4l-zoc1CjXPOEttOTw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 08:05:44 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: musb: fix MUSB_QUIRK_B_DISCONNECT_99 handling" failed to apply to 4.19-stable tree
-To:     thomas.petazzoni@bootlin.com, alexandre.belloni@bootlin.com,
-        drew@beagleboard.org, gregkh@linuxfoundation.org, tony@atomide.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 14:05:33 +0200
-Message-ID: <162358593315469@kroah.com>
+        id S231755AbhFMMjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 08:39:01 -0400
+Received: from mail-lf1-f43.google.com ([209.85.167.43]:38858 "EHLO
+        mail-lf1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231733AbhFMMjA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:39:00 -0400
+Received: by mail-lf1-f43.google.com with SMTP id r5so16283155lfr.5
+        for <stable@vger.kernel.org>; Sun, 13 Jun 2021 05:36:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=psREgUUJe6MVeVSfHryr4eKsn7I0gsCysICo1D9MNkY=;
+        b=JH5wSKWmYb5fhVe1bG/uxfKqWA1UBPjNfABzxFY9tykLp+HWJfq4Vr1hAYPH/aYn6f
+         YwTmnfuyth8/GYhWrOTeajOxfHNh4O13WY99kvCh1HiLXmWyPb2lpvvWmprwFTwszuLE
+         JxfIoPSwmQ2YpGdIMnjA5gqQwymWYM0AiBHmkqgIK4K5QAJdmUkxKzVRanFTnOrWzW/i
+         PbWNSpNUzx3YEYGOXc8beqwY5ew1z952lAHLFaD/SjWiMYf4ZG7Znxn+EUpcWMJt+EJ7
+         zVcW9hy9u5YUtNc5S+D83fGhOM+pRZoU7+coKulknXfcuXlZmp3mDMGPPJUEbu1W3osD
+         FtUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=psREgUUJe6MVeVSfHryr4eKsn7I0gsCysICo1D9MNkY=;
+        b=iagSLr3C+L2FMSCu3X8T2VbhI0hFuOuJY/oBG3uLA6cWD7lcLMNUB2X164ip08Exld
+         d1OHb1g9id1Gz9jEKFin1Hp9kuWiA+hshCPbCLJCd46raYc8isTAz3ulHh+zqCqd1gv7
+         MEVQO+5Vk8k2t/vRQWpQE0Ob80yAbjo94nd4W35JECMUEIrXBAqPN3fV5xuyogtT0nCM
+         IoMkWsGc4UfOMRYi0fAbEhZac5TkK1l1LD4Sai7MA3dg2HuNrBUlAZ8/y1tH00foiCKg
+         ykYjaX8C3bknik0qXlbbWB+cAAiDHJHf3Y0bLAJhD4czEvdDuPQ/jktggqqJ1C+i7sd4
+         HZjg==
+X-Gm-Message-State: AOAM531wmS4yVnCE0yVECmzlYxx6TeEEhpWUu+DcbMSuYDgI5tsn5SFe
+        2iEWLpW9Bolo9CgadnrNKFxLzmm2sSVVPg==
+X-Google-Smtp-Source: ABdhPJz2Y0JbGMbYbE/+wXn426tO3m18cLMYU082mkchHyLAcHeaTkSdSY0jLpX4Sk5Af+TcdGBQVw==
+X-Received: by 2002:a05:6512:16a6:: with SMTP id bu38mr8659619lfb.92.1623587758885;
+        Sun, 13 Jun 2021 05:35:58 -0700 (PDT)
+Received: from localhost.localdomain (c-fdcc225c.014-348-6c756e10.bbcust.telenor.se. [92.34.204.253])
+        by smtp.gmail.com with ESMTPSA id u12sm1437103ljo.37.2021.06.13.05.35.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 13 Jun 2021 05:35:58 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     arm@kernel.org, soc@kernel.org
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>
+Subject: [PATCH] ARM: dts: ux500: Fix LED probing
+Date:   Sun, 13 Jun 2021 14:33:56 +0200
+Message-Id: <20210613123356.880933-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The Ux500 HREF LEDs have not been probing properly for a
+while as this was introduce:
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+     ret = of_property_read_u32(np, "color", &led_color);
+     if (ret)
+             return ret;
 
-thanks,
+Since the device tree did not define the new invented color
+attribute, probe was failing.
 
-greg k-h
+Define color attributes for the LEDs so they work again.
 
------------------- original commit in Linus's tree ------------------
-
-From b65ba0c362be665192381cc59e3ac3ef6f0dd1e1 Mon Sep 17 00:00:00 2001
-From: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Date: Fri, 28 May 2021 16:04:46 +0200
-Subject: [PATCH] usb: musb: fix MUSB_QUIRK_B_DISCONNECT_99 handling
-
-In commit 92af4fc6ec33 ("usb: musb: Fix suspend with devices
-connected for a64"), the logic to support the
-MUSB_QUIRK_B_DISCONNECT_99 quirk was modified to only conditionally
-schedule the musb->irq_work delayed work.
-
-This commit badly breaks ECM Gadget on AM335X. Indeed, with this
-commit, one can observe massive packet loss:
-
-$ ping 192.168.0.100
-...
-15 packets transmitted, 3 received, 80% packet loss, time 14316ms
-
-Reverting this commit brings back a properly functioning ECM
-Gadget. An analysis of the commit seems to indicate that a mistake was
-made: the previous code was not falling through into the
-MUSB_QUIRK_B_INVALID_VBUS_91, but now it is, unless the condition is
-taken.
-
-Changing the logic to be as it was before the problematic commit *and*
-only conditionally scheduling musb->irq_work resolves the regression:
-
-$ ping 192.168.0.100
-...
-64 packets transmitted, 64 received, 0% packet loss, time 64475ms
-
-Fixes: 92af4fc6ec33 ("usb: musb: Fix suspend with devices connected for a64")
+Fixes: 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
 Cc: stable@vger.kernel.org
-Tested-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Tested-by: Drew Fustini <drew@beagleboard.org>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Link: https://lore.kernel.org/r/20210528140446.278076-1-thomas.petazzoni@bootlin.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+SoC maintainers: please apply this directly for fixes.
+---
+ arch/arm/boot/dts/ste-href.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
-index 8f09a387b773..4c8f0112481f 100644
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2009,9 +2009,8 @@ static void musb_pm_runtime_check_session(struct musb *musb)
- 			schedule_delayed_work(&musb->irq_work,
- 					      msecs_to_jiffies(1000));
- 			musb->quirk_retries--;
--			break;
- 		}
--		fallthrough;
-+		break;
- 	case MUSB_QUIRK_B_INVALID_VBUS_91:
- 		if (musb->quirk_retries && !musb->flush_irq_work) {
- 			musb_dbg(musb,
+diff --git a/arch/arm/boot/dts/ste-href.dtsi b/arch/arm/boot/dts/ste-href.dtsi
+index 00e7d76e8656..48408fd391d6 100644
+--- a/arch/arm/boot/dts/ste-href.dtsi
++++ b/arch/arm/boot/dts/ste-href.dtsi
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/leds/common.h>
+ #include "ste-href-family-pinctrl.dtsi"
+ 
+ / {
+@@ -69,17 +70,20 @@ chan@0 {
+ 					reg = <0>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 					linux,default-trigger = "heartbeat";
+ 				};
+ 				chan@1 {
+ 					reg = <1>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 				chan@2 {
+ 					reg = <2>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 			};
+ 			lp5521@34 {
+@@ -93,16 +97,19 @@ chan@0 {
+ 					reg = <0>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 				chan@1 {
+ 					reg = <1>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 				chan@2 {
+ 					reg = <2>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 			};
+ 			bh1780@29 {
+-- 
+2.31.1
 
