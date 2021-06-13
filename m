@@ -2,88 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 847B43A5948
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 17:15:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1230B3A5960
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 17:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231841AbhFMPRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 11:17:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36876 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231782AbhFMPRc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 11:17:32 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7893C061574;
-        Sun, 13 Jun 2021 08:15:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=v98zU0j/C6eV6H036hdUoeCGabSgBkr+f3noxRgGg0w=; b=jkiVo7PoDoav/f/Yu12SWrXrPO
-        K2LfqUn41R17NKRPAe9Ce4z3jncIm2SaRlYt0R0Rbn9TzMa+caKUS3fTbz7WVoU5GXXqoI9T8NOxo
-        ZA+259/CVDbq/nczC4MkMwa4OZBgSG49/KQRj3KxgoKo1d2C0UIDzET4ZEqJwB8gGxJsSTsqm1q0M
-        0Gcg+ym9OnioCBhRTTWgmRjy//rz2gq+Fn3ZrA7f/RnyaVaSUbHPIVQT3a0fJin0slPJTMPWSa7o0
-        zrMcRsm0aNb7JlwKlKlXW2hMKacpOnSMk+ayUMvXv52uhQmQuQ+5vMY/SS1qhTI2/tsKvjFqQNkHE
-        z3cZTxIQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1lsRpJ-004bY9-Px; Sun, 13 Jun 2021 15:15:10 +0000
-Date:   Sun, 13 Jun 2021 16:15:05 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Jeff Layton <jlayton@kernel.org>
+        id S231844AbhFMP1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 11:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33074 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231782AbhFMP1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 13 Jun 2021 11:27:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0162F61040;
+        Sun, 13 Jun 2021 15:25:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623597950;
+        bh=lL30hCZuGJ/MUVZMNgStCbD9n1DnvzAhrTqwMKJ7P0M=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=PqY8/rjNpDw4kI0M6NyJWPVi/+ZVEs0gvHUQ9V2QV1mZI5re11obpdwMFdwKRRBIb
+         ho/nB4yJYP41mSgmD8kvCmQfzfSZasno6kmsLv5dar/aaI3FLaF8ZNkXYCn+Sm0LXz
+         CMgUhWIHJPgm0p0kkptutvs4ByYUzsM7TsoZ/3qnOCvw2bK3UgUfBsZpwgRu0VbXVf
+         y+i63CQ14Q1qXlKuImYwwOENMgjeqEb6aRL9Syx1I8ffJM6AYgiGGHP/Uf61JaR+ZD
+         IMJL5x4BZ30huzT7hOv5iXmrnWXIf717jrtvbOE3+ugJDyud13LBfAEu1OnLxIcfOn
+         V2/13mJxX6M+Q==
+Message-ID: <04174e6beaff47fb4dc32ff6cc32ae8667008edd.camel@kernel.org>
+Subject: Re: [PATCH v4] ceph: fix write_begin optimization when write is
+ beyond EOF
+From:   Jeff Layton <jlayton@kernel.org>
+To:     Matthew Wilcox <willy@infradead.org>
 Cc:     ceph-devel@vger.kernel.org, linux-cachefs@redhat.com,
         pfmeec@rit.edu, dhowells@redhat.com, idryomov@gmail.com,
         stable@vger.kernel.org, Andrew W Elble <aweits@rit.edu>
-Subject: Re: [PATCH v4] ceph: fix write_begin optimization when write is
- beyond EOF
-Message-ID: <YMYg+dYOhSVGg58R@casper.infradead.org>
+Date:   Sun, 13 Jun 2021 11:25:48 -0400
+In-Reply-To: <YMYg+dYOhSVGg58R@casper.infradead.org>
 References: <YMXmRo17oy8fDn2b@casper.infradead.org>
- <20210613113650.8672-1-jlayton@kernel.org>
- <a58a297994700b95c85c15bc13e830ecb7ac61e7.camel@kernel.org>
+         <20210613113650.8672-1-jlayton@kernel.org>
+         <a58a297994700b95c85c15bc13e830ecb7ac61e7.camel@kernel.org>
+         <YMYg+dYOhSVGg58R@casper.infradead.org>
+Content-Type: text/plain; charset="ISO-8859-15"
+User-Agent: Evolution 3.40.1 (3.40.1-1.fc34) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a58a297994700b95c85c15bc13e830ecb7ac61e7.camel@kernel.org>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 13, 2021 at 08:02:12AM -0400, Jeff Layton wrote:
-> > +	/* clamp length to end of the current page */
-> > +	if (len > PAGE_SIZE)
-> > +		len = PAGE_SIZE - offset;
+On Sun, 2021-06-13 at 16:15 +0100, Matthew Wilcox wrote:
+> On Sun, Jun 13, 2021 at 08:02:12AM -0400, Jeff Layton wrote:
+> > > +	/* clamp length to end of the current page */
+> > > +	if (len > PAGE_SIZE)
+> > > +		len = PAGE_SIZE - offset;
+> > 
+> > Actually, I think this should be:
+> > 
+> > 	len = min(len, PAGE_SIZE - offset);
+> > 
+> > Otherwise, len could still go beyond the end of the page.
 > 
-> Actually, I think this should be:
+> I don't understand why you want to clamp length instead of just coping
+> with len being > PAGE_SIZE.
 > 
-> 	len = min(len, PAGE_SIZE - offset);
+> > > +
+> > > +	/* full page write */
+> > > +	if (offset == 0 && len == PAGE_SIZE)
+> > > +		goto zero_out;
 > 
-> Otherwise, len could still go beyond the end of the page.
+> That becomes >=.
+> 
+> > > +	/* zero-length file */
+> > > +	if (i_size == 0)
+> > > +		goto zero_out;
+> > > +
+> > > +	/* position beyond last page in the file */
+> > > +	if (index > ((i_size - 1) / PAGE_SIZE))
+> > > +		goto zero_out;
+> > > +
+> > > +	/* write that covers the the page from start to EOF or beyond it */
+> > > +	if (offset == 0 && (pos + len) >= i_size)
+> > > +		goto zero_out;
+> 
+> That doesn't need any change.
+> 
+> > > +	return false;
+> > > +zero_out:
+> > > +	zero_user_segments(page, 0, offset, offset + len, PAGE_SIZE);
+> 
+> That also doesn't need any change.
+> 
 
-I don't understand why you want to clamp length instead of just coping
-with len being > PAGE_SIZE.
+Won't it though? offset+len will could be beyond the end of the page at
+that point. Hmm I guess zero_user_segments does this:
 
-> > +
-> > +	/* full page write */
-> > +	if (offset == 0 && len == PAGE_SIZE)
-> > +		goto zero_out;
+        if (start2 >= end2)
+                start2 = end2 = 0;
 
-That becomes >=.
+...so that makes the second segment copy a no-op.
 
-> > +	/* zero-length file */
-> > +	if (i_size == 0)
-> > +		goto zero_out;
-> > +
-> > +	/* position beyond last page in the file */
-> > +	if (index > ((i_size - 1) / PAGE_SIZE))
-> > +		goto zero_out;
-> > +
-> > +	/* write that covers the the page from start to EOF or beyond it */
-> > +	if (offset == 0 && (pos + len) >= i_size)
-> > +		goto zero_out;
+Ok, fair enough -- I'll get rid of the clamping and just allow len to be
+longer than PAGE_SIZE in the checks.
 
-That doesn't need any change.
-
-> > +	return false;
-> > +zero_out:
-> > +	zero_user_segments(page, 0, offset, offset + len, PAGE_SIZE);
-
-That also doesn't need any change.
+Thanks,
+-- 
+Jeff Layton <jlayton@kernel.org>
 
