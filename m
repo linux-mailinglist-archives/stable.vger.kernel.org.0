@@ -2,163 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 238AB3A582A
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E8F53A582D
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231697AbhFMMEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 08:04:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40820 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231658AbhFMMEO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 13 Jun 2021 08:04:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EE4D61009;
-        Sun, 13 Jun 2021 12:02:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623585733;
-        bh=4PrBlmYIhsRCtz/l0P/oxDR+cUESCBd4bkJZgMfr7Ow=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=OkXmljz+d3SOym1hiNooYplEE1VKPiSEFJBZ1/HhvXxOsJ4G6ODXt7H1fH9uBKkNJ
-         LbKuVFriBowehGH3FbsBriS+LTp/Cqr5dT+T+wbzQeM4wHLj1WEoqyneuinBGX20IE
-         3ELwzuMOGy+MZyAfhmllhj0KtFu8ph6f5jKUALQBiKZLXhHQ2SdKl2E1BVPYaFM4lo
-         ryzRF8KPoCab7omMJAbpUmF3vIwhPotHW5n41YK83JLYB4aE+0aQeJbX2OmaDmK4hw
-         6J+tW7ff/9l1hYmrOjdIFwAgIG+/+9bIml3/sxTlVg2xFi1OoDwFNQ/R68Q+noWWVp
-         WEq75zWf+RSGQ==
-Message-ID: <a58a297994700b95c85c15bc13e830ecb7ac61e7.camel@kernel.org>
-Subject: Re: [PATCH v4] ceph: fix write_begin optimization when write is
- beyond EOF
-From:   Jeff Layton <jlayton@kernel.org>
-To:     ceph-devel@vger.kernel.org
-Cc:     linux-cachefs@redhat.com, pfmeec@rit.edu, willy@infradead.org,
-        dhowells@redhat.com, idryomov@gmail.com, stable@vger.kernel.org,
-        Andrew W Elble <aweits@rit.edu>
-Date:   Sun, 13 Jun 2021 08:02:12 -0400
-In-Reply-To: <20210613113650.8672-1-jlayton@kernel.org>
-References: <YMXmRo17oy8fDn2b@casper.infradead.org>
-         <20210613113650.8672-1-jlayton@kernel.org>
-Content-Type: text/plain; charset="ISO-8859-15"
-User-Agent: Evolution 3.40.1 (3.40.1-1.fc34) 
+        id S231691AbhFMMFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 08:05:17 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:33983 "EHLO
+        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231658AbhFMMFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:05:16 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 54D0C19406F3;
+        Sun, 13 Jun 2021 08:03:15 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Sun, 13 Jun 2021 08:03:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Hnwbz7
+        B4E3emfC26gVQf9ESMjXQoRRJSy931Jbh0WqI=; b=gYhtlVm5Jyc08JmA2F66/X
+        Yq64L3angvt/goyCVGYgSLZI5PNDVOOm+PSWpQZKIlYh4fmZsCaiH/lwVSAwJEZn
+        Wq/VXDeUSTVc3lrnV7lp7J9OEdz0Hnl2q66NOrmhEJVtPyYzznEu+B7aUSTZVmV4
+        8IUpeI9MbrEg4cD8uinhelSAJEakggGJ2j3cUfahnlTHODIb5lOuW9hFqzwlRk3Y
+        iywDrIAoveZHMYS2mnQrlU7YM/8FVJcaQG2sNcDrKID8nU+Yt6GqTgKJGfLhw7Mm
+        u4xHz4sPNO7LlkmWvR45h4fPohHMoVLvhqpU2BCYF7VrMMXpA6uWwI7S8XIpMECA
+        ==
+X-ME-Sender: <xms:AvTFYFKLRUrETeEA8IDXrQ0VcQkdHrhFEDRfgnffPobNQVJdxvTsdw>
+    <xme:AvTFYBIaVu55GYQOAI4Lg3xUaII2JhTNg03BwdIyJ1_4ZbDxjrGIC9FdziePfH5ZN
+    TodHq2Yw0OinQ>
+X-ME-Received: <xmr:AvTFYNudDXINyVgBH74il4xfkgepAbsw2QnIJSllHoMiG_5S_kMCtAhJ_gDSvpeTNkLSl9dvIQPUuwKakpuMmAQRCia5mD0V>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedggeelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    grhhdrtghomh
+X-ME-Proxy: <xmx:AvTFYGZkZoCiTlmaspay3pU1YlulirrMqs48aptXc7KWE7rZV3VATg>
+    <xmx:AvTFYMYnGOji2iFDamgjborxHxwhkvcTUmCJVFw5njiW6UyOGj2ATg>
+    <xmx:AvTFYKBvc2VDGhTaI_4_EwYTknEPOJajIhJQVIMVvr3P_3i4ypQYlg>
+    <xmx:A_TFYHxWox0YbnAlBwcNgcxAkkg2DiNCG_4YJbSU4OB8ojnBGvPexQ>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 13 Jun 2021 08:03:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ftrace: Do not blindly read the ip address in ftrace_bug()" failed to apply to 4.4-stable tree
+To:     rostedt@goodmis.org, mark-pk.tsai@mediatek.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 13 Jun 2021 14:03:12 +0200
+Message-ID: <1623585792149126@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 2021-06-13 at 07:36 -0400, Jeff Layton wrote:
-> It's not sufficient to skip reading when the pos is beyond the EOF.
-> There may be data at the head of the page that we need to fill in
-> before the write.
-> 
-> Add a new helper function that corrects and clarifies the logic.
-> 
-> Cc: <stable@vger.kernel.org> # v5.10+
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Fixes: 1cc1699070bd ("ceph: fold ceph_update_writeable_page into ceph_write_begin")
-> Reported-by: Andrew W Elble <aweits@rit.edu>
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> ---
->  fs/ceph/addr.c | 63 +++++++++++++++++++++++++++++++++++++++-----------
->  1 file changed, 50 insertions(+), 13 deletions(-)
-> 
-> This version just has a couple of future-proofing tweaks that Willy
-> suggested.
-> 
-> diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
-> index 26e66436f005..b20a17cfec42 100644
-> --- a/fs/ceph/addr.c
-> +++ b/fs/ceph/addr.c
-> @@ -1302,6 +1302,54 @@ ceph_find_incompatible(struct page *page)
->  	return NULL;
->  }
->  
-> +/**
-> + * prep_noread_page - prep a page for writing without reading first
-> + * @page: page being prepared
-> + * @pos: starting position for the write
-> + * @len: length of write
-> + *
-> + * In some cases we don't need to read at all:
-> + * - full page write
-> + * - file is currently zero-length
-> + * - write that lies in a page that is completely beyond EOF
-> + * - write that covers the the page from start to EOF or beyond it
-> + *
-> + * If any of these criteria are met, then zero out the unwritten parts
-> + * of the page and return true. Otherwise, return false.
-> + */
-> +static bool prep_noread_page(struct page *page, loff_t pos, size_t len)
-> +{
-> +	struct inode *inode = page->mapping->host;
-> +	loff_t i_size = i_size_read(inode);
-> +	pgoff_t index = pos / PAGE_SIZE;
-> +	size_t offset = offset_in_page(pos);
-> +
-> +	/* clamp length to end of the current page */
-> +	if (len > PAGE_SIZE)
-> +		len = PAGE_SIZE - offset;
 
-Actually, I think this should be:
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-	len = min(len, PAGE_SIZE - offset);
+thanks,
 
-Otherwise, len could still go beyond the end of the page.
+greg k-h
 
-> +
-> +	/* full page write */
-> +	if (offset == 0 && len == PAGE_SIZE)
-> +		goto zero_out;
-> +
-> +	/* zero-length file */
-> +	if (i_size == 0)
-> +		goto zero_out;
-> +
-> +	/* position beyond last page in the file */
-> +	if (index > ((i_size - 1) / PAGE_SIZE))
-> +		goto zero_out;
-> +
-> +	/* write that covers the the page from start to EOF or beyond it */
-> +	if (offset == 0 && (pos + len) >= i_size)
-> +		goto zero_out;
-> +
-> +	return false;
-> +zero_out:
-> +	zero_user_segments(page, 0, offset, offset + len, PAGE_SIZE);
-> +	return true;
-> +}
-> +
->  /*
->   * We are only allowed to write into/dirty the page if the page is
->   * clean, or already dirty within the same snap context.
-> @@ -1315,7 +1363,6 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
->  	struct ceph_snap_context *snapc;
->  	struct page *page = NULL;
->  	pgoff_t index = pos >> PAGE_SHIFT;
-> -	int pos_in_page = pos & ~PAGE_MASK;
->  	int r = 0;
->  
->  	dout("write_begin file %p inode %p page %p %d~%d\n", file, inode, page, (int)pos, (int)len);
-> @@ -1350,19 +1397,9 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
->  			break;
->  		}
->  
-> -		/*
-> -		 * In some cases we don't need to read at all:
-> -		 * - full page write
-> -		 * - write that lies completely beyond EOF
-> -		 * - write that covers the the page from start to EOF or beyond it
-> -		 */
-> -		if ((pos_in_page == 0 && len == PAGE_SIZE) ||
-> -		    (pos >= i_size_read(inode)) ||
-> -		    (pos_in_page == 0 && (pos + len) >= i_size_read(inode))) {
-> -			zero_user_segments(page, 0, pos_in_page,
-> -					   pos_in_page + len, PAGE_SIZE);
-> +		/* No need to read in some cases */
-> +		if (prep_noread_page(page, pos, len))
->  			break;
-> -		}
->  
->  		/*
->  		 * We need to read it. If we get back -EINPROGRESS, then the page was
+------------------ original commit in Linus's tree ------------------
 
--- 
-Jeff Layton <jlayton@kernel.org>
+From 6c14133d2d3f768e0a35128faac8aa6ed4815051 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date: Mon, 7 Jun 2021 21:39:08 -0400
+Subject: [PATCH] ftrace: Do not blindly read the ip address in ftrace_bug()
+
+It was reported that a bug on arm64 caused a bad ip address to be used for
+updating into a nop in ftrace_init(), but the error path (rightfully)
+returned -EINVAL and not -EFAULT, as the bug caused more than one error to
+occur. But because -EINVAL was returned, the ftrace_bug() tried to report
+what was at the location of the ip address, and read it directly. This
+caused the machine to panic, as the ip was not pointing to a valid memory
+address.
+
+Instead, read the ip address with copy_from_kernel_nofault() to safely
+access the memory, and if it faults, report that the address faulted,
+otherwise report what was in that location.
+
+Link: https://lore.kernel.org/lkml/20210607032329.28671-1-mark-pk.tsai@mediatek.com/
+
+Cc: stable@vger.kernel.org
+Fixes: 05736a427f7e1 ("ftrace: warn on failure to disable mcount callers")
+Reported-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 2e8a3fde7104..72ef4dccbcc4 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -1967,12 +1967,18 @@ static int ftrace_hash_ipmodify_update(struct ftrace_ops *ops,
+ 
+ static void print_ip_ins(const char *fmt, const unsigned char *p)
+ {
++	char ins[MCOUNT_INSN_SIZE];
+ 	int i;
+ 
++	if (copy_from_kernel_nofault(ins, p, MCOUNT_INSN_SIZE)) {
++		printk(KERN_CONT "%s[FAULT] %px\n", fmt, p);
++		return;
++	}
++
+ 	printk(KERN_CONT "%s", fmt);
+ 
+ 	for (i = 0; i < MCOUNT_INSN_SIZE; i++)
+-		printk(KERN_CONT "%s%02x", i ? ":" : "", p[i]);
++		printk(KERN_CONT "%s%02x", i ? ":" : "", ins[i]);
+ }
+ 
+ enum ftrace_bug_type ftrace_bug_type;
 
