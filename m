@@ -2,81 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C32743A5935
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 17:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 847B43A5948
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 17:15:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231844AbhFMPH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 11:07:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58564 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231782AbhFMPHZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 13 Jun 2021 11:07:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E73261285;
-        Sun, 13 Jun 2021 15:05:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623596713;
-        bh=dI6TOSqiN7cMwHPJQuKBFVW24xy5y35XDm8j6K5hPbU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=haIxuMxTViWZ3dwNnsXRIWYeZI6UfII8IQARRDIXuJ9K3aZRHoTcE+p60bON3nYBn
-         mxHtFFy0IMZEBHDwGnZKoo/oJH3y5IRE34G+2TTGnonqXer6GUMEShMWF3ibTkVcE+
-         iwTE83LzuI4wLCE56wj2oxeXmsV5PnPQiXNeKa/Q=
-Date:   Sun, 13 Jun 2021 17:05:09 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Subject: Re: compiler.h:417:38: error: call to '__compiletime_assert_59'
- declared with attribute error: BUILD_BUG_ON failed: sizeof(_i) >
- sizeof(long)
-Message-ID: <YMYepbrAxKbgaXi8@kroah.com>
-References: <CA+G9fYuBo_WgjtW1BugKLPeYnmLEe65zU7Ttt=FB2uqMzZy1eQ@mail.gmail.com>
+        id S231841AbhFMPRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 11:17:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36876 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231782AbhFMPRc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 11:17:32 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7893C061574;
+        Sun, 13 Jun 2021 08:15:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=v98zU0j/C6eV6H036hdUoeCGabSgBkr+f3noxRgGg0w=; b=jkiVo7PoDoav/f/Yu12SWrXrPO
+        K2LfqUn41R17NKRPAe9Ce4z3jncIm2SaRlYt0R0Rbn9TzMa+caKUS3fTbz7WVoU5GXXqoI9T8NOxo
+        ZA+259/CVDbq/nczC4MkMwa4OZBgSG49/KQRj3KxgoKo1d2C0UIDzET4ZEqJwB8gGxJsSTsqm1q0M
+        0Gcg+ym9OnioCBhRTTWgmRjy//rz2gq+Fn3ZrA7f/RnyaVaSUbHPIVQT3a0fJin0slPJTMPWSa7o0
+        zrMcRsm0aNb7JlwKlKlXW2hMKacpOnSMk+ayUMvXv52uhQmQuQ+5vMY/SS1qhTI2/tsKvjFqQNkHE
+        z3cZTxIQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1lsRpJ-004bY9-Px; Sun, 13 Jun 2021 15:15:10 +0000
+Date:   Sun, 13 Jun 2021 16:15:05 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Jeff Layton <jlayton@kernel.org>
+Cc:     ceph-devel@vger.kernel.org, linux-cachefs@redhat.com,
+        pfmeec@rit.edu, dhowells@redhat.com, idryomov@gmail.com,
+        stable@vger.kernel.org, Andrew W Elble <aweits@rit.edu>
+Subject: Re: [PATCH v4] ceph: fix write_begin optimization when write is
+ beyond EOF
+Message-ID: <YMYg+dYOhSVGg58R@casper.infradead.org>
+References: <YMXmRo17oy8fDn2b@casper.infradead.org>
+ <20210613113650.8672-1-jlayton@kernel.org>
+ <a58a297994700b95c85c15bc13e830ecb7ac61e7.camel@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYuBo_WgjtW1BugKLPeYnmLEe65zU7Ttt=FB2uqMzZy1eQ@mail.gmail.com>
+In-Reply-To: <a58a297994700b95c85c15bc13e830ecb7ac61e7.camel@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 13, 2021 at 08:25:19PM +0530, Naresh Kamboju wrote:
-> The following error was noticed on stable-rc 5.12, 5.10, 5.4, 4.19,
-> 4.14, 4.9 and 4.4
-> for i386 and arm.
+On Sun, Jun 13, 2021 at 08:02:12AM -0400, Jeff Layton wrote:
+> > +	/* clamp length to end of the current page */
+> > +	if (len > PAGE_SIZE)
+> > +		len = PAGE_SIZE - offset;
 > 
-> make --silent --keep-going --jobs=8
-> O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm
-> CROSS_COMPILE=arm-linux-gnueabihf- 'CC=sccache
-> arm-linux-gnueabihf-gcc' 'HOSTCC=sccache gcc'
-> In file included from /builds/linux/include/linux/kernel.h:11,
->                  from /builds/linux/include/linux/list.h:9,
->                  from /builds/linux/include/linux/preempt.h:11,
->                  from /builds/linux/include/linux/hardirq.h:5,
->                  from /builds/linux/include/linux/kvm_host.h:7,
->                  from
-> /builds/linux/arch/arm/kvm/../../../virt/kvm/kvm_main.c:18:
-> In function '__gfn_to_hva_memslot',
->     inlined from '__gfn_to_hva_many.part.6' at
-> /builds/linux/arch/arm/kvm/../../../virt/kvm/kvm_main.c:1446:9,
->     inlined from '__gfn_to_hva_many' at
-> /builds/linux/arch/arm/kvm/../../../virt/kvm/kvm_main.c:1434:22:
-> /builds/linux/include/linux/compiler.h:417:38: error: call to
-> '__compiletime_assert_59' declared with attribute error: BUILD_BUG_ON
-> failed: sizeof(_i) > sizeof(long)
->   _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
->                                       ^
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> Actually, I think this should be:
 > 
-> ref:
-> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1342604370#L389
+> 	len = min(len, PAGE_SIZE - offset);
+> 
+> Otherwise, len could still go beyond the end of the page.
 
-Odd.  Does Linus's tree have this problem?
+I don't understand why you want to clamp length instead of just coping
+with len being > PAGE_SIZE.
 
-The only arm changes was in arch/arm/include/asm/cpuidle.h in the tree
-right now.  There are some kvm changes, but they are tiny...
+> > +
+> > +	/* full page write */
+> > +	if (offset == 0 && len == PAGE_SIZE)
+> > +		goto zero_out;
 
-Can you bisect this?
+That becomes >=.
 
-thanks,
+> > +	/* zero-length file */
+> > +	if (i_size == 0)
+> > +		goto zero_out;
+> > +
+> > +	/* position beyond last page in the file */
+> > +	if (index > ((i_size - 1) / PAGE_SIZE))
+> > +		goto zero_out;
+> > +
+> > +	/* write that covers the the page from start to EOF or beyond it */
+> > +	if (offset == 0 && (pos + len) >= i_size)
+> > +		goto zero_out;
 
-greg k-h
+That doesn't need any change.
+
+> > +	return false;
+> > +zero_out:
+> > +	zero_user_segments(page, 0, offset, offset + len, PAGE_SIZE);
+
+That also doesn't need any change.
+
