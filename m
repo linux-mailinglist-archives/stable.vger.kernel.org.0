@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 769E13A5808
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 13:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61DCB3A5809
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 13:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231738AbhFMLoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 07:44:06 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:58989 "EHLO
+        id S231741AbhFMLoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 07:44:14 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:36545 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231736AbhFMLoF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 07:44:05 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 9310B11FA;
-        Sun, 13 Jun 2021 07:42:04 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sun, 13 Jun 2021 07:42:04 -0400
+        by vger.kernel.org with ESMTP id S231736AbhFMLoO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 07:44:14 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailforward.west.internal (Postfix) with ESMTP id CD0E211E6;
+        Sun, 13 Jun 2021 07:42:12 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 13 Jun 2021 07:42:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=SrCeTP
-        uZFUB4pbmpVGJlsO3/nkSXPcI3Z6DCtzlIfss=; b=NmWRyVJQQTEzSX8a481/DE
-        eQvSpC3Dd32sFAGVh+je+UFFoj0gXzK5TtndKngFsfP4/cv6LSUcpNsIXptXzyoi
-        xrdNPniO/78DEMdt1knXBwNaJg1sIBDrV7J4JRcpSurPtItZHMde0KObmtJFu35T
-        cniCK9UM0GXQ8h89yODorCWyZToNLbIGbCk8c1XE6/KJNjsRxvh05d3T/fnv/uXV
-        KYUVDz2k/etMLE9s/5CTDuFo0Wgn6nRphwZtwmBxvJTXv2sn91burIvLbHvgTatU
-        1yxS5nDS8Ak1iBe1eOWvrLhUJDeC9TfT5I0JU/BtaR2dO2ShgnpQnRJxZGR2NKLA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6aO7Qu
+        +0NXzcphfTwyERvKQlvCUhPtC08Xtc9XUyAJM=; b=WMhuV0A5T/D9j2LVkbwdEs
+        lL97B1plslxTWIq8TcKiQrLUB4Eo0EzOe/0s0lmuvbVBYKdozWamb1J4eOxJuKx7
+        /RqwOufG2AKzx+diczJFSifhGVhyJTorYpIut7zhrAof87Sn9Q/FuSRFFaED8Hyn
+        CrvTmWSUhALkVzgLZCb1imo/Rk2sn37K+OoABPP7om03ayftEdEXYmWYiOn/Zd/Z
+        YnUkFbJondxlDbuK8jbIPbK1EhUeTXWoC3dEl3pCZLwfB9oP+XgbyI2gz+LkArrj
+        YwZQrhkhU9us79ROX7SVkvKbDihnUMEYYbuJsVizG08VaOEugfu19HObgTWA2ThA
         ==
-X-ME-Sender: <xms:DO_FYNWXBzY_gK9Ucfe5HxcNT2kYbcYW-XxgCjP9_485aw5bMuR5Lw>
-    <xme:DO_FYNkf98ldd3Uw7LX2bGEsVqrpANStxSN6ej7DV4jmIFjBylKePa1tZlNKsroWU
-    uTLE8XklRLMug>
-X-ME-Received: <xmr:DO_FYJbdQYb3RtIDnxFOMT_h0f2V0nH-mqzL0-YEzWD-FJacKXuPka8SzUkwGlITmHblQCr9t4N0CbST8LQtO6x2Aj2IA_Ig>
+X-ME-Sender: <xms:FO_FYJATxDpUO8LFE6FSKilWpIafxB4iHLtjRraW_tiBq6vQcxA3fg>
+    <xme:FO_FYHjQxV-ywNZKgXA4XrCBV5ySQytlA1a-EGtPBBAtK193fjxDq1oUOA4XqoNxg
+    4z3JvoA-fuwQw>
+X-ME-Received: <xmr:FO_FYEnrhbZBwCOapuw_eTyxgq0-UI6ikcHxPutiVHe6juDadwOCwLSjgDAYk1W_QtijaLwRq45kvXzdr84mfz-wIHsx9c5T>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedggeehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
-    grhhdrtghomh
-X-ME-Proxy: <xmx:DO_FYAWJS_b2MRP1q4aZu5LBoXnbmsc5ccREGVf-f91Q7CTbbN3i1w>
-    <xmx:DO_FYHmZI57bcE5KjkS8FfzJzP6RNDYX04EzkgU2nq5sAIwUJVlZFA>
-    <xmx:DO_FYNeqfTtaD_QyPVIZJpqK8oi7JHqh5CuuZTW2erlk7d5gujyrew>
-    <xmx:DO_FYPvP5q1T_8cDIM0djY6wlETxMylcmJRtuucaFHsoZTQyJ9kvF9Efnv8>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehm
+    rghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:FO_FYDwwmIKpmBnhvOeMEp8vf-JPOFFR3imAgaOFjKcHhW7llLa1Eg>
+    <xmx:FO_FYOQ1thH7GzvSKO4n-DtoApmMPRB6wAJblfcwwGouGd5LHcQGwg>
+    <xmx:FO_FYGZmFibOvzFWWXiBTKajLBwLXqYNniwZF3pA8pfAZaaMhEQ-3g>
+    <xmx:FO_FYJebtJb9px4FiI8R_R5iIwRl9S1yaNXanYoSDJxqqW2jeKSpWTqWP-k>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 07:42:03 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: X86: MMU: Use the correct inherited permissions to get" failed to apply to 5.4-stable tree
-To:     laijs@linux.alibaba.com, pbonzini@redhat.com
+ 13 Jun 2021 07:42:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: selftests: introduce P47V64 for s390x" failed to apply to 5.12-stable tree
+To:     borntraeger@de.ibm.com, dmatlack@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 13:41:56 +0200
-Message-ID: <1623584516705@kroah.com>
+Date:   Sun, 13 Jun 2021 13:42:10 +0200
+Message-ID: <16235845306942@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,149 +69,71 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b1bd5cba3306691c771d558e94baa73e8b0b96b7 Mon Sep 17 00:00:00 2001
-From: Lai Jiangshan <laijs@linux.alibaba.com>
-Date: Thu, 3 Jun 2021 13:24:55 +0800
-Subject: [PATCH] KVM: X86: MMU: Use the correct inherited permissions to get
- shadow page
+From 1bc603af73dd8fb2934306e861009c54f973dcc2 Mon Sep 17 00:00:00 2001
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Tue, 8 Jun 2021 14:39:54 +0200
+Subject: [PATCH] KVM: selftests: introduce P47V64 for s390x
 
-When computing the access permissions of a shadow page, use the effective
-permissions of the walk up to that point, i.e. the logic AND of its parents'
-permissions.  Two guest PxE entries that point at the same table gfn need to
-be shadowed with different shadow pages if their parents' permissions are
-different.  KVM currently uses the effective permissions of the last
-non-leaf entry for all non-leaf entries.  Because all non-leaf SPTEs have
-full ("uwx") permissions, and the effective permissions are recorded only
-in role.access and merged into the leaves, this can lead to incorrect
-reuse of a shadow page and eventually to a missing guest protection page
-fault.
+s390x can have up to 47bits of physical guest and 64bits of virtual
+address  bits. Add a new address mode to avoid errors of testcases
+going beyond 47bits.
 
-For example, here is a shared pagetable:
-
-   pgd[]   pud[]        pmd[]            virtual address pointers
-                     /->pmd1(u--)->pte1(uw-)->page1 <- ptr1 (u--)
-        /->pud1(uw-)--->pmd2(uw-)->pte2(uw-)->page2 <- ptr2 (uw-)
-   pgd-|           (shared pmd[] as above)
-        \->pud2(u--)--->pmd1(u--)->pte1(uw-)->page1 <- ptr3 (u--)
-                     \->pmd2(uw-)->pte2(uw-)->page2 <- ptr4 (u--)
-
-  pud1 and pud2 point to the same pmd table, so:
-  - ptr1 and ptr3 points to the same page.
-  - ptr2 and ptr4 points to the same page.
-
-(pud1 and pud2 here are pud entries, while pmd1 and pmd2 here are pmd entries)
-
-- First, the guest reads from ptr1 first and KVM prepares a shadow
-  page table with role.access=u--, from ptr1's pud1 and ptr1's pmd1.
-  "u--" comes from the effective permissions of pgd, pud1 and
-  pmd1, which are stored in pt->access.  "u--" is used also to get
-  the pagetable for pud1, instead of "uw-".
-
-- Then the guest writes to ptr2 and KVM reuses pud1 which is present.
-  The hypervisor set up a shadow page for ptr2 with pt->access is "uw-"
-  even though the pud1 pmd (because of the incorrect argument to
-  kvm_mmu_get_page in the previous step) has role.access="u--".
-
-- Then the guest reads from ptr3.  The hypervisor reuses pud1's
-  shadow pmd for pud2, because both use "u--" for their permissions.
-  Thus, the shadow pmd already includes entries for both pmd1 and pmd2.
-
-- At last, the guest writes to ptr4.  This causes no vmexit or pagefault,
-  because pud1's shadow page structures included an "uw-" page even though
-  its role.access was "u--".
-
-Any kind of shared pagetable might have the similar problem when in
-virtual machine without TDP enabled if the permissions are different
-from different ancestors.
-
-In order to fix the problem, we change pt->access to be an array, and
-any access in it will not include permissions ANDed from child ptes.
-
-The test code is: https://lore.kernel.org/kvm/20210603050537.19605-1-jiangshanlai@gmail.com/
-Remember to test it with TDP disabled.
-
-The problem had existed long before the commit 41074d07c78b ("KVM: MMU:
-Fix inherited permissions for emulated guest pte updates"), and it
-is hard to find which is the culprit.  So there is no fixes tag here.
-
-Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
-Message-Id: <20210603052455.21023-1-jiangshanlai@gmail.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-Id: <20210608123954.10991-1-borntraeger@de.ibm.com>
+Fixes: ef4c9f4f6546 ("KVM: selftests: Fix 32-bit truncation of vm_get_max_gfn()")
 Cc: stable@vger.kernel.org
-Fixes: cea0f0e7ea54 ("[PATCH] KVM: MMU: Shadow page table caching")
+Reviewed-by: David Matlack <dmatlack@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/Documentation/virt/kvm/mmu.rst b/Documentation/virt/kvm/mmu.rst
-index 5bfe28b0728e..20d85daed395 100644
---- a/Documentation/virt/kvm/mmu.rst
-+++ b/Documentation/virt/kvm/mmu.rst
-@@ -171,8 +171,8 @@ Shadow pages contain the following information:
-     shadow pages) so role.quadrant takes values in the range 0..3.  Each
-     quadrant maps 1GB virtual address space.
-   role.access:
--    Inherited guest access permissions in the form uwx.  Note execute
--    permission is positive, not negative.
-+    Inherited guest access permissions from the parent ptes in the form uwx.
-+    Note execute permission is positive, not negative.
-   role.invalid:
-     The page is invalid and should not be used.  It is a root page that is
-     currently pinned (by a cpu hardware register pointing to it); once it is
-diff --git a/arch/x86/kvm/mmu/paging_tmpl.h b/arch/x86/kvm/mmu/paging_tmpl.h
-index 70b7e44e3035..823a5919f9fa 100644
---- a/arch/x86/kvm/mmu/paging_tmpl.h
-+++ b/arch/x86/kvm/mmu/paging_tmpl.h
-@@ -90,8 +90,8 @@ struct guest_walker {
- 	gpa_t pte_gpa[PT_MAX_FULL_LEVELS];
- 	pt_element_t __user *ptep_user[PT_MAX_FULL_LEVELS];
- 	bool pte_writable[PT_MAX_FULL_LEVELS];
--	unsigned pt_access;
--	unsigned pte_access;
-+	unsigned int pt_access[PT_MAX_FULL_LEVELS];
-+	unsigned int pte_access;
- 	gfn_t gfn;
- 	struct x86_exception fault;
+diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
+index fcd8e3855111..b602552b1ed0 100644
+--- a/tools/testing/selftests/kvm/include/kvm_util.h
++++ b/tools/testing/selftests/kvm/include/kvm_util.h
+@@ -43,6 +43,7 @@ enum vm_guest_mode {
+ 	VM_MODE_P40V48_4K,
+ 	VM_MODE_P40V48_64K,
+ 	VM_MODE_PXXV48_4K,	/* For 48bits VA but ANY bits PA */
++	VM_MODE_P47V64_4K,
+ 	NUM_VM_MODES,
  };
-@@ -418,13 +418,15 @@ static int FNAME(walk_addr_generic)(struct guest_walker *walker,
- 		}
  
- 		walker->ptes[walker->level - 1] = pte;
-+
-+		/* Convert to ACC_*_MASK flags for struct guest_walker.  */
-+		walker->pt_access[walker->level - 1] = FNAME(gpte_access)(pt_access ^ walk_nx_mask);
- 	} while (!is_last_gpte(mmu, walker->level, pte));
+@@ -60,7 +61,7 @@ enum vm_guest_mode {
  
- 	pte_pkey = FNAME(gpte_pkeys)(vcpu, pte);
- 	accessed_dirty = have_ad ? pte_access & PT_GUEST_ACCESSED_MASK : 0;
+ #elif defined(__s390x__)
  
- 	/* Convert to ACC_*_MASK flags for struct guest_walker.  */
--	walker->pt_access = FNAME(gpte_access)(pt_access ^ walk_nx_mask);
- 	walker->pte_access = FNAME(gpte_access)(pte_access ^ walk_nx_mask);
- 	errcode = permission_fault(vcpu, mmu, walker->pte_access, pte_pkey, access);
- 	if (unlikely(errcode))
-@@ -463,7 +465,8 @@ static int FNAME(walk_addr_generic)(struct guest_walker *walker,
+-#define VM_MODE_DEFAULT			VM_MODE_P52V48_4K
++#define VM_MODE_DEFAULT			VM_MODE_P47V64_4K
+ #define MIN_PAGE_SHIFT			12U
+ #define ptes_per_page(page_size)	((page_size) / 16)
+ 
+diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
+index 28e528c19d28..b126fab6c4e1 100644
+--- a/tools/testing/selftests/kvm/lib/kvm_util.c
++++ b/tools/testing/selftests/kvm/lib/kvm_util.c
+@@ -175,6 +175,7 @@ const char *vm_guest_mode_string(uint32_t i)
+ 		[VM_MODE_P40V48_4K]	= "PA-bits:40,  VA-bits:48,  4K pages",
+ 		[VM_MODE_P40V48_64K]	= "PA-bits:40,  VA-bits:48, 64K pages",
+ 		[VM_MODE_PXXV48_4K]	= "PA-bits:ANY, VA-bits:48,  4K pages",
++		[VM_MODE_P47V64_4K]	= "PA-bits:47,  VA-bits:64,  4K pages",
+ 	};
+ 	_Static_assert(sizeof(strings)/sizeof(char *) == NUM_VM_MODES,
+ 		       "Missing new mode strings?");
+@@ -192,6 +193,7 @@ const struct vm_guest_mode_params vm_guest_mode_params[] = {
+ 	{ 40, 48,  0x1000, 12 },
+ 	{ 40, 48, 0x10000, 16 },
+ 	{  0,  0,  0x1000, 12 },
++	{ 47, 64,  0x1000, 12 },
+ };
+ _Static_assert(sizeof(vm_guest_mode_params)/sizeof(struct vm_guest_mode_params) == NUM_VM_MODES,
+ 	       "Missing new mode params?");
+@@ -277,6 +279,9 @@ struct kvm_vm *vm_create(enum vm_guest_mode mode, uint64_t phy_pages, int perm)
+ 		TEST_FAIL("VM_MODE_PXXV48_4K not supported on non-x86 platforms");
+ #endif
+ 		break;
++	case VM_MODE_P47V64_4K:
++		vm->pgtable_levels = 5;
++		break;
+ 	default:
+ 		TEST_FAIL("Unknown guest mode, mode: 0x%x", mode);
  	}
- 
- 	pgprintk("%s: pte %llx pte_access %x pt_access %x\n",
--		 __func__, (u64)pte, walker->pte_access, walker->pt_access);
-+		 __func__, (u64)pte, walker->pte_access,
-+		 walker->pt_access[walker->level - 1]);
- 	return 1;
- 
- error:
-@@ -643,7 +646,7 @@ static int FNAME(fetch)(struct kvm_vcpu *vcpu, gpa_t addr,
- 	bool huge_page_disallowed = exec && nx_huge_page_workaround_enabled;
- 	struct kvm_mmu_page *sp = NULL;
- 	struct kvm_shadow_walk_iterator it;
--	unsigned direct_access, access = gw->pt_access;
-+	unsigned int direct_access, access;
- 	int top_level, level, req_level, ret;
- 	gfn_t base_gfn = gw->gfn;
- 
-@@ -675,6 +678,7 @@ static int FNAME(fetch)(struct kvm_vcpu *vcpu, gpa_t addr,
- 		sp = NULL;
- 		if (!is_shadow_present_pte(*it.sptep)) {
- 			table_gfn = gw->table_gfn[it.level - 2];
-+			access = gw->pt_access[it.level - 2];
- 			sp = kvm_mmu_get_page(vcpu, table_gfn, addr, it.level-1,
- 					      false, access);
- 		}
 
