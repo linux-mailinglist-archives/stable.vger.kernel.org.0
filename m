@@ -2,109 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 598AE3A58A4
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 15:07:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0874F3A5923
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 16:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231667AbhFMNJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 09:09:59 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:52525 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231286AbhFMNJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 09:09:59 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id CCA091940B07;
-        Sun, 13 Jun 2021 09:07:57 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Sun, 13 Jun 2021 09:07:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Q913Og
-        Q7iVEcKXMM4SOc7ZHuJT/TYrmcwTI1O2Ff5KI=; b=aJlkMQG5D583uvV8pGX1FN
-        4nrN0Uo97eflV4/f4OQcrH1cObc++7ryPU+qG77QqZuqFUpw17yImxUQQDIoBrYZ
-        mvRD1nirPHIPIWnU7o13IhmGXOvBN6nyKO4kPywYr5EEVfahgqYtYvCa4YYoI/fD
-        zasUkDhZJ6Ssau7P50d1URqXnhfnXHK2wndlAHUuslCVaNXjT2LlSB9MoWL36NvW
-        YQSQnjdaemx4j4z22HF6ouZbKxj1vM4IFSMdO7xnNYIO1YHMP6roYRDNazL74UMx
-        f+5HacqhEk1Bz1LHVvooLNfPPXgrdnUv1ujg0ibj2cbkm5gQPMjiXZs21/qTn/OQ
-        ==
-X-ME-Sender: <xms:LQPGYJP4QmorQ8Z1z_MQkxJsp-C_VYtX77fVflkTz3Apm_S2Ya389A>
-    <xme:LQPGYL8EUlNQq2G2J3y-69q8n3SZeukHeWUFCJylorBHd63HNBvFK2JL2xfe4Q8mZ
-    OBqnAZk5T5ONA>
-X-ME-Received: <xmr:LQPGYIT3oyOJsNoCuwsp3CeF91e4WpmWJojxS10x2yZqceH8EysEpwauMYr20HQrOKc71hzF7gwM8My54Hep32WsiDA-eKFP>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgiedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
-    grhhdrtghomh
-X-ME-Proxy: <xmx:LQPGYFtnxGetX213U3Gk2Edb7IXL_OJ_FRp-u-pSKRrjPiaHYVDn7w>
-    <xmx:LQPGYBeIoxEgXaIJhcNnXcxRWaCVNcF5Nqys_Ot1axbCioWEu573uw>
-    <xmx:LQPGYB04AFfBxQVX6uTVngQJz8bPern7aQg3GzyLrnQdVegLNVPsJA>
-    <xmx:LQPGYF6kul7EkzdtRcj7poWla6G_R8JTJlqR63q5L8An5d36h8ZVQw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 09:07:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] RDMA/mlx5: Block FDB rules when not in switchdev mode" failed to apply to 5.10-stable tree
-To:     mbloch@nvidia.com, jgg@nvidia.com, leonro@nvidia.com,
-        maorg@nvidia.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 15:07:54 +0200
-Message-ID: <1623589674120109@kroah.com>
+        id S231841AbhFMO6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 10:58:33 -0400
+Received: from mail-ed1-f50.google.com ([209.85.208.50]:36595 "EHLO
+        mail-ed1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231755AbhFMO6d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 10:58:33 -0400
+Received: by mail-ed1-f50.google.com with SMTP id w21so43009752edv.3
+        for <stable@vger.kernel.org>; Sun, 13 Jun 2021 07:56:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=mYOiA3ZBNs5Wt2A7AYBz6YbQnyZrGKEskbnmlwiCaBo=;
+        b=yB0rVbKoZJ1j7SJLP6Ftger4soScb3bygPcqNWu54o3XcvD7A6RPsaNaDdFIZjl7j3
+         CilF/C40QBH7y0YrGtPjdOk42aP5H07uFVppSn4x6hwVZtfJeu9mVTTzyfFOLCj6+RH7
+         um3geWG4+VuU3hKYLJ5daB7NYvCCmuPCALXbRSWw3PKRBuKOSCdl71R2yswhcTZr40ux
+         Cij98Ht0Vnc6goXY/y55eNslFaP1z0api2lSv5DlFfZO7ZV9d0DjQWP21dbaMP7hzUB8
+         BalrJskfe2RVVXPOJS82Akp6VlJR9ow4HT/2AxmEqvHphEM4hE1YNvQSK6veB7JGvFsW
+         Y+KQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=mYOiA3ZBNs5Wt2A7AYBz6YbQnyZrGKEskbnmlwiCaBo=;
+        b=F4gHZ9vFz6w2Mj9QuKjciHXBIaNO1YJiIhmxg9oxsQgxqo7BIX++nldpK9TuFznekF
+         0/BqtkHJ7fSTFHH/a/uQfhKumjblqDtZJWWRyXLN5DJn/hJHqMKQ1nA7dkRVVsAT2Laa
+         WmaIEXbaJx1GszCkFAVCqg5qcUisL/aQ02wpxdtKRXuNBDaUpAwIT+KwvOnvqe3mTx2P
+         kp0zXav277pesz2LeFCqFD+FLhvTYd9GEi3hmO3zjAzryUbtxAwEGBcAbSbuM6vKy0Co
+         3TP6WzJQ6+ne4NJszjho98tFsT4XWCve+EUfpOptaf83lLf1AKdoU/PiCU1pTR5zt+nI
+         FUPA==
+X-Gm-Message-State: AOAM530vz0eISeJX62BZGQjnAQ069oYibbvuDVMJWCt53oMy1+WN4sHi
+        w3K6zlVGqtbgx/NRfzD3dA20xbwIX/hVZOyepv0APg==
+X-Google-Smtp-Source: ABdhPJwZSj0Vz9ZqHDObAcEe2jYlz4QzP1/DE7EmHZbRLgk7BNy41uyx6mjLHP2rd5ESSKNCo0lxMB02CFo4s1e6yy8=
+X-Received: by 2002:a05:6402:220d:: with SMTP id cq13mr4806349edb.52.1623596131348;
+ Sun, 13 Jun 2021 07:55:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sun, 13 Jun 2021 20:25:19 +0530
+Message-ID: <CA+G9fYuBo_WgjtW1BugKLPeYnmLEe65zU7Ttt=FB2uqMzZy1eQ@mail.gmail.com>
+Subject: compiler.h:417:38: error: call to '__compiletime_assert_59' declared
+ with attribute error: BUILD_BUG_ON failed: sizeof(_i) > sizeof(long)
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     linux-stable <stable@vger.kernel.org>, lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following error was noticed on stable-rc 5.12, 5.10, 5.4, 4.19,
+4.14, 4.9 and 4.4
+for i386 and arm.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+make --silent --keep-going --jobs=8
+O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm
+CROSS_COMPILE=arm-linux-gnueabihf- 'CC=sccache
+arm-linux-gnueabihf-gcc' 'HOSTCC=sccache gcc'
+In file included from /builds/linux/include/linux/kernel.h:11,
+                 from /builds/linux/include/linux/list.h:9,
+                 from /builds/linux/include/linux/preempt.h:11,
+                 from /builds/linux/include/linux/hardirq.h:5,
+                 from /builds/linux/include/linux/kvm_host.h:7,
+                 from
+/builds/linux/arch/arm/kvm/../../../virt/kvm/kvm_main.c:18:
+In function '__gfn_to_hva_memslot',
+    inlined from '__gfn_to_hva_many.part.6' at
+/builds/linux/arch/arm/kvm/../../../virt/kvm/kvm_main.c:1446:9,
+    inlined from '__gfn_to_hva_many' at
+/builds/linux/arch/arm/kvm/../../../virt/kvm/kvm_main.c:1434:22:
+/builds/linux/include/linux/compiler.h:417:38: error: call to
+'__compiletime_assert_59' declared with attribute error: BUILD_BUG_ON
+failed: sizeof(_i) > sizeof(long)
+  _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+                                      ^
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-thanks,
+ref:
+https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1342604370#L389
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From edc0b0bccc9c80d9a44d3002dcca94984b25e7cf Mon Sep 17 00:00:00 2001
-From: Mark Bloch <mbloch@nvidia.com>
-Date: Mon, 7 Jun 2021 11:03:12 +0300
-Subject: [PATCH] RDMA/mlx5: Block FDB rules when not in switchdev mode
-
-Allow creating FDB steering rules only when in switchdev mode.
-
-The only software model where a userspace application can manipulate
-FDB entries is when it manages the eswitch. This is only possible in
-switchdev mode where we expose a single RDMA device with representors
-for all the vports that are connected to the eswitch.
-
-Fixes: 52438be44112 ("RDMA/mlx5: Allow inserting a steering rule to the FDB")
-Link: https://lore.kernel.org/r/e928ae7c58d07f104716a2a8d730963d1bd01204.1623052923.git.leonro@nvidia.com
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-
-diff --git a/drivers/infiniband/hw/mlx5/fs.c b/drivers/infiniband/hw/mlx5/fs.c
-index 2fc6a60c4e77..f84441ff0c81 100644
---- a/drivers/infiniband/hw/mlx5/fs.c
-+++ b/drivers/infiniband/hw/mlx5/fs.c
-@@ -2134,6 +2134,12 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_FLOW_MATCHER_CREATE)(
- 	if (err)
- 		goto end;
- 
-+	if (obj->ns_type == MLX5_FLOW_NAMESPACE_FDB &&
-+	    mlx5_eswitch_mode(dev->mdev) != MLX5_ESWITCH_OFFLOADS) {
-+		err = -EINVAL;
-+		goto end;
-+	}
-+
- 	uobj->object = obj;
- 	obj->mdev = dev->mdev;
- 	atomic_set(&obj->usecnt, 0);
-
+--
+Linaro LKFT
+https://lkft.linaro.org
