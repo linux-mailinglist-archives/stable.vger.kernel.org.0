@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE47F3A5896
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 15:03:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 572513A5897
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 15:04:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231667AbhFMNFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 09:05:46 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:51431 "EHLO
+        id S231697AbhFMNGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 09:06:23 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:34603 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231286AbhFMNFp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 09:05:45 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E794A19401DE;
-        Sun, 13 Jun 2021 09:03:43 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Sun, 13 Jun 2021 09:03:43 -0400
+        by vger.kernel.org with ESMTP id S231286AbhFMNGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 09:06:23 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id E8AA71940B1B;
+        Sun, 13 Jun 2021 09:04:21 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Sun, 13 Jun 2021 09:04:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=UziDN6
-        Y8kDouTZso4SwlFyQF0QohOLg+KfyU4yJau1Y=; b=VxklZ9U1C4g/9ShbHm6OIe
-        KMx7DyT0m1xA53vD4eMgJ4rxlOghrtBz/OOVI9u8VYaLViEiznNYz72cmMjXu58q
-        49vgkwIa6LNJCCRBPEvwJLDyQosmsO0R6He3leucfAY3n80RjpQK9KPRP9ADy2CK
-        4W7+g+CryXoTCYY1Mj25DOUpw0snQ/bbBeA7vCEWQjxFXtoHqkNtNj6Pz3MqqQxP
-        NypaGkPsxecj5/uUhRI4/MfvbG6JfBhTmOUCE9JOt+tK8U4E/2u/lV4ha57CwLbg
-        12aUwfm4cI8+Z9VdRC8S7vPahfiK5LapswiP9AmlAn5cZKD3UfTuecpbKimk/V6A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=mkUo11
+        +/JWO4fLOU/nNHdLlIgG7vWmULGxmszv1OBms=; b=WWO+uuNJEh8ivHTWhceKOf
+        YCV3+Zk1AAMT/ZxEQxOyqocp7u51PnI88EuqxTC81kfUT23f3Xww+o69NBxia+XU
+        l2VHrYXl5yG5yEOESm4sy2zhREB9jyDEYhse/wXBdmeCsV7wH6vPnPfcqegr5m/e
+        Sb5XEqV8/1yD3dHZe7En7XfRy411exNjQ9rTsjzSZgDdNNRziRWVr+zGa/CqyUEL
+        jCe+wwOd/Yp3sMgOIZsEUQXxSRPX7CIcEIFh1ejmIeoetzv7DGEDgZBIt7dU9BzJ
+        DIPvcbyqO8KGSXl99YbAZMKC/BaMiXKjS8a6Ie9MHlECCewyeybxbF+5YbijsYJQ
         ==
-X-ME-Sender: <xms:LwLGYLC8tQGqeYK20b7behEZgwHSAdT43BqTl0K6fmqL7wPo6TogdA>
-    <xme:LwLGYBiTHdxdW7DleFQ4IqlmGyzJ22jbzugt1Ob-NerBZM_XGFSTohRwiytYFSGwq
-    GWaK-_YyaYEtA>
-X-ME-Received: <xmr:LwLGYGmJP6xJ8FG_69VKV-0mmcanA0Fs9ROFAgvaecThr0b9FYyk2D_QRz-6XTGZ4BTyCe0TmRISuqXO8bZu7XcbKOwq_ZCL>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgieduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:VQLGYEnacuXSwLLw-rTNcHtBtSCGRbnyXzppGkc303A0qeV05QqA8g>
+    <xme:VQLGYD2jRrOXP6XwuLe1iLbSHhGecszFh15xk67IoEYQeY8-2mQ3HA2duA4yj-fCb
+    njx1ibJiQ4i3g>
+X-ME-Received: <xmr:VQLGYCqnWCVDywJRG_VJTrvdqI71EQ4klx-MI7Em9Xea21ENKIP9rCH-tVofkKtgTjgPm_Fps7Kbg0XR2QGnWGHdTbF7rnKU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgiedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -39,18 +39,18 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgieduucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:LwLGYNxDMWzfw5_KrmNmlY0dlw90pSVrH8yX1j8w3vmS0XRJel-m-w>
-    <xmx:LwLGYARRBeeocc_F5yka7kCn1uVnj2coruV4yyKrsTspRZmkOU2f9w>
-    <xmx:LwLGYAazo8zDIpqDZ7KZy5jYMTdx8McSDrpoGI3xp_SpwT-gPbe7qw>
-    <xmx:LwLGYLf6XwOJ1hyDFauHG9Hj0285h1hBaRNe9ZJR1TKhC7_91HWBeg>
+X-ME-Proxy: <xmx:VQLGYAlVilj2z75c5Jq5OXoojWKqr7M1AVTgAU9OJAclW-D17suDQg>
+    <xmx:VQLGYC0P3GnaFXavFGNT-OiAIRR3k4MBgAXoOC9OiqXt3X8qiqYaRA>
+    <xmx:VQLGYHuAt0wTy4F9x5pOuZHh0ZFzJH_irTX1ecGAmcHYjydfkw5kMQ>
+    <xmx:VQLGYAD1FjTLy_J5kZKHdSTCamQcNByPmkGudNsdPytTmk4MOvfy9A>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 09:03:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] RDMA/mlx5: Use different doorbell memory for different" failed to apply to 4.9-stable tree
+ 13 Jun 2021 09:04:21 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] RDMA/mlx5: Use different doorbell memory for different" failed to apply to 4.14-stable tree
 To:     markzhang@nvidia.com, jgg@nvidia.com, leonro@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 15:03:33 +0200
-Message-ID: <16235894133360@kroah.com>
+Date:   Sun, 13 Jun 2021 15:04:19 +0200
+Message-ID: <1623589459180122@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
