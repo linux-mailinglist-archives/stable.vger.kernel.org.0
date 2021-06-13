@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3608C3A58A1
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 15:06:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 598AE3A58A4
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 15:07:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231649AbhFMNIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 09:08:21 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:40371 "EHLO
+        id S231667AbhFMNJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 09:09:59 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:52525 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231286AbhFMNIV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 09:08:21 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E76951940A0F;
-        Sun, 13 Jun 2021 09:06:19 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S231286AbhFMNJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 09:09:59 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id CCA091940B07;
+        Sun, 13 Jun 2021 09:07:57 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sun, 13 Jun 2021 09:06:19 -0400
+  by compute5.internal (MEProxy); Sun, 13 Jun 2021 09:07:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=rYppUT
-        G96kh5Vq2OCS3C2eas6rMrslB6i+V3SMvdu0w=; b=Jj2xbxhkM4ZgH2ZpTE8QI8
-        y1sWVR43HMbdb4C1zacHDpHp2zsiG7HLxTfbUGcXoYOz52nso3LzvrSHJNKagcr9
-        n9qyFtPKktUT+Av8yccug3FCoMzsLeCtJZIr8EhtGHalAhZyJ7y0GkNQvy0tJg8F
-        okBEt9F21Htfj81UoPHhzlb6A+c0aF6wa+uLtmKSUBsiNcUadsHc8klM+p6VnMSL
-        6ukp4roRfdPugkYT1tqqRzpQEb6Uk09vf7XyncAAl5RbOvlP71Ix34vDaXcNpGWF
-        zLDxUOcTopjsvgTdk8ey+DI46ETuTKqz0gqAPpnjrTZKFm4tUBYK2UznDPQwPGAQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Q913Og
+        Q7iVEcKXMM4SOc7ZHuJT/TYrmcwTI1O2Ff5KI=; b=aJlkMQG5D583uvV8pGX1FN
+        4nrN0Uo97eflV4/f4OQcrH1cObc++7ryPU+qG77QqZuqFUpw17yImxUQQDIoBrYZ
+        mvRD1nirPHIPIWnU7o13IhmGXOvBN6nyKO4kPywYr5EEVfahgqYtYvCa4YYoI/fD
+        zasUkDhZJ6Ssau7P50d1URqXnhfnXHK2wndlAHUuslCVaNXjT2LlSB9MoWL36NvW
+        YQSQnjdaemx4j4z22HF6ouZbKxj1vM4IFSMdO7xnNYIO1YHMP6roYRDNazL74UMx
+        f+5HacqhEk1Bz1LHVvooLNfPPXgrdnUv1ujg0ibj2cbkm5gQPMjiXZs21/qTn/OQ
         ==
-X-ME-Sender: <xms:ywLGYHXvxyFWFWPic5kNbx_nK84EcnV5BH1xugZFmIBctQB58EEAtQ>
-    <xme:ywLGYPkuFoGLJ-8__acrDgek6dLZVDXeWAqhSpzGPXVarZmT1asF6iqMCXbrFXatX
-    SNXiuRJ_uw94g>
-X-ME-Received: <xmr:ywLGYDYOkhctp0uoCEsU0peOL6dXeLCi2rEpc3pH7cadsWF9wo6XtMl5RxHS2Q_S0RwxAq_BpoNV0WOrqN3vONpA2YqUtx4C>
+X-ME-Sender: <xms:LQPGYJP4QmorQ8Z1z_MQkxJsp-C_VYtX77fVflkTz3Apm_S2Ya389A>
+    <xme:LQPGYL8EUlNQq2G2J3y-69q8n3SZeukHeWUFCJylorBHd63HNBvFK2JL2xfe4Q8mZ
+    OBqnAZk5T5ONA>
+X-ME-Received: <xmr:LQPGYIT3oyOJsNoCuwsp3CeF91e4WpmWJojxS10x2yZqceH8EysEpwauMYr20HQrOKc71hzF7gwM8My54Hep32WsiDA-eKFP>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgiedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:ywLGYCX9n3SE7z918Tbsr4Bt6p_4wlpx-tq6p79-fi2k4KHYW0HdLA>
-    <xmx:ywLGYBnL7RVxW-nRcfeHM807AA7w7K20jfcaw0w6vNtSH5uveewGeA>
-    <xmx:ywLGYPeLqmRW3PrhgXeVYJy4jmwbmWwROQnttKUwRx9tb7AvCnjeKw>
-    <xmx:ywLGYGzCMyNH5R6Pwr0zrTp71mZR_Z08LdjTecpl8d6FXH1pZ_GEDw>
+X-ME-Proxy: <xmx:LQPGYFtnxGetX213U3Gk2Edb7IXL_OJ_FRp-u-pSKRrjPiaHYVDn7w>
+    <xmx:LQPGYBeIoxEgXaIJhcNnXcxRWaCVNcF5Nqys_Ot1axbCioWEu573uw>
+    <xmx:LQPGYB04AFfBxQVX6uTVngQJz8bPern7aQg3GzyLrnQdVegLNVPsJA>
+    <xmx:LQPGYF6kul7EkzdtRcj7poWla6G_R8JTJlqR63q5L8An5d36h8ZVQw>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 09:06:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] RDMA/mlx5: Use different doorbell memory for different" failed to apply to 5.10-stable tree
-To:     markzhang@nvidia.com, jgg@nvidia.com, leonro@nvidia.com
+ 13 Jun 2021 09:07:57 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] RDMA/mlx5: Block FDB rules when not in switchdev mode" failed to apply to 5.10-stable tree
+To:     mbloch@nvidia.com, jgg@nvidia.com, leonro@nvidia.com,
+        maorg@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 15:06:17 +0200
-Message-ID: <1623589577251246@kroah.com>
+Date:   Sun, 13 Jun 2021 15:07:54 +0200
+Message-ID: <1623589674120109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,66 +71,40 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a0ffb4c12f7fa89163e228e6f27df09b46631db1 Mon Sep 17 00:00:00 2001
-From: Mark Zhang <markzhang@nvidia.com>
-Date: Thu, 3 Jun 2021 16:18:03 +0300
-Subject: [PATCH] RDMA/mlx5: Use different doorbell memory for different
- processes
+From edc0b0bccc9c80d9a44d3002dcca94984b25e7cf Mon Sep 17 00:00:00 2001
+From: Mark Bloch <mbloch@nvidia.com>
+Date: Mon, 7 Jun 2021 11:03:12 +0300
+Subject: [PATCH] RDMA/mlx5: Block FDB rules when not in switchdev mode
 
-In a fork scenario, the parent and child can have same virtual address and
-also share the uverbs fd.  That causes to the list_for_each_entry search
-return same doorbell physical page for all processes, even though that
-page has been COW' or copied.
+Allow creating FDB steering rules only when in switchdev mode.
 
-This patch takes the mm_struct into consideration during search, to make
-sure that VA's belonging to different processes are not intermixed.
+The only software model where a userspace application can manipulate
+FDB entries is when it manages the eswitch. This is only possible in
+switchdev mode where we expose a single RDMA device with representors
+for all the vports that are connected to the eswitch.
 
-Resolves the malfunction of uverbs after fork in some specific cases.
-
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Link: https://lore.kernel.org/r/feacc23fe0bc6e1088c6824d5583798745e72405.1622726212.git.leonro@nvidia.com
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Fixes: 52438be44112 ("RDMA/mlx5: Allow inserting a steering rule to the FDB")
+Link: https://lore.kernel.org/r/e928ae7c58d07f104716a2a8d730963d1bd01204.1623052923.git.leonro@nvidia.com
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Mark Bloch <mbloch@nvidia.com>
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-diff --git a/drivers/infiniband/hw/mlx5/doorbell.c b/drivers/infiniband/hw/mlx5/doorbell.c
-index 61475b571531..7af4df7a6823 100644
---- a/drivers/infiniband/hw/mlx5/doorbell.c
-+++ b/drivers/infiniband/hw/mlx5/doorbell.c
-@@ -41,6 +41,7 @@ struct mlx5_ib_user_db_page {
- 	struct ib_umem	       *umem;
- 	unsigned long		user_virt;
- 	int			refcnt;
-+	struct mm_struct	*mm;
- };
+diff --git a/drivers/infiniband/hw/mlx5/fs.c b/drivers/infiniband/hw/mlx5/fs.c
+index 2fc6a60c4e77..f84441ff0c81 100644
+--- a/drivers/infiniband/hw/mlx5/fs.c
++++ b/drivers/infiniband/hw/mlx5/fs.c
+@@ -2134,6 +2134,12 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_FLOW_MATCHER_CREATE)(
+ 	if (err)
+ 		goto end;
  
- int mlx5_ib_db_map_user(struct mlx5_ib_ucontext *context,
-@@ -53,7 +54,8 @@ int mlx5_ib_db_map_user(struct mlx5_ib_ucontext *context,
- 	mutex_lock(&context->db_page_mutex);
- 
- 	list_for_each_entry(page, &context->db_page_list, list)
--		if (page->user_virt == (virt & PAGE_MASK))
-+		if ((current->mm == page->mm) &&
-+		    (page->user_virt == (virt & PAGE_MASK)))
- 			goto found;
- 
- 	page = kmalloc(sizeof(*page), GFP_KERNEL);
-@@ -71,6 +73,8 @@ int mlx5_ib_db_map_user(struct mlx5_ib_ucontext *context,
- 		kfree(page);
- 		goto out;
- 	}
-+	mmgrab(current->mm);
-+	page->mm = current->mm;
- 
- 	list_add(&page->list, &context->db_page_list);
- 
-@@ -91,6 +95,7 @@ void mlx5_ib_db_unmap_user(struct mlx5_ib_ucontext *context, struct mlx5_db *db)
- 
- 	if (!--db->u.user_page->refcnt) {
- 		list_del(&db->u.user_page->list);
-+		mmdrop(db->u.user_page->mm);
- 		ib_umem_release(db->u.user_page->umem);
- 		kfree(db->u.user_page);
- 	}
++	if (obj->ns_type == MLX5_FLOW_NAMESPACE_FDB &&
++	    mlx5_eswitch_mode(dev->mdev) != MLX5_ESWITCH_OFFLOADS) {
++		err = -EINVAL;
++		goto end;
++	}
++
+ 	uobj->object = obj;
+ 	obj->mdev = dev->mdev;
+ 	atomic_set(&obj->usecnt, 0);
 
