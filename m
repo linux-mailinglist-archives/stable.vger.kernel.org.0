@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB133A5831
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C09BC3A5833
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231736AbhFMMFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 08:05:33 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:52763 "EHLO
+        id S231691AbhFMMHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 08:07:37 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:48039 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231658AbhFMMFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:05:32 -0400
+        by vger.kernel.org with ESMTP id S231658AbhFMMHh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:07:37 -0400
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 60CA919406E6;
-        Sun, 13 Jun 2021 08:03:31 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Sun, 13 Jun 2021 08:03:31 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 2AF7119409A7;
+        Sun, 13 Jun 2021 08:05:36 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Sun, 13 Jun 2021 08:05:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ptNd++
-        KO+fTY3gm1E2ff5q8Fd6ezC8e/RQ27mzzxKr8=; b=bgvsHxWUVILkOj0yiGJadH
-        Wm7Gj2UAfvu1ql0UnGq/QZktDxo7JGIrTCls8JKjf3HNJP1sytChOaWoRc2TAa5g
-        VJLhn77K41YOOYlCPUqOe8/00VeCvotxcQbTN40FfCpZmb3yJEbzbtDqAa512QHf
-        2aab38YVvzy+lT5gA8zpltM/1qXnE0tH49BoCSC6FJgtVyGCAvhK13u1uSSn3DwP
-        mvA+Bwd9eKZyE3JnYz/UYy+V/cBX4KxZUsFPCaRD3uyFDvoqzZNEdp5CTbrLHb80
-        I/dHguL6tQOgIKmFWsKuFvRkC87R3fKqSj7hiJTSij9sVFd81Uzd48ZUox68u8zg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aM5NLS
+        4ThHYQW20n9EZU+aEIjUS8sHVTOTyfAfMyYKE=; b=ImPy5lTxVGdAEyoKt4qApI
+        8eIdgaIir318YZ54MQLECcriUttFyLgjOEJyohNqvdxooNlq96SR8QUKJB9c3iMg
+        jRJvnE4+NjMIC06woIMU/uezKoaL13PO/VAV/n2VPEiO/btgkhtWMulMVoVGZ7LM
+        OieNydagUQ1GFi8aVcFHJ0in1n1uNvREnMZdizwqw1yQSS9IxUCDJ3qxDeSAmRor
+        CH7A11B4B4kVlAhNPRBRru284HAXHbV9tMWLEv6MDdI5Q/LtA8px5cdtEyVdijVz
+        dJ9lwLbWW3nEwxu4WyWQpG9/yB+XnJd90IPtzqquIcdAC9xZMNo1Cgu8IDU0mH/g
         ==
-X-ME-Sender: <xms:E_TFYJUH3Q2_3uoGUaCrm7yZhwJuI-WtLIM0CUzMiBAgy7-pkYeYzw>
-    <xme:E_TFYJk0PvdnT5SXLY8RwoYE7LL_Eh_9Pxc_fNjGEwcCimbHLbVV4K-1r6hUV-94M
-    0GZs1dAaVqVew>
-X-ME-Received: <xmr:E_TFYFYzKkvE9C77eHn4rctTfcs7uKdgxPu31NlB4A5GqTvJIdUGS3_zCcOFnKr-tXpaqxBzA_pVZ4rzoLhztfH28rTXaHuc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedggeelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:j_TFYGwMrO8jbwsxJRAPvRGsJ1S4ZiUd8VucPlr_zWDwSbL2PrA4nQ>
+    <xme:j_TFYCRu8AJA77G0CutiIsLP5TuTJ28Hs7wMJFpg99N4DjPEebKta93M289emx97t
+    tTx28C92ketGA>
+X-ME-Received: <xmr:j_TFYIWV4_t1uD7wA8UqkpfImutbKWz-DduUvmQoNKb8r3S7niU1DUgfzK1tQFsinuzOAMeXym7QMRSB1FxjdyiIxrXyW6pu>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedghedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:E_TFYMWLQhfJhchNFCi1486T9Yl86R5pU3RRz5fHku3eL435OocNFA>
-    <xmx:E_TFYDlFyJwdmFP_8Yq9drc_CZTk-_QJWFUnRDoP7VC1Y06ZS-bIzQ>
-    <xmx:E_TFYJdL6W6_rA8CZKKpLUVzYinBbVHoRgVF1PjIofmhlcEeLpLs4g>
-    <xmx:E_TFYLtqM_5rUf0pcP1yCpQdrLMp12rC9q8wDaNLJKEMqfxWbCFNzA>
+X-ME-Proxy: <xmx:j_TFYMiTuymXFUHncU98Wn5xxe5t08OM9V2PzyrLtnpBz_3Om3oKCQ>
+    <xmx:j_TFYIBgRzSv4IXM5x5G6DXXQPFHOGDOXHOHPp12ALNBmAJ2w2D4-g>
+    <xmx:j_TFYNKy_dnH7N5bNwAqhUl5hl-hOFGsZT4Wb3wmdZr3G7uqQGHhVg>
+    <xmx:kPTFYL8dJsVf83T6tPPbZH1_9wio7Gj5muv6CkBqIi48_N2-Ou5WhA>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 08:03:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ftrace: Do not blindly read the ip address in ftrace_bug()" failed to apply to 5.4-stable tree
-To:     rostedt@goodmis.org, mark-pk.tsai@mediatek.com
+ 13 Jun 2021 08:05:35 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: musb: fix MUSB_QUIRK_B_DISCONNECT_99 handling" failed to apply to 4.14-stable tree
+To:     thomas.petazzoni@bootlin.com, alexandre.belloni@bootlin.com,
+        drew@beagleboard.org, gregkh@linuxfoundation.org, tony@atomide.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 14:03:15 +0200
-Message-ID: <1623585795198152@kroah.com>
+Date:   Sun, 13 Jun 2021 14:05:32 +0200
+Message-ID: <162358593216355@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,53 +71,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6c14133d2d3f768e0a35128faac8aa6ed4815051 Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Mon, 7 Jun 2021 21:39:08 -0400
-Subject: [PATCH] ftrace: Do not blindly read the ip address in ftrace_bug()
+From b65ba0c362be665192381cc59e3ac3ef6f0dd1e1 Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Date: Fri, 28 May 2021 16:04:46 +0200
+Subject: [PATCH] usb: musb: fix MUSB_QUIRK_B_DISCONNECT_99 handling
 
-It was reported that a bug on arm64 caused a bad ip address to be used for
-updating into a nop in ftrace_init(), but the error path (rightfully)
-returned -EINVAL and not -EFAULT, as the bug caused more than one error to
-occur. But because -EINVAL was returned, the ftrace_bug() tried to report
-what was at the location of the ip address, and read it directly. This
-caused the machine to panic, as the ip was not pointing to a valid memory
-address.
+In commit 92af4fc6ec33 ("usb: musb: Fix suspend with devices
+connected for a64"), the logic to support the
+MUSB_QUIRK_B_DISCONNECT_99 quirk was modified to only conditionally
+schedule the musb->irq_work delayed work.
 
-Instead, read the ip address with copy_from_kernel_nofault() to safely
-access the memory, and if it faults, report that the address faulted,
-otherwise report what was in that location.
+This commit badly breaks ECM Gadget on AM335X. Indeed, with this
+commit, one can observe massive packet loss:
 
-Link: https://lore.kernel.org/lkml/20210607032329.28671-1-mark-pk.tsai@mediatek.com/
+$ ping 192.168.0.100
+...
+15 packets transmitted, 3 received, 80% packet loss, time 14316ms
 
+Reverting this commit brings back a properly functioning ECM
+Gadget. An analysis of the commit seems to indicate that a mistake was
+made: the previous code was not falling through into the
+MUSB_QUIRK_B_INVALID_VBUS_91, but now it is, unless the condition is
+taken.
+
+Changing the logic to be as it was before the problematic commit *and*
+only conditionally scheduling musb->irq_work resolves the regression:
+
+$ ping 192.168.0.100
+...
+64 packets transmitted, 64 received, 0% packet loss, time 64475ms
+
+Fixes: 92af4fc6ec33 ("usb: musb: Fix suspend with devices connected for a64")
 Cc: stable@vger.kernel.org
-Fixes: 05736a427f7e1 ("ftrace: warn on failure to disable mcount callers")
-Reported-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Tested-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Tested-by: Drew Fustini <drew@beagleboard.org>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Link: https://lore.kernel.org/r/20210528140446.278076-1-thomas.petazzoni@bootlin.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 2e8a3fde7104..72ef4dccbcc4 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1967,12 +1967,18 @@ static int ftrace_hash_ipmodify_update(struct ftrace_ops *ops,
- 
- static void print_ip_ins(const char *fmt, const unsigned char *p)
- {
-+	char ins[MCOUNT_INSN_SIZE];
- 	int i;
- 
-+	if (copy_from_kernel_nofault(ins, p, MCOUNT_INSN_SIZE)) {
-+		printk(KERN_CONT "%s[FAULT] %px\n", fmt, p);
-+		return;
-+	}
-+
- 	printk(KERN_CONT "%s", fmt);
- 
- 	for (i = 0; i < MCOUNT_INSN_SIZE; i++)
--		printk(KERN_CONT "%s%02x", i ? ":" : "", p[i]);
-+		printk(KERN_CONT "%s%02x", i ? ":" : "", ins[i]);
- }
- 
- enum ftrace_bug_type ftrace_bug_type;
+diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
+index 8f09a387b773..4c8f0112481f 100644
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2009,9 +2009,8 @@ static void musb_pm_runtime_check_session(struct musb *musb)
+ 			schedule_delayed_work(&musb->irq_work,
+ 					      msecs_to_jiffies(1000));
+ 			musb->quirk_retries--;
+-			break;
+ 		}
+-		fallthrough;
++		break;
+ 	case MUSB_QUIRK_B_INVALID_VBUS_91:
+ 		if (musb->quirk_retries && !musb->flush_irq_work) {
+ 			musb_dbg(musb,
 
