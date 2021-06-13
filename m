@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 181413A5811
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 13:49:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7F83A5812
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 13:49:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231688AbhFMLvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 07:51:37 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51817 "EHLO
+        id S231703AbhFMLv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 07:51:57 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:52379 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231658AbhFMLvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 07:51:36 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id 2499B1104;
-        Sun, 13 Jun 2021 07:49:34 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 13 Jun 2021 07:49:35 -0400
+        by vger.kernel.org with ESMTP id S231658AbhFMLv4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 07:51:56 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 4951711E7;
+        Sun, 13 Jun 2021 07:49:54 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Sun, 13 Jun 2021 07:49:55 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=8O37wx
-        v3RIn+3IOq+VjIifatc4tVV6tOLGXAmcpLsvQ=; b=AwLsoWuR9hyGpKKvSvDHMI
-        mvpheUK0mTw6MQefTLhoZqai/cQ2WA4xceEWrWU8DDvUnEsTzbU+mPnz7ckpMi0T
-        6O2ctZZ7ka2FxjUgxs4PtJZ7n2OPSeM4MBuTCpEl4yygfs4uN4si0sCp8U+WLwMa
-        4N3PWUk/pz/va3NURm7CY+aH9vNO8/hxIFw3BxelXrpzkMmfWzmaeXsmLC1/dO/4
-        q+cwyLHcHthJt2A55DpR1rxVDbLAJOJDZBR+gysJAi/5T3n7MD2MBob5isYMR8MS
-        xiy9qA/zmmF3PW3h9WlRk/5mOdNOXoVJi4EBRaKHgDb2qme62XlBZd4uvYij9/Mw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Hz54mY
+        E9DIARnDPUPtdG0JJdBLySc5mnWCQRROb2v3c=; b=lofnObpS4LNNXiYGC60WvD
+        EKhheXXxJidCZHqzJhiBZzw4oU4VX9kfcv4XDQGyXsji/HCjgmpzcDycxN60gU95
+        gAjkuYxmeoeosM+SHgyxXP+hpifD37+3CnWPAnXXKH47ru49JB21SH0x+ZgAVsqc
+        aJSqEgXHs6Y79JVQpWTzWxQ0KquTIaH8Z//1qLLIcO2GsXu9CDRsp+w+wUFOyn9P
+        dw8yZJ7yQpuwYSY7ELOhd9HqGYi0pLRNcTYN5L7Nlv+MtrOcz/HaSvvxehri+tiV
+        OEQK29Pg18alw2UkygaijmuEESrHkCfnHLI43WikeUPvIb8gUqTFGxyARizU3tDw
         ==
-X-ME-Sender: <xms:yvDFYCj1KcGARXyFlHw6kka1mfehBh-OZxX_s2QzcPW7R0X0M-SWHA>
-    <xme:yvDFYDBu9ekYmIPi01rAaeY3yzzhl3Q5fTWNLJm-Z6zybGkOZ0gi3xd8FRKTCcRtR
-    5wumLRrgbUpyQ>
-X-ME-Received: <xmr:yvDFYKFiH0og4z5NfoMOWejHzBHTIeCN2Sq-OSqcw3e7ahgQPtTH4jSQMVNPmsgLFWAQLh4A5_fHfY4bIFAFteSnmhYYxlSd>
+X-ME-Sender: <xms:3_DFYHUF40722CqrNNCp98N81BkyseTsJL3P9lGDSNPdfc_UoV8h1g>
+    <xme:3_DFYPmMYlP_CoyPc9sgUFu6fh4aXwfRLzI5ptA3JG9bmy5ert7dN3jd1HWg8k6CH
+    SybPDT_bwc58Q>
+X-ME-Received: <xmr:3_DFYDYUiuZGyItQnDjMq8AhNI4mU9vjjfJQM0RAnNkX5gkMx4K-HKX6iN0s8saTM3OhR_6gp29aB0zcDlTtJpkH-HD7npaA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedggeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -39,13 +39,13 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedggeejucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:yvDFYLQQSZFu9eEdxS4hLTHpQ2f1UEqGDxxtqZCk-ORF5R9Rl56n3Q>
-    <xmx:yvDFYPyYUTtVruib_aclOARB1IkvKXUoLWBNJFYCePFFZhvDMhS0aA>
-    <xmx:yvDFYJ4nZ6JvbGKX3j0n73jBrYDh48sExFGa2pji3t7l7FpCiNuqVQ>
-    <xmx:zfDFYEKg6jb3X-REQwLZsVfrLCTgtCDss4AqCe3QIwGPwTqZ5UXRXfTBOcZ4g2TD>
+X-ME-Proxy: <xmx:3_DFYCWLnvGZXspBMgE3G4619H8C88L8KCf2InoaiNe7eYPsuQP6TA>
+    <xmx:3_DFYBlB5OlmKJuyGsi74GKHmxdchAuZoy-evuwXh-i61ZqoLwklfg>
+    <xmx:3_DFYPfJntrVoQEalr4zdah-efgLJmCCUBs_5MnFZ_77V30Vs-riEw>
+    <xmx:4fDFYG-iPxVP4XjUjPNzt9ZRHdO-ET5CNShNprrsbmj65WZbQOy2sLLPharIBI9g>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 07:49:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bcache: remove bcache device self-defined readahead" failed to apply to 5.10-stable tree
+ 13 Jun 2021 07:49:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] bcache: avoid oversized read request in cache missing code" failed to apply to 5.10-stable tree
 To:     colyli@suse.de, axboe@kernel.dk, bcache@mfedv.net,
         diego.ercolani@gmail.com, ealex1979@gmail.com, hch@lst.de,
         jan.szubiak@linuxpolska.pl, kent.overstreet@gmail.com,
@@ -54,8 +54,8 @@ To:     colyli@suse.de, axboe@kernel.dk, bcache@mfedv.net,
         vojtech@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 13:49:28 +0200
-Message-ID: <1623584968516@kroah.com>
+Date:   Sun, 13 Jun 2021 13:49:49 +0200
+Message-ID: <16235849893166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -75,25 +75,134 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1616a4c2ab1a80893b6890ae93da40a2b1d0c691 Mon Sep 17 00:00:00 2001
+From 41fe8d088e96472f63164e213de44ec77be69478 Mon Sep 17 00:00:00 2001
 From: Coly Li <colyli@suse.de>
-Date: Mon, 7 Jun 2021 20:50:51 +0800
-Subject: [PATCH] bcache: remove bcache device self-defined readahead
+Date: Mon, 7 Jun 2021 20:50:52 +0800
+Subject: [PATCH] bcache: avoid oversized read request in cache missing code
+ path
 
-For read cache missing, bcache defines a readahead size for the read I/O
-request to the backing device for the missing data. This readahead size
-is initialized to 0, and almost no one uses it to avoid unnecessary read
-amplifying onto backing device and write amplifying onto cache device.
-Considering upper layer file system code has readahead logic allready
-and works fine with readahead_cache_policy sysfile interface, we don't
-have to keep bcache self-defined readahead anymore.
+In the cache missing code path of cached device, if a proper location
+from the internal B+ tree is matched for a cache miss range, function
+cached_dev_cache_miss() will be called in cache_lookup_fn() in the
+following code block,
+[code block 1]
+  526         unsigned int sectors = KEY_INODE(k) == s->iop.inode
+  527                 ? min_t(uint64_t, INT_MAX,
+  528                         KEY_START(k) - bio->bi_iter.bi_sector)
+  529                 : INT_MAX;
+  530         int ret = s->d->cache_miss(b, s, bio, sectors);
 
-This patch removes the bcache self-defined readahead for cache missing
-request for backing device, and the readahead sysfs file interfaces are
-removed as well.
+Here s->d->cache_miss() is the call backfunction pointer initialized as
+cached_dev_cache_miss(), the last parameter 'sectors' is an important
+hint to calculate the size of read request to backing device of the
+missing cache data.
 
-This is the preparation for next patch to fix potential kernel panic due
-to oversized request in a simpler method.
+Current calculation in above code block may generate oversized value of
+'sectors', which consequently may trigger 2 different potential kernel
+panics by BUG() or BUG_ON() as listed below,
+
+1) BUG_ON() inside bch_btree_insert_key(),
+[code block 2]
+   886         BUG_ON(b->ops->is_extents && !KEY_SIZE(k));
+2) BUG() inside biovec_slab(),
+[code block 3]
+   51         default:
+   52                 BUG();
+   53                 return NULL;
+
+All the above panics are original from cached_dev_cache_miss() by the
+oversized parameter 'sectors'.
+
+Inside cached_dev_cache_miss(), parameter 'sectors' is used to calculate
+the size of data read from backing device for the cache missing. This
+size is stored in s->insert_bio_sectors by the following lines of code,
+[code block 4]
+  909    s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
+
+Then the actual key inserting to the internal B+ tree is generated and
+stored in s->iop.replace_key by the following lines of code,
+[code block 5]
+  911   s->iop.replace_key = KEY(s->iop.inode,
+  912                    bio->bi_iter.bi_sector + s->insert_bio_sectors,
+  913                    s->insert_bio_sectors);
+The oversized parameter 'sectors' may trigger panic 1) by BUG_ON() from
+the above code block.
+
+And the bio sending to backing device for the missing data is allocated
+with hint from s->insert_bio_sectors by the following lines of code,
+[code block 6]
+  926    cache_bio = bio_alloc_bioset(GFP_NOWAIT,
+  927                 DIV_ROUND_UP(s->insert_bio_sectors, PAGE_SECTORS),
+  928                 &dc->disk.bio_split);
+The oversized parameter 'sectors' may trigger panic 2) by BUG() from the
+agove code block.
+
+Now let me explain how the panics happen with the oversized 'sectors'.
+In code block 5, replace_key is generated by macro KEY(). From the
+definition of macro KEY(),
+[code block 7]
+  71 #define KEY(inode, offset, size)                                  \
+  72 ((struct bkey) {                                                  \
+  73      .high = (1ULL << 63) | ((__u64) (size) << 20) | (inode),     \
+  74      .low = (offset)                                              \
+  75 })
+
+Here 'size' is 16bits width embedded in 64bits member 'high' of struct
+bkey. But in code block 1, if "KEY_START(k) - bio->bi_iter.bi_sector" is
+very probably to be larger than (1<<16) - 1, which makes the bkey size
+calculation in code block 5 is overflowed. In one bug report the value
+of parameter 'sectors' is 131072 (= 1 << 17), the overflowed 'sectors'
+results the overflowed s->insert_bio_sectors in code block 4, then makes
+size field of s->iop.replace_key to be 0 in code block 5. Then the 0-
+sized s->iop.replace_key is inserted into the internal B+ tree as cache
+missing check key (a special key to detect and avoid a racing between
+normal write request and cache missing read request) as,
+[code block 8]
+  915   ret = bch_btree_insert_check_key(b, &s->op, &s->iop.replace_key);
+
+Then the 0-sized s->iop.replace_key as 3rd parameter triggers the bkey
+size check BUG_ON() in code block 2, and causes the kernel panic 1).
+
+Another kernel panic is from code block 6, is by the bvecs number
+oversized value s->insert_bio_sectors from code block 4,
+        min(sectors, bio_sectors(bio) + reada)
+There are two possibility for oversized reresult,
+- bio_sectors(bio) is valid, but bio_sectors(bio) + reada is oversized.
+- sectors < bio_sectors(bio) + reada, but sectors is oversized.
+
+From a bug report the result of "DIV_ROUND_UP(s->insert_bio_sectors,
+PAGE_SECTORS)" from code block 6 can be 344, 282, 946, 342 and many
+other values which larther than BIO_MAX_VECS (a.k.a 256). When calling
+bio_alloc_bioset() with such larger-than-256 value as the 2nd parameter,
+this value will eventually be sent to biovec_slab() as parameter
+'nr_vecs' in following code path,
+   bio_alloc_bioset() ==> bvec_alloc() ==> biovec_slab()
+Because parameter 'nr_vecs' is larger-than-256 value, the panic by BUG()
+in code block 3 is triggered inside biovec_slab().
+
+From the above analysis, we know that the 4th parameter 'sector' sent
+into cached_dev_cache_miss() may cause overflow in code block 5 and 6,
+and finally cause kernel panic in code block 2 and 3. And if result of
+bio_sectors(bio) + reada exceeds valid bvecs number, it may also trigger
+kernel panic in code block 3 from code block 6.
+
+Now the almost-useless readahead size for cache missing request back to
+backing device is removed, this patch can fix the oversized issue with
+more simpler method.
+- add a local variable size_limit,  set it by the minimum value from
+  the max bkey size and max bio bvecs number.
+- set s->insert_bio_sectors by the minimum value from size_limit,
+  sectors, and the sectors size of bio.
+- replace sectors by s->insert_bio_sectors to do bio_next_split.
+
+By the above method with size_limit, s->insert_bio_sectors will never
+result oversized replace_key size or bio bvecs number. And split bio
+'miss' from bio_next_split() will always match the size of 'cache_bio',
+that is the current maximum bio size we can sent to backing device for
+fetching the cache missing data.
+
+Current problmatic code can be partially found since Linux v3.13-rc1,
+therefore all maintained stable kernels should try to apply this fix.
 
 Reported-by: Alexander Ullrich <ealex1979@gmail.com>
 Reported-by: Diego Ercolani <diego.ercolani@gmail.com>
@@ -105,177 +214,46 @@ Reported-by: Vojtech Pavlik <vojtech@suse.cz>
 Reported-and-tested-by: Rolf Fokkens <rolf@rolffokkens.nl>
 Reported-and-tested-by: Thorsten Knabe <linux@thorsten-knabe.de>
 Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 Cc: stable@vger.kernel.org
+Cc: Christoph Hellwig <hch@lst.de>
 Cc: Kent Overstreet <kent.overstreet@gmail.com>
 Cc: Nix <nix@esperi.org.uk>
 Cc: Takashi Iwai <tiwai@suse.com>
-Link: https://lore.kernel.org/r/20210607125052.21277-2-colyli@suse.de
+Link: https://lore.kernel.org/r/20210607125052.21277-3-colyli@suse.de
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/drivers/md/bcache/bcache.h b/drivers/md/bcache/bcache.h
-index 0a4551e165ab..5fc989a6d452 100644
---- a/drivers/md/bcache/bcache.h
-+++ b/drivers/md/bcache/bcache.h
-@@ -364,7 +364,6 @@ struct cached_dev {
- 
- 	/* The rest of this all shows up in sysfs */
- 	unsigned int		sequential_cutoff;
--	unsigned int		readahead;
- 
- 	unsigned int		io_disable:1;
- 	unsigned int		verify:1;
 diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
-index 29c231758293..ab8ff18df32a 100644
+index ab8ff18df32a..6d1de889baeb 100644
 --- a/drivers/md/bcache/request.c
 +++ b/drivers/md/bcache/request.c
-@@ -880,7 +880,6 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
- 				 struct bio *bio, unsigned int sectors)
- {
+@@ -882,6 +882,7 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
  	int ret = MAP_CONTINUE;
--	unsigned int reada = 0;
  	struct cached_dev *dc = container_of(s->d, struct cached_dev, disk);
  	struct bio *miss, *cache_bio;
++	unsigned int size_limit;
  
-@@ -892,14 +891,7 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
+ 	s->cache_missed = 1;
+ 
+@@ -891,7 +892,10 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
  		goto out_submit;
  	}
  
--	if (!(bio->bi_opf & REQ_RAHEAD) &&
--	    !(bio->bi_opf & (REQ_META|REQ_PRIO)) &&
--	    s->iop.c->gc_stats.in_use < CUTOFF_CACHE_READA)
--		reada = min_t(sector_t, dc->readahead >> 9,
--			      get_capacity(bio->bi_bdev->bd_disk) -
--			      bio_end_sector(bio));
--
--	s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
-+	s->insert_bio_sectors = min(sectors, bio_sectors(bio));
+-	s->insert_bio_sectors = min(sectors, bio_sectors(bio));
++	/* Limitation for valid replace key size and cache_bio bvecs number */
++	size_limit = min_t(unsigned int, BIO_MAX_VECS * PAGE_SECTORS,
++			   (1 << KEY_SIZE_BITS) - 1);
++	s->insert_bio_sectors = min3(size_limit, sectors, bio_sectors(bio));
  
  	s->iop.replace_key = KEY(s->iop.inode,
  				 bio->bi_iter.bi_sector + s->insert_bio_sectors,
-@@ -933,9 +925,6 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
- 	if (bch_bio_alloc_pages(cache_bio, __GFP_NOWARN|GFP_NOIO))
- 		goto out_put;
+@@ -903,7 +907,8 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
  
--	if (reada)
--		bch_mark_cache_readahead(s->iop.c, s->d);
--
- 	s->cache_miss	= miss;
- 	s->iop.bio	= cache_bio;
- 	bio_get(cache_bio);
-diff --git a/drivers/md/bcache/stats.c b/drivers/md/bcache/stats.c
-index 503aafe188dc..4c7ee5fedb9d 100644
---- a/drivers/md/bcache/stats.c
-+++ b/drivers/md/bcache/stats.c
-@@ -46,7 +46,6 @@ read_attribute(cache_misses);
- read_attribute(cache_bypass_hits);
- read_attribute(cache_bypass_misses);
- read_attribute(cache_hit_ratio);
--read_attribute(cache_readaheads);
- read_attribute(cache_miss_collisions);
- read_attribute(bypassed);
+ 	s->iop.replace = true;
  
-@@ -64,7 +63,6 @@ SHOW(bch_stats)
- 		    DIV_SAFE(var(cache_hits) * 100,
- 			     var(cache_hits) + var(cache_misses)));
+-	miss = bio_next_split(bio, sectors, GFP_NOIO, &s->d->bio_split);
++	miss = bio_next_split(bio, s->insert_bio_sectors, GFP_NOIO,
++			      &s->d->bio_split);
  
--	var_print(cache_readaheads);
- 	var_print(cache_miss_collisions);
- 	sysfs_hprint(bypassed,	var(sectors_bypassed) << 9);
- #undef var
-@@ -86,7 +84,6 @@ static struct attribute *bch_stats_files[] = {
- 	&sysfs_cache_bypass_hits,
- 	&sysfs_cache_bypass_misses,
- 	&sysfs_cache_hit_ratio,
--	&sysfs_cache_readaheads,
- 	&sysfs_cache_miss_collisions,
- 	&sysfs_bypassed,
- 	NULL
-@@ -113,7 +110,6 @@ void bch_cache_accounting_clear(struct cache_accounting *acc)
- 	acc->total.cache_misses = 0;
- 	acc->total.cache_bypass_hits = 0;
- 	acc->total.cache_bypass_misses = 0;
--	acc->total.cache_readaheads = 0;
- 	acc->total.cache_miss_collisions = 0;
- 	acc->total.sectors_bypassed = 0;
- }
-@@ -145,7 +141,6 @@ static void scale_stats(struct cache_stats *stats, unsigned long rescale_at)
- 		scale_stat(&stats->cache_misses);
- 		scale_stat(&stats->cache_bypass_hits);
- 		scale_stat(&stats->cache_bypass_misses);
--		scale_stat(&stats->cache_readaheads);
- 		scale_stat(&stats->cache_miss_collisions);
- 		scale_stat(&stats->sectors_bypassed);
- 	}
-@@ -168,7 +163,6 @@ static void scale_accounting(struct timer_list *t)
- 	move_stat(cache_misses);
- 	move_stat(cache_bypass_hits);
- 	move_stat(cache_bypass_misses);
--	move_stat(cache_readaheads);
- 	move_stat(cache_miss_collisions);
- 	move_stat(sectors_bypassed);
- 
-@@ -209,14 +203,6 @@ void bch_mark_cache_accounting(struct cache_set *c, struct bcache_device *d,
- 	mark_cache_stats(&c->accounting.collector, hit, bypass);
- }
- 
--void bch_mark_cache_readahead(struct cache_set *c, struct bcache_device *d)
--{
--	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
--
--	atomic_inc(&dc->accounting.collector.cache_readaheads);
--	atomic_inc(&c->accounting.collector.cache_readaheads);
--}
--
- void bch_mark_cache_miss_collision(struct cache_set *c, struct bcache_device *d)
- {
- 	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
-diff --git a/drivers/md/bcache/stats.h b/drivers/md/bcache/stats.h
-index abfaabf7e7fc..ca4f435f7216 100644
---- a/drivers/md/bcache/stats.h
-+++ b/drivers/md/bcache/stats.h
-@@ -7,7 +7,6 @@ struct cache_stat_collector {
- 	atomic_t cache_misses;
- 	atomic_t cache_bypass_hits;
- 	atomic_t cache_bypass_misses;
--	atomic_t cache_readaheads;
- 	atomic_t cache_miss_collisions;
- 	atomic_t sectors_bypassed;
- };
-diff --git a/drivers/md/bcache/sysfs.c b/drivers/md/bcache/sysfs.c
-index cc89f3156d1a..05ac1d6fbbf3 100644
---- a/drivers/md/bcache/sysfs.c
-+++ b/drivers/md/bcache/sysfs.c
-@@ -137,7 +137,6 @@ rw_attribute(io_disable);
- rw_attribute(discard);
- rw_attribute(running);
- rw_attribute(label);
--rw_attribute(readahead);
- rw_attribute(errors);
- rw_attribute(io_error_limit);
- rw_attribute(io_error_halflife);
-@@ -260,7 +259,6 @@ SHOW(__bch_cached_dev)
- 	var_printf(partial_stripes_expensive,	"%u");
- 
- 	var_hprint(sequential_cutoff);
--	var_hprint(readahead);
- 
- 	sysfs_print(running,		atomic_read(&dc->running));
- 	sysfs_print(state,		states[BDEV_STATE(&dc->sb)]);
-@@ -365,7 +363,6 @@ STORE(__cached_dev)
- 	sysfs_strtoul_clamp(sequential_cutoff,
- 			    dc->sequential_cutoff,
- 			    0, UINT_MAX);
--	d_strtoi_h(readahead);
- 
- 	if (attr == &sysfs_clear_stats)
- 		bch_cache_accounting_clear(&dc->accounting);
-@@ -538,7 +535,6 @@ static struct attribute *bch_cached_dev_files[] = {
- 	&sysfs_running,
- 	&sysfs_state,
- 	&sysfs_label,
--	&sysfs_readahead,
- #ifdef CONFIG_BCACHE_DEBUG
- 	&sysfs_verify,
- 	&sysfs_bypass_torture_test,
+ 	/* btree_search_recurse()'s btree iterator is no good anymore */
+ 	ret = miss == bio ? MAP_DONE : -EINTR;
 
