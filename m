@@ -2,192 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E4FF3A5829
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 238AB3A582A
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231691AbhFMMDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 08:03:35 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:55981 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231658AbhFMMDf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:03:35 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5CDB21940653;
-        Sun, 13 Jun 2021 08:01:34 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sun, 13 Jun 2021 08:01:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9/h4TD
-        O8nAKFxGkEJwL9w1ffz3pykBf8JtPM88fav3o=; b=vs1tR0nc63nwiVqxK7Yf9O
-        wtl//vMSNGhnAobaoriohy7iNqIDF8P83RUgntr+BOFaJHUOyvO681Tvhu4XULZ4
-        gGsClSWbnvgzO1ilHxIwCSDWhm5rM+dFXbPoq14jNyKZiA/3UVnPuup28lh1d3c7
-        hxQZcveS/e0DWO3FtR3nlRqrtlVXWyFC9YqIUvRXz1l4u/f1IV0GjG4X2F1B4IUh
-        tFhazwjcjpAnREwKVNk5sOx1tlEGNm3POzY1i4DfZDl66rEQq6y9gjvajm/nk2EL
-        jOfdkrf+AxqnkUYeCtV90sPGccrUitled5xjZqLkbB6hOMgVlDMVY8oMlvemFjkg
-        ==
-X-ME-Sender: <xms:nfPFYAM6ExqLxErR_qroitz-ELdMNxwC9MXNHHfz3IvV07DQOiIwAA>
-    <xme:nfPFYG-BCL0IystZc1AfVPDdWnNu-X7dHaPsH5wXOs_dlbh_i4nMob5f4iZJtURiP
-    9lTIdymRTpMMA>
-X-ME-Received: <xmr:nfPFYHQunazndOJqqLyMlphEDYbN1tro9FsLoEgleFPP2NWhHcdzmcqGsJu4aL3q0sphJzAnNoXM8FkQi8XzdypN9XoXtvu4>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedggeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
-    grhhdrtghomh
-X-ME-Proxy: <xmx:nfPFYItrfGY5MHqHHK4ZBaYB5jq4E7LnBMa-VggPmLIwAwbYj4tOuA>
-    <xmx:nfPFYIdwAFZ1HgT1JEsum3ooheOhVS0P3mi-Mev84K4w8Ov1ZlTdQw>
-    <xmx:nfPFYM3Po1I9gtwpdk8dgoSfDyyJRIwTYsSr_0QjViwPx8b2sViXkA>
-    <xmx:nvPFYA6Cd6Z9cL6lHnRHYBw6HCOBpcUxpf3aIV-WisBbHRz2h5BgUQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 08:01:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: dwc3: debugfs: Add and remove endpoint dirs dynamically" failed to apply to 4.14-stable tree
-To:     jackp@codeaurora.org, gregkh@linuxfoundation.org,
-        peter.chen@kernel.org, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 14:01:30 +0200
-Message-ID: <162358569021671@kroah.com>
+        id S231697AbhFMMEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 08:04:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40820 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231658AbhFMMEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 13 Jun 2021 08:04:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EE4D61009;
+        Sun, 13 Jun 2021 12:02:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623585733;
+        bh=4PrBlmYIhsRCtz/l0P/oxDR+cUESCBd4bkJZgMfr7Ow=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=OkXmljz+d3SOym1hiNooYplEE1VKPiSEFJBZ1/HhvXxOsJ4G6ODXt7H1fH9uBKkNJ
+         LbKuVFriBowehGH3FbsBriS+LTp/Cqr5dT+T+wbzQeM4wHLj1WEoqyneuinBGX20IE
+         3ELwzuMOGy+MZyAfhmllhj0KtFu8ph6f5jKUALQBiKZLXhHQ2SdKl2E1BVPYaFM4lo
+         ryzRF8KPoCab7omMJAbpUmF3vIwhPotHW5n41YK83JLYB4aE+0aQeJbX2OmaDmK4hw
+         6J+tW7ff/9l1hYmrOjdIFwAgIG+/+9bIml3/sxTlVg2xFi1OoDwFNQ/R68Q+noWWVp
+         WEq75zWf+RSGQ==
+Message-ID: <a58a297994700b95c85c15bc13e830ecb7ac61e7.camel@kernel.org>
+Subject: Re: [PATCH v4] ceph: fix write_begin optimization when write is
+ beyond EOF
+From:   Jeff Layton <jlayton@kernel.org>
+To:     ceph-devel@vger.kernel.org
+Cc:     linux-cachefs@redhat.com, pfmeec@rit.edu, willy@infradead.org,
+        dhowells@redhat.com, idryomov@gmail.com, stable@vger.kernel.org,
+        Andrew W Elble <aweits@rit.edu>
+Date:   Sun, 13 Jun 2021 08:02:12 -0400
+In-Reply-To: <20210613113650.8672-1-jlayton@kernel.org>
+References: <YMXmRo17oy8fDn2b@casper.infradead.org>
+         <20210613113650.8672-1-jlayton@kernel.org>
+Content-Type: text/plain; charset="ISO-8859-15"
+User-Agent: Evolution 3.40.1 (3.40.1-1.fc34) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, 2021-06-13 at 07:36 -0400, Jeff Layton wrote:
+> It's not sufficient to skip reading when the pos is beyond the EOF.
+> There may be data at the head of the page that we need to fill in
+> before the write.
+> 
+> Add a new helper function that corrects and clarifies the logic.
+> 
+> Cc: <stable@vger.kernel.org> # v5.10+
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Fixes: 1cc1699070bd ("ceph: fold ceph_update_writeable_page into ceph_write_begin")
+> Reported-by: Andrew W Elble <aweits@rit.edu>
+> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> ---
+>  fs/ceph/addr.c | 63 +++++++++++++++++++++++++++++++++++++++-----------
+>  1 file changed, 50 insertions(+), 13 deletions(-)
+> 
+> This version just has a couple of future-proofing tweaks that Willy
+> suggested.
+> 
+> diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
+> index 26e66436f005..b20a17cfec42 100644
+> --- a/fs/ceph/addr.c
+> +++ b/fs/ceph/addr.c
+> @@ -1302,6 +1302,54 @@ ceph_find_incompatible(struct page *page)
+>  	return NULL;
+>  }
+>  
+> +/**
+> + * prep_noread_page - prep a page for writing without reading first
+> + * @page: page being prepared
+> + * @pos: starting position for the write
+> + * @len: length of write
+> + *
+> + * In some cases we don't need to read at all:
+> + * - full page write
+> + * - file is currently zero-length
+> + * - write that lies in a page that is completely beyond EOF
+> + * - write that covers the the page from start to EOF or beyond it
+> + *
+> + * If any of these criteria are met, then zero out the unwritten parts
+> + * of the page and return true. Otherwise, return false.
+> + */
+> +static bool prep_noread_page(struct page *page, loff_t pos, size_t len)
+> +{
+> +	struct inode *inode = page->mapping->host;
+> +	loff_t i_size = i_size_read(inode);
+> +	pgoff_t index = pos / PAGE_SIZE;
+> +	size_t offset = offset_in_page(pos);
+> +
+> +	/* clamp length to end of the current page */
+> +	if (len > PAGE_SIZE)
+> +		len = PAGE_SIZE - offset;
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Actually, I think this should be:
 
-thanks,
+	len = min(len, PAGE_SIZE - offset);
 
-greg k-h
+Otherwise, len could still go beyond the end of the page.
 
------------------- original commit in Linus's tree ------------------
+> +
+> +	/* full page write */
+> +	if (offset == 0 && len == PAGE_SIZE)
+> +		goto zero_out;
+> +
+> +	/* zero-length file */
+> +	if (i_size == 0)
+> +		goto zero_out;
+> +
+> +	/* position beyond last page in the file */
+> +	if (index > ((i_size - 1) / PAGE_SIZE))
+> +		goto zero_out;
+> +
+> +	/* write that covers the the page from start to EOF or beyond it */
+> +	if (offset == 0 && (pos + len) >= i_size)
+> +		goto zero_out;
+> +
+> +	return false;
+> +zero_out:
+> +	zero_user_segments(page, 0, offset, offset + len, PAGE_SIZE);
+> +	return true;
+> +}
+> +
+>  /*
+>   * We are only allowed to write into/dirty the page if the page is
+>   * clean, or already dirty within the same snap context.
+> @@ -1315,7 +1363,6 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
+>  	struct ceph_snap_context *snapc;
+>  	struct page *page = NULL;
+>  	pgoff_t index = pos >> PAGE_SHIFT;
+> -	int pos_in_page = pos & ~PAGE_MASK;
+>  	int r = 0;
+>  
+>  	dout("write_begin file %p inode %p page %p %d~%d\n", file, inode, page, (int)pos, (int)len);
+> @@ -1350,19 +1397,9 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
+>  			break;
+>  		}
+>  
+> -		/*
+> -		 * In some cases we don't need to read at all:
+> -		 * - full page write
+> -		 * - write that lies completely beyond EOF
+> -		 * - write that covers the the page from start to EOF or beyond it
+> -		 */
+> -		if ((pos_in_page == 0 && len == PAGE_SIZE) ||
+> -		    (pos >= i_size_read(inode)) ||
+> -		    (pos_in_page == 0 && (pos + len) >= i_size_read(inode))) {
+> -			zero_user_segments(page, 0, pos_in_page,
+> -					   pos_in_page + len, PAGE_SIZE);
+> +		/* No need to read in some cases */
+> +		if (prep_noread_page(page, pos, len))
+>  			break;
+> -		}
+>  
+>  		/*
+>  		 * We need to read it. If we get back -EINPROGRESS, then the page was
 
-From 8d396bb0a5b62b326f6be7594d8bd46b088296bd Mon Sep 17 00:00:00 2001
-From: Jack Pham <jackp@codeaurora.org>
-Date: Sat, 29 May 2021 12:29:32 -0700
-Subject: [PATCH] usb: dwc3: debugfs: Add and remove endpoint dirs dynamically
-
-The DWC3 DebugFS directory and files are currently created once
-during probe.  This includes creation of subdirectories for each
-of the gadget's endpoints.  This works fine for peripheral-only
-controllers, as dwc3_core_init_mode() calls dwc3_gadget_init()
-just prior to calling dwc3_debugfs_init().
-
-However, for dual-role controllers, dwc3_core_init_mode() will
-instead call dwc3_drd_init() which is problematic in a few ways.
-First, the initial state must be determined, then dwc3_set_mode()
-will have to schedule drd_work and by then dwc3_debugfs_init()
-could have already been invoked.  Even if the initial mode is
-peripheral, dwc3_gadget_init() happens after the DebugFS files
-are created, and worse so if the initial state is host and the
-controller switches to peripheral much later.  And secondly,
-even if the gadget endpoints' debug entries were successfully
-created, if the controller exits peripheral mode, its dwc3_eps
-are freed so the debug files would now hold stale references.
-
-So it is best if the DebugFS endpoint entries are created and
-removed dynamically at the same time the underlying dwc3_eps are.
-Do this by calling dwc3_debugfs_create_endpoint_dir() as each
-endpoint is created, and conversely remove the DebugFS entry when
-the endpoint is freed.
-
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210529192932.22912-1-jackp@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/dwc3/debug.h b/drivers/usb/dwc3/debug.h
-index d0ac89c5b317..d223c54115f4 100644
---- a/drivers/usb/dwc3/debug.h
-+++ b/drivers/usb/dwc3/debug.h
-@@ -413,9 +413,12 @@ static inline const char *dwc3_gadget_generic_cmd_status_string(int status)
- 
- 
- #ifdef CONFIG_DEBUG_FS
-+extern void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep);
- extern void dwc3_debugfs_init(struct dwc3 *d);
- extern void dwc3_debugfs_exit(struct dwc3 *d);
- #else
-+static inline void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
-+{  }
- static inline void dwc3_debugfs_init(struct dwc3 *d)
- {  }
- static inline void dwc3_debugfs_exit(struct dwc3 *d)
-diff --git a/drivers/usb/dwc3/debugfs.c b/drivers/usb/dwc3/debugfs.c
-index 7146ee2ac057..5dbbe53269d3 100644
---- a/drivers/usb/dwc3/debugfs.c
-+++ b/drivers/usb/dwc3/debugfs.c
-@@ -886,30 +886,14 @@ static void dwc3_debugfs_create_endpoint_files(struct dwc3_ep *dep,
- 	}
- }
- 
--static void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep,
--		struct dentry *parent)
-+void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
- {
- 	struct dentry		*dir;
- 
--	dir = debugfs_create_dir(dep->name, parent);
-+	dir = debugfs_create_dir(dep->name, dep->dwc->root);
- 	dwc3_debugfs_create_endpoint_files(dep, dir);
- }
- 
--static void dwc3_debugfs_create_endpoint_dirs(struct dwc3 *dwc,
--		struct dentry *parent)
--{
--	int			i;
--
--	for (i = 0; i < dwc->num_eps; i++) {
--		struct dwc3_ep	*dep = dwc->eps[i];
--
--		if (!dep)
--			continue;
--
--		dwc3_debugfs_create_endpoint_dir(dep, parent);
--	}
--}
--
- void dwc3_debugfs_init(struct dwc3 *dwc)
- {
- 	struct dentry		*root;
-@@ -940,7 +924,6 @@ void dwc3_debugfs_init(struct dwc3 *dwc)
- 				&dwc3_testmode_fops);
- 		debugfs_create_file("link_state", 0644, root, dwc,
- 				    &dwc3_link_state_fops);
--		dwc3_debugfs_create_endpoint_dirs(dwc, root);
- 	}
- }
- 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 88270eee8a48..f14c2aa83759 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2753,6 +2753,8 @@ static int dwc3_gadget_init_endpoint(struct dwc3 *dwc, u8 epnum)
- 	INIT_LIST_HEAD(&dep->started_list);
- 	INIT_LIST_HEAD(&dep->cancelled_list);
- 
-+	dwc3_debugfs_create_endpoint_dir(dep);
-+
- 	return 0;
- }
- 
-@@ -2796,6 +2798,7 @@ static void dwc3_gadget_free_endpoints(struct dwc3 *dwc)
- 			list_del(&dep->endpoint.ep_list);
- 		}
- 
-+		debugfs_remove_recursive(debugfs_lookup(dep->name, dwc->root));
- 		kfree(dep);
- 	}
- }
+-- 
+Jeff Layton <jlayton@kernel.org>
 
