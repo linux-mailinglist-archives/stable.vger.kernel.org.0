@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 604BD3A581D
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 13:57:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F103A581E
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 13:57:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231751AbhFML7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 07:59:22 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:53657 "EHLO
+        id S231753AbhFML7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 07:59:30 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:42635 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231658AbhFML7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 07:59:21 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 67EC319409BD;
-        Sun, 13 Jun 2021 07:57:20 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S231658AbhFML73 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 07:59:29 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 33F8019409BD;
+        Sun, 13 Jun 2021 07:57:28 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Sun, 13 Jun 2021 07:57:20 -0400
+  by compute3.internal (MEProxy); Sun, 13 Jun 2021 07:57:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Sx1X3N
-        s41oEV0EuSJXVLit1oEoBwkHtu/Ew5YTWdx/o=; b=RsISfEtgB92bvwlMxp1mRZ
-        Q2y3gqjodogrrUEujCs/fhCmWIqWcFVLt7ZRFDwGPICCB4qj/txzbryaQDEpBohq
-        dhqgNv/W83WAdeDw3B+da5WQqHo+5zl+aARX2OJwNnfjvemSng3Ho3S0DdjbhfpP
-        UCMyR4MGJzHIOZFnqaKxJBcyV8tw8sV5f6j4M9Lu8EUbMS4LXLm3HYUL730hodS6
-        9DVnq7YnVK9gCNPIuxAZeyf/620jZC158tcVDqpJUd48VIcf9Ge2OmDtGAZwrVvA
-        gHhONfgfGY8xtU3m6fGoHc0ljxh3+maSp0wY1GupJkSnZs+5BoPa2oryUL3n6W+g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Fc3Szu
+        jXOrZHikqeCM8Hk+Aa+NHT4ftF1PJN3RCpL9c=; b=SLuEfppe02M6oqZqGDPvXq
+        dCc4Uqhz+0R/I5B8K521wKy69bePeA4VEr0G5NmJ0rBFZ2uzi1KBqh1/K3WH8QOP
+        d9Okx90rC90jXqTV6gk/d5h9QUyDUt21YNnHolFKB6mZK33n6rAnhXMAKNJfC9Rv
+        7Ma+R3WnGYrqTxvOhOuZrf+83kAUAir0XrkzDk4XcdxAkYtzTFdzHcgv0Q1AY5t1
+        bz1L4YHUxvI9Js1ncJycEkwE2RdIWKvM5NjBeeaJat+n9J4maD5/SQ7RHkcvXNwB
+        QauyB3N9I7CwX7XhZHGiVnBQTk5mMZuqjpEke6yzI3/unLOd4B8gJfxsf8Rqs9sw
         ==
-X-ME-Sender: <xms:n_LFYNTcGos5_O04vh2yHE2ZFNh5ghDqae7wHvVM0yYXc0hGkJqEOQ>
-    <xme:n_LFYGyaPBCyFOj9xMdLsXSuZgHVOixFDxMkc1yv8GIpUTXZzLpTHYE_-uGNSSP9N
-    lJmIt0Yr0stEw>
-X-ME-Received: <xmr:n_LFYC0ge1eIm80hn5BAUvLfLIQXprSN95lSzkkbw3P5R3grBgPTa2PLqEOiedMKX7G5b_BDsmTaAbJHNYSzxXQ3YQGbaEmK>
+X-ME-Sender: <xms:qPLFYMYD6rBT6EEippeultt_69hQwVyJRj4YZQidwbfVf_K158-Jhg>
+    <xme:qPLFYHabhQnkIsa9pxCuTQlPJh-ld_afoEHV4gQPl7v0UFWoL0ZaaeooOFvbrsyBo
+    mcLdO0CtnVhLQ>
+X-ME-Received: <xmr:qPLFYG-Nt7NdEci8p6CeSn7qmI_os4YFaBWe1PODD8cNuAP9SWLd-uoijQpYHmlFZ4U23oaCgLiFSeAPSmff6NumA_MnGyLl>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedggeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -39,20 +39,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedggeekucetufdoteggod
     elieetveejvdfgvdeljeelnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:n_LFYFCNtNJ0nZaNrLunS6N6J5ZSlVIiehDJjtXhVZZJUAjUXQQTCg>
-    <xmx:n_LFYGjP2c9Bk91TODXejJsyvU2mEln15DDr9zyKqpqQoTIvwW9O_g>
-    <xmx:n_LFYJpb2xQ5qsayar_L9QGf65Blrj-nOl46u5r1S2xYf2qDNqH-UA>
-    <xmx:oPLFYHvaFbf5jRXnpnbDk7nn-4Q95aMJ9V-xQgRu8Gq83h0QD0U9mg>
+X-ME-Proxy: <xmx:qPLFYGpecFdwfXHmJTtgiB_DwcNkODMSiaxIla5vvXd8N_McMSyo3Q>
+    <xmx:qPLFYHozp2Fwk24QDjHrsk_Qu5zgSCbPH5Ffy_iMpwnpc5INd6l7Ag>
+    <xmx:qPLFYEQjz408KollohjPcEP8xzPTqKkHDPfPjRW8JLTYM7v6PCMqJQ>
+    <xmx:qPLFYGUtFynl3mOoCf3DSdTeOXRu-PvIkZ2wBSsuvTa4fwhfG7_RKg>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 07:57:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mmc: renesas_sdhi: abort tuning when timeout detected" failed to apply to 4.14-stable tree
+ 13 Jun 2021 07:57:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mmc: renesas_sdhi: abort tuning when timeout detected" failed to apply to 4.19-stable tree
 To:     wsa+renesas@sang-engineering.com,
         niklas.soderlund+renesas@ragnatech.se, ulf.hansson@linaro.org,
         yoshihiro.shimoda.uh@renesas.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 13 Jun 2021 13:57:17 +0200
-Message-ID: <162358543720629@kroah.com>
+Message-ID: <16235854378147@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
