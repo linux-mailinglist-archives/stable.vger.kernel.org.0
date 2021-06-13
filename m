@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0801A3A5892
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:58:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F4F3A5893
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231649AbhFMNAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 09:00:54 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:38177 "EHLO
+        id S231667AbhFMNA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 09:00:59 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:36313 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231286AbhFMNAy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 09:00:54 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C4A7C1940A2B;
-        Sun, 13 Jun 2021 08:58:50 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Sun, 13 Jun 2021 08:58:50 -0400
+        by vger.kernel.org with ESMTP id S231286AbhFMNA7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 09:00:59 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 9EE191940A1B;
+        Sun, 13 Jun 2021 08:58:57 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Sun, 13 Jun 2021 08:58:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=V4N80/
-        QF26xD5VFBWYaV4r/Bvt5hqnlEnvjZVjGOnH0=; b=fftzwEHx83LhWZsI/odm/H
-        ym2DnJ1lYcalcJvqN2sFhlfCyqw9INWXl59trewQLM0pnM6hv7fwgGl0cu4XAa/j
-        uVvOUq25MECeZaZVdIseG/Z/O3aOzUUsPdUq2EJiYE4fRUgKAtKBgmga8ciCvIOY
-        tyq4flWCTlP+lTS+evsn8+B+Evhv5jMcCWOBsuy955DZT9p0GDI/Ar02x5xG+21i
-        qOzsq4IeF8VmrC1CO2rbKj2WW/gnujZhTZH2HCo3uL2RcXgWGCcoeVB2CKfDJNIG
-        yeshmlkI2yyJApvhyLeA+VY9mUMkbaPJf1DGz7Cb6WSLA0A4En0MPzvOADjZ9irw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=tkCNzg
+        Os0cuGXiumyAOzjizJ40NXsKTVtq7hyV1Ny74=; b=XeeUQ40K3graONBOzrkaKg
+        GwWEA9In8F8YiQwPKDkw+VgfBLdRhcJUGLO6j0FMxpE0YCinUTEOl1lAeB6Au3qa
+        5j9iQLt4X1vkZ5IJLaBjMbZuBJt/9LkONfH6QmkN3Riw+WUYQzMGkt/w1gM+gJun
+        oI3IVjf7Y/1iwIIeM9s5cwuGIX3tkLURRufSs/mQmZPv7ldc/uHwPHTOKDBubbwq
+        x9ihq/aM9wrGvGMGd7ouaikjmVs44ujw+JpP4fkylOBoXbC4a00ICmRE4oMBm+SR
+        U9bUuMeXlUjNv56WIEcVYllVoc2QUoUNK5ZVLyPATBcsOy1gxliyRvN6oh0MxiEA
         ==
-X-ME-Sender: <xms:CgHGYN1fGzBNOMcst5qMTlr5sIUZ9DjtgukZm-lYFM8EK5fbElbnlg>
-    <xme:CgHGYEF7emGPa5YBZdwWYyu8D_BPRqbLWy1EyMUlDJPBZST-6AGghoQp_sYsb-R51
-    kbmCTTW_8c0lA>
-X-ME-Received: <xmr:CgHGYN44L4HauJLyeXr_LZaBT1Mzttbya9pupPIBNcPnJ9exq490IM9KSxfuB9I2CaQaQi2_-K1BLXdRe8_PflK64qZjrsrY>
+X-ME-Sender: <xms:EQHGYMzjt6MKv-r9rPXe1wxOMo0DozisCZYaA8FIK8Be6rtyxcpMow>
+    <xme:EQHGYARi-xvpG80hNSkcdCmW4MsOjUub4zsehOtay5A6hAdVj1VmR-t4NJGhmBwLO
+    FrwskzSs04FkA>
+X-ME-Received: <xmr:EQHGYOWrKI82Rrz0v7eEllod4AiczgTi-xC-u72RQ_Tov27sucbEFrM3WoblXPPBppDNlx8IcUzu5WxhTPRAIY98Snfgw1MY>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgiedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:CgHGYK0WvqPujRFwuiIYuJwwQhu9w3x_vLPlhJku-40hsUKi1P6Pcw>
-    <xmx:CgHGYAHaDqrKojw4zFiFeK5hvfQo7LAIADPpZwscOQ92ZbguOuKOzg>
-    <xmx:CgHGYL9UAhirYkaSgeP7XRLurirlcw5F98gcyHDfE1OewwMz5BIB6A>
-    <xmx:CgHGYFTGQAPeXop6XEZFHquTFfcwAUlk2NcomnBWtjB1Q-QdVPphUA>
+X-ME-Proxy: <xmx:EQHGYKhawNDJf8QgWLki7DmAVx7BoDiGzJIo9gHuFQ0PVd2lveDaPw>
+    <xmx:EQHGYOBNfTKIgzuzGrGPOUXvXZZ5pOLxrYxTjr7ccnQLAjnQDNuaiA>
+    <xmx:EQHGYLIEuJ4lURQtx5-fQsZl0FUfg3bNKNmfmsSvzI9C-YpH7jxaKA>
+    <xmx:EQHGYBM3sHOKI1lQTh9TjT8SAs1NK892q2IPh_-GJpEFHk72Rf6oHA>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 08:58:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] sched/fair: Keep load_avg and load_sum synced" failed to apply to 4.19-stable tree
+ 13 Jun 2021 08:58:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] sched/fair: Keep load_avg and load_sum synced" failed to apply to 5.4-stable tree
 To:     vincent.guittot@linaro.org, odin@uged.al, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 14:58:46 +0200
-Message-ID: <162358912624445@kroah.com>
+Date:   Sun, 13 Jun 2021 14:58:47 +0200
+Message-ID: <16235891275240@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
