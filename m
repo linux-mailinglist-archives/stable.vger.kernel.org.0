@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E1913A587E
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:52:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9ABC3A5885
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231964AbhFMMyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 08:54:03 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:37275 "EHLO
+        id S231768AbhFMMy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 08:54:56 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:53209 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231971AbhFMMxu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:53:50 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C6F3119406E5;
-        Sun, 13 Jun 2021 08:51:46 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S231733AbhFMMy4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:54:56 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id EAF541940155;
+        Sun, 13 Jun 2021 08:52:54 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 13 Jun 2021 08:51:46 -0400
+  by compute3.internal (MEProxy); Sun, 13 Jun 2021 08:52:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=h9ptna
-        /xXt0jjU94lirNibMaosPZQEPrXfKuQthpszY=; b=ISqAjRV0ocAUFs2zMgcFV/
-        8twLbWBZixtwER1il3vcLEYO2kzsCVoSt8/s9WpmgW2zCJQ2S+ysKMcpwXiB3XVw
-        aiRu7EGD7CCqG4eRxIBoxi5838JAF8K36o38mS8Rs+R9uD0uJYZjoyyV5wXeFP/h
-        StuEOGoq1nYNuVKUBZFssMYcF5/9CJLn4tVtVF7cJQa4SaAZ93SJKIJffEWi2nRn
-        lykVm3nwpzkwJm/ASUuM+6XKqAjEkwhdME0inDPQ0m9SBpoyCm1BMPLeiwDH7HCL
-        /TS+0W7BM9scHs7zHcbOClIrwjmX6uVdpMiYeuNPcRBPJdS4BldXwnK4VZnPKW6A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=CYhlM2
+        +RPEFd+V82PezgjRM23tGAWTqgK/De6ZLVxhQ=; b=gXbqT5BufbArpbVFj0bfwk
+        ELFylZAmXJIRw0Hss6IIa+ptQRTmBu5tnEoxbEZHR3tkTMVhhbH/yifhvZuEVkoX
+        lsT6sQsco4wjvWjIfdM6OpeUZ5IcINqKu9LLVEJxx76NYYXc1sWZUhntW5kOixBl
+        5DkmWipSKO4lFySgX0rY83vJ19qsGJk4i4GFPzTSei2Q1Q4PzT7tSu3Uq2EWgTRr
+        4ZlFLFa+JjCK7jpTUn56FrBhlZ2WGDC29RpItuLqWyCeXS3RZcRaUdv6qK2G1U8s
+        CMEGaYnyhC7JmcWz8XJ0r1XhQx5zCTscUftA0od2NyAvP5T8tTyY1zEroCaWN7bQ
         ==
-X-ME-Sender: <xms:Yv_FYOd4k4FCYTZ1nk-TiyWuB9ldHkZ6eMEzgTgryb7HYrG_vFTdBg>
-    <xme:Yv_FYIMgVLmPYZCukQRs_ewPcKtS68uwtLg4kR45mi0h9fmRwwokIa3EOBSq9eDpa
-    uySqyEF2Nhl_Q>
-X-ME-Received: <xmr:Yv_FYPjhKwitk8r5dIVfKkZof61C6A0DwYAHk_N6FTT-nmco8WYcmOKu0JB2nobrAEmGfTq55ASnaMBlJaZG1kYL-2_8sQuX>
+X-ME-Sender: <xms:pv_FYBvQ1XPn4En_SsNBWsEDX9SYub0Kg8V19GGj0CIzIHrPKORwvA>
+    <xme:pv_FYKf52_XWhilkRoWv1RpZW-2-gLmPYWwDE05OAusDGhkdGUDBXHGE0bC7XnQ2G
+    OtwTBxGKcreKQ>
+X-ME-Received: <xmr:pv_FYEyuSUBbFiUqagN223vUZ1biQhrNIWugUuhhLNjkK4QjSfJI2uOcSqoh91Mi5uG1JkufFMv_pMmtTX-fd70LicE1mOqI>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgheelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    shhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:Yv_FYL9yN42kTjknVhokWIwj5qLgtyKtbMeSKmEMlJsHa4gHWz6HAA>
-    <xmx:Yv_FYKs5C5iO3smSfnpjnmlSRmwdRVvqQn8SL4EdtCLnlPJNfZvwmg>
-    <xmx:Yv_FYCHMIcc_fsRL0RhNZIYAtzL72zx6CQbHSw5fuBeRQHyD1cQj9w>
-    <xmx:Yv_FYD6xxdlb61uvFUNR5zg0BFre9yseGiocRNUGcjlAwWYeM8XpYw>
+X-ME-Proxy: <xmx:pv_FYIPq6mzQnRMudO_-oVn63RM38iyeUVLcAmo7ogZo659SfEFN6g>
+    <xmx:pv_FYB9Qv3XkWXCJNZYNdH3fOhn5pxLsP4nnG472-yqMFuK-7KLd2Q>
+    <xmx:pv_FYIWT60NGxvjQop_h8vnh1_yNEoxYHMG5FdZoOiA0uPI_BocsSA>
+    <xmx:pv_FYDKispJ3VMALXCfDdn6bKw1Fi25YSp6QpalOdTsRwIw0SKV-2Q>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 08:51:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: typec: tcpm: Correct the responses in SVDM Version 2.0" failed to apply to 5.10-stable tree
-To:     kyletso@google.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com
+ 13 Jun 2021 08:52:54 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/msm/a6xx: update/fix CP_PROTECT initialization" failed to apply to 5.4-stable tree
+To:     jonathan@marek.ca, akhilpo@codeaurora.org, robdclark@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 14:51:34 +0200
-Message-ID: <162358869470193@kroah.com>
+Date:   Sun, 13 Jun 2021 14:52:52 +0200
+Message-ID: <162358877216813@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,60 +70,236 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f41bfc7e9c7c1d721c8752f1853cde43e606ad43 Mon Sep 17 00:00:00 2001
-From: Kyle Tso <kyletso@google.com>
-Date: Tue, 1 Jun 2021 20:31:48 +0800
-Subject: [PATCH] usb: typec: tcpm: Correct the responses in SVDM Version 2.0
- DFP
+From 408434036958699a7f50ddec984f7ba33e11a8f5 Mon Sep 17 00:00:00 2001
+From: Jonathan Marek <jonathan@marek.ca>
+Date: Thu, 13 May 2021 13:13:59 -0400
+Subject: [PATCH] drm/msm/a6xx: update/fix CP_PROTECT initialization
 
-In USB PD Spec Rev 3.1 Ver 1.0, section "6.12.5 Applicability of
-Structured VDM Commands", DFP is allowed and recommended to respond to
-Discovery Identity with ACK. And in section "6.4.4.2.5.1 Commands other
-than Attention", NAK should be returned only when receiving Messages
-with invalid fields, Messages in wrong situation, or unrecognize
-Messages.
+Update CP_PROTECT register programming based on downstream.
 
-Still keep the original design for SVDM Version 1.0 for backward
-compatibilities.
+A6XX_PROTECT_RW is renamed to A6XX_PROTECT_NORDWR to make things aligned
+and also be more clear about what it does.
 
-Fixes: 193a68011fdc ("staging: typec: tcpm: Respond to Discover Identity commands")
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Kyle Tso <kyletso@google.com>
-Link: https://lore.kernel.org/r/20210601123151.3441914-2-kyletso@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that this required switching to use the CP_ALWAYS_ON_COUNTER as the
+GMU counter is not accessible from the cmdstream.  Which also means
+using the CPU counter for the msm_gpu_submit_flush() tracepoint (as
+catapult depends on being able to compare this to the start/end values
+captured in cmdstream).  This may need to be revisited when IFPC is
+enabled.
 
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index 9ce8c9af4da5..a1bf0dc5babf 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -1547,19 +1547,25 @@ static int tcpm_pd_svdm(struct tcpm_port *port, struct typec_altmode *adev,
- 			if (PD_VDO_VID(p[0]) != USB_SID_PD)
- 				break;
+Also, compared to downstream, this opens up CP_PERFCTR_CP_SEL as the
+userspace performance tooling (fdperf and pps-producer) expect to be
+able to configure the CP counters.
+
+Fixes: 4b565ca5a2cb ("drm/msm: Add A6XX device support")
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Reviewed-by: Akhil P Oommen <akhilpo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210513171431.18632-5-jonathan@marek.ca
+[switch to CP_ALWAYS_ON_COUNTER, open up CP_PERFCNTR_CP_SEL, and spiff
+ up commit msg]
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index b4d8e1b01ee4..9702bec14310 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -157,7 +157,7 @@ static void a6xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
+ 	 * GPU registers so we need to add 0x1a800 to the register value on A630
+ 	 * to get the right value from PM4.
+ 	 */
+-	get_stats_counter(ring, REG_A6XX_GMU_ALWAYS_ON_COUNTER_L + 0x1a800,
++	get_stats_counter(ring, REG_A6XX_CP_ALWAYS_ON_COUNTER_LO,
+ 		rbmemptr_stats(ring, index, alwayson_start));
  
--			if (PD_VDO_SVDM_VER(p[0]) < svdm_version)
-+			if (PD_VDO_SVDM_VER(p[0]) < svdm_version) {
- 				typec_partner_set_svdm_version(port->partner,
- 							       PD_VDO_SVDM_VER(p[0]));
-+				svdm_version = PD_VDO_SVDM_VER(p[0]);
-+			}
+ 	/* Invalidate CCU depth and color */
+@@ -187,7 +187,7 @@ static void a6xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
  
- 			tcpm_ams_start(port, DISCOVER_IDENTITY);
--			/* 6.4.4.3.1: Only respond as UFP (device) */
--			if (port->data_role == TYPEC_DEVICE &&
-+			/*
-+			 * PD2.0 Spec 6.10.3: respond with NAK as DFP (data host)
-+			 * PD3.1 Spec 6.4.4.2.5.1: respond with NAK if "invalid field" or
-+			 * "wrong configuation" or "Unrecognized"
-+			 */
-+			if ((port->data_role == TYPEC_DEVICE || svdm_version >= SVDM_VER_2_0) &&
- 			    port->nr_snk_vdo) {
- 				/*
- 				 * Product Type DFP and Connector Type are not defined in SVDM
- 				 * version 1.0 and shall be set to zero.
- 				 */
--				if (typec_get_negotiated_svdm_version(typec) < SVDM_VER_2_0)
-+				if (svdm_version < SVDM_VER_2_0)
- 					response[1] = port->snk_vdo[0] & ~IDH_DFP_MASK
- 						      & ~IDH_CONN_MASK;
- 				else
+ 	get_stats_counter(ring, REG_A6XX_RBBM_PERFCTR_CP_0_LO,
+ 		rbmemptr_stats(ring, index, cpcycles_end));
+-	get_stats_counter(ring, REG_A6XX_GMU_ALWAYS_ON_COUNTER_L + 0x1a800,
++	get_stats_counter(ring, REG_A6XX_CP_ALWAYS_ON_COUNTER_LO,
+ 		rbmemptr_stats(ring, index, alwayson_end));
+ 
+ 	/* Write the fence to the scratch register */
+@@ -206,8 +206,8 @@ static void a6xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
+ 	OUT_RING(ring, submit->seqno);
+ 
+ 	trace_msm_gpu_submit_flush(submit,
+-		gmu_read64(&a6xx_gpu->gmu, REG_A6XX_GMU_ALWAYS_ON_COUNTER_L,
+-			REG_A6XX_GMU_ALWAYS_ON_COUNTER_H));
++		gpu_read64(gpu, REG_A6XX_CP_ALWAYS_ON_COUNTER_LO,
++			REG_A6XX_CP_ALWAYS_ON_COUNTER_HI));
+ 
+ 	a6xx_flush(gpu, ring);
+ }
+@@ -462,6 +462,113 @@ static void a6xx_set_hwcg(struct msm_gpu *gpu, bool state)
+ 	gpu_write(gpu, REG_A6XX_RBBM_CLOCK_CNTL, state ? clock_cntl_on : 0);
+ }
+ 
++/* For a615, a616, a618, A619, a630, a640 and a680 */
++static const u32 a6xx_protect[] = {
++	A6XX_PROTECT_RDONLY(0x00000, 0x04ff),
++	A6XX_PROTECT_RDONLY(0x00501, 0x0005),
++	A6XX_PROTECT_RDONLY(0x0050b, 0x02f4),
++	A6XX_PROTECT_NORDWR(0x0050e, 0x0000),
++	A6XX_PROTECT_NORDWR(0x00510, 0x0000),
++	A6XX_PROTECT_NORDWR(0x00534, 0x0000),
++	A6XX_PROTECT_NORDWR(0x00800, 0x0082),
++	A6XX_PROTECT_NORDWR(0x008a0, 0x0008),
++	A6XX_PROTECT_NORDWR(0x008ab, 0x0024),
++	A6XX_PROTECT_RDONLY(0x008de, 0x00ae),
++	A6XX_PROTECT_NORDWR(0x00900, 0x004d),
++	A6XX_PROTECT_NORDWR(0x0098d, 0x0272),
++	A6XX_PROTECT_NORDWR(0x00e00, 0x0001),
++	A6XX_PROTECT_NORDWR(0x00e03, 0x000c),
++	A6XX_PROTECT_NORDWR(0x03c00, 0x00c3),
++	A6XX_PROTECT_RDONLY(0x03cc4, 0x1fff),
++	A6XX_PROTECT_NORDWR(0x08630, 0x01cf),
++	A6XX_PROTECT_NORDWR(0x08e00, 0x0000),
++	A6XX_PROTECT_NORDWR(0x08e08, 0x0000),
++	A6XX_PROTECT_NORDWR(0x08e50, 0x001f),
++	A6XX_PROTECT_NORDWR(0x09624, 0x01db),
++	A6XX_PROTECT_NORDWR(0x09e70, 0x0001),
++	A6XX_PROTECT_NORDWR(0x09e78, 0x0187),
++	A6XX_PROTECT_NORDWR(0x0a630, 0x01cf),
++	A6XX_PROTECT_NORDWR(0x0ae02, 0x0000),
++	A6XX_PROTECT_NORDWR(0x0ae50, 0x032f),
++	A6XX_PROTECT_NORDWR(0x0b604, 0x0000),
++	A6XX_PROTECT_NORDWR(0x0be02, 0x0001),
++	A6XX_PROTECT_NORDWR(0x0be20, 0x17df),
++	A6XX_PROTECT_NORDWR(0x0f000, 0x0bff),
++	A6XX_PROTECT_RDONLY(0x0fc00, 0x1fff),
++	A6XX_PROTECT_NORDWR(0x11c00, 0x0000), /* note: infinite range */
++};
++
++/* These are for a620 and a650 */
++static const u32 a650_protect[] = {
++	A6XX_PROTECT_RDONLY(0x00000, 0x04ff),
++	A6XX_PROTECT_RDONLY(0x00501, 0x0005),
++	A6XX_PROTECT_RDONLY(0x0050b, 0x02f4),
++	A6XX_PROTECT_NORDWR(0x0050e, 0x0000),
++	A6XX_PROTECT_NORDWR(0x00510, 0x0000),
++	A6XX_PROTECT_NORDWR(0x00534, 0x0000),
++	A6XX_PROTECT_NORDWR(0x00800, 0x0082),
++	A6XX_PROTECT_NORDWR(0x008a0, 0x0008),
++	A6XX_PROTECT_NORDWR(0x008ab, 0x0024),
++	A6XX_PROTECT_RDONLY(0x008de, 0x00ae),
++	A6XX_PROTECT_NORDWR(0x00900, 0x004d),
++	A6XX_PROTECT_NORDWR(0x0098d, 0x0272),
++	A6XX_PROTECT_NORDWR(0x00e00, 0x0001),
++	A6XX_PROTECT_NORDWR(0x00e03, 0x000c),
++	A6XX_PROTECT_NORDWR(0x03c00, 0x00c3),
++	A6XX_PROTECT_RDONLY(0x03cc4, 0x1fff),
++	A6XX_PROTECT_NORDWR(0x08630, 0x01cf),
++	A6XX_PROTECT_NORDWR(0x08e00, 0x0000),
++	A6XX_PROTECT_NORDWR(0x08e08, 0x0000),
++	A6XX_PROTECT_NORDWR(0x08e50, 0x001f),
++	A6XX_PROTECT_NORDWR(0x08e80, 0x027f),
++	A6XX_PROTECT_NORDWR(0x09624, 0x01db),
++	A6XX_PROTECT_NORDWR(0x09e60, 0x0011),
++	A6XX_PROTECT_NORDWR(0x09e78, 0x0187),
++	A6XX_PROTECT_NORDWR(0x0a630, 0x01cf),
++	A6XX_PROTECT_NORDWR(0x0ae02, 0x0000),
++	A6XX_PROTECT_NORDWR(0x0ae50, 0x032f),
++	A6XX_PROTECT_NORDWR(0x0b604, 0x0000),
++	A6XX_PROTECT_NORDWR(0x0b608, 0x0007),
++	A6XX_PROTECT_NORDWR(0x0be02, 0x0001),
++	A6XX_PROTECT_NORDWR(0x0be20, 0x17df),
++	A6XX_PROTECT_NORDWR(0x0f000, 0x0bff),
++	A6XX_PROTECT_RDONLY(0x0fc00, 0x1fff),
++	A6XX_PROTECT_NORDWR(0x18400, 0x1fff),
++	A6XX_PROTECT_NORDWR(0x1a800, 0x1fff),
++	A6XX_PROTECT_NORDWR(0x1f400, 0x0443),
++	A6XX_PROTECT_RDONLY(0x1f844, 0x007b),
++	A6XX_PROTECT_NORDWR(0x1f887, 0x001b),
++	A6XX_PROTECT_NORDWR(0x1f8c0, 0x0000), /* note: infinite range */
++};
++
++static void a6xx_set_cp_protect(struct msm_gpu *gpu)
++{
++	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
++	const u32 *regs = a6xx_protect;
++	unsigned i, count = ARRAY_SIZE(a6xx_protect), count_max = 32;
++
++	BUILD_BUG_ON(ARRAY_SIZE(a6xx_protect) > 32);
++	BUILD_BUG_ON(ARRAY_SIZE(a650_protect) > 48);
++
++	if (adreno_is_a650(adreno_gpu)) {
++		regs = a650_protect;
++		count = ARRAY_SIZE(a650_protect);
++		count_max = 48;
++	}
++
++	/*
++	 * Enable access protection to privileged registers, fault on an access
++	 * protect violation and select the last span to protect from the start
++	 * address all the way to the end of the register address space
++	 */
++	gpu_write(gpu, REG_A6XX_CP_PROTECT_CNTL, BIT(0) | BIT(1) | BIT(3));
++
++	for (i = 0; i < count - 1; i++)
++		gpu_write(gpu, REG_A6XX_CP_PROTECT(i), regs[i]);
++	/* last CP_PROTECT to have "infinite" length on the last entry */
++	gpu_write(gpu, REG_A6XX_CP_PROTECT(count_max - 1), regs[i]);
++}
++
+ static void a6xx_set_ubwc_config(struct msm_gpu *gpu)
+ {
+ 	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
+@@ -776,41 +883,7 @@ static int a6xx_hw_init(struct msm_gpu *gpu)
+ 	}
+ 
+ 	/* Protect registers from the CP */
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT_CNTL, 0x00000003);
+-
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(0),
+-		A6XX_PROTECT_RDONLY(0x600, 0x51));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(1), A6XX_PROTECT_RW(0xae50, 0x2));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(2), A6XX_PROTECT_RW(0x9624, 0x13));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(3), A6XX_PROTECT_RW(0x8630, 0x8));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(4), A6XX_PROTECT_RW(0x9e70, 0x1));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(5), A6XX_PROTECT_RW(0x9e78, 0x187));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(6), A6XX_PROTECT_RW(0xf000, 0x810));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(7),
+-		A6XX_PROTECT_RDONLY(0xfc00, 0x3));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(8), A6XX_PROTECT_RW(0x50e, 0x0));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(9), A6XX_PROTECT_RDONLY(0x50f, 0x0));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(10), A6XX_PROTECT_RW(0x510, 0x0));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(11),
+-		A6XX_PROTECT_RDONLY(0x0, 0x4f9));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(12),
+-		A6XX_PROTECT_RDONLY(0x501, 0xa));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(13),
+-		A6XX_PROTECT_RDONLY(0x511, 0x44));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(14), A6XX_PROTECT_RW(0xe00, 0xe));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(15), A6XX_PROTECT_RW(0x8e00, 0x0));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(16), A6XX_PROTECT_RW(0x8e50, 0xf));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(17), A6XX_PROTECT_RW(0xbe02, 0x0));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(18),
+-		A6XX_PROTECT_RW(0xbe20, 0x11f3));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(19), A6XX_PROTECT_RW(0x800, 0x82));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(20), A6XX_PROTECT_RW(0x8a0, 0x8));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(21), A6XX_PROTECT_RW(0x8ab, 0x19));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(22), A6XX_PROTECT_RW(0x900, 0x4d));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(23), A6XX_PROTECT_RW(0x98d, 0x76));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(24),
+-			A6XX_PROTECT_RDONLY(0x980, 0x4));
+-	gpu_write(gpu, REG_A6XX_CP_PROTECT(25), A6XX_PROTECT_RW(0xa630, 0x0));
++	a6xx_set_cp_protect(gpu);
+ 
+ 	/* Enable expanded apriv for targets that support it */
+ 	if (gpu->hw_apriv) {
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.h b/drivers/gpu/drm/msm/adreno/a6xx_gpu.h
+index ce0610c5256f..bb544dfe5737 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.h
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.h
+@@ -44,7 +44,7 @@ struct a6xx_gpu {
+  * REG_CP_PROTECT_REG(n) - this will block both reads and writes for _len
+  * registers starting at _reg.
+  */
+-#define A6XX_PROTECT_RW(_reg, _len) \
++#define A6XX_PROTECT_NORDWR(_reg, _len) \
+ 	((1 << 31) | \
+ 	(((_len) & 0x3FFF) << 18) | ((_reg) & 0x3FFFF))
+ 
 
