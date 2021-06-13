@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E025D3A587C
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:52:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C653A587F
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231921AbhFMMx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 08:53:57 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:54347 "EHLO
+        id S231971AbhFMMyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 08:54:03 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:46107 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231862AbhFMMxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:53:37 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C9C461940155;
-        Sun, 13 Jun 2021 08:51:35 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sun, 13 Jun 2021 08:51:35 -0400
+        by vger.kernel.org with ESMTP id S231981AbhFMMxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:53:51 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id E1410194048F;
+        Sun, 13 Jun 2021 08:51:48 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Sun, 13 Jun 2021 08:51:48 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=N/z0c/
-        BXX4VTOqv1qLK1HHX3xu28apGau9Gmcc8qf5U=; b=odbK+7OpSFsF541lN8xoZG
-        yTmS2ZIbIeMu2feafAlIjoxg6mEDyqyVpx2bYFqA1tsQQnVN4wxmPVxKA86c5FN0
-        YKAdHLNVxYrJBWiumQt0p78XafJIduv+81jrY3RqoXR9OV+sbsn/XU/CMbBDctnA
-        /tzFvzLBqgX1/a+/GAhSIRnUBh2dbsRf1cGsRbILMyVzHtcRWRM+s/KT0HoDVhoO
-        ybeHKcC/OV/mHZp4uWSO+54jXG4DuwVgnksg269CnlYzbRJLGe8Y3U4P20F7tatp
-        g+P9djrRjr62oCOxyfWvc6GqJEgFd2594K4kyq9pesUmrcG3hKrDASntwizQIIKw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=f060ht
+        cAiDQEFdRVkoknceniPTYaGz8ucp9zwk9gYhA=; b=D6JK81EzE5a5JaQBELHyYe
+        A7Yo4cp8jKP+433wFulPiNjpwy7GZRH8D3SccFPiRtc9gYkw1pQ1EMMQWiMrG/ne
+        0Lmnp0pTK71b5EKYzwEPL/l6CFXMnuFeF6OxjBW3frfVKNThKBiLnxX3pNGCAbma
+        7ibqyTS0XVTBylT6AGXip8S+xnHyXp0z8v6Dn+7Nq+OU1NlP9QoVoGU6qK7v7gUn
+        yewDAwFVWxtc1lLC04xibQNm+xaobgBAegvKw2l/8W4J77OQfkEh6OVA9caO1eVB
+        gs416klCaQf7b+Jt0LVZ/sib1VJfZZOKnlt/b/RGMof6uEmjnlR6b360vHwQmoTw
         ==
-X-ME-Sender: <xms:V__FYEllnxq4Bkcj2qx7q9ILzhPfY-vBqnjdXAuzyIhpYQlCaJHZGA>
-    <xme:V__FYD3SH4D0HLS848abO8wXzMfdQT42k-UYDoYdTfr5RHxUuKgSH0z7hzkBSltFh
-    u1jpGV6YJ4lqA>
-X-ME-Received: <xmr:V__FYCqqC9JDOBBuWVxi-dsxMpePZQsCsWx2mgCiF5PFwxPO636iJ5vEmcB06TFBUUm1qLNs7igaE6AgFPDeQSe0Zwjk1jtG>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgheelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:ZP_FYDdMebrpKqXQnIDSSfwOYgus8o7OBUG0NMcnGB5KTnG8k5akNQ>
+    <xme:ZP_FYJP5yJwB3rW3TF_iCef0iGb72yY_gzImbrldnF0aK8T_TC6gO6OP4xwiFklin
+    exwWEeLZV_rvw>
+X-ME-Received: <xmr:ZP_FYMitsNb4fXT-HcSoNixmQvX1W3exvZaZnYcw3ED1QhEG8bD8NTgjUMvRMevS-c_xEEMqa2PU4kHyK8OYMeuMUELLlRn_>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgheekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    shhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:V__FYAmcdHkLbQ76J79sSPJItX2G7qCXT7386mv94UgMOVstfc07hA>
-    <xmx:V__FYC1KZl1kX4fMhtxrHTKT2DtqG90JWYwyOIiQIiweucMbDTqIWA>
-    <xmx:V__FYHuflJPN9idiuNhou4I3ttjs_mfi7Dn0dkBDAqiCDtwjrUmHzg>
-    <xmx:V__FYACQjfr5BrVdLN9xkAHksg3O3U8-zJO0cCK5kqTFH605bcfquA>
+X-ME-Proxy: <xmx:ZP_FYE8anw7DqeSjGUDV4ZPZIKDJzsQHJGvhLjQoUffHELP0ijIGWw>
+    <xmx:ZP_FYPvxeCrE_9U_B5PA6SSmri-Ef-mEXmc000SHRvpOLbAYCX6YMA>
+    <xmx:ZP_FYDEmMf1xDHz5p9YvMbKrdy5Q50YuI9_9fgpb3mqimtV2gQYLPw>
+    <xmx:ZP_FYI4j9DIpMh1Cze2oXFRUhDJdcJn51kS2HiMX-p_iCk9xSAD3zw>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 08:51:34 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: typec: tcpm: Correct the responses in SVDM Version 2.0" failed to apply to 4.14-stable tree
+ 13 Jun 2021 08:51:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: typec: tcpm: Correct the responses in SVDM Version 2.0" failed to apply to 5.4-stable tree
 To:     kyletso@google.com, gregkh@linuxfoundation.org,
         heikki.krogerus@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 14:51:33 +0200
-Message-ID: <16235886933238@kroah.com>
+Date:   Sun, 13 Jun 2021 14:51:34 +0200
+Message-ID: <1623588694231110@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
