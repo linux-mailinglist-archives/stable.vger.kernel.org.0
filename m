@@ -2,149 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 943863A501F
-	for <lists+stable@lfdr.de>; Sat, 12 Jun 2021 20:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62D663A5738
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 11:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229814AbhFLShe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Jun 2021 14:37:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49616 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229753AbhFLShd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 12 Jun 2021 14:37:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D96B561182;
-        Sat, 12 Jun 2021 18:35:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623522933;
-        bh=OegiXBEbDz69Jlod1Nz5uiZDF03O+GavSJ/lYQnFGmk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQmuCVuI2U36fPC04F/hsUvO1fT1kDJbmj/1UXug73mT7FQnKxHWIR3pE9AlsnGgW
-         PE2gRi2XmJ71vTRt/XL9anB/GbEwKH7OHSmkwx3tDavm9eYx0IP7X9/VwshgBRnQVu
-         w5JCX81abxaU78FoqYnzBy7sQgapnJteiMCdejERXc9+lO4qbHT/OjfOwNHAlmxtb4
-         0ph3K4LcxzqSZEkwbghpprnV9pZt+fk3SNGigaq6JiGVRkxzgeDMvCrQjXCC7eKVIH
-         AsBbOtvz022MqDfLAtAuEo1Yzo07sVDhNmtkDsjF1jbjzyLGZOCELpnOUBfv9VLjQX
-         OlysUCnz8fz+A==
-From:   Jeff Layton <jlayton@kernel.org>
-To:     ceph-devel@vger.kernel.org
-Cc:     linux-cachefs@redhat.com, pfmeec@rit.edu, willy@infradead.org,
-        dhowells@redhat.com, idryomov@gmail.com, stable@vger.kernel.org,
-        Andrew W Elble <aweits@rit.edu>
-Subject: [PATCH v3] ceph: fix write_begin optimization when write is beyond EOF
-Date:   Sat, 12 Jun 2021 14:35:31 -0400
-Message-Id: <20210612183531.17074-1-jlayton@kernel.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <YMS4TOw8txQQ7VGr@casper.infradead.org>
-References: <YMS4TOw8txQQ7VGr@casper.infradead.org>
+        id S231174AbhFMJLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 05:11:06 -0400
+Received: from mail-yb1-f193.google.com ([209.85.219.193]:39476 "EHLO
+        mail-yb1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230255AbhFMJLF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 05:11:05 -0400
+Received: by mail-yb1-f193.google.com with SMTP id b74so9085695yba.6
+        for <stable@vger.kernel.org>; Sun, 13 Jun 2021 02:08:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=KZJ2xAEmTkzFHnlRtqmtnJUs14JMs+hFD/XRT0NtZ10=;
+        b=NToZIMbyzMWAi32fia1Au763YTKI7wVG1Dd2q+aqW2+h40gv+wZLi5EAcINWQ/El2J
+         gjbek1PN9hMuRKx1xik5gfHPblmqC2VqpvsO0PmCk5GB/d6nuId1o+z9hADqEjuLRjfs
+         h76mx1x0q+7bnyiElkoX5OBfyCRx3+ssUojQ/UrCOs8Fb9WAX4HGHs30B9jq6L9m8DPK
+         B7GLUwIw4eZuMH3n9cSHYi8mQtX3n2G8BnX1zX2vieWLbhYl/GkEPNxLveAcZ9/nAVx9
+         cGwb/ijqxOLA47mKChJhTSAGoaFlHwrkUU4+QCZrcLbhlUOjVMV6t6+lsCQ/BVooKyAn
+         9fCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=KZJ2xAEmTkzFHnlRtqmtnJUs14JMs+hFD/XRT0NtZ10=;
+        b=Dtrsbpadcjmzq98dDwTfVAH6gEfS5qgK0sFqIfqih+ppXguy4T26Sk4vBx9cwmSPXg
+         KGFixxFO32keaCweIl1CgfwbugGa4HtSAU51Dwt0qFg7R7KFWqjgEsOgewgiyOB4EIWc
+         QihivG1ySmcoPBGoxztZa3pA8IDpl9/66BMR60HXqVBpB0O8w2BT/uLzuB4o7/QjsgGO
+         swRJMxn8mif6Qspj+Yi+Ruw2ZL7snT70VznJMOhkAqfga4zP1X2ca5oN3o7c9oQRWIfY
+         012a52VcbTfbfRb68G2nKzOcNrEMHyNqtcQ4TE5FY4gPgyYJPIWFleJibDOIWvVoRVO8
+         0USA==
+X-Gm-Message-State: AOAM531Wt3J8A4jevL+A3bVPSJSa+g3nbHVYJdzCg21/SCnNCpFSHltk
+        228IALwUBGYAYvQRXa+hIX7YN2wHiP3yXo2w1mc=
+X-Google-Smtp-Source: ABdhPJxkizSPqpQ9Fxa+1NJGc19UYw6nP4O8PnbjXmZW5uZ8CYB/V/pzNlc5D3BOdtZFww09mmVLpACxCIJFE3SGf4c=
+X-Received: by 2002:a25:a4c8:: with SMTP id g66mr17247134ybi.301.1623575267948;
+ Sun, 13 Jun 2021 02:07:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a05:7110:55c1:b029:cd:e9e3:796c with HTTP; Sun, 13 Jun 2021
+ 02:07:47 -0700 (PDT)
+Reply-To: mrsdanakomo330@gmail.com
+From:   Dana Komo <dr.aliabdussalam@gmail.com>
+Date:   Sun, 13 Jun 2021 02:07:47 -0700
+Message-ID: <CADg4RE+mV1OjXBaU+u=Tg93P99Y_7Kc=SGruHkg80Kdj8BJo1A@mail.gmail.com>
+Subject: Yours Sincerely,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It's not sufficient to skip reading when the pos is beyond the EOF.
-There may be data at the head of the page that we need to fill in
-before the write.
+My Dear
 
-Add a new helper function that corrects and clarifies the logic.
+With warm heart I offer my friendship, and my greetings to you in the
+name of our lord, and I hope this letter meets you in good time, I
+Propose with my free mind and as a person of integrity from God, I
+know that this message will appear as a surprise to you that we barely
+Know but the grace of God directed me to you and I wish you read this
+message and be blessed in name of the Lord.
 
-Cc: <stable@vger.kernel.org> # v5.10+
-Fixes: 1cc1699070bd ("ceph: fold ceph_update_writeable_page into ceph_write_begin")
-Reported-by: Andrew W Elble <aweits@rit.edu>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
----
- fs/ceph/addr.c | 60 +++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 47 insertions(+), 13 deletions(-)
+I have a brain tumor; I suffer terribly at the moment. My doctor just
+informed me that my days are numbered because of my health therefore
+condemned to certain death. Currently, I have exhausted all my savings
+for my medical care.
 
-Willy pointed out that I had missed the i_size == 0 case in my earlier
-patch. Also, the whole condition was getting a bit messy. This factors
-it out into a new helper (and we can maybe copy this helper into netfs
-code).
+But I do have some funds for my charity project; these funds are
+deposited with one of the security Company here In Cote D'Ivoire West
+Africa. Purposed for charitable foundation, my marital status is such
+that I'm single because I lost my Husband over 9 years now and
+unfortunately we have not had a child together, which I am no one to
+leave my legacy for. Therefore, to release my funds I would like to
+make a donation so that there is no stiff tax on my money.
 
-diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
-index 26e66436f005..ba53e9a3f0c1 100644
---- a/fs/ceph/addr.c
-+++ b/fs/ceph/addr.c
-@@ -1302,6 +1302,51 @@ ceph_find_incompatible(struct page *page)
- 	return NULL;
- }
- 
-+/**
-+ * prep_noread_page - prep a page for writing without reading first
-+ * @page: page being prepared
-+ * @pos: starting position for the write
-+ * @len: length of write
-+ *
-+ * In some cases we don't need to read at all:
-+ * - full page write
-+ * - file is currently zero-length
-+ * - write that lies in a page that is completely beyond EOF
-+ * - write that covers the the page from start to EOF or beyond it
-+ *
-+ * If any of these criteria are met, then zero out the unwritten parts
-+ * of the page and return true. Otherwise, return false.
-+ */
-+static bool prep_noread_page(struct page *page, loff_t pos, unsigned int len)
-+{
-+	struct inode *inode = page->mapping->host;
-+	loff_t i_size = i_size_read(inode);
-+	pgoff_t index = pos / PAGE_SIZE;
-+	int pos_in_page = pos & ~PAGE_MASK;
-+
-+	/* full page write */
-+	if (pos_in_page == 0 && len == PAGE_SIZE)
-+		goto zero_out;
-+
-+	/* zero-length file */
-+	if (i_size == 0)
-+		goto zero_out;
-+
-+	/* position beyond last page in the file */
-+	if (index > ((i_size - 1) / PAGE_SIZE))
-+		goto zero_out;
-+
-+	/* write that covers the the page from start to EOF or beyond it */
-+	if (pos_in_page == 0 && (pos + len) >= i_size)
-+		goto zero_out;
-+
-+	return false;
-+zero_out:
-+	zero_user_segments(page, 0, pos_in_page,
-+			   pos_in_page + len, PAGE_SIZE);
-+	return true;
-+}
-+
- /*
-  * We are only allowed to write into/dirty the page if the page is
-  * clean, or already dirty within the same snap context.
-@@ -1315,7 +1360,6 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
- 	struct ceph_snap_context *snapc;
- 	struct page *page = NULL;
- 	pgoff_t index = pos >> PAGE_SHIFT;
--	int pos_in_page = pos & ~PAGE_MASK;
- 	int r = 0;
- 
- 	dout("write_begin file %p inode %p page %p %d~%d\n", file, inode, page, (int)pos, (int)len);
-@@ -1350,19 +1394,9 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
- 			break;
- 		}
- 
--		/*
--		 * In some cases we don't need to read at all:
--		 * - full page write
--		 * - write that lies completely beyond EOF
--		 * - write that covers the the page from start to EOF or beyond it
--		 */
--		if ((pos_in_page == 0 && len == PAGE_SIZE) ||
--		    (pos >= i_size_read(inode)) ||
--		    (pos_in_page == 0 && (pos + len) >= i_size_read(inode))) {
--			zero_user_segments(page, 0, pos_in_page,
--					   pos_in_page + len, PAGE_SIZE);
-+		/* No need to read in some cases */
-+		if (prep_noread_page(page, pos, len))
- 			break;
--		}
- 
- 		/*
- 		 * We need to read it. If we get back -EINPROGRESS, then the page was
--- 
-2.31.1
+ To this I would be so graceful and in order to help the poor to give
+what amounts to said legacy worth four Million Euros (=E2=82=AC4,000,000.00=
+)
+to enable you establish a charitable foundation in my memory so that
+the grace of God be with me until my last home so I can receive an
+honorable place with the Lord our father.
 
+I have no fear before contacted you, I have several nights prayed for
+the Lord to give me the contact of a trusted person of whom I can
+entrust this matter and I believe my contacts to you is divine.
+
+Know that you can keep 30% of the money for yourself and the rest will
+be used to create a charitable foundation in my memory and a
+federation in the fight against cancer and also build orphanages.
+
+I count on your goodwill and especially on the proper use of these
+funds have something I do not doubt because I have great confidence in
+you that God may guide me toward you. Email/ mrsdanakomo330@gmail.com
+
+
+Awaiting your prompt reply, receive my cordial and fraternal greetings.
+
+Yours Sincerely,
+Mrs. Dana Komo
