@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E20D3A5886
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C92C3A5888
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbhFMMzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 08:55:05 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:41931 "EHLO
+        id S231286AbhFMM5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 08:57:21 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:45185 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231733AbhFMMzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:55:05 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 264D11940724;
-        Sun, 13 Jun 2021 08:53:04 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S231667AbhFMM5U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:57:20 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0D7491940A0C;
+        Sun, 13 Jun 2021 08:55:18 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sun, 13 Jun 2021 08:53:04 -0400
+  by compute4.internal (MEProxy); Sun, 13 Jun 2021 08:55:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=iAuhkH
-        VGGVG9kR+Qd9WGzYOJLSWABf5zPI+larQd+X0=; b=nSalpxleY43F1YBFtwjrAM
-        0UyHjJ7WUKP3cJE1gG2jVdn3TRicRP8PAUGmpqfbulD2Dzru90ga6rFGCgSJDV+3
-        EDwfqdcCRf7OHp/pT6NKMAT7GpHwvZA2en2uINOtBMGQXaE5IckrWlD6yOA/Srt5
-        RKeJousPxkkq5pIKPRfqSSFpzZLmLeVwGRBTfwKTpQym08LXF0ojqjZH0sfxlk58
-        g8/LLjOj/r2UDA85meyQCUcA+TegOXJCVWtEVHDGBOBqCKENSP6f4mcP0rL4Dr5t
-        OjtcyFG4Am9NbVis1uN2PWsTaL5KjKcyZRN9ePFSfCbm2Ku5q3duO92nQblhUajA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=BqgnfS
+        1Ii6QXr+cNsJOs7q9eefbD11kPGqMfxFxpbII=; b=O4bcyHBcU6e0ZZHtiAgB9v
+        FHWlStTVHaJaFINH7k3cnKrI1l9AK0NGZpLjYqVplXpWPihV7VSuBR+PryX/B5qk
+        GXlDafrlAoxE7iuanm5DfmgogJF9uXYUiSsRGKvjOhS5cT8dxh6Vgiokzlif/KsZ
+        v6Gm1KiGqZD5NXpJFZBvxFZvU4XV7KSEDyeNYO4z4pHLapDhyuXweGGTMN3gTk1q
+        ZuiHPVPJ5AsDQzzIE9DggfVgMi3Borv7rJd7JgcuzSkJJ226t8cDQKDAkryeah41
+        Jf4JhiFU1jdMGl57xiu/Gtct2qdsx+ovIiAoZ7gmVEGFBjV/nTnPA1nVFr5yESHA
         ==
-X-ME-Sender: <xms:r__FYLb2v2dbLaKmGnQzY3XksMAWwUNza_Dpth0H713A2L3On770Ag>
-    <xme:r__FYKarITCZUddTSsOpDcBGCT-xb3QSVQ48fF9KdUy6MavmIwsS9IWjRQGGiaxBv
-    4NwC_hmu_f6OQ>
-X-ME-Received: <xmr:r__FYN-R9eYBy4VDP2cHAjVHLyhJS1fE0BfN-klnKUtxsR15lBmGIRL1kJucgkKVYjg9ehlSoiAwvxU2dCNcVNj2pE_fiGK5>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgheelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:NgDGYF54vab7TGYptzhoOHBydxdBAp1EPyFLBmzEzXMW1NHBGCEuUA>
+    <xme:NgDGYC7QbvtMuLwqyQpsH63_5dVFQlXhO2ZTKDTWNkHaNCxZTrwnM_hqghMr-8EkB
+    sOXHZMdTMci5w>
+X-ME-Received: <xmr:NgDGYMdPAGNtZ5wrnjPuIh9D0TXisQ09ARBcp6U_4EqMcZj8rcr-ZrBcEX6TBhZh87vMj-SKlNwvbBoNaYVowI_wgEOz1DuN>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgiedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -39,18 +39,18 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgheelucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:sP_FYBriFBjHOLMGkWaFZQb9qIJjRzWgThrs3ugdcNUMMV3F3fGr8g>
-    <xmx:sP_FYGplQzwbyyH3ANYf_Yc-abejUCoEW2T24psMu2E_HeMIChX2qg>
-    <xmx:sP_FYHQGbiDNOi2HgvpSvWShorEq2td4-881JU0clMcMy-PAvyX3Pw>
-    <xmx:sP_FYN31yds635f-iJo9BVJr9v8z42juvnI4L6DwiEainbXE_yHwiQ>
+X-ME-Proxy: <xmx:NgDGYOItJtHcXBfgo2elXHVB2v3gi91CaTFdpeyaU8vqVw8yaja72w>
+    <xmx:NgDGYJJZFt8ZbqrSBsnuCOth2Jp5MCWvT6H_sTvFnGb_IRwuWD2D9w>
+    <xmx:NgDGYHzre8Dh8fHFqwa4Xrn7KveR9TOnOBwkAXM64Ws6LFm7O5dOaw>
+    <xmx:NgDGYAVHaAB_oTKDZ9E8QJCK0b1HlAc_IAdYpp8FHiZm2Iv7HKh-tA>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 08:53:03 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/msm/a6xx: update/fix CP_PROTECT initialization" failed to apply to 4.19-stable tree
-To:     jonathan@marek.ca, akhilpo@codeaurora.org, robdclark@chromium.org
+ 13 Jun 2021 08:55:18 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] RDMA/mlx4: Do not map the core_clock page to user space" failed to apply to 4.4-stable tree
+To:     shayd@nvidia.com, jgg@nvidia.com, leonro@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 14:53:01 +0200
-Message-ID: <162358878111631@kroah.com>
+Date:   Sun, 13 Jun 2021 14:55:15 +0200
+Message-ID: <1623588915240146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,236 +70,115 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 408434036958699a7f50ddec984f7ba33e11a8f5 Mon Sep 17 00:00:00 2001
-From: Jonathan Marek <jonathan@marek.ca>
-Date: Thu, 13 May 2021 13:13:59 -0400
-Subject: [PATCH] drm/msm/a6xx: update/fix CP_PROTECT initialization
+From 404e5a12691fe797486475fe28cc0b80cb8bef2c Mon Sep 17 00:00:00 2001
+From: Shay Drory <shayd@nvidia.com>
+Date: Thu, 3 Jun 2021 16:19:39 +0300
+Subject: [PATCH] RDMA/mlx4: Do not map the core_clock page to user space
+ unless enabled
 
-Update CP_PROTECT register programming based on downstream.
+Currently when mlx4 maps the hca_core_clock page to the user space there
+are read-modifiable registers, one of which is semaphore, on this page as
+well as the clock counter. If user reads the wrong offset, it can modify
+the semaphore and hang the device.
 
-A6XX_PROTECT_RW is renamed to A6XX_PROTECT_NORDWR to make things aligned
-and also be more clear about what it does.
+Do not map the hca_core_clock page to the user space unless the device has
+been put in a backwards compatibility mode to support this feature.
 
-Note that this required switching to use the CP_ALWAYS_ON_COUNTER as the
-GMU counter is not accessible from the cmdstream.  Which also means
-using the CPU counter for the msm_gpu_submit_flush() tracepoint (as
-catapult depends on being able to compare this to the start/end values
-captured in cmdstream).  This may need to be revisited when IFPC is
-enabled.
+After this patch, mlx4 core_clock won't be mapped to user space on the
+majority of existing devices and the uverbs device time feature in
+ibv_query_rt_values_ex() will be disabled.
 
-Also, compared to downstream, this opens up CP_PERFCTR_CP_SEL as the
-userspace performance tooling (fdperf and pps-producer) expect to be
-able to configure the CP counters.
+Fixes: 52033cfb5aab ("IB/mlx4: Add mmap call to map the hardware clock")
+Link: https://lore.kernel.org/r/9632304e0d6790af84b3b706d8c18732bc0d5e27.1622726305.git.leonro@nvidia.com
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Fixes: 4b565ca5a2cb ("drm/msm: Add A6XX device support")
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Reviewed-by: Akhil P Oommen <akhilpo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210513171431.18632-5-jonathan@marek.ca
-[switch to CP_ALWAYS_ON_COUNTER, open up CP_PERFCNTR_CP_SEL, and spiff
- up commit msg]
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index b4d8e1b01ee4..9702bec14310 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -157,7 +157,7 @@ static void a6xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
- 	 * GPU registers so we need to add 0x1a800 to the register value on A630
- 	 * to get the right value from PM4.
- 	 */
--	get_stats_counter(ring, REG_A6XX_GMU_ALWAYS_ON_COUNTER_L + 0x1a800,
-+	get_stats_counter(ring, REG_A6XX_CP_ALWAYS_ON_COUNTER_LO,
- 		rbmemptr_stats(ring, index, alwayson_start));
+diff --git a/drivers/infiniband/hw/mlx4/main.c b/drivers/infiniband/hw/mlx4/main.c
+index 22898d97ecbd..16704262fc3a 100644
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -581,12 +581,9 @@ static int mlx4_ib_query_device(struct ib_device *ibdev,
+ 	props->cq_caps.max_cq_moderation_count = MLX4_MAX_CQ_COUNT;
+ 	props->cq_caps.max_cq_moderation_period = MLX4_MAX_CQ_PERIOD;
  
- 	/* Invalidate CCU depth and color */
-@@ -187,7 +187,7 @@ static void a6xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
+-	if (!mlx4_is_slave(dev->dev))
+-		err = mlx4_get_internal_clock_params(dev->dev, &clock_params);
+-
+ 	if (uhw->outlen >= resp.response_length + sizeof(resp.hca_core_clock_offset)) {
+ 		resp.response_length += sizeof(resp.hca_core_clock_offset);
+-		if (!err && !mlx4_is_slave(dev->dev)) {
++		if (!mlx4_get_internal_clock_params(dev->dev, &clock_params)) {
+ 			resp.comp_mask |= MLX4_IB_QUERY_DEV_RESP_MASK_CORE_CLOCK_OFFSET;
+ 			resp.hca_core_clock_offset = clock_params.offset % PAGE_SIZE;
+ 		}
+diff --git a/drivers/net/ethernet/mellanox/mlx4/fw.c b/drivers/net/ethernet/mellanox/mlx4/fw.c
+index f6cfec81ccc3..dc4ac1a2b6b6 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/fw.c
++++ b/drivers/net/ethernet/mellanox/mlx4/fw.c
+@@ -823,6 +823,7 @@ int mlx4_QUERY_DEV_CAP(struct mlx4_dev *dev, struct mlx4_dev_cap *dev_cap)
+ #define QUERY_DEV_CAP_MAD_DEMUX_OFFSET		0xb0
+ #define QUERY_DEV_CAP_DMFS_HIGH_RATE_QPN_BASE_OFFSET	0xa8
+ #define QUERY_DEV_CAP_DMFS_HIGH_RATE_QPN_RANGE_OFFSET	0xac
++#define QUERY_DEV_CAP_MAP_CLOCK_TO_USER 0xc1
+ #define QUERY_DEV_CAP_QP_RATE_LIMIT_NUM_OFFSET	0xcc
+ #define QUERY_DEV_CAP_QP_RATE_LIMIT_MAX_OFFSET	0xd0
+ #define QUERY_DEV_CAP_QP_RATE_LIMIT_MIN_OFFSET	0xd2
+@@ -841,6 +842,8 @@ int mlx4_QUERY_DEV_CAP(struct mlx4_dev *dev, struct mlx4_dev_cap *dev_cap)
  
- 	get_stats_counter(ring, REG_A6XX_RBBM_PERFCTR_CP_0_LO,
- 		rbmemptr_stats(ring, index, cpcycles_end));
--	get_stats_counter(ring, REG_A6XX_GMU_ALWAYS_ON_COUNTER_L + 0x1a800,
-+	get_stats_counter(ring, REG_A6XX_CP_ALWAYS_ON_COUNTER_LO,
- 		rbmemptr_stats(ring, index, alwayson_end));
+ 	if (mlx4_is_mfunc(dev))
+ 		disable_unsupported_roce_caps(outbox);
++	MLX4_GET(field, outbox, QUERY_DEV_CAP_MAP_CLOCK_TO_USER);
++	dev_cap->map_clock_to_user = field & 0x80;
+ 	MLX4_GET(field, outbox, QUERY_DEV_CAP_RSVD_QP_OFFSET);
+ 	dev_cap->reserved_qps = 1 << (field & 0xf);
+ 	MLX4_GET(field, outbox, QUERY_DEV_CAP_MAX_QP_OFFSET);
+diff --git a/drivers/net/ethernet/mellanox/mlx4/fw.h b/drivers/net/ethernet/mellanox/mlx4/fw.h
+index 8f020f26ebf5..cf64e54eecb0 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/fw.h
++++ b/drivers/net/ethernet/mellanox/mlx4/fw.h
+@@ -131,6 +131,7 @@ struct mlx4_dev_cap {
+ 	u32 health_buffer_addrs;
+ 	struct mlx4_port_cap port_cap[MLX4_MAX_PORTS + 1];
+ 	bool wol_port[MLX4_MAX_PORTS + 1];
++	bool map_clock_to_user;
+ };
  
- 	/* Write the fence to the scratch register */
-@@ -206,8 +206,8 @@ static void a6xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
- 	OUT_RING(ring, submit->seqno);
- 
- 	trace_msm_gpu_submit_flush(submit,
--		gmu_read64(&a6xx_gpu->gmu, REG_A6XX_GMU_ALWAYS_ON_COUNTER_L,
--			REG_A6XX_GMU_ALWAYS_ON_COUNTER_H));
-+		gpu_read64(gpu, REG_A6XX_CP_ALWAYS_ON_COUNTER_LO,
-+			REG_A6XX_CP_ALWAYS_ON_COUNTER_HI));
- 
- 	a6xx_flush(gpu, ring);
- }
-@@ -462,6 +462,113 @@ static void a6xx_set_hwcg(struct msm_gpu *gpu, bool state)
- 	gpu_write(gpu, REG_A6XX_RBBM_CLOCK_CNTL, state ? clock_cntl_on : 0);
- }
- 
-+/* For a615, a616, a618, A619, a630, a640 and a680 */
-+static const u32 a6xx_protect[] = {
-+	A6XX_PROTECT_RDONLY(0x00000, 0x04ff),
-+	A6XX_PROTECT_RDONLY(0x00501, 0x0005),
-+	A6XX_PROTECT_RDONLY(0x0050b, 0x02f4),
-+	A6XX_PROTECT_NORDWR(0x0050e, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x00510, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x00534, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x00800, 0x0082),
-+	A6XX_PROTECT_NORDWR(0x008a0, 0x0008),
-+	A6XX_PROTECT_NORDWR(0x008ab, 0x0024),
-+	A6XX_PROTECT_RDONLY(0x008de, 0x00ae),
-+	A6XX_PROTECT_NORDWR(0x00900, 0x004d),
-+	A6XX_PROTECT_NORDWR(0x0098d, 0x0272),
-+	A6XX_PROTECT_NORDWR(0x00e00, 0x0001),
-+	A6XX_PROTECT_NORDWR(0x00e03, 0x000c),
-+	A6XX_PROTECT_NORDWR(0x03c00, 0x00c3),
-+	A6XX_PROTECT_RDONLY(0x03cc4, 0x1fff),
-+	A6XX_PROTECT_NORDWR(0x08630, 0x01cf),
-+	A6XX_PROTECT_NORDWR(0x08e00, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x08e08, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x08e50, 0x001f),
-+	A6XX_PROTECT_NORDWR(0x09624, 0x01db),
-+	A6XX_PROTECT_NORDWR(0x09e70, 0x0001),
-+	A6XX_PROTECT_NORDWR(0x09e78, 0x0187),
-+	A6XX_PROTECT_NORDWR(0x0a630, 0x01cf),
-+	A6XX_PROTECT_NORDWR(0x0ae02, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x0ae50, 0x032f),
-+	A6XX_PROTECT_NORDWR(0x0b604, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x0be02, 0x0001),
-+	A6XX_PROTECT_NORDWR(0x0be20, 0x17df),
-+	A6XX_PROTECT_NORDWR(0x0f000, 0x0bff),
-+	A6XX_PROTECT_RDONLY(0x0fc00, 0x1fff),
-+	A6XX_PROTECT_NORDWR(0x11c00, 0x0000), /* note: infinite range */
-+};
-+
-+/* These are for a620 and a650 */
-+static const u32 a650_protect[] = {
-+	A6XX_PROTECT_RDONLY(0x00000, 0x04ff),
-+	A6XX_PROTECT_RDONLY(0x00501, 0x0005),
-+	A6XX_PROTECT_RDONLY(0x0050b, 0x02f4),
-+	A6XX_PROTECT_NORDWR(0x0050e, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x00510, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x00534, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x00800, 0x0082),
-+	A6XX_PROTECT_NORDWR(0x008a0, 0x0008),
-+	A6XX_PROTECT_NORDWR(0x008ab, 0x0024),
-+	A6XX_PROTECT_RDONLY(0x008de, 0x00ae),
-+	A6XX_PROTECT_NORDWR(0x00900, 0x004d),
-+	A6XX_PROTECT_NORDWR(0x0098d, 0x0272),
-+	A6XX_PROTECT_NORDWR(0x00e00, 0x0001),
-+	A6XX_PROTECT_NORDWR(0x00e03, 0x000c),
-+	A6XX_PROTECT_NORDWR(0x03c00, 0x00c3),
-+	A6XX_PROTECT_RDONLY(0x03cc4, 0x1fff),
-+	A6XX_PROTECT_NORDWR(0x08630, 0x01cf),
-+	A6XX_PROTECT_NORDWR(0x08e00, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x08e08, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x08e50, 0x001f),
-+	A6XX_PROTECT_NORDWR(0x08e80, 0x027f),
-+	A6XX_PROTECT_NORDWR(0x09624, 0x01db),
-+	A6XX_PROTECT_NORDWR(0x09e60, 0x0011),
-+	A6XX_PROTECT_NORDWR(0x09e78, 0x0187),
-+	A6XX_PROTECT_NORDWR(0x0a630, 0x01cf),
-+	A6XX_PROTECT_NORDWR(0x0ae02, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x0ae50, 0x032f),
-+	A6XX_PROTECT_NORDWR(0x0b604, 0x0000),
-+	A6XX_PROTECT_NORDWR(0x0b608, 0x0007),
-+	A6XX_PROTECT_NORDWR(0x0be02, 0x0001),
-+	A6XX_PROTECT_NORDWR(0x0be20, 0x17df),
-+	A6XX_PROTECT_NORDWR(0x0f000, 0x0bff),
-+	A6XX_PROTECT_RDONLY(0x0fc00, 0x1fff),
-+	A6XX_PROTECT_NORDWR(0x18400, 0x1fff),
-+	A6XX_PROTECT_NORDWR(0x1a800, 0x1fff),
-+	A6XX_PROTECT_NORDWR(0x1f400, 0x0443),
-+	A6XX_PROTECT_RDONLY(0x1f844, 0x007b),
-+	A6XX_PROTECT_NORDWR(0x1f887, 0x001b),
-+	A6XX_PROTECT_NORDWR(0x1f8c0, 0x0000), /* note: infinite range */
-+};
-+
-+static void a6xx_set_cp_protect(struct msm_gpu *gpu)
-+{
-+	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
-+	const u32 *regs = a6xx_protect;
-+	unsigned i, count = ARRAY_SIZE(a6xx_protect), count_max = 32;
-+
-+	BUILD_BUG_ON(ARRAY_SIZE(a6xx_protect) > 32);
-+	BUILD_BUG_ON(ARRAY_SIZE(a650_protect) > 48);
-+
-+	if (adreno_is_a650(adreno_gpu)) {
-+		regs = a650_protect;
-+		count = ARRAY_SIZE(a650_protect);
-+		count_max = 48;
-+	}
-+
-+	/*
-+	 * Enable access protection to privileged registers, fault on an access
-+	 * protect violation and select the last span to protect from the start
-+	 * address all the way to the end of the register address space
-+	 */
-+	gpu_write(gpu, REG_A6XX_CP_PROTECT_CNTL, BIT(0) | BIT(1) | BIT(3));
-+
-+	for (i = 0; i < count - 1; i++)
-+		gpu_write(gpu, REG_A6XX_CP_PROTECT(i), regs[i]);
-+	/* last CP_PROTECT to have "infinite" length on the last entry */
-+	gpu_write(gpu, REG_A6XX_CP_PROTECT(count_max - 1), regs[i]);
-+}
-+
- static void a6xx_set_ubwc_config(struct msm_gpu *gpu)
- {
- 	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
-@@ -776,41 +883,7 @@ static int a6xx_hw_init(struct msm_gpu *gpu)
+ struct mlx4_func_cap {
+diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
+index c326b434734e..00c84656b2e7 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -498,6 +498,7 @@ static int mlx4_dev_cap(struct mlx4_dev *dev, struct mlx4_dev_cap *dev_cap)
+ 		}
  	}
  
- 	/* Protect registers from the CP */
--	gpu_write(gpu, REG_A6XX_CP_PROTECT_CNTL, 0x00000003);
--
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(0),
--		A6XX_PROTECT_RDONLY(0x600, 0x51));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(1), A6XX_PROTECT_RW(0xae50, 0x2));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(2), A6XX_PROTECT_RW(0x9624, 0x13));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(3), A6XX_PROTECT_RW(0x8630, 0x8));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(4), A6XX_PROTECT_RW(0x9e70, 0x1));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(5), A6XX_PROTECT_RW(0x9e78, 0x187));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(6), A6XX_PROTECT_RW(0xf000, 0x810));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(7),
--		A6XX_PROTECT_RDONLY(0xfc00, 0x3));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(8), A6XX_PROTECT_RW(0x50e, 0x0));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(9), A6XX_PROTECT_RDONLY(0x50f, 0x0));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(10), A6XX_PROTECT_RW(0x510, 0x0));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(11),
--		A6XX_PROTECT_RDONLY(0x0, 0x4f9));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(12),
--		A6XX_PROTECT_RDONLY(0x501, 0xa));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(13),
--		A6XX_PROTECT_RDONLY(0x511, 0x44));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(14), A6XX_PROTECT_RW(0xe00, 0xe));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(15), A6XX_PROTECT_RW(0x8e00, 0x0));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(16), A6XX_PROTECT_RW(0x8e50, 0xf));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(17), A6XX_PROTECT_RW(0xbe02, 0x0));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(18),
--		A6XX_PROTECT_RW(0xbe20, 0x11f3));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(19), A6XX_PROTECT_RW(0x800, 0x82));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(20), A6XX_PROTECT_RW(0x8a0, 0x8));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(21), A6XX_PROTECT_RW(0x8ab, 0x19));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(22), A6XX_PROTECT_RW(0x900, 0x4d));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(23), A6XX_PROTECT_RW(0x98d, 0x76));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(24),
--			A6XX_PROTECT_RDONLY(0x980, 0x4));
--	gpu_write(gpu, REG_A6XX_CP_PROTECT(25), A6XX_PROTECT_RW(0xa630, 0x0));
-+	a6xx_set_cp_protect(gpu);
++	dev->caps.map_clock_to_user  = dev_cap->map_clock_to_user;
+ 	dev->caps.uar_page_size	     = PAGE_SIZE;
+ 	dev->caps.num_uars	     = dev_cap->uar_size / PAGE_SIZE;
+ 	dev->caps.local_ca_ack_delay = dev_cap->local_ca_ack_delay;
+@@ -1948,6 +1949,11 @@ int mlx4_get_internal_clock_params(struct mlx4_dev *dev,
+ 	if (mlx4_is_slave(dev))
+ 		return -EOPNOTSUPP;
  
- 	/* Enable expanded apriv for targets that support it */
- 	if (gpu->hw_apriv) {
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.h b/drivers/gpu/drm/msm/adreno/a6xx_gpu.h
-index ce0610c5256f..bb544dfe5737 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.h
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.h
-@@ -44,7 +44,7 @@ struct a6xx_gpu {
-  * REG_CP_PROTECT_REG(n) - this will block both reads and writes for _len
-  * registers starting at _reg.
-  */
--#define A6XX_PROTECT_RW(_reg, _len) \
-+#define A6XX_PROTECT_NORDWR(_reg, _len) \
- 	((1 << 31) | \
- 	(((_len) & 0x3FFF) << 18) | ((_reg) & 0x3FFFF))
++	if (!dev->caps.map_clock_to_user) {
++		mlx4_dbg(dev, "Map clock to user is not supported.\n");
++		return -EOPNOTSUPP;
++	}
++
+ 	if (!params)
+ 		return -EINVAL;
  
+diff --git a/include/linux/mlx4/device.h b/include/linux/mlx4/device.h
+index 236a7d04f891..30bb59fe970c 100644
+--- a/include/linux/mlx4/device.h
++++ b/include/linux/mlx4/device.h
+@@ -630,6 +630,7 @@ struct mlx4_caps {
+ 	bool			wol_port[MLX4_MAX_PORTS + 1];
+ 	struct mlx4_rate_limit_caps rl_caps;
+ 	u32			health_buffer_addrs;
++	bool			map_clock_to_user;
+ };
+ 
+ struct mlx4_buf_list {
 
