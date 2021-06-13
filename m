@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C92C3A5888
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 088BA3A5889
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:55:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231286AbhFMM5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 08:57:21 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:45185 "EHLO
+        id S231667AbhFMM53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 08:57:29 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:43677 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231667AbhFMM5U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:57:20 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 0D7491940A0C;
-        Sun, 13 Jun 2021 08:55:18 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 13 Jun 2021 08:55:19 -0400
+        by vger.kernel.org with ESMTP id S231649AbhFMM52 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:57:28 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 5336B19409EF;
+        Sun, 13 Jun 2021 08:55:27 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Sun, 13 Jun 2021 08:55:27 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=BqgnfS
-        1Ii6QXr+cNsJOs7q9eefbD11kPGqMfxFxpbII=; b=O4bcyHBcU6e0ZZHtiAgB9v
-        FHWlStTVHaJaFINH7k3cnKrI1l9AK0NGZpLjYqVplXpWPihV7VSuBR+PryX/B5qk
-        GXlDafrlAoxE7iuanm5DfmgogJF9uXYUiSsRGKvjOhS5cT8dxh6Vgiokzlif/KsZ
-        v6Gm1KiGqZD5NXpJFZBvxFZvU4XV7KSEDyeNYO4z4pHLapDhyuXweGGTMN3gTk1q
-        ZuiHPVPJ5AsDQzzIE9DggfVgMi3Borv7rJd7JgcuzSkJJ226t8cDQKDAkryeah41
-        Jf4JhiFU1jdMGl57xiu/Gtct2qdsx+ovIiAoZ7gmVEGFBjV/nTnPA1nVFr5yESHA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Kh+fxb
+        uVRuMInShoAwChSBIdBpySxuOy8Uuznc/Z0aA=; b=oW/6MJnRaSN5M9jkeCHoEz
+        hDA6xth6a2Y22H1ds88IStwyj4q3hOOC1eLiS6adAVVGx5tpepbjWShAEbyu+Q1O
+        WJX8atGXE46g0lono8boxO8KdTXZxIFzEpo6a6RxXt+i/4ozPdThRmR1FCTOnAQ5
+        VBbYsVnMauchvbg6BVq1PqtdwL6Dow4r7HTpoZEyM8aaLYFJpVRNZ8FXOrQHPAsC
+        +kIT58avdNrBjwas5hfNWydE176W/hd8JtmygomtF990i3gEgIT1aPkGPqDDvFz/
+        4oznxzVOeRJcZZDlTS0d7yGKvCaW173rf+uVjKOgqj7sIIh0+7g2Hj0fWzlPQy0w
         ==
-X-ME-Sender: <xms:NgDGYF54vab7TGYptzhoOHBydxdBAp1EPyFLBmzEzXMW1NHBGCEuUA>
-    <xme:NgDGYC7QbvtMuLwqyQpsH63_5dVFQlXhO2ZTKDTWNkHaNCxZTrwnM_hqghMr-8EkB
-    sOXHZMdTMci5w>
-X-ME-Received: <xmr:NgDGYMdPAGNtZ5wrnjPuIh9D0TXisQ09ARBcp6U_4EqMcZj8rcr-ZrBcEX6TBhZh87vMj-SKlNwvbBoNaYVowI_wgEOz1DuN>
+X-ME-Sender: <xms:PwDGYH0F7xNOvLUswAdlTyI8IH2uqcF_Gh136SKK20BHFNUDpWntZg>
+    <xme:PwDGYGHA5fh8_kdZ5DrOUaU0Z_Z2wO28SggofKVNaPXBIkq7B3opDW-VLaZ4aCr8v
+    Xf-qHBOiYEfPg>
+X-ME-Received: <xmr:PwDGYH5ndtOGBiwxipGUMPxX3kkoEmgirCHPVmov-KCuQZUu7vNZMoJrAn1HAjly1ROyfQemmZNCYtEZmQuWbh2fsFQLIiZp>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgiedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -39,18 +39,18 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedgiedtucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:NgDGYOItJtHcXBfgo2elXHVB2v3gi91CaTFdpeyaU8vqVw8yaja72w>
-    <xmx:NgDGYJJZFt8ZbqrSBsnuCOth2Jp5MCWvT6H_sTvFnGb_IRwuWD2D9w>
-    <xmx:NgDGYHzre8Dh8fHFqwa4Xrn7KveR9TOnOBwkAXM64Ws6LFm7O5dOaw>
-    <xmx:NgDGYAVHaAB_oTKDZ9E8QJCK0b1HlAc_IAdYpp8FHiZm2Iv7HKh-tA>
+X-ME-Proxy: <xmx:PwDGYM2wcFul-05S2I2H0X19HmOs3d3qk1iGRqT2EcKTPVy8LFNeOQ>
+    <xmx:PwDGYKE5Ey218L3wZT3Xb5i7RRyk6aY3BjDgmudcP1diMWfM_bU21g>
+    <xmx:PwDGYN_LSLZKbAAW7Yj4ByiTDuO3V3EuRSo_h2My8-CPZHN3L0MAAg>
+    <xmx:PwDGYPR5VdBdyjwFVGLEyq7jGFFvj-cujT_C7k-66jjJnvW55emNsQ>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 08:55:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] RDMA/mlx4: Do not map the core_clock page to user space" failed to apply to 4.4-stable tree
+ 13 Jun 2021 08:55:26 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] RDMA/mlx4: Do not map the core_clock page to user space" failed to apply to 4.9-stable tree
 To:     shayd@nvidia.com, jgg@nvidia.com, leonro@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 14:55:15 +0200
-Message-ID: <1623588915240146@kroah.com>
+Date:   Sun, 13 Jun 2021 14:55:16 +0200
+Message-ID: <162358891619813@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
