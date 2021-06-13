@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C09BC3A5833
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:05:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C753A5834
+	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 14:05:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231691AbhFMMHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 08:07:37 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:48039 "EHLO
+        id S231697AbhFMMHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Jun 2021 08:07:46 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:52143 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231658AbhFMMHh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:07:37 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2AF7119409A7;
-        Sun, 13 Jun 2021 08:05:36 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sun, 13 Jun 2021 08:05:36 -0400
+        by vger.kernel.org with ESMTP id S231658AbhFMMHq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 08:07:46 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id E06BC19405EF;
+        Sun, 13 Jun 2021 08:05:44 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 13 Jun 2021 08:05:44 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aM5NLS
-        4ThHYQW20n9EZU+aEIjUS8sHVTOTyfAfMyYKE=; b=ImPy5lTxVGdAEyoKt4qApI
-        8eIdgaIir318YZ54MQLECcriUttFyLgjOEJyohNqvdxooNlq96SR8QUKJB9c3iMg
-        jRJvnE4+NjMIC06woIMU/uezKoaL13PO/VAV/n2VPEiO/btgkhtWMulMVoVGZ7LM
-        OieNydagUQ1GFi8aVcFHJ0in1n1uNvREnMZdizwqw1yQSS9IxUCDJ3qxDeSAmRor
-        CH7A11B4B4kVlAhNPRBRru284HAXHbV9tMWLEv6MDdI5Q/LtA8px5cdtEyVdijVz
-        dJ9lwLbWW3nEwxu4WyWQpG9/yB+XnJd90IPtzqquIcdAC9xZMNo1Cgu8IDU0mH/g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kMSIpO
+        IoB6jBCq5XNGEeHZXmDentOewPxvHHGWobxP0=; b=a+BN9tzX29pnCyxVgJ8LRN
+        v+MoRPVV6/MWsXdmAifk75SCGIjagCNQFWaPjlSfLMe+TwjdjLB3qqRjrIaGHCAN
+        3f00YA25QKysHuwzR9eZBpBgaP68ngUGD4nrbNXKuSSCU0DLvJk77hqqIHP0kyXl
+        hN6x9WeCnjXorWs6LVEbLj21iIeasreBn6J2RKOfA5ry0BOuI6idU3bBdz5LfPjk
+        GTEFzCXcEujyjcQPXhnWTVayDNc4a5Sgq/OxofLZEJ/A1uo03OZSCcaUhVCJRgr6
+        purGqBemqb1OT1p2SyFg1OZiKFjdn37bWBknOnmK+NHwzLACIP7GkvWMXuyou8Ag
         ==
-X-ME-Sender: <xms:j_TFYGwMrO8jbwsxJRAPvRGsJ1S4ZiUd8VucPlr_zWDwSbL2PrA4nQ>
-    <xme:j_TFYCRu8AJA77G0CutiIsLP5TuTJ28Hs7wMJFpg99N4DjPEebKta93M289emx97t
-    tTx28C92ketGA>
-X-ME-Received: <xmr:j_TFYIWV4_t1uD7wA8UqkpfImutbKWz-DduUvmQoNKb8r3S7niU1DUgfzK1tQFsinuzOAMeXym7QMRSB1FxjdyiIxrXyW6pu>
+X-ME-Sender: <xms:mPTFYJIozB_MZvSPoFahQJLFgxbufWfUdS0ic_HoCxSqyCj-9itPJw>
+    <xme:mPTFYFKO7kD1rwFpJZsXr5yJquodJ9kyaOpXRKCLEDlqztIr8qyiohbFw88mthAXJ
+    rlaRf1hzfcIoQ>
+X-ME-Received: <xmr:mPTFYBudaEB33dcwKWYSE2lBrG_taooOvzhHywTs-FpQ87omPPMepSybW_RkK9HNBL2TIP2Y4riK6PYAKujhW21Es1y6sFIB>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedghedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -39,19 +39,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvfedghedtucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:j_TFYMiTuymXFUHncU98Wn5xxe5t08OM9V2PzyrLtnpBz_3Om3oKCQ>
-    <xmx:j_TFYIBgRzSv4IXM5x5G6DXXQPFHOGDOXHOHPp12ALNBmAJ2w2D4-g>
-    <xmx:j_TFYNKy_dnH7N5bNwAqhUl5hl-hOFGsZT4Wb3wmdZr3G7uqQGHhVg>
-    <xmx:kPTFYL8dJsVf83T6tPPbZH1_9wio7Gj5muv6CkBqIi48_N2-Ou5WhA>
+X-ME-Proxy: <xmx:mPTFYKaSeO0uzy8mgCNd-639QFMqhxJFUHINU5zyoG9NoEON4YgMnw>
+    <xmx:mPTFYAZZY9HyF08pmpOoHI-AjT9ZM414oZ-3NYJLBu5yQ1A9fJvYGg>
+    <xmx:mPTFYODnti_vBZu5n_LT20A6yLJptBV49H4xlobdyqsmBzR7paQSvg>
+    <xmx:mPTFYHVxlnHLmVlqLITyvJDDqVwq-LHuuXqp4l-zoc1CjXPOEttOTw>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 13 Jun 2021 08:05:35 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: musb: fix MUSB_QUIRK_B_DISCONNECT_99 handling" failed to apply to 4.14-stable tree
+ 13 Jun 2021 08:05:44 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: musb: fix MUSB_QUIRK_B_DISCONNECT_99 handling" failed to apply to 4.19-stable tree
 To:     thomas.petazzoni@bootlin.com, alexandre.belloni@bootlin.com,
         drew@beagleboard.org, gregkh@linuxfoundation.org, tony@atomide.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Jun 2021 14:05:32 +0200
-Message-ID: <162358593216355@kroah.com>
+Date:   Sun, 13 Jun 2021 14:05:33 +0200
+Message-ID: <162358593315469@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
