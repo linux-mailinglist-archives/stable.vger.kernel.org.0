@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB4FC3A634A
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E98223A6472
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234718AbhFNLLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:11:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42798 "EHLO mail.kernel.org"
+        id S233510AbhFNLZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235182AbhFNLJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:09:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBB9B61451;
-        Mon, 14 Jun 2021 10:46:38 +0000 (UTC)
+        id S235540AbhFNLWW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:22:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 668F66147D;
+        Mon, 14 Jun 2021 10:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667599;
-        bh=HmGtk6wuKZAXH34pl1mKpHWctvshAXn+rd+v+AcQs48=;
+        s=korg; t=1623667966;
+        bh=BowvD/eSCy3QX3Vc3LZAqN1yb6cnkXLJ8emSXKqQH6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lasZa5fFtdO0EyNqejtiWdfI2zxv38csHVc0bDz66DnIEAyCEn8RDCwRylWuBh4FS
-         w8nnfmBlXlKmGfpZpU1vasCZPgBbfDsINY+P23F0peKFBrShMBLqtlc9ab6S7oTI+m
-         gLDIVqxs6kKMtJhUhqzFEdnXFp7aQIlZENcPnQfc=
+        b=CroXMXIqgkPBWYXu6JcT9OMQyKap8eCLRf5Gw7BcRZU0rMFhE1F8Tdx2N8fQIuXzk
+         nqmrr4fgy3SkAnWCBuPSBts2Q4AexzoeaqeWmTDajTy63KAl8iswY+1a12Gw1Vscvf
+         yoMN6eWtrtrfGblJNKb95RAAzsvevBpW47AZxoHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Odin Ugedal <odin@uged.al>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 115/131] sched/fair: Make sure to update tg contrib for blocked load
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.12 144/173] tools/bootconfig: Fix error return code in apply_xbc()
 Date:   Mon, 14 Jun 2021 12:27:56 +0200
-Message-Id: <20210614102656.928017018@linuxfoundation.org>
+Message-Id: <20210614102702.950550025@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-commit 02da26ad5ed6ea8680e5d01f20661439611ed776 upstream.
+commit e8ba0b2b64126381643bb50df3556b139a60545a upstream.
 
-During the update of fair blocked load (__update_blocked_fair()), we
-update the contribution of the cfs in tg->load_avg if cfs_rq's pelt
-has decayed.  Nevertheless, the pelt values of a cfs_rq could have
-been recently updated while propagating the change of a child. In this
-case, cfs_rq's pelt will not decayed because it has already been
-updated and we don't update tg->load_avg.
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-__update_blocked_fair
-  ...
-  for_each_leaf_cfs_rq_safe: child cfs_rq
-    update cfs_rq_load_avg() for child cfs_rq
-    ...
-    update_load_avg(cfs_rq_of(se), se, 0)
-      ...
-      update cfs_rq_load_avg() for parent cfs_rq
-		-propagation of child's load makes parent cfs_rq->load_sum
-		 becoming null
-        -UPDATE_TG is not set so it doesn't update parent
-		 cfs_rq->tg_load_avg_contrib
-  ..
-  for_each_leaf_cfs_rq_safe: parent cfs_rq
-    update cfs_rq_load_avg() for parent cfs_rq
-      - nothing to do because parent cfs_rq has already been updated
-		recently so cfs_rq->tg_load_avg_contrib is not updated
-    ...
-    parent cfs_rq is decayed
-      list_del_leaf_cfs_rq parent cfs_rq
-	  - but it still contibutes to tg->load_avg
+Link: https://lkml.kernel.org/r/20210508034216.2277-1-thunder.leizhen@huawei.com
 
-we must set UPDATE_TG flags when propagting pending load to the parent
-
-Fixes: 039ae8bcf7a5 ("sched/fair: Fix O(nr_cgroups) in the load balancing path")
-Reported-by: Odin Ugedal <odin@uged.al>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Odin Ugedal <odin@uged.al>
-Link: https://lkml.kernel.org/r/20210527122916.27683-3-vincent.guittot@linaro.org
+Fixes: a995e6bc0524 ("tools/bootconfig: Fix to check the write failure correctly")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/bootconfig/main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -7960,7 +7960,7 @@ static bool __update_blocked_fair(struct
- 		/* Propagate pending load changes to the parent, if any: */
- 		se = cfs_rq->tg->se[cpu];
- 		if (se && !skip_blocked_update(se))
--			update_load_avg(cfs_rq_of(se), se, 0);
-+			update_load_avg(cfs_rq_of(se), se, UPDATE_TG);
- 
- 		/*
- 		 * There can be a lot of idle CPU cgroups.  Don't let fully
+--- a/tools/bootconfig/main.c
++++ b/tools/bootconfig/main.c
+@@ -399,6 +399,7 @@ static int apply_xbc(const char *path, c
+ 	}
+ 	/* TODO: Ensure the @path is initramfs/initrd image */
+ 	if (fstat(fd, &stat) < 0) {
++		ret = -errno;
+ 		pr_err("Failed to get the size of %s\n", path);
+ 		goto out;
+ 	}
 
 
