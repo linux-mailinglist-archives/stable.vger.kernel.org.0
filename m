@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA4FD3A6191
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5B33A608F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234125AbhFNKs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:48:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50772 "EHLO mail.kernel.org"
+        id S233346AbhFNKfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233936AbhFNKq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:46:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47CBA61456;
-        Mon, 14 Jun 2021 10:37:12 +0000 (UTC)
+        id S233355AbhFNKd4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:33:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75343611BE;
+        Mon, 14 Jun 2021 10:31:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667032;
-        bh=Md0RXpy04ehwWoOEmlRZlFIo2H+7yqFYIWQf7EfyhDI=;
+        s=korg; t=1623666710;
+        bh=k41R0Kv18ZKHAa/wQnzfh4ju+xUwjKz4ZbRlEjqZ5N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CA9qb5CAY1ASTyDXqLW4FMKePiucDdyvVTomtRkwFsy80pw6J0ITXKCuZV/KS45JV
-         lDeRW6RqG8RtPDNOpR+qtRPrjLEHJRIDy8GfUwVrSPhTzBMt/q8ookrrXji1dwmQOO
-         8KGBoUmDwkvWJVXIVRof3Sont8yPVecMLoBOe8/0=
+        b=oX5wrMvu8UvxkGFFqF9JNPIkECXYOImiFBgjfPrZ/KPWV2kWqzydZYg0V0a1Oo0//
+         HdybtxvjNDsyzUU5S1tg49XAbtMWKnfbZu/PebW70QVch83rdm3P7LdnUL/0rBNZoe
+         3WGW+tsBeIlQOpB6rhFmL0JoW+lo4OvGCtbvJH/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        George McCollister <george.mccollister@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 42/67] USB: serial: ftdi_sio: add NovaTech OrionMX product ID
+        syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com,
+        Marco Elver <elver@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.9 34/42] perf: Fix data race between pin_count increment/decrement
 Date:   Mon, 14 Jun 2021 12:27:25 +0200
-Message-Id: <20210614102645.221100410@linuxfoundation.org>
+Message-Id: <20210614102643.790442311@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George McCollister <george.mccollister@gmail.com>
+From: Marco Elver <elver@google.com>
 
-commit bc96c72df33ee81b24d87eab953c73f7bcc04f29 upstream.
+commit 6c605f8371159432ec61cbb1488dcf7ad24ad19a upstream.
 
-Add PID for the NovaTech OrionMX so it can be automatically detected.
+KCSAN reports a data race between increment and decrement of pin_count:
 
-Signed-off-by: George McCollister <george.mccollister@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+  write to 0xffff888237c2d4e0 of 4 bytes by task 15740 on cpu 1:
+   find_get_context		kernel/events/core.c:4617
+   __do_sys_perf_event_open	kernel/events/core.c:12097 [inline]
+   __se_sys_perf_event_open	kernel/events/core.c:11933
+   ...
+  read to 0xffff888237c2d4e0 of 4 bytes by task 15743 on cpu 0:
+   perf_unpin_context		kernel/events/core.c:1525 [inline]
+   __do_sys_perf_event_open	kernel/events/core.c:12328 [inline]
+   __se_sys_perf_event_open	kernel/events/core.c:11933
+   ...
+
+Because neither read-modify-write here is atomic, this can lead to one
+of the operations being lost, resulting in an inconsistent pin_count.
+Fix it by adding the missing locking in the CPU-event case.
+
+Fixes: fe4b04fa31a6 ("perf: Cure task_oncpu_function_call() races")
+Reported-by: syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210527104711.2671610-1-elver@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    1 +
- drivers/usb/serial/ftdi_sio_ids.h |    1 +
- 2 files changed, 2 insertions(+)
+ kernel/events/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -601,6 +601,7 @@ static const struct usb_device_id id_tab
- 		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
- 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONLX_PLUS_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORION_IO_PID) },
-+	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONMX_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_SYNAPSE_SS200_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX2_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -581,6 +581,7 @@
- #define FTDI_NT_ORIONLXM_PID		0x7c90	/* OrionLXm Substation Automation Platform */
- #define FTDI_NT_ORIONLX_PLUS_PID	0x7c91	/* OrionLX+ Substation Automation Platform */
- #define FTDI_NT_ORION_IO_PID		0x7c92	/* Orion I/O */
-+#define FTDI_NT_ORIONMX_PID		0x7c93	/* OrionMX */
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -3782,7 +3782,9 @@ find_get_context(struct pmu *pmu, struct
+ 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
+ 		ctx = &cpuctx->ctx;
+ 		get_ctx(ctx);
++		raw_spin_lock_irqsave(&ctx->lock, flags);
+ 		++ctx->pin_count;
++		raw_spin_unlock_irqrestore(&ctx->lock, flags);
  
- /*
-  * Synapse Wireless product ids (FTDI_VID)
+ 		return ctx;
+ 	}
 
 
