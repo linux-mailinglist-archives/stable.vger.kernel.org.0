@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 464A83A612E
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E96343A6045
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:31:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232764AbhFNKpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:45:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45194 "EHLO mail.kernel.org"
+        id S233148AbhFNKcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:32:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234032AbhFNKjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9829613FA;
-        Mon, 14 Jun 2021 10:34:21 +0000 (UTC)
+        id S233067AbhFNKcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:32:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98562611EE;
+        Mon, 14 Jun 2021 10:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666862;
-        bh=06HxnxtIEZnzYB12uT+NogL52PJZi6xTPiWFgKmivTo=;
+        s=korg; t=1623666610;
+        bh=YDAiIfHevNO5ORjS0kTUf9NlrNBWQqz2BWZOZuDAUng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yVlIUYDpzN3BNX0GVpTA/tb+FX+rsM9jBndqccSxo4UgN5FhkuGqhg6RJ9LdFE/HA
-         R5oc9v4SFoUzb0qmc8mSWh4pfBHiTlMFqMHikW/AaQhVian0MHeLmoip2XJXAZC2k5
-         AwVBYaMlfkx6p2wrTfKp8Nqyv5LSL3OHhGnTKYV0=
+        b=TFa5bP0Gq9kQ1M/PGzO6aDHS1wJA//UX9+PXY9ocPkR49ff70k96D8CDu4yRYc+68
+         TW6rKH5fGtjscVC5R9qvbsfCH9TYkm/jjsFTZJgYxGBxd+t3/WO4QiKnVL617B14cc
+         nQElTpxmV354zpf76Sl9XMhBci5oJt+eScKeKa94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/49] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P1010 i2c controllers
-Date:   Mon, 14 Jun 2021 12:27:11 +0200
-Message-Id: <20210614102642.474214433@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Kuznetsov <wwfq@yandex-team.ru>,
+        Andrey Krasichkov <buglloc@yandex-team.ru>,
+        Dmitry Yakunin <zeil@yandex-team.ru>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.4 21/34] cgroup1: dont allow \n in renaming
+Date:   Mon, 14 Jun 2021 12:27:12 +0200
+Message-Id: <20210614102642.265837815@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102641.582612289@linuxfoundation.org>
+References: <20210614102641.582612289@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Alexander Kuznetsov <wwfq@yandex-team.ru>
 
-[ Upstream commit 19ae697a1e4edf1d755b413e3aa38da65e2db23b ]
+commit b7e24eb1caa5f8da20d405d262dba67943aedc42 upstream.
 
-The i2c controllers on the P1010 have an erratum where the documented
-scheme for i2c bus recovery will not work (A-004447). A different
-mechanism is needed which is documented in the P1010 Chip Errata Rev L.
+cgroup_mkdir() have restriction on newline usage in names:
+$ mkdir $'/sys/fs/cgroup/cpu/test\ntest2'
+mkdir: cannot create directory
+'/sys/fs/cgroup/cpu/test\ntest2': Invalid argument
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But in cgroup1_rename() such check is missed.
+This allows us to make /proc/<pid>/cgroup unparsable:
+$ mkdir /sys/fs/cgroup/cpu/test
+$ mv /sys/fs/cgroup/cpu/test $'/sys/fs/cgroup/cpu/test\ntest2'
+$ echo $$ > $'/sys/fs/cgroup/cpu/test\ntest2'
+$ cat /proc/self/cgroup
+11:pids:/
+10:freezer:/
+9:hugetlb:/
+8:cpuset:/
+7:blkio:/user.slice
+6:memory:/user.slice
+5:net_cls,net_prio:/
+4:perf_event:/
+3:devices:/user.slice
+2:cpu,cpuacct:/test
+test2
+1:name=systemd:/
+0::/
+
+Signed-off-by: Alexander Kuznetsov <wwfq@yandex-team.ru>
+Reported-by: Andrey Krasichkov <buglloc@yandex-team.ru>
+Acked-by: Dmitry Yakunin <zeil@yandex-team.ru>
+Cc: stable@vger.kernel.org
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/boot/dts/fsl/p1010si-post.dtsi | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ kernel/cgroup.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi b/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi
-index af12ead88c5f..404f570ebe23 100644
---- a/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi
-@@ -122,7 +122,15 @@
- 	};
+--- a/kernel/cgroup.c
++++ b/kernel/cgroup.c
+@@ -3310,6 +3310,10 @@ static int cgroup_rename(struct kernfs_n
+ 	struct cgroup *cgrp = kn->priv;
+ 	int ret;
  
- /include/ "pq3-i2c-0.dtsi"
-+	i2c@3000 {
-+		fsl,i2c-erratum-a004447;
-+	};
++	/* do not accept '\n' to prevent making /proc/<pid>/cgroup unparsable */
++	if (strchr(new_name_str, '\n'))
++		return -EINVAL;
 +
- /include/ "pq3-i2c-1.dtsi"
-+	i2c@3100 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
- /include/ "pq3-duart-0.dtsi"
- /include/ "pq3-espi-0.dtsi"
- 	spi0: spi@7000 {
--- 
-2.30.2
-
+ 	if (kernfs_type(kn) != KERNFS_DIR)
+ 		return -ENOTDIR;
+ 	if (kn->parent != new_parent)
 
 
