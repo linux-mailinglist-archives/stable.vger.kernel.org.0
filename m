@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B943A61B9
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D87F83A628F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234236AbhFNKu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:50:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50672 "EHLO mail.kernel.org"
+        id S234342AbhFNLBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:01:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232944AbhFNKs5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:48:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30B706145B;
-        Mon, 14 Jun 2021 10:37:56 +0000 (UTC)
+        id S235123AbhFNLAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:00:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0E6D613EF;
+        Mon, 14 Jun 2021 10:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667077;
-        bh=NfkiMjpLjm1upoaebqhjlgKdC7Y0w5nULqzevbB7IeY=;
+        s=korg; t=1623667361;
+        bh=J7r/lrRoLtgpXhPKTHPUodPNJJKZXvNW2z4QxIPjKlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZ8F3yugEShR3Rmq+KPixfOXW7O/nbbq4lMKEidF5Ag06nN0mgbvYly8pfTJQTO6k
-         2Lx3FjOVHmDuM23CKYtqwFlcHJd21eIPQ3snECPb26rgE4ZVfS9sHio2wCBUBkhwyc
-         DzMsBYowNozCHGFGErktuu7hasWZOZlaq4teHewQ=
+        b=hNTmbZyKlUsAZXNYqWcecNfbGFbpAwyZkeXLHoLvU6QMM43aBtoqc7IJpEDuriknZ
+         gvYCMUhXBSKBJGsfRL1dvHWU+3+8dZd6Zt41eBI7JxkZRsJLC+oY8wV7bOTkH4X6EC
+         Rb3I7ANctod50V2ZKOfndWPgUY+ekzz0IHG1fmlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/84] ASoC: max98088: fix ni clock divider calculation
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 039/131] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P2041 i2c controllers
 Date:   Mon, 14 Jun 2021 12:26:40 +0200
-Message-Id: <20210614102646.420266910@linuxfoundation.org>
+Message-Id: <20210614102654.341322801@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,86 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit 6c9762a78c325107dc37d20ee21002b841679209 ]
+[ Upstream commit 7adc7b225cddcfd0f346d10144fd7a3d3d9f9ea7 ]
 
-The ni1/ni2 ratio formula [1] uses the pclk which is the prescaled mclk.
-The max98088 datasheet [2] has no such formula but table-12 equals so
-we can assume that it is the same for both devices.
+The i2c controllers on the P2040/P2041 have an erratum where the
+documented scheme for i2c bus recovery will not work (A-004447). A
+different mechanism is needed which is documented in the P2040 Chip
+Errata Rev Q (latest available at the time of writing).
 
-While on it make use of DIV_ROUND_CLOSEST_ULL().
-
-[1] https://datasheets.maximintegrated.com/en/ds/MAX98089.pdf; page 86
-[2] https://datasheets.maximintegrated.com/en/ds/MAX98088.pdf; page 82
-
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Link: https://lore.kernel.org/r/20210423135402.32105-1-m.felsch@pengutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98088.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/powerpc/boot/dts/fsl/p2041si-post.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/sound/soc/codecs/max98088.c b/sound/soc/codecs/max98088.c
-index f031d2caa8b7..fa4cdbfd0b80 100644
---- a/sound/soc/codecs/max98088.c
-+++ b/sound/soc/codecs/max98088.c
-@@ -41,6 +41,7 @@ struct max98088_priv {
- 	enum max98088_type devtype;
- 	struct max98088_pdata *pdata;
- 	struct clk *mclk;
-+	unsigned char mclk_prescaler;
- 	unsigned int sysclk;
- 	struct max98088_cdata dai[2];
- 	int eq_textcnt;
-@@ -998,13 +999,16 @@ static int max98088_dai1_hw_params(struct snd_pcm_substream *substream,
-        /* Configure NI when operating as master */
-        if (snd_soc_component_read32(component, M98088_REG_14_DAI1_FORMAT)
-                & M98088_DAI_MAS) {
-+               unsigned long pclk;
+diff --git a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
+index 872e4485dc3f..ddc018d42252 100644
+--- a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
++++ b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
+@@ -371,7 +371,23 @@
+ 	};
+ 
+ /include/ "qoriq-i2c-0.dtsi"
++	i2c@118000 {
++		fsl,i2c-erratum-a004447;
++	};
 +
-                if (max98088->sysclk == 0) {
-                        dev_err(component->dev, "Invalid system clock frequency\n");
-                        return -EINVAL;
-                }
-                ni = 65536ULL * (rate < 50000 ? 96ULL : 48ULL)
-                                * (unsigned long long int)rate;
--               do_div(ni, (unsigned long long int)max98088->sysclk);
-+               pclk = DIV_ROUND_CLOSEST(max98088->sysclk, max98088->mclk_prescaler);
-+               ni = DIV_ROUND_CLOSEST_ULL(ni, pclk);
-                snd_soc_component_write(component, M98088_REG_12_DAI1_CLKCFG_HI,
-                        (ni >> 8) & 0x7F);
-                snd_soc_component_write(component, M98088_REG_13_DAI1_CLKCFG_LO,
-@@ -1065,13 +1069,16 @@ static int max98088_dai2_hw_params(struct snd_pcm_substream *substream,
-        /* Configure NI when operating as master */
-        if (snd_soc_component_read32(component, M98088_REG_1C_DAI2_FORMAT)
-                & M98088_DAI_MAS) {
-+               unsigned long pclk;
++	i2c@118100 {
++		fsl,i2c-erratum-a004447;
++	};
 +
-                if (max98088->sysclk == 0) {
-                        dev_err(component->dev, "Invalid system clock frequency\n");
-                        return -EINVAL;
-                }
-                ni = 65536ULL * (rate < 50000 ? 96ULL : 48ULL)
-                                * (unsigned long long int)rate;
--               do_div(ni, (unsigned long long int)max98088->sysclk);
-+               pclk = DIV_ROUND_CLOSEST(max98088->sysclk, max98088->mclk_prescaler);
-+               ni = DIV_ROUND_CLOSEST_ULL(ni, pclk);
-                snd_soc_component_write(component, M98088_REG_1A_DAI2_CLKCFG_HI,
-                        (ni >> 8) & 0x7F);
-                snd_soc_component_write(component, M98088_REG_1B_DAI2_CLKCFG_LO,
-@@ -1113,8 +1120,10 @@ static int max98088_dai_set_sysclk(struct snd_soc_dai *dai,
-         */
-        if ((freq >= 10000000) && (freq < 20000000)) {
-                snd_soc_component_write(component, M98088_REG_10_SYS_CLK, 0x10);
-+               max98088->mclk_prescaler = 1;
-        } else if ((freq >= 20000000) && (freq < 30000000)) {
-                snd_soc_component_write(component, M98088_REG_10_SYS_CLK, 0x20);
-+               max98088->mclk_prescaler = 2;
-        } else {
-                dev_err(component->dev, "Invalid master clock frequency\n");
-                return -EINVAL;
+ /include/ "qoriq-i2c-1.dtsi"
++	i2c@119000 {
++		fsl,i2c-erratum-a004447;
++	};
++
++	i2c@119100 {
++		fsl,i2c-erratum-a004447;
++	};
++
+ /include/ "qoriq-duart-0.dtsi"
+ /include/ "qoriq-duart-1.dtsi"
+ /include/ "qoriq-gpio-0.dtsi"
 -- 
 2.30.2
 
