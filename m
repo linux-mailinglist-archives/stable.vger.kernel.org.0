@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 766473A624C
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7883A624F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:57:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234700AbhFNK6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:58:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60644 "EHLO mail.kernel.org"
+        id S234110AbhFNK64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:58:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233867AbhFNK4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:56:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D67C61601;
-        Mon, 14 Jun 2021 10:41:17 +0000 (UTC)
+        id S234382AbhFNK4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:56:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FAE661581;
+        Mon, 14 Jun 2021 10:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667278;
-        bh=se+aOlbWApVvK3k0JF45tpjgMrRLW7650QOY6f5iKO4=;
+        s=korg; t=1623667280;
+        bh=Yj6PSnT7sMaVAfUtyqwp/ioxZKN6h05NLJ/hGU0xVfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCVsoRf/B2T9QUJhVW8+dnQa/wTwPAKIZyknsuyFLU0rsJws1UX8oKzGfCRYis+OS
-         +3+ZZSGIm/a+Pun+uFZH/SCDFMUQaTm6O6uVxFPAwCaUvCP3r6XobeKlbSt0crG/Im
-         0w9C1/TQNkEeobJkP0uSkpx5XxnEzphz9Ihdsp90=
+        b=gqBbD8JMEyfImRrrF2mtiAnAHklN+O9twZPju/IPsHFyhakLliClBHRiGqNeB/ZEw
+         PSjhFKsAQb4zDYA8+9SiXoagoGlp/q7frLXF1WTytsZqZPcDQDbA64AU8MXGtjmPEc
+         cMmQs8Hh/Qwt/wPy3lOp8VjZmOSZBnpzZQwnc4kM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        stable@vger.kernel.org,
+        Vijendar Mukunda <Vijendar.Mukunda@amd.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 002/131] ASoC: max98088: fix ni clock divider calculation
-Date:   Mon, 14 Jun 2021 12:26:03 +0200
-Message-Id: <20210614102653.051315433@linuxfoundation.org>
+Subject: [PATCH 5.10 003/131] ASoC: amd: fix for pcm_read() error
+Date:   Mon, 14 Jun 2021 12:26:04 +0200
+Message-Id: <20210614102653.081896115@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -40,86 +41,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
 
-[ Upstream commit 6c9762a78c325107dc37d20ee21002b841679209 ]
+[ Upstream commit 6879e8e759bf9e05eaee85e32ca1a936e6b46da1 ]
 
-The ni1/ni2 ratio formula [1] uses the pclk which is the prescaled mclk.
-The max98088 datasheet [2] has no such formula but table-12 equals so
-we can assume that it is the same for both devices.
+Below phython script throwing pcm_read() error.
 
-While on it make use of DIV_ROUND_CLOSEST_ULL().
+import subprocess
 
-[1] https://datasheets.maximintegrated.com/en/ds/MAX98089.pdf; page 86
-[2] https://datasheets.maximintegrated.com/en/ds/MAX98088.pdf; page 82
+p = subprocess.Popen(["aplay -t raw -D plughw:1,0 /dev/zero"], shell=True)
+subprocess.call(["arecord -Dhw:1,0 --dump-hw-params"], shell=True)
+subprocess.call(["arecord -Dhw:1,0 -fdat -d1 /dev/null"], shell=True)
+p.kill()
 
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Link: https://lore.kernel.org/r/20210423135402.32105-1-m.felsch@pengutronix.de
+Handling ACP global external interrupt enable register
+causing this issue.
+This register got updated wrongly when there is active
+stream causing interrupts disabled for active stream.
+Refactored code to handle enabling and disabling external interrupts.
+
+Signed-off-by: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
+Link: https://lore.kernel.org/r/1619555017-29858-1-git-send-email-Vijendar.Mukunda@amd.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98088.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ sound/soc/amd/raven/acp3x-pcm-dma.c | 10 ----------
+ sound/soc/amd/raven/acp3x.h         |  1 +
+ sound/soc/amd/raven/pci-acp3x.c     | 15 +++++++++++++++
+ 3 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/codecs/max98088.c b/sound/soc/codecs/max98088.c
-index 4be24e7f51c8..f8e49e45ce33 100644
---- a/sound/soc/codecs/max98088.c
-+++ b/sound/soc/codecs/max98088.c
-@@ -41,6 +41,7 @@ struct max98088_priv {
- 	enum max98088_type devtype;
- 	struct max98088_pdata *pdata;
- 	struct clk *mclk;
-+	unsigned char mclk_prescaler;
- 	unsigned int sysclk;
- 	struct max98088_cdata dai[2];
- 	int eq_textcnt;
-@@ -998,13 +999,16 @@ static int max98088_dai1_hw_params(struct snd_pcm_substream *substream,
-        /* Configure NI when operating as master */
-        if (snd_soc_component_read(component, M98088_REG_14_DAI1_FORMAT)
-                & M98088_DAI_MAS) {
-+               unsigned long pclk;
+diff --git a/sound/soc/amd/raven/acp3x-pcm-dma.c b/sound/soc/amd/raven/acp3x-pcm-dma.c
+index 417cda24030c..2447a1e6e913 100644
+--- a/sound/soc/amd/raven/acp3x-pcm-dma.c
++++ b/sound/soc/amd/raven/acp3x-pcm-dma.c
+@@ -237,10 +237,6 @@ static int acp3x_dma_open(struct snd_soc_component *component,
+ 		return ret;
+ 	}
+ 
+-	if (!adata->play_stream && !adata->capture_stream &&
+-	    !adata->i2ssp_play_stream && !adata->i2ssp_capture_stream)
+-		rv_writel(1, adata->acp3x_base + mmACP_EXTERNAL_INTR_ENB);
+-
+ 	i2s_data->acp3x_base = adata->acp3x_base;
+ 	runtime->private_data = i2s_data;
+ 	return ret;
+@@ -367,12 +363,6 @@ static int acp3x_dma_close(struct snd_soc_component *component,
+ 		}
+ 	}
+ 
+-	/* Disable ACP irq, when the current stream is being closed and
+-	 * another stream is also not active.
+-	 */
+-	if (!adata->play_stream && !adata->capture_stream &&
+-		!adata->i2ssp_play_stream && !adata->i2ssp_capture_stream)
+-		rv_writel(0, adata->acp3x_base + mmACP_EXTERNAL_INTR_ENB);
+ 	return 0;
+ }
+ 
+diff --git a/sound/soc/amd/raven/acp3x.h b/sound/soc/amd/raven/acp3x.h
+index 03fe93913e12..c3f0c8b7545d 100644
+--- a/sound/soc/amd/raven/acp3x.h
++++ b/sound/soc/amd/raven/acp3x.h
+@@ -77,6 +77,7 @@
+ #define ACP_POWER_OFF_IN_PROGRESS	0x03
+ 
+ #define ACP3x_ITER_IRER_SAMP_LEN_MASK	0x38
++#define ACP_EXT_INTR_STAT_CLEAR_MASK 0xFFFFFFFF
+ 
+ struct acp3x_platform_info {
+ 	u16 play_i2s_instance;
+diff --git a/sound/soc/amd/raven/pci-acp3x.c b/sound/soc/amd/raven/pci-acp3x.c
+index 77f2d9389606..df83d2ce75ea 100644
+--- a/sound/soc/amd/raven/pci-acp3x.c
++++ b/sound/soc/amd/raven/pci-acp3x.c
+@@ -76,6 +76,19 @@ static int acp3x_reset(void __iomem *acp3x_base)
+ 	return -ETIMEDOUT;
+ }
+ 
++static void acp3x_enable_interrupts(void __iomem *acp_base)
++{
++	rv_writel(0x01, acp_base + mmACP_EXTERNAL_INTR_ENB);
++}
 +
-                if (max98088->sysclk == 0) {
-                        dev_err(component->dev, "Invalid system clock frequency\n");
-                        return -EINVAL;
-                }
-                ni = 65536ULL * (rate < 50000 ? 96ULL : 48ULL)
-                                * (unsigned long long int)rate;
--               do_div(ni, (unsigned long long int)max98088->sysclk);
-+               pclk = DIV_ROUND_CLOSEST(max98088->sysclk, max98088->mclk_prescaler);
-+               ni = DIV_ROUND_CLOSEST_ULL(ni, pclk);
-                snd_soc_component_write(component, M98088_REG_12_DAI1_CLKCFG_HI,
-                        (ni >> 8) & 0x7F);
-                snd_soc_component_write(component, M98088_REG_13_DAI1_CLKCFG_LO,
-@@ -1065,13 +1069,16 @@ static int max98088_dai2_hw_params(struct snd_pcm_substream *substream,
-        /* Configure NI when operating as master */
-        if (snd_soc_component_read(component, M98088_REG_1C_DAI2_FORMAT)
-                & M98088_DAI_MAS) {
-+               unsigned long pclk;
++static void acp3x_disable_interrupts(void __iomem *acp_base)
++{
++	rv_writel(ACP_EXT_INTR_STAT_CLEAR_MASK, acp_base +
++		  mmACP_EXTERNAL_INTR_STAT);
++	rv_writel(0x00, acp_base + mmACP_EXTERNAL_INTR_CNTL);
++	rv_writel(0x00, acp_base + mmACP_EXTERNAL_INTR_ENB);
++}
 +
-                if (max98088->sysclk == 0) {
-                        dev_err(component->dev, "Invalid system clock frequency\n");
-                        return -EINVAL;
-                }
-                ni = 65536ULL * (rate < 50000 ? 96ULL : 48ULL)
-                                * (unsigned long long int)rate;
--               do_div(ni, (unsigned long long int)max98088->sysclk);
-+               pclk = DIV_ROUND_CLOSEST(max98088->sysclk, max98088->mclk_prescaler);
-+               ni = DIV_ROUND_CLOSEST_ULL(ni, pclk);
-                snd_soc_component_write(component, M98088_REG_1A_DAI2_CLKCFG_HI,
-                        (ni >> 8) & 0x7F);
-                snd_soc_component_write(component, M98088_REG_1B_DAI2_CLKCFG_LO,
-@@ -1113,8 +1120,10 @@ static int max98088_dai_set_sysclk(struct snd_soc_dai *dai,
-         */
-        if ((freq >= 10000000) && (freq < 20000000)) {
-                snd_soc_component_write(component, M98088_REG_10_SYS_CLK, 0x10);
-+               max98088->mclk_prescaler = 1;
-        } else if ((freq >= 20000000) && (freq < 30000000)) {
-                snd_soc_component_write(component, M98088_REG_10_SYS_CLK, 0x20);
-+               max98088->mclk_prescaler = 2;
-        } else {
-                dev_err(component->dev, "Invalid master clock frequency\n");
-                return -EINVAL;
+ static int acp3x_init(struct acp3x_dev_data *adata)
+ {
+ 	void __iomem *acp3x_base = adata->acp3x_base;
+@@ -93,6 +106,7 @@ static int acp3x_init(struct acp3x_dev_data *adata)
+ 		pr_err("ACP3x reset failed\n");
+ 		return ret;
+ 	}
++	acp3x_enable_interrupts(acp3x_base);
+ 	return 0;
+ }
+ 
+@@ -100,6 +114,7 @@ static int acp3x_deinit(void __iomem *acp3x_base)
+ {
+ 	int ret;
+ 
++	acp3x_disable_interrupts(acp3x_base);
+ 	/* Reset */
+ 	ret = acp3x_reset(acp3x_base);
+ 	if (ret) {
 -- 
 2.30.2
 
