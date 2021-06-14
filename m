@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD82E3A6489
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:25:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48AF03A6340
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235370AbhFNL0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:26:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50346 "EHLO mail.kernel.org"
+        id S234667AbhFNLLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:11:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236083AbhFNLYJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:24:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87816619A4;
-        Mon, 14 Jun 2021 10:53:12 +0000 (UTC)
+        id S235090AbhFNLIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:08:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 935A66144D;
+        Mon, 14 Jun 2021 10:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667993;
-        bh=xUB+5haVyfZ6/Te4FM6aKzN6f+tae7Y4/VUJ0QdmrsE=;
+        s=korg; t=1623667577;
+        bh=m3BaQTZ/6l3QDGfsJ6g3XgvYV3LZ6UeWgkbRpTyBvbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCMokc6ntJAqyix6Jmx3e2ovbt6yd0TBON7nzw3xzO72aOO/LdH4a+cX0KuCGXYTY
-         8A+QE5OFUHWtZyGaAH7K9OUC8bwL4iKMYkW7VGwFL3O1AbgtnO3LrLuzjDYt/Vgm6q
-         gRWEbD1d9aL3xyXsA9RomFui6Px8of0FEqdgkzC0=
+        b=pd4gX1MLn+EIjg+518raISsOAw0nLzRWR+Yvyi/6SBD9jDfmR9OePXnBMovrW0Dgr
+         KTHPmZSrhMbT92ah18/iFMAPT0/egWCa8Xn/AjRqSDlpXrKBpioIuHu0qImeilEPOG
+         xdeLYZ1Uy8xeNDiLJednOc5c3fJjceu3rm1R+rSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Kyle Tso <kyletso@google.com>
-Subject: [PATCH 5.12 153/173] dt-bindings: connector: Replace BIT macro with generic bit ops
-Date:   Mon, 14 Jun 2021 12:28:05 +0200
-Message-Id: <20210614102703.256886274@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.10 125/131] NFSv4: Fix second deadlock in nfs4_evict_inode()
+Date:   Mon, 14 Jun 2021 12:28:06 +0200
+Message-Id: <20210614102657.259178632@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Tso <kyletso@google.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 9257bd80b917cc7908abd27ed5a5211964563f62 upstream.
+commit c3aba897c6e67fa464ec02b1f17911577d619713 upstream.
 
-BIT macro is not defined. Replace it with generic bit operations.
+If the inode is being evicted but has to return a layout first, then
+that too can cause a deadlock in the corner case where the server
+reboots.
 
-Fixes: 630dce2810b9 ("dt-bindings: connector: Add SVDM VDO properties")
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Kyle Tso <kyletso@google.com>
-Link: https://lore.kernel.org/r/20210527121029.583611-1-kyletso@google.com
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/dt-bindings/usb/pd.h |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ fs/nfs/nfs4proc.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/include/dt-bindings/usb/pd.h
-+++ b/include/dt-bindings/usb/pd.h
-@@ -163,10 +163,10 @@
- #define UFP_VDO_VER1_2		2
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -9629,15 +9629,20 @@ int nfs4_proc_layoutreturn(struct nfs4_l
+ 			&task_setup_data.rpc_client, &msg);
  
- /* Device Capability */
--#define DEV_USB2_CAPABLE	BIT(0)
--#define DEV_USB2_BILLBOARD	BIT(1)
--#define DEV_USB3_CAPABLE	BIT(2)
--#define DEV_USB4_CAPABLE	BIT(3)
-+#define DEV_USB2_CAPABLE	(1 << 0)
-+#define DEV_USB2_BILLBOARD	(1 << 1)
-+#define DEV_USB3_CAPABLE	(1 << 2)
-+#define DEV_USB4_CAPABLE	(1 << 3)
- 
- /* Connector Type */
- #define UFP_RECEPTACLE		2
-@@ -191,9 +191,9 @@
- 
- /* Alternate Modes */
- #define UFP_ALTMODE_NOT_SUPP	0
--#define UFP_ALTMODE_TBT3	BIT(0)
--#define UFP_ALTMODE_RECFG	BIT(1)
--#define UFP_ALTMODE_NO_RECFG	BIT(2)
-+#define UFP_ALTMODE_TBT3	(1 << 0)
-+#define UFP_ALTMODE_RECFG	(1 << 1)
-+#define UFP_ALTMODE_NO_RECFG	(1 << 2)
- 
- /* USB Highest Speed */
- #define UFP_USB2_ONLY		0
-@@ -217,9 +217,9 @@
-  * <4:0>   :: Port number
-  */
- #define DFP_VDO_VER1_1		1
--#define HOST_USB2_CAPABLE	BIT(0)
--#define HOST_USB3_CAPABLE	BIT(1)
--#define HOST_USB4_CAPABLE	BIT(2)
-+#define HOST_USB2_CAPABLE	(1 << 0)
-+#define HOST_USB3_CAPABLE	(1 << 1)
-+#define HOST_USB4_CAPABLE	(1 << 2)
- #define DFP_RECEPTACLE		2
- #define DFP_CAPTIVE		3
- 
+ 	dprintk("--> %s\n", __func__);
++	lrp->inode = nfs_igrab_and_active(lrp->args.inode);
+ 	if (!sync) {
+-		lrp->inode = nfs_igrab_and_active(lrp->args.inode);
+ 		if (!lrp->inode) {
+ 			nfs4_layoutreturn_release(lrp);
+ 			return -EAGAIN;
+ 		}
+ 		task_setup_data.flags |= RPC_TASK_ASYNC;
+ 	}
+-	nfs4_init_sequence(&lrp->args.seq_args, &lrp->res.seq_res, 1, 0);
++	if (!lrp->inode)
++		nfs4_init_sequence(&lrp->args.seq_args, &lrp->res.seq_res, 1,
++				   1);
++	else
++		nfs4_init_sequence(&lrp->args.seq_args, &lrp->res.seq_res, 1,
++				   0);
+ 	task = rpc_run_task(&task_setup_data);
+ 	if (IS_ERR(task))
+ 		return PTR_ERR(task);
 
 
