@@ -2,76 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11B0E3A64C1
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD443A652F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:35:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235323AbhFNL2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:28:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53300 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235513AbhFNL0c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:26:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A15361419;
-        Mon, 14 Jun 2021 10:54:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623668098;
-        bh=CDrQW38hQH5yfTSYoFDEHAl6A+SJxrYg8zTmBda9zeg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmPdKC9i4zY/F1vRteKo2gB9xcqzfcJWl4Fc21605T3Oer3d/G41M5UUzlO+k0q4e
-         vtjG2QWO8HZvvtkmu6+oeqW6XGtTlkmp5PU/BQUPbUdCasGXOhPv5PtTOuGkj/m9mK
-         AlVvIO06kU/8UjhSWIopWaI+HIGs+YyFXu7mb2FM=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        John Garry <john.garry@huawei.com>,
-        Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.12 173/173] scsi: core: Only put parent device if host state differs from SHOST_CREATED
-Date:   Mon, 14 Jun 2021 12:28:25 +0200
-Message-Id: <20210614102703.932977108@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S234423AbhFNLfF convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 14 Jun 2021 07:35:05 -0400
+Received: from 7.mo2.mail-out.ovh.net ([188.165.48.182]:35897 "EHLO
+        7.mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234944AbhFNLcd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 07:32:33 -0400
+X-Greylist: delayed 8802 seconds by postgrey-1.27 at vger.kernel.org; Mon, 14 Jun 2021 07:32:32 EDT
+Received: from player778.ha.ovh.net (unknown [10.110.171.96])
+        by mo2.mail-out.ovh.net (Postfix) with ESMTP id D31CD20D783
+        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 11:03:46 +0200 (CEST)
+Received: from zegrapher.com (static-176-175-108-40.ftth.abo.bbox.fr [176.175.108.40])
+        (Authenticated sender: adel.ks@zegrapher.com)
+        by player778.ha.ovh.net (Postfix) with ESMTPSA id 3CB821F24F971;
+        Mon, 14 Jun 2021 09:03:44 +0000 (UTC)
+Authentication-Results: garm.ovh; auth=pass (GARM-102R004c63f1684-746c-421c-9661-91e17fa95fc5,
+                    946D958682469A78D70B9269846191D1BA8514F5) smtp.auth=adel.ks@zegrapher.com
+X-OVh-ClientIp: 176.175.108.40
+Date:   Mon, 14 Jun 2021 09:03:41 +0000 (UTC)
+From:   Adel Kara Slimane <adel.ks@zegrapher.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+Message-ID: <b56d3d96-70d6-4ad5-9b8f-9b6fea958ad7@zegrapher.com>
+In-Reply-To: <YMbmeRH38Wp6BHPf@kroah.com>
+References: <d086de2a793eb2ea52acb11ed143675c@zegrapher.com> <YMbmeRH38Wp6BHPf@kroah.com>
+Subject: Re: Kernel 5.12.10 and 5.12.9 freezing after boot-up with while
+ sound output is looping
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+X-Correlation-ID: <b56d3d96-70d6-4ad5-9b8f-9b6fea958ad7@zegrapher.com>
+X-Ovh-Tracer-Id: 1977643188722636661
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduledrfedvhedgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvffkjghfufggtgfgsehtqhertddttdejnecuhfhrohhmpeetuggvlhcumfgrrhgrucfulhhimhgrnhgvuceorgguvghlrdhkshesiigvghhrrghphhgvrhdrtghomheqnecuggftrfgrthhtvghrnhepuddvgfevudelveeguedtkedvjedvgeevgeeigeeihfeglefhvddtgeffffegtdeinecukfhppedtrddtrddtrddtpddujeeirddujeehrddutdekrdegtdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejjeekrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheprgguvghlrdhkshesiigvghhrrghphhgvrhdrtghomhdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+Hello,
 
-commit 1e0d4e6225996f05271de1ebcb1a7c9381af0b27 upstream.
+Yes I can, I will do then report back. It will take me some time as I only know how to do it manually.
 
-get_device(shost->shost_gendev.parent) is called after host state has
-switched to SHOST_RUNNING. scsi_host_dev_release() shouldn't release the
-parent device if host state is still SHOST_CREATED.
+Thank you for your help,
 
-Link: https://lore.kernel.org/r/20210602133029.2864069-5-ming.lei@redhat.com
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Hannes Reinecke <hare@suse.de>
-Tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/scsi/hosts.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Adel
 
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -347,7 +347,7 @@ static void scsi_host_dev_release(struct
- 
- 	ida_simple_remove(&host_index_ida, shost->host_no);
- 
--	if (parent)
-+	if (shost->shost_state != SHOST_CREATED)
- 		put_device(parent);
- 	kfree(shost);
- }
+Jun 14, 2021 07:17:59 Greg KH <gregkh@linuxfoundation.org>:
 
-
+> On Sun, Jun 13, 2021 at 08:19:37PM +0200, adel.ks@zegrapher.com wrote:
+>> Hello,
+>> 
+>> I am encountering an issue where my system freezes entirely after a random
+>> but short time after boot-up: the computer does not react to any user input,
+>> be it mouse, keyboard or plugging-unplugging peripherals.  The image on
+>> screen remains still and does not go black. Any sound that was playing at
+>> the moment of the freeze loops indefinitely with a period of around 1s. I
+>> have the intuition that the issue is sound related because of that.
+>> 
+>> Some additional information with this issue
+>> - Only happens only with the latest stable releases of the kernel:  5.12.9
+>> and 5.12.10 . 5.12.8  does not have this issue. I have not tested other
+>> kernel version, e.g. LTS 5.10 , to see if it's a change that got
+>> back-ported.
+> 
+> Any chance you can run 'git bisect' to find the offending change?
+> That's the easiest way to fix this up.
+> 
+> thanks,
+> 
+> greg k-h
