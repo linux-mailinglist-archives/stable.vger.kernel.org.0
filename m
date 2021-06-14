@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B8563A60CB
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 580333A607C
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233232AbhFNKh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:37:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38348 "EHLO mail.kernel.org"
+        id S233291AbhFNKfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:35:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233088AbhFNKgD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:36:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE26261403;
-        Mon, 14 Jun 2021 10:32:48 +0000 (UTC)
+        id S233293AbhFNKde (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:33:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 734586120E;
+        Mon, 14 Jun 2021 10:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666769;
-        bh=OduFFxGahl0LqRAzegpmCRYK1Csic7OHYh/+II9U6o4=;
+        s=korg; t=1623666691;
+        bh=lyi+/9dYeef39pewHEjqb0lVxSDEswyJcOGb5KzVVOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlD2fMu4ITipPVl9Z0onp5YTiMGhyNeZwkLnuARogJ131xTuF3YLX3EK7HKCrCJQ1
-         ySjM+LkMuXZ/9uS0Pv6w026hVRDFPWKu618F7HlhuTlmx7yyK+CjDOK/wFx7F1ksmv
-         5xggGEBM2VhMHTqr1SKl1yaxZ3FLmDK4r/csxuB0=
+        b=0zqq+6/VGSuU2Zinr8nyRh3Hdd7IL9oeH9SG52mgVwlYAkQ7dHgZtYaq5zo3+kwd8
+         0vmXuZJ9f3I/GyKnu+d/XHuCBXZH8E0XDMC9r4S17k2/rG6j81cR9Cac3D6UERFIkb
+         TpZAE9aeyoH3/LQevIrQeX6pK0O/Gg6FTllg12NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/49] net: mdiobus: get rid of a BUG_ON()
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 09/42] wq: handle VM suspension in stall detection
 Date:   Mon, 14 Jun 2021 12:27:00 +0200
-Message-Id: <20210614102642.101164531@linuxfoundation.org>
+Message-Id: <20210614102643.002172619@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-[ Upstream commit 1dde47a66d4fb181830d6fa000e5ea86907b639e ]
+[ Upstream commit 940d71c6462e8151c78f28e4919aa8882ff2054e ]
 
-We spotted a bug recently during a review where a driver was
-unregistering a bus that wasn't registered, which would trigger this
-BUG_ON().  Let's handle that situation more gracefully, and just print
-a warning and return.
+If VCPU is suspended (VM suspend) in wq_watchdog_timer_fn() then
+once this VCPU resumes it will see the new jiffies value, while it
+may take a while before IRQ detects PVCLOCK_GUEST_STOPPED on this
+VCPU and updates all the watchdogs via pvclock_touch_watchdogs().
+There is a small chance of misreported WQ stalls in the meantime,
+because new jiffies is time_after() old 'ts + thresh'.
 
-Reported-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+wq_watchdog_timer_fn()
+{
+	for_each_pool(pool, pi) {
+		if (time_after(jiffies, ts + thresh)) {
+			pr_emerg("BUG: workqueue lockup - pool");
+		}
+	}
+}
+
+Save jiffies at the beginning of this function and use that value
+for stall detection. If VM gets suspended then we continue using
+"old" jiffies value and old WQ touch timestamps. If IRQ at some
+point restarts the stall detection cycle (pvclock_touch_watchdogs())
+then old jiffies will always be before new 'ts + thresh'.
+
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/workqueue.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index c545fb1f82bd..5fc7b6c1a442 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -412,7 +412,8 @@ void mdiobus_unregister(struct mii_bus *bus)
- 	struct mdio_device *mdiodev;
- 	int i;
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 3231088afd73..a410d5827a73 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -49,6 +49,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/uaccess.h>
+ #include <linux/nmi.h>
++#include <linux/kvm_para.h>
  
--	BUG_ON(bus->state != MDIOBUS_REGISTERED);
-+	if (WARN_ON_ONCE(bus->state != MDIOBUS_REGISTERED))
-+		return;
- 	bus->state = MDIOBUS_UNREGISTERED;
+ #include "workqueue_internal.h"
  
- 	for (i = 0; i < PHY_MAX_ADDR; i++) {
+@@ -5387,6 +5388,7 @@ static void wq_watchdog_timer_fn(unsigned long data)
+ {
+ 	unsigned long thresh = READ_ONCE(wq_watchdog_thresh) * HZ;
+ 	bool lockup_detected = false;
++	unsigned long now = jiffies;
+ 	struct worker_pool *pool;
+ 	int pi;
+ 
+@@ -5401,6 +5403,12 @@ static void wq_watchdog_timer_fn(unsigned long data)
+ 		if (list_empty(&pool->worklist))
+ 			continue;
+ 
++		/*
++		 * If a virtual machine is stopped by the host it can look to
++		 * the watchdog like a stall.
++		 */
++		kvm_check_and_clear_guest_paused();
++
+ 		/* get the latest of pool and touched timestamps */
+ 		pool_ts = READ_ONCE(pool->watchdog_ts);
+ 		touched = READ_ONCE(wq_watchdog_touched);
+@@ -5419,12 +5427,12 @@ static void wq_watchdog_timer_fn(unsigned long data)
+ 		}
+ 
+ 		/* did we stall? */
+-		if (time_after(jiffies, ts + thresh)) {
++		if (time_after(now, ts + thresh)) {
+ 			lockup_detected = true;
+ 			pr_emerg("BUG: workqueue lockup - pool");
+ 			pr_cont_pool_info(pool);
+ 			pr_cont(" stuck for %us!\n",
+-				jiffies_to_msecs(jiffies - pool_ts) / 1000);
++				jiffies_to_msecs(now - pool_ts) / 1000);
+ 		}
+ 	}
+ 
 -- 
 2.30.2
 
