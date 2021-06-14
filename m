@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 881C83A6419
+	by mail.lfdr.de (Postfix) with ESMTP id 239C33A6418
 	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234674AbhFNLUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234668AbhFNLUt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 14 Jun 2021 07:20:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47606 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232779AbhFNLSX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:18:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 640FE61463;
-        Mon, 14 Jun 2021 10:50:43 +0000 (UTC)
+        id S235490AbhFNLSQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:18:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCC8E61461;
+        Mon, 14 Jun 2021 10:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667843;
-        bh=3tpArH6l/uQRXlDijWGYKHxpEVEbw5HapPsnbq+YW2M=;
+        s=korg; t=1623667847;
+        bh=NSP+BLBJ7LAdZlU+gQgdLHQNFu00bXtVP9SR0x4Xnzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6DalMSQOkiBE7F6F+DkBHnGmN/nCmw8C20POMihQfwu5TOwmwYTCAgbuUTAsTMyu
-         zdUEe5nFk08ecN65Zm8sM5spR3NrjLTTX+1dPVtaw5T4q1QpM7l7Cx/vqP+IDRsKfY
-         d+fTJQXqXvtO5nAnYOJ5VZ3ZDKI+Mrm6/YNHVTuo=
+        b=XUP5FOgG6e7Q+uNQeC0GrLm3SraIaGZUku7GPmKlQ5rVe7dLcK5szMHCnzuxYsxB4
+         jZ9JFUZiiCo3EiW8kwWk49EMdGuUkuaRdk8fMQv9jL/laHXdvHUogQhWwswNJzPvMj
+         2l4SSExPxKQG0DsfR1EPUD3lPpOVkgCDosXHcuGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org,
         Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.12 095/173] usb: typec: wcove: Use LE to CPU conversion when accessing msg->header
-Date:   Mon, 14 Jun 2021 12:27:07 +0200
-Message-Id: <20210614102701.327630638@linuxfoundation.org>
+        Mayank Rana <mrana@codeaurora.org>,
+        Jack Pham <jackp@codeaurora.org>
+Subject: [PATCH 5.12 096/173] usb: typec: ucsi: Clear PPM capability data in ucsi_init() error path
+Date:   Mon, 14 Jun 2021 12:27:08 +0200
+Message-Id: <20210614102701.361298122@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -41,40 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Mayank Rana <mrana@codeaurora.org>
 
-commit d5ab95da2a41567440097c277c5771ad13928dad upstream.
+commit f247f0a82a4f8c3bfed178d8fd9e069d1424ee4e upstream.
 
-As LKP noticed the Sparse is not happy about strict type handling:
-   .../typec/tcpm/wcove.c:380:50: sparse:     expected unsigned short [usertype] header
-   .../typec/tcpm/wcove.c:380:50: sparse:     got restricted __le16 const [usertype] header
+If ucsi_init() fails for some reason (e.g. ucsi_register_port()
+fails or general communication failure to the PPM), particularly at
+any point after the GET_CAPABILITY command had been issued, this
+results in unwinding the initialization and returning an error.
+However the ucsi structure's ucsi_capability member retains its
+current value, including likely a non-zero num_connectors.
+And because ucsi_init() itself is done in a workqueue a UCSI
+interface driver will be unaware that it failed and may think the
+ucsi_register() call was completely successful.  Later, if
+ucsi_unregister() is called, due to this stale ucsi->cap value it
+would try to access the items in the ucsi->connector array which
+might not be in a proper state or not even allocated at all and
+results in NULL or invalid pointer dereference.
 
-Fix this by switching to use pd_header_cnt_le() instead of pd_header_cnt()
-in the affected code.
+Fix this by clearing the ucsi->cap value to 0 during the error
+path of ucsi_init() in order to prevent a later ucsi_unregister()
+from entering the connector cleanup loop.
 
-Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
-Fixes: 3c4fb9f16921 ("usb: typec: wcove: start using tcpm for USB PD support")
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210609172202.83377-1-andriy.shevchenko@linux.intel.com
-Cc: stable <stable@vger.kernel.org>
+Fixes: c1b0bc2dabfa ("usb: typec: Add support for UCSI interface")
+Cc: stable@vger.kernel.org
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Mayank Rana <mrana@codeaurora.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210609073535.5094-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/wcove.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/typec/ucsi/ucsi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/typec/tcpm/wcove.c
-+++ b/drivers/usb/typec/tcpm/wcove.c
-@@ -378,7 +378,7 @@ static int wcove_pd_transmit(struct tcpc
- 		const u8 *data = (void *)msg;
- 		int i;
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -1253,6 +1253,7 @@ err_unregister:
+ 	}
  
--		for (i = 0; i < pd_header_cnt(msg->header) * 4 + 2; i++) {
-+		for (i = 0; i < pd_header_cnt_le(msg->header) * 4 + 2; i++) {
- 			ret = regmap_write(wcove->regmap, USBC_TX_DATA + i,
- 					   data[i]);
- 			if (ret)
+ err_reset:
++	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
+ 	ucsi_reset_ppm(ucsi);
+ err:
+ 	return ret;
 
 
