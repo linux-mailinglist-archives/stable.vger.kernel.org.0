@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C9763A60EE
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E213A60EC
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233706AbhFNKkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:40:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45358 "EHLO mail.kernel.org"
+        id S233688AbhFNKkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:40:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233561AbhFNKiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:38:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64DD5611C0;
-        Mon, 14 Jun 2021 10:33:44 +0000 (UTC)
+        id S232890AbhFNKhz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:37:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E57006141D;
+        Mon, 14 Jun 2021 10:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666824;
-        bh=ELdkNyxr4bEJQ3U3sIe+P7QQni8moDprpFW+IeBX4vI=;
+        s=korg; t=1623666827;
+        bh=Sobkwd88iPtaxvWm9n4sImcEYD/egDZ6/XK/oOI2Dzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r4nKae7YkbaOhxYf7GYxNmgKx/rMjOEXbes3ScXNvRi7E8B1N6Xqj/7rRxMCwg+Ss
-         oBewJngIRi3lo2RtUiFyh9Zg8WOGXxPGZ8o2Mdt4W4MXXBOx8w0QHs6c3Nw65CuBZ5
-         Fyo02FutU0SIW34fdgU4PWpgrcbRn1uUofevKKbU=
+        b=nGNPygdrNVGJ3g2Qplo6q7lu2ethWu52rvtxyrhaKRExybGOojuqaPYvqOt3K1B9N
+         iYC6nuszK2kizu1O/IMnpcpnNmzXZzBQqGIxV1ODR+3zcuUlSevNL4aNj3a3B3MYUE
+         QkqOZ+PnpCNzRDggXUEGQUg7/5JldJ4Bpzp425h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
         Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14 43/49] NFS: Fix use-after-free in nfs4_init_client()
-Date:   Mon, 14 Jun 2021 12:27:36 +0200
-Message-Id: <20210614102643.270356884@linuxfoundation.org>
+Subject: [PATCH 4.14 44/49] NFSv4: nfs4_proc_set_acl needs to restore NFS_CAP_UIDGID_NOMAP on error.
+Date:   Mon, 14 Jun 2021 12:27:37 +0200
+Message-Id: <20210614102643.301107014@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
 References: <20210614102641.857724541@linuxfoundation.org>
@@ -39,38 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-commit 476bdb04c501fc64bf3b8464ffddefc8dbe01577 upstream.
+commit f8849e206ef52b584cd9227255f4724f0cc900bb upstream.
 
-KASAN reports a use-after-free when attempting to mount two different
-exports through two different NICs that belong to the same server.
+Currently if __nfs4_proc_set_acl fails with NFS4ERR_BADOWNER it
+re-enables the idmapper by clearing NFS_CAP_UIDGID_NOMAP before
+retrying again. The NFS_CAP_UIDGID_NOMAP remains cleared even if
+the retry fails. This causes problem for subsequent setattr
+requests for v4 server that does not have idmapping configured.
 
-Olga was able to hit this with kernels starting somewhere between 5.7
-and 5.10, but I traced the patch that introduced the clear_bit() call to
-4.13. So something must have changed in the refcounting of the clp
-pointer to make this call to nfs_put_client() the very last one.
+This patch modifies nfs4_proc_set_acl to detect NFS4ERR_BADOWNER
+and NFS4ERR_BADNAME and skips the retry, since the kernel isn't
+involved in encoding the ACEs, and return -EINVAL.
 
-Fixes: 8dcbec6d20 ("NFSv41: Handle EXCHID4_FLAG_CONFIRMED_R during NFSv4.1 migration")
-Cc: stable@vger.kernel.org # 4.13+
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Steps to reproduce the problem:
+
+ # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
+ # touch /tmp/mnt/file1
+ # chown 99 /tmp/mnt/file1
+ # nfs4_setfacl -a A::unknown.user@xyz.com:wrtncy /tmp/mnt/file1
+ Failed setxattr operation: Invalid argument
+ # chown 99 /tmp/mnt/file1
+ chown: changing ownership of ‘/tmp/mnt/file1’: Invalid argument
+ # umount /tmp/mnt
+ # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
+ # chown 99 /tmp/mnt/file1
+ #
+
+v2: detect NFS4ERR_BADOWNER and NFS4ERR_BADNAME and skip retry
+       in nfs4_proc_set_acl.
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4client.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -417,8 +417,8 @@ struct nfs_client *nfs4_init_client(stru
- 		 */
- 		nfs_mark_client_ready(clp, -EPERM);
- 	}
--	nfs_put_client(clp);
- 	clear_bit(NFS_CS_TSM_POSSIBLE, &clp->cl_flags);
-+	nfs_put_client(clp);
- 	return old;
- 
- error:
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5294,6 +5294,14 @@ static int nfs4_proc_set_acl(struct inod
+ 	do {
+ 		err = __nfs4_proc_set_acl(inode, buf, buflen);
+ 		trace_nfs4_set_acl(inode, err);
++		if (err == -NFS4ERR_BADOWNER || err == -NFS4ERR_BADNAME) {
++			/*
++			 * no need to retry since the kernel
++			 * isn't involved in encoding the ACEs.
++			 */
++			err = -EINVAL;
++			break;
++		}
+ 		err = nfs4_handle_exception(NFS_SERVER(inode), err,
+ 				&exception);
+ 	} while (exception.retry);
 
 
