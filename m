@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C77873A644A
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 568E63A62EB
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:05:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235576AbhFNLWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:22:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48534 "EHLO mail.kernel.org"
+        id S234573AbhFNLGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236108AbhFNLUW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:20:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41F1C61990;
-        Mon, 14 Jun 2021 10:51:53 +0000 (UTC)
+        id S235118AbhFNLEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:04:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C096261408;
+        Mon, 14 Jun 2021 10:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667913;
-        bh=41nKey4KNd6oAa0ShWkGLQ/9Rt5ckOWSjJEfbJE8Q9s=;
+        s=korg; t=1623667494;
+        bh=GVzGZgoNbDlNANypM7xWU77ZalK+MFILsGcxNreyzhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rjPcfJJcbtRqjHibYyrMyRO+cfy/4h8tqcMcF5xMJ7bkOL502v1XBokSKNccRKbAT
-         nbPnDXhOOSlwn/nEG7zOp0fEoVyEzk6tOW+T1+N5yNJSCoGHLSIcom1RjzpVLrltRx
-         3T/zbYUu69zMnjck4gLwM5uGzOG26u2QVJXXcijs=
+        b=MJGQaIX2qUKUKgnO3fsiDFIZ/QsG0Z8amwv43mywbLJsnEd1ebaSI+sjYg7nKBz9t
+         +UvyI6AnPODtP1fFcSoKl1ZP3W+LdLRz+zZGibGFenB3zVSQ0DxS7zOppbi/6r4Fo5
+         LgL+jiqYic/CUwfMz8bDiEqsaAxC3UfcaYeiAnwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Li <chenli@uniontech.com>,
-        Al Cooper <alcooperx@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.12 123/173] phy: usb: Fix misuse of IS_ENABLED
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 094/131] regulator: bd71828: Fix .n_voltages settings
 Date:   Mon, 14 Jun 2021 12:27:35 +0200
-Message-Id: <20210614102702.261109384@linuxfoundation.org>
+Message-Id: <20210614102656.191504304@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Li <chenli@uniontech.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-commit 7c2fc79250cafa1a29befeb60163028ec4720814 upstream.
+commit 4c668630bf8ea90a041fc69c9984486e0f56682d upstream.
 
-While IS_ENABLED() is perfectly fine for CONFIG_* symbols, it is not
-for other symbols such as __BIG_ENDIAN that is provided directly by
-the compiler.
+Current .n_voltages settings do not cover the latest 2 valid selectors,
+so it fails to set voltage for the hightest voltage support.
+The latest linear range has step_uV = 0, so it does not matter if we
+count the .n_voltages to maximum selector + 1 or the first selector of
+latest linear range + 1.
+To simplify calculating the n_voltages, let's just set the
+.n_voltages to maximum selector + 1.
 
-Switch to use CONFIG_CPU_BIG_ENDIAN instead of __BIG_ENDIAN.
-
-Signed-off-by: Chen Li <chenli@uniontech.com>
-Reviewed-by: Al Cooper <alcooperx@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Fixes: 94583a41047e ("phy: usb: Restructure in preparation for adding 7216 USB support")
-Link: https://lore.kernel.org/r/87czuggpra.wl-chenli@uniontech.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 522498f8cb8c ("regulator: bd71828: Basic support for ROHM bd71828 PMIC regulators")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Link: https://lore.kernel.org/r/20210523071045.2168904-2-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/broadcom/phy-brcm-usb-init.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/mfd/rohm-bd71828.h |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/phy/broadcom/phy-brcm-usb-init.h
-+++ b/drivers/phy/broadcom/phy-brcm-usb-init.h
-@@ -78,7 +78,7 @@ static inline u32 brcm_usb_readl(void __
- 	 * Other architectures (e.g., ARM) either do not support big endian, or
- 	 * else leave I/O in little endian mode.
- 	 */
--	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(__BIG_ENDIAN))
-+	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
- 		return __raw_readl(addr);
- 	else
- 		return readl_relaxed(addr);
-@@ -87,7 +87,7 @@ static inline u32 brcm_usb_readl(void __
- static inline void brcm_usb_writel(u32 val, void __iomem *addr)
- {
- 	/* See brcmnand_readl() comments */
--	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(__BIG_ENDIAN))
-+	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
- 		__raw_writel(val, addr);
- 	else
- 		writel_relaxed(val, addr);
+--- a/include/linux/mfd/rohm-bd71828.h
++++ b/include/linux/mfd/rohm-bd71828.h
+@@ -26,11 +26,11 @@ enum {
+ 	BD71828_REGULATOR_AMOUNT,
+ };
+ 
+-#define BD71828_BUCK1267_VOLTS		0xEF
+-#define BD71828_BUCK3_VOLTS		0x10
+-#define BD71828_BUCK4_VOLTS		0x20
+-#define BD71828_BUCK5_VOLTS		0x10
+-#define BD71828_LDO_VOLTS		0x32
++#define BD71828_BUCK1267_VOLTS		0x100
++#define BD71828_BUCK3_VOLTS		0x20
++#define BD71828_BUCK4_VOLTS		0x40
++#define BD71828_BUCK5_VOLTS		0x20
++#define BD71828_LDO_VOLTS		0x40
+ /* LDO6 is fixed 1.8V voltage */
+ #define BD71828_LDO_6_VOLTAGE		1800000
+ 
 
 
