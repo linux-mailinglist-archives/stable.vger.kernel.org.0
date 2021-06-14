@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEA343A6270
+	by mail.lfdr.de (Postfix) with ESMTP id 608E43A626F
 	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234038AbhFNLAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:00:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36110 "EHLO mail.kernel.org"
+        id S234008AbhFNLAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:00:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233996AbhFNK56 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:57:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA437613CC;
-        Mon, 14 Jun 2021 10:41:41 +0000 (UTC)
+        id S234503AbhFNK5u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:57:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D0F661623;
+        Mon, 14 Jun 2021 10:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667302;
-        bh=D5m5Ua65xuliYjpRaX83P8tRHKXhEtMPRdQH6X3fvoo=;
+        s=korg; t=1623667304;
+        bh=u5s1YdcZSBXUWXhImeKcnymWGOplfXCUMLiVvmJzk2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yru8Pg6QyLAErWVVyRr12iB5eH4vHSbIC/K/aqh0Bwa/4IsDfo/qDQVcnSJPyZz0Y
-         7m9DmUZFpKK0q8NZgsW1n/dLz2Rkv0BPLLgvOOAETljVg6Uirpra50+frUpldoQgQw
-         5QabmCnqcIx8/bgVcd1Qbw6RyyR9AcJ+jrNKWZ+g=
+        b=doBH1CINE4rF8U68l3QsJle+X6WDDBdDe1ddUrhZ6cdBwwwIcpv+km71JflZ62qge
+         LyuJ0Aql/S/8wUVD+Yeo/PutbtfOuL8SVdspdYa77Cp6jUn3LyhPsnfWeEW1mHyTFA
+         NizwN1HJChqYt+O5Tv0mY5ksqto0XjQj54uYyczM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+69ff9dff50dcfe14ddd4@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 019/131] netlink: disable IRQs for netlink_lock_table()
-Date:   Mon, 14 Jun 2021 12:26:20 +0200
-Message-Id: <20210614102653.645544568@linuxfoundation.org>
+Subject: [PATCH 5.10 020/131] net: mdiobus: get rid of a BUG_ON()
+Date:   Mon, 14 Jun 2021 12:26:21 +0200
+Message-Id: <20210614102653.682470243@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -42,73 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 1d482e666b8e74c7555dbdfbfb77205eeed3ff2d ]
+[ Upstream commit 1dde47a66d4fb181830d6fa000e5ea86907b639e ]
 
-Syzbot reports that in mac80211 we have a potential deadlock
-between our "local->stop_queue_reasons_lock" (spinlock) and
-netlink's nl_table_lock (rwlock). This is because there's at
-least one situation in which we might try to send a netlink
-message with this spinlock held while it is also possible to
-take the spinlock from a hardirq context, resulting in the
-following deadlock scenario reported by lockdep:
+We spotted a bug recently during a review where a driver was
+unregistering a bus that wasn't registered, which would trigger this
+BUG_ON().  Let's handle that situation more gracefully, and just print
+a warning and return.
 
-       CPU0                    CPU1
-       ----                    ----
-  lock(nl_table_lock);
-                               local_irq_disable();
-                               lock(&local->queue_stop_reason_lock);
-                               lock(nl_table_lock);
-  <Interrupt>
-    lock(&local->queue_stop_reason_lock);
-
-This seems valid, we can take the queue_stop_reason_lock in
-any kind of context ("CPU0"), and call ieee80211_report_ack_skb()
-with the spinlock held and IRQs disabled ("CPU1") in some
-code path (ieee80211_do_stop() via ieee80211_free_txskb()).
-
-Short of disallowing netlink use in scenarios like these
-(which would be rather complex in mac80211's case due to
-the deep callchain), it seems the only fix for this is to
-disable IRQs while nl_table_lock is held to avoid hitting
-this scenario, this disallows the "CPU0" portion of the
-reported deadlock.
-
-Note that the writer side (netlink_table_grab()) already
-disables IRQs for this lock.
-
-Unfortunately though, this seems like a huge hammer, and
-maybe the whole netlink table locking should be reworked.
-
-Reported-by: syzbot+69ff9dff50dcfe14ddd4@syzkaller.appspotmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/phy/mdio_bus.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index daca50d6bb12..e527f5686e2b 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -453,11 +453,13 @@ void netlink_table_ungrab(void)
- static inline void
- netlink_lock_table(void)
- {
-+	unsigned long flags;
-+
- 	/* read_lock() synchronizes us to netlink_table_grab */
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 757e950fb745..b848439fa837 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -608,7 +608,8 @@ void mdiobus_unregister(struct mii_bus *bus)
+ 	struct mdio_device *mdiodev;
+ 	int i;
  
--	read_lock(&nl_table_lock);
-+	read_lock_irqsave(&nl_table_lock, flags);
- 	atomic_inc(&nl_table_users);
--	read_unlock(&nl_table_lock);
-+	read_unlock_irqrestore(&nl_table_lock, flags);
- }
+-	BUG_ON(bus->state != MDIOBUS_REGISTERED);
++	if (WARN_ON_ONCE(bus->state != MDIOBUS_REGISTERED))
++		return;
+ 	bus->state = MDIOBUS_UNREGISTERED;
  
- static inline void
+ 	for (i = 0; i < PHY_MAX_ADDR; i++) {
 -- 
 2.30.2
 
