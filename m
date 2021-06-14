@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7817C3A63F8
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B76E63A640F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234602AbhFNLTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:19:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48536 "EHLO mail.kernel.org"
+        id S233120AbhFNLUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233058AbhFNLQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:16:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9052561973;
-        Mon, 14 Jun 2021 10:50:19 +0000 (UTC)
+        id S235285AbhFNLRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:17:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41D9061975;
+        Mon, 14 Jun 2021 10:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667820;
-        bh=j6Bqq8T6Hyn/YFrvwX+mBgNnnWOwEAiBQY2mAANMFvQ=;
+        s=korg; t=1623667822;
+        bh=ZcfdP4wZpIkbwOWLzuaTBwIoeeY2OSRxS/uPiLlq+MI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CdZ6HJdcCtQ4ggqSH7B3a6XzwWai24N70OShAcORAUAjupnm7hg6U4+5qarOdKAPv
-         5nOR9/bgBRIOlpbuHjvX/DpBwVjv0pfRomwJe+I9DpAkOeqFublz2Xj2j9gDKOJ7RH
-         Y9/9bJHGeQj+z16gJ87yJfoWZQag4/OYBJKUAakI=
+        b=Y/ypeKaELiEVnaxq8ojw7z3UXyNzMlnXdQJp8Lf2tqAF2YU6E7GIiDMzP0hGb/8lC
+         aeq5WzScp4Ky+2q6b/+00+5WWj/nCA2L1OoNpFk7MDj98busz4ZLJlL8aD/FxSwUPe
+         bm0A39Axy5XqhWwod4ZSJs2+ThhniyiqdOiLLs0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Kyle Tso <kyletso@google.com>
-Subject: [PATCH 5.12 087/173] usb: pd: Set PD_T_SINK_WAIT_CAP to 310ms
-Date:   Mon, 14 Jun 2021 12:26:59 +0200
-Message-Id: <20210614102701.058552380@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>
+Subject: [PATCH 5.12 088/173] usb: dwc3-meson-g12a: fix usb2 PHY glue init when phy0 is disabled
+Date:   Mon, 14 Jun 2021 12:27:00 +0200
+Message-Id: <20210614102701.092625791@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -39,35 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Tso <kyletso@google.com>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-commit 6490fa565534fa83593278267785a694fd378a2b upstream.
+commit 4d2aa178d2ad2fb156711113790dde13e9aa2376 upstream.
 
-Current timer PD_T_SINK_WAIT_CAP is set to 240ms which will violate the
-SinkWaitCapTimer (tTypeCSinkWaitCap 310 - 620 ms) defined in the PD
-Spec if the port is faster enough when running the state machine. Set it
-to the lower bound 310ms to ensure the timeout is in Spec.
+When only PHY1 is used (for example on Odroid-HC4), the regmap init code
+uses the usb2 ports when doesn't initialize the PHY1 regmap entry.
 
-Fixes: f0690a25a140 ("staging: typec: USB Type-C Port Manager (tcpm)")
+This fixes:
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
+...
+pc : regmap_update_bits_base+0x40/0xa0
+lr : dwc3_meson_g12a_usb2_init_phy+0x4c/0xf8
+...
+Call trace:
+regmap_update_bits_base+0x40/0xa0
+dwc3_meson_g12a_usb2_init_phy+0x4c/0xf8
+dwc3_meson_g12a_usb2_init+0x7c/0xc8
+dwc3_meson_g12a_usb_init+0x28/0x48
+dwc3_meson_g12a_probe+0x298/0x540
+platform_probe+0x70/0xe0
+really_probe+0xf0/0x4d8
+driver_probe_device+0xfc/0x168
+...
+
+Fixes: 013af227f58a97 ("usb: dwc3: meson-g12a: handle the phy and glue registers separately")
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Kyle Tso <kyletso@google.com>
-Link: https://lore.kernel.org/r/20210528081613.730661-1-kyletso@google.com
+Link: https://lore.kernel.org/r/20210601084830.260196-1-narmstrong@baylibre.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/usb/pd.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/dwc3-meson-g12a.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/linux/usb/pd.h
-+++ b/include/linux/usb/pd.h
-@@ -460,7 +460,7 @@ static inline unsigned int rdo_max_power
- #define PD_T_RECEIVER_RESPONSE	15	/* 15ms max */
- #define PD_T_SOURCE_ACTIVITY	45
- #define PD_T_SINK_ACTIVITY	135
--#define PD_T_SINK_WAIT_CAP	240
-+#define PD_T_SINK_WAIT_CAP	310	/* 310 - 620 ms */
- #define PD_T_PS_TRANSITION	500
- #define PD_T_SRC_TRANSITION	35
- #define PD_T_DRP_SNK		40
+--- a/drivers/usb/dwc3/dwc3-meson-g12a.c
++++ b/drivers/usb/dwc3/dwc3-meson-g12a.c
+@@ -651,7 +651,7 @@ static int dwc3_meson_g12a_setup_regmaps
+ 		return PTR_ERR(priv->usb_glue_regmap);
+ 
+ 	/* Create a regmap for each USB2 PHY control register set */
+-	for (i = 0; i < priv->usb2_ports; i++) {
++	for (i = 0; i < priv->drvdata->num_phys; i++) {
+ 		struct regmap_config u2p_regmap_config = {
+ 			.reg_bits = 8,
+ 			.val_bits = 32,
+@@ -659,6 +659,9 @@ static int dwc3_meson_g12a_setup_regmaps
+ 			.max_register = U2P_R1,
+ 		};
+ 
++		if (!strstr(priv->drvdata->phy_names[i], "usb2"))
++			continue;
++
+ 		u2p_regmap_config.name = devm_kasprintf(priv->dev, GFP_KERNEL,
+ 							"u2p-%d", i);
+ 		if (!u2p_regmap_config.name)
 
 
