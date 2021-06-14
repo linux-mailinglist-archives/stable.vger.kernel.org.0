@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B76E63A640F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13BD83A62A4
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233120AbhFNLUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:20:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45864 "EHLO mail.kernel.org"
+        id S234721AbhFNLC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:02:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235285AbhFNLRN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:17:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41D9061975;
-        Mon, 14 Jun 2021 10:50:22 +0000 (UTC)
+        id S234097AbhFNLAy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:00:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93FCA616EB;
+        Mon, 14 Jun 2021 10:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667822;
-        bh=ZcfdP4wZpIkbwOWLzuaTBwIoeeY2OSRxS/uPiLlq+MI=;
+        s=korg; t=1623667406;
+        bh=7dyORonl6IB8hjAlyb3asG4R9OZQkhi4bPnNDLJqFKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/ypeKaELiEVnaxq8ojw7z3UXyNzMlnXdQJp8Lf2tqAF2YU6E7GIiDMzP0hGb/8lC
-         aeq5WzScp4Ky+2q6b/+00+5WWj/nCA2L1OoNpFk7MDj98busz4ZLJlL8aD/FxSwUPe
-         bm0A39Axy5XqhWwod4ZSJs2+ThhniyiqdOiLLs0w=
+        b=HR9jhq6ND9heOICwiHM7+SUl3p36LmtlzaZssN+vbLx/IWZlNM0l68HRD+GZxXE7v
+         j6mewj5hw69aOH65Tu64UGpRlbX00H02nduoK+vpzP7/KDsm+MHppKH2YLuce01/Eh
+         3ChYVgPoBw1lLAxC442pZrIWfl/FSm6pUWRygg2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Subject: [PATCH 5.12 088/173] usb: dwc3-meson-g12a: fix usb2 PHY glue init when phy0 is disabled
+        stable@vger.kernel.org, Wenli Looi <wlooi@ucalgary.ca>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.10 059/131] staging: rtl8723bs: Fix uninitialized variables
 Date:   Mon, 14 Jun 2021 12:27:00 +0200
-Message-Id: <20210614102701.092625791@linuxfoundation.org>
+Message-Id: <20210614102655.022430608@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Wenli Looi <wlooi@ucalgary.ca>
 
-commit 4d2aa178d2ad2fb156711113790dde13e9aa2376 upstream.
+commit 43c85d770db80cb135f576f8fde6ff1a08e707a4 upstream.
 
-When only PHY1 is used (for example on Odroid-HC4), the regmap init code
-uses the usb2 ports when doesn't initialize the PHY1 regmap entry.
+The sinfo.pertid and sinfo.generation variables are not initialized and
+it causes a crash when we use this as a wireless access point.
 
-This fixes:
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
-...
-pc : regmap_update_bits_base+0x40/0xa0
-lr : dwc3_meson_g12a_usb2_init_phy+0x4c/0xf8
-...
-Call trace:
-regmap_update_bits_base+0x40/0xa0
-dwc3_meson_g12a_usb2_init_phy+0x4c/0xf8
-dwc3_meson_g12a_usb2_init+0x7c/0xc8
-dwc3_meson_g12a_usb_init+0x28/0x48
-dwc3_meson_g12a_probe+0x298/0x540
-platform_probe+0x70/0xe0
-really_probe+0xf0/0x4d8
-driver_probe_device+0xfc/0x168
-...
+[  456.873025] ------------[ cut here ]------------
+[  456.878198] kernel BUG at mm/slub.c:3968!
+[  456.882680] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
 
-Fixes: 013af227f58a97 ("usb: dwc3: meson-g12a: handle the phy and glue registers separately")
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+  [ snip ]
+
+[  457.271004] Backtrace:
+[  457.273733] [<c02b7ee4>] (kfree) from [<c0e2a470>] (nl80211_send_station+0x954/0xfc4)
+[  457.282481]  r9:eccca0c0 r8:e8edfec0 r7:00000000 r6:00000011 r5:e80a9480 r4:e8edfe00
+[  457.291132] [<c0e29b1c>] (nl80211_send_station) from [<c0e2b18c>] (cfg80211_new_sta+0x90/0x1cc)
+[  457.300850]  r10:e80a9480 r9:e8edfe00 r8:ea678cca r7:00000a20 r6:00000000 r5:ec46d000
+[  457.309586]  r4:ec46d9e0
+[  457.312433] [<c0e2b0fc>] (cfg80211_new_sta) from [<bf086684>] (rtw_cfg80211_indicate_sta_assoc+0x80/0x9c [r8723bs])
+[  457.324095]  r10:00009930 r9:e85b9d80 r8:bf091050 r7:00000000 r6:00000000 r5:0000001c
+[  457.332831]  r4:c1606788
+[  457.335692] [<bf086604>] (rtw_cfg80211_indicate_sta_assoc [r8723bs]) from [<bf03df38>] (rtw_stassoc_event_callback+0x1c8/0x1d4 [r8723bs])
+[  457.349489]  r7:ea678cc0 r6:000000a1 r5:f1225f84 r4:f086b000
+[  457.355845] [<bf03dd70>] (rtw_stassoc_event_callback [r8723bs]) from [<bf048e4c>] (mlme_evt_hdl+0x8c/0xb4 [r8723bs])
+[  457.367601]  r7:c1604900 r6:f086c4b8 r5:00000000 r4:f086c000
+[  457.373959] [<bf048dc0>] (mlme_evt_hdl [r8723bs]) from [<bf03693c>] (rtw_cmd_thread+0x198/0x3d8 [r8723bs])
+[  457.384744]  r5:f086e000 r4:f086c000
+[  457.388754] [<bf0367a4>] (rtw_cmd_thread [r8723bs]) from [<c014a214>] (kthread+0x170/0x174)
+[  457.398083]  r10:ed7a57e8 r9:bf0367a4 r8:f086b000 r7:e8ede000 r6:00000000 r5:e9975200
+[  457.406828]  r4:e8369900
+[  457.409653] [<c014a0a4>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
+[  457.417718] Exception stack(0xe8edffb0 to 0xe8edfff8)
+[  457.423356] ffa0:                                     00000000 00000000 00000000 00000000
+[  457.432492] ffc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[  457.441618] ffe0: 00000000 00000000 00000000 00000000 00000013 00000000
+[  457.449006]  r10:00000000 r9:00000000 r8:00000000 r7:00000000 r6:00000000 r5:c014a0a4
+[  457.457750]  r4:e9975200
+[  457.460574] Code: 1a000003 e5953004 e3130001 1a000000 (e7f001f2)
+[  457.467381] ---[ end trace 4acbc8c15e9e6aa7 ]---
+
+Link: https://forum.armbian.com/topic/14727-wifi-ap-kernel-bug-in-kernel-5444/
+Fixes: 8689c051a201 ("cfg80211: dynamically allocate per-tid stats for station info")
+Fixes: f5ea9120be2e ("nl80211: add generation number to all dumps")
+Signed-off-by: Wenli Looi <wlooi@ucalgary.ca>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210601084830.260196-1-narmstrong@baylibre.com
+Link: https://lore.kernel.org/r/20210608064620.74059-1-wlooi@ucalgary.ca
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-meson-g12a.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/dwc3-meson-g12a.c
-+++ b/drivers/usb/dwc3/dwc3-meson-g12a.c
-@@ -651,7 +651,7 @@ static int dwc3_meson_g12a_setup_regmaps
- 		return PTR_ERR(priv->usb_glue_regmap);
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
+@@ -2384,7 +2384,7 @@ void rtw_cfg80211_indicate_sta_assoc(str
+ 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(padapter));
  
- 	/* Create a regmap for each USB2 PHY control register set */
--	for (i = 0; i < priv->usb2_ports; i++) {
-+	for (i = 0; i < priv->drvdata->num_phys; i++) {
- 		struct regmap_config u2p_regmap_config = {
- 			.reg_bits = 8,
- 			.val_bits = 32,
-@@ -659,6 +659,9 @@ static int dwc3_meson_g12a_setup_regmaps
- 			.max_register = U2P_R1,
- 		};
- 
-+		if (!strstr(priv->drvdata->phy_names[i], "usb2"))
-+			continue;
-+
- 		u2p_regmap_config.name = devm_kasprintf(priv->dev, GFP_KERNEL,
- 							"u2p-%d", i);
- 		if (!u2p_regmap_config.name)
+ 	{
+-		struct station_info sinfo;
++		struct station_info sinfo = {};
+ 		u8 ie_offset;
+ 		if (GetFrameSubType(pmgmt_frame) == WIFI_ASSOCREQ)
+ 			ie_offset = _ASOCREQ_IE_OFFSET_;
 
 
