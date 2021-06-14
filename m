@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0013C3A646C
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:23:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9423A62DC
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:04:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232791AbhFNLZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52268 "EHLO mail.kernel.org"
+        id S234261AbhFNLFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:05:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235388AbhFNLWE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:22:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2978261993;
-        Mon, 14 Jun 2021 10:52:25 +0000 (UTC)
+        id S234665AbhFNLCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:02:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C05956143F;
+        Mon, 14 Jun 2021 10:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667946;
-        bh=Qf29Yt8VKmggPd1nqwsrPB6plFZxMFlbkUYBvnjwjl0=;
+        s=korg; t=1623667448;
+        bh=4b+kN5kgYUJozpZ0feh5k1wvn1s8BWKCOUy7nfMwHoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ii4RULe7OM1xJOs+33ywgDRwnnIdLi+KDQIfwLnXLwHVv6sJBtCbOjtqWDilo2XSM
-         QtQTVMIE0ZKwl2Hj5/z3VUjhPhC8JQHDKpb13VI03LMOEleAgFROSp32pth6ws+oAE
-         OXGQGzji0lJv8x0qouJQAbSHXfHXdsAP3nUA1xrs=
+        b=zACPv/aKwGLzkC7rztGmFOmzXhAmzSRAhNB4Bj9Bl2aWmQS6vJnakm5lldUV7kXHj
+         F6gWn6z1KcLNoCv6G4cPVZXGuYwF45wfjd4KNLPfs1VZ0dg3Gpp7N8dZsFGE9+9Gs/
+         rlJ/4SrvZEJEyuipez0wEoiM8SoHIWbBpIJjS6KI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.12 103/173] USB: serial: cp210x: fix alternate function for CP2102N QFN20
+        stable@vger.kernel.org,
+        Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+Subject: [PATCH 5.10 074/131] usb: dwc3: ep0: fix NULL pointer exception
 Date:   Mon, 14 Jun 2021 12:27:15 +0200
-Message-Id: <20210614102701.591906379@linuxfoundation.org>
+Message-Id: <20210614102655.543399418@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
 
-commit 6f7ec77cc8b64ff5037c1945e4650c65c458037d upstream.
+commit d00889080ab60051627dab1d85831cd9db750e2a upstream.
 
-The QFN20 part has a different GPIO/port function assignment. The
-configuration struct bit field ordered as TX/RX/RS485/WAKEUP/CLK
-which exactly matches GPIO0-3 for QFN24/28. However, QFN20 has a
-different GPIO to primary function assignment.
+There is no validation of the index from dwc3_wIndex_to_dep() and we might
+be referring a non-existing ep and trigger a NULL pointer exception. In
+certain configurations we might use fewer eps and the index might wrongly
+indicate a larger ep index than existing.
 
-Special case QFN20 to follow to properly detect which GPIOs are
-available.
+By adding this validation from the patch we can actually report a wrong
+index back to the caller.
 
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Link: https://lore.kernel.org/r/51830b2b24118eb0f77c5c9ac64ffb2f519dbb1d.1622218300.git.stefan@agner.ch
-Fixes: c8acfe0aadbe ("USB: serial: cp210x: implement GPIO support for CP2102N")
-Cc: stable@vger.kernel.org	# 4.19
-Signed-off-by: Johan Hovold <johan@kernel.org>
+In our usecase we are using a composite device on an older kernel, but
+upstream might use this fix also. Unfortunately, I cannot describe the
+hardware for others to reproduce the issue as it is a proprietary
+implementation.
+
+[   82.958261] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a4
+[   82.966891] Mem abort info:
+[   82.969663]   ESR = 0x96000006
+[   82.972703]   Exception class = DABT (current EL), IL = 32 bits
+[   82.978603]   SET = 0, FnV = 0
+[   82.981642]   EA = 0, S1PTW = 0
+[   82.984765] Data abort info:
+[   82.987631]   ISV = 0, ISS = 0x00000006
+[   82.991449]   CM = 0, WnR = 0
+[   82.994409] user pgtable: 4k pages, 39-bit VAs, pgdp = 00000000c6210ccc
+[   83.000999] [00000000000000a4] pgd=0000000053aa5003, pud=0000000053aa5003, pmd=0000000000000000
+[   83.009685] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[   83.026433] Process irq/62-dwc3 (pid: 303, stack limit = 0x000000003985154c)
+[   83.033470] CPU: 0 PID: 303 Comm: irq/62-dwc3 Not tainted 4.19.124 #1
+[   83.044836] pstate: 60000085 (nZCv daIf -PAN -UAO)
+[   83.049628] pc : dwc3_ep0_handle_feature+0x414/0x43c
+[   83.054558] lr : dwc3_ep0_interrupt+0x3b4/0xc94
+
+...
+
+[   83.141788] Call trace:
+[   83.144227]  dwc3_ep0_handle_feature+0x414/0x43c
+[   83.148823]  dwc3_ep0_interrupt+0x3b4/0xc94
+[   83.181546] ---[ end trace aac6b5267d84c32f ]---
+
+Signed-off-by: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210608162650.58426-1-marian.c.rotariu@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |   20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/ep0.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -537,6 +537,12 @@ struct cp210x_single_port_config {
- #define CP210X_2NCONFIG_GPIO_RSTLATCH_IDX	587
- #define CP210X_2NCONFIG_GPIO_CONTROL_IDX	600
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -292,6 +292,9 @@ static struct dwc3_ep *dwc3_wIndex_to_de
+ 		epnum |= 1;
  
-+/* CP2102N QFN20 port configuration values */
-+#define CP2102N_QFN20_GPIO2_TXLED_MODE		BIT(2)
-+#define CP2102N_QFN20_GPIO3_RXLED_MODE		BIT(3)
-+#define CP2102N_QFN20_GPIO1_RS485_MODE		BIT(4)
-+#define CP2102N_QFN20_GPIO0_CLK_MODE		BIT(6)
+ 	dep = dwc->eps[epnum];
++	if (dep == NULL)
++		return NULL;
 +
- /* CP210X_VENDOR_SPECIFIC, CP210X_WRITE_LATCH call writes these 0x2 bytes. */
- struct cp210x_gpio_write {
- 	u8	mask;
-@@ -1726,7 +1732,19 @@ static int cp2102n_gpioconf_init(struct
- 	priv->gpio_pushpull = (gpio_pushpull >> 3) & 0x0f;
+ 	if (dep->flags & DWC3_EP_ENABLED)
+ 		return dep;
  
- 	/* 0 indicates GPIO mode, 1 is alternate function */
--	priv->gpio_altfunc = (gpio_ctrl >> 2) & 0x0f;
-+	if (priv->partnum == CP210X_PARTNUM_CP2102N_QFN20) {
-+		/* QFN20 is special... */
-+		if (gpio_ctrl & CP2102N_QFN20_GPIO0_CLK_MODE)   /* GPIO 0 */
-+			priv->gpio_altfunc |= BIT(0);
-+		if (gpio_ctrl & CP2102N_QFN20_GPIO1_RS485_MODE) /* GPIO 1 */
-+			priv->gpio_altfunc |= BIT(1);
-+		if (gpio_ctrl & CP2102N_QFN20_GPIO2_TXLED_MODE) /* GPIO 2 */
-+			priv->gpio_altfunc |= BIT(2);
-+		if (gpio_ctrl & CP2102N_QFN20_GPIO3_RXLED_MODE) /* GPIO 3 */
-+			priv->gpio_altfunc |= BIT(3);
-+	} else {
-+		priv->gpio_altfunc = (gpio_ctrl >> 2) & 0x0f;
-+	}
- 
- 	if (priv->partnum == CP210X_PARTNUM_CP2102N_QFN28) {
- 		/*
 
 
