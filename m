@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 917B33A6111
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:40:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F5A3A6082
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233954AbhFNKm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:42:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47328 "EHLO mail.kernel.org"
+        id S233454AbhFNKfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:35:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233233AbhFNKkY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:40:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E40261419;
-        Mon, 14 Jun 2021 10:34:40 +0000 (UTC)
+        id S233318AbhFNKdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:33:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D19D611C1;
+        Mon, 14 Jun 2021 10:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666880;
-        bh=JLdSWqiYrCHncAX7+bhLXxXV1Bi+qVVaxZPyIU50QHY=;
+        s=korg; t=1623666685;
+        bh=v/zXBpze0qVz5SNggLiUZSwQ8Z80KlcQCzMin2Dijwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWjMvZ4s49QxwXlaytnCulgdIfclyPYrAhojM43y7fXCQtqfYVRmXxZ8tkfhTOJbS
-         MrGUur0TCNDr22QO5Cj5KShMkEAw2+rmSZIovIEfJ8bPEzYZEv7GL3aBwUB2gRL8Qq
-         hem2K7rtldMGnuKzDk2AoiX6Jqz3EHpOZoO285GU=
+        b=M4nWwAzcQsC7NvWYA6xX7sFc+ETsNWD9LDqB9kN8mOmkxBoQCHZw8IdCRMagufaox
+         ueJUGIdvVgTbobqZpgFzgIsDGj8/kgUgRegz3sdCIv0Cx7u/92OdlhIKNoMSw070ro
+         LYQhBiQhZbnzWGboq2FMZKu2XnV/H90OWFPSeMdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Javed Hasan <jhasan@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/67] scsi: bnx2fc: Return failure if io_req is already in ABTS processing
+Subject: [PATCH 4.9 07/42] net: mdiobus: get rid of a BUG_ON()
 Date:   Mon, 14 Jun 2021 12:26:58 +0200
-Message-Id: <20210614102644.290793476@linuxfoundation.org>
+Message-Id: <20210614102642.939885834@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 122c81c563b0c1c6b15ff76a9159af5ee1f21563 ]
+[ Upstream commit 1dde47a66d4fb181830d6fa000e5ea86907b639e ]
 
-Return failure from bnx2fc_eh_abort() if io_req is already in ABTS
-processing.
+We spotted a bug recently during a review where a driver was
+unregistering a bus that wasn't registered, which would trigger this
+BUG_ON().  Let's handle that situation more gracefully, and just print
+a warning and return.
 
-Link: https://lore.kernel.org/r/20210519061416.19321-1-jhasan@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/bnx2fc/bnx2fc_io.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/mdio_bus.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/bnx2fc/bnx2fc_io.c b/drivers/scsi/bnx2fc/bnx2fc_io.c
-index bc9f2a2365f4..5d89cc30bf30 100644
---- a/drivers/scsi/bnx2fc/bnx2fc_io.c
-+++ b/drivers/scsi/bnx2fc/bnx2fc_io.c
-@@ -1218,6 +1218,7 @@ int bnx2fc_eh_abort(struct scsi_cmnd *sc_cmd)
- 		   was a result from the ABTS request rather than the CLEANUP
- 		   request */
- 		set_bit(BNX2FC_FLAG_IO_CLEANUP,	&io_req->req_flags);
-+		rc = FAILED;
- 		goto done;
- 	}
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index a9bbdcec0bad..8cc7563ab103 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -362,7 +362,8 @@ void mdiobus_unregister(struct mii_bus *bus)
+ 	struct mdio_device *mdiodev;
+ 	int i;
  
+-	BUG_ON(bus->state != MDIOBUS_REGISTERED);
++	if (WARN_ON_ONCE(bus->state != MDIOBUS_REGISTERED))
++		return;
+ 	bus->state = MDIOBUS_UNREGISTERED;
+ 
+ 	for (i = 0; i < PHY_MAX_ADDR; i++) {
 -- 
 2.30.2
 
