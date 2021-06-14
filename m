@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 992563A64BD
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 417223A6308
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235185AbhFNL2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:28:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54200 "EHLO mail.kernel.org"
+        id S234913AbhFNLI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:08:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235155AbhFNL02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:26:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 103A061421;
-        Mon, 14 Jun 2021 10:54:50 +0000 (UTC)
+        id S234650AbhFNLG0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:06:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3104C6191E;
+        Mon, 14 Jun 2021 10:45:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623668091;
-        bh=K8WNgMKmxQOuLa/n15i8LwtTj8DbdKGAi3bDsO8+GQY=;
+        s=korg; t=1623667524;
+        bh=A18hCNEy7xcPwBnOghVhvoAvi/QJ5o68YH9wmgkL5j0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IjHPF7Cksaj3GiMrEeteskJP0YJihRUw7rPRR1SenFGibNeY1cODw/y8Bfk453uhj
-         VxkuNGjgcJ63IDODUNcq8uKNzjiUDhO2hf8oOCQFD4HmYSMUBcqyTzQjA6T+o4Ai+x
-         /W8indCBtOh+JtXgOqHTDLCen2plWtgOVqBz+Mu8=
+        b=qNTs9ALj+nhIWuKwEBjZoc2Xk86DeAp37cwzejr8m3liEVSnWJze45NSeKqHRxub9
+         bKBprUIhZtKpEfPeS9Jkp8mykGZ/P5wCNDrgA4GJ1g1nkaWkWaONJN0IvhAhAEDcqI
+         mxuhLvgnTcV5ijDQh6g+kTmfXRko5ARsSf4kjRvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wilken Gottwalt <wilken.gottwalt@posteo.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.12 133/173] hwmon: (corsair-psu) fix suspend behavior
+        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 104/131] RDMA/mlx4: Do not map the core_clock page to user space unless enabled
 Date:   Mon, 14 Jun 2021 12:27:45 +0200
-Message-Id: <20210614102702.591428265@linuxfoundation.org>
+Message-Id: <20210614102656.541247879@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wilken Gottwalt <wilken.gottwalt@posteo.net>
+From: Shay Drory <shayd@nvidia.com>
 
-commit 7656cd2177612aa7c299b083ecff30a4d3e9a587 upstream.
+commit 404e5a12691fe797486475fe28cc0b80cb8bef2c upstream.
 
-During standby some PSUs turn off the microcontroller. A re-init is
-required during resume or the microcontroller stays unresponsive.
+Currently when mlx4 maps the hca_core_clock page to the user space there
+are read-modifiable registers, one of which is semaphore, on this page as
+well as the clock counter. If user reads the wrong offset, it can modify
+the semaphore and hang the device.
 
-Fixes: d115b51e0e56 ("hwmon: add Corsair PSU HID controller driver")
-Signed-off-by: Wilken Gottwalt <wilken.gottwalt@posteo.net>
-Link: https://lore.kernel.org/r/YLjCJiVtu5zgTabI@monster.powergraphx.local
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Do not map the hca_core_clock page to the user space unless the device has
+been put in a backwards compatibility mode to support this feature.
+
+After this patch, mlx4 core_clock won't be mapped to user space on the
+majority of existing devices and the uverbs device time feature in
+ibv_query_rt_values_ex() will be disabled.
+
+Fixes: 52033cfb5aab ("IB/mlx4: Add mmap call to map the hardware clock")
+Link: https://lore.kernel.org/r/9632304e0d6790af84b3b706d8c18732bc0d5e27.1622726305.git.leonro@nvidia.com
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/corsair-psu.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/infiniband/hw/mlx4/main.c         |    5 +----
+ drivers/net/ethernet/mellanox/mlx4/fw.c   |    3 +++
+ drivers/net/ethernet/mellanox/mlx4/fw.h   |    1 +
+ drivers/net/ethernet/mellanox/mlx4/main.c |    6 ++++++
+ include/linux/mlx4/device.h               |    1 +
+ 5 files changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/hwmon/corsair-psu.c
-+++ b/drivers/hwmon/corsair-psu.c
-@@ -570,6 +570,16 @@ static int corsairpsu_raw_event(struct h
- 	return 0;
- }
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -580,12 +580,9 @@ static int mlx4_ib_query_device(struct i
+ 	props->cq_caps.max_cq_moderation_count = MLX4_MAX_CQ_COUNT;
+ 	props->cq_caps.max_cq_moderation_period = MLX4_MAX_CQ_PERIOD;
  
-+#ifdef CONFIG_PM
-+static int corsairpsu_resume(struct hid_device *hdev)
-+{
-+	struct corsairpsu_data *priv = hid_get_drvdata(hdev);
-+
-+	/* some PSUs turn off the microcontroller during standby, so a reinit is required */
-+	return corsairpsu_init(priv);
-+}
-+#endif
-+
- static const struct hid_device_id corsairpsu_idtable[] = {
- 	{ HID_USB_DEVICE(0x1b1c, 0x1c03) }, /* Corsair HX550i */
- 	{ HID_USB_DEVICE(0x1b1c, 0x1c04) }, /* Corsair HX650i */
-@@ -592,6 +602,10 @@ static struct hid_driver corsairpsu_driv
- 	.probe		= corsairpsu_probe,
- 	.remove		= corsairpsu_remove,
- 	.raw_event	= corsairpsu_raw_event,
-+#ifdef CONFIG_PM
-+	.resume		= corsairpsu_resume,
-+	.reset_resume	= corsairpsu_resume,
-+#endif
+-	if (!mlx4_is_slave(dev->dev))
+-		err = mlx4_get_internal_clock_params(dev->dev, &clock_params);
+-
+ 	if (uhw->outlen >= resp.response_length + sizeof(resp.hca_core_clock_offset)) {
+ 		resp.response_length += sizeof(resp.hca_core_clock_offset);
+-		if (!err && !mlx4_is_slave(dev->dev)) {
++		if (!mlx4_get_internal_clock_params(dev->dev, &clock_params)) {
+ 			resp.comp_mask |= MLX4_IB_QUERY_DEV_RESP_MASK_CORE_CLOCK_OFFSET;
+ 			resp.hca_core_clock_offset = clock_params.offset % PAGE_SIZE;
+ 		}
+--- a/drivers/net/ethernet/mellanox/mlx4/fw.c
++++ b/drivers/net/ethernet/mellanox/mlx4/fw.c
+@@ -823,6 +823,7 @@ int mlx4_QUERY_DEV_CAP(struct mlx4_dev *
+ #define QUERY_DEV_CAP_MAD_DEMUX_OFFSET		0xb0
+ #define QUERY_DEV_CAP_DMFS_HIGH_RATE_QPN_BASE_OFFSET	0xa8
+ #define QUERY_DEV_CAP_DMFS_HIGH_RATE_QPN_RANGE_OFFSET	0xac
++#define QUERY_DEV_CAP_MAP_CLOCK_TO_USER 0xc1
+ #define QUERY_DEV_CAP_QP_RATE_LIMIT_NUM_OFFSET	0xcc
+ #define QUERY_DEV_CAP_QP_RATE_LIMIT_MAX_OFFSET	0xd0
+ #define QUERY_DEV_CAP_QP_RATE_LIMIT_MIN_OFFSET	0xd2
+@@ -841,6 +842,8 @@ int mlx4_QUERY_DEV_CAP(struct mlx4_dev *
+ 
+ 	if (mlx4_is_mfunc(dev))
+ 		disable_unsupported_roce_caps(outbox);
++	MLX4_GET(field, outbox, QUERY_DEV_CAP_MAP_CLOCK_TO_USER);
++	dev_cap->map_clock_to_user = field & 0x80;
+ 	MLX4_GET(field, outbox, QUERY_DEV_CAP_RSVD_QP_OFFSET);
+ 	dev_cap->reserved_qps = 1 << (field & 0xf);
+ 	MLX4_GET(field, outbox, QUERY_DEV_CAP_MAX_QP_OFFSET);
+--- a/drivers/net/ethernet/mellanox/mlx4/fw.h
++++ b/drivers/net/ethernet/mellanox/mlx4/fw.h
+@@ -131,6 +131,7 @@ struct mlx4_dev_cap {
+ 	u32 health_buffer_addrs;
+ 	struct mlx4_port_cap port_cap[MLX4_MAX_PORTS + 1];
+ 	bool wol_port[MLX4_MAX_PORTS + 1];
++	bool map_clock_to_user;
  };
- module_hid_driver(corsairpsu_driver);
  
+ struct mlx4_func_cap {
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -498,6 +498,7 @@ static int mlx4_dev_cap(struct mlx4_dev
+ 		}
+ 	}
+ 
++	dev->caps.map_clock_to_user  = dev_cap->map_clock_to_user;
+ 	dev->caps.uar_page_size	     = PAGE_SIZE;
+ 	dev->caps.num_uars	     = dev_cap->uar_size / PAGE_SIZE;
+ 	dev->caps.local_ca_ack_delay = dev_cap->local_ca_ack_delay;
+@@ -1948,6 +1949,11 @@ int mlx4_get_internal_clock_params(struc
+ 	if (mlx4_is_slave(dev))
+ 		return -EOPNOTSUPP;
+ 
++	if (!dev->caps.map_clock_to_user) {
++		mlx4_dbg(dev, "Map clock to user is not supported.\n");
++		return -EOPNOTSUPP;
++	}
++
+ 	if (!params)
+ 		return -EINVAL;
+ 
+--- a/include/linux/mlx4/device.h
++++ b/include/linux/mlx4/device.h
+@@ -631,6 +631,7 @@ struct mlx4_caps {
+ 	bool			wol_port[MLX4_MAX_PORTS + 1];
+ 	struct mlx4_rate_limit_caps rl_caps;
+ 	u32			health_buffer_addrs;
++	bool			map_clock_to_user;
+ };
+ 
+ struct mlx4_buf_list {
 
 
