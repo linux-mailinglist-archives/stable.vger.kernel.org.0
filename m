@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C6F3A6390
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 277253A639B
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235813AbhFNLO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:14:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42902 "EHLO mail.kernel.org"
+        id S234013AbhFNLPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:15:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234753AbhFNLMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:12:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68DD56194F;
-        Mon, 14 Jun 2021 10:48:01 +0000 (UTC)
+        id S235004AbhFNLMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:12:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E37086195D;
+        Mon, 14 Jun 2021 10:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667682;
-        bh=CxMCCAMzI0oP1w1s1Sfs0yAhLqXb4sg5ETqeKvCJJos=;
+        s=korg; t=1623667710;
+        bh=snku4en0Eu155KqUZ2dmB9MsramNl5r2KoFv8VKWZxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQFHAls4+mxDExZSNdxY18uXTEMN8jApWOslthoUVfOT2uFKBRaGuB+VTJF8gFzTo
-         01uGR4uKnPU/JpUKcdllsUAiuBo++O4oyqSx0SXniKRw8PcfR0u1v72JFPIOoHG6Cj
-         4GspYlflCSOV0ku7rB6R611BHz1z5m2yl/SJLMwE=
+        b=CwsK9ZQeCe9dLHf5qH56ZOV1NFFtTjzWJaGnsmWMw944lHdSoIUI+wYUubqT1AiSO
+         7oBulYZkwIgHsEDl3nPVmYdD64UPor7RrmForELHA5GEn7Z5h5sP+tSVaB7v+xfZ6p
+         n5fDCL5BS3mv7cZZIcPxjB2SIPRPoLeh4ds9K/sQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rao Shoaib <rao.shoaib@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 026/173] RDS tcp loopback connection can hang
-Date:   Mon, 14 Jun 2021 12:25:58 +0200
-Message-Id: <20210614102659.017027523@linuxfoundation.org>
+Subject: [PATCH 5.12 027/173] net:sfc: fix non-freed irq in legacy irq mode
+Date:   Mon, 14 Jun 2021 12:25:59 +0200
+Message-Id: <20210614102659.047694905@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -40,119 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rao Shoaib <rao.shoaib@oracle.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit aced3ce57cd37b5ca332bcacd370d01f5a8c5371 ]
+[ Upstream commit 8f03eeb6e0a0a0b8d617ee0a4bce729e47130036 ]
 
-When TCP is used as transport and a program on the
-system connects to RDS port 16385, connection is
-accepted but denied per the rules of RDS. However,
-RDS connections object is left in the list. Next
-loopback connection will select that connection
-object as it is at the head of list. The connection
-attempt will hang as the connection object is set
-to connect over TCP which is not allowed
+SFC driver can be configured via modparam to work using MSI-X, MSI or
+legacy IRQ interrupts. In the last one, the interrupt was not properly
+released on module remove.
 
-The issue can be reproduced easily, use rds-ping
-to ping a local IP address. After that use any
-program like ncat to connect to the same IP
-address and port 16385. This will hang so ctrl-c out.
-Now try rds-ping, it will hang.
+It was not freed because the flag irqs_hooked was not set during
+initialization in the case of using legacy IRQ.
 
-To fix the issue this patch adds checks to disallow
-the connection object creation and destroys the
-connection object.
+Example of (trimmed) trace during module remove without this fix:
 
-Signed-off-by: Rao Shoaib <rao.shoaib@oracle.com>
+remove_proc_entry: removing non-empty directory 'irq/125', leaking at least '0000:3b:00.1'
+WARNING: CPU: 39 PID: 3658 at fs/proc/generic.c:715 remove_proc_entry+0x15c/0x170
+...trimmed...
+Call Trace:
+ unregister_irq_proc+0xe3/0x100
+ free_desc+0x29/0x70
+ irq_free_descs+0x47/0x70
+ mp_unmap_irq+0x58/0x60
+ acpi_unregister_gsi_ioapic+0x2a/0x40
+ acpi_pci_irq_disable+0x78/0xb0
+ pci_disable_device+0xd1/0x100
+ efx_pci_remove+0xa1/0x1e0 [sfc]
+ pci_device_remove+0x38/0xa0
+ __device_release_driver+0x177/0x230
+ driver_detach+0xcb/0x110
+ bus_remove_driver+0x58/0xd0
+ pci_unregister_driver+0x2a/0xb0
+ efx_exit_module+0x24/0xf40 [sfc]
+ __do_sys_delete_module.constprop.0+0x171/0x280
+ ? exit_to_user_mode_prepare+0x83/0x1d0
+ do_syscall_64+0x3d/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f9f9385800b
+...trimmed...
+
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/connection.c | 23 +++++++++++++++++------
- net/rds/tcp.c        |  4 ++--
- net/rds/tcp.h        |  3 ++-
- net/rds/tcp_listen.c |  6 ++++++
- 4 files changed, 27 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/sfc/nic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/rds/connection.c b/net/rds/connection.c
-index f2fcab182095..a3bc4b54d491 100644
---- a/net/rds/connection.c
-+++ b/net/rds/connection.c
-@@ -240,12 +240,23 @@ static struct rds_connection *__rds_conn_create(struct net *net,
- 	if (loop_trans) {
- 		rds_trans_put(loop_trans);
- 		conn->c_loopback = 1;
--		if (is_outgoing && trans->t_prefer_loopback) {
--			/* "outgoing" connection - and the transport
--			 * says it wants the connection handled by the
--			 * loopback transport. This is what TCP does.
--			 */
--			trans = &rds_loop_transport;
-+		if (trans->t_prefer_loopback) {
-+			if (likely(is_outgoing)) {
-+				/* "outgoing" connection to local address.
-+				 * Protocol says it wants the connection
-+				 * handled by the loopback transport.
-+				 * This is what TCP does.
-+				 */
-+				trans = &rds_loop_transport;
-+			} else {
-+				/* No transport currently in use
-+				 * should end up here, but if it
-+				 * does, reset/destroy the connection.
-+				 */
-+				kmem_cache_free(rds_conn_slab, conn);
-+				conn = ERR_PTR(-EOPNOTSUPP);
-+				goto out;
-+			}
+diff --git a/drivers/net/ethernet/sfc/nic.c b/drivers/net/ethernet/sfc/nic.c
+index d1e908846f5d..22fbb0ae77fb 100644
+--- a/drivers/net/ethernet/sfc/nic.c
++++ b/drivers/net/ethernet/sfc/nic.c
+@@ -90,6 +90,7 @@ int efx_nic_init_interrupt(struct efx_nic *efx)
+ 				  efx->pci_dev->irq);
+ 			goto fail1;
  		}
++		efx->irqs_hooked = true;
+ 		return 0;
  	}
  
-diff --git a/net/rds/tcp.c b/net/rds/tcp.c
-index 43db0eca911f..abf19c0e3ba0 100644
---- a/net/rds/tcp.c
-+++ b/net/rds/tcp.c
-@@ -313,8 +313,8 @@ out:
- }
- #endif
- 
--static int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
--			       __u32 scope_id)
-+int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
-+			__u32 scope_id)
- {
- 	struct net_device *dev = NULL;
- #if IS_ENABLED(CONFIG_IPV6)
-diff --git a/net/rds/tcp.h b/net/rds/tcp.h
-index bad9cf49d565..dc8d745d6857 100644
---- a/net/rds/tcp.h
-+++ b/net/rds/tcp.h
-@@ -59,7 +59,8 @@ u32 rds_tcp_snd_una(struct rds_tcp_connection *tc);
- u64 rds_tcp_map_seq(struct rds_tcp_connection *tc, u32 seq);
- extern struct rds_transport rds_tcp_transport;
- void rds_tcp_accept_work(struct sock *sk);
--
-+int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
-+			__u32 scope_id);
- /* tcp_connect.c */
- int rds_tcp_conn_path_connect(struct rds_conn_path *cp);
- void rds_tcp_conn_path_shutdown(struct rds_conn_path *conn);
-diff --git a/net/rds/tcp_listen.c b/net/rds/tcp_listen.c
-index 101cf14215a0..09cadd556d1e 100644
---- a/net/rds/tcp_listen.c
-+++ b/net/rds/tcp_listen.c
-@@ -167,6 +167,12 @@ int rds_tcp_accept_one(struct socket *sock)
- 	}
- #endif
- 
-+	if (!rds_tcp_laddr_check(sock_net(sock->sk), peer_addr, dev_if)) {
-+		/* local address connection is only allowed via loopback */
-+		ret = -EOPNOTSUPP;
-+		goto out;
-+	}
-+
- 	conn = rds_conn_create(sock_net(sock->sk),
- 			       my_addr, peer_addr,
- 			       &rds_tcp_transport, 0, GFP_KERNEL, dev_if);
 -- 
 2.30.2
 
