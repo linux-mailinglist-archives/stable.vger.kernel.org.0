@@ -2,34 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4043A6422
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31E933A63D0
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235147AbhFNLVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:21:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45470 "EHLO mail.kernel.org"
+        id S235597AbhFNLR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:17:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235580AbhFNLSs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:18:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49E5E61983;
-        Mon, 14 Jun 2021 10:51:02 +0000 (UTC)
+        id S234633AbhFNLP2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:15:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92D3661977;
+        Mon, 14 Jun 2021 10:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667862;
-        bh=a1vVXO4BhMi8p1+hT0aPqI+yjmYpRbJhk+4TtGG5jSo=;
+        s=korg; t=1623667777;
+        bh=qAZ6axj8wVCrYkcrpn7fqyX5J9L42vgeo36Fvv3Y9PQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D43kmP8aglpOpbibuxbHl9vvcXna4TlqV6RETK+vBs5Inq4R22jyAnJ8ygQdDZjCw
-         0ObCagqT6EjdQz7aJskqQ+1qF3RjuKYspObKL/FmfbfOr1ATLxdWRQ9qOGeiZb1x/5
-         AK/pcq6GVQSUaDvbacdVqYaCKx4u+cET4UF1KNXs=
+        b=DXkJMDuTGL9auECEA4U3uZHu6v2ucs6bEzDRm+m40osSBp1S6V42rt1rhGFoC7sne
+         5brB7GFXSlmktyiSSbiZh5kVsnsyHKwxJsYpFBZ8Bl209/3oklJob+HnTASqWfGqG3
+         6LY3J6c/0eL00RMOHQvIAvRc/da/NDH19PFJ2yIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.12 070/173] tick/nohz: Only check for RCU deferred wakeup on user/guest entry when needed
-Date:   Mon, 14 Jun 2021 12:26:42 +0200
-Message-Id: <20210614102700.487718022@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Ullrich <ealex1979@gmail.com>,
+        Diego Ercolani <diego.ercolani@gmail.com>,
+        Jan Szubiak <jan.szubiak@linuxpolska.pl>,
+        Marco Rebhan <me@dblsaiko.net>,
+        Matthias Ferdinand <bcache@mfedv.net>,
+        Victor Westerhuis <victor@westerhu.is>,
+        Vojtech Pavlik <vojtech@suse.cz>, Coly Li <colyli@suse.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        Nix <nix@esperi.org.uk>, Takashi Iwai <tiwai@suse.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Rolf Fokkens <rolf@rolffokkens.nl>,
+        Thorsten Knabe <linux@thorsten-knabe.de>
+Subject: [PATCH 5.12 071/173] bcache: remove bcache device self-defined readahead
+Date:   Mon, 14 Jun 2021 12:26:43 +0200
+Message-Id: <20210614102700.522177219@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -41,122 +50,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Coly Li <colyli@suse.de>
 
-commit f268c3737ecaefcfeecfb4cb5e44958a8976f067 upstream.
+commit 1616a4c2ab1a80893b6890ae93da40a2b1d0c691 upstream.
 
-Checking for and processing RCU-nocb deferred wakeup upon user/guest
-entry is only relevant when nohz_full runs on the local CPU, otherwise
-the periodic tick should take care of it.
+For read cache missing, bcache defines a readahead size for the read I/O
+request to the backing device for the missing data. This readahead size
+is initialized to 0, and almost no one uses it to avoid unnecessary read
+amplifying onto backing device and write amplifying onto cache device.
+Considering upper layer file system code has readahead logic allready
+and works fine with readahead_cache_policy sysfile interface, we don't
+have to keep bcache self-defined readahead anymore.
 
-Make sure we don't needlessly pollute these fast-paths as a -3%
-performance regression on a will-it-scale.per_process_ops has been
-reported so far.
+This patch removes the bcache self-defined readahead for cache missing
+request for backing device, and the readahead sysfs file interfaces are
+removed as well.
 
-Fixes: 47b8ff194c1f (entry: Explicitly flush pending rcuog wakeup before last rescheduling point)
-Fixes: 4ae7dc97f726 (entry/kvm: Explicitly flush pending rcuog wakeup before last rescheduling point)
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
+This is the preparation for next patch to fix potential kernel panic due
+to oversized request in a simpler method.
+
+Reported-by: Alexander Ullrich <ealex1979@gmail.com>
+Reported-by: Diego Ercolani <diego.ercolani@gmail.com>
+Reported-by: Jan Szubiak <jan.szubiak@linuxpolska.pl>
+Reported-by: Marco Rebhan <me@dblsaiko.net>
+Reported-by: Matthias Ferdinand <bcache@mfedv.net>
+Reported-by: Victor Westerhuis <victor@westerhu.is>
+Reported-by: Vojtech Pavlik <vojtech@suse.cz>
+Reported-and-tested-by: Rolf Fokkens <rolf@rolffokkens.nl>
+Reported-and-tested-by: Thorsten Knabe <linux@thorsten-knabe.de>
+Signed-off-by: Coly Li <colyli@suse.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210527113441.465489-1-frederic@kernel.org
+Cc: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: Nix <nix@esperi.org.uk>
+Cc: Takashi Iwai <tiwai@suse.com>
+Link: https://lore.kernel.org/r/20210607125052.21277-2-colyli@suse.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/entry-kvm.h | 3 ++-
- include/linux/tick.h      | 7 +++++++
- kernel/entry/common.c     | 5 +++--
- kernel/time/tick-sched.c  | 1 +
- 4 files changed, 13 insertions(+), 3 deletions(-)
+ drivers/md/bcache/bcache.h  |    1 -
+ drivers/md/bcache/request.c |   13 +------------
+ drivers/md/bcache/stats.c   |   14 --------------
+ drivers/md/bcache/stats.h   |    1 -
+ drivers/md/bcache/sysfs.c   |    4 ----
+ 5 files changed, 1 insertion(+), 32 deletions(-)
 
-diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
-index 8b2b1d68b954..136b8d97d8c0 100644
---- a/include/linux/entry-kvm.h
-+++ b/include/linux/entry-kvm.h
-@@ -3,6 +3,7 @@
- #define __LINUX_ENTRYKVM_H
+--- a/drivers/md/bcache/bcache.h
++++ b/drivers/md/bcache/bcache.h
+@@ -364,7 +364,6 @@ struct cached_dev {
  
- #include <linux/entry-common.h>
-+#include <linux/tick.h>
+ 	/* The rest of this all shows up in sysfs */
+ 	unsigned int		sequential_cutoff;
+-	unsigned int		readahead;
  
- /* Transfer to guest mode work */
- #ifdef CONFIG_KVM_XFER_TO_GUEST_WORK
-@@ -57,7 +58,7 @@ int xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu);
- static inline void xfer_to_guest_mode_prepare(void)
+ 	unsigned int		io_disable:1;
+ 	unsigned int		verify:1;
+--- a/drivers/md/bcache/request.c
++++ b/drivers/md/bcache/request.c
+@@ -880,7 +880,6 @@ static int cached_dev_cache_miss(struct
+ 				 struct bio *bio, unsigned int sectors)
  {
- 	lockdep_assert_irqs_disabled();
--	rcu_nocb_flush_deferred_wakeup();
-+	tick_nohz_user_enter_prepare();
- }
+ 	int ret = MAP_CONTINUE;
+-	unsigned int reada = 0;
+ 	struct cached_dev *dc = container_of(s->d, struct cached_dev, disk);
+ 	struct bio *miss, *cache_bio;
  
- /**
-diff --git a/include/linux/tick.h b/include/linux/tick.h
-index 7340613c7eff..1a0ff88fa107 100644
---- a/include/linux/tick.h
-+++ b/include/linux/tick.h
-@@ -11,6 +11,7 @@
- #include <linux/context_tracking_state.h>
- #include <linux/cpumask.h>
- #include <linux/sched.h>
-+#include <linux/rcupdate.h>
- 
- #ifdef CONFIG_GENERIC_CLOCKEVENTS
- extern void __init tick_init(void);
-@@ -300,4 +301,10 @@ static inline void tick_nohz_task_switch(void)
- 		__tick_nohz_task_switch();
- }
- 
-+static inline void tick_nohz_user_enter_prepare(void)
-+{
-+	if (tick_nohz_full_cpu(smp_processor_id()))
-+		rcu_nocb_flush_deferred_wakeup();
-+}
-+
- #endif
-diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index a0b3b04fb596..bf16395b9e13 100644
---- a/kernel/entry/common.c
-+++ b/kernel/entry/common.c
-@@ -5,6 +5,7 @@
- #include <linux/highmem.h>
- #include <linux/livepatch.h>
- #include <linux/audit.h>
-+#include <linux/tick.h>
- 
- #include "common.h"
- 
-@@ -186,7 +187,7 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
- 		local_irq_disable_exit_to_user();
- 
- 		/* Check if any of the above work has queued a deferred wakeup */
--		rcu_nocb_flush_deferred_wakeup();
-+		tick_nohz_user_enter_prepare();
- 
- 		ti_work = READ_ONCE(current_thread_info()->flags);
+@@ -892,14 +891,7 @@ static int cached_dev_cache_miss(struct
+ 		goto out_submit;
  	}
-@@ -202,7 +203,7 @@ static void exit_to_user_mode_prepare(struct pt_regs *regs)
- 	lockdep_assert_irqs_disabled();
  
- 	/* Flush pending rcuog wakeup before the last need_resched() check */
--	rcu_nocb_flush_deferred_wakeup();
-+	tick_nohz_user_enter_prepare();
+-	if (!(bio->bi_opf & REQ_RAHEAD) &&
+-	    !(bio->bi_opf & (REQ_META|REQ_PRIO)) &&
+-	    s->iop.c->gc_stats.in_use < CUTOFF_CACHE_READA)
+-		reada = min_t(sector_t, dc->readahead >> 9,
+-			      get_capacity(bio->bi_bdev->bd_disk) -
+-			      bio_end_sector(bio));
+-
+-	s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
++	s->insert_bio_sectors = min(sectors, bio_sectors(bio));
  
- 	if (unlikely(ti_work & EXIT_TO_USER_MODE_WORK))
- 		ti_work = exit_to_user_mode_loop(regs, ti_work);
-diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
-index 828b091501ca..6784f27a3099 100644
---- a/kernel/time/tick-sched.c
-+++ b/kernel/time/tick-sched.c
-@@ -230,6 +230,7 @@ static void tick_sched_handle(struct tick_sched *ts, struct pt_regs *regs)
+ 	s->iop.replace_key = KEY(s->iop.inode,
+ 				 bio->bi_iter.bi_sector + s->insert_bio_sectors,
+@@ -933,9 +925,6 @@ static int cached_dev_cache_miss(struct
+ 	if (bch_bio_alloc_pages(cache_bio, __GFP_NOWARN|GFP_NOIO))
+ 		goto out_put;
  
- #ifdef CONFIG_NO_HZ_FULL
- cpumask_var_t tick_nohz_full_mask;
-+EXPORT_SYMBOL_GPL(tick_nohz_full_mask);
- bool tick_nohz_full_running;
- EXPORT_SYMBOL_GPL(tick_nohz_full_running);
- static atomic_t tick_dep_mask;
--- 
-2.32.0
-
+-	if (reada)
+-		bch_mark_cache_readahead(s->iop.c, s->d);
+-
+ 	s->cache_miss	= miss;
+ 	s->iop.bio	= cache_bio;
+ 	bio_get(cache_bio);
+--- a/drivers/md/bcache/stats.c
++++ b/drivers/md/bcache/stats.c
+@@ -46,7 +46,6 @@ read_attribute(cache_misses);
+ read_attribute(cache_bypass_hits);
+ read_attribute(cache_bypass_misses);
+ read_attribute(cache_hit_ratio);
+-read_attribute(cache_readaheads);
+ read_attribute(cache_miss_collisions);
+ read_attribute(bypassed);
+ 
+@@ -64,7 +63,6 @@ SHOW(bch_stats)
+ 		    DIV_SAFE(var(cache_hits) * 100,
+ 			     var(cache_hits) + var(cache_misses)));
+ 
+-	var_print(cache_readaheads);
+ 	var_print(cache_miss_collisions);
+ 	sysfs_hprint(bypassed,	var(sectors_bypassed) << 9);
+ #undef var
+@@ -86,7 +84,6 @@ static struct attribute *bch_stats_files
+ 	&sysfs_cache_bypass_hits,
+ 	&sysfs_cache_bypass_misses,
+ 	&sysfs_cache_hit_ratio,
+-	&sysfs_cache_readaheads,
+ 	&sysfs_cache_miss_collisions,
+ 	&sysfs_bypassed,
+ 	NULL
+@@ -113,7 +110,6 @@ void bch_cache_accounting_clear(struct c
+ 	acc->total.cache_misses = 0;
+ 	acc->total.cache_bypass_hits = 0;
+ 	acc->total.cache_bypass_misses = 0;
+-	acc->total.cache_readaheads = 0;
+ 	acc->total.cache_miss_collisions = 0;
+ 	acc->total.sectors_bypassed = 0;
+ }
+@@ -145,7 +141,6 @@ static void scale_stats(struct cache_sta
+ 		scale_stat(&stats->cache_misses);
+ 		scale_stat(&stats->cache_bypass_hits);
+ 		scale_stat(&stats->cache_bypass_misses);
+-		scale_stat(&stats->cache_readaheads);
+ 		scale_stat(&stats->cache_miss_collisions);
+ 		scale_stat(&stats->sectors_bypassed);
+ 	}
+@@ -168,7 +163,6 @@ static void scale_accounting(struct time
+ 	move_stat(cache_misses);
+ 	move_stat(cache_bypass_hits);
+ 	move_stat(cache_bypass_misses);
+-	move_stat(cache_readaheads);
+ 	move_stat(cache_miss_collisions);
+ 	move_stat(sectors_bypassed);
+ 
+@@ -209,14 +203,6 @@ void bch_mark_cache_accounting(struct ca
+ 	mark_cache_stats(&c->accounting.collector, hit, bypass);
+ }
+ 
+-void bch_mark_cache_readahead(struct cache_set *c, struct bcache_device *d)
+-{
+-	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
+-
+-	atomic_inc(&dc->accounting.collector.cache_readaheads);
+-	atomic_inc(&c->accounting.collector.cache_readaheads);
+-}
+-
+ void bch_mark_cache_miss_collision(struct cache_set *c, struct bcache_device *d)
+ {
+ 	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
+--- a/drivers/md/bcache/stats.h
++++ b/drivers/md/bcache/stats.h
+@@ -7,7 +7,6 @@ struct cache_stat_collector {
+ 	atomic_t cache_misses;
+ 	atomic_t cache_bypass_hits;
+ 	atomic_t cache_bypass_misses;
+-	atomic_t cache_readaheads;
+ 	atomic_t cache_miss_collisions;
+ 	atomic_t sectors_bypassed;
+ };
+--- a/drivers/md/bcache/sysfs.c
++++ b/drivers/md/bcache/sysfs.c
+@@ -137,7 +137,6 @@ rw_attribute(io_disable);
+ rw_attribute(discard);
+ rw_attribute(running);
+ rw_attribute(label);
+-rw_attribute(readahead);
+ rw_attribute(errors);
+ rw_attribute(io_error_limit);
+ rw_attribute(io_error_halflife);
+@@ -260,7 +259,6 @@ SHOW(__bch_cached_dev)
+ 	var_printf(partial_stripes_expensive,	"%u");
+ 
+ 	var_hprint(sequential_cutoff);
+-	var_hprint(readahead);
+ 
+ 	sysfs_print(running,		atomic_read(&dc->running));
+ 	sysfs_print(state,		states[BDEV_STATE(&dc->sb)]);
+@@ -365,7 +363,6 @@ STORE(__cached_dev)
+ 	sysfs_strtoul_clamp(sequential_cutoff,
+ 			    dc->sequential_cutoff,
+ 			    0, UINT_MAX);
+-	d_strtoi_h(readahead);
+ 
+ 	if (attr == &sysfs_clear_stats)
+ 		bch_cache_accounting_clear(&dc->accounting);
+@@ -538,7 +535,6 @@ static struct attribute *bch_cached_dev_
+ 	&sysfs_running,
+ 	&sysfs_state,
+ 	&sysfs_label,
+-	&sysfs_readahead,
+ #ifdef CONFIG_BCACHE_DEBUG
+ 	&sysfs_verify,
+ 	&sysfs_bypass_torture_test,
 
 
