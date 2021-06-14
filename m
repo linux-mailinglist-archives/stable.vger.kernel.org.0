@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D181F3A61C7
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 636DD3A613D
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234430AbhFNKvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:51:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57326 "EHLO mail.kernel.org"
+        id S233460AbhFNKpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:45:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234277AbhFNKtg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:49:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 558C161462;
-        Mon, 14 Jun 2021 10:38:20 +0000 (UTC)
+        id S233541AbhFNKmm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:42:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC26613EF;
+        Mon, 14 Jun 2021 10:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667100;
-        bh=UtaTbqjqvTZDE1FmFEJXLNETUsHxwA5ZfmWH+yUhYX4=;
+        s=korg; t=1623666946;
+        bh=d0EUx4wg6qvxXvLLpCgP6kzYXfD6HajjbSgHVQF5cyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b21Sb+hcEGNAOCveW16nT8j4yNrUJMn+XDl0lFR8rameKvb22V3qu/FLmk2HxCYzz
-         h/+Ap9ULsxZI9tcwpG2pBR4dajboxpH5rUtIhgfDber3JpY5iWv1bdPSXiPH4l22hg
-         qKlybXE211uSRsMq1u0/Z53Qh1OC0WrMUJMq3OGk=
+        b=yN6JUrtR60doJ9UwQk2nJg+niWgiiVmGUdHVqJH3mDxvsC2/Zs/FBrGSGWQ35smQZ
+         kgTC5VdKJIqFFE4SK77axiMHHsJ09M/kbcJBAbwN/EcbG84jD+pDD5epWMEQvPieKg
+         KBMwz1/Swg2SaZ6wSmH3d4a0rFYazfEC/KJY2JIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/84] ASoC: sti-sas: add missing MODULE_DEVICE_TABLE
-Date:   Mon, 14 Jun 2021 12:26:47 +0200
-Message-Id: <20210614102646.666331917@linuxfoundation.org>
+Subject: [PATCH 4.19 05/67] ASoC: Intel: bytcr_rt5640: Add quirk for the Lenovo Miix 3-830 tablet
+Date:   Mon, 14 Jun 2021 12:26:48 +0200
+Message-Id: <20210614102643.968386334@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit e072b2671606c77538d6a4dd5dda80b508cb4816 ]
+[ Upstream commit f0353e1f53f92f7b3da91e6669f5d58ee222ebe8 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+The Lenovo Miix 3-830 tablet has only 1 speaker, has an internal analog
+mic on IN1 and uses JD2 for jack-detect, add a quirk to automatically
+apply these settings on Lenovo Miix 3-830 tablets.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Link: https://lore.kernel.org/r/1620789145-14936-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210508150146.28403-2-hdegoede@redhat.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sti-sas.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/intel/boards/bytcr_rt5640.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/sound/soc/codecs/sti-sas.c b/sound/soc/codecs/sti-sas.c
-index ec9933b054ad..423daac9d5a9 100644
---- a/sound/soc/codecs/sti-sas.c
-+++ b/sound/soc/codecs/sti-sas.c
-@@ -411,6 +411,7 @@ static const struct of_device_id sti_sas_dev_match[] = {
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 077529113ee7..186c0ee059da 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -643,6 +643,20 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_MONO_SPEAKER |
+ 					BYT_RT5640_MCLK_EN),
  	},
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, sti_sas_dev_match);
- 
- static int sti_sas_driver_probe(struct platform_device *pdev)
- {
++	{	/* Lenovo Miix 3-830 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 3-830"),
++		},
++		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
++					BYT_RT5640_JD_SRC_JD2_IN4N |
++					BYT_RT5640_OVCD_TH_2000UA |
++					BYT_RT5640_OVCD_SF_0P75 |
++					BYT_RT5640_MONO_SPEAKER |
++					BYT_RT5640_DIFF_MIC |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{	/* Linx Linx7 tablet */
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LINX"),
 -- 
 2.30.2
 
