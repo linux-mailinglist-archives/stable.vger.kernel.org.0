@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3113A6046
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 333563A6112
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:40:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233149AbhFNKcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:32:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39274 "EHLO mail.kernel.org"
+        id S233030AbhFNKm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:42:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233069AbhFNKcX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:32:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7941F61004;
-        Mon, 14 Jun 2021 10:30:20 +0000 (UTC)
+        id S233637AbhFNKkZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:40:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E35E8613B2;
+        Mon, 14 Jun 2021 10:34:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666621;
-        bh=cH/LNhVrMIFN0Ry4SOpH7La6og4M9offvEArZsoH5Bc=;
+        s=korg; t=1623666891;
+        bh=/f5/PT2xx4N7dbC4wjL8KivoMw/jk3dF0uhC+34gCV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jg2kEWbN3C4UZqtV1VmuGautyjKOiHexI5T+iIq7bVy+d4r6v3AUen7w4AWJCt9kN
-         EssG0AFg/ONGGk9qdXhd57mrg1vDv3qHfMwYSZjfFg8ox+rkrJSeZqt3hXrZ37KnKN
-         rnxtqJzG1VbTaOWAN73WnYhKo1CVKvpGuu0GGi8g=
+        b=MXj2lPvzYMCSjcaEft1aUzDzsewx/0wewC/v01YWZfCqlqAmssj12uatDiWsuqIk9
+         WmYMVLuajRausgZEGv6Mu5ijZiYllIXUU6X29jFXAIUTylsuPnPiW64xfAag8bRgka
+         is4N2Y9XMr+Y9r9tBVZ7CalZQwtj0VLDhVVMo484=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Wang <wwentao@vmware.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Saubhik Mukherjee <saubhik.mukherjee@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/42] scsi: vmw_pvscsi: Set correct residual data length
+Subject: [PATCH 4.19 19/67] net: appletalk: cops: Fix data race in cops_probe1
 Date:   Mon, 14 Jun 2021 12:27:02 +0200
-Message-Id: <20210614102643.071382580@linuxfoundation.org>
+Message-Id: <20210614102644.413015457@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Wang <wwentao@vmware.com>
+From: Saubhik Mukherjee <saubhik.mukherjee@gmail.com>
 
-[ Upstream commit e662502b3a782d479e67736a5a1c169a703d853a ]
+[ Upstream commit a4dd4fc6105e54393d637450a11d4cddb5fabc4f ]
 
-Some commands (such as INQUIRY) may return less data than the initiator
-requested. To avoid conducting useless information, set the right residual
-count to make upper layer aware of this.
+In cops_probe1(), there is a write to dev->base_addr after requesting an
+interrupt line and registering the interrupt handler cops_interrupt().
+The handler might be called in parallel to handle an interrupt.
+cops_interrupt() tries to read dev->base_addr leading to a potential
+data race. So write to dev->base_addr before calling request_irq().
 
-Before (INQUIRY PAGE 0xB0 with 128B buffer):
+Found by Linux Driver Verification project (linuxtesting.org).
 
-$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
-SCSI Status: Good
-
-Received 128 bytes of data:
- 00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
- 10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
- 20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
- 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 50 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 60 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 70 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-
-After:
-
-$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
-SCSI Status: Good
-
-Received 64 bytes of data:
-00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
-10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
-20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
-30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-
-[mkp: clarified description]
-
-Link: https://lore.kernel.org/r/03C41093-B62E-43A2-913E-CFC92F1C70C3@vmware.com
-Signed-off-by: Matt Wang <wwentao@vmware.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Saubhik Mukherjee <saubhik.mukherjee@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/vmw_pvscsi.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/appletalk/cops.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/vmw_pvscsi.c b/drivers/scsi/vmw_pvscsi.c
-index df6fabcce4f7..4d2172c115c6 100644
---- a/drivers/scsi/vmw_pvscsi.c
-+++ b/drivers/scsi/vmw_pvscsi.c
-@@ -577,7 +577,13 @@ static void pvscsi_complete_request(struct pvscsi_adapter *adapter,
- 		case BTSTAT_SUCCESS:
- 		case BTSTAT_LINKED_COMMAND_COMPLETED:
- 		case BTSTAT_LINKED_COMMAND_COMPLETED_WITH_FLAG:
--			/* If everything went fine, let's move on..  */
-+			/*
-+			 * Commands like INQUIRY may transfer less data than
-+			 * requested by the initiator via bufflen. Set residual
-+			 * count to make upper layer aware of the actual amount
-+			 * of data returned.
-+			 */
-+			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
- 			cmd->result = (DID_OK << 16);
+diff --git a/drivers/net/appletalk/cops.c b/drivers/net/appletalk/cops.c
+index bb49f6e40a19..0a7889abf2b2 100644
+--- a/drivers/net/appletalk/cops.c
++++ b/drivers/net/appletalk/cops.c
+@@ -325,6 +325,8 @@ static int __init cops_probe1(struct net_device *dev, int ioaddr)
  			break;
+ 	}
+ 
++	dev->base_addr = ioaddr;
++
+ 	/* Reserve any actual interrupt. */
+ 	if (dev->irq) {
+ 		retval = request_irq(dev->irq, cops_interrupt, 0, dev->name, dev);
+@@ -332,8 +334,6 @@ static int __init cops_probe1(struct net_device *dev, int ioaddr)
+ 			goto err_out;
+ 	}
+ 
+-	dev->base_addr = ioaddr;
+-
+         lp = netdev_priv(dev);
+         spin_lock_init(&lp->lock);
  
 -- 
 2.30.2
