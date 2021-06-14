@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA0BD3A63ED
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:16:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EC263A62A7
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235657AbhFNLSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:18:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48534 "EHLO mail.kernel.org"
+        id S234750AbhFNLDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:03:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235091AbhFNLQl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:16:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 740DF61963;
-        Mon, 14 Jun 2021 10:50:14 +0000 (UTC)
+        id S234079AbhFNLAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:00:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E7B2616E9;
+        Mon, 14 Jun 2021 10:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667815;
-        bh=2SgvNj6ou6VNa7dm/tdITAyo9EzdsLrOwNOltAcAyho=;
+        s=korg; t=1623667398;
+        bh=l99QUVxOd0wTmQVHZDR6sSnkO+h0/lCiQR1BFpcFR4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/dMJtlkqOmkWSqFa/pZPgJj8PtRJ9KyrZfHNwKEUaEx9sLSzHXdpdSliCSRo5Nbv
-         Nev4ckp+L+gkLWTjOkT6ipyZ9eK5xIFyVURiUkSCy7jusEsKOisXcuKkYnF77WBbcS
-         TTNlkrUpInNWie+LZ1/LxoVMjX8hnaZ1na9xj1AE=
+        b=j0xWgWQ5eJn0Fz819ux73ItT/tCbvZRLCyaExJ46fdQ2n2gXc3Zix96+IPS+eHC3C
+         3JTjmK3NWoqKSXPJxDRB1NkzXO4g+sEsuCUqdtsICQ70zaqQgqJBnAPy1NAW9mQ9g9
+         9RQCfBOxf4G5ebNjT++PeNU31HpDHDqFNLjwp/CM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brooke Basile <brookebasile@gmail.com>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Yauheni Kaliuta <yauheni.kaliuta@nokia.com>,
-        Linux USB Mailing List <linux-usb@vger.kernel.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Subject: [PATCH 5.12 085/173] USB: f_ncm: ncm_bitrate (speed) is unsigned
+        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 056/131] perf/x86/intel/uncore: Fix M2M event umask for Ice Lake server
 Date:   Mon, 14 Jun 2021 12:26:57 +0200
-Message-Id: <20210614102700.996006998@linuxfoundation.org>
+Message-Id: <20210614102654.927486580@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 3370139745853f7826895293e8ac3aec1430508e upstream.
+commit 848ff3768684701a4ce73a2ec0e5d438d4e2b0da upstream.
 
-[  190.544755] configfs-gadget gadget: notify speed -44967296
+Perf tool errors out with the latest event list for the Ice Lake server.
 
-This is because 4250000000 - 2**32 is -44967296.
+event syntax error: 'unc_m2m_imc_reads.to_pmm'
+                           \___ value too big for format, maximum is 255
 
-Fixes: 9f6ce4240a2b ("usb: gadget: f_ncm.c added")
-Cc: Brooke Basile <brookebasile@gmail.com>
-Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Cc: Yauheni Kaliuta <yauheni.kaliuta@nokia.com>
-Cc: Linux USB Mailing List <linux-usb@vger.kernel.org>
-Acked-By: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608005344.3762668-1-zenczykowski@gmail.com
+The same as the Snow Ridge server, the M2M uncore unit in the Ice Lake
+server has the unit mask extension field as well.
+
+Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
+Reported-by: Jin Yao <yao.jin@linux.intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1622552943-119174-1-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/uncore_snbep.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -583,7 +583,7 @@ static void ncm_do_notify(struct f_ncm *
- 		data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
- 		data[1] = data[0];
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -5067,9 +5067,10 @@ static struct intel_uncore_type icx_unco
+ 	.perf_ctr	= SNR_M2M_PCI_PMON_CTR0,
+ 	.event_ctl	= SNR_M2M_PCI_PMON_CTL0,
+ 	.event_mask	= SNBEP_PMON_RAW_EVENT_MASK,
++	.event_mask_ext	= SNR_M2M_PCI_PMON_UMASK_EXT,
+ 	.box_ctl	= SNR_M2M_PCI_PMON_BOX_CTL,
+ 	.ops		= &snr_m2m_uncore_pci_ops,
+-	.format_group	= &skx_uncore_format_group,
++	.format_group	= &snr_m2m_uncore_format_group,
+ };
  
--		DBG(cdev, "notify speed %d\n", ncm_bitrate(cdev->gadget));
-+		DBG(cdev, "notify speed %u\n", ncm_bitrate(cdev->gadget));
- 		ncm->notify_state = NCM_NOTIFY_CONNECT;
- 		break;
- 	}
+ static struct attribute *icx_upi_uncore_formats_attr[] = {
 
 
