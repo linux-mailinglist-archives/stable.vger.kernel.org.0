@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6466D3A61C6
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2DFC3A610F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234417AbhFNKve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:51:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50964 "EHLO mail.kernel.org"
+        id S233849AbhFNKmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234259AbhFNKtc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:49:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12CEE613F1;
-        Mon, 14 Jun 2021 10:38:12 +0000 (UTC)
+        id S234107AbhFNKkD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:40:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD18C613FB;
+        Mon, 14 Jun 2021 10:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667093;
-        bh=oH9KvCZqz+qN93L7YgzU5dEiuvT/c0JMItOzKdDDHic=;
+        s=korg; t=1623666867;
+        bh=ZtxehVz2Sev0JmXg+Wbx8qTYj628Umm5tc0JbJLEaQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VM/f6k4tLeU3MtdLHE48CKJBcPvyqJ4RQqtSa5jI6hR7Mt3hI66sA9k9M6WuEmX7V
-         A6YGQUdWahAO8FFd4Nuqy6+Ws5r8+62XlZ3hGrOv68cMj/D+wy4xwjbpaRE7MFX2gk
-         qc3RhfM75MPgtmbDRNJsXgs3QAHQ7Eu8JnHds7JU=
+        b=hLkKLy425inNAW0ybcHPvixVKiMsdhxr6Dkazujt8Szs4Jveca/kno5/0T62cEOjU
+         qITgtvPkC2+xpasIfm2KYATL5CZfvZ1T2ssnQfc2QPjKDYL7CjmRMi6TVcRrMb+XyB
+         S4FET0EtQNP56nlnCGQ2MOjLyyc0vYDxLOLLvnn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 07/84] ASoC: Intel: bytcr_rt5640: Add quirk for the Lenovo Miix 3-830 tablet
+        stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrea Righi <andrea.righi@canonical.com>,
+        Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 02/67] proc: Track /proc/$pid/attr/ opener mm_struct
 Date:   Mon, 14 Jun 2021 12:26:45 +0200
-Message-Id: <20210614102646.589139207@linuxfoundation.org>
+Message-Id: <20210614102643.875096342@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit f0353e1f53f92f7b3da91e6669f5d58ee222ebe8 ]
+commit 591a22c14d3f45cc38bd1931c593c221df2f1881 upstream.
 
-The Lenovo Miix 3-830 tablet has only 1 speaker, has an internal analog
-mic on IN1 and uses JD2 for jack-detect, add a quirk to automatically
-apply these settings on Lenovo Miix 3-830 tablets.
+Commit bfb819ea20ce ("proc: Check /proc/$pid/attr/ writes against file opener")
+tried to make sure that there could not be a confusion between the opener of
+a /proc/$pid/attr/ file and the writer. It used struct cred to make sure
+the privileges didn't change. However, there were existing cases where a more
+privileged thread was passing the opened fd to a differently privileged thread
+(during container setup). Instead, use mm_struct to track whether the opener
+and writer are still the same process. (This is what several other proc files
+already do, though for different reasons.)
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210508150146.28403-2-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
+Reported-by: Andrea Righi <andrea.righi@canonical.com>
+Tested-by: Andrea Righi <andrea.righi@canonical.com>
+Fixes: bfb819ea20ce ("proc: Check /proc/$pid/attr/ writes against file opener")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ fs/proc/base.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 1e6c86f2306f..c67b86e2d0c0 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -646,6 +646,20 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_MONO_SPEAKER |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{	/* Lenovo Miix 3-830 */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 3-830"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_MONO_SPEAKER |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{	/* Linx Linx7 tablet */
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LINX"),
--- 
-2.30.2
-
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -2535,6 +2535,11 @@ out:
+ }
+ 
+ #ifdef CONFIG_SECURITY
++static int proc_pid_attr_open(struct inode *inode, struct file *file)
++{
++	return __mem_open(inode, file, PTRACE_MODE_READ_FSCREDS);
++}
++
+ static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
+ 				  size_t count, loff_t *ppos)
+ {
+@@ -2565,7 +2570,7 @@ static ssize_t proc_pid_attr_write(struc
+ 	int rv;
+ 
+ 	/* A task may only write when it was the opener. */
+-	if (file->f_cred != current_real_cred())
++	if (file->private_data != current->mm)
+ 		return -EPERM;
+ 
+ 	rcu_read_lock();
+@@ -2613,9 +2618,11 @@ out:
+ }
+ 
+ static const struct file_operations proc_pid_attr_operations = {
++	.open		= proc_pid_attr_open,
+ 	.read		= proc_pid_attr_read,
+ 	.write		= proc_pid_attr_write,
+ 	.llseek		= generic_file_llseek,
++	.release	= mem_release,
+ };
+ 
+ static const struct pid_entry attr_dir_stuff[] = {
 
 
