@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08CCA3A6380
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1723A637F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235398AbhFNLN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:13:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42526 "EHLO mail.kernel.org"
+        id S235396AbhFNLN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:13:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234717AbhFNLLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234727AbhFNLLz (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Jun 2021 07:11:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FCDA61951;
-        Mon, 14 Jun 2021 10:48:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E9106194E;
+        Mon, 14 Jun 2021 10:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667684;
-        bh=ROxKfwcxodE0zhvauAbH2Wq6lyAIhtvHimFSA8eXLvA=;
+        s=korg; t=1623667687;
+        bh=DNn8YgMWuL79KlSNWON5bYkl35B1Ce482gDniI7RIgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JRi6odW9pNYr0QBFWAg7XPnCLruJIsJf04TkL+vKmZZcgScMKp1iJBXV3U28aIy9e
-         G9tWyYVq7AFLK81jslNy4zTxp4B5MoIZOysOJun9hcgWo4ZVCoxlXArx09AwDzeYmh
-         uoAGf6Q6Ahx+b+1bsAN5IJxrfwpiFGFDuVSaTtYw=
+        b=UGVHpjDTbuGBVNU4VZo8qArr4pgFUT8wvOB8PFFhlkpC0I+/2rofbMn6kfqs1Mzi0
+         oFSuF/qm6G9C8JIVTiyPcKad3lJ4DpjNkB5Y1tRC2hDZus9r19WkwbK0eemx+5Jmhq
+         WhiijKr990O/MxFgnjXdynQRfsNlNSjsQ4IDL7gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Candle Sun <candlesea@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 035/173] Makefile: LTO: have linker check -Wframe-larger-than
-Date:   Mon, 14 Jun 2021 12:26:07 +0200
-Message-Id: <20210614102659.317088098@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 036/173] nvme-fabrics: decode host pathing error for connect
+Date:   Mon, 14 Jun 2021 12:26:08 +0200
+Message-Id: <20210614102659.357226395@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -43,60 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 24845dcb170e16b3100bd49743687648c71387ae ]
+[ Upstream commit 4d9442bf263ac45d495bb7ecf75009e59c0622b2 ]
 
--Wframe-larger-than= requires stack frame information, which the
-frontend cannot provide. This diagnostic is emitted late during
-compilation once stack frame size is available.
+Add an additional decoding for 'host pathing error' during connect.
 
-When building with LTO, the frontend simply lowers C to LLVM IR and does
-not have stack frame information, so it cannot emit this diagnostic.
-When the linker drives LTO, it restarts optimizations and lowers LLVM IR
-to object code. At that point, it has stack frame information but
-doesn't know to check for a specific max stack frame size.
-
-I consider this a bug in LLVM that we need to fix. There are some
-details we're working out related to LTO such as which value to use when
-there are multiple different values specified per TU, or how to
-propagate these to compiler synthesized routines properly, if at all.
-
-Until it's fixed, ensure we don't miss these. At that point we can wrap
-this in a compiler version guard or revert this based on the minimum
-support version of Clang.
-
-The error message is not generated during link:
-  LTO     vmlinux.o
-ld.lld: warning: stack size limit exceeded (8224) in foobarbaz
-
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Reported-by: Candle Sun <candlesea@gmail.com>
-Suggested-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210312010942.1546679-1-ndesaulniers@google.com
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile | 5 +++++
+ drivers/nvme/host/fabrics.c | 5 +++++
  1 file changed, 5 insertions(+)
 
-diff --git a/Makefile b/Makefile
-index ebc02c56db03..358a2b103de9 100644
---- a/Makefile
-+++ b/Makefile
-@@ -912,6 +912,11 @@ CC_FLAGS_LTO	+= -fvisibility=hidden
+diff --git a/drivers/nvme/host/fabrics.c b/drivers/nvme/host/fabrics.c
+index 604ab0e5a2ad..fb02ca2e3096 100644
+--- a/drivers/nvme/host/fabrics.c
++++ b/drivers/nvme/host/fabrics.c
+@@ -336,6 +336,11 @@ static void nvmf_log_connect_error(struct nvme_ctrl *ctrl,
+ 			cmd->connect.recfmt);
+ 		break;
  
- # Limit inlining across translation units to reduce binary size
- KBUILD_LDFLAGS += -mllvm -import-instr-limit=5
++	case NVME_SC_HOST_PATH_ERROR:
++		dev_err(ctrl->device,
++			"Connect command failed: host path error\n");
++		break;
 +
-+# Check for frame size exceeding threshold during prolog/epilog insertion.
-+ifneq ($(CONFIG_FRAME_WARN),0)
-+KBUILD_LDFLAGS	+= -plugin-opt=-warn-stack-size=$(CONFIG_FRAME_WARN)
-+endif
- endif
- 
- ifdef CONFIG_LTO
+ 	default:
+ 		dev_err(ctrl->device,
+ 			"Connect command failed, error wo/DNR bit: %d\n",
 -- 
 2.30.2
 
