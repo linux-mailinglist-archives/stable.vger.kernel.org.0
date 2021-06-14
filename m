@@ -2,36 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6AE43A6168
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DE73A6241
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:57:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233970AbhFNKrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:47:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50964 "EHLO mail.kernel.org"
+        id S234559AbhFNK6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:58:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234382AbhFNKpF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:45:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDD1361403;
-        Mon, 14 Jun 2021 10:36:27 +0000 (UTC)
+        id S234172AbhFNK4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:56:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C7346157F;
+        Mon, 14 Jun 2021 10:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666988;
-        bh=flZHxU2lobluVDj8Vavz63zxc+TDyGA9BWMeCmiwlwc=;
+        s=korg; t=1623667253;
+        bh=otx6t5Og+OrJM4VmCGOfjHhplA92j5Q3JUx8uOTuIR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tk5tYrZpsxri+ebcv5mTyBjA/PpXdgjTWKSCh12HW7koIjgbz652h00kuK8b8Agk3
-         z6RvFhpo9p0U8qHg2F5kqKfBPT4dzbf5+craR72A2B8I8pUeIgysRD7wn4VCY8AU5Z
-         wEt2RsmkcJrpZUqHaTg2Sz4EhnQ7/OIowcWJXqjM=
+        b=GTP/O2FaiRqupfvVYxy2LWXo3ZgvLnW19AcHD45A+SkDiNZiDyEes0wghF/Szp9e7
+         7VMT0nM/C3yUxO+1Ttlq/Xc31MOUrczIGeZNUdXixaKIPdt2DmbDu5f8GL0z941kJC
+         eXRjBpkHhqPXBMXxUcZ0krdBy7w7NF6sZwDdBVIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alaa Hleihel <alaa@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.19 55/67] IB/mlx5: Fix initializing CQ fragments buffer
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Felipe Balbi <balbi@kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Michael R Sweet <msweet@msweet.org>,
+        Mike Christie <michael.christie@oracle.com>,
+        Pawel Laszczak <pawell@cadence.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
+        Wei Ming Chen <jj251510319013@gmail.com>,
+        Will McVicker <willmcvicker@google.com>,
+        Zqiang <qiang.zhang@windriver.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
+Subject: [PATCH 5.4 60/84] usb: fix various gadgets null ptr deref on 10gbps cabling.
 Date:   Mon, 14 Jun 2021 12:27:38 +0200
-Message-Id: <20210614102645.627237471@linuxfoundation.org>
+Message-Id: <20210614102648.422062574@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,79 +52,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Hleihel <alaa@nvidia.com>
+From: Maciej Żenczykowski <maze@google.com>
 
-commit 2ba0aa2feebda680ecfc3c552e867cf4d1b05a3a upstream.
+commit 90c4d05780d47e14a50e11a7f17373104cd47d25 upstream.
 
-The function init_cq_frag_buf() can be called to initialize the current CQ
-fragments buffer cq->buf, or the temporary cq->resize_buf that is filled
-during CQ resize operation.
+This avoids a null pointer dereference in
+f_{ecm,eem,hid,loopback,printer,rndis,serial,sourcesink,subset,tcm}
+by simply reusing the 5gbps config for 10gbps.
 
-However, the offending commit started to use function get_cqe() for
-getting the CQEs, the issue with this change is that get_cqe() always
-returns CQEs from cq->buf, which leads us to initialize the wrong buffer,
-and in case of enlarging the CQ we try to access elements beyond the size
-of the current cq->buf and eventually hit a kernel panic.
-
- [exception RIP: init_cq_frag_buf+103]
-  [ffff9f799ddcbcd8] mlx5_ib_resize_cq at ffffffffc0835d60 [mlx5_ib]
-  [ffff9f799ddcbdb0] ib_resize_cq at ffffffffc05270df [ib_core]
-  [ffff9f799ddcbdc0] llt_rdma_setup_qp at ffffffffc0a6a712 [llt]
-  [ffff9f799ddcbe10] llt_rdma_cc_event_action at ffffffffc0a6b411 [llt]
-  [ffff9f799ddcbe98] llt_rdma_client_conn_thread at ffffffffc0a6bb75 [llt]
-  [ffff9f799ddcbec8] kthread at ffffffffa66c5da1
-  [ffff9f799ddcbf50] ret_from_fork_nospec_begin at ffffffffa6d95ddd
-
-Fix it by getting the needed CQE by calling mlx5_frag_buf_get_wqe() that
-takes the correct source buffer as a parameter.
-
-Fixes: 388ca8be0037 ("IB/mlx5: Implement fragmented completion queue (CQ)")
-Link: https://lore.kernel.org/r/90a0e8c924093cfa50a482880ad7e7edb73dc19a.1623309971.git.leonro@nvidia.com
-Signed-off-by: Alaa Hleihel <alaa@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: eaef50c76057 ("usb: gadget: Update usb_assign_descriptors for SuperSpeedPlus")
+Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Lorenzo Colitti <lorenzo@google.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Michael R Sweet <msweet@msweet.org>
+Cc: Mike Christie <michael.christie@oracle.com>
+Cc: Pawel Laszczak <pawell@cadence.com>
+Cc: Peter Chen <peter.chen@nxp.com>
+Cc: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
+Cc: Wei Ming Chen <jj251510319013@gmail.com>
+Cc: Will McVicker <willmcvicker@google.com>
+Cc: Zqiang <qiang.zhang@windriver.com>
+Reviewed-By: Lorenzo Colitti <lorenzo@google.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Link: https://lore.kernel.org/r/20210608044141.3898496-1-zenczykowski@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/cq.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/usb/gadget/function/f_ecm.c        |    2 +-
+ drivers/usb/gadget/function/f_eem.c        |    2 +-
+ drivers/usb/gadget/function/f_hid.c        |    3 ++-
+ drivers/usb/gadget/function/f_loopback.c   |    2 +-
+ drivers/usb/gadget/function/f_printer.c    |    3 ++-
+ drivers/usb/gadget/function/f_rndis.c      |    2 +-
+ drivers/usb/gadget/function/f_serial.c     |    2 +-
+ drivers/usb/gadget/function/f_sourcesink.c |    3 ++-
+ drivers/usb/gadget/function/f_subset.c     |    2 +-
+ drivers/usb/gadget/function/f_tcm.c        |    3 ++-
+ 10 files changed, 14 insertions(+), 10 deletions(-)
 
---- a/drivers/infiniband/hw/mlx5/cq.c
-+++ b/drivers/infiniband/hw/mlx5/cq.c
-@@ -896,15 +896,14 @@ static void destroy_cq_user(struct mlx5_
- 	ib_umem_release(cq->buf.umem);
- }
+--- a/drivers/usb/gadget/function/f_ecm.c
++++ b/drivers/usb/gadget/function/f_ecm.c
+@@ -791,7 +791,7 @@ ecm_bind(struct usb_configuration *c, st
+ 		fs_ecm_notify_desc.bEndpointAddress;
  
--static void init_cq_frag_buf(struct mlx5_ib_cq *cq,
--			     struct mlx5_ib_cq_buf *buf)
-+static void init_cq_frag_buf(struct mlx5_ib_cq_buf *buf)
- {
- 	int i;
- 	void *cqe;
- 	struct mlx5_cqe64 *cqe64;
+ 	status = usb_assign_descriptors(f, ecm_fs_function, ecm_hs_function,
+-			ecm_ss_function, NULL);
++			ecm_ss_function, ecm_ss_function);
+ 	if (status)
+ 		goto fail;
  
- 	for (i = 0; i < buf->nent; i++) {
--		cqe = get_cqe(cq, i);
-+		cqe = mlx5_frag_buf_get_wqe(&buf->fbc, i);
- 		cqe64 = buf->cqe_size == 64 ? cqe : cqe + 64;
- 		cqe64->op_own = MLX5_CQE_INVALID << 4;
- 	}
-@@ -930,7 +929,7 @@ static int create_cq_kernel(struct mlx5_
- 	if (err)
- 		goto err_db;
+--- a/drivers/usb/gadget/function/f_eem.c
++++ b/drivers/usb/gadget/function/f_eem.c
+@@ -304,7 +304,7 @@ static int eem_bind(struct usb_configura
+ 	eem_ss_out_desc.bEndpointAddress = eem_fs_out_desc.bEndpointAddress;
  
--	init_cq_frag_buf(cq, &cq->buf);
-+	init_cq_frag_buf(&cq->buf);
+ 	status = usb_assign_descriptors(f, eem_fs_function, eem_hs_function,
+-			eem_ss_function, NULL);
++			eem_ss_function, eem_ss_function);
+ 	if (status)
+ 		goto fail;
  
- 	*inlen = MLX5_ST_SZ_BYTES(create_cq_in) +
- 		 MLX5_FLD_SZ_BYTES(create_cq_in, pas[0]) *
-@@ -1253,7 +1252,7 @@ static int resize_kernel(struct mlx5_ib_
- 	if (err)
- 		goto ex;
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -808,7 +808,8 @@ static int hidg_bind(struct usb_configur
+ 		hidg_fs_out_ep_desc.bEndpointAddress;
  
--	init_cq_frag_buf(cq, cq->resize_buf);
-+	init_cq_frag_buf(cq->resize_buf);
+ 	status = usb_assign_descriptors(f, hidg_fs_descriptors,
+-			hidg_hs_descriptors, hidg_ss_descriptors, NULL);
++			hidg_hs_descriptors, hidg_ss_descriptors,
++			hidg_ss_descriptors);
+ 	if (status)
+ 		goto fail;
  
- 	return 0;
+--- a/drivers/usb/gadget/function/f_loopback.c
++++ b/drivers/usb/gadget/function/f_loopback.c
+@@ -207,7 +207,7 @@ autoconf_fail:
+ 	ss_loop_sink_desc.bEndpointAddress = fs_loop_sink_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_loopback_descs, hs_loopback_descs,
+-			ss_loopback_descs, NULL);
++			ss_loopback_descs, ss_loopback_descs);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -1063,7 +1063,8 @@ autoconf_fail:
+ 	ss_ep_out_desc.bEndpointAddress = fs_ep_out_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_printer_function,
+-			hs_printer_function, ss_printer_function, NULL);
++			hs_printer_function, ss_printer_function,
++			ss_printer_function);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_rndis.c
++++ b/drivers/usb/gadget/function/f_rndis.c
+@@ -789,7 +789,7 @@ rndis_bind(struct usb_configuration *c,
+ 	ss_notify_desc.bEndpointAddress = fs_notify_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, eth_fs_function, eth_hs_function,
+-			eth_ss_function, NULL);
++			eth_ss_function, eth_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_serial.c
++++ b/drivers/usb/gadget/function/f_serial.c
+@@ -233,7 +233,7 @@ static int gser_bind(struct usb_configur
+ 	gser_ss_out_desc.bEndpointAddress = gser_fs_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, gser_fs_function, gser_hs_function,
+-			gser_ss_function, NULL);
++			gser_ss_function, gser_ss_function);
+ 	if (status)
+ 		goto fail;
+ 	dev_dbg(&cdev->gadget->dev, "generic ttyGS%d: %s speed IN/%s OUT/%s\n",
+--- a/drivers/usb/gadget/function/f_sourcesink.c
++++ b/drivers/usb/gadget/function/f_sourcesink.c
+@@ -431,7 +431,8 @@ no_iso:
+ 	ss_iso_sink_desc.bEndpointAddress = fs_iso_sink_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_source_sink_descs,
+-			hs_source_sink_descs, ss_source_sink_descs, NULL);
++			hs_source_sink_descs, ss_source_sink_descs,
++			ss_source_sink_descs);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_subset.c
++++ b/drivers/usb/gadget/function/f_subset.c
+@@ -358,7 +358,7 @@ geth_bind(struct usb_configuration *c, s
+ 		fs_subset_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, fs_eth_function, hs_eth_function,
+-			ss_eth_function, NULL);
++			ss_eth_function, ss_eth_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_tcm.c
++++ b/drivers/usb/gadget/function/f_tcm.c
+@@ -2056,7 +2056,8 @@ static int tcm_bind(struct usb_configura
+ 	uasp_fs_cmd_desc.bEndpointAddress = uasp_ss_cmd_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, uasp_fs_function_desc,
+-			uasp_hs_function_desc, uasp_ss_function_desc, NULL);
++			uasp_hs_function_desc, uasp_ss_function_desc,
++			uasp_ss_function_desc);
+ 	if (ret)
+ 		goto ep_fail;
  
 
 
