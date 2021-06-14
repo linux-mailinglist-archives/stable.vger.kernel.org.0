@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B84A3A61AB
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 420653A6141
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233801AbhFNKuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:50:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50550 "EHLO mail.kernel.org"
+        id S233548AbhFNKpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:45:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233845AbhFNKsS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:48:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 688C56145A;
-        Mon, 14 Jun 2021 10:37:41 +0000 (UTC)
+        id S233505AbhFNKn3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:43:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D39DE613F9;
+        Mon, 14 Jun 2021 10:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667062;
-        bh=Gui2hudISqEfdhqO0LlkhxgmBIPBJErNssutgA9Cb14=;
+        s=korg; t=1623666959;
+        bh=WfA1SME6fbnwB/nFzVy0RFeC7E4u2n2zjt8kqtG7gMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gaD4kv4nSBINmAsCqJVWU3XG4d01A1fbgwzKlXPAG/veVH0yKdAtJHbGzYh2HdVif
-         eTPkvRjyanIBZ+uX0D5//FZFgOM53qHaMthg9mql9JZsMcLW2GKThQX38LhWwxIf4G
-         4kmsvrmgImdeI0lLkUPmSYf5MdcBMsGcb+Y1bfuE=
+        b=PnuIvFk7tVbMtiqodaE96pi6Y4q0t6Y6wpQLcndo/uegueWFX2KYB+HMcPGLNvORJ
+         yiPMAbRzpqpr5/H4P8KqXyOUzBKSgXV4doZL1PqkXN+eBXimqhPOJsFyLh5QWW4qDd
+         rRTMtyKPptu72wifb+OMmg/ZOd6YbkC1QKjVFE+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,12 +29,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/84] net: mdiobus: get rid of a BUG_ON()
-Date:   Mon, 14 Jun 2021 12:26:52 +0200
-Message-Id: <20210614102646.833389249@linuxfoundation.org>
+Subject: [PATCH 4.19 10/67] net: mdiobus: get rid of a BUG_ON()
+Date:   Mon, 14 Jun 2021 12:26:53 +0200
+Message-Id: <20210614102644.131250456@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,10 +63,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index 229e480179ff..5bf06eac04ba 100644
+index 5c89a310359d..08c81d4cfca8 100644
 --- a/drivers/net/phy/mdio_bus.c
 +++ b/drivers/net/phy/mdio_bus.c
-@@ -453,7 +453,8 @@ void mdiobus_unregister(struct mii_bus *bus)
+@@ -446,7 +446,8 @@ void mdiobus_unregister(struct mii_bus *bus)
  	struct mdio_device *mdiodev;
  	int i;
  
