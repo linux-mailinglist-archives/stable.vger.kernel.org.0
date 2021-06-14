@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 217373A626B
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:58:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E54F3A626E
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233410AbhFNLAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:00:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35824 "EHLO mail.kernel.org"
+        id S233940AbhFNLAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:00:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234478AbhFNK5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:57:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B60261360;
-        Mon, 14 Jun 2021 10:41:33 +0000 (UTC)
+        id S234512AbhFNK53 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:57:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BADE6161C;
+        Mon, 14 Jun 2021 10:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667294;
-        bh=wwXUwKHbLDpF5UpiiabWtpShGyTWaPFaME3eCV6rXWY=;
+        s=korg; t=1623667296;
+        bh=Jz2m3vwdQJW755VD9qnYrdVv0PeunQwMOP0ikzH8SC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+SNpo1byu8dgWu8/F1jHdTW6Aa0lsVmQ9nJYxHpyezT07aTjF4w61XUdvIw17Nz2
-         qAHyM9pqHSdpvBAwPob1w4503RTgl718Y5e2kPKj8qBaSBX53g+bRTuDxKa0z5TrGX
-         zziICgK4zIfo9BMGOPhIwCi2C/66jXyyppEN+xEM=
+        b=tifwBfwV3GOVfag2XA8j8rWT8ZwJAwFxSX8QAPsENlGiiTsjUuCuuwo7ydA+acBUD
+         Zw38iqSxWuyaIG69O+pwh8BShKfGkl2ZicK6rQ85nOk/m9Hiz9a6VmHWOhEJ8acRU2
+         VAAdW0J00FoHPvmBs57KB36PoF4qQpkz5Je4eEk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "faqiang.zhu" <faqiang.zhu@nxp.com>,
-        Li Jun <jun.li@nxp.com>, Peter Chen <peter.chen@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 016/131] usb: chipidea: udc: assign interrupt number to USB gadget structure
-Date:   Mon, 14 Jun 2021 12:26:17 +0200
-Message-Id: <20210614102653.543995000@linuxfoundation.org>
+Subject: [PATCH 5.10 017/131] isdn: mISDN: netjet: Fix crash in nj_probe:
+Date:   Mon, 14 Jun 2021 12:26:18 +0200
+Message-Id: <20210614102653.575864161@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -40,101 +40,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 9e3927f6373da54cb17e17f4bd700907e1123d2f ]
+[ Upstream commit 9f6f852550d0e1b7735651228116ae9d300f69b3 ]
 
-Chipidea also need sync interrupt before unbind the udc while
-gadget remove driver, otherwise setup irq handling may happen
-while unbind, see below dump generated from android function
-switch stress test:
+'nj_setup' in netjet.c might fail with -EIO and in this case
+'card->irq' is initialized and is bigger than zero. A subsequent call to
+'nj_release' will free the irq that has not been requested.
 
-[ 4703.503056] android_work: sent uevent USB_STATE=CONNECTED
-[ 4703.514642] android_work: sent uevent USB_STATE=DISCONNECTED
-[ 4703.651339] android_work: sent uevent USB_STATE=CONNECTED
-[ 4703.661806] init: Control message: Processed ctl.stop for 'adbd' from pid: 561 (system_server)
-[ 4703.673469] init: processing action (init.svc.adbd=stopped) from (/system/etc/init/hw/init.usb.configfs.rc:14)
-[ 4703.676451] Unable to handle kernel read from unreadable memory at virtual address 0000000000000090
-[ 4703.676454] Mem abort info:
-[ 4703.676458]   ESR = 0x96000004
-[ 4703.676461]   EC = 0x25: DABT (current EL), IL = 32 bits
-[ 4703.676464]   SET = 0, FnV = 0
-[ 4703.676466]   EA = 0, S1PTW = 0
-[ 4703.676468] Data abort info:
-[ 4703.676471]   ISV = 0, ISS = 0x00000004
-[ 4703.676473]   CM = 0, WnR = 0
-[ 4703.676478] user pgtable: 4k pages, 48-bit VAs, pgdp=000000004a867000
-[ 4703.676481] [0000000000000090] pgd=0000000000000000, p4d=0000000000000000
-[ 4703.676503] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[ 4703.758297] Modules linked in: synaptics_dsx_i2c moal(O) mlan(O)
-[ 4703.764327] CPU: 0 PID: 235 Comm: lmkd Tainted: G        W  O      5.10.9-00001-g3f5fd8487c38-dirty #63
-[ 4703.773720] Hardware name: NXP i.MX8MNano EVK board (DT)
-[ 4703.779033] pstate: 60400085 (nZCv daIf +PAN -UAO -TCO BTYPE=--)
-[ 4703.785046] pc : _raw_write_unlock_bh+0xc0/0x2c8
-[ 4703.789667] lr : android_setup+0x4c/0x168
-[ 4703.793676] sp : ffff80001256bd80
-[ 4703.796989] x29: ffff80001256bd80 x28: 00000000000000a8
-[ 4703.802304] x27: ffff800012470000 x26: ffff80006d923000
-[ 4703.807616] x25: ffff800012471000 x24: ffff00000b091140
-[ 4703.812929] x23: ffff0000077dbd38 x22: ffff0000077da490
-[ 4703.818242] x21: ffff80001256be30 x20: 0000000000000000
-[ 4703.823554] x19: 0000000000000080 x18: ffff800012561048
-[ 4703.828867] x17: 0000000000000000 x16: 0000000000000039
-[ 4703.834180] x15: ffff8000106ad258 x14: ffff80001194c277
-[ 4703.839493] x13: 0000000000003934 x12: 0000000000000000
-[ 4703.844805] x11: 0000000000000000 x10: 0000000000000001
-[ 4703.850117] x9 : 0000000000000000 x8 : 0000000000000090
-[ 4703.855429] x7 : 6f72646e61203a70 x6 : ffff8000124f2450
-[ 4703.860742] x5 : ffffffffffffffff x4 : 0000000000000009
-[ 4703.866054] x3 : ffff8000108a290c x2 : ffff00007fb3a9c8
-[ 4703.871367] x1 : 0000000000000000 x0 : 0000000000000090
-[ 4703.876681] Call trace:
-[ 4703.879129]  _raw_write_unlock_bh+0xc0/0x2c8
-[ 4703.883397]  android_setup+0x4c/0x168
-[ 4703.887059]  udc_irq+0x824/0xa9c
-[ 4703.890287]  ci_irq+0x124/0x148
-[ 4703.893429]  __handle_irq_event_percpu+0x84/0x268
-[ 4703.898131]  handle_irq_event+0x64/0x14c
-[ 4703.902054]  handle_fasteoi_irq+0x110/0x210
-[ 4703.906236]  __handle_domain_irq+0x8c/0xd4
-[ 4703.910332]  gic_handle_irq+0x6c/0x124
-[ 4703.914081]  el1_irq+0xdc/0x1c0
-[ 4703.917221]  _raw_spin_unlock_irq+0x20/0x54
-[ 4703.921405]  finish_task_switch+0x84/0x224
-[ 4703.925502]  __schedule+0x4a4/0x734
-[ 4703.928990]  schedule+0xa0/0xe8
-[ 4703.932132]  do_notify_resume+0x150/0x184
-[ 4703.936140]  work_pending+0xc/0x40c
-[ 4703.939633] Code: d5384613 521b0a69 d5184609 f9800111 (885ffd01)
-[ 4703.945732] ---[ end trace ba5c1875ae49d53c ]---
-[ 4703.950350] Kernel panic - not syncing: Oops: Fatal exception in interrupt
-[ 4703.957223] SMP: stopping secondary CPUs
-[ 4703.961151] Kernel Offset: disabled
-[ 4703.964638] CPU features: 0x0240002,2000200c
-[ 4703.968905] Memory Limit: none
-[ 4703.971963] Rebooting in 5 seconds..
+Fix this bug by deleting the previous assignment to 'card->irq' and just
+keep the assignment before 'request_irq'.
 
-Tested-by: faqiang.zhu <faqiang.zhu@nxp.com>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/1620989984-7653-1-git-send-email-jun.li@nxp.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
+The KASAN's log reveals it:
+
+[    3.354615 ] WARNING: CPU: 0 PID: 1 at kernel/irq/manage.c:1826
+free_irq+0x100/0x480
+[    3.355112 ] Modules linked in:
+[    3.355310 ] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+5.13.0-rc1-00144-g25a1298726e #13
+[    3.355816 ] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS
+rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    3.356552 ] RIP: 0010:free_irq+0x100/0x480
+[    3.356820 ] Code: 6e 08 74 6f 4d 89 f4 e8 5e ac 09 00 4d 8b 74 24 18
+4d 85 f6 75 e3 e8 4f ac 09 00 8b 75 c8 48 c7 c7 78 c1 2e 85 e8 e0 cf f5
+ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 72 33 0b 03 48 8b 43 40 4c 8b a0 80
+[    3.358012 ] RSP: 0000:ffffc90000017b48 EFLAGS: 00010082
+[    3.358357 ] RAX: 0000000000000000 RBX: ffff888104dc8000 RCX:
+0000000000000000
+[    3.358814 ] RDX: ffff8881003c8000 RSI: ffffffff8124a9e6 RDI:
+00000000ffffffff
+[    3.359272 ] RBP: ffffc90000017b88 R08: 0000000000000000 R09:
+0000000000000000
+[    3.359732 ] R10: ffffc900000179f0 R11: 0000000000001d04 R12:
+0000000000000000
+[    3.360195 ] R13: ffff888107dc6000 R14: ffff888107dc6928 R15:
+ffff888104dc80a8
+[    3.360652 ] FS:  0000000000000000(0000) GS:ffff88817bc00000(0000)
+knlGS:0000000000000000
+[    3.361170 ] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    3.361538 ] CR2: 0000000000000000 CR3: 000000000582e000 CR4:
+00000000000006f0
+[    3.362003 ] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+0000000000000000
+[    3.362175 ] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
+0000000000000400
+[    3.362175 ] Call Trace:
+[    3.362175 ]  nj_release+0x51/0x1e0
+[    3.362175 ]  nj_probe+0x450/0x950
+[    3.362175 ]  ? pci_device_remove+0x110/0x110
+[    3.362175 ]  local_pci_probe+0x45/0xa0
+[    3.362175 ]  pci_device_probe+0x12b/0x1d0
+[    3.362175 ]  really_probe+0x2a9/0x610
+[    3.362175 ]  driver_probe_device+0x90/0x1d0
+[    3.362175 ]  ? mutex_lock_nested+0x1b/0x20
+[    3.362175 ]  device_driver_attach+0x68/0x70
+[    3.362175 ]  __driver_attach+0x124/0x1b0
+[    3.362175 ]  ? device_driver_attach+0x70/0x70
+[    3.362175 ]  bus_for_each_dev+0xbb/0x110
+[    3.362175 ]  ? rdinit_setup+0x45/0x45
+[    3.362175 ]  driver_attach+0x27/0x30
+[    3.362175 ]  bus_add_driver+0x1eb/0x2a0
+[    3.362175 ]  driver_register+0xa9/0x180
+[    3.362175 ]  __pci_register_driver+0x82/0x90
+[    3.362175 ]  ? w6692_init+0x38/0x38
+[    3.362175 ]  nj_init+0x36/0x38
+[    3.362175 ]  do_one_initcall+0x7f/0x3d0
+[    3.362175 ]  ? rdinit_setup+0x45/0x45
+[    3.362175 ]  ? rcu_read_lock_sched_held+0x4f/0x80
+[    3.362175 ]  kernel_init_freeable+0x2aa/0x301
+[    3.362175 ]  ? rest_init+0x2c0/0x2c0
+[    3.362175 ]  kernel_init+0x18/0x190
+[    3.362175 ]  ? rest_init+0x2c0/0x2c0
+[    3.362175 ]  ? rest_init+0x2c0/0x2c0
+[    3.362175 ]  ret_from_fork+0x1f/0x30
+[    3.362175 ] Kernel panic - not syncing: panic_on_warn set ...
+[    3.362175 ] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+5.13.0-rc1-00144-g25a1298726e #13
+[    3.362175 ] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS
+rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    3.362175 ] Call Trace:
+[    3.362175 ]  dump_stack+0xba/0xf5
+[    3.362175 ]  ? free_irq+0x100/0x480
+[    3.362175 ]  panic+0x15a/0x3f2
+[    3.362175 ]  ? __warn+0xf2/0x150
+[    3.362175 ]  ? free_irq+0x100/0x480
+[    3.362175 ]  __warn+0x108/0x150
+[    3.362175 ]  ? free_irq+0x100/0x480
+[    3.362175 ]  report_bug+0x119/0x1c0
+[    3.362175 ]  handle_bug+0x3b/0x80
+[    3.362175 ]  exc_invalid_op+0x18/0x70
+[    3.362175 ]  asm_exc_invalid_op+0x12/0x20
+[    3.362175 ] RIP: 0010:free_irq+0x100/0x480
+[    3.362175 ] Code: 6e 08 74 6f 4d 89 f4 e8 5e ac 09 00 4d 8b 74 24 18
+4d 85 f6 75 e3 e8 4f ac 09 00 8b 75 c8 48 c7 c7 78 c1 2e 85 e8 e0 cf f5
+ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 72 33 0b 03 48 8b 43 40 4c 8b a0 80
+[    3.362175 ] RSP: 0000:ffffc90000017b48 EFLAGS: 00010082
+[    3.362175 ] RAX: 0000000000000000 RBX: ffff888104dc8000 RCX:
+0000000000000000
+[    3.362175 ] RDX: ffff8881003c8000 RSI: ffffffff8124a9e6 RDI:
+00000000ffffffff
+[    3.362175 ] RBP: ffffc90000017b88 R08: 0000000000000000 R09:
+0000000000000000
+[    3.362175 ] R10: ffffc900000179f0 R11: 0000000000001d04 R12:
+0000000000000000
+[    3.362175 ] R13: ffff888107dc6000 R14: ffff888107dc6928 R15:
+ffff888104dc80a8
+[    3.362175 ]  ? vprintk+0x76/0x150
+[    3.362175 ]  ? free_irq+0x100/0x480
+[    3.362175 ]  nj_release+0x51/0x1e0
+[    3.362175 ]  nj_probe+0x450/0x950
+[    3.362175 ]  ? pci_device_remove+0x110/0x110
+[    3.362175 ]  local_pci_probe+0x45/0xa0
+[    3.362175 ]  pci_device_probe+0x12b/0x1d0
+[    3.362175 ]  really_probe+0x2a9/0x610
+[    3.362175 ]  driver_probe_device+0x90/0x1d0
+[    3.362175 ]  ? mutex_lock_nested+0x1b/0x20
+[    3.362175 ]  device_driver_attach+0x68/0x70
+[    3.362175 ]  __driver_attach+0x124/0x1b0
+[    3.362175 ]  ? device_driver_attach+0x70/0x70
+[    3.362175 ]  bus_for_each_dev+0xbb/0x110
+[    3.362175 ]  ? rdinit_setup+0x45/0x45
+[    3.362175 ]  driver_attach+0x27/0x30
+[    3.362175 ]  bus_add_driver+0x1eb/0x2a0
+[    3.362175 ]  driver_register+0xa9/0x180
+[    3.362175 ]  __pci_register_driver+0x82/0x90
+[    3.362175 ]  ? w6692_init+0x38/0x38
+[    3.362175 ]  nj_init+0x36/0x38
+[    3.362175 ]  do_one_initcall+0x7f/0x3d0
+[    3.362175 ]  ? rdinit_setup+0x45/0x45
+[    3.362175 ]  ? rcu_read_lock_sched_held+0x4f/0x80
+[    3.362175 ]  kernel_init_freeable+0x2aa/0x301
+[    3.362175 ]  ? rest_init+0x2c0/0x2c0
+[    3.362175 ]  kernel_init+0x18/0x190
+[    3.362175 ]  ? rest_init+0x2c0/0x2c0
+[    3.362175 ]  ? rest_init+0x2c0/0x2c0
+[    3.362175 ]  ret_from_fork+0x1f/0x30
+[    3.362175 ] Dumping ftrace buffer:
+[    3.362175 ]    (ftrace buffer empty)
+[    3.362175 ] Kernel Offset: disabled
+[    3.362175 ] Rebooting in 1 seconds..
+
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/udc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/isdn/hardware/mISDN/netjet.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
-index 60ea932afe2b..5f35cdd2cf1d 100644
---- a/drivers/usb/chipidea/udc.c
-+++ b/drivers/usb/chipidea/udc.c
-@@ -2055,6 +2055,7 @@ static int udc_start(struct ci_hdrc *ci)
- 	ci->gadget.name         = ci->platdata->name;
- 	ci->gadget.otg_caps	= otg_caps;
- 	ci->gadget.sg_supported = 1;
-+	ci->gadget.irq		= ci->irq;
+diff --git a/drivers/isdn/hardware/mISDN/netjet.c b/drivers/isdn/hardware/mISDN/netjet.c
+index ee925b58bbce..2a1ddd47a096 100644
+--- a/drivers/isdn/hardware/mISDN/netjet.c
++++ b/drivers/isdn/hardware/mISDN/netjet.c
+@@ -1100,7 +1100,6 @@ nj_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		card->typ = NETJET_S_TJ300;
  
- 	if (ci->platdata->flags & CI_HDRC_REQUIRES_ALIGNED_DMA)
- 		ci->gadget.quirk_avoids_skb_reserve = 1;
+ 	card->base = pci_resource_start(pdev, 0);
+-	card->irq = pdev->irq;
+ 	pci_set_drvdata(pdev, card);
+ 	err = setup_instance(card);
+ 	if (err)
 -- 
 2.30.2
 
