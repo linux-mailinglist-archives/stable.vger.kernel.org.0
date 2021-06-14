@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 064113A627E
+	by mail.lfdr.de (Postfix) with ESMTP id 72C663A627F
 	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234283AbhFNLBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36694 "EHLO mail.kernel.org"
+        id S234291AbhFNLBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:01:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234755AbhFNK7I (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234756AbhFNK7I (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Jun 2021 06:59:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 591BD6142B;
-        Mon, 14 Jun 2021 10:42:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA11761432;
+        Mon, 14 Jun 2021 10:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667331;
-        bh=4CVml7otjDJGwBs2cMscAqEdXLLanjVXMjd5sFkOvo0=;
+        s=korg; t=1623667334;
+        bh=rBdCQKo4oTB5NfIG2Xln7Et4gcFivtkkr+NcTYq4zbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQ3xDdHAJ0dWa1VxArTcbI0OicLrEe8pKYhh2iY7S6lmynhlcx6XAHD86QAiiPHOF
-         MDZYWj+c+A+bzTJC5VrFkkTdGGZTsiQSZip38Ar/YfGVh8Aok5OP/VQOlikf9CvfPX
-         B4bXmB+mI8ko8NpvfUoSsCW2Nk2M9AXqLKc2gHN8=
+        b=KmaYO1XsDs4TuMjqzlh2SxBJn/yebvok89420PzRm1mm2Ucjs4Xp1DbvRBzfDKvnA
+         pYF9dIXebQX8ndvK2pt1NMI6ngT0niBZNy8HtrviIDDk1p4RYQHMqi7cehPS0vYoD1
+         lHp5NKow7bF0GxiBsZ/dXeJ+rIysDp45+NVaGZso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
-        Dmitry Bogdanov <d.bogdanov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Zong Li <zong.li@sifive.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 029/131] scsi: target: qla2xxx: Wait for stop_phase1 at WWN removal
-Date:   Mon, 14 Jun 2021 12:26:30 +0200
-Message-Id: <20210614102653.999205807@linuxfoundation.org>
+Subject: [PATCH 5.10 030/131] net: macb: ensure the device is available before accessing GEMGXL control registers
+Date:   Mon, 14 Jun 2021 12:26:31 +0200
+Message-Id: <20210614102654.039561750@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -41,80 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <d.bogdanov@yadro.com>
+From: Zong Li <zong.li@sifive.com>
 
-[ Upstream commit 2ef7665dfd88830f15415ba007c7c9a46be7acd8 ]
+[ Upstream commit 5eff1461a6dec84f04fafa9128548bad51d96147 ]
 
-Target de-configuration panics at high CPU load because TPGT and WWPN can
-be removed on separate threads.
+If runtime power menagement is enabled, the gigabit ethernet PLL would
+be disabled after macb_probe(). During this period of time, the system
+would hang up if we try to access GEMGXL control registers.
 
-TPGT removal requests a reset HBA on a separate thread and waits for reset
-complete (phase1). Due to high CPU load that HBA reset can be delayed for
-some time.
+We can't put runtime_pm_get/runtime_pm_put/ there due to the issue of
+sleep inside atomic section (7fa2955ff70ce453 ("sh_eth: Fix sleeping
+function called from invalid context"). Add netif_running checking to
+ensure the device is available before accessing GEMGXL device.
 
-WWPN removal does qlt_stop_phase2(). There it is believed that phase1 has
-already completed and thus tgt.tgt_ops is subsequently cleared. However,
-tgt.tgt_ops is needed to process incoming traffic and therefore this will
-cause one of the following panics:
+Changed in v2:
+ - Use netif_running instead of its own flag
 
-NIP qlt_reset+0x7c/0x220 [qla2xxx]
-LR  qlt_reset+0x68/0x220 [qla2xxx]
-Call Trace:
-0xc000003ffff63a78 (unreliable)
-qlt_handle_imm_notify+0x800/0x10c0 [qla2xxx]
-qlt_24xx_atio_pkt+0x208/0x590 [qla2xxx]
-qlt_24xx_process_atio_queue+0x33c/0x7a0 [qla2xxx]
-qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
-
-or
-
-NIP qlt_24xx_handle_abts+0xd0/0x2a0 [qla2xxx]
-LR  qlt_24xx_handle_abts+0xb4/0x2a0 [qla2xxx]
-Call Trace:
-qlt_24xx_handle_abts+0x90/0x2a0 [qla2xxx] (unreliable)
-qlt_24xx_process_atio_queue+0x500/0x7a0 [qla2xxx]
-qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
-
-or
-
-NIP qlt_create_sess+0x90/0x4e0 [qla2xxx]
-LR  qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
-Call Trace:
-0xc0000000348fba30 (unreliable)
-qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
-qla2x00_do_work+0x674/0xbf0 [qla2xxx]
-qla2x00_iocb_work_fn
-
-The patch fixes the issue by serializing qlt_stop_phase1() and
-qlt_stop_phase2() functions to make WWPN removal wait for phase1
-completion.
-
-Link: https://lore.kernel.org/r/20210415203554.27890-1-d.bogdanov@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Zong Li <zong.li@sifive.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/cadence/macb_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index dcae8f071c35..8d4976725a75 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -1559,10 +1559,12 @@ void qlt_stop_phase2(struct qla_tgt *tgt)
- 		return;
- 	}
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 390f45e49eaf..1e8bf6b9834b 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -2709,6 +2709,9 @@ static struct net_device_stats *gem_get_stats(struct macb *bp)
+ 	struct gem_stats *hwstat = &bp->hw_stats.gem;
+ 	struct net_device_stats *nstat = &bp->dev->stats;
  
-+	mutex_lock(&tgt->ha->optrom_mutex);
- 	mutex_lock(&vha->vha_tgt.tgt_mutex);
- 	tgt->tgt_stop = 0;
- 	tgt->tgt_stopped = 1;
- 	mutex_unlock(&vha->vha_tgt.tgt_mutex);
-+	mutex_unlock(&tgt->ha->optrom_mutex);
++	if (!netif_running(bp->dev))
++		return nstat;
++
+ 	gem_update_stats(bp);
  
- 	ql_dbg(ql_dbg_tgt_mgt, vha, 0xf00c, "Stop of tgt %p finished\n",
- 	    tgt);
+ 	nstat->rx_errors = (hwstat->rx_frame_check_sequence_errors +
 -- 
 2.30.2
 
