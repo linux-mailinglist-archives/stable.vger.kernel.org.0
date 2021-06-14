@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E74B3A60F0
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 425213A60F2
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233716AbhFNKk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:40:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40542 "EHLO mail.kernel.org"
+        id S233721AbhFNKk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:40:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233825AbhFNKiS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233826AbhFNKiS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Jun 2021 06:38:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5D2661242;
-        Mon, 14 Jun 2021 10:33:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C4D2613D9;
+        Mon, 14 Jun 2021 10:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666832;
-        bh=uODCy0NfaMyVhFlnfZ3ODB4zEI5OEA519WoqO15KXU8=;
+        s=korg; t=1623666835;
+        bh=xWEwteo7NPXPsxqEdDDHdF/rrWH2BGQ2zXlGiNMmXxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CsaaqDE/cgT0YOlXrSMUEKzlKCrqd4YWHpAQP4eRS/5z0QFbWRCgL+YiyDIbEBVN
-         YGbEUAgmDr+sAkqvv7cF17imoWPQHWiVlTBGMuSReBvy/nwhidyhqn7nxLQrtzfEyC
-         s/8qT/gan+zYi7Gs6EHHYCJ8lr53cniRBDHY8e6k=
+        b=Lmx4d1NnGi+IPP3Flzz22CzSh6ZXY8XV56LxoKjJ6lq0soIzztkJUJWE/qv5qqf7K
+         Kj74FDD2J+LNrTvT0s+/fJMBJ8XOCaGmavlbEYil4A8sGtIIfECw/8zPZqDvi31iRO
+         vsxZOxbYVsE6aq7NoW9kY6FyRHXnLouIMaeG7DLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.de>,
         John Garry <john.garry@huawei.com>,
-        Ming Lei <ming.lei@redhat.com>,
+        Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 46/49] scsi: core: Put .shost_dev in failure path if host state changes to RUNNING
-Date:   Mon, 14 Jun 2021 12:27:39 +0200
-Message-Id: <20210614102643.363691505@linuxfoundation.org>
+Subject: [PATCH 4.14 47/49] scsi: core: Only put parent device if host state differs from SHOST_CREATED
+Date:   Mon, 14 Jun 2021 12:27:40 +0200
+Message-Id: <20210614102643.394116029@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
 References: <20210614102641.857724541@linuxfoundation.org>
@@ -44,58 +43,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ming Lei <ming.lei@redhat.com>
 
-commit 11714026c02d613c30a149c3f4c4a15047744529 upstream.
+commit 1e0d4e6225996f05271de1ebcb1a7c9381af0b27 upstream.
 
-scsi_host_dev_release() only frees dev_name when host state is
-SHOST_CREATED. After host state has changed to SHOST_RUNNING,
-scsi_host_dev_release() no longer cleans up.
+get_device(shost->shost_gendev.parent) is called after host state has
+switched to SHOST_RUNNING. scsi_host_dev_release() shouldn't release the
+parent device if host state is still SHOST_CREATED.
 
-Fix this by doing a put_device(&shost->shost_dev) in the failure path when
-host state is SHOST_RUNNING. Move get_device(&shost->shost_gendev) before
-device_add(&shost->shost_dev) so that scsi_host_cls_release() can do a put
-on this reference.
-
-Link: https://lore.kernel.org/r/20210602133029.2864069-4-ming.lei@redhat.com
+Link: https://lore.kernel.org/r/20210602133029.2864069-5-ming.lei@redhat.com
 Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: John Garry <john.garry@huawei.com>
 Cc: Hannes Reinecke <hare@suse.de>
-Reported-by: John Garry <john.garry@huawei.com>
 Tested-by: John Garry <john.garry@huawei.com>
 Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Ming Lei <ming.lei@redhat.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hosts.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/scsi/hosts.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/scsi/hosts.c
 +++ b/drivers/scsi/hosts.c
-@@ -256,12 +256,11 @@ int scsi_add_host_with_dma(struct Scsi_H
+@@ -355,7 +355,7 @@ static void scsi_host_dev_release(struct
  
- 	device_enable_async_suspend(&shost->shost_dev);
+ 	ida_simple_remove(&host_index_ida, shost->host_no);
  
-+	get_device(&shost->shost_gendev);
- 	error = device_add(&shost->shost_dev);
- 	if (error)
- 		goto out_del_gendev;
- 
--	get_device(&shost->shost_gendev);
--
- 	if (shost->transportt->host_size) {
- 		shost->shost_data = kzalloc(shost->transportt->host_size,
- 					 GFP_KERNEL);
-@@ -298,6 +297,11 @@ int scsi_add_host_with_dma(struct Scsi_H
-  out_del_dev:
- 	device_del(&shost->shost_dev);
-  out_del_gendev:
-+	/*
-+	 * Host state is SHOST_RUNNING so we have to explicitly release
-+	 * ->shost_dev.
-+	 */
-+	put_device(&shost->shost_dev);
- 	device_del(&shost->shost_gendev);
-  out_disable_runtime_pm:
- 	device_disable_async_suspend(&shost->shost_gendev);
+-	if (parent)
++	if (shost->shost_state != SHOST_CREATED)
+ 		put_device(parent);
+ 	kfree(shost);
+ }
 
 
