@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 361173A61EB
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9A03A6106
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:39:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233362AbhFNKxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:53:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52688 "EHLO mail.kernel.org"
+        id S233780AbhFNKlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234050AbhFNKvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:51:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 603FC61464;
-        Mon, 14 Jun 2021 10:38:52 +0000 (UTC)
+        id S233984AbhFNKj3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:39:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0816613F0;
+        Mon, 14 Jun 2021 10:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667133;
-        bh=D6ZED7p3zja0m7Hj1BJucKeJYgz7zyrlAByLjarxpyk=;
+        s=korg; t=1623666854;
+        bh=dA5bjy7QX3MLpTI+QsI2EARSHA+gqsgQ+gB3nd4Mz8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gek5h/2sNfwq9cQhWclcygp2oC/eMm74rVqBbV5eWZhUR5qudsDw7Oe/HMdr97N4M
-         YYM4MT91obLcAkR84dZw9lXzAgSJlfzPM6679loelCG82jADTKlCjnT+kZJH5iz3tE
-         hQOIFMzHEsbXEGOtdweIRSx9zi0DKe/8yr1vYoOQ=
+        b=mKX2MvTJpGiUUTJB30CxTsEA4Isfk7FO9tpedJ1Fi3L+W7PKRJroLmShFeltINkDS
+         VeKc1ED7cDOSSGPxIrPwtyU/0RcuWWutyOhDvFt9oaW/dFlJFMgASlkiy4NSmxR+K7
+         IloBPnJPUvrSx6Xv4eTjXfyTEj4DyqZ9jaBVlKbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.4 40/84] drm: Lock pointer access in drm_master_release()
+        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 25/49] btrfs: return value from btrfs_mark_extent_written() in case of error
 Date:   Mon, 14 Jun 2021 12:27:18 +0200
-Message-Id: <20210614102647.732502686@linuxfoundation.org>
+Message-Id: <20210614102642.691369531@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-commit c336a5ee984708db4826ef9e47d184e638e29717 upstream.
+commit e7b2ec3d3d4ebeb4cff7ae45cf430182fa6a49fb upstream.
 
-This patch eliminates the following smatch warning:
-drivers/gpu/drm/drm_auth.c:320 drm_master_release() warn: unlocked access 'master' (line 318) expected lock '&dev->master_mutex'
+We always return 0 even in case of an error in btrfs_mark_extent_written().
+Fix it to return proper error value in case of a failure. All callers
+handle it.
 
-The 'file_priv->master' field should be protected by the mutex lock to
-'&dev->master_mutex'. This is because other processes can concurrently
-modify this field and free the current 'file_priv->master'
-pointer. This could result in a use-after-free error when 'master' is
-dereferenced in subsequent function calls to
-'drm_legacy_lock_master_cleanup()' or to 'drm_lease_revoke()'.
-
-An example of a scenario that would produce this error can be seen
-from a similar bug in 'drm_getunique()' that was reported by Syzbot:
-https://syzkaller.appspot.com/bug?id=148d2f1dfac64af52ffd27b661981a540724f803
-
-In the Syzbot report, another process concurrently acquired the
-device's master mutex in 'drm_setmaster_ioctl()', then overwrote
-'fpriv->master' in 'drm_new_set_master()'. The old value of
-'fpriv->master' was subsequently freed before the mutex was unlocked.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210609092119.173590-1-desmondcheongzx@gmail.com
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_auth.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/file.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_auth.c
-+++ b/drivers/gpu/drm/drm_auth.c
-@@ -268,9 +268,10 @@ int drm_master_open(struct drm_file *fil
- void drm_master_release(struct drm_file *file_priv)
- {
- 	struct drm_device *dev = file_priv->minor->dev;
--	struct drm_master *master = file_priv->master;
-+	struct drm_master *master;
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1100,7 +1100,7 @@ int btrfs_mark_extent_written(struct btr
+ 	int del_nr = 0;
+ 	int del_slot = 0;
+ 	int recow;
+-	int ret;
++	int ret = 0;
+ 	u64 ino = btrfs_ino(inode);
  
- 	mutex_lock(&dev->master_mutex);
-+	master = file_priv->master;
- 	if (file_priv->magic)
- 		idr_remove(&file_priv->master->magic_map, file_priv->magic);
+ 	path = btrfs_alloc_path();
+@@ -1320,7 +1320,7 @@ again:
+ 	}
+ out:
+ 	btrfs_free_path(path);
+-	return 0;
++	return ret;
+ }
  
+ /*
 
 
