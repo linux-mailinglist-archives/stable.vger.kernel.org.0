@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A00E13A6471
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:23:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 048513A6335
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232775AbhFNLZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:25:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50454 "EHLO mail.kernel.org"
+        id S234176AbhFNLL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:11:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235112AbhFNLWT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:22:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C399C611CA;
-        Mon, 14 Jun 2021 10:52:31 +0000 (UTC)
+        id S233025AbhFNLHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:07:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EEBB61930;
+        Mon, 14 Jun 2021 10:46:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667952;
-        bh=5j+UuKM1H9kfB9W91AEjqQUEDdJ/O8DXtfhWcR0/Mx0=;
+        s=korg; t=1623667563;
+        bh=HschcZvN4hezXY4DSCghgaTzlnM+FqVxKmRTWtTIU9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzdXykEpe5TU/Daqjm4KKN59RogVFNzoSgJKXf0JPD34tJobXQR/8UCXZezNVYiSD
-         QtpvX87NSfQ+aspYDccjxkzMujqXFYvvXAuCLRhkMkCcvPEdXr12N8ZmG1kCy5EKDt
-         8TXMQ4kxMqjCZugWEcw+DwtcBR0de/CbQReiMqb4=
+        b=Djh1kdQn/2SDuCI48ycM/BfMx4E3UdJx6gOnt+y6LDWsofrMeJceZEgtOrpmxvfDG
+         1STXdv4mr0H+dyI9t5fxN94RIXZd+KAcyFMezmtux4Y6R9o+szYow6m78ENpkDP8NH
+         IlDdg1dyF+/46wQj23FoIl8G4VO94yQfGtBmUKFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pawel Laszczak <pawell@cadence.com>,
-        Peter Chen <peter.chen@kernel.org>
-Subject: [PATCH 5.12 105/173] usb: cdnsp: Fix deadlock issue in cdnsp_thread_irq_handler
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.10 076/131] usb: typec: wcove: Use LE to CPU conversion when accessing msg->header
 Date:   Mon, 14 Jun 2021 12:27:17 +0200
-Message-Id: <20210614102701.660621135@linuxfoundation.org>
+Message-Id: <20210614102655.609881574@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,107 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit a9aecef198faae3240921b707bc09b602e966fce upstream.
+commit d5ab95da2a41567440097c277c5771ad13928dad upstream.
 
-Patch fixes the following critical issue caused by deadlock which has been
-detected during testing NCM class:
+As LKP noticed the Sparse is not happy about strict type handling:
+   .../typec/tcpm/wcove.c:380:50: sparse:     expected unsigned short [usertype] header
+   .../typec/tcpm/wcove.c:380:50: sparse:     got restricted __le16 const [usertype] header
 
-smp: csd: Detected non-responsive CSD lock (#1) on CPU#0
-smp:     csd: CSD lock (#1) unresponsive.
-....
-RIP: 0010:native_queued_spin_lock_slowpath+0x61/0x1d0
-RSP: 0018:ffffbc494011cde0 EFLAGS: 00000002
-RAX: 0000000000000101 RBX: ffff9ee8116b4a68 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9ee8116b4658
-RBP: ffffbc494011cde0 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff9ee8116b4670 R11: 0000000000000000 R12: ffff9ee8116b4658
-R13: ffff9ee8116b4670 R14: 0000000000000246 R15: ffff9ee8116b4658
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f7bcc41a830 CR3: 000000007a612003 CR4: 00000000001706e0
-Call Trace:
- <IRQ>
- do_raw_spin_lock+0xc0/0xd0
- _raw_spin_lock_irqsave+0x95/0xa0
- cdnsp_gadget_ep_queue.cold+0x88/0x107 [cdnsp_udc_pci]
- usb_ep_queue+0x35/0x110
- eth_start_xmit+0x220/0x3d0 [u_ether]
- ncm_tx_timeout+0x34/0x40 [usb_f_ncm]
- ? ncm_free_inst+0x50/0x50 [usb_f_ncm]
- __hrtimer_run_queues+0xac/0x440
- hrtimer_run_softirq+0x8c/0xb0
- __do_softirq+0xcf/0x428
- asm_call_irq_on_stack+0x12/0x20
- </IRQ>
- do_softirq_own_stack+0x61/0x70
- irq_exit_rcu+0xc1/0xd0
- sysvec_apic_timer_interrupt+0x52/0xb0
- asm_sysvec_apic_timer_interrupt+0x12/0x20
-RIP: 0010:do_raw_spin_trylock+0x18/0x40
-RSP: 0018:ffffbc494138bda8 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffff9ee8116b4658 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff9ee8116b4658
-RBP: ffffbc494138bda8 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff9ee8116b4670 R11: 0000000000000000 R12: ffff9ee8116b4658
-R13: ffff9ee8116b4670 R14: ffff9ee7b5c73d80 R15: ffff9ee8116b4000
- _raw_spin_lock+0x3d/0x70
- ? cdnsp_thread_irq_handler.cold+0x32/0x112c [cdnsp_udc_pci]
- cdnsp_thread_irq_handler.cold+0x32/0x112c [cdnsp_udc_pci]
- ? cdnsp_remove_request+0x1f0/0x1f0 [cdnsp_udc_pci]
- ? cdnsp_thread_irq_handler+0x5/0xa0 [cdnsp_udc_pci]
- ? irq_thread+0xa0/0x1c0
- irq_thread_fn+0x28/0x60
- irq_thread+0x105/0x1c0
- ? __kthread_parkme+0x42/0x90
- ? irq_forced_thread_fn+0x90/0x90
- ? wake_threads_waitq+0x30/0x30
- ? irq_thread_check_affinity+0xe0/0xe0
- kthread+0x12a/0x160
- ? kthread_park+0x90/0x90
- ret_from_fork+0x22/0x30
+Fix this by switching to use pd_header_cnt_le() instead of pd_header_cnt()
+in the affected code.
 
-The root cause of issue is spin_lock/spin_unlock instruction instead
-spin_lock_irqsave/spin_lock_irqrestore in cdnsp_thread_irq_handler
-function.
-
-Cc: stable@vger.kernel.org
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20210526060527.7197-1-pawell@gli-login.cadence.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
+Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
+Fixes: 3c4fb9f16921 ("usb: typec: wcove: start using tcpm for USB PD support")
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210609172202.83377-1-andriy.shevchenko@linux.intel.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-ring.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/typec/tcpm/wcove.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/cdns3/cdnsp-ring.c
-+++ b/drivers/usb/cdns3/cdnsp-ring.c
-@@ -1517,13 +1517,14 @@ irqreturn_t cdnsp_thread_irq_handler(int
- {
- 	struct cdnsp_device *pdev = (struct cdnsp_device *)data;
- 	union cdnsp_trb *event_ring_deq;
-+	unsigned long flags;
- 	int counter = 0;
+--- a/drivers/usb/typec/tcpm/wcove.c
++++ b/drivers/usb/typec/tcpm/wcove.c
+@@ -377,7 +377,7 @@ static int wcove_pd_transmit(struct tcpc
+ 		const u8 *data = (void *)msg;
+ 		int i;
  
--	spin_lock(&pdev->lock);
-+	spin_lock_irqsave(&pdev->lock, flags);
- 
- 	if (pdev->cdnsp_state & (CDNSP_STATE_HALTED | CDNSP_STATE_DYING)) {
- 		cdnsp_died(pdev);
--		spin_unlock(&pdev->lock);
-+		spin_unlock_irqrestore(&pdev->lock, flags);
- 		return IRQ_HANDLED;
- 	}
- 
-@@ -1539,7 +1540,7 @@ irqreturn_t cdnsp_thread_irq_handler(int
- 
- 	cdnsp_update_erst_dequeue(pdev, event_ring_deq, 1);
- 
--	spin_unlock(&pdev->lock);
-+	spin_unlock_irqrestore(&pdev->lock, flags);
- 
- 	return IRQ_HANDLED;
- }
+-		for (i = 0; i < pd_header_cnt(msg->header) * 4 + 2; i++) {
++		for (i = 0; i < pd_header_cnt_le(msg->header) * 4 + 2; i++) {
+ 			ret = regmap_write(wcove->regmap, USBC_TX_DATA + i,
+ 					   data[i]);
+ 			if (ret)
 
 
