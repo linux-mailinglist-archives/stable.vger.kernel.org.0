@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 674893A60A7
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35AFB3A620E
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233256AbhFNKgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:36:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40542 "EHLO mail.kernel.org"
+        id S233791AbhFNKz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:55:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233281AbhFNKfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:35:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C79CF61004;
-        Mon, 14 Jun 2021 10:32:16 +0000 (UTC)
+        id S234525AbhFNKw5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:52:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D34A6147E;
+        Mon, 14 Jun 2021 10:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666737;
-        bh=ckN1z2tVaQ1YA+b0uaeb4c69ZdcSbgwlSMC8rFkpyDQ=;
+        s=korg; t=1623667185;
+        bh=Qsd7/ZcxgyX7sGOwkV0r3LGLN/TenipAy3EBGId8fNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GB+s6RQ6gmy7Lbb8SEK7a93YrFRTzGBAQRXwquUKkdrH90sldJCd9qujx2BjgGgSG
-         Z5Sj0I0pyhA41EoqA7u5fY0Ry/9bmsLTcTdJv4VRyh+e2UXqgzq0xBFbQvtGZ2NO/4
-         P5eVyLi2B0zcsUvzyTQnXSHnfkus4n0nLlVi3QLc=
+        b=g+YMZ3GLErPTtpqa8hYdKBH7EHGztbM4JTnA3tTxyM49i+bBKmEBsfxFEZ1QOjfDR
+         sS6XPveiuQAzKy6pIUQQCiLHB6scIebzqxSG4QBT3VPxNsgAdJGmM+uz1WUzLfRlPz
+         n1Hx2tZKmZ/uDDF5jxG5osRWXV9yyCm4K8J0LVMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Wang <wwentao@vmware.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/49] scsi: vmw_pvscsi: Set correct residual data length
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 26/84] nvme-fabrics: decode host pathing error for connect
 Date:   Mon, 14 Jun 2021 12:27:04 +0200
-Message-Id: <20210614102642.248297404@linuxfoundation.org>
+Message-Id: <20210614102647.243331557@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Wang <wwentao@vmware.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit e662502b3a782d479e67736a5a1c169a703d853a ]
+[ Upstream commit 4d9442bf263ac45d495bb7ecf75009e59c0622b2 ]
 
-Some commands (such as INQUIRY) may return less data than the initiator
-requested. To avoid conducting useless information, set the right residual
-count to make upper layer aware of this.
+Add an additional decoding for 'host pathing error' during connect.
 
-Before (INQUIRY PAGE 0xB0 with 128B buffer):
-
-$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
-SCSI Status: Good
-
-Received 128 bytes of data:
- 00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
- 10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
- 20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
- 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 50 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 60 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 70 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-
-After:
-
-$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
-SCSI Status: Good
-
-Received 64 bytes of data:
-00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
-10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
-20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
-30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-
-[mkp: clarified description]
-
-Link: https://lore.kernel.org/r/03C41093-B62E-43A2-913E-CFC92F1C70C3@vmware.com
-Signed-off-by: Matt Wang <wwentao@vmware.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/vmw_pvscsi.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/nvme/host/fabrics.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/vmw_pvscsi.c b/drivers/scsi/vmw_pvscsi.c
-index 64eb8ffb2ddf..2c707b5c7b0b 100644
---- a/drivers/scsi/vmw_pvscsi.c
-+++ b/drivers/scsi/vmw_pvscsi.c
-@@ -574,7 +574,13 @@ static void pvscsi_complete_request(struct pvscsi_adapter *adapter,
- 		case BTSTAT_SUCCESS:
- 		case BTSTAT_LINKED_COMMAND_COMPLETED:
- 		case BTSTAT_LINKED_COMMAND_COMPLETED_WITH_FLAG:
--			/* If everything went fine, let's move on..  */
-+			/*
-+			 * Commands like INQUIRY may transfer less data than
-+			 * requested by the initiator via bufflen. Set residual
-+			 * count to make upper layer aware of the actual amount
-+			 * of data returned.
-+			 */
-+			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
- 			cmd->result = (DID_OK << 16);
- 			break;
+diff --git a/drivers/nvme/host/fabrics.c b/drivers/nvme/host/fabrics.c
+index 3bb71f177dfd..d884187d7706 100644
+--- a/drivers/nvme/host/fabrics.c
++++ b/drivers/nvme/host/fabrics.c
+@@ -336,6 +336,11 @@ static void nvmf_log_connect_error(struct nvme_ctrl *ctrl,
+ 			cmd->connect.recfmt);
+ 		break;
  
++	case NVME_SC_HOST_PATH_ERROR:
++		dev_err(ctrl->device,
++			"Connect command failed: host path error\n");
++		break;
++
+ 	default:
+ 		dev_err(ctrl->device,
+ 			"Connect command failed, error wo/DNR bit: %d\n",
 -- 
 2.30.2
 
