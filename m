@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6828F3A6057
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74CEC3A60AC
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233276AbhFNKd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:33:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
+        id S233422AbhFNKg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:36:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233055AbhFNKcw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:32:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFA5E611C1;
-        Mon, 14 Jun 2021 10:30:36 +0000 (UTC)
+        id S233161AbhFNKfF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:35:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A499961350;
+        Mon, 14 Jun 2021 10:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666637;
-        bh=Wxtvq9eHMKPN54ne+ZQrK/BlFetohqLhABaJbiMUsWE=;
+        s=korg; t=1623666748;
+        bh=3LvHQp1xxlyxC7ZpjBoqWXgvRjOcDdp7uDfoI2xNWCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjF8vdpswRaxI0uP2sqdgH0Dc+IdaneHCovxo417zmuspHRpSE7Pcmwbbe+6kFjHU
-         j7ZHAGvGPsE0YLFPoaJoRmB6T1OURC1kCFAge42YRubNeWzk6LD8XqPAxZR2HJk9QL
-         OgdK99L7autHTtUta29T8lVjRzyJkRnlV65fypJA=
+        b=a+i8VPAFeup6dyEvYbu6s1aA66AchXcQm9SFnLO6E96AYnY2Nj/GPl/Z/6GdHAzsr
+         p2Hndg5mezcpgBukuRYY8f1eybZ+/3n+C3CiitTb6a8ap047syRSqiGhXnK1kDeqXg
+         Sgw6Ei8RLMmXvuhXwv8a1Gc3Vu4ueLRxCO68GgK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 17/42] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P2041 i2c controllers
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 15/49] MIPS: Fix kernel hang under FUNCTION_GRAPH_TRACER and PREEMPT_TRACER
 Date:   Mon, 14 Jun 2021 12:27:08 +0200
-Message-Id: <20210614102643.252875772@linuxfoundation.org>
+Message-Id: <20210614102642.368893360@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +41,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 7adc7b225cddcfd0f346d10144fd7a3d3d9f9ea7 ]
+[ Upstream commit 78cf0eb926cb1abeff2106bae67752e032fe5f3e ]
 
-The i2c controllers on the P2040/P2041 have an erratum where the
-documented scheme for i2c bus recovery will not work (A-004447). A
-different mechanism is needed which is documented in the P2040 Chip
-Errata Rev Q (latest available at the time of writing).
+When update the latest mainline kernel with the following three configs,
+the kernel hangs during startup:
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+(1) CONFIG_FUNCTION_GRAPH_TRACER=y
+(2) CONFIG_PREEMPT_TRACER=y
+(3) CONFIG_FTRACE_STARTUP_TEST=y
+
+When update the latest mainline kernel with the above two configs (1)
+and (2), the kernel starts normally, but it still hangs when execute
+the following command:
+
+echo "function_graph" > /sys/kernel/debug/tracing/current_tracer
+
+Without CONFIG_PREEMPT_TRACER=y, the above two kinds of kernel hangs
+disappeared, so it seems that CONFIG_PREEMPT_TRACER has some influences
+with function_graph tracer at the first glance.
+
+I use ejtag to find out the epc address is related with preempt_enable()
+in the file arch/mips/lib/mips-atomic.c, because function tracing can
+trace the preempt_{enable,disable} calls that are traced, replace them
+with preempt_{enable,disable}_notrace to prevent function tracing from
+going into an infinite loop, and then it can fix the kernel hang issue.
+
+By the way, it seems that this commit is a complement and improvement of
+commit f93a1a00f2bd ("MIPS: Fix crash that occurs when function tracing
+is enabled").
+
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/p2041si-post.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ arch/mips/lib/mips-atomic.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
-index 51e975d7631a..8921f17fca42 100644
---- a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
-@@ -389,7 +389,23 @@
- 	};
+diff --git a/arch/mips/lib/mips-atomic.c b/arch/mips/lib/mips-atomic.c
+index 5530070e0d05..57497a26e79c 100644
+--- a/arch/mips/lib/mips-atomic.c
++++ b/arch/mips/lib/mips-atomic.c
+@@ -37,7 +37,7 @@
+  */
+ notrace void arch_local_irq_disable(void)
+ {
+-	preempt_disable();
++	preempt_disable_notrace();
  
- /include/ "qoriq-i2c-0.dtsi"
-+	i2c@118000 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
-+	i2c@118100 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
- /include/ "qoriq-i2c-1.dtsi"
-+	i2c@119000 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
-+	i2c@119100 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
- /include/ "qoriq-duart-0.dtsi"
- /include/ "qoriq-duart-1.dtsi"
- /include/ "qoriq-gpio-0.dtsi"
+ 	__asm__ __volatile__(
+ 	"	.set	push						\n"
+@@ -53,7 +53,7 @@ notrace void arch_local_irq_disable(void)
+ 	: /* no inputs */
+ 	: "memory");
+ 
+-	preempt_enable();
++	preempt_enable_notrace();
+ }
+ EXPORT_SYMBOL(arch_local_irq_disable);
+ 
+@@ -61,7 +61,7 @@ notrace unsigned long arch_local_irq_save(void)
+ {
+ 	unsigned long flags;
+ 
+-	preempt_disable();
++	preempt_disable_notrace();
+ 
+ 	__asm__ __volatile__(
+ 	"	.set	push						\n"
+@@ -78,7 +78,7 @@ notrace unsigned long arch_local_irq_save(void)
+ 	: /* no inputs */
+ 	: "memory");
+ 
+-	preempt_enable();
++	preempt_enable_notrace();
+ 
+ 	return flags;
+ }
+@@ -88,7 +88,7 @@ notrace void arch_local_irq_restore(unsigned long flags)
+ {
+ 	unsigned long __tmp1;
+ 
+-	preempt_disable();
++	preempt_disable_notrace();
+ 
+ 	__asm__ __volatile__(
+ 	"	.set	push						\n"
+@@ -106,7 +106,7 @@ notrace void arch_local_irq_restore(unsigned long flags)
+ 	: "0" (flags)
+ 	: "memory");
+ 
+-	preempt_enable();
++	preempt_enable_notrace();
+ }
+ EXPORT_SYMBOL(arch_local_irq_restore);
+ 
 -- 
 2.30.2
 
