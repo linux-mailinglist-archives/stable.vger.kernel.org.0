@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 938AB3A61A2
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38F1D3A6289
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232875AbhFNKt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:49:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51420 "EHLO mail.kernel.org"
+        id S234314AbhFNLB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:01:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234034AbhFNKrv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:47:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BD7961411;
-        Mon, 14 Jun 2021 10:37:28 +0000 (UTC)
+        id S234943AbhFNK7r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:59:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1513661433;
+        Mon, 14 Jun 2021 10:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667048;
-        bh=Vf0WjYnw4gbt73WQD6i2qUuSCrlySRycgEiqTg5lM/M=;
+        s=korg; t=1623667358;
+        bh=nMoXu4Rj5BAwggJQLcsitBWS13DPTnpb6qGqGl8H2Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xgpxj69LdYapeTc73K91iKX+kiUE5JswHewn54xkfpwWRuH2xMIfbDg7itVbV0SNG
-         71GG44VFmh2NaBhmFGF9Y3fJxnPFC1OOrJJh4c8yZpKt/71SPXh5fhw93Ue76ouz07
-         baFvAcUyJqKzfkNbtZafc/3sg8j0cWLfbXckZGbw=
+        b=EF2w9m53JOPwKq2KLN9kDHIxJKvAfpUamRIpWKM4rxz3b/WPP1M+6BtflBPmwFyC1
+         p5eeDM0SQi/YFFsA8Y676QgrCKBsj00ELrHsCvNkxKSg1BBjG14krpU3Br9AAOcjHf
+         /9Srj3H4PVOS//7dueF3I5IA1ek0PlP2XmD1jvGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andrea Righi <andrea.righi@canonical.com>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 01/84] proc: Track /proc/$pid/attr/ opener mm_struct
+        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 038/131] nvmet: fix false keep-alive timeout when a controller is torn down
 Date:   Mon, 14 Jun 2021 12:26:39 +0200
-Message-Id: <20210614102646.389672488@linuxfoundation.org>
+Message-Id: <20210614102654.310783798@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,65 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit 591a22c14d3f45cc38bd1931c593c221df2f1881 upstream.
+[ Upstream commit aaeadd7075dc9e184bc7876e9dd7b3bada771df2 ]
 
-Commit bfb819ea20ce ("proc: Check /proc/$pid/attr/ writes against file opener")
-tried to make sure that there could not be a confusion between the opener of
-a /proc/$pid/attr/ file and the writer. It used struct cred to make sure
-the privileges didn't change. However, there were existing cases where a more
-privileged thread was passing the opened fd to a differently privileged thread
-(during container setup). Instead, use mm_struct to track whether the opener
-and writer are still the same process. (This is what several other proc files
-already do, though for different reasons.)
+Controller teardown flow may take some time in case it has many I/O
+queues, and the host may not send us keep-alive during this period.
+Hence reset the traffic based keep-alive timer so we don't trigger
+a controller teardown as a result of a keep-alive expiration.
 
-Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
-Reported-by: Andrea Righi <andrea.righi@canonical.com>
-Tested-by: Andrea Righi <andrea.righi@canonical.com>
-Fixes: bfb819ea20ce ("proc: Check /proc/$pid/attr/ writes against file opener")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/base.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/nvme/target/core.c  | 15 +++++++++++----
+ drivers/nvme/target/nvmet.h |  2 +-
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2527,6 +2527,11 @@ out:
- }
- 
- #ifdef CONFIG_SECURITY
-+static int proc_pid_attr_open(struct inode *inode, struct file *file)
-+{
-+	return __mem_open(inode, file, PTRACE_MODE_READ_FSCREDS);
-+}
-+
- static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
- 				  size_t count, loff_t *ppos)
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 8b939e9db470..9a8fa2e582d5 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -379,10 +379,10 @@ static void nvmet_keep_alive_timer(struct work_struct *work)
  {
-@@ -2557,7 +2562,7 @@ static ssize_t proc_pid_attr_write(struc
- 	int rv;
+ 	struct nvmet_ctrl *ctrl = container_of(to_delayed_work(work),
+ 			struct nvmet_ctrl, ka_work);
+-	bool cmd_seen = ctrl->cmd_seen;
++	bool reset_tbkas = ctrl->reset_tbkas;
  
- 	/* A task may only write when it was the opener. */
--	if (file->f_cred != current_real_cred())
-+	if (file->private_data != current->mm)
- 		return -EPERM;
+-	ctrl->cmd_seen = false;
+-	if (cmd_seen) {
++	ctrl->reset_tbkas = false;
++	if (reset_tbkas) {
+ 		pr_debug("ctrl %d reschedule traffic based keep-alive timer\n",
+ 			ctrl->cntlid);
+ 		schedule_delayed_work(&ctrl->ka_work, ctrl->kato * HZ);
+@@ -792,6 +792,13 @@ void nvmet_sq_destroy(struct nvmet_sq *sq)
+ 	percpu_ref_exit(&sq->ref);
  
- 	rcu_read_lock();
-@@ -2607,9 +2612,11 @@ out:
- }
+ 	if (ctrl) {
++		/*
++		 * The teardown flow may take some time, and the host may not
++		 * send us keep-alive during this period, hence reset the
++		 * traffic based keep-alive timer so we don't trigger a
++		 * controller teardown as a result of a keep-alive expiration.
++		 */
++		ctrl->reset_tbkas = true;
+ 		nvmet_ctrl_put(ctrl);
+ 		sq->ctrl = NULL; /* allows reusing the queue later */
+ 	}
+@@ -942,7 +949,7 @@ bool nvmet_req_init(struct nvmet_req *req, struct nvmet_cq *cq,
+ 	}
  
- static const struct file_operations proc_pid_attr_operations = {
-+	.open		= proc_pid_attr_open,
- 	.read		= proc_pid_attr_read,
- 	.write		= proc_pid_attr_write,
- 	.llseek		= generic_file_llseek,
-+	.release	= mem_release,
- };
+ 	if (sq->ctrl)
+-		sq->ctrl->cmd_seen = true;
++		sq->ctrl->reset_tbkas = true;
  
- #define LSM_DIR_OPS(LSM) \
+ 	return true;
+ 
+diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
+index ea96487b5424..4bf6d21290c2 100644
+--- a/drivers/nvme/target/nvmet.h
++++ b/drivers/nvme/target/nvmet.h
+@@ -166,7 +166,7 @@ struct nvmet_ctrl {
+ 	struct nvmet_subsys	*subsys;
+ 	struct nvmet_sq		**sqs;
+ 
+-	bool			cmd_seen;
++	bool			reset_tbkas;
+ 
+ 	struct mutex		lock;
+ 	u64			cap;
+-- 
+2.30.2
+
 
 
