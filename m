@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 580333A607C
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 912F43A610B
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:40:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233291AbhFNKfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:35:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40542 "EHLO mail.kernel.org"
+        id S233848AbhFNKmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:42:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233293AbhFNKde (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 734586120E;
-        Mon, 14 Jun 2021 10:31:30 +0000 (UTC)
+        id S234139AbhFNKkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:40:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AC0F61420;
+        Mon, 14 Jun 2021 10:34:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666691;
-        bh=lyi+/9dYeef39pewHEjqb0lVxSDEswyJcOGb5KzVVOA=;
+        s=korg; t=1623666886;
+        bh=wanstTB7eTdv4MsPC3FkRoObdMEp/RwymqzxPxqZk/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0zqq+6/VGSuU2Zinr8nyRh3Hdd7IL9oeH9SG52mgVwlYAkQ7dHgZtYaq5zo3+kwd8
-         0vmXuZJ9f3I/GyKnu+d/XHuCBXZH8E0XDMC9r4S17k2/rG6j81cR9Cac3D6UERFIkb
-         TpZAE9aeyoH3/LQevIrQeX6pK0O/Gg6FTllg12NQ=
+        b=TThbMRQvRcoMIputPfBf9khUzzoDUZNvtVAuY8LNiNIaAUxiA+0bxmxdmQ6LPmgsf
+         Ra89Gq7z6pNNZzBHAg8MA9FpbhmOQXfK6CmWg8vw3vg85Bsd926GFp7bcV5abKVKkP
+         T5tzlfZtuYwm324ZHId80Afgsz707OXOhZLi0VnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/42] wq: handle VM suspension in stall detection
+        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
+        Dmitry Bogdanov <d.bogdanov@yadro.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 17/67] scsi: target: qla2xxx: Wait for stop_phase1 at WWN removal
 Date:   Mon, 14 Jun 2021 12:27:00 +0200
-Message-Id: <20210614102643.002172619@linuxfoundation.org>
+Message-Id: <20210614102644.350833621@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,87 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
+From: Dmitry Bogdanov <d.bogdanov@yadro.com>
 
-[ Upstream commit 940d71c6462e8151c78f28e4919aa8882ff2054e ]
+[ Upstream commit 2ef7665dfd88830f15415ba007c7c9a46be7acd8 ]
 
-If VCPU is suspended (VM suspend) in wq_watchdog_timer_fn() then
-once this VCPU resumes it will see the new jiffies value, while it
-may take a while before IRQ detects PVCLOCK_GUEST_STOPPED on this
-VCPU and updates all the watchdogs via pvclock_touch_watchdogs().
-There is a small chance of misreported WQ stalls in the meantime,
-because new jiffies is time_after() old 'ts + thresh'.
+Target de-configuration panics at high CPU load because TPGT and WWPN can
+be removed on separate threads.
 
-wq_watchdog_timer_fn()
-{
-	for_each_pool(pool, pi) {
-		if (time_after(jiffies, ts + thresh)) {
-			pr_emerg("BUG: workqueue lockup - pool");
-		}
-	}
-}
+TPGT removal requests a reset HBA on a separate thread and waits for reset
+complete (phase1). Due to high CPU load that HBA reset can be delayed for
+some time.
 
-Save jiffies at the beginning of this function and use that value
-for stall detection. If VM gets suspended then we continue using
-"old" jiffies value and old WQ touch timestamps. If IRQ at some
-point restarts the stall detection cycle (pvclock_touch_watchdogs())
-then old jiffies will always be before new 'ts + thresh'.
+WWPN removal does qlt_stop_phase2(). There it is believed that phase1 has
+already completed and thus tgt.tgt_ops is subsequently cleared. However,
+tgt.tgt_ops is needed to process incoming traffic and therefore this will
+cause one of the following panics:
 
-Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+NIP qlt_reset+0x7c/0x220 [qla2xxx]
+LR  qlt_reset+0x68/0x220 [qla2xxx]
+Call Trace:
+0xc000003ffff63a78 (unreliable)
+qlt_handle_imm_notify+0x800/0x10c0 [qla2xxx]
+qlt_24xx_atio_pkt+0x208/0x590 [qla2xxx]
+qlt_24xx_process_atio_queue+0x33c/0x7a0 [qla2xxx]
+qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
+
+or
+
+NIP qlt_24xx_handle_abts+0xd0/0x2a0 [qla2xxx]
+LR  qlt_24xx_handle_abts+0xb4/0x2a0 [qla2xxx]
+Call Trace:
+qlt_24xx_handle_abts+0x90/0x2a0 [qla2xxx] (unreliable)
+qlt_24xx_process_atio_queue+0x500/0x7a0 [qla2xxx]
+qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
+
+or
+
+NIP qlt_create_sess+0x90/0x4e0 [qla2xxx]
+LR  qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
+Call Trace:
+0xc0000000348fba30 (unreliable)
+qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
+qla2x00_do_work+0x674/0xbf0 [qla2xxx]
+qla2x00_iocb_work_fn
+
+The patch fixes the issue by serializing qlt_stop_phase1() and
+qlt_stop_phase2() functions to make WWPN removal wait for phase1
+completion.
+
+Link: https://lore.kernel.org/r/20210415203554.27890-1-d.bogdanov@yadro.com
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_target.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 3231088afd73..a410d5827a73 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -49,6 +49,7 @@
- #include <linux/moduleparam.h>
- #include <linux/uaccess.h>
- #include <linux/nmi.h>
-+#include <linux/kvm_para.h>
- 
- #include "workqueue_internal.h"
- 
-@@ -5387,6 +5388,7 @@ static void wq_watchdog_timer_fn(unsigned long data)
- {
- 	unsigned long thresh = READ_ONCE(wq_watchdog_thresh) * HZ;
- 	bool lockup_detected = false;
-+	unsigned long now = jiffies;
- 	struct worker_pool *pool;
- 	int pi;
- 
-@@ -5401,6 +5403,12 @@ static void wq_watchdog_timer_fn(unsigned long data)
- 		if (list_empty(&pool->worklist))
- 			continue;
- 
-+		/*
-+		 * If a virtual machine is stopped by the host it can look to
-+		 * the watchdog like a stall.
-+		 */
-+		kvm_check_and_clear_guest_paused();
-+
- 		/* get the latest of pool and touched timestamps */
- 		pool_ts = READ_ONCE(pool->watchdog_ts);
- 		touched = READ_ONCE(wq_watchdog_touched);
-@@ -5419,12 +5427,12 @@ static void wq_watchdog_timer_fn(unsigned long data)
- 		}
- 
- 		/* did we stall? */
--		if (time_after(jiffies, ts + thresh)) {
-+		if (time_after(now, ts + thresh)) {
- 			lockup_detected = true;
- 			pr_emerg("BUG: workqueue lockup - pool");
- 			pr_cont_pool_info(pool);
- 			pr_cont(" stuck for %us!\n",
--				jiffies_to_msecs(jiffies - pool_ts) / 1000);
-+				jiffies_to_msecs(now - pool_ts) / 1000);
- 		}
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index eb6112eb475e..ec54c8f34bc8 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -1571,10 +1571,12 @@ void qlt_stop_phase2(struct qla_tgt *tgt)
+ 		return;
  	}
  
++	mutex_lock(&tgt->ha->optrom_mutex);
+ 	mutex_lock(&vha->vha_tgt.tgt_mutex);
+ 	tgt->tgt_stop = 0;
+ 	tgt->tgt_stopped = 1;
+ 	mutex_unlock(&vha->vha_tgt.tgt_mutex);
++	mutex_unlock(&tgt->ha->optrom_mutex);
+ 
+ 	ql_dbg(ql_dbg_tgt_mgt, vha, 0xf00c, "Stop of tgt %p finished\n",
+ 	    tgt);
 -- 
 2.30.2
 
