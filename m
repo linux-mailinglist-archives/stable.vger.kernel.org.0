@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5831C3A6133
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D31D63A60F4
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232930AbhFNKpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:45:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47204 "EHLO mail.kernel.org"
+        id S232991AbhFNKkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:40:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233891AbhFNKmG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:42:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 382526142B;
-        Mon, 14 Jun 2021 10:35:29 +0000 (UTC)
+        id S233829AbhFNKiT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:38:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D3C9613F1;
+        Mon, 14 Jun 2021 10:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666929;
-        bh=WLp2408oOE4R09RHywTUu0/w1wZ9qGrx6yoM5nU4CUY=;
+        s=korg; t=1623666837;
+        bh=ZY4c1guXixpLGl+bH8VS9g/dz2f4w5HOXOLkiD9oRGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AM4XYqT/WwPWuy+dN2PnNA8yT9Xs0/5l7S5wImRyZ2cqCm6HcOMC9bo1Y6fQmSJBA
-         ZqZeJXLiCE38hc6VaMAr+QCb5EbqakH1JxnnIPQbhjEE+jYCvsoeZiVmPr0NIDzbnu
-         DwOFO1evq5pVH0P+rmfmK5i0Cyp3/l3NsUtYakYg=
+        b=lye3Lpas5OqIGcSOf3YqauYtEZTD58MvA+UX1EJrNsFUOfyhLPVPc6SCIZx/8U+7D
+         ddm/6In5phgVI+JebHbKKhIXTKqaKz9nFwhpH0Jht5fhsQoHuaMq1XmnH/FC+zGVkw
+         GIaGP1y0zeGJwox4Vp61FNg7y+1wALkCVDybth5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Artemiy Margaritov <artemiy.margaritov@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 31/67] kvm: avoid speculation-based attacks from out-of-range memslot accesses
+        syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.14 21/49] drm: Fix use-after-free read in drm_getunique()
 Date:   Mon, 14 Jun 2021 12:27:14 +0200
-Message-Id: <20210614102644.818014959@linuxfoundation.org>
+Message-Id: <20210614102642.560431650@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-commit da27a83fd6cc7780fea190e1f5c19e87019da65c upstream.
+commit b436acd1cf7fac0ba987abd22955d98025c80c2b upstream.
 
-KVM's mechanism for accessing guest memory translates a guest physical
-address (gpa) to a host virtual address using the right-shifted gpa
-(also known as gfn) and a struct kvm_memory_slot.  The translation is
-performed in __gfn_to_hva_memslot using the following formula:
+There is a time-of-check-to-time-of-use error in drm_getunique() due
+to retrieving file_priv->master prior to locking the device's master
+mutex.
 
-      hva = slot->userspace_addr + (gfn - slot->base_gfn) * PAGE_SIZE
+An example can be seen in the crash report of the use-after-free error
+found by Syzbot:
+https://syzkaller.appspot.com/bug?id=148d2f1dfac64af52ffd27b661981a540724f803
 
-It is expected that gfn falls within the boundaries of the guest's
-physical memory.  However, a guest can access invalid physical addresses
-in such a way that the gfn is invalid.
+In the report, the master pointer was used after being freed. This is
+because another process had acquired the device's master mutex in
+drm_setmaster_ioctl(), then overwrote fpriv->master in
+drm_new_set_master(). The old value of fpriv->master was subsequently
+freed before the mutex was unlocked.
 
-__gfn_to_hva_memslot is called from kvm_vcpu_gfn_to_hva_prot, which first
-retrieves a memslot through __gfn_to_memslot.  While __gfn_to_memslot
-does check that the gfn falls within the boundaries of the guest's
-physical memory or not, a CPU can speculate the result of the check and
-continue execution speculatively using an illegal gfn. The speculation
-can result in calculating an out-of-bounds hva.  If the resulting host
-virtual address is used to load another guest physical address, this
-is effectively a Spectre gadget consisting of two consecutive reads,
-the second of which is data dependent on the first.
+To fix this, we lock the device's master mutex before retrieving the
+pointer from from fpriv->master. This patch passes the Syzbot
+reproducer test.
 
-Right now it's not clear if there are any cases in which this is
-exploitable.  One interesting case was reported by the original author
-of this patch, and involves visiting guest page tables on x86.  Right
-now these are not vulnerable because the hva read goes through get_user(),
-which contains an LFENCE speculation barrier.  However, there are
-patches in progress for x86 uaccess.h to mask kernel addresses instead of
-using LFENCE; once these land, a guest could use speculation to read
-from the VMM's ring 3 address space.  Other architectures such as ARM
-already use the address masking method, and would be susceptible to
-this same kind of data-dependent access gadgets.  Therefore, this patch
-proactively protects from these attacks by masking out-of-bounds gfns
-in __gfn_to_hva_memslot, which blocks speculation of invalid hvas.
-
-Sean Christopherson noted that this patch does not cover
-kvm_read_guest_offset_cached.  This however is limited to a few bytes
-past the end of the cache, and therefore it is unlikely to be useful in
-the context of building a chain of data dependent accesses.
-
-Reported-by: Artemiy Margaritov <artemiy.margaritov@gmail.com>
-Co-developed-by: Artemiy Margaritov <artemiy.margaritov@gmail.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reported-by: syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210608110436.239583-1-desmondcheongzx@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kvm_host.h |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_ioctl.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1017,7 +1017,15 @@ __gfn_to_memslot(struct kvm_memslots *sl
- static inline unsigned long
- __gfn_to_hva_memslot(struct kvm_memory_slot *slot, gfn_t gfn)
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -112,17 +112,18 @@ int drm_getunique(struct drm_device *dev
+ 		  struct drm_file *file_priv)
  {
--	return slot->userspace_addr + (gfn - slot->base_gfn) * PAGE_SIZE;
-+	/*
-+	 * The index was checked originally in search_memslots.  To avoid
-+	 * that a malicious guest builds a Spectre gadget out of e.g. page
-+	 * table walks, do not let the processor speculate loads outside
-+	 * the guest's registered memslots.
-+	 */
-+	unsigned long offset = array_index_nospec(gfn - slot->base_gfn,
-+						  slot->npages);
-+	return slot->userspace_addr + offset * PAGE_SIZE;
- }
+ 	struct drm_unique *u = data;
+-	struct drm_master *master = file_priv->master;
++	struct drm_master *master;
  
- static inline int memslot_id(struct kvm *kvm, gfn_t gfn)
+-	mutex_lock(&master->dev->master_mutex);
++	mutex_lock(&dev->master_mutex);
++	master = file_priv->master;
+ 	if (u->unique_len >= master->unique_len) {
+ 		if (copy_to_user(u->unique, master->unique, master->unique_len)) {
+-			mutex_unlock(&master->dev->master_mutex);
++			mutex_unlock(&dev->master_mutex);
+ 			return -EFAULT;
+ 		}
+ 	}
+ 	u->unique_len = master->unique_len;
+-	mutex_unlock(&master->dev->master_mutex);
++	mutex_unlock(&dev->master_mutex);
+ 
+ 	return 0;
+ }
 
 
