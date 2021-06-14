@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 144413A6339
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91A593A6494
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:25:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234570AbhFNLLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:11:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39538 "EHLO mail.kernel.org"
+        id S234010AbhFNL02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234189AbhFNLH4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:07:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B13B61933;
-        Mon, 14 Jun 2021 10:46:10 +0000 (UTC)
+        id S234805AbhFNLXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:23:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C9E8619A3;
+        Mon, 14 Jun 2021 10:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667571;
-        bh=5v2OFS50SGrtKixBb1zZSrIBnC13A5UX6gk+6YxbADg=;
+        s=korg; t=1623667988;
+        bh=bcBtk3Qe+n/HjpQxU6fFPcomTKra5P/+yoosp2c/xFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FM+BzUlMf1cagelotL0A/UuNCrGXENgtsKtU0zwWPu/GkOJNvccAnabQ4nK+n3BNF
-         Oz/4QR2ORsURjzN/e0Uz5ZBb+gVHUgfoakAR5JuvveJyUwtHY3n6/XMkBYr0wU6s7v
-         oltdaXlzDXOfY+UbUYJL8dNR8cluY39GzJumW8x0=
+        b=Iw8eL/fuU7YNTIcerNLBnjdgv2bmjtI1N9HmOBG8X5LoV4w35eAQrO0u17Go4sofE
+         KbRvwS1zRKDFhtEvS0AwqO1V2XxYQrHIrBXtWdowfxZ3lRmq0f+j5DqrC4SklSYYQk
+         0uzS+ivOWl1xFechC9IcYeKLJSCdvnwfBBI5xqoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 123/131] kvm: fix previous commit for 32-bit builds
+        stable@vger.kernel.org,
+        syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com,
+        Marco Elver <elver@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.12 152/173] perf: Fix data race between pin_count increment/decrement
 Date:   Mon, 14 Jun 2021 12:28:04 +0200
-Message-Id: <20210614102657.195583338@linuxfoundation.org>
+Message-Id: <20210614102703.226522660@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,33 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Marco Elver <elver@google.com>
 
-commit 4422829e8053068e0225e4d0ef42dc41ea7c9ef5 upstream.
+commit 6c605f8371159432ec61cbb1488dcf7ad24ad19a upstream.
 
-array_index_nospec does not work for uint64_t on 32-bit builds.
-However, the size of a memory slot must be less than 20 bits wide
-on those system, since the memory slot must fit in the user
-address space.  So just store it in an unsigned long.
+KCSAN reports a data race between increment and decrement of pin_count:
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+  write to 0xffff888237c2d4e0 of 4 bytes by task 15740 on cpu 1:
+   find_get_context		kernel/events/core.c:4617
+   __do_sys_perf_event_open	kernel/events/core.c:12097 [inline]
+   __se_sys_perf_event_open	kernel/events/core.c:11933
+   ...
+  read to 0xffff888237c2d4e0 of 4 bytes by task 15743 on cpu 0:
+   perf_unpin_context		kernel/events/core.c:1525 [inline]
+   __do_sys_perf_event_open	kernel/events/core.c:12328 [inline]
+   __se_sys_perf_event_open	kernel/events/core.c:11933
+   ...
+
+Because neither read-modify-write here is atomic, this can lead to one
+of the operations being lost, resulting in an inconsistent pin_count.
+Fix it by adding the missing locking in the CPU-event case.
+
+Fixes: fe4b04fa31a6 ("perf: Cure task_oncpu_function_call() races")
+Reported-by: syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210527104711.2671610-1-elver@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kvm_host.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/events/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1110,8 +1110,8 @@ __gfn_to_hva_memslot(struct kvm_memory_s
- 	 * table walks, do not let the processor speculate loads outside
- 	 * the guest's registered memslots.
- 	 */
--	unsigned long offset = array_index_nospec(gfn - slot->base_gfn,
--						  slot->npages);
-+	unsigned long offset = gfn - slot->base_gfn;
-+	offset = array_index_nospec(offset, slot->npages);
- 	return slot->userspace_addr + offset * PAGE_SIZE;
- }
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -4542,7 +4542,9 @@ find_get_context(struct pmu *pmu, struct
+ 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
+ 		ctx = &cpuctx->ctx;
+ 		get_ctx(ctx);
++		raw_spin_lock_irqsave(&ctx->lock, flags);
+ 		++ctx->pin_count;
++		raw_spin_unlock_irqrestore(&ctx->lock, flags);
  
+ 		return ctx;
+ 	}
 
 
