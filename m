@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEEA33A6442
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:21:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 817033A62DB
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:04:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234151AbhFNLWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:22:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47642 "EHLO mail.kernel.org"
+        id S234580AbhFNLFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:05:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236057AbhFNLUK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:20:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9B746124B;
-        Mon, 14 Jun 2021 10:51:35 +0000 (UTC)
+        id S234657AbhFNLCl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:02:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 597B661883;
+        Mon, 14 Jun 2021 10:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667896;
-        bh=M+mp2mty580h+8V6h5y5VU36PuJpZXnftEuPQHDzZyU=;
+        s=korg; t=1623667438;
+        bh=ZcfdP4wZpIkbwOWLzuaTBwIoeeY2OSRxS/uPiLlq+MI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qjF/2eSFaHAW8bi6MpWKwglTYCq2nuTJ7IFegW4AV/g75jVLup9dBEvKoiO1+usFX
-         +TQYC1mxfSbrVJZC8h0tMlCYhuNXCQzjskNtFmqLtgwVUeheleBpeR02NKIbOpK+kN
-         ZKuuZUIxweGDxBoU91SsdZyS1U6Y5KvK3u6eNsiA=
+        b=j4J/GydKwOyA4a+rtFLz9xxrTZJBjkqq2jgcIpJP3ISreTBF+VKTZhrjuqgHuCEVy
+         Ccsm8c9nW2AwJEg69b77qtDWPg2ItCFjfIQQ7rU5BRZ+CWzwbGIRj5kmOFtqsfZhnk
+         DYT7Upfpb8fp+YboY9LZ6cxVjUVGispt83gM/Yfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.12 099/173] usb: gadget: f_fs: Ensure io_completion_wq is idle during unbind
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>
+Subject: [PATCH 5.10 070/131] usb: dwc3-meson-g12a: fix usb2 PHY glue init when phy0 is disabled
 Date:   Mon, 14 Jun 2021 12:27:11 +0200
-Message-Id: <20210614102701.455627186@linuxfoundation.org>
+Message-Id: <20210614102655.412498127@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,42 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-commit 6fc1db5e6211e30fbb1cee8d7925d79d4ed2ae14 upstream.
+commit 4d2aa178d2ad2fb156711113790dde13e9aa2376 upstream.
 
-During unbind, ffs_func_eps_disable() will be executed, resulting in
-completion callbacks for any pending USB requests.  When using AIO,
-irrespective of the completion status, io_data work is queued to
-io_completion_wq to evaluate and handle the completed requests.  Since
-work runs asynchronously to the unbind() routine, there can be a
-scenario where the work runs after the USB gadget has been fully
-removed, resulting in accessing of a resource which has been already
-freed. (i.e. usb_ep_free_request() accessing the USB ep structure)
+When only PHY1 is used (for example on Odroid-HC4), the regmap init code
+uses the usb2 ports when doesn't initialize the PHY1 regmap entry.
 
-Explicitly drain the io_completion_wq, instead of relying on the
-destroy_workqueue() (in ffs_data_put()) to make sure no pending
-completion work items are running.
+This fixes:
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
+...
+pc : regmap_update_bits_base+0x40/0xa0
+lr : dwc3_meson_g12a_usb2_init_phy+0x4c/0xf8
+...
+Call trace:
+regmap_update_bits_base+0x40/0xa0
+dwc3_meson_g12a_usb2_init_phy+0x4c/0xf8
+dwc3_meson_g12a_usb2_init+0x7c/0xc8
+dwc3_meson_g12a_usb_init+0x28/0x48
+dwc3_meson_g12a_probe+0x298/0x540
+platform_probe+0x70/0xe0
+really_probe+0xf0/0x4d8
+driver_probe_device+0xfc/0x168
+...
 
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Fixes: 013af227f58a97 ("usb: dwc3: meson-g12a: handle the phy and glue registers separately")
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1621644261-1236-1-git-send-email-wcheng@codeaurora.org
+Link: https://lore.kernel.org/r/20210601084830.260196-1-narmstrong@baylibre.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_fs.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc3/dwc3-meson-g12a.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -3567,6 +3567,9 @@ static void ffs_func_unbind(struct usb_c
- 		ffs->func = NULL;
- 	}
+--- a/drivers/usb/dwc3/dwc3-meson-g12a.c
++++ b/drivers/usb/dwc3/dwc3-meson-g12a.c
+@@ -651,7 +651,7 @@ static int dwc3_meson_g12a_setup_regmaps
+ 		return PTR_ERR(priv->usb_glue_regmap);
  
-+	/* Drain any pending AIO completions */
-+	drain_workqueue(ffs->io_completion_wq);
+ 	/* Create a regmap for each USB2 PHY control register set */
+-	for (i = 0; i < priv->usb2_ports; i++) {
++	for (i = 0; i < priv->drvdata->num_phys; i++) {
+ 		struct regmap_config u2p_regmap_config = {
+ 			.reg_bits = 8,
+ 			.val_bits = 32,
+@@ -659,6 +659,9 @@ static int dwc3_meson_g12a_setup_regmaps
+ 			.max_register = U2P_R1,
+ 		};
+ 
++		if (!strstr(priv->drvdata->phy_names[i], "usb2"))
++			continue;
 +
- 	if (!--opts->refcnt)
- 		functionfs_unbind(ffs);
- 
+ 		u2p_regmap_config.name = devm_kasprintf(priv->dev, GFP_KERNEL,
+ 							"u2p-%d", i);
+ 		if (!u2p_regmap_config.name)
 
 
