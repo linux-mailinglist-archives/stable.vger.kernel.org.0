@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91A593A6494
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8150D3A633A
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234010AbhFNL02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:26:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51958 "EHLO mail.kernel.org"
+        id S234622AbhFNLLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:11:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234805AbhFNLXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:23:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C9E8619A3;
-        Mon, 14 Jun 2021 10:53:07 +0000 (UTC)
+        id S234608AbhFNLIj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:08:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C88AE61444;
+        Mon, 14 Jun 2021 10:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667988;
-        bh=bcBtk3Qe+n/HjpQxU6fFPcomTKra5P/+yoosp2c/xFM=;
+        s=korg; t=1623667574;
+        bh=0yn5oIrFm35hUqC5US8/HECgH6nifrQYsV0i59dutGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iw8eL/fuU7YNTIcerNLBnjdgv2bmjtI1N9HmOBG8X5LoV4w35eAQrO0u17Go4sofE
-         KbRvwS1zRKDFhtEvS0AwqO1V2XxYQrHIrBXtWdowfxZ3lRmq0f+j5DqrC4SklSYYQk
-         0uzS+ivOWl1xFechC9IcYeKLJSCdvnwfBBI5xqoE=
+        b=DfiSqsYMx6Cz7Ia6Da8PwVA4Z/L+X1Ah7Zx28xlKZtJIKHNdvs7WvMiV59Eu9+1Vw
+         7Ts4qDf9iNMR0zVpRRfHuEavPoIOEW5SBn4S+rpKqpdYHqEh7YjKbL9v/6A7CuJkyI
+         4EsYAKi/q8UtrzOCh3VU7KKm7TgkNtFWnPAxlkqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com,
-        Marco Elver <elver@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.12 152/173] perf: Fix data race between pin_count increment/decrement
-Date:   Mon, 14 Jun 2021 12:28:04 +0200
-Message-Id: <20210614102703.226522660@linuxfoundation.org>
+        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.10 124/131] NFS: Fix use-after-free in nfs4_init_client()
+Date:   Mon, 14 Jun 2021 12:28:05 +0200
+Message-Id: <20210614102657.227678117@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
-commit 6c605f8371159432ec61cbb1488dcf7ad24ad19a upstream.
+commit 476bdb04c501fc64bf3b8464ffddefc8dbe01577 upstream.
 
-KCSAN reports a data race between increment and decrement of pin_count:
+KASAN reports a use-after-free when attempting to mount two different
+exports through two different NICs that belong to the same server.
 
-  write to 0xffff888237c2d4e0 of 4 bytes by task 15740 on cpu 1:
-   find_get_context		kernel/events/core.c:4617
-   __do_sys_perf_event_open	kernel/events/core.c:12097 [inline]
-   __se_sys_perf_event_open	kernel/events/core.c:11933
-   ...
-  read to 0xffff888237c2d4e0 of 4 bytes by task 15743 on cpu 0:
-   perf_unpin_context		kernel/events/core.c:1525 [inline]
-   __do_sys_perf_event_open	kernel/events/core.c:12328 [inline]
-   __se_sys_perf_event_open	kernel/events/core.c:11933
-   ...
+Olga was able to hit this with kernels starting somewhere between 5.7
+and 5.10, but I traced the patch that introduced the clear_bit() call to
+4.13. So something must have changed in the refcounting of the clp
+pointer to make this call to nfs_put_client() the very last one.
 
-Because neither read-modify-write here is atomic, this can lead to one
-of the operations being lost, resulting in an inconsistent pin_count.
-Fix it by adding the missing locking in the CPU-event case.
-
-Fixes: fe4b04fa31a6 ("perf: Cure task_oncpu_function_call() races")
-Reported-by: syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210527104711.2671610-1-elver@google.com
+Fixes: 8dcbec6d20 ("NFSv41: Handle EXCHID4_FLAG_CONFIRMED_R during NFSv4.1 migration")
+Cc: stable@vger.kernel.org # 4.13+
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/nfs4client.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -4542,7 +4542,9 @@ find_get_context(struct pmu *pmu, struct
- 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
- 		ctx = &cpuctx->ctx;
- 		get_ctx(ctx);
-+		raw_spin_lock_irqsave(&ctx->lock, flags);
- 		++ctx->pin_count;
-+		raw_spin_unlock_irqrestore(&ctx->lock, flags);
- 
- 		return ctx;
+--- a/fs/nfs/nfs4client.c
++++ b/fs/nfs/nfs4client.c
+@@ -435,8 +435,8 @@ struct nfs_client *nfs4_init_client(stru
+ 		 */
+ 		nfs_mark_client_ready(clp, -EPERM);
  	}
+-	nfs_put_client(clp);
+ 	clear_bit(NFS_CS_TSM_POSSIBLE, &clp->cl_flags);
++	nfs_put_client(clp);
+ 	return old;
+ 
+ error:
 
 
