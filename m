@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66D023A61D4
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C593A605A
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234279AbhFNKwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:52:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58052 "EHLO mail.kernel.org"
+        id S232895AbhFNKdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:33:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233719AbhFNKuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:50:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1734B6145F;
-        Mon, 14 Jun 2021 10:38:30 +0000 (UTC)
+        id S233158AbhFNKc5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:32:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 180A7613B2;
+        Mon, 14 Jun 2021 10:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667111;
-        bh=oOZfVwqe4Q2H/WNxZodKKGnp1gY45NtnBA8IR4gLn8Q=;
+        s=korg; t=1623666642;
+        bh=thdStqXD+ZMNrxSkCYmLPOSGcB5B7NAfKuA6O3rz4io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QT0Vz6sBJpmJNY2RQ10ZlycJeJoKWgnMxWx1qrFUC3ZxCUU5loVf8qADR4uXAq0wX
-         SSDbGwyH6WAxzXZplxs+SHr/BaFWdUHScjzQ9M5x7wE8Kbxec7Hmn08UA5tkzYdpn+
-         KC6hfM8zKGfnZAYd4zdWZNjEsg5HjR5Jd1/rK7MI=
+        b=2JSn8fN9DCGvCvQ6ZJufrHGBxASKzI+J8HrV4o8KEl4R7mzGKg5hiv4dolFkeKINi
+         2GRDSeFjNBcLHD14KCBHOx5Qz0KxJoT1wDsAURy/i/XpoacRNCwLlzLmljIayyvuf2
+         QXYvcAtt4bnI7ehmZwW+EHdky+XomoinsUQ3ihLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/84] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P1010 i2c controllers
+Subject: [PATCH 4.9 19/42] i2c: mpc: Make use of i2c_recover_bus()
 Date:   Mon, 14 Jun 2021 12:27:10 +0200
-Message-Id: <20210614102647.456764919@linuxfoundation.org>
+Message-Id: <20210614102643.315217456@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +42,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit 19ae697a1e4edf1d755b413e3aa38da65e2db23b ]
+[ Upstream commit 65171b2df15eb7545431d75c2729b5062da89b43 ]
 
-The i2c controllers on the P1010 have an erratum where the documented
-scheme for i2c bus recovery will not work (A-004447). A different
-mechanism is needed which is documented in the P1010 Chip Errata Rev L.
+Move the existing calls of mpc_i2c_fixup() to a recovery function
+registered via bus_recovery_info. This makes it more obvious that
+recovery is supported and allows for a future where recovery is
+triggered by the i2c core.
 
 Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/p1010si-post.dtsi | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/i2c/busses/i2c-mpc.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi b/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi
-index 1b4aafc1f6a2..9716a0484ecf 100644
---- a/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi
-@@ -122,7 +122,15 @@
- 	};
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 565a49a0c564..afbbdc79c173 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -581,7 +581,7 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			if ((status & (CSR_MCF | CSR_MBB | CSR_RXAK)) != 0) {
+ 				writeb(status & ~CSR_MAL,
+ 				       i2c->base + MPC_I2C_SR);
+-				mpc_i2c_fixup(i2c);
++				i2c_recover_bus(&i2c->adap);
+ 			}
+ 			return -EIO;
+ 		}
+@@ -617,7 +617,7 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			if ((status & (CSR_MCF | CSR_MBB | CSR_RXAK)) != 0) {
+ 				writeb(status & ~CSR_MAL,
+ 				       i2c->base + MPC_I2C_SR);
+-				mpc_i2c_fixup(i2c);
++				i2c_recover_bus(&i2c->adap);
+ 			}
+ 			return -EIO;
+ 		}
+@@ -632,6 +632,15 @@ static u32 mpc_functionality(struct i2c_adapter *adap)
+ 	  | I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_SMBUS_BLOCK_PROC_CALL;
+ }
  
- /include/ "pq3-i2c-0.dtsi"
-+	i2c@3000 {
-+		fsl,i2c-erratum-a004447;
-+	};
++static int fsl_i2c_bus_recovery(struct i2c_adapter *adap)
++{
++	struct mpc_i2c *i2c = i2c_get_adapdata(adap);
 +
- /include/ "pq3-i2c-1.dtsi"
-+	i2c@3100 {
-+		fsl,i2c-erratum-a004447;
-+	};
++	mpc_i2c_fixup(i2c);
 +
- /include/ "pq3-duart-0.dtsi"
- /include/ "pq3-espi-0.dtsi"
- 	spi0: spi@7000 {
++	return 0;
++}
++
+ static const struct i2c_algorithm mpc_algo = {
+ 	.master_xfer = mpc_xfer,
+ 	.functionality = mpc_functionality,
+@@ -643,6 +652,10 @@ static struct i2c_adapter mpc_ops = {
+ 	.timeout = HZ,
+ };
+ 
++static struct i2c_bus_recovery_info fsl_i2c_recovery_info = {
++	.recover_bus = fsl_i2c_bus_recovery,
++};
++
+ static const struct of_device_id mpc_i2c_of_match[];
+ static int fsl_i2c_probe(struct platform_device *op)
+ {
+@@ -735,6 +748,7 @@ static int fsl_i2c_probe(struct platform_device *op)
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+ 	i2c->adap.dev.parent = &op->dev;
+ 	i2c->adap.dev.of_node = of_node_get(op->dev.of_node);
++	i2c->adap.bus_recovery_info = &fsl_i2c_recovery_info;
+ 
+ 	result = i2c_add_adapter(&i2c->adap);
+ 	if (result < 0)
 -- 
 2.30.2
 
