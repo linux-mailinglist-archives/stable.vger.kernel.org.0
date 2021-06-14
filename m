@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F7D3A6245
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D1373A60F5
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233847AbhFNK6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:58:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35246 "EHLO mail.kernel.org"
+        id S233409AbhFNKkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:40:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234127AbhFNK4P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:56:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67BDB615A0;
-        Mon, 14 Jun 2021 10:41:01 +0000 (UTC)
+        id S233251AbhFNKiU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:38:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C62E6140F;
+        Mon, 14 Jun 2021 10:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667262;
-        bh=Wb0yrOsNBITxibtbVHVNRT/x69LMKfbv31E2OITjUbE=;
+        s=korg; t=1623666840;
+        bh=GQlo89kE2EBytn31tyStiEvWsQdnn8xSzyokyeE6gOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DT4MvtIoB2hmO7ust3XsqD5y2KitAAUIU6ZmxTR+CjUTAeZ6q0+MEIF07R+1sXpE0
-         hvJwZKQwqfKIqG26HWHn5vtV7WtO4mBy2hbSCUfrZC4sezgtYsKC+H1kVV0yiCcQBF
-         5hUYOTiLaMDe6qdFpulmUqbEp+RZkPQsKjGIE9JU=
+        b=hy6eVeXEfybQuJtkLrr7qg++E8YOMI3VbfmKqRt9J39g32b9+t3mPC+Tgp4p6LJ6P
+         z4oIQWJy/th/SG1Ybf6YTHB55R87q1jpFyqeFFk38r3PvvDXKir0oV3CXKQ+isRjyh
+         h5XHaCRehTOzbSPX0HWnrGKsEqAZ8Ev6SHDMAOKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 63/84] regulator: max77620: Use device_set_of_node_from_dev()
+        stable@vger.kernel.org, Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 48/49] ftrace: Do not blindly read the ip address in ftrace_bug()
 Date:   Mon, 14 Jun 2021 12:27:41 +0200
-Message-Id: <20210614102648.523245205@linuxfoundation.org>
+Message-Id: <20210614102643.424483634@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 6f55c5dd1118b3076d11d9cb17f5c5f4bc3a1162 upstream.
+commit 6c14133d2d3f768e0a35128faac8aa6ed4815051 upstream.
 
-The MAX77620 driver fails to re-probe on deferred probe because driver
-core tries to claim resources that are already claimed by the PINCTRL
-device. Use device_set_of_node_from_dev() helper which marks OF node as
-reused, skipping erroneous execution of pinctrl_bind_pins() for the PMIC
-device on the re-probe.
+It was reported that a bug on arm64 caused a bad ip address to be used for
+updating into a nop in ftrace_init(), but the error path (rightfully)
+returned -EINVAL and not -EFAULT, as the bug caused more than one error to
+occur. But because -EINVAL was returned, the ftrace_bug() tried to report
+what was at the location of the ip address, and read it directly. This
+caused the machine to panic, as the ip was not pointing to a valid memory
+address.
 
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210523224243.13219-2-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Instead, read the ip address with copy_from_kernel_nofault() to safely
+access the memory, and if it faults, report that the address faulted,
+otherwise report what was in that location.
+
+Link: https://lore.kernel.org/lkml/20210607032329.28671-1-mark-pk.tsai@mediatek.com/
+
+Cc: stable@vger.kernel.org
+Fixes: 05736a427f7e1 ("ftrace: warn on failure to disable mcount callers")
+Reported-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/max77620-regulator.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/trace/ftrace.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/regulator/max77620-regulator.c
-+++ b/drivers/regulator/max77620-regulator.c
-@@ -814,6 +814,13 @@ static int max77620_regulator_probe(stru
- 	config.dev = dev;
- 	config.driver_data = pmic;
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -2042,12 +2042,18 @@ static int ftrace_hash_ipmodify_update(s
  
-+	/*
-+	 * Set of_node_reuse flag to prevent driver core from attempting to
-+	 * claim any pinmux resources already claimed by the parent device.
-+	 * Otherwise PMIC driver will fail to re-probe.
-+	 */
-+	device_set_of_node_from_dev(&pdev->dev, pdev->dev.parent);
+ static void print_ip_ins(const char *fmt, const unsigned char *p)
+ {
++	char ins[MCOUNT_INSN_SIZE];
+ 	int i;
+ 
++	if (probe_kernel_read(ins, p, MCOUNT_INSN_SIZE)) {
++		printk(KERN_CONT "%s[FAULT] %px\n", fmt, p);
++		return;
++	}
 +
- 	for (id = 0; id < MAX77620_NUM_REGS; id++) {
- 		struct regulator_dev *rdev;
- 		struct regulator_desc *rdesc;
+ 	printk(KERN_CONT "%s", fmt);
+ 
+ 	for (i = 0; i < MCOUNT_INSN_SIZE; i++)
+-		printk(KERN_CONT "%s%02x", i ? ":" : "", p[i]);
++		printk(KERN_CONT "%s%02x", i ? ":" : "", ins[i]);
+ }
+ 
+ enum ftrace_bug_type ftrace_bug_type;
 
 
