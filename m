@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5029F3A611B
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 674893A60A7
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233884AbhFNKnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:43:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46340 "EHLO mail.kernel.org"
+        id S233256AbhFNKgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:36:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233591AbhFNKkz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:40:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68DCE61206;
-        Mon, 14 Jun 2021 10:34:59 +0000 (UTC)
+        id S233281AbhFNKfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:35:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C79CF61004;
+        Mon, 14 Jun 2021 10:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666900;
-        bh=3LvHQp1xxlyxC7ZpjBoqWXgvRjOcDdp7uDfoI2xNWCI=;
+        s=korg; t=1623666737;
+        bh=ckN1z2tVaQ1YA+b0uaeb4c69ZdcSbgwlSMC8rFkpyDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5vxxUEyOwz+ndXoSUx63jziBRew5CT36a0wcSVdxDDs0vkizYkrIvCJz1iodw4l8
-         NtbeSIhKC5Ld88p94TbeTU0zfgM3i5FARcWs4xoPo23lwjrAvygozilbpiuvz8IEnD
-         AXeD51QFoVbf0DGSQbL5P0jNkQoQNOGjN/mp/1hM=
+        b=GB+s6RQ6gmy7Lbb8SEK7a93YrFRTzGBAQRXwquUKkdrH90sldJCd9qujx2BjgGgSG
+         Z5Sj0I0pyhA41EoqA7u5fY0Ry/9bmsLTcTdJv4VRyh+e2UXqgzq0xBFbQvtGZ2NO/4
+         P5eVyLi2B0zcsUvzyTQnXSHnfkus4n0nLlVi3QLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Matt Wang <wwentao@vmware.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 21/67] MIPS: Fix kernel hang under FUNCTION_GRAPH_TRACER and PREEMPT_TRACER
+Subject: [PATCH 4.14 11/49] scsi: vmw_pvscsi: Set correct residual data length
 Date:   Mon, 14 Jun 2021 12:27:04 +0200
-Message-Id: <20210614102644.474350651@linuxfoundation.org>
+Message-Id: <20210614102642.248297404@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Matt Wang <wwentao@vmware.com>
 
-[ Upstream commit 78cf0eb926cb1abeff2106bae67752e032fe5f3e ]
+[ Upstream commit e662502b3a782d479e67736a5a1c169a703d853a ]
 
-When update the latest mainline kernel with the following three configs,
-the kernel hangs during startup:
+Some commands (such as INQUIRY) may return less data than the initiator
+requested. To avoid conducting useless information, set the right residual
+count to make upper layer aware of this.
 
-(1) CONFIG_FUNCTION_GRAPH_TRACER=y
-(2) CONFIG_PREEMPT_TRACER=y
-(3) CONFIG_FTRACE_STARTUP_TEST=y
+Before (INQUIRY PAGE 0xB0 with 128B buffer):
 
-When update the latest mainline kernel with the above two configs (1)
-and (2), the kernel starts normally, but it still hangs when execute
-the following command:
+$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
+SCSI Status: Good
 
-echo "function_graph" > /sys/kernel/debug/tracing/current_tracer
+Received 128 bytes of data:
+ 00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
+ 10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
+ 20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
+ 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 50 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 60 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 70 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
 
-Without CONFIG_PREEMPT_TRACER=y, the above two kinds of kernel hangs
-disappeared, so it seems that CONFIG_PREEMPT_TRACER has some influences
-with function_graph tracer at the first glance.
+After:
 
-I use ejtag to find out the epc address is related with preempt_enable()
-in the file arch/mips/lib/mips-atomic.c, because function tracing can
-trace the preempt_{enable,disable} calls that are traced, replace them
-with preempt_{enable,disable}_notrace to prevent function tracing from
-going into an infinite loop, and then it can fix the kernel hang issue.
+$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
+SCSI Status: Good
 
-By the way, it seems that this commit is a complement and improvement of
-commit f93a1a00f2bd ("MIPS: Fix crash that occurs when function tracing
-is enabled").
+Received 64 bytes of data:
+00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
+10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
+20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
+30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
 
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+[mkp: clarified description]
+
+Link: https://lore.kernel.org/r/03C41093-B62E-43A2-913E-CFC92F1C70C3@vmware.com
+Signed-off-by: Matt Wang <wwentao@vmware.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lib/mips-atomic.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/scsi/vmw_pvscsi.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/lib/mips-atomic.c b/arch/mips/lib/mips-atomic.c
-index 5530070e0d05..57497a26e79c 100644
---- a/arch/mips/lib/mips-atomic.c
-+++ b/arch/mips/lib/mips-atomic.c
-@@ -37,7 +37,7 @@
-  */
- notrace void arch_local_irq_disable(void)
- {
--	preempt_disable();
-+	preempt_disable_notrace();
- 
- 	__asm__ __volatile__(
- 	"	.set	push						\n"
-@@ -53,7 +53,7 @@ notrace void arch_local_irq_disable(void)
- 	: /* no inputs */
- 	: "memory");
- 
--	preempt_enable();
-+	preempt_enable_notrace();
- }
- EXPORT_SYMBOL(arch_local_irq_disable);
- 
-@@ -61,7 +61,7 @@ notrace unsigned long arch_local_irq_save(void)
- {
- 	unsigned long flags;
- 
--	preempt_disable();
-+	preempt_disable_notrace();
- 
- 	__asm__ __volatile__(
- 	"	.set	push						\n"
-@@ -78,7 +78,7 @@ notrace unsigned long arch_local_irq_save(void)
- 	: /* no inputs */
- 	: "memory");
- 
--	preempt_enable();
-+	preempt_enable_notrace();
- 
- 	return flags;
- }
-@@ -88,7 +88,7 @@ notrace void arch_local_irq_restore(unsigned long flags)
- {
- 	unsigned long __tmp1;
- 
--	preempt_disable();
-+	preempt_disable_notrace();
- 
- 	__asm__ __volatile__(
- 	"	.set	push						\n"
-@@ -106,7 +106,7 @@ notrace void arch_local_irq_restore(unsigned long flags)
- 	: "0" (flags)
- 	: "memory");
- 
--	preempt_enable();
-+	preempt_enable_notrace();
- }
- EXPORT_SYMBOL(arch_local_irq_restore);
+diff --git a/drivers/scsi/vmw_pvscsi.c b/drivers/scsi/vmw_pvscsi.c
+index 64eb8ffb2ddf..2c707b5c7b0b 100644
+--- a/drivers/scsi/vmw_pvscsi.c
++++ b/drivers/scsi/vmw_pvscsi.c
+@@ -574,7 +574,13 @@ static void pvscsi_complete_request(struct pvscsi_adapter *adapter,
+ 		case BTSTAT_SUCCESS:
+ 		case BTSTAT_LINKED_COMMAND_COMPLETED:
+ 		case BTSTAT_LINKED_COMMAND_COMPLETED_WITH_FLAG:
+-			/* If everything went fine, let's move on..  */
++			/*
++			 * Commands like INQUIRY may transfer less data than
++			 * requested by the initiator via bufflen. Set residual
++			 * count to make upper layer aware of the actual amount
++			 * of data returned.
++			 */
++			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
+ 			cmd->result = (DID_OK << 16);
+ 			break;
  
 -- 
 2.30.2
