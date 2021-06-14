@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 824B93A62CD
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:03:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 689DA3A62D8
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234325AbhFNLFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:05:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36658 "EHLO mail.kernel.org"
+        id S234127AbhFNLFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:05:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234652AbhFNLCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:02:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89AB261879;
-        Mon, 14 Jun 2021 10:43:55 +0000 (UTC)
+        id S234738AbhFNLDI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:03:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84AE36143D;
+        Mon, 14 Jun 2021 10:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667436;
-        bh=tudlBHqZenoctlRrfSERZSkHBViNR5fCAbzX/OHuqOE=;
+        s=korg; t=1623667453;
+        bh=tyn97TXx1BX8TXUEh7mwRv4SbFUY+HG02nTqWPv0ptI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Zr6V/3SG1tkzTMvN9BsaMk26lr9sbYQ/C8kr3pC3PscOKmWc3939NfJje6VFiUob
-         0oI32pARwyQzCb7GeplVMSpMnB+ygYERDQtJAINwpCQI5VzfhnYrxsRR0oLPOT6uFk
-         TWefsUEnK7bRxKTLEmiPqO6v4KbIYNFjxCT2G7r0=
+        b=YnZCg3gckEFedxyJ8rUNb9XYA3HdC2rbRICL7hXFEdA7P38dfMXPqMtYWa2BBwqAN
+         HXWeBckdQqx/QeGt178KuRIGT4i67bzRoMMz5vS8Ern1E+8zKvA52qNSL+WobTuO+4
+         KLoSQiUmEmkxqCg+odMJnFcTokInNPmieY1/D3O4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Chris Packham <chris.packham@alliedtelesis.co.nz>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/131] i2c: mpc: Make use of i2c_recover_bus()
-Date:   Mon, 14 Jun 2021 12:26:44 +0200
-Message-Id: <20210614102654.477438986@linuxfoundation.org>
+Subject: [PATCH 5.10 044/131] i2c: mpc: implement erratum A-004447 workaround
+Date:   Mon, 14 Jun 2021 12:26:45 +0200
+Message-Id: <20210614102654.515868216@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -42,77 +42,144 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit 65171b2df15eb7545431d75c2729b5062da89b43 ]
+[ Upstream commit 8f0cdec8b5fd94135d643662506ee94ae9e98785 ]
 
-Move the existing calls of mpc_i2c_fixup() to a recovery function
-registered via bus_recovery_info. This makes it more obvious that
-recovery is supported and allows for a future where recovery is
-triggered by the i2c core.
+The P2040/P2041 has an erratum where the normal i2c recovery mechanism
+does not work. Implement the alternative recovery mechanism documented
+in the P2040 Chip Errata Rev Q.
 
 Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-mpc.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-mpc.c | 79 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 78 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index d94f05c8b8b7..6a0d55e9e8e3 100644
+index 6a0d55e9e8e3..af349661fd76 100644
 --- a/drivers/i2c/busses/i2c-mpc.c
 +++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -586,7 +586,7 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 			if ((status & (CSR_MCF | CSR_MBB | CSR_RXAK)) != 0) {
- 				writeb(status & ~CSR_MAL,
- 				       i2c->base + MPC_I2C_SR);
--				mpc_i2c_fixup(i2c);
-+				i2c_recover_bus(&i2c->adap);
- 			}
- 			return -EIO;
- 		}
-@@ -622,7 +622,7 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 			if ((status & (CSR_MCF | CSR_MBB | CSR_RXAK)) != 0) {
- 				writeb(status & ~CSR_MAL,
- 				       i2c->base + MPC_I2C_SR);
--				mpc_i2c_fixup(i2c);
-+				i2c_recover_bus(&i2c->adap);
- 			}
- 			return -EIO;
- 		}
-@@ -637,6 +637,15 @@ static u32 mpc_functionality(struct i2c_adapter *adap)
- 	  | I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_SMBUS_BLOCK_PROC_CALL;
- }
+@@ -23,6 +23,7 @@
  
-+static int fsl_i2c_bus_recovery(struct i2c_adapter *adap)
-+{
-+	struct mpc_i2c *i2c = i2c_get_adapdata(adap);
-+
-+	mpc_i2c_fixup(i2c);
-+
-+	return 0;
-+}
-+
- static const struct i2c_algorithm mpc_algo = {
- 	.master_xfer = mpc_xfer,
- 	.functionality = mpc_functionality,
-@@ -648,6 +657,10 @@ static struct i2c_adapter mpc_ops = {
- 	.timeout = HZ,
+ #include <linux/clk.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
+ #include <linux/fsl_devices.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+@@ -49,6 +50,7 @@
+ #define CCR_MTX  0x10
+ #define CCR_TXAK 0x08
+ #define CCR_RSTA 0x04
++#define CCR_RSVD 0x02
+ 
+ #define CSR_MCF  0x80
+ #define CSR_MAAS 0x40
+@@ -70,6 +72,7 @@ struct mpc_i2c {
+ 	u8 fdr, dfsrr;
+ #endif
+ 	struct clk *clk_per;
++	bool has_errata_A004447;
  };
  
-+static struct i2c_bus_recovery_info fsl_i2c_recovery_info = {
-+	.recover_bus = fsl_i2c_bus_recovery,
-+};
-+
- static const struct of_device_id mpc_i2c_of_match[];
- static int fsl_i2c_probe(struct platform_device *op)
- {
-@@ -740,6 +753,7 @@ static int fsl_i2c_probe(struct platform_device *op)
- 	i2c_set_adapdata(&i2c->adap, i2c);
- 	i2c->adap.dev.parent = &op->dev;
- 	i2c->adap.dev.of_node = of_node_get(op->dev.of_node);
-+	i2c->adap.bus_recovery_info = &fsl_i2c_recovery_info;
+ struct mpc_i2c_divider {
+@@ -176,6 +179,75 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+ 	return 0;
+ }
  
- 	result = i2c_add_adapter(&i2c->adap);
- 	if (result < 0)
++static int i2c_mpc_wait_sr(struct mpc_i2c *i2c, int mask)
++{
++	void __iomem *addr = i2c->base + MPC_I2C_SR;
++	u8 val;
++
++	return readb_poll_timeout(addr, val, val & mask, 0, 100);
++}
++
++/*
++ * Workaround for Erratum A004447. From the P2040CE Rev Q
++ *
++ * 1.  Set up the frequency divider and sampling rate.
++ * 2.  I2CCR - a0h
++ * 3.  Poll for I2CSR[MBB] to get set.
++ * 4.  If I2CSR[MAL] is set (an indication that SDA is stuck low), then go to
++ *     step 5. If MAL is not set, then go to step 13.
++ * 5.  I2CCR - 00h
++ * 6.  I2CCR - 22h
++ * 7.  I2CCR - a2h
++ * 8.  Poll for I2CSR[MBB] to get set.
++ * 9.  Issue read to I2CDR.
++ * 10. Poll for I2CSR[MIF] to be set.
++ * 11. I2CCR - 82h
++ * 12. Workaround complete. Skip the next steps.
++ * 13. Issue read to I2CDR.
++ * 14. Poll for I2CSR[MIF] to be set.
++ * 15. I2CCR - 80h
++ */
++static void mpc_i2c_fixup_A004447(struct mpc_i2c *i2c)
++{
++	int ret;
++	u32 val;
++
++	writeccr(i2c, CCR_MEN | CCR_MSTA);
++	ret = i2c_mpc_wait_sr(i2c, CSR_MBB);
++	if (ret) {
++		dev_err(i2c->dev, "timeout waiting for CSR_MBB\n");
++		return;
++	}
++
++	val = readb(i2c->base + MPC_I2C_SR);
++
++	if (val & CSR_MAL) {
++		writeccr(i2c, 0x00);
++		writeccr(i2c, CCR_MSTA | CCR_RSVD);
++		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSVD);
++		ret = i2c_mpc_wait_sr(i2c, CSR_MBB);
++		if (ret) {
++			dev_err(i2c->dev, "timeout waiting for CSR_MBB\n");
++			return;
++		}
++		val = readb(i2c->base + MPC_I2C_DR);
++		ret = i2c_mpc_wait_sr(i2c, CSR_MIF);
++		if (ret) {
++			dev_err(i2c->dev, "timeout waiting for CSR_MIF\n");
++			return;
++		}
++		writeccr(i2c, CCR_MEN | CCR_RSVD);
++	} else {
++		val = readb(i2c->base + MPC_I2C_DR);
++		ret = i2c_mpc_wait_sr(i2c, CSR_MIF);
++		if (ret) {
++			dev_err(i2c->dev, "timeout waiting for CSR_MIF\n");
++			return;
++		}
++		writeccr(i2c, CCR_MEN);
++	}
++}
++
+ #if defined(CONFIG_PPC_MPC52xx) || defined(CONFIG_PPC_MPC512x)
+ static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
+ 	{20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
+@@ -641,7 +713,10 @@ static int fsl_i2c_bus_recovery(struct i2c_adapter *adap)
+ {
+ 	struct mpc_i2c *i2c = i2c_get_adapdata(adap);
+ 
+-	mpc_i2c_fixup(i2c);
++	if (i2c->has_errata_A004447)
++		mpc_i2c_fixup_A004447(i2c);
++	else
++		mpc_i2c_fixup(i2c);
+ 
+ 	return 0;
+ }
+@@ -745,6 +820,8 @@ static int fsl_i2c_probe(struct platform_device *op)
+ 	dev_info(i2c->dev, "timeout %u us\n", mpc_ops.timeout * 1000000 / HZ);
+ 
+ 	platform_set_drvdata(op, i2c);
++	if (of_property_read_bool(op->dev.of_node, "fsl,i2c-erratum-a004447"))
++		i2c->has_errata_A004447 = true;
+ 
+ 	i2c->adap = mpc_ops;
+ 	of_address_to_resource(op->dev.of_node, 0, &res);
 -- 
 2.30.2
 
