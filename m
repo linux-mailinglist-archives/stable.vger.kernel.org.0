@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6249C3A6074
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89B1E3A61EC
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:51:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233186AbhFNKeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:34:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40062 "EHLO mail.kernel.org"
+        id S234180AbhFNKxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:53:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233188AbhFNKdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A682611CA;
-        Mon, 14 Jun 2021 10:31:06 +0000 (UTC)
+        id S234365AbhFNKvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:51:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89B4C61467;
+        Mon, 14 Jun 2021 10:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666666;
-        bh=eds8IOZtnGhaffiJTb92aYTjf9GAJf65MJFEnvDn35c=;
+        s=korg; t=1623667138;
+        bh=otgb3Zc+GWXKnnf0Bd//GmPdasp8Iuw804nR7rH2dE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p52qRJfstU7B4Cj/qlO3E+SyPNHB3O62SU5C3tDhA3zPdulrEZWdejQ0FUKG4Rs+k
-         k8//GZzWDA+UViAhly7cacUKr4zhdTkn+xGcmBeGDpiUs1Qa5Dg6tugSnehlXDC0a3
-         1vbVNVvHvkDMz+iTSv1QGgDylNjd6Fp9AJ3IlGng=
+        b=A8pv6ZCV+NzCnen5NvAm8W+FyMunKPZriwIoTtVLUWr313tXOizT8EuKyJRYBhU/X
+         9LIsVXj9hAnq1kvIqkhLMBqcy2mhako+Zmd3LAp2Jn/Ar9f8OBv4EWkgrZBo1bElAz
+         dsKsfyrEQZNpjLJtr7rDZ73Rml3LDhtSE+LQfzvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        George McCollister <george.mccollister@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 27/42] USB: serial: ftdi_sio: add NovaTech OrionMX product ID
-Date:   Mon, 14 Jun 2021 12:27:18 +0200
-Message-Id: <20210614102643.569927932@linuxfoundation.org>
+        Artemiy Margaritov <artemiy.margaritov@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 41/84] kvm: avoid speculation-based attacks from out-of-range memslot accesses
+Date:   Mon, 14 Jun 2021 12:27:19 +0200
+Message-Id: <20210614102647.763585152@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George McCollister <george.mccollister@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit bc96c72df33ee81b24d87eab953c73f7bcc04f29 upstream.
+commit da27a83fd6cc7780fea190e1f5c19e87019da65c upstream.
 
-Add PID for the NovaTech OrionMX so it can be automatically detected.
+KVM's mechanism for accessing guest memory translates a guest physical
+address (gpa) to a host virtual address using the right-shifted gpa
+(also known as gfn) and a struct kvm_memory_slot.  The translation is
+performed in __gfn_to_hva_memslot using the following formula:
 
-Signed-off-by: George McCollister <george.mccollister@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+      hva = slot->userspace_addr + (gfn - slot->base_gfn) * PAGE_SIZE
+
+It is expected that gfn falls within the boundaries of the guest's
+physical memory.  However, a guest can access invalid physical addresses
+in such a way that the gfn is invalid.
+
+__gfn_to_hva_memslot is called from kvm_vcpu_gfn_to_hva_prot, which first
+retrieves a memslot through __gfn_to_memslot.  While __gfn_to_memslot
+does check that the gfn falls within the boundaries of the guest's
+physical memory or not, a CPU can speculate the result of the check and
+continue execution speculatively using an illegal gfn. The speculation
+can result in calculating an out-of-bounds hva.  If the resulting host
+virtual address is used to load another guest physical address, this
+is effectively a Spectre gadget consisting of two consecutive reads,
+the second of which is data dependent on the first.
+
+Right now it's not clear if there are any cases in which this is
+exploitable.  One interesting case was reported by the original author
+of this patch, and involves visiting guest page tables on x86.  Right
+now these are not vulnerable because the hva read goes through get_user(),
+which contains an LFENCE speculation barrier.  However, there are
+patches in progress for x86 uaccess.h to mask kernel addresses instead of
+using LFENCE; once these land, a guest could use speculation to read
+from the VMM's ring 3 address space.  Other architectures such as ARM
+already use the address masking method, and would be susceptible to
+this same kind of data-dependent access gadgets.  Therefore, this patch
+proactively protects from these attacks by masking out-of-bounds gfns
+in __gfn_to_hva_memslot, which blocks speculation of invalid hvas.
+
+Sean Christopherson noted that this patch does not cover
+kvm_read_guest_offset_cached.  This however is limited to a few bytes
+past the end of the cache, and therefore it is unlikely to be useful in
+the context of building a chain of data dependent accesses.
+
+Reported-by: Artemiy Margaritov <artemiy.margaritov@gmail.com>
+Co-developed-by: Artemiy Margaritov <artemiy.margaritov@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    1 +
- drivers/usb/serial/ftdi_sio_ids.h |    1 +
- 2 files changed, 2 insertions(+)
+ include/linux/kvm_host.h |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -606,6 +606,7 @@ static const struct usb_device_id id_tab
- 		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
- 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONLX_PLUS_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORION_IO_PID) },
-+	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONMX_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_SYNAPSE_SS200_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX2_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -580,6 +580,7 @@
- #define FTDI_NT_ORIONLXM_PID		0x7c90	/* OrionLXm Substation Automation Platform */
- #define FTDI_NT_ORIONLX_PLUS_PID	0x7c91	/* OrionLX+ Substation Automation Platform */
- #define FTDI_NT_ORION_IO_PID		0x7c92	/* Orion I/O */
-+#define FTDI_NT_ORIONMX_PID		0x7c93	/* OrionMX */
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -1045,7 +1045,15 @@ __gfn_to_memslot(struct kvm_memslots *sl
+ static inline unsigned long
+ __gfn_to_hva_memslot(struct kvm_memory_slot *slot, gfn_t gfn)
+ {
+-	return slot->userspace_addr + (gfn - slot->base_gfn) * PAGE_SIZE;
++	/*
++	 * The index was checked originally in search_memslots.  To avoid
++	 * that a malicious guest builds a Spectre gadget out of e.g. page
++	 * table walks, do not let the processor speculate loads outside
++	 * the guest's registered memslots.
++	 */
++	unsigned long offset = array_index_nospec(gfn - slot->base_gfn,
++						  slot->npages);
++	return slot->userspace_addr + offset * PAGE_SIZE;
+ }
  
- /*
-  * Synapse Wireless product ids (FTDI_VID)
+ static inline int memslot_id(struct kvm *kvm, gfn_t gfn)
 
 
