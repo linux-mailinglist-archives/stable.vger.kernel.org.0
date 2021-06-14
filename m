@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E5BF3A627B
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 064113A627E
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234263AbhFNLBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:01:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35526 "EHLO mail.kernel.org"
+        id S234283AbhFNLBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:01:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234667AbhFNK6z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:58:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E2606142E;
-        Mon, 14 Jun 2021 10:42:07 +0000 (UTC)
+        id S234755AbhFNK7I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:59:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 591BD6142B;
+        Mon, 14 Jun 2021 10:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667328;
-        bh=BzaYx7fpMsxsiOeTmJBdfTpVjnWGpnleTHfSLKwCxIY=;
+        s=korg; t=1623667331;
+        bh=4CVml7otjDJGwBs2cMscAqEdXLLanjVXMjd5sFkOvo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7ma/JERoU7kXF0DSSL+1DFv5/DZY6+xqVOHXBy0TwvUeXe+UKlj0Dp+NiRHgXbi8
-         D5PbQpZpQ1l6FzvuqmfxFK+oaYhlgkx5wJ3+0lIP489skk/E1cyzyKGCbLhxLoBIhK
-         OGEzl+Jxb0ma04rZrRd+SswRLR2WOejH19/6Thls=
+        b=ZQ3xDdHAJ0dWa1VxArTcbI0OicLrEe8pKYhh2iY7S6lmynhlcx6XAHD86QAiiPHOF
+         MDZYWj+c+A+bzTJC5VrFkkTdGGZTsiQSZip38Ar/YfGVh8Aok5OP/VQOlikf9CvfPX
+         B4bXmB+mI8ko8NpvfUoSsCW2Nk2M9AXqLKc2gHN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
+        Dmitry Bogdanov <d.bogdanov@yadro.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/131] scsi: hisi_sas: Drop free_irq() of devm_request_irq() allocated irq
-Date:   Mon, 14 Jun 2021 12:26:29 +0200
-Message-Id: <20210614102653.961626619@linuxfoundation.org>
+Subject: [PATCH 5.10 029/131] scsi: target: qla2xxx: Wait for stop_phase1 at WWN removal
+Date:   Mon, 14 Jun 2021 12:26:30 +0200
+Message-Id: <20210614102653.999205807@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -42,47 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Dmitry Bogdanov <d.bogdanov@yadro.com>
 
-[ Upstream commit 7907a021e4bbfa29cccacd2ba2dade894d9a7d4c ]
+[ Upstream commit 2ef7665dfd88830f15415ba007c7c9a46be7acd8 ]
 
-irqs allocated with devm_request_irq() should not be freed using
-free_irq(). Doing so causes a dangling pointer and a subsequent double
-free.
+Target de-configuration panics at high CPU load because TPGT and WWPN can
+be removed on separate threads.
 
-Link: https://lore.kernel.org/r/20210519130519.2661938-1-yangyingliang@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+TPGT removal requests a reset HBA on a separate thread and waits for reset
+complete (phase1). Due to high CPU load that HBA reset can be delayed for
+some time.
+
+WWPN removal does qlt_stop_phase2(). There it is believed that phase1 has
+already completed and thus tgt.tgt_ops is subsequently cleared. However,
+tgt.tgt_ops is needed to process incoming traffic and therefore this will
+cause one of the following panics:
+
+NIP qlt_reset+0x7c/0x220 [qla2xxx]
+LR  qlt_reset+0x68/0x220 [qla2xxx]
+Call Trace:
+0xc000003ffff63a78 (unreliable)
+qlt_handle_imm_notify+0x800/0x10c0 [qla2xxx]
+qlt_24xx_atio_pkt+0x208/0x590 [qla2xxx]
+qlt_24xx_process_atio_queue+0x33c/0x7a0 [qla2xxx]
+qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
+
+or
+
+NIP qlt_24xx_handle_abts+0xd0/0x2a0 [qla2xxx]
+LR  qlt_24xx_handle_abts+0xb4/0x2a0 [qla2xxx]
+Call Trace:
+qlt_24xx_handle_abts+0x90/0x2a0 [qla2xxx] (unreliable)
+qlt_24xx_process_atio_queue+0x500/0x7a0 [qla2xxx]
+qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
+
+or
+
+NIP qlt_create_sess+0x90/0x4e0 [qla2xxx]
+LR  qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
+Call Trace:
+0xc0000000348fba30 (unreliable)
+qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
+qla2x00_do_work+0x674/0xbf0 [qla2xxx]
+qla2x00_iocb_work_fn
+
+The patch fixes the issue by serializing qlt_stop_phase1() and
+qlt_stop_phase2() functions to make WWPN removal wait for phase1
+completion.
+
+Link: https://lore.kernel.org/r/20210415203554.27890-1-d.bogdanov@yadro.com
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/qla2xxx/qla_target.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index 19170c7ac336..e9a82a390672 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -3359,14 +3359,14 @@ hisi_sas_v3_destroy_irqs(struct pci_dev *pdev, struct hisi_hba *hisi_hba)
- {
- 	int i;
- 
--	free_irq(pci_irq_vector(pdev, 1), hisi_hba);
--	free_irq(pci_irq_vector(pdev, 2), hisi_hba);
--	free_irq(pci_irq_vector(pdev, 11), hisi_hba);
-+	devm_free_irq(&pdev->dev, pci_irq_vector(pdev, 1), hisi_hba);
-+	devm_free_irq(&pdev->dev, pci_irq_vector(pdev, 2), hisi_hba);
-+	devm_free_irq(&pdev->dev, pci_irq_vector(pdev, 11), hisi_hba);
- 	for (i = 0; i < hisi_hba->cq_nvecs; i++) {
- 		struct hisi_sas_cq *cq = &hisi_hba->cq[i];
- 		int nr = hisi_sas_intr_conv ? 16 : 16 + i;
- 
--		free_irq(pci_irq_vector(pdev, nr), cq);
-+		devm_free_irq(&pdev->dev, pci_irq_vector(pdev, nr), cq);
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index dcae8f071c35..8d4976725a75 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -1559,10 +1559,12 @@ void qlt_stop_phase2(struct qla_tgt *tgt)
+ 		return;
  	}
- 	pci_free_irq_vectors(pdev);
- }
+ 
++	mutex_lock(&tgt->ha->optrom_mutex);
+ 	mutex_lock(&vha->vha_tgt.tgt_mutex);
+ 	tgt->tgt_stop = 0;
+ 	tgt->tgt_stopped = 1;
+ 	mutex_unlock(&vha->vha_tgt.tgt_mutex);
++	mutex_unlock(&tgt->ha->optrom_mutex);
+ 
+ 	ql_dbg(ql_dbg_tgt_mgt, vha, 0xf00c, "Stop of tgt %p finished\n",
+ 	    tgt);
 -- 
 2.30.2
 
