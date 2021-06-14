@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 503F73A634E
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:11:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C3B3A6473
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:23:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233917AbhFNLL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:11:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39870 "EHLO mail.kernel.org"
+        id S233803AbhFNLZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235214AbhFNLJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:09:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E705F61936;
-        Mon, 14 Jun 2021 10:46:46 +0000 (UTC)
+        id S235336AbhFNLWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:22:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46CA361481;
+        Mon, 14 Jun 2021 10:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667607;
-        bh=bcwyNAPslwLXSOJnCiaRCj0jhQAP/LBYRh+OB+OH49o=;
+        s=korg; t=1623667973;
+        bh=7ys6ZJKH+Wz9SGxsaI3CUEtNvjkyrEdX0c3Ise/YfRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwZOr/8kScCm1Uy19y3V7zGAkkJEyHIxlbEcdVnatLeeA8i46KSKeX8sUE0lzIxne
-         4ydHrIrSgaCNbPfeKdRFFGUmQSbwFcDQWb/3/5Qh6/YH9NFyjoYcBy63W+7rIqJ5la
-         86hR+QJmCKmnwJE9UwGdobqfX7FOgw6lP4JHjmgk=
+        b=S17wA3NArEQzOK9AehOK7GFAcAZwcm4yvXwYHQcncyyuLii982e/PQ282pbYPj8ZJ
+         iqqPCK6NN32bqbSgEjynZproq1ugJRFJ1IPVj9qu80sQDwnqmwjmIPzSoCeCAyqusi
+         SvzNGjTeVPZ4UtT5rcBH7KF2xjU5Vh8vB0T2p3Rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 5.10 118/131] KVM: x86: Ensure liveliness of nested VM-Enter fail tracepoint message
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.12 147/173] ASoC: meson: gx-card: fix sound-dai dt schema
 Date:   Mon, 14 Jun 2021 12:27:59 +0200
-Message-Id: <20210614102657.024263674@linuxfoundation.org>
+Message-Id: <20210614102703.058936062@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,83 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-commit f31500b0d437a2464ca5972d8f5439e156b74960 upstream.
+commit d031d99b02eaf7363c33f5b27b38086cc8104082 upstream.
 
-Use the __string() machinery provided by the tracing subystem to make a
-copy of the string literals consumed by the "nested VM-Enter failed"
-tracepoint.  A complete copy is necessary to ensure that the tracepoint
-can't outlive the data/memory it consumes and deference stale memory.
+There is a fair amount of warnings when running 'make dtbs_check' with
+amlogic,gx-sound-card.yaml.
 
-Because the tracepoint itself is defined by kvm, if kvm-intel and/or
-kvm-amd are built as modules, the memory holding the string literals
-defined by the vendor modules will be freed when the module is unloaded,
-whereas the tracepoint and its data in the ring buffer will live until
-kvm is unloaded (or "indefinitely" if kvm is built-in).
+Ex:
+arch/arm64/boot/dts/amlogic/meson-gxm-q200.dt.yaml: sound: dai-link-0:sound-dai:0:1: missing phandle tag in 0
+arch/arm64/boot/dts/amlogic/meson-gxm-q200.dt.yaml: sound: dai-link-0:sound-dai:0:2: missing phandle tag in 0
+arch/arm64/boot/dts/amlogic/meson-gxm-q200.dt.yaml: sound: dai-link-0:sound-dai:0: [66, 0, 0] is too long
 
-This bug has existed since the tracepoint was added, but was recently
-exposed by a new check in tracing to detect exactly this type of bug.
+The reason is that the sound-dai phandle provided has cells, and in such
+case the schema should use 'phandle-array' instead of 'phandle'.
 
-  fmt: '%s%s
-  ' current_buffer: ' vmx_dirty_log_t-140127  [003] ....  kvm_nested_vmenter_failed: '
-  WARNING: CPU: 3 PID: 140134 at kernel/trace/trace.c:3759 trace_check_vprintf+0x3be/0x3e0
-  CPU: 3 PID: 140134 Comm: less Not tainted 5.13.0-rc1-ce2e73ce600a-req #184
-  Hardware name: ASUS Q87M-E/Q87M-E, BIOS 1102 03/03/2014
-  RIP: 0010:trace_check_vprintf+0x3be/0x3e0
-  Code: <0f> 0b 44 8b 4c 24 1c e9 a9 fe ff ff c6 44 02 ff 00 49 8b 97 b0 20
-  RSP: 0018:ffffa895cc37bcb0 EFLAGS: 00010282
-  RAX: 0000000000000000 RBX: ffffa895cc37bd08 RCX: 0000000000000027
-  RDX: 0000000000000027 RSI: 00000000ffffdfff RDI: ffff9766cfad74f8
-  RBP: ffffffffc0a041d4 R08: ffff9766cfad74f0 R09: ffffa895cc37bad8
-  R10: 0000000000000001 R11: 0000000000000001 R12: ffffffffc0a041d4
-  R13: ffffffffc0f4dba8 R14: 0000000000000000 R15: ffff976409f2c000
-  FS:  00007f92fa200740(0000) GS:ffff9766cfac0000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000559bd11b0000 CR3: 000000019fbaa002 CR4: 00000000001726e0
-  Call Trace:
-   trace_event_printf+0x5e/0x80
-   trace_raw_output_kvm_nested_vmenter_failed+0x3a/0x60 [kvm]
-   print_trace_line+0x1dd/0x4e0
-   s_show+0x45/0x150
-   seq_read_iter+0x2d5/0x4c0
-   seq_read+0x106/0x150
-   vfs_read+0x98/0x180
-   ksys_read+0x5f/0xe0
-   do_syscall_64+0x40/0xb0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Fixes: 380e0055bc7e ("KVM: nVMX: trace nested VM-Enter failures detected by H/W")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Message-Id: <20210607175748.674002-1-seanjc@google.com>
+Fixes: fd00366b8e41 ("ASoC: meson: gx: add sound card dt-binding documentation")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20210524093448.357140-1-jbrunet@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/trace.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/trace.h
-+++ b/arch/x86/kvm/trace.h
-@@ -1514,16 +1514,16 @@ TRACE_EVENT(kvm_nested_vmenter_failed,
- 	TP_ARGS(msg, err),
+--- a/Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml
++++ b/Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml
+@@ -57,7 +57,7 @@ patternProperties:
+           rate
  
- 	TP_STRUCT__entry(
--		__field(const char *, msg)
-+		__string(msg, msg)
- 		__field(u32, err)
- 	),
+       sound-dai:
+-        $ref: /schemas/types.yaml#/definitions/phandle
++        $ref: /schemas/types.yaml#/definitions/phandle-array
+         description: phandle of the CPU DAI
  
- 	TP_fast_assign(
--		__entry->msg = msg;
-+		__assign_str(msg, msg);
- 		__entry->err = err;
- 	),
+     patternProperties:
+@@ -71,7 +71,7 @@ patternProperties:
  
--	TP_printk("%s%s", __entry->msg, !__entry->err ? "" :
-+	TP_printk("%s%s", __get_str(msg), !__entry->err ? "" :
- 		__print_symbolic(__entry->err, VMX_VMENTER_INSTRUCTION_ERRORS))
- );
+         properties:
+           sound-dai:
+-            $ref: /schemas/types.yaml#/definitions/phandle
++            $ref: /schemas/types.yaml#/definitions/phandle-array
+             description: phandle of the codec DAI
  
+         required:
 
 
