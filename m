@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 402333A6120
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 099793A60B3
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:34:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233367AbhFNKno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:43:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46840 "EHLO mail.kernel.org"
+        id S233494AbhFNKg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:36:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233702AbhFNKlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:41:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A93C1613CC;
-        Mon, 14 Jun 2021 10:35:04 +0000 (UTC)
+        id S233506AbhFNKfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:35:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C437613F5;
+        Mon, 14 Jun 2021 10:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666905;
-        bh=Wxtvq9eHMKPN54ne+ZQrK/BlFetohqLhABaJbiMUsWE=;
+        s=korg; t=1623666742;
+        bh=vIb/mFqeUqpu6fhmODDqS9cNx+/EYS3b8/XF2X/yCN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVNnDF5ZtLNlji6sV6v+l1lzzQ9xsM8a+E4HgQ41h+uxdpuDzyw4ohIxtsWIERH3A
-         LjnhNGXeStzGKMzSXO98d+wsSJ3TGHc9Xwp/CZ9sKL5U57pa5X3wOqChpt1ALFIf4b
-         KEZH3IfKDuREgoPFroWXwVHYpXnE6eEEZWbxyVqE=
+        b=twedOeH1mwvihTlXiR8ULNq2Ek4YlFP0wpfMHNNn3VuKPlhZ5galPcCndfzcam86x
+         TSizKS+DbJ2DO3fJSjCnJNT26zJ0Onl6fDXhTEnm++o1ppAkAC3QRSzoGLrDrQXkti
+         O5yuea6yo0ix7X+87aanzXF7hC72sg5fh5yFn+F8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 23/67] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P2041 i2c controllers
+        stable@vger.kernel.org, Zong Li <zong.li@sifive.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 13/49] net: macb: ensure the device is available before accessing GEMGXL control registers
 Date:   Mon, 14 Jun 2021 12:27:06 +0200
-Message-Id: <20210614102644.534772871@linuxfoundation.org>
+Message-Id: <20210614102642.308268970@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Zong Li <zong.li@sifive.com>
 
-[ Upstream commit 7adc7b225cddcfd0f346d10144fd7a3d3d9f9ea7 ]
+[ Upstream commit 5eff1461a6dec84f04fafa9128548bad51d96147 ]
 
-The i2c controllers on the P2040/P2041 have an erratum where the
-documented scheme for i2c bus recovery will not work (A-004447). A
-different mechanism is needed which is documented in the P2040 Chip
-Errata Rev Q (latest available at the time of writing).
+If runtime power menagement is enabled, the gigabit ethernet PLL would
+be disabled after macb_probe(). During this period of time, the system
+would hang up if we try to access GEMGXL control registers.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+We can't put runtime_pm_get/runtime_pm_put/ there due to the issue of
+sleep inside atomic section (7fa2955ff70ce453 ("sh_eth: Fix sleeping
+function called from invalid context"). Add netif_running checking to
+ensure the device is available before accessing GEMGXL device.
+
+Changed in v2:
+ - Use netif_running instead of its own flag
+
+Signed-off-by: Zong Li <zong.li@sifive.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/p2041si-post.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/net/ethernet/cadence/macb_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
-index 51e975d7631a..8921f17fca42 100644
---- a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
-@@ -389,7 +389,23 @@
- 	};
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 4d2a996ba446..b07ea8a26c20 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -2330,6 +2330,9 @@ static struct net_device_stats *gem_get_stats(struct macb *bp)
+ 	struct gem_stats *hwstat = &bp->hw_stats.gem;
+ 	struct net_device_stats *nstat = &bp->dev->stats;
  
- /include/ "qoriq-i2c-0.dtsi"
-+	i2c@118000 {
-+		fsl,i2c-erratum-a004447;
-+	};
++	if (!netif_running(bp->dev))
++		return nstat;
 +
-+	i2c@118100 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
- /include/ "qoriq-i2c-1.dtsi"
-+	i2c@119000 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
-+	i2c@119100 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
- /include/ "qoriq-duart-0.dtsi"
- /include/ "qoriq-duart-1.dtsi"
- /include/ "qoriq-gpio-0.dtsi"
+ 	gem_update_stats(bp);
+ 
+ 	nstat->rx_errors = (hwstat->rx_frame_check_sequence_errors +
 -- 
 2.30.2
 
