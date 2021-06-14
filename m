@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB8273A60FF
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B12B3A6138
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233772AbhFNKlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:41:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46850 "EHLO mail.kernel.org"
+        id S233445AbhFNKpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:45:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233900AbhFNKjI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:39:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE8926141E;
-        Mon, 14 Jun 2021 10:34:10 +0000 (UTC)
+        id S233066AbhFNKmZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:42:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A42B61433;
+        Mon, 14 Jun 2021 10:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666851;
-        bh=12MpSEjMAG8ZT1RiVEIWiStXoSQLE9uQJhQgUf+MVrg=;
+        s=korg; t=1623666938;
+        bh=hOaLsk8luCrfyt/i8zPTrnJq7mDdQimt/9ZzMKThkjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1EkgbJRjuP5J884dwIUhvFO8GskwE6cm0Zqbg2GWfFVVNLJEPDAYWKZL3nHgHhGu
-         cnTFpavJi3tQEp+l83qPGfOGvJ1WaBIRfdm95uZ0ME5b+vEylkaMG0xLqCq8ZizYrk
-         xmsl3CMkVODJGo4HBadrJFZtVjYIIXogwAAow5q0=
+        b=d7WcbYQF7YsrF4AiBG4pTjM0qfaWSBjQMc1RGgf5PCgG4zma5IqHseLIM3Lw8bcPj
+         jdgFdyqK8CnqeBJR67EKL0GB0FfPrHN7JZ75MmhTJj1+XZbO9Li/FLN+Dp3V4pcmvA
+         DSiZbVrfPrFNjYcgW2ntMdXATrdK1kPewyFEYSlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenli Looi <wlooi@ucalgary.ca>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.14 24/49] staging: rtl8723bs: Fix uninitialized variables
+        stable@vger.kernel.org, Alexander Kuznetsov <wwfq@yandex-team.ru>,
+        Andrey Krasichkov <buglloc@yandex-team.ru>,
+        Dmitry Yakunin <zeil@yandex-team.ru>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.19 34/67] cgroup1: dont allow \n in renaming
 Date:   Mon, 14 Jun 2021 12:27:17 +0200
-Message-Id: <20210614102642.659213623@linuxfoundation.org>
+Message-Id: <20210614102644.922992967@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenli Looi <wlooi@ucalgary.ca>
+From: Alexander Kuznetsov <wwfq@yandex-team.ru>
 
-commit 43c85d770db80cb135f576f8fde6ff1a08e707a4 upstream.
+commit b7e24eb1caa5f8da20d405d262dba67943aedc42 upstream.
 
-The sinfo.pertid and sinfo.generation variables are not initialized and
-it causes a crash when we use this as a wireless access point.
+cgroup_mkdir() have restriction on newline usage in names:
+$ mkdir $'/sys/fs/cgroup/cpu/test\ntest2'
+mkdir: cannot create directory
+'/sys/fs/cgroup/cpu/test\ntest2': Invalid argument
 
-[  456.873025] ------------[ cut here ]------------
-[  456.878198] kernel BUG at mm/slub.c:3968!
-[  456.882680] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
+But in cgroup1_rename() such check is missed.
+This allows us to make /proc/<pid>/cgroup unparsable:
+$ mkdir /sys/fs/cgroup/cpu/test
+$ mv /sys/fs/cgroup/cpu/test $'/sys/fs/cgroup/cpu/test\ntest2'
+$ echo $$ > $'/sys/fs/cgroup/cpu/test\ntest2'
+$ cat /proc/self/cgroup
+11:pids:/
+10:freezer:/
+9:hugetlb:/
+8:cpuset:/
+7:blkio:/user.slice
+6:memory:/user.slice
+5:net_cls,net_prio:/
+4:perf_event:/
+3:devices:/user.slice
+2:cpu,cpuacct:/test
+test2
+1:name=systemd:/
+0::/
 
-  [ snip ]
-
-[  457.271004] Backtrace:
-[  457.273733] [<c02b7ee4>] (kfree) from [<c0e2a470>] (nl80211_send_station+0x954/0xfc4)
-[  457.282481]  r9:eccca0c0 r8:e8edfec0 r7:00000000 r6:00000011 r5:e80a9480 r4:e8edfe00
-[  457.291132] [<c0e29b1c>] (nl80211_send_station) from [<c0e2b18c>] (cfg80211_new_sta+0x90/0x1cc)
-[  457.300850]  r10:e80a9480 r9:e8edfe00 r8:ea678cca r7:00000a20 r6:00000000 r5:ec46d000
-[  457.309586]  r4:ec46d9e0
-[  457.312433] [<c0e2b0fc>] (cfg80211_new_sta) from [<bf086684>] (rtw_cfg80211_indicate_sta_assoc+0x80/0x9c [r8723bs])
-[  457.324095]  r10:00009930 r9:e85b9d80 r8:bf091050 r7:00000000 r6:00000000 r5:0000001c
-[  457.332831]  r4:c1606788
-[  457.335692] [<bf086604>] (rtw_cfg80211_indicate_sta_assoc [r8723bs]) from [<bf03df38>] (rtw_stassoc_event_callback+0x1c8/0x1d4 [r8723bs])
-[  457.349489]  r7:ea678cc0 r6:000000a1 r5:f1225f84 r4:f086b000
-[  457.355845] [<bf03dd70>] (rtw_stassoc_event_callback [r8723bs]) from [<bf048e4c>] (mlme_evt_hdl+0x8c/0xb4 [r8723bs])
-[  457.367601]  r7:c1604900 r6:f086c4b8 r5:00000000 r4:f086c000
-[  457.373959] [<bf048dc0>] (mlme_evt_hdl [r8723bs]) from [<bf03693c>] (rtw_cmd_thread+0x198/0x3d8 [r8723bs])
-[  457.384744]  r5:f086e000 r4:f086c000
-[  457.388754] [<bf0367a4>] (rtw_cmd_thread [r8723bs]) from [<c014a214>] (kthread+0x170/0x174)
-[  457.398083]  r10:ed7a57e8 r9:bf0367a4 r8:f086b000 r7:e8ede000 r6:00000000 r5:e9975200
-[  457.406828]  r4:e8369900
-[  457.409653] [<c014a0a4>] (kthread) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
-[  457.417718] Exception stack(0xe8edffb0 to 0xe8edfff8)
-[  457.423356] ffa0:                                     00000000 00000000 00000000 00000000
-[  457.432492] ffc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-[  457.441618] ffe0: 00000000 00000000 00000000 00000000 00000013 00000000
-[  457.449006]  r10:00000000 r9:00000000 r8:00000000 r7:00000000 r6:00000000 r5:c014a0a4
-[  457.457750]  r4:e9975200
-[  457.460574] Code: 1a000003 e5953004 e3130001 1a000000 (e7f001f2)
-[  457.467381] ---[ end trace 4acbc8c15e9e6aa7 ]---
-
-Link: https://forum.armbian.com/topic/14727-wifi-ap-kernel-bug-in-kernel-5444/
-Fixes: 8689c051a201 ("cfg80211: dynamically allocate per-tid stats for station info")
-Fixes: f5ea9120be2e ("nl80211: add generation number to all dumps")
-Signed-off-by: Wenli Looi <wlooi@ucalgary.ca>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608064620.74059-1-wlooi@ucalgary.ca
+Signed-off-by: Alexander Kuznetsov <wwfq@yandex-team.ru>
+Reported-by: Andrey Krasichkov <buglloc@yandex-team.ru>
+Acked-by: Dmitry Yakunin <zeil@yandex-team.ru>
+Cc: stable@vger.kernel.org
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cgroup-v1.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-@@ -2432,7 +2432,7 @@ void rtw_cfg80211_indicate_sta_assoc(str
- 	DBG_871X(FUNC_ADPT_FMT"\n", FUNC_ADPT_ARG(padapter));
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -849,6 +849,10 @@ static int cgroup1_rename(struct kernfs_
+ 	struct cgroup *cgrp = kn->priv;
+ 	int ret;
  
- 	{
--		struct station_info sinfo;
-+		struct station_info sinfo = {};
- 		u8 ie_offset;
- 		if (GetFrameSubType(pmgmt_frame) == WIFI_ASSOCREQ)
- 			ie_offset = _ASOCREQ_IE_OFFSET_;
++	/* do not accept '\n' to prevent making /proc/<pid>/cgroup unparsable */
++	if (strchr(new_name_str, '\n'))
++		return -EINVAL;
++
+ 	if (kernfs_type(kn) != KERNFS_DIR)
+ 		return -ENOTDIR;
+ 	if (kn->parent != new_parent)
 
 
