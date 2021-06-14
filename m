@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F24823A61CF
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66B163A607F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234461AbhFNKv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:51:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57768 "EHLO mail.kernel.org"
+        id S233448AbhFNKfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:35:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233773AbhFNKt5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:49:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9094B6141B;
-        Mon, 14 Jun 2021 10:38:25 +0000 (UTC)
+        id S233304AbhFNKdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:33:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F8F2613D3;
+        Mon, 14 Jun 2021 10:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667106;
-        bh=WAbIyIEjDgStl+UYWQFKDtS5YlZzSJEiuzQuLw42K7A=;
+        s=korg; t=1623666693;
+        bh=cX1osIjjG/EbNn6Zaz+wRjRZVJLIF7EUhPAuqw/oQEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o47qQou0EVsOeUczR2ZjK6GTnPPZp0o0zwqz84nDtVDlBTFwoBXGTzRQd60/E3prK
-         VmpnyI8EmNIJbWHb/sfr9tBFm3VtduFuEjl1RjGL8TK/t6jxJscR5PJBWzZShFv0ow
-         Ht7qVxXKaX+ACpmhQeP08SU5iazZpkQeUEi+fSN0=
+        b=QpJ4+MmJSbYzVk7WqcsJLpsYDN87tW1yCvP2ba547/GHts6VnK/VIQtoKaiuOy+Be
+         PyjoMLAsHrLrtC4cQJwZaIA7FcQPVAUqT0s2VFFEGK3dfOM8uski+MvMdrWIojkjP4
+         MK5v4LoWLZF6trqpesCwpOjb6xNlElwG2anV1974=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
-        Dmitry Bogdanov <d.bogdanov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/84] scsi: target: qla2xxx: Wait for stop_phase1 at WWN removal
-Date:   Mon, 14 Jun 2021 12:27:00 +0200
-Message-Id: <20210614102647.116379560@linuxfoundation.org>
+Subject: [PATCH 4.9 10/42] net/qla3xxx: fix schedule while atomic in ql_sem_spinlock
+Date:   Mon, 14 Jun 2021 12:27:01 +0200
+Message-Id: <20210614102643.041925428@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <d.bogdanov@yadro.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 2ef7665dfd88830f15415ba007c7c9a46be7acd8 ]
+[ Upstream commit 13a6f3153922391e90036ba2267d34eed63196fc ]
 
-Target de-configuration panics at high CPU load because TPGT and WWPN can
-be removed on separate threads.
+When calling the 'ql_sem_spinlock', the driver has already acquired the
+spin lock, so the driver should not call 'ssleep' in atomic context.
 
-TPGT removal requests a reset HBA on a separate thread and waits for reset
-complete (phase1). Due to high CPU load that HBA reset can be delayed for
-some time.
+This bug can be fixed by using 'mdelay' instead of 'ssleep'.
 
-WWPN removal does qlt_stop_phase2(). There it is believed that phase1 has
-already completed and thus tgt.tgt_ops is subsequently cleared. However,
-tgt.tgt_ops is needed to process incoming traffic and therefore this will
-cause one of the following panics:
+The KASAN's log reveals it:
 
-NIP qlt_reset+0x7c/0x220 [qla2xxx]
-LR  qlt_reset+0x68/0x220 [qla2xxx]
-Call Trace:
-0xc000003ffff63a78 (unreliable)
-qlt_handle_imm_notify+0x800/0x10c0 [qla2xxx]
-qlt_24xx_atio_pkt+0x208/0x590 [qla2xxx]
-qlt_24xx_process_atio_queue+0x33c/0x7a0 [qla2xxx]
-qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
+[    3.238124 ] BUG: scheduling while atomic: swapper/0/1/0x00000002
+[    3.238748 ] 2 locks held by swapper/0/1:
+[    3.239151 ]  #0: ffff88810177b240 (&dev->mutex){....}-{3:3}, at:
+__device_driver_lock+0x41/0x60
+[    3.240026 ]  #1: ffff888107c60e28 (&qdev->hw_lock){....}-{2:2}, at:
+ql3xxx_probe+0x2aa/0xea0
+[    3.240873 ] Modules linked in:
+[    3.241187 ] irq event stamp: 460854
+[    3.241541 ] hardirqs last  enabled at (460853): [<ffffffff843051bf>]
+_raw_spin_unlock_irqrestore+0x4f/0x70
+[    3.242245 ] hardirqs last disabled at (460854): [<ffffffff843058ca>]
+_raw_spin_lock_irqsave+0x2a/0x70
+[    3.242245 ] softirqs last  enabled at (446076): [<ffffffff846002e4>]
+__do_softirq+0x2e4/0x4b1
+[    3.242245 ] softirqs last disabled at (446069): [<ffffffff811ba5e0>]
+irq_exit_rcu+0x100/0x110
+[    3.242245 ] Preemption disabled at:
+[    3.242245 ] [<ffffffff828ca5ba>] ql3xxx_probe+0x2aa/0xea0
+[    3.242245 ] Kernel panic - not syncing: scheduling while atomic
+[    3.242245 ] CPU: 2 PID: 1 Comm: swapper/0 Not tainted
+5.13.0-rc1-00145
+-gee7dc339169-dirty #16
+[    3.242245 ] Call Trace:
+[    3.242245 ]  dump_stack+0xba/0xf5
+[    3.242245 ]  ? ql3xxx_probe+0x1f0/0xea0
+[    3.242245 ]  panic+0x15a/0x3f2
+[    3.242245 ]  ? vprintk+0x76/0x150
+[    3.242245 ]  ? ql3xxx_probe+0x2aa/0xea0
+[    3.242245 ]  __schedule_bug+0xae/0xe0
+[    3.242245 ]  __schedule+0x72e/0xa00
+[    3.242245 ]  schedule+0x43/0xf0
+[    3.242245 ]  schedule_timeout+0x28b/0x500
+[    3.242245 ]  ? del_timer_sync+0xf0/0xf0
+[    3.242245 ]  ? msleep+0x2f/0x70
+[    3.242245 ]  msleep+0x59/0x70
+[    3.242245 ]  ql3xxx_probe+0x307/0xea0
+[    3.242245 ]  ? _raw_spin_unlock_irqrestore+0x3a/0x70
+[    3.242245 ]  ? pci_device_remove+0x110/0x110
+[    3.242245 ]  local_pci_probe+0x45/0xa0
+[    3.242245 ]  pci_device_probe+0x12b/0x1d0
+[    3.242245 ]  really_probe+0x2a9/0x610
+[    3.242245 ]  driver_probe_device+0x90/0x1d0
+[    3.242245 ]  ? mutex_lock_nested+0x1b/0x20
+[    3.242245 ]  device_driver_attach+0x68/0x70
+[    3.242245 ]  __driver_attach+0x124/0x1b0
+[    3.242245 ]  ? device_driver_attach+0x70/0x70
+[    3.242245 ]  bus_for_each_dev+0xbb/0x110
+[    3.242245 ]  ? rdinit_setup+0x45/0x45
+[    3.242245 ]  driver_attach+0x27/0x30
+[    3.242245 ]  bus_add_driver+0x1eb/0x2a0
+[    3.242245 ]  driver_register+0xa9/0x180
+[    3.242245 ]  __pci_register_driver+0x82/0x90
+[    3.242245 ]  ? yellowfin_init+0x25/0x25
+[    3.242245 ]  ql3xxx_driver_init+0x23/0x25
+[    3.242245 ]  do_one_initcall+0x7f/0x3d0
+[    3.242245 ]  ? rdinit_setup+0x45/0x45
+[    3.242245 ]  ? rcu_read_lock_sched_held+0x4f/0x80
+[    3.242245 ]  kernel_init_freeable+0x2aa/0x301
+[    3.242245 ]  ? rest_init+0x2c0/0x2c0
+[    3.242245 ]  kernel_init+0x18/0x190
+[    3.242245 ]  ? rest_init+0x2c0/0x2c0
+[    3.242245 ]  ? rest_init+0x2c0/0x2c0
+[    3.242245 ]  ret_from_fork+0x1f/0x30
+[    3.242245 ] Dumping ftrace buffer:
+[    3.242245 ]    (ftrace buffer empty)
+[    3.242245 ] Kernel Offset: disabled
+[    3.242245 ] Rebooting in 1 seconds.
 
-or
-
-NIP qlt_24xx_handle_abts+0xd0/0x2a0 [qla2xxx]
-LR  qlt_24xx_handle_abts+0xb4/0x2a0 [qla2xxx]
-Call Trace:
-qlt_24xx_handle_abts+0x90/0x2a0 [qla2xxx] (unreliable)
-qlt_24xx_process_atio_queue+0x500/0x7a0 [qla2xxx]
-qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
-
-or
-
-NIP qlt_create_sess+0x90/0x4e0 [qla2xxx]
-LR  qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
-Call Trace:
-0xc0000000348fba30 (unreliable)
-qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
-qla2x00_do_work+0x674/0xbf0 [qla2xxx]
-qla2x00_iocb_work_fn
-
-The patch fixes the issue by serializing qlt_stop_phase1() and
-qlt_stop_phase2() functions to make WWPN removal wait for phase1
-completion.
-
-Link: https://lore.kernel.org/r/20210415203554.27890-1-d.bogdanov@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/qlogic/qla3xxx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 509539ec58e9..57068e2faef5 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -1559,10 +1559,12 @@ void qlt_stop_phase2(struct qla_tgt *tgt)
- 		return;
- 	}
- 
-+	mutex_lock(&tgt->ha->optrom_mutex);
- 	mutex_lock(&vha->vha_tgt.tgt_mutex);
- 	tgt->tgt_stop = 0;
- 	tgt->tgt_stopped = 1;
- 	mutex_unlock(&vha->vha_tgt.tgt_mutex);
-+	mutex_unlock(&tgt->ha->optrom_mutex);
- 
- 	ql_dbg(ql_dbg_tgt_mgt, vha, 0xf00c, "Stop of tgt %p finished\n",
- 	    tgt);
+diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
+index f2cb77c3b199..192950a112c9 100644
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -115,7 +115,7 @@ static int ql_sem_spinlock(struct ql3_adapter *qdev,
+ 		value = readl(&port_regs->CommonRegs.semaphoreReg);
+ 		if ((value & (sem_mask >> 16)) == sem_bits)
+ 			return 0;
+-		ssleep(1);
++		mdelay(1000);
+ 	} while (--seconds);
+ 	return -1;
+ }
 -- 
 2.30.2
 
