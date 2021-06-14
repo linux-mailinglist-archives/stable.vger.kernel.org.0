@@ -2,85 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7EB43A6B0E
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 17:56:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E6863A6B53
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 18:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234445AbhFNP6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 11:58:12 -0400
-Received: from vps0.lunn.ch ([185.16.172.187]:35996 "EHLO vps0.lunn.ch"
+        id S233968AbhFNQNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 12:13:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234429AbhFNP6L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 11:58:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-        s=20171124; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
-        Cc:To:From:From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:
-        Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:
-        Content-Disposition:In-Reply-To:References;
-        bh=8p8DIkgI123uyaFucDHlL3THLzWQithE96inzTy5GLI=; b=xqoDnhNiFFQP8me6Cib1z1liH5
-        /Ui4a3e1rpsOiws7lFNpDlXaaTY99VkwWaNFVmMuIgOEsqIxRwEIKIpTwNrpld3y9wZON8ldLGtRb
-        4W4gh5SQNEFKC3XgGoisDwHqUBYm0iWRrXJ7BQ4K5FXHzretMvPqCX+mX71BdYjmAIQ8=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-        (envelope-from <andrew@lunn.ch>)
-        id 1lsow4-009LpY-4w; Mon, 14 Jun 2021 17:55:36 +0200
-From:   Andrew Lunn <andrew@lunn.ch>
-To:     gregkh@linuxfoundation.org
-Cc:     stern@rowland.harvard.edu, Thinh.Nguyen@synopsys.com,
-        gustavoars@kernel.org, tglx@linutronix.de, cuibixuan@huawei.com,
-        oneukum@suse.com, chris.chiu@canonical.com, hgajjar@de.adit-jv.com,
-        linux-usb@vger.kernel.org, martin.zobel@kinexon.com,
-        philipp.mohrenweiser@kinexon.com, Andrew Lunn <andrew@lunn.ch>,
-        stable@vger.kernel.org
-Subject: [PATCH] usb: core: hub: Disable autosuspend for Cypress CY7C65632
-Date:   Mon, 14 Jun 2021 17:55:23 +0200
-Message-Id: <20210614155524.2228800-1-andrew@lunn.ch>
-X-Mailer: git-send-email 2.32.0
+        id S234071AbhFNQNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 12:13:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CB5B61245;
+        Mon, 14 Jun 2021 16:11:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623687077;
+        bh=mCCajpVFmAKPfyqCanoKSj9iuz7ExznsWTObsblRRT4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MxmyVwVIab1QLHpYofe2yxmrihigIDDJou71cn+GJ3Bp8hlI/u27NSsQf4QuuyyxS
+         Y5x3OxZ2yFzDI8vaR5r0UIAz/BpK/jfPL+ukuzTfSe6HefEFx14UMQqPnOMcA8HUMm
+         vZtzhUImx1P1ER0PPaQ5O3sKjwFlBM+qT+GmFk7g=
+Date:   Mon, 14 Jun 2021 18:11:15 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Holger =?iso-8859-1?Q?Hoffst=E4tte?= 
+        <holger@applied-asynchrony.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org,
+        Jiri Olsa <jolsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 000/131] 5.10.44-rc1 review
+Message-ID: <YMd/owzz9xQ9p0ca@kroah.com>
+References: <20210614102652.964395392@linuxfoundation.org>
+ <83a2f94d-dd6e-2796-ad04-2f92ac3e583d@applied-asynchrony.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <83a2f94d-dd6e-2796-ad04-2f92ac3e583d@applied-asynchrony.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Cypress CY7C65632 appears to have an issue with auto suspend and
-detecting devices, not too dissimilar to the SMSC 5534B hub. It is
-easiest to reproduce by connecting multiple mass storage devices to
-the hub at the same time. On a Lenovo Yoga, around 1 in 3 attempts
-result in the devices not being detected. It is however possible to
-make them appear using lsusb -v.
+On Mon, Jun 14, 2021 at 05:36:45PM +0200, Holger Hoffstätte wrote:
+> On 2021-06-14 12:26, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.44 release.
+> 
+> Hmm..I build my kernel with BTF for bpftrace and this gives me:
+> 
+> ...
+>   CC      init/version.o
+>   AR      init/built-in.a
+>   LD      vmlinux.o
+>   MODPOST vmlinux.symvers
+>   MODINFO modules.builtin.modinfo
+>   GEN     modules.builtin
+>   LD      .tmp_vmlinux.btf
+>   BTF     .btf.vmlinux.bin.o
+>   LD      .tmp_vmlinux.kallsyms1
+>   KSYMS   .tmp_vmlinux.kallsyms1.S
+>   AS      .tmp_vmlinux.kallsyms1.S
+>   LD      .tmp_vmlinux.kallsyms2
+>   KSYMS   .tmp_vmlinux.kallsyms2.S
+>   AS      .tmp_vmlinux.kallsyms2.S
+>   LD      vmlinux
+>   BTFIDS  vmlinux
+> FAILED unresolved symbol migrate_enable
+> 
+> thanks to:
+> 
+> > Jiri Olsa <jolsa@kernel.org>
+> >      bpf: Add deny list of btf ids check for tracing programs
+> 
+> When I revert this it builds fine, just like before. Maybe a missing
+> requirement or followup fix? I didn't find anything with a quick search.
+> Using gcc-11, if it matters.
 
-Disabling autosuspend for this hub resolves the issue.
+Looks like we need the change that exported this function, let me see if
+it's worth to add that, or to revert this one...
 
-Cc: stable@vger.kernel.org
-Fixes: 1208f9e1d758 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
----
- drivers/usb/core/hub.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+thanks,
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 3bd379d5d1be..d1efc7141333 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -41,6 +41,8 @@
- #define USB_VENDOR_GENESYS_LOGIC		0x05e3
- #define USB_VENDOR_SMSC				0x0424
- #define USB_PRODUCT_USB5534B			0x5534
-+#define USB_VENDOR_CYPRESS			0x04b4
-+#define USB_PRODUCT_CY7C65632			0x6570
- #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
- #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
- 
-@@ -5719,6 +5721,11 @@ static const struct usb_device_id hub_id_table[] = {
-       .idProduct = USB_PRODUCT_USB5534B,
-       .bInterfaceClass = USB_CLASS_HUB,
-       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
-+    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
-+                   | USB_DEVICE_ID_MATCH_PRODUCT,
-+      .idVendor = USB_VENDOR_CYPRESS,
-+      .idProduct = USB_PRODUCT_CY7C65632,
-+      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
-     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
- 			| USB_DEVICE_ID_MATCH_INT_CLASS,
-       .idVendor = USB_VENDOR_GENESYS_LOGIC,
--- 
-2.32.0
-
+greg k-h
