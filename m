@@ -2,112 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C801B3A5A7B
-	for <lists+stable@lfdr.de>; Sun, 13 Jun 2021 22:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588D53A5B36
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 02:51:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232038AbhFMVAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Jun 2021 17:00:18 -0400
-Received: from bosmailout07.eigbox.net ([66.96.184.7]:60271 "EHLO
-        bosmailout07.eigbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232020AbhFMVAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Jun 2021 17:00:17 -0400
-X-Greylist: delayed 1862 seconds by postgrey-1.27 at vger.kernel.org; Sun, 13 Jun 2021 17:00:17 EDT
-Received: from bosmailscan09.eigbox.net ([10.20.15.9])
-        by bosmailout07.eigbox.net with esmtp (Exim)
-        id 1lsWhN-0000lk-QM; Sun, 13 Jun 2021 16:27:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=hollago65i.com; s=dkim; h=Sender:Content-Transfer-Encoding:Content-Type:
-        Message-ID:Reply-To:Subject:To:From:Date:MIME-Version:Cc:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=jmE1AiZh2hRjSAJKb374hqGQMjwd8yzDFHujSXNaAio=; b=okaay5P3dfNo+iQ+d6jMTBilsa
-        lrVCq/nY5RXrsQlPk+p0E36HARGWQXUYm6l7VOu+I4op71IfBvHtFRuP2yju2fAuYO/KQz5+PMY7X
-        4MqsQvGibtO44R9rV4v/0HIKrKaiHy2w9NM8biAtj4K/IgbW7qtMZ01kqf8nXbkHeFMwbfdf+B3+H
-        +07wKn43PnMTvwWc0e8MLhPDxFXiMQEzZYeXk8foNXwwur6qR2TDEED4UIc0fpTLeZQ9CmhaGFvrN
-        6OPmNTeAvgMP6wFgt4PPrij3qyG865bKg6dA3inI/2YxI+3Gp0OI7iSCzQ9SjaZMPg33k4V/vs334
-        yYAIhiNg==;
-Received: from [10.115.3.33] (helo=bosimpout13)
-        by bosmailscan09.eigbox.net with esmtp (Exim)
-        id 1lsWhN-0002gx-Hk; Sun, 13 Jun 2021 16:27:13 -0400
-Received: from boswebmail11.eigbox.net ([10.20.16.11])
-        by bosimpout13 with 
-        id GkT2250080EKGQi01kT53w; Sun, 13 Jun 2021 16:27:13 -0400
-X-Authority-Analysis: v=2.3 cv=RNUo47q+ c=1 sm=1 tr=0
- a=arGavn6Z5cgUkMHml6gAfw==:117 a=VjEc6grIZYOdAKCkHpPz0Q==:17
- a=SvjdIzx6mOYA:10 a=IkcTkHD0fZMA:10 a=r6YtysWOX24A:10 a=x7bEGLp0ZPQA:10
- a=pGLkceISAAAA:8 a=vXFT2s5udkHzzsxN6-UA:9 a=QEXdDO2ut3YA:10 a=cW4oh5Qe6X0A:10
- a=GXyWIPpY65UA:10 a=Twul1aCTu4YpY56LwQMJ:22 a=20QYsiCpIQ5eNXUT7wNh:22
-Received: from [127.0.0.1] (helo=homestead)
-        by boswebmail11.eigbox.net with esmtp (Exim)
-        id 1lsWgq-0005BL-DJ; Sun, 13 Jun 2021 16:26:40 -0400
-Received: from [197.239.94.184]
- by emailmg.homestead.com
- with HTTP (HTTP/1.1 POST); Sun, 13 Jun 2021 16:26:40 -0400
+        id S232238AbhFNAxW convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 13 Jun 2021 20:53:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58504 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232076AbhFNAxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 13 Jun 2021 20:53:22 -0400
+Received: from rorschach.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B737160FE4;
+        Mon, 14 Jun 2021 00:51:19 +0000 (UTC)
+Date:   Sun, 13 Jun 2021 20:51:18 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     liangyan.peng@linux.alibaba.com, jnwang@linux.alibaba.com,
+        mingo@redhat.com, wetp.zy@linux.alibaba.com,
+        xlpang@linux.alibaba.com, yinbinbin@alibabacloud.com,
+        <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] tracing: Correct the length check which
+ causes memory" failed to apply to 5.10-stable tree
+Message-ID: <20210613205118.0848b3dc@rorschach.local.home>
+In-Reply-To: <162358538716087@kroah.com>
+References: <162358538716087@kroah.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Date:   Sun, 13 Jun 2021 21:26:40 +0100
-From:   "Mr. Ibrahim Abdoul" <info7@hollago65i.com>
-To:     info@utaka.com.ar, wida.suhaili@utb.edu.bn, 4naomie@utm.my,
-        naomie@utm.my, rashidahmed@utm.my, lmhuang@utmb.edu,
-        lyaa071@uts.cc.utexas.edu, masattar@uvas.edu.pk,
-        xsotoandion@uvigo.es, nuoxu@uw.edu, grazyna.wiejak-roy@uwe.ac.uk,
-        mmshoukr@uwo.ca, bobothet@uy.edu.mm, info@vac-star.com,
-        alongwell@vaildaily.com, ricky@vassellweddings.co.uk,
-        payments@venturaendo.com, edwardchun@verizon.net,
-        ejzuna@verizon.net, shelbyen@verizon.net, anadon@vet.ucm.es,
-        git@vger.kernel.org, stable@vger.kernel.org, kslee@vghtpe.gov.tw,
-        phwang@vghtpe.gov.tw, geral@vicentevieira.pt,
-        support@videostarapp.com, etrtica@vinca.rs, bentail@vip.163.com,
-        blservice@vip.163.com, chen-zl@vip.163.com, kyyyzhaowei@vip.km,
-        gaoshugeng@vip.sina.com, kes3u@virginia.edu, ellzey@viscom.net,
-        elektraweb@visiontrading.com.pk, info@visitsanjuans.com,
-        info@vistadeljardin.org, pkkishore@visto.com, kishwar@vit.ac,
-        z@vitalvoices.org, Support@vlesociety.com, wandam@voamid.org,
-        magicsnr@vodamail.co.za, theo@voip.co.uk, bara.sala@volny.cz,
-        iownby@vols.utk.edu, pharmsto@vols.utk.edu,
-        vereadornenem@voltaredonda.rj.leg.br, comercial@votarenquete.com.br
-Subject: URGENT RESPONDS NEEDED
-Reply-To: mr.ibrahimabdoul2020@gmail.com
-Mail-Reply-To: mr.ibrahimabdoul2020@gmail.com
-Message-ID: <86e22983dcb7dfaf6354f2acaccc3503@hollago65i.com>
-X-Sender: info7@hollago65i.com
-User-Agent: Roundcube Webmail/1.3.14
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
-X-EN-AuthUser: info7@hollago65i.com
-Sender:  "Mr. Ibrahim Abdoul" <info7@hollago65i.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, 13 Jun 2021 13:56:27 +0200
+<gregkh@linuxfoundation.org> wrote:
+
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
 
 
-Dear Friend,
+The below works for 4.9 through 5.10. But will not work for 4.4.
 
-My name is Mr. Ibrahim Abdoul. If the content of this message is 
-contrary to your moral ethics, please accept my apology. But, please 
-treat with absolute secrecy. I am working with one of the prime banks in 
-Burkina Faso. Here in this bank existed a dormant account for many 
-years, which belong to one of our late foreign customer. The amount in 
-this account stands at $13,300,000.00 (Thirteen Million Three Hundred 
-Thousand US Dollars).
+-- Steve
 
-I was very fortunate to come across the deceased customer's security 
-file during documentation of old and abandoned customer’s files for an 
-official documentation and audit of the year 2020.
+From 3e08a9f9760f4a70d633c328a76408e62d6f80a3 Mon Sep 17 00:00:00 2001
+From: Liangyan <liangyan.peng@linux.alibaba.com>
+Date: Mon, 7 Jun 2021 20:57:34 +0800
+Subject: [PATCH] tracing: Correct the length check which causes memory
+ corruption
 
-I want a foreign account where the bank will transfer this fund. I know 
-you would be surprised to read this message, especially from someone 
-relatively unknown to you. But, do not worry yourself so much. This is a 
-genuine, risk free and legal business transaction. All details shall be 
-sent to you once I hear from you.
+We've suffered from severe kernel crashes due to memory corruption on
+our production environment, like,
 
-If you are really sure of your sincerity, trustworthiness, 
-accountability and confidentiality over this transaction, reply back to 
-me urgently. cantact me on (mr.ibrahimabdoul2020@gmail.com)
+Call Trace:
+[1640542.554277] general protection fault: 0000 [#1] SMP PTI
+[1640542.554856] CPU: 17 PID: 26996 Comm: python Kdump: loaded Tainted:G
+[1640542.556629] RIP: 0010:kmem_cache_alloc+0x90/0x190
+[1640542.559074] RSP: 0018:ffffb16faa597df8 EFLAGS: 00010286
+[1640542.559587] RAX: 0000000000000000 RBX: 0000000000400200 RCX:
+0000000006e931bf
+[1640542.560323] RDX: 0000000006e931be RSI: 0000000000400200 RDI:
+ffff9a45ff004300
+[1640542.560996] RBP: 0000000000400200 R08: 0000000000023420 R09:
+0000000000000000
+[1640542.561670] R10: 0000000000000000 R11: 0000000000000000 R12:
+ffffffff9a20608d
+[1640542.562366] R13: ffff9a45ff004300 R14: ffff9a45ff004300 R15:
+696c662f65636976
+[1640542.563128] FS:  00007f45d7c6f740(0000) GS:ffff9a45ff840000(0000)
+knlGS:0000000000000000
+[1640542.563937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[1640542.564557] CR2: 00007f45d71311a0 CR3: 000000189d63e004 CR4:
+00000000003606e0
+[1640542.565279] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+0000000000000000
+[1640542.566069] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
+0000000000000400
+[1640542.566742] Call Trace:
+[1640542.567009]  anon_vma_clone+0x5d/0x170
+[1640542.567417]  __split_vma+0x91/0x1a0
+[1640542.567777]  do_munmap+0x2c6/0x320
+[1640542.568128]  vm_munmap+0x54/0x70
+[1640542.569990]  __x64_sys_munmap+0x22/0x30
+[1640542.572005]  do_syscall_64+0x5b/0x1b0
+[1640542.573724]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[1640542.575642] RIP: 0033:0x7f45d6e61e27
 
-Best regards,
+James Wang has reproduced it stably on the latest 4.19 LTS.
+After some debugging, we finally proved that it's due to ftrace
+buffer out-of-bound access using a debug tool as follows:
+[   86.775200] BUG: Out-of-bounds write at addr 0xffff88aefe8b7000
+[   86.780806]  no_context+0xdf/0x3c0
+[   86.784327]  __do_page_fault+0x252/0x470
+[   86.788367]  do_page_fault+0x32/0x140
+[   86.792145]  page_fault+0x1e/0x30
+[   86.795576]  strncpy_from_unsafe+0x66/0xb0
+[   86.799789]  fetch_memory_string+0x25/0x40
+[   86.804002]  fetch_deref_string+0x51/0x60
+[   86.808134]  kprobe_trace_func+0x32d/0x3a0
+[   86.812347]  kprobe_dispatcher+0x45/0x50
+[   86.816385]  kprobe_ftrace_handler+0x90/0xf0
+[   86.820779]  ftrace_ops_assist_func+0xa1/0x140
+[   86.825340]  0xffffffffc00750bf
+[   86.828603]  do_sys_open+0x5/0x1f0
+[   86.832124]  do_syscall_64+0x5b/0x1b0
+[   86.835900]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Mr. Ibrahim Abdoul
-cantact me on (mr.ibrahimabdoul2020@gmail.com)
+commit b220c049d519 ("tracing: Check length before giving out
+the filter buffer") adds length check to protect trace data
+overflow introduced in 0fc1b09ff1ff, seems that this fix can't prevent
+overflow entirely, the length check should also take the sizeof
+entry->array[0] into account, since this array[0] is filled the
+length of trace data and occupy addtional space and risk overflow.
+
+Link: https://lkml.kernel.org/r/20210607125734.1770447-1-liangyan.peng@linux.alibaba.com
+
+Cc: stable@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Xunlei Pang <xlpang@linux.alibaba.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b220c049d519 ("tracing: Check length before giving out the filter buffer")
+Reviewed-by: Xunlei Pang <xlpang@linux.alibaba.com>
+Reviewed-by: yinbinbin <yinbinbin@alibabacloud.com>
+Reviewed-by: Wetp Zhang <wetp.zy@linux.alibaba.com>
+Tested-by: James Wang <jnwang@linux.alibaba.com>
+Signed-off-by: Liangyan <liangyan.peng@linux.alibaba.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/trace/trace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-test.git/kernel/trace/trace.c
+===================================================================
+--- linux-test.git.orig/kernel/trace/trace.c
++++ linux-test.git/kernel/trace/trace.c
+@@ -2734,7 +2734,7 @@ trace_event_buffer_lock_reserve(struct t
+ 	    (entry = this_cpu_read(trace_buffered_event))) {
+ 		/* Try to use the per cpu buffer first */
+ 		val = this_cpu_inc_return(trace_buffered_event_cnt);
+-		if ((len < (PAGE_SIZE - sizeof(*entry))) && val == 1) {
++		if ((len < (PAGE_SIZE - sizeof(*entry) - sizeof(entry->array[0]))) && val == 1) {
+ 			trace_event_setup(entry, type, flags, pc);
+ 			entry->array[0] = len;
+ 			return entry;
