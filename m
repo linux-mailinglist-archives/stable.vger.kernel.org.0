@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA7953A633B
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61CEE3A648D
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:25:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234636AbhFNLLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:11:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39866 "EHLO mail.kernel.org"
+        id S234797AbhFNL0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:26:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235066AbhFNLIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:08:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C91786144A;
-        Mon, 14 Jun 2021 10:46:21 +0000 (UTC)
+        id S236234AbhFNLYQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:24:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF695619AC;
+        Mon, 14 Jun 2021 10:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667582;
-        bh=/1KNZ/znyTRUG+7STdg7tZ5hhc9k68YmT0skyYBc7jM=;
+        s=korg; t=1623668001;
+        bh=PTfPcQyuNkeI2gBf2GfLOyEQ4pI5FTdwzZMDUroRB3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ez838GwRpQZPaICSmw2BpzDLldjmtnbEzkGhLPGG5XJXPRqGs5fRWa8i4b+pCWmvy
-         LQ/AVAOnA8UGpMaOrBtAjzzypvhr4Sfoy6EFjs28nRgeD4VPvop24g5dH2fBSIYLvZ
-         NwDQtPNzjfCQWkzpzjMxf3uSrZpBieqyHwG8pBso=
+        b=QI2IpBlsFOHQQNmX9cZnb23cRseLJ4lwFK9/FtZmOKDHWzSBCLrr8Z3XhzmwogBCt
+         FhwcUxsI/3Un0mu2OS5Pds0runZ0yWrfDIRZAqhQLU2KeMo0Mjb2AoZ8fzEoaZipCv
+         PN3CIIj35ShxjVHqq9n53pMr+OgKwxNGZqQ9a2QA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        John Garry <john.garry@huawei.com>,
-        Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 127/131] scsi: core: Fix error handling of scsi_host_alloc()
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.12 156/173] ASoC: SOF: reset enabled_cores state at suspend
 Date:   Mon, 14 Jun 2021 12:28:08 +0200
-Message-Id: <20210614102657.325497009@linuxfoundation.org>
+Message-Id: <20210614102703.354758486@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit 66a834d092930cf41d809c0e989b13cd6f9ca006 upstream.
+commit b640e8a4bd24e17ce24a064d704aba14831651a8 upstream.
 
-After device is initialized via device_initialize(), or its name is set via
-dev_set_name(), the device has to be freed via put_device().  Otherwise
-device name will be leaked because it is allocated dynamically in
-dev_set_name().
+The recent changes to use common code to power up/down DSP cores also
+removed the reset of the core state at suspend. It turns out this is
+still needed. When the firmware state is reset to
+SOF_FW_BOOT_NOT_STARTED, also enabled_cores should be reset, and
+existing DSP drivers depend on this.
 
-Fix the leak by replacing kfree() with put_device(). Since
-scsi_host_dev_release() properly handles IDA and kthread removal, remove
-special-casing these from the error handling as well.
-
-Link: https://lore.kernel.org/r/20210602133029.2864069-2-ming.lei@redhat.com
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Hannes Reinecke <hare@suse.de>
-Tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+BugLink: https://github.com/thesofproject/linux/issues/2824
+Fixes: 42077f08b3 ("ASoC: SOF: update dsp core power status in common APIs")
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Link: https://lore.kernel.org/r/20210528144330.2551-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hosts.c |   23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ sound/soc/sof/pm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -392,8 +392,10 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	mutex_init(&shost->scan_mutex);
+--- a/sound/soc/sof/pm.c
++++ b/sound/soc/sof/pm.c
+@@ -256,6 +256,7 @@ suspend:
  
- 	index = ida_simple_get(&host_index_ida, 0, 0, GFP_KERNEL);
--	if (index < 0)
--		goto fail_kfree;
-+	if (index < 0) {
-+		kfree(shost);
-+		return NULL;
-+	}
- 	shost->host_no = index;
+ 	/* reset FW state */
+ 	sdev->fw_state = SOF_FW_BOOT_NOT_STARTED;
++	sdev->enabled_cores_mask = 0;
  
- 	shost->dma_channel = 0xff;
-@@ -486,7 +488,7 @@ struct Scsi_Host *scsi_host_alloc(struct
- 		shost_printk(KERN_WARNING, shost,
- 			"error handler thread failed to spawn, error = %ld\n",
- 			PTR_ERR(shost->ehandler));
--		goto fail_index_remove;
-+		goto fail;
- 	}
- 
- 	shost->tmf_work_q = alloc_workqueue("scsi_tmf_%d",
-@@ -495,17 +497,18 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	if (!shost->tmf_work_q) {
- 		shost_printk(KERN_WARNING, shost,
- 			     "failed to create tmf workq\n");
--		goto fail_kthread;
-+		goto fail;
- 	}
- 	scsi_proc_hostdir_add(shost->hostt);
- 	return shost;
-+ fail:
-+	/*
-+	 * Host state is still SHOST_CREATED and that is enough to release
-+	 * ->shost_gendev. scsi_host_dev_release() will free
-+	 * dev_name(&shost->shost_dev).
-+	 */
-+	put_device(&shost->shost_gendev);
- 
-- fail_kthread:
--	kthread_stop(shost->ehandler);
-- fail_index_remove:
--	ida_simple_remove(&host_index_ida, shost->host_no);
-- fail_kfree:
--	kfree(shost);
- 	return NULL;
+ 	return ret;
  }
- EXPORT_SYMBOL(scsi_host_alloc);
 
 
