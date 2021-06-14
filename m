@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D1373A60F5
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46D0C3A6176
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233409AbhFNKkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:40:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45950 "EHLO mail.kernel.org"
+        id S233042AbhFNKr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:47:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233251AbhFNKiU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:38:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C62E6140F;
-        Mon, 14 Jun 2021 10:33:59 +0000 (UTC)
+        id S232796AbhFNKp4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:45:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82ABA613D3;
+        Mon, 14 Jun 2021 10:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666840;
-        bh=GQlo89kE2EBytn31tyStiEvWsQdnn8xSzyokyeE6gOY=;
+        s=korg; t=1623666999;
+        bh=Zrnh7qmLrObb24IuG3WZ+Fx9/p+T9L6ChHDry08hZrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hy6eVeXEfybQuJtkLrr7qg++E8YOMI3VbfmKqRt9J39g32b9+t3mPC+Tgp4p6LJ6P
-         z4oIQWJy/th/SG1Ybf6YTHB55R87q1jpFyqeFFk38r3PvvDXKir0oV3CXKQ+isRjyh
-         h5XHaCRehTOzbSPX0HWnrGKsEqAZ8Ev6SHDMAOKM=
+        b=GCEsJG5iunNh4CYmyP3YY174pJx1j7rW/y8MkRb4b31h5tyQsuNnplSydziZc7JqH
+         qMuJLp4OtzFzs2lpt59zwT0BtBrhaAfmS/H2NX2ZoJZmUmzi2m6L49zqMvjbtSHzBN
+         ximeFta3A7yGLtPEo5igdSliBCNZ2VLaBU2fgpJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 48/49] ftrace: Do not blindly read the ip address in ftrace_bug()
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 58/67] perf session: Correct buffer copying when peeking events
 Date:   Mon, 14 Jun 2021 12:27:41 +0200
-Message-Id: <20210614102643.424483634@linuxfoundation.org>
+Message-Id: <20210614102645.729398944@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,55 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Leo Yan <leo.yan@linaro.org>
 
-commit 6c14133d2d3f768e0a35128faac8aa6ed4815051 upstream.
+[ Upstream commit 197eecb6ecae0b04bd694432f640ff75597fed9c ]
 
-It was reported that a bug on arm64 caused a bad ip address to be used for
-updating into a nop in ftrace_init(), but the error path (rightfully)
-returned -EINVAL and not -EFAULT, as the bug caused more than one error to
-occur. But because -EINVAL was returned, the ftrace_bug() tried to report
-what was at the location of the ip address, and read it directly. This
-caused the machine to panic, as the ip was not pointing to a valid memory
-address.
+When peeking an event, it has a short path and a long path.  The short
+path uses the session pointer "one_mmap_addr" to directly fetch the
+event; and the long path needs to read out the event header and the
+following event data from file and fill into the buffer pointer passed
+through the argument "buf".
 
-Instead, read the ip address with copy_from_kernel_nofault() to safely
-access the memory, and if it faults, report that the address faulted,
-otherwise report what was in that location.
+The issue is in the long path that it copies the event header and event
+data into the same destination address which pointer "buf", this means
+the event header is overwritten.  We are just lucky to run into the
+short path in most cases, so we don't hit the issue in the long path.
 
-Link: https://lore.kernel.org/lkml/20210607032329.28671-1-mark-pk.tsai@mediatek.com/
+This patch adds the offset "hdr_sz" to the pointer "buf" when copying
+the event data, so that it can reserve the event header which can be
+used properly by its caller.
 
-Cc: stable@vger.kernel.org
-Fixes: 05736a427f7e1 ("ftrace: warn on failure to disable mcount callers")
-Reported-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5a52f33adf02 ("perf session: Add perf_session__peek_event()")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210605052957.1070720-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ tools/perf/util/session.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -2042,12 +2042,18 @@ static int ftrace_hash_ipmodify_update(s
+diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+index 6a2037b52098..3be1534f1f03 100644
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -1478,6 +1478,7 @@ int perf_session__peek_event(struct perf_session *session, off_t file_offset,
+ 	if (event->header.size < hdr_sz || event->header.size > buf_sz)
+ 		return -1;
  
- static void print_ip_ins(const char *fmt, const unsigned char *p)
- {
-+	char ins[MCOUNT_INSN_SIZE];
- 	int i;
++	buf += hdr_sz;
+ 	rest = event->header.size - hdr_sz;
  
-+	if (probe_kernel_read(ins, p, MCOUNT_INSN_SIZE)) {
-+		printk(KERN_CONT "%s[FAULT] %px\n", fmt, p);
-+		return;
-+	}
-+
- 	printk(KERN_CONT "%s", fmt);
- 
- 	for (i = 0; i < MCOUNT_INSN_SIZE; i++)
--		printk(KERN_CONT "%s%02x", i ? ":" : "", p[i]);
-+		printk(KERN_CONT "%s%02x", i ? ":" : "", ins[i]);
- }
- 
- enum ftrace_bug_type ftrace_bug_type;
+ 	if (readn(fd, buf, rest) != (ssize_t)rest)
+-- 
+2.30.2
+
 
 
