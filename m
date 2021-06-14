@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 596713A60D4
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D3A73A6174
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233219AbhFNKiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:38:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40518 "EHLO mail.kernel.org"
+        id S234036AbhFNKrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:47:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233613AbhFNKgR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:36:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B1A3611C1;
-        Mon, 14 Jun 2021 10:33:04 +0000 (UTC)
+        id S233638AbhFNKpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:45:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C2406128A;
+        Mon, 14 Jun 2021 10:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666785;
-        bh=a3FK9UDXjjavE0Rd+YnPxUmCeg7rAl3DHAPTtV5WDeY=;
+        s=korg; t=1623666993;
+        bh=4b+kN5kgYUJozpZ0feh5k1wvn1s8BWKCOUy7nfMwHoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=140X9gdrGSrcb9iGzbK0OyWFQ6BbGrO9APclZi5meXwYPdLGYSw7MbuCg7whqer7s
-         hAasuFf86dzlzKUr8bNP51f8j46t7co0jGYQPyH1pg7egUV4KsS9MXDpQxrk5W0E72
-         jlg4YH3h+BWKA+kjLkeIbD7Cpq5wEk7BGx9dz8FE=
+        b=C5WolUT63Qk8UZIktDP1GHzkYn6Sc/1yfvDuzCZ5+Bi/+G8Lq0CN/5gSiKHGReiJX
+         Q0dXjUr5Zj4hOZb3kz0FH+xjEAKR61gb1aTGvKr+jbGUbX7aLcseayEFljipHCMMhD
+         wngbyHyUbasUhrTYzxlJqSa5X92r8N/A5/NYlE40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Mayank Rana <mrana@codeaurora.org>,
-        Jack Pham <jackp@codeaurora.org>
-Subject: [PATCH 4.14 29/49] usb: typec: ucsi: Clear PPM capability data in ucsi_init() error path
+        Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+Subject: [PATCH 4.19 39/67] usb: dwc3: ep0: fix NULL pointer exception
 Date:   Mon, 14 Jun 2021 12:27:22 +0200
-Message-Id: <20210614102642.822191363@linuxfoundation.org>
+Message-Id: <20210614102645.104994604@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mayank Rana <mrana@codeaurora.org>
+From: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
 
-commit f247f0a82a4f8c3bfed178d8fd9e069d1424ee4e upstream.
+commit d00889080ab60051627dab1d85831cd9db750e2a upstream.
 
-If ucsi_init() fails for some reason (e.g. ucsi_register_port()
-fails or general communication failure to the PPM), particularly at
-any point after the GET_CAPABILITY command had been issued, this
-results in unwinding the initialization and returning an error.
-However the ucsi structure's ucsi_capability member retains its
-current value, including likely a non-zero num_connectors.
-And because ucsi_init() itself is done in a workqueue a UCSI
-interface driver will be unaware that it failed and may think the
-ucsi_register() call was completely successful.  Later, if
-ucsi_unregister() is called, due to this stale ucsi->cap value it
-would try to access the items in the ucsi->connector array which
-might not be in a proper state or not even allocated at all and
-results in NULL or invalid pointer dereference.
+There is no validation of the index from dwc3_wIndex_to_dep() and we might
+be referring a non-existing ep and trigger a NULL pointer exception. In
+certain configurations we might use fewer eps and the index might wrongly
+indicate a larger ep index than existing.
 
-Fix this by clearing the ucsi->cap value to 0 during the error
-path of ucsi_init() in order to prevent a later ucsi_unregister()
-from entering the connector cleanup loop.
+By adding this validation from the patch we can actually report a wrong
+index back to the caller.
 
-Fixes: c1b0bc2dabfa ("usb: typec: Add support for UCSI interface")
-Cc: stable@vger.kernel.org
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Mayank Rana <mrana@codeaurora.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210609073535.5094-1-jackp@codeaurora.org
+In our usecase we are using a composite device on an older kernel, but
+upstream might use this fix also. Unfortunately, I cannot describe the
+hardware for others to reproduce the issue as it is a proprietary
+implementation.
+
+[   82.958261] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a4
+[   82.966891] Mem abort info:
+[   82.969663]   ESR = 0x96000006
+[   82.972703]   Exception class = DABT (current EL), IL = 32 bits
+[   82.978603]   SET = 0, FnV = 0
+[   82.981642]   EA = 0, S1PTW = 0
+[   82.984765] Data abort info:
+[   82.987631]   ISV = 0, ISS = 0x00000006
+[   82.991449]   CM = 0, WnR = 0
+[   82.994409] user pgtable: 4k pages, 39-bit VAs, pgdp = 00000000c6210ccc
+[   83.000999] [00000000000000a4] pgd=0000000053aa5003, pud=0000000053aa5003, pmd=0000000000000000
+[   83.009685] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[   83.026433] Process irq/62-dwc3 (pid: 303, stack limit = 0x000000003985154c)
+[   83.033470] CPU: 0 PID: 303 Comm: irq/62-dwc3 Not tainted 4.19.124 #1
+[   83.044836] pstate: 60000085 (nZCv daIf -PAN -UAO)
+[   83.049628] pc : dwc3_ep0_handle_feature+0x414/0x43c
+[   83.054558] lr : dwc3_ep0_interrupt+0x3b4/0xc94
+
+...
+
+[   83.141788] Call trace:
+[   83.144227]  dwc3_ep0_handle_feature+0x414/0x43c
+[   83.148823]  dwc3_ep0_interrupt+0x3b4/0xc94
+[   83.181546] ---[ end trace aac6b5267d84c32f ]---
+
+Signed-off-by: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210608162650.58426-1-marian.c.rotariu@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc3/ep0.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -724,6 +724,7 @@ err_unregister:
- 	}
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -292,6 +292,9 @@ static struct dwc3_ep *dwc3_wIndex_to_de
+ 		epnum |= 1;
  
- err_reset:
-+	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
- 	ucsi_reset_ppm(ucsi);
- err:
- 	mutex_unlock(&ucsi->ppm_lock);
+ 	dep = dwc->eps[epnum];
++	if (dep == NULL)
++		return NULL;
++
+ 	if (dep->flags & DWC3_EP_ENABLED)
+ 		return dep;
+ 
 
 
