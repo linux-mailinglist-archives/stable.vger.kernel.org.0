@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AAF73A605D
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C81E3A6101
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233342AbhFNKdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:33:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38772 "EHLO mail.kernel.org"
+        id S233152AbhFNKlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:41:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233159AbhFNKdD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3FE1611C0;
-        Mon, 14 Jun 2021 10:31:00 +0000 (UTC)
+        id S233964AbhFNKjV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:39:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2925613DE;
+        Mon, 14 Jun 2021 10:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666661;
-        bh=QicEfaGcnhgcw1s1f4/5sec06a1yZXj2Cgd+966taq8=;
+        s=korg; t=1623666848;
+        bh=IzP+zjdyfA44WrSx2mr8hcZVCnLv+rDj6ZWbVWdx618=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Srgxjierj8KLMKZKbZ0oXwdAzneZnMSgbZg0/JXxnutQXoCpdUp+9hxnVSAjXQYBt
-         7LDi9ufM17O9H7RyQ4S0up+uyMYE83G5PkGUVqmtFUCU1bYqXLNu+J/pRFpqC8d0f4
-         SJcWclcAZyn4EhbeD1FXmViv+peUzmkR/oRQ1DOo=
+        b=ZN7DFtafis4OzULG7XDI7bC3TPTa31OGzsEHOUJ/+nnQUTBolenr+l/yAZHX0xvhu
+         SfrbiG1mXu1jQPHeUHW4GXiOpWuoUG+YkzJgj1DO4fslwcRtxHl50+DAeMfeH3NVet
+         RBADZVsus2MOpzri8gtHi6RT1m3bazwWvx5JU6Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brooke Basile <brookebasile@gmail.com>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Yauheni Kaliuta <yauheni.kaliuta@nokia.com>,
-        Linux USB Mailing List <linux-usb@vger.kernel.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Subject: [PATCH 4.9 25/42] USB: f_ncm: ncm_bitrate (speed) is unsigned
+        stable@vger.kernel.org,
+        Artemiy Margaritov <artemiy.margaritov@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 23/49] kvm: avoid speculation-based attacks from out-of-range memslot accesses
 Date:   Mon, 14 Jun 2021 12:27:16 +0200
-Message-Id: <20210614102643.510117396@linuxfoundation.org>
+Message-Id: <20210614102642.628329913@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 3370139745853f7826895293e8ac3aec1430508e upstream.
+commit da27a83fd6cc7780fea190e1f5c19e87019da65c upstream.
 
-[  190.544755] configfs-gadget gadget: notify speed -44967296
+KVM's mechanism for accessing guest memory translates a guest physical
+address (gpa) to a host virtual address using the right-shifted gpa
+(also known as gfn) and a struct kvm_memory_slot.  The translation is
+performed in __gfn_to_hva_memslot using the following formula:
 
-This is because 4250000000 - 2**32 is -44967296.
+      hva = slot->userspace_addr + (gfn - slot->base_gfn) * PAGE_SIZE
 
-Fixes: 9f6ce4240a2b ("usb: gadget: f_ncm.c added")
-Cc: Brooke Basile <brookebasile@gmail.com>
-Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Cc: Yauheni Kaliuta <yauheni.kaliuta@nokia.com>
-Cc: Linux USB Mailing List <linux-usb@vger.kernel.org>
-Acked-By: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608005344.3762668-1-zenczykowski@gmail.com
+It is expected that gfn falls within the boundaries of the guest's
+physical memory.  However, a guest can access invalid physical addresses
+in such a way that the gfn is invalid.
+
+__gfn_to_hva_memslot is called from kvm_vcpu_gfn_to_hva_prot, which first
+retrieves a memslot through __gfn_to_memslot.  While __gfn_to_memslot
+does check that the gfn falls within the boundaries of the guest's
+physical memory or not, a CPU can speculate the result of the check and
+continue execution speculatively using an illegal gfn. The speculation
+can result in calculating an out-of-bounds hva.  If the resulting host
+virtual address is used to load another guest physical address, this
+is effectively a Spectre gadget consisting of two consecutive reads,
+the second of which is data dependent on the first.
+
+Right now it's not clear if there are any cases in which this is
+exploitable.  One interesting case was reported by the original author
+of this patch, and involves visiting guest page tables on x86.  Right
+now these are not vulnerable because the hva read goes through get_user(),
+which contains an LFENCE speculation barrier.  However, there are
+patches in progress for x86 uaccess.h to mask kernel addresses instead of
+using LFENCE; once these land, a guest could use speculation to read
+from the VMM's ring 3 address space.  Other architectures such as ARM
+already use the address masking method, and would be susceptible to
+this same kind of data-dependent access gadgets.  Therefore, this patch
+proactively protects from these attacks by masking out-of-bounds gfns
+in __gfn_to_hva_memslot, which blocks speculation of invalid hvas.
+
+Sean Christopherson noted that this patch does not cover
+kvm_read_guest_offset_cached.  This however is limited to a few bytes
+past the end of the cache, and therefore it is unlikely to be useful in
+the context of building a chain of data dependent accesses.
+
+Reported-by: Artemiy Margaritov <artemiy.margaritov@gmail.com>
+Co-developed-by: Artemiy Margaritov <artemiy.margaritov@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/kvm_host.h |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -588,7 +588,7 @@ static void ncm_do_notify(struct f_ncm *
- 		data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
- 		data[1] = data[0];
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -963,7 +963,15 @@ __gfn_to_memslot(struct kvm_memslots *sl
+ static inline unsigned long
+ __gfn_to_hva_memslot(struct kvm_memory_slot *slot, gfn_t gfn)
+ {
+-	return slot->userspace_addr + (gfn - slot->base_gfn) * PAGE_SIZE;
++	/*
++	 * The index was checked originally in search_memslots.  To avoid
++	 * that a malicious guest builds a Spectre gadget out of e.g. page
++	 * table walks, do not let the processor speculate loads outside
++	 * the guest's registered memslots.
++	 */
++	unsigned long offset = array_index_nospec(gfn - slot->base_gfn,
++						  slot->npages);
++	return slot->userspace_addr + offset * PAGE_SIZE;
+ }
  
--		DBG(cdev, "notify speed %d\n", ncm_bitrate(cdev->gadget));
-+		DBG(cdev, "notify speed %u\n", ncm_bitrate(cdev->gadget));
- 		ncm->notify_state = NCM_NOTIFY_CONNECT;
- 		break;
- 	}
+ static inline int memslot_id(struct kvm *kvm, gfn_t gfn)
 
 
