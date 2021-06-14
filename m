@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 316313A61E9
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B7403A60C8
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233023AbhFNKw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:52:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58830 "EHLO mail.kernel.org"
+        id S233034AbhFNKhz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:37:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234123AbhFNKu5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:50:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CDD16145E;
-        Mon, 14 Jun 2021 10:38:54 +0000 (UTC)
+        id S232911AbhFNKf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:35:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AF2C613EE;
+        Mon, 14 Jun 2021 10:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667135;
-        bh=6jtGawe9IilV/5XCXNaTpSvBTt34hpS6zISP5bQjfGg=;
+        s=korg; t=1623666771;
+        bh=Qr9pE1eXosZU4d7fe/+B6rCTVSYSYg7RlK/F8Cv6GlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2jV3VmF+5yj2FtzuVccXnnZlACbiQ8LtJGUuBEG/ER5BQVTip5Rs8Ghmss3RyKy6
-         WFNKDy9O+tXz2WNcRiZbxXdJYo+bZSVWbTeKbSIvbQCeMMoVAf65umOtzn4Zunfwy3
-         JEBS+82EwL/4TtUs7+w1Amvkkj6EoypTxqTWvWNQ=
+        b=ilygBoZS7LFntXezoCcHHft/8p7He3NkAYVIacIyhOcn6MjypE4hN2bYpwyZw6HMU
+         Acld2yfZOaiEahvfio+dY/dcPNbhlG18bE9+SGNvrKdrXgNKK2ctgciQfhoeTe0mFx
+         LRn/cVSMWge9J+WMTy8Wnv5jEk7Lf7up9wdmifdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zong Li <zong.li@sifive.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/84] net: macb: ensure the device is available before accessing GEMGXL control registers
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        =?UTF-8?q?NOMURA=20JUNICHI ?= <junichi.nomura@nec.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 08/49] cgroup: disable controllers at parse time
 Date:   Mon, 14 Jun 2021 12:27:01 +0200
-Message-Id: <20210614102647.147526287@linuxfoundation.org>
+Message-Id: <20210614102642.133919412@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zong Li <zong.li@sifive.com>
+From: Shakeel Butt <shakeelb@google.com>
 
-[ Upstream commit 5eff1461a6dec84f04fafa9128548bad51d96147 ]
+[ Upstream commit 45e1ba40837ac2f6f4d4716bddb8d44bd7e4a251 ]
 
-If runtime power menagement is enabled, the gigabit ethernet PLL would
-be disabled after macb_probe(). During this period of time, the system
-would hang up if we try to access GEMGXL control registers.
+This patch effectively reverts the commit a3e72739b7a7 ("cgroup: fix
+too early usage of static_branch_disable()"). The commit 6041186a3258
+("init: initialize jump labels before command line option parsing") has
+moved the jump_label_init() before parse_args() which has made the
+commit a3e72739b7a7 unnecessary. On the other hand there are
+consequences of disabling the controllers later as there are subsystems
+doing the controller checks for different decisions. One such incident
+is reported [1] regarding the memory controller and its impact on memory
+reclaim code.
 
-We can't put runtime_pm_get/runtime_pm_put/ there due to the issue of
-sleep inside atomic section (7fa2955ff70ce453 ("sh_eth: Fix sleeping
-function called from invalid context"). Add netif_running checking to
-ensure the device is available before accessing GEMGXL device.
+[1] https://lore.kernel.org/linux-mm/921e53f3-4b13-aab8-4a9e-e83ff15371e4@nec.com
 
-Changed in v2:
- - Use netif_running instead of its own flag
-
-Signed-off-by: Zong Li <zong.li@sifive.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reported-by: NOMURA JUNICHI(野村　淳一) <junichi.nomura@nec.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Tested-by: Jun'ichi Nomura <junichi.nomura@nec.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/cgroup/cgroup.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 377668465535..ebd0853a6f31 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -2536,6 +2536,9 @@ static struct net_device_stats *gem_get_stats(struct macb *bp)
- 	struct gem_stats *hwstat = &bp->hw_stats.gem;
- 	struct net_device_stats *nstat = &bp->dev->stats;
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index ada060e628ce..99783685f3d9 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -5219,8 +5219,6 @@ int __init cgroup_init_early(void)
+ 	return 0;
+ }
  
-+	if (!netif_running(bp->dev))
-+		return nstat;
+-static u16 cgroup_disable_mask __initdata;
+-
+ /**
+  * cgroup_init - cgroup initialization
+  *
+@@ -5278,12 +5276,8 @@ int __init cgroup_init(void)
+ 		 * disabled flag and cftype registration needs kmalloc,
+ 		 * both of which aren't available during early_init.
+ 		 */
+-		if (cgroup_disable_mask & (1 << ssid)) {
+-			static_branch_disable(cgroup_subsys_enabled_key[ssid]);
+-			printk(KERN_INFO "Disabling %s control group subsystem\n",
+-			       ss->name);
++		if (!cgroup_ssid_enabled(ssid))
+ 			continue;
+-		}
+ 
+ 		if (cgroup1_ssid_disabled(ssid))
+ 			printk(KERN_INFO "Disabling %s control group subsystem in v1 mounts\n",
+@@ -5642,7 +5636,10 @@ static int __init cgroup_disable(char *str)
+ 			if (strcmp(token, ss->name) &&
+ 			    strcmp(token, ss->legacy_name))
+ 				continue;
+-			cgroup_disable_mask |= 1 << i;
 +
- 	gem_update_stats(bp);
- 
- 	nstat->rx_errors = (hwstat->rx_frame_check_sequence_errors +
++			static_branch_disable(cgroup_subsys_enabled_key[i]);
++			pr_info("Disabling %s control group subsystem\n",
++				ss->name);
+ 		}
+ 	}
+ 	return 1;
 -- 
 2.30.2
 
