@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A01F73A648B
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:25:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 831AE3A6343
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235434AbhFNL0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:26:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50342 "EHLO mail.kernel.org"
+        id S234676AbhFNLLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:11:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236213AbhFNLYO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:24:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24131619AA;
-        Mon, 14 Jun 2021 10:53:28 +0000 (UTC)
+        id S234483AbhFNLI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:08:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49BCE61450;
+        Mon, 14 Jun 2021 10:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623668009;
-        bh=cG4FSOO0beayRGoWvWbRpqmXB9IzjkrB44QsfWCBHYY=;
+        s=korg; t=1623667591;
+        bh=CDrQW38hQH5yfTSYoFDEHAl6A+SJxrYg8zTmBda9zeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mEHPfkQ3+8tcIk/+8whJA7UbbsEr/ydEAzs/9gzOxXnDTFzdJmVQkTK3yvB55d/3k
-         BsjPn41GJYKHzK6sBKwZ3PJOxDKuS4Y7Scja3NyPmOXCWb2UV9ew5o2RZAEY6yXsGk
-         rmVtrxkG6R7aQQCxOb8sg0yU8+z5DN8Aoc+iJEnY=
+        b=IuIBBJHtJkuWHMd0X4K+C7E22zIlIG3ZL07eqOMGeAj4Gtarzw0tu8qQvFlim4QVi
+         AwGjaHxPRyR10SKsBAxJnkO+Ukniqd1EzQOiU9fCibhOQ9AmIznYUW8kSy2iP18B7W
+         Bz1zq/VErVFnMow9ZVl9UUF86hCJQDvMc62asRJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, CodyYao-oc <CodyYao-oc@zhaoxin.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.12 159/173] x86/nmi_watchdog: Fix old-style NMI watchdog regression on old Intel CPUs
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        John Garry <john.garry@huawei.com>,
+        Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 130/131] scsi: core: Only put parent device if host state differs from SHOST_CREATED
 Date:   Mon, 14 Jun 2021 12:28:11 +0200
-Message-Id: <20210614102703.456145406@linuxfoundation.org>
+Message-Id: <20210614102657.441429636@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: CodyYao-oc <CodyYao-oc@zhaoxin.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit a8383dfb2138742a1bb77b481ada047aededa2ba upstream.
+commit 1e0d4e6225996f05271de1ebcb1a7c9381af0b27 upstream.
 
-The following commit:
+get_device(shost->shost_gendev.parent) is called after host state has
+switched to SHOST_RUNNING. scsi_host_dev_release() shouldn't release the
+parent device if host state is still SHOST_CREATED.
 
-   3a4ac121c2ca ("x86/perf: Add hardware performance events support for Zhaoxin CPU.")
-
-Got the old-style NMI watchdog logic wrong and broke it for basically every
-Intel CPU where it was active. Which is only truly old CPUs, so few people noticed.
-
-On CPUs with perf events support we turn off the old-style NMI watchdog, so it
-was pretty pointless to add the logic for X86_VENDOR_ZHAOXIN to begin with ... :-/
-
-Anyway, the fix is to restore the old logic and add a 'break'.
-
-[ mingo: Wrote a new changelog. ]
-
-Fixes: 3a4ac121c2ca ("x86/perf: Add hardware performance events support for Zhaoxin CPU.")
-Signed-off-by: CodyYao-oc <CodyYao-oc@zhaoxin.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20210607025335.9643-1-CodyYao-oc@zhaoxin.com
+Link: https://lore.kernel.org/r/20210602133029.2864069-5-ming.lei@redhat.com
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/perfctr-watchdog.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/hosts.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/perfctr-watchdog.c
-+++ b/arch/x86/kernel/cpu/perfctr-watchdog.c
-@@ -63,7 +63,7 @@ static inline unsigned int nmi_perfctr_m
- 		case 15:
- 			return msr - MSR_P4_BPU_PERFCTR0;
- 		}
--		fallthrough;
-+		break;
- 	case X86_VENDOR_ZHAOXIN:
- 	case X86_VENDOR_CENTAUR:
- 		return msr - MSR_ARCH_PERFMON_PERFCTR0;
-@@ -96,7 +96,7 @@ static inline unsigned int nmi_evntsel_m
- 		case 15:
- 			return msr - MSR_P4_BSU_ESCR0;
- 		}
--		fallthrough;
-+		break;
- 	case X86_VENDOR_ZHAOXIN:
- 	case X86_VENDOR_CENTAUR:
- 		return msr - MSR_ARCH_PERFMON_EVENTSEL0;
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -347,7 +347,7 @@ static void scsi_host_dev_release(struct
+ 
+ 	ida_simple_remove(&host_index_ida, shost->host_no);
+ 
+-	if (parent)
++	if (shost->shost_state != SHOST_CREATED)
+ 		put_device(parent);
+ 	kfree(shost);
+ }
 
 
