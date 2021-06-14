@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2FF23A606E
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3A983A613B
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233212AbhFNKeh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:34:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
+        id S233478AbhFNKpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:45:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233238AbhFNKdT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93F5161206;
-        Mon, 14 Jun 2021 10:31:03 +0000 (UTC)
+        id S232847AbhFNKml (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:42:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B0C61434;
+        Mon, 14 Jun 2021 10:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666664;
-        bh=nIABbGFDIi3CQkEggmptsX4x7g/ManHCNEpNMEegHLQ=;
+        s=korg; t=1623666940;
+        bh=2SgvNj6ou6VNa7dm/tdITAyo9EzdsLrOwNOltAcAyho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZQ2J0WKxxsvIqzXOkK423DmEKeGb6Zqpfkuf287C6B7HR2dcTvdZiEYFGFyuvdPW
-         17bTj65lHkxs8pxj1OfSWzcVG/gtry9sZJNoItPxESyTR4+Nnb29x+NvxKwzePvCSO
-         j6jnpxbtPFksP8Zk3b/4zS+2Fcla9iwuK2Pjvp28=
+        b=G29Hv3Ox6qcodcgaFMhrerYMMLEPCK5yLkXNVuVt+Jc/1kZxL8fEx5nUZy8kh6b+6
+         BfZa7mKXRH/b2AQiwmGXYXaML3kPJH5hqOA5Wl3qYz4BPNnXJY74vhuVorKtvm7r+U
+         Y4ptUbM5SzPdcYKJkuelji6ukq7g4ovaPZzWd3XE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
-Subject: [PATCH 4.9 26/42] usb: dwc3: ep0: fix NULL pointer exception
-Date:   Mon, 14 Jun 2021 12:27:17 +0200
-Message-Id: <20210614102643.540257953@linuxfoundation.org>
+        stable@vger.kernel.org, Brooke Basile <brookebasile@gmail.com>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        Yauheni Kaliuta <yauheni.kaliuta@nokia.com>,
+        Linux USB Mailing List <linux-usb@vger.kernel.org>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
+Subject: [PATCH 4.19 35/67] USB: f_ncm: ncm_bitrate (speed) is unsigned
+Date:   Mon, 14 Jun 2021 12:27:18 +0200
+Message-Id: <20210614102644.953669068@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+From: Maciej Żenczykowski <maze@google.com>
 
-commit d00889080ab60051627dab1d85831cd9db750e2a upstream.
+commit 3370139745853f7826895293e8ac3aec1430508e upstream.
 
-There is no validation of the index from dwc3_wIndex_to_dep() and we might
-be referring a non-existing ep and trigger a NULL pointer exception. In
-certain configurations we might use fewer eps and the index might wrongly
-indicate a larger ep index than existing.
+[  190.544755] configfs-gadget gadget: notify speed -44967296
 
-By adding this validation from the patch we can actually report a wrong
-index back to the caller.
+This is because 4250000000 - 2**32 is -44967296.
 
-In our usecase we are using a composite device on an older kernel, but
-upstream might use this fix also. Unfortunately, I cannot describe the
-hardware for others to reproduce the issue as it is a proprietary
-implementation.
-
-[   82.958261] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a4
-[   82.966891] Mem abort info:
-[   82.969663]   ESR = 0x96000006
-[   82.972703]   Exception class = DABT (current EL), IL = 32 bits
-[   82.978603]   SET = 0, FnV = 0
-[   82.981642]   EA = 0, S1PTW = 0
-[   82.984765] Data abort info:
-[   82.987631]   ISV = 0, ISS = 0x00000006
-[   82.991449]   CM = 0, WnR = 0
-[   82.994409] user pgtable: 4k pages, 39-bit VAs, pgdp = 00000000c6210ccc
-[   83.000999] [00000000000000a4] pgd=0000000053aa5003, pud=0000000053aa5003, pmd=0000000000000000
-[   83.009685] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[   83.026433] Process irq/62-dwc3 (pid: 303, stack limit = 0x000000003985154c)
-[   83.033470] CPU: 0 PID: 303 Comm: irq/62-dwc3 Not tainted 4.19.124 #1
-[   83.044836] pstate: 60000085 (nZCv daIf -PAN -UAO)
-[   83.049628] pc : dwc3_ep0_handle_feature+0x414/0x43c
-[   83.054558] lr : dwc3_ep0_interrupt+0x3b4/0xc94
-
-...
-
-[   83.141788] Call trace:
-[   83.144227]  dwc3_ep0_handle_feature+0x414/0x43c
-[   83.148823]  dwc3_ep0_interrupt+0x3b4/0xc94
-[   83.181546] ---[ end trace aac6b5267d84c32f ]---
-
-Signed-off-by: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+Fixes: 9f6ce4240a2b ("usb: gadget: f_ncm.c added")
+Cc: Brooke Basile <brookebasile@gmail.com>
+Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Lorenzo Colitti <lorenzo@google.com>
+Cc: Yauheni Kaliuta <yauheni.kaliuta@nokia.com>
+Cc: Linux USB Mailing List <linux-usb@vger.kernel.org>
+Acked-By: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608162650.58426-1-marian.c.rotariu@gmail.com
+Link: https://lore.kernel.org/r/20210608005344.3762668-1-zenczykowski@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/ep0.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/f_ncm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/ep0.c
-+++ b/drivers/usb/dwc3/ep0.c
-@@ -328,6 +328,9 @@ static struct dwc3_ep *dwc3_wIndex_to_de
- 		epnum |= 1;
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -583,7 +583,7 @@ static void ncm_do_notify(struct f_ncm *
+ 		data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
+ 		data[1] = data[0];
  
- 	dep = dwc->eps[epnum];
-+	if (dep == NULL)
-+		return NULL;
-+
- 	if (dep->flags & DWC3_EP_ENABLED)
- 		return dep;
- 
+-		DBG(cdev, "notify speed %d\n", ncm_bitrate(cdev->gadget));
++		DBG(cdev, "notify speed %u\n", ncm_bitrate(cdev->gadget));
+ 		ncm->notify_state = NCM_NOTIFY_CONNECT;
+ 		break;
+ 	}
 
 
