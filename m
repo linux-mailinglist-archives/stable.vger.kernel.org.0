@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4421B3A62C8
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26AFE3A62CA
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235266AbhFNLFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:05:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38268 "EHLO mail.kernel.org"
+        id S233065AbhFNLFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:05:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234526AbhFNLCL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:02:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F8C36190A;
-        Mon, 14 Jun 2021 10:43:40 +0000 (UTC)
+        id S234602AbhFNLC1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:02:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA95E616EC;
+        Mon, 14 Jun 2021 10:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667421;
-        bh=hYvpvnY69XNqIy5q9W9se4DgvuawRvaneL4ZUD92l8g=;
+        s=korg; t=1623667424;
+        bh=KTftdnL7StZc29g3j1X9fPuOyHaTMbBVMR3SLYnr/B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ea8Aue61QYAcDX32uitQfvY4VLWAt8yEeeZmtbKmFD5az2ttTnIovJ+x4VkUpYyWn
-         ZNqtFyuiTj0qoAmmupTU3MXAkJHyg1Ime2DspDLggIsASECPdUQfUI4wiwieuvkBrX
-         NNek/4EZ2qqNPrqrbCmcGmfMJdyu9pj09MWTbt5c=
+        b=r/EmNwAwiS+9RkIVRa1IJgn5l0BbESnJhVmUvOwndg9RORfzzv/RMttAYCkfrF7JK
+         api+fEUwyXbA27nQjCvQWTehnI+yxvn+2aCOgGr//T9IPSdJ/xQq4gK/eKvePDuTmc
+         n+beNGCr0BiLJ+It+Vvy86IDzcKHa/OEYZVhS1GE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 064/131] ftrace: Do not blindly read the ip address in ftrace_bug()
-Date:   Mon, 14 Jun 2021 12:27:05 +0200
-Message-Id: <20210614102655.199325002@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 065/131] mmc: renesas_sdhi: abort tuning when timeout detected
+Date:   Mon, 14 Jun 2021 12:27:06 +0200
+Message-Id: <20210614102655.237347066@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -39,55 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 6c14133d2d3f768e0a35128faac8aa6ed4815051 upstream.
+commit 2c9017d0b5d3fbf17e69577a42d9e610ca122810 upstream.
 
-It was reported that a bug on arm64 caused a bad ip address to be used for
-updating into a nop in ftrace_init(), but the error path (rightfully)
-returned -EINVAL and not -EFAULT, as the bug caused more than one error to
-occur. But because -EINVAL was returned, the ftrace_bug() tried to report
-what was at the location of the ip address, and read it directly. This
-caused the machine to panic, as the ip was not pointing to a valid memory
-address.
+We have to bring the eMMC from sending-data state back to transfer state
+once we detected a CRC error (timeout) during tuning. So, send a stop
+command via mmc_abort_tuning().
 
-Instead, read the ip address with copy_from_kernel_nofault() to safely
-access the memory, and if it faults, report that the address faulted,
-otherwise report what was in that location.
-
-Link: https://lore.kernel.org/lkml/20210607032329.28671-1-mark-pk.tsai@mediatek.com/
-
+Fixes: 4f11997773b6 ("mmc: tmio: Add tuning support")
+Reported-by Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210602073435.5955-1-wsa+renesas@sang-engineering.com
 Cc: stable@vger.kernel.org
-Fixes: 05736a427f7e1 ("ftrace: warn on failure to disable mcount callers")
-Reported-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/mmc/host/renesas_sdhi_core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1968,12 +1968,18 @@ static int ftrace_hash_ipmodify_update(s
+--- a/drivers/mmc/host/renesas_sdhi_core.c
++++ b/drivers/mmc/host/renesas_sdhi_core.c
+@@ -660,14 +660,19 @@ static int renesas_sdhi_execute_tuning(s
  
- static void print_ip_ins(const char *fmt, const unsigned char *p)
- {
-+	char ins[MCOUNT_INSN_SIZE];
- 	int i;
- 
-+	if (copy_from_kernel_nofault(ins, p, MCOUNT_INSN_SIZE)) {
-+		printk(KERN_CONT "%s[FAULT] %px\n", fmt, p);
-+		return;
-+	}
+ 	/* Issue CMD19 twice for each tap */
+ 	for (i = 0; i < 2 * priv->tap_num; i++) {
++		int cmd_error;
 +
- 	printk(KERN_CONT "%s", fmt);
+ 		/* Set sampling clock position */
+ 		sd_scc_write32(host, priv, SH_MOBILE_SDHI_SCC_TAPSET, i % priv->tap_num);
  
- 	for (i = 0; i < MCOUNT_INSN_SIZE; i++)
--		printk(KERN_CONT "%s%02x", i ? ":" : "", p[i]);
-+		printk(KERN_CONT "%s%02x", i ? ":" : "", ins[i]);
- }
+-		if (mmc_send_tuning(mmc, opcode, NULL) == 0)
++		if (mmc_send_tuning(mmc, opcode, &cmd_error) == 0)
+ 			set_bit(i, priv->taps);
  
- enum ftrace_bug_type ftrace_bug_type;
+ 		if (sd_scc_read32(host, priv, SH_MOBILE_SDHI_SCC_SMPCMP) == 0)
+ 			set_bit(i, priv->smpcmp);
++
++		if (cmd_error)
++			mmc_abort_tuning(mmc, opcode);
+ 	}
+ 
+ 	ret = renesas_sdhi_select_tuning(host);
 
 
