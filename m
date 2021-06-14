@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BC983A61F4
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:51:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1970A3A619B
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234410AbhFNKxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59482 "EHLO mail.kernel.org"
+        id S234355AbhFNKts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:49:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234411AbhFNKvd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:51:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5368861469;
-        Mon, 14 Jun 2021 10:39:11 +0000 (UTC)
+        id S233470AbhFNKrK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:47:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F8306140D;
+        Mon, 14 Jun 2021 10:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667151;
-        bh=2SgvNj6ou6VNa7dm/tdITAyo9EzdsLrOwNOltAcAyho=;
+        s=korg; t=1623667030;
+        bh=MaTYnUhJBvFJEF3/bmr1SykXKvD84Th/3oINBhD0xbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Sq7OiRN3P2prPxsEhYlwh2e7holqcOKEwW3qGy2pTHmn9hCnIX1Djtch1Vt9nudJ
-         TIcGP4C/73x6IP/OVprF7NHmsmCiH5lMLvh0uMrOsV1Lj2qsw8uL0Q9PbWFF/q4Amf
-         nPvmQgEVz/KGJxiMr72WuGLmrFF8RGznulhZPprw=
+        b=ydPCB7g1Xmwtez4fNcRE6eHjks5zD7j2slkh2DUEwXPg3Yc0ZcLlNif4KD1jy6GNp
+         laavimIXfO8eWnUZcCt14sALwib91siIUTanfu9BemZ2s+2PPTl8PyAdjF/8bBqgri
+         4VJLsl8GRni0CFzpsKgbNmfwW8qPQP1Sg0OoFPCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brooke Basile <brookebasile@gmail.com>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Yauheni Kaliuta <yauheni.kaliuta@nokia.com>,
-        Linux USB Mailing List <linux-usb@vger.kernel.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Subject: [PATCH 5.4 46/84] USB: f_ncm: ncm_bitrate (speed) is unsigned
+        stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
+Subject: [PATCH 4.19 41/67] usb: gadget: f_fs: Ensure io_completion_wq is idle during unbind
 Date:   Mon, 14 Jun 2021 12:27:24 +0200
-Message-Id: <20210614102647.941385889@linuxfoundation.org>
+Message-Id: <20210614102645.175236456@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Wesley Cheng <wcheng@codeaurora.org>
 
-commit 3370139745853f7826895293e8ac3aec1430508e upstream.
+commit 6fc1db5e6211e30fbb1cee8d7925d79d4ed2ae14 upstream.
 
-[  190.544755] configfs-gadget gadget: notify speed -44967296
+During unbind, ffs_func_eps_disable() will be executed, resulting in
+completion callbacks for any pending USB requests.  When using AIO,
+irrespective of the completion status, io_data work is queued to
+io_completion_wq to evaluate and handle the completed requests.  Since
+work runs asynchronously to the unbind() routine, there can be a
+scenario where the work runs after the USB gadget has been fully
+removed, resulting in accessing of a resource which has been already
+freed. (i.e. usb_ep_free_request() accessing the USB ep structure)
 
-This is because 4250000000 - 2**32 is -44967296.
+Explicitly drain the io_completion_wq, instead of relying on the
+destroy_workqueue() (in ffs_data_put()) to make sure no pending
+completion work items are running.
 
-Fixes: 9f6ce4240a2b ("usb: gadget: f_ncm.c added")
-Cc: Brooke Basile <brookebasile@gmail.com>
-Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Cc: Yauheni Kaliuta <yauheni.kaliuta@nokia.com>
-Cc: Linux USB Mailing List <linux-usb@vger.kernel.org>
-Acked-By: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608005344.3762668-1-zenczykowski@gmail.com
+Link: https://lore.kernel.org/r/1621644261-1236-1-git-send-email-wcheng@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_fs.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -583,7 +583,7 @@ static void ncm_do_notify(struct f_ncm *
- 		data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
- 		data[1] = data[0];
- 
--		DBG(cdev, "notify speed %d\n", ncm_bitrate(cdev->gadget));
-+		DBG(cdev, "notify speed %u\n", ncm_bitrate(cdev->gadget));
- 		ncm->notify_state = NCM_NOTIFY_CONNECT;
- 		break;
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -3469,6 +3469,9 @@ static void ffs_func_unbind(struct usb_c
+ 		ffs->func = NULL;
  	}
+ 
++	/* Drain any pending AIO completions */
++	drain_workqueue(ffs->io_completion_wq);
++
+ 	if (!--opts->refcnt)
+ 		functionfs_unbind(ffs);
+ 
 
 
