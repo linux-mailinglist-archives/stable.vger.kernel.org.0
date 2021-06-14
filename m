@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5463A6096
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E52BA3A60E4
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233394AbhFNKfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39142 "EHLO mail.kernel.org"
+        id S232888AbhFNKkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:40:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232889AbhFNKeZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:34:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18D31613DE;
-        Mon, 14 Jun 2021 10:32:02 +0000 (UTC)
+        id S233015AbhFNKhI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:37:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC18D610CD;
+        Mon, 14 Jun 2021 10:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666723;
-        bh=xibRKAsrqoqo4jpJALC329ZDUqJa3sA51jXzSLjKD3A=;
+        s=korg; t=1623666806;
+        bh=VegNpaNu5hsoz+HL48/0pYz8xuhfa6ePNEhS/Kd5zcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vjh2Qq6aqYeHXcYWTYKYRPG+rYgk7WYzeuxBQT19Hho4kM1rIqWEIVrZXdFoxzuGt
-         m0TQd2w7Bt9TJu77r9I99+10+UzHgHChT20USpHcegtNWkmstacFOENsm4oo4em/sR
-         lTK73Bk0nlmFhPYWbRGYgKtn6UZtFBt1SPeafKW4=
+        b=Hsk18G8HJ6IKWwZsSh6r7z4MdXbQU0ZjBFOp+9ZRZ9az8ftOBMIGcNovjR/+DEwhK
+         TRCkQg4qmySFE2+WFLunL5fVZgDwaSYouZJzH0UE7vj1F68gNIJazkstteL0DPH8OE
+         DMoitVZ0bCoF9SdE5okl4W2QNy6Gs7M1Vm0rBAP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        John Garry <john.garry@huawei.com>,
-        Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 39/42] scsi: core: Fix error handling of scsi_host_alloc()
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 37/49] regulator: core: resolve supply for boot-on/always-on regulators
 Date:   Mon, 14 Jun 2021 12:27:30 +0200
-Message-Id: <20210614102643.956167995@linuxfoundation.org>
+Message-Id: <20210614102643.080869964@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 66a834d092930cf41d809c0e989b13cd6f9ca006 upstream.
+commit 98e48cd9283dbac0e1445ee780889f10b3d1db6a upstream.
 
-After device is initialized via device_initialize(), or its name is set via
-dev_set_name(), the device has to be freed via put_device().  Otherwise
-device name will be leaked because it is allocated dynamically in
-dev_set_name().
+For the boot-on/always-on regulators the set_machine_constrainst() is
+called before resolving rdev->supply. Thus the code would try to enable
+rdev before enabling supplying regulator. Enforce resolving supply
+regulator before enabling rdev.
 
-Fix the leak by replacing kfree() with put_device(). Since
-scsi_host_dev_release() properly handles IDA and kthread removal, remove
-special-casing these from the error handling as well.
-
-Link: https://lore.kernel.org/r/20210602133029.2864069-2-ming.lei@redhat.com
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Hannes Reinecke <hare@suse.de>
-Tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20210519221224.2868496-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hosts.c |   23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ drivers/regulator/core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -421,8 +421,10 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	mutex_init(&shost->scan_mutex);
- 
- 	index = ida_simple_get(&host_index_ida, 0, 0, GFP_KERNEL);
--	if (index < 0)
--		goto fail_kfree;
-+	if (index < 0) {
-+		kfree(shost);
-+		return NULL;
-+	}
- 	shost->host_no = index;
- 
- 	shost->dma_channel = 0xff;
-@@ -509,7 +511,7 @@ struct Scsi_Host *scsi_host_alloc(struct
- 		shost_printk(KERN_WARNING, shost,
- 			"error handler thread failed to spawn, error = %ld\n",
- 			PTR_ERR(shost->ehandler));
--		goto fail_index_remove;
-+		goto fail;
- 	}
- 
- 	shost->tmf_work_q = alloc_workqueue("scsi_tmf_%d",
-@@ -518,17 +520,18 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	if (!shost->tmf_work_q) {
- 		shost_printk(KERN_WARNING, shost,
- 			     "failed to create tmf workq\n");
--		goto fail_kthread;
-+		goto fail;
- 	}
- 	scsi_proc_hostdir_add(shost->hostt);
- 	return shost;
-+ fail:
-+	/*
-+	 * Host state is still SHOST_CREATED and that is enough to release
-+	 * ->shost_gendev. scsi_host_dev_release() will free
-+	 * dev_name(&shost->shost_dev).
-+	 */
-+	put_device(&shost->shost_gendev);
- 
-- fail_kthread:
--	kthread_stop(shost->ehandler);
-- fail_index_remove:
--	ida_simple_remove(&host_index_ida, shost->host_no);
-- fail_kfree:
--	kfree(shost);
- 	return NULL;
- }
- EXPORT_SYMBOL(scsi_host_alloc);
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1081,6 +1081,12 @@ static int set_machine_constraints(struc
+ 	 * and we have control then make sure it is enabled.
+ 	 */
+ 	if (rdev->constraints->always_on || rdev->constraints->boot_on) {
++		/* If we want to enable this regulator, make sure that we know
++		 * the supplying regulator.
++		 */
++		if (rdev->supply_name && !rdev->supply)
++			return -EPROBE_DEFER;
++
+ 		ret = _regulator_do_enable(rdev);
+ 		if (ret < 0 && ret != -EINVAL) {
+ 			rdev_err(rdev, "failed to enable\n");
 
 
