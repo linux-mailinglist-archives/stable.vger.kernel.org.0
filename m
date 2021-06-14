@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7321F3A6144
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1473A60D3
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233561AbhFNKps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:45:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45350 "EHLO mail.kernel.org"
+        id S233605AbhFNKiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:38:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233942AbhFNKmR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:42:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2208961431;
-        Mon, 14 Jun 2021 10:35:20 +0000 (UTC)
+        id S233607AbhFNKgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:36:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0240E61244;
+        Mon, 14 Jun 2021 10:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666921;
-        bh=ZY4c1guXixpLGl+bH8VS9g/dz2f4w5HOXOLkiD9oRGs=;
+        s=korg; t=1623666779;
+        bh=H4tI61InI25qWIcrrnymFGEvfpZlGePFNnD7MpJfmII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EwzZqQ8T9QU1LQeYqRLACvG2bwy7EAI+JfZxHLI1bXKxCQxvxH+hlXzIbDqS8YLSA
-         YZAjb6M0T86e5KB6fB5xhOjlhJlZorMW//xOZnzHk4/XmJuNeiiJsnlDxdFVu5EaU8
-         oDqIhKtB3d6B2uUrYZWn+0PYz0KiTMpznMSr0yiA=
+        b=Lq5myVGi7zLVxTaiLDQqkIHsOPZmFN/LaVO+mJWo/Gqeh+OkXnxqZCK9ZUrnu9IWL
+         LnXUiRcRq7znZbkr1SkDuiTAgW+k1d2AoP/uslcecBTHvJXBh7kE4nyKWRbHnC76vt
+         9FcVnpRwKq+acM39v5RCJKl3Eh4GlkApgdTKjH14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.19 29/67] drm: Fix use-after-free read in drm_getunique()
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 19/49] i2c: mpc: Make use of i2c_recover_bus()
 Date:   Mon, 14 Jun 2021 12:27:12 +0200
-Message-Id: <20210614102644.748489561@linuxfoundation.org>
+Message-Id: <20210614102642.502504476@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-commit b436acd1cf7fac0ba987abd22955d98025c80c2b upstream.
+[ Upstream commit 65171b2df15eb7545431d75c2729b5062da89b43 ]
 
-There is a time-of-check-to-time-of-use error in drm_getunique() due
-to retrieving file_priv->master prior to locking the device's master
-mutex.
+Move the existing calls of mpc_i2c_fixup() to a recovery function
+registered via bus_recovery_info. This makes it more obvious that
+recovery is supported and allows for a future where recovery is
+triggered by the i2c core.
 
-An example can be seen in the crash report of the use-after-free error
-found by Syzbot:
-https://syzkaller.appspot.com/bug?id=148d2f1dfac64af52ffd27b661981a540724f803
-
-In the report, the master pointer was used after being freed. This is
-because another process had acquired the device's master mutex in
-drm_setmaster_ioctl(), then overwrote fpriv->master in
-drm_new_set_master(). The old value of fpriv->master was subsequently
-freed before the mutex was unlocked.
-
-To fix this, we lock the device's master mutex before retrieving the
-pointer from from fpriv->master. This patch passes the Syzbot
-reproducer test.
-
-Reported-by: syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210608110436.239583-1-desmondcheongzx@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_ioctl.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-mpc.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -112,17 +112,18 @@ int drm_getunique(struct drm_device *dev
- 		  struct drm_file *file_priv)
- {
- 	struct drm_unique *u = data;
--	struct drm_master *master = file_priv->master;
-+	struct drm_master *master;
- 
--	mutex_lock(&master->dev->master_mutex);
-+	mutex_lock(&dev->master_mutex);
-+	master = file_priv->master;
- 	if (u->unique_len >= master->unique_len) {
- 		if (copy_to_user(u->unique, master->unique, master->unique_len)) {
--			mutex_unlock(&master->dev->master_mutex);
-+			mutex_unlock(&dev->master_mutex);
- 			return -EFAULT;
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 96caf378b1dc..d94df068c073 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -581,7 +581,7 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			if ((status & (CSR_MCF | CSR_MBB | CSR_RXAK)) != 0) {
+ 				writeb(status & ~CSR_MAL,
+ 				       i2c->base + MPC_I2C_SR);
+-				mpc_i2c_fixup(i2c);
++				i2c_recover_bus(&i2c->adap);
+ 			}
+ 			return -EIO;
  		}
- 	}
- 	u->unique_len = master->unique_len;
--	mutex_unlock(&master->dev->master_mutex);
-+	mutex_unlock(&dev->master_mutex);
- 
- 	return 0;
+@@ -617,7 +617,7 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			if ((status & (CSR_MCF | CSR_MBB | CSR_RXAK)) != 0) {
+ 				writeb(status & ~CSR_MAL,
+ 				       i2c->base + MPC_I2C_SR);
+-				mpc_i2c_fixup(i2c);
++				i2c_recover_bus(&i2c->adap);
+ 			}
+ 			return -EIO;
+ 		}
+@@ -632,6 +632,15 @@ static u32 mpc_functionality(struct i2c_adapter *adap)
+ 	  | I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_SMBUS_BLOCK_PROC_CALL;
  }
+ 
++static int fsl_i2c_bus_recovery(struct i2c_adapter *adap)
++{
++	struct mpc_i2c *i2c = i2c_get_adapdata(adap);
++
++	mpc_i2c_fixup(i2c);
++
++	return 0;
++}
++
+ static const struct i2c_algorithm mpc_algo = {
+ 	.master_xfer = mpc_xfer,
+ 	.functionality = mpc_functionality,
+@@ -643,6 +652,10 @@ static struct i2c_adapter mpc_ops = {
+ 	.timeout = HZ,
+ };
+ 
++static struct i2c_bus_recovery_info fsl_i2c_recovery_info = {
++	.recover_bus = fsl_i2c_bus_recovery,
++};
++
+ static const struct of_device_id mpc_i2c_of_match[];
+ static int fsl_i2c_probe(struct platform_device *op)
+ {
+@@ -735,6 +748,7 @@ static int fsl_i2c_probe(struct platform_device *op)
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+ 	i2c->adap.dev.parent = &op->dev;
+ 	i2c->adap.dev.of_node = of_node_get(op->dev.of_node);
++	i2c->adap.bus_recovery_info = &fsl_i2c_recovery_info;
+ 
+ 	result = i2c_add_adapter(&i2c->adap);
+ 	if (result < 0)
+-- 
+2.30.2
+
 
 
