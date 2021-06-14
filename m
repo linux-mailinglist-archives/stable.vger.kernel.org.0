@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6AB13A620A
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 838543A60C6
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:36:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232894AbhFNKzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:55:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58050 "EHLO mail.kernel.org"
+        id S233414AbhFNKhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:37:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234311AbhFNKw0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:52:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 536FE6147F;
-        Mon, 14 Jun 2021 10:39:24 +0000 (UTC)
+        id S233175AbhFNKf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:35:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C67FC61407;
+        Mon, 14 Jun 2021 10:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667164;
-        bh=HkXy/29+KCg0SHfbfQwmDgrjiU6bCvAaME+XJXMrYqI=;
+        s=korg; t=1623666774;
+        bh=yCIrM2YCEREfws3zQzUwYiMb4cPdjUcMGWaBVJu7oZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=em5Bf7cjUuMkQ9sWhbkI7ZDlrWO0WFHNvaKHycQN1WPGCIZ5gx3PiMfAd/iK+FPSi
-         CqOb0noVTw6kNBXcWdyRoOvDSuvTbkIsXyj6gfVU81jlpZh9a5m7OJ8perQWsBMuoh
-         Eop2h7WOtVO5awPiCKJGQbtJYXc7wWA2mlxqLQKc=
+        b=Q0ytpXxdpVTSij9Ot1XfJB011zjIac+kHja5zBceU3kZZImp9xx/yXfH8TnKG/eTv
+         TtdB8BmBye30KEKagVIS9K1PHNZxArYN85jr3Wz7ZEHQd8+RCr07ajtCP8dyhDPNWU
+         1CHxp4nULTP8jz10EgGhpBKpbqLi5RMzTCL8SrkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Saubhik Mukherjee <saubhik.mukherjee@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/84] net: appletalk: cops: Fix data race in cops_probe1
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 09/49] wq: handle VM suspension in stall detection
 Date:   Mon, 14 Jun 2021 12:27:02 +0200
-Message-Id: <20210614102647.178562986@linuxfoundation.org>
+Message-Id: <20210614102642.177540897@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saubhik Mukherjee <saubhik.mukherjee@gmail.com>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-[ Upstream commit a4dd4fc6105e54393d637450a11d4cddb5fabc4f ]
+[ Upstream commit 940d71c6462e8151c78f28e4919aa8882ff2054e ]
 
-In cops_probe1(), there is a write to dev->base_addr after requesting an
-interrupt line and registering the interrupt handler cops_interrupt().
-The handler might be called in parallel to handle an interrupt.
-cops_interrupt() tries to read dev->base_addr leading to a potential
-data race. So write to dev->base_addr before calling request_irq().
+If VCPU is suspended (VM suspend) in wq_watchdog_timer_fn() then
+once this VCPU resumes it will see the new jiffies value, while it
+may take a while before IRQ detects PVCLOCK_GUEST_STOPPED on this
+VCPU and updates all the watchdogs via pvclock_touch_watchdogs().
+There is a small chance of misreported WQ stalls in the meantime,
+because new jiffies is time_after() old 'ts + thresh'.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+wq_watchdog_timer_fn()
+{
+	for_each_pool(pool, pi) {
+		if (time_after(jiffies, ts + thresh)) {
+			pr_emerg("BUG: workqueue lockup - pool");
+		}
+	}
+}
 
-Signed-off-by: Saubhik Mukherjee <saubhik.mukherjee@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Save jiffies at the beginning of this function and use that value
+for stall detection. If VM gets suspended then we continue using
+"old" jiffies value and old WQ touch timestamps. If IRQ at some
+point restarts the stall detection cycle (pvclock_touch_watchdogs())
+then old jiffies will always be before new 'ts + thresh'.
+
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/appletalk/cops.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/workqueue.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/appletalk/cops.c b/drivers/net/appletalk/cops.c
-index b3c63d2f16aa..5c89c2eff891 100644
---- a/drivers/net/appletalk/cops.c
-+++ b/drivers/net/appletalk/cops.c
-@@ -325,6 +325,8 @@ static int __init cops_probe1(struct net_device *dev, int ioaddr)
- 			break;
- 	}
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index bc32ed4a4cf3..58e7eefe4dbf 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -49,6 +49,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/uaccess.h>
+ #include <linux/nmi.h>
++#include <linux/kvm_para.h>
  
-+	dev->base_addr = ioaddr;
+ #include "workqueue_internal.h"
+ 
+@@ -5465,6 +5466,7 @@ static void wq_watchdog_timer_fn(unsigned long data)
+ {
+ 	unsigned long thresh = READ_ONCE(wq_watchdog_thresh) * HZ;
+ 	bool lockup_detected = false;
++	unsigned long now = jiffies;
+ 	struct worker_pool *pool;
+ 	int pi;
+ 
+@@ -5479,6 +5481,12 @@ static void wq_watchdog_timer_fn(unsigned long data)
+ 		if (list_empty(&pool->worklist))
+ 			continue;
+ 
++		/*
++		 * If a virtual machine is stopped by the host it can look to
++		 * the watchdog like a stall.
++		 */
++		kvm_check_and_clear_guest_paused();
 +
- 	/* Reserve any actual interrupt. */
- 	if (dev->irq) {
- 		retval = request_irq(dev->irq, cops_interrupt, 0, dev->name, dev);
-@@ -332,8 +334,6 @@ static int __init cops_probe1(struct net_device *dev, int ioaddr)
- 			goto err_out;
- 	}
+ 		/* get the latest of pool and touched timestamps */
+ 		pool_ts = READ_ONCE(pool->watchdog_ts);
+ 		touched = READ_ONCE(wq_watchdog_touched);
+@@ -5497,12 +5505,12 @@ static void wq_watchdog_timer_fn(unsigned long data)
+ 		}
  
--	dev->base_addr = ioaddr;
--
-         lp = netdev_priv(dev);
-         spin_lock_init(&lp->lock);
+ 		/* did we stall? */
+-		if (time_after(jiffies, ts + thresh)) {
++		if (time_after(now, ts + thresh)) {
+ 			lockup_detected = true;
+ 			pr_emerg("BUG: workqueue lockup - pool");
+ 			pr_cont_pool_info(pool);
+ 			pr_cont(" stuck for %us!\n",
+-				jiffies_to_msecs(jiffies - pool_ts) / 1000);
++				jiffies_to_msecs(now - pool_ts) / 1000);
+ 		}
+ 	}
  
 -- 
 2.30.2
