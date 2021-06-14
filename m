@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1A9C3A6412
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B51D3A6428
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234341AbhFNLUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:20:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47448 "EHLO mail.kernel.org"
+        id S233978AbhFNLVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:21:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234404AbhFNLR4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:17:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9755E61245;
-        Mon, 14 Jun 2021 10:50:35 +0000 (UTC)
+        id S235456AbhFNLSL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:18:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2549B6198C;
+        Mon, 14 Jun 2021 10:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667836;
-        bh=4b+kN5kgYUJozpZ0feh5k1wvn1s8BWKCOUy7nfMwHoA=;
+        s=korg; t=1623667838;
+        bh=0OzG14zKROsbLr8pPESTvl8w51dkSHjRo2SIdkg5/FQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KL7CAEnOVt00925fvOVHUnrC5iyD4ZOvueKJcYKCqC1U3t7GOb2Pt70Dk7BWJmOZi
-         1KSk9X7esUua0mPXk8R1sCQIfF+PLWJUSxTwotaZupbj7PzNdnNBQt5HaDE8nSOxZ1
-         sk77qJ2/4OTKe4ZQwnrekdyEwLddf2N8DhJ8+00g=
+        b=0AbanDDChusuaIchHx1v3j9JXjSb5BvaIJe7gUnVazU0OdXI+i7St6N4lqlYGPjzN
+         T/YXLozXBTZqT9sl+uDTcyuwMDDfCPbfF0DU1Rz0EjPp+fR0v6J+y/5bT78intZ3Mm
+         7P61sILPhv1SZVH4IoMpLf/d1OuhCcTo5ZauY8/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
-Subject: [PATCH 5.12 092/173] usb: dwc3: ep0: fix NULL pointer exception
-Date:   Mon, 14 Jun 2021 12:27:04 +0200
-Message-Id: <20210614102701.237442426@linuxfoundation.org>
+        stable@vger.kernel.org, Prike Liang <Prike.Liang@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH 5.12 093/173] usb: pci-quirks: disable D3cold on xhci suspend for s2idle on AMD Renoir
+Date:   Mon, 14 Jun 2021 12:27:05 +0200
+Message-Id: <20210614102701.267640322@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -39,67 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit d00889080ab60051627dab1d85831cd9db750e2a upstream.
+commit d1658268e43980c071dbffc3d894f6f6c4b6732a upstream.
 
-There is no validation of the index from dwc3_wIndex_to_dep() and we might
-be referring a non-existing ep and trigger a NULL pointer exception. In
-certain configurations we might use fewer eps and the index might wrongly
-indicate a larger ep index than existing.
+The XHCI controller is required to enter D3hot rather than D3cold for AMD
+s2idle on this hardware generation.
 
-By adding this validation from the patch we can actually report a wrong
-index back to the caller.
+Otherwise, the 'Controller Not Ready' (CNR) bit is not being cleared by
+host in resume and eventually this results in xhci resume failures during
+the s2idle wakeup.
 
-In our usecase we are using a composite device on an older kernel, but
-upstream might use this fix also. Unfortunately, I cannot describe the
-hardware for others to reproduce the issue as it is a proprietary
-implementation.
-
-[   82.958261] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a4
-[   82.966891] Mem abort info:
-[   82.969663]   ESR = 0x96000006
-[   82.972703]   Exception class = DABT (current EL), IL = 32 bits
-[   82.978603]   SET = 0, FnV = 0
-[   82.981642]   EA = 0, S1PTW = 0
-[   82.984765] Data abort info:
-[   82.987631]   ISV = 0, ISS = 0x00000006
-[   82.991449]   CM = 0, WnR = 0
-[   82.994409] user pgtable: 4k pages, 39-bit VAs, pgdp = 00000000c6210ccc
-[   83.000999] [00000000000000a4] pgd=0000000053aa5003, pud=0000000053aa5003, pmd=0000000000000000
-[   83.009685] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[   83.026433] Process irq/62-dwc3 (pid: 303, stack limit = 0x000000003985154c)
-[   83.033470] CPU: 0 PID: 303 Comm: irq/62-dwc3 Not tainted 4.19.124 #1
-[   83.044836] pstate: 60000085 (nZCv daIf -PAN -UAO)
-[   83.049628] pc : dwc3_ep0_handle_feature+0x414/0x43c
-[   83.054558] lr : dwc3_ep0_interrupt+0x3b4/0xc94
-
-...
-
-[   83.141788] Call trace:
-[   83.144227]  dwc3_ep0_handle_feature+0x414/0x43c
-[   83.148823]  dwc3_ep0_interrupt+0x3b4/0xc94
-[   83.181546] ---[ end trace aac6b5267d84c32f ]---
-
-Signed-off-by: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608162650.58426-1-marian.c.rotariu@gmail.com
+Link: https://lore.kernel.org/linux-usb/1612527609-7053-1-git-send-email-Prike.Liang@amd.com/
+Suggested-by: Prike Liang <Prike.Liang@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Cc: stable <stable@vger.kernel.org> # 5.11+
+Link: https://lore.kernel.org/r/20210527154534.8900-1-mario.limonciello@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/ep0.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/host/xhci-pci.c |    7 ++++++-
+ drivers/usb/host/xhci.h     |    1 +
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/ep0.c
-+++ b/drivers/usb/dwc3/ep0.c
-@@ -292,6 +292,9 @@ static struct dwc3_ep *dwc3_wIndex_to_de
- 		epnum |= 1;
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -59,6 +59,7 @@
+ #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
+ #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
  
- 	dep = dwc->eps[epnum];
-+	if (dep == NULL)
-+		return NULL;
++#define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_2			0x43bb
+@@ -182,6 +183,10 @@ static void xhci_pci_quirks(struct devic
+ 		(pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_1)))
+ 		xhci->quirks |= XHCI_U2_DISABLE_WAKE;
+ 
++	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
++		pdev->device == PCI_DEVICE_ID_AMD_RENOIR_XHCI)
++		xhci->quirks |= XHCI_BROKEN_D3COLD;
 +
- 	if (dep->flags & DWC3_EP_ENABLED)
- 		return dep;
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
+ 		xhci->quirks |= XHCI_LPM_SUPPORT;
+ 		xhci->quirks |= XHCI_INTEL_HOST;
+@@ -539,7 +544,7 @@ static int xhci_pci_suspend(struct usb_h
+ 	 * Systems with the TI redriver that loses port status change events
+ 	 * need to have the registers polled during D3, so avoid D3cold.
+ 	 */
+-	if (xhci->quirks & XHCI_COMP_MODE_QUIRK)
++	if (xhci->quirks & (XHCI_COMP_MODE_QUIRK | XHCI_BROKEN_D3COLD))
+ 		pci_d3cold_disable(pdev);
  
+ 	if (xhci->quirks & XHCI_PME_STUCK_QUIRK)
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1892,6 +1892,7 @@ struct xhci_hcd {
+ #define XHCI_DISABLE_SPARSE	BIT_ULL(38)
+ #define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
+ #define XHCI_NO_SOFT_RETRY	BIT_ULL(40)
++#define XHCI_BROKEN_D3COLD	BIT_ULL(41)
+ 
+ 	unsigned int		num_active_eps;
+ 	unsigned int		limit_active_eps;
 
 
