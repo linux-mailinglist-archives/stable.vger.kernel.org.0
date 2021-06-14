@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F1D3A61F8
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:51:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA4FD3A6191
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234440AbhFNKxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:53:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57326 "EHLO mail.kernel.org"
+        id S234125AbhFNKs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:48:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234420AbhFNKve (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:51:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C1A061476;
-        Mon, 14 Jun 2021 10:39:13 +0000 (UTC)
+        id S233936AbhFNKq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:46:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47CBA61456;
+        Mon, 14 Jun 2021 10:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667154;
-        bh=J5V1QVOgXXFiFt0IqM+CYK36Ta3RwIHNPWq3G/S5GvI=;
+        s=korg; t=1623667032;
+        bh=Md0RXpy04ehwWoOEmlRZlFIo2H+7yqFYIWQf7EfyhDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=flqMShXdRn6JJlldoMXnrANvroEMCBKyAfb5MMy5iNwDfUWJR3pc/v8WuX3bVrk7a
-         lk3aEanjwQVOEn9z+9u+I6fXaKd3bBPd4I0mEh4WRQaLEzPdXrYONl1fQraMrFdOse
-         YqpAVaAtNo9kWz2ApnrQEnmr8KnG6GD5SK6QulJM=
+        b=CA9qb5CAY1ASTyDXqLW4FMKePiucDdyvVTomtRkwFsy80pw6J0ITXKCuZV/KS45JV
+         lDeRW6RqG8RtPDNOpR+qtRPrjLEHJRIDy8GfUwVrSPhTzBMt/q8ookrrXji1dwmQOO
+         8KGBoUmDwkvWJVXIVRof3Sont8yPVecMLoBOe8/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brooke Basile <brookebasile@gmail.com>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Subject: [PATCH 5.4 47/84] usb: f_ncm: only first packet of aggregate needs to start timer
+        stable@vger.kernel.org,
+        George McCollister <george.mccollister@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 42/67] USB: serial: ftdi_sio: add NovaTech OrionMX product ID
 Date:   Mon, 14 Jun 2021 12:27:25 +0200
-Message-Id: <20210614102647.971186568@linuxfoundation.org>
+Message-Id: <20210614102645.221100410@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: George McCollister <george.mccollister@gmail.com>
 
-commit 1958ff5ad2d4908b44a72bcf564dfe67c981e7fe upstream.
+commit bc96c72df33ee81b24d87eab953c73f7bcc04f29 upstream.
 
-The reasoning for this change is that if we already had
-a packet pending, then we also already had a pending timer,
-and as such there is no need to reschedule it.
+Add PID for the NovaTech OrionMX so it can be automatically detected.
 
-This also prevents packets getting delayed 60 ms worst case
-under a tiny packet every 290us transmit load, by keeping the
-timeout always relative to the first queued up packet.
-(300us delay * 16KB max aggregation / 80 byte packet =~ 60 ms)
-
-As such the first packet is now at most delayed by 300us.
-
-Under low transmit load, this will simply result in us sending
-a shorter aggregate, as originally intended.
-
-This patch has the benefit of greatly reducing (by ~10 factor
-with 1500 byte frames aggregated into 16 kiB) the number of
-(potentially pretty costly) updates to the hrtimer.
-
-Cc: Brooke Basile <brookebasile@gmail.com>
-Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20210608085438.813960-1-zenczykowski@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Signed-off-by: George McCollister <george.mccollister@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    1 +
+ drivers/usb/serial/ftdi_sio_ids.h |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -1101,11 +1101,11 @@ static struct sk_buff *ncm_wrap_ntb(stru
- 			ncm->ndp_dgram_count = 1;
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -601,6 +601,7 @@ static const struct usb_device_id id_tab
+ 		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONLX_PLUS_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORION_IO_PID) },
++	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONMX_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SYNAPSE_SS200_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX2_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -581,6 +581,7 @@
+ #define FTDI_NT_ORIONLXM_PID		0x7c90	/* OrionLXm Substation Automation Platform */
+ #define FTDI_NT_ORIONLX_PLUS_PID	0x7c91	/* OrionLX+ Substation Automation Platform */
+ #define FTDI_NT_ORION_IO_PID		0x7c92	/* Orion I/O */
++#define FTDI_NT_ORIONMX_PID		0x7c93	/* OrionMX */
  
- 			/* Note: we skip opts->next_ndp_index */
--		}
- 
--		/* Delay the timer. */
--		hrtimer_start(&ncm->task_timer, TX_TIMEOUT_NSECS,
--			      HRTIMER_MODE_REL_SOFT);
-+			/* Start the timer. */
-+			hrtimer_start(&ncm->task_timer, TX_TIMEOUT_NSECS,
-+				      HRTIMER_MODE_REL_SOFT);
-+		}
- 
- 		/* Add the datagram position entries */
- 		ntb_ndp = skb_put_zero(ncm->skb_tx_ndp, dgram_idx_len);
+ /*
+  * Synapse Wireless product ids (FTDI_VID)
 
 
