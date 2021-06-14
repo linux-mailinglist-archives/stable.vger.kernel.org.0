@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F913A620C
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5463A6096
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233584AbhFNKz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:55:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58288 "EHLO mail.kernel.org"
+        id S233394AbhFNKfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234428AbhFNKwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:52:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57F9561004;
-        Mon, 14 Jun 2021 10:39:29 +0000 (UTC)
+        id S232889AbhFNKeZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:34:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18D31613DE;
+        Mon, 14 Jun 2021 10:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667169;
-        bh=HschcZvN4hezXY4DSCghgaTzlnM+FqVxKmRTWtTIU9Q=;
+        s=korg; t=1623666723;
+        bh=xibRKAsrqoqo4jpJALC329ZDUqJa3sA51jXzSLjKD3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rz2BRchpePftd0aTJoAxCvqz/BG3K2b5KRztXhwVUlgcN8xmcpLwZwJk6ijP1OVuF
-         1aXRS6LoUsASjlF4CY16tJk6qzmAn9yuRjVLflvAGoKFOO3OEbZejDan/59/akHnNl
-         L/5hqG8+Z92Hyejs4ksuUZoX80kDpl0D4Mu96SF8=
+        b=vjh2Qq6aqYeHXcYWTYKYRPG+rYgk7WYzeuxBQT19Hho4kM1rIqWEIVrZXdFoxzuGt
+         m0TQd2w7Bt9TJu77r9I99+10+UzHgHChT20USpHcegtNWkmstacFOENsm4oo4em/sR
+         lTK73Bk0nlmFhPYWbRGYgKtn6UZtFBt1SPeafKW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 52/84] usb: typec: wcove: Use LE to CPU conversion when accessing msg->header
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        John Garry <john.garry@huawei.com>,
+        Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 39/42] scsi: core: Fix error handling of scsi_host_alloc()
 Date:   Mon, 14 Jun 2021 12:27:30 +0200
-Message-Id: <20210614102648.135395887@linuxfoundation.org>
+Message-Id: <20210614102643.956167995@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit d5ab95da2a41567440097c277c5771ad13928dad upstream.
+commit 66a834d092930cf41d809c0e989b13cd6f9ca006 upstream.
 
-As LKP noticed the Sparse is not happy about strict type handling:
-   .../typec/tcpm/wcove.c:380:50: sparse:     expected unsigned short [usertype] header
-   .../typec/tcpm/wcove.c:380:50: sparse:     got restricted __le16 const [usertype] header
+After device is initialized via device_initialize(), or its name is set via
+dev_set_name(), the device has to be freed via put_device().  Otherwise
+device name will be leaked because it is allocated dynamically in
+dev_set_name().
 
-Fix this by switching to use pd_header_cnt_le() instead of pd_header_cnt()
-in the affected code.
+Fix the leak by replacing kfree() with put_device(). Since
+scsi_host_dev_release() properly handles IDA and kthread removal, remove
+special-casing these from the error handling as well.
 
-Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
-Fixes: 3c4fb9f16921 ("usb: typec: wcove: start using tcpm for USB PD support")
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210609172202.83377-1-andriy.shevchenko@linux.intel.com
-Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210602133029.2864069-2-ming.lei@redhat.com
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/wcove.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/hosts.c |   23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
---- a/drivers/usb/typec/tcpm/wcove.c
-+++ b/drivers/usb/typec/tcpm/wcove.c
-@@ -377,7 +377,7 @@ static int wcove_pd_transmit(struct tcpc
- 		const u8 *data = (void *)msg;
- 		int i;
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -421,8 +421,10 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	mutex_init(&shost->scan_mutex);
  
--		for (i = 0; i < pd_header_cnt(msg->header) * 4 + 2; i++) {
-+		for (i = 0; i < pd_header_cnt_le(msg->header) * 4 + 2; i++) {
- 			ret = regmap_write(wcove->regmap, USBC_TX_DATA + i,
- 					   data[i]);
- 			if (ret)
+ 	index = ida_simple_get(&host_index_ida, 0, 0, GFP_KERNEL);
+-	if (index < 0)
+-		goto fail_kfree;
++	if (index < 0) {
++		kfree(shost);
++		return NULL;
++	}
+ 	shost->host_no = index;
+ 
+ 	shost->dma_channel = 0xff;
+@@ -509,7 +511,7 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 		shost_printk(KERN_WARNING, shost,
+ 			"error handler thread failed to spawn, error = %ld\n",
+ 			PTR_ERR(shost->ehandler));
+-		goto fail_index_remove;
++		goto fail;
+ 	}
+ 
+ 	shost->tmf_work_q = alloc_workqueue("scsi_tmf_%d",
+@@ -518,17 +520,18 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	if (!shost->tmf_work_q) {
+ 		shost_printk(KERN_WARNING, shost,
+ 			     "failed to create tmf workq\n");
+-		goto fail_kthread;
++		goto fail;
+ 	}
+ 	scsi_proc_hostdir_add(shost->hostt);
+ 	return shost;
++ fail:
++	/*
++	 * Host state is still SHOST_CREATED and that is enough to release
++	 * ->shost_gendev. scsi_host_dev_release() will free
++	 * dev_name(&shost->shost_dev).
++	 */
++	put_device(&shost->shost_gendev);
+ 
+- fail_kthread:
+-	kthread_stop(shost->ehandler);
+- fail_index_remove:
+-	ida_simple_remove(&host_index_ida, shost->host_no);
+- fail_kfree:
+-	kfree(shost);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL(scsi_host_alloc);
 
 
