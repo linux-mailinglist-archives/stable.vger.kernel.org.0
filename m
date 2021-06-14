@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4EB73A63A3
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02D083A63A8
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:14:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234376AbhFNLPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:15:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44646 "EHLO mail.kernel.org"
+        id S234820AbhFNLPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:15:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235128AbhFNLNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:13:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAE326141D;
-        Mon, 14 Jun 2021 10:48:45 +0000 (UTC)
+        id S235389AbhFNLN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:13:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64CF5611BE;
+        Mon, 14 Jun 2021 10:48:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667726;
-        bh=ypkhbd6xLWuIlpAF2/q2ak7ZXCHyjWVQj/Y5HvQwd/4=;
+        s=korg; t=1623667728;
+        bh=TV+TxsLCTq4YVM8Ca2NcWvrrpZeNG75TMCp4WcD7JfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCOUNaIbtDv+gMqv9g0EUJG9+xhMxo73CFmw6jxNBvQ43+755wgH4jNXrwjRa9lmi
-         aTq4wJCyyI5V2L/fXTeMFMtTf6aRE/aLIiLMB7e8SzT2afum/e+kvSHauBC9odQsx9
-         WeCsWgm9uQsRRQ3LXmRxvaeflP4HixefMAc0fGmE=
+        b=E5ue1YHllCaiNXisatY9WFwZcmHiAfpzqdt8zidRIce2lexi+waCWBjqkpLB4fK4n
+         Zd5BL2cMWpj6zQjI/aMsWJA5+IqKMHa9vrwaXE70C7gJjd6qFaviKrPw+fndxJU6lu
+         4WZBRnGHWHhExCHvjl2RQF2NESla7v6K5o2yQNfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 050/173] ALSA: firewire-lib: fix the context to call snd_pcm_stop_xrun()
-Date:   Mon, 14 Jun 2021 12:26:22 +0200
-Message-Id: <20210614102659.815561634@linuxfoundation.org>
+Subject: [PATCH 5.12 051/173] ALSA: hda/realtek: headphone and mic dont work on an Acer laptop
+Date:   Mon, 14 Jun 2021 12:26:23 +0200
+Message-Id: <20210614102659.852263281@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -39,38 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 9981b20a5e3694f4625ab5a1ddc98ce7503f6d12 upstream.
+commit 57c9e21a49b1c196cda28f54de9a5d556ac93f20 upstream.
 
-In the workqueue to queue wake-up event, isochronous context is not
-processed, thus it's useless to check context for the workqueue to switch
-status of runtime for PCM substream to XRUN. On the other hand, in
-software IRQ context of 1394 OHCI, it's needed.
+There are 2 issues on this machine, the 1st one is mic's plug/unplug
+can't be detected, that is because the mic is set to manual detecting
+mode, need to apply ALC255_FIXUP_XIAOMI_HEADSET_MIC to set it to auto
+detecting mode. The other one is headphone's plug/unplug can't be
+detected by pulseaudio, that is because the pulseaudio will use
+ucm2/sof-hda-dsp on this machine, and the ucm2 only handle
+'Headphone Jack', but on this machine the headphone's pincfg sets the
+location to Front, then the alsa mixer name is "Front Headphone Jack"
+instead of "Headphone Jack", so override the pincfg to change location
+to Left.
 
-This commit fixes the bug introduced when tasklet was replaced with
-workqueue.
-
+BugLink: http://bugs.launchpad.net/bugs/1930188
 Cc: <stable@vger.kernel.org>
-Fixes: 2b3d2987d800 ("ALSA: firewire: Replace tasklet with work")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210605091054.68866-1-o-takashi@sakamocchi.jp
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210608024600.6198-1-hui.wang@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/amdtp-stream.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/sound/firewire/amdtp-stream.c
-+++ b/sound/firewire/amdtp-stream.c
-@@ -804,7 +804,7 @@ static void generate_pkt_descs(struct am
- static inline void cancel_stream(struct amdtp_stream *s)
- {
- 	s->packet_index = -1;
--	if (current_work() == &s->period_work)
-+	if (in_interrupt())
- 		amdtp_stream_pcm_abort(s);
- 	WRITE_ONCE(s->pcm_buffer_pointer, SNDRV_PCM_POS_XRUN);
- }
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6560,6 +6560,7 @@ enum {
+ 	ALC285_FIXUP_HP_SPECTRE_X360,
+ 	ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP,
+ 	ALC623_FIXUP_LENOVO_THINKSTATION_P340,
++	ALC255_FIXUP_ACER_HEADPHONE_AND_MIC,
+ };
+ 
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -8132,6 +8133,15 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC283_FIXUP_HEADSET_MIC,
+ 	},
++	[ALC255_FIXUP_ACER_HEADPHONE_AND_MIC] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x21, 0x03211030 }, /* Change the Headphone location to Left */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC255_FIXUP_XIAOMI_HEADSET_MIC
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8168,6 +8178,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1025, 0x132a, "Acer TravelMate B114-21", ALC233_FIXUP_ACER_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1330, "Acer TravelMate X514-51T", ALC255_FIXUP_ACER_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1025, 0x1430, "Acer TravelMate B311R-31", ALC256_FIXUP_ACER_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1025, 0x1466, "Acer Aspire A515-56", ALC255_FIXUP_ACER_HEADPHONE_AND_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0470, "Dell M101z", ALC269_FIXUP_DELL_M101Z),
+ 	SND_PCI_QUIRK(0x1028, 0x054b, "Dell XPS one 2710", ALC275_FIXUP_DELL_XPS),
+ 	SND_PCI_QUIRK(0x1028, 0x05bd, "Dell Latitude E6440", ALC292_FIXUP_DELL_E7X),
+@@ -8722,6 +8733,7 @@ static const struct hda_model_fixup alc2
+ 	{.id = ALC285_FIXUP_HP_SPECTRE_X360, .name = "alc285-hp-spectre-x360"},
+ 	{.id = ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP, .name = "alc287-ideapad-bass-spk-amp"},
+ 	{.id = ALC623_FIXUP_LENOVO_THINKSTATION_P340, .name = "alc623-lenovo-thinkstation-p340"},
++	{.id = ALC255_FIXUP_ACER_HEADPHONE_AND_MIC, .name = "alc255-acer-headphone-and-mic"},
+ 	{}
+ };
+ #define ALC225_STANDARD_PINS \
 
 
