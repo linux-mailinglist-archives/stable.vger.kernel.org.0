@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40B7E3A621F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 437C93A617C
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233775AbhFNKz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:55:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59300 "EHLO mail.kernel.org"
+        id S233815AbhFNKsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:48:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234067AbhFNKxz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:53:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71CF8613F2;
-        Mon, 14 Jun 2021 10:40:03 +0000 (UTC)
+        id S233542AbhFNKqK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:46:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C71D6144D;
+        Mon, 14 Jun 2021 10:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667204;
-        bh=PMabqoCTJXAPEJkhGnF1mvJJovdeQXxrCAXhI7Vg2fE=;
+        s=korg; t=1623667012;
+        bh=BVjrBe1IQHiLQmZpzQxuL19/22oJnk6gWgShMsIgP0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1EAumuFM2GLFUBwAAOn6j8QDKuybqSo5UHnQ3+4xu8Pkkl5eoeGN8Ibm2JWT8zY8
-         pTl3fvhA/3/IGFYuJ6HLWfUzG1z5cxVt4zyiw2pLKG20XoDU+HANXdgjpZryxRr4dR
-         3P0UgELDLfP3HsNVRchqrnph+ql0pOBSqyKfcovs=
+        b=ilY6JMZHq9C7f2kqz3UXxb7cUiICJfNlwWz5+QTFOy3Vnn5lfMyq2QaiW9wbZOEGq
+         0sENB1DZhdT/XT5/rVVgz+DlbDW29noVmYBoBW4E1tA+f8j7ZTfUe6Gfg++7OtK/Nl
+         E8On36n+Ckxh2KOPsja4cU2b7tm3KMX1N5LMIaes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.4 67/84] vmlinux.lds.h: Avoid orphan section with !SMP
-Date:   Mon, 14 Jun 2021 12:27:45 +0200
-Message-Id: <20210614102648.645950211@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        John Garry <john.garry@huawei.com>,
+        Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 63/67] scsi: core: Fix error handling of scsi_host_alloc()
+Date:   Mon, 14 Jun 2021 12:27:46 +0200
+Message-Id: <20210614102645.900577190@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit d4c6399900364facd84c9e35ce1540b6046c345f upstream.
+commit 66a834d092930cf41d809c0e989b13cd6f9ca006 upstream.
 
-With x86_64_defconfig and the following configs, there is an orphan
-section warning:
+After device is initialized via device_initialize(), or its name is set via
+dev_set_name(), the device has to be freed via put_device().  Otherwise
+device name will be leaked because it is allocated dynamically in
+dev_set_name().
 
-CONFIG_SMP=n
-CONFIG_AMD_MEM_ENCRYPT=y
-CONFIG_HYPERVISOR_GUEST=y
-CONFIG_KVM=y
-CONFIG_PARAVIRT=y
+Fix the leak by replacing kfree() with put_device(). Since
+scsi_host_dev_release() properly handles IDA and kthread removal, remove
+special-casing these from the error handling as well.
 
-ld: warning: orphan section `.data..decrypted' from `arch/x86/kernel/cpu/vmware.o' being placed in section `.data..decrypted'
-ld: warning: orphan section `.data..decrypted' from `arch/x86/kernel/kvm.o' being placed in section `.data..decrypted'
-
-These sections are created with DEFINE_PER_CPU_DECRYPTED, which
-ultimately turns into __PCPU_ATTRS, which in turn has a section
-attribute with a value of PER_CPU_BASE_SECTION + the section name. When
-CONFIG_SMP is not set, the base section is .data and that is not
-currently handled in any linker script.
-
-Add .data..decrypted to PERCPU_DECRYPTED_SECTION, which is included in
-PERCPU_INPUT -> PERCPU_SECTION, which is include in the x86 linker
-script when either CONFIG_X86_64 or CONFIG_SMP is unset, taking care of
-the warning.
-
-Fixes: ac26963a1175 ("percpu: Introduce DEFINE_PER_CPU_DECRYPTED")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1360
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com> # build
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210506001410.1026691-1-nathan@kernel.org
+Link: https://lore.kernel.org/r/20210602133029.2864069-2-ming.lei@redhat.com
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/asm-generic/vmlinux.lds.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/hosts.c |   23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -882,6 +882,7 @@
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- #define PERCPU_DECRYPTED_SECTION					\
- 	. = ALIGN(PAGE_SIZE);						\
-+	*(.data..decrypted)						\
- 	*(.data..percpu..decrypted)					\
- 	. = ALIGN(PAGE_SIZE);
- #else
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -403,8 +403,10 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	mutex_init(&shost->scan_mutex);
+ 
+ 	index = ida_simple_get(&host_index_ida, 0, 0, GFP_KERNEL);
+-	if (index < 0)
+-		goto fail_kfree;
++	if (index < 0) {
++		kfree(shost);
++		return NULL;
++	}
+ 	shost->host_no = index;
+ 
+ 	shost->dma_channel = 0xff;
+@@ -491,7 +493,7 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 		shost_printk(KERN_WARNING, shost,
+ 			"error handler thread failed to spawn, error = %ld\n",
+ 			PTR_ERR(shost->ehandler));
+-		goto fail_index_remove;
++		goto fail;
+ 	}
+ 
+ 	shost->tmf_work_q = alloc_workqueue("scsi_tmf_%d",
+@@ -500,17 +502,18 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	if (!shost->tmf_work_q) {
+ 		shost_printk(KERN_WARNING, shost,
+ 			     "failed to create tmf workq\n");
+-		goto fail_kthread;
++		goto fail;
+ 	}
+ 	scsi_proc_hostdir_add(shost->hostt);
+ 	return shost;
++ fail:
++	/*
++	 * Host state is still SHOST_CREATED and that is enough to release
++	 * ->shost_gendev. scsi_host_dev_release() will free
++	 * dev_name(&shost->shost_dev).
++	 */
++	put_device(&shost->shost_gendev);
+ 
+- fail_kthread:
+-	kthread_stop(shost->ehandler);
+- fail_index_remove:
+-	ida_simple_remove(&host_index_ida, shost->host_no);
+- fail_kfree:
+-	kfree(shost);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL(scsi_host_alloc);
 
 
