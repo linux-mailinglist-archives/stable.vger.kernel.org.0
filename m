@@ -2,144 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B2D3A623F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2503A616C
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:45:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234558AbhFNK6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34858 "EHLO mail.kernel.org"
+        id S233011AbhFNKrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:47:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233120AbhFNKzt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:55:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1395A61483;
-        Mon, 14 Jun 2021 10:40:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667251;
-        bh=hg2etSYp3Z8RPqBWijfisQRDw67a3/HVIR3sHEC4MJM=;
+        id S234401AbhFNKpJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:45:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CA1961443;
+        Mon, 14 Jun 2021 10:36:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623666992;
+        bh=U2SlJFPjqiJGJhDgRDNbHFUEIsyVZohfiDYFhhApgy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nE7VvIPcgFAWkzEbh2hhD4sBzfePKnbVagqXeO5Xh2DOyG4XHP+b7aGseqB0ud/oe
-         Iotr/HtKFy+SKfIJve3dsKSwcF+ZKna3UThL/Y+GZZ6l4/989YttR70TZtw6ZZU/nG
-         OSISGmBwkp/iCAgEICSQrIpC2o6SjU+ou9kdBg1w=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        yinbinbin <yinbinbin@alibabacloud.com>,
-        Wetp Zhang <wetp.zy@linux.alibaba.com>,
-        James Wang <jnwang@linux.alibaba.com>,
-        Liangyan <liangyan.peng@linux.alibaba.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 84/84] tracing: Correct the length check which causes memory corruption
-Date:   Mon, 14 Jun 2021 12:28:02 +0200
-Message-Id: <20210614102649.246813415@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
-User-Agent: quilt/0.66
+        b=CeLL9Hwjeysr8uyl585VaF9os1iNiWm5rVl95AHX1PwdAzWhplPdbSbeaG+3NRh1o
+         6hAya5ZwQW7pfzjE9mNZ7hiBHTn3ehc1uxbqPBx1Rb1qzmj3t5qhPM64suLkWgsO2D
+         21E1DYyfQBv2RiiUTb9CVzQidspXjIDAImcdOR0BY5GyX91w47lyVXlFymwH3IMznA
+         C0HsWhSqCSQ1rbPO8Zg9LVTHbqBfZ2RD5HfcxyMPQRPA8Jbvz+pcJZH2ujU9Nb/VUO
+         o7M+/4WxQwW+7X72x0gGepjVpKksw61PilAvarQug/L6GnjOAeJXY3d/252mnKobeV
+         L1DLvP1O4TYXg==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Vaibhav Gupta <vaibhavgupta40@gmail.com>,
+        Liu Shixin <liushixin2@huawei.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-staging@lists.linux.dev, stable@vger.kernel.org
+Subject: [PATCH v3 8/8] media: subdev: disallow ioctl for saa6588/davinci
+Date:   Mon, 14 Jun 2021 12:34:09 +0200
+Message-Id: <20210614103409.3154127-9-arnd@kernel.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210614103409.3154127-1-arnd@kernel.org>
+References: <20210614103409.3154127-1-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liangyan <liangyan.peng@linux.alibaba.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 3e08a9f9760f4a70d633c328a76408e62d6f80a3 upstream.
+The saa6588_ioctl() function expects to get called from other kernel
+functions with a 'saa6588_command' pointer, but I found nothing stops it
+from getting called from user space instead, which seems rather dangerous.
 
-We've suffered from severe kernel crashes due to memory corruption on
-our production environment, like,
+The same thing happens in the davinci vpbe driver with its VENC_GET_FLD
+command.
 
-Call Trace:
-[1640542.554277] general protection fault: 0000 [#1] SMP PTI
-[1640542.554856] CPU: 17 PID: 26996 Comm: python Kdump: loaded Tainted:G
-[1640542.556629] RIP: 0010:kmem_cache_alloc+0x90/0x190
-[1640542.559074] RSP: 0018:ffffb16faa597df8 EFLAGS: 00010286
-[1640542.559587] RAX: 0000000000000000 RBX: 0000000000400200 RCX:
-0000000006e931bf
-[1640542.560323] RDX: 0000000006e931be RSI: 0000000000400200 RDI:
-ffff9a45ff004300
-[1640542.560996] RBP: 0000000000400200 R08: 0000000000023420 R09:
-0000000000000000
-[1640542.561670] R10: 0000000000000000 R11: 0000000000000000 R12:
-ffffffff9a20608d
-[1640542.562366] R13: ffff9a45ff004300 R14: ffff9a45ff004300 R15:
-696c662f65636976
-[1640542.563128] FS:  00007f45d7c6f740(0000) GS:ffff9a45ff840000(0000)
-knlGS:0000000000000000
-[1640542.563937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[1640542.564557] CR2: 00007f45d71311a0 CR3: 000000189d63e004 CR4:
-00000000003606e0
-[1640542.565279] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
-0000000000000000
-[1640542.566069] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
-0000000000000400
-[1640542.566742] Call Trace:
-[1640542.567009]  anon_vma_clone+0x5d/0x170
-[1640542.567417]  __split_vma+0x91/0x1a0
-[1640542.567777]  do_munmap+0x2c6/0x320
-[1640542.568128]  vm_munmap+0x54/0x70
-[1640542.569990]  __x64_sys_munmap+0x22/0x30
-[1640542.572005]  do_syscall_64+0x5b/0x1b0
-[1640542.573724]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[1640542.575642] RIP: 0033:0x7f45d6e61e27
+As a quick fix, add a separate .command() callback pointer for this
+driver and change the two callers over to that.  This change can easily
+get backported to stable kernels if necessary, but since there are only
+two drivers, we may want to eventually replace this with a set of more
+specialized callbacks in the long run.
 
-James Wang has reproduced it stably on the latest 4.19 LTS.
-After some debugging, we finally proved that it's due to ftrace
-buffer out-of-bound access using a debug tool as follows:
-[   86.775200] BUG: Out-of-bounds write at addr 0xffff88aefe8b7000
-[   86.780806]  no_context+0xdf/0x3c0
-[   86.784327]  __do_page_fault+0x252/0x470
-[   86.788367]  do_page_fault+0x32/0x140
-[   86.792145]  page_fault+0x1e/0x30
-[   86.795576]  strncpy_from_unsafe+0x66/0xb0
-[   86.799789]  fetch_memory_string+0x25/0x40
-[   86.804002]  fetch_deref_string+0x51/0x60
-[   86.808134]  kprobe_trace_func+0x32d/0x3a0
-[   86.812347]  kprobe_dispatcher+0x45/0x50
-[   86.816385]  kprobe_ftrace_handler+0x90/0xf0
-[   86.820779]  ftrace_ops_assist_func+0xa1/0x140
-[   86.825340]  0xffffffffc00750bf
-[   86.828603]  do_sys_open+0x5/0x1f0
-[   86.832124]  do_syscall_64+0x5b/0x1b0
-[   86.835900]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-commit b220c049d519 ("tracing: Check length before giving out
-the filter buffer") adds length check to protect trace data
-overflow introduced in 0fc1b09ff1ff, seems that this fix can't prevent
-overflow entirely, the length check should also take the sizeof
-entry->array[0] into account, since this array[0] is filled the
-length of trace data and occupy addtional space and risk overflow.
-
-Link: https://lkml.kernel.org/r/20210607125734.1770447-1-liangyan.peng@linux.alibaba.com
-
+Fixes: c3fda7f835b0 ("V4L/DVB (10537): saa6588: convert to v4l2_subdev.")
 Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Xunlei Pang <xlpang@linux.alibaba.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Fixes: b220c049d519 ("tracing: Check length before giving out the filter buffer")
-Reviewed-by: Xunlei Pang <xlpang@linux.alibaba.com>
-Reviewed-by: yinbinbin <yinbinbin@alibabacloud.com>
-Reviewed-by: Wetp Zhang <wetp.zy@linux.alibaba.com>
-Tested-by: James Wang <jnwang@linux.alibaba.com>
-Signed-off-by: Liangyan <liangyan.peng@linux.alibaba.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- kernel/trace/trace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/saa6588.c                   | 4 ++--
+ drivers/media/pci/bt8xx/bttv-driver.c         | 6 +++---
+ drivers/media/pci/saa7134/saa7134-video.c     | 6 +++---
+ drivers/media/platform/davinci/vpbe_display.c | 2 +-
+ drivers/media/platform/davinci/vpbe_venc.c    | 6 ++----
+ include/media/v4l2-subdev.h                   | 4 ++++
+ 6 files changed, 15 insertions(+), 13 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2487,7 +2487,7 @@ trace_event_buffer_lock_reserve(struct r
- 	    (entry = this_cpu_read(trace_buffered_event))) {
- 		/* Try to use the per cpu buffer first */
- 		val = this_cpu_inc_return(trace_buffered_event_cnt);
--		if ((len < (PAGE_SIZE - sizeof(*entry))) && val == 1) {
-+		if ((len < (PAGE_SIZE - sizeof(*entry) - sizeof(entry->array[0]))) && val == 1) {
- 			trace_event_setup(entry, type, flags, pc);
- 			entry->array[0] = len;
- 			return entry;
-
+diff --git a/drivers/media/i2c/saa6588.c b/drivers/media/i2c/saa6588.c
+index ecb491d5f2ab..d1e0716bdfff 100644
+--- a/drivers/media/i2c/saa6588.c
++++ b/drivers/media/i2c/saa6588.c
+@@ -380,7 +380,7 @@ static void saa6588_configure(struct saa6588 *s)
+ 
+ /* ---------------------------------------------------------------------- */
+ 
+-static long saa6588_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
++static long saa6588_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
+ {
+ 	struct saa6588 *s = to_saa6588(sd);
+ 	struct saa6588_command *a = arg;
+@@ -433,7 +433,7 @@ static int saa6588_s_tuner(struct v4l2_subdev *sd, const struct v4l2_tuner *vt)
+ /* ----------------------------------------------------------------------- */
+ 
+ static const struct v4l2_subdev_core_ops saa6588_core_ops = {
+-	.ioctl = saa6588_ioctl,
++	.command = saa6588_command,
+ };
+ 
+ static const struct v4l2_subdev_tuner_ops saa6588_tuner_ops = {
+diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
+index 1f62a9d8ea1d..0e9df8b35ac6 100644
+--- a/drivers/media/pci/bt8xx/bttv-driver.c
++++ b/drivers/media/pci/bt8xx/bttv-driver.c
+@@ -3179,7 +3179,7 @@ static int radio_release(struct file *file)
+ 
+ 	btv->radio_user--;
+ 
+-	bttv_call_all(btv, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
++	bttv_call_all(btv, core, command, SAA6588_CMD_CLOSE, &cmd);
+ 
+ 	if (btv->radio_user == 0)
+ 		btv->has_radio_tuner = 0;
+@@ -3260,7 +3260,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
+ 	cmd.result = -ENODEV;
+ 	radio_enable(btv);
+ 
+-	bttv_call_all(btv, core, ioctl, SAA6588_CMD_READ, &cmd);
++	bttv_call_all(btv, core, command, SAA6588_CMD_READ, &cmd);
+ 
+ 	return cmd.result;
+ }
+@@ -3281,7 +3281,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
+ 	cmd.instance = file;
+ 	cmd.event_list = wait;
+ 	cmd.poll_mask = res;
+-	bttv_call_all(btv, core, ioctl, SAA6588_CMD_POLL, &cmd);
++	bttv_call_all(btv, core, command, SAA6588_CMD_POLL, &cmd);
+ 
+ 	return cmd.poll_mask;
+ }
+diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
+index 0f9d6b9edb90..374c8e1087de 100644
+--- a/drivers/media/pci/saa7134/saa7134-video.c
++++ b/drivers/media/pci/saa7134/saa7134-video.c
+@@ -1181,7 +1181,7 @@ static int video_release(struct file *file)
+ 
+ 	saa_call_all(dev, tuner, standby);
+ 	if (vdev->vfl_type == VFL_TYPE_RADIO)
+-		saa_call_all(dev, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
++		saa_call_all(dev, core, command, SAA6588_CMD_CLOSE, &cmd);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return 0;
+@@ -1200,7 +1200,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
+ 	cmd.result = -ENODEV;
+ 
+ 	mutex_lock(&dev->lock);
+-	saa_call_all(dev, core, ioctl, SAA6588_CMD_READ, &cmd);
++	saa_call_all(dev, core, command, SAA6588_CMD_READ, &cmd);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return cmd.result;
+@@ -1216,7 +1216,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
+ 	cmd.event_list = wait;
+ 	cmd.poll_mask = 0;
+ 	mutex_lock(&dev->lock);
+-	saa_call_all(dev, core, ioctl, SAA6588_CMD_POLL, &cmd);
++	saa_call_all(dev, core, command, SAA6588_CMD_POLL, &cmd);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return rc | cmd.poll_mask;
+diff --git a/drivers/media/platform/davinci/vpbe_display.c b/drivers/media/platform/davinci/vpbe_display.c
+index d19bad997f30..bf3c3e76b921 100644
+--- a/drivers/media/platform/davinci/vpbe_display.c
++++ b/drivers/media/platform/davinci/vpbe_display.c
+@@ -47,7 +47,7 @@ static int venc_is_second_field(struct vpbe_display *disp_dev)
+ 
+ 	ret = v4l2_subdev_call(vpbe_dev->venc,
+ 			       core,
+-			       ioctl,
++			       command,
+ 			       VENC_GET_FLD,
+ 			       &val);
+ 	if (ret < 0) {
+diff --git a/drivers/media/platform/davinci/vpbe_venc.c b/drivers/media/platform/davinci/vpbe_venc.c
+index 8caa084e5704..bde241c26d79 100644
+--- a/drivers/media/platform/davinci/vpbe_venc.c
++++ b/drivers/media/platform/davinci/vpbe_venc.c
+@@ -521,9 +521,7 @@ static int venc_s_routing(struct v4l2_subdev *sd, u32 input, u32 output,
+ 	return ret;
+ }
+ 
+-static long venc_ioctl(struct v4l2_subdev *sd,
+-			unsigned int cmd,
+-			void *arg)
++static long venc_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
+ {
+ 	u32 val;
+ 
+@@ -542,7 +540,7 @@ static long venc_ioctl(struct v4l2_subdev *sd,
+ }
+ 
+ static const struct v4l2_subdev_core_ops venc_core_ops = {
+-	.ioctl      = venc_ioctl,
++	.command      = venc_command,
+ };
+ 
+ static const struct v4l2_subdev_video_ops venc_video_ops = {
+diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
+index 42aa1f6c7c3f..115b1e41e933 100644
+--- a/include/media/v4l2-subdev.h
++++ b/include/media/v4l2-subdev.h
+@@ -162,6 +162,9 @@ struct v4l2_subdev_io_pin_config {
+  * @s_gpio: set GPIO pins. Very simple right now, might need to be extended with
+  *	a direction argument if needed.
+  *
++ * @command: called by in-kernel drivers in order to call functions internal
++ *	   to subdev drivers driver that have a separate callback.
++ *
+  * @ioctl: called at the end of ioctl() syscall handler at the V4L2 core.
+  *	   used to provide support for private ioctls used on the driver.
+  *
+@@ -193,6 +196,7 @@ struct v4l2_subdev_core_ops {
+ 	int (*load_fw)(struct v4l2_subdev *sd);
+ 	int (*reset)(struct v4l2_subdev *sd, u32 val);
+ 	int (*s_gpio)(struct v4l2_subdev *sd, u32 val);
++	long (*command)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
+ 	long (*ioctl)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
+ #ifdef CONFIG_COMPAT
+ 	long (*compat_ioctl32)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
+-- 
+2.29.2
 
