@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 612B13A6104
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:39:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 308A33A606C
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233181AbhFNKlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:41:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44668 "EHLO mail.kernel.org"
+        id S232901AbhFNKeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:34:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233979AbhFNKj2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:39:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F051A611CA;
-        Mon, 14 Jun 2021 10:34:18 +0000 (UTC)
+        id S233220AbhFNKdP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:33:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7E58613CC;
+        Mon, 14 Jun 2021 10:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666859;
-        bh=ZQrsn40FlsNzVSMZCPl45JSsIfd0bSqQkJ/eM4Ab12I=;
+        s=korg; t=1623666672;
+        bh=garON5RXTgVwCiYSp8F7v2qJyPtTNSWSja2qsVwO0NE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hpHPusnN7pClNzQYcrMJlrWFeR3ydFOhMgBdcBhSu2Yw2pLsL2NLG7YLjCMrr8KI1
-         gFzeLGfmHB952YAIhIbD4PF4ePFHzK+psNHOdZ/SzOgnHMQ8hy05GRaSmBPqnEW/ZN
-         CirdcuZWl+/DEm52K+GzGiK9hGXOWvufOlQbQyw4=
+        b=WQDV5wqxU4UIr5NZccA9GH82c+s5TVN8oZao4PmgmvFQOOOMhsKoCyPttXuOipFmo
+         PDRnj8XXwkpD1RAJDSXQkEnI6zYEmAxno++B1ixaPcchRc3VJIMRmsWt97FQsK6e8l
+         r+QR8Wp69LkzoZ6aezqXokkPBsM2RF0xROKY0KUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brooke Basile <brookebasile@gmail.com>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Yauheni Kaliuta <yauheni.kaliuta@nokia.com>,
-        Linux USB Mailing List <linux-usb@vger.kernel.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Subject: [PATCH 4.14 27/49] USB: f_ncm: ncm_bitrate (speed) is unsigned
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 29/42] USB: serial: quatech2: fix control-request directions
 Date:   Mon, 14 Jun 2021 12:27:20 +0200
-Message-Id: <20210614102642.759366503@linuxfoundation.org>
+Message-Id: <20210614102643.632925401@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +38,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 3370139745853f7826895293e8ac3aec1430508e upstream.
+commit eb8dbe80326c3d44c1e38ee4f40e0d8d3e06f2d0 upstream.
 
-[  190.544755] configfs-gadget gadget: notify speed -44967296
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-This is because 4250000000 - 2**32 is -44967296.
+Fix the three requests which erroneously used usb_rcvctrlpipe().
 
-Fixes: 9f6ce4240a2b ("usb: gadget: f_ncm.c added")
-Cc: Brooke Basile <brookebasile@gmail.com>
-Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Cc: Yauheni Kaliuta <yauheni.kaliuta@nokia.com>
-Cc: Linux USB Mailing List <linux-usb@vger.kernel.org>
-Acked-By: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608005344.3762668-1-zenczykowski@gmail.com
+Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
+Cc: stable@vger.kernel.org      # 3.5
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/quatech2.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -589,7 +589,7 @@ static void ncm_do_notify(struct f_ncm *
- 		data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
- 		data[1] = data[0];
+--- a/drivers/usb/serial/quatech2.c
++++ b/drivers/usb/serial/quatech2.c
+@@ -419,7 +419,7 @@ static void qt2_close(struct usb_serial_
  
--		DBG(cdev, "notify speed %d\n", ncm_bitrate(cdev->gadget));
-+		DBG(cdev, "notify speed %u\n", ncm_bitrate(cdev->gadget));
- 		ncm->notify_state = NCM_NOTIFY_CONNECT;
- 		break;
- 	}
+ 	/* flush the port transmit buffer */
+ 	i = usb_control_msg(serial->dev,
+-			    usb_rcvctrlpipe(serial->dev, 0),
++			    usb_sndctrlpipe(serial->dev, 0),
+ 			    QT2_FLUSH_DEVICE, 0x40, 1,
+ 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
+ 
+@@ -429,7 +429,7 @@ static void qt2_close(struct usb_serial_
+ 
+ 	/* flush the port receive buffer */
+ 	i = usb_control_msg(serial->dev,
+-			    usb_rcvctrlpipe(serial->dev, 0),
++			    usb_sndctrlpipe(serial->dev, 0),
+ 			    QT2_FLUSH_DEVICE, 0x40, 0,
+ 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
+ 
+@@ -701,7 +701,7 @@ static int qt2_attach(struct usb_serial
+ 	int status;
+ 
+ 	/* power on unit */
+-	status = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
++	status = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
+ 				 0xc2, 0x40, 0x8000, 0, NULL, 0,
+ 				 QT2_USB_TIMEOUT);
+ 	if (status < 0) {
 
 
