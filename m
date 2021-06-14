@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B5AF3A6023
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:30:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AB403A6029
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232917AbhFNKbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:31:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38154 "EHLO mail.kernel.org"
+        id S232986AbhFNKb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:31:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232900AbhFNKbc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:31:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD063611C1;
-        Mon, 14 Jun 2021 10:29:29 +0000 (UTC)
+        id S232943AbhFNKbn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:31:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95C22611CA;
+        Mon, 14 Jun 2021 10:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666570;
-        bh=IWcj35moBMRAi6GKXI6qr+oAyytUajacGc4eZxWAa3g=;
+        s=korg; t=1623666573;
+        bh=bmft2FcajagDR/odu6MXaQBmZdHh4zPQQTp5ndNVwSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QSWKwQLrgY+CX88TOUvglP4Yf/WsYX7r5zMybROA2NgYlVigPw4/Aa6WEwsgF9Mc
-         isfYRB9zYoliKx5aziWsTAtGLcrniKdGo/a1ZT+cFXcGJWCmSt/TfE8PrVqd5t4Rby
-         F+bosU3Fhm73vvVXSP+6Mjy2cUbyCH9gdT650NfI=
+        b=FAM8qqn3+a9Q5W9P3+E+bjUcaKSBfOT226A3C1Y0d5Z+Y2dmrtSY652BGxAotShFe
+         dCXRbwwW6ZGuGjiEsHrWvvHiRtp/HiQlxxq0G09n/SH+xYuYUjSQdzlIepaUmvZ2Zw
+         iQwD6fWOnFZ68WI+89wYD547fQC36PIJJV0WYyx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linyu Yuan <linyyuan@codeaurora.com>
-Subject: [PATCH 4.4 27/34] usb: gadget: eem: fix wrong eem header operation
-Date:   Mon, 14 Jun 2021 12:27:18 +0200
-Message-Id: <20210614102642.454007917@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com,
+        Marco Elver <elver@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.4 28/34] perf: Fix data race between pin_count increment/decrement
+Date:   Mon, 14 Jun 2021 12:27:19 +0200
+Message-Id: <20210614102642.487259384@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102641.582612289@linuxfoundation.org>
 References: <20210614102641.582612289@linuxfoundation.org>
@@ -38,41 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linyu Yuan <linyyuan@codeaurora.com>
+From: Marco Elver <elver@google.com>
 
-commit 305f670846a31a261462577dd0b967c4fa796871 upstream.
+commit 6c605f8371159432ec61cbb1488dcf7ad24ad19a upstream.
 
-when skb_clone() or skb_copy_expand() fail,
-it should pull skb with lengh indicated by header,
-or not it will read network data and check it as header.
+KCSAN reports a data race between increment and decrement of pin_count:
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Linyu Yuan <linyyuan@codeaurora.com>
-Link: https://lore.kernel.org/r/20210608233547.3767-1-linyyuan@codeaurora.org
+  write to 0xffff888237c2d4e0 of 4 bytes by task 15740 on cpu 1:
+   find_get_context		kernel/events/core.c:4617
+   __do_sys_perf_event_open	kernel/events/core.c:12097 [inline]
+   __se_sys_perf_event_open	kernel/events/core.c:11933
+   ...
+  read to 0xffff888237c2d4e0 of 4 bytes by task 15743 on cpu 0:
+   perf_unpin_context		kernel/events/core.c:1525 [inline]
+   __do_sys_perf_event_open	kernel/events/core.c:12328 [inline]
+   __se_sys_perf_event_open	kernel/events/core.c:11933
+   ...
+
+Because neither read-modify-write here is atomic, this can lead to one
+of the operations being lost, resulting in an inconsistent pin_count.
+Fix it by adding the missing locking in the CPU-event case.
+
+Fixes: fe4b04fa31a6 ("perf: Cure task_oncpu_function_call() races")
+Reported-by: syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210527104711.2671610-1-elver@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_eem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/events/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/gadget/function/f_eem.c
-+++ b/drivers/usb/gadget/function/f_eem.c
-@@ -498,7 +498,7 @@ static int eem_unwrap(struct gether *por
- 			skb2 = skb_clone(skb, GFP_ATOMIC);
- 			if (unlikely(!skb2)) {
- 				DBG(cdev, "unable to unframe EEM packet\n");
--				continue;
-+				goto next;
- 			}
- 			skb_trim(skb2, len - ETH_FCS_LEN);
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -3497,7 +3497,9 @@ find_get_context(struct pmu *pmu, struct
+ 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
+ 		ctx = &cpuctx->ctx;
+ 		get_ctx(ctx);
++		raw_spin_lock_irqsave(&ctx->lock, flags);
+ 		++ctx->pin_count;
++		raw_spin_unlock_irqrestore(&ctx->lock, flags);
  
-@@ -509,7 +509,7 @@ static int eem_unwrap(struct gether *por
- 			if (unlikely(!skb3)) {
- 				DBG(cdev, "unable to realign EEM packet\n");
- 				dev_kfree_skb_any(skb2);
--				continue;
-+				goto next;
- 			}
- 			dev_kfree_skb_any(skb2);
- 			skb_queue_tail(list, skb3);
+ 		return ctx;
+ 	}
 
 
