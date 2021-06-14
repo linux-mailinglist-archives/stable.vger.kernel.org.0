@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C603A6486
+	by mail.lfdr.de (Postfix) with ESMTP id 2B7203A6485
 	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:25:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235321AbhFNL0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234053AbhFNL0I (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 14 Jun 2021 07:26:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52248 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235917AbhFNLYB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:24:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB425619A7;
-        Mon, 14 Jun 2021 10:53:14 +0000 (UTC)
+        id S235941AbhFNLYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:24:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 224056140B;
+        Mon, 14 Jun 2021 10:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667995;
-        bh=xQasJXoVujPa56MbKuyaLQzvLXZxPivhwoPvLlnTKvY=;
+        s=korg; t=1623667999;
+        bh=ZeolnNeHAsD23tiJ+VYHj1ILRD6OzkoNPrJA6e5kj/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQetFahZuNXDKxqgQKtk1Hk3rC/MW7YFPTvanUxShcDzq8otYt70b9xQHNxF+J/4Q
-         S2Mv2CJBf2rswhXZkv4WlCypmWyKdVvPo7jzE8H4MlHoddexlzD9xH84T8taIO0sem
-         xvJhnMw5jSl/Pw2QddPeVErUZWYVjBmyA3h/iz/k=
+        b=jkK/Y+UcHZPcw+SN9aAHgxaWfZTa1de8A4gnQuDPwmDJGeJhivHjgbiDEAkhWOECX
+         asKGD5e3J4qkKndHim8WnX1wQHgRwpitMAprEbqMhTAyaOnhqGtR4ZhKmUVo0OyEbz
+         goiAH3h7jkRR9+Isd/P5UbgvECicm4jg8Bcbc8RM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Odin Ugedal <odin@uged.al>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.12 154/173] sched/fair: Keep load_avg and load_sum synced
-Date:   Mon, 14 Jun 2021 12:28:06 +0200
-Message-Id: <20210614102703.286907102@linuxfoundation.org>
+Subject: [PATCH 5.12 155/173] sched/fair: Make sure to update tg contrib for blocked load
+Date:   Mon, 14 Jun 2021 12:28:07 +0200
+Message-Id: <20210614102703.323815507@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -42,57 +42,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vincent Guittot <vincent.guittot@linaro.org>
 
-commit 7c7ad626d9a0ff0a36c1e2a3cfbbc6a13828d5eb upstream.
+commit 02da26ad5ed6ea8680e5d01f20661439611ed776 upstream.
 
-when removing a cfs_rq from the list we only check _sum value so we must
-ensure that _avg and _sum stay synced so load_sum can't be null whereas
-load_avg is not after propagating load in the cgroup hierarchy.
+During the update of fair blocked load (__update_blocked_fair()), we
+update the contribution of the cfs in tg->load_avg if cfs_rq's pelt
+has decayed.  Nevertheless, the pelt values of a cfs_rq could have
+been recently updated while propagating the change of a child. In this
+case, cfs_rq's pelt will not decayed because it has already been
+updated and we don't update tg->load_avg.
 
-Use load_avg to compute load_sum similarly to what is done for util_sum
-and runnable_sum.
+__update_blocked_fair
+  ...
+  for_each_leaf_cfs_rq_safe: child cfs_rq
+    update cfs_rq_load_avg() for child cfs_rq
+    ...
+    update_load_avg(cfs_rq_of(se), se, 0)
+      ...
+      update cfs_rq_load_avg() for parent cfs_rq
+		-propagation of child's load makes parent cfs_rq->load_sum
+		 becoming null
+        -UPDATE_TG is not set so it doesn't update parent
+		 cfs_rq->tg_load_avg_contrib
+  ..
+  for_each_leaf_cfs_rq_safe: parent cfs_rq
+    update cfs_rq_load_avg() for parent cfs_rq
+      - nothing to do because parent cfs_rq has already been updated
+		recently so cfs_rq->tg_load_avg_contrib is not updated
+    ...
+    parent cfs_rq is decayed
+      list_del_leaf_cfs_rq parent cfs_rq
+	  - but it still contibutes to tg->load_avg
 
-Fixes: 0e2d2aaaae52 ("sched/fair: Rewrite PELT migration propagation")
+we must set UPDATE_TG flags when propagting pending load to the parent
+
+Fixes: 039ae8bcf7a5 ("sched/fair: Fix O(nr_cgroups) in the load balancing path")
 Reported-by: Odin Ugedal <odin@uged.al>
 Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Odin Ugedal <odin@uged.al>
-Link: https://lkml.kernel.org/r/20210527122916.27683-2-vincent.guittot@linaro.org
+Link: https://lkml.kernel.org/r/20210527122916.27683-3-vincent.guittot@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ kernel/sched/fair.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -3494,10 +3494,9 @@ update_tg_cfs_runnable(struct cfs_rq *cf
- static inline void
- update_tg_cfs_load(struct cfs_rq *cfs_rq, struct sched_entity *se, struct cfs_rq *gcfs_rq)
- {
--	long delta_avg, running_sum, runnable_sum = gcfs_rq->prop_runnable_sum;
-+	long delta, running_sum, runnable_sum = gcfs_rq->prop_runnable_sum;
- 	unsigned long load_avg;
- 	u64 load_sum = 0;
--	s64 delta_sum;
- 	u32 divider;
+@@ -8005,7 +8005,7 @@ static bool __update_blocked_fair(struct
+ 		/* Propagate pending load changes to the parent, if any: */
+ 		se = cfs_rq->tg->se[cpu];
+ 		if (se && !skip_blocked_update(se))
+-			update_load_avg(cfs_rq_of(se), se, 0);
++			update_load_avg(cfs_rq_of(se), se, UPDATE_TG);
  
- 	if (!runnable_sum)
-@@ -3544,13 +3543,13 @@ update_tg_cfs_load(struct cfs_rq *cfs_rq
- 	load_sum = (s64)se_weight(se) * runnable_sum;
- 	load_avg = div_s64(load_sum, divider);
- 
--	delta_sum = load_sum - (s64)se_weight(se) * se->avg.load_sum;
--	delta_avg = load_avg - se->avg.load_avg;
-+	delta = load_avg - se->avg.load_avg;
- 
- 	se->avg.load_sum = runnable_sum;
- 	se->avg.load_avg = load_avg;
--	add_positive(&cfs_rq->avg.load_avg, delta_avg);
--	add_positive(&cfs_rq->avg.load_sum, delta_sum);
-+
-+	add_positive(&cfs_rq->avg.load_avg, delta);
-+	cfs_rq->avg.load_sum = cfs_rq->avg.load_avg * divider;
- }
- 
- static inline void add_tg_cfs_propagate(struct cfs_rq *cfs_rq, long runnable_sum)
+ 		/*
+ 		 * There can be a lot of idle CPU cgroups.  Don't let fully
 
 
