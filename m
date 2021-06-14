@@ -2,119 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C377B3A6782
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 15:11:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 172693A6834
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 15:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233607AbhFNNNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 09:13:44 -0400
-Received: from mail-lf1-f52.google.com ([209.85.167.52]:43675 "EHLO
-        mail-lf1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233382AbhFNNNm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 09:13:42 -0400
-Received: by mail-lf1-f52.google.com with SMTP id x24so15434475lfr.10
-        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 06:11:39 -0700 (PDT)
+        id S234215AbhFNNmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 09:42:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45438 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234204AbhFNNmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 09:42:17 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F803C061766
+        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 06:40:06 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id k25so16766682eja.9
+        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 06:40:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=shutemov-name.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=/AteiqldFMFOlpZ79iKSrJdb9WM23atrdo76u3CtXI0=;
-        b=FnIic0hbgy06y+4HvKKGSOvyWaPQrYD35pFM/GZos/rN/Lcvxwixs/PuimxKwX06/S
-         l6O4pihxZsTOmjP310zNezN9EfU7dnv95KvZX6kDvNz9Myr4OixJwc/s2+fU6BSYqxSo
-         OD0MqV6BUR3mKwKSaXy9O3Z9YDamvekqCLaxgXDvu3GaSHyxIThLOAsJam8pmw3mQkOZ
-         Etj9FKo8CWi8fnzaaUKYfFCpnj0uFzz/WxGKHp/qA/2ZUzuaoouVr4ws63PADIWze9FF
-         KgiSHIP3uiTSPIKZMgAY9ZmLCLGxOmKAX/S/tRsjMThQJomfcXKcvSQwjChbGSN6diTw
-         1UoA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=web591Pt5+AQQiKHLxdfvUXAI+r6XXpcpBp1AONGuYI=;
+        b=nHXvVeV+RWdRQ8gPuuchzQGLIUzG40Tx94jZVClbV/vg74FWlli0P5wF5ZDGRkpLG0
+         KMwsXiXQgq660HJENaaoHpe7Sb+I0PFzGLbho/dIqw8FUQKN4DOEHXPqEnP148qnRwlj
+         P/FHPUzH/TcO9QYNYU5N5LQUAQcFGEqoYokCXXW4ngxnSa6zZqfR1GkJqIa0Igxbl7Pw
+         o2Bkh4Y4fbTqhCVNJa7QX+cVm3MSPhK4I8RQDbagN8HkWG77jR6wprZDlFZNF9O+FQzq
+         015VId31RjCvTOpXJ0DIcKalf+WRniFzL39wJlL5BC7QnF8ehiYi1X3AhERzKCUbGny+
+         dGGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=/AteiqldFMFOlpZ79iKSrJdb9WM23atrdo76u3CtXI0=;
-        b=m0VuYmwW+VNPLTFYVnRXBNYQgi7bJ/mEyVbnWAFHgJBZ6eZ7eslDsEQkRCY2nGoclz
-         VUEF47mgnbSQ+Kj1+7LvcVl1/BXn9tH6a02uyKTjCrgDATXzs44DHS/2Tj9X22kW1huz
-         Z/xVAUqkwRYvgL+qAncb5WN/Y6GJA+ur/xG2OhddEkNUkbo4LwII0l65XecDF4yANjzg
-         ugRGL0gzQ+zXjRfaNmXc3OCuiA/ZW6CXqOWb4LGFPMbpKvtpjhglWdrslDoqjDqhtJaP
-         f3XbkxZbtaNfckbTN6kQTgu2J0b4cxgsTRHogWVtp2twsX/PIq7HP438S2vQ6B/4w4jQ
-         jXug==
-X-Gm-Message-State: AOAM531iMVRt9YqjFX8Iu8VsQKQHO1juSqFQW3vCuspg0ybY1FYLr6Sy
-        qaHacLGe1dSmBN3nTBoxKAui2Q==
-X-Google-Smtp-Source: ABdhPJw/sDHQHR4Uy1E7hq8O/pknucYcEdwsugy0iyc2N7DnWfH9PwZY0WvwzTbxFxv9m3RQiSz30g==
-X-Received: by 2002:a05:6512:1290:: with SMTP id u16mr4641610lfs.144.1623676239063;
-        Mon, 14 Jun 2021 06:10:39 -0700 (PDT)
-Received: from box.localdomain ([86.57.175.117])
-        by smtp.gmail.com with ESMTPSA id d15sm1086495lfl.199.2021.06.14.06.10.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Jun 2021 06:10:38 -0700 (PDT)
-Received: by box.localdomain (Postfix, from userid 1000)
-        id C702E101ABE; Mon, 14 Jun 2021 16:10:56 +0300 (+03)
-Date:   Mon, 14 Jun 2021 16:10:56 +0300
-From:   "Kirill A. Shutemov" <kirill@shutemov.name>
-To:     Jann Horn <jannh@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        John Hubbard <jhubbard@nvidia.com>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH resend] mm/gup: fix try_grab_compound_head() race with
- split_huge_page()
-Message-ID: <20210614131056.lo4ojw7lvfecwits@box.shutemov.name>
-References: <20210611161545.998858-1-jannh@google.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=web591Pt5+AQQiKHLxdfvUXAI+r6XXpcpBp1AONGuYI=;
+        b=fwEJMpBEynXmaSxT0I7W8oIWJ/eY1IAkbwEJcnnKmUomuNVOtC7IIojSZyl78EKyCP
+         tsp3YASEoAsmLm5nwnHHVkbia3fdQy0r7Wm+SsqpB2mNa8dAnC1N0SaWaIDEP9KE/Cnq
+         O6Av33KUgtP6KTb1uLwLloMvQ4WeouOFCu4S6gljr86lGrRRZwYHZtMTl1t4YRuLMAjq
+         rEuqoUxGhWpDXT4IoV1te9ODEfF1MoeqV6vVTWqCdanmtdWAR3qpHzsoOBSOELuLJVVS
+         Npu8dhaaTPpX8TMPduB6+lZXTepYfxEYtF4oUmgAV9gC4AMGnqmAOSMjLEivkUrGb/Fq
+         eTRQ==
+X-Gm-Message-State: AOAM531dFhJrKGIn0OMG6iF/4nk7eTVsoQhSQI5nCuN//Ajdi/HMwpBp
+        lyG128ugltSfcBfFlZrgCvLKGIZT6WqNhhgHEFjC+w==
+X-Google-Smtp-Source: ABdhPJzSBdx7sGxpqiRcmQ0LmzbbXwVt/v35DOQ9xEKx+nNZRHKXL3MZq2bjf4K462vUGfFm6HYfaX19XreYeacWFck=
+X-Received: by 2002:a17:906:25db:: with SMTP id n27mr15005693ejb.170.1623678004491;
+ Mon, 14 Jun 2021 06:40:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210611161545.998858-1-jannh@google.com>
+References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 14 Jun 2021 19:09:53 +0530
+Message-ID: <CA+G9fYuQy0c6_POrWNs51rKyuQ2O-PnY5edCDMDgyGTA-txA_A@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/131] 5.10.44-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>, linux-usb@vger.kernel.org,
+        Peter Chen <peter.chen@kernel.org>,
+        Jack Pham <jackp@codeaurora.org>,
+        Felipe Balbi <balbi@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 11, 2021 at 06:15:45PM +0200, Jann Horn wrote:
-> try_grab_compound_head() is used to grab a reference to a page from
-> get_user_pages_fast(), which is only protected against concurrent
-> freeing of page tables (via local_irq_save()), but not against
-> concurrent TLB flushes, freeing of data pages, or splitting of compound
-> pages.
-> 
-> Because no reference is held to the page when try_grab_compound_head()
-> is called, the page may have been freed and reallocated by the time its
-> refcount has been elevated; therefore, once we're holding a stable
-> reference to the page, the caller re-checks whether the PTE still points
-> to the same page (with the same access rights).
-> 
-> The problem is that try_grab_compound_head() has to grab a reference on
-> the head page; but between the time we look up what the head page is and
-> the time we actually grab a reference on the head page, the compound
-> page may have been split up (either explicitly through split_huge_page()
-> or by freeing the compound page to the buddy allocator and then
-> allocating its individual order-0 pages).
-> If that happens, get_user_pages_fast() may end up returning the right
-> page but lifting the refcount on a now-unrelated page, leading to
-> use-after-free of pages.
-> 
-> To fix it:
-> Re-check whether the pages still belong together after lifting the
-> refcount on the head page.
-> Move anything else that checks compound_head(page) below the refcount
-> increment.
-> 
-> This can't actually happen on bare-metal x86 (because there, disabling
-> IRQs locks out remote TLB flushes), but it can happen on virtualized x86
-> (e.g. under KVM) and probably also on arm64. The race window is pretty
-> narrow, and constantly allocating and shattering hugepages isn't exactly
-> fast; for now I've only managed to reproduce this in an x86 KVM guest with
-> an artificially widened timing window (by adding a loop that repeatedly
-> calls `inl(0x3f8 + 5)` in `try_get_compound_head()` to force VM exits,
-> so that PV TLB flushes are used instead of IPIs).
-> 
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Kirill A. Shutemov <kirill@shutemov.name>
-> Cc: John Hubbard <jhubbard@nvidia.com>
-> Cc: Jan Kara <jack@suse.cz>
-> Cc: stable@vger.kernel.org
-> Fixes: 7aef4172c795 ("mm: handle PTE-mapped tail pages in gerneric fast gup implementaiton")
-> Signed-off-by: Jann Horn <jannh@google.com>
-
-Looks good to me:
-
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+On Mon, 14 Jun 2021 at 16:11, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.44 release.
+> There are 131 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 16 Jun 2021 10:26:30 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.44-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
 
--- 
- Kirill A. Shutemov
+The following kernel crash reported on stable rc 5.10 arm64 db845c board.
+I have not bisected this problem yet.
+
+But there is a crash like this reported and discussed on a mailing thread.
+https://lore.kernel.org/linux-usb/20210608105656.10795-1-peter.chen@kernel.org/
+
+Crash log on dragonboard 845c:
+[ 0.000000] Linux version 5.10.44-rc1 (tuxmake@7e2c3dff6c75)
+(aarch64-linux-gnu-gcc (Debian 9.3.0-22) 9.3.0, GNU ld (GNU Binutils
+for Debian) 2.35.2) #1 SMP PREEMPT Mon Jun 14 11:22:34 UTC 2021
+[ 0.000000] Machine model: Thundercomm Dragonboard 845c
+<>
+[    5.095538] dwc3-qcom a6f8800.usb: failed to get usb-ddr path: -517
+[    5.113805] Unable to handle kernel NULL pointer dereference at
+virtual address 0000000000000002
+[    5.122686] Mem abort info:
+[    5.125531]   ESR = 0x96000004
+[    5.128635]   EC = 0x25: DABT (current EL), IL = 32 bits
+[    5.134005]   SET = 0, FnV = 0
+[    5.137106]   EA = 0, S1PTW = 0
+[    5.140297] Data abort info:
+[    5.143212]   ISV = 0, ISS = 0x00000004
+[    5.147092]   CM = 0, WnR = 0
+[    5.150103] [0000000000000002] user address but active_mm is swapper
+[    5.156530] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[    5.162151] Modules linked in:
+[    5.165254] CPU: 7 PID: 251 Comm: kworker/7:3 Not tainted 5.10.44-rc1 #1
+[    5.172011] Hardware name: Thundercomm Dragonboard 845c (DT)
+[    5.175959] ufshcd-qcom 1d84000.ufshc: ufshcd_print_pwr_info:[RX,
+TX]: gear=[3, 3], lane[2, 2], pwr[FAST MODE, FAST MODE], rate = 2
+[    5.177738] Workqueue: events deferred_probe_work_func
+[    5.190098] ufshcd-qcom 1d84000.ufshc:
+ufshcd_find_max_sup_active_icc_level: Regulator capability was not
+set, actvIccLevel=0
+[    5.194832] pstate: 60c00005 (nZCv daif +PAN +UAO -TCO BTYPE=--)
+[    5.194843] pc : inode_permission+0x2c/0x178
+[    5.194851] lr : lookup_one_len_common+0xac/0x100
+[    5.207380] scsi 1:0:0:49488: Well-known LUN    SKhynix
+H28S7Q302BMR     A001 PQ: 0 ANSI: 6
+
+ref:
+https://lkft.validation.linaro.org/scheduler/job/2896831#L2835
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+metadata:
+  git branch: linux-5.10.y
+  git repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+  git commit: 406cd5feace812b3715b6fc8114472b6e3bd6d1f
+  git describe: v5.10.43-132-g406cd5feace8
+  make_kernelversion: 5.10.44-rc1
+  kernel-config: https://builds.tuxbuild.com/1twAFGbHcDipBArvNuGfeOtyY9H/config
+
+--
+Linaro LKFT
+https://lkft.linaro.org
