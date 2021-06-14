@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8CF23A60F6
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8466A3A6249
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233240AbhFNKkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:40:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40438 "EHLO mail.kernel.org"
+        id S232804AbhFNK6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:58:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233845AbhFNKi0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:38:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDDC261418;
-        Mon, 14 Jun 2021 10:34:02 +0000 (UTC)
+        id S233755AbhFNK4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:56:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B644615FF;
+        Mon, 14 Jun 2021 10:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666843;
-        bh=0EQCsvcC0MveSwt8BVOe+uJ5ngb/pxEmbH27EYPLGCk=;
+        s=korg; t=1623667267;
+        bh=AdvAlk2XjJ93Yp9FH0iy+xJSk6GCoKJdFtkav7fB8AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FryTjVFh607OUK3z9wrUFSLIIZAxr7/HPw6xWNeNhe+xNEAlXVp1NeEsWjalZ35Sk
-         9vpGJZY6FSCODlDocPzDpSLMNqSg7l8JieiioZzUGk4Tqs5pqxppLEiibzvPbdAjp3
-         +oH7laQHoctWLQSa32fJrZASGDxvQ5HOtxCFl1Jc=
+        b=Fp9MZ+uPmyqYSVJliR6NeNvfb+k/TFPVRANHunDEE58rew45mlSlM6AurRumhyvaJ
+         +GyjBxQssiR+dujRU6GFXPQVFC8nC53f0NfcJK+JuBwC3zjhELKV4ZilK12XGx3RKG
+         CV+NRwlGX38O3vsoEWatV3oSourRh4an9RQVEdH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        yinbinbin <yinbinbin@alibabacloud.com>,
-        Wetp Zhang <wetp.zy@linux.alibaba.com>,
-        James Wang <jnwang@linux.alibaba.com>,
-        Liangyan <liangyan.peng@linux.alibaba.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 49/49] tracing: Correct the length check which causes memory corruption
-Date:   Mon, 14 Jun 2021 12:27:42 +0200
-Message-Id: <20210614102643.468107408@linuxfoundation.org>
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.4 65/84] RDMA/ipoib: Fix warning caused by destroying non-initial netns
+Date:   Mon, 14 Jun 2021 12:27:43 +0200
+Message-Id: <20210614102648.585805988@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,102 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liangyan <liangyan.peng@linux.alibaba.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-commit 3e08a9f9760f4a70d633c328a76408e62d6f80a3 upstream.
+commit a3e74fb9247cd530dca246699d5eb5a691884d32 upstream.
 
-We've suffered from severe kernel crashes due to memory corruption on
-our production environment, like,
+After the commit 5ce2dced8e95 ("RDMA/ipoib: Set rtnl_link_ops for ipoib
+interfaces"), if the IPoIB device is moved to non-initial netns,
+destroying that netns lets the device vanish instead of moving it back to
+the initial netns, This is happening because default_device_exit() skips
+the interfaces due to having rtnl_link_ops set.
 
+Steps to reporoduce:
+  ip netns add foo
+  ip link set mlx5_ib0 netns foo
+  ip netns delete foo
+
+WARNING: CPU: 1 PID: 704 at net/core/dev.c:11435 netdev_exit+0x3f/0x50
+Modules linked in: xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT
+nf_reject_ipv4 nft_compat nft_counter nft_chain_nat nf_nat nf_conntrack
+nf_defrag_ipv6 nf_defrag_ipv4 nf_tables nfnetlink tun d
+ fuse
+CPU: 1 PID: 704 Comm: kworker/u64:3 Tainted: G S      W  5.13.0-rc1+ #1
+Hardware name: Dell Inc. PowerEdge R630/02C2CP, BIOS 2.1.5 04/11/2016
+Workqueue: netns cleanup_net
+RIP: 0010:netdev_exit+0x3f/0x50
+Code: 48 8b bb 30 01 00 00 e8 ef 81 b1 ff 48 81 fb c0 3a 54 a1 74 13 48
+8b 83 90 00 00 00 48 81 c3 90 00 00 00 48 39 d8 75 02 5b c3 <0f> 0b 5b
+c3 66 66 2e 0f 1f 84 00 00 00 00 00 66 90 0f 1f 44 00
+RSP: 0018:ffffb297079d7e08 EFLAGS: 00010206
+RAX: ffff8eb542c00040 RBX: ffff8eb541333150 RCX: 000000008010000d
+RDX: 000000008010000e RSI: 000000008010000d RDI: ffff8eb440042c00
+RBP: ffffb297079d7e48 R08: 0000000000000001 R09: ffffffff9fdeac00
+R10: ffff8eb5003be000 R11: 0000000000000001 R12: ffffffffa1545620
+R13: ffffffffa1545628 R14: 0000000000000000 R15: ffffffffa1543b20
+FS:  0000000000000000(0000) GS:ffff8ed37fa00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00005601b5f4c2e8 CR3: 0000001fc8c10002 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
-[1640542.554277] general protection fault: 0000 [#1] SMP PTI
-[1640542.554856] CPU: 17 PID: 26996 Comm: python Kdump: loaded Tainted:G
-[1640542.556629] RIP: 0010:kmem_cache_alloc+0x90/0x190
-[1640542.559074] RSP: 0018:ffffb16faa597df8 EFLAGS: 00010286
-[1640542.559587] RAX: 0000000000000000 RBX: 0000000000400200 RCX:
-0000000006e931bf
-[1640542.560323] RDX: 0000000006e931be RSI: 0000000000400200 RDI:
-ffff9a45ff004300
-[1640542.560996] RBP: 0000000000400200 R08: 0000000000023420 R09:
-0000000000000000
-[1640542.561670] R10: 0000000000000000 R11: 0000000000000000 R12:
-ffffffff9a20608d
-[1640542.562366] R13: ffff9a45ff004300 R14: ffff9a45ff004300 R15:
-696c662f65636976
-[1640542.563128] FS:  00007f45d7c6f740(0000) GS:ffff9a45ff840000(0000)
-knlGS:0000000000000000
-[1640542.563937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[1640542.564557] CR2: 00007f45d71311a0 CR3: 000000189d63e004 CR4:
-00000000003606e0
-[1640542.565279] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
-0000000000000000
-[1640542.566069] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
-0000000000000400
-[1640542.566742] Call Trace:
-[1640542.567009]  anon_vma_clone+0x5d/0x170
-[1640542.567417]  __split_vma+0x91/0x1a0
-[1640542.567777]  do_munmap+0x2c6/0x320
-[1640542.568128]  vm_munmap+0x54/0x70
-[1640542.569990]  __x64_sys_munmap+0x22/0x30
-[1640542.572005]  do_syscall_64+0x5b/0x1b0
-[1640542.573724]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[1640542.575642] RIP: 0033:0x7f45d6e61e27
+ ops_exit_list.isra.9+0x36/0x70
+ cleanup_net+0x234/0x390
+ process_one_work+0x1cb/0x360
+ ? process_one_work+0x360/0x360
+ worker_thread+0x30/0x370
+ ? process_one_work+0x360/0x360
+ kthread+0x116/0x130
+ ? kthread_park+0x80/0x80
+ ret_from_fork+0x22/0x30
 
-James Wang has reproduced it stably on the latest 4.19 LTS.
-After some debugging, we finally proved that it's due to ftrace
-buffer out-of-bound access using a debug tool as follows:
-[   86.775200] BUG: Out-of-bounds write at addr 0xffff88aefe8b7000
-[   86.780806]  no_context+0xdf/0x3c0
-[   86.784327]  __do_page_fault+0x252/0x470
-[   86.788367]  do_page_fault+0x32/0x140
-[   86.792145]  page_fault+0x1e/0x30
-[   86.795576]  strncpy_from_unsafe+0x66/0xb0
-[   86.799789]  fetch_memory_string+0x25/0x40
-[   86.804002]  fetch_deref_string+0x51/0x60
-[   86.808134]  kprobe_trace_func+0x32d/0x3a0
-[   86.812347]  kprobe_dispatcher+0x45/0x50
-[   86.816385]  kprobe_ftrace_handler+0x90/0xf0
-[   86.820779]  ftrace_ops_assist_func+0xa1/0x140
-[   86.825340]  0xffffffffc00750bf
-[   86.828603]  do_sys_open+0x5/0x1f0
-[   86.832124]  do_syscall_64+0x5b/0x1b0
-[   86.835900]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+To avoid the above warning and later on the kernel panic that could happen
+on shutdown due to a NULL pointer dereference, make sure to set the
+netns_refund flag that was introduced by commit 3a5ca857079e ("can: dev:
+Move device back to init netns on owning netns delete") to properly
+restore the IPoIB interfaces to the initial netns.
 
-commit b220c049d519 ("tracing: Check length before giving out
-the filter buffer") adds length check to protect trace data
-overflow introduced in 0fc1b09ff1ff, seems that this fix can't prevent
-overflow entirely, the length check should also take the sizeof
-entry->array[0] into account, since this array[0] is filled the
-length of trace data and occupy addtional space and risk overflow.
-
-Link: https://lkml.kernel.org/r/20210607125734.1770447-1-liangyan.peng@linux.alibaba.com
-
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Xunlei Pang <xlpang@linux.alibaba.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Fixes: b220c049d519 ("tracing: Check length before giving out the filter buffer")
-Reviewed-by: Xunlei Pang <xlpang@linux.alibaba.com>
-Reviewed-by: yinbinbin <yinbinbin@alibabacloud.com>
-Reviewed-by: Wetp Zhang <wetp.zy@linux.alibaba.com>
-Tested-by: James Wang <jnwang@linux.alibaba.com>
-Signed-off-by: Liangyan <liangyan.peng@linux.alibaba.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 5ce2dced8e95 ("RDMA/ipoib: Set rtnl_link_ops for ipoib interfaces")
+Link: https://lore.kernel.org/r/20210525150134.139342-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/ulp/ipoib/ipoib_netlink.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2274,7 +2274,7 @@ trace_event_buffer_lock_reserve(struct r
- 	    (entry = this_cpu_read(trace_buffered_event))) {
- 		/* Try to use the per cpu buffer first */
- 		val = this_cpu_inc_return(trace_buffered_event_cnt);
--		if ((len < (PAGE_SIZE - sizeof(*entry))) && val == 1) {
-+		if ((len < (PAGE_SIZE - sizeof(*entry) - sizeof(entry->array[0]))) && val == 1) {
- 			trace_event_setup(entry, type, flags, pc);
- 			entry->array[0] = len;
- 			return entry;
+--- a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
+@@ -163,6 +163,7 @@ static size_t ipoib_get_size(const struc
+ 
+ static struct rtnl_link_ops ipoib_link_ops __read_mostly = {
+ 	.kind		= "ipoib",
++	.netns_refund   = true,
+ 	.maxtype	= IFLA_IPOIB_MAX,
+ 	.policy		= ipoib_policy,
+ 	.priv_size	= sizeof(struct ipoib_dev_priv),
 
 
