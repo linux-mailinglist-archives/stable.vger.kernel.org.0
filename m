@@ -2,35 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C9D3A619F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 395AD3A60E5
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233744AbhFNKt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:49:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50974 "EHLO mail.kernel.org"
+        id S232955AbhFNKkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:40:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233995AbhFNKrS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:47:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DF2561412;
-        Mon, 14 Jun 2021 10:37:20 +0000 (UTC)
+        id S232932AbhFNKhO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:37:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C90916134F;
+        Mon, 14 Jun 2021 10:33:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667041;
-        bh=VFWQh30kQM8bCbUVAFfCZPuRbE6N7444tw/64ahKIG4=;
+        s=korg; t=1623666801;
+        bh=9nMimWrcfd9mZXp55A5h84CZ8/+GlF1cAqoC5D7ZmkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3LfDGcTzk1dHafMKefLkE5+elGwm6iK4Mqu/+XAq6KAkzKFbboNJTrdkP+jzdJHC
-         EjdEIvaP+rre2VxFLdpiSHnguQoSrRB3mF1UVy8Q6VIJEUaoAiaFl8RM7ahVjGc9+t
-         gilEv5qGzMxlnTL4twtYi4TuCefkZPZVs6GlY+Yc=
+        b=HAd83L2ElPnKVNaiz+EEqrtSEnXC9FZ5mxyzxlK8QbwmgK4PnGL/jowa3nJgnHxji
+         Homef4L041bdeeEjKNFH6B933MAQK+3c5AuhAmSc/5MhrV3hSn/m6rAA+7qE8nXlf2
+         FbEl1rmvVU+HwH4yWiRyecfBcRGF5UXJGCOLKZcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 45/67] USB: serial: cp210x: fix alternate function for CP2102N QFN20
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Felipe Balbi <balbi@kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Michael R Sweet <msweet@msweet.org>,
+        Mike Christie <michael.christie@oracle.com>,
+        Pawel Laszczak <pawell@cadence.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
+        Wei Ming Chen <jj251510319013@gmail.com>,
+        Will McVicker <willmcvicker@google.com>,
+        Zqiang <qiang.zhang@windriver.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
+Subject: [PATCH 4.14 35/49] usb: fix various gadgets null ptr deref on 10gbps cabling.
 Date:   Mon, 14 Jun 2021 12:27:28 +0200
-Message-Id: <20210614102645.314090615@linuxfoundation.org>
+Message-Id: <20210614102643.020799559@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +52,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Maciej Żenczykowski <maze@google.com>
 
-commit 6f7ec77cc8b64ff5037c1945e4650c65c458037d upstream.
+commit 90c4d05780d47e14a50e11a7f17373104cd47d25 upstream.
 
-The QFN20 part has a different GPIO/port function assignment. The
-configuration struct bit field ordered as TX/RX/RS485/WAKEUP/CLK
-which exactly matches GPIO0-3 for QFN24/28. However, QFN20 has a
-different GPIO to primary function assignment.
+This avoids a null pointer dereference in
+f_{ecm,eem,hid,loopback,printer,rndis,serial,sourcesink,subset,tcm}
+by simply reusing the 5gbps config for 10gbps.
 
-Special case QFN20 to follow to properly detect which GPIOs are
-available.
-
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Link: https://lore.kernel.org/r/51830b2b24118eb0f77c5c9ac64ffb2f519dbb1d.1622218300.git.stefan@agner.ch
-Fixes: c8acfe0aadbe ("USB: serial: cp210x: implement GPIO support for CP2102N")
-Cc: stable@vger.kernel.org	# 4.19
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: eaef50c76057 ("usb: gadget: Update usb_assign_descriptors for SuperSpeedPlus")
+Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Lorenzo Colitti <lorenzo@google.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Michael R Sweet <msweet@msweet.org>
+Cc: Mike Christie <michael.christie@oracle.com>
+Cc: Pawel Laszczak <pawell@cadence.com>
+Cc: Peter Chen <peter.chen@nxp.com>
+Cc: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
+Cc: Wei Ming Chen <jj251510319013@gmail.com>
+Cc: Will McVicker <willmcvicker@google.com>
+Cc: Zqiang <qiang.zhang@windriver.com>
+Reviewed-By: Lorenzo Colitti <lorenzo@google.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Link: https://lore.kernel.org/r/20210608044141.3898496-1-zenczykowski@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |   20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_ecm.c        |    2 +-
+ drivers/usb/gadget/function/f_eem.c        |    2 +-
+ drivers/usb/gadget/function/f_hid.c        |    3 ++-
+ drivers/usb/gadget/function/f_loopback.c   |    2 +-
+ drivers/usb/gadget/function/f_printer.c    |    3 ++-
+ drivers/usb/gadget/function/f_rndis.c      |    2 +-
+ drivers/usb/gadget/function/f_serial.c     |    2 +-
+ drivers/usb/gadget/function/f_sourcesink.c |    3 ++-
+ drivers/usb/gadget/function/f_subset.c     |    2 +-
+ drivers/usb/gadget/function/f_tcm.c        |    3 ++-
+ 10 files changed, 14 insertions(+), 10 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -485,6 +485,12 @@ struct cp210x_config {
- #define CP210X_2NCONFIG_GPIO_RSTLATCH_IDX	587
- #define CP210X_2NCONFIG_GPIO_CONTROL_IDX	600
+--- a/drivers/usb/gadget/function/f_ecm.c
++++ b/drivers/usb/gadget/function/f_ecm.c
+@@ -793,7 +793,7 @@ ecm_bind(struct usb_configuration *c, st
+ 		fs_ecm_notify_desc.bEndpointAddress;
  
-+/* CP2102N QFN20 port configuration values */
-+#define CP2102N_QFN20_GPIO2_TXLED_MODE		BIT(2)
-+#define CP2102N_QFN20_GPIO3_RXLED_MODE		BIT(3)
-+#define CP2102N_QFN20_GPIO1_RS485_MODE		BIT(4)
-+#define CP2102N_QFN20_GPIO0_CLK_MODE		BIT(6)
-+
- /* CP210X_VENDOR_SPECIFIC, CP210X_WRITE_LATCH call writes these 0x2 bytes. */
- struct cp210x_gpio_write {
- 	u8	mask;
-@@ -1630,7 +1636,19 @@ static int cp2102n_gpioconf_init(struct
- 	priv->gpio_pushpull = (gpio_pushpull >> 3) & 0x0f;
+ 	status = usb_assign_descriptors(f, ecm_fs_function, ecm_hs_function,
+-			ecm_ss_function, NULL);
++			ecm_ss_function, ecm_ss_function);
+ 	if (status)
+ 		goto fail;
  
- 	/* 0 indicates GPIO mode, 1 is alternate function */
--	priv->gpio_altfunc = (gpio_ctrl >> 2) & 0x0f;
-+	if (priv->partnum == CP210X_PARTNUM_CP2102N_QFN20) {
-+		/* QFN20 is special... */
-+		if (gpio_ctrl & CP2102N_QFN20_GPIO0_CLK_MODE)   /* GPIO 0 */
-+			priv->gpio_altfunc |= BIT(0);
-+		if (gpio_ctrl & CP2102N_QFN20_GPIO1_RS485_MODE) /* GPIO 1 */
-+			priv->gpio_altfunc |= BIT(1);
-+		if (gpio_ctrl & CP2102N_QFN20_GPIO2_TXLED_MODE) /* GPIO 2 */
-+			priv->gpio_altfunc |= BIT(2);
-+		if (gpio_ctrl & CP2102N_QFN20_GPIO3_RXLED_MODE) /* GPIO 3 */
-+			priv->gpio_altfunc |= BIT(3);
-+	} else {
-+		priv->gpio_altfunc = (gpio_ctrl >> 2) & 0x0f;
-+	}
+--- a/drivers/usb/gadget/function/f_eem.c
++++ b/drivers/usb/gadget/function/f_eem.c
+@@ -309,7 +309,7 @@ static int eem_bind(struct usb_configura
+ 	eem_ss_out_desc.bEndpointAddress = eem_fs_out_desc.bEndpointAddress;
  
- 	/*
- 	 * The CP2102N does not strictly has input and output pin modes,
+ 	status = usb_assign_descriptors(f, eem_fs_function, eem_hs_function,
+-			eem_ss_function, NULL);
++			eem_ss_function, eem_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -812,7 +812,8 @@ static int hidg_bind(struct usb_configur
+ 		hidg_fs_out_ep_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, hidg_fs_descriptors,
+-			hidg_hs_descriptors, hidg_ss_descriptors, NULL);
++			hidg_hs_descriptors, hidg_ss_descriptors,
++			hidg_ss_descriptors);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_loopback.c
++++ b/drivers/usb/gadget/function/f_loopback.c
+@@ -211,7 +211,7 @@ autoconf_fail:
+ 	ss_loop_sink_desc.bEndpointAddress = fs_loop_sink_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_loopback_descs, hs_loopback_descs,
+-			ss_loopback_descs, NULL);
++			ss_loopback_descs, ss_loopback_descs);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -1067,7 +1067,8 @@ autoconf_fail:
+ 	ss_ep_out_desc.bEndpointAddress = fs_ep_out_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_printer_function,
+-			hs_printer_function, ss_printer_function, NULL);
++			hs_printer_function, ss_printer_function,
++			ss_printer_function);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_rndis.c
++++ b/drivers/usb/gadget/function/f_rndis.c
+@@ -793,7 +793,7 @@ rndis_bind(struct usb_configuration *c,
+ 	ss_notify_desc.bEndpointAddress = fs_notify_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, eth_fs_function, eth_hs_function,
+-			eth_ss_function, NULL);
++			eth_ss_function, eth_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_serial.c
++++ b/drivers/usb/gadget/function/f_serial.c
+@@ -236,7 +236,7 @@ static int gser_bind(struct usb_configur
+ 	gser_ss_out_desc.bEndpointAddress = gser_fs_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, gser_fs_function, gser_hs_function,
+-			gser_ss_function, NULL);
++			gser_ss_function, gser_ss_function);
+ 	if (status)
+ 		goto fail;
+ 	dev_dbg(&cdev->gadget->dev, "generic ttyGS%d: %s speed IN/%s OUT/%s\n",
+--- a/drivers/usb/gadget/function/f_sourcesink.c
++++ b/drivers/usb/gadget/function/f_sourcesink.c
+@@ -435,7 +435,8 @@ no_iso:
+ 	ss_iso_sink_desc.bEndpointAddress = fs_iso_sink_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_source_sink_descs,
+-			hs_source_sink_descs, ss_source_sink_descs, NULL);
++			hs_source_sink_descs, ss_source_sink_descs,
++			ss_source_sink_descs);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_subset.c
++++ b/drivers/usb/gadget/function/f_subset.c
+@@ -362,7 +362,7 @@ geth_bind(struct usb_configuration *c, s
+ 		fs_subset_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, fs_eth_function, hs_eth_function,
+-			ss_eth_function, NULL);
++			ss_eth_function, ss_eth_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_tcm.c
++++ b/drivers/usb/gadget/function/f_tcm.c
+@@ -2071,7 +2071,8 @@ static int tcm_bind(struct usb_configura
+ 	uasp_fs_cmd_desc.bEndpointAddress = uasp_ss_cmd_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, uasp_fs_function_desc,
+-			uasp_hs_function_desc, uasp_ss_function_desc, NULL);
++			uasp_hs_function_desc, uasp_ss_function_desc,
++			uasp_ss_function_desc);
+ 	if (ret)
+ 		goto ep_fail;
+ 
 
 
