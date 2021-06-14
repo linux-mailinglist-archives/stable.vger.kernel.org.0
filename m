@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46D0C3A6176
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6C6B3A6247
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:57:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233042AbhFNKr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:47:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50316 "EHLO mail.kernel.org"
+        id S233473AbhFNK6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232796AbhFNKp4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:45:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82ABA613D3;
-        Mon, 14 Jun 2021 10:36:38 +0000 (UTC)
+        id S234285AbhFNK4T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:56:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C547E61554;
+        Mon, 14 Jun 2021 10:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666999;
-        bh=Zrnh7qmLrObb24IuG3WZ+Fx9/p+T9L6ChHDry08hZrs=;
+        s=korg; t=1623667264;
+        bh=Ets9RFcJng1fe5DpSoxj7eD83xn8T+hotmrJmXsbyEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GCEsJG5iunNh4CYmyP3YY174pJx1j7rW/y8MkRb4b31h5tyQsuNnplSydziZc7JqH
-         qMuJLp4OtzFzs2lpt59zwT0BtBrhaAfmS/H2NX2ZoJZmUmzi2m6L49zqMvjbtSHzBN
-         ximeFta3A7yGLtPEo5igdSliBCNZ2VLaBU2fgpJs=
+        b=MPKxl5aYpzTDe6qmZZC/pbHpvjyJ1ZaA+jHGlXEk5u07a+vCbTHixUD+qUSLKl87o
+         YerTCYE2erE9GLalz7PyeXTkkv40UikBOMdjjGQOArHrgiZn85KbZgRWi8SiFx5z8T
+         R1PPVA7tobZFrz7Mpzg1EGyLSZuzWW0+KCqWQjos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 58/67] perf session: Correct buffer copying when peeking events
-Date:   Mon, 14 Jun 2021 12:27:41 +0200
-Message-Id: <20210614102645.729398944@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.4 64/84] usb: typec: mux: Fix copy-paste mistake in typec_mux_match
+Date:   Mon, 14 Jun 2021 12:27:42 +0200
+Message-Id: <20210614102648.554397763@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,55 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 197eecb6ecae0b04bd694432f640ff75597fed9c ]
+commit 142d0b24c1b17139f1aaaacae7542a38aa85640f upstream.
 
-When peeking an event, it has a short path and a long path.  The short
-path uses the session pointer "one_mmap_addr" to directly fetch the
-event; and the long path needs to read out the event header and the
-following event data from file and fill into the buffer pointer passed
-through the argument "buf".
+Fix the copy-paste mistake in the return path of typec_mux_match(),
+where dev is considered a member of struct typec_switch rather than
+struct typec_mux.
 
-The issue is in the long path that it copies the event header and event
-data into the same destination address which pointer "buf", this means
-the event header is overwritten.  We are just lucky to run into the
-short path in most cases, so we don't hit the issue in the long path.
+The two structs are identical in regards to having the struct device as
+the first entry, so this provides no functional change.
 
-This patch adds the offset "hdr_sz" to the pointer "buf" when copying
-the event data, so that it can reserve the event header which can be
-used properly by its caller.
-
-Fixes: 5a52f33adf02 ("perf session: Add perf_session__peek_event()")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210605052957.1070720-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3370db35193b ("usb: typec: Registering real device entries for the muxes")
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210610002132.3088083-1-bjorn.andersson@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/session.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/typec/mux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index 6a2037b52098..3be1534f1f03 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -1478,6 +1478,7 @@ int perf_session__peek_event(struct perf_session *session, off_t file_offset,
- 	if (event->header.size < hdr_sz || event->header.size > buf_sz)
- 		return -1;
+--- a/drivers/usb/typec/mux.c
++++ b/drivers/usb/typec/mux.c
+@@ -243,7 +243,7 @@ find_mux:
+ 	dev = class_find_device(&typec_mux_class, NULL, con->fwnode,
+ 				mux_fwnode_match);
  
-+	buf += hdr_sz;
- 	rest = event->header.size - hdr_sz;
+-	return dev ? to_typec_switch(dev) : ERR_PTR(-EPROBE_DEFER);
++	return dev ? to_typec_mux(dev) : ERR_PTR(-EPROBE_DEFER);
+ }
  
- 	if (readn(fd, buf, rest) != (ssize_t)rest)
--- 
-2.30.2
-
+ /**
 
 
