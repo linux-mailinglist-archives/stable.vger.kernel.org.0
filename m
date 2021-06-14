@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AB403A6029
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 606C53A602F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232986AbhFNKb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:31:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38272 "EHLO mail.kernel.org"
+        id S232896AbhFNKcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:32:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232943AbhFNKbn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:31:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95C22611CA;
-        Mon, 14 Jun 2021 10:29:32 +0000 (UTC)
+        id S232966AbhFNKbv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:31:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38D85611EE;
+        Mon, 14 Jun 2021 10:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666573;
-        bh=bmft2FcajagDR/odu6MXaQBmZdHh4zPQQTp5ndNVwSQ=;
+        s=korg; t=1623666575;
+        bh=JdWShn25uGNjts7Gh0cwlIcfkNhO76pSuhDxgBRD6mc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAM8qqn3+a9Q5W9P3+E+bjUcaKSBfOT226A3C1Y0d5Z+Y2dmrtSY652BGxAotShFe
-         dCXRbwwW6ZGuGjiEsHrWvvHiRtp/HiQlxxq0G09n/SH+xYuYUjSQdzlIepaUmvZ2Zw
-         iQwD6fWOnFZ68WI+89wYD547fQC36PIJJV0WYyx0=
+        b=Y8sAUZG4jrg24tI3o6IMKaDjuVZUg3sAipPMHp+VCk8Y9QuhV/JSof8hNKu1I3Pn3
+         8VRekrHpb1sdlr0+XEWgFajWwG6uH2JDbJqnw+mYr8+2+9Rh9zNM0a8acUWJdGqj3q
+         hbBigdu1oar9FBNSpoUxLR/rcPR4qlZW4rNePKaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com,
-        Marco Elver <elver@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.4 28/34] perf: Fix data race between pin_count increment/decrement
-Date:   Mon, 14 Jun 2021 12:27:19 +0200
-Message-Id: <20210614102642.487259384@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 29/34] NFS: Fix a potential NULL dereference in nfs_get_client()
+Date:   Mon, 14 Jun 2021 12:27:20 +0200
+Message-Id: <20210614102642.515540737@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102641.582612289@linuxfoundation.org>
 References: <20210614102641.582612289@linuxfoundation.org>
@@ -41,48 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 6c605f8371159432ec61cbb1488dcf7ad24ad19a upstream.
+[ Upstream commit 09226e8303beeec10f2ff844d2e46d1371dc58e0 ]
 
-KCSAN reports a data race between increment and decrement of pin_count:
+None of the callers are expecting NULL returns from nfs_get_client() so
+this code will lead to an Oops.  It's better to return an error
+pointer.  I expect that this is dead code so hopefully no one is
+affected.
 
-  write to 0xffff888237c2d4e0 of 4 bytes by task 15740 on cpu 1:
-   find_get_context		kernel/events/core.c:4617
-   __do_sys_perf_event_open	kernel/events/core.c:12097 [inline]
-   __se_sys_perf_event_open	kernel/events/core.c:11933
-   ...
-  read to 0xffff888237c2d4e0 of 4 bytes by task 15743 on cpu 0:
-   perf_unpin_context		kernel/events/core.c:1525 [inline]
-   __do_sys_perf_event_open	kernel/events/core.c:12328 [inline]
-   __se_sys_perf_event_open	kernel/events/core.c:11933
-   ...
-
-Because neither read-modify-write here is atomic, this can lead to one
-of the operations being lost, resulting in an inconsistent pin_count.
-Fix it by adding the missing locking in the CPU-event case.
-
-Fixes: fe4b04fa31a6 ("perf: Cure task_oncpu_function_call() races")
-Reported-by: syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210527104711.2671610-1-elver@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 31434f496abb ("nfs: check hostname in nfs_get_client")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/client.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -3497,7 +3497,9 @@ find_get_context(struct pmu *pmu, struct
- 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
- 		ctx = &cpuctx->ctx;
- 		get_ctx(ctx);
-+		raw_spin_lock_irqsave(&ctx->lock, flags);
- 		++ctx->pin_count;
-+		raw_spin_unlock_irqrestore(&ctx->lock, flags);
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index d6d5d2a48e83..ba2cd0bd3894 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -377,7 +377,7 @@ nfs_get_client(const struct nfs_client_initdata *cl_init,
  
- 		return ctx;
+ 	if (cl_init->hostname == NULL) {
+ 		WARN_ON(1);
+-		return NULL;
++		return ERR_PTR(-EINVAL);
  	}
+ 
+ 	dprintk("--> nfs_get_client(%s,v%u)\n",
+-- 
+2.30.2
+
 
 
