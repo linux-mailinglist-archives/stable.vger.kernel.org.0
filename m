@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B2563A60C2
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 254013A6110
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:40:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232876AbhFNKhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:37:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39012 "EHLO mail.kernel.org"
+        id S233912AbhFNKmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:42:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232879AbhFNKft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:35:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA5CB613FF;
-        Mon, 14 Jun 2021 10:32:40 +0000 (UTC)
+        id S234094AbhFNKkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:40:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB5946141C;
+        Mon, 14 Jun 2021 10:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666761;
-        bh=C93tXns5FV7iKqFzxLjiVJC0NHNdgMOVXNCvPMud9o4=;
+        s=korg; t=1623666878;
+        bh=SOUGqBQp3nV7DuXkoujlT2Q0GjI1fUhgMLBbG88LWCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dONS2GSTxASfa4ev5k0KkXP7Va0A+bwzkFL7I4w7UtaIKG8uRU13DOWm2rP6MYNST
-         5hzuUy5d5/2RyAUq5IiZcRAoaz/MyAmYLALrvl7vuuyvcZotyg8fDFBL8WceCObWRM
-         lvLzmVYzSifLa/LVEh+EaT0e4TVhCI3Z4a2mlPOM=
+        b=1rCIyUUC1aZNlUPt/R8uBrTGSTwlZeHl0miktFa7O3KDJmW5cvY1VqvRGDDUpPNNe
+         x57kzfuXqhi/I0ZEP22fuOPFdCXZbvxIPq+Xpzza2k/Wovqp6ob49y9iX7xM8mNSHK
+         h/kTVS+22mSeKv/O2r3qH3/RzEEbV6lXZIZB0OIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        stable@vger.kernel.org, Rao Shoaib <rao.shoaib@oracle.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/49] isdn: mISDN: netjet: Fix crash in nj_probe:
+Subject: [PATCH 4.19 14/67] RDS tcp loopback connection can hang
 Date:   Mon, 14 Jun 2021 12:26:57 +0200
-Message-Id: <20210614102641.998099076@linuxfoundation.org>
+Message-Id: <20210614102644.258076824@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,166 +40,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Rao Shoaib <rao.shoaib@oracle.com>
 
-[ Upstream commit 9f6f852550d0e1b7735651228116ae9d300f69b3 ]
+[ Upstream commit aced3ce57cd37b5ca332bcacd370d01f5a8c5371 ]
 
-'nj_setup' in netjet.c might fail with -EIO and in this case
-'card->irq' is initialized and is bigger than zero. A subsequent call to
-'nj_release' will free the irq that has not been requested.
+When TCP is used as transport and a program on the
+system connects to RDS port 16385, connection is
+accepted but denied per the rules of RDS. However,
+RDS connections object is left in the list. Next
+loopback connection will select that connection
+object as it is at the head of list. The connection
+attempt will hang as the connection object is set
+to connect over TCP which is not allowed
 
-Fix this bug by deleting the previous assignment to 'card->irq' and just
-keep the assignment before 'request_irq'.
+The issue can be reproduced easily, use rds-ping
+to ping a local IP address. After that use any
+program like ncat to connect to the same IP
+address and port 16385. This will hang so ctrl-c out.
+Now try rds-ping, it will hang.
 
-The KASAN's log reveals it:
+To fix the issue this patch adds checks to disallow
+the connection object creation and destroys the
+connection object.
 
-[    3.354615 ] WARNING: CPU: 0 PID: 1 at kernel/irq/manage.c:1826
-free_irq+0x100/0x480
-[    3.355112 ] Modules linked in:
-[    3.355310 ] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
-5.13.0-rc1-00144-g25a1298726e #13
-[    3.355816 ] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS
-rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[    3.356552 ] RIP: 0010:free_irq+0x100/0x480
-[    3.356820 ] Code: 6e 08 74 6f 4d 89 f4 e8 5e ac 09 00 4d 8b 74 24 18
-4d 85 f6 75 e3 e8 4f ac 09 00 8b 75 c8 48 c7 c7 78 c1 2e 85 e8 e0 cf f5
-ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 72 33 0b 03 48 8b 43 40 4c 8b a0 80
-[    3.358012 ] RSP: 0000:ffffc90000017b48 EFLAGS: 00010082
-[    3.358357 ] RAX: 0000000000000000 RBX: ffff888104dc8000 RCX:
-0000000000000000
-[    3.358814 ] RDX: ffff8881003c8000 RSI: ffffffff8124a9e6 RDI:
-00000000ffffffff
-[    3.359272 ] RBP: ffffc90000017b88 R08: 0000000000000000 R09:
-0000000000000000
-[    3.359732 ] R10: ffffc900000179f0 R11: 0000000000001d04 R12:
-0000000000000000
-[    3.360195 ] R13: ffff888107dc6000 R14: ffff888107dc6928 R15:
-ffff888104dc80a8
-[    3.360652 ] FS:  0000000000000000(0000) GS:ffff88817bc00000(0000)
-knlGS:0000000000000000
-[    3.361170 ] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    3.361538 ] CR2: 0000000000000000 CR3: 000000000582e000 CR4:
-00000000000006f0
-[    3.362003 ] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
-0000000000000000
-[    3.362175 ] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
-0000000000000400
-[    3.362175 ] Call Trace:
-[    3.362175 ]  nj_release+0x51/0x1e0
-[    3.362175 ]  nj_probe+0x450/0x950
-[    3.362175 ]  ? pci_device_remove+0x110/0x110
-[    3.362175 ]  local_pci_probe+0x45/0xa0
-[    3.362175 ]  pci_device_probe+0x12b/0x1d0
-[    3.362175 ]  really_probe+0x2a9/0x610
-[    3.362175 ]  driver_probe_device+0x90/0x1d0
-[    3.362175 ]  ? mutex_lock_nested+0x1b/0x20
-[    3.362175 ]  device_driver_attach+0x68/0x70
-[    3.362175 ]  __driver_attach+0x124/0x1b0
-[    3.362175 ]  ? device_driver_attach+0x70/0x70
-[    3.362175 ]  bus_for_each_dev+0xbb/0x110
-[    3.362175 ]  ? rdinit_setup+0x45/0x45
-[    3.362175 ]  driver_attach+0x27/0x30
-[    3.362175 ]  bus_add_driver+0x1eb/0x2a0
-[    3.362175 ]  driver_register+0xa9/0x180
-[    3.362175 ]  __pci_register_driver+0x82/0x90
-[    3.362175 ]  ? w6692_init+0x38/0x38
-[    3.362175 ]  nj_init+0x36/0x38
-[    3.362175 ]  do_one_initcall+0x7f/0x3d0
-[    3.362175 ]  ? rdinit_setup+0x45/0x45
-[    3.362175 ]  ? rcu_read_lock_sched_held+0x4f/0x80
-[    3.362175 ]  kernel_init_freeable+0x2aa/0x301
-[    3.362175 ]  ? rest_init+0x2c0/0x2c0
-[    3.362175 ]  kernel_init+0x18/0x190
-[    3.362175 ]  ? rest_init+0x2c0/0x2c0
-[    3.362175 ]  ? rest_init+0x2c0/0x2c0
-[    3.362175 ]  ret_from_fork+0x1f/0x30
-[    3.362175 ] Kernel panic - not syncing: panic_on_warn set ...
-[    3.362175 ] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
-5.13.0-rc1-00144-g25a1298726e #13
-[    3.362175 ] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS
-rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[    3.362175 ] Call Trace:
-[    3.362175 ]  dump_stack+0xba/0xf5
-[    3.362175 ]  ? free_irq+0x100/0x480
-[    3.362175 ]  panic+0x15a/0x3f2
-[    3.362175 ]  ? __warn+0xf2/0x150
-[    3.362175 ]  ? free_irq+0x100/0x480
-[    3.362175 ]  __warn+0x108/0x150
-[    3.362175 ]  ? free_irq+0x100/0x480
-[    3.362175 ]  report_bug+0x119/0x1c0
-[    3.362175 ]  handle_bug+0x3b/0x80
-[    3.362175 ]  exc_invalid_op+0x18/0x70
-[    3.362175 ]  asm_exc_invalid_op+0x12/0x20
-[    3.362175 ] RIP: 0010:free_irq+0x100/0x480
-[    3.362175 ] Code: 6e 08 74 6f 4d 89 f4 e8 5e ac 09 00 4d 8b 74 24 18
-4d 85 f6 75 e3 e8 4f ac 09 00 8b 75 c8 48 c7 c7 78 c1 2e 85 e8 e0 cf f5
-ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 72 33 0b 03 48 8b 43 40 4c 8b a0 80
-[    3.362175 ] RSP: 0000:ffffc90000017b48 EFLAGS: 00010082
-[    3.362175 ] RAX: 0000000000000000 RBX: ffff888104dc8000 RCX:
-0000000000000000
-[    3.362175 ] RDX: ffff8881003c8000 RSI: ffffffff8124a9e6 RDI:
-00000000ffffffff
-[    3.362175 ] RBP: ffffc90000017b88 R08: 0000000000000000 R09:
-0000000000000000
-[    3.362175 ] R10: ffffc900000179f0 R11: 0000000000001d04 R12:
-0000000000000000
-[    3.362175 ] R13: ffff888107dc6000 R14: ffff888107dc6928 R15:
-ffff888104dc80a8
-[    3.362175 ]  ? vprintk+0x76/0x150
-[    3.362175 ]  ? free_irq+0x100/0x480
-[    3.362175 ]  nj_release+0x51/0x1e0
-[    3.362175 ]  nj_probe+0x450/0x950
-[    3.362175 ]  ? pci_device_remove+0x110/0x110
-[    3.362175 ]  local_pci_probe+0x45/0xa0
-[    3.362175 ]  pci_device_probe+0x12b/0x1d0
-[    3.362175 ]  really_probe+0x2a9/0x610
-[    3.362175 ]  driver_probe_device+0x90/0x1d0
-[    3.362175 ]  ? mutex_lock_nested+0x1b/0x20
-[    3.362175 ]  device_driver_attach+0x68/0x70
-[    3.362175 ]  __driver_attach+0x124/0x1b0
-[    3.362175 ]  ? device_driver_attach+0x70/0x70
-[    3.362175 ]  bus_for_each_dev+0xbb/0x110
-[    3.362175 ]  ? rdinit_setup+0x45/0x45
-[    3.362175 ]  driver_attach+0x27/0x30
-[    3.362175 ]  bus_add_driver+0x1eb/0x2a0
-[    3.362175 ]  driver_register+0xa9/0x180
-[    3.362175 ]  __pci_register_driver+0x82/0x90
-[    3.362175 ]  ? w6692_init+0x38/0x38
-[    3.362175 ]  nj_init+0x36/0x38
-[    3.362175 ]  do_one_initcall+0x7f/0x3d0
-[    3.362175 ]  ? rdinit_setup+0x45/0x45
-[    3.362175 ]  ? rcu_read_lock_sched_held+0x4f/0x80
-[    3.362175 ]  kernel_init_freeable+0x2aa/0x301
-[    3.362175 ]  ? rest_init+0x2c0/0x2c0
-[    3.362175 ]  kernel_init+0x18/0x190
-[    3.362175 ]  ? rest_init+0x2c0/0x2c0
-[    3.362175 ]  ? rest_init+0x2c0/0x2c0
-[    3.362175 ]  ret_from_fork+0x1f/0x30
-[    3.362175 ] Dumping ftrace buffer:
-[    3.362175 ]    (ftrace buffer empty)
-[    3.362175 ] Kernel Offset: disabled
-[    3.362175 ] Rebooting in 1 seconds..
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Rao Shoaib <rao.shoaib@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/netjet.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/rds/connection.c | 23 +++++++++++++++++------
+ net/rds/tcp.c        |  4 ++--
+ net/rds/tcp.h        |  3 ++-
+ net/rds/tcp_listen.c |  6 ++++++
+ 4 files changed, 27 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/netjet.c b/drivers/isdn/hardware/mISDN/netjet.c
-index 6a6d848bd18e..79f9925da76c 100644
---- a/drivers/isdn/hardware/mISDN/netjet.c
-+++ b/drivers/isdn/hardware/mISDN/netjet.c
-@@ -1114,7 +1114,6 @@ nj_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		card->typ = NETJET_S_TJ300;
+diff --git a/net/rds/connection.c b/net/rds/connection.c
+index 3bd2f4a5a30d..ac3300b204a6 100644
+--- a/net/rds/connection.c
++++ b/net/rds/connection.c
+@@ -237,12 +237,23 @@ static struct rds_connection *__rds_conn_create(struct net *net,
+ 	if (loop_trans) {
+ 		rds_trans_put(loop_trans);
+ 		conn->c_loopback = 1;
+-		if (is_outgoing && trans->t_prefer_loopback) {
+-			/* "outgoing" connection - and the transport
+-			 * says it wants the connection handled by the
+-			 * loopback transport. This is what TCP does.
+-			 */
+-			trans = &rds_loop_transport;
++		if (trans->t_prefer_loopback) {
++			if (likely(is_outgoing)) {
++				/* "outgoing" connection to local address.
++				 * Protocol says it wants the connection
++				 * handled by the loopback transport.
++				 * This is what TCP does.
++				 */
++				trans = &rds_loop_transport;
++			} else {
++				/* No transport currently in use
++				 * should end up here, but if it
++				 * does, reset/destroy the connection.
++				 */
++				kmem_cache_free(rds_conn_slab, conn);
++				conn = ERR_PTR(-EOPNOTSUPP);
++				goto out;
++			}
+ 		}
+ 	}
  
- 	card->base = pci_resource_start(pdev, 0);
--	card->irq = pdev->irq;
- 	pci_set_drvdata(pdev, card);
- 	err = setup_instance(card);
- 	if (err)
+diff --git a/net/rds/tcp.c b/net/rds/tcp.c
+index 18bb522df282..d0bce439198f 100644
+--- a/net/rds/tcp.c
++++ b/net/rds/tcp.c
+@@ -322,8 +322,8 @@ out:
+ }
+ #endif
+ 
+-static int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
+-			       __u32 scope_id)
++int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
++			__u32 scope_id)
+ {
+ 	struct net_device *dev = NULL;
+ #if IS_ENABLED(CONFIG_IPV6)
+diff --git a/net/rds/tcp.h b/net/rds/tcp.h
+index 3c69361d21c7..4620549ecbeb 100644
+--- a/net/rds/tcp.h
++++ b/net/rds/tcp.h
+@@ -60,7 +60,8 @@ u32 rds_tcp_snd_una(struct rds_tcp_connection *tc);
+ u64 rds_tcp_map_seq(struct rds_tcp_connection *tc, u32 seq);
+ extern struct rds_transport rds_tcp_transport;
+ void rds_tcp_accept_work(struct sock *sk);
+-
++int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
++			__u32 scope_id);
+ /* tcp_connect.c */
+ int rds_tcp_conn_path_connect(struct rds_conn_path *cp);
+ void rds_tcp_conn_path_shutdown(struct rds_conn_path *conn);
+diff --git a/net/rds/tcp_listen.c b/net/rds/tcp_listen.c
+index c12203f646da..0d095d3f5fee 100644
+--- a/net/rds/tcp_listen.c
++++ b/net/rds/tcp_listen.c
+@@ -198,6 +198,12 @@ int rds_tcp_accept_one(struct socket *sock)
+ 	}
+ #endif
+ 
++	if (!rds_tcp_laddr_check(sock_net(sock->sk), peer_addr, dev_if)) {
++		/* local address connection is only allowed via loopback */
++		ret = -EOPNOTSUPP;
++		goto out;
++	}
++
+ 	conn = rds_conn_create(sock_net(sock->sk),
+ 			       my_addr, peer_addr,
+ 			       &rds_tcp_transport, GFP_KERNEL, dev_if);
 -- 
 2.30.2
 
