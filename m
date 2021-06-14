@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1118F3A618B
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:46:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0903A6236
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233922AbhFNKsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:48:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52688 "EHLO mail.kernel.org"
+        id S234494AbhFNK50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232892AbhFNKqm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:46:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C78D0610CD;
-        Mon, 14 Jun 2021 10:37:06 +0000 (UTC)
+        id S234854AbhFNKyi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:54:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D533B61493;
+        Mon, 14 Jun 2021 10:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667027;
-        bh=ATYZqRrsRPfehS+o/jS6KNB3jqIPcn7jKi6aPZDxvIM=;
+        s=korg; t=1623667217;
+        bh=semQgj5UxOlSDaqdQr+dG80vFTxmFn52UONl68Yr8bI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVCPMWEftrPRZBz5DjTeRc8GiYrRnIWrAaWHM8T6ncm6sfzqd+q2Kgnt6N4OwoABX
-         mSmzijZzVQ161e0L4R8+ivXtE4CwR6jeF1+AijqSoPawGtkR6zNtUdSNfdJId3BRXO
-         1zn7xEAoSWcOW/Tw03Nds4wCCXLT9qFB943wAtRI=
+        b=jyihUaBvmuMBrvaKFGhJQpPvI4kKJ7iLfBjg5KTKfTr8kKKBqyEtrok7ptwdI1NoX
+         RRuFlUR6Y0a2zqzP6Kv5CG/0OTW5dCH1Ii3ZfIBU4q9IjW4FVcCzXhIJQGwGo9w7kz
+         GSZJts6S2B2+0+qJnjEeDOc0QZZa0ddsiI+DUDMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        yinbinbin <yinbinbin@alibabacloud.com>,
-        Wetp Zhang <wetp.zy@linux.alibaba.com>,
-        James Wang <jnwang@linux.alibaba.com>,
-        Liangyan <liangyan.peng@linux.alibaba.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 67/67] tracing: Correct the length check which causes memory corruption
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 72/84] NFS: Fix a potential NULL dereference in nfs_get_client()
 Date:   Mon, 14 Jun 2021 12:27:50 +0200
-Message-Id: <20210614102646.035773202@linuxfoundation.org>
+Message-Id: <20210614102648.804103545@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,102 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liangyan <liangyan.peng@linux.alibaba.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 3e08a9f9760f4a70d633c328a76408e62d6f80a3 upstream.
+[ Upstream commit 09226e8303beeec10f2ff844d2e46d1371dc58e0 ]
 
-We've suffered from severe kernel crashes due to memory corruption on
-our production environment, like,
+None of the callers are expecting NULL returns from nfs_get_client() so
+this code will lead to an Oops.  It's better to return an error
+pointer.  I expect that this is dead code so hopefully no one is
+affected.
 
-Call Trace:
-[1640542.554277] general protection fault: 0000 [#1] SMP PTI
-[1640542.554856] CPU: 17 PID: 26996 Comm: python Kdump: loaded Tainted:G
-[1640542.556629] RIP: 0010:kmem_cache_alloc+0x90/0x190
-[1640542.559074] RSP: 0018:ffffb16faa597df8 EFLAGS: 00010286
-[1640542.559587] RAX: 0000000000000000 RBX: 0000000000400200 RCX:
-0000000006e931bf
-[1640542.560323] RDX: 0000000006e931be RSI: 0000000000400200 RDI:
-ffff9a45ff004300
-[1640542.560996] RBP: 0000000000400200 R08: 0000000000023420 R09:
-0000000000000000
-[1640542.561670] R10: 0000000000000000 R11: 0000000000000000 R12:
-ffffffff9a20608d
-[1640542.562366] R13: ffff9a45ff004300 R14: ffff9a45ff004300 R15:
-696c662f65636976
-[1640542.563128] FS:  00007f45d7c6f740(0000) GS:ffff9a45ff840000(0000)
-knlGS:0000000000000000
-[1640542.563937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[1640542.564557] CR2: 00007f45d71311a0 CR3: 000000189d63e004 CR4:
-00000000003606e0
-[1640542.565279] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
-0000000000000000
-[1640542.566069] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
-0000000000000400
-[1640542.566742] Call Trace:
-[1640542.567009]  anon_vma_clone+0x5d/0x170
-[1640542.567417]  __split_vma+0x91/0x1a0
-[1640542.567777]  do_munmap+0x2c6/0x320
-[1640542.568128]  vm_munmap+0x54/0x70
-[1640542.569990]  __x64_sys_munmap+0x22/0x30
-[1640542.572005]  do_syscall_64+0x5b/0x1b0
-[1640542.573724]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[1640542.575642] RIP: 0033:0x7f45d6e61e27
-
-James Wang has reproduced it stably on the latest 4.19 LTS.
-After some debugging, we finally proved that it's due to ftrace
-buffer out-of-bound access using a debug tool as follows:
-[   86.775200] BUG: Out-of-bounds write at addr 0xffff88aefe8b7000
-[   86.780806]  no_context+0xdf/0x3c0
-[   86.784327]  __do_page_fault+0x252/0x470
-[   86.788367]  do_page_fault+0x32/0x140
-[   86.792145]  page_fault+0x1e/0x30
-[   86.795576]  strncpy_from_unsafe+0x66/0xb0
-[   86.799789]  fetch_memory_string+0x25/0x40
-[   86.804002]  fetch_deref_string+0x51/0x60
-[   86.808134]  kprobe_trace_func+0x32d/0x3a0
-[   86.812347]  kprobe_dispatcher+0x45/0x50
-[   86.816385]  kprobe_ftrace_handler+0x90/0xf0
-[   86.820779]  ftrace_ops_assist_func+0xa1/0x140
-[   86.825340]  0xffffffffc00750bf
-[   86.828603]  do_sys_open+0x5/0x1f0
-[   86.832124]  do_syscall_64+0x5b/0x1b0
-[   86.835900]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-commit b220c049d519 ("tracing: Check length before giving out
-the filter buffer") adds length check to protect trace data
-overflow introduced in 0fc1b09ff1ff, seems that this fix can't prevent
-overflow entirely, the length check should also take the sizeof
-entry->array[0] into account, since this array[0] is filled the
-length of trace data and occupy addtional space and risk overflow.
-
-Link: https://lkml.kernel.org/r/20210607125734.1770447-1-liangyan.peng@linux.alibaba.com
-
-Cc: stable@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Xunlei Pang <xlpang@linux.alibaba.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Fixes: b220c049d519 ("tracing: Check length before giving out the filter buffer")
-Reviewed-by: Xunlei Pang <xlpang@linux.alibaba.com>
-Reviewed-by: yinbinbin <yinbinbin@alibabacloud.com>
-Reviewed-by: Wetp Zhang <wetp.zy@linux.alibaba.com>
-Tested-by: James Wang <jnwang@linux.alibaba.com>
-Signed-off-by: Liangyan <liangyan.peng@linux.alibaba.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 31434f496abb ("nfs: check hostname in nfs_get_client")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c |    2 +-
+ fs/nfs/client.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2281,7 +2281,7 @@ trace_event_buffer_lock_reserve(struct r
- 	    (entry = this_cpu_read(trace_buffered_event))) {
- 		/* Try to use the per cpu buffer first */
- 		val = this_cpu_inc_return(trace_buffered_event_cnt);
--		if ((len < (PAGE_SIZE - sizeof(*entry))) && val == 1) {
-+		if ((len < (PAGE_SIZE - sizeof(*entry) - sizeof(entry->array[0]))) && val == 1) {
- 			trace_event_setup(entry, type, flags, pc);
- 			entry->array[0] = len;
- 			return entry;
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index a05f77f9c21e..af838d1ed281 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -399,7 +399,7 @@ struct nfs_client *nfs_get_client(const struct nfs_client_initdata *cl_init)
+ 
+ 	if (cl_init->hostname == NULL) {
+ 		WARN_ON(1);
+-		return NULL;
++		return ERR_PTR(-EINVAL);
+ 	}
+ 
+ 	/* see if the client already exists */
+-- 
+2.30.2
+
 
 
