@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48BFA3A6211
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:53:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C6743A60EB
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233948AbhFNKz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:55:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58492 "EHLO mail.kernel.org"
+        id S233652AbhFNKkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:40:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234150AbhFNKxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:53:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5674661480;
-        Mon, 14 Jun 2021 10:39:40 +0000 (UTC)
+        id S233777AbhFNKhx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:37:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7BA3611BE;
+        Mon, 14 Jun 2021 10:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667180;
-        bh=/Q5WdtpSZfFi/+U+Do3WtbdtGOxfV9Wlx5KDosErhf4=;
+        s=korg; t=1623666819;
+        bh=Yg31k1HocdswqpPwLQx+peZ9oi2gE5TsZ/v3v/9vvYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAvIzuLRAXl9FfoUZjNNulB+IQKlb09mmh8uE2wzB/z6nOLcnQkX7a+RVdbGOziXM
-         nNwh6xD7VNGy33K6ymIV8nhwMtivjjIpQ3FNu3QjfSx5lbSJwCxqT3iNmTcOlzc/+l
-         3RRoWrUxvvKVpWQ9tHkslPFvTVgUnzCjKVCRYhtk=
+        b=Z19v4tmSd4++RQHuBIbXsA7g20Qpr97lagJQMODUOfwrviMl7AItv8ZnRjyozwhDh
+         6pOthfsHjwVM06cjNYCJmW/srspQ0irVqqT9L3vLthRZgIN2KUVlJRZmG96kYwlqKn
+         9/576tidILBVdgdymPyhOLSc26xcNp184lqv0K2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre GRIVEAUX <agriveaux@deutnet.info>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 56/84] USB: serial: omninet: add device id for Zyxel Omni 56K Plus
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 41/49] perf session: Correct buffer copying when peeking events
 Date:   Mon, 14 Jun 2021 12:27:34 +0200
-Message-Id: <20210614102648.273813531@linuxfoundation.org>
+Message-Id: <20210614102643.207576453@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre GRIVEAUX <agriveaux@deutnet.info>
+From: Leo Yan <leo.yan@linaro.org>
 
-commit fc0b3dc9a11771c3919eaaaf9d649138b095aa0f upstream.
+[ Upstream commit 197eecb6ecae0b04bd694432f640ff75597fed9c ]
 
-Add device id for Zyxel Omni 56K Plus modem, this modem include:
+When peeking an event, it has a short path and a long path.  The short
+path uses the session pointer "one_mmap_addr" to directly fetch the
+event; and the long path needs to read out the event header and the
+following event data from file and fill into the buffer pointer passed
+through the argument "buf".
 
-USB chip:
-NetChip
-NET2888
+The issue is in the long path that it copies the event header and event
+data into the same destination address which pointer "buf", this means
+the event header is overwritten.  We are just lucky to run into the
+short path in most cases, so we don't hit the issue in the long path.
 
-Main chip:
-901041A
-F721501APGF
+This patch adds the offset "hdr_sz" to the pointer "buf" when copying
+the event data, so that it can reserve the event header which can be
+used properly by its caller.
 
-Another modem using the same chips is the Zyxel Omni 56K DUO/NEO,
-could be added with the right USB ID.
-
-Signed-off-by: Alexandre GRIVEAUX <agriveaux@deutnet.info>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5a52f33adf02 ("perf session: Add perf_session__peek_event()")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210605052957.1070720-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/omninet.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/util/session.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/omninet.c
-+++ b/drivers/usb/serial/omninet.c
-@@ -26,6 +26,7 @@
+diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+index decd5d147e81..735dc862c7f8 100644
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -1475,6 +1475,7 @@ int perf_session__peek_event(struct perf_session *session, off_t file_offset,
+ 	if (event->header.size < hdr_sz || event->header.size > buf_sz)
+ 		return -1;
  
- #define ZYXEL_VENDOR_ID		0x0586
- #define ZYXEL_OMNINET_ID	0x1000
-+#define ZYXEL_OMNI_56K_PLUS_ID	0x1500
- /* This one seems to be a re-branded ZyXEL device */
- #define BT_IGNITIONPRO_ID	0x2000
++	buf += hdr_sz;
+ 	rest = event->header.size - hdr_sz;
  
-@@ -40,6 +41,7 @@ static int omninet_port_remove(struct us
- 
- static const struct usb_device_id id_table[] = {
- 	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNINET_ID) },
-+	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNI_56K_PLUS_ID) },
- 	{ USB_DEVICE(ZYXEL_VENDOR_ID, BT_IGNITIONPRO_ID) },
- 	{ }						/* Terminating entry */
- };
+ 	if (readn(fd, buf, rest) != (ssize_t)rest)
+-- 
+2.30.2
+
 
 
