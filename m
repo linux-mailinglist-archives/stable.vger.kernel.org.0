@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A704D3A6265
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F1C3A6282
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235314AbhFNLAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:00:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60606 "EHLO mail.kernel.org"
+        id S233668AbhFNLBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:01:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234470AbhFNK5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:57:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F7AE61606;
-        Mon, 14 Jun 2021 10:41:25 +0000 (UTC)
+        id S234690AbhFNK6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:58:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFB24613E9;
+        Mon, 14 Jun 2021 10:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667286;
-        bh=WOLd7ah1qgxPQgGi8mtCBc+GE/1Vg1PbV/3cQNmYmbg=;
+        s=korg; t=1623667315;
+        bh=P2NiAcDDakW4b0/dW1SMWHEB1xRgaqQX6RaVY4jIeQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXz7bMtP7PjGIaW/wMg2RR5rEvoxtJBhTBedvmaGvKJPFaDbeBjYOO0DcVSWJu689
-         S6ijKq1584K6wF3x1W1DYwzAOoGMHkIsLEzMTHAXSoeXlffwI2Dwjm1OskwxNk37q1
-         P57pv0ARtwUtoDlP6GvkGoM1lqiSbuYu39gZ1DOc=
+        b=XtMGWPHNaMRCCrvoecwRqTvxOUf7EyPRnkTd1HzqO8k5+r+92B3n2FFzV9iJLLyJC
+         W55bF18RMfwj71fBm4htJ8Tb9nIp83XUFM+bC8d1xGq6WTNPLb6d0+VfhmxFBk9iRE
+         YRTLxoDGlgSqnuke7ji2BOHQoCUdqhVBkwPp/HvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Karen Dombroski <karen.dombroski@marsbioimaging.com>,
-        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 005/131] spi: spi-zynq-qspi: Fix stack violation bug
-Date:   Mon, 14 Jun 2021 12:26:06 +0200
-Message-Id: <20210614102653.155326989@linuxfoundation.org>
+Subject: [PATCH 5.10 006/131] bpf: Forbid trampoline attach for functions with variable arguments
+Date:   Mon, 14 Jun 2021 12:26:07 +0200
+Message-Id: <20210614102653.187278759@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -42,51 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karen Dombroski <karen.dombroski@marsbioimaging.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit 6d5ff8e632a4f2389c331e5554cd1c2a9a28c7aa ]
+[ Upstream commit 31379397dcc364a59ce764fabb131b645c43e340 ]
 
-When the number of bytes for the op is greater than one, the read could
-run off the end of the function stack and cause a crash.
+We can't currently allow to attach functions with variable arguments.
+The problem is that we should save all the registers for arguments,
+which is probably doable, but if caller uses more than 6 arguments,
+we need stack data, which will be wrong, because of the extra stack
+frame we do in bpf trampoline, so we could crash.
 
-This patch restores the behaviour of safely reading out of the original
-opcode location.
+Also currently there's malformed trampoline code generated for such
+functions at the moment as described in:
 
-Signed-off-by: Karen Dombroski <karen.dombroski@marsbioimaging.com>
-Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
-Link: https://lore.kernel.org/r/20210429053802.17650-3-amit.kumar-mahapatra@xilinx.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  https://lore.kernel.org/bpf/20210429212834.82621-1-jolsa@kernel.org/
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210505132529.401047-1-jolsa@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynq-qspi.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ kernel/bpf/btf.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/spi/spi-zynq-qspi.c b/drivers/spi/spi-zynq-qspi.c
-index 5d8a5ee62fa2..2765289028fa 100644
---- a/drivers/spi/spi-zynq-qspi.c
-+++ b/drivers/spi/spi-zynq-qspi.c
-@@ -528,18 +528,17 @@ static int zynq_qspi_exec_mem_op(struct spi_mem *mem,
- 	struct zynq_qspi *xqspi = spi_controller_get_devdata(mem->spi->master);
- 	int err = 0, i;
- 	u8 *tmpbuf;
--	u8 opcode = op->cmd.opcode;
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index ed7d02e8bc93..aaf2fbaa0cc7 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -4960,6 +4960,12 @@ int btf_distill_func_proto(struct bpf_verifier_log *log,
+ 	m->ret_size = ret;
  
- 	dev_dbg(xqspi->dev, "cmd:%#x mode:%d.%d.%d.%d\n",
--		opcode, op->cmd.buswidth, op->addr.buswidth,
-+		op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
- 		op->dummy.buswidth, op->data.buswidth);
- 
- 	zynq_qspi_chipselect(mem->spi, true);
- 	zynq_qspi_config_op(xqspi, mem->spi);
- 
--	if (op->cmd.nbytes) {
-+	if (op->cmd.opcode) {
- 		reinit_completion(&xqspi->data_completion);
--		xqspi->txbuf = &opcode;
-+		xqspi->txbuf = (u8 *)&op->cmd.opcode;
- 		xqspi->rxbuf = NULL;
- 		xqspi->tx_bytes = op->cmd.nbytes;
- 		xqspi->rx_bytes = op->cmd.nbytes;
+ 	for (i = 0; i < nargs; i++) {
++		if (i == nargs - 1 && args[i].type == 0) {
++			bpf_log(log,
++				"The function %s with variable args is unsupported.\n",
++				tname);
++			return -EINVAL;
++		}
+ 		ret = __get_type_size(btf, args[i].type, &t);
+ 		if (ret < 0) {
+ 			bpf_log(log,
+@@ -4967,6 +4973,12 @@ int btf_distill_func_proto(struct bpf_verifier_log *log,
+ 				tname, i, btf_kind_str[BTF_INFO_KIND(t->info)]);
+ 			return -EINVAL;
+ 		}
++		if (ret == 0) {
++			bpf_log(log,
++				"The function %s has malformed void argument.\n",
++				tname);
++			return -EINVAL;
++		}
+ 		m->arg_size[i] = ret;
+ 	}
+ 	m->nr_args = nargs;
 -- 
 2.30.2
 
