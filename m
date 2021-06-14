@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D87F83A628F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1913A61BA
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:49:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234342AbhFNLBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36346 "EHLO mail.kernel.org"
+        id S234318AbhFNKu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:50:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235123AbhFNLAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:00:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0E6D613EF;
-        Mon, 14 Jun 2021 10:42:40 +0000 (UTC)
+        id S233890AbhFNKs5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:48:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B33FC60D07;
+        Mon, 14 Jun 2021 10:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667361;
-        bh=J7r/lrRoLtgpXhPKTHPUodPNJJKZXvNW2z4QxIPjKlA=;
+        s=korg; t=1623667083;
+        bh=bJ6yYbSq9tHa2UmIll13Ys+eeizegO9JYzohD/HTtgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNTmbZyKlUsAZXNYqWcecNfbGFbpAwyZkeXLHoLvU6QMM43aBtoqc7IJpEDuriknZ
-         gvYCMUhXBSKBJGsfRL1dvHWU+3+8dZd6Zt41eBI7JxkZRsJLC+oY8wV7bOTkH4X6EC
-         Rb3I7ANctod50V2ZKOfndWPgUY+ekzz0IHG1fmlc=
+        b=c73B3/utcpWOD7OMrrX9qD3b87rfR+Qme4/UZy0j+pS2/Sf2E8eH21M9uSFoat/T5
+         7wrGNK2MWFVP4zzMdaMO4XYIKJoYYJtMIr3W1kuP0rpp2mRuqjR8+JLIsL6xyqqAUZ
+         G0TWMP5SLSnCnBplnoNk/Ub/mPtj19NNJnqV30Ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 039/131] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P2041 i2c controllers
-Date:   Mon, 14 Jun 2021 12:26:40 +0200
-Message-Id: <20210614102654.341322801@linuxfoundation.org>
+        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 03/84] spi: Fix spi device unregister flow
+Date:   Mon, 14 Jun 2021 12:26:41 +0200
+Message-Id: <20210614102646.452248590@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Saravana Kannan <saravanak@google.com>
 
-[ Upstream commit 7adc7b225cddcfd0f346d10144fd7a3d3d9f9ea7 ]
+[ Upstream commit c7299fea67696db5bd09d924d1f1080d894f92ef ]
 
-The i2c controllers on the P2040/P2041 have an erratum where the
-documented scheme for i2c bus recovery will not work (A-004447). A
-different mechanism is needed which is documented in the P2040 Chip
-Errata Rev Q (latest available at the time of writing).
+When an SPI device is unregistered, the spi->controller->cleanup() is
+called in the device's release callback. That's wrong for a couple of
+reasons:
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+1. spi_dev_put() can be called before spi_add_device() is called. And
+   it's spi_add_device() that calls spi_setup(). This will cause clean()
+   to get called without the spi device ever being setup.
+
+2. There's no guarantee that the controller's driver would be present by
+   the time the spi device's release function gets called.
+
+3. It also causes "sleeping in atomic context" stack dump[1] when device
+   link deletion code does a put_device() on the spi device.
+
+Fix these issues by simply moving the cleanup from the device release
+callback to the actual spi_unregister_device() function.
+
+[1] - https://lore.kernel.org/lkml/CAHp75Vc=FCGcUyS0v6fnxme2YJ+qD+Y-hQDQLa2JhWNON9VmsQ@mail.gmail.com/
+
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Link: https://lore.kernel.org/r/20210426235638.1285530-1-saravanak@google.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/p2041si-post.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/spi/spi.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
-index 872e4485dc3f..ddc018d42252 100644
---- a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
-@@ -371,7 +371,23 @@
- 	};
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 7592d4de20c9..c4b80cf825b8 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -47,10 +47,6 @@ static void spidev_release(struct device *dev)
+ {
+ 	struct spi_device	*spi = to_spi_device(dev);
  
- /include/ "qoriq-i2c-0.dtsi"
-+	i2c@118000 {
-+		fsl,i2c-erratum-a004447;
-+	};
+-	/* spi controllers may cleanup for released devices */
+-	if (spi->controller->cleanup)
+-		spi->controller->cleanup(spi);
+-
+ 	spi_controller_put(spi->controller);
+ 	kfree(spi->driver_override);
+ 	kfree(spi);
+@@ -549,6 +545,12 @@ static int spi_dev_check(struct device *dev, void *data)
+ 	return 0;
+ }
+ 
++static void spi_cleanup(struct spi_device *spi)
++{
++	if (spi->controller->cleanup)
++		spi->controller->cleanup(spi);
++}
 +
-+	i2c@118100 {
-+		fsl,i2c-erratum-a004447;
-+	};
+ /**
+  * spi_add_device - Add spi_device allocated with spi_alloc_device
+  * @spi: spi_device to register
+@@ -613,11 +615,13 @@ int spi_add_device(struct spi_device *spi)
+ 
+ 	/* Device may be bound to an active driver when this returns */
+ 	status = device_add(&spi->dev);
+-	if (status < 0)
++	if (status < 0) {
+ 		dev_err(dev, "can't add %s, status %d\n",
+ 				dev_name(&spi->dev), status);
+-	else
++		spi_cleanup(spi);
++	} else {
+ 		dev_dbg(dev, "registered child %s\n", dev_name(&spi->dev));
++	}
+ 
+ done:
+ 	mutex_unlock(&spi_add_lock);
+@@ -704,6 +708,8 @@ void spi_unregister_device(struct spi_device *spi)
+ 	if (!spi)
+ 		return;
+ 
++	spi_cleanup(spi);
 +
- /include/ "qoriq-i2c-1.dtsi"
-+	i2c@119000 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
-+	i2c@119100 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
- /include/ "qoriq-duart-0.dtsi"
- /include/ "qoriq-duart-1.dtsi"
- /include/ "qoriq-gpio-0.dtsi"
+ 	if (spi->dev.of_node) {
+ 		of_node_clear_flag(spi->dev.of_node, OF_POPULATED);
+ 		of_node_put(spi->dev.of_node);
 -- 
 2.30.2
 
