@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD2C13A62B7
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:02:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E9EE3A6410
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232898AbhFNLDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:03:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37752 "EHLO mail.kernel.org"
+        id S232999AbhFNLUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234378AbhFNLBk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:01:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 003C461864;
-        Mon, 14 Jun 2021 10:43:30 +0000 (UTC)
+        id S235594AbhFNLR3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:17:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92C816145C;
+        Mon, 14 Jun 2021 10:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667411;
-        bh=YV5/Yb7PaY3u2uKpCLqzCY3uL8Md7KaRVh0jHHSiMRE=;
+        s=korg; t=1623667828;
+        bh=q5lsxSseMXPptxX91D/RhkUM+cF0PIxk6ati3FM6cKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1SLH8iNX/5D6Dt1L7Dd5ZxeXAIc2trZCyiKv5eEdj6pci5WfDVPC0qha1SB51l383
-         zpBKrCNdtWUz6A7EUCblHi5uzsIB+xrUARdThlJTvBPpUyoDtjqP17emzwt3qGkvVc
-         xfQ5LpxfQW+LjuhMwckcbC1xVJ4zSrxPIQeq9E3M=
+        b=YeuhFUjye4ihn76n/xYeS0DOO8uJZ3cuv9jWJ1TZD9hWQ1h151bbYBKBXk8weVQq3
+         BvI7I7w0hgyMOoGpHKzx/s9WTDis2lhdzNgwUHcO0mB9a2gMNB9XEu3P9cwuy7yg6X
+         jp9FCXpeB+6LbzYGVeEj9KMWdjKSdeQ0epnZNazg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Shchirskyi <oleksandr.shchirskyi@linux.intel.com>,
-        Oleksandr Shchirskyi <oleksandr.shchirskyi@intel.com>,
-        Xiao Ni <xni@redhat.com>, Song Liu <song@kernel.org>
-Subject: [PATCH 5.10 060/131] async_xor: check src_offs is not NULL before updating it
-Date:   Mon, 14 Jun 2021 12:27:01 +0200
-Message-Id: <20210614102655.053157239@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Jack Pham <jackp@codeaurora.org>
+Subject: [PATCH 5.12 090/173] usb: dwc3: gadget: Bail from dwc3_gadget_exit() if dwc->gadget is NULL
+Date:   Mon, 14 Jun 2021 12:27:02 +0200
+Message-Id: <20210614102701.164971744@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +39,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Ni <xni@redhat.com>
+From: Jack Pham <jackp@codeaurora.org>
 
-commit 9be148e408df7d361ec5afd6299b7736ff3928b0 upstream.
+commit 03715ea2e3dbbc56947137ce3b4ac18a726b2f87 upstream.
 
-When PAGE_SIZE is greater than 4kB, multiple stripes may share the same
-page. Thus, src_offs is added to async_xor_offs() with array of offsets.
-However, async_xor() passes NULL src_offs to async_xor_offs(). In such
-case, src_offs should not be updated. Add a check before the update.
+There exists a possible scenario in which dwc3_gadget_init() can fail:
+during during host -> peripheral mode switch in dwc3_set_mode(), and
+a pending gadget driver fails to bind.  Then, if the DRD undergoes
+another mode switch from peripheral->host the resulting
+dwc3_gadget_exit() will attempt to reference an invalid and dangling
+dwc->gadget pointer as well as call dma_free_coherent() on unmapped
+DMA pointers.
 
-Fixes: ceaf2966ab08(async_xor: increase src_offs when dropping destination page)
-Cc: stable@vger.kernel.org # v5.10+
-Reported-by: Oleksandr Shchirskyi <oleksandr.shchirskyi@linux.intel.com>
-Tested-by: Oleksandr Shchirskyi <oleksandr.shchirskyi@intel.com>
-Signed-off-by: Xiao Ni <xni@redhat.com>
-Signed-off-by: Song Liu <song@kernel.org>
+The exact scenario can be reproduced as follows:
+ - Start DWC3 in peripheral mode
+ - Configure ConfigFS gadget with FunctionFS instance (or use g_ffs)
+ - Run FunctionFS userspace application (open EPs, write descriptors, etc)
+ - Bind gadget driver to DWC3's UDC
+ - Switch DWC3 to host mode
+   => dwc3_gadget_exit() is called. usb_del_gadget() will put the
+	ConfigFS driver instance on the gadget_driver_pending_list
+ - Stop FunctionFS application (closes the ep files)
+ - Switch DWC3 to peripheral mode
+   => dwc3_gadget_init() fails as usb_add_gadget() calls
+	check_pending_gadget_drivers() and attempts to rebind the UDC
+	to the ConfigFS gadget but fails with -19 (-ENODEV) because the
+	FFS instance is not in FFS_ACTIVE state (userspace has not
+	re-opened and written the descriptors yet, i.e. desc_ready!=0).
+ - Switch DWC3 back to host mode
+   => dwc3_gadget_exit() is called again, but this time dwc->gadget
+	is invalid.
+
+Although it can be argued that userspace should take responsibility
+for ensuring that the FunctionFS application be ready prior to
+allowing the composite driver bind to the UDC, failure to do so
+should not result in a panic from the kernel driver.
+
+Fix this by setting dwc->gadget to NULL in the failure path of
+dwc3_gadget_init() and add a check to dwc3_gadget_exit() to bail out
+unless the gadget pointer is valid.
+
+Fixes: e81a7018d93a ("usb: dwc3: allocate gadget structure dynamically")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210528160405.17550-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/async_tx/async_xor.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/crypto/async_tx/async_xor.c
-+++ b/crypto/async_tx/async_xor.c
-@@ -233,7 +233,8 @@ async_xor_offs(struct page *dest, unsign
- 		if (submit->flags & ASYNC_TX_XOR_DROP_DST) {
- 			src_cnt--;
- 			src_list++;
--			src_offs++;
-+			if (src_offs)
-+				src_offs++;
- 		}
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -4012,6 +4012,7 @@ err5:
+ 	dwc3_gadget_free_endpoints(dwc);
+ err4:
+ 	usb_put_gadget(dwc->gadget);
++	dwc->gadget = NULL;
+ err3:
+ 	dma_free_coherent(dwc->sysdev, DWC3_BOUNCE_SIZE, dwc->bounce,
+ 			dwc->bounce_addr);
+@@ -4031,6 +4032,9 @@ err0:
  
- 		/* wait for any prerequisite operations */
+ void dwc3_gadget_exit(struct dwc3 *dwc)
+ {
++	if (!dwc->gadget)
++		return;
++
+ 	usb_del_gadget(dwc->gadget);
+ 	dwc3_gadget_free_endpoints(dwc);
+ 	usb_put_gadget(dwc->gadget);
 
 
