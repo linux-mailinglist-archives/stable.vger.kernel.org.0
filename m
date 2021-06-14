@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BCB83A6366
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A79B3A6376
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:11:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234905AbhFNLMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:12:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42876 "EHLO mail.kernel.org"
+        id S235153AbhFNLNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:13:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235678AbhFNLLG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:11:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 615E861950;
-        Mon, 14 Jun 2021 10:47:49 +0000 (UTC)
+        id S234315AbhFNLLU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:11:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3A4F6194B;
+        Mon, 14 Jun 2021 10:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667669;
-        bh=27kYeqCQHC+7oB//+3h8Rl8uVvRD+9U76fLMbkQRlsM=;
+        s=korg; t=1623667672;
+        bh=Dksp/bCgj6burLYfea58pNgbY4OU8wSkl1Iduw4ho3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h0zP0yORCVaAL5XZhOIq2B7GavHfFUbqwKtvNfFEchAsVZBGzCf2IiSbgps7M+GzJ
-         C4j4JuIRKCuloTQJ+OCrjRLrPPE2ReJXhjAZsEMtOSzQAq6fKj6LZPVfok02vUtulK
-         52ycx6GOg/Pag+BIv0SFC2F7R1rnr9FYCPvv11Q4=
+        b=BMmay9w27o2DHeriHffqpEzQWmpHDaBIC07VHCo7sm+9w5n0gBfN/NBQq1yHIZ6YP
+         6Ja2NAg9Eu5O8x6FinvVn+8Rh70BxhSgDoV3KUJOdnRGJAdiUmvIYyEdDAWedLUWYR
+         vzb2XTM9nQNFFXgJSE0xy0y7zJYUziHf8UXwV3SY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 006/173] bpf: Forbid trampoline attach for functions with variable arguments
-Date:   Mon, 14 Jun 2021 12:25:38 +0200
-Message-Id: <20210614102658.369519771@linuxfoundation.org>
+Subject: [PATCH 5.12 007/173] ASoC: codecs: lpass-rx-macro: add missing MODULE_DEVICE_TABLE
+Date:   Mon, 14 Jun 2021 12:25:39 +0200
+Message-Id: <20210614102658.407568975@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -41,60 +41,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 31379397dcc364a59ce764fabb131b645c43e340 ]
+[ Upstream commit d4335d058f8430a0ce2b43dab9531f3a3cf9fe2c ]
 
-We can't currently allow to attach functions with variable arguments.
-The problem is that we should save all the registers for arguments,
-which is probably doable, but if caller uses more than 6 arguments,
-we need stack data, which will be wrong, because of the extra stack
-frame we do in bpf trampoline, so we could crash.
+Fix module loading by adding missing MODULE_DEVICE_TABLE.
 
-Also currently there's malformed trampoline code generated for such
-functions at the moment as described in:
-
-  https://lore.kernel.org/bpf/20210429212834.82621-1-jolsa@kernel.org/
-
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210505132529.401047-1-jolsa@kernel.org
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210510103844.1532-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/btf.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/soc/codecs/lpass-rx-macro.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index b1a76fe046cb..6bd003568fa5 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -5126,6 +5126,12 @@ int btf_distill_func_proto(struct bpf_verifier_log *log,
- 	m->ret_size = ret;
+diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
+index 7878da89d8e0..b7b9c891e2f0 100644
+--- a/sound/soc/codecs/lpass-rx-macro.c
++++ b/sound/soc/codecs/lpass-rx-macro.c
+@@ -3581,6 +3581,7 @@ static const struct of_device_id rx_macro_dt_match[] = {
+ 	{ .compatible = "qcom,sm8250-lpass-rx-macro" },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(of, rx_macro_dt_match);
  
- 	for (i = 0; i < nargs; i++) {
-+		if (i == nargs - 1 && args[i].type == 0) {
-+			bpf_log(log,
-+				"The function %s with variable args is unsupported.\n",
-+				tname);
-+			return -EINVAL;
-+		}
- 		ret = __get_type_size(btf, args[i].type, &t);
- 		if (ret < 0) {
- 			bpf_log(log,
-@@ -5133,6 +5139,12 @@ int btf_distill_func_proto(struct bpf_verifier_log *log,
- 				tname, i, btf_kind_str[BTF_INFO_KIND(t->info)]);
- 			return -EINVAL;
- 		}
-+		if (ret == 0) {
-+			bpf_log(log,
-+				"The function %s has malformed void argument.\n",
-+				tname);
-+			return -EINVAL;
-+		}
- 		m->arg_size[i] = ret;
- 	}
- 	m->nr_args = nargs;
+ static struct platform_driver rx_macro_driver = {
+ 	.driver = {
 -- 
 2.30.2
 
