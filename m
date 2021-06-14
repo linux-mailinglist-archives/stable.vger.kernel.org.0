@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E51E3A6227
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:54:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1118F3A618B
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233943AbhFNK4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:56:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58052 "EHLO mail.kernel.org"
+        id S233922AbhFNKsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:48:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234752AbhFNKyX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:54:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00CDF6141F;
-        Mon, 14 Jun 2021 10:40:13 +0000 (UTC)
+        id S232892AbhFNKqm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:46:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C78D0610CD;
+        Mon, 14 Jun 2021 10:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667214;
-        bh=uvb9N/2hPXHV8nmQ1W7POaQTnZLhajVXn9x2a6V3QEY=;
+        s=korg; t=1623667027;
+        bh=ATYZqRrsRPfehS+o/jS6KNB3jqIPcn7jKi6aPZDxvIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/kYwPm3Lr1S3XR3mqZCOgaqjbOpaiZmm5drMrfAU73YgHKsKfqtBHOZ3GlHC4Kad
-         OInNcwNZJ1zHDFbYBqLpjXjcsBKriHOBmDRmhXiC+5jdyT6R95nK2WEUI7GZgEiRz2
-         Tx/PGxMcZQ8VnKNnis5JSMPwc1oMSIUwDtrUpnUw=
+        b=KVCPMWEftrPRZBz5DjTeRc8GiYrRnIWrAaWHM8T6ncm6sfzqd+q2Kgnt6N4OwoABX
+         mSmzijZzVQ161e0L4R8+ivXtE4CwR6jeF1+AijqSoPawGtkR6zNtUdSNfdJId3BRXO
+         1zn7xEAoSWcOW/Tw03Nds4wCCXLT9qFB943wAtRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alaa Hleihel <alaa@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.4 71/84] IB/mlx5: Fix initializing CQ fragments buffer
-Date:   Mon, 14 Jun 2021 12:27:49 +0200
-Message-Id: <20210614102648.771326203@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Xunlei Pang <xlpang@linux.alibaba.com>,
+        yinbinbin <yinbinbin@alibabacloud.com>,
+        Wetp Zhang <wetp.zy@linux.alibaba.com>,
+        James Wang <jnwang@linux.alibaba.com>,
+        Liangyan <liangyan.peng@linux.alibaba.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 67/67] tracing: Correct the length check which causes memory corruption
+Date:   Mon, 14 Jun 2021 12:27:50 +0200
+Message-Id: <20210614102646.035773202@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,79 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Hleihel <alaa@nvidia.com>
+From: Liangyan <liangyan.peng@linux.alibaba.com>
 
-commit 2ba0aa2feebda680ecfc3c552e867cf4d1b05a3a upstream.
+commit 3e08a9f9760f4a70d633c328a76408e62d6f80a3 upstream.
 
-The function init_cq_frag_buf() can be called to initialize the current CQ
-fragments buffer cq->buf, or the temporary cq->resize_buf that is filled
-during CQ resize operation.
+We've suffered from severe kernel crashes due to memory corruption on
+our production environment, like,
 
-However, the offending commit started to use function get_cqe() for
-getting the CQEs, the issue with this change is that get_cqe() always
-returns CQEs from cq->buf, which leads us to initialize the wrong buffer,
-and in case of enlarging the CQ we try to access elements beyond the size
-of the current cq->buf and eventually hit a kernel panic.
+Call Trace:
+[1640542.554277] general protection fault: 0000 [#1] SMP PTI
+[1640542.554856] CPU: 17 PID: 26996 Comm: python Kdump: loaded Tainted:G
+[1640542.556629] RIP: 0010:kmem_cache_alloc+0x90/0x190
+[1640542.559074] RSP: 0018:ffffb16faa597df8 EFLAGS: 00010286
+[1640542.559587] RAX: 0000000000000000 RBX: 0000000000400200 RCX:
+0000000006e931bf
+[1640542.560323] RDX: 0000000006e931be RSI: 0000000000400200 RDI:
+ffff9a45ff004300
+[1640542.560996] RBP: 0000000000400200 R08: 0000000000023420 R09:
+0000000000000000
+[1640542.561670] R10: 0000000000000000 R11: 0000000000000000 R12:
+ffffffff9a20608d
+[1640542.562366] R13: ffff9a45ff004300 R14: ffff9a45ff004300 R15:
+696c662f65636976
+[1640542.563128] FS:  00007f45d7c6f740(0000) GS:ffff9a45ff840000(0000)
+knlGS:0000000000000000
+[1640542.563937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[1640542.564557] CR2: 00007f45d71311a0 CR3: 000000189d63e004 CR4:
+00000000003606e0
+[1640542.565279] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+0000000000000000
+[1640542.566069] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
+0000000000000400
+[1640542.566742] Call Trace:
+[1640542.567009]  anon_vma_clone+0x5d/0x170
+[1640542.567417]  __split_vma+0x91/0x1a0
+[1640542.567777]  do_munmap+0x2c6/0x320
+[1640542.568128]  vm_munmap+0x54/0x70
+[1640542.569990]  __x64_sys_munmap+0x22/0x30
+[1640542.572005]  do_syscall_64+0x5b/0x1b0
+[1640542.573724]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[1640542.575642] RIP: 0033:0x7f45d6e61e27
 
- [exception RIP: init_cq_frag_buf+103]
-  [ffff9f799ddcbcd8] mlx5_ib_resize_cq at ffffffffc0835d60 [mlx5_ib]
-  [ffff9f799ddcbdb0] ib_resize_cq at ffffffffc05270df [ib_core]
-  [ffff9f799ddcbdc0] llt_rdma_setup_qp at ffffffffc0a6a712 [llt]
-  [ffff9f799ddcbe10] llt_rdma_cc_event_action at ffffffffc0a6b411 [llt]
-  [ffff9f799ddcbe98] llt_rdma_client_conn_thread at ffffffffc0a6bb75 [llt]
-  [ffff9f799ddcbec8] kthread at ffffffffa66c5da1
-  [ffff9f799ddcbf50] ret_from_fork_nospec_begin at ffffffffa6d95ddd
+James Wang has reproduced it stably on the latest 4.19 LTS.
+After some debugging, we finally proved that it's due to ftrace
+buffer out-of-bound access using a debug tool as follows:
+[   86.775200] BUG: Out-of-bounds write at addr 0xffff88aefe8b7000
+[   86.780806]  no_context+0xdf/0x3c0
+[   86.784327]  __do_page_fault+0x252/0x470
+[   86.788367]  do_page_fault+0x32/0x140
+[   86.792145]  page_fault+0x1e/0x30
+[   86.795576]  strncpy_from_unsafe+0x66/0xb0
+[   86.799789]  fetch_memory_string+0x25/0x40
+[   86.804002]  fetch_deref_string+0x51/0x60
+[   86.808134]  kprobe_trace_func+0x32d/0x3a0
+[   86.812347]  kprobe_dispatcher+0x45/0x50
+[   86.816385]  kprobe_ftrace_handler+0x90/0xf0
+[   86.820779]  ftrace_ops_assist_func+0xa1/0x140
+[   86.825340]  0xffffffffc00750bf
+[   86.828603]  do_sys_open+0x5/0x1f0
+[   86.832124]  do_syscall_64+0x5b/0x1b0
+[   86.835900]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fix it by getting the needed CQE by calling mlx5_frag_buf_get_wqe() that
-takes the correct source buffer as a parameter.
+commit b220c049d519 ("tracing: Check length before giving out
+the filter buffer") adds length check to protect trace data
+overflow introduced in 0fc1b09ff1ff, seems that this fix can't prevent
+overflow entirely, the length check should also take the sizeof
+entry->array[0] into account, since this array[0] is filled the
+length of trace data and occupy addtional space and risk overflow.
 
-Fixes: 388ca8be0037 ("IB/mlx5: Implement fragmented completion queue (CQ)")
-Link: https://lore.kernel.org/r/90a0e8c924093cfa50a482880ad7e7edb73dc19a.1623309971.git.leonro@nvidia.com
-Signed-off-by: Alaa Hleihel <alaa@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lkml.kernel.org/r/20210607125734.1770447-1-liangyan.peng@linux.alibaba.com
+
+Cc: stable@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Xunlei Pang <xlpang@linux.alibaba.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b220c049d519 ("tracing: Check length before giving out the filter buffer")
+Reviewed-by: Xunlei Pang <xlpang@linux.alibaba.com>
+Reviewed-by: yinbinbin <yinbinbin@alibabacloud.com>
+Reviewed-by: Wetp Zhang <wetp.zy@linux.alibaba.com>
+Tested-by: James Wang <jnwang@linux.alibaba.com>
+Signed-off-by: Liangyan <liangyan.peng@linux.alibaba.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/cq.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ kernel/trace/trace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/mlx5/cq.c
-+++ b/drivers/infiniband/hw/mlx5/cq.c
-@@ -829,15 +829,14 @@ static void destroy_cq_user(struct mlx5_
- 	ib_umem_release(cq->buf.umem);
- }
- 
--static void init_cq_frag_buf(struct mlx5_ib_cq *cq,
--			     struct mlx5_ib_cq_buf *buf)
-+static void init_cq_frag_buf(struct mlx5_ib_cq_buf *buf)
- {
- 	int i;
- 	void *cqe;
- 	struct mlx5_cqe64 *cqe64;
- 
- 	for (i = 0; i < buf->nent; i++) {
--		cqe = get_cqe(cq, i);
-+		cqe = mlx5_frag_buf_get_wqe(&buf->fbc, i);
- 		cqe64 = buf->cqe_size == 64 ? cqe : cqe + 64;
- 		cqe64->op_own = MLX5_CQE_INVALID << 4;
- 	}
-@@ -863,7 +862,7 @@ static int create_cq_kernel(struct mlx5_
- 	if (err)
- 		goto err_db;
- 
--	init_cq_frag_buf(cq, &cq->buf);
-+	init_cq_frag_buf(&cq->buf);
- 
- 	*inlen = MLX5_ST_SZ_BYTES(create_cq_in) +
- 		 MLX5_FLD_SZ_BYTES(create_cq_in, pas[0]) *
-@@ -1163,7 +1162,7 @@ static int resize_kernel(struct mlx5_ib_
- 	if (err)
- 		goto ex;
- 
--	init_cq_frag_buf(cq, cq->resize_buf);
-+	init_cq_frag_buf(cq->resize_buf);
- 
- 	return 0;
- 
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2281,7 +2281,7 @@ trace_event_buffer_lock_reserve(struct r
+ 	    (entry = this_cpu_read(trace_buffered_event))) {
+ 		/* Try to use the per cpu buffer first */
+ 		val = this_cpu_inc_return(trace_buffered_event_cnt);
+-		if ((len < (PAGE_SIZE - sizeof(*entry))) && val == 1) {
++		if ((len < (PAGE_SIZE - sizeof(*entry) - sizeof(entry->array[0]))) && val == 1) {
+ 			trace_event_setup(entry, type, flags, pc);
+ 			entry->array[0] = len;
+ 			return entry;
 
 
