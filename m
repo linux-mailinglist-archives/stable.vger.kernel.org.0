@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B9E3A6079
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 596713A60D4
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233280AbhFNKfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:35:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40206 "EHLO mail.kernel.org"
+        id S233219AbhFNKiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:38:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233284AbhFNKdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8827261244;
-        Mon, 14 Jun 2021 10:31:14 +0000 (UTC)
+        id S233613AbhFNKgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:36:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B1A3611C1;
+        Mon, 14 Jun 2021 10:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666675;
-        bh=7P8EsJh8qLdqkjWHvgkVR97WWApO6HK8ZHQQN7jUtY0=;
+        s=korg; t=1623666785;
+        bh=a3FK9UDXjjavE0Rd+YnPxUmCeg7rAl3DHAPTtV5WDeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aYPbQC/3HLglt+Ax/9UOmkL4ShyCGC2nXz61i4BpOOHutL6JJ8UJU214rZmwyseBP
-         q7QolY5aqIqtLS7U5cdh5SFx4HRv4cg9Jkjw46n0ftaLRcNNXS0zdzat6bcAnoGt+K
-         f9feX8BgI3esalHwMBSBxlt90xddDMlaLmAi0A0s=
+        b=140X9gdrGSrcb9iGzbK0OyWFQ6BbGrO9APclZi5meXwYPdLGYSw7MbuCg7whqer7s
+         hAasuFf86dzlzKUr8bNP51f8j46t7co0jGYQPyH1pg7egUV4KsS9MXDpQxrk5W0E72
+         jlg4YH3h+BWKA+kjLkeIbD7Cpq5wEk7BGx9dz8FE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linyu Yuan <linyyuan@codeaurora.com>
-Subject: [PATCH 4.9 30/42] usb: gadget: eem: fix wrong eem header operation
-Date:   Mon, 14 Jun 2021 12:27:21 +0200
-Message-Id: <20210614102643.663581273@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Mayank Rana <mrana@codeaurora.org>,
+        Jack Pham <jackp@codeaurora.org>
+Subject: [PATCH 4.14 29/49] usb: typec: ucsi: Clear PPM capability data in ucsi_init() error path
+Date:   Mon, 14 Jun 2021 12:27:22 +0200
+Message-Id: <20210614102642.822191363@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,41 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linyu Yuan <linyyuan@codeaurora.com>
+From: Mayank Rana <mrana@codeaurora.org>
 
-commit 305f670846a31a261462577dd0b967c4fa796871 upstream.
+commit f247f0a82a4f8c3bfed178d8fd9e069d1424ee4e upstream.
 
-when skb_clone() or skb_copy_expand() fail,
-it should pull skb with lengh indicated by header,
-or not it will read network data and check it as header.
+If ucsi_init() fails for some reason (e.g. ucsi_register_port()
+fails or general communication failure to the PPM), particularly at
+any point after the GET_CAPABILITY command had been issued, this
+results in unwinding the initialization and returning an error.
+However the ucsi structure's ucsi_capability member retains its
+current value, including likely a non-zero num_connectors.
+And because ucsi_init() itself is done in a workqueue a UCSI
+interface driver will be unaware that it failed and may think the
+ucsi_register() call was completely successful.  Later, if
+ucsi_unregister() is called, due to this stale ucsi->cap value it
+would try to access the items in the ucsi->connector array which
+might not be in a proper state or not even allocated at all and
+results in NULL or invalid pointer dereference.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Linyu Yuan <linyyuan@codeaurora.com>
-Link: https://lore.kernel.org/r/20210608233547.3767-1-linyyuan@codeaurora.org
+Fix this by clearing the ucsi->cap value to 0 during the error
+path of ucsi_init() in order to prevent a later ucsi_unregister()
+from entering the connector cleanup loop.
+
+Fixes: c1b0bc2dabfa ("usb: typec: Add support for UCSI interface")
+Cc: stable@vger.kernel.org
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Mayank Rana <mrana@codeaurora.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210609073535.5094-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_eem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/typec/ucsi/ucsi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/gadget/function/f_eem.c
-+++ b/drivers/usb/gadget/function/f_eem.c
-@@ -502,7 +502,7 @@ static int eem_unwrap(struct gether *por
- 			skb2 = skb_clone(skb, GFP_ATOMIC);
- 			if (unlikely(!skb2)) {
- 				DBG(cdev, "unable to unframe EEM packet\n");
--				continue;
-+				goto next;
- 			}
- 			skb_trim(skb2, len - ETH_FCS_LEN);
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -724,6 +724,7 @@ err_unregister:
+ 	}
  
-@@ -513,7 +513,7 @@ static int eem_unwrap(struct gether *por
- 			if (unlikely(!skb3)) {
- 				DBG(cdev, "unable to realign EEM packet\n");
- 				dev_kfree_skb_any(skb2);
--				continue;
-+				goto next;
- 			}
- 			dev_kfree_skb_any(skb2);
- 			skb_queue_tail(list, skb3);
+ err_reset:
++	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
+ 	ucsi_reset_ppm(ucsi);
+ err:
+ 	mutex_unlock(&ucsi->ppm_lock);
 
 
