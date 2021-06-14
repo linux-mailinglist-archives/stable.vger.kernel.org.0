@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 913EB3A6291
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E71D3A628E
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233653AbhFNLBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:01:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36242 "EHLO mail.kernel.org"
+        id S234204AbhFNLBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:01:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235135AbhFNLAK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:00:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B07C061436;
-        Mon, 14 Jun 2021 10:42:43 +0000 (UTC)
+        id S235111AbhFNLAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:00:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FB7461435;
+        Mon, 14 Jun 2021 10:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667364;
-        bh=FNHdvV5gRfdkfTmM6T5k/QAZ8L1tj0CITsaPmdGBSVg=;
+        s=korg; t=1623667367;
+        bh=uNmQHtF4vciy2TE01Oie6xixhd9Gj6s9B0Qvc/6zMpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPI19vPNA556nMluWv3ZVyXxYPR45DuTtdbPFQPAQK00dL56IEy6jybzqudWdvMzs
-         1lZGT5P2Et8F2gINfopbNJ23sapCbRpyvrg29qbao5J5uqQqqgCE2ixzWvi8PAs4iR
-         +9k4ikpbtxN7ufWb3xD/DSvXbHU265bU3RLBp3xA=
+        b=VJvkcSK/+Du3b+kIHDPDTwZPhToxTY8CZverxznuIm8qbGddvUBuRRBJYBrsa7zly
+         svG5bb6x05Tobb00sOIwEIHcIE2b8zw/qRO/NNHlthx8OBDfPFpiVLdinVXPkRkPam
+         OKdLKm3y1Eavpyo3goOY+yQuulr5x1RNCTV5/B6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Peter Chen <peter.chen@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 008/131] usb: cdns3: Fix runtime PM imbalance on error
-Date:   Mon, 14 Jun 2021 12:26:09 +0200
-Message-Id: <20210614102653.259267236@linuxfoundation.org>
+Subject: [PATCH 5.10 009/131] ASoC: Intel: bytcr_rt5640: Add quirk for the Glavey TM800A550L tablet
+Date:   Mon, 14 Jun 2021 12:26:10 +0200
+Message-Id: <20210614102653.297818535@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -40,37 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 07adc0225484fc199e3dc15ec889f75f498c4fca ]
+[ Upstream commit 28c268d3acdd4cbcd2ac320b85609e77f84e74a7 ]
 
-When cdns3_gadget_start() fails, a pairing PM usage counter
-decrement is needed to keep the counter balanced.
+Add a quirk for the Glavey TM800A550L tablet, this BYTCR tablet has no CHAN
+package in its ACPI tables and uses SSP0-AIF1 rather then SSP0-AIF2 which
+is the default for BYTCR devices.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20210412054908.7975-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210508150146.28403-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/gadget.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
-index 0aa85cc07ff1..c24c0e3440e3 100644
---- a/drivers/usb/cdns3/gadget.c
-+++ b/drivers/usb/cdns3/gadget.c
-@@ -3255,8 +3255,10 @@ static int __cdns3_gadget_init(struct cdns3 *cdns)
- 	pm_runtime_get_sync(cdns->dev);
- 
- 	ret = cdns3_gadget_start(cdns);
--	if (ret)
-+	if (ret) {
-+		pm_runtime_put_sync(cdns->dev);
- 		return ret;
-+	}
- 
- 	/*
- 	 * Because interrupt line can be shared with other components in
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 1ef0464249d1..d5c905b00685 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -570,6 +570,17 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_SSP0_AIF1 |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{	/* Glavey TM800A550L */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
++			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
++			/* Above strings are too generic, also match on BIOS version */
++			DMI_MATCH(DMI_BIOS_VERSION, "ZY-8-BI-PX4S70VTR400-X423B-005-D"),
++		},
++		.driver_data = (void *)(BYTCR_INPUT_DEFAULTS |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
 -- 
 2.30.2
 
