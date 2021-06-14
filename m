@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 752733A6391
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E51E63A62AF
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232940AbhFNLPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:15:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41710 "EHLO mail.kernel.org"
+        id S233593AbhFNLDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:03:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234720AbhFNLMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:12:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85CFD6145A;
-        Mon, 14 Jun 2021 10:48:19 +0000 (UTC)
+        id S235309AbhFNLAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:00:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE6576162B;
+        Mon, 14 Jun 2021 10:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667700;
-        bh=KQj6+Mec5t1lduI9hVJiOB+XDnYJwpycELEWfMg/2Js=;
+        s=korg; t=1623667376;
+        bh=2lVh5NkMWKcDdgRJf5gWZI/lLSeNE7nfG/pCe+/EixQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oL62cGoJxEEe+Qu/xUchH5CSXr1jtEzQ8eVHPm+6vHC1llQF1jtowqp/znzzAlho8
-         7EMdCybYhG48HOema7qSe9Qaq8adm+g61KiUsaApShAaaDWh4P4Ynytk+4Qis+H3Dq
-         oyVkdhDPy4z5odA85l84uo5S+x0sYQIXATgM7s3g=
+        b=LYJisTYOmn9LSxn2f3qD6XdhFuweMXEsup+5znoEsuTgI8gfiu0VuRGRJHwWRRURQ
+         EWOvPyfIwfJvqlB7NWE8JyYTcN+nvmMpD2FOLe2xxvXTtMsRUQwOCGa89DI/s54Ilu
+         ZeVq8YEwui/Y5guLn3rXXoy56PXvq+07jmJxdVaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 041/173] nvme-tcp: remove incorrect Kconfig dep in BLK_DEV_NVME
-Date:   Mon, 14 Jun 2021 12:26:13 +0200
-Message-Id: <20210614102659.537376169@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 013/131] vfio-ccw: Serialize FSM IDLE state with I/O completion
+Date:   Mon, 14 Jun 2021 12:26:14 +0200
+Message-Id: <20210614102653.435515035@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Eric Farman <farman@linux.ibm.com>
 
-[ Upstream commit 042a3eaad6daeabcfaf163aa44da8ea3cf8b5496 ]
+[ Upstream commit 2af7a834a435460d546f0cf0a8b8e4d259f1d910 ]
 
-We need to select NVME_CORE.
+Today, the stacked call to vfio_ccw_sch_io_todo() does three things:
 
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+  1) Update a solicited IRB with CP information, and release the CP
+     if the interrupt was the end of a START operation.
+  2) Copy the IRB data into the io_region, under the protection of
+     the io_mutex
+  3) Reset the vfio-ccw FSM state to IDLE to acknowledge that
+     vfio-ccw can accept more work.
+
+The trouble is that step 3 is (A) invoked for both solicited and
+unsolicited interrupts, and (B) sitting after the mutex for step 2.
+This second piece becomes a problem if it processes an interrupt
+for a CLEAR SUBCHANNEL while another thread initiates a START,
+thus allowing the CP and FSM states to get out of sync. That is:
+
+    CPU 1                           CPU 2
+    fsm_do_clear()
+    fsm_irq()
+                                    fsm_io_request()
+    vfio_ccw_sch_io_todo()
+                                    fsm_io_helper()
+
+Since the FSM state and CP should be kept in sync, let's make a
+note when the CP is released, and rely on that as an indication
+that the FSM should also be reset at the end of this routine and
+open up the device for more work.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Acked-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20210511195631.3995081-4-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/Kconfig b/drivers/nvme/host/Kconfig
-index a44d49d63968..494675aeaaad 100644
---- a/drivers/nvme/host/Kconfig
-+++ b/drivers/nvme/host/Kconfig
-@@ -71,7 +71,8 @@ config NVME_FC
- config NVME_TCP
- 	tristate "NVM Express over Fabrics TCP host driver"
- 	depends on INET
--	depends on BLK_DEV_NVME
-+	depends on BLOCK
-+	select NVME_CORE
- 	select NVME_FABRICS
- 	select CRYPTO
- 	select CRYPTO_CRC32C
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 8c625b530035..9b61e9b131ad 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -86,6 +86,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 	struct vfio_ccw_private *private;
+ 	struct irb *irb;
+ 	bool is_final;
++	bool cp_is_finished = false;
+ 
+ 	private = container_of(work, struct vfio_ccw_private, io_work);
+ 	irb = &private->irb;
+@@ -94,14 +95,21 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+ 	if (scsw_is_solicited(&irb->scsw)) {
+ 		cp_update_scsw(&private->cp, &irb->scsw);
+-		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
++		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING) {
+ 			cp_free(&private->cp);
++			cp_is_finished = true;
++		}
+ 	}
+ 	mutex_lock(&private->io_mutex);
+ 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+ 	mutex_unlock(&private->io_mutex);
+ 
+-	if (private->mdev && is_final)
++	/*
++	 * Reset to IDLE only if processing of a channel program
++	 * has finished. Do not overwrite a possible processing
++	 * state if the final interrupt was for HSCH or CSCH.
++	 */
++	if (private->mdev && cp_is_finished)
+ 		private->state = VFIO_CCW_STATE_IDLE;
+ 
+ 	if (private->io_trigger)
 -- 
 2.30.2
 
