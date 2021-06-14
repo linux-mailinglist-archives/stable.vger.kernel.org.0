@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8992B3A6010
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 781663A6018
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232876AbhFNKbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:31:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37504 "EHLO mail.kernel.org"
+        id S232786AbhFNKb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:31:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232868AbhFNKbG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:31:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65F30611C1;
-        Mon, 14 Jun 2021 10:28:47 +0000 (UTC)
+        id S232891AbhFNKbQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:31:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6086120E;
+        Mon, 14 Jun 2021 10:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666528;
-        bh=xAu6IeufdyirXUfJdU9QGi4qi+C5ycFaQoyNAW7BKWw=;
+        s=korg; t=1623666554;
+        bh=2NVq7XYzDTyqtrhj14PtMlCHTHI8xeDSUJOP8zruYow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WDHc5Ax79WJTdLkmXCQKu4Uim5b0JVn/kYm1fh97Q7uetjTFeRCsGWpLS+q3/sTL
-         xcQfAqscg1FOj2R+cVdeuQlxdpmoR1B1c33izTvs3s1Za3p5+QRFkhchkUgKoadoJg
-         b7oZ5CAOIBFaZxX16LyUYBzMY9Q7/BHBTz8CIJKI=
+        b=kGkuQGTY/1D3FBPOfQHiFBf8xqeLvQkvrA1pBpgjahy1rC552N3NRGF5tjFRh2rIA
+         0G5ZLhhdJN6XeVXFCzjxdtkcpBj4Qm4SuXWJEpcIrZ8VG//EWy4EOc2mv4PZB/JKcb
+         cC4gM9rDv8o3SuWGVJBI7SXWpAARZ2sYxrrgVUWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zong Li <zong.li@sifive.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 11/34] net: macb: ensure the device is available before accessing GEMGXL control registers
-Date:   Mon, 14 Jun 2021 12:27:02 +0200
-Message-Id: <20210614102641.956618743@linuxfoundation.org>
+Subject: [PATCH 4.4 13/34] MIPS: Fix kernel hang under FUNCTION_GRAPH_TRACER and PREEMPT_TRACER
+Date:   Mon, 14 Jun 2021 12:27:04 +0200
+Message-Id: <20210614102642.017304542@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102641.582612289@linuxfoundation.org>
 References: <20210614102641.582612289@linuxfoundation.org>
@@ -40,43 +41,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zong Li <zong.li@sifive.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 5eff1461a6dec84f04fafa9128548bad51d96147 ]
+[ Upstream commit 78cf0eb926cb1abeff2106bae67752e032fe5f3e ]
 
-If runtime power menagement is enabled, the gigabit ethernet PLL would
-be disabled after macb_probe(). During this period of time, the system
-would hang up if we try to access GEMGXL control registers.
+When update the latest mainline kernel with the following three configs,
+the kernel hangs during startup:
 
-We can't put runtime_pm_get/runtime_pm_put/ there due to the issue of
-sleep inside atomic section (7fa2955ff70ce453 ("sh_eth: Fix sleeping
-function called from invalid context"). Add netif_running checking to
-ensure the device is available before accessing GEMGXL device.
+(1) CONFIG_FUNCTION_GRAPH_TRACER=y
+(2) CONFIG_PREEMPT_TRACER=y
+(3) CONFIG_FTRACE_STARTUP_TEST=y
 
-Changed in v2:
- - Use netif_running instead of its own flag
+When update the latest mainline kernel with the above two configs (1)
+and (2), the kernel starts normally, but it still hangs when execute
+the following command:
 
-Signed-off-by: Zong Li <zong.li@sifive.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+echo "function_graph" > /sys/kernel/debug/tracing/current_tracer
+
+Without CONFIG_PREEMPT_TRACER=y, the above two kinds of kernel hangs
+disappeared, so it seems that CONFIG_PREEMPT_TRACER has some influences
+with function_graph tracer at the first glance.
+
+I use ejtag to find out the epc address is related with preempt_enable()
+in the file arch/mips/lib/mips-atomic.c, because function tracing can
+trace the preempt_{enable,disable} calls that are traced, replace them
+with preempt_{enable,disable}_notrace to prevent function tracing from
+going into an infinite loop, and then it can fix the kernel hang issue.
+
+By the way, it seems that this commit is a complement and improvement of
+commit f93a1a00f2bd ("MIPS: Fix crash that occurs when function tracing
+is enabled").
+
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/lib/mips-atomic.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb.c b/drivers/net/ethernet/cadence/macb.c
-index 78803e7de360..d1cdb8540e12 100644
---- a/drivers/net/ethernet/cadence/macb.c
-+++ b/drivers/net/ethernet/cadence/macb.c
-@@ -1955,6 +1955,9 @@ static struct net_device_stats *gem_get_stats(struct macb *bp)
- 	struct gem_stats *hwstat = &bp->hw_stats.gem;
- 	struct net_device_stats *nstat = &bp->stats;
+diff --git a/arch/mips/lib/mips-atomic.c b/arch/mips/lib/mips-atomic.c
+index 272af8ac2425..fd50aa7b178a 100644
+--- a/arch/mips/lib/mips-atomic.c
++++ b/arch/mips/lib/mips-atomic.c
+@@ -37,7 +37,7 @@
+  */
+ notrace void arch_local_irq_disable(void)
+ {
+-	preempt_disable();
++	preempt_disable_notrace();
  
-+	if (!netif_running(bp->dev))
-+		return nstat;
-+
- 	gem_update_stats(bp);
+ 	__asm__ __volatile__(
+ 	"	.set	push						\n"
+@@ -53,7 +53,7 @@ notrace void arch_local_irq_disable(void)
+ 	: /* no inputs */
+ 	: "memory");
  
- 	nstat->rx_errors = (hwstat->rx_frame_check_sequence_errors +
+-	preempt_enable();
++	preempt_enable_notrace();
+ }
+ EXPORT_SYMBOL(arch_local_irq_disable);
+ 
+@@ -62,7 +62,7 @@ notrace unsigned long arch_local_irq_save(void)
+ {
+ 	unsigned long flags;
+ 
+-	preempt_disable();
++	preempt_disable_notrace();
+ 
+ 	__asm__ __volatile__(
+ 	"	.set	push						\n"
+@@ -79,7 +79,7 @@ notrace unsigned long arch_local_irq_save(void)
+ 	: /* no inputs */
+ 	: "memory");
+ 
+-	preempt_enable();
++	preempt_enable_notrace();
+ 
+ 	return flags;
+ }
+@@ -89,7 +89,7 @@ notrace void arch_local_irq_restore(unsigned long flags)
+ {
+ 	unsigned long __tmp1;
+ 
+-	preempt_disable();
++	preempt_disable_notrace();
+ 
+ 	__asm__ __volatile__(
+ 	"	.set	push						\n"
+@@ -107,7 +107,7 @@ notrace void arch_local_irq_restore(unsigned long flags)
+ 	: "0" (flags)
+ 	: "memory");
+ 
+-	preempt_enable();
++	preempt_enable_notrace();
+ }
+ EXPORT_SYMBOL(arch_local_irq_restore);
+ 
 -- 
 2.30.2
 
