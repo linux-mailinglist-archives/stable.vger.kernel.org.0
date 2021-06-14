@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 991763A618A
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D2A3A61F7
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233746AbhFNKsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50672 "EHLO mail.kernel.org"
+        id S234426AbhFNKxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:53:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233748AbhFNKqk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:46:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D11E61451;
-        Mon, 14 Jun 2021 10:37:04 +0000 (UTC)
+        id S234424AbhFNKvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:51:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 915F66146E;
+        Mon, 14 Jun 2021 10:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667024;
-        bh=iOjI+OXJcGrifEBSoUpsLsFOs+/ZJtgNDKfWcJKMzR4=;
+        s=korg; t=1623667149;
+        bh=cTOr5BKLFZnjZ6O2LC97hXpgWV48LVNwOUD4YxPtSDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XymKILlMNDM0cDkoGSozzJG0qmSsM3Ojlw82nVfLkG6CUDQ1SRVImdbCQgCTeDh9q
-         r6BlKvFWleoceTc2MUYiMnbrZAr5V09S4TB5MMrlY2I6nZDwa3ErGGFuf17r+AICzI
-         3zzUzFdXmoY+PuZJ/67Co/W8cuM14RbOEphNWWBI=
+        b=t3pgKEAgqVnrn9KyQYsTs6FZAXaKNDaUBGzI8mEl4/f84FTT0yVCAaZW3e8rQyFtY
+         jBPLmemdyssX16fYTKcwKgFBLaZNGKHMUZPedeh1GQGk4YIWoBzMwFd2DCX2M71SEB
+         uIfpFeosm7tU1vDA8c60ipffNPJLAggQ9JnJlobw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Mayank Rana <mrana@codeaurora.org>,
-        Jack Pham <jackp@codeaurora.org>
-Subject: [PATCH 4.19 40/67] usb: typec: ucsi: Clear PPM capability data in ucsi_init() error path
+        stable@vger.kernel.org, Alexander Kuznetsov <wwfq@yandex-team.ru>,
+        Andrey Krasichkov <buglloc@yandex-team.ru>,
+        Dmitry Yakunin <zeil@yandex-team.ru>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.4 45/84] cgroup1: dont allow \n in renaming
 Date:   Mon, 14 Jun 2021 12:27:23 +0200
-Message-Id: <20210614102645.136124651@linuxfoundation.org>
+Message-Id: <20210614102647.910673817@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mayank Rana <mrana@codeaurora.org>
+From: Alexander Kuznetsov <wwfq@yandex-team.ru>
 
-commit f247f0a82a4f8c3bfed178d8fd9e069d1424ee4e upstream.
+commit b7e24eb1caa5f8da20d405d262dba67943aedc42 upstream.
 
-If ucsi_init() fails for some reason (e.g. ucsi_register_port()
-fails or general communication failure to the PPM), particularly at
-any point after the GET_CAPABILITY command had been issued, this
-results in unwinding the initialization and returning an error.
-However the ucsi structure's ucsi_capability member retains its
-current value, including likely a non-zero num_connectors.
-And because ucsi_init() itself is done in a workqueue a UCSI
-interface driver will be unaware that it failed and may think the
-ucsi_register() call was completely successful.  Later, if
-ucsi_unregister() is called, due to this stale ucsi->cap value it
-would try to access the items in the ucsi->connector array which
-might not be in a proper state or not even allocated at all and
-results in NULL or invalid pointer dereference.
+cgroup_mkdir() have restriction on newline usage in names:
+$ mkdir $'/sys/fs/cgroup/cpu/test\ntest2'
+mkdir: cannot create directory
+'/sys/fs/cgroup/cpu/test\ntest2': Invalid argument
 
-Fix this by clearing the ucsi->cap value to 0 during the error
-path of ucsi_init() in order to prevent a later ucsi_unregister()
-from entering the connector cleanup loop.
+But in cgroup1_rename() such check is missed.
+This allows us to make /proc/<pid>/cgroup unparsable:
+$ mkdir /sys/fs/cgroup/cpu/test
+$ mv /sys/fs/cgroup/cpu/test $'/sys/fs/cgroup/cpu/test\ntest2'
+$ echo $$ > $'/sys/fs/cgroup/cpu/test\ntest2'
+$ cat /proc/self/cgroup
+11:pids:/
+10:freezer:/
+9:hugetlb:/
+8:cpuset:/
+7:blkio:/user.slice
+6:memory:/user.slice
+5:net_cls,net_prio:/
+4:perf_event:/
+3:devices:/user.slice
+2:cpu,cpuacct:/test
+test2
+1:name=systemd:/
+0::/
 
-Fixes: c1b0bc2dabfa ("usb: typec: Add support for UCSI interface")
+Signed-off-by: Alexander Kuznetsov <wwfq@yandex-team.ru>
+Reported-by: Andrey Krasichkov <buglloc@yandex-team.ru>
+Acked-by: Dmitry Yakunin <zeil@yandex-team.ru>
 Cc: stable@vger.kernel.org
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Mayank Rana <mrana@codeaurora.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210609073535.5094-1-jackp@codeaurora.org
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/cgroup/cgroup-v1.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -735,6 +735,7 @@ err_unregister:
- 	}
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -821,6 +821,10 @@ static int cgroup1_rename(struct kernfs_
+ 	struct cgroup *cgrp = kn->priv;
+ 	int ret;
  
- err_reset:
-+	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
- 	ucsi_reset_ppm(ucsi);
- err:
- 	mutex_unlock(&ucsi->ppm_lock);
++	/* do not accept '\n' to prevent making /proc/<pid>/cgroup unparsable */
++	if (strchr(new_name_str, '\n'))
++		return -EINVAL;
++
+ 	if (kernfs_type(kn) != KERNFS_DIR)
+ 		return -ENOTDIR;
+ 	if (kn->parent != new_parent)
 
 
