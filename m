@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E96293A6398
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDC8F3A63A4
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233391AbhFNLPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:15:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42800 "EHLO mail.kernel.org"
+        id S234476AbhFNLPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:15:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235009AbhFNLMi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:12:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 417126195E;
-        Mon, 14 Jun 2021 10:48:40 +0000 (UTC)
+        id S235109AbhFNLNL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:13:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4B6D61962;
+        Mon, 14 Jun 2021 10:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667720;
-        bh=yk5nP4Z2yF99S1xKiRhh/3Y7IMkPWAz53o3nKVV0B1o=;
+        s=korg; t=1623667723;
+        bh=gPtPur8R9bU4BReM8hD8hLm4cefnseJxwoGY+DFyJo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyJcNCV8eBZxF9X30LC8SSknW9/uHiNCozyDDVUyjzGi8erCpHKolbDhlzP4ORPTu
-         wAKupR8qtvoFZM7HY75+Te8rh+Xv6OH1CePCtL0zZDO4boh4T2fZBnLJCsKHWqPW5/
-         UcrCD/2yyLC41JPMK8B9Z9E3pbJWVzYxFZoosjfg=
+        b=La3alQzEx+hUVNtatwL7iZVcgR9i2gukaluVSAYY46xW0PChoaTF1OsQrQWFxoTxq
+         ULdzdH6qWYN7EkVFQhBOpqwn26jHLsyFEm4WHffHSQetdrcwxExjpvHNd7ZkUseFaQ
+         j0jnMAgU0hhc0KJHOGmz+/nMDl+KbWtfEKz7EQEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 048/173] i2c: mpc: implement erratum A-004447 workaround
-Date:   Mon, 14 Jun 2021 12:26:20 +0200
-Message-Id: <20210614102659.754436098@linuxfoundation.org>
+        syzbot+ddc1260a83ed1cbf6fb5@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 049/173] ALSA: seq: Fix race of snd_seq_timer_open()
+Date:   Mon, 14 Jun 2021 12:26:21 +0200
+Message-Id: <20210614102659.784401656@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -40,148 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit drivers/i2c/busses/i2c-mpc.c ]
+commit 83e197a8414c0ba545e7e3916ce05f836f349273 upstream.
 
-The P2040/P2041 has an erratum where the normal i2c recovery mechanism
-does not work. Implement the alternative recovery mechanism documented
-in the P2040 Chip Errata Rev Q.
+The timer instance per queue is exclusive, and snd_seq_timer_open()
+should have managed the concurrent accesses.  It looks as if it's
+checking the already existing timer instance at the beginning, but
+it's not right, because there is no protection, hence any later
+concurrent call of snd_seq_timer_open() may override the timer
+instance easily.  This may result in UAF, as the leftover timer
+instance can keep running while the queue itself gets closed, as
+spotted by syzkaller recently.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For avoiding the race, add a proper check at the assignment of
+tmr->timeri again, and return -EBUSY if it's been already registered.
+
+Reported-by: syzbot+ddc1260a83ed1cbf6fb5@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000dce34f05c42f110c@google.com
+Link: https://lore.kernel.org/r/20210610152059.24633-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-mpc.c | 79 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 78 insertions(+), 1 deletion(-)
+ sound/core/seq/seq_timer.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 6a0d55e9e8e3..af349661fd76 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -23,6 +23,7 @@
- 
- #include <linux/clk.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/fsl_devices.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
-@@ -49,6 +50,7 @@
- #define CCR_MTX  0x10
- #define CCR_TXAK 0x08
- #define CCR_RSTA 0x04
-+#define CCR_RSVD 0x02
- 
- #define CSR_MCF  0x80
- #define CSR_MAAS 0x40
-@@ -70,6 +72,7 @@ struct mpc_i2c {
- 	u8 fdr, dfsrr;
- #endif
- 	struct clk *clk_per;
-+	bool has_errata_A004447;
- };
- 
- struct mpc_i2c_divider {
-@@ -176,6 +179,75 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
- 	return 0;
- }
- 
-+static int i2c_mpc_wait_sr(struct mpc_i2c *i2c, int mask)
-+{
-+	void __iomem *addr = i2c->base + MPC_I2C_SR;
-+	u8 val;
-+
-+	return readb_poll_timeout(addr, val, val & mask, 0, 100);
-+}
-+
-+/*
-+ * Workaround for Erratum A004447. From the P2040CE Rev Q
-+ *
-+ * 1.  Set up the frequency divider and sampling rate.
-+ * 2.  I2CCR - a0h
-+ * 3.  Poll for I2CSR[MBB] to get set.
-+ * 4.  If I2CSR[MAL] is set (an indication that SDA is stuck low), then go to
-+ *     step 5. If MAL is not set, then go to step 13.
-+ * 5.  I2CCR - 00h
-+ * 6.  I2CCR - 22h
-+ * 7.  I2CCR - a2h
-+ * 8.  Poll for I2CSR[MBB] to get set.
-+ * 9.  Issue read to I2CDR.
-+ * 10. Poll for I2CSR[MIF] to be set.
-+ * 11. I2CCR - 82h
-+ * 12. Workaround complete. Skip the next steps.
-+ * 13. Issue read to I2CDR.
-+ * 14. Poll for I2CSR[MIF] to be set.
-+ * 15. I2CCR - 80h
-+ */
-+static void mpc_i2c_fixup_A004447(struct mpc_i2c *i2c)
-+{
-+	int ret;
-+	u32 val;
-+
-+	writeccr(i2c, CCR_MEN | CCR_MSTA);
-+	ret = i2c_mpc_wait_sr(i2c, CSR_MBB);
-+	if (ret) {
-+		dev_err(i2c->dev, "timeout waiting for CSR_MBB\n");
-+		return;
-+	}
-+
-+	val = readb(i2c->base + MPC_I2C_SR);
-+
-+	if (val & CSR_MAL) {
-+		writeccr(i2c, 0x00);
-+		writeccr(i2c, CCR_MSTA | CCR_RSVD);
-+		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSVD);
-+		ret = i2c_mpc_wait_sr(i2c, CSR_MBB);
-+		if (ret) {
-+			dev_err(i2c->dev, "timeout waiting for CSR_MBB\n");
-+			return;
-+		}
-+		val = readb(i2c->base + MPC_I2C_DR);
-+		ret = i2c_mpc_wait_sr(i2c, CSR_MIF);
-+		if (ret) {
-+			dev_err(i2c->dev, "timeout waiting for CSR_MIF\n");
-+			return;
-+		}
-+		writeccr(i2c, CCR_MEN | CCR_RSVD);
-+	} else {
-+		val = readb(i2c->base + MPC_I2C_DR);
-+		ret = i2c_mpc_wait_sr(i2c, CSR_MIF);
-+		if (ret) {
-+			dev_err(i2c->dev, "timeout waiting for CSR_MIF\n");
-+			return;
-+		}
-+		writeccr(i2c, CCR_MEN);
-+	}
-+}
-+
- #if defined(CONFIG_PPC_MPC52xx) || defined(CONFIG_PPC_MPC512x)
- static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
- 	{20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
-@@ -641,7 +713,10 @@ static int fsl_i2c_bus_recovery(struct i2c_adapter *adap)
- {
- 	struct mpc_i2c *i2c = i2c_get_adapdata(adap);
- 
--	mpc_i2c_fixup(i2c);
-+	if (i2c->has_errata_A004447)
-+		mpc_i2c_fixup_A004447(i2c);
+--- a/sound/core/seq/seq_timer.c
++++ b/sound/core/seq/seq_timer.c
+@@ -297,8 +297,16 @@ int snd_seq_timer_open(struct snd_seq_qu
+ 		return err;
+ 	}
+ 	spin_lock_irq(&tmr->lock);
+-	tmr->timeri = t;
++	if (tmr->timeri)
++		err = -EBUSY;
 +	else
-+		mpc_i2c_fixup(i2c);
- 
++		tmr->timeri = t;
+ 	spin_unlock_irq(&tmr->lock);
++	if (err < 0) {
++		snd_timer_close(t);
++		snd_timer_instance_free(t);
++		return err;
++	}
  	return 0;
  }
-@@ -745,6 +820,8 @@ static int fsl_i2c_probe(struct platform_device *op)
- 	dev_info(i2c->dev, "timeout %u us\n", mpc_ops.timeout * 1000000 / HZ);
  
- 	platform_set_drvdata(op, i2c);
-+	if (of_property_read_bool(op->dev.of_node, "fsl,i2c-erratum-a004447"))
-+		i2c->has_errata_A004447 = true;
- 
- 	i2c->adap = mpc_ops;
- 	of_address_to_resource(op->dev.of_node, 0, &res);
--- 
-2.30.2
-
 
 
