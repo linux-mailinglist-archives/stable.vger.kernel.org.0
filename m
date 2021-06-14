@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4A93A6103
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:39:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC8FE3A606B
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbhFNKl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:41:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46962 "EHLO mail.kernel.org"
+        id S232878AbhFNKeX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:34:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233971AbhFNKjW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:39:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3528561438;
-        Mon, 14 Jun 2021 10:34:16 +0000 (UTC)
+        id S233203AbhFNKdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:33:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C391613D0;
+        Mon, 14 Jun 2021 10:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666856;
-        bh=VL9TgoyM1NLxGaErLV4tti8G04EllZFgLviCImGqyiY=;
+        s=korg; t=1623666669;
+        bh=ffnJT3aMVqI0dolVHoYIXBOTKwyMvCNA5Z8XNCl3N/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycx/oqg99RjS40Phgx9wqLZpodoZMVmInO1ykcYKMKhTQkgU5LEh1RH2oJOCmRf5P
-         F+ZKE3968zQ9iHOFsWoheLzojZOXzntJZ8L2EsEgOxKhP4H/yUWbjqHElk8cfkMzZp
-         a2Kw6dfEfnSlLVoBc4KUPWMvnHYS89P9o8kh6oHg=
+        b=RmIxK1tKDSJmaXheTeYwVuE5bQ9d7xRmjOhImDay0U+7Sua3FAMY3qM9jg73gt+IG
+         xlThXgEq5fAlVz34/hndbrzCsAtDDw36mgluS8AfkOJ92N46pKw3/EN4HViy/qgKth
+         gRFhz3Uu6ux5886u2oKamb6G/eu6uxUaFMR9iG4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Kuznetsov <wwfq@yandex-team.ru>,
-        Andrey Krasichkov <buglloc@yandex-team.ru>,
-        Dmitry Yakunin <zeil@yandex-team.ru>, Tejun Heo <tj@kernel.org>
-Subject: [PATCH 4.14 26/49] cgroup1: dont allow \n in renaming
+        stable@vger.kernel.org,
+        Alexandre GRIVEAUX <agriveaux@deutnet.info>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 28/42] USB: serial: omninet: add device id for Zyxel Omni 56K Plus
 Date:   Mon, 14 Jun 2021 12:27:19 +0200
-Message-Id: <20210614102642.721065011@linuxfoundation.org>
+Message-Id: <20210614102643.599796081@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Kuznetsov <wwfq@yandex-team.ru>
+From: Alexandre GRIVEAUX <agriveaux@deutnet.info>
 
-commit b7e24eb1caa5f8da20d405d262dba67943aedc42 upstream.
+commit fc0b3dc9a11771c3919eaaaf9d649138b095aa0f upstream.
 
-cgroup_mkdir() have restriction on newline usage in names:
-$ mkdir $'/sys/fs/cgroup/cpu/test\ntest2'
-mkdir: cannot create directory
-'/sys/fs/cgroup/cpu/test\ntest2': Invalid argument
+Add device id for Zyxel Omni 56K Plus modem, this modem include:
 
-But in cgroup1_rename() such check is missed.
-This allows us to make /proc/<pid>/cgroup unparsable:
-$ mkdir /sys/fs/cgroup/cpu/test
-$ mv /sys/fs/cgroup/cpu/test $'/sys/fs/cgroup/cpu/test\ntest2'
-$ echo $$ > $'/sys/fs/cgroup/cpu/test\ntest2'
-$ cat /proc/self/cgroup
-11:pids:/
-10:freezer:/
-9:hugetlb:/
-8:cpuset:/
-7:blkio:/user.slice
-6:memory:/user.slice
-5:net_cls,net_prio:/
-4:perf_event:/
-3:devices:/user.slice
-2:cpu,cpuacct:/test
-test2
-1:name=systemd:/
-0::/
+USB chip:
+NetChip
+NET2888
 
-Signed-off-by: Alexander Kuznetsov <wwfq@yandex-team.ru>
-Reported-by: Andrey Krasichkov <buglloc@yandex-team.ru>
-Acked-by: Dmitry Yakunin <zeil@yandex-team.ru>
+Main chip:
+901041A
+F721501APGF
+
+Another modem using the same chips is the Zyxel Omni 56K DUO/NEO,
+could be added with the right USB ID.
+
+Signed-off-by: Alexandre GRIVEAUX <agriveaux@deutnet.info>
 Cc: stable@vger.kernel.org
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup-v1.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/serial/omninet.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -861,6 +861,10 @@ static int cgroup1_rename(struct kernfs_
- 	struct cgroup *cgrp = kn->priv;
- 	int ret;
+--- a/drivers/usb/serial/omninet.c
++++ b/drivers/usb/serial/omninet.c
+@@ -27,6 +27,7 @@
  
-+	/* do not accept '\n' to prevent making /proc/<pid>/cgroup unparsable */
-+	if (strchr(new_name_str, '\n'))
-+		return -EINVAL;
-+
- 	if (kernfs_type(kn) != KERNFS_DIR)
- 		return -ENOTDIR;
- 	if (kn->parent != new_parent)
+ #define ZYXEL_VENDOR_ID		0x0586
+ #define ZYXEL_OMNINET_ID	0x1000
++#define ZYXEL_OMNI_56K_PLUS_ID	0x1500
+ /* This one seems to be a re-branded ZyXEL device */
+ #define BT_IGNITIONPRO_ID	0x2000
+ 
+@@ -44,6 +45,7 @@ static int omninet_port_remove(struct us
+ 
+ static const struct usb_device_id id_table[] = {
+ 	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNINET_ID) },
++	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNI_56K_PLUS_ID) },
+ 	{ USB_DEVICE(ZYXEL_VENDOR_ID, BT_IGNITIONPRO_ID) },
+ 	{ }						/* Terminating entry */
+ };
 
 
