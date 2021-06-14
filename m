@@ -2,119 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 070ED3A6F36
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 21:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 423603A6F37
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 21:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235202AbhFNTgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 15:36:53 -0400
-Received: from mail-0201.mail-europe.com ([51.77.79.158]:39823 "EHLO
-        mail-02.mail-europe.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S235269AbhFNTgu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 15:36:50 -0400
-Date:   Mon, 14 Jun 2021 19:21:55 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail; t=1623698516;
-        bh=8aPQKPWWUHtic0SGoCH7J29PZKWShsuStdA0XbDGBN8=;
-        h=Date:To:From:Cc:Reply-To:Subject:From;
-        b=R8UJLYI+Eotv8eJ0dm2tFZbJ6pFeMYtvv+Z+NyG5SiJItKjqg0VghXPmpCU9rKw4x
-         96hcDzJVa30t1dqE++PV6b5VWiFaMvBTeN/yypbGDm6M/G/TtRGjfbjQ/+mbgKThWe
-         Jd4v3HlLDSy8TLzFMKpFmtKrt7FyqiD9I/gAMlxY=
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-From:   Adam Edge <baronedge@protonmail.com>
-Cc:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-Reply-To: Adam Edge <baronedge@protonmail.com>
-Subject: Regression after 5.7.19 causing major freezes on CPU loads
-Message-ID: <HnYKcqmY_z0ERb5qOOUauOLY1vt6nxuKHXzuKVrZ297elyqtzpsWTrjUUnlIDG7mQUYnJMfS8HkFceFMf0Fd_GLzOMghgf4btNt9YhwwZK0=@protonmail.com>
+        id S234188AbhFNTiV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 15:38:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39226 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233804AbhFNTiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 15:38:20 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5354C061574;
+        Mon, 14 Jun 2021 12:36:17 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id u18so6530073plc.0;
+        Mon, 14 Jun 2021 12:36:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Cyr83LbV58MwQpyUsJoGsMK99Ov9lne0HxCQCyb3otE=;
+        b=VxsfX32q72o8gxVzAsamkw2uV4jB4r/Cfb0xKBri+rAASUmeC4B0gjQaq8tJDLcu4y
+         qCp0NG9hH26zDd6LHl8CsNmlEDg86n98SMwxRKq1ztZ9Z2nbKoL5wryPkbpLboSBg0G6
+         KU3boFNKyNXOhadVjE0MG9+MgTdkC/8+QlEohmiqMePuWrx/wpAqpTWQXaJL+lP/UGoE
+         tDU3buRhBrM7b1v1dcJq79hvXFrSCQdlfCynqe5M81twlM9EWPpEmMTJxEJJ+WdXLcf7
+         jQCrLt6aLOu0Pb5o+jOi2mPz3fKK+dbh8jf106RxEPETkCzItnC+1B6CGHzlfk0ox51X
+         fLDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Cyr83LbV58MwQpyUsJoGsMK99Ov9lne0HxCQCyb3otE=;
+        b=rJsx/ALpqJL9ZZbhFgnS4S+WqQKzO92dNJsMjkVnjprBT5RLy5yO/M4uyS/USGUVdb
+         03gcypl7St2dr7C/Ar4aZK1ZB4+t+JkrrwuNcrhlvnlqdMKB6aLsdNy7tsq42xBxuuEL
+         vc+JQc0NwjJQCrDD301tPwQHCmIA20Ky+iiPBRERGnLJNLljM2J5/IGDPPeie8pOweb8
+         cekjA0bHFZYkq6UHmfl1jUxVSO+qdllYMPtxmuVovxSaaXugK8yhKEPv8OrNg1JPckhi
+         lpSvdqfD5Ntec8P9BslynnRVz5GTIoovE45mZEBocbQLvZoHinQOfAKWwTPFLEvMJ3U/
+         +fgA==
+X-Gm-Message-State: AOAM533Fwj7XQ1dbqq0ESTPy+r0jqBQQoWxujmfUA8Wp4YhSBfqy0DGc
+        naaDicGINX07Gvfjm58IaBVtzv2snMw=
+X-Google-Smtp-Source: ABdhPJxiudasxnIesbYkf7TF0HkdTwzgMIYtOKXR7sgKRxUIm+gc7jXc6yxmiQpiEpp2wN0G7cEO3w==
+X-Received: by 2002:a17:90a:5b0a:: with SMTP id o10mr744115pji.143.1623699376997;
+        Mon, 14 Jun 2021 12:36:16 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id p14sm14418216pgb.2.2021.06.14.12.36.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 14 Jun 2021 12:36:16 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/131] 5.10.44-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210614102652.964395392@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <1ad5d266-0537-2dfb-c3ff-32262c64affe@gmail.com>
+Date:   Mon, 14 Jun 2021 12:36:04 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.10.2
 MIME-Version: 1.0
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
-        mailout.protonmail.ch
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-After I've upgraded from 5.7.11 (didn't have access to this machine for
-about 10 months) to 5.12.10, I've noticed that anytime I used all my
-cores to, for example, compile a project, the system would degrade
-significantly in performance and applications would start to stutter.
-Compiles are also about 3-4x slower on kernels with the regression vs.
-without. After debugging this for the past 24 hours or so, I've narrowed
-it down to a change between 5.7.19 and 5.8.1. Sadly, bisect does not
-help, because trying to run any of the 5.8 RC kernels causes the kernel
-to be stuck before init, without any apparent errors on the screen (and
-I don't have a serial cable to dump the kernel output to). I'm listing
-all the information I know and my system information below.
 
-Reproduction steps (dunno if this helps, but):
-1. Boot with kernel with the regression
-2. Do something that uses all cores, like compiling the Linux kernel
-3. Observe long compile times and stuttering applications (which doesn't
-happen even on full load with a working kernel)
+On 6/14/2021 3:26 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.44 release.
+> There are 131 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 16 Jun 2021 10:26:30 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.44-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Regression between kernel versions:
-5.7 - working
-5.7.11 - working
-5.7.19 - working
-5.8.1 - broken
-5.8.18 - broken
-5.12.10 - broken
-8ecfa36cd4db3275bf3b6c6f32c7e3c6bb537de2 (master on 2021-06-13) - broken
+On ARCH_BRCMSTB using 32-bit and 64-bit kernels:
 
-System information:
-Gentoo Linux 17.1 amd64
-
-CPU info:
-processor    : 7
-vendor_id    : GenuineIntel
-cpu family    : 6
-model        : 60
-model name    : Intel(R) Core(TM) i7-4790 CPU @ 3.60GHz
-stepping    : 3
-microcode    : 0x27
-cpu MHz        : 2042.008
-cache size    : 8192 KB
-physical id    : 0
-siblings    : 8
-core id        : 3
-cpu cores    : 4
-apicid        : 7
-initial apicid    : 7
-fpu        : yes
-fpu_exception    : yes
-cpuid level    : 13
-wp        : yes
-flags        : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall
-nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl
-xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor
-ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2
-x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm
-abm cpuid_fault epb invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow
-vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep
-bmi2 erms invpcid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
-vmx flags    : vnmi preemption_timer invvpid ept_x_only ept_ad ept_1gb
-flexpriority tsc_offset vtpr mtf vapic ept vpid unrestricted_guest ple
-shadow_vmcs
-bugs        : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf
-mds swapgs itlb_multihit srbds
-bogomips    : 7199.96
-clflush size    : 64
-cache_alignment    : 64
-address sizes    : 39 bits physical, 48 bits virtual
-power management:
-
-RAM: 16GiB
-GPU: VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI]
-Redwood XT [Radeon HD 5670/5690/5730]
-cat /proc/sys/kernel/tainted: 0
-
-Thanks in advance.
-
-Best Regards,
-Adam Edge
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
