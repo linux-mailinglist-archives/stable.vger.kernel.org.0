@@ -2,34 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D75D3A619E
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 664C63A609C
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233541AbhFNKtx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:49:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50964 "EHLO mail.kernel.org"
+        id S233190AbhFNKgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:36:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233728AbhFNKrS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:47:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE23661452;
-        Mon, 14 Jun 2021 10:37:17 +0000 (UTC)
+        id S233196AbhFNKea (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:34:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0FC861245;
+        Mon, 14 Jun 2021 10:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667038;
-        bh=xghRWFHoGm1mvyvgXIQzMV5MXoZ/lxZz/rqFRS9ppIY=;
+        s=korg; t=1623666715;
+        bh=Orrf/8HQCxsdAsNoUTaVt4kXDOyRkH/lzRwD6tPRPYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ARBNth+ayby6suf/uWqR2Bri+o+jmIYYyBnwOeGg0y/q2W0A8mplpnR1Iaf2KPLVR
-         8Lbq+PLBQNIcomxivXBYr0/KVKLNHxYvAdxRx0sddwJVRf7REjqiR4AG/NfamzdUao
-         qd8W1z2YP21FquCTGM1XbgHR4Ojk6EQFOgOpTj78=
+        b=tyw01gGYYlNs6lbpJhVHWgifLNUmhd4yrswikSYnUfteleo5vksvHGM0WltbxcCCH
+         Ezs2Du3KUOoLTvCBfragfCR+PpZE+y9q4reTWC+pdP2JgaJsGNxuKYDyopeFYvGEb3
+         VkosC1xUzMuE6QYegc/p04xc6weFW+tCBl0e+Aac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 44/67] USB: serial: quatech2: fix control-request directions
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 36/42] perf session: Correct buffer copying when peeking events
 Date:   Mon, 14 Jun 2021 12:27:27 +0200
-Message-Id: <20210614102645.283517892@linuxfoundation.org>
+Message-Id: <20210614102643.850989621@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,52 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Leo Yan <leo.yan@linaro.org>
 
-commit eb8dbe80326c3d44c1e38ee4f40e0d8d3e06f2d0 upstream.
+[ Upstream commit 197eecb6ecae0b04bd694432f640ff75597fed9c ]
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+When peeking an event, it has a short path and a long path.  The short
+path uses the session pointer "one_mmap_addr" to directly fetch the
+event; and the long path needs to read out the event header and the
+following event data from file and fill into the buffer pointer passed
+through the argument "buf".
 
-Fix the three requests which erroneously used usb_rcvctrlpipe().
+The issue is in the long path that it copies the event header and event
+data into the same destination address which pointer "buf", this means
+the event header is overwritten.  We are just lucky to run into the
+short path in most cases, so we don't hit the issue in the long path.
 
-Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
-Cc: stable@vger.kernel.org      # 3.5
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch adds the offset "hdr_sz" to the pointer "buf" when copying
+the event data, so that it can reserve the event header which can be
+used properly by its caller.
+
+Fixes: 5a52f33adf02 ("perf session: Add perf_session__peek_event()")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210605052957.1070720-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/quatech2.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/util/session.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/quatech2.c
-+++ b/drivers/usb/serial/quatech2.c
-@@ -416,7 +416,7 @@ static void qt2_close(struct usb_serial_
+diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+index 89808ab008ad..9187d8119a75 100644
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -1427,6 +1427,7 @@ int perf_session__peek_event(struct perf_session *session, off_t file_offset,
+ 	if (event->header.size < hdr_sz || event->header.size > buf_sz)
+ 		return -1;
  
- 	/* flush the port transmit buffer */
- 	i = usb_control_msg(serial->dev,
--			    usb_rcvctrlpipe(serial->dev, 0),
-+			    usb_sndctrlpipe(serial->dev, 0),
- 			    QT2_FLUSH_DEVICE, 0x40, 1,
- 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
++	buf += hdr_sz;
+ 	rest = event->header.size - hdr_sz;
  
-@@ -426,7 +426,7 @@ static void qt2_close(struct usb_serial_
- 
- 	/* flush the port receive buffer */
- 	i = usb_control_msg(serial->dev,
--			    usb_rcvctrlpipe(serial->dev, 0),
-+			    usb_sndctrlpipe(serial->dev, 0),
- 			    QT2_FLUSH_DEVICE, 0x40, 0,
- 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
- 
-@@ -693,7 +693,7 @@ static int qt2_attach(struct usb_serial
- 	int status;
- 
- 	/* power on unit */
--	status = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
-+	status = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
- 				 0xc2, 0x40, 0x8000, 0, NULL, 0,
- 				 QT2_USB_TIMEOUT);
- 	if (status < 0) {
+ 	if (readn(fd, buf, rest) != (ssize_t)rest)
+-- 
+2.30.2
+
 
 
