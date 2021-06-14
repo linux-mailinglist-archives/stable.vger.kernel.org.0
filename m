@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 566DE3A607A
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A333A60C7
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:36:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233429AbhFNKfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:35:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40518 "EHLO mail.kernel.org"
+        id S233781AbhFNKhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:37:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233282AbhFNKdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE08661242;
-        Mon, 14 Jun 2021 10:31:27 +0000 (UTC)
+        id S232808AbhFNKf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:35:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BBBF613F9;
+        Mon, 14 Jun 2021 10:32:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666688;
-        bh=QoxxFQ0dAv0B4Il9IHIAqp5Qvs1fImb2V7//DS7Y33k=;
+        s=korg; t=1623666766;
+        bh=8cI2GQCcwiWpUNYxwfjD/OlLtOwURrfsWRh5piUmkvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRXgsEuJMSCa5MUBAe4hLJeO1I1RU7dcGih5y5ENKB+xA5rtt2DBEP/SEehX4nBfS
-         v9c3RT1Cbrpx3FZMCGJ3x3k3S/kcoKT4xaEa4h3KgmeTgYPU6FgfCTtjZijFzBgbIt
-         QamESDlTbIF0A4wwQiYElgUpRi6C4G72FW4e53zs=
+        b=jr+R8/IgtKBYP6vg6+QGclTcVr4U9yUombL1SqxahEDnQ9t+7nShQHsGzxXbLA8mm
+         LNpgXS9hwud3hbFDeuAFffiWQdXRhu7T4YlCLBv3nvoWJGs6PG+rVxF/0GZa3V6qWM
+         DNAav88k9UfPHKftrSlCAFpLjvPY8KX4PWEZ5sc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        =?UTF-8?q?NOMURA=20JUNICHI ?= <junichi.nomura@nec.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/42] cgroup: disable controllers at parse time
+        stable@vger.kernel.org,
+        syzbot+69ff9dff50dcfe14ddd4@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/49] netlink: disable IRQs for netlink_lock_table()
 Date:   Mon, 14 Jun 2021 12:26:59 +0200
-Message-Id: <20210614102642.971915343@linuxfoundation.org>
+Message-Id: <20210614102642.072102725@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 45e1ba40837ac2f6f4d4716bddb8d44bd7e4a251 ]
+[ Upstream commit 1d482e666b8e74c7555dbdfbfb77205eeed3ff2d ]
 
-This patch effectively reverts the commit a3e72739b7a7 ("cgroup: fix
-too early usage of static_branch_disable()"). The commit 6041186a3258
-("init: initialize jump labels before command line option parsing") has
-moved the jump_label_init() before parse_args() which has made the
-commit a3e72739b7a7 unnecessary. On the other hand there are
-consequences of disabling the controllers later as there are subsystems
-doing the controller checks for different decisions. One such incident
-is reported [1] regarding the memory controller and its impact on memory
-reclaim code.
+Syzbot reports that in mac80211 we have a potential deadlock
+between our "local->stop_queue_reasons_lock" (spinlock) and
+netlink's nl_table_lock (rwlock). This is because there's at
+least one situation in which we might try to send a netlink
+message with this spinlock held while it is also possible to
+take the spinlock from a hardirq context, resulting in the
+following deadlock scenario reported by lockdep:
 
-[1] https://lore.kernel.org/linux-mm/921e53f3-4b13-aab8-4a9e-e83ff15371e4@nec.com
+       CPU0                    CPU1
+       ----                    ----
+  lock(nl_table_lock);
+                               local_irq_disable();
+                               lock(&local->queue_stop_reason_lock);
+                               lock(nl_table_lock);
+  <Interrupt>
+    lock(&local->queue_stop_reason_lock);
 
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Reported-by: NOMURA JUNICHI(野村　淳一) <junichi.nomura@nec.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Tested-by: Jun'ichi Nomura <junichi.nomura@nec.com>
+This seems valid, we can take the queue_stop_reason_lock in
+any kind of context ("CPU0"), and call ieee80211_report_ack_skb()
+with the spinlock held and IRQs disabled ("CPU1") in some
+code path (ieee80211_do_stop() via ieee80211_free_txskb()).
+
+Short of disallowing netlink use in scenarios like these
+(which would be rather complex in mac80211's case due to
+the deep callchain), it seems the only fix for this is to
+disable IRQs while nl_table_lock is held to avoid hitting
+this scenario, this disallows the "CPU0" portion of the
+reported deadlock.
+
+Note that the writer side (netlink_table_grab()) already
+disables IRQs for this lock.
+
+Unfortunately though, this seems like a huge hammer, and
+maybe the whole netlink table locking should be reworked.
+
+Reported-by: syzbot+69ff9dff50dcfe14ddd4@syzkaller.appspotmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ net/netlink/af_netlink.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/cgroup.c b/kernel/cgroup.c
-index 684d02f343b4..3e0fca894a8b 100644
---- a/kernel/cgroup.c
-+++ b/kernel/cgroup.c
-@@ -5636,8 +5636,6 @@ int __init cgroup_init_early(void)
- 	return 0;
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 3e4e07559272..140bec3568ec 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -429,11 +429,13 @@ void netlink_table_ungrab(void)
+ static inline void
+ netlink_lock_table(void)
+ {
++	unsigned long flags;
++
+ 	/* read_lock() synchronizes us to netlink_table_grab */
+ 
+-	read_lock(&nl_table_lock);
++	read_lock_irqsave(&nl_table_lock, flags);
+ 	atomic_inc(&nl_table_users);
+-	read_unlock(&nl_table_lock);
++	read_unlock_irqrestore(&nl_table_lock, flags);
  }
  
--static u16 cgroup_disable_mask __initdata;
--
- /**
-  * cgroup_init - cgroup initialization
-  *
-@@ -5695,12 +5693,8 @@ int __init cgroup_init(void)
- 		 * disabled flag and cftype registration needs kmalloc,
- 		 * both of which aren't available during early_init.
- 		 */
--		if (cgroup_disable_mask & (1 << ssid)) {
--			static_branch_disable(cgroup_subsys_enabled_key[ssid]);
--			printk(KERN_INFO "Disabling %s control group subsystem\n",
--			       ss->name);
-+		if (!cgroup_ssid_enabled(ssid))
- 			continue;
--		}
- 
- 		if (cgroup_ssid_no_v1(ssid))
- 			printk(KERN_INFO "Disabling %s control group subsystem in v1 mounts\n",
-@@ -6143,7 +6137,10 @@ static int __init cgroup_disable(char *str)
- 			if (strcmp(token, ss->name) &&
- 			    strcmp(token, ss->legacy_name))
- 				continue;
--			cgroup_disable_mask |= 1 << i;
-+
-+			static_branch_disable(cgroup_subsys_enabled_key[i]);
-+			pr_info("Disabling %s control group subsystem\n",
-+				ss->name);
- 		}
- 	}
- 	return 1;
+ static inline void
 -- 
 2.30.2
 
