@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 915203A63EC
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:16:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1DBE3A6414
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235646AbhFNLSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:18:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45470 "EHLO mail.kernel.org"
+        id S234424AbhFNLUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:20:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235087AbhFNLQk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:16:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A564A61971;
-        Mon, 14 Jun 2021 10:50:01 +0000 (UTC)
+        id S235393AbhFNLSE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:18:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 574D66197B;
+        Mon, 14 Jun 2021 10:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667802;
-        bh=zdW9g7x9tBO1D7Vv/ypeiPNb5pWPmL0EbyMnOs1qUbM=;
+        s=korg; t=1623667830;
+        bh=SuNRfKdAgHONuvn55sL2Mwc3vdvXTSbH+v/ybpCwBK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e1CKDS8l7yErj+GZl3NpNDKqyMDqrdYl7m/9VLqI0QaHCUxUVpD95O4ffkC3ql7Z9
-         2xp5DEQ6PsLgjI0ddU0OpL89oWBqtO4JugM6nm3RA4L4j8+Iow+WHPvVwVppPh/sBd
-         fuIV5tryRhx11NIK+V5auVqU5RUQVNBm2AVtPaQA=
+        b=Uk5nASwXKHDGvczq2syP6V8PWtodgXur7dC7zRCRVcEnrDIybNNtKCRAz8Vr/bWAD
+         EVFefPeZ5qEd/yYheclvmKzHM79Ta5asgTJ4OeNsavntx1xBbCaz3M/heyXiFMl9Vn
+         iQ5NakX6SfvPDVG3gNN/XeOKb9VzBMeLeZCzO160=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Lai Jiangshan <laijs@linux.alibaba.com>,
-        Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 063/173] KVM: x86: Unload MMU on guest TLB flush if TDP disabled to force MMU sync
-Date:   Mon, 14 Jun 2021 12:26:35 +0200
-Message-Id: <20210614102700.260682623@linuxfoundation.org>
+Subject: [PATCH 5.12 064/173] KVM: X86: MMU: Use the correct inherited permissions to get shadow page
+Date:   Mon, 14 Jun 2021 12:26:36 +0200
+Message-Id: <20210614102700.290767360@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -43,65 +41,147 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lai Jiangshan <laijs@linux.alibaba.com>
 
-commit b53e84eed08b88fd3ff59e5c2a7f1a69d4004e32 upstream.
+commit b1bd5cba3306691c771d558e94baa73e8b0b96b7 upstream.
 
-When using shadow paging, unload the guest MMU when emulating a guest TLB
-flush to ensure all roots are synchronized.  From the guest's perspective,
-flushing the TLB ensures any and all modifications to its PTEs will be
-recognized by the CPU.
+When computing the access permissions of a shadow page, use the effective
+permissions of the walk up to that point, i.e. the logic AND of its parents'
+permissions.  Two guest PxE entries that point at the same table gfn need to
+be shadowed with different shadow pages if their parents' permissions are
+different.  KVM currently uses the effective permissions of the last
+non-leaf entry for all non-leaf entries.  Because all non-leaf SPTEs have
+full ("uwx") permissions, and the effective permissions are recorded only
+in role.access and merged into the leaves, this can lead to incorrect
+reuse of a shadow page and eventually to a missing guest protection page
+fault.
 
-Note, unloading the MMU is overkill, but is done to mirror KVM's existing
-handling of INVPCID(all) and ensure the bug is squashed.  Future cleanup
-can be done to more precisely synchronize roots when servicing a guest
-TLB flush.
+For example, here is a shared pagetable:
 
-If TDP is enabled, synchronizing the MMU is unnecessary even if nested
-TDP is in play, as a "legacy" TLB flush from L1 does not invalidate L1's
-TDP mappings.  For EPT, an explicit INVEPT is required to invalidate
-guest-physical mappings; for NPT, guest mappings are always tagged with
-an ASID and thus can only be invalidated via the VMCB's ASID control.
+   pgd[]   pud[]        pmd[]            virtual address pointers
+                     /->pmd1(u--)->pte1(uw-)->page1 <- ptr1 (u--)
+        /->pud1(uw-)--->pmd2(uw-)->pte2(uw-)->page2 <- ptr2 (uw-)
+   pgd-|           (shared pmd[] as above)
+        \->pud2(u--)--->pmd1(u--)->pte1(uw-)->page1 <- ptr3 (u--)
+                     \->pmd2(uw-)->pte2(uw-)->page2 <- ptr4 (u--)
 
-This bug has existed since the introduction of KVM_VCPU_FLUSH_TLB.
-It was only recently exposed after Linux guests stopped flushing the
-local CPU's TLB prior to flushing remote TLBs (see commit 4ce94eabac16,
-"x86/mm/tlb: Flush remote and local TLBs concurrently"), but is also
-visible in Windows 10 guests.
+  pud1 and pud2 point to the same pmd table, so:
+  - ptr1 and ptr3 points to the same page.
+  - ptr2 and ptr4 points to the same page.
 
-Tested-by: Maxim Levitsky <mlevitsk@redhat.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Fixes: f38a7b75267f ("KVM: X86: support paravirtualized help for TLB shootdowns")
+(pud1 and pud2 here are pud entries, while pmd1 and pmd2 here are pmd entries)
+
+- First, the guest reads from ptr1 first and KVM prepares a shadow
+  page table with role.access=u--, from ptr1's pud1 and ptr1's pmd1.
+  "u--" comes from the effective permissions of pgd, pud1 and
+  pmd1, which are stored in pt->access.  "u--" is used also to get
+  the pagetable for pud1, instead of "uw-".
+
+- Then the guest writes to ptr2 and KVM reuses pud1 which is present.
+  The hypervisor set up a shadow page for ptr2 with pt->access is "uw-"
+  even though the pud1 pmd (because of the incorrect argument to
+  kvm_mmu_get_page in the previous step) has role.access="u--".
+
+- Then the guest reads from ptr3.  The hypervisor reuses pud1's
+  shadow pmd for pud2, because both use "u--" for their permissions.
+  Thus, the shadow pmd already includes entries for both pmd1 and pmd2.
+
+- At last, the guest writes to ptr4.  This causes no vmexit or pagefault,
+  because pud1's shadow page structures included an "uw-" page even though
+  its role.access was "u--".
+
+Any kind of shared pagetable might have the similar problem when in
+virtual machine without TDP enabled if the permissions are different
+from different ancestors.
+
+In order to fix the problem, we change pt->access to be an array, and
+any access in it will not include permissions ANDed from child ptes.
+
+The test code is: https://lore.kernel.org/kvm/20210603050537.19605-1-jiangshanlai@gmail.com/
+Remember to test it with TDP disabled.
+
+The problem had existed long before the commit 41074d07c78b ("KVM: MMU:
+Fix inherited permissions for emulated guest pte updates"), and it
+is hard to find which is the culprit.  So there is no fixes tag here.
+
 Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
-[sean: massaged comment and changelog]
-Message-Id: <20210531172256.2908-1-jiangshanlai@gmail.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210603052455.21023-1-jiangshanlai@gmail.com>
 Cc: stable@vger.kernel.org
+Fixes: cea0f0e7ea54 ("[PATCH] KVM: MMU: Shadow page table caching")
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ Documentation/virt/kvm/mmu.rst |    4 ++--
+ arch/x86/kvm/mmu/paging_tmpl.h |   14 +++++++++-----
+ 2 files changed, 11 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2982,6 +2982,19 @@ static void kvm_vcpu_flush_tlb_all(struc
- static void kvm_vcpu_flush_tlb_guest(struct kvm_vcpu *vcpu)
- {
- 	++vcpu->stat.tlb_flush;
-+
-+	if (!tdp_enabled) {
-+               /*
-+		 * A TLB flush on behalf of the guest is equivalent to
-+		 * INVPCID(all), toggling CR4.PGE, etc., which requires
-+		 * a forced sync of the shadow page tables.  Unload the
-+		 * entire MMU here and the subsequent load will sync the
-+		 * shadow page tables, and also flush the TLB.
-+		 */
-+		kvm_mmu_unload(vcpu);
-+		return;
-+	}
-+
- 	static_call(kvm_x86_tlb_flush_guest)(vcpu);
- }
+--- a/Documentation/virt/kvm/mmu.rst
++++ b/Documentation/virt/kvm/mmu.rst
+@@ -171,8 +171,8 @@ Shadow pages contain the following infor
+     shadow pages) so role.quadrant takes values in the range 0..3.  Each
+     quadrant maps 1GB virtual address space.
+   role.access:
+-    Inherited guest access permissions in the form uwx.  Note execute
+-    permission is positive, not negative.
++    Inherited guest access permissions from the parent ptes in the form uwx.
++    Note execute permission is positive, not negative.
+   role.invalid:
+     The page is invalid and should not be used.  It is a root page that is
+     currently pinned (by a cpu hardware register pointing to it); once it is
+--- a/arch/x86/kvm/mmu/paging_tmpl.h
++++ b/arch/x86/kvm/mmu/paging_tmpl.h
+@@ -90,8 +90,8 @@ struct guest_walker {
+ 	gpa_t pte_gpa[PT_MAX_FULL_LEVELS];
+ 	pt_element_t __user *ptep_user[PT_MAX_FULL_LEVELS];
+ 	bool pte_writable[PT_MAX_FULL_LEVELS];
+-	unsigned pt_access;
+-	unsigned pte_access;
++	unsigned int pt_access[PT_MAX_FULL_LEVELS];
++	unsigned int pte_access;
+ 	gfn_t gfn;
+ 	struct x86_exception fault;
+ };
+@@ -418,13 +418,15 @@ retry_walk:
+ 		}
  
+ 		walker->ptes[walker->level - 1] = pte;
++
++		/* Convert to ACC_*_MASK flags for struct guest_walker.  */
++		walker->pt_access[walker->level - 1] = FNAME(gpte_access)(pt_access ^ walk_nx_mask);
+ 	} while (!is_last_gpte(mmu, walker->level, pte));
+ 
+ 	pte_pkey = FNAME(gpte_pkeys)(vcpu, pte);
+ 	accessed_dirty = have_ad ? pte_access & PT_GUEST_ACCESSED_MASK : 0;
+ 
+ 	/* Convert to ACC_*_MASK flags for struct guest_walker.  */
+-	walker->pt_access = FNAME(gpte_access)(pt_access ^ walk_nx_mask);
+ 	walker->pte_access = FNAME(gpte_access)(pte_access ^ walk_nx_mask);
+ 	errcode = permission_fault(vcpu, mmu, walker->pte_access, pte_pkey, access);
+ 	if (unlikely(errcode))
+@@ -463,7 +465,8 @@ retry_walk:
+ 	}
+ 
+ 	pgprintk("%s: pte %llx pte_access %x pt_access %x\n",
+-		 __func__, (u64)pte, walker->pte_access, walker->pt_access);
++		 __func__, (u64)pte, walker->pte_access,
++		 walker->pt_access[walker->level - 1]);
+ 	return 1;
+ 
+ error:
+@@ -642,7 +645,7 @@ static int FNAME(fetch)(struct kvm_vcpu
+ 	bool huge_page_disallowed = exec && nx_huge_page_workaround_enabled;
+ 	struct kvm_mmu_page *sp = NULL;
+ 	struct kvm_shadow_walk_iterator it;
+-	unsigned direct_access, access = gw->pt_access;
++	unsigned int direct_access, access;
+ 	int top_level, level, req_level, ret;
+ 	gfn_t base_gfn = gw->gfn;
+ 
+@@ -674,6 +677,7 @@ static int FNAME(fetch)(struct kvm_vcpu
+ 		sp = NULL;
+ 		if (!is_shadow_present_pte(*it.sptep)) {
+ 			table_gfn = gw->table_gfn[it.level - 2];
++			access = gw->pt_access[it.level - 2];
+ 			sp = kvm_mmu_get_page(vcpu, table_gfn, addr, it.level-1,
+ 					      false, access);
+ 		}
 
 
