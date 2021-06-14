@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 585623A643E
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:21:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 991373A62F4
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235150AbhFNLWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:22:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50454 "EHLO mail.kernel.org"
+        id S233702AbhFNLHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:07:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236021AbhFNLUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:20:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5661F61984;
-        Mon, 14 Jun 2021 10:51:46 +0000 (UTC)
+        id S235183AbhFNLE5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:04:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6229B6191C;
+        Mon, 14 Jun 2021 10:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667906;
-        bh=GVzGZgoNbDlNANypM7xWU77ZalK+MFILsGcxNreyzhQ=;
+        s=korg; t=1623667487;
+        bh=Wb0yrOsNBITxibtbVHVNRT/x69LMKfbv31E2OITjUbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtjyg0QgfwA82rmz466WCUIz+/30hD6WylTsEnC+jVhzR/LHovqjPmGd8NsHxUWB4
-         B4u9sJCwXK6OaFeKfbFRD2Moowpp+K4kPakRzK2x3uqZK/4bibn1aeLDIuRxqUeBbc
-         vzZRR2F/owMSvDfzwx8Exmp5hH6d15YyFuvWuAk8=
+        b=aiuDC5Ny3ijiI0a6DFd5h4QI2UV6om3/omjn7N3bc9Ug+vqaEonXBg5ShRnPHmAeT
+         woz0tcy8s7XYhtwQk7qLOBc1X7Ist596N3Jh7C57aGn/j7YL87wR1vpeNFcvipHP4C
+         dwFEIA6rXx2ZW7ejgKor63LWRxBk3htH4hYXPuOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.12 120/173] regulator: bd71828: Fix .n_voltages settings
+Subject: [PATCH 5.10 091/131] regulator: max77620: Use device_set_of_node_from_dev()
 Date:   Mon, 14 Jun 2021 12:27:32 +0200
-Message-Id: <20210614102702.157366566@linuxfoundation.org>
+Message-Id: <20210614102656.085550356@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 4c668630bf8ea90a041fc69c9984486e0f56682d upstream.
+commit 6f55c5dd1118b3076d11d9cb17f5c5f4bc3a1162 upstream.
 
-Current .n_voltages settings do not cover the latest 2 valid selectors,
-so it fails to set voltage for the hightest voltage support.
-The latest linear range has step_uV = 0, so it does not matter if we
-count the .n_voltages to maximum selector + 1 or the first selector of
-latest linear range + 1.
-To simplify calculating the n_voltages, let's just set the
-.n_voltages to maximum selector + 1.
+The MAX77620 driver fails to re-probe on deferred probe because driver
+core tries to claim resources that are already claimed by the PINCTRL
+device. Use device_set_of_node_from_dev() helper which marks OF node as
+reused, skipping erroneous execution of pinctrl_bind_pins() for the PMIC
+device on the re-probe.
 
-Fixes: 522498f8cb8c ("regulator: bd71828: Basic support for ROHM bd71828 PMIC regulators")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Link: https://lore.kernel.org/r/20210523071045.2168904-2-axel.lin@ingics.com
+Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20210523224243.13219-2-digetx@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mfd/rohm-bd71828.h |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/regulator/max77620-regulator.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/include/linux/mfd/rohm-bd71828.h
-+++ b/include/linux/mfd/rohm-bd71828.h
-@@ -26,11 +26,11 @@ enum {
- 	BD71828_REGULATOR_AMOUNT,
- };
+--- a/drivers/regulator/max77620-regulator.c
++++ b/drivers/regulator/max77620-regulator.c
+@@ -814,6 +814,13 @@ static int max77620_regulator_probe(stru
+ 	config.dev = dev;
+ 	config.driver_data = pmic;
  
--#define BD71828_BUCK1267_VOLTS		0xEF
--#define BD71828_BUCK3_VOLTS		0x10
--#define BD71828_BUCK4_VOLTS		0x20
--#define BD71828_BUCK5_VOLTS		0x10
--#define BD71828_LDO_VOLTS		0x32
-+#define BD71828_BUCK1267_VOLTS		0x100
-+#define BD71828_BUCK3_VOLTS		0x20
-+#define BD71828_BUCK4_VOLTS		0x40
-+#define BD71828_BUCK5_VOLTS		0x20
-+#define BD71828_LDO_VOLTS		0x40
- /* LDO6 is fixed 1.8V voltage */
- #define BD71828_LDO_6_VOLTAGE		1800000
- 
++	/*
++	 * Set of_node_reuse flag to prevent driver core from attempting to
++	 * claim any pinmux resources already claimed by the parent device.
++	 * Otherwise PMIC driver will fail to re-probe.
++	 */
++	device_set_of_node_from_dev(&pdev->dev, pdev->dev.parent);
++
+ 	for (id = 0; id < MAX77620_NUM_REGS; id++) {
+ 		struct regulator_dev *rdev;
+ 		struct regulator_desc *rdesc;
 
 
