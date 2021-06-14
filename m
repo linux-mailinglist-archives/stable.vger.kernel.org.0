@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC8FE3A606B
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:32:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5703A61A1
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232878AbhFNKeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40118 "EHLO mail.kernel.org"
+        id S233902AbhFNKt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:49:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233203AbhFNKdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C391613D0;
-        Mon, 14 Jun 2021 10:31:08 +0000 (UTC)
+        id S233584AbhFNKr1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:47:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1D0661454;
+        Mon, 14 Jun 2021 10:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666669;
-        bh=ffnJT3aMVqI0dolVHoYIXBOTKwyMvCNA5Z8XNCl3N/U=;
+        s=korg; t=1623667046;
+        bh=EIvTISSYajU82GNsW19d4zdW/MHrf2YIT8Bd+65matc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RmIxK1tKDSJmaXheTeYwVuE5bQ9d7xRmjOhImDay0U+7Sua3FAMY3qM9jg73gt+IG
-         xlThXgEq5fAlVz34/hndbrzCsAtDDw36mgluS8AfkOJ92N46pKw3/EN4HViy/qgKth
-         gRFhz3Uu6ux5886u2oKamb6G/eu6uxUaFMR9iG4M=
+        b=dm1ZkIVIctrD6Ih9MtyF8igIXMb+P6v+RZH1oz3Jm6AvWcAITbNetmMsNipkhAErY
+         CpF4L0rcnG8oVa7b1poO1q+8NSjlBqcA/rSGOGVYDVo7n3kYHXvG+MkTrIaXy7vVBf
+         fZrAWJmvNjww0xZs5cUao/ura6et/++2wh7tu+VM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre GRIVEAUX <agriveaux@deutnet.info>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 28/42] USB: serial: omninet: add device id for Zyxel Omni 56K Plus
-Date:   Mon, 14 Jun 2021 12:27:19 +0200
-Message-Id: <20210614102643.599796081@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Kyle Tso <kyletso@google.com>
+Subject: [PATCH 4.19 37/67] usb: pd: Set PD_T_SINK_WAIT_CAP to 310ms
+Date:   Mon, 14 Jun 2021 12:27:20 +0200
+Message-Id: <20210614102645.031428031@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre GRIVEAUX <agriveaux@deutnet.info>
+From: Kyle Tso <kyletso@google.com>
 
-commit fc0b3dc9a11771c3919eaaaf9d649138b095aa0f upstream.
+commit 6490fa565534fa83593278267785a694fd378a2b upstream.
 
-Add device id for Zyxel Omni 56K Plus modem, this modem include:
+Current timer PD_T_SINK_WAIT_CAP is set to 240ms which will violate the
+SinkWaitCapTimer (tTypeCSinkWaitCap 310 - 620 ms) defined in the PD
+Spec if the port is faster enough when running the state machine. Set it
+to the lower bound 310ms to ensure the timeout is in Spec.
 
-USB chip:
-NetChip
-NET2888
-
-Main chip:
-901041A
-F721501APGF
-
-Another modem using the same chips is the Zyxel Omni 56K DUO/NEO,
-could be added with the right USB ID.
-
-Signed-off-by: Alexandre GRIVEAUX <agriveaux@deutnet.info>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: f0690a25a140 ("staging: typec: USB Type-C Port Manager (tcpm)")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Link: https://lore.kernel.org/r/20210528081613.730661-1-kyletso@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/omninet.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/usb/pd.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/omninet.c
-+++ b/drivers/usb/serial/omninet.c
-@@ -27,6 +27,7 @@
- 
- #define ZYXEL_VENDOR_ID		0x0586
- #define ZYXEL_OMNINET_ID	0x1000
-+#define ZYXEL_OMNI_56K_PLUS_ID	0x1500
- /* This one seems to be a re-branded ZyXEL device */
- #define BT_IGNITIONPRO_ID	0x2000
- 
-@@ -44,6 +45,7 @@ static int omninet_port_remove(struct us
- 
- static const struct usb_device_id id_table[] = {
- 	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNINET_ID) },
-+	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNI_56K_PLUS_ID) },
- 	{ USB_DEVICE(ZYXEL_VENDOR_ID, BT_IGNITIONPRO_ID) },
- 	{ }						/* Terminating entry */
- };
+--- a/include/linux/usb/pd.h
++++ b/include/linux/usb/pd.h
+@@ -434,7 +434,7 @@ static inline unsigned int rdo_max_power
+ #define PD_T_SENDER_RESPONSE	60	/* 24 - 30 ms, relaxed */
+ #define PD_T_SOURCE_ACTIVITY	45
+ #define PD_T_SINK_ACTIVITY	135
+-#define PD_T_SINK_WAIT_CAP	240
++#define PD_T_SINK_WAIT_CAP	310	/* 310 - 620 ms */
+ #define PD_T_PS_TRANSITION	500
+ #define PD_T_SRC_TRANSITION	35
+ #define PD_T_DRP_SNK		40
 
 
