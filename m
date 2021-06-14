@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D98F3A61FD
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9D13A60E3
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234128AbhFNKyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:54:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59780 "EHLO mail.kernel.org"
+        id S234144AbhFNKkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:40:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234480AbhFNKwE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:52:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91CC361474;
-        Mon, 14 Jun 2021 10:39:16 +0000 (UTC)
+        id S233514AbhFNKhG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:37:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F5206140D;
+        Mon, 14 Jun 2021 10:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667157;
-        bh=em3TqvbmWiyZKlweTdDiS4zUd7yZKvdBMVRuYwXX6lg=;
+        s=korg; t=1623666798;
+        bh=7P8EsJh8qLdqkjWHvgkVR97WWApO6HK8ZHQQN7jUtY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRFQIFZ1P37iTibeFyudBCjt50YLthEOKdog5UYV40b8mAPeeEi9efdXzvT0wzFeL
-         6ZtAwIL2zVS57fDjOGaSaKAgBl8PBIUHJB7OvGDqtCNSyg1deLgZ9hKw/GZGU3ycRb
-         1zaqjkEklV6rFO2ENIUxUDbHgjVYeo9STu1JZt4w=
+        b=gm9rwOGrr/JKKfJH8VIKGHkDZdjskIOvc2fMDlgU67fF+BFYJsAOSQgDBFKHciUb2
+         JeL3u0ba9wmjTwIoRCixAOZjEx/DMXhTNYzOEd88wFjZi7jmSw8VMQusjGd50lgbBA
+         d4XDlY8cengRI8dMTEh7nhGxOzZMeuo5SkqDDW8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Kyle Tso <kyletso@google.com>
-Subject: [PATCH 5.4 48/84] usb: pd: Set PD_T_SINK_WAIT_CAP to 310ms
-Date:   Mon, 14 Jun 2021 12:27:26 +0200
-Message-Id: <20210614102648.003268407@linuxfoundation.org>
+        stable@vger.kernel.org, Linyu Yuan <linyyuan@codeaurora.com>
+Subject: [PATCH 4.14 34/49] usb: gadget: eem: fix wrong eem header operation
+Date:   Mon, 14 Jun 2021 12:27:27 +0200
+Message-Id: <20210614102642.991598495@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +38,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Tso <kyletso@google.com>
+From: Linyu Yuan <linyyuan@codeaurora.com>
 
-commit 6490fa565534fa83593278267785a694fd378a2b upstream.
+commit 305f670846a31a261462577dd0b967c4fa796871 upstream.
 
-Current timer PD_T_SINK_WAIT_CAP is set to 240ms which will violate the
-SinkWaitCapTimer (tTypeCSinkWaitCap 310 - 620 ms) defined in the PD
-Spec if the port is faster enough when running the state machine. Set it
-to the lower bound 310ms to ensure the timeout is in Spec.
+when skb_clone() or skb_copy_expand() fail,
+it should pull skb with lengh indicated by header,
+or not it will read network data and check it as header.
 
-Fixes: f0690a25a140 ("staging: typec: USB Type-C Port Manager (tcpm)")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Kyle Tso <kyletso@google.com>
-Link: https://lore.kernel.org/r/20210528081613.730661-1-kyletso@google.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Linyu Yuan <linyyuan@codeaurora.com>
+Link: https://lore.kernel.org/r/20210608233547.3767-1-linyyuan@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/usb/pd.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_eem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/usb/pd.h
-+++ b/include/linux/usb/pd.h
-@@ -425,7 +425,7 @@ static inline unsigned int rdo_max_power
- #define PD_T_SENDER_RESPONSE	60	/* 24 - 30 ms, relaxed */
- #define PD_T_SOURCE_ACTIVITY	45
- #define PD_T_SINK_ACTIVITY	135
--#define PD_T_SINK_WAIT_CAP	240
-+#define PD_T_SINK_WAIT_CAP	310	/* 310 - 620 ms */
- #define PD_T_PS_TRANSITION	500
- #define PD_T_SRC_TRANSITION	35
- #define PD_T_DRP_SNK		40
+--- a/drivers/usb/gadget/function/f_eem.c
++++ b/drivers/usb/gadget/function/f_eem.c
+@@ -502,7 +502,7 @@ static int eem_unwrap(struct gether *por
+ 			skb2 = skb_clone(skb, GFP_ATOMIC);
+ 			if (unlikely(!skb2)) {
+ 				DBG(cdev, "unable to unframe EEM packet\n");
+-				continue;
++				goto next;
+ 			}
+ 			skb_trim(skb2, len - ETH_FCS_LEN);
+ 
+@@ -513,7 +513,7 @@ static int eem_unwrap(struct gether *por
+ 			if (unlikely(!skb3)) {
+ 				DBG(cdev, "unable to realign EEM packet\n");
+ 				dev_kfree_skb_any(skb2);
+-				continue;
++				goto next;
+ 			}
+ 			dev_kfree_skb_any(skb2);
+ 			skb_queue_tail(list, skb3);
 
 
