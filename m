@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 280243A643A
+	by mail.lfdr.de (Postfix) with ESMTP id 70A213A643B
 	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235385AbhFNLWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:22:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47606 "EHLO mail.kernel.org"
+        id S235415AbhFNLWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:22:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235993AbhFNLUA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:20:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C0BB61057;
-        Mon, 14 Jun 2021 10:51:38 +0000 (UTC)
+        id S236006AbhFNLUD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:20:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE40A6146E;
+        Mon, 14 Jun 2021 10:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667898;
-        bh=GpfU/dJtA0DE9ufFGk4z6/di0+hAra5dAU9YzJeEG6g=;
+        s=korg; t=1623667901;
+        bh=80xPTjGxB3oWK8U4ReXEVcVbGqODO2pmNPNUiJ8o5bU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJfUDRTkVkF9aOI46gPFtrT200eYiaurYncI3vduAGhHoWMnjp1SyMO81oRNrJxOX
-         qD/azrDTYg5fpX7h8zUhOEVjqLb31Ewa2pME/Q8bMxqyPAsC/L1y4WepG5Ip5kD+F0
-         QIrOhLmTjo1U1QQY9EAR2kfRQ2JITHREjfzClIv8=
+        b=luvIYLRJ04Fv151u0YX3ztNNSbHiJAphSaPMCA9uf6/QreDKxiNm9lJlWorT12CRw
+         e7vIityHygyjdH61YtlTocJ30edNIjsA8aQdLays6qqQhMDlq9iEQoot1ovsxWAr3D
+         KYcwqjrDfuLPFo+56MKENdi3tniVtU782smcvPRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Christoph Fritz <chf.fritz@googlemail.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.12 117/173] regulator: fan53880: Fix missing n_voltages setting
-Date:   Mon, 14 Jun 2021 12:27:29 +0200
-Message-Id: <20210614102702.059812751@linuxfoundation.org>
+Subject: [PATCH 5.12 118/173] regulator: fixed: Ensure enable_counter is correct if reg_domain_disable fails
+Date:   Mon, 14 Jun 2021 12:27:30 +0200
+Message-Id: <20210614102702.091459873@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -42,43 +41,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Axel Lin <axel.lin@ingics.com>
 
-commit 34991ee96fd8477479dd15adadceb6b28b30d9b0 upstream.
+commit 855bfff9d623e7aff6556bfb6831d324dec8d96a upstream.
 
-Fixes: e6dea51e2d41 ("regulator: fan53880: Add initial support")
+dev_pm_genpd_set_performance_state() may fail, so had better to check it's
+return value before decreasing priv->enable_counter.
+
+Fixes: bf3a28cf4241 ("regulator: fixed: support using power domain for enable/disable")
 Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Acked-by: Christoph Fritz <chf.fritz@googlemail.com>
-Link: https://lore.kernel.org/r/20210517105325.1227393-1-axel.lin@ingics.com
+Link: https://lore.kernel.org/r/20210520111811.1806293-1-axel.lin@ingics.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/fan53880.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/regulator/fixed.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/regulator/fan53880.c
-+++ b/drivers/regulator/fan53880.c
-@@ -51,6 +51,7 @@ static const struct regulator_ops fan538
- 		      REGULATOR_LINEAR_RANGE(800000, 0xf, 0x73, 25000),	\
- 		},							\
- 		.n_linear_ranges = 2,					\
-+		.n_voltages =	   0x74,				\
- 		.vsel_reg =	   FAN53880_LDO ## _num ## VOUT,	\
- 		.vsel_mask =	   0x7f,				\
- 		.enable_reg =	   FAN53880_ENABLE,			\
-@@ -76,6 +77,7 @@ static const struct regulator_desc fan53
- 		      REGULATOR_LINEAR_RANGE(600000, 0x1f, 0xf7, 12500),
- 		},
- 		.n_linear_ranges = 2,
-+		.n_voltages =	   0xf8,
- 		.vsel_reg =	   FAN53880_BUCKVOUT,
- 		.vsel_mask =	   0x7f,
- 		.enable_reg =	   FAN53880_ENABLE,
-@@ -95,6 +97,7 @@ static const struct regulator_desc fan53
- 		      REGULATOR_LINEAR_RANGE(3000000, 0x4, 0x70, 25000),
- 		},
- 		.n_linear_ranges = 2,
-+		.n_voltages =	   0x71,
- 		.vsel_reg =	   FAN53880_BOOSTVOUT,
- 		.vsel_mask =	   0x7f,
- 		.enable_reg =	   FAN53880_ENABLE_BOOST,
+--- a/drivers/regulator/fixed.c
++++ b/drivers/regulator/fixed.c
+@@ -88,10 +88,15 @@ static int reg_domain_disable(struct reg
+ {
+ 	struct fixed_voltage_data *priv = rdev_get_drvdata(rdev);
+ 	struct device *dev = rdev->dev.parent;
++	int ret;
++
++	ret = dev_pm_genpd_set_performance_state(dev, 0);
++	if (ret)
++		return ret;
+ 
+ 	priv->enable_counter--;
+ 
+-	return dev_pm_genpd_set_performance_state(dev, 0);
++	return 0;
+ }
+ 
+ static int reg_is_enabled(struct regulator_dev *rdev)
 
 
