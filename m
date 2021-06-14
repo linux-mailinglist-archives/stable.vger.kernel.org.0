@@ -2,40 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6B8A3A6228
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C63803A6234
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233343AbhFNK4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:56:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58192 "EHLO mail.kernel.org"
+        id S234493AbhFNK50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234847AbhFNKyc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:54:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1859261490;
-        Mon, 14 Jun 2021 10:40:22 +0000 (UTC)
+        id S234868AbhFNKyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:54:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2514613B2;
+        Mon, 14 Jun 2021 10:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667222;
-        bh=pKJfy3nXKu+knlbuBGoOjIAmt7isEgtgwAYMAdlimKE=;
+        s=korg; t=1623667225;
+        bh=Yl+uSzJrXU/T1rjMigbL8ARDVORP+1HyJq7z6XFioZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWHXQxv1GoEo1wG5oXqyBduCjuMZytS0Uovg8k4GE6ibyxU9IjMF6PpAG4bS0b4A8
-         qVdd6Apo7hI1D3qa5kvRrVDORKU9eUbxXN/vL72FnP9TwuNLS1xOHUGqR6FBQLGVIk
-         6I/zm073SCvSsOLwG9KwulW+KYZr5WVHkfk2jemA=
+        b=ardE2Yy26BAYMeWPxRzZ/dsfloZoUUZRn+YYnnHFvVBV3Pp/FPZGkY87wDmQXtdk7
+         DsrPdwgHwZry9n+AUO0Fv9qOkapNeDPO/ek2XU5iXjIGgGyKxHFUCLogfEsv//NVp9
+         rvRgV1HVXg+HEesl3Or/rKh6Urx9c7OBUzvGwLMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 74/84] perf session: Correct buffer copying when peeking events
-Date:   Mon, 14 Jun 2021 12:27:52 +0200
-Message-Id: <20210614102648.872694302@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 75/84] kvm: fix previous commit for 32-bit builds
+Date:   Mon, 14 Jun 2021 12:27:53 +0200
+Message-Id: <20210614102648.912571411@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
 References: <20210614102646.341387537@linuxfoundation.org>
@@ -47,55 +38,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 197eecb6ecae0b04bd694432f640ff75597fed9c ]
+commit 4422829e8053068e0225e4d0ef42dc41ea7c9ef5 upstream.
 
-When peeking an event, it has a short path and a long path.  The short
-path uses the session pointer "one_mmap_addr" to directly fetch the
-event; and the long path needs to read out the event header and the
-following event data from file and fill into the buffer pointer passed
-through the argument "buf".
+array_index_nospec does not work for uint64_t on 32-bit builds.
+However, the size of a memory slot must be less than 20 bits wide
+on those system, since the memory slot must fit in the user
+address space.  So just store it in an unsigned long.
 
-The issue is in the long path that it copies the event header and event
-data into the same destination address which pointer "buf", this means
-the event header is overwritten.  We are just lucky to run into the
-short path in most cases, so we don't hit the issue in the long path.
-
-This patch adds the offset "hdr_sz" to the pointer "buf" when copying
-the event data, so that it can reserve the event header which can be
-used properly by its caller.
-
-Fixes: 5a52f33adf02 ("perf session: Add perf_session__peek_event()")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210605052957.1070720-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/session.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/kvm_host.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index 56f3039fe2a7..8ff2c98e9032 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -1631,6 +1631,7 @@ int perf_session__peek_event(struct perf_session *session, off_t file_offset,
- 	if (event->header.size < hdr_sz || event->header.size > buf_sz)
- 		return -1;
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -1051,8 +1051,8 @@ __gfn_to_hva_memslot(struct kvm_memory_s
+ 	 * table walks, do not let the processor speculate loads outside
+ 	 * the guest's registered memslots.
+ 	 */
+-	unsigned long offset = array_index_nospec(gfn - slot->base_gfn,
+-						  slot->npages);
++	unsigned long offset = gfn - slot->base_gfn;
++	offset = array_index_nospec(offset, slot->npages);
+ 	return slot->userspace_addr + offset * PAGE_SIZE;
+ }
  
-+	buf += hdr_sz;
- 	rest = event->header.size - hdr_sz;
- 
- 	if (readn(fd, buf, rest) != (ssize_t)rest)
--- 
-2.30.2
-
 
 
