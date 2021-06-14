@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2D8A3A614A
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DA03A60DC
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233142AbhFNKpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:45:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46840 "EHLO mail.kernel.org"
+        id S233339AbhFNKil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:38:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234042AbhFNKnm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:43:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD9D46143E;
-        Mon, 14 Jun 2021 10:36:03 +0000 (UTC)
+        id S233426AbhFNKgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:36:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC8EB613CD;
+        Mon, 14 Jun 2021 10:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666964;
-        bh=SuggtihpMsh9fAJvUMIoF5EAElH+Je4DslMuUDnCI9Y=;
+        s=korg; t=1623666782;
+        bh=HiVe3URnuR0rBky5i/D8Wmii1TLvcIBRnTuKtx2WEw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxWEdP6GNce62y3UbyCfKR3CBj1zrpAbuTX8tS/KNHCQenbOWgEglIRc4k9BMpYBg
-         gmEqC0mPSH70/9uxFRE0F509vLxsWn2+vlQ0BcbzAJCwJfQvdfQ7lGbGddcepy1z6r
-         NDPm5MStQMHTvGTFdDYoiUspNwrS3/BdpXE426Qs=
+        b=Ftc2Lw/3AEGQP6pFpKM729pquNMuwmB8yvnGUenjt3jPF6D44S/elh8EQGJMSzjX3
+         3x9mTEjwaqpCk8IRRABeqKSr3IXvvf+e0SpidroEQHPHrReH+OsO/LHlN7fsNX3vw5
+         6wVjjWT9aUhw8DMLfvzRBT2FY2YleZ4V7fOBf4j8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Jack Pham <jackp@codeaurora.org>
-Subject: [PATCH 4.19 38/67] usb: dwc3: debugfs: Add and remove endpoint dirs dynamically
+        stable@vger.kernel.org,
+        Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+Subject: [PATCH 4.14 28/49] usb: dwc3: ep0: fix NULL pointer exception
 Date:   Mon, 14 Jun 2021 12:27:21 +0200
-Message-Id: <20210614102645.069216678@linuxfoundation.org>
+Message-Id: <20210614102642.790361172@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,122 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Pham <jackp@codeaurora.org>
+From: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
 
-commit 8d396bb0a5b62b326f6be7594d8bd46b088296bd upstream.
+commit d00889080ab60051627dab1d85831cd9db750e2a upstream.
 
-The DWC3 DebugFS directory and files are currently created once
-during probe.  This includes creation of subdirectories for each
-of the gadget's endpoints.  This works fine for peripheral-only
-controllers, as dwc3_core_init_mode() calls dwc3_gadget_init()
-just prior to calling dwc3_debugfs_init().
+There is no validation of the index from dwc3_wIndex_to_dep() and we might
+be referring a non-existing ep and trigger a NULL pointer exception. In
+certain configurations we might use fewer eps and the index might wrongly
+indicate a larger ep index than existing.
 
-However, for dual-role controllers, dwc3_core_init_mode() will
-instead call dwc3_drd_init() which is problematic in a few ways.
-First, the initial state must be determined, then dwc3_set_mode()
-will have to schedule drd_work and by then dwc3_debugfs_init()
-could have already been invoked.  Even if the initial mode is
-peripheral, dwc3_gadget_init() happens after the DebugFS files
-are created, and worse so if the initial state is host and the
-controller switches to peripheral much later.  And secondly,
-even if the gadget endpoints' debug entries were successfully
-created, if the controller exits peripheral mode, its dwc3_eps
-are freed so the debug files would now hold stale references.
+By adding this validation from the patch we can actually report a wrong
+index back to the caller.
 
-So it is best if the DebugFS endpoint entries are created and
-removed dynamically at the same time the underlying dwc3_eps are.
-Do this by calling dwc3_debugfs_create_endpoint_dir() as each
-endpoint is created, and conversely remove the DebugFS entry when
-the endpoint is freed.
+In our usecase we are using a composite device on an older kernel, but
+upstream might use this fix also. Unfortunately, I cannot describe the
+hardware for others to reproduce the issue as it is a proprietary
+implementation.
 
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+[   82.958261] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a4
+[   82.966891] Mem abort info:
+[   82.969663]   ESR = 0x96000006
+[   82.972703]   Exception class = DABT (current EL), IL = 32 bits
+[   82.978603]   SET = 0, FnV = 0
+[   82.981642]   EA = 0, S1PTW = 0
+[   82.984765] Data abort info:
+[   82.987631]   ISV = 0, ISS = 0x00000006
+[   82.991449]   CM = 0, WnR = 0
+[   82.994409] user pgtable: 4k pages, 39-bit VAs, pgdp = 00000000c6210ccc
+[   83.000999] [00000000000000a4] pgd=0000000053aa5003, pud=0000000053aa5003, pmd=0000000000000000
+[   83.009685] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[   83.026433] Process irq/62-dwc3 (pid: 303, stack limit = 0x000000003985154c)
+[   83.033470] CPU: 0 PID: 303 Comm: irq/62-dwc3 Not tainted 4.19.124 #1
+[   83.044836] pstate: 60000085 (nZCv daIf -PAN -UAO)
+[   83.049628] pc : dwc3_ep0_handle_feature+0x414/0x43c
+[   83.054558] lr : dwc3_ep0_interrupt+0x3b4/0xc94
+
+...
+
+[   83.141788] Call trace:
+[   83.144227]  dwc3_ep0_handle_feature+0x414/0x43c
+[   83.148823]  dwc3_ep0_interrupt+0x3b4/0xc94
+[   83.181546] ---[ end trace aac6b5267d84c32f ]---
+
+Signed-off-by: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210529192932.22912-1-jackp@codeaurora.org
+Link: https://lore.kernel.org/r/20210608162650.58426-1-marian.c.rotariu@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/debug.h   |    3 +++
- drivers/usb/dwc3/debugfs.c |   21 ++-------------------
- drivers/usb/dwc3/gadget.c  |    3 +++
- 3 files changed, 8 insertions(+), 19 deletions(-)
+ drivers/usb/dwc3/ep0.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/dwc3/debug.h
-+++ b/drivers/usb/dwc3/debug.h
-@@ -653,9 +653,12 @@ static inline const char *dwc3_gadget_ge
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -302,6 +302,9 @@ static struct dwc3_ep *dwc3_wIndex_to_de
+ 		epnum |= 1;
  
- 
- #ifdef CONFIG_DEBUG_FS
-+extern void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep);
- extern void dwc3_debugfs_init(struct dwc3 *);
- extern void dwc3_debugfs_exit(struct dwc3 *);
- #else
-+static inline void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
-+{  }
- static inline void dwc3_debugfs_init(struct dwc3 *d)
- {  }
- static inline void dwc3_debugfs_exit(struct dwc3 *d)
---- a/drivers/usb/dwc3/debugfs.c
-+++ b/drivers/usb/dwc3/debugfs.c
-@@ -725,30 +725,14 @@ static void dwc3_debugfs_create_endpoint
- 	}
- }
- 
--static void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep,
--		struct dentry *parent)
-+void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
- {
- 	struct dentry		*dir;
- 
--	dir = debugfs_create_dir(dep->name, parent);
-+	dir = debugfs_create_dir(dep->name, dep->dwc->root);
- 	dwc3_debugfs_create_endpoint_files(dep, dir);
- }
- 
--static void dwc3_debugfs_create_endpoint_dirs(struct dwc3 *dwc,
--		struct dentry *parent)
--{
--	int			i;
--
--	for (i = 0; i < dwc->num_eps; i++) {
--		struct dwc3_ep	*dep = dwc->eps[i];
--
--		if (!dep)
--			continue;
--
--		dwc3_debugfs_create_endpoint_dir(dep, parent);
--	}
--}
--
- void dwc3_debugfs_init(struct dwc3 *dwc)
- {
- 	struct dentry		*root;
-@@ -777,7 +761,6 @@ void dwc3_debugfs_init(struct dwc3 *dwc)
- 				    &dwc3_testmode_fops);
- 		debugfs_create_file("link_state", S_IRUGO | S_IWUSR, root, dwc,
- 				    &dwc3_link_state_fops);
--		dwc3_debugfs_create_endpoint_dirs(dwc, root);
- 	}
- }
- 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2255,6 +2255,8 @@ static int dwc3_gadget_init_endpoint(str
- 	INIT_LIST_HEAD(&dep->started_list);
- 	INIT_LIST_HEAD(&dep->cancelled_list);
- 
-+	dwc3_debugfs_create_endpoint_dir(dep);
+ 	dep = dwc->eps[epnum];
++	if (dep == NULL)
++		return NULL;
 +
- 	return 0;
- }
+ 	if (dep->flags & DWC3_EP_ENABLED)
+ 		return dep;
  
-@@ -2298,6 +2300,7 @@ static void dwc3_gadget_free_endpoints(s
- 			list_del(&dep->endpoint.ep_list);
- 		}
- 
-+		debugfs_remove_recursive(debugfs_lookup(dep->name, dwc->root));
- 		kfree(dep);
- 	}
- }
 
 
