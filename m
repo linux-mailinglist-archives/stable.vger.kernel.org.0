@@ -2,48 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0DE73A6241
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:57:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A9833A60F3
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234559AbhFNK6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59482 "EHLO mail.kernel.org"
+        id S233727AbhFNKk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:40:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234172AbhFNK4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:56:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C7346157F;
-        Mon, 14 Jun 2021 10:40:53 +0000 (UTC)
+        id S233255AbhFNKiS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:38:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7845F611EE;
+        Mon, 14 Jun 2021 10:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667253;
-        bh=otx6t5Og+OrJM4VmCGOfjHhplA92j5Q3JUx8uOTuIR0=;
+        s=korg; t=1623666830;
+        bh=u9DovFNmDWokk/V8+pYMtCSixDEdBuOH+aSz78ancAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTP/O2FaiRqupfvVYxy2LWXo3ZgvLnW19AcHD45A+SkDiNZiDyEes0wghF/Szp9e7
-         7VMT0nM/C3yUxO+1Ttlq/Xc31MOUrczIGeZNUdXixaKIPdt2DmbDu5f8GL0z941kJC
-         eXRjBpkHhqPXBMXxUcZ0krdBy7w7NF6sZwDdBVIM=
+        b=ZGesR6r1tv4CWWk67UxcNcUhntEMM1KC84KsFnCynRJOC7RqjtYtjFG2LjbNbxJlR
+         TQ3dQoMYEBpXQhl1YlwiK2iIDG+JzuziI4VVIP/1GmbUIVJ930OYjiNprupKayDQj6
+         eR4HZnVUH0ms7WcTO2UJpZOoHfaZSm1laxWEoqoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felipe Balbi <balbi@kernel.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Michael R Sweet <msweet@msweet.org>,
-        Mike Christie <michael.christie@oracle.com>,
-        Pawel Laszczak <pawell@cadence.com>,
-        Peter Chen <peter.chen@nxp.com>,
-        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
-        Wei Ming Chen <jj251510319013@gmail.com>,
-        Will McVicker <willmcvicker@google.com>,
-        Zqiang <qiang.zhang@windriver.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Subject: [PATCH 5.4 60/84] usb: fix various gadgets null ptr deref on 10gbps cabling.
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        John Garry <john.garry@huawei.com>,
+        Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 45/49] scsi: core: Fix error handling of scsi_host_alloc()
 Date:   Mon, 14 Jun 2021 12:27:38 +0200
-Message-Id: <20210614102648.422062574@linuxfoundation.org>
+Message-Id: <20210614102643.332166911@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,159 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 90c4d05780d47e14a50e11a7f17373104cd47d25 upstream.
+commit 66a834d092930cf41d809c0e989b13cd6f9ca006 upstream.
 
-This avoids a null pointer dereference in
-f_{ecm,eem,hid,loopback,printer,rndis,serial,sourcesink,subset,tcm}
-by simply reusing the 5gbps config for 10gbps.
+After device is initialized via device_initialize(), or its name is set via
+dev_set_name(), the device has to be freed via put_device().  Otherwise
+device name will be leaked because it is allocated dynamically in
+dev_set_name().
 
-Fixes: eaef50c76057 ("usb: gadget: Update usb_assign_descriptors for SuperSpeedPlus")
-Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: Michael R Sweet <msweet@msweet.org>
-Cc: Mike Christie <michael.christie@oracle.com>
-Cc: Pawel Laszczak <pawell@cadence.com>
-Cc: Peter Chen <peter.chen@nxp.com>
-Cc: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
-Cc: Wei Ming Chen <jj251510319013@gmail.com>
-Cc: Will McVicker <willmcvicker@google.com>
-Cc: Zqiang <qiang.zhang@windriver.com>
-Reviewed-By: Lorenzo Colitti <lorenzo@google.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20210608044141.3898496-1-zenczykowski@gmail.com
+Fix the leak by replacing kfree() with put_device(). Since
+scsi_host_dev_release() properly handles IDA and kthread removal, remove
+special-casing these from the error handling as well.
+
+Link: https://lore.kernel.org/r/20210602133029.2864069-2-ming.lei@redhat.com
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ecm.c        |    2 +-
- drivers/usb/gadget/function/f_eem.c        |    2 +-
- drivers/usb/gadget/function/f_hid.c        |    3 ++-
- drivers/usb/gadget/function/f_loopback.c   |    2 +-
- drivers/usb/gadget/function/f_printer.c    |    3 ++-
- drivers/usb/gadget/function/f_rndis.c      |    2 +-
- drivers/usb/gadget/function/f_serial.c     |    2 +-
- drivers/usb/gadget/function/f_sourcesink.c |    3 ++-
- drivers/usb/gadget/function/f_subset.c     |    2 +-
- drivers/usb/gadget/function/f_tcm.c        |    3 ++-
- 10 files changed, 14 insertions(+), 10 deletions(-)
+ drivers/scsi/hosts.c |   23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
---- a/drivers/usb/gadget/function/f_ecm.c
-+++ b/drivers/usb/gadget/function/f_ecm.c
-@@ -791,7 +791,7 @@ ecm_bind(struct usb_configuration *c, st
- 		fs_ecm_notify_desc.bEndpointAddress;
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -404,8 +404,10 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	mutex_init(&shost->scan_mutex);
  
- 	status = usb_assign_descriptors(f, ecm_fs_function, ecm_hs_function,
--			ecm_ss_function, NULL);
-+			ecm_ss_function, ecm_ss_function);
- 	if (status)
- 		goto fail;
+ 	index = ida_simple_get(&host_index_ida, 0, 0, GFP_KERNEL);
+-	if (index < 0)
+-		goto fail_kfree;
++	if (index < 0) {
++		kfree(shost);
++		return NULL;
++	}
+ 	shost->host_no = index;
  
---- a/drivers/usb/gadget/function/f_eem.c
-+++ b/drivers/usb/gadget/function/f_eem.c
-@@ -304,7 +304,7 @@ static int eem_bind(struct usb_configura
- 	eem_ss_out_desc.bEndpointAddress = eem_fs_out_desc.bEndpointAddress;
+ 	shost->dma_channel = 0xff;
+@@ -493,7 +495,7 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 		shost_printk(KERN_WARNING, shost,
+ 			"error handler thread failed to spawn, error = %ld\n",
+ 			PTR_ERR(shost->ehandler));
+-		goto fail_index_remove;
++		goto fail;
+ 	}
  
- 	status = usb_assign_descriptors(f, eem_fs_function, eem_hs_function,
--			eem_ss_function, NULL);
-+			eem_ss_function, eem_ss_function);
- 	if (status)
- 		goto fail;
+ 	shost->tmf_work_q = alloc_workqueue("scsi_tmf_%d",
+@@ -502,17 +504,18 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	if (!shost->tmf_work_q) {
+ 		shost_printk(KERN_WARNING, shost,
+ 			     "failed to create tmf workq\n");
+-		goto fail_kthread;
++		goto fail;
+ 	}
+ 	scsi_proc_hostdir_add(shost->hostt);
+ 	return shost;
++ fail:
++	/*
++	 * Host state is still SHOST_CREATED and that is enough to release
++	 * ->shost_gendev. scsi_host_dev_release() will free
++	 * dev_name(&shost->shost_dev).
++	 */
++	put_device(&shost->shost_gendev);
  
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -808,7 +808,8 @@ static int hidg_bind(struct usb_configur
- 		hidg_fs_out_ep_desc.bEndpointAddress;
- 
- 	status = usb_assign_descriptors(f, hidg_fs_descriptors,
--			hidg_hs_descriptors, hidg_ss_descriptors, NULL);
-+			hidg_hs_descriptors, hidg_ss_descriptors,
-+			hidg_ss_descriptors);
- 	if (status)
- 		goto fail;
- 
---- a/drivers/usb/gadget/function/f_loopback.c
-+++ b/drivers/usb/gadget/function/f_loopback.c
-@@ -207,7 +207,7 @@ autoconf_fail:
- 	ss_loop_sink_desc.bEndpointAddress = fs_loop_sink_desc.bEndpointAddress;
- 
- 	ret = usb_assign_descriptors(f, fs_loopback_descs, hs_loopback_descs,
--			ss_loopback_descs, NULL);
-+			ss_loopback_descs, ss_loopback_descs);
- 	if (ret)
- 		return ret;
- 
---- a/drivers/usb/gadget/function/f_printer.c
-+++ b/drivers/usb/gadget/function/f_printer.c
-@@ -1063,7 +1063,8 @@ autoconf_fail:
- 	ss_ep_out_desc.bEndpointAddress = fs_ep_out_desc.bEndpointAddress;
- 
- 	ret = usb_assign_descriptors(f, fs_printer_function,
--			hs_printer_function, ss_printer_function, NULL);
-+			hs_printer_function, ss_printer_function,
-+			ss_printer_function);
- 	if (ret)
- 		return ret;
- 
---- a/drivers/usb/gadget/function/f_rndis.c
-+++ b/drivers/usb/gadget/function/f_rndis.c
-@@ -789,7 +789,7 @@ rndis_bind(struct usb_configuration *c,
- 	ss_notify_desc.bEndpointAddress = fs_notify_desc.bEndpointAddress;
- 
- 	status = usb_assign_descriptors(f, eth_fs_function, eth_hs_function,
--			eth_ss_function, NULL);
-+			eth_ss_function, eth_ss_function);
- 	if (status)
- 		goto fail;
- 
---- a/drivers/usb/gadget/function/f_serial.c
-+++ b/drivers/usb/gadget/function/f_serial.c
-@@ -233,7 +233,7 @@ static int gser_bind(struct usb_configur
- 	gser_ss_out_desc.bEndpointAddress = gser_fs_out_desc.bEndpointAddress;
- 
- 	status = usb_assign_descriptors(f, gser_fs_function, gser_hs_function,
--			gser_ss_function, NULL);
-+			gser_ss_function, gser_ss_function);
- 	if (status)
- 		goto fail;
- 	dev_dbg(&cdev->gadget->dev, "generic ttyGS%d: %s speed IN/%s OUT/%s\n",
---- a/drivers/usb/gadget/function/f_sourcesink.c
-+++ b/drivers/usb/gadget/function/f_sourcesink.c
-@@ -431,7 +431,8 @@ no_iso:
- 	ss_iso_sink_desc.bEndpointAddress = fs_iso_sink_desc.bEndpointAddress;
- 
- 	ret = usb_assign_descriptors(f, fs_source_sink_descs,
--			hs_source_sink_descs, ss_source_sink_descs, NULL);
-+			hs_source_sink_descs, ss_source_sink_descs,
-+			ss_source_sink_descs);
- 	if (ret)
- 		return ret;
- 
---- a/drivers/usb/gadget/function/f_subset.c
-+++ b/drivers/usb/gadget/function/f_subset.c
-@@ -358,7 +358,7 @@ geth_bind(struct usb_configuration *c, s
- 		fs_subset_out_desc.bEndpointAddress;
- 
- 	status = usb_assign_descriptors(f, fs_eth_function, hs_eth_function,
--			ss_eth_function, NULL);
-+			ss_eth_function, ss_eth_function);
- 	if (status)
- 		goto fail;
- 
---- a/drivers/usb/gadget/function/f_tcm.c
-+++ b/drivers/usb/gadget/function/f_tcm.c
-@@ -2056,7 +2056,8 @@ static int tcm_bind(struct usb_configura
- 	uasp_fs_cmd_desc.bEndpointAddress = uasp_ss_cmd_desc.bEndpointAddress;
- 
- 	ret = usb_assign_descriptors(f, uasp_fs_function_desc,
--			uasp_hs_function_desc, uasp_ss_function_desc, NULL);
-+			uasp_hs_function_desc, uasp_ss_function_desc,
-+			uasp_ss_function_desc);
- 	if (ret)
- 		goto ep_fail;
- 
+- fail_kthread:
+-	kthread_stop(shost->ehandler);
+- fail_index_remove:
+-	ida_simple_remove(&host_index_ida, shost->host_no);
+- fail_kfree:
+-	kfree(shost);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL(scsi_host_alloc);
 
 
