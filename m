@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F543A61E3
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:51:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2FF23A606E
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234066AbhFNKwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:52:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52488 "EHLO mail.kernel.org"
+        id S233212AbhFNKeh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:34:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233344AbhFNKum (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:50:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB34E6140F;
-        Mon, 14 Jun 2021 10:38:49 +0000 (UTC)
+        id S233238AbhFNKdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:33:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93F5161206;
+        Mon, 14 Jun 2021 10:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667130;
-        bh=tAgHRmkXbDK9L6KTY2aEI9h5uKtmlvcQL2UoUrvwWgI=;
+        s=korg; t=1623666664;
+        bh=nIABbGFDIi3CQkEggmptsX4x7g/ManHCNEpNMEegHLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myWoaw1DnGnXpiaWYXcYZ4jirl+D0XZ4+OKjw3EfgRpFmu35Jwp8tkTfE6WJbnw4E
-         kUZVNV+AWs/1/3uYcte1SOFJWr/s3Ee0AEhHdin2wiWYIsnHIhNZO1tJIJFc3oqsY6
-         6drjOgJZluuBZL0jHY3Tb8/JhlD98WzburQr4S6s=
+        b=NZQ2J0WKxxsvIqzXOkK423DmEKeGb6Zqpfkuf287C6B7HR2dcTvdZiEYFGFyuvdPW
+         17bTj65lHkxs8pxj1OfSWzcVG/gtry9sZJNoItPxESyTR4+Nnb29x+NvxKwzePvCSO
+         j6jnpxbtPFksP8Zk3b/4zS+2Fcla9iwuK2Pjvp28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.4 39/84] drm: Fix use-after-free read in drm_getunique()
+        Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+Subject: [PATCH 4.9 26/42] usb: dwc3: ep0: fix NULL pointer exception
 Date:   Mon, 14 Jun 2021 12:27:17 +0200
-Message-Id: <20210614102647.698537554@linuxfoundation.org>
+Message-Id: <20210614102643.540257953@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
 
-commit b436acd1cf7fac0ba987abd22955d98025c80c2b upstream.
+commit d00889080ab60051627dab1d85831cd9db750e2a upstream.
 
-There is a time-of-check-to-time-of-use error in drm_getunique() due
-to retrieving file_priv->master prior to locking the device's master
-mutex.
+There is no validation of the index from dwc3_wIndex_to_dep() and we might
+be referring a non-existing ep and trigger a NULL pointer exception. In
+certain configurations we might use fewer eps and the index might wrongly
+indicate a larger ep index than existing.
 
-An example can be seen in the crash report of the use-after-free error
-found by Syzbot:
-https://syzkaller.appspot.com/bug?id=148d2f1dfac64af52ffd27b661981a540724f803
+By adding this validation from the patch we can actually report a wrong
+index back to the caller.
 
-In the report, the master pointer was used after being freed. This is
-because another process had acquired the device's master mutex in
-drm_setmaster_ioctl(), then overwrote fpriv->master in
-drm_new_set_master(). The old value of fpriv->master was subsequently
-freed before the mutex was unlocked.
+In our usecase we are using a composite device on an older kernel, but
+upstream might use this fix also. Unfortunately, I cannot describe the
+hardware for others to reproduce the issue as it is a proprietary
+implementation.
 
-To fix this, we lock the device's master mutex before retrieving the
-pointer from from fpriv->master. This patch passes the Syzbot
-reproducer test.
+[   82.958261] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a4
+[   82.966891] Mem abort info:
+[   82.969663]   ESR = 0x96000006
+[   82.972703]   Exception class = DABT (current EL), IL = 32 bits
+[   82.978603]   SET = 0, FnV = 0
+[   82.981642]   EA = 0, S1PTW = 0
+[   82.984765] Data abort info:
+[   82.987631]   ISV = 0, ISS = 0x00000006
+[   82.991449]   CM = 0, WnR = 0
+[   82.994409] user pgtable: 4k pages, 39-bit VAs, pgdp = 00000000c6210ccc
+[   83.000999] [00000000000000a4] pgd=0000000053aa5003, pud=0000000053aa5003, pmd=0000000000000000
+[   83.009685] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[   83.026433] Process irq/62-dwc3 (pid: 303, stack limit = 0x000000003985154c)
+[   83.033470] CPU: 0 PID: 303 Comm: irq/62-dwc3 Not tainted 4.19.124 #1
+[   83.044836] pstate: 60000085 (nZCv daIf -PAN -UAO)
+[   83.049628] pc : dwc3_ep0_handle_feature+0x414/0x43c
+[   83.054558] lr : dwc3_ep0_interrupt+0x3b4/0xc94
 
-Reported-by: syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210608110436.239583-1-desmondcheongzx@gmail.com
+...
+
+[   83.141788] Call trace:
+[   83.144227]  dwc3_ep0_handle_feature+0x414/0x43c
+[   83.148823]  dwc3_ep0_interrupt+0x3b4/0xc94
+[   83.181546] ---[ end trace aac6b5267d84c32f ]---
+
+Signed-off-by: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210608162650.58426-1-marian.c.rotariu@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_ioctl.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/usb/dwc3/ep0.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -118,17 +118,18 @@ int drm_getunique(struct drm_device *dev
- 		  struct drm_file *file_priv)
- {
- 	struct drm_unique *u = data;
--	struct drm_master *master = file_priv->master;
-+	struct drm_master *master;
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -328,6 +328,9 @@ static struct dwc3_ep *dwc3_wIndex_to_de
+ 		epnum |= 1;
  
--	mutex_lock(&master->dev->master_mutex);
-+	mutex_lock(&dev->master_mutex);
-+	master = file_priv->master;
- 	if (u->unique_len >= master->unique_len) {
- 		if (copy_to_user(u->unique, master->unique, master->unique_len)) {
--			mutex_unlock(&master->dev->master_mutex);
-+			mutex_unlock(&dev->master_mutex);
- 			return -EFAULT;
- 		}
- 	}
- 	u->unique_len = master->unique_len;
--	mutex_unlock(&master->dev->master_mutex);
-+	mutex_unlock(&dev->master_mutex);
+ 	dep = dwc->eps[epnum];
++	if (dep == NULL)
++		return NULL;
++
+ 	if (dep->flags & DWC3_EP_ENABLED)
+ 		return dep;
  
- 	return 0;
- }
 
 
