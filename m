@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F30E73A648F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B57693A6341
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234664AbhFNL0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:26:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53300 "EHLO mail.kernel.org"
+        id S234678AbhFNLLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:11:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236250AbhFNLYV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:24:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 967AF619AB;
-        Mon, 14 Jun 2021 10:53:23 +0000 (UTC)
+        id S235139AbhFNLIy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:08:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C45F461448;
+        Mon, 14 Jun 2021 10:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623668004;
-        bh=cSmvD6RQQcsGkEoBG+w6uf+f5zg4FZuv25DMhOh0SbU=;
+        s=korg; t=1623667589;
+        bh=d3vysglgx2VDQxV0Ai53lGn9KkchRwONqJV3OJtW5Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IndmBSuoWYokhxlWZzRrg69xJQgxVz7IEZcdyh519LBNkx4c2jJ4ZMYTcRAcbBoma
-         ORSXn0gYPI8paPb5ef3iSndmGjNdexGkvuC8FnNJnWoRVF/Cn7C4xhgWEZr5fKg0cu
-         s/cbQF+r0pQBwgYW7QmHjFz0vA/SqZw1KkijFla0=
+        b=PtfBJwkVKV1hzffHrldGbUZ98x8Rq6IsCh7kGMtusmR0kzARbFQUV4LrJqoZkQ3ux
+         HOfgNslNpjWaK5EodzW5LT9J8J8klinAHnkDp6s6VqE3VCrdHrkMZDsuRR+nT9lW65
+         N29MWcG4JftyqU2V144AJ16fIY1mRV+i0QjjRhS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Xuewen Yan <xuewen.yan@unisoc.com>,
-        Vincent Donnefort <vincent.donnefort@arm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>
-Subject: [PATCH 5.12 157/173] sched/fair: Fix util_est UTIL_AVG_UNCHANGED handling
-Date:   Mon, 14 Jun 2021 12:28:09 +0200
-Message-Id: <20210614102703.391510952@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.de>,
+        John Garry <john.garry@huawei.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 129/131] scsi: core: Put .shost_dev in failure path if host state changes to RUNNING
+Date:   Mon, 14 Jun 2021 12:28:10 +0200
+Message-Id: <20210614102657.402091854@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,150 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 68d7a190682aa4eb02db477328088ebad15acc83 upstream.
+commit 11714026c02d613c30a149c3f4c4a15047744529 upstream.
 
-The util_est internal UTIL_AVG_UNCHANGED flag which is used to prevent
-unnecessary util_est updates uses the LSB of util_est.enqueued. It is
-exposed via _task_util_est() (and task_util_est()).
+scsi_host_dev_release() only frees dev_name when host state is
+SHOST_CREATED. After host state has changed to SHOST_RUNNING,
+scsi_host_dev_release() no longer cleans up.
 
-Commit 92a801e5d5b7 ("sched/fair: Mask UTIL_AVG_UNCHANGED usages")
-mentions that the LSB is lost for util_est resolution but
-find_energy_efficient_cpu() checks if task_util_est() returns 0 to
-return prev_cpu early.
+Fix this by doing a put_device(&shost->shost_dev) in the failure path when
+host state is SHOST_RUNNING. Move get_device(&shost->shost_gendev) before
+device_add(&shost->shost_dev) so that scsi_host_cls_release() can do a put
+on this reference.
 
-_task_util_est() returns the max value of util_est.ewma and
-util_est.enqueued or'ed w/ UTIL_AVG_UNCHANGED.
-So task_util_est() returning the max of task_util() and
-_task_util_est() will never return 0 under the default
-SCHED_FEAT(UTIL_EST, true).
-
-To fix this use the MSB of util_est.enqueued instead and keep the flag
-util_est internal, i.e. don't export it via _task_util_est().
-
-The maximal possible util_avg value for a task is 1024 so the MSB of
-'unsigned int util_est.enqueued' isn't used to store a util value.
-
-As a caveat the code behind the util_est_se trace point has to filter
-UTIL_AVG_UNCHANGED to see the real util_est.enqueued value which should
-be easy to do.
-
-This also fixes an issue report by Xuewen Yan that util_est_update()
-only used UTIL_AVG_UNCHANGED for the subtrahend of the equation:
-
-  last_enqueued_diff = ue.enqueued - (task_util() | UTIL_AVG_UNCHANGED)
-
-Fixes: b89997aa88f0b sched/pelt: Fix task util_est update filtering
-Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Xuewen Yan <xuewen.yan@unisoc.com>
-Reviewed-by: Vincent Donnefort <vincent.donnefort@arm.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20210602145808.1562603-1-dietmar.eggemann@arm.com
+Link: https://lore.kernel.org/r/20210602133029.2864069-4-ming.lei@redhat.com
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Hannes Reinecke <hare@suse.de>
+Reported-by: John Garry <john.garry@huawei.com>
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sched.h |    8 ++++++++
- kernel/sched/debug.c  |    3 ++-
- kernel/sched/fair.c   |    5 +++--
- kernel/sched/pelt.h   |   11 +----------
- 4 files changed, 14 insertions(+), 13 deletions(-)
+ drivers/scsi/hosts.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -350,11 +350,19 @@ struct load_weight {
-  * Only for tasks we track a moving average of the past instantaneous
-  * estimated utilization. This allows to absorb sporadic drops in utilization
-  * of an otherwise almost periodic task.
-+ *
-+ * The UTIL_AVG_UNCHANGED flag is used to synchronize util_est with util_avg
-+ * updates. When a task is dequeued, its util_est should not be updated if its
-+ * util_avg has not been updated in the meantime.
-+ * This information is mapped into the MSB bit of util_est.enqueued at dequeue
-+ * time. Since max value of util_est.enqueued for a task is 1024 (PELT util_avg
-+ * for a task) it is safe to use MSB.
-  */
- struct util_est {
- 	unsigned int			enqueued;
- 	unsigned int			ewma;
- #define UTIL_EST_WEIGHT_SHIFT		2
-+#define UTIL_AVG_UNCHANGED		0x80000000
- } __attribute__((__aligned__(sizeof(u64))));
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -254,12 +254,11 @@ int scsi_add_host_with_dma(struct Scsi_H
  
- /*
---- a/kernel/sched/debug.c
-+++ b/kernel/sched/debug.c
-@@ -888,6 +888,7 @@ __initcall(init_sched_debug_procfs);
- #define __PS(S, F) SEQ_printf(m, "%-45s:%21Ld\n", S, (long long)(F))
- #define __P(F) __PS(#F, F)
- #define   P(F) __PS(#F, p->F)
-+#define   PM(F, M) __PS(#F, p->F & (M))
- #define __PSN(S, F) SEQ_printf(m, "%-45s:%14Ld.%06ld\n", S, SPLIT_NS((long long)(F)))
- #define __PN(F) __PSN(#F, F)
- #define   PN(F) __PSN(#F, p->F)
-@@ -1014,7 +1015,7 @@ void proc_sched_show_task(struct task_st
- 	P(se.avg.util_avg);
- 	P(se.avg.last_update_time);
- 	P(se.avg.util_est.ewma);
--	P(se.avg.util_est.enqueued);
-+	PM(se.avg.util_est.enqueued, ~UTIL_AVG_UNCHANGED);
- #endif
- #ifdef CONFIG_UCLAMP_TASK
- 	__PS("uclamp.min", p->uclamp_req[UCLAMP_MIN].value);
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3896,7 +3896,7 @@ static inline unsigned long _task_util_e
- {
- 	struct util_est ue = READ_ONCE(p->se.avg.util_est);
+ 	device_enable_async_suspend(&shost->shost_dev);
  
--	return (max(ue.ewma, ue.enqueued) | UTIL_AVG_UNCHANGED);
-+	return max(ue.ewma, (ue.enqueued & ~UTIL_AVG_UNCHANGED));
- }
++	get_device(&shost->shost_gendev);
+ 	error = device_add(&shost->shost_dev);
+ 	if (error)
+ 		goto out_del_gendev;
  
- static inline unsigned long task_util_est(struct task_struct *p)
-@@ -3996,7 +3996,7 @@ static inline void util_est_update(struc
- 	 * Reset EWMA on utilization increases, the moving average is used only
- 	 * to smooth utilization decreases.
- 	 */
--	ue.enqueued = (task_util(p) | UTIL_AVG_UNCHANGED);
-+	ue.enqueued = task_util(p);
- 	if (sched_feat(UTIL_EST_FASTUP)) {
- 		if (ue.ewma < ue.enqueued) {
- 			ue.ewma = ue.enqueued;
-@@ -4045,6 +4045,7 @@ static inline void util_est_update(struc
- 	ue.ewma  += last_ewma_diff;
- 	ue.ewma >>= UTIL_EST_WEIGHT_SHIFT;
- done:
-+	ue.enqueued |= UTIL_AVG_UNCHANGED;
- 	WRITE_ONCE(p->se.avg.util_est, ue);
- 
- 	trace_sched_util_est_se_tp(&p->se);
---- a/kernel/sched/pelt.h
-+++ b/kernel/sched/pelt.h
-@@ -42,15 +42,6 @@ static inline u32 get_pelt_divider(struc
- 	return LOAD_AVG_MAX - 1024 + avg->period_contrib;
- }
- 
--/*
-- * When a task is dequeued, its estimated utilization should not be update if
-- * its util_avg has not been updated at least once.
-- * This flag is used to synchronize util_avg updates with util_est updates.
-- * We map this information into the LSB bit of the utilization saved at
-- * dequeue time (i.e. util_est.dequeued).
-- */
--#define UTIL_AVG_UNCHANGED 0x1
+-	get_device(&shost->shost_gendev);
 -
- static inline void cfs_se_util_change(struct sched_avg *avg)
- {
- 	unsigned int enqueued;
-@@ -58,7 +49,7 @@ static inline void cfs_se_util_change(st
- 	if (!sched_feat(UTIL_EST))
- 		return;
- 
--	/* Avoid store if the flag has been already set */
-+	/* Avoid store if the flag has been already reset */
- 	enqueued = avg->util_est.enqueued;
- 	if (!(enqueued & UTIL_AVG_UNCHANGED))
- 		return;
+ 	if (shost->transportt->host_size) {
+ 		shost->shost_data = kzalloc(shost->transportt->host_size,
+ 					 GFP_KERNEL);
+@@ -297,6 +296,11 @@ int scsi_add_host_with_dma(struct Scsi_H
+  out_del_dev:
+ 	device_del(&shost->shost_dev);
+  out_del_gendev:
++	/*
++	 * Host state is SHOST_RUNNING so we have to explicitly release
++	 * ->shost_dev.
++	 */
++	put_device(&shost->shost_dev);
+ 	device_del(&shost->shost_gendev);
+  out_disable_runtime_pm:
+ 	device_disable_async_suspend(&shost->shost_gendev);
 
 
