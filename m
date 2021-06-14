@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 418543A6479
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD1593A634F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:11:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234869AbhFNLZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:25:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50580 "EHLO mail.kernel.org"
+        id S234739AbhFNLL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235581AbhFNLWj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:22:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FFC461480;
-        Mon, 14 Jun 2021 10:52:59 +0000 (UTC)
+        id S235213AbhFNLJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:09:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCC6A61935;
+        Mon, 14 Jun 2021 10:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667980;
-        bh=maORWLPVrr9ivQoLTNE0VfpAaNk2Qk2q3HQkmhtjt/c=;
+        s=korg; t=1623667612;
+        bh=Qs9Cio5h40e/M3j0XY31Z5BfMO3Zyc0Lwc1CfiErz3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NoFrBneCkuJFa9K/S/sIjS2Q3K7hWweYXXLmKLKKl5IV/e1I154OQUOd3qiNs0/Sa
-         r0IFKkrQSMaJyIKZD7zARRWM9v5wTFI5WEYaO9uIN3+yr05mUdySoiXnVFM/eKHo+t
-         R81Jk2u3VjNbspVmsDXNCDfFCLGojSJIpGju30Cg=
+        b=CH78yYxqlzGT7LPYRemcU/VTilFKXC1cPYE40m0m3HI4yOcnGaVrZLTSNixyvbI7i
+         SHy3xp3mRuPYJ9ezVpnqyUb46byRKWKYvZ20xZ2Y8di4PpTLE3b3HoBFpg1OdlEpM1
+         eiMhJ3QD562bXcaxS1H3Hzff8zzxRucbhFl8F7ZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.12 149/173] gpio: wcd934x: Fix shift-out-of-bounds error
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 120/131] NFS: Fix a potential NULL dereference in nfs_get_client()
 Date:   Mon, 14 Jun 2021 12:28:01 +0200
-Message-Id: <20210614102703.128539930@linuxfoundation.org>
+Message-Id: <20210614102657.094070310@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit dbec64b11c65d74f31427e2b9d5746fbf17bf840 upstream.
+[ Upstream commit 09226e8303beeec10f2ff844d2e46d1371dc58e0 ]
 
-bit-mask for pins 0 to 4 is BIT(0) to BIT(4) however we ended up with BIT(n - 1)
-which is not right, and this was caught by below usban check
+None of the callers are expecting NULL returns from nfs_get_client() so
+this code will lead to an Oops.  It's better to return an error
+pointer.  I expect that this is dead code so hopefully no one is
+affected.
 
-UBSAN: shift-out-of-bounds in drivers/gpio/gpio-wcd934x.c:34:14
-
-Fixes: 59c324683400 ("gpio: wcd934x: Add support to wcd934x gpio controller")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 31434f496abb ("nfs: check hostname in nfs_get_client")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-wcd934x.c |    2 +-
+ fs/nfs/client.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-wcd934x.c
-+++ b/drivers/gpio/gpio-wcd934x.c
-@@ -7,7 +7,7 @@
- #include <linux/slab.h>
- #include <linux/of_device.h>
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index 4b8cc93913f7..723d425796cc 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -406,7 +406,7 @@ struct nfs_client *nfs_get_client(const struct nfs_client_initdata *cl_init)
  
--#define WCD_PIN_MASK(p) BIT(p - 1)
-+#define WCD_PIN_MASK(p) BIT(p)
- #define WCD_REG_DIR_CTL_OFFSET 0x42
- #define WCD_REG_VAL_CTL_OFFSET 0x43
- #define WCD934X_NPINS		5
+ 	if (cl_init->hostname == NULL) {
+ 		WARN_ON(1);
+-		return NULL;
++		return ERR_PTR(-EINVAL);
+ 	}
+ 
+ 	/* see if the client already exists */
+-- 
+2.30.2
+
 
 
