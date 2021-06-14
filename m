@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C1F3A62E6
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:05:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7063A3A62E8
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:05:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234701AbhFNLGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38960 "EHLO mail.kernel.org"
+        id S233935AbhFNLGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:06:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234974AbhFNLEc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:04:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E72E61919;
-        Mon, 14 Jun 2021 10:44:35 +0000 (UTC)
+        id S235044AbhFNLEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:04:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1881761924;
+        Mon, 14 Jun 2021 10:44:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667476;
-        bh=0PEOkMy6BleViziz664TLBeeJPhIJrUK18ritYu7c/I=;
+        s=korg; t=1623667478;
+        bh=O8i0WthJB+Msxsk8udYQ8j9zsmeL9FhHHxYTUIlgsd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xw+reHCWNPjmlC0Si+NabsO1htmq02s4bhVyxGu3qIbw8O1B92P6C7RjsALlqfEOt
-         x5v+A8D1IMoq40fMUeurPt8XR/OQMQrFOgfRuWbKNgz8LbBsBVwAYYynBePuLZWUYK
-         YJjSlpmGno9o5+PIe4vcrgwo5PYCi8v55ggFZUTs=
+        b=lydxkss2LbnyHCMzdfzPjBewJKVceuSa/0O7lq657jEc3InFvO/qPYmuzmMLn+5IX
+         Q3q1OTsGF+5xtWyN7TomAMR0U8314weIxibVYsveFLpO60wqMwI68C/kETlx33dyjG
+         lf+Ljq7OT7NKUiFIBJMDecOIZXA2VfYbCvFP/GyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Subject: [PATCH 5.10 087/131] usb: fix various gadget panics on 10gbps cabling
-Date:   Mon, 14 Jun 2021 12:27:28 +0200
-Message-Id: <20210614102655.956126481@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Li Jun <jun.li@nxp.com>
+Subject: [PATCH 5.10 088/131] usb: typec: tcpm: cancel vdm and state machine hrtimer when unregister tcpm port
+Date:   Mon, 14 Jun 2021 12:27:29 +0200
+Message-Id: <20210614102655.986701333@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -39,64 +39,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Li Jun <jun.li@nxp.com>
 
-commit 032e288097a553db5653af552dd8035cd2a0ba96 upstream.
+commit 3a13ff7ef4349d70d1d18378d661117dd5af8efe upstream.
 
-usb_assign_descriptors() is called with 5 parameters,
-the last 4 of which are the usb_descriptor_header for:
-  full-speed (USB1.1 - 12Mbps [including USB1.0 low-speed @ 1.5Mbps),
-  high-speed (USB2.0 - 480Mbps),
-  super-speed (USB3.0 - 5Gbps),
-  super-speed-plus (USB3.1 - 10Gbps).
+A pending hrtimer may expire after the kthread_worker of tcpm port
+is destroyed, see below kernel dump when do module unload, fix it
+by cancel the 2 hrtimers.
 
-The differences between full/high/super-speed descriptors are usually
-substantial (due to changes in the maximum usb block size from 64 to 512
-to 1024 bytes and other differences in the specs), while the difference
-between 5 and 10Gbps descriptors may be as little as nothing
-(in many cases the same tuning is simply good enough).
+[  111.517018] Unable to handle kernel paging request at virtual address ffff8000118cb880
+[  111.518786] blk_update_request: I/O error, dev sda, sector 60061185 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 0
+[  111.526594] Mem abort info:
+[  111.526597]   ESR = 0x96000047
+[  111.526600]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  111.526604]   SET = 0, FnV = 0
+[  111.526607]   EA = 0, S1PTW = 0
+[  111.526610] Data abort info:
+[  111.526612]   ISV = 0, ISS = 0x00000047
+[  111.526615]   CM = 0, WnR = 1
+[  111.526619] swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000041d75000
+[  111.526623] [ffff8000118cb880] pgd=10000001bffff003, p4d=10000001bffff003, pud=10000001bfffe003, pmd=10000001bfffa003, pte=0000000000000000
+[  111.526642] Internal error: Oops: 96000047 [#1] PREEMPT SMP
+[  111.526647] Modules linked in: dwc3_imx8mp dwc3 phy_fsl_imx8mq_usb [last unloaded: tcpci]
+[  111.526663] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.13.0-rc4-00927-gebbe9dbd802c-dirty #36
+[  111.526670] Hardware name: NXP i.MX8MPlus EVK board (DT)
+[  111.526674] pstate: 800000c5 (Nzcv daIF -PAN -UAO -TCO BTYPE=--)
+[  111.526681] pc : queued_spin_lock_slowpath+0x1a0/0x390
+[  111.526695] lr : _raw_spin_lock_irqsave+0x88/0xb4
+[  111.526703] sp : ffff800010003e20
+[  111.526706] x29: ffff800010003e20 x28: ffff00017f380180
+[  111.537156] buffer_io_error: 6 callbacks suppressed
+[  111.537162] Buffer I/O error on dev sda1, logical block 60040704, async page read
+[  111.539932]  x27: ffff00017f3801c0
+[  111.539938] x26: ffff800010ba2490 x25: 0000000000000000 x24: 0000000000000001
+[  111.543025] blk_update_request: I/O error, dev sda, sector 60061186 op 0x0:(READ) flags 0x0 phys_seg 7 prio class 0
+[  111.548304]
+[  111.548306] x23: 00000000000000c0 x22: ffff0000c2a9f184 x21: ffff00017f380180
+[  111.551374] Buffer I/O error on dev sda1, logical block 60040705, async page read
+[  111.554499]
+[  111.554503] x20: ffff0000c5f14210 x19: 00000000000000c0 x18: 0000000000000000
+[  111.557391] Buffer I/O error on dev sda1, logical block 60040706, async page read
+[  111.561218]
+[  111.561222] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+[  111.564205] Buffer I/O error on dev sda1, logical block 60040707, async page read
+[  111.570887] x14: 00000000000000f5 x13: 0000000000000001 x12: 0000000000000040
+[  111.570902] x11: ffff0000c05ac6d8
+[  111.583420] Buffer I/O error on dev sda1, logical block 60040708, async page read
+[  111.588978]  x10: 0000000000000000 x9 : 0000000000040000
+[  111.588988] x8 : 0000000000000000
+[  111.597173] Buffer I/O error on dev sda1, logical block 60040709, async page read
+[  111.605766]  x7 : ffff00017f384880 x6 : ffff8000118cb880
+[  111.605777] x5 : ffff00017f384880
+[  111.611094] Buffer I/O error on dev sda1, logical block 60040710, async page read
+[  111.617086]  x4 : 0000000000000000 x3 : ffff0000c2a9f184
+[  111.617096] x2 : ffff8000118cb880
+[  111.622242] Buffer I/O error on dev sda1, logical block 60040711, async page read
+[  111.626927]  x1 : ffff8000118cb880 x0 : ffff00017f384888
+[  111.626938] Call trace:
+[  111.626942]  queued_spin_lock_slowpath+0x1a0/0x390
+[  111.795809]  kthread_queue_work+0x30/0xc0
+[  111.799828]  state_machine_timer_handler+0x20/0x30
+[  111.804624]  __hrtimer_run_queues+0x140/0x1e0
+[  111.808990]  hrtimer_interrupt+0xec/0x2c0
+[  111.813004]  arch_timer_handler_phys+0x38/0x50
+[  111.817456]  handle_percpu_devid_irq+0x88/0x150
+[  111.821991]  __handle_domain_irq+0x80/0xe0
+[  111.826093]  gic_handle_irq+0xc0/0x140
+[  111.829848]  el1_irq+0xbc/0x154
+[  111.832991]  arch_cpu_idle+0x1c/0x2c
+[  111.836572]  default_idle_call+0x24/0x6c
+[  111.840497]  do_idle+0x238/0x2ac
+[  111.843729]  cpu_startup_entry+0x2c/0x70
+[  111.847657]  rest_init+0xdc/0xec
+[  111.850890]  arch_call_rest_init+0x14/0x20
+[  111.854988]  start_kernel+0x508/0x540
+[  111.858659] Code: 910020e0 8b0200c2 f861d884 aa0203e1 (f8246827)
+[  111.864760] ---[ end trace 308b9a4a3dcb73ac ]---
+[  111.869381] Kernel panic - not syncing: Oops: Fatal exception in interrupt
+[  111.876258] SMP: stopping secondary CPUs
+[  111.880185] Kernel Offset: disabled
+[  111.883673] CPU features: 0x00001001,20000846
+[  111.888031] Memory Limit: none
+[  111.891090] ---[ end Kernel panic - not syncing: Oops: Fatal exception in interrupt ]---
 
-However if a gadget driver calls usb_assign_descriptors() with
-a NULL descriptor for super-speed-plus and is then used on a max 10gbps
-configuration, the kernel will crash with a null pointer dereference,
-when a 10gbps capable device port + cable + host port combination shows up.
-(This wouldn't happen if the gadget max-speed was set to 5gbps, but
-it of course defaults to the maximum, and there's no real reason to
-artificially limit it)
-
-The fix is to simply use the 5gbps descriptor as the 10gbps descriptor,
-if a 10gbps descriptor wasn't provided.
-
-Obviously this won't fix the problem if the 5gbps descriptor is also
-NULL, but such cases can't be so trivially solved (and any such gadgets
-are unlikely to be used with USB3 ports any way).
-
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Fixes: 3ed8e1c2ac99 ("usb: typec: tcpm: Migrate workqueue to RT priority for processing events")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210609024459.1126080-1-zenczykowski@gmail.com
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Link: https://lore.kernel.org/r/1622627829-11070-1-git-send-email-jun.li@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/config.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/typec/tcpm/tcpm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/gadget/config.c
-+++ b/drivers/usb/gadget/config.c
-@@ -164,6 +164,14 @@ int usb_assign_descriptors(struct usb_fu
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -5187,6 +5187,9 @@ void tcpm_unregister_port(struct tcpm_po
  {
- 	struct usb_gadget *g = f->config->cdev->gadget;
+ 	int i;
  
-+	/* super-speed-plus descriptor falls back to super-speed one,
-+	 * if such a descriptor was provided, thus avoiding a NULL
-+	 * pointer dereference if a 5gbps capable gadget is used with
-+	 * a 10gbps capable config (device port + cable + host port)
-+	 */
-+	if (!ssp)
-+		ssp = ss;
++	hrtimer_cancel(&port->vdm_state_machine_timer);
++	hrtimer_cancel(&port->state_machine_timer);
 +
- 	if (fs) {
- 		f->fs_descriptors = usb_copy_descriptors(fs);
- 		if (!f->fs_descriptors)
+ 	tcpm_reset_port(port);
+ 	for (i = 0; i < ARRAY_SIZE(port->port_altmode); i++)
+ 		typec_unregister_altmode(port->port_altmode[i]);
 
 
