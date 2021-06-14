@@ -2,87 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F01C63A68A1
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 16:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14DE33A68C9
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 16:16:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233180AbhFNOEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 10:04:47 -0400
-Received: from mail-pl1-f172.google.com ([209.85.214.172]:39918 "EHLO
-        mail-pl1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233998AbhFNOEq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 10:04:46 -0400
-Received: by mail-pl1-f172.google.com with SMTP id v11so6606029ply.6;
-        Mon, 14 Jun 2021 07:02:29 -0700 (PDT)
+        id S232809AbhFNOSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 10:18:11 -0400
+Received: from mail-wr1-f42.google.com ([209.85.221.42]:37580 "EHLO
+        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232890AbhFNOSK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 10:18:10 -0400
+Received: by mail-wr1-f42.google.com with SMTP id i94so14708482wri.4;
+        Mon, 14 Jun 2021 07:16:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=s4p3dw7oIfdQoFT07HVLF2BIw5Xk5aaqZSJ+5CsRAH8=;
-        b=tij0bsvbnbllhsjEvjQapbZcIKGkodJud3kAUj35bR8BpmF1Q/Yq6gzLlXVnBdrizd
-         0WP3uVrYGnjuDYqn9KPDAdXnM+Ow5gJSYROoiK2MwHI/6YMaAju3n1RhEEkJaPP2x1Ar
-         QrxeJ9liRXibkdPaa5V2lEm052dzUIZBaHVx0F2O7Nj0l4TLw1TgO6auglbegquJ+vgB
-         eTF4B/qWfKuP4hgUt5JoBbaowKeJXuHVQ5RhXci0KS5vEQVwMS1+1bK5WTQOXzF6RwJ4
-         kPXX8UQyiWjAcOpmGvGQuiEPCud6UsoAbLNlhj9jXYFT4KBRSs7bTXZx7FtnC4XPrRiU
-         86EA==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Nv8sCghoU/z4tN6pql6xoUnldOs3jUg913mwIKWSKs0=;
+        b=IaXhDbnblhRX4Dj2Pw5J7M3I9iuRNU3DIVktue8Or1bI37wHgSeoYfIepRxio7yMWm
+         zA0wy2rDDVcyopuOVBdaE1zjQxO8xR+EV/A4v6frji+ECJOc7PRD4gx/d93wI0Clo3CD
+         UHpkwc0u3NlS9dq7zENaPPvcMaHb6bm1DSg9oHP/LNsP7ItKAGtGdwrvyDJ6/Uer5rTY
+         SQ4JKRrBU+w74qOaLQKC+3Kf2qO0bW4LeuGRp9y0Ez6lM2Nw4GqhX6o9ZaJQDROrisv2
+         i4tnv/uZ0UkMTYZqMKtwTXpqScBNVON5eOI8QuMKTIvohnKIN0U64xHM8Ipgq0vhsyd1
+         nT1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=s4p3dw7oIfdQoFT07HVLF2BIw5Xk5aaqZSJ+5CsRAH8=;
-        b=TjApuHBSSXz74EvcGv+kAB+JsgpbeN7q0r6wbU2AI7HRTO/W2R4QqPWzhkKhQ01Ych
-         obvVH7GQxSuM9Z72cc7G/uYcY0x2IA9WjZ473p2ryMJJXp8IAsxbsfHQggzR8PdHl6fn
-         maC2Bg6LLu7RuaVEmEJ4EjJRMIuHfJQyZsVrANq/whqo7m40v9O1GBKRH6+SrGokDfcM
-         5wNjDBkFvPSu2cxrOjjVok2A/YSmwonwPHO/35WSrxGoLGl7+/DhchWAGytj0KsiULS8
-         GTGGEp7gcD8kEA+eLo6MUqyltYSWpi1VVjCHiIg5KxrwFlqFNQdz1m5iWYzchfYifvb/
-         WwAQ==
-X-Gm-Message-State: AOAM532yKs7WpGxPE+Q1boFlPh4IrY/kKenxpkgKBY/dbJhKObqcuBXl
-        Kl/BDDuRgE6zGuY8EM3dNt3M8NHROQ1Rifv+xkg=
-X-Google-Smtp-Source: ABdhPJxHhqfrNxrAmYejLohWEqvmGIR/4Q6zI9EwAT0Mm+oNEmZIB5sYp6ecXTfiKcS1915dW8iFHQ==
-X-Received: by 2002:a17:90a:31c4:: with SMTP id j4mr24063049pjf.105.1623679288403;
-        Mon, 14 Jun 2021 07:01:28 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id t1sm12584258pjs.20.2021.06.14.07.01.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Jun 2021 07:01:27 -0700 (PDT)
-Message-ID: <60c76137.1c69fb81.65d98.3853@mx.google.com>
-Date:   Mon, 14 Jun 2021 07:01:27 -0700 (PDT)
-X-Google-Original-Date: Mon, 14 Jun 2021 14:01:26 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 000/131] 5.10.44-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
+        bh=Nv8sCghoU/z4tN6pql6xoUnldOs3jUg913mwIKWSKs0=;
+        b=LZ9sm4/XWcitSFQNIlNDX2tQWo168SNHhTgQotRJeu6tFt6gO9WIVJqoOWUNVl1Q/x
+         TwAtOT+g0O7+qFn5Qx1Z8BbyyaFQBfWPyU22YLaghaLJLceK4LEgvHR49nDPSvupXm7/
+         PkvMQWP8mOEI7jXzTAHhKHNw6fBkRSrGRqe89Pb6rjrJtMI74mymXVSYeRUUxQdxzEC+
+         nrK2b3Y0d7oI0UHCWVED4/Glc97yGgqJWgzBI5kWQn0P7o+j0sUuVtdz/RpvX+hIFe65
+         WfBYbKU6Mxyl+6CTJ3gtEYFmGJYUIkjM19d7SwafOS68uGlpNFV3wDm8VJWhBjIWmG3L
+         kppw==
+X-Gm-Message-State: AOAM530dTTCwQyFGNrQL8cfCtQMB29qO3HI00L8xmg7713kBfMb0alft
+        DcD1T8XFxZvRcAQd8pQzs2x4CaxBqkk=
+X-Google-Smtp-Source: ABdhPJyyC2BKBidatirkK3+o41GNY290g5haHJkw48TwQSxkA7kd1QhAYxnvyHe4DH0mOiQT2Bmmow==
+X-Received: by 2002:a05:6000:184c:: with SMTP id c12mr19551152wri.196.1623680107011;
+        Mon, 14 Jun 2021 07:15:07 -0700 (PDT)
+Received: from [192.168.181.98] (199.106.23.93.rev.sfr.net. [93.23.106.199])
+        by smtp.gmail.com with ESMTPSA id h11sm13060093wmq.34.2021.06.14.07.15.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 14 Jun 2021 07:15:06 -0700 (PDT)
+Subject: Re: [PATCH 5.4 39/78] Bluetooth: use correct lock to prevent UAF of
+ hdev object
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Marcel Holtmann <marcel@holtmann.org>
+References: <20210608175935.254388043@linuxfoundation.org>
+ <20210608175936.584233292@linuxfoundation.org>
+From:   Eric Dumazet <eric.dumazet@gmail.com>
+Message-ID: <def3c8d4-a787-8536-e743-adf90a0c5352@gmail.com>
+Date:   Mon, 14 Jun 2021 16:15:02 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
+MIME-Version: 1.0
+In-Reply-To: <20210608175936.584233292@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 14 Jun 2021 12:26:01 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.44 release.
-> There are 131 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+
+
+On 6/8/21 8:27 PM, Greg Kroah-Hartman wrote:
+> From: Lin Ma <linma@zju.edu.cn>
 > 
-> Responses should be made by Wed, 16 Jun 2021 10:26:30 +0000.
-> Anything received after that time might be too late.
+> commit e305509e678b3a4af2b3cfd410f409f7cdaabb52 upstream.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.44-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> The hci_sock_dev_event() function will cleanup the hdev object for
+> sockets even if this object may still be in used within the
+> hci_sock_bound_ioctl() function, result in UAF vulnerability.
 > 
-> thanks,
+> This patch replace the BH context lock to serialize these affairs
+> and prevent the race condition.
 > 
-> greg k-h
+> Signed-off-by: Lin Ma <linma@zju.edu.cn>
+> Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  net/bluetooth/hci_sock.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- a/net/bluetooth/hci_sock.c
+> +++ b/net/bluetooth/hci_sock.c
+> @@ -755,7 +755,7 @@ void hci_sock_dev_event(struct hci_dev *
+>  		/* Detach sockets from device */
+>  		read_lock(&hci_sk_list.lock);
+>  		sk_for_each(sk, &hci_sk_list.head) {
+> -			bh_lock_sock_nested(sk);
+> +			lock_sock(sk);
+>  			if (hci_pi(sk)->hdev == hdev) {
+>  				hci_pi(sk)->hdev = NULL;
+>  				sk->sk_err = EPIPE;
+> @@ -764,7 +764,7 @@ void hci_sock_dev_event(struct hci_dev *
+>  
+>  				hci_dev_put(hdev);
+>  			}
+> -			bh_unlock_sock(sk);
+> +			release_sock(sk);
+>  		}
+>  		read_unlock(&hci_sk_list.lock);
+>  	}
+> 
 > 
 
-5.10.44-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+
+This patch is buggy.
+
+lock_sock() can sleep.
+
+But the read_lock(&hci_sk_list.lock) two lines before is not going to allow the sleep.
+
+Hmmm ?
+
 
