@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9F003A62EF
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:05:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93D3B3A644F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234823AbhFNLGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:06:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39218 "EHLO mail.kernel.org"
+        id S235631AbhFNLWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:22:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235158AbhFNLEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:04:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C6E861922;
-        Mon, 14 Jun 2021 10:45:04 +0000 (UTC)
+        id S236163AbhFNLUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:20:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C0E66199B;
+        Mon, 14 Jun 2021 10:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667504;
-        bh=GZTvuJ4ltC2xa1h+xkROpdxuA/Sh+xJtoNitjtceiRA=;
+        s=korg; t=1623667925;
+        bh=KBxb1t3goWtNmD3rni4XEujE+0wOKA6n7awr95ykA+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ItY5Dp/grATxrdRpIzrydR4XdSP89HUZkv1OllMGEBVRgQQICyNuhogOzq3wZJD2G
-         c3c6ftoZQAbCnhbTEwpY3J/hb52NUvawIMJuaU+xT5Q8wfoJJM+ZPFAfyrKzeT7koc
-         ddwYBycSmusWXPULe5faOLnTJapiZm0zl/7WEOFk=
+        b=xYx59AT0b96pFhZ4aO4VwKUeeZutQhDGwNb1u1446Rp3Bwlv9hdTYqJhLW0nAtBCH
+         VUu0EZKYrC0mhMRj/dL2s1wQZJfyW2l7M/3xbG2iIi9c83LCEE98QDndM4KYzDoLWC
+         aove2B//5/zRPKTN5PE/id4MktYjrbuTehXm2sKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.10 097/131] usb: dwc3: gadget: Disable gadget IRQ during pullup disable
-Date:   Mon, 14 Jun 2021 12:27:38 +0200
-Message-Id: <20210614102656.303490027@linuxfoundation.org>
+        stable@vger.kernel.org, Kyle Tso <kyletso@google.com>
+Subject: [PATCH 5.12 127/173] usb: typec: tcpm: Fix misuses of AMS invocation
+Date:   Mon, 14 Jun 2021 12:27:39 +0200
+Message-Id: <20210614102702.396809002@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,57 +38,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Kyle Tso <kyletso@google.com>
 
-commit 8212937305f84ef73ea81036dafb80c557583d4b upstream.
+commit 80137c18737c30d20ee630e442405236d96898a7 upstream.
 
-Current sequence utilizes dwc3_gadget_disable_irq() alongside
-synchronize_irq() to ensure that no further DWC3 events are generated.
-However, the dwc3_gadget_disable_irq() API only disables device
-specific events.  Endpoint events can still be generated.  Briefly
-disable the interrupt line, so that the cleanup code can run to
-prevent device and endpoint events. (i.e. __dwc3_gadget_stop() and
-dwc3_stop_active_transfers() respectively)
+tcpm_ams_start is used to initiate an AMS as well as checking Collision
+Avoidance conditions but not for flagging passive AMS (initiated by the
+port partner). Fix the misuses of tcpm_ams_start in tcpm_pd_svdm.
 
-Without doing so, it can lead to both the interrupt handler and the
-pullup disable routine both writing to the GEVNTCOUNT register, which
-will cause an incorrect count being read from future interrupts.
+ATTENTION doesn't need responses so the AMS flag is not needed here.
 
-Fixes: ae7e86108b12 ("usb: dwc3: Stop active transfers before halting the controller")
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1621571037-1424-1-git-send-email-wcheng@codeaurora.org
+Fixes: 0bc3ee92880d ("usb: typec: tcpm: Properly interrupt VDM AMS")
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Link: https://lore.kernel.org/r/20210601123151.3441914-5-kyletso@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   11 +++++------
+ drivers/usb/typec/tcpm/tcpm.c |   11 +++++------
  1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2143,13 +2143,10 @@ static int dwc3_gadget_pullup(struct usb
- 	}
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -1537,7 +1537,7 @@ static int tcpm_pd_svdm(struct tcpm_port
+ 				svdm_version = PD_VDO_SVDM_VER(p[0]);
+ 			}
  
- 	/*
--	 * Synchronize any pending event handling before executing the controller
--	 * halt routine.
-+	 * Synchronize and disable any further event handling while controller
-+	 * is being enabled/disabled.
- 	 */
--	if (!is_on) {
--		dwc3_gadget_disable_irq(dwc);
--		synchronize_irq(dwc->irq_gadget);
--	}
-+	disable_irq(dwc->irq_gadget);
- 
- 	spin_lock_irqsave(&dwc->lock, flags);
- 
-@@ -2187,6 +2184,8 @@ static int dwc3_gadget_pullup(struct usb
- 
- 	ret = dwc3_gadget_run_stop(dwc, is_on, false);
- 	spin_unlock_irqrestore(&dwc->lock, flags);
-+	enable_irq(dwc->irq_gadget);
-+
- 	pm_runtime_put(dwc->dev);
- 
- 	return ret;
+-			tcpm_ams_start(port, DISCOVER_IDENTITY);
++			port->ams = DISCOVER_IDENTITY;
+ 			/*
+ 			 * PD2.0 Spec 6.10.3: respond with NAK as DFP (data host)
+ 			 * PD3.1 Spec 6.4.4.2.5.1: respond with NAK if "invalid field" or
+@@ -1560,19 +1560,18 @@ static int tcpm_pd_svdm(struct tcpm_port
+ 			}
+ 			break;
+ 		case CMD_DISCOVER_SVID:
+-			tcpm_ams_start(port, DISCOVER_SVIDS);
++			port->ams = DISCOVER_SVIDS;
+ 			break;
+ 		case CMD_DISCOVER_MODES:
+-			tcpm_ams_start(port, DISCOVER_MODES);
++			port->ams = DISCOVER_MODES;
+ 			break;
+ 		case CMD_ENTER_MODE:
+-			tcpm_ams_start(port, DFP_TO_UFP_ENTER_MODE);
++			port->ams = DFP_TO_UFP_ENTER_MODE;
+ 			break;
+ 		case CMD_EXIT_MODE:
+-			tcpm_ams_start(port, DFP_TO_UFP_EXIT_MODE);
++			port->ams = DFP_TO_UFP_EXIT_MODE;
+ 			break;
+ 		case CMD_ATTENTION:
+-			tcpm_ams_start(port, ATTENTION);
+ 			/* Attention command does not have response */
+ 			*adev_action = ADEV_ATTENTION;
+ 			return 0;
 
 
