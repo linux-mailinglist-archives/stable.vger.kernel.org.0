@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B62C33A633F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA7953A633B
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234644AbhFNLLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:11:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39838 "EHLO mail.kernel.org"
+        id S234636AbhFNLLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:11:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235071AbhFNLIn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235066AbhFNLIn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Jun 2021 07:08:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56F6861442;
-        Mon, 14 Jun 2021 10:46:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C91786144A;
+        Mon, 14 Jun 2021 10:46:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667579;
-        bh=2UEHXLPlBITCqD4+I+vPtEkDwyWs2Dq4hcyFJkBX8ZQ=;
+        s=korg; t=1623667582;
+        bh=/1KNZ/znyTRUG+7STdg7tZ5hhc9k68YmT0skyYBc7jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJTbSLiEVh4La0vM0cKZCfP16yL/bd1WSqEf5A3Gfpqs/aoD7yp+FOwbkxDFIaolZ
-         2uwQ4f+0DIJPRpUAGH0fpzD8kCern7EaDUAPmEZd9oSkmteqG3SBdax8MG8Td5Agda
-         mX0nOPKBvdtxVhjKgkfCuRhpmIFzABUtmuv1D09o=
+        b=Ez838GwRpQZPaICSmw2BpzDLldjmtnbEzkGhLPGG5XJXPRqGs5fRWa8i4b+pCWmvy
+         LQ/AVAOnA8UGpMaOrBtAjzzypvhr4Sfoy6EFjs28nRgeD4VPvop24g5dH2fBSIYLvZ
+         NwDQtPNzjfCQWkzpzjMxf3uSrZpBieqyHwG8pBso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.10 126/131] NFSv4: nfs4_proc_set_acl needs to restore NFS_CAP_UIDGID_NOMAP on error.
-Date:   Mon, 14 Jun 2021 12:28:07 +0200
-Message-Id: <20210614102657.293989065@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        John Garry <john.garry@huawei.com>,
+        Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 127/131] scsi: core: Fix error handling of scsi_host_alloc()
+Date:   Mon, 14 Jun 2021 12:28:08 +0200
+Message-Id: <20210614102657.325497009@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -39,59 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit f8849e206ef52b584cd9227255f4724f0cc900bb upstream.
+commit 66a834d092930cf41d809c0e989b13cd6f9ca006 upstream.
 
-Currently if __nfs4_proc_set_acl fails with NFS4ERR_BADOWNER it
-re-enables the idmapper by clearing NFS_CAP_UIDGID_NOMAP before
-retrying again. The NFS_CAP_UIDGID_NOMAP remains cleared even if
-the retry fails. This causes problem for subsequent setattr
-requests for v4 server that does not have idmapping configured.
+After device is initialized via device_initialize(), or its name is set via
+dev_set_name(), the device has to be freed via put_device().  Otherwise
+device name will be leaked because it is allocated dynamically in
+dev_set_name().
 
-This patch modifies nfs4_proc_set_acl to detect NFS4ERR_BADOWNER
-and NFS4ERR_BADNAME and skips the retry, since the kernel isn't
-involved in encoding the ACEs, and return -EINVAL.
+Fix the leak by replacing kfree() with put_device(). Since
+scsi_host_dev_release() properly handles IDA and kthread removal, remove
+special-casing these from the error handling as well.
 
-Steps to reproduce the problem:
-
- # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
- # touch /tmp/mnt/file1
- # chown 99 /tmp/mnt/file1
- # nfs4_setfacl -a A::unknown.user@xyz.com:wrtncy /tmp/mnt/file1
- Failed setxattr operation: Invalid argument
- # chown 99 /tmp/mnt/file1
- chown: changing ownership of ‘/tmp/mnt/file1’: Invalid argument
- # umount /tmp/mnt
- # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
- # chown 99 /tmp/mnt/file1
- #
-
-v2: detect NFS4ERR_BADOWNER and NFS4ERR_BADNAME and skip retry
-       in nfs4_proc_set_acl.
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Link: https://lore.kernel.org/r/20210602133029.2864069-2-ming.lei@redhat.com
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/scsi/hosts.c |   23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5946,6 +5946,14 @@ static int nfs4_proc_set_acl(struct inod
- 	do {
- 		err = __nfs4_proc_set_acl(inode, buf, buflen);
- 		trace_nfs4_set_acl(inode, err);
-+		if (err == -NFS4ERR_BADOWNER || err == -NFS4ERR_BADNAME) {
-+			/*
-+			 * no need to retry since the kernel
-+			 * isn't involved in encoding the ACEs.
-+			 */
-+			err = -EINVAL;
-+			break;
-+		}
- 		err = nfs4_handle_exception(NFS_SERVER(inode), err,
- 				&exception);
- 	} while (exception.retry);
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -392,8 +392,10 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	mutex_init(&shost->scan_mutex);
+ 
+ 	index = ida_simple_get(&host_index_ida, 0, 0, GFP_KERNEL);
+-	if (index < 0)
+-		goto fail_kfree;
++	if (index < 0) {
++		kfree(shost);
++		return NULL;
++	}
+ 	shost->host_no = index;
+ 
+ 	shost->dma_channel = 0xff;
+@@ -486,7 +488,7 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 		shost_printk(KERN_WARNING, shost,
+ 			"error handler thread failed to spawn, error = %ld\n",
+ 			PTR_ERR(shost->ehandler));
+-		goto fail_index_remove;
++		goto fail;
+ 	}
+ 
+ 	shost->tmf_work_q = alloc_workqueue("scsi_tmf_%d",
+@@ -495,17 +497,18 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	if (!shost->tmf_work_q) {
+ 		shost_printk(KERN_WARNING, shost,
+ 			     "failed to create tmf workq\n");
+-		goto fail_kthread;
++		goto fail;
+ 	}
+ 	scsi_proc_hostdir_add(shost->hostt);
+ 	return shost;
++ fail:
++	/*
++	 * Host state is still SHOST_CREATED and that is enough to release
++	 * ->shost_gendev. scsi_host_dev_release() will free
++	 * dev_name(&shost->shost_dev).
++	 */
++	put_device(&shost->shost_gendev);
+ 
+- fail_kthread:
+-	kthread_stop(shost->ehandler);
+- fail_index_remove:
+-	ida_simple_remove(&host_index_ida, shost->host_no);
+- fail_kfree:
+-	kfree(shost);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL(scsi_host_alloc);
 
 
