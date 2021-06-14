@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C9293A6062
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7321F3A6144
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233061AbhFNKd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:33:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39012 "EHLO mail.kernel.org"
+        id S233561AbhFNKps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:45:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233163AbhFNKdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CF1161356;
-        Mon, 14 Jun 2021 10:30:49 +0000 (UTC)
+        id S233942AbhFNKmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:42:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2208961431;
+        Mon, 14 Jun 2021 10:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666650;
-        bh=40kVcWgnvBimhoFzDYPi4F2elgKnaZM7NJhHSYDJPII=;
+        s=korg; t=1623666921;
+        bh=ZY4c1guXixpLGl+bH8VS9g/dz2f4w5HOXOLkiD9oRGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obB8FVNwKtzXBVa8N+dLFnGsqTemp4nx1UsXiLk3n+0Cim72uC1jWY2joSRxycjWA
-         mvEv0zIFh+lzQp6wZ8LhS2Pt0DyMbqKJ7SSuKBU7+9+B6kBUkDDVl9VGYMSwhOAjGh
-         KRyOfLKynrH31lC4zyzFlA7lE1FZGKzwEv+Ag1u0=
+        b=EwzZqQ8T9QU1LQeYqRLACvG2bwy7EAI+JfZxHLI1bXKxCQxvxH+hlXzIbDqS8YLSA
+         YZAjb6M0T86e5KB6fB5xhOjlhJlZorMW//xOZnzHk4/XmJuNeiiJsnlDxdFVu5EaU8
+         oDqIhKtB3d6B2uUrYZWn+0PYz0KiTMpznMSr0yiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org,
+        syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com,
         Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
         Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.9 21/42] drm: Lock pointer access in drm_master_release()
+Subject: [PATCH 4.19 29/67] drm: Fix use-after-free read in drm_getunique()
 Date:   Mon, 14 Jun 2021 12:27:12 +0200
-Message-Id: <20210614102643.386644937@linuxfoundation.org>
+Message-Id: <20210614102644.748489561@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +43,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-commit c336a5ee984708db4826ef9e47d184e638e29717 upstream.
+commit b436acd1cf7fac0ba987abd22955d98025c80c2b upstream.
 
-This patch eliminates the following smatch warning:
-drivers/gpu/drm/drm_auth.c:320 drm_master_release() warn: unlocked access 'master' (line 318) expected lock '&dev->master_mutex'
+There is a time-of-check-to-time-of-use error in drm_getunique() due
+to retrieving file_priv->master prior to locking the device's master
+mutex.
 
-The 'file_priv->master' field should be protected by the mutex lock to
-'&dev->master_mutex'. This is because other processes can concurrently
-modify this field and free the current 'file_priv->master'
-pointer. This could result in a use-after-free error when 'master' is
-dereferenced in subsequent function calls to
-'drm_legacy_lock_master_cleanup()' or to 'drm_lease_revoke()'.
-
-An example of a scenario that would produce this error can be seen
-from a similar bug in 'drm_getunique()' that was reported by Syzbot:
+An example can be seen in the crash report of the use-after-free error
+found by Syzbot:
 https://syzkaller.appspot.com/bug?id=148d2f1dfac64af52ffd27b661981a540724f803
 
-In the Syzbot report, another process concurrently acquired the
-device's master mutex in 'drm_setmaster_ioctl()', then overwrote
-'fpriv->master' in 'drm_new_set_master()'. The old value of
-'fpriv->master' was subsequently freed before the mutex was unlocked.
+In the report, the master pointer was used after being freed. This is
+because another process had acquired the device's master mutex in
+drm_setmaster_ioctl(), then overwrote fpriv->master in
+drm_new_set_master(). The old value of fpriv->master was subsequently
+freed before the mutex was unlocked.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+To fix this, we lock the device's master mutex before retrieving the
+pointer from from fpriv->master. This patch passes the Syzbot
+reproducer test.
+
+Reported-by: syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com
 Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210609092119.173590-1-desmondcheongzx@gmail.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20210608110436.239583-1-desmondcheongzx@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_auth.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_ioctl.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/drm_auth.c
-+++ b/drivers/gpu/drm/drm_auth.c
-@@ -244,9 +244,10 @@ int drm_master_open(struct drm_file *fil
- void drm_master_release(struct drm_file *file_priv)
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -112,17 +112,18 @@ int drm_getunique(struct drm_device *dev
+ 		  struct drm_file *file_priv)
  {
- 	struct drm_device *dev = file_priv->minor->dev;
+ 	struct drm_unique *u = data;
 -	struct drm_master *master = file_priv->master;
 +	struct drm_master *master;
  
- 	mutex_lock(&dev->master_mutex);
+-	mutex_lock(&master->dev->master_mutex);
++	mutex_lock(&dev->master_mutex);
 +	master = file_priv->master;
- 	if (file_priv->magic)
- 		idr_remove(&file_priv->master->magic_map, file_priv->magic);
+ 	if (u->unique_len >= master->unique_len) {
+ 		if (copy_to_user(u->unique, master->unique, master->unique_len)) {
+-			mutex_unlock(&master->dev->master_mutex);
++			mutex_unlock(&dev->master_mutex);
+ 			return -EFAULT;
+ 		}
+ 	}
+ 	u->unique_len = master->unique_len;
+-	mutex_unlock(&master->dev->master_mutex);
++	mutex_unlock(&dev->master_mutex);
  
+ 	return 0;
+ }
 
 
