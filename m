@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B0523A62A9
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:01:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E560C3A63D8
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234778AbhFNLDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:03:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36110 "EHLO mail.kernel.org"
+        id S233542AbhFNLRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:17:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233876AbhFNLAr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:00:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4039761923;
-        Mon, 14 Jun 2021 10:43:28 +0000 (UTC)
+        id S234811AbhFNLPx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:15:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F9EF61966;
+        Mon, 14 Jun 2021 10:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667408;
-        bh=YRMay8thZ0nlC5flkiLkObHqdLYZbsL4DqvJVinmzz0=;
+        s=korg; t=1623667780;
+        bh=mJJ/5SCkJChGGI6AraCu3UY/QcZ/ikzCh8b74OvBGPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UICN08J8iktBux82GJigYjnbg/Hl/uaseG5RzSfgnnQ+B5JxWaZcoEbUsN2n6j3Nq
-         sshz1eU4kS+7zLTcIf/dWLeKq7pHAv5assZjIlhilue/tqCTJKbwBZ0XaLNrJgyFS1
-         VWyzsTBFo3wzOw9TAEkV16HKQ67Z92YJO6gA/3lU=
+        b=NFHUSkG2LZep0V3klJdPpQAiRXVhgmFfNyKQmwqbig8YdMNWTd6m+bNhVIGPmyibI
+         PdMqdU5+LpzqZK/FMFt00Qg1eDmKzJInBgEuDrc/AfEADBX5uW5+lcnl4OP+09rMrS
+         p0japHDrohtb1CoudTehgB2b2XSSuu7vAPzqkWUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Saravana Kannan <saravanak@google.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.10 042/131] spi: Cleanup on failure of initial setup
-Date:   Mon, 14 Jun 2021 12:26:43 +0200
-Message-Id: <20210614102654.444584174@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Ullrich <ealex1979@gmail.com>,
+        Diego Ercolani <diego.ercolani@gmail.com>,
+        Jan Szubiak <jan.szubiak@linuxpolska.pl>,
+        Marco Rebhan <me@dblsaiko.net>,
+        Matthias Ferdinand <bcache@mfedv.net>,
+        Victor Westerhuis <victor@westerhu.is>,
+        Vojtech Pavlik <vojtech@suse.cz>, Coly Li <colyli@suse.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        Nix <nix@esperi.org.uk>, Takashi Iwai <tiwai@suse.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Rolf Fokkens <rolf@rolffokkens.nl>,
+        Thorsten Knabe <linux@thorsten-knabe.de>
+Subject: [PATCH 5.12 072/173] bcache: avoid oversized read request in cache missing code path
+Date:   Mon, 14 Jun 2021 12:26:44 +0200
+Message-Id: <20210614102700.554734764@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,267 +50,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit 2ec6f20b33eb4f62ab90bdcd620436c883ec3af6 ]
+commit 41fe8d088e96472f63164e213de44ec77be69478 upstream.
 
-Commit c7299fea6769 ("spi: Fix spi device unregister flow") changed the
-SPI core's behavior if the ->setup() hook returns an error upon adding
-an spi_device:  Before, the ->cleanup() hook was invoked to free any
-allocations that were made by ->setup().  With the commit, that's no
-longer the case, so the ->setup() hook is expected to free the
-allocations itself.
+In the cache missing code path of cached device, if a proper location
+from the internal B+ tree is matched for a cache miss range, function
+cached_dev_cache_miss() will be called in cache_lookup_fn() in the
+following code block,
+[code block 1]
+  526         unsigned int sectors = KEY_INODE(k) == s->iop.inode
+  527                 ? min_t(uint64_t, INT_MAX,
+  528                         KEY_START(k) - bio->bi_iter.bi_sector)
+  529                 : INT_MAX;
+  530         int ret = s->d->cache_miss(b, s, bio, sectors);
 
-I've identified 5 drivers which depend on the old behavior and am fixing
-them up hereinafter: spi-bitbang.c spi-fsl-spi.c spi-omap-uwire.c
-spi-omap2-mcspi.c spi-pxa2xx.c
+Here s->d->cache_miss() is the call backfunction pointer initialized as
+cached_dev_cache_miss(), the last parameter 'sectors' is an important
+hint to calculate the size of read request to backing device of the
+missing cache data.
 
-Importantly, ->setup() is not only invoked on spi_device *addition*:
-It may subsequently be called to *change* SPI parameters.  If changing
-these SPI parameters fails, freeing memory allocations would be wrong.
-That should only be done if the spi_device is finally destroyed.
-I am therefore using a bool "initial_setup" in 4 of the affected drivers
-to differentiate between the invocation on *adding* the spi_device and
-any subsequent invocations: spi-bitbang.c spi-fsl-spi.c spi-omap-uwire.c
-spi-omap2-mcspi.c
+Current calculation in above code block may generate oversized value of
+'sectors', which consequently may trigger 2 different potential kernel
+panics by BUG() or BUG_ON() as listed below,
 
-In spi-pxa2xx.c, it seems the ->setup() hook can only fail on spi_device
-addition, not any subsequent calls.  It therefore doesn't need the bool.
+1) BUG_ON() inside bch_btree_insert_key(),
+[code block 2]
+   886         BUG_ON(b->ops->is_extents && !KEY_SIZE(k));
+2) BUG() inside biovec_slab(),
+[code block 3]
+   51         default:
+   52                 BUG();
+   53                 return NULL;
 
-It's worth noting that 5 other drivers already perform a cleanup if the
-->setup() hook fails.  Before c7299fea6769, they caused a double-free
-if ->setup() failed on spi_device addition.  Since the commit, they're
-fine.  These drivers are: spi-mpc512x-psc.c spi-pl022.c spi-s3c64xx.c
-spi-st-ssc4.c spi-tegra114.c
+All the above panics are original from cached_dev_cache_miss() by the
+oversized parameter 'sectors'.
 
-(spi-pxa2xx.c also already performs a cleanup, but only in one of
-several error paths.)
+Inside cached_dev_cache_miss(), parameter 'sectors' is used to calculate
+the size of data read from backing device for the cache missing. This
+size is stored in s->insert_bio_sectors by the following lines of code,
+[code block 4]
+  909    s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
 
-Fixes: c7299fea6769 ("spi: Fix spi device unregister flow")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: Saravana Kannan <saravanak@google.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com> # pxa2xx
-Link: https://lore.kernel.org/r/f76a0599469f265b69c371538794101fa37b5536.1622149321.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Then the actual key inserting to the internal B+ tree is generated and
+stored in s->iop.replace_key by the following lines of code,
+[code block 5]
+  911   s->iop.replace_key = KEY(s->iop.inode,
+  912                    bio->bi_iter.bi_sector + s->insert_bio_sectors,
+  913                    s->insert_bio_sectors);
+The oversized parameter 'sectors' may trigger panic 1) by BUG_ON() from
+the above code block.
+
+And the bio sending to backing device for the missing data is allocated
+with hint from s->insert_bio_sectors by the following lines of code,
+[code block 6]
+  926    cache_bio = bio_alloc_bioset(GFP_NOWAIT,
+  927                 DIV_ROUND_UP(s->insert_bio_sectors, PAGE_SECTORS),
+  928                 &dc->disk.bio_split);
+The oversized parameter 'sectors' may trigger panic 2) by BUG() from the
+agove code block.
+
+Now let me explain how the panics happen with the oversized 'sectors'.
+In code block 5, replace_key is generated by macro KEY(). From the
+definition of macro KEY(),
+[code block 7]
+  71 #define KEY(inode, offset, size)                                  \
+  72 ((struct bkey) {                                                  \
+  73      .high = (1ULL << 63) | ((__u64) (size) << 20) | (inode),     \
+  74      .low = (offset)                                              \
+  75 })
+
+Here 'size' is 16bits width embedded in 64bits member 'high' of struct
+bkey. But in code block 1, if "KEY_START(k) - bio->bi_iter.bi_sector" is
+very probably to be larger than (1<<16) - 1, which makes the bkey size
+calculation in code block 5 is overflowed. In one bug report the value
+of parameter 'sectors' is 131072 (= 1 << 17), the overflowed 'sectors'
+results the overflowed s->insert_bio_sectors in code block 4, then makes
+size field of s->iop.replace_key to be 0 in code block 5. Then the 0-
+sized s->iop.replace_key is inserted into the internal B+ tree as cache
+missing check key (a special key to detect and avoid a racing between
+normal write request and cache missing read request) as,
+[code block 8]
+  915   ret = bch_btree_insert_check_key(b, &s->op, &s->iop.replace_key);
+
+Then the 0-sized s->iop.replace_key as 3rd parameter triggers the bkey
+size check BUG_ON() in code block 2, and causes the kernel panic 1).
+
+Another kernel panic is from code block 6, is by the bvecs number
+oversized value s->insert_bio_sectors from code block 4,
+        min(sectors, bio_sectors(bio) + reada)
+There are two possibility for oversized reresult,
+- bio_sectors(bio) is valid, but bio_sectors(bio) + reada is oversized.
+- sectors < bio_sectors(bio) + reada, but sectors is oversized.
+
+>From a bug report the result of "DIV_ROUND_UP(s->insert_bio_sectors,
+PAGE_SECTORS)" from code block 6 can be 344, 282, 946, 342 and many
+other values which larther than BIO_MAX_VECS (a.k.a 256). When calling
+bio_alloc_bioset() with such larger-than-256 value as the 2nd parameter,
+this value will eventually be sent to biovec_slab() as parameter
+'nr_vecs' in following code path,
+   bio_alloc_bioset() ==> bvec_alloc() ==> biovec_slab()
+Because parameter 'nr_vecs' is larger-than-256 value, the panic by BUG()
+in code block 3 is triggered inside biovec_slab().
+
+>From the above analysis, we know that the 4th parameter 'sector' sent
+into cached_dev_cache_miss() may cause overflow in code block 5 and 6,
+and finally cause kernel panic in code block 2 and 3. And if result of
+bio_sectors(bio) + reada exceeds valid bvecs number, it may also trigger
+kernel panic in code block 3 from code block 6.
+
+Now the almost-useless readahead size for cache missing request back to
+backing device is removed, this patch can fix the oversized issue with
+more simpler method.
+- add a local variable size_limit,  set it by the minimum value from
+  the max bkey size and max bio bvecs number.
+- set s->insert_bio_sectors by the minimum value from size_limit,
+  sectors, and the sectors size of bio.
+- replace sectors by s->insert_bio_sectors to do bio_next_split.
+
+By the above method with size_limit, s->insert_bio_sectors will never
+result oversized replace_key size or bio bvecs number. And split bio
+'miss' from bio_next_split() will always match the size of 'cache_bio',
+that is the current maximum bio size we can sent to backing device for
+fetching the cache missing data.
+
+Current problmatic code can be partially found since Linux v3.13-rc1,
+therefore all maintained stable kernels should try to apply this fix.
+
+Reported-by: Alexander Ullrich <ealex1979@gmail.com>
+Reported-by: Diego Ercolani <diego.ercolani@gmail.com>
+Reported-by: Jan Szubiak <jan.szubiak@linuxpolska.pl>
+Reported-by: Marco Rebhan <me@dblsaiko.net>
+Reported-by: Matthias Ferdinand <bcache@mfedv.net>
+Reported-by: Victor Westerhuis <victor@westerhu.is>
+Reported-by: Vojtech Pavlik <vojtech@suse.cz>
+Reported-and-tested-by: Rolf Fokkens <rolf@rolffokkens.nl>
+Reported-and-tested-by: Thorsten Knabe <linux@thorsten-knabe.de>
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: stable@vger.kernel.org
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: Nix <nix@esperi.org.uk>
+Cc: Takashi Iwai <tiwai@suse.com>
+Link: https://lore.kernel.org/r/20210607125052.21277-3-colyli@suse.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-bitbang.c     | 18 ++++++++++++++----
- drivers/spi/spi-fsl-spi.c     |  4 ++++
- drivers/spi/spi-omap-uwire.c  |  9 ++++++++-
- drivers/spi/spi-omap2-mcspi.c | 33 ++++++++++++++++++++-------------
- drivers/spi/spi-pxa2xx.c      |  9 ++++++++-
- 5 files changed, 54 insertions(+), 19 deletions(-)
+ drivers/md/bcache/request.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-bitbang.c b/drivers/spi/spi-bitbang.c
-index 1a7352abd878..3d8948a17095 100644
---- a/drivers/spi/spi-bitbang.c
-+++ b/drivers/spi/spi-bitbang.c
-@@ -181,6 +181,8 @@ int spi_bitbang_setup(struct spi_device *spi)
- {
- 	struct spi_bitbang_cs	*cs = spi->controller_state;
- 	struct spi_bitbang	*bitbang;
-+	bool			initial_setup = false;
-+	int			retval;
+--- a/drivers/md/bcache/request.c
++++ b/drivers/md/bcache/request.c
+@@ -882,6 +882,7 @@ static int cached_dev_cache_miss(struct
+ 	int ret = MAP_CONTINUE;
+ 	struct cached_dev *dc = container_of(s->d, struct cached_dev, disk);
+ 	struct bio *miss, *cache_bio;
++	unsigned int size_limit;
  
- 	bitbang = spi_master_get_devdata(spi->master);
+ 	s->cache_missed = 1;
  
-@@ -189,22 +191,30 @@ int spi_bitbang_setup(struct spi_device *spi)
- 		if (!cs)
- 			return -ENOMEM;
- 		spi->controller_state = cs;
-+		initial_setup = true;
+@@ -891,7 +892,10 @@ static int cached_dev_cache_miss(struct
+ 		goto out_submit;
  	}
  
- 	/* per-word shift register access, in hardware or bitbanging */
- 	cs->txrx_word = bitbang->txrx_word[spi->mode & (SPI_CPOL|SPI_CPHA)];
--	if (!cs->txrx_word)
--		return -EINVAL;
-+	if (!cs->txrx_word) {
-+		retval = -EINVAL;
-+		goto err_free;
-+	}
+-	s->insert_bio_sectors = min(sectors, bio_sectors(bio));
++	/* Limitation for valid replace key size and cache_bio bvecs number */
++	size_limit = min_t(unsigned int, BIO_MAX_VECS * PAGE_SECTORS,
++			   (1 << KEY_SIZE_BITS) - 1);
++	s->insert_bio_sectors = min3(size_limit, sectors, bio_sectors(bio));
  
- 	if (bitbang->setup_transfer) {
--		int retval = bitbang->setup_transfer(spi, NULL);
-+		retval = bitbang->setup_transfer(spi, NULL);
- 		if (retval < 0)
--			return retval;
-+			goto err_free;
- 	}
+ 	s->iop.replace_key = KEY(s->iop.inode,
+ 				 bio->bi_iter.bi_sector + s->insert_bio_sectors,
+@@ -903,7 +907,8 @@ static int cached_dev_cache_miss(struct
  
- 	dev_dbg(&spi->dev, "%s, %u nsec/bit\n", __func__, 2 * cs->nsecs);
+ 	s->iop.replace = true;
  
- 	return 0;
-+
-+err_free:
-+	if (initial_setup)
-+		kfree(cs);
-+	return retval;
- }
- EXPORT_SYMBOL_GPL(spi_bitbang_setup);
+-	miss = bio_next_split(bio, sectors, GFP_NOIO, &s->d->bio_split);
++	miss = bio_next_split(bio, s->insert_bio_sectors, GFP_NOIO,
++			      &s->d->bio_split);
  
-diff --git a/drivers/spi/spi-fsl-spi.c b/drivers/spi/spi-fsl-spi.c
-index d0e5aa18b7ba..bdf94cc7be1a 100644
---- a/drivers/spi/spi-fsl-spi.c
-+++ b/drivers/spi/spi-fsl-spi.c
-@@ -440,6 +440,7 @@ static int fsl_spi_setup(struct spi_device *spi)
- {
- 	struct mpc8xxx_spi *mpc8xxx_spi;
- 	struct fsl_spi_reg __iomem *reg_base;
-+	bool initial_setup = false;
- 	int retval;
- 	u32 hw_mode;
- 	struct spi_mpc8xxx_cs *cs = spi_get_ctldata(spi);
-@@ -452,6 +453,7 @@ static int fsl_spi_setup(struct spi_device *spi)
- 		if (!cs)
- 			return -ENOMEM;
- 		spi_set_ctldata(spi, cs);
-+		initial_setup = true;
- 	}
- 	mpc8xxx_spi = spi_master_get_devdata(spi->master);
- 
-@@ -475,6 +477,8 @@ static int fsl_spi_setup(struct spi_device *spi)
- 	retval = fsl_spi_setup_transfer(spi, NULL);
- 	if (retval < 0) {
- 		cs->hw_mode = hw_mode; /* Restore settings */
-+		if (initial_setup)
-+			kfree(cs);
- 		return retval;
- 	}
- 
-diff --git a/drivers/spi/spi-omap-uwire.c b/drivers/spi/spi-omap-uwire.c
-index 71402f71ddd8..df28c6664aba 100644
---- a/drivers/spi/spi-omap-uwire.c
-+++ b/drivers/spi/spi-omap-uwire.c
-@@ -424,15 +424,22 @@ done:
- static int uwire_setup(struct spi_device *spi)
- {
- 	struct uwire_state *ust = spi->controller_state;
-+	bool initial_setup = false;
-+	int status;
- 
- 	if (ust == NULL) {
- 		ust = kzalloc(sizeof(*ust), GFP_KERNEL);
- 		if (ust == NULL)
- 			return -ENOMEM;
- 		spi->controller_state = ust;
-+		initial_setup = true;
- 	}
- 
--	return uwire_setup_transfer(spi, NULL);
-+	status = uwire_setup_transfer(spi, NULL);
-+	if (status && initial_setup)
-+		kfree(ust);
-+
-+	return status;
- }
- 
- static void uwire_cleanup(struct spi_device *spi)
-diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
-index d4c9510af393..3596bbe4b776 100644
---- a/drivers/spi/spi-omap2-mcspi.c
-+++ b/drivers/spi/spi-omap2-mcspi.c
-@@ -1032,8 +1032,22 @@ static void omap2_mcspi_release_dma(struct spi_master *master)
- 	}
- }
- 
-+static void omap2_mcspi_cleanup(struct spi_device *spi)
-+{
-+	struct omap2_mcspi_cs	*cs;
-+
-+	if (spi->controller_state) {
-+		/* Unlink controller state from context save list */
-+		cs = spi->controller_state;
-+		list_del(&cs->node);
-+
-+		kfree(cs);
-+	}
-+}
-+
- static int omap2_mcspi_setup(struct spi_device *spi)
- {
-+	bool			initial_setup = false;
- 	int			ret;
- 	struct omap2_mcspi	*mcspi = spi_master_get_devdata(spi->master);
- 	struct omap2_mcspi_regs	*ctx = &mcspi->ctx;
-@@ -1051,35 +1065,28 @@ static int omap2_mcspi_setup(struct spi_device *spi)
- 		spi->controller_state = cs;
- 		/* Link this to context save list */
- 		list_add_tail(&cs->node, &ctx->cs);
-+		initial_setup = true;
- 	}
- 
- 	ret = pm_runtime_get_sync(mcspi->dev);
- 	if (ret < 0) {
- 		pm_runtime_put_noidle(mcspi->dev);
-+		if (initial_setup)
-+			omap2_mcspi_cleanup(spi);
- 
- 		return ret;
- 	}
- 
- 	ret = omap2_mcspi_setup_transfer(spi, NULL);
-+	if (ret && initial_setup)
-+		omap2_mcspi_cleanup(spi);
-+
- 	pm_runtime_mark_last_busy(mcspi->dev);
- 	pm_runtime_put_autosuspend(mcspi->dev);
- 
- 	return ret;
- }
- 
--static void omap2_mcspi_cleanup(struct spi_device *spi)
--{
--	struct omap2_mcspi_cs	*cs;
--
--	if (spi->controller_state) {
--		/* Unlink controller state from context save list */
--		cs = spi->controller_state;
--		list_del(&cs->node);
--
--		kfree(cs);
--	}
--}
--
- static irqreturn_t omap2_mcspi_irq_handler(int irq, void *data)
- {
- 	struct omap2_mcspi *mcspi = data;
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index d6b534d38e5d..56a62095ec8c 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1254,6 +1254,8 @@ static int setup_cs(struct spi_device *spi, struct chip_data *chip,
- 		chip->gpio_cs_inverted = spi->mode & SPI_CS_HIGH;
- 
- 		err = gpiod_direction_output(gpiod, !chip->gpio_cs_inverted);
-+		if (err)
-+			gpiod_put(chip->gpiod_cs);
- 	}
- 
- 	return err;
-@@ -1267,6 +1269,7 @@ static int setup(struct spi_device *spi)
- 	struct driver_data *drv_data =
- 		spi_controller_get_devdata(spi->controller);
- 	uint tx_thres, tx_hi_thres, rx_thres;
-+	int err;
- 
- 	switch (drv_data->ssp_type) {
- 	case QUARK_X1000_SSP:
-@@ -1413,7 +1416,11 @@ static int setup(struct spi_device *spi)
- 	if (drv_data->ssp_type == CE4100_SSP)
- 		return 0;
- 
--	return setup_cs(spi, chip, chip_info);
-+	err = setup_cs(spi, chip, chip_info);
-+	if (err)
-+		kfree(chip);
-+
-+	return err;
- }
- 
- static void cleanup(struct spi_device *spi)
--- 
-2.30.2
-
+ 	/* btree_search_recurse()'s btree iterator is no good anymore */
+ 	ret = miss == bio ? MAP_DONE : -EINTR;
 
 
