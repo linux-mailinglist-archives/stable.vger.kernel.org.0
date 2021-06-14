@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3411C3A61B2
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:49:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CB613A629F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234065AbhFNKul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:50:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50444 "EHLO mail.kernel.org"
+        id S234157AbhFNLCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:02:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234113AbhFNKsg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:48:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C5CF61459;
-        Mon, 14 Jun 2021 10:37:44 +0000 (UTC)
+        id S235252AbhFNLAc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:00:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 604AF613F9;
+        Mon, 14 Jun 2021 10:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667064;
-        bh=qpzCxJU6gGdp8PmXCeRvdS+WsY4pcy0YsDZTgRqQe5E=;
+        s=korg; t=1623667389;
+        bh=qvfO6rWQb7mAwjSIEGjJoAIEmSpD/qlH9Ekye5y9Tew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MkHpOS/IJH4+JsVWBPbLilayl6yjAOkpXVbtRLQ6BRByDdNK9FD7knKlZrNA8dfwU
-         6DzoApHEXR1nI6fjLPywKdc86/yImDlq2nzRft2UD9FcctvDJL2ybCdQwxHrAXt3iH
-         yivsbIMXAhlndUhbwST7TqT32kZBSlR2doS+1Zus=
+        b=10+2IRfSCoclz4tT6b0oZUWQ3yrrw/2VScslaUuylzEoJr3aLm97m6eAO1gEnf7mn
+         wmPDqh1DBFDaDD7r6wnhxFy4KGLBTbx61mwlU19+jjlC18NSLaC2D5BsrqXYn3uzCc
+         X95UCc1WQlD2bmgNNHO+xOE9cE9pUPuHaGXBK0eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        =?UTF-8?q?NOMURA=20JUNICHI ?= <junichi.nomura@nec.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/84] cgroup: disable controllers at parse time
+        stable@vger.kernel.org,
+        Joe Burmeister <joe.burmeister@devtank.co.uk>,
+        Lukas Wunner <lukas@wunner.de>,
+        Phil Elwell <phil@raspberrypi.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 052/131] spi: bcm2835: Fix out-of-bounds access with more than 4 slaves
 Date:   Mon, 14 Jun 2021 12:26:53 +0200
-Message-Id: <20210614102646.864243989@linuxfoundation.org>
+Message-Id: <20210614102654.790932599@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 45e1ba40837ac2f6f4d4716bddb8d44bd7e4a251 ]
+commit 13817d466eb8713a1ffd254f537402f091d48444 upstream.
 
-This patch effectively reverts the commit a3e72739b7a7 ("cgroup: fix
-too early usage of static_branch_disable()"). The commit 6041186a3258
-("init: initialize jump labels before command line option parsing") has
-moved the jump_label_init() before parse_args() which has made the
-commit a3e72739b7a7 unnecessary. On the other hand there are
-consequences of disabling the controllers later as there are subsystems
-doing the controller checks for different decisions. One such incident
-is reported [1] regarding the memory controller and its impact on memory
-reclaim code.
+Commit 571e31fa60b3 ("spi: bcm2835: Cache CS register value for
+->prepare_message()") limited the number of slaves to 3 at compile-time.
+The limitation was necessitated by a statically-sized array prepare_cs[]
+in the driver private data which contains a per-slave register value.
 
-[1] https://lore.kernel.org/linux-mm/921e53f3-4b13-aab8-4a9e-e83ff15371e4@nec.com
+The commit sought to enforce the limitation at run-time by setting the
+controller's num_chipselect to 3:  Slaves with a higher chipselect are
+rejected by spi_add_device().
 
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Reported-by: NOMURA JUNICHI(野村　淳一) <junichi.nomura@nec.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Tested-by: Jun'ichi Nomura <junichi.nomura@nec.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However the commit neglected that num_chipselect only limits the number
+of *native* chipselects.  If GPIO chipselects are specified in the
+device tree for more than 3 slaves, num_chipselect is silently raised by
+of_spi_get_gpio_numbers() and the result are out-of-bounds accesses to
+the statically-sized array prepare_cs[].
+
+As a bandaid fix which is backportable to stable, raise the number of
+allowed slaves to 24 (which "ought to be enough for anybody"), enforce
+the limitation on slave ->setup and revert num_chipselect to 3 (which is
+the number of native chipselects supported by the controller).
+An upcoming for-next commit will allow an arbitrary number of slaves.
+
+Fixes: 571e31fa60b3 ("spi: bcm2835: Cache CS register value for ->prepare_message()")
+Reported-by: Joe Burmeister <joe.burmeister@devtank.co.uk>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v5.4+
+Cc: Phil Elwell <phil@raspberrypi.com>
+Link: https://lore.kernel.org/r/75854affc1923309fde05e47494263bde73e5592.1621703210.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/spi/spi-bcm2835.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 37db8eba149a..ede370ec245d 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -5721,8 +5721,6 @@ int __init cgroup_init_early(void)
- 	return 0;
- }
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -68,7 +68,7 @@
+ #define BCM2835_SPI_FIFO_SIZE		64
+ #define BCM2835_SPI_FIFO_SIZE_3_4	48
+ #define BCM2835_SPI_DMA_MIN_LENGTH	96
+-#define BCM2835_SPI_NUM_CS		4   /* raise as necessary */
++#define BCM2835_SPI_NUM_CS		24  /* raise as necessary */
+ #define BCM2835_SPI_MODE_BITS	(SPI_CPOL | SPI_CPHA | SPI_CS_HIGH \
+ 				| SPI_NO_CS | SPI_3WIRE)
  
--static u16 cgroup_disable_mask __initdata;
--
- /**
-  * cgroup_init - cgroup initialization
-  *
-@@ -5781,12 +5779,8 @@ int __init cgroup_init(void)
- 		 * disabled flag and cftype registration needs kmalloc,
- 		 * both of which aren't available during early_init.
- 		 */
--		if (cgroup_disable_mask & (1 << ssid)) {
--			static_branch_disable(cgroup_subsys_enabled_key[ssid]);
--			printk(KERN_INFO "Disabling %s control group subsystem\n",
--			       ss->name);
-+		if (!cgroup_ssid_enabled(ssid))
- 			continue;
--		}
+@@ -1195,6 +1195,12 @@ static int bcm2835_spi_setup(struct spi_
+ 	struct gpio_chip *chip;
+ 	u32 cs;
  
- 		if (cgroup1_ssid_disabled(ssid))
- 			printk(KERN_INFO "Disabling %s control group subsystem in v1 mounts\n",
-@@ -6173,7 +6167,10 @@ static int __init cgroup_disable(char *str)
- 			if (strcmp(token, ss->name) &&
- 			    strcmp(token, ss->legacy_name))
- 				continue;
--			cgroup_disable_mask |= 1 << i;
++	if (spi->chip_select >= BCM2835_SPI_NUM_CS) {
++		dev_err(&spi->dev, "only %d chip-selects supported\n",
++			BCM2835_SPI_NUM_CS - 1);
++		return -EINVAL;
++	}
 +
-+			static_branch_disable(cgroup_subsys_enabled_key[i]);
-+			pr_info("Disabling %s control group subsystem\n",
-+				ss->name);
- 		}
- 	}
- 	return 1;
--- 
-2.30.2
-
+ 	/*
+ 	 * Precalculate SPI slave's CS register value for ->prepare_message():
+ 	 * The driver always uses software-controlled GPIO chip select, hence
+@@ -1288,7 +1294,7 @@ static int bcm2835_spi_probe(struct plat
+ 	ctlr->use_gpio_descriptors = true;
+ 	ctlr->mode_bits = BCM2835_SPI_MODE_BITS;
+ 	ctlr->bits_per_word_mask = SPI_BPW_MASK(8);
+-	ctlr->num_chipselect = BCM2835_SPI_NUM_CS;
++	ctlr->num_chipselect = 3;
+ 	ctlr->setup = bcm2835_spi_setup;
+ 	ctlr->transfer_one = bcm2835_spi_transfer_one;
+ 	ctlr->handle_err = bcm2835_spi_handle_err;
 
 
