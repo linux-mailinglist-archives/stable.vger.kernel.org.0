@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E373A6218
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5029F3A611B
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:42:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233997AbhFNKzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:55:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60830 "EHLO mail.kernel.org"
+        id S233884AbhFNKnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:43:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234160AbhFNKxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:53:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3E4561481;
-        Mon, 14 Jun 2021 10:39:42 +0000 (UTC)
+        id S233591AbhFNKkz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:40:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68DCE61206;
+        Mon, 14 Jun 2021 10:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667183;
-        bh=m90RFx8X7Qq5HLGB4cFqQzdChPN2N1+Kw/SUifmZI4k=;
+        s=korg; t=1623666900;
+        bh=3LvHQp1xxlyxC7ZpjBoqWXgvRjOcDdp7uDfoI2xNWCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBYAUf/oFe3gqK46GA7B7bKwUFZkYamC248+89aFc3b1ZPXF3DGSX6sYGkx1gZb5j
-         bVs+2aSHdbnElHbA7GzlCN2aMUWOvrqt7Nc1NSdjcdL+OEMpZb0wVy5dWKx3cXoLyZ
-         qVPFVIBUEJfk0JTZmb6rZX27RXOM3X09UW8W40Go=
+        b=H5vxxUEyOwz+ndXoSUx63jziBRew5CT36a0wcSVdxDDs0vkizYkrIvCJz1iodw4l8
+         NtbeSIhKC5Ld88p94TbeTU0zfgM3i5FARcWs4xoPo23lwjrAvygozilbpiuvz8IEnD
+         AXeD51QFoVbf0DGSQbL5P0jNkQoQNOGjN/mp/1hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        George McCollister <george.mccollister@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 25/84] net: dsa: microchip: enable phy errata workaround on 9567
-Date:   Mon, 14 Jun 2021 12:27:03 +0200
-Message-Id: <20210614102647.211396736@linuxfoundation.org>
+Subject: [PATCH 4.19 21/67] MIPS: Fix kernel hang under FUNCTION_GRAPH_TRACER and PREEMPT_TRACER
+Date:   Mon, 14 Jun 2021 12:27:04 +0200
+Message-Id: <20210614102644.474350651@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George McCollister <george.mccollister@gmail.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 8c42a49738f16af0061f9ae5c2f5a955f268d9e3 ]
+[ Upstream commit 78cf0eb926cb1abeff2106bae67752e032fe5f3e ]
 
-Also enable phy errata workaround on 9567 since has the same errata as
-the 9477 according to the manufacture's documentation.
+When update the latest mainline kernel with the following three configs,
+the kernel hangs during startup:
 
-Signed-off-by: George McCollister <george.mccollister@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+(1) CONFIG_FUNCTION_GRAPH_TRACER=y
+(2) CONFIG_PREEMPT_TRACER=y
+(3) CONFIG_FTRACE_STARTUP_TEST=y
+
+When update the latest mainline kernel with the above two configs (1)
+and (2), the kernel starts normally, but it still hangs when execute
+the following command:
+
+echo "function_graph" > /sys/kernel/debug/tracing/current_tracer
+
+Without CONFIG_PREEMPT_TRACER=y, the above two kinds of kernel hangs
+disappeared, so it seems that CONFIG_PREEMPT_TRACER has some influences
+with function_graph tracer at the first glance.
+
+I use ejtag to find out the epc address is related with preempt_enable()
+in the file arch/mips/lib/mips-atomic.c, because function tracing can
+trace the preempt_{enable,disable} calls that are traced, replace them
+with preempt_{enable,disable}_notrace to prevent function tracing from
+going into an infinite loop, and then it can fix the kernel hang issue.
+
+By the way, it seems that this commit is a complement and improvement of
+commit f93a1a00f2bd ("MIPS: Fix crash that occurs when function tracing
+is enabled").
+
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/microchip/ksz9477.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/lib/mips-atomic.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
-index 49ab1346dc3f..0370e71ed6e0 100644
---- a/drivers/net/dsa/microchip/ksz9477.c
-+++ b/drivers/net/dsa/microchip/ksz9477.c
-@@ -1520,6 +1520,7 @@ static const struct ksz_chip_data ksz9477_switch_chips[] = {
- 		.num_statics = 16,
- 		.cpu_ports = 0x7F,	/* can be configured as cpu port */
- 		.port_cnt = 7,		/* total physical port count */
-+		.phy_errata_9477 = true,
- 	},
- };
+diff --git a/arch/mips/lib/mips-atomic.c b/arch/mips/lib/mips-atomic.c
+index 5530070e0d05..57497a26e79c 100644
+--- a/arch/mips/lib/mips-atomic.c
++++ b/arch/mips/lib/mips-atomic.c
+@@ -37,7 +37,7 @@
+  */
+ notrace void arch_local_irq_disable(void)
+ {
+-	preempt_disable();
++	preempt_disable_notrace();
+ 
+ 	__asm__ __volatile__(
+ 	"	.set	push						\n"
+@@ -53,7 +53,7 @@ notrace void arch_local_irq_disable(void)
+ 	: /* no inputs */
+ 	: "memory");
+ 
+-	preempt_enable();
++	preempt_enable_notrace();
+ }
+ EXPORT_SYMBOL(arch_local_irq_disable);
+ 
+@@ -61,7 +61,7 @@ notrace unsigned long arch_local_irq_save(void)
+ {
+ 	unsigned long flags;
+ 
+-	preempt_disable();
++	preempt_disable_notrace();
+ 
+ 	__asm__ __volatile__(
+ 	"	.set	push						\n"
+@@ -78,7 +78,7 @@ notrace unsigned long arch_local_irq_save(void)
+ 	: /* no inputs */
+ 	: "memory");
+ 
+-	preempt_enable();
++	preempt_enable_notrace();
+ 
+ 	return flags;
+ }
+@@ -88,7 +88,7 @@ notrace void arch_local_irq_restore(unsigned long flags)
+ {
+ 	unsigned long __tmp1;
+ 
+-	preempt_disable();
++	preempt_disable_notrace();
+ 
+ 	__asm__ __volatile__(
+ 	"	.set	push						\n"
+@@ -106,7 +106,7 @@ notrace void arch_local_irq_restore(unsigned long flags)
+ 	: "0" (flags)
+ 	: "memory");
+ 
+-	preempt_enable();
++	preempt_enable_notrace();
+ }
+ EXPORT_SYMBOL(arch_local_irq_restore);
  
 -- 
 2.30.2
