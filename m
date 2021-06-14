@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 029CE3A6048
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D972C3A60A8
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232770AbhFNKdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:33:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39142 "EHLO mail.kernel.org"
+        id S233620AbhFNKgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:36:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233077AbhFNKcb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:32:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61D4E611CA;
-        Mon, 14 Jun 2021 10:30:12 +0000 (UTC)
+        id S233279AbhFNKfA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:35:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C893611CA;
+        Mon, 14 Jun 2021 10:32:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666613;
-        bh=wsd71GWpjcCghhnVLpTuvODi+OFI3tJj2bsAKOT2WyQ=;
+        s=korg; t=1623666734;
+        bh=s2jVm2W43ZenVm4kjeGBcgM04M2SlKVTsilE94Vosxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjzhsfeWwLsvzIk6Fm3+FN/kZysgLVoy4V02SwMOn2kJfGxFhydZPOxdMuGkoU4lF
-         srtHj8ZiMMKDq6o73O1qjuHnGLw1l+nStT99PCDa85d5A3SSVU+RVJfNHQdqNMDoDr
-         hXW6mW2SsTPH6VfFEW3BnnQersUQGWbB+AgTVL8A=
+        b=RXjKLYRPeHbWcky7I8S4uc8KHkX0lzjWLCmW3r9RhewSnRpns1GUZnOBjJvpeUziu
+         lHqsHfzDegon7ZVUO1HlW9rh1c6uHJMR1SQriaFIJrXMpHp7mfj8IqpJtNzg+VgqmS
+         uc6z0MYj0jhNlV7PlX/ympXm2ZWgxZuNirlIWYWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Saubhik Mukherjee <saubhik.mukherjee@gmail.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 12/34] net: appletalk: cops: Fix data race in cops_probe1
+Subject: [PATCH 4.14 10/49] net/qla3xxx: fix schedule while atomic in ql_sem_spinlock
 Date:   Mon, 14 Jun 2021 12:27:03 +0200
-Message-Id: <20210614102641.986810199@linuxfoundation.org>
+Message-Id: <20210614102642.216564692@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.582612289@linuxfoundation.org>
-References: <20210614102641.582612289@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saubhik Mukherjee <saubhik.mukherjee@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit a4dd4fc6105e54393d637450a11d4cddb5fabc4f ]
+[ Upstream commit 13a6f3153922391e90036ba2267d34eed63196fc ]
 
-In cops_probe1(), there is a write to dev->base_addr after requesting an
-interrupt line and registering the interrupt handler cops_interrupt().
-The handler might be called in parallel to handle an interrupt.
-cops_interrupt() tries to read dev->base_addr leading to a potential
-data race. So write to dev->base_addr before calling request_irq().
+When calling the 'ql_sem_spinlock', the driver has already acquired the
+spin lock, so the driver should not call 'ssleep' in atomic context.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+This bug can be fixed by using 'mdelay' instead of 'ssleep'.
 
-Signed-off-by: Saubhik Mukherjee <saubhik.mukherjee@gmail.com>
+The KASAN's log reveals it:
+
+[    3.238124 ] BUG: scheduling while atomic: swapper/0/1/0x00000002
+[    3.238748 ] 2 locks held by swapper/0/1:
+[    3.239151 ]  #0: ffff88810177b240 (&dev->mutex){....}-{3:3}, at:
+__device_driver_lock+0x41/0x60
+[    3.240026 ]  #1: ffff888107c60e28 (&qdev->hw_lock){....}-{2:2}, at:
+ql3xxx_probe+0x2aa/0xea0
+[    3.240873 ] Modules linked in:
+[    3.241187 ] irq event stamp: 460854
+[    3.241541 ] hardirqs last  enabled at (460853): [<ffffffff843051bf>]
+_raw_spin_unlock_irqrestore+0x4f/0x70
+[    3.242245 ] hardirqs last disabled at (460854): [<ffffffff843058ca>]
+_raw_spin_lock_irqsave+0x2a/0x70
+[    3.242245 ] softirqs last  enabled at (446076): [<ffffffff846002e4>]
+__do_softirq+0x2e4/0x4b1
+[    3.242245 ] softirqs last disabled at (446069): [<ffffffff811ba5e0>]
+irq_exit_rcu+0x100/0x110
+[    3.242245 ] Preemption disabled at:
+[    3.242245 ] [<ffffffff828ca5ba>] ql3xxx_probe+0x2aa/0xea0
+[    3.242245 ] Kernel panic - not syncing: scheduling while atomic
+[    3.242245 ] CPU: 2 PID: 1 Comm: swapper/0 Not tainted
+5.13.0-rc1-00145
+-gee7dc339169-dirty #16
+[    3.242245 ] Call Trace:
+[    3.242245 ]  dump_stack+0xba/0xf5
+[    3.242245 ]  ? ql3xxx_probe+0x1f0/0xea0
+[    3.242245 ]  panic+0x15a/0x3f2
+[    3.242245 ]  ? vprintk+0x76/0x150
+[    3.242245 ]  ? ql3xxx_probe+0x2aa/0xea0
+[    3.242245 ]  __schedule_bug+0xae/0xe0
+[    3.242245 ]  __schedule+0x72e/0xa00
+[    3.242245 ]  schedule+0x43/0xf0
+[    3.242245 ]  schedule_timeout+0x28b/0x500
+[    3.242245 ]  ? del_timer_sync+0xf0/0xf0
+[    3.242245 ]  ? msleep+0x2f/0x70
+[    3.242245 ]  msleep+0x59/0x70
+[    3.242245 ]  ql3xxx_probe+0x307/0xea0
+[    3.242245 ]  ? _raw_spin_unlock_irqrestore+0x3a/0x70
+[    3.242245 ]  ? pci_device_remove+0x110/0x110
+[    3.242245 ]  local_pci_probe+0x45/0xa0
+[    3.242245 ]  pci_device_probe+0x12b/0x1d0
+[    3.242245 ]  really_probe+0x2a9/0x610
+[    3.242245 ]  driver_probe_device+0x90/0x1d0
+[    3.242245 ]  ? mutex_lock_nested+0x1b/0x20
+[    3.242245 ]  device_driver_attach+0x68/0x70
+[    3.242245 ]  __driver_attach+0x124/0x1b0
+[    3.242245 ]  ? device_driver_attach+0x70/0x70
+[    3.242245 ]  bus_for_each_dev+0xbb/0x110
+[    3.242245 ]  ? rdinit_setup+0x45/0x45
+[    3.242245 ]  driver_attach+0x27/0x30
+[    3.242245 ]  bus_add_driver+0x1eb/0x2a0
+[    3.242245 ]  driver_register+0xa9/0x180
+[    3.242245 ]  __pci_register_driver+0x82/0x90
+[    3.242245 ]  ? yellowfin_init+0x25/0x25
+[    3.242245 ]  ql3xxx_driver_init+0x23/0x25
+[    3.242245 ]  do_one_initcall+0x7f/0x3d0
+[    3.242245 ]  ? rdinit_setup+0x45/0x45
+[    3.242245 ]  ? rcu_read_lock_sched_held+0x4f/0x80
+[    3.242245 ]  kernel_init_freeable+0x2aa/0x301
+[    3.242245 ]  ? rest_init+0x2c0/0x2c0
+[    3.242245 ]  kernel_init+0x18/0x190
+[    3.242245 ]  ? rest_init+0x2c0/0x2c0
+[    3.242245 ]  ? rest_init+0x2c0/0x2c0
+[    3.242245 ]  ret_from_fork+0x1f/0x30
+[    3.242245 ] Dumping ftrace buffer:
+[    3.242245 ]    (ftrace buffer empty)
+[    3.242245 ] Kernel Offset: disabled
+[    3.242245 ] Rebooting in 1 seconds.
+
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/appletalk/cops.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qla3xxx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/appletalk/cops.c b/drivers/net/appletalk/cops.c
-index 7f2a032c354c..841a5de58c7c 100644
---- a/drivers/net/appletalk/cops.c
-+++ b/drivers/net/appletalk/cops.c
-@@ -324,6 +324,8 @@ static int __init cops_probe1(struct net_device *dev, int ioaddr)
- 			break;
- 	}
- 
-+	dev->base_addr = ioaddr;
-+
- 	/* Reserve any actual interrupt. */
- 	if (dev->irq) {
- 		retval = request_irq(dev->irq, cops_interrupt, 0, dev->name, dev);
-@@ -331,8 +333,6 @@ static int __init cops_probe1(struct net_device *dev, int ioaddr)
- 			goto err_out;
- 	}
- 
--	dev->base_addr = ioaddr;
--
-         lp = netdev_priv(dev);
-         spin_lock_init(&lp->lock);
- 
+diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
+index cc53ee26bd3e..a8bb061e1a8a 100644
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -115,7 +115,7 @@ static int ql_sem_spinlock(struct ql3_adapter *qdev,
+ 		value = readl(&port_regs->CommonRegs.semaphoreReg);
+ 		if ((value & (sem_mask >> 16)) == sem_bits)
+ 			return 0;
+-		ssleep(1);
++		mdelay(1000);
+ 	} while (--seconds);
+ 	return -1;
+ }
 -- 
 2.30.2
 
