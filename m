@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C90C93A6088
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 627843A62A2
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233523AbhFNKf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:35:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39656 "EHLO mail.kernel.org"
+        id S234436AbhFNLCw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:02:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233331AbhFNKdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1F48610CD;
-        Mon, 14 Jun 2021 10:31:35 +0000 (UTC)
+        id S233221AbhFNLAk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:00:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B41E613EE;
+        Mon, 14 Jun 2021 10:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666696;
-        bh=4aPX0//u/3JeT8vGv8fonz1hEqbVWhCL/+IXpbQsW7U=;
+        s=korg; t=1623667386;
+        bh=mIF/FMV1d8PJxy4JjsxQkSKmwZE0Gmfmq/B18JrdfYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ibK9ZTbEvSqwA+H6uDoeY50M3sXpzXD5URftkUJM1WYdAQo1tLacv2WzOeB8o/ng6
-         +TlmgYeQq4r7xDBOFB8KAoZWbsBisTU30N/1HbmwdqDTwrIS387wGDhpV4X5ZpgkrT
-         VYOgiTIdrK9pNXjAoS5QyB+1VfN2KxjiXhvyfZbw=
+        b=fxoJo7EfiSvQf2ebVcn/Hx6hwfSKdNs1rRf5jDJhazaPC3ih0xfhDIHqGShDkqbHE
+         0hlPr5xv7WqR1bFr3T6rY94GkO6xcW7pp+IebJuAQm56oYeg2KVDghyQ0QXyZYbIx+
+         RvkoJIoaeDo4UcfaEFpedzCJxCrVhvkDnKJ3g+ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andrea Righi <andrea.righi@canonical.com>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 01/42] proc: Track /proc/$pid/attr/ opener mm_struct
+        stable@vger.kernel.org, Jeremy Szu <jeremy.szu@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 051/131] ALSA: hda/realtek: fix mute/micmute LEDs for HP ZBook Power G8
 Date:   Mon, 14 Jun 2021 12:26:52 +0200
-Message-Id: <20210614102642.750066628@linuxfoundation.org>
+Message-Id: <20210614102654.758148646@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,65 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jeremy Szu <jeremy.szu@canonical.com>
 
-commit 591a22c14d3f45cc38bd1931c593c221df2f1881 upstream.
+commit 600dd2a7e8b62170d177381cc1303861f48f9780 upstream.
 
-Commit bfb819ea20ce ("proc: Check /proc/$pid/attr/ writes against file opener")
-tried to make sure that there could not be a confusion between the opener of
-a /proc/$pid/attr/ file and the writer. It used struct cred to make sure
-the privileges didn't change. However, there were existing cases where a more
-privileged thread was passing the opened fd to a differently privileged thread
-(during container setup). Instead, use mm_struct to track whether the opener
-and writer are still the same process. (This is what several other proc files
-already do, though for different reasons.)
+The HP ZBook Power G8 using ALC236 codec which using 0x02 to
+control mute LED and 0x01 to control micmute LED.
+Therefore, add a quirk to make it works.
 
-Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
-Reported-by: Andrea Righi <andrea.righi@canonical.com>
-Tested-by: Andrea Righi <andrea.righi@canonical.com>
-Fixes: bfb819ea20ce ("proc: Check /proc/$pid/attr/ writes against file opener")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210608114750.32009-1-jeremy.szu@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc/base.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2493,6 +2493,11 @@ out:
- }
- 
- #ifdef CONFIG_SECURITY
-+static int proc_pid_attr_open(struct inode *inode, struct file *file)
-+{
-+	return __mem_open(inode, file, PTRACE_MODE_READ_FSCREDS);
-+}
-+
- static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
- 				  size_t count, loff_t *ppos)
- {
-@@ -2523,7 +2528,7 @@ static ssize_t proc_pid_attr_write(struc
- 	struct task_struct *task = get_proc_task(inode);
- 
- 	/* A task may only write when it was the opener. */
--	if (file->f_cred != current_real_cred())
-+	if (file->private_data != current->mm)
- 		return -EPERM;
- 
- 	length = -ESRCH;
-@@ -2561,9 +2566,11 @@ out_no_task:
- }
- 
- static const struct file_operations proc_pid_attr_operations = {
-+	.open		= proc_pid_attr_open,
- 	.read		= proc_pid_attr_read,
- 	.write		= proc_pid_attr_write,
- 	.llseek		= generic_file_llseek,
-+	.release	= mem_release,
- };
- 
- static const struct pid_entry attr_dir_stuff[] = {
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8332,6 +8332,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x886d, "HP ZBook Fury 17.3 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8870, "HP ZBook Fury 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8873, "HP ZBook Studio 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
++	SND_PCI_QUIRK(0x103c, 0x888d, "HP ZBook Power 15.6 inch G8 Mobile Workstation PC", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8896, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
 
 
