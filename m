@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBA033A6EEF
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 21:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F123A6EF1
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 21:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233804AbhFNT2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 15:28:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36982 "EHLO
+        id S233965AbhFNT2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 15:28:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233965AbhFNT2X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 15:28:23 -0400
-Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9B60C061574
-        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 12:26:04 -0700 (PDT)
-Received: by mail-ot1-x330.google.com with SMTP id l15-20020a05683016cfb02903fca0eacd15so11922920otr.7
-        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 12:26:04 -0700 (PDT)
+        with ESMTP id S233832AbhFNT2n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 15:28:43 -0400
+Received: from mail-oo1-xc2e.google.com (mail-oo1-xc2e.google.com [IPv6:2607:f8b0:4864:20::c2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E59E6C061574
+        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 12:26:39 -0700 (PDT)
+Received: by mail-oo1-xc2e.google.com with SMTP id k21-20020a4a2a150000b029024955603642so2916083oof.8
+        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 12:26:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linuxfoundation.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=oO/DFsinHfrjOd9hhaHYq6LD/oHJkMh4L4js/wcq0QQ=;
-        b=B7vA3xYHvbKYylvardbQujQscx4z1Q1lcZfd0AX8gtk/zb+EcwPvXP0vVK+FcoiMRX
-         84M9DIGt1X9R0M80Eh6Diyln9yF2qa0oQvrG1feo+7IFlcj9cy8kgIXNDXIHrsXY+PRm
-         xIjVGWzOACkt/ugkTkk87Us9gkUClEXXCV10c=
+        bh=Bbqqsqw7O7e5a2YkESptEdi5Nub7IA78eU9ImFG+KU4=;
+        b=fCXINgSa+WiMwxMluAC/NJbOz+Ogyx/hM28S0WBW6NOWHqx7zXcnfd432PO+Un/7jz
+         iA0KXNL9qkrYPblbpDXbPRmAPhIOE4Pxtj344VpwaaLEwrAkieGdwL7XSZ3hegGdHy0h
+         dVAUsPeKt4VIcAh2+ktAHAP+hk0y8d/P3XfQg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=oO/DFsinHfrjOd9hhaHYq6LD/oHJkMh4L4js/wcq0QQ=;
-        b=uFvuTHYypR9y1wa0+0vCat51NYdVQSmTnKme1oVfjznvuUAbzyr7CdMzsjzn8kzgWV
-         Gcgw8/iloxF1g4DdQh9pdZ1k4IK3+KynVO+00A2D6urFWuOSz0QDidhxkWUfRanfWJAk
-         3xDQRUyA5PIiY4lEoE/dHrn5fA0HJu/3siNEdwlgQN2Vq+7wgcAroi7aer93Z/SftxnX
-         dfk00LPmcIb8jtDewOPMlvnqNF+IM4v+1jnEf7MXKI5ywS5a67h27CQvZg27RLpVv4pM
-         OQp57eEmKgtBMBmBThVoX7TOvN85rxMkQGx1zTFKRZWhEJT2MIp1HTiB+5V+kjI9luPS
-         BdgA==
-X-Gm-Message-State: AOAM533HSXjg77tL6T7PWKJelVkMMdHmwfGyMWVsIEFJFMrhRidwMKbK
-        Hjga5phIkcS3hBEZ3zSbYQBqyw==
-X-Google-Smtp-Source: ABdhPJxmXMhRNJRhhQ9L2vURQkong90t5A1f8V2Ry+nmiijSkixB2RkEXwFgs6N+ybBLfCj4bxF2Sw==
-X-Received: by 2002:a9d:3e53:: with SMTP id h19mr14589620otg.260.1623698764297;
-        Mon, 14 Jun 2021 12:26:04 -0700 (PDT)
+        bh=Bbqqsqw7O7e5a2YkESptEdi5Nub7IA78eU9ImFG+KU4=;
+        b=CRGeneC3g7ORxhFFGRWSyHe1Ma7MGGo19youukF8quMk8WrLHcM5su5JgKNBGbtbhf
+         1WIGnUYQKpniOkAEcS1gw0hYkuSL5JItbc6LlRC44r+sLHav3YhKwAI0Tb5RGnyVW4T/
+         L6m4TaEmWcLTHoHacvX5G1O1okKVuMDNBrRjbm2GOrQUjH69vXPiDmF6myzLQEViuNyF
+         64KWWjBBgtCI/3W6MVcXA8+oU569BRRw2EAwdv7cCsPBkXgA1DSG0ozxbaBM1TguUQM3
+         RgXk9LS9CtsHifhkYREVGAOQfbvKNI8sZ9WHtkrIXSG2EdlIH6P+ZkSs/E+Hs618zJcw
+         5fEA==
+X-Gm-Message-State: AOAM530DkSXbbXdb/yUN2++5HS6O5fRT1ErsizP/TZNhbLaMAOx0XJzq
+        748QNvKprLXWEK6G5QtkPWK9Sw==
+X-Google-Smtp-Source: ABdhPJysbH4C13m3a4dmwNlSuHZh8tAuonnH3Y8nHj+wuXWgTBsZG3NWJGZPOYYBtCSkjmzXYn782g==
+X-Received: by 2002:a4a:8802:: with SMTP id d2mr12358985ooi.28.1623698799317;
+        Mon, 14 Jun 2021 12:26:39 -0700 (PDT)
 Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id u42sm2881205oiw.50.2021.06.14.12.26.03
+        by smtp.gmail.com with ESMTPSA id b22sm2832493oov.31.2021.06.14.12.26.38
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Jun 2021 12:26:03 -0700 (PDT)
-Subject: Re: [PATCH 5.4 00/84] 5.4.126-rc1 review
+        Mon, 14 Jun 2021 12:26:38 -0700 (PDT)
+Subject: Re: [PATCH 5.12 000/173] 5.12.11-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -53,14 +53,14 @@ Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, stable@vger.kernel.org,
         Shuah Khan <skhan@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <40674f5e-a08e-b447-1020-2dccbd6ccbd7@linuxfoundation.org>
-Date:   Mon, 14 Jun 2021 13:26:02 -0600
+Message-ID: <c63fbc15-a90e-d033-5879-084db3c313cb@linuxfoundation.org>
+Date:   Mon, 14 Jun 2021 13:26:37 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -68,9 +68,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/14/21 4:26 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.126 release.
-> There are 84 patches in this series, all will be posted as a response
+On 6/14/21 4:25 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.12.11 release.
+> There are 173 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -78,9 +78,9 @@ On 6/14/21 4:26 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.126-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.11-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -94,3 +94,4 @@ Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
 thanks,
 -- Shuah
+
