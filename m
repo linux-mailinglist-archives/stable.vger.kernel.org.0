@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A983A613B
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 361173A61EB
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:51:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233478AbhFNKpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:45:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45918 "EHLO mail.kernel.org"
+        id S233362AbhFNKxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:53:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232847AbhFNKml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:42:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B0C61434;
-        Mon, 14 Jun 2021 10:35:40 +0000 (UTC)
+        id S234050AbhFNKvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:51:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 603FC61464;
+        Mon, 14 Jun 2021 10:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666940;
-        bh=2SgvNj6ou6VNa7dm/tdITAyo9EzdsLrOwNOltAcAyho=;
+        s=korg; t=1623667133;
+        bh=D6ZED7p3zja0m7Hj1BJucKeJYgz7zyrlAByLjarxpyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G29Hv3Ox6qcodcgaFMhrerYMMLEPCK5yLkXNVuVt+Jc/1kZxL8fEx5nUZy8kh6b+6
-         BfZa7mKXRH/b2AQiwmGXYXaML3kPJH5hqOA5Wl3qYz4BPNnXJY74vhuVorKtvm7r+U
-         Y4ptUbM5SzPdcYKJkuelji6ukq7g4ovaPZzWd3XE=
+        b=gek5h/2sNfwq9cQhWclcygp2oC/eMm74rVqBbV5eWZhUR5qudsDw7Oe/HMdr97N4M
+         YYM4MT91obLcAkR84dZw9lXzAgSJlfzPM6679loelCG82jADTKlCjnT+kZJH5iz3tE
+         hQOIFMzHEsbXEGOtdweIRSx9zi0DKe/8yr1vYoOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brooke Basile <brookebasile@gmail.com>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Yauheni Kaliuta <yauheni.kaliuta@nokia.com>,
-        Linux USB Mailing List <linux-usb@vger.kernel.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
-Subject: [PATCH 4.19 35/67] USB: f_ncm: ncm_bitrate (speed) is unsigned
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.4 40/84] drm: Lock pointer access in drm_master_release()
 Date:   Mon, 14 Jun 2021 12:27:18 +0200
-Message-Id: <20210614102644.953669068@linuxfoundation.org>
+Message-Id: <20210614102647.732502686@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-commit 3370139745853f7826895293e8ac3aec1430508e upstream.
+commit c336a5ee984708db4826ef9e47d184e638e29717 upstream.
 
-[  190.544755] configfs-gadget gadget: notify speed -44967296
+This patch eliminates the following smatch warning:
+drivers/gpu/drm/drm_auth.c:320 drm_master_release() warn: unlocked access 'master' (line 318) expected lock '&dev->master_mutex'
 
-This is because 4250000000 - 2**32 is -44967296.
+The 'file_priv->master' field should be protected by the mutex lock to
+'&dev->master_mutex'. This is because other processes can concurrently
+modify this field and free the current 'file_priv->master'
+pointer. This could result in a use-after-free error when 'master' is
+dereferenced in subsequent function calls to
+'drm_legacy_lock_master_cleanup()' or to 'drm_lease_revoke()'.
 
-Fixes: 9f6ce4240a2b ("usb: gadget: f_ncm.c added")
-Cc: Brooke Basile <brookebasile@gmail.com>
-Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Cc: Yauheni Kaliuta <yauheni.kaliuta@nokia.com>
-Cc: Linux USB Mailing List <linux-usb@vger.kernel.org>
-Acked-By: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608005344.3762668-1-zenczykowski@gmail.com
+An example of a scenario that would produce this error can be seen
+from a similar bug in 'drm_getunique()' that was reported by Syzbot:
+https://syzkaller.appspot.com/bug?id=148d2f1dfac64af52ffd27b661981a540724f803
+
+In the Syzbot report, another process concurrently acquired the
+device's master mutex in 'drm_setmaster_ioctl()', then overwrote
+'fpriv->master' in 'drm_new_set_master()'. The old value of
+'fpriv->master' was subsequently freed before the mutex was unlocked.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210609092119.173590-1-desmondcheongzx@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_auth.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -583,7 +583,7 @@ static void ncm_do_notify(struct f_ncm *
- 		data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
- 		data[1] = data[0];
+--- a/drivers/gpu/drm/drm_auth.c
++++ b/drivers/gpu/drm/drm_auth.c
+@@ -268,9 +268,10 @@ int drm_master_open(struct drm_file *fil
+ void drm_master_release(struct drm_file *file_priv)
+ {
+ 	struct drm_device *dev = file_priv->minor->dev;
+-	struct drm_master *master = file_priv->master;
++	struct drm_master *master;
  
--		DBG(cdev, "notify speed %d\n", ncm_bitrate(cdev->gadget));
-+		DBG(cdev, "notify speed %u\n", ncm_bitrate(cdev->gadget));
- 		ncm->notify_state = NCM_NOTIFY_CONNECT;
- 		break;
- 	}
+ 	mutex_lock(&dev->master_mutex);
++	master = file_priv->master;
+ 	if (file_priv->magic)
+ 		idr_remove(&file_priv->master->magic_map, file_priv->magic);
+ 
 
 
