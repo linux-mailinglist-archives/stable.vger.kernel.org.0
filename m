@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB613A629F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6456C3A61AC
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234157AbhFNLCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:02:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35768 "EHLO mail.kernel.org"
+        id S233833AbhFNKuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:50:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235252AbhFNLAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:00:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 604AF613F9;
-        Mon, 14 Jun 2021 10:43:08 +0000 (UTC)
+        id S233462AbhFNKsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:48:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 102C8613DB;
+        Mon, 14 Jun 2021 10:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667389;
-        bh=qvfO6rWQb7mAwjSIEGjJoAIEmSpD/qlH9Ekye5y9Tew=;
+        s=korg; t=1623667067;
+        bh=iydd7/lLe2YBZgNs0P8XUJkIKV85aOB++zFFoo+tm/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10+2IRfSCoclz4tT6b0oZUWQ3yrrw/2VScslaUuylzEoJr3aLm97m6eAO1gEnf7mn
-         wmPDqh1DBFDaDD7r6wnhxFy4KGLBTbx61mwlU19+jjlC18NSLaC2D5BsrqXYn3uzCc
-         X95UCc1WQlD2bmgNNHO+xOE9cE9pUPuHaGXBK0eg=
+        b=Xx1LRQl0ihPioKg8O957iPODS1DZgbmP+5PzOEo45+a22PjbO4qgiDULibjRGtZCQ
+         W37kA1klKfsGGIU5CvxkfJvmr+dFab4Cexno4HDe60A/aiaJKbmZAbkSTNCeJ7ysuA
+         V1gUaHgaHk2DqcFfWTqEkMMfDZYmsVUKIGQS/V+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Joe Burmeister <joe.burmeister@devtank.co.uk>,
-        Lukas Wunner <lukas@wunner.de>,
-        Phil Elwell <phil@raspberrypi.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 052/131] spi: bcm2835: Fix out-of-bounds access with more than 4 slaves
-Date:   Mon, 14 Jun 2021 12:26:53 +0200
-Message-Id: <20210614102654.790932599@linuxfoundation.org>
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 16/84] wq: handle VM suspension in stall detection
+Date:   Mon, 14 Jun 2021 12:26:54 +0200
+Message-Id: <20210614102646.898872924@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,75 +40,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-commit 13817d466eb8713a1ffd254f537402f091d48444 upstream.
+[ Upstream commit 940d71c6462e8151c78f28e4919aa8882ff2054e ]
 
-Commit 571e31fa60b3 ("spi: bcm2835: Cache CS register value for
-->prepare_message()") limited the number of slaves to 3 at compile-time.
-The limitation was necessitated by a statically-sized array prepare_cs[]
-in the driver private data which contains a per-slave register value.
+If VCPU is suspended (VM suspend) in wq_watchdog_timer_fn() then
+once this VCPU resumes it will see the new jiffies value, while it
+may take a while before IRQ detects PVCLOCK_GUEST_STOPPED on this
+VCPU and updates all the watchdogs via pvclock_touch_watchdogs().
+There is a small chance of misreported WQ stalls in the meantime,
+because new jiffies is time_after() old 'ts + thresh'.
 
-The commit sought to enforce the limitation at run-time by setting the
-controller's num_chipselect to 3:  Slaves with a higher chipselect are
-rejected by spi_add_device().
+wq_watchdog_timer_fn()
+{
+	for_each_pool(pool, pi) {
+		if (time_after(jiffies, ts + thresh)) {
+			pr_emerg("BUG: workqueue lockup - pool");
+		}
+	}
+}
 
-However the commit neglected that num_chipselect only limits the number
-of *native* chipselects.  If GPIO chipselects are specified in the
-device tree for more than 3 slaves, num_chipselect is silently raised by
-of_spi_get_gpio_numbers() and the result are out-of-bounds accesses to
-the statically-sized array prepare_cs[].
+Save jiffies at the beginning of this function and use that value
+for stall detection. If VM gets suspended then we continue using
+"old" jiffies value and old WQ touch timestamps. If IRQ at some
+point restarts the stall detection cycle (pvclock_touch_watchdogs())
+then old jiffies will always be before new 'ts + thresh'.
 
-As a bandaid fix which is backportable to stable, raise the number of
-allowed slaves to 24 (which "ought to be enough for anybody"), enforce
-the limitation on slave ->setup and revert num_chipselect to 3 (which is
-the number of native chipselects supported by the controller).
-An upcoming for-next commit will allow an arbitrary number of slaves.
-
-Fixes: 571e31fa60b3 ("spi: bcm2835: Cache CS register value for ->prepare_message()")
-Reported-by: Joe Burmeister <joe.burmeister@devtank.co.uk>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v5.4+
-Cc: Phil Elwell <phil@raspberrypi.com>
-Link: https://lore.kernel.org/r/75854affc1923309fde05e47494263bde73e5592.1621703210.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm2835.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/workqueue.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -68,7 +68,7 @@
- #define BCM2835_SPI_FIFO_SIZE		64
- #define BCM2835_SPI_FIFO_SIZE_3_4	48
- #define BCM2835_SPI_DMA_MIN_LENGTH	96
--#define BCM2835_SPI_NUM_CS		4   /* raise as necessary */
-+#define BCM2835_SPI_NUM_CS		24  /* raise as necessary */
- #define BCM2835_SPI_MODE_BITS	(SPI_CPOL | SPI_CPHA | SPI_CS_HIGH \
- 				| SPI_NO_CS | SPI_3WIRE)
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 5d7092e32912..8f41499d8257 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -50,6 +50,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/sched/isolation.h>
+ #include <linux/nmi.h>
++#include <linux/kvm_para.h>
  
-@@ -1195,6 +1195,12 @@ static int bcm2835_spi_setup(struct spi_
- 	struct gpio_chip *chip;
- 	u32 cs;
+ #include "workqueue_internal.h"
  
-+	if (spi->chip_select >= BCM2835_SPI_NUM_CS) {
-+		dev_err(&spi->dev, "only %d chip-selects supported\n",
-+			BCM2835_SPI_NUM_CS - 1);
-+		return -EINVAL;
-+	}
+@@ -5734,6 +5735,7 @@ static void wq_watchdog_timer_fn(struct timer_list *unused)
+ {
+ 	unsigned long thresh = READ_ONCE(wq_watchdog_thresh) * HZ;
+ 	bool lockup_detected = false;
++	unsigned long now = jiffies;
+ 	struct worker_pool *pool;
+ 	int pi;
+ 
+@@ -5748,6 +5750,12 @@ static void wq_watchdog_timer_fn(struct timer_list *unused)
+ 		if (list_empty(&pool->worklist))
+ 			continue;
+ 
++		/*
++		 * If a virtual machine is stopped by the host it can look to
++		 * the watchdog like a stall.
++		 */
++		kvm_check_and_clear_guest_paused();
 +
- 	/*
- 	 * Precalculate SPI slave's CS register value for ->prepare_message():
- 	 * The driver always uses software-controlled GPIO chip select, hence
-@@ -1288,7 +1294,7 @@ static int bcm2835_spi_probe(struct plat
- 	ctlr->use_gpio_descriptors = true;
- 	ctlr->mode_bits = BCM2835_SPI_MODE_BITS;
- 	ctlr->bits_per_word_mask = SPI_BPW_MASK(8);
--	ctlr->num_chipselect = BCM2835_SPI_NUM_CS;
-+	ctlr->num_chipselect = 3;
- 	ctlr->setup = bcm2835_spi_setup;
- 	ctlr->transfer_one = bcm2835_spi_transfer_one;
- 	ctlr->handle_err = bcm2835_spi_handle_err;
+ 		/* get the latest of pool and touched timestamps */
+ 		pool_ts = READ_ONCE(pool->watchdog_ts);
+ 		touched = READ_ONCE(wq_watchdog_touched);
+@@ -5766,12 +5774,12 @@ static void wq_watchdog_timer_fn(struct timer_list *unused)
+ 		}
+ 
+ 		/* did we stall? */
+-		if (time_after(jiffies, ts + thresh)) {
++		if (time_after(now, ts + thresh)) {
+ 			lockup_detected = true;
+ 			pr_emerg("BUG: workqueue lockup - pool");
+ 			pr_cont_pool_info(pool);
+ 			pr_cont(" stuck for %us!\n",
+-				jiffies_to_msecs(jiffies - pool_ts) / 1000);
++				jiffies_to_msecs(now - pool_ts) / 1000);
+ 		}
+ 	}
+ 
+-- 
+2.30.2
+
 
 
