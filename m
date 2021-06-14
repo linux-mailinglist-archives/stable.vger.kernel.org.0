@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EDE73A6435
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:21:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21D673A6331
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235310AbhFNLVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50346 "EHLO mail.kernel.org"
+        id S234175AbhFNLL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:11:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235911AbhFNLTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:19:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 027026141E;
-        Mon, 14 Jun 2021 10:51:27 +0000 (UTC)
+        id S234200AbhFNLHW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:07:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 682A96192A;
+        Mon, 14 Jun 2021 10:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667888;
-        bh=Wb0yrOsNBITxibtbVHVNRT/x69LMKfbv31E2OITjUbE=;
+        s=korg; t=1623667560;
+        bh=GXkKJAaY1quZ0z2weVFfgkenet1vk6/lym2c5MlOqU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=spwPwC6qwl5ezjjjl4GZfIIik/cynJcOifa2OzqSk3Nr5tYTZUYpnKb1137WyE+sd
-         A06EXLVGhoyNukkjqEbB+eJk8QUjaXB1FEQCjbWeQBZFQj/UOMKjLQCjGuHDhS7ig+
-         m9SoUYUt1M+6u1HTUsNHAKYrvSeB8uJQsG324iOY=
+        b=Ii3OCpr275atJlctsDDD/L96uX68Q85nAcC8O7X5CR93W0SJc1WZdcA5cx7DNh5WP
+         Fgv9CcVwfgLZW7H+b4eCcEqMzqiFYpMN24bqzSgc10TiwUBIVE4AKjN0hygZkbXHDG
+         RGrWBR02wADwlvHMTKjwSG27F8g5ZvH8Uk6herk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.12 114/173] regulator: max77620: Use device_set_of_node_from_dev()
+        stable@vger.kernel.org, Linyu Yuan <linyyuan@codeaurora.com>
+Subject: [PATCH 5.10 085/131] usb: gadget: eem: fix wrong eem header operation
 Date:   Mon, 14 Jun 2021 12:27:26 +0200
-Message-Id: <20210614102701.963120959@linuxfoundation.org>
+Message-Id: <20210614102655.896101325@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +38,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Linyu Yuan <linyyuan@codeaurora.com>
 
-commit 6f55c5dd1118b3076d11d9cb17f5c5f4bc3a1162 upstream.
+commit 305f670846a31a261462577dd0b967c4fa796871 upstream.
 
-The MAX77620 driver fails to re-probe on deferred probe because driver
-core tries to claim resources that are already claimed by the PINCTRL
-device. Use device_set_of_node_from_dev() helper which marks OF node as
-reused, skipping erroneous execution of pinctrl_bind_pins() for the PMIC
-device on the re-probe.
+when skb_clone() or skb_copy_expand() fail,
+it should pull skb with lengh indicated by header,
+or not it will read network data and check it as header.
 
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210523224243.13219-2-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Linyu Yuan <linyyuan@codeaurora.com>
+Link: https://lore.kernel.org/r/20210608233547.3767-1-linyyuan@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/max77620-regulator.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/gadget/function/f_eem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/regulator/max77620-regulator.c
-+++ b/drivers/regulator/max77620-regulator.c
-@@ -814,6 +814,13 @@ static int max77620_regulator_probe(stru
- 	config.dev = dev;
- 	config.driver_data = pmic;
+--- a/drivers/usb/gadget/function/f_eem.c
++++ b/drivers/usb/gadget/function/f_eem.c
+@@ -495,7 +495,7 @@ static int eem_unwrap(struct gether *por
+ 			skb2 = skb_clone(skb, GFP_ATOMIC);
+ 			if (unlikely(!skb2)) {
+ 				DBG(cdev, "unable to unframe EEM packet\n");
+-				continue;
++				goto next;
+ 			}
+ 			skb_trim(skb2, len - ETH_FCS_LEN);
  
-+	/*
-+	 * Set of_node_reuse flag to prevent driver core from attempting to
-+	 * claim any pinmux resources already claimed by the parent device.
-+	 * Otherwise PMIC driver will fail to re-probe.
-+	 */
-+	device_set_of_node_from_dev(&pdev->dev, pdev->dev.parent);
-+
- 	for (id = 0; id < MAX77620_NUM_REGS; id++) {
- 		struct regulator_dev *rdev;
- 		struct regulator_desc *rdesc;
+@@ -505,7 +505,7 @@ static int eem_unwrap(struct gether *por
+ 						GFP_ATOMIC);
+ 			if (unlikely(!skb3)) {
+ 				dev_kfree_skb_any(skb2);
+-				continue;
++				goto next;
+ 			}
+ 			dev_kfree_skb_any(skb2);
+ 			skb_queue_tail(list, skb3);
 
 
