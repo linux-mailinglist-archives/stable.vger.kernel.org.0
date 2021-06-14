@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 689DA3A62D8
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:04:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DC8B3A63D9
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234127AbhFNLFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:05:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39216 "EHLO mail.kernel.org"
+        id S234399AbhFNLRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:17:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234738AbhFNLDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:03:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84AE36143D;
-        Mon, 14 Jun 2021 10:44:12 +0000 (UTC)
+        id S234826AbhFNLPy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:15:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35D0561462;
+        Mon, 14 Jun 2021 10:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667453;
-        bh=tyn97TXx1BX8TXUEh7mwRv4SbFUY+HG02nTqWPv0ptI=;
+        s=korg; t=1623667782;
+        bh=YV5/Yb7PaY3u2uKpCLqzCY3uL8Md7KaRVh0jHHSiMRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YnZCg3gckEFedxyJ8rUNb9XYA3HdC2rbRICL7hXFEdA7P38dfMXPqMtYWa2BBwqAN
-         HXWeBckdQqx/QeGt178KuRIGT4i67bzRoMMz5vS8Ern1E+8zKvA52qNSL+WobTuO+4
-         KLoSQiUmEmkxqCg+odMJnFcTokInNPmieY1/D3O4=
+        b=wZWmONZckSEJ31aNoI+P43ebyXMnRbkRB2B+Cy10oVREhEAbgZScDy+ZatrgvZ9FV
+         JEpdiP/CEC3Hz5fwi8ck5oK1BVNrc6s4i5zLQMf9Cfa6fo+Cd2FLWmY9poxCRkh1og
+         p6KPiYyIZHSpQmX0MloIQxE50ugdrypYe5W73Jso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/131] i2c: mpc: implement erratum A-004447 workaround
+        Oleksandr Shchirskyi <oleksandr.shchirskyi@linux.intel.com>,
+        Oleksandr Shchirskyi <oleksandr.shchirskyi@intel.com>,
+        Xiao Ni <xni@redhat.com>, Song Liu <song@kernel.org>
+Subject: [PATCH 5.12 073/173] async_xor: check src_offs is not NULL before updating it
 Date:   Mon, 14 Jun 2021 12:26:45 +0200
-Message-Id: <20210614102654.515868216@linuxfoundation.org>
+Message-Id: <20210614102700.586300067@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,148 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Xiao Ni <xni@redhat.com>
 
-[ Upstream commit 8f0cdec8b5fd94135d643662506ee94ae9e98785 ]
+commit 9be148e408df7d361ec5afd6299b7736ff3928b0 upstream.
 
-The P2040/P2041 has an erratum where the normal i2c recovery mechanism
-does not work. Implement the alternative recovery mechanism documented
-in the P2040 Chip Errata Rev Q.
+When PAGE_SIZE is greater than 4kB, multiple stripes may share the same
+page. Thus, src_offs is added to async_xor_offs() with array of offsets.
+However, async_xor() passes NULL src_offs to async_xor_offs(). In such
+case, src_offs should not be updated. Add a check before the update.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ceaf2966ab08(async_xor: increase src_offs when dropping destination page)
+Cc: stable@vger.kernel.org # v5.10+
+Reported-by: Oleksandr Shchirskyi <oleksandr.shchirskyi@linux.intel.com>
+Tested-by: Oleksandr Shchirskyi <oleksandr.shchirskyi@intel.com>
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-mpc.c | 79 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 78 insertions(+), 1 deletion(-)
+ crypto/async_tx/async_xor.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 6a0d55e9e8e3..af349661fd76 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -23,6 +23,7 @@
+--- a/crypto/async_tx/async_xor.c
++++ b/crypto/async_tx/async_xor.c
+@@ -233,7 +233,8 @@ async_xor_offs(struct page *dest, unsign
+ 		if (submit->flags & ASYNC_TX_XOR_DROP_DST) {
+ 			src_cnt--;
+ 			src_list++;
+-			src_offs++;
++			if (src_offs)
++				src_offs++;
+ 		}
  
- #include <linux/clk.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/fsl_devices.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
-@@ -49,6 +50,7 @@
- #define CCR_MTX  0x10
- #define CCR_TXAK 0x08
- #define CCR_RSTA 0x04
-+#define CCR_RSVD 0x02
- 
- #define CSR_MCF  0x80
- #define CSR_MAAS 0x40
-@@ -70,6 +72,7 @@ struct mpc_i2c {
- 	u8 fdr, dfsrr;
- #endif
- 	struct clk *clk_per;
-+	bool has_errata_A004447;
- };
- 
- struct mpc_i2c_divider {
-@@ -176,6 +179,75 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
- 	return 0;
- }
- 
-+static int i2c_mpc_wait_sr(struct mpc_i2c *i2c, int mask)
-+{
-+	void __iomem *addr = i2c->base + MPC_I2C_SR;
-+	u8 val;
-+
-+	return readb_poll_timeout(addr, val, val & mask, 0, 100);
-+}
-+
-+/*
-+ * Workaround for Erratum A004447. From the P2040CE Rev Q
-+ *
-+ * 1.  Set up the frequency divider and sampling rate.
-+ * 2.  I2CCR - a0h
-+ * 3.  Poll for I2CSR[MBB] to get set.
-+ * 4.  If I2CSR[MAL] is set (an indication that SDA is stuck low), then go to
-+ *     step 5. If MAL is not set, then go to step 13.
-+ * 5.  I2CCR - 00h
-+ * 6.  I2CCR - 22h
-+ * 7.  I2CCR - a2h
-+ * 8.  Poll for I2CSR[MBB] to get set.
-+ * 9.  Issue read to I2CDR.
-+ * 10. Poll for I2CSR[MIF] to be set.
-+ * 11. I2CCR - 82h
-+ * 12. Workaround complete. Skip the next steps.
-+ * 13. Issue read to I2CDR.
-+ * 14. Poll for I2CSR[MIF] to be set.
-+ * 15. I2CCR - 80h
-+ */
-+static void mpc_i2c_fixup_A004447(struct mpc_i2c *i2c)
-+{
-+	int ret;
-+	u32 val;
-+
-+	writeccr(i2c, CCR_MEN | CCR_MSTA);
-+	ret = i2c_mpc_wait_sr(i2c, CSR_MBB);
-+	if (ret) {
-+		dev_err(i2c->dev, "timeout waiting for CSR_MBB\n");
-+		return;
-+	}
-+
-+	val = readb(i2c->base + MPC_I2C_SR);
-+
-+	if (val & CSR_MAL) {
-+		writeccr(i2c, 0x00);
-+		writeccr(i2c, CCR_MSTA | CCR_RSVD);
-+		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSVD);
-+		ret = i2c_mpc_wait_sr(i2c, CSR_MBB);
-+		if (ret) {
-+			dev_err(i2c->dev, "timeout waiting for CSR_MBB\n");
-+			return;
-+		}
-+		val = readb(i2c->base + MPC_I2C_DR);
-+		ret = i2c_mpc_wait_sr(i2c, CSR_MIF);
-+		if (ret) {
-+			dev_err(i2c->dev, "timeout waiting for CSR_MIF\n");
-+			return;
-+		}
-+		writeccr(i2c, CCR_MEN | CCR_RSVD);
-+	} else {
-+		val = readb(i2c->base + MPC_I2C_DR);
-+		ret = i2c_mpc_wait_sr(i2c, CSR_MIF);
-+		if (ret) {
-+			dev_err(i2c->dev, "timeout waiting for CSR_MIF\n");
-+			return;
-+		}
-+		writeccr(i2c, CCR_MEN);
-+	}
-+}
-+
- #if defined(CONFIG_PPC_MPC52xx) || defined(CONFIG_PPC_MPC512x)
- static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
- 	{20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
-@@ -641,7 +713,10 @@ static int fsl_i2c_bus_recovery(struct i2c_adapter *adap)
- {
- 	struct mpc_i2c *i2c = i2c_get_adapdata(adap);
- 
--	mpc_i2c_fixup(i2c);
-+	if (i2c->has_errata_A004447)
-+		mpc_i2c_fixup_A004447(i2c);
-+	else
-+		mpc_i2c_fixup(i2c);
- 
- 	return 0;
- }
-@@ -745,6 +820,8 @@ static int fsl_i2c_probe(struct platform_device *op)
- 	dev_info(i2c->dev, "timeout %u us\n", mpc_ops.timeout * 1000000 / HZ);
- 
- 	platform_set_drvdata(op, i2c);
-+	if (of_property_read_bool(op->dev.of_node, "fsl,i2c-erratum-a004447"))
-+		i2c->has_errata_A004447 = true;
- 
- 	i2c->adap = mpc_ops;
- 	of_address_to_resource(op->dev.of_node, 0, &res);
--- 
-2.30.2
-
+ 		/* wait for any prerequisite operations */
 
 
