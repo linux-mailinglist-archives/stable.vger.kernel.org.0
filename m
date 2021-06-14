@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2223A6147
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5EAB3A60B8
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233618AbhFNKpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:45:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45360 "EHLO mail.kernel.org"
+        id S233708AbhFNKhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:37:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233827AbhFNKlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:41:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEEA5613E9;
-        Mon, 14 Jun 2021 10:35:12 +0000 (UTC)
+        id S233038AbhFNKf0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:35:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3913613D0;
+        Mon, 14 Jun 2021 10:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666913;
-        bh=tyn97TXx1BX8TXUEh7mwRv4SbFUY+HG02nTqWPv0ptI=;
+        s=korg; t=1623666753;
+        bh=Wxtvq9eHMKPN54ne+ZQrK/BlFetohqLhABaJbiMUsWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WihWDJGkWfbNhu+sLTrliFfCp9Ibd2mkkGG3/Ol3ivqLv+MkpGn2Spz3M5fUh6/1c
-         XbbTNYAa+MuWtPuBL2XopUDLx4KN4cSiZBu1gNhuIAd1cqOHgu8bB6pTxpe7BLCyPt
-         XCwq7zgbBXb/LkzO0ma9fCsgbPwIRDyomO4LLFzg=
+        b=T9EYzE+r6NremFJCxEDdlCR64bMA4pN8t5WTe0BOpicF5IN3pMhwhkB8omykRDU8l
+         RH1mRxkmsYPwN5GuWmx+9ZSgqrAY1Jn8GRj4FyCATRd4xyVoxdYFrMtIJR5jORMGej
+         oBRO4rnX6iyptBrEtle4jJQUCBuf25X6mN8rkcCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/67] i2c: mpc: implement erratum A-004447 workaround
-Date:   Mon, 14 Jun 2021 12:27:09 +0200
-Message-Id: <20210614102644.643974359@linuxfoundation.org>
+Subject: [PATCH 4.14 17/49] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P2041 i2c controllers
+Date:   Mon, 14 Jun 2021 12:27:10 +0200
+Message-Id: <20210614102642.444409653@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,144 +43,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit 8f0cdec8b5fd94135d643662506ee94ae9e98785 ]
+[ Upstream commit 7adc7b225cddcfd0f346d10144fd7a3d3d9f9ea7 ]
 
-The P2040/P2041 has an erratum where the normal i2c recovery mechanism
-does not work. Implement the alternative recovery mechanism documented
-in the P2040 Chip Errata Rev Q.
+The i2c controllers on the P2040/P2041 have an erratum where the
+documented scheme for i2c bus recovery will not work (A-004447). A
+different mechanism is needed which is documented in the P2040 Chip
+Errata Rev Q (latest available at the time of writing).
 
 Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-mpc.c | 79 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 78 insertions(+), 1 deletion(-)
+ arch/powerpc/boot/dts/fsl/p2041si-post.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 6a0d55e9e8e3..af349661fd76 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -23,6 +23,7 @@
+diff --git a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
+index 51e975d7631a..8921f17fca42 100644
+--- a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
++++ b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
+@@ -389,7 +389,23 @@
+ 	};
  
- #include <linux/clk.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/fsl_devices.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
-@@ -49,6 +50,7 @@
- #define CCR_MTX  0x10
- #define CCR_TXAK 0x08
- #define CCR_RSTA 0x04
-+#define CCR_RSVD 0x02
- 
- #define CSR_MCF  0x80
- #define CSR_MAAS 0x40
-@@ -70,6 +72,7 @@ struct mpc_i2c {
- 	u8 fdr, dfsrr;
- #endif
- 	struct clk *clk_per;
-+	bool has_errata_A004447;
- };
- 
- struct mpc_i2c_divider {
-@@ -176,6 +179,75 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
- 	return 0;
- }
- 
-+static int i2c_mpc_wait_sr(struct mpc_i2c *i2c, int mask)
-+{
-+	void __iomem *addr = i2c->base + MPC_I2C_SR;
-+	u8 val;
+ /include/ "qoriq-i2c-0.dtsi"
++	i2c@118000 {
++		fsl,i2c-erratum-a004447;
++	};
 +
-+	return readb_poll_timeout(addr, val, val & mask, 0, 100);
-+}
++	i2c@118100 {
++		fsl,i2c-erratum-a004447;
++	};
 +
-+/*
-+ * Workaround for Erratum A004447. From the P2040CE Rev Q
-+ *
-+ * 1.  Set up the frequency divider and sampling rate.
-+ * 2.  I2CCR - a0h
-+ * 3.  Poll for I2CSR[MBB] to get set.
-+ * 4.  If I2CSR[MAL] is set (an indication that SDA is stuck low), then go to
-+ *     step 5. If MAL is not set, then go to step 13.
-+ * 5.  I2CCR - 00h
-+ * 6.  I2CCR - 22h
-+ * 7.  I2CCR - a2h
-+ * 8.  Poll for I2CSR[MBB] to get set.
-+ * 9.  Issue read to I2CDR.
-+ * 10. Poll for I2CSR[MIF] to be set.
-+ * 11. I2CCR - 82h
-+ * 12. Workaround complete. Skip the next steps.
-+ * 13. Issue read to I2CDR.
-+ * 14. Poll for I2CSR[MIF] to be set.
-+ * 15. I2CCR - 80h
-+ */
-+static void mpc_i2c_fixup_A004447(struct mpc_i2c *i2c)
-+{
-+	int ret;
-+	u32 val;
+ /include/ "qoriq-i2c-1.dtsi"
++	i2c@119000 {
++		fsl,i2c-erratum-a004447;
++	};
 +
-+	writeccr(i2c, CCR_MEN | CCR_MSTA);
-+	ret = i2c_mpc_wait_sr(i2c, CSR_MBB);
-+	if (ret) {
-+		dev_err(i2c->dev, "timeout waiting for CSR_MBB\n");
-+		return;
-+	}
++	i2c@119100 {
++		fsl,i2c-erratum-a004447;
++	};
 +
-+	val = readb(i2c->base + MPC_I2C_SR);
-+
-+	if (val & CSR_MAL) {
-+		writeccr(i2c, 0x00);
-+		writeccr(i2c, CCR_MSTA | CCR_RSVD);
-+		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSVD);
-+		ret = i2c_mpc_wait_sr(i2c, CSR_MBB);
-+		if (ret) {
-+			dev_err(i2c->dev, "timeout waiting for CSR_MBB\n");
-+			return;
-+		}
-+		val = readb(i2c->base + MPC_I2C_DR);
-+		ret = i2c_mpc_wait_sr(i2c, CSR_MIF);
-+		if (ret) {
-+			dev_err(i2c->dev, "timeout waiting for CSR_MIF\n");
-+			return;
-+		}
-+		writeccr(i2c, CCR_MEN | CCR_RSVD);
-+	} else {
-+		val = readb(i2c->base + MPC_I2C_DR);
-+		ret = i2c_mpc_wait_sr(i2c, CSR_MIF);
-+		if (ret) {
-+			dev_err(i2c->dev, "timeout waiting for CSR_MIF\n");
-+			return;
-+		}
-+		writeccr(i2c, CCR_MEN);
-+	}
-+}
-+
- #if defined(CONFIG_PPC_MPC52xx) || defined(CONFIG_PPC_MPC512x)
- static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
- 	{20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
-@@ -641,7 +713,10 @@ static int fsl_i2c_bus_recovery(struct i2c_adapter *adap)
- {
- 	struct mpc_i2c *i2c = i2c_get_adapdata(adap);
- 
--	mpc_i2c_fixup(i2c);
-+	if (i2c->has_errata_A004447)
-+		mpc_i2c_fixup_A004447(i2c);
-+	else
-+		mpc_i2c_fixup(i2c);
- 
- 	return 0;
- }
-@@ -745,6 +820,8 @@ static int fsl_i2c_probe(struct platform_device *op)
- 	dev_info(i2c->dev, "timeout %u us\n", mpc_ops.timeout * 1000000 / HZ);
- 
- 	platform_set_drvdata(op, i2c);
-+	if (of_property_read_bool(op->dev.of_node, "fsl,i2c-erratum-a004447"))
-+		i2c->has_errata_A004447 = true;
- 
- 	i2c->adap = mpc_ops;
- 	of_address_to_resource(op->dev.of_node, 0, &res);
+ /include/ "qoriq-duart-0.dtsi"
+ /include/ "qoriq-duart-1.dtsi"
+ /include/ "qoriq-gpio-0.dtsi"
 -- 
 2.30.2
 
