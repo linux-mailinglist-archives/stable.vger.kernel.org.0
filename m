@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 407BA3A601E
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:29:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 205723A6026
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232936AbhFNKbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:31:41 -0400
+        id S232957AbhFNKbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:31:48 -0400
 Received: from mail.kernel.org ([198.145.29.99]:37818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232904AbhFNKbW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:31:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2369A61004;
-        Mon, 14 Jun 2021 10:29:19 +0000 (UTC)
+        id S232935AbhFNKbl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:31:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE221611BE;
+        Mon, 14 Jun 2021 10:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666559;
-        bh=0sRQ9tU2KQUbj0eHW1bhSJkUB7cgtfIDfHGBMa24Nhk=;
+        s=korg; t=1623666562;
+        bh=eds8IOZtnGhaffiJTb92aYTjf9GAJf65MJFEnvDn35c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHzGsMCpjgFCxo6KNFWaScxMmdGI0aFOagAEIMkvHVQnCSNLjAAcwpif20BanVlRS
-         TwzQp/0jAdPTTPYcuKgvMuAp2bI5TzeFIIuEzs8iUg11+u5waulJ8s6EKseZ6g4V2c
-         OFwIvmcysBtlLuQDocsdTjh5ttJS6EhAuGW33YQo=
+        b=MvSLngkaU4V4QzkD3lIwlBfwwYTc+t7aDb/FjdvlZSwQeUdoVnr8xF+93Z1Vytzwt
+         vavtTClSJ37Igja2IoqdHYnES7h1cB9DnBeCZHGYqKkztrQfBhF1Dry0BZN7r2njzc
+         ztmXbATkOriEMM/CO1Gd36LmpOA14RdHzJ5BuNKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
-Subject: [PATCH 4.4 23/34] usb: dwc3: ep0: fix NULL pointer exception
-Date:   Mon, 14 Jun 2021 12:27:14 +0200
-Message-Id: <20210614102642.326815452@linuxfoundation.org>
+        George McCollister <george.mccollister@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 24/34] USB: serial: ftdi_sio: add NovaTech OrionMX product ID
+Date:   Mon, 14 Jun 2021 12:27:15 +0200
+Message-Id: <20210614102642.358038337@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102641.582612289@linuxfoundation.org>
 References: <20210614102641.582612289@linuxfoundation.org>
@@ -39,67 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+From: George McCollister <george.mccollister@gmail.com>
 
-commit d00889080ab60051627dab1d85831cd9db750e2a upstream.
+commit bc96c72df33ee81b24d87eab953c73f7bcc04f29 upstream.
 
-There is no validation of the index from dwc3_wIndex_to_dep() and we might
-be referring a non-existing ep and trigger a NULL pointer exception. In
-certain configurations we might use fewer eps and the index might wrongly
-indicate a larger ep index than existing.
+Add PID for the NovaTech OrionMX so it can be automatically detected.
 
-By adding this validation from the patch we can actually report a wrong
-index back to the caller.
-
-In our usecase we are using a composite device on an older kernel, but
-upstream might use this fix also. Unfortunately, I cannot describe the
-hardware for others to reproduce the issue as it is a proprietary
-implementation.
-
-[   82.958261] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a4
-[   82.966891] Mem abort info:
-[   82.969663]   ESR = 0x96000006
-[   82.972703]   Exception class = DABT (current EL), IL = 32 bits
-[   82.978603]   SET = 0, FnV = 0
-[   82.981642]   EA = 0, S1PTW = 0
-[   82.984765] Data abort info:
-[   82.987631]   ISV = 0, ISS = 0x00000006
-[   82.991449]   CM = 0, WnR = 0
-[   82.994409] user pgtable: 4k pages, 39-bit VAs, pgdp = 00000000c6210ccc
-[   83.000999] [00000000000000a4] pgd=0000000053aa5003, pud=0000000053aa5003, pmd=0000000000000000
-[   83.009685] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[   83.026433] Process irq/62-dwc3 (pid: 303, stack limit = 0x000000003985154c)
-[   83.033470] CPU: 0 PID: 303 Comm: irq/62-dwc3 Not tainted 4.19.124 #1
-[   83.044836] pstate: 60000085 (nZCv daIf -PAN -UAO)
-[   83.049628] pc : dwc3_ep0_handle_feature+0x414/0x43c
-[   83.054558] lr : dwc3_ep0_interrupt+0x3b4/0xc94
-
-...
-
-[   83.141788] Call trace:
-[   83.144227]  dwc3_ep0_handle_feature+0x414/0x43c
-[   83.148823]  dwc3_ep0_interrupt+0x3b4/0xc94
-[   83.181546] ---[ end trace aac6b5267d84c32f ]---
-
-Signed-off-by: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608162650.58426-1-marian.c.rotariu@gmail.com
+Signed-off-by: George McCollister <george.mccollister@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/ep0.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/serial/ftdi_sio.c     |    1 +
+ drivers/usb/serial/ftdi_sio_ids.h |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/usb/dwc3/ep0.c
-+++ b/drivers/usb/dwc3/ep0.c
-@@ -331,6 +331,9 @@ static struct dwc3_ep *dwc3_wIndex_to_de
- 		epnum |= 1;
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -606,6 +606,7 @@ static const struct usb_device_id id_tab
+ 		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONLX_PLUS_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORION_IO_PID) },
++	{ USB_DEVICE(FTDI_VID, FTDI_NT_ORIONMX_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SYNAPSE_SS200_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_CUSTOMWARE_MINIPLEX2_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -580,6 +580,7 @@
+ #define FTDI_NT_ORIONLXM_PID		0x7c90	/* OrionLXm Substation Automation Platform */
+ #define FTDI_NT_ORIONLX_PLUS_PID	0x7c91	/* OrionLX+ Substation Automation Platform */
+ #define FTDI_NT_ORION_IO_PID		0x7c92	/* Orion I/O */
++#define FTDI_NT_ORIONMX_PID		0x7c93	/* OrionMX */
  
- 	dep = dwc->eps[epnum];
-+	if (dep == NULL)
-+		return NULL;
-+
- 	if (dep->flags & DWC3_EP_ENABLED)
- 		return dep;
- 
+ /*
+  * Synapse Wireless product ids (FTDI_VID)
 
 
