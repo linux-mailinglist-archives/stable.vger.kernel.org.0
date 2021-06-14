@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 138433A61B4
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:49:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0939C3A6081
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233428AbhFNKup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:50:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
+        id S233315AbhFNKfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:35:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234107AbhFNKsf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:48:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1724611BE;
-        Mon, 14 Jun 2021 10:37:51 +0000 (UTC)
+        id S233317AbhFNKdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:33:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FF6D6134F;
+        Mon, 14 Jun 2021 10:31:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667072;
-        bh=mcZYQyzQP0oLfgijUxRgc2hLd0qQlBr3AXWrWD/St8A=;
+        s=korg; t=1623666683;
+        bh=g4c31cHzQDbqDDuOrRuefwngoa8CJFoOdHRLyYsOp/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d5RYgtgjIG7437QBEq+ee0BtnEUHHxZZzc6VSK3CVTTWIswBFc9g3MzLnd7yeIQI0
-         tKUb4AMpNYzGttJV3F+Ab7CBFdAKUGbQZ94m/twR3MwNxsVHhT6NLL0VoERgcDFkAG
-         7wuHPZEurhiRYYC3SDkQPfpMeF6tzXRxANDiW/PU=
+        b=P+GrKrrPwnaxHxFKUJ21qVo3hecI82pbuhCrCKYn801YyESHbU90m9fUslFJC7stQ
+         NJcJM2483PXjMeAI2+u4MY4SDFCKpsn8i1050UiSWU0MvAsxm2nZt2pvMgIBYewlXK
+         u/ylBhSEPHN8NtbkzSPdu5qA18i3bvBZYTQZXnmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rao Shoaib <rao.shoaib@oracle.com>,
+        stable@vger.kernel.org,
+        syzbot+69ff9dff50dcfe14ddd4@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/84] RDS tcp loopback connection can hang
-Date:   Mon, 14 Jun 2021 12:26:56 +0200
-Message-Id: <20210614102646.974565637@linuxfoundation.org>
+Subject: [PATCH 4.9 06/42] netlink: disable IRQs for netlink_lock_table()
+Date:   Mon, 14 Jun 2021 12:26:57 +0200
+Message-Id: <20210614102642.910735239@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,119 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rao Shoaib <rao.shoaib@oracle.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit aced3ce57cd37b5ca332bcacd370d01f5a8c5371 ]
+[ Upstream commit 1d482e666b8e74c7555dbdfbfb77205eeed3ff2d ]
 
-When TCP is used as transport and a program on the
-system connects to RDS port 16385, connection is
-accepted but denied per the rules of RDS. However,
-RDS connections object is left in the list. Next
-loopback connection will select that connection
-object as it is at the head of list. The connection
-attempt will hang as the connection object is set
-to connect over TCP which is not allowed
+Syzbot reports that in mac80211 we have a potential deadlock
+between our "local->stop_queue_reasons_lock" (spinlock) and
+netlink's nl_table_lock (rwlock). This is because there's at
+least one situation in which we might try to send a netlink
+message with this spinlock held while it is also possible to
+take the spinlock from a hardirq context, resulting in the
+following deadlock scenario reported by lockdep:
 
-The issue can be reproduced easily, use rds-ping
-to ping a local IP address. After that use any
-program like ncat to connect to the same IP
-address and port 16385. This will hang so ctrl-c out.
-Now try rds-ping, it will hang.
+       CPU0                    CPU1
+       ----                    ----
+  lock(nl_table_lock);
+                               local_irq_disable();
+                               lock(&local->queue_stop_reason_lock);
+                               lock(nl_table_lock);
+  <Interrupt>
+    lock(&local->queue_stop_reason_lock);
 
-To fix the issue this patch adds checks to disallow
-the connection object creation and destroys the
-connection object.
+This seems valid, we can take the queue_stop_reason_lock in
+any kind of context ("CPU0"), and call ieee80211_report_ack_skb()
+with the spinlock held and IRQs disabled ("CPU1") in some
+code path (ieee80211_do_stop() via ieee80211_free_txskb()).
 
-Signed-off-by: Rao Shoaib <rao.shoaib@oracle.com>
+Short of disallowing netlink use in scenarios like these
+(which would be rather complex in mac80211's case due to
+the deep callchain), it seems the only fix for this is to
+disable IRQs while nl_table_lock is held to avoid hitting
+this scenario, this disallows the "CPU0" portion of the
+reported deadlock.
+
+Note that the writer side (netlink_table_grab()) already
+disables IRQs for this lock.
+
+Unfortunately though, this seems like a huge hammer, and
+maybe the whole netlink table locking should be reworked.
+
+Reported-by: syzbot+69ff9dff50dcfe14ddd4@syzkaller.appspotmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/connection.c | 23 +++++++++++++++++------
- net/rds/tcp.c        |  4 ++--
- net/rds/tcp.h        |  3 ++-
- net/rds/tcp_listen.c |  6 ++++++
- 4 files changed, 27 insertions(+), 9 deletions(-)
+ net/netlink/af_netlink.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/rds/connection.c b/net/rds/connection.c
-index ed7f2133acc2..c85bd6340eaa 100644
---- a/net/rds/connection.c
-+++ b/net/rds/connection.c
-@@ -240,12 +240,23 @@ static struct rds_connection *__rds_conn_create(struct net *net,
- 	if (loop_trans) {
- 		rds_trans_put(loop_trans);
- 		conn->c_loopback = 1;
--		if (is_outgoing && trans->t_prefer_loopback) {
--			/* "outgoing" connection - and the transport
--			 * says it wants the connection handled by the
--			 * loopback transport. This is what TCP does.
--			 */
--			trans = &rds_loop_transport;
-+		if (trans->t_prefer_loopback) {
-+			if (likely(is_outgoing)) {
-+				/* "outgoing" connection to local address.
-+				 * Protocol says it wants the connection
-+				 * handled by the loopback transport.
-+				 * This is what TCP does.
-+				 */
-+				trans = &rds_loop_transport;
-+			} else {
-+				/* No transport currently in use
-+				 * should end up here, but if it
-+				 * does, reset/destroy the connection.
-+				 */
-+				kmem_cache_free(rds_conn_slab, conn);
-+				conn = ERR_PTR(-EOPNOTSUPP);
-+				goto out;
-+			}
- 		}
- 	}
- 
-diff --git a/net/rds/tcp.c b/net/rds/tcp.c
-index 66121bc6f34e..1402e9166a7e 100644
---- a/net/rds/tcp.c
-+++ b/net/rds/tcp.c
-@@ -323,8 +323,8 @@ out:
- }
- #endif
- 
--static int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
--			       __u32 scope_id)
-+int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
-+			__u32 scope_id)
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 205865292ba3..541410f1c3b7 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -436,11 +436,13 @@ void netlink_table_ungrab(void)
+ static inline void
+ netlink_lock_table(void)
  {
- 	struct net_device *dev = NULL;
- #if IS_ENABLED(CONFIG_IPV6)
-diff --git a/net/rds/tcp.h b/net/rds/tcp.h
-index 3c69361d21c7..4620549ecbeb 100644
---- a/net/rds/tcp.h
-+++ b/net/rds/tcp.h
-@@ -60,7 +60,8 @@ u32 rds_tcp_snd_una(struct rds_tcp_connection *tc);
- u64 rds_tcp_map_seq(struct rds_tcp_connection *tc, u32 seq);
- extern struct rds_transport rds_tcp_transport;
- void rds_tcp_accept_work(struct sock *sk);
--
-+int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
-+			__u32 scope_id);
- /* tcp_connect.c */
- int rds_tcp_conn_path_connect(struct rds_conn_path *cp);
- void rds_tcp_conn_path_shutdown(struct rds_conn_path *conn);
-diff --git a/net/rds/tcp_listen.c b/net/rds/tcp_listen.c
-index 810a3a49e947..26a3e18e460d 100644
---- a/net/rds/tcp_listen.c
-+++ b/net/rds/tcp_listen.c
-@@ -198,6 +198,12 @@ int rds_tcp_accept_one(struct socket *sock)
- 	}
- #endif
- 
-+	if (!rds_tcp_laddr_check(sock_net(sock->sk), peer_addr, dev_if)) {
-+		/* local address connection is only allowed via loopback */
-+		ret = -EOPNOTSUPP;
-+		goto out;
-+	}
++	unsigned long flags;
 +
- 	conn = rds_conn_create(sock_net(sock->sk),
- 			       my_addr, peer_addr,
- 			       &rds_tcp_transport, 0, GFP_KERNEL, dev_if);
+ 	/* read_lock() synchronizes us to netlink_table_grab */
+ 
+-	read_lock(&nl_table_lock);
++	read_lock_irqsave(&nl_table_lock, flags);
+ 	atomic_inc(&nl_table_users);
+-	read_unlock(&nl_table_lock);
++	read_unlock_irqrestore(&nl_table_lock, flags);
+ }
+ 
+ static inline void
 -- 
 2.30.2
 
