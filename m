@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C6743A60EB
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 018523A615A
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233652AbhFNKkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:40:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40062 "EHLO mail.kernel.org"
+        id S233552AbhFNKqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:46:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233777AbhFNKhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:37:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7BA3611BE;
-        Mon, 14 Jun 2021 10:33:38 +0000 (UTC)
+        id S234163AbhFNKoS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:44:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C226611C1;
+        Mon, 14 Jun 2021 10:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666819;
-        bh=Yg31k1HocdswqpPwLQx+peZ9oi2gE5TsZ/v3v/9vvYo=;
+        s=korg; t=1623666977;
+        bh=HqkcPOwuwXLSvOrwJ6RRUfXkTvsbUo//ls8BR4H4/Qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z19v4tmSd4++RQHuBIbXsA7g20Qpr97lagJQMODUOfwrviMl7AItv8ZnRjyozwhDh
-         6pOthfsHjwVM06cjNYCJmW/srspQ0irVqqT9L3vLthRZgIN2KUVlJRZmG96kYwlqKn
-         9/576tidILBVdgdymPyhOLSc26xcNp184lqv0K2w=
+        b=E9/99SBf2beQtPICDvX4V4An6qBliHcYBHqljdAqU7agVdheJqubeIy5r5SRCM5ga
+         zU5nwFSA5yVugmjaVTtGMGONE76N76FSQ94bX9X5iR3jMKmQPq0UTkBnqnWRzE5399
+         XZbFo1VvdpoHHZetylLCZEiUam/7PBJtC9SdY4VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 41/49] perf session: Correct buffer copying when peeking events
+        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.19 51/67] RDMA/mlx4: Do not map the core_clock page to user space unless enabled
 Date:   Mon, 14 Jun 2021 12:27:34 +0200
-Message-Id: <20210614102643.207576453@linuxfoundation.org>
+Message-Id: <20210614102645.500765990@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,55 +40,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 197eecb6ecae0b04bd694432f640ff75597fed9c ]
+commit 404e5a12691fe797486475fe28cc0b80cb8bef2c upstream.
 
-When peeking an event, it has a short path and a long path.  The short
-path uses the session pointer "one_mmap_addr" to directly fetch the
-event; and the long path needs to read out the event header and the
-following event data from file and fill into the buffer pointer passed
-through the argument "buf".
+Currently when mlx4 maps the hca_core_clock page to the user space there
+are read-modifiable registers, one of which is semaphore, on this page as
+well as the clock counter. If user reads the wrong offset, it can modify
+the semaphore and hang the device.
 
-The issue is in the long path that it copies the event header and event
-data into the same destination address which pointer "buf", this means
-the event header is overwritten.  We are just lucky to run into the
-short path in most cases, so we don't hit the issue in the long path.
+Do not map the hca_core_clock page to the user space unless the device has
+been put in a backwards compatibility mode to support this feature.
 
-This patch adds the offset "hdr_sz" to the pointer "buf" when copying
-the event data, so that it can reserve the event header which can be
-used properly by its caller.
+After this patch, mlx4 core_clock won't be mapped to user space on the
+majority of existing devices and the uverbs device time feature in
+ibv_query_rt_values_ex() will be disabled.
 
-Fixes: 5a52f33adf02 ("perf session: Add perf_session__peek_event()")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210605052957.1070720-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 52033cfb5aab ("IB/mlx4: Add mmap call to map the hardware clock")
+Link: https://lore.kernel.org/r/9632304e0d6790af84b3b706d8c18732bc0d5e27.1622726305.git.leonro@nvidia.com
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/session.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/mlx4/main.c         |    5 +----
+ drivers/net/ethernet/mellanox/mlx4/fw.c   |    3 +++
+ drivers/net/ethernet/mellanox/mlx4/fw.h   |    1 +
+ drivers/net/ethernet/mellanox/mlx4/main.c |    6 ++++++
+ include/linux/mlx4/device.h               |    1 +
+ 5 files changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index decd5d147e81..735dc862c7f8 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -1475,6 +1475,7 @@ int perf_session__peek_event(struct perf_session *session, off_t file_offset,
- 	if (event->header.size < hdr_sz || event->header.size > buf_sz)
- 		return -1;
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -577,12 +577,9 @@ static int mlx4_ib_query_device(struct i
+ 	props->cq_caps.max_cq_moderation_count = MLX4_MAX_CQ_COUNT;
+ 	props->cq_caps.max_cq_moderation_period = MLX4_MAX_CQ_PERIOD;
  
-+	buf += hdr_sz;
- 	rest = event->header.size - hdr_sz;
+-	if (!mlx4_is_slave(dev->dev))
+-		err = mlx4_get_internal_clock_params(dev->dev, &clock_params);
+-
+ 	if (uhw->outlen >= resp.response_length + sizeof(resp.hca_core_clock_offset)) {
+ 		resp.response_length += sizeof(resp.hca_core_clock_offset);
+-		if (!err && !mlx4_is_slave(dev->dev)) {
++		if (!mlx4_get_internal_clock_params(dev->dev, &clock_params)) {
+ 			resp.comp_mask |= MLX4_IB_QUERY_DEV_RESP_MASK_CORE_CLOCK_OFFSET;
+ 			resp.hca_core_clock_offset = clock_params.offset % PAGE_SIZE;
+ 		}
+--- a/drivers/net/ethernet/mellanox/mlx4/fw.c
++++ b/drivers/net/ethernet/mellanox/mlx4/fw.c
+@@ -822,6 +822,7 @@ int mlx4_QUERY_DEV_CAP(struct mlx4_dev *
+ #define QUERY_DEV_CAP_MAD_DEMUX_OFFSET		0xb0
+ #define QUERY_DEV_CAP_DMFS_HIGH_RATE_QPN_BASE_OFFSET	0xa8
+ #define QUERY_DEV_CAP_DMFS_HIGH_RATE_QPN_RANGE_OFFSET	0xac
++#define QUERY_DEV_CAP_MAP_CLOCK_TO_USER 0xc1
+ #define QUERY_DEV_CAP_QP_RATE_LIMIT_NUM_OFFSET	0xcc
+ #define QUERY_DEV_CAP_QP_RATE_LIMIT_MAX_OFFSET	0xd0
+ #define QUERY_DEV_CAP_QP_RATE_LIMIT_MIN_OFFSET	0xd2
+@@ -840,6 +841,8 @@ int mlx4_QUERY_DEV_CAP(struct mlx4_dev *
  
- 	if (readn(fd, buf, rest) != (ssize_t)rest)
--- 
-2.30.2
-
+ 	if (mlx4_is_mfunc(dev))
+ 		disable_unsupported_roce_caps(outbox);
++	MLX4_GET(field, outbox, QUERY_DEV_CAP_MAP_CLOCK_TO_USER);
++	dev_cap->map_clock_to_user = field & 0x80;
+ 	MLX4_GET(field, outbox, QUERY_DEV_CAP_RSVD_QP_OFFSET);
+ 	dev_cap->reserved_qps = 1 << (field & 0xf);
+ 	MLX4_GET(field, outbox, QUERY_DEV_CAP_MAX_QP_OFFSET);
+--- a/drivers/net/ethernet/mellanox/mlx4/fw.h
++++ b/drivers/net/ethernet/mellanox/mlx4/fw.h
+@@ -131,6 +131,7 @@ struct mlx4_dev_cap {
+ 	u32 health_buffer_addrs;
+ 	struct mlx4_port_cap port_cap[MLX4_MAX_PORTS + 1];
+ 	bool wol_port[MLX4_MAX_PORTS + 1];
++	bool map_clock_to_user;
+ };
+ 
+ struct mlx4_func_cap {
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -498,6 +498,7 @@ static int mlx4_dev_cap(struct mlx4_dev
+ 		}
+ 	}
+ 
++	dev->caps.map_clock_to_user  = dev_cap->map_clock_to_user;
+ 	dev->caps.uar_page_size	     = PAGE_SIZE;
+ 	dev->caps.num_uars	     = dev_cap->uar_size / PAGE_SIZE;
+ 	dev->caps.local_ca_ack_delay = dev_cap->local_ca_ack_delay;
+@@ -1949,6 +1950,11 @@ int mlx4_get_internal_clock_params(struc
+ 	if (mlx4_is_slave(dev))
+ 		return -EOPNOTSUPP;
+ 
++	if (!dev->caps.map_clock_to_user) {
++		mlx4_dbg(dev, "Map clock to user is not supported.\n");
++		return -EOPNOTSUPP;
++	}
++
+ 	if (!params)
+ 		return -EINVAL;
+ 
+--- a/include/linux/mlx4/device.h
++++ b/include/linux/mlx4/device.h
+@@ -631,6 +631,7 @@ struct mlx4_caps {
+ 	bool			wol_port[MLX4_MAX_PORTS + 1];
+ 	struct mlx4_rate_limit_caps rl_caps;
+ 	u32			health_buffer_addrs;
++	bool			map_clock_to_user;
+ };
+ 
+ struct mlx4_buf_list {
 
 
