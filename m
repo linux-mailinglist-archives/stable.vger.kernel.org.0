@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48B743A610A
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:40:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 138433A61B4
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:49:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233356AbhFNKmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:42:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45358 "EHLO mail.kernel.org"
+        id S233428AbhFNKup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:50:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234090AbhFNKkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E27B613F2;
-        Mon, 14 Jun 2021 10:34:34 +0000 (UTC)
+        id S234107AbhFNKsf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:48:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1724611BE;
+        Mon, 14 Jun 2021 10:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666875;
-        bh=B5vQHtNPHM4qvNgXqiHo2brVwX9clzbvE9NGbD+LxGw=;
+        s=korg; t=1623667072;
+        bh=mcZYQyzQP0oLfgijUxRgc2hLd0qQlBr3AXWrWD/St8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2d6x1K5/xORG6B8pWvBZL+N148SL7RQsR2SUv1YlK6gtP4yjmjf8rzoBshO4ADda
-         KBtu0CeYqFriQPniztmb5u5yz+akf714NAI9IWyglD1lzI1lWortorNYWfAd0owty/
-         XST5sHcOGxxa/2ityAau53esGrl1LiHvj+C+EELw=
+        b=d5RYgtgjIG7437QBEq+ee0BtnEUHHxZZzc6VSK3CVTTWIswBFc9g3MzLnd7yeIQI0
+         tKUb4AMpNYzGttJV3F+Ab7CBFdAKUGbQZ94m/twR3MwNxsVHhT6NLL0VoERgcDFkAG
+         7wuHPZEurhiRYYC3SDkQPfpMeF6tzXRxANDiW/PU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        stable@vger.kernel.org, Rao Shoaib <rao.shoaib@oracle.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/67] net/qla3xxx: fix schedule while atomic in ql_sem_spinlock
+Subject: [PATCH 5.4 18/84] RDS tcp loopback connection can hang
 Date:   Mon, 14 Jun 2021 12:26:56 +0200
-Message-Id: <20210614102644.227519592@linuxfoundation.org>
+Message-Id: <20210614102646.974565637@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
+References: <20210614102646.341387537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,106 +40,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Rao Shoaib <rao.shoaib@oracle.com>
 
-[ Upstream commit 13a6f3153922391e90036ba2267d34eed63196fc ]
+[ Upstream commit aced3ce57cd37b5ca332bcacd370d01f5a8c5371 ]
 
-When calling the 'ql_sem_spinlock', the driver has already acquired the
-spin lock, so the driver should not call 'ssleep' in atomic context.
+When TCP is used as transport and a program on the
+system connects to RDS port 16385, connection is
+accepted but denied per the rules of RDS. However,
+RDS connections object is left in the list. Next
+loopback connection will select that connection
+object as it is at the head of list. The connection
+attempt will hang as the connection object is set
+to connect over TCP which is not allowed
 
-This bug can be fixed by using 'mdelay' instead of 'ssleep'.
+The issue can be reproduced easily, use rds-ping
+to ping a local IP address. After that use any
+program like ncat to connect to the same IP
+address and port 16385. This will hang so ctrl-c out.
+Now try rds-ping, it will hang.
 
-The KASAN's log reveals it:
+To fix the issue this patch adds checks to disallow
+the connection object creation and destroys the
+connection object.
 
-[    3.238124 ] BUG: scheduling while atomic: swapper/0/1/0x00000002
-[    3.238748 ] 2 locks held by swapper/0/1:
-[    3.239151 ]  #0: ffff88810177b240 (&dev->mutex){....}-{3:3}, at:
-__device_driver_lock+0x41/0x60
-[    3.240026 ]  #1: ffff888107c60e28 (&qdev->hw_lock){....}-{2:2}, at:
-ql3xxx_probe+0x2aa/0xea0
-[    3.240873 ] Modules linked in:
-[    3.241187 ] irq event stamp: 460854
-[    3.241541 ] hardirqs last  enabled at (460853): [<ffffffff843051bf>]
-_raw_spin_unlock_irqrestore+0x4f/0x70
-[    3.242245 ] hardirqs last disabled at (460854): [<ffffffff843058ca>]
-_raw_spin_lock_irqsave+0x2a/0x70
-[    3.242245 ] softirqs last  enabled at (446076): [<ffffffff846002e4>]
-__do_softirq+0x2e4/0x4b1
-[    3.242245 ] softirqs last disabled at (446069): [<ffffffff811ba5e0>]
-irq_exit_rcu+0x100/0x110
-[    3.242245 ] Preemption disabled at:
-[    3.242245 ] [<ffffffff828ca5ba>] ql3xxx_probe+0x2aa/0xea0
-[    3.242245 ] Kernel panic - not syncing: scheduling while atomic
-[    3.242245 ] CPU: 2 PID: 1 Comm: swapper/0 Not tainted
-5.13.0-rc1-00145
--gee7dc339169-dirty #16
-[    3.242245 ] Call Trace:
-[    3.242245 ]  dump_stack+0xba/0xf5
-[    3.242245 ]  ? ql3xxx_probe+0x1f0/0xea0
-[    3.242245 ]  panic+0x15a/0x3f2
-[    3.242245 ]  ? vprintk+0x76/0x150
-[    3.242245 ]  ? ql3xxx_probe+0x2aa/0xea0
-[    3.242245 ]  __schedule_bug+0xae/0xe0
-[    3.242245 ]  __schedule+0x72e/0xa00
-[    3.242245 ]  schedule+0x43/0xf0
-[    3.242245 ]  schedule_timeout+0x28b/0x500
-[    3.242245 ]  ? del_timer_sync+0xf0/0xf0
-[    3.242245 ]  ? msleep+0x2f/0x70
-[    3.242245 ]  msleep+0x59/0x70
-[    3.242245 ]  ql3xxx_probe+0x307/0xea0
-[    3.242245 ]  ? _raw_spin_unlock_irqrestore+0x3a/0x70
-[    3.242245 ]  ? pci_device_remove+0x110/0x110
-[    3.242245 ]  local_pci_probe+0x45/0xa0
-[    3.242245 ]  pci_device_probe+0x12b/0x1d0
-[    3.242245 ]  really_probe+0x2a9/0x610
-[    3.242245 ]  driver_probe_device+0x90/0x1d0
-[    3.242245 ]  ? mutex_lock_nested+0x1b/0x20
-[    3.242245 ]  device_driver_attach+0x68/0x70
-[    3.242245 ]  __driver_attach+0x124/0x1b0
-[    3.242245 ]  ? device_driver_attach+0x70/0x70
-[    3.242245 ]  bus_for_each_dev+0xbb/0x110
-[    3.242245 ]  ? rdinit_setup+0x45/0x45
-[    3.242245 ]  driver_attach+0x27/0x30
-[    3.242245 ]  bus_add_driver+0x1eb/0x2a0
-[    3.242245 ]  driver_register+0xa9/0x180
-[    3.242245 ]  __pci_register_driver+0x82/0x90
-[    3.242245 ]  ? yellowfin_init+0x25/0x25
-[    3.242245 ]  ql3xxx_driver_init+0x23/0x25
-[    3.242245 ]  do_one_initcall+0x7f/0x3d0
-[    3.242245 ]  ? rdinit_setup+0x45/0x45
-[    3.242245 ]  ? rcu_read_lock_sched_held+0x4f/0x80
-[    3.242245 ]  kernel_init_freeable+0x2aa/0x301
-[    3.242245 ]  ? rest_init+0x2c0/0x2c0
-[    3.242245 ]  kernel_init+0x18/0x190
-[    3.242245 ]  ? rest_init+0x2c0/0x2c0
-[    3.242245 ]  ? rest_init+0x2c0/0x2c0
-[    3.242245 ]  ret_from_fork+0x1f/0x30
-[    3.242245 ] Dumping ftrace buffer:
-[    3.242245 ]    (ftrace buffer empty)
-[    3.242245 ] Kernel Offset: disabled
-[    3.242245 ] Rebooting in 1 seconds.
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Rao Shoaib <rao.shoaib@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rds/connection.c | 23 +++++++++++++++++------
+ net/rds/tcp.c        |  4 ++--
+ net/rds/tcp.h        |  3 ++-
+ net/rds/tcp_listen.c |  6 ++++++
+ 4 files changed, 27 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index 1b5e098b2367..2d71646640ac 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -115,7 +115,7 @@ static int ql_sem_spinlock(struct ql3_adapter *qdev,
- 		value = readl(&port_regs->CommonRegs.semaphoreReg);
- 		if ((value & (sem_mask >> 16)) == sem_bits)
- 			return 0;
--		ssleep(1);
-+		mdelay(1000);
- 	} while (--seconds);
- 	return -1;
+diff --git a/net/rds/connection.c b/net/rds/connection.c
+index ed7f2133acc2..c85bd6340eaa 100644
+--- a/net/rds/connection.c
++++ b/net/rds/connection.c
+@@ -240,12 +240,23 @@ static struct rds_connection *__rds_conn_create(struct net *net,
+ 	if (loop_trans) {
+ 		rds_trans_put(loop_trans);
+ 		conn->c_loopback = 1;
+-		if (is_outgoing && trans->t_prefer_loopback) {
+-			/* "outgoing" connection - and the transport
+-			 * says it wants the connection handled by the
+-			 * loopback transport. This is what TCP does.
+-			 */
+-			trans = &rds_loop_transport;
++		if (trans->t_prefer_loopback) {
++			if (likely(is_outgoing)) {
++				/* "outgoing" connection to local address.
++				 * Protocol says it wants the connection
++				 * handled by the loopback transport.
++				 * This is what TCP does.
++				 */
++				trans = &rds_loop_transport;
++			} else {
++				/* No transport currently in use
++				 * should end up here, but if it
++				 * does, reset/destroy the connection.
++				 */
++				kmem_cache_free(rds_conn_slab, conn);
++				conn = ERR_PTR(-EOPNOTSUPP);
++				goto out;
++			}
+ 		}
+ 	}
+ 
+diff --git a/net/rds/tcp.c b/net/rds/tcp.c
+index 66121bc6f34e..1402e9166a7e 100644
+--- a/net/rds/tcp.c
++++ b/net/rds/tcp.c
+@@ -323,8 +323,8 @@ out:
  }
+ #endif
+ 
+-static int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
+-			       __u32 scope_id)
++int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
++			__u32 scope_id)
+ {
+ 	struct net_device *dev = NULL;
+ #if IS_ENABLED(CONFIG_IPV6)
+diff --git a/net/rds/tcp.h b/net/rds/tcp.h
+index 3c69361d21c7..4620549ecbeb 100644
+--- a/net/rds/tcp.h
++++ b/net/rds/tcp.h
+@@ -60,7 +60,8 @@ u32 rds_tcp_snd_una(struct rds_tcp_connection *tc);
+ u64 rds_tcp_map_seq(struct rds_tcp_connection *tc, u32 seq);
+ extern struct rds_transport rds_tcp_transport;
+ void rds_tcp_accept_work(struct sock *sk);
+-
++int rds_tcp_laddr_check(struct net *net, const struct in6_addr *addr,
++			__u32 scope_id);
+ /* tcp_connect.c */
+ int rds_tcp_conn_path_connect(struct rds_conn_path *cp);
+ void rds_tcp_conn_path_shutdown(struct rds_conn_path *conn);
+diff --git a/net/rds/tcp_listen.c b/net/rds/tcp_listen.c
+index 810a3a49e947..26a3e18e460d 100644
+--- a/net/rds/tcp_listen.c
++++ b/net/rds/tcp_listen.c
+@@ -198,6 +198,12 @@ int rds_tcp_accept_one(struct socket *sock)
+ 	}
+ #endif
+ 
++	if (!rds_tcp_laddr_check(sock_net(sock->sk), peer_addr, dev_if)) {
++		/* local address connection is only allowed via loopback */
++		ret = -EOPNOTSUPP;
++		goto out;
++	}
++
+ 	conn = rds_conn_create(sock_net(sock->sk),
+ 			       my_addr, peer_addr,
+ 			       &rds_tcp_transport, 0, GFP_KERNEL, dev_if);
 -- 
 2.30.2
 
