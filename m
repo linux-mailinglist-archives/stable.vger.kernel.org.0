@@ -2,233 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B86E3A6D09
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 19:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03B853A6DB6
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 19:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234137AbhFNRX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 13:23:29 -0400
-Received: from perceval.ideasonboard.com ([213.167.242.64]:37952 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233795AbhFNRX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 13:23:29 -0400
-Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id D1DC4436;
-        Mon, 14 Jun 2021 19:21:24 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1623691285;
-        bh=aKY7UtieT5exgbf/JPK7G/X0gPU3KnH1SU01c4l8VCk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Vdwc4+tSLnL557QeggHLPZ1vC/x5dMSJIfcrM8CG6W+DZWbkHs7lbNa9PZPGnNmeZ
-         /o2+qHpqr9/F9PqSGjyHDwu06s5qcMOK09yWZdF1Or7BeSS0QTavkh21+uuaSTfNY4
-         UxpBmmLHQezCQUHeGQHeQwCCMbLAbhnhnE3ewT7s=
-Date:   Mon, 14 Jun 2021 20:21:05 +0300
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vaibhav Gupta <vaibhavgupta40@gmail.com>,
-        Liu Shixin <liushixin2@huawei.com>,
-        Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-staging@lists.linux.dev, stable@vger.kernel.org
-Subject: Re: [PATCH v3 8/8] media: subdev: disallow ioctl for saa6588/davinci
-Message-ID: <YMeQARKbdVIZ8Rp9@pendragon.ideasonboard.com>
-References: <20210614103409.3154127-1-arnd@kernel.org>
- <20210614103409.3154127-9-arnd@kernel.org>
+        id S234220AbhFNRyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 13:54:55 -0400
+Received: from sonic308-15.consmr.mail.ne1.yahoo.com ([66.163.187.38]:37210
+        "EHLO sonic308-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233985AbhFNRyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 13:54:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623693171; bh=CjI+Y1jLzQZocS74biMFxJXGXk33MszEbV54guTry/M=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=QF0aq9cOL470KhgZJafw1sqoagAhORXoHQqeJlG3pMcwhrWDHGNRH11/uxi0BlOfqRJgGu7Le6l5TjWNgwqka5Ssz4C9n7gvTW1SWt2PQq+EFT45CQdoEf3ujSkk7us7LLr/Gq5zs2MPRXR9WNQrrKJ8lzIXUBB4yF7cfpx/P+IGY1l1LIKObF2Rv0F4ZYuRf9rQLKZjxwK4eo8u7skdghMWoGkzHBOrUZZoOR1A3PY0k2Y0Abd/yviRpPnl9eRLDC51Yg+jihQsZzPU7z1qEpTLT54edc9cfkNli+euib6VL/m3OjiJlWIKMWyyEJUIDt4yHSQdeIXaU6qSiaUeoA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623693171; bh=oGBvXpwGugeJMD9uvUmVrWkmhJqjqHrIQdTK3p1mAjq=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=SaBYfuU64y9DsnjFIOYgRPzEXiym4AuTIo/p+xMvamKUQERstIRzqNjpKZJdcrz84jUMxFktdp7IwhOSYiosk0GTmz+t+iSbxJO14vF0bwK533aT8daN4S6Rz1wnE1N9xk9nIZUp/f1Isa7soBDDDQJa8qgXGKkw/luHcVAWZhr6as+pxP+CeBOzZYJsBGyN2ReqX/aqohPLNmdOqfEAiRzcnmlWhBtM5nx59k5x61cxE9ERI6afT6RPTqh4T5Mshc3j1vGvkEby/xGGDzklJlC63pfUuAG7SGNQ3Bh5SA7SS+TFnUNpCdX3g9niYJYNurhwdPWJIKoWC/9XByThnA==
+X-YMail-OSG: FRLW7QoVM1m5mMLp7iYVQ6BUDdqVW11jKRS0Wk8RdxffzqPBW95JfK15fuo3xNj
+ vxHkcSZaCb8xvyyQBxZ3yhASuNvy.jl8Z38TmW5hIAQw7FWFm8UG6WSO.UFly5MKjeZTBevoUmN3
+ tuhimYYQK72mz9O8IMVq9z0FUGfA3Ly9HVU1tc3u3uo5NTo_fIu_2k0LmQhL5Hh_2k_SuWEMBJgV
+ qANT_Z5igQGGDulYC5clHbKyPBOQWIOGZawqkmqIPKjh4ftNO1YSc5_t8Zi_SeMdjC2KczGST0Gf
+ i1Peq3.8bW0x0DmajJ2vXShGgUioAeYByn6mhuHgPbKp3AtsMYS3PHHXuG5utBSLE4GcLWwJkHML
+ WZwb701cNImrAxvGwjBP7L8so8c0hsnKUXN1Fc9i3kBQQqqALVG8a4WV0iy6klmHlsshGKGOfX9c
+ x8KONJFw4gseB5tUHh6aAA9njWDyw2hdSd_Ps6ZLIX0DrvymqbghLkD94Bft4aQT2G4rx.P7GS35
+ b0LjfRjLGi1gDkYcRafyD4mzCSdUrP1O7oLJ2lr56VRBZvXyIZErWR05ydYxu3_whX.v9B5EVPIz
+ lX6jtLCivbZ0nuCX7udJFNhxdtmcuSSIEuy01kYuc00yZAC1pVYQcZ.RCQMJ8zYcMAY6APWwLxx3
+ zaDXrNXA8NC1ZFCLw9rAFpCBhrP26gVLnQ41NT70ypdLsZSa0W0PextIMElRzfFSPT2NlzfI6KqW
+ q0rjfLU_iys57KpUsHIma8HfhIFagU4mWTtrY0lmyR6MvElSuaO_pZc9CBv7UuqXZLOFFDJrPQM3
+ .EFtyUty8hAFsq8UAYrXzIOAbKNQGxxWx2iekb3CB_pY0AVNqvZEGWcQHdlxZ0naXjGrlOTaoQP6
+ Ti0plcxWcVrXEeiy99noUX8VAcVgvzMbwvObzMvbwHjbMFwIDR2fMYOY.0ta5rC7cgndpYWa4.CH
+ 0Yeo47dwYyjfBxxAozYyWJAeCZk3xuHcDYoCK.BiWBgZ.l6YdCipD4GwmCdBmSJr9yR3s_nystHJ
+ .prvudAKc5xpbPv.ydX1QTFf3xVQxtct02.pn.FPl_ZlNFAHOcP6fCNrjT3hp0Nom9SWiD9D7gCe
+ 4xtEPybqvbo.HRb6kxjnxkY2xUv8_7w1NDQgGQuxUWFiwk0JnhLWRQmhOhw568H517ftw7wWKr.0
+ I_aN4TXgunwdBQfWmtwHbUg1RLrZd9nekfbT7hWndGMp9i3LT_S8VvPy87WhS4XZhvgR3GrUBa1Q
+ LZN.rFsYaTyVrNJevcvtb2IhJKI2lMbiBl9LI2xjzPAj1i_w2xzoOBqeYMp_boVpwoG.mXmYhh0y
+ jpUSRg4QxgbdoYWUkCtOw85ZRhumoIFX3H4pd.u4vYm3FXc01jdKdgKH79peil3Q4KKgEOUpNQzl
+ zIKMgGdkG1mm9MKPfLpZ_oSxLl2U6vX3HM9V1aTdB0ZOh59JZ4TC5Rd5x0UEygdnAPtgOLvbzjk2
+ 5U2BqHJeofsF_5zf62Atg5Y7H9Bzmf4w._L0yMcUD_7bpPwQWzfW1pfA7g0LkiElDqnoBMs9T.1v
+ TXiKsPrIzoIo92MhgX6_VoF__FjC77JhjOK6mjzEJNTJdpxzx6Jv00MrkGuR5GJttqVr66WL6r.6
+ ShRJ5kOtGn2bnl5Kj2mNWZ9RJL_Ne1Pyfh5km4EtzSfCdH_7J0Gi0LUKD9TMPjzjHBEryKtBxUjL
+ 54z85r5ZQETvCH5WwdFM3fC6.SY2QaiBGyhWMlplhMjd96qG4luq6KuWL8zNOApZcwsqgClOLTYP
+ ZH.R8D3UcYzo4Re2BTFavEn0ig5RYQ9Y7sarKk3Ji9R_qiu_3DiujPggm8vT3sTL7CdevoBjkv7v
+ N1tAURgsaP41PrM7PuQhXp5TRZPVpFVYnzZfK.FFwoG0PkhsGqZ7r4kUr7Lt.uqPJwWyTFG1INDq
+ PDSkOBThYfVt4fLoOMF7GTmxt4Rkc2ArFbUUgxLJHV1DLOoUttZd6bKwyctE1HIeiJzcakSgLId0
+ Q0ASRLY0xQVMlQs6ckeGFeMOj1iPNEJuFp2nFrhKMPCtRyjRsHY8r9MwdMJXeDGFxksMr6J58DEd
+ UPCObOPNrH7oElSaHbahipnLD5jJ1nv8MFjXojschLDcmO79aR6Ql68MR7n41TY0NKMOB8EkjA5n
+ DTK2jPOcA1PXLnmIyWti3CJQI08Rq8PsRbD2sJd0tmSkYD503f5jY5ndZSi4iPL2x36LvITtaymu
+ uDBwpjvJJC2YVIrK.UjcEvr3CDJH_JnyAra5G5S5CRAbM7fVGc9zcJyWEv6n8YZWzK7YgniAUWHn
+ X5gGirnm9gBzwaEXjYtFRm8GuOSPBQjPMTd2eo93qSrNbu7DRNBYhCX5o3wTI6OPGXA1QRrBmszh
+ UxcDqQrJRy9615oqCclMV_424Ijb7W4E_KJxu_8lSwKaGPhPVoHU94XpIeeirDbGiGxwC_VQRPqr
+ RP5jYhOcIKXFN2ZiBFFNfNzpsaGuO4J.GdWAuTGob6fBimpXFZZGfMAbUkBb6EuX07ianmDvsMcI
+ fmT5FoCkstJVBj7oczw7ZqeysWV4tnR.WahqSCXjYtSD1UiFO0qir3dSs1VlL6S3Dg9C4H8LUuHZ
+ UAEMWDYrta1Ad8qGM42OksMdViRupRWF2w100vZqC.0Lb0yU6_sSV_3FzElbtn7pfNy4edESJRqA
+ H.Nz4m795vqsdPVbZ3DYu6KAhTKfP8VCmt.MKmiS4N84hkcL281X8qvaKhqk5nOIdt08YVFupyRI
+ dj_wLaOicyTfIUjYDWqkDIMGiZ254HoHe9OWs76NuayaPhniLNz4atCb.tAoU_uZwrLfvnoEfQnj
+ pQbWapn3E27W.ENYP4HoJC9n9XkPeO2ycMz8Yz1hnbTisQMtOOLglllm8gwrtqforIazyOHxnmqK
+ TxPzGOxJOqtIOmGaQOJIzrJtRYSrQiwCDILlk2pjV3eObjsyaFj8aXQ6S0QJuR.6sZH.9RTGvzXj
+ Dv5Dk9rg_ne1w4gzgspibn4PuSrkAD8xWPz8Pe.8s5nvgSRaGlQ2r9xmAsCBmobAAr2rJLNEuAUG
+ Yj6mrC.tuIQl2EMiANKYBZexVeUqsjsrwWrEsNUKUWugdXDUlYOye7j6s_feYlhe8ni3lY3EECm8
+ Bd6TOsu3KeVyfFMYMzKVBXCyoWUN9p5eIubDxTADZe__hr9FIgw9xt2CviainGMj4HBT.2A_sC.4
+ tw.gfJtVhWztD.CCNTekoYSne2rRg9d83n71YhYtHr7i4fdeUX8C4cKSgEcr.uSlOKf1KpAEIiFZ
+ UmdNLdHXhVDEnqAb83DThk78qVi5N4QOzOsbLOiiZl7M438D9CSYVwu63YR6M0mGg6HFni2BuRSq
+ rg076P4Wf8lHibWTjWLVdJpHWP.xtt6M0E.GT5ILMKW2WEkBFFogC80ltQwCMh3XVmyU-
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Mon, 14 Jun 2021 17:52:51 +0000
+Received: by kubenode545.mail-prod1.omega.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 6300d772aac7e5202316b0b855d6980d;
+          Mon, 14 Jun 2021 17:52:48 +0000 (UTC)
+Subject: Re: [PATCH] proc: Track /proc/$pid/attr/ opener mm_struct
+To:     Kees Cook <keescook@chromium.org>,
+        youling257 <youling257@gmail.com>
+Cc:     torvalds@linux-foundation.org, christian.brauner@ubuntu.com,
+        andrea.righi@canonical.com, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, regressions@lists.linux.dev,
+        linux-security-module@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20210608171221.276899-1-keescook@chromium.org>
+ <20210614100234.12077-1-youling257@gmail.com>
+ <202106140826.7912F27CD@keescook>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <17222cd4-3c2b-9d0c-aa51-64b7a50a9c2c@schaufler-ca.com>
+Date:   Mon, 14 Jun 2021 10:52:48 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
+In-Reply-To: <202106140826.7912F27CD@keescook>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210614103409.3154127-9-arnd@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+X-Mailer: WebService/1.1.18469 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Arnd,
+On 6/14/2021 8:32 AM, Kees Cook wrote:
+> On Mon, Jun 14, 2021 at 06:02:34PM +0800, youling257 wrote:
+>> I used mainline kernel on android, this patch cause "failed to retriev=
+e pid context" problem.
+>>
+>> 06-14 02:15:51.165  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
+d=3D1682) failed to retrieve pid context.
+>> 06-14 02:15:51.166  1685  1685 E ServiceManager: add_service('batteryp=
+roperties',1) uid=3D0 - PERMISSION DENIED
+>> 06-14 02:15:51.166  1682  1682 I ServiceManager: addService() batteryp=
+roperties failed (err -1 - no service manager yet?).  Retrying...
+>> 06-14 02:15:51.197  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
+d=3D1695) failed to retrieve pid context.
+>> 06-14 02:15:51.197  1685  1685 E ServiceManager: add_service('android.=
+security.keystore',1) uid=3D1017 - PERMISSION DENIED
+>> 06-14 02:15:51.198  1695  1695 I ServiceManager: addService() android.=
+security.keystore failed (err -1 - no service manager yet?).  Retrying...=
 
-Thank you for the patch.
+>> 06-14 02:15:51.207  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
+d=3D1708) failed to retrieve pid context.
+>> 06-14 02:15:51.207  1685  1685 E ServiceManager: add_service('android.=
+service.gatekeeper.IGateKeeperService',1) uid=3D1000 - PERMISSION DENIED
+>> 06-14 02:15:51.207  1708  1708 I ServiceManager: addService() android.=
+service.gatekeeper.IGateKeeperService failed (err -1 - no service manager=
+ yet?).  Retrying...
+>> 06-14 02:15:51.275  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
+d=3D1693) failed to retrieve pid context.
+>> 06-14 02:15:51.275  1692  1692 I cameraserver: ServiceManager: 0xf6d30=
+9e0
+>> 06-14 02:15:51.275  1685  1685 E ServiceManager: add_service('drm.drmM=
+anager',1) uid=3D1019 - PERMISSION DENIED
+>> 06-14 02:15:51.276  1693  1693 I ServiceManager: addService() drm.drmM=
+anager failed (err -1 - no service manager yet?).  Retrying...
+>>
+> Argh. Are you able to uncover what userspace is doing here?
+>
+> So far, my test cases are:
+>
+> 1) self: open, write, close: allowed
+> 2) self: open, clone thread. thread: change privileges, write, close: a=
+llowed
+> 3) self: open, give to privileged process. privileged process: write: r=
+eject
 
-On Mon, Jun 14, 2021 at 12:34:09PM +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> The saa6588_ioctl() function expects to get called from other kernel
-> functions with a 'saa6588_command' pointer, but I found nothing stops it
-> from getting called from user space instead, which seems rather dangerous.
-> 
-> The same thing happens in the davinci vpbe driver with its VENC_GET_FLD
-> command.
-> 
-> As a quick fix, add a separate .command() callback pointer for this
-> driver and change the two callers over to that.  This change can easily
-> get backported to stable kernels if necessary, but since there are only
-> two drivers, we may want to eventually replace this with a set of more
-> specialized callbacks in the long run.
-> 
-> Fixes: c3fda7f835b0 ("V4L/DVB (10537): saa6588: convert to v4l2_subdev.")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+I found an issue under Smack where a privileged process opened
+/proc/self/attr/smack/current, wrote to it successfully, then tried
+to write to it again, which failed because the cred has changed.=20
+That's not a common use case. The usual case is open, write, close.
+If ServiceManager is assuming that it can leave a descriptor open
+while manipulations are in progress it could encounter the same kind
+of problem.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-> ---
->  drivers/media/i2c/saa6588.c                   | 4 ++--
->  drivers/media/pci/bt8xx/bttv-driver.c         | 6 +++---
->  drivers/media/pci/saa7134/saa7134-video.c     | 6 +++---
->  drivers/media/platform/davinci/vpbe_display.c | 2 +-
->  drivers/media/platform/davinci/vpbe_venc.c    | 6 ++----
->  include/media/v4l2-subdev.h                   | 4 ++++
->  6 files changed, 15 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/media/i2c/saa6588.c b/drivers/media/i2c/saa6588.c
-> index ecb491d5f2ab..d1e0716bdfff 100644
-> --- a/drivers/media/i2c/saa6588.c
-> +++ b/drivers/media/i2c/saa6588.c
-> @@ -380,7 +380,7 @@ static void saa6588_configure(struct saa6588 *s)
->  
->  /* ---------------------------------------------------------------------- */
->  
-> -static long saa6588_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
-> +static long saa6588_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
->  {
->  	struct saa6588 *s = to_saa6588(sd);
->  	struct saa6588_command *a = arg;
-> @@ -433,7 +433,7 @@ static int saa6588_s_tuner(struct v4l2_subdev *sd, const struct v4l2_tuner *vt)
->  /* ----------------------------------------------------------------------- */
->  
->  static const struct v4l2_subdev_core_ops saa6588_core_ops = {
-> -	.ioctl = saa6588_ioctl,
-> +	.command = saa6588_command,
->  };
->  
->  static const struct v4l2_subdev_tuner_ops saa6588_tuner_ops = {
-> diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
-> index 1f62a9d8ea1d..0e9df8b35ac6 100644
-> --- a/drivers/media/pci/bt8xx/bttv-driver.c
-> +++ b/drivers/media/pci/bt8xx/bttv-driver.c
-> @@ -3179,7 +3179,7 @@ static int radio_release(struct file *file)
->  
->  	btv->radio_user--;
->  
-> -	bttv_call_all(btv, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
-> +	bttv_call_all(btv, core, command, SAA6588_CMD_CLOSE, &cmd);
->  
->  	if (btv->radio_user == 0)
->  		btv->has_radio_tuner = 0;
-> @@ -3260,7 +3260,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
->  	cmd.result = -ENODEV;
->  	radio_enable(btv);
->  
-> -	bttv_call_all(btv, core, ioctl, SAA6588_CMD_READ, &cmd);
-> +	bttv_call_all(btv, core, command, SAA6588_CMD_READ, &cmd);
->  
->  	return cmd.result;
->  }
-> @@ -3281,7 +3281,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
->  	cmd.instance = file;
->  	cmd.event_list = wait;
->  	cmd.poll_mask = res;
-> -	bttv_call_all(btv, core, ioctl, SAA6588_CMD_POLL, &cmd);
-> +	bttv_call_all(btv, core, command, SAA6588_CMD_POLL, &cmd);
->  
->  	return cmd.poll_mask;
->  }
-> diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
-> index 0f9d6b9edb90..374c8e1087de 100644
-> --- a/drivers/media/pci/saa7134/saa7134-video.c
-> +++ b/drivers/media/pci/saa7134/saa7134-video.c
-> @@ -1181,7 +1181,7 @@ static int video_release(struct file *file)
->  
->  	saa_call_all(dev, tuner, standby);
->  	if (vdev->vfl_type == VFL_TYPE_RADIO)
-> -		saa_call_all(dev, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
-> +		saa_call_all(dev, core, command, SAA6588_CMD_CLOSE, &cmd);
->  	mutex_unlock(&dev->lock);
->  
->  	return 0;
-> @@ -1200,7 +1200,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
->  	cmd.result = -ENODEV;
->  
->  	mutex_lock(&dev->lock);
-> -	saa_call_all(dev, core, ioctl, SAA6588_CMD_READ, &cmd);
-> +	saa_call_all(dev, core, command, SAA6588_CMD_READ, &cmd);
->  	mutex_unlock(&dev->lock);
->  
->  	return cmd.result;
-> @@ -1216,7 +1216,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
->  	cmd.event_list = wait;
->  	cmd.poll_mask = 0;
->  	mutex_lock(&dev->lock);
-> -	saa_call_all(dev, core, ioctl, SAA6588_CMD_POLL, &cmd);
-> +	saa_call_all(dev, core, command, SAA6588_CMD_POLL, &cmd);
->  	mutex_unlock(&dev->lock);
->  
->  	return rc | cmd.poll_mask;
-> diff --git a/drivers/media/platform/davinci/vpbe_display.c b/drivers/media/platform/davinci/vpbe_display.c
-> index d19bad997f30..bf3c3e76b921 100644
-> --- a/drivers/media/platform/davinci/vpbe_display.c
-> +++ b/drivers/media/platform/davinci/vpbe_display.c
-> @@ -47,7 +47,7 @@ static int venc_is_second_field(struct vpbe_display *disp_dev)
->  
->  	ret = v4l2_subdev_call(vpbe_dev->venc,
->  			       core,
-> -			       ioctl,
-> +			       command,
->  			       VENC_GET_FLD,
->  			       &val);
->  	if (ret < 0) {
-> diff --git a/drivers/media/platform/davinci/vpbe_venc.c b/drivers/media/platform/davinci/vpbe_venc.c
-> index 8caa084e5704..bde241c26d79 100644
-> --- a/drivers/media/platform/davinci/vpbe_venc.c
-> +++ b/drivers/media/platform/davinci/vpbe_venc.c
-> @@ -521,9 +521,7 @@ static int venc_s_routing(struct v4l2_subdev *sd, u32 input, u32 output,
->  	return ret;
->  }
->  
-> -static long venc_ioctl(struct v4l2_subdev *sd,
-> -			unsigned int cmd,
-> -			void *arg)
-> +static long venc_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
->  {
->  	u32 val;
->  
-> @@ -542,7 +540,7 @@ static long venc_ioctl(struct v4l2_subdev *sd,
->  }
->  
->  static const struct v4l2_subdev_core_ops venc_core_ops = {
-> -	.ioctl      = venc_ioctl,
-> +	.command      = venc_command,
->  };
->  
->  static const struct v4l2_subdev_video_ops venc_video_ops = {
-> diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
-> index 42aa1f6c7c3f..115b1e41e933 100644
-> --- a/include/media/v4l2-subdev.h
-> +++ b/include/media/v4l2-subdev.h
-> @@ -162,6 +162,9 @@ struct v4l2_subdev_io_pin_config {
->   * @s_gpio: set GPIO pins. Very simple right now, might need to be extended with
->   *	a direction argument if needed.
->   *
-> + * @command: called by in-kernel drivers in order to call functions internal
-> + *	   to subdev drivers driver that have a separate callback.
-> + *
->   * @ioctl: called at the end of ioctl() syscall handler at the V4L2 core.
->   *	   used to provide support for private ioctls used on the driver.
->   *
-> @@ -193,6 +196,7 @@ struct v4l2_subdev_core_ops {
->  	int (*load_fw)(struct v4l2_subdev *sd);
->  	int (*reset)(struct v4l2_subdev *sd, u32 val);
->  	int (*s_gpio)(struct v4l2_subdev *sd, u32 val);
-> +	long (*command)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
->  	long (*ioctl)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
->  #ifdef CONFIG_COMPAT
->  	long (*compat_ioctl32)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
-
--- 
-Regards,
-
-Laurent Pinchart
