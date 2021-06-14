@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C9D13A60E3
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D75D3A619E
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234144AbhFNKkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:40:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40592 "EHLO mail.kernel.org"
+        id S233541AbhFNKtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:49:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233514AbhFNKhG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:37:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F5206140D;
-        Mon, 14 Jun 2021 10:33:18 +0000 (UTC)
+        id S233728AbhFNKrS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:47:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE23661452;
+        Mon, 14 Jun 2021 10:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666798;
-        bh=7P8EsJh8qLdqkjWHvgkVR97WWApO6HK8ZHQQN7jUtY0=;
+        s=korg; t=1623667038;
+        bh=xghRWFHoGm1mvyvgXIQzMV5MXoZ/lxZz/rqFRS9ppIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gm9rwOGrr/JKKfJH8VIKGHkDZdjskIOvc2fMDlgU67fF+BFYJsAOSQgDBFKHciUb2
-         JeL3u0ba9wmjTwIoRCixAOZjEx/DMXhTNYzOEd88wFjZi7jmSw8VMQusjGd50lgbBA
-         d4XDlY8cengRI8dMTEh7nhGxOzZMeuo5SkqDDW8U=
+        b=ARBNth+ayby6suf/uWqR2Bri+o+jmIYYyBnwOeGg0y/q2W0A8mplpnR1Iaf2KPLVR
+         8Lbq+PLBQNIcomxivXBYr0/KVKLNHxYvAdxRx0sddwJVRf7REjqiR4AG/NfamzdUao
+         qd8W1z2YP21FquCTGM1XbgHR4Ojk6EQFOgOpTj78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linyu Yuan <linyyuan@codeaurora.com>
-Subject: [PATCH 4.14 34/49] usb: gadget: eem: fix wrong eem header operation
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 44/67] USB: serial: quatech2: fix control-request directions
 Date:   Mon, 14 Jun 2021 12:27:27 +0200
-Message-Id: <20210614102642.991598495@linuxfoundation.org>
+Message-Id: <20210614102645.283517892@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,41 +38,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linyu Yuan <linyyuan@codeaurora.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 305f670846a31a261462577dd0b967c4fa796871 upstream.
+commit eb8dbe80326c3d44c1e38ee4f40e0d8d3e06f2d0 upstream.
 
-when skb_clone() or skb_copy_expand() fail,
-it should pull skb with lengh indicated by header,
-or not it will read network data and check it as header.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Linyu Yuan <linyyuan@codeaurora.com>
-Link: https://lore.kernel.org/r/20210608233547.3767-1-linyyuan@codeaurora.org
+Fix the three requests which erroneously used usb_rcvctrlpipe().
+
+Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
+Cc: stable@vger.kernel.org      # 3.5
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_eem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/quatech2.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/function/f_eem.c
-+++ b/drivers/usb/gadget/function/f_eem.c
-@@ -502,7 +502,7 @@ static int eem_unwrap(struct gether *por
- 			skb2 = skb_clone(skb, GFP_ATOMIC);
- 			if (unlikely(!skb2)) {
- 				DBG(cdev, "unable to unframe EEM packet\n");
--				continue;
-+				goto next;
- 			}
- 			skb_trim(skb2, len - ETH_FCS_LEN);
+--- a/drivers/usb/serial/quatech2.c
++++ b/drivers/usb/serial/quatech2.c
+@@ -416,7 +416,7 @@ static void qt2_close(struct usb_serial_
  
-@@ -513,7 +513,7 @@ static int eem_unwrap(struct gether *por
- 			if (unlikely(!skb3)) {
- 				DBG(cdev, "unable to realign EEM packet\n");
- 				dev_kfree_skb_any(skb2);
--				continue;
-+				goto next;
- 			}
- 			dev_kfree_skb_any(skb2);
- 			skb_queue_tail(list, skb3);
+ 	/* flush the port transmit buffer */
+ 	i = usb_control_msg(serial->dev,
+-			    usb_rcvctrlpipe(serial->dev, 0),
++			    usb_sndctrlpipe(serial->dev, 0),
+ 			    QT2_FLUSH_DEVICE, 0x40, 1,
+ 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
+ 
+@@ -426,7 +426,7 @@ static void qt2_close(struct usb_serial_
+ 
+ 	/* flush the port receive buffer */
+ 	i = usb_control_msg(serial->dev,
+-			    usb_rcvctrlpipe(serial->dev, 0),
++			    usb_sndctrlpipe(serial->dev, 0),
+ 			    QT2_FLUSH_DEVICE, 0x40, 0,
+ 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
+ 
+@@ -693,7 +693,7 @@ static int qt2_attach(struct usb_serial
+ 	int status;
+ 
+ 	/* power on unit */
+-	status = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
++	status = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
+ 				 0xc2, 0x40, 0x8000, 0, NULL, 0,
+ 				 QT2_USB_TIMEOUT);
+ 	if (status < 0) {
 
 
