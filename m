@@ -2,146 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03B853A6DB6
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 19:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4687D3A6DB9
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 19:54:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234220AbhFNRyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 13:54:55 -0400
-Received: from sonic308-15.consmr.mail.ne1.yahoo.com ([66.163.187.38]:37210
-        "EHLO sonic308-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233985AbhFNRyz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 13:54:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623693171; bh=CjI+Y1jLzQZocS74biMFxJXGXk33MszEbV54guTry/M=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject:Reply-To; b=QF0aq9cOL470KhgZJafw1sqoagAhORXoHQqeJlG3pMcwhrWDHGNRH11/uxi0BlOfqRJgGu7Le6l5TjWNgwqka5Ssz4C9n7gvTW1SWt2PQq+EFT45CQdoEf3ujSkk7us7LLr/Gq5zs2MPRXR9WNQrrKJ8lzIXUBB4yF7cfpx/P+IGY1l1LIKObF2Rv0F4ZYuRf9rQLKZjxwK4eo8u7skdghMWoGkzHBOrUZZoOR1A3PY0k2Y0Abd/yviRpPnl9eRLDC51Yg+jihQsZzPU7z1qEpTLT54edc9cfkNli+euib6VL/m3OjiJlWIKMWyyEJUIDt4yHSQdeIXaU6qSiaUeoA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1623693171; bh=oGBvXpwGugeJMD9uvUmVrWkmhJqjqHrIQdTK3p1mAjq=; h=X-Sonic-MF:Subject:To:From:Date:From:Subject; b=SaBYfuU64y9DsnjFIOYgRPzEXiym4AuTIo/p+xMvamKUQERstIRzqNjpKZJdcrz84jUMxFktdp7IwhOSYiosk0GTmz+t+iSbxJO14vF0bwK533aT8daN4S6Rz1wnE1N9xk9nIZUp/f1Isa7soBDDDQJa8qgXGKkw/luHcVAWZhr6as+pxP+CeBOzZYJsBGyN2ReqX/aqohPLNmdOqfEAiRzcnmlWhBtM5nx59k5x61cxE9ERI6afT6RPTqh4T5Mshc3j1vGvkEby/xGGDzklJlC63pfUuAG7SGNQ3Bh5SA7SS+TFnUNpCdX3g9niYJYNurhwdPWJIKoWC/9XByThnA==
-X-YMail-OSG: FRLW7QoVM1m5mMLp7iYVQ6BUDdqVW11jKRS0Wk8RdxffzqPBW95JfK15fuo3xNj
- vxHkcSZaCb8xvyyQBxZ3yhASuNvy.jl8Z38TmW5hIAQw7FWFm8UG6WSO.UFly5MKjeZTBevoUmN3
- tuhimYYQK72mz9O8IMVq9z0FUGfA3Ly9HVU1tc3u3uo5NTo_fIu_2k0LmQhL5Hh_2k_SuWEMBJgV
- qANT_Z5igQGGDulYC5clHbKyPBOQWIOGZawqkmqIPKjh4ftNO1YSc5_t8Zi_SeMdjC2KczGST0Gf
- i1Peq3.8bW0x0DmajJ2vXShGgUioAeYByn6mhuHgPbKp3AtsMYS3PHHXuG5utBSLE4GcLWwJkHML
- WZwb701cNImrAxvGwjBP7L8so8c0hsnKUXN1Fc9i3kBQQqqALVG8a4WV0iy6klmHlsshGKGOfX9c
- x8KONJFw4gseB5tUHh6aAA9njWDyw2hdSd_Ps6ZLIX0DrvymqbghLkD94Bft4aQT2G4rx.P7GS35
- b0LjfRjLGi1gDkYcRafyD4mzCSdUrP1O7oLJ2lr56VRBZvXyIZErWR05ydYxu3_whX.v9B5EVPIz
- lX6jtLCivbZ0nuCX7udJFNhxdtmcuSSIEuy01kYuc00yZAC1pVYQcZ.RCQMJ8zYcMAY6APWwLxx3
- zaDXrNXA8NC1ZFCLw9rAFpCBhrP26gVLnQ41NT70ypdLsZSa0W0PextIMElRzfFSPT2NlzfI6KqW
- q0rjfLU_iys57KpUsHIma8HfhIFagU4mWTtrY0lmyR6MvElSuaO_pZc9CBv7UuqXZLOFFDJrPQM3
- .EFtyUty8hAFsq8UAYrXzIOAbKNQGxxWx2iekb3CB_pY0AVNqvZEGWcQHdlxZ0naXjGrlOTaoQP6
- Ti0plcxWcVrXEeiy99noUX8VAcVgvzMbwvObzMvbwHjbMFwIDR2fMYOY.0ta5rC7cgndpYWa4.CH
- 0Yeo47dwYyjfBxxAozYyWJAeCZk3xuHcDYoCK.BiWBgZ.l6YdCipD4GwmCdBmSJr9yR3s_nystHJ
- .prvudAKc5xpbPv.ydX1QTFf3xVQxtct02.pn.FPl_ZlNFAHOcP6fCNrjT3hp0Nom9SWiD9D7gCe
- 4xtEPybqvbo.HRb6kxjnxkY2xUv8_7w1NDQgGQuxUWFiwk0JnhLWRQmhOhw568H517ftw7wWKr.0
- I_aN4TXgunwdBQfWmtwHbUg1RLrZd9nekfbT7hWndGMp9i3LT_S8VvPy87WhS4XZhvgR3GrUBa1Q
- LZN.rFsYaTyVrNJevcvtb2IhJKI2lMbiBl9LI2xjzPAj1i_w2xzoOBqeYMp_boVpwoG.mXmYhh0y
- jpUSRg4QxgbdoYWUkCtOw85ZRhumoIFX3H4pd.u4vYm3FXc01jdKdgKH79peil3Q4KKgEOUpNQzl
- zIKMgGdkG1mm9MKPfLpZ_oSxLl2U6vX3HM9V1aTdB0ZOh59JZ4TC5Rd5x0UEygdnAPtgOLvbzjk2
- 5U2BqHJeofsF_5zf62Atg5Y7H9Bzmf4w._L0yMcUD_7bpPwQWzfW1pfA7g0LkiElDqnoBMs9T.1v
- TXiKsPrIzoIo92MhgX6_VoF__FjC77JhjOK6mjzEJNTJdpxzx6Jv00MrkGuR5GJttqVr66WL6r.6
- ShRJ5kOtGn2bnl5Kj2mNWZ9RJL_Ne1Pyfh5km4EtzSfCdH_7J0Gi0LUKD9TMPjzjHBEryKtBxUjL
- 54z85r5ZQETvCH5WwdFM3fC6.SY2QaiBGyhWMlplhMjd96qG4luq6KuWL8zNOApZcwsqgClOLTYP
- ZH.R8D3UcYzo4Re2BTFavEn0ig5RYQ9Y7sarKk3Ji9R_qiu_3DiujPggm8vT3sTL7CdevoBjkv7v
- N1tAURgsaP41PrM7PuQhXp5TRZPVpFVYnzZfK.FFwoG0PkhsGqZ7r4kUr7Lt.uqPJwWyTFG1INDq
- PDSkOBThYfVt4fLoOMF7GTmxt4Rkc2ArFbUUgxLJHV1DLOoUttZd6bKwyctE1HIeiJzcakSgLId0
- Q0ASRLY0xQVMlQs6ckeGFeMOj1iPNEJuFp2nFrhKMPCtRyjRsHY8r9MwdMJXeDGFxksMr6J58DEd
- UPCObOPNrH7oElSaHbahipnLD5jJ1nv8MFjXojschLDcmO79aR6Ql68MR7n41TY0NKMOB8EkjA5n
- DTK2jPOcA1PXLnmIyWti3CJQI08Rq8PsRbD2sJd0tmSkYD503f5jY5ndZSi4iPL2x36LvITtaymu
- uDBwpjvJJC2YVIrK.UjcEvr3CDJH_JnyAra5G5S5CRAbM7fVGc9zcJyWEv6n8YZWzK7YgniAUWHn
- X5gGirnm9gBzwaEXjYtFRm8GuOSPBQjPMTd2eo93qSrNbu7DRNBYhCX5o3wTI6OPGXA1QRrBmszh
- UxcDqQrJRy9615oqCclMV_424Ijb7W4E_KJxu_8lSwKaGPhPVoHU94XpIeeirDbGiGxwC_VQRPqr
- RP5jYhOcIKXFN2ZiBFFNfNzpsaGuO4J.GdWAuTGob6fBimpXFZZGfMAbUkBb6EuX07ianmDvsMcI
- fmT5FoCkstJVBj7oczw7ZqeysWV4tnR.WahqSCXjYtSD1UiFO0qir3dSs1VlL6S3Dg9C4H8LUuHZ
- UAEMWDYrta1Ad8qGM42OksMdViRupRWF2w100vZqC.0Lb0yU6_sSV_3FzElbtn7pfNy4edESJRqA
- H.Nz4m795vqsdPVbZ3DYu6KAhTKfP8VCmt.MKmiS4N84hkcL281X8qvaKhqk5nOIdt08YVFupyRI
- dj_wLaOicyTfIUjYDWqkDIMGiZ254HoHe9OWs76NuayaPhniLNz4atCb.tAoU_uZwrLfvnoEfQnj
- pQbWapn3E27W.ENYP4HoJC9n9XkPeO2ycMz8Yz1hnbTisQMtOOLglllm8gwrtqforIazyOHxnmqK
- TxPzGOxJOqtIOmGaQOJIzrJtRYSrQiwCDILlk2pjV3eObjsyaFj8aXQ6S0QJuR.6sZH.9RTGvzXj
- Dv5Dk9rg_ne1w4gzgspibn4PuSrkAD8xWPz8Pe.8s5nvgSRaGlQ2r9xmAsCBmobAAr2rJLNEuAUG
- Yj6mrC.tuIQl2EMiANKYBZexVeUqsjsrwWrEsNUKUWugdXDUlYOye7j6s_feYlhe8ni3lY3EECm8
- Bd6TOsu3KeVyfFMYMzKVBXCyoWUN9p5eIubDxTADZe__hr9FIgw9xt2CviainGMj4HBT.2A_sC.4
- tw.gfJtVhWztD.CCNTekoYSne2rRg9d83n71YhYtHr7i4fdeUX8C4cKSgEcr.uSlOKf1KpAEIiFZ
- UmdNLdHXhVDEnqAb83DThk78qVi5N4QOzOsbLOiiZl7M438D9CSYVwu63YR6M0mGg6HFni2BuRSq
- rg076P4Wf8lHibWTjWLVdJpHWP.xtt6M0E.GT5ILMKW2WEkBFFogC80ltQwCMh3XVmyU-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Mon, 14 Jun 2021 17:52:51 +0000
-Received: by kubenode545.mail-prod1.omega.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 6300d772aac7e5202316b0b855d6980d;
-          Mon, 14 Jun 2021 17:52:48 +0000 (UTC)
-Subject: Re: [PATCH] proc: Track /proc/$pid/attr/ opener mm_struct
-To:     Kees Cook <keescook@chromium.org>,
-        youling257 <youling257@gmail.com>
-Cc:     torvalds@linux-foundation.org, christian.brauner@ubuntu.com,
-        andrea.righi@canonical.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, regressions@lists.linux.dev,
-        linux-security-module@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20210608171221.276899-1-keescook@chromium.org>
- <20210614100234.12077-1-youling257@gmail.com>
- <202106140826.7912F27CD@keescook>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <17222cd4-3c2b-9d0c-aa51-64b7a50a9c2c@schaufler-ca.com>
-Date:   Mon, 14 Jun 2021 10:52:48 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S234068AbhFNR4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 13:56:49 -0400
+Received: from mail-dm6nam12on2073.outbound.protection.outlook.com ([40.107.243.73]:16353
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S233199AbhFNR4t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 13:56:49 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WwpSIZhe+pqvY0q09r+khSr7drtmcz301vh7dkhJPbP3Fo0RKa6k9sm1BilI/90PG/uMg1BTz486vBVoRTzy7uYyXA4PWlQmjDKWZShMMLj0JgMhHdEGso06RycIvd7Ec1i0emv2KfQrDzN0wWMw/g6yWITJJJaK1sMn9elbKCUiT2ohkz7Q0uNyrCUr9HkXrDowTyXQSySX8H16SS7y3YZ/YYaCIaDEEJPZJ9Pxjgfd6SoBP0WqgfUJBY0Y97Hw6DSPWSlS94KnWDDPseNivG+YUZfj3rcI7yStDZiKI41TtkUvtf7UzHnyz+xGCxIzUKnnb96YlmBW2Vli06mWdA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Y7H32s6MOcjqvsXuAl3Src2d6mjubpaIprokXrEeR8U=;
+ b=D8dn9f3O+NGYkIv0bk4waHR1s+74KknUhQclutccV/FBLhnEQThGitXIyzPeqyEqHtJDAhsU4Kfvarf3hkKLDsNJxRIBEAlF6vsnD23mdLCGSRtkRQOCFnHV61Ge8Q0vK7X+/W3ugFPsJBLqPlPV6dcsNaNyB67mrmZ3BWrRcNkb8oRhQ3SBiTklDcsOquA5mhH16CXll3C7A4v4GzCvGadZkbI6cgUX6dO9D/1Y9YDf+B0EySn9G86DGMrGRxW5uTtdLiDi2NYD8piuqTI+i5NoMWN7h/sFOvr4oZYbjIbp7HD1yIisSfRx0JJytBCJ0O2TQre5oKfWApMBpdeOFg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.34) smtp.rcpttodomain=linux-foundation.org
+ smtp.mailfrom=nvidia.com; dmarc=pass (p=none sp=none pct=100) action=none
+ header.from=nvidia.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Y7H32s6MOcjqvsXuAl3Src2d6mjubpaIprokXrEeR8U=;
+ b=OfZzEZbjlD0KFiYg5b0TjJ5m54t97XKwMFbK/GcDDTDsX8r6RNDy32Bg/C3DnhVCBf5sHdJrbXaK+qZAhLgfDtROlXHqW2Vg7KKwFzFpWvDCR5lxaC/BeIbBxt0Wy0jSh88Ng5pfsR6jY/Cum6N/cPtF9lKS7+SsJcaCjSi+Irle9rOInwmYZDTjnHDl5SvalhvuWT6J3eZPz0AmTGTek6WcrC1NVzBixG8QGZ7So26/ZbDodLF0V0QN44jKkEnsQssmEZ5Iv/3NkeSEM43yRNjz0Yodq2YbDkoItw3lsaaI1FxjClmodb7Ofq5xLTpW5BaAQ8W98c0VoWz1Y7qxRg==
+Received: from DM6PR21CA0002.namprd21.prod.outlook.com (2603:10b6:5:174::12)
+ by DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.20; Mon, 14 Jun
+ 2021 17:54:42 +0000
+Received: from DM6NAM11FT014.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:174:cafe::8c) by DM6PR21CA0002.outlook.office365.com
+ (2603:10b6:5:174::12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.0 via Frontend
+ Transport; Mon, 14 Jun 2021 17:54:42 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
+ smtp.mailfrom=nvidia.com; linux-foundation.org; dkim=none (message not
+ signed) header.d=none;linux-foundation.org; dmarc=pass action=none
+ header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.34; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.34) by
+ DM6NAM11FT014.mail.protection.outlook.com (10.13.173.132) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4219.21 via Frontend Transport; Mon, 14 Jun 2021 17:54:42 +0000
+Received: from [10.26.49.10] (172.20.187.6) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 14 Jun
+ 2021 17:54:39 +0000
+Subject: Re: [PATCH 4.9 00/42] 4.9.273-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <f.fainelli@gmail.com>, <stable@vger.kernel.org>,
+        linux-tegra <linux-tegra@vger.kernel.org>
+References: <20210614102642.700712386@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <f4eb8896-699b-1363-2d73-dde162375c6c@nvidia.com>
+Date:   Mon, 14 Jun 2021 18:54:37 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <202106140826.7912F27CD@keescook>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-X-Mailer: WebService/1.1.18469 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [172.20.187.6]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: b552d6ae-cd60-4250-6d42-08d92f5d7cf2
+X-MS-TrafficTypeDiagnostic: DM6PR12MB5565:
+X-Microsoft-Antispam-PRVS: <DM6PR12MB55659BC75E172ECDC3BA937AD9319@DM6PR12MB5565.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: jYEdDI120VKFBwqCwur4bEyWiSEH89wdZhpj5p8xEWs443R6xYZxiR5k0Wh/yE39w3/yykDO3LXI/mrrxuB3AgSDBpncZrZWQOAGwV6xI7AnpDfi8wuzpppLzmy3M0teaPgwlW/2mT10fEboqC5x/vcsGtTMYno2VdDIYkBcDvYJIr+tPs6nrLs+G8GDzzABQsWFrCt598lfQ2QB0LnsjEDEhhQNA9OiDV6ZrNjLl2MhFPt71uWL7sKxPws3eZ522paiYCgTKDdd5WY7HIL0lQQE3b+1SuYqa4VXWJ7Rx+JtixcXwn3lYIh2D1Lcw77/p0GF7pAJjl+oNq6AH5eQ4FVHY1tf4ekMnknf8/ZvnmVp6DwmNzj+pPCH2FXuGlZXC9O7yFb8EbFfqFUd/q831hWfCcGhR5jc+Az2xS2yx7Ohd0lS/mQln21GFZuvGY6SsiBV1VOI43CL4cuNqTV5HSO3pu+RQEm01URo4JmbvSIrTH5flAo6txwIxMAvlFzTsrc2OnFKGsZi5joXNi9TbXLzxgAO6296FrJMPXPy/MQCi24+D5aFigvjcNAHp1fs8TRgwWJUxbGC/omE08OLVGUvKzDhOQUZKhJGTTU9/yPwgLPsp9pNDTbzluMC+tVBCyqU2zWSnyn3sad+4IBnbz9v3F+9YAZavvF47nnGauZtfospl4P2L2nBRK+wRXZ93cvz6BGWDZizDYoCcYwZ5PtMPueagBvWttTYPMCoPSVV2+hCo/KdrNUJ1OEC0kwZ7D4wxU/vCbCAEWzXHwwtUQVsqdM6mtsJrFl9EFSaM+MriHGd7nGZw8r8lfwO19Aq
+X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(346002)(376002)(136003)(396003)(39860400002)(46966006)(36840700001)(36756003)(356005)(82310400003)(16526019)(186003)(426003)(336012)(86362001)(53546011)(8676002)(2906002)(5660300002)(82740400003)(8936002)(478600001)(316002)(70206006)(36860700001)(54906003)(110136005)(16576012)(47076005)(31696002)(966005)(26005)(83380400001)(2616005)(31686004)(4326008)(7636003)(7416002)(70586007)(36906005)(43740500002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jun 2021 17:54:42.3162
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: b552d6ae-cd60-4250-6d42-08d92f5d7cf2
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT014.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB5565
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/14/2021 8:32 AM, Kees Cook wrote:
-> On Mon, Jun 14, 2021 at 06:02:34PM +0800, youling257 wrote:
->> I used mainline kernel on android, this patch cause "failed to retriev=
-e pid context" problem.
->>
->> 06-14 02:15:51.165  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
-d=3D1682) failed to retrieve pid context.
->> 06-14 02:15:51.166  1685  1685 E ServiceManager: add_service('batteryp=
-roperties',1) uid=3D0 - PERMISSION DENIED
->> 06-14 02:15:51.166  1682  1682 I ServiceManager: addService() batteryp=
-roperties failed (err -1 - no service manager yet?).  Retrying...
->> 06-14 02:15:51.197  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
-d=3D1695) failed to retrieve pid context.
->> 06-14 02:15:51.197  1685  1685 E ServiceManager: add_service('android.=
-security.keystore',1) uid=3D1017 - PERMISSION DENIED
->> 06-14 02:15:51.198  1695  1695 I ServiceManager: addService() android.=
-security.keystore failed (err -1 - no service manager yet?).  Retrying...=
+Hi Greg,
 
->> 06-14 02:15:51.207  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
-d=3D1708) failed to retrieve pid context.
->> 06-14 02:15:51.207  1685  1685 E ServiceManager: add_service('android.=
-service.gatekeeper.IGateKeeperService',1) uid=3D1000 - PERMISSION DENIED
->> 06-14 02:15:51.207  1708  1708 I ServiceManager: addService() android.=
-service.gatekeeper.IGateKeeperService failed (err -1 - no service manager=
- yet?).  Retrying...
->> 06-14 02:15:51.275  1685  1685 E ServiceManager: SELinux: getpidcon(pi=
-d=3D1693) failed to retrieve pid context.
->> 06-14 02:15:51.275  1692  1692 I cameraserver: ServiceManager: 0xf6d30=
-9e0
->> 06-14 02:15:51.275  1685  1685 E ServiceManager: add_service('drm.drmM=
-anager',1) uid=3D1019 - PERMISSION DENIED
->> 06-14 02:15:51.276  1693  1693 I ServiceManager: addService() drm.drmM=
-anager failed (err -1 - no service manager yet?).  Retrying...
->>
-> Argh. Are you able to uncover what userspace is doing here?
->
-> So far, my test cases are:
->
-> 1) self: open, write, close: allowed
-> 2) self: open, clone thread. thread: change privileges, write, close: a=
-llowed
-> 3) self: open, give to privileged process. privileged process: write: r=
-eject
+On 14/06/2021 11:26, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.273 release.
+> There are 42 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 16 Jun 2021 10:26:30 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.273-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -------------
+> Pseudo-Shortlog of commits:
 
-I found an issue under Smack where a privileged process opened
-/proc/self/attr/smack/current, wrote to it successfully, then tried
-to write to it again, which failed because the cred has changed.=20
-That's not a common use case. The usual case is open, write, close.
-If ServiceManager is assuming that it can leave a descriptor open
-while manipulations are in progress it could encounter the same kind
-of problem.
+...
+
+> Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+>     regulator: core: resolve supply for boot-on/always-on regulators
 
 
+I am seeing a boot regression on one board with 4.9.273-rc1 and bisect
+is pointing to the above commit. Reverting this on top of 4.9.273-rc1
+fixes the problem.
+
+Test results for stable-v4.9:
+    8 builds:	8 pass, 0 fail
+    18 boots:	16 pass, 2 fail
+    30 tests:	30 pass, 0 fail
+
+Linux version:	4.9.273-rc1-gaf46d32b472e
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Boot failures:	tegra210-p2371-2180
+
+Cheers
+Jon
+
+-- 
+nvpublic
