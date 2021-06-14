@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E51E63A62AF
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA8B73A6394
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233593AbhFNLDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35526 "EHLO mail.kernel.org"
+        id S233718AbhFNLPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:15:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235309AbhFNLAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:00:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE6576162B;
-        Mon, 14 Jun 2021 10:42:55 +0000 (UTC)
+        id S234864AbhFNLMO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:12:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FCD0613DB;
+        Mon, 14 Jun 2021 10:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667376;
-        bh=2lVh5NkMWKcDdgRJf5gWZI/lLSeNE7nfG/pCe+/EixQ=;
+        s=korg; t=1623667702;
+        bh=wXO39wCsdcrkENkG6Ajr5cPDuOypW5+mprTTBx4HEjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LYJisTYOmn9LSxn2f3qD6XdhFuweMXEsup+5znoEsuTgI8gfiu0VuRGRJHwWRRURQ
-         EWOvPyfIwfJvqlB7NWE8JyYTcN+nvmMpD2FOLe2xxvXTtMsRUQwOCGa89DI/s54Ilu
-         ZeVq8YEwui/Y5guLn3rXXoy56PXvq+07jmJxdVaA=
+        b=tyJwnL6Vjv9I1AgGeU8SU5FW8/hxeOCNJXN/pMDn99mc9rD2Dhr9ZDcarbtiQf+R7
+         KgF7Daeu4eD8HkB3/J46SJA8mTZgF76ALwlXawBJp/UPYVWpyVxn2Kt3KRllUHovmP
+         pZnN+pWZ+VysnxPwwEcyexgqegnfCIcVqr2Ry8v0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
+        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 013/131] vfio-ccw: Serialize FSM IDLE state with I/O completion
+Subject: [PATCH 5.12 042/173] nvmet: fix false keep-alive timeout when a controller is torn down
 Date:   Mon, 14 Jun 2021 12:26:14 +0200
-Message-Id: <20210614102653.435515035@linuxfoundation.org>
+Message-Id: <20210614102659.567114639@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
-References: <20210614102652.964395392@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Farman <farman@linux.ibm.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 2af7a834a435460d546f0cf0a8b8e4d259f1d910 ]
+[ Upstream commit aaeadd7075dc9e184bc7876e9dd7b3bada771df2 ]
 
-Today, the stacked call to vfio_ccw_sch_io_todo() does three things:
+Controller teardown flow may take some time in case it has many I/O
+queues, and the host may not send us keep-alive during this period.
+Hence reset the traffic based keep-alive timer so we don't trigger
+a controller teardown as a result of a keep-alive expiration.
 
-  1) Update a solicited IRB with CP information, and release the CP
-     if the interrupt was the end of a START operation.
-  2) Copy the IRB data into the io_region, under the protection of
-     the io_mutex
-  3) Reset the vfio-ccw FSM state to IDLE to acknowledge that
-     vfio-ccw can accept more work.
-
-The trouble is that step 3 is (A) invoked for both solicited and
-unsolicited interrupts, and (B) sitting after the mutex for step 2.
-This second piece becomes a problem if it processes an interrupt
-for a CLEAR SUBCHANNEL while another thread initiates a START,
-thus allowing the CP and FSM states to get out of sync. That is:
-
-    CPU 1                           CPU 2
-    fsm_do_clear()
-    fsm_irq()
-                                    fsm_io_request()
-    vfio_ccw_sch_io_todo()
-                                    fsm_io_helper()
-
-Since the FSM state and CP should be kept in sync, let's make a
-note when the CP is released, and rely on that as an indication
-that the FSM should also be reset at the end of this routine and
-open up the device for more work.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Acked-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20210511195631.3995081-4-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/nvme/target/core.c  | 15 +++++++++++----
+ drivers/nvme/target/nvmet.h |  2 +-
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 8c625b530035..9b61e9b131ad 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -86,6 +86,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 	struct vfio_ccw_private *private;
- 	struct irb *irb;
- 	bool is_final;
-+	bool cp_is_finished = false;
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 7d16cb4cd8ac..83921dab8368 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -388,10 +388,10 @@ static void nvmet_keep_alive_timer(struct work_struct *work)
+ {
+ 	struct nvmet_ctrl *ctrl = container_of(to_delayed_work(work),
+ 			struct nvmet_ctrl, ka_work);
+-	bool cmd_seen = ctrl->cmd_seen;
++	bool reset_tbkas = ctrl->reset_tbkas;
  
- 	private = container_of(work, struct vfio_ccw_private, io_work);
- 	irb = &private->irb;
-@@ -94,14 +95,21 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
- 	if (scsw_is_solicited(&irb->scsw)) {
- 		cp_update_scsw(&private->cp, &irb->scsw);
--		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
-+		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING) {
- 			cp_free(&private->cp);
-+			cp_is_finished = true;
-+		}
+-	ctrl->cmd_seen = false;
+-	if (cmd_seen) {
++	ctrl->reset_tbkas = false;
++	if (reset_tbkas) {
+ 		pr_debug("ctrl %d reschedule traffic based keep-alive timer\n",
+ 			ctrl->cntlid);
+ 		schedule_delayed_work(&ctrl->ka_work, ctrl->kato * HZ);
+@@ -804,6 +804,13 @@ void nvmet_sq_destroy(struct nvmet_sq *sq)
+ 	percpu_ref_exit(&sq->ref);
+ 
+ 	if (ctrl) {
++		/*
++		 * The teardown flow may take some time, and the host may not
++		 * send us keep-alive during this period, hence reset the
++		 * traffic based keep-alive timer so we don't trigger a
++		 * controller teardown as a result of a keep-alive expiration.
++		 */
++		ctrl->reset_tbkas = true;
+ 		nvmet_ctrl_put(ctrl);
+ 		sq->ctrl = NULL; /* allows reusing the queue later */
  	}
- 	mutex_lock(&private->io_mutex);
- 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
- 	mutex_unlock(&private->io_mutex);
+@@ -953,7 +960,7 @@ bool nvmet_req_init(struct nvmet_req *req, struct nvmet_cq *cq,
+ 	}
  
--	if (private->mdev && is_final)
-+	/*
-+	 * Reset to IDLE only if processing of a channel program
-+	 * has finished. Do not overwrite a possible processing
-+	 * state if the final interrupt was for HSCH or CSCH.
-+	 */
-+	if (private->mdev && cp_is_finished)
- 		private->state = VFIO_CCW_STATE_IDLE;
+ 	if (sq->ctrl)
+-		sq->ctrl->cmd_seen = true;
++		sq->ctrl->reset_tbkas = true;
  
- 	if (private->io_trigger)
+ 	return true;
+ 
+diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
+index 5aad34b106dc..43a668dc8bc4 100644
+--- a/drivers/nvme/target/nvmet.h
++++ b/drivers/nvme/target/nvmet.h
+@@ -166,7 +166,7 @@ struct nvmet_ctrl {
+ 	struct nvmet_subsys	*subsys;
+ 	struct nvmet_sq		**sqs;
+ 
+-	bool			cmd_seen;
++	bool			reset_tbkas;
+ 
+ 	struct mutex		lock;
+ 	u64			cap;
 -- 
 2.30.2
 
