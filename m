@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C3B3A6473
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:23:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 908B13A647A
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:23:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233803AbhFNLZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:25:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52700 "EHLO mail.kernel.org"
+        id S234712AbhFNLZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235336AbhFNLWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:22:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46CA361481;
-        Mon, 14 Jun 2021 10:52:53 +0000 (UTC)
+        id S235591AbhFNLWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:22:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2BCF61482;
+        Mon, 14 Jun 2021 10:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667973;
-        bh=7ys6ZJKH+Wz9SGxsaI3CUEtNvjkyrEdX0c3Ise/YfRI=;
+        s=korg; t=1623667978;
+        bh=4nV3/BeEgo/DV38BQTjloHoYRjcZGmt8Old9ymBqRC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S17wA3NArEQzOK9AehOK7GFAcAZwcm4yvXwYHQcncyyuLii982e/PQ282pbYPj8ZJ
-         iqqPCK6NN32bqbSgEjynZproq1ugJRFJ1IPVj9qu80sQDwnqmwjmIPzSoCeCAyqusi
-         SvzNGjTeVPZ4UtT5rcBH7KF2xjU5Vh8vB0T2p3Rk=
+        b=iP7fRbTarJ+4mwBY0EWIDjj3FFKongBnmSWPlAEZ4pzr+znYbxFMKwltUNhrFgIGh
+         kVTHg09MlNyD2TnoiodCqA1SBtVZdakrj0UCL1g7KdYH8zoYWW/zBr/pfxoAS64/XF
+         GNQbjymvinEpMn1ppq/cddJuLuAqcnX/XRHruKvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.12 147/173] ASoC: meson: gx-card: fix sound-dai dt schema
-Date:   Mon, 14 Jun 2021 12:27:59 +0200
-Message-Id: <20210614102703.058936062@linuxfoundation.org>
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.12 148/173] phy: ti: Fix an error code in wiz_probe()
+Date:   Mon, 14 Jun 2021 12:28:00 +0200
+Message-Id: <20210614102703.096241812@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -39,49 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-commit d031d99b02eaf7363c33f5b27b38086cc8104082 upstream.
+commit b8203ec7f58ae925e10fadd3d136073ae7503a6e upstream.
 
-There is a fair amount of warnings when running 'make dtbs_check' with
-amlogic,gx-sound-card.yaml.
+When the code execute this if statement, the value of ret is 0.
+However, we can see from the dev_err() log that the value of
+ret should be -EINVAL.
 
-Ex:
-arch/arm64/boot/dts/amlogic/meson-gxm-q200.dt.yaml: sound: dai-link-0:sound-dai:0:1: missing phandle tag in 0
-arch/arm64/boot/dts/amlogic/meson-gxm-q200.dt.yaml: sound: dai-link-0:sound-dai:0:2: missing phandle tag in 0
-arch/arm64/boot/dts/amlogic/meson-gxm-q200.dt.yaml: sound: dai-link-0:sound-dai:0: [66, 0, 0] is too long
+Clean up smatch warning:
 
-The reason is that the sound-dai phandle provided has cells, and in such
-case the schema should use 'phandle-array' instead of 'phandle'.
+drivers/phy/ti/phy-j721e-wiz.c:1216 wiz_probe() warn: missing error code 'ret'
 
-Fixes: fd00366b8e41 ("ASoC: meson: gx: add sound card dt-binding documentation")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20210524093448.357140-1-jbrunet@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Fixes: c9f9eba06629 ("phy: ti: j721e-wiz: Manage typec-gpio-dir")
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1621939832-65535-1-git-send-email-yang.lee@linux.alibaba.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/phy/ti/phy-j721e-wiz.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml
-+++ b/Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml
-@@ -57,7 +57,7 @@ patternProperties:
-           rate
+--- a/drivers/phy/ti/phy-j721e-wiz.c
++++ b/drivers/phy/ti/phy-j721e-wiz.c
+@@ -894,6 +894,7 @@ static int wiz_probe(struct platform_dev
  
-       sound-dai:
--        $ref: /schemas/types.yaml#/definitions/phandle
-+        $ref: /schemas/types.yaml#/definitions/phandle-array
-         description: phandle of the CPU DAI
- 
-     patternProperties:
-@@ -71,7 +71,7 @@ patternProperties:
- 
-         properties:
-           sound-dai:
--            $ref: /schemas/types.yaml#/definitions/phandle
-+            $ref: /schemas/types.yaml#/definitions/phandle-array
-             description: phandle of the codec DAI
- 
-         required:
+ 		if (wiz->typec_dir_delay < WIZ_TYPEC_DIR_DEBOUNCE_MIN ||
+ 		    wiz->typec_dir_delay > WIZ_TYPEC_DIR_DEBOUNCE_MAX) {
++			ret = -EINVAL;
+ 			dev_err(dev, "Invalid typec-dir-debounce property\n");
+ 			goto err_addr_to_resource;
+ 		}
 
 
