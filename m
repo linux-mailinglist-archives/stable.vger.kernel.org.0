@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2293A621B
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D59F3A6185
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233435AbhFNKzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:55:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57326 "EHLO mail.kernel.org"
+        id S233064AbhFNKs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:48:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234630AbhFNKxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:53:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 139B161350;
-        Mon, 14 Jun 2021 10:40:05 +0000 (UTC)
+        id S233895AbhFNKqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:46:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDC6C61450;
+        Mon, 14 Jun 2021 10:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667206;
-        bh=On6oMZibtQ5hDoixU34PlfJ/D3LlpjTk1QmYv2rN1Jw=;
+        s=korg; t=1623667015;
+        bh=qMZGGmCGoYoh/woNB3vfQpYqm8wFu7ML+Sh+XGJ/9PE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RaOZihZ28RMYjOGFbc9dGzcRPi1xUX90fmkqhU1HK0NlRxIJdsRQoWupIcf1Xu5+N
-         X6KhQ3AMWrgocHS9JPrUvoaS2tM7PZLt+h28Bj5reaXtoFuDNoaUVMgM7ocESzCnHY
-         4MiLs880rQFoCJwk7KC1R2EtHM5sZT3Cr3o1XPyw=
+        b=lbHtP1G9g9G80A9sE2YaPg2tecCcSk/wEPmIX3VE1oCcdmmI0Kj46hdo9wP/mwe0m
+         8YmoMDPHNPWkLYSXJlYKqfwjIJNx2zT3Y7Puc5sa94eir9q/fWF82PWeEUyYeQByRM
+         8SEZwBRaSnEIU0ZYET4KVUkrpmAEWmIdAItgBj2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com,
-        Marco Elver <elver@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 68/84] perf: Fix data race between pin_count increment/decrement
-Date:   Mon, 14 Jun 2021 12:27:46 +0200
-Message-Id: <20210614102648.678909762@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.de>,
+        John Garry <john.garry@huawei.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 64/67] scsi: core: Put .shost_dev in failure path if host state changes to RUNNING
+Date:   Mon, 14 Jun 2021 12:27:47 +0200
+Message-Id: <20210614102645.932850736@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
-References: <20210614102646.341387537@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 6c605f8371159432ec61cbb1488dcf7ad24ad19a upstream.
+commit 11714026c02d613c30a149c3f4c4a15047744529 upstream.
 
-KCSAN reports a data race between increment and decrement of pin_count:
+scsi_host_dev_release() only frees dev_name when host state is
+SHOST_CREATED. After host state has changed to SHOST_RUNNING,
+scsi_host_dev_release() no longer cleans up.
 
-  write to 0xffff888237c2d4e0 of 4 bytes by task 15740 on cpu 1:
-   find_get_context		kernel/events/core.c:4617
-   __do_sys_perf_event_open	kernel/events/core.c:12097 [inline]
-   __se_sys_perf_event_open	kernel/events/core.c:11933
-   ...
-  read to 0xffff888237c2d4e0 of 4 bytes by task 15743 on cpu 0:
-   perf_unpin_context		kernel/events/core.c:1525 [inline]
-   __do_sys_perf_event_open	kernel/events/core.c:12328 [inline]
-   __se_sys_perf_event_open	kernel/events/core.c:11933
-   ...
+Fix this by doing a put_device(&shost->shost_dev) in the failure path when
+host state is SHOST_RUNNING. Move get_device(&shost->shost_gendev) before
+device_add(&shost->shost_dev) so that scsi_host_cls_release() can do a put
+on this reference.
 
-Because neither read-modify-write here is atomic, this can lead to one
-of the operations being lost, resulting in an inconsistent pin_count.
-Fix it by adding the missing locking in the CPU-event case.
-
-Fixes: fe4b04fa31a6 ("perf: Cure task_oncpu_function_call() races")
-Reported-by: syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210527104711.2671610-1-elver@google.com
+Link: https://lore.kernel.org/r/20210602133029.2864069-4-ming.lei@redhat.com
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Hannes Reinecke <hare@suse.de>
+Reported-by: John Garry <john.garry@huawei.com>
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/hosts.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -4249,7 +4249,9 @@ find_get_context(struct pmu *pmu, struct
- 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
- 		ctx = &cpuctx->ctx;
- 		get_ctx(ctx);
-+		raw_spin_lock_irqsave(&ctx->lock, flags);
- 		++ctx->pin_count;
-+		raw_spin_unlock_irqrestore(&ctx->lock, flags);
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -261,12 +261,11 @@ int scsi_add_host_with_dma(struct Scsi_H
  
- 		return ctx;
- 	}
+ 	device_enable_async_suspend(&shost->shost_dev);
+ 
++	get_device(&shost->shost_gendev);
+ 	error = device_add(&shost->shost_dev);
+ 	if (error)
+ 		goto out_del_gendev;
+ 
+-	get_device(&shost->shost_gendev);
+-
+ 	if (shost->transportt->host_size) {
+ 		shost->shost_data = kzalloc(shost->transportt->host_size,
+ 					 GFP_KERNEL);
+@@ -303,6 +302,11 @@ int scsi_add_host_with_dma(struct Scsi_H
+  out_del_dev:
+ 	device_del(&shost->shost_dev);
+  out_del_gendev:
++	/*
++	 * Host state is SHOST_RUNNING so we have to explicitly release
++	 * ->shost_dev.
++	 */
++	put_device(&shost->shost_dev);
+ 	device_del(&shost->shost_gendev);
+  out_disable_runtime_pm:
+ 	device_disable_async_suspend(&shost->shost_gendev);
 
 
