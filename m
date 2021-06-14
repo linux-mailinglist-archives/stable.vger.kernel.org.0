@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31E933A63D0
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B0523A62A9
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235597AbhFNLR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:17:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44646 "EHLO mail.kernel.org"
+        id S234778AbhFNLDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:03:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234633AbhFNLP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:15:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92D3661977;
-        Mon, 14 Jun 2021 10:49:36 +0000 (UTC)
+        id S233876AbhFNLAr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:00:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4039761923;
+        Mon, 14 Jun 2021 10:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667777;
-        bh=qAZ6axj8wVCrYkcrpn7fqyX5J9L42vgeo36Fvv3Y9PQ=;
+        s=korg; t=1623667408;
+        bh=YRMay8thZ0nlC5flkiLkObHqdLYZbsL4DqvJVinmzz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DXkJMDuTGL9auECEA4U3uZHu6v2ucs6bEzDRm+m40osSBp1S6V42rt1rhGFoC7sne
-         5brB7GFXSlmktyiSSbiZh5kVsnsyHKwxJsYpFBZ8Bl209/3oklJob+HnTASqWfGqG3
-         6LY3J6c/0eL00RMOHQvIAvRc/da/NDH19PFJ2yIc=
+        b=UICN08J8iktBux82GJigYjnbg/Hl/uaseG5RzSfgnnQ+B5JxWaZcoEbUsN2n6j3Nq
+         sshz1eU4kS+7zLTcIf/dWLeKq7pHAv5assZjIlhilue/tqCTJKbwBZ0XaLNrJgyFS1
+         VWyzsTBFo3wzOw9TAEkV16HKQ67Z92YJO6gA/3lU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Ullrich <ealex1979@gmail.com>,
-        Diego Ercolani <diego.ercolani@gmail.com>,
-        Jan Szubiak <jan.szubiak@linuxpolska.pl>,
-        Marco Rebhan <me@dblsaiko.net>,
-        Matthias Ferdinand <bcache@mfedv.net>,
-        Victor Westerhuis <victor@westerhu.is>,
-        Vojtech Pavlik <vojtech@suse.cz>, Coly Li <colyli@suse.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Nix <nix@esperi.org.uk>, Takashi Iwai <tiwai@suse.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Rolf Fokkens <rolf@rolffokkens.nl>,
-        Thorsten Knabe <linux@thorsten-knabe.de>
-Subject: [PATCH 5.12 071/173] bcache: remove bcache device self-defined readahead
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Saravana Kannan <saravanak@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.10 042/131] spi: Cleanup on failure of initial setup
 Date:   Mon, 14 Jun 2021 12:26:43 +0200
-Message-Id: <20210614102700.522177219@linuxfoundation.org>
+Message-Id: <20210614102654.444584174@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,205 +42,267 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 1616a4c2ab1a80893b6890ae93da40a2b1d0c691 upstream.
+[ Upstream commit 2ec6f20b33eb4f62ab90bdcd620436c883ec3af6 ]
 
-For read cache missing, bcache defines a readahead size for the read I/O
-request to the backing device for the missing data. This readahead size
-is initialized to 0, and almost no one uses it to avoid unnecessary read
-amplifying onto backing device and write amplifying onto cache device.
-Considering upper layer file system code has readahead logic allready
-and works fine with readahead_cache_policy sysfile interface, we don't
-have to keep bcache self-defined readahead anymore.
+Commit c7299fea6769 ("spi: Fix spi device unregister flow") changed the
+SPI core's behavior if the ->setup() hook returns an error upon adding
+an spi_device:  Before, the ->cleanup() hook was invoked to free any
+allocations that were made by ->setup().  With the commit, that's no
+longer the case, so the ->setup() hook is expected to free the
+allocations itself.
 
-This patch removes the bcache self-defined readahead for cache missing
-request for backing device, and the readahead sysfs file interfaces are
-removed as well.
+I've identified 5 drivers which depend on the old behavior and am fixing
+them up hereinafter: spi-bitbang.c spi-fsl-spi.c spi-omap-uwire.c
+spi-omap2-mcspi.c spi-pxa2xx.c
 
-This is the preparation for next patch to fix potential kernel panic due
-to oversized request in a simpler method.
+Importantly, ->setup() is not only invoked on spi_device *addition*:
+It may subsequently be called to *change* SPI parameters.  If changing
+these SPI parameters fails, freeing memory allocations would be wrong.
+That should only be done if the spi_device is finally destroyed.
+I am therefore using a bool "initial_setup" in 4 of the affected drivers
+to differentiate between the invocation on *adding* the spi_device and
+any subsequent invocations: spi-bitbang.c spi-fsl-spi.c spi-omap-uwire.c
+spi-omap2-mcspi.c
 
-Reported-by: Alexander Ullrich <ealex1979@gmail.com>
-Reported-by: Diego Ercolani <diego.ercolani@gmail.com>
-Reported-by: Jan Szubiak <jan.szubiak@linuxpolska.pl>
-Reported-by: Marco Rebhan <me@dblsaiko.net>
-Reported-by: Matthias Ferdinand <bcache@mfedv.net>
-Reported-by: Victor Westerhuis <victor@westerhu.is>
-Reported-by: Vojtech Pavlik <vojtech@suse.cz>
-Reported-and-tested-by: Rolf Fokkens <rolf@rolffokkens.nl>
-Reported-and-tested-by: Thorsten Knabe <linux@thorsten-knabe.de>
-Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
-Cc: Kent Overstreet <kent.overstreet@gmail.com>
-Cc: Nix <nix@esperi.org.uk>
-Cc: Takashi Iwai <tiwai@suse.com>
-Link: https://lore.kernel.org/r/20210607125052.21277-2-colyli@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In spi-pxa2xx.c, it seems the ->setup() hook can only fail on spi_device
+addition, not any subsequent calls.  It therefore doesn't need the bool.
+
+It's worth noting that 5 other drivers already perform a cleanup if the
+->setup() hook fails.  Before c7299fea6769, they caused a double-free
+if ->setup() failed on spi_device addition.  Since the commit, they're
+fine.  These drivers are: spi-mpc512x-psc.c spi-pl022.c spi-s3c64xx.c
+spi-st-ssc4.c spi-tegra114.c
+
+(spi-pxa2xx.c also already performs a cleanup, but only in one of
+several error paths.)
+
+Fixes: c7299fea6769 ("spi: Fix spi device unregister flow")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: Saravana Kannan <saravanak@google.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com> # pxa2xx
+Link: https://lore.kernel.org/r/f76a0599469f265b69c371538794101fa37b5536.1622149321.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/bcache.h  |    1 -
- drivers/md/bcache/request.c |   13 +------------
- drivers/md/bcache/stats.c   |   14 --------------
- drivers/md/bcache/stats.h   |    1 -
- drivers/md/bcache/sysfs.c   |    4 ----
- 5 files changed, 1 insertion(+), 32 deletions(-)
+ drivers/spi/spi-bitbang.c     | 18 ++++++++++++++----
+ drivers/spi/spi-fsl-spi.c     |  4 ++++
+ drivers/spi/spi-omap-uwire.c  |  9 ++++++++-
+ drivers/spi/spi-omap2-mcspi.c | 33 ++++++++++++++++++++-------------
+ drivers/spi/spi-pxa2xx.c      |  9 ++++++++-
+ 5 files changed, 54 insertions(+), 19 deletions(-)
 
---- a/drivers/md/bcache/bcache.h
-+++ b/drivers/md/bcache/bcache.h
-@@ -364,7 +364,6 @@ struct cached_dev {
- 
- 	/* The rest of this all shows up in sysfs */
- 	unsigned int		sequential_cutoff;
--	unsigned int		readahead;
- 
- 	unsigned int		io_disable:1;
- 	unsigned int		verify:1;
---- a/drivers/md/bcache/request.c
-+++ b/drivers/md/bcache/request.c
-@@ -880,7 +880,6 @@ static int cached_dev_cache_miss(struct
- 				 struct bio *bio, unsigned int sectors)
+diff --git a/drivers/spi/spi-bitbang.c b/drivers/spi/spi-bitbang.c
+index 1a7352abd878..3d8948a17095 100644
+--- a/drivers/spi/spi-bitbang.c
++++ b/drivers/spi/spi-bitbang.c
+@@ -181,6 +181,8 @@ int spi_bitbang_setup(struct spi_device *spi)
  {
- 	int ret = MAP_CONTINUE;
--	unsigned int reada = 0;
- 	struct cached_dev *dc = container_of(s->d, struct cached_dev, disk);
- 	struct bio *miss, *cache_bio;
+ 	struct spi_bitbang_cs	*cs = spi->controller_state;
+ 	struct spi_bitbang	*bitbang;
++	bool			initial_setup = false;
++	int			retval;
  
-@@ -892,14 +891,7 @@ static int cached_dev_cache_miss(struct
- 		goto out_submit;
+ 	bitbang = spi_master_get_devdata(spi->master);
+ 
+@@ -189,22 +191,30 @@ int spi_bitbang_setup(struct spi_device *spi)
+ 		if (!cs)
+ 			return -ENOMEM;
+ 		spi->controller_state = cs;
++		initial_setup = true;
  	}
  
--	if (!(bio->bi_opf & REQ_RAHEAD) &&
--	    !(bio->bi_opf & (REQ_META|REQ_PRIO)) &&
--	    s->iop.c->gc_stats.in_use < CUTOFF_CACHE_READA)
--		reada = min_t(sector_t, dc->readahead >> 9,
--			      get_capacity(bio->bi_bdev->bd_disk) -
--			      bio_end_sector(bio));
--
--	s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
-+	s->insert_bio_sectors = min(sectors, bio_sectors(bio));
+ 	/* per-word shift register access, in hardware or bitbanging */
+ 	cs->txrx_word = bitbang->txrx_word[spi->mode & (SPI_CPOL|SPI_CPHA)];
+-	if (!cs->txrx_word)
+-		return -EINVAL;
++	if (!cs->txrx_word) {
++		retval = -EINVAL;
++		goto err_free;
++	}
  
- 	s->iop.replace_key = KEY(s->iop.inode,
- 				 bio->bi_iter.bi_sector + s->insert_bio_sectors,
-@@ -933,9 +925,6 @@ static int cached_dev_cache_miss(struct
- 	if (bch_bio_alloc_pages(cache_bio, __GFP_NOWARN|GFP_NOIO))
- 		goto out_put;
- 
--	if (reada)
--		bch_mark_cache_readahead(s->iop.c, s->d);
--
- 	s->cache_miss	= miss;
- 	s->iop.bio	= cache_bio;
- 	bio_get(cache_bio);
---- a/drivers/md/bcache/stats.c
-+++ b/drivers/md/bcache/stats.c
-@@ -46,7 +46,6 @@ read_attribute(cache_misses);
- read_attribute(cache_bypass_hits);
- read_attribute(cache_bypass_misses);
- read_attribute(cache_hit_ratio);
--read_attribute(cache_readaheads);
- read_attribute(cache_miss_collisions);
- read_attribute(bypassed);
- 
-@@ -64,7 +63,6 @@ SHOW(bch_stats)
- 		    DIV_SAFE(var(cache_hits) * 100,
- 			     var(cache_hits) + var(cache_misses)));
- 
--	var_print(cache_readaheads);
- 	var_print(cache_miss_collisions);
- 	sysfs_hprint(bypassed,	var(sectors_bypassed) << 9);
- #undef var
-@@ -86,7 +84,6 @@ static struct attribute *bch_stats_files
- 	&sysfs_cache_bypass_hits,
- 	&sysfs_cache_bypass_misses,
- 	&sysfs_cache_hit_ratio,
--	&sysfs_cache_readaheads,
- 	&sysfs_cache_miss_collisions,
- 	&sysfs_bypassed,
- 	NULL
-@@ -113,7 +110,6 @@ void bch_cache_accounting_clear(struct c
- 	acc->total.cache_misses = 0;
- 	acc->total.cache_bypass_hits = 0;
- 	acc->total.cache_bypass_misses = 0;
--	acc->total.cache_readaheads = 0;
- 	acc->total.cache_miss_collisions = 0;
- 	acc->total.sectors_bypassed = 0;
- }
-@@ -145,7 +141,6 @@ static void scale_stats(struct cache_sta
- 		scale_stat(&stats->cache_misses);
- 		scale_stat(&stats->cache_bypass_hits);
- 		scale_stat(&stats->cache_bypass_misses);
--		scale_stat(&stats->cache_readaheads);
- 		scale_stat(&stats->cache_miss_collisions);
- 		scale_stat(&stats->sectors_bypassed);
+ 	if (bitbang->setup_transfer) {
+-		int retval = bitbang->setup_transfer(spi, NULL);
++		retval = bitbang->setup_transfer(spi, NULL);
+ 		if (retval < 0)
+-			return retval;
++			goto err_free;
  	}
-@@ -168,7 +163,6 @@ static void scale_accounting(struct time
- 	move_stat(cache_misses);
- 	move_stat(cache_bypass_hits);
- 	move_stat(cache_bypass_misses);
--	move_stat(cache_readaheads);
- 	move_stat(cache_miss_collisions);
- 	move_stat(sectors_bypassed);
  
-@@ -209,14 +203,6 @@ void bch_mark_cache_accounting(struct ca
- 	mark_cache_stats(&c->accounting.collector, hit, bypass);
+ 	dev_dbg(&spi->dev, "%s, %u nsec/bit\n", __func__, 2 * cs->nsecs);
+ 
+ 	return 0;
++
++err_free:
++	if (initial_setup)
++		kfree(cs);
++	return retval;
+ }
+ EXPORT_SYMBOL_GPL(spi_bitbang_setup);
+ 
+diff --git a/drivers/spi/spi-fsl-spi.c b/drivers/spi/spi-fsl-spi.c
+index d0e5aa18b7ba..bdf94cc7be1a 100644
+--- a/drivers/spi/spi-fsl-spi.c
++++ b/drivers/spi/spi-fsl-spi.c
+@@ -440,6 +440,7 @@ static int fsl_spi_setup(struct spi_device *spi)
+ {
+ 	struct mpc8xxx_spi *mpc8xxx_spi;
+ 	struct fsl_spi_reg __iomem *reg_base;
++	bool initial_setup = false;
+ 	int retval;
+ 	u32 hw_mode;
+ 	struct spi_mpc8xxx_cs *cs = spi_get_ctldata(spi);
+@@ -452,6 +453,7 @@ static int fsl_spi_setup(struct spi_device *spi)
+ 		if (!cs)
+ 			return -ENOMEM;
+ 		spi_set_ctldata(spi, cs);
++		initial_setup = true;
+ 	}
+ 	mpc8xxx_spi = spi_master_get_devdata(spi->master);
+ 
+@@ -475,6 +477,8 @@ static int fsl_spi_setup(struct spi_device *spi)
+ 	retval = fsl_spi_setup_transfer(spi, NULL);
+ 	if (retval < 0) {
+ 		cs->hw_mode = hw_mode; /* Restore settings */
++		if (initial_setup)
++			kfree(cs);
+ 		return retval;
+ 	}
+ 
+diff --git a/drivers/spi/spi-omap-uwire.c b/drivers/spi/spi-omap-uwire.c
+index 71402f71ddd8..df28c6664aba 100644
+--- a/drivers/spi/spi-omap-uwire.c
++++ b/drivers/spi/spi-omap-uwire.c
+@@ -424,15 +424,22 @@ done:
+ static int uwire_setup(struct spi_device *spi)
+ {
+ 	struct uwire_state *ust = spi->controller_state;
++	bool initial_setup = false;
++	int status;
+ 
+ 	if (ust == NULL) {
+ 		ust = kzalloc(sizeof(*ust), GFP_KERNEL);
+ 		if (ust == NULL)
+ 			return -ENOMEM;
+ 		spi->controller_state = ust;
++		initial_setup = true;
+ 	}
+ 
+-	return uwire_setup_transfer(spi, NULL);
++	status = uwire_setup_transfer(spi, NULL);
++	if (status && initial_setup)
++		kfree(ust);
++
++	return status;
  }
  
--void bch_mark_cache_readahead(struct cache_set *c, struct bcache_device *d)
+ static void uwire_cleanup(struct spi_device *spi)
+diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
+index d4c9510af393..3596bbe4b776 100644
+--- a/drivers/spi/spi-omap2-mcspi.c
++++ b/drivers/spi/spi-omap2-mcspi.c
+@@ -1032,8 +1032,22 @@ static void omap2_mcspi_release_dma(struct spi_master *master)
+ 	}
+ }
+ 
++static void omap2_mcspi_cleanup(struct spi_device *spi)
++{
++	struct omap2_mcspi_cs	*cs;
++
++	if (spi->controller_state) {
++		/* Unlink controller state from context save list */
++		cs = spi->controller_state;
++		list_del(&cs->node);
++
++		kfree(cs);
++	}
++}
++
+ static int omap2_mcspi_setup(struct spi_device *spi)
+ {
++	bool			initial_setup = false;
+ 	int			ret;
+ 	struct omap2_mcspi	*mcspi = spi_master_get_devdata(spi->master);
+ 	struct omap2_mcspi_regs	*ctx = &mcspi->ctx;
+@@ -1051,35 +1065,28 @@ static int omap2_mcspi_setup(struct spi_device *spi)
+ 		spi->controller_state = cs;
+ 		/* Link this to context save list */
+ 		list_add_tail(&cs->node, &ctx->cs);
++		initial_setup = true;
+ 	}
+ 
+ 	ret = pm_runtime_get_sync(mcspi->dev);
+ 	if (ret < 0) {
+ 		pm_runtime_put_noidle(mcspi->dev);
++		if (initial_setup)
++			omap2_mcspi_cleanup(spi);
+ 
+ 		return ret;
+ 	}
+ 
+ 	ret = omap2_mcspi_setup_transfer(spi, NULL);
++	if (ret && initial_setup)
++		omap2_mcspi_cleanup(spi);
++
+ 	pm_runtime_mark_last_busy(mcspi->dev);
+ 	pm_runtime_put_autosuspend(mcspi->dev);
+ 
+ 	return ret;
+ }
+ 
+-static void omap2_mcspi_cleanup(struct spi_device *spi)
 -{
--	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
+-	struct omap2_mcspi_cs	*cs;
 -
--	atomic_inc(&dc->accounting.collector.cache_readaheads);
--	atomic_inc(&c->accounting.collector.cache_readaheads);
+-	if (spi->controller_state) {
+-		/* Unlink controller state from context save list */
+-		cs = spi->controller_state;
+-		list_del(&cs->node);
+-
+-		kfree(cs);
+-	}
 -}
 -
- void bch_mark_cache_miss_collision(struct cache_set *c, struct bcache_device *d)
+ static irqreturn_t omap2_mcspi_irq_handler(int irq, void *data)
  {
- 	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
---- a/drivers/md/bcache/stats.h
-+++ b/drivers/md/bcache/stats.h
-@@ -7,7 +7,6 @@ struct cache_stat_collector {
- 	atomic_t cache_misses;
- 	atomic_t cache_bypass_hits;
- 	atomic_t cache_bypass_misses;
--	atomic_t cache_readaheads;
- 	atomic_t cache_miss_collisions;
- 	atomic_t sectors_bypassed;
- };
---- a/drivers/md/bcache/sysfs.c
-+++ b/drivers/md/bcache/sysfs.c
-@@ -137,7 +137,6 @@ rw_attribute(io_disable);
- rw_attribute(discard);
- rw_attribute(running);
- rw_attribute(label);
--rw_attribute(readahead);
- rw_attribute(errors);
- rw_attribute(io_error_limit);
- rw_attribute(io_error_halflife);
-@@ -260,7 +259,6 @@ SHOW(__bch_cached_dev)
- 	var_printf(partial_stripes_expensive,	"%u");
+ 	struct omap2_mcspi *mcspi = data;
+diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
+index d6b534d38e5d..56a62095ec8c 100644
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -1254,6 +1254,8 @@ static int setup_cs(struct spi_device *spi, struct chip_data *chip,
+ 		chip->gpio_cs_inverted = spi->mode & SPI_CS_HIGH;
  
- 	var_hprint(sequential_cutoff);
--	var_hprint(readahead);
+ 		err = gpiod_direction_output(gpiod, !chip->gpio_cs_inverted);
++		if (err)
++			gpiod_put(chip->gpiod_cs);
+ 	}
  
- 	sysfs_print(running,		atomic_read(&dc->running));
- 	sysfs_print(state,		states[BDEV_STATE(&dc->sb)]);
-@@ -365,7 +363,6 @@ STORE(__cached_dev)
- 	sysfs_strtoul_clamp(sequential_cutoff,
- 			    dc->sequential_cutoff,
- 			    0, UINT_MAX);
--	d_strtoi_h(readahead);
+ 	return err;
+@@ -1267,6 +1269,7 @@ static int setup(struct spi_device *spi)
+ 	struct driver_data *drv_data =
+ 		spi_controller_get_devdata(spi->controller);
+ 	uint tx_thres, tx_hi_thres, rx_thres;
++	int err;
  
- 	if (attr == &sysfs_clear_stats)
- 		bch_cache_accounting_clear(&dc->accounting);
-@@ -538,7 +535,6 @@ static struct attribute *bch_cached_dev_
- 	&sysfs_running,
- 	&sysfs_state,
- 	&sysfs_label,
--	&sysfs_readahead,
- #ifdef CONFIG_BCACHE_DEBUG
- 	&sysfs_verify,
- 	&sysfs_bypass_torture_test,
+ 	switch (drv_data->ssp_type) {
+ 	case QUARK_X1000_SSP:
+@@ -1413,7 +1416,11 @@ static int setup(struct spi_device *spi)
+ 	if (drv_data->ssp_type == CE4100_SSP)
+ 		return 0;
+ 
+-	return setup_cs(spi, chip, chip_info);
++	err = setup_cs(spi, chip, chip_info);
++	if (err)
++		kfree(chip);
++
++	return err;
+ }
+ 
+ static void cleanup(struct spi_device *spi)
+-- 
+2.30.2
+
 
 
