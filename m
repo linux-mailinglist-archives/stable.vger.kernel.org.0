@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E963A62AA
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:01:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF2B83A62AC
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234785AbhFNLDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:03:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35824 "EHLO mail.kernel.org"
+        id S234799AbhFNLDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:03:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233830AbhFNLAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233203AbhFNLAp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Jun 2021 07:00:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C49FA6162F;
-        Mon, 14 Jun 2021 10:43:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3243061437;
+        Mon, 14 Jun 2021 10:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667391;
-        bh=yP091ATsF9sSYq3kWijW/heKOsq+HSjUAsAoy4i+UiM=;
+        s=korg; t=1623667393;
+        bh=tAgHRmkXbDK9L6KTY2aEI9h5uKtmlvcQL2UoUrvwWgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkqhyDcN85NIjaoYR+1UMUHKqRjfRiFNK2H/eka4V1is9gESB8aGKWgTLc7Qu7ArU
-         TdMu9N7oK33JNfELsRgBtB8mmgJOYGYpo1a766GnRGCTu3wRxQYqnB/+jCxAEWn1fb
-         8aYDWGP/hUBQtho05eAp3rv4TXqKUrKeRpXWAxIE=
+        b=XbYOL6ZOCs2HQDVOstnw3sUthnyhqxDTbLzZC0OGIZEst3oD6nwjceJAPQjrnXing
+         0ulPyWnavDxocOXymqj4s01HG8uJJXoAJw3xbG5vUwqDUfgk71SuQbkmr3Bt/ete5A
+         rN22xe3TO0sk1IAxSzVhvGdwVEksUhpTD3gBv/vI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Hohe <sth.dev@tejp.de>,
-        Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 053/131] Revert "ACPI: sleep: Put the FACS table after using it"
-Date:   Mon, 14 Jun 2021 12:26:54 +0200
-Message-Id: <20210614102654.826578905@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.10 054/131] drm: Fix use-after-free read in drm_getunique()
+Date:   Mon, 14 Jun 2021 12:26:55 +0200
+Message-Id: <20210614102654.857406795@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
 References: <20210614102652.964395392@linuxfoundation.org>
@@ -40,48 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-commit f1ffa9d4cccc8fdf6c03fb1b3429154d22037988 upstream.
+commit b436acd1cf7fac0ba987abd22955d98025c80c2b upstream.
 
-Commit 95722237cb2a ("ACPI: sleep: Put the FACS table after using it")
-puts the FACS table during initialization.
+There is a time-of-check-to-time-of-use error in drm_getunique() due
+to retrieving file_priv->master prior to locking the device's master
+mutex.
 
-But the hardware signature bits in the FACS table need to be accessed,
-after every hibernation, to compare with the original hardware
-signature.
+An example can be seen in the crash report of the use-after-free error
+found by Syzbot:
+https://syzkaller.appspot.com/bug?id=148d2f1dfac64af52ffd27b661981a540724f803
 
-So there is no reason to release the FACS table mapping after
-initialization.
+In the report, the master pointer was used after being freed. This is
+because another process had acquired the device's master mutex in
+drm_setmaster_ioctl(), then overwrote fpriv->master in
+drm_new_set_master(). The old value of fpriv->master was subsequently
+freed before the mutex was unlocked.
 
-This reverts commit 95722237cb2ae4f7b73471058cdb19e8f4057c93.
+To fix this, we lock the device's master mutex before retrieving the
+pointer from from fpriv->master. This patch passes the Syzbot
+reproducer test.
 
-An alternative solution is to use acpi_gbl_FACS variable instead, which
-is mapped by the ACPICA core and never released.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=212277
-Reported-by: Stephan Hohe <sth.dev@tejp.de>
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Cc: 5.8+ <stable@vger.kernel.org> # 5.8+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210608110436.239583-1-desmondcheongzx@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/sleep.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/drm_ioctl.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -1290,10 +1290,8 @@ static void acpi_sleep_hibernate_setup(v
- 		return;
+--- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -118,17 +118,18 @@ int drm_getunique(struct drm_device *dev
+ 		  struct drm_file *file_priv)
+ {
+ 	struct drm_unique *u = data;
+-	struct drm_master *master = file_priv->master;
++	struct drm_master *master;
  
- 	acpi_get_table(ACPI_SIG_FACS, 1, (struct acpi_table_header **)&facs);
--	if (facs) {
-+	if (facs)
- 		s4_hardware_signature = facs->hardware_signature;
--		acpi_put_table((struct acpi_table_header *)facs);
--	}
+-	mutex_lock(&master->dev->master_mutex);
++	mutex_lock(&dev->master_mutex);
++	master = file_priv->master;
+ 	if (u->unique_len >= master->unique_len) {
+ 		if (copy_to_user(u->unique, master->unique, master->unique_len)) {
+-			mutex_unlock(&master->dev->master_mutex);
++			mutex_unlock(&dev->master_mutex);
+ 			return -EFAULT;
+ 		}
+ 	}
+ 	u->unique_len = master->unique_len;
+-	mutex_unlock(&master->dev->master_mutex);
++	mutex_unlock(&dev->master_mutex);
+ 
+ 	return 0;
  }
- #else /* !CONFIG_HIBERNATION */
- static inline void acpi_sleep_hibernate_setup(void) {}
 
 
