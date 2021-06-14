@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D31D63A60F4
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D28B73A605B
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232991AbhFNKkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:40:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45918 "EHLO mail.kernel.org"
+        id S233071AbhFNKdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:33:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233829AbhFNKiT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:38:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D3C9613F1;
-        Mon, 14 Jun 2021 10:33:57 +0000 (UTC)
+        id S232803AbhFNKc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:32:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B55C611BE;
+        Mon, 14 Jun 2021 10:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666837;
-        bh=ZY4c1guXixpLGl+bH8VS9g/dz2f4w5HOXOLkiD9oRGs=;
+        s=korg; t=1623666655;
+        bh=A9kma9kklQ0F8s17LiKI0tqoZI0kzc2RbijJEzs34So=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lye3Lpas5OqIGcSOf3YqauYtEZTD58MvA+UX1EJrNsFUOfyhLPVPc6SCIZx/8U+7D
-         ddm/6In5phgVI+JebHbKKhIXTKqaKz9nFwhpH0Jht5fhsQoHuaMq1XmnH/FC+zGVkw
-         GIaGP1y0zeGJwox4Vp61FNg7y+1wALkCVDybth5g=
+        b=hbcq605YNeWBJLvlHjINSEOlXviYfRRlqjO8joijsYzgMkwkElcYPXIYhqERbX9G9
+         tV18WH8arNj21oHQcUmG5BMl96JImciFmrBdWsO6SLh/BIqM94wOc/osLOtblOjoNm
+         9ciX3N+IQciYFbpgdSk4Sl4WZ+NZcuPIjtxl5apc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.14 21/49] drm: Fix use-after-free read in drm_getunique()
+        stable@vger.kernel.org, Ritesh Harjani <riteshh@linux.ibm.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.9 23/42] btrfs: return value from btrfs_mark_extent_written() in case of error
 Date:   Mon, 14 Jun 2021 12:27:14 +0200
-Message-Id: <20210614102642.560431650@linuxfoundation.org>
+Message-Id: <20210614102643.450357049@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-commit b436acd1cf7fac0ba987abd22955d98025c80c2b upstream.
+commit e7b2ec3d3d4ebeb4cff7ae45cf430182fa6a49fb upstream.
 
-There is a time-of-check-to-time-of-use error in drm_getunique() due
-to retrieving file_priv->master prior to locking the device's master
-mutex.
+We always return 0 even in case of an error in btrfs_mark_extent_written().
+Fix it to return proper error value in case of a failure. All callers
+handle it.
 
-An example can be seen in the crash report of the use-after-free error
-found by Syzbot:
-https://syzkaller.appspot.com/bug?id=148d2f1dfac64af52ffd27b661981a540724f803
-
-In the report, the master pointer was used after being freed. This is
-because another process had acquired the device's master mutex in
-drm_setmaster_ioctl(), then overwrote fpriv->master in
-drm_new_set_master(). The old value of fpriv->master was subsequently
-freed before the mutex was unlocked.
-
-To fix this, we lock the device's master mutex before retrieving the
-pointer from from fpriv->master. This patch passes the Syzbot
-reproducer test.
-
-Reported-by: syzbot+c3a706cec1ea99e1c693@syzkaller.appspotmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210608110436.239583-1-desmondcheongzx@gmail.com
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_ioctl.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/btrfs/file.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -112,17 +112,18 @@ int drm_getunique(struct drm_device *dev
- 		  struct drm_file *file_priv)
- {
- 	struct drm_unique *u = data;
--	struct drm_master *master = file_priv->master;
-+	struct drm_master *master;
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1089,7 +1089,7 @@ int btrfs_mark_extent_written(struct btr
+ 	int del_nr = 0;
+ 	int del_slot = 0;
+ 	int recow;
+-	int ret;
++	int ret = 0;
+ 	u64 ino = btrfs_ino(inode);
  
--	mutex_lock(&master->dev->master_mutex);
-+	mutex_lock(&dev->master_mutex);
-+	master = file_priv->master;
- 	if (u->unique_len >= master->unique_len) {
- 		if (copy_to_user(u->unique, master->unique, master->unique_len)) {
--			mutex_unlock(&master->dev->master_mutex);
-+			mutex_unlock(&dev->master_mutex);
- 			return -EFAULT;
- 		}
+ 	path = btrfs_alloc_path();
+@@ -1309,7 +1309,7 @@ again:
  	}
- 	u->unique_len = master->unique_len;
--	mutex_unlock(&master->dev->master_mutex);
-+	mutex_unlock(&dev->master_mutex);
- 
- 	return 0;
+ out:
+ 	btrfs_free_path(path);
+-	return 0;
++	return ret;
  }
+ 
+ /*
 
 
