@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5B33A608F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08C663A60DA
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233346AbhFNKfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:35:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39012 "EHLO mail.kernel.org"
+        id S232825AbhFNKik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:38:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233355AbhFNKd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:33:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75343611BE;
-        Mon, 14 Jun 2021 10:31:49 +0000 (UTC)
+        id S232930AbhFNKgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:36:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98BCB6140C;
+        Mon, 14 Jun 2021 10:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666710;
-        bh=k41R0Kv18ZKHAa/wQnzfh4ju+xUwjKz4ZbRlEjqZ5N8=;
+        s=korg; t=1623666793;
+        bh=rJwQ8JNJf/FiSjcMsTT6fiAExBFWieH1t/uc1j0yzGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oX5wrMvu8UvxkGFFqF9JNPIkECXYOImiFBgjfPrZ/KPWV2kWqzydZYg0V0a1Oo0//
-         HdybtxvjNDsyzUU5S1tg49XAbtMWKnfbZu/PebW70QVch83rdm3P7LdnUL/0rBNZoe
-         3WGW+tsBeIlQOpB6rhFmL0JoW+lo4OvGCtbvJH/o=
+        b=lhAnzxpA8JHboIBId/Ci+L/f5AMGpQCGBFX0JZtnlxAY9nR753g9Z8BRFINOKQWxm
+         Wbf1AaoFF3m4KemYqVUf6YFcvrxn8QpRDZTyaNTgkdjR9TweMVae/ptRm3VyuZJlBq
+         w3atTvvbKHiwmdKUmDcNT0t/ZA4uVwukL2u3zFEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com,
-        Marco Elver <elver@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.9 34/42] perf: Fix data race between pin_count increment/decrement
+        Alexandre GRIVEAUX <agriveaux@deutnet.info>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 32/49] USB: serial: omninet: add device id for Zyxel Omni 56K Plus
 Date:   Mon, 14 Jun 2021 12:27:25 +0200
-Message-Id: <20210614102643.790442311@linuxfoundation.org>
+Message-Id: <20210614102642.922239254@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
-References: <20210614102642.700712386@linuxfoundation.org>
+In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
+References: <20210614102641.857724541@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Alexandre GRIVEAUX <agriveaux@deutnet.info>
 
-commit 6c605f8371159432ec61cbb1488dcf7ad24ad19a upstream.
+commit fc0b3dc9a11771c3919eaaaf9d649138b095aa0f upstream.
 
-KCSAN reports a data race between increment and decrement of pin_count:
+Add device id for Zyxel Omni 56K Plus modem, this modem include:
 
-  write to 0xffff888237c2d4e0 of 4 bytes by task 15740 on cpu 1:
-   find_get_context		kernel/events/core.c:4617
-   __do_sys_perf_event_open	kernel/events/core.c:12097 [inline]
-   __se_sys_perf_event_open	kernel/events/core.c:11933
-   ...
-  read to 0xffff888237c2d4e0 of 4 bytes by task 15743 on cpu 0:
-   perf_unpin_context		kernel/events/core.c:1525 [inline]
-   __do_sys_perf_event_open	kernel/events/core.c:12328 [inline]
-   __se_sys_perf_event_open	kernel/events/core.c:11933
-   ...
+USB chip:
+NetChip
+NET2888
 
-Because neither read-modify-write here is atomic, this can lead to one
-of the operations being lost, resulting in an inconsistent pin_count.
-Fix it by adding the missing locking in the CPU-event case.
+Main chip:
+901041A
+F721501APGF
 
-Fixes: fe4b04fa31a6 ("perf: Cure task_oncpu_function_call() races")
-Reported-by: syzbot+142c9018f5962db69c7e@syzkaller.appspotmail.com
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210527104711.2671610-1-elver@google.com
+Another modem using the same chips is the Zyxel Omni 56K DUO/NEO,
+could be added with the right USB ID.
+
+Signed-off-by: Alexandre GRIVEAUX <agriveaux@deutnet.info>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    2 ++
+ drivers/usb/serial/omninet.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -3782,7 +3782,9 @@ find_get_context(struct pmu *pmu, struct
- 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
- 		ctx = &cpuctx->ctx;
- 		get_ctx(ctx);
-+		raw_spin_lock_irqsave(&ctx->lock, flags);
- 		++ctx->pin_count;
-+		raw_spin_unlock_irqrestore(&ctx->lock, flags);
+--- a/drivers/usb/serial/omninet.c
++++ b/drivers/usb/serial/omninet.c
+@@ -29,6 +29,7 @@
  
- 		return ctx;
- 	}
+ #define ZYXEL_VENDOR_ID		0x0586
+ #define ZYXEL_OMNINET_ID	0x1000
++#define ZYXEL_OMNI_56K_PLUS_ID	0x1500
+ /* This one seems to be a re-branded ZyXEL device */
+ #define BT_IGNITIONPRO_ID	0x2000
+ 
+@@ -43,6 +44,7 @@ static int omninet_port_remove(struct us
+ 
+ static const struct usb_device_id id_table[] = {
+ 	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNINET_ID) },
++	{ USB_DEVICE(ZYXEL_VENDOR_ID, ZYXEL_OMNI_56K_PLUS_ID) },
+ 	{ USB_DEVICE(ZYXEL_VENDOR_ID, BT_IGNITIONPRO_ID) },
+ 	{ }						/* Terminating entry */
+ };
 
 
