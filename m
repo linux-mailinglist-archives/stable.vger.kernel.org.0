@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B51D3A6428
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:19:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4421B3A62C8
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:03:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233978AbhFNLVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:21:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47430 "EHLO mail.kernel.org"
+        id S235266AbhFNLFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:05:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235456AbhFNLSL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:18:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2549B6198C;
-        Mon, 14 Jun 2021 10:50:38 +0000 (UTC)
+        id S234526AbhFNLCL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:02:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F8C36190A;
+        Mon, 14 Jun 2021 10:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667838;
-        bh=0OzG14zKROsbLr8pPESTvl8w51dkSHjRo2SIdkg5/FQ=;
+        s=korg; t=1623667421;
+        bh=hYvpvnY69XNqIy5q9W9se4DgvuawRvaneL4ZUD92l8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AbanDDChusuaIchHx1v3j9JXjSb5BvaIJe7gUnVazU0OdXI+i7St6N4lqlYGPjzN
-         T/YXLozXBTZqT9sl+uDTcyuwMDDfCPbfF0DU1Rz0EjPp+fR0v6J+y/5bT78intZ3Mm
-         7P61sILPhv1SZVH4IoMpLf/d1OuhCcTo5ZauY8/0=
+        b=ea8Aue61QYAcDX32uitQfvY4VLWAt8yEeeZmtbKmFD5az2ttTnIovJ+x4VkUpYyWn
+         ZNqtFyuiTj0qoAmmupTU3MXAkJHyg1Ime2DspDLggIsASECPdUQfUI4wiwieuvkBrX
+         NNek/4EZ2qqNPrqrbCmcGmfMJdyu9pj09MWTbt5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prike Liang <Prike.Liang@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 5.12 093/173] usb: pci-quirks: disable D3cold on xhci suspend for s2idle on AMD Renoir
+        stable@vger.kernel.org, Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 064/131] ftrace: Do not blindly read the ip address in ftrace_bug()
 Date:   Mon, 14 Jun 2021 12:27:05 +0200
-Message-Id: <20210614102701.267640322@linuxfoundation.org>
+Message-Id: <20210614102655.199325002@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
-References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102652.964395392@linuxfoundation.org>
+References: <20210614102652.964395392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit d1658268e43980c071dbffc3d894f6f6c4b6732a upstream.
+commit 6c14133d2d3f768e0a35128faac8aa6ed4815051 upstream.
 
-The XHCI controller is required to enter D3hot rather than D3cold for AMD
-s2idle on this hardware generation.
+It was reported that a bug on arm64 caused a bad ip address to be used for
+updating into a nop in ftrace_init(), but the error path (rightfully)
+returned -EINVAL and not -EFAULT, as the bug caused more than one error to
+occur. But because -EINVAL was returned, the ftrace_bug() tried to report
+what was at the location of the ip address, and read it directly. This
+caused the machine to panic, as the ip was not pointing to a valid memory
+address.
 
-Otherwise, the 'Controller Not Ready' (CNR) bit is not being cleared by
-host in resume and eventually this results in xhci resume failures during
-the s2idle wakeup.
+Instead, read the ip address with copy_from_kernel_nofault() to safely
+access the memory, and if it faults, report that the address faulted,
+otherwise report what was in that location.
 
-Link: https://lore.kernel.org/linux-usb/1612527609-7053-1-git-send-email-Prike.Liang@amd.com/
-Suggested-by: Prike Liang <Prike.Liang@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Cc: stable <stable@vger.kernel.org> # 5.11+
-Link: https://lore.kernel.org/r/20210527154534.8900-1-mario.limonciello@amd.com
+Link: https://lore.kernel.org/lkml/20210607032329.28671-1-mark-pk.tsai@mediatek.com/
+
+Cc: stable@vger.kernel.org
+Fixes: 05736a427f7e1 ("ftrace: warn on failure to disable mcount callers")
+Reported-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |    7 ++++++-
- drivers/usb/host/xhci.h     |    1 +
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ kernel/trace/ftrace.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -59,6 +59,7 @@
- #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -1968,12 +1968,18 @@ static int ftrace_hash_ipmodify_update(s
  
-+#define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_2			0x43bb
-@@ -182,6 +183,10 @@ static void xhci_pci_quirks(struct devic
- 		(pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_1)))
- 		xhci->quirks |= XHCI_U2_DISABLE_WAKE;
+ static void print_ip_ins(const char *fmt, const unsigned char *p)
+ {
++	char ins[MCOUNT_INSN_SIZE];
+ 	int i;
  
-+	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
-+		pdev->device == PCI_DEVICE_ID_AMD_RENOIR_XHCI)
-+		xhci->quirks |= XHCI_BROKEN_D3COLD;
++	if (copy_from_kernel_nofault(ins, p, MCOUNT_INSN_SIZE)) {
++		printk(KERN_CONT "%s[FAULT] %px\n", fmt, p);
++		return;
++	}
 +
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
- 		xhci->quirks |= XHCI_LPM_SUPPORT;
- 		xhci->quirks |= XHCI_INTEL_HOST;
-@@ -539,7 +544,7 @@ static int xhci_pci_suspend(struct usb_h
- 	 * Systems with the TI redriver that loses port status change events
- 	 * need to have the registers polled during D3, so avoid D3cold.
- 	 */
--	if (xhci->quirks & XHCI_COMP_MODE_QUIRK)
-+	if (xhci->quirks & (XHCI_COMP_MODE_QUIRK | XHCI_BROKEN_D3COLD))
- 		pci_d3cold_disable(pdev);
+ 	printk(KERN_CONT "%s", fmt);
  
- 	if (xhci->quirks & XHCI_PME_STUCK_QUIRK)
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1892,6 +1892,7 @@ struct xhci_hcd {
- #define XHCI_DISABLE_SPARSE	BIT_ULL(38)
- #define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
- #define XHCI_NO_SOFT_RETRY	BIT_ULL(40)
-+#define XHCI_BROKEN_D3COLD	BIT_ULL(41)
+ 	for (i = 0; i < MCOUNT_INSN_SIZE; i++)
+-		printk(KERN_CONT "%s%02x", i ? ":" : "", p[i]);
++		printk(KERN_CONT "%s%02x", i ? ":" : "", ins[i]);
+ }
  
- 	unsigned int		num_active_eps;
- 	unsigned int		limit_active_eps;
+ enum ftrace_bug_type ftrace_bug_type;
 
 
