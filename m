@@ -2,76 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD443A652F
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 797353A651D
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234423AbhFNLfF convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 14 Jun 2021 07:35:05 -0400
-Received: from 7.mo2.mail-out.ovh.net ([188.165.48.182]:35897 "EHLO
-        7.mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234944AbhFNLcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 07:32:33 -0400
-X-Greylist: delayed 8802 seconds by postgrey-1.27 at vger.kernel.org; Mon, 14 Jun 2021 07:32:32 EDT
-Received: from player778.ha.ovh.net (unknown [10.110.171.96])
-        by mo2.mail-out.ovh.net (Postfix) with ESMTP id D31CD20D783
-        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 11:03:46 +0200 (CEST)
-Received: from zegrapher.com (static-176-175-108-40.ftth.abo.bbox.fr [176.175.108.40])
-        (Authenticated sender: adel.ks@zegrapher.com)
-        by player778.ha.ovh.net (Postfix) with ESMTPSA id 3CB821F24F971;
-        Mon, 14 Jun 2021 09:03:44 +0000 (UTC)
-Authentication-Results: garm.ovh; auth=pass (GARM-102R004c63f1684-746c-421c-9661-91e17fa95fc5,
-                    946D958682469A78D70B9269846191D1BA8514F5) smtp.auth=adel.ks@zegrapher.com
-X-OVh-ClientIp: 176.175.108.40
-Date:   Mon, 14 Jun 2021 09:03:41 +0000 (UTC)
-From:   Adel Kara Slimane <adel.ks@zegrapher.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
-Message-ID: <b56d3d96-70d6-4ad5-9b8f-9b6fea958ad7@zegrapher.com>
-In-Reply-To: <YMbmeRH38Wp6BHPf@kroah.com>
-References: <d086de2a793eb2ea52acb11ed143675c@zegrapher.com> <YMbmeRH38Wp6BHPf@kroah.com>
-Subject: Re: Kernel 5.12.10 and 5.12.9 freezing after boot-up with while
- sound output is looping
+        id S236580AbhFNLdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:33:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44274 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235592AbhFNLbo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 07:31:44 -0400
+Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64EA7C06114F
+        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 04:26:40 -0700 (PDT)
+Received: by mail-qv1-xf31.google.com with SMTP id t6so14330417qvp.5
+        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 04:26:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=53lMQ+a+DRf6Ne+ktNVKC9vilN2FIKEesJMibOwRYNM=;
+        b=kSLrZGqrd37AgFGmy09HhieVL4hD/7JLTxm1hHt7YOBhiYZs1W4TBQCnxhgJ9d3pPM
+         O4NjpYoibvAXwrX8d7uASl5xf3ikpam+tGTY+84MizbToQT7NRSobNJ05cWkSIYpmeKz
+         feOaPmJ/XuVEsSbIeE8SZoTrT3yDz2uI4SkrnC6iuSt6a7KkSoPTcqoLyLai7xkJk6+1
+         VRwLi+wnw4y9g5tvTkUyVfQwGaWhe2ZnJ9snbwC+sltZ/fnkuHysbbf1nZW8umqPXMOM
+         YCq9MDGQJHoTPw40+7sRna42WeLdUF9blXn4lnr+3Rbk3DUGdTPxrtx37TT3tHzPpde/
+         ZdCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=53lMQ+a+DRf6Ne+ktNVKC9vilN2FIKEesJMibOwRYNM=;
+        b=IoDR8epJUAxTn8JGT2fspsBaERDEEK6w74SOfCKEErO3xGP77lhi/PQYs4IwS9jxO/
+         6kE85mzF2w+chmAqPL87aZi0ckxeiOuXJuIK+5lXmX2Brqo4Ejmrl/4oOAEf25PMYvmX
+         v60necxtVH3tVgcEcUtNKL0cArUjfjaO5ZhKNIMBDCnDjWFkudJ7MMV3asW37mMmp44V
+         Jm64ecFKEEUHKay02QR0e/kRfcbEKte28Om+TUEqOZfvW22vWaMzQAIIyM96JAgIzWlF
+         G//4k7psScomouaCInv3TBfjpjEt3BuXfnYrevsknJOZEP48zXmUOI1lnMyRSRsBWADa
+         5CLA==
+X-Gm-Message-State: AOAM531kmAJpHN1Fmp5GxEVVqN4gzRqY7c0znYu1LUyDvHHTe7oU05+h
+        bA9/wBZjHR0JnGYjpRFbdwpfaRRUaZFLL2Sftyg=
+X-Google-Smtp-Source: ABdhPJyX0JkQlI5QVSqB0ZnqWfeVOy3ElXwkCqtAF2qDCvJSXsD6G3CHU43jR/YBcyx6lkbl4EYXYhv8vZLNC6IcLXw=
+X-Received: by 2002:ad4:4426:: with SMTP id e6mr18078174qvt.46.1623669999435;
+ Mon, 14 Jun 2021 04:26:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Correlation-ID: <b56d3d96-70d6-4ad5-9b8f-9b6fea958ad7@zegrapher.com>
-X-Ovh-Tracer-Id: 1977643188722636661
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduledrfedvhedgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvffkjghfufggtgfgsehtqhertddttdejnecuhfhrohhmpeetuggvlhcumfgrrhgrucfulhhimhgrnhgvuceorgguvghlrdhkshesiigvghhrrghphhgvrhdrtghomheqnecuggftrfgrthhtvghrnhepuddvgfevudelveeguedtkedvjedvgeevgeeigeeihfeglefhvddtgeffffegtdeinecukfhppedtrddtrddtrddtpddujeeirddujeehrddutdekrdegtdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejjeekrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheprgguvghlrdhkshesiigvghhrrghphhgvrhdrtghomhdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+Received: by 2002:ad4:48ce:0:0:0:0:0 with HTTP; Mon, 14 Jun 2021 04:26:38
+ -0700 (PDT)
+From:   Kikko Gabriele <kikkogabriele@gmail.com>
+Date:   Mon, 14 Jun 2021 12:26:38 +0100
+Message-ID: <CAGoXVv1hHbvBCbCXLcJ8WWaEfopRw7CQ90vyhqG+CMyyuko_jw@mail.gmail.com>
+Subject: Confidenziale
+To:     kikkogabriele <kikkogabriele@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Good day , my name is Kikko Gabriele, i sent you a mail and there was
+no response , please confirm that you did get this mail .
 
-Yes I can, I will do then report back. It will take me some time as I only know how to do it manually.
+Regards.
 
-Thank you for your help,
-
-Adel
-
-Jun 14, 2021 07:17:59 Greg KH <gregkh@linuxfoundation.org>:
-
-> On Sun, Jun 13, 2021 at 08:19:37PM +0200, adel.ks@zegrapher.com wrote:
->> Hello,
->> 
->> I am encountering an issue where my system freezes entirely after a random
->> but short time after boot-up: the computer does not react to any user input,
->> be it mouse, keyboard or plugging-unplugging peripherals.  The image on
->> screen remains still and does not go black. Any sound that was playing at
->> the moment of the freeze loops indefinitely with a period of around 1s. I
->> have the intuition that the issue is sound related because of that.
->> 
->> Some additional information with this issue
->> - Only happens only with the latest stable releases of the kernel:  5.12.9
->> and 5.12.10 . 5.12.8  does not have this issue. I have not tested other
->> kernel version, e.g. LTS 5.10 , to see if it's a change that got
->> back-ported.
-> 
-> Any chance you can run 'git bisect' to find the offending change?
-> That's the easiest way to fix this up.
-> 
-> thanks,
-> 
-> greg k-h
+Kikko Gabriele
++353899591428 (Whatsapp)
