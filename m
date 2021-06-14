@@ -2,36 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E52BA3A60E4
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE7BE3A614F
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232888AbhFNKkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
+        id S233417AbhFNKqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:46:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233015AbhFNKhI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:37:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC18D610CD;
-        Mon, 14 Jun 2021 10:33:25 +0000 (UTC)
+        id S234076AbhFNKnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:43:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBA166143A;
+        Mon, 14 Jun 2021 10:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666806;
-        bh=VegNpaNu5hsoz+HL48/0pYz8xuhfa6ePNEhS/Kd5zcE=;
+        s=korg; t=1623666966;
+        bh=AcXyFvkwlsC4GaaYcoqaYqJinasl6uD/dU1qPWauWYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hsk18G8HJ6IKWwZsSh6r7z4MdXbQU0ZjBFOp+9ZRZ9az8ftOBMIGcNovjR/+DEwhK
-         TRCkQg4qmySFE2+WFLunL5fVZgDwaSYouZJzH0UE7vj1F68gNIJazkstteL0DPH8OE
-         DMoitVZ0bCoF9SdE5okl4W2QNy6Gs7M1Vm0rBAP0=
+        b=2IvG5WOKnqLR/cZZNXelgYZ9Aa/aS5MbCxIssY+lVU8XlSUpa0QITqH51zAi2I0vA
+         522LNcmNd7TiL3lOVDI5ehUXcMpPWwEaqozR+Cu3vjLPWi8D5EtlbfMhJX1RH5W87B
+         NAGEYuKjC1lgUHNNVYuYc+V8pKXS+5nXXVVDeQI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 37/49] regulator: core: resolve supply for boot-on/always-on regulators
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Felipe Balbi <balbi@kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Michael R Sweet <msweet@msweet.org>,
+        Mike Christie <michael.christie@oracle.com>,
+        Pawel Laszczak <pawell@cadence.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
+        Wei Ming Chen <jj251510319013@gmail.com>,
+        Will McVicker <willmcvicker@google.com>,
+        Zqiang <qiang.zhang@windriver.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
+Subject: [PATCH 4.19 47/67] usb: fix various gadgets null ptr deref on 10gbps cabling.
 Date:   Mon, 14 Jun 2021 12:27:30 +0200
-Message-Id: <20210614102643.080869964@linuxfoundation.org>
+Message-Id: <20210614102645.377303131@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102641.857724541@linuxfoundation.org>
-References: <20210614102641.857724541@linuxfoundation.org>
+In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
+References: <20210614102643.797691914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +52,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Maciej Żenczykowski <maze@google.com>
 
-commit 98e48cd9283dbac0e1445ee780889f10b3d1db6a upstream.
+commit 90c4d05780d47e14a50e11a7f17373104cd47d25 upstream.
 
-For the boot-on/always-on regulators the set_machine_constrainst() is
-called before resolving rdev->supply. Thus the code would try to enable
-rdev before enabling supplying regulator. Enforce resolving supply
-regulator before enabling rdev.
+This avoids a null pointer dereference in
+f_{ecm,eem,hid,loopback,printer,rndis,serial,sourcesink,subset,tcm}
+by simply reusing the 5gbps config for 10gbps.
 
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210519221224.2868496-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: eaef50c76057 ("usb: gadget: Update usb_assign_descriptors for SuperSpeedPlus")
+Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Lorenzo Colitti <lorenzo@google.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Michael R Sweet <msweet@msweet.org>
+Cc: Mike Christie <michael.christie@oracle.com>
+Cc: Pawel Laszczak <pawell@cadence.com>
+Cc: Peter Chen <peter.chen@nxp.com>
+Cc: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
+Cc: Wei Ming Chen <jj251510319013@gmail.com>
+Cc: Will McVicker <willmcvicker@google.com>
+Cc: Zqiang <qiang.zhang@windriver.com>
+Reviewed-By: Lorenzo Colitti <lorenzo@google.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Link: https://lore.kernel.org/r/20210608044141.3898496-1-zenczykowski@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/gadget/function/f_ecm.c        |    2 +-
+ drivers/usb/gadget/function/f_eem.c        |    2 +-
+ drivers/usb/gadget/function/f_hid.c        |    3 ++-
+ drivers/usb/gadget/function/f_loopback.c   |    2 +-
+ drivers/usb/gadget/function/f_printer.c    |    3 ++-
+ drivers/usb/gadget/function/f_rndis.c      |    2 +-
+ drivers/usb/gadget/function/f_serial.c     |    2 +-
+ drivers/usb/gadget/function/f_sourcesink.c |    3 ++-
+ drivers/usb/gadget/function/f_subset.c     |    2 +-
+ drivers/usb/gadget/function/f_tcm.c        |    3 ++-
+ 10 files changed, 14 insertions(+), 10 deletions(-)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1081,6 +1081,12 @@ static int set_machine_constraints(struc
- 	 * and we have control then make sure it is enabled.
- 	 */
- 	if (rdev->constraints->always_on || rdev->constraints->boot_on) {
-+		/* If we want to enable this regulator, make sure that we know
-+		 * the supplying regulator.
-+		 */
-+		if (rdev->supply_name && !rdev->supply)
-+			return -EPROBE_DEFER;
-+
- 		ret = _regulator_do_enable(rdev);
- 		if (ret < 0 && ret != -EINVAL) {
- 			rdev_err(rdev, "failed to enable\n");
+--- a/drivers/usb/gadget/function/f_ecm.c
++++ b/drivers/usb/gadget/function/f_ecm.c
+@@ -791,7 +791,7 @@ ecm_bind(struct usb_configuration *c, st
+ 		fs_ecm_notify_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, ecm_fs_function, ecm_hs_function,
+-			ecm_ss_function, NULL);
++			ecm_ss_function, ecm_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_eem.c
++++ b/drivers/usb/gadget/function/f_eem.c
+@@ -305,7 +305,7 @@ static int eem_bind(struct usb_configura
+ 	eem_ss_out_desc.bEndpointAddress = eem_fs_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, eem_fs_function, eem_hs_function,
+-			eem_ss_function, NULL);
++			eem_ss_function, eem_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -808,7 +808,8 @@ static int hidg_bind(struct usb_configur
+ 		hidg_fs_out_ep_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, hidg_fs_descriptors,
+-			hidg_hs_descriptors, hidg_ss_descriptors, NULL);
++			hidg_hs_descriptors, hidg_ss_descriptors,
++			hidg_ss_descriptors);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_loopback.c
++++ b/drivers/usb/gadget/function/f_loopback.c
+@@ -207,7 +207,7 @@ autoconf_fail:
+ 	ss_loop_sink_desc.bEndpointAddress = fs_loop_sink_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_loopback_descs, hs_loopback_descs,
+-			ss_loopback_descs, NULL);
++			ss_loopback_descs, ss_loopback_descs);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -1063,7 +1063,8 @@ autoconf_fail:
+ 	ss_ep_out_desc.bEndpointAddress = fs_ep_out_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_printer_function,
+-			hs_printer_function, ss_printer_function, NULL);
++			hs_printer_function, ss_printer_function,
++			ss_printer_function);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_rndis.c
++++ b/drivers/usb/gadget/function/f_rndis.c
+@@ -789,7 +789,7 @@ rndis_bind(struct usb_configuration *c,
+ 	ss_notify_desc.bEndpointAddress = fs_notify_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, eth_fs_function, eth_hs_function,
+-			eth_ss_function, NULL);
++			eth_ss_function, eth_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_serial.c
++++ b/drivers/usb/gadget/function/f_serial.c
+@@ -233,7 +233,7 @@ static int gser_bind(struct usb_configur
+ 	gser_ss_out_desc.bEndpointAddress = gser_fs_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, gser_fs_function, gser_hs_function,
+-			gser_ss_function, NULL);
++			gser_ss_function, gser_ss_function);
+ 	if (status)
+ 		goto fail;
+ 	dev_dbg(&cdev->gadget->dev, "generic ttyGS%d: %s speed IN/%s OUT/%s\n",
+--- a/drivers/usb/gadget/function/f_sourcesink.c
++++ b/drivers/usb/gadget/function/f_sourcesink.c
+@@ -431,7 +431,8 @@ no_iso:
+ 	ss_iso_sink_desc.bEndpointAddress = fs_iso_sink_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_source_sink_descs,
+-			hs_source_sink_descs, ss_source_sink_descs, NULL);
++			hs_source_sink_descs, ss_source_sink_descs,
++			ss_source_sink_descs);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_subset.c
++++ b/drivers/usb/gadget/function/f_subset.c
+@@ -358,7 +358,7 @@ geth_bind(struct usb_configuration *c, s
+ 		fs_subset_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, fs_eth_function, hs_eth_function,
+-			ss_eth_function, NULL);
++			ss_eth_function, ss_eth_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_tcm.c
++++ b/drivers/usb/gadget/function/f_tcm.c
+@@ -2071,7 +2071,8 @@ static int tcm_bind(struct usb_configura
+ 	uasp_fs_cmd_desc.bEndpointAddress = uasp_ss_cmd_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, uasp_fs_function_desc,
+-			uasp_hs_function_desc, uasp_ss_function_desc, NULL);
++			uasp_hs_function_desc, uasp_ss_function_desc,
++			uasp_ss_function_desc);
+ 	if (ret)
+ 		goto ep_fail;
+ 
 
 
