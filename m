@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D58C3A622A
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6B8A3A6228
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234107AbhFNK4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60644 "EHLO mail.kernel.org"
+        id S233343AbhFNK4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:56:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234886AbhFNKyr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:54:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DB2561494;
-        Mon, 14 Jun 2021 10:40:19 +0000 (UTC)
+        id S234847AbhFNKyc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:54:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1859261490;
+        Mon, 14 Jun 2021 10:40:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667220;
-        bh=8DNWtnmNiX3F4P/ffvSRUlTlkgzE9yRqTEF0v5kCsoQ=;
+        s=korg; t=1623667222;
+        bh=pKJfy3nXKu+knlbuBGoOjIAmt7isEgtgwAYMAdlimKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PbMvBqGdH6TQQCkdzYchYiGvNnDJyMj7n3ENn4pdQsU+QrfcwScXuQ/fVBu5bxRKc
-         5lk5/MYBXFJup9wHfR7AjqydqmkOI3kmrt5xn+w0AcAuK4ts3ZRqF8FfgXA1DeAXCJ
-         aUt+BUkOlY4ALfcGVp2q5XrHX2BlfwzU3BubFh1k=
+        b=CWHXQxv1GoEo1wG5oXqyBduCjuMZytS0Uovg8k4GE6ibyxU9IjMF6PpAG4bS0b4A8
+         qVdd6Apo7hI1D3qa5kvRrVDORKU9eUbxXN/vL72FnP9TwuNLS1xOHUGqR6FBQLGVIk
+         6I/zm073SCvSsOLwG9KwulW+KYZr5WVHkfk2jemA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "zhangxiaoxu (A)" <zhangxiaoxu5@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 73/84] NFSv4: Fix deadlock between nfs4_evict_inode() and nfs4_opendata_get_inode()
-Date:   Mon, 14 Jun 2021 12:27:51 +0200
-Message-Id: <20210614102648.841065470@linuxfoundation.org>
+Subject: [PATCH 5.4 74/84] perf session: Correct buffer copying when peeking events
+Date:   Mon, 14 Jun 2021 12:27:52 +0200
+Message-Id: <20210614102648.872694302@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102646.341387537@linuxfoundation.org>
 References: <20210614102646.341387537@linuxfoundation.org>
@@ -41,94 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit dfe1fe75e00e4c724ede7b9e593f6f680e446c5f ]
+[ Upstream commit 197eecb6ecae0b04bd694432f640ff75597fed9c ]
 
-If the inode is being evicted, but has to return a delegation first,
-then it can cause a deadlock in the corner case where the server reboots
-before the delegreturn completes, but while the call to iget5_locked() in
-nfs4_opendata_get_inode() is waiting for the inode free to complete.
-Since the open call still holds a session slot, the reboot recovery
-cannot proceed.
+When peeking an event, it has a short path and a long path.  The short
+path uses the session pointer "one_mmap_addr" to directly fetch the
+event; and the long path needs to read out the event header and the
+following event data from file and fill into the buffer pointer passed
+through the argument "buf".
 
-In order to break the logjam, we can turn the delegation return into a
-privileged operation for the case where we're evicting the inode. We
-know that in that case, there can be no other state recovery operation
-that conflicts.
+The issue is in the long path that it copies the event header and event
+data into the same destination address which pointer "buf", this means
+the event header is overwritten.  We are just lucky to run into the
+short path in most cases, so we don't hit the issue in the long path.
 
-Reported-by: zhangxiaoxu (A) <zhangxiaoxu5@huawei.com>
-Fixes: 5fcdfacc01f3 ("NFSv4: Return delegations synchronously in evict_inode")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This patch adds the offset "hdr_sz" to the pointer "buf" when copying
+the event data, so that it can reserve the event header which can be
+used properly by its caller.
+
+Fixes: 5a52f33adf02 ("perf session: Add perf_session__peek_event()")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210605052957.1070720-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4_fs.h  |  1 +
- fs/nfs/nfs4proc.c | 12 +++++++++++-
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ tools/perf/util/session.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
-index c4a98cbda6dd..5708b5a636f1 100644
---- a/fs/nfs/nfs4_fs.h
-+++ b/fs/nfs/nfs4_fs.h
-@@ -203,6 +203,7 @@ struct nfs4_exception {
- 	struct inode *inode;
- 	nfs4_stateid *stateid;
- 	long timeout;
-+	unsigned char task_is_privileged : 1;
- 	unsigned char delay : 1,
- 		      recovering : 1,
- 		      retry : 1;
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index ff54ba3c8247..ff48d7b23f07 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -581,6 +581,8 @@ int nfs4_handle_exception(struct nfs_server *server, int errorcode, struct nfs4_
- 		goto out_retry;
- 	}
- 	if (exception->recovering) {
-+		if (exception->task_is_privileged)
-+			return -EDEADLOCK;
- 		ret = nfs4_wait_clnt_recover(clp);
- 		if (test_bit(NFS_MIG_FAILED, &server->mig_status))
- 			return -EIO;
-@@ -606,6 +608,8 @@ nfs4_async_handle_exception(struct rpc_task *task, struct nfs_server *server,
- 		goto out_retry;
- 	}
- 	if (exception->recovering) {
-+		if (exception->task_is_privileged)
-+			return -EDEADLOCK;
- 		rpc_sleep_on(&clp->cl_rpcwaitq, task, NULL);
- 		if (test_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state) == 0)
- 			rpc_wake_up_queued_task(&clp->cl_rpcwaitq, task);
-@@ -6231,6 +6235,7 @@ static void nfs4_delegreturn_done(struct rpc_task *task, void *calldata)
- 	struct nfs4_exception exception = {
- 		.inode = data->inode,
- 		.stateid = &data->stateid,
-+		.task_is_privileged = data->args.seq_args.sa_privileged,
- 	};
+diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+index 56f3039fe2a7..8ff2c98e9032 100644
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -1631,6 +1631,7 @@ int perf_session__peek_event(struct perf_session *session, off_t file_offset,
+ 	if (event->header.size < hdr_sz || event->header.size > buf_sz)
+ 		return -1;
  
- 	if (!nfs4_sequence_done(task, &data->res.seq_res))
-@@ -6349,7 +6354,6 @@ static int _nfs4_proc_delegreturn(struct inode *inode, const struct cred *cred,
- 	data = kzalloc(sizeof(*data), GFP_NOFS);
- 	if (data == NULL)
- 		return -ENOMEM;
--	nfs4_init_sequence(&data->args.seq_args, &data->res.seq_res, 1, 0);
++	buf += hdr_sz;
+ 	rest = event->header.size - hdr_sz;
  
- 	nfs4_state_protect(server->nfs_client,
- 			NFS_SP4_MACH_CRED_CLEANUP,
-@@ -6377,6 +6381,12 @@ static int _nfs4_proc_delegreturn(struct inode *inode, const struct cred *cred,
- 		}
- 	}
- 
-+	if (!data->inode)
-+		nfs4_init_sequence(&data->args.seq_args, &data->res.seq_res, 1,
-+				   1);
-+	else
-+		nfs4_init_sequence(&data->args.seq_args, &data->res.seq_res, 1,
-+				   0);
- 	task_setup_data.callback_data = data;
- 	msg.rpc_argp = &data->args;
- 	msg.rpc_resp = &data->res;
+ 	if (readn(fd, buf, rest) != (ssize_t)rest)
 -- 
 2.30.2
 
