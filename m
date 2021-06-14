@@ -2,35 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D3A73A6174
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:45:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1E803A60A6
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234036AbhFNKrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:47:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51420 "EHLO mail.kernel.org"
+        id S233287AbhFNKgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:36:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233638AbhFNKpv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 06:45:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C2406128A;
-        Mon, 14 Jun 2021 10:36:33 +0000 (UTC)
+        id S233283AbhFNKfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:35:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67D1F613DC;
+        Mon, 14 Jun 2021 10:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623666993;
-        bh=4b+kN5kgYUJozpZ0feh5k1wvn1s8BWKCOUy7nfMwHoA=;
+        s=korg; t=1623666729;
+        bh=4OQAUgYkVCgtPqNMK2aISwkHNI0OutWxoJnXkOyV67I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C5WolUT63Qk8UZIktDP1GHzkYn6Sc/1yfvDuzCZ5+Bi/+G8Lq0CN/5gSiKHGReiJX
-         Q0dXjUr5Zj4hOZb3kz0FH+xjEAKR61gb1aTGvKr+jbGUbX7aLcseayEFljipHCMMhD
-         wngbyHyUbasUhrTYzxlJqSa5X92r8N/A5/NYlE40=
+        b=T2UA3LgFE5TYY4m7SynnYbsmbzMycpxY57IKh1+AB29eGOAiooFM7S47MeAMUbk1W
+         SEFlsqRTR5khCbLgdklEsaqvXnbKI0rIYGX+o/T8skzo56/5ZuvyY6om8VDhEUwUi4
+         ZkVWKiI9NEYDwqRMMQ50Xj2q/YV6WVlKLYmTcnj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
-Subject: [PATCH 4.19 39/67] usb: dwc3: ep0: fix NULL pointer exception
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Felipe Balbi <balbi@kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Michael R Sweet <msweet@msweet.org>,
+        Mike Christie <michael.christie@oracle.com>,
+        Pawel Laszczak <pawell@cadence.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
+        Wei Ming Chen <jj251510319013@gmail.com>,
+        Will McVicker <willmcvicker@google.com>,
+        Zqiang <qiang.zhang@windriver.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>
+Subject: [PATCH 4.9 31/42] usb: fix various gadgets null ptr deref on 10gbps cabling.
 Date:   Mon, 14 Jun 2021 12:27:22 +0200
-Message-Id: <20210614102645.104994604@linuxfoundation.org>
+Message-Id: <20210614102643.693756559@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210614102643.797691914@linuxfoundation.org>
-References: <20210614102643.797691914@linuxfoundation.org>
+In-Reply-To: <20210614102642.700712386@linuxfoundation.org>
+References: <20210614102642.700712386@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +52,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+From: Maciej Żenczykowski <maze@google.com>
 
-commit d00889080ab60051627dab1d85831cd9db750e2a upstream.
+commit 90c4d05780d47e14a50e11a7f17373104cd47d25 upstream.
 
-There is no validation of the index from dwc3_wIndex_to_dep() and we might
-be referring a non-existing ep and trigger a NULL pointer exception. In
-certain configurations we might use fewer eps and the index might wrongly
-indicate a larger ep index than existing.
+This avoids a null pointer dereference in
+f_{ecm,eem,hid,loopback,printer,rndis,serial,sourcesink,subset,tcm}
+by simply reusing the 5gbps config for 10gbps.
 
-By adding this validation from the patch we can actually report a wrong
-index back to the caller.
-
-In our usecase we are using a composite device on an older kernel, but
-upstream might use this fix also. Unfortunately, I cannot describe the
-hardware for others to reproduce the issue as it is a proprietary
-implementation.
-
-[   82.958261] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a4
-[   82.966891] Mem abort info:
-[   82.969663]   ESR = 0x96000006
-[   82.972703]   Exception class = DABT (current EL), IL = 32 bits
-[   82.978603]   SET = 0, FnV = 0
-[   82.981642]   EA = 0, S1PTW = 0
-[   82.984765] Data abort info:
-[   82.987631]   ISV = 0, ISS = 0x00000006
-[   82.991449]   CM = 0, WnR = 0
-[   82.994409] user pgtable: 4k pages, 39-bit VAs, pgdp = 00000000c6210ccc
-[   83.000999] [00000000000000a4] pgd=0000000053aa5003, pud=0000000053aa5003, pmd=0000000000000000
-[   83.009685] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[   83.026433] Process irq/62-dwc3 (pid: 303, stack limit = 0x000000003985154c)
-[   83.033470] CPU: 0 PID: 303 Comm: irq/62-dwc3 Not tainted 4.19.124 #1
-[   83.044836] pstate: 60000085 (nZCv daIf -PAN -UAO)
-[   83.049628] pc : dwc3_ep0_handle_feature+0x414/0x43c
-[   83.054558] lr : dwc3_ep0_interrupt+0x3b4/0xc94
-
-...
-
-[   83.141788] Call trace:
-[   83.144227]  dwc3_ep0_handle_feature+0x414/0x43c
-[   83.148823]  dwc3_ep0_interrupt+0x3b4/0xc94
-[   83.181546] ---[ end trace aac6b5267d84c32f ]---
-
-Signed-off-by: Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+Fixes: eaef50c76057 ("usb: gadget: Update usb_assign_descriptors for SuperSpeedPlus")
+Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Lorenzo Colitti <lorenzo@google.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Michael R Sweet <msweet@msweet.org>
+Cc: Mike Christie <michael.christie@oracle.com>
+Cc: Pawel Laszczak <pawell@cadence.com>
+Cc: Peter Chen <peter.chen@nxp.com>
+Cc: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
+Cc: Wei Ming Chen <jj251510319013@gmail.com>
+Cc: Will McVicker <willmcvicker@google.com>
+Cc: Zqiang <qiang.zhang@windriver.com>
+Reviewed-By: Lorenzo Colitti <lorenzo@google.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210608162650.58426-1-marian.c.rotariu@gmail.com
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Link: https://lore.kernel.org/r/20210608044141.3898496-1-zenczykowski@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/ep0.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/f_ecm.c        |    2 +-
+ drivers/usb/gadget/function/f_eem.c        |    2 +-
+ drivers/usb/gadget/function/f_loopback.c   |    2 +-
+ drivers/usb/gadget/function/f_printer.c    |    3 ++-
+ drivers/usb/gadget/function/f_rndis.c      |    2 +-
+ drivers/usb/gadget/function/f_serial.c     |    2 +-
+ drivers/usb/gadget/function/f_sourcesink.c |    3 ++-
+ drivers/usb/gadget/function/f_subset.c     |    2 +-
+ drivers/usb/gadget/function/f_tcm.c        |    3 ++-
+ 9 files changed, 12 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/dwc3/ep0.c
-+++ b/drivers/usb/dwc3/ep0.c
-@@ -292,6 +292,9 @@ static struct dwc3_ep *dwc3_wIndex_to_de
- 		epnum |= 1;
+--- a/drivers/usb/gadget/function/f_ecm.c
++++ b/drivers/usb/gadget/function/f_ecm.c
+@@ -793,7 +793,7 @@ ecm_bind(struct usb_configuration *c, st
+ 		fs_ecm_notify_desc.bEndpointAddress;
  
- 	dep = dwc->eps[epnum];
-+	if (dep == NULL)
-+		return NULL;
-+
- 	if (dep->flags & DWC3_EP_ENABLED)
- 		return dep;
+ 	status = usb_assign_descriptors(f, ecm_fs_function, ecm_hs_function,
+-			ecm_ss_function, NULL);
++			ecm_ss_function, ecm_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_eem.c
++++ b/drivers/usb/gadget/function/f_eem.c
+@@ -309,7 +309,7 @@ static int eem_bind(struct usb_configura
+ 	eem_ss_out_desc.bEndpointAddress = eem_fs_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, eem_fs_function, eem_hs_function,
+-			eem_ss_function, NULL);
++			eem_ss_function, eem_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_loopback.c
++++ b/drivers/usb/gadget/function/f_loopback.c
+@@ -211,7 +211,7 @@ autoconf_fail:
+ 	ss_loop_sink_desc.bEndpointAddress = fs_loop_sink_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_loopback_descs, hs_loopback_descs,
+-			ss_loopback_descs, NULL);
++			ss_loopback_descs, ss_loopback_descs);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -1057,7 +1057,8 @@ autoconf_fail:
+ 	ss_ep_out_desc.bEndpointAddress = fs_ep_out_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_printer_function,
+-			hs_printer_function, ss_printer_function, NULL);
++			hs_printer_function, ss_printer_function,
++			ss_printer_function);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_rndis.c
++++ b/drivers/usb/gadget/function/f_rndis.c
+@@ -789,7 +789,7 @@ rndis_bind(struct usb_configuration *c,
+ 	ss_notify_desc.bEndpointAddress = fs_notify_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, eth_fs_function, eth_hs_function,
+-			eth_ss_function, NULL);
++			eth_ss_function, eth_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_serial.c
++++ b/drivers/usb/gadget/function/f_serial.c
+@@ -236,7 +236,7 @@ static int gser_bind(struct usb_configur
+ 	gser_ss_out_desc.bEndpointAddress = gser_fs_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, gser_fs_function, gser_hs_function,
+-			gser_ss_function, NULL);
++			gser_ss_function, gser_ss_function);
+ 	if (status)
+ 		goto fail;
+ 	dev_dbg(&cdev->gadget->dev, "generic ttyGS%d: %s speed IN/%s OUT/%s\n",
+--- a/drivers/usb/gadget/function/f_sourcesink.c
++++ b/drivers/usb/gadget/function/f_sourcesink.c
+@@ -435,7 +435,8 @@ no_iso:
+ 	ss_iso_sink_desc.bEndpointAddress = fs_iso_sink_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, fs_source_sink_descs,
+-			hs_source_sink_descs, ss_source_sink_descs, NULL);
++			hs_source_sink_descs, ss_source_sink_descs,
++			ss_source_sink_descs);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/usb/gadget/function/f_subset.c
++++ b/drivers/usb/gadget/function/f_subset.c
+@@ -362,7 +362,7 @@ geth_bind(struct usb_configuration *c, s
+ 		fs_subset_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, fs_eth_function, hs_eth_function,
+-			ss_eth_function, NULL);
++			ss_eth_function, ss_eth_function);
+ 	if (status)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/function/f_tcm.c
++++ b/drivers/usb/gadget/function/f_tcm.c
+@@ -2071,7 +2071,8 @@ static int tcm_bind(struct usb_configura
+ 	uasp_fs_cmd_desc.bEndpointAddress = uasp_ss_cmd_desc.bEndpointAddress;
+ 
+ 	ret = usb_assign_descriptors(f, uasp_fs_function_desc,
+-			uasp_hs_function_desc, uasp_ss_function_desc, NULL);
++			uasp_hs_function_desc, uasp_ss_function_desc,
++			uasp_ss_function_desc);
+ 	if (ret)
+ 		goto ep_fail;
  
 
 
