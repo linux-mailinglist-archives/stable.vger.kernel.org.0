@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA8B73A6394
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F1A3A6397
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 13:13:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233718AbhFNLPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 07:15:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42928 "EHLO mail.kernel.org"
+        id S234504AbhFNLPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 07:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234864AbhFNLMO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Jun 2021 07:12:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FCD0613DB;
-        Mon, 14 Jun 2021 10:48:21 +0000 (UTC)
+        id S234940AbhFNLMZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 07:12:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F40C61457;
+        Mon, 14 Jun 2021 10:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623667702;
-        bh=wXO39wCsdcrkENkG6Ajr5cPDuOypW5+mprTTBx4HEjc=;
+        s=korg; t=1623667705;
+        bh=J7r/lrRoLtgpXhPKTHPUodPNJJKZXvNW2z4QxIPjKlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyJwnL6Vjv9I1AgGeU8SU5FW8/hxeOCNJXN/pMDn99mc9rD2Dhr9ZDcarbtiQf+R7
-         KgF7Daeu4eD8HkB3/J46SJA8mTZgF76ALwlXawBJp/UPYVWpyVxn2Kt3KRllUHovmP
-         pZnN+pWZ+VysnxPwwEcyexgqegnfCIcVqr2Ry8v0=
+        b=gTtLLaPnLfu3GUsdlgNPtqHQy4Fc+YI3HA5Zh4aUoykGTnFVz1gUhs2N50FTWgGP2
+         08dZSnJwXIRTxuMmrn4HqMJS8gDDKHCa8mjVCEVH4o6Eyh7vWgLvrkzA+jEAFsBjDR
+         1QEudsWDQJiV0YWq796P1npvnAyoKH36SJX2RWxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 042/173] nvmet: fix false keep-alive timeout when a controller is torn down
-Date:   Mon, 14 Jun 2021 12:26:14 +0200
-Message-Id: <20210614102659.567114639@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 043/173] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P2041 i2c controllers
+Date:   Mon, 14 Jun 2021 12:26:15 +0200
+Message-Id: <20210614102659.597453984@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 References: <20210614102658.137943264@linuxfoundation.org>
@@ -42,81 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit aaeadd7075dc9e184bc7876e9dd7b3bada771df2 ]
+[ Upstream commit 7adc7b225cddcfd0f346d10144fd7a3d3d9f9ea7 ]
 
-Controller teardown flow may take some time in case it has many I/O
-queues, and the host may not send us keep-alive during this period.
-Hence reset the traffic based keep-alive timer so we don't trigger
-a controller teardown as a result of a keep-alive expiration.
+The i2c controllers on the P2040/P2041 have an erratum where the
+documented scheme for i2c bus recovery will not work (A-004447). A
+different mechanism is needed which is documented in the P2040 Chip
+Errata Rev Q (latest available at the time of writing).
 
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Tested-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c  | 15 +++++++++++----
- drivers/nvme/target/nvmet.h |  2 +-
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ arch/powerpc/boot/dts/fsl/p2041si-post.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index 7d16cb4cd8ac..83921dab8368 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -388,10 +388,10 @@ static void nvmet_keep_alive_timer(struct work_struct *work)
- {
- 	struct nvmet_ctrl *ctrl = container_of(to_delayed_work(work),
- 			struct nvmet_ctrl, ka_work);
--	bool cmd_seen = ctrl->cmd_seen;
-+	bool reset_tbkas = ctrl->reset_tbkas;
+diff --git a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
+index 872e4485dc3f..ddc018d42252 100644
+--- a/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
++++ b/arch/powerpc/boot/dts/fsl/p2041si-post.dtsi
+@@ -371,7 +371,23 @@
+ 	};
  
--	ctrl->cmd_seen = false;
--	if (cmd_seen) {
-+	ctrl->reset_tbkas = false;
-+	if (reset_tbkas) {
- 		pr_debug("ctrl %d reschedule traffic based keep-alive timer\n",
- 			ctrl->cntlid);
- 		schedule_delayed_work(&ctrl->ka_work, ctrl->kato * HZ);
-@@ -804,6 +804,13 @@ void nvmet_sq_destroy(struct nvmet_sq *sq)
- 	percpu_ref_exit(&sq->ref);
- 
- 	if (ctrl) {
-+		/*
-+		 * The teardown flow may take some time, and the host may not
-+		 * send us keep-alive during this period, hence reset the
-+		 * traffic based keep-alive timer so we don't trigger a
-+		 * controller teardown as a result of a keep-alive expiration.
-+		 */
-+		ctrl->reset_tbkas = true;
- 		nvmet_ctrl_put(ctrl);
- 		sq->ctrl = NULL; /* allows reusing the queue later */
- 	}
-@@ -953,7 +960,7 @@ bool nvmet_req_init(struct nvmet_req *req, struct nvmet_cq *cq,
- 	}
- 
- 	if (sq->ctrl)
--		sq->ctrl->cmd_seen = true;
-+		sq->ctrl->reset_tbkas = true;
- 
- 	return true;
- 
-diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
-index 5aad34b106dc..43a668dc8bc4 100644
---- a/drivers/nvme/target/nvmet.h
-+++ b/drivers/nvme/target/nvmet.h
-@@ -166,7 +166,7 @@ struct nvmet_ctrl {
- 	struct nvmet_subsys	*subsys;
- 	struct nvmet_sq		**sqs;
- 
--	bool			cmd_seen;
-+	bool			reset_tbkas;
- 
- 	struct mutex		lock;
- 	u64			cap;
+ /include/ "qoriq-i2c-0.dtsi"
++	i2c@118000 {
++		fsl,i2c-erratum-a004447;
++	};
++
++	i2c@118100 {
++		fsl,i2c-erratum-a004447;
++	};
++
+ /include/ "qoriq-i2c-1.dtsi"
++	i2c@119000 {
++		fsl,i2c-erratum-a004447;
++	};
++
++	i2c@119100 {
++		fsl,i2c-erratum-a004447;
++	};
++
+ /include/ "qoriq-duart-0.dtsi"
+ /include/ "qoriq-duart-1.dtsi"
+ /include/ "qoriq-gpio-0.dtsi"
 -- 
 2.30.2
 
