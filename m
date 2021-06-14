@@ -2,113 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BED13A5FE2
-	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE7193A6014
+	for <lists+stable@lfdr.de>; Mon, 14 Jun 2021 12:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232691AbhFNKWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 06:22:04 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:56758 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232767AbhFNKWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 06:22:04 -0400
-Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id E296B2197F;
-        Mon, 14 Jun 2021 10:20:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1623666000; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=p90Rw1lQUgsGAYyIhBKdRAA+nYXDEQr9r0ffM1jJGRY=;
-        b=tGNP2VSuYWLuQWrH1xORcefdhL3mmtO1wfRPmy59IOMRJra0MYXl4kPeg6+UyItFYLji2L
-        qhvyReXEaYRI+FA8gXylPQkbXKHOT2BfJttzOmN39IBn9na9m9DiBcKwC5zFqpn6adCLhZ
-        hngk+C3P+a07a6n/tVWNO/5bHKdr+c8=
-Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        by imap.suse.de (Postfix) with ESMTP id A0B1C118DD;
-        Mon, 14 Jun 2021 10:20:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1623666000; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=p90Rw1lQUgsGAYyIhBKdRAA+nYXDEQr9r0ffM1jJGRY=;
-        b=tGNP2VSuYWLuQWrH1xORcefdhL3mmtO1wfRPmy59IOMRJra0MYXl4kPeg6+UyItFYLji2L
-        qhvyReXEaYRI+FA8gXylPQkbXKHOT2BfJttzOmN39IBn9na9m9DiBcKwC5zFqpn6adCLhZ
-        hngk+C3P+a07a6n/tVWNO/5bHKdr+c8=
-Received: from director2.suse.de ([192.168.254.72])
-        by imap3-int with ESMTPSA
-        id EFrXJFAtx2BdaAAALh3uQQ
-        (envelope-from <nborisov@suse.com>); Mon, 14 Jun 2021 10:20:00 +0000
-Subject: Re: [PATCH 2/4] btrfs: wake up async_delalloc_pages waiters after
- submit
-To:     Josef Bacik <josef@toxicpanda.com>, linux-btrfs@vger.kernel.org,
-        kernel-team@fb.com
-Cc:     stable@vger.kernel.org
-References: <cover.1623419155.git.josef@toxicpanda.com>
- <d1802ad325a04d3640b85e4c928b91dd9316252c.1623419155.git.josef@toxicpanda.com>
-From:   Nikolay Borisov <nborisov@suse.com>
-Message-ID: <17c2f625-e31c-40a9-279a-dee3dc9cfb07@suse.com>
-Date:   Mon, 14 Jun 2021 13:20:00 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S232894AbhFNKbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 06:31:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37944 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232881AbhFNKbN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 06:31:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC267611EE;
+        Mon, 14 Jun 2021 10:29:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623666551;
+        bh=qsmRx8u0yLDD+IyCKvCb6rruykZJ665Q6sBFrMfym3M=;
+        h=From:To:Cc:Subject:Date:From;
+        b=q0yCfKCeBmDfodXYZmH0e4szUJp1KRbKuse9HKeyPZ19ILHTDnF5G2YCHP7WkY/82
+         y69Dr+uAU/PaAco21kZDvNqxKF0a9h4zA+sUy33cEVCkYtHtkU5lsbth5WvI/j8XAE
+         w1s/+IA7B883EVDn2VuwEuzWLi2P3oQxESOhPR9E=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/34] 4.4.273-rc1 review
+Date:   Mon, 14 Jun 2021 12:26:51 +0200
+Message-Id: <20210614102641.582612289@linuxfoundation.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-In-Reply-To: <d1802ad325a04d3640b85e4c928b91dd9316252c.1623419155.git.josef@toxicpanda.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.273-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.273-rc1
+X-KernelTest-Deadline: 2021-06-16T10:26+00:00
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is the start of the stable review cycle for the 4.4.273 release.
+There are 34 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
+
+Responses should be made by Wed, 16 Jun 2021 10:26:30 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.273-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.273-rc1
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    ftrace: Do not blindly read the ip address in ftrace_bug()
+
+Ming Lei <ming.lei@redhat.com>
+    scsi: core: Only put parent device if host state differs from SHOST_CREATED
+
+Dai Ngo <dai.ngo@oracle.com>
+    NFSv4: nfs4_proc_set_acl needs to restore NFS_CAP_UIDGID_NOMAP on error.
+
+Paolo Bonzini <pbonzini@redhat.com>
+    kvm: fix previous commit for 32-bit builds
+
+Leo Yan <leo.yan@linaro.org>
+    perf session: Correct buffer copying when peeking events
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    NFS: Fix a potential NULL dereference in nfs_get_client()
+
+Marco Elver <elver@google.com>
+    perf: Fix data race between pin_count increment/decrement
+
+Linyu Yuan <linyyuan@codeaurora.com>
+    usb: gadget: eem: fix wrong eem header operation
+
+Johan Hovold <johan@kernel.org>
+    USB: serial: quatech2: fix control-request directions
+
+Alexandre GRIVEAUX <agriveaux@deutnet.info>
+    USB: serial: omninet: add device id for Zyxel Omni 56K Plus
+
+George McCollister <george.mccollister@gmail.com>
+    USB: serial: ftdi_sio: add NovaTech OrionMX product ID
+
+Marian-Cristian Rotariu <marian.c.rotariu@gmail.com>
+    usb: dwc3: ep0: fix NULL pointer exception
+
+Maciej Żenczykowski <maze@google.com>
+    USB: f_ncm: ncm_bitrate (speed) is unsigned
+
+Alexander Kuznetsov <wwfq@yandex-team.ru>
+    cgroup1: don't allow '\n' in renaming
+
+Ritesh Harjani <riteshh@linux.ibm.com>
+    btrfs: return value from btrfs_mark_extent_written() in case of error
+
+Paolo Bonzini <pbonzini@redhat.com>
+    kvm: avoid speculation-based attacks from out-of-range memslot accesses
+
+Chris Packham <chris.packham@alliedtelesis.co.nz>
+    i2c: mpc: implement erratum A-004447 workaround
+
+Chris Packham <chris.packham@alliedtelesis.co.nz>
+    i2c: mpc: Make use of i2c_recover_bus()
+
+Chris Packham <chris.packham@alliedtelesis.co.nz>
+    powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P1010 i2c controllers
+
+Chris Packham <chris.packham@alliedtelesis.co.nz>
+    powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P2041 i2c controllers
+
+Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+    bnx2x: Fix missing error code in bnx2x_iov_init_one()
+
+Tiezhu Yang <yangtiezhu@loongson.cn>
+    MIPS: Fix kernel hang under FUNCTION_GRAPH_TRACER and PREEMPT_TRACER
+
+Saubhik Mukherjee <saubhik.mukherjee@gmail.com>
+    net: appletalk: cops: Fix data race in cops_probe1
+
+Zong Li <zong.li@sifive.com>
+    net: macb: ensure the device is available before accessing GEMGXL control registers
+
+Dmitry Bogdanov <d.bogdanov@yadro.com>
+    scsi: target: qla2xxx: Wait for stop_phase1 at WWN removal
+
+Matt Wang <wwentao@vmware.com>
+    scsi: vmw_pvscsi: Set correct residual data length
+
+Zheyu Ma <zheyuma97@gmail.com>
+    net/qla3xxx: fix schedule while atomic in ql_sem_spinlock
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    net: mdiobus: get rid of a BUG_ON()
+
+Johannes Berg <johannes.berg@intel.com>
+    netlink: disable IRQs for netlink_lock_table()
+
+Johannes Berg <johannes.berg@intel.com>
+    bonding: init notify_work earlier to avoid uninitialized use
+
+Zheyu Ma <zheyuma97@gmail.com>
+    isdn: mISDN: netjet: Fix crash in nj_probe:
+
+Zou Wei <zou_wei@huawei.com>
+    ASoC: sti-sas: add missing MODULE_DEVICE_TABLE
+
+Jeimon <jjjinmeng.zhou@gmail.com>
+    net/nfc/rawsock.c: fix a permission check bug
+
+Kees Cook <keescook@chromium.org>
+    proc: Track /proc/$pid/attr/ opener mm_struct
 
 
-On 11.06.21 г. 16:53, Josef Bacik wrote:
-> We use the async_delalloc_pages mechanism to make sure that we've
-> completed our async work before trying to continue our delalloc
-> flushing.  The reason for this is we need to see any ordered extents
-> that were created by our delalloc flushing.  However we're waking up
-> before we do the submit work, which is before we create the ordered
-> extents.  This is a pretty wide race window where we could potentially
-> think there are no ordered extents and thus exit shrink_delalloc
-> prematurely.  Fix this by waking us up after we've done the work to
-> create ordered extents.
-> 
-> cc: stable@vger.kernel.org
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+-------------
 
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-> ---
->  fs/btrfs/inode.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-> index 6cb73ff59c7c..c37271df2c6d 100644
-> --- a/fs/btrfs/inode.c
-> +++ b/fs/btrfs/inode.c
-> @@ -1271,11 +1271,6 @@ static noinline void async_cow_submit(struct btrfs_work *work)
->  	nr_pages = (async_chunk->end - async_chunk->start + PAGE_SIZE) >>
->  		PAGE_SHIFT;
->  
-> -	/* atomic_sub_return implies a barrier */
-> -	if (atomic_sub_return(nr_pages, &fs_info->async_delalloc_pages) <
-> -	    5 * SZ_1M)
-> -		cond_wake_up_nomb(&fs_info->async_submit_wait);
-> -
->  	/*
->  	 * ->inode could be NULL if async_chunk_start has failed to compress,
->  	 * in which case we don't have anything to submit, yet we need to
-> @@ -1284,6 +1279,11 @@ static noinline void async_cow_submit(struct btrfs_work *work)
->  	 */
->  	if (async_chunk->inode)
->  		submit_compressed_extents(async_chunk);
-> +
-> +	/* atomic_sub_return implies a barrier */
-> +	if (atomic_sub_return(nr_pages, &fs_info->async_delalloc_pages) <
-> +	    5 * SZ_1M)
-> +		cond_wake_up_nomb(&fs_info->async_submit_wait);
->  }
->  
->  static noinline void async_cow_free(struct btrfs_work *work)
-> 
+Diffstat:
+
+ Makefile                                          |  4 +-
+ arch/mips/lib/mips-atomic.c                       | 12 +--
+ arch/powerpc/boot/dts/fsl/p1010si-post.dtsi       |  8 ++
+ arch/powerpc/boot/dts/fsl/p2041si-post.dtsi       | 16 ++++
+ drivers/i2c/busses/i2c-mpc.c                      | 95 ++++++++++++++++++++++-
+ drivers/isdn/hardware/mISDN/netjet.c              |  1 -
+ drivers/net/appletalk/cops.c                      |  4 +-
+ drivers/net/bonding/bond_main.c                   |  2 +-
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c |  4 +-
+ drivers/net/ethernet/cadence/macb.c               |  3 +
+ drivers/net/ethernet/qlogic/qla3xxx.c             |  2 +-
+ drivers/net/phy/mdio_bus.c                        |  3 +-
+ drivers/scsi/hosts.c                              |  2 +-
+ drivers/scsi/qla2xxx/qla_target.c                 |  2 +
+ drivers/scsi/vmw_pvscsi.c                         |  8 +-
+ drivers/usb/dwc3/ep0.c                            |  3 +
+ drivers/usb/gadget/function/f_eem.c               |  4 +-
+ drivers/usb/gadget/function/f_ncm.c               |  2 +-
+ drivers/usb/serial/ftdi_sio.c                     |  1 +
+ drivers/usb/serial/ftdi_sio_ids.h                 |  1 +
+ drivers/usb/serial/omninet.c                      |  2 +
+ drivers/usb/serial/quatech2.c                     |  6 +-
+ fs/btrfs/file.c                                   |  4 +-
+ fs/nfs/client.c                                   |  2 +-
+ fs/nfs/nfs4proc.c                                 |  8 ++
+ fs/proc/base.c                                    |  9 ++-
+ include/linux/kvm_host.h                          | 11 ++-
+ kernel/cgroup.c                                   |  4 +
+ kernel/events/core.c                              |  2 +
+ kernel/trace/ftrace.c                             |  8 +-
+ net/netlink/af_netlink.c                          |  6 +-
+ net/nfc/rawsock.c                                 |  2 +-
+ sound/soc/codecs/sti-sas.c                        |  1 +
+ tools/perf/util/session.c                         |  1 +
+ 34 files changed, 209 insertions(+), 34 deletions(-)
+
+
