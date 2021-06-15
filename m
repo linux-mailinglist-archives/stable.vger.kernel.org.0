@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D8E73A84FC
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8267F3A84FF
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232245AbhFOPw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:52:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45724 "EHLO mail.kernel.org"
+        id S232494AbhFOPw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:52:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231944AbhFOPv5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:51:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B20616EC;
-        Tue, 15 Jun 2021 15:49:51 +0000 (UTC)
+        id S232144AbhFOPv6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:51:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2AD661929;
+        Tue, 15 Jun 2021 15:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772192;
-        bh=vHPNv6A389n+oDKzMc8l52vvmheoUXMFud3IC41syIw=;
+        s=k20201202; t=1623772193;
+        bh=9QCDooSLI5lGrufx4gMOLz7/kIWNX/cvUYTiHDEsmU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=shDxgWUieeBAvu5LBTN3OVZLsW3jXXz+hyHktrd9pDf7giWi/7xiciKf6LNfG4xqA
-         /0YwR7gWWWcAIPIWu2bYQrft9QgPni4wCETMYLEL77e3sVIJojIergbnkSYzVjiPah
-         aDG5tW1/pjx4ejQMitGejQ5XY7lQd73ZxS4EZna/EQgoiUdZbm7zOmTVArsdVGuuB/
-         y2ptYeNlrS4iftz4ndS5yiOVxZpOBGscmes4EO2QhVET0eN518TMefBhq+ayyWBVSZ
-         TX/3hWPUhdd4Zy32fjiS3F6zowPCXAhYC7M/A2G/AYpN/2lkhxpnsGml1TitSH91lN
-         uVNwWkcXX+PNg==
+        b=tjefwNPz50wq0/gvxSMPLiMc0baOWvWMpQGBp4upTH4PldrUL4Ts/Qnmqd9dsxm+x
+         zodUfxb/iCyB+uMdwMyg5sW58s5oQCh4PJ0YRx8toVIS3cwQY0szkOqnrDUw7Ol7I8
+         SDPpB4D1LV3m28yzXszcmOAdnE+rLN8LH6IZGbYEySoeVxgj2xbnrUtg+/4zEUjNFV
+         X8cWiouuWdzHfaRqfIDODKMpGkrhBJSUOo6dwh0AM5wE+57M4XMdQT2Y8djArCRcKd
+         DxGqhx0W1+y0Ul1+mr5PD6rKY6zBKF+39454Y5fAVBmCJDx/0k1BbQLUcYT6zKlfqL
+         7PD3B0DXVEOYA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dai Ngo <dai.ngo@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/15] NFSv4: nfs4_proc_set_acl needs to restore NFS_CAP_UIDGID_NOMAP on error.
-Date:   Tue, 15 Jun 2021 11:49:35 -0400
-Message-Id: <20210615154948.62711-3-sashal@kernel.org>
+Cc:     Patrice Chotard <patrice.chotard@foss.st.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 04/15] spi: stm32-qspi: Always wait BUSY bit to be cleared in stm32_qspi_wait_cmd()
+Date:   Tue, 15 Jun 2021 11:49:36 -0400
+Message-Id: <20210615154948.62711-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210615154948.62711-1-sashal@kernel.org>
 References: <20210615154948.62711-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,62 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Patrice Chotard <patrice.chotard@foss.st.com>
 
-[ Upstream commit f8849e206ef52b584cd9227255f4724f0cc900bb ]
+[ Upstream commit d38fa9a155b2829b7e2cfcf8a4171b6dd3672808 ]
 
-Currently if __nfs4_proc_set_acl fails with NFS4ERR_BADOWNER it
-re-enables the idmapper by clearing NFS_CAP_UIDGID_NOMAP before
-retrying again. The NFS_CAP_UIDGID_NOMAP remains cleared even if
-the retry fails. This causes problem for subsequent setattr
-requests for v4 server that does not have idmapping configured.
+In U-boot side, an issue has been encountered when QSPI source clock is
+running at low frequency (24 MHz for example), waiting for TCF bit to be
+set didn't ensure that all data has been send out the FIFO, we should also
+wait that BUSY bit is cleared.
 
-This patch modifies nfs4_proc_set_acl to detect NFS4ERR_BADOWNER
-and NFS4ERR_BADNAME and skips the retry, since the kernel isn't
-involved in encoding the ACEs, and return -EINVAL.
+To prevent similar issue in kernel driver, we implement similar behavior
+by always waiting BUSY bit to be cleared.
 
-Steps to reproduce the problem:
-
- # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
- # touch /tmp/mnt/file1
- # chown 99 /tmp/mnt/file1
- # nfs4_setfacl -a A::unknown.user@xyz.com:wrtncy /tmp/mnt/file1
- Failed setxattr operation: Invalid argument
- # chown 99 /tmp/mnt/file1
- chown: changing ownership of ‘/tmp/mnt/file1’: Invalid argument
- # umount /tmp/mnt
- # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
- # chown 99 /tmp/mnt/file1
- #
-
-v2: detect NFS4ERR_BADOWNER and NFS4ERR_BADNAME and skip retry
-       in nfs4_proc_set_acl.
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
+Link: https://lore.kernel.org/r/20210603073421.8441-1-patrice.chotard@foss.st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/spi/spi-stm32-qspi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index ff54ba3c8247..0b842b0d07c1 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5795,6 +5795,14 @@ static int nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t buflen
- 	do {
- 		err = __nfs4_proc_set_acl(inode, buf, buflen);
- 		trace_nfs4_set_acl(inode, err);
-+		if (err == -NFS4ERR_BADOWNER || err == -NFS4ERR_BADNAME) {
-+			/*
-+			 * no need to retry since the kernel
-+			 * isn't involved in encoding the ACEs.
-+			 */
-+			err = -EINVAL;
-+			break;
-+		}
- 		err = nfs4_handle_exception(NFS_SERVER(inode), err,
- 				&exception);
- 	} while (exception.retry);
+diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
+index 4e726929bb4f..ea77d915216a 100644
+--- a/drivers/spi/spi-stm32-qspi.c
++++ b/drivers/spi/spi-stm32-qspi.c
+@@ -291,7 +291,7 @@ static int stm32_qspi_wait_cmd(struct stm32_qspi *qspi,
+ 	int err = 0;
+ 
+ 	if (!op->data.nbytes)
+-		return stm32_qspi_wait_nobusy(qspi);
++		goto wait_nobusy;
+ 
+ 	if (readl_relaxed(qspi->io_base + QSPI_SR) & SR_TCF)
+ 		goto out;
+@@ -312,6 +312,9 @@ static int stm32_qspi_wait_cmd(struct stm32_qspi *qspi,
+ out:
+ 	/* clear flags */
+ 	writel_relaxed(FCR_CTCF | FCR_CTEF, qspi->io_base + QSPI_FCR);
++wait_nobusy:
++	if (!err)
++		err = stm32_qspi_wait_nobusy(qspi);
+ 
+ 	return err;
+ }
 -- 
 2.30.2
 
