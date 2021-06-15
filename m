@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B91B13A8490
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:49:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E042B3A8493
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232010AbhFOPvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:51:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45242 "EHLO mail.kernel.org"
+        id S232018AbhFOPvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:51:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231270AbhFOPvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:51:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6044261606;
-        Tue, 15 Jun 2021 15:48:55 +0000 (UTC)
+        id S230321AbhFOPvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:51:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C88F6617ED;
+        Tue, 15 Jun 2021 15:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772136;
-        bh=CWn57cX62MYv93TJVhCWkAurqo1QfU4eJSOhxDYLLPM=;
+        s=k20201202; t=1623772137;
+        bh=j1jT5G7earuqpwymD0nFhqqTsddrxet8mt4E3SZ2EPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xbng6RH1DB+WFty9ijv4JRUKmI0U6j1icrX9o4i1sEHWBEE6ffvg4Z9OR5kZ3kmuF
-         NKfZt1AFPQ/Q//k/cjmwWO2KUHTGESVkQu8uQAfrwD75JwiuhWplvHQ3l/9Z1v/CS4
-         UIVfQnddVvqft8eB8aXE+iQdM6Ed4sxB1Gauti+Nvcpk/iOKSMqHXyg8wJxuWgFTVm
-         wkajILByYZyKPLLqljQoh+NORfJHyeqEqto1vZ5jzQ8oU2uMOnAKsU47VC6mEL0TYR
-         nCExsLkx0dOd1k3meYkdmoyNKyOT9NRRPdKjhjfVOTuddOKfSORoeDYK/78avAHQqf
-         pHjGgtE7kFScA==
+        b=NAderYIytHWEDrkGADf+HmdgzaNqVigspr6kCcE5c0EZF1jcErlSIjKs7X0oceEbj
+         jgPP8DeF19OarhJXmuUSjVdRFtgz3ZXz+6rjpCJH+bypAExmOixQ4Eo1u78Z0Nn5L+
+         b4YR42DqsfhlAqUStyXmJj9hQb0H7m0hEJukwAlXjKU55OkrbkQ3vzfkNSfIWLx4Bg
+         TPXhdPZEwvRiAAe58y7E39YCOdc8Tg3V1GEuXAzQ9yI+CMOrRE4PfZ/TFwnt8Jl9AH
+         mEI/gxwDasURL+ZRHYjLyBZI0RsOZXVknajq1nkJvSCZWjahZpSroJbFbaZLWbJLQO
+         GnZLBXOQPpcIg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ming Lei <ming.lei@redhat.com>,
         Bart Van Assche <bvanassche@acm.org>,
-        John Garry <john.garry@huawei.com>,
         Hannes Reinecke <hare@suse.de>,
+        John Garry <john.garry@huawei.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 25/33] scsi: core: Fix failure handling of scsi_add_host_with_dma()
-Date:   Tue, 15 Jun 2021 11:48:16 -0400
-Message-Id: <20210615154824.62044-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 26/33] scsi: core: Put .shost_dev in failure path if host state changes to RUNNING
+Date:   Tue, 15 Jun 2021 11:48:17 -0400
+Message-Id: <20210615154824.62044-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210615154824.62044-1-sashal@kernel.org>
 References: <20210615154824.62044-1-sashal@kernel.org>
@@ -47,76 +47,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 3719f4ff047e20062b8314c23ec3cab84d74c908 ]
+[ Upstream commit 11714026c02d613c30a149c3f4c4a15047744529 ]
 
-When scsi_add_host_with_dma() returns failure, the caller will call
-scsi_host_put(shost) to release everything allocated for this host
-instance. Consequently we can't also free allocated stuff in
-scsi_add_host_with_dma(), otherwise we will end up with a double free.
+scsi_host_dev_release() only frees dev_name when host state is
+SHOST_CREATED. After host state has changed to SHOST_RUNNING,
+scsi_host_dev_release() no longer cleans up.
 
-Strictly speaking, host resource allocations should have been done in
-scsi_host_alloc(). However, the allocations may need information which is
-not yet provided by the driver when that function is called. So leave the
-allocations where they are but rely on host device's release handler to
-free resources.
+Fix this by doing a put_device(&shost->shost_dev) in the failure path when
+host state is SHOST_RUNNING. Move get_device(&shost->shost_gendev) before
+device_add(&shost->shost_dev) so that scsi_host_cls_release() can do a put
+on this reference.
 
-Link: https://lore.kernel.org/r/20210602133029.2864069-3-ming.lei@redhat.com
+Link: https://lore.kernel.org/r/20210602133029.2864069-4-ming.lei@redhat.com
 Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: John Garry <john.garry@huawei.com>
 Cc: Hannes Reinecke <hare@suse.de>
+Reported-by: John Garry <john.garry@huawei.com>
 Tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 Reviewed-by: John Garry <john.garry@huawei.com>
 Reviewed-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Ming Lei <ming.lei@redhat.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hosts.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/scsi/hosts.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index d835a7b23614..48ec9c35daa4 100644
+index 48ec9c35daa4..a64d0c6f1c4a 100644
 --- a/drivers/scsi/hosts.c
 +++ b/drivers/scsi/hosts.c
-@@ -278,23 +278,22 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
+@@ -254,12 +254,11 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
  
- 		if (!shost->work_q) {
- 			error = -EINVAL;
--			goto out_free_shost_data;
-+			goto out_del_dev;
- 		}
- 	}
+ 	device_enable_async_suspend(&shost->shost_dev);
  
- 	error = scsi_sysfs_add_host(shost);
++	get_device(&shost->shost_gendev);
+ 	error = device_add(&shost->shost_dev);
  	if (error)
--		goto out_destroy_host;
-+		goto out_del_dev;
+ 		goto out_del_gendev;
  
- 	scsi_proc_host_add(shost);
- 	scsi_autopm_put_host(shost);
- 	return error;
- 
-- out_destroy_host:
--	if (shost->work_q)
--		destroy_workqueue(shost->work_q);
-- out_free_shost_data:
--	kfree(shost->shost_data);
-+	/*
-+	 * Any host allocation in this function will be freed in
-+	 * scsi_host_dev_release().
-+	 */
+-	get_device(&shost->shost_gendev);
+-
+ 	if (shost->transportt->host_size) {
+ 		shost->shost_data = kzalloc(shost->transportt->host_size,
+ 					 GFP_KERNEL);
+@@ -297,6 +296,11 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
   out_del_dev:
  	device_del(&shost->shost_dev);
   out_del_gendev:
-@@ -304,7 +303,6 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
- 	pm_runtime_disable(&shost->shost_gendev);
- 	pm_runtime_set_suspended(&shost->shost_gendev);
- 	pm_runtime_put_noidle(&shost->shost_gendev);
--	scsi_mq_destroy_tags(shost);
-  fail:
- 	return error;
- }
++	/*
++	 * Host state is SHOST_RUNNING so we have to explicitly release
++	 * ->shost_dev.
++	 */
++	put_device(&shost->shost_dev);
+ 	device_del(&shost->shost_gendev);
+  out_disable_runtime_pm:
+ 	device_disable_async_suspend(&shost->shost_gendev);
 -- 
 2.30.2
 
