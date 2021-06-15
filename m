@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F3673A8511
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A2CA3A8519
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232617AbhFOPxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:53:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46518 "EHLO mail.kernel.org"
+        id S232054AbhFOPx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:53:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231975AbhFOPwI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:52:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3E986191E;
-        Tue, 15 Jun 2021 15:50:02 +0000 (UTC)
+        id S232311AbhFOPwK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:52:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A6C661879;
+        Tue, 15 Jun 2021 15:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772203;
-        bh=QoilR5SZGcDiLfYtyO/1+0MNkQiN1hFEBm7sp/fX188=;
+        s=k20201202; t=1623772205;
+        bh=Q+ztBa1LgiyBgJaK36fsAnH+BMlypUGENetaOljJfCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGps5kVZrR0Z3aPzCcWQ0wumf2+LNa9pqL+DJcTiS1C8Xct10P7lmbs3t78S1yT2F
-         tgwql2A8Q+JLOkkSad8gG2JZbn82B8BIf5GIEFvyM+iYabzy70cTDMNCqrt9ZBr7yk
-         jto+/6qTvdR8RtUywjrfUHTnwSOo4xYwNSRXm5nQ4hEOtujQTLpfTiF+DlkZMQJBxk
-         gm1eptCWrpHnxoP93fPfiCa5n4iHbq25rVbnBhY4BacL13a0zuS9f4FH5XBLBQONjJ
-         PG2B8QwBDGw/6bqW7zKsai6DhCBz6vAA5tQumFKwms3UD0U0FfcxlgrbNMSpq3NoWu
-         zFdNg6PC+YVRw==
+        b=ITrEjH8hPdPvsG1TnkW5Bo/WmMdiYyya+6K0lhvJXvmjnmfIG+HSPxmWstAOF0ds0
+         rNPmzpd+YMElVYFs6wQwm3YDLwnmHbzYQApTXdNBJr1Xg9N7IA+7w8DtuP/tUkRbR9
+         /26GpJYBS5MAj9Yqw5adUnJgwpzV6rdnEV7JtZvTFinmZDIjl9UXbYSlczJv65+khk
+         rWxr/WFFctiAgZ0HZhhpVltwC9+ubncL5493yjOzWIBM6NecRDl6YLumixMbjdn1wQ
+         Ux7Smpyyv1fwyKrAmXwvBkzICcUallS/r42JNMbNecbxCtBEITznOWRaqXvmFlphqD
+         YgKZIT9aZjvAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        John Garry <john.garry@huawei.com>,
-        Hannes Reinecke <hare@suse.de>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 11/15] scsi: core: Only put parent device if host state differs from SHOST_CREATED
-Date:   Tue, 15 Jun 2021 11:49:43 -0400
-Message-Id: <20210615154948.62711-11-sashal@kernel.org>
+Cc:     Chen Li <chenli@uniontech.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 12/15] radeon: use memcpy_to/fromio for UVD fw upload
+Date:   Tue, 15 Jun 2021 11:49:44 -0400
+Message-Id: <20210615154948.62711-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210615154948.62711-1-sashal@kernel.org>
 References: <20210615154948.62711-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,39 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Chen Li <chenli@uniontech.com>
 
-[ Upstream commit 1e0d4e6225996f05271de1ebcb1a7c9381af0b27 ]
+[ Upstream commit ab8363d3875a83f4901eb1cc00ce8afd24de6c85 ]
 
-get_device(shost->shost_gendev.parent) is called after host state has
-switched to SHOST_RUNNING. scsi_host_dev_release() shouldn't release the
-parent device if host state is still SHOST_CREATED.
+I met a gpu addr bug recently and the kernel log
+tells me the pc is memcpy/memset and link register is
+radeon_uvd_resume.
 
-Link: https://lore.kernel.org/r/20210602133029.2864069-5-ming.lei@redhat.com
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Hannes Reinecke <hare@suse.de>
-Tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+As we know, in some architectures, optimized memcpy/memset
+may not work well on device memory. Trival memcpy_toio/memset_io
+can fix this problem.
+
+BTW, amdgpu has already done it in:
+commit ba0b2275a678 ("drm/amdgpu: use memcpy_to/fromio for UVD fw upload"),
+that's why it has no this issue on the same gpu and platform.
+
+Signed-off-by: Chen Li <chenli@uniontech.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hosts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_uvd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index 3689b5e6afd5..ff36432c8fbc 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -344,7 +344,7 @@ static void scsi_host_dev_release(struct device *dev)
+diff --git a/drivers/gpu/drm/radeon/radeon_uvd.c b/drivers/gpu/drm/radeon/radeon_uvd.c
+index 1ad5c3b86b64..a18bf70a251e 100644
+--- a/drivers/gpu/drm/radeon/radeon_uvd.c
++++ b/drivers/gpu/drm/radeon/radeon_uvd.c
+@@ -286,7 +286,7 @@ int radeon_uvd_resume(struct radeon_device *rdev)
+ 	if (rdev->uvd.vcpu_bo == NULL)
+ 		return -EINVAL;
  
- 	ida_simple_remove(&host_index_ida, shost->host_no);
+-	memcpy(rdev->uvd.cpu_addr, rdev->uvd_fw->data, rdev->uvd_fw->size);
++	memcpy_toio((void __iomem *)rdev->uvd.cpu_addr, rdev->uvd_fw->data, rdev->uvd_fw->size);
  
--	if (parent)
-+	if (shost->shost_state != SHOST_CREATED)
- 		put_device(parent);
- 	kfree(shost);
+ 	size = radeon_bo_size(rdev->uvd.vcpu_bo);
+ 	size -= rdev->uvd_fw->size;
+@@ -294,7 +294,7 @@ int radeon_uvd_resume(struct radeon_device *rdev)
+ 	ptr = rdev->uvd.cpu_addr;
+ 	ptr += rdev->uvd_fw->size;
+ 
+-	memset(ptr, 0, size);
++	memset_io((void __iomem *)ptr, 0, size);
+ 
+ 	return 0;
  }
 -- 
 2.30.2
