@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F7D3A846C
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C3183A846F
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231836AbhFOPux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:50:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44748 "EHLO mail.kernel.org"
+        id S231876AbhFOPvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231869AbhFOPul (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:50:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74515616E8;
-        Tue, 15 Jun 2021 15:48:36 +0000 (UTC)
+        id S231878AbhFOPun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:50:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94B1961627;
+        Tue, 15 Jun 2021 15:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772117;
-        bh=39Nb/3515QbI8+K29dmSC9QgFO551T1Y53B7L/N1k1M=;
+        s=k20201202; t=1623772118;
+        bh=0AKQtTRFvAwNMONmcazVEqnc07a98wVeWAFq771hv1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZXtuLeVCIaJS4CV3IZGberDBDwfsORLNfASsbnkDL820T7bVTkf2F1fEEs6aNLk1V
-         RRhssMa2cDHApciBvmhuBx7mGQZyZxX60cW4Hyae9MDbhmjFgpKPdzN1Ix6KSjPjJM
-         KCBMaQZKg45/3T7kD1IAO+56puETRjwi2FajkJeS3fEXh7cIrchDHeQDPrhrInP1qo
-         kK+cri7HKabhZPGGvkbxuPffoQTNa0kmia1xh1ghNMqmXZrTqJEMybBiJNFVVLm9Mh
-         Ap5xcHpdGa7mCSga/7+TCOksn05tv4uyE+LdyBlhawnviBt4BfKQq4Q0p9y6nYxp7p
-         /iF5nWTJe97tQ==
+        b=j27JiNCjEoJD2Wh32SyHmKwCjhTjjzsCpAzcEhCzvJs/SyYzxg2ljykoiiWdSL/x3
+         i4k7gz8Q1j2nMtdloLPP0z/UNuuo6G7N/TQ+/R+FJQcwWnWzUacUdtdp9+oNAcM8aN
+         jBVm9TftHrk4U2Ri0sL/DHfDsFMHwSbvb1bkpCy7AKE1T5viWhFkD2v+CaRQHNvp61
+         DCHD8h43obyxWUQ6u8yaciVUlg0GtSm1bpjQqzs8FLdxWvaKFI5RIF2A2sEKMoNPmY
+         QDnTB0ifccNRJAlU2LroFdt4xEm400TGn/9phE1/LiEkSfssjYF5NcpPW7i8tmlTsC
+         9GwqBfFbEaG3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dai Ngo <dai.ngo@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 10/33] NFSv4: nfs4_proc_set_acl needs to restore NFS_CAP_UIDGID_NOMAP on error.
-Date:   Tue, 15 Jun 2021 11:48:01 -0400
-Message-Id: <20210615154824.62044-10-sashal@kernel.org>
+Cc:     Mark Pearson <markpearson@lenovo.com>,
+        Gabriel Craciunescu <nix.or.die@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.12 11/33] ASoC: AMD Renoir - add DMI entry for Lenovo 2020 AMD platforms
+Date:   Tue, 15 Jun 2021 11:48:02 -0400
+Message-Id: <20210615154824.62044-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210615154824.62044-1-sashal@kernel.org>
 References: <20210615154824.62044-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,62 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Mark Pearson <markpearson@lenovo.com>
 
-[ Upstream commit f8849e206ef52b584cd9227255f4724f0cc900bb ]
+[ Upstream commit 19a0aa9b04c5ab9a063b6ceaf7211ee7d9a9d24d ]
 
-Currently if __nfs4_proc_set_acl fails with NFS4ERR_BADOWNER it
-re-enables the idmapper by clearing NFS_CAP_UIDGID_NOMAP before
-retrying again. The NFS_CAP_UIDGID_NOMAP remains cleared even if
-the retry fails. This causes problem for subsequent setattr
-requests for v4 server that does not have idmapping configured.
+More laptops identified where the AMD ACP bridge needs to be blocked
+or the microphone will not work when connected to HDMI.
 
-This patch modifies nfs4_proc_set_acl to detect NFS4ERR_BADOWNER
-and NFS4ERR_BADNAME and skips the retry, since the kernel isn't
-involved in encoding the ACEs, and return -EINVAL.
+Use DMI to block the microphone PCM device for these platforms.
 
-Steps to reproduce the problem:
-
- # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
- # touch /tmp/mnt/file1
- # chown 99 /tmp/mnt/file1
- # nfs4_setfacl -a A::unknown.user@xyz.com:wrtncy /tmp/mnt/file1
- Failed setxattr operation: Invalid argument
- # chown 99 /tmp/mnt/file1
- chown: changing ownership of ‘/tmp/mnt/file1’: Invalid argument
- # umount /tmp/mnt
- # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
- # chown 99 /tmp/mnt/file1
- #
-
-v2: detect NFS4ERR_BADOWNER and NFS4ERR_BADNAME and skip retry
-       in nfs4_proc_set_acl.
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Suggested-by: Gabriel Craciunescu <nix.or.die@gmail.com>
+Signed-off-by: Mark Pearson <markpearson@lenovo.com>
+Link: https://lore.kernel.org/r/20210531145502.6079-1-markpearson@lenovo.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/soc/amd/renoir/rn-pci-acp3x.c | 35 +++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 0b809cc6ad1d..056d98d1d1a7 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5940,6 +5940,14 @@ static int nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t buflen
- 	do {
- 		err = __nfs4_proc_set_acl(inode, buf, buflen);
- 		trace_nfs4_set_acl(inode, err);
-+		if (err == -NFS4ERR_BADOWNER || err == -NFS4ERR_BADNAME) {
-+			/*
-+			 * no need to retry since the kernel
-+			 * isn't involved in encoding the ACEs.
-+			 */
-+			err = -EINVAL;
-+			break;
+diff --git a/sound/soc/amd/renoir/rn-pci-acp3x.c b/sound/soc/amd/renoir/rn-pci-acp3x.c
+index 050a61fe9693..47a4dfd81a46 100644
+--- a/sound/soc/amd/renoir/rn-pci-acp3x.c
++++ b/sound/soc/amd/renoir/rn-pci-acp3x.c
+@@ -199,6 +199,41 @@ static const struct dmi_system_id rn_acp_quirk_table[] = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "20NLCTO1WW"),
+ 		}
+ 	},
++	{
++		/* Lenovo ThinkPad P14s Gen 1 (20Y1) */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20Y1"),
 +		}
- 		err = nfs4_handle_exception(NFS_SERVER(inode), err,
- 				&exception);
- 	} while (exception.retry);
++	},
++	{
++		/* Lenovo ThinkPad T14s Gen1 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20UH"),
++		}
++	},
++	{
++		/* Lenovo ThinkPad T14s Gen1 Campus */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20UJ"),
++		}
++	},
++	{
++		/* Lenovo ThinkPad T14 Gen 1*/
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20UD"),
++		}
++	},
++	{
++		/* Lenovo ThinkPad X13 Gen 1*/
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_BOARD_NAME, "20UF"),
++		}
++	},
+ 	{}
+ };
+ 
 -- 
 2.30.2
 
