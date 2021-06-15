@@ -2,99 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 232893A73E0
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 04:25:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 906CC3A73E6
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 04:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231216AbhFOC1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Jun 2021 22:27:31 -0400
-Received: from mail-pf1-f169.google.com ([209.85.210.169]:36455 "EHLO
-        mail-pf1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231912AbhFOC12 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Jun 2021 22:27:28 -0400
-Received: by mail-pf1-f169.google.com with SMTP id c12so12104919pfl.3;
-        Mon, 14 Jun 2021 19:25:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Pngq3yYUhQah5dibNE1vG0pyf1KGFWwzUYTCAfaDmB8=;
-        b=FpfHSIMXsqG0z+zrNwcQNJi4UfgzEA1UGcicGfMFYz1gCxdD25M/vazeQkbpltW7vr
-         Dzw+yKk1SqihS0C5Gvb21mqJ/z3SsdJnouODysH0iIr/h1l5gVngHQJgcjSdfU794hWo
-         NLt3z25mXa3/iA5GYgR1TqWcIHlHVWTJXR77ULlJyZywOWmhRRFYwwaqoKd0l3UmeueF
-         gQVp7ODIChhzcP7/PiS2oeavgiFHmSKygC1eZV8pzyuAxNYUd0sWadpIVVWcFt/yblfd
-         Y5/+wTg5vPRZoEUJBj9OzIfrZlJg+8Hxx0BxCLwV67BPheKqsZkD6otzhMa3L3CHZ7xh
-         ZS5w==
-X-Gm-Message-State: AOAM532e8jxfMv/MJWAopjmaB1D14lhkZTHpuxX9dJIhIfU6FuReAJcj
-        nwjI40ppqhZU0H5LdhtIZ5JENczllPKMfA==
-X-Google-Smtp-Source: ABdhPJwIz1w8mWf8/YzTrTj2RoOQqAbDLccFD6VK0ymuBLlR4zNR4V8DteUu5lWSc1jeevfccXkVgA==
-X-Received: by 2002:aa7:8641:0:b029:2f4:7263:5524 with SMTP id a1-20020aa786410000b02902f472635524mr2253289pfo.70.1623723923424;
-        Mon, 14 Jun 2021 19:25:23 -0700 (PDT)
-Received: from localhost ([2601:647:5b00:1161:a4cc:eef9:fbc0:2781])
-        by smtp.gmail.com with ESMTPSA id i8sm14031482pgt.58.2021.06.14.19.25.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Jun 2021 19:25:22 -0700 (PDT)
-From:   Moritz Fischer <mdf@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     maz@kernel.org, vkoul@kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Moritz Fischer <mdf@kernel.org>,
-        stable@vger.kernel.org, Mathias Nyman <mathias.nyman@intel.com>
-Subject: [PATCH] usb: renesas-xhci: Fix handling of unknown ROM state
-Date:   Mon, 14 Jun 2021 19:25:14 -0700
-Message-Id: <20210615022514.245274-1-mdf@kernel.org>
-X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S231276AbhFOC2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Jun 2021 22:28:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43976 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231235AbhFOC2G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Jun 2021 22:28:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48B896128B;
+        Tue, 15 Jun 2021 02:26:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1623723962;
+        bh=LGhzZvCXy9jXjlZPzQcUe0YceEzbMsORUWMI7xnGbwE=;
+        h=Date:From:To:Subject:From;
+        b=pvQcIe6smcI/eK2VfRWP2yujJ1vvwI+WaqIuvZjfV8UnBsf1pdsePn4ls4FgBjnKd
+         XSOaylyi1unWmmq/bh9LnsXbhDla63SfLwFpJizOmCQ4bPAQlY8TnRqr2W8Ttp21y4
+         80a8ZlelucfLByEUQSAp859E84iAslw/zq6HMShQ=
+Date:   Mon, 14 Jun 2021 19:26:01 -0700
+From:   akpm@linux-foundation.org
+To:     apopple@nvidia.com, hughd@google.com,
+        kirill.shutemov@linux.intel.com, mm-commits@vger.kernel.org,
+        peterx@redhat.com, rcampbell@nvidia.com, shy828301@gmail.com,
+        stable@vger.kernel.org, wangyugui@e16-tech.com, will@kernel.org,
+        willy@infradead.org, ziy@nvidia.com
+Subject:  [withdrawn]
+ mm-page_vma_mapped_walk-use-pmd_read_atomic.patch removed from -mm tree
+Message-ID: <20210615022601.2rVBCGlMk%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the ROM status returned is unknown (RENESAS_ROM_STATUS_NO_RESULT)
-we need to attempt loading the firmware rather than just skipping
-it all together.
 
-Cc: stable@vger.kernel.org
-Cc: Mathias Nyman <mathias.nyman@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Vinod Koul <vkoul@kernel.org>
-Fixes: 2478be82de44 ("usb: renesas-xhci: Add ROM loader for uPD720201")
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
+The patch titled
+     Subject: mm: page_vma_mapped_walk(): use pmd_read_atomic()
+has been removed from the -mm tree.  Its filename was
+     mm-page_vma_mapped_walk-use-pmd_read_atomic.patch
+
+This patch was dropped because it was withdrawn
+
+------------------------------------------------------
+From: Hugh Dickins <hughd@google.com>
+Subject: mm: page_vma_mapped_walk(): use pmd_read_atomic()
+
+page_vma_mapped_walk() cleanup: use pmd_read_atomic() with barrier()
+instead of READ_ONCE() for pmde: some architectures (e.g.  i386 with PAE)
+have a multi-word pmd entry, for which READ_ONCE() is not good enough.
+
+Link: https://lkml.kernel.org/r/594c1f0-d396-5346-1f36-606872cddb18@google.com
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: Wang Yugui <wangyugui@e16-tech.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/usb/host/xhci-pci-renesas.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-pci-renesas.c b/drivers/usb/host/xhci-pci-renesas.c
-index f97ac9f52bf4..dfe54f0afc4b 100644
---- a/drivers/usb/host/xhci-pci-renesas.c
-+++ b/drivers/usb/host/xhci-pci-renesas.c
-@@ -207,7 +207,8 @@ static int renesas_check_rom_state(struct pci_dev *pdev)
- 			return 0;
- 
- 		case RENESAS_ROM_STATUS_NO_RESULT: /* No result yet */
--			return 0;
-+			dev_dbg(&pdev->dev, "Unknown ROM status ...\n");
-+			break;
- 
- 		case RENESAS_ROM_STATUS_ERROR: /* Error State */
- 		default: /* All other states are marked as "Reserved states" */
-@@ -224,13 +225,11 @@ static int renesas_fw_check_running(struct pci_dev *pdev)
- 	u8 fw_state;
- 	int err;
- 
--	/* Check if device has ROM and loaded, if so skip everything */
--	err = renesas_check_rom(pdev);
--	if (err) { /* we have rom */
--		err = renesas_check_rom_state(pdev);
--		if (!err)
--			return err;
--	}
-+	/* Only if device has ROM and loaded FW we can skip loading and
-+	 * return success. Otherwise (even unknown state), attempt to load FW.
-+	 */
-+	if (renesas_check_rom(pdev) && !renesas_check_rom_state(pdev))
-+		return 0;
- 
+ mm/page_vma_mapped.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/mm/page_vma_mapped.c~mm-page_vma_mapped_walk-use-pmd_read_atomic
++++ a/mm/page_vma_mapped.c
+@@ -182,13 +182,16 @@ restart:
+ 	pud = pud_offset(p4d, pvmw->address);
+ 	if (!pud_present(*pud))
+ 		return false;
++
+ 	pvmw->pmd = pmd_offset(pud, pvmw->address);
  	/*
- 	 * Test if the device is actually needing the firmware. As most
--- 
-2.31.1
+ 	 * Make sure the pmd value isn't cached in a register by the
+ 	 * compiler and used as a stale value after we've observed a
+ 	 * subsequent update.
+ 	 */
+-	pmde = READ_ONCE(*pvmw->pmd);
++	pmde = pmd_read_atomic(pvmw->pmd);
++	barrier();
++
+ 	if (pmd_trans_huge(pmde) || is_pmd_migration_entry(pmde)) {
+ 		pvmw->ptl = pmd_lock(mm, pvmw->pmd);
+ 		if (likely(pmd_trans_huge(*pvmw->pmd))) {
+_
+
+Patches currently in -mm which might be from hughd@google.com are
+
+mm-thp-fix-__split_huge_pmd_locked-on-shmem-migration-entry.patch
+mm-thp-make-is_huge_zero_pmd-safe-and-quicker.patch
+mm-thp-try_to_unmap-use-ttu_sync-for-safe-splitting.patch
+mm-thp-fix-vma_address-if-virtual-address-below-file-offset.patch
+mm-thp-unmap_mapping_page-to-fix-thp-truncate_cleanup_page.patch
+mm-page_vma_mapped_walk-use-page-for-pvmw-page.patch
+mm-page_vma_mapped_walk-settle-pagehuge-on-entry.patch
+mm-page_vma_mapped_walk-use-pmde-for-pvmw-pmd.patch
+mm-page_vma_mapped_walk-prettify-pvmw_migration-block.patch
+mm-page_vma_mapped_walk-crossing-page-table-boundary.patch
+mm-page_vma_mapped_walk-add-a-level-of-indentation.patch
+mm-page_vma_mapped_walk-use-goto-instead-of-while-1.patch
+mm-page_vma_mapped_walk-get-vma_address_end-earlier.patch
+mm-thp-fix-page_vma_mapped_walk-if-thp-mapped-by-ptes.patch
+mm-thp-another-pvmw_sync-fix-in-page_vma_mapped_walk.patch
+mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page.patch
+mm-thp-remap_page-is-only-needed-on-anonymous-thp.patch
+mm-hwpoison_user_mappings-try_to_unmap-with-ttu_sync.patch
 
