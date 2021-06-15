@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26E553A846B
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94F7D3A846C
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231911AbhFOPut (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:50:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44710 "EHLO mail.kernel.org"
+        id S231836AbhFOPux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:50:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231857AbhFOPuk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:50:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FB646162D;
-        Tue, 15 Jun 2021 15:48:35 +0000 (UTC)
+        id S231869AbhFOPul (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:50:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74515616E8;
+        Tue, 15 Jun 2021 15:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772116;
-        bh=Bgbq1ht1Oi0zin+wGe0RHymOtoERst08ET+KjszKzFY=;
+        s=k20201202; t=1623772117;
+        bh=39Nb/3515QbI8+K29dmSC9QgFO551T1Y53B7L/N1k1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGSeq7avusX3oQcdl6+VugsmI9/nHiZo6xy1OmfZYz/OpxUhGoB7reOu0DAZ5UlBh
-         uHmZFzdulrdKQ+4g9XxdZnTwnuKJ/WpSkxGEpHf8biq6mBDzvynqkPSEp1drKxsq1+
-         xAEbwG21ZtvQ4U6zkMZtGvgZkPPuZQUWChN10Aaly/NWi9hMmb+ZeMlWwq2BUCqxnn
-         K22Kg18TAXXTkB5vB09rNQRA/eUiG/YTb/maNpOm6nvGu6ImcKxjRu8bNHDn3yL+tc
-         76IFQaDfsLsWyJ0u4cUS5UUkGgLcd2W22OFUELO8oUiU1DYnGinMa8rPgADG0/V2fR
-         QQBk9fZKo4ZDA==
+        b=ZXtuLeVCIaJS4CV3IZGberDBDwfsORLNfASsbnkDL820T7bVTkf2F1fEEs6aNLk1V
+         RRhssMa2cDHApciBvmhuBx7mGQZyZxX60cW4Hyae9MDbhmjFgpKPdzN1Ix6KSjPjJM
+         KCBMaQZKg45/3T7kD1IAO+56puETRjwi2FajkJeS3fEXh7cIrchDHeQDPrhrInP1qo
+         kK+cri7HKabhZPGGvkbxuPffoQTNa0kmia1xh1ghNMqmXZrTqJEMybBiJNFVVLm9Mh
+         Ap5xcHpdGa7mCSga/7+TCOksn05tv4uyE+LdyBlhawnviBt4BfKQq4Q0p9y6nYxp7p
+         /iF5nWTJe97tQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     ChiYuan Huang <cy_huang@richtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 09/33] regulator: rtmv20: Fix to make regcache value first reading back from HW
-Date:   Tue, 15 Jun 2021 11:48:00 -0400
-Message-Id: <20210615154824.62044-9-sashal@kernel.org>
+Cc:     Dai Ngo <dai.ngo@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 10/33] NFSv4: nfs4_proc_set_acl needs to restore NFS_CAP_UIDGID_NOMAP on error.
+Date:   Tue, 15 Jun 2021 11:48:01 -0400
+Message-Id: <20210615154824.62044-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210615154824.62044-1-sashal@kernel.org>
 References: <20210615154824.62044-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,40 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChiYuan Huang <cy_huang@richtek.com>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-[ Upstream commit 46639a5e684edd0b80ae9dff220f193feb356277 ]
+[ Upstream commit f8849e206ef52b584cd9227255f4724f0cc900bb ]
 
-- Fix to make regcache value first reading back from HW.
+Currently if __nfs4_proc_set_acl fails with NFS4ERR_BADOWNER it
+re-enables the idmapper by clearing NFS_CAP_UIDGID_NOMAP before
+retrying again. The NFS_CAP_UIDGID_NOMAP remains cleared even if
+the retry fails. This causes problem for subsequent setattr
+requests for v4 server that does not have idmapping configured.
 
-Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/1622542155-6373-1-git-send-email-u0084500@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch modifies nfs4_proc_set_acl to detect NFS4ERR_BADOWNER
+and NFS4ERR_BADNAME and skips the retry, since the kernel isn't
+involved in encoding the ACEs, and return -EINVAL.
+
+Steps to reproduce the problem:
+
+ # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
+ # touch /tmp/mnt/file1
+ # chown 99 /tmp/mnt/file1
+ # nfs4_setfacl -a A::unknown.user@xyz.com:wrtncy /tmp/mnt/file1
+ Failed setxattr operation: Invalid argument
+ # chown 99 /tmp/mnt/file1
+ chown: changing ownership of ‘/tmp/mnt/file1’: Invalid argument
+ # umount /tmp/mnt
+ # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
+ # chown 99 /tmp/mnt/file1
+ #
+
+v2: detect NFS4ERR_BADOWNER and NFS4ERR_BADNAME and skip retry
+       in nfs4_proc_set_acl.
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/rtmv20-regulator.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/nfs4proc.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/regulator/rtmv20-regulator.c b/drivers/regulator/rtmv20-regulator.c
-index 852fb2596ffd..b37c29c9fbbb 100644
---- a/drivers/regulator/rtmv20-regulator.c
-+++ b/drivers/regulator/rtmv20-regulator.c
-@@ -27,6 +27,7 @@
- #define RTMV20_REG_LDIRQ	0x30
- #define RTMV20_REG_LDSTAT	0x40
- #define RTMV20_REG_LDMASK	0x50
-+#define RTMV20_MAX_REGS		(RTMV20_REG_LDMASK + 1)
- 
- #define RTMV20_VID_MASK		GENMASK(7, 4)
- #define RICHTEK_VID		0x80
-@@ -275,6 +276,7 @@ static const struct regmap_config rtmv20_regmap_config = {
- 	.val_bits = 8,
- 	.cache_type = REGCACHE_RBTREE,
- 	.max_register = RTMV20_REG_LDMASK,
-+	.num_reg_defaults_raw = RTMV20_MAX_REGS,
- 
- 	.writeable_reg = rtmv20_is_accessible_reg,
- 	.readable_reg = rtmv20_is_accessible_reg,
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 0b809cc6ad1d..056d98d1d1a7 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5940,6 +5940,14 @@ static int nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t buflen
+ 	do {
+ 		err = __nfs4_proc_set_acl(inode, buf, buflen);
+ 		trace_nfs4_set_acl(inode, err);
++		if (err == -NFS4ERR_BADOWNER || err == -NFS4ERR_BADNAME) {
++			/*
++			 * no need to retry since the kernel
++			 * isn't involved in encoding the ACEs.
++			 */
++			err = -EINVAL;
++			break;
++		}
+ 		err = nfs4_handle_exception(NFS_SERVER(inode), err,
+ 				&exception);
+ 	} while (exception.retry);
 -- 
 2.30.2
 
