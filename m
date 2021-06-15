@@ -2,131 +2,249 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3441F3A8C44
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 01:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD1D3A8CDF
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 01:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230043AbhFOXNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 19:13:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44486 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229898AbhFOXNF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Jun 2021 19:13:05 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 300F2C061574;
-        Tue, 15 Jun 2021 16:10:59 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id nd37so483306ejc.3;
-        Tue, 15 Jun 2021 16:10:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AOuKGzIskjJRbFedWFW/C+I5PYhV95WPLhId+SvqihU=;
-        b=Me2pvvkHKVtdhQPvq+vIdIjnZAeubKot8b/msdA4OqCL1eyPpVYMJhSJuwehR5FBtp
-         zGQpbV5sNiw7tpr5PC9fuj0INw/rDTiZOnbpOKe3rN4J+7xRnaMpUSlp0lw7nzBjIzof
-         XR9ZGP6GO2VbPNBm0LzcqY69dN2IVr5yvQpPs/ChBWQthPwRm9dRLowiuYIur5sPJAI5
-         su4rRk+RoRx+/IFezW+YNI4eF/ydVlTryAMjvre8g1ginl+2jCSfGopyI4safI3wohhG
-         1c2BnEG2yu4pdwJ0xZS5g4VM2eazl8SxMDP7YHBqqsHmC/iqzg9udNztQWaLc28Y8imH
-         c+5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AOuKGzIskjJRbFedWFW/C+I5PYhV95WPLhId+SvqihU=;
-        b=YFeWDYlUPpQXi99cUegW74+PA7NTO2X7KpPEVX4kHmimzTICLc79xUn5S59VGiWYR8
-         vE4UxmInboEAeLguzeoH/E/aND0wuYQnLGqfd315PYZiWAKliBqJPLba8Mvki00EL3HE
-         IAda7cJez2ATx3/3ieO0dOEdZg5IqiETfmtwIfHzKHGjQPUEE6orkd3TobM5m6LxOW1q
-         bVzpWaGleR/MWmvjK3mI4Qai64qXhAwH9GWttWW47bE1TV+p3pNbLMdY+s1PFoCxWPFs
-         Ip7IlxvFCzFcJFauL/tVQefhxYrGk93qgalQTvvYRmzn8oY3oz3RifJvUq+GHQfKjBsz
-         s8Yg==
-X-Gm-Message-State: AOAM532PQU0EfxW/pED61uFMMaj3IuyVCcmkohNlOwVEM/XzKewGnv0k
-        LAHqR/muIY0BtYuynMgLhax/dmkuQTeaHcQcLGs=
-X-Google-Smtp-Source: ABdhPJzHX1BNpwnfCqqm59hp1H0X6TtuHe5B6/m0KBULTJlIVinWp8ZuuFM8L436LMgFXdlox6fVRlHjxCbLiYTB1uA=
-X-Received: by 2002:a17:907:9d1:: with SMTP id bx17mr1956080ejc.238.1623798657801;
- Tue, 15 Jun 2021 16:10:57 -0700 (PDT)
+        id S230039AbhFOXtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 19:49:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50738 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229966AbhFOXta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 19:49:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1C5D60E09;
+        Tue, 15 Jun 2021 23:47:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1623800845;
+        bh=GwZ9/OKuJ5aRrVDAIiUAMVkm0Hg2mZ46YKAjvKYXDzs=;
+        h=Date:From:To:Subject:From;
+        b=aYsQPNYAmQ6Zke5/ySMOB4vVgEPqUKb2trbgjO6NSwSARBVIPhVcN+oCg7j03O9nk
+         i4wgefUG/aX2u3pFi9qH4aXaaS3pkVA+SpYknm9GaaTz97gmTbDX6wY7m+WQp2JB0S
+         c67NL0lKD5vCChy1XmN/G5JrYVPzxs4CmiJ+2tnY=
+Date:   Tue, 15 Jun 2021 16:47:24 -0700
+From:   akpm@linux-foundation.org
+To:     aneesh.kumar@linux.vnet.ibm.com, mhocko@suse.com,
+        mm-commits@vger.kernel.org, naoya.horiguchi@nec.com,
+        osalvador@suse.de, stable@vger.kernel.org, tony.luck@intel.com
+Subject:  +
+ =?US-ASCII?Q?mm-hwpoison-do-not-lock-page-again-when-me=5Fhuge=5Fpage-suc?=
+ =?US-ASCII?Q?cessfully-recovers.patch?= added to -mm tree
+Message-ID: <20210615234724.SqmLIUVe-%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-References: <20210615012014.1100672-1-jannh@google.com> <50d828d1-2ce6-21b4-0e27-fb15daa77561@nvidia.com>
- <CAG48ez3Vbcvh4AisU7=ukeJeSjHGTKQVd0NOU6XOpRru7oP_ig@mail.gmail.com>
-In-Reply-To: <CAG48ez3Vbcvh4AisU7=ukeJeSjHGTKQVd0NOU6XOpRru7oP_ig@mail.gmail.com>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Tue, 15 Jun 2021 16:10:46 -0700
-Message-ID: <CAHbLzkomex+fgC8RyogXu-s5o2UrORMO6D2yTsSXW5Wo5z9WRA@mail.gmail.com>
-Subject: Re: [PATCH v2] mm/gup: fix try_grab_compound_head() race with split_huge_page()
-To:     Jann Horn <jannh@google.com>
-Cc:     John Hubbard <jhubbard@nvidia.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        "Kirill A . Shutemov" <kirill@shutemov.name>,
-        Jan Kara <jack@suse.cz>, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 15, 2021 at 5:10 AM Jann Horn <jannh@google.com> wrote:
->
-> On Tue, Jun 15, 2021 at 8:37 AM John Hubbard <jhubbard@nvidia.com> wrote:
-> > On 6/14/21 6:20 PM, Jann Horn wrote:
-> > > try_grab_compound_head() is used to grab a reference to a page from
-> > > get_user_pages_fast(), which is only protected against concurrent
-> > > freeing of page tables (via local_irq_save()), but not against
-> > > concurrent TLB flushes, freeing of data pages, or splitting of compound
-> > > pages.
-> [...]
-> > Reviewed-by: John Hubbard <jhubbard@nvidia.com>
->
-> Thanks!
->
-> [...]
-> > > @@ -55,8 +72,23 @@ static inline struct page *try_get_compound_head(struct page *page, int refs)
-> > >       if (WARN_ON_ONCE(page_ref_count(head) < 0))
-> > >               return NULL;
-> > >       if (unlikely(!page_cache_add_speculative(head, refs)))
-> > >               return NULL;
-> > > +
-> > > +     /*
-> > > +      * At this point we have a stable reference to the head page; but it
-> > > +      * could be that between the compound_head() lookup and the refcount
-> > > +      * increment, the compound page was split, in which case we'd end up
-> > > +      * holding a reference on a page that has nothing to do with the page
-> > > +      * we were given anymore.
-> > > +      * So now that the head page is stable, recheck that the pages still
-> > > +      * belong together.
-> > > +      */
-> > > +     if (unlikely(compound_head(page) != head)) {
-> >
-> > I was just wondering about what all could happen here. Such as: page gets split,
-> > reallocated into a different-sized compound page, one that still has page pointing
-> > to head. I think that's OK, because we don't look at or change other huge page
-> > fields.
-> >
-> > But I thought I'd mention the idea in case anyone else has any clever ideas about
-> > how this simple check might be insufficient here. It seems fine to me, but I
-> > routinely lack enough imagination about concurrent operations. :)
->
-> Hmmm... I think the scariest aspect here is probably the interaction
-> with concurrent allocation of a compound page on architectures with
-> store-store reordering (like ARM). *If* the page allocator handled
-> compound pages with lockless, non-atomic percpu freelists, I think it
-> might be possible that the zeroing of tail_page->compound_head in
-> put_page() could be reordered after the page has been freed,
-> reallocated and set to refcount 1 again?
->
-> That shouldn't be possible at the moment, but it is still a bit scary.
 
-It might be possible after Mel's "mm/page_alloc: Allow high-order
-pages to be stored on the per-cpu lists" patch
-(https://patchwork.kernel.org/project/linux-mm/patch/20210611135753.GC30378@techsingularity.net/).
+The patch titled
+     Subject: mm/hwpoison: do not lock page again when me_huge_page() successfully recovers
+has been added to the -mm tree.  Its filename is
+     mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers.patch
 
->
->
-> I think the lockless page cache code also has to deal with somewhat
-> similar ordering concerns when it uses page_cache_get_speculative(),
-> e.g. in mapping_get_entry() - first it looks up a page pointer with
-> xas_load(), and any access to the page later on would be a _dependent
-> load_, but if the page then gets freed, reallocated, and inserted into
-> the page cache again before the refcount increment and the re-check
-> using xas_reload(), then there would be no data dependency from
-> xas_reload() to the following use of the page...
->
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Subject: mm/hwpoison: do not lock page again when me_huge_page() successfully recovers
+
+Currently me_huge_page() temporary unlocks page to perform some actions
+then locks it again later.  My testcase (which calls hard-offline on some
+tail page in a hugetlb, then accesses the address of the hugetlb range)
+showed that page allocation code detects this page lock on buddy page and
+printed out "BUG: Bad page state" message.
+
+check_new_page_bad() does not consider a page with __PG_HWPOISON as bad
+page, so this flag works as kind of filter, but this filtering doesn't
+work in this case because the "bad page" is not the actual hwpoisoned
+page.  So stop locking page again.  Actions to be taken depend on the page
+type of the error, so page unlocking should be done in ->action()
+callbacks.  So let's make it assumed and change all existing callbacks
+that way.
+
+Link: https://lkml.kernel.org/r/20210609072029.74645-1-nao.horiguchi@gmail.com
+Fixes: commit 78bb920344b8 ("mm: hwpoison: dissolve in-use hugepage in un=
+recoverable memory error")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memory-failure.c |   44 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 30 insertions(+), 14 deletions(-)
+
+--- a/mm/memory-failure.c~mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers
++++ a/mm/memory-failure.c
+@@ -658,6 +658,7 @@ static int truncate_error_page(struct pa
+  */
+ static int me_kernel(struct page *p, unsigned long pfn)
+ {
++	unlock_page(p);
+ 	return MF_IGNORED;
+ }
+ 
+@@ -667,6 +668,7 @@ static int me_kernel(struct page *p, uns
+ static int me_unknown(struct page *p, unsigned long pfn)
+ {
+ 	pr_err("Memory failure: %#lx: Unknown page state\n", pfn);
++	unlock_page(p);
+ 	return MF_FAILED;
+ }
+ 
+@@ -675,6 +677,7 @@ static int me_unknown(struct page *p, un
+  */
+ static int me_pagecache_clean(struct page *p, unsigned long pfn)
+ {
++	int ret;
+ 	struct address_space *mapping;
+ 
+ 	delete_from_lru_cache(p);
+@@ -683,8 +686,10 @@ static int me_pagecache_clean(struct pag
+ 	 * For anonymous pages we're done the only reference left
+ 	 * should be the one m_f() holds.
+ 	 */
+-	if (PageAnon(p))
+-		return MF_RECOVERED;
++	if (PageAnon(p)) {
++		ret = MF_RECOVERED;
++		goto out;
++	}
+ 
+ 	/*
+ 	 * Now truncate the page in the page cache. This is really
+@@ -698,7 +703,8 @@ static int me_pagecache_clean(struct pag
+ 		/*
+ 		 * Page has been teared down in the meanwhile
+ 		 */
+-		return MF_FAILED;
++		ret = MF_FAILED;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -706,7 +712,10 @@ static int me_pagecache_clean(struct pag
+ 	 *
+ 	 * Open: to take i_mutex or not for this? Right now we don't.
+ 	 */
+-	return truncate_error_page(p, pfn, mapping);
++	ret = truncate_error_page(p, pfn, mapping);
++out:
++	unlock_page(p);
++	return ret;
+ }
+ 
+ /*
+@@ -782,24 +791,26 @@ static int me_pagecache_dirty(struct pag
+  */
+ static int me_swapcache_dirty(struct page *p, unsigned long pfn)
+ {
++	int ret;
++
+ 	ClearPageDirty(p);
+ 	/* Trigger EIO in shmem: */
+ 	ClearPageUptodate(p);
+ 
+-	if (!delete_from_lru_cache(p))
+-		return MF_DELAYED;
+-	else
+-		return MF_FAILED;
++	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_DELAYED;
++	unlock_page(p);
++	return ret;
+ }
+ 
+ static int me_swapcache_clean(struct page *p, unsigned long pfn)
+ {
++	int ret;
++
+ 	delete_from_swap_cache(p);
+ 
+-	if (!delete_from_lru_cache(p))
+-		return MF_RECOVERED;
+-	else
+-		return MF_FAILED;
++	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_RECOVERED;
++	unlock_page(p);
++	return ret;
+ }
+ 
+ /*
+@@ -820,6 +831,7 @@ static int me_huge_page(struct page *p,
+ 	mapping = page_mapping(hpage);
+ 	if (mapping) {
+ 		res = truncate_error_page(hpage, pfn, mapping);
++		unlock_page(hpage);
+ 	} else {
+ 		res = MF_FAILED;
+ 		unlock_page(hpage);
+@@ -834,7 +846,6 @@ static int me_huge_page(struct page *p,
+ 			page_ref_inc(p);
+ 			res = MF_RECOVERED;
+ 		}
+-		lock_page(hpage);
+ 	}
+ 
+ 	return res;
+@@ -866,6 +877,8 @@ static struct page_state {
+ 	unsigned long mask;
+ 	unsigned long res;
+ 	enum mf_action_page_type type;
++
++	/* Callback ->action() has to unlock the relevant page inside it. */
+ 	int (*action)(struct page *p, unsigned long pfn);
+ } error_states[] = {
+ 	{ reserved,	reserved,	MF_MSG_KERNEL,	me_kernel },
+@@ -929,6 +942,7 @@ static int page_action(struct page_state
+ 	int result;
+ 	int count;
+ 
++	/* page p should be unlocked after returning from ps->action().  */
+ 	result = ps->action(p, pfn);
+ 
+ 	count = page_count(p) - 1;
+@@ -1313,7 +1327,7 @@ static int memory_failure_hugetlb(unsign
+ 		goto out;
+ 	}
+ 
+-	res = identify_page_state(pfn, p, page_flags);
++	return identify_page_state(pfn, p, page_flags);
+ out:
+ 	unlock_page(head);
+ 	return res;
+@@ -1596,6 +1610,8 @@ try_again:
+ 
+ identify_page_state:
+ 	res = identify_page_state(pfn, p, page_flags);
++	mutex_unlock(&mf_mutex);
++	return res;
+ unlock_page:
+ 	unlock_page(p);
+ unlock_mutex:
+_
+
+Patches currently in -mm which might be from naoya.horiguchi@nec.com are
+
+mmhwpoison-fix-race-with-hugetlb-page-allocation.patch
+mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers.patch
+mmhwpoison-send-sigbus-with-error-virutal-address.patch
+mmhwpoison-send-sigbus-with-error-virutal-address-fix.patch
+mmhwpoison-make-get_hwpoison_page-call-get_any_page.patch
+
