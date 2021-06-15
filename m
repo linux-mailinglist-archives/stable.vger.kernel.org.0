@@ -2,122 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 295593A8771
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 19:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D6603A87EC
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 19:43:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230075AbhFORXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 13:23:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51308 "EHLO
+        id S230370AbhFORpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 13:45:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229895AbhFORXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Jun 2021 13:23:44 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AA2C061574
-        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 10:21:39 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id 11so8807492plk.12
-        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 10:21:39 -0700 (PDT)
+        with ESMTP id S230356AbhFORpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Jun 2021 13:45:33 -0400
+Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35EDBC06175F
+        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 10:43:28 -0700 (PDT)
+Received: by mail-pf1-x44a.google.com with SMTP id p17-20020a056a000b51b02902f9e70d70ecso2763pfo.5
+        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 10:43:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Z1BCbgCXTI0B8/9TAHongs/SAmydvyawhLd/M71Dl0Q=;
-        b=OnlZ5Pr3E4r8ED2kA3nMdHHbjoq5ofpxt4LBRL3ZkBu/SSQZOg6FTkeoDSiZvD78Be
-         MwJK/lT1bl+Zi/X+L/AOtIZB5WZDOGbzW9o82ZFPOChBKhGH4OXClgczPlSsYTcBiMGW
-         MvqzdHbA8nbNNutGNye6W0Kog1dItB8rVLvgTvNy9+pQvmoHYmz+lEF74n/bam2GJjeq
-         QPPG0gvFlWm78HK0Vm0Fz66WZZQKF4ae4+I0rfBEe9fZnBKB4yH6qW7YytBmfusW4Ph+
-         Z2sXPdQjdF33TdQ072823bXRyVbdJwS8CkhePh5uVkcK7Y+/OoqkDalL8c0wtwOAk6pM
-         bdfA==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=50dJ8BchFOci3A0yvk4/mrwi6BOktMhfxZ2dJA5Q/50=;
+        b=dHSg5uHO+WryCWM/qB2U8Qc31sZ4MGk7Lf6JgXykCFPS3T5BiiSvzatPC/ky+oogVg
+         PSbYno76lPg7XCYY8YFzMeOK62omeBzDd6sNyAKONT3uh7G4nYekPrx9PB1h7jKFqYV4
+         b58Aq3mPO7jVKefTpn1+bjZf8Tmvks8jDMfekXrrIGMBmBoKtzIPqFaVff/9SqT4/eTB
+         rBa1yl9vEn3z9pTiqjlDHodstPE35tO7H3t9MuAwXkWLreVjXFIQsMBmhuFI8AjoPRC8
+         5kUs8sjS5awXpcOZR4zi9A5MFclnw682vXIVmbJvRRNoMBsP62bO+V3RiSo4qjD3y6WE
+         MX7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Z1BCbgCXTI0B8/9TAHongs/SAmydvyawhLd/M71Dl0Q=;
-        b=X9UsvFpsLvJFvdxCpcbJu3dGDUHRlTP8BLexFWCAFDiKGFWPCCz21JhjMNMYgRLytM
-         cbJ94rTvcsbIaze/5UjzE3fLlCoqMaVFDd/iXSuKsaiJ/nGXJMRJDjhGy8SukEJSGhhM
-         D+FrrT2qcFpCGHrDGn4Lw4Md1eM0Divcxzot6fPbxDmfEayljlJee1hCLZhqpnRtou6X
-         xYcgUO3ycZPo6/WBOLTAMyIH6Q4f6p5KsptxFv0jVxxnsfMPJRGva/HQNXs0pYh+bppw
-         FpBVDRXiPQZt9SbTvqwWnv1jQtQSLW4dldX6rzSe+GfwuACtKZ/SWcIzka3A1qUXKlps
-         BrmQ==
-X-Gm-Message-State: AOAM533dZucMjUrT/FgpadThSnu0UWjVy3uYjBPe4CJjv7XJ1vHuR+4z
-        tA8J4p1R55SUbt5BLMZrGYY1lSEOcI8+ew==
-X-Google-Smtp-Source: ABdhPJxjcJZcmzIV+9imwI1HHNBro256M4DQRyO96p1e016iCQXXCJjRo1V8z/L5gMhhFiFojwoiZA==
-X-Received: by 2002:a17:902:8645:b029:fd:25ef:3df7 with SMTP id y5-20020a1709028645b02900fd25ef3df7mr5315348plt.48.1623777699223;
-        Tue, 15 Jun 2021 10:21:39 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l201sm16110925pfd.183.2021.06.15.10.21.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Jun 2021 10:21:38 -0700 (PDT)
-Message-ID: <60c8e1a2.1c69fb81.6b7f8.dcd6@mx.google.com>
-Date:   Tue, 15 Jun 2021 10:21:38 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.236-49-g4a48b118c459
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.14 baseline: 144 runs,
- 1 regressions (v4.14.236-49-g4a48b118c459)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=50dJ8BchFOci3A0yvk4/mrwi6BOktMhfxZ2dJA5Q/50=;
+        b=aWP8OfAf9gHSshmQ8cz/Z7p24dN10JUQWfjrCaHlSeXQGQKt5/z58yGD6Im4SlFLnY
+         yY2bKBsPcAuR2XTYASio5tWMwdMjccI2YIOX2HmetfjM5sGSBCMrXeVolVKCaKCrbn1m
+         q4MrFnFoky0qTrEkaOG7zOYEZHIBHyvNoFV0me1I+RBplS43YdZkfom71XyrRM3qZIfB
+         9FZJkZ/dvf6IA30aBdwGi4nr4xlvUfj38eO4vKvnrc20FHjNa7u/bHc5O/n6aVRKRRvG
+         nolGzkfqF9c5LYGfusc7b6SzTbXvTQeKOmLncTAllu/mDqrAjLJ1GGlqmAO5ZqwaEqes
+         3ghA==
+X-Gm-Message-State: AOAM532sTILCMJREuusWjZc8Cg6yzn934MHVTmCETqgSOpxi6F+xFcCk
+        cUab/6ayXePmg8LI0CMbHA3Ac3So/eU=
+X-Google-Smtp-Source: ABdhPJywZcKWzV+RRUOI+TqAyZn8x3y5mnLXQPhCIk0HihBrSmcHSc4rultD1YJxN6KoaMgxDDO0g08HvhM=
+X-Received: from badhri.mtv.corp.google.com ([2620:15c:211:201:74bf:7746:fe5:5dad])
+ (user=badhri job=sendgmr) by 2002:a17:90a:2acc:: with SMTP id
+ i12mr110133pjg.0.1623779006876; Tue, 15 Jun 2021 10:43:26 -0700 (PDT)
+Date:   Tue, 15 Jun 2021 10:43:23 -0700
+Message-Id: <20210615174323.1160132-1-badhri@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.32.0.272.g935e593368-goog
+Subject: [PATCH v1] usb: typec: tcpci: Fix up sink disconnect thresholds for PD
+From:   Badhri Jagan Sridharan <badhri@google.com>
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Kyle Tso <kyletso@google.com>, stable@vger.kernel.org,
+        Badhri Jagan Sridharan <badhri@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 144 runs, 1 regressions (v4.14.236-49-g4a48b=
-118c459)
+"Table 4-3 VBUS Sink Characteristics" of "Type-C Cable and Connector
+Specification" defines the disconnect voltage thresholds of various
+configurations. This change fixes the disconnect threshold voltage
+calculation based on vSinkPD_min and vSinkDisconnectPD as defined
+by the table.
 
-Regressions Summary
--------------------
+Fixes: e1a97bf80a022 ("usb: typec: tcpci: Implement Auto discharge disconnect callbacks")
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+---
+ drivers/usb/typec/tcpm/tcpci.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
+index 22862345d1ab..9858716698df 100644
+--- a/drivers/usb/typec/tcpm/tcpci.c
++++ b/drivers/usb/typec/tcpm/tcpci.c
+@@ -21,8 +21,12 @@
+ #define	PD_RETRY_COUNT_DEFAULT			3
+ #define	PD_RETRY_COUNT_3_0_OR_HIGHER		2
+ #define	AUTO_DISCHARGE_DEFAULT_THRESHOLD_MV	3500
+-#define	AUTO_DISCHARGE_PD_HEADROOM_MV		850
+-#define	AUTO_DISCHARGE_PPS_HEADROOM_MV		1250
++#define	VSINKPD_MIN_IR_DROP_MV			750
++#define	VSRC_NEW_MIN_PERCENT			95
++#define	VSRC_VALID_MIN_MV			500
++#define	VPPS_NEW_MIN_PERCENT			95
++#define	VPPS_VALID_MIN_MV			100
++#define	VSINKDISCONNECT_PD_MIN_PERCENT		90
+ 
+ #define tcpc_presenting_rd(reg, cc) \
+ 	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
+@@ -351,11 +355,13 @@ static int tcpci_set_auto_vbus_discharge_threshold(struct tcpc_dev *dev, enum ty
+ 		threshold = AUTO_DISCHARGE_DEFAULT_THRESHOLD_MV;
+ 	} else if (mode == TYPEC_PWR_MODE_PD) {
+ 		if (pps_active)
+-			threshold = (95 * requested_vbus_voltage_mv / 100) -
+-				AUTO_DISCHARGE_PD_HEADROOM_MV;
++			threshold = ((VPPS_NEW_MIN_PERCENT * requested_vbus_voltage_mv / 100) -
++				     VSINKPD_MIN_IR_DROP_MV - VPPS_VALID_MIN_MV) *
++				     VSINKDISCONNECT_PD_MIN_PERCENT / 100;
+ 		else
+-			threshold = (95 * requested_vbus_voltage_mv / 100) -
+-				AUTO_DISCHARGE_PPS_HEADROOM_MV;
++			threshold = ((VSRC_NEW_MIN_PERCENT * requested_vbus_voltage_mv / 100) -
++				     VSINKPD_MIN_IR_DROP_MV - VSRC_VALID_MIN_MV) *
++				     VSINKDISCONNECT_PD_MIN_PERCENT / 100;
+ 	} else {
+ 		/* 3.5V for non-pd sink */
+ 		threshold = AUTO_DISCHARGE_DEFAULT_THRESHOLD_MV;
+-- 
+2.32.0.272.g935e593368-goog
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.236-49-g4a48b118c459/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.236-49-g4a48b118c459
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4a48b118c45984439aca260065b784e4581ffb37 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c8ae44408bc83d20413277
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.236=
--49-g4a48b118c459/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.236=
--49-g4a48b118c459/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c8ae44408bc83d20413=
-278
-        failing since 106 days (last pass: v4.14.222-11-g13b8482a0f700, fir=
-st fail: v4.14.222-120-gdc8887cba23e) =
-
- =20
