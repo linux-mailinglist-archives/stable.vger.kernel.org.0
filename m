@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D78EB3A84C5
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 002763A84CA
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:50:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232252AbhFOPv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:51:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45776 "EHLO mail.kernel.org"
+        id S231556AbhFOPwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:52:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232140AbhFOPvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:51:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2E0D614A7;
-        Tue, 15 Jun 2021 15:49:29 +0000 (UTC)
+        id S232054AbhFOPvg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:51:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AFE5615A0;
+        Tue, 15 Jun 2021 15:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772170;
-        bh=CL1FZxBMXtZzqlodM+oS8fWPPciTagavnSrueaHbjIg=;
+        s=k20201202; t=1623772172;
+        bh=fU13to9nu0aO8QZO1mX+8wtj7oG7zYJNoYFpZBMBe8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XsRRTJSc1HEkNY+Yczp8hw1GWjrrexdK82gl0p6S3VWDaiK3tLnZPGmDHfw9pzD8H
-         +Ee3iLWRaufyqKrTN4VNgaOhQiD0eardfXE0HrA+4ZcaeB1pe4Z6aBGyAyddpI5yE7
-         ry5c4lxxJT31jtXfGbBy9xpPJy7zk2S1VMvmGmdAq/Au15TZTjNSA0ICEspFIDIYge
-         /c/Y6hxHQmkh70ff0dtAJmGhvdYgQfKvUSeptoVCLf31c93/vbS/b7Rn4IkoCBpw2Q
-         QOCSxLPj9w3U+EkoQKgs/ode7TcgQ/WBmmZfnJFDfIn8JF7heh4SCkYCYbHqQkCklY
-         ywCn+sc6VXt/A==
+        b=h6wSj44WfOOfrbeKAP4Zbk3/I6L9WH3MkBGBsxSorVMDl/NDFtQqXmrsbG+uFTYrC
+         7p1Nzbai8/WVFls17AvR7+LPPOsTjNedUc0kUtFHSLXvslsDKiAM6x81tBDdOkiVdE
+         gVS8Ec8i5ooLyX9G4R9guw8QAuaW+Whbl+A6hKpBDepUDCYQNXp5OlzfSg129Hk6QK
+         pwB27100XPgsQr0Y8z+uauuAiVlBY78ExKFOb9fqcUwMwRQ8wO5TKuCao0WfXhggMD
+         WStC6Kh07r9D3w+5ibRsgiT4cIaIyDTJ7M6fB8Aofp6osBCRy+m5oB2uiUZxlwjclg
+         V6ODbdq/4JtoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oder Chiou <oder_chiou@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 18/30] ASoC: rt5682: Fix the fast discharge for headset unplugging in soundwire mode
-Date:   Tue, 15 Jun 2021 11:48:55 -0400
-Message-Id: <20210615154908.62388-18-sashal@kernel.org>
+Cc:     Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-staging@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 19/30] pinctrl: ralink: rt2880: avoid to error in calls is pin is already enabled
+Date:   Tue, 15 Jun 2021 11:48:56 -0400
+Message-Id: <20210615154908.62388-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210615154908.62388-1-sashal@kernel.org>
 References: <20210615154908.62388-1-sashal@kernel.org>
@@ -42,35 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oder Chiou <oder_chiou@realtek.com>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-[ Upstream commit 49783c6f4a4f49836b5a109ae0daf2f90b0d7713 ]
+[ Upstream commit eb367d875f94a228c17c8538e3f2efcf2eb07ead ]
 
-Based on ("5a15cd7fce20b1fd4aece6a0240e2b58cd6a225d"), the setting also
-should be set in soundwire mode.
+In 'rt2880_pmx_group_enable' driver is printing an error and returning
+-EBUSY if a pin has been already enabled. This begets anoying messages
+in the caller when this happens like the following:
 
-Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
-Link: https://lore.kernel.org/r/20210604063150.29925-1-oder_chiou@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+rt2880-pinmux pinctrl: pcie is already enabled
+mt7621-pci 1e140000.pcie: Error applying setting, reverse things back
+
+To avoid this just print the already enabled message in the pinctrl
+driver and return 0 instead to not confuse the user with a real
+bad problem.
+
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20210604055337.20407-1-sergio.paracuellos@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682-sdw.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5682-sdw.c b/sound/soc/codecs/rt5682-sdw.c
-index 58fb13132602..aa6c325faeab 100644
---- a/sound/soc/codecs/rt5682-sdw.c
-+++ b/sound/soc/codecs/rt5682-sdw.c
-@@ -455,7 +455,8 @@ static int rt5682_io_init(struct device *dev, struct sdw_slave *slave)
+diff --git a/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c b/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
+index caaf9e34f1ee..09b0b8a16e99 100644
+--- a/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
++++ b/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
+@@ -127,7 +127,7 @@ static int rt2880_pmx_group_enable(struct pinctrl_dev *pctrldev,
+ 	if (p->groups[group].enabled) {
+ 		dev_err(p->dev, "%s is already enabled\n",
+ 			p->groups[group].name);
+-		return -EBUSY;
++		return 0;
+ 	}
  
- 	regmap_update_bits(rt5682->regmap, RT5682_CBJ_CTRL_2,
- 		RT5682_EXT_JD_SRC, RT5682_EXT_JD_SRC_MANUAL);
--	regmap_write(rt5682->regmap, RT5682_CBJ_CTRL_1, 0xd042);
-+	regmap_write(rt5682->regmap, RT5682_CBJ_CTRL_1, 0xd142);
-+	regmap_update_bits(rt5682->regmap, RT5682_CBJ_CTRL_5, 0x0700, 0x0600);
- 	regmap_update_bits(rt5682->regmap, RT5682_CBJ_CTRL_3,
- 		RT5682_CBJ_IN_BUF_EN, RT5682_CBJ_IN_BUF_EN);
- 	regmap_update_bits(rt5682->regmap, RT5682_SAR_IL_CMD_1,
+ 	p->groups[group].enabled = 1;
 -- 
 2.30.2
 
