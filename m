@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C798C3A855A
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01F4B3A8563
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232504AbhFOPzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:55:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44848 "EHLO mail.kernel.org"
+        id S233002AbhFOPzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:55:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232509AbhFOPxA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:53:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A8DD6162C;
-        Tue, 15 Jun 2021 15:50:28 +0000 (UTC)
+        id S232574AbhFOPxH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:53:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4FB3617ED;
+        Tue, 15 Jun 2021 15:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772229;
-        bh=LUNdG5gGL32wnTQXMZa30zLxgkpN2XOHyAaL4hkkj9U=;
-        h=From:To:Cc:Subject:Date:From;
-        b=h+3KUcIvfcXP2LRs1SbYK1THOrB3/jOSdwwTwtIAXN2zABll1OvS9WQ5RuHcArYtj
-         rZf4+zKoHolXB1MxhE3oiwrQqsspCb+MqIgmhPmVFMzpiIqxDPA1KzoGOk/rNFtIAw
-         pItO4NM3jkHSF5BbONjIajzEakfedtrN38SpI9bnO0VRuImSXDowGuRpU4hfE1PSS1
-         +qDbD8JvwikkFStFKuspKNHx/QznPw6dBzosSYwDeIdBr7fyak/EZkK/DGrzdjvmO6
-         0Y1E4xEg6+xgI9eSGhORakjRKDwN48HnAG+znvp8MUzDSEz1KjCIZ6Bpwe6B9TBY8S
-         wylJ5580U2l1w==
+        s=k20201202; t=1623772230;
+        bh=ROjg6SNDtfwI7jXF6eCnrmEIUrAlNM+argRrKalYVDA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Ioa7970t5+ndbe/pc96FP5athiHQA7vRZSCA+92817KKixhmnMmSd1w7lit3//uIU
+         rypKtIy1lkSGxEP0X8y/UWVCxbLrh4sST3NW2LagM8u1DNnZUh+R4t/xCN4FN+oMZX
+         RS4dlrbwb2vv2JdeEeuz9W5yfsFXdz8iyHRnAbZuJCYFc14o1m1QPSeNc7JP6W39mL
+         zfz6bK6rNZu6OPGcG1aIMTDvkRL29jKsbaEX6QqeC7iTVztuE6KZGFm1TkCRM6dQDr
+         orUmiR6NYbEpf9suRiKbb83GXYBlSZzdF4YPclezjzl63sBa4KFGAm5xLptloMGW7f
+         RAOwMqyudaHwg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dai Ngo <dai.ngo@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/8] NFSv4: nfs4_proc_set_acl needs to restore NFS_CAP_UIDGID_NOMAP on error.
-Date:   Tue, 15 Jun 2021 11:50:20 -0400
-Message-Id: <20210615155027.63048-1-sashal@kernel.org>
+Cc:     Ming Lei <ming.lei@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        John Garry <john.garry@huawei.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 2/8] scsi: core: Fix error handling of scsi_host_alloc()
+Date:   Tue, 15 Jun 2021 11:50:21 -0400
+Message-Id: <20210615155027.63048-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210615155027.63048-1-sashal@kernel.org>
+References: <20210615155027.63048-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -41,62 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit f8849e206ef52b584cd9227255f4724f0cc900bb ]
+[ Upstream commit 66a834d092930cf41d809c0e989b13cd6f9ca006 ]
 
-Currently if __nfs4_proc_set_acl fails with NFS4ERR_BADOWNER it
-re-enables the idmapper by clearing NFS_CAP_UIDGID_NOMAP before
-retrying again. The NFS_CAP_UIDGID_NOMAP remains cleared even if
-the retry fails. This causes problem for subsequent setattr
-requests for v4 server that does not have idmapping configured.
+After device is initialized via device_initialize(), or its name is set via
+dev_set_name(), the device has to be freed via put_device().  Otherwise
+device name will be leaked because it is allocated dynamically in
+dev_set_name().
 
-This patch modifies nfs4_proc_set_acl to detect NFS4ERR_BADOWNER
-and NFS4ERR_BADNAME and skips the retry, since the kernel isn't
-involved in encoding the ACEs, and return -EINVAL.
+Fix the leak by replacing kfree() with put_device(). Since
+scsi_host_dev_release() properly handles IDA and kthread removal, remove
+special-casing these from the error handling as well.
 
-Steps to reproduce the problem:
-
- # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
- # touch /tmp/mnt/file1
- # chown 99 /tmp/mnt/file1
- # nfs4_setfacl -a A::unknown.user@xyz.com:wrtncy /tmp/mnt/file1
- Failed setxattr operation: Invalid argument
- # chown 99 /tmp/mnt/file1
- chown: changing ownership of ‘/tmp/mnt/file1’: Invalid argument
- # umount /tmp/mnt
- # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
- # chown 99 /tmp/mnt/file1
- #
-
-v2: detect NFS4ERR_BADOWNER and NFS4ERR_BADNAME and skip retry
-       in nfs4_proc_set_acl.
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Link: https://lore.kernel.org/r/20210602133029.2864069-2-ming.lei@redhat.com
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/scsi/hosts.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index e053fd7f83d8..ae19ead908d5 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5294,6 +5294,14 @@ static int nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t buflen
- 	do {
- 		err = __nfs4_proc_set_acl(inode, buf, buflen);
- 		trace_nfs4_set_acl(inode, err);
-+		if (err == -NFS4ERR_BADOWNER || err == -NFS4ERR_BADNAME) {
-+			/*
-+			 * no need to retry since the kernel
-+			 * isn't involved in encoding the ACEs.
-+			 */
-+			err = -EINVAL;
-+			break;
-+		}
- 		err = nfs4_handle_exception(NFS_SERVER(inode), err,
- 				&exception);
- 	} while (exception.retry);
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index ef22b275d050..7f99f02aef1c 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -404,8 +404,10 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
+ 	mutex_init(&shost->scan_mutex);
+ 
+ 	index = ida_simple_get(&host_index_ida, 0, 0, GFP_KERNEL);
+-	if (index < 0)
+-		goto fail_kfree;
++	if (index < 0) {
++		kfree(shost);
++		return NULL;
++	}
+ 	shost->host_no = index;
+ 
+ 	shost->dma_channel = 0xff;
+@@ -493,7 +495,7 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
+ 		shost_printk(KERN_WARNING, shost,
+ 			"error handler thread failed to spawn, error = %ld\n",
+ 			PTR_ERR(shost->ehandler));
+-		goto fail_index_remove;
++		goto fail;
+ 	}
+ 
+ 	shost->tmf_work_q = alloc_workqueue("scsi_tmf_%d",
+@@ -502,17 +504,18 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
+ 	if (!shost->tmf_work_q) {
+ 		shost_printk(KERN_WARNING, shost,
+ 			     "failed to create tmf workq\n");
+-		goto fail_kthread;
++		goto fail;
+ 	}
+ 	scsi_proc_hostdir_add(shost->hostt);
+ 	return shost;
++ fail:
++	/*
++	 * Host state is still SHOST_CREATED and that is enough to release
++	 * ->shost_gendev. scsi_host_dev_release() will free
++	 * dev_name(&shost->shost_dev).
++	 */
++	put_device(&shost->shost_gendev);
+ 
+- fail_kthread:
+-	kthread_stop(shost->ehandler);
+- fail_index_remove:
+-	ida_simple_remove(&host_index_ida, shost->host_no);
+- fail_kfree:
+-	kfree(shost);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL(scsi_host_alloc);
 -- 
 2.30.2
 
