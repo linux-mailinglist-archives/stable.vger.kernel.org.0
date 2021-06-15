@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A28E3A84F0
+	by mail.lfdr.de (Postfix) with ESMTP id 539583A84F1
 	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232424AbhFOPwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:52:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46096 "EHLO mail.kernel.org"
+        id S231932AbhFOPwj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:52:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231664AbhFOPvt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:51:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A08661878;
-        Tue, 15 Jun 2021 15:49:43 +0000 (UTC)
+        id S231992AbhFOPvu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:51:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09FFC6148E;
+        Tue, 15 Jun 2021 15:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772184;
-        bh=+vzVZBTqzGrg9G1F91xSBepckO+sUx5Gbkr/R4+fHPI=;
+        s=k20201202; t=1623772185;
+        bh=4N5XB1kMClR4uHWK6xi+bP3P4je3OwE/wcElNSnGzR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URIRDfGwD55uAV1HibreaE29Ofytt3RVQzc4OmPULmJ2XumsCMvXQsYVhv8U+4Wwe
-         4r/mjvKFb0bc5Wfh9HIhub4//045T7U9iaxqgxcfkNS8F8W4wQ/Cr3UK+x5uBuOg6o
-         n16a+ogWO5DHJCldhzBZh5lz1f9HWY38rytTZzQoRjCtcHEVjtNc+5zuGKYfDL6a1o
-         55iNGP630MASHvwcIGjn04SMZFrZRJ/vC+YyKaaPAAoQIAgNFejWy+Kz5QFujx2Khh
-         UOh/ttIKcYZOqGKIqR3mZsNv7ReTnPkaAh5Ssag4UQkT/LLUDO/vxdD1ok1msyX6UC
-         LBRopOFSi8G/Q==
+        b=jjCg3pDFyFqxulMyHHREhpDhhSEQDs8zRH4ELML63yLVY3n8c2anjmebE2R+O3sLX
+         4nkMA3U1LJJ2d45RB2/HABxkG+KLtyIFbBUVw2woBa5jG0+9eAyorP7BZ9EB4+5SC7
+         Rv9GjOoydx5SZ5dBM5NeKYakcmFdIa9Fi6rzulchV9mlfnIyYUUR0bO1BtDnqb6ipQ
+         gCSEVJiTCgWrksaL83rCe35IYweCKPafEF/zEtwqtAlio32T3IWzsW99FdY2C4NLO5
+         j+wACulERn+Hy6ZDXRMIttE8SkDE7qEc6ykMY0bQg49XhSfsseOKnTCWZfDO9UHWaO
+         XoARGyuCrXzZA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 28/30] kvm: fix previous commit for 32-bit builds
-Date:   Tue, 15 Jun 2021 11:49:05 -0400
-Message-Id: <20210615154908.62388-28-sashal@kernel.org>
+Cc:     Riwen Lu <luriwen@kylinos.cn>, Xin Chen <chenxin@kylinos.cn>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 29/30] hwmon: (scpi-hwmon) shows the negative temperature properly
+Date:   Tue, 15 Jun 2021 11:49:06 -0400
+Message-Id: <20210615154908.62388-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210615154908.62388-1-sashal@kernel.org>
 References: <20210615154908.62388-1-sashal@kernel.org>
@@ -41,34 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Riwen Lu <luriwen@kylinos.cn>
 
-[ Upstream commit 4422829e8053068e0225e4d0ef42dc41ea7c9ef5 ]
+[ Upstream commit 78d13552346289bad4a9bf8eabb5eec5e5a321a5 ]
 
-array_index_nospec does not work for uint64_t on 32-bit builds.
-However, the size of a memory slot must be less than 20 bits wide
-on those system, since the memory slot must fit in the user
-address space.  So just store it in an unsigned long.
+The scpi hwmon shows the sub-zero temperature in an unsigned integer,
+which would confuse the users when the machine works in low temperature
+environment. This shows the sub-zero temperature in an signed value and
+users can get it properly from sensors.
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Riwen Lu <luriwen@kylinos.cn>
+Tested-by: Xin Chen <chenxin@kylinos.cn>
+Link: https://lore.kernel.org/r/20210604030959.736379-1-luriwen@kylinos.cn
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kvm_host.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwmon/scpi-hwmon.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index ecab72456c10..c66c702a4f07 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1110,8 +1110,8 @@ __gfn_to_hva_memslot(struct kvm_memory_slot *slot, gfn_t gfn)
- 	 * table walks, do not let the processor speculate loads outside
- 	 * the guest's registered memslots.
- 	 */
--	unsigned long offset = array_index_nospec(gfn - slot->base_gfn,
--						  slot->npages);
-+	unsigned long offset = gfn - slot->base_gfn;
-+	offset = array_index_nospec(offset, slot->npages);
- 	return slot->userspace_addr + offset * PAGE_SIZE;
+diff --git a/drivers/hwmon/scpi-hwmon.c b/drivers/hwmon/scpi-hwmon.c
+index 25aac40f2764..919877970ae3 100644
+--- a/drivers/hwmon/scpi-hwmon.c
++++ b/drivers/hwmon/scpi-hwmon.c
+@@ -99,6 +99,15 @@ scpi_show_sensor(struct device *dev, struct device_attribute *attr, char *buf)
+ 
+ 	scpi_scale_reading(&value, sensor);
+ 
++	/*
++	 * Temperature sensor values are treated as signed values based on
++	 * observation even though that is not explicitly specified, and
++	 * because an unsigned u64 temperature does not really make practical
++	 * sense especially when the temperature is below zero degrees Celsius.
++	 */
++	if (sensor->info.class == TEMPERATURE)
++		return sprintf(buf, "%lld\n", (s64)value);
++
+ 	return sprintf(buf, "%llu\n", value);
  }
  
 -- 
