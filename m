@@ -2,119 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 758183A85E8
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 18:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C7A3A8611
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 18:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232001AbhFOQDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 12:03:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60806 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231345AbhFOQDD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Jun 2021 12:03:03 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A35BC08ED8D
-        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 08:57:22 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id q25so13602849pfh.7
-        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 08:57:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WD5J3sc3v6dxK0XaqIoSoHOWpYNoEwLJIrmzHgNx6so=;
-        b=j4pJRpqKIHdFIM7TDhyoVDGqM4BlRTslEZYZrmb3AKWmb2tWKzXb1KRngcRv3EfdsS
-         a7aU0ZTVs2TnLWzVjQEQxXBzrzJCTLORzqeNik8L/L35tTcyMDxneeRt8AeSUoTATkm0
-         yffgEyf8T3QgcB+v0OaiWbjl3lTp0ovfg9IJQ6ToR5Mew/K07kN0Rj1S8X3QiWJh0i7Y
-         E/MfsNJ06fsqtmuZ3FzgRB5lG+ZxSTcyH+lEe1+5IkZw+xh5LI5p07MM6guYsLaL53zM
-         eknltMMjE4B8IfLm19L519Ao1n/HwVek9phqpX2RPsj1SYOc1BYgGbso1fUb7hTy1DKG
-         xWbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WD5J3sc3v6dxK0XaqIoSoHOWpYNoEwLJIrmzHgNx6so=;
-        b=HI6P8K1jz7jODnnoc1yKFwvb2xOePF9fCEDE6gooKpNT3Tl21m1ZGbE3s+RCvE93Rs
-         DIURIfr2W0f5+ObAdpZtVL2bXevh5zPZlMG0gP9+iQD22CNkkwWE8XdeUh7n31f3JkQ7
-         CoHXgfNJgxfF5nwChkRXJfRK0/P0iP0kTdNqAdnXezYSSoPbE3iJ7vvu6ozrxunNP8sV
-         vUH6UtnfOOWndu4VKynyu39BZel/OwuDwjz9OEIiOREdkpA6IAySN84cLCQjM5geah0b
-         DQwJE+7IPtqb/DgNTn/7GB9wx+g3k3JHSvj/dV09AIc1bwUfVYX1OCArOoxS+fnYMlq8
-         /axg==
-X-Gm-Message-State: AOAM531uvRV4ZLa/o31SHI/GF0v7Rzs7oJBkAVspbmT6nkJm6re3uRRN
-        FcvLPy5s2lnWaiTRJCZV/uzKfpYX83MgdQ==
-X-Google-Smtp-Source: ABdhPJzl4p/maEXNJ7yvqyafC0dZue3GUIGmVW8GkqADC8kEcHSBCAWiRcKFghyibwizsVl3eF5SFw==
-X-Received: by 2002:a63:5760:: with SMTP id h32mr157581pgm.367.1623772641986;
-        Tue, 15 Jun 2021 08:57:21 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e15sm10937685pgu.54.2021.06.15.08.57.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Jun 2021 08:57:21 -0700 (PDT)
-Message-ID: <60c8cde1.1c69fb81.9490d.ddf9@mx.google.com>
-Date:   Tue, 15 Jun 2021 08:57:21 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229957AbhFOQJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 12:09:02 -0400
+Received: from mail.manjaro.org ([176.9.38.148]:34950 "EHLO mail.manjaro.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229488AbhFOQJB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 12:09:01 -0400
+X-Greylist: delayed 3960 seconds by postgrey-1.27 at vger.kernel.org; Tue, 15 Jun 2021 12:09:00 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by mail.manjaro.org (Postfix) with ESMTP id 65E203FA0447;
+        Tue, 15 Jun 2021 18:06:54 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at manjaro.org
+Received: from mail.manjaro.org ([127.0.0.1])
+        by localhost (manjaro.org [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id YxR01crYKHPU; Tue, 15 Jun 2021 18:06:52 +0200 (CEST)
+Subject: Re: [systemd] v248.2 and later won't boot 4.19 kernel series
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+References: <a53e11ac-b2af-4410-9a7b-59a6ba8efca5@manjaro.org>
+ <YMjJocK3UcCLVl8H@kroah.com>
+From:   =?UTF-8?Q?Philip_M=c3=bcller?= <philm@manjaro.org>
+Organization: Manjaro Community
+Message-ID: <165856f8-4a42-cdf3-e9cd-5fac51e8d168@manjaro.org>
+Date:   Tue, 15 Jun 2021 18:05:30 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.43-129-ga148e2a9c327
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 175 runs,
- 1 regressions (v5.10.43-129-ga148e2a9c327)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <YMjJocK3UcCLVl8H@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="sjCwwrSjkzc1U1x8qZATxfCxhlwykiXam"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 175 runs, 1 regressions (v5.10.43-129-ga148e=
-2a9c327)
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--sjCwwrSjkzc1U1x8qZATxfCxhlwykiXam
+Content-Type: multipart/mixed; boundary="nfh6fAsTnMkbKz5HLWnYNtgi6gGZUpHzl";
+ protected-headers="v1"
+From: =?UTF-8?Q?Philip_M=c3=bcller?= <philm@manjaro.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Message-ID: <165856f8-4a42-cdf3-e9cd-5fac51e8d168@manjaro.org>
+Subject: Re: [systemd] v248.2 and later won't boot 4.19 kernel series
+References: <a53e11ac-b2af-4410-9a7b-59a6ba8efca5@manjaro.org>
+ <YMjJocK3UcCLVl8H@kroah.com>
+In-Reply-To: <YMjJocK3UcCLVl8H@kroah.com>
 
-Regressions Summary
--------------------
+--nfh6fAsTnMkbKz5HLWnYNtgi6gGZUpHzl
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+On 15.06.21 17:39, Greg Kroah-Hartman wrote:
+> Do newer kernels work?
+>=20
+> Any chance you can run 'git bisect' to find the offending kernel patch?=
 
+>=20
+> 4.19 is really old, is this a stable-update-issue, or a "something
+> changed since 4.19 was released" type of issue?
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.43-129-ga148e2a9c327/plan/baseline/
+Older and newer kernel series work. So 4.4, 4.14, 5.10 and 5.13 I've
+tested so far. No issues with 248.3 of Systemd. Have to see if any 4.19
+kernel boot with that version ...
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.43-129-ga148e2a9c327
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a148e2a9c3270ebd47453ff0df2179f88e0156dc =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c89aa84b2b992016413273
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.43-=
-129-ga148e2a9c327/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.43-=
-129-ga148e2a9c327/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+--=20
+Best, Philip
 
 
+--nfh6fAsTnMkbKz5HLWnYNtgi6gGZUpHzl--
 
-  * baseline.login: https://kernelci.org/test/case/id/60c89aa84b2b992016413=
-274
-        new failure (last pass: v5.10.43-44-g71862092cb77) =
+--sjCwwrSjkzc1U1x8qZATxfCxhlwykiXam
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
- =20
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEE5M3+UKLahdWMioxwyqallhHH8H4FAmDIz8oFAwAAAAAACgkQyqallhHH8H7M
+mQgAwzs5eYaIRuZKuAJ3bjXeNm9uqULQQ76U8rq1KXZFU+qumSp9Q6hQ861DQoguvMmW1ry7PziH
+0jcsL4cGJdaNo46Lxh6JkutmR3zn4mYmrRWPH1WTJY8N3eWaLu/Mm+SH+dfc1Z+eL8gxuVyYx8XI
+Kd1aQlBr0WaFgmMSrP77B+G6xCVvMjrC117O4F+fBdBbZ70WTWjvKkcW8/pbSKPufm5j1NzZvw5Q
+qpByscvW3NBuMC1woAxXj3A1qmmeqAoJl9QMZJmF+FXpmWz14YPlDSs0Fx30r1lHsUGNt8kOqZnc
+P6IKyRX2wJqDb9gHmWRjv8rZsYG9xvFukw2fsme00A==
+=+bi1
+-----END PGP SIGNATURE-----
+
+--sjCwwrSjkzc1U1x8qZATxfCxhlwykiXam--
