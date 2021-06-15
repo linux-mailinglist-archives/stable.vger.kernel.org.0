@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E12E83A84C2
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:50:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 845BC3A84C4
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232241AbhFOPvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:51:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
+        id S232129AbhFOPv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:51:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232125AbhFOPvb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:51:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7481B61864;
-        Tue, 15 Jun 2021 15:49:26 +0000 (UTC)
+        id S232128AbhFOPvc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:51:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAE39616ED;
+        Tue, 15 Jun 2021 15:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772167;
-        bh=B60Ie+OjEirDWdruJwC0k9ONKwgVsf/7BWwlQr6AOtI=;
+        s=k20201202; t=1623772168;
+        bh=RUHcFzP7JEmRgQ8Y5ojMdQlxqPAruhth2Tfc16/Sclc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bE6DHb4SQ++f39Pb2XHaX3IOqTDKdDC2ynOInAc5oNjQ27UfsVd8gakSZePPyChEG
-         SOGODuV7I2yrV78tEdp36GtkaCyji0WIlWvo+0VETPlpbOWQHW4PX3JlMXoBfTVdGA
-         WaJ6JmaIcE93PCkF18VZtS+LRpRUEURLV70CboMnrU8K83SPzCHDREVT6ZVsH6yKFT
-         annPbEMMDIujewUQuVQKW3GDcR5lZVP9IwTosBxMBWpS/kwhZjKK47p65kphyVyYyv
-         g/peHfT75R8I8nCiDBYp3pTeJW54N0Z81rFeiiVhcbfgiysx4/drI+Lvray/W1ffD0
-         r8tFW1CX0KsFQ==
+        b=DfoqwkQU/bulmt85XFrnP3CmiOff9Wl6Ix8cOVOTG7hw3iq7VtV9MxtfEsVNelmZ4
+         6KyBQuki13mCUawtAiiHnewU2NTU0Q6KX/69eP+pAsr1RYgp54bVbkClnluheBjTM9
+         3sYwNFruBV/rdoo/6fmAvAWCYFytSe/fUfsa1GD7M+AmmWoRWRT/gGN49NufbxLj4r
+         FHkRyd0JeTGBo/YVLXN31nxcEBTnL6saxZ392sVbB6rJuTPXVGquLOSqu/hiEmPwW0
+         2THGcW/OdkqvZnzAtF/IMpv7ez2QRByBLxyLlC4n187d4B+zirrcp+b14LEUlzO9RP
+         LPUhzfi3xpzUg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Patrice Chotard <patrice.chotard@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 15/30] spi: stm32-qspi: Always wait BUSY bit to be cleared in stm32_qspi_wait_cmd()
-Date:   Tue, 15 Jun 2021 11:48:52 -0400
-Message-Id: <20210615154908.62388-15-sashal@kernel.org>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 16/30] NFSv4: Fix second deadlock in nfs4_evict_inode()
+Date:   Tue, 15 Jun 2021 11:48:53 -0400
+Message-Id: <20210615154908.62388-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210615154908.62388-1-sashal@kernel.org>
 References: <20210615154908.62388-1-sashal@kernel.org>
@@ -44,49 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrice Chotard <patrice.chotard@foss.st.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit d38fa9a155b2829b7e2cfcf8a4171b6dd3672808 ]
+[ Upstream commit c3aba897c6e67fa464ec02b1f17911577d619713 ]
 
-In U-boot side, an issue has been encountered when QSPI source clock is
-running at low frequency (24 MHz for example), waiting for TCF bit to be
-set didn't ensure that all data has been send out the FIFO, we should also
-wait that BUSY bit is cleared.
+If the inode is being evicted but has to return a layout first, then
+that too can cause a deadlock in the corner case where the server
+reboots.
 
-To prevent similar issue in kernel driver, we implement similar behavior
-by always waiting BUSY bit to be cleared.
-
-Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Link: https://lore.kernel.org/r/20210603073421.8441-1-patrice.chotard@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32-qspi.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
-index 2786470a5201..4f24f6392212 100644
---- a/drivers/spi/spi-stm32-qspi.c
-+++ b/drivers/spi/spi-stm32-qspi.c
-@@ -293,7 +293,7 @@ static int stm32_qspi_wait_cmd(struct stm32_qspi *qspi,
- 	int err = 0;
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 0a0b7680ea85..f387b34bc5e5 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -9627,15 +9627,20 @@ int nfs4_proc_layoutreturn(struct nfs4_layoutreturn *lrp, bool sync)
+ 			&task_setup_data.rpc_client, &msg);
  
- 	if (!op->data.nbytes)
--		return stm32_qspi_wait_nobusy(qspi);
-+		goto wait_nobusy;
- 
- 	if (readl_relaxed(qspi->io_base + QSPI_SR) & SR_TCF)
- 		goto out;
-@@ -314,6 +314,9 @@ static int stm32_qspi_wait_cmd(struct stm32_qspi *qspi,
- out:
- 	/* clear flags */
- 	writel_relaxed(FCR_CTCF | FCR_CTEF, qspi->io_base + QSPI_FCR);
-+wait_nobusy:
-+	if (!err)
-+		err = stm32_qspi_wait_nobusy(qspi);
- 
- 	return err;
- }
+ 	dprintk("--> %s\n", __func__);
++	lrp->inode = nfs_igrab_and_active(lrp->args.inode);
+ 	if (!sync) {
+-		lrp->inode = nfs_igrab_and_active(lrp->args.inode);
+ 		if (!lrp->inode) {
+ 			nfs4_layoutreturn_release(lrp);
+ 			return -EAGAIN;
+ 		}
+ 		task_setup_data.flags |= RPC_TASK_ASYNC;
+ 	}
+-	nfs4_init_sequence(&lrp->args.seq_args, &lrp->res.seq_res, 1, 0);
++	if (!lrp->inode)
++		nfs4_init_sequence(&lrp->args.seq_args, &lrp->res.seq_res, 1,
++				   1);
++	else
++		nfs4_init_sequence(&lrp->args.seq_args, &lrp->res.seq_res, 1,
++				   0);
+ 	task = rpc_run_task(&task_setup_data);
+ 	if (IS_ERR(task))
+ 		return PTR_ERR(task);
 -- 
 2.30.2
 
