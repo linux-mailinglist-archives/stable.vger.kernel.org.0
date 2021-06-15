@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F39303A845B
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:48:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6C43A845D
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:48:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231754AbhFOPub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:50:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44476 "EHLO mail.kernel.org"
+        id S231791AbhFOPuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:50:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231700AbhFOPua (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:50:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D71136142E;
-        Tue, 15 Jun 2021 15:48:25 +0000 (UTC)
+        id S231700AbhFOPub (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:50:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C965B61603;
+        Tue, 15 Jun 2021 15:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772106;
-        bh=UkDxa+fl9rFOLo1Io0faeV/fqWbjlXYKuHxxv5ocWTY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=gjQmNDQNwGw9yLyJR8Xn4C6Mkz1THWhrFrI1VOxR9PRRltGMIu3JVJNgLBzwpOmci
-         vpjIxM2ZFfw7Fvc5JESGeT8rDugAUMUWBhuoYmYYtB+3cxmZjvlxxsGWD2B/y/KiUm
-         nxK1uUCWNH2k7CAEMQwECWUUqeKQ/JQDwkSkSZikGRaHP9yXOEX971q0CHfZhUe9Ol
-         5YwuqLEfwEWoo1GjY3o8D3q0T+GSRrpWh8UwJzKtLMue8B0623XVbExiPwvhF29ETt
-         ovCVgXHpLIrkt/dnS193vJPqFS7IyV+GxHOBn/Gg9R+A6oU8p2+wIo/5gprKHMpX/0
-         HsfqY0//REp3w==
+        s=k20201202; t=1623772107;
+        bh=7XithQDclGVMskiYSnk+wc7QQ9CgiuP0MCr5Rw/yn7M=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=T5jtZSEAm2FhaSgnuSZnfuBIIRdwkie1ewxYmDb6QlUKC+freJgWBM9k5WGxwMM0l
+         XVtANtLLEaixOt+jwzFghnhkqnliXdQqBb8y0pKA23kZB+NsZsStpAdZs4WntHzNN1
+         G0EG38Y1RTnc3GuEogmZirWyALl1F4XHrWFcKB+mxj9qxywiq1lkAqSIyqsRLyhs3Z
+         z1Iv9x4pXcFBUaAOcYr+ekYGEB7h084iM8oRfMTXUNg8EkVOz+4aIV0po2M5WQI+ab
+         Ym/VKE4pOFXcool61q9Axd5t1KwtfHjss/Qb7LFdwU/x8g11G1fyM+jk1t9HttjioE
+         ChW7qo/rq4sjA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>,
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 01/33] regulator: cros-ec: Fix error code in dev_err message
-Date:   Tue, 15 Jun 2021 11:47:52 -0400
-Message-Id: <20210615154824.62044-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 02/33] regulator: max77620: Silence deferred probe error
+Date:   Tue, 15 Jun 2021 11:47:53 -0400
+Message-Id: <20210615154824.62044-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210615154824.62044-1-sashal@kernel.org>
+References: <20210615154824.62044-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -39,35 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 3d681804efcb6e5d8089a433402e19179347d7ae ]
+[ Upstream commit 62499a94ce5b9a41047dbadaad885347b1176079 ]
 
-Show proper error code instead of 0.
+One of previous changes to regulator core causes PMIC regulators to
+re-probe until supply regulator is registered. Silence noisy error
+message about the deferred probe.
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20210512075824.620580-1-axel.lin@ingics.com
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20210523224243.13219-3-digetx@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/cros-ec-regulator.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/regulator/max77620-regulator.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/regulator/cros-ec-regulator.c b/drivers/regulator/cros-ec-regulator.c
-index eb3fc1db4edc..c4754f3cf233 100644
---- a/drivers/regulator/cros-ec-regulator.c
-+++ b/drivers/regulator/cros-ec-regulator.c
-@@ -225,8 +225,9 @@ static int cros_ec_regulator_probe(struct platform_device *pdev)
+diff --git a/drivers/regulator/max77620-regulator.c b/drivers/regulator/max77620-regulator.c
+index 8d9731e4052b..6d0a8c696ecd 100644
+--- a/drivers/regulator/max77620-regulator.c
++++ b/drivers/regulator/max77620-regulator.c
+@@ -839,12 +839,10 @@ static int max77620_regulator_probe(struct platform_device *pdev)
+ 			return ret;
  
- 	drvdata->dev = devm_regulator_register(dev, &drvdata->desc, &cfg);
- 	if (IS_ERR(drvdata->dev)) {
-+		ret = PTR_ERR(drvdata->dev);
- 		dev_err(&pdev->dev, "Failed to register regulator: %d\n", ret);
--		return PTR_ERR(drvdata->dev);
-+		return ret;
+ 		rdev = devm_regulator_register(dev, rdesc, &config);
+-		if (IS_ERR(rdev)) {
+-			ret = PTR_ERR(rdev);
+-			dev_err(dev, "Regulator registration %s failed: %d\n",
+-				rdesc->name, ret);
+-			return ret;
+-		}
++		if (IS_ERR(rdev))
++			return dev_err_probe(dev, PTR_ERR(rdev),
++					     "Regulator registration %s failed\n",
++					     rdesc->name);
  	}
  
- 	platform_set_drvdata(pdev, drvdata);
+ 	return 0;
 -- 
 2.30.2
 
