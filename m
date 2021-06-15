@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F1563A8530
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:51:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E863A8532
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 17:51:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232762AbhFOPx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 11:53:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46756 "EHLO mail.kernel.org"
+        id S231931AbhFOPyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 11:54:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232209AbhFOPw1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 11:52:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3079E61883;
-        Tue, 15 Jun 2021 15:50:11 +0000 (UTC)
+        id S232392AbhFOPw2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 11:52:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 691956191A;
+        Tue, 15 Jun 2021 15:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623772212;
-        bh=9BY+7FlAR/W7EiBSFe7ISrft7bHXbXUdoK/bMZJNjuw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Krs5EhRYGaisd+KNgXWF9vNq9dcrcQmqjg0zQnKuP3N3aww2MLz9AfsfSSD+B7e8q
-         92YauaiPdLWDEAAOapeqN/9CCplfuzybI2uoPdz2fp97Gw/93UkkRkZovkJsS6F5PM
-         5joTzcSkH+CLYT6VTLT6vuIwJrF9Wf3mqi8dTea9mQzhFhmw+OTETRzcSc8nzLWq5o
-         I7p/CeyVEtWhL9EJXxCbXi65xz3T8DjKsnG1eQzUCLif6zw8frXWGRp8bgQ1GTR6lU
-         omKhywm7gkCxy31tJ/2zVHZ3t+cgc+XJQr5JHh+CqwDRERwN8qbPhsOoDuEiGmr0aO
-         rZFOhHnlGC/pg==
+        s=k20201202; t=1623772213;
+        bh=nSbDRxbfQNcBCAEvBMA0jVLbkhkX0M1Tni64+hwbg0E=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rBQjBwnOxK50h2/CcFZCCM+tu3847jgpv8ZtCeC1mo1clo1KzSRN3omnOKho/fYV/
+         gYQ22rcwNKsuBOqWl9VfLJfdAnCIFPNl2mjF5Kf2MZU6HHhMB1WWrOGkfYZyrzS4e2
+         2jblVJKyclS91LMKA/AWXhNrkebYGYUZxeE0E93ELYGtVWGvdgmj2qlmViQs9n2Z9v
+         VnxialiWnD5QdgPYb7VEjz8cNw46qpuoOv4ZnkuvL3gB04Xg4wi3oEOHwQVOa1cenA
+         Jzb7eLK+JehqfKuQME7ZP7LcU1j/8qG8PnuR0isnlycVAU4RCD9ZNfCrrvZZF8EIA/
+         5qitoqo8+/i9g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Yu <jack.yu@realtek.com>, Oder Chiou <oder_chiou@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 01/12] ASoC: rt5659: Fix the lost powers for the HDA header
-Date:   Tue, 15 Jun 2021 11:49:58 -0400
-Message-Id: <20210615155009.62894-1-sashal@kernel.org>
+Cc:     Dai Ngo <dai.ngo@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 02/12] NFSv4: nfs4_proc_set_acl needs to restore NFS_CAP_UIDGID_NOMAP on error.
+Date:   Tue, 15 Jun 2021 11:49:59 -0400
+Message-Id: <20210615155009.62894-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210615155009.62894-1-sashal@kernel.org>
+References: <20210615155009.62894-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -40,83 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Yu <jack.yu@realtek.com>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-[ Upstream commit 6308c44ed6eeadf65c0a7ba68d609773ed860fbb ]
+[ Upstream commit f8849e206ef52b584cd9227255f4724f0cc900bb ]
 
-The power of "LDO2", "MICBIAS1" and "Mic Det Power" were powered off after
-the DAPM widgets were added, and these powers were set by the JD settings
-"RT5659_JD_HDA_HEADER" in the probe function. In the codec probe function,
-these powers were ignored to prevent them controlled by DAPM.
+Currently if __nfs4_proc_set_acl fails with NFS4ERR_BADOWNER it
+re-enables the idmapper by clearing NFS_CAP_UIDGID_NOMAP before
+retrying again. The NFS_CAP_UIDGID_NOMAP remains cleared even if
+the retry fails. This causes problem for subsequent setattr
+requests for v4 server that does not have idmapping configured.
 
-Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
-Signed-off-by: Jack Yu <jack.yu@realtek.com>
-Message-Id: <15fced51977b458798ca4eebf03dafb9@realtek.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch modifies nfs4_proc_set_acl to detect NFS4ERR_BADOWNER
+and NFS4ERR_BADNAME and skips the retry, since the kernel isn't
+involved in encoding the ACEs, and return -EINVAL.
+
+Steps to reproduce the problem:
+
+ # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
+ # touch /tmp/mnt/file1
+ # chown 99 /tmp/mnt/file1
+ # nfs4_setfacl -a A::unknown.user@xyz.com:wrtncy /tmp/mnt/file1
+ Failed setxattr operation: Invalid argument
+ # chown 99 /tmp/mnt/file1
+ chown: changing ownership of ‘/tmp/mnt/file1’: Invalid argument
+ # umount /tmp/mnt
+ # mount -o vers=4.1,sec=sys server:/export/test /tmp/mnt
+ # chown 99 /tmp/mnt/file1
+ #
+
+v2: detect NFS4ERR_BADOWNER and NFS4ERR_BADNAME and skip retry
+       in nfs4_proc_set_acl.
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5659.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ fs/nfs/nfs4proc.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/sound/soc/codecs/rt5659.c b/sound/soc/codecs/rt5659.c
-index b331b3ba61a9..ab73f84b5970 100644
---- a/sound/soc/codecs/rt5659.c
-+++ b/sound/soc/codecs/rt5659.c
-@@ -2473,13 +2473,18 @@ static int set_dmic_power(struct snd_soc_dapm_widget *w,
- 	return 0;
- }
- 
--static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
-+static const struct snd_soc_dapm_widget rt5659_particular_dapm_widgets[] = {
- 	SND_SOC_DAPM_SUPPLY("LDO2", RT5659_PWR_ANLG_3, RT5659_PWR_LDO2_BIT, 0,
- 		NULL, 0),
--	SND_SOC_DAPM_SUPPLY("PLL", RT5659_PWR_ANLG_3, RT5659_PWR_PLL_BIT, 0,
--		NULL, 0),
-+	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
-+		0, NULL, 0),
- 	SND_SOC_DAPM_SUPPLY("Mic Det Power", RT5659_PWR_VOL,
- 		RT5659_PWR_MIC_DET_BIT, 0, NULL, 0),
-+};
-+
-+static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
-+	SND_SOC_DAPM_SUPPLY("PLL", RT5659_PWR_ANLG_3, RT5659_PWR_PLL_BIT, 0,
-+		NULL, 0),
- 	SND_SOC_DAPM_SUPPLY("Mono Vref", RT5659_PWR_ANLG_1,
- 		RT5659_PWR_VREF3_BIT, 0, NULL, 0),
- 
-@@ -2504,8 +2509,6 @@ static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
- 		RT5659_ADC_MONO_R_ASRC_SFT, 0, NULL, 0),
- 
- 	/* Input Side */
--	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
--		0, NULL, 0),
- 	SND_SOC_DAPM_SUPPLY("MICBIAS2", RT5659_PWR_ANLG_2, RT5659_PWR_MB2_BIT,
- 		0, NULL, 0),
- 	SND_SOC_DAPM_SUPPLY("MICBIAS3", RT5659_PWR_ANLG_2, RT5659_PWR_MB3_BIT,
-@@ -3700,10 +3703,23 @@ static int rt5659_set_bias_level(struct snd_soc_component *component,
- 
- static int rt5659_probe(struct snd_soc_component *component)
- {
-+	struct snd_soc_dapm_context *dapm =
-+		snd_soc_component_get_dapm(component);
- 	struct rt5659_priv *rt5659 = snd_soc_component_get_drvdata(component);
- 
- 	rt5659->component = component;
- 
-+	switch (rt5659->pdata.jd_src) {
-+	case RT5659_JD_HDA_HEADER:
-+		break;
-+
-+	default:
-+		snd_soc_dapm_new_controls(dapm,
-+			rt5659_particular_dapm_widgets,
-+			ARRAY_SIZE(rt5659_particular_dapm_widgets));
-+		break;
-+	}
-+
- 	return 0;
- }
- 
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index bcad052db065..c0b314e0a9e5 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5576,6 +5576,14 @@ static int nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t buflen
+ 	do {
+ 		err = __nfs4_proc_set_acl(inode, buf, buflen);
+ 		trace_nfs4_set_acl(inode, err);
++		if (err == -NFS4ERR_BADOWNER || err == -NFS4ERR_BADNAME) {
++			/*
++			 * no need to retry since the kernel
++			 * isn't involved in encoding the ACEs.
++			 */
++			err = -EINVAL;
++			break;
++		}
+ 		err = nfs4_handle_exception(NFS_SERVER(inode), err,
+ 				&exception);
+ 	} while (exception.retry);
 -- 
 2.30.2
 
