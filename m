@@ -2,279 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0793A8671
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 18:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F873A866D
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 18:26:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229493AbhFOQ27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 12:28:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38780 "EHLO
+        id S230516AbhFOQ2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 12:28:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230494AbhFOQ26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Jun 2021 12:28:58 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12FF1C06175F
-        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 09:26:54 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id f84so21447450ybg.0
-        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 09:26:54 -0700 (PDT)
+        with ESMTP id S229493AbhFOQ2p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Jun 2021 12:28:45 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311D1C061574
+        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 09:26:40 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id f30so28051963lfj.1
+        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 09:26:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=axnFf8hFhq6CeSn9dYxCAGJW/gxwZt3SQaGFtCETUzk=;
-        b=Q60TauyOe0h3Wa+A019l6/TGMgTSSw4GAIiDi9+1P9OJLUgVAFBni6Znxkinlc1kYL
-         Y5pE/QNZzRODHN0iarY7flEQbbdM/lU2wUOY/tsd/ICFr2t/dU06dEYFhzkYNnijMlh+
-         SY6fUa2ze0YWe3PHeOEK1/9uMEy26J0LNF1z6O9RpYkbAIClMVPsRkC6VVIGV6quoM57
-         bCn+wf1Llcv61sru/hynO4uMYwhERMTDzySy8ZT6LBsWTrDMR5MjmdyREIS+kg8weVgC
-         t3x5CjdUGmauD/9mK6aVXhPO27WJpnSUm7qSbTAn4L5tWNsj0DiYmeLkmmttOdsjgPP3
-         ER6A==
+        bh=EBFLtpLfl9HP8/ret0EKv7MwCFVe5SQTPS5z/OHIK8Y=;
+        b=bQywYYAF55xi9rfhAvnKFe87fzG8BbK+wEPL75j1aESOYpg9xE0k0jKdUwjK1oGds+
+         DDutLAOMbJxXVHWnGdupHdWIaY9pFItCIhW18lRJY8T1HRGd8RXiqOovWC7OaC0OiT+9
+         Wn9yZ0QxaZK/9wUWXqNcBb+mKq4hOXUWRmaGk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=axnFf8hFhq6CeSn9dYxCAGJW/gxwZt3SQaGFtCETUzk=;
-        b=aL8fCr4t9SYfmZot4BNBTpwSHyhAC/6oYuM8FtmahMFaTjUTDCAndrU/YgZ9jtE/3V
-         bTyJCZK4LY5R5cD1rko2afQlHGZ2np/ZcyELo91x8ScR5HgbPOxigflnBj/vorylU137
-         gERPfOWgmsrx0rOc1bRIa+t1/AayEE74I8fObLW6Q9oI37az9DTJ83RITyYaP831AxSX
-         0ce29R3knP2nNh8sQ7Slg2dIwDzMiZQaZ2EmaAENuWGHcntCQUhgohnqVDgJNqsvFCst
-         5sRD98X14EQEVZ0YuDD8fsN4Hx0eVv7lvj88NNoJMO1C7AFkSNsizBWRezTEn+cFa+Uo
-         gyBQ==
-X-Gm-Message-State: AOAM532d4KYGvcRHW6/m+nwndOy+bMycFD9RQ3MEnp+r8OyNKXI8iPN7
-        ozfsMSAJK3oy1hspS5/NjEvbjm+kQmlLjiHmJRo2KQ==
-X-Google-Smtp-Source: ABdhPJxwI4uYCPP+SkNAuD8FHpVqTm3ELhRvcDpyv/2o1O9RdKW6gsCxYGkRy9Rpuol9X/B4l5EnCq81faTXNdbMhMs=
-X-Received: by 2002:a25:bb46:: with SMTP id b6mr31808728ybk.346.1623774412801;
- Tue, 15 Jun 2021 09:26:52 -0700 (PDT)
+        bh=EBFLtpLfl9HP8/ret0EKv7MwCFVe5SQTPS5z/OHIK8Y=;
+        b=uG7Ywv6etnInloiuyEVYiRay3fNDCBNPw/VoLP5DlOtIXkmJaKG8S3Sq7HOj+Sky58
+         ATWniRbk5FVk2WwDc7fBh8jRqzGxdpxwe3zk7g5xRJ3/QROHpoumdCtPnPxF8JEtz/N7
+         QXYF3UgPjV4UrfpIBQTmtwabG7xubcv+0zgg1dH4K8nyd1Fx6xfTuERMYORCZLwuqKAa
+         yFO4YucaUeGFO4l/pV78SX90p1hwSMXfVdemNhYOV+HHwledkyd/jxkvm7NHNnQah+8z
+         nekIWylfB94qOTdno3cgmMuiTZWVeFtegT1ouRGkQwNr90RnkQwew7Gyrpdo4eZbJSlQ
+         vaAw==
+X-Gm-Message-State: AOAM532ZFip1/ITlwOM4j46KL8y5vSkNn4rsI6tpS9QByr9rRgpa6ETZ
+        YfgT7EDu62LNgm2jr/ZevN67mbSHs3SAvpz/
+X-Google-Smtp-Source: ABdhPJzNsCMoacRVSC0xQowquSjudaou+j44I67yIxYeBW2cK9iFfMi3hRryCOzZ2yM6eztfVY7ZZA==
+X-Received: by 2002:a05:6512:2216:: with SMTP id h22mr149570lfu.467.1623774398387;
+        Tue, 15 Jun 2021 09:26:38 -0700 (PDT)
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com. [209.85.208.170])
+        by smtp.gmail.com with ESMTPSA id l2sm2219980lji.70.2021.06.15.09.26.35
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Jun 2021 09:26:36 -0700 (PDT)
+Received: by mail-lj1-f170.google.com with SMTP id s22so25893136ljg.5
+        for <stable@vger.kernel.org>; Tue, 15 Jun 2021 09:26:35 -0700 (PDT)
+X-Received: by 2002:a2e:b618:: with SMTP id r24mr406657ljn.48.1623774395513;
+ Tue, 15 Jun 2021 09:26:35 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210615154948.62711-1-sashal@kernel.org> <20210615154948.62711-7-sashal@kernel.org>
-In-Reply-To: <20210615154948.62711-7-sashal@kernel.org>
-From:   Saravana Kannan <saravanak@google.com>
-Date:   Tue, 15 Jun 2021 09:26:16 -0700
-Message-ID: <CAGETcx95bOAHiOm0MHqFWSbc8ONBPEzXbDyP82pO4B5o2QOX1A@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.4 07/15] drm/sun4i: dw-hdmi: Make HDMI PHY into
- a platform device
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
+References: <YMjTlp2FSJYvoyFa@unreal>
+In-Reply-To: <YMjTlp2FSJYvoyFa@unreal>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 15 Jun 2021 09:26:19 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiucGtZQHpyfm5bK1xp9vepu9dA_OBE-A1-Gr=Neo8b2Q@mail.gmail.com>
+Message-ID: <CAHk-=wiucGtZQHpyfm5bK1xp9vepu9dA_OBE-A1-Gr=Neo8b2Q@mail.gmail.com>
+Subject: Re: NetworkManager fails to start
+To:     Leon Romanovsky <leon@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrea Righi <andrea.righi@canonical.com>,
         stable <stable@vger.kernel.org>,
-        Ondrej Jirman <megous@megous.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        "open list:ARM/Allwinner sunXi SoC support" 
-        <linux-sunxi@lists.linux.dev>
-Content-Type: text/plain; charset="UTF-8"
+        linux-netdev <netdev@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="0000000000000a60a805c4d070db"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 15, 2021 at 8:50 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Saravana Kannan <saravanak@google.com>
->
-> [ Upstream commit 9bf3797796f570b34438235a6a537df85832bdad ]
->
-> On sunxi boards that use HDMI output, HDMI device probe keeps being
-> avoided indefinitely with these repeated messages in dmesg:
->
->   platform 1ee0000.hdmi: probe deferral - supplier 1ef0000.hdmi-phy
->     not ready
->
-> There's a fwnode_link being created with fw_devlink=on between hdmi
-> and hdmi-phy nodes, because both nodes have 'compatible' property set.
->
-> Fw_devlink code assumes that nodes that have compatible property
-> set will also have a device associated with them by some driver
-> eventually. This is not the case with the current sun8i-hdmi
-> driver.
->
+--0000000000000a60a805c4d070db
+Content-Type: text/plain; charset="UTF-8"
 
-fw_devlink isn't present in 5.4 or earlier. So technically this patch
-isn't needed.
+On Tue, Jun 15, 2021 at 9:21 AM Leon Romanovsky <leon@kernel.org> wrote:
+>
+> The commit 591a22c14d3f ("proc: Track /proc/$pid/attr/ opener mm_struct")
+> that we got in v5.13-rc6 broke our regression to pieces. The NIC interfaces
+> fail to start when using NetworkManager.
 
--Saravana
+Does the attached patch fix it?
 
-> This commit makes sun8i-hdmi-phy into a proper platform device
-> and fixes the display pipeline probe on sunxi boards that use HDMI.
->
-> More context: https://lkml.org/lkml/2021/5/16/203
->
-> Signed-off-by: Saravana Kannan <saravanak@google.com>
-> Signed-off-by: Ondrej Jirman <megous@megous.com>
-> Tested-by: Andre Przywara <andre.przywara@arm.com>
-> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20210607085836.2827429-1-megous@megous.com
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c  | 31 ++++++++++++++++---
->  drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h  |  5 ++--
->  drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c | 41 ++++++++++++++++++++++----
->  3 files changed, 66 insertions(+), 11 deletions(-)
->
-> diff --git a/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c b/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c
-> index 8f721be26477..cfb63cae4b12 100644
-> --- a/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c
-> +++ b/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c
-> @@ -211,7 +211,7 @@ static int sun8i_dw_hdmi_bind(struct device *dev, struct device *master,
->                 goto err_disable_clk_tmds;
->         }
->
-> -       ret = sun8i_hdmi_phy_probe(hdmi, phy_node);
-> +       ret = sun8i_hdmi_phy_get(hdmi, phy_node);
->         of_node_put(phy_node);
->         if (ret) {
->                 dev_err(dev, "Couldn't get the HDMI PHY\n");
-> @@ -244,7 +244,6 @@ static int sun8i_dw_hdmi_bind(struct device *dev, struct device *master,
->
->  cleanup_encoder:
->         drm_encoder_cleanup(encoder);
-> -       sun8i_hdmi_phy_remove(hdmi);
->  err_disable_clk_tmds:
->         clk_disable_unprepare(hdmi->clk_tmds);
->  err_assert_ctrl_reset:
-> @@ -265,7 +264,6 @@ static void sun8i_dw_hdmi_unbind(struct device *dev, struct device *master,
->         struct sun8i_dw_hdmi *hdmi = dev_get_drvdata(dev);
->
->         dw_hdmi_unbind(hdmi->hdmi);
-> -       sun8i_hdmi_phy_remove(hdmi);
->         clk_disable_unprepare(hdmi->clk_tmds);
->         reset_control_assert(hdmi->rst_ctrl);
->         gpiod_set_value(hdmi->ddc_en, 0);
-> @@ -322,7 +320,32 @@ static struct platform_driver sun8i_dw_hdmi_pltfm_driver = {
->                 .of_match_table = sun8i_dw_hdmi_dt_ids,
->         },
->  };
-> -module_platform_driver(sun8i_dw_hdmi_pltfm_driver);
-> +
-> +static int __init sun8i_dw_hdmi_init(void)
-> +{
-> +       int ret;
-> +
-> +       ret = platform_driver_register(&sun8i_dw_hdmi_pltfm_driver);
-> +       if (ret)
-> +               return ret;
-> +
-> +       ret = platform_driver_register(&sun8i_hdmi_phy_driver);
-> +       if (ret) {
-> +               platform_driver_unregister(&sun8i_dw_hdmi_pltfm_driver);
-> +               return ret;
-> +       }
-> +
-> +       return ret;
-> +}
-> +
-> +static void __exit sun8i_dw_hdmi_exit(void)
-> +{
-> +       platform_driver_unregister(&sun8i_dw_hdmi_pltfm_driver);
-> +       platform_driver_unregister(&sun8i_hdmi_phy_driver);
-> +}
-> +
-> +module_init(sun8i_dw_hdmi_init);
-> +module_exit(sun8i_dw_hdmi_exit);
->
->  MODULE_AUTHOR("Jernej Skrabec <jernej.skrabec@siol.net>");
->  MODULE_DESCRIPTION("Allwinner DW HDMI bridge");
-> diff --git a/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h b/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h
-> index d707c9171824..5a299a6f5aa5 100644
-> --- a/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h
-> +++ b/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h
-> @@ -194,14 +194,15 @@ struct sun8i_dw_hdmi {
->         struct gpio_desc                *ddc_en;
->  };
->
-> +extern struct platform_driver sun8i_hdmi_phy_driver;
-> +
->  static inline struct sun8i_dw_hdmi *
->  encoder_to_sun8i_dw_hdmi(struct drm_encoder *encoder)
->  {
->         return container_of(encoder, struct sun8i_dw_hdmi, encoder);
->  }
->
-> -int sun8i_hdmi_phy_probe(struct sun8i_dw_hdmi *hdmi, struct device_node *node);
-> -void sun8i_hdmi_phy_remove(struct sun8i_dw_hdmi *hdmi);
-> +int sun8i_hdmi_phy_get(struct sun8i_dw_hdmi *hdmi, struct device_node *node);
->
->  void sun8i_hdmi_phy_init(struct sun8i_hdmi_phy *phy);
->  void sun8i_hdmi_phy_set_ops(struct sun8i_hdmi_phy *phy,
-> diff --git a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c b/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-> index a4012ec13d4b..c6289328c874 100644
-> --- a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-> +++ b/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-> @@ -5,6 +5,7 @@
->
->  #include <linux/delay.h>
->  #include <linux/of_address.h>
-> +#include <linux/of_platform.h>
->
->  #include "sun8i_dw_hdmi.h"
->
-> @@ -596,10 +597,30 @@ static const struct of_device_id sun8i_hdmi_phy_of_table[] = {
->         { /* sentinel */ }
->  };
->
-> -int sun8i_hdmi_phy_probe(struct sun8i_dw_hdmi *hdmi, struct device_node *node)
-> +int sun8i_hdmi_phy_get(struct sun8i_dw_hdmi *hdmi, struct device_node *node)
-> +{
-> +       struct platform_device *pdev = of_find_device_by_node(node);
-> +       struct sun8i_hdmi_phy *phy;
-> +
-> +       if (!pdev)
-> +               return -EPROBE_DEFER;
-> +
-> +       phy = platform_get_drvdata(pdev);
-> +       if (!phy)
-> +               return -EPROBE_DEFER;
-> +
-> +       hdmi->phy = phy;
-> +
-> +       put_device(&pdev->dev);
-> +
-> +       return 0;
-> +}
-> +
-> +static int sun8i_hdmi_phy_probe(struct platform_device *pdev)
->  {
->         const struct of_device_id *match;
-> -       struct device *dev = hdmi->dev;
-> +       struct device *dev = &pdev->dev;
-> +       struct device_node *node = dev->of_node;
->         struct sun8i_hdmi_phy *phy;
->         struct resource res;
->         void __iomem *regs;
-> @@ -703,7 +724,7 @@ int sun8i_hdmi_phy_probe(struct sun8i_dw_hdmi *hdmi, struct device_node *node)
->                 clk_prepare_enable(phy->clk_phy);
->         }
->
-> -       hdmi->phy = phy;
-> +       platform_set_drvdata(pdev, phy);
->
->         return 0;
->
-> @@ -727,9 +748,9 @@ int sun8i_hdmi_phy_probe(struct sun8i_dw_hdmi *hdmi, struct device_node *node)
->         return ret;
->  }
->
-> -void sun8i_hdmi_phy_remove(struct sun8i_dw_hdmi *hdmi)
-> +static int sun8i_hdmi_phy_remove(struct platform_device *pdev)
->  {
-> -       struct sun8i_hdmi_phy *phy = hdmi->phy;
-> +       struct sun8i_hdmi_phy *phy = platform_get_drvdata(pdev);
->
->         clk_disable_unprepare(phy->clk_mod);
->         clk_disable_unprepare(phy->clk_bus);
-> @@ -743,4 +764,14 @@ void sun8i_hdmi_phy_remove(struct sun8i_dw_hdmi *hdmi)
->         clk_put(phy->clk_pll1);
->         clk_put(phy->clk_mod);
->         clk_put(phy->clk_bus);
-> +       return 0;
->  }
-> +
-> +struct platform_driver sun8i_hdmi_phy_driver = {
-> +       .probe  = sun8i_hdmi_phy_probe,
-> +       .remove = sun8i_hdmi_phy_remove,
-> +       .driver = {
-> +               .name = "sun8i-hdmi-phy",
-> +               .of_match_table = sun8i_hdmi_phy_of_table,
-> +       },
-> +};
-> --
-> 2.30.2
->
+It just makes the open always succeed, and then the private_data that
+the open did (that may or may not then have been filled in) is only
+used on write.
+
+               Linus
+
+--0000000000000a60a805c4d070db
+Content-Type: text/x-patch; charset="US-ASCII"; name="patch.diff"
+Content-Disposition: attachment; filename="patch.diff"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kpy9c7n50>
+X-Attachment-Id: f_kpy9c7n50
+
+IGZzL3Byb2MvYmFzZS5jIHwgNCArKystCiAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCsp
+LCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvZnMvcHJvYy9iYXNlLmMgYi9mcy9wcm9jL2Jh
+c2UuYwppbmRleCA3MTE4ZWJlMzhmYTYuLjljYmQ5MTUwMjVhZCAxMDA2NDQKLS0tIGEvZnMvcHJv
+Yy9iYXNlLmMKKysrIGIvZnMvcHJvYy9iYXNlLmMKQEAgLTI2NzYsNyArMjY3Niw5IEBAIHN0YXRp
+YyBpbnQgcHJvY19waWRlbnRfcmVhZGRpcihzdHJ1Y3QgZmlsZSAqZmlsZSwgc3RydWN0IGRpcl9j
+b250ZXh0ICpjdHgsCiAjaWZkZWYgQ09ORklHX1NFQ1VSSVRZCiBzdGF0aWMgaW50IHByb2NfcGlk
+X2F0dHJfb3BlbihzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlsZSkKIHsKLQly
+ZXR1cm4gX19tZW1fb3Blbihpbm9kZSwgZmlsZSwgUFRSQUNFX01PREVfUkVBRF9GU0NSRURTKTsK
+KwlmaWxlLT5wcml2YXRlX2RhdGEgPSBOVUxMOworCV9fbWVtX29wZW4oaW5vZGUsIGZpbGUsIFBU
+UkFDRV9NT0RFX1JFQURfRlNDUkVEUyk7CisJcmV0dXJuIDA7CiB9CiAKIHN0YXRpYyBzc2l6ZV90
+IHByb2NfcGlkX2F0dHJfcmVhZChzdHJ1Y3QgZmlsZSAqIGZpbGUsIGNoYXIgX191c2VyICogYnVm
+LAo=
+--0000000000000a60a805c4d070db--
