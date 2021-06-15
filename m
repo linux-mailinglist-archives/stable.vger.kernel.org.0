@@ -2,92 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26C7A3A8611
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 18:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E990C3A862B
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 18:14:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229957AbhFOQJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 12:09:02 -0400
-Received: from mail.manjaro.org ([176.9.38.148]:34950 "EHLO mail.manjaro.org"
+        id S230254AbhFOQQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 12:16:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229488AbhFOQJB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 12:09:01 -0400
-X-Greylist: delayed 3960 seconds by postgrey-1.27 at vger.kernel.org; Tue, 15 Jun 2021 12:09:00 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by mail.manjaro.org (Postfix) with ESMTP id 65E203FA0447;
-        Tue, 15 Jun 2021 18:06:54 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at manjaro.org
-Received: from mail.manjaro.org ([127.0.0.1])
-        by localhost (manjaro.org [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id YxR01crYKHPU; Tue, 15 Jun 2021 18:06:52 +0200 (CEST)
-Subject: Re: [systemd] v248.2 and later won't boot 4.19 kernel series
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S229943AbhFOQQK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 12:16:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C2261603;
+        Tue, 15 Jun 2021 16:14:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623773645;
+        bh=VCcx4oqoxEtCrM5C9e51TQ7ZUcwRqL/PyOpDDq0/vLs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=g0VPiXsApNr991AlmNCw9lZQsVPN6O2Gqb3xEVnHrVhnbFZRtiSCPsv+EspDSMvae
+         I3PB4KnHTLny4wtSvlT1b0WhFeSATydkK9Tij9WkCMrh9E/cdSSOJd21YdmID3/9yh
+         Uop7Okv76WZdwVvvjF9nntoLl3qDCpKzmZ5ZT46I=
+Date:   Tue, 15 Jun 2021 18:14:03 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Philip =?iso-8859-1?Q?M=FCller?= <philm@manjaro.org>
 Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: Re: [systemd] v248.2 and later won't boot 4.19 kernel series
+Message-ID: <YMjRy0Wm+iNHRo+D@kroah.com>
 References: <a53e11ac-b2af-4410-9a7b-59a6ba8efca5@manjaro.org>
  <YMjJocK3UcCLVl8H@kroah.com>
-From:   =?UTF-8?Q?Philip_M=c3=bcller?= <philm@manjaro.org>
-Organization: Manjaro Community
-Message-ID: <165856f8-4a42-cdf3-e9cd-5fac51e8d168@manjaro.org>
-Date:   Tue, 15 Jun 2021 18:05:30 +0200
+ <165856f8-4a42-cdf3-e9cd-5fac51e8d168@manjaro.org>
 MIME-Version: 1.0
-In-Reply-To: <YMjJocK3UcCLVl8H@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="sjCwwrSjkzc1U1x8qZATxfCxhlwykiXam"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <165856f8-4a42-cdf3-e9cd-5fac51e8d168@manjaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---sjCwwrSjkzc1U1x8qZATxfCxhlwykiXam
-Content-Type: multipart/mixed; boundary="nfh6fAsTnMkbKz5HLWnYNtgi6gGZUpHzl";
- protected-headers="v1"
-From: =?UTF-8?Q?Philip_M=c3=bcller?= <philm@manjaro.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Message-ID: <165856f8-4a42-cdf3-e9cd-5fac51e8d168@manjaro.org>
-Subject: Re: [systemd] v248.2 and later won't boot 4.19 kernel series
-References: <a53e11ac-b2af-4410-9a7b-59a6ba8efca5@manjaro.org>
- <YMjJocK3UcCLVl8H@kroah.com>
-In-Reply-To: <YMjJocK3UcCLVl8H@kroah.com>
+On Tue, Jun 15, 2021 at 06:05:30PM +0200, Philip Müller wrote:
+> On 15.06.21 17:39, Greg Kroah-Hartman wrote:
+> > Do newer kernels work?
+> > 
+> > Any chance you can run 'git bisect' to find the offending kernel patch?
+> > 
+> > 4.19 is really old, is this a stable-update-issue, or a "something
+> > changed since 4.19 was released" type of issue?
+> 
+> Older and newer kernel series work. So 4.4, 4.14, 5.10 and 5.13 I've
+> tested so far. No issues with 248.3 of Systemd. Have to see if any 4.19
+> kernel boot with that version ...
 
---nfh6fAsTnMkbKz5HLWnYNtgi6gGZUpHzl
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Please always be specific as to what .y version of the above kernels you
+are testing, as there have been thousands of changes from the "first"
+4.4.0 release to the release that is supported today (4.4.272).
 
-On 15.06.21 17:39, Greg Kroah-Hartman wrote:
-> Do newer kernels work?
->=20
-> Any chance you can run 'git bisect' to find the offending kernel patch?=
+And note that there is not a 5.13 kernel released yet :)
 
->=20
-> 4.19 is really old, is this a stable-update-issue, or a "something
-> changed since 4.19 was released" type of issue?
+thanks,
 
-Older and newer kernel series work. So 4.4, 4.14, 5.10 and 5.13 I've
-tested so far. No issues with 248.3 of Systemd. Have to see if any 4.19
-kernel boot with that version ...
-
---=20
-Best, Philip
-
-
---nfh6fAsTnMkbKz5HLWnYNtgi6gGZUpHzl--
-
---sjCwwrSjkzc1U1x8qZATxfCxhlwykiXam
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEE5M3+UKLahdWMioxwyqallhHH8H4FAmDIz8oFAwAAAAAACgkQyqallhHH8H7M
-mQgAwzs5eYaIRuZKuAJ3bjXeNm9uqULQQ76U8rq1KXZFU+qumSp9Q6hQ861DQoguvMmW1ry7PziH
-0jcsL4cGJdaNo46Lxh6JkutmR3zn4mYmrRWPH1WTJY8N3eWaLu/Mm+SH+dfc1Z+eL8gxuVyYx8XI
-Kd1aQlBr0WaFgmMSrP77B+G6xCVvMjrC117O4F+fBdBbZ70WTWjvKkcW8/pbSKPufm5j1NzZvw5Q
-qpByscvW3NBuMC1woAxXj3A1qmmeqAoJl9QMZJmF+FXpmWz14YPlDSs0Fx30r1lHsUGNt8kOqZnc
-P6IKyRX2wJqDb9gHmWRjv8rZsYG9xvFukw2fsme00A==
-=+bi1
------END PGP SIGNATURE-----
-
---sjCwwrSjkzc1U1x8qZATxfCxhlwykiXam--
+greg k-h
