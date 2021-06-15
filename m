@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44B093A75A5
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 06:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B1103A75EF
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 06:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbhFOENo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 00:13:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39856 "EHLO
+        id S229539AbhFOEeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 00:34:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbhFOENo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Jun 2021 00:13:44 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF106C061574
-        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 21:11:38 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id g18so47255278edq.8
-        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 21:11:38 -0700 (PDT)
+        with ESMTP id S229497AbhFOEef (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Jun 2021 00:34:35 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781A5C061767
+        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 21:32:31 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id g8so20213836ejx.1
+        for <stable@vger.kernel.org>; Mon, 14 Jun 2021 21:32:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Xf+ppaOavJa4FbRMvUgbiviXSm9wb7B+jcy4AwONiss=;
-        b=DPjp73xj0bPxaDO+CvFruBinLpBb3nksSn7akB9av9XgXboAVlbY2kueaTReVJgbzE
-         E5SeaeC06kK2HRHdeZQo4uZLqja9s3tuKn8Q5fSSU8PtYC8RMLqYHW5AdED01lL2vuCJ
-         ke9PJxHEKRCRl+yYCU0TXkHZtYh3JzgzVDJ4uoBTDmAd77neFXEbo+MDG8DhT03mGLTu
-         JQB8Chg7IRCJF6dt29HcRwC2URl6+cuPwE8SnOONyfAzxuDEg5hUvHmhKd5PWcWxh/4D
-         mRu8SdRkO2Hl3km+NGHZ6ECeWZQ31qq1X+TuZufyuLrw4LhI+rMYYlKKWJSSQgMaDcFP
-         /RNg==
+         :cc:content-transfer-encoding;
+        bh=mFmkMOtTT5Ca5YN3hGAb6SzYhnTwaRHsH7DlxB176MY=;
+        b=vlQ4MQxwZ7Ofoy+49dOjrABil9hMC6Is/naxF7TWdv1M/wFRYPm+56V7rDI/SBMgv6
+         wV+71Sw0Cjp3nrIkbEIETQCFMMDezLm8+tgLiTmnEK3OkTpLPpOaYJp2YAyIpTwGkmER
+         hzAx4+Vft7xn7B9pTJ8o+3EN57mx4cwLOQpB9ceVVwnop2uiWot9iCYvGe0wR9j7tQp1
+         /PfSnZdizyo4B+tpx+UEcNWUBhnrTeA/kSRt0weD9s+v7Af78ao1dsjzKNhE9ymxXH9l
+         ORfYVQPalLKNaHionX3MIjMnZHM3cjArh41j8zluyE8xVu5NJnFtBacg4Cy04PtUxson
+         Zs1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Xf+ppaOavJa4FbRMvUgbiviXSm9wb7B+jcy4AwONiss=;
-        b=ojMbUusRIXc6XkZZFsHcjaIq0+n4PgWD9B0O65hMuM4uYzSxL4z87yTi6gg7ITVbuT
-         TN979e/gc4Fvd/AKCBo0gsSkCwjl6lWpBIDZldvHGzj4Uec3CaLRKPP/oS0/2XYZ0ynH
-         VoGdZTJwoXhLF3cuAHxxxgMHF5UOEfv+7wiSU3Jn+CRXq37TTNyMi6T4+aRUUrHOqS6z
-         SlICtNFiN0XihrjA+6ieYIYCw6a73K9NOT4Gt0vAUYAIFNXYDD1ZtrTiR9c/1uBnyupg
-         T/l9RYlb3uDSOHCmM9C9PDxy8WPo38EGgIoF4IeCJV9QbEvOorugdPDtMECJiDp1qELc
-         UAlw==
-X-Gm-Message-State: AOAM531uWmwfg3fi8ekkr5ejd935LKn4ZzzAH5OmuiU9jSUE4opCvm+V
-        7xoBbCQhZhhZNdja0iBKirELqCDvOlehwLRZvnxUnQ==
-X-Google-Smtp-Source: ABdhPJwEM6M1ppIVZKMbekWPKdaG8sqBBdieF8fvmVvz67P3jkdBWzyGmFEBHtPraZkh0JtVKsxyrSNpTcHuZvp4apY=
-X-Received: by 2002:a05:6402:220d:: with SMTP id cq13mr12550897edb.52.1623730297198;
- Mon, 14 Jun 2021 21:11:37 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=mFmkMOtTT5Ca5YN3hGAb6SzYhnTwaRHsH7DlxB176MY=;
+        b=csTd6NPBJ7keAy40PIsDgG2UYOixLLo440JTJZjde80UOLxdLmzLIeDEIkFK2C6nei
+         9kklZzgeknFsomSNdqZYQQEWkxhjwWdx7qy/5F0em0o0IkuJ4C7qHzHHhONYG+A/O2Ip
+         w/z5KTn1EVEtRCZQyyaT6uo5Pup1DOHFPTsYEc9Rwho9QQZQcqeK2UD75cTZXu5pf7Ir
+         FLKrxnLfEAfBo0899yflBzN6tUe6fva6+SpqfNPRfWCWx7Bsqq/1UN1IIwcoTcIa9VQA
+         26QSjhv5jXRZ+XpoiJu3mGHcOjqmU2dCvbXBfGiqqZVSEJrPG8j6ZqyT4V5g+o+7Kuuv
+         9lhg==
+X-Gm-Message-State: AOAM533FGV/Pw1wSaOAoe79nVb0h78quHTNF9jyZg4eiP7ff2RkJGcBc
+        PdpZV1XxrREhStSp2ZGAPvZPyf3QJBOMX2HpEni7Mg==
+X-Google-Smtp-Source: ABdhPJw2NvYByN4yjGVcgVri3outm0ZWfpRh9mbaVarb6ZMKEqd0MaUbpVvA/4Yj0Fl5StaewkX3i5V+tOls2hDTv+M=
+X-Received: by 2002:a17:906:25db:: with SMTP id n27mr18250507ejb.170.1623731549733;
+ Mon, 14 Jun 2021 21:32:29 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210614161424.091266895@linuxfoundation.org>
-In-Reply-To: <20210614161424.091266895@linuxfoundation.org>
+References: <20210614102658.137943264@linuxfoundation.org>
+In-Reply-To: <20210614102658.137943264@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 15 Jun 2021 09:41:26 +0530
-Message-ID: <CA+G9fYsfvtr7NNcb0bvEZpYYotdY7Uf+wMY22iLhr0weZ8Om3g@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/130] 5.10.44-rc2 review
+Date:   Tue, 15 Jun 2021 10:02:18 +0530
+Message-ID: <CA+G9fYv9V5h1e_JW+CmK2cHZaDt5JC+fZdom+-DqYMKeQ-eqzA@mail.gmail.com>
+Subject: Re: [PATCH 5.12 000/173] 5.12.11-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Shuah Khan <shuah@kernel.org>,
@@ -59,81 +59,180 @@ Cc:     open list <linux-kernel@vger.kernel.org>,
         Pavel Machek <pavel@denx.de>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>, linux-usb@vger.kernel.org,
-        Peter Chen <peter.chen@kernel.org>,
-        Jack Pham <jackp@codeaurora.org>,
-        Felipe Balbi <balbi@kernel.org>
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Mon, 14 Jun 2021 at 21:45, Greg Kroah-Hartman
+On Mon, 14 Jun 2021 at 16:18, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.10.44 release.
-> There are 130 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.12.11 release.
+> There are 173 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
-> Responses should be made by Wed, 16 Jun 2021 16:13:59 +0000.
+> Responses should be made by Wed, 16 Jun 2021 10:26:30 +0000.
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.44-rc2.gz
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.12.11-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.12.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
 
-The following kernel crash reported on stable rc 5.10.44-rc2 arm64 db845c board.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-[    5.127966] dwc3-qcom a6f8800.usb: failed to get usb-ddr path: -517
-[    5.145567] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000002
-[    5.154451] Mem abort info:
-[    5.157296]   ESR = 0x96000004
-[    5.160401]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    5.165771]   SET = 0, FnV = 0
-[    5.168873]   EA = 0, S1PTW = 0
-[    5.172064] Data abort info:
-[    5.174980]   ISV = 0, ISS = 0x00000004
-[    5.178860]   CM = 0, WnR = 0
-[    5.181872] [0000000000000002] user address but active_mm is swapper
-[    5.188293] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[    5.193922] Modules linked in:
-[    5.197022] CPU: 4 PID: 57 Comm: kworker/4:3 Not tainted 5.10.44-rc2 #1
-[    5.203697] Hardware name: Thundercomm Dragonboard 845c (DT)
-[    5.204022] ufshcd-qcom 1d84000.ufshc: ufshcd_print_pwr_info:[RX,
-TX]: gear=[3, 3], lane[2, 2], pwr[FAST MODE, FAST MODE], rate = 2
-[    5.209434] Workqueue: events deferred_probe_work_func
-[    5.221786] ufshcd-qcom 1d84000.ufshc:
-ufshcd_find_max_sup_active_icc_level: Regulator capability was not
-set, actvIccLevel=0
-[    5.226541] pstate: 60c00005 (nZCv daif +PAN +UAO -TCO BTYPE=--)
-[    5.226551] pc : inode_permission+0x2c/0x178
-[    5.226559] lr : lookup_one_len_common+0xac/0x100
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-ref:
-https://lkft.validation.linaro.org/scheduler/job/2899138#L2873
+## Build
+* kernel: 5.12.11-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.12.y
+* git commit: 38004b22b0ae0ed236de37f13b323c9d89311f9e
+* git describe: v5.12.10-174-g38004b22b0ae
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.12.y/build/v5.12=
+.10-174-g38004b22b0ae
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+## No regressions (compared to v5.12.10)
 
-There is a crash like this reported and discussed on the mailing thread.
-https://lore.kernel.org/linux-usb/20210608105656.10795-1-peter.chen@kernel.org/
+## No fixes (compared to v5.12.10)
 
-metadata:
-  git branch: linux-5.10.y
-  git repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-  git commit: 3f05ff8b337097d73b2c408d60befe39dac31bb8
-  git describe: v5.10.43-131-g3f05ff8b3370
-  make_kernelversion: 5.10.44-rc2
-  kernel-config: https://builds.tuxbuild.com/1twkN9cmRWOK3boqZes7Yi1t0OO/config
+## Test result summary
+ total: 83712, pass: 69169, fail: 1865, skip: 11956, xfail: 722,
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 193 total, 193 passed, 0 failed
+* arm64: 27 total, 27 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 26 total, 26 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 21 total, 21 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 0 passed, 1 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 27 total, 27 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* prep-inline
+* rcutorture
+* ssuite
+* v4l2-compliance
 
 --
 Linaro LKFT
