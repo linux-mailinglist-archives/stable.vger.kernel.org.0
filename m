@@ -2,87 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2202C3A8939
-	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 21:07:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F133A8A1B
+	for <lists+stable@lfdr.de>; Tue, 15 Jun 2021 22:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231451AbhFOTJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 15:09:04 -0400
-Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:48045 "EHLO
-        wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229749AbhFOTJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Jun 2021 15:09:03 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.west.internal (Postfix) with ESMTP id 9D4144A4;
-        Tue, 15 Jun 2021 15:06:57 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Tue, 15 Jun 2021 15:06:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=cLDd673qlTPNnbBVHeSueP8NcgB
-        xfNN53BWwhPepOT4=; b=fTeldxXjTw/8zsV5Pq8tgRXD0siUnoi/zcSdmirNCB2
-        TWS5GvFvfhQIvJL4q8DxQCj06G6tSScnjsGrP5yxaZNpkGZGmt2yTZBqsJAdTE6K
-        QtWUhpy/jqG0ho3MymjpsU30qIqoTInVx4DCczcKwopLopHJ5NAB48R1ij1duoRb
-        7lldwWgTuSBbLlAiYia6e/CnrK+zPM1sX25XjRBfXmd8+yYEhN6WFiVSFo3Bl4TY
-        TCjzeomCPE8kklHY8aUYco+kOsEdPtLKxsrRKhu/wkcX2U23T4bdNm3zOMYvm1CZ
-        xl6CODnSHAve8q0hxMdD5wbua0DRJGFDfk/5/cLjhDw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=cLDd67
-        3qlTPNnbBVHeSueP8NcgBxfNN53BWwhPepOT4=; b=LhhZDCH90n4FOWIstm5IXE
-        OWJdOXzDfFYVaByP38MNfC1LafowrXs4HPM+KCiDIaR/ZD4j2maMmVw3iJAjNf4S
-        Lg4w1Ky6d8Df0NBPkk2thuXF9yx4FLV+uCamoiKYvR+nGh90viOIknQjXJQhDoQ/
-        7VQOUy/Wy4hsWoR46f96QA2QJauSlL2o+7nXsuG2oe5hBeBR2WJ+4ZqZW5NbSgDg
-        pmyxH2QkiV6j5Xu3FLawy3T4zUhPDCPLbyBYgQI8kX1Wih4xDb5GfEIUIUQBgH7v
-        7xpJiLxBPVcdA9vjZoTj3Tr/r6PXL8Ifn4VNPG1n2gIm6ggCFDgaETVx1Up0dn1A
-        ==
-X-ME-Sender: <xms:UfrIYOaZm0mWOjDdtbmqV28J3sIX3_UArD-78IcwaAOrW5tVvkUKUg>
-    <xme:UfrIYBZHg7-7ZQB9iqN7Iuetsw5fVXjPISjLitSVbhn46SLJoxuA5KngzYOKrdlFO
-    _YXOvwSQRJTag>
-X-ME-Received: <xmr:UfrIYI9gaxDRLW3_0B_e4cu2BhhUuxFwg9fktYh7UnKDN-V1yoRXup9tOew-jpTZq6SFvvd9ZlSAAlVlblKItDlIAv4Qg3f6>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvjedgudeffecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
-    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhs
-    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:UfrIYAoDMMHWxiySpcQLraqHst8mvNjrc4IR6onG1yQ3sWHJfEBhxA>
-    <xmx:UfrIYJoLqBlME2TiPVC08_S8ZSJHcEVp4MGx3Zn7zSY0xvErAc5j5Q>
-    <xmx:UfrIYOTo16U3tDCeFw3hW17svgzJi2S6BEl8aoaYu6x_i34cEFGXmQ>
-    <xmx:UfrIYPbYZR0AERPb3UBd_LdN27YKpbvtTyvCtdMLhqMxiK5xH5AWamRSgs0>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 15 Jun 2021 15:06:56 -0400 (EDT)
-Date:   Tue, 15 Jun 2021 21:06:55 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Siddharth Gupta <sidgup@codeaurora.org>
+        id S230494AbhFOUXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 16:23:24 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:57200 "EHLO m43-7.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230393AbhFOUXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 16:23:24 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1623788479; h=Content-Transfer-Encoding: Content-Type:
+ In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
+ Subject: Sender; bh=HmeE2bFqEPYooaRCQe+mmTIh+tQy90b/jOiNc6N0zCw=; b=ic0RGkXGmGi4W6CRSx9CLY/tbRe9FEykeI9TJ/r9FN49AXFHQKqAxYits71tX+roEw1jk15X
+ KeIwfIL0+SnP4mXyG7pqZ+lJI8e6A1arexXCl8m4vsfACg3zE6N7+EqL+O7oTrofjMILZ4BS
+ QQolWvPOEX1bQq6FGlL7+rbPXBQ=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n03.prod.us-east-1.postgun.com with SMTP id
+ 60c90bbae27c0cc77f9e1cb3 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 15 Jun 2021 20:21:14
+ GMT
+Sender: sidgup=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id AF2DEC4338A; Tue, 15 Jun 2021 20:21:13 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-3.0 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        NICE_REPLY_A,SPF_FAIL autolearn=no autolearn_force=no version=3.4.0
+Received: from [192.168.1.10] (cpe-75-83-25-192.socal.res.rr.com [75.83.25.192])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: sidgup)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 5BC6BC4338A;
+        Tue, 15 Jun 2021 20:21:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 5BC6BC4338A
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=sidgup@codeaurora.org
+Subject: Re: [PATCH v4 4/4] remoteproc: core: Cleanup device in case of
+ failure
+To:     Greg KH <greg@kroah.com>
 Cc:     bjorn.andersson@linaro.org, ohad@wizery.com,
         linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, psodagud@codeaurora.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH v4 3/4] remoteproc: core: Fix cdev remove and rproc del
-Message-ID: <YMj6T7qeKwQpccPv@kroah.com>
 References: <1623783824-13395-1-git-send-email-sidgup@codeaurora.org>
- <1623783824-13395-4-git-send-email-sidgup@codeaurora.org>
+ <1623783824-13395-5-git-send-email-sidgup@codeaurora.org>
+ <YMj6N46ElCq/ndJJ@kroah.com>
+From:   Siddharth Gupta <sidgup@codeaurora.org>
+Message-ID: <75ce2563-3d34-a578-200d-8ec5f259d405@codeaurora.org>
+Date:   Tue, 15 Jun 2021 13:21:11 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1623783824-13395-4-git-send-email-sidgup@codeaurora.org>
+In-Reply-To: <YMj6N46ElCq/ndJJ@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 15, 2021 at 12:03:43PM -0700, Siddharth Gupta wrote:
-> The rproc_char_device_remove() call currently unmaps the cdev
-> region instead of simply deleting the cdev that was added as a
-> part of the rproc_char_device_add() call. This change fixes that
-> behaviour, and also fixes the order in which device_del() and
-> cdev_del() need to be called.
-> 
-> Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
-> Cc: stable@vger.kernel.org
 
-Is this really needed for stable?  What bug does this solve?  ANd again,
-fixes: ?
+On 6/15/2021 12:06 PM, Greg KH wrote:
+> On Tue, Jun 15, 2021 at 12:03:44PM -0700, Siddharth Gupta wrote:
+>> When a failure occurs in rproc_add() it returns an error, but does
+>> not cleanup after itself. This change adds the failure path in such
+>> cases.
+>>
+>> Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
+>> Cc: stable@vger.kernel.org
+>> ---
+>>   drivers/remoteproc/remoteproc_core.c | 15 ++++++++++++---
+>>   1 file changed, 12 insertions(+), 3 deletions(-)
+> Why is this needed for stable kernels?  And again, a Fixes: tag?
+Patch 2 and patch 3 are leading up to fix rproc_add()
+in case of a failure. This means we'll have errors with
+use after free unless we call device_del() or cdev_del(),
+also the sysfs and devtempfs nodes will also not be
+removed.
+
+Thanks,
+Sid
