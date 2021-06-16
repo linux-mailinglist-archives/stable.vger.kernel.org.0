@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D863A9F39
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E523A9F3A
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234724AbhFPPgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:36:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49520 "EHLO mail.kernel.org"
+        id S234737AbhFPPgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:36:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234701AbhFPPg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:36:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D00361185;
-        Wed, 16 Jun 2021 15:34:21 +0000 (UTC)
+        id S234698AbhFPPga (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:36:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DDD861076;
+        Wed, 16 Jun 2021 15:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857662;
-        bh=MfSr33OQR/3F0MHvDf2x2DbxuNCQgTef2ELFZ8C5Lg0=;
+        s=korg; t=1623857664;
+        bh=cDF7gcmdFrF5Z7qlgNq46q+m9vMNfZiYGaRBsRnru9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=POfCDfLHbMUxMmdul1pl3PISLygI/SIGhAXhYmLrb1bvdCbgqgc8/zM/ZqtwPsNHq
-         j3QAxXLbXKgw9jest1WVjF5kaQ8l95mKl4D/HYigz4qty7pOE2dPXMYe8xFxRxtHDL
-         HhV0okDJY7qC4hByl9D8sAErrZnn6+FH/JGZ+5yI=
+        b=aFn7Siyi9i6RIoPjpnEyYzpoltwVgYMjiDkFxeKrw6M3KvEFxoShj50BR153TDA+j
+         cmvJgSF2/K1tFIBt85Fd0WbzFjUbVFicELiK97C48BLOpRivPNZafKdSIFBZsqJUXp
+         gS2MaoDwU+a06cU4qLnsIZPK+8tquCyScHPQOFOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Maurizio Lombardi <mlombard@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/28] scsi: target: core: Fix warning on realtime kernels
-Date:   Wed, 16 Jun 2021 17:33:26 +0200
-Message-Id: <20210616152834.644476801@linuxfoundation.org>
+Subject: [PATCH 5.4 16/28] ethernet: myri10ge: Fix missing error code in myri10ge_probe()
+Date:   Wed, 16 Jun 2021 17:33:27 +0200
+Message-Id: <20210616152834.674769027@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
 References: <20210616152834.149064097@linuxfoundation.org>
@@ -41,41 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 515da6f4295c2c42b8c54572cce3d2dd1167c41e ]
+[ Upstream commit f336d0b93ae978f12c5e27199f828da89b91e56a ]
 
-On realtime kernels, spin_lock_irq*(spinlock_t) do not disable the
-interrupts, a call to irqs_disabled() will return false thus firing a
-warning in __transport_wait_for_tasks().
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'status'.
 
-Remove the warning and also replace assert_spin_locked() with
-lockdep_assert_held()
+Eliminate the follow smatch warning:
 
-Link: https://lore.kernel.org/r/20210531121326.3649-1-mlombard@redhat.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+drivers/net/ethernet/myricom/myri10ge/myri10ge.c:3818 myri10ge_probe()
+warn: missing error code 'status'.
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_transport.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
-index a16835c0bb1d..5cf9e7677926 100644
---- a/drivers/target/target_core_transport.c
-+++ b/drivers/target/target_core_transport.c
-@@ -2993,9 +2993,7 @@ __transport_wait_for_tasks(struct se_cmd *cmd, bool fabric_stop,
- 	__releases(&cmd->t_state_lock)
- 	__acquires(&cmd->t_state_lock)
- {
--
--	assert_spin_locked(&cmd->t_state_lock);
--	WARN_ON_ONCE(!irqs_disabled());
-+	lockdep_assert_held(&cmd->t_state_lock);
- 
- 	if (fabric_stop)
- 		cmd->transport_state |= CMD_T_FABRIC_STOP;
+diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+index c979f38a2e0c..c4c716094982 100644
+--- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
++++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+@@ -3849,6 +3849,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		dev_err(&pdev->dev,
+ 			"invalid sram_size %dB or board span %ldB\n",
+ 			mgp->sram_size, mgp->board_span);
++		status = -EINVAL;
+ 		goto abort_with_ioremap;
+ 	}
+ 	memcpy_fromio(mgp->eeprom_strings,
 -- 
 2.30.2
 
