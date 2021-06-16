@@ -2,102 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 150183A917D
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 07:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B743A9186
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 07:58:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229559AbhFPF7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 01:59:09 -0400
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:40961 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229483AbhFPF7I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 01:59:08 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 875CF580540;
-        Wed, 16 Jun 2021 01:57:02 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 16 Jun 2021 01:57:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=6o2++wp3mzDB60pqIbQAizqx98C
-        rlRSOwBDWbj2M7lc=; b=jBYt0LGpFJAtwLVmkqHh+GIs0Es+j2fONLOGzANuUL8
-        0aTSr75ozKKLq3WTb/DAg9JdfcMyy3PLqza4Zl7OuplyN9KJ38JXkSqTKB4vdpym
-        5G9lVVJK6Ve4x9/98UE1ctPhdAgPrCJTj5oHGoINMxLrHPPJM6Md553eDB1mSBzY
-        Y4d2MrT8zj0O8EavljCAsub08xqUsCG8/rMnKsY7pGF3WhUTlcnOHFvaZJLhNKvA
-        IaiMJBNeAhHRzBhU1aXYdZF9VQuMv1UfEX4U6s2hysVtAP7OpTdp35vWowpf65Gf
-        /mbOPxFx+EYwYuUyhLUcDKRR3WItDsiF29dBacMMT1Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6o2++w
-        p3mzDB60pqIbQAizqx98CrlRSOwBDWbj2M7lc=; b=udIsree2BW1sB+/LAyCoHG
-        MMqXLv5fYUKMxtBV8t5Zld4pUgPS+Zh1gfM4L9KgwCHqbUZ2ZzP70bhrG4exUmSX
-        FnV+RCUERLLqe3RwgXNMf5w234SPYhN/2070ocg2cVJtBe+vzwQdY6MKdGSMI5g7
-        U2Gj+O3jfnuz4FlbpR2sltf9uwpvDJgvz4Qe6V3LmTNoI41FcuojfGNv+5dj5kbE
-        6FN15yXZvKwYTb0SNz/ifCCYL5Km+KlRMXE0KF6g8TqBhuVyO6BQxUeSI42/mLIM
-        FwoB/9xHrmSbqNIRI7ff9w/1MGrQY2/lUuPSxOyJ5cCWEh7DeVN71JP85I0uJ0+A
-        ==
-X-ME-Sender: <xms:rZLJYNSD8EREOKAsrBpY3htjzO7Y1aQfMn7GGaw7-gQqo8wc1ugJUA>
-    <xme:rZLJYGy1Phje62YO6evIx_ldlJcAATSU0RtNxDtRV0R8iJXyymnTgizZs1cv_A-5c
-    LaW8ChAMaNyyQ>
-X-ME-Received: <xmr:rZLJYC2foojFWULEKMiZ8iaGObNN_TGUWhxvuR1vMfKJpak_9VkjQwVlbzjdXTTLVDJAoqt1eGNDFZ7BwElOX1bb9As9SOFD>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedvkedguddttdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
-    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:rZLJYFCgn1DOz1-Z8pv9qEd3ymDPpW5H1wd1sJNrwblyC7Wag53zPA>
-    <xmx:rZLJYGjmAiT2Yn172VuhcS4JxIgKubtsGSvKb8k1Mgw-Sh-g8RpPsA>
-    <xmx:rZLJYJomBAlllMseZ6rchNae2MdkNifVMef3wCWPf0rhBWAbyfPv1g>
-    <xmx:rpLJYNTgjD7ie0xQh9cuYrlMEiKiCX4iEH5wlBovpNg3_s1ZtdgAyg>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 16 Jun 2021 01:57:00 -0400 (EDT)
-Date:   Wed, 16 Jun 2021 07:56:58 +0200
-From:   Greg KH <greg@kroah.com>
+        id S231252AbhFPGA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 02:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57486 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231200AbhFPGA5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 02:00:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 750176128C;
+        Wed, 16 Jun 2021 05:58:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623823132;
+        bh=mbCodwMIm1uO6V8GxochPay+jWIcegWFL544VUVwHXg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=M5vdOsIe2Zer92PkoDT5IunwubV5UQ1Vs7rNcq2Ea3wSGn7LJIEZLsHqaSeh7Q2wh
+         UYg+Pvtp6gWzOE79brNsTv5CW5vKJV7rMKwVIl6VoHMMs12qrEdR6Sr0L172tju/Fd
+         pPcZ2MXA+slC0xJ12ww6k0enzlONfls4e+4MJJWY=
+Date:   Wed, 16 Jun 2021 07:58:48 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Siddharth Gupta <sidgup@codeaurora.org>
 Cc:     bjorn.andersson@linaro.org, ohad@wizery.com,
         linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, psodagud@codeaurora.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH v4 4/4] remoteproc: core: Cleanup device in case of
- failure
-Message-ID: <YMmSqtZ9OGIWs+dW@kroah.com>
-References: <1623783824-13395-1-git-send-email-sidgup@codeaurora.org>
- <1623783824-13395-5-git-send-email-sidgup@codeaurora.org>
- <YMj6N46ElCq/ndJJ@kroah.com>
- <75ce2563-3d34-a578-200d-8ec5f259d405@codeaurora.org>
+Subject: Re: [PATCH v3 1/4] remoteproc: core: Move cdev add before device add
+Message-ID: <YMmTGD6hAKbpGWMp@kroah.com>
+References: <1623723671-5517-1-git-send-email-sidgup@codeaurora.org>
+ <1623723671-5517-2-git-send-email-sidgup@codeaurora.org>
+ <YMgy7eg3wde0eVfe@kroah.com>
+ <0a196786-f624-d9bb-8ef9-55c04ed57497@codeaurora.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <75ce2563-3d34-a578-200d-8ec5f259d405@codeaurora.org>
+In-Reply-To: <0a196786-f624-d9bb-8ef9-55c04ed57497@codeaurora.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 15, 2021 at 01:21:11PM -0700, Siddharth Gupta wrote:
+On Tue, Jun 15, 2021 at 12:03:26PM -0700, Siddharth Gupta wrote:
 > 
-> On 6/15/2021 12:06 PM, Greg KH wrote:
-> > On Tue, Jun 15, 2021 at 12:03:44PM -0700, Siddharth Gupta wrote:
-> > > When a failure occurs in rproc_add() it returns an error, but does
-> > > not cleanup after itself. This change adds the failure path in such
-> > > cases.
+> On 6/14/2021 9:56 PM, Greg KH wrote:
+> > On Mon, Jun 14, 2021 at 07:21:08PM -0700, Siddharth Gupta wrote:
+> > > When cdev_add is called after device_add has been called there is no
+> > > way for the userspace to know about the addition of a cdev as cdev_add
+> > > itself doesn't trigger a uevent notification, or for the kernel to
+> > > know about the change to devt. This results in two problems:
+> > >   - mknod is never called for the cdev and hence no cdev appears on
+> > >     devtmpfs.
+> > >   - sysfs links to the new cdev are not established.
 > > > 
-> > > Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
-> > > Cc: stable@vger.kernel.org
-> > > ---
-> > >   drivers/remoteproc/remoteproc_core.c | 15 ++++++++++++---
-> > >   1 file changed, 12 insertions(+), 3 deletions(-)
-> > Why is this needed for stable kernels?  And again, a Fixes: tag?
-> Patch 2 and patch 3 are leading up to fix rproc_add()
-> in case of a failure. This means we'll have errors with
-> use after free unless we call device_del() or cdev_del(),
-> also the sysfs and devtempfs nodes will also not be
-> removed.
+> > > The cdev needs to be added and devt assigned before device_add() is
+> > > called in order for the relevant sysfs and devtmpfs entries to be
+> > > created and the uevent to be properly populated.
+> > So this means no one ever ran this code on a system that used devtmpfs?
+> > 
+> > How was it ever tested?
+> My testing was done with toybox + Android's ueventd ramdisk.
+> As I mentioned in the discussion, the race became evident
+> recently. I will make sure to test all such changes without
+> systemd/ueventd in the future.
 
-Then please explain that better in the changelogs.  At it is, no one
-knows this.
+It isn't an issue of systemd/ueventd, those do not control /dev on a
+normal system, that is what devtmpfs is for.
+
+And devtmpfs nodes are only created if you create a struct device
+somewhere with a proper major/minor, which you were not doing here, so
+you must have had a static /dev on your test systems, right?
+
+thanks,
 
 greg k-h
