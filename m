@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B023B3A9FE4
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:40:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 913D83A9F83
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:36:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235340AbhFPPmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:42:16 -0400
+        id S234968AbhFPPip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:38:45 -0400
 Received: from mail.kernel.org ([198.145.29.99]:51258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235290AbhFPPkA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:40:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC3D7613C1;
-        Wed, 16 Jun 2021 15:37:03 +0000 (UTC)
+        id S234967AbhFPPhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:37:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEF0F613D0;
+        Wed, 16 Jun 2021 15:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857824;
-        bh=h3yfU/nAkZxVju9v0orfVy4nCOFi0WzFrnNTYQYPzLc=;
+        s=korg; t=1623857739;
+        bh=AsN4evvrBe7Rx1ndBTLCA/QWPG7HrdqRBqmP3/aBpR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2IF4l58aLpv1lX0JtDWq7oN/T+/25w1dJN0KxKUNZprVEo6nIQiOqoW7hS6frnv7
-         z4LnoedanEw46pqUx6MckpiL3vxg0DRXhthBuR3K+bAp3aMgjEDCTtqIkihtRAxAl0
-         zPw39N2LBbS7jAm9Egv+ScPaeUODXKqaDwufyV/Y=
+        b=0eNIeqHLJzR3eTsjTmUc6b3eBoJ5z5adHQS+JrFrKOlcKdWaO3rgV126AJGrR/R9w
+         mZQyccT4ZRnykP1FtI4i+JQucaxzuBTVvrT4ibnXoudmUB1CTF5vIBYwoN9uZGVvv8
+         DCFMCqu0gZtK0XYKk9snuDa7RqtQZ0ZnGnxiz0KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 20/48] gfs2: Prevent direct-I/O write fallback errors from getting lost
+Subject: [PATCH 5.10 21/38] ethernet: myri10ge: Fix missing error code in myri10ge_probe()
 Date:   Wed, 16 Jun 2021 17:33:30 +0200
-Message-Id: <20210616152837.292198696@linuxfoundation.org>
+Message-Id: <20210616152836.062549612@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
-References: <20210616152836.655643420@linuxfoundation.org>
+In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
+References: <20210616152835.407925718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 43a511c44e58e357a687d61a20cf5ef1dc9e5a7c ]
+[ Upstream commit f336d0b93ae978f12c5e27199f828da89b91e56a ]
 
-When a direct I/O write falls entirely and falls back to buffered I/O and the
-buffered I/O fails, the write failed with return value 0 instead of the error
-number reported by the buffered I/O. Fix that.
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'status'.
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Eliminate the follow smatch warning:
+
+drivers/net/ethernet/myricom/myri10ge/myri10ge.c:3818 myri10ge_probe()
+warn: missing error code 'status'.
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/file.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 2d500f90cdac..a86e6810237a 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -935,8 +935,11 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 		current->backing_dev_info = inode_to_bdi(inode);
- 		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
- 		current->backing_dev_info = NULL;
--		if (unlikely(buffered <= 0))
-+		if (unlikely(buffered <= 0)) {
-+			if (!ret)
-+				ret = buffered;
- 			goto out_unlock;
-+		}
- 
- 		/*
- 		 * We need to ensure that the page cache pages are written to
+diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+index c84c8bf2bc20..fc99ad8e4a38 100644
+--- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
++++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+@@ -3815,6 +3815,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		dev_err(&pdev->dev,
+ 			"invalid sram_size %dB or board span %ldB\n",
+ 			mgp->sram_size, mgp->board_span);
++		status = -EINVAL;
+ 		goto abort_with_ioremap;
+ 	}
+ 	memcpy_fromio(mgp->eeprom_strings,
 -- 
 2.30.2
 
