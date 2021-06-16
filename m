@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D2A3A9FBA
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B70723A9F2A
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:34:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234807AbhFPPkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:40:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51514 "EHLO mail.kernel.org"
+        id S234620AbhFPPgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:36:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235182AbhFPPjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:39:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFFDF60FE3;
-        Wed, 16 Jun 2021 15:36:37 +0000 (UTC)
+        id S234332AbhFPPgP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:36:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9E886100B;
+        Wed, 16 Jun 2021 15:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857798;
-        bh=SQ7tXB5A4f9gTKUoGUxGuZuKkrwf8dWkXFQDGeSO38Y=;
+        s=korg; t=1623857649;
+        bh=vqjqIDbMlYZPAfIgI/fP7LY+EVjhIGlykwYrcE7qBug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MKtf+r1iLSAiIbp3VcONm9SnvMZlnNAqyCanVlQAQ7wWvcv/myFeq+RUM6+aWlBHn
-         chO9J0iUUWKcSXUtN21njIW+CCfEei1N1P1aIIzf2Sf1EX8akJ8ChSrrydSE4Af6KP
-         TTOiNTh8j0r9cIwJvsoxuUskfC5ID46tE+7tM2jA=
+        b=Rz7uY9CzgxaKNIiH25iI/1fhV5MbEgznm1kkW0jb2vOYOfi5qAYru0YL/jyRjX2lB
+         1pZ5AS8UV9tZ9OeMf3l3Ketdxu3j15lmAa/E6AkC4PqooIam5fm6F+1QqJy3IqM103
+         8OQo4y/CJK5kOFWn1sm54oVvr+HgYO2LTiHNAMWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Aring <aahringo@redhat.com>,
         Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 01/48] net: ieee802154: fix null deref in parse dev addr
-Date:   Wed, 16 Jun 2021 17:33:11 +0200
-Message-Id: <20210616152836.702002813@linuxfoundation.org>
+Subject: [PATCH 5.4 01/28] net: ieee802154: fix null deref in parse dev addr
+Date:   Wed, 16 Jun 2021 17:33:12 +0200
+Message-Id: <20210616152834.197328744@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
-References: <20210616152836.655643420@linuxfoundation.org>
+In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
+References: <20210616152834.149064097@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -60,10 +60,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index 05f6bd89a7dd..0cf2374c143b 100644
+index 328bb9f5342e..b2ba1d2556f1 100644
 --- a/net/ieee802154/nl802154.c
 +++ b/net/ieee802154/nl802154.c
-@@ -1298,19 +1298,20 @@ ieee802154_llsec_parse_dev_addr(struct nlattr *nla,
+@@ -1314,19 +1314,20 @@ ieee802154_llsec_parse_dev_addr(struct nlattr *nla,
  	if (!nla || nla_parse_nested_deprecated(attrs, NL802154_DEV_ADDR_ATTR_MAX, nla, nl802154_dev_addr_policy, NULL))
  		return -EINVAL;
  
