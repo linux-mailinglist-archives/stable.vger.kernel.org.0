@@ -2,236 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41ACF3AA256
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 19:21:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D33123AA262
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 19:27:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230321AbhFPRXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 13:23:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35968 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230291AbhFPRXv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 13:23:51 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AD9BC061574
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 10:21:44 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id x73so2727945pfc.8
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 10:21:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Sr6LmrZPtXI5gJIrRtwTLkVTASuAkzQ5ANN6kqbhf30=;
-        b=VlTVJ6LWD860hQfvMxmBYCT4TCWQbp40sPQIfdwwc2ZD34nNZ7ePQQliowxyVrjFud
-         QoVWxT5ZZkeprxslGwbrj1QK5MPuy1K9JCPhx0YuCqPN1Q/br0SE/KI5aLWnrKsrDM0p
-         u0zwRv2ss91HTbSUSzwVImj4jJHDnbRE3nrH6/5cZFMdPyoFv6thzh2UtS2W5noTHXVa
-         E4+1B/3x2T/WZ/abp5/BLZppYzPwhaDlgUV4De2kUiINOVrRtDKqloIjgJpcZZ3qp19G
-         WWaRcTmdoSqnBCXMShDP82EtL3lD8LU0hkk/T5rrcG1kn1BRwGElfiUQEW22RznkQBlb
-         2j/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Sr6LmrZPtXI5gJIrRtwTLkVTASuAkzQ5ANN6kqbhf30=;
-        b=EcxK12TNbjuurtgYTfc3eoZNaLoUCE1DM1fS07mnJb6gJGrSHirNAOnifNDQ6yh8xb
-         yx7k7nWW98HKeUsAE/qQtTeswci8SOnqPuf9qo3+YXLpEqJP33pj6j+vwq2IcxOxkyrN
-         vRoAn2rqblSYqUVDRhbq20spVXLavb2IDd9NPj+i5QGduuT35f4vcSCGDE21S38IocHH
-         1C+A66hS/P5lo6hUUjTf3bRyltupQxmob3ZcrolVSTkQhC9kqDnwxTNzcnVHN2xF2mcg
-         YlnAR3HACjsdE8At2W3nBqDAiT9ZcaIe5QkUOpt3iZaStTG/i0r/6VGqvFteDxh+V0lq
-         Ni1g==
-X-Gm-Message-State: AOAM531iV23FakpqOU8jL4RS5W9NpHt042l5OtPVANz6oxy/2y4+G8pL
-        EU1wwl4yfgvYWCe3Cy7C4e1obCqzgMF4j+jX
-X-Google-Smtp-Source: ABdhPJz53ykF+yEYN8n7lx5sdJ9iKQjF1GXAcRyxseFpnBbegP20Gwluc5ZlSYK4mXSml6UZmwMvxQ==
-X-Received: by 2002:a63:c1e:: with SMTP id b30mr695072pgl.118.1623864103337;
-        Wed, 16 Jun 2021 10:21:43 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b10sm2716843pfi.122.2021.06.16.10.21.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jun 2021 10:21:43 -0700 (PDT)
-Message-ID: <60ca3327.1c69fb81.7e5b1.722c@mx.google.com>
-Date:   Wed, 16 Jun 2021 10:21:43 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229741AbhFPR3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 13:29:13 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:52338 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229547AbhFPR3M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 13:29:12 -0400
+Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 9EAF221A6D;
+        Wed, 16 Jun 2021 17:27:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1623864425; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2RjVqTk1bZ89HZ0Vl6VNbgo7QZEJ/jobK5ZhIBC94LU=;
+        b=QV45H5Np7o2LLu6APjdnnUzf3ffFav31ia6AG0BjwJfrRa6x1u/P6WQGBGi97HnfeFmljt
+        wIZ/1OFM4NpiEidsWjX7RknZ8/mlPWJraY5u7g45lItemJdOYA+OVRZ3BvXi50hAR0wQAR
+        TvEhTEO0E9zg4hThThe17lpD+Xw6Cks=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1623864425;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2RjVqTk1bZ89HZ0Vl6VNbgo7QZEJ/jobK5ZhIBC94LU=;
+        b=c084dfJJBHvrLr+KvQnACGhqnaAp0yf/EtJf+c5PTjFJI/oBAwMeKwg2HJaOuqXmtu7/+d
+        I33wQdft/HBPr5CQ==
+Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        by imap.suse.de (Postfix) with ESMTP id 7C9C0118DD;
+        Wed, 16 Jun 2021 17:27:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1623864425; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2RjVqTk1bZ89HZ0Vl6VNbgo7QZEJ/jobK5ZhIBC94LU=;
+        b=QV45H5Np7o2LLu6APjdnnUzf3ffFav31ia6AG0BjwJfrRa6x1u/P6WQGBGi97HnfeFmljt
+        wIZ/1OFM4NpiEidsWjX7RknZ8/mlPWJraY5u7g45lItemJdOYA+OVRZ3BvXi50hAR0wQAR
+        TvEhTEO0E9zg4hThThe17lpD+Xw6Cks=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1623864425;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2RjVqTk1bZ89HZ0Vl6VNbgo7QZEJ/jobK5ZhIBC94LU=;
+        b=c084dfJJBHvrLr+KvQnACGhqnaAp0yf/EtJf+c5PTjFJI/oBAwMeKwg2HJaOuqXmtu7/+d
+        I33wQdft/HBPr5CQ==
+Received: from director2.suse.de ([192.168.254.72])
+        by imap3-int with ESMTPSA
+        id jL7tHWk0ymDcOgAALh3uQQ
+        (envelope-from <vbabka@suse.cz>); Wed, 16 Jun 2021 17:27:05 +0000
+Subject: Re: [PATCH v2] mm/gup: fix try_grab_compound_head() race with
+ split_huge_page()
+To:     Yang Shi <shy828301@gmail.com>, Jann Horn <jannh@google.com>
+Cc:     John Hubbard <jhubbard@nvidia.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        "Kirill A . Shutemov" <kirill@shutemov.name>,
+        Jan Kara <jack@suse.cz>, stable <stable@vger.kernel.org>
+References: <20210615012014.1100672-1-jannh@google.com>
+ <50d828d1-2ce6-21b4-0e27-fb15daa77561@nvidia.com>
+ <CAG48ez3Vbcvh4AisU7=ukeJeSjHGTKQVd0NOU6XOpRru7oP_ig@mail.gmail.com>
+ <CAHbLzkomex+fgC8RyogXu-s5o2UrORMO6D2yTsSXW5Wo5z9WRA@mail.gmail.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <6d21f8cb-4b72-bdec-386c-684ddbcdada1@suse.cz>
+Date:   Wed, 16 Jun 2021 19:27:05 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.273-14-g24267faae718
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 92 runs,
- 4 regressions (v4.9.273-14-g24267faae718)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <CAHbLzkomex+fgC8RyogXu-s5o2UrORMO6D2yTsSXW5Wo5z9WRA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 92 runs, 4 regressions (v4.9.273-14-g24267faa=
-e718)
+On 6/16/21 1:10 AM, Yang Shi wrote:
+> On Tue, Jun 15, 2021 at 5:10 AM Jann Horn <jannh@google.com> wrote:
+>>
+>> On Tue, Jun 15, 2021 at 8:37 AM John Hubbard <jhubbard@nvidia.com> wrote:
+>> > On 6/14/21 6:20 PM, Jann Horn wrote:
+>> > > try_grab_compound_head() is used to grab a reference to a page from
+>> > > get_user_pages_fast(), which is only protected against concurrent
+>> > > freeing of page tables (via local_irq_save()), but not against
+>> > > concurrent TLB flushes, freeing of data pages, or splitting of compound
+>> > > pages.
+>> [...]
+>> > Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+>>
+>> Thanks!
+>>
+>> [...]
+>> > > @@ -55,8 +72,23 @@ static inline struct page *try_get_compound_head(struct page *page, int refs)
+>> > >       if (WARN_ON_ONCE(page_ref_count(head) < 0))
+>> > >               return NULL;
+>> > >       if (unlikely(!page_cache_add_speculative(head, refs)))
+>> > >               return NULL;
+>> > > +
+>> > > +     /*
+>> > > +      * At this point we have a stable reference to the head page; but it
+>> > > +      * could be that between the compound_head() lookup and the refcount
+>> > > +      * increment, the compound page was split, in which case we'd end up
+>> > > +      * holding a reference on a page that has nothing to do with the page
+>> > > +      * we were given anymore.
+>> > > +      * So now that the head page is stable, recheck that the pages still
+>> > > +      * belong together.
+>> > > +      */
+>> > > +     if (unlikely(compound_head(page) != head)) {
+>> >
+>> > I was just wondering about what all could happen here. Such as: page gets split,
+>> > reallocated into a different-sized compound page, one that still has page pointing
+>> > to head. I think that's OK, because we don't look at or change other huge page
+>> > fields.
+>> >
+>> > But I thought I'd mention the idea in case anyone else has any clever ideas about
+>> > how this simple check might be insufficient here. It seems fine to me, but I
+>> > routinely lack enough imagination about concurrent operations. :)
+>>
+>> Hmmm... I think the scariest aspect here is probably the interaction
+>> with concurrent allocation of a compound page on architectures with
+>> store-store reordering (like ARM). *If* the page allocator handled
+>> compound pages with lockless, non-atomic percpu freelists, I think it
+>> might be possible that the zeroing of tail_page->compound_head in
+>> put_page() could be reordered after the page has been freed,
+>> reallocated and set to refcount 1 again?
+>>
+>> That shouldn't be possible at the moment, but it is still a bit scary.
+> 
+> It might be possible after Mel's "mm/page_alloc: Allow high-order
+> pages to be stored on the per-cpu lists" patch
+> (https://patchwork.kernel.org/project/linux-mm/patch/20210611135753.GC30378@techsingularity.net/).
 
-Regressions Summary
--------------------
+Those would be percpu indeed, but not "lockless, non-atomic", no? They are
+protected by a local_lock.
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
+>>
+>>
+>> I think the lockless page cache code also has to deal with somewhat
+>> similar ordering concerns when it uses page_cache_get_speculative(),
+>> e.g. in mapping_get_entry() - first it looks up a page pointer with
+>> xas_load(), and any access to the page later on would be a _dependent
+>> load_, but if the page then gets freed, reallocated, and inserted into
+>> the page cache again before the refcount increment and the re-check
+>> using xas_reload(), then there would be no data dependency from
+>> xas_reload() to the following use of the page...
+>>
+> 
 
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.273-14-g24267faae718/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.273-14-g24267faae718
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      24267faae7186532713790ef36d5a644004af09f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c9f8f17b9feb2d17413283
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
-4-g24267faae718/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
-4-g24267faae718/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c9f8f17b9feb2d17413=
-284
-        failing since 214 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60c9faad4930f4e72541327a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
-4-g24267faae718/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
-4-g24267faae718/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60c9faad4930f4e725413=
-27b
-        failing since 214 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca01ea23052ea862413285
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
-4-g24267faae718/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
-4-g24267faae718/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca01ea23052ea862413=
-286
-        failing since 214 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca2be7ab25ba07cf41327b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
-4-g24267faae718/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
-4-g24267faae718/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca2be7ab25ba07cf413=
-27c
-        failing since 214 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
