@@ -2,106 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 735F23A93E8
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 09:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD68C3A9415
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 09:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231784AbhFPHcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 03:32:18 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:33838 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231668AbhFPHcR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 03:32:17 -0400
-Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id A261A21A24;
-        Wed, 16 Jun 2021 07:30:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1623828610; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=S1r1xotAufgSrJxoO6eVl3GT9o9kmdrAP0fb2+09k/Y=;
-        b=rrtxG4a3oZRTeuM96PmrvNJ9mDw4s3FGu3Lt679kjarEpkWxfo+hWYdS4X+u3TqylaZlJr
-        V3FSb3/rS3kXEauOsaW7c5pXjxS4O9eIryIAQc0InNovNDrA6RZm3/l8q7+i88EsnXV6QY
-        Gm6m0edAK5fEt0Xzp2IcFUvrAYJKM+w=
-Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        by imap.suse.de (Postfix) with ESMTP id 53A0511A98;
-        Wed, 16 Jun 2021 07:30:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1623828610; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=S1r1xotAufgSrJxoO6eVl3GT9o9kmdrAP0fb2+09k/Y=;
-        b=rrtxG4a3oZRTeuM96PmrvNJ9mDw4s3FGu3Lt679kjarEpkWxfo+hWYdS4X+u3TqylaZlJr
-        V3FSb3/rS3kXEauOsaW7c5pXjxS4O9eIryIAQc0InNovNDrA6RZm3/l8q7+i88EsnXV6QY
-        Gm6m0edAK5fEt0Xzp2IcFUvrAYJKM+w=
-Received: from director2.suse.de ([192.168.254.72])
-        by imap3-int with ESMTPSA
-        id kOVJE4KoyWBfZAAALh3uQQ
-        (envelope-from <jgross@suse.com>); Wed, 16 Jun 2021 07:30:10 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org
-Subject: [PATCH 1/2] xen: fix setting of max_pfn in shared_info
-Date:   Wed, 16 Jun 2021 09:30:06 +0200
-Message-Id: <20210616073007.5215-2-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210616073007.5215-1-jgross@suse.com>
-References: <20210616073007.5215-1-jgross@suse.com>
+        id S231245AbhFPHgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 03:36:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49164 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231132AbhFPHgC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 03:36:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4B2D60FEA;
+        Wed, 16 Jun 2021 07:33:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623828837;
+        bh=f4THeaROB/EUb5al3ZHzm5/vIw6aUtEe7e7IjwIYo/U=;
+        h=Subject:To:From:Date:From;
+        b=o9q8svVn9ZmI1SXZQz/F3y1PlUoRiCmizlq5nWQ8xiYI9z4iFDK2vAP6GSLYxNRTk
+         GlQJG2EHkiuA9WVsaZ9L0AGormwF96Eoa5jqTB4UvCzLlJoRtEGpL+Tsu/pV6dXf6Z
+         EZsjSQLkSXNC+fRrwJIY27jlBsjPILST+wQb5/K0=
+Subject: patch "usb: chipidea: imx: Fix Battery Charger 1.2 CDP detection" added to usb-linus
+To:     breno.lima@nxp.com, jun.li@nxp.com, peter.chen@kernel.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 16 Jun 2021 09:33:54 +0200
+Message-ID: <162382883454105@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Xen PV guests are specifying the highest used PFN via the max_pfn
-field in shared_info. This value is used by the Xen tools when saving
-or migrating the guest.
 
-Unfortunately this field is misnamed, as in reality it is specifying
-the number of pages (including any memory holes) of the guest, so it
-is the highest used PFN + 1. Renaming isn't possible, as this is a
-public Xen hypervisor interface which needs to be kept stable.
+This is a note to let you know that I've just added the patch titled
 
-The kernel will set the value correctly initially at boot time, but
-when adding more pages (e.g. due to memory hotplug or ballooning) a
-real PFN number is stored in max_pfn. This is done when expanding the
-p2m array, and the PFN stored there is even possibly wrong, as it
-should be the last possible PFN of the just added P2M frame, and not
-one which led to the P2M expansion.
+    usb: chipidea: imx: Fix Battery Charger 1.2 CDP detection
 
-Fix that by setting shared_info->max_pfn to the last possible PFN + 1.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-Fixes: 98dd166ea3a3c3 ("x86/xen/p2m: hint at the last populated P2M entry")
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From c6d580d96f140596d69220f60ce0cfbea4ee5c0f Mon Sep 17 00:00:00 2001
+From: Breno Lima <breno.lima@nxp.com>
+Date: Mon, 14 Jun 2021 13:50:13 -0400
+Subject: usb: chipidea: imx: Fix Battery Charger 1.2 CDP detection
+
+i.MX8MM cannot detect certain CDP USB HUBs. usbmisc_imx.c driver is not
+following CDP timing requirements defined by USB BC 1.2 specification
+and section 3.2.4 Detection Timing CDP.
+
+During Primary Detection the i.MX device should turn on VDP_SRC and
+IDM_SINK for a minimum of 40ms (TVDPSRC_ON). After a time of TVDPSRC_ON,
+the i.MX is allowed to check the status of the D- line. Current
+implementation is waiting between 1ms and 2ms, and certain BC 1.2
+complaint USB HUBs cannot be detected. Increase delay to 40ms allowing
+enough time for primary detection.
+
+During secondary detection the i.MX is required to disable VDP_SRC and
+IDM_SNK, and enable VDM_SRC and IDP_SINK for at least 40ms (TVDMSRC_ON).
+
+Current implementation is not disabling VDP_SRC and IDM_SNK, introduce
+disable sequence in imx7d_charger_secondary_detection() function.
+
+VDM_SRC and IDP_SINK should be enabled for at least 40ms (TVDMSRC_ON).
+Increase delay allowing enough time for detection.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 746f316b753a ("usb: chipidea: introduce imx7d USB charger detection")
+Signed-off-by: Breno Lima <breno.lima@nxp.com>
+Signed-off-by: Jun Li <jun.li@nxp.com>
+Link: https://lore.kernel.org/r/20210614175013.495808-1-breno.lima@nxp.com
+Signed-off-by: Peter Chen <peter.chen@kernel.org>
 ---
- arch/x86/xen/p2m.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/chipidea/usbmisc_imx.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/xen/p2m.c b/arch/x86/xen/p2m.c
-index ac06ca32e9ef..5e6e236977c7 100644
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -618,8 +618,8 @@ int xen_alloc_p2m_entry(unsigned long pfn)
- 	}
+diff --git a/drivers/usb/chipidea/usbmisc_imx.c b/drivers/usb/chipidea/usbmisc_imx.c
+index 4545b23bda3f..bac0f5458cab 100644
+--- a/drivers/usb/chipidea/usbmisc_imx.c
++++ b/drivers/usb/chipidea/usbmisc_imx.c
+@@ -686,6 +686,16 @@ static int imx7d_charger_secondary_detection(struct imx_usbmisc_data *data)
+ 	int val;
+ 	unsigned long flags;
  
- 	/* Expanded the p2m? */
--	if (pfn > xen_p2m_last_pfn) {
--		xen_p2m_last_pfn = pfn;
-+	if (pfn >= xen_p2m_last_pfn) {
-+		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
- 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
- 	}
++	/* Clear VDATSRCENB0 to disable VDP_SRC and IDM_SNK required by BC 1.2 spec */
++	spin_lock_irqsave(&usbmisc->lock, flags);
++	val = readl(usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
++	val &= ~MX7D_USB_OTG_PHY_CFG2_CHRG_VDATSRCENB0;
++	writel(val, usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
++	spin_unlock_irqrestore(&usbmisc->lock, flags);
++
++	/* TVDMSRC_DIS */
++	msleep(20);
++
+ 	/* VDM_SRC is connected to D- and IDP_SINK is connected to D+ */
+ 	spin_lock_irqsave(&usbmisc->lock, flags);
+ 	val = readl(usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
+@@ -695,7 +705,8 @@ static int imx7d_charger_secondary_detection(struct imx_usbmisc_data *data)
+ 				usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
+ 	spin_unlock_irqrestore(&usbmisc->lock, flags);
  
+-	usleep_range(1000, 2000);
++	/* TVDMSRC_ON */
++	msleep(40);
+ 
+ 	/*
+ 	 * Per BC 1.2, check voltage of D+:
+@@ -798,7 +809,8 @@ static int imx7d_charger_primary_detection(struct imx_usbmisc_data *data)
+ 				usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
+ 	spin_unlock_irqrestore(&usbmisc->lock, flags);
+ 
+-	usleep_range(1000, 2000);
++	/* TVDPSRC_ON */
++	msleep(40);
+ 
+ 	/* Check if D- is less than VDAT_REF to determine an SDP per BC 1.2 */
+ 	val = readl(usbmisc->base + MX7D_USB_OTG_PHY_STATUS);
 -- 
-2.26.2
+2.32.0
+
 
