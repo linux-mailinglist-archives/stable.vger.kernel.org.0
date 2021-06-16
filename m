@@ -2,211 +2,386 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E15763A902D
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 05:55:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E53F53A90C1
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 06:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230188AbhFPD6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 23:58:03 -0400
-Received: from mail-dm6nam10on2081.outbound.protection.outlook.com ([40.107.93.81]:37729
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229931AbhFPD6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 23:58:02 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kINpXXWUJMi0v74MQZpscoSCRccN1+U5ZQUTxWT+0Z3l4yr9HKNL4w0V5At8CzaGNdLaSgftyE+HuUPoFCYp+MpVybjsqpklBUIwvT4bSY/yg7K5FPFS1GzztSBUpL+IXa5Cehq02cAdKKWlDV4Xg8tf2E9PxJW7Yst6jKQ4F7ousWIS4e2UcDz2PZCHRKtHqSMx4gtcteuzXjHbkZ3kGyBp7dEggS7wH/58Rl03EHB37UoF/bT75e0H9sQh99ffNwt+viK1S6vShFZjk23KHRhGgkU9oed6eRDmrf86Np91QI07WCVIaDtVCXwPzKF5tRIR8c/7RdaQ/Yq911s9Lw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Mln9HhtwWqUVJUt9shkU5clzS8X0D8nsD2B9afkXI6w=;
- b=fw5z8w2PsmhfJNQ6Q9H5BnsWVqr2xu82/6R2l5varkGeaShLN3nNd2VZkeAOULcjBxkLvc5K6gbtRNoQznyGLM4iRTziamzEaDc/o9D4LJJU9HRo8z12Bp5HtkRub6X8Xmidl0D+VkDrNiUchyCKMa4ZEhyggiaudmd9WOJI9CNKIaKKugKfYkLEnK8eywGsopYupyd27Qw33Q+y6hSiWnHNSf/RmfXo5gG6HgKZ7kvLJA4KfXzpkCDbNFoEEwfziBq92i4n2+/1fakuoUhU+efIB/uMoffhEVjZTq71kgzDxvH0J9rVNRrSM+QuEoa+nIN0XiBALAoJ0J/yLNpKqA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Mln9HhtwWqUVJUt9shkU5clzS8X0D8nsD2B9afkXI6w=;
- b=eakum4qR6nfzQtNrOPn8ASiF56gaGvdpqP7NVOsLBKyAY0lP9pbGT2P7GOnhw+F8W6YhQbMxXiqR+Af28MCIte0xwy+N2ERbdrskBTemAHt7+qp8xdl0cSEu0F71nF/iE0TyDBFsylFIusqwIpf6gHCMmVsc9KvQaH0gG9XoaI8=
-Received: from MWHPR2001CA0011.namprd20.prod.outlook.com
- (2603:10b6:301:15::21) by DM6PR12MB3290.namprd12.prod.outlook.com
- (2603:10b6:5:189::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.21; Wed, 16 Jun
- 2021 03:55:56 +0000
-Received: from CO1NAM11FT027.eop-nam11.prod.protection.outlook.com
- (2603:10b6:301:15:cafe::af) by MWHPR2001CA0011.outlook.office365.com
- (2603:10b6:301:15::21) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.18 via Frontend
- Transport; Wed, 16 Jun 2021 03:55:56 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
- header.d=none;lists.freedesktop.org; dmarc=pass action=none
- header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB03.amd.com;
-Received: from SATLEXMB03.amd.com (165.204.84.17) by
- CO1NAM11FT027.mail.protection.outlook.com (10.13.174.224) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4242.16 via Frontend Transport; Wed, 16 Jun 2021 03:55:55 +0000
-Received: from SATLEXMB07.amd.com (10.181.41.45) by SATLEXMB03.amd.com
- (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Tue, 15 Jun
- 2021 22:55:54 -0500
-Received: from SATLEXMB03.amd.com (10.181.40.144) by SATLEXMB07.amd.com
- (10.181.41.45) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Tue, 15 Jun
- 2021 20:55:54 -0700
-Received: from wayne-System-Product-Name.amd.com (10.180.168.240) by
- SATLEXMB03.amd.com (10.181.40.144) with Microsoft SMTP Server id 15.1.2242.4
- via Frontend Transport; Tue, 15 Jun 2021 22:55:52 -0500
-From:   Wayne Lin <Wayne.Lin@amd.com>
-To:     <dri-devel@lists.freedesktop.org>
-CC:     <lyude@redhat.com>, <Nicholas.Kazlauskas@amd.com>,
-        <harry.wentland@amd.com>, <jerry.zuo@amd.com>,
-        <aurabindo.pillai@amd.com>, Wayne Lin <Wayne.Lin@amd.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2 2/2] drm/dp_mst: Avoid to mess up payload table by ports in stale topology
-Date:   Wed, 16 Jun 2021 11:55:01 +0800
-Message-ID: <20210616035501.3776-3-Wayne.Lin@amd.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210616035501.3776-1-Wayne.Lin@amd.com>
-References: <20210616035501.3776-1-Wayne.Lin@amd.com>
+        id S229543AbhFPErd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 00:47:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34060 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229514AbhFPErd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 00:47:33 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA046C061574;
+        Tue, 15 Jun 2021 21:45:25 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id x16so1153104pfa.13;
+        Tue, 15 Jun 2021 21:45:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:subject:to:cc:references:in-reply-to:mime-version
+         :message-id:content-transfer-encoding;
+        bh=R4qQAh4JYS+kFi0j9lWegPv3ph2ncLp26Wd63jcZywc=;
+        b=PxTDjmjSKfdd9tWazknafMJZ+OoJ3QSlIjVxHkkWd2gkWFqpw6P6ySUKaw+xLvMc0h
+         /UayZj/PT6aVdHnRzoTPldnUF24ZMh4o2Ky4dj86hNQTT2YCksb8R1ZOVnbW4YWVdDWj
+         0bFLc1+FAoGMPYhDeqhbl7mopvQwg3fh57Darkj3bIIbECtJfRmpLnDmyaNUvJFNVmN8
+         O9s+trXGWGWU0T6hH6qatgJVp8Omvb3iF9fZMde1d/a8bdzl5JNsqiKLWXAJGYabjV//
+         Ow3dt0pHO2TjjVC3kdXmvmPcTWVYiMA3A5NBRL8gaqVo4PAUwW10j4bG94xxRkTgbLwH
+         ptSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:subject:to:cc:references:in-reply-to
+         :mime-version:message-id:content-transfer-encoding;
+        bh=R4qQAh4JYS+kFi0j9lWegPv3ph2ncLp26Wd63jcZywc=;
+        b=O52TMPOavM7UCcVnhOv2ZjCPssKM1Pe74M+0pIbvHuj0jJBJEDhpb2bQcwqr6hrhpV
+         OV1iRMyIWcGY+Njrlc/MWd/CnPEh1foJgXWuguwdLWovyH7HLykR2h/nK8QACSK6vcNm
+         6Ry/rnnJ8Q9X+cFQG93j7cokZwIYxVDSbsy7zehVVXrxgK3tzUF7poukWTNJnLex+3lD
+         tutssO6A57riA4BEId5mZqWAAB7zQ4XJuwVGHlw8WtepegDXv5ZDMsrcJplqHpgc8+uX
+         qt2UHKQMrf+6oGqpVTu+7OzeoFkbam1agQFTCAvl4qdFKtqezUAjVZ2ThKlS0CcsE29d
+         1nBw==
+X-Gm-Message-State: AOAM532P6sOhy4yoVddaDXsLziDHgNW1J181SLiPEaXfb+NDEUQUUA16
+        wT+13xd0dOCmp5o9Mvz0K6w=
+X-Google-Smtp-Source: ABdhPJzKWQHcdRFvkjJhIwe6rEdEZq9XgxMKt5jg74/iOHN2+9q2iJ2kHYU49LlrCm+wVOWZC+tGyA==
+X-Received: by 2002:a63:ad0f:: with SMTP id g15mr3091230pgf.415.1623818725228;
+        Tue, 15 Jun 2021 21:45:25 -0700 (PDT)
+Received: from localhost (60-242-147-73.tpgi.com.au. [60.242.147.73])
+        by smtp.gmail.com with ESMTPSA id ev11sm4013620pjb.36.2021.06.15.21.45.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Jun 2021 21:45:24 -0700 (PDT)
+Date:   Wed, 16 Jun 2021 14:45:20 +1000
+From:   Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH 8/8] membarrier: Rewrite sync_core_before_usermode() and
+ improve documentation
+To:     Andy Lutomirski <luto@kernel.org>, x86@kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        linux-arm-kernel@lists.infradead.org,
+        LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        linuxppc-dev@lists.ozlabs.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>
+References: <cover.1623813516.git.luto@kernel.org>
+        <07a8b963002cb955b7516e61bad19514a3acaa82.1623813516.git.luto@kernel.org>
+In-Reply-To: <07a8b963002cb955b7516e61bad19514a3acaa82.1623813516.git.luto@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 1ca4a5b5-14b4-4102-af1a-08d9307aa4dc
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3290:
-X-Microsoft-Antispam-PRVS: <DM6PR12MB3290E2DACA340C1D81B493A2FC0F9@DM6PR12MB3290.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:813;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: QStP8uaJYJaAcubfW53cBKReybExw8c1UQFhqpqvnUgd2LiMyeXyVMr+40KH/oFMnwHck6W/7A0Jld3rIgrozr8JsmhIqXWv+Xlx0M9Uxx89PWSlL2O/r+qsZK+EJJBfVIitdCPZeTatYPmghcgEM6buQhEgWqCy30VOlP2D1o9idRaPCWGpAuoBXBjE3jWvlShtQIdJ1Maq9KqBD5p+jLs6IZUacEgbHx0g4u9FLpiRDSyblLR/nbyHMergkFKwCz6sZtHAL3nNeXxFe/yxcQ1eKaYBQwj2kpNiLqY6MWbXA99/yCKE5AS5jy02X8nMFYBfnd3QIgN0n+ROpFsnwaKnU4+2LZKu1cuRDQBg1Qw8vAXiP+gpdnuhIHtJIup7g1DTCYmxi3fLHXpjHY6OJA7dXENrN1H+rzsQ8JpRiEeW7x1hbkjTrr0u+dtiGVTE9PQU5As1b3wYUcIiBkGaAqNqM45H8pEERj9GdNab1063nu7Ju53U6lFB6/j6z0LwcNwQC3p0q4ljdW6/raJg/4Zba0nlvj1ILQx8FMPOATJ9zxr273B7Ka4Puox9xi2vY3o9ETk5BP/u3RNygEwmfnyZ+CCtkc/vgav2oj1ik9fFIre1WPuilp+3+wU2azm32+gNLSmPuxkTeZEQzetPZHCXMeIcEK7cXMj/x3vldROq0bRPcUpc0AofTAL/BRoC
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(39860400002)(396003)(136003)(376002)(346002)(36840700001)(46966006)(4326008)(5660300002)(186003)(2906002)(70586007)(336012)(2616005)(82310400003)(8676002)(86362001)(26005)(1076003)(8936002)(426003)(356005)(6666004)(81166007)(83380400001)(7696005)(36860700001)(36756003)(54906003)(47076005)(70206006)(478600001)(82740400003)(316002)(6916009)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2021 03:55:55.7186
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1ca4a5b5-14b4-4102-af1a-08d9307aa4dc
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT027.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3290
+Message-Id: <1623818343.eko1v01gvr.astroid@bobo.none>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Why]
-After unplug/hotplug hub from the system, userspace might start to
-clear stale payloads gradually. If we call drm_dp_mst_deallocate_vcpi()
-to release stale VCPI of those ports which are not relating to current
-topology, we have chane to wrongly clear active payload table entry for
-current topology.
+Excerpts from Andy Lutomirski's message of June 16, 2021 1:21 pm:
+> The old sync_core_before_usermode() comments suggested that a non-icache-=
+syncing
+> return-to-usermode instruction is x86-specific and that all other
+> architectures automatically notice cross-modified code on return to
+> userspace.
+>=20
+> This is misleading.  The incantation needed to modify code from one
+> CPU and execute it on another CPU is highly architecture dependent.
+> On x86, according to the SDM, one must modify the code, issue SFENCE
+> if the modification was WC or nontemporal, and then issue a "serializing
+> instruction" on the CPU that will execute the code.  membarrier() can do
+> the latter.
+>=20
+> On arm64 and powerpc, one must flush the icache and then flush the pipeli=
+ne
+> on the target CPU, although the CPU manuals don't necessarily use this
+> language.
+>=20
+> So let's drop any pretense that we can have a generic way to define or
+> implement membarrier's SYNC_CORE operation and instead require all
+> architectures to define the helper and supply their own documentation as =
+to
+> how to use it.  This means x86, arm64, and powerpc for now.  Let's also
+> rename the function from sync_core_before_usermode() to
+> membarrier_sync_core_before_usermode() because the precise flushing detai=
+ls
+> may very well be specific to membarrier, and even the concept of
+> "sync_core" in the kernel is mostly an x86-ism.
+>=20
+> (It may well be the case that, on real x86 processors, synchronizing the
+>  icache (which requires no action at all) and "flushing the pipeline" is
+>  sufficient, but trying to use this language would be confusing at best.
+>  LFENCE does something awfully like "flushing the pipeline", but the SDM
+>  does not permit LFENCE as an alternative to a "serializing instruction"
+>  for this purpose.)
+>=20
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: x86@kernel.org
+> Cc: stable@vger.kernel.org
+> Fixes: 70216e18e519 ("membarrier: Provide core serializing command, *_SYN=
+C_CORE")
+> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+> ---
+>  .../membarrier-sync-core/arch-support.txt     | 68 ++++++-------------
+>  arch/arm64/include/asm/sync_core.h            | 19 ++++++
+>  arch/powerpc/include/asm/sync_core.h          | 14 ++++
+>  arch/x86/Kconfig                              |  1 -
+>  arch/x86/include/asm/sync_core.h              |  7 +-
+>  arch/x86/kernel/alternative.c                 |  2 +-
+>  arch/x86/kernel/cpu/mce/core.c                |  2 +-
+>  arch/x86/mm/tlb.c                             |  3 +-
+>  drivers/misc/sgi-gru/grufault.c               |  2 +-
+>  drivers/misc/sgi-gru/gruhandles.c             |  2 +-
+>  drivers/misc/sgi-gru/grukservices.c           |  2 +-
+>  include/linux/sched/mm.h                      |  1 -
+>  include/linux/sync_core.h                     | 21 ------
+>  init/Kconfig                                  |  3 -
+>  kernel/sched/membarrier.c                     | 15 ++--
+>  15 files changed, 75 insertions(+), 87 deletions(-)
+>  create mode 100644 arch/arm64/include/asm/sync_core.h
+>  create mode 100644 arch/powerpc/include/asm/sync_core.h
+>  delete mode 100644 include/linux/sync_core.h
+>=20
+> diff --git a/Documentation/features/sched/membarrier-sync-core/arch-suppo=
+rt.txt b/Documentation/features/sched/membarrier-sync-core/arch-support.txt
+> index 883d33b265d6..41c9ebcb275f 100644
+> --- a/Documentation/features/sched/membarrier-sync-core/arch-support.txt
+> +++ b/Documentation/features/sched/membarrier-sync-core/arch-support.txt
+> @@ -5,51 +5,25 @@
+>  #
+>  # Architecture requirements
+>  #
+> -# * arm/arm64/powerpc
+>  #
+> -# Rely on implicit context synchronization as a result of exception retu=
+rn
+> -# when returning from IPI handler, and when returning to user-space.
+> -#
+> -# * x86
+> -#
+> -# x86-32 uses IRET as return from interrupt, which takes care of the IPI=
+.
+> -# However, it uses both IRET and SYSEXIT to go back to user-space. The I=
+RET
+> -# instruction is core serializing, but not SYSEXIT.
+> -#
+> -# x86-64 uses IRET as return from interrupt, which takes care of the IPI=
+.
+> -# However, it can return to user-space through either SYSRETL (compat co=
+de),
+> -# SYSRETQ, or IRET.
+> -#
+> -# Given that neither SYSRET{L,Q}, nor SYSEXIT, are core serializing, we =
+rely
+> -# instead on write_cr3() performed by switch_mm() to provide core serial=
+ization
+> -# after changing the current mm, and deal with the special case of kthre=
+ad ->
+> -# uthread (temporarily keeping current mm into active_mm) by issuing a
+> -# sync_core_before_usermode() in that specific case.
+> -#
+> -    -----------------------
+> -    |         arch |status|
+> -    -----------------------
+> -    |       alpha: | TODO |
+> -    |         arc: | TODO |
+> -    |         arm: |  ok  |
+> -    |       arm64: |  ok  |
+> -    |        csky: | TODO |
+> -    |       h8300: | TODO |
+> -    |     hexagon: | TODO |
+> -    |        ia64: | TODO |
+> -    |        m68k: | TODO |
+> -    |  microblaze: | TODO |
+> -    |        mips: | TODO |
+> -    |       nds32: | TODO |
+> -    |       nios2: | TODO |
+> -    |    openrisc: | TODO |
+> -    |      parisc: | TODO |
+> -    |     powerpc: |  ok  |
+> -    |       riscv: | TODO |
+> -    |        s390: | TODO |
+> -    |          sh: | TODO |
+> -    |       sparc: | TODO |
+> -    |          um: | TODO |
+> -    |         x86: |  ok  |
+> -    |      xtensa: | TODO |
+> -    -----------------------
+> +# An architecture that wants to support
+> +# MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE needs to define precisely w=
+hat it
+> +# is supposed to do and implement membarrier_sync_core_before_usermode()=
+ to
+> +# make it do that.  Then it can select ARCH_HAS_MEMBARRIER_SYNC_CORE via
+> +# Kconfig.Unfortunately, MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE is n=
+ot a
+> +# fantastic API and may not make sense on all architectures.  Once an
+> +# architecture meets these requirements,
+> +#
+> +# On x86, a program can safely modify code, issue
+> +# MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE, and then execute that code=
+, via
+> +# the modified address or an alias, from any thread in the calling proce=
+ss.
+> +#
+> +# On arm64, a program can modify code, flush the icache as needed, and i=
+ssue
+> +# MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE to force a "context synchro=
+nizing
+> +# event", aka pipeline flush on all CPUs that might run the calling proc=
+ess.
+> +# Then the program can execute the modified code as long as it is execut=
+ed
+> +# from an address consistent with the icache flush and the CPU's cache t=
+ype.
+> +#
+> +# On powerpc, a program can use MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CO=
+RE
+> +# similarly to arm64.  It would be nice if the powerpc maintainers could
+> +# add a more clear explanantion.
+> diff --git a/arch/arm64/include/asm/sync_core.h b/arch/arm64/include/asm/=
+sync_core.h
+> new file mode 100644
+> index 000000000000..74996bf533bb
+> --- /dev/null
+> +++ b/arch/arm64/include/asm/sync_core.h
+> @@ -0,0 +1,19 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ASM_ARM64_SYNC_CORE_H
+> +#define _ASM_ARM64_SYNC_CORE_H
+> +
+> +#include <asm/barrier.h>
+> +
+> +/*
+> + * On arm64, anyone trying to use membarrier() to handle JIT code is
+> + * required to first flush the icache and then do SYNC_CORE.  All that's
+> + * needed after the icache flush is to execute a "context synchronizatio=
+n
+> + * event".  Right now, ERET does this, and we are guaranteed to ERET bef=
+ore
+> + * any user code runs.  If Linux ever programs the CPU to make ERET stop
+> + * being a context synchronizing event, then this will need to be adjust=
+ed.
+> + */
+> +static inline void membarrier_sync_core_before_usermode(void)
+> +{
+> +}
+> +
+> +#endif /* _ASM_ARM64_SYNC_CORE_H */
+> diff --git a/arch/powerpc/include/asm/sync_core.h b/arch/powerpc/include/=
+asm/sync_core.h
+> new file mode 100644
+> index 000000000000..589fdb34beab
+> --- /dev/null
+> +++ b/arch/powerpc/include/asm/sync_core.h
+> @@ -0,0 +1,14 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ASM_POWERPC_SYNC_CORE_H
+> +#define _ASM_POWERPC_SYNC_CORE_H
+> +
+> +#include <asm/barrier.h>
+> +
+> +/*
+> + * XXX: can a powerpc person put an appropriate comment here?
+> + */
+> +static inline void membarrier_sync_core_before_usermode(void)
+> +{
+> +}
+> +
+> +#endif /* _ASM_POWERPC_SYNC_CORE_H */
 
-E.g.
-We have allocated VCPI 1 in current payload table and we call
-drm_dp_mst_deallocate_vcpi() to clean VCPI 1 in stale topology. In
-drm_dp_mst_deallocate_vcpi(), it will call drm_dp_mst_put_payload_id()
-tp put VCPI 1 and which means ID 1 is available again. Thereafter, if we
-want to allocate a new payload stream, it will find ID 1 is available by
-drm_dp_mst_assign_payload_id(). However, ID 1 is being used
+powerpc's can just go in asm/membarrier.h
 
-[How]
-Check target sink is relating to current topology or not before doing
-any payload table update.
-Searching upward to find the target sink's relevant root branch device.
-If the found root branch device is not the same root of current
-topology, don't update payload table.
+/*
+ * The RFI family of instructions are context synchronising, and
+ * that is how we return to userspace, so nothing is required here.
+ */
 
-Changes since v1:
-* Change debug macro to use drm_dbg_kms() instead
-* Amend the commit message to add Cc tag.
+> diff --git a/kernel/sched/membarrier.c b/kernel/sched/membarrier.c
+> index c32c32a2441e..f72a6ab3fac2 100644
+> --- a/kernel/sched/membarrier.c
+> +++ b/kernel/sched/membarrier.c
+> @@ -5,6 +5,9 @@
+>   * membarrier system call
+>   */
+>  #include "sched.h"
+> +#ifdef CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE
+> +#include <asm/sync_core.h>
+> +#endif
 
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/drm_dp_mst_topology.c | 29 +++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+Can you
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index b41b837db66d..9ac148efd9e4 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -94,6 +94,9 @@ static int drm_dp_mst_register_i2c_bus(struct drm_dp_mst_port *port);
- static void drm_dp_mst_unregister_i2c_bus(struct drm_dp_mst_port *port);
- static void drm_dp_mst_kick_tx(struct drm_dp_mst_topology_mgr *mgr);
- 
-+static bool drm_dp_mst_port_downstream_of_branch(struct drm_dp_mst_port *port,
-+						 struct drm_dp_mst_branch *branch);
-+
- #define DBG_PREFIX "[dp_mst]"
- 
- #define DP_STR(x) [DP_ ## x] = #x
-@@ -3366,6 +3369,7 @@ int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr)
- 	struct drm_dp_mst_port *port;
- 	int i, j;
- 	int cur_slots = 1;
-+	bool skip;
- 
- 	mutex_lock(&mgr->payload_lock);
- 	for (i = 0; i < mgr->max_payloads; i++) {
-@@ -3380,6 +3384,14 @@ int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr)
- 			port = container_of(vcpi, struct drm_dp_mst_port,
- 					    vcpi);
- 
-+			mutex_lock(&mgr->lock);
-+			skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
-+			mutex_unlock(&mgr->lock);
-+
-+			if (skip) {
-+				drm_dbg_kms("Virtual channel %d is not in current topology\n", i);
-+				continue;
-+			}
- 			/* Validated ports don't matter if we're releasing
- 			 * VCPI
- 			 */
-@@ -3479,6 +3491,7 @@ int drm_dp_update_payload_part2(struct drm_dp_mst_topology_mgr *mgr)
- 	struct drm_dp_mst_port *port;
- 	int i;
- 	int ret = 0;
-+	bool skip;
- 
- 	mutex_lock(&mgr->payload_lock);
- 	for (i = 0; i < mgr->max_payloads; i++) {
-@@ -3488,6 +3501,13 @@ int drm_dp_update_payload_part2(struct drm_dp_mst_topology_mgr *mgr)
- 
- 		port = container_of(mgr->proposed_vcpis[i], struct drm_dp_mst_port, vcpi);
- 
-+		mutex_lock(&mgr->lock);
-+		skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
-+		mutex_unlock(&mgr->lock);
-+
-+		if (skip)
-+			continue;
-+
- 		drm_dbg_kms(mgr->dev, "payload %d %d\n", i, mgr->payloads[i].payload_state);
- 		if (mgr->payloads[i].payload_state == DP_PAYLOAD_LOCAL) {
- 			ret = drm_dp_create_payload_step2(mgr, port, mgr->proposed_vcpis[i]->vcpi, &mgr->payloads[i]);
-@@ -4574,9 +4594,18 @@ EXPORT_SYMBOL(drm_dp_mst_reset_vcpi_slots);
- void drm_dp_mst_deallocate_vcpi(struct drm_dp_mst_topology_mgr *mgr,
- 				struct drm_dp_mst_port *port)
- {
-+	bool skip;
-+
- 	if (!port->vcpi.vcpi)
- 		return;
- 
-+	mutex_lock(&mgr->lock);
-+	skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
-+	mutex_unlock(&mgr->lock);
-+
-+	if (skip)
-+		return;
-+
- 	drm_dp_mst_put_payload_id(mgr, port->vcpi.vcpi);
- 	port->vcpi.num_slots = 0;
- 	port->vcpi.pbn = 0;
--- 
-2.17.1
+#else
+static inline void membarrier_sync_core_before_usermode(void)
+{
+ /* this gets constant folded out */
+}
+#endif
 
+And avoid adding the ifdefs in the following code?
+
+Otherwise I think this is good.
+
+Acked-by: Nicholas Piggin <npiggin@gmail.com>
+
+Thanks,
+Nick
+
+> =20
+>  /*
+>   * The basic principle behind the regular memory barrier mode of membarr=
+ier()
+> @@ -221,6 +224,7 @@ static void ipi_mb(void *info)
+>  	smp_mb();	/* IPIs should be serializing but paranoid. */
+>  }
+> =20
+> +#ifdef CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE
+>  static void ipi_sync_core(void *info)
+>  {
+>  	/*
+> @@ -230,13 +234,14 @@ static void ipi_sync_core(void *info)
+>  	 * the big comment at the top of this file.
+>  	 *
+>  	 * A sync_core() would provide this guarantee, but
+> -	 * sync_core_before_usermode() might end up being deferred until
+> -	 * after membarrier()'s smp_mb().
+> +	 * membarrier_sync_core_before_usermode() might end up being deferred
+> +	 * until after membarrier()'s smp_mb().
+>  	 */
+>  	smp_mb();	/* IPIs should be serializing but paranoid. */
+> =20
+> -	sync_core_before_usermode();
+> +	membarrier_sync_core_before_usermode();
+>  }
+> +#endif
+> =20
+>  static void ipi_rseq(void *info)
+>  {
+> @@ -368,12 +373,14 @@ static int membarrier_private_expedited(int flags, =
+int cpu_id)
+>  	smp_call_func_t ipi_func =3D ipi_mb;
+> =20
+>  	if (flags =3D=3D MEMBARRIER_FLAG_SYNC_CORE) {
+> -		if (!IS_ENABLED(CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE))
+> +#ifndef CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE
+>  			return -EINVAL;
+> +#else
+>  		if (!(atomic_read(&mm->membarrier_state) &
+>  		      MEMBARRIER_STATE_PRIVATE_EXPEDITED_SYNC_CORE_READY))
+>  			return -EPERM;
+>  		ipi_func =3D ipi_sync_core;
+> +#endif
+>  	} else if (flags =3D=3D MEMBARRIER_FLAG_RSEQ) {
+>  		if (!IS_ENABLED(CONFIG_RSEQ))
+>  			return -EINVAL;
+> --=20
+> 2.31.1
+>=20
+>=20
