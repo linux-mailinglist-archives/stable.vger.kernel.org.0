@@ -2,169 +2,263 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 552FA3A9A7A
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 14:31:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0100B3A9A7C
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 14:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231856AbhFPMd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 08:33:28 -0400
-Received: from muru.com ([72.249.23.125]:46560 "EHLO muru.com"
+        id S232334AbhFPMda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 08:33:30 -0400
+Received: from muru.com ([72.249.23.125]:46568 "EHLO muru.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231618AbhFPMd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 08:33:27 -0400
+        id S231666AbhFPMd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 08:33:28 -0400
 Received: from hillo.muru.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTP id 4F4DC80EB;
-        Wed, 16 Jun 2021 12:31:28 +0000 (UTC)
+        by muru.com (Postfix) with ESMTP id 44EA88125;
+        Wed, 16 Jun 2021 12:31:31 +0000 (UTC)
 From:   Tony Lindgren <tony@atomide.com>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
-        afzal mohammed <afzal.mohd.ma@gmail.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Keerthy <j-keerthy@ti.com>, Tero Kristo <kristo@kernel.org>
-Subject: [Backport for 5.4.y PATCHv2 1/4] ARM: OMAP: replace setup_irq() by request_irq()
-Date:   Wed, 16 Jun 2021 15:31:09 +0300
-Message-Id: <20210616123112.65068-1-tony@atomide.com>
+Subject: [Backport for 5.4.y PATCHv2 2/4] clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support
+Date:   Wed, 16 Jun 2021 15:31:10 +0300
+Message-Id: <20210616123112.65068-2-tony@atomide.com>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210616123112.65068-1-tony@atomide.com>
+References: <20210616123112.65068-1-tony@atomide.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
+commit 52762fbd1c4778ac9b173624ca0faacd22ef4724 upstream.
 
-commit b75ca5217743e4d7076cf65e044e88389e44318d upstream.
+We can move the TI dmtimer clockevent and clocksource to live under
+drivers/clocksource if we rely only on the clock framework, and handle
+the module configuration directly in the clocksource driver based on the
+device tree data.
 
-request_irq() is preferred over setup_irq(). Invocations of setup_irq()
-occur after memory allocators are ready.
+This removes the early dependency with system timers to the interconnect
+related code, and we can probe pretty much everything else later on at
+the module_init level.
 
-Per tglx[1], setup_irq() existed in olden days when allocators were not
-ready by the time early interrupts were initialized.
+Let's first add a new driver for timer-ti-dm-systimer based on existing
+arch/arm/mach-omap2/timer.c. Then let's start moving SoCs to probe with
+device tree data while still keeping the old timer.c. And eventually we
+can just drop the old timer.c.
 
-Hence replace setup_irq() by request_irq().
+Let's take the opportunity to switch to use readl/writel as pointed out
+by Daniel Lezcano <daniel.lezcano@linaro.org>. This allows further
+clean-up of the timer-ti-dm code the a lot of the shared helpers can
+just become static to the non-syster related code.
 
-[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
+Note the boards can optionally configure different timer source clocks
+if needed with assigned-clocks and assigned-clock-parents.
 
 Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
 Cc: Keerthy <j-keerthy@ti.com>
 Cc: Tero Kristo <kristo@kernel.org>
-Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
+[tony@atomide.com: backported to 5.4.y]
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 ---
- arch/arm/mach-omap1/pm.c       | 13 ++++++-------
- arch/arm/mach-omap1/time.c     | 10 +++-------
- arch/arm/mach-omap1/timer32k.c | 10 +++-------
- arch/arm/mach-omap2/timer.c    | 11 +++--------
- 4 files changed, 15 insertions(+), 29 deletions(-)
+ arch/arm/mach-omap2/timer.c | 105 +++++++++++++++++++++---------------
+ 1 file changed, 63 insertions(+), 42 deletions(-)
 
-diff --git a/arch/arm/mach-omap1/pm.c b/arch/arm/mach-omap1/pm.c
---- a/arch/arm/mach-omap1/pm.c
-+++ b/arch/arm/mach-omap1/pm.c
-@@ -596,11 +596,6 @@ static irqreturn_t omap_wakeup_interrupt(int irq, void *dev)
- 	return IRQ_HANDLED;
- }
- 
--static struct irqaction omap_wakeup_irq = {
--	.name		= "peripheral wakeup",
--	.handler	= omap_wakeup_interrupt
--};
--
- 
- 
- static const struct platform_suspend_ops omap_pm_ops = {
-@@ -613,6 +608,7 @@ static const struct platform_suspend_ops omap_pm_ops = {
- static int __init omap_pm_init(void)
- {
- 	int error = 0;
-+	int irq;
- 
- 	if (!cpu_class_is_omap1())
- 		return -ENODEV;
-@@ -656,9 +652,12 @@ static int __init omap_pm_init(void)
- 	arm_pm_idle = omap1_pm_idle;
- 
- 	if (cpu_is_omap7xx())
--		setup_irq(INT_7XX_WAKE_UP_REQ, &omap_wakeup_irq);
-+		irq = INT_7XX_WAKE_UP_REQ;
- 	else if (cpu_is_omap16xx())
--		setup_irq(INT_1610_WAKE_UP_REQ, &omap_wakeup_irq);
-+		irq = INT_1610_WAKE_UP_REQ;
-+	if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup",
-+			NULL))
-+		pr_err("Failed to request irq %d (peripheral wakeup)\n", irq);
- 
- 	/* Program new power ramp-up time
- 	 * (0 for most boards since we don't lower voltage when in deep sleep)
-diff --git a/arch/arm/mach-omap1/time.c b/arch/arm/mach-omap1/time.c
---- a/arch/arm/mach-omap1/time.c
-+++ b/arch/arm/mach-omap1/time.c
-@@ -155,15 +155,11 @@ static irqreturn_t omap_mpu_timer1_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static struct irqaction omap_mpu_timer1_irq = {
--	.name		= "mpu_timer1",
--	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
--	.handler	= omap_mpu_timer1_interrupt,
--};
--
- static __init void omap_init_mpu_timer(unsigned long rate)
- {
--	setup_irq(INT_TIMER1, &omap_mpu_timer1_irq);
-+	if (request_irq(INT_TIMER1, omap_mpu_timer1_interrupt,
-+			IRQF_TIMER | IRQF_IRQPOLL, "mpu_timer1", NULL))
-+		pr_err("Failed to request irq %d (mpu_timer1)\n", INT_TIMER1);
- 	omap_mpu_timer_start(0, (rate / HZ) - 1, 1);
- 
- 	clockevent_mpu_timer1.cpumask = cpumask_of(0);
-diff --git a/arch/arm/mach-omap1/timer32k.c b/arch/arm/mach-omap1/timer32k.c
---- a/arch/arm/mach-omap1/timer32k.c
-+++ b/arch/arm/mach-omap1/timer32k.c
-@@ -148,15 +148,11 @@ static irqreturn_t omap_32k_timer_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static struct irqaction omap_32k_timer_irq = {
--	.name		= "32KHz timer",
--	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
--	.handler	= omap_32k_timer_interrupt,
--};
--
- static __init void omap_init_32k_timer(void)
- {
--	setup_irq(INT_OS_TIMER, &omap_32k_timer_irq);
-+	if (request_irq(INT_OS_TIMER, omap_32k_timer_interrupt,
-+			IRQF_TIMER | IRQF_IRQPOLL, "32KHz timer", NULL))
-+		pr_err("Failed to request irq %d(32KHz timer)\n", INT_OS_TIMER);
- 
- 	clockevent_32k_timer.cpumask = cpumask_of(0);
- 	clockevents_config_and_register(&clockevent_32k_timer,
 diff --git a/arch/arm/mach-omap2/timer.c b/arch/arm/mach-omap2/timer.c
 --- a/arch/arm/mach-omap2/timer.c
 +++ b/arch/arm/mach-omap2/timer.c
-@@ -91,12 +91,6 @@ static irqreturn_t omap2_gp_timer_interrupt(int irq, void *dev_id)
+@@ -63,15 +63,28 @@
+ 
+ /* Clockevent code */
+ 
+-static struct omap_dm_timer clkev;
+-static struct clock_event_device clockevent_gpt;
+-
+ /* Clockevent hwmod for am335x and am437x suspend */
+ static struct omap_hwmod *clockevent_gpt_hwmod;
+ 
+ /* Clockesource hwmod for am437x suspend */
+ static struct omap_hwmod *clocksource_gpt_hwmod;
+ 
++struct dmtimer_clockevent {
++	struct clock_event_device dev;
++	struct omap_dm_timer timer;
++};
++
++static struct dmtimer_clockevent clockevent;
++
++static struct omap_dm_timer *to_dmtimer(struct clock_event_device *clockevent)
++{
++	struct dmtimer_clockevent *clkevt =
++		container_of(clockevent, struct dmtimer_clockevent, dev);
++	struct omap_dm_timer *timer = &clkevt->timer;
++
++	return timer;
++}
++
+ #ifdef CONFIG_SOC_HAS_REALTIME_COUNTER
+ static unsigned long arch_timer_freq;
+ 
+@@ -83,10 +96,11 @@ void set_cntfreq(void)
+ 
+ static irqreturn_t omap2_gp_timer_interrupt(int irq, void *dev_id)
+ {
+-	struct clock_event_device *evt = &clockevent_gpt;
+-
+-	__omap_dm_timer_write_status(&clkev, OMAP_TIMER_INT_OVERFLOW);
++	struct dmtimer_clockevent *clkevt = dev_id;
++	struct clock_event_device *evt = &clkevt->dev;
++	struct omap_dm_timer *timer = &clkevt->timer;
+ 
++	__omap_dm_timer_write_status(timer, OMAP_TIMER_INT_OVERFLOW);
+ 	evt->event_handler(evt);
  	return IRQ_HANDLED;
  }
- 
--static struct irqaction omap2_gp_timer_irq = {
--	.name		= "gp_timer",
--	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
--	.handler	= omap2_gp_timer_interrupt,
--};
--
+@@ -94,7 +108,9 @@ static irqreturn_t omap2_gp_timer_interrupt(int irq, void *dev_id)
  static int omap2_gp_timer_set_next_event(unsigned long cycles,
  					 struct clock_event_device *evt)
  {
-@@ -382,8 +376,9 @@ static void __init omap2_gp_clockevent_init(int gptimer_id,
- 				     &clockevent_gpt.name, OMAP_TIMER_POSTED);
+-	__omap_dm_timer_load_start(&clkev, OMAP_TIMER_CTRL_ST,
++	struct omap_dm_timer *timer = to_dmtimer(evt);
++
++	__omap_dm_timer_load_start(timer, OMAP_TIMER_CTRL_ST,
+ 				   0xffffffff - cycles, OMAP_TIMER_POSTED);
+ 
+ 	return 0;
+@@ -102,22 +118,26 @@ static int omap2_gp_timer_set_next_event(unsigned long cycles,
+ 
+ static int omap2_gp_timer_shutdown(struct clock_event_device *evt)
+ {
+-	__omap_dm_timer_stop(&clkev, OMAP_TIMER_POSTED, clkev.rate);
++	struct omap_dm_timer *timer = to_dmtimer(evt);
++
++	__omap_dm_timer_stop(timer, OMAP_TIMER_POSTED, timer->rate);
++
+ 	return 0;
+ }
+ 
+ static int omap2_gp_timer_set_periodic(struct clock_event_device *evt)
+ {
++	struct omap_dm_timer *timer = to_dmtimer(evt);
+ 	u32 period;
+ 
+-	__omap_dm_timer_stop(&clkev, OMAP_TIMER_POSTED, clkev.rate);
++	__omap_dm_timer_stop(timer, OMAP_TIMER_POSTED, timer->rate);
+ 
+-	period = clkev.rate / HZ;
++	period = timer->rate / HZ;
+ 	period -= 1;
+ 	/* Looks like we need to first set the load value separately */
+-	__omap_dm_timer_write(&clkev, OMAP_TIMER_LOAD_REG, 0xffffffff - period,
++	__omap_dm_timer_write(timer, OMAP_TIMER_LOAD_REG, 0xffffffff - period,
+ 			      OMAP_TIMER_POSTED);
+-	__omap_dm_timer_load_start(&clkev,
++	__omap_dm_timer_load_start(timer,
+ 				   OMAP_TIMER_CTRL_AR | OMAP_TIMER_CTRL_ST,
+ 				   0xffffffff - period, OMAP_TIMER_POSTED);
+ 	return 0;
+@@ -131,26 +151,17 @@ static void omap_clkevt_idle(struct clock_event_device *unused)
+ 	omap_hwmod_idle(clockevent_gpt_hwmod);
+ }
+ 
+-static void omap_clkevt_unidle(struct clock_event_device *unused)
++static void omap_clkevt_unidle(struct clock_event_device *evt)
+ {
++	struct omap_dm_timer *timer = to_dmtimer(evt);
++
+ 	if (!clockevent_gpt_hwmod)
+ 		return;
+ 
+ 	omap_hwmod_enable(clockevent_gpt_hwmod);
+-	__omap_dm_timer_int_enable(&clkev, OMAP_TIMER_INT_OVERFLOW);
++	__omap_dm_timer_int_enable(timer, OMAP_TIMER_INT_OVERFLOW);
+ }
+ 
+-static struct clock_event_device clockevent_gpt = {
+-	.features		= CLOCK_EVT_FEAT_PERIODIC |
+-				  CLOCK_EVT_FEAT_ONESHOT,
+-	.rating			= 300,
+-	.set_next_event		= omap2_gp_timer_set_next_event,
+-	.set_state_shutdown	= omap2_gp_timer_shutdown,
+-	.set_state_periodic	= omap2_gp_timer_set_periodic,
+-	.set_state_oneshot	= omap2_gp_timer_shutdown,
+-	.tick_resume		= omap2_gp_timer_shutdown,
+-};
+-
+ static const struct of_device_id omap_timer_match[] __initconst = {
+ 	{ .compatible = "ti,omap2420-timer", },
+ 	{ .compatible = "ti,omap3430-timer", },
+@@ -360,44 +371,54 @@ static void __init omap2_gp_clockevent_init(int gptimer_id,
+ 						const char *fck_source,
+ 						const char *property)
+ {
++	struct dmtimer_clockevent *clkevt = &clockevent;
++	struct omap_dm_timer *timer = &clkevt->timer;
+ 	int res;
+ 
+-	clkev.id = gptimer_id;
+-	clkev.errata = omap_dm_timer_get_errata();
++	timer->id = gptimer_id;
++	timer->errata = omap_dm_timer_get_errata();
++	clkevt->dev.features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
++	clkevt->dev.rating = 300;
++	clkevt->dev.set_next_event = omap2_gp_timer_set_next_event;
++	clkevt->dev.set_state_shutdown = omap2_gp_timer_shutdown;
++	clkevt->dev.set_state_periodic = omap2_gp_timer_set_periodic;
++	clkevt->dev.set_state_oneshot = omap2_gp_timer_shutdown;
++	clkevt->dev.tick_resume = omap2_gp_timer_shutdown;
+ 
+ 	/*
+ 	 * For clock-event timers we never read the timer counter and
+ 	 * so we are not impacted by errata i103 and i767. Therefore,
+ 	 * we can safely ignore this errata for clock-event timers.
+ 	 */
+-	__omap_dm_timer_override_errata(&clkev, OMAP_TIMER_ERRATA_I103_I767);
++	__omap_dm_timer_override_errata(timer, OMAP_TIMER_ERRATA_I103_I767);
+ 
+-	res = omap_dm_timer_init_one(&clkev, fck_source, property,
+-				     &clockevent_gpt.name, OMAP_TIMER_POSTED);
++	res = omap_dm_timer_init_one(timer, fck_source, property,
++				     &clkevt->dev.name, OMAP_TIMER_POSTED);
  	BUG_ON(res);
  
--	omap2_gp_timer_irq.dev_id = &clkev;
--	setup_irq(clkev.irq, &omap2_gp_timer_irq);
-+	if (request_irq(clkev.irq, omap2_gp_timer_interrupt,
-+			IRQF_TIMER | IRQF_IRQPOLL, "gp_timer", &clkev))
-+		pr_err("Failed to request irq %d (gp_timer)\n", clkev.irq);
+-	if (request_irq(clkev.irq, omap2_gp_timer_interrupt,
+-			IRQF_TIMER | IRQF_IRQPOLL, "gp_timer", &clkev))
+-		pr_err("Failed to request irq %d (gp_timer)\n", clkev.irq);
++	clkevt->dev.cpumask = cpu_possible_mask;
++	clkevt->dev.irq = omap_dm_timer_get_irq(timer);
++
++	if (request_irq(timer->irq, omap2_gp_timer_interrupt,
++			IRQF_TIMER | IRQF_IRQPOLL, "gp_timer", clkevt))
++		pr_err("Failed to request irq %d (gp_timer)\n", timer->irq);
  
- 	__omap_dm_timer_int_enable(&clkev, OMAP_TIMER_INT_OVERFLOW);
+-	__omap_dm_timer_int_enable(&clkev, OMAP_TIMER_INT_OVERFLOW);
++	__omap_dm_timer_int_enable(timer, OMAP_TIMER_INT_OVERFLOW);
  
+-	clockevent_gpt.cpumask = cpu_possible_mask;
+-	clockevent_gpt.irq = omap_dm_timer_get_irq(&clkev);
+-	clockevents_config_and_register(&clockevent_gpt, clkev.rate,
++	clockevents_config_and_register(&clkevt->dev, timer->rate,
+ 					3, /* Timer internal resynch latency */
+ 					0xffffffff);
+ 
+ 	if (soc_is_am33xx() || soc_is_am43xx()) {
+-		clockevent_gpt.suspend = omap_clkevt_idle;
+-		clockevent_gpt.resume = omap_clkevt_unidle;
++		clkevt->dev.suspend = omap_clkevt_idle;
++		clkevt->dev.resume = omap_clkevt_unidle;
+ 
+ 		clockevent_gpt_hwmod =
+-			omap_hwmod_lookup(clockevent_gpt.name);
++			omap_hwmod_lookup(clkevt->dev.name);
+ 	}
+ 
+-	pr_info("OMAP clockevent source: %s at %lu Hz\n", clockevent_gpt.name,
+-		clkev.rate);
++	pr_info("OMAP clockevent source: %s at %lu Hz\n", clkevt->dev.name,
++		timer->rate);
+ }
+ 
+ /* Clocksource code */
 -- 
 2.31.1
