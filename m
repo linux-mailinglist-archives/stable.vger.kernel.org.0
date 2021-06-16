@@ -2,117 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D40453AA546
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 22:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DCCD3AA55F
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 22:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233466AbhFPU2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 16:28:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49232 "EHLO
+        id S233564AbhFPUhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 16:37:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233451AbhFPU2r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 16:28:47 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E28C061574
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 13:26:40 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id p5-20020a9d45450000b029043ee61dce6bso3823873oti.8
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 13:26:40 -0700 (PDT)
+        with ESMTP id S233576AbhFPUhK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 16:37:10 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3A9DC061768
+        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 13:35:03 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id g24so2437470pji.4
+        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 13:35:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=T6gAZUccFikvtHCOVi1+1qn3JiUL2nu1CR9FCcCl0vw=;
-        b=J/uaZSGnkBHGkMQg/39IxMz3uwjTcFNFFgiHfdL/4cg5SNHXVxYnfsS0ciu3LzKJKV
-         rQCAuNJaO1Y7oLoifjLYWa1AdP14YPjexECYs8Fjc15FmDvEil6DaqQ3DJ3SpM4SA5Fm
-         nbu/8lS3NmZKqOZjbzIp18VXH8tYK0Qr3Cr6QdnBFruCkpN6VOnsM07MXtwBTCJ/goGm
-         VCGjjiEatOMYQW+5nkaxVBu11QWLIGH1DQK0gHLHEnCDEbaVssB8oF2EOzQ52POxe/57
-         /4UsfSYfXHOtQmEFLUutCYn7IXYkaUjtTOoZZHRI0GFH55DDkqqed/6u60qo2+JNGYoq
-         dJ5w==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Rp5uDSNPLfj1QcmZiBYhLMtmYzv+FVQAAZdEK27uKbc=;
+        b=Og0gg2OCChBPre19U3sdh41BCFNJgrrWEPuD6aCglX/o9TttYW/cqzDdcfcR4hBPVV
+         h3WI9fIZbjJO8ZQa0J2SsmHqMOwtZr2g5ChZODwbfC7XMs7iH73cKLI70SeyZy++OKe7
+         rNad6QGzUKyuSdhlvmjIrk9rX1E+f2AoO2kys=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=T6gAZUccFikvtHCOVi1+1qn3JiUL2nu1CR9FCcCl0vw=;
-        b=LpOIJBG58UhEt+sKrX45id99EKaWHV4L6W3WgPe/bDn/Cwl1YSkjOK7NuCS3gEoHUs
-         jUDiBlzfWcAWJVFhvSp8iU9NqfQwpHcCDrGVW89ssxH/HkLY+bwXsALtyPOaag9xIkmd
-         91U98OdY4QwrT0D9uMDGiJCUH3/Ky39TvPjwtEK4sUYcCdq0Vk+DfZ7a684kdIxEOdKn
-         n+VCnz+5Fb5XpGdnuAHTmlsJEkoUFxJK6cbczvYN8+PFS5RUCuBYjrmpyQvrZPEKF4FA
-         QDp0jn/WxckjrJC3wC4Gsm2DsomS0ByUhkGtph7f6jAGQOfVWqlb15hkr+hsyP3kaYGF
-         oZ5w==
-X-Gm-Message-State: AOAM532mxpLvFLRFPzIWV+ER0hhBZSt0XTq/gzMKGp2vpmORUWAJPXrs
-        /HaGEvmGEKVD5aR5xZDJCgjKLw==
-X-Google-Smtp-Source: ABdhPJwtJnLmMYb4u0xCB0siYoVRKCx2zq1adGTibu3BIJ45pIRYbWxgJUiCYuJ5TeotUMoowtOdwA==
-X-Received: by 2002:a05:6830:411c:: with SMTP id w28mr1462057ott.196.1623875200030;
-        Wed, 16 Jun 2021 13:26:40 -0700 (PDT)
-Received: from yoga (104-57-184-186.lightspeed.austtx.sbcglobal.net. [104.57.184.186])
-        by smtp.gmail.com with ESMTPSA id v1sm796040ota.22.2021.06.16.13.26.39
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Rp5uDSNPLfj1QcmZiBYhLMtmYzv+FVQAAZdEK27uKbc=;
+        b=BWT2Ns52uiwM9nBtrNYDxWBmXdMV1zCm4VJtcoSqclEGsYvngQfwiVFBCm6VcgX9df
+         Kh2jjcHAR7K93mXld31K5AeOMJvCk0iWvbU0YGQH+LJFNUiA60Dy83t6rJid0zStAWZZ
+         gWZQE5OV7hFIyCa65Kw24e8vToOoc2w0KLi1yWZReNCnUZSva6N8wpDzFx0ILPRt4ujv
+         YGazAdDpUdGG3Ny90fMAfUYQSxeriEs2Ye05XUBY54ZWOi0nwC7V5NN6/9/C0U/ZFcHN
+         IsOz1tdNzcutzRpBSx7vV/sM6LWwVgikMhfa7JS8CEXiIaAvbhYTlrTwQsBc/VvwuZwZ
+         sInw==
+X-Gm-Message-State: AOAM532yIGpTu8HAOHS4yZy2qUBArRFWIkCrJ9DtCYTpdx16LEKTU1NS
+        5oog7PiRDgfnBBoytn4B2V+Gbg==
+X-Google-Smtp-Source: ABdhPJyzc5ao3WqKlsjBFdlm4dtPe8Cw6Kdi48ERNoYRKIjp25bnW25Xlcm9KG2ELq0JbhEhv6iZwA==
+X-Received: by 2002:a17:902:b717:b029:11a:fae3:ba7c with SMTP id d23-20020a170902b717b029011afae3ba7cmr1254557pls.28.1623875703099;
+        Wed, 16 Jun 2021 13:35:03 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id 11sm3331759pge.57.2021.06.16.13.35.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jun 2021 13:26:39 -0700 (PDT)
-Date:   Wed, 16 Jun 2021 15:26:37 -0500
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Sibi Sankar <sibis@codeaurora.org>
-Cc:     jassisinghbrar@gmail.com, manivannan.sadhasivam@linaro.org,
-        agross@kernel.org, rananta@codeaurora.org, vnkgutta@codeaurora.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] mailbox: qcom-ipcc: Fix IPCC mbox channel exhaustion
-Message-ID: <YMpefUyfBhfgsmOh@yoga>
-References: <1623865378-1943-1-git-send-email-sibis@codeaurora.org>
+        Wed, 16 Jun 2021 13:35:02 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
+        =?UTF-8?q?Breno=20Leit=C3=A3o?= <leitao@debian.org>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Paulo Flabiano Smorigo <pfsmorigo@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-hardening@vger.kernel.org
+Subject: [PATCH] crypto: nx: Fix memcpy() over-reading in nonce
+Date:   Wed, 16 Jun 2021 13:34:59 -0700
+Message-Id: <20210616203459.1248036-1-keescook@chromium.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1623865378-1943-1-git-send-email-sibis@codeaurora.org>
+Content-Type: text/plain; charset=UTF-8
+X-Patch-Hashes: v=1; h=sha256; g=06534d0443fa9fcfa969f0fcd687992b383a757d; i=jYfiGi2izQUFzVtPzV/fVSVDahy6PowWZI9Gw067JJs=; m=QnHbJKc/xtXaH5oFuCZHDTYyfjS26Q6kX/nkbJWmqYE=; p=Rww15zRs5GKN3uLwSu/+HXsr7GkdI7iuJ1PvQJoYJJY=
+X-Patch-Sig: m=pgp; i=keescook@chromium.org; s=0x0x8972F4DFDC6DC026; b=iQIzBAABCgAdFiEEpcP2jyKd1g9yPm4TiXL039xtwCYFAmDKYHIACgkQiXL039xtwCbRdBAAqyA FpIIWg3FtYwVUl5xnDktz6gtkdYaXMLl49uYOnAvXQSiVLggX9nLThuEqgupG8pm3Hj8fSC2uW4d8 bUJ3cOiEUoCt8a4Izu4aw2a1ii0axXKma3IaCJWImuScMgsb8Y63HZ9n+5FZ1yrBpv7QBigem7vJd mdcVGiwu7luChzOl6B7WcdrQmKPvJTN7h5/JZ5oVK7Cp1qjSU2v0KiwIsk4zK65PS56Q7dfohFMVP uStgrGTsZYviJvfl5E4LWHWtc77wJqkKRiCtrOE8tst4eIsOt9a+zcP9bB7Iz4VRSlL68AW8qmZ5a mSYqNGraivkXELX3QFey28oZdHc5IYciYgmehULbBbSdD0Z6mwZ7v7hqRDM95Qgm2ZU54LeucplXc fKeeL93dbElzv42ondvChnwZro3o0accfT6/GlTFRuZ7WU2GoCDUdTXv1I4A35sARsrfzigjesQ9m FqLygW2kqJXKo39M2PjDBUy38PctTb+qGvKT6VYqZzxe2ITVIjHzFzijJa/RHbAIqkFbzymz5Rqm/ ux6W8AvzR5v4hoLHqcd5n1T3BGKH9dN92K/Md7UnEthYUM/Scblddr2RCvEKS8HJRKhRnrm8NdWv5 X9nkoLmL61qCjwmL6TFPqlbmCgbv/+50URmm1BT/Hdocymk7dNbQE0xDi8jmZGQM=
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 16 Jun 12:42 CDT 2021, Sibi Sankar wrote:
+Fix typo in memcpy() where size should be CTR_RFC3686_NONCE_SIZE.
 
-> Fix IPCC (Inter-Processor Communication Controller) channel exhaustion by
-> setting the channel private data to NULL on mbox shutdown.
-> 
-> Err Logs:
-> remoteproc: MBA booted without debug policy, loading mpss
-> remoteproc: glink-edge: failed to acquire IPC channel
-> remoteproc: failed to probe subdevices for remoteproc: -16
-> 
-> Fixes: fa74a0257f45 ("mailbox: Add support for Qualcomm IPCC")
-> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
-> Cc: stable@vger.kernel.org
+Fixes: 030f4e968741 ("crypto: nx - Fix reentrancy bugs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ drivers/crypto/nx/nx-aes-ctr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+diff --git a/drivers/crypto/nx/nx-aes-ctr.c b/drivers/crypto/nx/nx-aes-ctr.c
+index 13f518802343..6120e350ff71 100644
+--- a/drivers/crypto/nx/nx-aes-ctr.c
++++ b/drivers/crypto/nx/nx-aes-ctr.c
+@@ -118,7 +118,7 @@ static int ctr3686_aes_nx_crypt(struct skcipher_request *req)
+ 	struct nx_crypto_ctx *nx_ctx = crypto_skcipher_ctx(tfm);
+ 	u8 iv[16];
+ 
+-	memcpy(iv, nx_ctx->priv.ctr.nonce, CTR_RFC3686_IV_SIZE);
++	memcpy(iv, nx_ctx->priv.ctr.nonce, CTR_RFC3686_NONCE_SIZE);
+ 	memcpy(iv + CTR_RFC3686_NONCE_SIZE, req->iv, CTR_RFC3686_IV_SIZE);
+ 	iv[12] = iv[13] = iv[14] = 0;
+ 	iv[15] = 1;
+-- 
+2.25.1
 
-Regards,
-Bjorn
-
-> ---
->  drivers/mailbox/qcom-ipcc.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/mailbox/qcom-ipcc.c b/drivers/mailbox/qcom-ipcc.c
-> index 2d13c72944c6..584700cd1585 100644
-> --- a/drivers/mailbox/qcom-ipcc.c
-> +++ b/drivers/mailbox/qcom-ipcc.c
-> @@ -155,6 +155,11 @@ static int qcom_ipcc_mbox_send_data(struct mbox_chan *chan, void *data)
->  	return 0;
->  }
->  
-> +static void qcom_ipcc_mbox_shutdown(struct mbox_chan *chan)
-> +{
-> +	chan->con_priv = NULL;
-> +}
-> +
->  static struct mbox_chan *qcom_ipcc_mbox_xlate(struct mbox_controller *mbox,
->  					const struct of_phandle_args *ph)
->  {
-> @@ -184,6 +189,7 @@ static struct mbox_chan *qcom_ipcc_mbox_xlate(struct mbox_controller *mbox,
->  
->  static const struct mbox_chan_ops ipcc_mbox_chan_ops = {
->  	.send_data = qcom_ipcc_mbox_send_data,
-> +	.shutdown = qcom_ipcc_mbox_shutdown,
->  };
->  
->  static int qcom_ipcc_setup_mbox(struct qcom_ipcc *ipcc)
-> -- 
-> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-> a Linux Foundation Collaborative Project
-> 
