@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE7B3A9FA1
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7AF3AA01D
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235228AbhFPPjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:39:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
+        id S235317AbhFPPoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:44:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234939AbhFPPiY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:38:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E4CB613C7;
-        Wed, 16 Jun 2021 15:36:09 +0000 (UTC)
+        id S234733AbhFPPmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:42:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56C0C61001;
+        Wed, 16 Jun 2021 15:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857770;
-        bh=2fIwcSbLPYzttkG0EbSC7eMYdbZEukgqXk7iyFFVBHQ=;
+        s=korg; t=1623857885;
+        bh=a4TIiWANEKxTnYf+JVI7YM6TQKyxchagbhSFNk43bco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bbVosPmx9//SMA0fs5uM7WW7aSJKgmhVmRgw2dH9cbCG3A8qlPbhyoQK3w9zL+QnJ
-         XRYv8p7XWYGngQI0orWUp9Cuv0rwga3rhltREAdXrOSqJ5Zu9AuqIty/REF5LFUXRK
-         yilLzYTbEo6T6rD1DGISfFj1CXFawr7iQGww7ynU=
+        b=ZLcn2DWmxgQVTG0db4j4OKfEh5AirQV1lk92lTa9lq0cpRFlzTPsZfKfZievW0llw
+         bN85pWrxXAVmTqqsyzeFLYyjGiqwbd6/B7jswqeFsciKwtgioeefex5aT6/4JBzK0b
+         5e8zs1sIsHCsCHTIEh/p9ySvGOJeXqaJ6Iw981OE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Yu <Lang.Yu@amd.com>,
-        Roman Li <roman.li@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Javed Hasan <jhasan@marvell.com>,
+        Daniel Wagner <dwagner@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 33/38] drm/amd/display: Fix potential memory leak in DMUB hw_init
+Subject: [PATCH 5.12 32/48] scsi: qedf: Do not put host in qedf_vport_create() unconditionally
 Date:   Wed, 16 Jun 2021 17:33:42 +0200
-Message-Id: <20210616152836.440158760@linuxfoundation.org>
+Message-Id: <20210616152837.662912901@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
-References: <20210616152835.407925718@linuxfoundation.org>
+In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
+References: <20210616152836.655643420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <roman.li@amd.com>
+From: Daniel Wagner <dwagner@suse.de>
 
-[ Upstream commit c5699e2d863f58221044efdc3fa712dd32d55cde ]
+[ Upstream commit 79c932cd6af9829432888c4a0001d01793a09f12 ]
 
-[Why]
-On resume we perform DMUB hw_init which allocates memory:
-dm_resume->dm_dmub_hw_init->dc_dmub_srv_create->kzalloc
-That results in memory leak in suspend/resume scenarios.
+Do not drop reference count on vn_port->host in qedf_vport_create()
+unconditionally. Instead drop the reference count in qedf_vport_destroy().
 
-[How]
-Allocate memory for the DC wrapper to DMUB only if it was not
-allocated before.
-No need to reallocate it on suspend/resume.
-
-Signed-off-by: Lang Yu <Lang.Yu@amd.com>
-Signed-off-by: Roman Li <roman.li@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20210521143440.84816-1-dwagner@suse.de
+Reported-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/qedf/qedf_main.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 4792228ed481..13588c46ae8e 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -870,7 +870,8 @@ static int dm_dmub_hw_init(struct amdgpu_device *adev)
- 		abm->dmcu_is_running = dmcu->funcs->is_dmcu_initialized(dmcu);
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index e5076f09d5ed..16a0470aedfc 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -1827,22 +1827,20 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
+ 		fcoe_wwn_to_str(vport->port_name, buf, sizeof(buf));
+ 		QEDF_WARN(&(base_qedf->dbg_ctx), "Failed to create vport, "
+ 			   "WWPN (0x%s) already exists.\n", buf);
+-		goto err1;
++		return rc;
  	}
  
--	adev->dm.dc->ctx->dmub_srv = dc_dmub_srv_create(adev->dm.dc, dmub_srv);
-+	if (!adev->dm.dc->ctx->dmub_srv)
-+		adev->dm.dc->ctx->dmub_srv = dc_dmub_srv_create(adev->dm.dc, dmub_srv);
- 	if (!adev->dm.dc->ctx->dmub_srv) {
- 		DRM_ERROR("Couldn't allocate DC DMUB server!\n");
- 		return -ENOMEM;
-@@ -1755,7 +1756,6 @@ static int dm_suspend(void *handle)
+ 	if (atomic_read(&base_qedf->link_state) != QEDF_LINK_UP) {
+ 		QEDF_WARN(&(base_qedf->dbg_ctx), "Cannot create vport "
+ 			   "because link is not up.\n");
+-		rc = -EIO;
+-		goto err1;
++		return -EIO;
+ 	}
  
- 	amdgpu_dm_irq_suspend(adev);
+ 	vn_port = libfc_vport_create(vport, sizeof(struct qedf_ctx));
+ 	if (!vn_port) {
+ 		QEDF_WARN(&(base_qedf->dbg_ctx), "Could not create lport "
+ 			   "for vport.\n");
+-		rc = -ENOMEM;
+-		goto err1;
++		return -ENOMEM;
+ 	}
  
--
- 	dc_set_power_state(dm->dc, DC_ACPI_CM_POWER_STATE_D3);
+ 	fcoe_wwn_to_str(vport->port_name, buf, sizeof(buf));
+@@ -1866,7 +1864,7 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
+ 	if (rc) {
+ 		QEDF_ERR(&(base_qedf->dbg_ctx), "Could not allocate memory "
+ 		    "for lport stats.\n");
+-		goto err2;
++		goto err;
+ 	}
  
+ 	fc_set_wwnn(vn_port, vport->node_name);
+@@ -1884,7 +1882,7 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
+ 	if (rc) {
+ 		QEDF_WARN(&base_qedf->dbg_ctx,
+ 			  "Error adding Scsi_Host rc=0x%x.\n", rc);
+-		goto err2;
++		goto err;
+ 	}
+ 
+ 	/* Set default dev_loss_tmo based on module parameter */
+@@ -1925,9 +1923,10 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
+ 	vport_qedf->dbg_ctx.host_no = vn_port->host->host_no;
+ 	vport_qedf->dbg_ctx.pdev = base_qedf->pdev;
+ 
+-err2:
++	return 0;
++
++err:
+ 	scsi_host_put(vn_port->host);
+-err1:
+ 	return rc;
+ }
+ 
+@@ -1968,8 +1967,7 @@ static int qedf_vport_destroy(struct fc_vport *vport)
+ 	fc_lport_free_stats(vn_port);
+ 
+ 	/* Release Scsi_Host */
+-	if (vn_port->host)
+-		scsi_host_put(vn_port->host);
++	scsi_host_put(vn_port->host);
+ 
+ out:
  	return 0;
 -- 
 2.30.2
