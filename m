@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E044F3A9FDA
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC48A3A9F5E
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:35:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235529AbhFPPmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50126 "EHLO mail.kernel.org"
+        id S234926AbhFPPh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:37:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235322AbhFPPkF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:40:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E32A1613EE;
-        Wed, 16 Jun 2021 15:37:27 +0000 (UTC)
+        id S234767AbhFPPhD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:37:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C5D661375;
+        Wed, 16 Jun 2021 15:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857848;
-        bh=LdiMPHC2SguCf+TB0y+7VY8iaDbcVolHgsFcZphQwPY=;
+        s=korg; t=1623857697;
+        bh=gWJ1yRLZGxnhleLBM3oUql+Jg14/ZcrDxag8D74fKKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mn22Z97WzeaNSRt11Lkhd0bQCFuS0h/K+5oChIxyIVMo6S0b9gKWgqCxPjAjW+UXj
-         abe+KgbvTNnGk1OJAPmQWQq1c/foohKaWVNplDHu/SWpxB9Kt2xdsaVvrlwx3oXomp
-         7z/DG3WuNUqRgXcc0QeDNB09aMCmBTgyTBayCxQQ=
+        b=lQjSMFfiS/0zIjdEBpzdpS8k4fTTPhuh88S5wdbCqGvP/LjjavC/hh9IHBXWgNK1U
+         83wGcUx9Xx8LU77ikJp0kkr4nFq4BV1a+K597lHBaDrQWPJ/1gjjr0MdfwsYDjoOCE
+         2V00MhkhyuSErXdEIJ76GHBrTxQbCPpneY3ca4N8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 04/48] HID: quirks: Add HID_QUIRK_NO_INIT_REPORTS quirk for Dell K15A keyboard-dock
-Date:   Wed, 16 Jun 2021 17:33:14 +0200
-Message-Id: <20210616152836.792266939@linuxfoundation.org>
+Subject: [PATCH 5.4 04/28] HID: hid-sensor-hub: Return error for hid_set_field() failure
+Date:   Wed, 16 Jun 2021 17:33:15 +0200
+Message-Id: <20210616152834.294533792@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
-References: <20210616152836.655643420@linuxfoundation.org>
+In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
+References: <20210616152834.149064097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit ed80bdc4571fae177c44eba0997a0d551fc21e15 ]
+[ Upstream commit edb032033da0dc850f6e7740fa1023c73195bc89 ]
 
-Just like the K12A the Dell K15A keyboard-dock has problems with
-get_feature requests. This sometimes leads to several
-"failed to fetch feature 8" messages getting logged, after which the
-touchpad may or may not work.
+In the function sensor_hub_set_feature(), return error when hid_set_field()
+fails.
 
-Just like the K15A these errors are triggered by undocking and docking
-the tablet.
-
-There also seem to be other problems when undocking and then docking again
-in quick succession. It seems that in this case the keyboard-controller
-still retains some power from capacitors and does not go through a
-power-on-reset leaving it in a confuses state, symptoms of this are:
-
-1. The USB-ids changing to 048d:8910
-2. Failure to read the HID descriptors on the second (mouse) USB intf.
-3. The touchpad freezing after a while
-
-These problems can all be cleared by undocking the keyboard and waiting
-a full minute before redocking it. Unfortunately there is nothing we can
-do about this in the kernel.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/hid/hid-sensor-hub.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1eccdb353ab0..6e25c505f813 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1153,6 +1153,7 @@
- #define USB_DEVICE_ID_SYNAPTICS_DELL_K12A	0x2819
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012	0x2968
- #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
-+#define USB_DEVICE_ID_SYNAPTICS_DELL_K15A	0x6e21
- #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1002	0x73f4
- #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003	0x73f5
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index df68dd7a4e80..05d3f498fd44 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -177,6 +177,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DELL_K12A), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DELL_K15A), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 3dd7d3246737..f9983145d4e7 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -210,16 +210,21 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 	buffer_size = buffer_size / sizeof(__s32);
+ 	if (buffer_size) {
+ 		for (i = 0; i < buffer_size; ++i) {
+-			hid_set_field(report->field[field_index], i,
+-				      (__force __s32)cpu_to_le32(*buf32));
++			ret = hid_set_field(report->field[field_index], i,
++					    (__force __s32)cpu_to_le32(*buf32));
++			if (ret)
++				goto done_proc;
++
+ 			++buf32;
+ 		}
+ 	}
+ 	if (remaining_bytes) {
+ 		value = 0;
+ 		memcpy(&value, (u8 *)buf32, remaining_bytes);
+-		hid_set_field(report->field[field_index], i,
+-			      (__force __s32)cpu_to_le32(value));
++		ret = hid_set_field(report->field[field_index], i,
++				    (__force __s32)cpu_to_le32(value));
++		if (ret)
++			goto done_proc;
+ 	}
+ 	hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
+ 	hid_hw_wait(hsdev->hdev);
 -- 
 2.30.2
 
