@@ -2,104 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C19EC3A9608
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 11:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60BA33A9621
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 11:28:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231336AbhFPJ2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 05:28:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40614 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231316AbhFPJ2A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 05:28:00 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BE2CC061574;
-        Wed, 16 Jun 2021 02:25:53 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id ei4so1355242pjb.3;
-        Wed, 16 Jun 2021 02:25:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=b/9xGQO8bEJSD3PnDhwpHnxOTBaFCvCSJbindxsfiZw=;
-        b=cqYMVEUzyCHeqTyPjis0S9wEpzmyYyaZNhGqFlYmSnXmGYUMRBom5WFyVGdsIAxRlz
-         NhXM+HgtJcKHo+ZiHrPWD1VrWBPF+wUYRQhlW54hZvp1/y/gJK5d2i+ryREkBDcuDsKC
-         NyOesSpGcRXxrsIvRQxpRFAvfFz2i5Tu53hypk7UnYL41g4lWiEWVK7d4W4/chJArXFI
-         DN+fL61mKjGcUkNu7VOjJUUk3089QbA+QTu44j3yyGq9KywqgU0IMmMB+QtvzQid1blS
-         hXyrsoG8jOMsKhJPrJK7yo06NCOgZ7w6vCionr2lSMdvd7xEkIGeiZkgWnrful/vWbK1
-         /HHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=b/9xGQO8bEJSD3PnDhwpHnxOTBaFCvCSJbindxsfiZw=;
-        b=sYqkdUy/Ih9W3KTpFSwToKdNAWAPNhSwT61LeEXzJdVb/4Ad7w7nRxSqUCPFhZlK0a
-         J5QFXmFuv5G75MQ80f6VknNC96OWQu2TUoxzvDGlhMsP5nJMR5U0WXaUlY+V7HYR58GX
-         X4+R3VGsDrgRox+rsTofD4TuZ4uSsDs13kskJGiMvqCVzmrVywzawgHpZn1UlaUpCNHz
-         hc8vqWh5HCpv/r+/5gOQ4NJjKVuF1Umd1L4EVYPzrCVi71VwI3mMxXz1rnQiFkPxyQXX
-         QMtOzdWZZ8D/v4FFHomCMIsV9x71PSrHREJnT73ME7qyc1uRtjqyD7UdnYFuw87CXqLY
-         6Wtw==
-X-Gm-Message-State: AOAM530DHHY77MEudjme41aXlgLD1GOh5Wvrdhwm+BgTaRGgrtpNt3dZ
-        /H+4gfk2EIu/5fzD/0Y84eQ=
-X-Google-Smtp-Source: ABdhPJwz92nn5rZLYDwjJn8FOxg5YEdc6jkiNzPn7acEjtBgL0BjFG2L8ovNY0sEKm9UJWuFFY5UYw==
-X-Received: by 2002:a17:902:b409:b029:114:afa6:7f4a with SMTP id x9-20020a170902b409b0290114afa67f4amr8256903plr.56.1623835553152;
-        Wed, 16 Jun 2021 02:25:53 -0700 (PDT)
-Received: from localhost.localdomain ([2001:470:e92d:10:513e:1f2f:e06c:5fb8])
-        by smtp.gmail.com with ESMTPSA id x36sm1640842pfu.39.2021.06.16.02.25.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jun 2021 02:25:52 -0700 (PDT)
-From:   Tony Ambardar <tony.ambardar@gmail.com>
-X-Google-Original-From: Tony Ambardar <Tony.Ambardar@gmail.com>
-To:     Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>
-Cc:     Tony Ambardar <Tony.Ambardar@gmail.com>, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        Jiri Olsa <jolsa@kernel.org>, Yonghong Song <yhs@fb.com>
-Subject: [PATCH bpf v1] bpf: fix libelf endian handling in resolv_btfids
-Date:   Wed, 16 Jun 2021 02:25:21 -0700
-Message-Id: <20210616092521.800788-1-Tony.Ambardar@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        id S231672AbhFPJbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 05:31:02 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:10098 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231651AbhFPJbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 05:31:02 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4G4ftv6Zj7zZf8R;
+        Wed, 16 Jun 2021 17:25:59 +0800 (CST)
+Received: from dggpemm500009.china.huawei.com (7.185.36.225) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Wed, 16 Jun 2021 17:28:55 +0800
+Received: from [10.174.179.24] (10.174.179.24) by
+ dggpemm500009.china.huawei.com (7.185.36.225) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Wed, 16 Jun 2021 17:28:54 +0800
+Subject: Re: Questions about backports of fixes for "CoW after fork() issue"
+To:     Suren Baghdasaryan <surenb@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <f546c93e-0e36-03a1-fb08-67f46c83d2e7@huawei.com>
+ <YMmfke61mTcPV4vB@kroah.com>
+ <CAJuCfpG8p7AasufvqehNOLdoXw5ZQFuQhi6mhqPvA3GbPn1puQ@mail.gmail.com>
+CC:     Vlastimil Babka <vbabka@suse.cz>, <stable@vger.kernel.org>,
+        "Jann Horn," <jannh@google.com>,
+        Mikulas Patocka <mpatocka@redhat.com>
+From:   Liu Shixin <liushixin2@huawei.com>
+Message-ID: <add3f456-052e-6f40-2949-0685b563fdee@huawei.com>
+Date:   Wed, 16 Jun 2021 17:28:54 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101
+ Thunderbird/45.7.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJuCfpG8p7AasufvqehNOLdoXw5ZQFuQhi6mhqPvA3GbPn1puQ@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.179.24]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemm500009.china.huawei.com (7.185.36.225)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While patching the .BTF_ids section in vmlinux, resolve_btfids writes type
-ids using host-native endianness, and relies on libelf for any required
-translation when finally updating vmlinux. However, the default type of the
-.BTF_ids section content is ELF_T_BYTE (i.e. unsigned char), and undergoes
-no translation. This results in incorrect patched values if cross-compiling
-to non-native endianness, and can manifest as kernel Oops and test failures
-which are difficult to debug.
+On 2021/6/16 15:11, Suren Baghdasaryan wrote:
+> On Tue, Jun 15, 2021 at 11:52 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+>> On Wed, Jun 16, 2021 at 02:47:15PM +0800, Liu Shixin wrote:
+>>> Hi, Suren,
+>>>
+>>> I read the previous discussion about fixing CVE-2020-29374 in stable 4.14 and 4.19 in
+>>> <https://lore.kernel.org/linux-mm/20210401181741.168763-1-surenb@google.com/>
+>>>
+>>> https://lore.kernel.org/linux-mm/20210401181741.168763-1-surenb@google.com/
+>>>
+>>> And the results of the discussion is that you backports of 17839856fd58 for 4.14 and
+>>>
+>>> 4.19 kernels.
+>>>
+>>> But the bug about dax and strace in the discussion has not been solved, right? I don't
+>>>
+>>> find a conclusion on this issue, am I missing something? Does this problem still exist in
+>>>
+>>> the stable 4.14 and 4.19 kernel?
+> That is my understanding after discussions with Andrea but I did not
+> verify that myself. As Greg pointed out, the best way would be to try
+> it out.
+> Thanks,
+> Suren.
+>
+>> As the code is all there for you, can you just test them and see for
+>> yourself?
+>>
+>> thanks,
+>>
+>> greg k-h
+> .
+>
+Thank you both for replies. I have tested it in stable 4.19 kernel and the bug is existed as expected.
 
-Explicitly set the type of patched data to ELF_T_WORD, allowing libelf to
-transparently handle the endian conversions.
-
-Fixes: fbbb68de80a4 ("bpf: Add resolve_btfids tool to resolve BTF IDs in ELF object")
-Cc: stable@vger.kernel.org # v5.10+
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/CAPGftE_eY-Zdi3wBcgDfkz_iOr1KF10n=9mJHm1_a_PykcsoeA@mail.gmail.com/
-Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
----
- tools/bpf/resolve_btfids/main.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
-index d636643ddd35..f32c059fbfb4 100644
---- a/tools/bpf/resolve_btfids/main.c
-+++ b/tools/bpf/resolve_btfids/main.c
-@@ -649,6 +649,9 @@ static int symbols_patch(struct object *obj)
- 	if (sets_patch(obj))
- 		return -1;
- 
-+	/* Set type to ensure endian translation occurs. */
-+	obj->efile.idlist->d_type = ELF_T_WORD;
-+
- 	elf_flagdata(obj->efile.idlist, ELF_C_SET, ELF_F_DIRTY);
- 
- 	err = elf_update(obj->efile.elf, ELF_C_WRITE);
--- 
-2.25.1
-
+Thanks,
+Liu Shixin
