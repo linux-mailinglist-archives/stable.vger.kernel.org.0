@@ -2,119 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81CFB3AA747
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 01:09:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E97463AA7B5
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 01:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234448AbhFPXL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 19:11:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56790 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234350AbhFPXL4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 19:11:56 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3B37C061574
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 16:09:49 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id mj8-20020a17090b3688b029016ee34fc1b3so2748562pjb.0
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 16:09:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JCTdAhnlQjpCcBMCaMWrElO22d2SbaHBJ+fGub5NCBI=;
-        b=pgralIotWJvPbqSv6lxkUTtUQ5JzbQ+opdH3GtcxqrnQn2355OtBDDQbmMgDBb+8yi
-         yr8YN32/dLlzQnj+mQvQBFplVHCb+L0h7UbImAF9zrHMG7gypHzMllQrY0mWqMZiAjjM
-         bUB/nG2K+WGjkaZTMOPvtZNfNeApbtSDOSsxqWdrs6WI6Ct2ipLVfFHVo9DGrTp4+7uK
-         sO2lPB3QuL9dsSaeQ3K3+VbviWWcs/CBey9Ct5GcYzIC+kCabrZD3uEdCp7HiVU8eqBT
-         +WVK/NRjYADTTg5bQienPQZ3jgkYY7/XSHS8rEHsoL7pR5NVe5nZMG/c2vjEZFxXrgmS
-         dSkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JCTdAhnlQjpCcBMCaMWrElO22d2SbaHBJ+fGub5NCBI=;
-        b=rfCFtXCUuKO7dFkbHzFtp6FBaXUUUgR+Z0LRKOUFRG5E2jpe7MUGui3SlA7LUwWDh+
-         9mCPAvXGDqJjB4ZR0my5DA4RVh7oKAEGll1wyfbItec59BuA8f6q0zagDQ2yr/XVQryl
-         k/TdsZfFca1yb+MwzgPXv0eV2DfwhwgNiNqQZxXha0gHSIlDAfTpRz5Mwqtu5zFKkJhq
-         ag694lMNspJYO346l+AtKVELZnOQ9Tr/UW05gOskvoNN7rz1uKOiYNl3H3ToCsZsvYup
-         Hb41Hg7HM64muirBLzuMDsTdl9CenfNSjP+n3O74wO+w8luX2g3fSQPQzQk3SagXoXeu
-         cnlQ==
-X-Gm-Message-State: AOAM530/nUoi7ZYi6Z0NkQ+ZdiMV3SmGOPjqqVgjts6nZTKW6Zz+rFCc
-        xhAyuwdiwhFhww75QqLwoXpb2LRqTt/QMqZS
-X-Google-Smtp-Source: ABdhPJxSsHAKtTMb5Ber84EV0Xy1LwMc6sgDclr+v7j9Un+HzLR0rjeLrQ/QzvCZo5QkXxQgWLUBDw==
-X-Received: by 2002:a17:90b:4c8c:: with SMTP id my12mr2341799pjb.13.1623884989066;
-        Wed, 16 Jun 2021 16:09:49 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p24sm3199885pfh.17.2021.06.16.16.09.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jun 2021 16:09:48 -0700 (PDT)
-Message-ID: <60ca84bc.1c69fb81.aa508.995e@mx.google.com>
-Date:   Wed, 16 Jun 2021 16:09:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.44-37-g06c9df4e43ff
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 85 runs,
- 1 regressions (v5.10.44-37-g06c9df4e43ff)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S234754AbhFPXv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 19:51:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54282 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232372AbhFPXv0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 19:51:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FCFF613AE;
+        Wed, 16 Jun 2021 23:49:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623887359;
+        bh=qIUOjJaXnnZDIyqjA+8Rc1PjQR2ZFeNFFdkcFco2deg=;
+        h=In-Reply-To:References:Date:From:To:Cc:Subject:From;
+        b=tLLlTT5QYvEBvhHyFgtlIUon6gCPPxmjtFckUGTgYydeAEqnZDsIDRjwwA4edaT4i
+         SxjOwyOiiypMhRc5geGG5OgstPcC5Zydag4FyTShAXeUicNHyag/uwd+Bf8addiz00
+         r8/1njn1ijQGDlnV6k+rfHTFwz46KsHf/SjGCMx9fE58OFAK//3XD6VMtAMLWQzk6n
+         Ev9xVT4vvdAIgmQ8AxLgsQmZwVDU9W6/It1AubbzeAKkkNmTvi/EmCaGXdyXb5HH2s
+         XJk7RGwQv/SyH4TP+iKmDKoEdgMvZtMBHTC+hzuUNyU6fbMwMEk2cicq8FRa861MWQ
+         vOcPKj4sc0mRw==
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailauth.nyi.internal (Postfix) with ESMTP id 1C2F927C0054;
+        Wed, 16 Jun 2021 19:49:17 -0400 (EDT)
+Received: from imap21 ([10.202.2.71])
+  by compute2.internal (MEProxy); Wed, 16 Jun 2021 19:49:17 -0400
+X-ME-Sender: <xms:-43KYMT-reRhfjGOEiOYa0siZLD5nPSMwXb5XAXrIzuBgmJn_Lzx0w>
+    <xme:-43KYJytn81R7UbdVQ_MBSHv16rZDbnzVKgiVCJ00uWlhY74t4HZ3YZxnQr7rExSl
+    r_mFnGwqWE2X5oRZr8>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeeftddgvddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvffutgesthdtredtreerjeenucfhrhhomhepfdetnhgu
+    hicunfhuthhomhhirhhskhhifdcuoehluhhtoheskhgvrhhnvghlrdhorhhgqeenucggtf
+    frrghtthgvrhhnpeegjefghfdtledvfeegfeelvedtgfevkeeugfekffdvveeffeetieeh
+    ueetveekfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpegrnhguhidomhgvshhmthhprghuthhhphgvrhhsohhnrghlihhthidqudduiedukeeh
+    ieefvddqvdeifeduieeitdekqdhluhhtoheppehkvghrnhgvlhdrohhrgheslhhinhhugi
+    drlhhuthhordhush
+X-ME-Proxy: <xmx:-43KYJ1rJ06ztsbb7LNVgG-Ou4TtbewZ_Lw8_W1VMe9HOXvzhUaTlg>
+    <xmx:-43KYABMF1Fj1SxQBreR9VA8nipQ2KejlybnFH6ga4H3DfNAwU1V2Q>
+    <xmx:-43KYFggd8F-Ds-SNxPsKn0g8C8Zdt6fgayaCE8JAb4A3F2_KXAlRQ>
+    <xmx:_Y3KYIRLxOL_9cNXbvbAfaI64mDknaeEtM_-YMQ--gKc0MP8oki061lS0M_Qjr7O>
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 8540951C0060; Wed, 16 Jun 2021 19:49:15 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.5.0-alpha0-526-gf020ecf851-fm-20210616.001-gf020ecf8
+Mime-Version: 1.0
+Message-Id: <57dae79c-fff8-411f-a375-1aa8a1cd10ac@www.fastmail.com>
+In-Reply-To: <1e248763-9372-6e4e-5dea-cda999000aeb@kernel.org>
+References: <cover.1623813516.git.luto@kernel.org>
+ <07a8b963002cb955b7516e61bad19514a3acaa82.1623813516.git.luto@kernel.org>
+ <1623818343.eko1v01gvr.astroid@bobo.none>
+ <1e248763-9372-6e4e-5dea-cda999000aeb@kernel.org>
+Date:   Wed, 16 Jun 2021 16:48:54 -0700
+From:   "Andy Lutomirski" <luto@kernel.org>
+To:     "Nicholas Piggin" <npiggin@gmail.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>
+Cc:     "Andrew Morton" <akpm@linux-foundation.org>,
+        "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+        "Catalin Marinas" <catalin.marinas@arm.com>,
+        "Dave Hansen" <dave.hansen@intel.com>,
+        linux-arm-kernel@lists.infradead.org,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+        linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
+        "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>,
+        "Michael Ellerman" <mpe@ellerman.id.au>,
+        "Paul Mackerras" <paulus@samba.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, "Will Deacon" <will@kernel.org>
+Subject: =?UTF-8?Q?Re:_[PATCH_8/8]_membarrier:_Rewrite_sync=5Fcore=5Fbefore=5Fuse?=
+ =?UTF-8?Q?rmode()_and_improve_documentation?=
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 85 runs, 1 regressions (v5.10.44-37-g06c9df4=
-e43ff)
+On Wed, Jun 16, 2021, at 11:52 AM, Andy Lutomirski wrote:
+> On 6/15/21 9:45 PM, Nicholas Piggin wrote:
+> > Excerpts from Andy Lutomirski's message of June 16, 2021 1:21 pm:
+> >> The old sync_core_before_usermode() comments suggested that a non-icache-syncing
+> >> return-to-usermode instruction is x86-specific and that all other
+> >> architectures automatically notice cross-modified code on return to
+> >> userspace.
+> 
+> >> +/*
+> >> + * XXX: can a powerpc person put an appropriate comment here?
+> >> + */
+> >> +static inline void membarrier_sync_core_before_usermode(void)
+> >> +{
+> >> +}
+> >> +
+> >> +#endif /* _ASM_POWERPC_SYNC_CORE_H */
+> > 
+> > powerpc's can just go in asm/membarrier.h
+> 
+> $ ls arch/powerpc/include/asm/membarrier.h
+> ls: cannot access 'arch/powerpc/include/asm/membarrier.h': No such file
+> or directory
 
-Regressions Summary
--------------------
+Which is because I deleted it.  Duh.  I'll clean this up.
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.44-37-g06c9df4e43ff/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.44-37-g06c9df4e43ff
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      06c9df4e43ff20d3907dd044b403ca28f8135a34 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca546b62ab6bf40241327f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.44-=
-37-g06c9df4e43ff/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.44-=
-37-g06c9df4e43ff/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca546b62ab6bf402413=
-280
-        new failure (last pass: v5.10.44-38-g409534680574) =
-
- =20
+> 
+> 
+> > 
+> > /*
+> >  * The RFI family of instructions are context synchronising, and
+> >  * that is how we return to userspace, so nothing is required here.
+> >  */
+> 
+> Thanks!
+> 
