@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF4C3A9F7B
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDF03A9FB5
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:38:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235087AbhFPPi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:38:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51066 "EHLO mail.kernel.org"
+        id S234981AbhFPPkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:40:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234749AbhFPPhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:37:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07564613CB;
-        Wed, 16 Jun 2021 15:35:27 +0000 (UTC)
+        id S234771AbhFPPja (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:39:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 099776135C;
+        Wed, 16 Jun 2021 15:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857728;
-        bh=kvSrNLIh+uOkr9jxyOKYG8oS7k48Q+7gWUhGNQ4QAyk=;
+        s=korg; t=1623857811;
+        bh=LWe4nsbdJinjqdQMzeE2+qRiLbJd5/AiKwAPmIQ8lJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0LfEa4eYvGJO1H3tEY/m1cKw5Ius2W4WHnxNin6h07xCYbl4uPZJGOWd0IvA+E3n
-         nUlp+eQUG0Ve+VaxW2IA2c6zeXtL/w42Jk9UulWpgjztKdYU+xl7+iHzGgDYk58C8M
-         34Pcprl2mvJZ557lKHnAgJESMZeOriPzOgtN/tAM=
+        b=fJcnbAENuACvNT7i5yaxGFnf1byDjMaq1VU+ubBYBPPXiJREdUPsLTzQ0fv7ahco/
+         VFNyO8nzJv3ctsbKarwjlUCF2IIQAM2fwYEtl/hn2eTzKcWNEqDeDvhVpp8NYJgA2z
+         K1kqn1nskymLH3Uy0w1UwYMH6f4au6ry3VbZP1Qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/38] gfs2: fix a deadlock on withdraw-during-mount
+Subject: [PATCH 5.12 15/48] gpu: host1x: Split up client initalization and registration
 Date:   Wed, 16 Jun 2021 17:33:25 +0200
-Message-Id: <20210616152835.912416286@linuxfoundation.org>
+Message-Id: <20210616152837.138007354@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
-References: <20210616152835.407925718@linuxfoundation.org>
+In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
+References: <20210616152836.655643420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +39,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 865cc3e9cc0b1d4b81c10d53174bced76decf888 ]
+[ Upstream commit 0cfe5a6e758fb20be8ad3e8f10cb087cc8033eeb ]
 
-Before this patch, gfs2 would deadlock because of the following
-sequence during mount:
+In some cases we may need to initialize the host1x client first before
+registering it. This commit adds a new helper that will do nothing but
+the initialization of the data structure.
 
-mount
-   gfs2_fill_super
-      gfs2_make_fs_rw <--- Detects IO error with glock
-         kthread_stop(sdp->sd_quotad_process);
-            <--- Blocked waiting for quotad to finish
+At the same time, the initialization is removed from the registration
+function. Note, however, that for simplicity we explicitly initialize
+the client when the host1x_client_register() function is called, as
+opposed to the low-level __host1x_client_register() function. This
+allows existing callers to remain unchanged.
 
-logd
-   Detects IO error and the need to withdraw
-   calls gfs2_withdraw
-      gfs2_make_fs_ro
-         kthread_stop(sdp->sd_quotad_process);
-            <--- Blocked waiting for quotad to finish
-
-gfs2_quotad
-   gfs2_statfs_sync
-      gfs2_glock_wait <---- Blocked waiting for statfs glock to be granted
-
-glock_work_func
-   do_xmote <---Detects IO error, can't release glock: blocked on withdraw
-      glops->go_inval
-      glock_blocked_by_withdraw
-         requeue glock work & exit <--- work requeued, blocked by withdraw
-
-This patch makes a special exception for the statfs system inode glock,
-which allows the statfs glock UNLOCK to proceed normally. That allows the
-quotad daemon to exit during the withdraw, which allows the logd daemon
-to exit during the withdraw, which allows the mount to exit.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+ drivers/gpu/host1x/bus.c | 30 ++++++++++++++++++++++++------
+ include/linux/host1x.h   | 30 ++++++++++++++++++++++++------
+ 2 files changed, 48 insertions(+), 12 deletions(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index ea2f2de44806..59130cbbd995 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -569,6 +569,16 @@ out_locked:
- 	spin_unlock(&gl->gl_lockref.lock);
+diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
+index 68a766ff0e9d..b98d746141a8 100644
+--- a/drivers/gpu/host1x/bus.c
++++ b/drivers/gpu/host1x/bus.c
+@@ -704,6 +704,29 @@ void host1x_driver_unregister(struct host1x_driver *driver)
  }
+ EXPORT_SYMBOL(host1x_driver_unregister);
  
-+static bool is_system_glock(struct gfs2_glock *gl)
++/**
++ * __host1x_client_init() - initialize a host1x client
++ * @client: host1x client
++ * @key: lock class key for the client-specific mutex
++ */
++void __host1x_client_init(struct host1x_client *client, struct lock_class_key *key)
 +{
-+	struct gfs2_sbd *sdp = gl->gl_name.ln_sbd;
-+	struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
-+
-+	if (gl == m_ip->i_gl)
-+		return true;
-+	return false;
++	INIT_LIST_HEAD(&client->list);
++	__mutex_init(&client->lock, "host1x client lock", key);
++	client->usecount = 0;
 +}
++EXPORT_SYMBOL(__host1x_client_init);
++
++/**
++ * host1x_client_exit() - uninitialize a host1x client
++ * @client: host1x client
++ */
++void host1x_client_exit(struct host1x_client *client)
++{
++	mutex_destroy(&client->lock);
++}
++EXPORT_SYMBOL(host1x_client_exit);
 +
  /**
-  * do_xmote - Calls the DLM to change the state of a lock
-  * @gl: The lock state
-@@ -658,17 +668,25 @@ skip_inval:
- 	 * to see sd_log_error and withdraw, and in the meantime, requeue the
- 	 * work for later.
- 	 *
-+	 * We make a special exception for some system glocks, such as the
-+	 * system statfs inode glock, which needs to be granted before the
-+	 * gfs2_quotad daemon can exit, and that exit needs to finish before
-+	 * we can unmount the withdrawn file system.
-+	 *
- 	 * However, if we're just unlocking the lock (say, for unmount, when
- 	 * gfs2_gl_hash_clear calls clear_glock) and recovery is complete
- 	 * then it's okay to tell dlm to unlock it.
- 	 */
- 	if (unlikely(sdp->sd_log_error && !gfs2_withdrawn(sdp)))
- 		gfs2_withdraw_delayed(sdp);
--	if (glock_blocked_by_withdraw(gl)) {
--		if (target != LM_ST_UNLOCKED ||
--		    test_bit(SDF_WITHDRAW_RECOVERY, &sdp->sd_flags)) {
-+	if (glock_blocked_by_withdraw(gl) &&
-+	    (target != LM_ST_UNLOCKED ||
-+	     test_bit(SDF_WITHDRAW_RECOVERY, &sdp->sd_flags))) {
-+		if (!is_system_glock(gl)) {
- 			gfs2_glock_queue_work(gl, GL_GLOCK_DFT_HOLD);
- 			goto out;
-+		} else {
-+			clear_bit(GLF_INVALIDATE_IN_PROGRESS, &gl->gl_flags);
- 		}
- 	}
+  * __host1x_client_register() - register a host1x client
+  * @client: host1x client
+@@ -716,16 +739,11 @@ EXPORT_SYMBOL(host1x_driver_unregister);
+  * device and call host1x_device_init(), which will in turn call each client's
+  * &host1x_client_ops.init implementation.
+  */
+-int __host1x_client_register(struct host1x_client *client,
+-			     struct lock_class_key *key)
++int __host1x_client_register(struct host1x_client *client)
+ {
+ 	struct host1x *host1x;
+ 	int err;
  
+-	INIT_LIST_HEAD(&client->list);
+-	__mutex_init(&client->lock, "host1x client lock", key);
+-	client->usecount = 0;
+-
+ 	mutex_lock(&devices_lock);
+ 
+ 	list_for_each_entry(host1x, &devices, list) {
+diff --git a/include/linux/host1x.h b/include/linux/host1x.h
+index 9eb77c87a83b..ed0005ce4285 100644
+--- a/include/linux/host1x.h
++++ b/include/linux/host1x.h
+@@ -320,12 +320,30 @@ static inline struct host1x_device *to_host1x_device(struct device *dev)
+ int host1x_device_init(struct host1x_device *device);
+ int host1x_device_exit(struct host1x_device *device);
+ 
+-int __host1x_client_register(struct host1x_client *client,
+-			     struct lock_class_key *key);
+-#define host1x_client_register(class) \
+-	({ \
+-		static struct lock_class_key __key; \
+-		__host1x_client_register(class, &__key); \
++void __host1x_client_init(struct host1x_client *client, struct lock_class_key *key);
++void host1x_client_exit(struct host1x_client *client);
++
++#define host1x_client_init(client)			\
++	({						\
++		static struct lock_class_key __key;	\
++		__host1x_client_init(client, &__key);	\
++	})
++
++int __host1x_client_register(struct host1x_client *client);
++
++/*
++ * Note that this wrapper calls __host1x_client_init() for compatibility
++ * with existing callers. Callers that want to separately initialize and
++ * register a host1x client must first initialize using either of the
++ * __host1x_client_init() or host1x_client_init() functions and then use
++ * the low-level __host1x_client_register() function to avoid the client
++ * getting reinitialized.
++ */
++#define host1x_client_register(client)			\
++	({						\
++		static struct lock_class_key __key;	\
++		__host1x_client_init(client, &__key);	\
++		__host1x_client_register(client);	\
+ 	})
+ 
+ int host1x_client_unregister(struct host1x_client *client);
 -- 
 2.30.2
 
