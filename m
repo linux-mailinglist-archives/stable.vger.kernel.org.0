@@ -2,141 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1463A9714
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 12:17:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3F9C3A9718
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 12:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231638AbhFPKT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 06:19:58 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:35832 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231452AbhFPKT6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 06:19:58 -0400
-Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 79D1C21A44;
-        Wed, 16 Jun 2021 10:17:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1623838671; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0hTfhsz/kEt5WGDatXsImGrsFOHUS+gN7wSm/18jlfk=;
-        b=uZksO3ALRtJVWWZOFxJa04O7Wx1v0zfQ2CKNQqeI1J74Vq3gq0OoNPc7KzrWdO3UDfu4Ta
-        edYrMgAOvhk4+fk0GPiKfQytAkviax6a4o3GszYlkxJKjJXgpBWaUf7kI3WJPKiEiT7v52
-        mCKeW/huyfIXAkpVkrojHvXdcCU4i7A=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1623838671;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0hTfhsz/kEt5WGDatXsImGrsFOHUS+gN7wSm/18jlfk=;
-        b=gOrEhfJt0904rYnalONzJoZ+xnTEj7/vLJ3HM8h6td56PwCt7uEe8CNnCaxhsFl6d/hMSj
-        NvXqCy3Ftekp+0AA==
-Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        by imap.suse.de (Postfix) with ESMTP id 4F067118DD;
-        Wed, 16 Jun 2021 10:17:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1623838671; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0hTfhsz/kEt5WGDatXsImGrsFOHUS+gN7wSm/18jlfk=;
-        b=uZksO3ALRtJVWWZOFxJa04O7Wx1v0zfQ2CKNQqeI1J74Vq3gq0OoNPc7KzrWdO3UDfu4Ta
-        edYrMgAOvhk4+fk0GPiKfQytAkviax6a4o3GszYlkxJKjJXgpBWaUf7kI3WJPKiEiT7v52
-        mCKeW/huyfIXAkpVkrojHvXdcCU4i7A=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1623838671;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0hTfhsz/kEt5WGDatXsImGrsFOHUS+gN7wSm/18jlfk=;
-        b=gOrEhfJt0904rYnalONzJoZ+xnTEj7/vLJ3HM8h6td56PwCt7uEe8CNnCaxhsFl6d/hMSj
-        NvXqCy3Ftekp+0AA==
-Received: from director2.suse.de ([192.168.254.72])
-        by imap3-int with ESMTPSA
-        id I5IwEs/PyWDnRwAALh3uQQ
-        (envelope-from <vbabka@suse.cz>); Wed, 16 Jun 2021 10:17:51 +0000
-Subject: Re: Questions about backports of fixes for "CoW after fork() issue"
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Liu Shixin <liushixin2@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Suren Baghdasaryan <surenb@google.com>, stable@vger.kernel.org,
-        "Jann Horn," <jannh@google.com>,
-        Mikulas Patocka <mpatocka@redhat.com>
-References: <f546c93e-0e36-03a1-fb08-67f46c83d2e7@huawei.com>
- <YMmfke61mTcPV4vB@kroah.com>
- <CAJuCfpG8p7AasufvqehNOLdoXw5ZQFuQhi6mhqPvA3GbPn1puQ@mail.gmail.com>
- <add3f456-052e-6f40-2949-0685b563fdee@huawei.com>
- <YMnGKd79OGeOvRap@kroah.com>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Message-ID: <7827ed6e-7f7c-cabb-4f97-b81610016ab3@suse.cz>
-Date:   Wed, 16 Jun 2021 12:17:51 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S231892AbhFPKV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 06:21:28 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:22466 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231452AbhFPKV0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 06:21:26 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-215-TXlbLyjJMuanTG_9lkomZA-1; Wed, 16 Jun 2021 11:19:16 +0100
+X-MC-Unique: TXlbLyjJMuanTG_9lkomZA-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Wed, 16 Jun
+ 2021 11:19:15 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.018; Wed, 16 Jun 2021 11:19:15 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Amit Klein' <aksecurity@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: RE: [PATCH 5.4 175/244] inet: use bigger hash table for IP ID
+ generation
+Thread-Topic: [PATCH 5.4 175/244] inet: use bigger hash table for IP ID
+ generation
+Thread-Index: AQHXYpBi9A2YPoOhfUuPKKRWnHSSTKsWa0BQ
+Date:   Wed, 16 Jun 2021 10:19:15 +0000
+Message-ID: <a388a8018b09429d93a4a6b6852c70b2@AcuMS.aculab.com>
+References: <20210512144743.039977287@linuxfoundation.org>
+ <20210512144748.600206118@linuxfoundation.org>
+ <CANEQ_++O0XVVdvynGtf37YCHSBT8CYHnUkK+VsFkOTqeqwOUtA@mail.gmail.com>
+ <YMmlPHMn/+EPdbvm@kroah.com>
+ <CANEQ_++gbwU2Rvcqg5KtngZC1UX1XcjOKfPKRr3Pvxi+VyQX+Q@mail.gmail.com>
+In-Reply-To: <CANEQ_++gbwU2Rvcqg5KtngZC1UX1XcjOKfPKRr3Pvxi+VyQX+Q@mail.gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-In-Reply-To: <YMnGKd79OGeOvRap@kroah.com>
-Content-Type: text/plain; charset=utf-8
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/16/21 11:36 AM, Greg Kroah-Hartman wrote:
-> On Wed, Jun 16, 2021 at 05:28:54PM +0800, Liu Shixin wrote:
->> On 2021/6/16 15:11, Suren Baghdasaryan wrote:
->> > On Tue, Jun 15, 2021 at 11:52 PM Greg Kroah-Hartman
->> > <gregkh@linuxfoundation.org> wrote:
->> >> On Wed, Jun 16, 2021 at 02:47:15PM +0800, Liu Shixin wrote:
->> >>> Hi, Suren,
->> >>>
->> >>> I read the previous discussion about fixing CVE-2020-29374 in stable 4.14 and 4.19 in
->> >>> <https://lore.kernel.org/linux-mm/20210401181741.168763-1-surenb@google.com/>
->> >>>
->> >>> https://lore.kernel.org/linux-mm/20210401181741.168763-1-surenb@google.com/
->> >>>
->> >>> And the results of the discussion is that you backports of 17839856fd58 for 4.14 and
->> >>>
->> >>> 4.19 kernels.
->> >>>
->> >>> But the bug about dax and strace in the discussion has not been solved, right? I don't
->> >>>
->> >>> find a conclusion on this issue, am I missing something? Does this problem still exist in
->> >>>
->> >>> the stable 4.14 and 4.19 kernel?
->> > That is my understanding after discussions with Andrea but I did not
->> > verify that myself. As Greg pointed out, the best way would be to try
->> > it out.
->> > Thanks,
->> > Suren.
->> >
->> >> As the code is all there for you, can you just test them and see for
->> >> yourself?
->> >>
->> >> thanks,
->> >>
->> >> greg k-h
->> > .
->> >
->> Thank you both for replies. I have tested it in stable 4.19 kernel and the bug is existed as expected.
-
-If you can reproduce it, great. That means a root cause can be found and fixed,
-hopefully in a minimal way.
-
-> Great, can you provide a working backport of the patches needed to solve
-> this for 4.19 so that we can apply them?
-
-We probably don't want to blindly backport the upstream patches (that also fixed
-dax+ptrace as a side-effect) because they changed the semantics a lot and led to
-further fixes, which is IMHO too risky to do now in stable. Linus also thought so:
-
-https://lore.kernel.org/linux-mm/CAHk-=whUKYdWbKfFzXXnK8n04oCMwEgSnG8Y3tgE=YZUjiDvbA@mail.gmail.com/#t
-
-> thanks,
-> 
-> greg k-h
-> 
+RnJvbTogQW1pdCBLbGVpbg0KPiBTZW50OiAxNiBKdW5lIDIwMjEgMTA6MTcNCi4uLg0KPiAtI2Rl
+ZmluZSBJUF9JREVOVFNfU1ogMjA0OHUNCj4gLQ0KPiArLyogSGFzaCB0YWJsZXMgb2Ygc2l6ZSAy
+MDQ4Li4yNjIxNDQgZGVwZW5kaW5nIG9uIFJBTSBzaXplLg0KPiArICogRWFjaCBidWNrZXQgdXNl
+cyA4IGJ5dGVzLg0KPiArICovDQo+ICtzdGF0aWMgdTMyIGlwX2lkZW50c19tYXNrIF9fcmVhZF9t
+b3N0bHk7DQouLi4NCj4gKyAgICAvKiBGb3IgbW9kZXJuIGhvc3RzLCB0aGlzIHdpbGwgdXNlIDIg
+TUIgb2YgbWVtb3J5ICovDQo+ICsgICAgaWRlbnRzX2hhc2ggPSBhbGxvY19sYXJnZV9zeXN0ZW1f
+aGFzaCgiSVAgaWRlbnRzIiwNCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgc2l6ZW9mKCpp
+cF9pZGVudHMpICsgc2l6ZW9mKCppcF90c3RhbXBzKSwNCj4gKyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgMCwNCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgMTYsIC8qIG9uZSBidWNrZXQg
+cGVyIDY0IEtCICovDQo+ICsgICAgICAgICAgICAgICAgICAgICAgICAgIEhBU0hfWkVSTywNCj4g
+KyAgICAgICAgICAgICAgICAgICAgICAgICAgTlVMTCwNCj4gKyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgJmlwX2lkZW50c19tYXNrLA0KPiArICAgICAgICAgICAgICAgICAgICAgICAgICAyMDQ4
+LA0KPiArICAgICAgICAgICAgICAgICAgICAgICAgICAyNTYqMTAyNCk7DQo+ICsNCg0KQ2FuIHNv
+bWVvbmUgZXhwbGFpbiB3aHkgdGhpcyBpcyBhIGdvb2QgaWRlYSBmb3IgYSAnbm9ybWFsJyBzeXN0
+ZW0/DQoNCldoeSBzaG91bGQgbXkgZGVza3RvcCBzeXN0ZW0gJ3dhc3RlJyAyTUIgb2YgbWVtb3J5
+IG9uIGEgbWFzc2l2ZQ0KaGFzaCB0YWJsZSB0aGF0IEkgZG9uJ3QgbmVlZC4NCkl0IG1pZ2h0IGJl
+IG5lZWRlZCBieSBzeXN0ZW1zIHRoYW4gaGFuZGxlIG1hc3NpdmUgbnVtYmVycw0Kb2YgY29uY3Vy
+cmVudCBjb25uZWN0aW9ucyAtIGJ1dCB0aGF0IGlzbid0ICdtb3N0IHN5c3RlbXMnLg0KDQpTdXJl
+bHkgaXQgd291bGQgYmUgYmV0dGVyIHRvIGRldGVjdCB3aGVuIHRoZSBudW1iZXIgb2YgZW50cmll
+cw0KaXMgY29tcGFyYWJsZSB0byB0aGUgdGFibGUgc2l6ZSBhbmQgdGhlbiByZXNpemUgdGhlIHRh
+YmxlLg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5
+IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRp
+b24gTm86IDEzOTczODYgKFdhbGVzKQ0K
 
