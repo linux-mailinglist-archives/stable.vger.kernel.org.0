@@ -2,342 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE133AA6AC
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 00:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D8DC3AA6B0
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 00:40:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233475AbhFPWkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 18:40:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49736 "EHLO
+        id S233744AbhFPWmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 18:42:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233245AbhFPWkm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 18:40:42 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30CB8C061574
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 15:38:36 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id p4-20020a17090a9304b029016f3020d867so589247pjo.3
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 15:38:36 -0700 (PDT)
+        with ESMTP id S233245AbhFPWmW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 18:42:22 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 337C8C061574;
+        Wed, 16 Jun 2021 15:40:15 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id x22so351207pll.11;
+        Wed, 16 Jun 2021 15:40:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=xwORf84PE+jwQ5VMLNcWREqP0X3ZLdjb014Q4MlkV7E=;
-        b=FLd1cNcNfeTkBsFSyk2Y+yQkLiLVGXQyOzXWwETVC5FklqzxzZkA65OhhXaxZ1lUQl
-         SndyzS75OTw0YpmbG7rlWGbaA/JD1+Gw/g9d9zuqW6LEBqsr+yisoubq4SLsNQaBDA11
-         oE3r4EarSG0/Lt5DICPh3fTVb09dd3Cl15uz3h+L4pR+Rs8+Hr/S9hApZGt209dj/ccS
-         7H5FOfprXO6Kzhr5uGJeZ1IZUTJ4e6NSmnRDKtv6MXvO5M38zAar78FWRFaFgufhaS8n
-         Yb8/mzir2p8vz02i4Q1RkUTA2X2QTdmum0CAUVm7dDAdu1JNY69CzGD/RRGBaE0Mtv5o
-         T2PA==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=167NdGo7hmLGcseOsLWm0OWWXPQ1w4fQkJN5dg3sDyg=;
+        b=GYnxZgSXFs+lGjHM8tQJZ/UMKOa6WOvDIueimC0NPhX7kbYe6e6EkXWNGb3LMMPXtc
+         G843P2zk4QbH7EbcTi+xIpBWqsEDkgzwQb2X0vH1CnKF1Gw/D2GQRuYdaYJ+EcCfU8kD
+         +noVwIJ9qMD+cT1s/KTyi/ZfL9Qzntt13qglpg6YMqP0p8tMhE9NLvVr/nUwkYqmSa02
+         IVX+0h/XwCmKNhTsADzh9E0l1W2tdcECOyc/+vsJuphAi39EK6FImT+cWGATIY2io8XM
+         o4CMe+iTJabaVZutQFLkRj9Y9V5PJ099eEOX30Utxp3BSYImRT252LQajB+3KxSbRQvA
+         Qqfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=xwORf84PE+jwQ5VMLNcWREqP0X3ZLdjb014Q4MlkV7E=;
-        b=ubfOgkFVL2+t0Xqqd6hSXcgjC2e8l1SWXZqcjnrbCbsQKyFqlZdtg6VTg+qwaIm61z
-         6tOmxwJhBnJo0S2r3cEx6sUEGH2bFpD60Yap483pxJvH7HbHdVx4osSA2fCfDfdvnhXS
-         PpPee6A++e5v4Ni1rbO+Zn8lTHwn92txoOZ8jad3sSgG+0aD3bFxTIsxm5h9JdW0Jsaf
-         LWNti+cmSnG/aHNjTt//iyL+7UggDCAgGM4wNtJXVdTE5wiAH/D1KzpWAmpMdM8Z0AdL
-         SEO6ubK3McygZDMz0DBENuAD3VKYzlPdAAZBYS3Vvr1evWQ9xBSC+4Qf+LIrwsYhh6xE
-         hSvw==
-X-Gm-Message-State: AOAM533IlidOR+RvwB5ZuikYTNNP5h6Dvd/77OgryNPGL1/rGm/3nIVu
-        /bYRG1PL5Zf+dc2tLA9T9MWX4PehCQywfwm8
-X-Google-Smtp-Source: ABdhPJwvl8RLhh6vCCLNxaldJOVIqYyIbkPtv5AwFRqlryN2WJXTyGiyWkdXPggQU2DJIhFa4aT1rQ==
-X-Received: by 2002:a17:90b:1295:: with SMTP id fw21mr2182101pjb.147.1623883115539;
-        Wed, 16 Jun 2021 15:38:35 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ge13sm6155024pjb.2.2021.06.16.15.38.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Jun 2021 15:38:35 -0700 (PDT)
-Message-ID: <60ca7d6b.1c69fb81.5e1a5.3d25@mx.google.com>
-Date:   Wed, 16 Jun 2021 15:38:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=167NdGo7hmLGcseOsLWm0OWWXPQ1w4fQkJN5dg3sDyg=;
+        b=kWYhzq3kMSjT1gAximldfE/aiMyZMtv/VJtfP36T/WrL9E38qO3JU4QsWzwM8HlrIk
+         /fHeCN3BKmXjbK4uPVTRsZ1YX8aNTjlWPMj+PZD3nM/PcydkqnxcdAYW2rG4XmIMI/9Q
+         cQCJmUkIwbeG8lTxbOLrAOlfu9Guw2Qt2/4AyMAXc3LwxdHOpl8j0HoxO6sTk4DSsVkA
+         kHPiOiRnFAysbwx47AQp8czxrNMr4UQ2Rco1dKV/9ARRoXtIMrs1YDm2T8HQdkN5Ne4F
+         C9/MuMqPpD4ruu1vnFaUrYbQD8JJ7BY9IMxhSGqcNs20whf5YTg9JZCahp7YbTPLwqvO
+         qR5g==
+X-Gm-Message-State: AOAM532oBDHYezKGWr2Se40zD3qA/ATgzUkCSoPz7uCkwR09rPEJy0qr
+        QP9KN7y7vYjOnmZpIqGEmpF0U4RJR+8=
+X-Google-Smtp-Source: ABdhPJyExffEZ3VPvQts7/O0ih9mif1nfcY0MMWOZ4XAEcCF7MQsHKamPx86heKr2wcYRcD6sJQtoA==
+X-Received: by 2002:a17:902:74cb:b029:116:a305:62bf with SMTP id f11-20020a17090274cbb0290116a30562bfmr1736878plt.78.1623883214301;
+        Wed, 16 Jun 2021 15:40:14 -0700 (PDT)
+Received: from [192.168.1.67] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
+        by smtp.gmail.com with ESMTPSA id x4sm3108302pfc.150.2021.06.16.15.40.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 16 Jun 2021 15:40:13 -0700 (PDT)
+Subject: Re: [PATCH 5.10 00/38] 5.10.45-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210616152835.407925718@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <83f68b49-315e-c50f-2b61-be4bf0101e32@gmail.com>
+Date:   Wed, 16 Jun 2021 15:40:11 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.10.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.273-14-geeb2e2f2ab09
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y baseline: 60 runs,
- 7 regressions (v4.4.273-14-geeb2e2f2ab09)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 60 runs, 7 regressions (v4.4.273-14-geeb2e2=
-f2ab09)
 
-Regressions Summary
--------------------
 
-platform            | arch   | lab         | compiler | defconfig          =
-          | regressions
---------------------+--------+-------------+----------+--------------------=
-----------+------------
-qemu_arm-virt-gicv2 | arm    | lab-broonie | gcc-8    | multi_v7_defconfig =
-          | 1          =
-
-qemu_arm-virt-gicv2 | arm    | lab-cip     | gcc-8    | multi_v7_defconfig =
-          | 1          =
-
-qemu_arm-virt-gicv3 | arm    | lab-broonie | gcc-8    | multi_v7_defconfig =
-          | 1          =
-
-qemu_arm-virt-gicv3 | arm    | lab-cip     | gcc-8    | multi_v7_defconfig =
-          | 1          =
-
-qemu_i386           | i386   | lab-broonie | gcc-8    | i386_defconfig     =
-          | 1          =
-
-qemu_i386-uefi      | i386   | lab-broonie | gcc-8    | i386_defconfig     =
-          | 1          =
-
-qemu_x86_64-uefi    | x86_64 | lab-broonie | gcc-8    | x86_64_defcon...6-c=
-hromebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.273-14-geeb2e2f2ab09/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.273-14-geeb2e2f2ab09
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      eeb2e2f2ab09a74225c0ea2a481c87aef3557245 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch   | lab         | compiler | defconfig          =
-          | regressions
---------------------+--------+-------------+----------+--------------------=
-----------+------------
-qemu_arm-virt-gicv2 | arm    | lab-broonie | gcc-8    | multi_v7_defconfig =
-          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca5e1191ea29229e4132a1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca5e1191ea29229e413=
-2a2
-        failing since 214 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch   | lab         | compiler | defconfig          =
-          | regressions
---------------------+--------+-------------+----------+--------------------=
-----------+------------
-qemu_arm-virt-gicv2 | arm    | lab-cip     | gcc-8    | multi_v7_defconfig =
-          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca4dc69ce487251241326e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vi=
-rt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vi=
-rt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca4dc69ce4872512413=
-26f
-        failing since 214 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch   | lab         | compiler | defconfig          =
-          | regressions
---------------------+--------+-------------+----------+--------------------=
-----------+------------
-qemu_arm-virt-gicv3 | arm    | lab-broonie | gcc-8    | multi_v7_defconfig =
-          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca5d842a0a3b9877413285
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca5d842a0a3b9877413=
-286
-        failing since 214 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch   | lab         | compiler | defconfig          =
-          | regressions
---------------------+--------+-------------+----------+--------------------=
-----------+------------
-qemu_arm-virt-gicv3 | arm    | lab-cip     | gcc-8    | multi_v7_defconfig =
-          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca4d4e0a103e132941326b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vi=
-rt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vi=
-rt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca4d4e0a103e1329413=
-26c
-        failing since 214 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch   | lab         | compiler | defconfig          =
-          | regressions
---------------------+--------+-------------+----------+--------------------=
-----------+------------
-qemu_i386           | i386   | lab-broonie | gcc-8    | i386_defconfig     =
-          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca5a79da436b8ac741328a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca5a79da436b8ac7413=
-28b
-        failing since 1 day (last pass: v4.4.272, first fail: v4.4.272-35-g=
-c652289a55a0) =
-
- =
-
-
-
-platform            | arch   | lab         | compiler | defconfig          =
-          | regressions
---------------------+--------+-------------+----------+--------------------=
-----------+------------
-qemu_i386-uefi      | i386   | lab-broonie | gcc-8    | i386_defconfig     =
-          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca5a7ada436b8ac7413296
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386-=
-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386-=
-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca5a7ada436b8ac7413=
-297
-        new failure (last pass: v4.4.272-35-gc652289a55a0) =
-
- =
-
-
-
-platform            | arch   | lab         | compiler | defconfig          =
-          | regressions
---------------------+--------+-------------+----------+--------------------=
-----------+------------
-qemu_x86_64-uefi    | x86_64 | lab-broonie | gcc-8    | x86_64_defcon...6-c=
-hromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ca5c94f41cc11d6f41329f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/=
-baseline-qemu_x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.273=
--14-geeb2e2f2ab09/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/=
-baseline-qemu_x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ca5c94f41cc11d6f413=
-2a0
-        new failure (last pass: v4.4.272-35-gc652289a55a0) =
-
- =20
+On 6/16/2021 8:33 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.45 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 18 Jun 2021 15:28:19 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.45-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
