@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 430FD3A9FE3
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:40:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8877E3A9F92
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:37:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235062AbhFPPmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50548 "EHLO mail.kernel.org"
+        id S235184AbhFPPjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:39:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235327AbhFPPkF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:40:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BE24613EA;
-        Wed, 16 Jun 2021 15:37:19 +0000 (UTC)
+        id S234675AbhFPPiD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:38:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4776061351;
+        Wed, 16 Jun 2021 15:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857839;
-        bh=5TPLlNjg+rAFTrvhsrCBzcvPB6QcO6Yb61jNIL906sA=;
+        s=korg; t=1623857756;
+        bh=JLiPSW/F3RteIc4jb/cRphFsajUUSG+Yu0jZClB4Iw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqiZqJf2hTWZbe47YyMOPS2f7kAh+0PRboKZlPR737H1w4gNCFKiTK8Gt/aSl6yh0
-         kPu3SpyWjjXBv4S2xz6TMV4YNl3rHy3NcOOzYYGwPatmORq2BdKAVd8Ax3lQ9x3Iuq
-         TdqmWtIJfDeBFJ1fwlgWCgeOl8VVfMiUNEoe7VVo=
+        b=YHHBWVR+krkw1leJz7kgVZFbr1qX6rN+RlFVmE4mjz4/SE6UDOOMpONbBW7dRPi2c
+         HTyAr1VzIUQzqRA/Ik6cP4T6GhW0K/fe60SgXnu+EhMQ08j2U56T6MbjGjF1QZuyPT
+         0fz2vyC5soIMT0kKy/SvNnIXUdLdrjiOmfsTaerk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 27/48] ALSA: hda: Add AlderLake-M PCI ID
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 28/38] nvme-loop: do not warn for deleted controllers during reset
 Date:   Wed, 16 Jun 2021 17:33:37 +0200
-Message-Id: <20210616152837.503647771@linuxfoundation.org>
+Message-Id: <20210616152836.286484102@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
-References: <20210616152836.655643420@linuxfoundation.org>
+In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
+References: <20210616152835.407925718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 4ad7935df6a566225c3d51900bde8f2f0f8b6de3 ]
+[ Upstream commit 6622f9acd29cd4f6272720e827e6406f5a970cb0 ]
 
-Add HD Audio PCI ID for Intel AlderLake-M. Add rules to
-snd_intel_dsp_find_config() to choose SOF driver for ADL-M systems with
-PCH-DMIC or Soundwire codecs, and legacy driver for the rest.
+During concurrent reset and delete calls the reset workqueue is
+flushed, causing nvme_loop_reset_ctrl_work() to be executed when
+the controller is in state DELETING or DELETING_NOIO.
+But this is expected, so we shouldn't issue a WARN_ON here.
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210528185123.48332-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/intel-dsp-config.c | 4 ++++
- sound/pci/hda/hda_intel.c    | 3 +++
- 2 files changed, 7 insertions(+)
+ drivers/nvme/target/loop.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/sound/hda/intel-dsp-config.c b/sound/hda/intel-dsp-config.c
-index ab5ff7867eb9..d8be146793ee 100644
---- a/sound/hda/intel-dsp-config.c
-+++ b/sound/hda/intel-dsp-config.c
-@@ -331,6 +331,10 @@ static const struct config_entry config_table[] = {
- 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
- 		.device = 0x51c8,
- 	},
-+	{
-+		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
-+		.device = 0x51cc,
-+	},
- #endif
+diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
+index df0e5288ae6e..16d71cc5a50e 100644
+--- a/drivers/nvme/target/loop.c
++++ b/drivers/nvme/target/loop.c
+@@ -453,8 +453,10 @@ static void nvme_loop_reset_ctrl_work(struct work_struct *work)
+ 	nvme_loop_shutdown_ctrl(ctrl);
  
- };
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 79ade335c8a0..470753b36c8a 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2485,6 +2485,9 @@ static const struct pci_device_id azx_ids[] = {
- 	/* Alderlake-P */
- 	{ PCI_DEVICE(0x8086, 0x51c8),
- 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
-+	/* Alderlake-M */
-+	{ PCI_DEVICE(0x8086, 0x51cc),
-+	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
- 	/* Elkhart Lake */
- 	{ PCI_DEVICE(0x8086, 0x4b55),
- 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+ 	if (!nvme_change_ctrl_state(&ctrl->ctrl, NVME_CTRL_CONNECTING)) {
+-		/* state change failure should never happen */
+-		WARN_ON_ONCE(1);
++		if (ctrl->ctrl.state != NVME_CTRL_DELETING &&
++		    ctrl->ctrl.state != NVME_CTRL_DELETING_NOIO)
++			/* state change failure for non-deleted ctrl? */
++			WARN_ON_ONCE(1);
+ 		return;
+ 	}
+ 
 -- 
 2.30.2
 
