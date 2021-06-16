@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 339343A9F3C
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E67113A9F81
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234714AbhFPPgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:36:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49640 "EHLO mail.kernel.org"
+        id S234957AbhFPPin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:38:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234723AbhFPPgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:36:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FEF161166;
-        Wed, 16 Jun 2021 15:34:26 +0000 (UTC)
+        id S234834AbhFPPhl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:37:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 999D8613BF;
+        Wed, 16 Jun 2021 15:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857666;
-        bh=zBX5+t7P22/SsUebnlFcvH3bWaWPytRVLdfKBGxjOWU=;
+        s=korg; t=1623857734;
+        bh=b0zX3SzW5LR7L4mqXiwwlu1YfDMb8p5I8g7CxbWC/Lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwc9bShyi0tGYcprc2sdnhR/2G3hbpV3QEpvqt9jYGl9qu7L9jhHYQnp25Te3LymM
-         nXZPuaGXklswivdAMAlnEpZRsgYPbTbym8LN98patzLURSC8IntURNpqUO62rRj4oS
-         xBexx4BnrJy0KvJf07KamAZcTJfOetO7SJTDKSAg=
+        b=V1/nuMsO56NmqGE8LrJdxejGnZn/99uqau+RKSJpshnWhx+gEMazEKLBbvTnANfu1
+         lYFIZPhpPPioQvhCjKRKjcBwA+uxJSuQukchHI3wxD19QvUVQXZ8dN/jxIEKYBYpxp
+         n/DKxgmynsToHnZmPBM93Kru6taEJK/tQKXdf/gI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Javed Hasan <jhasan@marvell.com>,
-        Daniel Wagner <dwagner@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/28] scsi: qedf: Do not put host in qedf_vport_create() unconditionally
+Subject: [PATCH 5.10 19/38] gfs2: Fix use-after-free in gfs2_glock_shrink_scan
 Date:   Wed, 16 Jun 2021 17:33:28 +0200
-Message-Id: <20210616152834.706199336@linuxfoundation.org>
+Message-Id: <20210616152836.002750151@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
-References: <20210616152834.149064097@linuxfoundation.org>
+In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
+References: <20210616152835.407925718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,93 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Wagner <dwagner@suse.de>
+From: Hillf Danton <hdanton@sina.com>
 
-[ Upstream commit 79c932cd6af9829432888c4a0001d01793a09f12 ]
+[ Upstream commit 1ab19c5de4c537ec0d9b21020395a5b5a6c059b2 ]
 
-Do not drop reference count on vn_port->host in qedf_vport_create()
-unconditionally. Instead drop the reference count in qedf_vport_destroy().
+The GLF_LRU flag is checked under lru_lock in gfs2_glock_remove_from_lru() to
+remove the glock from the lru list in __gfs2_glock_put().
 
-Link: https://lore.kernel.org/r/20210521143440.84816-1-dwagner@suse.de
-Reported-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Daniel Wagner <dwagner@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+On the shrink scan path, the same flag is cleared under lru_lock but because
+of cond_resched_lock(&lru_lock) in gfs2_dispose_glock_lru(), progress on the
+put side can be made without deleting the glock from the lru list.
+
+Keep GLF_LRU across the race window opened by cond_resched_lock(&lru_lock) to
+ensure correct behavior on both sides - clear GLF_LRU after list_del under
+lru_lock.
+
+Reported-by: syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_main.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ fs/gfs2/glock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index 9c0955c334e3..7a6306f8483e 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -1729,22 +1729,20 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
- 		fcoe_wwn_to_str(vport->port_name, buf, sizeof(buf));
- 		QEDF_WARN(&(base_qedf->dbg_ctx), "Failed to create vport, "
- 			   "WWPN (0x%s) already exists.\n", buf);
--		goto err1;
-+		return rc;
- 	}
- 
- 	if (atomic_read(&base_qedf->link_state) != QEDF_LINK_UP) {
- 		QEDF_WARN(&(base_qedf->dbg_ctx), "Cannot create vport "
- 			   "because link is not up.\n");
--		rc = -EIO;
--		goto err1;
-+		return -EIO;
- 	}
- 
- 	vn_port = libfc_vport_create(vport, sizeof(struct qedf_ctx));
- 	if (!vn_port) {
- 		QEDF_WARN(&(base_qedf->dbg_ctx), "Could not create lport "
- 			   "for vport.\n");
--		rc = -ENOMEM;
--		goto err1;
-+		return -ENOMEM;
- 	}
- 
- 	fcoe_wwn_to_str(vport->port_name, buf, sizeof(buf));
-@@ -1768,7 +1766,7 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
- 	if (rc) {
- 		QEDF_ERR(&(base_qedf->dbg_ctx), "Could not allocate memory "
- 		    "for lport stats.\n");
--		goto err2;
-+		goto err;
- 	}
- 
- 	fc_set_wwnn(vn_port, vport->node_name);
-@@ -1786,7 +1784,7 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
- 	if (rc) {
- 		QEDF_WARN(&base_qedf->dbg_ctx,
- 			  "Error adding Scsi_Host rc=0x%x.\n", rc);
--		goto err2;
-+		goto err;
- 	}
- 
- 	/* Set default dev_loss_tmo based on module parameter */
-@@ -1827,9 +1825,10 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
- 	vport_qedf->dbg_ctx.host_no = vn_port->host->host_no;
- 	vport_qedf->dbg_ctx.pdev = base_qedf->pdev;
- 
--err2:
-+	return 0;
-+
-+err:
- 	scsi_host_put(vn_port->host);
--err1:
- 	return rc;
- }
- 
-@@ -1870,8 +1869,7 @@ static int qedf_vport_destroy(struct fc_vport *vport)
- 	fc_lport_free_stats(vn_port);
- 
- 	/* Release Scsi_Host */
--	if (vn_port->host)
--		scsi_host_put(vn_port->host);
-+	scsi_host_put(vn_port->host);
- 
- out:
- 	return 0;
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 59130cbbd995..cd43c481df4b 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -1784,6 +1784,7 @@ __acquires(&lru_lock)
+ 	while(!list_empty(list)) {
+ 		gl = list_first_entry(list, struct gfs2_glock, gl_lru);
+ 		list_del_init(&gl->gl_lru);
++		clear_bit(GLF_LRU, &gl->gl_flags);
+ 		if (!spin_trylock(&gl->gl_lockref.lock)) {
+ add_back_to_lru:
+ 			list_add(&gl->gl_lru, &lru_list);
+@@ -1829,7 +1830,6 @@ static long gfs2_scan_glock_lru(int nr)
+ 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
+ 			list_move(&gl->gl_lru, &dispose);
+ 			atomic_dec(&lru_count);
+-			clear_bit(GLF_LRU, &gl->gl_flags);
+ 			freed++;
+ 			continue;
+ 		}
 -- 
 2.30.2
 
