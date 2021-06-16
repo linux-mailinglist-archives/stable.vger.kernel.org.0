@@ -2,146 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC8B3AA348
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 20:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63BAE3AA374
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 20:47:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231917AbhFPSnK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 14:43:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53576 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231910AbhFPSnK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 14:43:10 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE10BC061574;
-        Wed, 16 Jun 2021 11:41:03 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id my49so5407175ejc.7;
-        Wed, 16 Jun 2021 11:41:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=CFdiQI3qmnEyPxLcKXhVtU8Qc6gVzEZmvcKXtiv7pwA=;
-        b=rCYk6IopIKVvTbBrdVu9tEpKZMkk+xOngtR5Y4tsgpcoBzFjKVkYrbSTxv+cuYY+69
-         Z8ig6vEBX1rn57Gu0b86t36n4+pwXzXJMw3gUbUnp1xOqLhxCZm/HlyuuMrDm+K+xqrU
-         Pb/7kzSFz4NnBlPMR7tI1S20OueZofIzOP+O/7+lcO+3Sz5mbVP2WwDHemXHAxP2yaeC
-         X8afD2/hPmcpyrExmVwEoYkBo+BUN7rEjVLt8/4OnXrV/K3LinQYmWJsw3n4P9J8yPsH
-         sg/UFIS+B+PWadlA/kO9t56jGyx0H/MLrRvvTf5fvVHfat2vtzNAG1LeDcJM8D1XdajX
-         dSag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=CFdiQI3qmnEyPxLcKXhVtU8Qc6gVzEZmvcKXtiv7pwA=;
-        b=ZJPc6zPZdbh57k5z2YtEi5Z22Luj5C6gH4FehEZBiSZgIVLj2LA4R7C9Mgnsq6V6ie
-         LTUg3ug5PtNciPvQkY1Fz+QlHMsNDoggWOYPZjhVFYa+Rz1nj67MgsL+VRhAR6WXRKJI
-         2KAjCe68UAY9aSEWvViHwLKpVmU+dA/A03uQhl9bgb5TepB09MhdgbVVZcfULtpZVn+a
-         905w6b/QchToYUrt6LNHcVDEI7eQex7gm6TY34IN4vZYA7bmTga+ll40jmwSQ7u2GAzG
-         GHimtvoKBHY2uBDeYouC0GLvX8lD9wcKlWWvUe0UUUVBg6M7T1Eg+eawIfj/ZiPZJMha
-         9xrw==
-X-Gm-Message-State: AOAM5305GAyWVkTGsWiyGaRBl33dXfmgojJadR87eZkQrZdGv7yZPhlD
-        ACB4vn/+50O6EIzxogCcpsn6Ui8M43nIZWRuYBc=
-X-Google-Smtp-Source: ABdhPJzFcPdMo3Mt/oDcGJ2YhfBZ0Ag1Tb0F03O9be6WHHbSgHRNw4Nt7zYChxzQu0SnpFguR/o7Yf8eSiqDuSGMyvE=
-X-Received: by 2002:a17:906:1691:: with SMTP id s17mr900783ejd.161.1623868862266;
- Wed, 16 Jun 2021 11:41:02 -0700 (PDT)
+        id S231974AbhFPStQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 14:49:16 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:25204 "EHLO m43-7.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232034AbhFPStP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 14:49:15 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1623869229; h=Content-Transfer-Encoding: Content-Type:
+ In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
+ Subject: Sender; bh=rXxMRiUQCFxWYdeEQMd1dqMz8gjZz4tfzN8B1BwOFjg=; b=pUP7fKg1zL2vTyrPMMx0EItzsJXHptVQ+qww3UYULFoNWxdozEmKinpHaOJYrLvJpdzh+Zex
+ tfK6r7e2oSpj8roZKJJlE/wcN33u1dAlXnALO9dl9V0XZE+e2ZD70KEiFmcI+OdqnhNzOIFW
+ TjxcABLRQE/0WcECaz34AzGraGg=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n04.prod.us-east-1.postgun.com with SMTP id
+ 60ca4728e27c0cc77f77d3db (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 16 Jun 2021 18:47:04
+ GMT
+Sender: sidgup=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id B1E61C4338A; Wed, 16 Jun 2021 18:47:03 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-3.1 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        NICE_REPLY_A,SPF_FAIL autolearn=no autolearn_force=no version=3.4.0
+Received: from [192.168.1.10] (cpe-75-83-25-192.socal.res.rr.com [75.83.25.192])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: sidgup)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id CCE98C433D3;
+        Wed, 16 Jun 2021 18:47:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org CCE98C433D3
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=sidgup@codeaurora.org
+Subject: Re: [PATCH v3 1/4] remoteproc: core: Move cdev add before device add
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     bjorn.andersson@linaro.org, ohad@wizery.com,
+        linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, psodagud@codeaurora.org,
+        stable@vger.kernel.org
+References: <1623723671-5517-1-git-send-email-sidgup@codeaurora.org>
+ <1623723671-5517-2-git-send-email-sidgup@codeaurora.org>
+ <YMgy7eg3wde0eVfe@kroah.com>
+ <0a196786-f624-d9bb-8ef9-55c04ed57497@codeaurora.org>
+ <YMmTGD6hAKbpGWMp@kroah.com>
+From:   Siddharth Gupta <sidgup@codeaurora.org>
+Message-ID: <f81acd52-fe59-a296-b221-febbf8281606@codeaurora.org>
+Date:   Wed, 16 Jun 2021 11:47:01 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-References: <20210615012014.1100672-1-jannh@google.com> <50d828d1-2ce6-21b4-0e27-fb15daa77561@nvidia.com>
- <CAG48ez3Vbcvh4AisU7=ukeJeSjHGTKQVd0NOU6XOpRru7oP_ig@mail.gmail.com>
- <CAHbLzkomex+fgC8RyogXu-s5o2UrORMO6D2yTsSXW5Wo5z9WRA@mail.gmail.com> <6d21f8cb-4b72-bdec-386c-684ddbcdada1@suse.cz>
-In-Reply-To: <6d21f8cb-4b72-bdec-386c-684ddbcdada1@suse.cz>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Wed, 16 Jun 2021 11:40:50 -0700
-Message-ID: <CAHbLzkpa5MQBtYcRPWu4vNDn=Q8SKStQ-9wKYWogqRrMR3Aonw@mail.gmail.com>
-Subject: Re: [PATCH v2] mm/gup: fix try_grab_compound_head() race with split_huge_page()
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     Jann Horn <jannh@google.com>, John Hubbard <jhubbard@nvidia.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        "Kirill A . Shutemov" <kirill@shutemov.name>,
-        Jan Kara <jack@suse.cz>, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <YMmTGD6hAKbpGWMp@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 16, 2021 at 10:27 AM Vlastimil Babka <vbabka@suse.cz> wrote:
->
-> On 6/16/21 1:10 AM, Yang Shi wrote:
-> > On Tue, Jun 15, 2021 at 5:10 AM Jann Horn <jannh@google.com> wrote:
-> >>
-> >> On Tue, Jun 15, 2021 at 8:37 AM John Hubbard <jhubbard@nvidia.com> wrote:
-> >> > On 6/14/21 6:20 PM, Jann Horn wrote:
-> >> > > try_grab_compound_head() is used to grab a reference to a page from
-> >> > > get_user_pages_fast(), which is only protected against concurrent
-> >> > > freeing of page tables (via local_irq_save()), but not against
-> >> > > concurrent TLB flushes, freeing of data pages, or splitting of compound
-> >> > > pages.
-> >> [...]
-> >> > Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-> >>
-> >> Thanks!
-> >>
-> >> [...]
-> >> > > @@ -55,8 +72,23 @@ static inline struct page *try_get_compound_head(struct page *page, int refs)
-> >> > >       if (WARN_ON_ONCE(page_ref_count(head) < 0))
-> >> > >               return NULL;
-> >> > >       if (unlikely(!page_cache_add_speculative(head, refs)))
-> >> > >               return NULL;
-> >> > > +
-> >> > > +     /*
-> >> > > +      * At this point we have a stable reference to the head page; but it
-> >> > > +      * could be that between the compound_head() lookup and the refcount
-> >> > > +      * increment, the compound page was split, in which case we'd end up
-> >> > > +      * holding a reference on a page that has nothing to do with the page
-> >> > > +      * we were given anymore.
-> >> > > +      * So now that the head page is stable, recheck that the pages still
-> >> > > +      * belong together.
-> >> > > +      */
-> >> > > +     if (unlikely(compound_head(page) != head)) {
-> >> >
-> >> > I was just wondering about what all could happen here. Such as: page gets split,
-> >> > reallocated into a different-sized compound page, one that still has page pointing
-> >> > to head. I think that's OK, because we don't look at or change other huge page
-> >> > fields.
-> >> >
-> >> > But I thought I'd mention the idea in case anyone else has any clever ideas about
-> >> > how this simple check might be insufficient here. It seems fine to me, but I
-> >> > routinely lack enough imagination about concurrent operations. :)
-> >>
-> >> Hmmm... I think the scariest aspect here is probably the interaction
-> >> with concurrent allocation of a compound page on architectures with
-> >> store-store reordering (like ARM). *If* the page allocator handled
-> >> compound pages with lockless, non-atomic percpu freelists, I think it
-> >> might be possible that the zeroing of tail_page->compound_head in
-> >> put_page() could be reordered after the page has been freed,
-> >> reallocated and set to refcount 1 again?
-> >>
-> >> That shouldn't be possible at the moment, but it is still a bit scary.
-> >
-> > It might be possible after Mel's "mm/page_alloc: Allow high-order
-> > pages to be stored on the per-cpu lists" patch
-> > (https://patchwork.kernel.org/project/linux-mm/patch/20210611135753.GC30378@techsingularity.net/).
->
-> Those would be percpu indeed, but not "lockless, non-atomic", no? They are
-> protected by a local_lock.
 
-The local_lock is *not* a lock on non-PREEMPT_RT kernel IIUC. It
-disables preempt and IRQ. But preempt disable is no-op on non-preempt
-kernel. IRQ disable can guarantee it is atomic context, but I'm not
-sure if it is equivalent to "atomic freelists" in Jann's context.
+On 6/15/2021 10:58 PM, Greg KH wrote:
+> On Tue, Jun 15, 2021 at 12:03:26PM -0700, Siddharth Gupta wrote:
+>> On 6/14/2021 9:56 PM, Greg KH wrote:
+>>> On Mon, Jun 14, 2021 at 07:21:08PM -0700, Siddharth Gupta wrote:
+>>>> When cdev_add is called after device_add has been called there is no
+>>>> way for the userspace to know about the addition of a cdev as cdev_add
+>>>> itself doesn't trigger a uevent notification, or for the kernel to
+>>>> know about the change to devt. This results in two problems:
+>>>>    - mknod is never called for the cdev and hence no cdev appears on
+>>>>      devtmpfs.
+>>>>    - sysfs links to the new cdev are not established.
+>>>>
+>>>> The cdev needs to be added and devt assigned before device_add() is
+>>>> called in order for the relevant sysfs and devtmpfs entries to be
+>>>> created and the uevent to be properly populated.
+>>> So this means no one ever ran this code on a system that used devtmpfs?
+>>>
+>>> How was it ever tested?
+>> My testing was done with toybox + Android's ueventd ramdisk.
+>> As I mentioned in the discussion, the race became evident
+>> recently. I will make sure to test all such changes without
+>> systemd/ueventd in the future.
+> It isn't an issue of systemd/ueventd, those do not control /dev on a
+> normal system, that is what devtmpfs is for.
+I am not fully aware of when devtmpfs is enabled or not, but in
+case it is not - systemd/ueventd will create these files with
+mknod, right? I was even manually able to call mknod from the
+terminal when some of the remoteproc character device entries
+showed up (using major number from there, and minor number being
+the remoteproc id), and that allowed me to boot up the
+remoteprocs as well.
+>
+> And devtmpfs nodes are only created if you create a struct device
+> somewhere with a proper major/minor, which you were not doing here, so
+> you must have had a static /dev on your test systems, right?
+I am not sure of what you mean by a static /dev? Could you
+explain? In case you mean the character device would be
+non-functional, that is not the case. They have been working
+for us since the beginning.
 
+Thanks,
+Sid
 >
-> >>
-> >>
-> >> I think the lockless page cache code also has to deal with somewhat
-> >> similar ordering concerns when it uses page_cache_get_speculative(),
-> >> e.g. in mapping_get_entry() - first it looks up a page pointer with
-> >> xas_load(), and any access to the page later on would be a _dependent
-> >> load_, but if the page then gets freed, reallocated, and inserted into
-> >> the page cache again before the refcount increment and the re-check
-> >> using xas_reload(), then there would be no data dependency from
-> >> xas_reload() to the following use of the page...
-> >>
-> >
+> thanks,
 >
+> greg k-h
