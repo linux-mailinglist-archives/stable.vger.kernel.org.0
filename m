@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 828023A9FBC
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:39:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9377B3A9F6A
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235019AbhFPPk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:40:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50126 "EHLO mail.kernel.org"
+        id S234990AbhFPPh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:37:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235162AbhFPPi4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:38:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59C60613E7;
-        Wed, 16 Jun 2021 15:36:31 +0000 (UTC)
+        id S234795AbhFPPhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:37:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DBD0613C7;
+        Wed, 16 Jun 2021 15:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857791;
-        bh=D1pfivEPMAKmTrT5Az8xmoAlOLTXunLrF1aVexSumDg=;
+        s=korg; t=1623857708;
+        bh=2TA4mXyXBZTlwjWBvvI9jvsDye+jGINjkSVK96VzFJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VaVvUGrvRdds78Kc7ubkodskXYuf7q2dfDxEtrNqaJviEiV2Q86s9uV8CJXUIg6VG
-         GmI0PKXgx+bYE0yiwk85+bjXd1WOqc/D1m4APr/HGPECyqIGqZ+Y2CsFy6xTetu4/P
-         ZQmI+WYTK4cRg79918TzxLvDbsjvF1s04bD6dKHw=
+        b=LlIuhk1R42t9Lher8lBcBHLure8rgJYA5tVkwk66GbO4PsdURnDHx+qyoumgR+X/D
+         gdT3qrZeGkfARi0MdJL4kFigVyCT8ZmzQNTgRpMz+EfgwHHaGSjhyrlKCooLyEqIYX
+         xYpH1ASDeZSBVRfBcYQjPx8uEGv6TtwykggvFzdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
         Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/38] drm/tegra: sor: Do not leak runtime PM reference
-Date:   Wed, 16 Jun 2021 17:33:19 +0200
-Message-Id: <20210616152835.727846006@linuxfoundation.org>
+Subject: [PATCH 5.4 09/28] drm/tegra: sor: Do not leak runtime PM reference
+Date:   Wed, 16 Jun 2021 17:33:20 +0200
+Message-Id: <20210616152834.446161526@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
-References: <20210616152835.407925718@linuxfoundation.org>
+In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
+References: <20210616152834.149064097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,10 +62,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 10 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
-index 7b88261f57bb..67a80dae1c00 100644
+index 6c3d22165239..0419b6105c8a 100644
 --- a/drivers/gpu/drm/tegra/sor.c
 +++ b/drivers/gpu/drm/tegra/sor.c
-@@ -3125,21 +3125,21 @@ static int tegra_sor_init(struct host1x_client *client)
+@@ -2875,21 +2875,21 @@ static int tegra_sor_init(struct host1x_client *client)
  		if (err < 0) {
  			dev_err(sor->dev, "failed to acquire SOR reset: %d\n",
  				err);
@@ -90,7 +90,7 @@ index 7b88261f57bb..67a80dae1c00 100644
  	}
  
  	usleep_range(1000, 3000);
-@@ -3150,7 +3150,7 @@ static int tegra_sor_init(struct host1x_client *client)
+@@ -2900,7 +2900,7 @@ static int tegra_sor_init(struct host1x_client *client)
  			dev_err(sor->dev, "failed to deassert SOR reset: %d\n",
  				err);
  			clk_disable_unprepare(sor->clk);
@@ -99,8 +99,8 @@ index 7b88261f57bb..67a80dae1c00 100644
  		}
  
  		reset_control_release(sor->rst);
-@@ -3171,6 +3171,12 @@ static int tegra_sor_init(struct host1x_client *client)
- 	}
+@@ -2929,6 +2929,12 @@ static int tegra_sor_init(struct host1x_client *client)
+ 	tegra_sor_writel(sor, value, SOR_INT_MASK);
  
  	return 0;
 +
