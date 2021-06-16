@@ -2,249 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FD1D3A8CDF
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 01:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 549D13A8E40
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 03:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230039AbhFOXtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Jun 2021 19:49:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50738 "EHLO mail.kernel.org"
+        id S231307AbhFPBZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Jun 2021 21:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229966AbhFOXta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Jun 2021 19:49:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1C5D60E09;
-        Tue, 15 Jun 2021 23:47:24 +0000 (UTC)
+        id S230265AbhFPBZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Jun 2021 21:25:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9967161356;
+        Wed, 16 Jun 2021 01:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1623800845;
-        bh=GwZ9/OKuJ5aRrVDAIiUAMVkm0Hg2mZ46YKAjvKYXDzs=;
-        h=Date:From:To:Subject:From;
-        b=aYsQPNYAmQ6Zke5/ySMOB4vVgEPqUKb2trbgjO6NSwSARBVIPhVcN+oCg7j03O9nk
-         i4wgefUG/aX2u3pFi9qH4aXaaS3pkVA+SpYknm9GaaTz97gmTbDX6wY7m+WQp2JB0S
-         c67NL0lKD5vCChy1XmN/G5JrYVPzxs4CmiJ+2tnY=
-Date:   Tue, 15 Jun 2021 16:47:24 -0700
-From:   akpm@linux-foundation.org
-To:     aneesh.kumar@linux.vnet.ibm.com, mhocko@suse.com,
-        mm-commits@vger.kernel.org, naoya.horiguchi@nec.com,
-        osalvador@suse.de, stable@vger.kernel.org, tony.luck@intel.com
-Subject:  +
- =?US-ASCII?Q?mm-hwpoison-do-not-lock-page-again-when-me=5Fhuge=5Fpage-suc?=
- =?US-ASCII?Q?cessfully-recovers.patch?= added to -mm tree
-Message-ID: <20210615234724.SqmLIUVe-%akpm@linux-foundation.org>
+        s=korg; t=1623806593;
+        bh=rHRSsmAz4Uacfxb5kv+BqE8Wo9Zjx9aIfdgIONWU1Ik=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=Ok83/KO1DN1KISf3IdQFiu2ZhVujKe5PNr6nZZmz/1eJ+Ml/zMhMF2zSFyLaogOWA
+         kVa++kAqst7Se+YUlvUIPii+wvJzaMaK+ZZFQdThILSL4pCnVZ7ZFMDUxcRLxtQMcj
+         M5cIQLR2Qv8UprUpSn+d51+139s/oJ8YZBECXR1A=
+Date:   Tue, 15 Jun 2021 18:23:13 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, linux-mm@kvack.org, mhocko@suse.com,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        naoya.horiguchi@nec.com, osalvador@suse.de,
+        songmuchun@bytedance.com, stable@vger.kernel.org,
+        tony.luck@intel.com, torvalds@linux-foundation.org
+Subject:  [patch 01/18] mm,hwpoison: fix race with hugetlb page
+ allocation
+Message-ID: <20210616012313.cySUhIHf_%akpm@linux-foundation.org>
+In-Reply-To: <20210615182248.9a0ba90e8e66b9f4a53c0d23@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch titled
-     Subject: mm/hwpoison: do not lock page again when me_huge_page() successfully recovers
-has been added to the -mm tree.  Its filename is
-     mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers.patch
-
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
 From: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Subject: mm/hwpoison: do not lock page again when me_huge_page() successfully recovers
+Subject: mm,hwpoison: fix race with hugetlb page allocation
 
-Currently me_huge_page() temporary unlocks page to perform some actions
-then locks it again later.  My testcase (which calls hard-offline on some
-tail page in a hugetlb, then accesses the address of the hugetlb range)
-showed that page allocation code detects this page lock on buddy page and
-printed out "BUG: Bad page state" message.
+When hugetlb page fault (under overcommitting situation) and
+memory_failure() race, VM_BUG_ON_PAGE() is triggered by the following
+race:
 
-check_new_page_bad() does not consider a page with __PG_HWPOISON as bad
-page, so this flag works as kind of filter, but this filtering doesn't
-work in this case because the "bad page" is not the actual hwpoisoned
-page.  So stop locking page again.  Actions to be taken depend on the page
-type of the error, so page unlocking should be done in ->action()
-callbacks.  So let's make it assumed and change all existing callbacks
-that way.
+    CPU0:                           CPU1:
 
-Link: https://lkml.kernel.org/r/20210609072029.74645-1-nao.horiguchi@gmail.com
-Fixes: commit 78bb920344b8 ("mm: hwpoison: dissolve in-use hugepage in un=
-recoverable memory error")
+                                    gather_surplus_pages()
+                                      page = alloc_surplus_huge_page()
+    memory_failure_hugetlb()
+      get_hwpoison_page(page)
+        __get_hwpoison_page(page)
+          get_page_unless_zero(page)
+                                      zero = put_page_testzero(page)
+                                      VM_BUG_ON_PAGE(!zero, page)
+                                      enqueue_huge_page(h, page)
+      put_page(page)
+
+__get_hwpoison_page() only checks the page refcount before taking an
+additional one for memory error handling, which is not enough because
+there's a time window where compound pages have non-zero refcount during
+hugetlb page initialization.
+
+So make __get_hwpoison_page() check page status a bit more for hugetlb
+pages with get_hwpoison_huge_page().  Checking hugetlb-specific flags
+under hugetlb_lock makes sure that the hugetlb page is not transitive. 
+It's notable that another new function, HWPoisonHandlable(), is helpful to
+prevent a race against other transitive page states (like a generic
+compound page just before PageHuge becomes true).
+
+Link: https://lkml.kernel.org/r/20210603233632.2964832-2-nao.horiguchi@gmail.com
+Fixes: ead07f6a867b ("mm/memory-failure: introduce get_hwpoison_page() for consistent refcount handling")
 Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: Oscar Salvador <osalvador@suse.de>
 Cc: Michal Hocko <mhocko@suse.com>
 Cc: Tony Luck <tony.luck@intel.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: <stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org>	[5.12+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory-failure.c |   44 ++++++++++++++++++++++++++++--------------
- 1 file changed, 30 insertions(+), 14 deletions(-)
+ include/linux/hugetlb.h |    6 ++++++
+ mm/hugetlb.c            |   15 +++++++++++++++
+ mm/memory-failure.c     |   29 +++++++++++++++++++++++++++--
+ 3 files changed, 48 insertions(+), 2 deletions(-)
 
---- a/mm/memory-failure.c~mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers
-+++ a/mm/memory-failure.c
-@@ -658,6 +658,7 @@ static int truncate_error_page(struct pa
-  */
- static int me_kernel(struct page *p, unsigned long pfn)
- {
-+	unlock_page(p);
- 	return MF_IGNORED;
+--- a/include/linux/hugetlb.h~mmhwpoison-fix-race-with-hugetlb-page-allocation
++++ a/include/linux/hugetlb.h
+@@ -149,6 +149,7 @@ bool hugetlb_reserve_pages(struct inode
+ long hugetlb_unreserve_pages(struct inode *inode, long start, long end,
+ 						long freed);
+ bool isolate_huge_page(struct page *page, struct list_head *list);
++int get_hwpoison_huge_page(struct page *page, bool *hugetlb);
+ void putback_active_hugepage(struct page *page);
+ void move_hugetlb_state(struct page *oldpage, struct page *newpage, int reason);
+ void free_huge_page(struct page *page);
+@@ -339,6 +340,11 @@ static inline bool isolate_huge_page(str
+ 	return false;
  }
  
-@@ -667,6 +668,7 @@ static int me_kernel(struct page *p, uns
- static int me_unknown(struct page *p, unsigned long pfn)
++static inline int get_hwpoison_huge_page(struct page *page, bool *hugetlb)
++{
++	return 0;
++}
++
+ static inline void putback_active_hugepage(struct page *page)
  {
- 	pr_err("Memory failure: %#lx: Unknown page state\n", pfn);
-+	unlock_page(p);
- 	return MF_FAILED;
+ }
+--- a/mm/hugetlb.c~mmhwpoison-fix-race-with-hugetlb-page-allocation
++++ a/mm/hugetlb.c
+@@ -5857,6 +5857,21 @@ unlock:
+ 	return ret;
  }
  
-@@ -675,6 +677,7 @@ static int me_unknown(struct page *p, un
-  */
- static int me_pagecache_clean(struct page *p, unsigned long pfn)
- {
-+	int ret;
- 	struct address_space *mapping;
- 
- 	delete_from_lru_cache(p);
-@@ -683,8 +686,10 @@ static int me_pagecache_clean(struct pag
- 	 * For anonymous pages we're done the only reference left
- 	 * should be the one m_f() holds.
- 	 */
--	if (PageAnon(p))
--		return MF_RECOVERED;
-+	if (PageAnon(p)) {
-+		ret = MF_RECOVERED;
-+		goto out;
++int get_hwpoison_huge_page(struct page *page, bool *hugetlb)
++{
++	int ret = 0;
++
++	*hugetlb = false;
++	spin_lock_irq(&hugetlb_lock);
++	if (PageHeadHuge(page)) {
++		*hugetlb = true;
++		if (HPageFreed(page) || HPageMigratable(page))
++			ret = get_page_unless_zero(page);
 +	}
++	spin_unlock_irq(&hugetlb_lock);
++	return ret;
++}
++
+ void putback_active_hugepage(struct page *page)
+ {
+ 	spin_lock_irq(&hugetlb_lock);
+--- a/mm/memory-failure.c~mmhwpoison-fix-race-with-hugetlb-page-allocation
++++ a/mm/memory-failure.c
+@@ -949,6 +949,17 @@ static int page_action(struct page_state
+ 	return (result == MF_RECOVERED || result == MF_DELAYED) ? 0 : -EBUSY;
+ }
  
- 	/*
- 	 * Now truncate the page in the page cache. This is really
-@@ -698,7 +703,8 @@ static int me_pagecache_clean(struct pag
++/*
++ * Return true if a page type of a given page is supported by hwpoison
++ * mechanism (while handling could fail), otherwise false.  This function
++ * does not return true for hugetlb or device memory pages, so it's assumed
++ * to be called only in the context where we never have such pages.
++ */
++static inline bool HWPoisonHandlable(struct page *page)
++{
++	return PageLRU(page) || __PageMovable(page);
++}
++
+ /**
+  * __get_hwpoison_page() - Get refcount for memory error handling:
+  * @page:	raw error page (hit by memory error)
+@@ -959,8 +970,22 @@ static int page_action(struct page_state
+ static int __get_hwpoison_page(struct page *page)
+ {
+ 	struct page *head = compound_head(page);
++	int ret = 0;
++	bool hugetlb = false;
++
++	ret = get_hwpoison_huge_page(head, &hugetlb);
++	if (hugetlb)
++		return ret;
++
++	/*
++	 * This check prevents from calling get_hwpoison_unless_zero()
++	 * for any unsupported type of page in order to reduce the risk of
++	 * unexpected races caused by taking a page refcount.
++	 */
++	if (!HWPoisonHandlable(head))
++		return 0;
+ 
+-	if (!PageHuge(head) && PageTransHuge(head)) {
++	if (PageTransHuge(head)) {
  		/*
- 		 * Page has been teared down in the meanwhile
- 		 */
--		return MF_FAILED;
-+		ret = MF_FAILED;
-+		goto out;
- 	}
- 
- 	/*
-@@ -706,7 +712,10 @@ static int me_pagecache_clean(struct pag
- 	 *
- 	 * Open: to take i_mutex or not for this? Right now we don't.
- 	 */
--	return truncate_error_page(p, pfn, mapping);
-+	ret = truncate_error_page(p, pfn, mapping);
-+out:
-+	unlock_page(p);
-+	return ret;
- }
- 
- /*
-@@ -782,24 +791,26 @@ static int me_pagecache_dirty(struct pag
-  */
- static int me_swapcache_dirty(struct page *p, unsigned long pfn)
- {
-+	int ret;
-+
- 	ClearPageDirty(p);
- 	/* Trigger EIO in shmem: */
- 	ClearPageUptodate(p);
- 
--	if (!delete_from_lru_cache(p))
--		return MF_DELAYED;
--	else
--		return MF_FAILED;
-+	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_DELAYED;
-+	unlock_page(p);
-+	return ret;
- }
- 
- static int me_swapcache_clean(struct page *p, unsigned long pfn)
- {
-+	int ret;
-+
- 	delete_from_swap_cache(p);
- 
--	if (!delete_from_lru_cache(p))
--		return MF_RECOVERED;
--	else
--		return MF_FAILED;
-+	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_RECOVERED;
-+	unlock_page(p);
-+	return ret;
- }
- 
- /*
-@@ -820,6 +831,7 @@ static int me_huge_page(struct page *p,
- 	mapping = page_mapping(hpage);
- 	if (mapping) {
- 		res = truncate_error_page(hpage, pfn, mapping);
-+		unlock_page(hpage);
- 	} else {
- 		res = MF_FAILED;
- 		unlock_page(hpage);
-@@ -834,7 +846,6 @@ static int me_huge_page(struct page *p,
- 			page_ref_inc(p);
- 			res = MF_RECOVERED;
+ 		 * Non anonymous thp exists only in allocation/free time. We
+ 		 * can't handle such a case correctly, so let's give it up.
+@@ -1017,7 +1042,7 @@ try_again:
+ 			ret = -EIO;
  		}
--		lock_page(hpage);
- 	}
- 
- 	return res;
-@@ -866,6 +877,8 @@ static struct page_state {
- 	unsigned long mask;
- 	unsigned long res;
- 	enum mf_action_page_type type;
-+
-+	/* Callback ->action() has to unlock the relevant page inside it. */
- 	int (*action)(struct page *p, unsigned long pfn);
- } error_states[] = {
- 	{ reserved,	reserved,	MF_MSG_KERNEL,	me_kernel },
-@@ -929,6 +942,7 @@ static int page_action(struct page_state
- 	int result;
- 	int count;
- 
-+	/* page p should be unlocked after returning from ps->action().  */
- 	result = ps->action(p, pfn);
- 
- 	count = page_count(p) - 1;
-@@ -1313,7 +1327,7 @@ static int memory_failure_hugetlb(unsign
- 		goto out;
- 	}
- 
--	res = identify_page_state(pfn, p, page_flags);
-+	return identify_page_state(pfn, p, page_flags);
- out:
- 	unlock_page(head);
- 	return res;
-@@ -1596,6 +1610,8 @@ try_again:
- 
- identify_page_state:
- 	res = identify_page_state(pfn, p, page_flags);
-+	mutex_unlock(&mf_mutex);
-+	return res;
- unlock_page:
- 	unlock_page(p);
- unlock_mutex:
+ 	} else {
+-		if (PageHuge(p) || PageLRU(p) || __PageMovable(p)) {
++		if (PageHuge(p) || HWPoisonHandlable(p)) {
+ 			ret = 1;
+ 		} else {
+ 			/*
 _
-
-Patches currently in -mm which might be from naoya.horiguchi@nec.com are
-
-mmhwpoison-fix-race-with-hugetlb-page-allocation.patch
-mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers.patch
-mmhwpoison-send-sigbus-with-error-virutal-address.patch
-mmhwpoison-send-sigbus-with-error-virutal-address-fix.patch
-mmhwpoison-make-get_hwpoison_page-call-get_any_page.patch
-
