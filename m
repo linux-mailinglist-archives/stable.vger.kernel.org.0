@@ -2,167 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAEE93A90C4
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 06:53:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13A9B3A9109
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 07:15:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229543AbhFPEzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 00:55:43 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62406 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229514AbhFPEzn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 00:55:43 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15G4YPsa149932;
-        Wed, 16 Jun 2021 00:53:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=tc89fYQdCp9ax4IUM9ps4kro+EJ0GdbMKmJn/1p3f/I=;
- b=B2yo8tWQi0fpDcJEQeqn8/jntEVlhWXLAi2KxR1K3ANyv+dy5mTP2pQBsgaGl91zGAvh
- hY4VNDHMeMHbDkU2xKTMdj+yy4PoHnw5Mx46zMKgO3obcjihsz5QHafSGlwpDqsx0HAq
- PE/XFc78xDrZMREf2AfAPZFdmfYOY9UrvTkghUwQTobeYTCu+YtBO+PDUkffI7WlF6Ls
- +rdM1QvmgLSeKgzadWFQGH58U8AJm4UA+Ajo/Oc/4ZDSLaBERCNCXyRBKY+u5EC1lvDi
- tMm7kcX7QZWoAAnpY40HzgicjsD0gJAkExcOiuydF/21GnUauHWu3auyF3dtUaIt5ehn Hg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 397a3x0ns8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Jun 2021 00:53:23 -0400
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15G4ZFqP152620;
-        Wed, 16 Jun 2021 00:53:23 -0400
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 397a3x0ns1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Jun 2021 00:53:23 -0400
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15G4pdSi025626;
-        Wed, 16 Jun 2021 04:53:22 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma03dal.us.ibm.com with ESMTP id 394mj9vt50-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Jun 2021 04:53:22 +0000
-Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15G4rLYt21627344
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 16 Jun 2021 04:53:21 GMT
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5A2497805F;
-        Wed, 16 Jun 2021 04:53:21 +0000 (GMT)
-Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 896FF7805C;
-        Wed, 16 Jun 2021 04:53:13 +0000 (GMT)
-Received: from skywalker.ibmuc.com (unknown [9.85.71.33])
-        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Wed, 16 Jun 2021 04:53:13 +0000 (GMT)
-From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-To:     linux-mm@kvack.org, akpm@linux-foundation.org
-Cc:     mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
-        kaleshsingh@google.com, npiggin@gmail.com, joel@joelfernandes.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Kirill A . Shutemov" <kirill@shutemov.name>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-Subject: [PATCH v2 6/6] mm/mremap: hold the rmap lock in write mode when moving page table entries.
-Date:   Wed, 16 Jun 2021 10:22:39 +0530
-Message-Id: <20210616045239.370802-7-aneesh.kumar@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210616045239.370802-1-aneesh.kumar@linux.ibm.com>
-References: <20210616045239.370802-1-aneesh.kumar@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: dG1wX7yp2fpqt8q68AijO8KF2N2e6tsD
-X-Proofpoint-GUID: _IsyhOz3r46yHPOdLz28EYZU4134jYpS
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S229543AbhFPFRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 01:17:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40640 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229476AbhFPFRd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 01:17:33 -0400
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E684C061574;
+        Tue, 15 Jun 2021 22:15:27 -0700 (PDT)
+Received: by mail-oi1-x22f.google.com with SMTP id d19so1221656oic.7;
+        Tue, 15 Jun 2021 22:15:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
+         :cc;
+        bh=akhpjntg7HyXXTFsNY4Qr1MazMZPbD3dXpnqhhn5BUY=;
+        b=LYTslNfz90SayNkSwh+aMWF4VQJQfLD+hSYDcZuM7HPJ9fi6vsX5kN8yRX5fmjBMsC
+         e9qtWGnSxLM0WnXEWU/THFM7nC2hkJrVe0Pxxw62WN/ostoSetbupq2FktWYhE2ymDwF
+         AB99NvDbGvE0TdekPuhafC1GsceSJBp8yDVeti+lyXu8gwi6885Nt44RcZ4gK/SoGD/I
+         sVT2hIs3ax8c5IsZmjaXE0udFsWpFY4BVcIer0n0PyyYqwf/NlKS7AbaFsPQlZQChu87
+         O2Ji38ENQAU6PAbYtiyq6F1Cpx/ePJxY2i78VD+3UXbcFQgkIRAih6XLD1QUuMWfNwRL
+         x0WA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
+         :message-id:subject:to:cc;
+        bh=akhpjntg7HyXXTFsNY4Qr1MazMZPbD3dXpnqhhn5BUY=;
+        b=EXrCLh/4LDnUwH8kRHGwkNoo2ktWk2n9TFkpPAITP1qaZH4vjH2NBGB0ko7+UMp31F
+         NSHWWR0Q0TXBC++unftXq0KkwvojcUx4Slh0XYCPzPOQXuBDNjsc2HghaeJ02FCPJttJ
+         WPBIjGvUo8S+bnsla/IsTsbo03HK6hkhvq1oV0LgDYK6idh9kaR764XZZUoyWuA6Shzd
+         Vk7rCC2fwajlvanLnn9jnrqYKfDeXXtbfxOUeWIvZxKZAuoGrhe4DObaqVw8K6SyKvEf
+         BuggIRqHZB+Qidk8S5ko8XCbS5TRvkbS8vsgm9RwNDGgJ8PMUSnGup1dVfENgVoUqWTX
+         kOkA==
+X-Gm-Message-State: AOAM532M0QXnP1NKhSJgaP8edOr0hE1eHWloCFuCmgnTeS+BlZxxDdon
+        RyLMVGxeOLeUSilpVBmBOSt1lpYzg5Tw7bZESV5h33hcqfnItQ==
+X-Google-Smtp-Source: ABdhPJz97d0gBuc+KpSED/behXJGVK0sxSohj7YjwUIIBCTpxjpt91hF8NiKTiW2ylqBXwIj0lB3qMZ6IzVGmAZC4Qs=
+X-Received: by 2002:aca:ab15:: with SMTP id u21mr5811888oie.50.1623820526635;
+ Tue, 15 Jun 2021 22:15:26 -0700 (PDT)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-06-15_09:2021-06-15,2021-06-15 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1011
- bulkscore=0 phishscore=0 impostorscore=0 priorityscore=1501 malwarescore=0
- lowpriorityscore=0 mlxscore=0 spamscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2106160027
+Received: by 2002:a9d:f03:0:0:0:0:0 with HTTP; Tue, 15 Jun 2021 22:15:25 -0700 (PDT)
+In-Reply-To: <CAHk-=winAqy0sjgog9oEsjoBWOGJscFYEc3-=nvtzbyjTw_b+g@mail.gmail.com>
+References: <20210608171221.276899-1-keescook@chromium.org>
+ <20210614100234.12077-1-youling257@gmail.com> <202106140826.7912F27CD@keescook>
+ <202106140941.7CE5AE64@keescook> <CAOzgRdZJeN6sQWP=Ou0H3bTrp+7ijKuJikG-f4eer5f1oVjrCQ@mail.gmail.com>
+ <202106141503.B3144DFE@keescook> <CAOzgRdahaEjtk4jS5N=FQEDbsZVnB+-=xD+-WtV9zD9Tgbm0Hg@mail.gmail.com>
+ <CAHk-=winAqy0sjgog9oEsjoBWOGJscFYEc3-=nvtzbyjTw_b+g@mail.gmail.com>
+From:   youling 257 <youling257@gmail.com>
+Date:   Wed, 16 Jun 2021 13:15:25 +0800
+Message-ID: <CAOzgRdazu1TjP0+2ttnrQq5JzymcPog0z52YvsUCZAnFKvufDQ@mail.gmail.com>
+Subject: Re: [PATCH] proc: Track /proc/$pid/attr/ opener mm_struct
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrea Righi <andrea.righi@canonical.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, regressions@lists.linux.dev,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-To avoid a race between rmap walk and mremap, mremap does take_rmap_locks().
-The lock was taken to ensure that rmap walk don't miss a page table entry due to
-PTE moves via move_pagetables(). The kernel does further optimization of
-this lock such that if we are going to find the newly added vma after the
-old vma, the rmap lock is not taken. This is because rmap walk would find the
-vmas in the same order and if we don't find the page table attached to
-older vma we would find it with the new vma which we would iterate later.
+I test "proc: only require mm_struct for writing" fixed my cm14.1 problem.
 
-As explained in commit eb66ae030829 ("mremap: properly flush TLB before releasing the page")
-mremap is special in that it doesn't take ownership of the page. The
-optimized version for PUD/PMD aligned mremap also doesn't hold the ptl lock.
-This can result in stale TLB entries as show below.
-
-This patch updates the rmap locking requirement in mremap to handle the race condition
-explained below with optimized mremap::
-
-Optmized PMD move
-
-    CPU 1                           CPU 2                                   CPU 3
-
-    mremap(old_addr, new_addr)      page_shrinker/try_to_unmap_one
-
-    mmap_write_lock_killable()
-
-                                    addr = old_addr
-                                    lock(pte_ptl)
-    lock(pmd_ptl)
-    pmd = *old_pmd
-    pmd_clear(old_pmd)
-    flush_tlb_range(old_addr)
-
-    *new_pmd = pmd
-                                                                            *new_addr = 10; and fills
-                                                                            TLB with new addr
-                                                                            and old pfn
-
-    unlock(pmd_ptl)
-                                    ptep_clear_flush()
-                                    old pfn is free.
-                                                                            Stale TLB entry
-
-Optimized PUD move also suffers from a similar race.
-Both the above race condition can be fixed if we force mremap path to take rmap lock.
-
-Cc: stable@vger.kernel.org
-Fixes: 2c91bd4a4e2e ("mm: speed up mremap by 20x on large regions")
-Fixes: c49dd3401802 ("mm: speedup mremap on 1GB or larger regions")
-Link: https://lore.kernel.org/linux-mm/CAHk-=wgXVR04eBNtxQfevontWnP6FDm+oj5vauQXP3S-huwbPw@mail.gmail.com
-Acked-by: Hugh Dickins <hughd@google.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
----
- mm/mremap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/mm/mremap.c b/mm/mremap.c
-index 72fa0491681e..c3cad539a7aa 100644
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -503,7 +503,7 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
- 		} else if (IS_ENABLED(CONFIG_HAVE_MOVE_PUD) && extent == PUD_SIZE) {
- 
- 			if (move_pgt_entry(NORMAL_PUD, vma, old_addr, new_addr,
--					   old_pud, new_pud, need_rmap_locks))
-+					   old_pud, new_pud, true))
- 				continue;
- 		}
- 
-@@ -530,7 +530,7 @@ unsigned long move_page_tables(struct vm_area_struct *vma,
- 			 * moving at the PMD level if possible.
- 			 */
- 			if (move_pgt_entry(NORMAL_PMD, vma, old_addr, new_addr,
--					   old_pmd, new_pmd, need_rmap_locks))
-+					   old_pmd, new_pmd, true))
- 				continue;
- 		}
- 
--- 
-2.31.1
-
+2021-06-16 2:19 GMT+08:00, Linus Torvalds <torvalds@linux-foundation.org>:
+> On Mon, Jun 14, 2021 at 6:55 PM youling 257 <youling257@gmail.com> wrote:
+>>
+>> if try to find problem on userspace, i used linux 5.13rc6 on old
+>> android 7 cm14.1, not aosp android 11.
+>> http://git.osdn.net/view?p=android-x86/system-core.git;a=blob;f=init/service.cpp;h=a5334f447fc2fc34453d2f6a37523bedccadc690;hb=refs/heads/cm-14.1-x86#l457
+>>
+>>  457         if (!seclabel_.empty()) {
+>>  458             if (setexeccon(seclabel_.c_str()) < 0) {
+>>  459                 ERROR("cannot setexeccon('%s'): %s\n",
+>>  460                       seclabel_.c_str(), strerror(errno));
+>>  461                 _exit(127);
+>>  462             }
+>>  463         }
+>
+> I have no idea where the cm14.1 libraries are. Does anybody know where
+> the matching source code for setexeccon() would be?
+>
+> For me - obviously not on cm14.1 - all "setexeccon()" does is
+>
+>    n = openat(AT_FDCWD, "/proc/thread-self/attr/exec", O_RDWR|O_CLOEXEC)
+>    write(n, string, len)
+>    close(n)
+>
+> and if that fails, it would seem to indicate that proc_mem_open()
+> failed. Which would be mm_access() failing. But I don't see how that
+> can be the case, because mm_access() explicitly allows "mm ==
+> current->mm" (which the above clearly should be).
+>
+> youling, can you double-check with the current -git tree? But as far
+> as I can tell, my minimal patch is exactly the same as Kees' patch
+> (just smaller and simpler).
+>
+> Kees, do you see anything?
+>
+>            Linus
+>
