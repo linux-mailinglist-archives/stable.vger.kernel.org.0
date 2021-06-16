@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 951FC3A9F30
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A20133A9F74
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234657AbhFPPgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49220 "EHLO mail.kernel.org"
+        id S234906AbhFPPiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:38:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234650AbhFPPgU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:36:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3651861185;
-        Wed, 16 Jun 2021 15:34:13 +0000 (UTC)
+        id S234912AbhFPPh2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:37:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73F65613C2;
+        Wed, 16 Jun 2021 15:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857653;
-        bh=aJBITtdeqrdbfjeiTs1BPtY1Q2AAO01Q1a74OYTnp6Q=;
+        s=korg; t=1623857721;
+        bh=PIMvvOdcHM/UaNyjKsmWLK9cCLAZzAi4AH7zS+RZbIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OHcsn/jWeaVefJEsMGu0ZsfncD6Rw7JXdA9DqjNWeYr21g7RovRMA6pfAr9qJFHLn
-         9a5NghjjcsJ/HjVoJngjPRgXYD+h30j5sYStVCGvt+T0h4hwyigeCpmdTwF2dR6Re5
-         0TXPOoDdkqJSVEcpb9YuoE5E2dUiYU0qDYprTN7E=
+        b=W3dMnzkr6OY5BuHGwOaXA68GLvDyIR9Q/AirkG3aEaxDYMSkN1J9lUlaBj4f69797
+         fNBU1QmlCuy2awvhnpSCh89I4dlWQhhRJNDckoO9V20zZz6TQpWFiQdpqXLgaR322+
+         NNtJvM7Q1VR6q6vw87yBjRPqzs1gnKewc52A2r18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org,
+        Maciej Falkowski <maciej.falkowski9@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/28] gfs2: Prevent direct-I/O write fallback errors from getting lost
+Subject: [PATCH 5.10 13/38] ARM: OMAP1: Fix use of possibly uninitialized irq variable
 Date:   Wed, 16 Jun 2021 17:33:22 +0200
-Message-Id: <20210616152834.506766970@linuxfoundation.org>
+Message-Id: <20210616152835.820371184@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
-References: <20210616152834.149064097@linuxfoundation.org>
+In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
+References: <20210616152835.407925718@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Maciej Falkowski <maciej.falkowski9@gmail.com>
 
-[ Upstream commit 43a511c44e58e357a687d61a20cf5ef1dc9e5a7c ]
+[ Upstream commit 3c4e0147c269738a19c7d70cd32395600bcc0714 ]
 
-When a direct I/O write falls entirely and falls back to buffered I/O and the
-buffered I/O fails, the write failed with return value 0 instead of the error
-number reported by the buffered I/O. Fix that.
+The current control flow of IRQ number assignment to `irq` variable
+allows a request of IRQ of unspecified value,
+generating a warning under Clang compilation with omap1_defconfig on
+linux-next:
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+arch/arm/mach-omap1/pm.c:656:11: warning: variable 'irq' is used
+uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+        else if (cpu_is_omap16xx())
+                 ^~~~~~~~~~~~~~~~~
+./arch/arm/mach-omap1/include/mach/soc.h:123:30: note: expanded from macro
+'cpu_is_omap16xx'
+                                        ^~~~~~~~~~~~~
+arch/arm/mach-omap1/pm.c:658:18: note: uninitialized use occurs here
+        if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup",
+                        ^~~
+arch/arm/mach-omap1/pm.c:656:7: note: remove the 'if' if its condition is
+always true
+        else if (cpu_is_omap16xx())
+             ^~~~~~~~~~~~~~~~~~~~~~
+arch/arm/mach-omap1/pm.c:611:9: note: initialize the variable 'irq' to
+silence this warning
+        int irq;
+               ^
+                = 0
+1 warning generated.
+
+The patch provides a default value to the `irq` variable
+along with a validity check.
+
+Signed-off-by: Maciej Falkowski <maciej.falkowski9@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1324
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/file.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm/mach-omap1/pm.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 4a10b4e7092a..69c52edf5713 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -875,8 +875,11 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 		current->backing_dev_info = inode_to_bdi(inode);
- 		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
- 		current->backing_dev_info = NULL;
--		if (unlikely(buffered <= 0))
-+		if (unlikely(buffered <= 0)) {
-+			if (!ret)
-+				ret = buffered;
- 			goto out_unlock;
-+		}
+diff --git a/arch/arm/mach-omap1/pm.c b/arch/arm/mach-omap1/pm.c
+index 2c1e2b32b9b3..a745d64d4699 100644
+--- a/arch/arm/mach-omap1/pm.c
++++ b/arch/arm/mach-omap1/pm.c
+@@ -655,9 +655,13 @@ static int __init omap_pm_init(void)
+ 		irq = INT_7XX_WAKE_UP_REQ;
+ 	else if (cpu_is_omap16xx())
+ 		irq = INT_1610_WAKE_UP_REQ;
+-	if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup",
+-			NULL))
+-		pr_err("Failed to request irq %d (peripheral wakeup)\n", irq);
++	else
++		irq = -1;
++
++	if (irq >= 0) {
++		if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup", NULL))
++			pr_err("Failed to request irq %d (peripheral wakeup)\n", irq);
++	}
  
- 		/*
- 		 * We need to ensure that the page cache pages are written to
+ 	/* Program new power ramp-up time
+ 	 * (0 for most boards since we don't lower voltage when in deep sleep)
 -- 
 2.30.2
 
