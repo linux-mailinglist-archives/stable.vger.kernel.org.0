@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10ADD3AA013
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:42:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 483713AA016
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235479AbhFPPoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:44:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50728 "EHLO mail.kernel.org"
+        id S234906AbhFPPon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:44:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235505AbhFPPmG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:42:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D204261359;
-        Wed, 16 Jun 2021 15:38:00 +0000 (UTC)
+        id S234799AbhFPPmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:42:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 299E660FE3;
+        Wed, 16 Jun 2021 15:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857881;
-        bh=tZaP+6/s9yOkjDybCztanFkilmzGz5z8nX72fuboOgI=;
+        s=korg; t=1623857883;
+        bh=nHcMRLpN5ldCubkcU2AC1AimNWKK5ugryO39+kTcoAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffpSje1DcEmn/0gWMvvuybvVTrUJ/invgROVAtNwGgdFQukNqvbMBnhGZ0UsGG6UR
-         1XPjLjvzUnQLFR5E/lelAT9hlKiVpuKtQRWs934yuc9dsp0L/wXCHddaZYLfjoeXKt
-         EDzomcd4H4KbqtFJlTir9RLPXjHO7kHKVww4p4sU=
+        b=o8riaySrUI3cDU5C9yHlJXut0pZsXaK4Go/zJCLEyqqV383BoyIanXsOQqTcF0RFa
+         kyQXj42E4FDtBEfQJP7/JN3YAwj9Hkqx41KLqtF1y7IjaVbYqbt5xxkZSs4oaPs00B
+         0Fx3d0VNIBo0egUzTyEFLRVuhe9gJq8/qvrIHYIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 47/48] net: Return the correct errno code
-Date:   Wed, 16 Jun 2021 17:33:57 +0200
-Message-Id: <20210616152838.120881967@linuxfoundation.org>
+Subject: [PATCH 5.12 48/48] fib: Return the correct errno code
+Date:   Wed, 16 Jun 2021 17:33:58 +0200
+Message-Id: <20210616152838.151047356@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
 References: <20210616152836.655643420@linuxfoundation.org>
@@ -42,7 +42,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 49251cd00228a3c983651f6bb2f33f6a0b8f152e ]
+[ Upstream commit 59607863c54e9eb3f69afc5257dfe71c38bb751e ]
 
 When kalloc or kmemdup failed, should return ENOMEM rather than ENOBUF.
 
@@ -50,22 +50,22 @@ Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/compat.c | 2 +-
+ net/core/fib_rules.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/compat.c b/net/compat.c
-index ddd15af3a283..210fc3b4d0d8 100644
---- a/net/compat.c
-+++ b/net/compat.c
-@@ -177,7 +177,7 @@ int cmsghdr_from_user_compat_to_kern(struct msghdr *kmsg, struct sock *sk,
- 	if (kcmlen > stackbuf_size)
- 		kcmsg_base = kcmsg = sock_kmalloc(sk, kcmlen, GFP_KERNEL);
- 	if (kcmsg == NULL)
--		return -ENOBUFS;
-+		return -ENOMEM;
+diff --git a/net/core/fib_rules.c b/net/core/fib_rules.c
+index cd80ffed6d26..a9f937975080 100644
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -1168,7 +1168,7 @@ static void notify_rule_change(int event, struct fib_rule *rule,
+ {
+ 	struct net *net;
+ 	struct sk_buff *skb;
+-	int err = -ENOBUFS;
++	int err = -ENOMEM;
  
- 	/* Now copy them over neatly. */
- 	memset(kcmsg, 0, kcmlen);
+ 	net = ops->fro_net;
+ 	skb = nlmsg_new(fib_rule_nlmsg_size(ops, rule), GFP_KERNEL);
 -- 
 2.30.2
 
