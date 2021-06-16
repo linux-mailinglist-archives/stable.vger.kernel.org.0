@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD56E3A9F86
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:36:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 608C93A9F43
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234977AbhFPPis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:38:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49906 "EHLO mail.kernel.org"
+        id S234778AbhFPPgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:36:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234787AbhFPPhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:37:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33A5D613D5;
-        Wed, 16 Jun 2021 15:35:43 +0000 (UTC)
+        id S234744AbhFPPgm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:36:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D307613BF;
+        Wed, 16 Jun 2021 15:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857743;
-        bh=vemhfjrrhQBx+PYah633o7e9zpKijYA3wYwiRjNm7WM=;
+        s=korg; t=1623857675;
+        bh=ypz9PQ9qe0SVB/8adFFM25pP4e02WlCyeIliOP7utIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r2lSkeOJVJSvmrnTmxiAxbaunUGaALYJNbHlNOMq6Z7YIK3z8UY5OAD8YclYyfgut
-         Xvu9ppRe+ljEUfO7kSapObBczv4UVIBCwjyt2nEoym0oancHjGLb0Nw3pbpXz666Y1
-         osafTlC6ubP6XgAK5pG0IF8SVPtuhBZgh42rDST8=
+        b=Ifr+dCgnKUbgW2k5HUYpD/A2TY91zKDcIG2Eoe7IGWljFArzWFlv9CKqKC1Hfa/qj
+         XRaGiwlNooXdbCvZrnFn4QsaPJk/os28JYaUqLqEKWJo7Ca75VyrzwaRvKoWLpF978
+         HaCi0m4oeSO2lXzwDD8xMhUFojZGXjitki5wTDwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Javed Hasan <jhasan@marvell.com>,
-        Daniel Wagner <dwagner@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 22/38] scsi: qedf: Do not put host in qedf_vport_create() unconditionally
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 20/28] nvme-loop: clear NVME_LOOP_Q_LIVE when nvme_loop_configure_admin_queue() fails
 Date:   Wed, 16 Jun 2021 17:33:31 +0200
-Message-Id: <20210616152836.094539255@linuxfoundation.org>
+Message-Id: <20210616152834.799739264@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
-References: <20210616152835.407925718@linuxfoundation.org>
+In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
+References: <20210616152834.149064097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,93 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Wagner <dwagner@suse.de>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 79c932cd6af9829432888c4a0001d01793a09f12 ]
+[ Upstream commit 1c5f8e882a05de5c011e8c3fbeceb0d1c590eb53 ]
 
-Do not drop reference count on vn_port->host in qedf_vport_create()
-unconditionally. Instead drop the reference count in qedf_vport_destroy().
+When the call to nvme_enable_ctrl() in nvme_loop_configure_admin_queue()
+fails the NVME_LOOP_Q_LIVE flag is not cleared.
 
-Link: https://lore.kernel.org/r/20210521143440.84816-1-dwagner@suse.de
-Reported-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Daniel Wagner <dwagner@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_main.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ drivers/nvme/target/loop.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index a464d0a4f465..846a02de4d51 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -1827,22 +1827,20 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
- 		fcoe_wwn_to_str(vport->port_name, buf, sizeof(buf));
- 		QEDF_WARN(&(base_qedf->dbg_ctx), "Failed to create vport, "
- 			   "WWPN (0x%s) already exists.\n", buf);
--		goto err1;
-+		return rc;
- 	}
- 
- 	if (atomic_read(&base_qedf->link_state) != QEDF_LINK_UP) {
- 		QEDF_WARN(&(base_qedf->dbg_ctx), "Cannot create vport "
- 			   "because link is not up.\n");
--		rc = -EIO;
--		goto err1;
-+		return -EIO;
- 	}
- 
- 	vn_port = libfc_vport_create(vport, sizeof(struct qedf_ctx));
- 	if (!vn_port) {
- 		QEDF_WARN(&(base_qedf->dbg_ctx), "Could not create lport "
- 			   "for vport.\n");
--		rc = -ENOMEM;
--		goto err1;
-+		return -ENOMEM;
- 	}
- 
- 	fcoe_wwn_to_str(vport->port_name, buf, sizeof(buf));
-@@ -1866,7 +1864,7 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
- 	if (rc) {
- 		QEDF_ERR(&(base_qedf->dbg_ctx), "Could not allocate memory "
- 		    "for lport stats.\n");
--		goto err2;
-+		goto err;
- 	}
- 
- 	fc_set_wwnn(vn_port, vport->node_name);
-@@ -1884,7 +1882,7 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
- 	if (rc) {
- 		QEDF_WARN(&base_qedf->dbg_ctx,
- 			  "Error adding Scsi_Host rc=0x%x.\n", rc);
--		goto err2;
-+		goto err;
- 	}
- 
- 	/* Set default dev_loss_tmo based on module parameter */
-@@ -1925,9 +1923,10 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
- 	vport_qedf->dbg_ctx.host_no = vn_port->host->host_no;
- 	vport_qedf->dbg_ctx.pdev = base_qedf->pdev;
- 
--err2:
-+	return 0;
-+
-+err:
- 	scsi_host_put(vn_port->host);
--err1:
- 	return rc;
- }
- 
-@@ -1968,8 +1967,7 @@ static int qedf_vport_destroy(struct fc_vport *vport)
- 	fc_lport_free_stats(vn_port);
- 
- 	/* Release Scsi_Host */
--	if (vn_port->host)
--		scsi_host_put(vn_port->host);
-+	scsi_host_put(vn_port->host);
- 
- out:
+diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
+index b4f5503ae570..f752e9432676 100644
+--- a/drivers/nvme/target/loop.c
++++ b/drivers/nvme/target/loop.c
+@@ -395,6 +395,7 @@ static int nvme_loop_configure_admin_queue(struct nvme_loop_ctrl *ctrl)
  	return 0;
+ 
+ out_cleanup_queue:
++	clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[0].flags);
+ 	blk_cleanup_queue(ctrl->ctrl.admin_q);
+ out_cleanup_fabrics_q:
+ 	blk_cleanup_queue(ctrl->ctrl.fabrics_q);
 -- 
 2.30.2
 
