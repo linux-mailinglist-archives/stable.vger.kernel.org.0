@@ -2,132 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD68C3A9415
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 09:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 022F93A95D8
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 11:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231245AbhFPHgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 03:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49164 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231132AbhFPHgC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 03:36:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4B2D60FEA;
-        Wed, 16 Jun 2021 07:33:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623828837;
-        bh=f4THeaROB/EUb5al3ZHzm5/vIw6aUtEe7e7IjwIYo/U=;
-        h=Subject:To:From:Date:From;
-        b=o9q8svVn9ZmI1SXZQz/F3y1PlUoRiCmizlq5nWQ8xiYI9z4iFDK2vAP6GSLYxNRTk
-         GlQJG2EHkiuA9WVsaZ9L0AGormwF96Eoa5jqTB4UvCzLlJoRtEGpL+Tsu/pV6dXf6Z
-         EZsjSQLkSXNC+fRrwJIY27jlBsjPILST+wQb5/K0=
-Subject: patch "usb: chipidea: imx: Fix Battery Charger 1.2 CDP detection" added to usb-linus
-To:     breno.lima@nxp.com, jun.li@nxp.com, peter.chen@kernel.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 16 Jun 2021 09:33:54 +0200
-Message-ID: <162382883454105@kroah.com>
+        id S232106AbhFPJTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 05:19:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38554 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232279AbhFPJTK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Jun 2021 05:19:10 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4579FC061574;
+        Wed, 16 Jun 2021 02:17:04 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id hq2so2751459ejc.2;
+        Wed, 16 Jun 2021 02:17:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=LqKUd7jpWI45dwJktjSkPLrqSZglJAQGDy+xWdh0jXY=;
+        b=VaTZhGozIGkXk1Fk0y6lm3uqIM9EpHbCZOsKTehQDM6cFZ10wcgvVXrXpoFZCdGCSV
+         TAlGhae+WPmKjAJ+YMBg4uCBJkgnfubNNxrFmlgfrLDCYMxMEWwqRMpFaqzL3RH57NVa
+         gHTq24s1oRuRMxSn/pwtAEzNIowqYwsRrkERtfIp4ri+Qk35Nge4rDGcRWFCuHAEYRw/
+         TMfRr3g3bMoPfLOVFowcYXZHRUwCbXYROl3X/1Ci1vPYccBRPa2enjDZxjSAnBvVYaKJ
+         WbINiqVIIpIUeZEqYW1/9dV0NR6VoirJVClzxf9HQZuVKZN6KPPHbLwpk+14d+VVYTDt
+         yrHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LqKUd7jpWI45dwJktjSkPLrqSZglJAQGDy+xWdh0jXY=;
+        b=iAtLX6pMM+lZfZSq7DO7Gs1/6nLQoz+meWCntTMBoieaL8ETsz0ZZuKHL1kkFLtUkM
+         T5XFBrv5EBS1hiDKUqPTxDFZsZpY/cQM/396NfRo0wcEO2JQgrviZRDWrclg5Lcrade2
+         6XX+l61IA+dAdVQDsRNukCk6bh6JAdEN8c5xQls9Enl6UeM4EiAisF76sVkSzymb+/43
+         166T/iXaRZVEgDR0nOYctaGClCcSHR6vbs6ny++caT5CWkAOayOjE9e351JKn8huydiC
+         1Ifc2kbHoguzGDVBWPH9C9X0YKolC//d/m3nJF7XqZeWaGgs+xPxS+RmBt8+UDhJgpH0
+         /Jkw==
+X-Gm-Message-State: AOAM532aZOVIpdUai6axUfp9JT55NY1/MSy84oJ0PxAtdMtC0GsC9wJc
+        Fs6LJwGTxAevxGBZkMBI3b+6402xCyB8DHZ3ZT8=
+X-Google-Smtp-Source: ABdhPJybOgsSRMZfoEFaLEQxyeTtpNPDMN0fthWKyW6dAjnJmPwYFo1Zwf/q4os4LkGIYg6EhzdwsZuL8iZ047roZLY=
+X-Received: by 2002:a17:906:994d:: with SMTP id zm13mr4149388ejb.427.1623835022871;
+ Wed, 16 Jun 2021 02:17:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20210512144743.039977287@linuxfoundation.org> <20210512144748.600206118@linuxfoundation.org>
+ <CANEQ_++O0XVVdvynGtf37YCHSBT8CYHnUkK+VsFkOTqeqwOUtA@mail.gmail.com> <YMmlPHMn/+EPdbvm@kroah.com>
+In-Reply-To: <YMmlPHMn/+EPdbvm@kroah.com>
+From:   Amit Klein <aksecurity@gmail.com>
+Date:   Wed, 16 Jun 2021 12:16:52 +0300
+Message-ID: <CANEQ_++gbwU2Rvcqg5KtngZC1UX1XcjOKfPKRr3Pvxi+VyQX+Q@mail.gmail.com>
+Subject: Re: [PATCH 5.4 175/244] inet: use bigger hash table for IP ID generation
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    usb: chipidea: imx: Fix Battery Charger 1.2 CDP detection
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
+Here is the patch (minus headers, description, etc. - I believe these
+can be copied as is from the 5.x patch, but not sure about the
+rules...). It can be applied to 4.14.236. If this is OK, I can move on
+to 4.9 and 4.4.
 
 
-From c6d580d96f140596d69220f60ce0cfbea4ee5c0f Mon Sep 17 00:00:00 2001
-From: Breno Lima <breno.lima@nxp.com>
-Date: Mon, 14 Jun 2021 13:50:13 -0400
-Subject: usb: chipidea: imx: Fix Battery Charger 1.2 CDP detection
+ net/ipv4/route.c | 41 ++++++++++++++++++++++++++++-------------
+ 1 file changed, 28 insertions(+), 13 deletions(-)
 
-i.MX8MM cannot detect certain CDP USB HUBs. usbmisc_imx.c driver is not
-following CDP timing requirements defined by USB BC 1.2 specification
-and section 3.2.4 Detection Timing CDP.
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 78d6bc61a1d8..022a2b748da3 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -70,6 +70,7 @@
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
++#include <linux/memblock.h>
+ #include <linux/string.h>
+ #include <linux/socket.h>
+ #include <linux/sockios.h>
+@@ -485,8 +486,10 @@ static void ipv4_confirm_neigh(const struct
+dst_entry *dst, const void *daddr)
+     __ipv4_confirm_neigh(dev, *(__force u32 *)pkey);
+ }
 
-During Primary Detection the i.MX device should turn on VDP_SRC and
-IDM_SINK for a minimum of 40ms (TVDPSRC_ON). After a time of TVDPSRC_ON,
-the i.MX is allowed to check the status of the D- line. Current
-implementation is waiting between 1ms and 2ms, and certain BC 1.2
-complaint USB HUBs cannot be detected. Increase delay to 40ms allowing
-enough time for primary detection.
+-#define IP_IDENTS_SZ 2048u
+-
++/* Hash tables of size 2048..262144 depending on RAM size.
++ * Each bucket uses 8 bytes.
++ */
++static u32 ip_idents_mask __read_mostly;
+ static atomic_t *ip_idents __read_mostly;
+ static u32 *ip_tstamps __read_mostly;
 
-During secondary detection the i.MX is required to disable VDP_SRC and
-IDM_SNK, and enable VDM_SRC and IDP_SINK for at least 40ms (TVDMSRC_ON).
+@@ -496,12 +499,16 @@ static u32 *ip_tstamps __read_mostly;
+  */
+ u32 ip_idents_reserve(u32 hash, int segs)
+ {
+-    u32 *p_tstamp = ip_tstamps + hash % IP_IDENTS_SZ;
+-    atomic_t *p_id = ip_idents + hash % IP_IDENTS_SZ;
+-    u32 old = ACCESS_ONCE(*p_tstamp);
+-    u32 now = (u32)jiffies;
++    u32 bucket, old, now = (u32)jiffies;
++    atomic_t *p_id;
++    u32 *p_tstamp;
+     u32 delta = 0;
 
-Current implementation is not disabling VDP_SRC and IDM_SNK, introduce
-disable sequence in imx7d_charger_secondary_detection() function.
-
-VDM_SRC and IDP_SINK should be enabled for at least 40ms (TVDMSRC_ON).
-Increase delay allowing enough time for detection.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 746f316b753a ("usb: chipidea: introduce imx7d USB charger detection")
-Signed-off-by: Breno Lima <breno.lima@nxp.com>
-Signed-off-by: Jun Li <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/20210614175013.495808-1-breno.lima@nxp.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
----
- drivers/usb/chipidea/usbmisc_imx.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/chipidea/usbmisc_imx.c b/drivers/usb/chipidea/usbmisc_imx.c
-index 4545b23bda3f..bac0f5458cab 100644
---- a/drivers/usb/chipidea/usbmisc_imx.c
-+++ b/drivers/usb/chipidea/usbmisc_imx.c
-@@ -686,6 +686,16 @@ static int imx7d_charger_secondary_detection(struct imx_usbmisc_data *data)
- 	int val;
- 	unsigned long flags;
- 
-+	/* Clear VDATSRCENB0 to disable VDP_SRC and IDM_SNK required by BC 1.2 spec */
-+	spin_lock_irqsave(&usbmisc->lock, flags);
-+	val = readl(usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
-+	val &= ~MX7D_USB_OTG_PHY_CFG2_CHRG_VDATSRCENB0;
-+	writel(val, usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
-+	spin_unlock_irqrestore(&usbmisc->lock, flags);
++    bucket = hash & ip_idents_mask;
++    p_tstamp = ip_tstamps + bucket;
++    p_id = ip_idents + bucket;
++    old = READ_ONCE(*p_tstamp);
 +
-+	/* TVDMSRC_DIS */
-+	msleep(20);
+     if (old != now && cmpxchg(p_tstamp, old, now) == old)
+         delta = prandom_u32_max(now - old);
+
+@@ -3099,17 +3106,25 @@ struct ip_rt_acct __percpu *ip_rt_acct __read_mostly;
+ int __init ip_rt_init(void)
+ {
+     int rc = 0;
++    void *idents_hash;
+     int cpu;
+
+-    ip_idents = kmalloc(IP_IDENTS_SZ * sizeof(*ip_idents), GFP_KERNEL);
+-    if (!ip_idents)
+-        panic("IP: failed to allocate ip_idents\n");
++    /* For modern hosts, this will use 2 MB of memory */
++    idents_hash = alloc_large_system_hash("IP idents",
++                          sizeof(*ip_idents) + sizeof(*ip_tstamps),
++                          0,
++                          16, /* one bucket per 64 KB */
++                          HASH_ZERO,
++                          NULL,
++                          &ip_idents_mask,
++                          2048,
++                          256*1024);
 +
- 	/* VDM_SRC is connected to D- and IDP_SINK is connected to D+ */
- 	spin_lock_irqsave(&usbmisc->lock, flags);
- 	val = readl(usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
-@@ -695,7 +705,8 @@ static int imx7d_charger_secondary_detection(struct imx_usbmisc_data *data)
- 				usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
- 	spin_unlock_irqrestore(&usbmisc->lock, flags);
- 
--	usleep_range(1000, 2000);
-+	/* TVDMSRC_ON */
-+	msleep(40);
- 
- 	/*
- 	 * Per BC 1.2, check voltage of D+:
-@@ -798,7 +809,8 @@ static int imx7d_charger_primary_detection(struct imx_usbmisc_data *data)
- 				usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
- 	spin_unlock_irqrestore(&usbmisc->lock, flags);
- 
--	usleep_range(1000, 2000);
-+	/* TVDPSRC_ON */
-+	msleep(40);
- 
- 	/* Check if D- is less than VDAT_REF to determine an SDP per BC 1.2 */
- 	val = readl(usbmisc->base + MX7D_USB_OTG_PHY_STATUS);
--- 
-2.32.0
++    ip_idents = idents_hash;
 
+-    prandom_bytes(ip_idents, IP_IDENTS_SZ * sizeof(*ip_idents));
++    prandom_bytes(ip_idents, (ip_idents_mask + 1) * sizeof(*ip_idents));
 
+-    ip_tstamps = kcalloc(IP_IDENTS_SZ, sizeof(*ip_tstamps), GFP_KERNEL);
+-    if (!ip_tstamps)
+-        panic("IP: failed to allocate ip_tstamps\n");
++    ip_tstamps = idents_hash + (ip_idents_mask + 1) * sizeof(*ip_idents);
+
+     for_each_possible_cpu(cpu) {
+         struct uncached_list *ul = &per_cpu(rt_uncached_list, cpu);
+
+On Wed, Jun 16, 2021 at 10:16 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Jun 16, 2021 at 10:02:44AM +0300, Amit Klein wrote:
+> >  Hi Greg et al.
+> >
+> > I see that you backported this patch (increasing the IP ID hash table size)
+> > to the newer LTS branches more than a month ago. But I don't see that it
+> > was backported to older LTS branches (4.19, 4.14, 4.9, 4.4). Is this
+> > intentional?
+>
+> It applies cleanly to 4.19, but not the older ones.  If you think it is
+> needed there for those kernels, please provide a working backport that
+> we can apply.
+>
+> thanks,
+>
+> greg k-h
