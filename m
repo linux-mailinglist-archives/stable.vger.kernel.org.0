@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BDCB3A9F34
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 691793A9FB0
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234640AbhFPPgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:36:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49404 "EHLO mail.kernel.org"
+        id S234739AbhFPPkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:40:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234662AbhFPPgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:36:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A38C61076;
-        Wed, 16 Jun 2021 15:34:17 +0000 (UTC)
+        id S235221AbhFPPjP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:39:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD4B7613CD;
+        Wed, 16 Jun 2021 15:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857658;
-        bh=JR1LwqcnZRsn5yGfC33MX1dYZ/aFmq2fPUHqT3SXwyY=;
+        s=korg; t=1623857809;
+        bh=D1pfivEPMAKmTrT5Az8xmoAlOLTXunLrF1aVexSumDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zKu2QUir34Xh1TStZ1qxHGis8w9QIFKQcRtSzQqXi9schfXdhfsp+eGbQuX1KOR70
-         J1aUcBkiPCYPcI8Zbh1UYPc0+2g+ELBTlpIHrlma7pocwC19QFFBOlsd44BvCxeRgj
-         TuWiXv+GH2sWXm7H0cXW01d+FTM1r3XYyx7RfzKA=
+        b=zKV0v8rjl5s+sYC8VWQ+6jwaeHvjnlm9ujkun/A/tdx+wrL7QaFmd6P9W5STZfRLY
+         gK2HQUkHWIM9HT+/JGWUSc0kqC90wyYyO8cpo5rXK0UhhcqTgbdNi2XPRNHjaLaMTt
+         IbgIZCUEBAe5TH1wqgHWki/fmdtdFTpcyPPwFJPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khem Raj <raj.khem@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/28] riscv: Use -mno-relax when using lld linker
+Subject: [PATCH 5.12 14/48] drm/tegra: sor: Do not leak runtime PM reference
 Date:   Wed, 16 Jun 2021 17:33:24 +0200
-Message-Id: <20210616152834.567533813@linuxfoundation.org>
+Message-Id: <20210616152837.108480050@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
-References: <20210616152834.149064097@linuxfoundation.org>
+In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
+References: <20210616152836.655643420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khem Raj <raj.khem@gmail.com>
+From: Pavel Machek (CIP) <pavel@denx.de>
 
-[ Upstream commit ec3a5cb61146c91f0f7dcec8b7e7157a4879a9ee ]
+[ Upstream commit 73a395c46704304b96bc5e2ee19be31124025c0c ]
 
-lld does not implement the RISCV relaxation optimizations like GNU ld
-therefore disable it when building with lld, Also pass it to
-assembler when using external GNU assembler ( LLVM_IAS != 1 ), this
-ensures that relevant assembler option is also enabled along. if these
-options are not used then we see following relocations in objects
+It's theoretically possible for the runtime PM reference to leak if the
+code fails anywhere between the pm_runtime_resume_and_get() and
+pm_runtime_put() calls, so make sure to release the runtime PM reference
+in that case.
 
-0000000000000000 R_RISCV_ALIGN     *ABS*+0x0000000000000002
+Practically this will never happen because none of the functions will
+fail on Tegra, but it's better for the code to be pedantic in case these
+assumptions will ever become wrong.
 
-These are then rejected by lld
-ld.lld: error: capability.c:(.fixup+0x0): relocation R_RISCV_ALIGN requires unimplemented linker relaxation; recompile with -mno-relax but the .o is already compiled with -mno-relax
-
-Signed-off-by: Khem Raj <raj.khem@gmail.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+[treding@nvidia.com: add commit message]
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Makefile | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/tegra/sor.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index f5e914210245..1cbe0ad78b0f 100644
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -34,6 +34,15 @@ else
- 	KBUILD_LDFLAGS += -melf32lriscv
- endif
+diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
+index 7b88261f57bb..67a80dae1c00 100644
+--- a/drivers/gpu/drm/tegra/sor.c
++++ b/drivers/gpu/drm/tegra/sor.c
+@@ -3125,21 +3125,21 @@ static int tegra_sor_init(struct host1x_client *client)
+ 		if (err < 0) {
+ 			dev_err(sor->dev, "failed to acquire SOR reset: %d\n",
+ 				err);
+-			return err;
++			goto rpm_put;
+ 		}
  
-+ifeq ($(CONFIG_LD_IS_LLD),y)
-+	KBUILD_CFLAGS += -mno-relax
-+	KBUILD_AFLAGS += -mno-relax
-+ifneq ($(LLVM_IAS),1)
-+	KBUILD_CFLAGS += -Wa,-mno-relax
-+	KBUILD_AFLAGS += -Wa,-mno-relax
-+endif
-+endif
+ 		err = reset_control_assert(sor->rst);
+ 		if (err < 0) {
+ 			dev_err(sor->dev, "failed to assert SOR reset: %d\n",
+ 				err);
+-			return err;
++			goto rpm_put;
+ 		}
+ 	}
+ 
+ 	err = clk_prepare_enable(sor->clk);
+ 	if (err < 0) {
+ 		dev_err(sor->dev, "failed to enable clock: %d\n", err);
+-		return err;
++		goto rpm_put;
+ 	}
+ 
+ 	usleep_range(1000, 3000);
+@@ -3150,7 +3150,7 @@ static int tegra_sor_init(struct host1x_client *client)
+ 			dev_err(sor->dev, "failed to deassert SOR reset: %d\n",
+ 				err);
+ 			clk_disable_unprepare(sor->clk);
+-			return err;
++			goto rpm_put;
+ 		}
+ 
+ 		reset_control_release(sor->rst);
+@@ -3171,6 +3171,12 @@ static int tegra_sor_init(struct host1x_client *client)
+ 	}
+ 
+ 	return 0;
 +
- # ISA string setting
- riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32ima
- riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
++rpm_put:
++	if (sor->rst)
++		pm_runtime_put(sor->dev);
++
++	return err;
+ }
+ 
+ static int tegra_sor_exit(struct host1x_client *client)
 -- 
 2.30.2
 
