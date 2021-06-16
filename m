@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A20133A9F74
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 202D03A9FAF
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234906AbhFPPiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:38:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50870 "EHLO mail.kernel.org"
+        id S234749AbhFPPkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:40:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234912AbhFPPh2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:37:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73F65613C2;
-        Wed, 16 Jun 2021 15:35:21 +0000 (UTC)
+        id S235011AbhFPPjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:39:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DC73613D8;
+        Wed, 16 Jun 2021 15:36:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857721;
-        bh=PIMvvOdcHM/UaNyjKsmWLK9cCLAZzAi4AH7zS+RZbIc=;
+        s=korg; t=1623857807;
+        bh=Vspvsrwq+HMh5zo2lywXb+v0OGmxGRWtwUajJD+vy9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3dMnzkr6OY5BuHGwOaXA68GLvDyIR9Q/AirkG3aEaxDYMSkN1J9lUlaBj4f69797
-         fNBU1QmlCuy2awvhnpSCh89I4dlWQhhRJNDckoO9V20zZz6TQpWFiQdpqXLgaR322+
-         NNtJvM7Q1VR6q6vw87yBjRPqzs1gnKewc52A2r18=
+        b=vsFEB5Q0DQVUfSS02javytq81vT3Vq/7r1cA1YJJdadHss1tkS6/nGU71jj7DrFuV
+         95cg3mOhKi57Y/lpATut4uIlU9652NAMpmqeEU5nmGPmaGzXSW7cf0p+5LrJoAY/Fw
+         v/Ju1q7T6iQzpvK5TPc90pzNR4WdsliaI7vL2hno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Falkowski <maciej.falkowski9@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 13/38] ARM: OMAP1: Fix use of possibly uninitialized irq variable
-Date:   Wed, 16 Jun 2021 17:33:22 +0200
-Message-Id: <20210616152835.820371184@linuxfoundation.org>
+Subject: [PATCH 5.12 13/48] mt76: mt7921: fix max aggregation subframes setting
+Date:   Wed, 16 Jun 2021 17:33:23 +0200
+Message-Id: <20210616152837.079530322@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
-References: <20210616152835.407925718@linuxfoundation.org>
+In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
+References: <20210616152836.655643420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Falkowski <maciej.falkowski9@gmail.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 3c4e0147c269738a19c7d70cd32395600bcc0714 ]
+[ Upstream commit 94bb18b03d43f32e9440e8e350b7f533137c40f6 ]
 
-The current control flow of IRQ number assignment to `irq` variable
-allows a request of IRQ of unspecified value,
-generating a warning under Clang compilation with omap1_defconfig on
-linux-next:
+The hardware can only handle 64 subframes in rx direction and 128 for tx.
+Improves throughput with APs that can handle more than that
 
-arch/arm/mach-omap1/pm.c:656:11: warning: variable 'irq' is used
-uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
-        else if (cpu_is_omap16xx())
-                 ^~~~~~~~~~~~~~~~~
-./arch/arm/mach-omap1/include/mach/soc.h:123:30: note: expanded from macro
-'cpu_is_omap16xx'
-                                        ^~~~~~~~~~~~~
-arch/arm/mach-omap1/pm.c:658:18: note: uninitialized use occurs here
-        if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup",
-                        ^~~
-arch/arm/mach-omap1/pm.c:656:7: note: remove the 'if' if its condition is
-always true
-        else if (cpu_is_omap16xx())
-             ^~~~~~~~~~~~~~~~~~~~~~
-arch/arm/mach-omap1/pm.c:611:9: note: initialize the variable 'irq' to
-silence this warning
-        int irq;
-               ^
-                = 0
-1 warning generated.
-
-The patch provides a default value to the `irq` variable
-along with a validity check.
-
-Signed-off-by: Maciej Falkowski <maciej.falkowski9@gmail.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1324
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210507100211.15709-2-nbd@nbd.name
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap1/pm.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-omap1/pm.c b/arch/arm/mach-omap1/pm.c
-index 2c1e2b32b9b3..a745d64d4699 100644
---- a/arch/arm/mach-omap1/pm.c
-+++ b/arch/arm/mach-omap1/pm.c
-@@ -655,9 +655,13 @@ static int __init omap_pm_init(void)
- 		irq = INT_7XX_WAKE_UP_REQ;
- 	else if (cpu_is_omap16xx())
- 		irq = INT_1610_WAKE_UP_REQ;
--	if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup",
--			NULL))
--		pr_err("Failed to request irq %d (peripheral wakeup)\n", irq);
-+	else
-+		irq = -1;
-+
-+	if (irq >= 0) {
-+		if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup", NULL))
-+			pr_err("Failed to request irq %d (peripheral wakeup)\n", irq);
-+	}
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/init.c b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
+index 89a13b4a74a4..c0001e38fcce 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
+@@ -74,8 +74,8 @@ mt7921_init_wiphy(struct ieee80211_hw *hw)
+ 	struct wiphy *wiphy = hw->wiphy;
  
- 	/* Program new power ramp-up time
- 	 * (0 for most boards since we don't lower voltage when in deep sleep)
+ 	hw->queues = 4;
+-	hw->max_rx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF;
+-	hw->max_tx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF;
++	hw->max_rx_aggregation_subframes = 64;
++	hw->max_tx_aggregation_subframes = 128;
+ 
+ 	phy->slottime = 9;
+ 
 -- 
 2.30.2
 
