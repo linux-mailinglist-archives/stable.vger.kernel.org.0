@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 202D03A9FAF
-	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:38:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 336183A9F33
+	for <lists+stable@lfdr.de>; Wed, 16 Jun 2021 17:34:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234749AbhFPPkH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Jun 2021 11:40:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51740 "EHLO mail.kernel.org"
+        id S234654AbhFPPgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Jun 2021 11:36:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235011AbhFPPjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Jun 2021 11:39:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DC73613D8;
-        Wed, 16 Jun 2021 15:36:46 +0000 (UTC)
+        id S234640AbhFPPgW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Jun 2021 11:36:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68C7361166;
+        Wed, 16 Jun 2021 15:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623857807;
-        bh=Vspvsrwq+HMh5zo2lywXb+v0OGmxGRWtwUajJD+vy9k=;
+        s=korg; t=1623857655;
+        bh=rUw7BP8oocyKNmIl1hMRQzzuNIHS6uWhK3wZKD7ChF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsFEB5Q0DQVUfSS02javytq81vT3Vq/7r1cA1YJJdadHss1tkS6/nGU71jj7DrFuV
-         95cg3mOhKi57Y/lpATut4uIlU9652NAMpmqeEU5nmGPmaGzXSW7cf0p+5LrJoAY/Fw
-         v/Ju1q7T6iQzpvK5TPc90pzNR4WdsliaI7vL2hno=
+        b=D8QsmwyVwPBTXLZLXKimS6jP/4MIZwn2jGNloPd1Zwk6wkg9p4dIgsgYl/Xu5gpq2
+         4Xo6q9sfSf25q/M2zXacJNsm0wI/gnEM8ieLSdm9CA2BJN2WTjqrh7UBuS1dhQAiXZ
+         JWWL/j9wsmJohhVU4Fh7xNHVGy3Y/vKUjZr+H/Js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 13/48] mt76: mt7921: fix max aggregation subframes setting
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 12/28] HID: gt683r: add missing MODULE_DEVICE_TABLE
 Date:   Wed, 16 Jun 2021 17:33:23 +0200
-Message-Id: <20210616152837.079530322@linuxfoundation.org>
+Message-Id: <20210616152834.537291986@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
-References: <20210616152836.655643420@linuxfoundation.org>
+In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
+References: <20210616152834.149064097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 94bb18b03d43f32e9440e8e350b7f533137c40f6 ]
+[ Upstream commit a4b494099ad657f1cb85436d333cf38870ee95bc ]
 
-The hardware can only handle 64 subframes in rx direction and 128 for tx.
-Improves throughput with APs that can handle more than that
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210507100211.15709-2-nbd@nbd.name
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-gt683r.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/init.c b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-index 89a13b4a74a4..c0001e38fcce 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-@@ -74,8 +74,8 @@ mt7921_init_wiphy(struct ieee80211_hw *hw)
- 	struct wiphy *wiphy = hw->wiphy;
+diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
+index 898871c8c768..29ccb0accfba 100644
+--- a/drivers/hid/hid-gt683r.c
++++ b/drivers/hid/hid-gt683r.c
+@@ -54,6 +54,7 @@ static const struct hid_device_id gt683r_led_id[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(hid, gt683r_led_id);
  
- 	hw->queues = 4;
--	hw->max_rx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF;
--	hw->max_tx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF;
-+	hw->max_rx_aggregation_subframes = 64;
-+	hw->max_tx_aggregation_subframes = 128;
- 
- 	phy->slottime = 9;
- 
+ static void gt683r_brightness_set(struct led_classdev *led_cdev,
+ 				enum led_brightness brightness)
 -- 
 2.30.2
 
