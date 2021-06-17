@@ -2,237 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC6053AAA98
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 06:57:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 801C13AAB45
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 07:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbhFQE7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 00:59:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48424 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbhFQE7e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 00:59:34 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC731C061574
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 21:57:25 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id c7so1164586edn.6
-        for <stable@vger.kernel.org>; Wed, 16 Jun 2021 21:57:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=fJto5u8DmQctcTcV4LE+sFMY4MOz8SZ9HZwCgsAenCw=;
-        b=WoYI+XXmLfQOGBc2qkRm5AjyqZj7Z8hjaH6BHifaRL+Buph+dalrksII11s40Uof//
-         eAxWwnioKuc/a1rF/j4JHgZFUkkJ2eHrS51uhHBPBEo++9878Ph5MjPWum2iFwIKWgWI
-         s7b8anPIMvy4VPKqIJwhG6aUESS2z9vpRJKLKT+FONVh9/y6sw5IxeCN8nifJ4FP9fWu
-         hVQRShSXVbRuZFiHx8TUSwEPfzQa6UlXweuhRRzxNYgT97cGHJEbjKHKIMYX4WwbVoa6
-         rNBPMS5/iu2+/fPbWnHHI/4pq7X59LZMcbTW6D1Cc0GGk6WLD7tpSbLL00+kfVnWGWjz
-         r8sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=fJto5u8DmQctcTcV4LE+sFMY4MOz8SZ9HZwCgsAenCw=;
-        b=NWrjb5U3Klr4NZrJv+VPnQiISaqfw0iiRs1eBYQy3FI1P+ZrLq1Bu3IvejAeMSR4Xe
-         +0R715Zn2fhtRQ9gXNYb/24bcPomLL7cvgx+oHhsVcGQPYv1ePI464yC3v6FFrNr1pdb
-         gN9QTQXVYS6oCPmSoOOE52s+WOpxf5jQOmrsRu6kjtdyolWI8gKozEX3S6BN+ff0B/jw
-         kp6ujtVW04xW9tRZcj+0s0YqXgwusWrbH9bzffYXv5/5dy1CpfoviP6kM17pVN2STRCA
-         mEQ1aYgBd0Z3VDNGiY5MH8dTRIJrnxc+ywGsdR06I13B82waG5HmYF3ly/eTB61bC6ug
-         Sd0A==
-X-Gm-Message-State: AOAM530ImGX6TKkrmg5DoY0pHPKFHCLvCuf/poOggzGJPV6wnlq1p0NX
-        +BxLRHZHH0pnuSQFNh97BylHL3TvW5OYHkBwwADFViNK7VJX2nEc
-X-Google-Smtp-Source: ABdhPJzFkJSsGF+nwSDua+klS/0qR8fCRLMoV0BKYLKe1ndmAjYRssChGJYPrBXXt+t+6nD5GxpHUpiRRG9mUbzzJBg=
-X-Received: by 2002:a05:6402:22fa:: with SMTP id dn26mr3862100edb.230.1623905844130;
- Wed, 16 Jun 2021 21:57:24 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210616152836.655643420@linuxfoundation.org>
-In-Reply-To: <20210616152836.655643420@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 17 Jun 2021 10:27:12 +0530
-Message-ID: <CA+G9fYsVgpgjjw+VQbdKEO=DugwnSNAydQKMqHO+i_QRTy9sEw@mail.gmail.com>
-Subject: Re: [PATCH 5.12 00/48] 5.12.12-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S229845AbhFQFtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 01:49:02 -0400
+Received: from mailout1.samsung.com ([203.254.224.24]:25610 "EHLO
+        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230272AbhFQFtB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 01:49:01 -0400
+Received: from epcas1p3.samsung.com (unknown [182.195.41.47])
+        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20210617054651epoutp017fb28dc660444b9ed3225442b933a069~JSHXcYyzC1857018570epoutp01w
+        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 05:46:51 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20210617054651epoutp017fb28dc660444b9ed3225442b933a069~JSHXcYyzC1857018570epoutp01w
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1623908811;
+        bh=6yTdXCtcMhIWw57WbRSwU6NBc0qFsTyI3S96cv8gatc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=fbV18WkIx18uV0EuYgKKD5cFQPmSLZ9eEbLqnxHy7iEAlUZDkzeW8lkpaEVjPJPOb
+         ifEG5MxdyV4bLllYxRphS13kkvT5c4kzDX4p1+FBdGjCojN0h6wSl9dy/dOj8BOApM
+         D3bmOZFhauexz58CTVIxcyKqS9LC4keyBgmmQI6g=
+Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
+        epcas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20210617054651epcas1p2374af237de7a1e641dfa5f31f18c2de1~JSHXAStug2425124251epcas1p2d;
+        Thu, 17 Jun 2021 05:46:51 +0000 (GMT)
+Received: from epsmges1p1.samsung.com (unknown [182.195.40.152]) by
+        epsnrtp4.localdomain (Postfix) with ESMTP id 4G59zX0y0dz4x9QJ; Thu, 17 Jun
+        2021 05:46:48 +0000 (GMT)
+Received: from epcas1p2.samsung.com ( [182.195.41.46]) by
+        epsmges1p1.samsung.com (Symantec Messaging Gateway) with SMTP id
+        AE.3F.09578.8C1EAC06; Thu, 17 Jun 2021 14:46:48 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas1p4.samsung.com (KnoxPortal) with ESMTPA id
+        20210617054647epcas1p4d2e5b1fa1ec35487701189808178da18~JSHThFDxO2867228672epcas1p49;
+        Thu, 17 Jun 2021 05:46:47 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20210617054647epsmtrp2ce77117d4c3e7da576649933a306743b~JSHTgMPuf2416724167epsmtrp2_;
+        Thu, 17 Jun 2021 05:46:47 +0000 (GMT)
+X-AuditID: b6c32a35-58cdfa800000256a-25-60cae1c83607
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        F6.96.08163.7C1EAC06; Thu, 17 Jun 2021 14:46:47 +0900 (KST)
+Received: from localhost.localdomain (unknown [10.113.221.102]) by
+        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20210617054647epsmtip1e8df5f7be061f5db532fb458eccbd409~JSHTRkLrK1583415834epsmtip1g;
+        Thu, 17 Jun 2021 05:46:47 +0000 (GMT)
+From:   Chanwoo Choi <cw00.choi@samsung.com>
+To:     andrew-sh.cheng@mediatek.com, hsinyi@chromium.org
+Cc:     sibis@codeaurora.org, saravanak@google.com,
+        myungjoo.ham@samsung.com, kyungmin.park@samsung.com,
+        cw00.choi@samsung.com, chanwoo@kernel.org, cwchoi00@gmail.com,
+        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/4] PM / devfreq: passive: Fix get_target_freq when not
+ using required-opp
+Date:   Thu, 17 Jun 2021 15:05:43 +0900
+Message-Id: <20210617060546.26933-2-cw00.choi@samsung.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20210617060546.26933-1-cw00.choi@samsung.com>
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpik+LIzCtJLcpLzFFi42LZdlhTT/fEw1MJBnvPMFtsX/+C1WLijSss
+        Fte/PGe1eHZU22JC63Zmi7NNb9gtLu+aw2bxufcIo8XtxhVsFl2H/rJZXFv4ntViwcZHjA48
+        HrMbLrJ4XO7rZfLYOesuu8eCTaUem1Z1snm0nNzP4tG3ZRWjx+dNcgEcUdk2GamJKalFCql5
+        yfkpmXnptkrewfHO8aZmBoa6hpYW5koKeYm5qbZKLj4Bum6ZOUDHKimUJeaUAoUCEouLlfTt
+        bIryS0tSFTLyi0tslVILUnIKLAv0ihNzi0vz0vWS83OtDA0MjEyBChOyMxb+W8dScIWr4v7n
+        I0wNjO84uhg5OCQETCRmvErqYuTkEBLYwSix8HR9FyMXkP2JUeLb08VMEM5nRonPFw+yg1SB
+        NJya08UGkdjFKLHz50EWCOcLo8SLnU1sIFVsAloS+1/cALNFBEwl9hyeCFbELPCDUWLS0RY2
+        kN3CArESe+4WgdSwCKhKTD/4lwXE5hWwkpg4Zz0bxDZ5idUbDjCD2JwC1hLnltxhB5kjIdDI
+        IfFny3wmiCIXia071rFC2MISr45vgTpVSuLzu71Qg6olVp48wgbR3MEosWX/BagGY4n9Sycz
+        gRzELKApsX6XPkRYUWLn77mMIDazAJ/Eu689rJDw4pXoaBOCKFGWuPzgLtQJkhKL2zuhVnlI
+        LN3XAQ26PkaJy6daGScwys1C2LCAkXEVo1hqQXFuemqxYYEhcoxtYgQnRi3THYwT337QO8TI
+        xMF4iFGCg1lJhFe3+ESCEG9KYmVValF+fFFpTmrxIUZTYOhNZJYSTc4Hpua8knhDUyNjY2ML
+        E0MzU0NDJXHenWyHEoQE0hNLUrNTUwtSi2D6mDg4pRqYur3WCrrVzn21uGLxwQTxhEX5X+9Y
+        KinYTns194ijzunwhzuuFb8ztP8m9W7754n3FSsDW033XjeZtCzHJj1O5O/fl57zVibX3Lxl
+        cYjpJ/OWz9d22rteEH6muqrlYOuLZ1v3JSoxVqiunPHNgW9VrDrH0pPHLEJZv3g/F5i4sdn0
+        cE/m3uzlPpH3LfdYiziEbekSqQp5uUxNY0q6dLVuNv/TD3vPqPt/vblwx5SFz85pMWal1hvm
+        mk8T+/P49sNb8qu2JZ58OMuc4duWgzP4qq2Wve44G9mfMoG9xyVfIsT52tVXfH82pMX2/Tyd
+        +PYOZ81brRz2MkdzPsbft0S1Lmr++zh5Uu78o+IckbvaspVYijMSDbWYi4oTAQi+S3wVBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrNLMWRmVeSWpSXmKPExsWy7bCSnO7xh6cSDCa8ELPYvv4Fq8XEG1dY
+        LK5/ec5q8eyotsWE1u3MFmeb3rBbXN41h83ic+8RRovbjSvYLLoO/WWzuLbwPavFgo2PGB14
+        PGY3XGTxuNzXy+Sxc9Zddo8Fm0o9Nq3qZPNoObmfxaNvyypGj8+b5AI4orhsUlJzMstSi/Tt
+        ErgyFv5bx1Jwhavi/ucjTA2M7zi6GDk5JARMJE7N6WLrYuTiEBLYwSgxp+MLI0RCUmLaxaPM
+        XYwcQLawxOHDxRA1nxgl3qyYAFbDJqAlsf/FDTaQGhEBc4njV6JBapgFWpgkNn7uYAapERaI
+        lthzawoLiM0ioCox/eBfMJtXwEpi4pz1bBC75CVWbzgAVs8pYC1xbskddpCZQkA151+lT2Dk
+        W8DIsIpRMrWgODc9t9iwwCgvtVyvODG3uDQvXS85P3cTIzh8tbR2MO5Z9UHvECMTB+MhRgkO
+        ZiURXt3iEwlCvCmJlVWpRfnxRaU5qcWHGKU5WJTEeS90nYwXEkhPLEnNTk0tSC2CyTJxcEo1
+        MO0vXJwofojTgH/6RNnvDM8diibOb9i6qPHhPI0Zqtwp5y+JSK4OZNBtO/G6yEDlo+LSjdx9
+        ihKnOQP2n5t+Ir6b9e8ki7KGi5GVr6ZyVbQdcXeu/al7cI5Yz99jOfM2LujdxL9Ckasqw9H0
+        sOl9gZKW0yfSvMSEHtr5zv23/Mb8CLXNEmejkx5qtKo/4z6ypvu5ld3hff91ehx8mPc4KYfx
+        zVq/8MJ529Xuzs6mhkkvvryVC/rgsU5i4WG5aZEFXO8Ld5tWPQ6Sr9FcHuOrfffC5pb3uYcd
+        im5tZvds6f1ozK+bxS6wfddOuehnmz/P/JBq66yqfOyLNu+mxoN/PTWmFeyayXmlu49HnWX3
+        DSWW4oxEQy3mouJEAOQ9JDLOAgAA
+X-CMS-MailID: 20210617054647epcas1p4d2e5b1fa1ec35487701189808178da18
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: SVC_REQ_APPROVE
+CMS-TYPE: 101P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20210617054647epcas1p4d2e5b1fa1ec35487701189808178da18
+References: <20210617060546.26933-1-cw00.choi@samsung.com>
+        <CGME20210617054647epcas1p4d2e5b1fa1ec35487701189808178da18@epcas1p4.samsung.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 16 Jun 2021 at 21:08, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.12.12 release.
-> There are 48 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 18 Jun 2021 15:28:19 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.12.12-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.12.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+The 86ad9a24f21e ("PM / devfreq: Add required OPPs support to passive governor")
+supported the required-opp property for using devfreq passive governor.
+But, 86ad9a24f21e has caused the problem on use-case when required-opp
+is not used such as exynos-bus.c devfreq driver. So that fix the
+get_target_freq of passive governor for supporting the case of when
+required-opp is not used.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Cc: stable@vger.kernel.org
+Fixes: 86ad9a24f21e ("PM / devfreq: Add required OPPs support to passive governor")
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+---
+ drivers/devfreq/governor_passive.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+diff --git a/drivers/devfreq/governor_passive.c b/drivers/devfreq/governor_passive.c
+index b094132bd20b..fc09324a03e0 100644
+--- a/drivers/devfreq/governor_passive.c
++++ b/drivers/devfreq/governor_passive.c
+@@ -65,7 +65,7 @@ static int devfreq_passive_get_target_freq(struct devfreq *devfreq,
+ 		dev_pm_opp_put(p_opp);
+ 
+ 		if (IS_ERR(opp))
+-			return PTR_ERR(opp);
++			goto no_required_opp;
+ 
+ 		*freq = dev_pm_opp_get_freq(opp);
+ 		dev_pm_opp_put(opp);
+@@ -73,6 +73,7 @@ static int devfreq_passive_get_target_freq(struct devfreq *devfreq,
+ 		return 0;
+ 	}
+ 
++no_required_opp:
+ 	/*
+ 	 * Get the OPP table's index of decided frequency by governor
+ 	 * of parent device.
+-- 
+2.17.1
 
-## Build
-* kernel: 5.12.12-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.12.y
-* git commit: 3197a891c08a4cf4c9300437e2747af3d5cb55e2
-* git describe: v5.12.11-49-g3197a891c08a
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.12.y/build/v5.12=
-.11-49-g3197a891c08a
-
-## No regressions (compared to v5.12.10-174-g38004b22b0ae)
-
-## No fixes (compared to v5.12.10-174-g38004b22b0ae)
-
-## Test result summary
- total: 87611, pass: 70968, fail: 3383, skip: 12489, xfail: 771,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* dragonboard-410c: 2 total, 2 passed, 0 failed
-* hi6220-hikey: 2 total, 2 passed, 0 failed
-* i386: 27 total, 27 passed, 0 failed
-* juno-r2: 2 total, 2 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 2 total, 0 passed, 2 failed
-* x86: 2 total, 2 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
