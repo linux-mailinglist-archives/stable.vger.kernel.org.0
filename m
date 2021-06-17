@@ -2,128 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D563AE82F
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 13:28:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F8AC3AE854
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 13:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229621AbhFULal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 07:30:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45520 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbhFULak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 07:30:40 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03399C061574
-        for <stable@vger.kernel.org>; Mon, 21 Jun 2021 04:28:27 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1lvI6I-0007g1-4Y; Mon, 21 Jun 2021 13:28:22 +0200
-Received: from pengutronix.de (unknown [IPv6:2a03:f580:87bc:d400:3569:1fb5:40be:61fc])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id BA172640529;
-        Mon, 21 Jun 2021 11:28:20 +0000 (UTC)
-Date:   Mon, 21 Jun 2021 13:28:20 +0200
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     linux-can@vger.kernel.org
-Cc:     kernel@pengutronix.de,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        linux-stable <stable@vger.kernel.org>,
-        syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>,
-        syzbot <syzbot+0f1827363a305f74996f@syzkaller.appspotmail.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>
-Subject: Re: [PATCH] can: bcm/raw/isotp: use per module netdevice notifier
-Message-ID: <20210621112820.5gemmaw56bipx45j@pengutronix.de>
-References: <1624271916195215@kroah.com>
- <20210621112451.2882032-1-mkl@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="yhmgce7jhv4ifrup"
-Content-Disposition: inline
-In-Reply-To: <20210621112451.2882032-1-mkl@pengutronix.de>
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+        id S229576AbhFULt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 07:49:26 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:59580 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229487AbhFULtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 07:49:25 -0400
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1lvIOT-009Ljq-UM; Mon, 21 Jun 2021 11:47:09 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Thu, 17 Jun 2021 08:18:37 +0000
+Subject: [git:media_tree/master] media: subdev: disallow ioctl for saa6588/davinci
+To:     linuxtv-commits@linuxtv.org
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1lvIOT-009Ljq-UM@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an automatic generated email to let you know that the following patch were queued:
 
---yhmgce7jhv4ifrup
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Subject: media: subdev: disallow ioctl for saa6588/davinci
+Author:  Arnd Bergmann <arnd@arndb.de>
+Date:    Mon Jun 14 12:34:09 2021 +0200
 
-On 21.06.2021 13:24:51, Marc Kleine-Budde wrote:
-> From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
->=20
-> commit 8d0caedb759683041d9db82069937525999ada53 upstream
->=20
-> syzbot is reporting hung task at register_netdevice_notifier() [1] and
-> unregister_netdevice_notifier() [2], for cleanup_net() might perform
-> time consuming operations while CAN driver's raw/bcm/isotp modules are
-> calling {register,unregister}_netdevice_notifier() on each socket.
->=20
-> Change raw/bcm/isotp modules to call register_netdevice_notifier() from
-> module's __init function and call unregister_netdevice_notifier() from
-> module's __exit function, as with gw/j1939 modules are doing.
->=20
-> Link: https://syzkaller.appspot.com/bug?id=3D391b9498827788b3cc6830226d4f=
-f5be87107c30 [1]
-> Link: https://syzkaller.appspot.com/bug?id=3D1724d278c83ca6e6df100a2e320c=
-10d991cf2bce [2]
-> Link: https://lore.kernel.org/r/54a5f451-05ed-f977-8534-79e7aa2bcc8f@i-lo=
-ve.sakura.ne.jp
-> Cc: linux-stable <stable@vger.kernel.org>
-> Reported-by: syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.co=
-m>
-> Reported-by: syzbot <syzbot+0f1827363a305f74996f@syzkaller.appspotmail.co=
-m>
-> Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-> Tested-by: syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>
-> Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
-> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> [mkl: ported to v4.19.195]
-> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> ---
-> Hello Greg,
->=20
-> this is a backport of
->=20
-> | 8d0caedb7596 can: bcm/raw/isotp: use per module netdevice notifier
->=20
-> to v4.19.195. Please apply.
+The saa6588_ioctl() function expects to get called from other kernel
+functions with a 'saa6588_command' pointer, but I found nothing stops it
+from getting called from user space instead, which seems rather dangerous.
 
-This also applies to v4.14.237.
+The same thing happens in the davinci vpbe driver with its VENC_GET_FLD
+command.
 
-I'm working on a v4.9 version.
+As a quick fix, add a separate .command() callback pointer for this
+driver and change the two callers over to that.  This change can easily
+get backported to stable kernels if necessary, but since there are only
+two drivers, we may want to eventually replace this with a set of more
+specialized callbacks in the long run.
 
-Marc
+Fixes: c3fda7f835b0 ("V4L/DVB (10537): saa6588: convert to v4l2_subdev.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+ drivers/media/i2c/saa6588.c                   | 4 ++--
+ drivers/media/pci/bt8xx/bttv-driver.c         | 6 +++---
+ drivers/media/pci/saa7134/saa7134-video.c     | 6 +++---
+ drivers/media/platform/davinci/vpbe_display.c | 2 +-
+ drivers/media/platform/davinci/vpbe_venc.c    | 6 ++----
+ include/media/v4l2-subdev.h                   | 4 ++++
+ 6 files changed, 15 insertions(+), 13 deletions(-)
 
---yhmgce7jhv4ifrup
-Content-Type: application/pgp-signature; name="signature.asc"
+---
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmDQd9EACgkQqclaivrt
-76kseQf+NvUFgZeGvQ+pY7pn/gR2djJfzNTIyLJcYEuOnZMkJ7AI4sdt3ixui7l0
-KzdbyK7Brb85poOUvTq4+tK+f2j8UQ0EbNZLfcPzujHqSj+Ezw6gkmw5VXybn9O4
-1so6rRjxm9U8Y5Ve81JdVVJ/rekHgSGTuhe6UcgyNt+3/SLJQPVX3GpCSfa/dh5G
-/61MEr73YCKMg1FQqWiNqyqyHrQkj/x3iCINemmRxO/LwLgv3JRlugYWOJguNJZl
-AGjc359azH4+AUaM6Qt/4M4cI6CLe2vKCFEcBtEQ85uey9wSqEVoIE/6ydh0Phwc
-7KPW8Anu/igjA1KxB5/Ii4bMd3qiVQ==
-=4jOM
------END PGP SIGNATURE-----
-
---yhmgce7jhv4ifrup--
+diff --git a/drivers/media/i2c/saa6588.c b/drivers/media/i2c/saa6588.c
+index ecb491d5f2ab..d1e0716bdfff 100644
+--- a/drivers/media/i2c/saa6588.c
++++ b/drivers/media/i2c/saa6588.c
+@@ -380,7 +380,7 @@ static void saa6588_configure(struct saa6588 *s)
+ 
+ /* ---------------------------------------------------------------------- */
+ 
+-static long saa6588_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
++static long saa6588_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
+ {
+ 	struct saa6588 *s = to_saa6588(sd);
+ 	struct saa6588_command *a = arg;
+@@ -433,7 +433,7 @@ static int saa6588_s_tuner(struct v4l2_subdev *sd, const struct v4l2_tuner *vt)
+ /* ----------------------------------------------------------------------- */
+ 
+ static const struct v4l2_subdev_core_ops saa6588_core_ops = {
+-	.ioctl = saa6588_ioctl,
++	.command = saa6588_command,
+ };
+ 
+ static const struct v4l2_subdev_tuner_ops saa6588_tuner_ops = {
+diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
+index 1f62a9d8ea1d..0e9df8b35ac6 100644
+--- a/drivers/media/pci/bt8xx/bttv-driver.c
++++ b/drivers/media/pci/bt8xx/bttv-driver.c
+@@ -3179,7 +3179,7 @@ static int radio_release(struct file *file)
+ 
+ 	btv->radio_user--;
+ 
+-	bttv_call_all(btv, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
++	bttv_call_all(btv, core, command, SAA6588_CMD_CLOSE, &cmd);
+ 
+ 	if (btv->radio_user == 0)
+ 		btv->has_radio_tuner = 0;
+@@ -3260,7 +3260,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
+ 	cmd.result = -ENODEV;
+ 	radio_enable(btv);
+ 
+-	bttv_call_all(btv, core, ioctl, SAA6588_CMD_READ, &cmd);
++	bttv_call_all(btv, core, command, SAA6588_CMD_READ, &cmd);
+ 
+ 	return cmd.result;
+ }
+@@ -3281,7 +3281,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
+ 	cmd.instance = file;
+ 	cmd.event_list = wait;
+ 	cmd.poll_mask = res;
+-	bttv_call_all(btv, core, ioctl, SAA6588_CMD_POLL, &cmd);
++	bttv_call_all(btv, core, command, SAA6588_CMD_POLL, &cmd);
+ 
+ 	return cmd.poll_mask;
+ }
+diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
+index 0f9d6b9edb90..374c8e1087de 100644
+--- a/drivers/media/pci/saa7134/saa7134-video.c
++++ b/drivers/media/pci/saa7134/saa7134-video.c
+@@ -1181,7 +1181,7 @@ static int video_release(struct file *file)
+ 
+ 	saa_call_all(dev, tuner, standby);
+ 	if (vdev->vfl_type == VFL_TYPE_RADIO)
+-		saa_call_all(dev, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
++		saa_call_all(dev, core, command, SAA6588_CMD_CLOSE, &cmd);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return 0;
+@@ -1200,7 +1200,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
+ 	cmd.result = -ENODEV;
+ 
+ 	mutex_lock(&dev->lock);
+-	saa_call_all(dev, core, ioctl, SAA6588_CMD_READ, &cmd);
++	saa_call_all(dev, core, command, SAA6588_CMD_READ, &cmd);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return cmd.result;
+@@ -1216,7 +1216,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
+ 	cmd.event_list = wait;
+ 	cmd.poll_mask = 0;
+ 	mutex_lock(&dev->lock);
+-	saa_call_all(dev, core, ioctl, SAA6588_CMD_POLL, &cmd);
++	saa_call_all(dev, core, command, SAA6588_CMD_POLL, &cmd);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return rc | cmd.poll_mask;
+diff --git a/drivers/media/platform/davinci/vpbe_display.c b/drivers/media/platform/davinci/vpbe_display.c
+index d19bad997f30..bf3c3e76b921 100644
+--- a/drivers/media/platform/davinci/vpbe_display.c
++++ b/drivers/media/platform/davinci/vpbe_display.c
+@@ -47,7 +47,7 @@ static int venc_is_second_field(struct vpbe_display *disp_dev)
+ 
+ 	ret = v4l2_subdev_call(vpbe_dev->venc,
+ 			       core,
+-			       ioctl,
++			       command,
+ 			       VENC_GET_FLD,
+ 			       &val);
+ 	if (ret < 0) {
+diff --git a/drivers/media/platform/davinci/vpbe_venc.c b/drivers/media/platform/davinci/vpbe_venc.c
+index 8caa084e5704..bde241c26d79 100644
+--- a/drivers/media/platform/davinci/vpbe_venc.c
++++ b/drivers/media/platform/davinci/vpbe_venc.c
+@@ -521,9 +521,7 @@ static int venc_s_routing(struct v4l2_subdev *sd, u32 input, u32 output,
+ 	return ret;
+ }
+ 
+-static long venc_ioctl(struct v4l2_subdev *sd,
+-			unsigned int cmd,
+-			void *arg)
++static long venc_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
+ {
+ 	u32 val;
+ 
+@@ -542,7 +540,7 @@ static long venc_ioctl(struct v4l2_subdev *sd,
+ }
+ 
+ static const struct v4l2_subdev_core_ops venc_core_ops = {
+-	.ioctl      = venc_ioctl,
++	.command      = venc_command,
+ };
+ 
+ static const struct v4l2_subdev_video_ops venc_video_ops = {
+diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
+index 89115ba4c0f2..95f8bfd63273 100644
+--- a/include/media/v4l2-subdev.h
++++ b/include/media/v4l2-subdev.h
+@@ -162,6 +162,9 @@ struct v4l2_subdev_io_pin_config {
+  * @s_gpio: set GPIO pins. Very simple right now, might need to be extended with
+  *	a direction argument if needed.
+  *
++ * @command: called by in-kernel drivers in order to call functions internal
++ *	   to subdev drivers driver that have a separate callback.
++ *
+  * @ioctl: called at the end of ioctl() syscall handler at the V4L2 core.
+  *	   used to provide support for private ioctls used on the driver.
+  *
+@@ -193,6 +196,7 @@ struct v4l2_subdev_core_ops {
+ 	int (*load_fw)(struct v4l2_subdev *sd);
+ 	int (*reset)(struct v4l2_subdev *sd, u32 val);
+ 	int (*s_gpio)(struct v4l2_subdev *sd, u32 val);
++	long (*command)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
+ 	long (*ioctl)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
+ #ifdef CONFIG_COMPAT
+ 	long (*compat_ioctl32)(struct v4l2_subdev *sd, unsigned int cmd,
