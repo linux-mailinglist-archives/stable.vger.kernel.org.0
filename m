@@ -2,131 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB743ABF28
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 01:03:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58EB33ABF34
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 01:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbhFQXFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 19:05:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:34343 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232837AbhFQXFx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 19:05:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623971025;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=OhGqlyXvaaFw2B5uHoKSC4OTwAR38tQvd3nojT+L3Tc=;
-        b=a2Ol1FOQ+Hqbsn8g2wJKqWpplBk2UYCJBdDcAj8r6QOGG486uhzsZLf82vkld/7/NYHl7f
-        3UZXIjZ14w9ZhXYFTyatNibL9AHV0e1CnBwWGUYGJ9Jcm8Z3/D3r2SeoqIIpfZk2POmLE+
-        IycxmsR0UZv8uTs2kmiMeNnCSSIBEeA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-16-_vdYYZ5cPdu6VIzrIhdnnA-1; Thu, 17 Jun 2021 19:03:43 -0400
-X-MC-Unique: _vdYYZ5cPdu6VIzrIhdnnA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0F0B7801ADF;
-        Thu, 17 Jun 2021 23:03:42 +0000 (UTC)
-Received: from T590 (ovpn-12-22.pek2.redhat.com [10.72.12.22])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id B7F716062C;
-        Thu, 17 Jun 2021 23:03:35 +0000 (UTC)
-Date:   Fri, 18 Jun 2021 07:03:31 +0800
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Kristian Klausen <kristian@klausen.dk>
-Cc:     linux-block@vger.kernel.org, stable@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>,
-        Martijn Coenen <maco@android.com>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] loop: Fix missing discard support when using
- LOOP_CONFIGURE
-Message-ID: <YMvUw3E51fvezQN/@T590>
-References: <20210617221158.7045-1-kristian@klausen.dk>
+        id S232387AbhFQXMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 19:12:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39026 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232318AbhFQXMn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 19:12:43 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F469C061760
+        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 16:10:34 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id h16so4673631pjv.2
+        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 16:10:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=G4dcuAAGqmXJT5DuFgw0YP7swJ10pImvUBqsUnV4SwU=;
+        b=Y7gSkuOjUL/6g0t+i6jhPnEHNt13bGmhUPEELQyLifTb3rYdP15UECINaxIcsHLQOy
+         9AY4SI70jKpGqcC3G9CkNMpamAo9ytBwFG8G2aA+wVUOfMGZAUYfmUXpJc6RN8l7+vrs
+         Vel14aCsvD5ZggKT0ijGN7v+Aq8xEBhEb9q74=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=G4dcuAAGqmXJT5DuFgw0YP7swJ10pImvUBqsUnV4SwU=;
+        b=tFMt763q74PUk7EP5iGt5Won2639g/1J7Y3Pux9iTQifdIb6IWr3MP/Jpg3FpKzUcF
+         QVHCKh/QqYAgYFh69gQPgItXXyziTVScqlYosyDFv/g0sJ/I2iVQ4calZx9Uts4itUnY
+         tM13H2eIeJEGlE+cS6fuVxYHZPG6hkZDHOPXzfDQB0pR3b6AR+TDIC3IMb0sNjeFO+PP
+         QSXIpr/tPcDyztlvuMFc27wiq9x88IIqvJ9bbJQCPTGylF1PJ8qQ+rdYfxTBVnRj0xKq
+         JgdShptddgK6kC2tjvOnTeLZCjxEXaTI8FUPQDpp/tFMj08GSlFPqh1GNbk0djmdye1J
+         ugpw==
+X-Gm-Message-State: AOAM531GewTJmj2MJMdDIgqrOjVIL/bAb575Pokn2v7UGPZBTJbiI5QD
+        ty+IdbTnwUfAc3V0SYD4v5Z7Mw==
+X-Google-Smtp-Source: ABdhPJxiErX5m9clXwxzFwFc/Fm1wBAuYiteEGTQC5kS4kF1Sr+7FSaVLhgm3DYF1VwaarlXzB0iSQ==
+X-Received: by 2002:a17:90a:46c8:: with SMTP id x8mr19225624pjg.216.1623971434053;
+        Thu, 17 Jun 2021 16:10:34 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id n17sm5882819pfv.125.2021.06.17.16.10.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Jun 2021 16:10:33 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Shuah Khan <shuah@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] selftests/lkdtm: Use /bin/sh not $SHELL
+Date:   Thu, 17 Jun 2021 16:10:27 -0700
+Message-Id: <20210617231027.3908585-1-keescook@chromium.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210617221158.7045-1-kristian@klausen.dk>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Patch-Hashes: v=1; h=sha256; g=0ca552e2a18e1ba1dde7ae32c796988c0c6cd64c; i=lfnT3xbl3M4bSoo3fY1JvS2JIxARVoZVIzxV1pBNVzw=; m=tr/oXMpsj/GZG/QCgR+VpXKeGRmUnEu0qybVzfQX7mM=; p=RhCkpoFJvGHGfnnLBQ9fmzwicmX3HukxRspK8EAoIHY=
+X-Patch-Sig: m=pgp; i=keescook@chromium.org; s=0x0x8972F4DFDC6DC026; b=iQIzBAABCgAdFiEEpcP2jyKd1g9yPm4TiXL039xtwCYFAmDL1mIACgkQiXL039xtwCZztw/+NVn v2mbVjKtpS3XGzGAX+kkH4H+LhNd3BRQ5LSXYugv1a2DlD8mXybYmVnRR8Vp9HhXbim2R5ZIyPBFQ m05CYeTKTrgTQPcViD9UFZ+sf8dHCnV0hNjPyi0TU7d24+BRKw5yxM/fvX3+izjYdgnCAstNgB5dO eW5aL5dcVGdfmUOBR1FLLjmxOVm8Supd2C7y+at5rhA+AWKqvyprSE3RGlhSOKpoqOXPrSHtYlSDS wMQ0rFAd4wrgPwyAv2h1QTRIyYvk8TGELEpkW+0etL6k/c2EtqgPMCKYFp7aaitM5scEJFjUtxW0g xqLQupiieEwrnBzdJcqK/OP2l0L72vpp3oE39wLEVr6iamaYSGI2baDu4RtYvt9zy2h2Q/ViOML0m 4LtWG+b0/a2R3WRqbtPnrwK5HIXIfXfeD77vQGq2kb98iTEJJfWCfqoJOVNLs6Co3BiiDOf8cPxt0 Y2KqZzP1rJ+CpgwQrgaAWB+ojrN74VKbK5Z2jncyG/po+0ebPsRalMzEPpVrL2zaFx1n40PFCPkBM j5QMzZiyZrbU/z65tHQtQv7KpTLj9KiG5J5QyXRxlQzExrJSMWn+yRJvU+XOUR/758/tr3oo7vtsC fBGS61ozPQKnbNiifKjIuvxBWrongX3JyN3EP6zxZTmOLZ9n84CTS7h/u60uIylU=
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 18, 2021 at 12:11:57AM +0200, Kristian Klausen wrote:
+Some environments (e.g. kerneci.org) do not set $SHELL for their test
+environment. There's no need to use $SHELL here anyway, so just replace
+it with hard-coded /bin/sh instead. Without this, the LKDTM tests would
+never actually run on kerneci.org.
 
-Commit log?
+Fixes: 46d1a0f03d66 ("selftests/lkdtm: Add tests for LKDTM targets")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ tools/testing/selftests/lkdtm/run.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Cc: <stable@vger.kernel.org> # 5.8.x-
-> Fixes: 3448914e8cc5 ("loop: Add LOOP_CONFIGURE ioctl")
-> Signed-off-by: Kristian Klausen <kristian@klausen.dk>
-> ---
-> Tested like so (without the patch):
-> losetup 2.37<= uses LOOP_CONFIGURE instead of LOOP_SET_STATUS64[1]
-> 
-> # fallocate -l100M disk.img
-> # rmmod loop
-> # losetup --version
-> losetup from util-linux 2.36.2
-> # losetup --find --show disk.img
-> /dev/loop0
-> # grep '' /sys/devices/virtual/block/loop0/queue/*discard*
-> /sys/devices/virtual/block/loop0/queue/discard_granularity:4096
-> /sys/devices/virtual/block/loop0/queue/discard_max_bytes:4294966784
-> /sys/devices/virtual/block/loop0/queue/discard_max_hw_bytes:4294966784
-> /sys/devices/virtual/block/loop0/queue/discard_zeroes_data:0
-> /sys/devices/virtual/block/loop0/queue/max_discard_segments:1
-> # losetup -d /dev/loop0
-> # [update util-linux]
-> # losetup --version
-> losetup from util-linux 2.37
-> # rmmod loop
-> # losetup --find --show disk.img
-> /dev/loop0
-> # grep '' /sys/devices/virtual/block/loop0/queue/*discard*
-> /sys/devices/virtual/block/loop0/queue/discard_granularity:0
-> /sys/devices/virtual/block/loop0/queue/discard_max_bytes:0
-> /sys/devices/virtual/block/loop0/queue/discard_max_hw_bytes:0
-> /sys/devices/virtual/block/loop0/queue/discard_zeroes_data:0
-> /sys/devices/virtual/block/loop0/queue/max_discard_segments:1
-> 
-> 
-> With the patch applied:
-> 
-> # losetup --version
-> losetup from util-linux 2.37
-> # rmmod loop
-> # losetup --find --show disk.img
-> /dev/loop0
-> # grep '' /sys/devices/virtual/block/loop0/queue/*discard*
-> /sys/devices/virtual/block/loop0/queue/discard_granularity:4096
-> /sys/devices/virtual/block/loop0/queue/discard_max_bytes:4294966784
-> /sys/devices/virtual/block/loop0/queue/discard_max_hw_bytes:4294966784
-> /sys/devices/virtual/block/loop0/queue/discard_zeroes_data:0
-> /sys/devices/virtual/block/loop0/queue/max_discard_segments:1
-> 
-> [1] https://github.com/karelzak/util-linux/pull/1152
-> 
->  drivers/block/loop.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-> index 76e12f3482a9..ec957f6d8a49 100644
-> --- a/drivers/block/loop.c
-> +++ b/drivers/block/loop.c
-> @@ -1168,6 +1168,8 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
->  	if (partscan)
->  		lo->lo_disk->flags &= ~GENHD_FL_NO_PART_SCAN;
->  
-> +	loop_config_discard(lo);
-> +
-
-It could be better to move loop_config_discard() around
-loop_update_rotational/loop_update_dio(), then we setup everything
-before updating loop as Lo_bound.
-
-Otherwise, this patch looks fine.
-
-
-Thanks,
-Ming
+diff --git a/tools/testing/selftests/lkdtm/run.sh b/tools/testing/selftests/lkdtm/run.sh
+index bb7a1775307b..968ff3cf5667 100755
+--- a/tools/testing/selftests/lkdtm/run.sh
++++ b/tools/testing/selftests/lkdtm/run.sh
+@@ -79,7 +79,7 @@ dmesg > "$DMESG"
+ # Most shells yell about signals and we're expecting the "cat" process
+ # to usually be killed by the kernel. So we have to run it in a sub-shell
+ # and silence errors.
+-($SHELL -c 'cat <(echo '"$test"') >'"$TRIGGER" 2>/dev/null) || true
++(/bin/sh -c 'cat <(echo '"$test"') >'"$TRIGGER" 2>/dev/null) || true
+ 
+ # Record and dump the results
+ dmesg | comm --nocheck-order -13 "$DMESG" - > "$LOG" || true
+-- 
+2.25.1
 
