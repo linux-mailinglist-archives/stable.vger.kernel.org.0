@@ -2,100 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 077363AB153
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 12:28:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C84B93AB166
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 12:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229891AbhFQKaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 06:30:04 -0400
-Received: from szxga03-in.huawei.com ([45.249.212.189]:7351 "EHLO
-        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229716AbhFQKaD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 06:30:03 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4G5J7G0Tzkz6yLB;
-        Thu, 17 Jun 2021 18:23:54 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Thu, 17 Jun 2021 18:27:54 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Thu, 17 Jun 2021 18:27:53 +0800
-Subject: Re: [PATCH 5.10 00/38] 5.10.45-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210616152835.407925718@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <018b3f5b-63ca-aa5b-454a-008c5c48ee8d@huawei.com>
-Date:   Thu, 17 Jun 2021 18:27:53 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S231260AbhFQKfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 06:35:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45176 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229868AbhFQKfE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Jun 2021 06:35:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A88AD613C1;
+        Thu, 17 Jun 2021 10:32:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623925976;
+        bh=5LFrWKKnZzvh/4r7zdfHzAVLWRjA2NAS61Xo1SiDMzI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AOCrY5pGzfLkyz4h4F84W9YSr/0KuhYp1X/v/mxaY2Hy5HcyNwhpNjuFt7pbjjDcQ
+         J+JCu2P6VyaatyRM6QXSOQDuGs8lsj3LAh+atXDFv5iaab5ONSkJo5jQ1SVwgg3kAj
+         2TGwsiaN9+pAg55Ls3zmKq+dghYhO5bp9IxjyPcA=
+Date:   Thu, 17 Jun 2021 12:32:53 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sherry Yang <sherry.yang@oracle.com>
+Cc:     "mingo@redhat.com" <mingo@redhat.com>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 5.4 0/2] Backports "x86, sched: Treat Intel SNC topology
+ as default, COD as exception"
+Message-ID: <YMsk1Yg9kzqwymUv@kroah.com>
+References: <20210608003715.66882-1-sherry.yang@oracle.com>
+ <A969D4BF-D21B-4AB0-97AE-5C881C6F187D@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <A969D4BF-D21B-4AB0-97AE-5C881C6F187D@oracle.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/6/16 23:33, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.45 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Jun 16, 2021 at 10:59:46PM +0000, Sherry Yang wrote:
 > 
-> Responses should be made by Fri, 18 Jun 2021 15:28:19 +0000.
-> Anything received after that time might be too late.
+> > On Jun 7, 2021, at 5:37 PM, Sherry Yang <sherry.yang@oracle.com> wrote:
+> > 
+> > Could you also backport these two commits
+> > adefe55e7258 ("x86/kernel: Convert to new CPU match macros")
+> > 2c88d45edbb8 ("x86, sched: Treat Intel SNC topology as default,
+> > COD as exception") to 5.4.y?
+> > 
+> > Commit adefe55e7258 ("x86/kernel: Convert to new CPU match macros")
+> > is a prerequisite of the second commit. There are conflicts while
+> > cherry-picking commit adefe55e7258 ("x86/kernel: Convert to new
+> > CPU match macros"), which are caused by a later commit
+> > c84cb3735fd5 ("x86/apic: Move TSC deadline timer debug printk").
+> > Keep the later code base.
+> > 
+> > Alison Schofield (1):
+> >  x86, sched: Treat Intel SNC topology as default, COD as exception
+> > 
+> > Thomas Gleixner (1):
+> >  x86/kernel: Convert to new CPU match macros
+> > 
+> > arch/x86/kernel/apic/apic.c | 32 ++++++-------
+> > arch/x86/kernel/smpboot.c   | 90 +++++++++++++++++++------------------
+> > arch/x86/kernel/tsc_msr.c   | 14 +++---
+> > arch/x86/power/cpu.c        | 16 +------
+> > 4 files changed, 68 insertions(+), 84 deletions(-)
+> > 
+> > -- 
+> > 2.27.0
+> > 
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.45-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Hi,
+>  
+> We have seen that the warning “sched: CPU #20's llc-sibling CPU #0 is not on 
+> the same node! [node: 1 != 0]. Ignoring dependency. ” applies to 5.4 but we don’t 
+> observe the fix in 5.4. I'm sending this email to apply the fix from upstream 
+> 2c88d45edbb8 ("x86, sched: Treat Intel SNC topology as default, COD as 
+> exception") to 5.4 and also resolve the dependency conflict caused by 
+> prerequisite commit adefe55e7258 ("x86/kernel: Convert to new CPU match 
+> macros”) by keeping the later code base, please refer to the
+> previous two patches for the detail.
+>  
 
-Tested on arm64 and x86 for 5.10.45-rc1,
+I have no idea what you want me to do here, sorry.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.45-rc1
-Commit: aba9bf2d6e4093d75b06b37d11ebebd7f637636d
-Compiler: gcc version 7.3.0 (GCC)
+Please provide a working, tested, set of patches backported to the
+relevant stable trees you want to see them applied to, and I will be
+glad to review and queue them up if they look good.  No one here is in
+the position to "resolve the dependency conflict" of anything here for
+you, sorry, you will need to do this yourself as you are in the best
+position to do so.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8906
-passed: 8906
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+thanks!
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8906
-passed: 8906
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+greg k-h
