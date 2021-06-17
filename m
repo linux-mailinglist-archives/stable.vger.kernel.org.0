@@ -2,89 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F5F3AB1D1
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 13:00:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B3003AB268
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 13:22:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231559AbhFQLCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 07:02:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45452 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232127AbhFQLCi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 07:02:38 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 744ADC061574;
-        Thu, 17 Jun 2021 04:00:30 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id f2so6231635wri.11;
-        Thu, 17 Jun 2021 04:00:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=4PYymUzmy116DuPsenydXPZISGQWCoP3FrStayWVf4E=;
-        b=uWACo9J4p32zQEh3kk1gZ0JF0ZLPENV1ZYdsNew1kjWO98FVZQiQtygmIRWgz2ue0F
-         BoJkhMcn7/zPY1HiHoAK7oV/j/DEhwjO+WaprUbEkss8BAGiloJbqtuJ/d08haleIH+N
-         YtnA5gqO5HZdQa/bwix06j5MtvUtl0NfcgLhUWO8Icj/AtIkT3JCc4Tfv6qqwaKqerzi
-         rINnKF0VZR3S2gVZR1j2HZooxkNBn2KG6OzE0Z6q6ihAbrTW347I+rwLEPlYNpKICTLu
-         eek1U8O86gh40CkqY7mJx94K2YGEwxI60ycS27kUd8hrZEtCsR69exC5p48pyJqbC7j3
-         6VLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=4PYymUzmy116DuPsenydXPZISGQWCoP3FrStayWVf4E=;
-        b=RZCTC+6AJEGwkAU81JCajkhVsaJfsoDigsQb/Y0vBrxmKwaJtiw7dS8U8MnW6KVEGY
-         rhwDaPJRNe7PCkTWDiFX7A6Vh5hIQGl+9cezb1unRbxF005MgYteZ7ekirs9GCz56Tgb
-         lONWkSul1WtKSaa4W0uM/+7sf6+Apsf6sXEQ5lB2pMb0sGNnbvV9VrGnBcCvRv3DPpOx
-         E1GChcOCg/Lq4FNXlggCbI2XGKBaKqVO8Rnnz/fazoAjPw8qQpYCVnlmk6H3Ti+uI/ya
-         g0LuU4Xg1uBhrhzTjcRrFR1Rtgiy0/ABlHLzwDM/Sia1BDEnQZ1v5Y63sye9oe8O/H5W
-         9YBg==
-X-Gm-Message-State: AOAM533RgRW+YFIguhekvVJut0xlMJciAc5dzRuznDeG+IrQjuk3bYFN
-        O6ENtrfFPH+YLXtGP841+jCZ34ACKMzfZQ==
-X-Google-Smtp-Source: ABdhPJxckIL/vwSiayYDANqk2+qo+5boEYAEdDPRi5+77A4YKjvjTeTTiNpi1srXk2cAzNFYLFR/hg==
-X-Received: by 2002:a5d:4fc6:: with SMTP id h6mr5064242wrw.1.1623927629127;
-        Thu, 17 Jun 2021 04:00:29 -0700 (PDT)
-Received: from debian (host-84-13-31-66.opaltelecom.net. [84.13.31.66])
-        by smtp.gmail.com with ESMTPSA id u20sm4207058wmq.24.2021.06.17.04.00.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Jun 2021 04:00:28 -0700 (PDT)
-Date:   Thu, 17 Jun 2021 12:00:27 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 00/38] 5.10.45-rc1 review
-Message-ID: <YMsrS0Sded98xi5y@debian>
-References: <20210616152835.407925718@linuxfoundation.org>
+        id S232530AbhFQLYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 07:24:52 -0400
+Received: from www62.your-server.de ([213.133.104.62]:53624 "EHLO
+        www62.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232540AbhFQLYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 07:24:51 -0400
+Received: from sslproxy06.your-server.de ([78.46.172.3])
+        by www62.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1ltq6U-0001yQ-U2; Thu, 17 Jun 2021 13:22:34 +0200
+Received: from [85.7.101.30] (helo=linux.home)
+        by sslproxy06.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1ltq6U-000Wjz-M3; Thu, 17 Jun 2021 13:22:34 +0200
+Subject: Re: [PATCH bpf v1] bpf: fix libelf endian handling in resolv_btfids
+To:     Jiri Olsa <jolsa@redhat.com>, Mark Wielaard <mark@klomp.org>
+Cc:     Yonghong Song <yhs@fb.com>,
+        Tony Ambardar <tony.ambardar@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        Jiri Olsa <jolsa@kernel.org>, Frank Eigler <fche@redhat.com>
+References: <20210616092521.800788-1-Tony.Ambardar@gmail.com>
+ <caf1dcbd-7a07-993c-e940-1b2689985c5a@fb.com> <YMopCb5CqOYsl6HR@krava>
+ <YMp68Dlqwu+wuHV9@wildebeest.org> <YMsPnaV798ICuMbv@krava>
+From:   Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <37f69a50-5b83-22e5-d54b-bea79ad3adec@iogearbox.net>
+Date:   Thu, 17 Jun 2021 13:22:34 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210616152835.407925718@linuxfoundation.org>
+In-Reply-To: <YMsPnaV798ICuMbv@krava>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.103.2/26203/Wed Jun 16 13:07:58 2021)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Wed, Jun 16, 2021 at 05:33:09PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.45 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 6/17/21 11:02 AM, Jiri Olsa wrote:
+> On Thu, Jun 17, 2021 at 12:28:00AM +0200, Mark Wielaard wrote:
+>> On Wed, Jun 16, 2021 at 06:38:33PM +0200, Jiri Olsa wrote:
+>>>>> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
+>>>>> index d636643ddd35..f32c059fbfb4 100644
+>>>>> --- a/tools/bpf/resolve_btfids/main.c
+>>>>> +++ b/tools/bpf/resolve_btfids/main.c
+>>>>> @@ -649,6 +649,9 @@ static int symbols_patch(struct object *obj)
+>>>>>    	if (sets_patch(obj))
+>>>>>    		return -1;
+>>>>> +	/* Set type to ensure endian translation occurs. */
+>>>>> +	obj->efile.idlist->d_type = ELF_T_WORD;
+>>>>
+>>>> The change makes sense to me as .BTF_ids contains just a list of
+>>>> u32's.
+>>>>
+>>>> Jiri, could you double check on this?
+>>>
+>>> the comment in ELF_T_WORD declaration suggests the size depends on
+>>> elf's class?
+>>>
+>>>    ELF_T_WORD,                   /* Elf32_Word, Elf64_Word, ... */
+>>>
+>>> data in .BTF_ids section are allways u32
+>>>
+>>> I have no idea how is this handled in libelf (perhaps it's ok),
+>>> but just that comment above suggests it could be also 64 bits,
+>>> cc-ing Frank and Mark for more insight
+>>
+>> It is correct to use ELF_T_WORD, which means a 32bit unsigned word.
+>>
+>> The comment is meant to explain that, but is really confusing if you
+>> don't know that Elf32_Word and Elf64_Word are the same thing (a 32bit
+>> unsigned word). This comes from being "too consistent" in defining all
+>> data types for both 32bit and 64bit ELF, even if those types are the
+>> same in both formats...
+>>
+>> Only Elf32_Addr/Elf64_Addr and Elf32_Off/Elf64_Off are different
+>> sizes. But Elf32/Elf_64_Half (16 bit), Elf32/Elf64_Word (32 bit),
+>> Elf32/Elf64_Xword (64 bit) and their Sword/Sxword (signed) variants
+>> are all identical data types in both the Elf32 and Elf64 formats.
+>>
+>> I don't really know why. It seems the original ELF spec was 32bit only
+>> and when introducing the ELF64 format "they" simply duplicated all
+>> data types whether or not those data type were actually different
+>> between the 32 and 64 bit format.
 > 
-> Responses should be made by Fri, 18 Jun 2021 15:28:19 +0000.
-> Anything received after that time might be too late.
+> nice, thanks for details
+> 
+> Acked-by: Jiri Olsa <jolsa@redhat.com>
 
-Build test:
-mips (gcc version 11.1.1 20210615): 63 configs -> no failure
-arm (gcc version 11.1.1 20210615): 105 configs -> no new failure
-arm64 (gcc version 11.1.1 20210615): 2 configs -> no failure
-x86_64 (gcc version 10.2.1 20210110): 2 configs -> no failure
+Tony, could you do a v2 and summarize the remainder of the discussion in
+here for the commit message? Would be good to explicitly document the
+assumptions made and why they work.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression.
-arm64: Booted on rpi4b (4GB model). No regression.
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+Thanks everyone,
+Daniel
