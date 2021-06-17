@@ -2,90 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58EB33ABF34
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 01:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D24D3ABF56
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 01:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232387AbhFQXMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 19:12:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39026 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232318AbhFQXMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 19:12:43 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F469C061760
-        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 16:10:34 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id h16so4673631pjv.2
-        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 16:10:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=G4dcuAAGqmXJT5DuFgw0YP7swJ10pImvUBqsUnV4SwU=;
-        b=Y7gSkuOjUL/6g0t+i6jhPnEHNt13bGmhUPEELQyLifTb3rYdP15UECINaxIcsHLQOy
-         9AY4SI70jKpGqcC3G9CkNMpamAo9ytBwFG8G2aA+wVUOfMGZAUYfmUXpJc6RN8l7+vrs
-         Vel14aCsvD5ZggKT0ijGN7v+Aq8xEBhEb9q74=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=G4dcuAAGqmXJT5DuFgw0YP7swJ10pImvUBqsUnV4SwU=;
-        b=tFMt763q74PUk7EP5iGt5Won2639g/1J7Y3Pux9iTQifdIb6IWr3MP/Jpg3FpKzUcF
-         QVHCKh/QqYAgYFh69gQPgItXXyziTVScqlYosyDFv/g0sJ/I2iVQ4calZx9Uts4itUnY
-         tM13H2eIeJEGlE+cS6fuVxYHZPG6hkZDHOPXzfDQB0pR3b6AR+TDIC3IMb0sNjeFO+PP
-         QSXIpr/tPcDyztlvuMFc27wiq9x88IIqvJ9bbJQCPTGylF1PJ8qQ+rdYfxTBVnRj0xKq
-         JgdShptddgK6kC2tjvOnTeLZCjxEXaTI8FUPQDpp/tFMj08GSlFPqh1GNbk0djmdye1J
-         ugpw==
-X-Gm-Message-State: AOAM531GewTJmj2MJMdDIgqrOjVIL/bAb575Pokn2v7UGPZBTJbiI5QD
-        ty+IdbTnwUfAc3V0SYD4v5Z7Mw==
-X-Google-Smtp-Source: ABdhPJxiErX5m9clXwxzFwFc/Fm1wBAuYiteEGTQC5kS4kF1Sr+7FSaVLhgm3DYF1VwaarlXzB0iSQ==
-X-Received: by 2002:a17:90a:46c8:: with SMTP id x8mr19225624pjg.216.1623971434053;
-        Thu, 17 Jun 2021 16:10:34 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id n17sm5882819pfv.125.2021.06.17.16.10.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Jun 2021 16:10:33 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Shuah Khan <shuah@kernel.org>
-Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
-        Guillaume Tucker <guillaume.tucker@collabora.com>,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] selftests/lkdtm: Use /bin/sh not $SHELL
-Date:   Thu, 17 Jun 2021 16:10:27 -0700
-Message-Id: <20210617231027.3908585-1-keescook@chromium.org>
-X-Mailer: git-send-email 2.25.1
+        id S232024AbhFQX2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 19:28:34 -0400
+Received: from mail.klausen.dk ([157.90.24.29]:53242 "EHLO mail.klausen.dk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233003AbhFQX2d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Jun 2021 19:28:33 -0400
+X-Greylist: delayed 4444 seconds by postgrey-1.27 at vger.kernel.org; Thu, 17 Jun 2021 19:28:33 EDT
+Subject: Re: [PATCH] loop: Fix missing discard support when using
+ LOOP_CONFIGURE
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=klausen.dk; s=dkim;
+        t=1623972380;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Vbn0+3h5DgI8ES1Iq5xmrf83w+go5eMbfDrACNi+IXI=;
+        b=EEWCeGBCComITFZI0wjYvj4fzKKJPD21r1GbCyHZzX/yBTQlPh1EBQxjkJ0QQfWNsvaXT1
+        CbpEfu0vIK5DQu4oEsdBjAjh6sg6ZJDUyO+MTwZYninaAZs3QWWzJlj06ZZRx3xkQzZiLj
+        zIFOPvDFu1p6qyRCsJGd0jImD71exHg=
+To:     Ming Lei <ming.lei@redhat.com>
+Cc:     linux-block@vger.kernel.org, stable@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>,
+        Martijn Coenen <maco@android.com>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20210617221158.7045-1-kristian@klausen.dk>
+ <YMvUw3E51fvezQN/@T590>
+From:   Kristian Klausen <kristian@klausen.dk>
+Message-ID: <8445d1b6-0118-37d4-c927-3b7e6ff480ea@klausen.dk>
+Date:   Fri, 18 Jun 2021 01:26:19 +0200
 MIME-Version: 1.0
-X-Patch-Hashes: v=1; h=sha256; g=0ca552e2a18e1ba1dde7ae32c796988c0c6cd64c; i=lfnT3xbl3M4bSoo3fY1JvS2JIxARVoZVIzxV1pBNVzw=; m=tr/oXMpsj/GZG/QCgR+VpXKeGRmUnEu0qybVzfQX7mM=; p=RhCkpoFJvGHGfnnLBQ9fmzwicmX3HukxRspK8EAoIHY=
-X-Patch-Sig: m=pgp; i=keescook@chromium.org; s=0x0x8972F4DFDC6DC026; b=iQIzBAABCgAdFiEEpcP2jyKd1g9yPm4TiXL039xtwCYFAmDL1mIACgkQiXL039xtwCZztw/+NVn v2mbVjKtpS3XGzGAX+kkH4H+LhNd3BRQ5LSXYugv1a2DlD8mXybYmVnRR8Vp9HhXbim2R5ZIyPBFQ m05CYeTKTrgTQPcViD9UFZ+sf8dHCnV0hNjPyi0TU7d24+BRKw5yxM/fvX3+izjYdgnCAstNgB5dO eW5aL5dcVGdfmUOBR1FLLjmxOVm8Supd2C7y+at5rhA+AWKqvyprSE3RGlhSOKpoqOXPrSHtYlSDS wMQ0rFAd4wrgPwyAv2h1QTRIyYvk8TGELEpkW+0etL6k/c2EtqgPMCKYFp7aaitM5scEJFjUtxW0g xqLQupiieEwrnBzdJcqK/OP2l0L72vpp3oE39wLEVr6iamaYSGI2baDu4RtYvt9zy2h2Q/ViOML0m 4LtWG+b0/a2R3WRqbtPnrwK5HIXIfXfeD77vQGq2kb98iTEJJfWCfqoJOVNLs6Co3BiiDOf8cPxt0 Y2KqZzP1rJ+CpgwQrgaAWB+ojrN74VKbK5Z2jncyG/po+0ebPsRalMzEPpVrL2zaFx1n40PFCPkBM j5QMzZiyZrbU/z65tHQtQv7KpTLj9KiG5J5QyXRxlQzExrJSMWn+yRJvU+XOUR/758/tr3oo7vtsC fBGS61ozPQKnbNiifKjIuvxBWrongX3JyN3EP6zxZTmOLZ9n84CTS7h/u60uIylU=
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <YMvUw3E51fvezQN/@T590>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Some environments (e.g. kerneci.org) do not set $SHELL for their test
-environment. There's no need to use $SHELL here anyway, so just replace
-it with hard-coded /bin/sh instead. Without this, the LKDTM tests would
-never actually run on kerneci.org.
+On 18.06.2021 01.03, Ming Lei wrote:
+> On Fri, Jun 18, 2021 at 12:11:57AM +0200, Kristian Klausen wrote:
+>
+> Commit log?
 
-Fixes: 46d1a0f03d66 ("selftests/lkdtm: Add tests for LKDTM targets")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- tools/testing/selftests/lkdtm/run.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I will try to come up with a commit message. AFAIU the missing call to 
+loop_config_discard() causes the block device to report "no discard 
+support" (best-case) or stale/incorrect discard support (ex: if the loop 
+device was configured with LOOP_SET_STATUS(64) and later LOOP_CONFIGURE).
 
-diff --git a/tools/testing/selftests/lkdtm/run.sh b/tools/testing/selftests/lkdtm/run.sh
-index bb7a1775307b..968ff3cf5667 100755
---- a/tools/testing/selftests/lkdtm/run.sh
-+++ b/tools/testing/selftests/lkdtm/run.sh
-@@ -79,7 +79,7 @@ dmesg > "$DMESG"
- # Most shells yell about signals and we're expecting the "cat" process
- # to usually be killed by the kernel. So we have to run it in a sub-shell
- # and silence errors.
--($SHELL -c 'cat <(echo '"$test"') >'"$TRIGGER" 2>/dev/null) || true
-+(/bin/sh -c 'cat <(echo '"$test"') >'"$TRIGGER" 2>/dev/null) || true
- 
- # Record and dump the results
- dmesg | comm --nocheck-order -13 "$DMESG" - > "$LOG" || true
--- 
-2.25.1
+>
+>> Cc: <stable@vger.kernel.org> # 5.8.x-
+>> Fixes: 3448914e8cc5 ("loop: Add LOOP_CONFIGURE ioctl")
+>> Signed-off-by: Kristian Klausen <kristian@klausen.dk>
+>> ---
+>> Tested like so (without the patch):
+>> losetup 2.37<= uses LOOP_CONFIGURE instead of LOOP_SET_STATUS64[1]
+>>
+>> # fallocate -l100M disk.img
+>> # rmmod loop
+>> # losetup --version
+>> losetup from util-linux 2.36.2
+>> # losetup --find --show disk.img
+>> /dev/loop0
+>> # grep '' /sys/devices/virtual/block/loop0/queue/*discard*
+>> /sys/devices/virtual/block/loop0/queue/discard_granularity:4096
+>> /sys/devices/virtual/block/loop0/queue/discard_max_bytes:4294966784
+>> /sys/devices/virtual/block/loop0/queue/discard_max_hw_bytes:4294966784
+>> /sys/devices/virtual/block/loop0/queue/discard_zeroes_data:0
+>> /sys/devices/virtual/block/loop0/queue/max_discard_segments:1
+>> # losetup -d /dev/loop0
+>> # [update util-linux]
+>> # losetup --version
+>> losetup from util-linux 2.37
+>> # rmmod loop
+>> # losetup --find --show disk.img
+>> /dev/loop0
+>> # grep '' /sys/devices/virtual/block/loop0/queue/*discard*
+>> /sys/devices/virtual/block/loop0/queue/discard_granularity:0
+>> /sys/devices/virtual/block/loop0/queue/discard_max_bytes:0
+>> /sys/devices/virtual/block/loop0/queue/discard_max_hw_bytes:0
+>> /sys/devices/virtual/block/loop0/queue/discard_zeroes_data:0
+>> /sys/devices/virtual/block/loop0/queue/max_discard_segments:1
+>>
+>>
+>> With the patch applied:
+>>
+>> # losetup --version
+>> losetup from util-linux 2.37
+>> # rmmod loop
+>> # losetup --find --show disk.img
+>> /dev/loop0
+>> # grep '' /sys/devices/virtual/block/loop0/queue/*discard*
+>> /sys/devices/virtual/block/loop0/queue/discard_granularity:4096
+>> /sys/devices/virtual/block/loop0/queue/discard_max_bytes:4294966784
+>> /sys/devices/virtual/block/loop0/queue/discard_max_hw_bytes:4294966784
+>> /sys/devices/virtual/block/loop0/queue/discard_zeroes_data:0
+>> /sys/devices/virtual/block/loop0/queue/max_discard_segments:1
+>>
+>> [1] https://github.com/karelzak/util-linux/pull/1152
+>>
+>>   drivers/block/loop.c | 2 ++
+>>   1 file changed, 2 insertions(+)
+>>
+>> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+>> index 76e12f3482a9..ec957f6d8a49 100644
+>> --- a/drivers/block/loop.c
+>> +++ b/drivers/block/loop.c
+>> @@ -1168,6 +1168,8 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+>>   	if (partscan)
+>>   		lo->lo_disk->flags &= ~GENHD_FL_NO_PART_SCAN;
+>>   
+>> +	loop_config_discard(lo);
+>> +
+> It could be better to move loop_config_discard() around
+> loop_update_rotational/loop_update_dio(), then we setup everything
+> before updating loop as Lo_bound.
+
+I will move it before loop_update_rotational().
+
+>
+> Otherwise, this patch looks fine.
+>
+>
+> Thanks,
+> Ming
+>
 
