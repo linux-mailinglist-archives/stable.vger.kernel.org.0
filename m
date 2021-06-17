@@ -2,209 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8313AAE96
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 10:19:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D89433AAE97
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 10:19:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229915AbhFQIVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 04:21:11 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:34966 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229842AbhFQIVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Jun 2021 04:21:11 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1ltnEs-002pGT-SH; Thu, 17 Jun 2021 08:19:02 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Thu, 17 Jun 2021 08:18:37 +0000
-Subject: [git:media_stage/master] media: subdev: disallow ioctl for saa6588/davinci
-To:     linuxtv-commits@linuxtv.org
-Cc:     stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1ltnEs-002pGT-SH@www.linuxtv.org>
+        id S229931AbhFQIV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 04:21:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37280 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229842AbhFQIV2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 04:21:28 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F61CC061574;
+        Thu, 17 Jun 2021 01:19:20 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id t11-20020a1cc30b0000b02901cec841b6a0so3785281wmf.0;
+        Thu, 17 Jun 2021 01:19:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:date:mime-version:from:to:subject
+         :content-transfer-encoding;
+        bh=m23FkcTpSbNnpGC+SlBcypLFRWWqdG3+ErURqb57YnE=;
+        b=miIM9//NWleAyVq9NBLFq/rFMnM1knoTUZ+2/qxJu/iT9OqQtkGla6HDlcHvIoES5+
+         TmRQauP+1eX6mRVYeAcbyYwYUXfyo6uQBlNr21y9pB8FwA3lq8fXHAcVOxev41WGEttH
+         bZPuB9g4qEPLRfzbWwHdXny6pXJz8bJzu5vKpTN95A9Rqin8tXWiYIE04veWrggd8kT+
+         biJ/fDcWNe1Ovkyz7bCoqkqxJnPCEYaXZ/q/gTZLm0TO/6OYjr+VL0Vrv3oYeZXiScV9
+         DxRgLm7jw4SSSXdxUJvotnNimvwOOwBlCFx+z/BRYurwExKuwvSg32z3T/BkXWq8mtOC
+         St4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version:from:to:subject
+         :content-transfer-encoding;
+        bh=m23FkcTpSbNnpGC+SlBcypLFRWWqdG3+ErURqb57YnE=;
+        b=hb1EizEvaQoizPOwG+9VynsXV0wLDXai9Lobf5B6lPnOQACQto8OvbPZNuHURxbuqj
+         JNyc+9ZL7jPeL6HLNN/jUC0BrG2Y8l7fkb11gzSwtUmc9OoFhqpq1qHuKmM7I8F0mxOW
+         byo6exEKlTVmlAe/r9tbYNdXzA0WnAbS3dqyAE8HyZ7VXqCiyN6tairWzrx1Rog2PKh0
+         +6GYJQd0uaWtgXciXUhESYsVMX6+6nxl7dlvqOdoC2NT56EgC2oY1AHJ74g/5qhRxUSR
+         gtxMlUazMLARpWrcO52EdDZFsnWeozDtmsCaMZi0ZyLzfUpLHuHnjQ/jbjtfXK7Z0hUO
+         OU9w==
+X-Gm-Message-State: AOAM531fVK09Dr5MkaiuZBYYkWvVTt2a6MzubJOqEkNQHzVOZamHBEK0
+        PjdPo3qQWDJ1umJYNMM8SeoOh9ar7vcBX4Nu
+X-Google-Smtp-Source: ABdhPJzMLK29L+nxWeJsp/F9zI3AW8VTwosq64Vcj8KgXQFqQjkPx7TCVss4ZExsAhmMTX+LKitd5w==
+X-Received: by 2002:a7b:c346:: with SMTP id l6mr3550663wmj.109.1623917958820;
+        Thu, 17 Jun 2021 01:19:18 -0700 (PDT)
+Received: from DESKTOP-A66711V ([5.29.25.101])
+        by smtp.gmail.com with ESMTPSA id z12sm4573522wrw.97.2021.06.17.01.19.17
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 17 Jun 2021 01:19:18 -0700 (PDT)
+Message-ID: <60cb0586.1c69fb81.8015b.37a1@mx.google.com>
+Date:   Thu, 17 Jun 2021 01:19:18 -0700 (PDT)
+X-Google-Original-Date: 17 Jun 2021 11:19:17 +0300
+MIME-Version: 1.0
+From:   "Amit Klein" <aksecurity@gmail.com>
+To:     linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, edumazet@google.com, w@1wt.eu,
+        davem@davemloft.net, netdev@vger.kernel.org
+Subject: [PATCH 4.19] inet: use bigger hash table for IP ID generation
+ (backported to 4.19)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+Subject: inet: use bigger hash table for IP ID generation (backpo=
+rted to 4.19)=0AFrom: Amit Klein <aksecurity@gmail.com>=0A=0AThis=
+ is a backport to 4.19 of the following patch, originally=0Adevel=
+oped by Eric Dumazet.=0A=0AIn commit 73f156a6e8c1 ("inetpeer: get=
+ rid of ip_id_count")=0AI used a very small hash table that could=
+ be abused=0Aby patient attackers to reveal sensitive information=
+.=0A=0ASwitch to a dynamic sizing, depending on RAM size.=0A=0ATy=
+pical big hosts will now use 128x more storage (2 MB)=0Ato get a =
+similar increase in security and reduction=0Aof hash collisions.=0A=
+=0AAs a bonus, use of alloc_large_system_hash() spreads=0Aallocat=
+ed memory among all NUMA nodes.=0A=0AFixes: 73f156a6e8c1 ("inetpe=
+er: get rid of ip_id_count")=0AReported-by: Amit Klein <aksecurit=
+y@gmail.com>=0ACc: stable@vger.kernel.org=0ACc: Eric Dumazet <edu=
+mazet@google.com>=0ACc: Willy Tarreau <w@1wt.eu>=0A---=0A net/ipv=
+4/route.c | 42 ++++++++++++++++++++++++++++--------------=0A 1 fi=
+le changed, 28 insertions(+), 14 deletions(-)=0A=0A(limited to 'n=
+et/ipv4/route.c')=0A=0Adiff --git a/net/ipv4/route.c b/net/ipv4/r=
+oute.c=0Aindex 0470442ff61d6..ea916df1bbf5e 100644=0A--- a/net/ip=
+v4/route.c=0A+++ b/net/ipv4/route.c=0A@@ -66,6 +66,7 @@=0A #inclu=
+de <linux/types.h>=0A #include <linux/kernel.h>=0A #include <linu=
+x/mm.h>=0A+#include <linux/bootmem.h>=0A #include <linux/string.h=
+>=0A #include <linux/socket.h>=0A #include <linux/sockios.h>=0A@@=
+ -452,8 +453,10 @@ static void ipv4_confirm_neigh(const struct ds=
+t_entry *dst, const void *daddr)=0A 	__ipv4_confirm_neigh(dev, *(=
+__force u32 *)pkey);=0A }=0A =0A-#define IP_IDENTS_SZ 2048u=0A-=0A=
++/* Hash tables of size 2048..262144 depending on RAM size.=0A+ *=
+ Each bucket uses 8 bytes.=0A+ */=0A+static u32 ip_idents_mask __=
+read_mostly;=0A static atomic_t *ip_idents __read_mostly;=0A stat=
+ic u32 *ip_tstamps __read_mostly;=0A =0A@@ -463,12 +466,16 @@ sta=
+tic u32 *ip_tstamps __read_mostly;=0A  */=0A u32 ip_idents_reserv=
+e(u32 hash, int segs)=0A {=0A-	u32 *p_tstamp =3D ip_tstamps + has=
+h % IP_IDENTS_SZ;=0A-	atomic_t *p_id =3D ip_idents + hash % IP_ID=
+ENTS_SZ;=0A-	u32 old =3D READ_ONCE(*p_tstamp);=0A-	u32 now =3D (u=
+32)jiffies;=0A+	u32 bucket, old, now =3D (u32)jiffies;=0A+	atomic=
+_t *p_id;=0A+	u32 *p_tstamp;=0A 	u32 delta =3D 0;=0A =0A+	bucket =
+=3D hash & ip_idents_mask;=0A+	p_tstamp =3D ip_tstamps + bucket;=0A=
++	p_id =3D ip_idents + bucket;=0A+	old =3D READ_ONCE(*p_tstamp);=0A=
++=0A 	if (old !=3D now && cmpxchg(p_tstamp, old, now) =3D=3D old)=
+=0A 		delta =3D prandom_u32_max(now - old);=0A =0A@@ -3557,18 +35=
+64,25 @@ struct ip_rt_acct __percpu *ip_rt_acct __read_mostly;=0A=
+ =0A int __init ip_rt_init(void)=0A {=0A+	void *idents_hash;=0A 	=
+int cpu;=0A =0A-	ip_idents =3D kmalloc_array(IP_IDENTS_SZ, sizeof=
+(*ip_idents),=0A-				  GFP_KERNEL);=0A-	if (!ip_idents)=0A-		pani=
+c("IP: failed to allocate ip_idents\n");=0A+	/* For modern hosts,=
+ this will use 2 MB of memory */=0A+	idents_hash =3D alloc_large_=
+system_hash("IP idents",=0A+					      sizeof(*ip_idents) + sizeo=
+f(*ip_tstamps),=0A+					      0,=0A+					      16, /* one bucket =
+per 64 KB */=0A+					      HASH_ZERO,=0A+					      NULL,=0A+				=
+	      &ip_idents_mask,=0A+					      2048,=0A+					      256*102=
+4);=0A+=0A+	ip_idents =3D idents_hash;=0A =0A-	prandom_bytes(ip_i=
+dents, IP_IDENTS_SZ * sizeof(*ip_idents));=0A+	prandom_bytes(ip_i=
+dents, (ip_idents_mask + 1) * sizeof(*ip_idents));=0A =0A-	ip_tst=
+amps =3D kcalloc(IP_IDENTS_SZ, sizeof(*ip_tstamps), GFP_KERNEL);=0A=
+-	if (!ip_tstamps)=0A-		panic("IP: failed to allocate ip_tstamps\=
+n");=0A+	ip_tstamps =3D idents_hash + (ip_idents_mask + 1) * size=
+of(*ip_idents);=0A =0A 	for_each_possible_cpu(cpu) {=0A 		struct =
+uncached_list *ul =3D &per_cpu(rt_uncached_list, cpu);=0A-- =0Acg=
+it 1.2.3-1.el7=0A=0A
 
-Subject: media: subdev: disallow ioctl for saa6588/davinci
-Author:  Arnd Bergmann <arnd@arndb.de>
-Date:    Mon Jun 14 12:34:09 2021 +0200
-
-The saa6588_ioctl() function expects to get called from other kernel
-functions with a 'saa6588_command' pointer, but I found nothing stops it
-from getting called from user space instead, which seems rather dangerous.
-
-The same thing happens in the davinci vpbe driver with its VENC_GET_FLD
-command.
-
-As a quick fix, add a separate .command() callback pointer for this
-driver and change the two callers over to that.  This change can easily
-get backported to stable kernels if necessary, but since there are only
-two drivers, we may want to eventually replace this with a set of more
-specialized callbacks in the long run.
-
-Fixes: c3fda7f835b0 ("V4L/DVB (10537): saa6588: convert to v4l2_subdev.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/media/i2c/saa6588.c                   | 4 ++--
- drivers/media/pci/bt8xx/bttv-driver.c         | 6 +++---
- drivers/media/pci/saa7134/saa7134-video.c     | 6 +++---
- drivers/media/platform/davinci/vpbe_display.c | 2 +-
- drivers/media/platform/davinci/vpbe_venc.c    | 6 ++----
- include/media/v4l2-subdev.h                   | 4 ++++
- 6 files changed, 15 insertions(+), 13 deletions(-)
-
----
-
-diff --git a/drivers/media/i2c/saa6588.c b/drivers/media/i2c/saa6588.c
-index ecb491d5f2ab..d1e0716bdfff 100644
---- a/drivers/media/i2c/saa6588.c
-+++ b/drivers/media/i2c/saa6588.c
-@@ -380,7 +380,7 @@ static void saa6588_configure(struct saa6588 *s)
- 
- /* ---------------------------------------------------------------------- */
- 
--static long saa6588_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
-+static long saa6588_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
- {
- 	struct saa6588 *s = to_saa6588(sd);
- 	struct saa6588_command *a = arg;
-@@ -433,7 +433,7 @@ static int saa6588_s_tuner(struct v4l2_subdev *sd, const struct v4l2_tuner *vt)
- /* ----------------------------------------------------------------------- */
- 
- static const struct v4l2_subdev_core_ops saa6588_core_ops = {
--	.ioctl = saa6588_ioctl,
-+	.command = saa6588_command,
- };
- 
- static const struct v4l2_subdev_tuner_ops saa6588_tuner_ops = {
-diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
-index 1f62a9d8ea1d..0e9df8b35ac6 100644
---- a/drivers/media/pci/bt8xx/bttv-driver.c
-+++ b/drivers/media/pci/bt8xx/bttv-driver.c
-@@ -3179,7 +3179,7 @@ static int radio_release(struct file *file)
- 
- 	btv->radio_user--;
- 
--	bttv_call_all(btv, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
-+	bttv_call_all(btv, core, command, SAA6588_CMD_CLOSE, &cmd);
- 
- 	if (btv->radio_user == 0)
- 		btv->has_radio_tuner = 0;
-@@ -3260,7 +3260,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
- 	cmd.result = -ENODEV;
- 	radio_enable(btv);
- 
--	bttv_call_all(btv, core, ioctl, SAA6588_CMD_READ, &cmd);
-+	bttv_call_all(btv, core, command, SAA6588_CMD_READ, &cmd);
- 
- 	return cmd.result;
- }
-@@ -3281,7 +3281,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
- 	cmd.instance = file;
- 	cmd.event_list = wait;
- 	cmd.poll_mask = res;
--	bttv_call_all(btv, core, ioctl, SAA6588_CMD_POLL, &cmd);
-+	bttv_call_all(btv, core, command, SAA6588_CMD_POLL, &cmd);
- 
- 	return cmd.poll_mask;
- }
-diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
-index 0f9d6b9edb90..374c8e1087de 100644
---- a/drivers/media/pci/saa7134/saa7134-video.c
-+++ b/drivers/media/pci/saa7134/saa7134-video.c
-@@ -1181,7 +1181,7 @@ static int video_release(struct file *file)
- 
- 	saa_call_all(dev, tuner, standby);
- 	if (vdev->vfl_type == VFL_TYPE_RADIO)
--		saa_call_all(dev, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
-+		saa_call_all(dev, core, command, SAA6588_CMD_CLOSE, &cmd);
- 	mutex_unlock(&dev->lock);
- 
- 	return 0;
-@@ -1200,7 +1200,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
- 	cmd.result = -ENODEV;
- 
- 	mutex_lock(&dev->lock);
--	saa_call_all(dev, core, ioctl, SAA6588_CMD_READ, &cmd);
-+	saa_call_all(dev, core, command, SAA6588_CMD_READ, &cmd);
- 	mutex_unlock(&dev->lock);
- 
- 	return cmd.result;
-@@ -1216,7 +1216,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
- 	cmd.event_list = wait;
- 	cmd.poll_mask = 0;
- 	mutex_lock(&dev->lock);
--	saa_call_all(dev, core, ioctl, SAA6588_CMD_POLL, &cmd);
-+	saa_call_all(dev, core, command, SAA6588_CMD_POLL, &cmd);
- 	mutex_unlock(&dev->lock);
- 
- 	return rc | cmd.poll_mask;
-diff --git a/drivers/media/platform/davinci/vpbe_display.c b/drivers/media/platform/davinci/vpbe_display.c
-index d19bad997f30..bf3c3e76b921 100644
---- a/drivers/media/platform/davinci/vpbe_display.c
-+++ b/drivers/media/platform/davinci/vpbe_display.c
-@@ -47,7 +47,7 @@ static int venc_is_second_field(struct vpbe_display *disp_dev)
- 
- 	ret = v4l2_subdev_call(vpbe_dev->venc,
- 			       core,
--			       ioctl,
-+			       command,
- 			       VENC_GET_FLD,
- 			       &val);
- 	if (ret < 0) {
-diff --git a/drivers/media/platform/davinci/vpbe_venc.c b/drivers/media/platform/davinci/vpbe_venc.c
-index 8caa084e5704..bde241c26d79 100644
---- a/drivers/media/platform/davinci/vpbe_venc.c
-+++ b/drivers/media/platform/davinci/vpbe_venc.c
-@@ -521,9 +521,7 @@ static int venc_s_routing(struct v4l2_subdev *sd, u32 input, u32 output,
- 	return ret;
- }
- 
--static long venc_ioctl(struct v4l2_subdev *sd,
--			unsigned int cmd,
--			void *arg)
-+static long venc_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
- {
- 	u32 val;
- 
-@@ -542,7 +540,7 @@ static long venc_ioctl(struct v4l2_subdev *sd,
- }
- 
- static const struct v4l2_subdev_core_ops venc_core_ops = {
--	.ioctl      = venc_ioctl,
-+	.command      = venc_command,
- };
- 
- static const struct v4l2_subdev_video_ops venc_video_ops = {
-diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
-index 89115ba4c0f2..95f8bfd63273 100644
---- a/include/media/v4l2-subdev.h
-+++ b/include/media/v4l2-subdev.h
-@@ -162,6 +162,9 @@ struct v4l2_subdev_io_pin_config {
-  * @s_gpio: set GPIO pins. Very simple right now, might need to be extended with
-  *	a direction argument if needed.
-  *
-+ * @command: called by in-kernel drivers in order to call functions internal
-+ *	   to subdev drivers driver that have a separate callback.
-+ *
-  * @ioctl: called at the end of ioctl() syscall handler at the V4L2 core.
-  *	   used to provide support for private ioctls used on the driver.
-  *
-@@ -193,6 +196,7 @@ struct v4l2_subdev_core_ops {
- 	int (*load_fw)(struct v4l2_subdev *sd);
- 	int (*reset)(struct v4l2_subdev *sd, u32 val);
- 	int (*s_gpio)(struct v4l2_subdev *sd, u32 val);
-+	long (*command)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
- 	long (*ioctl)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
- #ifdef CONFIG_COMPAT
- 	long (*compat_ioctl32)(struct v4l2_subdev *sd, unsigned int cmd,
