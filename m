@@ -2,169 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D14A3AAF58
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 11:10:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 369433AAF86
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 11:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231434AbhFQJMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 05:12:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:33732 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231438AbhFQJMQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 05:12:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623921008;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        id S231252AbhFQJSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 05:18:34 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:57216 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231433AbhFQJSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 05:18:32 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 5D38C21A9B;
+        Thu, 17 Jun 2021 09:16:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1623921383;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=QyqFtiU3z2ei2H0zxrEJzHtN9ZSY0dHGKYbBjpd8sPw=;
-        b=ZTke1XZStikbz3G+dtvYhXaHX46pw0y/pUs41sy6ejBNN4RsQcSYu1u6a5oVFiAniCnC+0
-        SaDS2APOV7z7W7qdm9hGauSSEBm3t4nB+y3Lu81E0YGcwdxjHIzNlydnbAmhVmGXJhoH7X
-        usWc0kjDACFj6S0KPL2wDgAbZPDyvFc=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-594-CXR9Nbo9NsyMgoYPBONv1A-1; Thu, 17 Jun 2021 05:10:07 -0400
-X-MC-Unique: CXR9Nbo9NsyMgoYPBONv1A-1
-Received: by mail-ed1-f72.google.com with SMTP id x12-20020a05640226ccb0290393aaa6e811so1127989edd.19
-        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 02:10:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=QyqFtiU3z2ei2H0zxrEJzHtN9ZSY0dHGKYbBjpd8sPw=;
-        b=WBR8r1+J1VyHeE5RfXHMswFg79YzLjMKcZ4+fgDrDKNgfF0TLB8UMGGdjKPe5Dhgrd
-         JEvSZSFa83+DBX3gzlkphPWnb28O7S7GCL+tyrWMSSANwuXpwDbqOoCEN9DvUEyH9QXY
-         69lk9mz4lwV2+bhGgy/ynMZOFGMcUhtkZVAIW9CNJu8iMzXdA3HIEt1G3ws6fbiciDWq
-         lZhSa/stR2Hp1hz/7+wdbiFp360Oef/N7lxQ5xtcRHAZAP2dJhVDxUlTf6mk6s7rOuH9
-         k2MMs6rYlSayrqARF9CNq3NjdChWG0GgWd5tHTwy0g/+wC95TUmEAlHdn97EYoMwQ/Aj
-         FRnQ==
-X-Gm-Message-State: AOAM531HzcqpmgLHewQbBnxSD8cV/r7sqTkL+MIL3KFLordO2KWEr+2E
-        Sr11hkIcgWyRe/rg4d1YImClwTSxPi8kQ0CljXbQzT2PjrvAJjlDHF27vYpA1ALpu8vuQxqtvEp
-        3EjwhWy+Mjp8AIxbt
-X-Received: by 2002:a05:6402:2742:: with SMTP id z2mr5186642edd.66.1623921005893;
-        Thu, 17 Jun 2021 02:10:05 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwsqPA+pMQABzOz379wdXow+Vgr6xo9CA+XItKKC/X7LlnCWm3Ubzs7V/lG6WOU0iNgZ0dxng==
-X-Received: by 2002:a05:6402:2742:: with SMTP id z2mr5186618edd.66.1623921005750;
-        Thu, 17 Jun 2021 02:10:05 -0700 (PDT)
-Received: from krava ([83.240.60.126])
-        by smtp.gmail.com with ESMTPSA id m18sm3289941ejx.56.2021.06.17.02.10.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Jun 2021 02:10:05 -0700 (PDT)
-Date:   Thu, 17 Jun 2021 11:10:03 +0200
-From:   Jiri Olsa <jolsa@redhat.com>
-To:     Tony Ambardar <tony.ambardar@gmail.com>
-Cc:     Yonghong Song <yhs@fb.com>, Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Frank Eigler <fche@redhat.com>, Mark Wielaard <mjw@redhat.com>
-Subject: Re: [PATCH bpf v1] bpf: fix libelf endian handling in resolv_btfids
-Message-ID: <YMsRa3nT4tlzO6DJ@krava>
-References: <20210616092521.800788-1-Tony.Ambardar@gmail.com>
- <caf1dcbd-7a07-993c-e940-1b2689985c5a@fb.com>
- <YMopCb5CqOYsl6HR@krava>
- <CAPGftE-CqfycuyTRpFvHwe5kR5gG8WGyLSgdLTat5XnxmqQ3GQ@mail.gmail.com>
+        bh=o2IFaG1pJ+KKCA6UI+uIfNqPeRkZ6u1ke0NxbG0u2PA=;
+        b=kRg53xvmMb7G4t/ZLSHjzynum3+a6QeI+YkGKmEzK+GX+Fi2C4GsnTEEsPQu8iXWbVF8EK
+        8pVN0R1NR7i27f3DLfaIxEeXfThQVcuMV6PNdZt0WfyeG6SuVMYcctqccypQQx5PYUn+cE
+        URNpLc5i4cjy5BENGd3KxF2mrKqUYQ8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1623921383;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=o2IFaG1pJ+KKCA6UI+uIfNqPeRkZ6u1ke0NxbG0u2PA=;
+        b=i/U5/IGTVkfQF1q36uyc5GHtJc9aWDNpBu/OGSVBs2SXYN43DWmWkekbFO5pSIM+EUf3nP
+        bPHMjEYTu9a5PnAw==
+Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
+        by relay2.suse.de (Postfix) with ESMTP id 3116BA3BB9;
+        Thu, 17 Jun 2021 09:16:23 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 1D38FDB225; Thu, 17 Jun 2021 11:13:35 +0200 (CEST)
+Date:   Thu, 17 Jun 2021 11:13:34 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Naohiro Aota <naohiro.aota@wdc.com>
+Cc:     linux-btrfs@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] btrfs: fix negative space_info->bytes_readonly
+Message-ID: <20210617091334.GU28158@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Naohiro Aota <naohiro.aota@wdc.com>,
+        linux-btrfs@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org
+References: <20210617045618.1179079-1-naohiro.aota@wdc.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAPGftE-CqfycuyTRpFvHwe5kR5gG8WGyLSgdLTat5XnxmqQ3GQ@mail.gmail.com>
+In-Reply-To: <20210617045618.1179079-1-naohiro.aota@wdc.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 16, 2021 at 03:09:13PM -0700, Tony Ambardar wrote:
-> On Wed, 16 Jun 2021 at 09:38, Jiri Olsa <jolsa@redhat.com> wrote:
-> >
-> > On Wed, Jun 16, 2021 at 08:56:42AM -0700, Yonghong Song wrote:
-> > >
-> > > On 6/16/21 2:25 AM, Tony Ambardar wrote:
-> > > > While patching the .BTF_ids section in vmlinux, resolve_btfids writes type
-> > > > ids using host-native endianness, and relies on libelf for any required
-> > > > translation when finally updating vmlinux. However, the default type of the
-> > > > .BTF_ids section content is ELF_T_BYTE (i.e. unsigned char), and undergoes
-> > > > no translation. This results in incorrect patched values if cross-compiling
-> > > > to non-native endianness, and can manifest as kernel Oops and test failures
-> > > > which are difficult to debug.
-> >
-> > nice catch, great libelf can do that ;-)
+On Thu, Jun 17, 2021 at 01:56:18PM +0900, Naohiro Aota wrote:
+> Consider we have a using block group on zoned btrfs.
 > 
-> Funny, I'd actually assumed that was your intention, but I just
-> couldn't find where the
-> data type was being set, so resorted to this "kludge". While there's a .BTF_ids
-> section definition in include/linux/btf_ids.h, there's no means I can
-> see to specify
-> the data type either (i.e. in the gcc asm .pushsection() options). That approach
-> would be cleaner.
+> |<- ZU ->|<- used ->|<---free--->|
+>                      `- Alloc offset
+> ZU: Zone unusable
 > 
-> >
-> > > >
-> > > > Explicitly set the type of patched data to ELF_T_WORD, allowing libelf to
-> > > > transparently handle the endian conversions.
-> > > >
-> > > > Fixes: fbbb68de80a4 ("bpf: Add resolve_btfids tool to resolve BTF IDs in ELF object")
-> > > > Cc: stable@vger.kernel.org # v5.10+
-> > > > Cc: Jiri Olsa <jolsa@kernel.org>
-> > > > Cc: Yonghong Song <yhs@fb.com>
-> > > > Link: https://lore.kernel.org/bpf/CAPGftE_eY-Zdi3wBcgDfkz_iOr1KF10n=9mJHm1_a_PykcsoeA@mail.gmail.com/
-> > > > Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
-> > > > ---
-> > > >   tools/bpf/resolve_btfids/main.c | 3 +++
-> > > >   1 file changed, 3 insertions(+)
-> > > >
-> > > > diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
-> > > > index d636643ddd35..f32c059fbfb4 100644
-> > > > --- a/tools/bpf/resolve_btfids/main.c
-> > > > +++ b/tools/bpf/resolve_btfids/main.c
-> > > > @@ -649,6 +649,9 @@ static int symbols_patch(struct object *obj)
-> > > >     if (sets_patch(obj))
-> > > >             return -1;
-> > > > +   /* Set type to ensure endian translation occurs. */
-> > > > +   obj->efile.idlist->d_type = ELF_T_WORD;
-> > >
-> > > The change makes sense to me as .BTF_ids contains just a list of
-> > > u32's.
-> > >
-> > > Jiri, could you double check on this?
-> >
-> > the comment in ELF_T_WORD declaration suggests the size depends on
-> > elf's class?
-> >
-> >   ELF_T_WORD,                   /* Elf32_Word, Elf64_Word, ... */
-> >
-> > data in .BTF_ids section are allways u32
-> >
+> Marking the block group read-only will migrate the zone unusable bytes
+> to the read-only bytes. So, we will have this.
 > 
-> I believe the Elf32/Elf64 refer to the arch since some data structures vary
-> between the two, but ELF_T_WORD is common to both, and valid as the
-> data type of Elf_Data struct holding the .BTF_ids contents. See elf(5):
+> |<- RO ->|<- used ->|<--- RO --->|
+> RO: Read only
 > 
->     Basic types
->     The following types are used for  N-bit  architectures  (N=32,64,  ElfN
->     stands for Elf32 or Elf64, uintN_t stands for uint32_t or uint64_t):
-> ...
->         ElfN_Word       uint32_t
+> When marking it back to read-write, btrfs_dec_block_group_ro()
+> subtracts the above "RO" bytes from the
+> space_info->bytes_readonly. And, it moves the zone unusable bytes back
+> and again subtracts those bytes from the space_info->bytes_readonly,
+> leading to negative bytes_readonly.
 > 
-> Also see the code and comments in "elf.h":
->     /* Types for signed and unsigned 32-bit quantities.  */
->     typedef uint32_t Elf32_Word;
->     typedef uint32_t Elf64_Word;
+> This commit fixes the issue by reordering the operations.
+> 
+> Link: https://github.com/naota/linux/issues/37
 
-ok
+I've copied the 'fi df' output to changelog.
 
-> 
-> > I have no idea how is this handled in libelf (perhaps it's ok),
-> > but just that comment above suggests it could be also 64 bits,
-> > cc-ing Frank and Mark for more insight
-> >
-> 
-> One other area I'd like to confirm is with section compression. Is it safe
-> to ignore this for .BTF_ids? I've done so because include/linux/btf_ids.h
-> appears to define the section with SHF_ALLOC flag set, which is
-> incompatible with compression based on "libelf.h" comments.
+> Fixes: 169e0da91a21 ("btrfs: zoned: track unusable bytes for zones")
+> Cc: stable@vger.kernel.org # 5.12+
+> Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
 
-not sure what you mean.. where it wouldn't be safe?
-what workflow/processing
-
-thanks,
-jirka
-
+Added to misc-next, thanks.
