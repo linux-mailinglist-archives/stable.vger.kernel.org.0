@@ -2,99 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C84B93AB166
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 12:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AC1D3AB183
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 12:39:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231260AbhFQKfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 06:35:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45176 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229868AbhFQKfE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Jun 2021 06:35:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A88AD613C1;
-        Thu, 17 Jun 2021 10:32:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623925976;
-        bh=5LFrWKKnZzvh/4r7zdfHzAVLWRjA2NAS61Xo1SiDMzI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AOCrY5pGzfLkyz4h4F84W9YSr/0KuhYp1X/v/mxaY2Hy5HcyNwhpNjuFt7pbjjDcQ
-         J+JCu2P6VyaatyRM6QXSOQDuGs8lsj3LAh+atXDFv5iaab5ONSkJo5jQ1SVwgg3kAj
-         2TGwsiaN9+pAg55Ls3zmKq+dghYhO5bp9IxjyPcA=
-Date:   Thu, 17 Jun 2021 12:32:53 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sherry Yang <sherry.yang@oracle.com>
-Cc:     "mingo@redhat.com" <mingo@redhat.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "bp@alien8.de" <bp@alien8.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 5.4 0/2] Backports "x86, sched: Treat Intel SNC topology
- as default, COD as exception"
-Message-ID: <YMsk1Yg9kzqwymUv@kroah.com>
-References: <20210608003715.66882-1-sherry.yang@oracle.com>
- <A969D4BF-D21B-4AB0-97AE-5C881C6F187D@oracle.com>
+        id S231193AbhFQKlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 06:41:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40542 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229716AbhFQKlH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 06:41:07 -0400
+Received: from nbd.name (nbd.name [IPv6:2a01:4f8:221:3d45::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190C4C061574;
+        Thu, 17 Jun 2021 03:39:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
+         s=20160729; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject
+        :Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=88P+mVU+T6x1CWy71RbTkXq1aoDnrH6RLWxo83LbSLY=; b=mahF303DjtNkHL9cY4B+Hvj3CM
+        EBXccR0lItf6Oo0oxTltJH3T+Hp0uQZMcHKAMzbOtWH88wbUE3PstMxV/Pwozxvo5nQm5CbBV/RHE
+        gQAm8AwBBBp8df4KQFlJzKbRR+3F4Vbmnn+4et8+GtklRn3vZ+OJ8h6eXDbqXR0+CuIQ=;
+Received: from p54ae9ff2.dip0.t-ipconnect.de ([84.174.159.242] helo=localhost.localdomain)
+        by ds12 with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.89)
+        (envelope-from <nbd@nbd.name>)
+        id 1ltpQG-0000UO-Rh; Thu, 17 Jun 2021 12:38:57 +0200
+From:   Felix Fietkau <nbd@nbd.name>
+To:     linux-wireless@vger.kernel.org
+Cc:     johannes@sipsolutions.net, stable@vger.kernel.org
+Subject: [PATCH 5.13] mac80211: minstrel_ht: fix sample time check
+Date:   Thu, 17 Jun 2021 12:38:54 +0200
+Message-Id: <20210617103854.61875-1-nbd@nbd.name>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <A969D4BF-D21B-4AB0-97AE-5C881C6F187D@oracle.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 16, 2021 at 10:59:46PM +0000, Sherry Yang wrote:
-> 
-> > On Jun 7, 2021, at 5:37 PM, Sherry Yang <sherry.yang@oracle.com> wrote:
-> > 
-> > Could you also backport these two commits
-> > adefe55e7258 ("x86/kernel: Convert to new CPU match macros")
-> > 2c88d45edbb8 ("x86, sched: Treat Intel SNC topology as default,
-> > COD as exception") to 5.4.y?
-> > 
-> > Commit adefe55e7258 ("x86/kernel: Convert to new CPU match macros")
-> > is a prerequisite of the second commit. There are conflicts while
-> > cherry-picking commit adefe55e7258 ("x86/kernel: Convert to new
-> > CPU match macros"), which are caused by a later commit
-> > c84cb3735fd5 ("x86/apic: Move TSC deadline timer debug printk").
-> > Keep the later code base.
-> > 
-> > Alison Schofield (1):
-> >  x86, sched: Treat Intel SNC topology as default, COD as exception
-> > 
-> > Thomas Gleixner (1):
-> >  x86/kernel: Convert to new CPU match macros
-> > 
-> > arch/x86/kernel/apic/apic.c | 32 ++++++-------
-> > arch/x86/kernel/smpboot.c   | 90 +++++++++++++++++++------------------
-> > arch/x86/kernel/tsc_msr.c   | 14 +++---
-> > arch/x86/power/cpu.c        | 16 +------
-> > 4 files changed, 68 insertions(+), 84 deletions(-)
-> > 
-> > -- 
-> > 2.27.0
-> > 
-> 
-> Hi,
->  
-> We have seen that the warning “sched: CPU #20's llc-sibling CPU #0 is not on 
-> the same node! [node: 1 != 0]. Ignoring dependency. ” applies to 5.4 but we don’t 
-> observe the fix in 5.4. I'm sending this email to apply the fix from upstream 
-> 2c88d45edbb8 ("x86, sched: Treat Intel SNC topology as default, COD as 
-> exception") to 5.4 and also resolve the dependency conflict caused by 
-> prerequisite commit adefe55e7258 ("x86/kernel: Convert to new CPU match 
-> macros”) by keeping the later code base, please refer to the
-> previous two patches for the detail.
->  
+We need to skip sampling if the next sample time is after jiffies, not before.
+This patch fixes an issue where in some cases only very little sampling (or none
+at all) is performed, leading to really bad data rates
 
-I have no idea what you want me to do here, sorry.
+Fixes: 80d55154b2f8 ("mac80211: minstrel_ht: significantly redesign the rate probing strategy")
+Cc: stable@vger.kernel.org
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+---
+ net/mac80211/rc80211_minstrel_ht.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Please provide a working, tested, set of patches backported to the
-relevant stable trees you want to see them applied to, and I will be
-glad to review and queue them up if they look good.  No one here is in
-the position to "resolve the dependency conflict" of anything here for
-you, sorry, you will need to do this yourself as you are in the best
-position to do so.
+diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
+index 6487b05da6fa..a6f3fb4a9197 100644
+--- a/net/mac80211/rc80211_minstrel_ht.c
++++ b/net/mac80211/rc80211_minstrel_ht.c
+@@ -1514,7 +1514,7 @@ minstrel_ht_get_rate(void *priv, struct ieee80211_sta *sta, void *priv_sta,
+ 	    (info->control.flags & IEEE80211_TX_CTRL_PORT_CTRL_PROTO))
+ 		return;
+ 
+-	if (time_is_before_jiffies(mi->sample_time))
++	if (time_is_after_jiffies(mi->sample_time))
+ 		return;
+ 
+ 	mi->sample_time = jiffies + MINSTREL_SAMPLE_INTERVAL;
+-- 
+2.30.1
 
-thanks!
-
-greg k-h
