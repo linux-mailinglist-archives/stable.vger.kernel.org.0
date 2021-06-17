@@ -2,70 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 543B23AAA91
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 06:51:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2843AAA96
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 06:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229834AbhFQEx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 00:53:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34606 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229551AbhFQExy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Jun 2021 00:53:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 019E960FDA;
-        Thu, 17 Jun 2021 04:51:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623905507;
-        bh=gJkdHgXlWO1nYiuPpo9h2ggnZEVxt0mApfBGYbrfCTo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EYQhSK9ODyOs4zHo5WE9GHHV9YNMXgWyoWNOI6Pkua70U54Ep3D343XQGWIl4r+8/
-         41gnG3VRphZukKivmKfMahbJcQn4bUJhQwG+2duBEuLINk5mSAAno0Ml7r+sOtNIr8
-         uBrtRh9v2F9T8gmIwyOi4/8CgtAIWbk5Eei+V1QA=
-Date:   Thu, 17 Jun 2021 06:51:44 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Wang Yugui <wangyugui@e16-tech.com>,
-        Xu Yu <xuyu@linux.alibaba.com>, Jue Wang <juew@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
-Subject: Re: mm/thp commits: please wait a few days
-Message-ID: <YMrU4FRkrQ7AVo5d@kroah.com>
-References: <88937026-b998-8d9b-7a23-ff24576491f4@google.com>
+        id S229546AbhFQE7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 00:59:03 -0400
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:24491 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229515AbhFQE7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 00:59:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1623905816; x=1655441816;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=FhPyoTCQdd6PxIxdzyfFf2b7ixNGYH4zx5UBGvcDRYs=;
+  b=NnD4oIavGCafMvuZCJgf81v42L5VahfERy3pujDt6JNsUSJTTLL1pCHk
+   GXDU7u4o5op08ROzdD7lwra9tT6HUuXd8cjGjkMBO+WPaVWbxDfv1JvZz
+   J7evuXCT5NP/BJivIlgwmz2fkbKWfYwRHL+dVUcRn0piisGWQBeVt3X3r
+   SOFqw5kKgHfLuhe2Y4Ld0LY1cRk/7TB33UYMZw9Iaiq9GbO/55/I0cABG
+   nK2mnE8gL74NNKH/oNMFmubXXLFXgBmmIAZFkaHdZ2W98FJQZq0mAN6CC
+   hsPfPF5GFpcoC1NOuRxwRXKWvCproXbDwzFK54kPNid1gQpnaxsakgics
+   w==;
+IronPort-SDR: FoaDHPoI7AmUn/+0N7mf51MWbh71Lac8hOLHeamY3ibXcXPoqSkuEUVBEnfz1tvsJTfvsjCTBj
+ E/U39onU9hrM43UZPPdh7sE6XClrcX2X5qn8qk2Ar+vyvHSKfI+o5EfbM7DpgMMyhxt43xAq6y
+ RHfMKN7rF0/EQQf6iYuTn19AYsSA48bMQIe7d2YK7P3gSo4m7vhNdGaJ8ejo1oLcOxDW/OLeyg
+ kFf1FOSzP5Iho1ONlXI1jNh/wY3jDMlj34n2mev2by2BxzOC4YCT/NNuCtBXRWDq4V+Gt6gdWe
+ vRQ=
+X-IronPort-AV: E=Sophos;i="5.83,278,1616428800"; 
+   d="scan'208";a="171433731"
+Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 17 Jun 2021 12:56:56 +0800
+IronPort-SDR: HA6kW7uRoWWRVlGJYJ/OP3JghFNl1LWhcdAbt5unraqLGRfEon65PtE80p1jiFpbZuGCvIQz3q
+ AVureJNGVoDnKGzY9c6CxOR2hS9tJCK7AnqW97DmYJMtdIlt/96rnIlJRvvO4/g+ZTu7vS0V5/
+ zqqGzxwCkYktDs6bvoaDOTDyytSJW/lcZ+6h8kgDvlS380rNEXIIqO9HB1nadHUuz9XSdy5gBa
+ /mDP+i56prN/bzI0lhei/itR5vNeb7zQ4MVdBPKIj/ljfFmvvRu3+TWbShuhgr8wpNx5Y4lxjT
+ sC8zxKu4QblGzgpf5LFjQHcl
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2021 21:35:45 -0700
+IronPort-SDR: HFFdfobZb9P95QYmPHzOuFfNmgfExvqB4j8qt7j833qssQe3+BEeMRwgHf7j6DG0Xs9gzl6pKS
+ /OHYYbWiZg7nRYcJBIqv+lL1w4wx8u7qqfAN9fMcTukkiZirIc6r+BZJql5iJVnc5jorkHqYtS
+ sDaqIM35zkklU3cnnbg0kRw0qMuGKVWZeRH/wt58tYyELKy9nGdBQctvmsd810GgE4t6b0Ax27
+ F8TJA300L0yxP17kF02aebTfr0IvbDUHScroMhldj8E6ofstHaqiRnOSKuOLdbrlsisOkDuGp7
+ TKY=
+WDCIronportException: Internal
+Received: from gyd5zf2.ad.shared (HELO localhost.localdomain) ([10.225.50.171])
+  by uls-op-cesaip02.wdc.com with ESMTP; 16 Jun 2021 21:56:55 -0700
+From:   Naohiro Aota <naohiro.aota@wdc.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     David Sterba <dsterba@suse.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>, stable@vger.kernel.org
+Subject: [PATCH] btrfs: fix negative space_info->bytes_readonly
+Date:   Thu, 17 Jun 2021 13:56:18 +0900
+Message-Id: <20210617045618.1179079-1-naohiro.aota@wdc.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88937026-b998-8d9b-7a23-ff24576491f4@google.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 16, 2021 at 04:02:32PM -0700, Hugh Dickins wrote:
-> Hi Greg,
-> 
-> Linus has taken in a group of mm/thp commits Cc stable today:
-> 
-> 504e070dc08f mm: thp: replace DEBUG_VM BUG with VM_WARN when unmap fails for split
-> 22061a1ffabd mm/thp: unmap_mapping_page() to fix THP truncate_cleanup_page()
-> 31657170deaf mm/thp: fix page_address_in_vma() on file THP tails
-> 494334e43c16 mm/thp: fix vma_address() if virtual address below file offset
-> 732ed55823fc mm/thp: try_to_unmap() use TTU_SYNC for safe splitting
-> 3b77e8c8cde5 mm/thp: make is_huge_zero_pmd() safe and quicker
-> 99fa8a48203d mm/thp: fix __split_huge_pmd_locked() on shmem migration entry
-> ffc90cbb2970 mm, thp: use head page in __migration_entry_wait()
-> 
-> and I expect some more to follow in a few days time (thanks Andrew).
-> 
-> No problem with the commits themselves, but I'm aware that some of them
-> have dependencies on other commits not yet in stable, which I have to
-> sort out for you now.
-> 
-> I'd prefer to avoid a deluge of "does not apply" messages, so ask you
-> please to hold off trying to merge these into stable trees for a few days:
-> I'll get back to you with what's needed for them to apply.
+Consider we have a using block group on zoned btrfs.
 
-Not a problem, thanks for the heads up, I'll restrain from running my
-scripts on the above patches until you say it's safe to :)
+|<- ZU ->|<- used ->|<---free--->|
+                     `- Alloc offset
+ZU: Zone unusable
 
-greg k-h
+Marking the block group read-only will migrate the zone unusable bytes
+to the read-only bytes. So, we will have this.
+
+|<- RO ->|<- used ->|<--- RO --->|
+RO: Read only
+
+When marking it back to read-write, btrfs_dec_block_group_ro()
+subtracts the above "RO" bytes from the
+space_info->bytes_readonly. And, it moves the zone unusable bytes back
+and again subtracts those bytes from the space_info->bytes_readonly,
+leading to negative bytes_readonly.
+
+This commit fixes the issue by reordering the operations.
+
+Link: https://github.com/naota/linux/issues/37
+Fixes: 169e0da91a21 ("btrfs: zoned: track unusable bytes for zones")
+Cc: stable@vger.kernel.org # 5.12+
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+---
+ fs/btrfs/block-group.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 38885b29e6e5..c42b6528552f 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -2442,16 +2442,16 @@ void btrfs_dec_block_group_ro(struct btrfs_block_group *cache)
+ 	spin_lock(&sinfo->lock);
+ 	spin_lock(&cache->lock);
+ 	if (!--cache->ro) {
+-		num_bytes = cache->length - cache->reserved -
+-			    cache->pinned - cache->bytes_super -
+-			    cache->zone_unusable - cache->used;
+-		sinfo->bytes_readonly -= num_bytes;
+ 		if (btrfs_is_zoned(cache->fs_info)) {
+ 			/* Migrate zone_unusable bytes back */
+ 			cache->zone_unusable = cache->alloc_offset - cache->used;
+ 			sinfo->bytes_zone_unusable += cache->zone_unusable;
+ 			sinfo->bytes_readonly -= cache->zone_unusable;
+ 		}
++		num_bytes = cache->length - cache->reserved -
++			    cache->pinned - cache->bytes_super -
++			    cache->zone_unusable - cache->used;
++		sinfo->bytes_readonly -= num_bytes;
+ 		list_del_init(&cache->ro_list);
+ 	}
+ 	spin_unlock(&cache->lock);
+-- 
+2.32.0
+
