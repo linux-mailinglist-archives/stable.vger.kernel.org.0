@@ -2,170 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 167433AA9C7
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 06:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 050DD3AAA8C
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 06:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229671AbhFQEG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 00:06:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56936 "EHLO mail.kernel.org"
+        id S229599AbhFQExQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 00:53:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229447AbhFQEG0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Jun 2021 00:06:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DACD5611CE;
-        Thu, 17 Jun 2021 04:04:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1623902659;
-        bh=rR45cGcI8pZbJl8s59j6S0RNgeHhR+jYem8JmZOZNA0=;
-        h=Date:From:To:Subject:From;
-        b=zqxVrLJd5nktF3wzCK26iZT1vdAYfdd7JSIscC5PVOvlxhZN8uVprTcwAqbfh5g0G
-         xEft/2QiPuuF5SPcy9IUeS04uSf20dqVVd5jbL5fhDDHy0nyb9ej8sgigz2PAh/aFz
-         +2U0UBpdc1hTEOndQKmB8Kh74zXUZLvnGchfu65I=
-Date:   Wed, 16 Jun 2021 21:04:18 -0700
-From:   akpm@linux-foundation.org
-To:     aneesh.kumar@linux.ibm.com, christophe.leroy@csgroup.eu,
-        hughd@google.com, joel@joelfernandes.org, kaleshsingh@google.com,
-        kirill.shutemov@linux.intel.com, kirill@shutemov.name,
-        mm-commits@vger.kernel.org, mpe@ellerman.id.au, npiggin@gmail.com,
-        sfr@canb.auug.org.au, stable@vger.kernel.org
-Subject:  +
- =?US-ASCII?Q?mm-mremap-hold-the-rmap-lock-in-write-mode-when-moving-page?=
- =?US-ASCII?Q?-table-entries.patch?= added to -mm tree
-Message-ID: <20210617040418.z3vLPx-r9%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S229673AbhFQExO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Jun 2021 00:53:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 720B16023D;
+        Thu, 17 Jun 2021 04:51:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623905467;
+        bh=zhj/r02l03A3GGfq/13KwbHx9LGSapVvInAka2yMdDA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tyWMMcsKO83TGp2IXYb21OvpqgvfvItq86/osfFc1CmmVgqOrYyg4qe1op5rQ1dUz
+         YjbNg5SDFz1KNnOz0xHNFN8pUkUXz9ZM6wH9X/kQOxDn2A5dPAyPolbWDLj6n0I84O
+         6tPhkdooNG8sswZHsI7WEZ8BKqqUiIw98o17b6wA=
+Date:   Thu, 17 Jun 2021 06:51:03 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Aman Priyadarshi <apeureka@amazon.de>
+Cc:     Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>,
+        Alexander Graf <graf@amazon.de>,
+        Mark Rutland <mark.rutland@arm.com>, stable@vger.kernel.org,
+        Ali Saidi <alisaidi@amazon.com>
+Subject: Re: [PATCH] arm64: perf: Disable PMU while processing counter
+ overflows
+Message-ID: <YMrUt+Vhs5exEqVt@kroah.com>
+References: <YMoQ1MZgsL2hF2EL@kroah.com>
+ <20210616192859.21708-1-apeureka@amazon.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210616192859.21708-1-apeureka@amazon.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jun 16, 2021 at 09:28:59PM +0200, Aman Priyadarshi wrote:
+> From: Suzuki K Poulose <suzuki.poulose@arm.com>
+> 
+> [ Upstream commit 3cce50dfec4a5b0414c974190940f47dd32c6dee ]
+> 
+> The arm64 PMU updates the event counters and reprograms the
+> counters in the overflow IRQ handler without disabling the
+> PMU. This could potentially cause skews in for group counters,
+> where the overflowed counters may potentially loose some event
+> counts, while they are reprogrammed. To prevent this, disable
+> the PMU while we process the counter overflows and enable it
+> right back when we are done.
+> 
+> This patch also moves the PMU stop/start routines to avoid a
+> forward declaration.
+> 
+> Suggested-by: Mark Rutland <mark.rutland@arm.com>
+> Cc: Will Deacon <will.deacon@arm.com>
+> Acked-by: Mark Rutland <mark.rutland@arm.com>
+> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+> Signed-off-by: Will Deacon <will.deacon@arm.com>
+> Signed-off-by: Aman Priyadarshi <apeureka@amazon.de>
+> Cc: stable@vger.kernel.org
+> ---
+>  arch/arm64/kernel/perf_event.c | 50 +++++++++++++++++++---------------
+>  1 file changed, 28 insertions(+), 22 deletions(-)
 
-The patch titled
-     Subject: mm/mremap: hold the rmap lock in write mode when moving page table entries.
-has been added to the -mm tree.  Its filename is
-     mm-mremap-hold-the-rmap-lock-in-write-mode-when-moving-page-table-entries.patch
+What stable tree(s) do you want this applied to?
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-mremap-hold-the-rmap-lock-in-write-mode-when-moving-page-table-entries.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-mremap-hold-the-rmap-lock-in-write-mode-when-moving-page-table-entries.patch
+thanks,
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: mm/mremap: hold the rmap lock in write mode when moving page table entries.
-
-To avoid a race between rmap walk and mremap, mremap does
-take_rmap_locks().  The lock was taken to ensure that rmap walk don't miss
-a page table entry due to PTE moves via move_pagetables().  The kernel
-does further optimization of this lock such that if we are going to find
-the newly added vma after the old vma, the rmap lock is not taken.  This
-is because rmap walk would find the vmas in the same order and if we don't
-find the page table attached to older vma we would find it with the new
-vma which we would iterate later.
-
-As explained in commit eb66ae030829 ("mremap: properly flush TLB before
-releasing the page") mremap is special in that it doesn't take ownership
-of the page.  The optimized version for PUD/PMD aligned mremap also
-doesn't hold the ptl lock.  This can result in stale TLB entries as show
-below.
-
-This patch updates the rmap locking requirement in mremap to handle the race condition
-explained below with optimized mremap::
-
-Optmized PMD move
-
-    CPU 1                           CPU 2                                   CPU 3
-
-    mremap(old_addr, new_addr)      page_shrinker/try_to_unmap_one
-
-    mmap_write_lock_killable()
-
-                                    addr = old_addr
-                                    lock(pte_ptl)
-    lock(pmd_ptl)
-    pmd = *old_pmd
-    pmd_clear(old_pmd)
-    flush_tlb_range(old_addr)
-
-    *new_pmd = pmd
-                                                                            *new_addr = 10; and fills
-                                                                            TLB with new addr
-                                                                            and old pfn
-
-    unlock(pmd_ptl)
-                                    ptep_clear_flush()
-                                    old pfn is free.
-                                                                            Stale TLB entry
-
-Optimized PUD move also suffers from a similar race.  Both the above race
-condition can be fixed if we force mremap path to take rmap lock.
-
-Link: https://lkml.kernel.org/r/20210616045239.370802-7-aneesh.kumar@linux.ibm.com
-Fixes: 2c91bd4a4e2e ("mm: speed up mremap by 20x on large regions")
-Fixes: c49dd3401802 ("mm: speedup mremap on 1GB or larger regions")
-Link: https://lore.kernel.org/linux-mm/CAHk-=wgXVR04eBNtxQfevontWnP6FDm+oj5vauQXP3S-huwbPw@mail.gmail.com
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Cc: Kalesh Singh <kaleshsingh@google.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/mremap.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/mm/mremap.c~mm-mremap-hold-the-rmap-lock-in-write-mode-when-moving-page-table-entries
-+++ a/mm/mremap.c
-@@ -503,7 +503,7 @@ unsigned long move_page_tables(struct vm
- 		} else if (IS_ENABLED(CONFIG_HAVE_MOVE_PUD) && extent == PUD_SIZE) {
- 
- 			if (move_pgt_entry(NORMAL_PUD, vma, old_addr, new_addr,
--					   old_pud, new_pud, need_rmap_locks))
-+					   old_pud, new_pud, true))
- 				continue;
- 		}
- 
-@@ -530,7 +530,7 @@ unsigned long move_page_tables(struct vm
- 			 * moving at the PMD level if possible.
- 			 */
- 			if (move_pgt_entry(NORMAL_PMD, vma, old_addr, new_addr,
--					   old_pmd, new_pmd, need_rmap_locks))
-+					   old_pmd, new_pmd, true))
- 				continue;
- 		}
- 
-_
-
-Patches currently in -mm which might be from aneesh.kumar@linux.ibm.com are
-
-mm-rename-pud_page_vaddr-to-pud_pgtable-and-make-it-return-pmd_t.patch
-mm-rename-pud_page_vaddr-to-pud_pgtable-and-make-it-return-pmd_t-fix-2.patch
-mm-rename-p4d_page_vaddr-to-p4d_pgtable-and-make-it-return-pud_t.patch
-mm-rename-p4d_page_vaddr-to-p4d_pgtable-and-make-it-return-pud_t-fix.patch
-selftest-mremap_test-update-the-test-to-handle-pagesize-other-than-4k.patch
-selftest-mremap_test-avoid-crash-with-static-build.patch
-mm-mremap-convert-huge-pud-move-to-separate-helper.patch
-mm-mremap-dont-enable-optimized-pud-move-if-page-table-levels-is-2.patch
-mm-mremap-use-pmd-pud_poplulate-to-update-page-table-entries.patch
-mm-mremap-hold-the-rmap-lock-in-write-mode-when-moving-page-table-entries.patch
-mm-mremap-allow-arch-runtime-override.patch
-powerpc-book3s64-mm-update-flush_tlb_range-to-flush-page-walk-cache.patch
-powerpc-mm-enable-have_move_pmd-support.patch
-
+greg k-h
