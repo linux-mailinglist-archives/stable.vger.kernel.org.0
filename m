@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8113AB98E
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 18:26:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 308D53AB991
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 18:26:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231845AbhFQQ2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 12:28:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47768 "EHLO mail.kernel.org"
+        id S231565AbhFQQ2h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 12:28:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229741AbhFQQ2M (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Thu, 17 Jun 2021 12:28:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D073F61166;
-        Thu, 17 Jun 2021 16:26:02 +0000 (UTC)
+        id S229741AbhFQQ2h (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Thu, 17 Jun 2021 12:28:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BAF2610A5;
+        Thu, 17 Jun 2021 16:26:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623947163;
-        bh=VyboTr2R898YuGejhfoz0AN4EzZcTJ/CJGcIxUJuPiQ=;
+        s=korg; t=1623947189;
+        bh=bRfgS0nOTJoikuXYr8atNYGF0L9aty8cMCAhKjL9+pk=;
         h=Subject:To:From:Date:From;
-        b=vnQ/hL/BLoJR4uhFIuMOMrnqi6Ou1Eop7N0Hq0JTVibqdCkPjmwSrnRwSlk/WRi8A
-         LvFMMZ/YP68Hck2ogFlHyihRVqkgvlGyFbQ4gsaaFQ04+yvO++yIsH5+PMxrnS5hm6
-         QeIz9OrYypgq68ZLw83TFBrBUP0lakXFvxUeOZ5M=
-Subject: patch "iio: accel: bmc150: Fix bma222 scale unit" added to staging-testing
-To:     stephan@gerhold.net, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, linus.walleij@linaro.org
+        b=PBMD2VJvH84LYtVQ/4dqZYhpcmS/JeKbYhxskX8BbrNwmcn2csW9Q3xWOxMiWAWPV
+         V/ukl+GSqNAvSHE+gKyaqLOsOTaTIiw9ayKM6bTnFQX8eg4BUSvJfxQBRWcus003q1
+         q1drxwSOrDB2s4iSIDWzlW/OJOGYdYNGy6hHj1d0=
+Subject: patch "iio: ltr501: ltr559: fix initialization of LTR501_ALS_CONTR" added to staging-testing
+To:     Oliver.Lang@gossenmetrawatt.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, andy.shevchenko@gmail.com,
+        mkl@pengutronix.de, nikita@trvn.ru
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 17 Jun 2021 18:24:47 +0200
-Message-ID: <162394708766126@kroah.com>
+Date:   Thu, 17 Jun 2021 18:24:54 +0200
+Message-ID: <16239470941281@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: accel: bmc150: Fix bma222 scale unit
+    iio: ltr501: ltr559: fix initialization of LTR501_ALS_CONTR
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,50 +52,43 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 6e2a90af0b8d757e850cc023d761ee9a9492e2fe Mon Sep 17 00:00:00 2001
-From: Stephan Gerhold <stephan@gerhold.net>
-Date: Fri, 11 Jun 2021 10:08:54 +0200
-Subject: iio: accel: bmc150: Fix bma222 scale unit
+From 421a26f3d7a7c3ca43f3a9dc0f3cb0f562d5bd95 Mon Sep 17 00:00:00 2001
+From: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+Date: Thu, 10 Jun 2021 15:46:17 +0200
+Subject: iio: ltr501: ltr559: fix initialization of LTR501_ALS_CONTR
 
-According to sysfs-bus-iio documentation the unit for accelerometer
-values after applying scale/offset should be m/s^2, not g, which explains
-why the scale values for the other variants in bmc150-accel do not match
-exactly the values given in the datasheet.
+The ltr559 chip uses only the lowest bit of the ALS_CONTR register to
+configure between active and stand-by mode. In the original driver
+BIT(1) is used, which does a software reset instead.
 
-To get the correct values, we need to multiply the BMA222 scale values
-by g = 9.80665 m/s^2.
+This patch fixes the problem by using BIT(0) as als_mode_active for
+the ltr559 chip.
 
-Fixes: a1a210bf29a1 ("iio: accel: bmc150-accel: Add support for BMA222")
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20210611080903.14384-2-stephan@gerhold.net
+Fixes: 8592a7eefa54 ("iio: ltr501: Add support for ltr559 chip")
+Signed-off-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
+Link: https://lore.kernel.org/r/20210610134619.2101372-3-mkl@pengutronix.de
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/accel/bmc150-accel-core.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/iio/light/ltr501.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/accel/bmc150-accel-core.c b/drivers/iio/accel/bmc150-accel-core.c
-index a3d08d713362..a80ee0fdabc5 100644
---- a/drivers/iio/accel/bmc150-accel-core.c
-+++ b/drivers/iio/accel/bmc150-accel-core.c
-@@ -1145,11 +1145,12 @@ static const struct bmc150_accel_chip_info bmc150_accel_chip_info_tbl[] = {
- 		/*
- 		 * The datasheet page 17 says:
- 		 * 15.6, 31.3, 62.5 and 125 mg per LSB.
-+		 * IIO unit is m/s^2 so multiply by g = 9.80665 m/s^2.
- 		 */
--		.scale_table = { {156000, BMC150_ACCEL_DEF_RANGE_2G},
--				 {313000, BMC150_ACCEL_DEF_RANGE_4G},
--				 {625000, BMC150_ACCEL_DEF_RANGE_8G},
--				 {1250000, BMC150_ACCEL_DEF_RANGE_16G} },
-+		.scale_table = { {152984, BMC150_ACCEL_DEF_RANGE_2G},
-+				 {306948, BMC150_ACCEL_DEF_RANGE_4G},
-+				 {612916, BMC150_ACCEL_DEF_RANGE_8G},
-+				 {1225831, BMC150_ACCEL_DEF_RANGE_16G} },
- 	},
- 	[bma222e] = {
- 		.name = "BMA222E",
+diff --git a/drivers/iio/light/ltr501.c b/drivers/iio/light/ltr501.c
+index 0ed3392a33cf..79898b72fe73 100644
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -1208,7 +1208,7 @@ static struct ltr501_chip_info ltr501_chip_info_tbl[] = {
+ 		.als_gain_tbl_size = ARRAY_SIZE(ltr559_als_gain_tbl),
+ 		.ps_gain = ltr559_ps_gain_tbl,
+ 		.ps_gain_tbl_size = ARRAY_SIZE(ltr559_ps_gain_tbl),
+-		.als_mode_active = BIT(1),
++		.als_mode_active = BIT(0),
+ 		.als_gain_mask = BIT(2) | BIT(3) | BIT(4),
+ 		.als_gain_shift = 2,
+ 		.info = &ltr501_info,
 -- 
 2.32.0
 
