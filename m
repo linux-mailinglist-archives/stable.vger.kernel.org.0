@@ -2,91 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6653AB50E
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 15:40:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E361D3AB66A
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 16:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232166AbhFQNmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 09:42:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37232 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232588AbhFQNmH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Jun 2021 09:42:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D0B8610A3;
-        Thu, 17 Jun 2021 13:39:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623937200;
-        bh=rJRwonJDRJZZnJw+wR028S0gzfX4XRiVkL5wkdFqhP8=;
-        h=Subject:To:From:Date:From;
-        b=k8lNUXI924veO3BDT+vjFFa/mzlwLW0+of/dzK0EffyVZeq514G48UWJvAyBRYDnh
-         gTwr2akHeVC4yYWwIQKQpJ8sEsaYXACONu3FOdQFQrwhN5AEwhNPj/gvWiNfLI7WXV
-         yrC06OS6Q2cMrOnB6UuGKnjQkHoOzWnOqbISAV0Y=
-Subject: patch "usb: typec: Add the missed altmode_id_remove() in" added to usb-testing
-To:     jingxiangfeng@huawei.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 17 Jun 2021 15:39:45 +0200
-Message-ID: <162393718552247@kroah.com>
+        id S231736AbhFQOuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 10:50:07 -0400
+Received: from mail.efficios.com ([167.114.26.124]:37974 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231691AbhFQOuG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 10:50:06 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 72CD133BA55;
+        Thu, 17 Jun 2021 10:47:58 -0400 (EDT)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id DhKZCbvlP3-9; Thu, 17 Jun 2021 10:47:58 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 0B78F33B931;
+        Thu, 17 Jun 2021 10:47:58 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 0B78F33B931
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1623941278;
+        bh=PLmeUNZK9WR3Sr2WIFWT3Vd6iXIZKutqycMR2Hdur10=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=LtCwpDBN1PTYJi8ZUiyQpNX/3B26iJ4YFHCpUNkxuC/DZxtG3R6gq98F+vllh70f0
+         guHwV9++CTJrY4RDnupUW+jaxChkzDohlXWciw2tLcDiWNYXn2xycDnQhQa36ejE6l
+         KKldpFqf6Uk5K7tMJhpa6pdzDA+WlEKBzmrHXGLX6LnwfcnIGfSePdTMpU43LAcU77
+         UNxM6gZcfhC/2UZ01A4uHToBHCHifVRJtheU6Q8N5MMh9bTFFssD1RjhmX/G84s5on
+         ezWOAG3wYMTK1m0vqxL8md2AC8nSYL352pUYY4SjHetyz3Irro/zNq5B22qbECQcNY
+         lGpIFbMb3uCgQ==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id mjoObxJ2a_KR; Thu, 17 Jun 2021 10:47:58 -0400 (EDT)
+Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
+        by mail.efficios.com (Postfix) with ESMTP id EE8A133B8A0;
+        Thu, 17 Jun 2021 10:47:57 -0400 (EDT)
+Date:   Thu, 17 Jun 2021 10:47:57 -0400 (EDT)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     x86 <x86@kernel.org>, Dave Hansen <dave.hansen@intel.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        stable <stable@vger.kernel.org>
+Message-ID: <827549827.10547.1623941277868.JavaMail.zimbra@efficios.com>
+In-Reply-To: <07a8b963002cb955b7516e61bad19514a3acaa82.1623813516.git.luto@kernel.org>
+References: <cover.1623813516.git.luto@kernel.org> <07a8b963002cb955b7516e61bad19514a3acaa82.1623813516.git.luto@kernel.org>
+Subject: Re: [PATCH 8/8] membarrier: Rewrite sync_core_before_usermode() and
+ improve documentation
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.26.124]
+X-Mailer: Zimbra 8.8.15_GA_4018 (ZimbraWebClient - FF89 (Linux)/8.8.15_GA_4026)
+Thread-Topic: membarrier: Rewrite sync_core_before_usermode() and improve documentation
+Thread-Index: HZuOJZBerHSq1IbJ6WneE0wVP8/5rA==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+----- On Jun 15, 2021, at 11:21 PM, Andy Lutomirski luto@kernel.org wrote:
 
-This is a note to let you know that I've just added the patch titled
+> The old sync_core_before_usermode() comments suggested that a non-icache-syncing
+> return-to-usermode instruction is x86-specific and that all other
+> architectures automatically notice cross-modified code on return to
+> userspace.
+> 
+> This is misleading.  The incantation needed to modify code from one
+> CPU and execute it on another CPU is highly architecture dependent.
+> On x86, according to the SDM, one must modify the code, issue SFENCE
+> if the modification was WC or nontemporal, and then issue a "serializing
+> instruction" on the CPU that will execute the code.  membarrier() can do
+> the latter.
+> 
+> On arm64 and powerpc, one must flush the icache and then flush the pipeline
+> on the target CPU, although the CPU manuals don't necessarily use this
+> language.
+> 
+> So let's drop any pretense that we can have a generic way to define or
+> implement membarrier's SYNC_CORE operation and instead require all
+> architectures to define the helper and supply their own documentation as to
+> how to use it.
 
-    usb: typec: Add the missed altmode_id_remove() in
+Agreed. Documentation of the sequence of operations that need to be performed
+when cross-modifying code on SMP should be per-architecture. The documentation
+of the architectural effects of membarrier sync-core should be per-arch as well.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+> This means x86, arm64, and powerpc for now.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+And also arm32, as discussed in the other leg of the patchset's email thread.
 
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
+> Let's also
+> rename the function from sync_core_before_usermode() to
+> membarrier_sync_core_before_usermode() because the precise flushing details
+> may very well be specific to membarrier, and even the concept of
+> "sync_core" in the kernel is mostly an x86-ism.
 
-If you have any questions about this process, please let me know.
+OK
 
+> 
+[...]
+> 
+> static void ipi_rseq(void *info)
+> {
+> @@ -368,12 +373,14 @@ static int membarrier_private_expedited(int flags, int
+> cpu_id)
+> 	smp_call_func_t ipi_func = ipi_mb;
+> 
+> 	if (flags == MEMBARRIER_FLAG_SYNC_CORE) {
+> -		if (!IS_ENABLED(CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE))
+> +#ifndef CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE
+> 			return -EINVAL;
+> +#else
+> 		if (!(atomic_read(&mm->membarrier_state) &
+> 		      MEMBARRIER_STATE_PRIVATE_EXPEDITED_SYNC_CORE_READY))
+> 			return -EPERM;
+> 		ipi_func = ipi_sync_core;
+> +#endif
 
-From 03026197bb657d784220b040c6173267a0375741 Mon Sep 17 00:00:00 2001
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Date: Thu, 17 Jun 2021 15:32:26 +0800
-Subject: usb: typec: Add the missed altmode_id_remove() in
- typec_register_altmode()
+Please change back this #ifndef / #else / #endif within function for
 
-typec_register_altmode() misses to call altmode_id_remove() in an error
-path. Add the missed function call to fix it.
+if (!IS_ENABLED(CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE)) {
+  ...
+} else {
+  ...
+}
 
-Fixes: 8a37d87d72f0 ("usb: typec: Bus type for alternate modes")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Link: https://lore.kernel.org/r/20210617073226.47599-1-jingxiangfeng@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/class.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+I don't think mixing up preprocessor and code logic makes it more readable.
 
-diff --git a/drivers/usb/typec/class.c b/drivers/usb/typec/class.c
-index b9429c9f65f6..aeef453aa658 100644
---- a/drivers/usb/typec/class.c
-+++ b/drivers/usb/typec/class.c
-@@ -517,8 +517,10 @@ typec_register_altmode(struct device *parent,
- 	int ret;
- 
- 	alt = kzalloc(sizeof(*alt), GFP_KERNEL);
--	if (!alt)
-+	if (!alt) {
-+		altmode_id_remove(parent, id);
- 		return ERR_PTR(-ENOMEM);
-+	}
- 
- 	alt->adev.svid = desc->svid;
- 	alt->adev.mode = desc->mode;
+Thanks,
+
+Mathieu
+
+> 	} else if (flags == MEMBARRIER_FLAG_RSEQ) {
+> 		if (!IS_ENABLED(CONFIG_RSEQ))
+> 			return -EINVAL;
+> --
+> 2.31.1
+
 -- 
-2.32.0
-
-
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
