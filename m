@@ -2,94 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 203C73AAF2F
-	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 10:57:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E1923AAF41
+	for <lists+stable@lfdr.de>; Thu, 17 Jun 2021 11:02:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230312AbhFQI71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 04:59:27 -0400
-Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:39008 "EHLO
-        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbhFQI71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 04:59:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazon201209;
-  t=1623920241; x=1655456241;
-  h=message-id:from:to:cc:date:in-reply-to:references:
-   mime-version:content-transfer-encoding:subject;
-  bh=Kn8Ho3X5Xbqs1B2LDrBQWn36ys4fG/nIZVHO5qU4VHM=;
-  b=uXqLRM/uibuXcmuES5YWyM7Zc0JISxVdDOl164J+r4aZ2+xggfJAEBF3
-   iOQzvqjqt8lnQNqnbMHcutKQ9iaTdqqb0nAGaQjQebWmgnuqLzxY4B3vF
-   Dt158EBBtimHfTxhJ3f9oQow43ovJpIA726iiFYs0nhKgG4oi/dCnZlxt
-   M=;
-X-IronPort-AV: E=Sophos;i="5.83,280,1616457600"; 
-   d="scan'208";a="119364469"
-Subject: Re: [PATCH] arm64: perf: Disable PMU while processing counter overflows
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2b-c7131dcf.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-6002.iad6.amazon.com with ESMTP; 17 Jun 2021 08:57:11 +0000
-Received: from EX13D39EUC002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-2b-c7131dcf.us-west-2.amazon.com (Postfix) with ESMTPS id B1862A17C6;
-        Thu, 17 Jun 2021 08:57:09 +0000 (UTC)
-Received: from freeip.amazon.com (10.43.160.137) by
- EX13D39EUC002.ant.amazon.com (10.43.164.187) with Microsoft SMTP Server (TLS)
- id 15.0.1497.18; Thu, 17 Jun 2021 08:57:05 +0000
-Message-ID: <a9104042094d658a9ee86f332505dee1d2ed06fd.camel@amazon.de>
-From:   Aman Priyadarshi <apeureka@amazon.de>
-To:     Marc Zyngier <maz@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Will Deacon <will@kernel.org>, Alexander Graf <graf@amazon.de>,
-        "Mark Rutland" <mark.rutland@arm.com>, <stable@vger.kernel.org>,
-        Ali Saidi <alisaidi@amazon.com>
-Date:   Thu, 17 Jun 2021 10:57:00 +0200
-In-Reply-To: <87r1h1c5bo.wl-maz@kernel.org>
-References: <YMoQ1MZgsL2hF2EL@kroah.com>
-         <20210616192859.21708-1-apeureka@amazon.de>    <YMrUt+Vhs5exEqVt@kroah.com>
-         <87r1h1c5bo.wl-maz@kernel.org>
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+        id S230242AbhFQJEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 05:04:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:42887 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231352AbhFQJEe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 05:04:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1623920546;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=uLAb2LWOWOji+4QIg5CxEI4uB4pyxF2B9IUfZkfCsDc=;
+        b=WUOF5pg+5SPDFFP14f2cpbDIZSlsWJGMJ+uafFi9DgEDL17hmI9YFwoLzz0Ga1Rd9TRWEx
+        hCU7NpzpSywWDtJ8DLOpnAzuP6MoCzz7wI+lIxFBoWKSIptmTXAeWAJxKAQW0U/t5XPu3O
+        BR2RLrMsWlutkH1sq2SHvHhRMcl1sk4=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-80-70B3GBR6OMmSMh7ol99PWA-1; Thu, 17 Jun 2021 05:02:24 -0400
+X-MC-Unique: 70B3GBR6OMmSMh7ol99PWA-1
+Received: by mail-ed1-f70.google.com with SMTP id u26-20020a05640207dab02903935beb5c71so1150564edy.3
+        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 02:02:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=uLAb2LWOWOji+4QIg5CxEI4uB4pyxF2B9IUfZkfCsDc=;
+        b=SzRtCuFyMCQZrQ2tr2uUFid/2dwZyxOCCH3ts2dhbcnDrraxQRoNv9qpVM9IVuZx2t
+         21kWjhMis7szNHjh6p8sNBBJIGAjozKuTTm0J1qLXchq1yQAIipox1rDzUCXc+L+ys3D
+         c6P+f7tn73Km3xIHqeLQh5wOYPDBijNDEVZ1GYHtMGXMy3R9oWV7YUS6U24KotVFAJRb
+         5Aoy/sUtF0EuXOxZ+L63gWBIAIrNlQ0fkWmvI+cDC+ZMepmafqMXwE/XMJ7GgX4I96Kr
+         rPs2Y3HzLRGGsmp3FEw0jB5VifoM44QKBT0jkU3fqYEzrAqQ/GE4iKEPj+wIWcvDfOPP
+         kGbA==
+X-Gm-Message-State: AOAM530MPYm24emUuNVggnPpFwr8BMKoiGDtg/MnnNsN2AASjw/16TLf
+        8s1SGQvXBq/I9P1AxkueYX8zdAyV9Z9ne95EqqDrngYFRjSyxCuhxbazLfm2/dcAJHb/Rqyq4Gn
+        7H3K8GAUilWyVg+r1
+X-Received: by 2002:a17:906:3402:: with SMTP id c2mr4129523ejb.213.1623920543649;
+        Thu, 17 Jun 2021 02:02:23 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzogSU+ufXCMZzwMM0twjtu/A99aCzJYDHKy42Qiq22+cRh/KkDm9wZRCIVPMGJ4b/rkw+22Q==
+X-Received: by 2002:a17:906:3402:: with SMTP id c2mr4129502ejb.213.1623920543441;
+        Thu, 17 Jun 2021 02:02:23 -0700 (PDT)
+Received: from krava ([83.240.60.126])
+        by smtp.gmail.com with ESMTPSA id t15sm3412610ejf.119.2021.06.17.02.02.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Jun 2021 02:02:23 -0700 (PDT)
+Date:   Thu, 17 Jun 2021 11:02:21 +0200
+From:   Jiri Olsa <jolsa@redhat.com>
+To:     Mark Wielaard <mark@klomp.org>
+Cc:     Yonghong Song <yhs@fb.com>,
+        Tony Ambardar <tony.ambardar@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        Jiri Olsa <jolsa@kernel.org>, Frank Eigler <fche@redhat.com>
+Subject: Re: [PATCH bpf v1] bpf: fix libelf endian handling in resolv_btfids
+Message-ID: <YMsPnaV798ICuMbv@krava>
+References: <20210616092521.800788-1-Tony.Ambardar@gmail.com>
+ <caf1dcbd-7a07-993c-e940-1b2689985c5a@fb.com>
+ <YMopCb5CqOYsl6HR@krava>
+ <YMp68Dlqwu+wuHV9@wildebeest.org>
 MIME-Version: 1.0
-X-Originating-IP: [10.43.160.137]
-X-ClientProxiedBy: EX13D49UWC003.ant.amazon.com (10.43.162.10) To
- EX13D39EUC002.ant.amazon.com (10.43.164.187)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YMp68Dlqwu+wuHV9@wildebeest.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVGh1LCAyMDIxLTA2LTE3IGF0IDA4OjM0ICswMTAwLCBNYXJjIFp5bmdpZXIgd3JvdGU6Cj4g
-Q0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5hdGVkIGZyb20gb3V0c2lkZSBvZiB0aGUgb3JnYW5p
-emF0aW9uLiBEbyBub3QKPiBjbGljayBsaW5rcyBvciBvcGVuIGF0dGFjaG1lbnRzIHVubGVzcyB5
-b3UgY2FuIGNvbmZpcm0gdGhlIHNlbmRlciBhbmQKPiBrbm93IHRoZSBjb250ZW50IGlzIHNhZmUu
-Cj4gCj4gCj4gCj4gT24gVGh1LCAxNyBKdW4gMjAyMSAwNTo1MTowMyArMDEwMCwKPiBHcmVnIEty
-b2FoLUhhcnRtYW4gPGdyZWdraEBsaW51eGZvdW5kYXRpb24ub3JnPiB3cm90ZToKPiA+IAo+ID4g
-T24gV2VkLCBKdW4gMTYsIDIwMjEgYXQgMDk6Mjg6NTlQTSArMDIwMCwgQW1hbiBQcml5YWRhcnNo
-aSB3cm90ZToKPiA+ID4gRnJvbTogU3V6dWtpIEsgUG91bG9zZSA8c3V6dWtpLnBvdWxvc2VAYXJt
-LmNvbT4KPiA+ID4gCj4gPiA+IFsgVXBzdHJlYW0gY29tbWl0IDNjY2U1MGRmZWM0YTViMDQxNGM5
-NzQxOTA5NDBmNDdkZDMyYzZkZWUgXQo+ID4gPiAKPiA+ID4gVGhlIGFybTY0IFBNVSB1cGRhdGVz
-IHRoZSBldmVudCBjb3VudGVycyBhbmQgcmVwcm9ncmFtcyB0aGUKPiA+ID4gY291bnRlcnMgaW4g
-dGhlIG92ZXJmbG93IElSUSBoYW5kbGVyIHdpdGhvdXQgZGlzYWJsaW5nIHRoZQo+ID4gPiBQTVUu
-IFRoaXMgY291bGQgcG90ZW50aWFsbHkgY2F1c2Ugc2tld3MgaW4gZm9yIGdyb3VwIGNvdW50ZXJz
-LAo+ID4gPiB3aGVyZSB0aGUgb3ZlcmZsb3dlZCBjb3VudGVycyBtYXkgcG90ZW50aWFsbHkgbG9v
-c2Ugc29tZSBldmVudAo+ID4gPiBjb3VudHMsIHdoaWxlIHRoZXkgYXJlIHJlcHJvZ3JhbW1lZC4g
-VG8gcHJldmVudCB0aGlzLCBkaXNhYmxlCj4gPiA+IHRoZSBQTVUgd2hpbGUgd2UgcHJvY2VzcyB0
-aGUgY291bnRlciBvdmVyZmxvd3MgYW5kIGVuYWJsZSBpdAo+ID4gPiByaWdodCBiYWNrIHdoZW4g
-d2UgYXJlIGRvbmUuCj4gPiA+IAo+ID4gPiBUaGlzIHBhdGNoIGFsc28gbW92ZXMgdGhlIFBNVSBz
-dG9wL3N0YXJ0IHJvdXRpbmVzIHRvIGF2b2lkIGEKPiA+ID4gZm9yd2FyZCBkZWNsYXJhdGlvbi4K
-PiA+ID4gCj4gPiA+IFN1Z2dlc3RlZC1ieTogTWFyayBSdXRsYW5kIDxtYXJrLnJ1dGxhbmRAYXJt
-LmNvbT4KPiA+ID4gQ2M6IFdpbGwgRGVhY29uIDx3aWxsLmRlYWNvbkBhcm0uY29tPgo+ID4gPiBB
-Y2tlZC1ieTogTWFyayBSdXRsYW5kIDxtYXJrLnJ1dGxhbmRAYXJtLmNvbT4KPiA+ID4gU2lnbmVk
-LW9mZi1ieTogU3V6dWtpIEsgUG91bG9zZSA8c3V6dWtpLnBvdWxvc2VAYXJtLmNvbT4KPiA+ID4g
-U2lnbmVkLW9mZi1ieTogV2lsbCBEZWFjb24gPHdpbGwuZGVhY29uQGFybS5jb20+Cj4gPiA+IFNp
-Z25lZC1vZmYtYnk6IEFtYW4gUHJpeWFkYXJzaGkgPGFwZXVyZWthQGFtYXpvbi5kZT4KPiA+ID4g
-Q2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcKPiA+ID4gLS0tCj4gPiA+ICBhcmNoL2FybTY0L2tl
-cm5lbC9wZXJmX2V2ZW50LmMgfCA1MCArKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLQo+
-ID4gPiAtLQo+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDI4IGluc2VydGlvbnMoKyksIDIyIGRlbGV0
-aW9ucygtKQo+ID4gCj4gPiBXaGF0IHN0YWJsZSB0cmVlKHMpIGRvIHlvdSB3YW50IHRoaXMgYXBw
-bGllZCB0bz8KPiAKPiBJIGd1ZXNzIHRoYXQnZCBiZSA0LjE0IGFuZCBwcmV2aW91cyBzdGFibGVz
-IGlmIHRoZSBwYXRjaCBhY3R1YWxseQo+IGFwcGxpZXMuCj4gCgpDb3JyZWN0LiBJIGhhdmUgdGVz
-dGVkIHRoZSBwYXRjaCBvbiA0LjE0LnksIGNhbiBjb25maXJtIHRoYXQgaXQgYXBwbGllcwpjbGVh
-bmx5IG9uIDQuOS55IGFzIHdlbGwuCgpUaGFua3MsCkFtYW4gUHJpeWFkYXJzaGkKCgoKCkFtYXpv
-biBEZXZlbG9wbWVudCBDZW50ZXIgR2VybWFueSBHbWJICktyYXVzZW5zdHIuIDM4CjEwMTE3IEJl
-cmxpbgpHZXNjaGFlZnRzZnVlaHJ1bmc6IENocmlzdGlhbiBTY2hsYWVnZXIsIEpvbmF0aGFuIFdl
-aXNzCkVpbmdldHJhZ2VuIGFtIEFtdHNnZXJpY2h0IENoYXJsb3R0ZW5idXJnIHVudGVyIEhSQiAx
-NDkxNzMgQgpTaXR6OiBCZXJsaW4KVXN0LUlEOiBERSAyODkgMjM3IDg3OQoKCg==
+On Thu, Jun 17, 2021 at 12:28:00AM +0200, Mark Wielaard wrote:
+> Hoi,
+> 
+> On Wed, Jun 16, 2021 at 06:38:33PM +0200, Jiri Olsa wrote:
+> > > > diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
+> > > > index d636643ddd35..f32c059fbfb4 100644
+> > > > --- a/tools/bpf/resolve_btfids/main.c
+> > > > +++ b/tools/bpf/resolve_btfids/main.c
+> > > > @@ -649,6 +649,9 @@ static int symbols_patch(struct object *obj)
+> > > >   	if (sets_patch(obj))
+> > > >   		return -1;
+> > > > +	/* Set type to ensure endian translation occurs. */
+> > > > +	obj->efile.idlist->d_type = ELF_T_WORD;
+> > > 
+> > > The change makes sense to me as .BTF_ids contains just a list of
+> > > u32's.
+> > > 
+> > > Jiri, could you double check on this?
+> > 
+> > the comment in ELF_T_WORD declaration suggests the size depends on
+> > elf's class?
+> > 
+> >   ELF_T_WORD,                   /* Elf32_Word, Elf64_Word, ... */
+> > 
+> > data in .BTF_ids section are allways u32
+> > 
+> > I have no idea how is this handled in libelf (perhaps it's ok),
+> > but just that comment above suggests it could be also 64 bits,
+> > cc-ing Frank and Mark for more insight
+> 
+> It is correct to use ELF_T_WORD, which means a 32bit unsigned word.
+> 
+> The comment is meant to explain that, but is really confusing if you
+> don't know that Elf32_Word and Elf64_Word are the same thing (a 32bit
+> unsigned word). This comes from being "too consistent" in defining all
+> data types for both 32bit and 64bit ELF, even if those types are the
+> same in both formats...
+> 
+> Only Elf32_Addr/Elf64_Addr and Elf32_Off/Elf64_Off are different
+> sizes. But Elf32/Elf_64_Half (16 bit), Elf32/Elf64_Word (32 bit),
+> Elf32/Elf64_Xword (64 bit) and their Sword/Sxword (signed) variants
+> are all identical data types in both the Elf32 and Elf64 formats.
+> 
+> I don't really know why. It seems the original ELF spec was 32bit only
+> and when introducing the ELF64 format "they" simply duplicated all
+> data types whether or not those data type were actually different
+> between the 32 and 64 bit format.
+
+nice, thanks for details
+
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+
+jirka
 
