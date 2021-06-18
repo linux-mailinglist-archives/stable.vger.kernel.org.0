@@ -2,130 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 997943AC011
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 02:21:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 733303AC023
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 02:35:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233274AbhFRAXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 20:23:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54662 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231431AbhFRAXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 20:23:13 -0400
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2E4C061574;
-        Thu, 17 Jun 2021 17:21:03 -0700 (PDT)
-Received: by mail-il1-x12d.google.com with SMTP id s19so251739ilj.1;
-        Thu, 17 Jun 2021 17:21:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rwBUHPn/nUswAacAb8l0k4vEO1b585QgUKlF1XS0z4E=;
-        b=VOsoZyvUte64GBeqs6fU8Na/chZEVaeJt4neq1Z8kpQULdHUNTU6F/cRYUTRTOOkQi
-         VDeJoARqjKjPvgnc7U5WT/7Og0mSkcBjc7mPqwsK5xiPKTabSt+y+LyxqkjDIA4C+UUK
-         uF67rZj9o6NNHZtxsq2CV+12IhbgKXc/+SCgplZZ7ntlRR0wmBlAI+jpU7mtgUbo4cZC
-         ibk0w4LgPwsIoMPtEHGXpl9tdQeNT359tIrZSvhaE0YmStZ2xvo2WSAJtmEC9kkRXbzD
-         PmXrpj/Zx4AAJYAMNppBw9yK3uMpZm1QfPVDzWFMWlybAb9/xoQ/DG8Pivn0mGK8Gnrz
-         PNAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rwBUHPn/nUswAacAb8l0k4vEO1b585QgUKlF1XS0z4E=;
-        b=crqF+cyCliBGUCQJVrC1C1radgFsRr5wj4c52KwaJ8yxWxNnV/pK1rv/NpjgShpyRQ
-         S1GrbVXoVDZjlBAE9DmQyILM8Yfu+gsAn9fNZPnOTqBg7/RXnTLXi+zgCxl8+A13/ZH3
-         fxiEt/coreCdQYS/fs3pmpcoAEFTQpzCme0kIrno495qr4+iqrYR4ISJzq0yo+QOckIY
-         AUtX72auwyWuAs5I8ngUdZh5aj9BOr0N0jAuUUTJy/qAOCQ9hAuz1VP3t9OfamiO1+mf
-         M9QQXo5EHNt5dVlfhhZoKMO+Skp/7R0Yr+z7EfIHhOb6g6MDce3xnR3ktmnUppZow6WM
-         ODGQ==
-X-Gm-Message-State: AOAM531yA6iEneYouMy+alVVl9uM+DI4rBqvGCeziO5rwkezwkRxHP/8
-        fGjzmDST2e63lt5+h4j9BLRTpGqujgyKhnUX+B4=
-X-Google-Smtp-Source: ABdhPJwSzi/LEIO5Z3FwRtpscS2uHs7ZQ+MojHzel6FS0HeYMn4eDyfYPuL2qIIMRU49mbxdEg9sqNL+YNE3ARpDMXQ=
-X-Received: by 2002:a92:b0c:: with SMTP id b12mr5144308ilf.123.1623975663391;
- Thu, 17 Jun 2021 17:21:03 -0700 (PDT)
+        id S231695AbhFRAhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 20:37:45 -0400
+Received: from szxga03-in.huawei.com ([45.249.212.189]:7363 "EHLO
+        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232027AbhFRAho (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 20:37:44 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4G5fxJ713Mz6yYp;
+        Fri, 18 Jun 2021 08:31:32 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Fri, 18 Jun 2021 08:35:32 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Fri, 18 Jun 2021 08:35:31 +0800
+Subject: Re: [PATCH 5.4 00/28] 5.4.127-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210616152834.149064097@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <13247545-3ece-c017-8683-47c289d6c771@huawei.com>
+Date:   Fri, 18 Jun 2021 08:35:31 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <20210616092521.800788-1-Tony.Ambardar@gmail.com>
- <caf1dcbd-7a07-993c-e940-1b2689985c5a@fb.com> <YMopCb5CqOYsl6HR@krava>
- <YMp68Dlqwu+wuHV9@wildebeest.org> <YMsPnaV798ICuMbv@krava> <37f69a50-5b83-22e5-d54b-bea79ad3adec@iogearbox.net>
-In-Reply-To: <37f69a50-5b83-22e5-d54b-bea79ad3adec@iogearbox.net>
-From:   Tony Ambardar <tony.ambardar@gmail.com>
-Date:   Thu, 17 Jun 2021 17:20:53 -0700
-Message-ID: <CAPGftE88-AszN=ftJGxcYWpS2VLq4ErpJOTemBWeBgzE8-bbZQ@mail.gmail.com>
-Subject: Re: [PATCH bpf v1] bpf: fix libelf endian handling in resolv_btfids
-To:     Daniel Borkmann <daniel@iogearbox.net>
-Cc:     Jiri Olsa <jolsa@redhat.com>, Mark Wielaard <mark@klomp.org>,
-        Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Frank Eigler <fche@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210616152834.149064097@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 17 Jun 2021 at 04:22, Daniel Borkmann <daniel@iogearbox.net> wrote:
->
-> On 6/17/21 11:02 AM, Jiri Olsa wrote:
-> > On Thu, Jun 17, 2021 at 12:28:00AM +0200, Mark Wielaard wrote:
-> >> On Wed, Jun 16, 2021 at 06:38:33PM +0200, Jiri Olsa wrote:
-> >>>>> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
-> >>>>> index d636643ddd35..f32c059fbfb4 100644
-> >>>>> --- a/tools/bpf/resolve_btfids/main.c
-> >>>>> +++ b/tools/bpf/resolve_btfids/main.c
-> >>>>> @@ -649,6 +649,9 @@ static int symbols_patch(struct object *obj)
-> >>>>>           if (sets_patch(obj))
-> >>>>>                   return -1;
-> >>>>> + /* Set type to ensure endian translation occurs. */
-> >>>>> + obj->efile.idlist->d_type = ELF_T_WORD;
-> >>>>
-> >>>> The change makes sense to me as .BTF_ids contains just a list of
-> >>>> u32's.
-> >>>>
-> >>>> Jiri, could you double check on this?
-> >>>
-> >>> the comment in ELF_T_WORD declaration suggests the size depends on
-> >>> elf's class?
-> >>>
-> >>>    ELF_T_WORD,                   /* Elf32_Word, Elf64_Word, ... */
-> >>>
-> >>> data in .BTF_ids section are allways u32
-> >>>
-> >>> I have no idea how is this handled in libelf (perhaps it's ok),
-> >>> but just that comment above suggests it could be also 64 bits,
-> >>> cc-ing Frank and Mark for more insight
-> >>
-> >> It is correct to use ELF_T_WORD, which means a 32bit unsigned word.
-> >>
-> >> The comment is meant to explain that, but is really confusing if you
-> >> don't know that Elf32_Word and Elf64_Word are the same thing (a 32bit
-> >> unsigned word). This comes from being "too consistent" in defining all
-> >> data types for both 32bit and 64bit ELF, even if those types are the
-> >> same in both formats...
-> >>
-> >> Only Elf32_Addr/Elf64_Addr and Elf32_Off/Elf64_Off are different
-> >> sizes. But Elf32/Elf_64_Half (16 bit), Elf32/Elf64_Word (32 bit),
-> >> Elf32/Elf64_Xword (64 bit) and their Sword/Sxword (signed) variants
-> >> are all identical data types in both the Elf32 and Elf64 formats.
-> >>
-> >> I don't really know why. It seems the original ELF spec was 32bit only
-> >> and when introducing the ELF64 format "they" simply duplicated all
-> >> data types whether or not those data type were actually different
-> >> between the 32 and 64 bit format.
-> >
-> > nice, thanks for details
-> >
-> > Acked-by: Jiri Olsa <jolsa@redhat.com>
->
-> Tony, could you do a v2 and summarize the remainder of the discussion in
-> here for the commit message? Would be good to explicitly document the
-> assumptions made and why they work.
 
-Sure, Daniel, I'll update the commit details and resend.
 
-Thanks,
-Tony
+On 2021/6/16 23:33, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.127 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 18 Jun 2021 15:28:19 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.127-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-> Thanks everyone,
-> Daniel
+Tested on arm64 and x86 for 5.4.127-rc1,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.127-rc1
+Commit: 4e778e863160695fca936b0a9452e94fc9824a76
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8905
+passed: 8905
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8905
+passed: 8905
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
