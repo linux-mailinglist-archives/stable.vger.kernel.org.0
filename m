@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B5E3AC3E7
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 08:30:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8554A3AC3EA
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 08:31:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbhFRGcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 02:32:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38820 "EHLO mail.kernel.org"
+        id S231461AbhFRGd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 02:33:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231461AbhFRGcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 02:32:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF87C61245;
-        Fri, 18 Jun 2021 06:30:45 +0000 (UTC)
+        id S231452AbhFRGd5 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 02:33:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6B6C60E08;
+        Fri, 18 Jun 2021 06:31:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623997846;
-        bh=SyJdEA20ePqHj7GBHSJzSinmDSeYIn72ez9eOWUCJ/A=;
+        s=korg; t=1623997908;
+        bh=nYoTEfg/yEUu+NQPcEFrAK93oyq7VGOoRw5Jeea4fUw=;
         h=Subject:To:From:Date:From;
-        b=vSrhuR8YfaKRlz0iAEVa2oOtSN3s+NnxNNEGHs+dIupHEQyTFQ38SmDYKmN1mZurB
-         Qe1BrNqhEaeopshlQJxU6OhOK+xkIOE1vyhzpMgIaxgsadiK5GjNrex4fqYG0Vx6ax
-         eGuS1cCJbPX+kzlvN/qeUGeK8zUoVY8nFRDqAG2Y=
-Subject: patch "usb: typec: Add the missed altmode_id_remove() in" added to usb-next
-To:     jingxiangfeng@huawei.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
+        b=npv0qhEmFD+c+afXnw7kODwccWz2FGT9jGgA7iB/UeQAnstX+JNXn4XBSpj28G6q9
+         z1CBs8pxmyNGyY0O4YzClPjJdpAIiWGjTx9UP2sHEdmoN7nrco5KCr6rnMNX/EXqrS
+         pbrb4HEAVPunHqWVTqHKDpvJ21XBOc3LQuDpwDfQ=
+Subject: patch "iio: accel: bmc150: Fix dereferencing the wrong pointer in" added to staging-next
+To:     hdegoede@redhat.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, andy.shevchenko@gmail.com,
+        jeremy@jcline.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Jun 2021 08:30:23 +0200
-Message-ID: <1623997823200170@kroah.com>
+Date:   Fri, 18 Jun 2021 08:30:54 +0200
+Message-ID: <162399785411391@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,11 +37,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: typec: Add the missed altmode_id_remove() in
+    iio: accel: bmc150: Fix dereferencing the wrong pointer in
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -51,41 +52,81 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 03026197bb657d784220b040c6173267a0375741 Mon Sep 17 00:00:00 2001
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Date: Thu, 17 Jun 2021 15:32:26 +0800
-Subject: usb: typec: Add the missed altmode_id_remove() in
- typec_register_altmode()
+From f2bf22dc9ea8ead180fc0221874bd556bf1d2685 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Sun, 23 May 2021 19:00:55 +0200
+Subject: iio: accel: bmc150: Fix dereferencing the wrong pointer in
+ bmc150_get/set_second_device
 
-typec_register_altmode() misses to call altmode_id_remove() in an error
-path. Add the missed function call to fix it.
+The drvdata for iio-parent devices points to the struct iio_dev for
+the iio-device. So by directly casting the return from i2c_get_clientdata()
+to struct bmc150_accel_data * the code was ending up storing the second_dev
+pointer in (and retrieving it from) some semi-random offset inside
+struct iio_dev, rather then storing it in the second_dev member of the
+bmc150_accel_data struct.
 
-Fixes: 8a37d87d72f0 ("usb: typec: Bus type for alternate modes")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Link: https://lore.kernel.org/r/20210617073226.47599-1-jingxiangfeng@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix the code to get the struct bmc150_accel_data * pointer to call
+iio_priv() on the struct iio_dev * returned by i2c_get_clientdata(),
+so that the correct pointer gets dereferenced.
+
+This fixes the following oops on rmmod, caused by trying to
+dereference the wrong return of bmc150_get_second_device():
+
+[  238.980737] BUG: unable to handle page fault for address: 0000000000004710
+[  238.980755] #PF: supervisor read access in kernel mode
+[  238.980760] #PF: error_code(0x0000) - not-present page
+...
+[  238.980841]  i2c_unregister_device.part.0+0x19/0x60
+[  238.980856]  0xffffffffc0815016
+[  238.980863]  i2c_device_remove+0x25/0xb0
+[  238.980869]  __device_release_driver+0x180/0x240
+[  238.980876]  driver_detach+0xd4/0x120
+[  238.980882]  bus_remove_driver+0x5b/0xd0
+[  238.980888]  i2c_del_driver+0x44/0x70
+
+While at it also remove the now no longer sensible checks for data
+being NULL, iio_priv never returns NULL for an iio_dev with non 0
+sized private-data.
+
+Fixes: 5bfb3a4bd8f6 ("iio: accel: bmc150: Check for a second ACPI device for BOSC0200")
+Cc: Jeremy Cline <jeremy@jcline.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/usb/typec/class.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/accel/bmc150-accel-core.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/usb/typec/class.c b/drivers/usb/typec/class.c
-index b9429c9f65f6..aeef453aa658 100644
---- a/drivers/usb/typec/class.c
-+++ b/drivers/usb/typec/class.c
-@@ -517,8 +517,10 @@ typec_register_altmode(struct device *parent,
- 	int ret;
+diff --git a/drivers/iio/accel/bmc150-accel-core.c b/drivers/iio/accel/bmc150-accel-core.c
+index 46ab7675186c..c526d83f14d5 100644
+--- a/drivers/iio/accel/bmc150-accel-core.c
++++ b/drivers/iio/accel/bmc150-accel-core.c
+@@ -1805,10 +1805,7 @@ EXPORT_SYMBOL_GPL(bmc150_accel_core_probe);
  
- 	alt = kzalloc(sizeof(*alt), GFP_KERNEL);
--	if (!alt)
-+	if (!alt) {
-+		altmode_id_remove(parent, id);
- 		return ERR_PTR(-ENOMEM);
-+	}
+ struct i2c_client *bmc150_get_second_device(struct i2c_client *client)
+ {
+-	struct bmc150_accel_data *data = i2c_get_clientdata(client);
+-
+-	if (!data)
+-		return NULL;
++	struct bmc150_accel_data *data = iio_priv(i2c_get_clientdata(client));
  
- 	alt->adev.svid = desc->svid;
- 	alt->adev.mode = desc->mode;
+ 	return data->second_device;
+ }
+@@ -1816,10 +1813,9 @@ EXPORT_SYMBOL_GPL(bmc150_get_second_device);
+ 
+ void bmc150_set_second_device(struct i2c_client *client)
+ {
+-	struct bmc150_accel_data *data = i2c_get_clientdata(client);
++	struct bmc150_accel_data *data = iio_priv(i2c_get_clientdata(client));
+ 
+-	if (data)
+-		data->second_device = client;
++	data->second_device = client;
+ }
+ EXPORT_SYMBOL_GPL(bmc150_set_second_device);
+ 
 -- 
 2.32.0
 
