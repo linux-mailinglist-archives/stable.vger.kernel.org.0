@@ -2,100 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA6B13AC004
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 02:13:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 997943AC011
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 02:21:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbhFRAPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Jun 2021 20:15:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35140 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233160AbhFRAPe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Jun 2021 20:15:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C22EC613B4;
-        Fri, 18 Jun 2021 00:13:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623975206;
-        bh=nM5X1GSDxCk8rh3UgTy/aR3zlWC0sDSSq0YpILKyEOw=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=OMVzzQM29lbdahlsKSCVkJIHPNqJWdv46bej0dxQNvHfFZ1lx+2X51jV4n/h5APXr
-         6FAoQ57E0/MvTDa7+CQeg8RV0KRnQayjeq3MS/wiDkP5F/ydPJSLV1nqrNRFPJ4hYd
-         gm2yBgu4zSYV3TAKzdCYZSBu5ih2hOszRhY5uFzyKioNIvL/5w6vnuiWSGgh7teYx5
-         mEqwNwWB/Vm+xbTsOZ6Yi5ETW509W13lkrpSvQyoTu8kkiZRI2S6tz0qobJj/Xvy9x
-         11CjCqYHnKB3Ubl663ze8hjxIMC8oG9VCEyiswd7jQh1NnrWoH4N3E2801z1EbiLK1
-         TzN+n0ZFCOOnw==
-Subject: Re: [PATCH 8/8] membarrier: Rewrite sync_core_before_usermode() and
- improve documentation
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc:     x86 <x86@kernel.org>, Dave Hansen <dave.hansen@intel.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        stable <stable@vger.kernel.org>
-References: <cover.1623813516.git.luto@kernel.org>
- <07a8b963002cb955b7516e61bad19514a3acaa82.1623813516.git.luto@kernel.org>
- <1939350496.10696.1623943014767.JavaMail.zimbra@efficios.com>
-From:   Andy Lutomirski <luto@kernel.org>
-Message-ID: <678def50-eecd-fb0f-eac0-c0ba1a442574@kernel.org>
-Date:   Thu, 17 Jun 2021 17:13:24 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S233274AbhFRAXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Jun 2021 20:23:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231431AbhFRAXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Jun 2021 20:23:13 -0400
+Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2E4C061574;
+        Thu, 17 Jun 2021 17:21:03 -0700 (PDT)
+Received: by mail-il1-x12d.google.com with SMTP id s19so251739ilj.1;
+        Thu, 17 Jun 2021 17:21:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rwBUHPn/nUswAacAb8l0k4vEO1b585QgUKlF1XS0z4E=;
+        b=VOsoZyvUte64GBeqs6fU8Na/chZEVaeJt4neq1Z8kpQULdHUNTU6F/cRYUTRTOOkQi
+         VDeJoARqjKjPvgnc7U5WT/7Og0mSkcBjc7mPqwsK5xiPKTabSt+y+LyxqkjDIA4C+UUK
+         uF67rZj9o6NNHZtxsq2CV+12IhbgKXc/+SCgplZZ7ntlRR0wmBlAI+jpU7mtgUbo4cZC
+         ibk0w4LgPwsIoMPtEHGXpl9tdQeNT359tIrZSvhaE0YmStZ2xvo2WSAJtmEC9kkRXbzD
+         PmXrpj/Zx4AAJYAMNppBw9yK3uMpZm1QfPVDzWFMWlybAb9/xoQ/DG8Pivn0mGK8Gnrz
+         PNAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rwBUHPn/nUswAacAb8l0k4vEO1b585QgUKlF1XS0z4E=;
+        b=crqF+cyCliBGUCQJVrC1C1radgFsRr5wj4c52KwaJ8yxWxNnV/pK1rv/NpjgShpyRQ
+         S1GrbVXoVDZjlBAE9DmQyILM8Yfu+gsAn9fNZPnOTqBg7/RXnTLXi+zgCxl8+A13/ZH3
+         fxiEt/coreCdQYS/fs3pmpcoAEFTQpzCme0kIrno495qr4+iqrYR4ISJzq0yo+QOckIY
+         AUtX72auwyWuAs5I8ngUdZh5aj9BOr0N0jAuUUTJy/qAOCQ9hAuz1VP3t9OfamiO1+mf
+         M9QQXo5EHNt5dVlfhhZoKMO+Skp/7R0Yr+z7EfIHhOb6g6MDce3xnR3ktmnUppZow6WM
+         ODGQ==
+X-Gm-Message-State: AOAM531yA6iEneYouMy+alVVl9uM+DI4rBqvGCeziO5rwkezwkRxHP/8
+        fGjzmDST2e63lt5+h4j9BLRTpGqujgyKhnUX+B4=
+X-Google-Smtp-Source: ABdhPJwSzi/LEIO5Z3FwRtpscS2uHs7ZQ+MojHzel6FS0HeYMn4eDyfYPuL2qIIMRU49mbxdEg9sqNL+YNE3ARpDMXQ=
+X-Received: by 2002:a92:b0c:: with SMTP id b12mr5144308ilf.123.1623975663391;
+ Thu, 17 Jun 2021 17:21:03 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1939350496.10696.1623943014767.JavaMail.zimbra@efficios.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210616092521.800788-1-Tony.Ambardar@gmail.com>
+ <caf1dcbd-7a07-993c-e940-1b2689985c5a@fb.com> <YMopCb5CqOYsl6HR@krava>
+ <YMp68Dlqwu+wuHV9@wildebeest.org> <YMsPnaV798ICuMbv@krava> <37f69a50-5b83-22e5-d54b-bea79ad3adec@iogearbox.net>
+In-Reply-To: <37f69a50-5b83-22e5-d54b-bea79ad3adec@iogearbox.net>
+From:   Tony Ambardar <tony.ambardar@gmail.com>
+Date:   Thu, 17 Jun 2021 17:20:53 -0700
+Message-ID: <CAPGftE88-AszN=ftJGxcYWpS2VLq4ErpJOTemBWeBgzE8-bbZQ@mail.gmail.com>
+Subject: Re: [PATCH bpf v1] bpf: fix libelf endian handling in resolv_btfids
+To:     Daniel Borkmann <daniel@iogearbox.net>
+Cc:     Jiri Olsa <jolsa@redhat.com>, Mark Wielaard <mark@klomp.org>,
+        Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>,
+        Networking <netdev@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        Frank Eigler <fche@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/17/21 8:16 AM, Mathieu Desnoyers wrote:
-> ----- On Jun 15, 2021, at 11:21 PM, Andy Lutomirski luto@kernel.org wrote:
-> 
-> [...]
-> 
->> +# An architecture that wants to support
->> +# MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE needs to define precisely what it
->> +# is supposed to do and implement membarrier_sync_core_before_usermode() to
->> +# make it do that.  Then it can select ARCH_HAS_MEMBARRIER_SYNC_CORE via
->> +# Kconfig.Unfortunately, MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE is not a
->> +# fantastic API and may not make sense on all architectures.  Once an
->> +# architecture meets these requirements,
-> 
-> Can we please remove the editorial comment about the quality of the membarrier
-> sync-core's API ?
+On Thu, 17 Jun 2021 at 04:22, Daniel Borkmann <daniel@iogearbox.net> wrote:
+>
+> On 6/17/21 11:02 AM, Jiri Olsa wrote:
+> > On Thu, Jun 17, 2021 at 12:28:00AM +0200, Mark Wielaard wrote:
+> >> On Wed, Jun 16, 2021 at 06:38:33PM +0200, Jiri Olsa wrote:
+> >>>>> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
+> >>>>> index d636643ddd35..f32c059fbfb4 100644
+> >>>>> --- a/tools/bpf/resolve_btfids/main.c
+> >>>>> +++ b/tools/bpf/resolve_btfids/main.c
+> >>>>> @@ -649,6 +649,9 @@ static int symbols_patch(struct object *obj)
+> >>>>>           if (sets_patch(obj))
+> >>>>>                   return -1;
+> >>>>> + /* Set type to ensure endian translation occurs. */
+> >>>>> + obj->efile.idlist->d_type = ELF_T_WORD;
+> >>>>
+> >>>> The change makes sense to me as .BTF_ids contains just a list of
+> >>>> u32's.
+> >>>>
+> >>>> Jiri, could you double check on this?
+> >>>
+> >>> the comment in ELF_T_WORD declaration suggests the size depends on
+> >>> elf's class?
+> >>>
+> >>>    ELF_T_WORD,                   /* Elf32_Word, Elf64_Word, ... */
+> >>>
+> >>> data in .BTF_ids section are allways u32
+> >>>
+> >>> I have no idea how is this handled in libelf (perhaps it's ok),
+> >>> but just that comment above suggests it could be also 64 bits,
+> >>> cc-ing Frank and Mark for more insight
+> >>
+> >> It is correct to use ELF_T_WORD, which means a 32bit unsigned word.
+> >>
+> >> The comment is meant to explain that, but is really confusing if you
+> >> don't know that Elf32_Word and Elf64_Word are the same thing (a 32bit
+> >> unsigned word). This comes from being "too consistent" in defining all
+> >> data types for both 32bit and 64bit ELF, even if those types are the
+> >> same in both formats...
+> >>
+> >> Only Elf32_Addr/Elf64_Addr and Elf32_Off/Elf64_Off are different
+> >> sizes. But Elf32/Elf_64_Half (16 bit), Elf32/Elf64_Word (32 bit),
+> >> Elf32/Elf64_Xword (64 bit) and their Sword/Sxword (signed) variants
+> >> are all identical data types in both the Elf32 and Elf64 formats.
+> >>
+> >> I don't really know why. It seems the original ELF spec was 32bit only
+> >> and when introducing the ELF64 format "they" simply duplicated all
+> >> data types whether or not those data type were actually different
+> >> between the 32 and 64 bit format.
+> >
+> > nice, thanks for details
+> >
+> > Acked-by: Jiri Olsa <jolsa@redhat.com>
+>
+> Tony, could you do a v2 and summarize the remainder of the discussion in
+> here for the commit message? Would be good to explicitly document the
+> assumptions made and why they work.
 
-Done
->> +#
->> +# On x86, a program can safely modify code, issue
->> +# MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE, and then execute that code, via
->> +# the modified address or an alias, from any thread in the calling process.
->> +#
->> +# On arm64, a program can modify code, flush the icache as needed, and issue
->> +# MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE to force a "context synchronizing
->> +# event", aka pipeline flush on all CPUs that might run the calling process.
->> +# Then the program can execute the modified code as long as it is executed
->> +# from an address consistent with the icache flush and the CPU's cache type.
->> +#
->> +# On powerpc, a program can use MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE
->> +# similarly to arm64.  It would be nice if the powerpc maintainers could
->> +# add a more clear explanantion.
-> 
-> We should document the requirements on ARMv7 as well.
+Sure, Daniel, I'll update the commit details and resend.
 
-Done.
+Thanks,
+Tony
 
-> 
-> Thanks,
-> 
-> Mathieu
-> 
-
+> Thanks everyone,
+> Daniel
