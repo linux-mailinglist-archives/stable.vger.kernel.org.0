@@ -2,76 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D588A3ACE52
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 17:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 346643ACF00
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 17:30:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232261AbhFRPMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 11:12:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51102 "EHLO mail.kernel.org"
+        id S233715AbhFRPcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 11:32:12 -0400
+Received: from mga01.intel.com ([192.55.52.88]:7105 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230211AbhFRPMN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 11:12:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 8AF5561351;
-        Fri, 18 Jun 2021 15:10:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624029003;
-        bh=TeRn2QkbF2kguwnHcINAQRPilPWW+nOy3FfndhAX1FM=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=q3t8hCjW0inyMxPRxuGuEkBXmY5FlntseEpcKHxRgsFButa2mnlnLMf4YrbTQpGDJ
-         U+WQ0UEfHErpgKAhjykroxU2STOPARNMLZlVofAQDugJmGSK5jjhmKn31kViWF3TFO
-         NtvSQat+PiWtRzpOgG6qDg15pNO9pup5ZmpQBsaSC+MF/f8P6DxrA/MsvU6WSB79vc
-         NTEW8OkHgP1m27b+t3GDuaK35FUIn4MEQRIQ5Eu9JzaOOvNYLY3pgTU8+lUlWBiuvN
-         mB0qmJ/NCnA/wlYrQbhIOIOiZTkH0ZSppt4zf41T9jBlOp5oGRY+Rla5mH56r4pVN1
-         BrJXd5oABVS9g==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 7D8F9608B8;
-        Fri, 18 Jun 2021 15:10:03 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH bpf v2] bpf: fix libelf endian handling in resolv_btfids
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162402900350.14256.7811206211874890348.git-patchwork-notify@kernel.org>
-Date:   Fri, 18 Jun 2021 15:10:03 +0000
-References: <20210618061404.818569-1-Tony.Ambardar@gmail.com>
-In-Reply-To: <20210618061404.818569-1-Tony.Ambardar@gmail.com>
-To:     Tony Ambardar <tony.ambardar@gmail.com>
-Cc:     daniel@iogearbox.net, ast@kernel.org, andrii@kernel.org,
-        Tony.Ambardar@gmail.com, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, linux-mips@vger.kernel.org,
-        stable@vger.kernel.org, fche@redhat.com, mark@klomp.org,
-        jolsa@kernel.org, yhs@fb.com, jolsa@redhat.com
+        id S235306AbhFRPbc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 11:31:32 -0400
+IronPort-SDR: 07FW9mVOTbmmQEqzly8rhgUY3OKh11FLwiMDeKVEjuh4kDb7SlQw4HSVsPKgvqy5TFP1lJMh6C
+ 8eDZjkf++o3Q==
+X-IronPort-AV: E=McAfee;i="6200,9189,10019"; a="228099642"
+X-IronPort-AV: E=Sophos;i="5.83,284,1616482800"; 
+   d="scan'208";a="228099642"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jun 2021 08:27:38 -0700
+IronPort-SDR: v5rRBib0A9KxqgFZyDwtrpraOCDkSDYTkjmEuYHeOK0ssOEv5srJwRLOTgIPlM5ZZz94aR1tND
+ zrFY14US10RA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.83,284,1616482800"; 
+   d="scan'208";a="405004802"
+Received: from otc-lr-04.jf.intel.com ([10.54.39.41])
+  by orsmga006.jf.intel.com with ESMTP; 18 Jun 2021 08:27:31 -0700
+From:   kan.liang@linux.intel.com
+To:     peterz@infradead.org, mingo@redhat.com,
+        linux-kernel@vger.kernel.org
+Cc:     acme@kernel.org, jolsa@redhat.com, namhyung@kernel.org,
+        ak@linux.intel.com, Kan Liang <kan.liang@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [RESEND PATCH 1/3] perf/x86/intel: Fix fixed counter check warning for some Alder Lake
+Date:   Fri, 18 Jun 2021 08:12:52 -0700
+Message-Id: <1624029174-122219-2-git-send-email-kan.liang@linux.intel.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1624029174-122219-1-git-send-email-kan.liang@linux.intel.com>
+References: <1624029174-122219-1-git-send-email-kan.liang@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+From: Kan Liang <kan.liang@linux.intel.com>
 
-This patch was applied to bpf/bpf.git (refs/heads/master):
+For some Alder Lake machine, the below fixed counter check warning may be
+triggered.
 
-On Thu, 17 Jun 2021 23:14:04 -0700 you wrote:
-> The vmlinux ".BTF_ids" ELF section is declared in btf_ids.h to hold a list
-> of zero-filled BTF IDs, which is then patched at link-time with correct
-> values by resolv_btfids. The section is flagged as "allocable" to preclude
-> compression, but notably the section contents (BTF IDs) are untyped.
-> 
-> When patching the BTF IDs, resolve_btfids writes in host-native endianness
-> and relies on libelf for any required translation on reading and updating
-> vmlinux. However, since the type of the .BTF_ids section content defaults
-> to ELF_T_BYTE (i.e. unsigned char), no translation occurs. This results in
-> incorrect patched values when cross-compiling to non-native endianness,
-> and can manifest as kernel Oops and test failures which are difficult to
-> troubleshoot [1].
-> 
-> [...]
+[    2.010766] hw perf events fixed 5 > max(4), clipping!
 
-Here is the summary with links:
-  - [bpf,v2] bpf: fix libelf endian handling in resolv_btfids
-    https://git.kernel.org/bpf/bpf/c/61e8aeda9398
+Current perf unconditionally increases the number of the GP counters and
+the fixed counters for a big core PMU on an Alder Lake system, because
+the number enumerated in the CPUID only reflects the common counters.
+The big core may has more counters. However, Alder Lake may have an
+alternative configuration. With that configuration,
+the X86_FEATURE_HYBRID_CPU is not set. The number of the GP counters and
+fixed counters enumerated in the CPUID is accurate. Perf mistakenly
+increases the number of counters. The warning is triggered.
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Directly use the enumerated value on the system with the alternative
+configuration.
 
+Fixes: f83d2f91d259 ("perf/x86/intel: Add Alder Lake Hybrid support")
+Reported-by: Jin Yao <yao.jin@linux.intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
+
+The original post can be found at
+https://lkml.kernel.org/r/1623413662-18373-1-git-send-email-kan.liang@linux.intel.com
+
+ arch/x86/events/intel/core.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 2521d03..d39991b 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -6157,8 +6157,13 @@ __init int intel_pmu_init(void)
+ 		pmu = &x86_pmu.hybrid_pmu[X86_HYBRID_PMU_CORE_IDX];
+ 		pmu->name = "cpu_core";
+ 		pmu->cpu_type = hybrid_big;
+-		pmu->num_counters = x86_pmu.num_counters + 2;
+-		pmu->num_counters_fixed = x86_pmu.num_counters_fixed + 1;
++		if (cpu_feature_enabled(X86_FEATURE_HYBRID_CPU)) {
++			pmu->num_counters = x86_pmu.num_counters + 2;
++			pmu->num_counters_fixed = x86_pmu.num_counters_fixed + 1;
++		} else {
++			pmu->num_counters = x86_pmu.num_counters;
++			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
++		}
+ 		pmu->max_pebs_events = min_t(unsigned, MAX_PEBS_EVENTS, pmu->num_counters);
+ 		pmu->unconstrained = (struct event_constraint)
+ 					__EVENT_CONSTRAINT(0, (1ULL << pmu->num_counters) - 1,
+-- 
+2.7.4
 
