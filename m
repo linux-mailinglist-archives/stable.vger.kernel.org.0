@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E4A63AC3F4
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 08:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C77133AC3F9
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 08:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231704AbhFRGfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 02:35:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39892 "EHLO mail.kernel.org"
+        id S231767AbhFRGfa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 02:35:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231697AbhFRGfB (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 02:35:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 144FB61004;
-        Fri, 18 Jun 2021 06:32:51 +0000 (UTC)
+        id S231697AbhFRGf3 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 02:35:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4B8160E08;
+        Fri, 18 Jun 2021 06:33:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623997972;
-        bh=MkPjVY91MrvuDmgREd54V8RtpXGp0Tgdz1FEGwYyrxA=;
+        s=korg; t=1623998000;
+        bh=wooSAhtnnLPTL/i3QftqVZsmHTmYOl+X+wIsQs/kAf4=;
         h=Subject:To:From:Date:From;
-        b=AyMw+iYTd1Am/IGXggandl19sqRssn9Q6DCl2AkNGahy5/8Hy/9FY04N1PUM5x9Z4
-         mgYZRChJA8PyIDtFiAmrvFMOG6lC+gpsdHIND5uSAqUEdx4CGkWJhz6M0WsVobkuJp
-         HllMQo9SlYaP013kobtMUJQHK9z7sqYpiCDw2GG0=
-Subject: patch "iio: accel: bmc150: Fix bma222 scale unit" added to staging-next
-To:     stephan@gerhold.net, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, linus.walleij@linaro.org
+        b=VP+JZotw/pz+dkvqixnfTPvxzfUjgp32vvbj5EnHgo1mh4n0eSYLvNNqP8SZlOhFB
+         a5jynrZcEusg9ciuGd5tks2JAVXCrvsiKDwoYXG4C3JUJQ5td3ODkXUGa6RxBOBRG/
+         AJA2iwX71uhS8JrbGBrJoo0NOp4OsxxWiZgw4mxw=
+Subject: patch "iio: ltr501: mark register holding upper 8 bits of ALS_DATA{0,1} and" added to staging-next
+To:     mkl@pengutronix.de, Jonathan.Cameron@huawei.com,
+        Oliver.Lang@gossenmetrawatt.com, Stable@vger.kernel.org,
+        andy.shevchenko@gmail.com, nikita@trvn.ru
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Jun 2021 08:31:06 +0200
-Message-ID: <16239978668694@kroah.com>
+Date:   Fri, 18 Jun 2021 08:31:13 +0200
+Message-ID: <162399787312939@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: accel: bmc150: Fix bma222 scale unit
+    iio: ltr501: mark register holding upper 8 bits of ALS_DATA{0,1} and
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,50 +52,71 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 6e2a90af0b8d757e850cc023d761ee9a9492e2fe Mon Sep 17 00:00:00 2001
-From: Stephan Gerhold <stephan@gerhold.net>
-Date: Fri, 11 Jun 2021 10:08:54 +0200
-Subject: iio: accel: bmc150: Fix bma222 scale unit
+From 2ac0b029a04b673ce83b5089368f467c5dca720c Mon Sep 17 00:00:00 2001
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+Date: Thu, 10 Jun 2021 15:46:16 +0200
+Subject: iio: ltr501: mark register holding upper 8 bits of ALS_DATA{0,1} and
+ PS_DATA as volatile, too
 
-According to sysfs-bus-iio documentation the unit for accelerometer
-values after applying scale/offset should be m/s^2, not g, which explains
-why the scale values for the other variants in bmc150-accel do not match
-exactly the values given in the datasheet.
+The regmap is configured for 8 bit registers, uses a RB-Tree cache and
+marks several registers as volatile (i.e. do not cache).
 
-To get the correct values, we need to multiply the BMA222 scale values
-by g = 9.80665 m/s^2.
+The ALS and PS data registers in the chip are 16 bit wide and spans
+two regmap registers. In the current driver only the base register is
+marked as volatile, resulting in the upper register only read once.
 
-Fixes: a1a210bf29a1 ("iio: accel: bmc150-accel: Add support for BMA222")
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20210611080903.14384-2-stephan@gerhold.net
+Further the data sheet notes:
+
+| When the I2C read operation starts, all four ALS data registers are
+| locked until the I2C read operation of register 0x8B is completed.
+
+Which results in the registers never update after the 2nd read.
+
+This patch fixes the problem by marking the upper 8 bits of the ALS
+and PS registers as volatile, too.
+
+Fixes: 2f2c96338afc ("iio: ltr501: Add regmap support.")
+Reported-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
+Link: https://lore.kernel.org/r/20210610134619.2101372-2-mkl@pengutronix.de
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/accel/bmc150-accel-core.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/iio/light/ltr501.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/iio/accel/bmc150-accel-core.c b/drivers/iio/accel/bmc150-accel-core.c
-index a3d08d713362..a80ee0fdabc5 100644
---- a/drivers/iio/accel/bmc150-accel-core.c
-+++ b/drivers/iio/accel/bmc150-accel-core.c
-@@ -1145,11 +1145,12 @@ static const struct bmc150_accel_chip_info bmc150_accel_chip_info_tbl[] = {
- 		/*
- 		 * The datasheet page 17 says:
- 		 * 15.6, 31.3, 62.5 and 125 mg per LSB.
-+		 * IIO unit is m/s^2 so multiply by g = 9.80665 m/s^2.
- 		 */
--		.scale_table = { {156000, BMC150_ACCEL_DEF_RANGE_2G},
--				 {313000, BMC150_ACCEL_DEF_RANGE_4G},
--				 {625000, BMC150_ACCEL_DEF_RANGE_8G},
--				 {1250000, BMC150_ACCEL_DEF_RANGE_16G} },
-+		.scale_table = { {152984, BMC150_ACCEL_DEF_RANGE_2G},
-+				 {306948, BMC150_ACCEL_DEF_RANGE_4G},
-+				 {612916, BMC150_ACCEL_DEF_RANGE_8G},
-+				 {1225831, BMC150_ACCEL_DEF_RANGE_16G} },
- 	},
- 	[bma222e] = {
- 		.name = "BMA222E",
+diff --git a/drivers/iio/light/ltr501.c b/drivers/iio/light/ltr501.c
+index b4323d2db0b1..0ed3392a33cf 100644
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -32,9 +32,12 @@
+ #define LTR501_PART_ID 0x86
+ #define LTR501_MANUFAC_ID 0x87
+ #define LTR501_ALS_DATA1 0x88 /* 16-bit, little endian */
++#define LTR501_ALS_DATA1_UPPER 0x89 /* upper 8 bits of LTR501_ALS_DATA1 */
+ #define LTR501_ALS_DATA0 0x8a /* 16-bit, little endian */
++#define LTR501_ALS_DATA0_UPPER 0x8b /* upper 8 bits of LTR501_ALS_DATA0 */
+ #define LTR501_ALS_PS_STATUS 0x8c
+ #define LTR501_PS_DATA 0x8d /* 16-bit, little endian */
++#define LTR501_PS_DATA_UPPER 0x8e /* upper 8 bits of LTR501_PS_DATA */
+ #define LTR501_INTR 0x8f /* output mode, polarity, mode */
+ #define LTR501_PS_THRESH_UP 0x90 /* 11 bit, ps upper threshold */
+ #define LTR501_PS_THRESH_LOW 0x92 /* 11 bit, ps lower threshold */
+@@ -1354,9 +1357,12 @@ static bool ltr501_is_volatile_reg(struct device *dev, unsigned int reg)
+ {
+ 	switch (reg) {
+ 	case LTR501_ALS_DATA1:
++	case LTR501_ALS_DATA1_UPPER:
+ 	case LTR501_ALS_DATA0:
++	case LTR501_ALS_DATA0_UPPER:
+ 	case LTR501_ALS_PS_STATUS:
+ 	case LTR501_PS_DATA:
++	case LTR501_PS_DATA_UPPER:
+ 		return true;
+ 	default:
+ 		return false;
 -- 
 2.32.0
 
