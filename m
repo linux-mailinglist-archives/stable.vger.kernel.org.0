@@ -2,163 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A56E3ACC0C
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 15:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 007CF3ACC20
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 15:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233640AbhFRNXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 09:23:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60050 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230494AbhFRNXg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 09:23:36 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 540BC613F2;
-        Fri, 18 Jun 2021 13:21:27 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1luER4-003VGC-Bc; Fri, 18 Jun 2021 09:21:26 -0400
-Message-ID: <20210618132126.196372966@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Fri, 18 Jun 2021 09:20:50 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
+        id S233607AbhFRN2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 09:28:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59128 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229877AbhFRN2I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 09:28:08 -0400
+Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 660C5C06175F
+        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 06:25:58 -0700 (PDT)
+Received: by mail-qk1-x730.google.com with SMTP id j184so10884733qkd.6
+        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 06:25:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=0Q0pSocb902nqdu/y77JGz+XB/v2LVNcwiIldSRzK9U=;
+        b=hGa0zuDIEfU8WmXM8K16zPr/kDxBumV9k5VY1P1r2DDzA/gpsW5iz9540NpxgxSziK
+         Tpb2oMnPp0cQ3vVTW0YftNn3iNpvPHv51IxPtwc6IYJQ/W4nmUleOpw73XXUVgqnEhTa
+         Rqdp3yDnXzTNqaD9sCdaipGnFL8+5Uj+Dz+x9o+8l1NZJG+n16ahrDY6qEbIdoCj32Lw
+         4EO6ce4/FFd5LCogalj0XnZqsL/T3CxuxUtRIHfWM9OGumzHtwhTyDwdvg2NEteFwr6n
+         yQ+rkSMxhacDzlxDJ3tE8XGlJm2wZ2L7GTeEG9yVmI13j48GEYiKh5uSBTnLImdKCVfG
+         u7ng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=0Q0pSocb902nqdu/y77JGz+XB/v2LVNcwiIldSRzK9U=;
+        b=HK1oP3+5em9HeT/317oiCh1xv3KhsbbTN10JWQWlj67HtO+dQsesq7mpM1j29dbOE/
+         VOlDR5wkJIRy5/4ij/Zd3CcwAre+xDtKfWZj4lYritdSGM7aVTLXuTxGqSqpyfSI7yJT
+         vNOHQY3+d5GBS/NHpFgr9WEcVYVlpTc1PXnM8ZiOz/JpxnF1MrVcsIFlmY7u5BIc4jnV
+         L4K5An8I9cPQ8HuWGSa2uKso5skmCgusIN4uQNm+HsbYoLEEzSzwJrnROVqQzVj3Ur50
+         Cur6YOhfcQT7XIqjFUvFbENjIDJGcd3eJNINZOrvUleiwgmvUQIyymW92kXxwGZRw81L
+         77Yw==
+X-Gm-Message-State: AOAM530q9T9KmVuJYVC6wdnq0Dvtkd1mUrYaGsdws96zxQ1x5TFKLUgo
+        ZcynPrSO/MBPrbAWVjrZ9HGG4A==
+X-Google-Smtp-Source: ABdhPJy1bq0eK26G6TdGQtW2ljiO6j3VkzhRkj5gzT73oFyXrSw2pF54iZgtS7poUYBJ0o9XcnmU7Q==
+X-Received: by 2002:a37:a417:: with SMTP id n23mr9604598qke.265.1624022757616;
+        Fri, 18 Jun 2021 06:25:57 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-47-55-113-94.dhcp-dynamic.fibreop.ns.bellaliant.net. [47.55.113.94])
+        by smtp.gmail.com with ESMTPSA id x9sm5342220qtf.76.2021.06.18.06.25.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Jun 2021 06:25:56 -0700 (PDT)
+Received: from jgg by mlx with local (Exim 4.94)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1luEVQ-008X3c-8n; Fri, 18 Jun 2021 10:25:56 -0300
+Date:   Fri, 18 Jun 2021 10:25:56 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Jann Horn <jannh@google.com>
+Cc:     John Hubbard <jhubbard@nvidia.com>,
+        Matthew Wilcox <willy@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: [for-linus][PATCH 4/4] tracing: Do no increment trace_clock_global() by one
-References: <20210618132046.600413369@goodmis.org>
+        Linux-MM <linux-mm@kvack.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        "Kirill A . Shutemov" <kirill@shutemov.name>,
+        Jan Kara <jack@suse.cz>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] mm/gup: fix try_grab_compound_head() race with
+ split_huge_page()
+Message-ID: <20210618132556.GY1096940@ziepe.ca>
+References: <20210615012014.1100672-1-jannh@google.com>
+ <50d828d1-2ce6-21b4-0e27-fb15daa77561@nvidia.com>
+ <CAG48ez3Vbcvh4AisU7=ukeJeSjHGTKQVd0NOU6XOpRru7oP_ig@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAG48ez3Vbcvh4AisU7=ukeJeSjHGTKQVd0NOU6XOpRru7oP_ig@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+On Tue, Jun 15, 2021 at 02:09:38PM +0200, Jann Horn wrote:
+> On Tue, Jun 15, 2021 at 8:37 AM John Hubbard <jhubbard@nvidia.com> wrote:
+> > On 6/14/21 6:20 PM, Jann Horn wrote:
+> > > try_grab_compound_head() is used to grab a reference to a page from
+> > > get_user_pages_fast(), which is only protected against concurrent
+> > > freeing of page tables (via local_irq_save()), but not against
+> > > concurrent TLB flushes, freeing of data pages, or splitting of compound
+> > > pages.
+> [...]
+> > Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+> 
+> Thanks!
+> 
+> [...]
+> > > @@ -55,8 +72,23 @@ static inline struct page *try_get_compound_head(struct page *page, int refs)
+> > >       if (WARN_ON_ONCE(page_ref_count(head) < 0))
+> > >               return NULL;
+> > >       if (unlikely(!page_cache_add_speculative(head, refs)))
+> > >               return NULL;
+> > > +
+> > > +     /*
+> > > +      * At this point we have a stable reference to the head page; but it
+> > > +      * could be that between the compound_head() lookup and the refcount
+> > > +      * increment, the compound page was split, in which case we'd end up
+> > > +      * holding a reference on a page that has nothing to do with the page
+> > > +      * we were given anymore.
+> > > +      * So now that the head page is stable, recheck that the pages still
+> > > +      * belong together.
+> > > +      */
+> > > +     if (unlikely(compound_head(page) != head)) {
+> >
+> > I was just wondering about what all could happen here. Such as: page gets split,
+> > reallocated into a different-sized compound page, one that still has page pointing
+> > to head. I think that's OK, because we don't look at or change other huge page
+> > fields.
+> >
+> > But I thought I'd mention the idea in case anyone else has any clever ideas about
+> > how this simple check might be insufficient here. It seems fine to me, but I
+> > routinely lack enough imagination about concurrent operations. :)
+> 
+> Hmmm... I think the scariest aspect here is probably the interaction
+> with concurrent allocation of a compound page on architectures with
+> store-store reordering (like ARM). *If* the page allocator handled
+> compound pages with lockless, non-atomic percpu freelists, I think it
+> might be possible that the zeroing of tail_page->compound_head in
+> put_page() could be reordered after the page has been freed,
+> reallocated and set to refcount 1 again?
 
-The trace_clock_global() tries to make sure the events between CPUs is
-somewhat in order. A global value is used and updated by the latest read
-of a clock. If one CPU is ahead by a little, and is read by another CPU, a
-lock is taken, and if the timestamp of the other CPU is behind, it will
-simply use the other CPUs timestamp.
+Oh wow, yes, this all looks sketchy! Doing a RCU access to page->head
+is a really challenging thing :\
 
-The lock is also only taken with a "trylock" due to tracing, and strange
-recursions can happen. The lock is not taken at all in NMI context.
+On the simplified store side:
 
-In the case where the lock is not able to be taken, the non synced
-timestamp is returned. But it will not be less than the saved global
-timestamp.
+  page->head = my_compound
+  *ptep = page
 
-The problem arises because when the time goes "backwards" the time
-returned is the saved timestamp plus 1. If the lock is not taken, and the
-plus one to the timestamp is returned, there's a small race that can cause
-the time to go backwards!
+There must be some kind of release barrier between those two
+operations or this is all broken.. That definately deserves a comment.
 
-	CPU0				CPU1
-	----				----
-				trace_clock_global() {
-				    ts = clock() [ 1000 ]
-				    trylock(clock_lock) [ success ]
-				    global_ts = ts; [ 1000 ]
+Ideally we'd use smp_store_release to install the *pte :\
 
-				    <interrupted by NMI>
- trace_clock_global() {
-    ts = clock() [ 999 ]
-    if (ts < global_ts)
-	ts = global_ts + 1 [ 1001 ]
+Assuming we cover the release barrier, I would think the algorithm
+should be broadly:
 
-    trylock(clock_lock) [ fail ]
+ struct page *target_page = READ_ONCE(pte)
+ struct page *target_folio = READ_ONCE(target_page->head)
 
-    return ts [ 1001]
- }
-				    unlock(clock_lock);
-				    return ts; [ 1000 ]
-				}
+ page_cache_add_speculative(target_folio, refs)
 
- trace_clock_global() {
-    ts = clock() [ 1000 ]
-    if (ts < global_ts) [ false 1000 == 1000 ]
+ if (target_folio != READ_ONCE(target_page->head) ||
+     target_page != READ_ONCE(pte))
+    goto abort
 
-    trylock(clock_lock) [ success ]
-    global_ts = ts; [ 1000 ]
-    unlock(clock_lock)
+Which is what this patch does but I would like to see the
+READ_ONCE's.
 
-    return ts; [ 1000 ]
- }
+And there possibly should be two try_grab_compound_head()'s since we
+don't need this overhead on the fully locked path, especially the
+double atomic on page_ref_add()
 
-The above case shows to reads of trace_clock_global() on the same CPU, but
-the second read returns one less than the first read. That is, time when
-backwards, and this is not what is allowed by trace_clock_global().
+> I think the lockless page cache code also has to deal with somewhat
+> similar ordering concerns when it uses page_cache_get_speculative(),
+> e.g. in mapping_get_entry() - first it looks up a page pointer with
+> xas_load(), and any access to the page later on would be a _dependent
+> load_, but if the page then gets freed, reallocated, and inserted into
+> the page cache again before the refcount increment and the re-check
+> using xas_reload(), then there would be no data dependency from
+> xas_reload() to the following use of the page...
 
-This was triggered by heavy tracing and the ring buffer checker that tests
-for the clock going backwards:
+xas_store() should have the smp_store_release() inside it at least..
 
- Ring buffer clock went backwards: 20613921464 -> 20613921463
- ------------[ cut here ]------------
- WARNING: CPU: 2 PID: 0 at kernel/trace/ring_buffer.c:3412 check_buffer+0x1b9/0x1c0
- Modules linked in:
- [..]
- [CPU: 2]TIME DOES NOT MATCH expected:20620711698 actual:20620711697 delta:6790234 before:20613921463 after:20613921463
-   [20613915818] PAGE TIME STAMP
-   [20613915818] delta:0
-   [20613915819] delta:1
-   [20613916035] delta:216
-   [20613916465] delta:430
-   [20613916575] delta:110
-   [20613916749] delta:174
-   [20613917248] delta:499
-   [20613917333] delta:85
-   [20613917775] delta:442
-   [20613917921] delta:146
-   [20613918321] delta:400
-   [20613918568] delta:247
-   [20613918768] delta:200
-   [20613919306] delta:538
-   [20613919353] delta:47
-   [20613919980] delta:627
-   [20613920296] delta:316
-   [20613920571] delta:275
-   [20613920862] delta:291
-   [20613921152] delta:290
-   [20613921464] delta:312
-   [20613921464] delta:0 TIME EXTEND
-   [20613921464] delta:0
+Even so it doesn't seem to do page->head, so this is not quite the
+same thing
 
-This happened more than once, and always for an off by one result. It also
-started happening after commit aafe104aa9096 was added.
-
-Cc: stable@vger.kernel.org
-Fixes: aafe104aa9096 ("tracing: Restructure trace_clock_global() to never block")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- kernel/trace/trace_clock.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/kernel/trace/trace_clock.c b/kernel/trace/trace_clock.c
-index c1637f90c8a3..4702efb00ff2 100644
---- a/kernel/trace/trace_clock.c
-+++ b/kernel/trace/trace_clock.c
-@@ -115,9 +115,9 @@ u64 notrace trace_clock_global(void)
- 	prev_time = READ_ONCE(trace_clock_struct.prev_time);
- 	now = sched_clock_cpu(this_cpu);
- 
--	/* Make sure that now is always greater than prev_time */
-+	/* Make sure that now is always greater than or equal to prev_time */
- 	if ((s64)(now - prev_time) < 0)
--		now = prev_time + 1;
-+		now = prev_time;
- 
- 	/*
- 	 * If in an NMI context then dont risk lockups and simply return
-@@ -131,7 +131,7 @@ u64 notrace trace_clock_global(void)
- 		/* Reread prev_time in case it was already updated */
- 		prev_time = READ_ONCE(trace_clock_struct.prev_time);
- 		if ((s64)(now - prev_time) < 0)
--			now = prev_time + 1;
-+			now = prev_time;
- 
- 		trace_clock_struct.prev_time = now;
- 
--- 
-2.30.2
+Jason
