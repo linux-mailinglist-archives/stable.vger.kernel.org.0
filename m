@@ -2,31 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B2373AC3FA
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 08:33:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D601C3AC3FE
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 08:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231570AbhFRGfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 02:35:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40304 "EHLO mail.kernel.org"
+        id S231838AbhFRGgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 02:36:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231168AbhFRGfe (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 02:35:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10CE36128C;
-        Fri, 18 Jun 2021 06:33:24 +0000 (UTC)
+        id S231168AbhFRGgW (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 02:36:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 342F160C41;
+        Fri, 18 Jun 2021 06:34:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623998005;
-        bh=rQOy6Gw7SxcrUXpugvio3oESY5SEEKHyqMvrpt5K+/0=;
+        s=korg; t=1623998052;
+        bh=NezMk9jjXEbjpJdbgxOwRDMp80fNlVifTiRRU8QagHU=;
         h=Subject:To:From:Date:From;
-        b=iin1vCzLSOVUKS72wTCZoc724vTzK+aKXIN8ZJIju7ikuJJBYcetU1xFy7SwUkvvB
-         2f3Bo5jtCIYQxdbGrjLNIaNzFGw0WwZxaJiU2i3yBbkMLF2MAp0wD/SBw9EOfIEAAt
-         Qkor5NYgZxhSRTHpRbjvHdXStHHffV+FLXUxT50M=
-Subject: patch "iio: ltr501: ltr501_read_ps(): add missing endianness conversion" added to staging-next
-To:     Oliver.Lang@gossenmetrawatt.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, andy.shevchenko@gmail.com,
-        mkl@pengutronix.de, nikita@trvn.ru
+        b=Ymk/nuFpIbEiK9Zjae6jMU0ehJZXjmnLZK0lje1jJ/HiheHU8KscmbYTw5bMDjy3N
+         nxaYduxkARWJXa2F+h5duhPddxp3cmqdh34JIj42zJyH4TpveXFFCWf6PTtuDejPSU
+         5CXxytYKX2YmBP30ZkdpDVpZ/sbupbs6U+9XZWhQ=
+Subject: patch "iio: light: tcs3472: do not free unallocated IRQ" added to staging-next
+To:     frank@zago.net, Jonathan.Cameron@huawei.com, Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Jun 2021 08:31:14 +0200
-Message-ID: <16239978747393@kroah.com>
+Date:   Fri, 18 Jun 2021 08:31:25 +0200
+Message-ID: <162399788514421@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +35,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: ltr501: ltr501_read_ps(): add missing endianness conversion
+    iio: light: tcs3472: do not free unallocated IRQ
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -52,53 +50,57 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 71b33f6f93ef9462c84560e2236ed22209d26a58 Mon Sep 17 00:00:00 2001
-From: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
-Date: Thu, 10 Jun 2021 15:46:18 +0200
-Subject: iio: ltr501: ltr501_read_ps(): add missing endianness conversion
+From 7cd04c863f9e1655d607705455e7714f24451984 Mon Sep 17 00:00:00 2001
+From: frank zago <frank@zago.net>
+Date: Mon, 26 Apr 2021 21:20:17 -0500
+Subject: iio: light: tcs3472: do not free unallocated IRQ
 
-The PS ADC Channel data is spread over 2 registers in little-endian
-form. This patch adds the missing endianness conversion.
+Allocating an IRQ is conditional to the IRQ existence, but freeing it
+was not. If no IRQ was allocate, the driver would still try to free
+IRQ 0. Add the missing checks.
 
-Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
-Signed-off-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
-Link: https://lore.kernel.org/r/20210610134619.2101372-4-mkl@pengutronix.de
+This fixes the following trace when the driver is removed:
+
+[  100.667788] Trying to free already-free IRQ 0
+[  100.667793] WARNING: CPU: 0 PID: 2315 at kernel/irq/manage.c:1826 free_irq+0x1fd/0x370
+...
+[  100.667914] Call Trace:
+[  100.667920]  tcs3472_remove+0x3a/0x90 [tcs3472]
+[  100.667927]  i2c_device_remove+0x2b/0xa0
+
+Signed-off-by: frank zago <frank@zago.net>
+Link: https://lore.kernel.org/r/20210427022017.19314-2-frank@zago.net
+Fixes: 9d2f715d592e ("iio: light: tcs3472: support out-of-threshold events")
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/light/ltr501.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/iio/light/tcs3472.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/light/ltr501.c b/drivers/iio/light/ltr501.c
-index 79898b72fe73..74ed2d88a3ed 100644
---- a/drivers/iio/light/ltr501.c
-+++ b/drivers/iio/light/ltr501.c
-@@ -409,18 +409,19 @@ static int ltr501_read_als(const struct ltr501_data *data, __le16 buf[2])
+diff --git a/drivers/iio/light/tcs3472.c b/drivers/iio/light/tcs3472.c
+index 90dc3fef59e6..371c6a39a165 100644
+--- a/drivers/iio/light/tcs3472.c
++++ b/drivers/iio/light/tcs3472.c
+@@ -535,7 +535,8 @@ static int tcs3472_probe(struct i2c_client *client,
+ 	return 0;
  
- static int ltr501_read_ps(const struct ltr501_data *data)
- {
--	int ret, status;
-+	__le16 status;
-+	int ret;
+ free_irq:
+-	free_irq(client->irq, indio_dev);
++	if (client->irq)
++		free_irq(client->irq, indio_dev);
+ buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	return ret;
+@@ -563,7 +564,8 @@ static int tcs3472_remove(struct i2c_client *client)
+ 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
  
- 	ret = ltr501_drdy(data, LTR501_STATUS_PS_RDY);
- 	if (ret < 0)
- 		return ret;
+ 	iio_device_unregister(indio_dev);
+-	free_irq(client->irq, indio_dev);
++	if (client->irq)
++		free_irq(client->irq, indio_dev);
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	tcs3472_powerdown(iio_priv(indio_dev));
  
- 	ret = regmap_bulk_read(data->regmap, LTR501_PS_DATA,
--			       &status, 2);
-+			       &status, sizeof(status));
- 	if (ret < 0)
- 		return ret;
- 
--	return status;
-+	return le16_to_cpu(status);
- }
- 
- static int ltr501_read_intr_prst(const struct ltr501_data *data,
 -- 
 2.32.0
 
