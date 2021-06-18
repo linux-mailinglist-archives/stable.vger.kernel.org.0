@@ -2,80 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58E463AC930
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 12:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D2F13AC9FA
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 13:36:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233846AbhFRKzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 06:55:14 -0400
-Received: from first.geanix.com ([116.203.34.67]:53910 "EHLO first.geanix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232723AbhFRKyr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 06:54:47 -0400
-Received: from localhost (80-62-117-165-mobile.dk.customer.tdc.net [80.62.117.165])
-        by first.geanix.com (Postfix) with ESMTPSA id D0211C7E;
-        Fri, 18 Jun 2021 10:52:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1624013555; bh=WHjjMsx6IxEstOT3uD0IXWYEPbXsz31jeGej/RXoWTU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=QTkZesMk+VQJ/TaLOlvwsOqRex89lIIwouZEMP09F7AHOMUGQhl4C0mzkW3pLpUtt
-         q2IMxe5iILEwaD6XxAJQ+1n3wbelxPfnbVWjXjXVhaCAR7kpgRm4t2RqOtVC9OiJmH
-         nR8vDtMYb7kmibBFvJ45o96LGzb+edzEleyi5hfCJABUQPriAKp8B8BdFx1ezQOOxx
-         G9U3S7ZFcp+C7/kyyhwGcD2P5qwap31fb2dvQmLHFgan16OhlbUjZ0aqSd8mSBIY7n
-         zDYpRSthHu7NF8QIWO0I3zurTKJXBWQfpOsqICettfTCdu3+FGj1L6lBHEIuL/45jB
-         Hs08rC0+4lWIA==
-From:   Esben Haabendal <esben@geanix.com>
-To:     netdev@vger.kernel.org
-Cc:     stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Andrew Lunn <andrew@lunn.ch>, Wang Hai <wanghai38@huawei.com>,
-        Michael Walle <michael@walle.cc>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] net: ll_temac: Fix TX BD buffer overwrite
-Date:   Fri, 18 Jun 2021 12:52:33 +0200
-Message-Id: <af756a6fda027c300f38f73cad133450f7dd1636.1624013456.git.esben@geanix.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <d9200a5023973fbe372a2d51dc4e500400450ecd.1624013456.git.esben@geanix.com>
-References: <d9200a5023973fbe372a2d51dc4e500400450ecd.1624013456.git.esben@geanix.com>
+        id S234051AbhFRLi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 07:38:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34354 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231598AbhFRLi0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 07:38:26 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC904C061574
+        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 04:36:16 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id z8so10387138wrp.12
+        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 04:36:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Lud/fYFD+N/SWgHkdFFeYBIaF2nobhuT1e/M1H5atWU=;
+        b=IfePwxiJUb69H2NzVNd2Ays4KLKF1AZQk3rHb1BkYzAIjK4udY25MQFjF0lUFH+LYd
+         v13BjDDrUyuKiFTN6CiCxcjSVW5gjDvBLkpYnn0ug/vEHXNZJb8Hu8qrTDJ77T8GhN8o
+         Sap+69mBmZX6w1pco3jqWQnfPOflCHNT8zK8oQQl+2B8IPYvDuLFgYvRLbni8VOaLX15
+         MnsbtbRdg1TW+fFvMO6zAhuaVVqBaP8ZI/Ck+d7gJKXYHg48lP+EaVZg2+K9TjXbI45E
+         AUIhjCAc75Ra/NHv9m1ENy+n0132yJ3jUPgkCsJ5Wqqw2S8HwW3XKgEqI0ObNKMzngR1
+         T2pQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Lud/fYFD+N/SWgHkdFFeYBIaF2nobhuT1e/M1H5atWU=;
+        b=jaTyqeCyxpYHUBg7WGs87u/GyE6udeRxUJiqt2l+rq7IkCsZaQn7cjwIT8lhmUiZ3s
+         BUOKS2KcwNFLphvoJA01NISk5C79qdnEzsE1FhSzvoE8/NrZxNgqhAhJ/i/DXxreWIgI
+         PJ6PxewYRVRkUbKw1ilf7GtZ3mS7elRweaAw1+v/IVOMejiizZb9jjNlD5uPXsDCvYah
+         b3FYMboyBHxeYzXKn+uapBi0UjGLsjfQSnnazIYBXkWeCl9gWZJErvY7MxcUZVM996gR
+         yj9gOqaeyQ8+88REBxahuZ+mLgw0BJ56BkY7NdOZdnPvEzEpXiNHvqJbQyaKrhGg6oTG
+         7LXw==
+X-Gm-Message-State: AOAM533HSidOzUQUloithiIjElr8vaNKCfM0HuBynS68G6o3Lc4xRmN5
+        s3w5lEHIIAGPxZAPcYwhD/ZVAw==
+X-Google-Smtp-Source: ABdhPJxrphdmhkj6dMmS0Wi+Afel5vE8/r90luzHUGKbH8ekTPgGS0LXzmdbSnWomZKlZUUHVXxbaw==
+X-Received: by 2002:adf:d1e4:: with SMTP id g4mr11903148wrd.405.1624016175378;
+        Fri, 18 Jun 2021 04:36:15 -0700 (PDT)
+Received: from srini-hackbox.lan (cpc86377-aztw32-2-0-cust226.18-1.cable.virginm.net. [92.233.226.227])
+        by smtp.gmail.com with ESMTPSA id a1sm10977602wra.63.2021.06.18.04.36.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Jun 2021 04:36:14 -0700 (PDT)
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+To:     broonie@kernel.org
+Cc:     srivasam@codeaurora.org, rafael@kernel.org,
+        dp@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: [PATCH] regmap: move readable check before accessing regcache.
+Date:   Fri, 18 Jun 2021 12:35:58 +0100
+Message-Id: <20210618113558.10046-1-srinivas.kandagatla@linaro.org>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.1 required=4.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,URIBL_BLOCKED
-        autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on 93bd6fdb21b5
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Just as the initial check, we need to ensure num_frag+1 buffers available,
-as that is the number of buffers we are going to use.
+The issue that I encountered is when doing regmap_update_bits on
+a write only register. In regcache path this will not do the right
+thing as the register is not readable and driver which is using
+regmap_update_bits will never notice that it can not do a update
+bits on write only register leading to inconsistent writes and
+random hardware behavior.
 
-This fixes a buffer overflow, which might be seen during heavy network
-load. Complete lockup of TEMAC was reproducible within about 10 minutes of
-a particular load.
+There seems to be missing checks in regcache_read() which is
+now added by moving the orignal check in _regmap_read() before
+accessing regcache.
 
-Fixes: 84823ff80f74 ("net: ll_temac: Fix race condition causing TX hang")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Esben Haabendal <esben@geanix.com>
+Cc: stable@vger.kernel.org
+Fixes: 5d1729e7f02f ("regmap: Incorporate the regcache core into regmap")
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 ---
- drivers/net/ethernet/xilinx/ll_temac_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/regmap/regmap.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
-index 9797aa3221d1..cc482ee36501 100644
---- a/drivers/net/ethernet/xilinx/ll_temac_main.c
-+++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
-@@ -861,7 +861,7 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 		smp_mb();
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 297e95be25b3..3ed37a09a8e9 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -2677,6 +2677,9 @@ static int _regmap_read(struct regmap *map, unsigned int reg,
+ 	int ret;
+ 	void *context = _regmap_map_get_context(map);
  
- 		/* Space might have just been freed - check again */
--		if (temac_check_tx_bd_space(lp, num_frag))
-+		if (temac_check_tx_bd_space(lp, num_frag + 1))
- 			return NETDEV_TX_BUSY;
++	if (!regmap_readable(map, reg))
++		return -EIO;
++
+ 	if (!map->cache_bypass) {
+ 		ret = regcache_read(map, reg, val);
+ 		if (ret == 0)
+@@ -2686,9 +2689,6 @@ static int _regmap_read(struct regmap *map, unsigned int reg,
+ 	if (map->cache_only)
+ 		return -EBUSY;
  
- 		netif_wake_queue(ndev);
+-	if (!regmap_readable(map, reg))
+-		return -EIO;
+-
+ 	ret = map->reg_read(context, reg, val);
+ 	if (ret == 0) {
+ 		if (regmap_should_log(map))
 -- 
-2.32.0
+2.21.0
 
