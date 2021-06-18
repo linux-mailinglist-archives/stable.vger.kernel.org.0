@@ -2,117 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D724A3AC1E4
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 06:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8FB53AC329
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 08:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230438AbhFREUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 00:20:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49666 "EHLO
+        id S232825AbhFRGQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 02:16:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230423AbhFREUr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 00:20:47 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D409DC06175F
-        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 21:18:37 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id g6so6727849pfq.1
-        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 21:18:37 -0700 (PDT)
+        with ESMTP id S232270AbhFRGQu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 02:16:50 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D138C061574;
+        Thu, 17 Jun 2021 23:14:42 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id o21so4141063pll.6;
+        Thu, 17 Jun 2021 23:14:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=A7veP2+rvJhREGxZ7bA2MKokj7fOMWmnWBdu22Gjixs=;
-        b=plDYr7URR38B4jGYMsxSURthpcFrTWdDpgkJZiOYCuF4iliXpJ56Mn3TIhtq6Hj3Ko
-         DcJqLB0QmDx+XU5q97EHRY8Z+3l44WgV8KsrWl60QLCgykxwjoenpSzt8r2PsJABEnbV
-         jnUqsGTAemSR2cNPF1fsD5PWJxUjOSGKN7tNFoyi8QHGOfI8Oe9DhyP6lplAOsox9rYM
-         ToHvttUNsT80qTybhX19aohlNodJS1Z9II5W3Ul1On1PDhnZ8W8YRoo7Uz+uitlVLP7s
-         NQ8zh9QQXrgGvYeR/5Vu3hiRaPODOYGYDR6en/M34Md65klj78jhxoKpPolvM3Pjk9BT
-         KtZQ==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=tZzDh0cilBRIFVtsjTfkPJ4Ams+KhjOfr0u5GSYffMU=;
+        b=IhntsiIG4ttkSAz4oCUj8AajSpZZV4RFr5J9FmqI0zuieAmfYCXdo+cg5ISVjuOA20
+         K5ciskAEH8rX8DQwC93nSvDqXJSW8sJngSUCN039H5Zzx75C6CsqWAPJ7cpTMt5dZvuW
+         3LkrPG189bEfk6sfFNKnrdbbXZyNCYlhFtZ9fmnyiaILeGUn71wD5WppgSOAaLKgL9dG
+         RVvxBXdC8VB/qcMSiAPkOvzRfBlgRVaT0Ky+F5b9SdwI3N5Yw1xWVEl4Rd/ONUhyCOMx
+         GXTTvIIzVYXQ6CPcVIQ3bDLRSmBT3IFAhCgDUfE32WE1L99k63Z+AFyzM8rvdFBr4sgE
+         2HOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=A7veP2+rvJhREGxZ7bA2MKokj7fOMWmnWBdu22Gjixs=;
-        b=Hpn790uZnyqX8kSi71RIitG9BWIpOXcaS+Dj4LUmZWNLGA0tum6o/jRTjbOV+2hHUR
-         iLhjJidoGOrtBkQMReLyAMQZXT6PW92JJwJu99FHsOsMTx3pliMZed1Gu06O4BbVeAUZ
-         RA4utuz59ggabbpnlkbgSMbXqjnZA1+YR9UhfNsNXUMwfo4N2byVUXGaUctc7BOgHoVt
-         KuliHW4skWNvpAR2K/Ylx3php07C8aG+O1ebTHHtu08KX/Z3S7ZphH9VQzyzR2SKRo1+
-         4MTag/XG8cwPLZOpjHb4xVini6IP6s/3YrXYhT7pJffxdQSONktHU+70Ju1zzzGkOcX+
-         Xi/A==
-X-Gm-Message-State: AOAM532/p23V1/dAgymcTyJiO/mnijN3os6tXdN0LY0clmZhrxAB4Hux
-        dfkV2dPb/xK5TbqNbg2id/bp
-X-Google-Smtp-Source: ABdhPJz5nIO0obUzGfQWU2OY7LlyNmGKp7Hy07h54AzlLuFHm3eedis+rYyTYKWqhR+BwvY3pYmALw==
-X-Received: by 2002:a63:3246:: with SMTP id y67mr8193050pgy.244.1623989917247;
-        Thu, 17 Jun 2021 21:18:37 -0700 (PDT)
-Received: from workstation ([120.138.13.238])
-        by smtp.gmail.com with ESMTPSA id s13sm6431308pjm.34.2021.06.17.21.18.33
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 17 Jun 2021 21:18:35 -0700 (PDT)
-Date:   Fri, 18 Jun 2021 09:48:31 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Sibi Sankar <sibis@codeaurora.org>
-Cc:     bjorn.andersson@linaro.org, jassisinghbrar@gmail.com,
-        agross@kernel.org, rananta@codeaurora.org, vnkgutta@codeaurora.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] mailbox: qcom-ipcc: Fix IPCC mbox channel exhaustion
-Message-ID: <20210618041831.GA3682@workstation>
-References: <1623865378-1943-1-git-send-email-sibis@codeaurora.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tZzDh0cilBRIFVtsjTfkPJ4Ams+KhjOfr0u5GSYffMU=;
+        b=Q6571qx/y0sZf3OffznnrlbZcAjGd6XWXaLv2tzlbUR4UpJ03V5/ULg/xDodx1lFN5
+         lr7Q94yiXVWXWtg2MiwGPdS6AqXj4abfgSXpSwaN3ayGtjZ8iyt3CE+GxsDIlHF4Zntt
+         8QW17fjF7b2g5kcjJABaoXSprZZrSUAYqZYN7BM93rEzII14X7OdzWgJpWz0qI0/RnEW
+         fxaS1eHq8CTMMyIscrNaFR74LuuDEXfv7/khjZvaTWpjyAWOkdaq5VwHLKWEtRlBHGVS
+         RhQg8p9Lw2lJltfjIqYL6b8xqtVJCCvg1GzCnL34cUhwo0Aaz/5tx5jbVlD1MBFBtfE0
+         T4aA==
+X-Gm-Message-State: AOAM531J7DM9/R5Bhc4DxAk3rhF09L1+mP2MnnDn4UKHFYqSHKsmIsvO
+        hRncov/B6Vgjv3ak1uL+BM0=
+X-Google-Smtp-Source: ABdhPJyG9F+P3nC94n7aSBkIaafjWob6oyt+eqbHZIdKyn9lssYRmLrvLdo6fQLbQdbywwuCFVETYg==
+X-Received: by 2002:a17:90a:19c6:: with SMTP id 6mr9393454pjj.125.1623996881696;
+        Thu, 17 Jun 2021 23:14:41 -0700 (PDT)
+Received: from localhost.localdomain ([2001:470:e92d:10:9d34:ce8a:7ace:b692])
+        by smtp.gmail.com with ESMTPSA id v69sm695509pfc.18.2021.06.17.23.14.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Jun 2021 23:14:41 -0700 (PDT)
+From:   Tony Ambardar <tony.ambardar@gmail.com>
+X-Google-Original-From: Tony Ambardar <Tony.Ambardar@gmail.com>
+To:     Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>
+Cc:     Tony Ambardar <Tony.Ambardar@gmail.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, linux-mips@vger.kernel.org,
+        stable@vger.kernel.org, Frank Eigler <fche@redhat.com>,
+        Mark Wielaard <mark@klomp.org>, Jiri Olsa <jolsa@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Jiri Olsa <jolsa@redhat.com>
+Subject: [PATCH bpf v2] bpf: fix libelf endian handling in resolv_btfids
+Date:   Thu, 17 Jun 2021 23:14:04 -0700
+Message-Id: <20210618061404.818569-1-Tony.Ambardar@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210616092521.800788-1-Tony.Ambardar@gmail.com>
+References: <20210616092521.800788-1-Tony.Ambardar@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1623865378-1943-1-git-send-email-sibis@codeaurora.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 16, 2021 at 11:12:58PM +0530, Sibi Sankar wrote:
-> Fix IPCC (Inter-Processor Communication Controller) channel exhaustion by
-> setting the channel private data to NULL on mbox shutdown.
-> 
-> Err Logs:
-> remoteproc: MBA booted without debug policy, loading mpss
-> remoteproc: glink-edge: failed to acquire IPC channel
-> remoteproc: failed to probe subdevices for remoteproc: -16
-> 
-> Fixes: fa74a0257f45 ("mailbox: Add support for Qualcomm IPCC")
-> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+The vmlinux ".BTF_ids" ELF section is declared in btf_ids.h to hold a list
+of zero-filled BTF IDs, which is then patched at link-time with correct
+values by resolv_btfids. The section is flagged as "allocable" to preclude
+compression, but notably the section contents (BTF IDs) are untyped.
 
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+When patching the BTF IDs, resolve_btfids writes in host-native endianness
+and relies on libelf for any required translation on reading and updating
+vmlinux. However, since the type of the .BTF_ids section content defaults
+to ELF_T_BYTE (i.e. unsigned char), no translation occurs. This results in
+incorrect patched values when cross-compiling to non-native endianness,
+and can manifest as kernel Oops and test failures which are difficult to
+troubleshoot [1].
 
-Thanks,
-Mani
+Explicitly set the type of patched data to ELF_T_WORD, the architecture-
+neutral ELF type corresponding to the u32 BTF IDs. This enables libelf to
+transparently perform any needed endian conversions.
 
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/mailbox/qcom-ipcc.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/mailbox/qcom-ipcc.c b/drivers/mailbox/qcom-ipcc.c
-> index 2d13c72944c6..584700cd1585 100644
-> --- a/drivers/mailbox/qcom-ipcc.c
-> +++ b/drivers/mailbox/qcom-ipcc.c
-> @@ -155,6 +155,11 @@ static int qcom_ipcc_mbox_send_data(struct mbox_chan *chan, void *data)
->  	return 0;
->  }
->  
-> +static void qcom_ipcc_mbox_shutdown(struct mbox_chan *chan)
-> +{
-> +	chan->con_priv = NULL;
-> +}
-> +
->  static struct mbox_chan *qcom_ipcc_mbox_xlate(struct mbox_controller *mbox,
->  					const struct of_phandle_args *ph)
->  {
-> @@ -184,6 +189,7 @@ static struct mbox_chan *qcom_ipcc_mbox_xlate(struct mbox_controller *mbox,
->  
->  static const struct mbox_chan_ops ipcc_mbox_chan_ops = {
->  	.send_data = qcom_ipcc_mbox_send_data,
-> +	.shutdown = qcom_ipcc_mbox_shutdown,
->  };
->  
->  static int qcom_ipcc_setup_mbox(struct qcom_ipcc *ipcc)
-> -- 
-> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-> a Linux Foundation Collaborative Project
-> 
+Fixes: fbbb68de80a4 ("bpf: Add resolve_btfids tool to resolve BTF IDs in ELF object")
+Cc: stable@vger.kernel.org # v5.10+
+Cc: Frank Eigler <fche@redhat.com>
+Cc: Mark Wielaard <mark@klomp.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Yonghong Song <yhs@fb.com>
+Link: [1] https://lore.kernel.org/bpf/CAPGftE_eY-Zdi3wBcgDfkz_iOr1KF10n=9mJHm1_a_PykcsoeA@mail.gmail.com/
+Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+---
+v1 -> v2:
+ * add context and elaborate on commit message per request
+ * include ACK from Jiri Olsa
+---
+ tools/bpf/resolve_btfids/main.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
+index d636643ddd35..f32c059fbfb4 100644
+--- a/tools/bpf/resolve_btfids/main.c
++++ b/tools/bpf/resolve_btfids/main.c
+@@ -649,6 +649,9 @@ static int symbols_patch(struct object *obj)
+ 	if (sets_patch(obj))
+ 		return -1;
+ 
++	/* Set type to ensure endian translation occurs. */
++	obj->efile.idlist->d_type = ELF_T_WORD;
++
+ 	elf_flagdata(obj->efile.idlist, ELF_C_SET, ELF_F_DIRTY);
+ 
+ 	err = elf_update(obj->efile.elf, ELF_C_WRITE);
+-- 
+2.25.1
+
