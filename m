@@ -2,110 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D2F13AC9FA
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 13:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22FA23ACA0E
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 13:39:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234051AbhFRLi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 07:38:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34354 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231598AbhFRLi0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 07:38:26 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC904C061574
-        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 04:36:16 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id z8so10387138wrp.12
-        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 04:36:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Lud/fYFD+N/SWgHkdFFeYBIaF2nobhuT1e/M1H5atWU=;
-        b=IfePwxiJUb69H2NzVNd2Ays4KLKF1AZQk3rHb1BkYzAIjK4udY25MQFjF0lUFH+LYd
-         v13BjDDrUyuKiFTN6CiCxcjSVW5gjDvBLkpYnn0ug/vEHXNZJb8Hu8qrTDJ77T8GhN8o
-         Sap+69mBmZX6w1pco3jqWQnfPOflCHNT8zK8oQQl+2B8IPYvDuLFgYvRLbni8VOaLX15
-         MnsbtbRdg1TW+fFvMO6zAhuaVVqBaP8ZI/Ck+d7gJKXYHg48lP+EaVZg2+K9TjXbI45E
-         AUIhjCAc75Ra/NHv9m1ENy+n0132yJ3jUPgkCsJ5Wqqw2S8HwW3XKgEqI0ObNKMzngR1
-         T2pQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Lud/fYFD+N/SWgHkdFFeYBIaF2nobhuT1e/M1H5atWU=;
-        b=jaTyqeCyxpYHUBg7WGs87u/GyE6udeRxUJiqt2l+rq7IkCsZaQn7cjwIT8lhmUiZ3s
-         BUOKS2KcwNFLphvoJA01NISk5C79qdnEzsE1FhSzvoE8/NrZxNgqhAhJ/i/DXxreWIgI
-         PJ6PxewYRVRkUbKw1ilf7GtZ3mS7elRweaAw1+v/IVOMejiizZb9jjNlD5uPXsDCvYah
-         b3FYMboyBHxeYzXKn+uapBi0UjGLsjfQSnnazIYBXkWeCl9gWZJErvY7MxcUZVM996gR
-         yj9gOqaeyQ8+88REBxahuZ+mLgw0BJ56BkY7NdOZdnPvEzEpXiNHvqJbQyaKrhGg6oTG
-         7LXw==
-X-Gm-Message-State: AOAM533HSidOzUQUloithiIjElr8vaNKCfM0HuBynS68G6o3Lc4xRmN5
-        s3w5lEHIIAGPxZAPcYwhD/ZVAw==
-X-Google-Smtp-Source: ABdhPJxrphdmhkj6dMmS0Wi+Afel5vE8/r90luzHUGKbH8ekTPgGS0LXzmdbSnWomZKlZUUHVXxbaw==
-X-Received: by 2002:adf:d1e4:: with SMTP id g4mr11903148wrd.405.1624016175378;
-        Fri, 18 Jun 2021 04:36:15 -0700 (PDT)
-Received: from srini-hackbox.lan (cpc86377-aztw32-2-0-cust226.18-1.cable.virginm.net. [92.233.226.227])
-        by smtp.gmail.com with ESMTPSA id a1sm10977602wra.63.2021.06.18.04.36.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Jun 2021 04:36:14 -0700 (PDT)
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-To:     broonie@kernel.org
-Cc:     srivasam@codeaurora.org, rafael@kernel.org,
-        dp@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        stable@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: [PATCH] regmap: move readable check before accessing regcache.
-Date:   Fri, 18 Jun 2021 12:35:58 +0100
-Message-Id: <20210618113558.10046-1-srinivas.kandagatla@linaro.org>
-X-Mailer: git-send-email 2.21.0
+        id S234099AbhFRLlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 07:41:22 -0400
+Received: from so254-9.mailgun.net ([198.61.254.9]:16587 "EHLO
+        so254-9.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234104AbhFRLlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 07:41:21 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1624016352; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=rKbEo3Fwd8hGghkNeRNuKYoC2oT/tI9J3N51Kz13360=; b=FW4avHTfQSQWw0jUIoMqxoWeU7cqcjvH48g6QWF9EY66WQwYaysLCLxFPHIdTYmcsQ3MJSLQ
+ 6VMAO2t01eTiDTXNByYna78gDMK6Ojc7p9qWTlhgyTwTfYvFA0T97280QNnm/knM6LAYLolO
+ uMX3AKo/YH43gNq7We6ZzKLyASw=
+X-Mailgun-Sending-Ip: 198.61.254.9
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n04.prod.us-east-1.postgun.com with SMTP id
+ 60cc85d4e27c0cc77fe98685 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 18 Jun 2021 11:39:00
+ GMT
+Sender: linyyuan=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 21496C433D3; Fri, 18 Jun 2021 11:39:00 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from localhost.localdomain (unknown [101.87.142.17])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: linyyuan)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id DC586C433D3;
+        Fri, 18 Jun 2021 11:38:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org DC586C433D3
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=linyyuan@codeaurora.org
+From:   Linyu Yuan <linyyuan@codeaurora.org>
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Linyu Yuan <linyyuan@codeaurora.com>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH v4] usb: gadget: eem: fix echo command packet response issue
+Date:   Fri, 18 Jun 2021 19:38:35 +0800
+Message-Id: <20210618113835.6611-1-linyyuan@codeaurora.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The issue that I encountered is when doing regmap_update_bits on
-a write only register. In regcache path this will not do the right
-thing as the register is not readable and driver which is using
-regmap_update_bits will never notice that it can not do a update
-bits on write only register leading to inconsistent writes and
-random hardware behavior.
+From: Linyu Yuan <linyyuan@codeaurora.com>
 
-There seems to be missing checks in regcache_read() which is
-now added by moving the orignal check in _regmap_read() before
-accessing regcache.
+when receive eem echo command, it will send a response,
+but queue this response to the usb request which allocate
+from gadget device endpoint zero,
+and transmit the request to IN endpoint of eem interface.
 
-Cc: stable@vger.kernel.org
-Fixes: 5d1729e7f02f ("regmap: Incorporate the regcache core into regmap")
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+on dwc3 gadget, it will trigger following warning in function
+__dwc3_gadget_ep_queue(),
+
+	if (WARN(req->dep != dep, "request %pK belongs to '%s'\n",
+				&req->request, req->dep->name))
+		return -EINVAL;
+
+fix it by allocating a usb request from IN endpoint of eem interface,
+and transmit the usb request to same IN endpoint of eem interface.
+
+Fixes: 9b39e9ddedee ("USB: gadget: Add EEM gadget driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Linyu Yuan <linyyuan@codeaurora.com>
 ---
- drivers/base/regmap/regmap.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index 297e95be25b3..3ed37a09a8e9 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -2677,6 +2677,9 @@ static int _regmap_read(struct regmap *map, unsigned int reg,
- 	int ret;
- 	void *context = _regmap_map_get_context(map);
+v4: add Fixes tags and cc stable
+v3: use exist goto label 'next'
+v2: fix mail format and expand commit message
+
+ drivers/usb/gadget/function/f_eem.c | 43 ++++++++++++++++++++++++++---
+ 1 file changed, 39 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/gadget/function/f_eem.c b/drivers/usb/gadget/function/f_eem.c
+index 2cd9942707b4..5d38f29bda72 100644
+--- a/drivers/usb/gadget/function/f_eem.c
++++ b/drivers/usb/gadget/function/f_eem.c
+@@ -30,6 +30,11 @@ struct f_eem {
+ 	u8				ctrl_id;
+ };
  
-+	if (!regmap_readable(map, reg))
-+		return -EIO;
++struct in_context {
++	struct sk_buff	*skb;
++	struct usb_ep	*ep;
++};
 +
- 	if (!map->cache_bypass) {
- 		ret = regcache_read(map, reg, val);
- 		if (ret == 0)
-@@ -2686,9 +2689,6 @@ static int _regmap_read(struct regmap *map, unsigned int reg,
- 	if (map->cache_only)
- 		return -EBUSY;
+ static inline struct f_eem *func_to_eem(struct usb_function *f)
+ {
+ 	return container_of(f, struct f_eem, port.func);
+@@ -320,9 +325,12 @@ static int eem_bind(struct usb_configuration *c, struct usb_function *f)
  
--	if (!regmap_readable(map, reg))
--		return -EIO;
--
- 	ret = map->reg_read(context, reg, val);
- 	if (ret == 0) {
- 		if (regmap_should_log(map))
+ static void eem_cmd_complete(struct usb_ep *ep, struct usb_request *req)
+ {
+-	struct sk_buff *skb = (struct sk_buff *)req->context;
++	struct in_context *ctx = req->context;
+ 
+-	dev_kfree_skb_any(skb);
++	dev_kfree_skb_any(ctx->skb);
++	kfree(req->buf);
++	usb_ep_free_request(ctx->ep, req);
++	kfree(ctx);
+ }
+ 
+ /*
+@@ -410,7 +418,9 @@ static int eem_unwrap(struct gether *port,
+ 		 * b15:		bmType (0 == data, 1 == command)
+ 		 */
+ 		if (header & BIT(15)) {
+-			struct usb_request	*req = cdev->req;
++			struct usb_request	*req;
++			struct in_context	*ctx;
++			struct usb_ep		*ep;
+ 			u16			bmEEMCmd;
+ 
+ 			/* EEM command packet format:
+@@ -439,11 +449,36 @@ static int eem_unwrap(struct gether *port,
+ 				skb_trim(skb2, len);
+ 				put_unaligned_le16(BIT(15) | BIT(11) | len,
+ 							skb_push(skb2, 2));
++
++				ep = port->in_ep;
++				req = usb_ep_alloc_request(ep, GFP_ATOMIC);
++				if (!req) {
++					dev_kfree_skb_any(skb2);
++					goto next;
++				}
++
++				req->buf = kmalloc(skb2->len, GFP_KERNEL);
++				if (!req->buf) {
++					usb_ep_free_request(ep, req);
++					dev_kfree_skb_any(skb2);
++					goto next;
++				}
++
++				ctx = kmalloc(sizeof(*ctx), GFP_KERNEL);
++				if (!ctx) {
++					kfree(req->buf);
++					usb_ep_free_request(ep, req);
++					dev_kfree_skb_any(skb2);
++					goto next;
++				}
++				ctx->skb = skb2;
++				ctx->ep = ep;
++
+ 				skb_copy_bits(skb2, 0, req->buf, skb2->len);
+ 				req->length = skb2->len;
+ 				req->complete = eem_cmd_complete;
+ 				req->zero = 1;
+-				req->context = skb2;
++				req->context = ctx;
+ 				if (usb_ep_queue(port->in_ep, req, GFP_ATOMIC))
+ 					DBG(cdev, "echo response queue fail\n");
+ 				break;
 -- 
-2.21.0
+2.25.1
 
