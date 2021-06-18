@@ -2,114 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E2A63ACA62
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 13:47:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 015833ACA6A
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 13:51:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234226AbhFRLtw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 07:49:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36944 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234224AbhFRLtw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 07:49:52 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C322C061574
-        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 04:47:43 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id g13so3277027ljj.10
-        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 04:47:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=4jC7tMvXu3H0UgSbUww2U5pjAemu1fucj+730/peLnc=;
-        b=Xe3z0pLz6hIsuwTujel6HStCxLWMOtdcwQfgzo2gW9+3NrKVmZm+BRGJHF5rsxy0Qo
-         NDmeR6exEaRp7MK3tY7LqPG8ksZeROGcn0P3iciqNWMMAs9hy1LnBwJSQ10KIWfZSPbL
-         jsqIgzY9cFb4LY8DO6/KWUHxJAhgwxz0qSFCRRi78zhK7Stxp5kUFwSa78AxZH7KZRWW
-         ravBHhuyyey+dCNIluuDl9ky0nIk1CjDa5JcLQpKg5MV/UQzY+3Nv+x5p0AmG1i4OmTz
-         fUxwTgwuJSc5K0kaWZe8y+YuihELg3lJa3/eokfFChYo5Ua0dzq8S6h8oOtZ93VVF3fX
-         OUdw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=4jC7tMvXu3H0UgSbUww2U5pjAemu1fucj+730/peLnc=;
-        b=NY5lyqZvtF4WSYMOo1RKLSVimT3dtdECuQrnwhb8SmciemKrgPfgtcycLCzgAZM8Cg
-         7F2i/NFYcFiBBRecZOEkwQ5hlDDeLRcghG1fCTCrv5tz2w2l8QGzTEd5T9jDHdJgv/mA
-         DGAWbB75GPt2evGe0a2T0omSWft4Fy7cqhDw2jc/3t3eAFa1X4vKcIyht19f113fOntU
-         5xXrfrCQN1OavHQWCqNpLxGDmF6euUxlTW2AjyHwMKzZCw5yBPr2HCCcFD0KJoQYOnzV
-         AzV4tPAzS64jbB5HO13C6vD9AlYEd0oT/PNkuveZZXpz4Kr9Zft7RHwLteMPoA9RSUW0
-         TWDw==
-X-Gm-Message-State: AOAM533b4RORCoUY1ZqF/i3Pde+UUHPblYkXMUkk85gqAzXqnjZoqCgK
-        wQd9DVgGVpXIEcQxbu+VdUZVdPcS1nv0TVBdGY8=
-X-Google-Smtp-Source: ABdhPJz9V6l2JHHTY9JJGPBgDw3sGRwoz2fnrBBb3gj5quGvVQgcUrkaECsRULN0Wrr7CB4ozr+HfxknKXV9ed5bwm4=
-X-Received: by 2002:a05:651c:118f:: with SMTP id w15mr8468294ljo.413.1624016861386;
- Fri, 18 Jun 2021 04:47:41 -0700 (PDT)
+        id S232258AbhFRLxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 07:53:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42940 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231849AbhFRLxf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 07:53:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D35E613D1;
+        Fri, 18 Jun 2021 11:51:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1624017086;
+        bh=vYZK8vTsfVOdXVXB0QFo0w3TjJiqmtRYwcEGIkSvqjM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LYd6PeqWTWFHGNaeIbOEvY+gnFFIT9DPDjC4o+J4vRXnDy+s/ZSPE92rD11Ow1Zdh
+         BYZlEClp6Ofp3V9nwgXCwbUKVVeY8Hm5Bu8UcLftKAfkVuOLr/lYbdIcIO/AW38S2g
+         zY8BdirSkRHScj7xbUE0w8CxGfreapkfSgYRFEi0f84DVKlRc2fnPVjLA7cdaieqUN
+         HS9yuH3hdz8eNVbjnIR9XepVyDH9eZjxEZr6o1OdoOlJcIZRJcqJWMpSAoUVZ3XReL
+         XqfKbhro9e/aqacezdsgAGIl7KoodLwXRtG7MHO4ZwmaczpC5HhJXlArKHapKdsd+v
+         t1F4SOfWaBlEg==
+Date:   Fri, 18 Jun 2021 12:51:04 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc:     srivasam@codeaurora.org, rafael@kernel.org,
+        dp@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: Re: [PATCH] regmap: move readable check before accessing regcache.
+Message-ID: <20210618115104.GB4920@sirena.org.uk>
+References: <20210618113558.10046-1-srinivas.kandagatla@linaro.org>
 MIME-Version: 1.0
-Received: by 2002:ab3:1684:0:0:0:0:0 with HTTP; Fri, 18 Jun 2021 04:47:41
- -0700 (PDT)
-Reply-To: UBAGroupb@groupmail.com
-From:   Kirti Ptei <jamesberryfcu9@gmail.com>
-Date:   Fri, 18 Jun 2021 12:47:41 +0100
-Message-ID: <CAFct6hnC3yCN5Zo-W4RjEUapSYDzSr6GjxxkzvkKPVfkNa-VcA@mail.gmail.com>
-Subject: Contact for your ATM CARD {$2.700,000.00}
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="z6Eq5LdranGa6ru8"
+Content-Disposition: inline
+In-Reply-To: <20210618113558.10046-1-srinivas.kandagatla@linaro.org>
+X-Cookie: Are you a turtle?
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attention for you outstanding payment
 
-How are you doing hoping all is well with you and your family? We know
-you might have forgotten about your outstanding compensation payment
-from United Nation due to the delay on the delivery up till now. We
-are here by writing to inform you that your payment file was found in
-our Office and we discovered that your Compensation payment worth sum
-of two million seven hundred thousand United State Dollars
-{$2.700,000.00} have not been sent to you as it was instructed by The
-Economic Community of West African States (ECO-WAS) We are here to
-inform you that your payment has been converted into ATM Visa/Master
-Card to free it from Confiscating, and all necessary arrangement your
-ATM VISA/MASTER CARD Payment worth of {$2.700,000.00} has been granted
-for your payment through Our ATM Card Department Center.
+--z6Eq5LdranGa6ru8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Now Your ATM Visa/Master Card is well packaged with every legal
-document to convey it not having any problem with anybody therefore we
-are here by inviting you to our office here in Abidjan, Office
-Address, Commented Bank, 01 AB 1478, Cocody Abidjan, Cote D=E2=80=99Ivoire,=
- to
-enable us complete the normal formalities and activation process of
-your ATM Visa Card and issue the Secret PIN CODE/NUMBER to enable you
-start using it at any ATM MACHINE worldwide of your choice nearest to
-you, as soon as it is activated, But if you are unable to come down
-here in our office in person you will be required to update our ATM
-Department Center with your contact delivery details as stated below
-so that they will precede with the necessary arrangement for the
-delivery your ATM VISA/MASTER CARD.
+On Fri, Jun 18, 2021 at 12:35:58PM +0100, Srinivas Kandagatla wrote:
 
-1. Your Full name, ________________
-2. Your home Address, _____________
-3. Your telephone number, _________
-4. A copy of your ID, _____________
+> The issue that I encountered is when doing regmap_update_bits on
+> a write only register. In regcache path this will not do the right
+> thing as the register is not readable and driver which is using
+> regmap_update_bits will never notice that it can not do a update
+> bits on write only register leading to inconsistent writes and
+> random hardware behavior.
 
-Meanwhile you should contact OUR ATM CARD PAYMENT DEPARTMENT CENTER
-immediately on their below;
+Why will use of regmap_update_bits() mean that a driver will never
+notice a write failure?  Shouldn't remgap_update_bits() be fixed to
+report any errors it isn't reporting, or the driver fixed to check=20
+error codes?  I really don't understand the issue you're trying to
+report - what is "the right thing" and what makes you believe that a
+driver can't do an _update_bits() on a write only but cached register?
+Can you specify in concrete terms what the problem is.
 
-E-mail: { atmcustomerservicebj@gmail.com }
+> There seems to be missing checks in regcache_read() which is
+> now added by moving the orignal check in _regmap_read() before
+> accessing regcache.
 
-E-mail: { officebankatm@webmail.hu }
+> Cc: stable@vger.kernel.org
+> Fixes: 5d1729e7f02f ("regmap: Incorporate the regcache core into regmap")
 
-Contact Person; Dr. Bright Kalu
-Director Of United Bank For Africa (UBA)
-Telephone Number; +225 55102152
+Are you *sure* you've identified the actual issue here - nobody has seen
+any problems with this in the past decade?  Please don't just pick a
+random commit for the sake of adding a Fixes tag.
 
-Try to call him immediately to know when your ATM VISA/MASTER CARD
-will be delivered to you.
+> @@ -2677,6 +2677,9 @@ static int _regmap_read(struct regmap *map, unsigne=
+d int reg,
+>  	int ret;
+>  	void *context =3D _regmap_map_get_context(map);
+> =20
+> +	if (!regmap_readable(map, reg))
+> +		return -EIO;
+> +
+>  	if (!map->cache_bypass) {
+>  		ret =3D regcache_read(map, reg, val);
+>  		if (ret =3D=3D 0)
+> @@ -2686,9 +2689,6 @@ static int _regmap_read(struct regmap *map, unsigne=
+d int reg,
+>  	if (map->cache_only)
+>  		return -EBUSY;
+> =20
+> -	if (!regmap_readable(map, reg))
+> -		return -EIO;
+> -
 
-I am waiting for your update as soon as you have received your
-Visa/Master ATM Card.
+This puts the readability check before the cache check which will break
+all drivers using the cache on write only registers.
 
+--z6Eq5LdranGa6ru8
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Thanks and God Bless You.
-Yours sincerely
-Kirti Ptei
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmDMiKcACgkQJNaLcl1U
+h9DsIAf5Afd+Q+6o68mPeTQ66gkNA3M28sW18xKpTCwg4Pvb1SjI9zqnz9MoVH/0
+d4iKxGR5q7xQwdteTLxsCUAFECKxPb03EGOEtMd3t/hjRau5LVs/CUKMpbig5M2w
+YWUbsAekvXv773+Y5E9DaXljqYaIxk9sAPog5MupiBShBlOSSaM23XQqhlrE2/Kq
+kpjdZzyR3q3yVcXqxjwlWtsiR5Iuzz/djnYJEprfQHDhoHCZ3hrKvGcuLvcIHScY
+bMJhLnRbb1C17sy3z18aPC+u0wqQqSCvLfstlc+burujEHDZWSSictoutSp4URWa
+yGi2EibjoNft/jCQU/0IxMssaFN9/Q==
+=5sp4
+-----END PGP SIGNATURE-----
+
+--z6Eq5LdranGa6ru8--
