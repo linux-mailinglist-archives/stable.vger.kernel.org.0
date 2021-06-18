@@ -2,81 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B66A23ACDFD
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 16:53:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF4CF3ACE00
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 16:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234763AbhFROzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 10:55:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50812 "EHLO
+        id S234718AbhFROzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 10:55:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234771AbhFROzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 10:55:07 -0400
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98DCFC061767
-        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 07:52:57 -0700 (PDT)
-Received: by mail-oi1-x22d.google.com with SMTP id m137so10825622oig.6
-        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 07:52:57 -0700 (PDT)
+        with ESMTP id S234717AbhFROzZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 10:55:25 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D862C061574
+        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 07:53:15 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id g24so5829474pji.4
+        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 07:53:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=lfcsRgFy2xq8rFyaA8Nz5ZAiMzCPmlUUdOOARhZaZCQ=;
-        b=gsoQ9aEfUO7Xvs0FyVDIHEU7u9CS+WcWA/IyOVjbcfTH6pgLtYG8n2K/qgdFFkFmRf
-         CXTr/rOKIp7UANm9ovr65iZDf2vHLmZXO0NOcG2mXmkgoSworF25MLAOtYU6BaU6Ichi
-         GOlS7y1zLqEGJ9rFASZT+JtZpp7+ECxoZiEAIP1DCUfxe7nPbSyGxqSvowpB/q6Yvykp
-         9TLWjo5CE+48kh9XOMzUniF9/K92pN4OF45voWnFAQ28XOrkbcz1cWim2QhVcOj65y0G
-         pnGfcfxt92pZ42v4BaXBzEZCgklA785C01Zo5obJPxYqQCFfnBYPpNC0uBD8JWsZEFc+
-         ybWA==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=H01L/ewIDNSGOn+y0dVhbJpkSXC0XPJPtcuoIHq6BHE=;
+        b=n4Bhk+fa+lEGzhBZDFeXQ/AHlW5dTwfW2XPS8iJUHQBTHm6j4Zd0HQ+5YOuYfdif4L
+         Eg3K+JQXi/pJzBCtni9VT/ZspClg6jcnbTVMdKyIzOOe1zHWn2Ga0jkJpo+EFnlwNWs6
+         KeuY0rwPWI6pKqC/BzzclUdA5aQLLTZ9zuOsdWLpAc+LShiH7skPWbPes878xJDs/xvY
+         sfHG0zI4I9IaSNHTveShAIEz9lxZ10OmYaAOX/nUDFyCjR8LK9aOjMB3ivZTTwL7BnBv
+         OiTmqecWBA2T5yWbQJa4gQZfEy0vzpC8al6hGnTnnv3ztJGzPvwNKo/CjuJxPrMgHDN/
+         EL7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=lfcsRgFy2xq8rFyaA8Nz5ZAiMzCPmlUUdOOARhZaZCQ=;
-        b=l3phie7a4USsf5csxEzToN+0UOoJElWeagS/HhdpBq3bRse8LpMDJLxT5bejB4naIG
-         As/Yw4Z6Y3cjhvHs0TI5adKIFdbfYYucuhEzTnqk6NI0r/heIjpNZT4TeycFvoW1CJC5
-         meN2qIz+iZg/w8wakOAGvyt+NoXQD85KcT9akZOtnzWGZcRX1crZ1Z0UfPpJL6w4oHLo
-         oapgR33j7xvm4ZRa/z8wgAHwioOuPMs7faY0aOseoX9sjUW8im2bjLgYBhadOjuTfNxi
-         CaiRIsJGIliiQSvSAhK61Atj31ZXifTzKTnl6gaLtj9oKFLIAMfYgpZAbYA/iU8kysby
-         SU/w==
-X-Gm-Message-State: AOAM532n0qYQG0ZBAyAPIs5DdxTmnSrQ3yr0+cYeGI00BMef/zDxnhip
-        z8UtwgayxtVpSV/GVlqyu3k4kQ==
-X-Google-Smtp-Source: ABdhPJye1eow3zDlcW8WFc5WqtQz3JnuGxiQji+GYWeMI7kL1izOVo3QAosH6I6TqQTmqa+mXYdt2A==
-X-Received: by 2002:aca:4fcc:: with SMTP id d195mr14553893oib.88.1624027976941;
-        Fri, 18 Jun 2021 07:52:56 -0700 (PDT)
-Received: from [192.168.1.134] ([198.8.77.61])
-        by smtp.gmail.com with ESMTPSA id 3sm1856148oob.1.2021.06.18.07.52.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Jun 2021 07:52:56 -0700 (PDT)
-Subject: Re: [PATCH v2] loop: Fix missing discard support when using
- LOOP_CONFIGURE
-To:     Kristian Klausen <kristian@klausen.dk>, linux-block@vger.kernel.org
-Cc:     stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20210618115157.31452-1-kristian@klausen.dk>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <64494b7d-01b3-8da3-e10c-d346746758ea@kernel.dk>
-Date:   Fri, 18 Jun 2021 08:52:58 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=H01L/ewIDNSGOn+y0dVhbJpkSXC0XPJPtcuoIHq6BHE=;
+        b=kAfM1GTVaUpjDfrVZ1aQawY/skjQCN6acj5JLRf6IOXkrFTOtWatqGHmkuvrg8X9X7
+         EXaTZpuyTDB0NOaOYsnh9EcFMKiusAMsKbG0/+hqpUIZ2AKdTFevT3zZbijWP0aXQiN+
+         1oI73re72SI00qXew4Sas0cbHcI5atNrlBEwQmZIxRzBXOHkhz8iee/U6ehQd109EJk4
+         6tmrQqzqReRbCAF+CGCCUknz2mfUIVB9koBCt//ewzBjFhO8C990vBxbyxhCIDAMDP7i
+         wzQ7nucReZVG9fCWfa6LB46Rk8VQg/7xwwmvNMNAYiUysPmddjwTZZl+gr3gGN9DaVLE
+         oQpw==
+X-Gm-Message-State: AOAM531D6sLK1qUfudBCudII3cO5XfnHcmKJWvf0jlAJuQ0yZrRJGZ6p
+        Qx60WkkylbxKre8aKNH3rBkwtnKuGjhkgQuCvlc=
+X-Google-Smtp-Source: ABdhPJz/3mDhQnuZn+Re5h3+k+RhKDSSLppwCD8I5NOrxOweZyq8VnFk46VOJroFYbKQyMh6dimHhaajYOQIQZNkVNs=
+X-Received: by 2002:a17:90b:1d02:: with SMTP id on2mr22553396pjb.128.1624027994957;
+ Fri, 18 Jun 2021 07:53:14 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210618115157.31452-1-kristian@klausen.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a05:6a10:cac3:0:0:0:0 with HTTP; Fri, 18 Jun 2021 07:53:14
+ -0700 (PDT)
+Reply-To: 123456officialnicole@gmail.com
+From:   Miss Nicole <nicolemilitary2@gmail.com>
+Date:   Fri, 18 Jun 2021 14:53:14 +0000
+Message-ID: <CA+pCtUSaai4B4hm6+xaO9xZdNmdK-nv5vqkPDDSP24AUVJexbw@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/18/21 5:51 AM, Kristian Klausen wrote:
-> Without calling loop_config_discard() the discard flag and parameters
-> aren't set/updated for the loop device and worst-case they could
-> indicate discard support when it isn't the case (ex: if the
-> LOOP_SET_STATUS ioctl was used with a different file prior to
-> LOOP_CONFIGURE).
-
-Applied, thanks.
-
--- 
-Jens Axboe
-
+Dear friend,
+Nice to meet you here
+How are you today?
+I have sent you an email, did you receive it? I have something useful
+and profitable to discuss with you, I would like to visit your country
+soon
+Please reply to this email for more details.
+Thanks!!
+Official Miss Nicole
