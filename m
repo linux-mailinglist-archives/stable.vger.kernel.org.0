@@ -2,121 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AEC63AC1C0
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 06:04:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D724A3AC1E4
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 06:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229671AbhFREHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 00:07:02 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:36107 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229466AbhFREHC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 00:07:02 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2BF685C0164;
-        Fri, 18 Jun 2021 00:04:53 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 18 Jun 2021 00:04:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm1; bh=xJDE0vGMmQognTkuv3PR5iAnF9
-        qfNxOnot9Cue/GBi8=; b=wRObDCK4ruc8ZL+mUE2ZzgapYVdF9e3jsjhelM+K6M
-        jppkIgmLSPCBKdgUHzm9Kcd5/mkXbNViPnLf9wZqwaiefQjT4owZUiksQe40cNrw
-        XK0MRd7TByO46MjL9TLgPVhTWTg9hUovo4DULOlcHymCElPSzdaFQgZnt6NHGWN+
-        sBMYMGCsXJ5SrUJveG6HSEQuFJp/YmahsPf37DC2gLBCSkWFdhPJoFsclOglxVb2
-        YBpBnPeEMqYNjYji9Gom2p20XayJKiJ75daIZRNFW0QEFGzSoYaWzbJGKfCBjPOI
-        +auslsJFlPyxQO1iDj+3SubGc+PQVfQt0Z6fZvIYQCGQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=xJDE0vGMmQognTkuv
-        3PR5iAnF9qfNxOnot9Cue/GBi8=; b=Jc4gSKE0br8Y2mzlx71IKBrJdFAhExupx
-        ROdh/RTwK/fh8THzerPN6oYA00SwdS64KKINB40+H07iNwXf5oMO62Lzdx+EBjjs
-        1njE0gdL0/GyCeRjey1bSmVmAyNzgAaeImAX1SkG06/MUD7dWtowPmGgikX7A5/0
-        X08KgyQyV2ysC9xfotP+3hLk5wxuniOz/QLO2yHiV3aXfxCGBdzW1RtHT4dX87DE
-        /fE+wW6gTxXpbSf+jlCj4SLGSlxw/Q0jTuf42JJhRtmf3DprqqVMXJXlo+9h6BL8
-        njFiAb/UhVyQgBy3HjaFs3syqWF+tkiIJrGlSb0/GfXYVn0k7WKJg==
-X-ME-Sender: <xms:ZBvMYIuJZCIjxnJ-46nu1bDuc3xFX81vQPBXS3gLlY9vxLiYTXGzBw>
-    <xme:ZBvMYFeOe5bcaTVDKdDj_T5vGop0nMXuSshJZrK7M_ROu_-M2hkK4U6fvVOfospjF
-    xKixLMCTjf4nNG0edM>
-X-ME-Received: <xmr:ZBvMYDwdErYVSV_2IOUHLGweedAK00KxoixpK43coTE2VFO1neqCiCh8UKlZOx9Ib1iD3Y19UD1UiXjHhKe3Uo0U1urTu8-otDhfpQmnZ7VRZSvpKUhW>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefvddgjeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
-    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
-    ihesshgrkhgrmhhotggthhhirdhjpheqnecuggftrfgrthhtvghrnhepudejteelhfdttd
-    ekgfdtueeilefhgfetjeejheekgeevuddvveegieehueeukeejnecuvehluhhsthgvrhfu
-    ihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepohdqthgrkhgrshhhihesshgrkh
-    grmhhotggthhhirdhjph
-X-ME-Proxy: <xmx:ZBvMYLPGLQz_bIAvUNQfOZ2ErCoTcgnPvA6T9nsnsd8E7g35W960zw>
-    <xmx:ZBvMYI8wSvMNXz-yL2yb5h1dyrDBf0F8mezaDxUQLwo6hDBA4c-_1w>
-    <xmx:ZBvMYDXD8YTw7WO3t4HyUnN3pfr1ISS6BgxiX9EEA59RFdVhmvswPQ>
-    <xmx:ZRvMYKIgLwMklYzYesA9H-BfGD0UuZr73Ek_WFwepeRXrwfjsHFpnQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 18 Jun 2021 00:04:50 -0400 (EDT)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     tiwai@suse.de
-Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
+        id S230438AbhFREUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 00:20:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49666 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230423AbhFREUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 00:20:47 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D409DC06175F
+        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 21:18:37 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id g6so6727849pfq.1
+        for <stable@vger.kernel.org>; Thu, 17 Jun 2021 21:18:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=A7veP2+rvJhREGxZ7bA2MKokj7fOMWmnWBdu22Gjixs=;
+        b=plDYr7URR38B4jGYMsxSURthpcFrTWdDpgkJZiOYCuF4iliXpJ56Mn3TIhtq6Hj3Ko
+         DcJqLB0QmDx+XU5q97EHRY8Z+3l44WgV8KsrWl60QLCgykxwjoenpSzt8r2PsJABEnbV
+         jnUqsGTAemSR2cNPF1fsD5PWJxUjOSGKN7tNFoyi8QHGOfI8Oe9DhyP6lplAOsox9rYM
+         ToHvttUNsT80qTybhX19aohlNodJS1Z9II5W3Ul1On1PDhnZ8W8YRoo7Uz+uitlVLP7s
+         NQ8zh9QQXrgGvYeR/5Vu3hiRaPODOYGYDR6en/M34Md65klj78jhxoKpPolvM3Pjk9BT
+         KtZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=A7veP2+rvJhREGxZ7bA2MKokj7fOMWmnWBdu22Gjixs=;
+        b=Hpn790uZnyqX8kSi71RIitG9BWIpOXcaS+Dj4LUmZWNLGA0tum6o/jRTjbOV+2hHUR
+         iLhjJidoGOrtBkQMReLyAMQZXT6PW92JJwJu99FHsOsMTx3pliMZed1Gu06O4BbVeAUZ
+         RA4utuz59ggabbpnlkbgSMbXqjnZA1+YR9UhfNsNXUMwfo4N2byVUXGaUctc7BOgHoVt
+         KuliHW4skWNvpAR2K/Ylx3php07C8aG+O1ebTHHtu08KX/Z3S7ZphH9VQzyzR2SKRo1+
+         4MTag/XG8cwPLZOpjHb4xVini6IP6s/3YrXYhT7pJffxdQSONktHU+70Ju1zzzGkOcX+
+         Xi/A==
+X-Gm-Message-State: AOAM532/p23V1/dAgymcTyJiO/mnijN3os6tXdN0LY0clmZhrxAB4Hux
+        dfkV2dPb/xK5TbqNbg2id/bp
+X-Google-Smtp-Source: ABdhPJz5nIO0obUzGfQWU2OY7LlyNmGKp7Hy07h54AzlLuFHm3eedis+rYyTYKWqhR+BwvY3pYmALw==
+X-Received: by 2002:a63:3246:: with SMTP id y67mr8193050pgy.244.1623989917247;
+        Thu, 17 Jun 2021 21:18:37 -0700 (PDT)
+Received: from workstation ([120.138.13.238])
+        by smtp.gmail.com with ESMTPSA id s13sm6431308pjm.34.2021.06.17.21.18.33
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 17 Jun 2021 21:18:35 -0700 (PDT)
+Date:   Fri, 18 Jun 2021 09:48:31 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Sibi Sankar <sibis@codeaurora.org>
+Cc:     bjorn.andersson@linaro.org, jassisinghbrar@gmail.com,
+        agross@kernel.org, rananta@codeaurora.org, vnkgutta@codeaurora.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH] ALSA: bebob: fix rx packet format for Yamaha GO44/GO46, Terratec Phase 24/x24
-Date:   Fri, 18 Jun 2021 13:04:47 +0900
-Message-Id: <20210618040447.113306-1-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.30.2
+Subject: Re: [PATCH] mailbox: qcom-ipcc: Fix IPCC mbox channel exhaustion
+Message-ID: <20210618041831.GA3682@workstation>
+References: <1623865378-1943-1-git-send-email-sibis@codeaurora.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1623865378-1943-1-git-send-email-sibis@codeaurora.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Below devices reports zero as the number of channels for external output
-plug with MIDI type:
+On Wed, Jun 16, 2021 at 11:12:58PM +0530, Sibi Sankar wrote:
+> Fix IPCC (Inter-Processor Communication Controller) channel exhaustion by
+> setting the channel private data to NULL on mbox shutdown.
+> 
+> Err Logs:
+> remoteproc: MBA booted without debug policy, loading mpss
+> remoteproc: glink-edge: failed to acquire IPC channel
+> remoteproc: failed to probe subdevices for remoteproc: -16
+> 
+> Fixes: fa74a0257f45 ("mailbox: Add support for Qualcomm IPCC")
+> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
 
- * Yamaha GO44/GO46
- * Terratec Phase 24/X24
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-As a result, rx packet format is invalid and they generate silent sound.
-This is a regression added in v5.13.
+Thanks,
+Mani
 
-This commit fixes the bug, addressed at a commit 1bd1b3be8655 ("ALSA:
-bebob: perform sequence replay for media clock recovery").
-
-Cc: <stable@vger.kernel.org>
-Fixes: 5c6ea94f2b7c ("ALSA: bebob: detect the number of available MIDI ports")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
----
- sound/firewire/bebob/bebob_stream.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/sound/firewire/bebob/bebob_stream.c b/sound/firewire/bebob/bebob_stream.c
-index e3e23e42add3..8629b14ded76 100644
---- a/sound/firewire/bebob/bebob_stream.c
-+++ b/sound/firewire/bebob/bebob_stream.c
-@@ -856,6 +856,11 @@ static int detect_midi_ports(struct snd_bebob *bebob,
- 		err = avc_bridgeco_get_plug_ch_count(bebob->unit, addr, &ch_count);
- 		if (err < 0)
- 			break;
-+		// Yamaha GO44, GO46, Terratec Phase 24, Phase x24 reports 0 for the number of
-+		// channels in external output plug 3 (MIDI type) even if it has a pair of physical
-+		// MIDI jacks. As a workaround, assume it as one.
-+		if (ch_count == 0)
-+			ch_count = 1;
- 		*midi_ports += ch_count;
- 	}
- 
-@@ -934,12 +939,12 @@ int snd_bebob_stream_discover(struct snd_bebob *bebob)
- 	if (err < 0)
- 		goto end;
- 
--	err = detect_midi_ports(bebob, bebob->rx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_IN,
-+	err = detect_midi_ports(bebob, bebob->tx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_IN,
- 				plugs[2], &bebob->midi_input_ports);
- 	if (err < 0)
- 		goto end;
- 
--	err = detect_midi_ports(bebob, bebob->tx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_OUT,
-+	err = detect_midi_ports(bebob, bebob->rx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_OUT,
- 				plugs[3], &bebob->midi_output_ports);
- 	if (err < 0)
- 		goto end;
--- 
-2.30.2
-
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/mailbox/qcom-ipcc.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/mailbox/qcom-ipcc.c b/drivers/mailbox/qcom-ipcc.c
+> index 2d13c72944c6..584700cd1585 100644
+> --- a/drivers/mailbox/qcom-ipcc.c
+> +++ b/drivers/mailbox/qcom-ipcc.c
+> @@ -155,6 +155,11 @@ static int qcom_ipcc_mbox_send_data(struct mbox_chan *chan, void *data)
+>  	return 0;
+>  }
+>  
+> +static void qcom_ipcc_mbox_shutdown(struct mbox_chan *chan)
+> +{
+> +	chan->con_priv = NULL;
+> +}
+> +
+>  static struct mbox_chan *qcom_ipcc_mbox_xlate(struct mbox_controller *mbox,
+>  					const struct of_phandle_args *ph)
+>  {
+> @@ -184,6 +189,7 @@ static struct mbox_chan *qcom_ipcc_mbox_xlate(struct mbox_controller *mbox,
+>  
+>  static const struct mbox_chan_ops ipcc_mbox_chan_ops = {
+>  	.send_data = qcom_ipcc_mbox_send_data,
+> +	.shutdown = qcom_ipcc_mbox_shutdown,
+>  };
+>  
+>  static int qcom_ipcc_setup_mbox(struct qcom_ipcc *ipcc)
+> -- 
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+> a Linux Foundation Collaborative Project
+> 
