@@ -2,171 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 634223ACE21
+	by mail.lfdr.de (Postfix) with ESMTP id AE65E3ACE22
 	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 16:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234837AbhFRPAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234839AbhFRPAp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 18 Jun 2021 11:00:45 -0400
-Received: from mailout1.w2.samsung.com ([211.189.100.11]:31055 "EHLO
+Received: from mailout1.w2.samsung.com ([211.189.100.11]:31043 "EHLO
         mailout1.w2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234831AbhFRPAk (ORCPT
+        with ESMTP id S234832AbhFRPAk (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 11:00:40 -0400
-X-Greylist: delayed 580 seconds by postgrey-1.27 at vger.kernel.org; Fri, 18 Jun 2021 11:00:37 EDT
-Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
-        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20210618144844usoutp01ada70eb0788dde429235d51363a9ab2c~JtJxs3PoR2822828228usoutp01S;
-        Fri, 18 Jun 2021 14:48:44 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20210618144844usoutp01ada70eb0788dde429235d51363a9ab2c~JtJxs3PoR2822828228usoutp01S
+Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
+        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20210618144958usoutp01dbe60fb1587904053c63b483a55f60d5~JtK2bToOM0166701667usoutp01F;
+        Fri, 18 Jun 2021 14:49:58 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20210618144958usoutp01dbe60fb1587904053c63b483a55f60d5~JtK2bToOM0166701667usoutp01F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1624027724;
-        bh=NwpSqfChnbYWL67ohYJmb5b6V9dEA+79cx1XRyd86T8=;
+        s=mail20170921; t=1624027798;
+        bh=iUVr5JmOMO+MwdqHyU8GkgmRUeFPf/64YB/2H+HZjfs=;
         h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-        b=YiZHTIk9QK+563ZMQhei2EpP6zvJVlLnGyC/LPs1Wwei6ClXIcD1reRSyKc3Vf7Qg
-         6Yi9ejOKrfKTr4XgxnFVtmQ1Kz4Gkt6xS/rBUTyui3PMDrjDzUSRViTXhor/irXNc1
-         LNgCpmcWPx25imHGukVYhaxT4l9Iok1I9BEE+pfI=
+        b=SfexU4HsrPI3fbtaApn0xP13/BAv+hAHP0YMMP5YQucisbFJEbQoZTwRXdo6YU/Iu
+         rBz765PysC8fUrqvpVlU1tRVlwJmxiIiN/dgwg/f/Z37QbnTKpJX6Oad5XedHnyqc2
+         5caV5xiwslTk5RJzsakGFG5hkWclz1n9yot+GFcs=
 Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
-        [203.254.195.111]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20210618144844uscas1p2705fb2a126bd71955a11b8795bee3182~JtJxkNTu60144801448uscas1p27;
-        Fri, 18 Jun 2021 14:48:44 +0000 (GMT)
+        [203.254.195.111]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20210618144958uscas1p18dd396f8ce5c74c2332e6f742da3abc6~JtK2P33qd2510025100uscas1p1-;
+        Fri, 18 Jun 2021 14:49:58 +0000 (GMT)
 Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
-        ussmges2new.samsung.com (USCPEMTA) with SMTP id 94.29.53491.C42BCC06; Fri,
-        18 Jun 2021 10:48:44 -0400 (EDT)
+        ussmges2new.samsung.com (USCPEMTA) with SMTP id 3E.49.53491.692BCC06; Fri,
+        18 Jun 2021 10:49:58 -0400 (EDT)
 Received: from ussmgxs2new.samsung.com (u91.gpu85.samsung.co.kr
         [203.254.195.91]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20210618144844uscas1p280d192b12fc852b36879565030b13cd6~JtJxK6dXb0371003710uscas1p2x;
-        Fri, 18 Jun 2021 14:48:44 +0000 (GMT)
-X-AuditID: cbfec36f-f09ff7000001d0f3-8b-60ccb24c467a
-Received: from SSI-EX2.ssi.samsung.com ( [105.128.2.146]) by
-        ussmgxs2new.samsung.com (USCPEXMTA) with SMTP id DB.93.26904.B42BCC06; Fri,
-        18 Jun 2021 10:48:43 -0400 (EDT)
+        20210618144957uscas1p2b49a0cb5c20870a96842a9fab548a56e~JtK1c0dWM0843908439uscas1p2o;
+        Fri, 18 Jun 2021 14:49:57 +0000 (GMT)
+X-AuditID: cbfec36f-f09ff7000001d0f3-49-60ccb296f8f9
+Received: from SSI-EX1.ssi.samsung.com ( [105.128.2.146]) by
+        ussmgxs2new.samsung.com (USCPEXMTA) with SMTP id 9E.93.26904.492BCC06; Fri,
+        18 Jun 2021 10:49:57 -0400 (EDT)
 Received: from SSI-EX1.ssi.samsung.com (105.128.2.226) by
-        SSI-EX2.ssi.samsung.com (105.128.2.227) with Microsoft SMTP Server
+        SSI-EX1.ssi.samsung.com (105.128.2.226) with Microsoft SMTP Server
         (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2242.4; Fri, 18 Jun 2021 07:48:43 -0700
+        15.1.2242.4; Fri, 18 Jun 2021 07:49:56 -0700
 Received: from SSI-EX1.ssi.samsung.com ([fe80::255d:1bae:c3ae:e3c3]) by
         SSI-EX1.ssi.samsung.com ([fe80::255d:1bae:c3ae:e3c3%7]) with mapi id
-        15.01.2242.008; Fri, 18 Jun 2021 07:48:43 -0700
+        15.01.2242.008; Fri, 18 Jun 2021 07:49:56 -0700
 From:   Adam Manzanares <a.manzanares@samsung.com>
 To:     Niklas Cassel <Niklas.Cassel@wdc.com>
-CC:     Jens Axboe <axboe@kernel.dk>,
+CC:     Jens Axboe <axboe@kernel.dk>, Hannes Reinecke <hare@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Damien Le Moal <Damien.LeMoal@wdc.com>,
         Shaun Tancheff <shaun@tancheff.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Hannes Reinecke <hare@suse.com>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         Jens Axboe <axboe@fb.com>,
         "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3 1/2] blk-zoned: allow zone management send operations
- without CAP_SYS_ADMIN
-Thread-Topic: [PATCH v3 1/2] blk-zoned: allow zone management send
-        operations without CAP_SYS_ADMIN
-Thread-Index: AQHXYRgQMteA58G2kEuU7Azlx40Z/qsaVTmA
-Date:   Fri, 18 Jun 2021 14:48:43 +0000
-Message-ID: <20210618144843.GA33886@bgt-140510-bm01>
-In-Reply-To: <20210614122303.154378-2-Niklas.Cassel@wdc.com>
+Subject: Re: [PATCH v3 2/2] blk-zoned: allow BLKREPORTZONE without
+ CAP_SYS_ADMIN
+Thread-Topic: [PATCH v3 2/2] blk-zoned: allow BLKREPORTZONE without
+        CAP_SYS_ADMIN
+Thread-Index: AQHXYRgQCVfFQ7HNWEWEcKzi48L9sqsaVZAA
+Date:   Fri, 18 Jun 2021 14:49:56 +0000
+Message-ID: <20210618144956.GB33886@bgt-140510-bm01>
+In-Reply-To: <20210614122303.154378-3-Niklas.Cassel@wdc.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 x-originating-ip: [105.128.2.176]
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <BE5F368FAE175742BB504CA5C6918049@ssi.samsung.com>
+Content-ID: <B5CDFD0C97F7DA4584EDD78FCE32D6C1@ssi.samsung.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrGKsWRmVeSWpSXmKPExsWy7djXc7o+m84kGHz7KGzxf88xNovVd/vZ
-        LFrbvzFZLHizl81i7y1ti8u75rBZLD/+j8niwZ/H7BaTT59gtViw8RGjA5fHxOZ37B6Xz5Z6
-        fHx6i8Vj/ZarLB437k9h8vi8Sc6j/UA3UwB7FJdNSmpOZllqkb5dAlfGwo7zrAVn+CpmHfvI
-        0sDYwtPFyMkhIWAicWfrU7YuRi4OIYGVjBIvtj+DclqZJO4te88KU/Vm/SWoxFpGiR8fu6Cc
-        j4wSnzsWM0M4Bxgldn4/wAbSwiZgIPH7+EZmEFtEQFPi86m1rCBFzAJTmSWmdL5n6mLk4BAW
-        SJG4/NgDoiZVou32Qah6I4nDBxaxgNgsAqoSH5+dAIvzAp3xYWcn2HxOARuJ9283M4LYjAJi
-        Et9PrWECsZkFxCVuPZnPBHG2oMSi2XuYIWwxiX+7HrJB2IoS97+/ZIeo15FYsPsTG4RtJ7Fq
-        VTeUrS2xbOFrqL2CEidnPmGB6JWUOLjiBgvILxIC/zkk2q7MhVrgIrGreyXUYmmJv3eXMUEU
-        7WKUmDP7IyuEc5hRYtOF5YwQVdYSN152MU5gVJmF5PJZSK6aheSqWUiumoXkqgWMrKsYxUuL
-        i3PTU4uN8lLL9YoTc4tL89L1kvNzNzECk9rpf4fzdzBev/VR7xAjEwfjIUYJDmYlEV7OzDMJ
-        QrwpiZVVqUX58UWlOanFhxilOViUxHmZIibGCwmkJ5akZqemFqQWwWSZODilGph0T7BZzvnz
-        cJf6GrFtKi+nPD6r9fjJ5/nJG+se5gZejmXQEfVZ9X8j06bd32JuLPH1vDlNy6PKz7k9NdJn
-        gfvFBef+b+XOl/y+VV140Y5zZsGKG39khs642DHtdMqDb7ejhdd7vlphZHtxo6B0xIrUz7/X
-        pK+boaEWvtV8S2BGdfoSqRRHFs9nR1O0vx0NMjLZ/YV50ccTNyccvKB9Nm/OnKfXFvxOi597
-        adN7Y6nzz04LXuGyD92nOvtAtuZRkW+cvyoWf3u8gXHnnf6P+V9E53lPWxts1HJv7uXFjb63
-        Fi/Ji4z3OLRsuWjh4RmLZmnotyUt6tA/Z7x22p+mJkeedflvH/yy/tTA1WNu+dozbKoSS3FG
-        oqEWc1FxIgDjfPRk2QMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrEIsWRmVeSWpSXmKPExsWS2cA0Sdd705kEg+UvTS3+7znGZrH6bj+b
-        RWv7NyaLBW/2slnsvaVtcXnXHDaL5cf/MVk8+POY3WLy6ROsFgs2PmJ04PKY2PyO3ePy2VKP
-        j09vsXis33KVxePG/SlMHp83yXm0H+hmCmCP4rJJSc3JLEst0rdL4MpY2HGeteAMX8WsYx9Z
-        GhhbeLoYOTkkBEwk3qy/xNbFyMUhJLCaUWLG2vVMEM5HRomDq1+yQjgHGCVO7H7FDtLCJmAg
-        8fv4RmYQW0RAU+LzqbVgRcwCU5kluhZPZ+xi5OAQFkiRuPzYA6ImVeLFt0XsELaRxOEDi1hA
-        bBYBVYmPz06AzeEFOuPDzk6oMw4ySjS197OCJDgFbCTev93MCGIzCohJfD+1hgnEZhYQl7j1
-        ZD4TxA8CEkv2nGeGsEUlXj7+xwphK0rc//6SHaJeR2LB7k9sELadxKpV3VC2tsSyha+hjhCU
-        ODnzCQtEr6TEwRU3WCYwSsxCsm4WklGzkIyahWTULCSjFjCyrmIULy0uzk2vKDbKSy3XK07M
-        LS7NS9dLzs/dxAhMBqf/HY7ewXj71ke9Q4xMHIyHGCU4mJVEeDkzzyQI8aYkVlalFuXHF5Xm
-        pBYfYpTmYFES530ZNTFeSCA9sSQ1OzW1ILUIJsvEwSnVwGRz6P2EFR96jtj8F912QDSao+Xf
-        dQs/tuCrEeIztn+t2sfwgkPW4298hvDTnXnLLxk/frdg5/TJNzQkFV5Oe+r3uyHKUMjlwMtO
-        NbZHy5OaS5qPL9te/O2F6Mbk1KQW9wuaT1ckXf/07rNmyQJ3i8tv4k+Zi8hEbmW99GW3hXvm
-        Js+vwsUF3AITdLaL2BXsXMGfwlcS+ndq2Kb8DdftLzfN/y5V/Xaqjmvzz1OPFHb53lH66f1u
-        m+6zN26NhScOcniahR88/DX5H++TKT/Ws/AeD5pybU9s4DKlslO3ed99+P44+cPcCLH5/1fd
-        2HPz4/fd+5YzCa85a3/q+8rLucGHHd/+S2w40WsXP+XCzGqd70osxRmJhlrMRcWJAJIP1Zx1
-        AwAA
-X-CMS-MailID: 20210618144844uscas1p280d192b12fc852b36879565030b13cd6
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrCKsWRmVeSWpSXmKPExsWy7djXc7rTNp1JMLi9gs3i/55jbBar7/az
+        WbS2f2OyWPBmL5vF3lvaFpd3zWGzWH78H5PFgz+P2S0mnz7BarFg4yNGBy6Pic3v2D0uny31
+        +Pj0FovH+i1XWTxu3J/C5PF5k5xH+4FupgD2KC6blNSczLLUIn27BK6M1RO3sxT85Km4O+c+
+        YwPjca4uRk4OCQETiSO/DrOC2EICKxklVuyvhrBbmSR2TdSGqTn1vYWpi5ELKL6WUeLz7SeM
+        EM5HRok3T1ZBOQcYJY7duQg2ik3AQOL38Y3MILaIgKbE51NrweLMAlOZJfa1uoDYwgJBEotm
+        TmWHqAmWePrtOSOEbSSxfN0DsDiLgKrE0T+rmEBsXqAzVrb/BpvDKWAjMeHNCbB6RgExie+n
+        1jBBzBeXuPVkPhPE2YISi2bvYYawxST+7XrIBmErStz//pIdol5HYsHuT2wQtp3Elv5GFghb
+        W2LZwtfMEHsFJU7OfMIC0SspcXDFDRaQhyUEmjklOqb2sUMkXCRO74Y4SEJAWuLv3WVMEEW7
+        GCXmzP7ICuEcZpTYdGE5VJW1xI2XXYwTGFVmIbl8FpKrZiG5ahaSq2YhuWoBI+sqRvHS4uLc
+        9NRio7zUcr3ixNzi0rx0veT83E2MwIR2+t/h/B2M12991DvEyMTBeIhRgoNZSYSXM/NMghBv
+        SmJlVWpRfnxRaU5q8SFGaQ4WJXFepoiJ8UIC6YklqdmpqQWpRTBZJg5OqQYmI7YPmnc1qiRK
+        bDeb6n35m3q4du2RC/67RCU8WZeVmxrseJz/Qy5z9qMpd5sXLu2T/PR3hYBY1q3I1WEz28wK
+        uVmzNu+8ExG6RJUtTHxW7qElE2t3z3ljX2X4NvitmDTjvppTRgemmVk1FUvNWFrbsUK9QG33
+        hyt9xotP5PZqv+11Zk8+KbF2PdOe+LCsxewrPhVVfHG1Nz4XXOHG+cDn+9xfS/27LDevWlke
+        sub6Ay/j/jucc8JyT39Srn557+COjbdOL/krx3rJ+eXB+DO85yrVX+xx/SbILrVA2IXn8qPf
+        NcvzTax5e3aecd7CG71ALLhvoY7YtrM//EIPLdqzNWfS3Jc6tp9/lHWkXlX/ocRSnJFoqMVc
+        VJwIAHXQT+3XAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrMIsWRmVeSWpSXmKPExsWS2cA0SXfqpjMJBkffclv833OMzWL13X42
+        i9b2b0wWC97sZbPYe0vb4vKuOWwWy4//Y7J48Ocxu8Xk0ydYLRZsfMTowOUxsfkdu8fls6Ue
+        H5/eYvFYv+Uqi8eN+1OYPD5vkvNoP9DNFMAexWWTkpqTWZZapG+XwJWxeuJ2loKfPBV359xn
+        bGA8ztXFyMkhIWAicep7C1MXIxeHkMBqRolFDz+xQDgfGSV+fbrKDuEcYJRY/aODFaSFTcBA
+        4vfxjcwgtoiApsTnU2tZQYqYBaYySzxdsZsdJCEsECSxaOZUdoiiYIm/S5+xQNhGEsvXPQCL
+        swioShz9s4oJxOYFumNl+29WiG0HGSWOr78Dto1TwEZiwpsTjCA2o4CYxPdTa8AamAXEJW49
+        mc8E8YSAxJI955khbFGJl4//sULYihL3v79kh6jXkViw+xMbhG0nsaW/kQXC1pZYtvA1M8QR
+        ghInZz5hgeiVlDi44gbLBEaJWUjWzUIyahaSUbOQjJqFZNQCRtZVjOKlxcW56RXFRnmp5XrF
+        ibnFpXnpesn5uZsYgeng9L/D0TsYb9/6qHeIkYmD8RCjBAezkggvZ+aZBCHelMTKqtSi/Pii
+        0pzU4kOM0hwsSuK8L6MmxgsJpCeWpGanphakFsFkmTg4pRqYGCqfTSj1+qFh8uZvqKSKQ4KT
+        6PS9DH8OrC2x2rBxN88DvzWOB8K+fWK2i5UxnnXwHU/jauvI4zwVAtcnLr+nueJDgGEl8zdX
+        Nn2ZsxLSOm87r4ZPVNvldXXl+zuPLCXOfNrxZe49k6poXY656fuvLe++uXKizdSGjgteHsKZ
+        j4xXWs2e/yo8xWPuef4tW/Im3s1+dChH7FR4YLr/jvPmpfFOVnN3vWS/ZCUXHjHF+G9R1ZMk
+        hxtbHwtn709b+qvkyYr7Kf6WlodKJ02/Z/lo4W4NUYuvrzxNhb7vSSiessYs3fVT7W0b7TtX
+        K24JPmEtVmt5uGFdwap3aZvbl9Tzrtmv1/Pyw6TpPWEbJK9u3q/EUpyRaKjFXFScCADjvWr5
+        dgMAAA==
+X-CMS-MailID: 20210618144957uscas1p2b49a0cb5c20870a96842a9fab548a56e
 CMS-TYPE: 301P
-X-CMS-RootMailID: 20210614122356uscas1p1cd196d14f778284120dde445dfba4611
+X-CMS-RootMailID: 20210614122358uscas1p1b06438713a13aef1eb31a9b0a6c359dc
 References: <20210614122303.154378-1-Niklas.Cassel@wdc.com>
-        <CGME20210614122356uscas1p1cd196d14f778284120dde445dfba4611@uscas1p1.samsung.com>
-        <20210614122303.154378-2-Niklas.Cassel@wdc.com>
+        <CGME20210614122358uscas1p1b06438713a13aef1eb31a9b0a6c359dc@uscas1p1.samsung.com>
+        <20210614122303.154378-3-Niklas.Cassel@wdc.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 14, 2021 at 12:23:20PM +0000, Niklas Cassel wrote:
+On Mon, Jun 14, 2021 at 12:23:21PM +0000, Niklas Cassel wrote:
 > From: Niklas Cassel <niklas.cassel@wdc.com>
 >=20
-> Zone management send operations (BLKRESETZONE, BLKOPENZONE, BLKCLOSEZONE
-> and BLKFINISHZONE) should be allowed under the same permissions as write(=
-).
-> (write() does not require CAP_SYS_ADMIN).
+> A user space process should not need the CAP_SYS_ADMIN capability set
+> in order to perform a BLKREPORTZONE ioctl.
 >=20
-> Additionally, other ioctls like BLKSECDISCARD and BLKZEROOUT only check i=
-f
-> the fd was successfully opened with FMODE_WRITE.
-> (They do not require CAP_SYS_ADMIN).
->=20
-> Currently, zone management send operations require both CAP_SYS_ADMIN
-> and that the fd was successfully opened with FMODE_WRITE.
->=20
-> Remove the CAP_SYS_ADMIN requirement, so that zone management send
-> operations match the access control requirement of write(), BLKSECDISCARD
-> and BLKZEROOUT.
+> Getting the zone report is required in order to get the write pointer.
+> Neither read() nor write() requires CAP_SYS_ADMIN, so it is reasonable
+> that a user space process that can read/write from/to the device, also
+> can get the write pointer. (Since e.g. writes have to be at the write
+> pointer.)
 >=20
 > Fixes: 3ed05a987e0f ("blk-zoned: implement ioctls")
 > Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 > Cc: stable@vger.kernel.org # v4.10+
 > ---
 > Changes since v2:
-> -None
->=20
-> Note to backporter:
-> Function was added as blkdev_reset_zones_ioctl() in v4.10.
-> Function was renamed to blkdev_zone_mgmt_ioctl() in v5.5.
-> The patch is valid both before and after the function rename.
+> -Drop the FMODE_READ check. Right now it is possible to open() the device=
+ with
+> O_WRONLY and get the zone report from that fd. Therefore adding a FMODE_R=
+EAD
+> check on BLKREPORTZONE would break existing applications. Instead, just r=
+emove
+> the existing CAP_SYS_ADMIN check.
 >=20
 >  block/blk-zoned.c | 3 ---
 >  1 file changed, 3 deletions(-)
 >=20
 > diff --git a/block/blk-zoned.c b/block/blk-zoned.c
-> index 250cb76ee615..0789e6e9f7db 100644
+> index 0789e6e9f7db..457eceabed2e 100644
 > --- a/block/blk-zoned.c
 > +++ b/block/blk-zoned.c
-> @@ -349,9 +349,6 @@ int blkdev_zone_mgmt_ioctl(struct block_device *bdev,=
- fmode_t mode,
+> @@ -288,9 +288,6 @@ int blkdev_report_zones_ioctl(struct block_device *bd=
+ev, fmode_t mode,
 >  	if (!blk_queue_is_zoned(q))
 >  		return -ENOTTY;
 > =20
 > -	if (!capable(CAP_SYS_ADMIN))
 > -		return -EACCES;
 > -
->  	if (!(mode & FMODE_WRITE))
->  		return -EBADF;
+>  	if (copy_from_user(&rep, argp, sizeof(struct blk_zone_report)))
+>  		return -EFAULT;
 > =20
 > --=20
 > 2.31.1
