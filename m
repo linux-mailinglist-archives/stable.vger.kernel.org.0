@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 324D43AC3E4
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 08:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F7753AC3E5
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 08:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231422AbhFRGcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 02:32:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38710 "EHLO mail.kernel.org"
+        id S231445AbhFRGcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 02:32:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230136AbhFRGco (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 02:32:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AFAB60C41;
-        Fri, 18 Jun 2021 06:30:34 +0000 (UTC)
+        id S230136AbhFRGcu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 02:32:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64D0D61209;
+        Fri, 18 Jun 2021 06:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623997835;
-        bh=LucHtXa9yvjMh4AvD0OFw9hFszD0ItyLizjlSFifyWQ=;
+        s=korg; t=1623997840;
+        bh=6L5fRT3g6YpkdehVTR5QmM2I2qR3vWvg7flStSddsVE=;
         h=Subject:To:From:Date:From;
-        b=1uNPA89YdafOpgOq7Dt0apiQ+mklx+Ix3RRRM7nB0SFa8MOu769Nd0TnkugIHNHx1
-         U5V7A+P8voZKtG2sUoPzv0LoDkJO6HmzGCgy8qt/Z6YVCuEHZ8wWMUBsy0qmfcBbIO
-         lA3+IdN6QmMN7bweG0tufl7xEOlySG/9xKq6L7WI=
-Subject: patch "usb: typec: tcpci: Fix up sink disconnect thresholds for PD" added to usb-next
-To:     badhri@google.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
+        b=VNWtwvLrHFbJyZbw3EmBsROii+pgdiJePVdOrYZrE6PVSEcb30WfR8RDOhG9rebr/
+         rlsfDrogV7nWieGO1w1L2ofwJAO3w7ebyv0YwFYTNmzcCAEb7HDASbVLiJ7CU8gESf
+         nw/7mzC7WhHhDr5qCld4w5VkcX/WLwXT3VXUd0Xo=
+Subject: patch "usb: typec: tcpm: Ignore Vsafe0v in PR_SWAP_SNK_SRC_SOURCE_ON state" added to usb-next
+To:     kyletso@google.com, badhri@google.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Jun 2021 08:30:21 +0200
-Message-ID: <1623997821170233@kroah.com>
+Date:   Fri, 18 Jun 2021 08:30:22 +0200
+Message-ID: <162399782218617@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: typec: tcpci: Fix up sink disconnect thresholds for PD
+    usb: typec: tcpm: Ignore Vsafe0v in PR_SWAP_SNK_SRC_SOURCE_ON state
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,64 +52,38 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 4288debeaa4e21d8dd5132739ffba2d343892bbf Mon Sep 17 00:00:00 2001
-From: Badhri Jagan Sridharan <badhri@google.com>
-Date: Tue, 15 Jun 2021 10:43:23 -0700
-Subject: usb: typec: tcpci: Fix up sink disconnect thresholds for PD
+From fed09e0bf9f0622a54f3963f959d914fa817f8a6 Mon Sep 17 00:00:00 2001
+From: Kyle Tso <kyletso@google.com>
+Date: Wed, 16 Jun 2021 01:32:06 +0800
+Subject: usb: typec: tcpm: Ignore Vsafe0v in PR_SWAP_SNK_SRC_SOURCE_ON state
 
-"Table 4-3 VBUS Sink Characteristics" of "Type-C Cable and Connector
-Specification" defines the disconnect voltage thresholds of various
-configurations. This change fixes the disconnect threshold voltage
-calculation based on vSinkPD_min and vSinkDisconnectPD as defined
-by the table.
+In PR_SWAP_SNK_SRC_SOURCE_ON state, Vsafe0v is expected as well so do
+nothing here to avoid state machine going into SNK_UNATTACHED.
 
-Fixes: e1a97bf80a022 ("usb: typec: tcpci: Implement Auto discharge disconnect callbacks")
+Fixes: 28b43d3d746b ("usb: typec: tcpm: Introduce vsafe0v for vbus")
 Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Badhri Jagan Sridharan <badhri@google.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Link: https://lore.kernel.org/r/20210615174323.1160132-1-badhri@google.com
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Link: https://lore.kernel.org/r/20210615173206.1646477-1-kyletso@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpci.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/usb/typec/tcpm/tcpm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
-index 22862345d1ab..9858716698df 100644
---- a/drivers/usb/typec/tcpm/tcpci.c
-+++ b/drivers/usb/typec/tcpm/tcpci.c
-@@ -21,8 +21,12 @@
- #define	PD_RETRY_COUNT_DEFAULT			3
- #define	PD_RETRY_COUNT_3_0_OR_HIGHER		2
- #define	AUTO_DISCHARGE_DEFAULT_THRESHOLD_MV	3500
--#define	AUTO_DISCHARGE_PD_HEADROOM_MV		850
--#define	AUTO_DISCHARGE_PPS_HEADROOM_MV		1250
-+#define	VSINKPD_MIN_IR_DROP_MV			750
-+#define	VSRC_NEW_MIN_PERCENT			95
-+#define	VSRC_VALID_MIN_MV			500
-+#define	VPPS_NEW_MIN_PERCENT			95
-+#define	VPPS_VALID_MIN_MV			100
-+#define	VSINKDISCONNECT_PD_MIN_PERCENT		90
- 
- #define tcpc_presenting_rd(reg, cc) \
- 	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
-@@ -351,11 +355,13 @@ static int tcpci_set_auto_vbus_discharge_threshold(struct tcpc_dev *dev, enum ty
- 		threshold = AUTO_DISCHARGE_DEFAULT_THRESHOLD_MV;
- 	} else if (mode == TYPEC_PWR_MODE_PD) {
- 		if (pps_active)
--			threshold = (95 * requested_vbus_voltage_mv / 100) -
--				AUTO_DISCHARGE_PD_HEADROOM_MV;
-+			threshold = ((VPPS_NEW_MIN_PERCENT * requested_vbus_voltage_mv / 100) -
-+				     VSINKPD_MIN_IR_DROP_MV - VPPS_VALID_MIN_MV) *
-+				     VSINKDISCONNECT_PD_MIN_PERCENT / 100;
- 		else
--			threshold = (95 * requested_vbus_voltage_mv / 100) -
--				AUTO_DISCHARGE_PPS_HEADROOM_MV;
-+			threshold = ((VSRC_NEW_MIN_PERCENT * requested_vbus_voltage_mv / 100) -
-+				     VSINKPD_MIN_IR_DROP_MV - VSRC_VALID_MIN_MV) *
-+				     VSINKDISCONNECT_PD_MIN_PERCENT / 100;
- 	} else {
- 		/* 3.5V for non-pd sink */
- 		threshold = AUTO_DISCHARGE_DEFAULT_THRESHOLD_MV;
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index 197556038ba4..e11e9227107d 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -5212,6 +5212,7 @@ static void _tcpm_pd_vbus_vsafe0v(struct tcpm_port *port)
+ 		}
+ 		break;
+ 	case PR_SWAP_SNK_SRC_SINK_OFF:
++	case PR_SWAP_SNK_SRC_SOURCE_ON:
+ 		/* Do nothing, vsafe0v is expected during transition */
+ 		break;
+ 	default:
 -- 
 2.32.0
 
