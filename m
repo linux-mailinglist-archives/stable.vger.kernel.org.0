@@ -2,89 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4820D3AC6CE
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 11:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C4543AC744
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 11:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232609AbhFRJKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 05:10:08 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:26327 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233076AbhFRJKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 05:10:06 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-231-kCri9fpRP8m35SUQHdVvyg-1; Fri, 18 Jun 2021 10:07:54 +0100
-X-MC-Unique: kCri9fpRP8m35SUQHdVvyg-1
-Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
- (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Fri, 18 Jun
- 2021 10:07:53 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.018; Fri, 18 Jun 2021 10:07:53 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Krzysztof Kozlowski' <krzysztof.kozlowski@canonical.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        id S229819AbhFRJVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 05:21:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53080 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230175AbhFRJVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 05:21:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41658613BA;
+        Fri, 18 Jun 2021 09:19:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1624007943;
+        bh=d6L8De6SYFaetstLiE1nJCBZWihJ29jUVk5AQi+slLM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ii3BvH+zyZ2xJDaPeqND8gbRYSFndrh2PVsgtJDBc2/i8pDJOdR/0zMDyxiMX2LOI
+         RdgUVyreprCstrRPerKKjUrDMVC68Nu8vQG4rOBnLoV0U91DjdkajAwTotrMjA16JX
+         d+uv1e0KVbK77iNH1snIewQGkVuzOeCpH3vmtxCw=
+Date:   Fri, 18 Jun 2021 11:19:00 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     'Krzysztof Kozlowski' <krzysztof.kozlowski@canonical.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
         Daniel Vetter <daniel.vetter@ffwll.ch>,
         Christoph Hellwig <hch@lst.de>, Jessica Yu <jeyu@kernel.org>
-Subject: RE: [PATCH 5.4 031/184] modules: inherit TAINT_PROPRIETARY_MODULE
-Thread-Topic: [PATCH 5.4 031/184] modules: inherit TAINT_PROPRIETARY_MODULE
-Thread-Index: AQHXZB/50QaIqTZSLEykqrpaWct/h6sZeMHQ
-Date:   Fri, 18 Jun 2021 09:07:53 +0000
-Message-ID: <5ac70bdf2c5b440c83f12e75ca42a107@AcuMS.aculab.com>
+Subject: Re: [PATCH 5.4 031/184] modules: inherit TAINT_PROPRIETARY_MODULE
+Message-ID: <YMxlBCzztbWGvi/l@kroah.com>
 References: <20210510101950.200777181@linuxfoundation.org>
  <20210510101951.249384110@linuxfoundation.org>
  <8edc6f45-6c42-19c7-6f40-6f1a49cc685b@canonical.com>
-In-Reply-To: <8edc6f45-6c42-19c7-6f40-6f1a49cc685b@canonical.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+ <5ac70bdf2c5b440c83f12e75ca42a107@AcuMS.aculab.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5ac70bdf2c5b440c83f12e75ca42a107@AcuMS.aculab.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogS3J6eXN6dG9mIEtvemxvd3NraQ0KPiBTZW50OiAxOCBKdW5lIDIwMjEgMDk6NTcNCj4g
-DQo+IE9uIDEwLzA1LzIwMjEgMTI6MTgsIEdyZWcgS3JvYWgtSGFydG1hbiB3cm90ZToNCj4gPiBG
-cm9tOiBDaHJpc3RvcGggSGVsbHdpZyA8aGNoQGxzdC5kZT4NCj4gPg0KPiA+IGNvbW1pdCAyNjJl
-NmFlNzA4MWRmMzA0ZmM2MjVjZjM2OGQ1YzJjYmJhMmJiOTkxIHVwc3RyZWFtLg0KPiA+DQo+ID4g
-SWYgYSBUQUlOVF9QUk9QUklFVEFSWV9NT0RVTEUgZXhwb3J0cyBzeW1ib2wsIGluaGVyaXQgdGhl
-IHRhaW50IGZsYWcNCj4gPiBmb3IgYWxsIG1vZHVsZXMgaW1wb3J0aW5nIHRoZXNlIHN5bWJvbHMs
-IGFuZCBkb24ndCBhbGxvdyBsb2FkaW5nDQo+ID4gc3ltYm9scyBmcm9tIFRBSU5UX1BST1BSSUVU
-QVJZX01PRFVMRSBtb2R1bGVzIGlmIHRoZSBtb2R1bGUgcHJldmlvdXNseQ0KPiA+IGltcG9ydGVk
-IGdwbG9ubHkgc3ltYm9scy4gIEFkZCBhIGFudGktY2lyY3VtdmVudGlvbiBkZXZpY2VzIHNvIHBl
-b3BsZQ0KPiA+IGRvbid0IGFjY2lkZW50YWxseSBnZXQgdGhlbXNlbHZlcyBpbnRvIHRyb3VibGUg
-dGhpcyB3YXkuDQo+ID4NCj4gPiBDb21tZW50IGZyb20gR3JlZzoNCj4gPiAgICJBaCwgdGhlIHBy
-b3Zlbi10by1iZS1pbGxlZ2FsICJHUEwgQ29uZG9tIiBkZWZlbnNlIDopIg0KPiANCj4gUGF0Y2gg
-Z290IGluIHRvIHN0YWJsZSwgc28gbXkgY29tbWVudHMgYXJlIHF1aXRlIGxhdGUsIGJ1dCBjYW4g
-c29tZW9uZQ0KPiBleHBsYWluIG1lIC0gaG93IHRoaXMgaXMgYSBzdGFibGUgbWF0ZXJpYWw/IFdo
-YXQgc3BlY2lmaWMsIHJlYWwgYnVnIHRoYXQNCj4gYm90aGVycyBwZW9wbGUsIGlzIGJlaW5nIGZp
-eGVkIGhlcmU/IE9yIG1heWJlIGl0IGZpeGVzIHNlcmlvdXMgaXNzdWUNCj4gcmVwb3J0ZWQgYnkg
-YSB1c2VyIG9mIGRpc3RyaWJ1dGlvbiBrZXJuZWw/IElPVywgaG93IGRvZXMgdGhpcyBtYXRjaA0K
-PiBzdGFibGUga2VybmVsIHJ1bGVzIGF0IGFsbD8NCj4gDQo+IEZvciBzdXJlIGl0IGJyZWFrcyBz
-b21lIG91dC1vZi10cmVlIG1vZHVsZXMgYWxyZWFkeSBwcmVzZW50IGFuZCB1c2VkIGJ5DQo+IGN1
-c3RvbWVycyBvZiBkb3duc3RyZWFtIHN0YWJsZSBrZXJuZWxzLiBUaGVyZWZvcmUgSSB3b25kZXIg
-d2hhdCBpcyB0aGUNCj4gYnVnIGZpeGVkIGhlcmUsIHNvIHRoZSBicmVha2FnZSBhbmQgYW5ub3lh
-bmNlIG9mIHN0YWJsZSB1c2VycyBpcyBqdXN0aWZpZWQuDQoNCkl0IGFsc28gZG9lc24ndCBzdG9w
-IG5vbi1ncGwgb3V0LW9mLXRyZWUgbW9kdWxlcyBkb2luZyBhbnl0aGluZy4NClRoZXkganVzdCBo
-YXZlIHRvIGJlIHJlb3JnYW5pemVkIHdpdGggYSAnYmFzZScgR1BMIG1vZHVsZSB0aGF0DQppbmNs
-dWRlcyB3cmFwcGVycyBmb3IgYWxsIHRoZSBncGxvbmx5IHN5bWJvbHMgYW5kIHRoZW4gYWxsDQp0
-aGUgcmVzdCBvZiB0aGUgbW9kdWxlcyBjYW4gYmUgbm9uLWdwbC4NCg0KVGhpcyBtZWFucyB0aGF0
-IGRyaXZlcnMgdGhhdCB3ZXJlIG1hcmtlZCBncGwgbm8gbG9uZ2VyIG5lZWQgdG8NCmJlIGJlY2F1
-c2UgdGhleSBub3cgdXNlIHRoZSB3cmFwcGVycy4NCg0KU28gaXQgaXMganVzdCBhbiBhbm5veWFu
-Y2UuDQoNCkZvcnR1bmF0ZWx5IG91ciBtYWluIG91dC1vZi10cmVlIGRyaXZlcnMgZG9uJ3QgdXNl
-IGFueSBHUEwgYml0cw0KYXQgYWxsIC0gc28gdGhpcyBjaGFuZ2UgZG9lc24ndCBhZmZlY3Qgb3Vy
-IGN1c3RvbWVyIHJlbGVhc2VzLg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExh
-a2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQs
-IFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
+On Fri, Jun 18, 2021 at 09:07:53AM +0000, David Laight wrote:
+> From: Krzysztof Kozlowski
+> > Sent: 18 June 2021 09:57
+> > 
+> > On 10/05/2021 12:18, Greg Kroah-Hartman wrote:
+> > > From: Christoph Hellwig <hch@lst.de>
+> > >
+> > > commit 262e6ae7081df304fc625cf368d5c2cbba2bb991 upstream.
+> > >
+> > > If a TAINT_PROPRIETARY_MODULE exports symbol, inherit the taint flag
+> > > for all modules importing these symbols, and don't allow loading
+> > > symbols from TAINT_PROPRIETARY_MODULE modules if the module previously
+> > > imported gplonly symbols.  Add a anti-circumvention devices so people
+> > > don't accidentally get themselves into trouble this way.
+> > >
+> > > Comment from Greg:
+> > >   "Ah, the proven-to-be-illegal "GPL Condom" defense :)"
+> > 
+> > Patch got in to stable, so my comments are quite late, but can someone
+> > explain me - how this is a stable material? What specific, real bug that
+> > bothers people, is being fixed here? Or maybe it fixes serious issue
+> > reported by a user of distribution kernel? IOW, how does this match
+> > stable kernel rules at all?
+> > 
+> > For sure it breaks some out-of-tree modules already present and used by
+> > customers of downstream stable kernels. Therefore I wonder what is the
+> > bug fixed here, so the breakage and annoyance of stable users is justified.
+> 
+> It also doesn't stop non-gpl out-of-tree modules doing anything.
+> They just have to be reorganized with a 'base' GPL module that
+> includes wrappers for all the gplonly symbols and then all
+> the rest of the modules can be non-gpl.
 
+Ah, the "gpl condom defense".  Love it that you somehow think that is
+acceptable (hint, it is not.)
+
+That's what this patch series is supposed to be addressing and fixing,
+but someone has shown me a way around this.   I'll work on fixing that
+up in a future patch series next week.
+
+thanks,
+
+greg k-h
