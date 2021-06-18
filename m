@@ -2,103 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AA833AC6AE
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 10:59:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4820D3AC6CE
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 11:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbhFRJCC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 05:02:02 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:48106 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232547AbhFRJCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 05:02:01 -0400
-Received: from mail-ed1-f71.google.com ([209.85.208.71])
-        by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <krzysztof.kozlowski@canonical.com>)
-        id 1luALv-0001FL-PS
-        for stable@vger.kernel.org; Fri, 18 Jun 2021 08:59:51 +0000
-Received: by mail-ed1-f71.google.com with SMTP id f12-20020a056402150cb029038fdcfb6ea2so1363586edw.14
-        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 01:59:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=PEcc2XLwF7gLUJu71YgacFESmL81dpTQvc0XnJ0Z794=;
-        b=OEhhrcfy4QHlfe7Q+BNAXszOha2YXR203vXneUM5oieu04KgrQVbiBTKHqx2ry1wO9
-         +WbtU/yoCIUz0loyZkNOzuBG6tMaCXUEfE1NekUmvrKLk7J38aAfuopRcS6wCedpU5gm
-         s1oJ8T29yJD939CmZB205X7+qKdKIz0tQVu5BhCTKsUxHxVK8riBHIPifzeEmU3rgtrh
-         lRaMLsZ++p3ehxWRSgutOdD5dFwcEsBw1JswHg+B2UBzZUy4WD1WREW45gkmZjGfKMo5
-         U5Os1nZDW/z7YAyqZH5xpp+duvFO6iVCtUiHzS81A7o3luLERIBYS+cCN0irt+yrBVEt
-         Yw/w==
-X-Gm-Message-State: AOAM5314bf7+GOKVO79472fTXQZGxVZmZXNso5gD++u/t3uv59oOktrR
-        bt/4Nt0BcpI8VpERG1vIHa4/tIToMi9/XWLvc/nO7mVrYsZCVeV8xSUpTn4RGVua8Z4zRFpYpSj
-        5MqCI9yRF6Ynp1tca/3zmOZ+QEMl7DtcksA==
-X-Received: by 2002:a05:6402:18f6:: with SMTP id x54mr3654891edy.53.1624006791575;
-        Fri, 18 Jun 2021 01:59:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwMQ0H4LDz9fog0E8p/D6NA/qzZNLkPqQI/pYPUCukC7/7rPKA6YEBSYoQrWiaPFZY5N9RtTQ==
-X-Received: by 2002:a05:6402:18f6:: with SMTP id x54mr3654881edy.53.1624006791433;
-        Fri, 18 Jun 2021 01:59:51 -0700 (PDT)
-Received: from [192.168.1.115] (xdsl-188-155-177-222.adslplus.ch. [188.155.177.222])
-        by smtp.gmail.com with ESMTPSA id y20sm5737732edq.69.2021.06.18.01.59.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Jun 2021 01:59:50 -0700 (PDT)
-Subject: Re: [PATCH 5.4 031/184] modules: inherit TAINT_PROPRIETARY_MODULE
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        id S232609AbhFRJKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 05:10:08 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:26327 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233076AbhFRJKG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 05:10:06 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-231-kCri9fpRP8m35SUQHdVvyg-1; Fri, 18 Jun 2021 10:07:54 +0100
+X-MC-Unique: kCri9fpRP8m35SUQHdVvyg-1
+Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
+ (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Fri, 18 Jun
+ 2021 10:07:53 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.018; Fri, 18 Jun 2021 10:07:53 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Krzysztof Kozlowski' <krzysztof.kozlowski@canonical.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Christoph Hellwig <hch@lst.de>, Jessica Yu <jeyu@kernel.org>
+Subject: RE: [PATCH 5.4 031/184] modules: inherit TAINT_PROPRIETARY_MODULE
+Thread-Topic: [PATCH 5.4 031/184] modules: inherit TAINT_PROPRIETARY_MODULE
+Thread-Index: AQHXZB/50QaIqTZSLEykqrpaWct/h6sZeMHQ
+Date:   Fri, 18 Jun 2021 09:07:53 +0000
+Message-ID: <5ac70bdf2c5b440c83f12e75ca42a107@AcuMS.aculab.com>
 References: <20210510101950.200777181@linuxfoundation.org>
  <20210510101951.249384110@linuxfoundation.org>
  <8edc6f45-6c42-19c7-6f40-6f1a49cc685b@canonical.com>
-Message-ID: <08a2e600-74cf-dbf8-1ecc-777ff65e06b0@canonical.com>
-Date:   Fri, 18 Jun 2021 10:59:50 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
-MIME-Version: 1.0
 In-Reply-To: <8edc6f45-6c42-19c7-6f40-6f1a49cc685b@canonical.com>
-Content-Type: text/plain; charset=utf-8
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 18/06/2021 10:57, Krzysztof Kozlowski wrote:
-> On 10/05/2021 12:18, Greg Kroah-Hartman wrote:
->> From: Christoph Hellwig <hch@lst.de>
->>
->> commit 262e6ae7081df304fc625cf368d5c2cbba2bb991 upstream.
->>
->> If a TAINT_PROPRIETARY_MODULE exports symbol, inherit the taint flag
->> for all modules importing these symbols, and don't allow loading
->> symbols from TAINT_PROPRIETARY_MODULE modules if the module previously
->> imported gplonly symbols.  Add a anti-circumvention devices so people
->> don't accidentally get themselves into trouble this way.
->>
->> Comment from Greg:
->>   "Ah, the proven-to-be-illegal "GPL Condom" defense :)"
-> 
-> Patch got in to stable, so my comments are quite late, but can someone
-> explain me - how this is a stable material? What specific, real bug that
-> bothers people, is being fixed here? Or maybe it fixes serious issue
-> reported by a user of distribution kernel? IOW, how does this match
-> stable kernel rules at all?
-> 
-> For sure it breaks some out-of-tree modules already present and used by
-> customers of downstream stable kernels. Therefore I wonder what is the
-> bug fixed here, so the breakage and annoyance of stable users is justified.
+RnJvbTogS3J6eXN6dG9mIEtvemxvd3NraQ0KPiBTZW50OiAxOCBKdW5lIDIwMjEgMDk6NTcNCj4g
+DQo+IE9uIDEwLzA1LzIwMjEgMTI6MTgsIEdyZWcgS3JvYWgtSGFydG1hbiB3cm90ZToNCj4gPiBG
+cm9tOiBDaHJpc3RvcGggSGVsbHdpZyA8aGNoQGxzdC5kZT4NCj4gPg0KPiA+IGNvbW1pdCAyNjJl
+NmFlNzA4MWRmMzA0ZmM2MjVjZjM2OGQ1YzJjYmJhMmJiOTkxIHVwc3RyZWFtLg0KPiA+DQo+ID4g
+SWYgYSBUQUlOVF9QUk9QUklFVEFSWV9NT0RVTEUgZXhwb3J0cyBzeW1ib2wsIGluaGVyaXQgdGhl
+IHRhaW50IGZsYWcNCj4gPiBmb3IgYWxsIG1vZHVsZXMgaW1wb3J0aW5nIHRoZXNlIHN5bWJvbHMs
+IGFuZCBkb24ndCBhbGxvdyBsb2FkaW5nDQo+ID4gc3ltYm9scyBmcm9tIFRBSU5UX1BST1BSSUVU
+QVJZX01PRFVMRSBtb2R1bGVzIGlmIHRoZSBtb2R1bGUgcHJldmlvdXNseQ0KPiA+IGltcG9ydGVk
+IGdwbG9ubHkgc3ltYm9scy4gIEFkZCBhIGFudGktY2lyY3VtdmVudGlvbiBkZXZpY2VzIHNvIHBl
+b3BsZQ0KPiA+IGRvbid0IGFjY2lkZW50YWxseSBnZXQgdGhlbXNlbHZlcyBpbnRvIHRyb3VibGUg
+dGhpcyB3YXkuDQo+ID4NCj4gPiBDb21tZW50IGZyb20gR3JlZzoNCj4gPiAgICJBaCwgdGhlIHBy
+b3Zlbi10by1iZS1pbGxlZ2FsICJHUEwgQ29uZG9tIiBkZWZlbnNlIDopIg0KPiANCj4gUGF0Y2gg
+Z290IGluIHRvIHN0YWJsZSwgc28gbXkgY29tbWVudHMgYXJlIHF1aXRlIGxhdGUsIGJ1dCBjYW4g
+c29tZW9uZQ0KPiBleHBsYWluIG1lIC0gaG93IHRoaXMgaXMgYSBzdGFibGUgbWF0ZXJpYWw/IFdo
+YXQgc3BlY2lmaWMsIHJlYWwgYnVnIHRoYXQNCj4gYm90aGVycyBwZW9wbGUsIGlzIGJlaW5nIGZp
+eGVkIGhlcmU/IE9yIG1heWJlIGl0IGZpeGVzIHNlcmlvdXMgaXNzdWUNCj4gcmVwb3J0ZWQgYnkg
+YSB1c2VyIG9mIGRpc3RyaWJ1dGlvbiBrZXJuZWw/IElPVywgaG93IGRvZXMgdGhpcyBtYXRjaA0K
+PiBzdGFibGUga2VybmVsIHJ1bGVzIGF0IGFsbD8NCj4gDQo+IEZvciBzdXJlIGl0IGJyZWFrcyBz
+b21lIG91dC1vZi10cmVlIG1vZHVsZXMgYWxyZWFkeSBwcmVzZW50IGFuZCB1c2VkIGJ5DQo+IGN1
+c3RvbWVycyBvZiBkb3duc3RyZWFtIHN0YWJsZSBrZXJuZWxzLiBUaGVyZWZvcmUgSSB3b25kZXIg
+d2hhdCBpcyB0aGUNCj4gYnVnIGZpeGVkIGhlcmUsIHNvIHRoZSBicmVha2FnZSBhbmQgYW5ub3lh
+bmNlIG9mIHN0YWJsZSB1c2VycyBpcyBqdXN0aWZpZWQuDQoNCkl0IGFsc28gZG9lc24ndCBzdG9w
+IG5vbi1ncGwgb3V0LW9mLXRyZWUgbW9kdWxlcyBkb2luZyBhbnl0aGluZy4NClRoZXkganVzdCBo
+YXZlIHRvIGJlIHJlb3JnYW5pemVkIHdpdGggYSAnYmFzZScgR1BMIG1vZHVsZSB0aGF0DQppbmNs
+dWRlcyB3cmFwcGVycyBmb3IgYWxsIHRoZSBncGxvbmx5IHN5bWJvbHMgYW5kIHRoZW4gYWxsDQp0
+aGUgcmVzdCBvZiB0aGUgbW9kdWxlcyBjYW4gYmUgbm9uLWdwbC4NCg0KVGhpcyBtZWFucyB0aGF0
+IGRyaXZlcnMgdGhhdCB3ZXJlIG1hcmtlZCBncGwgbm8gbG9uZ2VyIG5lZWQgdG8NCmJlIGJlY2F1
+c2UgdGhleSBub3cgdXNlIHRoZSB3cmFwcGVycy4NCg0KU28gaXQgaXMganVzdCBhbiBhbm5veWFu
+Y2UuDQoNCkZvcnR1bmF0ZWx5IG91ciBtYWluIG91dC1vZi10cmVlIGRyaXZlcnMgZG9uJ3QgdXNl
+IGFueSBHUEwgYml0cw0KYXQgYWxsIC0gc28gdGhpcyBjaGFuZ2UgZG9lc24ndCBhZmZlY3Qgb3Vy
+IGN1c3RvbWVyIHJlbGVhc2VzLg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExh
+a2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQs
+IFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
 
-And for the record I am not talking about this patch only. I am asking
-also what serious or real bug is being fixed by:
-"modules: mark find_symbol static
-find_symbol is only used in module.c."
-
-I would be really happy to extend my knowledge about real bugs faced by
-people, where the fix is to un-export unused symbol. It must have been
-very interesting, real bug bothering people. :)
-
-
-Best regards,
-Krzysztof
