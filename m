@@ -2,229 +2,1422 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0E463AC600
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 10:25:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B3083AC5FF
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 10:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233798AbhFRI04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 04:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39868 "EHLO mail.kernel.org"
+        id S233744AbhFRI0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 04:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233756AbhFRI0s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 04:26:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3EFB61351;
-        Fri, 18 Jun 2021 08:24:38 +0000 (UTC)
+        id S233745AbhFRI0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 04:26:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0449611ED;
+        Fri, 18 Jun 2021 08:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624004679;
-        bh=ccQhSs+nobOu8g8z0mYh374zOQhLUvAIEiwubaA62v8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=sl3A0Vm0jSg+k4wWx3P+EukQY157Cd8SMSo064GYaZlnDdkgIN+Lx4KQUkH45Vd8p
-         iP6I0Jn4DfHgxMQ7zX2tO1/owOVQAjiRS6p3RR+2FXKLuoqWgC/Y4Xi6qpuOLb0NhU
-         GsSCW+hVSiU4GYVDcmqyl/4Pg5VkvXqz4vqJY5LQ=
+        s=korg; t=1624004676;
+        bh=2D0s0zdp4e3kw3oW7yLM8OTFhpoSyUqL1qIoiWjhKlg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nLNAoDvAuTx+9g49d+8gWP2fpHOJxSXOzuLrYvjPqfYadKexyE1phXZ0mEiQVQsjf
+         ka4qruN6dY0QXEc+/YGnOflvYk+kOYKa7AsmgKnuVgMRhUr0sSIwwgACcN3vrfm8gy
+         g7y6SGKE+kZHfiApsKtzfk297YAkdFv0bNlnvrSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.12.12
-Date:   Fri, 18 Jun 2021 10:24:26 +0200
-Message-Id: <16240046674293@kroah.com>
+Subject: Re: Linux 5.12.12
+Date:   Fri, 18 Jun 2021 10:24:27 +0200
+Message-Id: <16240046678669@kroah.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <16240046674293@kroah.com>
+References: <16240046674293@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.12.12 kernel.
-
-All users of the 5.12 kernel series must upgrade.
-
-The updated 5.12.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.12.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                              |    2 
- arch/arm/mach-omap1/pm.c                              |   10 +++-
- arch/arm/mach-omap2/board-n8x0.c                      |    2 
- arch/riscv/Makefile                                   |    9 +++
- drivers/bluetooth/btusb.c                             |    2 
- drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c        |   42 +++++++++---------
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h               |    1 
- drivers/gpu/drm/amd/amdgpu/psp_v11_0.c                |    3 -
- drivers/gpu/drm/amd/amdgpu/psp_v3_1.c                 |    3 -
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c     |    4 -
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c |    2 
- drivers/gpu/drm/tegra/sor.c                           |   41 +++++++++--------
- drivers/gpu/host1x/bus.c                              |   30 ++++++++++--
- drivers/hid/Kconfig                                   |    4 -
- drivers/hid/hid-a4tech.c                              |    2 
- drivers/hid/hid-asus.c                                |   12 ++++-
- drivers/hid/hid-core.c                                |    3 +
- drivers/hid/hid-debug.c                               |    1 
- drivers/hid/hid-gt683r.c                              |    1 
- drivers/hid/hid-ids.h                                 |    4 +
- drivers/hid/hid-input.c                               |    3 +
- drivers/hid/hid-multitouch.c                          |   36 ++++++++++++---
- drivers/hid/hid-quirks.c                              |    4 +
- drivers/hid/hid-sensor-hub.c                          |   13 +++--
- drivers/hid/intel-ish-hid/ipc/hw-ish.h                |    2 
- drivers/hid/intel-ish-hid/ipc/pci-ish.c               |    2 
- drivers/hid/usbhid/hid-core.c                         |    2 
- drivers/hwmon/pmbus/q54sj108a2.c                      |    2 
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c      |    1 
- drivers/net/wireless/mediatek/mt76/mt7921/init.c      |    4 -
- drivers/net/wireless/mediatek/mt76/mt7921/main.c      |    3 -
- drivers/nvme/target/loop.c                            |   11 +++-
- drivers/scsi/qedf/qedf_main.c                         |   20 +++-----
- drivers/scsi/scsi_devinfo.c                           |    1 
- drivers/target/target_core_transport.c                |    4 -
- fs/gfs2/file.c                                        |    5 +-
- fs/gfs2/glock.c                                       |   26 +++++++++--
- fs/gfs2/log.c                                         |    6 +-
- fs/gfs2/log.h                                         |    1 
- fs/gfs2/lops.c                                        |    7 ++-
- fs/gfs2/lops.h                                        |    1 
- fs/gfs2/util.c                                        |    1 
- include/linux/hid.h                                   |    3 -
- include/linux/host1x.h                                |   30 ++++++++++--
- include/uapi/linux/input-event-codes.h                |    1 
- net/compat.c                                          |    2 
- net/core/fib_rules.c                                  |    2 
- net/core/rtnetlink.c                                  |    4 +
- net/ieee802154/nl802154.c                             |    9 ++-
- net/ipv4/ipconfig.c                                   |   13 +++--
- net/x25/af_x25.c                                      |    2 
- sound/hda/intel-dsp-config.c                          |    4 +
- sound/pci/hda/hda_intel.c                             |    3 +
- 53 files changed, 287 insertions(+), 119 deletions(-)
-
-Ahelenia Ziemiańska (1):
-      HID: multitouch: set Stylus suffix for Stylus-application devices, too
-
-Andreas Gruenbacher (1):
-      gfs2: Prevent direct-I/O write fallback errors from getting lost
-
-Anirudh Rayabharam (1):
-      HID: usbhid: fix info leak in hid_submit_ctrl
-
-Bindu Ramamurthy (1):
-      drm/amd/display: Allow bandwidth validation for 0 streams.
-
-Bixuan Cui (1):
-      HID: gt683r: add missing MODULE_DEVICE_TABLE
-
-Bob Peterson (2):
-      gfs2: fix a deadlock on withdraw-during-mount
-      gfs2: Clean up revokes on normal withdraws
-
-Chu Lin (1):
-      hwmon/pmbus: (q54sj108a2) The PMBUS_MFR_ID is actually 6 chars instead of 5
-
-Dan Robertson (1):
-      net: ieee802154: fix null deref in parse dev addr
-
-Daniel Wagner (1):
-      scsi: qedf: Do not put host in qedf_vport_create() unconditionally
-
-Dmitry Torokhov (1):
-      HID: hid-input: add mapping for emoji picker key
-
-Ewan D. Milne (1):
-      scsi: scsi_devinfo: Add blacklist entry for HPE OPEN-V
-
-Felix Fietkau (2):
-      mt76: mt7921: fix max aggregation subframes setting
-      mt76: mt7921: remove leftover 80+80 HE capability
-
-Greg Kroah-Hartman (1):
-      Linux 5.12.12
-
-Hannes Reinecke (4):
-      nvme-loop: reset queue count to 1 in nvme_loop_destroy_io_queues()
-      nvme-loop: clear NVME_LOOP_Q_LIVE when nvme_loop_configure_admin_queue() fails
-      nvme-loop: check for NVME_LOOP_Q_LIVE in nvme_loop_destroy_admin_queue()
-      nvme-loop: do not warn for deleted controllers during reset
-
-Hans de Goede (2):
-      HID: quirks: Add HID_QUIRK_NO_INIT_REPORTS quirk for Dell K15A keyboard-dock
-      HID: multitouch: Disable event reporting on suspend on the Asus T101HA touchpad
-
-Hillf Danton (1):
-      gfs2: Fix use-after-free in gfs2_glock_shrink_scan
-
-Jiansong Chen (1):
-      drm/amdgpu: refine amdgpu_fru_get_product_info
-
-Jiapeng Chong (2):
-      ethernet: myri10ge: Fix missing error code in myri10ge_probe()
-      rtnetlink: Fix missing error code in rtnl_bridge_notify()
-
-Josh Triplett (1):
-      net: ipconfig: Don't override command-line hostnames or domains
-
-Kai Vehmanen (1):
-      ALSA: hda: Add AlderLake-M PCI ID
-
-Khem Raj (1):
-      riscv: Use -mno-relax when using lld linker
-
-Larry Finger (1):
-      Bluetooth: Add a new USB ID for RTL8822CE
-
-Luke D Jones (2):
-      HID: asus: Filter keyboard EC for old ROG keyboard
-      HID: asus: filter G713/G733 key event to prevent shutdown
-
-Maciej Falkowski (1):
-      ARM: OMAP1: Fix use of possibly uninitialized irq variable
-
-Mark Bolhuis (1):
-      HID: Add BUS_VIRTUAL to hid_connect logging
-
-Mateusz Jończyk (1):
-      HID: a4tech: use A4_2WHEEL_MOUSE_HACK_B8 for A4TECH NB-95
-
-Maurizio Lombardi (1):
-      scsi: target: core: Fix warning on realtime kernels
-
-Nirenjan Krishnan (1):
-      HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for Saitek X65
-
-Pavel Machek (CIP) (1):
-      drm/tegra: sor: Do not leak runtime PM reference
-
-Roman Li (1):
-      drm/amd/display: Fix potential memory leak in DMUB hw_init
-
-Saeed Mirzamohammadi (1):
-      HID: quirks: Add quirk for Lenovo optical mouse
-
-Srinivas Pandruvada (1):
-      HID: hid-sensor-hub: Return error for hid_set_field() failure
-
-Thierry Reding (2):
-      gpu: host1x: Split up client initalization and registration
-      drm/tegra: sor: Fully initialize SOR before registration
-
-Victor Zhao (1):
-      drm/amd/amdgpu:save psp ring wptr to avoid attack
-
-Ye Xiang (1):
-      HID: intel-ish-hid: ipc: Add Alder Lake device IDs
-
-Yongqiang Liu (1):
-      ARM: OMAP2+: Fix build warning when mmc_omap is not built
-
-Zheng Yongjun (3):
-      net/x25: Return the correct errno code
-      net: Return the correct errno code
-      fib: Return the correct errno code
-
+diff --git a/Makefile b/Makefile
+index 82ca490ce5f4..e0a252b64463 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 12
+-SUBLEVEL = 11
++SUBLEVEL = 12
+ EXTRAVERSION =
+ NAME = Frozen Wasteland
+ 
+diff --git a/arch/arm/mach-omap1/pm.c b/arch/arm/mach-omap1/pm.c
+index 2c1e2b32b9b3..a745d64d4699 100644
+--- a/arch/arm/mach-omap1/pm.c
++++ b/arch/arm/mach-omap1/pm.c
+@@ -655,9 +655,13 @@ static int __init omap_pm_init(void)
+ 		irq = INT_7XX_WAKE_UP_REQ;
+ 	else if (cpu_is_omap16xx())
+ 		irq = INT_1610_WAKE_UP_REQ;
+-	if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup",
+-			NULL))
+-		pr_err("Failed to request irq %d (peripheral wakeup)\n", irq);
++	else
++		irq = -1;
++
++	if (irq >= 0) {
++		if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup", NULL))
++			pr_err("Failed to request irq %d (peripheral wakeup)\n", irq);
++	}
+ 
+ 	/* Program new power ramp-up time
+ 	 * (0 for most boards since we don't lower voltage when in deep sleep)
+diff --git a/arch/arm/mach-omap2/board-n8x0.c b/arch/arm/mach-omap2/board-n8x0.c
+index 418a61ecb827..5e86145db0e2 100644
+--- a/arch/arm/mach-omap2/board-n8x0.c
++++ b/arch/arm/mach-omap2/board-n8x0.c
+@@ -322,6 +322,7 @@ static int n8x0_mmc_get_cover_state(struct device *dev, int slot)
+ 
+ static void n8x0_mmc_callback(void *data, u8 card_mask)
+ {
++#ifdef CONFIG_MMC_OMAP
+ 	int bit, *openp, index;
+ 
+ 	if (board_is_n800()) {
+@@ -339,7 +340,6 @@ static void n8x0_mmc_callback(void *data, u8 card_mask)
+ 	else
+ 		*openp = 0;
+ 
+-#ifdef CONFIG_MMC_OMAP
+ 	omap_mmc_notify_cover_event(mmc_device, index, *openp);
+ #else
+ 	pr_warn("MMC: notify cover event not available\n");
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 1368d943f1f3..5243bf2327c0 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -38,6 +38,15 @@ else
+ 	KBUILD_LDFLAGS += -melf32lriscv
+ endif
+ 
++ifeq ($(CONFIG_LD_IS_LLD),y)
++	KBUILD_CFLAGS += -mno-relax
++	KBUILD_AFLAGS += -mno-relax
++ifneq ($(LLVM_IAS),1)
++	KBUILD_CFLAGS += -Wa,-mno-relax
++	KBUILD_AFLAGS += -Wa,-mno-relax
++endif
++endif
++
+ # ISA string setting
+ riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32ima
+ riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 4a901508e48e..ddc7b86725cd 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -388,6 +388,8 @@ static const struct usb_device_id blacklist_table[] = {
+ 	/* Realtek 8822CE Bluetooth devices */
+ 	{ USB_DEVICE(0x0bda, 0xb00c), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x0bda, 0xc822), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
+ 
+ 	/* Realtek 8852AE Bluetooth devices */
+ 	{ USB_DEVICE(0x0bda, 0xc852), .driver_info = BTUSB_REALTEK |
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c
+index 8f4a8f8d8146..39b6c6bfab45 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c
+@@ -101,7 +101,8 @@ static int amdgpu_fru_read_eeprom(struct amdgpu_device *adev, uint32_t addrptr,
+ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
+ {
+ 	unsigned char buff[34];
+-	int addrptr = 0, size = 0;
++	int addrptr, size;
++	int len;
+ 
+ 	if (!is_fru_eeprom_supported(adev))
+ 		return 0;
+@@ -109,7 +110,7 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
+ 	/* If algo exists, it means that the i2c_adapter's initialized */
+ 	if (!adev->pm.smu_i2c.algo) {
+ 		DRM_WARN("Cannot access FRU, EEPROM accessor not initialized");
+-		return 0;
++		return -ENODEV;
+ 	}
+ 
+ 	/* There's a lot of repetition here. This is due to the FRU having
+@@ -128,7 +129,7 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
+ 	size = amdgpu_fru_read_eeprom(adev, addrptr, buff);
+ 	if (size < 1) {
+ 		DRM_ERROR("Failed to read FRU Manufacturer, ret:%d", size);
+-		return size;
++		return -EINVAL;
+ 	}
+ 
+ 	/* Increment the addrptr by the size of the field, and 1 due to the
+@@ -138,43 +139,45 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
+ 	size = amdgpu_fru_read_eeprom(adev, addrptr, buff);
+ 	if (size < 1) {
+ 		DRM_ERROR("Failed to read FRU product name, ret:%d", size);
+-		return size;
++		return -EINVAL;
+ 	}
+ 
++	len = size;
+ 	/* Product name should only be 32 characters. Any more,
+ 	 * and something could be wrong. Cap it at 32 to be safe
+ 	 */
+-	if (size > 32) {
++	if (len >= sizeof(adev->product_name)) {
+ 		DRM_WARN("FRU Product Number is larger than 32 characters. This is likely a mistake");
+-		size = 32;
++		len = sizeof(adev->product_name) - 1;
+ 	}
+ 	/* Start at 2 due to buff using fields 0 and 1 for the address */
+-	memcpy(adev->product_name, &buff[2], size);
+-	adev->product_name[size] = '\0';
++	memcpy(adev->product_name, &buff[2], len);
++	adev->product_name[len] = '\0';
+ 
+ 	addrptr += size + 1;
+ 	size = amdgpu_fru_read_eeprom(adev, addrptr, buff);
+ 	if (size < 1) {
+ 		DRM_ERROR("Failed to read FRU product number, ret:%d", size);
+-		return size;
++		return -EINVAL;
+ 	}
+ 
++	len = size;
+ 	/* Product number should only be 16 characters. Any more,
+ 	 * and something could be wrong. Cap it at 16 to be safe
+ 	 */
+-	if (size > 16) {
++	if (len >= sizeof(adev->product_number)) {
+ 		DRM_WARN("FRU Product Number is larger than 16 characters. This is likely a mistake");
+-		size = 16;
++		len = sizeof(adev->product_number) - 1;
+ 	}
+-	memcpy(adev->product_number, &buff[2], size);
+-	adev->product_number[size] = '\0';
++	memcpy(adev->product_number, &buff[2], len);
++	adev->product_number[len] = '\0';
+ 
+ 	addrptr += size + 1;
+ 	size = amdgpu_fru_read_eeprom(adev, addrptr, buff);
+ 
+ 	if (size < 1) {
+ 		DRM_ERROR("Failed to read FRU product version, ret:%d", size);
+-		return size;
++		return -EINVAL;
+ 	}
+ 
+ 	addrptr += size + 1;
+@@ -182,18 +185,19 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
+ 
+ 	if (size < 1) {
+ 		DRM_ERROR("Failed to read FRU serial number, ret:%d", size);
+-		return size;
++		return -EINVAL;
+ 	}
+ 
++	len = size;
+ 	/* Serial number should only be 16 characters. Any more,
+ 	 * and something could be wrong. Cap it at 16 to be safe
+ 	 */
+-	if (size > 16) {
++	if (len >= sizeof(adev->serial)) {
+ 		DRM_WARN("FRU Serial Number is larger than 16 characters. This is likely a mistake");
+-		size = 16;
++		len = sizeof(adev->serial) - 1;
+ 	}
+-	memcpy(adev->serial, &buff[2], size);
+-	adev->serial[size] = '\0';
++	memcpy(adev->serial, &buff[2], len);
++	adev->serial[len] = '\0';
+ 
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
+index cb50ba445f8c..0fd62a8e68c2 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
+@@ -76,6 +76,7 @@ struct psp_ring
+ 	uint64_t			ring_mem_mc_addr;
+ 	void				*ring_mem_handle;
+ 	uint32_t			ring_size;
++	uint32_t			ring_wptr;
+ };
+ 
+ /* More registers may will be supported */
+diff --git a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
+index c325d6f53a71..d39735a89a25 100644
+--- a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
+@@ -720,7 +720,7 @@ static uint32_t psp_v11_0_ring_get_wptr(struct psp_context *psp)
+ 	struct amdgpu_device *adev = psp->adev;
+ 
+ 	if (amdgpu_sriov_vf(adev))
+-		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102);
++		data = psp->km_ring.ring_wptr;
+ 	else
+ 		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67);
+ 
+@@ -734,6 +734,7 @@ static void psp_v11_0_ring_set_wptr(struct psp_context *psp, uint32_t value)
+ 	if (amdgpu_sriov_vf(adev)) {
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102, value);
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101, GFX_CTRL_CMD_ID_CONSUME_CMD);
++		psp->km_ring.ring_wptr = value;
+ 	} else
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67, value);
+ }
+diff --git a/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c b/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c
+index f2e725f72d2f..908664a5774b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c
++++ b/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c
+@@ -379,7 +379,7 @@ static uint32_t psp_v3_1_ring_get_wptr(struct psp_context *psp)
+ 	struct amdgpu_device *adev = psp->adev;
+ 
+ 	if (amdgpu_sriov_vf(adev))
+-		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102);
++		data = psp->km_ring.ring_wptr;
+ 	else
+ 		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67);
+ 	return data;
+@@ -394,6 +394,7 @@ static void psp_v3_1_ring_set_wptr(struct psp_context *psp, uint32_t value)
+ 		/* send interrupt to PSP for SRIOV ring write pointer update */
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101,
+ 			GFX_CTRL_CMD_ID_CONSUME_CMD);
++		psp->km_ring.ring_wptr = value;
+ 	} else
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67, value);
+ }
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index b63f55ea8758..eed494630583 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -871,7 +871,8 @@ static int dm_dmub_hw_init(struct amdgpu_device *adev)
+ 		abm->dmcu_is_running = dmcu->funcs->is_dmcu_initialized(dmcu);
+ 	}
+ 
+-	adev->dm.dc->ctx->dmub_srv = dc_dmub_srv_create(adev->dm.dc, dmub_srv);
++	if (!adev->dm.dc->ctx->dmub_srv)
++		adev->dm.dc->ctx->dmub_srv = dc_dmub_srv_create(adev->dm.dc, dmub_srv);
+ 	if (!adev->dm.dc->ctx->dmub_srv) {
+ 		DRM_ERROR("Couldn't allocate DC DMUB server!\n");
+ 		return -ENOMEM;
+@@ -1863,7 +1864,6 @@ static int dm_suspend(void *handle)
+ 
+ 	amdgpu_dm_irq_suspend(adev);
+ 
+-
+ 	dc_set_power_state(dm->dc, DC_ACPI_CM_POWER_STATE_D3);
+ 
+ 	return 0;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+index bfbc23b76cd5..3e3c898848bd 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -3231,7 +3231,7 @@ static noinline bool dcn20_validate_bandwidth_fp(struct dc *dc,
+ 	voltage_supported = dcn20_validate_bandwidth_internal(dc, context, false);
+ 	dummy_pstate_supported = context->bw_ctx.bw.dcn.clk.p_state_change_support;
+ 
+-	if (voltage_supported && dummy_pstate_supported) {
++	if (voltage_supported && (dummy_pstate_supported || !(context->stream_count))) {
+ 		context->bw_ctx.bw.dcn.clk.p_state_change_support = false;
+ 		goto restore_dml_state;
+ 	}
+diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
+index 7b88261f57bb..32c83f2e386c 100644
+--- a/drivers/gpu/drm/tegra/sor.c
++++ b/drivers/gpu/drm/tegra/sor.c
+@@ -3125,21 +3125,21 @@ static int tegra_sor_init(struct host1x_client *client)
+ 		if (err < 0) {
+ 			dev_err(sor->dev, "failed to acquire SOR reset: %d\n",
+ 				err);
+-			return err;
++			goto rpm_put;
+ 		}
+ 
+ 		err = reset_control_assert(sor->rst);
+ 		if (err < 0) {
+ 			dev_err(sor->dev, "failed to assert SOR reset: %d\n",
+ 				err);
+-			return err;
++			goto rpm_put;
+ 		}
+ 	}
+ 
+ 	err = clk_prepare_enable(sor->clk);
+ 	if (err < 0) {
+ 		dev_err(sor->dev, "failed to enable clock: %d\n", err);
+-		return err;
++		goto rpm_put;
+ 	}
+ 
+ 	usleep_range(1000, 3000);
+@@ -3150,7 +3150,7 @@ static int tegra_sor_init(struct host1x_client *client)
+ 			dev_err(sor->dev, "failed to deassert SOR reset: %d\n",
+ 				err);
+ 			clk_disable_unprepare(sor->clk);
+-			return err;
++			goto rpm_put;
+ 		}
+ 
+ 		reset_control_release(sor->rst);
+@@ -3171,6 +3171,12 @@ static int tegra_sor_init(struct host1x_client *client)
+ 	}
+ 
+ 	return 0;
++
++rpm_put:
++	if (sor->rst)
++		pm_runtime_put(sor->dev);
++
++	return err;
+ }
+ 
+ static int tegra_sor_exit(struct host1x_client *client)
+@@ -3916,17 +3922,10 @@ static int tegra_sor_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, sor);
+ 	pm_runtime_enable(&pdev->dev);
+ 
+-	INIT_LIST_HEAD(&sor->client.list);
++	host1x_client_init(&sor->client);
+ 	sor->client.ops = &sor_client_ops;
+ 	sor->client.dev = &pdev->dev;
+ 
+-	err = host1x_client_register(&sor->client);
+-	if (err < 0) {
+-		dev_err(&pdev->dev, "failed to register host1x client: %d\n",
+-			err);
+-		goto rpm_disable;
+-	}
+-
+ 	/*
+ 	 * On Tegra210 and earlier, provide our own implementation for the
+ 	 * pad output clock.
+@@ -3938,13 +3937,13 @@ static int tegra_sor_probe(struct platform_device *pdev)
+ 				      sor->index);
+ 		if (!name) {
+ 			err = -ENOMEM;
+-			goto unregister;
++			goto uninit;
+ 		}
+ 
+ 		err = host1x_client_resume(&sor->client);
+ 		if (err < 0) {
+ 			dev_err(sor->dev, "failed to resume: %d\n", err);
+-			goto unregister;
++			goto uninit;
+ 		}
+ 
+ 		sor->clk_pad = tegra_clk_sor_pad_register(sor, name);
+@@ -3955,14 +3954,20 @@ static int tegra_sor_probe(struct platform_device *pdev)
+ 		err = PTR_ERR(sor->clk_pad);
+ 		dev_err(sor->dev, "failed to register SOR pad clock: %d\n",
+ 			err);
+-		goto unregister;
++		goto uninit;
++	}
++
++	err = __host1x_client_register(&sor->client);
++	if (err < 0) {
++		dev_err(&pdev->dev, "failed to register host1x client: %d\n",
++			err);
++		goto uninit;
+ 	}
+ 
+ 	return 0;
+ 
+-unregister:
+-	host1x_client_unregister(&sor->client);
+-rpm_disable:
++uninit:
++	host1x_client_exit(&sor->client);
+ 	pm_runtime_disable(&pdev->dev);
+ remove:
+ 	tegra_output_remove(&sor->output);
+diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
+index 68a766ff0e9d..b98d746141a8 100644
+--- a/drivers/gpu/host1x/bus.c
++++ b/drivers/gpu/host1x/bus.c
+@@ -704,6 +704,29 @@ void host1x_driver_unregister(struct host1x_driver *driver)
+ }
+ EXPORT_SYMBOL(host1x_driver_unregister);
+ 
++/**
++ * __host1x_client_init() - initialize a host1x client
++ * @client: host1x client
++ * @key: lock class key for the client-specific mutex
++ */
++void __host1x_client_init(struct host1x_client *client, struct lock_class_key *key)
++{
++	INIT_LIST_HEAD(&client->list);
++	__mutex_init(&client->lock, "host1x client lock", key);
++	client->usecount = 0;
++}
++EXPORT_SYMBOL(__host1x_client_init);
++
++/**
++ * host1x_client_exit() - uninitialize a host1x client
++ * @client: host1x client
++ */
++void host1x_client_exit(struct host1x_client *client)
++{
++	mutex_destroy(&client->lock);
++}
++EXPORT_SYMBOL(host1x_client_exit);
++
+ /**
+  * __host1x_client_register() - register a host1x client
+  * @client: host1x client
+@@ -716,16 +739,11 @@ EXPORT_SYMBOL(host1x_driver_unregister);
+  * device and call host1x_device_init(), which will in turn call each client's
+  * &host1x_client_ops.init implementation.
+  */
+-int __host1x_client_register(struct host1x_client *client,
+-			     struct lock_class_key *key)
++int __host1x_client_register(struct host1x_client *client)
+ {
+ 	struct host1x *host1x;
+ 	int err;
+ 
+-	INIT_LIST_HEAD(&client->list);
+-	__mutex_init(&client->lock, "host1x client lock", key);
+-	client->usecount = 0;
+-
+ 	mutex_lock(&devices_lock);
+ 
+ 	list_for_each_entry(host1x, &devices, list) {
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 786b71ef7738..c6a643f4fc5f 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -93,11 +93,11 @@ menu "Special HID drivers"
+ 	depends on HID
+ 
+ config HID_A4TECH
+-	tristate "A4 tech mice"
++	tristate "A4TECH mice"
+ 	depends on HID
+ 	default !EXPERT
+ 	help
+-	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
++	Support for some A4TECH mice with two scroll wheels.
+ 
+ config HID_ACCUTOUCH
+ 	tristate "Accutouch touch device"
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 3a8c4a5971f7..2cbc32dda7f7 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -147,6 +147,8 @@ static const struct hid_device_id a4_devices[] = {
+ 		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649),
+ 		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_NB_95),
++		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, a4_devices);
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 2ab22b925941..60606c11bdaf 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -335,7 +335,7 @@ static int asus_raw_event(struct hid_device *hdev,
+ 	if (drvdata->quirks & QUIRK_MEDION_E1239T)
+ 		return asus_e1239t_event(drvdata, data, size);
+ 
+-	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
++	if (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) {
+ 		/*
+ 		 * Skip these report ID, the device emits a continuous stream associated
+ 		 * with the AURA mode it is in which looks like an 'echo'.
+@@ -355,6 +355,16 @@ static int asus_raw_event(struct hid_device *hdev,
+ 				return -1;
+ 			}
+ 		}
++		if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
++			/*
++			 * G713 and G733 send these codes on some keypresses, depending on
++			 * the key pressed it can trigger a shutdown event if not caught.
++			*/
++			if(data[0] == 0x02 && data[1] == 0x30) {
++				return -1;
++			}
++		}
++
+ 	}
+ 
+ 	return 0;
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 097cb1ee3126..0f69f35f2957 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2005,6 +2005,9 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 	case BUS_I2C:
+ 		bus = "I2C";
+ 		break;
++	case BUS_VIRTUAL:
++		bus = "VIRTUAL";
++		break;
+ 	default:
+ 		bus = "<UNKNOWN>";
+ 	}
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index d7eaf9100370..982737827b87 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -929,6 +929,7 @@ static const char *keys[KEY_MAX + 1] = {
+ 	[KEY_APPSELECT] = "AppSelect",
+ 	[KEY_SCREENSAVER] = "ScreenSaver",
+ 	[KEY_VOICECOMMAND] = "VoiceCommand",
++	[KEY_EMOJI_PICKER] = "EmojiPicker",
+ 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
+ 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
+ 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
+diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
+index 898871c8c768..29ccb0accfba 100644
+--- a/drivers/hid/hid-gt683r.c
++++ b/drivers/hid/hid-gt683r.c
+@@ -54,6 +54,7 @@ static const struct hid_device_id gt683r_led_id[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(hid, gt683r_led_id);
+ 
+ static void gt683r_brightness_set(struct led_classdev *led_cdev,
+ 				enum led_brightness brightness)
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ba338973e968..03978111d944 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -26,6 +26,7 @@
+ #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
+ #define USB_DEVICE_ID_A4TECH_X5_005D	0x000a
+ #define USB_DEVICE_ID_A4TECH_RP_649	0x001a
++#define USB_DEVICE_ID_A4TECH_NB_95	0x022b
+ 
+ #define USB_VENDOR_ID_AASHIMA		0x06d6
+ #define USB_DEVICE_ID_AASHIMA_GAMEPAD	0x0025
+@@ -749,6 +750,7 @@
+ #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
+ #define USB_DEVICE_ID_LENOVO_X1_TAB	0x60a3
+ #define USB_DEVICE_ID_LENOVO_X1_TAB3	0x60b5
++#define USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E	0x600e
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019	0x6019
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E	0x602e
+@@ -1042,6 +1044,7 @@
+ #define USB_DEVICE_ID_SAITEK_X52	0x075c
+ #define USB_DEVICE_ID_SAITEK_X52_2	0x0255
+ #define USB_DEVICE_ID_SAITEK_X52_PRO	0x0762
++#define USB_DEVICE_ID_SAITEK_X65	0x0b6a
+ 
+ #define USB_VENDOR_ID_SAMSUNG		0x0419
+ #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
+@@ -1152,6 +1155,7 @@
+ #define USB_DEVICE_ID_SYNAPTICS_DELL_K12A	0x2819
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012	0x2968
+ #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
++#define USB_DEVICE_ID_SYNAPTICS_DELL_K15A	0x6e21
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1002	0x73f4
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003	0x73f5
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 236bccd37760..e982d8173c9c 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -963,6 +963,9 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 
+ 		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
+ 		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
++
++		case 0x0d9: map_key_clear(KEY_EMOJI_PICKER);	break;
++
+ 		case 0x0e0: map_abs_clear(ABS_VOLUME);		break;
+ 		case 0x0e2: map_key_clear(KEY_MUTE);		break;
+ 		case 0x0e5: map_key_clear(KEY_BASSBOOST);	break;
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 55dcb8536286..2e4fb76c45f3 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -70,6 +70,7 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_WIN8_PTP_BUTTONS	BIT(18)
+ #define MT_QUIRK_SEPARATE_APP_REPORT	BIT(19)
+ #define MT_QUIRK_FORCE_MULTI_INPUT	BIT(20)
++#define MT_QUIRK_DISABLE_WAKEUP		BIT(21)
+ 
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
+@@ -191,6 +192,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
+ #define MT_CLS_EXPORT_ALL_INPUTS		0x0013
+ /* reserved					0x0014 */
+ #define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
++#define MT_CLS_WIN_8_DISABLE_WAKEUP		0x0016
+ 
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -283,6 +285,15 @@ static const struct mt_class mt_classes[] = {
+ 			MT_QUIRK_WIN8_PTP_BUTTONS |
+ 			MT_QUIRK_FORCE_MULTI_INPUT,
+ 		.export_all_inputs = true },
++	{ .name = MT_CLS_WIN_8_DISABLE_WAKEUP,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_STICKY_FINGERS |
++			MT_QUIRK_WIN8_PTP_BUTTONS |
++			MT_QUIRK_DISABLE_WAKEUP,
++		.export_all_inputs = true },
+ 
+ 	/*
+ 	 * vendor specific classes
+@@ -763,7 +774,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			return 1;
+ 		case HID_DG_CONFIDENCE:
+ 			if ((cls->name == MT_CLS_WIN_8 ||
+-			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT) &&
++			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
++			     cls->name == MT_CLS_WIN_8_DISABLE_WAKEUP) &&
+ 				(field->application == HID_DG_TOUCHPAD ||
+ 				 field->application == HID_DG_TOUCHSCREEN))
+ 				app->quirks |= MT_QUIRK_CONFIDENCE;
+@@ -1580,13 +1592,13 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		/* we do not set suffix = "Touchscreen" */
+ 		hi->input->name = hdev->name;
+ 		break;
+-	case HID_DG_STYLUS:
+-		/* force BTN_STYLUS to allow tablet matching in udev */
+-		__set_bit(BTN_STYLUS, hi->input->keybit);
+-		break;
+ 	case HID_VD_ASUS_CUSTOM_MEDIA_KEYS:
+ 		suffix = "Custom Media Keys";
+ 		break;
++	case HID_DG_STYLUS:
++		/* force BTN_STYLUS to allow tablet matching in udev */
++		__set_bit(BTN_STYLUS, hi->input->keybit);
++		fallthrough;
+ 	case HID_DG_PEN:
+ 		suffix = "Stylus";
+ 		break;
+@@ -1753,8 +1765,14 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ #ifdef CONFIG_PM
+ static int mt_suspend(struct hid_device *hdev, pm_message_t state)
+ {
++	struct mt_device *td = hid_get_drvdata(hdev);
++
+ 	/* High latency is desirable for power savings during S3/S0ix */
+-	mt_set_modes(hdev, HID_LATENCY_HIGH, true, true);
++	if (td->mtclass.quirks & MT_QUIRK_DISABLE_WAKEUP)
++		mt_set_modes(hdev, HID_LATENCY_HIGH, false, false);
++	else
++		mt_set_modes(hdev, HID_LATENCY_HIGH, true, true);
++
+ 	return 0;
+ }
+ 
+@@ -1813,6 +1831,12 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
+ 			USB_DEVICE_ID_ANTON_TOUCH_PAD) },
+ 
++	/* Asus T101HA */
++	{ .driver_data = MT_CLS_WIN_8_DISABLE_WAKEUP,
++		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
++			   USB_VENDOR_ID_ASUSTEK,
++			   USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD) },
++
+ 	/* Asus T304UA */
+ 	{ .driver_data = MT_CLS_ASUS,
+ 		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 1a9daf03dbfa..bb2b60bc618f 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -110,6 +110,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_PENSKETCH_M912), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M406XE), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E), HID_QUIRK_ALWAYS_POLL },
+@@ -158,6 +159,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_PRO), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X65), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
+@@ -176,6 +178,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DELL_K12A), HID_QUIRK_NO_INIT_REPORTS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DELL_K15A), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD), HID_QUIRK_BADPAD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
+@@ -211,6 +214,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_NB_95) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_ACCUTOUCH)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 3dd7d3246737..f9983145d4e7 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -210,16 +210,21 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 	buffer_size = buffer_size / sizeof(__s32);
+ 	if (buffer_size) {
+ 		for (i = 0; i < buffer_size; ++i) {
+-			hid_set_field(report->field[field_index], i,
+-				      (__force __s32)cpu_to_le32(*buf32));
++			ret = hid_set_field(report->field[field_index], i,
++					    (__force __s32)cpu_to_le32(*buf32));
++			if (ret)
++				goto done_proc;
++
+ 			++buf32;
+ 		}
+ 	}
+ 	if (remaining_bytes) {
+ 		value = 0;
+ 		memcpy(&value, (u8 *)buf32, remaining_bytes);
+-		hid_set_field(report->field[field_index], i,
+-			      (__force __s32)cpu_to_le32(value));
++		ret = hid_set_field(report->field[field_index], i,
++				    (__force __s32)cpu_to_le32(value));
++		if (ret)
++			goto done_proc;
+ 	}
+ 	hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
+ 	hid_hw_wait(hsdev->hdev);
+diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+index 21b87e4003af..07e3cbc86bef 100644
+--- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
++++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
+@@ -28,6 +28,8 @@
+ #define EHL_Ax_DEVICE_ID	0x4BB3
+ #define TGL_LP_DEVICE_ID	0xA0FC
+ #define TGL_H_DEVICE_ID		0x43FC
++#define ADL_S_DEVICE_ID		0x7AF8
++#define ADL_P_DEVICE_ID		0x51FC
+ 
+ #define	REVISION_ID_CHT_A0	0x6
+ #define	REVISION_ID_CHT_Ax_SI	0x0
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index 06081cf9b85a..a6d5173ac003 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -39,6 +39,8 @@ static const struct pci_device_id ish_pci_tbl[] = {
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, EHL_Ax_DEVICE_ID)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, TGL_LP_DEVICE_ID)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, TGL_H_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ADL_S_DEVICE_ID)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ADL_P_DEVICE_ID)},
+ 	{0, }
+ };
+ MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 86257ce6d619..4e9077363c96 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -374,7 +374,7 @@ static int hid_submit_ctrl(struct hid_device *hid)
+ 	raw_report = usbhid->ctrl[usbhid->ctrltail].raw_report;
+ 	dir = usbhid->ctrl[usbhid->ctrltail].dir;
+ 
+-	len = ((report->size - 1) >> 3) + 1 + (report->id > 0);
++	len = hid_report_len(report);
+ 	if (dir == USB_DIR_OUT) {
+ 		usbhid->urbctrl->pipe = usb_sndctrlpipe(hid_to_usb_dev(hid), 0);
+ 		usbhid->urbctrl->transfer_buffer_length = len;
+diff --git a/drivers/hwmon/pmbus/q54sj108a2.c b/drivers/hwmon/pmbus/q54sj108a2.c
+index aec512766c31..0976268b2670 100644
+--- a/drivers/hwmon/pmbus/q54sj108a2.c
++++ b/drivers/hwmon/pmbus/q54sj108a2.c
+@@ -299,7 +299,7 @@ static int q54sj108a2_probe(struct i2c_client *client)
+ 		dev_err(&client->dev, "Failed to read Manufacturer ID\n");
+ 		return ret;
+ 	}
+-	if (ret != 5 || strncmp(buf, "DELTA", 5)) {
++	if (ret != 6 || strncmp(buf, "DELTA", 5)) {
+ 		buf[ret] = '\0';
+ 		dev_err(dev, "Unsupported Manufacturer ID '%s'\n", buf);
+ 		return -ENODEV;
+diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+index c84c8bf2bc20..fc99ad8e4a38 100644
+--- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
++++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+@@ -3815,6 +3815,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		dev_err(&pdev->dev,
+ 			"invalid sram_size %dB or board span %ldB\n",
+ 			mgp->sram_size, mgp->board_span);
++		status = -EINVAL;
+ 		goto abort_with_ioremap;
+ 	}
+ 	memcpy_fromio(mgp->eeprom_strings,
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/init.c b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
+index 89a13b4a74a4..c0001e38fcce 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
+@@ -74,8 +74,8 @@ mt7921_init_wiphy(struct ieee80211_hw *hw)
+ 	struct wiphy *wiphy = hw->wiphy;
+ 
+ 	hw->queues = 4;
+-	hw->max_rx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF;
+-	hw->max_tx_aggregation_subframes = IEEE80211_MAX_AMPDU_BUF;
++	hw->max_rx_aggregation_subframes = 64;
++	hw->max_tx_aggregation_subframes = 128;
+ 
+ 	phy->slottime = 9;
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+index ada943c7a950..2c781b6f89e5 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -74,8 +74,7 @@ mt7921_init_he_caps(struct mt7921_phy *phy, enum nl80211_band band,
+ 				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_IN_2G;
+ 		else if (band == NL80211_BAND_5GHZ)
+ 			he_cap_elem->phy_cap_info[0] =
+-				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_80MHZ_IN_5G |
+-				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_80PLUS80_MHZ_IN_5G;
++				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_80MHZ_IN_5G;
+ 
+ 		he_cap_elem->phy_cap_info[1] =
+ 			IEEE80211_HE_PHY_CAP1_LDPC_CODING_IN_PAYLOAD;
+diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
+index 14913a4588ec..0f22f333ff24 100644
+--- a/drivers/nvme/target/loop.c
++++ b/drivers/nvme/target/loop.c
+@@ -261,7 +261,8 @@ static const struct blk_mq_ops nvme_loop_admin_mq_ops = {
+ 
+ static void nvme_loop_destroy_admin_queue(struct nvme_loop_ctrl *ctrl)
+ {
+-	clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[0].flags);
++	if (!test_and_clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[0].flags))
++		return;
+ 	nvmet_sq_destroy(&ctrl->queues[0].nvme_sq);
+ 	blk_cleanup_queue(ctrl->ctrl.admin_q);
+ 	blk_cleanup_queue(ctrl->ctrl.fabrics_q);
+@@ -297,6 +298,7 @@ static void nvme_loop_destroy_io_queues(struct nvme_loop_ctrl *ctrl)
+ 		clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[i].flags);
+ 		nvmet_sq_destroy(&ctrl->queues[i].nvme_sq);
+ 	}
++	ctrl->ctrl.queue_count = 1;
+ }
+ 
+ static int nvme_loop_init_io_queues(struct nvme_loop_ctrl *ctrl)
+@@ -403,6 +405,7 @@ static int nvme_loop_configure_admin_queue(struct nvme_loop_ctrl *ctrl)
+ 	return 0;
+ 
+ out_cleanup_queue:
++	clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[0].flags);
+ 	blk_cleanup_queue(ctrl->ctrl.admin_q);
+ out_cleanup_fabrics_q:
+ 	blk_cleanup_queue(ctrl->ctrl.fabrics_q);
+@@ -460,8 +463,10 @@ static void nvme_loop_reset_ctrl_work(struct work_struct *work)
+ 	nvme_loop_shutdown_ctrl(ctrl);
+ 
+ 	if (!nvme_change_ctrl_state(&ctrl->ctrl, NVME_CTRL_CONNECTING)) {
+-		/* state change failure should never happen */
+-		WARN_ON_ONCE(1);
++		if (ctrl->ctrl.state != NVME_CTRL_DELETING &&
++		    ctrl->ctrl.state != NVME_CTRL_DELETING_NOIO)
++			/* state change failure for non-deleted ctrl? */
++			WARN_ON_ONCE(1);
+ 		return;
+ 	}
+ 
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index e5076f09d5ed..16a0470aedfc 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -1827,22 +1827,20 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
+ 		fcoe_wwn_to_str(vport->port_name, buf, sizeof(buf));
+ 		QEDF_WARN(&(base_qedf->dbg_ctx), "Failed to create vport, "
+ 			   "WWPN (0x%s) already exists.\n", buf);
+-		goto err1;
++		return rc;
+ 	}
+ 
+ 	if (atomic_read(&base_qedf->link_state) != QEDF_LINK_UP) {
+ 		QEDF_WARN(&(base_qedf->dbg_ctx), "Cannot create vport "
+ 			   "because link is not up.\n");
+-		rc = -EIO;
+-		goto err1;
++		return -EIO;
+ 	}
+ 
+ 	vn_port = libfc_vport_create(vport, sizeof(struct qedf_ctx));
+ 	if (!vn_port) {
+ 		QEDF_WARN(&(base_qedf->dbg_ctx), "Could not create lport "
+ 			   "for vport.\n");
+-		rc = -ENOMEM;
+-		goto err1;
++		return -ENOMEM;
+ 	}
+ 
+ 	fcoe_wwn_to_str(vport->port_name, buf, sizeof(buf));
+@@ -1866,7 +1864,7 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
+ 	if (rc) {
+ 		QEDF_ERR(&(base_qedf->dbg_ctx), "Could not allocate memory "
+ 		    "for lport stats.\n");
+-		goto err2;
++		goto err;
+ 	}
+ 
+ 	fc_set_wwnn(vn_port, vport->node_name);
+@@ -1884,7 +1882,7 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
+ 	if (rc) {
+ 		QEDF_WARN(&base_qedf->dbg_ctx,
+ 			  "Error adding Scsi_Host rc=0x%x.\n", rc);
+-		goto err2;
++		goto err;
+ 	}
+ 
+ 	/* Set default dev_loss_tmo based on module parameter */
+@@ -1925,9 +1923,10 @@ static int qedf_vport_create(struct fc_vport *vport, bool disabled)
+ 	vport_qedf->dbg_ctx.host_no = vn_port->host->host_no;
+ 	vport_qedf->dbg_ctx.pdev = base_qedf->pdev;
+ 
+-err2:
++	return 0;
++
++err:
+ 	scsi_host_put(vn_port->host);
+-err1:
+ 	return rc;
+ }
+ 
+@@ -1968,8 +1967,7 @@ static int qedf_vport_destroy(struct fc_vport *vport)
+ 	fc_lport_free_stats(vn_port);
+ 
+ 	/* Release Scsi_Host */
+-	if (vn_port->host)
+-		scsi_host_put(vn_port->host);
++	scsi_host_put(vn_port->host);
+ 
+ out:
+ 	return 0;
+diff --git a/drivers/scsi/scsi_devinfo.c b/drivers/scsi/scsi_devinfo.c
+index d92cec12454c..d33355ab6e14 100644
+--- a/drivers/scsi/scsi_devinfo.c
++++ b/drivers/scsi/scsi_devinfo.c
+@@ -184,6 +184,7 @@ static struct {
+ 	{"HP", "C3323-300", "4269", BLIST_NOTQ},
+ 	{"HP", "C5713A", NULL, BLIST_NOREPORTLUN},
+ 	{"HP", "DISK-SUBSYSTEM", "*", BLIST_REPORTLUN2},
++	{"HPE", "OPEN-", "*", BLIST_REPORTLUN2 | BLIST_TRY_VPD_PAGES},
+ 	{"IBM", "AuSaV1S2", NULL, BLIST_FORCELUN},
+ 	{"IBM", "ProFibre 4000R", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+ 	{"IBM", "2105", NULL, BLIST_RETRY_HWERROR},
+diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
+index 9e8cd07179d7..28479addb2d1 100644
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -2995,9 +2995,7 @@ __transport_wait_for_tasks(struct se_cmd *cmd, bool fabric_stop,
+ 	__releases(&cmd->t_state_lock)
+ 	__acquires(&cmd->t_state_lock)
+ {
+-
+-	assert_spin_locked(&cmd->t_state_lock);
+-	WARN_ON_ONCE(!irqs_disabled());
++	lockdep_assert_held(&cmd->t_state_lock);
+ 
+ 	if (fabric_stop)
+ 		cmd->transport_state |= CMD_T_FABRIC_STOP;
+diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
+index 2d500f90cdac..a86e6810237a 100644
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -935,8 +935,11 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 		current->backing_dev_info = inode_to_bdi(inode);
+ 		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
+ 		current->backing_dev_info = NULL;
+-		if (unlikely(buffered <= 0))
++		if (unlikely(buffered <= 0)) {
++			if (!ret)
++				ret = buffered;
+ 			goto out_unlock;
++		}
+ 
+ 		/*
+ 		 * We need to ensure that the page cache pages are written to
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 7c2ba81213da..4d70faa606dc 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -583,6 +583,16 @@ static void finish_xmote(struct gfs2_glock *gl, unsigned int ret)
+ 	spin_unlock(&gl->gl_lockref.lock);
+ }
+ 
++static bool is_system_glock(struct gfs2_glock *gl)
++{
++	struct gfs2_sbd *sdp = gl->gl_name.ln_sbd;
++	struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
++
++	if (gl == m_ip->i_gl)
++		return true;
++	return false;
++}
++
+ /**
+  * do_xmote - Calls the DLM to change the state of a lock
+  * @gl: The lock state
+@@ -672,17 +682,25 @@ __acquires(&gl->gl_lockref.lock)
+ 	 * to see sd_log_error and withdraw, and in the meantime, requeue the
+ 	 * work for later.
+ 	 *
++	 * We make a special exception for some system glocks, such as the
++	 * system statfs inode glock, which needs to be granted before the
++	 * gfs2_quotad daemon can exit, and that exit needs to finish before
++	 * we can unmount the withdrawn file system.
++	 *
+ 	 * However, if we're just unlocking the lock (say, for unmount, when
+ 	 * gfs2_gl_hash_clear calls clear_glock) and recovery is complete
+ 	 * then it's okay to tell dlm to unlock it.
+ 	 */
+ 	if (unlikely(sdp->sd_log_error && !gfs2_withdrawn(sdp)))
+ 		gfs2_withdraw_delayed(sdp);
+-	if (glock_blocked_by_withdraw(gl)) {
+-		if (target != LM_ST_UNLOCKED ||
+-		    test_bit(SDF_WITHDRAW_RECOVERY, &sdp->sd_flags)) {
++	if (glock_blocked_by_withdraw(gl) &&
++	    (target != LM_ST_UNLOCKED ||
++	     test_bit(SDF_WITHDRAW_RECOVERY, &sdp->sd_flags))) {
++		if (!is_system_glock(gl)) {
+ 			gfs2_glock_queue_work(gl, GL_GLOCK_DFT_HOLD);
+ 			goto out;
++		} else {
++			clear_bit(GLF_INVALIDATE_IN_PROGRESS, &gl->gl_flags);
+ 		}
+ 	}
+ 
+@@ -1774,6 +1792,7 @@ __acquires(&lru_lock)
+ 	while(!list_empty(list)) {
+ 		gl = list_first_entry(list, struct gfs2_glock, gl_lru);
+ 		list_del_init(&gl->gl_lru);
++		clear_bit(GLF_LRU, &gl->gl_flags);
+ 		if (!spin_trylock(&gl->gl_lockref.lock)) {
+ add_back_to_lru:
+ 			list_add(&gl->gl_lru, &lru_list);
+@@ -1819,7 +1838,6 @@ static long gfs2_scan_glock_lru(int nr)
+ 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
+ 			list_move(&gl->gl_lru, &dispose);
+ 			atomic_dec(&lru_count);
+-			clear_bit(GLF_LRU, &gl->gl_flags);
+ 			freed++;
+ 			continue;
+ 		}
+diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
+index 6410281546f9..47287a7056fe 100644
+--- a/fs/gfs2/log.c
++++ b/fs/gfs2/log.c
+@@ -923,10 +923,10 @@ static void log_write_header(struct gfs2_sbd *sdp, u32 flags)
+ }
+ 
+ /**
+- * ail_drain - drain the ail lists after a withdraw
++ * gfs2_ail_drain - drain the ail lists after a withdraw
+  * @sdp: Pointer to GFS2 superblock
+  */
+-static void ail_drain(struct gfs2_sbd *sdp)
++void gfs2_ail_drain(struct gfs2_sbd *sdp)
+ {
+ 	struct gfs2_trans *tr;
+ 
+@@ -953,6 +953,7 @@ static void ail_drain(struct gfs2_sbd *sdp)
+ 		list_del(&tr->tr_list);
+ 		gfs2_trans_free(sdp, tr);
+ 	}
++	gfs2_drain_revokes(sdp);
+ 	spin_unlock(&sdp->sd_ail_lock);
+ }
+ 
+@@ -1159,7 +1160,6 @@ void gfs2_log_flush(struct gfs2_sbd *sdp, struct gfs2_glock *gl, u32 flags)
+ 	if (tr && list_empty(&tr->tr_list))
+ 		list_add(&tr->tr_list, &sdp->sd_ail1_list);
+ 	spin_unlock(&sdp->sd_ail_lock);
+-	ail_drain(sdp); /* frees all transactions */
+ 	tr = NULL;
+ 	goto out_end;
+ }
+diff --git a/fs/gfs2/log.h b/fs/gfs2/log.h
+index eea58015710e..fc905c2af53c 100644
+--- a/fs/gfs2/log.h
++++ b/fs/gfs2/log.h
+@@ -93,5 +93,6 @@ extern int gfs2_logd(void *data);
+ extern void gfs2_add_revoke(struct gfs2_sbd *sdp, struct gfs2_bufdata *bd);
+ extern void gfs2_glock_remove_revoke(struct gfs2_glock *gl);
+ extern void gfs2_flush_revokes(struct gfs2_sbd *sdp);
++extern void gfs2_ail_drain(struct gfs2_sbd *sdp);
+ 
+ #endif /* __LOG_DOT_H__ */
+diff --git a/fs/gfs2/lops.c b/fs/gfs2/lops.c
+index a82f4747aa8d..ef44d325e518 100644
+--- a/fs/gfs2/lops.c
++++ b/fs/gfs2/lops.c
+@@ -882,7 +882,7 @@ static void revoke_lo_before_commit(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
+ 	gfs2_log_write_page(sdp, page);
+ }
+ 
+-static void revoke_lo_after_commit(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
++void gfs2_drain_revokes(struct gfs2_sbd *sdp)
+ {
+ 	struct list_head *head = &sdp->sd_log_revokes;
+ 	struct gfs2_bufdata *bd;
+@@ -897,6 +897,11 @@ static void revoke_lo_after_commit(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
+ 	}
+ }
+ 
++static void revoke_lo_after_commit(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
++{
++	gfs2_drain_revokes(sdp);
++}
++
+ static void revoke_lo_before_scan(struct gfs2_jdesc *jd,
+ 				  struct gfs2_log_header_host *head, int pass)
+ {
+diff --git a/fs/gfs2/lops.h b/fs/gfs2/lops.h
+index 31b6dd0d2e5d..f707601597dc 100644
+--- a/fs/gfs2/lops.h
++++ b/fs/gfs2/lops.h
+@@ -20,6 +20,7 @@ extern void gfs2_log_submit_bio(struct bio **biop, int opf);
+ extern void gfs2_pin(struct gfs2_sbd *sdp, struct buffer_head *bh);
+ extern int gfs2_find_jhead(struct gfs2_jdesc *jd,
+ 			   struct gfs2_log_header_host *head, bool keep_cache);
++extern void gfs2_drain_revokes(struct gfs2_sbd *sdp);
+ static inline unsigned int buf_limit(struct gfs2_sbd *sdp)
+ {
+ 	return sdp->sd_ldptrs;
+diff --git a/fs/gfs2/util.c b/fs/gfs2/util.c
+index 4f034b87b427..cffb346fb9b3 100644
+--- a/fs/gfs2/util.c
++++ b/fs/gfs2/util.c
+@@ -130,6 +130,7 @@ static void signal_our_withdraw(struct gfs2_sbd *sdp)
+ 	if (test_bit(SDF_NORECOVERY, &sdp->sd_flags) || !sdp->sd_jdesc)
+ 		return;
+ 
++	gfs2_ail_drain(sdp); /* frees all transactions */
+ 	inode = sdp->sd_jdesc->jd_inode;
+ 	ip = GFS2_I(inode);
+ 	i_gl = ip->i_gl;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 3e33eb14118c..5e79a21c696f 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -1164,8 +1164,7 @@ static inline void hid_hw_wait(struct hid_device *hdev)
+  */
+ static inline u32 hid_report_len(struct hid_report *report)
+ {
+-	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
+-	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
++	return DIV_ROUND_UP(report->size, 8) + (report->id > 0);
+ }
+ 
+ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
+diff --git a/include/linux/host1x.h b/include/linux/host1x.h
+index 9eb77c87a83b..ed0005ce4285 100644
+--- a/include/linux/host1x.h
++++ b/include/linux/host1x.h
+@@ -320,12 +320,30 @@ static inline struct host1x_device *to_host1x_device(struct device *dev)
+ int host1x_device_init(struct host1x_device *device);
+ int host1x_device_exit(struct host1x_device *device);
+ 
+-int __host1x_client_register(struct host1x_client *client,
+-			     struct lock_class_key *key);
+-#define host1x_client_register(class) \
+-	({ \
+-		static struct lock_class_key __key; \
+-		__host1x_client_register(class, &__key); \
++void __host1x_client_init(struct host1x_client *client, struct lock_class_key *key);
++void host1x_client_exit(struct host1x_client *client);
++
++#define host1x_client_init(client)			\
++	({						\
++		static struct lock_class_key __key;	\
++		__host1x_client_init(client, &__key);	\
++	})
++
++int __host1x_client_register(struct host1x_client *client);
++
++/*
++ * Note that this wrapper calls __host1x_client_init() for compatibility
++ * with existing callers. Callers that want to separately initialize and
++ * register a host1x client must first initialize using either of the
++ * __host1x_client_init() or host1x_client_init() functions and then use
++ * the low-level __host1x_client_register() function to avoid the client
++ * getting reinitialized.
++ */
++#define host1x_client_register(client)			\
++	({						\
++		static struct lock_class_key __key;	\
++		__host1x_client_init(client, &__key);	\
++		__host1x_client_register(client);	\
+ 	})
+ 
+ int host1x_client_unregister(struct host1x_client *client);
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index ee93428ced9a..225ec87d4f22 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -611,6 +611,7 @@
+ #define KEY_VOICECOMMAND		0x246	/* Listening Voice Command */
+ #define KEY_ASSISTANT		0x247	/* AL Context-aware desktop assistant */
+ #define KEY_KBD_LAYOUT_NEXT	0x248	/* AC Next Keyboard Layout Select */
++#define KEY_EMOJI_PICKER	0x249	/* Show/hide emoji picker (HUTRR101) */
+ 
+ #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
+ #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
+diff --git a/net/compat.c b/net/compat.c
+index ddd15af3a283..210fc3b4d0d8 100644
+--- a/net/compat.c
++++ b/net/compat.c
+@@ -177,7 +177,7 @@ int cmsghdr_from_user_compat_to_kern(struct msghdr *kmsg, struct sock *sk,
+ 	if (kcmlen > stackbuf_size)
+ 		kcmsg_base = kcmsg = sock_kmalloc(sk, kcmlen, GFP_KERNEL);
+ 	if (kcmsg == NULL)
+-		return -ENOBUFS;
++		return -ENOMEM;
+ 
+ 	/* Now copy them over neatly. */
+ 	memset(kcmsg, 0, kcmlen);
+diff --git a/net/core/fib_rules.c b/net/core/fib_rules.c
+index cd80ffed6d26..a9f937975080 100644
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -1168,7 +1168,7 @@ static void notify_rule_change(int event, struct fib_rule *rule,
+ {
+ 	struct net *net;
+ 	struct sk_buff *skb;
+-	int err = -ENOBUFS;
++	int err = -ENOMEM;
+ 
+ 	net = ops->fro_net;
+ 	skb = nlmsg_new(fib_rule_nlmsg_size(ops, rule), GFP_KERNEL);
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 3485b16a7ff3..9ad046917b34 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -4833,8 +4833,10 @@ static int rtnl_bridge_notify(struct net_device *dev)
+ 	if (err < 0)
+ 		goto errout;
+ 
+-	if (!skb->len)
++	if (!skb->len) {
++		err = -EINVAL;
+ 		goto errout;
++	}
+ 
+ 	rtnl_notify(skb, net, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
+ 	return 0;
+diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
+index 05f6bd89a7dd..0cf2374c143b 100644
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -1298,19 +1298,20 @@ ieee802154_llsec_parse_dev_addr(struct nlattr *nla,
+ 	if (!nla || nla_parse_nested_deprecated(attrs, NL802154_DEV_ADDR_ATTR_MAX, nla, nl802154_dev_addr_policy, NULL))
+ 		return -EINVAL;
+ 
+-	if (!attrs[NL802154_DEV_ADDR_ATTR_PAN_ID] ||
+-	    !attrs[NL802154_DEV_ADDR_ATTR_MODE] ||
+-	    !(attrs[NL802154_DEV_ADDR_ATTR_SHORT] ||
+-	      attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]))
++	if (!attrs[NL802154_DEV_ADDR_ATTR_PAN_ID] || !attrs[NL802154_DEV_ADDR_ATTR_MODE])
+ 		return -EINVAL;
+ 
+ 	addr->pan_id = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_PAN_ID]);
+ 	addr->mode = nla_get_u32(attrs[NL802154_DEV_ADDR_ATTR_MODE]);
+ 	switch (addr->mode) {
+ 	case NL802154_DEV_ADDR_SHORT:
++		if (!attrs[NL802154_DEV_ADDR_ATTR_SHORT])
++			return -EINVAL;
+ 		addr->short_addr = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_SHORT]);
+ 		break;
+ 	case NL802154_DEV_ADDR_EXTENDED:
++		if (!attrs[NL802154_DEV_ADDR_ATTR_EXTENDED])
++			return -EINVAL;
+ 		addr->extended_addr = nla_get_le64(attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]);
+ 		break;
+ 	default:
+diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
+index bc2f6ca97152..816d8aad5a68 100644
+--- a/net/ipv4/ipconfig.c
++++ b/net/ipv4/ipconfig.c
+@@ -886,7 +886,7 @@ static void __init ic_bootp_send_if(struct ic_device *d, unsigned long jiffies_d
+ 
+ 
+ /*
+- *  Copy BOOTP-supplied string if not already set.
++ *  Copy BOOTP-supplied string
+  */
+ static int __init ic_bootp_string(char *dest, char *src, int len, int max)
+ {
+@@ -935,12 +935,15 @@ static void __init ic_do_bootp_ext(u8 *ext)
+ 		}
+ 		break;
+ 	case 12:	/* Host name */
+-		ic_bootp_string(utsname()->nodename, ext+1, *ext,
+-				__NEW_UTS_LEN);
+-		ic_host_name_set = 1;
++		if (!ic_host_name_set) {
++			ic_bootp_string(utsname()->nodename, ext+1, *ext,
++					__NEW_UTS_LEN);
++			ic_host_name_set = 1;
++		}
+ 		break;
+ 	case 15:	/* Domain name (DNS) */
+-		ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
++		if (!ic_domain[0])
++			ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
+ 		break;
+ 	case 17:	/* Root path */
+ 		if (!root_server_path[0])
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index ff687b97b2d9..401901c8ad42 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -536,7 +536,7 @@ static int x25_create(struct net *net, struct socket *sock, int protocol,
+ 	if (protocol)
+ 		goto out;
+ 
+-	rc = -ENOBUFS;
++	rc = -ENOMEM;
+ 	if ((sk = x25_alloc_socket(net, kern)) == NULL)
+ 		goto out;
+ 
+diff --git a/sound/hda/intel-dsp-config.c b/sound/hda/intel-dsp-config.c
+index ab5ff7867eb9..d8be146793ee 100644
+--- a/sound/hda/intel-dsp-config.c
++++ b/sound/hda/intel-dsp-config.c
+@@ -331,6 +331,10 @@ static const struct config_entry config_table[] = {
+ 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
+ 		.device = 0x51c8,
+ 	},
++	{
++		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
++		.device = 0x51cc,
++	},
+ #endif
+ 
+ };
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 79ade335c8a0..470753b36c8a 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2485,6 +2485,9 @@ static const struct pci_device_id azx_ids[] = {
+ 	/* Alderlake-P */
+ 	{ PCI_DEVICE(0x8086, 0x51c8),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	/* Alderlake-M */
++	{ PCI_DEVICE(0x8086, 0x51cc),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+ 	/* Elkhart Lake */
+ 	{ PCI_DEVICE(0x8086, 0x4b55),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
