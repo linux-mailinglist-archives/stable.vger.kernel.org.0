@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBCDF3AC92D
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 12:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58E463AC930
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 12:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233262AbhFRKyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 06:54:39 -0400
-Received: from first.geanix.com ([116.203.34.67]:53864 "EHLO first.geanix.com"
+        id S233846AbhFRKzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 06:55:14 -0400
+Received: from first.geanix.com ([116.203.34.67]:53910 "EHLO first.geanix.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233846AbhFRKyi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 06:54:38 -0400
+        id S232723AbhFRKyr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 06:54:47 -0400
 Received: from localhost (80-62-117-165-mobile.dk.customer.tdc.net [80.62.117.165])
-        by first.geanix.com (Postfix) with ESMTPSA id 83127C7E;
-        Fri, 18 Jun 2021 10:52:25 +0000 (UTC)
+        by first.geanix.com (Postfix) with ESMTPSA id D0211C7E;
+        Fri, 18 Jun 2021 10:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1624013545; bh=q1b5bexcq1vlomibUUd2NWw4q2kj339YQtJG09H39VU=;
-        h=From:To:Cc:Subject:Date;
-        b=HeMztwFs+X1USFI5ZxW5uim5+GUirflBTScWidkBQiyZTPd/hni4X5UMrAybMrgwf
-         4RDZtH4mfxImXHD7rVhta2VS6VgONNoeaNSgJtY8BEAkFjy5A1b7KEeOjE8Fo3HaqA
-         5fXVJoy5WJzFHpvZ4XGeTw8tGgk2uHdNjw0xXP8D7KygA0+pQ/dN8jN5xtnJvIz8UP
-         JnMGeR3FTQju3J5QMBZW4aSkNMh2OdUK0UpO7OR4w28Y8/dGvtrPhGEWYV7rA01rYU
-         72fsuOeMlEIPaMRgx2Hv6gWcPzkUthBFgy+Fjob6htZOO8R0vJwpmI4pj2XCRmZ1qr
-         snoEGnIsZjwPg==
+        t=1624013555; bh=WHjjMsx6IxEstOT3uD0IXWYEPbXsz31jeGej/RXoWTU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=QTkZesMk+VQJ/TaLOlvwsOqRex89lIIwouZEMP09F7AHOMUGQhl4C0mzkW3pLpUtt
+         q2IMxe5iILEwaD6XxAJQ+1n3wbelxPfnbVWjXjXVhaCAR7kpgRm4t2RqOtVC9OiJmH
+         nR8vDtMYb7kmibBFvJ45o96LGzb+edzEleyi5hfCJABUQPriAKp8B8BdFx1ezQOOxx
+         G9U3S7ZFcp+C7/kyyhwGcD2P5qwap31fb2dvQmLHFgan16OhlbUjZ0aqSd8mSBIY7n
+         zDYpRSthHu7NF8QIWO0I3zurTKJXBWQfpOsqICettfTCdu3+FGj1L6lBHEIuL/45jB
+         Hs08rC0+4lWIA==
 From:   Esben Haabendal <esben@geanix.com>
 To:     netdev@vger.kernel.org
 Cc:     stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
         Michal Simek <michal.simek@xilinx.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Wang Hai <wanghai38@huawei.com>, Andrew Lunn <andrew@lunn.ch>,
         Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Andrew Lunn <andrew@lunn.ch>, Wang Hai <wanghai38@huawei.com>,
         Michael Walle <michael@walle.cc>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] net: ll_temac: Make sure to free skb when it is completely used
-Date:   Fri, 18 Jun 2021 12:52:23 +0200
-Message-Id: <d9200a5023973fbe372a2d51dc4e500400450ecd.1624013456.git.esben@geanix.com>
+Subject: [PATCH 3/4] net: ll_temac: Fix TX BD buffer overwrite
+Date:   Fri, 18 Jun 2021 12:52:33 +0200
+Message-Id: <af756a6fda027c300f38f73cad133450f7dd1636.1624013456.git.esben@geanix.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <d9200a5023973fbe372a2d51dc4e500400450ecd.1624013456.git.esben@geanix.com>
+References: <d9200a5023973fbe372a2d51dc4e500400450ecd.1624013456.git.esben@geanix.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-3.1 required=4.0 tests=ALL_TRUSTED,BAYES_00,
@@ -47,46 +49,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-With the skb pointer piggy-backed on the TX BD, we have a simple and
-efficient way to free the skb buffer when the frame has been transmitted.
-But in order to avoid freeing the skb while there are still fragments from
-the skb in use, we need to piggy-back on the TX BD of the skb, not the
-first.
+Just as the initial check, we need to ensure num_frag+1 buffers available,
+as that is the number of buffers we are going to use.
 
-Without this, we are doing use-after-free on the DMA side, when the first
-BD of a multi TX BD packet is seen as completed in xmit_done, and the
-remaining BDs are still being processed.
+This fixes a buffer overflow, which might be seen during heavy network
+load. Complete lockup of TEMAC was reproducible within about 10 minutes of
+a particular load.
 
+Fixes: 84823ff80f74 ("net: ll_temac: Fix race condition causing TX hang")
 Cc: stable@vger.kernel.org # v5.4+
 Signed-off-by: Esben Haabendal <esben@geanix.com>
 ---
- drivers/net/ethernet/xilinx/ll_temac_main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
-index a1f5f07f4ca9..e82f162cd80c 100644
+index 9797aa3221d1..cc482ee36501 100644
 --- a/drivers/net/ethernet/xilinx/ll_temac_main.c
 +++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
-@@ -876,7 +876,6 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 		return NETDEV_TX_OK;
- 	}
- 	cur_p->phys = cpu_to_be32(skb_dma_addr);
--	ptr_to_txbd((void *)skb, cur_p);
+@@ -861,7 +861,7 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 		smp_mb();
  
- 	for (ii = 0; ii < num_frag; ii++) {
- 		if (++lp->tx_bd_tail >= lp->tx_bd_num)
-@@ -915,6 +914,11 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 	}
- 	cur_p->app0 |= cpu_to_be32(STS_CTRL_APP0_EOP);
+ 		/* Space might have just been freed - check again */
+-		if (temac_check_tx_bd_space(lp, num_frag))
++		if (temac_check_tx_bd_space(lp, num_frag + 1))
+ 			return NETDEV_TX_BUSY;
  
-+	/* Mark last fragment with skb address, so it can be consumed
-+	 * in temac_start_xmit_done()
-+	 */
-+	ptr_to_txbd((void *)skb, cur_p);
-+
- 	tail_p = lp->tx_bd_p + sizeof(*lp->tx_bd_v) * lp->tx_bd_tail;
- 	lp->tx_bd_tail++;
- 	if (lp->tx_bd_tail >= lp->tx_bd_num)
+ 		netif_wake_queue(ndev);
 -- 
 2.32.0
 
