@@ -2,117 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 015833ACA6A
-	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 13:51:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9866E3ACA6C
+	for <lists+stable@lfdr.de>; Fri, 18 Jun 2021 13:52:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232258AbhFRLxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 07:53:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42940 "EHLO mail.kernel.org"
+        id S233498AbhFRLyf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 07:54:35 -0400
+Received: from mail.klausen.dk ([157.90.24.29]:44588 "EHLO mail.klausen.dk"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231849AbhFRLxf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Jun 2021 07:53:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D35E613D1;
-        Fri, 18 Jun 2021 11:51:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624017086;
-        bh=vYZK8vTsfVOdXVXB0QFo0w3TjJiqmtRYwcEGIkSvqjM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LYd6PeqWTWFHGNaeIbOEvY+gnFFIT9DPDjC4o+J4vRXnDy+s/ZSPE92rD11Ow1Zdh
-         BYZlEClp6Ofp3V9nwgXCwbUKVVeY8Hm5Bu8UcLftKAfkVuOLr/lYbdIcIO/AW38S2g
-         zY8BdirSkRHScj7xbUE0w8CxGfreapkfSgYRFEi0f84DVKlRc2fnPVjLA7cdaieqUN
-         HS9yuH3hdz8eNVbjnIR9XepVyDH9eZjxEZr6o1OdoOlJcIZRJcqJWMpSAoUVZ3XReL
-         XqfKbhro9e/aqacezdsgAGIl7KoodLwXRtG7MHO4ZwmaczpC5HhJXlArKHapKdsd+v
-         t1F4SOfWaBlEg==
-Date:   Fri, 18 Jun 2021 12:51:04 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc:     srivasam@codeaurora.org, rafael@kernel.org,
-        dp@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: [PATCH] regmap: move readable check before accessing regcache.
-Message-ID: <20210618115104.GB4920@sirena.org.uk>
-References: <20210618113558.10046-1-srinivas.kandagatla@linaro.org>
+        id S234342AbhFRLye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Jun 2021 07:54:34 -0400
+From:   Kristian Klausen <kristian@klausen.dk>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=klausen.dk; s=dkim;
+        t=1624017142;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=fNVRnRf8542INKe/gU6+30e9FBmzmdw4HOsCG1SESDg=;
+        b=PylWqcdWYA5ulggA5WAFN4wVUb53dyb2SbV3C39KTPdkmlbic6heUukQs9O0fr/FqSJsBx
+        SBoOBTrTcq1w1rUnUx9d75/rh8sRMLqLMLqzM/Uwd6L013Zs0QB39ECNGT6sdVarMuCFj/
+        EmaVwN2RufE2h+rDHJi8GF/Iuab2knk=
+To:     linux-block@vger.kernel.org
+Cc:     Kristian Klausen <kristian@klausen.dk>, stable@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>,
+        Martijn Coenen <maco@android.com>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v2] loop: Fix missing discard support when using LOOP_CONFIGURE
+Date:   Fri, 18 Jun 2021 13:51:57 +0200
+Message-Id: <20210618115157.31452-1-kristian@klausen.dk>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="z6Eq5LdranGa6ru8"
-Content-Disposition: inline
-In-Reply-To: <20210618113558.10046-1-srinivas.kandagatla@linaro.org>
-X-Cookie: Are you a turtle?
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Without calling loop_config_discard() the discard flag and parameters
+aren't set/updated for the loop device and worst-case they could
+indicate discard support when it isn't the case (ex: if the
+LOOP_SET_STATUS ioctl was used with a different file prior to
+LOOP_CONFIGURE).
 
---z6Eq5LdranGa6ru8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Cc: <stable@vger.kernel.org> # 5.8.x-
+Fixes: 3448914e8cc5 ("loop: Add LOOP_CONFIGURE ioctl")
+Signed-off-by: Kristian Klausen <kristian@klausen.dk>
+---
+v1 of the patch was tested like so (without the patch):
+losetup 2.37<= uses LOOP_CONFIGURE instead of LOOP_SET_STATUS64[1]
 
-On Fri, Jun 18, 2021 at 12:35:58PM +0100, Srinivas Kandagatla wrote:
+# fallocate -l100M disk.img
+# rmmod loop
+# losetup --version
+losetup from util-linux 2.36.2
+# losetup --find --show disk.img
+/dev/loop0
+# grep '' /sys/devices/virtual/block/loop0/queue/*discard*
+/sys/devices/virtual/block/loop0/queue/discard_granularity:4096
+/sys/devices/virtual/block/loop0/queue/discard_max_bytes:4294966784
+/sys/devices/virtual/block/loop0/queue/discard_max_hw_bytes:4294966784
+/sys/devices/virtual/block/loop0/queue/discard_zeroes_data:0
+/sys/devices/virtual/block/loop0/queue/max_discard_segments:1
+# losetup -d /dev/loop0
+# [update util-linux]
+# losetup --version
+losetup from util-linux 2.37
+# rmmod loop
+# losetup --find --show disk.img
+/dev/loop0
+# grep '' /sys/devices/virtual/block/loop0/queue/*discard*
+/sys/devices/virtual/block/loop0/queue/discard_granularity:0
+/sys/devices/virtual/block/loop0/queue/discard_max_bytes:0
+/sys/devices/virtual/block/loop0/queue/discard_max_hw_bytes:0
+/sys/devices/virtual/block/loop0/queue/discard_zeroes_data:0
+/sys/devices/virtual/block/loop0/queue/max_discard_segments:1
 
-> The issue that I encountered is when doing regmap_update_bits on
-> a write only register. In regcache path this will not do the right
-> thing as the register is not readable and driver which is using
-> regmap_update_bits will never notice that it can not do a update
-> bits on write only register leading to inconsistent writes and
-> random hardware behavior.
 
-Why will use of regmap_update_bits() mean that a driver will never
-notice a write failure?  Shouldn't remgap_update_bits() be fixed to
-report any errors it isn't reporting, or the driver fixed to check=20
-error codes?  I really don't understand the issue you're trying to
-report - what is "the right thing" and what makes you believe that a
-driver can't do an _update_bits() on a write only but cached register?
-Can you specify in concrete terms what the problem is.
+With the patch applied:
 
-> There seems to be missing checks in regcache_read() which is
-> now added by moving the orignal check in _regmap_read() before
-> accessing regcache.
+# losetup --version
+losetup from util-linux 2.37
+# rmmod loop
+# losetup --find --show disk.img
+/dev/loop0
+# grep '' /sys/devices/virtual/block/loop0/queue/*discard*
+/sys/devices/virtual/block/loop0/queue/discard_granularity:4096
+/sys/devices/virtual/block/loop0/queue/discard_max_bytes:4294966784
+/sys/devices/virtual/block/loop0/queue/discard_max_hw_bytes:4294966784
+/sys/devices/virtual/block/loop0/queue/discard_zeroes_data:0
+/sys/devices/virtual/block/loop0/queue/max_discard_segments:1
 
-> Cc: stable@vger.kernel.org
-> Fixes: 5d1729e7f02f ("regmap: Incorporate the regcache core into regmap")
+[1] https://github.com/karelzak/util-linux/pull/1152
 
-Are you *sure* you've identified the actual issue here - nobody has seen
-any problems with this in the past decade?  Please don't just pick a
-random commit for the sake of adding a Fixes tag.
+v2:
+Add commit message
+Move loop_config_discard() before loop_update_rotational()
 
-> @@ -2677,6 +2677,9 @@ static int _regmap_read(struct regmap *map, unsigne=
-d int reg,
->  	int ret;
->  	void *context =3D _regmap_map_get_context(map);
-> =20
-> +	if (!regmap_readable(map, reg))
-> +		return -EIO;
-> +
->  	if (!map->cache_bypass) {
->  		ret =3D regcache_read(map, reg, val);
->  		if (ret =3D=3D 0)
-> @@ -2686,9 +2689,6 @@ static int _regmap_read(struct regmap *map, unsigne=
-d int reg,
->  	if (map->cache_only)
->  		return -EBUSY;
-> =20
-> -	if (!regmap_readable(map, reg))
-> -		return -EIO;
-> -
+ drivers/block/loop.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-This puts the readability check before the cache check which will break
-all drivers using the cache on write only registers.
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 76e12f3482a9..8271df125153 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1154,6 +1154,7 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 	blk_queue_physical_block_size(lo->lo_queue, bsize);
+ 	blk_queue_io_min(lo->lo_queue, bsize);
+ 
++	loop_config_discard(lo);
+ 	loop_update_rotational(lo);
+ 	loop_update_dio(lo);
+ 	loop_sysfs_init(lo);
 
---z6Eq5LdranGa6ru8
-Content-Type: application/pgp-signature; name="signature.asc"
+base-commit: 70585216fe7730d9fb5453d3e2804e149d0fe201
+-- 
+2.32.0
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmDMiKcACgkQJNaLcl1U
-h9DsIAf5Afd+Q+6o68mPeTQ66gkNA3M28sW18xKpTCwg4Pvb1SjI9zqnz9MoVH/0
-d4iKxGR5q7xQwdteTLxsCUAFECKxPb03EGOEtMd3t/hjRau5LVs/CUKMpbig5M2w
-YWUbsAekvXv773+Y5E9DaXljqYaIxk9sAPog5MupiBShBlOSSaM23XQqhlrE2/Kq
-kpjdZzyR3q3yVcXqxjwlWtsiR5Iuzz/djnYJEprfQHDhoHCZ3hrKvGcuLvcIHScY
-bMJhLnRbb1C17sy3z18aPC+u0wqQqSCvLfstlc+burujEHDZWSSictoutSp4URWa
-yGi2EibjoNft/jCQU/0IxMssaFN9/Q==
-=5sp4
------END PGP SIGNATURE-----
-
---z6Eq5LdranGa6ru8--
