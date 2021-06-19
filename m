@@ -2,111 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA313ADACD
-	for <lists+stable@lfdr.de>; Sat, 19 Jun 2021 18:06:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF12B3ADBA9
+	for <lists+stable@lfdr.de>; Sat, 19 Jun 2021 22:27:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234681AbhFSQIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Jun 2021 12:08:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45348 "EHLO
+        id S229538AbhFSU37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Jun 2021 16:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232640AbhFSQIh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Jun 2021 12:08:37 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11ACCC061574
-        for <stable@vger.kernel.org>; Sat, 19 Jun 2021 09:06:25 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id v20-20020a05600c2154b02901dcefb16af0so103820wml.5
-        for <stable@vger.kernel.org>; Sat, 19 Jun 2021 09:06:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=Cm7l8EIAE9c4jnxn5VkdqiOCE1F1OBgMjP7o7oIj+Dk=;
-        b=QN7PxcwCw2jAEp0/MQHxOs3bgfvqBoWl8EXm8f54xIuLtCQZ2u1R8dNqJZrKGbJ/SX
-         NeqiGlDo4m7Z4s4RqEM2Q4IfdQyaxg1r5kT4JYF9Jax89Zd2PfrIuAc0lwWR6vrUGb2J
-         +SVbR/EW5aR59D8RZdDcHi0/hT0bXcoYp9eXoNMire8DoaVwKl1x5kQpPoNehlRaFVyb
-         nEZzLG28wYDChm/dGboqhoiDySls9IuyzHLMBF/Q9BIDX5fNcz20FlypSV/CZwOZ/+57
-         lDDxI6qlx+KHOlEgETvL2AxUB4HW4Y++pRqzOkWJWlNNSbttL4qGQ32Xc8NawSJkXCwR
-         Z4LQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=Cm7l8EIAE9c4jnxn5VkdqiOCE1F1OBgMjP7o7oIj+Dk=;
-        b=QKglhhdnLy6hhMFWTKdwod0llG1ILQGg4Xbfrwp563qWSMzaSQaQbUkTjFT/UErCqg
-         MojTBfZC+SogOzrsJaxSThXkqEH0QIi/xibf659v9r7gZVVzegil4wc5SBMI6aNCQjof
-         WJo8zphuPPgso1hzdegJeS22iIwRb/mObePN6PXe+l6DqB+xBbLNQxKerp2GzGwOteFN
-         gESx4jE9VVUgEILkGMjAfswDuy6KN5XEYhxQ3DOng0EGcjbWDxnlsA9vX47bzek0ocQC
-         LiW8/afYlOx0mCePc3k57v7v+u91dmOAUQO27nKQBR+kqshHdOWhSbmnrNNS5cgjSjqV
-         tgEQ==
-X-Gm-Message-State: AOAM5306XP0/Sq9xwBILG1o635Q2lWgdneiuf3T4xKXkTuFdokmzbZZr
-        uSOkMMElVp01xHI4ngKGCtIe8RkR6E/PbNViYyY=
-X-Google-Smtp-Source: ABdhPJy8fs3Jgud06UxoEaeVZ/fl1wcAIVKf0oGsh7GHrsWBW8bb3zGjkdRyW/rpoKumtwaAb81wuFEmPUD/geQwbvM=
-X-Received: by 2002:a1c:4e12:: with SMTP id g18mr16985882wmh.101.1624118783226;
- Sat, 19 Jun 2021 09:06:23 -0700 (PDT)
+        with ESMTP id S229477AbhFSU36 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Jun 2021 16:29:58 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ADFFC061574;
+        Sat, 19 Jun 2021 13:27:45 -0700 (PDT)
+Date:   Sat, 19 Jun 2021 20:27:40 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1624134461;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JqcS98Guu8A/M7cu0Wkz0xvE48EQ/O7AvUv++fOEzr4=;
+        b=pKhSvM1Vyg/ygFlhkdF5RFv+n33s7N0AlNZnDe8+6gqOg6Mnmx6VDBds6sHJJ9vq/G3n97
+        gCwNXv2YzqcTOPxP4Mq/PLnn74dYZrgr/Z2ANenOsLChcBxn8BeF81JThaXy8mTxVeWYtf
+        kOZRBLEU7Nf/f0aHNw3FqjQTdO6U/4bea9RFcW2UnJh86c1IRi8pz3R+Eojdj4/rqjw0Pb
+        YKTlUhEjlacpfAv6RV5fgRAihxFgzQk45QfwX5GsJrCCrgEMPG3sQGmX/HhotufcVY2KKa
+        4PSrBtHauydASV5UAD/kttgn/8sxDOuNmY9gj+9C+MIcEHLQYvrKJjt3sfdPKA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1624134461;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JqcS98Guu8A/M7cu0Wkz0xvE48EQ/O7AvUv++fOEzr4=;
+        b=vv7d/0J60Y4hAGbcRvB6wKr0ibLB9IlHhoaAkICizzLnSexFkH5Vq8ibTiY+REaXF2kc+3
+        MF29XDbxA6pKldDA==
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: smp/urgent] cpu/hotplug: Cure the cpusets trainwreck
+Cc:     Alexey Klimov <aklimov@redhat.com>,
+        Joshua Baker <jobaker@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <87tuowcnv3.ffs@nanos.tec.linutronix.de>
+References: <87tuowcnv3.ffs@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Sender: mrspauline.douglas723@gmail.com
-Received: by 2002:adf:bb0b:0:0:0:0:0 with HTTP; Sat, 19 Jun 2021 09:06:22
- -0700 (PDT)
-From:   Gabriel Esther <gabrielesther864@gmail.com>
-Date:   Sat, 19 Jun 2021 18:06:22 +0200
-X-Google-Sender-Auth: f0xHT-q-d_RUm_nQECLZaOw1_Xs
-Message-ID: <CAEEhY4Ne7vAGa3YDWx4zqmszKJqfBLbej4V2qTQYSLheMwK3ZA@mail.gmail.com>
-Subject: From Gabriel Esther
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <162413446009.19906.7301964706858048310.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greeting to you my Dearest,
+The following commit has been merged into the smp/urgent branch of tip:
 
-Please I need your help and Assistance. Permit me to inform you of my
-desire of going into business relationship with you. I am Miss.Esther
-Gabriel, the only Daughter of late Mr. and Mrs. Gabriel Kadjo. My
-father was a very wealthy cocoa merchant in Abidjan; the economic
-capital of Ivory Coast, my father was poisoned to death by his
-business associates on one of their outings on a business trip.
+Commit-ID:     64c71be97c02c3d3f24dea7c290912ad300538b9
+Gitweb:        https://git.kernel.org/tip/64c71be97c02c3d3f24dea7c290912ad300538b9
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Sat, 27 Mar 2021 22:01:36 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 19 Jun 2021 22:26:07 +02:00
 
-My mother died when I was a baby and since then my father took me so
-special. Before the death of my father in a private hospital here in
-Abidjan he secretly called me on his bed side and told me that he has
-the sum of TWENTY FIVE Million United State Dollars (USD. $25.000,000)
-deposited in one of the largest security company here in Abidjan, that
-he used my name as his only Daughter for the next of Kin in depositing
-of the fund to the security company.
+cpu/hotplug: Cure the cpusets trainwreck
 
-He also explained to me that it was because of this wealth that he was
-poisoned by his business associates. That I should seek for a look
-foreign partner in a country of my choice who will assist me for
-investment purpose. And the money is in six 6 trunk boxes there in the
-security company now.
+Alexey and Joshua tried to solve a cpusets related hotplug problem which is
+user space visible and results in unexpected behaviour for some time after
+a CPU has been plugged in and the corresponding uevent was delivered.
 
-I am deeply here seeking your assistance in the following ways:
+cpusets delegate the hotplug work (rebuilding cpumasks etc.) to a
+workqueue. This is done because the cpusets code has already a lock
+nesting of cgroups_mutex -> cpu_hotplug_lock. A synchronous callback or
+waiting for the work to finish with cpu_hotplug_lock held can and will
+deadlock because that results in the reverse lock order.
 
-(1) To stand as my late father's foreign partner before the security
-company for them to deliver the 6 six trunk boxes that contain the
-found to you in your country.
+As a consequence the uevent can be delivered before cpusets have consistent
+state which means that a user space invocation of sched_setaffinity() to
+move a task to the plugged CPU fails up to the point where the scheduled
+work has been processed.
 
-(2) To serve as a guardian of this fund in the trunk box and invest
-them into a good business investments that can benefit you and me
-since I am only 24 years old girl, I do not have any idea of any
-business investment!
+The same is true for CPU unplug, but that does not create user observable
+failure (yet).
 
-(3) To make arrangement for me to come over to your country to further
-my education/study and to secure a resident permit and my travelling
-Visa to come over and stay in your country.
+It's still inconsistent to claim that an operation is finished before it
+actually is and that's the real issue at hand. uevents just make it
+reliably observable.
 
-Moreover, I am willing to offer you 20% percent of the total sum as
-compensation for your effort/input after the successful delivering of
-the trunk boxes from the security company While 80% percent will be
-for me and my Education in your country.
+Obviously the problem should be fixed in cpusets/cgroups, but untangling
+that is pretty much impossible because according to the changelog of the
+commit which introduced this 8 years ago:
 
-Furthermore, please indicate your interest off helping me out for I
-believe that this transaction would be concluded within fourteen (14)
-days from the day you signify your interest to assist me.
+ 3a5a6d0c2b03("cpuset: don't nest cgroup_mutex inside get_online_cpus()")
 
-Anticipating to hearing from you soon.
+the lock order cgroups_mutex -> cpu_hotplug_lock is a design decision and
+the whole code is built around that.
 
-Thanks.
-Best regards,
+So bite the bullet and invoke the relevant cpuset function, which waits for
+the work to finish, in _cpu_up/down() after dropping cpu_hotplug_lock and
+only when tasks are not frozen by suspend/hibernate because that would
+obviously wait forever.
 
-Miss.Esther.
+Waiting there with cpu_add_remove_lock, which is protecting the present
+and possible CPU maps, held is not a problem at all because neither work
+queues nor cpusets/cgroups have any lockchains related to that lock.
+
+Waiting in the hotplug machinery is not problematic either because there
+are already state callbacks which wait for hardware queues to drain. It
+makes the operations slightly slower, but hotplug is slow anyway.
+
+This ensures that state is consistent before returning from a hotplug
+up/down operation. It's still inconsistent during the operation, but that's
+a different story.
+
+Add a large comment which explains why this is done and why this is not a
+dump ground for the hack of the day to work around half thought out locking
+schemes. Document also the implications vs. hotplug operations and
+serialization or the lack of it.
+
+Thanks to Alexy and Joshua for analyzing why this temporary
+sched_setaffinity() failure happened.
+
+Fixes: 3a5a6d0c2b03("cpuset: don't nest cgroup_mutex inside get_online_cpus()")
+Reported-by: Alexey Klimov <aklimov@redhat.com>
+Reported-by: Joshua Baker <jobaker@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Alexey Klimov <aklimov@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87tuowcnv3.ffs@nanos.tec.linutronix.de
+---
+ kernel/cpu.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index e538518..eccc8cf 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -32,6 +32,7 @@
+ #include <linux/relay.h>
+ #include <linux/slab.h>
+ #include <linux/percpu-rwsem.h>
++#include <linux/cpuset.h>
+ 
+ #include <trace/events/power.h>
+ #define CREATE_TRACE_POINTS
+@@ -919,6 +920,52 @@ void clear_tasks_mm_cpumask(int cpu)
+ 	rcu_read_unlock();
+ }
+ 
++/*
++ *
++ * Serialize hotplug trainwrecks outside of the cpu_hotplug_lock
++ * protected region.
++ *
++ * The operation is still serialized against concurrent CPU hotplug via
++ * cpu_add_remove_lock, i.e. CPU map protection.  But it is _not_
++ * serialized against other hotplug related activity like adding or
++ * removing of state callbacks and state instances, which invoke either the
++ * startup or the teardown callback of the affected state.
++ *
++ * This is required for subsystems which are unfixable vs. CPU hotplug and
++ * evade lock inversion problems by scheduling work which has to be
++ * completed _before_ cpu_up()/_cpu_down() returns.
++ *
++ * Don't even think about adding anything to this for any new code or even
++ * drivers. It's only purpose is to keep existing lock order trainwrecks
++ * working.
++ *
++ * For cpu_down() there might be valid reasons to finish cleanups which are
++ * not required to be done under cpu_hotplug_lock, but that's a different
++ * story and would be not invoked via this.
++ */
++static void cpu_up_down_serialize_trainwrecks(bool tasks_frozen)
++{
++	/*
++	 * cpusets delegate hotplug operations to a worker to "solve" the
++	 * lock order problems. Wait for the worker, but only if tasks are
++	 * _not_ frozen (suspend, hibernate) as that would wait forever.
++	 *
++	 * The wait is required because otherwise the hotplug operation
++	 * returns with inconsistent state, which could even be observed in
++	 * user space when a new CPU is brought up. The CPU plug uevent
++	 * would be delivered and user space reacting on it would fail to
++	 * move tasks to the newly plugged CPU up to the point where the
++	 * work has finished because up to that point the newly plugged CPU
++	 * is not assignable in cpusets/cgroups. On unplug that's not
++	 * necessarily a visible issue, but it is still inconsistent state,
++	 * which is the real problem which needs to be "fixed". This can't
++	 * prevent the transient state between scheduling the work and
++	 * returning from waiting for it.
++	 */
++	if (!tasks_frozen)
++		cpuset_wait_for_hotplug();
++}
++
+ /* Take this CPU down. */
+ static int take_cpu_down(void *_param)
+ {
+@@ -1108,6 +1155,7 @@ out:
+ 	 */
+ 	lockup_detector_cleanup();
+ 	arch_smt_update();
++	cpu_up_down_serialize_trainwrecks(tasks_frozen);
+ 	return ret;
+ }
+ 
+@@ -1302,6 +1350,7 @@ static int _cpu_up(unsigned int cpu, int tasks_frozen, enum cpuhp_state target)
+ out:
+ 	cpus_write_unlock();
+ 	arch_smt_update();
++	cpu_up_down_serialize_trainwrecks(tasks_frozen);
+ 	return ret;
+ }
+ 
