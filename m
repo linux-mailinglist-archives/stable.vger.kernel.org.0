@@ -2,120 +2,342 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D4F3AD6E9
-	for <lists+stable@lfdr.de>; Sat, 19 Jun 2021 05:02:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E8243AD799
+	for <lists+stable@lfdr.de>; Sat, 19 Jun 2021 05:56:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235607AbhFSDE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Jun 2021 23:04:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44506 "EHLO
+        id S230430AbhFSD6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Jun 2021 23:58:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235546AbhFSDE5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 23:04:57 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B4AC061760
-        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 20:02:46 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id o10-20020a17090aac0ab029016e92770073so6997949pjq.5
-        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 20:02:46 -0700 (PDT)
+        with ESMTP id S229848AbhFSD6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Jun 2021 23:58:39 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3D71C061574
+        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 20:56:29 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id 69so5686650plc.5
+        for <stable@vger.kernel.org>; Fri, 18 Jun 2021 20:56:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=AL3IkUbQ1a/LRO+FbqYHn+oMeAp1U0V5I8weht9YTe0=;
-        b=k53RtsI3wnZQDyMBB2CG0HfKnm17M/4fp/pxu553QmY3YKnUokW0BYYV2B/y43PAYi
-         tsF8RSy9K9cPND3oMbY//QXYo86K/BfFm6Ux4OofTfucse1uj+WWaogWNVYFgcXwFt08
-         BNSO1bFyyIhOdbD6j6MMJsA3VUDL87xawV8SE=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=0eM5fqw+wxy/TnX2NxemLftJYYI1XmmE8lia1BhLG6A=;
+        b=rHTFQz8pSzTaWizbeMnWIRaZun2ZkFjRjPRVLmgB5p1gGZOW8aZC+7YxRx1782YRkQ
+         UsuaQtTXM6/0dPbiMmCJJUrG8+3OJ+2VYoNjaLm8iHD266KtKlgvvwE7QkXFugTRAwFc
+         20f5q0KOZI4PaTTSk2W/YPxN+AtRhrn3Z2+8ySuK5rGnqU5L1SavCEcll8Qowvy6Kcct
+         N1jb/hy63ywljXmlO9YFeE+d253Se/xSxySsWHiqneQPQmSbzuFRZNhxYXbb21G5Er2Z
+         lXnVFrE+K/Ra1nj5gx1qrZE4qCOPpH3XngWc2lcOHLYqQIZUcvK471mLToNa6bfQnpCv
+         6nlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=AL3IkUbQ1a/LRO+FbqYHn+oMeAp1U0V5I8weht9YTe0=;
-        b=l3PGGOUA/ZjKGgOha7wGeKuhKkiBfmBFY9ihjYaQlO8hvtrugYMRyi2En1eHfEtgf+
-         YzRO1j8fTpn1pLxMH8aR3nNdWTTJVjW0RNUGFBNfdKSxqC7k/Na1AE6REaUobFIqzKCx
-         f9mLP0wQ0WV/wmOp5cvstFFKCyMmqrzfhzP8opq8PdZ0lQSU2FLM6easmwHExpG2MsYy
-         GjYuEnKAVOEognxX8BPWJYtb9E2Gr5GnRCbqdzGDPvbtJu5rlJup97YjlEzWArN7rHQy
-         wt0VJpgzmppFPPny3NL51s8zg9KiYbt/tGI0E5ku3IBTKe0Tmq/9TFKD3WlkyxlsH/E3
-         AZJQ==
-X-Gm-Message-State: AOAM531yJ+hMNrCpvLhaz6GaqE01lgTqhLvtJgsYYneQksEEjwjggmNY
-        CRCHBo/ZCsqSIGFpkPPbn1ySkJYf182VkQ==
-X-Google-Smtp-Source: ABdhPJy6MS0K3mHCnNh+tPj7v6JRbScEU8fnlcCNFoGwViNFPru2h4JAlYS997Vfx/7JHe0RA8woxw==
-X-Received: by 2002:a17:90a:14e5:: with SMTP id k92mr13697656pja.149.1624071765805;
-        Fri, 18 Jun 2021 20:02:45 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id h28sm9512020pfr.10.2021.06.18.20.02.44
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=0eM5fqw+wxy/TnX2NxemLftJYYI1XmmE8lia1BhLG6A=;
+        b=tsgcUGIwAWnbvzeEhTyImRcvm3PRA+ULhmIBTUO9qtI5t3INaP/TTxvw54PYOv2T5+
+         REtTNYv8U1/SNOAEKc828ZrheSrKNm8SH2Zc2CED9uTfFSFVPbpuumMuVVpUuGShUgdX
+         Ca2zsB602qIjhf8O8UwALhO47vf1M14nQe69DZIP3vX+i/3NNcSEc7bpFSo8+epHdnkg
+         7Y08WadLTNetkyP+4jVnOfcUxj2l72wJQBvFjBcxe2iJVL/nQiRPmdb3wJt/n6sQiy/h
+         pbw4XwUPS4GV1LYk/vq1ghkBW2UfCwukz4ADz06QaWRcLIApK9hYnIX7VVbX/TfXYIP9
+         +pgg==
+X-Gm-Message-State: AOAM532YplEyEGyx/tSNUmMIHpjYjztOgQwIVnVoq+3t6rBMb+b7/Red
+        Nl0OtPEX/h+j0aRjYlNi5DR7XNf9MFqqiFcs
+X-Google-Smtp-Source: ABdhPJyA/TRpDiTqIzxzBKG8jG3gxBcMae1Wlrv1kZJlTT186Xn3+zsKE5AAkerN4PFmJ+GvmANNEw==
+X-Received: by 2002:a17:90a:d18f:: with SMTP id fu15mr14291383pjb.78.1624074989010;
+        Fri, 18 Jun 2021 20:56:29 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y8sm4061928pfe.162.2021.06.18.20.56.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Jun 2021 20:02:45 -0700 (PDT)
-Date:   Fri, 18 Jun 2021 20:02:44 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Guillaume Tucker <guillaume.tucker@collabora.com>
-Cc:     Shuah Khan <shuah@kernel.org>, stable@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] selftests/lkdtm: Use /bin/sh not $SHELL
-Message-ID: <202106182000.D49612B26F@keescook>
-References: <20210617231027.3908585-1-keescook@chromium.org>
- <57775fe8-d9c2-4004-b8c5-0247faf33aa4@collabora.com>
+        Fri, 18 Jun 2021 20:56:28 -0700 (PDT)
+Message-ID: <60cd6aec.1c69fb81.36ec6.c73c@mx.google.com>
+Date:   Fri, 18 Jun 2021 20:56:28 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <57775fe8-d9c2-4004-b8c5-0247faf33aa4@collabora.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.273-19-g7f8d14ca3655
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.9 baseline: 130 runs,
+ 7 regressions (v4.9.273-19-g7f8d14ca3655)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 18, 2021 at 08:29:57PM +0100, Guillaume Tucker wrote:
-> There's a bit more to it...  The lkdtm tests make use of the
-> process substitution feature with the <() syntax which is
-> specific to Bash.  The tests run by KernelCI use Debian, where
-> /bin/sh points to /bin/dash by default which doesn't support this
-> feature.  So one way to fix it would be:
-> 
->   (/bin/bash -c 'cat <(echo '"$test"') >'"$TRIGGER")
+stable-rc/queue/4.9 baseline: 130 runs, 7 regressions (v4.9.273-19-g7f8d14c=
+a3655)
 
-Argh. I always forget that <() is a bash-ism. Thank you for tracking
-this down!
+Regressions Summary
+-------------------
 
-> However, this might break others' workflows.
-> 
-> In fact the LAVA jobs run by KernelCI do define the $SHELL
-> environment variable except it's defined to be /bin/sh - and that
-> means /bin/dash gets called and we're back to the issue explained
-> above.
-> 
-> I've manually run a modified test job which defines
-> SHELL=/bin/bash and that works:
-> 
->   https://lava.collabora.co.uk/scheduler/job/4055547#L2835
+platform             | arch   | lab             | compiler | defconfig     =
+               | regressions
+---------------------+--------+-----------------+----------+---------------=
+---------------+------------
+qemu_arm-versatilepb | arm    | lab-baylibre    | gcc-8    | versatile_defc=
+onfig          | 1          =
 
-Yay!!
+qemu_arm-versatilepb | arm    | lab-broonie     | gcc-8    | versatile_defc=
+onfig          | 1          =
 
-> So to avoid hitting the same issue in other places, as it seems
-> like there is an implicit dependency on Bash, we can just change
-> KernelCI kselftest jobs to always export SHELL=/bin/bash.
-> 
-> I suppose an even better fix would be to use standard shell
-> features that would work with any /bin/sh implementation, but
-> this is there to kill the sub-shell rather than the main script
-> process so I'm not entirely sure if we can easily do that
-> differently.  Maybe we can pipe the output to cat rather than the
-> substitution syntax, e.g.:
-> 
->   (/bin/sh -c '(echo '"$test"') | cat >'"$TRIGGER") || true
+qemu_arm-versatilepb | arm    | lab-cip         | gcc-8    | versatile_defc=
+onfig          | 1          =
 
-Yeah, this is the right fix. There's no reason anything should depend
-on bash; I was just not thinking when I wrote this originally. :)
+qemu_arm-versatilepb | arm    | lab-collabora   | gcc-8    | versatile_defc=
+onfig          | 1          =
 
-> So I think the "safest" solution is to not change the kselftest
-> script and export SHELL=/bin/bash in the KernelCI jobs.  If the
-> pipe approach is good enough at catching signals then it could be
-> done on top of this patch as it's standard and should work with
-> any /bin/sh implementation.  What do you think?
+qemu_arm-versatilepb | arm    | lab-linaro-lkft | gcc-8    | versatile_defc=
+onfig          | 1          =
 
-If you set SHELL=/bin/bash for now, the lkdtm tests should work as they
-are, and once the v2 patch lands, they'll continue to work, and
-SHELL=/bin/bash can be removed.
+qemu_x86_64          | x86_64 | lab-broonie     | gcc-8    | x86_64_defcon.=
+..6-chromebook | 1          =
 
-Thank you so much!
+qemu_x86_64-uefi     | x86_64 | lab-broonie     | gcc-8    | x86_64_defcon.=
+..6-chromebook | 1          =
 
--Kees
 
--- 
-Kees Cook
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.273-19-g7f8d14ca3655/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.273-19-g7f8d14ca3655
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7f8d14ca3655c7c8e7915030d1a1f26ad773c00b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+               | regressions
+---------------------+--------+-----------------+----------+---------------=
+---------------+------------
+qemu_arm-versatilepb | arm    | lab-baylibre    | gcc-8    | versatile_defc=
+onfig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60cd3323397227fc51413275
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60cd3323397227fc51413=
+276
+        failing since 217 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+               | regressions
+---------------------+--------+-----------------+----------+---------------=
+---------------+------------
+qemu_arm-versatilepb | arm    | lab-broonie     | gcc-8    | versatile_defc=
+onfig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60cd33b4c471c3fa6e413298
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60cd33b4c471c3fa6e413=
+299
+        failing since 217 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+               | regressions
+---------------------+--------+-----------------+----------+---------------=
+---------------+------------
+qemu_arm-versatilepb | arm    | lab-cip         | gcc-8    | versatile_defc=
+onfig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60cd330a278ca8daf6413282
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60cd330a278ca8daf6413=
+283
+        failing since 217 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+               | regressions
+---------------------+--------+-----------------+----------+---------------=
+---------------+------------
+qemu_arm-versatilepb | arm    | lab-collabora   | gcc-8    | versatile_defc=
+onfig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60cd4e9fe7d064564a413266
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60cd4e9fe7d064564a413=
+267
+        failing since 217 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+               | regressions
+---------------------+--------+-----------------+----------+---------------=
+---------------+------------
+qemu_arm-versatilepb | arm    | lab-linaro-lkft | gcc-8    | versatile_defc=
+onfig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60cd326a4d834808cf41327b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60cd326a4d834808cf413=
+27c
+        failing since 217 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+               | regressions
+---------------------+--------+-----------------+----------+---------------=
+---------------+------------
+qemu_x86_64          | x86_64 | lab-broonie     | gcc-8    | x86_64_defcon.=
+..6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60cd32245127356dba413266
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/ba=
+seline-qemu_x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/ba=
+seline-qemu_x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60cd32245127356dba413=
+267
+        new failure (last pass: v4.9.273-19-gafb7b9c97ade) =
+
+ =
+
+
+
+platform             | arch   | lab             | compiler | defconfig     =
+               | regressions
+---------------------+--------+-----------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi     | x86_64 | lab-broonie     | gcc-8    | x86_64_defcon.=
+..6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60cd31d417ef3f46dd41326e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/ba=
+seline-qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.273-1=
+9-g7f8d14ca3655/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/ba=
+seline-qemu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60cd31d417ef3f46dd413=
+26f
+        new failure (last pass: v4.9.273-19-gafb7b9c97ade) =
+
+ =20
