@@ -2,80 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E74803ADE66
-	for <lists+stable@lfdr.de>; Sun, 20 Jun 2021 14:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E8F3ADEC4
+	for <lists+stable@lfdr.de>; Sun, 20 Jun 2021 15:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229593AbhFTM7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Jun 2021 08:59:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49068 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229806AbhFTM7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 20 Jun 2021 08:59:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B284610CA;
-        Sun, 20 Jun 2021 12:56:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624193812;
-        bh=bWaVnm+peFovnHMu18RwWDuf3L6KT66p404kqB1aQyk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TPScjPmNxSr2YT2IvEKemKWAPgTymLvW3gbEPh9aW2ZDQXmS+k82sz2zrDcuaytnb
-         rBC/doh50rFtdR/0+XtqFzla7SsRmcePwtR4NVQiVI2wRrwkuwWUk0kIDbZt05YO5F
-         otWCj7/ZGl/i6yRPLueJR+I51Oeuxgq56ZCmvVnERBu1Jeagwv1QgR34hXDqEOxNdu
-         O6iNJDRiTJWoEmz1aHW0prY2qr0OlRq0QNb1oovA/uTymM1/lcCzexFgLxMUnazULL
-         cu779WiBhiZevR4pqBAFkWuaRwMKt4gDM2Qvxf18HUJcdLDB2FZzz4Jp24gFzRAGSJ
-         PJxgmE5aJyK0w==
-Date:   Sun, 20 Jun 2021 08:56:51 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Saravana Kannan <saravanak@google.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Ondrej Jirman <megous@megous.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        "open list:ARM/Allwinner sunXi SoC support" 
-        <linux-sunxi@lists.linux.dev>
-Subject: Re: [PATCH AUTOSEL 5.4 07/15] drm/sun4i: dw-hdmi: Make HDMI PHY into
- a platform device
-Message-ID: <YM87E3tYj+awywpN@sashalap>
-References: <20210615154948.62711-1-sashal@kernel.org>
- <20210615154948.62711-7-sashal@kernel.org>
- <CAGETcx95bOAHiOm0MHqFWSbc8ONBPEzXbDyP82pO4B5o2QOX1A@mail.gmail.com>
+        id S229708AbhFTNiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Jun 2021 09:38:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229756AbhFTNiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Jun 2021 09:38:10 -0400
+Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11D08C061767
+        for <stable@vger.kernel.org>; Sun, 20 Jun 2021 06:35:57 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id x12so12844295ill.4
+        for <stable@vger.kernel.org>; Sun, 20 Jun 2021 06:35:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=D7l/Y2nU4ivOXB3kYNarWKNDy1SUWuawPt7q4q/Bhv4=;
+        b=sec9fLKaTeyUvI3U/9cH5uXh5khwaRmiJ3Slq1YZSCexwKlBLvi58L8DBu55CdJDji
+         U+HuEZd9onOgJ+OTF2rj1+rkaNRkmc9mUKozs32zG54utaQ749Tn8dwDfGRCa86Y13h3
+         aTPzQqGcbZM/EAbe2+YYkP8IzEtm7OFmKWqXTdVfNhb2VSah4cfQXUGVQ0X59BkXxqUT
+         4pZGErCa13JdLdCIRor4r89BUHwblkmYb4cwi8/7Nzr0zyCOHjauEmAl4PRZ8S1C6dv6
+         acCJLW1ZaLruky9plyyHKip4E8d31xV8uUpmSHsk2ZsjBfcQBVTL2OilqasULeboqC8n
+         0h/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=D7l/Y2nU4ivOXB3kYNarWKNDy1SUWuawPt7q4q/Bhv4=;
+        b=NkPovq7EL+r1KQuFy0TW7cf6PRoJpBEidVeWEkvayjYjOfXaCA+kdkCkPsDOXUinET
+         ntgkScEmEZlAnmGEZR5/pdEa8OUXHBkuv+eE+AZlMLQwvO/5cTRb+jlViXZzyH5ugJip
+         fIfiprSD0Jw3ksgkjK5tpePjEjh46MNnOL13qyaZ5fZFXazl+8jUp4Mx5nhEpkgql2j9
+         90uSKTM24wJlwjtUm0oRheF3XJAY29Ygnbd6BmoIxu+TJbGhrfYMpbFLQ54HKo0dG+I4
+         oVAPZGYcYVCTDJ1Xxo9F4YK1osIXSc94IKls3X7S3D+Dh5NrPUX/teiFQvDS5jC/vrRc
+         d0nQ==
+X-Gm-Message-State: AOAM530stetGq/jjg1SNoCnQC9jvAVF0HLPAJEQZpzcRvup3dfbYfvWV
+        ajvGCh+l4dqitqrTplaEjIcoskaOTcqxl2i6izYEstbtd4o=
+X-Google-Smtp-Source: ABdhPJwO76FoleXtHusTIesxM2cuIvE9VdIlMyNt5WPTfvQkSUUR8O1MTtP/waIv/m9vsUoacT9Q2gT5SJ41poXCB/Q=
+X-Received: by 2002:a05:6602:1810:: with SMTP id t16mr15654363ioh.48.1624196145888;
+ Sun, 20 Jun 2021 06:35:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAGETcx95bOAHiOm0MHqFWSbc8ONBPEzXbDyP82pO4B5o2QOX1A@mail.gmail.com>
+Received: by 2002:a05:6e02:1baf:0:0:0:0 with HTTP; Sun, 20 Jun 2021 06:35:45
+ -0700 (PDT)
+Reply-To: sarahkoffi389@yahoo.co.jp
+From:   Sarah Koffi <sarah.koffi101@gmail.com>
+Date:   Sun, 20 Jun 2021 15:35:45 +0200
+Message-ID: <CA+ifgLGSH5KW9J+Z85axgUznJEQcab5mED6rZZnS3OBzXTnaxw@mail.gmail.com>
+Subject: Greetings From Mrs. Sarah Koffi
+To:     sarahkoffi389@yahoo.co.jp
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 15, 2021 at 09:26:16AM -0700, Saravana Kannan wrote:
->On Tue, Jun 15, 2021 at 8:50 AM Sasha Levin <sashal@kernel.org> wrote:
->>
->> From: Saravana Kannan <saravanak@google.com>
->>
->> [ Upstream commit 9bf3797796f570b34438235a6a537df85832bdad ]
->>
->> On sunxi boards that use HDMI output, HDMI device probe keeps being
->> avoided indefinitely with these repeated messages in dmesg:
->>
->>   platform 1ee0000.hdmi: probe deferral - supplier 1ef0000.hdmi-phy
->>     not ready
->>
->> There's a fwnode_link being created with fw_devlink=on between hdmi
->> and hdmi-phy nodes, because both nodes have 'compatible' property set.
->>
->> Fw_devlink code assumes that nodes that have compatible property
->> set will also have a device associated with them by some driver
->> eventually. This is not the case with the current sun8i-hdmi
->> driver.
->>
->
->fw_devlink isn't present in 5.4 or earlier. So technically this patch
->isn't needed.
+Greetings From Mrs. Sarah Koffi
 
-I'll drop it from <=5.4, thanks!
+I'm contacting you based on your good profiles I read and for a good
+reasons, I am in search of a property to buy in your country as I
+intended to come over to your
+country for investment, Though I have not meet with you before but I
+believe that one has to risk confiding in someone to succeed sometimes
+in life.
 
--- 
-Thanks,
-Sasha
+My name is Mrs. Sarah Koffi. My late husband deals on Crude Oil with
+Federal Government of Sudan and he has a personal Oil firm in Bentiu
+Oil zone town and Upper
+Nile city. What I have experience physically, I don't wish to
+experience it again in my life due to the recent civil Ethnic war
+cause by our President Mr. Salva Kiir
+and the rebel leader Mr Riek Machar, I have been Under United Nation
+refuge camp in chad to save my life and that of my little daughter.
+
+Though, I do not know how you will feel to my proposal, but the truth
+is that I sneaked into Chad our neighboring country where I am living
+now as a refugee.
+I escaped with my little daughter when the rebels bust into our house
+and killed my husband as one of the big oil dealers in the country,
+ever since then, I have being on the run.
+
+I left my country and move to Chad our neighboring country with the
+little ceasefire we had, due to the face to face peace meeting accord
+coordinated by the US Secretary of State, Mr John Kerry and United
+Nations in Ethiopia (Addis Ababa) between our President Mr Salva Kiir
+and the rebel leader Mr Riek Machar to stop this war.
+
+I want to solicit for your partnership with trust to invest the $8
+million dollars deposited by my late husband in Bank because my life
+is no longer safe in our country, since the rebels are looking for the
+families of all the oil business men in the country to kill, saying
+that they are they one that is milking the country dry.
+
+I will offer you 20% of the total fund for your help while I will
+partner with you for the investment in your country.
+If I get your reply.
+
+I will wait to hear from you so as to give you details.With love from
+
+ i need you to contact me here sarahkoffi389@yahoo.co.jp
+
+Mrs. Sarah Koffi
