@@ -2,50 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D77F03AF091
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77DD23AEF13
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231917AbhFUQu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:50:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37574 "EHLO mail.kernel.org"
+        id S231983AbhFUQfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232746AbhFUQr7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:47:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80F8F6145C;
-        Mon, 21 Jun 2021 16:33:57 +0000 (UTC)
+        id S232422AbhFUQdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:33:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70BB161351;
+        Mon, 21 Jun 2021 16:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293238;
-        bh=krHw4hiRnmPWyW69uCFr1bjPgmcwELw5Yevr8rfOP1c=;
+        s=korg; t=1624292796;
+        bh=ABL4HFFc1naR8AbFYJ/EZE7DNHfGI3EE4daeKSPLJLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Al1Y6wN4viGl8nb4U0HPkC8K7nOTSnvqT/zVF2ym8kVw68ZdkjBgadb7HenMskXkV
-         Rnf6rlWIRF9pY0wWxl5VkPWneFeSWg9LGcDCCUod9/axs+XjzkT4sC+UjDlL6BZGbH
-         MncE4K1fI3upKhsIiEHedTyFO/02ay4KUAo2A2a0=
+        b=AfG/K/j20EHpvDZJIM3z8j2QqiGEPQUFr9nm/RUMnMjGKXETv1+yj4D0fQJLfiIy+
+         Sof+eGn8XoxM080OxqpDR1zlEC5VWmhPzVI3aTXtZbzpYazYw3xglgqFyFNXS4wh5D
+         1lOI6FuiEoyjPNGB5PPYA4SbV7q5KrVxDblG+b2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pingfan Liu <kernelfans@gmail.com>,
-        Baoquan He <bhe@redhat.com>,
-        Bhupesh Sharma <bhupesh.sharma@linaro.org>,
-        Kazuhito Hagio <k-hagio@ab.jp.nec.com>,
-        Dave Young <dyoung@redhat.com>, Boris Petkov <bp@alien8.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        James Morse <james.morse@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Dave Anderson <anderson@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.12 149/178] crash_core, vmcoreinfo: append SECTION_SIZE_BITS to vmcoreinfo
-Date:   Mon, 21 Jun 2021 18:16:03 +0200
-Message-Id: <20210621154927.838117976@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 134/146] net: bridge: fix vlan tunnel dst null pointer dereference
+Date:   Mon, 21 Jun 2021 18:16:04 +0200
+Message-Id: <20210621154920.099730087@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +39,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pingfan Liu <kernelfans@gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-commit 4f5aecdff25f59fb5ea456d5152a913906ecf287 upstream.
+commit 58e2071742e38f29f051b709a5cca014ba51166f upstream.
 
-As mentioned in kernel commit 1d50e5d0c505 ("crash_core, vmcoreinfo:
-Append 'MAX_PHYSMEM_BITS' to vmcoreinfo"), SECTION_SIZE_BITS in the
-formula:
+This patch fixes a tunnel_dst null pointer dereference due to lockless
+access in the tunnel egress path. When deleting a vlan tunnel the
+tunnel_dst pointer is set to NULL without waiting a grace period (i.e.
+while it's still usable) and packets egressing are dereferencing it
+without checking. Use READ/WRITE_ONCE to annotate the lockless use of
+tunnel_id, use RCU for accessing tunnel_dst and make sure it is read
+only once and checked in the egress path. The dst is already properly RCU
+protected so we don't need to do anything fancy than to make sure
+tunnel_id and tunnel_dst are read only once and checked in the egress path.
 
-    #define SECTIONS_SHIFT    (MAX_PHYSMEM_BITS - SECTION_SIZE_BITS)
-
-Besides SECTIONS_SHIFT, SECTION_SIZE_BITS is also used to calculate
-PAGES_PER_SECTION in makedumpfile just like kernel.
-
-Unfortunately, this arch-dependent macro SECTION_SIZE_BITS changes, e.g.
-recently in kernel commit f0b13ee23241 ("arm64/sparsemem: reduce
-SECTION_SIZE_BITS").  But user space wants a stable interface to get
-this info.  Such info is impossible to be deduced from a crashdump
-vmcore.  Hence append SECTION_SIZE_BITS to vmcoreinfo.
-
-Link: https://lkml.kernel.org/r/20210608103359.84907-1-kernelfans@gmail.com
-Link: http://lists.infradead.org/pipermail/kexec/2021-June/022676.html
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Cc: Bhupesh Sharma <bhupesh.sharma@linaro.org>
-Cc: Kazuhito Hagio <k-hagio@ab.jp.nec.com>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: Boris Petkov <bp@alien8.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Dave Anderson <anderson@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 11538d039ac6 ("bridge: vlan dst_metadata hooks in ingress and egress paths")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/crash_core.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/bridge/br_private.h     |    4 ++--
+ net/bridge/br_vlan_tunnel.c |   38 ++++++++++++++++++++++++--------------
+ 2 files changed, 26 insertions(+), 16 deletions(-)
 
---- a/kernel/crash_core.c
-+++ b/kernel/crash_core.c
-@@ -464,6 +464,7 @@ static int __init crash_save_vmcoreinfo_
- 	VMCOREINFO_LENGTH(mem_section, NR_SECTION_ROOTS);
- 	VMCOREINFO_STRUCT_SIZE(mem_section);
- 	VMCOREINFO_OFFSET(mem_section, section_mem_map);
-+	VMCOREINFO_NUMBER(SECTION_SIZE_BITS);
- 	VMCOREINFO_NUMBER(MAX_PHYSMEM_BITS);
- #endif
- 	VMCOREINFO_STRUCT_SIZE(page);
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -98,8 +98,8 @@ struct br_vlan_stats {
+ };
+ 
+ struct br_tunnel_info {
+-	__be64			tunnel_id;
+-	struct metadata_dst	*tunnel_dst;
++	__be64				tunnel_id;
++	struct metadata_dst __rcu	*tunnel_dst;
+ };
+ 
+ /* private vlan flags */
+--- a/net/bridge/br_vlan_tunnel.c
++++ b/net/bridge/br_vlan_tunnel.c
+@@ -41,26 +41,33 @@ static struct net_bridge_vlan *br_vlan_t
+ 				      br_vlan_tunnel_rht_params);
+ }
+ 
++static void vlan_tunnel_info_release(struct net_bridge_vlan *vlan)
++{
++	struct metadata_dst *tdst = rtnl_dereference(vlan->tinfo.tunnel_dst);
++
++	WRITE_ONCE(vlan->tinfo.tunnel_id, 0);
++	RCU_INIT_POINTER(vlan->tinfo.tunnel_dst, NULL);
++	dst_release(&tdst->dst);
++}
++
+ void vlan_tunnel_info_del(struct net_bridge_vlan_group *vg,
+ 			  struct net_bridge_vlan *vlan)
+ {
+-	if (!vlan->tinfo.tunnel_dst)
++	if (!rcu_access_pointer(vlan->tinfo.tunnel_dst))
+ 		return;
+ 	rhashtable_remove_fast(&vg->tunnel_hash, &vlan->tnode,
+ 			       br_vlan_tunnel_rht_params);
+-	vlan->tinfo.tunnel_id = 0;
+-	dst_release(&vlan->tinfo.tunnel_dst->dst);
+-	vlan->tinfo.tunnel_dst = NULL;
++	vlan_tunnel_info_release(vlan);
+ }
+ 
+ static int __vlan_tunnel_info_add(struct net_bridge_vlan_group *vg,
+ 				  struct net_bridge_vlan *vlan, u32 tun_id)
+ {
+-	struct metadata_dst *metadata = NULL;
++	struct metadata_dst *metadata = rtnl_dereference(vlan->tinfo.tunnel_dst);
+ 	__be64 key = key32_to_tunnel_id(cpu_to_be32(tun_id));
+ 	int err;
+ 
+-	if (vlan->tinfo.tunnel_dst)
++	if (metadata)
+ 		return -EEXIST;
+ 
+ 	metadata = __ip_tun_set_dst(0, 0, 0, 0, 0, TUNNEL_KEY,
+@@ -69,8 +76,8 @@ static int __vlan_tunnel_info_add(struct
+ 		return -EINVAL;
+ 
+ 	metadata->u.tun_info.mode |= IP_TUNNEL_INFO_TX | IP_TUNNEL_INFO_BRIDGE;
+-	vlan->tinfo.tunnel_dst = metadata;
+-	vlan->tinfo.tunnel_id = key;
++	rcu_assign_pointer(vlan->tinfo.tunnel_dst, metadata);
++	WRITE_ONCE(vlan->tinfo.tunnel_id, key);
+ 
+ 	err = rhashtable_lookup_insert_fast(&vg->tunnel_hash, &vlan->tnode,
+ 					    br_vlan_tunnel_rht_params);
+@@ -79,9 +86,7 @@ static int __vlan_tunnel_info_add(struct
+ 
+ 	return 0;
+ out:
+-	dst_release(&vlan->tinfo.tunnel_dst->dst);
+-	vlan->tinfo.tunnel_dst = NULL;
+-	vlan->tinfo.tunnel_id = 0;
++	vlan_tunnel_info_release(vlan);
+ 
+ 	return err;
+ }
+@@ -182,12 +187,15 @@ int br_handle_ingress_vlan_tunnel(struct
+ int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
+ 				 struct net_bridge_vlan *vlan)
+ {
++	struct metadata_dst *tunnel_dst;
++	__be64 tunnel_id;
+ 	int err;
+ 
+-	if (!vlan || !vlan->tinfo.tunnel_id)
++	if (!vlan)
+ 		return 0;
+ 
+-	if (unlikely(!skb_vlan_tag_present(skb)))
++	tunnel_id = READ_ONCE(vlan->tinfo.tunnel_id);
++	if (!tunnel_id || unlikely(!skb_vlan_tag_present(skb)))
+ 		return 0;
+ 
+ 	skb_dst_drop(skb);
+@@ -195,7 +203,9 @@ int br_handle_egress_vlan_tunnel(struct
+ 	if (err)
+ 		return err;
+ 
+-	skb_dst_set(skb, dst_clone(&vlan->tinfo.tunnel_dst->dst));
++	tunnel_dst = rcu_dereference(vlan->tinfo.tunnel_dst);
++	if (tunnel_dst)
++		skb_dst_set(skb, dst_clone(&tunnel_dst->dst));
+ 
+ 	return 0;
+ }
 
 
