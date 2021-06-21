@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E44B73AE9A6
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 15:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F7B3AE9A7
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 15:05:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229651AbhFUNHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 09:07:20 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:43267 "EHLO
+        id S229727AbhFUNHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 09:07:23 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:60347 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229708AbhFUNHU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 09:07:20 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8E18B1940369;
-        Mon, 21 Jun 2021 09:05:05 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Mon, 21 Jun 2021 09:05:05 -0400
+        by vger.kernel.org with ESMTP id S229708AbhFUNHX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 09:07:23 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1868819401F4;
+        Mon, 21 Jun 2021 09:05:09 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Mon, 21 Jun 2021 09:05:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=htWYK+
-        UILvEdpNqgNKGoFyraEmKiSq/bsedXwFPyeq0=; b=ZFzZ9UU+R+gVEKx1juaJem
-        Lf2/GNMOLa6q7plrDcCQI/ynsg+nydx/+Fh+hRoniDzI4qxW6TMPhY5ROzqhstbD
-        32RbCHzh30siWLnjGPKMjafOesadLtBpDebszKzMG/FyDbODZHJIMtnnYSQ7RS1P
-        oJwwVNN2mwQ583pSM/572fUSbYYfrJX0zdZMMH7OqepdMUWPlGf1Tz5TpM9Dgxnp
-        gcWQaLRX14tZxjlDdQlBAAdPcGVxrOwgcz0mMhAVkdTJ3oD78Saybahh1VHxqf6D
-        xzQzMbjwNVlmXMc9zGDCv0Fkx9uAP57GKvcu9dH6FZjhyRKp92BTYAEL3hewI0zw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=vQQc8d
+        B8dtYm0JRekXSSYYojj/XCL6CtM/UH+ts+uss=; b=S9yu+tIYwB3csv/T8n+Svt
+        SeLWWzH1GgGshx64ZuikZMJ27+W93iMTXRXiNaIy/Fw3BMEvObf845/Oy1pWqx9O
+        h+ILudV8Me5g7AGvg7xgVaM7lWzahE2KmSkBojkO1q9rNzvmJqzF32Pw4Gzw/jBd
+        Xlf8RpcbYO5PO48ZEKNt+btFWCnAziNztk+ZX4Y3wTvPRbLv6m2aPdPWfPe5K9Aq
+        Ul6FdK8FM8Cjueo2xlQnqWM7hVfmqjTXiL6Jk8WIgUYH2kQGujUOZhssx71iXeRu
+        VAOKM/y5eL11fmkTdm/OSbT9xNIgmg642aeqqZIO/Fv9uIxKoSSn6U+NSr1m/E4A
         ==
-X-ME-Sender: <xms:gY7QYDpvqPg6dRNFW1pL5_KeVRoJZwNaq-hvvsftf4qb4y_xdcFaZw>
-    <xme:gY7QYNqTE1EBPpnzgpDhbhbSELBxJ_59w0nJPMAe9i0iZ51n2hOhwTpQEEeBnEFfz
-    k_avHUBq3tglQ>
-X-ME-Received: <xmr:gY7QYAMohGybm7lt_yuizvIZrNYfIjv4x4Dqr1DZ3xlfgHQ6vchlMTqnM2Y13nhomHvqybw0WitExveyLttV0_4TFydWRa64>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgheelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:hI7QYO6kt0fbX2_R0R2ZEIZekDCWvuzrBxNVPNELw6XrdPs0NxW07Q>
+    <xme:hI7QYH4pvT6crWyKQupIdJ-_ZXZ9qiNCASj_8SrAxKX9lQC7NRnaAdicCtHSEhalJ
+    8E_7jzoLyQxIg>
+X-ME-Received: <xmr:hI7QYNc2WiUXi7OgAsv0kFjliZboreP3D1X8GZs_k8O5iXwZKlr3_0FVKkvHUQ8xPpbR6NWDx510pSWM5luOqOUBBHGMgKjO>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgiedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -39,13 +39,13 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgheelucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:gY7QYG4n37Hg8uTZ6bBhGFV8hJ8VivhnWCuwzqfHQHtpByXNeVFQ-A>
-    <xmx:gY7QYC5iHDMGb80415m0XRfkBolIuQVCs2yRL9hCaGuMNj40IXR-QA>
-    <xmx:gY7QYOi9mSpcSAspISGWLi1n-lFtqGu7nAnhHeFhao2P_fI87S67RA>
-    <xmx:gY7QYLH_5CK1D65mCLV2WEjsD9BHSvoGhfL8BL_SoTa9Fk9mPzkq9bX7eLI>
+X-ME-Proxy: <xmx:hI7QYLLvxTkOZnTjzB4cH7t3qIok75Es84TmJxun-a_qPFJ5vWbN7Q>
+    <xmx:hI7QYCK__P7JDsqAWHrEFkyfweBZm5y5WM_mWP2nTI1vbOrg6AkDpQ>
+    <xmx:hI7QYMyJlNVubGr52CGhnpOulhv1JUyq3jLCFEhMACfAuyWoiXReJw>
+    <xmx:hY7QYPVg3rChHZQhWckxEtgjB4N8-ygb7XuONGELp0bwHo5UPwoBSCv-16c>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 21 Jun 2021 09:05:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/hugetlb: expand restore_reserve_on_error functionality" failed to apply to 4.14-stable tree
+ 21 Jun 2021 09:05:07 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/hugetlb: expand restore_reserve_on_error functionality" failed to apply to 4.19-stable tree
 To:     mike.kravetz@oracle.com, akpm@linux-foundation.org,
         almasrymina@google.com, axelrasmussen@google.com, mhocko@suse.com,
         naoya.horiguchi@nec.com, peterx@redhat.com,
@@ -53,8 +53,8 @@ To:     mike.kravetz@oracle.com, akpm@linux-foundation.org,
         torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Jun 2021 15:04:58 +0200
-Message-ID: <162428069828165@kroah.com>
+Date:   Mon, 21 Jun 2021 15:05:00 +0200
+Message-ID: <1624280700254165@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -63,7 +63,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
