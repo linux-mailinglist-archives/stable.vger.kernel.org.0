@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 558CF3AEF2A
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67A8F3AF085
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231806AbhFUQgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:36:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56162 "EHLO mail.kernel.org"
+        id S231148AbhFUQuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:50:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232908AbhFUQex (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:34:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50CF86124B;
-        Mon, 21 Jun 2021 16:27:25 +0000 (UTC)
+        id S232115AbhFUQrX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:47:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 847746141A;
+        Mon, 21 Jun 2021 16:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292845;
-        bh=SLdZNVlc3QuvAH3Rngujdew2yvmtAj+wl+Hap5ihrjU=;
+        s=korg; t=1624293209;
+        bh=jypisFtS2T5AuEse6LX+tOnwzhhUTeKbeHc8WA6noSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1UAgN66ThNMfS3ped6CN1Ps3ywZvaQPy8kW4CfT8S0zdA4Gev5lfEEUaAonLOpBt
-         xVkGhPzKrFX2eNDtm35mP1Zy/PqJCZrbMrsfgiHRZi7+Iwe8R+Fa/1Q5EArbPf1WLp
-         udMlMlobQEvN4z8RuXM0jC/zNtgEuxcWUwJemBEo=
+        b=f8bN0d5cdN+OZgxcl4gZDzVikfgfKygoiXsc4m4gBLscRFgbnb0s67NUC2jaTnsq8
+         HK13H9Rh+ijpWXphBdewsBmOFcLuYQyJ/kQQJmJ2Ilv2pll9yyGoPoa0Hex8th8rbO
+         jxcCGH2SAxMvxaOryuUaFlMVO9x9vjTRVAwoslk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Rik van Riel <riel@surriel.com>
-Subject: [PATCH 5.10 123/146] x86/fpu: Invalidate FPU state after a failed XRSTOR from a user buffer
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Vladimir Isaev <isaev@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 5.12 139/178] ARCv2: save ABI registers across signal handling
 Date:   Mon, 21 Jun 2021 18:15:53 +0200
-Message-Id: <20210621154919.218967475@linuxfoundation.org>
+Message-Id: <20210621154927.503421315@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
+References: <20210621154921.212599475@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +40,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-commit d8778e393afa421f1f117471144f8ce6deb6953a upstream.
+commit 96f1b00138cb8f04c742c82d0a7c460b2202e887 upstream.
 
-Both Intel and AMD consider it to be architecturally valid for XRSTOR to
-fail with #PF but nonetheless change the register state.  The actual
-conditions under which this might occur are unclear [1], but it seems
-plausible that this might be triggered if one sibling thread unmaps a page
-and invalidates the shared TLB while another sibling thread is executing
-XRSTOR on the page in question.
+ARCv2 has some configuration dependent registers (r30, r58, r59) which
+could be targetted by the compiler. To keep the ABI stable, these were
+unconditionally part of the glibc ABI
+(sysdeps/unix/sysv/linux/arc/sys/ucontext.h:mcontext_t) however we
+missed populating them (by saving/restoring them across signal
+handling).
 
-__fpu__restore_sig() can execute XRSTOR while the hardware registers
-are preserved on behalf of a different victim task (using the
-fpu_fpregs_owner_ctx mechanism), and, in theory, XRSTOR could fail but
-modify the registers.
+This patch fixes the issue by
+ - adding arcv2 ABI regs to kernel struct sigcontext
+ - populating them during signal handling
 
-If this happens, then there is a window in which __fpu__restore_sig()
-could schedule out and the victim task could schedule back in without
-reloading its own FPU registers. This would result in part of the FPU
-state that __fpu__restore_sig() was attempting to load leaking into the
-victim task's user-visible state.
+Change to struct sigcontext might seem like a glibc ABI change (although
+it primarily uses ucontext_t:mcontext_t) but the fact is
+ - it has only been extended (existing fields are not touched)
+ - the old sigcontext was ABI incomplete to begin with anyways
 
-Invalidate preserved FPU registers on XRSTOR failure to prevent this
-situation from corrupting any state.
-
-[1] Frequent readers of the errata lists might imagine "complex
-    microarchitectural conditions".
-
-Fixes: 1d731e731c4c ("x86/fpu: Add a fastpath to __fpu__restore_sig()")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Rik van Riel <riel@surriel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210608144345.758116583@linutronix.de
+Fixes: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/53
+Cc: <stable@vger.kernel.org>
+Tested-by: kernel test robot <lkp@intel.com>
+Reported-by: Vladimir Isaev <isaev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/signal.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ arch/arc/include/uapi/asm/sigcontext.h |    1 
+ arch/arc/kernel/signal.c               |   43 +++++++++++++++++++++++++++++++++
+ 2 files changed, 44 insertions(+)
 
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -369,6 +369,25 @@ static int __fpu__restore_sig(void __use
- 			fpregs_unlock();
- 			return 0;
- 		}
+--- a/arch/arc/include/uapi/asm/sigcontext.h
++++ b/arch/arc/include/uapi/asm/sigcontext.h
+@@ -18,6 +18,7 @@
+  */
+ struct sigcontext {
+ 	struct user_regs_struct regs;
++	struct user_regs_arcv2 v2abi;
+ };
+ 
+ #endif /* _ASM_ARC_SIGCONTEXT_H */
+--- a/arch/arc/kernel/signal.c
++++ b/arch/arc/kernel/signal.c
+@@ -61,6 +61,41 @@ struct rt_sigframe {
+ 	unsigned int sigret_magic;
+ };
+ 
++static int save_arcv2_regs(struct sigcontext *mctx, struct pt_regs *regs)
++{
++	int err = 0;
++#ifndef CONFIG_ISA_ARCOMPACT
++	struct user_regs_arcv2 v2abi;
 +
-+		/*
-+		 * The above did an FPU restore operation, restricted to
-+		 * the user portion of the registers, and failed, but the
-+		 * microcode might have modified the FPU registers
-+		 * nevertheless.
-+		 *
-+		 * If the FPU registers do not belong to current, then
-+		 * invalidate the FPU register state otherwise the task might
-+		 * preempt current and return to user space with corrupted
-+		 * FPU registers.
-+		 *
-+		 * In case current owns the FPU registers then no further
-+		 * action is required. The fixup below will handle it
-+		 * correctly.
-+		 */
-+		if (test_thread_flag(TIF_NEED_FPU_LOAD))
-+			__cpu_invalidate_fpregs_state();
++	v2abi.r30 = regs->r30;
++#ifdef CONFIG_ARC_HAS_ACCL_REGS
++	v2abi.r58 = regs->r58;
++	v2abi.r59 = regs->r59;
++#else
++	v2abi.r58 = v2abi.r59 = 0;
++#endif
++	err = __copy_to_user(&mctx->v2abi, &v2abi, sizeof(v2abi));
++#endif
++	return err;
++}
 +
- 		fpregs_unlock();
- 	} else {
- 		/*
++static int restore_arcv2_regs(struct sigcontext *mctx, struct pt_regs *regs)
++{
++	int err = 0;
++#ifndef CONFIG_ISA_ARCOMPACT
++	struct user_regs_arcv2 v2abi;
++
++	err = __copy_from_user(&v2abi, &mctx->v2abi, sizeof(v2abi));
++
++	regs->r30 = v2abi.r30;
++#ifdef CONFIG_ARC_HAS_ACCL_REGS
++	regs->r58 = v2abi.r58;
++	regs->r59 = v2abi.r59;
++#endif
++#endif
++	return err;
++}
++
+ static int
+ stash_usr_regs(struct rt_sigframe __user *sf, struct pt_regs *regs,
+ 	       sigset_t *set)
+@@ -94,6 +129,10 @@ stash_usr_regs(struct rt_sigframe __user
+ 
+ 	err = __copy_to_user(&(sf->uc.uc_mcontext.regs.scratch), &uregs.scratch,
+ 			     sizeof(sf->uc.uc_mcontext.regs.scratch));
++
++	if (is_isa_arcv2())
++		err |= save_arcv2_regs(&(sf->uc.uc_mcontext), regs);
++
+ 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(sigset_t));
+ 
+ 	return err ? -EFAULT : 0;
+@@ -109,6 +148,10 @@ static int restore_usr_regs(struct pt_re
+ 	err |= __copy_from_user(&uregs.scratch,
+ 				&(sf->uc.uc_mcontext.regs.scratch),
+ 				sizeof(sf->uc.uc_mcontext.regs.scratch));
++
++	if (is_isa_arcv2())
++		err |= restore_arcv2_regs(&(sf->uc.uc_mcontext), regs);
++
+ 	if (err)
+ 		return -EFAULT;
+ 
 
 
