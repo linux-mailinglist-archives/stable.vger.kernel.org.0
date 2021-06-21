@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3133AE774
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C26F93AE773
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230061AbhFUKqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 06:46:47 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:55131 "EHLO
+        id S229621AbhFUKql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 06:46:41 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:50767 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230052AbhFUKqr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:46:47 -0400
+        by vger.kernel.org with ESMTP id S230118AbhFUKqk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:46:40 -0400
 Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 69F9F1940A32;
-        Mon, 21 Jun 2021 06:44:32 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 22F4F19403DD;
+        Mon, 21 Jun 2021 06:44:25 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 21 Jun 2021 06:44:32 -0400
+  by compute2.internal (MEProxy); Mon, 21 Jun 2021 06:44:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Mhlfg8
-        bLIkh4rF2p1EloS8Kfg3Qvs8vXevtFc4qJwz4=; b=wERY9Je0trucSwEy6iYf6X
-        6R+IZaS3CsWuByPfoBTWtnvrxBDu02xphPKwoBrSEOqnmoK1MNqdTnXQ4632073F
-        BQPfE6c28jlAsP0MWny6QbSiY/ifPDcx3vj7NLK3SbFGf9Hz9kKvt+wmxL09/Vxx
-        f1u2Id2mFEd3q7KmfzGYyQ8iYwwt+HyJfbLzhgu7u9HZlzuYXIXkjY55aP/eghPw
-        bnKyYXzD5Mo3ty1WLKTgo0ehfPhk5+XzCUkPaD/2eRw0Rik9Ale0S5+QNzdbR26t
-        07jdm28gSDHJHg79xy1VulmPI3Kj9yx6a/v/0b9lbSvY/g55REpmj9/a+31+xGAA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=YgGslU
+        uIbJdaPeu3hMMIIsXRYGN6xMGfske7rnqTylU=; b=qLOctBV81PB3PHf+bYTcUc
+        hSlmTtMgd57n4S2OKk5ivTb8HJPQ12aAcg6ThaglJNgmlEjnS6jeT8xNMb5ospNJ
+        pibcxlrryiqyYOdCZgR6Gm5HIlpv8H35HCbJZ2izKgCVdRxu/+I8gPbFrERxK7Zs
+        1VCopI7LaZhbWkcdqMo5KT0muVS1JMX8M1OKa8vEGwzgMs3XO/Nnllm1uDA8lqJN
+        74BgMAsf5EG3sNEMDg7FZR8XMrisZj8NkTXOT5TOd0K/fE7P5ux1Ao8029MDV6i7
+        MFTPxeA5UKppBXcGOxvUUYRz2dQKmJ83MOeBqKNyJ3v0q7M3KITs+YvTcXSySCgQ
         ==
-X-ME-Sender: <xms:kG3QYOLEqu7BjytavANI4cwdbksddwMh7NPNOLRQUh6BRx1lS7Tqbg>
-    <xme:kG3QYGL85s-ff7UmampTGPD-71UWufeP4XXgf-mNx2YVSYdEDm7_Tq0_WAcXq74zi
-    nc-xQbzb521Bg>
-X-ME-Received: <xmr:kG3QYOvZ0ak_tqWnNU3cuI0lwNe8tHjmf94ClLJL94PDJYAktg8xbeb36ZAHDB9bce1LOYTtlkLQGTaxyErqcW5qS-86nCWV>
+X-ME-Sender: <xms:iG3QYOZ93aX1S5rGdSAVCedDE4QlVG3f3HEtWe5l9zE6jdWiENRtvQ>
+    <xme:iG3QYBZbaWoa52hcrBXsQuEOF13kCIIk4ZHpU4arje9DYC9-lL7qhaEs4yPzXO9aK
+    _E1GzL5Cp2Wlg>
+X-ME-Received: <xmr:iG3QYI_kWfo-UjN7OOZFROe0HypqIWt4SO8NsmEaz0w754vo9JhaKlHk49V0CRc7t0uBtzsUBB_chhQumMFOVb4G7nDLDu_5>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgfeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepveeuudekgeehiedthfefgfevvdetteehvdeiheehud
     egtddvvefgtdeiheekueehnecuffhomhgrihhnpegvnhhtrhihrdhssgenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:kG3QYDZXqsu31WkbLwljGij09WhNPO-rYejB2LzdHG0IIJvuLaMx6Q>
-    <xmx:kG3QYFZq7TcGMgfA0TSmz94nXSX8Swpah6uswvCTCPckeC9eoUWFag>
-    <xmx:kG3QYPAmzjlmHLgDJMwZiYvRVq2Z_IU7INf4sGInGxcP7AfqAW7xBg>
-    <xmx:kG3QYEUVpO1Z3s-eneo9PgohUPE1OptU6TSmwIbmY83bbPDrIrEtoA>
+X-ME-Proxy: <xmx:iG3QYAo3VlYEc1Cv0RAh61901UpRARXyXA4kHX09Umun6CgCUcPKsQ>
+    <xmx:iG3QYJovpN1ij6BZEwP2g4fDgXikpZ7yjClhOGO4EBGlSq-Xt1faUQ>
+    <xmx:iG3QYOQ8i9Bi9sq5-gr0vfoaFz7iXsUz9NH6_p-HmnG8J2SzzDw0Vw>
+    <xmx:iW3QYKleMxR5ocXfdHWgVrk_bxKkpqPUMeYY6xnynReTNE8jGuhfoA>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 21 Jun 2021 06:44:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] s390/mcck: fix invalid KVM guest condition check" failed to apply to 4.19-stable tree
+ 21 Jun 2021 06:44:24 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] s390/mcck: fix invalid KVM guest condition check" failed to apply to 4.14-stable tree
 To:     agordeev@linux.ibm.com, borntraeger@de.ibm.com, gor@linux.ibm.com,
         hca@linux.ibm.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 21 Jun 2021 12:44:22 +0200
-Message-ID: <162427226210342@kroah.com>
+Message-ID: <16242722622032@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
