@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 615023AEEBE
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 346313AEEC4
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232406AbhFUQbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:31:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49790 "EHLO mail.kernel.org"
+        id S232454AbhFUQbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:31:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230028AbhFUQ3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:29:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F7B56137D;
-        Mon, 21 Jun 2021 16:24:46 +0000 (UTC)
+        id S231575AbhFUQ3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:29:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF221611C1;
+        Mon, 21 Jun 2021 16:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292687;
-        bh=9vcfTZcB3p8/nUb+9Pepda3aHDuLn/KdV/B2nj2CEGA=;
+        s=korg; t=1624292690;
+        bh=rhJOGeEofXmTVYdy2YtFlrU6N/QJM20jpqVjOXlsgWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QqnWCl8kPG0DViwZwVQsubUp09lhLcUdxTyn3bYdQYtrz1ZaxaZb9B4BBrR5gmPWN
-         g3Vzx9U0vp6GDBaDbnHVbCAqr5gKQ+IXezK8ohoTrxBk0cJLiLtmLx3OJLTeJM+Sbs
-         N+Sssx8gr3fKaOvYcx+StT9wT6FIpCPTYwPIzRng=
+        b=VwGxabQysapG5NauUKTibT2dR4aEtJWyiJ/7PAs/xB0acQsUMAiuQTE4NM1rBX2Tn
+         C18J3ZhzxpenvIea4HD+oUzrXuWr9SREwOOljKaHzOfM0fzKXxdWkiAawco/gdJJ5K
+         a/PfNrgGMJ5MJYP5EQ5Mq1rAlmbRF+tiYdxf17Qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>, Peter Xu <peterx@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 093/146] mm: relocate write_protect_seq in struct mm_struct
-Date:   Mon, 21 Jun 2021 18:15:23 +0200
-Message-Id: <20210621154917.035421738@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 094/146] irqchip/gic-v3: Workaround inconsistent PMR setting on NMI entry
+Date:   Mon, 21 Jun 2021 18:15:24 +0200
+Message-Id: <20210621154917.101663853@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
 References: <20210621154911.244649123@linuxfoundation.org>
@@ -43,134 +39,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Feng Tang <feng.tang@intel.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 2e3025434a6ba090c85871a1d4080ff784109e1f ]
+[ Upstream commit 382e6e177bc1c02473e56591fe5083ae1e4904f6 ]
 
-0day robot reported a 9.2% regression for will-it-scale mmap1 test
-case[1], caused by commit 57efa1fe5957 ("mm/gup: prevent gup_fast from
-racing with COW during fork").
+The arm64 entry code suffers from an annoying issue on taking
+a NMI, as it sets PMR to a value that actually allows IRQs
+to be acknowledged. This is done for consistency with other parts
+of the code, and is in the process of being fixed. This shouldn't
+be a problem, as we are not enabling interrupts whilst in NMI
+context.
 
-Further debug shows the regression is due to that commit changes the
-offset of hot fields 'mmap_lock' inside structure 'mm_struct', thus some
-cache alignment changes.
+However, in the infortunate scenario that we took a spurious NMI
+(retired before the read of IAR) *and* that there is an IRQ pending
+at the same time, we'll ack the IRQ in NMI context. Too bad.
 
->From the perf data, the contention for 'mmap_lock' is very severe and
-takes around 95% cpu cycles, and it is a rw_semaphore
+In order to avoid deadlocks while running something like perf,
+teach the GICv3 driver about this situation: if we were in
+a context where no interrupt should have fired, transiently
+set PMR to a value that only allows NMIs before acking the pending
+interrupt, and restore the original value after that.
 
-        struct rw_semaphore {
-                atomic_long_t count;	/* 8 bytes */
-                atomic_long_t owner;	/* 8 bytes */
-                struct optimistic_spin_queue osq; /* spinner MCS lock */
-                ...
+This papers over the core issue for the time being, and makes
+NMIs great again. Sort of.
 
-Before commit 57efa1fe5957 adds the 'write_protect_seq', it happens to
-have a very optimal cache alignment layout, as Linus explained:
-
- "and before the addition of the 'write_protect_seq' field, the
-  mmap_sem was at offset 120 in 'struct mm_struct'.
-
-  Which meant that count and owner were in two different cachelines,
-  and then when you have contention and spend time in
-  rwsem_down_write_slowpath(), this is probably *exactly* the kind
-  of layout you want.
-
-  Because first the rwsem_write_trylock() will do a cmpxchg on the
-  first cacheline (for the optimistic fast-path), and then in the
-  case of contention, rwsem_down_write_slowpath() will just access
-  the second cacheline.
-
-  Which is probably just optimal for a load that spends a lot of
-  time contended - new waiters touch that first cacheline, and then
-  they queue themselves up on the second cacheline."
-
-After the commit, the rw_semaphore is at offset 128, which means the
-'count' and 'owner' fields are now in the same cacheline, and causes
-more cache bouncing.
-
-Currently there are 3 "#ifdef CONFIG_XXX" before 'mmap_lock' which will
-affect its offset:
-
-  CONFIG_MMU
-  CONFIG_MEMBARRIER
-  CONFIG_HAVE_ARCH_COMPAT_MMAP_BASES
-
-The layout above is on 64 bits system with 0day's default kernel config
-(similar to RHEL-8.3's config), in which all these 3 options are 'y'.
-And the layout can vary with different kernel configs.
-
-Relayouting a structure is usually a double-edged sword, as sometimes it
-can helps one case, but hurt other cases.  For this case, one solution
-is, as the newly added 'write_protect_seq' is a 4 bytes long seqcount_t
-(when CONFIG_DEBUG_LOCK_ALLOC=n), placing it into an existing 4 bytes
-hole in 'mm_struct' will not change other fields' alignment, while
-restoring the regression.
-
-Link: https://lore.kernel.org/lkml/20210525031636.GB7744@xsang-OptiPlex-9020/ [1]
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Feng Tang <feng.tang@intel.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Peter Xu <peterx@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 4d6a38da8e79e94c ("arm64: entry: always set GIC_PRIO_PSR_I_SET during entry")
+Co-developed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/lkml/20210610145731.1350460-1-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mm_types.h | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ drivers/irqchip/irq-gic-v3.c | 36 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 35 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index a4fff7d7abe5..4eb38918da8f 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -448,13 +448,6 @@ struct mm_struct {
- 		 */
- 		atomic_t has_pinned;
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index 7929bf12651c..1005b182bab4 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -642,11 +642,45 @@ static inline void gic_handle_nmi(u32 irqnr, struct pt_regs *regs)
+ 		nmi_exit();
+ }
  
--		/**
--		 * @write_protect_seq: Locked when any thread is write
--		 * protecting pages mapped by this mm to enforce a later COW,
--		 * for instance during page table copying for fork().
--		 */
--		seqcount_t write_protect_seq;
--
- #ifdef CONFIG_MMU
- 		atomic_long_t pgtables_bytes;	/* PTE page table pages */
- #endif
-@@ -463,6 +456,18 @@ struct mm_struct {
- 		spinlock_t page_table_lock; /* Protects page tables and some
- 					     * counters
- 					     */
++static u32 do_read_iar(struct pt_regs *regs)
++{
++	u32 iar;
++
++	if (gic_supports_nmi() && unlikely(!interrupts_enabled(regs))) {
++		u64 pmr;
++
 +		/*
-+		 * With some kernel config, the current mmap_lock's offset
-+		 * inside 'mm_struct' is at 0x120, which is very optimal, as
-+		 * its two hot fields 'count' and 'owner' sit in 2 different
-+		 * cachelines,  and when mmap_lock is highly contended, both
-+		 * of the 2 fields will be accessed frequently, current layout
-+		 * will help to reduce cache bouncing.
++		 * We were in a context with IRQs disabled. However, the
++		 * entry code has set PMR to a value that allows any
++		 * interrupt to be acknowledged, and not just NMIs. This can
++		 * lead to surprising effects if the NMI has been retired in
++		 * the meantime, and that there is an IRQ pending. The IRQ
++		 * would then be taken in NMI context, something that nobody
++		 * wants to debug twice.
 +		 *
-+		 * So please be careful with adding new fields before
-+		 * mmap_lock, which can easily push the 2 fields into one
-+		 * cacheline.
++		 * Until we sort this, drop PMR again to a level that will
++		 * actually only allow NMIs before reading IAR, and then
++		 * restore it to what it was.
 +		 */
- 		struct rw_semaphore mmap_lock;
- 
- 		struct list_head mmlist; /* List of maybe swapped mm's.	These
-@@ -483,7 +488,15 @@ struct mm_struct {
- 		unsigned long stack_vm;	   /* VM_STACK */
- 		unsigned long def_flags;
- 
-+		/**
-+		 * @write_protect_seq: Locked when any thread is write
-+		 * protecting pages mapped by this mm to enforce a later COW,
-+		 * for instance during page table copying for fork().
-+		 */
-+		seqcount_t write_protect_seq;
++		pmr = gic_read_pmr();
++		gic_pmr_mask_irqs();
++		isb();
 +
- 		spinlock_t arg_lock; /* protect the below fields */
++		iar = gic_read_iar();
 +
- 		unsigned long start_code, end_code, start_data, end_data;
- 		unsigned long start_brk, brk, start_stack;
- 		unsigned long arg_start, arg_end, env_start, env_end;
++		gic_write_pmr(pmr);
++	} else {
++		iar = gic_read_iar();
++	}
++
++	return iar;
++}
++
+ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs)
+ {
+ 	u32 irqnr;
+ 
+-	irqnr = gic_read_iar();
++	irqnr = do_read_iar(regs);
+ 
+ 	/* Check for special IDs first */
+ 	if ((irqnr >= 1020 && irqnr <= 1023))
 -- 
 2.30.2
 
