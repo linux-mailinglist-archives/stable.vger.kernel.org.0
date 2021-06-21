@@ -2,153 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C9943AE752
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 002DC3AE75D
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230411AbhFUKm3 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 21 Jun 2021 06:42:29 -0400
-Received: from rtits2.realtek.com ([211.75.126.72]:40791 "EHLO
-        rtits2.realtek.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229904AbhFUKm2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:42:28 -0400
-Authenticated-By: 
-X-SpamFilter-By: ArmorX SpamTrap 5.73 with qID 15LAe2mE5007015, This message is accepted by code: ctloc85258
-Received: from mail.realtek.com (rtexh36502.realtek.com.tw[172.21.6.25])
-        by rtits2.realtek.com.tw (8.15.2/2.71/5.88) with ESMTPS id 15LAe2mE5007015
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-        Mon, 21 Jun 2021 18:40:02 +0800
-Received: from RTEXDAG02.realtek.com.tw (172.21.6.101) by
- RTEXH36502.realtek.com.tw (172.21.6.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2106.2; Mon, 21 Jun 2021 18:40:01 +0800
-Received: from RTEXMBS04.realtek.com.tw (172.21.6.97) by
- RTEXDAG02.realtek.com.tw (172.21.6.101) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2106.2; Mon, 21 Jun 2021 18:40:01 +0800
-Received: from RTEXMBS04.realtek.com.tw ([fe80::a0a3:e64a:34ad:fe28]) by
- RTEXMBS04.realtek.com.tw ([fe80::a0a3:e64a:34ad:fe28%5]) with mapi id
- 15.01.2106.013; Mon, 21 Jun 2021 18:40:01 +0800
-From:   Pkshih <pkshih@realtek.com>
-To:     Larry Finger <Larry.Finger@lwfinger.net>,
-        "kvalo@codeaurora.org" <kvalo@codeaurora.org>
-CC:     "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] rtw88: Fix some memory leaks
-Thread-Topic: [PATCH v2] rtw88: Fix some memory leaks
-Thread-Index: AQHXZgxATtcHECM3iE6itZ90Mb4OaaseRfiQ
-Date:   Mon, 21 Jun 2021 10:40:01 +0000
-Message-ID: <19c86cb8dbe04b56b76a386b5faeaa89@realtek.com>
-References: <20210620194110.7520-1-Larry.Finger@lwfinger.net>
-In-Reply-To: <20210620194110.7520-1-Larry.Finger@lwfinger.net>
-Accept-Language: en-US, zh-TW
-Content-Language: zh-TW
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [172.21.69.146]
-x-kse-serverinfo: RTEXDAG02.realtek.com.tw, 9
-x-kse-attachmentfiltering-interceptor-info: no applicable attachment filtering
- rules found
-x-kse-antivirus-interceptor-info: scan successful
-x-kse-antivirus-info: =?us-ascii?Q?Clean,_bases:_2021/6/21_=3F=3F_08:47:00?=
-x-kse-bulkmessagesfiltering-scan-result: protection disabled
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S230052AbhFUKnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 06:43:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37362 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230481AbhFUKnS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 06:43:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8F5A61153;
+        Mon, 21 Jun 2021 10:41:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1624272064;
+        bh=UbCcZm9yRxkuaU4xQLxn8nCsaydZD6ZzKtQxMT/YMLo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=i+U2tLKYUHdlHLeSjqpjrxf9kXOylOkCNYdCYAkIY4ljKQSACv7cVTNKIW0q5kLR+
+         Hqf9iMMu/c+w8m1ur2Lznh3zuJZMzGLMTDV+SgYNhI3U4ODLCccbuuzFuzHcg9wBFY
+         Z2MLwGijFyzv6NuaqHk9xi/h0didjoIO5avK0dtsoF3RpaIJaSRNjhVDza9u4YQOYI
+         mbiqlPI1Ndga2zg7wSTZJrFlxD5RLUC/9+atcXfZSpsoto3uDUiCwQzn/QTN+bb0En
+         NnPRnsW2raQmvQb5HZLiBmsYMqk0G+BPjpRj8by0uBu7YZNsur5m31IFeIENWtsjFH
+         6hZFEFPzI8YBQ==
+Date:   Mon, 21 Jun 2021 11:40:42 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.12 02/33] regulator: max77620: Silence deferred
+ probe error
+Message-ID: <20210621104042.GB4094@sirena.org.uk>
+References: <20210615154824.62044-1-sashal@kernel.org>
+ <20210615154824.62044-2-sashal@kernel.org>
+ <20210615155436.GM5149@sirena.org.uk>
+ <YM8633R356GXEwoR@sashalap>
 MIME-Version: 1.0
-X-KSE-ServerInfo: RTEXH36502.realtek.com.tw, 9
-X-KSE-Attachment-Filter-Triggered-Rules: Clean
-X-KSE-Attachment-Filter-Triggered-Filters: Clean
-X-KSE-BulkMessagesFiltering-Scan-Result: protection disabled
-X-KSE-AntiSpam-Outbound-Interceptor-Info: scan successful
-X-KSE-AntiSpam-Version: 5.9.20, Database issued on: 06/21/2021 10:15:36
-X-KSE-AntiSpam-Status: KAS_STATUS_NOT_DETECTED
-X-KSE-AntiSpam-Method: none
-X-KSE-AntiSpam-Rate: 0
-X-KSE-AntiSpam-Info: Lua profiles 164498 [Jun 21 2021]
-X-KSE-AntiSpam-Info: Version: 5.9.20.0
-X-KSE-AntiSpam-Info: Envelope from: pkshih@realtek.com
-X-KSE-AntiSpam-Info: LuaCore: 448 448 71fb1b37213ce9a885768d4012c46ac449c77b17
-X-KSE-AntiSpam-Info: {Tracking_uf_ne_domains}
-X-KSE-AntiSpam-Info: {Tracking_from_domain_doesnt_match_to}
-X-KSE-AntiSpam-Info: realtek.com:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;lore.kernel.org:7.1.1;127.0.0.199:7.1.2
-X-KSE-AntiSpam-Info: Rate: 0
-X-KSE-AntiSpam-Info: Status: not_detected
-X-KSE-AntiSpam-Info: Method: none
-X-KSE-AntiSpam-Info: Auth:dkim=none
-X-KSE-Antiphishing-Info: Clean
-X-KSE-Antiphishing-ScanningType: Heuristic
-X-KSE-Antiphishing-Method: None
-X-KSE-Antiphishing-Bases: 06/21/2021 10:18:00
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="5I6of5zJg18YgZEa"
+Content-Disposition: inline
+In-Reply-To: <YM8633R356GXEwoR@sashalap>
+X-Cookie: I hate dying.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+--5I6of5zJg18YgZEa
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> -----Original Message-----
-> From: Larry Finger [mailto:larry.finger@gmail.com] On Behalf Of Larry Finger
-> Sent: Monday, June 21, 2021 3:41 AM
-> To: kvalo@codeaurora.org
-> Cc: linux-wireless@vger.kernel.org; Larry Finger; Stable
-> Subject: [PATCH v2] rtw88: Fix some memory leaks
-> 
-> There are memory leaks of skb's from routines rtw_fw_c2h_cmd_rx_irqsafe()
-> and rtw_coex_info_response(), both arising from C2H operations. There are
-> no leaks from the buffers sent to mac80211.
-> 
-> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-> Cc: Stable <stable@vger.kernel.org>
-> ---
-> v2 - add the missinf changelog.
-> 
-> ---
->  drivers/net/wireless/realtek/rtw88/coex.c | 4 +++-
->  drivers/net/wireless/realtek/rtw88/fw.c   | 2 ++
->  2 files changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/net/wireless/realtek/rtw88/coex.c b/drivers/net/wireless/realtek/rtw88/coex.c
-> index cedbf3825848..e81bf5070183 100644
-> --- a/drivers/net/wireless/realtek/rtw88/coex.c
-> +++ b/drivers/net/wireless/realtek/rtw88/coex.c
-> @@ -591,8 +591,10 @@ void rtw_coex_info_response(struct rtw_dev *rtwdev, struct sk_buff *skb)
->  	struct rtw_coex *coex = &rtwdev->coex;
->  	u8 *payload = get_payload_from_coex_resp(skb);
-> 
-> -	if (payload[0] != COEX_RESP_ACK_BY_WL_FW)
-> +	if (payload[0] != COEX_RESP_ACK_BY_WL_FW) {
-> +		dev_kfree_skb_any(skb);
->  		return;
-> +	}
-> 
->  	skb_queue_tail(&coex->queue, skb);
->  	wake_up(&coex->wait);
-> diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
-> index 797b08b2a494..43525ad8543f 100644
-> --- a/drivers/net/wireless/realtek/rtw88/fw.c
-> +++ b/drivers/net/wireless/realtek/rtw88/fw.c
-> @@ -231,9 +231,11 @@ void rtw_fw_c2h_cmd_rx_irqsafe(struct rtw_dev *rtwdev, u32 pkt_offset,
->  	switch (c2h->id) {
->  	case C2H_BT_MP_INFO:
->  		rtw_coex_info_response(rtwdev, skb);
-> +		dev_kfree_skb_any(skb);
+On Sun, Jun 20, 2021 at 08:55:59AM -0400, Sasha Levin wrote:
+> On Tue, Jun 15, 2021 at 04:54:36PM +0100, Mark Brown wrote:
+> > On Tue, Jun 15, 2021 at 11:47:53AM -0400, Sasha Levin wrote:
+> > > From: Dmitry Osipenko <digetx@gmail.com>
 
-The rtw_coex_info_response() puts skb into a skb_queue, so we can't free it here.
-Instead, we should free it after we dequeue and do thing. 
-So, we send another patch: 
-https://lore.kernel.org/linux-wireless/20210621103023.41928-1-pkshih@realtek.com/T/#u
+> > > One of previous changes to regulator core causes PMIC regulators to
+> > > re-probe until supply regulator is registered. Silence noisy error
+> > > message about the deferred probe.
 
-I hope this isn't confusing you.
+> > This really doesn't look like stable material...
 
+> Not strictly, but we usually take fixes to issues that can confuse users
+> or spam logs.
 
->  		break;
->  	case C2H_WLAN_RFON:
->  		complete(&rtwdev->lps_leave_check);
-> +		dev_kfree_skb_any(skb);
->  		break;
->  	default:
->  		/* pass offset for further operation */
-> --
-> 2.32.0
+I really don't think this is appropriate (and don't know that it's even
+relevant without the core change mentioned in the commit log).
 
---
-Ping-Ke
+--5I6of5zJg18YgZEa
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmDQbKkACgkQJNaLcl1U
+h9BQTgf+KepvwkW0eqqj1vAPw0OMvyj5s0LXy/zfgoLXNI+n5VI3c+HTZpb/fxSj
+muFuWhx6qTO0OmTCeEc0M+oiMgkB9Is5VFJsps9wxGXhIemMu/rXEXeJkDt2G6UA
+3fJ6aXneDSfFJaPFcuYwBxHpyxgKn5NDFm8pbtXyXgFObatSwUhR3s5XQNAKTcCj
+a1rjmElXPT/o0GaucBXbvfnFewGa6h9XDd9d7mmhiRKz7IkTnEu2I1bsc7cMQCGR
+U5SO6tFE5nJJgg2yA4LAkVeWVYP0BvO6je8zeLouS6jAKLqiUotDdHrzRPt/dG7s
+fVM3PcefuLlRmUTNwKZ5WJWVUwqYYg==
+=yxVY
+-----END PGP SIGNATURE-----
+
+--5I6of5zJg18YgZEa--
