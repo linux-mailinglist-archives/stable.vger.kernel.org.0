@@ -2,144 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8D83AE2B5
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 07:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D086B3AE3A1
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 09:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbhFUFWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 01:22:32 -0400
-Received: from spam.zju.edu.cn ([61.164.42.155]:9406 "EHLO zju.edu.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229441AbhFUFWc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 01:22:32 -0400
-Received: by ajax-webmail-mail-app3 (Coremail) ; Mon, 21 Jun 2021 13:20:14
- +0800 (GMT+08:00)
-X-Originating-IP: [10.162.82.120]
-Date:   Mon, 21 Jun 2021 13:20:14 +0800 (GMT+08:00)
-X-CM-HeaderCharset: UTF-8
-From:   LinMa <linma@zju.edu.cn>
-To:     "Anand K. Mistry" <amistry@google.com>, gregkh@linuxfoundation.org
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Re: Re: [PATCH 5.4 39/78] Bluetooth: use correct lock to
- prevent UAF of hdev object
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version XT5.0.13 build 20210104(ab8c30b6)
- Copyright (c) 2002-2021 www.mailtech.cn zju.edu.cn
-In-Reply-To: <CAATStaMu-Nx1XS=4fbK6T2cRanS8OvSzP_83dmSnEKB7pgpm8A@mail.gmail.com>
-References: <70042d9f.111abd.17a19f94b84.Coremail.linma@zju.edu.cn>
- <CAATStaMu-Nx1XS=4fbK6T2cRanS8OvSzP_83dmSnEKB7pgpm8A@mail.gmail.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
-MIME-Version: 1.0
-Message-ID: <25433968.3904.17a2d03131c.Coremail.linma@zju.edu.cn>
-X-Coremail-Locale: en_US
-X-CM-TRANSID: cC_KCgBXV2yOIdBg+RklAA--.1345W
-X-CM-SenderInfo: qtrwiiyqvtljo62m3hxhgxhubq/1tbiAwIDElNG3C0fKAABsC
-X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWxJw
-        CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
-        daVFxhVjvjDU=
+        id S229905AbhFUHDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 03:03:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41330 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229641AbhFUHDa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 03:03:30 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00E80C06175F
+        for <stable@vger.kernel.org>; Mon, 21 Jun 2021 00:01:17 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id pf4-20020a17090b1d84b029016f6699c3f2so4652884pjb.0
+        for <stable@vger.kernel.org>; Mon, 21 Jun 2021 00:01:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=igel-co-jp.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id;
+        bh=uMzv+T/Wucp5pVssFwhVMxpuZI8wy6p/j6myJL8r3oQ=;
+        b=wKAqRToJTrozBDWE1bKnJIGWABV2Nbt/tC9DdB6+S2NMCUfWD8eTQvS/6pTK99JD06
+         VuQM28W+rphsDWblnmVEJ7I4hdRkwxlKxb21NOoe1De3WHR2xO72UmZoU04VDVz9B3Ep
+         uFh6COeB6e9ypG2o977TrCR7MiJh2WlZhfXRNV4CqytbNZHRs0LyBRL4zCxwlFYkHGhP
+         g7XSFUwW812CcwuPKIn6lccsM/5axqAaJ7Q2JXGjbG4zdqJvmOTuaYk6AIkE1uv5UMgK
+         PykvZ3ZsWooOr/SYKpIi0zDAFVwEhgMrxLeotybHUk5IfTqkgIbfFCUyDlxSxDJENY33
+         /xcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=uMzv+T/Wucp5pVssFwhVMxpuZI8wy6p/j6myJL8r3oQ=;
+        b=mjtkgfHOmaJiwcWpaapJDcSH2jQQKfS4kHUa9XjfXazfFsQn6v1hWkxUr1xDizUfNF
+         LyaOIo6f8/QCEYLcY3W/UF59aTQlYvlNip/aIH+CZ5qufNENcFzypfVVbQzMo/jQwWZ4
+         z4GC3g0GTJmjZBuIb4PM5uObwFgnLAQRmS4kFuCvQQCqRAHJfCZrgEUYkYrNahQJmfZ5
+         U5p9XFXBiIFr2eRtaD4gLo3QKLV6SXc7SOMvsJPFjB/tGdyf4PG5/tSFT7rS6bMIIp36
+         /jYOSvWqr11xaCB6fc5mwNePdPJK4bQvHXLqByxRvhQDFvlEi1ILPUAaZCr1ymMQ8oQL
+         lwLg==
+X-Gm-Message-State: AOAM533Rko/N3KFcNWm7hzyxdwMzdT/0gETI5agkpflozwk9R3Hh2cpx
+        ziVvT5PDIYTKeVizGzk6qx9niA==
+X-Google-Smtp-Source: ABdhPJzoGUmOEx/WZyy8xRXKh2BNwe521xh/uf++He4NfZygjklN1uvuVklhO9lI1o2yMjyCmSqGSQ==
+X-Received: by 2002:a17:902:720b:b029:113:19d7:2da7 with SMTP id ba11-20020a170902720bb029011319d72da7mr16531354plb.55.1624258876483;
+        Mon, 21 Jun 2021 00:01:16 -0700 (PDT)
+Received: from tyrell.hq.igel.co.jp (napt.igel.co.jp. [219.106.231.132])
+        by smtp.gmail.com with ESMTPSA id n5sm12098478pgf.35.2021.06.21.00.01.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Jun 2021 00:01:16 -0700 (PDT)
+From:   Shunsuke Mie <mie@igel.co.jp>
+To:     kishon@ti.com
+Cc:     lorenzo.pieralisi@arm.com, bhelgaas@google.com,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, mie@igel.co.jp
+Subject: [PATCH] PCI: endpoint: Fix use after free in pci_epf_remove_cfs()
+Date:   Mon, 21 Jun 2021 16:00:58 +0900
+Message-Id: <20210621070058.37682-1-mie@igel.co.jp>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiAKPiBPbmUgbW9yZSBkYXRhIHBvaW50LiBJJ20gc2VlaW5nIHRoaXMgMTAwJSBvZiB0aGUgdGlt
-ZSB3aGVuIHRyeWluZyB0aGUKPiBzdXNwZW5kIG15IHN5c3RlbSAob24gNS4xMCk6Cj4gCj4gWyAg
-NDY2LjYwODk3MF0gQlVHOiBzbGVlcGluZyBmdW5jdGlvbiBjYWxsZWQgZnJvbSBpbnZhbGlkIGNv
-bnRleHQgYXQKPiBuZXQvY29yZS9zb2NrLmM6MzA3NAo+IFsgIDQ2Ni42MDg5NzVdIGluX2F0b21p
-YygpOiAxLCBpcnFzX2Rpc2FibGVkKCk6IDAsIG5vbl9ibG9jazogMCwgcGlkOgo+IDU2MTQsIG5h
-bWU6IGt3b3JrZXIvdTQ6NAo+IFsgIDQ2Ni42MDg5ODBdIENQVTogMSBQSUQ6IDU2MTQgQ29tbTog
-a3dvcmtlci91NDo0IFRhaW50ZWQ6IEcgICAgICAgIFcKPiAgICAgICAgIDUuMTAuNDMgIzY0Cj4g
-WyAgNDY2LjYwODk4M10gSGFyZHdhcmUgbmFtZTogSFAgR3J1bnQvR3J1bnQsIEJJT1MKPiBHb29n
-bGVfR3J1bnQuMTEwMzEuMTA0LjAgMDkvMDUvMjAxOQo+IFsgIDQ2Ni42MDg5OTFdIFdvcmtxdWV1
-ZTogZXZlbnRzX3VuYm91bmQgYXN5bmNfcnVuX2VudHJ5X2ZuCj4gWyAgNDY2LjYwODk5NV0gQ2Fs
-bCBUcmFjZToKPiBbICA0NjYuNjA5MDAzXSAgZHVtcF9zdGFjaysweDljLzB4ZTcKPiBbICA0NjYu
-NjA5MDA5XSAgX19fbWlnaHRfc2xlZXArMHgxNDgvMHgxNWUKPiBbICA0NjYuNjA5MDEzXSAgbG9j
-a19zb2NrX25lc3RlZCsweDIyLzB4NWQKPiBbICA0NjYuNjA5MDMzXSAgaGNpX3NvY2tfZGV2X2V2
-ZW50KzB4MTVhLzB4MWYwIFtibHVldG9vdGhdCj4gWyAgNDY2LjYwOTA0M10gIGhjaV91bnJlZ2lz
-dGVyX2RldisweDE1Yy8weDMwMyBbYmx1ZXRvb3RoXQo+IFsgIDQ2Ni42MDkwNDldICBidHVzYl9k
-aXNjb25uZWN0KzB4NzcvMHgxMjcgW2J0dXNiXQo+IFsgIDQ2Ni42MDkwNTRdICB1c2JfdW5iaW5k
-X2ludGVyZmFjZSsweGE2LzB4MjJlCj4gWyAgNDY2LjYwOTA1OV0gID8gdXNiX2Rldl9zdXNwZW5k
-KzB4MTQvMHgxNAo+IFsgIDQ2Ni42MDkwNjNdICBkZXZpY2VfcmVsZWFzZV9kcml2ZXJfaW50ZXJu
-YWwrMHgxMDAvMHgxYTEKPiBbICA0NjYuNjA5MDY3XSAgdW5iaW5kX21hcmtlZF9pbnRlcmZhY2Vz
-KzB4NGIvMHg2Ngo+IFsgIDQ2Ni42MDkwNzFdICB1c2JfcmVzdW1lKzB4NTkvMHg2Ngo+IFsgIDQ2
-Ni42MDkwNzVdICBkcG1fcnVuX2NhbGxiYWNrKzB4OGMvMHgxMjYKPiBbICA0NjYuNjA5MDc4XSAg
-ZGV2aWNlX3Jlc3VtZSsweDFmMS8weDI1Ygo+IFsgIDQ2Ni42MDkwODJdICBhc3luY19yZXN1bWUr
-MHgxZC8weDQyCj4gWyAgNDY2LjYwOTA4NV0gIGFzeW5jX3J1bl9lbnRyeV9mbisweDNkLzB4ZDEK
-PiBbICA0NjYuNjA5MDg5XSAgcHJvY2Vzc19vbmVfd29yaysweDFiOS8weDM2Mwo+IFsgIDQ2Ni42
-MDkwOTNdICB3b3JrZXJfdGhyZWFkKzB4MjEzLzB4MzcyCj4gWyAgNDY2LjYwOTA5N10gIGt0aHJl
-YWQrMHgxNTAvMHgxNWYKPiBbICA0NjYuNjA5MTAwXSAgPyBwcl9jb250X3dvcmsrMHg1OC8weDU4
-Cj4gWyAgNDY2LjYwOTEwM10gID8ga3RocmVhZF9ibGtjZysweDMxLzB4MzEKPiBbICA0NjYuNjA5
-MTA2XSAgcmV0X2Zyb21fZm9yaysweDIyLzB4MzAKPiAKCk9oIG15IGdvZCwgSSBkaWRuJ3QgdHVy
-biB0aGUgQ09ORklHX0RFQlVHX0FUT01JQ19TTEVFUCBvbiBhcyB5b3UgZGlkIHdoZW4gdGVzdGlu
-ZyB0aGlzIHBhdGNoLiBJIHdhcyBwdXp6bGVkIGF0IHRoYXQgdGltZSB3aHkgbXkgdXNlcmZhdWx0
-ZmQgcHJvY2VzcyBjYW4ga2VlcCB0aGUgbG9jayBhbmQgdG90YWxseSBzdHVjayB0aGUgZGV2aWNl
-IHJlbW92YWwgcm91dGluZSB3aXRob3V0IGFueSBrZXJuZWwgV0FSTklORy4KCk15IGJhZCwgaXQg
-c2VlbXMgdGhhdCB0aGlzIHBhdGNoIGlzIG5vdCBhIHZlcnkgZ29vZCBvbmUuIEkgY2FuIGFsc28g
-Z2V0IGZvbGxvd2luZyBsb2dzIHdoZW4gZXhlY3V0aW5nIHRoZSBQT0MgY29kZS4KClsgICAgOC4y
-MzQ1ODNdIEJVRzogc2xlZXBpbmcgZnVuY3Rpb24gY2FsbGVkIGZyb20gaW52YWxpZCBjb250ZXh0
-IGF0IG5ldC9jb3JlL3NvY2suYzozMDQ4ClsgICAgOC4yMzUzMzZdIGluX2F0b21pYygpOiAxLCBp
-cnFzX2Rpc2FibGVkKCk6IDAsIG5vbl9ibG9jazogMCwgcGlkOiAxMjUsIG5hbWU6IGV4cApbICAg
-IDguMjM2MDM4XSBDUFU6IDAgUElEOiAxMjUgQ29tbTogZXhwIE5vdCB0YWludGVkIDUuMTEuMTEr
-ICMxMwpbICAgIDguMjM2NTQyXSBIYXJkd2FyZSBuYW1lOiBRRU1VIFN0YW5kYXJkIFBDIChpNDQw
-RlggKyBQSUlYLCAxOTk2KSwgQklPUyAxLjEwLjItMXVidW50dTEgMDQvMDEvMjAxNApbICAgIDgu
-MjM3MzMwXSBDYWxsIFRyYWNlOgpbICAgIDguMjM3NjA1XSAgZHVtcF9zdGFjaysweDFiOS8weDIy
-ZQpbICAgIDguMjM3OTQ2XSAgPyBsb2dfYnVmX3ZtY29yZWluZm9fc2V0dXArMHg0NWQvMHg0NWQK
-WyAgICA4LjIzODQ1M10gID8gdHR5X2xkaXNjX2hhbmd1cCsweDRkNy8weDZkMApbICAgIDguMjM4
-OTEyXSAgPyBzaG93X3JlZ3NfcHJpbnRfaW5mbysweDEyLzB4MTIKWyAgICA4LjIzOTM4M10gID8g
-dGFza193b3JrX3J1bisweDE2Yy8weDIxMApbICAgIDguMjM5ODA3XSAgPyBzeXNjYWxsX2V4aXRf
-dG9fdXNlcl9tb2RlKzB4MjAvMHg0MApbICAgIDguMjQwMzI0XSAgPyBlbnRyeV9TWVNDQUxMXzY0
-X2FmdGVyX2h3ZnJhbWUrMHg0NC8weGE5ClsgICAgOC4yNDA4OTddICA/IF9yYXdfc3Bpbl9sb2Nr
-KzB4YTEvMHgxNzAKWyAgICA4LjI0MTMyNl0gIF9fX21pZ2h0X3NsZWVwKzB4MzJkLzB4NDIwClsg
-ICAgOC4yNDE3NDldICA/IHN0YWNrX3RyYWNlX3NucHJpbnQrMHhlMC8weGUwClsgICAgOC4yNDIy
-MDRdICA/IF9fbWlnaHRfc2xlZXArMHgxMDAvMHgxMDAKWyAgICA4LjI0MjYzNl0gID8gZGVhY3Rp
-dmF0ZV9zbGFiKzB4MWNhLzB4NTYwClsgICAgOC4yNDMwODBdICBsb2NrX3NvY2tfbmVzdGVkKzB4
-OTYvMHgzNjAKWyAgICA4LjI0MzUyM10gID8gaGNpX3NvY2tfZGV2X2V2ZW50KzB4ZmUvMHg1YjAK
-WyAgICA4LjI0NDAwN10gID8gc29ja19kZWZfZGVzdHJ1Y3QrMHgxMC8weDEwClsgICAgOC4yNDQz
-NzJdICA/IGthc2FuX3NldF9mcmVlX2luZm8rMHgxZi8weDQwClsgICAgOC4yNDQ3MzhdICA/IGtt
-ZW1fY2FjaGVfZnJlZSsweGNhLzB4MjIwClsgICAgOC4yNDUwOTNdICBoY2lfc29ja19kZXZfZXZl
-bnQrMHgyZmEvMHg1YjAKWyAgICA4LjI0NTQ1NF0gIGhjaV91bnJlZ2lzdGVyX2RldisweDNmYS8w
-eDE3MDAKWyAgICA4LjI0NTgyMF0gID8gcmN1X3N5bmNfZXhpdCsweGUwLzB4MWUwClsgICAgOC4y
-NDYxNDldICBoY2lfdWFydF90dHlfY2xvc2UrMHgxOWYvMHgyMjAKWyAgICA4LjI0NjUxMV0gID8g
-aGNpX3VhcnRfdHR5X29wZW4rMHgyZDAvMHgyZDAKWyAgICA4LjI0Njg3OF0gIHR0eV9sZGlzY19o
-YW5ndXArMHg0ZDcvMHg2ZDAKWyAgICA4LjI0NzIyNF0gIF9fdHR5X2hhbmd1cCsweDZjMi8weDk4
-MApbICAgIDguMjQ3NTQzXSAgPyBwdHlfY2xvc2UrMHgzODIvMHg0NjAKWyAgICA4LjI0Nzg1Ml0g
-ID8gcHR5X29wZW4rMHgyODAvMHgyODAKWyAgICA4LjI0ODE1M10gIHR0eV9yZWxlYXNlKzB4NDA4
-LzB4MTBmMApbICAgIDguMjQ4NDY5XSAgPyByY3VfcmVhZF91bmxvY2tfc3RyaWN0KzB4MTAvMHgx
-MApbICAgIDguMjQ4ODYzXSAgPyB0dHlfcmVsZWFzZV9zdHJ1Y3QrMHhkMC8weGQwClsgICAgOC4y
-NDkyMjJdICBfX2ZwdXQrMHgzNDIvMHg3YjAKWyAgICA4LjI0OTQ5OF0gIHRhc2tfd29ya19ydW4r
-MHgxNmMvMHgyMTAKWyAgICA4LjI0OTgyMV0gIGV4aXRfdG9fdXNlcl9tb2RlX3ByZXBhcmUrMHhl
-Yi8weDExMApbICAgIDguMjUwMjIzXSAgc3lzY2FsbF9leGl0X3RvX3VzZXJfbW9kZSsweDIwLzB4
-NDAKWyAgICA4LjI1MDYxOF0gIGVudHJ5X1NZU0NBTExfNjRfYWZ0ZXJfaHdmcmFtZSsweDQ0LzB4
-YTkKWyAgICA4LjI1MTA0N10gUklQOiAwMDMzOjB4N2YxNzFlNGMxYmViCgpBcyBBbmFuZCBoYXMg
-YWxyZWFkeSBwb2ludGVkIG91dCwgdGhlIGNvZGUgcmVhZF9sb2NrKCZoY2lfc2tfbGlzdC5sb2Nr
-KSBpcyBub3QgZ29pbmcgdG8gYWxsb3cgdGhlIHNsZWVwIG9mIGxvY2tfc29jayhzaykKCi0tLSBh
-L25ldC9ibHVldG9vdGgvaGNpX3NvY2suYworKysgYi9uZXQvYmx1ZXRvb3RoL2hjaV9zb2NrLmMK
-QEAgLTc1NSw3ICs3NTUsNyBAQCB2b2lkIGhjaV9zb2NrX2Rldl9ldmVudChzdHJ1Y3QgaGNpX2Rl
-diAqCiAgICAgICAgICAgLyogRGV0YWNoIHNvY2tldHMgZnJvbSBkZXZpY2UgKi8KICAgICAgICAg
-ICByZWFkX2xvY2soJmhjaV9za19saXN0LmxvY2spOwogICAgICAgICAgIHNrX2Zvcl9lYWNoKHNr
-LCAmaGNpX3NrX2xpc3QuaGVhZCkgewotICAgICAgICAgICAgICAgICAgYmhfbG9ja19zb2NrX25l
-c3RlZChzayk7CisgICAgICAgICAgICAgICAgICBsb2NrX3NvY2soc2spOwogICAgICAgICAgICAg
-ICAgICAgaWYgKGhjaV9waShzayktPmhkZXYgPT0gaGRldikgewogICAgICAgICAgICAgICAgICAg
-ICAgICAgICBoY2lfcGkoc2spLT5oZGV2ID0gTlVMTDsKICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgc2stPnNrX2VyciA9IEVQSVBFOwpAQCAtNzY0LDcgKzc2NCw3IEBAIHZvaWQgaGNpX3NvY2tf
-ZGV2X2V2ZW50KHN0cnVjdCBoY2lfZGV2ICoKCiAgICAgICAgICAgICAgICAgICAgICAgICAgIGhj
-aV9kZXZfcHV0KGhkZXYpOwogICAgICAgICAgICAgICAgICAgfQotICAgICAgICAgICAgICAgICAg
-YmhfdW5sb2NrX3NvY2soc2spOworICAgICAgICAgICAgICAgICAgcmVsZWFzZV9zb2NrKHNrKTsK
-ICAgICAgICAgICB9CiAgICAgICAgICAgcmVhZF91bmxvY2soJmhjaV9za19saXN0LmxvY2spOwog
-ICB9CgpUaGUgb3JpZ2luYWwgYnVnIGRldGFpbHMgaXMgYWxyZWFkeSBwcmVzZW50ZWQ6IGh0dHBz
-Oi8vd3d3Lm9wZW53YWxsLmNvbS9saXN0cy9vc3Mtc2VjdXJpdHkvMjAyMS8wNi8wOC8yCgpJbiBz
-aG9ydCwgdGhlIGhjaV9zb2NrX2Rldl9ldmVudCgpIGZ1bmN0aW9uIGlzIHN1cHBvc2VkIHRvIHdh
-aXQgZm9yIG90aGVyIGJvdW5kIGlvY3RsIGZ1bmN0aW9ucyAobGlrZSBoY2lfc29ja19ib3VuZF9p
-b2N0bCkgdG8gbGVhdmUgYmVmb3JlIHJlbGVhc2luZyB0aGUgaGRldiB1c2luZyBoY2lfZGV2X3B1
-dChoZGV2KS4KSSByZXBsYWNlIHRoZSBsb2NrIGZyb20gYmhfbG9ja19zb2NrX25lc3RlZCB0byBs
-b2NrX3NvY2soKSBmb3IgdGhpcy4KCkhvd2V2ZXIsIGl0IHNlZW1zIHRoYXQgdGhpcyBwYXRjaCBi
-cmVha3MgdGhlIHJ1bGUgYW5kIHdlIGhhdmUgdG8gZmlndXJlIG91dCBhIGJldHRlciBvbmUuIFRe
-VAooSSBqdXN0IGhvcGUgdGhpcyBwYXRjaCB3b24ndCBpbnRyb2R1Y2UgYW55IHNlY3VyaXR5IGlt
-cGFjdHMgYnV0IGp1c3QgdGhpcyB3YXJuaW5nIEJVRywgYXQgbGVhc3QgaXQgd2lsbCBoZWxwIHdp
-dGggdGhlIHByZXZpb3VzIFVBRiBvbmUpCgpNeSBkaXJlY3QgaWRlYSBpcyB0byByZXBsYWNlIHRo
-ZSBoY2lfc2tfbGlzdC5sb2NrIHRvIGFub3RoZXIgc2xlZXAtYWJsZSBsb2NrIHRvby4gT3Igd2Ug
-aGF2ZSB0byBjcmFmdCB0aGUgbG9naWMgdG8gYWxsb3cgdGhlIEhDSV9ERVZfVU5SRUcgZXZlbnQg
-dG8gc2lnbmFsIG90aGVyIGZ1bmN0aW9ucyB0byBhYmFuZG9uIHRoZSBsb2NrLiBJJ20gZ29pbmcg
-dG8gd29ya2luZyBvbiB0aGlzLCBhbmQgaG9wZSB0byBnZXQgc29tZSBzdWdnZXN0aW9ucyBqdXN0
-IGxpa2UgYmVmb3JlLgoKQW5kIEdyZWcsIHJlYWxseSBzb3JyeSB0byBzdWJtaXQgdGhpcyBub3Qg
-cHJvcGVybHkgdGVzdGVkIHBhdGNoLiBQbGVhc2UgcGFyZG9uIG1lIGZvciB0aGlzIHVuaW50ZW5k
-ZWQgbWlzdGFrZS4gOigKClJlZ2FyZHMKTGluIE1h
+All of entries are freed in a loop, however, the freed entry is accessed
+by list_del() after the loop.
+
+When epf driver that includes pci-epf-test unload, the pci_epf_remove_cfs()
+is called, and occurred the use after free. Therefore, kernel panics
+randomly after or while the module unloading.
+
+I tested this patch with r8a77951-Salvator-xs boards.
+
+Fixes: ef1433f ("PCI: endpoint: Create configfs entry for each pci_epf_device_id table entry")
+Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+---
+ drivers/pci/endpoint/pci-epf-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pci/endpoint/pci-epf-core.c b/drivers/pci/endpoint/pci-epf-core.c
+index e9289d10f822..538e902b0ba6 100644
+--- a/drivers/pci/endpoint/pci-epf-core.c
++++ b/drivers/pci/endpoint/pci-epf-core.c
+@@ -202,8 +202,10 @@ static void pci_epf_remove_cfs(struct pci_epf_driver *driver)
+ 		return;
+ 
+ 	mutex_lock(&pci_epf_mutex);
+-	list_for_each_entry_safe(group, tmp, &driver->epf_group, group_entry)
++	list_for_each_entry_safe(group, tmp, &driver->epf_group, group_entry) {
++		list_del(&group->group_entry);
+ 		pci_ep_cfs_remove_epf_group(group);
++	}
+ 	list_del(&driver->epf_group);
+ 	mutex_unlock(&pci_epf_mutex);
+ }
+-- 
+2.17.1
+
