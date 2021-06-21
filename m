@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF663AEF00
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C8963AF06B
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231404AbhFUQf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:35:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54996 "EHLO mail.kernel.org"
+        id S230444AbhFUQtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:49:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232012AbhFUQcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:32:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E70F613B0;
-        Mon, 21 Jun 2021 16:25:56 +0000 (UTC)
+        id S232192AbhFUQrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:47:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 769AA613E0;
+        Mon, 21 Jun 2021 16:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292757;
+        s=korg; t=1624293198;
         bh=B60Ie+OjEirDWdruJwC0k9ONKwgVsf/7BWwlQr6AOtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2OlYUOVuSWgrMavtGHsii2+IFE3zOXAYlQVtvPz8IihRf6xt3feCRbukUxPIzgpqR
-         njmBr6atB/iqM1YZzHmI//C9Lll4a2ut6fWS9J5xt8B7BpnH0OCik2WkNc1EMx0nuW
-         bhy+wV+bXpHSmJ9WPNvvZFDr4V+VV/EJ3CTyFKKw=
+        b=a9rxPiTxrr8bphJfwaySWDH+k7et0mt1+LjTxMB/41+XJobHC6VxwG5AZa3/2SCtA
+         Ch3YjJtLEbMT1FKa0JFrRzXqZgzx8HLhM3Urx98/g2kDyi3j6cYVNtQ8VOn/jpQh6G
+         1riEQSvTrTdIhddiaZdIsGy+mwprPyEDqxKxWYkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Patrice Chotard <patrice.chotard@foss.st.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 085/146] spi: stm32-qspi: Always wait BUSY bit to be cleared in stm32_qspi_wait_cmd()
+Subject: [PATCH 5.12 101/178] spi: stm32-qspi: Always wait BUSY bit to be cleared in stm32_qspi_wait_cmd()
 Date:   Mon, 21 Jun 2021 18:15:15 +0200
-Message-Id: <20210621154916.452264604@linuxfoundation.org>
+Message-Id: <20210621154926.220686913@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
+References: <20210621154921.212599475@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
