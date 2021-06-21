@@ -2,188 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A96D33AE1EF
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 05:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B8D83AE2B5
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 07:20:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230028AbhFUDsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Jun 2021 23:48:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54820 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229968AbhFUDsQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Jun 2021 23:48:16 -0400
-Received: from mail-vs1-xe2c.google.com (mail-vs1-xe2c.google.com [IPv6:2607:f8b0:4864:20::e2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611A0C061756
-        for <stable@vger.kernel.org>; Sun, 20 Jun 2021 20:46:02 -0700 (PDT)
-Received: by mail-vs1-xe2c.google.com with SMTP id b1so8445110vsh.7
-        for <stable@vger.kernel.org>; Sun, 20 Jun 2021 20:46:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=bgDx2y7jnHVgqpuH7DSftkNRKg871OtZSQDSrAU/dKc=;
-        b=RBgI4HZOPSLWFitfDhCXIi1mcWgVvf3+50V5tuKS/O8N8Nja87eY9XsQ8PGbHRDp9k
-         ltUFHJ6eDpV4UUlkmvP+A9XJF+swllOumaSrn1A2bi46Ei36fhBwCYcWsZ+/AvAwEbz7
-         S0KYpU/qfIYt6V79RiP/1Ys3Qp2E2q79UeYI2trez2eKuLm74gbksVymh+y+rr/ZoZbz
-         SS8fUnjBmIVwXjQk7sTIGSL5G0fM1mn0HzC8U4JP/nFQKza5qo+dG/eVtHxgzWg5tWU3
-         lFmOa1AqiIqNsFk81RdFuDYEZ8B8sENcTLkDcXXAlXlfDAoG33qm0J7n7NlnHj7NBUyV
-         PLfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=bgDx2y7jnHVgqpuH7DSftkNRKg871OtZSQDSrAU/dKc=;
-        b=SaLpcmGy0KA1DH3mKTBPA9uS/2DHuYWCSGc1hEkokxH4ya4aBNKX7H2Elaz8Wqq7vI
-         b27PxeF5Wllf51IjCyuQ1dRHAeOYPHPQdsVwgMWn4ulit/7vyPfLis3a1gFXUMiEMt4S
-         vgvznCWPr2xBUAM+el6bFQiEj4MKRJOlyLXdli3b892S6L9QpgwwNZ0Vu5IShRxO+LG1
-         qUmQ8P5/VbH+xFyoGHbjhMRNiJQGcDxmaTEnptxW/fCfLv9vH2sGCeXf9I3N2UBYdofI
-         k6SoLHYISJqXFZPmXN8goWOTgsK5MHn2C+CY5K3mYuZomqKkvNavu0Yif4WTqtCdTeHh
-         BqLQ==
-X-Gm-Message-State: AOAM533Et6z4ccFuB4qqVl7Pe4ko9Qi2ND6IiIRiTwB1GgmBIeAsbs2G
-        WQrp2L7EjXhz9SE6LZ1HVTMXg5zOTMeV3kXDZ4FxEA==
-X-Google-Smtp-Source: ABdhPJy7ECzuz5hNyc7Izeqf3qovhAfGANrRMoXis/pR0LSbVi4JKaNiqOgKBjh4RwGD/ZfwWnpS/ebVXWAkHA/w0n0=
-X-Received: by 2002:a05:6102:3026:: with SMTP id v6mr5152176vsa.1.1624247161113;
- Sun, 20 Jun 2021 20:46:01 -0700 (PDT)
-MIME-Version: 1.0
+        id S229506AbhFUFWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 01:22:32 -0400
+Received: from spam.zju.edu.cn ([61.164.42.155]:9406 "EHLO zju.edu.cn"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229441AbhFUFWc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 01:22:32 -0400
+Received: by ajax-webmail-mail-app3 (Coremail) ; Mon, 21 Jun 2021 13:20:14
+ +0800 (GMT+08:00)
+X-Originating-IP: [10.162.82.120]
+Date:   Mon, 21 Jun 2021 13:20:14 +0800 (GMT+08:00)
+X-CM-HeaderCharset: UTF-8
+From:   LinMa <linma@zju.edu.cn>
+To:     "Anand K. Mistry" <amistry@google.com>, gregkh@linuxfoundation.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Re: Re: [PATCH 5.4 39/78] Bluetooth: use correct lock to
+ prevent UAF of hdev object
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version XT5.0.13 build 20210104(ab8c30b6)
+ Copyright (c) 2002-2021 www.mailtech.cn zju.edu.cn
+In-Reply-To: <CAATStaMu-Nx1XS=4fbK6T2cRanS8OvSzP_83dmSnEKB7pgpm8A@mail.gmail.com>
 References: <70042d9f.111abd.17a19f94b84.Coremail.linma@zju.edu.cn>
-In-Reply-To: <70042d9f.111abd.17a19f94b84.Coremail.linma@zju.edu.cn>
-From:   "Anand K. Mistry" <amistry@google.com>
-Date:   Mon, 21 Jun 2021 13:45:48 +1000
-Message-ID: <CAATStaMu-Nx1XS=4fbK6T2cRanS8OvSzP_83dmSnEKB7pgpm8A@mail.gmail.com>
-Subject: Re: Re: [PATCH 5.4 39/78] Bluetooth: use correct lock to prevent UAF
- of hdev object
-To:     LinMa <linma@zju.edu.cn>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <CAATStaMu-Nx1XS=4fbK6T2cRanS8OvSzP_83dmSnEKB7pgpm8A@mail.gmail.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+Message-ID: <25433968.3904.17a2d03131c.Coremail.linma@zju.edu.cn>
+X-Coremail-Locale: en_US
+X-CM-TRANSID: cC_KCgBXV2yOIdBg+RklAA--.1345W
+X-CM-SenderInfo: qtrwiiyqvtljo62m3hxhgxhubq/1tbiAwIDElNG3C0fKAABsC
+X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWxJw
+        CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
+        daVFxhVjvjDU=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 17 Jun 2021 at 22:37, LinMa <linma@zju.edu.cn> wrote:
->
->
-> Oops, sorry for the delay here. I just forgot to check the mails.
->
-> This comment is right, when I submit this patch I mentioned that the repl=
-acement of this lock can hang the detaching routine because it needs to wai=
-t the release of the lock_sock().
->
-> But this does no harm in my testing. In fact, the relevant code can only =
-be executed when removing the controller. I think it can wait for the lock.=
- Moreover, this patch can fix the potential UAF indeed.
->
-> > may need further discussion. (wrote in previous mail list
->
-> Welcome the additional advise on this. Does this really broken the lock p=
-rinciple?
-
-One more data point. I'm seeing this 100% of the time when trying the
-suspend my system (on 5.10):
-
-[  466.608970] BUG: sleeping function called from invalid context at
-net/core/sock.c:3074
-[  466.608975] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid:
-5614, name: kworker/u4:4
-[  466.608980] CPU: 1 PID: 5614 Comm: kworker/u4:4 Tainted: G        W
-        5.10.43 #64
-[  466.608983] Hardware name: HP Grunt/Grunt, BIOS
-Google_Grunt.11031.104.0 09/05/2019
-[  466.608991] Workqueue: events_unbound async_run_entry_fn
-[  466.608995] Call Trace:
-[  466.609003]  dump_stack+0x9c/0xe7
-[  466.609009]  ___might_sleep+0x148/0x15e
-[  466.609013]  lock_sock_nested+0x22/0x5d
-[  466.609033]  hci_sock_dev_event+0x15a/0x1f0 [bluetooth]
-[  466.609043]  hci_unregister_dev+0x15c/0x303 [bluetooth]
-[  466.609049]  btusb_disconnect+0x77/0x127 [btusb]
-[  466.609054]  usb_unbind_interface+0xa6/0x22e
-[  466.609059]  ? usb_dev_suspend+0x14/0x14
-[  466.609063]  device_release_driver_internal+0x100/0x1a1
-[  466.609067]  unbind_marked_interfaces+0x4b/0x66
-[  466.609071]  usb_resume+0x59/0x66
-[  466.609075]  dpm_run_callback+0x8c/0x126
-[  466.609078]  device_resume+0x1f1/0x25b
-[  466.609082]  async_resume+0x1d/0x42
-[  466.609085]  async_run_entry_fn+0x3d/0xd1
-[  466.609089]  process_one_work+0x1b9/0x363
-[  466.609093]  worker_thread+0x213/0x372
-[  466.609097]  kthread+0x150/0x15f
-[  466.609100]  ? pr_cont_work+0x58/0x58
-[  466.609103]  ? kthread_blkcg+0x31/0x31
-[  466.609106]  ret_from_fork+0x22/0x30
-
-
->
-> Regards Lin Ma
->
-> =E5=9C=A8 2021-06-16 23:01:08=EF=BC=8C"Greg Kroah-Hartman" <gregkh@linuxf=
-oundation.org> =E5=86=99=E9=81=93=EF=BC=9A
->
-> >On Mon, Jun 14, 2021 at 04:15:02PM +0200, Eric Dumazet wrote:
-> >>
-> >>
-> >> On 6/8/21 8:27 PM, Greg Kroah-Hartman wrote:
-> >> > From: Lin Ma <linma@zju.edu.cn>
-> >> >
-> >> > commit e305509e678b3a4af2b3cfd410f409f7cdaabb52 upstream.
-> >> >
-> >> > The hci_sock_dev_event() function will cleanup the hdev object for
-> >> > sockets even if this object may still be in used within the
-> >> > hci_sock_bound_ioctl() function, result in UAF vulnerability.
-> >> >
-> >> > This patch replace the BH context lock to serialize these affairs
-> >> > and prevent the race condition.
-> >> >
-> >> > Signed-off-by: Lin Ma <linma@zju.edu.cn>
-> >> > Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-> >> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >> > ---
-> >> >  net/bluetooth/hci_sock.c |    4 ++--
-> >> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >> >
-> >> > --- a/net/bluetooth/hci_sock.c
-> >> > +++ b/net/bluetooth/hci_sock.c
-> >> > @@ -755,7 +755,7 @@ void hci_sock_dev_event(struct hci_dev *
-> >> >            /* Detach sockets from device */
-> >> >            read_lock(&hci_sk_list.lock);
-> >> >            sk_for_each(sk, &hci_sk_list.head) {
-> >> > -                  bh_lock_sock_nested(sk);
-> >> > +                  lock_sock(sk);
-> >> >                    if (hci_pi(sk)->hdev =3D=3D hdev) {
-> >> >                            hci_pi(sk)->hdev =3D NULL;
-> >> >                            sk->sk_err =3D EPIPE;
-> >> > @@ -764,7 +764,7 @@ void hci_sock_dev_event(struct hci_dev *
-> >> >
-> >> >                            hci_dev_put(hdev);
-> >> >                    }
-> >> > -                  bh_unlock_sock(sk);
-> >> > +                  release_sock(sk);
-> >> >            }
-> >> >            read_unlock(&hci_sk_list.lock);
-> >> >    }
-> >> >
-> >> >
-> >>
-> >>
-> >> This patch is buggy.
-> >>
-> >> lock_sock() can sleep.
-> >>
-> >> But the read_lock(&hci_sk_list.lock) two lines before is not going to =
-allow the sleep.
-> >>
-> >> Hmmm ?
-> >>
-> >>
-> >
-> >Odd, Lin, did you see any problems with your testing of this?
-> >
-
-
-
---=20
-Anand K. Mistry
-Software Engineer
-Google Australia
+PiAKPiBPbmUgbW9yZSBkYXRhIHBvaW50LiBJJ20gc2VlaW5nIHRoaXMgMTAwJSBvZiB0aGUgdGlt
+ZSB3aGVuIHRyeWluZyB0aGUKPiBzdXNwZW5kIG15IHN5c3RlbSAob24gNS4xMCk6Cj4gCj4gWyAg
+NDY2LjYwODk3MF0gQlVHOiBzbGVlcGluZyBmdW5jdGlvbiBjYWxsZWQgZnJvbSBpbnZhbGlkIGNv
+bnRleHQgYXQKPiBuZXQvY29yZS9zb2NrLmM6MzA3NAo+IFsgIDQ2Ni42MDg5NzVdIGluX2F0b21p
+YygpOiAxLCBpcnFzX2Rpc2FibGVkKCk6IDAsIG5vbl9ibG9jazogMCwgcGlkOgo+IDU2MTQsIG5h
+bWU6IGt3b3JrZXIvdTQ6NAo+IFsgIDQ2Ni42MDg5ODBdIENQVTogMSBQSUQ6IDU2MTQgQ29tbTog
+a3dvcmtlci91NDo0IFRhaW50ZWQ6IEcgICAgICAgIFcKPiAgICAgICAgIDUuMTAuNDMgIzY0Cj4g
+WyAgNDY2LjYwODk4M10gSGFyZHdhcmUgbmFtZTogSFAgR3J1bnQvR3J1bnQsIEJJT1MKPiBHb29n
+bGVfR3J1bnQuMTEwMzEuMTA0LjAgMDkvMDUvMjAxOQo+IFsgIDQ2Ni42MDg5OTFdIFdvcmtxdWV1
+ZTogZXZlbnRzX3VuYm91bmQgYXN5bmNfcnVuX2VudHJ5X2ZuCj4gWyAgNDY2LjYwODk5NV0gQ2Fs
+bCBUcmFjZToKPiBbICA0NjYuNjA5MDAzXSAgZHVtcF9zdGFjaysweDljLzB4ZTcKPiBbICA0NjYu
+NjA5MDA5XSAgX19fbWlnaHRfc2xlZXArMHgxNDgvMHgxNWUKPiBbICA0NjYuNjA5MDEzXSAgbG9j
+a19zb2NrX25lc3RlZCsweDIyLzB4NWQKPiBbICA0NjYuNjA5MDMzXSAgaGNpX3NvY2tfZGV2X2V2
+ZW50KzB4MTVhLzB4MWYwIFtibHVldG9vdGhdCj4gWyAgNDY2LjYwOTA0M10gIGhjaV91bnJlZ2lz
+dGVyX2RldisweDE1Yy8weDMwMyBbYmx1ZXRvb3RoXQo+IFsgIDQ2Ni42MDkwNDldICBidHVzYl9k
+aXNjb25uZWN0KzB4NzcvMHgxMjcgW2J0dXNiXQo+IFsgIDQ2Ni42MDkwNTRdICB1c2JfdW5iaW5k
+X2ludGVyZmFjZSsweGE2LzB4MjJlCj4gWyAgNDY2LjYwOTA1OV0gID8gdXNiX2Rldl9zdXNwZW5k
+KzB4MTQvMHgxNAo+IFsgIDQ2Ni42MDkwNjNdICBkZXZpY2VfcmVsZWFzZV9kcml2ZXJfaW50ZXJu
+YWwrMHgxMDAvMHgxYTEKPiBbICA0NjYuNjA5MDY3XSAgdW5iaW5kX21hcmtlZF9pbnRlcmZhY2Vz
+KzB4NGIvMHg2Ngo+IFsgIDQ2Ni42MDkwNzFdICB1c2JfcmVzdW1lKzB4NTkvMHg2Ngo+IFsgIDQ2
+Ni42MDkwNzVdICBkcG1fcnVuX2NhbGxiYWNrKzB4OGMvMHgxMjYKPiBbICA0NjYuNjA5MDc4XSAg
+ZGV2aWNlX3Jlc3VtZSsweDFmMS8weDI1Ygo+IFsgIDQ2Ni42MDkwODJdICBhc3luY19yZXN1bWUr
+MHgxZC8weDQyCj4gWyAgNDY2LjYwOTA4NV0gIGFzeW5jX3J1bl9lbnRyeV9mbisweDNkLzB4ZDEK
+PiBbICA0NjYuNjA5MDg5XSAgcHJvY2Vzc19vbmVfd29yaysweDFiOS8weDM2Mwo+IFsgIDQ2Ni42
+MDkwOTNdICB3b3JrZXJfdGhyZWFkKzB4MjEzLzB4MzcyCj4gWyAgNDY2LjYwOTA5N10gIGt0aHJl
+YWQrMHgxNTAvMHgxNWYKPiBbICA0NjYuNjA5MTAwXSAgPyBwcl9jb250X3dvcmsrMHg1OC8weDU4
+Cj4gWyAgNDY2LjYwOTEwM10gID8ga3RocmVhZF9ibGtjZysweDMxLzB4MzEKPiBbICA0NjYuNjA5
+MTA2XSAgcmV0X2Zyb21fZm9yaysweDIyLzB4MzAKPiAKCk9oIG15IGdvZCwgSSBkaWRuJ3QgdHVy
+biB0aGUgQ09ORklHX0RFQlVHX0FUT01JQ19TTEVFUCBvbiBhcyB5b3UgZGlkIHdoZW4gdGVzdGlu
+ZyB0aGlzIHBhdGNoLiBJIHdhcyBwdXp6bGVkIGF0IHRoYXQgdGltZSB3aHkgbXkgdXNlcmZhdWx0
+ZmQgcHJvY2VzcyBjYW4ga2VlcCB0aGUgbG9jayBhbmQgdG90YWxseSBzdHVjayB0aGUgZGV2aWNl
+IHJlbW92YWwgcm91dGluZSB3aXRob3V0IGFueSBrZXJuZWwgV0FSTklORy4KCk15IGJhZCwgaXQg
+c2VlbXMgdGhhdCB0aGlzIHBhdGNoIGlzIG5vdCBhIHZlcnkgZ29vZCBvbmUuIEkgY2FuIGFsc28g
+Z2V0IGZvbGxvd2luZyBsb2dzIHdoZW4gZXhlY3V0aW5nIHRoZSBQT0MgY29kZS4KClsgICAgOC4y
+MzQ1ODNdIEJVRzogc2xlZXBpbmcgZnVuY3Rpb24gY2FsbGVkIGZyb20gaW52YWxpZCBjb250ZXh0
+IGF0IG5ldC9jb3JlL3NvY2suYzozMDQ4ClsgICAgOC4yMzUzMzZdIGluX2F0b21pYygpOiAxLCBp
+cnFzX2Rpc2FibGVkKCk6IDAsIG5vbl9ibG9jazogMCwgcGlkOiAxMjUsIG5hbWU6IGV4cApbICAg
+IDguMjM2MDM4XSBDUFU6IDAgUElEOiAxMjUgQ29tbTogZXhwIE5vdCB0YWludGVkIDUuMTEuMTEr
+ICMxMwpbICAgIDguMjM2NTQyXSBIYXJkd2FyZSBuYW1lOiBRRU1VIFN0YW5kYXJkIFBDIChpNDQw
+RlggKyBQSUlYLCAxOTk2KSwgQklPUyAxLjEwLjItMXVidW50dTEgMDQvMDEvMjAxNApbICAgIDgu
+MjM3MzMwXSBDYWxsIFRyYWNlOgpbICAgIDguMjM3NjA1XSAgZHVtcF9zdGFjaysweDFiOS8weDIy
+ZQpbICAgIDguMjM3OTQ2XSAgPyBsb2dfYnVmX3ZtY29yZWluZm9fc2V0dXArMHg0NWQvMHg0NWQK
+WyAgICA4LjIzODQ1M10gID8gdHR5X2xkaXNjX2hhbmd1cCsweDRkNy8weDZkMApbICAgIDguMjM4
+OTEyXSAgPyBzaG93X3JlZ3NfcHJpbnRfaW5mbysweDEyLzB4MTIKWyAgICA4LjIzOTM4M10gID8g
+dGFza193b3JrX3J1bisweDE2Yy8weDIxMApbICAgIDguMjM5ODA3XSAgPyBzeXNjYWxsX2V4aXRf
+dG9fdXNlcl9tb2RlKzB4MjAvMHg0MApbICAgIDguMjQwMzI0XSAgPyBlbnRyeV9TWVNDQUxMXzY0
+X2FmdGVyX2h3ZnJhbWUrMHg0NC8weGE5ClsgICAgOC4yNDA4OTddICA/IF9yYXdfc3Bpbl9sb2Nr
+KzB4YTEvMHgxNzAKWyAgICA4LjI0MTMyNl0gIF9fX21pZ2h0X3NsZWVwKzB4MzJkLzB4NDIwClsg
+ICAgOC4yNDE3NDldICA/IHN0YWNrX3RyYWNlX3NucHJpbnQrMHhlMC8weGUwClsgICAgOC4yNDIy
+MDRdICA/IF9fbWlnaHRfc2xlZXArMHgxMDAvMHgxMDAKWyAgICA4LjI0MjYzNl0gID8gZGVhY3Rp
+dmF0ZV9zbGFiKzB4MWNhLzB4NTYwClsgICAgOC4yNDMwODBdICBsb2NrX3NvY2tfbmVzdGVkKzB4
+OTYvMHgzNjAKWyAgICA4LjI0MzUyM10gID8gaGNpX3NvY2tfZGV2X2V2ZW50KzB4ZmUvMHg1YjAK
+WyAgICA4LjI0NDAwN10gID8gc29ja19kZWZfZGVzdHJ1Y3QrMHgxMC8weDEwClsgICAgOC4yNDQz
+NzJdICA/IGthc2FuX3NldF9mcmVlX2luZm8rMHgxZi8weDQwClsgICAgOC4yNDQ3MzhdICA/IGtt
+ZW1fY2FjaGVfZnJlZSsweGNhLzB4MjIwClsgICAgOC4yNDUwOTNdICBoY2lfc29ja19kZXZfZXZl
+bnQrMHgyZmEvMHg1YjAKWyAgICA4LjI0NTQ1NF0gIGhjaV91bnJlZ2lzdGVyX2RldisweDNmYS8w
+eDE3MDAKWyAgICA4LjI0NTgyMF0gID8gcmN1X3N5bmNfZXhpdCsweGUwLzB4MWUwClsgICAgOC4y
+NDYxNDldICBoY2lfdWFydF90dHlfY2xvc2UrMHgxOWYvMHgyMjAKWyAgICA4LjI0NjUxMV0gID8g
+aGNpX3VhcnRfdHR5X29wZW4rMHgyZDAvMHgyZDAKWyAgICA4LjI0Njg3OF0gIHR0eV9sZGlzY19o
+YW5ndXArMHg0ZDcvMHg2ZDAKWyAgICA4LjI0NzIyNF0gIF9fdHR5X2hhbmd1cCsweDZjMi8weDk4
+MApbICAgIDguMjQ3NTQzXSAgPyBwdHlfY2xvc2UrMHgzODIvMHg0NjAKWyAgICA4LjI0Nzg1Ml0g
+ID8gcHR5X29wZW4rMHgyODAvMHgyODAKWyAgICA4LjI0ODE1M10gIHR0eV9yZWxlYXNlKzB4NDA4
+LzB4MTBmMApbICAgIDguMjQ4NDY5XSAgPyByY3VfcmVhZF91bmxvY2tfc3RyaWN0KzB4MTAvMHgx
+MApbICAgIDguMjQ4ODYzXSAgPyB0dHlfcmVsZWFzZV9zdHJ1Y3QrMHhkMC8weGQwClsgICAgOC4y
+NDkyMjJdICBfX2ZwdXQrMHgzNDIvMHg3YjAKWyAgICA4LjI0OTQ5OF0gIHRhc2tfd29ya19ydW4r
+MHgxNmMvMHgyMTAKWyAgICA4LjI0OTgyMV0gIGV4aXRfdG9fdXNlcl9tb2RlX3ByZXBhcmUrMHhl
+Yi8weDExMApbICAgIDguMjUwMjIzXSAgc3lzY2FsbF9leGl0X3RvX3VzZXJfbW9kZSsweDIwLzB4
+NDAKWyAgICA4LjI1MDYxOF0gIGVudHJ5X1NZU0NBTExfNjRfYWZ0ZXJfaHdmcmFtZSsweDQ0LzB4
+YTkKWyAgICA4LjI1MTA0N10gUklQOiAwMDMzOjB4N2YxNzFlNGMxYmViCgpBcyBBbmFuZCBoYXMg
+YWxyZWFkeSBwb2ludGVkIG91dCwgdGhlIGNvZGUgcmVhZF9sb2NrKCZoY2lfc2tfbGlzdC5sb2Nr
+KSBpcyBub3QgZ29pbmcgdG8gYWxsb3cgdGhlIHNsZWVwIG9mIGxvY2tfc29jayhzaykKCi0tLSBh
+L25ldC9ibHVldG9vdGgvaGNpX3NvY2suYworKysgYi9uZXQvYmx1ZXRvb3RoL2hjaV9zb2NrLmMK
+QEAgLTc1NSw3ICs3NTUsNyBAQCB2b2lkIGhjaV9zb2NrX2Rldl9ldmVudChzdHJ1Y3QgaGNpX2Rl
+diAqCiAgICAgICAgICAgLyogRGV0YWNoIHNvY2tldHMgZnJvbSBkZXZpY2UgKi8KICAgICAgICAg
+ICByZWFkX2xvY2soJmhjaV9za19saXN0LmxvY2spOwogICAgICAgICAgIHNrX2Zvcl9lYWNoKHNr
+LCAmaGNpX3NrX2xpc3QuaGVhZCkgewotICAgICAgICAgICAgICAgICAgYmhfbG9ja19zb2NrX25l
+c3RlZChzayk7CisgICAgICAgICAgICAgICAgICBsb2NrX3NvY2soc2spOwogICAgICAgICAgICAg
+ICAgICAgaWYgKGhjaV9waShzayktPmhkZXYgPT0gaGRldikgewogICAgICAgICAgICAgICAgICAg
+ICAgICAgICBoY2lfcGkoc2spLT5oZGV2ID0gTlVMTDsKICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgc2stPnNrX2VyciA9IEVQSVBFOwpAQCAtNzY0LDcgKzc2NCw3IEBAIHZvaWQgaGNpX3NvY2tf
+ZGV2X2V2ZW50KHN0cnVjdCBoY2lfZGV2ICoKCiAgICAgICAgICAgICAgICAgICAgICAgICAgIGhj
+aV9kZXZfcHV0KGhkZXYpOwogICAgICAgICAgICAgICAgICAgfQotICAgICAgICAgICAgICAgICAg
+YmhfdW5sb2NrX3NvY2soc2spOworICAgICAgICAgICAgICAgICAgcmVsZWFzZV9zb2NrKHNrKTsK
+ICAgICAgICAgICB9CiAgICAgICAgICAgcmVhZF91bmxvY2soJmhjaV9za19saXN0LmxvY2spOwog
+ICB9CgpUaGUgb3JpZ2luYWwgYnVnIGRldGFpbHMgaXMgYWxyZWFkeSBwcmVzZW50ZWQ6IGh0dHBz
+Oi8vd3d3Lm9wZW53YWxsLmNvbS9saXN0cy9vc3Mtc2VjdXJpdHkvMjAyMS8wNi8wOC8yCgpJbiBz
+aG9ydCwgdGhlIGhjaV9zb2NrX2Rldl9ldmVudCgpIGZ1bmN0aW9uIGlzIHN1cHBvc2VkIHRvIHdh
+aXQgZm9yIG90aGVyIGJvdW5kIGlvY3RsIGZ1bmN0aW9ucyAobGlrZSBoY2lfc29ja19ib3VuZF9p
+b2N0bCkgdG8gbGVhdmUgYmVmb3JlIHJlbGVhc2luZyB0aGUgaGRldiB1c2luZyBoY2lfZGV2X3B1
+dChoZGV2KS4KSSByZXBsYWNlIHRoZSBsb2NrIGZyb20gYmhfbG9ja19zb2NrX25lc3RlZCB0byBs
+b2NrX3NvY2soKSBmb3IgdGhpcy4KCkhvd2V2ZXIsIGl0IHNlZW1zIHRoYXQgdGhpcyBwYXRjaCBi
+cmVha3MgdGhlIHJ1bGUgYW5kIHdlIGhhdmUgdG8gZmlndXJlIG91dCBhIGJldHRlciBvbmUuIFRe
+VAooSSBqdXN0IGhvcGUgdGhpcyBwYXRjaCB3b24ndCBpbnRyb2R1Y2UgYW55IHNlY3VyaXR5IGlt
+cGFjdHMgYnV0IGp1c3QgdGhpcyB3YXJuaW5nIEJVRywgYXQgbGVhc3QgaXQgd2lsbCBoZWxwIHdp
+dGggdGhlIHByZXZpb3VzIFVBRiBvbmUpCgpNeSBkaXJlY3QgaWRlYSBpcyB0byByZXBsYWNlIHRo
+ZSBoY2lfc2tfbGlzdC5sb2NrIHRvIGFub3RoZXIgc2xlZXAtYWJsZSBsb2NrIHRvby4gT3Igd2Ug
+aGF2ZSB0byBjcmFmdCB0aGUgbG9naWMgdG8gYWxsb3cgdGhlIEhDSV9ERVZfVU5SRUcgZXZlbnQg
+dG8gc2lnbmFsIG90aGVyIGZ1bmN0aW9ucyB0byBhYmFuZG9uIHRoZSBsb2NrLiBJJ20gZ29pbmcg
+dG8gd29ya2luZyBvbiB0aGlzLCBhbmQgaG9wZSB0byBnZXQgc29tZSBzdWdnZXN0aW9ucyBqdXN0
+IGxpa2UgYmVmb3JlLgoKQW5kIEdyZWcsIHJlYWxseSBzb3JyeSB0byBzdWJtaXQgdGhpcyBub3Qg
+cHJvcGVybHkgdGVzdGVkIHBhdGNoLiBQbGVhc2UgcGFyZG9uIG1lIGZvciB0aGlzIHVuaW50ZW5k
+ZWQgbWlzdGFrZS4gOigKClJlZ2FyZHMKTGluIE1h
