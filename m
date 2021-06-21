@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC4BB3AF0B5
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C97973AEF22
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231459AbhFUQvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:51:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41370 "EHLO mail.kernel.org"
+        id S231936AbhFUQfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233491AbhFUQtq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:49:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32CC461461;
-        Mon, 21 Jun 2021 16:34:46 +0000 (UTC)
+        id S232861AbhFUQeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:34:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C007C613E0;
+        Mon, 21 Jun 2021 16:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293286;
-        bh=Y38Q48PTxRJnpG0LEbNi5mfv5F90eUz06tG8xuWbDqA=;
+        s=korg; t=1624292827;
+        bh=mzFB7BJnOi3qQUbcanvJmanEMO/M7hOK+kOcLMJVZUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8vOibQrGqv8+YxGhzdXpZ7o31m7VWbhC+5H09O/g1sIT7yFH0RG1Xb3O5sQk2Gow
-         36afhoPKNLzBGJ51hJAwP2SNT2F2945gii+1Z0rm7BO0bCNqLY+u27rsFd8rWy+Wdh
-         zlwGIdzs2mNkl7Bn4VNmbgzF6WJtF3/gyRa+FMg0=
+        b=ToP/IVr98NobWJeLtHGOc4v6qM3Py/HPBc9r4C57zhs+qz+2hGgX7cJvEDoqhf2E9
+         VYGXlTBLMHTPbp+78ubpxaz9k5PQnR2pKlxMEBkvAew89OeQPbkZeKd37cidKqWKMY
+         ic+jv5HMpun4eSbYaGh3ETXd7bcd7nKzIyj5eHh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+fb0b6a7e8713aeb0319c@syzkaller.appspotmail.com,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 134/178] KVM: x86: Immediately reset the MMU context when the SMM flag is cleared
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Fan Du <fan.du@intel.com>, Dave Hansen <dave.hansen@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.10 118/146] x86/mm: Avoid truncating memblocks for SGX memory
 Date:   Mon, 21 Jun 2021 18:15:48 +0200
-Message-Id: <20210621154927.341744249@linuxfoundation.org>
+Message-Id: <20210621154918.885502951@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Fan Du <fan.du@intel.com>
 
-commit 78fcb2c91adfec8ce3a2ba6b4d0dda89f2f4a7c6 upstream.
+commit 28e5e44aa3f4e0e0370864ed008fb5e2d85f4dc8 upstream.
 
-Immediately reset the MMU context when the vCPU's SMM flag is cleared so
-that the SMM flag in the MMU role is always synchronized with the vCPU's
-flag.  If RSM fails (which isn't correctly emulated), KVM will bail
-without calling post_leave_smm() and leave the MMU in a bad state.
+tl;dr:
 
-The bad MMU role can lead to a NULL pointer dereference when grabbing a
-shadow page's rmap for a page fault as the initial lookups for the gfn
-will happen with the vCPU's SMM flag (=0), whereas the rmap lookup will
-use the shadow page's SMM flag, which comes from the MMU (=1).  SMM has
-an entirely different set of memslots, and so the initial lookup can find
-a memslot (SMM=0) and then explode on the rmap memslot lookup (SMM=1).
+Several SGX users reported seeing the following message on NUMA systems:
 
-  general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-  CPU: 1 PID: 8410 Comm: syz-executor382 Not tainted 5.13.0-rc5-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  RIP: 0010:__gfn_to_rmap arch/x86/kvm/mmu/mmu.c:935 [inline]
-  RIP: 0010:gfn_to_rmap+0x2b0/0x4d0 arch/x86/kvm/mmu/mmu.c:947
-  Code: <42> 80 3c 20 00 74 08 4c 89 ff e8 f1 79 a9 00 4c 89 fb 4d 8b 37 44
-  RSP: 0018:ffffc90000ffef98 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffff888015b9f414 RCX: ffff888019669c40
-  RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000001
-  RBP: 0000000000000001 R08: ffffffff811d9cdb R09: ffffed10065a6002
-  R10: ffffed10065a6002 R11: 0000000000000000 R12: dffffc0000000000
-  R13: 0000000000000003 R14: 0000000000000001 R15: 0000000000000000
-  FS:  000000000124b300(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000000 CR3: 0000000028e31000 CR4: 00000000001526e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   rmap_add arch/x86/kvm/mmu/mmu.c:965 [inline]
-   mmu_set_spte+0x862/0xe60 arch/x86/kvm/mmu/mmu.c:2604
-   __direct_map arch/x86/kvm/mmu/mmu.c:2862 [inline]
-   direct_page_fault+0x1f74/0x2b70 arch/x86/kvm/mmu/mmu.c:3769
-   kvm_mmu_do_page_fault arch/x86/kvm/mmu.h:124 [inline]
-   kvm_mmu_page_fault+0x199/0x1440 arch/x86/kvm/mmu/mmu.c:5065
-   vmx_handle_exit+0x26/0x160 arch/x86/kvm/vmx/vmx.c:6122
-   vcpu_enter_guest+0x3bdd/0x9630 arch/x86/kvm/x86.c:9428
-   vcpu_run+0x416/0xc20 arch/x86/kvm/x86.c:9494
-   kvm_arch_vcpu_ioctl_run+0x4e8/0xa40 arch/x86/kvm/x86.c:9722
-   kvm_vcpu_ioctl+0x70f/0xbb0 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3460
-   vfs_ioctl fs/ioctl.c:51 [inline]
-   __do_sys_ioctl fs/ioctl.c:1069 [inline]
-   __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:1055
-   do_syscall_64+0x3f/0xb0 arch/x86/entry/common.c:47
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x440ce9
+  sgx: [Firmware Bug]: Unable to map EPC section to online node. Fallback to the NUMA node 0.
 
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+fb0b6a7e8713aeb0319c@syzkaller.appspotmail.com
-Fixes: 9ec19493fb86 ("KVM: x86: clear SMM flags before loading state while leaving SMM")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210609185619.992058-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This turned out to be the memblock code mistakenly throwing away SGX
+memory.
+
+=== Full Changelog ===
+
+The 'max_pfn' variable represents the highest known RAM address.  It can
+be used, for instance, to quickly determine for which physical addresses
+there is mem_map[] space allocated.  The numa_meminfo code makes an
+effort to throw out ("trim") all memory blocks which are above 'max_pfn'.
+
+SGX memory is not considered RAM (it is marked as "Reserved" in the
+e820) and is not taken into account by max_pfn. Despite this, SGX memory
+areas have NUMA affinity and are enumerated in the ACPI SRAT table. The
+existing SGX code uses the numa_meminfo mechanism to look up the NUMA
+affinity for its memory areas.
+
+In cases where SGX memory was above max_pfn (usually just the one EPC
+section in the last highest NUMA node), the numa_memblock is truncated
+at 'max_pfn', which is below the SGX memory.  When the SGX code tries to
+look up the affinity of this memory, it fails and produces an error message:
+
+  sgx: [Firmware Bug]: Unable to map EPC section to online node. Fallback to the NUMA node 0.
+
+and assigns the memory to NUMA node 0.
+
+Instead of silently truncating the memory block at 'max_pfn' and
+dropping the SGX memory, add the truncated portion to
+'numa_reserved_meminfo'.  This allows the SGX code to later determine
+the NUMA affinity of its 'Reserved' area.
+
+Before, numa_meminfo looked like this (from 'crash'):
+
+  blk = { start =          0x0, end = 0x2080000000, nid = 0x0 }
+        { start = 0x2080000000, end = 0x4000000000, nid = 0x1 }
+
+numa_reserved_meminfo is empty.
+
+With this, numa_meminfo looks like this:
+
+  blk = { start =          0x0, end = 0x2080000000, nid = 0x0 }
+        { start = 0x2080000000, end = 0x4000000000, nid = 0x1 }
+
+and numa_reserved_meminfo has an entry for node 1's SGX memory:
+
+  blk =  { start = 0x4000000000, end = 0x4080000000, nid = 0x1 }
+
+ [ daveh: completely rewrote/reworked changelog ]
+
+Fixes: 5d30f92e7631 ("x86/NUMA: Provide a range-to-target_node lookup facility")
+Reported-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Fan Du <fan.du@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20210617194657.0A99CB22@viggo.jf.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/mm/numa.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -6991,7 +6991,10 @@ static unsigned emulator_get_hflags(stru
+--- a/arch/x86/mm/numa.c
++++ b/arch/x86/mm/numa.c
+@@ -254,7 +254,13 @@ int __init numa_cleanup_meminfo(struct n
  
- static void emulator_set_hflags(struct x86_emulate_ctxt *ctxt, unsigned emul_flags)
- {
--	emul_to_vcpu(ctxt)->arch.hflags = emul_flags;
-+	struct kvm_vcpu *vcpu = emul_to_vcpu(ctxt);
+ 		/* make sure all non-reserved blocks are inside the limits */
+ 		bi->start = max(bi->start, low);
+-		bi->end = min(bi->end, high);
 +
-+	vcpu->arch.hflags = emul_flags;
-+	kvm_mmu_reset_context(vcpu);
- }
++		/* preserve info for non-RAM areas above 'max_pfn': */
++		if (bi->end > high) {
++			numa_add_memblk_to(bi->nid, high, bi->end,
++					   &numa_reserved_meminfo);
++			bi->end = high;
++		}
  
- static int emulator_pre_leave_smm(struct x86_emulate_ctxt *ctxt,
+ 		/* and there's no empty block */
+ 		if (bi->start >= bi->end)
 
 
