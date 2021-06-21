@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D7D93AEE01
+	by mail.lfdr.de (Postfix) with ESMTP id 41A483AEE00
 	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231439AbhFUQYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:24:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41850 "EHLO mail.kernel.org"
+        id S231298AbhFUQYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:24:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231451AbhFUQXN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231365AbhFUQXN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Jun 2021 12:23:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A135A61358;
-        Mon, 21 Jun 2021 16:20:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F8DB6135F;
+        Mon, 21 Jun 2021 16:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292429;
-        bh=7bqJeuJMMfVkV6S8A5s9rWwQ/Bkr0hJSYpVEGbIvp24=;
+        s=korg; t=1624292431;
+        bh=IZ2gzZa0qXRLSiuNzXdumKbwuVvr+zWlLVWo1qK4YmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XximJ0cJYRRZVxNwwnEKXMQy+VEXsudyDOklPrbs2GvNLpHPOXBNlVB2whUYaZFKG
-         9aT0WNFCi5kSr5ieLrFOJr6/x7kXqnK8DPJEeHY4OVrF3HMAMWI6GVbcbYMe7xVJFC
-         jIfCTJg1sfOxy/y/xp4m23aAubBgdqC7GJJB3OhA=
+        b=zw54aYAtgQW2AUhJucpRmmGMd4l0hGc1lejISbGIDxivUCGCxd2JmksGAzjoxw7Nc
+         DvraccPoPv6HScKoLLYouw6pYy3KHHMqoDExGFamHvUjowuIJVRg7YAs6N7N6rOHtr
+         ru7DrauSbHS4NGFaVac/E/v/SBOO5Ya2ZwfZRtQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Keerthy <j-keerthy@ti.com>, Tero Kristo <kristo@kernel.org>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.4 88/90] clocksource/drivers/timer-ti-dm: Handle dra7 timer wrap errata i940
-Date:   Mon, 21 Jun 2021 18:16:03 +0200
-Message-Id: <20210621154907.141615142@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Jack Pham <jackp@codeaurora.org>
+Subject: [PATCH 5.4 89/90] usb: dwc3: debugfs: Add and remove endpoint dirs dynamically
+Date:   Mon, 21 Jun 2021 18:16:04 +0200
+Message-Id: <20210621154907.173930796@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
 References: <20210621154904.159672728@linuxfoundation.org>
@@ -40,216 +39,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Jack Pham <jackp@codeaurora.org>
 
-commit 25de4ce5ed02994aea8bc111d133308f6fd62566 upstream.
+commit 8d396bb0a5b62b326f6be7594d8bd46b088296bd upstream.
 
-There is a timer wrap issue on dra7 for the ARM architected timer.
-In a typical clock configuration the timer fails to wrap after 388 days.
+The DWC3 DebugFS directory and files are currently created once
+during probe.  This includes creation of subdirectories for each
+of the gadget's endpoints.  This works fine for peripheral-only
+controllers, as dwc3_core_init_mode() calls dwc3_gadget_init()
+just prior to calling dwc3_debugfs_init().
 
-To work around the issue, we need to use timer-ti-dm percpu timers instead.
+However, for dual-role controllers, dwc3_core_init_mode() will
+instead call dwc3_drd_init() which is problematic in a few ways.
+First, the initial state must be determined, then dwc3_set_mode()
+will have to schedule drd_work and by then dwc3_debugfs_init()
+could have already been invoked.  Even if the initial mode is
+peripheral, dwc3_gadget_init() happens after the DebugFS files
+are created, and worse so if the initial state is host and the
+controller switches to peripheral much later.  And secondly,
+even if the gadget endpoints' debug entries were successfully
+created, if the controller exits peripheral mode, its dwc3_eps
+are freed so the debug files would now hold stale references.
 
-Let's configure dmtimer3 and 4 as percpu timers by default, and warn about
-the issue if the dtb is not configured properly.
+So it is best if the DebugFS endpoint entries are created and
+removed dynamically at the same time the underlying dwc3_eps are.
+Do this by calling dwc3_debugfs_create_endpoint_dir() as each
+endpoint is created, and conversely remove the DebugFS entry when
+the endpoint is freed.
 
-For more information, please see the errata for "AM572x Sitara Processors
-Silicon Revisions 1.1, 2.0":
-
-https://www.ti.com/lit/er/sprz429m/sprz429m.pdf
-
-The concept is based on earlier reference patches done by Tero Kristo and
-Keerthy.
-
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Keerthy <j-keerthy@ti.com>
-Cc: Tero Kristo <kristo@kernel.org>
-[tony@atomide.com: backported to 5.4.y]
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210529192932.22912-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/dra7-l4.dtsi      |    4 +-
- arch/arm/boot/dts/dra7.dtsi         |   20 +++++++++++++
- arch/arm/mach-omap2/board-generic.c |    4 +-
- arch/arm/mach-omap2/timer.c         |   53 +++++++++++++++++++++++++++++++++++-
- drivers/clk/ti/clk-7xx.c            |    1 
- include/linux/cpuhotplug.h          |    1 
- 6 files changed, 78 insertions(+), 5 deletions(-)
+ drivers/usb/dwc3/debug.h   |    3 +++
+ drivers/usb/dwc3/debugfs.c |   21 ++-------------------
+ drivers/usb/dwc3/gadget.c  |    3 +++
+ 3 files changed, 8 insertions(+), 19 deletions(-)
 
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -1176,7 +1176,7 @@
- 			};
- 		};
+--- a/drivers/usb/dwc3/debug.h
++++ b/drivers/usb/dwc3/debug.h
+@@ -409,9 +409,12 @@ static inline const char *dwc3_gadget_ge
  
--		target-module@34000 {			/* 0x48034000, ap 7 46.0 */
-+		timer3_target: target-module@34000 {	/* 0x48034000, ap 7 46.0 */
- 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
- 			ti,hwmods = "timer3";
- 			reg = <0x34000 0x4>,
-@@ -1204,7 +1204,7 @@
- 			};
- 		};
  
--		target-module@36000 {			/* 0x48036000, ap 9 4e.0 */
-+		timer4_target: target-module@36000 {	/* 0x48036000, ap 9 4e.0 */
- 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
- 			ti,hwmods = "timer4";
- 			reg = <0x36000 0x4>,
---- a/arch/arm/boot/dts/dra7.dtsi
-+++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -46,6 +46,7 @@
- 
- 	timer {
- 		compatible = "arm,armv7-timer";
-+		status = "disabled";	/* See ARM architected timer wrap erratum i940 */
- 		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
- 			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
- 			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
-@@ -766,3 +767,22 @@
- 
- #include "dra7-l4.dtsi"
- #include "dra7xx-clocks.dtsi"
-+
-+/* Local timers, see ARM architected timer wrap erratum i940 */
-+&timer3_target {
-+	ti,no-reset-on-init;
-+	ti,no-idle;
-+	timer@0 {
-+		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER3_CLKCTRL 24>;
-+		assigned-clock-parents = <&timer_sys_clk_div>;
-+	};
-+};
-+
-+&timer4_target {
-+	ti,no-reset-on-init;
-+	ti,no-idle;
-+	timer@0 {
-+		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER4_CLKCTRL 24>;
-+		assigned-clock-parents = <&timer_sys_clk_div>;
-+	};
-+};
---- a/arch/arm/mach-omap2/board-generic.c
-+++ b/arch/arm/mach-omap2/board-generic.c
-@@ -327,7 +327,7 @@ DT_MACHINE_START(DRA74X_DT, "Generic DRA
- 	.init_late	= dra7xx_init_late,
- 	.init_irq	= omap_gic_of_init,
- 	.init_machine	= omap_generic_init,
--	.init_time	= omap5_realtime_timer_init,
-+	.init_time	= omap3_gptimer_timer_init,
- 	.dt_compat	= dra74x_boards_compat,
- 	.restart	= omap44xx_restart,
- MACHINE_END
-@@ -350,7 +350,7 @@ DT_MACHINE_START(DRA72X_DT, "Generic DRA
- 	.init_late	= dra7xx_init_late,
- 	.init_irq	= omap_gic_of_init,
- 	.init_machine	= omap_generic_init,
--	.init_time	= omap5_realtime_timer_init,
-+	.init_time	= omap3_gptimer_timer_init,
- 	.dt_compat	= dra72x_boards_compat,
- 	.restart	= omap44xx_restart,
- MACHINE_END
---- a/arch/arm/mach-omap2/timer.c
-+++ b/arch/arm/mach-omap2/timer.c
-@@ -42,6 +42,7 @@
- #include <linux/platform_device.h>
- #include <linux/platform_data/dmtimer-omap.h>
- #include <linux/sched_clock.h>
-+#include <linux/cpu.h>
- 
- #include <asm/mach/time.h>
- 
-@@ -420,6 +421,53 @@ static void __init dmtimer_clkevt_init_c
- 		timer->rate);
+ #ifdef CONFIG_DEBUG_FS
++extern void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep);
+ extern void dwc3_debugfs_init(struct dwc3 *);
+ extern void dwc3_debugfs_exit(struct dwc3 *);
+ #else
++static inline void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
++{  }
+ static inline void dwc3_debugfs_init(struct dwc3 *d)
+ {  }
+ static inline void dwc3_debugfs_exit(struct dwc3 *d)
+--- a/drivers/usb/dwc3/debugfs.c
++++ b/drivers/usb/dwc3/debugfs.c
+@@ -878,30 +878,14 @@ static void dwc3_debugfs_create_endpoint
+ 	}
  }
  
-+static DEFINE_PER_CPU(struct dmtimer_clockevent, dmtimer_percpu_timer);
-+
-+static int omap_gptimer_starting_cpu(unsigned int cpu)
-+{
-+	struct dmtimer_clockevent *clkevt = per_cpu_ptr(&dmtimer_percpu_timer, cpu);
-+	struct clock_event_device *dev = &clkevt->dev;
-+	struct omap_dm_timer *timer = &clkevt->timer;
-+
-+	clockevents_config_and_register(dev, timer->rate, 3, ULONG_MAX);
-+	irq_force_affinity(dev->irq, cpumask_of(cpu));
-+
-+	return 0;
-+}
-+
-+static int __init dmtimer_percpu_quirk_init(void)
-+{
-+	struct dmtimer_clockevent *clkevt;
-+	struct clock_event_device *dev;
-+	struct device_node *arm_timer;
-+	struct omap_dm_timer *timer;
-+	int cpu = 0;
-+
-+	arm_timer = of_find_compatible_node(NULL, NULL, "arm,armv7-timer");
-+	if (of_device_is_available(arm_timer)) {
-+		pr_warn_once("ARM architected timer wrap issue i940 detected\n");
-+		return 0;
-+	}
-+
-+	for_each_possible_cpu(cpu) {
-+		clkevt = per_cpu_ptr(&dmtimer_percpu_timer, cpu);
-+		dev = &clkevt->dev;
-+		timer = &clkevt->timer;
-+
-+		dmtimer_clkevt_init_common(clkevt, 0, "timer_sys_ck",
-+					   CLOCK_EVT_FEAT_ONESHOT,
-+					   cpumask_of(cpu),
-+					   "assigned-clock-parents",
-+					   500, "percpu timer");
-+	}
-+
-+	cpuhp_setup_state(CPUHP_AP_OMAP_DM_TIMER_STARTING,
-+			  "clockevents/omap/gptimer:starting",
-+			  omap_gptimer_starting_cpu, NULL);
-+
-+	return 0;
-+}
-+
- /* Clocksource code */
- static struct omap_dm_timer clksrc;
- static bool use_gptimer_clksrc __initdata;
-@@ -564,6 +612,9 @@ static void __init __omap_sync32k_timer_
- 					3, /* Timer internal resynch latency */
- 					0xffffffff);
- 
-+	if (soc_is_dra7xx())
-+		dmtimer_percpu_quirk_init();
-+
- 	/* Enable the use of clocksource="gp_timer" kernel parameter */
- 	if (use_gptimer_clksrc || gptimer)
- 		omap2_gptimer_clocksource_init(clksrc_nr, clksrc_src,
-@@ -591,7 +642,7 @@ void __init omap3_secure_sync32k_timer_i
- #endif /* CONFIG_ARCH_OMAP3 */
- 
- #if defined(CONFIG_ARCH_OMAP3) || defined(CONFIG_SOC_AM33XX) || \
--	defined(CONFIG_SOC_AM43XX)
-+	defined(CONFIG_SOC_AM43XX) || defined(CONFIG_SOC_DRA7XX)
- void __init omap3_gptimer_timer_init(void)
+-static void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep,
+-		struct dentry *parent)
++void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
  {
- 	__omap_sync32k_timer_init(2, "timer_sys_ck", NULL,
---- a/drivers/clk/ti/clk-7xx.c
-+++ b/drivers/clk/ti/clk-7xx.c
-@@ -793,6 +793,7 @@ static struct ti_dt_clk dra7xx_clks[] =
- 	DT_CLK(NULL, "timer_32k_ck", "sys_32k_ck"),
- 	DT_CLK(NULL, "sys_clkin_ck", "timer_sys_clk_div"),
- 	DT_CLK(NULL, "sys_clkin", "sys_clkin1"),
-+	DT_CLK(NULL, "timer_sys_ck", "timer_sys_clk_div"),
- 	DT_CLK(NULL, "atl_dpll_clk_mux", "atl-clkctrl:0000:24"),
- 	DT_CLK(NULL, "atl_gfclk_mux", "atl-clkctrl:0000:26"),
- 	DT_CLK(NULL, "dcan1_sys_clk_mux", "wkupaon-clkctrl:0068:24"),
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -119,6 +119,7 @@ enum cpuhp_state {
- 	CPUHP_AP_ARM_L2X0_STARTING,
- 	CPUHP_AP_EXYNOS4_MCT_TIMER_STARTING,
- 	CPUHP_AP_ARM_ARCH_TIMER_STARTING,
-+	CPUHP_AP_OMAP_DM_TIMER_STARTING,
- 	CPUHP_AP_ARM_GLOBAL_TIMER_STARTING,
- 	CPUHP_AP_JCORE_TIMER_STARTING,
- 	CPUHP_AP_ARM_TWD_STARTING,
+ 	struct dentry		*dir;
+ 
+-	dir = debugfs_create_dir(dep->name, parent);
++	dir = debugfs_create_dir(dep->name, dep->dwc->root);
+ 	dwc3_debugfs_create_endpoint_files(dep, dir);
+ }
+ 
+-static void dwc3_debugfs_create_endpoint_dirs(struct dwc3 *dwc,
+-		struct dentry *parent)
+-{
+-	int			i;
+-
+-	for (i = 0; i < dwc->num_eps; i++) {
+-		struct dwc3_ep	*dep = dwc->eps[i];
+-
+-		if (!dep)
+-			continue;
+-
+-		dwc3_debugfs_create_endpoint_dir(dep, parent);
+-	}
+-}
+-
+ void dwc3_debugfs_init(struct dwc3 *dwc)
+ {
+ 	struct dentry		*root;
+@@ -935,7 +919,6 @@ void dwc3_debugfs_init(struct dwc3 *dwc)
+ 				    &dwc3_testmode_fops);
+ 		debugfs_create_file("link_state", S_IRUGO | S_IWUSR, root, dwc,
+ 				    &dwc3_link_state_fops);
+-		dwc3_debugfs_create_endpoint_dirs(dwc, root);
+ 	}
+ }
+ 
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2483,6 +2483,8 @@ static int dwc3_gadget_init_endpoint(str
+ 	INIT_LIST_HEAD(&dep->started_list);
+ 	INIT_LIST_HEAD(&dep->cancelled_list);
+ 
++	dwc3_debugfs_create_endpoint_dir(dep);
++
+ 	return 0;
+ }
+ 
+@@ -2526,6 +2528,7 @@ static void dwc3_gadget_free_endpoints(s
+ 			list_del(&dep->endpoint.ep_list);
+ 		}
+ 
++		debugfs_remove_recursive(debugfs_lookup(dep->name, dwc->root));
+ 		kfree(dep);
+ 	}
+ }
 
 
