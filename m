@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D2C3AF08C
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 726AE3AEF0C
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231772AbhFUQuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:50:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37430 "EHLO mail.kernel.org"
+        id S233280AbhFUQff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231298AbhFUQry (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:47:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46AB46124B;
-        Mon, 21 Jun 2021 16:33:47 +0000 (UTC)
+        id S232250AbhFUQdO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:33:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A72126141C;
+        Mon, 21 Jun 2021 16:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293227;
-        bh=d9exkhx6UjYb5GaV55vnkVuxfYJd+RqPRziOKf0SAp4=;
+        s=korg; t=1624292786;
+        bh=W0+r2mh3izDae03coLBYFoO1p1kMi1t/p2byjHOP7yI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dy8CrybfRyoBVp1uu4bCsRGCiuAg7vsRt5pFp8cGTT1CYn722zlp3pylq1UB+aflp
-         b9ajUC6f+cPj/UhzqFMZdo3rt5G+6reio4NxNYV+PjPpH6LR4XpZqYbBGqQKw7ott8
-         we/zZw2A7H9fu76FucRbEpFPDa0HzusXj4Dux6zs=
+        b=tCTo9jCFigI5JkCZzQOnROfk7QsUU7OdRfZtJcCwQlTP/Db/n+xS9C0xiqWvMDOTT
+         gKPGdJm9w+FJDwrFDH9gi0ktky0pf6WGCDBW7qtoIcyyZyWe8NvRE/pFshi6KbJNfD
+         ir2Mpp2g/2OFYDMO0ujEj8XlRPvK9zJv4swfM4YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.12 146/178] x86/fpu: Reset state for all signal restore failures
+        stable@vger.kernel.org, Yifan Zhang <yifan1.zhang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 130/146] drm/amdgpu/gfx10: enlarge CP_MEC_DOORBELL_RANGE_UPPER to cover full doorbell.
 Date:   Mon, 21 Jun 2021 18:16:00 +0200
-Message-Id: <20210621154927.742598994@linuxfoundation.org>
+Message-Id: <20210621154919.748586693@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,96 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-commit efa165504943f2128d50f63de0c02faf6dcceb0d upstream.
+commit 1c0b0efd148d5b24c4932ddb3fa03c8edd6097b3 upstream.
 
-If access_ok() or fpregs_soft_set() fails in __fpu__restore_sig() then the
-function just returns but does not clear the FPU state as it does for all
-other fatal failures.
+If GC has entered CGPG, ringing doorbell > first page doesn't wakeup GC.
+Enlarge CP_MEC_DOORBELL_RANGE_UPPER to workaround this issue.
 
-Clear the FPU state for these failures as well.
-
-Fixes: 72a671ced66d ("x86, fpu: Unify signal handling code paths for x86 and x86_64 kernels")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/87mtryyhhz.ffs@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/signal.c |   26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -307,13 +307,17 @@ static int __fpu__restore_sig(void __use
- 		return 0;
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -6590,8 +6590,12 @@ static int gfx_v10_0_kiq_init_register(s
+ 	if (ring->use_doorbell) {
+ 		WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_LOWER,
+ 			(adev->doorbell_index.kiq * 2) << 2);
++		/* If GC has entered CGPG, ringing doorbell > first page doesn't
++		 * wakeup GC. Enlarge CP_MEC_DOORBELL_RANGE_UPPER to workaround
++		 * this issue.
++		 */
+ 		WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_UPPER,
+-			(adev->doorbell_index.userqueue_end * 2) << 2);
++			(adev->doorbell.size - 4));
  	}
  
--	if (!access_ok(buf, size))
--		return -EACCES;
-+	if (!access_ok(buf, size)) {
-+		ret = -EACCES;
-+		goto out;
-+	}
- 
--	if (!static_cpu_has(X86_FEATURE_FPU))
--		return fpregs_soft_set(current, NULL,
--				       0, sizeof(struct user_i387_ia32_struct),
--				       NULL, buf) != 0;
-+	if (!static_cpu_has(X86_FEATURE_FPU)) {
-+		ret = fpregs_soft_set(current, NULL, 0,
-+				      sizeof(struct user_i387_ia32_struct),
-+				      NULL, buf);
-+		goto out;
-+	}
- 
- 	if (use_xsave()) {
- 		struct _fpx_sw_bytes fx_sw_user;
-@@ -396,7 +400,7 @@ static int __fpu__restore_sig(void __use
- 		 */
- 		ret = __copy_from_user(&env, buf, sizeof(env));
- 		if (ret)
--			goto err_out;
-+			goto out;
- 		envp = &env;
- 	}
- 
-@@ -426,7 +430,7 @@ static int __fpu__restore_sig(void __use
- 
- 		ret = copy_user_to_xstate(&fpu->state.xsave, buf_fx);
- 		if (ret)
--			goto err_out;
-+			goto out;
- 
- 		sanitize_restored_user_xstate(&fpu->state, envp, user_xfeatures,
- 					      fx_only);
-@@ -446,7 +450,7 @@ static int __fpu__restore_sig(void __use
- 		ret = __copy_from_user(&fpu->state.fxsave, buf_fx, state_size);
- 		if (ret) {
- 			ret = -EFAULT;
--			goto err_out;
-+			goto out;
- 		}
- 
- 		sanitize_restored_user_xstate(&fpu->state, envp, user_xfeatures,
-@@ -464,7 +468,7 @@ static int __fpu__restore_sig(void __use
- 	} else {
- 		ret = __copy_from_user(&fpu->state.fsave, buf_fx, state_size);
- 		if (ret)
--			goto err_out;
-+			goto out;
- 
- 		fpregs_lock();
- 		ret = copy_kernel_to_fregs_err(&fpu->state.fsave);
-@@ -475,7 +479,7 @@ static int __fpu__restore_sig(void __use
- 		fpregs_deactivate(fpu);
- 	fpregs_unlock();
- 
--err_out:
-+out:
- 	if (ret)
- 		fpu__clear_user_states(fpu);
- 	return ret;
+ 	WREG32_SOC15(GC, 0, mmCP_HQD_PQ_DOORBELL_CONTROL,
 
 
