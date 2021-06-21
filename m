@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD393AE9B2
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 15:06:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77AAA3AE9B6
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 15:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbhFUNIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 09:08:14 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:52371 "EHLO
+        id S229640AbhFUNIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 09:08:21 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:34473 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229736AbhFUNIO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 09:08:14 -0400
+        by vger.kernel.org with ESMTP id S229699AbhFUNIV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 09:08:21 -0400
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E3994194025A;
-        Mon, 21 Jun 2021 09:05:59 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Mon, 21 Jun 2021 09:05:59 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3C7A419403BD;
+        Mon, 21 Jun 2021 09:06:07 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Mon, 21 Jun 2021 09:06:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=beQ4sO
-        GFbnCDn7REXrgJ3vGo4WHGObEf32b42ZgVAdY=; b=kNjc9qmF0s4TI+mp1Mq/i2
-        jnUmR/WA6ikAs4XG3/oScp1Jee0uT1UVU0s2jL8WCts2zaeEnLs+DVyt7yZ5v8Lq
-        iXRj0m3/THXHBOY3qMFd3e+oC91lSWgXERQwgqZteMIEl9rQLMsV6pxy6jpozonB
-        ZVkHxJL/hSUUhMKgHbhtLq0XGUGHE2wCROFjRw8TtX5O0IMEolSh36VOrOs95IwA
-        zhXAeYpI+kueTvGpnl3jIT/TSAPzPZl6ZFxZ8KHEk1p5P50KKNum7KTdl3bWQUmw
-        k2MBe1wG2GAfXpBKxCbyxjeJnGSEA3QB+ed5nH/InAHmX5d/petp2FkQkScSPCIQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=OdeaTT
+        dKKivheUzJINWY7e+MXezPguKMMZ7/It4M6D4=; b=EHNvu39cjBtf5LaKrHpuba
+        B77rBR/yqPvHdLUXWzUoBlWDdrIfcb1rbte/J5PxUwM8SPCMdaht/t3H23VfjKHg
+        4GzWExP5ylj6ZHy1y2Ij3OcMFLo6/i6dImDMS1wdiz+4vvYFP9OoT8vOYhZgqNvK
+        6Po80x7xggNdkG5iaKt6zb7ULoJ2WU3EFiCRVMBbhfUrP9ZCk/LPRDOsAmyRM9JN
+        NRMEupx/RATsvFMlkXXXCqn3vr5o7/5qrG6us/Fxjzr+SKF2qvkSEnoH1ZCTTO2w
+        OawJ3jcZW4nG7LOEAZSxb2TB/CMZBaNbCKG/6qZqwT/HI0m5VGdRUKj4keUJd0Ig
         ==
-X-ME-Sender: <xms:tY7QYAjb6ti-fbdzM3d8dIM14VJBy5rocXw50AlmYIMpRFYID13c1w>
-    <xme:tY7QYJCOHoAQ1FhsBcDty8KvpG3egf0jRpgqLiWGehPK-0XGqZy_kdRT2jmCdQ9zM
-    daYRIQG6Axmew>
-X-ME-Received: <xmr:tY7QYIFrOEWecgwuNoaqzdjrGr1DSiffrOAafPEOr2YwbmbhA2rhawtvNRvDPPbctSpNH3xXGC0JR0lJDiUu19n5cce_Re_G>
+X-ME-Sender: <xms:v47QYDjFJb20cXhiFYfXrpV_eKvbozWxFqVb1o7yGMVCjCnJqWWv-A>
+    <xme:v47QYABl2x97eUs0AgOPM_1fN7aY5RpY9wPnSEGnQWQcZaifoqjzMuYaC6KUSS3Vk
+    rWEBcmIBd1ILA>
+X-ME-Received: <xmr:v47QYDFZiMAO5wydnqp8hrTh_xyOoE8NmtVAE45szjLs4xkslJ1K_2_7oOzECynsmAlojNWDgx1e2SdDgCU-gbsscZ4xpYro>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgiedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    shhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:tY7QYBQYa2epBfL2YPdf_BR0vHDm2IiWFRBjH6fvy29JtnspyVnB1w>
-    <xmx:tY7QYNz87gYZo4AqYIdZ-K4XHQxpiLRWGk9JAXHLR9wUf5Q0Ngqymg>
-    <xmx:tY7QYP7tpQ6ksqnxJUNKa7fotmrVcRjrDdROZQJDYURzcMzwO8RCqg>
-    <xmx:t47QYD58q1kCh4jbWQqKSOg4s5CcSa-aIK33j4gbVcwps2kTrLvaVDTJcUg>
+X-ME-Proxy: <xmx:v47QYARsP3Yg0er7e6620As1Zv8cRoKNUK0rLg00Iyp-hIzLy2dekw>
+    <xmx:v47QYAxaAJzAS_5jpPQgKXZ1xGSFNScIZemVmuklfKLOzmJezsnfzg>
+    <xmx:v47QYG67A6liCFcVU45AID4uzAmnhebFNVV2wv3IhW4FkGob4CN2Dg>
+    <xmx:v47QYK6F113UHn_jf5nHfG6rZU6t2p1oweBXBh6BGAC6IO4lhm-Sdr5P650>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 21 Jun 2021 09:05:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/slub: fix redzoning for small allocations" failed to apply to 4.4-stable tree
+ 21 Jun 2021 09:06:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/slub: fix redzoning for small allocations" failed to apply to 4.9-stable tree
 To:     keescook@chromium.org, akpm@linux-foundation.org, cl@linux.com,
         elver@google.com, guro@fb.com, iamjoonsoo.kim@lge.com,
         penberg@kernel.org, rientjes@google.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org, vbabka@suse.cz, zplin@psu.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Jun 2021 15:05:56 +0200
-Message-ID: <1624280756185160@kroah.com>
+Date:   Mon, 21 Jun 2021 15:05:57 +0200
+Message-ID: <1624280757155123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
