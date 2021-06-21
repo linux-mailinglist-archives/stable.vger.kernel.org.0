@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03A6F3AEFD0
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E231D3AEFD6
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231805AbhFUQmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33732 "EHLO mail.kernel.org"
+        id S232117AbhFUQmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:42:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232346AbhFUQkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:40:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FAB061441;
-        Mon, 21 Jun 2021 16:30:29 +0000 (UTC)
+        id S232184AbhFUQkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:40:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33AE46143A;
+        Mon, 21 Jun 2021 16:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293030;
-        bh=ORp52EnjsUZUKbQxMRzRXWpz0QO8xl+fz6edJFBpeE0=;
+        s=korg; t=1624293032;
+        bh=wKz/0iTWWHAsjuAjahBhrthe1+NdzQLESIzkV5eyCH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YeLqm42VIDSZBT+a2rbIdYOXyKMaFFmM3KWpNULlUJm0hp7QBnwQnSerAsyc+3Rb5
-         AellaG+q1rc0YTxynQWuFTLfGzZ48Db8/41ufMGG6iNAfl11Kr81cJ3Nd0HYtQ6yRK
-         xuj1iLGvTYC6caT/eKEuhPohkcRyjidPCHbHUHjc=
+        b=ivc8HFBcuteOlMOBMKOCwcnQRZvhdIHLQ35vbIYHNqxN7hpvpFeq9lwET6t4XNo0K
+         3Pu2D5s5hJ04g+lRbs7J0wuHGQpFnomqU2pHbzveZg8GnNYLLQNu61gICeLWFA3cBG
+         EkLCw5EsDGeOoH2DHsujclANazVXCM7mKEJgK690=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bodong Wang <bodong@nvidia.com>,
+        stable@vger.kernel.org, Yuval Avnery <yuvalav@nvidia.com>,
         Parav Pandit <parav@nvidia.com>,
+        Bodong Wang <bodong@nvidia.com>,
         Alaa Hleihel <alaa@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 073/178] net/mlx5: E-Switch, Read PF mac address
-Date:   Mon, 21 Jun 2021 18:14:47 +0200
-Message-Id: <20210621154925.050944843@linuxfoundation.org>
+Subject: [PATCH 5.12 074/178] net/mlx5: E-Switch, Allow setting GUID for host PF vport
+Date:   Mon, 21 Jun 2021 18:14:48 +0200
+Message-Id: <20210621154925.087792951@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -44,77 +45,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit bbc8222dc49db8d49add0f27bcac33f4b92193dc ]
+[ Upstream commit ca36fc4d77b35b8d142cf1ed0eae5ec2e071dc3c ]
 
-External controller PF's MAC address is not read from the device during
-vport setup. Fail to read this results in showing all zeros to user
-while the factory programmed MAC is a valid value.
+E-switch should be able to set the GUID of host PF vport.
+Currently it returns an error. This results in below error
+when user attempts to configure MAC address of the PF of an
+external controller.
 
-$ devlink port show eth1 -jp
-{
-    "port": {
-        "pci/0000:03:00.0/196608": {
-            "type": "eth",
-            "netdev": "eth1",
-            "flavour": "pcipf",
-            "controller": 1,
-            "pfnum": 0,
-            "splittable": false,
-            "function": {
-                "hw_addr": "00:00:00:00:00:00"
-            }
-        }
-    }
-}
+$ devlink port function set pci/0000:03:00.0/196608 \
+   hw_addr 00:00:00:11:22:33
 
-Hence, read it when enabling a vport.
+mlx5_core 0000:03:00.0: mlx5_esw_set_vport_mac_locked:1876:(pid 6715):\
+"Failed to set vport 0 node guid, err = -22.
+RDMA_CM will not function properly for this VF."
 
-After the fix,
+Check for zero vport is no longer needed.
 
-$ devlink port show eth1 -jp
-{
-    "port": {
-        "pci/0000:03:00.0/196608": {
-            "type": "eth",
-            "netdev": "eth1",
-            "flavour": "pcipf",
-            "controller": 1,
-            "pfnum": 0,
-            "splittable": false,
-            "function": {
-                "hw_addr": "98:03:9b:a0:60:11"
-            }
-        }
-    }
-}
-
-Fixes: f099fde16db3 ("net/mlx5: E-switch, Support querying port function mac address")
-Signed-off-by: Bodong Wang <bodong@nvidia.com>
+Fixes: 330077d14de1 ("net/mlx5: E-switch, Supporting setting devlink port function mac address")
+Signed-off-by: Yuval Avnery <yuvalav@nvidia.com>
 Signed-off-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Bodong Wang <bodong@nvidia.com>
 Reviewed-by: Alaa Hleihel <alaa@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/vport.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-index 2c6d95900e3c..a3edeea4ddd7 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -1308,6 +1308,12 @@ int mlx5_esw_vport_enable(struct mlx5_eswitch *esw, u16 vport_num,
- 			goto err_vhca_mapping;
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/vport.c b/drivers/net/ethernet/mellanox/mlx5/core/vport.c
+index e05c5c0f3ae1..7d21fbb9192f 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/vport.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/vport.c
+@@ -465,8 +465,6 @@ int mlx5_modify_nic_vport_node_guid(struct mlx5_core_dev *mdev,
+ 	void *in;
+ 	int err;
  
-+	/* External controller host PF has factory programmed MAC.
-+	 * Read it from the device.
-+	 */
-+	if (mlx5_core_is_ecpf(esw->dev) && vport_num == MLX5_VPORT_PF)
-+		mlx5_query_nic_vport_mac_address(esw->dev, vport_num, true, vport->info.mac);
-+
- 	esw_vport_change_handle_locked(vport);
+-	if (!vport)
+-		return -EINVAL;
+ 	if (!MLX5_CAP_GEN(mdev, vport_group_manager))
+ 		return -EACCES;
  
- 	esw->enabled_vports++;
 -- 
 2.30.2
 
