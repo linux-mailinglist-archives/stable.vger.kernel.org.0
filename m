@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 469943AEE33
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D89B03AEE37
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230121AbhFUQ03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:26:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42100 "EHLO mail.kernel.org"
+        id S232288AbhFUQ0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:26:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231282AbhFUQZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:25:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F20F76115B;
-        Mon, 21 Jun 2021 16:21:33 +0000 (UTC)
+        id S232094AbhFUQZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:25:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87C2F613BE;
+        Mon, 21 Jun 2021 16:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292494;
-        bh=g8o9G1H9mtePYpd3bUS+euMGlKq8E0lRSKm51nh4af8=;
+        s=korg; t=1624292497;
+        bh=KKHN1tZqk9vOiF5zfiekK61Ol5daYmg0Vt7OKUL8Xxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q77FFhM8Fkh6vYj+jzctA9ka7BPLK944K9rWd+fhC9ZVKeiFDN33q/+Pt3gMDU4u+
-         58ZVgKhQanQxzOjYUvtV6Pq8vjEQwC2tiFJWbrvT/CTUU4Fu/4GyyaGIBVUT+Imjkg
-         juuTbbQ+ruEqwPYaGl7QUOOqgEbnPS2hRzx9bU0A=
+        b=sbiMiQ+w5Ki/xOD7wGUaGwvStipUSW8hTGU/V61wOqVe5pABwQtkSIyCdk+xXM3x3
+         ySWVpEYkINokmu/39jw2dbNQ7idZq42P4OlJEhTftVMd5mrvCZlTMh9+jJUt+JEihP
+         14p0OmlX9HN1ebgs/6JDlchSf40aIAU2iTozfQbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 021/146] net: lantiq: disable interrupt before sheduling NAPI
-Date:   Mon, 21 Jun 2021 18:14:11 +0200
-Message-Id: <20210621154911.990517211@linuxfoundation.org>
+Subject: [PATCH 5.10 022/146] netfilter: nft_fib_ipv6: skip ipv6 packets from any to link-local
+Date:   Mon, 21 Jun 2021 18:14:12 +0200
+Message-Id: <20210621154912.027676066@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
 References: <20210621154911.244649123@linuxfoundation.org>
@@ -41,43 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Jan Bajkowski <olek2@wp.pl>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit f2386cf7c5f4ff5d7b584f5d92014edd7df6c676 ]
+[ Upstream commit 12f36e9bf678a81d030ca1b693dcda62b55af7c5 ]
 
-This patch fixes TX hangs with threaded NAPI enabled. The scheduled
-NAPI seems to be executed in parallel with the interrupt on second
-thread. Sometimes it happens that ltq_dma_disable_irq() is executed
-after xrx200_tx_housekeeping(). The symptom is that TX interrupts
-are disabled in the DMA controller. As a result, the TX hangs after
-a few seconds of the iperf test. Scheduling NAPI after disabling
-interrupts fixes this issue.
+The ip6tables rpfilter match has an extra check to skip packets with
+"::" source address.
 
-Tested on Lantiq xRX200 (BT Home Hub 5A).
+Extend this to ipv6 fib expression.  Else ipv6 duplicate address detection
+packets will fail rpf route check -- lookup returns -ENETUNREACH.
 
-Fixes: 9423361da523 ("net: lantiq: Disable IRQs only if NAPI gets scheduled ")
-Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+While at it, extend the prerouting check to also cover the ingress hook.
+
+Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1543
+Fixes: f6d0cbcf09c5 ("netfilter: nf_tables: add fib expression")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/lantiq_xrx200.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/netfilter/nft_fib_ipv6.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/lantiq_xrx200.c b/drivers/net/ethernet/lantiq_xrx200.c
-index 135ba5b6ae98..3da494df72f3 100644
---- a/drivers/net/ethernet/lantiq_xrx200.c
-+++ b/drivers/net/ethernet/lantiq_xrx200.c
-@@ -352,8 +352,8 @@ static irqreturn_t xrx200_dma_irq(int irq, void *ptr)
- 	struct xrx200_chan *ch = ptr;
+diff --git a/net/ipv6/netfilter/nft_fib_ipv6.c b/net/ipv6/netfilter/nft_fib_ipv6.c
+index e204163c7036..92f3235fa287 100644
+--- a/net/ipv6/netfilter/nft_fib_ipv6.c
++++ b/net/ipv6/netfilter/nft_fib_ipv6.c
+@@ -135,6 +135,17 @@ void nft_fib6_eval_type(const struct nft_expr *expr, struct nft_regs *regs,
+ }
+ EXPORT_SYMBOL_GPL(nft_fib6_eval_type);
  
- 	if (napi_schedule_prep(&ch->napi)) {
--		__napi_schedule(&ch->napi);
- 		ltq_dma_disable_irq(&ch->dma);
-+		__napi_schedule(&ch->napi);
++static bool nft_fib_v6_skip_icmpv6(const struct sk_buff *skb, u8 next, const struct ipv6hdr *iph)
++{
++	if (likely(next != IPPROTO_ICMPV6))
++		return false;
++
++	if (ipv6_addr_type(&iph->saddr) != IPV6_ADDR_ANY)
++		return false;
++
++	return ipv6_addr_type(&iph->daddr) & IPV6_ADDR_LINKLOCAL;
++}
++
+ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
+ 		   const struct nft_pktinfo *pkt)
+ {
+@@ -163,10 +174,13 @@ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
+ 
+ 	lookup_flags = nft_fib6_flowi_init(&fl6, priv, pkt, oif, iph);
+ 
+-	if (nft_hook(pkt) == NF_INET_PRE_ROUTING &&
+-	    nft_fib_is_loopback(pkt->skb, nft_in(pkt))) {
+-		nft_fib_store_result(dest, priv, nft_in(pkt));
+-		return;
++	if (nft_hook(pkt) == NF_INET_PRE_ROUTING ||
++	    nft_hook(pkt) == NF_INET_INGRESS) {
++		if (nft_fib_is_loopback(pkt->skb, nft_in(pkt)) ||
++		    nft_fib_v6_skip_icmpv6(pkt->skb, pkt->tprot, iph)) {
++			nft_fib_store_result(dest, priv, nft_in(pkt));
++			return;
++		}
  	}
  
- 	ltq_dma_ack_irq(&ch->dma);
+ 	*dest = 0;
 -- 
 2.30.2
 
