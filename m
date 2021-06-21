@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27CCB3AF087
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 296343AEF0B
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231592AbhFUQuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:50:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38072 "EHLO mail.kernel.org"
+        id S232486AbhFUQfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231831AbhFUQrn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:47:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BF2061455;
-        Mon, 21 Jun 2021 16:33:33 +0000 (UTC)
+        id S232115AbhFUQdK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:33:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52973613C9;
+        Mon, 21 Jun 2021 16:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293214;
-        bh=MRDSB7rhHlkBX0jrG6+LA/MMI6OOLjy29jH3CybOzAA=;
+        s=korg; t=1624292775;
+        bh=87spd6geNl/EK4z+SKlAsHS8LU4hSHAv+QPgTth09f8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sp48BZjYv0S9C0h4fq4GiL+YWlDD4XAAkpqv0QQSc7criRWaGabqTrZKaMImRZS/4
-         zye84CGmq/+t+jDQWl/bz3dObzNecnijy3rsxP+ZTz2ZejX0ILuhrNgtADoGA1eb51
-         ROgCAWdnk322V3c77ebRY7CpOebUlOOjy20yvp9M=
+        b=09/Go/k6HT4O61hsD23JfuHldUGLWdtI3kokc03jsfRa8398yXMPxxPkFu0fd8UTT
+         4sVTWirk+EkmadxJLWmPRl8FuggDL00fom2uzdINB91tjQS1DixNxeo/45KKwwX26o
+         vnMNHktPLG09bAVDGVylqLTxD88ZcnZdoitwFhDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Rik van Riel <riel@surriel.com>
-Subject: [PATCH 5.12 141/178] x86/process: Check PF_KTHREAD and not current->mm for kernel threads
-Date:   Mon, 21 Jun 2021 18:15:55 +0200
-Message-Id: <20210621154927.572331008@linuxfoundation.org>
+        stable@vger.kernel.org, Jongho Park <jongho7.park@samsung.com>,
+        Bumyong Lee <bumyong.lee@samsung.com>,
+        Chanho Park <chanho61.park@samsung.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 126/146] dmaengine: pl330: fix wrong usage of spinlock flags in dma_cyclc
+Date:   Mon, 21 Jun 2021 18:15:56 +0200
+Message-Id: <20210621154919.421145801@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Bumyong Lee <bumyong.lee@samsung.com>
 
-commit 12f7764ac61200e32c916f038bdc08f884b0b604 upstream.
+commit 4ad5dd2d7876d79507a20f026507d1a93b8fff10 upstream.
 
-switch_fpu_finish() checks current->mm as indicator for kernel threads.
-That's wrong because kernel threads can temporarily use a mm of a user
-process via kthread_use_mm().
+flags varible which is the input parameter of pl330_prep_dma_cyclic()
+should not be used by spinlock_irq[save/restore] function.
 
-Check the task flags for PF_KTHREAD instead.
-
-Fixes: 0cecca9d03c9 ("x86/fpu: Eager switch PKRU state")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Jongho Park <jongho7.park@samsung.com>
+Signed-off-by: Bumyong Lee <bumyong.lee@samsung.com>
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+Link: https://lore.kernel.org/r/20210507063647.111209-1-chanho61.park@samsung.com
+Fixes: f6f2421c0a1c ("dmaengine: pl330: Merge dma_pl330_dmac and pl330_dmac structs")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210608144345.912645927@linutronix.de
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/fpu/internal.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/pl330.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -578,7 +578,7 @@ static inline void switch_fpu_finish(str
- 	 * PKRU state is switched eagerly because it needs to be valid before we
- 	 * return to userland e.g. for a copy_to_user() operation.
- 	 */
--	if (current->mm) {
-+	if (!(current->flags & PF_KTHREAD)) {
- 		pk = get_xsave_addr(&new_fpu->state.xsave, XFEATURE_PKRU);
- 		if (pk)
- 			pkru_val = pk->pkru;
+--- a/drivers/dma/pl330.c
++++ b/drivers/dma/pl330.c
+@@ -2696,13 +2696,15 @@ static struct dma_async_tx_descriptor *p
+ 	for (i = 0; i < len / period_len; i++) {
+ 		desc = pl330_get_desc(pch);
+ 		if (!desc) {
++			unsigned long iflags;
++
+ 			dev_err(pch->dmac->ddma.dev, "%s:%d Unable to fetch desc\n",
+ 				__func__, __LINE__);
+ 
+ 			if (!first)
+ 				return NULL;
+ 
+-			spin_lock_irqsave(&pl330->pool_lock, flags);
++			spin_lock_irqsave(&pl330->pool_lock, iflags);
+ 
+ 			while (!list_empty(&first->node)) {
+ 				desc = list_entry(first->node.next,
+@@ -2712,7 +2714,7 @@ static struct dma_async_tx_descriptor *p
+ 
+ 			list_move_tail(&first->node, &pl330->desc_pool);
+ 
+-			spin_unlock_irqrestore(&pl330->pool_lock, flags);
++			spin_unlock_irqrestore(&pl330->pool_lock, iflags);
+ 
+ 			return NULL;
+ 		}
 
 
