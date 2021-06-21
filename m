@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB6B3AEF3D
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2157D3AEF3B
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232660AbhFUQgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54968 "EHLO mail.kernel.org"
+        id S232626AbhFUQgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:36:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233064AbhFUQfG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:35:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83C9361360;
-        Mon, 21 Jun 2021 16:27:38 +0000 (UTC)
+        id S233057AbhFUQfF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:35:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D61C61370;
+        Mon, 21 Jun 2021 16:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292859;
-        bh=MqpnfKz19T2UgGFbLxUsru2Gz7BSYRhPUDZlQmR/uIA=;
+        s=korg; t=1624292861;
+        bh=jjtmDIQitSgfCq6NeJrmCHDMtsmmI8WDJlh96dM8pdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FYeR24OgErGVKnRXTTR6KqZwrJ0duh1wIdjpsATwsqWi5HJCBHjPl0dega4h5PAcv
-         FM/6k7Om6QiGq5E25c9knqhIvJlupm/BMw2x18XuKltRJ1X+6xlBK4owfiCSjSTzGj
-         S556EpXJBGt7W0LpsLDrhPcwytKB8LxUwDF1ikEk=
+        b=uIN9sgUZtumTtWVap/2r+6htqLdWt8YYQ/FBMy/yj+zipFsUxn75qiSEKLlVvW5aG
+         1y3FVeFVPsBI59Xbuo8qLDfJVQaa00uzPeuobgbdHEkDiQd/VIXsm9f7Eti4JGQGYT
+         U0Uxu98zh0RVEezfBoXMYww7IMRImAmUlzJ43d9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 011/178] kvm: LAPIC: Restore guard to prevent illegal APIC register access
-Date:   Mon, 21 Jun 2021 18:13:45 +0200
-Message-Id: <20210621154921.906897314@linuxfoundation.org>
+        stable@vger.kernel.org, Matthew Bobrowski <repnop@google.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 012/178] fanotify: fix copy_event_to_user() fid error clean up
+Date:   Mon, 21 Jun 2021 18:13:46 +0200
+Message-Id: <20210621154921.953211336@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -41,41 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Matthew Bobrowski <repnop@google.com>
 
-[ Upstream commit 218bf772bddd221489c38dde6ef8e917131161f6 ]
+[ Upstream commit f644bc449b37cc32d3ce7b36a88073873aa21bd5 ]
 
-Per the SDM, "any access that touches bytes 4 through 15 of an APIC
-register may cause undefined behavior and must not be executed."
-Worse, such an access in kvm_lapic_reg_read can result in a leak of
-kernel stack contents. Prior to commit 01402cf81051 ("kvm: LAPIC:
-write down valid APIC registers"), such an access was explicitly
-disallowed. Restore the guard that was removed in that commit.
+Ensure that clean up is performed on the allocated file descriptor and
+struct file object in the event that an error is encountered while copying
+fid info objects. Currently, we return directly to the caller when an error
+is experienced in the fid info copying helper, which isn't ideal given that
+the listener process could be left with a dangling file descriptor in their
+fdtable.
 
-Fixes: 01402cf81051 ("kvm: LAPIC: write down valid APIC registers")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Message-Id: <20210602205224.3189316-1-jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 5e469c830fdb ("fanotify: copy event fid info to user")
+Fixes: 44d705b0370b ("fanotify: report name info for FAN_DIR_MODIFY event")
+Link: https://lore.kernel.org/linux-fsdevel/YMKv1U7tNPK955ho@google.com/T/#m15361cd6399dad4396aad650de25dbf6b312288e
+Link: https://lore.kernel.org/r/1ef8ae9100101eb1a91763c516c2e9a3a3b112bd.1623376346.git.repnop@google.com
+Signed-off-by: Matthew Bobrowski <repnop@google.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/lapic.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/notify/fanotify/fanotify_user.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index fa023f3feb25..43013ac0fd4d 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -1410,6 +1410,9 @@ int kvm_lapic_reg_read(struct kvm_lapic *apic, u32 offset, int len,
- 	if (!apic_x2apic_mode(apic))
- 		valid_reg_mask |= APIC_REG_MASK(APIC_ARBPRI);
+diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
+index 9e0c1afac8bd..c175523b0a2c 100644
+--- a/fs/notify/fanotify/fanotify_user.c
++++ b/fs/notify/fanotify/fanotify_user.c
+@@ -378,7 +378,7 @@ static ssize_t copy_event_to_user(struct fsnotify_group *group,
+ 					info_type, fanotify_info_name(info),
+ 					info->name_len, buf, count);
+ 		if (ret < 0)
+-			return ret;
++			goto out_close_fd;
  
-+	if (alignment + len > 4)
-+		return 1;
-+
- 	if (offset > 0x3f0 || !(valid_reg_mask & APIC_REG_MASK(offset)))
- 		return 1;
+ 		buf += ret;
+ 		count -= ret;
+@@ -426,7 +426,7 @@ static ssize_t copy_event_to_user(struct fsnotify_group *group,
+ 					fanotify_event_object_fh(event),
+ 					info_type, dot, dot_len, buf, count);
+ 		if (ret < 0)
+-			return ret;
++			goto out_close_fd;
  
+ 		buf += ret;
+ 		count -= ret;
 -- 
 2.30.2
 
