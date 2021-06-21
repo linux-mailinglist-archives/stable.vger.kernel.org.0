@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8851E3AEE8C
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:27:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE85B3AEEAB
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232051AbhFUQ3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:29:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49624 "EHLO mail.kernel.org"
+        id S232319AbhFUQas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:30:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231667AbhFUQ2w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:28:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFE1761261;
-        Mon, 21 Jun 2021 16:23:49 +0000 (UTC)
+        id S231843AbhFUQ2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:28:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B498613F0;
+        Mon, 21 Jun 2021 16:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292630;
-        bh=QPADqRXbxHopf+2H6Gd2OsBm/3XGJ3auzrYB6ovQafw=;
+        s=korg; t=1624292632;
+        bh=1BONI1phd+DeAmCBt/NRqb/agyoHz3Q7VTty+jAU2U4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iD5qqefCkq/lIP/iXsTsYPXHBuaIj9kJe1emXJ6H4D3a5YKb8qEBnkU1EhjlKnvrm
-         RS5iyyYqE4oDhJKl2kr7rwE3TflPyx5cw+/2vcXQPh2yOzQSEwrAn72PwYHsUrmhcE
-         KKX50lY2HC5brcjJX1g5e7XreMaAfHFVNQL+lgXk=
+        b=u09nKt6AVQIZ4FeywZs5xFpyQqogA2GR8XatKNkoyqSpzTYJB10cj5yxeMhD3AgUf
+         Yzw0Cm8JJfOg9dvqvUPqs1iqowYVR78cCqpMP9QxhfyTTFEeb9MlSNu0a7N78PNj25
+         LjdqnhQXXXL3qoXCChdzf5f3prmhwIFQlxt5GCB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Juliusz Chroboczek <jch@irif.fr>,
+        David Ahern <dsahern@kernel.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 071/146] bnxt_en: Call bnxt_ethtool_free() in bnxt_init_one() error path
-Date:   Mon, 21 Jun 2021 18:15:01 +0200
-Message-Id: <20210621154915.355494232@linuxfoundation.org>
+Subject: [PATCH 5.10 072/146] icmp: dont send out ICMP messages with a source address of 0.0.0.0
+Date:   Mon, 21 Jun 2021 18:15:02 +0200
+Message-Id: <20210621154915.442150884@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
 References: <20210621154911.244649123@linuxfoundation.org>
@@ -41,35 +42,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Somnath Kotur <somnath.kotur@broadcom.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 03400aaa69f916a376e11526cf591901a96a3a5c ]
+[ Upstream commit 321827477360934dc040e9d3c626bf1de6c3ab3c ]
 
-bnxt_ethtool_init() may have allocated some memory and we need to
-call bnxt_ethtool_free() to properly unwind if bnxt_init_one()
+When constructing ICMP response messages, the kernel will try to pick a
+suitable source address for the outgoing packet. However, if no IPv4
+addresses are configured on the system at all, this will fail and we end up
+producing an ICMP message with a source address of 0.0.0.0. This can happen
+on a box routing IPv4 traffic via v6 nexthops, for instance.
+
+Since 0.0.0.0 is not generally routable on the internet, there's a good
+chance that such ICMP messages will never make it back to the sender of the
+original packet that the ICMP message was sent in response to. This, in
+turn, can create connectivity and PMTUd problems for senders. Fortunately,
+RFC7600 reserves a dummy address to be used as a source for ICMP
+messages (192.0.0.8/32), so let's teach the kernel to substitute that
+address as a last resort if the regular source address selection procedure
 fails.
 
-Fixes: 7c3809181468 ("bnxt_en: Refactor bnxt_init_one() and turn on TPA support on 57500 chips.")
-Signed-off-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Below is a quick example reproducing this issue with network namespaces:
+
+ip netns add ns0
+ip l add type veth peer netns ns0
+ip l set dev veth0 up
+ip a add 10.0.0.1/24 dev veth0
+ip a add fc00:dead:cafe:42::1/64 dev veth0
+ip r add 10.1.0.0/24 via inet6 fc00:dead:cafe:42::2
+ip -n ns0 l set dev veth0 up
+ip -n ns0 a add fc00:dead:cafe:42::2/64 dev veth0
+ip -n ns0 r add 10.0.0.0/24 via inet6 fc00:dead:cafe:42::1
+ip netns exec ns0 sysctl -w net.ipv4.icmp_ratelimit=0
+ip netns exec ns0 sysctl -w net.ipv4.ip_forward=1
+tcpdump -tpni veth0 -c 2 icmp &
+ping -w 1 10.1.0.1 > /dev/null
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on veth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+IP 10.0.0.1 > 10.1.0.1: ICMP echo request, id 29, seq 1, length 64
+IP 0.0.0.0 > 10.0.0.1: ICMP net 10.1.0.1 unreachable, length 92
+2 packets captured
+2 packets received by filter
+0 packets dropped by kernel
+
+With this patch the above capture changes to:
+IP 10.0.0.1 > 10.1.0.1: ICMP echo request, id 31127, seq 1, length 64
+IP 192.0.0.8 > 10.0.0.1: ICMP net 10.1.0.1 unreachable, length 92
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Juliusz Chroboczek <jch@irif.fr>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/uapi/linux/in.h | 3 +++
+ net/ipv4/icmp.c         | 7 +++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 3f3d13a18992..db1b89f57079 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -12746,6 +12746,7 @@ init_err_pci_clean:
- 	bnxt_hwrm_func_drv_unrgtr(bp);
- 	bnxt_free_hwrm_short_cmd_req(bp);
- 	bnxt_free_hwrm_resources(bp);
-+	bnxt_ethtool_free(bp);
- 	kfree(bp->fw_health);
- 	bp->fw_health = NULL;
- 	bnxt_cleanup_pci(bp);
+diff --git a/include/uapi/linux/in.h b/include/uapi/linux/in.h
+index 7d6687618d80..d1b327036ae4 100644
+--- a/include/uapi/linux/in.h
++++ b/include/uapi/linux/in.h
+@@ -289,6 +289,9 @@ struct sockaddr_in {
+ /* Address indicating an error return. */
+ #define	INADDR_NONE		((unsigned long int) 0xffffffff)
+ 
++/* Dummy address for src of ICMP replies if no real address is set (RFC7600). */
++#define	INADDR_DUMMY		((unsigned long int) 0xc0000008)
++
+ /* Network number for local host loopback. */
+ #define	IN_LOOPBACKNET		127
+ 
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index ff3818333fcf..b71b836cc7d1 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -759,6 +759,13 @@ void __icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info,
+ 		icmp_param.data_len = room;
+ 	icmp_param.head_len = sizeof(struct icmphdr);
+ 
++	/* if we don't have a source address at this point, fall back to the
++	 * dummy address instead of sending out a packet with a source address
++	 * of 0.0.0.0
++	 */
++	if (!fl4.saddr)
++		fl4.saddr = htonl(INADDR_DUMMY);
++
+ 	icmp_push_reply(&icmp_param, &fl4, &ipc, &rt);
+ ende:
+ 	ip_rt_put(rt);
 -- 
 2.30.2
 
