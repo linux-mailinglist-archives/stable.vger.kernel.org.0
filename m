@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7B833AE740
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5A743AE742
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229641AbhFUKky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 06:40:54 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:58893 "EHLO
+        id S229888AbhFUKlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 06:41:02 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:34083 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229621AbhFUKky (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:40:54 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A968B1940A90;
-        Mon, 21 Jun 2021 06:38:39 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229804AbhFUKlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:41:02 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id C9E2C1940A9B;
+        Mon, 21 Jun 2021 06:38:47 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 21 Jun 2021 06:38:39 -0400
+  by compute1.internal (MEProxy); Mon, 21 Jun 2021 06:38:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0jLAJF
-        /qa2IICjOi1yoVyEbN1TFg4FoaWwt8s8nvl30=; b=PeDcugZQpOv4o6inl6Qt5I
-        06toj2sWhtPK8f35IEGHMU9IifAROsBaX33W9W2uuDJS+4LTtMxNbpmkluJ5Z7au
-        863deufMUmxRafZe/j7bInlHC9xfnBXiuOhr/It9w9i4AAcLyaRLeWulRBW7Y4Gd
-        bZHogNnCzAAIizU1vRdSD4ctiIIDE8aMv49BqRTbY1i1drj85UxIjBF6390tm290
-        LMlVNErfYDVXm8TJRg95maoRl4WzWVWimd6OuU/YIJV+qX6bnqRd7d2KO5JXwa3b
-        3kaR2Eb+WMMTH1PWciad0lMCh+9a+MibRc1zTXVrVEVeQyXFrzsPb5OXneYmmCDQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=cJGMS7
+        0hRzASj2TjJ7ZXDE0GGvkwBsRC7d+8fbM09DY=; b=vUAO+IYfOdAwcYO9XboeTd
+        uklymVD5h5OYinop3S4iRm6OA4xkWtWkTb4GBA99ah93RMFS2vdIp0msheiTx66E
+        51rxIR0kBKyQ/uXWEEm4ckQcI3vx02Zm84xhEoUvAgjQ0+nBwsIn67qnj29m0nNG
+        mim2PXFGtRoz94iEnDLea8u/Nhpyz81fPssbuqqZZm3zooOYmqOhaJIebkvW76Aa
+        87zw/ElfzO86ZBJtM/YcMQDjChfwwx9CSs3H3BX3YBeszlhGGqxwynARaKi5DzOR
+        URCGoxjVQTSgmO0maWwRh9SX7YCX+Q79uOWaL1WC2kWx+wm7yxR3J4ITt6wa9yLg
         ==
-X-ME-Sender: <xms:LmzQYBFTlx2aWXg67VSuBJf99ZCik2vdI2lfqicWtNIg1QVBfX5I0Q>
-    <xme:LmzQYGXAsSds0-PH-gBeoPCExVQasp5WLGguicU3iAf65eK1TM0v_v8OwV7MOnot0
-    fwBLNU3fTF3iw>
-X-ME-Received: <xmr:LmzQYDIBBoTxmKdQGhkWkJy-Vc1enCbnLAw_7972g0gHdZiEI3P6I35zJxUCPcS0sZwKiMxOfXcQYq5BQGvpqHZLzpbOYcAH>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgfedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:N2zQYAgnllRl8NEXAglCSdFQYwViVWk8XolBax66F2d-WY7N36nI2w>
+    <xme:N2zQYJDqVR5A941l-ASrTTITk3Cff-lmYbTRLM_PzRJHNd4oi7nIZ--A3mP9Usuzj
+    rFy5kw1JqI0qg>
+X-ME-Received: <xmr:N2zQYIGXci-bpM_eNww0nRRAAOoDy1Zzfk0YTOziFMXIOnGsVUj4Ts5Mio_UcysLaEkHTYWmM6Evoiau1pGTKPZXunki8kEt>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgfeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -39,13 +39,13 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgfedtucetufdoteggod
     egudefvddtvedvheegheevnecuffhomhgrihhnpehshiiikhgrlhhlvghrrdgrphhpshhp
     ohhtrdgtohhmpdhkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurf
     grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:LmzQYHHanFbEJkAFCr4OCFgwrvEXaPRVtmwjnp-tHat_YiNM8XpfTg>
-    <xmx:LmzQYHVMemdwNv5UJPHJG_K4DnGFjwgIPuijYW0mOpDpX97fS7QOZQ>
-    <xmx:LmzQYCNIhmLfKOJObTtXtKgD3SAe1OEONkqcdVah0dFzPfZzQN4qXQ>
-    <xmx:L2zQYOEt0HfNNw-4_ymyLN18H_XvYoj3TY8hdFVYsOXxVb_l1XZPeQ>
+X-ME-Proxy: <xmx:N2zQYBTUt_Wdb-buirbK9ATPyjSyD9XBwTDoKTovdq3jl0Um73DBcA>
+    <xmx:N2zQYNwIg96RBVUDM8V4es26uv4j8gLPhcWZCTjxbdJVPjmYi_5BkQ>
+    <xmx:N2zQYP4Jd-v6B18USDGcVwAZjVHE8WdUM_SMZ8EsuLUEQXUZ2VBFMA>
+    <xmx:N2zQYMw4T5tF_3WWgEo5Bg4gRl4JtiaDGihKWgTMAnpANjfoVTfDrg>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 21 Jun 2021 06:38:38 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] can: bcm/raw/isotp: use per module netdevice notifier" failed to apply to 4.4-stable tree
+ 21 Jun 2021 06:38:47 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] can: bcm/raw/isotp: use per module netdevice notifier" failed to apply to 4.19-stable tree
 To:     penguin-kernel@i-love.sakura.ne.jp, ktkhai@virtuozzo.com,
         mkl@pengutronix.de, penguin-kernel@I-love.SAKURA.ne.jp,
         socketcan@hartkopp.net, stable@vger.kernel.org,
@@ -53,8 +53,8 @@ To:     penguin-kernel@i-love.sakura.ne.jp, ktkhai@virtuozzo.com,
         syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Jun 2021 12:38:35 +0200
-Message-ID: <162427191414209@kroah.com>
+Date:   Mon, 21 Jun 2021 12:38:36 +0200
+Message-ID: <1624271916195215@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -63,7 +63,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
