@@ -2,43 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9C8F3AEF19
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5B63AF09C
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232243AbhFUQfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:35:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54968 "EHLO mail.kernel.org"
+        id S232380AbhFUQuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:50:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232571AbhFUQeJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:34:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B95BE61406;
-        Mon, 21 Jun 2021 16:26:45 +0000 (UTC)
+        id S232184AbhFUQtB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:49:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F99D611BD;
+        Mon, 21 Jun 2021 16:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292806;
-        bh=f43P4GllyIqMzBsJtyRB33LOlozqyMP5NMLEFz0G34M=;
+        s=korg; t=1624293252;
+        bh=U3g65Nv1hP3/UzjrGi9s0kaPppyW9pjszhufNDJaguI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyD/dbkDecVcKG6Ei4/73HS3Njd9ROZIWCueFThs2eXpLetgxsCGHXWzgTuFXe2ea
-         mC3vCWVZ11CBy2jB08L+h5cW2w3HXlz50aCdyF96I77mNOdx3022tToGd11XrCdkem
-         DFvcVKd9yHTlLilE4BzVTWKOyZdSDeESSObW5zTM=
+        b=iIvqnSUo4tEabErhZRuru1oauCP85eMDlmNupazPTPppSj0zzBfTQGUFDnaz949OF
+         CApcPRuYTpJYxqEBHuarjk7gsIzbzPlfgGykvJXJasEJ4Kz1yMRhlos+N9k81FX5Eu
+         GL7FsvZ02g2C47T/i0UUHs08egd966KqS0tXv00A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Marco Elver <elver@google.com>,
-        "Lin, Zhenpeng" <zplin@psu.edu>, Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 137/146] mm/slub: clarify verification reporting
-Date:   Mon, 21 Jun 2021 18:16:07 +0200
-Message-Id: <20210621154920.318381281@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.12 154/178] cfg80211: fix phy80211 symlink creation
+Date:   Mon, 21 Jun 2021 18:16:08 +0200
+Message-Id: <20210621154928.001689757@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
+References: <20210621154921.212599475@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,147 +38,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 8669dbab2ae56085c128894b181c2aa50f97e368 upstream.
+commit 43076c1e074359f11c85d7d1b85ede1bbb8ee6b9 upstream.
 
-Patch series "Actually fix freelist pointer vs redzoning", v4.
+When I moved around the code here, I neglected that we could still
+call register_netdev() or similar without the wiphy mutex held,
+which then calls cfg80211_register_wdev() - that's also done from
+cfg80211_register_netdevice(), but the phy80211 symlink creation
+was only there. Now, the symlink isn't needed for a *pure* wdev,
+but a netdev not registered via cfg80211_register_wdev() should
+still have the symlink, so move the creation to the right place.
 
-This fixes redzoning vs the freelist pointer (both for middle-position
-and very small caches).  Both are "theoretical" fixes, in that I see no
-evidence of such small-sized caches actually be used in the kernel, but
-that's no reason to let the bugs continue to exist, especially since
-people doing local development keep tripping over it.  :)
-
-This patch (of 3):
-
-Instead of repeating "Redzone" and "Poison", clarify which sides of
-those zones got tripped.  Additionally fix column alignment in the
-trailer.
-
-Before:
-
-  BUG test (Tainted: G    B            ): Redzone overwritten
-  ...
-  Redzone (____ptrval____): bb bb bb bb bb bb bb bb      ........
-  Object (____ptrval____): f6 f4 a5 40 1d e8            ...@..
-  Redzone (____ptrval____): 1a aa                        ..
-  Padding (____ptrval____): 00 00 00 00 00 00 00 00      ........
-
-After:
-
-  BUG test (Tainted: G    B            ): Right Redzone overwritten
-  ...
-  Redzone  (____ptrval____): bb bb bb bb bb bb bb bb      ........
-  Object   (____ptrval____): f6 f4 a5 40 1d e8            ...@..
-  Redzone  (____ptrval____): 1a aa                        ..
-  Padding  (____ptrval____): 00 00 00 00 00 00 00 00      ........
-
-The earlier commits that slowly resulted in the "Before" reporting were:
-
-  d86bd1bece6f ("mm/slub: support left redzone")
-  ffc79d288000 ("slub: use print_hex_dump")
-  2492268472e7 ("SLUB: change error reporting format to follow lockdep loosely")
-
-Link: https://lkml.kernel.org/r/20210608183955.280836-1-keescook@chromium.org
-Link: https://lkml.kernel.org/r/20210608183955.280836-2-keescook@chromium.org
-Link: https://lore.kernel.org/lkml/cfdb11d7-fb8e-e578-c939-f7f5fb69a6bd@suse.cz/
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Marco Elver <elver@google.com>
-Cc: "Lin, Zhenpeng" <zplin@psu.edu>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 2fe8ef106238 ("cfg80211: change netdev registration/unregistration semantics")
+Link: https://lore.kernel.org/r/20210608113226.a5dc4c1e488c.Ia42fe663cefe47b0883af78c98f284c5555bbe5d@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/vm/slub.rst |   10 +++++-----
- mm/slub.c                 |   14 +++++++-------
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ net/wireless/core.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
---- a/Documentation/vm/slub.rst
-+++ b/Documentation/vm/slub.rst
-@@ -181,7 +181,7 @@ SLUB Debug output
- Here is a sample of slub debug output::
+--- a/net/wireless/core.c
++++ b/net/wireless/core.c
+@@ -1339,6 +1339,11 @@ void cfg80211_register_wdev(struct cfg80
+ 	rdev->devlist_generation++;
+ 	wdev->registered = true;
  
-  ====================================================================
-- BUG kmalloc-8: Redzone overwritten
-+ BUG kmalloc-8: Right Redzone overwritten
-  --------------------------------------------------------------------
++	if (wdev->netdev &&
++	    sysfs_create_link(&wdev->netdev->dev.kobj, &rdev->wiphy.dev.kobj,
++			      "phy80211"))
++		pr_err("failed to add phy80211 symlink to netdev!\n");
++
+ 	nl80211_notify_iface(rdev, wdev, NL80211_CMD_NEW_INTERFACE);
+ }
  
-  INFO: 0xc90f6d28-0xc90f6d2b. First byte 0x00 instead of 0xcc
-@@ -189,10 +189,10 @@ Here is a sample of slub debug output::
-  INFO: Object 0xc90f6d20 @offset=3360 fp=0xc90f6d58
-  INFO: Allocated in get_modalias+0x61/0xf5 age=53 cpu=1 pid=554
+@@ -1364,14 +1369,6 @@ int cfg80211_register_netdevice(struct n
+ 	if (ret)
+ 		goto out;
  
-- Bytes b4 0xc90f6d10:  00 00 00 00 00 00 00 00 5a 5a 5a 5a 5a 5a 5a 5a ........ZZZZZZZZ
--   Object 0xc90f6d20:  31 30 31 39 2e 30 30 35                         1019.005
--  Redzone 0xc90f6d28:  00 cc cc cc                                     .
--  Padding 0xc90f6d50:  5a 5a 5a 5a 5a 5a 5a 5a                         ZZZZZZZZ
-+ Bytes b4 (0xc90f6d10): 00 00 00 00 00 00 00 00 5a 5a 5a 5a 5a 5a 5a 5a ........ZZZZZZZZ
-+ Object   (0xc90f6d20): 31 30 31 39 2e 30 30 35                         1019.005
-+ Redzone  (0xc90f6d28): 00 cc cc cc                                     .
-+ Padding  (0xc90f6d50): 5a 5a 5a 5a 5a 5a 5a 5a                         ZZZZZZZZ
- 
-    [<c010523d>] dump_trace+0x63/0x1eb
-    [<c01053df>] show_trace_log_lvl+0x1a/0x2f
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -698,15 +698,15 @@ static void print_trailer(struct kmem_ca
- 	       p, p - addr, get_freepointer(s, p));
- 
- 	if (s->flags & SLAB_RED_ZONE)
--		print_section(KERN_ERR, "Redzone ", p - s->red_left_pad,
-+		print_section(KERN_ERR, "Redzone  ", p - s->red_left_pad,
- 			      s->red_left_pad);
- 	else if (p > addr + 16)
- 		print_section(KERN_ERR, "Bytes b4 ", p - 16, 16);
- 
--	print_section(KERN_ERR, "Object ", p,
-+	print_section(KERN_ERR,         "Object   ", p,
- 		      min_t(unsigned int, s->object_size, PAGE_SIZE));
- 	if (s->flags & SLAB_RED_ZONE)
--		print_section(KERN_ERR, "Redzone ", p + s->object_size,
-+		print_section(KERN_ERR, "Redzone  ", p + s->object_size,
- 			s->inuse - s->object_size);
- 
- 	off = get_info_end(s);
-@@ -718,7 +718,7 @@ static void print_trailer(struct kmem_ca
- 
- 	if (off != size_from_object(s))
- 		/* Beginning of the filler is the free pointer */
--		print_section(KERN_ERR, "Padding ", p + off,
-+		print_section(KERN_ERR, "Padding  ", p + off,
- 			      size_from_object(s) - off);
- 
- 	dump_stack();
-@@ -895,11 +895,11 @@ static int check_object(struct kmem_cach
- 	u8 *endobject = object + s->object_size;
- 
- 	if (s->flags & SLAB_RED_ZONE) {
--		if (!check_bytes_and_report(s, page, object, "Redzone",
-+		if (!check_bytes_and_report(s, page, object, "Left Redzone",
- 			object - s->red_left_pad, val, s->red_left_pad))
- 			return 0;
- 
--		if (!check_bytes_and_report(s, page, object, "Redzone",
-+		if (!check_bytes_and_report(s, page, object, "Right Redzone",
- 			endobject, val, s->inuse - s->object_size))
- 			return 0;
- 	} else {
-@@ -914,7 +914,7 @@ static int check_object(struct kmem_cach
- 		if (val != SLUB_RED_ACTIVE && (s->flags & __OBJECT_POISON) &&
- 			(!check_bytes_and_report(s, page, p, "Poison", p,
- 					POISON_FREE, s->object_size - 1) ||
--			 !check_bytes_and_report(s, page, p, "Poison",
-+			 !check_bytes_and_report(s, page, p, "End Poison",
- 				p + s->object_size - 1, POISON_END, 1)))
- 			return 0;
- 		/*
+-	if (sysfs_create_link(&dev->dev.kobj, &rdev->wiphy.dev.kobj,
+-			      "phy80211")) {
+-		pr_err("failed to add phy80211 symlink to netdev!\n");
+-		unregister_netdevice(dev);
+-		ret = -EINVAL;
+-		goto out;
+-	}
+-
+ 	cfg80211_register_wdev(rdev, wdev);
+ 	ret = 0;
+ out:
 
 
