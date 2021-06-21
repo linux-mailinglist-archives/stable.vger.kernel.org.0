@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 252583AF318
+	by mail.lfdr.de (Postfix) with ESMTP id C22603AF31A
 	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232409AbhFUR7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 13:59:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
+        id S233159AbhFUR7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 13:59:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232888AbhFUR4M (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232889AbhFUR4M (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Jun 2021 13:56:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BADBC61380;
-        Mon, 21 Jun 2021 17:53:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 301AD6138C;
+        Mon, 21 Jun 2021 17:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624297997;
-        bh=zwjrpBQ7o0x2xqtiyXHPgA7MFvj9vARlzFvp3O45wJc=;
+        s=k20201202; t=1624297998;
+        bh=tWHLgKCSspw/p3ROZiuTVcoKpkDiADFWqlPIp8tLqAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sdb+N3G5AVaUAotaq0eKMI+IGHViFyorcmkVg4B7BnynU2Xpxr8B6rg0s5Hp2CGJQ
-         vdsiArlhKC1sRg5cFDszCS0NQcLOJXhjl5R1LQa/9M1hNLoqQAm41N2h+utQyxZMgc
-         8Er8kd3cdbOAuS9uMtM3cT+8hTyQLN3UVQ60NArw53b9QZIkKc6k5KR9cCnbQObpzS
-         InbjR3LJwt36K+BKMJGJ+rL70B6T8yNRXI834yAdNarWkeKKl0MylyFQwUzptiOeQD
-         lXYcc9cfV3iIu8j5yJVlK2LVB1nhEtHzHr3ESaIkPx3GIdUP03B2C5hCLvpwhJt4xF
-         fN+y3cn7SRkjg==
+        b=c63P9XQl9hjcC8pU5LfLNyFVbYI8jn98aP3YPqc20dD5A8F+9wnOR+ZzTmRLXQB0u
+         r+Vh7yzAaF4Rlz4M/L2/zDzyDN7Hday0TvYxpnCeYeuE2ScHQNX6Zim0JXGxs6IrqU
+         MyVEmzYUf+FzTpUkt48uKvMRXSsMevM3yhbuQhVMYJLSKP9GLrHvqjB7QRAR2XFT7H
+         9nXjgJDGthGMKqFcOZmXJgg3BYhdbrIVQn8C8w4agnFvfFIu6gqLShEqWYJwAomrV6
+         0HnYZyaEc49YubxaVVDPn0gtuRgKZ3ABtZjLaMS51zFhOVA/49q5nvBNe/IJEEvMxM
+         Jjsidrffdfxdg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guillaume Ranquet <granquet@baylibre.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 11/35] dmaengine: mediatek: use GFP_NOWAIT instead of GFP_ATOMIC in prep_dma
-Date:   Mon, 21 Jun 2021 13:52:36 -0400
-Message-Id: <20210621175300.735437-11-sashal@kernel.org>
+Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 12/35] net: ipv4: Remove unneed BUG() function
+Date:   Mon, 21 Jun 2021 13:52:37 -0400
+Message-Id: <20210621175300.735437-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210621175300.735437-1-sashal@kernel.org>
 References: <20210621175300.735437-1-sashal@kernel.org>
@@ -43,37 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Ranquet <granquet@baylibre.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 9041575348b21ade1fb74d790f1aac85d68198c7 ]
+[ Upstream commit 5ac6b198d7e312bd10ebe7d58c64690dc59cc49a ]
 
-As recommended by the doc in:
-Documentation/drivers-api/dmaengine/provider.rst
+When 'nla_parse_nested_deprecated' failed, it's no need to
+BUG() here, return -EINVAL is ok.
 
-Use GFP_NOWAIT to not deplete the emergency pool.
-
-Signed-off-by: Guillaume Ranquet <granquet@baylibre.com>
-
-Link: https://lore.kernel.org/r/20210513192642.29446-4-granquet@baylibre.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/mediatek/mtk-uart-apdma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/devinet.c  | 2 +-
+ net/ipv6/addrconf.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/mediatek/mtk-uart-apdma.c b/drivers/dma/mediatek/mtk-uart-apdma.c
-index a09ab2dd3b46..375e7e647df6 100644
---- a/drivers/dma/mediatek/mtk-uart-apdma.c
-+++ b/drivers/dma/mediatek/mtk-uart-apdma.c
-@@ -349,7 +349,7 @@ static struct dma_async_tx_descriptor *mtk_uart_apdma_prep_slave_sg
- 		return NULL;
+diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
+index 123a6d39438f..7c1859777429 100644
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -1989,7 +1989,7 @@ static int inet_set_link_af(struct net_device *dev, const struct nlattr *nla)
+ 		return -EAFNOSUPPORT;
  
- 	/* Now allocate and setup the descriptor */
--	d = kzalloc(sizeof(*d), GFP_ATOMIC);
-+	d = kzalloc(sizeof(*d), GFP_NOWAIT);
- 	if (!d)
- 		return NULL;
+ 	if (nla_parse_nested_deprecated(tb, IFLA_INET_MAX, nla, NULL, NULL) < 0)
+-		BUG();
++		return -EINVAL;
  
+ 	if (tb[IFLA_INET_CONF]) {
+ 		nla_for_each_nested(a, tb[IFLA_INET_CONF], rem)
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 4c881f5d9080..884d430e23cb 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -5799,7 +5799,7 @@ static int inet6_set_link_af(struct net_device *dev, const struct nlattr *nla)
+ 		return -EAFNOSUPPORT;
+ 
+ 	if (nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla, NULL, NULL) < 0)
+-		BUG();
++		return -EINVAL;
+ 
+ 	if (tb[IFLA_INET6_TOKEN]) {
+ 		err = inet6_set_iftoken(idev, nla_data(tb[IFLA_INET6_TOKEN]));
 -- 
 2.30.2
 
