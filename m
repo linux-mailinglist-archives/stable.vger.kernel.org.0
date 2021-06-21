@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A1BE3AEEAF
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 955683AED90
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:18:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231276AbhFUQbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49176 "EHLO mail.kernel.org"
+        id S231461AbhFUQU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:20:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232476AbhFUQ3d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:29:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4CBA613F8;
-        Mon, 21 Jun 2021 16:24:17 +0000 (UTC)
+        id S231480AbhFUQUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:20:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 333C4611C1;
+        Mon, 21 Jun 2021 16:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292658;
-        bh=HgAeyTIKN6/HSdq0bHXaUPfbBBKqat1+BFLZu8Q0FPg=;
+        s=korg; t=1624292288;
+        bh=0Pr4EMvCDhhDrPx+4salUCwP+/VcUirSWEqmwDNUiKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCNAj60xt8ric2hZkP2Xv2LtyWz06uQ00e86Geo9oKxHWeMJsS0axnAroSkTibe5g
-         sZ5nEm+Ljk8Iuq6veDowq5z2gL8tzk5o4nJVNyQeIWHbPzSrwlEO2NpQr33l/9+hVg
-         gqLxx/XjqdlMU/sOaQGLiDzTFxoi2NDbkzZnAswo=
+        b=jC6Dslo2O+N+XmzsjLutQGA7rQa9ktABJpMEiu/iICT6OH8UILdoCZjfl5JAPLx7n
+         5vF5cM9zrpoAYaOjfPYDabZbk8eSrrn4Ye+bBoesyNrHEt2pi8hYCajMMv2BuvTvXV
+         rC+5zNJ4y13x/D7/AobMPWFukBGTAZJ1vnAkBLso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/146] qlcnic: Fix an error handling path in qlcnic_probe()
+Subject: [PATCH 5.4 04/90] afs: Fix an IS_ERR() vs NULL check
 Date:   Mon, 21 Jun 2021 18:14:39 +0200
-Message-Id: <20210621154912.974483181@linuxfoundation.org>
+Message-Id: <20210621154904.308509879@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
+References: <20210621154904.159672728@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit cb3376604a676e0302258b01893911bdd7aa5278 ]
+[ Upstream commit a33d62662d275cee22888fa7760fe09d5b9cd1f9 ]
 
-If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
-must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
-call, as already done in the remove function.
+The proc_symlink() function returns NULL on error, it doesn't return
+error pointers.
 
-Fixes: 451724c821c1 ("qlcnic: aer support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5b86d4ff5dce ("afs: Implement network namespacing")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/YLjMRKX40pTrJvgf@mwanda/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/afs/main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-index c2faf96fcade..27c07b2412f4 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-@@ -2692,6 +2692,7 @@ err_out_free_hw_res:
- 	kfree(ahw);
+diff --git a/fs/afs/main.c b/fs/afs/main.c
+index 5cd26af2464c..d129a1a49616 100644
+--- a/fs/afs/main.c
++++ b/fs/afs/main.c
+@@ -196,8 +196,8 @@ static int __init afs_init(void)
+ 		goto error_fs;
  
- err_out_free_res:
-+	pci_disable_pcie_error_reporting(pdev);
- 	pci_release_regions(pdev);
+ 	afs_proc_symlink = proc_symlink("fs/afs", NULL, "../self/net/afs");
+-	if (IS_ERR(afs_proc_symlink)) {
+-		ret = PTR_ERR(afs_proc_symlink);
++	if (!afs_proc_symlink) {
++		ret = -ENOMEM;
+ 		goto error_proc;
+ 	}
  
- err_out_disable_pdev:
 -- 
 2.30.2
 
