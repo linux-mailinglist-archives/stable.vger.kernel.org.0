@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF7CE3AEDD8
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CA5C3AEDDB
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232001AbhFUQXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
+        id S232006AbhFUQXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:23:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230290AbhFUQWC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:22:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5509611CE;
-        Mon, 21 Jun 2021 16:19:41 +0000 (UTC)
+        id S230028AbhFUQWE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:22:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ABCD6124B;
+        Mon, 21 Jun 2021 16:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292382;
-        bh=1qamf/mhsMAVDAGjAGbKMbTrr2brJAMp6GOrrI9qViM=;
+        s=korg; t=1624292385;
+        bh=FdBuja15jXd1e5GdfkHlQY2YUsroQZp+BQFsPaFQ/7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOXWIBGKXG6IwbkcvvUMc/pSqqYE8BlibfXetpQ1IlsxqFrbA99/DTqaHNSSgB8EP
-         OCkcLx4NQjFD1JhNIwe0DVCUDgQM5AI59+9bPUARDyDo3kWXghW9zn/zCR38fvvJ8M
-         ILjN0LJ5eZpZuDWqdfi/CFI/7zXwo0m9hivhWwMA=
+        b=Q7TZFsROxxRwbkvGoxWTioSpzTaS2AVSZl3835oa4JM3FWolobG3O/Us88HwHJU8j
+         K40og7k2mRW3Z5ZzeXaY3H+BykpHMZHZ7UZqziXePCOxTdMbNd0orpiBDX8MI1sv9w
+         avO9Zv60uQJmy54R/92CRIlf5ZBfM3grztfHMpPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jongho Park <jongho7.park@samsung.com>,
-        Bumyong Lee <bumyong.lee@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 69/90] dmaengine: pl330: fix wrong usage of spinlock flags in dma_cyclc
-Date:   Mon, 21 Jun 2021 18:15:44 +0200
-Message-Id: <20210621154906.493409027@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>
+Subject: [PATCH 5.4 70/90] cfg80211: make certificate generation more robust
+Date:   Mon, 21 Jun 2021 18:15:45 +0200
+Message-Id: <20210621154906.524503400@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
 References: <20210621154904.159672728@linuxfoundation.org>
@@ -41,52 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bumyong Lee <bumyong.lee@samsung.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 4ad5dd2d7876d79507a20f026507d1a93b8fff10 upstream.
+commit b5642479b0f7168fe16d156913533fe65ab4f8d5 upstream.
 
-flags varible which is the input parameter of pl330_prep_dma_cyclic()
-should not be used by spinlock_irq[save/restore] function.
+If all net/wireless/certs/*.hex files are deleted, the build
+will hang at this point since the 'cat' command will have no
+arguments. Do "echo | cat - ..." so that even if the "..."
+part is empty, the whole thing won't hang.
 
-Signed-off-by: Jongho Park <jongho7.park@samsung.com>
-Signed-off-by: Bumyong Lee <bumyong.lee@samsung.com>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20210507063647.111209-1-chanho61.park@samsung.com
-Fixes: f6f2421c0a1c ("dmaengine: pl330: Merge dma_pl330_dmac and pl330_dmac structs")
 Cc: stable@vger.kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210618133832.c989056c3664.Ic3b77531d00b30b26dcd69c64e55ae2f60c3f31e@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/pl330.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/wireless/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2690,13 +2690,15 @@ static struct dma_async_tx_descriptor *p
- 	for (i = 0; i < len / period_len; i++) {
- 		desc = pl330_get_desc(pch);
- 		if (!desc) {
-+			unsigned long iflags;
-+
- 			dev_err(pch->dmac->ddma.dev, "%s:%d Unable to fetch desc\n",
- 				__func__, __LINE__);
- 
- 			if (!first)
- 				return NULL;
- 
--			spin_lock_irqsave(&pl330->pool_lock, flags);
-+			spin_lock_irqsave(&pl330->pool_lock, iflags);
- 
- 			while (!list_empty(&first->node)) {
- 				desc = list_entry(first->node.next,
-@@ -2706,7 +2708,7 @@ static struct dma_async_tx_descriptor *p
- 
- 			list_move_tail(&first->node, &pl330->desc_pool);
- 
--			spin_unlock_irqrestore(&pl330->pool_lock, flags);
-+			spin_unlock_irqrestore(&pl330->pool_lock, iflags);
- 
- 			return NULL;
- 		}
+--- a/net/wireless/Makefile
++++ b/net/wireless/Makefile
+@@ -28,7 +28,7 @@ $(obj)/shipped-certs.c: $(wildcard $(src
+ 	@$(kecho) "  GEN     $@"
+ 	@(echo '#include "reg.h"'; \
+ 	  echo 'const u8 shipped_regdb_certs[] = {'; \
+-	  cat $^ ; \
++	  echo | cat - $^ ; \
+ 	  echo '};'; \
+ 	  echo 'unsigned int shipped_regdb_certs_len = sizeof(shipped_regdb_certs);'; \
+ 	 ) > $@
 
 
