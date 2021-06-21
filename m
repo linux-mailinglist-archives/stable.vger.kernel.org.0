@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B7B3AEE5F
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:26:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E2653AEEB5
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232202AbhFUQ2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:28:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49176 "EHLO mail.kernel.org"
+        id S232328AbhFUQbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:31:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231447AbhFUQ1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:27:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F73261369;
-        Mon, 21 Jun 2021 16:22:35 +0000 (UTC)
+        id S232495AbhFUQ3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:29:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 957BF61026;
+        Mon, 21 Jun 2021 16:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292555;
-        bh=aOkl5aBhIz/uP2jKH6um4LvfzE3UxKNnKnOZ88DgE5s=;
+        s=korg; t=1624292669;
+        bh=J5rFiomhkGXb6uTmtgxj7bmx3aKGX3F4ApLcrBXBtng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNi9yRyNxwzQHFSpZEszlQNqLmT2K2WgIuh7Y9TB84JhNyUzyJDuje/oe5J0zfdER
-         IqZSVtR+81Ct4oc2OtPcj4swRSLTXhHG2xFWSLdcYBs84Opig2EkQhmjpdu5VWdq4S
-         oPb13Mg+hgUYwHUMEcCebwr8LuSrjbbw+iHTXdm8=
+        b=of+Z6aUJrk6GpW1t+MFyVjS6ygFTvohNSLdowH+ZrpNb2Pb1NtVE5OmOi258kcs9H
+         TvMig7DP49/iIFx2LTlP56enUwoFTJAg4s/3McZ3ClbkgNYr1Lusx2rM9OxOHWedAm
+         2zEBxnPOvqVe18TDeRT0hVsuJlSRjJbb5FjIwHV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/146] cxgb4: fix sleep in atomic when flashing PHY firmware
-Date:   Mon, 21 Jun 2021 18:14:32 +0200
-Message-Id: <20210621154912.721945503@linuxfoundation.org>
+Subject: [PATCH 5.10 043/146] cxgb4: halt chip before flashing PHY firmware image
+Date:   Mon, 21 Jun 2021 18:14:33 +0200
+Message-Id: <20210621154912.758538743@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
 References: <20210621154911.244649123@linuxfoundation.org>
@@ -43,68 +43,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit f046bd0ae15d8a0bbe57d4647da182420f720c3d ]
+[ Upstream commit 6d297540f75d759489054e8b07932208fc4db2cb ]
 
-Before writing new PHY firmware to on-chip memory, driver queries
-firmware for current running PHY firmware version, which can result
-in sleep waiting for reply. So, move spinlock closer to the actual
-on-chip memory write operation, instead of taking it at the callers.
+When using firmware-assisted PHY firmware image write to flash,
+halt the chip before beginning the flash write operation to allow
+the running firmware to store the image persistently. Otherwise,
+the running firmware will only store the PHY image in local on-chip
+RAM, which will be lost after next reset.
 
-Fixes: 5fff701c838e ("cxgb4: always sync access when flashing PHY firmware")
+Fixes: 4ee339e1e92a ("cxgb4: add support to flash PHY image")
 Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c | 2 --
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c    | 2 --
- drivers/net/ethernet/chelsio/cxgb4/t4_hw.c         | 2 ++
- 3 files changed, 2 insertions(+), 4 deletions(-)
+ .../ethernet/chelsio/cxgb4/cxgb4_ethtool.c    | 22 ++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
-index 61ea3ec5c3fc..bc2de01d0539 100644
+index bc2de01d0539..df20485b5744 100644
 --- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
 +++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
-@@ -1337,9 +1337,7 @@ static int cxgb4_ethtool_flash_phy(struct net_device *netdev,
+@@ -1337,11 +1337,27 @@ static int cxgb4_ethtool_flash_phy(struct net_device *netdev,
  		return ret;
  	}
  
--	spin_lock_bh(&adap->win0_lock);
++	/* We have to RESET the chip/firmware because we need the
++	 * chip in uninitialized state for loading new PHY image.
++	 * Otherwise, the running firmware will only store the PHY
++	 * image in local RAM which will be lost after next reset.
++	 */
++	ret = t4_fw_reset(adap, adap->mbox, PIORSTMODE_F | PIORST_F);
++	if (ret < 0) {
++		dev_err(adap->pdev_dev,
++			"Set FW to RESET for flashing PHY FW failed. ret: %d\n",
++			ret);
++		return ret;
++	}
++
  	ret = t4_load_phy_fw(adap, MEMWIN_NIC, NULL, data, size);
--	spin_unlock_bh(&adap->win0_lock);
- 	if (ret)
- 		dev_err(adap->pdev_dev, "Failed to load PHY FW\n");
+-	if (ret)
+-		dev_err(adap->pdev_dev, "Failed to load PHY FW\n");
++	if (ret < 0) {
++		dev_err(adap->pdev_dev, "Failed to load PHY FW. ret: %d\n",
++			ret);
++		return ret;
++	}
  
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index 04dcb5e4b316..8be525c5e2e4 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -4428,10 +4428,8 @@ static int adap_init0_phy(struct adapter *adap)
+-	return ret;
++	return 0;
+ }
  
- 	/* Load PHY Firmware onto adapter.
- 	 */
--	spin_lock_bh(&adap->win0_lock);
- 	ret = t4_load_phy_fw(adap, MEMWIN_NIC, phy_info->phy_fw_version,
- 			     (u8 *)phyf->data, phyf->size);
--	spin_unlock_bh(&adap->win0_lock);
- 	if (ret < 0)
- 		dev_err(adap->pdev_dev, "PHY Firmware transfer error %d\n",
- 			-ret);
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-index 236f6bf2858a..964ea3491b80 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-@@ -3827,9 +3827,11 @@ int t4_load_phy_fw(struct adapter *adap, int win,
- 	/* Copy the supplied PHY Firmware image to the adapter memory location
- 	 * allocated by the adapter firmware.
- 	 */
-+	spin_lock_bh(&adap->win0_lock);
- 	ret = t4_memory_rw(adap, win, mtype, maddr,
- 			   phy_fw_size, (__be32 *)phy_fw_data,
- 			   T4_MEMORY_WRITE);
-+	spin_unlock_bh(&adap->win0_lock);
- 	if (ret)
- 		return ret;
- 
+ static int cxgb4_ethtool_flash_fw(struct net_device *netdev,
 -- 
 2.30.2
 
