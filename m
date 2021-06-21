@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA1283AEDD5
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 359EC3AEDD6
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231754AbhFUQXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:23:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41900 "EHLO mail.kernel.org"
+        id S231835AbhFUQXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:23:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231834AbhFUQV7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231840AbhFUQV7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Jun 2021 12:21:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39B0161370;
-        Mon, 21 Jun 2021 16:19:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17B566137D;
+        Mon, 21 Jun 2021 16:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292376;
-        bh=RoLcPgWCvjSIo1JSDqIbHOHp+GAykiVT3pMa/3u0SCE=;
+        s=korg; t=1624292379;
+        bh=LLnmG8brgOHwQ+R3d71IMf6uE3aacgY7WIo8T8fv9JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BA9Y8i0JnI13SCIj9e4jLxFieNHlOY63aKAEL7i2g1x/EQ7VCPd2vmqIJcSFoAtmx
-         M6MHTYzfXl7SwEhRjuVymv9f2vA/Pc+mOqSoqLaMsT2IPCv7F37uf9ca+7Z1TxMAja
-         /Wv1oRlg8inr2kB3jKr8iUGfj0GFDW+B9A8VhyTY=
+        b=mW7OFvNck4yk/sz76c/yAwL0948Qats/rgdYIizdCEG7xefR33boTUC+fJVZE5qsd
+         KvZTKYbK3cwmUGPk6VXxpHMR+3qRYDHe533vNm/0kkNJiYKMIROLL8vT1zGBydlB6q
+         il5i0UeAHIB2nUjC2SU5dlS5e6YCxmVeoEMLvMHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Rik van Riel <riel@surriel.com>,
-        Babu Moger <babu.moger@amd.com>
-Subject: [PATCH 5.4 67/90] x86/pkru: Write hardware init value to PKRU when xstate is init
-Date:   Mon, 21 Jun 2021 18:15:42 +0200
-Message-Id: <20210621154906.431457997@linuxfoundation.org>
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 68/90] x86/fpu: Reset state for all signal restore failures
+Date:   Mon, 21 Jun 2021 18:15:43 +0200
+Message-Id: <20210621154906.462940408@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
 References: <20210621154904.159672728@linuxfoundation.org>
@@ -44,91 +41,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 510b80a6a0f1a0d114c6e33bcea64747d127973c upstream.
+commit efa165504943f2128d50f63de0c02faf6dcceb0d upstream.
 
-When user space brings PKRU into init state, then the kernel handling is
-broken:
+If access_ok() or fpregs_soft_set() fails in __fpu__restore_sig() then the
+function just returns but does not clear the FPU state as it does for all
+other fatal failures.
 
-  T1 user space
-     xsave(state)
-     state.header.xfeatures &= ~XFEATURE_MASK_PKRU;
-     xrstor(state)
+Clear the FPU state for these failures as well.
 
-  T1 -> kernel
-     schedule()
-       XSAVE(S) -> T1->xsave.header.xfeatures[PKRU] == 0
-       T1->flags |= TIF_NEED_FPU_LOAD;
-
-       wrpkru();
-
-     schedule()
-       ...
-       pk = get_xsave_addr(&T1->fpu->state.xsave, XFEATURE_PKRU);
-       if (pk)
-	 wrpkru(pk->pkru);
-       else
-	 wrpkru(DEFAULT_PKRU);
-
-Because the xfeatures bit is 0 and therefore the value in the xsave
-storage is not valid, get_xsave_addr() returns NULL and switch_to()
-writes the default PKRU. -> FAIL #1!
-
-So that wrecks any copy_to/from_user() on the way back to user space
-which hits memory which is protected by the default PKRU value.
-
-Assumed that this does not fail (pure luck) then T1 goes back to user
-space and because TIF_NEED_FPU_LOAD is set it ends up in
-
-  switch_fpu_return()
-      __fpregs_load_activate()
-        if (!fpregs_state_valid()) {
-  	 load_XSTATE_from_task();
-        }
-
-But if nothing touched the FPU between T1 scheduling out and back in,
-then the fpregs_state is still valid which means switch_fpu_return()
-does nothing and just clears TIF_NEED_FPU_LOAD. Back to user space with
-DEFAULT_PKRU loaded. -> FAIL #2!
-
-The fix is simple: if get_xsave_addr() returns NULL then set the
-PKRU value to 0 instead of the restrictive default PKRU value in
-init_pkru_value.
-
- [ bp: Massage in minor nitpicks from folks. ]
-
-Fixes: 0cecca9d03c9 ("x86/fpu: Eager switch PKRU state")
+Fixes: 72a671ced66d ("x86, fpu: Unify signal handling code paths for x86 and x86_64 kernels")
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Rik van Riel <riel@surriel.com>
-Tested-by: Babu Moger <babu.moger@amd.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210608144346.045616965@linutronix.de
+Link: https://lkml.kernel.org/r/87mtryyhhz.ffs@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/fpu/internal.h |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/x86/kernel/fpu/signal.c |   26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -608,9 +608,16 @@ static inline void switch_fpu_finish(str
- 	 * return to userland e.g. for a copy_to_user() operation.
- 	 */
- 	if (!(current->flags & PF_KTHREAD)) {
-+		/*
-+		 * If the PKRU bit in xsave.header.xfeatures is not set,
-+		 * then the PKRU component was in init state, which means
-+		 * XRSTOR will set PKRU to 0. If the bit is not set then
-+		 * get_xsave_addr() will return NULL because the PKRU value
-+		 * in memory is not valid. This means pkru_val has to be
-+		 * set to 0 and not to init_pkru_value.
-+		 */
- 		pk = get_xsave_addr(&new_fpu->state.xsave, XFEATURE_PKRU);
--		if (pk)
--			pkru_val = pk->pkru;
-+		pkru_val = pk ? pk->pkru : 0;
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -289,13 +289,17 @@ static int __fpu__restore_sig(void __use
+ 		return 0;
  	}
- 	__write_pkru(pkru_val);
- }
+ 
+-	if (!access_ok(buf, size))
+-		return -EACCES;
++	if (!access_ok(buf, size)) {
++		ret = -EACCES;
++		goto out;
++	}
+ 
+-	if (!static_cpu_has(X86_FEATURE_FPU))
+-		return fpregs_soft_set(current, NULL,
+-				       0, sizeof(struct user_i387_ia32_struct),
+-				       NULL, buf) != 0;
++	if (!static_cpu_has(X86_FEATURE_FPU)) {
++		ret = fpregs_soft_set(current, NULL, 0,
++				      sizeof(struct user_i387_ia32_struct),
++				      NULL, buf);
++		goto out;
++	}
+ 
+ 	if (use_xsave()) {
+ 		struct _fpx_sw_bytes fx_sw_user;
+@@ -333,7 +337,7 @@ static int __fpu__restore_sig(void __use
+ 	if (ia32_fxstate) {
+ 		ret = __copy_from_user(&env, buf, sizeof(env));
+ 		if (ret)
+-			goto err_out;
++			goto out;
+ 		envp = &env;
+ 	} else {
+ 		/*
+@@ -369,7 +373,7 @@ static int __fpu__restore_sig(void __use
+ 				ret = validate_xstate_header(&fpu->state.xsave.header);
+ 		}
+ 		if (ret)
+-			goto err_out;
++			goto out;
+ 
+ 		sanitize_restored_xstate(&fpu->state, envp, xfeatures, fx_only);
+ 
+@@ -382,7 +386,7 @@ static int __fpu__restore_sig(void __use
+ 		ret = __copy_from_user(&fpu->state.fxsave, buf_fx, state_size);
+ 		if (ret) {
+ 			ret = -EFAULT;
+-			goto err_out;
++			goto out;
+ 		}
+ 
+ 		sanitize_restored_xstate(&fpu->state, envp, xfeatures, fx_only);
+@@ -397,7 +401,7 @@ static int __fpu__restore_sig(void __use
+ 	} else {
+ 		ret = __copy_from_user(&fpu->state.fsave, buf_fx, state_size);
+ 		if (ret)
+-			goto err_out;
++			goto out;
+ 
+ 		fpregs_lock();
+ 		ret = copy_kernel_to_fregs_err(&fpu->state.fsave);
+@@ -408,7 +412,7 @@ static int __fpu__restore_sig(void __use
+ 		fpregs_deactivate(fpu);
+ 	fpregs_unlock();
+ 
+-err_out:
++out:
+ 	if (ret)
+ 		fpu__clear(fpu);
+ 	return ret;
 
 
