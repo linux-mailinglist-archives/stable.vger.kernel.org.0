@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C5063AED84
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:18:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A1BE3AEEAF
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:30:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231611AbhFUQUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:20:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40024 "EHLO mail.kernel.org"
+        id S231276AbhFUQbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:31:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231295AbhFUQUK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:20:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FB9F6120D;
-        Mon, 21 Jun 2021 16:17:54 +0000 (UTC)
+        id S232476AbhFUQ3d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:29:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4CBA613F8;
+        Mon, 21 Jun 2021 16:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292275;
-        bh=ubxOpBglMmBwIhwZNBTjWYW72B9eStWwuAUoHUbfyqU=;
+        s=korg; t=1624292658;
+        bh=HgAeyTIKN6/HSdq0bHXaUPfbBBKqat1+BFLZu8Q0FPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udfHxALL4iD0N5OGu5SELduoWC62iqQYN7cwA3C0XewjGGrw9UHGEQnsU0LEq46I5
-         6rK1sdWsiU2lVYpjMtTrsQYw5yny983cwobE5arQn4t+TwSH7wjey0TJBk65Il4RQj
-         YHqcLZTpQo3i5hd0OeLDizni4DCsWbazZOksQA3U=
+        b=fCNAj60xt8ric2hZkP2Xv2LtyWz06uQ00e86Geo9oKxHWeMJsS0axnAroSkTibe5g
+         sZ5nEm+Ljk8Iuq6veDowq5z2gL8tzk5o4nJVNyQeIWHbPzSrwlEO2NpQr33l/9+hVg
+         gqLxx/XjqdlMU/sOaQGLiDzTFxoi2NDbkzZnAswo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/90] dmaengine: stedma40: add missing iounmap() on error in d40_probe()
-Date:   Mon, 21 Jun 2021 18:14:38 +0200
-Message-Id: <20210621154904.276961759@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 049/146] qlcnic: Fix an error handling path in qlcnic_probe()
+Date:   Mon, 21 Jun 2021 18:14:39 +0200
+Message-Id: <20210621154912.974483181@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-References: <20210621154904.159672728@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit fffdaba402cea79b8d219355487d342ec23f91c6 ]
+[ Upstream commit cb3376604a676e0302258b01893911bdd7aa5278 ]
 
-Add the missing iounmap() before return from d40_probe()
-in the error handling case.
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call, as already done in the remove function.
 
-Fixes: 8d318a50b3d7 ("DMAENGINE: Support for ST-Ericssons DMA40 block v3")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210518141108.1324127-1-yangyingliang@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 451724c821c1 ("qlcnic: aer support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ste_dma40.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
-index de8bfd9a76e9..6671bfe08489 100644
---- a/drivers/dma/ste_dma40.c
-+++ b/drivers/dma/ste_dma40.c
-@@ -3678,6 +3678,9 @@ static int __init d40_probe(struct platform_device *pdev)
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+index c2faf96fcade..27c07b2412f4 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+@@ -2692,6 +2692,7 @@ err_out_free_hw_res:
+ 	kfree(ahw);
  
- 	kfree(base->lcla_pool.base_unaligned);
+ err_out_free_res:
++	pci_disable_pcie_error_reporting(pdev);
+ 	pci_release_regions(pdev);
  
-+	if (base->lcpa_base)
-+		iounmap(base->lcpa_base);
-+
- 	if (base->phy_lcpa)
- 		release_mem_region(base->phy_lcpa,
- 				   base->lcpa_size);
+ err_out_disable_pdev:
 -- 
 2.30.2
 
