@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF6F3AED95
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E4373AEEB3
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbhFUQVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:21:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41164 "EHLO mail.kernel.org"
+        id S232291AbhFUQbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:31:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231241AbhFUQUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:20:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D4B76128C;
-        Mon, 21 Jun 2021 16:18:15 +0000 (UTC)
+        id S232493AbhFUQ3f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:29:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87C716100A;
+        Mon, 21 Jun 2021 16:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292296;
-        bh=PgeybcR5/3rWgz56CukUtDj76KmnHclADzesJwChB7M=;
+        s=korg; t=1624292666;
+        bh=cKhUS4vqPpygwwYSWuhU83L2eD0RwH9mjU07q3AEHhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcQoktYx+CbOmDJV/hkRM7vd1W1g/Fhg/xa3o8utFuFgleg0svtSj01AOKFMPXc7R
-         2wHnH4oaYoPMVcPzK74YvR6v2iQAFCM3yu1vhuMm5OXbrG06+cHGU9Gyfvpqa+B7+L
-         lvneQZmcXimP+qsKVumVGq0A7FNnMRVeULcPwIVk=
+        b=EJCvRJoKPP5wyjq4mFGDYzP0Xn3L3YN5mvQFxd5I7BA7RY7zfvAqhRAuiPdtPIRo8
+         NsZ8uQHqsz9QEc0Odabhg1q6BmQLsOi8lQgllCaX+ltL4Ynymofz/3psZfNRZoLxpf
+         M7g3wjN2ikrRgzb9GxeH8iLGdl3m1EEzB73lpPco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        syzbot+c0b807de416427ff3dd1@syzkaller.appspotmail.com,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        Oliver Herms <oliver.peter.herms@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 07/90] batman-adv: Avoid WARN_ON timing related checks
+Subject: [PATCH 5.10 052/146] ipv4: Fix device used for dst_alloc with local routes
 Date:   Mon, 21 Jun 2021 18:14:42 +0200
-Message-Id: <20210621154904.398921473@linuxfoundation.org>
+Message-Id: <20210621154913.645584801@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-References: <20210621154904.159672728@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +42,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: David Ahern <dsahern@kernel.org>
 
-[ Upstream commit 9f460ae31c4435fd022c443a6029352217a16ac1 ]
+[ Upstream commit b87b04f5019e821c8c6c7761f258402e43500a1f ]
 
-The soft/batadv interface for a queued OGM can be changed during the time
-the OGM was queued for transmission and when the OGM is actually
-transmitted by the worker.
+Oliver reported a use case where deleting a VRF device can hang
+waiting for the refcnt to drop to 0. The root cause is that the dst
+is allocated against the VRF device but cached on the loopback
+device.
 
-But WARN_ON must be used to denote kernel bugs and not to print simple
-warnings. A warning can simply be printed using pr_warn.
+The use case (added to the selftests) has an implicit VRF crossing
+due to the ordering of the FIB rules (lookup local is before the
+l3mdev rule, but the problem occurs even if the FIB rules are
+re-ordered with local after l3mdev because the VRF table does not
+have a default route to terminate the lookup). The end result is
+is that the FIB lookup returns the loopback device as the nexthop,
+but the ingress device is in a VRF. The mismatch causes the dst
+alloc against the VRF device but then cached on the loopback.
 
-Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Reported-by: syzbot+c0b807de416427ff3dd1@syzkaller.appspotmail.com
-Fixes: ef0a937f7a14 ("batman-adv: consider outgoing interface in OGM sending")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+The fix is to bring the trick used for IPv6 (see ip6_rt_get_dev_rcu):
+pick the dst alloc device based the fib lookup result but with checks
+that the result has a nexthop device (e.g., not an unreachable or
+prohibit entry).
+
+Fixes: f5a0aab84b74 ("net: ipv4: dst for local input routes should use l3mdev if relevant")
+Reported-by: Oliver Herms <oliver.peter.herms@gmail.com>
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_iv_ogm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/route.c                         | 15 +++++++++++++-
+ tools/testing/selftests/net/fib_tests.sh | 25 ++++++++++++++++++++++++
+ 2 files changed, 39 insertions(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
-index d88a4de02237..8be8a1feca84 100644
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -409,8 +409,10 @@ static void batadv_iv_ogm_emit(struct batadv_forw_packet *forw_packet)
- 	if (WARN_ON(!forw_packet->if_outgoing))
- 		return;
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 798dc85bde5b..e968bb47d5bd 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -2076,6 +2076,19 @@ martian_source:
+ 	return err;
+ }
  
--	if (WARN_ON(forw_packet->if_outgoing->soft_iface != soft_iface))
-+	if (forw_packet->if_outgoing->soft_iface != soft_iface) {
-+		pr_warn("%s: soft interface switch for queued OGM\n", __func__);
- 		return;
-+	}
++/* get device for dst_alloc with local routes */
++static struct net_device *ip_rt_get_dev(struct net *net,
++					const struct fib_result *res)
++{
++	struct fib_nh_common *nhc = res->fi ? res->nhc : NULL;
++	struct net_device *dev = NULL;
++
++	if (nhc)
++		dev = l3mdev_master_dev_rcu(nhc->nhc_dev);
++
++	return dev ? : net->loopback_dev;
++}
++
+ /*
+  *	NOTE. We drop all the packets that has local source
+  *	addresses, because every properly looped back packet
+@@ -2232,7 +2245,7 @@ local_input:
+ 		}
+ 	}
  
- 	if (forw_packet->if_incoming->if_status != BATADV_IF_ACTIVE)
- 		return;
+-	rth = rt_dst_alloc(l3mdev_master_dev_rcu(dev) ? : net->loopback_dev,
++	rth = rt_dst_alloc(ip_rt_get_dev(net, res),
+ 			   flags | RTCF_LOCAL, res->type,
+ 			   IN_DEV_CONF_GET(in_dev, NOPOLICY), false);
+ 	if (!rth)
+diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
+index 2b5707738609..6fad54c7ecb4 100755
+--- a/tools/testing/selftests/net/fib_tests.sh
++++ b/tools/testing/selftests/net/fib_tests.sh
+@@ -1384,12 +1384,37 @@ ipv4_rt_replace()
+ 	ipv4_rt_replace_mpath
+ }
+ 
++# checks that cached input route on VRF port is deleted
++# when VRF is deleted
++ipv4_local_rt_cache()
++{
++	run_cmd "ip addr add 10.0.0.1/32 dev lo"
++	run_cmd "ip netns add test-ns"
++	run_cmd "ip link add veth-outside type veth peer name veth-inside"
++	run_cmd "ip link add vrf-100 type vrf table 1100"
++	run_cmd "ip link set veth-outside master vrf-100"
++	run_cmd "ip link set veth-inside netns test-ns"
++	run_cmd "ip link set veth-outside up"
++	run_cmd "ip link set vrf-100 up"
++	run_cmd "ip route add 10.1.1.1/32 dev veth-outside table 1100"
++	run_cmd "ip netns exec test-ns ip link set veth-inside up"
++	run_cmd "ip netns exec test-ns ip addr add 10.1.1.1/32 dev veth-inside"
++	run_cmd "ip netns exec test-ns ip route add 10.0.0.1/32 dev veth-inside"
++	run_cmd "ip netns exec test-ns ip route add default via 10.0.0.1"
++	run_cmd "ip netns exec test-ns ping 10.0.0.1 -c 1 -i 1"
++	run_cmd "ip link delete vrf-100"
++
++	# if we do not hang test is a success
++	log_test $? 0 "Cached route removed from VRF port device"
++}
++
+ ipv4_route_test()
+ {
+ 	route_setup
+ 
+ 	ipv4_rt_add
+ 	ipv4_rt_replace
++	ipv4_local_rt_cache
+ 
+ 	route_cleanup
+ }
 -- 
 2.30.2
 
