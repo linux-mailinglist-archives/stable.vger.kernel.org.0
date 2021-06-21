@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA933AE76A
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:42:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA8883AE76C
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229837AbhFUKpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 06:45:05 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:54183 "EHLO
+        id S229890AbhFUKpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 06:45:10 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:50437 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229890AbhFUKpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:45:05 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8C3881940218;
-        Mon, 21 Jun 2021 06:42:50 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Mon, 21 Jun 2021 06:42:50 -0400
+        by vger.kernel.org with ESMTP id S229804AbhFUKpK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:45:10 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1948E194033D;
+        Mon, 21 Jun 2021 06:42:53 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 21 Jun 2021 06:42:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=uSf0w7
-        dowZVpV5yqBqNwsr+4jOT8oFK11Zha1d0b/3I=; b=YSeot6Z82KjyUbz6GUMa5o
-        X3AZism7nq1aerxj1VMzkRFYNV4gcIm6FBkn+ITpdrwy0R2T5rPbxJNPKaSurl/w
-        N6eRa393+HnzI10jOzi2bLgh/puWGVfmhFqETjJ8e21Z4uszR2tuQ8Izxk/+WanI
-        dd8EbK9dtmOzrCpB4ma/sRHYXyBqIsOobRDfRITcHEmXpMmKph3TaBfeWacJdvgl
-        ywG0nj6U8vB8QaciKMgeUjwu3VHVNdKnWrnw9erMxb3f6J4OSsUfhwU8OYYR4XtN
-        J6/2tOoNV4wFO0SBxnD8Hz8G/dyzBxClUMF8DYEVth1vSSeOvb50AZUdxFK8pvSA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=wYx/Bn
+        XpuYRkfeOJg4g/hy60RfHZuwdE5C/yFePAwyk=; b=pyVSX8/qydRYgLUNLRO+Ku
+        BkbndFJyP8eSg44uWJqnUDwMgH6A51t21oEYqiVIDbctmWIa2FAKejqtZEUnzBBl
+        piZ9/Wzvi0gB1s78ho//fqjZF4NfgD3JI0qbXpFNfPX5CtvGQ+plS2VSK79hTheV
+        Gx0p51VdjfSz2rwXNb/zKGUkdP2M2gzc4CnUj35ZHM/pqgRJNdZEoO0DMt0DTSCv
+        s8EZ9jtlv3i4uv86ILS/P5eJ+3j2dVLdR85wTR9mZhsW6UNQGuW30Y2oQNkxfloR
+        WowPgSvEmmh60AprgvJoTi0AfpzIhYpQ7hkHIk0LIJRwknXoyw41XD2Zh39zsmGg
         ==
-X-ME-Sender: <xms:Km3QYEqoNiuqFYJq500i2VgFTqTiPVsAImfRLUvkhZw9-aXS17rMAA>
-    <xme:Km3QYKo_phmSx5mXY8iNEzk8aEvqL3wGYjUR5-XOZbM2qoBjidgYiLqFczSyqyyCa
-    sN-b5PvQOa57g>
-X-ME-Received: <xmr:Km3QYJMvFF0fkZOgmsQx8qYeOxjvMiU5TB4nC-6dtIx3chhfWeHBQ3xXH7iCodRdVbDT9GvwshXWHBWzA9ShptDmiuEEYSWJ>
+X-ME-Sender: <xms:LG3QYPjw6SIKsznxmkH1mAIWxejOxHbTdcYOVdKPNgPeAbnLSTWYYQ>
+    <xme:LG3QYMCFsIjY0ecRCge7M67S_xmvB7G1uFVeIzLkVK4_g7tCoCBvbhuu1NxwgjwQx
+    tCxtx5wMLQXyg>
+X-ME-Received: <xmr:LG3QYPHKs49s37Gz7b1dWAnVNQsaNLM9joBDIII7Mhw3785VejOg-bYrngw61rctjhBbMoH1GHD22AT-tn-1YMgfl_EDxCm->
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgfeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -39,19 +39,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgfeduucetufdoteggod
     elieetveejvdfgvdeljeelnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:Km3QYL6_vV6JMsMm1Qs314kSQnhkXlS6L9V_neCAuz8djh5BIsVt9w>
-    <xmx:Km3QYD4ce5QJG62sM03Ke-jwPcn-70nX9Oeozllzc25gtk7TYHd6RQ>
-    <xmx:Km3QYLhW2SFMTsFBAk-EXy_0ELV_j1fWEl5k4Pn0DlVCnef1GyyT8A>
-    <xmx:Km3QYFnbIBBgMv0tG-ZrLci2zDT4xT4uLl4LjwecagZcLhA7MGWNmw>
+X-ME-Proxy: <xmx:LG3QYMRa8RBAwjioptcZ3W_EDPhMRunt9o9BIFd-Ga72gPuotlld3A>
+    <xmx:LG3QYMyBQ-9u1hosONODSc4JsAV6ckkvNWcrySZTCnHdyV3lReFPvg>
+    <xmx:LG3QYC4oUpfbCWmlZZ7sH1FME2jijSKFli46-M_D4E8FBiA9Je5xQw>
+    <xmx:LW3QYI8l2s5nTJt0eCFpfKQSllH8QymdQQIR0T-C_gHrf40VKdjQzw>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 21 Jun 2021 06:42:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: Mark AMD Navi14 GPU ATS as broken" failed to apply to 5.10-stable tree
+ 21 Jun 2021 06:42:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI: Mark AMD Navi14 GPU ATS as broken" failed to apply to 5.4-stable tree
 To:     evan.quan@amd.com, alexander.deucher@amd.com, bhelgaas@google.com,
         kw@linux.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 21 Jun 2021 12:42:39 +0200
-Message-ID: <1624272159224240@kroah.com>
+Message-ID: <162427215994137@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
