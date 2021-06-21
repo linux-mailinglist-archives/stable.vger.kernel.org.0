@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 296343AEF0B
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B010B3AF086
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232486AbhFUQfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:35:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53734 "EHLO mail.kernel.org"
+        id S231477AbhFUQuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:50:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232115AbhFUQdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:33:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52973613C9;
-        Mon, 21 Jun 2021 16:26:15 +0000 (UTC)
+        id S232537AbhFUQrq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:47:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B66AC61418;
+        Mon, 21 Jun 2021 16:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292775;
-        bh=87spd6geNl/EK4z+SKlAsHS8LU4hSHAv+QPgTth09f8=;
+        s=korg; t=1624293217;
+        bh=Kx5gsh0tLRYTOoK4Dnww7+GDnHFfBKKOzu5ZzMlGyaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09/Go/k6HT4O61hsD23JfuHldUGLWdtI3kokc03jsfRa8398yXMPxxPkFu0fd8UTT
-         4sVTWirk+EkmadxJLWmPRl8FuggDL00fom2uzdINB91tjQS1DixNxeo/45KKwwX26o
-         vnMNHktPLG09bAVDGVylqLTxD88ZcnZdoitwFhDk=
+        b=WmdFjhXzo4gm3PEtW6kek8xuZyIxImHSzaitcg06Ki3M/+vqFm+zj5dEqOCEZTxF6
+         4xEwM0Yj01tTgyr8r2JDScMViydhGvqt5kFGXwAjAVzRA7xyE0Z1xz8YoZfgbY396d
+         59rGx3GAh1RcFqQ0EBLsNm83RuU4ukDCl90IHHAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jongho Park <jongho7.park@samsung.com>,
-        Bumyong Lee <bumyong.lee@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 126/146] dmaengine: pl330: fix wrong usage of spinlock flags in dma_cyclc
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.12 142/178] x86/ioremap: Map EFI-reserved memory as encrypted for SEV
 Date:   Mon, 21 Jun 2021 18:15:56 +0200
-Message-Id: <20210621154919.421145801@linuxfoundation.org>
+Message-Id: <20210621154927.604089185@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
+References: <20210621154921.212599475@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bumyong Lee <bumyong.lee@samsung.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit 4ad5dd2d7876d79507a20f026507d1a93b8fff10 upstream.
+commit 8d651ee9c71bb12fc0c8eb2786b66cbe5aa3e43b upstream.
 
-flags varible which is the input parameter of pl330_prep_dma_cyclic()
-should not be used by spinlock_irq[save/restore] function.
+Some drivers require memory that is marked as EFI boot services
+data. In order for this memory to not be re-used by the kernel
+after ExitBootServices(), efi_mem_reserve() is used to preserve it
+by inserting a new EFI memory descriptor and marking it with the
+EFI_MEMORY_RUNTIME attribute.
 
-Signed-off-by: Jongho Park <jongho7.park@samsung.com>
-Signed-off-by: Bumyong Lee <bumyong.lee@samsung.com>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20210507063647.111209-1-chanho61.park@samsung.com
-Fixes: f6f2421c0a1c ("dmaengine: pl330: Merge dma_pl330_dmac and pl330_dmac structs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Under SEV, memory marked with the EFI_MEMORY_RUNTIME attribute needs to
+be mapped encrypted by Linux, otherwise the kernel might crash at boot
+like below:
+
+  EFI Variables Facility v0.08 2004-May-17
+  general protection fault, probably for non-canonical address 0x3597688770a868b2: 0000 [#1] SMP NOPTI
+  CPU: 13 PID: 1 Comm: swapper/0 Not tainted 5.12.4-2-default #1 openSUSE Tumbleweed
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:efi_mokvar_entry_next
+  [...]
+  Call Trace:
+   efi_mokvar_sysfs_init
+   ? efi_mokvar_table_init
+   do_one_initcall
+   ? __kmalloc
+   kernel_init_freeable
+   ? rest_init
+   kernel_init
+   ret_from_fork
+
+Expand the __ioremap_check_other() function to additionally check for
+this other type of boot data reserved at runtime and indicate that it
+should be mapped encrypted for an SEV guest.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 58c909022a5a ("efi: Support for MOK variable config table")
+Reported-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Joerg Roedel <jroedel@suse.de>
+Cc: <stable@vger.kernel.org> # 5.10+
+Link: https://lkml.kernel.org/r/20210608095439.12668-2-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/pl330.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/mm/ioremap.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2696,13 +2696,15 @@ static struct dma_async_tx_descriptor *p
- 	for (i = 0; i < len / period_len; i++) {
- 		desc = pl330_get_desc(pch);
- 		if (!desc) {
-+			unsigned long iflags;
-+
- 			dev_err(pch->dmac->ddma.dev, "%s:%d Unable to fetch desc\n",
- 				__func__, __LINE__);
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -118,7 +118,9 @@ static void __ioremap_check_other(resour
+ 	if (!IS_ENABLED(CONFIG_EFI))
+ 		return;
  
- 			if (!first)
- 				return NULL;
+-	if (efi_mem_type(addr) == EFI_RUNTIME_SERVICES_DATA)
++	if (efi_mem_type(addr) == EFI_RUNTIME_SERVICES_DATA ||
++	    (efi_mem_type(addr) == EFI_BOOT_SERVICES_DATA &&
++	     efi_mem_attributes(addr) & EFI_MEMORY_RUNTIME))
+ 		desc->flags |= IORES_MAP_ENCRYPTED;
+ }
  
--			spin_lock_irqsave(&pl330->pool_lock, flags);
-+			spin_lock_irqsave(&pl330->pool_lock, iflags);
- 
- 			while (!list_empty(&first->node)) {
- 				desc = list_entry(first->node.next,
-@@ -2712,7 +2714,7 @@ static struct dma_async_tx_descriptor *p
- 
- 			list_move_tail(&first->node, &pl330->desc_pool);
- 
--			spin_unlock_irqrestore(&pl330->pool_lock, flags);
-+			spin_unlock_irqrestore(&pl330->pool_lock, iflags);
- 
- 			return NULL;
- 		}
 
 
