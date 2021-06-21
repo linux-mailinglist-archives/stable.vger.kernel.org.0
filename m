@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0CE3AEDD2
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B323AEDD4
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231653AbhFUQXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:23:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41818 "EHLO mail.kernel.org"
+        id S231410AbhFUQXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:23:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231826AbhFUQV4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:21:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C44B961361;
-        Mon, 21 Jun 2021 16:19:30 +0000 (UTC)
+        id S231432AbhFUQV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:21:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BFF161360;
+        Mon, 21 Jun 2021 16:19:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292371;
-        bh=jypisFtS2T5AuEse6LX+tOnwzhhUTeKbeHc8WA6noSM=;
+        s=korg; t=1624292374;
+        bh=oD6nPcakbFF37NET7R7AagDjjKz46GpqfleNg2BbKS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/osPGmxbuRSku9l+yCa7ObHoHhZGvVfoI1PRq8Sz0kAx2K82g/yht5aCl0ToojQm
-         o/QMMXirRBsbJ0VvwYkxsUc1o+00YHJDPOlocuM0XuAP7uGpCNJs5UaOelYw8Pcywi
-         w5nZ+DzprDYhBWt4Lzy1rUwag8xKVjLgonyrL10o=
+        b=E/yfkSayzyG1E6Ro9iulg9eWhqxFuAx6jfqSkWx+bhkylA9wn8h+PVRnRpuNCU4Ci
+         n3My4UUffSei7A3RjsCxqhivL9ro6tLgZ3Ob6rRHVLH0SW9vm2qxfh9jR+McsZTyf3
+         4sm/QvOagfsEpXKLRAl5MLNQOEQP3Z2CHalCjr08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Vladimir Isaev <isaev@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 5.4 65/90] ARCv2: save ABI registers across signal handling
-Date:   Mon, 21 Jun 2021 18:15:40 +0200
-Message-Id: <20210621154906.362363975@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Rik van Riel <riel@surriel.com>
+Subject: [PATCH 5.4 66/90] x86/process: Check PF_KTHREAD and not current->mm for kernel threads
+Date:   Mon, 21 Jun 2021 18:15:41 +0200
+Message-Id: <20210621154906.393789166@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
 References: <20210621154904.159672728@linuxfoundation.org>
@@ -40,112 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 96f1b00138cb8f04c742c82d0a7c460b2202e887 upstream.
+commit 12f7764ac61200e32c916f038bdc08f884b0b604 upstream.
 
-ARCv2 has some configuration dependent registers (r30, r58, r59) which
-could be targetted by the compiler. To keep the ABI stable, these were
-unconditionally part of the glibc ABI
-(sysdeps/unix/sysv/linux/arc/sys/ucontext.h:mcontext_t) however we
-missed populating them (by saving/restoring them across signal
-handling).
+switch_fpu_finish() checks current->mm as indicator for kernel threads.
+That's wrong because kernel threads can temporarily use a mm of a user
+process via kthread_use_mm().
 
-This patch fixes the issue by
- - adding arcv2 ABI regs to kernel struct sigcontext
- - populating them during signal handling
+Check the task flags for PF_KTHREAD instead.
 
-Change to struct sigcontext might seem like a glibc ABI change (although
-it primarily uses ucontext_t:mcontext_t) but the fact is
- - it has only been extended (existing fields are not touched)
- - the old sigcontext was ABI incomplete to begin with anyways
-
-Fixes: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/53
-Cc: <stable@vger.kernel.org>
-Tested-by: kernel test robot <lkp@intel.com>
-Reported-by: Vladimir Isaev <isaev@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Fixes: 0cecca9d03c9 ("x86/fpu: Eager switch PKRU state")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Rik van Riel <riel@surriel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20210608144345.912645927@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arc/include/uapi/asm/sigcontext.h |    1 
- arch/arc/kernel/signal.c               |   43 +++++++++++++++++++++++++++++++++
- 2 files changed, 44 insertions(+)
+ arch/x86/include/asm/fpu/internal.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arc/include/uapi/asm/sigcontext.h
-+++ b/arch/arc/include/uapi/asm/sigcontext.h
-@@ -18,6 +18,7 @@
-  */
- struct sigcontext {
- 	struct user_regs_struct regs;
-+	struct user_regs_arcv2 v2abi;
- };
- 
- #endif /* _ASM_ARC_SIGCONTEXT_H */
---- a/arch/arc/kernel/signal.c
-+++ b/arch/arc/kernel/signal.c
-@@ -61,6 +61,41 @@ struct rt_sigframe {
- 	unsigned int sigret_magic;
- };
- 
-+static int save_arcv2_regs(struct sigcontext *mctx, struct pt_regs *regs)
-+{
-+	int err = 0;
-+#ifndef CONFIG_ISA_ARCOMPACT
-+	struct user_regs_arcv2 v2abi;
-+
-+	v2abi.r30 = regs->r30;
-+#ifdef CONFIG_ARC_HAS_ACCL_REGS
-+	v2abi.r58 = regs->r58;
-+	v2abi.r59 = regs->r59;
-+#else
-+	v2abi.r58 = v2abi.r59 = 0;
-+#endif
-+	err = __copy_to_user(&mctx->v2abi, &v2abi, sizeof(v2abi));
-+#endif
-+	return err;
-+}
-+
-+static int restore_arcv2_regs(struct sigcontext *mctx, struct pt_regs *regs)
-+{
-+	int err = 0;
-+#ifndef CONFIG_ISA_ARCOMPACT
-+	struct user_regs_arcv2 v2abi;
-+
-+	err = __copy_from_user(&v2abi, &mctx->v2abi, sizeof(v2abi));
-+
-+	regs->r30 = v2abi.r30;
-+#ifdef CONFIG_ARC_HAS_ACCL_REGS
-+	regs->r58 = v2abi.r58;
-+	regs->r59 = v2abi.r59;
-+#endif
-+#endif
-+	return err;
-+}
-+
- static int
- stash_usr_regs(struct rt_sigframe __user *sf, struct pt_regs *regs,
- 	       sigset_t *set)
-@@ -94,6 +129,10 @@ stash_usr_regs(struct rt_sigframe __user
- 
- 	err = __copy_to_user(&(sf->uc.uc_mcontext.regs.scratch), &uregs.scratch,
- 			     sizeof(sf->uc.uc_mcontext.regs.scratch));
-+
-+	if (is_isa_arcv2())
-+		err |= save_arcv2_regs(&(sf->uc.uc_mcontext), regs);
-+
- 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(sigset_t));
- 
- 	return err ? -EFAULT : 0;
-@@ -109,6 +148,10 @@ static int restore_usr_regs(struct pt_re
- 	err |= __copy_from_user(&uregs.scratch,
- 				&(sf->uc.uc_mcontext.regs.scratch),
- 				sizeof(sf->uc.uc_mcontext.regs.scratch));
-+
-+	if (is_isa_arcv2())
-+		err |= restore_arcv2_regs(&(sf->uc.uc_mcontext), regs);
-+
- 	if (err)
- 		return -EFAULT;
- 
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -607,7 +607,7 @@ static inline void switch_fpu_finish(str
+ 	 * PKRU state is switched eagerly because it needs to be valid before we
+ 	 * return to userland e.g. for a copy_to_user() operation.
+ 	 */
+-	if (current->mm) {
++	if (!(current->flags & PF_KTHREAD)) {
+ 		pk = get_xsave_addr(&new_fpu->state.xsave, XFEATURE_PKRU);
+ 		if (pk)
+ 			pkru_val = pk->pkru;
 
 
