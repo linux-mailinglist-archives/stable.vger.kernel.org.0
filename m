@@ -2,135 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4E73AECCD
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 17:52:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57E253AECF4
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:01:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230329AbhFUPyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 11:54:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49542 "EHLO
+        id S229789AbhFUQDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:03:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230325AbhFUPyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 11:54:21 -0400
-Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F5CC061574;
-        Mon, 21 Jun 2021 08:52:07 -0700 (PDT)
-Received: by mail-oo1-xc2c.google.com with SMTP id v17-20020a4aa5110000b0290249d63900faso4619467ook.0;
-        Mon, 21 Jun 2021 08:52:07 -0700 (PDT)
+        with ESMTP id S229719AbhFUQDw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 12:03:52 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A461C061574;
+        Mon, 21 Jun 2021 09:01:37 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id gn32so2253291ejc.2;
+        Mon, 21 Jun 2021 09:01:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=DSfyzKavfa1LC7yxbCe25ppAb0rRQT6nPAbNd2OwNJg=;
-        b=uzSqXhf94tKd922NNhuvUCE69EkxEw+DD7mN5umpjyyWBDoP+hbLYIWL4oEogIQxNa
-         A8RO8ddUqLCfOPMHkqtdnI6CuJiQ/rPP40Ipol6YBQ4NNPkXL8kvYHd+OqiTjB8bA5Gq
-         rUAN5+OJSfIAlZQDbxEf3FfWYin1DUsh8i8aYpBvT5KCjxAoUfkIeRtQ5uDEebuR5MGU
-         1pQ06chn5C0NzE/AR7MThFx4cvz4GJd7y6YxYrx8djE+Q0uijxuIxxZDQd437prV6fro
-         Oje/x09tYgsVCNYzvTONRtuw7WFXUfeDA0XP0Y+ZyqgzPcCJOzCeA7LlejpmexL0b8TB
-         oTkg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AXQsb95tfVUSJnmAPnbsPilhrI1OfYFXkT1W9z6mr7o=;
+        b=Ogi7N9hJCRnrT8TRKwfl1lh2nTMVyHSoiGurY31vDj8mVzpGbb2OC+oRAFVW68PQXV
+         viEFM8+94BUP8Sqwy/sJEfR3V+1QNrRCfL60u4xDIqqX/cAxTQOkPiwBv/vb5ySrgPn0
+         Wf+s+iqEnnwzuN3kospLANtQSAg31nu5dtHqsyMnxbg8zlCGYdawtbGxmkbBD1nIZGX4
+         EjZLtWxwVb1teqbtof3fiGEX7hV9AbxYRQXhug4p+hba4ovxD/COhMKMyKE8uICmQxgL
+         e3KtnYbb6Y8m9uwvioiJUlr7TIFCyXsBctq9z8Qri0sYtT6kH2eTZpJ/5Vi3xAHqomJU
+         wLnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=DSfyzKavfa1LC7yxbCe25ppAb0rRQT6nPAbNd2OwNJg=;
-        b=MP9kR5M9ZCFURSGKrUAuwHV+gKFW+FNJw4YJhdOKgMo+O6s5JoehdJho4x3Ht/yrgR
-         R8gbD7/EYs0D+tnTLgTkxL8gelllQqE+wcuNLMDbqq+A7PhWrkY2Ssao4qaUwD4u+tVi
-         +whpdnuZY7kElusZ2HOmd13ehbo3FJu+1UD1UuqCvmoqtEgU1stNE3k+JYQpKvGwUmij
-         A39DAbavlZLVuAGCiViMEqREgrLU2CV8WH5NnBQ1lgz83V7V/KlhoZgSUSDvXpLYm30w
-         GjbU2CDC7BhtMiwFNixkTJwRsSfWyMCk5wJ4QBTFV9B4Gs1D6w4XW6QQXfigPJXKonPp
-         BlVA==
-X-Gm-Message-State: AOAM533niSwBb3G/PdhXrDT2QpvTkqsA+R028fwVAlJf6COTEFqZW7/9
-        P45vxBeB1qNSMBO4zzWl0MaZxM6Htcs=
-X-Google-Smtp-Source: ABdhPJzP9OwdB3oGKhBxNTvtGy7hfzSnAP9Q46kb98AoOs1/SzdrypCWKjXFzYeFZi2qDC8nCZip5g==
-X-Received: by 2002:a4a:e099:: with SMTP id w25mr21488656oos.43.1624290726464;
-        Mon, 21 Jun 2021 08:52:06 -0700 (PDT)
-Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
-        by smtp.gmail.com with ESMTPSA id b198sm3671206oii.19.2021.06.21.08.52.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Jun 2021 08:52:06 -0700 (PDT)
-Sender: Larry Finger <larry.finger@gmail.com>
-Subject: Re: [PATCH v2] rtw88: Fix some memory leaks
-To:     Pkshih <pkshih@realtek.com>,
-        "kvalo@codeaurora.org" <kvalo@codeaurora.org>
-Cc:     "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>
-References: <20210620194110.7520-1-Larry.Finger@lwfinger.net>
- <19c86cb8dbe04b56b76a386b5faeaa89@realtek.com>
-From:   Larry Finger <Larry.Finger@lwfinger.net>
-Message-ID: <2c552c7c-bb11-a914-78e8-900d6bae39a9@lwfinger.net>
-Date:   Mon, 21 Jun 2021 10:52:05 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AXQsb95tfVUSJnmAPnbsPilhrI1OfYFXkT1W9z6mr7o=;
+        b=ZJWWwTPXOmYP0q1knpJ/a4wILlJu8dL1ymn60ALIqHCP9E+GST1ATOq1ZHga0lWfvV
+         ZFp63P3Z4vcVP9lSkxE08w51TObIXRk/D5a9EatIDw+fg71K25JnKbxAzLUWy4T446al
+         3sBTlGnWF5f4PU8ySKADVTQQhTG0iF5rl14R82aPA1gnkFPRAnJschaxQ3Mc6b1D1E7u
+         ZqQmd+b+mvo27wjxVdHGVqkQkCcyQ4GPxdr5swTjUf8v2gTAhGGVI4trVoZDV9bcYE6J
+         AxddeglcBc5ZpkDlI539ivhC6LLqCUnFNJebpeVAyalOlwVgoz9Jj9SCwQF125jqf7Vi
+         LUaQ==
+X-Gm-Message-State: AOAM531zFcef8yQAEq24YImP8HbTDqUOKKeqSpgLXN5f2v2y6NFE6sBS
+        Pk1Y10NUlfQHEbHgsGHwsi7wShV4GP5zuIzIPRY=
+X-Google-Smtp-Source: ABdhPJy18zZNIVjH6ZjLWzNGjMJcMykbyodCXgXOUYv232TCI+i3sbMsYrw5Y6gqSL9mQ91Ecye65xasjxJrmFy5ahM=
+X-Received: by 2002:a17:907:1b1b:: with SMTP id mp27mr24852933ejc.538.1624291295912;
+ Mon, 21 Jun 2021 09:01:35 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <19c86cb8dbe04b56b76a386b5faeaa89@realtek.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <60cb0586.1c69fb81.8015b.37a1@mx.google.com> <YNCwJqtKKCskB2Au@kroah.com>
+In-Reply-To: <YNCwJqtKKCskB2Au@kroah.com>
+From:   Amit Klein <aksecurity@gmail.com>
+Date:   Mon, 21 Jun 2021 19:01:25 +0300
+Message-ID: <CANEQ_++RU=yBCXHBajRJcJNLZ73hqgMJ4yEmjw5gwZZHnbyzTQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19] inet: use bigger hash table for IP ID generation
+ (backported to 4.19)
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        "David S . Miller" <davem@davemloft.net>,
+        netdev <netdev@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/21/21 5:40 AM, Pkshih wrote:
-> 
-> 
->> -----Original Message-----
->> From: Larry Finger [mailto:larry.finger@gmail.com] On Behalf Of Larry Finger
->> Sent: Monday, June 21, 2021 3:41 AM
->> To: kvalo@codeaurora.org
->> Cc: linux-wireless@vger.kernel.org; Larry Finger; Stable
->> Subject: [PATCH v2] rtw88: Fix some memory leaks
->>
->> There are memory leaks of skb's from routines rtw_fw_c2h_cmd_rx_irqsafe()
->> and rtw_coex_info_response(), both arising from C2H operations. There are
->> no leaks from the buffers sent to mac80211.
->>
->> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
->> Cc: Stable <stable@vger.kernel.org>
->> ---
->> v2 - add the missinf changelog.
->>
->> ---
->>   drivers/net/wireless/realtek/rtw88/coex.c | 4 +++-
->>   drivers/net/wireless/realtek/rtw88/fw.c   | 2 ++
->>   2 files changed, 5 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/net/wireless/realtek/rtw88/coex.c b/drivers/net/wireless/realtek/rtw88/coex.c
->> index cedbf3825848..e81bf5070183 100644
->> --- a/drivers/net/wireless/realtek/rtw88/coex.c
->> +++ b/drivers/net/wireless/realtek/rtw88/coex.c
->> @@ -591,8 +591,10 @@ void rtw_coex_info_response(struct rtw_dev *rtwdev, struct sk_buff *skb)
->>   	struct rtw_coex *coex = &rtwdev->coex;
->>   	u8 *payload = get_payload_from_coex_resp(skb);
->>
->> -	if (payload[0] != COEX_RESP_ACK_BY_WL_FW)
->> +	if (payload[0] != COEX_RESP_ACK_BY_WL_FW) {
->> +		dev_kfree_skb_any(skb);
->>   		return;
->> +	}
->>
->>   	skb_queue_tail(&coex->queue, skb);
->>   	wake_up(&coex->wait);
->> diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
->> index 797b08b2a494..43525ad8543f 100644
->> --- a/drivers/net/wireless/realtek/rtw88/fw.c
->> +++ b/drivers/net/wireless/realtek/rtw88/fw.c
->> @@ -231,9 +231,11 @@ void rtw_fw_c2h_cmd_rx_irqsafe(struct rtw_dev *rtwdev, u32 pkt_offset,
->>   	switch (c2h->id) {
->>   	case C2H_BT_MP_INFO:
->>   		rtw_coex_info_response(rtwdev, skb);
->> +		dev_kfree_skb_any(skb);
-> 
-> The rtw_coex_info_response() puts skb into a skb_queue, so we can't free it here.
-> Instead, we should free it after we dequeue and do thing.
-> So, we send another patch:
-> https://lore.kernel.org/linux-wireless/20210621103023.41928-1-pkshih@realtek.com/T/#u
-> 
-> I hope this isn't confusing you.
+On Mon, Jun 21, 2021 at 6:28 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Jun 17, 2021 at 01:19:18AM -0700, Amit Klein wrote:
+> > Subject: inet: use bigger hash table for IP ID generation (backported to 4.19)
+> > From: Amit Klein <aksecurity@gmail.com>
+[...]
+>
+> I had to dig up what the upstream git commit id was for this, please
+> specify it next time :(
+>
 
-No, it is not confusing. T=You fixed some leaks the I did not know existed.
+Sure. Awfully sorry about the omission.
 
-Kalle: Take P-K's patch and discard mine.
+> I've queued this, and the 4.14 version up.
 
-Thanks,
+Thanks.
 
-Larry
+ Can you create a 4.4.y and
+> 4.9.y version as well?
+>
+
+Absolutely. I plan to do so later this week.
+
+-Amit
