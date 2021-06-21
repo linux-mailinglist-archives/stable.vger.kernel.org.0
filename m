@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 714E03AEFC3
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:39:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8ED53AEFC7
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233009AbhFUQlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:41:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33338 "EHLO mail.kernel.org"
+        id S233039AbhFUQl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:41:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233446AbhFUQjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:39:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AD0961206;
-        Mon, 21 Jun 2021 16:30:10 +0000 (UTC)
+        id S233483AbhFUQjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:39:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4234B6143B;
+        Mon, 21 Jun 2021 16:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293011;
-        bh=Tyy6jEVdGZZjBAucuzuywBn8G+/KiDXxfkyZU26Lvvg=;
+        s=korg; t=1624293013;
+        bh=AuGAwqgJgeT85QETy3G0wobrKRZDPyUxaYYOJY5VGcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oomf3nJ6xxEHSmO8pa89fI3y5PyrYrik0UVkBjQZlZIbXLZUcLbIFyt++qOBUnpwh
-         V+Yk4Tynk0f6fO9Vpdgu95eRCvG6K38eccSqROoL8hJIxpIT7/AlBZY9L/f2el//RR
-         K+iMfZYo4KSYjwNnlD0Zg0EZaJ9VIPk+fNz+beRY=
+        b=F1ZL9wj2EADYLkv8nScblKjr3gFoFjEhfie58+MJYTDL0KqGyqORt0T1XqreXVDRJ
+         JX6A++cVXn9n+ju0js7KVmJP6+Xm6HyS7cIJvJJ12TZ7Sjc9W5JzDrUZHCmZ60mfNV
+         caPeqvmB/jCww+ZcfGJljhzjQNJTkdEjbfQ3/ztw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 066/178] lantiq: net: fix duplicated skb in rx descriptor ring
-Date:   Mon, 21 Jun 2021 18:14:40 +0200
-Message-Id: <20210621154924.755623998@linuxfoundation.org>
+Subject: [PATCH 5.12 067/178] net: usb: fix possible use-after-free in smsc75xx_bind
+Date:   Mon, 21 Jun 2021 18:14:41 +0200
+Message-Id: <20210621154924.798191449@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -40,52 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Jan Bajkowski <olek2@wp.pl>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 7ea6cd16f1599c1eac6018751eadbc5fc736b99a ]
+[ Upstream commit 56b786d86694e079d8aad9b314e015cd4ac02a3d ]
 
-The previous commit didn't fix the bug properly. By mistake, it replaces
-the pointer of the next skb in the descriptor ring instead of the current
-one. As a result, the two descriptors are assigned the same SKB. The error
-is seen during the iperf test when skb_put tries to insert a second packet
-and exceeds the available buffer.
+The commit 46a8b29c6306 ("net: usb: fix memory leak in smsc75xx_bind")
+fails to clean up the work scheduled in smsc75xx_reset->
+smsc75xx_set_multicast, which leads to use-after-free if the work is
+scheduled to start after the deallocation. In addition, this patch
+also removes a dangling pointer - dev->data[0].
 
-Fixes: c7718ee96dbc ("net: lantiq: fix memory corruption in RX ring ")
-Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+This patch calls cancel_work_sync to cancel the scheduled work and set
+the dangling pointer to NULL.
+
+Fixes: 46a8b29c6306 ("net: usb: fix memory leak in smsc75xx_bind")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/lantiq_xrx200.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/smsc75xx.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/lantiq_xrx200.c b/drivers/net/ethernet/lantiq_xrx200.c
-index 3da494df72f3..072075bc60ee 100644
---- a/drivers/net/ethernet/lantiq_xrx200.c
-+++ b/drivers/net/ethernet/lantiq_xrx200.c
-@@ -154,6 +154,7 @@ static int xrx200_close(struct net_device *net_dev)
- 
- static int xrx200_alloc_skb(struct xrx200_chan *ch)
- {
-+	struct sk_buff *skb = ch->skb[ch->dma.desc];
- 	dma_addr_t mapping;
- 	int ret = 0;
- 
-@@ -168,6 +169,7 @@ static int xrx200_alloc_skb(struct xrx200_chan *ch)
- 				 XRX200_DMA_DATA_LEN, DMA_FROM_DEVICE);
- 	if (unlikely(dma_mapping_error(ch->priv->dev, mapping))) {
- 		dev_kfree_skb_any(ch->skb[ch->dma.desc]);
-+		ch->skb[ch->dma.desc] = skb;
- 		ret = -ENOMEM;
- 		goto skip;
+diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
+index 76ed79bb1e3f..5281291711af 100644
+--- a/drivers/net/usb/smsc75xx.c
++++ b/drivers/net/usb/smsc75xx.c
+@@ -1483,7 +1483,7 @@ static int smsc75xx_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	ret = smsc75xx_wait_ready(dev, 0);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "device not ready in smsc75xx_bind\n");
+-		goto err;
++		goto free_pdata;
  	}
-@@ -198,7 +200,6 @@ static int xrx200_hw_receive(struct xrx200_chan *ch)
- 	ch->dma.desc %= LTQ_DESC_NUM;
  
- 	if (ret) {
--		ch->skb[ch->dma.desc] = skb;
- 		net_dev->stats.rx_dropped++;
- 		netdev_err(net_dev, "failed to allocate new rx buffer\n");
- 		return ret;
+ 	smsc75xx_init_mac_address(dev);
+@@ -1492,7 +1492,7 @@ static int smsc75xx_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	ret = smsc75xx_reset(dev);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "smsc75xx_reset error %d\n", ret);
+-		goto err;
++		goto cancel_work;
+ 	}
+ 
+ 	dev->net->netdev_ops = &smsc75xx_netdev_ops;
+@@ -1503,8 +1503,11 @@ static int smsc75xx_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	dev->net->max_mtu = MAX_SINGLE_PACKET_SIZE;
+ 	return 0;
+ 
+-err:
++cancel_work:
++	cancel_work_sync(&pdata->set_multicast);
++free_pdata:
+ 	kfree(pdata);
++	dev->data[0] = 0;
+ 	return ret;
+ }
+ 
+@@ -1515,7 +1518,6 @@ static void smsc75xx_unbind(struct usbnet *dev, struct usb_interface *intf)
+ 		cancel_work_sync(&pdata->set_multicast);
+ 		netif_dbg(dev, ifdown, dev->net, "free pdata\n");
+ 		kfree(pdata);
+-		pdata = NULL;
+ 		dev->data[0] = 0;
+ 	}
+ }
 -- 
 2.30.2
 
