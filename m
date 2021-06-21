@@ -2,100 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C763AEC3E
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 17:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F6E3AEC49
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 17:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230268AbhFUP0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 11:26:05 -0400
-Received: from new1-smtp.messagingengine.com ([66.111.4.221]:53255 "EHLO
+        id S230186AbhFUP1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 11:27:55 -0400
+Received: from new1-smtp.messagingengine.com ([66.111.4.221]:44025 "EHLO
         new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230290AbhFUP0F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 11:26:05 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 0233B58085E;
-        Mon, 21 Jun 2021 11:23:51 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S230061AbhFUP1x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 11:27:53 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id C305B580862;
+        Mon, 21 Jun 2021 11:25:37 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 21 Jun 2021 11:23:51 -0400
+  by compute6.internal (MEProxy); Mon, 21 Jun 2021 11:25:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=9K3u2Ll8ef7lXqXfO5YF59Gk1Vi
-        Je+PDxvFbDXwXxtQ=; b=yebfp9yeoY21SFGD5LE170uZbwnlZJ0dji95uyz2NKp
-        jpHtDrBfRsOtkHAlHXYiT2QCfacEl3geh0kqZOXs8Vrf7tjqUvI6OxpSHgZXfuTF
-        PdR2Q+JGQ9QdOtzy3THAiEEXcpSuoaZGopZ4yQTdNEr9lyDNPmt9zfRrgbApb5hg
-        A3oaWGfHKH81sUD0lNrn8yy2xvhaywvqKtDmdqEL87yIs2vnwHZoOqT+wn5/Xz1r
-        6oQkQNs4+x7M2yNYPIYU2rm2inEP7qd7AHlzjA1v6nlbLzntpTFcUUOZn1d291hE
-        dG0hh/H8DypJ+iPn8cr7Tngqzsq8d601BzbVCho3FQA==
+        :content-type:in-reply-to; s=fm1; bh=VChZ2B4kvGp9lzShOwiPyBmcM3t
+        XR4PDIa6DizYyQhQ=; b=VjUtR840o9xUV5nixjHbmUw98DpqNaGJd/zGoDecD5g
+        +I39ye4HB6+Dab0hyTxWqFo+1xMPDyWFnMEFdDiFYRx2pHmfESs9oz8662rj3SHz
+        qWjFslgPm+8iFZGMeoP8br04s9U81HJNmki9ONOm3gQFLbtWPmh4+LC3pGvK1sVw
+        YdBdbWEEUmt4Tlpd+xVKPr5mtIE2WyKek/bsXj+yxV23RbTTVTd5mm4pn4Fz4k+V
+        +J7cwsfc7EbaoYzqGX3rfu/DBes6nES7reU2S+4d8vLKS6qBv7KbQFwyEOqoN6iN
+        SAy6dOPgp4EKSYrn4yMa73hWhvRFsT5rticdqGJ6brg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9K3u2L
-        l8ef7lXqXfO5YF59Gk1ViJe+PDxvFbDXwXxtQ=; b=dFfApVLdvFrcIX7MX9a4VW
-        ldDHW8yNGPjzdXBqtJTuAYXPI2tDjF1IoM7qNk2EOJy0NfoIhSA42pzIsW+2F61/
-        EWgqV5q4FTIF0YIgMJw3J+KwV5RR/xE7rQ44n6ERaeb6amFVpPkbOfc8IxK35NyF
-        5KVSaZPlG4tiFBL5RE1y+tl8OlHyD4J8mFVgdQ/3zLj7ejQbU/Gb9h1ZepIn/Agb
-        KQ+pkVVj2/0UwNTV6TOK0T+0FqNbVCYSremmO+gHko7oY/TmfTvGPLOAt2KLmW3R
-        GzWV3cSFZ0FMefHa7y9r5OcqxKYYZuH0gXuUAJWQ2FGawG6QAqO5AOhe9GTUgEXw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=VChZ2B
+        4kvGp9lzShOwiPyBmcM3tXR4PDIa6DizYyQhQ=; b=OPpgeB8sdRp9gNmj+fwFqS
+        anby1YSRIqj5vJA0S7b8ujxpQXUyBW3G2E5oshmD61BkVshoyh7x/tJnNpl3vvbW
+        I6by7brWQxRZ2J4aUpO+iQ6B43OkZAXf7bDJ7e+4mzYOHnF138itPj+1q4Rh/7Da
+        H2W6WM/A4BAMqYIDuHMkmkbn6YuaDSQjMNn8bm5Gu8Kzuaa9sUTEp3a7rDxKK+N8
+        mtEGTcxlLEMqJSQO6jx6hij8WTYeWdsHitDjqV6YO/UgVbAVc66pnpKrIJAXL8Ax
+        bP5aG71Pys+TwYo4WSHytc+rQ4u1ZBcxb3sdrX0meVaL5W2JqMhY2WpMJ0bb3SXA
         ==
-X-ME-Sender: <xms:Bq_QYOpP6Z7kLX35bmHnoKYpsF2Tc25pDxVa-CJocLWOFFhFaHuTDw>
-    <xme:Bq_QYMpe0SaZL9vx2mqhg7SCdIo2C6YB05ekoJmyfBPpfu6ISM8HDEy8RCP1OUpQ1
-    1_3-0D_Qh0Dhw>
-X-ME-Received: <xmr:Bq_QYDMw5yd8o5K0T9guxB-V1L2VZhZ2QLXMTwmCr-uZfVJEaFY_2HKC7lr9NXxpFjZZkMvK8hMgBHkOdDJeYMp5bLVDF6Zl>
+X-ME-Sender: <xms:cK_QYKFEx9Zkd-hNTdPtVtibyEj-mrmEAvt983asMrpb0tKq7dumeg>
+    <xme:cK_QYLX64qQ9wPDBsuFf7jJmYXgKacLJfBCWAUFGlvnoXawwDO44Y-J6XrQctG5rx
+    TRDzZyegxKX7A>
+X-ME-Received: <xmr:cK_QYEK1Hy5suqU4mG5XeVQsm2nzSDcAtv0T1Pyi9OQ-yBprXoJhoWckYoTO-WN32Edm6IjMwZXpJGfyS-gUcSCzPQSJsMA1>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgkeelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
     cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
-    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Bq_QYN7DpKCpDeoTuc9ll7qeNlLgZaZq2zu8f9mO2P73xNnan_6X_w>
-    <xmx:Bq_QYN6dDL_YUMzZYs1vCjgcpSFBbUgfM4OxWjj0ktDPI_gb7naR5g>
-    <xmx:Bq_QYNhHwzvF75IckUaN0aBH6Edt8nr67ldslzF9DVxGvirwxvU7Jg>
-    <xmx:Bq_QYKxjbvQts28nBm8P8cWOenVy56YZxj4UM5oRGlVV23ek2UQClQ>
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeefteehte
+    eugeekfeejfffhfeffhfevveeijefgveehgeefffejveeutdevffeujeenucffohhmrghi
+    nhepshihiihkrghllhgvrhdrrghpphhsphhothdrtghomhdpkhgvrhhnvghlrdhorhhgpd
+    dvfeejrdhimhenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhr
+    ohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:cK_QYEHlFLodsXvpMye0NUN5pcRvTM3EZFlD64VY2zNE-teXQNv1tw>
+    <xmx:cK_QYAXHDfM3JNhfR4C2fCDKxFU9SpwuPddtsX4hOc7M-v2e1N4hlw>
+    <xmx:cK_QYHPXLi3rvj9YroE0vxvJ5dgYGZRLuNCKM7rRoyl7RKjgdXH6og>
+    <xmx:ca_QYMkbMcYSzVSATI1wthqNEv5XgutRp9I70d-k18MrwqBSFNqVMQ>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 21 Jun 2021 11:23:50 -0400 (EDT)
-Date:   Mon, 21 Jun 2021 17:23:47 +0200
+ 21 Jun 2021 11:25:35 -0400 (EDT)
+Date:   Mon, 21 Jun 2021 17:25:33 +0200
 From:   Greg KH <greg@kroah.com>
-To:     Eric Auger <eric.auger@redhat.com>
-Cc:     eric.auger.pro@gmail.com, stable@vger.kernel.org, maz@kernel.org,
-        linux-kernel@vger.kernel.org, kvmarm@lists.cs.columbia.edu
-Subject: Re: [PATCH for-stable-5.4] KVM: arm/arm64: Fix
- KVM_VGIC_V3_ADDR_TYPE_REDIST read
-Message-ID: <YNCvA4qDuc2Tlmi0@kroah.com>
-References: <20210621124232.793383-1-eric.auger@redhat.com>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     linux-can@vger.kernel.org, kernel@pengutronix.de,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        linux-stable <stable@vger.kernel.org>,
+        syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>,
+        syzbot <syzbot+0f1827363a305f74996f@syzkaller.appspotmail.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>
+Subject: Re: [PATCH] can: bcm/raw/isotp: use per module netdevice notifier
+Message-ID: <YNCvbZp5LDwUvyjZ@kroah.com>
+References: <1624271916195215@kroah.com>
+ <20210621112451.2882032-1-mkl@pengutronix.de>
+ <20210621112820.5gemmaw56bipx45j@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210621124232.793383-1-eric.auger@redhat.com>
+In-Reply-To: <20210621112820.5gemmaw56bipx45j@pengutronix.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 21, 2021 at 02:42:32PM +0200, Eric Auger wrote:
-> When reading the base address of the a REDIST region
-> through KVM_VGIC_V3_ADDR_TYPE_REDIST we expect the
-> redistributor region list to be populated with a single
-> element.
+On Mon, Jun 21, 2021 at 01:28:20PM +0200, Marc Kleine-Budde wrote:
+> On 21.06.2021 13:24:51, Marc Kleine-Budde wrote:
+> > From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+> > 
+> > commit 8d0caedb759683041d9db82069937525999ada53 upstream
+> > 
+> > syzbot is reporting hung task at register_netdevice_notifier() [1] and
+> > unregister_netdevice_notifier() [2], for cleanup_net() might perform
+> > time consuming operations while CAN driver's raw/bcm/isotp modules are
+> > calling {register,unregister}_netdevice_notifier() on each socket.
+> > 
+> > Change raw/bcm/isotp modules to call register_netdevice_notifier() from
+> > module's __init function and call unregister_netdevice_notifier() from
+> > module's __exit function, as with gw/j1939 modules are doing.
+> > 
+> > Link: https://syzkaller.appspot.com/bug?id=391b9498827788b3cc6830226d4ff5be87107c30 [1]
+> > Link: https://syzkaller.appspot.com/bug?id=1724d278c83ca6e6df100a2e320c10d991cf2bce [2]
+> > Link: https://lore.kernel.org/r/54a5f451-05ed-f977-8534-79e7aa2bcc8f@i-love.sakura.ne.jp
+> > Cc: linux-stable <stable@vger.kernel.org>
+> > Reported-by: syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>
+> > Reported-by: syzbot <syzbot+0f1827363a305f74996f@syzkaller.appspotmail.com>
+> > Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+> > Tested-by: syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>
+> > Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+> > Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> > [mkl: ported to v4.19.195]
+> > Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+> > ---
+> > Hello Greg,
+> > 
+> > this is a backport of
+> > 
+> > | 8d0caedb7596 can: bcm/raw/isotp: use per module netdevice notifier
+> > 
+> > to v4.19.195. Please apply.
 > 
-> However list_first_entry() expects the list to be non empty.
-> Instead we should use list_first_entry_or_null which effectively
-> returns NULL if the list is empty.
+> This also applies to v4.14.237.
 > 
-> Fixes: dbd9733ab674 ("KVM: arm/arm64: Replace the single rdist region by a list")
-> Cc: <Stable@vger.kernel.org> # v5.4
-> Signed-off-by: Eric Auger <eric.auger@redhat.com>
-> Reported-by: Gavin Shan <gshan@redhat.com>
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Link: https://lore.kernel.org/r/20210412150034.29185-1-eric.auger@redhat.com
-> ---
->  virt/kvm/arm/vgic/vgic-kvm-device.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> I'm working on a v4.9 version.
 
-Both now queued up, thanks.
-
-Next time, give us a hint as to what the upstream commit id is, so that
-we do not have to dig it up ourselves :)
-
-thanks,
+All now applied, thanks!
 
 greg k-h
