@@ -2,34 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5B63AF09C
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 413FE3AEF18
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232380AbhFUQuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:50:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37914 "EHLO mail.kernel.org"
+        id S232499AbhFUQfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232184AbhFUQtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:49:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F99D611BD;
-        Mon, 21 Jun 2021 16:34:11 +0000 (UTC)
+        id S232566AbhFUQeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:34:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9A5061414;
+        Mon, 21 Jun 2021 16:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293252;
-        bh=U3g65Nv1hP3/UzjrGi9s0kaPppyW9pjszhufNDJaguI=;
+        s=korg; t=1624292808;
+        bh=lS2lUA3grUOoSRY/ioMBN/mwW6gDaI39hv8gN4E5mV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iIvqnSUo4tEabErhZRuru1oauCP85eMDlmNupazPTPppSj0zzBfTQGUFDnaz949OF
-         CApcPRuYTpJYxqEBHuarjk7gsIzbzPlfgGykvJXJasEJ4Kz1yMRhlos+N9k81FX5Eu
-         GL7FsvZ02g2C47T/i0UUHs08egd966KqS0tXv00A=
+        b=CkJIuG1Q+BhY9Q75oXVIvrOyQ9WnF97KZyMeKYhOYWIpdFbbSGf60uK25NMN/DASY
+         QllPeDsn3Q1P/4ioc7N8UPd+WSMLjYuWSilZNFbp82v2UJndw29otJazxze6C9QmJY
+         rsshsCZNcb1NLMZzFe7Vil+aBuatNzoC4GC9vngM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 154/178] cfg80211: fix phy80211 symlink creation
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Lameter <cl@linux.com>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "Lin, Zhenpeng" <zplin@psu.edu>, Marco Elver <elver@google.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Roman Gushchin <guro@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 138/146] mm/slub: fix redzoning for small allocations
 Date:   Mon, 21 Jun 2021 18:16:08 +0200
-Message-Id: <20210621154928.001689757@linuxfoundation.org>
+Message-Id: <20210621154920.382615932@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,55 +47,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 43076c1e074359f11c85d7d1b85ede1bbb8ee6b9 upstream.
+commit 74c1d3e081533825f2611e46edea1fcdc0701985 upstream.
 
-When I moved around the code here, I neglected that we could still
-call register_netdev() or similar without the wiphy mutex held,
-which then calls cfg80211_register_wdev() - that's also done from
-cfg80211_register_netdevice(), but the phy80211 symlink creation
-was only there. Now, the symlink isn't needed for a *pure* wdev,
-but a netdev not registered via cfg80211_register_wdev() should
-still have the symlink, so move the creation to the right place.
+The redzone area for SLUB exists between s->object_size and s->inuse
+(which is at least the word-aligned object_size).  If a cache were
+created with an object_size smaller than sizeof(void *), the in-object
+stored freelist pointer would overwrite the redzone (e.g.  with boot
+param "slub_debug=ZF"):
 
-Cc: stable@vger.kernel.org
-Fixes: 2fe8ef106238 ("cfg80211: change netdev registration/unregistration semantics")
-Link: https://lore.kernel.org/r/20210608113226.a5dc4c1e488c.Ia42fe663cefe47b0883af78c98f284c5555bbe5d@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+  BUG test (Tainted: G    B            ): Right Redzone overwritten
+  -----------------------------------------------------------------------------
+
+  INFO: 0xffff957ead1c05de-0xffff957ead1c05df @offset=1502. First byte 0x1a instead of 0xbb
+  INFO: Slab 0xffffef3950b47000 objects=170 used=170 fp=0x0000000000000000 flags=0x8000000000000200
+  INFO: Object 0xffff957ead1c05d8 @offset=1496 fp=0xffff957ead1c0620
+
+  Redzone  (____ptrval____): bb bb bb bb bb bb bb bb    ........
+  Object   (____ptrval____): f6 f4 a5 40 1d e8          ...@..
+  Redzone  (____ptrval____): 1a aa                      ..
+  Padding  (____ptrval____): 00 00 00 00 00 00 00 00    ........
+
+Store the freelist pointer out of line when object_size is smaller than
+sizeof(void *) and redzoning is enabled.
+
+Additionally remove the "smaller than sizeof(void *)" check under
+CONFIG_DEBUG_VM in kmem_cache_sanity_check() as it is now redundant:
+SLAB and SLOB both handle small sizes.
+
+(Note that no caches within this size range are known to exist in the
+kernel currently.)
+
+Link: https://lkml.kernel.org/r/20210608183955.280836-3-keescook@chromium.org
+Fixes: 81819f0fc828 ("SLUB core")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: "Lin, Zhenpeng" <zplin@psu.edu>
+Cc: Marco Elver <elver@google.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/core.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ mm/slab_common.c |    3 +--
+ mm/slub.c        |    8 +++++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/wireless/core.c
-+++ b/net/wireless/core.c
-@@ -1339,6 +1339,11 @@ void cfg80211_register_wdev(struct cfg80
- 	rdev->devlist_generation++;
- 	wdev->registered = true;
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -87,8 +87,7 @@ EXPORT_SYMBOL(kmem_cache_size);
+ #ifdef CONFIG_DEBUG_VM
+ static int kmem_cache_sanity_check(const char *name, unsigned int size)
+ {
+-	if (!name || in_interrupt() || size < sizeof(void *) ||
+-		size > KMALLOC_MAX_SIZE) {
++	if (!name || in_interrupt() || size > KMALLOC_MAX_SIZE) {
+ 		pr_err("kmem_cache_create(%s) integrity check failed\n", name);
+ 		return -EINVAL;
+ 	}
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -3684,15 +3684,17 @@ static int calculate_sizes(struct kmem_c
+ 	 */
+ 	s->inuse = size;
  
-+	if (wdev->netdev &&
-+	    sysfs_create_link(&wdev->netdev->dev.kobj, &rdev->wiphy.dev.kobj,
-+			      "phy80211"))
-+		pr_err("failed to add phy80211 symlink to netdev!\n");
-+
- 	nl80211_notify_iface(rdev, wdev, NL80211_CMD_NEW_INTERFACE);
- }
- 
-@@ -1364,14 +1369,6 @@ int cfg80211_register_netdevice(struct n
- 	if (ret)
- 		goto out;
- 
--	if (sysfs_create_link(&dev->dev.kobj, &rdev->wiphy.dev.kobj,
--			      "phy80211")) {
--		pr_err("failed to add phy80211 symlink to netdev!\n");
--		unregister_netdevice(dev);
--		ret = -EINVAL;
--		goto out;
--	}
--
- 	cfg80211_register_wdev(rdev, wdev);
- 	ret = 0;
- out:
+-	if (((flags & (SLAB_TYPESAFE_BY_RCU | SLAB_POISON)) ||
+-		s->ctor)) {
++	if ((flags & (SLAB_TYPESAFE_BY_RCU | SLAB_POISON)) ||
++	    ((flags & SLAB_RED_ZONE) && s->object_size < sizeof(void *)) ||
++	    s->ctor) {
+ 		/*
+ 		 * Relocate free pointer after the object if it is not
+ 		 * permitted to overwrite the first word of the object on
+ 		 * kmem_cache_free.
+ 		 *
+ 		 * This is the case if we do RCU, have a constructor or
+-		 * destructor or are poisoning the objects.
++		 * destructor, are poisoning the objects, or are
++		 * redzoning an object smaller than sizeof(void *).
+ 		 *
+ 		 * The assumption that s->offset >= s->inuse means free
+ 		 * pointer is outside of the object is used in the
 
 
