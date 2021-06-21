@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D380A3AED6E
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:17:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 057C13AEE9F
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:28:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231270AbhFUQUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:20:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39946 "EHLO mail.kernel.org"
+        id S232261AbhFUQab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:30:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231246AbhFUQTl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:19:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AE9C611CE;
-        Mon, 21 Jun 2021 16:17:26 +0000 (UTC)
+        id S232418AbhFUQ3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:29:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10AE7613ED;
+        Mon, 21 Jun 2021 16:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292246;
-        bh=E8JORQseppBmhQ9GAMEjDRjxh+lsXaikuKwER4tJwKY=;
+        s=korg; t=1624292655;
+        bh=RzXCk9Dio8zmt6KXri5/MKKeCrYmJTpNj3bvQToYVFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SeoHLgu7IH/xeIlHBRXcyC11Az3pQbx99kaoLtj6AlffwVT1vCzT9xmQMyvjNxreT
-         j7Q8pyPHLzdm/Kgns+2rj5L3uT+0FQ1Q3ceu/ssDOAnB+JQwMe+V7eRKI13dyX1BNR
-         Damhd5YpMcsQJFdr0Eii/m5HGvj+5pdFyvmBMxq0=
+        b=fbazu44VtJtwHhjl5FQ0dNAgmZW/Fz12258PdTNWpUo4U1WbUM+RbVRIbnzgtnjgq
+         ty0KxMKTh7QOQxRGRvccKhHwTstOZChmDIYHq9ZX2VHJLcWeOIo2wp0jmgO7/IrFY8
+         98GN/lSvajXnYt5FxPh5Thrt9foN2REdYfR0YLV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Sinan Kaya <okaya@codeaurora.org>,
-        Vinod Koul <vkoul@kernel.org>, dmaengine@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+59aa77b92d06cd5a54f2@syzkaller.appspotmail.com,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/90] dmaengine: QCOM_HIDMA_MGMT depends on HAS_IOMEM
-Date:   Mon, 21 Jun 2021 18:14:37 +0200
-Message-Id: <20210621154904.247200835@linuxfoundation.org>
+Subject: [PATCH 5.10 048/146] ethtool: strset: fix message length calculation
+Date:   Mon, 21 Jun 2021 18:14:38 +0200
+Message-Id: <20210621154912.922708811@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-References: <20210621154904.159672728@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 0cfbb589d67f16fa55b26ae02b69c31b52e344b1 ]
+[ Upstream commit e175aef902697826d344ce3a12189329848fe898 ]
 
-When CONFIG_HAS_IOMEM is not set/enabled, certain iomap() family
-functions [including ioremap(), devm_ioremap(), etc.] are not
-available.
-Drivers that use these functions should depend on HAS_IOMEM so that
-they do not cause build errors.
+Outer nest for ETHTOOL_A_STRSET_STRINGSETS is not accounted for.
+This may result in ETHTOOL_MSG_STRSET_GET producing a warning like:
 
-Rectifies these build errors:
-s390-linux-ld: drivers/dma/qcom/hidma_mgmt.o: in function `hidma_mgmt_probe':
-hidma_mgmt.c:(.text+0x780): undefined reference to `devm_ioremap_resource'
-s390-linux-ld: drivers/dma/qcom/hidma_mgmt.o: in function `hidma_mgmt_init':
-hidma_mgmt.c:(.init.text+0x126): undefined reference to `of_address_to_resource'
-s390-linux-ld: hidma_mgmt.c:(.init.text+0x16e): undefined reference to `of_address_to_resource'
+    calculated message payload length (684) not sufficient
+    WARNING: CPU: 0 PID: 30967 at net/ethtool/netlink.c:369 ethnl_default_doit+0x87a/0xa20
 
-Fixes: 67a2003e0607 ("dmaengine: add Qualcomm Technologies HIDMA channel driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Sinan Kaya <okaya@codeaurora.org>
-Cc: Vinod Koul <vkoul@kernel.org>
-Cc: dmaengine@vger.kernel.org
-Link: https://lore.kernel.org/r/20210522021313.16405-3-rdunlap@infradead.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+and a splat.
+
+As usually with such warnings three conditions must be met for the warning
+to trigger:
+ - there must be no skb size rounding up (e.g. reply_size of 684);
+ - string set must be per-device (so that the header gets populated);
+ - the device name must be at least 12 characters long.
+
+all in all with current user space it looks like reading priv flags
+is the only place this could potentially happen. Or with syzbot :)
+
+Reported-by: syzbot+59aa77b92d06cd5a54f2@syzkaller.appspotmail.com
+Fixes: 71921690f974 ("ethtool: provide string sets with STRSET_GET request")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/qcom/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ net/ethtool/strset.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/dma/qcom/Kconfig b/drivers/dma/qcom/Kconfig
-index 1d189438aeb0..bef309ef6a71 100644
---- a/drivers/dma/qcom/Kconfig
-+++ b/drivers/dma/qcom/Kconfig
-@@ -10,6 +10,7 @@ config QCOM_BAM_DMA
+diff --git a/net/ethtool/strset.c b/net/ethtool/strset.c
+index c3a5489964cd..9908b922cce8 100644
+--- a/net/ethtool/strset.c
++++ b/net/ethtool/strset.c
+@@ -328,6 +328,8 @@ static int strset_reply_size(const struct ethnl_req_info *req_base,
+ 	int len = 0;
+ 	int ret;
  
- config QCOM_HIDMA_MGMT
- 	tristate "Qualcomm Technologies HIDMA Management support"
-+	depends on HAS_IOMEM
- 	select DMA_ENGINE
- 	help
- 	  Enable support for the Qualcomm Technologies HIDMA Management.
++	len += nla_total_size(0); /* ETHTOOL_A_STRSET_STRINGSETS */
++
+ 	for (i = 0; i < ETH_SS_COUNT; i++) {
+ 		const struct strset_info *set_info = &data->sets[i];
+ 
 -- 
 2.30.2
 
