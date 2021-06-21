@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FE5E3AE782
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:45:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A423AE7A6
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229888AbhFUKsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 06:48:06 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:56193 "EHLO
+        id S229641AbhFUKyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 06:54:04 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:58147 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229707AbhFUKsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:48:05 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 6435A1940A84;
-        Mon, 21 Jun 2021 06:45:51 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229621AbhFUKyD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:54:03 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 34FCE19402AA;
+        Mon, 21 Jun 2021 06:51:49 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 21 Jun 2021 06:45:51 -0400
+  by compute3.internal (MEProxy); Mon, 21 Jun 2021 06:51:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=eYurkJ
-        wvLHAE45Tw5lB+xzBq4DTVhu8pwLWPYKJDzzs=; b=Eh+ttSDD4MlNEydLQRtRbk
-        0TpdMj65tGuQVxSe4WGE271vDCH2YRSdk5AqV/w9DM1jXxazfLuOsgppd/l3nZ8P
-        8idj/HPvYdx73/wjy2dbR4Mc0YsLjiU07ljda2zcx+RzSq+LcB5BXtCzUVHUCOZS
-        6ts2+xU/ISCWoVMYDlvWdfdSVzV/gy7QkVh5TuAdoWj1H3JxKpIiJyVLMm5tZaFa
-        o9KQm5Uz6ccLJ7GLXCqRKZGnzlQbjgZx/+V3szHggS0ZVJ54NuLJlN8xkEtMqyE7
-        dc9FS3rMk7k/kq07ms8xaPqZLj6beAb9aw1gM907mb/1cG5KCzxlXtOjzfiuAtSg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=s+qiYS
+        3GJq5VeWMRLEse8RBMRLvexZ4P+11slcnm/AM=; b=dwjJU7wE5LKhR7k13adkxR
+        LIc7Y/J50DipJ7yMYFKHl1trs94NAc/fMeDCLyLEbUJ8NySreT0RcBQjg5HhOB0p
+        /aerwVzd4cnnJ4yKjZTtDTnyfj5KIxJeNq6Ctv5EaOGWS9XD0huejii09R+CBviE
+        k6oQox3fTELaD+AnAAPwZa1E+CTZdVHXsTitxW4rrzANG3VP2+sWlpz7U/s7AqpR
+        /QxH293vO7bZmOFi20k5x/Ekpt/Rg/vcnye4bKxjf3JaYl4e5YHIIxpqy9HMFHCI
+        ZJ9Ztk4191DEDHLXv2O43vnRo386My6au7JBCitL7KSZQr5KA/0UobKTgCDbAnVg
         ==
-X-ME-Sender: <xms:323QYA7boQiBImr3W4EYdHtsmUbPdhj3k7jO8APSxisahB1-SeKoGg>
-    <xme:323QYB71lnQ4NrZVFGbsm5KTpf9iYhDiGsDoy2DxpfQmPhYQYpwap4jCzexhYDOOd
-    sivqvcKsU8roQ>
-X-ME-Received: <xmr:323QYPephzcn2FK1jpkXNviLP5UN2t22tt6ybkpKbVs3MiVWE-as4ZZokTsq6fAzRYAexlZJkQsuC9xLT5tiWm64gyJP0PHT>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgfedvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:RG_QYI__RaDeDURZUdBIsTnu6nhhUvaS1kZuIOmV7FJtI2Xgo7KePg>
+    <xme:RG_QYAtmMgOkEnl44FhT4PcrJ2zqtttYZz0tm8vP-t1Je9Vky7K7j6uEE_oVO7sI4
+    zzGUNZSnM6QRQ>
+X-ME-Received: <xmr:RG_QYOCspzdIlARWO_YhuDwXAV2QdmRm02invz1saP19grti8YwYoko00scOMebG7YlcsDhu1S8AbOhcdFj65e5S6NKdMagx>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgfeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehm
-    rghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:323QYFK0Dq57BPBQr5GuramI2fMh3wWWalt9GiHkKjd6EJ5_oJa3Qw>
-    <xmx:323QYEI3IOao_pYhql8GDzt0k4YNDXOhrmdr9ZriyfrCUgxg_G3S_A>
-    <xmx:323QYGxvG5vMMgh574Zfq7gstFbXOs7SYdwjPGeTXW1H8BFaEI3zsg>
-    <xmx:323QYI3WAR1Jl8nX4bk-ImP8m0SsmFPuZYSUufJ-70_P4TzZowvL3w>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    grhhdrtghomh
+X-ME-Proxy: <xmx:RG_QYIdHGTsqfvOHO_H8bxY9W2Oo8lYP71HFaSkNPep4GuUo_Cm7PQ>
+    <xmx:RG_QYNOCvh44jJnTt2-MFrIeZR3MIguoeyf0Axo-u4UvyhSi-DyKvA>
+    <xmx:RG_QYCniEVYitdnnVIpU3kxpPeIsyG_QVAFLjg1ksUwEUFI1SjSsew>
+    <xmx:RW_QYCqGkIztE8v0kfwjOKk0g5EgQMAsyow4y_8Y_h8gE-jwS5TTJw>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 21 Jun 2021 06:45:50 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: SVM: Call SEV Guest Decommission if ASID binding fails" failed to apply to 5.10-stable tree
-To:     alpergun@google.com, marcorr@google.com, pbonzini@redhat.com,
-        pgonda@google.com
+ 21 Jun 2021 06:51:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86/fpu: Invalidate FPU state after a failed XRSTOR from a" failed to apply to 5.4-stable tree
+To:     luto@kernel.org, bp@suse.de, dave.hansen@linux.intel.com,
+        riel@surriel.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Jun 2021 12:45:37 +0200
-Message-ID: <162427233720782@kroah.com>
+Date:   Mon, 21 Jun 2021 12:51:46 +0200
+Message-ID: <162427270623162@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,78 +71,73 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 934002cd660b035b926438244b4294e647507e13 Mon Sep 17 00:00:00 2001
-From: Alper Gun <alpergun@google.com>
-Date: Thu, 10 Jun 2021 17:46:04 +0000
-Subject: [PATCH] KVM: SVM: Call SEV Guest Decommission if ASID binding fails
+From d8778e393afa421f1f117471144f8ce6deb6953a Mon Sep 17 00:00:00 2001
+From: Andy Lutomirski <luto@kernel.org>
+Date: Tue, 8 Jun 2021 16:36:19 +0200
+Subject: [PATCH] x86/fpu: Invalidate FPU state after a failed XRSTOR from a
+ user buffer
 
-Send SEV_CMD_DECOMMISSION command to PSP firmware if ASID binding
-fails. If a failure happens after  a successful LAUNCH_START command,
-a decommission command should be executed. Otherwise, guest context
-will be unfreed inside the AMD SP. After the firmware will not have
-memory to allocate more SEV guest context, LAUNCH_START command will
-begin to fail with SEV_RET_RESOURCE_LIMIT error.
+Both Intel and AMD consider it to be architecturally valid for XRSTOR to
+fail with #PF but nonetheless change the register state.  The actual
+conditions under which this might occur are unclear [1], but it seems
+plausible that this might be triggered if one sibling thread unmaps a page
+and invalidates the shared TLB while another sibling thread is executing
+XRSTOR on the page in question.
 
-The existing code calls decommission inside sev_unbind_asid, but it is
-not called if a failure happens before guest activation succeeds. If
-sev_bind_asid fails, decommission is never called. PSP firmware has a
-limit for the number of guests. If sev_asid_binding fails many times,
-PSP firmware will not have resources to create another guest context.
+__fpu__restore_sig() can execute XRSTOR while the hardware registers
+are preserved on behalf of a different victim task (using the
+fpu_fpregs_owner_ctx mechanism), and, in theory, XRSTOR could fail but
+modify the registers.
 
+If this happens, then there is a window in which __fpu__restore_sig()
+could schedule out and the victim task could schedule back in without
+reloading its own FPU registers. This would result in part of the FPU
+state that __fpu__restore_sig() was attempting to load leaking into the
+victim task's user-visible state.
+
+Invalidate preserved FPU registers on XRSTOR failure to prevent this
+situation from corrupting any state.
+
+[1] Frequent readers of the errata lists might imagine "complex
+    microarchitectural conditions".
+
+Fixes: 1d731e731c4c ("x86/fpu: Add a fastpath to __fpu__restore_sig()")
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Rik van Riel <riel@surriel.com>
 Cc: stable@vger.kernel.org
-Fixes: 59414c989220 ("KVM: SVM: Add support for KVM_SEV_LAUNCH_START command")
-Reported-by: Peter Gonda <pgonda@google.com>
-Signed-off-by: Alper Gun <alpergun@google.com>
-Reviewed-by: Marc Orr <marcorr@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <20210610174604.2554090-1-alpergun@google.com>
+Link: https://lkml.kernel.org/r/20210608144345.758116583@linutronix.de
 
-diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-index e0ce5da97fc2..8d36f0c73071 100644
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -199,9 +199,19 @@ static void sev_asid_free(struct kvm_sev_info *sev)
- 	sev->misc_cg = NULL;
- }
- 
--static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
-+static void sev_decommission(unsigned int handle)
- {
- 	struct sev_data_decommission decommission;
+diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
+index d5bc96a536c2..4ab9aeb9a963 100644
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -369,6 +369,25 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 			fpregs_unlock();
+ 			return 0;
+ 		}
 +
-+	if (!handle)
-+		return;
++		/*
++		 * The above did an FPU restore operation, restricted to
++		 * the user portion of the registers, and failed, but the
++		 * microcode might have modified the FPU registers
++		 * nevertheless.
++		 *
++		 * If the FPU registers do not belong to current, then
++		 * invalidate the FPU register state otherwise the task might
++		 * preempt current and return to user space with corrupted
++		 * FPU registers.
++		 *
++		 * In case current owns the FPU registers then no further
++		 * action is required. The fixup below will handle it
++		 * correctly.
++		 */
++		if (test_thread_flag(TIF_NEED_FPU_LOAD))
++			__cpu_invalidate_fpregs_state();
 +
-+	decommission.handle = handle;
-+	sev_guest_decommission(&decommission, NULL);
-+}
-+
-+static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
-+{
- 	struct sev_data_deactivate deactivate;
- 
- 	if (!handle)
-@@ -214,9 +224,7 @@ static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
- 	sev_guest_deactivate(&deactivate, NULL);
- 	up_read(&sev_deactivate_lock);
- 
--	/* decommission handle */
--	decommission.handle = handle;
--	sev_guest_decommission(&decommission, NULL);
-+	sev_decommission(handle);
- }
- 
- static int sev_guest_init(struct kvm *kvm, struct kvm_sev_cmd *argp)
-@@ -341,8 +349,10 @@ static int sev_launch_start(struct kvm *kvm, struct kvm_sev_cmd *argp)
- 
- 	/* Bind ASID to this guest */
- 	ret = sev_bind_asid(kvm, start.handle, error);
--	if (ret)
-+	if (ret) {
-+		sev_decommission(start.handle);
- 		goto e_free_session;
-+	}
- 
- 	/* return handle to userspace */
- 	params.handle = start.handle;
+ 		fpregs_unlock();
+ 	} else {
+ 		/*
 
