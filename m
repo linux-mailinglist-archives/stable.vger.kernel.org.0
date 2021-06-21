@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 358353AED5A
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 546A93AEE7D
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231182AbhFUQT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:19:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39558 "EHLO mail.kernel.org"
+        id S231289AbhFUQ3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:29:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231139AbhFUQTX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:19:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4B706115B;
-        Mon, 21 Jun 2021 16:17:07 +0000 (UTC)
+        id S231635AbhFUQ2G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:28:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 490C360231;
+        Mon, 21 Jun 2021 16:23:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292228;
-        bh=mucShEdvimHrvOvUTvDiwfH5DrV9OhOorWz00grWSLw=;
+        s=korg; t=1624292592;
+        bh=tQVdZcFxjbkS0neonPwjuVD2m4RLxCuAka41aGj1nLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVEhO96a/8E23wjw0IeADOVW8UtSYlur78D87LzxxKE7oJ5f+AjwaF8FgcuymFUQN
-         WBx2GNcMtFYxa6nd0u5hZel1APMMLnN2VrutenCDz8RDdI0jy4edKhbBr6JCNbaAiE
-         pyOVl5ZQ5e7h9n7TY9bWJBWJiYAhggnXrPynOPzs=
+        b=WmJIzER2BK+J7BTKIaAOT+SfRXGJKWSsoA4U+grBRGPYEbPxiQKqMPhMsVH3dz6cQ
+         wQ5LyrWnRRtshpxPsx/7LGF4G8Czp0SIvpOD88k0JoG7S/vxjsaQ3wp0TJ2adGcrxI
+         qoHfSRWrhP/ogHk2o4YesE4gGxz7UI3tqrzECuac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/90] rtnetlink: Fix regression in bridge VLAN configuration
+Subject: [PATCH 5.10 058/146] net: usb: fix possible use-after-free in smsc75xx_bind
 Date:   Mon, 21 Jun 2021 18:14:48 +0200
-Message-Id: <20210621154904.594531065@linuxfoundation.org>
+Message-Id: <20210621154914.270525635@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-References: <20210621154904.159672728@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit d2e381c4963663bca6f30c3b996fa4dbafe8fcb5 ]
+[ Upstream commit 56b786d86694e079d8aad9b314e015cd4ac02a3d ]
 
-Cited commit started returning errors when notification info is not
-filled by the bridge driver, resulting in the following regression:
+The commit 46a8b29c6306 ("net: usb: fix memory leak in smsc75xx_bind")
+fails to clean up the work scheduled in smsc75xx_reset->
+smsc75xx_set_multicast, which leads to use-after-free if the work is
+scheduled to start after the deallocation. In addition, this patch
+also removes a dangling pointer - dev->data[0].
 
- # ip link add name br1 type bridge vlan_filtering 1
- # bridge vlan add dev br1 vid 555 self pvid untagged
- RTNETLINK answers: Invalid argument
+This patch calls cancel_work_sync to cancel the scheduled work and set
+the dangling pointer to NULL.
 
-As long as the bridge driver does not fill notification info for the
-bridge device itself, an empty notification should not be considered as
-an error. This is explained in commit 59ccaaaa49b5 ("bridge: dont send
-notification when skb->len == 0 in rtnl_bridge_notify").
-
-Fix by removing the error and add a comment to avoid future bugs.
-
-Fixes: a8db57c1d285 ("rtnetlink: Fix missing error code in rtnl_bridge_notify()")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Fixes: 46a8b29c6306 ("net: usb: fix memory leak in smsc75xx_bind")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/usb/smsc75xx.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index bdeb169a7a99..0bad5db23129 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -4535,10 +4535,12 @@ static int rtnl_bridge_notify(struct net_device *dev)
- 	if (err < 0)
- 		goto errout;
+diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
+index d44657b54d2b..378a12ae2d95 100644
+--- a/drivers/net/usb/smsc75xx.c
++++ b/drivers/net/usb/smsc75xx.c
+@@ -1483,7 +1483,7 @@ static int smsc75xx_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	ret = smsc75xx_wait_ready(dev, 0);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "device not ready in smsc75xx_bind\n");
+-		goto err;
++		goto free_pdata;
+ 	}
  
--	if (!skb->len) {
--		err = -EINVAL;
-+	/* Notification info is only filled for bridge ports, not the bridge
-+	 * device itself. Therefore, a zero notification length is valid and
-+	 * should not result in an error.
-+	 */
-+	if (!skb->len)
- 		goto errout;
--	}
+ 	smsc75xx_init_mac_address(dev);
+@@ -1492,7 +1492,7 @@ static int smsc75xx_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	ret = smsc75xx_reset(dev);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "smsc75xx_reset error %d\n", ret);
+-		goto err;
++		goto cancel_work;
+ 	}
  
- 	rtnl_notify(skb, net, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
+ 	dev->net->netdev_ops = &smsc75xx_netdev_ops;
+@@ -1503,8 +1503,11 @@ static int smsc75xx_bind(struct usbnet *dev, struct usb_interface *intf)
+ 	dev->net->max_mtu = MAX_SINGLE_PACKET_SIZE;
  	return 0;
+ 
+-err:
++cancel_work:
++	cancel_work_sync(&pdata->set_multicast);
++free_pdata:
+ 	kfree(pdata);
++	dev->data[0] = 0;
+ 	return ret;
+ }
+ 
+@@ -1515,7 +1518,6 @@ static void smsc75xx_unbind(struct usbnet *dev, struct usb_interface *intf)
+ 		cancel_work_sync(&pdata->set_multicast);
+ 		netif_dbg(dev, ifdown, dev->net, "free pdata\n");
+ 		kfree(pdata);
+-		pdata = NULL;
+ 		dev->data[0] = 0;
+ 	}
+ }
 -- 
 2.30.2
 
