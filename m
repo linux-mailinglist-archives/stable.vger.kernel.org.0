@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BAE23AF090
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6D93AEF12
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231728AbhFUQuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:50:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37532 "EHLO mail.kernel.org"
+        id S231801AbhFUQfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232739AbhFUQr6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:47:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FFDA61414;
-        Mon, 21 Jun 2021 16:33:54 +0000 (UTC)
+        id S232335AbhFUQdR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:33:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5121561418;
+        Mon, 21 Jun 2021 16:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293235;
-        bh=DpdsOizRZRHCAWcMf9zuFxLYtF6OIS/+YhzrZKAY7VM=;
+        s=korg; t=1624292790;
+        bh=MsSNp23Mq1jV3Q5GrB1f+cvgk6IwxVyFRLbJw+MfcV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyFHsfM0eDS5XVllWMw5nzooKthijMPcV2QYR+Ydtq8BmHfgoWLB2lWi7XL5Xve43
-         UymsAB54HVT6bYF7L5eSpaPEWnXPIhZaNWlIk+tn4CTjZM9hE/cSa+ucdJYLJHiCSV
-         by0OqzNAHPCOHjYq+88QypYo4n3zJ8Oh0q99mQV4=
+        b=eD/CwHI8kyn6RloAZ9fB7udveCjFYXAepjZZAlrsT0i+dGFJuylv8gQkSv+7/1wt5
+         PNerd8LT7ZaZDmpNvMdvHepTiZezIVyZZD1mZjQ3ocniBh7rCVBi9XBNxYSF4886mW
+         L+ViZugcoMxQorGmJOFnYCUHtsyycFB6cPWhVrBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tor Vic <torvic9@mailbox.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.12 148/178] Makefile: lto: Pass -warn-stack-size only on LLD < 13.0.0
+        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 132/146] net: ll_temac: Make sure to free skb when it is completely used
 Date:   Mon, 21 Jun 2021 18:16:02 +0200
-Message-Id: <20210621154927.806773805@linuxfoundation.org>
+Message-Id: <20210621154919.931906299@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tor Vic <torvic9@mailbox.org>
+From: Esben Haabendal <esben@geanix.com>
 
-commit 0236526d76b87c1dc2cbe3eb31ae29be5b0ca151 upstream.
+commit 6aa32217a9a446275440ee8724b1ecaf1838df47 upstream.
 
-Since LLVM commit fc018eb, the '-warn-stack-size' flag has been dropped
-[1], leading to the following error message when building with Clang-13
-and LLD-13:
+With the skb pointer piggy-backed on the TX BD, we have a simple and
+efficient way to free the skb buffer when the frame has been transmitted.
+But in order to avoid freeing the skb while there are still fragments from
+the skb in use, we need to piggy-back on the TX BD of the skb, not the
+first.
 
-    ld.lld: error: -plugin-opt=-: ld.lld: Unknown command line argument
-    '-warn-stack-size=2048'.  Try: 'ld.lld --help'
-    ld.lld: Did you mean '--asan-stack=2048'?
+Without this, we are doing use-after-free on the DMA side, when the first
+BD of a multi TX BD packet is seen as completed in xmit_done, and the
+remaining BDs are still being processed.
 
-In the same way as with commit 2398ce80152a ("x86, lto: Pass
--stack-alignment only on LLD < 13.0.0") , make '-warn-stack-size'
-conditional on LLD < 13.0.0.
-
-[1] https://reviews.llvm.org/D103928
-
-Fixes: 24845dcb170e ("Makefile: LTO: have linker check -Wframe-larger-than")
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/1377
-Signed-off-by: Tor Vic <torvic9@mailbox.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/7631bab7-a8ab-f884-ab54-f4198976125c@mailbox.org
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Esben Haabendal <esben@geanix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -913,11 +913,14 @@ CC_FLAGS_LTO	+= -fvisibility=hidden
- # Limit inlining across translation units to reduce binary size
- KBUILD_LDFLAGS += -mllvm -import-instr-limit=5
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -876,7 +876,6 @@ temac_start_xmit(struct sk_buff *skb, st
+ 		return NETDEV_TX_OK;
+ 	}
+ 	cur_p->phys = cpu_to_be32(skb_dma_addr);
+-	ptr_to_txbd((void *)skb, cur_p);
  
--# Check for frame size exceeding threshold during prolog/epilog insertion.
-+# Check for frame size exceeding threshold during prolog/epilog insertion
-+# when using lld < 13.0.0.
- ifneq ($(CONFIG_FRAME_WARN),0)
-+ifeq ($(shell test $(CONFIG_LLD_VERSION) -lt 130000; echo $$?),0)
- KBUILD_LDFLAGS	+= -plugin-opt=-warn-stack-size=$(CONFIG_FRAME_WARN)
- endif
- endif
-+endif
+ 	for (ii = 0; ii < num_frag; ii++) {
+ 		if (++lp->tx_bd_tail >= lp->tx_bd_num)
+@@ -915,6 +914,11 @@ temac_start_xmit(struct sk_buff *skb, st
+ 	}
+ 	cur_p->app0 |= cpu_to_be32(STS_CTRL_APP0_EOP);
  
- ifdef CONFIG_LTO
- KBUILD_CFLAGS	+= -fno-lto $(CC_FLAGS_LTO)
++	/* Mark last fragment with skb address, so it can be consumed
++	 * in temac_start_xmit_done()
++	 */
++	ptr_to_txbd((void *)skb, cur_p);
++
+ 	tail_p = lp->tx_bd_p + sizeof(*lp->tx_bd_v) * lp->tx_bd_tail;
+ 	lp->tx_bd_tail++;
+ 	if (lp->tx_bd_tail >= lp->tx_bd_num)
 
 
