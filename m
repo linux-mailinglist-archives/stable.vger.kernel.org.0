@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 131263AEFA3
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:38:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC463AEF88
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231789AbhFUQkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:40:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56118 "EHLO mail.kernel.org"
+        id S232082AbhFUQkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:40:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232814AbhFUQhr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:37:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94BC66115B;
-        Mon, 21 Jun 2021 16:29:06 +0000 (UTC)
+        id S230217AbhFUQh6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:37:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 413666137D;
+        Mon, 21 Jun 2021 16:29:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292947;
-        bh=0mKJ3fkAyYjKKBmwW1OD3wt7IeExMJxJozSgLde2vJE=;
+        s=korg; t=1624292949;
+        bh=t8MPqhAav1Ram4qaeeGtXLWIVbRnpGRwsuaCLIcM7hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnXneVDxW/j2ATftj4I/uww3dIgU9KKuKqi/Mr02k7aeI28apm+SJI34tYSHEVBGN
-         PHnTklsUnViL5N5Y7EizS9iNoR+1Yzh+p92df3j/rkVj5+ESJpr+hPE4hSPF3hqasJ
-         CI/Kox4BLNxWNjZw5zMJIGGI3/M99qN6QtCDlnYQ=
+        b=eebhTKDbtd0evZJTfA6VRDbLpBptK5dPIYD6eaVfHsa4+BmDe6cvbXf/YUomo/IpE
+         5elaMoQ1Kbl31ev5RkTk3I7pCqClzhKxTNtm/vtRsv4BiRV40lN1Wr74DuvifKO/cV
+         UQHyWhJJrmXzHMVGAKlyM7LAC4T+dxNVT8idnC44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Young Xiao <92siuyang@gmail.com>,
-        Maxim Mikityanskiy <maximmi@nvidia.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 043/178] sch_cake: Fix out of bounds when parsing TCP options and header
-Date:   Mon, 21 Jun 2021 18:14:17 +0200
-Message-Id: <20210621154923.651802582@linuxfoundation.org>
+Subject: [PATCH 5.12 044/178] mptcp: try harder to borrow memory from subflow under pressure
+Date:   Mon, 21 Jun 2021 18:14:18 +0200
+Message-Id: <20210621154923.718041746@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -42,67 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit ba91c49dedbde758ba0b72f57ac90b06ddf8e548 ]
+[ Upstream commit 72f961320d5d15bfcb26dbe3edaa3f7d25fd2c8a ]
 
-The TCP option parser in cake qdisc (cake_get_tcpopt and
-cake_tcph_may_drop) could read one byte out of bounds. When the length
-is 1, the execution flow gets into the loop, reads one byte of the
-opcode, and if the opcode is neither TCPOPT_EOL nor TCPOPT_NOP, it reads
-one more byte, which exceeds the length of 1.
+If the host is under sever memory pressure, and RX forward
+memory allocation for the msk fails, we try to borrow the
+required memory from the ingress subflow.
 
-This fix is inspired by commit 9609dad263f8 ("ipv4: tcp_input: fix stack
-out of bounds when parsing TCP options.").
+The current attempt is a bit flaky: if skb->truesize is less
+than SK_MEM_QUANTUM, the ssk will not release any memory, and
+the next schedule will fail again.
 
-v2 changes:
+Instead, directly move the required amount of pages from the
+ssk to the msk, if available
 
-Added doff validation in cake_get_tcphdr to avoid parsing garbage as TCP
-header. Although it wasn't strictly an out-of-bounds access (memory was
-allocated), garbage values could be read where CAKE expected the TCP
-header if doff was smaller than 5.
-
-Cc: Young Xiao <92siuyang@gmail.com>
-Fixes: 8b7138814f29 ("sch_cake: Add optional ACK filter")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Fixes: 9c3f94e1681b ("mptcp: add missing memory scheduling in the rx path")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_cake.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/mptcp/protocol.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
-index 7d37638ee1c7..5c15968b5155 100644
---- a/net/sched/sch_cake.c
-+++ b/net/sched/sch_cake.c
-@@ -943,7 +943,7 @@ static struct tcphdr *cake_get_tcphdr(const struct sk_buff *skb,
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 225b98821517..1d981babbcfe 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -287,11 +287,13 @@ static bool __mptcp_move_skb(struct mptcp_sock *msk, struct sock *ssk,
+ 
+ 	/* try to fetch required memory from subflow */
+ 	if (!sk_rmem_schedule(sk, skb, skb->truesize)) {
+-		if (ssk->sk_forward_alloc < skb->truesize)
+-			goto drop;
+-		__sk_mem_reclaim(ssk, skb->truesize);
+-		if (!sk_rmem_schedule(sk, skb, skb->truesize))
++		int amount = sk_mem_pages(skb->truesize) << SK_MEM_QUANTUM_SHIFT;
++
++		if (ssk->sk_forward_alloc < amount)
+ 			goto drop;
++
++		ssk->sk_forward_alloc -= amount;
++		sk->sk_forward_alloc += amount;
  	}
  
- 	tcph = skb_header_pointer(skb, offset, sizeof(_tcph), &_tcph);
--	if (!tcph)
-+	if (!tcph || tcph->doff < 5)
- 		return NULL;
- 
- 	return skb_header_pointer(skb, offset,
-@@ -967,6 +967,8 @@ static const void *cake_get_tcpopt(const struct tcphdr *tcph,
- 			length--;
- 			continue;
- 		}
-+		if (length < 2)
-+			break;
- 		opsize = *ptr++;
- 		if (opsize < 2 || opsize > length)
- 			break;
-@@ -1104,6 +1106,8 @@ static bool cake_tcph_may_drop(const struct tcphdr *tcph,
- 			length--;
- 			continue;
- 		}
-+		if (length < 2)
-+			break;
- 		opsize = *ptr++;
- 		if (opsize < 2 || opsize > length)
- 			break;
+ 	/* the skb map_seq accounts for the skb offset:
 -- 
 2.30.2
 
