@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B5753AF020
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D54603AF022
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:44:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232346AbhFUQqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:46:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37576 "EHLO mail.kernel.org"
+        id S231375AbhFUQq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:46:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233328AbhFUQoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:44:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CB8B61451;
-        Mon, 21 Jun 2021 16:32:12 +0000 (UTC)
+        id S233378AbhFUQoP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:44:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FB1261457;
+        Mon, 21 Jun 2021 16:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293133;
-        bh=vv8cfs3W2ydhqoEwHQRbkUvo8zVx5jqdBMYeL/0XmSM=;
+        s=korg; t=1624293138;
+        bh=Ao7lxb27DTkGsJCknxVJABQY/MmedhbPMCw/GVW6RqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M02hQbpXx61cChXNn37+2+tecMBuRijA7l0RLYOf7aYQBIens3pslV5G8MdntpQRL
-         4xVfyO/vsj3LbyqP+BIRJKjG/pddJgJ5VIpK11AQu/4DT847eDEaRKj7nU4PCj3L0X
-         WSPjyB4r9M+VokGh4VEC00txDzqwzoy6rKCQpbMs=
+        b=ZGrMmhNfGT9raf0vJhnwYFrftcdQOlVpMhh6/R8Lz4VlrMprYLPZzYTf6OPQyxo0Y
+         oPAiaw3BYon3oK52tsIj3IZafFgHaFSpDgu2ENEHaR2jYX3hBFs8I0z8UpqNXl6Fmq
+         o6hLIqzi0f4Rkb+thqAK9+oPncOMdmP5HRtRPJyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 111/178] irqchip/gic-v3: Workaround inconsistent PMR setting on NMI entry
-Date:   Mon, 21 Jun 2021 18:15:25 +0200
-Message-Id: <20210621154926.545369384@linuxfoundation.org>
+        stable@vger.kernel.org, Odin Ugedal <odin@uged.al>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 112/178] sched/fair: Correctly insert cfs_rqs to list on unthrottle
+Date:   Mon, 21 Jun 2021 18:15:26 +0200
+Message-Id: <20210621154926.575675294@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -39,92 +41,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Odin Ugedal <odin@uged.al>
 
-[ Upstream commit 382e6e177bc1c02473e56591fe5083ae1e4904f6 ]
+[ Upstream commit a7b359fc6a37faaf472125867c8dc5a068c90982 ]
 
-The arm64 entry code suffers from an annoying issue on taking
-a NMI, as it sets PMR to a value that actually allows IRQs
-to be acknowledged. This is done for consistency with other parts
-of the code, and is in the process of being fixed. This shouldn't
-be a problem, as we are not enabling interrupts whilst in NMI
-context.
+Fix an issue where fairness is decreased since cfs_rq's can end up not
+being decayed properly. For two sibling control groups with the same
+priority, this can often lead to a load ratio of 99/1 (!!).
 
-However, in the infortunate scenario that we took a spurious NMI
-(retired before the read of IAR) *and* that there is an IRQ pending
-at the same time, we'll ack the IRQ in NMI context. Too bad.
+This happens because when a cfs_rq is throttled, all the descendant
+cfs_rq's will be removed from the leaf list. When they initial cfs_rq
+is unthrottled, it will currently only re add descendant cfs_rq's if
+they have one or more entities enqueued. This is not a perfect
+heuristic.
 
-In order to avoid deadlocks while running something like perf,
-teach the GICv3 driver about this situation: if we were in
-a context where no interrupt should have fired, transiently
-set PMR to a value that only allows NMIs before acking the pending
-interrupt, and restore the original value after that.
+Instead, we insert all cfs_rq's that contain one or more enqueued
+entities, or it its load is not completely decayed.
 
-This papers over the core issue for the time being, and makes
-NMIs great again. Sort of.
+Can often lead to situations like this for equally weighted control
+groups:
 
-Fixes: 4d6a38da8e79e94c ("arm64: entry: always set GIC_PRIO_PSR_I_SET during entry")
-Co-developed-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/lkml/20210610145731.1350460-1-maz@kernel.org
+  $ ps u -C stress
+  USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+  root       10009 88.8  0.0   3676   100 pts/1    R+   11:04   0:13 stress --cpu 1
+  root       10023  3.0  0.0   3676   104 pts/1    R+   11:04   0:00 stress --cpu 1
+
+Fixes: 31bc6aeaab1d ("sched/fair: Optimize update_blocked_averages()")
+[vingo: !SMP build fix]
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/20210612112815.61678-1-odin@uged.al
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3.c | 36 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 35 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c | 44 +++++++++++++++++++++++++-------------------
+ 1 file changed, 25 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
-index 00404024d7cd..fea237838bb0 100644
---- a/drivers/irqchip/irq-gic-v3.c
-+++ b/drivers/irqchip/irq-gic-v3.c
-@@ -642,11 +642,45 @@ static inline void gic_handle_nmi(u32 irqnr, struct pt_regs *regs)
- 		nmi_exit();
- }
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 47fcc3fe9dc5..56e2334fe66b 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3293,6 +3293,24 @@ static inline void cfs_rq_util_change(struct cfs_rq *cfs_rq, int flags)
  
-+static u32 do_read_iar(struct pt_regs *regs)
+ #ifdef CONFIG_SMP
+ #ifdef CONFIG_FAIR_GROUP_SCHED
++
++static inline bool cfs_rq_is_decayed(struct cfs_rq *cfs_rq)
 +{
-+	u32 iar;
++	if (cfs_rq->load.weight)
++		return false;
 +
-+	if (gic_supports_nmi() && unlikely(!interrupts_enabled(regs))) {
-+		u64 pmr;
++	if (cfs_rq->avg.load_sum)
++		return false;
 +
-+		/*
-+		 * We were in a context with IRQs disabled. However, the
-+		 * entry code has set PMR to a value that allows any
-+		 * interrupt to be acknowledged, and not just NMIs. This can
-+		 * lead to surprising effects if the NMI has been retired in
-+		 * the meantime, and that there is an IRQ pending. The IRQ
-+		 * would then be taken in NMI context, something that nobody
-+		 * wants to debug twice.
-+		 *
-+		 * Until we sort this, drop PMR again to a level that will
-+		 * actually only allow NMIs before reading IAR, and then
-+		 * restore it to what it was.
-+		 */
-+		pmr = gic_read_pmr();
-+		gic_pmr_mask_irqs();
-+		isb();
++	if (cfs_rq->avg.util_sum)
++		return false;
 +
-+		iar = gic_read_iar();
++	if (cfs_rq->avg.runnable_sum)
++		return false;
 +
-+		gic_write_pmr(pmr);
-+	} else {
-+		iar = gic_read_iar();
-+	}
-+
-+	return iar;
++	return true;
 +}
 +
- static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs)
+ /**
+  * update_tg_load_avg - update the tg's load avg
+  * @cfs_rq: the cfs_rq whose avg changed
+@@ -4086,6 +4104,11 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
+ 
+ #else /* CONFIG_SMP */
+ 
++static inline bool cfs_rq_is_decayed(struct cfs_rq *cfs_rq)
++{
++	return true;
++}
++
+ #define UPDATE_TG	0x0
+ #define SKIP_AGE_LOAD	0x0
+ #define DO_ATTACH	0x0
+@@ -4744,8 +4767,8 @@ static int tg_unthrottle_up(struct task_group *tg, void *data)
+ 		cfs_rq->throttled_clock_task_time += rq_clock_task(rq) -
+ 					     cfs_rq->throttled_clock_task;
+ 
+-		/* Add cfs_rq with already running entity in the list */
+-		if (cfs_rq->nr_running >= 1)
++		/* Add cfs_rq with load or one or more already running entities to the list */
++		if (!cfs_rq_is_decayed(cfs_rq) || cfs_rq->nr_running)
+ 			list_add_leaf_cfs_rq(cfs_rq);
+ 	}
+ 
+@@ -7972,23 +7995,6 @@ static bool __update_blocked_others(struct rq *rq, bool *done)
+ 
+ #ifdef CONFIG_FAIR_GROUP_SCHED
+ 
+-static inline bool cfs_rq_is_decayed(struct cfs_rq *cfs_rq)
+-{
+-	if (cfs_rq->load.weight)
+-		return false;
+-
+-	if (cfs_rq->avg.load_sum)
+-		return false;
+-
+-	if (cfs_rq->avg.util_sum)
+-		return false;
+-
+-	if (cfs_rq->avg.runnable_sum)
+-		return false;
+-
+-	return true;
+-}
+-
+ static bool __update_blocked_fair(struct rq *rq, bool *done)
  {
- 	u32 irqnr;
- 
--	irqnr = gic_read_iar();
-+	irqnr = do_read_iar(regs);
- 
- 	/* Check for special IDs first */
- 	if ((irqnr >= 1020 && irqnr <= 1023))
+ 	struct cfs_rq *cfs_rq, *pos;
 -- 
 2.30.2
 
