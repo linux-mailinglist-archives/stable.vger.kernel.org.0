@@ -2,158 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EABD3AF23E
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:45:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A803AF24E
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231225AbhFURr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 13:47:28 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:41942 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231138AbhFURr2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 13:47:28 -0400
-Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 15E42219E2;
-        Mon, 21 Jun 2021 17:45:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1624297513; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=L0zuYLsKw4J+B42t44+3vG7xwklJLQykEdF8JL74JgY=;
-        b=LzF+4LR17PhESnGQrpJjtL2u5wb75bpWkW04T584pwX2r3rBNqAcxei/T0qsoQe1p32DFW
-        O/L5sizrPGuYM1Izg9qJgWfXy45H4dv0SZglmB6ta/piKh2eXw51gJt0sBX/ImFIES7tTr
-        EKbBU9t0QfCwgMPtGksjddWPSdfa3SQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1624297513;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=L0zuYLsKw4J+B42t44+3vG7xwklJLQykEdF8JL74JgY=;
-        b=fMxLPu09IVlOBkd9tJqkhtIwyV9OwPIUgIqzPJKPmUP7yMs2D6ILi6hJYWtoXQjBrJfvIa
-        TY/Aw81E+LNReFAA==
-Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
-        by imap.suse.de (Postfix) with ESMTP id EDCC4118DD;
-        Mon, 21 Jun 2021 17:45:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1624297513; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=L0zuYLsKw4J+B42t44+3vG7xwklJLQykEdF8JL74JgY=;
-        b=LzF+4LR17PhESnGQrpJjtL2u5wb75bpWkW04T584pwX2r3rBNqAcxei/T0qsoQe1p32DFW
-        O/L5sizrPGuYM1Izg9qJgWfXy45H4dv0SZglmB6ta/piKh2eXw51gJt0sBX/ImFIES7tTr
-        EKbBU9t0QfCwgMPtGksjddWPSdfa3SQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1624297513;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=L0zuYLsKw4J+B42t44+3vG7xwklJLQykEdF8JL74JgY=;
-        b=fMxLPu09IVlOBkd9tJqkhtIwyV9OwPIUgIqzPJKPmUP7yMs2D6ILi6hJYWtoXQjBrJfvIa
-        TY/Aw81E+LNReFAA==
-Received: from director2.suse.de ([192.168.254.72])
-        by imap3-int with ESMTPSA
-        id JdMzOijQ0GCiUAAALh3uQQ
-        (envelope-from <bp@suse.de>); Mon, 21 Jun 2021 17:45:12 +0000
-Date:   Mon, 21 Jun 2021 19:45:02 +0200
-From:   Borislav Petkov <bp@suse.de>
-To:     gregkh@linuxfoundation.org
-Cc:     tglx@linutronix.de, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] x86/fpu: Reset state for all signal
- restore failures" failed to apply to 4.4-stable tree
-Message-ID: <YNDQHgGztJAWO2H+@zn.tnic>
-References: <162427273275124@kroah.com>
+        id S231411AbhFURyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 13:54:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38198 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230330AbhFURyN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 13:54:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55EF3611BD;
+        Mon, 21 Jun 2021 17:51:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1624297919;
+        bh=32WYo5ihIgTpcTEKbKB73QoebLnYJZOaD0OgAOWFUOY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=YC2FMyuNGNmOX60vU/Te6yM4NdIfL+l9FnxY7Bu/C1j219xylIt6+n1A0I/SzecJg
+         IbtVZ3ZuHEPIY2u/ll7qSrNfO+dpovcm5sIFMt6yWy5VdixJqA0bZ2jwirYTax8scm
+         IVLOrgfSv9aMCq2xMk2BlHBtYfudjiiylWqblSLhM4Lk5BEA0R/YoAavVx45MdOzkI
+         vyzc5101ydtfbzyLJ+QnXSeV3WtcJz/T5QwguGbnXK8MZ4pv8KAN9ec5Z8Lruioyh/
+         93zhEIlMiKVO5TC6yVrl8WfxzDZpiqQcBq7t0LGpSEaQTxWurI/B19DNyEK7AvaGHh
+         88amPxEfKNVFA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 01/39] dmaengine: zynqmp_dma: Fix PM reference leak in zynqmp_dma_alloc_chan_resourc()
+Date:   Mon, 21 Jun 2021 13:51:17 -0400
+Message-Id: <20210621175156.735062-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <162427273275124@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 21, 2021 at 12:52:12PM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+From: Yu Kuai <yukuai3@huawei.com>
 
-Ok, how's this below?
+[ Upstream commit 8982d48af36d2562c0f904736b0fc80efc9f2532 ]
 
-It should at least capture the gist of what this commit is trying to
-achieve as the FPU mess has changed substantially since 4.4 so I'm
-really cautious here not to break any existing setups.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-I've boot-tested this in a VM but Greg, I'd appreciate running it
-through some sort of stable testing framework if you're using one.
-
-Thx.
-
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20210517081826.1564698-4-yukuai3@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Wed, 9 Jun 2021 21:18:00 +0200
-Subject: [PATCH] x86/fpu: Reset state for all signal restore failures
+ drivers/dma/xilinx/zynqmp_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Commit efa165504943f2128d50f63de0c02faf6dcceb0d upstream.
-
-If access_ok() or fpregs_soft_set() fails in __fpu__restore_sig() then the
-function just returns but does not clear the FPU state as it does for all
-other fatal failures.
-
-Clear the FPU state for these failures as well.
-
-Fixes: 72a671ced66d ("x86, fpu: Unify signal handling code paths for x86 and x86_64 kernels")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/87mtryyhhz.ffs@nanos.tec.linutronix.de
----
- arch/x86/kernel/fpu/signal.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
-
-diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
-index 8fc842dae3b3..9a1489b92782 100644
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -262,15 +262,23 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
- 		return 0;
- 	}
+diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
+index d8419565b92c..5fecf5aa6e85 100644
+--- a/drivers/dma/xilinx/zynqmp_dma.c
++++ b/drivers/dma/xilinx/zynqmp_dma.c
+@@ -468,7 +468,7 @@ static int zynqmp_dma_alloc_chan_resources(struct dma_chan *dchan)
+ 	struct zynqmp_dma_desc_sw *desc;
+ 	int i, ret;
  
--	if (!access_ok(VERIFY_READ, buf, size))
-+	if (!access_ok(VERIFY_READ, buf, size)) {
-+		fpu__clear(fpu);
- 		return -EACCES;
-+	}
+-	ret = pm_runtime_get_sync(chan->dev);
++	ret = pm_runtime_resume_and_get(chan->dev);
+ 	if (ret < 0)
+ 		return ret;
  
- 	fpu__activate_curr(fpu);
- 
--	if (!static_cpu_has(X86_FEATURE_FPU))
--		return fpregs_soft_set(current, NULL,
--				       0, sizeof(struct user_i387_ia32_struct),
--				       NULL, buf) != 0;
-+	if (!static_cpu_has(X86_FEATURE_FPU)) {
-+		int ret = fpregs_soft_set(current, NULL, 0,
-+					  sizeof(struct user_i387_ia32_struct),
-+					  NULL, buf);
-+
-+		if (ret)
-+			fpu__clear(fpu);
-+
-+		return ret != 0;
-+	}
- 
- 	if (use_xsave()) {
- 		struct _fpx_sw_bytes fx_sw_user;
 -- 
-2.29.2
+2.30.2
 
--- 
-Regards/Gruss,
-    Boris.
-
-SUSE Software Solutions Germany GmbH, GF: Felix Imendörffer, HRB 36809, AG Nürnberg
