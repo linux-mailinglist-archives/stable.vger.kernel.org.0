@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 644793AF046
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:45:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7330C3AEEDE
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232589AbhFUQrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:47:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38068 "EHLO mail.kernel.org"
+        id S232056AbhFUQdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:33:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233882AbhFUQpn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:45:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE938613C9;
-        Mon, 21 Jun 2021 16:32:39 +0000 (UTC)
+        id S231229AbhFUQbG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:31:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C2E6613B3;
+        Mon, 21 Jun 2021 16:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293160;
-        bh=DHAxnpUEXkMbtydLit97tKQ01mF9G1yJqfRoaatq2Ys=;
+        s=korg; t=1624292719;
+        bh=1v5CHjuYtHE2u+2LumkgKLtHQCqJpHWDSomu6XY6KKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oj/Ffgyp9iVO6DxyZBOwHTLFpjqOqMne0m1HRaQuxx0IOlqakH1O2rSsU9EJpt5Oy
-         IrSNWRZ3qA7PemMn6uhS0kSEY34sc2q2VwCN+uNxBu67c//CaqYlbY3MNB0K18UatV
-         GDceZ9ZEwIEb/02KnpkePhrdA15fP3YsJZDBY5qQ=
+        b=Lyhu9YxOaXU1fUmGit+lPoOgcVNeRQDoQaA1Tel9PIScnpkgdPH50yOUPJRKXdir4
+         oXH9srtUNzBr6Pczz+BZA/gyGYaNynk4K6C6CIBYrD2Y5IVO+r6Gwp8MQ02fc5eqdY
+         Vt8mAg7JtG4EpCINUdgcoVAU+MXYM9BmKbHCFD3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        syzbot+57281c762a3922e14dfe@syzkaller.appspotmail.com
-Subject: [PATCH 5.12 120/178] can: mcba_usb: fix memory leak in mcba_usb
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 104/146] tracing: Do not stop recording cmdlines when tracing is off
 Date:   Mon, 21 Jun 2021 18:15:34 +0200
-Message-Id: <20210621154926.864191222@linuxfoundation.org>
+Message-Id: <20210621154917.871758324@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,101 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 91c02557174be7f72e46ed7311e3bea1939840b0 upstream.
+commit 85550c83da421fb12dc1816c45012e1e638d2b38 upstream.
 
-Syzbot reported memory leak in SocketCAN driver for Microchip CAN BUS
-Analyzer Tool. The problem was in unfreed usb_coherent.
+The saved_cmdlines is used to map pids to the task name, such that the
+output of the tracing does not just show pids, but also gives a human
+readable name for the task.
 
-In mcba_usb_start() 20 coherent buffers are allocated and there is
-nothing, that frees them:
+If the name is not mapped, the output looks like this:
 
-1) In callback function the urb is resubmitted and that's all
-2) In disconnect function urbs are simply killed, but URB_FREE_BUFFER
-   is not set (see mcba_usb_start) and this flag cannot be used with
-   coherent buffers.
+    <...>-1316          [005] ...2   132.044039: ...
 
-Fail log:
-| [ 1354.053291][ T8413] mcba_usb 1-1:0.0 can0: device disconnected
-| [ 1367.059384][ T8420] kmemleak: 20 new suspected memory leaks (see /sys/kernel/debug/kmem)
+Instead of this:
 
-So, all allocated buffers should be freed with usb_free_coherent()
-explicitly
+    gnome-shell-1316    [005] ...2   132.044039: ...
 
-NOTE:
-The same pattern for allocating and freeing coherent buffers
-is used in drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
+The names are updated when tracing is running, but are skipped if tracing
+is stopped. Unfortunately, this stops the recording of the names if the
+top level tracer is stopped, and not if there's other tracers active.
 
-Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
-Link: https://lore.kernel.org/r/20210609215833.30393-1-paskripkin@gmail.com
-Cc: linux-stable <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+57281c762a3922e14dfe@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+The recording of a name only happens when a new event is written into a
+ring buffer, so there is no need to test if tracing is on or not. If
+tracing is off, then no event is written and no need to test if tracing is
+off or not.
+
+Remove the check, as it hides the names of tasks for events in the
+instance buffers.
+
+Cc: stable@vger.kernel.org
+Fixes: 7ffbd48d5cab2 ("tracing: Cache comms only after an event occurred")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/mcba_usb.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/net/can/usb/mcba_usb.c
-+++ b/drivers/net/can/usb/mcba_usb.c
-@@ -82,6 +82,8 @@ struct mcba_priv {
- 	bool can_ka_first_pass;
- 	bool can_speed_check;
- 	atomic_t free_ctx_cnt;
-+	void *rxbuf[MCBA_MAX_RX_URBS];
-+	dma_addr_t rxbuf_dma[MCBA_MAX_RX_URBS];
- };
- 
- /* CAN frame */
-@@ -633,6 +635,7 @@ static int mcba_usb_start(struct mcba_pr
- 	for (i = 0; i < MCBA_MAX_RX_URBS; i++) {
- 		struct urb *urb = NULL;
- 		u8 *buf;
-+		dma_addr_t buf_dma;
- 
- 		/* create a URB, and a buffer for it */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -642,7 +645,7 @@ static int mcba_usb_start(struct mcba_pr
- 		}
- 
- 		buf = usb_alloc_coherent(priv->udev, MCBA_USB_RX_BUFF_SIZE,
--					 GFP_KERNEL, &urb->transfer_dma);
-+					 GFP_KERNEL, &buf_dma);
- 		if (!buf) {
- 			netdev_err(netdev, "No memory left for USB buffer\n");
- 			usb_free_urb(urb);
-@@ -661,11 +664,14 @@ static int mcba_usb_start(struct mcba_pr
- 		if (err) {
- 			usb_unanchor_urb(urb);
- 			usb_free_coherent(priv->udev, MCBA_USB_RX_BUFF_SIZE,
--					  buf, urb->transfer_dma);
-+					  buf, buf_dma);
- 			usb_free_urb(urb);
- 			break;
- 		}
- 
-+		priv->rxbuf[i] = buf;
-+		priv->rxbuf_dma[i] = buf_dma;
-+
- 		/* Drop reference, USB core will take care of freeing it */
- 		usb_free_urb(urb);
- 	}
-@@ -708,7 +714,14 @@ static int mcba_usb_open(struct net_devi
- 
- static void mcba_urb_unlink(struct mcba_priv *priv)
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2483,8 +2483,6 @@ static bool tracing_record_taskinfo_skip
  {
-+	int i;
-+
- 	usb_kill_anchored_urbs(&priv->rx_submitted);
-+
-+	for (i = 0; i < MCBA_MAX_RX_URBS; ++i)
-+		usb_free_coherent(priv->udev, MCBA_USB_RX_BUFF_SIZE,
-+				  priv->rxbuf[i], priv->rxbuf_dma[i]);
-+
- 	usb_kill_anchored_urbs(&priv->tx_submitted);
- }
- 
+ 	if (unlikely(!(flags & (TRACE_RECORD_CMDLINE | TRACE_RECORD_TGID))))
+ 		return true;
+-	if (atomic_read(&trace_record_taskinfo_disabled) || !tracing_is_on())
+-		return true;
+ 	if (!__this_cpu_read(trace_taskinfo_save))
+ 		return true;
+ 	return false;
 
 
