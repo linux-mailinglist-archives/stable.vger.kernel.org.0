@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC22B3AEF26
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A393AF0B0
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232284AbhFUQfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:35:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56040 "EHLO mail.kernel.org"
+        id S232951AbhFUQva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:51:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232881AbhFUQev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:34:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E17D61419;
-        Mon, 21 Jun 2021 16:27:11 +0000 (UTC)
+        id S233247AbhFUQt1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:49:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46D6F61370;
+        Mon, 21 Jun 2021 16:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292832;
-        bh=5jZovlrbc/yVOa2qLxSQRoAUCWJCEkDTMJYD5sCZa9U=;
+        s=korg; t=1624293274;
+        bh=MsSNp23Mq1jV3Q5GrB1f+cvgk6IwxVyFRLbJw+MfcV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sybNu87E1Z21V8faZ+yveBfX8FE0Ezgq+QTWuNqhehldnutA5xJq6Ti2foRLqmwqb
-         +uxdhPgjlpR1NjwN9e4JkuTcxt0CCGLA9U2sLYwM6y+cSg3l6FASDnD4PxsVH/qgDA
-         cyOWbCBKdbIVWJu1b8A+9VFolfH5p20iBJ4gzQVw=
+        b=t6zcGSLIGKxssOPZP5SYpcwBYUVc8FYjpm4oy3Zx5iIftyJbL1s+quAUFQHJ0FRwd
+         3UPAwZHOaXspdB7ulqahl9KBF91SRvbLM6P4wctGSU7Ir3WiGQ5DiCnbn/MU9k3itf
+         nz9FWNjSkYtDIGCXjL58rG9p7bU8/G8wNwmgaF70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Pham <jackp@codeaurora.org>,
-        Peter Chen <peter.chen@kernel.org>
-Subject: [PATCH 5.10 146/146] usb: dwc3: core: fix kernel panic when do reboot
+        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 162/178] net: ll_temac: Make sure to free skb when it is completely used
 Date:   Mon, 21 Jun 2021 18:16:16 +0200
-Message-Id: <20210621154920.886333224@linuxfoundation.org>
+Message-Id: <20210621154928.261585442@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
+References: <20210621154921.212599475@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,86 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@kernel.org>
+From: Esben Haabendal <esben@geanix.com>
 
-commit 4bf584a03eec674975ee9fe36c8583d9d470dab1 upstream.
+commit 6aa32217a9a446275440ee8724b1ecaf1838df47 upstream.
 
-When do system reboot, it calls dwc3_shutdown and the whole debugfs
-for dwc3 has removed first, when the gadget tries to do deinit, and
-remove debugfs for its endpoints, it meets NULL pointer dereference
-issue when call debugfs_lookup. Fix it by removing the whole dwc3
-debugfs later than dwc3_drd_exit.
+With the skb pointer piggy-backed on the TX BD, we have a simple and
+efficient way to free the skb buffer when the frame has been transmitted.
+But in order to avoid freeing the skb while there are still fragments from
+the skb in use, we need to piggy-back on the TX BD of the skb, not the
+first.
 
-[ 2924.958838] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000002
-....
-[ 2925.030994] pstate: 60000005 (nZCv daif -PAN -UAO -TCO BTYPE=--)
-[ 2925.037005] pc : inode_permission+0x2c/0x198
-[ 2925.041281] lr : lookup_one_len_common+0xb0/0xf8
-[ 2925.045903] sp : ffff80001276ba70
-[ 2925.049218] x29: ffff80001276ba70 x28: ffff0000c01f0000 x27: 0000000000000000
-[ 2925.056364] x26: ffff800011791e70 x25: 0000000000000008 x24: dead000000000100
-[ 2925.063510] x23: dead000000000122 x22: 0000000000000000 x21: 0000000000000001
-[ 2925.070652] x20: ffff8000122c6188 x19: 0000000000000000 x18: 0000000000000000
-[ 2925.077797] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000004
-[ 2925.084943] x14: ffffffffffffffff x13: 0000000000000000 x12: 0000000000000030
-[ 2925.092087] x11: 0101010101010101 x10: 7f7f7f7f7f7f7f7f x9 : ffff8000102b2420
-[ 2925.099232] x8 : 7f7f7f7f7f7f7f7f x7 : feff73746e2f6f64 x6 : 0000000000008080
-[ 2925.106378] x5 : 61c8864680b583eb x4 : 209e6ec2d263dbb7 x3 : 000074756f307065
-[ 2925.113523] x2 : 0000000000000001 x1 : 0000000000000000 x0 : ffff8000122c6188
-[ 2925.120671] Call trace:
-[ 2925.123119]  inode_permission+0x2c/0x198
-[ 2925.127042]  lookup_one_len_common+0xb0/0xf8
-[ 2925.131315]  lookup_one_len_unlocked+0x34/0xb0
-[ 2925.135764]  lookup_positive_unlocked+0x14/0x50
-[ 2925.140296]  debugfs_lookup+0x68/0xa0
-[ 2925.143964]  dwc3_gadget_free_endpoints+0x84/0xb0
-[ 2925.148675]  dwc3_gadget_exit+0x28/0x78
-[ 2925.152518]  dwc3_drd_exit+0x100/0x1f8
-[ 2925.156267]  dwc3_remove+0x11c/0x120
-[ 2925.159851]  dwc3_shutdown+0x14/0x20
-[ 2925.163432]  platform_shutdown+0x28/0x38
-[ 2925.167360]  device_shutdown+0x15c/0x378
-[ 2925.171291]  kernel_restart_prepare+0x3c/0x48
-[ 2925.175650]  kernel_restart+0x1c/0x68
-[ 2925.179316]  __do_sys_reboot+0x218/0x240
-[ 2925.183247]  __arm64_sys_reboot+0x28/0x30
-[ 2925.187262]  invoke_syscall+0x48/0x100
-[ 2925.191017]  el0_svc_common.constprop.0+0x48/0xc8
-[ 2925.195726]  do_el0_svc+0x28/0x88
-[ 2925.199045]  el0_svc+0x20/0x30
-[ 2925.202104]  el0_sync_handler+0xa8/0xb0
-[ 2925.205942]  el0_sync+0x148/0x180
-[ 2925.209270] Code: a9025bf5 2a0203f5 121f0056 370802b5 (79400660)
-[ 2925.215372] ---[ end trace 124254d8e485a58b ]---
-[ 2925.220012] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
-[ 2925.227676] Kernel Offset: disabled
-[ 2925.231164] CPU features: 0x00001001,20000846
-[ 2925.235521] Memory Limit: none
-[ 2925.238580] ---[ end Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b ]---
+Without this, we are doing use-after-free on the DMA side, when the first
+BD of a multi TX BD packet is seen as completed in xmit_done, and the
+remaining BDs are still being processed.
 
-Fixes: 8d396bb0a5b6 ("usb: dwc3: debugfs: Add and remove endpoint dirs dynamically")
-Cc: Jack Pham <jackp@codeaurora.org>
-Tested-by: Jack Pham <jackp@codeaurora.org>
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
-Link: https://lore.kernel.org/r/20210608105656.10795-1-peter.chen@kernel.org
-(cherry picked from commit 2a042767814bd0edf2619f06fecd374e266ea068)
-Link: https://lore.kernel.org/r/20210615080847.GA10432@jackp-linux.qualcomm.com
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Esben Haabendal <esben@geanix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1642,8 +1642,8 @@ static int dwc3_remove(struct platform_d
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -876,7 +876,6 @@ temac_start_xmit(struct sk_buff *skb, st
+ 		return NETDEV_TX_OK;
+ 	}
+ 	cur_p->phys = cpu_to_be32(skb_dma_addr);
+-	ptr_to_txbd((void *)skb, cur_p);
  
- 	pm_runtime_get_sync(&pdev->dev);
+ 	for (ii = 0; ii < num_frag; ii++) {
+ 		if (++lp->tx_bd_tail >= lp->tx_bd_num)
+@@ -915,6 +914,11 @@ temac_start_xmit(struct sk_buff *skb, st
+ 	}
+ 	cur_p->app0 |= cpu_to_be32(STS_CTRL_APP0_EOP);
  
--	dwc3_debugfs_exit(dwc);
- 	dwc3_core_exit_mode(dwc);
-+	dwc3_debugfs_exit(dwc);
- 
- 	dwc3_core_exit(dwc);
- 	dwc3_ulpi_exit(dwc);
++	/* Mark last fragment with skb address, so it can be consumed
++	 * in temac_start_xmit_done()
++	 */
++	ptr_to_txbd((void *)skb, cur_p);
++
+ 	tail_p = lp->tx_bd_p + sizeof(*lp->tx_bd_v) * lp->tx_bd_tail;
+ 	lp->tx_bd_tail++;
+ 	if (lp->tx_bd_tail >= lp->tx_bd_num)
 
 
