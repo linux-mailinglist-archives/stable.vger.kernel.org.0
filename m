@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D913AEDA6
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 402B33AEEB8
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbhFUQVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:21:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40216 "EHLO mail.kernel.org"
+        id S232348AbhFUQbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:31:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231411AbhFUQUu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:20:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A24E611CE;
-        Mon, 21 Jun 2021 16:18:34 +0000 (UTC)
+        id S232528AbhFUQ3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:29:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DFEF610C7;
+        Mon, 21 Jun 2021 16:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292315;
-        bh=TLQXXMRgCJYZjDlvNmaC2ZBnYfPNzA9DrlkZNPcYHKo=;
+        s=korg; t=1624292680;
+        bh=6NxuvCGk51nsXq5pGEu5nJ8b/BYRPTFhx9c/hZs7Fm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USdokBCq2S36DMkLugXpIjO/2xfnKufgLFfaB09KdDTM+jbpAZ0ACqw9m4cdqL2ps
-         VC4u92KlKYA/h0ADXYRoXOEBU2tXovDKpG5KD1wh8qMVsk6pd9eUQtfoDJtbWfCxfE
-         srHTLwG/3PaT9vt1xjaxDE3agIss728mfNBXSTH0=
+        b=t8gMP9zT4k7c/iSYlWlMsQx6z4cSTctgbBaQAgHOKgbXtA+BbwNRUGvTJBc6feqtH
+         MqCzRFp8jy3Jzs/iqqzHAMJCjxNaqDKeCRNayqjLaAAjSI3EWv9hojCLJve9uaAcNl
+         8KJDNuqYjwevf4jdmv+k07hAK1szvD3H+3pRZ+C0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Chen Li <chenli@uniontech.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/90] pinctrl: ralink: rt2880: avoid to error in calls is pin is already enabled
+Subject: [PATCH 5.10 091/146] radeon: use memcpy_to/fromio for UVD fw upload
 Date:   Mon, 21 Jun 2021 18:15:21 +0200
-Message-Id: <20210621154905.687271111@linuxfoundation.org>
+Message-Id: <20210621154916.875583985@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-References: <20210621154904.159672728@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+From: Chen Li <chenli@uniontech.com>
 
-[ Upstream commit eb367d875f94a228c17c8538e3f2efcf2eb07ead ]
+[ Upstream commit ab8363d3875a83f4901eb1cc00ce8afd24de6c85 ]
 
-In 'rt2880_pmx_group_enable' driver is printing an error and returning
--EBUSY if a pin has been already enabled. This begets anoying messages
-in the caller when this happens like the following:
+I met a gpu addr bug recently and the kernel log
+tells me the pc is memcpy/memset and link register is
+radeon_uvd_resume.
 
-rt2880-pinmux pinctrl: pcie is already enabled
-mt7621-pci 1e140000.pcie: Error applying setting, reverse things back
+As we know, in some architectures, optimized memcpy/memset
+may not work well on device memory. Trival memcpy_toio/memset_io
+can fix this problem.
 
-To avoid this just print the already enabled message in the pinctrl
-driver and return 0 instead to not confuse the user with a real
-bad problem.
+BTW, amdgpu has already done it in:
+commit ba0b2275a678 ("drm/amdgpu: use memcpy_to/fromio for UVD fw upload"),
+that's why it has no this issue on the same gpu and platform.
 
-Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Link: https://lore.kernel.org/r/20210604055337.20407-1-sergio.paracuellos@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Chen Li <chenli@uniontech.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_uvd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c b/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
-index d0f06790d38f..0ba4e4e070a9 100644
---- a/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
-+++ b/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
-@@ -127,7 +127,7 @@ static int rt2880_pmx_group_enable(struct pinctrl_dev *pctrldev,
- 	if (p->groups[group].enabled) {
- 		dev_err(p->dev, "%s is already enabled\n",
- 			p->groups[group].name);
--		return -EBUSY;
-+		return 0;
- 	}
+diff --git a/drivers/gpu/drm/radeon/radeon_uvd.c b/drivers/gpu/drm/radeon/radeon_uvd.c
+index 57fb3eb3a4b4..1f4e3396d097 100644
+--- a/drivers/gpu/drm/radeon/radeon_uvd.c
++++ b/drivers/gpu/drm/radeon/radeon_uvd.c
+@@ -286,7 +286,7 @@ int radeon_uvd_resume(struct radeon_device *rdev)
+ 	if (rdev->uvd.vcpu_bo == NULL)
+ 		return -EINVAL;
  
- 	p->groups[group].enabled = 1;
+-	memcpy(rdev->uvd.cpu_addr, rdev->uvd_fw->data, rdev->uvd_fw->size);
++	memcpy_toio((void __iomem *)rdev->uvd.cpu_addr, rdev->uvd_fw->data, rdev->uvd_fw->size);
+ 
+ 	size = radeon_bo_size(rdev->uvd.vcpu_bo);
+ 	size -= rdev->uvd_fw->size;
+@@ -294,7 +294,7 @@ int radeon_uvd_resume(struct radeon_device *rdev)
+ 	ptr = rdev->uvd.cpu_addr;
+ 	ptr += rdev->uvd_fw->size;
+ 
+-	memset(ptr, 0, size);
++	memset_io((void __iomem *)ptr, 0, size);
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
