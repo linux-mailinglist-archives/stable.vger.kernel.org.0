@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67E493AF0AE
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 812843AEF20
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231633AbhFUQv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:51:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38074 "EHLO mail.kernel.org"
+        id S232266AbhFUQfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233221AbhFUQt0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:49:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 687AC6128C;
-        Mon, 21 Jun 2021 16:34:27 +0000 (UTC)
+        id S232849AbhFUQem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:34:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 252E9613B2;
+        Mon, 21 Jun 2021 16:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293268;
-        bh=83jq3viiSj6z8qlYsZ0Vfv/iGyQpkHRFzMx4UVz7zbA=;
+        s=korg; t=1624292824;
+        bh=PosM8L+FdB0ZjcnBTvnlLkr3NWSwXrYfA6I6BwB0pa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pOMoHraEWQizGXZkJlztmu7rdSNXbCOtYvN8dm1n6/2kd0Il7QzoBWns47TirBTbM
-         Q2aW/+9S2xjuUJrFrUJM1U1giAoiOnhWkywLui1stiDJFmH4oq1gB7zXinwpTlg1Bw
-         lbYfTFWzb/u4ElBp+bWDleA/D9ssphO0Gzb6fNVo=
+        b=m31bbQP8akoBr9CxC7PwWgje+wcf6jxkm0vjSjEw1LtA+kfzfifjhQ3GpybaygpbX
+         WCKk3QjzLC9RTIcxjlvAgyRvdbbTYkh7pPQG9ZGtMv2VFteRRR/2FVIE7/PY1nsPVy
+         pvSY2fyw3yuT+2pO1htlU1LJDpeYCcCg/mlJNU2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 159/178] cfg80211: avoid double free of PMSR request
-Date:   Mon, 21 Jun 2021 18:16:13 +0200
-Message-Id: <20210621154928.162912186@linuxfoundation.org>
+        stable@vger.kernel.org, Changbin Du <changbin.du@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 144/146] perf beauty: Update copy of linux/socket.h with the kernel sources
+Date:   Mon, 21 Jun 2021 18:16:14 +0200
+Message-Id: <20210621154920.761624594@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit 0288e5e16a2e18f0b7e61a2b70d9037fc6e4abeb upstream.
+commit ef83f9efe8461b8fd71eb60b53dbb6a5dd7b39e9 upstream.
 
-If cfg80211_pmsr_process_abort() moves all the PMSR requests that
-need to be freed into a local list before aborting and freeing them.
-As a result, it is possible that cfg80211_pmsr_complete() will run in
-parallel and free the same PMSR request.
+To pick the changes in:
 
-Fix it by freeing the request in cfg80211_pmsr_complete() only if it
-is still in the original pmsr list.
+  ea6932d70e223e02 ("net: make get_net_ns return error if NET_NS is disabled")
 
-Cc: stable@vger.kernel.org
-Fixes: 9bb7e0f24e7e ("cfg80211: add peer measurement with FTM initiator API")
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210618133832.1fbef57e269a.I00294bebdb0680b892f8d1d5c871fd9dbe785a5e@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+That don't result in any changes in the tables generated from that
+header.
+
+This silences this perf build warning:
+
+  Warning: Kernel ABI header at 'tools/perf/trace/beauty/include/linux/socket.h' differs from latest version at 'include/linux/socket.h'
+  diff -u tools/perf/trace/beauty/include/linux/socket.h include/linux/socket.h
+
+Cc: Changbin Du <changbin.du@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/pmsr.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ tools/perf/trace/beauty/include/linux/socket.h |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/net/wireless/pmsr.c
-+++ b/net/wireless/pmsr.c
-@@ -324,6 +324,7 @@ void cfg80211_pmsr_complete(struct wirel
- 			    gfp_t gfp)
- {
- 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
-+	struct cfg80211_pmsr_request *tmp, *prev, *to_free = NULL;
- 	struct sk_buff *msg;
- 	void *hdr;
- 
-@@ -354,9 +355,20 @@ free_msg:
- 	nlmsg_free(msg);
- free_request:
- 	spin_lock_bh(&wdev->pmsr_lock);
--	list_del(&req->list);
-+	/*
-+	 * cfg80211_pmsr_process_abort() may have already moved this request
-+	 * to the free list, and will free it later. In this case, don't free
-+	 * it here.
-+	 */
-+	list_for_each_entry_safe(tmp, prev, &wdev->pmsr_list, list) {
-+		if (tmp == req) {
-+			list_del(&req->list);
-+			to_free = req;
-+			break;
-+		}
-+	}
- 	spin_unlock_bh(&wdev->pmsr_lock);
--	kfree(req);
-+	kfree(to_free);
- }
- EXPORT_SYMBOL_GPL(cfg80211_pmsr_complete);
- 
+--- a/tools/perf/trace/beauty/include/linux/socket.h
++++ b/tools/perf/trace/beauty/include/linux/socket.h
+@@ -437,6 +437,4 @@ extern int __sys_getpeername(int fd, str
+ extern int __sys_socketpair(int family, int type, int protocol,
+ 			    int __user *usockvec);
+ extern int __sys_shutdown(int fd, int how);
+-
+-extern struct ns_common *get_net_ns(struct ns_common *ns);
+ #endif /* _LINUX_SOCKET_H */
 
 
