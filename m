@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6FFB3AEFBF
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E92D63AEF69
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:38:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232925AbhFUQlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33932 "EHLO mail.kernel.org"
+        id S230469AbhFUQi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:38:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233324AbhFUQjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:39:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08F9B61436;
-        Mon, 21 Jun 2021 16:30:04 +0000 (UTC)
+        id S232555AbhFUQgZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:36:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A396D613F0;
+        Mon, 21 Jun 2021 16:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293005;
-        bh=2seRv+oWTq/eXrL599aTNntv1wxojapTE296o8mjVmo=;
+        s=korg; t=1624292907;
+        bh=sSqpAn7G0ikQJoVp8p7II5Rh1NHr2QgcB5MqOwTUOHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXuwfGc4SdrwdOzcD3ao7bLwvgVhI+rBvn0WpcJ6YHRuUscoZF4E4K8PHMi9uqBlk
-         LN9hY09tQfjqempIuWPxeMQim/H5/ASe2iTThfDbPbMLly9Lp9SfkVuiDCE1pjSXpl
-         33R/srZwDNDLu7eAkR7IlIl9JiWMjbqyJO92FzHE=
+        b=EfHoMyxTXp9lfLVRv6+C4maD1/8MoUmfU8qY6sp8j29ZjwwW/YjmMcfJSlBX0rcUi
+         +mpmHkRefsoaII6gCnEZ1uWmqJDxxO7SsvJCvh62ObbUvPD+6aqpQ5n7Fm3stpBrqF
+         18HAp0+/8ziPEV+GcF4Ad84U/0q/aoEfOV2yJwPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 020/178] vrf: fix maximum MTU
-Date:   Mon, 21 Jun 2021 18:13:54 +0200
-Message-Id: <20210621154922.384320994@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+5134cdf021c4ed5aaa5f@syzkaller.appspotmail.com
+Subject: [PATCH 5.12 021/178] net: rds: fix memory leak in rds_recvmsg
+Date:   Mon, 21 Jun 2021 18:13:55 +0200
+Message-Id: <20210621154922.458070829@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -42,63 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 9bb392f62447d73cc7dd7562413a2cd9104c82f8 ]
+[ Upstream commit 49bfcbfd989a8f1f23e705759a6bb099de2cff9f ]
 
-My initial goal was to fix the default MTU, which is set to 65536, ie above
-the maximum defined in the driver: 65535 (ETH_MAX_MTU).
+Syzbot reported memory leak in rds. The problem
+was in unputted refcount in case of error.
 
-In fact, it's seems more consistent, wrt min_mtu, to set the max_mtu to
-IP6_MAX_MTU (65535 + sizeof(struct ipv6hdr)) and use it by default.
+int rds_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+		int msg_flags)
+{
+...
 
-Let's also, for consistency, set the mtu in vrf_setup(). This function
-calls ether_setup(), which set the mtu to 1500. Thus, the whole mtu config
-is done in the same function.
+	if (!rds_next_incoming(rs, &inc)) {
+		...
+	}
 
-Before the patch:
-$ ip link add blue type vrf table 1234
-$ ip link list blue
-9: blue: <NOARP,MASTER> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-    link/ether fa:f5:27:70:24:2a brd ff:ff:ff:ff:ff:ff
-$ ip link set dev blue mtu 65535
-$ ip link set dev blue mtu 65536
-Error: mtu greater than device maximum.
+After this "if" inc refcount incremented and
 
-Fixes: 5055376a3b44 ("net: vrf: Fix ping failed when vrf mtu is set to 0")
-CC: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
+	if (rds_cmsg_recv(inc, msg, rs)) {
+		ret = -EFAULT;
+		goto out;
+	}
+...
+out:
+	return ret;
+}
+
+in case of rds_cmsg_recv() fail the refcount won't be
+decremented. And it's easy to see from ftrace log, that
+rds_inc_addref() don't have rds_inc_put() pair in
+rds_recvmsg() after rds_cmsg_recv()
+
+ 1)               |  rds_recvmsg() {
+ 1)   3.721 us    |    rds_inc_addref();
+ 1)   3.853 us    |    rds_message_inc_copy_to_user();
+ 1) + 10.395 us   |    rds_cmsg_recv();
+ 1) + 34.260 us   |  }
+
+Fixes: bdbe6fbc6a2f ("RDS: recv.c")
+Reported-and-tested-by: syzbot+5134cdf021c4ed5aaa5f@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vrf.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/rds/recv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index 503e2fd7ce51..28a6c4cfe9b8 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -1183,9 +1183,6 @@ static int vrf_dev_init(struct net_device *dev)
+diff --git a/net/rds/recv.c b/net/rds/recv.c
+index aba4afe4dfed..967d115f97ef 100644
+--- a/net/rds/recv.c
++++ b/net/rds/recv.c
+@@ -714,7 +714,7 @@ int rds_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
  
- 	dev->flags = IFF_MASTER | IFF_NOARP;
+ 		if (rds_cmsg_recv(inc, msg, rs)) {
+ 			ret = -EFAULT;
+-			goto out;
++			break;
+ 		}
+ 		rds_recvmsg_zcookie(rs, msg);
  
--	/* MTU is irrelevant for VRF device; set to 64k similar to lo */
--	dev->mtu = 64 * 1024;
--
- 	/* similarly, oper state is irrelevant; set to up to avoid confusion */
- 	dev->operstate = IF_OPER_UP;
- 	netdev_lockdep_set_classes(dev);
-@@ -1685,7 +1682,8 @@ static void vrf_setup(struct net_device *dev)
- 	 * which breaks networking.
- 	 */
- 	dev->min_mtu = IPV6_MIN_MTU;
--	dev->max_mtu = ETH_MAX_MTU;
-+	dev->max_mtu = IP6_MAX_MTU;
-+	dev->mtu = dev->max_mtu;
- }
- 
- static int vrf_validate(struct nlattr *tb[], struct nlattr *data[],
 -- 
 2.30.2
 
