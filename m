@@ -2,92 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DF983AF161
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EABD3AF23E
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:45:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231359AbhFURIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 13:08:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230302AbhFURIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 13:08:45 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617C9C0610FF;
-        Mon, 21 Jun 2021 09:58:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=bOe6jT5eUt1cXtTFFddI27UAhUWivIDNOJt+S9Sax0Q=; b=ookFBmp1vq9wQTqp4jOhTBIyiY
-        3Y22zs+UR/pWlAKfnb5F/xnVeJUHN+r+xLDGOeFfaGaqiFmu4WXbObFKGlwdH2gHnhu9EYr7ewhCM
-        3Iwn2nIFjQI03BEKtrG0IE6GqRJ5miNjd6nvNiq4/GNVjz/HMOyYGuE8VdXrbVZlVB3ptzRP0orOU
-        4jnedK4FPtf6l+xr4+WPFsHkcdwyaIqvaJOw21Vuhq3ZYSTduYR2OOe5EuuAPm9LBcWeth5k5wkPl
-        IGLKQeI0qiYp7hsMa6kI+UQDGiaS/eb83z8THTWtYqe9RWlu9AGMjsriCFamXjtMsO0NMPEazPNNs
-        7TjN1Gbg==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1lvNFC-00AIXS-Qr; Mon, 21 Jun 2021 16:58:01 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 22E03300204;
-        Mon, 21 Jun 2021 18:57:59 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 0C3E1200C0CCA; Mon, 21 Jun 2021 18:57:59 +0200 (CEST)
-Date:   Mon, 21 Jun 2021 18:57:58 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Odin Ugedal <odin@uged.al>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 095/146] sched/fair: Correctly insert cfs_rqs to
- list on unthrottle
-Message-ID: <YNDFFkh2Dn0hMqS8@hirez.programming.kicks-ass.net>
-References: <20210621154911.244649123@linuxfoundation.org>
- <20210621154917.185551238@linuxfoundation.org>
+        id S231225AbhFURr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 13:47:28 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:41942 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231138AbhFURr2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 13:47:28 -0400
+Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 15E42219E2;
+        Mon, 21 Jun 2021 17:45:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1624297513; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=L0zuYLsKw4J+B42t44+3vG7xwklJLQykEdF8JL74JgY=;
+        b=LzF+4LR17PhESnGQrpJjtL2u5wb75bpWkW04T584pwX2r3rBNqAcxei/T0qsoQe1p32DFW
+        O/L5sizrPGuYM1Izg9qJgWfXy45H4dv0SZglmB6ta/piKh2eXw51gJt0sBX/ImFIES7tTr
+        EKbBU9t0QfCwgMPtGksjddWPSdfa3SQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1624297513;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=L0zuYLsKw4J+B42t44+3vG7xwklJLQykEdF8JL74JgY=;
+        b=fMxLPu09IVlOBkd9tJqkhtIwyV9OwPIUgIqzPJKPmUP7yMs2D6ILi6hJYWtoXQjBrJfvIa
+        TY/Aw81E+LNReFAA==
+Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        by imap.suse.de (Postfix) with ESMTP id EDCC4118DD;
+        Mon, 21 Jun 2021 17:45:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1624297513; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=L0zuYLsKw4J+B42t44+3vG7xwklJLQykEdF8JL74JgY=;
+        b=LzF+4LR17PhESnGQrpJjtL2u5wb75bpWkW04T584pwX2r3rBNqAcxei/T0qsoQe1p32DFW
+        O/L5sizrPGuYM1Izg9qJgWfXy45H4dv0SZglmB6ta/piKh2eXw51gJt0sBX/ImFIES7tTr
+        EKbBU9t0QfCwgMPtGksjddWPSdfa3SQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1624297513;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=L0zuYLsKw4J+B42t44+3vG7xwklJLQykEdF8JL74JgY=;
+        b=fMxLPu09IVlOBkd9tJqkhtIwyV9OwPIUgIqzPJKPmUP7yMs2D6ILi6hJYWtoXQjBrJfvIa
+        TY/Aw81E+LNReFAA==
+Received: from director2.suse.de ([192.168.254.72])
+        by imap3-int with ESMTPSA
+        id JdMzOijQ0GCiUAAALh3uQQ
+        (envelope-from <bp@suse.de>); Mon, 21 Jun 2021 17:45:12 +0000
+Date:   Mon, 21 Jun 2021 19:45:02 +0200
+From:   Borislav Petkov <bp@suse.de>
+To:     gregkh@linuxfoundation.org
+Cc:     tglx@linutronix.de, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] x86/fpu: Reset state for all signal
+ restore failures" failed to apply to 4.4-stable tree
+Message-ID: <YNDQHgGztJAWO2H+@zn.tnic>
+References: <162427273275124@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210621154917.185551238@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <162427273275124@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 21, 2021 at 06:15:25PM +0200, Greg Kroah-Hartman wrote:
-> From: Odin Ugedal <odin@uged.al>
+On Mon, Jun 21, 2021 at 12:52:12PM +0200, gregkh@linuxfoundation.org wrote:
 > 
-> [ Upstream commit a7b359fc6a37faaf472125867c8dc5a068c90982 ]
-> 
-> Fix an issue where fairness is decreased since cfs_rq's can end up not
-> being decayed properly. For two sibling control groups with the same
-> priority, this can often lead to a load ratio of 99/1 (!!).
-> 
-> This happens because when a cfs_rq is throttled, all the descendant
-> cfs_rq's will be removed from the leaf list. When they initial cfs_rq
-> is unthrottled, it will currently only re add descendant cfs_rq's if
-> they have one or more entities enqueued. This is not a perfect
-> heuristic.
-> 
-> Instead, we insert all cfs_rq's that contain one or more enqueued
-> entities, or it its load is not completely decayed.
-> 
-> Can often lead to situations like this for equally weighted control
-> groups:
-> 
->   $ ps u -C stress
->   USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
->   root       10009 88.8  0.0   3676   100 pts/1    R+   11:04   0:13 stress --cpu 1
->   root       10023  3.0  0.0   3676   104 pts/1    R+   11:04   0:00 stress --cpu 1
-> 
-> Fixes: 31bc6aeaab1d ("sched/fair: Optimize update_blocked_averages()")
-> [vingo: !SMP build fix]
-> Signed-off-by: Odin Ugedal <odin@uged.al>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-> Link: https://lore.kernel.org/r/20210612112815.61678-1-odin@uged.al
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> The patch below does not apply to the 4.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-This one is currently known to cause some LTP fail, fixes are being
-discussed, please hold off for now.
+Ok, how's this below?
+
+It should at least capture the gist of what this commit is trying to
+achieve as the FPU mess has changed substantially since 4.4 so I'm
+really cautious here not to break any existing setups.
+
+I've boot-tested this in a VM but Greg, I'd appreciate running it
+through some sort of stable testing framework if you're using one.
+
+Thx.
+
+---
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Wed, 9 Jun 2021 21:18:00 +0200
+Subject: [PATCH] x86/fpu: Reset state for all signal restore failures
+
+Commit efa165504943f2128d50f63de0c02faf6dcceb0d upstream.
+
+If access_ok() or fpregs_soft_set() fails in __fpu__restore_sig() then the
+function just returns but does not clear the FPU state as it does for all
+other fatal failures.
+
+Clear the FPU state for these failures as well.
+
+Fixes: 72a671ced66d ("x86, fpu: Unify signal handling code paths for x86 and x86_64 kernels")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/87mtryyhhz.ffs@nanos.tec.linutronix.de
+---
+ arch/x86/kernel/fpu/signal.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
+index 8fc842dae3b3..9a1489b92782 100644
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -262,15 +262,23 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 		return 0;
+ 	}
+ 
+-	if (!access_ok(VERIFY_READ, buf, size))
++	if (!access_ok(VERIFY_READ, buf, size)) {
++		fpu__clear(fpu);
+ 		return -EACCES;
++	}
+ 
+ 	fpu__activate_curr(fpu);
+ 
+-	if (!static_cpu_has(X86_FEATURE_FPU))
+-		return fpregs_soft_set(current, NULL,
+-				       0, sizeof(struct user_i387_ia32_struct),
+-				       NULL, buf) != 0;
++	if (!static_cpu_has(X86_FEATURE_FPU)) {
++		int ret = fpregs_soft_set(current, NULL, 0,
++					  sizeof(struct user_i387_ia32_struct),
++					  NULL, buf);
++
++		if (ret)
++			fpu__clear(fpu);
++
++		return ret != 0;
++	}
+ 
+ 	if (use_xsave()) {
+ 		struct _fpx_sw_bytes fx_sw_user;
+-- 
+2.29.2
+
+-- 
+Regards/Gruss,
+    Boris.
+
+SUSE Software Solutions Germany GmbH, GF: Felix Imendörffer, HRB 36809, AG Nürnberg
