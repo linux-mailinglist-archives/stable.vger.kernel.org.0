@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95CCF3AEDE6
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C27163AEDE9
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231158AbhFUQX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:23:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
+        id S231722AbhFUQX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:23:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231597AbhFUQW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:22:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CC31611C1;
-        Mon, 21 Jun 2021 16:19:58 +0000 (UTC)
+        id S231735AbhFUQWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:22:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 190D861206;
+        Mon, 21 Jun 2021 16:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292398;
-        bh=GPZlmCmG5Ozv64hMj2PJFVS6AWHaoBhOPRTJYmhJWpc=;
+        s=korg; t=1624292401;
+        bh=wS3VcZXp4P18gbG9RtHlDEtp4jeWD3RNiZ7RWKuP4M0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSUjtk7LLZgJYHbGnPHxVYv2iEB3Pi2eTLxCoOfFGJeNlSsG7+5M7jHVI7fL00HsM
-         4PQ95m+AmhT9Bq9hAEH4GcKiTgityLd/M6kCbVNCARqkXwUOsiw1o4heLlw24r4JuZ
-         Bbe3qvCpRuTizZn8Xp0DdHTMmkiJMUdfbMsZ6Xqk=
+        b=DAYSDlulUofHXiZi4OSWi7f9NonLvOYdDXODurnMZinl3jMxBrPOAEiRGkHCX1KaB
+         V3sftf0oMc2bOA4sbSvBifn0Owuaoamxdu8LFMbe2vctejkgLZV8qfv4212Rr6TTYw
+         1arQEeYZjvGFogAnBQRvf8PnRe1UTRNvdL6/KAPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 42/90] net: ethernet: fix potential use-after-free in ec_bhf_remove
-Date:   Mon, 21 Jun 2021 18:15:17 +0200
-Message-Id: <20210621154905.542318900@linuxfoundation.org>
+Subject: [PATCH 5.4 43/90] regulator: bd70528: Fix off-by-one for buck123 .n_voltages setting
+Date:   Mon, 21 Jun 2021 18:15:18 +0200
+Message-Id: <20210621154905.578340654@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
 References: <20210621154904.159672728@linuxfoundation.org>
@@ -40,54 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 9cca0c2d70149160407bda9a9446ce0c29b6e6c6 ]
+[ Upstream commit 0514582a1a5b4ac1a3fd64792826d392d7ae9ddc ]
 
-static void ec_bhf_remove(struct pci_dev *dev)
-{
-...
-	struct ec_bhf_priv *priv = netdev_priv(net_dev);
+The valid selectors for bd70528 bucks are 0 ~ 0xf, so the .n_voltages
+should be 16 (0x10). Use 0x10 to make it consistent with BD70528_LDO_VOLTS.
+Also remove redundant defines for BD70528_BUCK_VOLTS.
 
-	unregister_netdev(net_dev);
-	free_netdev(net_dev);
-
-	pci_iounmap(dev, priv->dma_io);
-	pci_iounmap(dev, priv->io);
-...
-}
-
-priv is netdev private data, but it is used
-after free_netdev(). It can cause use-after-free when accessing priv
-pointer. So, fix it by moving free_netdev() after pci_iounmap()
-calls.
-
-Fixes: 6af55ff52b02 ("Driver for Beckhoff CX5020 EtherCAT master module.")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Link: https://lore.kernel.org/r/20210523071045.2168904-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ec_bhf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/mfd/rohm-bd70528.h | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ec_bhf.c b/drivers/net/ethernet/ec_bhf.c
-index 46b0dbab8aad..7c992172933b 100644
---- a/drivers/net/ethernet/ec_bhf.c
-+++ b/drivers/net/ethernet/ec_bhf.c
-@@ -576,10 +576,12 @@ static void ec_bhf_remove(struct pci_dev *dev)
- 	struct ec_bhf_priv *priv = netdev_priv(net_dev);
+diff --git a/include/linux/mfd/rohm-bd70528.h b/include/linux/mfd/rohm-bd70528.h
+index b0109ee6dae2..1c3014d2f28b 100644
+--- a/include/linux/mfd/rohm-bd70528.h
++++ b/include/linux/mfd/rohm-bd70528.h
+@@ -25,9 +25,7 @@ struct bd70528_data {
+ 	struct mutex rtc_timer_lock;
+ };
  
- 	unregister_netdev(net_dev);
--	free_netdev(net_dev);
+-#define BD70528_BUCK_VOLTS 17
+-#define BD70528_BUCK_VOLTS 17
+-#define BD70528_BUCK_VOLTS 17
++#define BD70528_BUCK_VOLTS 0x10
+ #define BD70528_LDO_VOLTS 0x20
  
- 	pci_iounmap(dev, priv->dma_io);
- 	pci_iounmap(dev, priv->io);
-+
-+	free_netdev(net_dev);
-+
- 	pci_release_regions(dev);
- 	pci_clear_master(dev);
- 	pci_disable_device(dev);
+ #define BD70528_REG_BUCK1_EN	0x0F
 -- 
 2.30.2
 
