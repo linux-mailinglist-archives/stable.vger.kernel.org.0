@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E2653AEEB5
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDC3D3AEE6F
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:26:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232328AbhFUQbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49444 "EHLO mail.kernel.org"
+        id S231645AbhFUQ2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:28:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232495AbhFUQ3g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:29:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 957BF61026;
-        Mon, 21 Jun 2021 16:24:28 +0000 (UTC)
+        id S231968AbhFUQ1b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:27:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7424161363;
+        Mon, 21 Jun 2021 16:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292669;
-        bh=J5rFiomhkGXb6uTmtgxj7bmx3aKGX3F4ApLcrBXBtng=;
+        s=korg; t=1624292577;
+        bh=Yapg4lD6t4xYPn1E22R3TbAZRwFcCbf66/XU1lmptiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=of+Z6aUJrk6GpW1t+MFyVjS6ygFTvohNSLdowH+ZrpNb2Pb1NtVE5OmOi258kcs9H
-         TvMig7DP49/iIFx2LTlP56enUwoFTJAg4s/3McZ3ClbkgNYr1Lusx2rM9OxOHWedAm
-         2zEBxnPOvqVe18TDeRT0hVsuJlSRjJbb5FjIwHV0=
+        b=VVGJdwvyj7YnhI5w1tqRmZrlkUgvmp5LqAdc4evg+NBPBTWE4jEKmQ9Urp09P+B5p
+         2tbvnR4M3ilC7HrTxULytB1potUSnGpChiHBfxPa/1LNz6BBRrzWqokpYzNGEClUJG
+         fCl+W0eEMqVoYjJn+TZYPh9yGdpqO2K4rkaYhvQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/146] cxgb4: halt chip before flashing PHY firmware image
-Date:   Mon, 21 Jun 2021 18:14:33 +0200
-Message-Id: <20210621154912.758538743@linuxfoundation.org>
+Subject: [PATCH 5.10 044/146] net: stmmac: dwmac1000: Fix extended MAC address registers definition
+Date:   Mon, 21 Jun 2021 18:14:34 +0200
+Message-Id: <20210621154912.792191396@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
 References: <20210621154911.244649123@linuxfoundation.org>
@@ -41,59 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-[ Upstream commit 6d297540f75d759489054e8b07932208fc4db2cb ]
+[ Upstream commit 1adb20f0d496b2c61e9aa1f4761b8d71f93d258e ]
 
-When using firmware-assisted PHY firmware image write to flash,
-halt the chip before beginning the flash write operation to allow
-the running firmware to store the image persistently. Otherwise,
-the running firmware will only store the PHY image in local on-chip
-RAM, which will be lost after next reset.
+The register starts from 0x800 is the 16th MAC address register rather
+than the first one.
 
-Fixes: 4ee339e1e92a ("cxgb4: add support to flash PHY image")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Fixes: cffb13f4d6fb ("stmmac: extend mac addr reg and fix perfect filering")
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/chelsio/cxgb4/cxgb4_ethtool.c    | 22 ++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac1000.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
-index bc2de01d0539..df20485b5744 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
-@@ -1337,11 +1337,27 @@ static int cxgb4_ethtool_flash_phy(struct net_device *netdev,
- 		return ret;
- 	}
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h b/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h
+index b70d44ac0990..3c73453725f9 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h
+@@ -76,10 +76,10 @@ enum power_event {
+ #define LPI_CTRL_STATUS_TLPIEN	0x00000001	/* Transmit LPI Entry */
  
-+	/* We have to RESET the chip/firmware because we need the
-+	 * chip in uninitialized state for loading new PHY image.
-+	 * Otherwise, the running firmware will only store the PHY
-+	 * image in local RAM which will be lost after next reset.
-+	 */
-+	ret = t4_fw_reset(adap, adap->mbox, PIORSTMODE_F | PIORST_F);
-+	if (ret < 0) {
-+		dev_err(adap->pdev_dev,
-+			"Set FW to RESET for flashing PHY FW failed. ret: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
- 	ret = t4_load_phy_fw(adap, MEMWIN_NIC, NULL, data, size);
--	if (ret)
--		dev_err(adap->pdev_dev, "Failed to load PHY FW\n");
-+	if (ret < 0) {
-+		dev_err(adap->pdev_dev, "Failed to load PHY FW. ret: %d\n",
-+			ret);
-+		return ret;
-+	}
+ /* GMAC HW ADDR regs */
+-#define GMAC_ADDR_HIGH(reg)	(((reg > 15) ? 0x00000800 : 0x00000040) + \
+-				(reg * 8))
+-#define GMAC_ADDR_LOW(reg)	(((reg > 15) ? 0x00000804 : 0x00000044) + \
+-				(reg * 8))
++#define GMAC_ADDR_HIGH(reg)	((reg > 15) ? 0x00000800 + (reg - 16) * 8 : \
++				 0x00000040 + (reg * 8))
++#define GMAC_ADDR_LOW(reg)	((reg > 15) ? 0x00000804 + (reg - 16) * 8 : \
++				 0x00000044 + (reg * 8))
+ #define GMAC_MAX_PERFECT_ADDRESSES	1
  
--	return ret;
-+	return 0;
- }
- 
- static int cxgb4_ethtool_flash_fw(struct net_device *netdev,
+ #define GMAC_PCS_BASE		0x000000c0	/* PCS register base */
 -- 
 2.30.2
 
