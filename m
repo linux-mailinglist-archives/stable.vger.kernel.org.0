@@ -2,144 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52E553AE82A
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 13:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54D563AE82F
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 13:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229623AbhFULaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 07:30:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56102 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229487AbhFULaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 07:30:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A7726100A;
-        Mon, 21 Jun 2021 11:28:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624274889;
-        bh=rj3vBToAOKNVorRQkvAummT8lFrSz1uw9LgUZVhOihw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JQ2eiRJZUYPEo1jVLZNZSuTILbCDyNJI5BC1Xx800KpRxbCTKIM5slfnZPfjGUMBy
-         PwnIaW30TXETz0wAxAl45XRAYVxj6w6OniDUjJAc0bItAmSAKhpFvNGsvh0PLUNhub
-         mfwQ3PpQYU61s7aMQw37nINY4RrBMNrItuPb0PyvVlY0x6mqU4NA/p6cRdP/3txPbh
-         6SBCQuiBQ+GcwBtozqE42l23s1NaaaQdlysAI75xoiSFWXFaC7ebuOOWoOhqVKnJNW
-         fKlXCZD5o6tS6vfgzNUEp6t6CQfint6q3kW3JJUYDMHukC/VbFoGRYv7Rzm33UUuMQ
-         BtyDDIymf1k3A==
-Date:   Mon, 21 Jun 2021 12:27:47 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc:     srivasam@codeaurora.org, rafael@kernel.org,
-        dp@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: [PATCH] regmap: move readable check before accessing regcache.
-Message-ID: <20210621112747.GC4094@sirena.org.uk>
-References: <20210618113558.10046-1-srinivas.kandagatla@linaro.org>
- <20210618115104.GB4920@sirena.org.uk>
- <666da41f-173e-152d-84e5-e9b32baa60da@linaro.org>
- <20210618154836.GC4920@sirena.org.uk>
- <6eca27bf-5696-3ffc-24a5-5a58407f6e93@linaro.org>
+        id S229621AbhFULal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 07:30:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45520 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229487AbhFULak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 07:30:40 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03399C061574
+        for <stable@vger.kernel.org>; Mon, 21 Jun 2021 04:28:27 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1lvI6I-0007g1-4Y; Mon, 21 Jun 2021 13:28:22 +0200
+Received: from pengutronix.de (unknown [IPv6:2a03:f580:87bc:d400:3569:1fb5:40be:61fc])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        (Authenticated sender: mkl-all@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id BA172640529;
+        Mon, 21 Jun 2021 11:28:20 +0000 (UTC)
+Date:   Mon, 21 Jun 2021 13:28:20 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     linux-can@vger.kernel.org
+Cc:     kernel@pengutronix.de,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        linux-stable <stable@vger.kernel.org>,
+        syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>,
+        syzbot <syzbot+0f1827363a305f74996f@syzkaller.appspotmail.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>
+Subject: Re: [PATCH] can: bcm/raw/isotp: use per module netdevice notifier
+Message-ID: <20210621112820.5gemmaw56bipx45j@pengutronix.de>
+References: <1624271916195215@kroah.com>
+ <20210621112451.2882032-1-mkl@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="RIYY1s2vRbPFwWeW"
+        protocol="application/pgp-signature"; boundary="yhmgce7jhv4ifrup"
 Content-Disposition: inline
-In-Reply-To: <6eca27bf-5696-3ffc-24a5-5a58407f6e93@linaro.org>
-X-Cookie: I hate dying.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20210621112451.2882032-1-mkl@pengutronix.de>
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---RIYY1s2vRbPFwWeW
-Content-Type: text/plain; charset=us-ascii
+--yhmgce7jhv4ifrup
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 21, 2021 at 11:30:00AM +0100, Srinivas Kandagatla wrote:
-> On 18/06/2021 16:48, Mark Brown wrote:
-> > On Fri, Jun 18, 2021 at 01:29:50PM +0100, Srinivas Kandagatla wrote:
+On 21.06.2021 13:24:51, Marc Kleine-Budde wrote:
+> From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+>=20
+> commit 8d0caedb759683041d9db82069937525999ada53 upstream
+>=20
+> syzbot is reporting hung task at register_netdevice_notifier() [1] and
+> unregister_netdevice_notifier() [2], for cleanup_net() might perform
+> time consuming operations while CAN driver's raw/bcm/isotp modules are
+> calling {register,unregister}_netdevice_notifier() on each socket.
+>=20
+> Change raw/bcm/isotp modules to call register_netdevice_notifier() from
+> module's __init function and call unregister_netdevice_notifier() from
+> module's __exit function, as with gw/j1939 modules are doing.
+>=20
+> Link: https://syzkaller.appspot.com/bug?id=3D391b9498827788b3cc6830226d4f=
+f5be87107c30 [1]
+> Link: https://syzkaller.appspot.com/bug?id=3D1724d278c83ca6e6df100a2e320c=
+10d991cf2bce [2]
+> Link: https://lore.kernel.org/r/54a5f451-05ed-f977-8534-79e7aa2bcc8f@i-lo=
+ve.sakura.ne.jp
+> Cc: linux-stable <stable@vger.kernel.org>
+> Reported-by: syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.co=
+m>
+> Reported-by: syzbot <syzbot+0f1827363a305f74996f@syzkaller.appspotmail.co=
+m>
+> Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+> Tested-by: syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>
+> Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> [mkl: ported to v4.19.195]
+> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+> ---
+> Hello Greg,
+>=20
+> this is a backport of
+>=20
+> | 8d0caedb7596 can: bcm/raw/isotp: use per module netdevice notifier
+>=20
+> to v4.19.195. Please apply.
 
-> > > _regmap_update_bits() checks _regmap_read() return value before baili=
-ng out.
-> > > In non cache path we have this regmap_readable() check however in cac=
-hed
-> > > patch we do not have this check, so _regmap_read() will return succes=
-s in
-> > > this case so regmap_update_bits() never reports any error.
-> >=20
-> > > driver in question does check the return value.
+This also applies to v4.14.237.
 
-> > OK, so everything is working fine then - what's the problem?  The value
+I'm working on a v4.9 version.
 
-> How can this be working fine?
+Marc
 
-> In this particular setup the register is marked as write only and is not
-> readable. Should it really store value in cache at the first instance?
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
 
-Yes, we know exactly what the value in the register is since we wrote it
-so there's no problem with us remembering and using that.
-
-> Also on the other note, if we mark the same regmap as uncached this useca=
-se
-> will fail straightaway with -EIO, so why is the behavior different in
-> regcache path?
-
-If the register is marked as uncachable then obviously the cache
-behaviour is going to be different to that for a register which we can
-cache for whatever reason the register was marked volatile.
-
-> Shouldn't the regcache path check if the register is readable before tryi=
-ng
-> to cache the value?
-
-Why?  If we know what the value is we can cache it and then use it,
-meaning things like restoring the value in a cache sync and update_bits()
-work, this is useful especially on devices which have no read support at
-all.  What would the benefit it not caching it be?
-
-> From "APQ8016E Technical Reference Manual" https://developer.qualcomm.com=
-/qfile/28813/lm80-p0436-7_f_410e_proc_apq8016e_device_spec.pdf
-
-> Section: 4.5.9.6.19
-> this register LPASS_LPAIF_IRQ_CLEARa is clearly marked with Type: W
-
-> with this description:
-> "Writing a 1 to a bit in this register clears the latched interrupt event
-
-> So am not 100% sure if we read this we will get anything real from the
-> register. I always get zeros if I do that.
-
-> Should this behavior treated as volatile?
-
-Yes.  This is indistingusihable from a register that is volatile because
-it doesn't latch written values, given that you're saying readback
-actually works there's an argument here that the documentation isn't
-accurate here.  My guess is that this device doesn't have any write only
-registers as far as anything outside the device is concerned since the
-I/O hardware won't fault or anything on reads, it just has addresses
-where the read side isn't wired up to anything.
-
-> If we mark this register as volatile and make it readable then it would w=
-ork
-> but that just sounds like a hack to avoid cache.
-
-> Am sure other hardware platforms have similar write-only registers, how do
-> they handle regmap_update_bits case if they have regcache enabled?
-
-They either mark the registers as volatile or just don't do any
-operations that involve reading the value so it's a non-issue.
-
---RIYY1s2vRbPFwWeW
+--yhmgce7jhv4ifrup
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmDQd7IACgkQJNaLcl1U
-h9A/fgf+Pg2mLrrh7T7omEx9eanLnkHhdJfPwfxAOeNVURlpYVMYVnVrZ9obc+i8
-obgTzFZ9XNx7JS56LhdMJY6GlMMYIGN8QP6GHCtQehL+4558bPBzkbOdK5asNebR
-PhIulYGtMmy2h///HlxNC0Vv1BJKiC0dFLxdFh08w657KPNHPPB+MLqs0Q5FwP+i
-zvLFZWUVXwZG18WhgKoGWkOT9vDTXs6YjsDSbRR/85zgU5kZVCWCf2P7mmvWZmrQ
-RFybYtCUTtwJwr4A7P/qp5P/qwvHD1B+AkI8VH07dv9xR8Ebgj/Q79X3pTQzq9is
-63/1T7Ov3l5y7w1VjJM3opM9YnF4Zw==
-=Mm3p
+iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmDQd9EACgkQqclaivrt
+76kseQf+NvUFgZeGvQ+pY7pn/gR2djJfzNTIyLJcYEuOnZMkJ7AI4sdt3ixui7l0
+KzdbyK7Brb85poOUvTq4+tK+f2j8UQ0EbNZLfcPzujHqSj+Ezw6gkmw5VXybn9O4
+1so6rRjxm9U8Y5Ve81JdVVJ/rekHgSGTuhe6UcgyNt+3/SLJQPVX3GpCSfa/dh5G
+/61MEr73YCKMg1FQqWiNqyqyHrQkj/x3iCINemmRxO/LwLgv3JRlugYWOJguNJZl
+AGjc359azH4+AUaM6Qt/4M4cI6CLe2vKCFEcBtEQ85uey9wSqEVoIE/6ydh0Phwc
+7KPW8Anu/igjA1KxB5/Ii4bMd3qiVQ==
+=4jOM
 -----END PGP SIGNATURE-----
 
---RIYY1s2vRbPFwWeW--
+--yhmgce7jhv4ifrup--
