@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 438C53AF2C4
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:54:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E53F3AF2C2
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:54:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233152AbhFUR4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233144AbhFUR4d (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Jun 2021 13:56:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39620 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232304AbhFURzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232314AbhFURzK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Jun 2021 13:55:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 183FC6135A;
-        Mon, 21 Jun 2021 17:52:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FB226135F;
+        Mon, 21 Jun 2021 17:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624297965;
-        bh=R+x4Wqwj5RgMy8VT/r7q7vt2Ruh37Eil2G6Zb2Z7jxQ=;
+        s=k20201202; t=1624297967;
+        bh=j7cyp7H6Pq15LCDwLtRaQL0/mItbUSCDUqwruUQOUhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwCTcE6LNhUFHQyO28Xh5nms3hB2fNKewVd+uSfJZ/axuQjc0xTypmrNScZj2zd+X
-         0KJtNnXbUtxb7b71VYcPcgfLAOngjWyP2H4U2nHC0zc2lNq4pgz/qC/WDQKMtiOzyK
-         R/k+xG3/cFjl4Hr0okk+eugQZ8qPtV1gLnn0Pl8O5ByKmE9CTf0xIAVvCKMFT3mGGP
-         j/Hg8XQLK3tI2gJ+ItMg0mWipG6oOQc7CpptqkN/qn7TqrxqylHZmLPOV2EQvWqDoy
-         qEV5oseWVuC9zLv1rM5EA3A/ieeFQxhPCdl4RCIxfvwJqp1yf6mhA/HBt05EVBqjNM
-         O3yzE+ux81DRQ==
+        b=r/dh8OA+mo964rqrJRJq3vOq6djrCgY4erc58L3J4BLUoHHBJaNyA9urqRMghdzXt
+         1cybuWASb72074JQX+LRB5YCFsFPlWYX6asGfxa9sIwpavuaeu75CXaV8A5nDiGqCh
+         n6/416GHtpVpNoIPj/SWXEJadsClsM9CjZpJBLl1UenvmACHlyTl44xI5YEfcWI3CN
+         D26/hxX6jESgt2EfYO27Cvdxznt7q3xiTlqjtV74oSlcUqQ2q+ntJntEzjih74HmRM
+         a4JgJdYaMRKXYZqCfLSv154fFrZnTrKWAvZd/nKEW5h547S9fssCL95mRngunW13j6
+         h5ZwUIQknxzpA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 30/39] r8169: Avoid memcpy() over-reading of ETH_SS_STATS
-Date:   Mon, 21 Jun 2021 13:51:46 -0400
-Message-Id: <20210621175156.735062-30-sashal@kernel.org>
+Cc:     Fuad Tabba <tabba@google.com>, Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 31/39] KVM: selftests: Fix kvm_check_cap() assertion
+Date:   Mon, 21 Jun 2021 13:51:47 -0400
+Message-Id: <20210621175156.735062-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210621175156.735062-1-sashal@kernel.org>
 References: <20210621175156.735062-1-sashal@kernel.org>
@@ -42,38 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Fuad Tabba <tabba@google.com>
 
-[ Upstream commit da5ac772cfe2a03058b0accfac03fad60c46c24d ]
+[ Upstream commit d8ac05ea13d789d5491a5920d70a05659015441d ]
 
-In preparation for FORTIFY_SOURCE performing compile-time and run-time
-field bounds checking for memcpy(), memmove(), and memset(), avoid
-intentionally reading across neighboring array fields.
+KVM_CHECK_EXTENSION ioctl can return any negative value on error,
+and not necessarily -1. Change the assertion to reflect that.
 
-The memcpy() is copying the entire structure, not just the first array.
-Adjust the source argument so the compiler can do appropriate bounds
-checking.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Fuad Tabba <tabba@google.com>
+Message-Id: <20210615150443.1183365-1-tabba@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 2 +-
+ tools/testing/selftests/kvm/lib/kvm_util.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 1df2c002c9f6..f7a56e05ec8a 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -1673,7 +1673,7 @@ static void rtl8169_get_strings(struct net_device *dev, u32 stringset, u8 *data)
- {
- 	switch(stringset) {
- 	case ETH_SS_STATS:
--		memcpy(data, *rtl8169_gstrings, sizeof(rtl8169_gstrings));
-+		memcpy(data, rtl8169_gstrings, sizeof(rtl8169_gstrings));
- 		break;
- 	}
- }
+diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
+index 2f0e4365f61b..8b90256bca96 100644
+--- a/tools/testing/selftests/kvm/lib/kvm_util.c
++++ b/tools/testing/selftests/kvm/lib/kvm_util.c
+@@ -58,7 +58,7 @@ int kvm_check_cap(long cap)
+ 		exit(KSFT_SKIP);
+ 
+ 	ret = ioctl(kvm_fd, KVM_CHECK_EXTENSION, cap);
+-	TEST_ASSERT(ret != -1, "KVM_CHECK_EXTENSION IOCTL failed,\n"
++	TEST_ASSERT(ret >= 0, "KVM_CHECK_EXTENSION IOCTL failed,\n"
+ 		"  rc: %i errno: %i", ret, errno);
+ 
+ 	close(kvm_fd);
 -- 
 2.30.2
 
