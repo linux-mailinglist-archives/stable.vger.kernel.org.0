@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E893AF30F
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:57:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 253A13AF311
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233192AbhFUR6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 13:58:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39768 "EHLO mail.kernel.org"
+        id S232341AbhFUR6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 13:58:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232132AbhFUR4v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 13:56:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E53D613AD;
-        Mon, 21 Jun 2021 17:53:31 +0000 (UTC)
+        id S232452AbhFUR4y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 13:56:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32340613B3;
+        Mon, 21 Jun 2021 17:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624298012;
-        bh=tgPcxuGjzy0G6s+Y43FulBrZ/Q/BfammVdZeVAAL3o4=;
+        s=k20201202; t=1624298014;
+        bh=PlTTsjvsT8M0ZaanOfjdZwKOURjWLRmlWEa/RnIrFOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzjJSckKvOTlS8ep0J+UsjT3pQmdistkxCofKH92WW8e1xyj7rBvdHe/Fj1yqIlKG
-         A7M0FfWau+yrPCc1iftZ8h4GOWpKSP7PVv1kZDeP/c9eDRltmiHcP2NnylUWagSnNm
-         lxrSjJ+BrLPzwDnnCs/vyxItmbrnMtsJ8fsPiDGA5EyXcLCcBKvTQDzNrG/r6H4t0G
-         2IBrFiXaXr7PzoBxPGKELeA5QRfMhMbdoYWd8zSMphdcTdJUZ5PKD0vLyUqRmlHL3L
-         zm/a1ecVjLxU5RUt/LmJlGlAZKafkUaoRvBRbcNOijuL3HF6mFU6sYEiofT+meXhst
-         m7Xr/5JP0rDpw==
+        b=VPa1+deWUZOUYe8ofx4bxvRG9kVh2goNcjMAdUzmxzS5yGzsW+ceGYC5bJg51k7Bs
+         zjW4DkQN3wRIA5wG39jnLIW3xl5bPfSmJzlxyuItZ8pL2wFS84MOIP8T6mXE7Zgr3b
+         a0A8pERgvPruv/5Ot7wRKFZK/jNLDlu3dlhFer6st0VrA0brzvxjfoMntx6u/HUvmv
+         18a55lxjw7PRPzWH/Vz4CY8c2MeXs6Nh5Igov3p0b1TlK9GndawpB55VbOsxJYDVpl
+         wuYW+D80ZvoHOTUwWU+vl8avANuND3+BbtN2Heq3rQiSVy+6V8u2nQqu8vBTY2qCo3
+         S1VI0jKWqpBUg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Khem Raj <raj.khem@gmail.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 21/35] riscv32: Use medany C model for modules
-Date:   Mon, 21 Jun 2021 13:52:46 -0400
-Message-Id: <20210621175300.735437-21-sashal@kernel.org>
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+f303e045423e617d2cad@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 22/35] net: caif: fix memory leak in ldisc_open
+Date:   Mon, 21 Jun 2021 13:52:47 -0400
+Message-Id: <20210621175300.735437-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210621175300.735437-1-sashal@kernel.org>
 References: <20210621175300.735437-1-sashal@kernel.org>
@@ -43,37 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khem Raj <raj.khem@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 5d2388dbf84adebeb6d9742164be8d32728e4269 ]
+[ Upstream commit 58af3d3d54e87bfc1f936e16c04ade3369d34011 ]
 
-When CONFIG_CMODEL_MEDLOW is used it ends up generating riscv_hi20_rela
-relocations in modules which are not resolved during runtime and
-following errors would be seen
+Syzbot reported memory leak in tty_init_dev().
+The problem was in unputted tty in ldisc_open()
 
-[    4.802714] virtio_input: target 00000000c1539090 can not be addressed by the 32-bit offset from PC = 39148b7b
-[    4.854800] virtio_input: target 00000000c1539090 can not be addressed by the 32-bit offset from PC = 9774456d
+static int ldisc_open(struct tty_struct *tty)
+{
+...
+	ser->tty = tty_kref_get(tty);
+...
+	result = register_netdevice(dev);
+	if (result) {
+		rtnl_unlock();
+		free_netdev(dev);
+		return -ENODEV;
+	}
+...
+}
 
-Signed-off-by: Khem Raj <raj.khem@gmail.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Ser pointer is netdev private_data, so after free_netdev()
+this pointer goes away with unputted tty reference. So, fix
+it by adding tty_kref_put() before freeing netdev.
+
+Reported-and-tested-by: syzbot+f303e045423e617d2cad@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/caif/caif_serial.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index e241e0e85ac8..226c366072da 100644
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -14,7 +14,7 @@ ifeq ($(CONFIG_DYNAMIC_FTRACE),y)
- 	LDFLAGS_vmlinux := --no-relax
- endif
- 
--ifeq ($(CONFIG_64BIT)$(CONFIG_CMODEL_MEDLOW),yy)
-+ifeq ($(CONFIG_CMODEL_MEDLOW),y)
- KBUILD_CFLAGS_MODULE += -mcmodel=medany
- endif
- 
+diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
+index d025ea434933..39fbd0be179c 100644
+--- a/drivers/net/caif/caif_serial.c
++++ b/drivers/net/caif/caif_serial.c
+@@ -351,6 +351,7 @@ static int ldisc_open(struct tty_struct *tty)
+ 	rtnl_lock();
+ 	result = register_netdevice(dev);
+ 	if (result) {
++		tty_kref_put(tty);
+ 		rtnl_unlock();
+ 		free_netdev(dev);
+ 		return -ENODEV;
 -- 
 2.30.2
 
