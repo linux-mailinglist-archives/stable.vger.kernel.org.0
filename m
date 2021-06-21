@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37B133AEFCB
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:39:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6895A3AEFCE
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:39:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233092AbhFUQmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:42:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33622 "EHLO mail.kernel.org"
+        id S233110AbhFUQmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:42:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233527AbhFUQj7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:39:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3736C61440;
-        Mon, 21 Jun 2021 16:30:24 +0000 (UTC)
+        id S231947AbhFUQkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:40:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F255C61438;
+        Mon, 21 Jun 2021 16:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293024;
-        bh=NnmdTo0pZwz9oc4CTfDc3hFC/2al5IuxrtxBXtEDhoU=;
+        s=korg; t=1624293027;
+        bh=CEZuU5riN4bfi9Eaei0xrt3DGjk5uyLsd77aEqzwrps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A9hnrDdhd0z74AJpefv2BJcvk98BYembVCaphFfureOMbrnftk947z/wQhuO0VY6J
-         I/TcLklydiPxuIflh9QDu3LJT/HlF41W5X00rZUFFdt1SRRTcowxedzYfv+z+ki8jp
-         ZgvOM+v3sMJODor5rsOXQayisi1Wjfl0E771/Xtk=
+        b=2jnK3905J2Od3wUbaDJK4iY9a8rkxLb/XsDPJIiKBLMPPebZVoD7tLhH2Lu7+swkU
+         w9LikxTfr5eO0d4O25dvXZw1E48QK+zQoOdVMGkEbt8qtfW+bzxORcant50Ar8okeL
+         xqkkqCB6EDFFw8IDZ8Naa+L0PjytXxo4dWrpTwZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
         Parav Pandit <parav@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 071/178] net/mlx5: Fix error path for set HCA defaults
-Date:   Mon, 21 Jun 2021 18:14:45 +0200
-Message-Id: <20210621154924.969626449@linuxfoundation.org>
+Subject: [PATCH 5.12 072/178] net/mlx5: Check that driver was probed prior attaching the device
+Date:   Mon, 21 Jun 2021 18:14:46 +0200
+Message-Id: <20210621154925.009406123@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -44,43 +43,135 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 94a4b8414d3e91104873007b659252f855ee344a ]
+[ Upstream commit 2058cc9c8041fde9c0bdd8e868c72b137cff8563 ]
 
-In the case of the failure to execute mlx5_core_set_hca_defaults(),
-we used wrong goto label to execute error unwind flow.
+The device can be requested to be attached despite being not probed.
+This situation is possible if devlink reload races with module removal,
+and the following kernel panic is an outcome of such race.
 
-Fixes: 5bef709d76a2 ("net/mlx5: Enable host PF HCA after eswitch is initialized")
-Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+ mlx5_core 0000:00:09.0: firmware version: 4.7.9999
+ mlx5_core 0000:00:09.0: 0.000 Gb/s available PCIe bandwidth (8.0 GT/s PCIe x255 link)
+ BUG: unable to handle page fault for address: fffffffffffffff0
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 3218067 P4D 3218067 PUD 321a067 PMD 0
+ Oops: 0000 [#1] SMP KASAN NOPTI
+ CPU: 7 PID: 250 Comm: devlink Not tainted 5.12.0-rc2+ #2836
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+ RIP: 0010:mlx5_attach_device+0x80/0x280 [mlx5_core]
+ Code: f8 48 c1 e8 03 42 80 3c 38 00 0f 85 80 01 00 00 48 8b 45 68 48 8d 78 f0 48 89 fe 48 c1 ee 03 42 80 3c 3e 00 0f 85 70 01 00 00 <48> 8b 40 f0 48 85 c0 74 0d 48 89 ef ff d0 85 c0 0f 85 84 05 0e 00
+ RSP: 0018:ffff8880129675f0 EFLAGS: 00010246
+ RAX: 0000000000000000 RBX: 0000000000000001 RCX: ffffffff827407f1
+ RDX: 1ffff110011336cf RSI: 1ffffffffffffffe RDI: fffffffffffffff0
+ RBP: ffff888008e0c000 R08: 0000000000000008 R09: ffffffffa0662ee7
+ R10: fffffbfff40cc5dc R11: 0000000000000000 R12: ffff88800ea002e0
+ R13: ffffed1001d459f7 R14: ffffffffa05ef4f8 R15: dffffc0000000000
+ FS:  00007f51dfeaf740(0000) GS:ffff88806d5c0000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: fffffffffffffff0 CR3: 000000000bc82006 CR4: 0000000000370ea0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  mlx5_load_one+0x117/0x1d0 [mlx5_core]
+  devlink_reload+0x2d5/0x520
+  ? devlink_remote_reload_actions_performed+0x30/0x30
+  ? mutex_trylock+0x24b/0x2d0
+  ? devlink_nl_cmd_reload+0x62b/0x1070
+  devlink_nl_cmd_reload+0x66d/0x1070
+  ? devlink_reload+0x520/0x520
+  ? devlink_nl_pre_doit+0x64/0x4d0
+  genl_family_rcv_msg_doit+0x1e9/0x2f0
+  ? mutex_lock_io_nested+0x1130/0x1130
+  ? genl_family_rcv_msg_attrs_parse.constprop.0+0x240/0x240
+  ? security_capable+0x51/0x90
+  genl_rcv_msg+0x27f/0x4a0
+  ? genl_get_cmd+0x3c0/0x3c0
+  ? lock_acquire+0x1a9/0x6d0
+  ? devlink_reload+0x520/0x520
+  ? lock_release+0x6c0/0x6c0
+  netlink_rcv_skb+0x11d/0x340
+  ? genl_get_cmd+0x3c0/0x3c0
+  ? netlink_ack+0x9f0/0x9f0
+  ? lock_release+0x1f9/0x6c0
+  genl_rcv+0x24/0x40
+  netlink_unicast+0x433/0x700
+  ? netlink_attachskb+0x730/0x730
+  ? _copy_from_iter_full+0x178/0x650
+  ? __alloc_skb+0x113/0x2b0
+  netlink_sendmsg+0x6f1/0xbd0
+  ? netlink_unicast+0x700/0x700
+  ? netlink_unicast+0x700/0x700
+  sock_sendmsg+0xb0/0xe0
+  __sys_sendto+0x193/0x240
+  ? __x64_sys_getpeername+0xb0/0xb0
+  ? copy_page_range+0x2300/0x2300
+  ? __up_read+0x1a1/0x7b0
+  ? do_user_addr_fault+0x219/0xdc0
+  __x64_sys_sendto+0xdd/0x1b0
+  ? syscall_enter_from_user_mode+0x1d/0x50
+  do_syscall_64+0x2d/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f51dffb514a
+ Code: d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 f3 0f 1e fa 41 89 ca 64 8b 04 25 18 00 00 00 85 c0 75 15 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 76 c3 0f 1f 44 00 00 55 48 83 ec 30 44 89 4c
+ RSP: 002b:00007ffcaef22e78 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+ RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f51dffb514a
+ RDX: 0000000000000030 RSI: 000055750daf2440 RDI: 0000000000000003
+ RBP: 000055750daf2410 R08: 00007f51e0081200 R09: 000000000000000c
+ R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+ R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ Modules linked in: mlx5_core(-) ptp pps_core ib_ipoib rdma_ucm rdma_cm iw_cm ib_cm ib_umad ib_uverbs ib_core [last unloaded: mlx5_ib]
+ CR2: fffffffffffffff0
+ ---[ end trace 7789831bfe74fa42 ]---
+
+Fixes: a925b5e309c9 ("net/mlx5: Register mlx5 devices to auxiliary virtual bus")
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Reviewed-by: Parav Pandit <parav@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/dev.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index efb93d63e54c..58b8f75d7a01 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1157,7 +1157,7 @@ static int mlx5_load(struct mlx5_core_dev *dev)
- 	err = mlx5_core_set_hca_defaults(dev);
- 	if (err) {
- 		mlx5_core_err(dev, "Failed to set hca defaults\n");
--		goto err_sriov;
-+		goto err_set_hca;
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/dev.c b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
+index 9153c9bda96f..f0623e94716b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/dev.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
+@@ -323,6 +323,16 @@ int mlx5_attach_device(struct mlx5_core_dev *dev)
+ 			}
+ 		} else {
+ 			adev = &priv->adev[i]->adev;
++
++			/* Pay attention that this is not PCI driver that
++			 * mlx5_core_dev is connected, but auxiliary driver.
++			 *
++			 * Here we can race of module unload with devlink
++			 * reload, but we don't need to take extra lock because
++			 * we are holding global mlx5_intf_mutex.
++			 */
++			if (!adev->dev.driver)
++				continue;
+ 			adrv = to_auxiliary_drv(adev->dev.driver);
  
- 	mlx5_vhca_event_start(dev);
-@@ -1190,6 +1190,7 @@ err_ec:
- 	mlx5_sf_hw_table_destroy(dev);
- err_vhca:
- 	mlx5_vhca_event_stop(dev);
-+err_set_hca:
- 	mlx5_cleanup_fs(dev);
- err_fs:
- 	mlx5_accel_tls_cleanup(dev);
+ 			if (adrv->resume)
+@@ -353,6 +363,10 @@ void mlx5_detach_device(struct mlx5_core_dev *dev)
+ 			continue;
+ 
+ 		adev = &priv->adev[i]->adev;
++		/* Auxiliary driver was unbind manually through sysfs */
++		if (!adev->dev.driver)
++			goto skip_suspend;
++
+ 		adrv = to_auxiliary_drv(adev->dev.driver);
+ 
+ 		if (adrv->suspend) {
+@@ -360,6 +374,7 @@ void mlx5_detach_device(struct mlx5_core_dev *dev)
+ 			continue;
+ 		}
+ 
++skip_suspend:
+ 		del_adev(&priv->adev[i]->adev);
+ 		priv->adev[i] = NULL;
+ 	}
 -- 
 2.30.2
 
