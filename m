@@ -2,112 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37FCF3AEC9B
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 17:38:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB4E73AECCD
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 17:52:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230189AbhFUPkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 11:40:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27578 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230059AbhFUPkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 11:40:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1624289916;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/PT2H+5rBlFaNgMWz3m8mH4Pq2q3IOb/grR2Heyyj5M=;
-        b=hg54baL/bSFu4+S6F9O2B5Ku5saGYLcZaSBiEaXL5Nm2dZIT9UQzqOSYKTTYlKr9vajaTr
-        heNpMubXVkdlvTurQtR3AWuTLMvg25zR3s3KXsa0YHR7FHDe+d+pAtZV3JlO6C2FAgidRL
-        Gj2yoMBH4QQEEyKYbeR8UYjslAwU4N8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-352-rh6qJDDUMySj9y_kbue6jA-1; Mon, 21 Jun 2021 11:38:35 -0400
-X-MC-Unique: rh6qJDDUMySj9y_kbue6jA-1
-Received: by mail-wm1-f69.google.com with SMTP id p22-20020a7bcc960000b02901de8f2ae18aso135209wma.8
-        for <stable@vger.kernel.org>; Mon, 21 Jun 2021 08:38:35 -0700 (PDT)
+        id S230329AbhFUPyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 11:54:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49542 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230325AbhFUPyV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 11:54:21 -0400
+Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F5CC061574;
+        Mon, 21 Jun 2021 08:52:07 -0700 (PDT)
+Received: by mail-oo1-xc2c.google.com with SMTP id v17-20020a4aa5110000b0290249d63900faso4619467ook.0;
+        Mon, 21 Jun 2021 08:52:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=DSfyzKavfa1LC7yxbCe25ppAb0rRQT6nPAbNd2OwNJg=;
+        b=uzSqXhf94tKd922NNhuvUCE69EkxEw+DD7mN5umpjyyWBDoP+hbLYIWL4oEogIQxNa
+         A8RO8ddUqLCfOPMHkqtdnI6CuJiQ/rPP40Ipol6YBQ4NNPkXL8kvYHd+OqiTjB8bA5Gq
+         rUAN5+OJSfIAlZQDbxEf3FfWYin1DUsh8i8aYpBvT5KCjxAoUfkIeRtQ5uDEebuR5MGU
+         1pQ06chn5C0NzE/AR7MThFx4cvz4GJd7y6YxYrx8djE+Q0uijxuIxxZDQd437prV6fro
+         Oje/x09tYgsVCNYzvTONRtuw7WFXUfeDA0XP0Y+ZyqgzPcCJOzCeA7LlejpmexL0b8TB
+         oTkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:reply-to:subject:to:cc:references:from
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-transfer-encoding:content-language;
-        bh=/PT2H+5rBlFaNgMWz3m8mH4Pq2q3IOb/grR2Heyyj5M=;
-        b=agIKjHZwwqcu5RkyqUpYEwPVVUS8iWVnlIphjtKNrUfUO12k7pzQFNPK2Z691NK0uZ
-         7j1ZJjMPENr1WJPgJTq1nFXQfqnOZLHMXpjG+YAlAS7oUJM9rmB9jUSM+brNiuf9gsa0
-         /J6Pa2+hZipKA8N/Rosa/kVbrHAwmpocvsfAC/8ip0XOrYrQftlTAblQvxFRNTytBYWI
-         jjRRq+jSumuxfypp8MgPbM4Yod+tFsykeh0EJgmwJ+6nr324GFCpEgZUgxDniLpDHIhX
-         ssIWWKT0BdEwIm3l/INd/JPDBUaMqcqyglRksozmhZ06iTjU7B0AKn+sIjKAazW7Kwgp
-         hzBQ==
-X-Gm-Message-State: AOAM5325WyNigcYCIp8E0KsqlgU3B34jepzpAiWGMHuAD7ZHeGNVO40M
-        +dMtmWbBNPY4un6lavTgZ+PX7DcEbHkqomr5Yi4zs1tI62qTs5xFQWSrCW6FKiYHvj8xlCCuXPK
-        tpwUc+cONbH4L1OVl
-X-Received: by 2002:a05:6000:1001:: with SMTP id a1mr26918929wrx.418.1624289914095;
-        Mon, 21 Jun 2021 08:38:34 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwBmisgDmIC43EwBLz2kszOmTyi7ROWV2l0j77EjN7RpHdmMIn2XY6HwlfXesCj3PgXQh5ttw==
-X-Received: by 2002:a05:6000:1001:: with SMTP id a1mr26918915wrx.418.1624289913893;
-        Mon, 21 Jun 2021 08:38:33 -0700 (PDT)
-Received: from [192.168.43.95] ([37.173.110.237])
-        by smtp.gmail.com with ESMTPSA id n13sm19466650wrg.75.2021.06.21.08.38.32
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=DSfyzKavfa1LC7yxbCe25ppAb0rRQT6nPAbNd2OwNJg=;
+        b=MP9kR5M9ZCFURSGKrUAuwHV+gKFW+FNJw4YJhdOKgMo+O6s5JoehdJho4x3Ht/yrgR
+         R8gbD7/EYs0D+tnTLgTkxL8gelllQqE+wcuNLMDbqq+A7PhWrkY2Ssao4qaUwD4u+tVi
+         +whpdnuZY7kElusZ2HOmd13ehbo3FJu+1UD1UuqCvmoqtEgU1stNE3k+JYQpKvGwUmij
+         A39DAbavlZLVuAGCiViMEqREgrLU2CV8WH5NnBQ1lgz83V7V/KlhoZgSUSDvXpLYm30w
+         GjbU2CDC7BhtMiwFNixkTJwRsSfWyMCk5wJ4QBTFV9B4Gs1D6w4XW6QQXfigPJXKonPp
+         BlVA==
+X-Gm-Message-State: AOAM533niSwBb3G/PdhXrDT2QpvTkqsA+R028fwVAlJf6COTEFqZW7/9
+        P45vxBeB1qNSMBO4zzWl0MaZxM6Htcs=
+X-Google-Smtp-Source: ABdhPJzP9OwdB3oGKhBxNTvtGy7hfzSnAP9Q46kb98AoOs1/SzdrypCWKjXFzYeFZi2qDC8nCZip5g==
+X-Received: by 2002:a4a:e099:: with SMTP id w25mr21488656oos.43.1624290726464;
+        Mon, 21 Jun 2021 08:52:06 -0700 (PDT)
+Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
+        by smtp.gmail.com with ESMTPSA id b198sm3671206oii.19.2021.06.21.08.52.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Jun 2021 08:38:33 -0700 (PDT)
-Reply-To: eric.auger@redhat.com
-Subject: Re: [PATCH for-stable-5.4] KVM: arm/arm64: Fix
- KVM_VGIC_V3_ADDR_TYPE_REDIST read
-To:     Greg KH <greg@kroah.com>
-Cc:     eric.auger.pro@gmail.com, stable@vger.kernel.org, maz@kernel.org,
-        linux-kernel@vger.kernel.org, kvmarm@lists.cs.columbia.edu
-References: <20210621124232.793383-1-eric.auger@redhat.com>
- <YNCvA4qDuc2Tlmi0@kroah.com>
-From:   Eric Auger <eric.auger@redhat.com>
-Message-ID: <acd4fdcb-d6d4-755b-6f9d-9acf4b08d564@redhat.com>
-Date:   Mon, 21 Jun 2021 17:38:32 +0200
+        Mon, 21 Jun 2021 08:52:06 -0700 (PDT)
+Sender: Larry Finger <larry.finger@gmail.com>
+Subject: Re: [PATCH v2] rtw88: Fix some memory leaks
+To:     Pkshih <pkshih@realtek.com>,
+        "kvalo@codeaurora.org" <kvalo@codeaurora.org>
+Cc:     "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+References: <20210620194110.7520-1-Larry.Finger@lwfinger.net>
+ <19c86cb8dbe04b56b76a386b5faeaa89@realtek.com>
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+Message-ID: <2c552c7c-bb11-a914-78e8-900d6bae39a9@lwfinger.net>
+Date:   Mon, 21 Jun 2021 10:52:05 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <YNCvA4qDuc2Tlmi0@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <19c86cb8dbe04b56b76a386b5faeaa89@realtek.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On 6/21/21 5:23 PM, Greg KH wrote:
-> On Mon, Jun 21, 2021 at 02:42:32PM +0200, Eric Auger wrote:
->> When reading the base address of the a REDIST region
->> through KVM_VGIC_V3_ADDR_TYPE_REDIST we expect the
->> redistributor region list to be populated with a single
->> element.
+On 6/21/21 5:40 AM, Pkshih wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: Larry Finger [mailto:larry.finger@gmail.com] On Behalf Of Larry Finger
+>> Sent: Monday, June 21, 2021 3:41 AM
+>> To: kvalo@codeaurora.org
+>> Cc: linux-wireless@vger.kernel.org; Larry Finger; Stable
+>> Subject: [PATCH v2] rtw88: Fix some memory leaks
 >>
->> However list_first_entry() expects the list to be non empty.
->> Instead we should use list_first_entry_or_null which effectively
->> returns NULL if the list is empty.
+>> There are memory leaks of skb's from routines rtw_fw_c2h_cmd_rx_irqsafe()
+>> and rtw_coex_info_response(), both arising from C2H operations. There are
+>> no leaks from the buffers sent to mac80211.
 >>
->> Fixes: dbd9733ab674 ("KVM: arm/arm64: Replace the single rdist region by a list")
->> Cc: <Stable@vger.kernel.org> # v5.4
->> Signed-off-by: Eric Auger <eric.auger@redhat.com>
->> Reported-by: Gavin Shan <gshan@redhat.com>
->> Signed-off-by: Marc Zyngier <maz@kernel.org>
->> Link: https://lore.kernel.org/r/20210412150034.29185-1-eric.auger@redhat.com
+>> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+>> Cc: Stable <stable@vger.kernel.org>
 >> ---
->>  virt/kvm/arm/vgic/vgic-kvm-device.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
-> Both now queued up, thanks.
->
-> Next time, give us a hint as to what the upstream commit id is, so that
-> we do not have to dig it up ourselves :)
-Sure I will.
+>> v2 - add the missinf changelog.
+>>
+>> ---
+>>   drivers/net/wireless/realtek/rtw88/coex.c | 4 +++-
+>>   drivers/net/wireless/realtek/rtw88/fw.c   | 2 ++
+>>   2 files changed, 5 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/net/wireless/realtek/rtw88/coex.c b/drivers/net/wireless/realtek/rtw88/coex.c
+>> index cedbf3825848..e81bf5070183 100644
+>> --- a/drivers/net/wireless/realtek/rtw88/coex.c
+>> +++ b/drivers/net/wireless/realtek/rtw88/coex.c
+>> @@ -591,8 +591,10 @@ void rtw_coex_info_response(struct rtw_dev *rtwdev, struct sk_buff *skb)
+>>   	struct rtw_coex *coex = &rtwdev->coex;
+>>   	u8 *payload = get_payload_from_coex_resp(skb);
+>>
+>> -	if (payload[0] != COEX_RESP_ACK_BY_WL_FW)
+>> +	if (payload[0] != COEX_RESP_ACK_BY_WL_FW) {
+>> +		dev_kfree_skb_any(skb);
+>>   		return;
+>> +	}
+>>
+>>   	skb_queue_tail(&coex->queue, skb);
+>>   	wake_up(&coex->wait);
+>> diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
+>> index 797b08b2a494..43525ad8543f 100644
+>> --- a/drivers/net/wireless/realtek/rtw88/fw.c
+>> +++ b/drivers/net/wireless/realtek/rtw88/fw.c
+>> @@ -231,9 +231,11 @@ void rtw_fw_c2h_cmd_rx_irqsafe(struct rtw_dev *rtwdev, u32 pkt_offset,
+>>   	switch (c2h->id) {
+>>   	case C2H_BT_MP_INFO:
+>>   		rtw_coex_info_response(rtwdev, skb);
+>> +		dev_kfree_skb_any(skb);
+> 
+> The rtw_coex_info_response() puts skb into a skb_queue, so we can't free it here.
+> Instead, we should free it after we dequeue and do thing.
+> So, we send another patch:
+> https://lore.kernel.org/linux-wireless/20210621103023.41928-1-pkshih@realtek.com/T/#u
+> 
+> I hope this isn't confusing you.
 
-Thanks!
+No, it is not confusing. T=You fixed some leaks the I did not know existed.
 
-Eric
->
-> thanks,
->
-> greg k-h
->
+Kalle: Take P-K's patch and discard mine.
 
+Thanks,
+
+Larry
