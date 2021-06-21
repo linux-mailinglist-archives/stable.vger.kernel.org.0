@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B843AEF87
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8564F3AEFA2
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232011AbhFUQkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:40:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56050 "EHLO mail.kernel.org"
+        id S232303AbhFUQkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:40:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232784AbhFUQhg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:37:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C85EC60FF4;
-        Mon, 21 Jun 2021 16:28:58 +0000 (UTC)
+        id S232137AbhFUQhn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:37:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82F8D6108E;
+        Mon, 21 Jun 2021 16:29:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292939;
-        bh=Dcxq6QrwIGhjFpKCcUl2E5LflXkcI/fewTYI77DVkCk=;
+        s=korg; t=1624292942;
+        bh=qv1stP+xCY8eceU+/jZqPRtnb1Bt/Wv3iFl93CVvVY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hezh7Qz0H4jO+jTiQodc9sey75nGfnCFxcH7JJiyBTkS6bPyeIrlJ+yJQ11PzAeQg
-         yYudaTPf5FI9BN0xHHuw6LHZIxXoe21I63Cm6icjidCfbh0xvdL70fC1SAkj5bwAeR
-         8uXUMrBZSUlVg/R/NpyhIci06vK3I9J+kEXRpN9U=
+        b=YLSt5MWJR1V8/BzO1Z9tPN6kpLPa/adTM/yafshdzmvX+JAsGfdg+7JUThCgFNEOM
+         vVgZPo9WTNRt57dvUUy7pH6TnsKKU7DKA+8QK0M32G0CeD0FB/MM1Efvz2oEWg1gL0
+         DsB0l3OCZM5Q8g6Zr8SOEo8LlPTW8Y8fnCjiIqWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Talal Ahmad <talalahmad@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Young Xiao <92siuyang@gmail.com>,
+        Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Florian Westphal <fw@strlen.de>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 040/178] skbuff: fix incorrect msg_zerocopy copy notifications
-Date:   Mon, 21 Jun 2021 18:14:14 +0200
-Message-Id: <20210621154923.488559058@linuxfoundation.org>
+Subject: [PATCH 5.12 041/178] netfilter: synproxy: Fix out of bounds when parsing TCP options
+Date:   Mon, 21 Jun 2021 18:14:15 +0200
+Message-Id: <20210621154923.536748996@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -43,63 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-[ Upstream commit 3bdd5ee0ec8c14131d560da492e6df452c6fdd75 ]
+[ Upstream commit 5fc177ab759418c9537433e63301096e733fb915 ]
 
-msg_zerocopy signals if a send operation required copying with a flag
-in serr->ee.ee_code.
+The TCP option parser in synproxy (synproxy_parse_options) could read
+one byte out of bounds. When the length is 1, the execution flow gets
+into the loop, reads one byte of the opcode, and if the opcode is
+neither TCPOPT_EOL nor TCPOPT_NOP, it reads one more byte, which exceeds
+the length of 1.
 
-This field can be incorrect as of the below commit, as a result of
-both structs uarg and serr pointing into the same skb->cb[].
+This fix is inspired by commit 9609dad263f8 ("ipv4: tcp_input: fix stack
+out of bounds when parsing TCP options.").
 
-uarg->zerocopy must be read before skb->cb[] is reinitialized to hold
-serr. Similar to other fields len, hi and lo, use a local variable to
-temporarily hold the value.
+v2 changes:
 
-This was not a problem before, when the value was passed as a function
-argument.
+Added an early return when length < 0 to avoid calling
+skb_header_pointer with negative length.
 
-Fixes: 75518851a2a0 ("skbuff: Push status and refcounts into sock_zerocopy_callback")
-Reported-by: Talal Ahmad <talalahmad@google.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Cc: Young Xiao <92siuyang@gmail.com>
+Fixes: 48b1de4c110a ("netfilter: add SYNPROXY core/target")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/netfilter/nf_synproxy_core.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index c421c8f80925..7997d99afbd8 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -1252,6 +1252,7 @@ static void __msg_zerocopy_callback(struct ubuf_info *uarg)
- 	struct sock *sk = skb->sk;
- 	struct sk_buff_head *q;
- 	unsigned long flags;
-+	bool is_zerocopy;
- 	u32 lo, hi;
- 	u16 len;
+diff --git a/net/netfilter/nf_synproxy_core.c b/net/netfilter/nf_synproxy_core.c
+index b100c04a0e43..3d6d49420db8 100644
+--- a/net/netfilter/nf_synproxy_core.c
++++ b/net/netfilter/nf_synproxy_core.c
+@@ -31,6 +31,9 @@ synproxy_parse_options(const struct sk_buff *skb, unsigned int doff,
+ 	int length = (th->doff * 4) - sizeof(*th);
+ 	u8 buf[40], *ptr;
  
-@@ -1266,6 +1267,7 @@ static void __msg_zerocopy_callback(struct ubuf_info *uarg)
- 	len = uarg->len;
- 	lo = uarg->id;
- 	hi = uarg->id + len - 1;
-+	is_zerocopy = uarg->zerocopy;
- 
- 	serr = SKB_EXT_ERR(skb);
- 	memset(serr, 0, sizeof(*serr));
-@@ -1273,7 +1275,7 @@ static void __msg_zerocopy_callback(struct ubuf_info *uarg)
- 	serr->ee.ee_origin = SO_EE_ORIGIN_ZEROCOPY;
- 	serr->ee.ee_data = hi;
- 	serr->ee.ee_info = lo;
--	if (!uarg->zerocopy)
-+	if (!is_zerocopy)
- 		serr->ee.ee_code |= SO_EE_CODE_ZEROCOPY_COPIED;
- 
- 	q = &sk->sk_error_queue;
++	if (unlikely(length < 0))
++		return false;
++
+ 	ptr = skb_header_pointer(skb, doff + sizeof(*th), length, buf);
+ 	if (ptr == NULL)
+ 		return false;
+@@ -47,6 +50,8 @@ synproxy_parse_options(const struct sk_buff *skb, unsigned int doff,
+ 			length--;
+ 			continue;
+ 		default:
++			if (length < 2)
++				return true;
+ 			opsize = *ptr++;
+ 			if (opsize < 2)
+ 				return true;
 -- 
 2.30.2
 
