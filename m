@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CB5B3AEE54
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:25:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C3F63AEE57
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231417AbhFUQ2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:28:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48572 "EHLO mail.kernel.org"
+        id S231656AbhFUQ2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:28:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232008AbhFUQ0X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:26:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8188561357;
-        Mon, 21 Jun 2021 16:22:22 +0000 (UTC)
+        id S231569AbhFUQ00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:26:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 481A9613B0;
+        Mon, 21 Jun 2021 16:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292543;
-        bh=3EUyf5iGHMyyqA/WDr7DCvI9bKPXhhjzCmrM2pstGMc=;
+        s=korg; t=1624292545;
+        bh=Xk6NqxINjXSnPXTKGFSoNyso+38aztNwi/1UD232EQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADcQgLIFV4mowQzIrou6z8lo5NyKyQ4iQryEnWmPH8MV/RRLo+Ymi2TEOIEnvnuyC
-         VZ0uquILtwx9AT3t8wxZI8jt2vGGAQwULt3hofnwuYSwn/CWeHGmv9DASWR2fyFQ3f
-         r9O4E5eNFAJ5cEcrG83JwAqgCboG3ESEqHrNb+Mg=
+        b=QPSQlnPrw+QLN2nynSIgbewS02bqFTehViW/RqSO6saRrCITPhtedj4a3bBcXNmJQ
+         XK7VVAo1d4wq5p2Qznii9cGiMk0ICwEhDHZqpyMq+KM/4rcPembmfRjEhyAWJAE+tx
+         DDUxfQN3WbpiMmIJtOZUZ9PNBeHd0VHgUuespEQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 037/146] mptcp: try harder to borrow memory from subflow under pressure
-Date:   Mon, 21 Jun 2021 18:14:27 +0200
-Message-Id: <20210621154912.558647068@linuxfoundation.org>
+Subject: [PATCH 5.10 038/146] mptcp: do not warn on bad input from the network
+Date:   Mon, 21 Jun 2021 18:14:28 +0200
+Message-Id: <20210621154912.589676201@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
 References: <20210621154911.244649123@linuxfoundation.org>
@@ -43,50 +43,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 72f961320d5d15bfcb26dbe3edaa3f7d25fd2c8a ]
+[ Upstream commit 61e710227e97172355d5f150d5c78c64175d9fb2 ]
 
-If the host is under sever memory pressure, and RX forward
-memory allocation for the msk fails, we try to borrow the
-required memory from the ingress subflow.
+warn_bad_map() produces a kernel WARN on bad input coming
+from the network. Use pr_debug() to avoid spamming the system
+log.
 
-The current attempt is a bit flaky: if skb->truesize is less
-than SK_MEM_QUANTUM, the ssk will not release any memory, and
-the next schedule will fail again.
+Additionally, when the right bound check fails, warn_bad_map() reports
+the wrong ssn value, let's fix it.
 
-Instead, directly move the required amount of pages from the
-ssk to the msk, if available
-
-Fixes: 9c3f94e1681b ("mptcp: add missing memory scheduling in the rx path")
+Fixes: 648ef4b88673 ("mptcp: Implement MPTCP receive path")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/107
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/mptcp/subflow.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 7832b20baac2..3ca8b359e399 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -276,11 +276,13 @@ static bool __mptcp_move_skb(struct mptcp_sock *msk, struct sock *ssk,
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 96b6aca9d0ae..851fb3d8c791 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -655,10 +655,10 @@ static u64 expand_seq(u64 old_seq, u16 old_data_len, u64 seq)
+ 	return seq | ((old_seq + old_data_len + 1) & GENMASK_ULL(63, 32));
+ }
  
- 	/* try to fetch required memory from subflow */
- 	if (!sk_rmem_schedule(sk, skb, skb->truesize)) {
--		if (ssk->sk_forward_alloc < skb->truesize)
--			goto drop;
--		__sk_mem_reclaim(ssk, skb->truesize);
--		if (!sk_rmem_schedule(sk, skb, skb->truesize))
-+		int amount = sk_mem_pages(skb->truesize) << SK_MEM_QUANTUM_SHIFT;
-+
-+		if (ssk->sk_forward_alloc < amount)
- 			goto drop;
-+
-+		ssk->sk_forward_alloc -= amount;
-+		sk->sk_forward_alloc += amount;
+-static void warn_bad_map(struct mptcp_subflow_context *subflow, u32 ssn)
++static void dbg_bad_map(struct mptcp_subflow_context *subflow, u32 ssn)
+ {
+-	WARN_ONCE(1, "Bad mapping: ssn=%d map_seq=%d map_data_len=%d",
+-		  ssn, subflow->map_subflow_seq, subflow->map_data_len);
++	pr_debug("Bad mapping: ssn=%d map_seq=%d map_data_len=%d",
++		 ssn, subflow->map_subflow_seq, subflow->map_data_len);
+ }
+ 
+ static bool skb_is_fully_mapped(struct sock *ssk, struct sk_buff *skb)
+@@ -683,13 +683,13 @@ static bool validate_mapping(struct sock *ssk, struct sk_buff *skb)
+ 		/* Mapping covers data later in the subflow stream,
+ 		 * currently unsupported.
+ 		 */
+-		warn_bad_map(subflow, ssn);
++		dbg_bad_map(subflow, ssn);
+ 		return false;
  	}
- 
- 	/* the skb map_seq accounts for the skb offset:
+ 	if (unlikely(!before(ssn, subflow->map_subflow_seq +
+ 				  subflow->map_data_len))) {
+ 		/* Mapping does covers past subflow data, invalid */
+-		warn_bad_map(subflow, ssn + skb->len);
++		dbg_bad_map(subflow, ssn);
+ 		return false;
+ 	}
+ 	return true;
 -- 
 2.30.2
 
