@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08313AF016
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:44:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1A83AF017
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:44:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231336AbhFUQqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:46:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33938 "EHLO mail.kernel.org"
+        id S232125AbhFUQqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233263AbhFUQns (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:43:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0646061164;
-        Mon, 21 Jun 2021 16:31:55 +0000 (UTC)
+        id S233296AbhFUQnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:43:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D788C613B0;
+        Mon, 21 Jun 2021 16:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293116;
-        bh=EzfdGibBHxocKid1hZ1nvVcJTRBelZiQe8jweC8HeCw=;
+        s=korg; t=1624293119;
+        bh=p+7NsAlql8/K0DWE4g/lK3f5Roe0GJ3MYo0VhnV77eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umSUGtWudxqnGPGqvXb6mVT5T+mkgw3Pw5pJoJEfnRWnY5GNixi2/XLmi1P8/qrNF
-         Lz60qSyXpXiaGcqp3rM+vp83eVlsVHwzkfVV5jW/i4NVKeJ0eXhIeJ3+YwHWcdkrPm
-         /KkzRM57zfiSO2cf6v714sac4mjEqiSKlwZNyInw=
+        b=UGUlA1nBDasW9Ge9p2PiRlYZyj+LBw8mPijCswElva+mqr0pN7ZRkFTVaeqCzMFlz
+         Qe+kP19roAFBSROK1T3mG5xnbXHJNAVoqM+mJUOdN9T+b2L83Tp9mWRpNQqDgg3DNU
+         svH+A2JemJaM5RFx5JznjyTmu44Tn2Ie12nyEJJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
-        Ondrej Jirman <megous@megous.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Judy Hsiao <judyhsiao@chromium.org>,
+        Srinivasa Rao Mandadapu <srivasam@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 105/178] drm/sun4i: dw-hdmi: Make HDMI PHY into a platform device
-Date:   Mon, 21 Jun 2021 18:15:19 +0200
-Message-Id: <20210621154926.346732932@linuxfoundation.org>
+Subject: [PATCH 5.12 106/178] ASoC: qcom: lpass-cpu: Fix pop noise during audio capture begin
+Date:   Mon, 21 Jun 2021 18:15:20 +0200
+Message-Id: <20210621154926.378677329@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -42,207 +42,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
 
-[ Upstream commit 9bf3797796f570b34438235a6a537df85832bdad ]
+[ Upstream commit c8a4556d98510ca05bad8d02265a4918b03a8c0b ]
 
-On sunxi boards that use HDMI output, HDMI device probe keeps being
-avoided indefinitely with these repeated messages in dmesg:
+This patch fixes PoP noise of around 15ms observed during audio
+capture begin.
+Enables BCLK and LRCLK in snd_soc_dai_ops prepare call for
+introducing some delay before capture start.
 
-  platform 1ee0000.hdmi: probe deferral - supplier 1ef0000.hdmi-phy
-    not ready
+(am from https://patchwork.kernel.org/patch/12276369/)
+(also found at https://lore.kernel.org/r/20210524142114.18676-1-srivasam@codeaurora.org)
 
-There's a fwnode_link being created with fw_devlink=on between hdmi
-and hdmi-phy nodes, because both nodes have 'compatible' property set.
-
-Fw_devlink code assumes that nodes that have compatible property
-set will also have a device associated with them by some driver
-eventually. This is not the case with the current sun8i-hdmi
-driver.
-
-This commit makes sun8i-hdmi-phy into a proper platform device
-and fixes the display pipeline probe on sunxi boards that use HDMI.
-
-More context: https://lkml.org/lkml/2021/5/16/203
-
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Tested-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210607085836.2827429-1-megous@megous.com
+Co-developed-by: Judy Hsiao <judyhsiao@chromium.org>
+Signed-off-by: Judy Hsiao <judyhsiao@chromium.org>
+Signed-off-by: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210604154545.1198337-1-judyhsiao@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c  | 31 ++++++++++++++++---
- drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h  |  5 ++--
- drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c | 41 ++++++++++++++++++++++----
- 3 files changed, 66 insertions(+), 11 deletions(-)
+ sound/soc/qcom/lpass-cpu.c | 79 ++++++++++++++++++++++++++++++++++++++
+ sound/soc/qcom/lpass.h     |  4 ++
+ 2 files changed, 83 insertions(+)
 
-diff --git a/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c b/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c
-index bbdfd5e26ec8..f75fb157f2ff 100644
---- a/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c
-@@ -209,7 +209,7 @@ static int sun8i_dw_hdmi_bind(struct device *dev, struct device *master,
- 		goto err_disable_clk_tmds;
- 	}
+diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
+index 936384a94f25..74d3d8c58608 100644
+--- a/sound/soc/qcom/lpass-cpu.c
++++ b/sound/soc/qcom/lpass-cpu.c
+@@ -93,8 +93,30 @@ static void lpass_cpu_daiops_shutdown(struct snd_pcm_substream *substream,
+ 		struct snd_soc_dai *dai)
+ {
+ 	struct lpass_data *drvdata = snd_soc_dai_get_drvdata(dai);
++	struct lpaif_i2sctl *i2sctl = drvdata->i2sctl;
++	unsigned int id = dai->driver->id;
  
--	ret = sun8i_hdmi_phy_probe(hdmi, phy_node);
-+	ret = sun8i_hdmi_phy_get(hdmi, phy_node);
- 	of_node_put(phy_node);
- 	if (ret) {
- 		dev_err(dev, "Couldn't get the HDMI PHY\n");
-@@ -242,7 +242,6 @@ static int sun8i_dw_hdmi_bind(struct device *dev, struct device *master,
- 
- cleanup_encoder:
- 	drm_encoder_cleanup(encoder);
--	sun8i_hdmi_phy_remove(hdmi);
- err_disable_clk_tmds:
- 	clk_disable_unprepare(hdmi->clk_tmds);
- err_assert_ctrl_reset:
-@@ -263,7 +262,6 @@ static void sun8i_dw_hdmi_unbind(struct device *dev, struct device *master,
- 	struct sun8i_dw_hdmi *hdmi = dev_get_drvdata(dev);
- 
- 	dw_hdmi_unbind(hdmi->hdmi);
--	sun8i_hdmi_phy_remove(hdmi);
- 	clk_disable_unprepare(hdmi->clk_tmds);
- 	reset_control_assert(hdmi->rst_ctrl);
- 	gpiod_set_value(hdmi->ddc_en, 0);
-@@ -320,7 +318,32 @@ static struct platform_driver sun8i_dw_hdmi_pltfm_driver = {
- 		.of_match_table = sun8i_dw_hdmi_dt_ids,
- 	},
- };
--module_platform_driver(sun8i_dw_hdmi_pltfm_driver);
+ 	clk_disable_unprepare(drvdata->mi2s_osr_clk[dai->driver->id]);
++	/*
++	 * Ensure LRCLK is disabled even in device node validation.
++	 * Will not impact if disabled in lpass_cpu_daiops_trigger()
++	 * suspend.
++	 */
++	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
++		regmap_fields_write(i2sctl->spken, id, LPAIF_I2SCTL_SPKEN_DISABLE);
++	else
++		regmap_fields_write(i2sctl->micen, id, LPAIF_I2SCTL_MICEN_DISABLE);
 +
-+static int __init sun8i_dw_hdmi_init(void)
-+{
-+	int ret;
-+
-+	ret = platform_driver_register(&sun8i_dw_hdmi_pltfm_driver);
-+	if (ret)
-+		return ret;
-+
-+	ret = platform_driver_register(&sun8i_hdmi_phy_driver);
-+	if (ret) {
-+		platform_driver_unregister(&sun8i_dw_hdmi_pltfm_driver);
-+		return ret;
++	/*
++	 * BCLK may not be enabled if lpass_cpu_daiops_prepare is called before
++	 * lpass_cpu_daiops_shutdown. It's paired with the clk_enable in
++	 * lpass_cpu_daiops_prepare.
++	 */
++	if (drvdata->mi2s_was_prepared[dai->driver->id]) {
++		drvdata->mi2s_was_prepared[dai->driver->id] = false;
++		clk_disable(drvdata->mi2s_bit_clk[dai->driver->id]);
 +	}
 +
-+	return ret;
-+}
-+
-+static void __exit sun8i_dw_hdmi_exit(void)
-+{
-+	platform_driver_unregister(&sun8i_dw_hdmi_pltfm_driver);
-+	platform_driver_unregister(&sun8i_hdmi_phy_driver);
-+}
-+
-+module_init(sun8i_dw_hdmi_init);
-+module_exit(sun8i_dw_hdmi_exit);
- 
- MODULE_AUTHOR("Jernej Skrabec <jernej.skrabec@siol.net>");
- MODULE_DESCRIPTION("Allwinner DW HDMI bridge");
-diff --git a/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h b/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h
-index d4b55af0592f..74f6ed0e2570 100644
---- a/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h
-+++ b/drivers/gpu/drm/sun4i/sun8i_dw_hdmi.h
-@@ -195,14 +195,15 @@ struct sun8i_dw_hdmi {
- 	struct gpio_desc		*ddc_en;
- };
- 
-+extern struct platform_driver sun8i_hdmi_phy_driver;
-+
- static inline struct sun8i_dw_hdmi *
- encoder_to_sun8i_dw_hdmi(struct drm_encoder *encoder)
- {
- 	return container_of(encoder, struct sun8i_dw_hdmi, encoder);
+ 	clk_unprepare(drvdata->mi2s_bit_clk[dai->driver->id]);
  }
  
--int sun8i_hdmi_phy_probe(struct sun8i_dw_hdmi *hdmi, struct device_node *node);
--void sun8i_hdmi_phy_remove(struct sun8i_dw_hdmi *hdmi);
-+int sun8i_hdmi_phy_get(struct sun8i_dw_hdmi *hdmi, struct device_node *node);
- 
- void sun8i_hdmi_phy_init(struct sun8i_hdmi_phy *phy);
- void sun8i_hdmi_phy_set_ops(struct sun8i_hdmi_phy *phy,
-diff --git a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c b/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-index 9994edf67509..c9239708d398 100644
---- a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-@@ -5,6 +5,7 @@
- 
- #include <linux/delay.h>
- #include <linux/of_address.h>
-+#include <linux/of_platform.h>
- 
- #include "sun8i_dw_hdmi.h"
- 
-@@ -597,10 +598,30 @@ static const struct of_device_id sun8i_hdmi_phy_of_table[] = {
- 	{ /* sentinel */ }
- };
- 
--int sun8i_hdmi_phy_probe(struct sun8i_dw_hdmi *hdmi, struct device_node *node)
-+int sun8i_hdmi_phy_get(struct sun8i_dw_hdmi *hdmi, struct device_node *node)
-+{
-+	struct platform_device *pdev = of_find_device_by_node(node);
-+	struct sun8i_hdmi_phy *phy;
-+
-+	if (!pdev)
-+		return -EPROBE_DEFER;
-+
-+	phy = platform_get_drvdata(pdev);
-+	if (!phy)
-+		return -EPROBE_DEFER;
-+
-+	hdmi->phy = phy;
-+
-+	put_device(&pdev->dev);
-+
-+	return 0;
-+}
-+
-+static int sun8i_hdmi_phy_probe(struct platform_device *pdev)
- {
- 	const struct of_device_id *match;
--	struct device *dev = hdmi->dev;
-+	struct device *dev = &pdev->dev;
-+	struct device_node *node = dev->of_node;
- 	struct sun8i_hdmi_phy *phy;
- 	struct resource res;
- 	void __iomem *regs;
-@@ -704,7 +725,7 @@ int sun8i_hdmi_phy_probe(struct sun8i_dw_hdmi *hdmi, struct device_node *node)
- 		clk_prepare_enable(phy->clk_phy);
- 	}
- 
--	hdmi->phy = phy;
-+	platform_set_drvdata(pdev, phy);
- 
- 	return 0;
- 
-@@ -728,9 +749,9 @@ err_put_clk_bus:
+@@ -275,6 +297,18 @@ static int lpass_cpu_daiops_trigger(struct snd_pcm_substream *substream,
+ 	case SNDRV_PCM_TRIGGER_START:
+ 	case SNDRV_PCM_TRIGGER_RESUME:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
++		/*
++		 * Ensure lpass BCLK/LRCLK is enabled during
++		 * device resume as lpass_cpu_daiops_prepare() is not called
++		 * after the device resumes. We don't check mi2s_was_prepared before
++		 * enable/disable BCLK in trigger events because:
++		 *  1. These trigger events are paired, so the BCLK
++		 *     enable_count is balanced.
++		 *  2. the BCLK can be shared (ex: headset and headset mic),
++		 *     we need to increase the enable_count so that we don't
++		 *     turn off the shared BCLK while other devices are using
++		 *     it.
++		 */
+ 		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 			ret = regmap_fields_write(i2sctl->spken, id,
+ 						 LPAIF_I2SCTL_SPKEN_ENABLE);
+@@ -296,6 +330,10 @@ static int lpass_cpu_daiops_trigger(struct snd_pcm_substream *substream,
+ 	case SNDRV_PCM_TRIGGER_STOP:
+ 	case SNDRV_PCM_TRIGGER_SUSPEND:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
++		/*
++		 * To ensure lpass BCLK/LRCLK is disabled during
++		 * device suspend.
++		 */
+ 		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 			ret = regmap_fields_write(i2sctl->spken, id,
+ 						 LPAIF_I2SCTL_SPKEN_DISABLE);
+@@ -315,12 +353,53 @@ static int lpass_cpu_daiops_trigger(struct snd_pcm_substream *substream,
  	return ret;
  }
  
--void sun8i_hdmi_phy_remove(struct sun8i_dw_hdmi *hdmi)
-+static int sun8i_hdmi_phy_remove(struct platform_device *pdev)
- {
--	struct sun8i_hdmi_phy *phy = hdmi->phy;
-+	struct sun8i_hdmi_phy *phy = platform_get_drvdata(pdev);
- 
- 	clk_disable_unprepare(phy->clk_mod);
- 	clk_disable_unprepare(phy->clk_bus);
-@@ -744,4 +765,14 @@ void sun8i_hdmi_phy_remove(struct sun8i_dw_hdmi *hdmi)
- 	clk_put(phy->clk_pll1);
- 	clk_put(phy->clk_mod);
- 	clk_put(phy->clk_bus);
-+	return 0;
- }
++static int lpass_cpu_daiops_prepare(struct snd_pcm_substream *substream,
++		struct snd_soc_dai *dai)
++{
++	struct lpass_data *drvdata = snd_soc_dai_get_drvdata(dai);
++	struct lpaif_i2sctl *i2sctl = drvdata->i2sctl;
++	unsigned int id = dai->driver->id;
++	int ret;
 +
-+struct platform_driver sun8i_hdmi_phy_driver = {
-+	.probe  = sun8i_hdmi_phy_probe,
-+	.remove = sun8i_hdmi_phy_remove,
-+	.driver = {
-+		.name = "sun8i-hdmi-phy",
-+		.of_match_table = sun8i_hdmi_phy_of_table,
-+	},
-+};
++	/*
++	 * Ensure lpass BCLK/LRCLK is enabled bit before playback/capture
++	 * data flow starts. This allows other codec to have some delay before
++	 * the data flow.
++	 * (ex: to drop start up pop noise before capture starts).
++	 */
++	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
++		ret = regmap_fields_write(i2sctl->spken, id, LPAIF_I2SCTL_SPKEN_ENABLE);
++	else
++		ret = regmap_fields_write(i2sctl->micen, id, LPAIF_I2SCTL_MICEN_ENABLE);
++
++	if (ret) {
++		dev_err(dai->dev, "error writing to i2sctl reg: %d\n", ret);
++		return ret;
++	}
++
++	/*
++	 * Check mi2s_was_prepared before enabling BCLK as lpass_cpu_daiops_prepare can
++	 * be called multiple times. It's paired with the clk_disable in
++	 * lpass_cpu_daiops_shutdown.
++	 */
++	if (!drvdata->mi2s_was_prepared[dai->driver->id]) {
++		ret = clk_enable(drvdata->mi2s_bit_clk[id]);
++		if (ret) {
++			dev_err(dai->dev, "error in enabling mi2s bit clk: %d\n", ret);
++			return ret;
++		}
++		drvdata->mi2s_was_prepared[dai->driver->id] = true;
++	}
++	return 0;
++}
++
+ const struct snd_soc_dai_ops asoc_qcom_lpass_cpu_dai_ops = {
+ 	.set_sysclk	= lpass_cpu_daiops_set_sysclk,
+ 	.startup	= lpass_cpu_daiops_startup,
+ 	.shutdown	= lpass_cpu_daiops_shutdown,
+ 	.hw_params	= lpass_cpu_daiops_hw_params,
+ 	.trigger	= lpass_cpu_daiops_trigger,
++	.prepare	= lpass_cpu_daiops_prepare,
+ };
+ EXPORT_SYMBOL_GPL(asoc_qcom_lpass_cpu_dai_ops);
+ 
+diff --git a/sound/soc/qcom/lpass.h b/sound/soc/qcom/lpass.h
+index 83b2e08ade06..7f72214404ba 100644
+--- a/sound/soc/qcom/lpass.h
++++ b/sound/soc/qcom/lpass.h
+@@ -67,6 +67,10 @@ struct lpass_data {
+ 	/* MI2S SD lines to use for playback/capture */
+ 	unsigned int mi2s_playback_sd_mode[LPASS_MAX_MI2S_PORTS];
+ 	unsigned int mi2s_capture_sd_mode[LPASS_MAX_MI2S_PORTS];
++
++	/* The state of MI2S prepare dai_ops was called */
++	bool mi2s_was_prepared[LPASS_MAX_MI2S_PORTS];
++
+ 	int hdmi_port_enable;
+ 
+ 	/* low-power audio interface (LPAIF) registers */
 -- 
 2.30.2
 
