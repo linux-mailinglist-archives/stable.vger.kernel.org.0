@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67AA33AEDBD
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:20:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE703AEEDC
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231714AbhFUQW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
+        id S231735AbhFUQdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:33:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231169AbhFUQVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:21:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12E2761164;
-        Mon, 21 Jun 2021 16:19:03 +0000 (UTC)
+        id S231986AbhFUQbE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:31:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 255DB6134F;
+        Mon, 21 Jun 2021 16:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292344;
-        bh=FAkSYqFfFnVQkOIYEvmy4UTRP3DWfQSBA4Q2+Z0e23c=;
+        s=korg; t=1624292714;
+        bh=gejLy919EjzY/hYIvCNM1x6wflCUUrXKnIQSERbaZqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PcTkBO+CQVOHCtKW/TQks1yj4SDdhVC98voCTXfS7tfE67DR7XoyRLl+OXuB4Rs+x
-         q0OoGbLhzQRY1IslMXQ6hI3Jy6idYYP8DM6oZI3y670JSfvJV/uNr+ek3NFh1ZgStA
-         dq0lDuyzT3jXoEBSBpSkx6QGJGcGM0BkPS+aVStQ=
+        b=CuclQa6QN7/XvB/2/Qm2ntuzWq5VHrGvbDBVKen8qBg+hsC1pqHZOGsKyQoE3sBbh
+         vYr/IWdzOJbxK5mTDI21L4eqkcWIa3sivJ6MzGIfpMD+ujP7PL1g1sl5Vu704QDS17
+         ZEkR24IQe2R62DnEroe4ka3C/oq20118aFUsMoho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 56/90] tracing: Do not stop recording comms if the trace file is being read
-Date:   Mon, 21 Jun 2021 18:15:31 +0200
-Message-Id: <20210621154906.050692153@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
+Subject: [PATCH 5.10 102/146] usb: core: hub: Disable autosuspend for Cypress CY7C65632
+Date:   Mon, 21 Jun 2021 18:15:32 +0200
+Message-Id: <20210621154917.732736057@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-References: <20210621154904.159672728@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,56 +38,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Andrew Lunn <andrew@lunn.ch>
 
-commit 4fdd595e4f9a1ff6d93ec702eaecae451cfc6591 upstream.
+commit a7d8d1c7a7f73e780aa9ae74926ae5985b2f895f upstream.
 
-A while ago, when the "trace" file was opened, tracing was stopped, and
-code was added to stop recording the comms to saved_cmdlines, for mapping
-of the pids to the task name.
+The Cypress CY7C65632 appears to have an issue with auto suspend and
+detecting devices, not too dissimilar to the SMSC 5534B hub. It is
+easiest to reproduce by connecting multiple mass storage devices to
+the hub at the same time. On a Lenovo Yoga, around 1 in 3 attempts
+result in the devices not being detected. It is however possible to
+make them appear using lsusb -v.
 
-Code has been added that only records the comm if a trace event occurred,
-and there's no reason to not trace it if the trace file is opened.
+Disabling autosuspend for this hub resolves the issue.
 
+Fixes: 1208f9e1d758 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
 Cc: stable@vger.kernel.org
-Fixes: 7ffbd48d5cab2 ("tracing: Cache comms only after an event occurred")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210614155524.2228800-1-andrew@lunn.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/usb/core/hub.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1948,9 +1948,6 @@ struct saved_cmdlines_buffer {
- };
- static struct saved_cmdlines_buffer *savedcmd;
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -40,6 +40,8 @@
+ #define USB_VENDOR_GENESYS_LOGIC		0x05e3
+ #define USB_VENDOR_SMSC				0x0424
+ #define USB_PRODUCT_USB5534B			0x5534
++#define USB_VENDOR_CYPRESS			0x04b4
++#define USB_PRODUCT_CY7C65632			0x6570
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
+ #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
  
--/* temporary disable recording */
--static atomic_t trace_record_taskinfo_disabled __read_mostly;
--
- static inline char *get_saved_cmdlines(int idx)
- {
- 	return &savedcmd->saved_cmdlines[idx * TASK_COMM_LEN];
-@@ -3458,9 +3455,6 @@ static void *s_start(struct seq_file *m,
- 		return ERR_PTR(-EBUSY);
- #endif
- 
--	if (!iter->snapshot)
--		atomic_inc(&trace_record_taskinfo_disabled);
--
- 	if (*pos != iter->pos) {
- 		iter->ent = NULL;
- 		iter->cpu = 0;
-@@ -3503,9 +3497,6 @@ static void s_stop(struct seq_file *m, v
- 		return;
- #endif
- 
--	if (!iter->snapshot)
--		atomic_dec(&trace_record_taskinfo_disabled);
--
- 	trace_access_unlock(iter->cpu_file);
- 	trace_event_read_unlock();
- }
+@@ -5644,6 +5646,11 @@ static const struct usb_device_id hub_id
+       .bInterfaceClass = USB_CLASS_HUB,
+       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++                   | USB_DEVICE_ID_MATCH_PRODUCT,
++      .idVendor = USB_VENDOR_CYPRESS,
++      .idProduct = USB_PRODUCT_CY7C65632,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
+ 			| USB_DEVICE_ID_MATCH_INT_CLASS,
+       .idVendor = USB_VENDOR_GENESYS_LOGIC,
+       .bInterfaceClass = USB_CLASS_HUB,
 
 
