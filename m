@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE0463AEEDD
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B00E3AEDC3
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231656AbhFUQdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:33:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49174 "EHLO mail.kernel.org"
+        id S231935AbhFUQWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:22:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232274AbhFUQbG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:31:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1B9861352;
-        Mon, 21 Jun 2021 16:25:16 +0000 (UTC)
+        id S231749AbhFUQV1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:21:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 748B561358;
+        Mon, 21 Jun 2021 16:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292717;
-        bh=7D5+Z7yqnTuz20Rw2xK/398Z00a3m+DNXkDvvgn3+nQ=;
+        s=korg; t=1624292353;
+        bh=QbSCfuq9kOyKYJnxD56Mv3iLkzPvRWSKIGDJfEiNGI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lgm4c3GgHNIji1LnnBIgYqKF6ODHLYW1075kOl4KTZR2s9u1MBhb3O3VpbNtVFdk6
-         6Rk6dWOVdday2FNEm8PAxOcHy4rWTBrLXgcI0ael8KFsoT41O7JVsBT90C0s+Rpbvm
-         J1ZGCn2TvOwrJtZWRVNdsxw7OWEhHySoxqWOYe7Y=
+        b=vfFWODfqe7URHDYiB6/8iMFzieWZkTNKQ78BfoEZQ/MtHVtfFo+vQqtdZdrUkFY0t
+         vcTJjm2evVcSZUaNfAbcBI4QrnZCQN2SGcbnZkZtRKej59T2DjigjdWIz0p49N62wr
+         s2ykclB4SBP6MekQhe2jG0C7pFTMUA2ZIn5jgR7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Breno Lima <breno.lima@nxp.com>,
-        Jun Li <jun.li@nxp.com>, Peter Chen <peter.chen@kernel.org>
-Subject: [PATCH 5.10 103/146] usb: chipidea: imx: Fix Battery Charger 1.2 CDP detection
-Date:   Mon, 21 Jun 2021 18:15:33 +0200
-Message-Id: <20210621154917.797476453@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shanker Donthineni <sdonthineni@nvidia.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sinan Kaya <okaya@kernel.org>
+Subject: [PATCH 5.4 59/90] PCI: Mark some NVIDIA GPUs to avoid bus reset
+Date:   Mon, 21 Jun 2021 18:15:34 +0200
+Message-Id: <20210621154906.162764025@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
+References: <20210621154904.159672728@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,79 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Breno Lima <breno.lima@nxp.com>
+From: Shanker Donthineni <sdonthineni@nvidia.com>
 
-commit c6d580d96f140596d69220f60ce0cfbea4ee5c0f upstream.
+commit 4c207e7121fa92b66bf1896bf8ccb9edfb0f9731 upstream.
 
-i.MX8MM cannot detect certain CDP USB HUBs. usbmisc_imx.c driver is not
-following CDP timing requirements defined by USB BC 1.2 specification
-and section 3.2.4 Detection Timing CDP.
+Some NVIDIA GPU devices do not work with SBR.  Triggering SBR leaves the
+device inoperable for the current system boot. It requires a system
+hard-reboot to get the GPU device back to normal operating condition
+post-SBR. For the affected devices, enable NO_BUS_RESET quirk to avoid the
+issue.
 
-During Primary Detection the i.MX device should turn on VDP_SRC and
-IDM_SINK for a minimum of 40ms (TVDPSRC_ON). After a time of TVDPSRC_ON,
-the i.MX is allowed to check the status of the D- line. Current
-implementation is waiting between 1ms and 2ms, and certain BC 1.2
-complaint USB HUBs cannot be detected. Increase delay to 40ms allowing
-enough time for primary detection.
+This issue will be fixed in the next generation of hardware.
 
-During secondary detection the i.MX is required to disable VDP_SRC and
-IDM_SNK, and enable VDM_SRC and IDP_SINK for at least 40ms (TVDMSRC_ON).
-
-Current implementation is not disabling VDP_SRC and IDM_SNK, introduce
-disable sequence in imx7d_charger_secondary_detection() function.
-
-VDM_SRC and IDP_SINK should be enabled for at least 40ms (TVDMSRC_ON).
-Increase delay allowing enough time for detection.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 746f316b753a ("usb: chipidea: introduce imx7d USB charger detection")
-Signed-off-by: Breno Lima <breno.lima@nxp.com>
-Signed-off-by: Jun Li <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/20210614175013.495808-1-breno.lima@nxp.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
+Link: https://lore.kernel.org/r/20210608054857.18963-8-ameynarkhede03@gmail.com
+Signed-off-by: Shanker Donthineni <sdonthineni@nvidia.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Sinan Kaya <okaya@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/chipidea/usbmisc_imx.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/pci/quirks.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/usb/chipidea/usbmisc_imx.c
-+++ b/drivers/usb/chipidea/usbmisc_imx.c
-@@ -686,6 +686,16 @@ static int imx7d_charger_secondary_detec
- 	int val;
- 	unsigned long flags;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3558,6 +3558,18 @@ static void quirk_no_bus_reset(struct pc
+ }
  
-+	/* Clear VDATSRCENB0 to disable VDP_SRC and IDM_SNK required by BC 1.2 spec */
-+	spin_lock_irqsave(&usbmisc->lock, flags);
-+	val = readl(usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
-+	val &= ~MX7D_USB_OTG_PHY_CFG2_CHRG_VDATSRCENB0;
-+	writel(val, usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
-+	spin_unlock_irqrestore(&usbmisc->lock, flags);
+ /*
++ * Some NVIDIA GPU devices do not work with bus reset, SBR needs to be
++ * prevented for those affected devices.
++ */
++static void quirk_nvidia_no_bus_reset(struct pci_dev *dev)
++{
++	if ((dev->device & 0xffc0) == 0x2340)
++		quirk_no_bus_reset(dev);
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
++			 quirk_nvidia_no_bus_reset);
 +
-+	/* TVDMSRC_DIS */
-+	msleep(20);
-+
- 	/* VDM_SRC is connected to D- and IDP_SINK is connected to D+ */
- 	spin_lock_irqsave(&usbmisc->lock, flags);
- 	val = readl(usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
-@@ -695,7 +705,8 @@ static int imx7d_charger_secondary_detec
- 				usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
- 	spin_unlock_irqrestore(&usbmisc->lock, flags);
- 
--	usleep_range(1000, 2000);
-+	/* TVDMSRC_ON */
-+	msleep(40);
- 
- 	/*
- 	 * Per BC 1.2, check voltage of D+:
-@@ -798,7 +809,8 @@ static int imx7d_charger_primary_detecti
- 				usbmisc->base + MX7D_USB_OTG_PHY_CFG2);
- 	spin_unlock_irqrestore(&usbmisc->lock, flags);
- 
--	usleep_range(1000, 2000);
-+	/* TVDPSRC_ON */
-+	msleep(40);
- 
- 	/* Check if D- is less than VDAT_REF to determine an SDP per BC 1.2 */
- 	val = readl(usbmisc->base + MX7D_USB_OTG_PHY_STATUS);
++/*
+  * Some Atheros AR9xxx and QCA988x chips do not behave after a bus reset.
+  * The device will throw a Link Down error on AER-capable systems and
+  * regardless of AER, config space of the device is never accessible again
 
 
