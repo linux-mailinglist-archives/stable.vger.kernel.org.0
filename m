@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5733AF0CD
+	by mail.lfdr.de (Postfix) with ESMTP id ED6993AF0CF
 	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:50:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231566AbhFUQxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:53:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42450 "EHLO mail.kernel.org"
+        id S231449AbhFUQxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232475AbhFUQu5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:50:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 332EA6145F;
-        Mon, 21 Jun 2021 16:35:04 +0000 (UTC)
+        id S232568AbhFUQvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:51:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDD52613F2;
+        Mon, 21 Jun 2021 16:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293305;
-        bh=VWTWqWDThjyYacHVM/W8MTX4Ff57iC4zwzsQ9dpEVDU=;
+        s=korg; t=1624293308;
+        bh=UrqKC0cb5v6bAXBFT2UEwDAOb/SVVadrjuw+0e5sS6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnD6t1g5NFmBMcWlj4WgFakf58vDtRarP+BEMJjEz/kQigelrYEngStDllfohkn3K
-         yUhZLqmX1qTad4W6O/f+V+RB/f2XYJegj1InGiirQNV6IffeJlqeP7akcFv3oxhCSF
-         BegQh8sllolPpJqCetcTrQGFTlSQ0DUKGDJmEhWk=
+        b=SHmVE0wVhuPKUuFbvfuUDapJ84y5/FIqfRVOJOt687RkBBtvh5xo352k0Hmb9y6XZ
+         Gbc7UoH8HIBZnq8+mWbgfTC1wEmsWEEE7Iwwobjp36zKqBuG7EdPPS6pcdvaABMI7n
+         bZXFVinGGmN+LGU/HziM+FH7rHwMSRpRm00xSPGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changbin Du <changbin.du@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.12 176/178] perf beauty: Update copy of linux/socket.h with the kernel sources
-Date:   Mon, 21 Jun 2021 18:16:30 +0200
-Message-Id: <20210621154928.740864744@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Jack Pham <jackp@codeaurora.org>
+Subject: [PATCH 5.12 177/178] usb: dwc3: debugfs: Add and remove endpoint dirs dynamically
+Date:   Mon, 21 Jun 2021 18:16:31 +0200
+Message-Id: <20210621154928.773634533@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -40,38 +39,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Jack Pham <jackp@codeaurora.org>
 
-commit ef83f9efe8461b8fd71eb60b53dbb6a5dd7b39e9 upstream.
+commit 8d396bb0a5b62b326f6be7594d8bd46b088296bd upstream.
 
-To pick the changes in:
+The DWC3 DebugFS directory and files are currently created once
+during probe.  This includes creation of subdirectories for each
+of the gadget's endpoints.  This works fine for peripheral-only
+controllers, as dwc3_core_init_mode() calls dwc3_gadget_init()
+just prior to calling dwc3_debugfs_init().
 
-  ea6932d70e223e02 ("net: make get_net_ns return error if NET_NS is disabled")
+However, for dual-role controllers, dwc3_core_init_mode() will
+instead call dwc3_drd_init() which is problematic in a few ways.
+First, the initial state must be determined, then dwc3_set_mode()
+will have to schedule drd_work and by then dwc3_debugfs_init()
+could have already been invoked.  Even if the initial mode is
+peripheral, dwc3_gadget_init() happens after the DebugFS files
+are created, and worse so if the initial state is host and the
+controller switches to peripheral much later.  And secondly,
+even if the gadget endpoints' debug entries were successfully
+created, if the controller exits peripheral mode, its dwc3_eps
+are freed so the debug files would now hold stale references.
 
-That don't result in any changes in the tables generated from that
-header.
+So it is best if the DebugFS endpoint entries are created and
+removed dynamically at the same time the underlying dwc3_eps are.
+Do this by calling dwc3_debugfs_create_endpoint_dir() as each
+endpoint is created, and conversely remove the DebugFS entry when
+the endpoint is freed.
 
-This silences this perf build warning:
-
-  Warning: Kernel ABI header at 'tools/perf/trace/beauty/include/linux/socket.h' differs from latest version at 'include/linux/socket.h'
-  diff -u tools/perf/trace/beauty/include/linux/socket.h include/linux/socket.h
-
-Cc: Changbin Du <changbin.du@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210529192932.22912-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/trace/beauty/include/linux/socket.h |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/dwc3/debug.h   |    3 +++
+ drivers/usb/dwc3/debugfs.c |   21 ++-------------------
+ drivers/usb/dwc3/gadget.c  |    3 +++
+ 3 files changed, 8 insertions(+), 19 deletions(-)
 
---- a/tools/perf/trace/beauty/include/linux/socket.h
-+++ b/tools/perf/trace/beauty/include/linux/socket.h
-@@ -438,6 +438,4 @@ extern int __sys_socketpair(int family,
- 			    int __user *usockvec);
- extern int __sys_shutdown_sock(struct socket *sock, int how);
- extern int __sys_shutdown(int fd, int how);
+--- a/drivers/usb/dwc3/debug.h
++++ b/drivers/usb/dwc3/debug.h
+@@ -413,9 +413,12 @@ static inline const char *dwc3_gadget_ge
+ 
+ 
+ #ifdef CONFIG_DEBUG_FS
++extern void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep);
+ extern void dwc3_debugfs_init(struct dwc3 *d);
+ extern void dwc3_debugfs_exit(struct dwc3 *d);
+ #else
++static inline void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
++{  }
+ static inline void dwc3_debugfs_init(struct dwc3 *d)
+ {  }
+ static inline void dwc3_debugfs_exit(struct dwc3 *d)
+--- a/drivers/usb/dwc3/debugfs.c
++++ b/drivers/usb/dwc3/debugfs.c
+@@ -890,30 +890,14 @@ static void dwc3_debugfs_create_endpoint
+ 	}
+ }
+ 
+-static void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep,
+-		struct dentry *parent)
++void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
+ {
+ 	struct dentry		*dir;
+ 
+-	dir = debugfs_create_dir(dep->name, parent);
++	dir = debugfs_create_dir(dep->name, dep->dwc->root);
+ 	dwc3_debugfs_create_endpoint_files(dep, dir);
+ }
+ 
+-static void dwc3_debugfs_create_endpoint_dirs(struct dwc3 *dwc,
+-		struct dentry *parent)
+-{
+-	int			i;
 -
--extern struct ns_common *get_net_ns(struct ns_common *ns);
- #endif /* _LINUX_SOCKET_H */
+-	for (i = 0; i < dwc->num_eps; i++) {
+-		struct dwc3_ep	*dep = dwc->eps[i];
+-
+-		if (!dep)
+-			continue;
+-
+-		dwc3_debugfs_create_endpoint_dir(dep, parent);
+-	}
+-}
+-
+ void dwc3_debugfs_init(struct dwc3 *dwc)
+ {
+ 	struct dentry		*root;
+@@ -944,7 +928,6 @@ void dwc3_debugfs_init(struct dwc3 *dwc)
+ 				&dwc3_testmode_fops);
+ 		debugfs_create_file("link_state", 0644, root, dwc,
+ 				    &dwc3_link_state_fops);
+-		dwc3_debugfs_create_endpoint_dirs(dwc, root);
+ 	}
+ }
+ 
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2719,6 +2719,8 @@ static int dwc3_gadget_init_endpoint(str
+ 	INIT_LIST_HEAD(&dep->started_list);
+ 	INIT_LIST_HEAD(&dep->cancelled_list);
+ 
++	dwc3_debugfs_create_endpoint_dir(dep);
++
+ 	return 0;
+ }
+ 
+@@ -2762,6 +2764,7 @@ static void dwc3_gadget_free_endpoints(s
+ 			list_del(&dep->endpoint.ep_list);
+ 		}
+ 
++		debugfs_remove_recursive(debugfs_lookup(dep->name, dwc->root));
+ 		kfree(dep);
+ 	}
+ }
 
 
