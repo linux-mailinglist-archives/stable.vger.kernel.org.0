@@ -2,32 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68FC93AF0E5
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90EE53AF0C0
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232971AbhFUQyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:54:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41348 "EHLO mail.kernel.org"
+        id S230499AbhFUQwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:52:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233030AbhFUQvp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:51:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AD1B613EB;
-        Mon, 21 Jun 2021 16:35:33 +0000 (UTC)
+        id S233648AbhFUQuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:50:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D906613E9;
+        Mon, 21 Jun 2021 16:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293333;
-        bh=e4vfX5Ro9cYX5wtIn9Np8do7rZxDr4xaf4uruk5Qi5A=;
+        s=korg; t=1624293300;
+        bh=DTdE6AkAOZ9bgUSZqgZTzSc4lGf74S9EoZ3oVtIhUwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfSQ5yI4C1sbFu8wiEDqkTvb3KYZef6zx8lSUsczVXAf2Z5itoCBP+F0YLAeWO0Qy
-         ESwV2msvC2Y7X0GBavI+SQ6xEvMavQrEUsZQS5WobcS9L+oZaCtWs+ttVbQweuIr7n
-         nPV+5Acks12p7No4cfdGjuIw0J8iUz1z5XeVCUHE=
+        b=XMyxJq0LHR36q8p51CCpIcLfb41tPzyPftgjFKv8f13PGLbY+YI83kR8+HN4Yr3OM
+         bYD5HBbQyE9qCrCB+1YOZya6sDFQ95Pgy+YId6aid3w+nDJ02MaPSgFVYULilrXPkE
+         MbMqxEr+JEKg6X9qKrddBGKdBNUFMeV9cMyrS2r4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 165/178] net: bridge: fix vlan tunnel dst refcnt when egressing
-Date:   Mon, 21 Jun 2021 18:16:19 +0200
-Message-Id: <20210621154928.362587149@linuxfoundation.org>
+        stable@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 166/178] mm,hwpoison: fix race with hugetlb page allocation
+Date:   Mon, 21 Jun 2021 18:16:20 +0200
+Message-Id: <20210621154928.395678837@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -39,87 +45,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
 
-commit cfc579f9d89af4ada58c69b03bcaa4887840f3b3 upstream.
+commit 25182f05ffed0b45602438693e4eed5d7f3ebadd upstream.
 
-The egress tunnel code uses dst_clone() and directly sets the result
-which is wrong because the entry might have 0 refcnt or be already deleted,
-causing number of problems. It also triggers the WARN_ON() in dst_hold()[1]
-when a refcnt couldn't be taken. Fix it by using dst_hold_safe() and
-checking if a reference was actually taken before setting the dst.
+When hugetlb page fault (under overcommitting situation) and
+memory_failure() race, VM_BUG_ON_PAGE() is triggered by the following
+race:
 
-[1] dmesg WARN_ON log and following refcnt errors
- WARNING: CPU: 5 PID: 38 at include/net/dst.h:230 br_handle_egress_vlan_tunnel+0x10b/0x134 [bridge]
- Modules linked in: 8021q garp mrp bridge stp llc bonding ipv6 virtio_net
- CPU: 5 PID: 38 Comm: ksoftirqd/5 Kdump: loaded Tainted: G        W         5.13.0-rc3+ #360
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
- RIP: 0010:br_handle_egress_vlan_tunnel+0x10b/0x134 [bridge]
- Code: e8 85 bc 01 e1 45 84 f6 74 90 45 31 f6 85 db 48 c7 c7 a0 02 19 a0 41 0f 94 c6 31 c9 31 d2 44 89 f6 e8 64 bc 01 e1 85 db 75 02 <0f> 0b 31 c9 31 d2 44 89 f6 48 c7 c7 70 02 19 a0 e8 4b bc 01 e1 49
- RSP: 0018:ffff8881003d39e8 EFLAGS: 00010246
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffffffffa01902a0
- RBP: ffff8881040c6700 R08: 0000000000000000 R09: 0000000000000001
- R10: 2ce93d0054fe0d00 R11: 54fe0d00000e0000 R12: ffff888109515000
- R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000401
- FS:  0000000000000000(0000) GS:ffff88822bf40000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007f42ba70f030 CR3: 0000000109926000 CR4: 00000000000006e0
- Call Trace:
-  br_handle_vlan+0xbc/0xca [bridge]
-  __br_forward+0x23/0x164 [bridge]
-  deliver_clone+0x41/0x48 [bridge]
-  br_handle_frame_finish+0x36f/0x3aa [bridge]
-  ? skb_dst+0x2e/0x38 [bridge]
-  ? br_handle_ingress_vlan_tunnel+0x3e/0x1c8 [bridge]
-  ? br_handle_frame_finish+0x3aa/0x3aa [bridge]
-  br_handle_frame+0x2c3/0x377 [bridge]
-  ? __skb_pull+0x33/0x51
-  ? vlan_do_receive+0x4f/0x36a
-  ? br_handle_frame_finish+0x3aa/0x3aa [bridge]
-  __netif_receive_skb_core+0x539/0x7c6
-  ? __list_del_entry_valid+0x16e/0x1c2
-  __netif_receive_skb_list_core+0x6d/0xd6
-  netif_receive_skb_list_internal+0x1d9/0x1fa
-  gro_normal_list+0x22/0x3e
-  dev_gro_receive+0x55b/0x600
-  ? detach_buf_split+0x58/0x140
-  napi_gro_receive+0x94/0x12e
-  virtnet_poll+0x15d/0x315 [virtio_net]
-  __napi_poll+0x2c/0x1c9
-  net_rx_action+0xe6/0x1fb
-  __do_softirq+0x115/0x2d8
-  run_ksoftirqd+0x18/0x20
-  smpboot_thread_fn+0x183/0x19c
-  ? smpboot_unregister_percpu_thread+0x66/0x66
-  kthread+0x10a/0x10f
-  ? kthread_mod_delayed_work+0xb6/0xb6
-  ret_from_fork+0x22/0x30
- ---[ end trace 49f61b07f775fd2b ]---
- dst_release: dst:00000000c02d677a refcnt:-1
- dst_release underflow
+    CPU0:                           CPU1:
 
-Cc: stable@vger.kernel.org
-Fixes: 11538d039ac6 ("bridge: vlan dst_metadata hooks in ingress and egress paths")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+                                    gather_surplus_pages()
+                                      page = alloc_surplus_huge_page()
+    memory_failure_hugetlb()
+      get_hwpoison_page(page)
+        __get_hwpoison_page(page)
+          get_page_unless_zero(page)
+                                      zero = put_page_testzero(page)
+                                      VM_BUG_ON_PAGE(!zero, page)
+                                      enqueue_huge_page(h, page)
+      put_page(page)
+
+__get_hwpoison_page() only checks the page refcount before taking an
+additional one for memory error handling, which is not enough because
+there's a time window where compound pages have non-zero refcount during
+hugetlb page initialization.
+
+So make __get_hwpoison_page() check page status a bit more for hugetlb
+pages with get_hwpoison_huge_page().  Checking hugetlb-specific flags
+under hugetlb_lock makes sure that the hugetlb page is not transitive.
+It's notable that another new function, HWPoisonHandlable(), is helpful
+to prevent a race against other transitive page states (like a generic
+compound page just before PageHuge becomes true).
+
+Link: https://lkml.kernel.org/r/20210603233632.2964832-2-nao.horiguchi@gmail.com
+Fixes: ead07f6a867b ("mm/memory-failure: introduce get_hwpoison_page() for consistent refcount handling")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: <stable@vger.kernel.org>	[5.12+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_vlan_tunnel.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/hugetlb.h |    6 ++++++
+ mm/hugetlb.c            |   15 +++++++++++++++
+ mm/memory-failure.c     |   29 +++++++++++++++++++++++++++--
+ 3 files changed, 48 insertions(+), 2 deletions(-)
 
---- a/net/bridge/br_vlan_tunnel.c
-+++ b/net/bridge/br_vlan_tunnel.c
-@@ -204,8 +204,8 @@ int br_handle_egress_vlan_tunnel(struct
- 		return err;
- 
- 	tunnel_dst = rcu_dereference(vlan->tinfo.tunnel_dst);
--	if (tunnel_dst)
--		skb_dst_set(skb, dst_clone(&tunnel_dst->dst));
-+	if (tunnel_dst && dst_hold_safe(&tunnel_dst->dst))
-+		skb_dst_set(skb, &tunnel_dst->dst);
- 
- 	return 0;
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -145,6 +145,7 @@ bool hugetlb_reserve_pages(struct inode
+ long hugetlb_unreserve_pages(struct inode *inode, long start, long end,
+ 						long freed);
+ bool isolate_huge_page(struct page *page, struct list_head *list);
++int get_hwpoison_huge_page(struct page *page, bool *hugetlb);
+ void putback_active_hugepage(struct page *page);
+ void move_hugetlb_state(struct page *oldpage, struct page *newpage, int reason);
+ void free_huge_page(struct page *page);
+@@ -330,6 +331,11 @@ static inline bool isolate_huge_page(str
+ 	return false;
  }
+ 
++static inline int get_hwpoison_huge_page(struct page *page, bool *hugetlb)
++{
++	return 0;
++}
++
+ static inline void putback_active_hugepage(struct page *page)
+ {
+ }
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5664,6 +5664,21 @@ unlock:
+ 	return ret;
+ }
+ 
++int get_hwpoison_huge_page(struct page *page, bool *hugetlb)
++{
++	int ret = 0;
++
++	*hugetlb = false;
++	spin_lock_irq(&hugetlb_lock);
++	if (PageHeadHuge(page)) {
++		*hugetlb = true;
++		if (HPageFreed(page) || HPageMigratable(page))
++			ret = get_page_unless_zero(page);
++	}
++	spin_unlock_irq(&hugetlb_lock);
++	return ret;
++}
++
+ void putback_active_hugepage(struct page *page)
+ {
+ 	spin_lock(&hugetlb_lock);
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -949,6 +949,17 @@ static int page_action(struct page_state
+ 	return (result == MF_RECOVERED || result == MF_DELAYED) ? 0 : -EBUSY;
+ }
+ 
++/*
++ * Return true if a page type of a given page is supported by hwpoison
++ * mechanism (while handling could fail), otherwise false.  This function
++ * does not return true for hugetlb or device memory pages, so it's assumed
++ * to be called only in the context where we never have such pages.
++ */
++static inline bool HWPoisonHandlable(struct page *page)
++{
++	return PageLRU(page) || __PageMovable(page);
++}
++
+ /**
+  * __get_hwpoison_page() - Get refcount for memory error handling:
+  * @page:	raw error page (hit by memory error)
+@@ -959,8 +970,22 @@ static int page_action(struct page_state
+ static int __get_hwpoison_page(struct page *page)
+ {
+ 	struct page *head = compound_head(page);
++	int ret = 0;
++	bool hugetlb = false;
++
++	ret = get_hwpoison_huge_page(head, &hugetlb);
++	if (hugetlb)
++		return ret;
++
++	/*
++	 * This check prevents from calling get_hwpoison_unless_zero()
++	 * for any unsupported type of page in order to reduce the risk of
++	 * unexpected races caused by taking a page refcount.
++	 */
++	if (!HWPoisonHandlable(head))
++		return 0;
+ 
+-	if (!PageHuge(head) && PageTransHuge(head)) {
++	if (PageTransHuge(head)) {
+ 		/*
+ 		 * Non anonymous thp exists only in allocation/free time. We
+ 		 * can't handle such a case correctly, so let's give it up.
+@@ -1017,7 +1042,7 @@ try_again:
+ 			ret = -EIO;
+ 		}
+ 	} else {
+-		if (PageHuge(p) || PageLRU(p) || __PageMovable(p)) {
++		if (PageHuge(p) || HWPoisonHandlable(p)) {
+ 			ret = 1;
+ 		} else {
+ 			/*
 
 
