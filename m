@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF8D3AED8A
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE2C3AEE94
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231304AbhFUQUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:20:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40216 "EHLO mail.kernel.org"
+        id S232168AbhFUQaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:30:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231193AbhFUQUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:20:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CDAA6124B;
-        Mon, 21 Jun 2021 16:18:00 +0000 (UTC)
+        id S232347AbhFUQ3P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:29:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E86161378;
+        Mon, 21 Jun 2021 16:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292280;
-        bh=R+K1kOTSDi1oBWmc24quiDJrX4YPlcTwKkrI8ACXNSA=;
+        s=korg; t=1624292647;
+        bh=57/uMMEeMR9p9mCBxGKJPQGCdTcaBRY23AecR/wg6mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3sr7HYxsrFw90qzmOGzXrH+KvpNIwmFhyzx1TQ9ItSBFKuFx+p92JbetZH6p9WVh
-         kwybypdKyAjcu9J7F5wVBx8M+2Kq+3g/wmeB4sbjBh1qEC6FWT2UfsU4619kDBJq8N
-         y1oWrNjuYljivLb4DgQ0W7KpMd/+0d5gqCrEr2Os=
+        b=OyM7tlgLojEVgXVFZxmRu/uO8cT0HvJ4JsO74VzekRnB8GqyaI5YGUlxoZ3a9kq16
+         caGXqAi4WmMw4AaljO0e1xov7gJwb81cllQKeu3hnX9+iM9LwtTrnJS9q5nfZJ/IIZ
+         +NylqCHjTvf16KiQveGThMUF6cr1ccjU+X/DtZSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Til Jasper Ullrich <tju@tju.me>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/90] net: usb: fix possible use-after-free in smsc75xx_bind
-Date:   Mon, 21 Jun 2021 18:15:06 +0200
-Message-Id: <20210621154905.168947506@linuxfoundation.org>
+Subject: [PATCH 5.10 077/146] platform/x86: thinkpad_acpi: Add X1 Carbon Gen 9 second fan support
+Date:   Mon, 21 Jun 2021 18:15:07 +0200
+Message-Id: <20210621154915.835109528@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-References: <20210621154904.159672728@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Til Jasper Ullrich <tju@tju.me>
 
-[ Upstream commit 56b786d86694e079d8aad9b314e015cd4ac02a3d ]
+[ Upstream commit c0e0436cb4f6627146acdae8c77828f18db01151 ]
 
-The commit 46a8b29c6306 ("net: usb: fix memory leak in smsc75xx_bind")
-fails to clean up the work scheduled in smsc75xx_reset->
-smsc75xx_set_multicast, which leads to use-after-free if the work is
-scheduled to start after the deallocation. In addition, this patch
-also removes a dangling pointer - dev->data[0].
+The X1 Carbon Gen 9 uses two fans instead of one like the previous
+generation. This adds support for the second fan. It has been tested
+on my X1 Carbon Gen 9 (20XXS00100) and works fine.
 
-This patch calls cancel_work_sync to cancel the scheduled work and set
-the dangling pointer to NULL.
-
-Fixes: 46a8b29c6306 ("net: usb: fix memory leak in smsc75xx_bind")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Til Jasper Ullrich <tju@tju.me>
+Link: https://lore.kernel.org/r/20210525150950.14805-1-tju@tju.me
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc75xx.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
-index d0ae0df34e13..aa848be459ec 100644
---- a/drivers/net/usb/smsc75xx.c
-+++ b/drivers/net/usb/smsc75xx.c
-@@ -1482,7 +1482,7 @@ static int smsc75xx_bind(struct usbnet *dev, struct usb_interface *intf)
- 	ret = smsc75xx_wait_ready(dev, 0);
- 	if (ret < 0) {
- 		netdev_warn(dev->net, "device not ready in smsc75xx_bind\n");
--		goto err;
-+		goto free_pdata;
- 	}
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 1c25af28a723..5c2f2e337b57 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -8806,6 +8806,7 @@ static const struct tpacpi_quirk fan_quirk_table[] __initconst = {
+ 	TPACPI_Q_LNV3('N', '2', 'O', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (2nd gen) */
+ 	TPACPI_Q_LNV3('N', '2', 'V', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (3nd gen) */
+ 	TPACPI_Q_LNV3('N', '3', '0', TPACPI_FAN_2CTL),	/* P15 (1st gen) / P15v (1st gen) */
++	TPACPI_Q_LNV3('N', '3', '2', TPACPI_FAN_2CTL),	/* X1 Carbon (9th gen) */
+ };
  
- 	smsc75xx_init_mac_address(dev);
-@@ -1491,7 +1491,7 @@ static int smsc75xx_bind(struct usbnet *dev, struct usb_interface *intf)
- 	ret = smsc75xx_reset(dev);
- 	if (ret < 0) {
- 		netdev_warn(dev->net, "smsc75xx_reset error %d\n", ret);
--		goto err;
-+		goto cancel_work;
- 	}
- 
- 	dev->net->netdev_ops = &smsc75xx_netdev_ops;
-@@ -1502,8 +1502,11 @@ static int smsc75xx_bind(struct usbnet *dev, struct usb_interface *intf)
- 	dev->net->max_mtu = MAX_SINGLE_PACKET_SIZE;
- 	return 0;
- 
--err:
-+cancel_work:
-+	cancel_work_sync(&pdata->set_multicast);
-+free_pdata:
- 	kfree(pdata);
-+	dev->data[0] = 0;
- 	return ret;
- }
- 
-@@ -1514,7 +1517,6 @@ static void smsc75xx_unbind(struct usbnet *dev, struct usb_interface *intf)
- 		cancel_work_sync(&pdata->set_multicast);
- 		netif_dbg(dev, ifdown, dev->net, "free pdata\n");
- 		kfree(pdata);
--		pdata = NULL;
- 		dev->data[0] = 0;
- 	}
- }
+ static int __init fan_init(struct ibm_init_struct *iibm)
 -- 
 2.30.2
 
