@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DA343AEFB2
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE5C63AEFB4
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232713AbhFUQlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60770 "EHLO mail.kernel.org"
+        id S232777AbhFUQlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233128AbhFUQjY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:39:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F1876128A;
-        Mon, 21 Jun 2021 16:29:51 +0000 (UTC)
+        id S233145AbhFUQj0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:39:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03A99613F9;
+        Mon, 21 Jun 2021 16:29:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292992;
-        bh=Z11Q4DssXH8ugaQvRdzoT9JXaLGaFdqSa2cnzox+gpQ=;
+        s=korg; t=1624292994;
+        bh=KKHN1tZqk9vOiF5zfiekK61Ol5daYmg0Vt7OKUL8Xxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cepN/vrFohDXQYIihsxOr4k5KvaLkqVTWjCB7iFSnQvfCvQB8wIlMC8yfo4DZDNb9
-         8ycUjb68H73d5aRLd2ppD7excTa6bJApzqtq23RNudIUU9QosByzkBFGJzvLSbTkcG
-         rXem9J+eN5qw91ZNITqfrmMsm3fJlxvIPMf7bFWw=
+        b=ne3FBc8a/Zxe5N4EyLiUOcYw9wd0pcMJTQNzJHYoaIWjZEti+Nn1GgHamHE5i/CqD
+         eF2Ol+zhaTWi9fZf3tEXCTJzcpoHI7Uux4os/SFJePozatydCcNlkLICa1NTqIfaQ9
+         UOO7zcn9U5sP245foTG+/8Ls0bdcIDloK6KB2CMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ce96ca2b1d0b37c6422d@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 025/178] netfilter: nf_tables: initialize set before expression setup
-Date:   Mon, 21 Jun 2021 18:13:59 +0200
-Message-Id: <20210621154922.694123225@linuxfoundation.org>
+Subject: [PATCH 5.12 026/178] netfilter: nft_fib_ipv6: skip ipv6 packets from any to link-local
+Date:   Mon, 21 Jun 2021 18:14:00 +0200
+Message-Id: <20210621154922.747404001@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -41,171 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit ad9f151e560b016b6ad3280b48e42fa11e1a5440 ]
+[ Upstream commit 12f36e9bf678a81d030ca1b693dcda62b55af7c5 ]
 
-nft_set_elem_expr_alloc() needs an initialized set if expression sets on
-the NFT_EXPR_GC flag. Move set fields initialization before expression
-setup.
+The ip6tables rpfilter match has an extra check to skip packets with
+"::" source address.
 
-[4512935.019450] ==================================================================
-[4512935.019456] BUG: KASAN: null-ptr-deref in nft_set_elem_expr_alloc+0x84/0xd0 [nf_tables]
-[4512935.019487] Read of size 8 at addr 0000000000000070 by task nft/23532
-[4512935.019494] CPU: 1 PID: 23532 Comm: nft Not tainted 5.12.0-rc4+ #48
-[...]
-[4512935.019502] Call Trace:
-[4512935.019505]  dump_stack+0x89/0xb4
-[4512935.019512]  ? nft_set_elem_expr_alloc+0x84/0xd0 [nf_tables]
-[4512935.019536]  ? nft_set_elem_expr_alloc+0x84/0xd0 [nf_tables]
-[4512935.019560]  kasan_report.cold.12+0x5f/0xd8
-[4512935.019566]  ? nft_set_elem_expr_alloc+0x84/0xd0 [nf_tables]
-[4512935.019590]  nft_set_elem_expr_alloc+0x84/0xd0 [nf_tables]
-[4512935.019615]  nf_tables_newset+0xc7f/0x1460 [nf_tables]
+Extend this to ipv6 fib expression.  Else ipv6 duplicate address detection
+packets will fail rpf route check -- lookup returns -ENETUNREACH.
 
-Reported-by: syzbot+ce96ca2b1d0b37c6422d@syzkaller.appspotmail.com
-Fixes: 65038428b2c6 ("netfilter: nf_tables: allow to specify stateful expression in set definition")
+While at it, extend the prerouting check to also cover the ingress hook.
+
+Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1543
+Fixes: f6d0cbcf09c5 ("netfilter: nf_tables: add fib expression")
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 83 ++++++++++++++++++-----------------
- 1 file changed, 42 insertions(+), 41 deletions(-)
+ net/ipv6/netfilter/nft_fib_ipv6.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 31016c144c48..9d5ea2352965 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -4317,13 +4317,44 @@ static int nf_tables_newset(struct net *net, struct sock *nlsk,
- 	err = nf_tables_set_alloc_name(&ctx, set, name);
- 	kfree(name);
- 	if (err < 0)
--		goto err_set_alloc_name;
-+		goto err_set_name;
-+
-+	udata = NULL;
-+	if (udlen) {
-+		udata = set->data + size;
-+		nla_memcpy(udata, nla[NFTA_SET_USERDATA], udlen);
-+	}
-+
-+	INIT_LIST_HEAD(&set->bindings);
-+	set->table = table;
-+	write_pnet(&set->net, net);
-+	set->ops = ops;
-+	set->ktype = ktype;
-+	set->klen = desc.klen;
-+	set->dtype = dtype;
-+	set->objtype = objtype;
-+	set->dlen = desc.dlen;
-+	set->flags = flags;
-+	set->size = desc.size;
-+	set->policy = policy;
-+	set->udlen = udlen;
-+	set->udata = udata;
-+	set->timeout = timeout;
-+	set->gc_int = gc_int;
-+
-+	set->field_count = desc.field_count;
-+	for (i = 0; i < desc.field_count; i++)
-+		set->field_len[i] = desc.field_len[i];
-+
-+	err = ops->init(set, &desc, nla);
-+	if (err < 0)
-+		goto err_set_init;
+diff --git a/net/ipv6/netfilter/nft_fib_ipv6.c b/net/ipv6/netfilter/nft_fib_ipv6.c
+index e204163c7036..92f3235fa287 100644
+--- a/net/ipv6/netfilter/nft_fib_ipv6.c
++++ b/net/ipv6/netfilter/nft_fib_ipv6.c
+@@ -135,6 +135,17 @@ void nft_fib6_eval_type(const struct nft_expr *expr, struct nft_regs *regs,
+ }
+ EXPORT_SYMBOL_GPL(nft_fib6_eval_type);
  
- 	if (nla[NFTA_SET_EXPR]) {
- 		expr = nft_set_elem_expr_alloc(&ctx, set, nla[NFTA_SET_EXPR]);
- 		if (IS_ERR(expr)) {
- 			err = PTR_ERR(expr);
--			goto err_set_alloc_name;
-+			goto err_set_expr_alloc;
- 		}
- 		set->exprs[0] = expr;
- 		set->num_exprs++;
-@@ -4334,74 +4365,44 @@ static int nf_tables_newset(struct net *net, struct sock *nlsk,
++static bool nft_fib_v6_skip_icmpv6(const struct sk_buff *skb, u8 next, const struct ipv6hdr *iph)
++{
++	if (likely(next != IPPROTO_ICMPV6))
++		return false;
++
++	if (ipv6_addr_type(&iph->saddr) != IPV6_ADDR_ANY)
++		return false;
++
++	return ipv6_addr_type(&iph->daddr) & IPV6_ADDR_LINKLOCAL;
++}
++
+ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
+ 		   const struct nft_pktinfo *pkt)
+ {
+@@ -163,10 +174,13 @@ void nft_fib6_eval(const struct nft_expr *expr, struct nft_regs *regs,
  
- 		if (!(flags & NFT_SET_EXPR)) {
- 			err = -EINVAL;
--			goto err_set_alloc_name;
-+			goto err_set_expr_alloc;
- 		}
- 		i = 0;
- 		nla_for_each_nested(tmp, nla[NFTA_SET_EXPRESSIONS], left) {
- 			if (i == NFT_SET_EXPR_MAX) {
- 				err = -E2BIG;
--				goto err_set_init;
-+				goto err_set_expr_alloc;
- 			}
- 			if (nla_type(tmp) != NFTA_LIST_ELEM) {
- 				err = -EINVAL;
--				goto err_set_init;
-+				goto err_set_expr_alloc;
- 			}
- 			expr = nft_set_elem_expr_alloc(&ctx, set, tmp);
- 			if (IS_ERR(expr)) {
- 				err = PTR_ERR(expr);
--				goto err_set_init;
-+				goto err_set_expr_alloc;
- 			}
- 			set->exprs[i++] = expr;
- 			set->num_exprs++;
- 		}
+ 	lookup_flags = nft_fib6_flowi_init(&fl6, priv, pkt, oif, iph);
+ 
+-	if (nft_hook(pkt) == NF_INET_PRE_ROUTING &&
+-	    nft_fib_is_loopback(pkt->skb, nft_in(pkt))) {
+-		nft_fib_store_result(dest, priv, nft_in(pkt));
+-		return;
++	if (nft_hook(pkt) == NF_INET_PRE_ROUTING ||
++	    nft_hook(pkt) == NF_INET_INGRESS) {
++		if (nft_fib_is_loopback(pkt->skb, nft_in(pkt)) ||
++		    nft_fib_v6_skip_icmpv6(pkt->skb, pkt->tprot, iph)) {
++			nft_fib_store_result(dest, priv, nft_in(pkt));
++			return;
++		}
  	}
  
--	udata = NULL;
--	if (udlen) {
--		udata = set->data + size;
--		nla_memcpy(udata, nla[NFTA_SET_USERDATA], udlen);
--	}
--
--	INIT_LIST_HEAD(&set->bindings);
--	set->table = table;
--	write_pnet(&set->net, net);
--	set->ops   = ops;
--	set->ktype = ktype;
--	set->klen  = desc.klen;
--	set->dtype = dtype;
--	set->objtype = objtype;
--	set->dlen  = desc.dlen;
--	set->flags = flags;
--	set->size  = desc.size;
--	set->policy = policy;
--	set->udlen  = udlen;
--	set->udata  = udata;
--	set->timeout = timeout;
--	set->gc_int = gc_int;
- 	set->handle = nf_tables_alloc_handle(table);
- 
--	set->field_count = desc.field_count;
--	for (i = 0; i < desc.field_count; i++)
--		set->field_len[i] = desc.field_len[i];
--
--	err = ops->init(set, &desc, nla);
--	if (err < 0)
--		goto err_set_init;
--
- 	err = nft_trans_set_add(&ctx, NFT_MSG_NEWSET, set);
- 	if (err < 0)
--		goto err_set_trans;
-+		goto err_set_expr_alloc;
- 
- 	list_add_tail_rcu(&set->list, &table->sets);
- 	table->use++;
- 	return 0;
- 
--err_set_trans:
--	ops->destroy(set);
--err_set_init:
-+err_set_expr_alloc:
- 	for (i = 0; i < set->num_exprs; i++)
- 		nft_expr_destroy(&ctx, set->exprs[i]);
--err_set_alloc_name:
-+
-+	ops->destroy(set);
-+err_set_init:
- 	kfree(set->name);
- err_set_name:
- 	kvfree(set);
+ 	*dest = 0;
 -- 
 2.30.2
 
