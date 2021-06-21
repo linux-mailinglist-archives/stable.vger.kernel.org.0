@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC6B03AEE7F
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:27:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 848173AED66
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:17:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231723AbhFUQ3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:29:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
+        id S231189AbhFUQTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:19:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231162AbhFUQ2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:28:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A56C0613BA;
-        Mon, 21 Jun 2021 16:23:17 +0000 (UTC)
+        id S230510AbhFUQTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:19:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF9836115B;
+        Mon, 21 Jun 2021 16:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292598;
-        bh=lNfDjPhhfB4yjGG7SUymDWseI5BRKBUwphpFwJAfbK0=;
+        s=korg; t=1624292236;
+        bh=9Z0B2jsDy/jN+O0yVvpK3ibgfqJRGh8AWu6EhRja+f8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tj2BbEGL4PiMYL/v3bWzB436btIp72tqZocQH6WMibMX46FtMHd0UFbXvCNZydDl0
-         6btGH+iLFQ1ImWMQ3gtk872W2e4NyNOj/fQgQeBJzWt9RQihr7aFbdqKRGTdjf7iWJ
-         Yw50PSjk1379i+uCHTb2mW/5Hao4aNh2aJzi5Bao=
+        b=wpj6aqy/P2Zgdc2wq+9Tnq25NMadidga76XLl1ytit7S5IbVhZ3DZzJQFJlXkwpoL
+         YB1PKV3pqLH0a2mBXZb7c21uU9p6d8X/M3yHMLaygrmUM6gno1sTa9pzvv9+Lk03vg
+         p4vIMNz5O8QSYFo87jXsIp8oJIUSEyxRIpeFFxs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Chengyang Fan <cy.fan@huawei.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dima Chumak <dchumak@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/146] net: ipv4: fix memory leak in ip_mc_add1_src
-Date:   Mon, 21 Jun 2021 18:14:50 +0200
-Message-Id: <20210621154914.453267886@linuxfoundation.org>
+Subject: [PATCH 5.4 16/90] net/mlx5e: Fix page reclaim for dead peer hairpin
+Date:   Mon, 21 Jun 2021 18:14:51 +0200
+Message-Id: <20210621154904.686761994@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
+References: <20210621154904.159672728@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +41,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengyang Fan <cy.fan@huawei.com>
+From: Dima Chumak <dchumak@nvidia.com>
 
-[ Upstream commit d8e2973029b8b2ce477b564824431f3385c77083 ]
+[ Upstream commit a3e5fd9314dfc4314a9567cde96e1aef83a7458a ]
 
-BUG: memory leak
-unreferenced object 0xffff888101bc4c00 (size 32):
-  comm "syz-executor527", pid 360, jiffies 4294807421 (age 19.329s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-    01 00 00 00 00 00 00 00 ac 14 14 bb 00 00 02 00 ................
-  backtrace:
-    [<00000000f17c5244>] kmalloc include/linux/slab.h:558 [inline]
-    [<00000000f17c5244>] kzalloc include/linux/slab.h:688 [inline]
-    [<00000000f17c5244>] ip_mc_add1_src net/ipv4/igmp.c:1971 [inline]
-    [<00000000f17c5244>] ip_mc_add_src+0x95f/0xdb0 net/ipv4/igmp.c:2095
-    [<000000001cb99709>] ip_mc_source+0x84c/0xea0 net/ipv4/igmp.c:2416
-    [<0000000052cf19ed>] do_ip_setsockopt net/ipv4/ip_sockglue.c:1294 [inline]
-    [<0000000052cf19ed>] ip_setsockopt+0x114b/0x30c0 net/ipv4/ip_sockglue.c:1423
-    [<00000000477edfbc>] raw_setsockopt+0x13d/0x170 net/ipv4/raw.c:857
-    [<00000000e75ca9bb>] __sys_setsockopt+0x158/0x270 net/socket.c:2117
-    [<00000000bdb993a8>] __do_sys_setsockopt net/socket.c:2128 [inline]
-    [<00000000bdb993a8>] __se_sys_setsockopt net/socket.c:2125 [inline]
-    [<00000000bdb993a8>] __x64_sys_setsockopt+0xba/0x150 net/socket.c:2125
-    [<000000006a1ffdbd>] do_syscall_64+0x40/0x80 arch/x86/entry/common.c:47
-    [<00000000b11467c4>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+When adding a hairpin flow, a firmware-side send queue is created for
+the peer net device, which claims some host memory pages for its
+internal ring buffer. If the peer net device is removed/unbound before
+the hairpin flow is deleted, then the send queue is not destroyed which
+leads to a stack trace on pci device remove:
 
-In commit 24803f38a5c0 ("igmp: do not remove igmp souce list info when set
-link down"), the ip_mc_clear_src() in ip_mc_destroy_dev() was removed,
-because it was also called in igmpv3_clear_delrec().
+[ 748.005230] mlx5_core 0000:08:00.2: wait_func:1094:(pid 12985): MANAGE_PAGES(0x108) timeout. Will cause a leak of a command resource
+[ 748.005231] mlx5_core 0000:08:00.2: reclaim_pages:514:(pid 12985): failed reclaiming pages: err -110
+[ 748.001835] mlx5_core 0000:08:00.2: mlx5_reclaim_root_pages:653:(pid 12985): failed reclaiming pages (-110) for func id 0x0
+[ 748.002171] ------------[ cut here ]------------
+[ 748.001177] FW pages counter is 4 after reclaiming all pages
+[ 748.001186] WARNING: CPU: 1 PID: 12985 at drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c:685 mlx5_reclaim_startup_pages+0x34b/0x460 [mlx5_core]                      [  +0.002771] Modules linked in: cls_flower mlx5_ib mlx5_core ptp pps_core act_mirred sch_ingress openvswitch nsh xt_conntrack xt_MASQUERADE nf_conntrack_netlink nfnetlink xt_addrtype iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 br_netfilter rpcrdma rdma_ucm ib_iser libiscsi scsi_transport_iscsi rdma_cm ib_umad ib_ipoib iw_cm ib_cm ib_uverbs ib_core overlay fuse [last unloaded: pps_core]
+[ 748.007225] CPU: 1 PID: 12985 Comm: tee Not tainted 5.12.0+ #1
+[ 748.001376] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+[ 748.002315] RIP: 0010:mlx5_reclaim_startup_pages+0x34b/0x460 [mlx5_core]
+[ 748.001679] Code: 28 00 00 00 0f 85 22 01 00 00 48 81 c4 b0 00 00 00 31 c0 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 c7 c7 40 cc 19 a1 e8 9f 71 0e e2 <0f> 0b e9 30 ff ff ff 48 c7 c7 a0 cc 19 a1 e8 8c 71 0e e2 0f 0b e9
+[ 748.003781] RSP: 0018:ffff88815220faf8 EFLAGS: 00010286
+[ 748.001149] RAX: 0000000000000000 RBX: ffff8881b4900280 RCX: 0000000000000000
+[ 748.001445] RDX: 0000000000000027 RSI: 0000000000000004 RDI: ffffed102a441f51
+[ 748.001614] RBP: 00000000000032b9 R08: 0000000000000001 R09: ffffed1054a15ee8
+[ 748.001446] R10: ffff8882a50af73b R11: ffffed1054a15ee7 R12: fffffbfff07c1e30
+[ 748.001447] R13: dffffc0000000000 R14: ffff8881b492cba8 R15: 0000000000000000
+[ 748.001429] FS:  00007f58bd08b580(0000) GS:ffff8882a5080000(0000) knlGS:0000000000000000
+[ 748.001695] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 748.001309] CR2: 000055a026351740 CR3: 00000001d3b48006 CR4: 0000000000370ea0
+[ 748.001506] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 748.001483] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 748.001654] Call Trace:
+[ 748.000576]  ? mlx5_satisfy_startup_pages+0x290/0x290 [mlx5_core]
+[ 748.001416]  ? mlx5_cmd_teardown_hca+0xa2/0xd0 [mlx5_core]
+[ 748.001354]  ? mlx5_cmd_init_hca+0x280/0x280 [mlx5_core]
+[ 748.001203]  mlx5_function_teardown+0x30/0x60 [mlx5_core]
+[ 748.001275]  mlx5_uninit_one+0xa7/0xc0 [mlx5_core]
+[ 748.001200]  remove_one+0x5f/0xc0 [mlx5_core]
+[ 748.001075]  pci_device_remove+0x9f/0x1d0
+[ 748.000833]  device_release_driver_internal+0x1e0/0x490
+[ 748.001207]  unbind_store+0x19f/0x200
+[ 748.000942]  ? sysfs_file_ops+0x170/0x170
+[ 748.001000]  kernfs_fop_write_iter+0x2bc/0x450
+[ 748.000970]  new_sync_write+0x373/0x610
+[ 748.001124]  ? new_sync_read+0x600/0x600
+[ 748.001057]  ? lock_acquire+0x4d6/0x700
+[ 748.000908]  ? lockdep_hardirqs_on_prepare+0x400/0x400
+[ 748.001126]  ? fd_install+0x1c9/0x4d0
+[ 748.000951]  vfs_write+0x4d0/0x800
+[ 748.000804]  ksys_write+0xf9/0x1d0
+[ 748.000868]  ? __x64_sys_read+0xb0/0xb0
+[ 748.000811]  ? filp_open+0x50/0x50
+[ 748.000919]  ? syscall_enter_from_user_mode+0x1d/0x50
+[ 748.001223]  do_syscall_64+0x3f/0x80
+[ 748.000892]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 748.001026] RIP: 0033:0x7f58bcfb22f7
+[ 748.000944] Code: 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
+[ 748.003925] RSP: 002b:00007fffd7f2aaa8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+[ 748.001732] RAX: ffffffffffffffda RBX: 000000000000000d RCX: 00007f58bcfb22f7
+[ 748.001426] RDX: 000000000000000d RSI: 00007fffd7f2abc0 RDI: 0000000000000003
+[ 748.001746] RBP: 00007fffd7f2abc0 R08: 0000000000000000 R09: 0000000000000001
+[ 748.001631] R10: 00000000000001b6 R11: 0000000000000246 R12: 000000000000000d
+[ 748.001537] R13: 00005597ac2c24a0 R14: 000000000000000d R15: 00007f58bd084700
+[ 748.001564] irq event stamp: 0
+[ 748.000787] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+[ 748.001399] hardirqs last disabled at (0): [<ffffffff813132cf>] copy_process+0x146f/0x5eb0
+[ 748.001854] softirqs last  enabled at (0): [<ffffffff8131330e>] copy_process+0x14ae/0x5eb0
+[ 748.013431] softirqs last disabled at (0): [<0000000000000000>] 0x0
+[ 748.001492] ---[ end trace a6fabd773d1c51ae ]---
 
-Rough callgraph:
+Fix by destroying the send queue of a hairpin peer net device that is
+being removed/unbound, which returns the allocated ring buffer pages to
+the host.
 
-inetdev_destroy
--> ip_mc_destroy_dev
-     -> igmpv3_clear_delrec
-        -> ip_mc_clear_src
--> RCU_INIT_POINTER(dev->ip_ptr, NULL)
-
-However, ip_mc_clear_src() called in igmpv3_clear_delrec() doesn't
-release in_dev->mc_list->sources. And RCU_INIT_POINTER() assigns the
-NULL to dev->ip_ptr. As a result, in_dev cannot be obtained through
-inetdev_by_index() and then in_dev->mc_list->sources cannot be released
-by ip_mc_del1_src() in the sock_close. Rough call sequence goes like:
-
-sock_close
--> __sock_release
-   -> inet_release
-      -> ip_mc_drop_socket
-         -> inetdev_by_index
-         -> ip_mc_leave_src
-            -> ip_mc_del_src
-               -> ip_mc_del1_src
-
-So we still need to call ip_mc_clear_src() in ip_mc_destroy_dev() to free
-in_dev->mc_list->sources.
-
-Fixes: 24803f38a5c0 ("igmp: do not remove igmp souce list info ...")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chengyang Fan <cy.fan@huawei.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4d8fcf216c90 ("net/mlx5e: Avoid unbounded peer devices when unpairing TC hairpin rules")
+Signed-off-by: Dima Chumak <dchumak@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/igmp.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   |  2 +-
+ .../ethernet/mellanox/mlx5/core/transobj.c    | 30 +++++++++++++++----
+ include/linux/mlx5/transobj.h                 |  1 +
+ 3 files changed, 26 insertions(+), 7 deletions(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 7b272bbed2b4..6b3c558a4f23 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -1801,6 +1801,7 @@ void ip_mc_destroy_dev(struct in_device *in_dev)
- 	while ((i = rtnl_dereference(in_dev->mc_list)) != NULL) {
- 		in_dev->mc_list = i->next_rcu;
- 		in_dev->mc_count--;
-+		ip_mc_clear_src(i);
- 		ip_ma_put(i);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index fe7342e8a043..9d26463f3fa5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -4079,7 +4079,7 @@ static void mlx5e_tc_hairpin_update_dead_peer(struct mlx5e_priv *priv,
+ 	list_for_each_entry_safe(hpe, tmp, &init_wait_list, dead_peer_wait_list) {
+ 		wait_for_completion(&hpe->res_ready);
+ 		if (!IS_ERR_OR_NULL(hpe->hp) && hpe->peer_vhca_id == peer_vhca_id)
+-			hpe->hp->pair->peer_gone = true;
++			mlx5_core_hairpin_clear_dead_peer(hpe->hp->pair);
+ 
+ 		mlx5e_hairpin_put(priv, hpe);
  	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/transobj.c b/drivers/net/ethernet/mellanox/mlx5/core/transobj.c
+index b1068500f1df..0b5437051a3b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/transobj.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/transobj.c
+@@ -457,6 +457,15 @@ err_modify_sq:
+ 	return err;
  }
+ 
++static void mlx5_hairpin_unpair_peer_sq(struct mlx5_hairpin *hp)
++{
++	int i;
++
++	for (i = 0; i < hp->num_channels; i++)
++		mlx5_hairpin_modify_sq(hp->peer_mdev, hp->sqn[i], MLX5_SQC_STATE_RDY,
++				       MLX5_SQC_STATE_RST, 0, 0);
++}
++
+ static void mlx5_hairpin_unpair_queues(struct mlx5_hairpin *hp)
+ {
+ 	int i;
+@@ -465,13 +474,9 @@ static void mlx5_hairpin_unpair_queues(struct mlx5_hairpin *hp)
+ 	for (i = 0; i < hp->num_channels; i++)
+ 		mlx5_hairpin_modify_rq(hp->func_mdev, hp->rqn[i], MLX5_RQC_STATE_RDY,
+ 				       MLX5_RQC_STATE_RST, 0, 0);
+-
+ 	/* unset peer SQs */
+-	if (hp->peer_gone)
+-		return;
+-	for (i = 0; i < hp->num_channels; i++)
+-		mlx5_hairpin_modify_sq(hp->peer_mdev, hp->sqn[i], MLX5_SQC_STATE_RDY,
+-				       MLX5_SQC_STATE_RST, 0, 0);
++	if (!hp->peer_gone)
++		mlx5_hairpin_unpair_peer_sq(hp);
+ }
+ 
+ struct mlx5_hairpin *
+@@ -518,3 +523,16 @@ void mlx5_core_hairpin_destroy(struct mlx5_hairpin *hp)
+ 	mlx5_hairpin_destroy_queues(hp);
+ 	kfree(hp);
+ }
++
++void mlx5_core_hairpin_clear_dead_peer(struct mlx5_hairpin *hp)
++{
++	int i;
++
++	mlx5_hairpin_unpair_peer_sq(hp);
++
++	/* destroy peer SQ */
++	for (i = 0; i < hp->num_channels; i++)
++		mlx5_core_destroy_sq(hp->peer_mdev, hp->sqn[i]);
++
++	hp->peer_gone = true;
++}
+diff --git a/include/linux/mlx5/transobj.h b/include/linux/mlx5/transobj.h
+index dc6b1e7cb8c4..3abefd40a4d8 100644
+--- a/include/linux/mlx5/transobj.h
++++ b/include/linux/mlx5/transobj.h
+@@ -92,4 +92,5 @@ mlx5_core_hairpin_create(struct mlx5_core_dev *func_mdev,
+ 			 struct mlx5_hairpin_params *params);
+ 
+ void mlx5_core_hairpin_destroy(struct mlx5_hairpin *pair);
++void mlx5_core_hairpin_clear_dead_peer(struct mlx5_hairpin *hp);
+ #endif /* __TRANSOBJ_H__ */
 -- 
 2.30.2
 
