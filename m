@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2E3A3AEECD
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42EF43AEDB8
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:20:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231904AbhFUQcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:32:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
+        id S231874AbhFUQWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:22:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231250AbhFUQaJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:30:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69848613E2;
-        Mon, 21 Jun 2021 16:25:00 +0000 (UTC)
+        id S231693AbhFUQVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:21:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A104D61352;
+        Mon, 21 Jun 2021 16:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292701;
-        bh=gZsWYGD6DSZN9b0ieH25qpJfCk/qelBdQLh26Y8L3ug=;
+        s=korg; t=1624292339;
+        bh=K3UXGVGEXfHHx/fsn/oAVdyCMC7NfXsOP4Y6FB8e5e0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w61UCgDteqPIOAs8CDyUK81O65yOj6+wFeDNGg4Wx66huns5tL4uHArbYb4GQEm7F
-         HYdMhp1lzZ0dOKb/mrLEHxCxenBdgTz9O2qYGJNcgusBg2avKkYJTZX53DRVCf5nWO
-         iTQdc7iRQxVO9LZ0LUaejHlnsAfxZtnlJqPYj/NM=
+        b=EA9q/nWDxLtoqoiPtTswOx+s6s0c3isVxXqxnEqgM6yAQFZvHRTMU816dUraRSJsI
+         jgUZXeFhH7PgODrBflRo3TchvguUSSlSTSNyhc9qKOsB3qYGrQN4Y0SIdsmDXO56j9
+         Zn3z2dveUC4qWjvSi2vyBhTDbKDXRkgPg8150L8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Norbert Slusarek <nslusarek@gmx.net>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 098/146] can: bcm: fix infoleak in struct bcm_msg_head
-Date:   Mon, 21 Jun 2021 18:15:28 +0200
-Message-Id: <20210621154917.425217456@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
+Subject: [PATCH 5.4 54/90] usb: core: hub: Disable autosuspend for Cypress CY7C65632
+Date:   Mon, 21 Jun 2021 18:15:29 +0200
+Message-Id: <20210621154905.983661575@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
+References: <20210621154904.159672728@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +38,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Norbert Slusarek <nslusarek@gmx.net>
+From: Andrew Lunn <andrew@lunn.ch>
 
-commit 5e87ddbe3942e27e939bdc02deb8579b0cbd8ecc upstream.
+commit a7d8d1c7a7f73e780aa9ae74926ae5985b2f895f upstream.
 
-On 64-bit systems, struct bcm_msg_head has an added padding of 4 bytes between
-struct members count and ival1. Even though all struct members are initialized,
-the 4-byte hole will contain data from the kernel stack. This patch zeroes out
-struct bcm_msg_head before usage, preventing infoleaks to userspace.
+The Cypress CY7C65632 appears to have an issue with auto suspend and
+detecting devices, not too dissimilar to the SMSC 5534B hub. It is
+easiest to reproduce by connecting multiple mass storage devices to
+the hub at the same time. On a Lenovo Yoga, around 1 in 3 attempts
+result in the devices not being detected. It is however possible to
+make them appear using lsusb -v.
 
-Fixes: ffd980f976e7 ("[CAN]: Add broadcast manager (bcm) protocol")
-Link: https://lore.kernel.org/r/trinity-7c1b2e82-e34f-4885-8060-2cd7a13769ce-1623532166177@3c-app-gmx-bs52
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Norbert Slusarek <nslusarek@gmx.net>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Disabling autosuspend for this hub resolves the issue.
+
+Fixes: 1208f9e1d758 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210614155524.2228800-1-andrew@lunn.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/bcm.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/core/hub.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -402,6 +402,7 @@ static enum hrtimer_restart bcm_tx_timeo
- 		if (!op->count && (op->flags & TX_COUNTEVT)) {
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -39,6 +39,8 @@
+ #define USB_VENDOR_GENESYS_LOGIC		0x05e3
+ #define USB_VENDOR_SMSC				0x0424
+ #define USB_PRODUCT_USB5534B			0x5534
++#define USB_VENDOR_CYPRESS			0x04b4
++#define USB_PRODUCT_CY7C65632			0x6570
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
+ #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
  
- 			/* create notification to user */
-+			memset(&msg_head, 0, sizeof(msg_head));
- 			msg_head.opcode  = TX_EXPIRED;
- 			msg_head.flags   = op->flags;
- 			msg_head.count   = op->count;
-@@ -439,6 +440,7 @@ static void bcm_rx_changed(struct bcm_op
- 	/* this element is not throttled anymore */
- 	data->flags &= (BCM_CAN_FLAGS_MASK|RX_RECV);
- 
-+	memset(&head, 0, sizeof(head));
- 	head.opcode  = RX_CHANGED;
- 	head.flags   = op->flags;
- 	head.count   = op->count;
-@@ -560,6 +562,7 @@ static enum hrtimer_restart bcm_rx_timeo
- 	}
- 
- 	/* create notification to user */
-+	memset(&msg_head, 0, sizeof(msg_head));
- 	msg_head.opcode  = RX_TIMEOUT;
- 	msg_head.flags   = op->flags;
- 	msg_head.count   = op->count;
+@@ -5515,6 +5517,11 @@ static const struct usb_device_id hub_id
+       .bInterfaceClass = USB_CLASS_HUB,
+       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++                   | USB_DEVICE_ID_MATCH_PRODUCT,
++      .idVendor = USB_VENDOR_CYPRESS,
++      .idProduct = USB_PRODUCT_CY7C65632,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
+ 			| USB_DEVICE_ID_MATCH_INT_CLASS,
+       .idVendor = USB_VENDOR_GENESYS_LOGIC,
+       .bInterfaceClass = USB_CLASS_HUB,
 
 
