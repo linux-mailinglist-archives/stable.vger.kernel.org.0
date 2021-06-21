@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB7C3AF089
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F823AEF0A
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231645AbhFUQuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:50:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38074 "EHLO mail.kernel.org"
+        id S233272AbhFUQfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232536AbhFUQro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:47:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A780611CE;
-        Mon, 21 Jun 2021 16:33:39 +0000 (UTC)
+        id S231143AbhFUQdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:33:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 004C061369;
+        Mon, 21 Jun 2021 16:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293220;
-        bh=dqoV1TNWUCbUUOS9goSmit/ypve9i2to0VkDscJk+cY=;
+        s=korg; t=1624292778;
+        bh=MDCNXLQaQeRCclZguFc8JPVwqRvHbGxIhkqjfdDrtS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbaLhk0I5kiHLF/eAJ4RykyM7aaNvb5/nFPyX3vwtbjC4ZkC7GJHmpJ4R2wyHkAmS
-         Bg9d1OZCXcGuaas9MyuVv1ZU27NcXZtkSxiCW5QfWvH9+wHPWyu2ukysZq327Z86NP
-         2Fm/HndKj2L5zqNRPhlutg8E6XsT/iBhBDcqBv3U=
+        b=Ja+o4SwQjMubNFaEBr+r3UJKd2lc/eYooKyNnlcRdPnJDVUIxQ5cwUOrSG/pGLg0z
+         wYzYDwfEQEyBQ4is9/YjKOfU+BMojmnCWKO8pwvnaBnJ0kv1rZKJdZwNGxJHEDvBqG
+         MtnCIdji/cccCH5hmCh8EFtVJn3/gcfui1E4nOik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Rik van Riel <riel@surriel.com>,
-        Babu Moger <babu.moger@amd.com>
-Subject: [PATCH 5.12 143/178] x86/pkru: Write hardware init value to PKRU when xstate is init
+        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
+        Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Sven Eckelmann <sven@narfation.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 127/146] mac80211: Fix NULL ptr deref for injected rate info
 Date:   Mon, 21 Jun 2021 18:15:57 +0200
-Message-Id: <20210621154927.644071487@linuxfoundation.org>
+Message-Id: <20210621154919.487162348@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,93 +41,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit 510b80a6a0f1a0d114c6e33bcea64747d127973c upstream.
+commit bddc0c411a45d3718ac535a070f349be8eca8d48 upstream.
 
-When user space brings PKRU into init state, then the kernel handling is
-broken:
+The commit cb17ed29a7a5 ("mac80211: parse radiotap header when selecting Tx
+queue") moved the code to validate the radiotap header from
+ieee80211_monitor_start_xmit to ieee80211_parse_tx_radiotap. This made is
+possible to share more code with the new Tx queue selection code for
+injected frames. But at the same time, it now required the call of
+ieee80211_parse_tx_radiotap at the beginning of functions which wanted to
+handle the radiotap header. And this broke the rate parser for radiotap
+header parser.
 
-  T1 user space
-     xsave(state)
-     state.header.xfeatures &= ~XFEATURE_MASK_PKRU;
-     xrstor(state)
+The radiotap parser for rates is operating most of the time only on the
+data in the actual radiotap header. But for the 802.11a/b/g rates, it must
+also know the selected band from the chandef information. But this
+information is only written to the ieee80211_tx_info at the end of the
+ieee80211_monitor_start_xmit - long after ieee80211_parse_tx_radiotap was
+already called. The info->band information was therefore always 0
+(NL80211_BAND_2GHZ) when the parser code tried to access it.
 
-  T1 -> kernel
-     schedule()
-       XSAVE(S) -> T1->xsave.header.xfeatures[PKRU] == 0
-       T1->flags |= TIF_NEED_FPU_LOAD;
+For a 5GHz only device, injecting a frame with 802.11a rates would cause a
+NULL pointer dereference because local->hw.wiphy->bands[NL80211_BAND_2GHZ]
+would most likely have been NULL when the radiotap parser searched for the
+correct rate index of the driver.
 
-       wrpkru();
-
-     schedule()
-       ...
-       pk = get_xsave_addr(&T1->fpu->state.xsave, XFEATURE_PKRU);
-       if (pk)
-	 wrpkru(pk->pkru);
-       else
-	 wrpkru(DEFAULT_PKRU);
-
-Because the xfeatures bit is 0 and therefore the value in the xsave
-storage is not valid, get_xsave_addr() returns NULL and switch_to()
-writes the default PKRU. -> FAIL #1!
-
-So that wrecks any copy_to/from_user() on the way back to user space
-which hits memory which is protected by the default PKRU value.
-
-Assumed that this does not fail (pure luck) then T1 goes back to user
-space and because TIF_NEED_FPU_LOAD is set it ends up in
-
-  switch_fpu_return()
-      __fpregs_load_activate()
-        if (!fpregs_state_valid()) {
-  	 load_XSTATE_from_task();
-        }
-
-But if nothing touched the FPU between T1 scheduling out and back in,
-then the fpregs_state is still valid which means switch_fpu_return()
-does nothing and just clears TIF_NEED_FPU_LOAD. Back to user space with
-DEFAULT_PKRU loaded. -> FAIL #2!
-
-The fix is simple: if get_xsave_addr() returns NULL then set the
-PKRU value to 0 instead of the restrictive default PKRU value in
-init_pkru_value.
-
- [ bp: Massage in minor nitpicks from folks. ]
-
-Fixes: 0cecca9d03c9 ("x86/fpu: Eager switch PKRU state")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Rik van Riel <riel@surriel.com>
-Tested-by: Babu Moger <babu.moger@amd.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210608144346.045616965@linutronix.de
+Reported-by: Ben Greear <greearb@candelatech.com>
+Fixes: cb17ed29a7a5 ("mac80211: parse radiotap header when selecting Tx queue")
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+[sven@narfation.org: added commit message]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Link: https://lore.kernel.org/r/20210530133226.40587-1-sven@narfation.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/fpu/internal.h |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ include/net/mac80211.h |    7 +++++-
+ net/mac80211/tx.c      |   52 +++++++++++++++++++++++++++++++++----------------
+ 2 files changed, 42 insertions(+), 17 deletions(-)
 
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -579,9 +579,16 @@ static inline void switch_fpu_finish(str
- 	 * return to userland e.g. for a copy_to_user() operation.
- 	 */
- 	if (!(current->flags & PF_KTHREAD)) {
-+		/*
-+		 * If the PKRU bit in xsave.header.xfeatures is not set,
-+		 * then the PKRU component was in init state, which means
-+		 * XRSTOR will set PKRU to 0. If the bit is not set then
-+		 * get_xsave_addr() will return NULL because the PKRU value
-+		 * in memory is not valid. This means pkru_val has to be
-+		 * set to 0 and not to init_pkru_value.
-+		 */
- 		pk = get_xsave_addr(&new_fpu->state.xsave, XFEATURE_PKRU);
--		if (pk)
--			pkru_val = pk->pkru;
-+		pkru_val = pk ? pk->pkru : 0;
- 	}
- 	__write_pkru(pkru_val);
+--- a/include/net/mac80211.h
++++ b/include/net/mac80211.h
+@@ -6335,7 +6335,12 @@ bool ieee80211_tx_prepare_skb(struct iee
+ 
+ /**
+  * ieee80211_parse_tx_radiotap - Sanity-check and parse the radiotap header
+- *				 of injected frames
++ *				 of injected frames.
++ *
++ * To accurately parse and take into account rate and retransmission fields,
++ * you must initialize the chandef field in the ieee80211_tx_info structure
++ * of the skb before calling this function.
++ *
+  * @skb: packet injected by userspace
+  * @dev: the &struct device of this 802.11 device
+  */
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -2030,6 +2030,26 @@ void ieee80211_xmit(struct ieee80211_sub
+ 	ieee80211_tx(sdata, sta, skb, false);
  }
+ 
++static bool ieee80211_validate_radiotap_len(struct sk_buff *skb)
++{
++	struct ieee80211_radiotap_header *rthdr =
++		(struct ieee80211_radiotap_header *)skb->data;
++
++	/* check for not even having the fixed radiotap header part */
++	if (unlikely(skb->len < sizeof(struct ieee80211_radiotap_header)))
++		return false; /* too short to be possibly valid */
++
++	/* is it a header version we can trust to find length from? */
++	if (unlikely(rthdr->it_version))
++		return false; /* only version 0 is supported */
++
++	/* does the skb contain enough to deliver on the alleged length? */
++	if (unlikely(skb->len < ieee80211_get_radiotap_len(skb->data)))
++		return false; /* skb too short for claimed rt header extent */
++
++	return true;
++}
++
+ bool ieee80211_parse_tx_radiotap(struct sk_buff *skb,
+ 				 struct net_device *dev)
+ {
+@@ -2038,8 +2058,6 @@ bool ieee80211_parse_tx_radiotap(struct
+ 	struct ieee80211_radiotap_header *rthdr =
+ 		(struct ieee80211_radiotap_header *) skb->data;
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+-	struct ieee80211_supported_band *sband =
+-		local->hw.wiphy->bands[info->band];
+ 	int ret = ieee80211_radiotap_iterator_init(&iterator, rthdr, skb->len,
+ 						   NULL);
+ 	u16 txflags;
+@@ -2052,17 +2070,8 @@ bool ieee80211_parse_tx_radiotap(struct
+ 	u8 vht_mcs = 0, vht_nss = 0;
+ 	int i;
+ 
+-	/* check for not even having the fixed radiotap header part */
+-	if (unlikely(skb->len < sizeof(struct ieee80211_radiotap_header)))
+-		return false; /* too short to be possibly valid */
+-
+-	/* is it a header version we can trust to find length from? */
+-	if (unlikely(rthdr->it_version))
+-		return false; /* only version 0 is supported */
+-
+-	/* does the skb contain enough to deliver on the alleged length? */
+-	if (unlikely(skb->len < ieee80211_get_radiotap_len(skb->data)))
+-		return false; /* skb too short for claimed rt header extent */
++	if (!ieee80211_validate_radiotap_len(skb))
++		return false;
+ 
+ 	info->flags |= IEEE80211_TX_INTFL_DONT_ENCRYPT |
+ 		       IEEE80211_TX_CTL_DONTFRAG;
+@@ -2186,6 +2195,9 @@ bool ieee80211_parse_tx_radiotap(struct
+ 		return false;
+ 
+ 	if (rate_found) {
++		struct ieee80211_supported_band *sband =
++			local->hw.wiphy->bands[info->band];
++
+ 		info->control.flags |= IEEE80211_TX_CTRL_RATE_INJECT;
+ 
+ 		for (i = 0; i < IEEE80211_TX_MAX_RATES; i++) {
+@@ -2199,7 +2211,7 @@ bool ieee80211_parse_tx_radiotap(struct
+ 		} else if (rate_flags & IEEE80211_TX_RC_VHT_MCS) {
+ 			ieee80211_rate_set_vht(info->control.rates, vht_mcs,
+ 					       vht_nss);
+-		} else {
++		} else if (sband) {
+ 			for (i = 0; i < sband->n_bitrates; i++) {
+ 				if (rate * 5 != sband->bitrates[i].bitrate)
+ 					continue;
+@@ -2236,8 +2248,8 @@ netdev_tx_t ieee80211_monitor_start_xmit
+ 	info->flags = IEEE80211_TX_CTL_REQ_TX_STATUS |
+ 		      IEEE80211_TX_CTL_INJECTED;
+ 
+-	/* Sanity-check and process the injection radiotap header */
+-	if (!ieee80211_parse_tx_radiotap(skb, dev))
++	/* Sanity-check the length of the radiotap header */
++	if (!ieee80211_validate_radiotap_len(skb))
+ 		goto fail;
+ 
+ 	/* we now know there is a radiotap header with a length we can use */
+@@ -2353,6 +2365,14 @@ netdev_tx_t ieee80211_monitor_start_xmit
+ 
+ 	info->band = chandef->chan->band;
+ 
++	/*
++	 * Process the radiotap header. This will now take into account the
++	 * selected chandef above to accurately set injection rates and
++	 * retransmissions.
++	 */
++	if (!ieee80211_parse_tx_radiotap(skb, dev))
++		goto fail_rcu;
++
+ 	/* remove the injection radiotap header */
+ 	skb_pull(skb, len_rthdr);
+ 
 
 
