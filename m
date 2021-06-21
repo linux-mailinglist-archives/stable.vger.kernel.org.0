@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 114833AF30A
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E893AF30F
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:57:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233375AbhFUR6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 13:58:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39108 "EHLO mail.kernel.org"
+        id S233192AbhFUR6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 13:58:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232226AbhFUR4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 13:56:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9B4561370;
-        Mon, 21 Jun 2021 17:53:29 +0000 (UTC)
+        id S232132AbhFUR4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 13:56:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E53D613AD;
+        Mon, 21 Jun 2021 17:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624298010;
-        bh=DGjB/1/Rh5eaQuAf30az0AE47WvO2UDmbVpcFSO+vNI=;
+        s=k20201202; t=1624298012;
+        bh=tgPcxuGjzy0G6s+Y43FulBrZ/Q/BfammVdZeVAAL3o4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e18Cr6Bw+YFoelwu2eqGG+XZpVkfe7UhWnk2M4xFfRFMsng4dVH6cXWraDaseeogo
-         +TBI9LocRfwOB+G7GEyYU6bqYamjqf3y//eDzsj3jTdnYlwHRUJzFBwUwKr00E19oc
-         2oNEfxqh4TJNYGElK5ZrfqsapH+u0wkfj3HNBDZDGKZ3y/G1fjBe9y8em5UjIgGK77
-         ATFzSX4dk3XNK9H3l6lLsjyco27eNINTk9lRD5wX1kOcKQpH4wm4YJp9fbxQ5WdFky
-         oCgJ8yC4PU4T6JLCTnl83/lTibW7+t0zqmOXoT1U6lpkZ3Wk/OGTJwEi3mbKrUpNt1
-         HiMIawh+VvuLg==
+        b=bzjJSckKvOTlS8ep0J+UsjT3pQmdistkxCofKH92WW8e1xyj7rBvdHe/Fj1yqIlKG
+         A7M0FfWau+yrPCc1iftZ8h4GOWpKSP7PVv1kZDeP/c9eDRltmiHcP2NnylUWagSnNm
+         lxrSjJ+BrLPzwDnnCs/vyxItmbrnMtsJ8fsPiDGA5EyXcLCcBKvTQDzNrG/r6H4t0G
+         2IBrFiXaXr7PzoBxPGKELeA5QRfMhMbdoYWd8zSMphdcTdJUZ5PKD0vLyUqRmlHL3L
+         zm/a1ecVjLxU5RUt/LmJlGlAZKafkUaoRvBRbcNOijuL3HF6mFU6sYEiofT+meXhst
+         m7Xr/5JP0rDpw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Praneeth Bajjuri <praneeth@ti.com>, Geet Modi <geet.modi@ti.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 20/35] net: phy: dp83867: perform soft reset and retain established link
-Date:   Mon, 21 Jun 2021 13:52:45 -0400
-Message-Id: <20210621175300.735437-20-sashal@kernel.org>
+Cc:     Khem Raj <raj.khem@gmail.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 21/35] riscv32: Use medany C model for modules
+Date:   Mon, 21 Jun 2021 13:52:46 -0400
+Message-Id: <20210621175300.735437-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210621175300.735437-1-sashal@kernel.org>
 References: <20210621175300.735437-1-sashal@kernel.org>
@@ -43,51 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Praneeth Bajjuri <praneeth@ti.com>
+From: Khem Raj <raj.khem@gmail.com>
 
-[ Upstream commit da9ef50f545f86ffe6ff786174d26500c4db737a ]
+[ Upstream commit 5d2388dbf84adebeb6d9742164be8d32728e4269 ]
 
-Current logic is performing hard reset and causing the programmed
-registers to be wiped out.
+When CONFIG_CMODEL_MEDLOW is used it ends up generating riscv_hi20_rela
+relocations in modules which are not resolved during runtime and
+following errors would be seen
 
-as per datasheet: https://www.ti.com/lit/ds/symlink/dp83867cr.pdf
-8.6.26 Control Register (CTRL)
+[    4.802714] virtio_input: target 00000000c1539090 can not be addressed by the 32-bit offset from PC = 39148b7b
+[    4.854800] virtio_input: target 00000000c1539090 can not be addressed by the 32-bit offset from PC = 9774456d
 
-do SW_RESTART to perform a reset not including the registers,
-If performed when link is already present,
-it will drop the link and trigger re-auto negotiation.
-
-Signed-off-by: Praneeth Bajjuri <praneeth@ti.com>
-Signed-off-by: Geet Modi <geet.modi@ti.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83867.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ arch/riscv/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 69d3eacc2b96..c716074fdef0 100644
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -792,16 +792,12 @@ static int dp83867_phy_reset(struct phy_device *phydev)
- {
- 	int err;
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index e241e0e85ac8..226c366072da 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -14,7 +14,7 @@ ifeq ($(CONFIG_DYNAMIC_FTRACE),y)
+ 	LDFLAGS_vmlinux := --no-relax
+ endif
  
--	err = phy_write(phydev, DP83867_CTRL, DP83867_SW_RESET);
-+	err = phy_write(phydev, DP83867_CTRL, DP83867_SW_RESTART);
- 	if (err < 0)
- 		return err;
+-ifeq ($(CONFIG_64BIT)$(CONFIG_CMODEL_MEDLOW),yy)
++ifeq ($(CONFIG_CMODEL_MEDLOW),y)
+ KBUILD_CFLAGS_MODULE += -mcmodel=medany
+ endif
  
- 	usleep_range(10, 20);
- 
--	/* After reset FORCE_LINK_GOOD bit is set. Although the
--	 * default value should be unset. Disable FORCE_LINK_GOOD
--	 * for the phy to work properly.
--	 */
- 	return phy_modify(phydev, MII_DP83867_PHYCTRL,
- 			 DP83867_PHYCR_FORCE_LINK_GOOD, 0);
- }
 -- 
 2.30.2
 
