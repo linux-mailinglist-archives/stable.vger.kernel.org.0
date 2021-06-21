@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C84E3AE779
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:45:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45E633AE77F
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 12:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229661AbhFUKrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 06:47:32 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:53281 "EHLO
+        id S229710AbhFUKrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 06:47:53 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:45909 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229641AbhFUKrb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:47:31 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 772C8194095D;
-        Mon, 21 Jun 2021 06:45:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 21 Jun 2021 06:45:15 -0400
+        by vger.kernel.org with ESMTP id S229707AbhFUKrx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 06:47:53 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id CC4BB1940A88;
+        Mon, 21 Jun 2021 06:45:38 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Mon, 21 Jun 2021 06:45:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=DIMItg
-        fiEkr8jnDKVX75Zrb37gVoSGsWb2og63rjWOc=; b=fQ+U1YU8du+PphfWWQZcvO
-        hcitbgJdDobF4o1hGO3SrGJ4dkjzywSXTE5vIlOn2qNWTsi0m7VmZsEUsSm4G7Uu
-        Kru+sFg8WelVshB5Gw+tny0n3gjJGap2JnUYvNujHWiiEvjlgZm0Zzgr4wkwImt9
-        wdX8PnzeklhDAH7PC7CEJZrnTxx6Jw4i15nC4vXpEGo6fbv3EdZi7yg9MeoyIjwd
-        96wkyocdzyI9RBqVPluc1JHloiGO+w9QzOAt+WdtKTuHzC80GhSYgRj8C69M/3Md
-        eaG0KzxY/tuv+HAOJ5VGE+V3LFjrR5hVvn4Ko4Ok6s4Y4X8YU66i5BXD+UX81Yrw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=dMOVNk
+        c98oPEATZJ2j2h3VSp/DeSKecV5twbAjV88lg=; b=r/9Mdlfx4riAz8NdJ4ulwz
+        o5vWi0drORYL6ew4fvZctvVfPaUaeFZnG8Jwuj+/zB0xliIQf8FD/9NBLTaBLwTz
+        ViGRx3davMHY6dNvRDkp8ZR8oGWWRkGr+Sk4ppi249WCDfKvAdu/HD0TZVQCuYPo
+        VnB2tQj2wg6e8kvtdY7beY8blX3BuoSDA5kiSUWQeOtrXaHajU19weWV6r7SGRbg
+        VC7P+XKsVpty7InuEbbTAlOUc/qhvUoeoHjxq5Sp8EffKOohuyeHY4eIm3yCxB+b
+        QmV2DXJXs2x3mgeLQ16JEUgZFi4EaTqQNDmMWC8Xam+sHWeg8t5tRHhoKvlJSD+A
         ==
-X-ME-Sender: <xms:u23QYHT2bevsmML2vTNVy16nM23iIwLw_eyVcyZMQozU6zYzngcYug>
-    <xme:u23QYIxDJBzzdiEFSW5_IDYAhG2Np8phCkcGM5arQgBqyTIhmiAK021A-DlkVzecA
-    g6Wy6RD9bziqA>
-X-ME-Received: <xmr:u23QYM3ikDTVyB9oKbBQBu4_NUFAhSaU18JDY2-t3DpGeragZygKXE2zmHy3ZoFOIlpKFJgIwvKfCIh9sVEEi3Son1V9wi5e>
+X-ME-Sender: <xms:0m3QYDQ960B-K7_HhSaoVUVwsPcOkn6wrSEa_GBWqd9qodTwMx3jAQ>
+    <xme:0m3QYEzjC8llwuNkWIW6Pp0MMCX8QbGuirUKvis6_hOFkYqoAvE9kv9hjJyrpjK0L
+    3QE0B852eSzNA>
+X-ME-Received: <xmr:0m3QYI1ntrGZeQcfri8BPVc2WG2VQ_AligT9yuZR4fBZ1mYtpmcenTvldEGQZiubJLUs8sXz74toCm72PC9fIlHINt82hTSv>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeefledgfedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleejhfevleejjeettedvhfetheekgeeutdevuddtue
-    elffelvdeuhfffjeelgeetnecuffhomhgrihhnpegsrghsvgdrughirhgvtghtnecuvehl
-    uhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrh
-    horghhrdgtohhm
-X-ME-Proxy: <xmx:u23QYHArVK1SPoUkUGD7xmJU6xexLWdUaSvBEBzLRv1VSirT3UnDOw>
-    <xmx:u23QYAjjYNMtWpnnmp48zr0jXIrMU4kIPRvbbdwtKCEFMrSkgaSnGw>
-    <xmx:u23QYLp2gMjOQz4uH5QK_akG0VA7N4WPsVr7Bn3-_vu6S_nEnXhF2w>
-    <xmx:u23QYDtJcvE3-QiCQtnAICKtaac19L4fePwj3s_3Y0JHZGUsPkgdXg>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehm
+    rghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:0m3QYDAxkoxGmpwzdGdtus7_zDI7ZewK80gf3aNZ62EOrispXxnhzw>
+    <xmx:0m3QYMjV82bAL0IIC5kFvmKuVUYOfqZP0bu4DlxO2e37dVk17pCILQ>
+    <xmx:0m3QYHpSKu2aoj3p5KNLtFAjZceTx-1NvPBYBlwh1P2xtbt3KirlJw>
+    <xmx:0m3QYFvN-HLCALawxGVuIDQesF5kSJ7p0Wk8FjI3gaGtrMHH10PHbw>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 21 Jun 2021 06:45:14 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Calculate and check "full" mmu_role for nested" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com, vkuznets@redhat.com
+ 21 Jun 2021 06:45:37 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: SVM: Call SEV Guest Decommission if ASID binding fails" failed to apply to 4.19-stable tree
+To:     alpergun@google.com, marcorr@google.com, pbonzini@redhat.com,
+        pgonda@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Jun 2021 12:45:13 +0200
-Message-ID: <1624272313220173@kroah.com>
+Date:   Mon, 21 Jun 2021 12:45:35 +0200
+Message-ID: <162427233514222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,102 +70,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 654430efde27248be563df9a88631204b5fe2df2 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Thu, 10 Jun 2021 15:00:26 -0700
-Subject: [PATCH] KVM: x86/mmu: Calculate and check "full" mmu_role for nested
- MMU
+From 934002cd660b035b926438244b4294e647507e13 Mon Sep 17 00:00:00 2001
+From: Alper Gun <alpergun@google.com>
+Date: Thu, 10 Jun 2021 17:46:04 +0000
+Subject: [PATCH] KVM: SVM: Call SEV Guest Decommission if ASID binding fails
 
-Calculate and check the full mmu_role when initializing the MMU context
-for the nested MMU, where "full" means the bits and pieces of the role
-that aren't handled by kvm_calc_mmu_role_common().  While the nested MMU
-isn't used for shadow paging, things like the number of levels in the
-guest's page tables are surprisingly important when walking the guest
-page tables.  Failure to reinitialize the nested MMU context if L2's
-paging mode changes can result in unexpected and/or missed page faults,
-and likely other explosions.
+Send SEV_CMD_DECOMMISSION command to PSP firmware if ASID binding
+fails. If a failure happens after  a successful LAUNCH_START command,
+a decommission command should be executed. Otherwise, guest context
+will be unfreed inside the AMD SP. After the firmware will not have
+memory to allocate more SEV guest context, LAUNCH_START command will
+begin to fail with SEV_RET_RESOURCE_LIMIT error.
 
-E.g. if an L1 vCPU is running both a 32-bit PAE L2 and a 64-bit L2, the
-"common" role calculation will yield the same role for both L2s.  If the
-64-bit L2 is run after the 32-bit PAE L2, L0 will fail to reinitialize
-the nested MMU context, ultimately resulting in a bad walk of L2's page
-tables as the MMU will still have a guest root_level of PT32E_ROOT_LEVEL.
+The existing code calls decommission inside sev_unbind_asid, but it is
+not called if a failure happens before guest activation succeeds. If
+sev_bind_asid fails, decommission is never called. PSP firmware has a
+limit for the number of guests. If sev_asid_binding fails many times,
+PSP firmware will not have resources to create another guest context.
 
-  WARNING: CPU: 4 PID: 167334 at arch/x86/kvm/vmx/vmx.c:3075 ept_save_pdptrs+0x15/0xe0 [kvm_intel]
-  Modules linked in: kvm_intel]
-  CPU: 4 PID: 167334 Comm: CPU 3/KVM Not tainted 5.13.0-rc1-d849817d5673-reqs #185
-  Hardware name: ASUS Q87M-E/Q87M-E, BIOS 1102 03/03/2014
-  RIP: 0010:ept_save_pdptrs+0x15/0xe0 [kvm_intel]
-  Code: <0f> 0b c3 f6 87 d8 02 00f
-  RSP: 0018:ffffbba702dbba00 EFLAGS: 00010202
-  RAX: 0000000000000011 RBX: 0000000000000002 RCX: ffffffff810a2c08
-  RDX: ffff91d7bc30acc0 RSI: 0000000000000011 RDI: ffff91d7bc30a600
-  RBP: ffff91d7bc30a600 R08: 0000000000000010 R09: 0000000000000007
-  R10: 0000000000000000 R11: 0000000000000000 R12: ffff91d7bc30a600
-  R13: ffff91d7bc30acc0 R14: ffff91d67c123460 R15: 0000000115d7e005
-  FS:  00007fe8e9ffb700(0000) GS:ffff91d90fb00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000000 CR3: 000000029f15a001 CR4: 00000000001726e0
-  Call Trace:
-   kvm_pdptr_read+0x3a/0x40 [kvm]
-   paging64_walk_addr_generic+0x327/0x6a0 [kvm]
-   paging64_gva_to_gpa_nested+0x3f/0xb0 [kvm]
-   kvm_fetch_guest_virt+0x4c/0xb0 [kvm]
-   __do_insn_fetch_bytes+0x11a/0x1f0 [kvm]
-   x86_decode_insn+0x787/0x1490 [kvm]
-   x86_decode_emulated_instruction+0x58/0x1e0 [kvm]
-   x86_emulate_instruction+0x122/0x4f0 [kvm]
-   vmx_handle_exit+0x120/0x660 [kvm_intel]
-   kvm_arch_vcpu_ioctl_run+0xe25/0x1cb0 [kvm]
-   kvm_vcpu_ioctl+0x211/0x5a0 [kvm]
-   __x64_sys_ioctl+0x83/0xb0
-   do_syscall_64+0x40/0xb0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
 Cc: stable@vger.kernel.org
-Fixes: bf627a928837 ("x86/kvm/mmu: check if MMU reconfiguration is needed in init_kvm_nested_mmu()")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210610220026.1364486-1-seanjc@google.com>
+Fixes: 59414c989220 ("KVM: SVM: Add support for KVM_SEV_LAUNCH_START command")
+Reported-by: Peter Gonda <pgonda@google.com>
+Signed-off-by: Alper Gun <alpergun@google.com>
+Reviewed-by: Marc Orr <marcorr@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20210610174604.2554090-1-alpergun@google.com>
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 0144c40d09c7..8d5876dfc6b7 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4739,9 +4739,33 @@ static void init_kvm_softmmu(struct kvm_vcpu *vcpu)
- 	context->inject_page_fault = kvm_inject_page_fault;
+diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+index e0ce5da97fc2..8d36f0c73071 100644
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -199,9 +199,19 @@ static void sev_asid_free(struct kvm_sev_info *sev)
+ 	sev->misc_cg = NULL;
  }
  
-+static union kvm_mmu_role kvm_calc_nested_mmu_role(struct kvm_vcpu *vcpu)
-+{
-+	union kvm_mmu_role role = kvm_calc_shadow_root_page_role_common(vcpu, false);
+-static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
++static void sev_decommission(unsigned int handle)
+ {
+ 	struct sev_data_decommission decommission;
 +
-+	/*
-+	 * Nested MMUs are used only for walking L2's gva->gpa, they never have
-+	 * shadow pages of their own and so "direct" has no meaning.   Set it
-+	 * to "true" to try to detect bogus usage of the nested MMU.
-+	 */
-+	role.base.direct = true;
++	if (!handle)
++		return;
 +
-+	if (!is_paging(vcpu))
-+		role.base.level = 0;
-+	else if (is_long_mode(vcpu))
-+		role.base.level = is_la57_mode(vcpu) ? PT64_ROOT_5LEVEL :
-+						       PT64_ROOT_4LEVEL;
-+	else if (is_pae(vcpu))
-+		role.base.level = PT32E_ROOT_LEVEL;
-+	else
-+		role.base.level = PT32_ROOT_LEVEL;
-+
-+	return role;
++	decommission.handle = handle;
++	sev_guest_decommission(&decommission, NULL);
 +}
 +
- static void init_kvm_nested_mmu(struct kvm_vcpu *vcpu)
- {
--	union kvm_mmu_role new_role = kvm_calc_mmu_role_common(vcpu, false);
-+	union kvm_mmu_role new_role = kvm_calc_nested_mmu_role(vcpu);
- 	struct kvm_mmu *g_context = &vcpu->arch.nested_mmu;
++static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
++{
+ 	struct sev_data_deactivate deactivate;
  
- 	if (new_role.as_u64 == g_context->mmu_role.as_u64)
+ 	if (!handle)
+@@ -214,9 +224,7 @@ static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
+ 	sev_guest_deactivate(&deactivate, NULL);
+ 	up_read(&sev_deactivate_lock);
+ 
+-	/* decommission handle */
+-	decommission.handle = handle;
+-	sev_guest_decommission(&decommission, NULL);
++	sev_decommission(handle);
+ }
+ 
+ static int sev_guest_init(struct kvm *kvm, struct kvm_sev_cmd *argp)
+@@ -341,8 +349,10 @@ static int sev_launch_start(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 
+ 	/* Bind ASID to this guest */
+ 	ret = sev_bind_asid(kvm, start.handle, error);
+-	if (ret)
++	if (ret) {
++		sev_decommission(start.handle);
+ 		goto e_free_session;
++	}
+ 
+ 	/* return handle to userspace */
+ 	params.handle = start.handle;
 
