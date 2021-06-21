@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 057C13AEE9F
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:28:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C5063AED84
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232261AbhFUQab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48950 "EHLO mail.kernel.org"
+        id S231611AbhFUQUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:20:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232418AbhFUQ3X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:29:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10AE7613ED;
-        Mon, 21 Jun 2021 16:24:14 +0000 (UTC)
+        id S231295AbhFUQUK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:20:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FB9F6120D;
+        Mon, 21 Jun 2021 16:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292655;
-        bh=RzXCk9Dio8zmt6KXri5/MKKeCrYmJTpNj3bvQToYVFg=;
+        s=korg; t=1624292275;
+        bh=ubxOpBglMmBwIhwZNBTjWYW72B9eStWwuAUoHUbfyqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbazu44VtJtwHhjl5FQ0dNAgmZW/Fz12258PdTNWpUo4U1WbUM+RbVRIbnzgtnjgq
-         ty0KxMKTh7QOQxRGRvccKhHwTstOZChmDIYHq9ZX2VHJLcWeOIo2wp0jmgO7/IrFY8
-         98GN/lSvajXnYt5FxPh5Thrt9foN2REdYfR0YLV0=
+        b=udfHxALL4iD0N5OGu5SELduoWC62iqQYN7cwA3C0XewjGGrw9UHGEQnsU0LEq46I5
+         6rK1sdWsiU2lVYpjMtTrsQYw5yny983cwobE5arQn4t+TwSH7wjey0TJBk65Il4RQj
+         YHqcLZTpQo3i5hd0OeLDizni4DCsWbazZOksQA3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+59aa77b92d06cd5a54f2@syzkaller.appspotmail.com,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/146] ethtool: strset: fix message length calculation
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 03/90] dmaengine: stedma40: add missing iounmap() on error in d40_probe()
 Date:   Mon, 21 Jun 2021 18:14:38 +0200
-Message-Id: <20210621154912.922708811@linuxfoundation.org>
+Message-Id: <20210621154904.276961759@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
+References: <20210621154904.159672728@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e175aef902697826d344ce3a12189329848fe898 ]
+[ Upstream commit fffdaba402cea79b8d219355487d342ec23f91c6 ]
 
-Outer nest for ETHTOOL_A_STRSET_STRINGSETS is not accounted for.
-This may result in ETHTOOL_MSG_STRSET_GET producing a warning like:
+Add the missing iounmap() before return from d40_probe()
+in the error handling case.
 
-    calculated message payload length (684) not sufficient
-    WARNING: CPU: 0 PID: 30967 at net/ethtool/netlink.c:369 ethnl_default_doit+0x87a/0xa20
-
-and a splat.
-
-As usually with such warnings three conditions must be met for the warning
-to trigger:
- - there must be no skb size rounding up (e.g. reply_size of 684);
- - string set must be per-device (so that the header gets populated);
- - the device name must be at least 12 characters long.
-
-all in all with current user space it looks like reading priv flags
-is the only place this could potentially happen. Or with syzbot :)
-
-Reported-by: syzbot+59aa77b92d06cd5a54f2@syzkaller.appspotmail.com
-Fixes: 71921690f974 ("ethtool: provide string sets with STRSET_GET request")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8d318a50b3d7 ("DMAENGINE: Support for ST-Ericssons DMA40 block v3")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210518141108.1324127-1-yangyingliang@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ethtool/strset.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dma/ste_dma40.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/ethtool/strset.c b/net/ethtool/strset.c
-index c3a5489964cd..9908b922cce8 100644
---- a/net/ethtool/strset.c
-+++ b/net/ethtool/strset.c
-@@ -328,6 +328,8 @@ static int strset_reply_size(const struct ethnl_req_info *req_base,
- 	int len = 0;
- 	int ret;
+diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
+index de8bfd9a76e9..6671bfe08489 100644
+--- a/drivers/dma/ste_dma40.c
++++ b/drivers/dma/ste_dma40.c
+@@ -3678,6 +3678,9 @@ static int __init d40_probe(struct platform_device *pdev)
  
-+	len += nla_total_size(0); /* ETHTOOL_A_STRSET_STRINGSETS */
+ 	kfree(base->lcla_pool.base_unaligned);
+ 
++	if (base->lcpa_base)
++		iounmap(base->lcpa_base);
 +
- 	for (i = 0; i < ETH_SS_COUNT; i++) {
- 		const struct strset_info *set_info = &data->sets[i];
- 
+ 	if (base->phy_lcpa)
+ 		release_mem_region(base->phy_lcpa,
+ 				   base->lcpa_size);
 -- 
 2.30.2
 
