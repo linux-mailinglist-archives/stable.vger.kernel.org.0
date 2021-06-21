@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6772C3AEF8E
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD693AEFB0
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:39:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232340AbhFUQkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33594 "EHLO mail.kernel.org"
+        id S232741AbhFUQlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:41:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231937AbhFUQih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:38:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EE9761245;
-        Mon, 21 Jun 2021 16:29:30 +0000 (UTC)
+        id S233098AbhFUQjT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:39:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA86D613BE;
+        Mon, 21 Jun 2021 16:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292970;
-        bh=5W71BzudKsWzc92z921J1yzf/qG2GG5lDLQAv7LITOE=;
+        s=korg; t=1624292989;
+        bh=g8o9G1H9mtePYpd3bUS+euMGlKq8E0lRSKm51nh4af8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOl+AkRFTonmLWod/xKnR5aZ5ptmI4kQCqBVPCuXETxA60BxHaEuowUCc6y2DcE+f
-         zIkqVFJQcqH7JtN8ip1vpRMI/z50ljWkgWKuJiAyVL41NE9bvT2kwmejNVdIm/k77w
-         f5q1KBa8kNCE6LplSIReT+WyGD/0z+kR+I7IWy2s=
+        b=OlR7d4mOCEng0fzHYB1S5GGDhhjX8KfqjiQVXko33u25LF2QViPWB3POAf8zG17yu
+         lhDGY2F0lx7UvclPDlsakcilcOOoRN3VrYXaZRMcqUJWjDLo7bEdvkdXtb6xcjnE2Q
+         rz8Xv7IVnltJoO5P7qYZ/66FVRdp6wg+HAL8Gp2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 023/178] net: ena: fix DMA mapping function issues in XDP
-Date:   Mon, 21 Jun 2021 18:13:57 +0200
-Message-Id: <20210621154922.575572256@linuxfoundation.org>
+Subject: [PATCH 5.12 024/178] net: lantiq: disable interrupt before sheduling NAPI
+Date:   Mon, 21 Jun 2021 18:13:58 +0200
+Message-Id: <20210621154922.638428677@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
 References: <20210621154921.212599475@linuxfoundation.org>
@@ -40,148 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Agroskin <shayagr@amazon.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit 504fd6a5390c30b1b7670768e314dd5d473da06a ]
+[ Upstream commit f2386cf7c5f4ff5d7b584f5d92014edd7df6c676 ]
 
-This patch fixes several bugs found when (DMA/LLQ) mapping a packet for
-transmission. The mapping procedure makes the transmitted packet
-accessible by the device.
-When using LLQ, this requires copying the packet's header to push header
-(which would be passed to LLQ) and creating DMA mapping for the payload
-(if the packet doesn't fit the maximum push length).
-When not using LLQ, we map the whole packet with DMA.
+This patch fixes TX hangs with threaded NAPI enabled. The scheduled
+NAPI seems to be executed in parallel with the interrupt on second
+thread. Sometimes it happens that ltq_dma_disable_irq() is executed
+after xrx200_tx_housekeeping(). The symptom is that TX interrupts
+are disabled in the DMA controller. As a result, the TX hangs after
+a few seconds of the iperf test. Scheduling NAPI after disabling
+interrupts fixes this issue.
 
-The following bugs are fixed in the code:
-    1. Add support for non-LLQ machines:
-       The ena_xdp_tx_map_frame() function assumed that LLQ is
-       supported, and never mapped the whole packet using DMA. On some
-       instances, which don't support LLQ, this causes loss of traffic.
+Tested on Lantiq xRX200 (BT Home Hub 5A).
 
-    2. Wrong DMA buffer length passed to device:
-       When using LLQ, the first 'tx_max_header_size' bytes of the
-       packet would be copied to push header. The rest of the packet
-       would be copied to a DMA'd buffer.
-
-    3. Freeing the XDP buffer twice in case of a mapping error:
-       In case a buffer DMA mapping fails, the function uses
-       xdp_return_frame_rx_napi() to free the RX buffer and returns from
-       the function with an error. XDP frames that fail to xmit get
-       freed by the kernel and so there is no need for this call.
-
-Fixes: 548c4940b9f1 ("net: ena: Implement XDP_TX action")
-Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Fixes: 9423361da523 ("net: lantiq: Disable IRQs only if NAPI gets scheduled ")
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 54 ++++++++++----------
- 1 file changed, 28 insertions(+), 26 deletions(-)
+ drivers/net/ethernet/lantiq_xrx200.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 102f2c91fdb8..20f8012bbe04 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -236,36 +236,48 @@ static int ena_xdp_io_poll(struct napi_struct *napi, int budget)
- static int ena_xdp_tx_map_frame(struct ena_ring *xdp_ring,
- 				struct ena_tx_buffer *tx_info,
- 				struct xdp_frame *xdpf,
--				void **push_hdr,
--				u32 *push_len)
-+				struct ena_com_tx_ctx *ena_tx_ctx)
- {
- 	struct ena_adapter *adapter = xdp_ring->adapter;
- 	struct ena_com_buf *ena_buf;
--	dma_addr_t dma = 0;
-+	int push_len = 0;
-+	dma_addr_t dma;
-+	void *data;
- 	u32 size;
+diff --git a/drivers/net/ethernet/lantiq_xrx200.c b/drivers/net/ethernet/lantiq_xrx200.c
+index 135ba5b6ae98..3da494df72f3 100644
+--- a/drivers/net/ethernet/lantiq_xrx200.c
++++ b/drivers/net/ethernet/lantiq_xrx200.c
+@@ -352,8 +352,8 @@ static irqreturn_t xrx200_dma_irq(int irq, void *ptr)
+ 	struct xrx200_chan *ch = ptr;
  
- 	tx_info->xdpf = xdpf;
-+	data = tx_info->xdpf->data;
- 	size = tx_info->xdpf->len;
--	ena_buf = tx_info->bufs;
+ 	if (napi_schedule_prep(&ch->napi)) {
+-		__napi_schedule(&ch->napi);
+ 		ltq_dma_disable_irq(&ch->dma);
++		__napi_schedule(&ch->napi);
+ 	}
  
--	/* llq push buffer */
--	*push_len = min_t(u32, size, xdp_ring->tx_max_header_size);
--	*push_hdr = tx_info->xdpf->data;
-+	if (xdp_ring->tx_mem_queue_type == ENA_ADMIN_PLACEMENT_POLICY_DEV) {
-+		/* Designate part of the packet for LLQ */
-+		push_len = min_t(u32, size, xdp_ring->tx_max_header_size);
-+
-+		ena_tx_ctx->push_header = data;
-+
-+		size -= push_len;
-+		data += push_len;
-+	}
-+
-+	ena_tx_ctx->header_len = push_len;
- 
--	if (size - *push_len > 0) {
-+	if (size > 0) {
- 		dma = dma_map_single(xdp_ring->dev,
--				     *push_hdr + *push_len,
--				     size - *push_len,
-+				     data,
-+				     size,
- 				     DMA_TO_DEVICE);
- 		if (unlikely(dma_mapping_error(xdp_ring->dev, dma)))
- 			goto error_report_dma_error;
- 
--		tx_info->map_linear_data = 1;
--		tx_info->num_of_bufs = 1;
--	}
-+		tx_info->map_linear_data = 0;
- 
--	ena_buf->paddr = dma;
--	ena_buf->len = size;
-+		ena_buf = tx_info->bufs;
-+		ena_buf->paddr = dma;
-+		ena_buf->len = size;
-+
-+		ena_tx_ctx->ena_bufs = ena_buf;
-+		ena_tx_ctx->num_bufs = tx_info->num_of_bufs = 1;
-+	}
- 
- 	return 0;
- 
-@@ -274,10 +286,6 @@ error_report_dma_error:
- 			  &xdp_ring->syncp);
- 	netif_warn(adapter, tx_queued, adapter->netdev, "Failed to map xdp buff\n");
- 
--	xdp_return_frame_rx_napi(tx_info->xdpf);
--	tx_info->xdpf = NULL;
--	tx_info->num_of_bufs = 0;
--
- 	return -EINVAL;
- }
- 
-@@ -289,8 +297,6 @@ static int ena_xdp_xmit_frame(struct ena_ring *xdp_ring,
- 	struct ena_com_tx_ctx ena_tx_ctx = {};
- 	struct ena_tx_buffer *tx_info;
- 	u16 next_to_use, req_id;
--	void *push_hdr;
--	u32 push_len;
- 	int rc;
- 
- 	next_to_use = xdp_ring->next_to_use;
-@@ -298,15 +304,11 @@ static int ena_xdp_xmit_frame(struct ena_ring *xdp_ring,
- 	tx_info = &xdp_ring->tx_buffer_info[req_id];
- 	tx_info->num_of_bufs = 0;
- 
--	rc = ena_xdp_tx_map_frame(xdp_ring, tx_info, xdpf, &push_hdr, &push_len);
-+	rc = ena_xdp_tx_map_frame(xdp_ring, tx_info, xdpf, &ena_tx_ctx);
- 	if (unlikely(rc))
- 		goto error_drop_packet;
- 
--	ena_tx_ctx.ena_bufs = tx_info->bufs;
--	ena_tx_ctx.push_header = push_hdr;
--	ena_tx_ctx.num_bufs = tx_info->num_of_bufs;
- 	ena_tx_ctx.req_id = req_id;
--	ena_tx_ctx.header_len = push_len;
- 
- 	rc = ena_xmit_common(dev,
- 			     xdp_ring,
+ 	ltq_dma_ack_irq(&ch->dma);
 -- 
 2.30.2
 
