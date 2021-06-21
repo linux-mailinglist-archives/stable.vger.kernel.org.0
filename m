@@ -2,34 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F18C3AF094
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C8F3AEF19
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231985AbhFUQub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:50:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37760 "EHLO mail.kernel.org"
+        id S232243AbhFUQfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232878AbhFUQs0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:48:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A760F61261;
-        Mon, 21 Jun 2021 16:34:08 +0000 (UTC)
+        id S232571AbhFUQeJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:34:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B95BE61406;
+        Mon, 21 Jun 2021 16:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293249;
-        bh=5llupwawFWCcgtuCEhELqDzb0ymnrs9wODIqXwN9DbA=;
+        s=korg; t=1624292806;
+        bh=f43P4GllyIqMzBsJtyRB33LOlozqyMP5NMLEFz0G34M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYS/TNgIe9/CwvDiddvwPGNQItLIRmmHj7S4NF2V1JeJJP5qmblTuqlPcvV5Z8WbT
-         7JdvM4w30UtuvwUeIo84o/Uu8W/YW63UfzEyCwmv2I1+BRS54K/gjQCA2p2Dpdkj6x
-         RHBrwF4ULS/B/3CSL3CLDvMyYeCFQAuwDDN6JLcU=
+        b=uyD/dbkDecVcKG6Ei4/73HS3Njd9ROZIWCueFThs2eXpLetgxsCGHXWzgTuFXe2ea
+         mC3vCWVZ11CBy2jB08L+h5cW2w3HXlz50aCdyF96I77mNOdx3022tToGd11XrCdkem
+         DFvcVKd9yHTlLilE4BzVTWKOyZdSDeESSObW5zTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 153/178] mac80211: fix reset debugfs locking
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Marco Elver <elver@google.com>,
+        "Lin, Zhenpeng" <zplin@psu.edu>, Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Roman Gushchin <guro@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 137/146] mm/slub: clarify verification reporting
 Date:   Mon, 21 Jun 2021 18:16:07 +0200
-Message-Id: <20210621154927.965366135@linuxfoundation.org>
+Message-Id: <20210621154920.318381281@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,44 +47,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit adaed1b9daf5a045be71e923e04b5069d2bee664 upstream.
+commit 8669dbab2ae56085c128894b181c2aa50f97e368 upstream.
 
-cfg80211 now calls suspend/resume with the wiphy lock
-held, and while there's a problem with that needing
-to be fixed, we should do the same in debugfs.
+Patch series "Actually fix freelist pointer vs redzoning", v4.
 
-Cc: stable@vger.kernel.org
-Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
-Link: https://lore.kernel.org/r/20210608113226.14020430e449.I78e19db0a55a8295a376e15ac4cf77dbb4c6fb51@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+This fixes redzoning vs the freelist pointer (both for middle-position
+and very small caches).  Both are "theoretical" fixes, in that I see no
+evidence of such small-sized caches actually be used in the kernel, but
+that's no reason to let the bugs continue to exist, especially since
+people doing local development keep tripping over it.  :)
+
+This patch (of 3):
+
+Instead of repeating "Redzone" and "Poison", clarify which sides of
+those zones got tripped.  Additionally fix column alignment in the
+trailer.
+
+Before:
+
+  BUG test (Tainted: G    B            ): Redzone overwritten
+  ...
+  Redzone (____ptrval____): bb bb bb bb bb bb bb bb      ........
+  Object (____ptrval____): f6 f4 a5 40 1d e8            ...@..
+  Redzone (____ptrval____): 1a aa                        ..
+  Padding (____ptrval____): 00 00 00 00 00 00 00 00      ........
+
+After:
+
+  BUG test (Tainted: G    B            ): Right Redzone overwritten
+  ...
+  Redzone  (____ptrval____): bb bb bb bb bb bb bb bb      ........
+  Object   (____ptrval____): f6 f4 a5 40 1d e8            ...@..
+  Redzone  (____ptrval____): 1a aa                        ..
+  Padding  (____ptrval____): 00 00 00 00 00 00 00 00      ........
+
+The earlier commits that slowly resulted in the "Before" reporting were:
+
+  d86bd1bece6f ("mm/slub: support left redzone")
+  ffc79d288000 ("slub: use print_hex_dump")
+  2492268472e7 ("SLUB: change error reporting format to follow lockdep loosely")
+
+Link: https://lkml.kernel.org/r/20210608183955.280836-1-keescook@chromium.org
+Link: https://lkml.kernel.org/r/20210608183955.280836-2-keescook@chromium.org
+Link: https://lore.kernel.org/lkml/cfdb11d7-fb8e-e578-c939-f7f5fb69a6bd@suse.cz/
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Marco Elver <elver@google.com>
+Cc: "Lin, Zhenpeng" <zplin@psu.edu>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/debugfs.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Documentation/vm/slub.rst |   10 +++++-----
+ mm/slub.c                 |   14 +++++++-------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
---- a/net/mac80211/debugfs.c
-+++ b/net/mac80211/debugfs.c
-@@ -4,7 +4,7 @@
-  *
-  * Copyright 2007	Johannes Berg <johannes@sipsolutions.net>
-  * Copyright 2013-2014  Intel Mobile Communications GmbH
-- * Copyright (C) 2018 - 2019 Intel Corporation
-+ * Copyright (C) 2018 - 2019, 2021 Intel Corporation
-  */
+--- a/Documentation/vm/slub.rst
++++ b/Documentation/vm/slub.rst
+@@ -181,7 +181,7 @@ SLUB Debug output
+ Here is a sample of slub debug output::
  
- #include <linux/debugfs.h>
-@@ -389,8 +389,10 @@ static ssize_t reset_write(struct file *
- 	struct ieee80211_local *local = file->private_data;
+  ====================================================================
+- BUG kmalloc-8: Redzone overwritten
++ BUG kmalloc-8: Right Redzone overwritten
+  --------------------------------------------------------------------
  
- 	rtnl_lock();
-+	wiphy_lock(local->hw.wiphy);
- 	__ieee80211_suspend(&local->hw, NULL);
- 	__ieee80211_resume(&local->hw);
-+	wiphy_unlock(local->hw.wiphy);
- 	rtnl_unlock();
+  INFO: 0xc90f6d28-0xc90f6d2b. First byte 0x00 instead of 0xcc
+@@ -189,10 +189,10 @@ Here is a sample of slub debug output::
+  INFO: Object 0xc90f6d20 @offset=3360 fp=0xc90f6d58
+  INFO: Allocated in get_modalias+0x61/0xf5 age=53 cpu=1 pid=554
  
- 	return count;
+- Bytes b4 0xc90f6d10:  00 00 00 00 00 00 00 00 5a 5a 5a 5a 5a 5a 5a 5a ........ZZZZZZZZ
+-   Object 0xc90f6d20:  31 30 31 39 2e 30 30 35                         1019.005
+-  Redzone 0xc90f6d28:  00 cc cc cc                                     .
+-  Padding 0xc90f6d50:  5a 5a 5a 5a 5a 5a 5a 5a                         ZZZZZZZZ
++ Bytes b4 (0xc90f6d10): 00 00 00 00 00 00 00 00 5a 5a 5a 5a 5a 5a 5a 5a ........ZZZZZZZZ
++ Object   (0xc90f6d20): 31 30 31 39 2e 30 30 35                         1019.005
++ Redzone  (0xc90f6d28): 00 cc cc cc                                     .
++ Padding  (0xc90f6d50): 5a 5a 5a 5a 5a 5a 5a 5a                         ZZZZZZZZ
+ 
+    [<c010523d>] dump_trace+0x63/0x1eb
+    [<c01053df>] show_trace_log_lvl+0x1a/0x2f
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -698,15 +698,15 @@ static void print_trailer(struct kmem_ca
+ 	       p, p - addr, get_freepointer(s, p));
+ 
+ 	if (s->flags & SLAB_RED_ZONE)
+-		print_section(KERN_ERR, "Redzone ", p - s->red_left_pad,
++		print_section(KERN_ERR, "Redzone  ", p - s->red_left_pad,
+ 			      s->red_left_pad);
+ 	else if (p > addr + 16)
+ 		print_section(KERN_ERR, "Bytes b4 ", p - 16, 16);
+ 
+-	print_section(KERN_ERR, "Object ", p,
++	print_section(KERN_ERR,         "Object   ", p,
+ 		      min_t(unsigned int, s->object_size, PAGE_SIZE));
+ 	if (s->flags & SLAB_RED_ZONE)
+-		print_section(KERN_ERR, "Redzone ", p + s->object_size,
++		print_section(KERN_ERR, "Redzone  ", p + s->object_size,
+ 			s->inuse - s->object_size);
+ 
+ 	off = get_info_end(s);
+@@ -718,7 +718,7 @@ static void print_trailer(struct kmem_ca
+ 
+ 	if (off != size_from_object(s))
+ 		/* Beginning of the filler is the free pointer */
+-		print_section(KERN_ERR, "Padding ", p + off,
++		print_section(KERN_ERR, "Padding  ", p + off,
+ 			      size_from_object(s) - off);
+ 
+ 	dump_stack();
+@@ -895,11 +895,11 @@ static int check_object(struct kmem_cach
+ 	u8 *endobject = object + s->object_size;
+ 
+ 	if (s->flags & SLAB_RED_ZONE) {
+-		if (!check_bytes_and_report(s, page, object, "Redzone",
++		if (!check_bytes_and_report(s, page, object, "Left Redzone",
+ 			object - s->red_left_pad, val, s->red_left_pad))
+ 			return 0;
+ 
+-		if (!check_bytes_and_report(s, page, object, "Redzone",
++		if (!check_bytes_and_report(s, page, object, "Right Redzone",
+ 			endobject, val, s->inuse - s->object_size))
+ 			return 0;
+ 	} else {
+@@ -914,7 +914,7 @@ static int check_object(struct kmem_cach
+ 		if (val != SLUB_RED_ACTIVE && (s->flags & __OBJECT_POISON) &&
+ 			(!check_bytes_and_report(s, page, p, "Poison", p,
+ 					POISON_FREE, s->object_size - 1) ||
+-			 !check_bytes_and_report(s, page, p, "Poison",
++			 !check_bytes_and_report(s, page, p, "End Poison",
+ 				p + s->object_size - 1, POISON_END, 1)))
+ 			return 0;
+ 		/*
 
 
