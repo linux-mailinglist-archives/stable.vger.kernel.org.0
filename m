@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC1DA3AF25F
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:52:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 002103AF26A
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231802AbhFURy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 13:54:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38456 "EHLO mail.kernel.org"
+        id S231809AbhFURye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 13:54:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230330AbhFURyY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 13:54:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2571F611C1;
-        Mon, 21 Jun 2021 17:52:09 +0000 (UTC)
+        id S231788AbhFURy0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 13:54:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDBE061026;
+        Mon, 21 Jun 2021 17:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624297930;
-        bh=EKWFR62OC53Ool/73TihiUZRikghbx9/5caVVvFCek4=;
+        s=k20201202; t=1624297931;
+        bh=7FejGutx7qigxlPOnRTPF0t+VREiWTptDfU4R0WFxNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fWqCbK+4qSkJh6e5DrAzi/s6SKkLwgq+89HBcDLLhpkq55xGpCxZJR1ddtaVIgKNg
-         Oj9yRnPA0hLpEw8zXYcUwnmTRNJBK98WQ48UM8+cuPwzsAuCzKZv1Pn9nVnUsCbjRn
-         TkZrHhSuLHm79WD6MpMy1acXsqvHfn0bZp8QQiQERr7389gKqfEloTDUz0XGwcdb+q
-         fZ7tkzN3ZNfsnQwYIvaE6plZ6Nal1vvb4XYhMXJiF3BVG2T3/+bi8AaR1oENSLx6N6
-         mFl8v7Vr1g80eaDhFSh52uxRUopDYA+MIaWMHKYK/8UsipiXPwuBv3WyWihg9G7Txn
-         dTdMudwf5YCyw==
+        b=ABkbAJVzhe1qx8+pKOJdi4GG2HGGVgFVIGPj01gzlvpJEx7r5AM4K3GlBZdodcZNd
+         Rnl8PbGfdCS7M2wI/4XPHYCa/BdOiFnhfEq8nLO/xb7yXrfAt9RnvgLq47lNKIoMAA
+         h0yAzixR+59pc2uFrDe84LE1y3E4qAbKDGxa6KiV99euVUHPBzXhnl2k2uKaMzFnUG
+         y1+1qtfyqKqgeyKY6YueYfIHxWoyn5u0l+mG+6Zpaf1cV7I0OkpysabXNJqlB1+ED5
+         v5n6z7XgMftKp1ppzjCtscDKJFqZ/gpOAryQ65Ddqh3CSti5Kydk4DbAIKFhMpt4EL
+         knIiuR86J+SCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Du Cheng <ducheng2@gmail.com>,
-        syzbot+105896fac213f26056f9@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 07/39] cfg80211: call cfg80211_leave_ocb when switching away from OCB
-Date:   Mon, 21 Jun 2021 13:51:23 -0400
-Message-Id: <20210621175156.735062-7-sashal@kernel.org>
+Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 08/39] dmaengine: idxd: Fix missing error code in idxd_cdev_open()
+Date:   Mon, 21 Jun 2021 13:51:24 -0400
+Message-Id: <20210621175156.735062-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210621175156.735062-1-sashal@kernel.org>
 References: <20210621175156.735062-1-sashal@kernel.org>
@@ -44,60 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit a64b6a25dd9f984ed05fade603a00e2eae787d2f ]
+[ Upstream commit 99b18e88a1cf737ae924123d63b46d9a3d17b1af ]
 
-If the userland switches back-and-forth between NL80211_IFTYPE_OCB and
-NL80211_IFTYPE_ADHOC via send_msg(NL80211_CMD_SET_INTERFACE), there is a
-chance where the cleanup cfg80211_leave_ocb() is not called. This leads
-to initialization of in-use memory (e.g. init u.ibss while in-use by
-u.ocb) due to a shared struct/union within ieee80211_sub_if_data:
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'rc'.
 
-struct ieee80211_sub_if_data {
-    ...
-    union {
-        struct ieee80211_if_ap ap;
-        struct ieee80211_if_vlan vlan;
-        struct ieee80211_if_managed mgd;
-        struct ieee80211_if_ibss ibss; // <- shares address
-        struct ieee80211_if_mesh mesh;
-        struct ieee80211_if_ocb ocb; // <- shares address
-        struct ieee80211_if_mntr mntr;
-        struct ieee80211_if_nan nan;
-    } u;
-    ...
-}
+Eliminate the follow smatch warning:
 
-Therefore add handling of otype == NL80211_IFTYPE_OCB, during
-cfg80211_change_iface() to perform cleanup when leaving OCB mode.
+drivers/dma/idxd/cdev.c:113 idxd_cdev_open() warn: missing error code
+'rc'.
 
-link to syzkaller bug:
-https://syzkaller.appspot.com/bug?id=0612dbfa595bf4b9b680ff7b4948257b8e3732d5
-
-Reported-by: syzbot+105896fac213f26056f9@syzkaller.appspotmail.com
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Link: https://lore.kernel.org/r/20210428063941.105161-1-ducheng2@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/1622628446-87909-1-git-send-email-jiapeng.chong@linux.alibaba.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/dma/idxd/cdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index f342b6147675..726e7d2342bd 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -1059,6 +1059,9 @@ int cfg80211_change_iface(struct cfg80211_registered_device *rdev,
- 		case NL80211_IFTYPE_MESH_POINT:
- 			/* mesh should be handled? */
- 			break;
-+		case NL80211_IFTYPE_OCB:
-+			cfg80211_leave_ocb(rdev, dev);
-+			break;
- 		default:
- 			break;
+diff --git a/drivers/dma/idxd/cdev.c b/drivers/dma/idxd/cdev.c
+index 1d8a3876b745..5ba8e8bc609f 100644
+--- a/drivers/dma/idxd/cdev.c
++++ b/drivers/dma/idxd/cdev.c
+@@ -110,6 +110,7 @@ static int idxd_cdev_open(struct inode *inode, struct file *filp)
+ 		pasid = iommu_sva_get_pasid(sva);
+ 		if (pasid == IOMMU_PASID_INVALID) {
+ 			iommu_sva_unbind_device(sva);
++			rc = -EINVAL;
+ 			goto failed;
  		}
+ 
 -- 
 2.30.2
 
