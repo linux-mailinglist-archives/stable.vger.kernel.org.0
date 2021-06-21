@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDAD3AEE68
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBF1A3AEE6B
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:26:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231490AbhFUQ2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:28:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49588 "EHLO mail.kernel.org"
+        id S231593AbhFUQ2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:28:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231625AbhFUQ12 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:27:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B66B613D1;
-        Mon, 21 Jun 2021 16:22:48 +0000 (UTC)
+        id S231874AbhFUQ1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:27:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19472613DA;
+        Mon, 21 Jun 2021 16:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292569;
-        bh=58p587Ztdh+iyD4r1ZSxRkyriJmylklzXXsDINK6tCw=;
+        s=korg; t=1624292571;
+        bh=wU82TVApRkhtI7f0iv/+54MYKfS6dYu+wuaftVjHOJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SQNXtzufpKxi+roadc9N+s60iu0JOTwP2bOxtsXa2V1R+5BNl6gjtbmPo6zSR8JFl
-         mZvM3U1PYeVWWE6AiQ4Mfky+49jeeoyj0pyasEQTIz4L76MqVvcA9W+oC3HWi567/2
-         CaS0rPp3MOpDfnVjM4s+wxi7gbrANRUbw7zF3G4s=
+        b=vq8VV/gztFCylWGW6p2TAHnR6pXfUDjP3rNk0pHoHYq4kArR7gRmvC8otjsKJ09oV
+         CMHdtit/A0JJcyCpxNZyqQ4FscXnK8zGTlKHUtBTJqgUu5aw+UbDq5uDn9nWFOK/uK
+         IBvUu32nBqbuwrwCdSy+SkwnmGAa9uyyfbAErD2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Mykola Kostenok <c_mykolak@nvidia.com>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Jiri Pirko <jiri@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 015/146] mlxsw: core: Set thermal zone polling delay argument to real value at init
-Date:   Mon, 21 Jun 2021 18:14:05 +0200
-Message-Id: <20210621154911.783459622@linuxfoundation.org>
+        stable@vger.kernel.org, Kev Jackson <foamdino@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 016/146] libbpf: Fixes incorrect rx_ring_setup_done
+Date:   Mon, 21 Jun 2021 18:14:06 +0200
+Message-Id: <20210621154911.820327580@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
 References: <20210621154911.244649123@linuxfoundation.org>
@@ -44,57 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mykola Kostenok <c_mykolak@nvidia.com>
+From: Kev Jackson <foamdino@gmail.com>
 
-[ Upstream commit 2fd8d84ce3095e8a7b5fe96532c91b1b9e07339c ]
+[ Upstream commit 11fc79fc9f2e395aa39fa5baccae62767c5d8280 ]
 
-Thermal polling delay argument for modules and gearboxes thermal zones
-used to be initialized with zero value, while actual delay was used to
-be set by mlxsw_thermal_set_mode() by thermal operation callback
-set_mode(). After operations set_mode()/get_mode() have been removed by
-cited commits, modules and gearboxes thermal zones always have polling
-time set to zero and do not perform temperature monitoring.
+When calling xsk_socket__create_shared(), the logic at line 1097 marks a
+boolean flag true within the xsk_umem structure to track setup progress
+in order to support multiple calls to the function.  However, instead of
+marking umem->tx_ring_setup_done, the code incorrectly sets
+umem->rx_ring_setup_done.  This leads to improper behaviour when
+creating and destroying xsk and umem structures.
 
-Set non-zero "polling_delay" in thermal_zone_device_register() routine,
-thus, the relevant thermal zones will perform thermal monitoring.
+Multiple calls to this function is documented as supported.
 
-Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Fixes: 5d7bd8aa7c35 ("thermal: Simplify or eliminate unnecessary set_mode() methods")
-Fixes: 1ee14820fd8e ("thermal: remove get_mode() operation of drivers")
-Signed-off-by: Mykola Kostenok <c_mykolak@nvidia.com>
-Acked-by: Vadim Pasternak <vadimp@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ca7a83e2487a ("libbpf: Only create rx and tx XDP rings when necessary")
+Signed-off-by: Kev Jackson <foamdino@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/YL4aU4f3Aaik7CN0@linux-dev
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core_thermal.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/lib/bpf/xsk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-index bf85ce9835d7..42e4437ac3c1 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -708,7 +708,8 @@ mlxsw_thermal_module_tz_init(struct mlxsw_thermal_module *module_tz)
- 							MLXSW_THERMAL_TRIP_MASK,
- 							module_tz,
- 							&mlxsw_thermal_module_ops,
--							NULL, 0, 0);
-+							NULL, 0,
-+							module_tz->parent->polling_delay);
- 	if (IS_ERR(module_tz->tzdev)) {
- 		err = PTR_ERR(module_tz->tzdev);
- 		return err;
-@@ -830,7 +831,8 @@ mlxsw_thermal_gearbox_tz_init(struct mlxsw_thermal_module *gearbox_tz)
- 						MLXSW_THERMAL_TRIP_MASK,
- 						gearbox_tz,
- 						&mlxsw_thermal_gearbox_ops,
--						NULL, 0, 0);
-+						NULL, 0,
-+						gearbox_tz->parent->polling_delay);
- 	if (IS_ERR(gearbox_tz->tzdev))
- 		return PTR_ERR(gearbox_tz->tzdev);
+diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
+index 7150e34cf2af..3028f932e10c 100644
+--- a/tools/lib/bpf/xsk.c
++++ b/tools/lib/bpf/xsk.c
+@@ -779,7 +779,7 @@ int xsk_socket__create_shared(struct xsk_socket **xsk_ptr,
+ 			goto out_put_ctx;
+ 		}
+ 		if (xsk->fd == umem->fd)
+-			umem->rx_ring_setup_done = true;
++			umem->tx_ring_setup_done = true;
+ 	}
  
+ 	err = xsk_get_mmap_offsets(xsk->fd, &off);
 -- 
 2.30.2
 
