@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D33FE3AF0B8
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C04593AEF14
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231514AbhFUQvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:51:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41348 "EHLO mail.kernel.org"
+        id S232180AbhFUQfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233384AbhFUQtn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:49:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A6BD61360;
-        Mon, 21 Jun 2021 16:34:40 +0000 (UTC)
+        id S232443AbhFUQdv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:33:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C59B61405;
+        Mon, 21 Jun 2021 16:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293281;
-        bh=LMB/EuOgP2l7rt4+DH9omDRGMomrcHldCdGNDTix6ts=;
+        s=korg; t=1624292798;
+        bh=jypisFtS2T5AuEse6LX+tOnwzhhUTeKbeHc8WA6noSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ry/1vWZIsGcxj0QMAmzWV49Jsd99CEH0dcYPC/mrSDlr0x03L1NEr5nvuJxe0NDtO
-         pDWxL+/RQTUb4nyYU2mNEV4touw4W/ftEvB1YGFx2p8zcH1zXFfA+dmfeI4PtNIMcs
-         DNl2DlY+Jo/krnEVyVHSTvmag7zuEUjXlhqYIHmU=
+        b=unTJIPn8PdQEPNV6+jEJ9M1pdJj1hQZw8aA3VD2st0lfhblkm+2oSTJPMd7neY4tC
+         SpXlh4ZwhTu51R3u6DXFStmQ8UToZDKTEQX2IMMWVVb3o0GxIALKP6ZCE76PfuqQDb
+         8iPzdZYWgMU4uCTYrnYYZDxaPpbFMRN7g9w/YVow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>
-Subject: [PATCH 5.12 132/178] btrfs: zoned: fix negative space_info->bytes_readonly
-Date:   Mon, 21 Jun 2021 18:15:46 +0200
-Message-Id: <20210621154927.276671375@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Vladimir Isaev <isaev@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 5.10 117/146] ARCv2: save ABI registers across signal handling
+Date:   Mon, 21 Jun 2021 18:15:47 +0200
+Message-Id: <20210621154918.831182622@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +40,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-commit f9f28e5bd0baee9708c9011897196f06ae3a2733 upstream.
+commit 96f1b00138cb8f04c742c82d0a7c460b2202e887 upstream.
 
-Consider we have a using block group on zoned btrfs.
+ARCv2 has some configuration dependent registers (r30, r58, r59) which
+could be targetted by the compiler. To keep the ABI stable, these were
+unconditionally part of the glibc ABI
+(sysdeps/unix/sysv/linux/arc/sys/ucontext.h:mcontext_t) however we
+missed populating them (by saving/restoring them across signal
+handling).
 
-|<- ZU ->|<- used ->|<---free--->|
-                     `- Alloc offset
-ZU: Zone unusable
+This patch fixes the issue by
+ - adding arcv2 ABI regs to kernel struct sigcontext
+ - populating them during signal handling
 
-Marking the block group read-only will migrate the zone unusable bytes
-to the read-only bytes. So, we will have this.
+Change to struct sigcontext might seem like a glibc ABI change (although
+it primarily uses ucontext_t:mcontext_t) but the fact is
+ - it has only been extended (existing fields are not touched)
+ - the old sigcontext was ABI incomplete to begin with anyways
 
-|<- RO ->|<- used ->|<--- RO --->|
-
-RO: Read only
-
-When marking it back to read-write, btrfs_dec_block_group_ro()
-subtracts the above "RO" bytes from the
-space_info->bytes_readonly. And, it moves the zone unusable bytes back
-and again subtracts those bytes from the space_info->bytes_readonly,
-leading to negative bytes_readonly.
-
-This can be observed in the output as eg.:
-
-  Data, single: total=512.00MiB, used=165.21MiB, zone_unusable=16.00EiB
-  Data, single: total=536870912, used=173256704, zone_unusable=18446744073603186688
-
-This commit fixes the issue by reordering the operations.
-
-Link: https://github.com/naota/linux/issues/37
-Reported-by: David Sterba <dsterba@suse.com>
-Fixes: 169e0da91a21 ("btrfs: zoned: track unusable bytes for zones")
-CC: stable@vger.kernel.org # 5.12+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/53
+Cc: <stable@vger.kernel.org>
+Tested-by: kernel test robot <lkp@intel.com>
+Reported-by: Vladimir Isaev <isaev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/block-group.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arc/include/uapi/asm/sigcontext.h |    1 
+ arch/arc/kernel/signal.c               |   43 +++++++++++++++++++++++++++++++++
+ 2 files changed, 44 insertions(+)
 
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2347,16 +2347,16 @@ void btrfs_dec_block_group_ro(struct btr
- 	spin_lock(&sinfo->lock);
- 	spin_lock(&cache->lock);
- 	if (!--cache->ro) {
--		num_bytes = cache->length - cache->reserved -
--			    cache->pinned - cache->bytes_super -
--			    cache->zone_unusable - cache->used;
--		sinfo->bytes_readonly -= num_bytes;
- 		if (btrfs_is_zoned(cache->fs_info)) {
- 			/* Migrate zone_unusable bytes back */
- 			cache->zone_unusable = cache->alloc_offset - cache->used;
- 			sinfo->bytes_zone_unusable += cache->zone_unusable;
- 			sinfo->bytes_readonly -= cache->zone_unusable;
- 		}
-+		num_bytes = cache->length - cache->reserved -
-+			    cache->pinned - cache->bytes_super -
-+			    cache->zone_unusable - cache->used;
-+		sinfo->bytes_readonly -= num_bytes;
- 		list_del_init(&cache->ro_list);
- 	}
- 	spin_unlock(&cache->lock);
+--- a/arch/arc/include/uapi/asm/sigcontext.h
++++ b/arch/arc/include/uapi/asm/sigcontext.h
+@@ -18,6 +18,7 @@
+  */
+ struct sigcontext {
+ 	struct user_regs_struct regs;
++	struct user_regs_arcv2 v2abi;
+ };
+ 
+ #endif /* _ASM_ARC_SIGCONTEXT_H */
+--- a/arch/arc/kernel/signal.c
++++ b/arch/arc/kernel/signal.c
+@@ -61,6 +61,41 @@ struct rt_sigframe {
+ 	unsigned int sigret_magic;
+ };
+ 
++static int save_arcv2_regs(struct sigcontext *mctx, struct pt_regs *regs)
++{
++	int err = 0;
++#ifndef CONFIG_ISA_ARCOMPACT
++	struct user_regs_arcv2 v2abi;
++
++	v2abi.r30 = regs->r30;
++#ifdef CONFIG_ARC_HAS_ACCL_REGS
++	v2abi.r58 = regs->r58;
++	v2abi.r59 = regs->r59;
++#else
++	v2abi.r58 = v2abi.r59 = 0;
++#endif
++	err = __copy_to_user(&mctx->v2abi, &v2abi, sizeof(v2abi));
++#endif
++	return err;
++}
++
++static int restore_arcv2_regs(struct sigcontext *mctx, struct pt_regs *regs)
++{
++	int err = 0;
++#ifndef CONFIG_ISA_ARCOMPACT
++	struct user_regs_arcv2 v2abi;
++
++	err = __copy_from_user(&v2abi, &mctx->v2abi, sizeof(v2abi));
++
++	regs->r30 = v2abi.r30;
++#ifdef CONFIG_ARC_HAS_ACCL_REGS
++	regs->r58 = v2abi.r58;
++	regs->r59 = v2abi.r59;
++#endif
++#endif
++	return err;
++}
++
+ static int
+ stash_usr_regs(struct rt_sigframe __user *sf, struct pt_regs *regs,
+ 	       sigset_t *set)
+@@ -94,6 +129,10 @@ stash_usr_regs(struct rt_sigframe __user
+ 
+ 	err = __copy_to_user(&(sf->uc.uc_mcontext.regs.scratch), &uregs.scratch,
+ 			     sizeof(sf->uc.uc_mcontext.regs.scratch));
++
++	if (is_isa_arcv2())
++		err |= save_arcv2_regs(&(sf->uc.uc_mcontext), regs);
++
+ 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(sigset_t));
+ 
+ 	return err ? -EFAULT : 0;
+@@ -109,6 +148,10 @@ static int restore_usr_regs(struct pt_re
+ 	err |= __copy_from_user(&uregs.scratch,
+ 				&(sf->uc.uc_mcontext.regs.scratch),
+ 				sizeof(sf->uc.uc_mcontext.regs.scratch));
++
++	if (is_isa_arcv2())
++		err |= restore_arcv2_regs(&(sf->uc.uc_mcontext), regs);
++
+ 	if (err)
+ 		return -EFAULT;
+ 
 
 
