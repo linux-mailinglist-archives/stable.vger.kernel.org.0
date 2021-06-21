@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 015F43AED8E
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:18:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4023F3AEE98
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231261AbhFUQU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:20:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40886 "EHLO mail.kernel.org"
+        id S231460AbhFUQaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:30:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231453AbhFUQUU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:20:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C95B6115B;
-        Mon, 21 Jun 2021 16:18:05 +0000 (UTC)
+        id S232371AbhFUQ3R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:29:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B626761289;
+        Mon, 21 Jun 2021 16:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292286;
-        bh=pE2bubhq3genfAxGeL5u06ApMeOIM4+/NsUA6gusjfQ=;
+        s=korg; t=1624292650;
+        bh=qna0s9b3nXSCyr1sPmpyt8aI5vVVDvjz9OIvUIi7AhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CaN0eMepqeZJxWDXBt0qEYCYNMTbVVLOJmTTCnsGWB2Y+17OUUT2a7O3jWfW7NLoS
-         36r0T/KO4vlALLpf3ER2RoqTiY3Ic3vEYuCiQY3brRDStKn5JZ2osG9jimNKUujnk+
-         QSeYcUNQ9sGO6PGKY/Mn6rhvJ3haqvT9ALTN8GXM=
+        b=YJ99+ZYd+ONDpqVhJ/cEMg32WALKEtLI0ZVC++UuW5qd7zhzRp0Tkc8gTiUZ5OReN
+         R+L+yEpzGOo0TqBFDLJtj0yRtGuGFTndo8HK3veAdJ5yifk42ClS7ehN2gaSb9jvIQ
+         Oi6KjRti5bpPpSVHNlLQ9s0fhh9CaFF1J4+a+A4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Chengyang Fan <cy.fan@huawei.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Oder Chiou <oder_chiou@realtek.com>,
+        Jack Yu <jack.yu@realtek.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/90] net: ipv4: fix memory leak in ip_mc_add1_src
+Subject: [PATCH 5.10 078/146] ASoC: rt5659: Fix the lost powers for the HDA header
 Date:   Mon, 21 Jun 2021 18:15:08 +0200
-Message-Id: <20210621154905.237873461@linuxfoundation.org>
+Message-Id: <20210621154915.913018521@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-References: <20210621154904.159672728@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengyang Fan <cy.fan@huawei.com>
+From: Jack Yu <jack.yu@realtek.com>
 
-[ Upstream commit d8e2973029b8b2ce477b564824431f3385c77083 ]
+[ Upstream commit 6308c44ed6eeadf65c0a7ba68d609773ed860fbb ]
 
-BUG: memory leak
-unreferenced object 0xffff888101bc4c00 (size 32):
-  comm "syz-executor527", pid 360, jiffies 4294807421 (age 19.329s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-    01 00 00 00 00 00 00 00 ac 14 14 bb 00 00 02 00 ................
-  backtrace:
-    [<00000000f17c5244>] kmalloc include/linux/slab.h:558 [inline]
-    [<00000000f17c5244>] kzalloc include/linux/slab.h:688 [inline]
-    [<00000000f17c5244>] ip_mc_add1_src net/ipv4/igmp.c:1971 [inline]
-    [<00000000f17c5244>] ip_mc_add_src+0x95f/0xdb0 net/ipv4/igmp.c:2095
-    [<000000001cb99709>] ip_mc_source+0x84c/0xea0 net/ipv4/igmp.c:2416
-    [<0000000052cf19ed>] do_ip_setsockopt net/ipv4/ip_sockglue.c:1294 [inline]
-    [<0000000052cf19ed>] ip_setsockopt+0x114b/0x30c0 net/ipv4/ip_sockglue.c:1423
-    [<00000000477edfbc>] raw_setsockopt+0x13d/0x170 net/ipv4/raw.c:857
-    [<00000000e75ca9bb>] __sys_setsockopt+0x158/0x270 net/socket.c:2117
-    [<00000000bdb993a8>] __do_sys_setsockopt net/socket.c:2128 [inline]
-    [<00000000bdb993a8>] __se_sys_setsockopt net/socket.c:2125 [inline]
-    [<00000000bdb993a8>] __x64_sys_setsockopt+0xba/0x150 net/socket.c:2125
-    [<000000006a1ffdbd>] do_syscall_64+0x40/0x80 arch/x86/entry/common.c:47
-    [<00000000b11467c4>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+The power of "LDO2", "MICBIAS1" and "Mic Det Power" were powered off after
+the DAPM widgets were added, and these powers were set by the JD settings
+"RT5659_JD_HDA_HEADER" in the probe function. In the codec probe function,
+these powers were ignored to prevent them controlled by DAPM.
 
-In commit 24803f38a5c0 ("igmp: do not remove igmp souce list info when set
-link down"), the ip_mc_clear_src() in ip_mc_destroy_dev() was removed,
-because it was also called in igmpv3_clear_delrec().
-
-Rough callgraph:
-
-inetdev_destroy
--> ip_mc_destroy_dev
-     -> igmpv3_clear_delrec
-        -> ip_mc_clear_src
--> RCU_INIT_POINTER(dev->ip_ptr, NULL)
-
-However, ip_mc_clear_src() called in igmpv3_clear_delrec() doesn't
-release in_dev->mc_list->sources. And RCU_INIT_POINTER() assigns the
-NULL to dev->ip_ptr. As a result, in_dev cannot be obtained through
-inetdev_by_index() and then in_dev->mc_list->sources cannot be released
-by ip_mc_del1_src() in the sock_close. Rough call sequence goes like:
-
-sock_close
--> __sock_release
-   -> inet_release
-      -> ip_mc_drop_socket
-         -> inetdev_by_index
-         -> ip_mc_leave_src
-            -> ip_mc_del_src
-               -> ip_mc_del1_src
-
-So we still need to call ip_mc_clear_src() in ip_mc_destroy_dev() to free
-in_dev->mc_list->sources.
-
-Fixes: 24803f38a5c0 ("igmp: do not remove igmp souce list info ...")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chengyang Fan <cy.fan@huawei.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
+Signed-off-by: Jack Yu <jack.yu@realtek.com>
+Message-Id: <15fced51977b458798ca4eebf03dafb9@realtek.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/igmp.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/rt5659.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 480d0b22db1a..c8cbdc4d5cbc 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -1803,6 +1803,7 @@ void ip_mc_destroy_dev(struct in_device *in_dev)
- 	while ((i = rtnl_dereference(in_dev->mc_list)) != NULL) {
- 		in_dev->mc_list = i->next_rcu;
- 		in_dev->mc_count--;
-+		ip_mc_clear_src(i);
- 		ip_ma_put(i);
- 	}
+diff --git a/sound/soc/codecs/rt5659.c b/sound/soc/codecs/rt5659.c
+index 91a4ef7f620c..a9b079d56fd6 100644
+--- a/sound/soc/codecs/rt5659.c
++++ b/sound/soc/codecs/rt5659.c
+@@ -2433,13 +2433,18 @@ static int set_dmic_power(struct snd_soc_dapm_widget *w,
+ 	return 0;
  }
+ 
+-static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
++static const struct snd_soc_dapm_widget rt5659_particular_dapm_widgets[] = {
+ 	SND_SOC_DAPM_SUPPLY("LDO2", RT5659_PWR_ANLG_3, RT5659_PWR_LDO2_BIT, 0,
+ 		NULL, 0),
+-	SND_SOC_DAPM_SUPPLY("PLL", RT5659_PWR_ANLG_3, RT5659_PWR_PLL_BIT, 0,
+-		NULL, 0),
++	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
++		0, NULL, 0),
+ 	SND_SOC_DAPM_SUPPLY("Mic Det Power", RT5659_PWR_VOL,
+ 		RT5659_PWR_MIC_DET_BIT, 0, NULL, 0),
++};
++
++static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
++	SND_SOC_DAPM_SUPPLY("PLL", RT5659_PWR_ANLG_3, RT5659_PWR_PLL_BIT, 0,
++		NULL, 0),
+ 	SND_SOC_DAPM_SUPPLY("Mono Vref", RT5659_PWR_ANLG_1,
+ 		RT5659_PWR_VREF3_BIT, 0, NULL, 0),
+ 
+@@ -2464,8 +2469,6 @@ static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
+ 		RT5659_ADC_MONO_R_ASRC_SFT, 0, NULL, 0),
+ 
+ 	/* Input Side */
+-	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
+-		0, NULL, 0),
+ 	SND_SOC_DAPM_SUPPLY("MICBIAS2", RT5659_PWR_ANLG_2, RT5659_PWR_MB2_BIT,
+ 		0, NULL, 0),
+ 	SND_SOC_DAPM_SUPPLY("MICBIAS3", RT5659_PWR_ANLG_2, RT5659_PWR_MB3_BIT,
+@@ -3660,10 +3663,23 @@ static int rt5659_set_bias_level(struct snd_soc_component *component,
+ 
+ static int rt5659_probe(struct snd_soc_component *component)
+ {
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
+ 	struct rt5659_priv *rt5659 = snd_soc_component_get_drvdata(component);
+ 
+ 	rt5659->component = component;
+ 
++	switch (rt5659->pdata.jd_src) {
++	case RT5659_JD_HDA_HEADER:
++		break;
++
++	default:
++		snd_soc_dapm_new_controls(dapm,
++			rt5659_particular_dapm_widgets,
++			ARRAY_SIZE(rt5659_particular_dapm_widgets));
++		break;
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
