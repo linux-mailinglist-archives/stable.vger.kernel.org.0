@@ -2,123 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8BB43AEE02
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2354F3AED3D
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:16:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231851AbhFUQYy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:24:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41976 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231536AbhFUQXN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:23:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17047613AB;
-        Mon, 21 Jun 2021 16:20:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292434;
-        bh=2T+dT1ui7N63XgqwBPbhlEbLpzfartFNHQfqi+JEzbM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSp3hBU5ShOnD7GFeReiD7nryYrabpbtw+PGJTcpLx8AmSIzDmfts+z26HabcTaqC
-         C2e5Bd9bDDCb3ASFIGBP9RdGAvtSVJXpNTyKktoAVNYFAC4YSro3lanNHVvLxxSFEh
-         ugz1tJ/dbZH6y1mnpk00jnrIzRnJxVxOd2c+OmaY=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Pham <jackp@codeaurora.org>,
-        Peter Chen <peter.chen@kernel.org>
-Subject: [PATCH 5.4 90/90] usb: dwc3: core: fix kernel panic when do reboot
-Date:   Mon, 21 Jun 2021 18:16:05 +0200
-Message-Id: <20210621154907.205570336@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-References: <20210621154904.159672728@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S230290AbhFUQSt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:18:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55126 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230056AbhFUQSs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 12:18:48 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2080C061574
+        for <stable@vger.kernel.org>; Mon, 21 Jun 2021 09:16:34 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id v7so14576440pgl.2
+        for <stable@vger.kernel.org>; Mon, 21 Jun 2021 09:16:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=LL5t3H80yxVqcOP2FCE0oHwI5menyXESZwHRdH8Og6c=;
+        b=dxFfFblIQ6U/Rla6caaO+KOyc4wsi6jn+qr1Embb7mlr3z+aaC9Kjnh0DPT9prslHT
+         lxcfdQII69wpZqDMOk05ocxRuVS8dZSflAY5zXeFtNCcms4dWQuzw3I8CGe+XhLnBt1t
+         NgK1KWB4p2/FqR9f05xWn7MF3atfzMzY4Tny6EmlPXuSThWtfSphb4IaXZt7Ff3Jr5ke
+         pdfOtEd1flvVDonA6tbtEa4IU+w3KqWZguSuTpyPyXKZgV7zeURCL1dyzkXeofWCkpiD
+         8ota8+jOf52NXwsWNPBnssKu5XqoBaLTOjd9WUjBW6IeDi/59VKhwluD1RFftzCzz1M4
+         BsAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=LL5t3H80yxVqcOP2FCE0oHwI5menyXESZwHRdH8Og6c=;
+        b=uPkALHnDiGEUxPgBqx87s1cSTFF6TQcR8V7Ibc6ESfura9PwxlJ6RmfaMl+v+2mDY+
+         jCWBXPgD0jt7VCSqposy2OCh1VrgJZ7DZwhchW11e16/mno+dmPk781wx71tqqJl0yVk
+         sSf2FK99jd4VzO6hC0JVtzjODJRScoragekQCN8VO1qMu0r2qoHgU9AcUeSgQ5fHirQ3
+         7MI/6+N3ccxAqXVfSsjWmidgKfGNWU6mFUOMEBo3qNgLd4B9HA2P9VSHUixwNSdfBb6o
+         vGg+jMq2NkllLiqBbeDtfHTWrWdXyMs69WdPDqr0d5ejeGfLehk0I4z3ka24L3jcYtsj
+         s3Cg==
+X-Gm-Message-State: AOAM530z/V6VjDWz6VryjCB2U3aB8CfjbSl2PhZq38QSX+5YpJd8VM8N
+        ykRVkjYADV23ONjtFKNqdmYv
+X-Google-Smtp-Source: ABdhPJzOfIwdCda7XHHzbTSAOocHTD2Y11tIDzo1FpOag6yHuA/KdlLadm/j3CgSedMXQDiK6LRVkQ==
+X-Received: by 2002:a63:5553:: with SMTP id f19mr24178169pgm.419.1624292194215;
+        Mon, 21 Jun 2021 09:16:34 -0700 (PDT)
+Received: from localhost.localdomain ([120.138.13.116])
+        by smtp.gmail.com with ESMTPSA id k88sm10734730pjk.15.2021.06.21.09.16.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Jun 2021 09:16:33 -0700 (PDT)
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     gregkh@linuxfoundation.org
+Cc:     hemantk@codeaurora.org, bbhatt@codeaurora.org,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        loic.poulain@linaro.org, stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Jeffrey Hugo <quic_jhugo@quicinc.com>
+Subject: [PATCH 1/8] bus: mhi: core: Validate channel ID when processing command completions
+Date:   Mon, 21 Jun 2021 21:46:09 +0530
+Message-Id: <20210621161616.77524-2-manivannan.sadhasivam@linaro.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210621161616.77524-1-manivannan.sadhasivam@linaro.org>
+References: <20210621161616.77524-1-manivannan.sadhasivam@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@kernel.org>
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
 
-commit 4bf584a03eec674975ee9fe36c8583d9d470dab1 upstream.
+MHI reads the channel ID from the event ring element sent by the
+device which can be any value between 0 and 255. In order to
+prevent any out of bound accesses, add a check against the maximum
+number of channels supported by the controller and those channels
+not configured yet so as to skip processing of that event ring
+element.
 
-When do system reboot, it calls dwc3_shutdown and the whole debugfs
-for dwc3 has removed first, when the gadget tries to do deinit, and
-remove debugfs for its endpoints, it meets NULL pointer dereference
-issue when call debugfs_lookup. Fix it by removing the whole dwc3
-debugfs later than dwc3_drd_exit.
-
-[ 2924.958838] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000002
-....
-[ 2925.030994] pstate: 60000005 (nZCv daif -PAN -UAO -TCO BTYPE=--)
-[ 2925.037005] pc : inode_permission+0x2c/0x198
-[ 2925.041281] lr : lookup_one_len_common+0xb0/0xf8
-[ 2925.045903] sp : ffff80001276ba70
-[ 2925.049218] x29: ffff80001276ba70 x28: ffff0000c01f0000 x27: 0000000000000000
-[ 2925.056364] x26: ffff800011791e70 x25: 0000000000000008 x24: dead000000000100
-[ 2925.063510] x23: dead000000000122 x22: 0000000000000000 x21: 0000000000000001
-[ 2925.070652] x20: ffff8000122c6188 x19: 0000000000000000 x18: 0000000000000000
-[ 2925.077797] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000004
-[ 2925.084943] x14: ffffffffffffffff x13: 0000000000000000 x12: 0000000000000030
-[ 2925.092087] x11: 0101010101010101 x10: 7f7f7f7f7f7f7f7f x9 : ffff8000102b2420
-[ 2925.099232] x8 : 7f7f7f7f7f7f7f7f x7 : feff73746e2f6f64 x6 : 0000000000008080
-[ 2925.106378] x5 : 61c8864680b583eb x4 : 209e6ec2d263dbb7 x3 : 000074756f307065
-[ 2925.113523] x2 : 0000000000000001 x1 : 0000000000000000 x0 : ffff8000122c6188
-[ 2925.120671] Call trace:
-[ 2925.123119]  inode_permission+0x2c/0x198
-[ 2925.127042]  lookup_one_len_common+0xb0/0xf8
-[ 2925.131315]  lookup_one_len_unlocked+0x34/0xb0
-[ 2925.135764]  lookup_positive_unlocked+0x14/0x50
-[ 2925.140296]  debugfs_lookup+0x68/0xa0
-[ 2925.143964]  dwc3_gadget_free_endpoints+0x84/0xb0
-[ 2925.148675]  dwc3_gadget_exit+0x28/0x78
-[ 2925.152518]  dwc3_drd_exit+0x100/0x1f8
-[ 2925.156267]  dwc3_remove+0x11c/0x120
-[ 2925.159851]  dwc3_shutdown+0x14/0x20
-[ 2925.163432]  platform_shutdown+0x28/0x38
-[ 2925.167360]  device_shutdown+0x15c/0x378
-[ 2925.171291]  kernel_restart_prepare+0x3c/0x48
-[ 2925.175650]  kernel_restart+0x1c/0x68
-[ 2925.179316]  __do_sys_reboot+0x218/0x240
-[ 2925.183247]  __arm64_sys_reboot+0x28/0x30
-[ 2925.187262]  invoke_syscall+0x48/0x100
-[ 2925.191017]  el0_svc_common.constprop.0+0x48/0xc8
-[ 2925.195726]  do_el0_svc+0x28/0x88
-[ 2925.199045]  el0_svc+0x20/0x30
-[ 2925.202104]  el0_sync_handler+0xa8/0xb0
-[ 2925.205942]  el0_sync+0x148/0x180
-[ 2925.209270] Code: a9025bf5 2a0203f5 121f0056 370802b5 (79400660)
-[ 2925.215372] ---[ end trace 124254d8e485a58b ]---
-[ 2925.220012] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
-[ 2925.227676] Kernel Offset: disabled
-[ 2925.231164] CPU features: 0x00001001,20000846
-[ 2925.235521] Memory Limit: none
-[ 2925.238580] ---[ end Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b ]---
-
-Fixes: 8d396bb0a5b6 ("usb: dwc3: debugfs: Add and remove endpoint dirs dynamically")
-Cc: Jack Pham <jackp@codeaurora.org>
-Tested-by: Jack Pham <jackp@codeaurora.org>
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
-Link: https://lore.kernel.org/r/20210608105656.10795-1-peter.chen@kernel.org
-(cherry picked from commit 2a042767814bd0edf2619f06fecd374e266ea068)
-Link: https://lore.kernel.org/r/20210615080847.GA10432@jackp-linux.qualcomm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 1d3173a3bae7 ("bus: mhi: core: Add support for processing events from client device")
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Link: https://lore.kernel.org/r/1619481538-4435-1-git-send-email-bbhatt@codeaurora.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 ---
- drivers/usb/dwc3/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/mhi/core/main.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1575,8 +1575,8 @@ static int dwc3_remove(struct platform_d
+diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
+index 22acde118bc3..ed07421c4870 100644
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -773,11 +773,16 @@ static void mhi_process_cmd_completion(struct mhi_controller *mhi_cntrl,
+ 	cmd_pkt = mhi_to_virtual(mhi_ring, ptr);
  
- 	pm_runtime_get_sync(&pdev->dev);
+ 	chan = MHI_TRE_GET_CMD_CHID(cmd_pkt);
+-	mhi_chan = &mhi_cntrl->mhi_chan[chan];
+-	write_lock_bh(&mhi_chan->lock);
+-	mhi_chan->ccs = MHI_TRE_GET_EV_CODE(tre);
+-	complete(&mhi_chan->completion);
+-	write_unlock_bh(&mhi_chan->lock);
++	WARN_ON(chan >= mhi_cntrl->max_chan);
++
++	if (chan < mhi_cntrl->max_chan &&
++	    mhi_cntrl->mhi_chan[chan].configured) {
++		mhi_chan = &mhi_cntrl->mhi_chan[chan];
++		write_lock_bh(&mhi_chan->lock);
++		mhi_chan->ccs = MHI_TRE_GET_EV_CODE(tre);
++		complete(&mhi_chan->completion);
++		write_unlock_bh(&mhi_chan->lock);
++	}
  
--	dwc3_debugfs_exit(dwc);
- 	dwc3_core_exit_mode(dwc);
-+	dwc3_debugfs_exit(dwc);
- 
- 	dwc3_core_exit(dwc);
- 	dwc3_ulpi_exit(dwc);
-
+ 	mhi_del_ring_element(mhi_cntrl, mhi_ring);
+ }
+-- 
+2.25.1
 
