@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09F703AF39E
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 20:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ED883AF399
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 20:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232421AbhFUSCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 14:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45490 "EHLO mail.kernel.org"
+        id S232939AbhFUSC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 14:02:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232786AbhFUSAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233617AbhFUSAS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Jun 2021 14:00:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F771613E8;
-        Mon, 21 Jun 2021 17:54:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EDAF60C41;
+        Mon, 21 Jun 2021 17:54:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624298079;
-        bh=JLjj2aYbDPX0ut326hwvKxjuw43Xr6zp31+p1p1HgUg=;
+        s=k20201202; t=1624298081;
+        bh=+6wiNLqqnTiDXKehP3jGCjGTfB/a5ux91Dp8LbOhIfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rmb3904LKwcjJKjTmLaKaOxtTD15pW75k6u6hr8/h7t71I2QWnfU4JpE+2Y4JXoRN
-         COEdycVZBXIRfwjJ+d/srQln/9o0dWLRL7mu8qKMdkQAIOqhRStK4R5SuxsEjNFPus
-         6v4m+HpwMRGKDkPqs4bknPFZerjN3MeZOa27mLiVQRyg440aapLp0f44jGgTMFbKQe
-         /qmZlGH1wm2K29KwqDdiYrKSJNLiRpyzPAOVephA522DB8YtxGRXSpafEP+TFFEEd8
-         wDThMov6eaz3cZLmLpcJO9P8fV01SjtkaWLelEkAi6y9oCGA0v6waqw1e9AhK6ZKUe
-         S/+++Q7xNk9Aw==
+        b=gCeeC9xTJkhNKj47Mr+zBc1JDoEOVQuSx3Zzo0WNvTBF/vBKrgL86UE4R9HzxKU/e
+         qR+1TLR/KNiyZD4FlyyGmiMAj578xhQc35PhbwLU+YsCNkMHPVei9Q0cZX3fuBjRrt
+         iwRn9fnY6BBJoRiAM1W/VNRo4mwyRmgjWS/VbgZLJS8Oxr0cGSN8cqc1xZbluloI4G
+         j1PfEuQK6YjrefWCbohBV75+PziPdX6ARMhQBXUrm71D0rLdyCB4XwmKTcXW1MSlOr
+         Xr18UBAeX6wfHGC5eAd91vitA0Wc0oGGc0ZxOo0Dmlu46fB5cAJLxbe+qqtznYKOH7
+         tv9zWFt9UkHQw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 22/26] net: qed: Fix memcpy() overflow of qed_dcbx_params()
-Date:   Mon, 21 Jun 2021 13:53:55 -0400
-Message-Id: <20210621175400.735800-22-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 23/26] recordmcount: Correct st_shndx handling
+Date:   Mon, 21 Jun 2021 13:53:56 -0400
+Message-Id: <20210621175400.735800-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210621175400.735800-1-sashal@kernel.org>
 References: <20210621175400.735800-1-sashal@kernel.org>
@@ -42,48 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 1c200f832e14420fa770193f9871f4ce2df00d07 ]
+[ Upstream commit fb780761e7bd9f2e94f5b9a296ead6b35b944206 ]
 
-The source (&dcbx_info->operational.params) and dest
-(&p_hwfn->p_dcbx_info->set.config.params) are both struct qed_dcbx_params
-(560 bytes), not struct qed_dcbx_admin_params (564 bytes), which is used
-as the memcpy() size.
+One should only use st_shndx when >SHN_UNDEF and <SHN_LORESERVE. When
+SHN_XINDEX, then use .symtab_shndx. Otherwise use 0.
 
-However it seems that struct qed_dcbx_operational_params
-(dcbx_info->operational)'s layout matches struct qed_dcbx_admin_params
-(p_hwfn->p_dcbx_info->set.config)'s 4 byte difference (3 padding, 1 byte
-for "valid").
+This handles the case: st_shndx >= SHN_LORESERVE && st_shndx != SHN_XINDEX.
 
-On the assumption that the size is wrong (rather than the source structure
-type), adjust the memcpy() size argument to be 4 bytes smaller and add
-a BUILD_BUG_ON() to validate any changes to the structure sizes.
+Link: https://lore.kernel.org/lkml/20210607023839.26387-1-mark-pk.tsai@mediatek.com/
+Link: https://lkml.kernel.org/r/20210616154126.2794-1-mark-pk.tsai@mediatek.com
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+[handle endianness of sym->st_shndx]
+Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_dcbx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ scripts/recordmcount.h | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_dcbx.c b/drivers/net/ethernet/qlogic/qed/qed_dcbx.c
-index 5c6a276f69ac..426b8098c50e 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_dcbx.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_dcbx.c
-@@ -1293,9 +1293,11 @@ int qed_dcbx_get_config_params(struct qed_hwfn *p_hwfn,
- 		p_hwfn->p_dcbx_info->set.ver_num |= DCBX_CONFIG_VERSION_STATIC;
+diff --git a/scripts/recordmcount.h b/scripts/recordmcount.h
+index f9b19524da11..1e9baa5c4fc6 100644
+--- a/scripts/recordmcount.h
++++ b/scripts/recordmcount.h
+@@ -192,15 +192,20 @@ static unsigned int get_symindex(Elf_Sym const *sym, Elf32_Word const *symtab,
+ 				 Elf32_Word const *symtab_shndx)
+ {
+ 	unsigned long offset;
++	unsigned short shndx = w2(sym->st_shndx);
+ 	int index;
  
- 	p_hwfn->p_dcbx_info->set.enabled = dcbx_info->operational.enabled;
-+	BUILD_BUG_ON(sizeof(dcbx_info->operational.params) !=
-+		     sizeof(p_hwfn->p_dcbx_info->set.config.params));
- 	memcpy(&p_hwfn->p_dcbx_info->set.config.params,
- 	       &dcbx_info->operational.params,
--	       sizeof(struct qed_dcbx_admin_params));
-+	       sizeof(p_hwfn->p_dcbx_info->set.config.params));
- 	p_hwfn->p_dcbx_info->set.config.valid = true;
+-	if (sym->st_shndx != SHN_XINDEX)
+-		return w2(sym->st_shndx);
++	if (shndx > SHN_UNDEF && shndx < SHN_LORESERVE)
++		return shndx;
  
- 	memcpy(params, &p_hwfn->p_dcbx_info->set, sizeof(struct qed_dcbx_set));
+-	offset = (unsigned long)sym - (unsigned long)symtab;
+-	index = offset / sizeof(*sym);
++	if (shndx == SHN_XINDEX) {
++		offset = (unsigned long)sym - (unsigned long)symtab;
++		index = offset / sizeof(*sym);
+ 
+-	return w(symtab_shndx[index]);
++		return w(symtab_shndx[index]);
++	}
++
++	return 0;
+ }
+ 
+ static unsigned int get_shnum(Elf_Ehdr const *ehdr, Elf_Shdr const *shdr0)
 -- 
 2.30.2
 
