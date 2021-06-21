@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 359EC3AEDD6
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7CE3AEDD8
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231835AbhFUQXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:23:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41976 "EHLO mail.kernel.org"
+        id S232001AbhFUQXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231840AbhFUQV7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:21:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17B566137D;
-        Mon, 21 Jun 2021 16:19:38 +0000 (UTC)
+        id S230290AbhFUQWC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:22:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D5509611CE;
+        Mon, 21 Jun 2021 16:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292379;
-        bh=LLnmG8brgOHwQ+R3d71IMf6uE3aacgY7WIo8T8fv9JM=;
+        s=korg; t=1624292382;
+        bh=1qamf/mhsMAVDAGjAGbKMbTrr2brJAMp6GOrrI9qViM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mW7OFvNck4yk/sz76c/yAwL0948Qats/rgdYIizdCEG7xefR33boTUC+fJVZE5qsd
-         KvZTKYbK3cwmUGPk6VXxpHMR+3qRYDHe533vNm/0kkNJiYKMIROLL8vT1zGBydlB6q
-         il5i0UeAHIB2nUjC2SU5dlS5e6YCxmVeoEMLvMHI=
+        b=rOXWIBGKXG6IwbkcvvUMc/pSqqYE8BlibfXetpQ1IlsxqFrbA99/DTqaHNSSgB8EP
+         OCkcLx4NQjFD1JhNIwe0DVCUDgQM5AI59+9bPUARDyDo3kWXghW9zn/zCR38fvvJ8M
+         ILjN0LJ5eZpZuDWqdfi/CFI/7zXwo0m9hivhWwMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 68/90] x86/fpu: Reset state for all signal restore failures
-Date:   Mon, 21 Jun 2021 18:15:43 +0200
-Message-Id: <20210621154906.462940408@linuxfoundation.org>
+        stable@vger.kernel.org, Jongho Park <jongho7.park@samsung.com>,
+        Bumyong Lee <bumyong.lee@samsung.com>,
+        Chanho Park <chanho61.park@samsung.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 69/90] dmaengine: pl330: fix wrong usage of spinlock flags in dma_cyclc
+Date:   Mon, 21 Jun 2021 18:15:44 +0200
+Message-Id: <20210621154906.493409027@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
 References: <20210621154904.159672728@linuxfoundation.org>
@@ -39,96 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Bumyong Lee <bumyong.lee@samsung.com>
 
-commit efa165504943f2128d50f63de0c02faf6dcceb0d upstream.
+commit 4ad5dd2d7876d79507a20f026507d1a93b8fff10 upstream.
 
-If access_ok() or fpregs_soft_set() fails in __fpu__restore_sig() then the
-function just returns but does not clear the FPU state as it does for all
-other fatal failures.
+flags varible which is the input parameter of pl330_prep_dma_cyclic()
+should not be used by spinlock_irq[save/restore] function.
 
-Clear the FPU state for these failures as well.
-
-Fixes: 72a671ced66d ("x86, fpu: Unify signal handling code paths for x86 and x86_64 kernels")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Jongho Park <jongho7.park@samsung.com>
+Signed-off-by: Bumyong Lee <bumyong.lee@samsung.com>
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+Link: https://lore.kernel.org/r/20210507063647.111209-1-chanho61.park@samsung.com
+Fixes: f6f2421c0a1c ("dmaengine: pl330: Merge dma_pl330_dmac and pl330_dmac structs")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/87mtryyhhz.ffs@nanos.tec.linutronix.de
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/signal.c |   26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ drivers/dma/pl330.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -289,13 +289,17 @@ static int __fpu__restore_sig(void __use
- 		return 0;
- 	}
+--- a/drivers/dma/pl330.c
++++ b/drivers/dma/pl330.c
+@@ -2690,13 +2690,15 @@ static struct dma_async_tx_descriptor *p
+ 	for (i = 0; i < len / period_len; i++) {
+ 		desc = pl330_get_desc(pch);
+ 		if (!desc) {
++			unsigned long iflags;
++
+ 			dev_err(pch->dmac->ddma.dev, "%s:%d Unable to fetch desc\n",
+ 				__func__, __LINE__);
  
--	if (!access_ok(buf, size))
--		return -EACCES;
-+	if (!access_ok(buf, size)) {
-+		ret = -EACCES;
-+		goto out;
-+	}
+ 			if (!first)
+ 				return NULL;
  
--	if (!static_cpu_has(X86_FEATURE_FPU))
--		return fpregs_soft_set(current, NULL,
--				       0, sizeof(struct user_i387_ia32_struct),
--				       NULL, buf) != 0;
-+	if (!static_cpu_has(X86_FEATURE_FPU)) {
-+		ret = fpregs_soft_set(current, NULL, 0,
-+				      sizeof(struct user_i387_ia32_struct),
-+				      NULL, buf);
-+		goto out;
-+	}
+-			spin_lock_irqsave(&pl330->pool_lock, flags);
++			spin_lock_irqsave(&pl330->pool_lock, iflags);
  
- 	if (use_xsave()) {
- 		struct _fpx_sw_bytes fx_sw_user;
-@@ -333,7 +337,7 @@ static int __fpu__restore_sig(void __use
- 	if (ia32_fxstate) {
- 		ret = __copy_from_user(&env, buf, sizeof(env));
- 		if (ret)
--			goto err_out;
-+			goto out;
- 		envp = &env;
- 	} else {
- 		/*
-@@ -369,7 +373,7 @@ static int __fpu__restore_sig(void __use
- 				ret = validate_xstate_header(&fpu->state.xsave.header);
+ 			while (!list_empty(&first->node)) {
+ 				desc = list_entry(first->node.next,
+@@ -2706,7 +2708,7 @@ static struct dma_async_tx_descriptor *p
+ 
+ 			list_move_tail(&first->node, &pl330->desc_pool);
+ 
+-			spin_unlock_irqrestore(&pl330->pool_lock, flags);
++			spin_unlock_irqrestore(&pl330->pool_lock, iflags);
+ 
+ 			return NULL;
  		}
- 		if (ret)
--			goto err_out;
-+			goto out;
- 
- 		sanitize_restored_xstate(&fpu->state, envp, xfeatures, fx_only);
- 
-@@ -382,7 +386,7 @@ static int __fpu__restore_sig(void __use
- 		ret = __copy_from_user(&fpu->state.fxsave, buf_fx, state_size);
- 		if (ret) {
- 			ret = -EFAULT;
--			goto err_out;
-+			goto out;
- 		}
- 
- 		sanitize_restored_xstate(&fpu->state, envp, xfeatures, fx_only);
-@@ -397,7 +401,7 @@ static int __fpu__restore_sig(void __use
- 	} else {
- 		ret = __copy_from_user(&fpu->state.fsave, buf_fx, state_size);
- 		if (ret)
--			goto err_out;
-+			goto out;
- 
- 		fpregs_lock();
- 		ret = copy_kernel_to_fregs_err(&fpu->state.fsave);
-@@ -408,7 +412,7 @@ static int __fpu__restore_sig(void __use
- 		fpregs_deactivate(fpu);
- 	fpregs_unlock();
- 
--err_out:
-+out:
- 	if (ret)
- 		fpu__clear(fpu);
- 	return ret;
 
 
