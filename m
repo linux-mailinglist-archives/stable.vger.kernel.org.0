@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 207623AEE96
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:28:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DBD53AEE95
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231135AbhFUQaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:30:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48572 "EHLO mail.kernel.org"
+        id S231500AbhFUQaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:30:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232355AbhFUQ3Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232354AbhFUQ3Q (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Jun 2021 12:29:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C94B613F5;
-        Mon, 21 Jun 2021 16:24:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEBE4613F7;
+        Mon, 21 Jun 2021 16:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292642;
-        bh=Nid7jggVe/PAW3eV73p0RQ07l3cgKqshs4Xx82lieVg=;
+        s=korg; t=1624292645;
+        bh=O2XPWVWlhWU/2tR7FC3Y/YzLoTfXutzXfOlO4TyzjLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lh7d0CqDwmps+p304DOvP+Nv1VtHuB4vRgtWoWk5qBLqmAcZPtQIXolaYdXZJ9+GO
-         2lS0BaKfmsDnIoVnWhTk5/TUT+MzUsLnCJ79CA/xyg1lZOyeB4QSqDDDxiZBFOvTiC
-         qBTRBGFfxC6TO+m3iDJr5YSUEhOxrmuAb9qza1bU=
+        b=IsYdW4rX/zieSwFXGh1NtzX6qwE0TeaB2gfeCgg50SKQ6cVl483NzQkrjyRxKCbc/
+         GFj7bmzFpOlYMAKZnV18dIXR3AP/1qNNdUfkx2uWSTF9XXmGLZoQ2WsgJlnJs0Jqxr
+         D4uKmPDTbw8bEnmPXXx5Akb75amj6Sn6tR/cvdvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/146] regulator: max77620: Silence deferred probe error
-Date:   Mon, 21 Jun 2021 18:15:05 +0200
-Message-Id: <20210621154915.673171222@linuxfoundation.org>
+Subject: [PATCH 5.10 076/146] regulator: bd70528: Fix off-by-one for buck123 .n_voltages setting
+Date:   Mon, 21 Jun 2021 18:15:06 +0200
+Message-Id: <20210621154915.758899763@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
 References: <20210621154911.244649123@linuxfoundation.org>
@@ -40,43 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 62499a94ce5b9a41047dbadaad885347b1176079 ]
+[ Upstream commit 0514582a1a5b4ac1a3fd64792826d392d7ae9ddc ]
 
-One of previous changes to regulator core causes PMIC regulators to
-re-probe until supply regulator is registered. Silence noisy error
-message about the deferred probe.
+The valid selectors for bd70528 bucks are 0 ~ 0xf, so the .n_voltages
+should be 16 (0x10). Use 0x10 to make it consistent with BD70528_LDO_VOLTS.
+Also remove redundant defines for BD70528_BUCK_VOLTS.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210523224243.13219-3-digetx@gmail.com
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Link: https://lore.kernel.org/r/20210523071045.2168904-1-axel.lin@ingics.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/max77620-regulator.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ include/linux/mfd/rohm-bd70528.h | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/regulator/max77620-regulator.c b/drivers/regulator/max77620-regulator.c
-index 5c439c850d09..3cf8f085170a 100644
---- a/drivers/regulator/max77620-regulator.c
-+++ b/drivers/regulator/max77620-regulator.c
-@@ -846,12 +846,10 @@ static int max77620_regulator_probe(struct platform_device *pdev)
- 			return ret;
+diff --git a/include/linux/mfd/rohm-bd70528.h b/include/linux/mfd/rohm-bd70528.h
+index a57af878fd0c..4a5966475a35 100644
+--- a/include/linux/mfd/rohm-bd70528.h
++++ b/include/linux/mfd/rohm-bd70528.h
+@@ -26,9 +26,7 @@ struct bd70528_data {
+ 	struct mutex rtc_timer_lock;
+ };
  
- 		rdev = devm_regulator_register(dev, rdesc, &config);
--		if (IS_ERR(rdev)) {
--			ret = PTR_ERR(rdev);
--			dev_err(dev, "Regulator registration %s failed: %d\n",
--				rdesc->name, ret);
--			return ret;
--		}
-+		if (IS_ERR(rdev))
-+			return dev_err_probe(dev, PTR_ERR(rdev),
-+					     "Regulator registration %s failed\n",
-+					     rdesc->name);
- 	}
+-#define BD70528_BUCK_VOLTS 17
+-#define BD70528_BUCK_VOLTS 17
+-#define BD70528_BUCK_VOLTS 17
++#define BD70528_BUCK_VOLTS 0x10
+ #define BD70528_LDO_VOLTS 0x20
  
- 	return 0;
+ #define BD70528_REG_BUCK1_EN	0x0F
 -- 
 2.30.2
 
