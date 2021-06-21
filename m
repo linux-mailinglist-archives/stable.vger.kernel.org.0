@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FCF63AF04E
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:45:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39AA13AEEE3
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232580AbhFUQsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:48:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37532 "EHLO mail.kernel.org"
+        id S232376AbhFUQdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:33:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233991AbhFUQp6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:45:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D86C613DA;
-        Mon, 21 Jun 2021 16:33:01 +0000 (UTC)
+        id S232409AbhFUQbT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:31:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A53D161402;
+        Mon, 21 Jun 2021 16:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293181;
-        bh=9Hs8Ac4kEOJDnw/JkalO14BdZmrVh6ZQLX+GmNViZ+I=;
+        s=korg; t=1624292741;
+        bh=0uCo84sBmDMjq/NsB+PgtW5BLhM10102RyGJBKoBPdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4GVMsMDcoofv3cbdJ2cudTqXRpfdyFa2IJyU27zmecFYJfygBRgVa/QqeXmRbJzD
-         gBxnu7nj1LjpRRar1hyggwbbS2CpDB3nN6kC3Q5Ga0TgWC6UTQzFKt3WTy6zqF9FlD
-         bYBdZYizdgkO9J36AVyqlivbuoq7x7/MBmXHPAbY=
+        b=odeziML/F5Hk4XWsORTZ6VeJny++KWeUftPXpQ7tS1Ut6avbQ4yEEaUJcdACURTjf
+         2C+ehAkOqvsJkRR2bcMdewdlN4KJKW0nM/UfcB7EikuEr8di/JJtReYwgOtVrQxSxz
+         M6HC/+8/bGr80UFddleL4IaOp7IyhVGp4VkP4g3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shanker Donthineni <sdonthineni@nvidia.com>,
+        stable@vger.kernel.org, Chiqijun <chiqijun@huawei.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Sinan Kaya <okaya@kernel.org>
-Subject: [PATCH 5.12 127/178] PCI: Mark some NVIDIA GPUs to avoid bus reset
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 5.10 111/146] PCI: Work around Huawei Intelligent NIC VF FLR erratum
 Date:   Mon, 21 Jun 2021 18:15:41 +0200
-Message-Id: <20210621154927.103033215@linuxfoundation.org>
+Message-Id: <20210621154918.401663950@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shanker Donthineni <sdonthineni@nvidia.com>
+From: Chiqijun <chiqijun@huawei.com>
 
-commit 4c207e7121fa92b66bf1896bf8ccb9edfb0f9731 upstream.
+commit ce00322c2365e1f7b0312f2f493539c833465d97 upstream.
 
-Some NVIDIA GPU devices do not work with SBR.  Triggering SBR leaves the
-device inoperable for the current system boot. It requires a system
-hard-reboot to get the GPU device back to normal operating condition
-post-SBR. For the affected devices, enable NO_BUS_RESET quirk to avoid the
-issue.
+pcie_flr() starts a Function Level Reset (FLR), waits 100ms (the maximum
+time allowed for FLR completion by PCIe r5.0, sec 6.6.2), and waits for the
+FLR to complete.  It assumes the FLR is complete when a config read returns
+valid data.
 
-This issue will be fixed in the next generation of hardware.
+When we do an FLR on several Huawei Intelligent NIC VFs at the same time,
+firmware on the NIC processes them serially.  The VF may respond to config
+reads before the firmware has completed its reset processing.  If we bind a
+driver to the VF (e.g., by assigning the VF to a virtual machine) in the
+interval between the successful config read and completion of the firmware
+reset processing, the NIC VF driver may fail to load.
 
-Link: https://lore.kernel.org/r/20210608054857.18963-8-ameynarkhede03@gmail.com
-Signed-off-by: Shanker Donthineni <sdonthineni@nvidia.com>
+Prevent this driver failure by waiting for the NIC firmware to complete its
+reset processing.  Not all NIC firmware supports this feature.
+
+[bhelgaas: commit log]
+Link: https://support.huawei.com/enterprise/en/doc/EDOC1100063073/87950645/vm-oss-occasionally-fail-to-load-the-in200-driver-when-the-vf-performs-flr
+Link: https://lore.kernel.org/r/20210414132301.1793-1-chiqijun@huawei.com
+Signed-off-by: Chiqijun <chiqijun@huawei.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Sinan Kaya <okaya@kernel.org>
+Reviewed-by: Alex Williamson <alex.williamson@redhat.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/pci/quirks.c |   65 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -3559,6 +3559,18 @@ static void quirk_no_bus_reset(struct pc
+@@ -3934,6 +3934,69 @@ static int delay_250ms_after_flr(struct
+ 	return 0;
  }
  
- /*
-+ * Some NVIDIA GPU devices do not work with bus reset, SBR needs to be
-+ * prevented for those affected devices.
-+ */
-+static void quirk_nvidia_no_bus_reset(struct pci_dev *dev)
-+{
-+	if ((dev->device & 0xffc0) == 0x2340)
-+		quirk_no_bus_reset(dev);
-+}
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
-+			 quirk_nvidia_no_bus_reset);
++#define PCI_DEVICE_ID_HINIC_VF      0x375E
++#define HINIC_VF_FLR_TYPE           0x1000
++#define HINIC_VF_FLR_CAP_BIT        (1UL << 30)
++#define HINIC_VF_OP                 0xE80
++#define HINIC_VF_FLR_PROC_BIT       (1UL << 18)
++#define HINIC_OPERATION_TIMEOUT     15000	/* 15 seconds */
 +
-+/*
-  * Some Atheros AR9xxx and QCA988x chips do not behave after a bus reset.
-  * The device will throw a Link Down error on AER-capable systems and
-  * regardless of AER, config space of the device is never accessible again
++/* Device-specific reset method for Huawei Intelligent NIC virtual functions */
++static int reset_hinic_vf_dev(struct pci_dev *pdev, int probe)
++{
++	unsigned long timeout;
++	void __iomem *bar;
++	u32 val;
++
++	if (probe)
++		return 0;
++
++	bar = pci_iomap(pdev, 0, 0);
++	if (!bar)
++		return -ENOTTY;
++
++	/* Get and check firmware capabilities */
++	val = ioread32be(bar + HINIC_VF_FLR_TYPE);
++	if (!(val & HINIC_VF_FLR_CAP_BIT)) {
++		pci_iounmap(pdev, bar);
++		return -ENOTTY;
++	}
++
++	/* Set HINIC_VF_FLR_PROC_BIT for the start of FLR */
++	val = ioread32be(bar + HINIC_VF_OP);
++	val = val | HINIC_VF_FLR_PROC_BIT;
++	iowrite32be(val, bar + HINIC_VF_OP);
++
++	pcie_flr(pdev);
++
++	/*
++	 * The device must recapture its Bus and Device Numbers after FLR
++	 * in order generate Completions.  Issue a config write to let the
++	 * device capture this information.
++	 */
++	pci_write_config_word(pdev, PCI_VENDOR_ID, 0);
++
++	/* Firmware clears HINIC_VF_FLR_PROC_BIT when reset is complete */
++	timeout = jiffies + msecs_to_jiffies(HINIC_OPERATION_TIMEOUT);
++	do {
++		val = ioread32be(bar + HINIC_VF_OP);
++		if (!(val & HINIC_VF_FLR_PROC_BIT))
++			goto reset_complete;
++		msleep(20);
++	} while (time_before(jiffies, timeout));
++
++	val = ioread32be(bar + HINIC_VF_OP);
++	if (!(val & HINIC_VF_FLR_PROC_BIT))
++		goto reset_complete;
++
++	pci_warn(pdev, "Reset dev timeout, FLR ack reg: %#010x\n", val);
++
++reset_complete:
++	pci_iounmap(pdev, bar);
++
++	return 0;
++}
++
+ static const struct pci_dev_reset_methods pci_dev_reset_methods[] = {
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82599_SFP_VF,
+ 		 reset_intel_82599_sfp_virtfn },
+@@ -3945,6 +4008,8 @@ static const struct pci_dev_reset_method
+ 	{ PCI_VENDOR_ID_INTEL, 0x0953, delay_250ms_after_flr },
+ 	{ PCI_VENDOR_ID_CHELSIO, PCI_ANY_ID,
+ 		reset_chelsio_generic_dev },
++	{ PCI_VENDOR_ID_HUAWEI, PCI_DEVICE_ID_HINIC_VF,
++		reset_hinic_vf_dev },
+ 	{ 0 }
+ };
+ 
 
 
