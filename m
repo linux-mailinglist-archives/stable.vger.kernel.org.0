@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6013AF0A4
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F31B73AEF1A
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232353AbhFUQvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:51:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37918 "EHLO mail.kernel.org"
+        id S232500AbhFUQfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:35:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232959AbhFUQtG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:49:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1498C6141C;
-        Mon, 21 Jun 2021 16:34:16 +0000 (UTC)
+        id S232618AbhFUQeP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:34:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6689961410;
+        Mon, 21 Jun 2021 16:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624293257;
-        bh=5lK8PQzOoaZALFIJTkUp2xLa/ULEdSHdXhaBN6lQozQ=;
+        s=korg; t=1624292813;
+        bh=zbAT/kX5Ee7YMu5zr+rIkouwoULEylJPP58Uk+Fz4Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6bDhp6f0UkS0/zoOvm3NfTe3i+RH2qM2ThXs2yWxCA8cqQmiF62vH8dz7TdKSlhp
-         maR9KAd3h+wjEF6mMeCVyhp1RthZs6PS5j0xZxsWguHEmvBC7T22fTKuTD2ZvhThKv
-         8QX4L39bLH+2G0wkky0AD5LpmURFHTLZH24TeAv8=
+        b=crf2V4KxRPIHS5+9J7/6I/U3XuFAwGfpnp0G3Snjrb4hRt1rZtQ3R5r0ikzSBRxqI
+         2vkvRjjPDHHo4E03aIciUMMvrrydAYJ+iA50QCTfBOvLUKPRI7vc15YsyV/7Sbi0Ad
+         2k1A1XSZASgllCSASsqKHoCrKV8c3SP9BN2qQgSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 156/178] mac80211: move interface shutdown out of wiphy lock
+        stable@vger.kernel.org, vannguye@cisco.com,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 140/146] mm/slub.c: include swab.h
 Date:   Mon, 21 Jun 2021 18:16:10 +0200
-Message-Id: <20210621154928.062449324@linuxfoundation.org>
+Message-Id: <20210621154920.493336162@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
-References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
+References: <20210621154911.244649123@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,82 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Andrew Morton <akpm@linux-foundation.org>
 
-commit f5baf287f5da5641099ad5c809b3b4ebfc08506d upstream.
+commit 1b3865d016815cbd69a1879ca1c8a8901fda1072 upstream.
 
-When reconfiguration fails, we shut down everything, but we
-cannot call cfg80211_shutdown_all_interfaces() with the wiphy
-mutex held. Since cfg80211 now calls it on resume errors, we
-only need to do likewise for where we call reconfig (whether
-directly or indirectly), but not under the wiphy lock.
+Fixes build with CONFIG_SLAB_FREELIST_HARDENED=y.
 
-Cc: stable@vger.kernel.org
-Fixes: 2fe8ef106238 ("cfg80211: change netdev registration/unregistration semantics")
-Link: https://lore.kernel.org/r/20210608113226.78233c80f548.Iecc104aceb89f0568f50e9670a9cb191a1c8887b@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Hopefully.  But it's the right thing to do anwyay.
+
+Fixes: 1ad53d9fa3f61 ("slub: improve bit diffusion for freelist ptr obfuscation")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213417
+Reported-by: <vannguye@cisco.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/debugfs.c |    7 ++++++-
- net/mac80211/main.c    |    7 ++++++-
- net/mac80211/util.c    |    2 --
- 3 files changed, 12 insertions(+), 4 deletions(-)
+ mm/slub.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/mac80211/debugfs.c
-+++ b/net/mac80211/debugfs.c
-@@ -387,12 +387,17 @@ static ssize_t reset_write(struct file *
- 			   size_t count, loff_t *ppos)
- {
- 	struct ieee80211_local *local = file->private_data;
-+	int ret;
- 
- 	rtnl_lock();
- 	wiphy_lock(local->hw.wiphy);
- 	__ieee80211_suspend(&local->hw, NULL);
--	__ieee80211_resume(&local->hw);
-+	ret = __ieee80211_resume(&local->hw);
- 	wiphy_unlock(local->hw.wiphy);
-+
-+	if (ret)
-+		cfg80211_shutdown_all_interfaces(local->hw.wiphy);
-+
- 	rtnl_unlock();
- 
- 	return count;
---- a/net/mac80211/main.c
-+++ b/net/mac80211/main.c
-@@ -252,6 +252,7 @@ static void ieee80211_restart_work(struc
- 	struct ieee80211_local *local =
- 		container_of(work, struct ieee80211_local, restart_work);
- 	struct ieee80211_sub_if_data *sdata;
-+	int ret;
- 
- 	/* wait for scan work complete */
- 	flush_workqueue(local->workqueue);
-@@ -294,8 +295,12 @@ static void ieee80211_restart_work(struc
- 	/* wait for all packet processing to be done */
- 	synchronize_net();
- 
--	ieee80211_reconfig(local);
-+	ret = ieee80211_reconfig(local);
- 	wiphy_unlock(local->hw.wiphy);
-+
-+	if (ret)
-+		cfg80211_shutdown_all_interfaces(local->hw.wiphy);
-+
- 	rtnl_unlock();
- }
- 
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -2186,8 +2186,6 @@ static void ieee80211_handle_reconfig_fa
- 	list_for_each_entry(ctx, &local->chanctx_list, list)
- 		ctx->driver_present = false;
- 	mutex_unlock(&local->chanctx_mtx);
--
--	cfg80211_shutdown_all_interfaces(local->hw.wiphy);
- }
- 
- static void ieee80211_assign_chanctx(struct ieee80211_local *local,
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -15,6 +15,7 @@
+ #include <linux/module.h>
+ #include <linux/bit_spinlock.h>
+ #include <linux/interrupt.h>
++#include <linux/swab.h>
+ #include <linux/bitops.h>
+ #include <linux/slab.h>
+ #include "slab.h"
 
 
