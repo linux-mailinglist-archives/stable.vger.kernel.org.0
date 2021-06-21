@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C6F3AF2B5
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:54:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E7093AF2AC
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:54:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232353AbhFUR4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 13:56:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39638 "EHLO mail.kernel.org"
+        id S232992AbhFUR4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 13:56:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232341AbhFURzM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232347AbhFURzM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Jun 2021 13:55:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27CF861374;
-        Mon, 21 Jun 2021 17:52:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E9216137D;
+        Mon, 21 Jun 2021 17:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624297970;
-        bh=AITUTjLLUiwKxWCG0zkVTGC0b3FBPZ2goSXXBTpkhVU=;
+        s=k20201202; t=1624297972;
+        bh=+6wiNLqqnTiDXKehP3jGCjGTfB/a5ux91Dp8LbOhIfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faCw9DquiMVDuSC5yqYx86ZZpMW3kcJDf0cE/+O3uPs2Z6IBesGqp8vr7EjpZtVkx
-         A8MyB1nvVgsI6qLsqjBo38x0SrcfRxMPT2DgjKIZRBLlxbuVUtDDRGg8gJVBFIXIIE
-         +2l5N1Rg2xEAM4oC93BipG7dRNXOBVenxn2ySQEdHUG655RPzmvaTEPAinU2ww73V/
-         NBaM8C6wpPFCkWk2knkxwbcr5NgNghNqwzObl8v5nNjhS7cqeCr3Xm/xlHHBBnSE8e
-         T/yitm+wUeF5r+Ixe05y3tgPcrShULEZe+xHvF7WYHxWRGDJoGa3v3WYny5Q7i/bta
-         3YBqZG5iNy69A==
+        b=fUxlSyr5kEpI41eoequ9VoUYc860tMz08PeSDAd7bhd+rgdpkZwxEixZiiaB5bnJZ
+         Ghm6YGUgy5VuvOgwX/crnnI4fr+Zuk6wn09z3pU/5mdEycbpHwUG9wWzdPSUteco0e
+         skJ+oV9Zw1+2BuUbhGrQ7yc/N8de8fF9vNbyH63UIdL0P6wg4JpOhJy9BgiMXW6811
+         gh4phtv3jOXYoRJkz2KxDrCAv4uhJkXn8UX8XuPG/rYBkevKkY8uNZwfnGeVHwR58Y
+         WhQbx7sCZu5MQr7fqhTCGKFfkT/SA35WvZ0GpZBlPVvl9FxW02NqbGBBVolaLgqUJ+
+         il4NxOnxoHs2w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 34/39] mac80211: handle various extensible elements correctly
-Date:   Mon, 21 Jun 2021 13:51:50 -0400
-Message-Id: <20210621175156.735062-34-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 35/39] recordmcount: Correct st_shndx handling
+Date:   Mon, 21 Jun 2021 13:51:51 -0400
+Message-Id: <20210621175156.735062-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210621175156.735062-1-sashal@kernel.org>
 References: <20210621175156.735062-1-sashal@kernel.org>
@@ -43,126 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 652e8363bbc7d149fa194a5cbf30b1001c0274b0 ]
+[ Upstream commit fb780761e7bd9f2e94f5b9a296ead6b35b944206 ]
 
-Various elements are parsed with a requirement to have an
-exact size, when really we should only check that they have
-the minimum size that we need. Check only that and therefore
-ignore any additional data that they might carry.
+One should only use st_shndx when >SHN_UNDEF and <SHN_LORESERVE. When
+SHN_XINDEX, then use .symtab_shndx. Otherwise use 0.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210618133832.cd101f8040a4.Iadf0e9b37b100c6c6e79c7b298cc657c2be9151a@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+This handles the case: st_shndx >= SHN_LORESERVE && st_shndx != SHN_XINDEX.
+
+Link: https://lore.kernel.org/lkml/20210607023839.26387-1-mark-pk.tsai@mediatek.com/
+Link: https://lkml.kernel.org/r/20210616154126.2794-1-mark-pk.tsai@mediatek.com
+
+Reported-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+[handle endianness of sym->st_shndx]
+Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/util.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ scripts/recordmcount.h | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index c0fa526a45b4..b18150d36cb2 100644
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -955,7 +955,7 @@ static void ieee80211_parse_extension_element(u32 *crc,
+diff --git a/scripts/recordmcount.h b/scripts/recordmcount.h
+index f9b19524da11..1e9baa5c4fc6 100644
+--- a/scripts/recordmcount.h
++++ b/scripts/recordmcount.h
+@@ -192,15 +192,20 @@ static unsigned int get_symindex(Elf_Sym const *sym, Elf32_Word const *symtab,
+ 				 Elf32_Word const *symtab_shndx)
+ {
+ 	unsigned long offset;
++	unsigned short shndx = w2(sym->st_shndx);
+ 	int index;
  
- 	switch (elem->data[0]) {
- 	case WLAN_EID_EXT_HE_MU_EDCA:
--		if (len == sizeof(*elems->mu_edca_param_set)) {
-+		if (len >= sizeof(*elems->mu_edca_param_set)) {
- 			elems->mu_edca_param_set = data;
- 			if (crc)
- 				*crc = crc32_be(*crc, (void *)elem,
-@@ -976,7 +976,7 @@ static void ieee80211_parse_extension_element(u32 *crc,
- 		}
- 		break;
- 	case WLAN_EID_EXT_UORA:
--		if (len == 1)
-+		if (len >= 1)
- 			elems->uora_element = data;
- 		break;
- 	case WLAN_EID_EXT_MAX_CHANNEL_SWITCH_TIME:
-@@ -984,7 +984,7 @@ static void ieee80211_parse_extension_element(u32 *crc,
- 			elems->max_channel_switch_time = data;
- 		break;
- 	case WLAN_EID_EXT_MULTIPLE_BSSID_CONFIGURATION:
--		if (len == sizeof(*elems->mbssid_config_ie))
-+		if (len >= sizeof(*elems->mbssid_config_ie))
- 			elems->mbssid_config_ie = data;
- 		break;
- 	case WLAN_EID_EXT_HE_SPR:
-@@ -993,7 +993,7 @@ static void ieee80211_parse_extension_element(u32 *crc,
- 			elems->he_spr = data;
- 		break;
- 	case WLAN_EID_EXT_HE_6GHZ_CAPA:
--		if (len == sizeof(*elems->he_6ghz_capa))
-+		if (len >= sizeof(*elems->he_6ghz_capa))
- 			elems->he_6ghz_capa = data;
- 		break;
- 	}
-@@ -1082,14 +1082,14 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
+-	if (sym->st_shndx != SHN_XINDEX)
+-		return w2(sym->st_shndx);
++	if (shndx > SHN_UNDEF && shndx < SHN_LORESERVE)
++		return shndx;
  
- 		switch (id) {
- 		case WLAN_EID_LINK_ID:
--			if (elen + 2 != sizeof(struct ieee80211_tdls_lnkie)) {
-+			if (elen + 2 < sizeof(struct ieee80211_tdls_lnkie)) {
- 				elem_parse_failed = true;
- 				break;
- 			}
- 			elems->lnk_id = (void *)(pos - 2);
- 			break;
- 		case WLAN_EID_CHAN_SWITCH_TIMING:
--			if (elen != sizeof(struct ieee80211_ch_switch_timing)) {
-+			if (elen < sizeof(struct ieee80211_ch_switch_timing)) {
- 				elem_parse_failed = true;
- 				break;
- 			}
-@@ -1252,7 +1252,7 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 			elems->sec_chan_offs = (void *)pos;
- 			break;
- 		case WLAN_EID_CHAN_SWITCH_PARAM:
--			if (elen !=
-+			if (elen <
- 			    sizeof(*elems->mesh_chansw_params_ie)) {
- 				elem_parse_failed = true;
- 				break;
-@@ -1261,7 +1261,7 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 			break;
- 		case WLAN_EID_WIDE_BW_CHANNEL_SWITCH:
- 			if (!action ||
--			    elen != sizeof(*elems->wide_bw_chansw_ie)) {
-+			    elen < sizeof(*elems->wide_bw_chansw_ie)) {
- 				elem_parse_failed = true;
- 				break;
- 			}
-@@ -1280,7 +1280,7 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 			ie = cfg80211_find_ie(WLAN_EID_WIDE_BW_CHANNEL_SWITCH,
- 					      pos, elen);
- 			if (ie) {
--				if (ie[1] == sizeof(*elems->wide_bw_chansw_ie))
-+				if (ie[1] >= sizeof(*elems->wide_bw_chansw_ie))
- 					elems->wide_bw_chansw_ie =
- 						(void *)(ie + 2);
- 				else
-@@ -1324,7 +1324,7 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 			elems->cisco_dtpc_elem = pos;
- 			break;
- 		case WLAN_EID_ADDBA_EXT:
--			if (elen != sizeof(struct ieee80211_addba_ext_ie)) {
-+			if (elen < sizeof(struct ieee80211_addba_ext_ie)) {
- 				elem_parse_failed = true;
- 				break;
- 			}
-@@ -1350,7 +1350,7 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
- 							  elem, elems);
- 			break;
- 		case WLAN_EID_S1G_CAPABILITIES:
--			if (elen == sizeof(*elems->s1g_capab))
-+			if (elen >= sizeof(*elems->s1g_capab))
- 				elems->s1g_capab = (void *)pos;
- 			else
- 				elem_parse_failed = true;
+-	offset = (unsigned long)sym - (unsigned long)symtab;
+-	index = offset / sizeof(*sym);
++	if (shndx == SHN_XINDEX) {
++		offset = (unsigned long)sym - (unsigned long)symtab;
++		index = offset / sizeof(*sym);
+ 
+-	return w(symtab_shndx[index]);
++		return w(symtab_shndx[index]);
++	}
++
++	return 0;
+ }
+ 
+ static unsigned int get_shnum(Elf_Ehdr const *ehdr, Elf_Shdr const *shdr0)
 -- 
 2.30.2
 
