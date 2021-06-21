@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 214133AEDCB
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6FE3AEDD0
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:21:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231501AbhFUQWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:22:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42736 "EHLO mail.kernel.org"
+        id S231629AbhFUQXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231788AbhFUQVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:21:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0565561363;
-        Mon, 21 Jun 2021 16:19:22 +0000 (UTC)
+        id S231239AbhFUQVy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:21:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15CD760231;
+        Mon, 21 Jun 2021 16:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292363;
-        bh=/iJYTF6bIHrKFJoPyo5rhho9VuYBhi03BdV1CbiyiLo=;
+        s=korg; t=1624292368;
+        bh=y67vgbwC42t9Bs6Md/z+brOwPj1y8+tGt45Lx19xP14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKwNGhZMGINLE+WH8IjJIwij3YRfj4n7Jl/yA6We9Ozfhiw/WZXiXVbzOc30t1tn1
-         lIZqGCP1ljoTPSZCO3Q7+YqeZp8sIA3goLDMMDQkg+T8jQm6MwqmAsafoJzX5RJqDe
-         b0k/4AJE/SuPVSzg6ocqUITDf9TWv9/nKp2Ne1wE=
+        b=NspSO2mI+FCVAvbBeB98Bwvq4fZSHf7dhoEkWzraCrVExvsCHZjSpuIFSzDP3+z97
+         NXWLclPJqirRp8XGvc80tXZvFOCcXFsbpYexX+gGGmYf+LjBQqxo2DypFozAiq934f
+         qGpu86YqAhw0U/B4gs7GfZhWxrSqess1KeRY0iEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chiqijun <chiqijun@huawei.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 5.4 63/90] PCI: Work around Huawei Intelligent NIC VF FLR erratum
-Date:   Mon, 21 Jun 2021 18:15:38 +0200
-Message-Id: <20210621154906.286261737@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+fb0b6a7e8713aeb0319c@syzkaller.appspotmail.com,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 64/90] KVM: x86: Immediately reset the MMU context when the SMM flag is cleared
+Date:   Mon, 21 Jun 2021 18:15:39 +0200
+Message-Id: <20210621154906.323110086@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
 References: <20210621154904.159672728@linuxfoundation.org>
@@ -40,117 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chiqijun <chiqijun@huawei.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit ce00322c2365e1f7b0312f2f493539c833465d97 upstream.
+commit 78fcb2c91adfec8ce3a2ba6b4d0dda89f2f4a7c6 upstream.
 
-pcie_flr() starts a Function Level Reset (FLR), waits 100ms (the maximum
-time allowed for FLR completion by PCIe r5.0, sec 6.6.2), and waits for the
-FLR to complete.  It assumes the FLR is complete when a config read returns
-valid data.
+Immediately reset the MMU context when the vCPU's SMM flag is cleared so
+that the SMM flag in the MMU role is always synchronized with the vCPU's
+flag.  If RSM fails (which isn't correctly emulated), KVM will bail
+without calling post_leave_smm() and leave the MMU in a bad state.
 
-When we do an FLR on several Huawei Intelligent NIC VFs at the same time,
-firmware on the NIC processes them serially.  The VF may respond to config
-reads before the firmware has completed its reset processing.  If we bind a
-driver to the VF (e.g., by assigning the VF to a virtual machine) in the
-interval between the successful config read and completion of the firmware
-reset processing, the NIC VF driver may fail to load.
+The bad MMU role can lead to a NULL pointer dereference when grabbing a
+shadow page's rmap for a page fault as the initial lookups for the gfn
+will happen with the vCPU's SMM flag (=0), whereas the rmap lookup will
+use the shadow page's SMM flag, which comes from the MMU (=1).  SMM has
+an entirely different set of memslots, and so the initial lookup can find
+a memslot (SMM=0) and then explode on the rmap memslot lookup (SMM=1).
 
-Prevent this driver failure by waiting for the NIC firmware to complete its
-reset processing.  Not all NIC firmware supports this feature.
+  general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
+  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+  CPU: 1 PID: 8410 Comm: syz-executor382 Not tainted 5.13.0-rc5-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  RIP: 0010:__gfn_to_rmap arch/x86/kvm/mmu/mmu.c:935 [inline]
+  RIP: 0010:gfn_to_rmap+0x2b0/0x4d0 arch/x86/kvm/mmu/mmu.c:947
+  Code: <42> 80 3c 20 00 74 08 4c 89 ff e8 f1 79 a9 00 4c 89 fb 4d 8b 37 44
+  RSP: 0018:ffffc90000ffef98 EFLAGS: 00010246
+  RAX: 0000000000000000 RBX: ffff888015b9f414 RCX: ffff888019669c40
+  RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000001
+  RBP: 0000000000000001 R08: ffffffff811d9cdb R09: ffffed10065a6002
+  R10: ffffed10065a6002 R11: 0000000000000000 R12: dffffc0000000000
+  R13: 0000000000000003 R14: 0000000000000001 R15: 0000000000000000
+  FS:  000000000124b300(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000000 CR3: 0000000028e31000 CR4: 00000000001526e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   rmap_add arch/x86/kvm/mmu/mmu.c:965 [inline]
+   mmu_set_spte+0x862/0xe60 arch/x86/kvm/mmu/mmu.c:2604
+   __direct_map arch/x86/kvm/mmu/mmu.c:2862 [inline]
+   direct_page_fault+0x1f74/0x2b70 arch/x86/kvm/mmu/mmu.c:3769
+   kvm_mmu_do_page_fault arch/x86/kvm/mmu.h:124 [inline]
+   kvm_mmu_page_fault+0x199/0x1440 arch/x86/kvm/mmu/mmu.c:5065
+   vmx_handle_exit+0x26/0x160 arch/x86/kvm/vmx/vmx.c:6122
+   vcpu_enter_guest+0x3bdd/0x9630 arch/x86/kvm/x86.c:9428
+   vcpu_run+0x416/0xc20 arch/x86/kvm/x86.c:9494
+   kvm_arch_vcpu_ioctl_run+0x4e8/0xa40 arch/x86/kvm/x86.c:9722
+   kvm_vcpu_ioctl+0x70f/0xbb0 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3460
+   vfs_ioctl fs/ioctl.c:51 [inline]
+   __do_sys_ioctl fs/ioctl.c:1069 [inline]
+   __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:1055
+   do_syscall_64+0x3f/0xb0 arch/x86/entry/common.c:47
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x440ce9
 
-[bhelgaas: commit log]
-Link: https://support.huawei.com/enterprise/en/doc/EDOC1100063073/87950645/vm-oss-occasionally-fail-to-load-the-in200-driver-when-the-vf-performs-flr
-Link: https://lore.kernel.org/r/20210414132301.1793-1-chiqijun@huawei.com
-Signed-off-by: Chiqijun <chiqijun@huawei.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Alex Williamson <alex.williamson@redhat.com>
 Cc: stable@vger.kernel.org
+Reported-by: syzbot+fb0b6a7e8713aeb0319c@syzkaller.appspotmail.com
+Fixes: 9ec19493fb86 ("KVM: x86: clear SMM flags before loading state while leaving SMM")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210609185619.992058-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c |   65 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 65 insertions(+)
+ arch/x86/kvm/x86.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3991,6 +3991,69 @@ static int delay_250ms_after_flr(struct
- 	return 0;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6279,7 +6279,10 @@ static unsigned emulator_get_hflags(stru
+ 
+ static void emulator_set_hflags(struct x86_emulate_ctxt *ctxt, unsigned emul_flags)
+ {
+-	emul_to_vcpu(ctxt)->arch.hflags = emul_flags;
++	struct kvm_vcpu *vcpu = emul_to_vcpu(ctxt);
++
++	vcpu->arch.hflags = emul_flags;
++	kvm_mmu_reset_context(vcpu);
  }
  
-+#define PCI_DEVICE_ID_HINIC_VF      0x375E
-+#define HINIC_VF_FLR_TYPE           0x1000
-+#define HINIC_VF_FLR_CAP_BIT        (1UL << 30)
-+#define HINIC_VF_OP                 0xE80
-+#define HINIC_VF_FLR_PROC_BIT       (1UL << 18)
-+#define HINIC_OPERATION_TIMEOUT     15000	/* 15 seconds */
-+
-+/* Device-specific reset method for Huawei Intelligent NIC virtual functions */
-+static int reset_hinic_vf_dev(struct pci_dev *pdev, int probe)
-+{
-+	unsigned long timeout;
-+	void __iomem *bar;
-+	u32 val;
-+
-+	if (probe)
-+		return 0;
-+
-+	bar = pci_iomap(pdev, 0, 0);
-+	if (!bar)
-+		return -ENOTTY;
-+
-+	/* Get and check firmware capabilities */
-+	val = ioread32be(bar + HINIC_VF_FLR_TYPE);
-+	if (!(val & HINIC_VF_FLR_CAP_BIT)) {
-+		pci_iounmap(pdev, bar);
-+		return -ENOTTY;
-+	}
-+
-+	/* Set HINIC_VF_FLR_PROC_BIT for the start of FLR */
-+	val = ioread32be(bar + HINIC_VF_OP);
-+	val = val | HINIC_VF_FLR_PROC_BIT;
-+	iowrite32be(val, bar + HINIC_VF_OP);
-+
-+	pcie_flr(pdev);
-+
-+	/*
-+	 * The device must recapture its Bus and Device Numbers after FLR
-+	 * in order generate Completions.  Issue a config write to let the
-+	 * device capture this information.
-+	 */
-+	pci_write_config_word(pdev, PCI_VENDOR_ID, 0);
-+
-+	/* Firmware clears HINIC_VF_FLR_PROC_BIT when reset is complete */
-+	timeout = jiffies + msecs_to_jiffies(HINIC_OPERATION_TIMEOUT);
-+	do {
-+		val = ioread32be(bar + HINIC_VF_OP);
-+		if (!(val & HINIC_VF_FLR_PROC_BIT))
-+			goto reset_complete;
-+		msleep(20);
-+	} while (time_before(jiffies, timeout));
-+
-+	val = ioread32be(bar + HINIC_VF_OP);
-+	if (!(val & HINIC_VF_FLR_PROC_BIT))
-+		goto reset_complete;
-+
-+	pci_warn(pdev, "Reset dev timeout, FLR ack reg: %#010x\n", val);
-+
-+reset_complete:
-+	pci_iounmap(pdev, bar);
-+
-+	return 0;
-+}
-+
- static const struct pci_dev_reset_methods pci_dev_reset_methods[] = {
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82599_SFP_VF,
- 		 reset_intel_82599_sfp_virtfn },
-@@ -4002,6 +4065,8 @@ static const struct pci_dev_reset_method
- 	{ PCI_VENDOR_ID_INTEL, 0x0953, delay_250ms_after_flr },
- 	{ PCI_VENDOR_ID_CHELSIO, PCI_ANY_ID,
- 		reset_chelsio_generic_dev },
-+	{ PCI_VENDOR_ID_HUAWEI, PCI_DEVICE_ID_HINIC_VF,
-+		reset_hinic_vf_dev },
- 	{ 0 }
- };
- 
+ static int emulator_pre_leave_smm(struct x86_emulate_ctxt *ctxt,
 
 
