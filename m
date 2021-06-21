@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A6E3AF33B
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6EC43AF35D
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:58:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232912AbhFUSAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 14:00:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39086 "EHLO mail.kernel.org"
+        id S231821AbhFUSAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 14:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232859AbhFUR6K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 13:58:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C8E1613DA;
-        Mon, 21 Jun 2021 17:53:54 +0000 (UTC)
+        id S233167AbhFUR6P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 13:58:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B396E61289;
+        Mon, 21 Jun 2021 17:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624298035;
-        bh=xWGsgCXd7OEaijrEvpsTLlP6MXTD0C9RJegrSoeQg78=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVHDfjdC9ZwO2rlfTTIyxJP/bw43kSMfUxh0w8XblGdtAl4+ZGnvZGb3L6yJQNlji
-         prkeU6UY45pGmrvlBsLSYpwQ2FEYTaBiehvwfjlnreZIDoYtUmIq7u4URWoC54ZQIF
-         oDO5Fe+xzyWCzlLlpxjqy0rfp4YYg9i1DH6rLAv59myj3pzx77LKg4+cUDe4p5Q+PF
-         WE/N1qNbQxAH1l+TsfU7S1XUomQFUbvcim9j5BnegN9lHctomAxHvWFSWmYPx3BtPA
-         1cG56HBquKggwmKkHCBmi7CIyx4w173jHBHO0s4Zxss2tmh6LEhuFn/dWccUEijA7B
-         KsPo5plOYimWw==
+        s=k20201202; t=1624298042;
+        bh=C3zD+YGqJM3yC94ihyfLYGL7l36I0vVTfiurb62Ssqg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=CHLCiODYBeDHfwVzJl4b+yccK19tei2kxIpUSEZ8LxpoDQUgDeyqHqItvVhIe4gQp
+         7C0czEwWuT8ZD06WBl779r+raI4u7R7Px5bPwcx/dz6xNW82v6DghIoF82ii+EdpEC
+         FAqd92oLtL1Md4lwon8hjvv9dS2wlngDfh2TfZNoT8gobcq3RSKHs1rJc6li79OB0O
+         ERDKQmI3+Mcc9ye3Tu+1PbLAJ498fMFyEd4vFZtXlqBklAoHuponj4LWIT9UWovInn
+         c1H2tPl0I65CI6+l4rNuZgg+XTePnwCFfiOFHR2ocTCfrpnRrdOtl1mBJuwhPMLsXu
+         24m108hmBoSqQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Esben Haabendal <esben@geanix.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 35/35] net: ll_temac: Avoid ndo_start_xmit returning NETDEV_TX_BUSY
-Date:   Mon, 21 Jun 2021 13:53:00 -0400
-Message-Id: <20210621175300.735437-35-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 01/26] dmaengine: zynqmp_dma: Fix PM reference leak in zynqmp_dma_alloc_chan_resourc()
+Date:   Mon, 21 Jun 2021 13:53:34 -0400
+Message-Id: <20210621175400.735800-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210621175300.735437-1-sashal@kernel.org>
-References: <20210621175300.735437-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,37 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Esben Haabendal <esben@geanix.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit f6396341194234e9b01cd7538bc2c6ac4501ab14 ]
+[ Upstream commit 8982d48af36d2562c0f904736b0fc80efc9f2532 ]
 
-As documented in Documentation/networking/driver.rst, the ndo_start_xmit
-method must not return NETDEV_TX_BUSY under any normal circumstances, and
-as recommended, we simply stop the tx queue in advance, when there is a
-risk that the next xmit would cause a NETDEV_TX_BUSY return.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-Signed-off-by: Esben Haabendal <esben@geanix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20210517081826.1564698-4-yukuai3@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/ll_temac_main.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/dma/xilinx/zynqmp_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
-index fb977bc4d838..b1caf56b2584 100644
---- a/drivers/net/ethernet/xilinx/ll_temac_main.c
-+++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
-@@ -938,6 +938,11 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 	wmb();
- 	lp->dma_out(lp, TX_TAILDESC_PTR, tail_p); /* DMA start */
+diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
+index d47749a35863..84009c5e0f33 100644
+--- a/drivers/dma/xilinx/zynqmp_dma.c
++++ b/drivers/dma/xilinx/zynqmp_dma.c
+@@ -467,7 +467,7 @@ static int zynqmp_dma_alloc_chan_resources(struct dma_chan *dchan)
+ 	struct zynqmp_dma_desc_sw *desc;
+ 	int i, ret;
  
-+	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1)) {
-+		netdev_info(ndev, "%s -> netif_stop_queue\n", __func__);
-+		netif_stop_queue(ndev);
-+	}
-+
- 	return NETDEV_TX_OK;
- }
+-	ret = pm_runtime_get_sync(chan->dev);
++	ret = pm_runtime_resume_and_get(chan->dev);
+ 	if (ret < 0)
+ 		return ret;
  
 -- 
 2.30.2
