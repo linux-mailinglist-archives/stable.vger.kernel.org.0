@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4870C3AF365
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D75613AF371
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 19:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233728AbhFUSA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 14:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39160 "EHLO mail.kernel.org"
+        id S232892AbhFUSB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 14:01:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233243AbhFUR6z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 13:58:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BEC461360;
-        Mon, 21 Jun 2021 17:54:14 +0000 (UTC)
+        id S232667AbhFUR72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 13:59:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72D4E61363;
+        Mon, 21 Jun 2021 17:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624298055;
-        bh=0EfZd7DYiKHVWO3GhjofK8wxYjHRVA4dvSvIY09L6tw=;
+        s=k20201202; t=1624298057;
+        bh=T/2KSSokNB8laSgN8M1SC90KRYn39oD9wPyVHRggRS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/oBD4F7tgD1nC+gKISEpAIguh8dmTc5/SgdEI2Z1b5ujYx9v4S3uUV9MeEbBDZ7M
-         1Sr5KpNyD7rq0/mRMR3YGk5I6tYZAE6XpJZd9bqJddZtm+FRNqfyBZ3g4xqjp1NXRn
-         LclnbA9ZSiD8jNI3K0GvmkP21Z2U1Ogo3it5EGN86K24KooKDTO1UQpLAlSxJ6sKpp
-         5UPzWpNRMdHRteiLB2198cWLkpsIGk+Ra1ip5BXGBpRp82m43RrOvyMRHtMRw4L5Wh
-         wp6zhUcC627Jq/esb3lFl3uwCTITHqg4vREv8Cx0I4HpbWm/JEYw/A+yIS+bo/lkgo
-         zGVssskaYdEoA==
+        b=tFUx/bIqVMcngi4DU2euvBVMUbYV4STTVCskSk1sKGNepfenKaAUbKIg1NdNoxMUO
+         vvTRKlHSnHXFssd7IgT7wMkYuBb2cbQDk/69CtdWSCRFYrcjfLvGISt7tOx28uwwnY
+         jR3fADpi+3y29OcWu9II/XOahmhaUg4AagzOkAecywPH0UfnqaWi3cxCamJ9DK7n/Q
+         KM1N3wdXHq/sONKBfbUyPsQ8M2PmHq2vLWYQ3IdlS1bZh4o1hSeI4kmwmqwsJw4lMJ
+         MBpvLzC957DsMZGE51DtVYLMc9gjm42xbjsizPCJC0EFAQ0CcVIizufBL1dhxNv4xC
+         u5dm2jeZezQHQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guillaume Ranquet <granquet@baylibre.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 08/26] dmaengine: mediatek: use GFP_NOWAIT instead of GFP_ATOMIC in prep_dma
-Date:   Mon, 21 Jun 2021 13:53:41 -0400
-Message-Id: <20210621175400.735800-8-sashal@kernel.org>
+Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 09/26] net: ipv4: Remove unneed BUG() function
+Date:   Mon, 21 Jun 2021 13:53:42 -0400
+Message-Id: <20210621175400.735800-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210621175400.735800-1-sashal@kernel.org>
 References: <20210621175400.735800-1-sashal@kernel.org>
@@ -43,37 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Ranquet <granquet@baylibre.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 9041575348b21ade1fb74d790f1aac85d68198c7 ]
+[ Upstream commit 5ac6b198d7e312bd10ebe7d58c64690dc59cc49a ]
 
-As recommended by the doc in:
-Documentation/drivers-api/dmaengine/provider.rst
+When 'nla_parse_nested_deprecated' failed, it's no need to
+BUG() here, return -EINVAL is ok.
 
-Use GFP_NOWAIT to not deplete the emergency pool.
-
-Signed-off-by: Guillaume Ranquet <granquet@baylibre.com>
-
-Link: https://lore.kernel.org/r/20210513192642.29446-4-granquet@baylibre.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/mediatek/mtk-uart-apdma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/devinet.c  | 2 +-
+ net/ipv6/addrconf.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/mediatek/mtk-uart-apdma.c b/drivers/dma/mediatek/mtk-uart-apdma.c
-index e420e9f72b3d..9c0ea13ca788 100644
---- a/drivers/dma/mediatek/mtk-uart-apdma.c
-+++ b/drivers/dma/mediatek/mtk-uart-apdma.c
-@@ -349,7 +349,7 @@ static struct dma_async_tx_descriptor *mtk_uart_apdma_prep_slave_sg
- 		return NULL;
+diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
+index a27d034c85cc..603a3495afa6 100644
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -1989,7 +1989,7 @@ static int inet_set_link_af(struct net_device *dev, const struct nlattr *nla)
+ 		return -EAFNOSUPPORT;
  
- 	/* Now allocate and setup the descriptor */
--	d = kzalloc(sizeof(*d), GFP_ATOMIC);
-+	d = kzalloc(sizeof(*d), GFP_NOWAIT);
- 	if (!d)
- 		return NULL;
+ 	if (nla_parse_nested_deprecated(tb, IFLA_INET_MAX, nla, NULL, NULL) < 0)
+-		BUG();
++		return -EINVAL;
  
+ 	if (tb[IFLA_INET_CONF]) {
+ 		nla_for_each_nested(a, tb[IFLA_INET_CONF], rem)
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 52feab2baeee..366c3792b860 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -5761,7 +5761,7 @@ static int inet6_set_link_af(struct net_device *dev, const struct nlattr *nla)
+ 		return -EAFNOSUPPORT;
+ 
+ 	if (nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla, NULL, NULL) < 0)
+-		BUG();
++		return -EINVAL;
+ 
+ 	if (tb[IFLA_INET6_TOKEN]) {
+ 		err = inet6_set_iftoken(idev, nla_data(tb[IFLA_INET6_TOKEN]));
 -- 
 2.30.2
 
