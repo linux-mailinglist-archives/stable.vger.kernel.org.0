@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E333AEF1D
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67E493AF0AE
+	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 18:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232511AbhFUQfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 12:35:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55944 "EHLO mail.kernel.org"
+        id S231633AbhFUQv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 12:51:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232848AbhFUQel (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Jun 2021 12:34:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96F5E613B1;
-        Mon, 21 Jun 2021 16:27:01 +0000 (UTC)
+        id S233221AbhFUQt0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Jun 2021 12:49:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 687AC6128C;
+        Mon, 21 Jun 2021 16:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624292822;
-        bh=pMOcLHHKkvDjCSzr1r68wNfje47dMb3uCF+C6BLRH2I=;
+        s=korg; t=1624293268;
+        bh=83jq3viiSj6z8qlYsZ0Vfv/iGyQpkHRFzMx4UVz7zbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XzDkO/z2Zu11qrDfoKuzxSqwikyiiKr+H8qTzTLAQSS2/vaeHytHOWuc4viH0Qkih
-         zZVASZletwZwF53Je8quU1jSWOo/J6NPjvoy72HD19ElsUoj44ZfwT4woxuEr/qf8T
-         wl4Vt9sdd3eQ9hDHWPfI0WaP7H46LzTBHuc9bnbg=
+        b=pOMoHraEWQizGXZkJlztmu7rdSNXbCOtYvN8dm1n6/2kd0Il7QzoBWns47TirBTbM
+         Q2aW/+9S2xjuUJrFrUJM1U1giAoiOnhWkywLui1stiDJFmH4oq1gB7zXinwpTlg1Bw
+         lbYfTFWzb/u4ElBp+bWDleA/D9ssphO0Gzb6fNVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 143/146] tools headers UAPI: Sync linux/in.h copy with the kernel sources
+        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.12 159/178] cfg80211: avoid double free of PMSR request
 Date:   Mon, 21 Jun 2021 18:16:13 +0200
-Message-Id: <20210621154920.675300959@linuxfoundation.org>
+Message-Id: <20210621154928.162912186@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
-References: <20210621154911.244649123@linuxfoundation.org>
+In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
+References: <20210621154921.212599475@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Avraham Stern <avraham.stern@intel.com>
 
-commit 1792a59eab9593de2eae36c40c5a22d70f52c026 upstream.
+commit 0288e5e16a2e18f0b7e61a2b70d9037fc6e4abeb upstream.
 
-To pick the changes in:
+If cfg80211_pmsr_process_abort() moves all the PMSR requests that
+need to be freed into a local list before aborting and freeing them.
+As a result, it is possible that cfg80211_pmsr_complete() will run in
+parallel and free the same PMSR request.
 
-  321827477360934d ("icmp: don't send out ICMP messages with a source address of 0.0.0.0")
+Fix it by freeing the request in cfg80211_pmsr_complete() only if it
+is still in the original pmsr list.
 
-That don't result in any change in tooling, as INADDR_ are not used to
-generate id->string tables used by 'perf trace'.
-
-This addresses this build warning:
-
-  Warning: Kernel ABI header at 'tools/include/uapi/linux/in.h' differs from latest version at 'include/uapi/linux/in.h'
-  diff -u tools/include/uapi/linux/in.h include/uapi/linux/in.h
-
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 9bb7e0f24e7e ("cfg80211: add peer measurement with FTM initiator API")
+Signed-off-by: Avraham Stern <avraham.stern@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210618133832.1fbef57e269a.I00294bebdb0680b892f8d1d5c871fd9dbe785a5e@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/include/uapi/linux/in.h |    3 +++
- 1 file changed, 3 insertions(+)
+ net/wireless/pmsr.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/tools/include/uapi/linux/in.h
-+++ b/tools/include/uapi/linux/in.h
-@@ -289,6 +289,9 @@ struct sockaddr_in {
- /* Address indicating an error return. */
- #define	INADDR_NONE		((unsigned long int) 0xffffffff)
+--- a/net/wireless/pmsr.c
++++ b/net/wireless/pmsr.c
+@@ -324,6 +324,7 @@ void cfg80211_pmsr_complete(struct wirel
+ 			    gfp_t gfp)
+ {
+ 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
++	struct cfg80211_pmsr_request *tmp, *prev, *to_free = NULL;
+ 	struct sk_buff *msg;
+ 	void *hdr;
  
-+/* Dummy address for src of ICMP replies if no real address is set (RFC7600). */
-+#define	INADDR_DUMMY		((unsigned long int) 0xc0000008)
-+
- /* Network number for local host loopback. */
- #define	IN_LOOPBACKNET		127
+@@ -354,9 +355,20 @@ free_msg:
+ 	nlmsg_free(msg);
+ free_request:
+ 	spin_lock_bh(&wdev->pmsr_lock);
+-	list_del(&req->list);
++	/*
++	 * cfg80211_pmsr_process_abort() may have already moved this request
++	 * to the free list, and will free it later. In this case, don't free
++	 * it here.
++	 */
++	list_for_each_entry_safe(tmp, prev, &wdev->pmsr_list, list) {
++		if (tmp == req) {
++			list_del(&req->list);
++			to_free = req;
++			break;
++		}
++	}
+ 	spin_unlock_bh(&wdev->pmsr_lock);
+-	kfree(req);
++	kfree(to_free);
+ }
+ EXPORT_SYMBOL_GPL(cfg80211_pmsr_complete);
  
 
 
