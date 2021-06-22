@@ -2,153 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A394C3B0315
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 13:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F32753B031E
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 13:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230249AbhFVLq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 07:46:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35060 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230236AbhFVLqY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 07:46:24 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6052C061574
-        for <stable@vger.kernel.org>; Tue, 22 Jun 2021 04:44:08 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id t13so5046993pgu.11
-        for <stable@vger.kernel.org>; Tue, 22 Jun 2021 04:44:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=sH7qrzXHfrOEe45upx+ex/mNU+hjSuGQDDrm38SLhkk=;
-        b=kFs3IlWTSLXxda0Q/iD8Xlpb+bx6HVBb1F4fyQ9FnanwhI8r0pEi9Z4Ud95XSKngUo
-         x9jy9DuIgjT27IOn4EVpzwvqr9Q2ww5JRJB9122isx4KBg6wzFt99nqSv9irdYabunLK
-         4IJLNkkGTMSB7djh7Lcec9AlIeD8lOtCOEBqfGsZRZYfWfJYTqPRuObHG+Y3NWWPZtcT
-         OdAg+VNaxqPiYtBYZW4BW61syB2F/sHtaviTfnJBPLmuHqm5ZFohS/At0PZgbzfo0HT/
-         SmAPtBncMyYWAoQrXug3bE3/Lvkb0wa21YoeHb6nuTE7nuw+X9t8wbkcCGZC2BlEXxwG
-         GQKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=sH7qrzXHfrOEe45upx+ex/mNU+hjSuGQDDrm38SLhkk=;
-        b=o3duj6I5KVapmoLrzM4CRv3ntDBsFaqN7dC4WUFf5HfoM6SAOMtYBCC9IupO0Vbzlm
-         ZhEIFZLVgx8Ce4VpUqkScLlt20Gf23Bub+2EVWp4OBwNYYnDSbBhIGwu+jjq4m6Hu7DP
-         sG+AWpY07AOc24NSunqpbjZ0kCKwYWXJmjl/Ya0bTCczId7JHlGVvC18+1XTPZSgnAi7
-         UZAF0W+vFoHKxW+DRp6LKXsrisOkBYNHURozSn7h86bCYCdqwdTovMD+MKPgjmGadOk3
-         L/DkT7lRisKD0uwXHVycspf8/wisMAkwt7GPETSark54Wi7B8kJbDqqoUrMcxj6k5WyS
-         3MoA==
-X-Gm-Message-State: AOAM531Y9nLHnEmEAPynneeYnDH5bughgf9VTxiA4e1ZvIhQ3/PTGu2d
-        p+TTf+guCoh1OVRpECITcDKEaZOe4pwiOw==
-X-Google-Smtp-Source: ABdhPJxMGY4qeF2mQ2Twh0uDFWfJ6l0PPz+Fboq+cb2k9lB/25f2Pf7Ujy/ZQSwQiFa2kGjE7g/fpw==
-X-Received: by 2002:a63:5966:: with SMTP id j38mr3327260pgm.451.1624362248250;
-        Tue, 22 Jun 2021 04:44:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x63sm481069pfx.205.2021.06.22.04.44.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Jun 2021 04:44:08 -0700 (PDT)
-Message-ID: <60d1cd08.1c69fb81.47632.0cac@mx.google.com>
-Date:   Tue, 22 Jun 2021 04:44:08 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230273AbhFVLsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 07:48:16 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:56664 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229948AbhFVLsP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 07:48:15 -0400
+Date:   Tue, 22 Jun 2021 11:45:57 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1624362358;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=J3bk1RgaCmQnXTMB8X9258azBGCiHqHpM27KkOSNNsY=;
+        b=OQqaBb9WlZM6w9v8BFofJ0EU7quCLlhWExhsoLj1DXkftOzLbSwoArNyfb48u3JFqDychu
+        RG/kP2ruaiWdECulQIKl3awmGCx7CGmBq98wpNViAi6ELNiq0yEqbLSPT434gLSdosMBLU
+        uyPDPaDvwKPOwLkpRITH/WuO/srLvWBB02EdtTp25A6YgFnopnC8ngaswZwSXbdKdHdZ1q
+        40DZA6ZhfGDKsEvzcTlbyi2bHe4WEBi6FtB056PaS94GVHzTbCdnThDRnCtXFzKxqJX3Q3
+        Hmy4Cov39KsYg2+9+qy+CF2KQGDx63M6O6xc5IFjEKewE+wQyMUv1Xz9LIMFYw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1624362358;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=J3bk1RgaCmQnXTMB8X9258azBGCiHqHpM27KkOSNNsY=;
+        b=sGNGce76zpzpZnEkzfyGHoASSpEFiqA12ldGp6sOVKCbN7d/JRvtQperCKcj0b5Pq2BvEK
+        n80Bvg2hUmaUWpBQ==
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/fpu: Preserve supervisor states in
+ sanitize_restored_user_xstate()
+Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20210618143444.438635017@linutronix.de>
+References: <20210618143444.438635017@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.45-147-gc00b84692b51
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.10.y baseline: 182 runs,
- 3 regressions (v5.10.45-147-gc00b84692b51)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <162436235798.395.14118811977860915293.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 182 runs, 3 regressions (v5.10.45-147-gc00=
-b84692b51)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     9301982c424a003c0095bf157154a85bf5322bd0
+Gitweb:        https://git.kernel.org/tip/9301982c424a003c0095bf157154a85bf5322bd0
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Fri, 18 Jun 2021 16:18:24 +02:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Tue, 22 Jun 2021 10:51:23 +02:00
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
+x86/fpu: Preserve supervisor states in sanitize_restored_user_xstate()
 
+sanitize_restored_user_xstate() preserves the supervisor states only
+when the fx_only argument is zero, which allows unprivileged user space
+to put supervisor states back into init state.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.45-147-gc00b84692b51/plan/baseline/
+Preserve them unconditionally.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.45-147-gc00b84692b51
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c00b84692b513471386cc0db08f8ac9020f88659 =
+ [ bp: Fix a typo or two in the text. ]
 
+Fixes: 5d6b6a6f9b5c ("x86/fpu/xstate: Update sanitize_restored_xstate() for supervisor xstates")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20210618143444.438635017@linutronix.de
+---
+ arch/x86/kernel/fpu/signal.c | 26 ++++++++------------------
+ 1 file changed, 8 insertions(+), 18 deletions(-)
 
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d1a34838a7c7c66841326d
-
-  Results:     66 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
-5-147-gc00b84692b51/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
-288-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
-5-147-gc00b84692b51/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
-288-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60d1a34838a7c7c66841328a
-        failing since 7 days (last pass: v5.10.43, first fail: v5.10.43-131=
--g3f05ff8b3370)
-
-    2021-06-22T08:45:53.902418  /lava-4070896/1/../bin/lava-test-case
-    2021-06-22T08:45:53.907621  <8>[   10.870304] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60d1a34838a7c7c66841328b
-        failing since 7 days (last pass: v5.10.43, first fail: v5.10.43-131=
--g3f05ff8b3370)
-
-    2021-06-22T08:45:54.921119  /lava-4070896/1/../bin/lava-test-case
-    2021-06-22T08:45:54.926336  <8>[   11.890043] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60d1a34838a7c7c6684132a3
-        failing since 7 days (last pass: v5.10.43, first fail: v5.10.43-131=
--g3f05ff8b3370)
-
-    2021-06-22T08:45:56.347232  /lava-4070896/1/../bin/lava-test-case
-    2021-06-22T08:45:56.364168  <8>[   13.315964] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-06-22T08:45:56.364401  /lava-4070896/1/../bin/lava-test-case   =
-
- =20
+diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
+index ec3ae30..b7b92cd 100644
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -221,28 +221,18 @@ sanitize_restored_user_xstate(union fpregs_state *state,
+ 
+ 	if (use_xsave()) {
+ 		/*
+-		 * Note: we don't need to zero the reserved bits in the
+-		 * xstate_header here because we either didn't copy them at all,
+-		 * or we checked earlier that they aren't set.
++		 * Clear all feature bits which are not set in
++		 * user_xfeatures and clear all extended features
++		 * for fx_only mode.
+ 		 */
++		u64 mask = fx_only ? XFEATURE_MASK_FPSSE : user_xfeatures;
+ 
+ 		/*
+-		 * 'user_xfeatures' might have bits clear which are
+-		 * set in header->xfeatures. This represents features that
+-		 * were in init state prior to a signal delivery, and need
+-		 * to be reset back to the init state.  Clear any user
+-		 * feature bits which are set in the kernel buffer to get
+-		 * them back to the init state.
+-		 *
+-		 * Supervisor state is unchanged by input from userspace.
+-		 * Ensure supervisor state bits stay set and supervisor
+-		 * state is not modified.
++		 * Supervisor state has to be preserved. The sigframe
++		 * restore can only modify user features, i.e. @mask
++		 * cannot contain them.
+ 		 */
+-		if (fx_only)
+-			header->xfeatures = XFEATURE_MASK_FPSSE;
+-		else
+-			header->xfeatures &= user_xfeatures |
+-					     xfeatures_mask_supervisor();
++		header->xfeatures &= mask | xfeatures_mask_supervisor();
+ 	}
+ 
+ 	if (use_fxsr()) {
