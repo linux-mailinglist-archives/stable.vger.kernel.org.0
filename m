@@ -2,112 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A88ED3B10B3
-	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 01:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 232FD3B10DA
+	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 01:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229853AbhFVXoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 19:44:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52536 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229747AbhFVXoV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Jun 2021 19:44:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69FAE61003;
-        Tue, 22 Jun 2021 23:42:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624405325;
-        bh=g4E/vdYh2QVf8t933gHLgeNZUvOXHmnn6xmrpWfhGlg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APtIlBGBprpAh3N1sTE4nJF6xqWCbAJPKeWDs+FZUdRYU8Cy9ATCMHKVfsN8eQVjB
-         pK+739hYzMIKv1E01/8k76+UlbSDMQB/Nv3reKUih0ZOvVluVIduoyTbKER2SClBWy
-         dTt03/z2a1AKeU222AUaz9zhA16va/Nhd2odZtK0g1GRXjhy/EPFqE9b2szSIH5uk5
-         EK6JF4ezksMloHCeic8BZWvNpLJWqNy2wjphohvTdlzH+T5vRSjJ5vdWknzx5tErc+
-         Yvdy63pRe4LY+qhpzLjz9RnYHtPlCNP9KsWywDKOlP3meX8mzatF7sb44AUtfIn/j4
-         /fvAKfkW6MxmQ==
-From:   Frederic Weisbecker <frederic@kernel.org>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Oleg Nesterov <oleg@redhat.com>, stable@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 1/7] posix-cpu-timers: Fix rearm racing against process tick
-Date:   Wed, 23 Jun 2021 01:41:49 +0200
-Message-Id: <20210622234155.119685-2-frederic@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210622234155.119685-1-frederic@kernel.org>
-References: <20210622234155.119685-1-frederic@kernel.org>
+        id S229747AbhFWAA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 20:00:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33914 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229999AbhFWAAW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 20:00:22 -0400
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84D27C061756
+        for <stable@vger.kernel.org>; Tue, 22 Jun 2021 16:58:05 -0700 (PDT)
+Received: by mail-oi1-x229.google.com with SMTP id m137so1327942oig.6
+        for <stable@vger.kernel.org>; Tue, 22 Jun 2021 16:58:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=RmipAmOn4dFo13X7TIOaez3PL8Zy1f7IqUA+zl075H8=;
+        b=hCXPbwDO3S4aC9We9uHHPlDq1mx31D5964KHXiMB1MpGg2RjxqCfmDG0aFKSxscdnr
+         8tQpPDWfSP9NhIpjXEnv26T3Gn91OtGCV9lYmv5jSPHibG3fFLuJpYhJMiAX/Z/kLIOL
+         NoO3cV4P4pp4g69tcr8+d9Zpi2e3n9uUncFZo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=RmipAmOn4dFo13X7TIOaez3PL8Zy1f7IqUA+zl075H8=;
+        b=On9wWpmAOAMch8FwTmUDp5waK8+LyFyPdIU53g/jJHQInGppGmeT3sXgPhc9pCR0sN
+         2UCgKCeI/1g+tblD+jZheg6gXOGNNvZVgXvT/XC/sz/z0ZTB6/WQ+UzLHPb25e6uIPLP
+         rZVhvjplvGAt7QTDkJGXK6UxFEW34nrFprW36R71bjIFbPrBsHNTbcRynXr30/GB04qI
+         +2MzsvvsWCjy8G5aVAxJ1BbJ6P+jL+0dBoe5PArxEMlshbBY3z3I9oeOQYRXmgChCyH7
+         rPu/lpvtXpwwVrTvZ5+fBuiKinHyi+Wejj0w1kIv3BYTGyYD09n6P9IJmlI199js3jNE
+         jqSA==
+X-Gm-Message-State: AOAM533vO3Ouu3vY0fB754c1h1VLMF7PpDawWBbGUk/rB7iMENd58MaU
+        KuWpTTNNNQJZaIyJA8l0TJcNFg==
+X-Google-Smtp-Source: ABdhPJycSGNgB5ca7a/uXeFM9eKo8FIDGqkLipas8fxfng3/5bBRc3QzEot4tZm1XU1qEFOQK3HKRA==
+X-Received: by 2002:aca:170a:: with SMTP id j10mr1048263oii.23.1624406284938;
+        Tue, 22 Jun 2021 16:58:04 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id 59sm188281oto.3.2021.06.22.16.58.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Jun 2021 16:58:04 -0700 (PDT)
+Subject: Re: [PATCH 5.12 000/178] 5.12.13-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210621154921.212599475@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <e1e2114f-f5ef-4441-ce82-a0c2fa1a89df@linuxfoundation.org>
+Date:   Tue, 22 Jun 2021 17:58:03 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since the process wide cputime counter is started locklessly from
-posix_cpu_timer_rearm(), it can be concurrently stopped by operations
-on other timers from the same thread group, such as in the following
-unlucky scenario:
+On 6/21/21 10:13 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.12.13 release.
+> There are 178 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 23 Jun 2021 15:48:46 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.13-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-         CPU 0                                CPU 1
-         -----                                -----
-                                           timer_settime(TIMER B)
-   posix_cpu_timer_rearm(TIMER A)
-       cpu_clock_sample_group()
-           (pct->timers_active already true)
+Compiled and booted on my test system. No dmesg regressions.
 
-                                           handle_posix_cpu_timers()
-                                               check_process_timers()
-                                                   stop_process_timers()
-                                                       pct->timers_active = false
-       arm_timer(TIMER A)
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-   tick -> run_posix_cpu_timers()
-       // sees !pct->timers_active, ignore
-       // our TIMER A
-
-Fix this with simply locking process wide cputime counting start and
-timer arm in the same block.
-
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Fixes: 60f2ceaa8111 ("posix-cpu-timers: Remove unnecessary locking around cpu_clock_sample_group")
-Cc: stable@vger.kernel.org
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
----
- kernel/time/posix-cpu-timers.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index 3bb96a8b49c9..aa52fc85dbcb 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -991,6 +991,11 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
- 	if (!p)
- 		goto out;
- 
-+	/* Protect timer list r/w in arm_timer() */
-+	sighand = lock_task_sighand(p, &flags);
-+	if (unlikely(sighand == NULL))
-+		goto out;
-+
- 	/*
- 	 * Fetch the current sample and update the timer's expiry time.
- 	 */
-@@ -1001,11 +1006,6 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
- 
- 	bump_cpu_timer(timer, now);
- 
--	/* Protect timer list r/w in arm_timer() */
--	sighand = lock_task_sighand(p, &flags);
--	if (unlikely(sighand == NULL))
--		goto out;
--
- 	/*
- 	 * Now re-arm for the new expiry time.
- 	 */
--- 
-2.25.1
-
+thanks,
+-- Shuah
