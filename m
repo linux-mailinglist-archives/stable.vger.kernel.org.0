@@ -2,175 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2F23AFC79
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 07:10:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AE5A3AFD0C
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 08:27:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229752AbhFVFMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 01:12:42 -0400
-Received: from mail-db8eur05olkn2078.outbound.protection.outlook.com ([40.92.89.78]:59488
-        "EHLO EUR05-DB8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229612AbhFVFMl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Jun 2021 01:12:41 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=AXZI9ho9qUs64NR1vVgGmXuexs6joaIyMG7qV0bJYm3xXjIGxElQOVkT3TW8egupEz9qyZNq7YVaW3NtN7Py33TsZWuImFfTo9NYyiSZrlUL/Vtw6Nrg2P4oRfllDEudARXFOjnJa+nOraKMj3ZUPhRlM1lNrIwsMiiGMBC9PiijytczfhBui1q0hNuMllo+gXstSSOY/HFv/Vs18IqqmPixSFTxVNdS8Lz7z4JDmiMHbHvTlh/dMwZwT6szXHLtk/c0iSRF1Eo/kKXAqhviyNftkvE4+Dm1/dQniL1YSELVFU50+toU/aXBmHyeFfkrDfskbx7nRX8QlqTLAOwHCA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OytysZu5Z+aAyVrvNx45JXK3NgpiH3c7LaspZb446DE=;
- b=O5yS3lV3zMwJan5ca6+EGAiolc8iQVciKp8zezB3LlOQXzecxGfA2K0Vq0bSOX5n0uwlpAK4ZCxSX8CuM4NBjLQLp9QExwKWiBwrXiuSJmPghmvQCpDME0GLKS0lJKteoyxxNqFlc5qPogM0ZjX/rhHSkujVhnen1fWH1Lfdaeiqq6oYQBfWEjrcZk1sz+ACQ0U0hCYiCmYTpjR9UJJWK9pAnX16gh4Zw12aj8S98yTgvnqAQqLLydBIQXUo/w1vb1mVG8ecVASccpJBzpPCEwgfkCXXA71MSljZXKvdO1pH1EDrDTaCCK4yo5P4bIFTi6hdhMPBdoUacszVTMOnGg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-Received: from VI1EUR05FT027.eop-eur05.prod.protection.outlook.com
- (2a01:111:e400:fc12::53) by
- VI1EUR05HT195.eop-eur05.prod.protection.outlook.com (2a01:111:e400:fc12::477)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.16; Tue, 22 Jun
- 2021 05:10:23 +0000
-Received: from DB9PR10MB4713.EURPRD10.PROD.OUTLOOK.COM
- (2a01:111:e400:fc12::50) by VI1EUR05FT027.mail.protection.outlook.com
- (2a01:111:e400:fc12::209) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.16 via Frontend
- Transport; Tue, 22 Jun 2021 05:10:23 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:B537D4C97917BF2D244BB724943815E82B1AEEF575C68F9AF35558D8BDE4A370;UpperCasedChecksum:8A41EBD09CC0797627FAAAB4435C4EE97BB48E6D8EF9E472ADD79745FFA31102;SizeAsReceived:9154;Count:48
-Received: from DB9PR10MB4713.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::2515:5d6d:6f1e:c41]) by DB9PR10MB4713.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::2515:5d6d:6f1e:c41%9]) with mapi id 15.20.4242.023; Tue, 22 Jun 2021
- 05:10:23 +0000
-Subject: Re: [PATCH v9] exec: Fix dead-lock in de_thread with ptrace_attach
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Will Drewry <wad@chromium.org>, Shuah Khan <shuah@kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Charles Haithcock <chaithco@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        YiFei Zhu <yifeifz2@illinois.edu>,
-        Adrian Reber <areber@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jens Axboe <axboe@kernel.dk>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-kselftest@vger.kernel.org,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <AM8PR10MB4708AFBD838138A84CE89EF8E4359@AM8PR10MB4708.EURPRD10.PROD.OUTLOOK.COM>
- <20210610143642.e4535dbdc0db0b1bd3ee5367@linux-foundation.org>
- <AM8PR10MB470896FBC519ABCC20486958E4349@AM8PR10MB4708.EURPRD10.PROD.OUTLOOK.COM>
- <877diwtn2p.fsf@disp2133>
- <AS8PR10MB47120E7A195A593C1377172CE4309@AS8PR10MB4712.EURPRD10.PROD.OUTLOOK.COM>
- <AM8PR10MB47083E11E2B39ACBDF396954E40F9@AM8PR10MB4708.EURPRD10.PROD.OUTLOOK.COM>
-Message-ID: <DB9PR10MB47134C036A2DADB4FD53F16AE4099@DB9PR10MB4713.EURPRD10.PROD.OUTLOOK.COM>
-Date:   Tue, 22 Jun 2021 07:10:20 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-In-Reply-To: <AM8PR10MB47083E11E2B39ACBDF396954E40F9@AM8PR10MB4708.EURPRD10.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TMN:  [TxNR3A2P2Z/6GxfqYbv4g+YO6Wi2Feae]
-X-ClientProxiedBy: AM0PR03CA0041.eurprd03.prod.outlook.com (2603:10a6:208::18)
- To DB9PR10MB4713.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:261::7)
-X-Microsoft-Original-Message-ID: <b1ada4a0-0049-5c68-95cc-dfecf375f8b5@hotmail.de>
+        id S229574AbhFVG3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 02:29:32 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:23092 "EHLO m43-7.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229501AbhFVG3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Jun 2021 02:29:31 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1624343236; h=Content-Type: MIME-Version: Message-ID:
+ In-Reply-To: Date: References: Subject: Cc: To: From: Sender;
+ bh=rtK0tW1ju/GyKTMtCf1gJfa7tHEiWQ1khV7G/6BqZTU=; b=fz6zKIONJ9j4ZBt7O+ZDkI33UedFk4fTRtLyyZEzBD+JHY+TPCrcTaM4ZiDsHewoh6KM6OKL
+ VKVwLUvUWzWjnmlYNljioWAoqVehrom3YynoTB3XNu5aYawa5XWOpf6qMEcJr3r+dnzYGQCJ
+ xI9aoVJwyjdY0b0PyN00QQ2EmJM=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n02.prod.us-west-2.postgun.com with SMTP id
+ 60d182a8ea2aacd729483e3b (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 22 Jun 2021 06:26:48
+ GMT
+Sender: kvalo=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 9BB38C43217; Tue, 22 Jun 2021 06:26:48 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from tykki (tynnyri.adurom.net [51.15.11.48])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id A8612C433F1;
+        Tue, 22 Jun 2021 06:26:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org A8612C433F1
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=kvalo@codeaurora.org
+From:   Kalle Valo <kvalo@codeaurora.org>
+To:     Larry Finger <Larry.Finger@lwfinger.net>
+Cc:     Pkshih <pkshih@realtek.com>,
+        "linux-wireless\@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] rtw88: Fix some memory leaks
+References: <20210620194110.7520-1-Larry.Finger@lwfinger.net>
+        <19c86cb8dbe04b56b76a386b5faeaa89@realtek.com>
+        <2c552c7c-bb11-a914-78e8-900d6bae39a9@lwfinger.net>
+Date:   Tue, 22 Jun 2021 09:26:32 +0300
+In-Reply-To: <2c552c7c-bb11-a914-78e8-900d6bae39a9@lwfinger.net> (Larry
+        Finger's message of "Mon, 21 Jun 2021 10:52:05 -0500")
+Message-ID: <87sg1a5s9z.fsf@codeaurora.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.101] (84.57.55.161) by AM0PR03CA0041.eurprd03.prod.outlook.com (2603:10a6:208::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.18 via Frontend Transport; Tue, 22 Jun 2021 05:10:21 +0000
-X-MS-PublicTrafficType: Email
-X-IncomingHeaderCount: 48
-X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: 4ad1ba75-b682-4dc8-342f-08d9353c09aa
-X-MS-TrafficTypeDiagnostic: VI1EUR05HT195:
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: zAoo1wxbIIjfe65ebFtY0zAwStnVsPPv9dyjR4DuitYbast8b9HhnBW0MkrW9VhJxgVpf1PXQ0MoO3RX4OgWvxGX0k3J680FjnZF9UqNFUpwlHYnP1Cj8kPHc2WQRrocjLq692ATI9ugvTspVIg3irRvch0PkML8b8+ATXYuVw8U/AcF0uwTnqR6cXNQPGW+MZ4fIUc+q0C5lXix7huWHFW47+RD41tmNOUWg0krSJ7iPrCwVIh4JuDBhs4cgeBtVLiQCiZFxBkAPxuCpvOzQXk5IxH651+vDxkgJQEK/hfLnxeF+MHe1U0WjbdVuz2opl+GeYVqy+T+I61nEtYy+Jpz4HB+jV9VnbuE6cgoyi3mTChOhuJPVzkmvOSyez7y
-X-MS-Exchange-AntiSpam-MessageData: A3X7cpQWT6cBhyeqhn3Dmulejl3u5+AFz1qRhWpA7d9HqqNcjwA4lJbpd6HWGLDS/dmYsodexAv4UpWZuMzUBdzGRGAhnlxBDT/iEnDi9Fteg2lP0pZp6okpt+ysTc7UHK/II4GTdlltIW+Ifotouw==
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4ad1ba75-b682-4dc8-342f-08d9353c09aa
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Jun 2021 05:10:23.1093
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-AuthSource: VI1EUR05FT027.eop-eur05.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1EUR05HT195
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/16/21 11:31 PM, Bernd Edlinger wrote:
-> On 6/15/21 4:26 PM, Bernd Edlinger wrote:
->> The first phase of de_thread needs co-operation from a user task,
->> if and only if any task t except the thread leader has t->ptrace.
->> Taking tasks from RUNNING->EXIT_ZOMBIE only needs co-operation from kernel code,
-> 
-> 
-> Aehm, sorry, that is not correct, what I said here.
-> 
-> I totally overlooked ptrace(PTRACE_SEIZE, pid, 0L, PTRACE_O_TRACEEXIT)
-> 
-> and unfortunately this also prevents even the thread leader to enter the
-> EXIT_ZOMBIE state because do_exit does:
-> 
->         ptrace_event(PTRACE_EVENT_EXIT, code);
-> 
-> unfortunately this sends an event to the tracer, and waits not only for
-> the tracer to call waitpid, but also needs a PTRACE_CONT before do_exit
-> can call exit_notify which does tsk->exit_state = EXIT_ZOMBIE.
-> 
+Larry Finger <Larry.Finger@lwfinger.net> writes:
 
-P.S:
+> On 6/21/21 5:40 AM, Pkshih wrote:
+>>
+>>
+>>> -----Original Message-----
+>>> From: Larry Finger [mailto:larry.finger@gmail.com] On Behalf Of Larry Finger
+>>> Sent: Monday, June 21, 2021 3:41 AM
+>>> To: kvalo@codeaurora.org
+>>> Cc: linux-wireless@vger.kernel.org; Larry Finger; Stable
+>>> Subject: [PATCH v2] rtw88: Fix some memory leaks
+>>>
+>>> There are memory leaks of skb's from routines rtw_fw_c2h_cmd_rx_irqsafe()
+>>> and rtw_coex_info_response(), both arising from C2H operations. There are
+>>> no leaks from the buffers sent to mac80211.
+>>>
+>>> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+>>> Cc: Stable <stable@vger.kernel.org>
+>>> ---
+>>> v2 - add the missinf changelog.
+>>>
+>>> ---
+>>>   drivers/net/wireless/realtek/rtw88/coex.c | 4 +++-
+>>>   drivers/net/wireless/realtek/rtw88/fw.c   | 2 ++
+>>>   2 files changed, 5 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/net/wireless/realtek/rtw88/coex.c b/drivers/net/wireless/realtek/rtw88/coex.c
+>>> index cedbf3825848..e81bf5070183 100644
+>>> --- a/drivers/net/wireless/realtek/rtw88/coex.c
+>>> +++ b/drivers/net/wireless/realtek/rtw88/coex.c
+>>> @@ -591,8 +591,10 @@ void rtw_coex_info_response(struct rtw_dev *rtwdev, struct sk_buff *skb)
+>>>   	struct rtw_coex *coex = &rtwdev->coex;
+>>>   	u8 *payload = get_payload_from_coex_resp(skb);
+>>>
+>>> -	if (payload[0] != COEX_RESP_ACK_BY_WL_FW)
+>>> +	if (payload[0] != COEX_RESP_ACK_BY_WL_FW) {
+>>> +		dev_kfree_skb_any(skb);
+>>>   		return;
+>>> +	}
+>>>
+>>>   	skb_queue_tail(&coex->queue, skb);
+>>>   	wake_up(&coex->wait);
+>>> diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
+>>> index 797b08b2a494..43525ad8543f 100644
+>>> --- a/drivers/net/wireless/realtek/rtw88/fw.c
+>>> +++ b/drivers/net/wireless/realtek/rtw88/fw.c
+>>> @@ -231,9 +231,11 @@ void rtw_fw_c2h_cmd_rx_irqsafe(struct rtw_dev *rtwdev, u32 pkt_offset,
+>>>   	switch (c2h->id) {
+>>>   	case C2H_BT_MP_INFO:
+>>>   		rtw_coex_info_response(rtwdev, skb);
+>>> +		dev_kfree_skb_any(skb);
+>>
+>> The rtw_coex_info_response() puts skb into a skb_queue, so we can't free it here.
+>> Instead, we should free it after we dequeue and do thing.
+>> So, we send another patch:
+>> https://lore.kernel.org/linux-wireless/20210621103023.41928-1-pkshih@realtek.com/T/#u
+>>
+>> I hope this isn't confusing you.
+>
+> No, it is not confusing. T=You fixed some leaks the I did not know existed.
+>
+> Kalle: Take P-K's patch and discard mine.
 
-I think there is something really odd in ptrace_stop().
+Will do, thank you for clear instructions :)
 
-If it is intentional (which I believe to be the case) to wait here after a
-SIGKILL until the process enters the exit_state == EXIT_ZOMBIE, then aborting the
-pending ptrace_stop() via sigkill_pending() is questionable, especially because
-arch_ptrace_stop_needed() is defined as (0) in most architectures, only sparc and
-ia64 do something here.
+-- 
+https://patchwork.kernel.org/project/linux-wireless/list/
 
-static void ptrace_stop(int exit_code, int why, int clear_code, kernel_siginfo_t *info)
-        __releases(&current->sighand->siglock)
-        __acquires(&current->sighand->siglock)
-{
-        bool gstop_done = false;
-
-        if (arch_ptrace_stop_needed(exit_code, info)) {
-                /*
-                 * The arch code has something special to do before a
-                 * ptrace stop.  This is allowed to block, e.g. for faults
-                 * on user stack pages.  We can't keep the siglock while
-                 * calling arch_ptrace_stop, so we must release it now.
-                 * To preserve proper semantics, we must do this before
-                 * any signal bookkeeping like checking group_stop_count.
-                 * Meanwhile, a SIGKILL could come in before we retake the
-                 * siglock.  That must prevent us from sleeping in TASK_TRACED.
-                 * So after regaining the lock, we must check for SIGKILL.
-                 */
-                spin_unlock_irq(&current->sighand->siglock);
-                arch_ptrace_stop(exit_code, info);
-                spin_lock_irq(&current->sighand->siglock);
-                if (sigkill_pending(current))
-                        return;
-        }
-
-        set_special_state(TASK_TRACED);
-
-After this point there is no sigkill_pending() or fatal_signal_pending(), just
-a single freezable_schedule() which explains why this can even wait with a fatal
-signal pending.  But if the code executes the if block above the sigkill can
-only be ignored if it happens immediately before the set_special_state(TASK_TRACED).
-
-What do you think?
-
-
-Bernd.
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
