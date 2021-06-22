@@ -2,332 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B813B041A
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 14:18:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F813B049F
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 14:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231225AbhFVMUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 08:20:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231179AbhFVMUj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 08:20:39 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45DABC061574
-        for <stable@vger.kernel.org>; Tue, 22 Jun 2021 05:18:22 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id m2so16909854pgk.7
-        for <stable@vger.kernel.org>; Tue, 22 Jun 2021 05:18:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=CvNiqEsywsqtZhiKgLC0wpgV8Q/veuZVJd1BVCo2Sck=;
-        b=l+3A9TR8MbCOygbToSGtT3d73ShXrvoE4zlyJwz+VBzmnfVqb2d72x6Zqknb9JuOUr
-         Eg06wXlijkFto5+lDHrAQH4d49rPN0LTy0ID52w/qqMk3Yo2nJ4qXAEfaUyADUNfyeFi
-         xcfZLoYgpAOPTsf3RJ1EP8jMvwH0R/x1ODIqeIkW05z6512aOhAK0SgKNVHgIInm3t1i
-         F0FYhUVhjifo02UmqX8kQJC+Hq1SdsUqQ47BN7oFulwvkyuFxzBnk86jD+0xikZejoT8
-         N81sXmeB/iUWArDJWJj8AM1YvQh5Ev1k6h9x7xv7tgOXWTJaqFH5cjVVbUKuo73jrO8C
-         y4tQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=CvNiqEsywsqtZhiKgLC0wpgV8Q/veuZVJd1BVCo2Sck=;
-        b=kGhj9LjlsqD1NQlir05tqFXO1okTTAVGCuUDunQGguzaAvny/Ffnm5JzLA0/8FobWV
-         byH6f1tB5tKkzZx8WqdhpXRXbKPtzPBVnaWpwYAhQgqqIOi5mBBDJ7tO5PTGuA0wfCJ6
-         7PJhlnpNger1Hm/PBg2Br7Bgd92ZM1sSjyGsKgfhBO3Mtco1+jKKa/ogZGEcl2ErXeIw
-         5SU+PNl8mqP5bxlr5XQQJWxE7XOg/FiLLo8Ls/2KZubVVbLbpzKAdh5EcckOUv9ZByhr
-         4j5bZ+S1SEYgmTVkvg5BJeC2Jven2y/wbh/FctlUda4Ff3PcjS3BOcVAyf5UcgCFzq08
-         Snmg==
-X-Gm-Message-State: AOAM53362Ue9opELvwOKDOwIQ99fhXv/o2539Lc6IQ04cfqTKcrUpQ0Z
-        K7h7zhuLQl3TasSsr0H6++Q0wCTdLDlYDg==
-X-Google-Smtp-Source: ABdhPJzpURgApeWQX7FdMs8GPPOOhgqexV7GTjr/wvXd9XnzHeYSWBPL5ovO98+GsUlNebZEwGALNw==
-X-Received: by 2002:aa7:96bb:0:b029:2fa:f102:468c with SMTP id g27-20020aa796bb0000b02902faf102468cmr3315560pfk.25.1624364301637;
-        Tue, 22 Jun 2021 05:18:21 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b3sm2519774pjz.49.2021.06.22.05.18.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Jun 2021 05:18:21 -0700 (PDT)
-Message-ID: <60d1d50d.1c69fb81.4b962.668b@mx.google.com>
-Date:   Tue, 22 Jun 2021 05:18:21 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231684AbhFVMgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 08:36:02 -0400
+Received: from mailout2.secunet.com ([62.96.220.49]:54906 "EHLO
+        mailout2.secunet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231603AbhFVMgC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 08:36:02 -0400
+Received: from cas-essen-02.secunet.de (unknown [10.53.40.202])
+        by mailout2.secunet.com (Postfix) with ESMTP id 823C5800057;
+        Tue, 22 Jun 2021 14:33:44 +0200 (CEST)
+Received: from mbx-essen-01.secunet.de (10.53.40.197) by
+ cas-essen-02.secunet.de (10.53.40.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Tue, 22 Jun 2021 14:33:44 +0200
+Received: from gauss2.secunet.de (10.182.7.193) by mbx-essen-01.secunet.de
+ (10.53.40.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Tue, 22 Jun
+ 2021 14:33:44 +0200
+Received: by gauss2.secunet.de (Postfix, from userid 1000)
+        id D1B3A318045C; Tue, 22 Jun 2021 14:33:43 +0200 (CEST)
+Date:   Tue, 22 Jun 2021 14:33:43 +0200
+From:   Steffen Klassert <steffen.klassert@secunet.com>
+To:     Frederic Weisbecker <frederic@kernel.org>
+CC:     Varad Gautam <varad.gautam@suse.com>,
+        <linux-kernel@vger.kernel.org>,
+        linux-rt-users <linux-rt-users@vger.kernel.org>,
+        <netdev@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Florian Westphal <fw@strlen.de>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH] xfrm: policy: Restructure RCU-read locking in
+ xfrm_sk_policy_lookup
+Message-ID: <20210622123343.GD40979@gauss3.secunet.de>
+References: <20210618141101.18168-1-varad.gautam@suse.com>
+ <20210621082949.GX40979@gauss3.secunet.de>
+ <f41d40cc-e474-1324-be0a-7beaf580c292@suse.com>
+ <20210621110528.GZ40979@gauss3.secunet.de>
+ <20210622112159.GC40979@gauss3.secunet.de>
+ <20210622115124.GA109262@lothringen>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.195-81-g2b8c719fdf7f
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 158 runs,
- 8 regressions (v4.19.195-81-g2b8c719fdf7f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20210622115124.GA109262@lothringen>
+X-ClientProxiedBy: cas-essen-02.secunet.de (10.53.40.202) To
+ mbx-essen-01.secunet.de (10.53.40.197)
+X-EXCLAIMER-MD-CONFIG: 2c86f778-e09b-4440-8b15-867914633a10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 158 runs, 8 regressions (v4.19.195-81-g2b8c7=
-19fdf7f)
-
-Regressions Summary
--------------------
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-rk3288-veyron-jaq    | arm  | lab-collabora   | gcc-8    | multi_v7_defconf=
-ig  | 3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.195-81-g2b8c719fdf7f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.195-81-g2b8c719fdf7f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2b8c719fdf7ff5689c99f1746c3a5ba51a0da8c4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d1a0a21c8af3539b413293
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d1a0a21c8af3539b413=
-294
-        failing since 220 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d1a2bf07b5858e64413269
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d1a2bf07b5858e64413=
-26a
-        failing since 220 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d1a191f6dcfb37e0413267
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d1a191f6dcfb37e0413=
-268
-        failing since 220 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d1a3e2c39260e689413285
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d1a3e2c39260e689413=
-286
-        failing since 220 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d19f6a14a77d962e413275
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d19f6a14a77d962e413=
-276
-        failing since 220 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-rk3288-veyron-jaq    | arm  | lab-collabora   | gcc-8    | multi_v7_defconf=
-ig  | 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d1b6f777331dd046413279
-
-  Results:     63 PASS, 6 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--81-g2b8c719fdf7f/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60d1b6f777331dd046413295
-        failing since 7 days (last pass: v4.19.194-28-g6098ecdead2c, first =
-fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-06-22T10:09:52.353051  /lava-4071484/1/../bin/lava-test-case
-    2021-06-22T10:09:52.358330  <8>[   15.174449] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60d1b6f777331dd046413296
-        failing since 7 days (last pass: v4.19.194-28-g6098ecdead2c, first =
-fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-06-22T10:09:53.372752  /lava-4071484/1/../bin/lava-test-case
-    2021-06-22T10:09:53.389421  <8>[   16.193806] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60d1b6f877331dd0464132af
-        failing since 7 days (last pass: v4.19.194-28-g6098ecdead2c, first =
-fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-06-22T10:09:55.814838  /lava-4071484/1/../bin/lava-test-case
-    2021-06-22T10:09:55.831494  <8>[   18.636015] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>   =
-
- =20
+On Tue, Jun 22, 2021 at 01:51:24PM +0200, Frederic Weisbecker wrote:
+> On Tue, Jun 22, 2021 at 01:21:59PM +0200, Steffen Klassert wrote:
+> > On Mon, Jun 21, 2021 at 01:05:28PM +0200, Steffen Klassert wrote:
+> > > On Mon, Jun 21, 2021 at 11:11:18AM +0200, Varad Gautam wrote:
+> > > > 
+> > > > Right, I misread the call chain - security_xfrm_policy_lookup does not reach
+> > > > xfrm_policy_lookup, making this patch unnecessary. The bug I have is:
+> > > > 
+> > > > T1, holding hash_resize_mutex and sleeping inside synchronize_rcu:
+> > > > 
+> > > > __schedule
+> > > > schedule
+> > > > schedule_timeout
+> > > > wait_for_completion
+> > > > __wait_rcu_gp
+> > > > synchronize_rcu
+> > > > xfrm_hash_resize
+> > > > 
+> > > > And T2 producing RCU-stalls since it blocked on the mutex:
+> > > > 
+> > > > __schedule
+> > > > schedule
+> > > > __rt_mutex_slowlock
+> > > > rt_mutex_slowlock_locked
+> > > > rt_mutex_slowlock
+> > > > xfrm_policy_lookup_bytype.constprop.77
+> > > 
+> > > Ugh, why does xfrm_policy_lookup_bytype use a mutex? This is called
+> > > in the receive path inside a sofirq.
+> > > 
+> > > The bug was introduced by: 
+> > > 
+> > > commit 77cc278f7b202e4f16f8596837219d02cb090b96
+> > > Author: Ahmed S. Darwish <a.darwish@linutronix.de>
+> > > Date:   Mon Jul 20 17:55:22 2020 +0200
+> > > 
+> > >     xfrm: policy: Use sequence counters with associated lock
+> > > 
+> > >     A sequence counter write side critical section must be protected by some
+> > >     form of locking to serialize writers. If the serialization primitive is
+> > >     not disabling preemption implicitly, preemption has to be explicitly
+> > >     disabled before entering the sequence counter write side critical
+> > >     section.
+> > > 
+> > >     A plain seqcount_t does not contain the information of which lock must
+> > >     be held when entering a write side critical section.
+> > > 
+> > >     Use the new seqcount_spinlock_t and seqcount_mutex_t data types instead,
+> > >     which allow to associate a lock with the sequence counter. This enables
+> > >     lockdep to verify that the lock used for writer serialization is held
+> > >     when the write side critical section is entered.
+> > > 
+> > >     If lockdep is disabled this lock association is compiled out and has
+> > >     neither storage size nor runtime overhead.
+> > > 
+> > >     Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+> > >     Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > >     Link: https://lkml.kernel.org/r/20200720155530.1173732-17-a.darwish@linutronix.de
+> > > 
+> > > This uses a seqcount_mutex_t for xfrm_policy_hash_generation, that's
+> > > wrong.
+> > 
+> > Varad, can you try to replace the seqcount_mutex_t for xfrm_policy_hash_generation
+> > by a seqcount_spinlock_t? I'm not familiar with that seqcount changes,
+> > but we should not end up with using a mutex in this codepath.
+> 
+> Something like this? (beware, untested, also I don't know if the read side
+> should then disable bh, doesn't look necessary for PREEMPT_RT, but I may be
+> missing something...)
+
+Looking a bit deeper into this it seems that the problem is that
+xfrm_policy_hash_generation and hash_resize_mutex do not protect
+the same thing.
+
+hash_resize_mutex protects user configuration against a worker thread
+that rebalances the hash buckets. xfrm_policy_hash_generation protects
+user configuration against the data path that runs in softirq.
+
+Finally the following line from xfrm_init() relates these two:
+
+seqcount_mutex_init(&xfrm_policy_hash_generation, &hash_resize_mutex);
+
+That looks a bit odd. This line was also introduced with the above
+mentioned patch.
