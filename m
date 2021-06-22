@@ -2,226 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5461A3B031F
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 13:46:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CFB63B0344
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 13:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230143AbhFVLsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 07:48:16 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:56656 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbhFVLsP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 07:48:15 -0400
-Date:   Tue, 22 Jun 2021 11:45:57 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1624362358;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ikw3rNQzT/JVPBq9JmPpeQnhZMS2RZF0tnvZdkN9ZFE=;
-        b=A6C6lxZ3YytXgJuv4aBMe1mCqAZqrPO65cetgHVijt1Kq5KnLD9uWHKJBIaDELobTMwDTX
-        kMQCcgof1xVE05noSsH9LG/JR7XJ50O0w+9ZXw1KXCWWfrvMrb94PqAlbje0W+ktwJ+q3i
-        hQMGp6NeNrblRRuoXDIPro+VCrqoeePJuIR1cLsCq/muJDFJ5MDIL9iIIap2a0f54HxXQ8
-        eY40Dj5q6y+CYcga+uzWBxlWWlAIXt905qLGdoBYX+5sjzNLYNS1ZgUkw6fO+6hu5I+EQf
-        XZeI2NiXlJsuqUc8/PFZSimGvhNdfQTGJi/PtmmJQ5OEJAa90T5qmQRYDSLfzw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1624362358;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ikw3rNQzT/JVPBq9JmPpeQnhZMS2RZF0tnvZdkN9ZFE=;
-        b=/05FIth2upn+2LPYmT2i1Icjj7gIbb7k+Zqc7EOz9Z56k4F/QfNNJ4YMWB5+LUyIj9NKMR
-        K01s7trI6P5+4ABg==
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/fpu: Make init_fpstate correct with optimized XSAVE
-Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20210618143444.587311343@linutronix.de>
-References: <20210618143444.587311343@linutronix.de>
+        id S230343AbhFVLxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 07:53:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56906 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229948AbhFVLxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Jun 2021 07:53:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3770E61360;
+        Tue, 22 Jun 2021 11:51:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1624362686;
+        bh=VNNq4TLR80r6dUmZ+Uvsa2YJD8zz27fFUSHczRcz65U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OrtJJaLiVbzsMCc01O3pvxoToM5OHyTRaneqtRYhAfJQOVg9z2ZogPaM3xTBqiQQ0
+         t2brvy3Rq+DBu6WbJPUsqHgYHuaICOP8PRwkbd980Rs2vcfmM6MWIZqhmESRMOzQn/
+         uKNnjIZUXbClODv1QveOON1NFzml5q5Vmy9o+f2oLcI0pbedVtuMWeswYH6znZcZtk
+         DgpSn2K3oi3Zbuk8Yr4YWvATlfyohkoMyLtpZX2yC/c4dG14qaMd5Q3KwY5KbZs9MW
+         WWl7vf0NHpdncI5VM5lSlx9VdecDndkDQGf0FQcOpEXi1cXEc8TZsKisHciRO/v+nV
+         AzT3ffc28Em5w==
+Date:   Tue, 22 Jun 2021 13:51:24 +0200
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     Steffen Klassert <steffen.klassert@secunet.com>
+Cc:     Varad Gautam <varad.gautam@suse.com>, linux-kernel@vger.kernel.org,
+        linux-rt-users <linux-rt-users@vger.kernel.org>,
+        netdev@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Florian Westphal <fw@strlen.de>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] xfrm: policy: Restructure RCU-read locking in
+ xfrm_sk_policy_lookup
+Message-ID: <20210622115124.GA109262@lothringen>
+References: <20210618141101.18168-1-varad.gautam@suse.com>
+ <20210621082949.GX40979@gauss3.secunet.de>
+ <f41d40cc-e474-1324-be0a-7beaf580c292@suse.com>
+ <20210621110528.GZ40979@gauss3.secunet.de>
+ <20210622112159.GC40979@gauss3.secunet.de>
 MIME-Version: 1.0
-Message-ID: <162436235729.395.8630589911308222852.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210622112159.GC40979@gauss3.secunet.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Tue, Jun 22, 2021 at 01:21:59PM +0200, Steffen Klassert wrote:
+> On Mon, Jun 21, 2021 at 01:05:28PM +0200, Steffen Klassert wrote:
+> > On Mon, Jun 21, 2021 at 11:11:18AM +0200, Varad Gautam wrote:
+> > > 
+> > > Right, I misread the call chain - security_xfrm_policy_lookup does not reach
+> > > xfrm_policy_lookup, making this patch unnecessary. The bug I have is:
+> > > 
+> > > T1, holding hash_resize_mutex and sleeping inside synchronize_rcu:
+> > > 
+> > > __schedule
+> > > schedule
+> > > schedule_timeout
+> > > wait_for_completion
+> > > __wait_rcu_gp
+> > > synchronize_rcu
+> > > xfrm_hash_resize
+> > > 
+> > > And T2 producing RCU-stalls since it blocked on the mutex:
+> > > 
+> > > __schedule
+> > > schedule
+> > > __rt_mutex_slowlock
+> > > rt_mutex_slowlock_locked
+> > > rt_mutex_slowlock
+> > > xfrm_policy_lookup_bytype.constprop.77
+> > 
+> > Ugh, why does xfrm_policy_lookup_bytype use a mutex? This is called
+> > in the receive path inside a sofirq.
+> > 
+> > The bug was introduced by: 
+> > 
+> > commit 77cc278f7b202e4f16f8596837219d02cb090b96
+> > Author: Ahmed S. Darwish <a.darwish@linutronix.de>
+> > Date:   Mon Jul 20 17:55:22 2020 +0200
+> > 
+> >     xfrm: policy: Use sequence counters with associated lock
+> > 
+> >     A sequence counter write side critical section must be protected by some
+> >     form of locking to serialize writers. If the serialization primitive is
+> >     not disabling preemption implicitly, preemption has to be explicitly
+> >     disabled before entering the sequence counter write side critical
+> >     section.
+> > 
+> >     A plain seqcount_t does not contain the information of which lock must
+> >     be held when entering a write side critical section.
+> > 
+> >     Use the new seqcount_spinlock_t and seqcount_mutex_t data types instead,
+> >     which allow to associate a lock with the sequence counter. This enables
+> >     lockdep to verify that the lock used for writer serialization is held
+> >     when the write side critical section is entered.
+> > 
+> >     If lockdep is disabled this lock association is compiled out and has
+> >     neither storage size nor runtime overhead.
+> > 
+> >     Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+> >     Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> >     Link: https://lkml.kernel.org/r/20200720155530.1173732-17-a.darwish@linutronix.de
+> > 
+> > This uses a seqcount_mutex_t for xfrm_policy_hash_generation, that's
+> > wrong.
+> 
+> Varad, can you try to replace the seqcount_mutex_t for xfrm_policy_hash_generation
+> by a seqcount_spinlock_t? I'm not familiar with that seqcount changes,
+> but we should not end up with using a mutex in this codepath.
 
-Commit-ID:     f9dfb5e390fab2df9f7944bb91e7705aba14cd26
-Gitweb:        https://git.kernel.org/tip/f9dfb5e390fab2df9f7944bb91e7705aba14cd26
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Fri, 18 Jun 2021 16:18:25 +02:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Tue, 22 Jun 2021 11:06:21 +02:00
+Something like this? (beware, untested, also I don't know if the read side
+should then disable bh, doesn't look necessary for PREEMPT_RT, but I may be
+missing something...)
 
-x86/fpu: Make init_fpstate correct with optimized XSAVE
-
-The XSAVE init code initializes all enabled and supported components with
-XRSTOR(S) to init state. Then it XSAVEs the state of the components back
-into init_fpstate which is used in several places to fill in the init state
-of components.
-
-This works correctly with XSAVE, but not with XSAVEOPT and XSAVES because
-those use the init optimization and skip writing state of components which
-are in init state. So init_fpstate.xsave still contains all zeroes after
-this operation.
-
-There are two ways to solve that:
-
-   1) Use XSAVE unconditionally, but that requires to reshuffle the buffer when
-      XSAVES is enabled because XSAVES uses compacted format.
-
-   2) Save the components which are known to have a non-zero init state by other
-      means.
-
-Looking deeper, #2 is the right thing to do because all components the
-kernel supports have all-zeroes init state except the legacy features (FP,
-SSE). Those cannot be hard coded because the states are not identical on all
-CPUs, but they can be saved with FXSAVE which avoids all conditionals.
-
-Use FXSAVE to save the legacy FP/SSE components in init_fpstate along with
-a BUILD_BUG_ON() which reminds developers to validate that a newly added
-component has all zeroes init state. As a bonus remove the now unused
-copy_xregs_to_kernel_booting() crutch.
-
-The XSAVE and reshuffle method can still be implemented in the unlikely
-case that components are added which have a non-zero init state and no
-other means to save them. For now, FXSAVE is just simple and good enough.
-
-  [ bp: Fix a typo or two in the text. ]
-
-Fixes: 6bad06b76892 ("x86, xsave: Use xsaveopt in context-switch path when supported")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210618143444.587311343@linutronix.de
----
- arch/x86/include/asm/fpu/internal.h | 30 +++++---------------
- arch/x86/kernel/fpu/xstate.c        | 41 +++++++++++++++++++++++++---
- 2 files changed, 46 insertions(+), 25 deletions(-)
-
-diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
-index fdee23e..16bf4d4 100644
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -204,6 +204,14 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
- 		asm volatile("fxsaveq %[fx]" : [fx] "=m" (fpu->state.fxsave));
- }
+diff --git a/include/net/netns/xfrm.h b/include/net/netns/xfrm.h
+index e816b6a3ef2b..9b376b87bd54 100644
+--- a/include/net/netns/xfrm.h
++++ b/include/net/netns/xfrm.h
+@@ -74,6 +74,7 @@ struct netns_xfrm {
+ #endif
+ 	spinlock_t		xfrm_state_lock;
+ 	seqcount_spinlock_t	xfrm_state_hash_generation;
++	seqcount_spinlock_t	xfrm_policy_hash_generation;
  
-+static inline void fxsave(struct fxregs_state *fx)
-+{
-+	if (IS_ENABLED(CONFIG_X86_32))
-+		asm volatile( "fxsave %[fx]" : [fx] "=m" (*fx));
-+	else
-+		asm volatile("fxsaveq %[fx]" : [fx] "=m" (*fx));
-+}
-+
- /* These macros all use (%edi)/(%rdi) as the single memory argument. */
- #define XSAVE		".byte " REX_PREFIX "0x0f,0xae,0x27"
- #define XSAVEOPT	".byte " REX_PREFIX "0x0f,0xae,0x37"
-@@ -272,28 +280,6 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
-  * This function is called only during boot time when x86 caps are not set
-  * up and alternative can not be used yet.
-  */
--static inline void copy_xregs_to_kernel_booting(struct xregs_state *xstate)
--{
--	u64 mask = xfeatures_mask_all;
--	u32 lmask = mask;
--	u32 hmask = mask >> 32;
--	int err;
--
--	WARN_ON(system_state != SYSTEM_BOOTING);
--
--	if (boot_cpu_has(X86_FEATURE_XSAVES))
--		XSTATE_OP(XSAVES, xstate, lmask, hmask, err);
--	else
--		XSTATE_OP(XSAVE, xstate, lmask, hmask, err);
--
--	/* We should never fault when copying to a kernel buffer: */
--	WARN_ON_FPU(err);
--}
--
--/*
-- * This function is called only during boot time when x86 caps are not set
-- * up and alternative can not be used yet.
-- */
- static inline void copy_kernel_to_xregs_booting(struct xregs_state *xstate)
+ 	spinlock_t xfrm_policy_lock;
+ 	struct mutex xfrm_cfg_mutex;
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index ce500f847b99..46a6d15b66d6 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -155,7 +155,6 @@ static struct xfrm_policy_afinfo const __rcu *xfrm_policy_afinfo[AF_INET6 + 1]
+ 						__read_mostly;
+ 
+ static struct kmem_cache *xfrm_dst_cache __ro_after_init;
+-static __read_mostly seqcount_mutex_t xfrm_policy_hash_generation;
+ 
+ static struct rhashtable xfrm_policy_inexact_table;
+ static const struct rhashtable_params xfrm_pol_inexact_params;
+@@ -585,7 +584,7 @@ static void xfrm_bydst_resize(struct net *net, int dir)
+ 		return;
+ 
+ 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+-	write_seqcount_begin(&xfrm_policy_hash_generation);
++	write_seqcount_begin(&net->xfrm.xfrm_policy_hash_generation);
+ 
+ 	odst = rcu_dereference_protected(net->xfrm.policy_bydst[dir].table,
+ 				lockdep_is_held(&net->xfrm.xfrm_policy_lock));
+@@ -596,7 +595,7 @@ static void xfrm_bydst_resize(struct net *net, int dir)
+ 	rcu_assign_pointer(net->xfrm.policy_bydst[dir].table, ndst);
+ 	net->xfrm.policy_bydst[dir].hmask = nhashmask;
+ 
+-	write_seqcount_end(&xfrm_policy_hash_generation);
++	write_seqcount_end(&net->xfrm.xfrm_policy_hash_generation);
+ 	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+ 
+ 	synchronize_rcu();
+@@ -1245,7 +1244,7 @@ static void xfrm_hash_rebuild(struct work_struct *work)
+ 	} while (read_seqretry(&net->xfrm.policy_hthresh.lock, seq));
+ 
+ 	spin_lock_bh(&net->xfrm.xfrm_policy_lock);
+-	write_seqcount_begin(&xfrm_policy_hash_generation);
++	write_seqcount_begin(&net->xfrm.xfrm_policy_hash_generation);
+ 
+ 	/* make sure that we can insert the indirect policies again before
+ 	 * we start with destructive action.
+@@ -1354,7 +1353,7 @@ static void xfrm_hash_rebuild(struct work_struct *work)
+ 
+ out_unlock:
+ 	__xfrm_policy_inexact_flush(net);
+-	write_seqcount_end(&xfrm_policy_hash_generation);
++	write_seqcount_end(&net->xfrm.xfrm_policy_hash_generation);
+ 	spin_unlock_bh(&net->xfrm.xfrm_policy_lock);
+ 
+ 	mutex_unlock(&hash_resize_mutex);
+@@ -2095,9 +2094,9 @@ static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
+ 	rcu_read_lock();
+  retry:
+ 	do {
+-		sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
++		sequence = read_seqcount_begin(&net->xfrm.xfrm_policy_hash_generation);
+ 		chain = policy_hash_direct(net, daddr, saddr, family, dir);
+-	} while (read_seqcount_retry(&xfrm_policy_hash_generation, sequence));
++	} while (read_seqcount_retry(&net->xfrm.xfrm_policy_hash_generation, sequence));
+ 
+ 	ret = NULL;
+ 	hlist_for_each_entry_rcu(pol, chain, bydst) {
+@@ -2128,7 +2127,7 @@ static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
+ 	}
+ 
+ skip_inexact:
+-	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence))
++	if (read_seqcount_retry(&net->xfrm.xfrm_policy_hash_generation, sequence))
+ 		goto retry;
+ 
+ 	if (ret && !xfrm_pol_hold_rcu(ret))
+@@ -4084,6 +4083,7 @@ static int __net_init xfrm_net_init(struct net *net)
+ 	/* Initialize the per-net locks here */
+ 	spin_lock_init(&net->xfrm.xfrm_state_lock);
+ 	spin_lock_init(&net->xfrm.xfrm_policy_lock);
++	seqcount_spinlock_init(&net->xfrm.xfrm_policy_hash_generation, &net->xfrm.xfrm_policy_lock);
+ 	mutex_init(&net->xfrm.xfrm_cfg_mutex);
+ 
+ 	rv = xfrm_statistics_init(net);
+@@ -4128,7 +4128,6 @@ void __init xfrm_init(void)
  {
- 	u64 mask = -1;
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index d0eef96..1cadb2f 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -441,12 +441,35 @@ static void __init print_xstate_offset_size(void)
- }
+ 	register_pernet_subsys(&xfrm_net_ops);
+ 	xfrm_dev_init();
+-	seqcount_mutex_init(&xfrm_policy_hash_generation, &hash_resize_mutex);
+ 	xfrm_input_init();
  
- /*
-+ * All supported features have either init state all zeros or are
-+ * handled in setup_init_fpu() individually. This is an explicit
-+ * feature list and does not use XFEATURE_MASK*SUPPORTED to catch
-+ * newly added supported features at build time and make people
-+ * actually look at the init state for the new feature.
-+ */
-+#define XFEATURES_INIT_FPSTATE_HANDLED		\
-+	(XFEATURE_MASK_FP |			\
-+	 XFEATURE_MASK_SSE |			\
-+	 XFEATURE_MASK_YMM |			\
-+	 XFEATURE_MASK_OPMASK |			\
-+	 XFEATURE_MASK_ZMM_Hi256 |		\
-+	 XFEATURE_MASK_Hi16_ZMM	 |		\
-+	 XFEATURE_MASK_PKRU |			\
-+	 XFEATURE_MASK_BNDREGS |		\
-+	 XFEATURE_MASK_BNDCSR |			\
-+	 XFEATURE_MASK_PASID)
-+
-+/*
-  * setup the xstate image representing the init state
-  */
- static void __init setup_init_fpu_buf(void)
- {
- 	static int on_boot_cpu __initdata = 1;
- 
-+	BUILD_BUG_ON((XFEATURE_MASK_USER_SUPPORTED |
-+		      XFEATURE_MASK_SUPERVISOR_SUPPORTED) !=
-+		     XFEATURES_INIT_FPSTATE_HANDLED);
-+
- 	WARN_ON_FPU(!on_boot_cpu);
- 	on_boot_cpu = 0;
- 
-@@ -466,10 +489,22 @@ static void __init setup_init_fpu_buf(void)
- 	copy_kernel_to_xregs_booting(&init_fpstate.xsave);
- 
- 	/*
--	 * Dump the init state again. This is to identify the init state
--	 * of any feature which is not represented by all zero's.
-+	 * All components are now in init state. Read the state back so
-+	 * that init_fpstate contains all non-zero init state. This only
-+	 * works with XSAVE, but not with XSAVEOPT and XSAVES because
-+	 * those use the init optimization which skips writing data for
-+	 * components in init state.
-+	 *
-+	 * XSAVE could be used, but that would require to reshuffle the
-+	 * data when XSAVES is available because XSAVES uses xstate
-+	 * compaction. But doing so is a pointless exercise because most
-+	 * components have an all zeros init state except for the legacy
-+	 * ones (FP and SSE). Those can be saved with FXSAVE into the
-+	 * legacy area. Adding new features requires to ensure that init
-+	 * state is all zeroes or if not to add the necessary handling
-+	 * here.
- 	 */
--	copy_xregs_to_kernel_booting(&init_fpstate.xsave);
-+	fxsave(&init_fpstate.fxsave);
- }
- 
- static int xfeature_uncompacted_offset(int xfeature_nr)
+ #ifdef CONFIG_XFRM_ESPINTCP
+
