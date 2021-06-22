@@ -2,260 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8EC3AFE6D
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 09:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA4A53AFE8A
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 09:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229844AbhFVH4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 03:56:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38976 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbhFVH4c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 03:56:32 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54C76C061574
-        for <stable@vger.kernel.org>; Tue, 22 Jun 2021 00:54:17 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id d11so20091436wrm.0
-        for <stable@vger.kernel.org>; Tue, 22 Jun 2021 00:54:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LhH8oe/P3I1pzGmmehyVUQA+j57rQxFhoVV75MXvrbE=;
-        b=iMYkmuMmAuc7zCSmFtjhahXRlmloWJjVkF/yHNExxDjbBJPt3xiwKtj9qr9Iqq3cBd
-         GKjNg+bmnWoDpyJhSL8AklbZkYxHv7pu4AiebKBhnlyKv5Zm4UfmKUp7mRy9ZwwDSPQH
-         9Z+cl/OM7FFHdXLOMqHJbuaz4ApyMUDbFSGWk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LhH8oe/P3I1pzGmmehyVUQA+j57rQxFhoVV75MXvrbE=;
-        b=sNmFCBQ2156g8Ex7jVCoFB1hcdJ7vPAG9wG8QxS5VxC5djXX+Ov7hdVGoMowyXKr7R
-         N+5KmebJQur6NWDT5XWReszstd+cK9K7rSObgndOTjEkC6mdhW0d52j0Ut7Y/VIMCfZa
-         lU0IidGxfZh6VYSI38KMLcOuDeaFUmt59aC7K4KkMnV4e06cPQwN9JYelu98yntjRTbr
-         7Ir8ItxVBta28Y09iQDaQowQ4rwkhwLOLc/QCQ2r4ew9QuVkYucSNsmjOLUNElS13GjA
-         6vx19P5H5hdcqnndj2N5EcI1JFHCUyRu2Ku0VMGgqLc6Dwj5L39V6+kkgeZJ/JAjBrkv
-         pwIA==
-X-Gm-Message-State: AOAM531oI/IKLSqLz9AF0upDoJxYYm9Aib66Plqb5IpS+C2dgQEBs8qb
-        hcR83v4B5jg05YkjXQjZPfsGFQ==
-X-Google-Smtp-Source: ABdhPJxQCH5xUKVEpxaBsZxWEb9pvwGN+FqzCFhxrWDsS+CTUL0E7qjy4lEy4pSUTFUm+EvaPXXXmA==
-X-Received: by 2002:adf:e2cf:: with SMTP id d15mr3084891wrj.48.1624348455854;
-        Tue, 22 Jun 2021 00:54:15 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id v16sm20949920wrr.6.2021.06.22.00.54.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Jun 2021 00:54:15 -0700 (PDT)
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-To:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>
-Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Emil Velikov <emil.l.velikov@gmail.com>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Subject: [PATCH] Revert "drm: add a locked version of drm_is_current_master"
-Date:   Tue, 22 Jun 2021 09:54:09 +0200
-Message-Id: <20210622075409.2673805-1-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.32.0.rc2
+        id S230267AbhFVIAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 04:00:30 -0400
+Received: from mail-dm6nam10on2074.outbound.protection.outlook.com ([40.107.93.74]:22320
+        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229695AbhFVIA3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Jun 2021 04:00:29 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OSMY7uBrqXd2kGlFCodlnoxhjNNX6EPOwU4dwfI5R6+xO581oM4PiW91/xBf9Q5UWYdZanOI5d7EibvlFFs6i5ottnRC0Hi7Iq03mCplNqcUxjQ9PhR5zfdi2GCUoD5V0/RP3bCan1RhvAQMX80aRtFRyoyTPc9p7QK+E55lHYBjjdMSlGPmWpeSuxDogb1H/cn3RGL1fzOWgjzCEz3QriCzGm/kgy6w3WxNGny6Kc7/GCU6+5GO0PYvLHhZcWwqiNyI9ULnYCB5zORcyVPTbp9Hf/Lr5Mbln6u75cVc53nW7GqbskIERss3q6N7EWtSWdMscqf4MQJp175mf0JWlA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=He0a3RGRMTKIANLCY06YtMN9idyyekRfXElmFKkjHT4=;
+ b=eEQ/8Oc+ieZoA3dv2ettTzGChH+U5H15G4XvH910HU3BHFpxdBqSKi2OqbEPBDyqIDRb/SnMLK8LrmW0TFZ7io/+uZ1X1vq0b9lcWzHOW9qHn5ps4yhsf5ycroF8Yk425tnMAo+PpBNvBlEpFysXubOXz0YF6262Ri8knLqa8nlMHNVrNt5/YMHLxOTQZ3tfKk/SQVrNXz4lxo06JNQPJHAqBkXrlquCOklaAdjq1Gd3RDRZsXm7OLEHXcA04Vao+WCHsF6TIjbbdSKyO/j3CEWLF4OA38tTRbQiHVHgZZ864bhukrIgLu/nP/ET85jQveyDqfmAnNZWQGhjFnwV/w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.35) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=He0a3RGRMTKIANLCY06YtMN9idyyekRfXElmFKkjHT4=;
+ b=GDF3u6vdzVtJBzVXms4Qly9BhxduIgSRXJr9DRpMR3EXCAPik52RSoP+bHCc585idkJT8bQ6GmeC151pJ3k8zr5Is0/FXBALYUSnZKHNw3KDMUjBKowzbmrWKjMd6FcTNJo/Yj84xag6jFV+axuYCvy5NKKhMchupnfdPIgFQ76+UwzPb/OPbf6J/+FH8E0ZOETSPQeFVhnbgL78XWQajUFCA5ByhKRKZP6aBWmF4o2GMGkxx5CkB+HRQLxJP/2w5UgWhRlvGmiknh8cJHu2m2YjG88IV4sXFOszfwoSuN60izxF9bFm9E+B73cWb9tryJ/QIMVkmD7H/oo21tLoNw==
+Received: from DM5PR04CA0051.namprd04.prod.outlook.com (2603:10b6:3:ef::13) by
+ DM5PR1201MB0139.namprd12.prod.outlook.com (2603:10b6:4:4e::8) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4242.21; Tue, 22 Jun 2021 07:58:12 +0000
+Received: from DM6NAM11FT030.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:3:ef:cafe::5d) by DM5PR04CA0051.outlook.office365.com
+ (2603:10b6:3:ef::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.21 via Frontend
+ Transport; Tue, 22 Jun 2021 07:58:12 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.35)
+ smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
+ header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.35 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.35; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.35) by
+ DM6NAM11FT030.mail.protection.outlook.com (10.13.172.146) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4242.16 via Frontend Transport; Tue, 22 Jun 2021 07:58:12 +0000
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 22 Jun
+ 2021 07:58:11 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.187.5) by mail.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
+ Transport; Tue, 22 Jun 2021 07:58:11 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 00/90] 5.4.128-rc1 review
+In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
+References: <20210621154904.159672728@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <0b020a8fe9fc4e9b9ffc7576d24681cb@HQMAIL101.nvidia.com>
+Date:   Tue, 22 Jun 2021 07:58:11 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 403aa793-8ec0-4439-ccbe-08d935537b9a
+X-MS-TrafficTypeDiagnostic: DM5PR1201MB0139:
+X-Microsoft-Antispam-PRVS: <DM5PR1201MB0139F514788614B95E65E309D9099@DM5PR1201MB0139.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: LLa9yhMxJmvHdd96U7KWEte3q6Q6u4SiUob2KHZwXwHdOIiPtIpVhZi4RRZPK8SzXtpqyzyrrB8wWDEjTQlhnanEjkVx+jbF2/Wuux8UNq1ydWKX42eiUmCL1qnga0G0rcaVuZ953LmrhC9HSAsVkG5y4wlvyZz1O8h5vJdP+bQ97fl2XE++CwYQutDuZBO6frAg/De04vrg4L9oNB1WvaxIeTK2MK6LxiEkLaNjak8yIgeLxgP4EhuqRyJcbdjNJ58ZvjGawFVFOX9uXAiiD/Kw03i2qQOeUrMRjnSIqBnG+E23eCvdt0VDNVs+fXyes5uR/Wbo/csgeUXYJPBvJNBbqiEVzFNgv6HVP53om0F2E8tBlDxqQMZPkNaqRoHcmpGAceIzXDgdA9hw+hNHdVYlN9HEfqOP07j2C13qf++EMSpFueZBeRg9sSH0S/2uSMcPYT3rNQ2+JhTnnzOVhB1II7xukI2EatGOUwnU5pXWGfcXzPaq9s72zS+bcfCy43hgsa7usJM+qNhkd8MgzsCem2xLPnURSTSiRQ2tiWaH/OBX+HxJCU/v+AonIbBB2ZpTdJwEmyX6uz8gNNf8yR4OkdOtbAOrHStGO6Dn5vVF7WPIu5EktcRGAA91pjf9CrwUOEYSQgjYXoJ9tJShIbvKD2f2PccRWN5WfUj4XGKVGmvqsDq4L1Vq1C29g1o8DFfmrKmFA+1C9hgz9fJBBdzskQak/Igq2QmXeR3cjW6QADoIHUrpQ8YNBPgUSEmwVidyXkhRfRWC1tZM3u5D2A==
+X-Forefront-Antispam-Report: CIP:216.228.112.35;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid02.nvidia.com;CAT:NONE;SFS:(4636009)(396003)(346002)(136003)(376002)(39860400002)(46966006)(36840700001)(54906003)(426003)(24736004)(108616005)(82740400003)(5660300002)(7636003)(8936002)(47076005)(8676002)(478600001)(356005)(316002)(336012)(36906005)(4326008)(86362001)(70206006)(70586007)(82310400003)(2906002)(7416002)(966005)(6916009)(186003)(36860700001)(26005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Jun 2021 07:58:12.0796
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 403aa793-8ec0-4439-ccbe-08d935537b9a
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.35];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT030.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR1201MB0139
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 1815d9c86e3090477fbde066ff314a7e9721ee0f.
+On Mon, 21 Jun 2021 18:14:35 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.128 release.
+> There are 90 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 23 Jun 2021 15:48:46 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.128-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Unfortunately this inverts the locking hierarchy, so back to the
-drawing board. Full lockdep splat below:
+All tests passing for Tegra ...
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.13.0-rc7-CI-CI_DRM_10254+ #1 Not tainted
-------------------------------------------------------
-kms_frontbuffer/1087 is trying to acquire lock:
-ffff88810dcd01a8 (&dev->master_mutex){+.+.}-{3:3}, at: drm_is_current_master+0x1b/0x40
-but task is already holding lock:
-ffff88810dcd0488 (&dev->mode_config.mutex){+.+.}-{3:3}, at: drm_mode_getconnector+0x1c6/0x4a0
-which lock already depends on the new lock.
-the existing dependency chain (in reverse order) is:
--> #2 (&dev->mode_config.mutex){+.+.}-{3:3}:
-       __mutex_lock+0xab/0x970
-       drm_client_modeset_probe+0x22e/0xca0
-       __drm_fb_helper_initial_config_and_unlock+0x42/0x540
-       intel_fbdev_initial_config+0xf/0x20 [i915]
-       async_run_entry_fn+0x28/0x130
-       process_one_work+0x26d/0x5c0
-       worker_thread+0x37/0x380
-       kthread+0x144/0x170
-       ret_from_fork+0x1f/0x30
--> #1 (&client->modeset_mutex){+.+.}-{3:3}:
-       __mutex_lock+0xab/0x970
-       drm_client_modeset_commit_locked+0x1c/0x180
-       drm_client_modeset_commit+0x1c/0x40
-       __drm_fb_helper_restore_fbdev_mode_unlocked+0x88/0xb0
-       drm_fb_helper_set_par+0x34/0x40
-       intel_fbdev_set_par+0x11/0x40 [i915]
-       fbcon_init+0x270/0x4f0
-       visual_init+0xc6/0x130
-       do_bind_con_driver+0x1e5/0x2d0
-       do_take_over_console+0x10e/0x180
-       do_fbcon_takeover+0x53/0xb0
-       register_framebuffer+0x22d/0x310
-       __drm_fb_helper_initial_config_and_unlock+0x36c/0x540
-       intel_fbdev_initial_config+0xf/0x20 [i915]
-       async_run_entry_fn+0x28/0x130
-       process_one_work+0x26d/0x5c0
-       worker_thread+0x37/0x380
-       kthread+0x144/0x170
-       ret_from_fork+0x1f/0x30
--> #0 (&dev->master_mutex){+.+.}-{3:3}:
-       __lock_acquire+0x151e/0x2590
-       lock_acquire+0xd1/0x3d0
-       __mutex_lock+0xab/0x970
-       drm_is_current_master+0x1b/0x40
-       drm_mode_getconnector+0x37e/0x4a0
-       drm_ioctl_kernel+0xa8/0xf0
-       drm_ioctl+0x1e8/0x390
-       __x64_sys_ioctl+0x6a/0xa0
-       do_syscall_64+0x39/0xb0
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
-other info that might help us debug this:
-Chain exists of: &dev->master_mutex --> &client->modeset_mutex --> &dev->mode_config.mutex
- Possible unsafe locking scenario:
-       CPU0                    CPU1
-       ----                    ----
-  lock(&dev->mode_config.mutex);
-                               lock(&client->modeset_mutex);
-                               lock(&dev->mode_config.mutex);
-  lock(&dev->master_mutex);
-*** DEADLOCK ***
-1 lock held by kms_frontbuffer/1087:
- #0: ffff88810dcd0488 (&dev->mode_config.mutex){+.+.}-{3:3}, at: drm_mode_getconnector+0x1c6/0x4a0
-stack backtrace:
-CPU: 7 PID: 1087 Comm: kms_frontbuffer Not tainted 5.13.0-rc7-CI-CI_DRM_10254+ #1
-Hardware name: Intel Corporation Ice Lake Client Platform/IceLake U DDR4 SODIMM PD RVP TLC, BIOS ICLSFWR1.R00.3234.A01.1906141750 06/14/2019
-Call Trace:
- dump_stack+0x7f/0xad
- check_noncircular+0x12e/0x150
- __lock_acquire+0x151e/0x2590
- lock_acquire+0xd1/0x3d0
- __mutex_lock+0xab/0x970
- drm_is_current_master+0x1b/0x40
- drm_mode_getconnector+0x37e/0x4a0
- drm_ioctl_kernel+0xa8/0xf0
- drm_ioctl+0x1e8/0x390
- __x64_sys_ioctl+0x6a/0xa0
- do_syscall_64+0x39/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+Test results for stable-v5.4:
+    12 builds:	12 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    59 tests:	59 pass, 0 fail
 
-daniel@phenom:~/linux/drm-misc-fixes$ dim fixes 1815d9c86e3090477fbde066ff314a7e9721ee0f
-Fixes: 1815d9c86e30 ("drm: add a locked version of drm_is_current_master")
-Cc: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Cc: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
----
- drivers/gpu/drm/drm_auth.c | 51 ++++++++++++++------------------------
- 1 file changed, 19 insertions(+), 32 deletions(-)
+Linux version:	5.4.128-rc1-g3840287eb948
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
-diff --git a/drivers/gpu/drm/drm_auth.c b/drivers/gpu/drm/drm_auth.c
-index 86d4b72e95cb..232abbba3686 100644
---- a/drivers/gpu/drm/drm_auth.c
-+++ b/drivers/gpu/drm/drm_auth.c
-@@ -61,35 +61,6 @@
-  * trusted clients.
-  */
- 
--static bool drm_is_current_master_locked(struct drm_file *fpriv)
--{
--	lockdep_assert_held_once(&fpriv->master->dev->master_mutex);
--
--	return fpriv->is_master && drm_lease_owner(fpriv->master) == fpriv->minor->dev->master;
--}
--
--/**
-- * drm_is_current_master - checks whether @priv is the current master
-- * @fpriv: DRM file private
-- *
-- * Checks whether @fpriv is current master on its device. This decides whether a
-- * client is allowed to run DRM_MASTER IOCTLs.
-- *
-- * Most of the modern IOCTL which require DRM_MASTER are for kernel modesetting
-- * - the current master is assumed to own the non-shareable display hardware.
-- */
--bool drm_is_current_master(struct drm_file *fpriv)
--{
--	bool ret;
--
--	mutex_lock(&fpriv->master->dev->master_mutex);
--	ret = drm_is_current_master_locked(fpriv);
--	mutex_unlock(&fpriv->master->dev->master_mutex);
--
--	return ret;
--}
--EXPORT_SYMBOL(drm_is_current_master);
--
- int drm_getmagic(struct drm_device *dev, void *data, struct drm_file *file_priv)
- {
- 	struct drm_auth *auth = data;
-@@ -252,7 +223,7 @@ int drm_setmaster_ioctl(struct drm_device *dev, void *data,
- 	if (ret)
- 		goto out_unlock;
- 
--	if (drm_is_current_master_locked(file_priv))
-+	if (drm_is_current_master(file_priv))
- 		goto out_unlock;
- 
- 	if (dev->master) {
-@@ -301,7 +272,7 @@ int drm_dropmaster_ioctl(struct drm_device *dev, void *data,
- 	if (ret)
- 		goto out_unlock;
- 
--	if (!drm_is_current_master_locked(file_priv)) {
-+	if (!drm_is_current_master(file_priv)) {
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
-@@ -350,7 +321,7 @@ void drm_master_release(struct drm_file *file_priv)
- 	if (file_priv->magic)
- 		idr_remove(&file_priv->master->magic_map, file_priv->magic);
- 
--	if (!drm_is_current_master_locked(file_priv))
-+	if (!drm_is_current_master(file_priv))
- 		goto out;
- 
- 	drm_legacy_lock_master_cleanup(dev, master);
-@@ -371,6 +342,22 @@ void drm_master_release(struct drm_file *file_priv)
- 	mutex_unlock(&dev->master_mutex);
- }
- 
-+/**
-+ * drm_is_current_master - checks whether @priv is the current master
-+ * @fpriv: DRM file private
-+ *
-+ * Checks whether @fpriv is current master on its device. This decides whether a
-+ * client is allowed to run DRM_MASTER IOCTLs.
-+ *
-+ * Most of the modern IOCTL which require DRM_MASTER are for kernel modesetting
-+ * - the current master is assumed to own the non-shareable display hardware.
-+ */
-+bool drm_is_current_master(struct drm_file *fpriv)
-+{
-+	return fpriv->is_master && drm_lease_owner(fpriv->master) == fpriv->minor->dev->master;
-+}
-+EXPORT_SYMBOL(drm_is_current_master);
-+
- /**
-  * drm_master_get - reference a master pointer
-  * @master: &struct drm_master
--- 
-2.32.0.rc2
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
+Jon
