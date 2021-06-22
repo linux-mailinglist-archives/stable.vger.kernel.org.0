@@ -2,74 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3E723B01AB
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 12:46:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FAA83B01B4
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 12:47:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229769AbhFVKs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 06:48:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
+        id S229668AbhFVKuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 06:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbhFVKsU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 06:48:20 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BBBAC061574;
-        Tue, 22 Jun 2021 03:46:04 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id n23so12500813wms.2;
-        Tue, 22 Jun 2021 03:46:04 -0700 (PDT)
+        with ESMTP id S229849AbhFVKuN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 06:50:13 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85160C061574;
+        Tue, 22 Jun 2021 03:47:56 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id a11so23076703wrt.13;
+        Tue, 22 Jun 2021 03:47:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=qMOGwsWYKHTZb8UYmFMCPsWfqOqd5Vu+RMIfnWvpSec=;
-        b=R0y96Yw4atCjm/+Ea/MEQx3JB+nRlqH5w4lyV9sm7lJABArNr1gBiOcnjC1SVjUL3g
-         RsRIv/sXqiwvxrG8vg3+nVNDOgjJePVL5DoPDLVBnXW/102FbWyMXz86A6oYORhD6eUx
-         AxTHtGeAY8UIC46wpgo34Rhi61XbNLU5vi0rxvqFeOTqE7hlir2A65BIbCfZSk3og5gF
-         TOl+g6rSL4AVgFh6SqHl4qn93Hmlc2k556mM50PHYfCHVPLKRjCbuNoLBv1GpHq6j6Ma
-         iNIR5wI16Tl2Ypi2ChyC2GmImj4JtPzvdLCVXP2WbqzA237XW58qThEAe3Wh2mmz5RRZ
-         nxgg==
+        bh=XYhLJyFYUJE3sMZVL1rPRIzjsw8eBEGke7u45/pXfsw=;
+        b=ASG9aBFsulCr6KcMFavHH3rQgSmO+Nx0oogPgKjAGY4OCJb08U/gNMOeocRgR/zuWR
+         TLNU/GsE/aFuAXdkvM9JXI73f+jUFLUWP95krSN9ma4Xc0t5WKPgARgFizNdFlw3yxjV
+         sMdGWB4CCyAkJAg4QWczaWoBTQccS/F0VYATF5djCpWaHkWPfZXvYjjjrKuBWy//GtPu
+         lhR72rZwj8BsBI65Xc1YjGIxTu0sQ2xfReaLLymfPwK552TNzThWT1GCM6p1yaqYtwiq
+         lszk9omywh3oVG/wT4l3WKpEBGPwB5D0LWExk2zAPtpEB1mzVrE/ONBuquqIXHrb747I
+         x+3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=qMOGwsWYKHTZb8UYmFMCPsWfqOqd5Vu+RMIfnWvpSec=;
-        b=Po3+2/riBjrcCc9XNsPZAd3fkt94JPDUyaBkA0KL1EXjaQ4UKh5zihNBzBrZl61w7J
-         UF+7TColAyWPzAQx1WulUeRbrg6QEh6pjWBEa3Ashcy5sD0ST7ik/G06bCFflUQNrxgZ
-         Xt8vGsZa1yRkd1bOiOQG0fAFKAoxj2ZwhSHB//Df46n67sgMKo1w3ChAATxWc2qnm3nY
-         lDO7MYQ8+ECpMMHpY+fJ/JpBQTJ0ko4DfdfZSv8bxupyHFlM05mpSOgo/QZTDwQo1EmH
-         XhzBMkIugacnn+1edJSZO9yLTiy5b/hvYg8zr2Md2lHHFQlDHLzLGcdg8F6+mz0mSGzz
-         ZvqA==
-X-Gm-Message-State: AOAM530ugtnoYW/Ifb5qEbYvpMPbkOg3p0NKihsw9Z7AfRxI1bDNTLzZ
-        aALmPKsKU8lhMr2LjCRAvZg=
-X-Google-Smtp-Source: ABdhPJxJ5vGzRo1V9Cp8vXwaCUciNyAZUk9oCAPNkyR+rJfg+SrwSFr/juwhLDFEv5mwADNcsZO2JQ==
-X-Received: by 2002:a05:600c:22cf:: with SMTP id 15mr753586wmg.177.1624358761437;
-        Tue, 22 Jun 2021 03:46:01 -0700 (PDT)
+        bh=XYhLJyFYUJE3sMZVL1rPRIzjsw8eBEGke7u45/pXfsw=;
+        b=G8MxNFSjB+yuZ6X3KEGoXoE9nJpcuWJBk1llVxS5djFMFRzk3xI2r8sWU2dvWUX33F
+         v9ToQoCvHpkF2j/Q4GlAY4puN/4ezBG9xu6LLcynnIyiiEI3AfQ8xN+/nH2n5hq3Ga9W
+         rA5nJIAB1nlmj21zoxOy6zxIisamioMXo2pMRS46fw2nGetjaiI9UMg435gl8Pd2HsrL
+         sGWKLzJnN1FWIfYeiQBIyaTUy91gtZG3GhxnkoHS2PUeywRyrSGzI85oHKRLDHkqFano
+         WqoHGQ5Wfc2mofBvobVTFU/dhO/PYengOPFWPBZyGnn4VNWJYt1PDLzSyZ/PHa5TgXqF
+         n6lQ==
+X-Gm-Message-State: AOAM532sa17K4TFRBUinA4h/A2MwWB7Ph1wLJmjHov4iL8SDIJ6ixky5
+        BYYfKeG7QU0c5tdL7bTepJ0=
+X-Google-Smtp-Source: ABdhPJyqNT/TW0zBU9p7Sfo4og2oaxQ8588BWEbK0a6IbYk6SKwXCz/pAPuyhiNhpovlYuyIJhwibA==
+X-Received: by 2002:adf:c843:: with SMTP id e3mr3988091wrh.25.1624358875183;
+        Tue, 22 Jun 2021 03:47:55 -0700 (PDT)
 Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
-        by smtp.gmail.com with ESMTPSA id u20sm1870325wmq.24.2021.06.22.03.46.00
+        by smtp.gmail.com with ESMTPSA id r1sm2067795wmn.10.2021.06.22.03.47.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Jun 2021 03:46:01 -0700 (PDT)
-Date:   Tue, 22 Jun 2021 11:45:59 +0100
+        Tue, 22 Jun 2021 03:47:54 -0700 (PDT)
+Date:   Tue, 22 Jun 2021 11:47:53 +0100
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 00/90] 5.4.128-rc1 review
-Message-ID: <YNG/Z19ODMtK9BVg@debian>
-References: <20210621154904.159672728@linuxfoundation.org>
+Subject: Re: [PATCH 5.10 000/146] 5.10.46-rc1 review
+Message-ID: <YNG/2SumlwhgySuI@debian>
+References: <20210621154911.244649123@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
+In-Reply-To: <20210621154911.244649123@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 Hi Greg,
 
-On Mon, Jun 21, 2021 at 06:14:35PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.128 release.
-> There are 90 patches in this series, all will be posted as a response
+On Mon, Jun 21, 2021 at 06:13:50PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.46 release.
+> There are 146 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -77,15 +77,15 @@ On Mon, Jun 21, 2021 at 06:14:35PM +0200, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 
 Build test:
-mips (gcc version 11.1.1 20210615): 65 configs -> no failure
-arm (gcc version 11.1.1 20210615): 107 configs -> no new failure
+mips (gcc version 11.1.1 20210615): 63 configs -> no failure
+arm (gcc version 11.1.1 20210615): 105 configs -> no new failure
 arm64 (gcc version 11.1.1 20210615): 2 configs -> no failure
 x86_64 (gcc version 10.2.1 20210110): 2 configs -> no failure
 
 Boot test:
 x86_64: Booted on my test laptop. No regression.
 x86_64: Booted on qemu. No regression.
-
+arm64: Booted on rpi4b (4GB model). No regression.
 
 Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
