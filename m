@@ -2,100 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A3F3AFDEC
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 09:31:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB5933AFDF4
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 09:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbhFVHd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 03:33:27 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:11079 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbhFVHd0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 03:33:26 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4G8J090v5yzZhk3;
-        Tue, 22 Jun 2021 15:28:09 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Tue, 22 Jun 2021 15:31:08 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Tue, 22 Jun 2021 15:31:08 +0800
-Subject: Re: [PATCH 5.4 00/90] 5.4.128-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210621154904.159672728@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <a2a2e8cd-743b-76c7-2847-58d4c9b17d7d@huawei.com>
-Date:   Tue, 22 Jun 2021 15:31:07 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S229628AbhFVHgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 03:36:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60090 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229695AbhFVHgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Jun 2021 03:36:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D54EC6128C;
+        Tue, 22 Jun 2021 07:34:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1624347242;
+        bh=coqHCyOBCG+9jTgi1OFiHdPiwVrX5ivbZrAxiaGwkeo=;
+        h=Subject:To:From:Date:From;
+        b=tU7q5V+IzQO9fN/WxXlJUGMx6Sz/U/kBnoDEJN/FhnDLOX0g9C2APQI4Xtbs2VUJS
+         CeKjEywMfEMAqBQW+PGSmB1zWZLJ24jDcsX4CUTR/6Y4Aj3vXVrQ7Ny//YPkT3I1XV
+         oQIRHSe0PqM+gvyBcX8cAdbL/P65Ltv+BEbtj1cI=
+Subject: patch "usb: gadget: eem: fix echo command packet response issue" added to usb-next
+To:     linyyuan@codeaurora.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 22 Jun 2021 09:32:53 +0200
+Message-ID: <162434717312960@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210621154904.159672728@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+This is a note to let you know that I've just added the patch titled
 
-On 2021/6/22 0:14, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.128 release.
-> There are 90 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 23 Jun 2021 15:48:46 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.128-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+    usb: gadget: eem: fix echo command packet response issue
 
-Tested on arm64 and x86 for 5.4.128-rc1,
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.128-rc1
-Commit: 3840287eb948c813b04c456d2ae96f20a77aedee
-Compiler: gcc version 7.3.0 (GCC)
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8905
-passed: 8905
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8905
-passed: 8905
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+If you have any questions about this process, please let me know.
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+
+From 4249d6fbc10fd997abdf8a1ea49c0389a0edf706 Mon Sep 17 00:00:00 2001
+From: Linyu Yuan <linyyuan@codeaurora.com>
+Date: Wed, 16 Jun 2021 19:51:42 +0800
+Subject: usb: gadget: eem: fix echo command packet response issue
+
+when receive eem echo command, it will send a response,
+but queue this response to the usb request which allocate
+from gadget device endpoint zero,
+and transmit the request to IN endpoint of eem interface.
+
+on dwc3 gadget, it will trigger following warning in function
+__dwc3_gadget_ep_queue(),
+
+	if (WARN(req->dep != dep, "request %pK belongs to '%s'\n",
+				&req->request, req->dep->name))
+		return -EINVAL;
+
+fix it by allocating a usb request from IN endpoint of eem interface,
+and transmit the usb request to same IN endpoint of eem interface.
+
+Signed-off-by: Linyu Yuan <linyyuan@codeaurora.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210616115142.34075-1-linyyuan@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/gadget/function/f_eem.c | 43 ++++++++++++++++++++++++++---
+ 1 file changed, 39 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/gadget/function/f_eem.c b/drivers/usb/gadget/function/f_eem.c
+index 2cd9942707b4..5d38f29bda72 100644
+--- a/drivers/usb/gadget/function/f_eem.c
++++ b/drivers/usb/gadget/function/f_eem.c
+@@ -30,6 +30,11 @@ struct f_eem {
+ 	u8				ctrl_id;
+ };
+ 
++struct in_context {
++	struct sk_buff	*skb;
++	struct usb_ep	*ep;
++};
++
+ static inline struct f_eem *func_to_eem(struct usb_function *f)
+ {
+ 	return container_of(f, struct f_eem, port.func);
+@@ -320,9 +325,12 @@ static int eem_bind(struct usb_configuration *c, struct usb_function *f)
+ 
+ static void eem_cmd_complete(struct usb_ep *ep, struct usb_request *req)
+ {
+-	struct sk_buff *skb = (struct sk_buff *)req->context;
++	struct in_context *ctx = req->context;
+ 
+-	dev_kfree_skb_any(skb);
++	dev_kfree_skb_any(ctx->skb);
++	kfree(req->buf);
++	usb_ep_free_request(ctx->ep, req);
++	kfree(ctx);
+ }
+ 
+ /*
+@@ -410,7 +418,9 @@ static int eem_unwrap(struct gether *port,
+ 		 * b15:		bmType (0 == data, 1 == command)
+ 		 */
+ 		if (header & BIT(15)) {
+-			struct usb_request	*req = cdev->req;
++			struct usb_request	*req;
++			struct in_context	*ctx;
++			struct usb_ep		*ep;
+ 			u16			bmEEMCmd;
+ 
+ 			/* EEM command packet format:
+@@ -439,11 +449,36 @@ static int eem_unwrap(struct gether *port,
+ 				skb_trim(skb2, len);
+ 				put_unaligned_le16(BIT(15) | BIT(11) | len,
+ 							skb_push(skb2, 2));
++
++				ep = port->in_ep;
++				req = usb_ep_alloc_request(ep, GFP_ATOMIC);
++				if (!req) {
++					dev_kfree_skb_any(skb2);
++					goto next;
++				}
++
++				req->buf = kmalloc(skb2->len, GFP_KERNEL);
++				if (!req->buf) {
++					usb_ep_free_request(ep, req);
++					dev_kfree_skb_any(skb2);
++					goto next;
++				}
++
++				ctx = kmalloc(sizeof(*ctx), GFP_KERNEL);
++				if (!ctx) {
++					kfree(req->buf);
++					usb_ep_free_request(ep, req);
++					dev_kfree_skb_any(skb2);
++					goto next;
++				}
++				ctx->skb = skb2;
++				ctx->ep = ep;
++
+ 				skb_copy_bits(skb2, 0, req->buf, skb2->len);
+ 				req->length = skb2->len;
+ 				req->complete = eem_cmd_complete;
+ 				req->zero = 1;
+-				req->context = skb2;
++				req->context = ctx;
+ 				if (usb_ep_queue(port->in_ep, req, GFP_ATOMIC))
+ 					DBG(cdev, "echo response queue fail\n");
+ 				break;
+-- 
+2.32.0
+
+
