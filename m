@@ -2,117 +2,239 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C14AB3AF660
-	for <lists+stable@lfdr.de>; Mon, 21 Jun 2021 21:45:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15EEA3AFAF9
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 04:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230520AbhFUTrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Jun 2021 15:47:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45890 "EHLO
+        id S231218AbhFVCTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Jun 2021 22:19:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230347AbhFUTrc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 15:47:32 -0400
-Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 512D0C061574;
-        Mon, 21 Jun 2021 12:45:17 -0700 (PDT)
-Received: by mail-io1-xd30.google.com with SMTP id d9so8359260ioo.2;
-        Mon, 21 Jun 2021 12:45:17 -0700 (PDT)
+        with ESMTP id S230312AbhFVCTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Jun 2021 22:19:08 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C6E9C061574
+        for <stable@vger.kernel.org>; Mon, 21 Jun 2021 19:16:52 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id s15so21520206edt.13
+        for <stable@vger.kernel.org>; Mon, 21 Jun 2021 19:16:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2Y3SdFOpgn9f8xPbU/XLhVyXHKAyTiYOJXfuPpl5RTc=;
-        b=fH1wX9zm2TTi16haf37MG4vd/AJJEP0PXDug7EU8K7lHpQvLpHCYuFusBH8rTiAXcw
-         ic8Uw5SoD03r6eQ/HsbXgwckC81IcDA9zM0uJkz6Lax9eLrDVjnny4R/NuzUmsYacM4K
-         ggsr0KRQ0duCJI+e1LnNBAbu/iJyt6UUcBfN++ecTTtyJur5BRXE+Hc4R6RAaVi6gmwq
-         j1vpvuLk86DbGCriAcJcQ4pDhM4VvfHJN6vGKmJypNcWSQFGk+IE3Sx/9YyxIhFUEdMH
-         LpxxRdZMx/oHyxk7VwcEPbl4U3ZGQ6WOSFyR35xwfG5nov/iqk7DRl09wCxRXJobfzcT
-         5oQw==
+         :cc:content-transfer-encoding;
+        bh=zI/tuew0SqY1Sk4dcTKsfP7TId2zVm49aO1S/T8Zrm4=;
+        b=NckrPLhhnNLGPjf2lwGQz9xapzKs4j6rQU+1goVD+VABRqT7OUgQfRmIBVzY9ZA2Oa
+         c8lZtBx41B8KO8PgE6HM0Cak5PVZJU/Oha5HpkjN8Oo31nTOf3OB58iqART9PUWnSCQL
+         UaxVC53E3k16mq5eikwhYGMATO+KPVC4l+Alrx2YZpaK9v5k/jdHxJnFO6DUgVAwoPNP
+         NHWRjg0rgGIXmspqq8pJm+ST6rMXirgu+xo7Da5ILyuCceS+WfYiu1E+3x8mniBUx07t
+         MUGFv5HV8zC1o88Nog5Zuf1z4y0oTHDtRDTmZ0IyraLvvHQ/UhObKnCrlUGHdan1Lh++
+         TX9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2Y3SdFOpgn9f8xPbU/XLhVyXHKAyTiYOJXfuPpl5RTc=;
-        b=D3iHiydTWwkgnFo/IIBpr7FvfSAqDFozCkC5uM17pAP+cXOYI5XjJEDCsjlbHQ+8qp
-         OfzVNJkn3AtpGs4Jpx/iKoilD2pFMcjqFmTFto1QEerCNWfW08B9marKh9LlvHpYVp5/
-         iA64umrkGhU2wK84OifptgfOevqi/sJWIcquE2SHj/2/mCTGNsLFqr1tFeG+4z2Z0TPF
-         MMILxPCQASjsnDmmZ4A74j2las0ssSpu91VrUYDoHsNV4EBi2gUd17tZkpLjOjxcsZcf
-         iE5Fayfg5RFhjb93uF4BpBXJ0XUxeQFw2nTnpYujL0TlyzTnjJQqEOlDQXMDd3NbReXp
-         wXEg==
-X-Gm-Message-State: AOAM530f9hUZo8o5JzfIVIpaQGCvCbGkxYpb/BRyhe2i7k3GSo2qHQnk
-        TwUA94HEPmPRkz/YH8vzXxoIAJzdQP7RTjTUtq1aPmPHKh7SgQ==
-X-Google-Smtp-Source: ABdhPJwu0/rQQNg9mM8KhcNzAfkTcNE2pj8AyHJ0WJMiGfdM9WWkCchxyDAoKcWQ3GY7ioDshL6q1CEuuUiaiAYbg7o=
-X-Received: by 2002:a6b:f704:: with SMTP id k4mr21572629iog.191.1624304716841;
- Mon, 21 Jun 2021 12:45:16 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zI/tuew0SqY1Sk4dcTKsfP7TId2zVm49aO1S/T8Zrm4=;
+        b=NWkM65XC3ev7lA9j3phHN90WIMDrT0sj4UfVq84s4ix5ptun4hvr2wg+yoK5bS2J2h
+         SXn2lfcdDXICPO17Rp5g9ySNIvufaDZ9YsJzaN3vCIWxkii/zm97MF4ulqKkLfxA2nsE
+         qYa82ODyBOcByEchYydQwK46WNmOtUPjdfacxLe8lBJkJz5Z+zxJzIEsB8DbyAnc2Zll
+         oqs80wcEGpUPsMiotkrUTBMafCcXXzjY4SM/efbO+A7dvji6RusFmQ+cdAZKwagUKDlL
+         kEfCAWZ2houyyaC/2fnbzRJ01WmqoDYBYkIbA0Zxdt///6BTPv3yTP5Af4cye9pmcF5Q
+         kwxw==
+X-Gm-Message-State: AOAM5338LOKfvX1iQ+GiDJGDVvW8JjL467rpl79jCDmHD5RCQh8wPOVd
+        NYdjfp0xqYtQGA68QP0+QzKHc1maENVei09whxFo4A==
+X-Google-Smtp-Source: ABdhPJzapohHdUZoXnftwa+7XHDYhStu9rfrjFoyv++xM5eJwVck1qvhCOV6/gNhiI6CY4nfQRSrXCu+Rbp/hBUU+88=
+X-Received: by 2002:a05:6402:402:: with SMTP id q2mr1659694edv.239.1624328210991;
+ Mon, 21 Jun 2021 19:16:50 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210603165231.110559-1-jlayton@kernel.org> <20210603165231.110559-4-jlayton@kernel.org>
-In-Reply-To: <20210603165231.110559-4-jlayton@kernel.org>
-From:   Ilya Dryomov <idryomov@gmail.com>
-Date:   Mon, 21 Jun 2021 21:45:04 +0200
-Message-ID: <CAOi1vP9pYJcN8Ecq-5fm=jaFiWaCD0DOmJV9a9CYRnHPBigjXg@mail.gmail.com>
-Subject: Re: [PATCH 3/3] ceph: must hold snap_rwsem when filling inode for
- async create
-To:     Jeff Layton <jlayton@kernel.org>
-Cc:     Ceph Development <ceph-devel@vger.kernel.org>,
-        stable@vger.kernel.org
+References: <20210621154921.212599475@linuxfoundation.org>
+In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 22 Jun 2021 07:46:39 +0530
+Message-ID: <CA+G9fYuKqcerm-njG9Su7d=CvAG_f9d1h4CRpqdEHzO8CZbKhQ@mail.gmail.com>
+Subject: Re: [PATCH 5.12 000/178] 5.12.13-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 3, 2021 at 6:52 PM Jeff Layton <jlayton@kernel.org> wrote:
+On Mon, 21 Jun 2021 at 21:58, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> ...and add a lockdep assertion for it to ceph_fill_inode().
+> This is the start of the stable review cycle for the 5.12.13 release.
+> There are 178 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Cc: stable@vger.kernel.org # v5.7+
-> Fixes: 9a8d03ca2e2c3 ("ceph: attempt to do async create when possible")
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> ---
->  fs/ceph/file.c  | 3 +++
->  fs/ceph/inode.c | 2 ++
->  2 files changed, 5 insertions(+)
+> Responses should be made by Wed, 23 Jun 2021 15:48:46 +0000.
+> Anything received after that time might be too late.
 >
-> diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-> index a01ad342a91d..d3874c2df4b1 100644
-> --- a/fs/ceph/file.c
-> +++ b/fs/ceph/file.c
-> @@ -578,6 +578,7 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
->         struct ceph_inode_info *ci = ceph_inode(dir);
->         struct inode *inode;
->         struct timespec64 now;
-> +       struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(dir->i_sb);
->         struct ceph_vino vino = { .ino = req->r_deleg_ino,
->                                   .snap = CEPH_NOSNAP };
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.12.13-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.12.y
+> and the diffstat can be found below.
 >
-> @@ -615,8 +616,10 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
+> thanks,
 >
->         ceph_file_layout_to_legacy(lo, &in.layout);
->
-> +       down_read(&mdsc->snap_rwsem);
->         ret = ceph_fill_inode(inode, NULL, &iinfo, NULL, req->r_session,
->                               req->r_fmode, NULL);
-> +       up_read(&mdsc->snap_rwsem);
->         if (ret) {
->                 dout("%s failed to fill inode: %d\n", __func__, ret);
->                 ceph_dir_clear_complete(dir);
-> diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-> index e1c63adb196d..df0c8a724609 100644
-> --- a/fs/ceph/inode.c
-> +++ b/fs/ceph/inode.c
-> @@ -777,6 +777,8 @@ int ceph_fill_inode(struct inode *inode, struct page *locked_page,
->         umode_t mode = le32_to_cpu(info->mode);
->         dev_t rdev = le32_to_cpu(info->rdev);
->
-> +       lockdep_assert_held(&mdsc->snap_rwsem);
-> +
->         dout("%s %p ino %llx.%llx v %llu had %llu\n", __func__,
->              inode, ceph_vinop(inode), le64_to_cpu(info->version),
->              ci->i_version);
-> --
-> 2.31.1
->
+> greg k-h
 
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Thanks,
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-                Ilya
+## Build
+* kernel: 5.12.13-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.12.y
+* git commit: 88a915cf22fcd20d2323dff7a4b0f70909cf4099
+* git describe: v5.12.12-179-g88a915cf22fc
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.12.y/build/v5.12=
+.12-179-g88a915cf22fc
+
+## No regressions (compared to v5.12.11-49-g3197a891c08a)
+
+
+## No fixes (compared to v5.12.11-49-g3197a891c08a)
+
+
+## Test result summary
+ total: 92709, pass: 74966, fail: 3757, skip: 13183, xfail: 803,
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 193 total, 193 passed, 0 failed
+* arm64: 27 total, 27 passed, 0 failed
+* dragonboard-410c: 2 total, 2 passed, 0 failed
+* hi6220-hikey: 2 total, 2 passed, 0 failed
+* i386: 27 total, 27 passed, 0 failed
+* juno-r2: 2 total, 2 passed, 0 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 21 total, 21 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 2 total, 0 passed, 2 failed
+* x86: 2 total, 2 passed, 0 failed
+* x86_64: 27 total, 27 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
