@@ -2,120 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7CE3B010A
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 12:12:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 273403B0111
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 12:14:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbhFVKPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 06:15:09 -0400
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:57793 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229612AbhFVKPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 06:15:08 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 947F35806DB;
-        Tue, 22 Jun 2021 06:12:52 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Tue, 22 Jun 2021 06:12:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=pQtzM1DqFDdfzJczHbE0hVR7RaJ
-        +DVrWztT+rRlCQh0=; b=YzHFOu2SxOl0BCAJy9jZozNGYJZ0wrl8O0jKdRapOvb
-        KT3zjqk39Ymny9tI2CDMukLxeWkDtCcJqlcRTDTcGeVr1BSngaJEwCeB29nwpxIC
-        yGuzvksRqr0yzcXk35nit/65T9VWhdDkdASeL+gspkvJoOa6IkWzb40RSGLhikK7
-        cO5YO0QbXXFKMRMoclll2kG4sTAULr//wrD2F6Th0zXocozQvADZ2jovNQa4BXVk
-        m+nqZsVW90AS0H/oQI7qp8imm8YsSQ5zQrYIAMBVVwqzhTPNlcMN1kWbYcS2tqjL
-        brQMvFwlX5th0/UT/qk/DRK03E7eMJNbNmlvmYN2SEQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=pQtzM1
-        DqFDdfzJczHbE0hVR7RaJ+DVrWztT+rRlCQh0=; b=kSixDL1BIp5Sj4eeF2VUnQ
-        kBTRdHv/l7Tu8RpL7Iqpqx5KgWdTiwPDLn5ZL13eAcB8MSZM4hHOZK5Na2NznlMA
-        ltIkJJBx9A+WfDXKf1lVmTB+srpRzXKohgvHwcbWlvPe43qpQ188z7AEqqIQM81t
-        lUM9TMGCmV/2ZlTRG4TRENfR8ReQyw6f0oaGr1y/zMQ+UHfw8JU8ADnkBIZklXEK
-        NPDw0W86KqXbPjjhegPy9PtcO/lyW6PDF/QpMSg4kqVKSOVikaxni8EeLRYXiQQy
-        e9bkpsywCyK7kLZfk/l+G7Qu3EFzZQlQRNb2Ju0MnI4/F9v2/RMNvhmDqUUzBIyw
-        ==
-X-ME-Sender: <xms:o7fRYF9ER84jHh9dc4M2AdgOWkI5mpNHtYoOOZFhQmbmSr8e95JLPw>
-    <xme:o7fRYJuST43UsMPDZVu_5hq4j9yctBQoI7LvtaLHMHavgxmYmid9Y06usOpdqZsAH
-    ES12dpb-95OpQ>
-X-ME-Received: <xmr:o7fRYDAG3TDlhxa2D3P6GsQ9Mnh0MB36PwX7ueFhIzNg5wxax4g02GziyMsssL4ZUHlBI_Tcdzo8HmKQC-PlKjNVXObEav4O>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeeguddgvdehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:o7fRYJcuzvoovWDL6bc60vHDp4WeROXkdflgDg6-_bT7yvAC9wKm5A>
-    <xmx:o7fRYKNEHSnydVn3U9lte28arUeY5sAZY2R7W7hXlTNQ_DAg6CSxAQ>
-    <xmx:o7fRYLlHS-7r-gU2R4e9-lWQGj-I27RvvTaDuU-ACHTdTYhLMSuKEQ>
-    <xmx:pLfRYFHcJbBityTSwpugTLvpSTYFxnaxP4aJQRh5us2HCDkM5jTOmA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 22 Jun 2021 06:12:50 -0400 (EDT)
-Date:   Tue, 22 Jun 2021 12:12:46 +0200
-From:   Greg KH <greg@kroah.com>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     'Mauro Carvalho Chehab' <mchehab+huawei@kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linuxarm@huawei.com" <linuxarm@huawei.com>,
-        "mauro.chehab@huawei.com" <mauro.chehab@huawei.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] media: uvc: don't do DMA on stack
-Message-ID: <YNG3niUwqeFfltxO@kroah.com>
-References: <6832dffafd54a6a95b287c4a1ef30250d6b9237a.1624282817.git.mchehab+huawei@kernel.org>
- <d33c39aa824044ad8cacc93234f1e1cd@AcuMS.aculab.com>
+        id S229754AbhFVKQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 06:16:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38006 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229674AbhFVKQv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Jun 2021 06:16:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 190266109E;
+        Tue, 22 Jun 2021 10:14:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1624356874;
+        bh=cMy6BBj1ibQ2XrT7h06HDmFSBOdtVkwQnDCm39eQh2U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cfXGRgJ7YCVRmoA5dMcNPixzJVbFk61JDKbEVwwzcZz2CyhjCAUD9xtEn8Rt4LjyL
+         R6s9tSxAqW+mCo/eoBDpsc43MfgErstbtFc1j51eXSv+CVf4SLUMFuB+MayqgHeJiC
+         b/p/+oCuAmxBTlhC5PlFXNr1sBpHHiy5Z/9hcsDo=
+Date:   Tue, 22 Jun 2021 12:14:31 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Odin Ugedal <odin@uged.al>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 095/146] sched/fair: Correctly insert cfs_rqs to
+ list on unthrottle
+Message-ID: <YNG4B2wlcqMVMx6C@kroah.com>
+References: <20210621154911.244649123@linuxfoundation.org>
+ <20210621154917.185551238@linuxfoundation.org>
+ <YNDFFkh2Dn0hMqS8@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d33c39aa824044ad8cacc93234f1e1cd@AcuMS.aculab.com>
+In-Reply-To: <YNDFFkh2Dn0hMqS8@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 22, 2021 at 08:07:12AM +0000, David Laight wrote:
-> From: Mauro Carvalho Chehab
-> > Sent: 21 June 2021 14:40
+On Mon, Jun 21, 2021 at 06:57:58PM +0200, Peter Zijlstra wrote:
+> On Mon, Jun 21, 2021 at 06:15:25PM +0200, Greg Kroah-Hartman wrote:
+> > From: Odin Ugedal <odin@uged.al>
 > > 
-> > As warned by smatch:
-> > 	drivers/media/usb/uvc/uvc_v4l2.c:911 uvc_ioctl_g_input() error: doing dma on the stack (&i)
-> > 	drivers/media/usb/uvc/uvc_v4l2.c:943 uvc_ioctl_s_input() error: doing dma on the stack (&i)
+> > [ Upstream commit a7b359fc6a37faaf472125867c8dc5a068c90982 ]
 > > 
-> > those two functions call uvc_query_ctrl passing a pointer to
-> > a data at the DMA stack. those are used to send URBs via
-> > usb_control_msg(). Using DMA stack is not supported and should
-> > not work anymore on modern Linux versions.
+> > Fix an issue where fairness is decreased since cfs_rq's can end up not
+> > being decayed properly. For two sibling control groups with the same
+> > priority, this can often lead to a load ratio of 99/1 (!!).
 > > 
-> > So, use a kmalloc'ed buffer.
-> ...
-> > +	buf = kmalloc(1, GFP_KERNEL);
-> > +	if (!buf)
-> > +		return -ENOMEM;
-> > +
-> >  	ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR, chain->selector->id,
-> >  			     chain->dev->intfnum,  UVC_SU_INPUT_SELECT_CONTROL,
-> > -			     &i, 1);
-> > +			     buf, 1);
+> > This happens because when a cfs_rq is throttled, all the descendant
+> > cfs_rq's will be removed from the leaf list. When they initial cfs_rq
+> > is unthrottled, it will currently only re add descendant cfs_rq's if
+> > they have one or more entities enqueued. This is not a perfect
+> > heuristic.
+> > 
+> > Instead, we insert all cfs_rq's that contain one or more enqueued
+> > entities, or it its load is not completely decayed.
+> > 
+> > Can often lead to situations like this for equally weighted control
+> > groups:
+> > 
+> >   $ ps u -C stress
+> >   USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+> >   root       10009 88.8  0.0   3676   100 pts/1    R+   11:04   0:13 stress --cpu 1
+> >   root       10023  3.0  0.0   3676   104 pts/1    R+   11:04   0:00 stress --cpu 1
+> > 
+> > Fixes: 31bc6aeaab1d ("sched/fair: Optimize update_blocked_averages()")
+> > [vingo: !SMP build fix]
+> > Signed-off-by: Odin Ugedal <odin@uged.al>
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+> > Link: https://lore.kernel.org/r/20210612112815.61678-1-odin@uged.al
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> Thought...
-> 
-> Is kmalloc(1, GFP_KERNEL) guaranteed to return a pointer into
-> a cache line that will not be accessed by any other code?
-> 
-> (This is slightly weaker than requiring a cache-line aligned
-> pointer - but very similar.)
-> 
-> Without that guarantee you can't use the returned buffer for
-> read dma unless the memory accesses are coherent.
+> This one is currently known to cause some LTP fail, fixes are being
+> discussed, please hold off for now.
 
-For USB buffers, that should be fine, we have been doing this for
-decades now...
-
-thanks,
+Now dropped from all queues, thanks.
 
 greg k-h
