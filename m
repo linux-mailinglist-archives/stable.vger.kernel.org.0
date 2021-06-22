@@ -2,102 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DB443B029D
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 13:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BBB3B02A2
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 13:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbhFVLVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 07:21:12 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:46924 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229668AbhFVLVL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 07:21:11 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 4F5D61FD36;
-        Tue, 22 Jun 2021 11:18:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1624360735;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0hRCOzqwCDpKImlNhcRQ4lSl0u1CfYXE8CSwB9ReWnc=;
-        b=w1e4LnhcbdLXk4VkNdYoM3HgkJqfakKKtdnSO9YqtREno9l3UC0MS7y1LNDcEA2d8+QOJu
-        GIG06sKzBRPn/baL/540hAHPQZjKb367bENUijy36XiuwVcBL1mPj8Bk/sbHxrzjy+3pMv
-        ilK1Y/2w02XRx34LLZ2tRo3oMFVqmYE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1624360735;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0hRCOzqwCDpKImlNhcRQ4lSl0u1CfYXE8CSwB9ReWnc=;
-        b=faJchCNtstP0S2lZ0gHWxqZg8d/7OaxFPNrZBnvlzVNbuiCB+fVgW5nD/ik5QtLGTF2Lve
-        uvWL8pHlbwtF4SDQ==
-Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
-        by relay2.suse.de (Postfix) with ESMTP id 457C8A3B8E;
-        Tue, 22 Jun 2021 11:18:55 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 9C0A9DA77B; Tue, 22 Jun 2021 13:16:04 +0200 (CEST)
-Date:   Tue, 22 Jun 2021 13:16:04 +0200
-From:   David Sterba <dsterba@suse.cz>
-To:     Josef Bacik <josef@toxicpanda.com>
-Cc:     linux-btrfs@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] btrfs: handle shrink_delalloc pages calculation
- differently
-Message-ID: <20210622111604.GG28158@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Josef Bacik <josef@toxicpanda.com>,
-        linux-btrfs@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org
-References: <f17b840611935b5f58bfcdbe050a942c33b90a60.1622576697.git.josef@toxicpanda.com>
+        id S229769AbhFVLYS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 07:24:18 -0400
+Received: from mailout1.secunet.com ([62.96.220.44]:60190 "EHLO
+        mailout1.secunet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229567AbhFVLYS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 07:24:18 -0400
+Received: from cas-essen-01.secunet.de (unknown [10.53.40.201])
+        by mailout1.secunet.com (Postfix) with ESMTP id 5323680004E;
+        Tue, 22 Jun 2021 13:22:00 +0200 (CEST)
+Received: from mbx-essen-01.secunet.de (10.53.40.197) by
+ cas-essen-01.secunet.de (10.53.40.201) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Tue, 22 Jun 2021 13:22:00 +0200
+Received: from gauss2.secunet.de (10.182.7.193) by mbx-essen-01.secunet.de
+ (10.53.40.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Tue, 22 Jun
+ 2021 13:21:59 +0200
+Received: by gauss2.secunet.de (Postfix, from userid 1000)
+        id 681FC318045C; Tue, 22 Jun 2021 13:21:59 +0200 (CEST)
+Date:   Tue, 22 Jun 2021 13:21:59 +0200
+From:   Steffen Klassert <steffen.klassert@secunet.com>
+To:     Varad Gautam <varad.gautam@suse.com>
+CC:     <linux-kernel@vger.kernel.org>,
+        linux-rt-users <linux-rt-users@vger.kernel.org>,
+        <netdev@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Jakub Kicinski" <kuba@kernel.org>,
+        Florian Westphal <fw@strlen.de>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH] xfrm: policy: Restructure RCU-read locking in
+ xfrm_sk_policy_lookup
+Message-ID: <20210622112159.GC40979@gauss3.secunet.de>
+References: <20210618141101.18168-1-varad.gautam@suse.com>
+ <20210621082949.GX40979@gauss3.secunet.de>
+ <f41d40cc-e474-1324-be0a-7beaf580c292@suse.com>
+ <20210621110528.GZ40979@gauss3.secunet.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <f17b840611935b5f58bfcdbe050a942c33b90a60.1622576697.git.josef@toxicpanda.com>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+In-Reply-To: <20210621110528.GZ40979@gauss3.secunet.de>
+X-ClientProxiedBy: cas-essen-01.secunet.de (10.53.40.201) To
+ mbx-essen-01.secunet.de (10.53.40.197)
+X-EXCLAIMER-MD-CONFIG: 2c86f778-e09b-4440-8b15-867914633a10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 01, 2021 at 03:45:08PM -0400, Josef Bacik wrote:
-> We have been hitting some early ENOSPC issues in production with more
-> recent kernels, and I tracked it down to us simply not flushing delalloc
-> as aggressively as we should be.  With tracing I was seeing us failing
-> all tickets with all of the block rsvs at or around 0, with very little
-> pinned space, but still around 120mib of outstanding bytes_may_used.
-> Upon further investigation I saw that we were flushing around 14 pages
-> per shrink call for delalloc, despite having around 2gib of delalloc
-> outstanding.
+On Mon, Jun 21, 2021 at 01:05:28PM +0200, Steffen Klassert wrote:
+> On Mon, Jun 21, 2021 at 11:11:18AM +0200, Varad Gautam wrote:
+> > 
+> > Right, I misread the call chain - security_xfrm_policy_lookup does not reach
+> > xfrm_policy_lookup, making this patch unnecessary. The bug I have is:
+> > 
+> > T1, holding hash_resize_mutex and sleeping inside synchronize_rcu:
+> > 
+> > __schedule
+> > schedule
+> > schedule_timeout
+> > wait_for_completion
+> > __wait_rcu_gp
+> > synchronize_rcu
+> > xfrm_hash_resize
+> > 
+> > And T2 producing RCU-stalls since it blocked on the mutex:
+> > 
+> > __schedule
+> > schedule
+> > __rt_mutex_slowlock
+> > rt_mutex_slowlock_locked
+> > rt_mutex_slowlock
+> > xfrm_policy_lookup_bytype.constprop.77
 > 
-> Consider the example of a 8 way machine, all cpu's trying to create a
-> file in parallel, which at the time of this commit requires 5 items to
-> do.  Assuming a 16k leaf size, we have 10mib of total metadata reclaim
-> size waiting on reservations.  Now assume we have 128mib of delalloc
-> outstanding.  With our current math we would set items to 20, and then
-> set to_reclaim to 20 * 256k, or 5mib.
+> Ugh, why does xfrm_policy_lookup_bytype use a mutex? This is called
+> in the receive path inside a sofirq.
 > 
-> Assuming that we went through this loop all 3 times, for both
-> FLUSH_DELALLOC and FLUSH_DELALLOC_WAIT, and then did the full loop
-> twice, we'd only flush 60mib of the 128mib delalloc space.  This could
-> leave a fair bit of delalloc reservations still hanging around by the
-> time we go to ENOSPC out all the remaining tickets.
+> The bug was introduced by: 
 > 
-> Fix this two ways.  First, change the calculations to be a fraction of
-> the total delalloc bytes on the system.  Prior to my change we were
-> calculating based on dirty inodes so our math made more sense, now it's
-> just completely unrelated to what we're actually doing.
+> commit 77cc278f7b202e4f16f8596837219d02cb090b96
+> Author: Ahmed S. Darwish <a.darwish@linutronix.de>
+> Date:   Mon Jul 20 17:55:22 2020 +0200
 > 
-> Second add a FLUSH_DELALLOC_FULL state, that we hold off until we've
-> gone through the flush states at least once.  This will empty the system
-> of all delalloc so we're sure to be truly out of space when we start
-> failing tickets.
+>     xfrm: policy: Use sequence counters with associated lock
 > 
-> I'm tagging stable 5.10 and forward, because this is where we started
-> using the page stuff heavily again.  This affects earlier kernel
-> versions as well, but would be a pain to backport to them as the
-> flushing mechanisms aren't the same.
+>     A sequence counter write side critical section must be protected by some
+>     form of locking to serialize writers. If the serialization primitive is
+>     not disabling preemption implicitly, preemption has to be explicitly
+>     disabled before entering the sequence counter write side critical
+>     section.
 > 
-> CC: stable@vger.kernel.org # 5.10
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+>     A plain seqcount_t does not contain the information of which lock must
+>     be held when entering a write side critical section.
+> 
+>     Use the new seqcount_spinlock_t and seqcount_mutex_t data types instead,
+>     which allow to associate a lock with the sequence counter. This enables
+>     lockdep to verify that the lock used for writer serialization is held
+>     when the write side critical section is entered.
+> 
+>     If lockdep is disabled this lock association is compiled out and has
+>     neither storage size nor runtime overhead.
+> 
+>     Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+>     Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+>     Link: https://lkml.kernel.org/r/20200720155530.1173732-17-a.darwish@linutronix.de
+> 
+> This uses a seqcount_mutex_t for xfrm_policy_hash_generation, that's
+> wrong.
 
-As this is going to be resent, I'll remove it from misc-next for now.
-Updated version can go in as a fix after rc1.
+Varad, can you try to replace the seqcount_mutex_t for xfrm_policy_hash_generation
+by a seqcount_spinlock_t? I'm not familiar with that seqcount changes,
+but we should not end up with using a mutex in this codepath.
+
