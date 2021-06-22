@@ -2,149 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBAB43B0142
-	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 12:22:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE2BA3B0171
+	for <lists+stable@lfdr.de>; Tue, 22 Jun 2021 12:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229828AbhFVKZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Jun 2021 06:25:05 -0400
-Received: from perceval.ideasonboard.com ([213.167.242.64]:40082 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229810AbhFVKZD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Jun 2021 06:25:03 -0400
-Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id D4C0FA66;
-        Tue, 22 Jun 2021 12:22:46 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1624357367;
-        bh=EiLfqJLjNI4MHuc9zgewmgiTpuQYcWHw5T68hl/HWVo=;
+        id S229677AbhFVKhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Jun 2021 06:37:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46060 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229668AbhFVKhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Jun 2021 06:37:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83E29613B2;
+        Tue, 22 Jun 2021 10:35:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1624358104;
+        bh=rC7iTfuqfxithGj800MLAMvYI4hAndnqKWFCUOS2D/Q=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=chBgc8qQsksQ1od6jgbTJFx/5L0P0vg+ByH9nNoJxeIdKB1ODS8gu3yx1Ta7bunK5
-         M4tawS3vutqw2RXRdyWIlvBJFvKk+p5dFM8wbuprf70LheLq07ly6zGYeYSG4TQAe2
-         EO4JJdoaUgHUC/W/yXvqTrV8lydsvRBCIcjqnmHk=
-Date:   Tue, 22 Jun 2021 13:22:18 +0300
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc:     linuxarm@huawei.com, mauro.chehab@huawei.com,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] media: uvc: don't do DMA on stack
-Message-ID: <YNG52qDyIo3Md/xz@pendragon.ideasonboard.com>
-References: <6832dffafd54a6a95b287c4a1ef30250d6b9237a.1624282817.git.mchehab+huawei@kernel.org>
- <YNCeIvQJIOCm8g+P@pendragon.ideasonboard.com>
- <20210621163408.7c9705aa@coco.lan>
+        b=1xgQaFeTI4mSR5hgjPV706ED0MvvrSUmKaqqyZ7ofQcBTzfd1kxYP/UuTVigCPWQr
+         P8ESpIKK62hQgfxWJ2GJ0H04N76rvKvnA4S5K06eHg+m2X8Bt6wAMP+cOQQe24UV0j
+         S72313dyhfd4eJ5XMvRHx7JuMeaN3lqQf0fM+5qc=
+Date:   Tue, 22 Jun 2021 12:35:01 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Amit Klein <aksecurity@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        edumazet@google.com, w@1wt.eu, davem@davemloft.net,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH 4.9] inet: use bigger hash table for IP ID generation
+ (backported to 4.9 and 4.4)
+Message-ID: <YNG81UEPz3/ajF45@kroah.com>
+References: <60d1a5e9.1c69fb81.7f729.b892@mx.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210621163408.7c9705aa@coco.lan>
+In-Reply-To: <60d1a5e9.1c69fb81.7f729.b892@mx.google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Mauro,
+On Tue, Jun 22, 2021 at 01:57:13AM -0700, Amit Klein wrote:
+> Subject: inet: use bigger hash table for IP ID generation (backported to 4.9 and 4.4)
+> From: Amit Klein <aksecurity@gmail.com>
+> 
+> [ Upstream commit aa6dd211e4b1dde9d5dc25d699d35f789ae7eeba ]
+>  
+> This is a backport to 4.9 and 4.4 of the following patch, originally
+> developed by Eric Dumazet.
 
-On Mon, Jun 21, 2021 at 04:34:08PM +0200, Mauro Carvalho Chehab wrote:
-> Em Mon, 21 Jun 2021 17:11:46 +0300 Laurent Pinchart escreveu:
-> > On Mon, Jun 21, 2021 at 03:40:19PM +0200, Mauro Carvalho Chehab wrote:
-> > > As warned by smatch:
-> > > 	drivers/media/usb/uvc/uvc_v4l2.c:911 uvc_ioctl_g_input() error: doing dma on the stack (&i)
-> > > 	drivers/media/usb/uvc/uvc_v4l2.c:943 uvc_ioctl_s_input() error: doing dma on the stack (&i)
-> > > 
-> > > those two functions call uvc_query_ctrl passing a pointer to
-> > > a data at the DMA stack. those are used to send URBs via
-> > > usb_control_msg(). Using DMA stack is not supported and should
-> > > not work anymore on modern Linux versions.
-> > > 
-> > > So, use a kmalloc'ed buffer.
-> > > 
-> > > Cc: stable@vger.kernel.org	# Kernel 4.9 and upper
-> > > Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-> > > ---
-> > >  drivers/media/usb/uvc/uvc_v4l2.c | 30 ++++++++++++++++++++++--------
-> > >  1 file changed, 22 insertions(+), 8 deletions(-)
-> > > 
-> > > diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-> > > index 252136cc885c..a95bf7318848 100644
-> > > --- a/drivers/media/usb/uvc/uvc_v4l2.c
-> > > +++ b/drivers/media/usb/uvc/uvc_v4l2.c
-> > > @@ -899,8 +899,8 @@ static int uvc_ioctl_g_input(struct file *file, void *fh, unsigned int *input)
-> > >  {
-> > >  	struct uvc_fh *handle = fh;
-> > >  	struct uvc_video_chain *chain = handle->chain;
-> > > +	u8 *buf;
-> > >  	int ret;
-> > > -	u8 i;
-> > >  
-> > >  	if (chain->selector == NULL ||
-> > >  	    (chain->dev->quirks & UVC_QUIRK_IGNORE_SELECTOR_UNIT)) {
-> > > @@ -908,13 +908,20 @@ static int uvc_ioctl_g_input(struct file *file, void *fh, unsigned int *input)
-> > >  		return 0;
-> > >  	}
-> > >  
-> > > +	buf = kmalloc(1, GFP_KERNEL);
-> > > +	if (!buf)
-> > > +		return -ENOMEM;
-> > > +
-> > >  	ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR, chain->selector->id,
-> > >  			     chain->dev->intfnum,  UVC_SU_INPUT_SELECT_CONTROL,
-> > > -			     &i, 1);
-> > > +			     buf, 1);
-> > >  	if (ret < 0)
-> > >  		return ret;  
-> > 
-> > Memory leak :-)
-> 
-> Argh ;-)
-> 
-> Clearly, I'm needing more caffeine today, but it is too damn hot
-> here...
-> 
-> > 
-> > 	if (!ret)
-> > 		*input = *buf - 1;
-> > 
-> > 	kfree(buf);
-> > 
-> > 	return ret;
-> > 
-> > >  
-> > > -	*input = i - 1;
-> > > +	*input = *buf - 1;
-> > > +
-> > > +	kfree(buf);
-> > > +
-> > >  	return 0;
-> > >  }
-> > >  
-> > > @@ -922,8 +929,8 @@ static int uvc_ioctl_s_input(struct file *file, void *fh, unsigned int input)
-> > >  {
-> > >  	struct uvc_fh *handle = fh;
-> > >  	struct uvc_video_chain *chain = handle->chain;
-> > > +	char *buf;  
-> > 
-> > 	u8 *buf;
-> > 
-> > With these two changes,
-> > 
-> > Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> 
-> Thanks!
-> 
-> > Do I need to take the patch in my tree ?
-> 
-> It is up to you.
-> 
-> I suspect that it would be easier to just merge it at media_stage,
-> together with the other patches from the smatch series, but it is
-> up to you.
-> 
-> Just let me know if you prefer to merge it via your tree, and I'll drop
-> it from my queue, or otherwise I'll merge directly at media_stage,
-> after waiting for a while on feedbacks on the remaining patches.
+That worked, now queued up, thanks!
 
-Please merge it directly, it's less work for me :-)
-
--- 
-Regards,
-
-Laurent Pinchart
+greg k-h
