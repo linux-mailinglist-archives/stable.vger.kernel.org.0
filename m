@@ -2,110 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 355E73B22CC
-	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 23:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B1533B2390
+	for <lists+stable@lfdr.de>; Thu, 24 Jun 2021 00:24:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229812AbhFWVye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Jun 2021 17:54:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46566 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229759AbhFWVye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Jun 2021 17:54:34 -0400
-Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0FD3C061574
-        for <stable@vger.kernel.org>; Wed, 23 Jun 2021 14:52:15 -0700 (PDT)
-Received: by mail-ot1-x332.google.com with SMTP id g19-20020a9d12930000b0290457fde18ad0so3494676otg.1
-        for <stable@vger.kernel.org>; Wed, 23 Jun 2021 14:52:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :mime-version;
-        bh=iVR+r8HQzHy5O1PM3xuhDev5J423vni/zudDC3lGKRA=;
-        b=EG9QhisGSkIyRlGd0ho0fRwwVKFGIxVGsLiI5HBWq8GVel79P0+h/9e99TacyZo4xZ
-         yn8IiihrOIQ2a2kVtg+yi+BEJ+R/c3AxHk6BndYBSDJH8Fc6FagDygS//H5imHzWAE4j
-         6iGr40xvkPuJKb74WPLlbjzv1dNKqTLcDcpsZbv44oe8xB1IZzvqcO6hH5R6uAJvUJ5/
-         nXB25PWpQyutrDyBzjys02Py1EfVCipR6AvV2JFeagXa9noVHxuX/Ebuw0EtAnPtZh4o
-         GAkQa+/QFelxaEvJR9pn8S/ocEV1f4DV6+sQ4HCratOFafCX1aHwcyEJGoMDNTbX3f7E
-         OHGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:mime-version;
-        bh=iVR+r8HQzHy5O1PM3xuhDev5J423vni/zudDC3lGKRA=;
-        b=gHWVDaXuP1G4aWT9C+EG0YVLB5U9GENxc2IVCOwmH8ZfBsgjq87B926EN73rD4nGbI
-         pl0XH4RNxToffT7leJDxly6Rc4qtjl0DWXykWb+K8c+IDUfzZSv1V9AMn+IKQ3L9CLFv
-         utUOfQmN3m23wu9Am+bgbsMQQVqS8wLzoeyahrkOqceXME39lR6xbCsOEzMSmVzwtU9m
-         +PosE3QtnZEvcLp6xec/1SLmHzNynW7n7H319BhC7F41JXKfA6iFaMT2rs6/i+ksfNSM
-         7yo5S787LvBXzWiFKG3OifDB9iLRd2aOGiFDecIjxSnLXCFDbavhHJH/YIPabEBKSmzq
-         F8EQ==
-X-Gm-Message-State: AOAM53158W9FmzPBrK+CmqKUH/TAm8BXq7T7A9epFhRf4elpxmOrzvVp
-        CdaQAxOTf4PRwvbrvbqEJShJvg==
-X-Google-Smtp-Source: ABdhPJxflcsHu8fwZdAeCQ3bnPwVapqayk3LmseexRXxzeGSYZSSRHrwozNwFPCUnKy2hsnZmxPv7w==
-X-Received: by 2002:a05:6830:23a3:: with SMTP id m3mr1762573ots.142.1624485134978;
-        Wed, 23 Jun 2021 14:52:14 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id d136sm235027oib.4.2021.06.23.14.52.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Jun 2021 14:52:14 -0700 (PDT)
-Date:   Wed, 23 Jun 2021 14:52:01 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.anvils
-To:     Andrew Morton <akpm@linux-foundation.org>
-cc:     Hugh Dickins <hughd@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Wang Yugui <wangyugui@e16-tech.com>,
-        Xu Yu <xuyu@linux.alibaba.com>, Jue Wang <juew@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
-Subject: Re: mm/thp commits: please wait a few days
-In-Reply-To: <20210623134642.2927395a89b1d07bab620a20@linux-foundation.org>
-Message-ID: <c2bf7b2-a2d9-95a1-e322-4cf4b8613e9@google.com>
-References: <88937026-b998-8d9b-7a23-ff24576491f4@google.com> <YMrU4FRkrQ7AVo5d@kroah.com> <YNNMGjoMajhPNyiK@kroah.com> <ca4d4e0-531-3373-c6ee-a33d379a557c@google.com> <20210623134642.2927395a89b1d07bab620a20@linux-foundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        id S229922AbhFWW0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Jun 2021 18:26:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57288 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229916AbhFWW0c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Jun 2021 18:26:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 632F760249;
+        Wed, 23 Jun 2021 22:24:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1624487053;
+        bh=DiHiiL3b0y6OHvRgx8JkE5k1nddPZ2+efzgAs28XDts=;
+        h=Date:From:To:Subject:From;
+        b=boP5c1w46q1OIO127mRbmwP6NVF/u3hgGcS70uPh7TidDezUalXzL6Coz6vgQ2P5T
+         rlXLbNTSkVlAkABZZGv5UyZnokpGTnZxGafhYlx9VpyXdoyYQxfkUqOcWyLDfYxmLo
+         Gzk/F9x8Eq54LT+40L3ZmkKAZGCD0VAhL9bOLqIk=
+Date:   Wed, 23 Jun 2021 15:24:12 -0700
+From:   akpm@linux-foundation.org
+To:     adobriyan@gmail.com, andi@firstfloor.org, dhowells@redhat.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org
+Subject:  [alternative-merged]
+ afs-fix-tracepoint-string-placement-with-built-in-afs.patch removed from
+ -mm tree
+Message-ID: <20210623222412.CTsmCepgK%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 23 Jun 2021, Andrew Morton wrote:
-> On Wed, 23 Jun 2021 09:44:14 -0700 (PDT) Hugh Dickins <hughd@google.com> wrote:
-> 
-> > > Any word on this?
-> > 
-> > I have a "matrix" of what's needed ready, but I'm still waiting on
-> > "I expect some more to follow in a few days time (thanks Andrew)":
-> > I believe akpm does still intend to send them in to Linus for 5.13
-> > this week, but they've not gone yet.
-> 
-> I'm planning on sending these:
-> 
-> mm-page_vma_mapped_walk-use-page-for-pvmw-page.patch
-> mm-page_vma_mapped_walk-settle-pagehuge-on-entry.patch
-> mm-page_vma_mapped_walk-use-pmde-for-pvmw-pmd.patch
-> mm-page_vma_mapped_walk-prettify-pvmw_migration-block.patch
-> mm-page_vma_mapped_walk-crossing-page-table-boundary.patch
-> mm-page_vma_mapped_walk-add-a-level-of-indentation.patch
-> mm-page_vma_mapped_walk-add-a-level-of-indentation-fix.patch
 
-I expect you'll fold that^ one into the previous before sending.
+The patch titled
+     Subject: afs: fix tracepoint string placement with built-in AFS
+has been removed from the -mm tree.  Its filename was
+     afs-fix-tracepoint-string-placement-with-built-in-afs.patch
 
-> mm-page_vma_mapped_walk-use-goto-instead-of-while-1.patch
-> mm-page_vma_mapped_walk-get-vma_address_end-earlier.patch
-> mm-thp-fix-page_vma_mapped_walk-if-thp-mapped-by-ptes.patch
-> mm-thp-another-pvmw_sync-fix-in-page_vma_mapped_walk.patch
+This patch was dropped because an alternative patch was merged
 
-mmotm's series shows
-mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page.patch
-mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page-fix.patch
-in the same "mainline-later" grouping, reviewed by Matthew,
-acked by tglx, so I was hoping you'd send that along too.
+------------------------------------------------------
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: afs: fix tracepoint string placement with built-in AFS
 
-> 
-> Linuswards tomorrow.  Is that OK?
+I was adding custom tracepoint to the kernel, grabbed full F34 kernel
+.config, disabled modules and booted whole shebang as VM kernel.
 
-That's great, thanks Andrew.  Then when they appear in Linus's tree,
-I'll complete my notes and tarball, and mail GregKH in reply here.
+Then did
 
-Hugh
+	perf record -a -e ...
+
+It crashed:
+
+	general protection fault, probably for non-canonical address 0x435f5346592e4243: 0000 [#1] SMP PTI
+	CPU: 1 PID: 842 Comm: cat Not tainted 5.12.6+ #26
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
+	RIP: 0010:t_show+0x22/0xd0
+
+Then reproducer was narrowed to
+
+	# cat /sys/kernel/tracing/printk_formats
+
+Original F34 kernel with modules didn't crash.
+
+So I started to disable options and after disabling AFS everything started
+working again.
+
+The root cause is that AFS was placing char arrays content into a section
+full of _pointers_ to strings with predictable consequences.
+
+Non canonical address 435f5346592e4243 is "CB.YFS_" which came from
+CM_NAME macro.
+
+The fix is to create char array and pointer to it separatedly.
+
+Steps to reproduce:
+
+	CONFIG_AFS=y
+	CONFIG_TRACING=y
+
+	# cat /sys/kernel/tracing/printk_formats
+
+Link: https://lkml.kernel.org/r/YLAXfvZ+rObEOdc/@localhost.localdomain
+Fixes: 8e8d7f13b6d5a9 ("afs: Add some tracepoints")
+Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
+Cc: Andi Kleen <andi@firstfloor.org>
+Cc: David Howells <dhowells@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/afs/cmservice.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/fs/afs/cmservice.c~afs-fix-tracepoint-string-placement-with-built-in-afs
++++ a/fs/afs/cmservice.c
+@@ -30,8 +30,9 @@ static void SRXAFSCB_TellMeAboutYourself
+ static int afs_deliver_yfs_cb_callback(struct afs_call *);
+ 
+ #define CM_NAME(name) \
+-	char afs_SRXCB##name##_name[] __tracepoint_string =	\
+-		"CB." #name
++	const char afs_SRXCB##name##_name[] = "CB." #name;		\
++	static const char *_afs_SRXCB##name##_name __tracepoint_string =\
++		afs_SRXCB##name##_name
+ 
+ /*
+  * CB.CallBack operation type
+_
+
+Patches currently in -mm which might be from adobriyan@gmail.com are
+
+lib-memscan-fixlet.patch
+lib-uninline-simple_strtoull.patch
+exec-remove-checks-in-__register_bimfmt.patch
+
