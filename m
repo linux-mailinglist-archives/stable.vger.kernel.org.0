@@ -2,56 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77A833B1D4E
-	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 17:12:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD8D13B1D53
+	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 17:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229523AbhFWPOa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Jun 2021 11:14:30 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:34550 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230061AbhFWPOa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Jun 2021 11:14:30 -0400
-Received: from mail-pg1-f197.google.com ([209.85.215.197])
-        by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <guilherme.piccoli@canonical.com>)
-        id 1lw4Xz-0001sZ-N1
-        for stable@vger.kernel.org; Wed, 23 Jun 2021 15:12:11 +0000
-Received: by mail-pg1-f197.google.com with SMTP id k193-20020a633dca0000b029021ff326b222so1608376pga.9
-        for <stable@vger.kernel.org>; Wed, 23 Jun 2021 08:12:11 -0700 (PDT)
+        id S230243AbhFWPPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Jun 2021 11:15:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41380 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230061AbhFWPPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Jun 2021 11:15:03 -0400
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4FD3C061574;
+        Wed, 23 Jun 2021 08:12:45 -0700 (PDT)
+Received: by mail-pf1-x436.google.com with SMTP id g21so845713pfc.11;
+        Wed, 23 Jun 2021 08:12:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=wnhbXxHraLaC8TefgPDC+qQd7KIYTELFweoZS4SUhy0=;
+        b=cP9+Bnv9X/RUwcBBLodk6HrdfAq7W8xUm9jF2y9HxXigTtOrU1sWXPymJ5bs89RacO
+         jBzLD7af2mpTkEnBGbiL+tquNd29+ZucE97dUa/wg5x9yxh/2Q2DhA3nNUgguCojeC+2
+         ye5pA/A7+/ASg0WRcz8Y+wkI18xq3foKgWgm+I/8I71slXidjjF1kdbj3gbBQ7h259md
+         jrP+lc963A8qA9pBqiG6o26eQEBGf/35bFlUG0b2nu50df7PXXXvIm6NMJg6PVM1nMXN
+         W3yraZ7G9a3nAZMyPTKE5vegJ+B0wxMG6EzrK04lpdptXxhgKMNhwJrFOZF/nttItP7O
+         2GiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FQ1lxetv+3BZNbno6lOBPgoS9Kn2GSDJ2QWiqsfxNsw=;
-        b=Tj1LSPsm6k6HrPBIPym3jlCOKG4kyFH6IDgEdveNHy6VA6nKYapdrjdujfH9XhtvUm
-         +gog9MThQyKspeUlDK1faWbMdQSHFhUGmQeZqzRn0vSLQEjm+WLFkzAfuLiy81VYVd1K
-         ieHp/AvD421BfHC0hYwg6xh8xPtuE52j6751JZWKuGFsdqLbXqY89rkQCnbiAoe1yaWk
-         d4LGFtHi36yQ4BNGq1D8DTDdfIcDawn1GtPkxzQGyj/X0I3wrS8Pr5UjlQu3EQWHaqxa
-         segNTvE50XnknX8vtZwQslmk22qzM+XGiRXU1K1xFws+7LNm/XQGp2cUuRz0O0yW7tF7
-         Jwyg==
-X-Gm-Message-State: AOAM5313QoKn6tenlrBVnlYg2n4XAXxMu6Rj0kv+nstKseafdIYDDb+7
-        fV0n+EA670y+WMLBSt2TCgQnBSpr8kB0fUBiPlQlALCq679KQSt6fyZTJj3rDAeENmMK+Rf5bMg
-        BF7/VMBigtnAj70TtHbbLw+poPwypxCWL7bo/QNHGkVQz6i/iow==
-X-Received: by 2002:a17:90a:ce09:: with SMTP id f9mr7152458pju.47.1624461130502;
-        Wed, 23 Jun 2021 08:12:10 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJynds0LwqcGSa2Q9vtda3ZO10HZQobfq/y/PyU6qnlmYhEeXwYinuvJqOpYmR/E5aZj6ExoOIOcBBC+y4/QiMs=
-X-Received: by 2002:a17:90a:ce09:: with SMTP id f9mr7152399pju.47.1624461129845;
- Wed, 23 Jun 2021 08:12:09 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210622210622.9925-1-gpiccoli@canonical.com> <20210622210622.9925-2-gpiccoli@canonical.com>
- <YNNL7z4IvnFfDOTT@kroah.com>
-In-Reply-To: <YNNL7z4IvnFfDOTT@kroah.com>
-From:   Guilherme Piccoli <gpiccoli@canonical.com>
-Date:   Wed, 23 Jun 2021 12:11:34 -0300
-Message-ID: <CAHD1Q_xuq5MAcdySZAsWR80htsHf=TvuLoNY15VkpuG7J0csxQ@mail.gmail.com>
-Subject: Re: [4.14.y][PATCH 2/2] unfuck sysfs_mount()
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     "# v4 . 16+" <stable@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=wnhbXxHraLaC8TefgPDC+qQd7KIYTELFweoZS4SUhy0=;
+        b=CyVbBRzVM6YGR8lZK4OZELheDUqV4ibjqQ0VMjC/ZgB61UMYOiooB86mGOqv3xjzix
+         FX7k1Z1z65OH0RjXgjc6xCo++z/63/zlZ7oeiZAdlQhA5bZI23jG4BJ3OfzHMtnmFKYJ
+         9f99YGmBmqkBWynzXKdEhnJ0kq95gzkekAaSv8UoF0jdVSBjRg/P56XIjqeptvGvuX+P
+         jFxscjDHPEDaCZJLdGRMrVso5K8Nfndb4jMzeFTJXzGz7oj2v6gu19Pq12bRQzPCLPIs
+         AELqeqmtaRoXYiZFQulo7aAwGzdgu5ETUA40Oe6kZ+j6YsCIZu4Sgb6EzWp5JeQXvfIA
+         z3zw==
+X-Gm-Message-State: AOAM532SQU0TGtC2lFEH62mHDxabUUHKZBi1TekdHelPxjpq4/Uq3g6Y
+        wLPkKkbIjrF8h9Y7Bbv9nT8JgtZNni4fcJq5Qxc=
+X-Google-Smtp-Source: ABdhPJyW3C19YcI6JBUyZ6Tuo39lmC+yIi5EjMEHx+N+pda0aHhEcxXaVCYwaWzYfkc/dFXamiQO2Q==
+X-Received: by 2002:aa7:9252:0:b029:2ae:bde3:621f with SMTP id 18-20020aa792520000b02902aebde3621fmr272079pfp.18.1624461164822;
+        Wed, 23 Jun 2021 08:12:44 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id o7sm235740pgs.45.2021.06.23.08.12.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Jun 2021 08:12:44 -0700 (PDT)
+Message-ID: <60d34f6c.1c69fb81.3314.0aa0@mx.google.com>
+Date:   Wed, 23 Jun 2021 08:12:44 -0700 (PDT)
+X-Google-Original-Date: Wed, 23 Jun 2021 15:12:42 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210621154921.212599475@linuxfoundation.org>
+Subject: RE: [PATCH 5.12 000/178] 5.12.13-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks a lot Greg!
+On Mon, 21 Jun 2021 18:13:34 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.12.13 release.
+> There are 178 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 23 Jun 2021 15:48:46 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.13-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+5.12.13-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
+
