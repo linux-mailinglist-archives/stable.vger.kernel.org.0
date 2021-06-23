@@ -2,125 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B6443B1F4C
-	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 19:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C693B1F67
+	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 19:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229913AbhFWRVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Jun 2021 13:21:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46745 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229850AbhFWRVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Jun 2021 13:21:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1624468773;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=eafgGiX6GDLeKBcSkHNVWv30fndO9YqdjKRuqwRhCEI=;
-        b=YUBPRDmiHXnKrQMawNpBLM+UWHZv466SNn1NCTolgmPbsiijCTl+n2fZWPK3njLwo+uylG
-        Tm7pB036tZgI7BLReP1nTrjMp5wEDg9TRTLxWQ1HX7Dgbvz2VVAbvu2rSRdUTfTQzPdLvN
-        wpe4Kq9KVWJDcmbi5nOxMISrTYH19Ac=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-455-uu5eD3hzOA2fvqGdYLSqwQ-1; Wed, 23 Jun 2021 13:19:31 -0400
-X-MC-Unique: uu5eD3hzOA2fvqGdYLSqwQ-1
-Received: by mail-wm1-f70.google.com with SMTP id j18-20020a05600c1c12b02901dce930b374so853040wms.2
-        for <stable@vger.kernel.org>; Wed, 23 Jun 2021 10:19:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=eafgGiX6GDLeKBcSkHNVWv30fndO9YqdjKRuqwRhCEI=;
-        b=cc1991KcsiVNcVN4rkFkChWQIBXAfDqfimIv4hh3ppcMnlPAcd6GhTJOcZVbhC9jDb
-         mmZ2eOWsCtOh+T3fRJlfgby8+Q7HO4eNQu9Ba/0Frhn+aEXIa5Zt+22xyB0EhCiSd0lR
-         YiQTZG8K9qvTNH78AprmBh+YaYwb//HOtQXJqI4YVa4rsJ4GEFEGtYubkFTglZJlrobf
-         ABu/vqmrdB8Fu/UtPfgdZxoxWU+qI+MY/GLmm3ci0SCDGaNyDmiFhbTP6DSGQt8OPcga
-         w/HofMLGrLZJ8g/avibWWRzcfzFD7GxphqLGXcnsrnrH0TG4PAfh8wq2wze7GyqNRX/A
-         2Ilw==
-X-Gm-Message-State: AOAM5313qCsXPYZrQkV27GNy6ix49Lg4I9CQLqE755VZUzGig8ZIiE4U
-        W0BXSS6kpb0+G7xLVZfh5LORkGxEUmTilfrA4d+bquQHn7yEYBO+9F91/wfLvo8BIiFQ9ig/Pe7
-        GJ9mvpeNLIiJlooxN
-X-Received: by 2002:a1c:98c9:: with SMTP id a192mr12303314wme.66.1624468769815;
-        Wed, 23 Jun 2021 10:19:29 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJykWKB2L8Jmzzeev9nZF/sDxjnXuBMTRrk1niG8jzrlOvAOHlT9AYg06Klj23R2wVc210QqJQ==
-X-Received: by 2002:a1c:98c9:: with SMTP id a192mr12303283wme.66.1624468769546;
-        Wed, 23 Jun 2021 10:19:29 -0700 (PDT)
-Received: from gerbillo.redhat.com (146-241-109-224.dyn.eolo.it. [146.241.109.224])
-        by smtp.gmail.com with ESMTPSA id z4sm633801wrs.56.2021.06.23.10.19.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Jun 2021 10:19:29 -0700 (PDT)
-Message-ID: <97fd842e75ef1dd7d78b99441d5654fb9a05e320.camel@redhat.com>
-Subject: Re: [PATCH 5.10 038/146] mptcp: do not warn on bad input from the
- network
-From:   Paolo Abeni <pabeni@redhat.com>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        id S229913AbhFWR3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Jun 2021 13:29:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58366 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229523AbhFWR3V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Jun 2021 13:29:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54EA660FEA;
+        Wed, 23 Jun 2021 17:27:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1624469223;
+        bh=BZcJl3/DEBWkkHzvKFyiHzu8QCUtvnoonaWDd7Hal88=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AIqTW3DGylWHuLcRv23OXo9FVX7mmLYAjKR/F8tt9RFgzdkplb2CHtzARLQGibe6h
+         Ix6gkzKcLaKQ/9e5Ue9peLojRZToTbfU2Cm5vqteQOINcoCKaFh8gAFBJE/nsU9uSD
+         ucR8aR+LJLrLeAjPB/q+BT7E3EBxxnrY38H7oGif96Mu9H6ypk6+8yw67nrxHlxlre
+         5iEvsuVFmSbPhc7ljkGlMR+8n6w8ZHmrTsjFZYQneGdm5OMox9fiz4X4OPZLA4/t7K
+         1vvNobnTMYmBHLjqkjbfVAFNVZnV4fK6XwY+UhdL6JykDBR+UKVf0YsF9IMTSmM4I9
+         MFWyVwlj2vSew==
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Date:   Wed, 23 Jun 2021 19:19:28 +0200
-In-Reply-To: <20210623165327.GA4150@amd>
-References: <20210621154911.244649123@linuxfoundation.org>
-         <20210621154912.589676201@linuxfoundation.org> <20210623142235.GA27348@amd>
-         <254a0b83518083416abdae4cd27659bc10760773.camel@redhat.com>
-         <20210623165327.GA4150@amd>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
+Cc:     stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        clang-built-linux@googlegroups.com,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.4 to 4.19] Makefile: Move -Wno-unused-but-set-variable out of GCC only block
+Date:   Wed, 23 Jun 2021 10:26:12 -0700
+Message-Id: <20210623172610.3281050-1-nathan@kernel.org>
+X-Mailer: git-send-email 2.32.0.93.g670b81a890
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2021-06-23 at 18:53 +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > > From: Paolo Abeni <pabeni@redhat.com>
-> > > > 
-> > > > [ Upstream commit 61e710227e97172355d5f150d5c78c64175d9fb2 ]
-> > > > 
-> > > > warn_bad_map() produces a kernel WARN on bad input coming
-> > > > from the network. Use pr_debug() to avoid spamming the system
-> > > > log.
-> > > 
-> > > So... we switched from WARN _ONCE_ to pr_debug, as many times as we
-> > > detect the problem.
-> > > 
-> > > Should this be pr_debug_once?
-> > 
-> > Thank you for double checking this!
-> > 
-> > In the MPTCP code, we use pr_debug() statements as a debug tool, e.g.
-> > when enabled, it could print per-packet info with no restriction. 
-> > 
-> > There are (a few) similar use in the plain TCP code.
-> > 
-> > pr_debug() is not supposed to be enabled on any production system,
-> > while the WARN_ONCE could trigger automated tools for irrelevant
-> > network noise.
-> 
-> Correct me if I'm wrong, but I believe pr_debug will result in
-> messages being stored in the dmesg buffer, even on production
-> systems.
+commit 885480b084696331bea61a4f7eba10652999a9c1 upstream.
 
-If DYNAMIC_DEBUG is enabled, and the system administator explicitly
-enables the relevant debug message writing suitable data in
-/sys/kernel/debug/dynamic_debug/control, yes, the message will be
-printed on dmsg.
+Currently, -Wunused-but-set-variable is only supported by GCC so it is
+disabled unconditionally in a GCC only block (it is enabled with W=1).
+clang currently has its implementation for this warning in review so
+preemptively move this statement out of the GCC only block and wrap it
+with cc-disable-warning so that both compilers function the same.
 
-With DYNAMIC_DEBUG disabled, patching the kernel and defining the DEBUG
-macro in the net/mptcp/protocol.c file you will get again the debug
-message.
+Cc: stable@vger.kernel.org
+Link: https://reviews.llvm.org/D100581
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+[nc: Backport, workaround lack of e2079e93f562 in older branches]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Neither of the above fit productions systems IMHO, and I'm not aware of
-other options to trigger the relevant debug message.
+diff --git a/Makefile b/Makefile
+index 9ff7a4b7b8cb..cda7a18b925a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -716,12 +716,11 @@ KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
+ # See modpost pattern 2
+ KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
+ KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
+-else
++endif
+ 
+ # These warnings generated too much noise in a regular build.
+ # Use make W=1 to enable them (see scripts/Makefile.extrawarn)
+ KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
+-endif
+ 
+ KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
+ ifdef CONFIG_FRAME_POINTER
 
-I personally have CONFIG_DYNAMIC_DEBUG=y in my kconfig and I enable the
-relevant debug message as needed in my devel activity.
-
-Cheers,
-
-Paolo
+base-commit: eb575cd5d7f60241d016fdd13a9e86d962093c9b
+-- 
+2.32.0.93.g670b81a890
 
