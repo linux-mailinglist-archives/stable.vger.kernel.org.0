@@ -2,76 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C2623B1B61
-	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 15:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3996E3B1BD7
+	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 16:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230496AbhFWNp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Jun 2021 09:45:26 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:52656 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230298AbhFWNpZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Jun 2021 09:45:25 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-263-si2JVMyPPtOU_tjpJ7Q3cw-1; Wed, 23 Jun 2021 14:43:05 +0100
-X-MC-Unique: si2JVMyPPtOU_tjpJ7Q3cw-1
-Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
- (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Wed, 23 Jun
- 2021 14:43:04 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.018; Wed, 23 Jun 2021 14:43:04 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Guillaume Tucker' <guillaume.tucker@collabora.com>,
-        Kees Cook <keescook@chromium.org>,
-        Shuah Khan <shuah@kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH v2] selftests/lkdtm: Use /bin/sh not $SHELL
-Thread-Topic: [PATCH v2] selftests/lkdtm: Use /bin/sh not $SHELL
-Thread-Index: AQHXaCznpjkpNTpwjEW+kA8o/GdKZashmKhg
-Date:   Wed, 23 Jun 2021 13:43:04 +0000
-Message-ID: <42f26361db6f481e980ac349bf0079ef@AcuMS.aculab.com>
-References: <20210619025834.2505201-1-keescook@chromium.org>
- <e958209b-8621-57ca-01d6-2e76b05dab4c@collabora.com>
-In-Reply-To: <e958209b-8621-57ca-01d6-2e76b05dab4c@collabora.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S230411AbhFWOCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Jun 2021 10:02:36 -0400
+Received: from vulcan.natalenko.name ([104.207.131.136]:59538 "EHLO
+        vulcan.natalenko.name" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230274AbhFWOCg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Jun 2021 10:02:36 -0400
+Received: from spock.localnet (unknown [151.237.229.131])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by vulcan.natalenko.name (Postfix) with ESMTPSA id 6BCE8AF3443;
+        Wed, 23 Jun 2021 16:00:16 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=natalenko.name;
+        s=dkim-20170712; t=1624456816;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=rQqup4RSADZYht0Tjo6YJfart8szjUekpTWg50N90zg=;
+        b=iiBSiQTzNzNIsxPhqWjmqKJF7tmTZJY5Q/BidWx9FCs62wrCJhiaCYQVZkiRCLrSASONxZ
+        H4lrMykgMh1LcGAUVxjofIFlyQq3NDycgDefrxAT2Yl5Me/auyB0nE1qGMoU5gF1t28wtI
+        xixdIlLXYHgvej0KMo8u/iqe07PzqLw=
+From:   Oleksandr Natalenko <oleksandr@natalenko.name>
+To:     Johannes Weiner <hannes@cmpxchg.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: Re: Backport d583d360a6 into 5.12 stable
+Date:   Wed, 23 Jun 2021 16:00:14 +0200
+Message-ID: <7592880.XtGZTbpMlS@spock>
+In-Reply-To: <YNIrp7A0LV0aLc5q@cmpxchg.org>
+References: <11282373.oIR2C0Pl9h@spock> <5661831.TEGnOE2T3c@spock> <YNIrp7A0LV0aLc5q@cmpxchg.org>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogR3VpbGxhdW1lIFR1Y2tlcg0KPiBTZW50OiAyMyBKdW5lIDIwMjEgMTM6NDANCi4uLg0K
-PiA+IGRpZmYgLS1naXQgYS90b29scy90ZXN0aW5nL3NlbGZ0ZXN0cy9sa2R0bS9ydW4uc2ggYi90
-b29scy90ZXN0aW5nL3NlbGZ0ZXN0cy9sa2R0bS9ydW4uc2gNCj4gPiBpbmRleCBiYjdhMTc3NTMw
-N2IuLjBmOWYyMmFjMDA0YiAxMDA3NTUNCj4gPiAtLS0gYS90b29scy90ZXN0aW5nL3NlbGZ0ZXN0
-cy9sa2R0bS9ydW4uc2gNCj4gPiArKysgYi90b29scy90ZXN0aW5nL3NlbGZ0ZXN0cy9sa2R0bS9y
-dW4uc2gNCj4gPiBAQCAtNzgsOCArNzgsOSBAQCBkbWVzZyA+ICIkRE1FU0ciDQo+ID4NCj4gPiAg
-IyBNb3N0IHNoZWxscyB5ZWxsIGFib3V0IHNpZ25hbHMgYW5kIHdlJ3JlIGV4cGVjdGluZyB0aGUg
-ImNhdCIgcHJvY2Vzcw0KPiA+ICAjIHRvIHVzdWFsbHkgYmUga2lsbGVkIGJ5IHRoZSBrZXJuZWwu
-IFNvIHdlIGhhdmUgdG8gcnVuIGl0IGluIGEgc3ViLXNoZWxsDQo+ID4gLSMgYW5kIHNpbGVuY2Ug
-ZXJyb3JzLg0KPiA+IC0oJFNIRUxMIC1jICdjYXQgPChlY2hvICciJHRlc3QiJykgPiciJFRSSUdH
-RVIiIDI+L2Rldi9udWxsKSB8fCB0cnVlDQo+ID4gKyMgdG8gYXZvaWQgdGVybWluYXRpbmcgdGhp
-cyBzY3JpcHQuIExlYXZlIHN0ZGVyciBhbG9uZSwganVzdCBpbiBjYXNlDQo+ID4gKyMgc29tZXRo
-aW5nIF9lbHNlXyBoYXBwZW5zLg0KPiA+ICsoL2Jpbi9zaCAtYyAnKGVjaG8gJyIkdGVzdCInKSB8
-IGNhdCA+JyIkVFJJR0dFUiIpIHx8IHRydWUNCg0KSSB3YXMgaGF2aW5nIHRyb3VibGUgcGFyc2lu
-ZyB0aGF0IGNvbW1hbmQgLSBhbmQgSSdtIGdvb2QNCmF0IHNoZWxsIHNjcmlwdHMuDQpJIHRoaW5r
-IHRoZSBleHRyYSBzdWJzaGVsbCB0aGUgJ2VjaG8nIGlzIGluIGRvZXNuJ3QgaGVscC4NCkluIGZh
-Y3QsIGlzIGVpdGhlciBzdWJzaGVsbCBuZWVkZWQ/DQpTdXJlbHk6DQovYmluL3NoIC1jICJlY2hv
-ICckdGVzdCcgfCBjYXQgPiR0cmlnZ2VyIiB8fCB0cnVlDQp3aWxsIHdvcmsganVzdCBhcyB3ZWxs
-Pw0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJv
-YWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24g
-Tm86IDEzOTczODYgKFdhbGVzKQ0K
+Hello.
+
+On =C3=BAter=C3=BD 22. =C4=8Dervna 2021 20:27:51 CEST Johannes Weiner wrote:
+> On Tue, Jun 22, 2021 at 07:24:56PM +0200, Oleksandr Natalenko wrote:
+> > On =C3=BAter=C3=BD 22. =C4=8Dervna 2021 18:47:59 CEST Greg KH wrote:
+> > > On Tue, Jun 22, 2021 at 06:30:46PM +0200, Oleksandr Natalenko wrote:
+> > > > I'd like to nominate d583d360a6 ("psi: Fix psi state corruption when
+> > > > schedule() races with cgroup move") for 5.12 stable tree.
+> > > >=20
+> > > > Recently, I've hit this:
+> > > >=20
+> > > > ```
+> > > > kernel: psi: inconsistent task state! task=3D2667:clementine cpu=3D=
+21
+> > > > psi_flags=3D0 clear=3D1 set=3D0
+> > > > ```
+> > > >=20
+> > > > and after that PSI IO went crazy high. That seems to match the
+> > > > symptoms
+> > > > described in the commit message.
+> > >=20
+> > > But this says it fixes 4117cebf1a9f ("psi: Optimize task switch inside
+> > > shared cgroups") which did not show up until 5.13-rc1, so how are you
+> > > hitting this issue?
+> >=20
+> > I'm not positive 4117cebf1a9f was a root cause of the race. To me it lo=
+oks
+> > like 4117cebf1a9f just made an older issue more likely to be hit.
+> >=20
+> > Peter, Johannes, am I correct saying that it is still possible to hit a
+> > corruption described in d583d360a6 on 5.12?
+>=20
+> I'm not aware of a previous issue, but it's possible you discovered
+> one that was incidentally fixed by this change.
+>=20
+> That said, there haven't been many changes in this area prior to 5.12,
+> and I stared at the old code quite a bit to see if there are other
+> possible scenarios, so this gives me pause.
+
+Ack.
+
+> > > Did you try this patch on 5.12.y and see that it solved your problem?
+> >=20
+> > Yes, I've built the kernel with this patch, and so far it runs fine. It
+> > can
+> > take a while until the condition is hit though since it seems to be very
+> > unlikely on 5.12.
+>=20
+> Is your task moving / being moved between cgroups while it's doing
+> work?
+
+Likely, yes. IIUC, KDE spawns apps in separate cgroups so that in that very=
+=20
+case Clementine should get its own one (?):
+
+```
+$ systemd-cgls
+=E2=80=A6
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=80app-clementine-df516e4181=
+f446ab869e723ea2ed6094.scope=20
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=802926 /bin/cleme=
+ntine -session=20
+10de706f63000162437544200000015700012_1624379013_575845
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803059 /usr/bin/c=
+lementine-tagreader /tmp/clementine_735427711
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803060 /usr/bin/c=
+lementine-tagreader /tmp/clementine_557274898
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803062 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1730944950
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803063 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1509249421
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803065 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1345386497
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803068 /usr/bin/c=
+lementine-tagreader /tmp/clementine_865255891
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803070 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1782561441
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803072 /usr/bin/c=
+lementine-tagreader /tmp/clementine_421851305
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803073 /usr/bin/c=
+lementine-tagreader /tmp/clementine_175368243
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803075 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1962830479
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803076 /usr/bin/c=
+lementine-tagreader /tmp/clementine_547573203
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803078 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1819270047
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803079 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1632862299
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803085 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1279975869
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803095 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1612119641
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803102 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1789578483
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803103 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1541442265
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803105 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1418456770
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803106 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1998684543
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803107 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1349315391
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803108 /usr/bin/c=
+lementine-tagreader /tmp/clementine_231895572
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803110 /usr/bin/c=
+lementine-tagreader /tmp/clementine_492688785
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803111 /usr/bin/c=
+lementine-tagreader /tmp/clementine_1492630900
+=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=94=E2=94=803112 /usr/bin/c=
+lementine-tagreader /tmp/clementine_2017490599
+=E2=80=A6
+```
+
+> How long does it usually take to trigger it?
+
+I don't know :(. I don't usually peer into dmesg, and noticed this by a pur=
+e=20
+chance. Grepping the journal shows nothing else but only this occurrence, a=
+nd=20
+also the journal is rotating, so some info might be already lost.
+
+> Would it be possible to share a simpler reproducer, or is this part of
+> a more complex application?
+
+This was triggered bu KDE's autostart of Clementine player, and I don't hav=
+e=20
+any specific reproducer. If I find one, I'll share it of course.
+
+Thanks.
+
+=2D-=20
+Oleksandr Natalenko (post-factum)
+
 
