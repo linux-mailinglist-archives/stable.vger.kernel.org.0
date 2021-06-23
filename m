@@ -2,99 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77C723B1624
-	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 10:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39B433B163B
+	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 10:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230001AbhFWIse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Jun 2021 04:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56374 "EHLO mail.kernel.org"
+        id S229987AbhFWIyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Jun 2021 04:54:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229934AbhFWIse (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Jun 2021 04:48:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 301B561164;
-        Wed, 23 Jun 2021 08:46:17 +0000 (UTC)
+        id S229833AbhFWIyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Jun 2021 04:54:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8822611AD;
+        Wed, 23 Jun 2021 08:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624437977;
-        bh=mG6ErbLJ7lSo5V7i1rljNDUgVDQwNGUi4e3zpOu3v4E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3Pyyo8QTH5g3DOMYBfcOVv1YW6m3r+/ul6h17e76XRM3i/yuG5G1/sqBHAKCNfZ2
-         Co4+AzYA/oD209zeeJhoHo0qJCzssCLeevSb2GV5sXYcoQbhcS6URt0TpKlvi+IGjA
-         sHU1cmKP96oXndPZMdvXYQ6acfocMwgVOp8x5DGt8/l4w5oTwAGcakxsvy7zpGsdj8
-         GCsJ1ZdMcKOWUazjGlUbNn6YHok3MpgFHSbX2eBTML9b/ul7TtpEXqp3o/C6qFy1t6
-         Pxmd3v7Zh7W8MvuiuU7tb3Z91uvRoXkP8T/W2MFfFNI7eocPxSypMNhZGRwdOoQpNy
-         hzEXYs7Kuiavw==
+        s=k20201202; t=1624438325;
+        bh=q1/pZ+8XNyXmDYADtZuYnclhptwzKj9U01waM05X9kM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=G3Q2NGpduDsEzBbm+JtSbBOWO8IxUb5//355wIoeaDmbU6jQ2dj1m7J336hvTIpZ7
+         xWomRwFI2rkCcJvbpp3DG4ewNXRHSBaoI0YdSXwgb0jcYY25U4WeeCxYreT1C4047X
+         ivvm/aFuHyTN8aazHHb76orlBvrUt0REJTBl1jNU/gF4ggfxNaHwffhfaJ31qnj8PZ
+         TdD+ujwj5I6itPUFrN5dnMzrxlPF9ErQ+DQH9An5dRAxxnD21s/qRq6XXZLC+8thta
+         dJzgCzejV/VGrHIzAAZX17La7HiBni1JWoibGmgqESqAsfdt+BXOP3+j6r12kcWfkC
+         orP1bJ3ou1Scg==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1lvyWV-0001s2-UM; Wed, 23 Jun 2021 10:46:15 +0200
+        id 1lvyc8-0001tR-79; Wed, 23 Jun 2021 10:52:04 +0200
+Date:   Wed, 23 Jun 2021 10:52:04 +0200
 From:   Johan Hovold <johan@kernel.org>
-To:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc:     Antti Palosaari <crope@iki.fi>,
-        Eero Lehtinen <debiangamer2@gmail.com>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>,
-        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-Subject: [PATCH 2/2] media: rtl28xxu: fix zero-length control request
-Date:   Wed, 23 Jun 2021 10:45:21 +0200
-Message-Id: <20210623084521.7105-3-johan@kernel.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210623084521.7105-1-johan@kernel.org>
-References: <20210623084521.7105-1-johan@kernel.org>
+To:     Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+9d7dadd15b8819d73f41@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH] i2c: robotfuzz-osif: fix control-request directions
+Message-ID: <YNL2NLSpBQqnc2bH@hovoldconsulting.com>
+References: <20210524090912.3989-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210524090912.3989-1-johan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+On Mon, May 24, 2021 at 11:09:12AM +0200, Johan Hovold wrote:
+> The direction of the pipe argument must match the request-type direction
+> bit or control requests may fail depending on the host-controller-driver
+> implementation.
+> 
+> Control transfers without a data stage are treated as OUT requests by
+> the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+> will now trigger a warning.
+> 
+> Fix the OSIFI2C_SET_BIT_RATE and OSIFI2C_STOP requests which erroneously
+> used the osif_usb_read() helper and set the IN direction bit.
+> 
+> Reported-by: syzbot+9d7dadd15b8819d73f41@syzkaller.appspotmail.com
+> Fixes: 83e53a8f120f ("i2c: Add bus driver for for OSIF USB i2c device.")
+> Cc: stable@vger.kernel.org      # 3.14
+> Cc: Andrew Lunn <andrew@lunn.ch>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
 
-Control transfers without a data stage are treated as OUT requests by
-the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-will now trigger a warning.
+Wolfram, can you pick this one up for 5.14?
 
-The driver uses a zero-length i2c-read request for type detection so
-update the control-request code to use usb_sndctrlpipe() in this case.
+Johan
 
-Note that actually trying to read the i2c register in question does not
-work as the register might not exist (e.g. depending on the demodulator)
-as reported by Eero Lehtinen <debiangamer2@gmail.com>.
-
-Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
-Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
-Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
-Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
-Cc: stable@vger.kernel.org      # 4.0
-Cc: Antti Palosaari <crope@iki.fi>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/media/usb/dvb-usb-v2/rtl28xxu.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-index 0cbdb95f8d35..795a012d4020 100644
---- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-+++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-@@ -37,7 +37,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_usb_device *d, struct rtl28xxu_req *req)
- 	} else {
- 		/* read */
- 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
--		pipe = usb_rcvctrlpipe(d->udev, 0);
-+
-+		/*
-+		 * Zero-length transfers must use usb_sndctrlpipe() and
-+		 * rtl28xxu_identify_state() uses a zero-length i2c read
-+		 * command to determine the chip type.
-+		 */
-+		if (req->size)
-+			pipe = usb_rcvctrlpipe(d->udev, 0);
-+		else
-+			pipe = usb_sndctrlpipe(d->udev, 0);
- 	}
- 
- 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
--- 
-2.31.1
-
+>  drivers/i2c/busses/i2c-robotfuzz-osif.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-robotfuzz-osif.c b/drivers/i2c/busses/i2c-robotfuzz-osif.c
+> index a39f7d092797..66dfa211e736 100644
+> --- a/drivers/i2c/busses/i2c-robotfuzz-osif.c
+> +++ b/drivers/i2c/busses/i2c-robotfuzz-osif.c
+> @@ -83,7 +83,7 @@ static int osif_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
+>  			}
+>  		}
+>  
+> -		ret = osif_usb_read(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
+> +		ret = osif_usb_write(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
+>  		if (ret) {
+>  			dev_err(&adapter->dev, "failure sending STOP\n");
+>  			return -EREMOTEIO;
+> @@ -153,7 +153,7 @@ static int osif_probe(struct usb_interface *interface,
+>  	 * Set bus frequency. The frequency is:
+>  	 * 120,000,000 / ( 16 + 2 * div * 4^prescale).
+>  	 * Using dev = 52, prescale = 0 give 100KHz */
+> -	ret = osif_usb_read(&priv->adapter, OSIFI2C_SET_BIT_RATE, 52, 0,
+> +	ret = osif_usb_write(&priv->adapter, OSIFI2C_SET_BIT_RATE, 52, 0,
+>  			    NULL, 0);
+>  	if (ret) {
+>  		dev_err(&interface->dev, "failure sending bit rate");
