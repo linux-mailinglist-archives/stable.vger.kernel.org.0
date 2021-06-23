@@ -2,179 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3996E3B1BD7
-	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 16:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A13663B1C58
+	for <lists+stable@lfdr.de>; Wed, 23 Jun 2021 16:22:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230411AbhFWOCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Jun 2021 10:02:36 -0400
-Received: from vulcan.natalenko.name ([104.207.131.136]:59538 "EHLO
-        vulcan.natalenko.name" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230274AbhFWOCg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Jun 2021 10:02:36 -0400
-Received: from spock.localnet (unknown [151.237.229.131])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by vulcan.natalenko.name (Postfix) with ESMTPSA id 6BCE8AF3443;
-        Wed, 23 Jun 2021 16:00:16 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=natalenko.name;
-        s=dkim-20170712; t=1624456816;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rQqup4RSADZYht0Tjo6YJfart8szjUekpTWg50N90zg=;
-        b=iiBSiQTzNzNIsxPhqWjmqKJF7tmTZJY5Q/BidWx9FCs62wrCJhiaCYQVZkiRCLrSASONxZ
-        H4lrMykgMh1LcGAUVxjofIFlyQq3NDycgDefrxAT2Yl5Me/auyB0nE1qGMoU5gF1t28wtI
-        xixdIlLXYHgvej0KMo8u/iqe07PzqLw=
-From:   Oleksandr Natalenko <oleksandr@natalenko.name>
-To:     Johannes Weiner <hannes@cmpxchg.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: Re: Backport d583d360a6 into 5.12 stable
-Date:   Wed, 23 Jun 2021 16:00:14 +0200
-Message-ID: <7592880.XtGZTbpMlS@spock>
-In-Reply-To: <YNIrp7A0LV0aLc5q@cmpxchg.org>
-References: <11282373.oIR2C0Pl9h@spock> <5661831.TEGnOE2T3c@spock> <YNIrp7A0LV0aLc5q@cmpxchg.org>
+        id S230182AbhFWOYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Jun 2021 10:24:55 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:55794 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230061AbhFWOYz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Jun 2021 10:24:55 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id B9AB01C0B76; Wed, 23 Jun 2021 16:22:36 +0200 (CEST)
+Date:   Wed, 23 Jun 2021 16:22:36 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 038/146] mptcp: do not warn on bad input from the
+ network
+Message-ID: <20210623142235.GA27348@amd>
+References: <20210621154911.244649123@linuxfoundation.org>
+ <20210621154912.589676201@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Content-Disposition: inline
+In-Reply-To: <20210621154912.589676201@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello.
 
-On =C3=BAter=C3=BD 22. =C4=8Dervna 2021 20:27:51 CEST Johannes Weiner wrote:
-> On Tue, Jun 22, 2021 at 07:24:56PM +0200, Oleksandr Natalenko wrote:
-> > On =C3=BAter=C3=BD 22. =C4=8Dervna 2021 18:47:59 CEST Greg KH wrote:
-> > > On Tue, Jun 22, 2021 at 06:30:46PM +0200, Oleksandr Natalenko wrote:
-> > > > I'd like to nominate d583d360a6 ("psi: Fix psi state corruption when
-> > > > schedule() races with cgroup move") for 5.12 stable tree.
-> > > >=20
-> > > > Recently, I've hit this:
-> > > >=20
-> > > > ```
-> > > > kernel: psi: inconsistent task state! task=3D2667:clementine cpu=3D=
-21
-> > > > psi_flags=3D0 clear=3D1 set=3D0
-> > > > ```
-> > > >=20
-> > > > and after that PSI IO went crazy high. That seems to match the
-> > > > symptoms
-> > > > described in the commit message.
-> > >=20
-> > > But this says it fixes 4117cebf1a9f ("psi: Optimize task switch inside
-> > > shared cgroups") which did not show up until 5.13-rc1, so how are you
-> > > hitting this issue?
-> >=20
-> > I'm not positive 4117cebf1a9f was a root cause of the race. To me it lo=
-oks
-> > like 4117cebf1a9f just made an older issue more likely to be hit.
-> >=20
-> > Peter, Johannes, am I correct saying that it is still possible to hit a
-> > corruption described in d583d360a6 on 5.12?
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> From: Paolo Abeni <pabeni@redhat.com>
 >=20
-> I'm not aware of a previous issue, but it's possible you discovered
-> one that was incidentally fixed by this change.
+> [ Upstream commit 61e710227e97172355d5f150d5c78c64175d9fb2 ]
 >=20
-> That said, there haven't been many changes in this area prior to 5.12,
-> and I stared at the old code quite a bit to see if there are other
-> possible scenarios, so this gives me pause.
+> warn_bad_map() produces a kernel WARN on bad input coming
+> from the network. Use pr_debug() to avoid spamming the system
+> log.
 
-Ack.
+So... we switched from WARN _ONCE_ to pr_debug, as many times as we
+detect the problem.
 
-> > > Did you try this patch on 5.12.y and see that it solved your problem?
-> >=20
-> > Yes, I've built the kernel with this patch, and so far it runs fine. It
-> > can
-> > take a while until the condition is hit though since it seems to be very
-> > unlikely on 5.12.
->=20
-> Is your task moving / being moved between cgroups while it's doing
-> work?
+Should this be pr_debug_once?
 
-Likely, yes. IIUC, KDE spawns apps in separate cgroups so that in that very=
-=20
-case Clementine should get its own one (?):
-
-```
-$ systemd-cgls
-=E2=80=A6
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=80app-clementine-df516e4181=
-f446ab869e723ea2ed6094.scope=20
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=802926 /bin/cleme=
-ntine -session=20
-10de706f63000162437544200000015700012_1624379013_575845
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803059 /usr/bin/c=
-lementine-tagreader /tmp/clementine_735427711
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803060 /usr/bin/c=
-lementine-tagreader /tmp/clementine_557274898
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803062 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1730944950
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803063 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1509249421
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803065 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1345386497
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803068 /usr/bin/c=
-lementine-tagreader /tmp/clementine_865255891
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803070 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1782561441
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803072 /usr/bin/c=
-lementine-tagreader /tmp/clementine_421851305
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803073 /usr/bin/c=
-lementine-tagreader /tmp/clementine_175368243
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803075 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1962830479
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803076 /usr/bin/c=
-lementine-tagreader /tmp/clementine_547573203
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803078 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1819270047
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803079 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1632862299
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803085 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1279975869
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803095 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1612119641
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803102 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1789578483
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803103 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1541442265
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803105 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1418456770
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803106 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1998684543
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803107 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1349315391
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803108 /usr/bin/c=
-lementine-tagreader /tmp/clementine_231895572
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803110 /usr/bin/c=
-lementine-tagreader /tmp/clementine_492688785
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=9C=E2=94=803111 /usr/bin/c=
-lementine-tagreader /tmp/clementine_1492630900
-=E2=94=82   =E2=94=82 =E2=94=82 =E2=94=82 =E2=94=94=E2=94=803112 /usr/bin/c=
-lementine-tagreader /tmp/clementine_2017490599
-=E2=80=A6
-```
-
-> How long does it usually take to trigger it?
-
-I don't know :(. I don't usually peer into dmesg, and noticed this by a pur=
-e=20
-chance. Grepping the journal shows nothing else but only this occurrence, a=
-nd=20
-also the journal is rotating, so some info might be already lost.
-
-> Would it be possible to share a simpler reproducer, or is this part of
-> a more complex application?
-
-This was triggered bu KDE's autostart of Clementine player, and I don't hav=
-e=20
-any specific reproducer. If I find one, I'll share it of course.
-
-Thanks.
-
-=2D-=20
-Oleksandr Natalenko (post-factum)
+Best regards,
+								Pavel
 
 
+> +++ b/net/mptcp/subflow.c
+> @@ -655,10 +655,10 @@ static u64 expand_seq(u64 old_seq, u16 old_data_len=
+, u64 seq)
+>  	return seq | ((old_seq + old_data_len + 1) & GENMASK_ULL(63, 32));
+>  }
+> =20
+> -static void warn_bad_map(struct mptcp_subflow_context *subflow, u32 ssn)
+> +static void dbg_bad_map(struct mptcp_subflow_context *subflow, u32 ssn)
+>  {
+> -	WARN_ONCE(1, "Bad mapping: ssn=3D%d map_seq=3D%d map_data_len=3D%d",
+> -		  ssn, subflow->map_subflow_seq, subflow->map_data_len);
+> +	pr_debug("Bad mapping: ssn=3D%d map_seq=3D%d map_data_len=3D%d",
+> +		 ssn, subflow->map_subflow_seq, subflow->map_data_len);
+>  }
+> =20
+>  static bool skb_is_fully_mapped(struct sock *ssk, struct sk_buff *skb)
+
+Best regards,
+									Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmDTQ6sACgkQMOfwapXb+vLTHwCfYuGShn4ZlWkW5HubXshWQVKL
+3+cAn2aVMKRgXeeEE4q8EztWTVlAihzk
+=wxNu
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--
