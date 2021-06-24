@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6A93B2DD6
-	for <lists+stable@lfdr.de>; Thu, 24 Jun 2021 13:27:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61D443B2EE4
+	for <lists+stable@lfdr.de>; Thu, 24 Jun 2021 14:26:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232464AbhFXL33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Jun 2021 07:29:29 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:35732 "EHLO www.linuxtv.org"
+        id S229956AbhFXM3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Jun 2021 08:29:00 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:46484 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232274AbhFXL33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 24 Jun 2021 07:29:29 -0400
+        id S229448AbhFXM3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 24 Jun 2021 08:29:00 -0400
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1lwNVl-00EFtI-0k; Thu, 24 Jun 2021 11:27:09 +0000
+        id 1lwORM-00EKe5-3S; Thu, 24 Jun 2021 12:26:40 +0000
 From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Thu, 24 Jun 2021 11:26:52 +0000
+Date:   Thu, 24 Jun 2021 12:26:01 +0000
 Subject: [git:media_stage/master] media: uvc: don't do DMA on stack
 To:     linuxtv-commits@linuxtv.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        stable@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1lwNVl-00EFtI-0k@www.linuxtv.org>
+Message-Id: <E1lwORM-00EKe5-3S@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
