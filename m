@@ -2,75 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD0733B3405
-	for <lists+stable@lfdr.de>; Thu, 24 Jun 2021 18:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D89C3B3482
+	for <lists+stable@lfdr.de>; Thu, 24 Jun 2021 19:14:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231407AbhFXQjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Jun 2021 12:39:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42040 "EHLO mail.kernel.org"
+        id S232186AbhFXRQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Jun 2021 13:16:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229445AbhFXQjD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 24 Jun 2021 12:39:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 985BB6128D;
-        Thu, 24 Jun 2021 16:36:43 +0000 (UTC)
+        id S230116AbhFXRQn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 24 Jun 2021 13:16:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01497613DC;
+        Thu, 24 Jun 2021 17:14:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624552604;
-        bh=SPB+E/15fECt3/pgdDyZ+a7Wj/LA134HlNWj2sLvAXc=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=roWTWHanBiMNgpR9NvuHwrHGkMdIjBzS+CauSlxa+fBKD3p3U+rHFx/xAlZg0wROO
-         Mn0D08AkQJOLbf/Dt68FIKcr1YWwH9w160bumWnTMopD8QvPFbxqziGqDwDQOsllMp
-         QCbsq2FYW6m+5vwyRR+TS4KSPN4+32wdLvnDqRjlcNWWHVar/9uu0F7898iN0kV5PF
-         3dZc9hZmKksXlSk6TAK+8qsbYHXkonSZ2islC6kxtUS8G9tvD3ZGkDaCjeUkMbpiX+
-         a8xO+0JELvDidNr515JkCVpGgoon1DYdNeqYvKuUyDG7h5dxxDWwkI7Aw+TxnFPnk3
-         XjPGuHsQRrsFw==
-Subject: Re: [PATCH 4.4 to 4.19] Makefile: Move -Wno-unused-but-set-variable
- out of GCC only block
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        clang-built-linux@googlegroups.com
-References: <20210623172610.3281050-1-nathan@kernel.org>
- <YNR02aQT3f9Naap/@sashalap>
-From:   Nathan Chancellor <nathan@kernel.org>
-Message-ID: <d8ebe3e5-0001-1a53-7ec3-f335bb76a415@kernel.org>
-Date:   Thu, 24 Jun 2021 09:36:42 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        s=k20201202; t=1624554863;
+        bh=zVx5VItzPLj7HM2YlVcVsl4Odcp6W+sfx757TCcPVvo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lLVOyh83aDlfzLS35Lp6FTJ9GjwU890OLYt3ugyyuhqJKZOXsZ31j6RbKA/3YzPPZ
+         otQb+zN1LEBQXnNX4zfKiMWvQIYNHSA2KOZsJ3c3cwEZ0tl50Won0eWl/BSJO2xga3
+         rocixqHPfQU43C/00V3ia+q+lMXNUaqCR3eCvufViJFSJPSzPDlS5BUZNPBopBIODw
+         G9M9o1hS26H5cHfgUbj5mTLGcqGDNa0VFGzLcDWqNd2hiBhqM1eUECmdB+Lh7vcvjF
+         Nv5C/espaC6lGRAb/591DtiFwdoZhs9bKx7k12IcPayOrebldsQbdva8rtmawEEAw9
+         2eLXEa6BHYQRg==
+From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+To:     linux-pci@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?R=C3=B6tti?= 
+        <espressobinboardarmbiantempmailaddress@posteo.de>,
+        Zachary Zhang <zhangzg@marvell.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] PCI: Call MPS fixup quirks early
+Date:   Thu, 24 Jun 2021 19:14:17 +0200
+Message-Id: <20210624171418.27194-1-kabel@kernel.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-In-Reply-To: <YNR02aQT3f9Naap/@sashalap>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The pci_device_add() function calls header fixups only after
+pci_configure_device(), which configures MPS.
 
+So in order to have MPS fixups working, they need to be called early.
 
-On 6/24/2021 5:04 AM, Sasha Levin wrote:
-> On Wed, Jun 23, 2021 at 10:26:12AM -0700, Nathan Chancellor wrote:
->> commit 885480b084696331bea61a4f7eba10652999a9c1 upstream.
->>
->> Currently, -Wunused-but-set-variable is only supported by GCC so it is
->> disabled unconditionally in a GCC only block (it is enabled with W=1).
->> clang currently has its implementation for this warning in review so
->> preemptively move this statement out of the GCC only block and wrap it
->> with cc-disable-warning so that both compilers function the same.
->>
->> Cc: stable@vger.kernel.org
->> Link: https://reviews.llvm.org/D100581
->> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
->> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
->> Tested-by: Nick Desaulniers <ndesaulniers@google.com>
->> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
->> [nc: Backport, workaround lack of e2079e93f562 in older branches]
-> 
-> Can we just take the above patch instead?
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Fixes: 27d868b5e6cfa ("PCI: Set MPS to match upstream bridge")
+Cc: stable@vger.kernel.org
+---
+ drivers/pci/quirks.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-No because that patch has a prerequisite of commit a035d552a93b 
-("Makefile: Globally enable fall-through warning"), which is not 
-suitable for stable because there were hundreds of warnings fixed before 
-that was enabled.
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 22b2bb1109c9..4d9b9d8fbc43 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3233,12 +3233,12 @@ static void fixup_mpss_256(struct pci_dev *dev)
+ {
+ 	dev->pcie_mpss = 1; /* 256 bytes */
+ }
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
+ 
+ /*
+  * Intel 5000 and 5100 Memory controllers have an erratum with read completion
+-- 
+2.31.1
 
-Cheers,
-Nathan
