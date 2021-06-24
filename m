@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B6F13B39DC
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 01:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B36C03B39DD
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 01:50:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232873AbhFXXvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Jun 2021 19:51:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58312 "EHLO
+        id S229585AbhFXXw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Jun 2021 19:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232300AbhFXXvf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Jun 2021 19:51:35 -0400
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60907C061574
-        for <stable@vger.kernel.org>; Thu, 24 Jun 2021 16:49:15 -0700 (PDT)
-Received: by mail-pj1-x104a.google.com with SMTP id s5-20020a17090a7645b029016f7e331ca4so6909285pjl.6
-        for <stable@vger.kernel.org>; Thu, 24 Jun 2021 16:49:15 -0700 (PDT)
+        with ESMTP id S229521AbhFXXw2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Jun 2021 19:52:28 -0400
+Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C63CC061574
+        for <stable@vger.kernel.org>; Thu, 24 Jun 2021 16:50:09 -0700 (PDT)
+Received: by mail-pg1-x54a.google.com with SMTP id t28-20020a63461c0000b0290221e90ef795so4837546pga.6
+        for <stable@vger.kernel.org>; Thu, 24 Jun 2021 16:50:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:message-id:mime-version:subject:from:to:cc;
-        bh=Vt2aSebjq1sGUnOvdsn722BRfFx66IlNGLb8mfRKA0A=;
-        b=pN7fAN+7Z1qUVjNo9ogsSR63nmQhjeUUVHVMVwxEc8CV9GCoUqfRJihawqxrMLK0pB
-         GcFkQDe0S+yQzrChTKoSVT6r4cH9d9zo9Ri4VdbREORGsnwk92HIzWWIhMpMvjWZ29Z4
-         +lANJMfNvT4G9usjz328y8MLVBSX2b96r1bsyNOVD2VEXIAwuj6BM9jAruEfhxpeb1lF
-         JuF8s8FRBbO+ZlWknKJOhuI77Aki5K84D8pBZY7RWeb4iclIr7fKTIJxl72wLQxdricq
-         /Xa8pgx2EllO1aXKXba4b2r8bcwsYAquI3VULDT7wJY0I7CKjvMVceED4XSObUD6dEsz
-         ZaoQ==
+        bh=M1VNVuQMjdWO8UyTMgNh8Y5zDVGwOKIQwOB57tUW73Q=;
+        b=YFkfMXxc4cirqn6Yh/z82dmxpKvryoVZYqHs4JtotD9tz0RsFPJfwnCAU+PW9dnRfT
+         CuW4BRC+hJ44eG1HE+4FvHguRXC/xy2vXpYtHV+FIDT1C6zb4bMsgVV+7T3PE3iWAIpe
+         IOxega4U9r6rBDxqSviu4kPOKn+yBGHM2FTuaN1kwxV9lUAHlgwWGhhtn1IQ6Aa5S4pi
+         LBHMjSu5pULZko/T5ScNqeKJh+b2HKK2qSNH37CpesyALm51Yth450GVDjPJ+EmLU6xD
+         SA1r+yuGxNkbA8+pYK+30swYAVFw4OuhUdGf7U2yxxOWByinSJjfQ9yDVq9QimAfk+kF
+         IADw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=Vt2aSebjq1sGUnOvdsn722BRfFx66IlNGLb8mfRKA0A=;
-        b=J6O3JN+Mu10tjGBQeky/COeZyiKXHMcPpllzNu+yoLl93yT1zddU09wK0gXv5UGUFJ
-         gin/VD124fSdB9bk/LY/2RiKRpvVAjFxO8Dmk5fjgc8J5efZdMvXizfZ3diqdRoo00qp
-         gxcNU9w5nE0yx8oqJyqWOK9U49iTsrwWO74s72URE5bZqKx4hAXcQUYgslBgqk+G3bBG
-         cMN7whqNXRuY7Jtw9yq0QNRdQjEuip3au1QD8fFKWdQiB9AmWUBwsWAGZi0q75Ri/Lnk
-         2+u5hTTPPZxfsK49Z/2tCgBZyLvZiTojpFNNGn0i4euGi7eusRfS33M0rx163iDn7Un0
-         0Nnw==
-X-Gm-Message-State: AOAM531Yas8Wq/+2/Xhpb5EfJVBQwzC5fOhP9IcnL647soOgCoCk6M7N
-        BQ3cwVJ09+4b8F09yWqjur/aWtYp9rCUVfmc1Eq7x7jOGL4RtgDRFnrYI2lf63QTof1JgqBkxNL
-        Lmt5OG7toA0Xw17KdNf4HPwT53axY+mVwbS4Aj5B4ssD5Scp15dnamJP7zfb8K3GL3wQ=
-X-Google-Smtp-Source: ABdhPJxAw7xTENF3xgFJFxoaaL9AQ2SxoHOX24wXyhaXjTkY+P0MUsfuEKb3SK0vuwnPlgOFOAb0nz5MzYYX2g==
+        bh=M1VNVuQMjdWO8UyTMgNh8Y5zDVGwOKIQwOB57tUW73Q=;
+        b=T65pq2iLqZLOjr2kqKqfLY3V2owpzWSJXxavVoW8xIY6XFWws5f3X4i9Q2/O6MagK1
+         4Kvnv/MBE5tZ4JxxU/U3oCja5RxrgG5ZeldIilcP5y1oVtyyz04TC8C+zP888r3QvG8E
+         glU71V0nkenb89l9VIKbGWO595mbOIxNgndkLeGeA/6uzUPTZzutcFDpXbigfCBOdBc8
+         GmppWF3TywOJhFM/jj/TZStTkyssVHeJuYoU15XYkadM3q+AkCvBgleEOsekHI5+fiAz
+         wXU+JMDbGTefngZFtwr3hW1CXGj7uhRxQWykYgO3DLMls9J+SRPmDe17Bjupn10zupqv
+         3P/A==
+X-Gm-Message-State: AOAM5300MDos33z206mA8OVijkiaNfWbaljn6j8i+joFNukRWn7Xw19k
+        rF8SErFyrvmxWdrUJZer8qCeyLHm0sNuElMumyjHOVIi7nhwAz+hS2CgNFxTb259FWtepwjIC5g
+        dT+e7Br4m2iBuGj860t/H6bCUlA3odG/hbXM0Vv6bheC2xHMX4K5FZtjmuDDFj0vIoUA=
+X-Google-Smtp-Source: ABdhPJzcD9byXoqjTbSZgD4jiCls13+S3+cKu5Q6nMTWmzZl/mjCEBF7gMVhmV0GP8cweTcT6KEdWdqr5icwEQ==
 X-Received: from alperct.c.googlers.com ([fda3:e722:ac3:cc00:24:72f4:c0a8:466b])
- (user=alpergun job=sendgmr) by 2002:aa7:9729:0:b029:2ff:1e52:e284 with SMTP
- id k9-20020aa797290000b02902ff1e52e284mr7426497pfg.71.1624578554596; Thu, 24
- Jun 2021 16:49:14 -0700 (PDT)
-Date:   Thu, 24 Jun 2021 23:48:55 +0000
-Message-Id: <20210624234855.2428305-1-alpergun@google.com>
+ (user=alpergun job=sendgmr) by 2002:a63:e114:: with SMTP id
+ z20mr6803373pgh.207.1624578608552; Thu, 24 Jun 2021 16:50:08 -0700 (PDT)
+Date:   Thu, 24 Jun 2021 23:50:02 +0000
+Message-Id: <20210624235002.2429467-1-alpergun@google.com>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.32.0.93.g670b81a890-goog
-Subject: [PATCH 5.10 v2] KVM: SVM: Call SEV Guest Decommission if ASID binding fails
+Subject: [PATCH 5.12 v2] KVM: SVM: Call SEV Guest Decommission if ASID binding fails
 From:   Alper Gun <alpergun@google.com>
 To:     stable@vger.kernel.org
 Cc:     Alper Gun <alpergun@google.com>, Peter Gonda <pgonda@google.com>,
@@ -85,10 +84,10 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  1 file changed, 21 insertions(+), 11 deletions(-)
 
 diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-index 16b10b9436dc..01547bdbfb06 100644
+index dbc6214d69de..8f3b438f6fd3 100644
 --- a/arch/x86/kvm/svm/sev.c
 +++ b/arch/x86/kvm/svm/sev.c
-@@ -130,9 +130,25 @@ static void sev_asid_free(int asid)
+@@ -143,9 +143,25 @@ static void sev_asid_free(int asid)
  	mutex_unlock(&sev_bitmap_lock);
  }
  
@@ -115,7 +114,7 @@ index 16b10b9436dc..01547bdbfb06 100644
  	struct sev_data_deactivate *data;
  
  	if (!handle)
-@@ -152,15 +168,7 @@ static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
+@@ -165,15 +181,7 @@ static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
  
  	kfree(data);
  
@@ -132,7 +131,7 @@ index 16b10b9436dc..01547bdbfb06 100644
  }
  
  static int sev_guest_init(struct kvm *kvm, struct kvm_sev_cmd *argp)
-@@ -288,8 +296,10 @@ static int sev_launch_start(struct kvm *kvm, struct kvm_sev_cmd *argp)
+@@ -303,8 +311,10 @@ static int sev_launch_start(struct kvm *kvm, struct kvm_sev_cmd *argp)
  
  	/* Bind ASID to this guest */
  	ret = sev_bind_asid(kvm, start->handle, error);
