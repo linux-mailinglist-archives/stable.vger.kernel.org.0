@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C9183B390F
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 00:04:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BAFD3B3910
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 00:05:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232715AbhFXWHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Jun 2021 18:07:10 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31898 "EHLO
+        id S232300AbhFXWHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Jun 2021 18:07:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:28006 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232693AbhFXWHK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Jun 2021 18:07:10 -0400
+        by vger.kernel.org with ESMTP id S229848AbhFXWHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Jun 2021 18:07:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1624572290;
+        s=mimecast20190719; t=1624572333;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=zUqGiC/pVTvNwSK7cLH6J1baKcMTefGVXAbkJmBdujk=;
-        b=I/ddAD0vitI2YiW9dhdMSKVJjX1bIfNBDi7DNhvDmqPvmn0uLqw1wP24BgPgwKEv5PIb+g
-        3Z50Ls1YLbjX/suTUVjWPDLJcH3Mn2400pP23IrbA6uRlAfOT87J9gnjhPaQDMdxSu3Prk
-        LYFPhljb6Ker4EJK8qDUFFopq4qh4yI=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-171-OR0JprJsP6etI6ZNMAiIjQ-1; Thu, 24 Jun 2021 18:04:48 -0400
-X-MC-Unique: OR0JprJsP6etI6ZNMAiIjQ-1
-Received: by mail-wm1-f69.google.com with SMTP id u17-20020a05600c19d1b02901af4c4deac5so2161188wmq.7
-        for <stable@vger.kernel.org>; Thu, 24 Jun 2021 15:04:48 -0700 (PDT)
+        bh=8CmUEsgUeJLzmUaEuY7hklAVzAvdjstNeVIFa3OagmE=;
+        b=BSDHXbylSGNiqj1rIf4eCl3kmpwEyG3jYlml0r+Ohg4OT0mIOSTqnYNn5OEluRWKNtI1xh
+        6c52kkdbfOqrGSGiOnX4sNjHNoVstlzMsIKGr0PRT7K9xH8EMw8IMD7ZvVbITck5wCRWI9
+        CFwvdG2O9NH7YFszmysPsAmIu+eQuEU=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-398-aADFlmcoPRamia9KmG7i4w-1; Thu, 24 Jun 2021 18:05:32 -0400
+X-MC-Unique: aADFlmcoPRamia9KmG7i4w-1
+Received: by mail-ed1-f71.google.com with SMTP id i19-20020a05640200d3b02903948b71f25cso4105137edu.4
+        for <stable@vger.kernel.org>; Thu, 24 Jun 2021 15:05:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=zUqGiC/pVTvNwSK7cLH6J1baKcMTefGVXAbkJmBdujk=;
-        b=cEr9lsTOd3nRDEgbiALwu6u2TR50JMatowvx1KxAas1+VPgddmPy+ZYPoTGjLv7r3+
-         ZFwu3HZJomAa8W3TRKamRhuQYWdKCf/V6VZJm5mwO3CDESf8Rjk4FoOiOT/YnLoZ8L3d
-         gkt7tj3baT34t9whcIYmyv6HAFnsGZl+H7Fb+y/wYD9JgxY+h++tvfHnNpLUJwRB+8EJ
-         EnazkU98AYwv4zyXV+UCqZpJQWsCTuvLDMd0RN0j1i7HtAu6xfAqc0kmRbPUeL5lyjDt
-         htO18QlmQAxHKLhUT9LWSbuNizNg8/tMskUYZ42s6NhQObD6tadYuhtrJui/1TmDzoXS
-         1y7w==
-X-Gm-Message-State: AOAM5328/IEhBI5B82mpUHfa7iVtiRa1o7peqH4Y576MFCGRFF6GDBuL
-        Oq/QiudKQpKCu/eV7SrYC7ltA+aMzbx4Czc508IR8vCqxF8ajhvT0qCJ7Kow7hxgyqKmyrRn1qu
-        E34yi+9DEgTLDLA1q
-X-Received: by 2002:a05:600c:219:: with SMTP id 25mr6898871wmi.106.1624572287319;
-        Thu, 24 Jun 2021 15:04:47 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzzLyc2cb9IwrIINqpZWJFl30UvyVa18NTO7cHT2SQ8ImqAF7M6lyA0JL7TiaX6sW7FKuwyng==
-X-Received: by 2002:a05:600c:219:: with SMTP id 25mr6898852wmi.106.1624572287057;
-        Thu, 24 Jun 2021 15:04:47 -0700 (PDT)
+        bh=8CmUEsgUeJLzmUaEuY7hklAVzAvdjstNeVIFa3OagmE=;
+        b=Nfh9B17mhnDZP5lJLF0V+epbsPluxEvATbl5Qva66iwy/zipUc8UParHjhlKhUm7Aw
+         PFHWQMKn4cV9cFfJHhPLvSyAFgkvh6DSU6V3KPRiutwSCo1e34I69lmI9o01mnR7qp3p
+         VHBlapBOjRXvty95IkwlQ1RUSgYgKEzuc4QB96hZJYJXYvTbxuNMH75mAuKEkoV/Ybav
+         Q1ohuiIaT9q2wP6gNTkS+ZoafBwpkjHxy/NlGO+fl2xcwaqINcr1ftfjrydm1OVRP59D
+         cdp3P1q6C0GQnJiNJwge2Qe1Xbh2bp+i22kiqv3chSI3kwT+rFq1ABdGHHbI7soVEKBE
+         KDEA==
+X-Gm-Message-State: AOAM531yL8Afd2Xw/XqmEos6ODpJdHGaveklofMBeDWdfi5OA1nt/jPY
+        t9SwDWVYjMzxYml8g7CWfNTTy+EvYC+/ACXnt4aVWTtCA2xJ8dLxvu06siBcRhXIythnh/7NV5a
+        mb0ll1AzmdRy1h9WU
+X-Received: by 2002:a05:6402:27d0:: with SMTP id c16mr9987536ede.60.1624572331452;
+        Thu, 24 Jun 2021 15:05:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyQPVhZmSqtOoaXiVi7UnyFu9MHzYiuCKrUG2r+cgwqFyo0cbFuuns9eP9gA+jjzAafZw0VSQ==
+X-Received: by 2002:a05:6402:27d0:: with SMTP id c16mr9987516ede.60.1624572331321;
+        Thu, 24 Jun 2021 15:05:31 -0700 (PDT)
 Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id u10sm4062559wmm.21.2021.06.24.15.04.46
+        by smtp.gmail.com with ESMTPSA id n2sm2861730edq.2.2021.06.24.15.05.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Jun 2021 15:04:46 -0700 (PDT)
+        Thu, 24 Jun 2021 15:05:30 -0700 (PDT)
 Subject: Re: [PATCH 5.12] KVM: SVM: Call SEV Guest Decommission if ASID
  binding fails
 To:     Alper Gun <alpergun@google.com>, stable@vger.kernel.org
 Cc:     Peter Gonda <pgonda@google.com>, Marc Orr <marcorr@google.com>
 References: <20210624220211.1973589-1-alpergun@google.com>
 From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <330d4365-36a2-b4c2-007e-ff19d0d250ec@redhat.com>
-Date:   Fri, 25 Jun 2021 00:04:45 +0200
+Message-ID: <296f54c9-72f2-b92f-b5b0-12a139c8a5f9@redhat.com>
+Date:   Fri, 25 Jun 2021 00:05:30 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.10.1
 MIME-Version: 1.0
@@ -152,5 +152,8 @@ On 25/06/21 00:02, Alper Gun wrote:
 >   	params.handle = start->handle;
 > 
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Oops, NACK.  Sorry.  You need to preserve the kzalloc in older versions 
+of Linux.
+
+Paolo
 
