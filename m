@@ -2,91 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 135353B3A1A
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 02:18:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BFFD3B3A7F
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 03:39:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229712AbhFYAUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Jun 2021 20:20:24 -0400
-Received: from mout.gmx.net ([212.227.15.18]:50913 "EHLO mout.gmx.net"
+        id S232937AbhFYBlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Jun 2021 21:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229521AbhFYAUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 24 Jun 2021 20:20:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1624580280;
-        bh=swjWUhJ7ti4wOo9q/TLpVinRb1Z0wsQCkXa7GXKM7Pw=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=lJEtIVn2kqP8E9SR2FEf8KnQz+6kcxjydfyBSBl5xwXyp6QQBoLYZ+PILl6DcnHN5
-         0uTyxsbqc/b3LEyPjeXntZHBygYQ5QxHMXIX0skcJ0SDgbgMKhN5llODFQ/uct+5aw
-         WuHgBBRdbwd9ZOhvmIhJLKTj+6uprrSjrlFv/5wc=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.178.51] ([149.172.234.120]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MeU4s-1lMPqN3yJI-00aTzd; Fri, 25
- Jun 2021 02:18:00 +0200
-Subject: Re: [PATCH v2] tpm, tpm_tis_spi: Allow to sleep in the interrupt
- handler
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, linus.walleij@linaro.org,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20210620023444.14684-1-LinoSanfilippo@gmx.de>
- <20210623133420.gw2lziue5nkvjtps@kernel.org>
-From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Message-ID: <5fbe3f44-8c0d-f185-45fd-fcaa7af3657d@gmx.de>
-Date:   Fri, 25 Jun 2021 02:17:59 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20210623133420.gw2lziue5nkvjtps@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:BpmE95Wz/wro0J6PeKv1BJFP5+cb7QlgHSxV6ggbmZlD8k8/pHD
- Br7wsTabWG4goyqNdHv7ZvKp/NvmJcAYXmO2MyFwPom4FEU0Bk5F7nMolL1XAV+Rfnm+9ZY
- U/nZuSW+0VZQ2HHwlb6ohwjNImWP/nmY4R5CfrExzGZKPLeJmgBohVXu+WCbjUcgDku9DSd
- ao0W+BTrtUI+Brz6/2XyQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:3PmWfYZqWHQ=:Eei6EZGPIT8eAOSXRj5g6l
- M03hkwEZ/08UCZi7364D+HUcqz3E1PakHXJd4UXmEWhiOwY+/PJCGpg6GoYrF2I4pT6ckRAL8
- r+HwblBj+IIeacDMKuYO0T24HTukehNe7pgsYEq+wHIFk3lfDhfSR+dgpkdMGPOKIMxDeMqd1
- jt6WN6ZD0r+Ht4TTMq34yafywK0vngLgsIR4HywaHdazNFdSYMRQ2IKjz/xz3cYYvTNu2WXOA
- gxxHvW4mj3AKMc4Bt3AXcti/0L8jvJyy7oWNUUXYoR30iYBAhUyUUeKLYAhQnfoARmS8PNQ55
- p4aqjBACmzKkgzWeWRe67BoVjF14GL3U8kJuAUPl6TR1nA7aHY0UVQN07E8vrllh55oDTrcBn
- 8dcT4PE1ZAtrU1If2LRp50Ad2XHGYmduS3gUEWmuPekOleuUHy3nocX0sRAZcysL7erDqDZbg
- XaNZteoA7/gkSiDx2z9BFjgxEad/6nutRmzezUKVcpk7dCr8+05Uko8mQgZsQxJIn8PoRhPjZ
- J40GuhGHDrxpXrElo8bYhaZEUio0kekoAXE7YeWNPu1SftC0ST+QY5gL8D0rYzZsKIXLTWDnD
- JfjoGyyKa8RUoTe5Imguu/OmdiRq949SouT/diThJRhNKWXLJkkvKtKSCqT1knBHKRWoMsNZC
- WbqmhrY8VEBh0sTXCqBL88rL0qYtfwjIJ+tWMXAC8AiQ0zv0WvHeiGyo9wjt4gepes2I6sxSo
- C/BAJuQzqCiG4etmYFX+F7HmVt9gvtql+6csfVtKaJQyBlIc0GTdG9axBjR63Pwefnw4TwXF9
- WTXL+UomFRf8hneWDw6LP1R4FOhdq9aXB7rWqQGjkN53Gi5ULQfvfsdxnHOlCSwqkEboupcI4
- yz9m6aiwS18p5VzJ4n2W1ErjpXGu7XjEk5ESUkps/ruVfxsjCtkoKxXAPAb6E5Qa1DjeiGE5B
- 3Kfv82EZUGEff7w8jDMCCQAZbIXvYGh+/mlF40EcJlaqyfGGZb0UpC7E6vpPplueNI03gS962
- hZ4lelosdoDyf6R+toP83B34dRE9ntn/RNeNwXrhM60iPrjoJE+4/oYuLNu5brc0WQVfntnbS
- hMQrIwDKGaW1KvWOhcZ3503kQmjF/0WZaPkI3qRgdcOotx02Us55+yh3A==
+        id S232917AbhFYBlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 24 Jun 2021 21:41:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98EA161220;
+        Fri, 25 Jun 2021 01:39:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1624585142;
+        bh=DsRLpAhxGXVi4qKVXcSAFnKMtU65qkrjCMA4rNM5AyU=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=ItSNY5CkN//XMHm5uASXsfsrK/eFkZ7jI2tAK4O9UjjE78zLORqHy/YLHKR+4jXZO
+         lVjXs276WP+g1rX3BKoAcHHLis893yqKRqpk34AT8DJBxYtx7h7U73R1ebwsiBloOU
+         Zb2HTgWQPcJCJZwK5otpPJlIjiDC/g+Txw3MXK8Q=
+Date:   Thu, 24 Jun 2021 18:39:01 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, apopple@nvidia.com, hughd@google.com,
+        kirill.shutemov@linux.intel.com, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, peterx@redhat.com,
+        rcampbell@nvidia.com, shy828301@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, wangyugui@e16-tech.com,
+        will@kernel.org, willy@infradead.org, ziy@nvidia.com
+Subject:  [patch 01/24] mm: page_vma_mapped_walk(): use page for
+ pvmw->page
+Message-ID: <20210625013901.BV8rXpKTb%akpm@linux-foundation.org>
+In-Reply-To: <20210624183838.ac3161ca4a43989665ac8b2f@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Hugh Dickins <hughd@google.com>
+Subject: mm: page_vma_mapped_walk(): use page for pvmw->page
 
-On 23.06.21 at 15:34, Jarkko Sakkinen wrote:
-> On Sun, Jun 20, 2021 at 04:34:44AM +0200, Lino Sanfilippo wrote:
->> Interrupt handling at least includes reading and writing the interrupt
->> status register within the interrupt routine. For accesses over SPI a m=
-utex
->> is used in the concerning functions. Since this requires a sleepable
->> context request a threaded interrupt handler for this case.
->>
->> Cc: stable@vger.kernel.org
->> Fixes: 1a339b658d9d ("tpm_tis_spi: Pass the SPI IRQ down to the driver"=
-)
->> Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
->
-> I'll test this after rc1 PR (I have one NUC which uses tpm_tis_spi).
->
-> /Jarkko
->
+Patch series "mm: page_vma_mapped_walk() cleanup and THP fixes".
 
-Sounds great, thank you!
+I've marked all of these for stable: many are merely cleanups,
+but I think they are much better before the main fix than after.
 
-Regards,
-Lino
+
+This patch (of 11):
+
+page_vma_mapped_walk() cleanup: sometimes the local copy of pvwm->page was
+used, sometimes pvmw->page itself: use the local copy "page" throughout.
+
+Link: https://lkml.kernel.org/r/589b358c-febc-c88e-d4c2-7834b37fa7bf@google.com
+Link: https://lkml.kernel.org/r/88e67645-f467-c279-bf5e-af4b5c6b13eb@google.com
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Alistair Popple <apopple@nvidia.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Wang Yugui <wangyugui@e16-tech.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/page_vma_mapped.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+--- a/mm/page_vma_mapped.c~mm-page_vma_mapped_walk-use-page-for-pvmw-page
++++ a/mm/page_vma_mapped.c
+@@ -156,7 +156,7 @@ bool page_vma_mapped_walk(struct page_vm
+ 	if (pvmw->pte)
+ 		goto next_pte;
+ 
+-	if (unlikely(PageHuge(pvmw->page))) {
++	if (unlikely(PageHuge(page))) {
+ 		/* when pud is not present, pte will be NULL */
+ 		pvmw->pte = huge_pte_offset(mm, pvmw->address, page_size(page));
+ 		if (!pvmw->pte)
+@@ -217,8 +217,7 @@ restart:
+ 		 * cannot return prematurely, while zap_huge_pmd() has
+ 		 * cleared *pmd but not decremented compound_mapcount().
+ 		 */
+-		if ((pvmw->flags & PVMW_SYNC) &&
+-		    PageTransCompound(pvmw->page)) {
++		if ((pvmw->flags & PVMW_SYNC) && PageTransCompound(page)) {
+ 			spinlock_t *ptl = pmd_lock(mm, pvmw->pmd);
+ 
+ 			spin_unlock(ptl);
+@@ -234,9 +233,9 @@ restart:
+ 			return true;
+ next_pte:
+ 		/* Seek to next pte only makes sense for THP */
+-		if (!PageTransHuge(pvmw->page) || PageHuge(pvmw->page))
++		if (!PageTransHuge(page) || PageHuge(page))
+ 			return not_found(pvmw);
+-		end = vma_address_end(pvmw->page, pvmw->vma);
++		end = vma_address_end(page, pvmw->vma);
+ 		do {
+ 			pvmw->address += PAGE_SIZE;
+ 			if (pvmw->address >= end)
+_
