@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 727483B4076
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 11:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77FCE3B4077
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 11:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230217AbhFYJ21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Jun 2021 05:28:27 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:55125 "EHLO
+        id S230433AbhFYJ2h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Jun 2021 05:28:37 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:33525 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230481AbhFYJ2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Jun 2021 05:28:25 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id D59291940128;
-        Fri, 25 Jun 2021 05:26:04 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Fri, 25 Jun 2021 05:26:04 -0400
+        by vger.kernel.org with ESMTP id S230328AbhFYJ2f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Jun 2021 05:28:35 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 90EFE194014F;
+        Fri, 25 Jun 2021 05:26:14 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Fri, 25 Jun 2021 05:26:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ESZfBi
-        sNdiO4RMUDp0BzVJvB10zJImP5xXtu0uZg15k=; b=G4A5FCGdyS56nwjWYXmnGi
-        gz6l2513fSTPK3KL7r7RCokGaZH7w/Ejf/9U9b/oYC6uH/EMwGU8TGrdS3LegpT1
-        Ki7dBpxgsLHyFY45JO0Fi1JrVaiKMRNI6WLBvxZNT07v4B0hZtxPlXWvt9JqTaH1
-        4J9K+oRo1ZS9GrS1Z+l8Ifskg9jhd6/bMdwHxfLGgV4dVxBYjUxNsHuN0ByH3r18
-        pHjaoRIlEIN7gN1k9Xu3wN866he+11+j+JiSrrkHtALj93qh5suWJf4LTJsE3WXj
-        pu1IPms6jGMNoja99OLEdbKq4+o/NLalSq7Vx1GiT0oOF98D0Gq1vRBbJERUYDZQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=srQuYg
+        xyUuJDZtOvZynF1zBcMmTqwddv5U+jcpNT4i8=; b=NRP4gqErAo73k2C4b1/Xnf
+        Vjgfz0fxY8BSBKSf3k6yeBfU0f8mRsYhbwaK8glpOLT9zanU7NinHm0yVf49vjO+
+        SWPSs1Pv2Qwnd8sfqmn3oqIWFS2/+Zv4bebuKWnoE1DvDzmH46/6S0G5y9LCqcHa
+        0lD7Skr6E756/4JRRRYLDVgEPXTqlMMg3I7Apxfi+RFC5O+/p7XvBWZfxforGo67
+        ik3ZI82tK8q6bwbRt1oOw9C9BzHIqAvWhpXb2FMJi0/uC3qRkjMlGlHNAzVQyJwF
+        qZnJaBqCJ02rBXCuxJ42DaDpxXuxA33WOPji4u+p0wmKLtZypGS4VM2BmItAhaYA
         ==
-X-ME-Sender: <xms:K6HVYCbkiNOzcMSgLrl-HXg75hA0ot5LEJgNwwvObAApUb0p4Xihew>
-    <xme:K6HVYFZkQZ0h9xAZ58guyGtUvi2uC1ugY4jfwHi_LFpQeZk-BN-TZZKnZ_1oMYM7t
-    xECfHRR4vCzPA>
-X-ME-Received: <xmr:K6HVYM9Upb_lavQ1PmGKcf1jNEl48wi3Ags2DNdi8cWLOQ7MiISE_FsE3thkV80VJmuQ_X-J_n_QbHPDKHHD-9W_HSZ_nq-g>
+X-ME-Sender: <xms:NaHVYFH-Hzn-aRpazFn_TZ-fqO2o4UgRLeZ6cdpeeFwBLSQoCcwxQg>
+    <xme:NaHVYKUqvgl2KUHkbEDx6PEcW-Wbu7M9zs_1aSOm-Ar97qd9hS9Dcyb9QUgNFF9Lw
+    _8d2xhvxD40Gw>
+X-ME-Received: <xmr:NaHVYHK-xF3EZvqTn0a0BS_0XHlDxNyUaHGw9XJatbYZp90_bxB8dxJfgrBQ0Dnps-Q4E9ZpuAI332JPdnnmD91IxMWVt2AJ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeegjedguddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeegjedguddvucetufdoteggod
     gheqnecuggftrfgrthhtvghrnhepheeggfeuvdehjeffieehheeuvdejfefhgeevgfegvd
     euudefveegffeuvdetleeunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehm
     rghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:K6HVYEqCThl8yPI7Oz0k066wS5ntgF5JJMCo3x-j44FPMJifKdFhPg>
-    <xmx:K6HVYNq599M-kPtLszN5tHglOUVddpIQzggSvbbvO9wfDBPrR3UX4A>
-    <xmx:K6HVYCSaUrNXWWkSGitRz9k5GvE9mN354Eqwxlw8QJ16ewZrSUvn0A>
-    <xmx:LKHVYGCBqku3nN1dULm8huQa-YWGgAYQ5tkUgVOTdhfzR_V8H0YRHA>
+X-ME-Proxy: <xmx:NaHVYLHu2mFm_UU_mIWHC5brX_EijfrShyLAiJ3qcuzZBzduAs8fkQ>
+    <xmx:NaHVYLVrGiJ5wgREuyjz4zJvHeQXUeuARcsbPBB1uXUnC4WnDuTevA>
+    <xmx:NaHVYGMWxwNmgLA08ihFaMpm6QyaUY_xEgasIZ0Bb3BoMx1oYNS8KA>
+    <xmx:NqHVYBfxJoW2oD6KKzTUSci7GRnivpU3SpCvcG3di2RB5p6bimRQ0Q>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 25 Jun 2021 05:26:03 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] swiotlb: manipulate orig_addr when tlb_addr has offset" failed to apply to 5.10-stable tree
+ 25 Jun 2021 05:26:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] swiotlb: manipulate orig_addr when tlb_addr has offset" failed to apply to 5.12-stable tree
 To:     bumyong.lee@samsung.com, chanho61.park@samsung.com,
         dominique.martinet@atmark-techno.com, hch@lst.de,
         horia.geanta@nxp.com, konrad.wilk@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Jun 2021 11:26:01 +0200
-Message-ID: <162461316120108@kroah.com>
+Date:   Fri, 25 Jun 2021 11:26:03 +0200
+Message-ID: <16246131632380@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
