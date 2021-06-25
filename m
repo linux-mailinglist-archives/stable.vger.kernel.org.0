@@ -2,102 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4233B4170
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 12:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 389EB3B418C
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 12:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbhFYKWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Jun 2021 06:22:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44176 "EHLO mail.kernel.org"
+        id S230379AbhFYKYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Jun 2021 06:24:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230082AbhFYKWQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Jun 2021 06:22:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02FCC61431;
-        Fri, 25 Jun 2021 10:19:55 +0000 (UTC)
+        id S230436AbhFYKYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Jun 2021 06:24:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA86B61439;
+        Fri, 25 Jun 2021 10:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624616395;
-        bh=a2a1veiOGKp2laMSFdMlJEur+feJy9K0G00EltWwnL8=;
+        s=korg; t=1624616542;
+        bh=TOcbaUztKO2e1mYBAw64ee9NuniluuPC6ZDvM9kA/og=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qDTWP1qeakO4qgYoNKsJ6busUIEiSF8tJbhblVtPnb6abzNbr+Rj9ZJHRUyoLknhb
-         hCqzx719rAGZ4DbPrkxiKbyVWo0z8bivev9Z8x+J+2VBcf88F4zLvldH+HcZRUNfKD
-         bRCB9UsqIxxJibeV0boueoHRi7G2cBvDeA8fAXk0=
-Date:   Fri, 25 Jun 2021 12:19:52 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        catalin.marinas@arm.com, will@kernel.org,
-        akpm@linux-foundation.org, guohanjun@huawei.com,
-        sudeep.holla@arm.com, song.bao.hua@hisilicon.com, ardb@kernel.org,
-        anshuman.khandual@arm.com, stable@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Li Huafei <lihuafei1@huawei.com>
-Subject: Re: [PATCH stable v5.10 0/7] arm64: Default to 32-bit wide ZONE_DMA
-Message-ID: <YNWtyJaDY17829g9@kroah.com>
-References: <827b317d7f5da6e048806922098291faacdb19f9.camel@suse.de>
- <YETwL6QGWFyJTAzk@kroah.com>
- <604597E3.5000605@huawei.com>
- <YEX1OcbVNSqwwusF@kroah.com>
- <31cd8432-2466-555d-7617-ae48cbcd4244@huawei.com>
- <8b0a4f25-0803-9341-f3a4-277d16802295@huawei.com>
- <YNLe4CGtOgVvTOMN@kroah.com>
- <e47df0fd-0ddd-408b-2972-1b6d0a786f00@huawei.com>
- <YNLkDJ8zHGRZ5iG8@kroah.com>
- <f692a6e5-9e07-8b96-b7d3-213e6e3d071b@huawei.com>
+        b=LQNjrYcoFkrpO0bIRBGwclSHx9DAvYUCLsr6tfIbXR6zdbWTVPR5a8tHHJNbHjFe1
+         1ot4WlRffIed6w1JGCfeZmmTm9K8B23dPQCwWQ1PV24T6ZozyOfttVRRvp61uXyIvO
+         hy6xDZC0j4DcbRILLnD7T2RSfYhfSkxY02i0QkTI=
+Date:   Fri, 25 Jun 2021 12:22:19 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Aman Priyadarshi <apeureka@amazon.de>
+Cc:     Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>,
+        Alexander Graf <graf@amazon.de>,
+        Mark Rutland <mark.rutland@arm.com>, stable@vger.kernel.org,
+        Ali Saidi <alisaidi@amazon.com>
+Subject: Re: [PATCH] arm64: perf: Disable PMU while processing counter
+ overflows
+Message-ID: <YNWuW3GX4HATEr2W@kroah.com>
+References: <YMoQ1MZgsL2hF2EL@kroah.com>
+ <20210616192859.21708-1-apeureka@amazon.de>
+ <YMrUt+Vhs5exEqVt@kroah.com>
+ <87r1h1c5bo.wl-maz@kernel.org>
+ <a9104042094d658a9ee86f332505dee1d2ed06fd.camel@amazon.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f692a6e5-9e07-8b96-b7d3-213e6e3d071b@huawei.com>
+In-Reply-To: <a9104042094d658a9ee86f332505dee1d2ed06fd.camel@amazon.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 23, 2021 at 04:01:10PM +0800, Kefeng Wang wrote:
-> 
-> 
-> On 2021/6/23 15:34, Greg KH wrote:
-> > On Wed, Jun 23, 2021 at 03:25:10PM +0800, Kefeng Wang wrote:
+On Thu, Jun 17, 2021 at 10:57:00AM +0200, Aman Priyadarshi wrote:
+> On Thu, 2021-06-17 at 08:34 +0100, Marc Zyngier wrote:
+> > CAUTION: This email originated from outside of the organization. Do not
+> > click links or open attachments unless you can confirm the sender and
+> > know the content is safe.
+> > 
+> > 
+> > 
+> > On Thu, 17 Jun 2021 05:51:03 +0100,
+> > Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 > > > 
-> > > 
-> > > On 2021/6/23 15:12, Greg KH wrote:
-> > > > On Wed, Jun 23, 2021 at 02:59:59PM +0800, Kefeng Wang wrote:
-> > > > > Hi Greg,
-> > > > > 
-> > > > > There are two more patches about the ZONE_DMA[32] changes,
+> > > On Wed, Jun 16, 2021 at 09:28:59PM +0200, Aman Priyadarshi wrote:
+> > > > From: Suzuki K Poulose <suzuki.poulose@arm.com>
 > > > > 
-> > > > What ZONE_DMA changes?
+> > > > [ Upstream commit 3cce50dfec4a5b0414c974190940f47dd32c6dee ]
+> > > > 
+> > > > The arm64 PMU updates the event counters and reprograms the
+> > > > counters in the overflow IRQ handler without disabling the
+> > > > PMU. This could potentially cause skews in for group counters,
+> > > > where the overflowed counters may potentially loose some event
+> > > > counts, while they are reprogrammed. To prevent this, disable
+> > > > the PMU while we process the counter overflows and enable it
+> > > > right back when we are done.
+> > > > 
+> > > > This patch also moves the PMU stop/start routines to avoid a
+> > > > forward declaration.
+> > > > 
+> > > > Suggested-by: Mark Rutland <mark.rutland@arm.com>
+> > > > Cc: Will Deacon <will.deacon@arm.com>
+> > > > Acked-by: Mark Rutland <mark.rutland@arm.com>
+> > > > Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+> > > > Signed-off-by: Will Deacon <will.deacon@arm.com>
+> > > > Signed-off-by: Aman Priyadarshi <apeureka@amazon.de>
+> > > > Cc: stable@vger.kernel.org
+> > > > ---
+> > > >  arch/arm64/kernel/perf_event.c | 50 +++++++++++++++++++-------------
+> > > > --
+> > > >  1 file changed, 28 insertions(+), 22 deletions(-)
 > > > 
-> > > See the subject, [PATCH stable v5.10 0/7] arm64: Default to 32-bit wide
-> > > ZONE_DMA, We asked the ARM64 ZONE_DMA change backport before, link[1]
+> > > What stable tree(s) do you want this applied to?
+> > 
+> > I guess that'd be 4.14 and previous stables if the patch actually
+> > applies.
+> > 
 > 
-> Let's inline the link:
-> https://lore.kernel.org/lkml/20210303073319.2215839-1-jingxiangfeng@huawei.com/
-> 
-> The following 7 patches(we asked from link) has merged into lts5.10(tag:
-> v5.10.22)
-> 
->   4d7ed9a49b0c mm: Remove examples from enum zone_type comment
->   8eaef922e938 arm64: mm: Set ZONE_DMA size based on early IORT scan
->   35ec3d09ff6a arm64: mm: Set ZONE_DMA size based on devicetree's dma-ranges
->   a9861e7fa4f8 of: unittest: Add test for of_dma_get_max_cpu_address()
->   18bf6e998d08 of/address: Introduce of_dma_get_max_cpu_address()
->   3fbe62ffbb54 arm64: mm: Move zone_dma_bits initialization into
-> zone_sizes_init()
->   407b173adfac arm64: mm: Move reserve_crashkernel() into mem_init()
-> 
-> but the patch "arm64: mm: Move reserve_crashkernel() into mem_init()"
-> has some issue, see the following discussion from Catalin,
-> 
-> https://lore.kernel.org/linux-devicetree/e60d643e-4879-3fc3-737d-2c145332a6d7@arm.com/
-> https://lore.kernel.org/linux-arm-kernel/20201119175556.18681-1-catalin.marinas@arm.com/
-> 
-> and yes, we met crash in lts5.10 when kexec boot due to "arm64: mm: Move
-> reserve_crashkernel() into mem_init()" too, which could be fixed by
-> commit 2687275a5843 "arm64: Force NO_BLOCK_MAPPINGS if crashkernel
-> reservation is required", and the commit 791ab8b2e3db "arm64: Ignore any DMA
-> offsets in the max_zone_phys() calculation" also about DMA set,
-> So I only asked the two patches(both in v5.11) related ARM64 ZONE_DMA
-> changes backported into lts5.10.
+> Correct. I have tested the patch on 4.14.y, can confirm that it applies
+> cleanly on 4.9.y as well.
 
-Thanks, all now queued up.
+Now queued up, thanks.
 
 greg k-h
