@@ -2,215 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD0C3B3A8E
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 03:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1FB03B3CFA
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 09:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232942AbhFYBmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Jun 2021 21:42:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33130 "EHLO mail.kernel.org"
+        id S229764AbhFYHEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Jun 2021 03:04:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232933AbhFYBmW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 24 Jun 2021 21:42:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24928610A7;
-        Fri, 25 Jun 2021 01:40:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1624585202;
-        bh=nXqVb0XzfhjU+oyvbBOYczjm7GzgSZMNKuEYBbNNHrY=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=cAgwamnp3TTTPFDFQ3paH0uiab7nN18Jw+47VCDZYcaa440cnS1CKqUuPNrQQNpPS
-         0RRle8nUrmNLAZz/FzB2PiTD/PiS++c+EEOOovxLcnKzaOW0uxIm4/auvOX9UTlCKn
-         /jS2wLptJyaR9O7Tyfs8TNTk/61wRzbR85feZUg4=
-Date:   Thu, 24 Jun 2021 18:40:01 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, aneesh.kumar@linux.vnet.ibm.com,
-        linux-mm@kvack.org, mhocko@suse.com, mm-commits@vger.kernel.org,
-        naoya.horiguchi@nec.com, osalvador@suse.de, stable@vger.kernel.org,
-        tony.luck@intel.com, torvalds@linux-foundation.org
-Subject:  [patch 20/24] mm/hwpoison: do not lock page again when
- me_huge_page() successfully recovers
-Message-ID: <20210625014001.5BhWymxNg%akpm@linux-foundation.org>
-In-Reply-To: <20210624183838.ac3161ca4a43989665ac8b2f@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S229531AbhFYHEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Jun 2021 03:04:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70BE861413;
+        Fri, 25 Jun 2021 07:02:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1624604544;
+        bh=GWAF0uxhzJ12w10AjVK8uvbhiLiFVusKJLwbsI6QWnc=;
+        h=Subject:To:From:Date:From;
+        b=Xu4xlzVpd+ui/x2WWx4wVhKSNWtBBFpDuyVgRtMLxS0tNXdN6pKVO3MhYnlnbGIlb
+         8swx+4aozTvLXUatrqMccRTNKGDj5mxq7HbtVqlFLDvJA1jT54ov8/UJbloeAqYjxf
+         hMtC0JYumeku+/en1XGvGY0dc1W2UEz1xRS7O5gU=
+Subject: patch "USB: cdc-acm: blacklist Heimann USB Appset device" added to usb-next
+To:     hannu@hrtk.in, gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 25 Jun 2021 09:00:58 +0200
+Message-ID: <1624604458224196@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Subject: mm/hwpoison: do not lock page again when me_huge_page() successfully recovers
 
-Currently me_huge_page() temporary unlocks page to perform some actions
-then locks it again later.  My testcase (which calls hard-offline on some
-tail page in a hugetlb, then accesses the address of the hugetlb range)
-showed that page allocation code detects this page lock on buddy page and
-printed out "BUG: Bad page state" message.
+This is a note to let you know that I've just added the patch titled
 
-check_new_page_bad() does not consider a page with __PG_HWPOISON as bad
-page, so this flag works as kind of filter, but this filtering doesn't
-work in this case because the "bad page" is not the actual hwpoisoned
-page.  So stop locking page again.  Actions to be taken depend on the page
-type of the error, so page unlocking should be done in ->action()
-callbacks.  So let's make it assumed and change all existing callbacks
-that way.
+    USB: cdc-acm: blacklist Heimann USB Appset device
 
-Link: https://lkml.kernel.org/r/20210609072029.74645-1-nao.horiguchi@gmail.com
-Fixes: commit 78bb920344b8 ("mm: hwpoison: dissolve in-use hugepage in unrecoverable memory error")
-Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 4897807753e078655a78de39ed76044d784f3e63 Mon Sep 17 00:00:00 2001
+From: Hannu Hartikainen <hannu@hrtk.in>
+Date: Tue, 22 Jun 2021 17:14:54 +0300
+Subject: USB: cdc-acm: blacklist Heimann USB Appset device
+
+The device (32a7:0000 Heimann Sensor GmbH USB appset demo) claims to be
+a CDC-ACM device in its descriptors but in fact is not. If it is run
+with echo disabled it returns garbled data, probably due to something
+that happens in the TTY layer. And when run with echo enabled (the
+default), it will mess up the calibration data of the sensor the first
+time any data is sent to the device.
+
+In short, I had a bad time after connecting the sensor and trying to get
+it to work. I hope blacklisting it in the cdc-acm driver will save
+someone else a bit of trouble.
+
+Signed-off-by: Hannu Hartikainen <hannu@hrtk.in>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210622141454.337948-1-hannu@hrtk.in
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
+ drivers/usb/class/cdc-acm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
- mm/memory-failure.c |   44 ++++++++++++++++++++++++++++--------------
- 1 file changed, 30 insertions(+), 14 deletions(-)
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index ca7a61190dd9..d50b606d09aa 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1959,6 +1959,11 @@ static const struct usb_device_id acm_ids[] = {
+ 	.driver_info = IGNORE_DEVICE,
+ 	},
+ 
++	/* Exclude Heimann Sensor GmbH USB appset demo */
++	{ USB_DEVICE(0x32a7, 0x0000),
++	.driver_info = IGNORE_DEVICE,
++	},
++
+ 	/* control interfaces without any protocol set */
+ 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,
+ 		USB_CDC_PROTO_NONE) },
+-- 
+2.32.0
 
---- a/mm/memory-failure.c~mm-hwpoison-do-not-lock-page-again-when-me_huge_page-successfully-recovers
-+++ a/mm/memory-failure.c
-@@ -658,6 +658,7 @@ static int truncate_error_page(struct pa
-  */
- static int me_kernel(struct page *p, unsigned long pfn)
- {
-+	unlock_page(p);
- 	return MF_IGNORED;
- }
- 
-@@ -667,6 +668,7 @@ static int me_kernel(struct page *p, uns
- static int me_unknown(struct page *p, unsigned long pfn)
- {
- 	pr_err("Memory failure: %#lx: Unknown page state\n", pfn);
-+	unlock_page(p);
- 	return MF_FAILED;
- }
- 
-@@ -675,6 +677,7 @@ static int me_unknown(struct page *p, un
-  */
- static int me_pagecache_clean(struct page *p, unsigned long pfn)
- {
-+	int ret;
- 	struct address_space *mapping;
- 
- 	delete_from_lru_cache(p);
-@@ -683,8 +686,10 @@ static int me_pagecache_clean(struct pag
- 	 * For anonymous pages we're done the only reference left
- 	 * should be the one m_f() holds.
- 	 */
--	if (PageAnon(p))
--		return MF_RECOVERED;
-+	if (PageAnon(p)) {
-+		ret = MF_RECOVERED;
-+		goto out;
-+	}
- 
- 	/*
- 	 * Now truncate the page in the page cache. This is really
-@@ -698,7 +703,8 @@ static int me_pagecache_clean(struct pag
- 		/*
- 		 * Page has been teared down in the meanwhile
- 		 */
--		return MF_FAILED;
-+		ret = MF_FAILED;
-+		goto out;
- 	}
- 
- 	/*
-@@ -706,7 +712,10 @@ static int me_pagecache_clean(struct pag
- 	 *
- 	 * Open: to take i_mutex or not for this? Right now we don't.
- 	 */
--	return truncate_error_page(p, pfn, mapping);
-+	ret = truncate_error_page(p, pfn, mapping);
-+out:
-+	unlock_page(p);
-+	return ret;
- }
- 
- /*
-@@ -782,24 +791,26 @@ static int me_pagecache_dirty(struct pag
-  */
- static int me_swapcache_dirty(struct page *p, unsigned long pfn)
- {
-+	int ret;
-+
- 	ClearPageDirty(p);
- 	/* Trigger EIO in shmem: */
- 	ClearPageUptodate(p);
- 
--	if (!delete_from_lru_cache(p))
--		return MF_DELAYED;
--	else
--		return MF_FAILED;
-+	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_DELAYED;
-+	unlock_page(p);
-+	return ret;
- }
- 
- static int me_swapcache_clean(struct page *p, unsigned long pfn)
- {
-+	int ret;
-+
- 	delete_from_swap_cache(p);
- 
--	if (!delete_from_lru_cache(p))
--		return MF_RECOVERED;
--	else
--		return MF_FAILED;
-+	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_RECOVERED;
-+	unlock_page(p);
-+	return ret;
- }
- 
- /*
-@@ -820,6 +831,7 @@ static int me_huge_page(struct page *p,
- 	mapping = page_mapping(hpage);
- 	if (mapping) {
- 		res = truncate_error_page(hpage, pfn, mapping);
-+		unlock_page(hpage);
- 	} else {
- 		res = MF_FAILED;
- 		unlock_page(hpage);
-@@ -834,7 +846,6 @@ static int me_huge_page(struct page *p,
- 			page_ref_inc(p);
- 			res = MF_RECOVERED;
- 		}
--		lock_page(hpage);
- 	}
- 
- 	return res;
-@@ -866,6 +877,8 @@ static struct page_state {
- 	unsigned long mask;
- 	unsigned long res;
- 	enum mf_action_page_type type;
-+
-+	/* Callback ->action() has to unlock the relevant page inside it. */
- 	int (*action)(struct page *p, unsigned long pfn);
- } error_states[] = {
- 	{ reserved,	reserved,	MF_MSG_KERNEL,	me_kernel },
-@@ -929,6 +942,7 @@ static int page_action(struct page_state
- 	int result;
- 	int count;
- 
-+	/* page p should be unlocked after returning from ps->action().  */
- 	result = ps->action(p, pfn);
- 
- 	count = page_count(p) - 1;
-@@ -1313,7 +1327,7 @@ static int memory_failure_hugetlb(unsign
- 		goto out;
- 	}
- 
--	res = identify_page_state(pfn, p, page_flags);
-+	return identify_page_state(pfn, p, page_flags);
- out:
- 	unlock_page(head);
- 	return res;
-@@ -1596,6 +1610,8 @@ try_again:
- 
- identify_page_state:
- 	res = identify_page_state(pfn, p, page_flags);
-+	mutex_unlock(&mf_mutex);
-+	return res;
- unlock_page:
- 	unlock_page(p);
- unlock_mutex:
-_
+
