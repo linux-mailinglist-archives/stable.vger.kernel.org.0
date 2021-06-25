@@ -2,105 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4313B4198
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 12:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09EE83B41E8
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 12:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231416AbhFYK1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Jun 2021 06:27:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45588 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231280AbhFYK1b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Jun 2021 06:27:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F0816143B;
-        Fri, 25 Jun 2021 10:25:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624616710;
-        bh=TGl+u/K4kLcFuQqnyAw0NqWtSoPlfqgjogOfJjHSWDo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=F59eeZxfNtCO+tzIAZPWLa4PERUQa1yai7VvvnJ+9b6S8mVLW1sB9cHDUH/kmZtnx
-         hBbOXJXWHIhFZJyBQd6NAi5tiuxXkFSdkYJEmz/8uJ/pxevFm+6o//rJGrRktjVHfz
-         8UjqpjNVGTeinraCllTK43iDh4zqzJvSW7U/fz/U=
-Date:   Fri, 25 Jun 2021 12:25:08 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Cc:     stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Alan Modra <amodra@gmail.com>,
-        =?utf-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
-        Quentin Perret <qperret@google.com>
-Subject: Re: [PATCH stable v5.4] arm64: link with -z norelro for LLD or
- aarch64-elf
-Message-ID: <YNWvBOEwkYu5Hiju@kroah.com>
-References: <20210624170919.3d018a1a@xhacker.debian>
- <YNWrXZNrtdg+8wEK@kroah.com>
- <20210625181230.7e0b02c9@xhacker.debian>
+        id S231521AbhFYKu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Jun 2021 06:50:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36044 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231512AbhFYKu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Jun 2021 06:50:57 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35C65C061760
+        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 03:48:36 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id df12so12815565edb.2
+        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 03:48:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=monstr-eu.20150623.gappssmtp.com; s=20150623;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=BzUOqw2gH4V8TdtIGcYxGonGtJVkiti92NxdBxij2EM=;
+        b=zFDUHgK0b1U7i7MdkVNsz8yJC4c8ItZe+xAzZSfX/RelVfJLl255VU1V0SnVejrUqj
+         mpWdPH+j1CkiIfB1m3QG+T2Z3mtmxpBidW0W0/x70KDdovD9FL7L4iaQHZ8g53do5B9+
+         cQNFGy7Od3ug6ZTHnnG7Us+KnkhNoidyvML9ZendFma77hEu2TkuMhuth+0ohz0BpliE
+         dspvDwhwIyLfr+Uhr6iVPGzuduC4zK+fH9/AdCHb08I8yD7zaa/1Va1SpwaVIB1cQtEO
+         Q++1CojnFwemmcSTrc1WbokaA31ZJFUTKKCxJ5nSfk3TSQ3yexxbxv5kz9UVXij0mOF3
+         aJCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references:mime-version:content-transfer-encoding;
+        bh=BzUOqw2gH4V8TdtIGcYxGonGtJVkiti92NxdBxij2EM=;
+        b=IMtoXBow+5vweWBuLoDB4o4Lq+dklOSrgxUQD2cVfqr0bHc3AIVfGbkRX9Y3/xbj2b
+         auxIcoJquS4Cp6n916Qmhi34kuHcRMQgDDMiJcSAxJi+stKSH31QHOpMNVXpFS4rM9wg
+         rF+zipxgveo/cbQ4iIbbqoOxXcRGSQXKLJGQ8k20qkHYL6GZe7Etyf7JZEiirYn4kRGo
+         ichlEBdmWvIH5Ox97/drZ+4ZjOpsC9gyuoUrz+PcV7c/6nGchIPvjMzJdxJVXhNmmh9j
+         u0NWmnqDOuj6c0uK4jHUJf0rA7VD3R3mYvu02mKSkF85BTN4M7inroGzMJO7sAAQDKK+
+         1Gjg==
+X-Gm-Message-State: AOAM532wxUUCU4KC/DcTY+X0vR97x/KSCeGwF4ieC5JUu8qPe/5kVVFj
+        z7cniNfw3QDegiFZVWWiwJR/IQ==
+X-Google-Smtp-Source: ABdhPJzH2+0Vo1cyQWNm5G1yUtgYNu+PZorJGXLBHWCC4q79CwJKjfdrF3OJRkr93TOzq2W6B7rwfA==
+X-Received: by 2002:aa7:da8a:: with SMTP id q10mr13318907eds.81.1624618114807;
+        Fri, 25 Jun 2021 03:48:34 -0700 (PDT)
+Received: from localhost ([2a02:768:2307:40d6::f9e])
+        by smtp.gmail.com with ESMTPSA id ar14sm2471522ejc.108.2021.06.25.03.48.34
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 25 Jun 2021 03:48:34 -0700 (PDT)
+Sender: Michal Simek <monstr@monstr.eu>
+From:   Michal Simek <michal.simek@xilinx.com>
+To:     linux-kernel@vger.kernel.org, monstr@monstr.eu,
+        michal.simek@xilinx.com, git@xilinx.com,
+        bharat.kumar.gogada@xilinx.com, kw@linux.com
+Cc:     Hyun Kwon <hyun.kwon@xilinx.com>, stable@vger.kernel.org,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Ravi Kiran Gummaluri <rgummal@xilinx.com>,
+        Rob Herring <robh@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org
+Subject: [PATCH v3 2/2] PCI: xilinx-nwl: Enable the clock through CCF
+Date:   Fri, 25 Jun 2021 12:48:23 +0200
+Message-Id: <ee6997a08fab582b1c6de05f8be184f3fe8d5357.1624618100.git.michal.simek@xilinx.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <cover.1624618100.git.michal.simek@xilinx.com>
+References: <cover.1624618100.git.michal.simek@xilinx.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210625181230.7e0b02c9@xhacker.debian>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 25, 2021 at 06:12:30PM +0800, Jisheng Zhang wrote:
-> Hi Greg,
-> 
-> On Fri, 25 Jun 2021 12:09:33 +0200
-> Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> 
-> 
-> > 
-> > On Thu, Jun 24, 2021 at 05:09:19PM +0800, Jisheng Zhang wrote:
-> > > From: Nick Desaulniers <ndesaulniers@google.com>
-> > >
-> > > commit 311bea3cb9ee20ef150ca76fc60a592bf6b159f5 upstream.
-> > >
-> > > With GNU binutils 2.35+, linking with BFD produces warnings for vmlinux:
-> > > aarch64-linux-gnu-ld: warning: -z norelro ignored
-> > >
-> > > BFD can produce this warning when the target emulation mode does not
-> > > support RELRO program headers, and -z relro or -z norelro is passed.
-> > >
-> > > Alan Modra clarifies:
-> > >   The default linker emulation for an aarch64-linux ld.bfd is
-> > >   -maarch64linux, the default for an aarch64-elf linker is
-> > >   -maarch64elf.  They are not equivalent.  If you choose -maarch64elf
-> > >   you get an emulation that doesn't support -z relro.
-> > >
-> > > The ARCH=arm64 kernel prefers -maarch64elf, but may fall back to
-> > > -maarch64linux based on the toolchain configuration.
-> > >
-> > > LLD will always create RELRO program header regardless of target
-> > > emulation.
-> > >
-> > > To avoid the above warning when linking with BFD, pass -z norelro only
-> > > when linking with LLD or with -maarch64linux.
-> > >
-> > > Fixes: 3b92fa7485eb ("arm64: link with -z norelro regardless of CONFIG_RELOCATABLE")
-> > > Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
-> > > Cc: <stable@vger.kernel.org> # 5.0.x-
-> > > Reported-by: kernelci.org bot <bot@kernelci.org>
-> > > Reported-by: Quentin Perret <qperret@google.com>
-> > > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> > > Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-> > > Acked-by: Ard Biesheuvel <ardb@kernel.org>
-> > > Cc: Alan Modra <amodra@gmail.com>
-> > > Cc: Fāng-ruì Sòng <maskray@google.com>
-> 
-> > > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> > > ---
-> > >  arch/arm64/Makefile | 10 +++++++---
-> > >  1 file changed, 7 insertions(+), 3 deletions(-)  
-> > 
-> > Now queued up, thanks.
-> > 
-> 
-> I assume the two patches in v2 series are queued up. Nick pointed out
-> applying only this patch can break kernel building with lld.
+From: Hyun Kwon <hyun.kwon@xilinx.com>
 
-Yes, I now took those instead, thanks.
+Enable PCIe reference clock. There is no remove function that's why
+this should be enough for simple operation.
+Normally this clock is enabled by default by firmware but there are
+usecases where this clock should be enabled by driver itself.
+It is also good that PCIe clock is recorded in a clock framework.
 
-greg k-h
+Fixes: ab597d35ef11 ("PCI: xilinx-nwl: Add support for Xilinx NWL PCIe Host Controller")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hyun Kwon <hyun.kwon@xilinx.com>
+Signed-off-by: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
+
+Changes in v3:
+- use PCIe instead of pcie
+- add stable cc
+- update commit message - reported by Krzysztof
+
+Changes in v2:
+- Update commit message - reported by Krzysztof
+- Check return value from clk_prepare_enable() - reported by Krzysztof
+
+ drivers/pci/controller/pcie-xilinx-nwl.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/pci/controller/pcie-xilinx-nwl.c b/drivers/pci/controller/pcie-xilinx-nwl.c
+index 8689311c5ef6..1c3d5b87ef20 100644
+--- a/drivers/pci/controller/pcie-xilinx-nwl.c
++++ b/drivers/pci/controller/pcie-xilinx-nwl.c
+@@ -6,6 +6,7 @@
+  * (C) Copyright 2014 - 2015, Xilinx, Inc.
+  */
+ 
++#include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+@@ -169,6 +170,7 @@ struct nwl_pcie {
+ 	u8 last_busno;
+ 	struct nwl_msi msi;
+ 	struct irq_domain *legacy_irq_domain;
++	struct clk *clk;
+ 	raw_spinlock_t leg_mask_lock;
+ };
+ 
+@@ -823,6 +825,16 @@ static int nwl_pcie_probe(struct platform_device *pdev)
+ 		return err;
+ 	}
+ 
++	pcie->clk = devm_clk_get(dev, NULL);
++	if (IS_ERR(pcie->clk))
++		return PTR_ERR(pcie->clk);
++
++	err = clk_prepare_enable(pcie->clk);
++	if (err) {
++		dev_err(dev, "can't enable PCIe ref clock\n");
++		return err;
++	}
++
+ 	err = nwl_pcie_bridge_init(pcie);
+ 	if (err) {
+ 		dev_err(dev, "HW Initialization failed\n");
+-- 
+2.32.0
+
