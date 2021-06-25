@@ -2,301 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A62453B4679
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 17:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 745133B467E
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 17:20:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229813AbhFYPWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Jun 2021 11:22:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbhFYPWH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Jun 2021 11:22:07 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78997C061574
-        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 08:19:45 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id g192so8288227pfb.6
-        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 08:19:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=vwVfMJ8g7y0CzBoscfu8pCofFCZ63FuqUysamvWP1ec=;
-        b=B5n8rR/Pb9xxy/Xi4FAIOqDIIx69WjGkMmtHkJ5l/xoDZajQtIXoNkEbTN89g9QXr/
-         JxcNslgRZV3L6+2FkjVlutaIFHHhXqR2SXnzSQciKA+TWlF4jLFOWGqEEKnbmkpMl++y
-         t5ST68zPLDvqTl26vakRBvvXW0awXBp7DMfHMH3luyZWufKHkNbvs1+VWfWmhsijPhTo
-         4GBhZ5ADHqyol9+JSWmHVOJVfe2x7LJ+SSWXzYIufKoHbHl4K6XT6F4tHwLsniE9gQsY
-         hObr1Rlek6COec2gS6siV8lcqjwq5PzANedM7cEpdcShCx9anPGNW1X11POEwKkB1G1Y
-         Q9tg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=vwVfMJ8g7y0CzBoscfu8pCofFCZ63FuqUysamvWP1ec=;
-        b=CCu1xWlStePEiBJehsTbJMIRDxbu+/Eu5jSmrUESxujld4NbE0+OpBzdkIGFXCj+0s
-         jGEDjYlMUwL/CwnR7T4A7m6jrl+an9Ei4+ZXRXvvhz+lVAfTEFx5MFQqjtQTGijShNnL
-         sPuTgoeik++H8Wvqibrzs2tvkHAoWB3P57LbIv850RDKdHGH1HjN+30nTt1ww+1LpM0G
-         RSp69fJUDnU0Rfn7B1R1AL+sprZ1Hgp+EZ1690dY3CYM1ldM6xH3DnAj89vCsXkXiqBb
-         eN1HuHiJStD/r9Q4nGtY3Q+IxeX3R0Rf6zLamvUWeRRMsp0+d0XJVs+2IY3Lwl+Vnlks
-         P5ng==
-X-Gm-Message-State: AOAM530x26XuNUzVNY9TH15x/vYUg2qzrBN/JwSXKv6lyLcFZCyHxd39
-        fyQ1iQBDYZNH06KBNQunEeMnihCiEXHYerc6
-X-Google-Smtp-Source: ABdhPJwIgEuVZ6+EqC7iXkAKE1I+Q7LZEMkGqYh/4ucWYO/puLGc7HV2jSCjf3DdsqJApMo2H4jk5Q==
-X-Received: by 2002:a05:6a00:2403:b029:309:8a37:2d51 with SMTP id z3-20020a056a002403b02903098a372d51mr3216205pfh.79.1624634384905;
-        Fri, 25 Jun 2021 08:19:44 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x13sm6064100pjh.30.2021.06.25.08.19.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Jun 2021 08:19:44 -0700 (PDT)
-Message-ID: <60d5f410.1c69fb81.1aad8.06e7@mx.google.com>
-Date:   Fri, 25 Jun 2021 08:19:44 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229531AbhFYPWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Jun 2021 11:22:33 -0400
+Received: from mx0b-0014ca01.pphosted.com ([208.86.201.193]:31470 "EHLO
+        mx0a-0014ca01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229445AbhFYPWc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Jun 2021 11:22:32 -0400
+Received: from pps.filterd (m0042333.ppops.net [127.0.0.1])
+        by mx0b-0014ca01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15PFJsHf004836
+        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 08:20:11 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=proofpoint;
+ bh=u4ifWHlNx7DqztQSSpePZIABwiwUcK4QCRqHFFVmBkw=;
+ b=NjAD8SS7eLSEpoWLxHRiYfHaovgNewN2zw4lgPsQv7JubZGf5+QeT1yZMT+M07a+7W9l
+ 4knxHtuLRKZnvzAuzhZzlljh7CGGQPL5kbKDkAfXZA2b5oC7I2b4ac+NHFUbYfT3sc06
+ n1z610t+/nxdwQMoa077MdnI340y1cNxoQ1mnOSvTnnm2o3WI+l2UWkgQRnwQDqq/AlC
+ ZrZJxcm2fbFLJWAEwbZHSmczos9BOSkhuq4oHZkOI36HRcCin0fm9ZUnfX6qKyCIW5Zn
+ JAauFa9KhbntV7AwPS4NZIF64G7i6GxsOvGgq6/u2XX89yfulpySMr9JKg1Gk8paCBYC 2w== 
+Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2171.outbound.protection.outlook.com [104.47.57.171])
+        by mx0b-0014ca01.pphosted.com with ESMTP id 39d23c3wn5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 08:20:11 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Srm0A60wkmMZIFGsfo5Pn64vOXvW1Y1iR7et2M9M8Hc1U8SmY0cFnbS9HEA6YWD0JE6clu32xk7Ug8KmTWwGtJSG+37H1coyu/ZZNf1xS8XsTs1nv+qWBju/rTd6+Y3cNV6+B0iuI989aABwVshaK7MJwxt2ONBg8zD7lz2+O5HtTVbC7le6oq6yZdIxsXyKfKay/P+sVFd1Cq+WmB46vw3jGr14+PnuHC/9AtQa/zG/dfB5hjCuquAPPGTvYdJEOHU1cg81fKKxIFaP8t4xrK4jIo7zMp8z1HmglOKlV1SWKtcLNlzmHiB2lviLp0Shoop9A1CtpsKscYrWInT2AQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=u4ifWHlNx7DqztQSSpePZIABwiwUcK4QCRqHFFVmBkw=;
+ b=YWd6vAxSJF87l6nw7MSQlK7ZJWFhE7nt9onF1qNdb6e3403Ez0qSHttLx9dx3n+xTlsMI+K0tqbIrjkbqlMvkK8TrDedab9zxI881/xyYIhnk0mfo5bt9f3q45zHhdABeQXwxey7clJY5IL5ptu9pTxDkIEYoRb23IQYUCW/Pw/lSPnWccdkmih5dP0ros/qAvQkUc5s+qPxzyw8tYQAkQ3zrdgruNnFKEtnV+6L0SR2vCK0WO6SvqXv3qAVcZLbaMItBMmSQeywK4fev+uPjQriBArw2QMwH1oWVTUG+0rZMQy/DMKVgHf0hDN1jRXa0F2fcHVHIHcONaN0OyV2QA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 158.140.1.148) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=cadence.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=cadence.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=u4ifWHlNx7DqztQSSpePZIABwiwUcK4QCRqHFFVmBkw=;
+ b=R2dfYHoSRNAutz+M7/At0OAPwJkEHPxqFrCZWAOVMgHzkVvIj1V9VgDlupmivwCwsxd45wn22JX2hsZWc6OfGcWagop6fFD2dOO2If4FPNqP5g+sB8qG9YfnujASzG0A2yqfzUdbG5OoP+l5eqb58nRAaNObTlhAcbIjeT1GBOg=
+Received: from MWHPR08CA0040.namprd08.prod.outlook.com (2603:10b6:300:c0::14)
+ by SN6PR07MB4270.namprd07.prod.outlook.com (2603:10b6:805:54::26) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.19; Fri, 25 Jun
+ 2021 15:20:08 +0000
+Received: from MW2NAM12FT044.eop-nam12.prod.protection.outlook.com
+ (2603:10b6:300:c0:cafe::bb) by MWHPR08CA0040.outlook.office365.com
+ (2603:10b6:300:c0::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.18 via Frontend
+ Transport; Fri, 25 Jun 2021 15:20:07 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 158.140.1.148)
+ smtp.mailfrom=cadence.com; vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=pass action=none
+ header.from=cadence.com;
+Received-SPF: Pass (protection.outlook.com: domain of cadence.com designates
+ 158.140.1.148 as permitted sender) receiver=protection.outlook.com;
+ client-ip=158.140.1.148; helo=sjmaillnx2.cadence.com;
+Received: from sjmaillnx2.cadence.com (158.140.1.148) by
+ MW2NAM12FT044.mail.protection.outlook.com (10.13.180.247) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4287.8 via Frontend Transport; Fri, 25 Jun 2021 15:20:07 +0000
+Received: from maileu3.global.cadence.com (maileu3.cadence.com [10.160.88.99])
+        by sjmaillnx2.cadence.com (8.14.4/8.14.4) with ESMTP id 15PFK5wC017589
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256 verify=OK)
+        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 08:20:06 -0700
+X-CrossPremisesHeadersFilteredBySendConnector: maileu3.global.cadence.com
+Received: from maileu3.global.cadence.com (10.160.88.99) by
+ maileu3.global.cadence.com (10.160.88.99) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 25 Jun 2021 17:20:05 +0200
+Received: from vleu-orange.cadence.com (10.160.88.83) by
+ maileu3.global.cadence.com (10.160.88.99) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2 via Frontend Transport; Fri, 25 Jun 2021 17:20:05 +0200
+Received: from vleu-orange.cadence.com (localhost.localdomain [127.0.0.1])
+        by vleu-orange.cadence.com (8.14.4/8.14.4) with ESMTP id 15PFK4RF015298;
+        Fri, 25 Jun 2021 17:20:04 +0200
+Received: (from sparmar@localhost)
+        by vleu-orange.cadence.com (8.14.4/8.14.4/Submit) id 15PFK4o3015297;
+        Fri, 25 Jun 2021 17:20:04 +0200
+From:   Sanket Parmar <sparmar@cadence.com>
+To:     <sparmar@cadence.com>
+CC:     <stable@vger.kernel.org.#.5.4>, <5.10@cadence.com>
+Subject: [PATCH] usb: cdns3: Enable TDL_CHK only for OUT ep
+Date:   Fri, 25 Jun 2021 17:20:02 +0200
+Message-ID: <1624634402-15255-1-git-send-email-sparmar@cadence.com>
+X-Mailer: git-send-email 2.4.5
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.195-88-ga82ee375fa05
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 141 runs,
- 7 regressions (v4.19.195-88-ga82ee375fa05)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+X-OrganizationHeadersPreserved: maileu3.global.cadence.com
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 9e66b663-fab9-4fa2-9f67-08d937ecb754
+X-MS-TrafficTypeDiagnostic: SN6PR07MB4270:
+X-Microsoft-Antispam-PRVS: <SN6PR07MB42709650985706C5E3B0A1DAB0069@SN6PR07MB4270.namprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:299;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: T3I+cKLEA+GOKyQOqZHyXg6UE8IWvqGLAwKVKQxxxrZx8CF+hSa5c1r8hZ0Ap1iioSlbScKEZe7wgBeuT17zfj9yUN1s9XHY/WBAgVlhe/b6cTmrpNfdIMmnZoNDQ2TptjOaMm7Bmj/77DGPcTv2biW0cn3DJOARxvRJrXua1WFFZJy2YlLqcaEmCQVzT5UHqyIc7lro6cpt1y6c4J7Xlh8ldwCNCxy0JL9Tvoo4lv2LW5UUkGnRFUnlaW2zGpoOnw+g5GROC2yCJ75emMaWUt4diVHo7yqKCobxeCB0TOfRMUnioOCNPuzXLD8Mit2F4hsAeYQlFFF7ZRqttTYRhoaVZHxwZMwvrDQHq5vzyHmcGZohZJz/vVo7kewLaPFZDFqAAhBAER8jFG3LmrxfIRgwA+16vaxLGSXQrb+W7HvOfsK3FwAGngmiMTp0tb6rEnrC3R8vzqHiVVuUy30UZ8hrxgu4iiJ8RS9i25mnHDI9OuoZph4J202zUgbGhnrwDKIO3JQLAnmmI5385gZrVCB8wS1tePg9osibQNNxaUeJBxofBB0H/KCUmOFjeL1J0J/wjqORo1jZdv0fpiJgkii+cJPcmfMLdD+pV5AFJ9ZgeLhYkDQITS0Ua7opalMTASM05hm2Uooe39bPoZJ8mfivGTwICVckmKFEHFzDys95ol2jCEDBfiaKngYErOCOIzxQG8M2sGcBE77ySsAaf9zBYeKn9J/vH/zhG3TNtPY=
+X-Forefront-Antispam-Report: CIP:158.140.1.148;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:sjmaillnx2.cadence.com;PTR:unknown.Cadence.COM;CAT:NONE;SFS:(4636009)(39860400002)(396003)(346002)(136003)(376002)(36092001)(46966006)(36840700001)(42186006)(316002)(107886003)(4326008)(37006003)(2616005)(186003)(6862004)(356005)(82310400003)(2906002)(70586007)(36906005)(83380400001)(26005)(8936002)(5660300002)(36860700001)(36756003)(478600001)(6200100001)(7049001)(8676002)(86362001)(7636003)(426003)(47076005)(70206006)(336012)(82740400003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: cadence.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Jun 2021 15:20:07.6532
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9e66b663-fab9-4fa2-9f67-08d937ecb754
+X-MS-Exchange-CrossTenant-Id: d36035c5-6ce6-4662-a3dc-e762e61ae4c9
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=d36035c5-6ce6-4662-a3dc-e762e61ae4c9;Ip=[158.140.1.148];Helo=[sjmaillnx2.cadence.com]
+X-MS-Exchange-CrossTenant-AuthSource: MW2NAM12FT044.eop-nam12.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR07MB4270
+X-Proofpoint-GUID: ZfkbOIeJsbx5APEInjeeTbLIBTNuoRHP
+X-Proofpoint-ORIG-GUID: ZfkbOIeJsbx5APEInjeeTbLIBTNuoRHP
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-25_05:2021-06-25,2021-06-25 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 bulkscore=0
+ impostorscore=0 lowpriorityscore=0 mlxscore=0 adultscore=0 malwarescore=0
+ spamscore=0 mlxlogscore=999 phishscore=0 priorityscore=1501 clxscore=1011
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106250089
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 141 runs, 7 regressions (v4.19.195-88-ga82ee=
-375fa05)
+commit d6eef886903c ("usb: cdns3: Enable TDL_CHK only for OUT ep")
+upstream.
+
+ZLP gets stuck if TDL_CHK bit is set and TDL_FROM_TRB is used
+as TDL source for IN endpoints. To fix it, TDL_CHK is only
+enabled for OUT endpoints.
+
+Cc: stable@vger.kernel.org # 5.4, 5.10
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Reported-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Sanket Parmar <sparmar@cadence.com>
+---
+ drivers/usb/cdns3/gadget.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
+index f32f00c49571..c3bf54cc530f 100644
+--- a/drivers/usb/cdns3/gadget.c
++++ b/drivers/usb/cdns3/gadget.c
+@@ -1531,7 +1531,7 @@ void cdns3_configure_dmult(struct cdns3_device *priv_dev,
+ 		else
+ 			mask = BIT(priv_ep->num);
+ 
+-		if (priv_ep->type != USB_ENDPOINT_XFER_ISOC) {
++		if (priv_ep->type != USB_ENDPOINT_XFER_ISOC  && !priv_ep->dir) {
+ 			cdns3_set_register_bit(&regs->tdl_from_trb, mask);
+ 			cdns3_set_register_bit(&regs->tdl_beh, mask);
+ 			cdns3_set_register_bit(&regs->tdl_beh2, mask);
+@@ -1569,15 +1569,13 @@ void cdns3_ep_config(struct cdns3_endpoint *priv_ep)
+ 	case USB_ENDPOINT_XFER_INT:
+ 		ep_cfg = EP_CFG_EPTYPE(USB_ENDPOINT_XFER_INT);
+ 
+-		if ((priv_dev->dev_ver == DEV_VER_V2 && !priv_ep->dir) ||
+-		    priv_dev->dev_ver > DEV_VER_V2)
++		if (priv_dev->dev_ver >= DEV_VER_V2 && !priv_ep->dir)
+ 			ep_cfg |= EP_CFG_TDL_CHK;
+ 		break;
+ 	case USB_ENDPOINT_XFER_BULK:
+ 		ep_cfg = EP_CFG_EPTYPE(USB_ENDPOINT_XFER_BULK);
+ 
+-		if ((priv_dev->dev_ver == DEV_VER_V2  && !priv_ep->dir) ||
+-		    priv_dev->dev_ver > DEV_VER_V2)
++		if (priv_dev->dev_ver >= DEV_VER_V2 && !priv_ep->dir)
+ 			ep_cfg |= EP_CFG_TDL_CHK;
+ 		break;
+ 	default:
+-- 
+2.20.1
 
-Regressions Summary
--------------------
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
-  | 3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.195-88-ga82ee375fa05/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.195-88-ga82ee375fa05
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a82ee375fa05e60be30ff67968e144522a324a7f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d5bbbfdb359df73a41327e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d5bbbfdb359df73a413=
-27f
-        failing since 223 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d5bbf8c636bc93c1413290
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d5bbf8c636bc93c1413=
-291
-        failing since 223 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d5bbb5061fdcde6741328b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d5bbb5061fdcde67413=
-28c
-        failing since 223 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d5c905222efd020241326b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d5c905222efd0202413=
-26c
-        failing since 223 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
-  | 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d5caf2658083ad33413284
-
-  Results:     63 PASS, 6 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.195=
--88-ga82ee375fa05/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60d5caf2658083ad334132a0
-        failing since 10 days (last pass: v4.19.194-28-g6098ecdead2c, first=
- fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-06-25T12:24:10.480302  /lava-4093975/1/../bin/lava-test-case<8>[  =
- 14.615696] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdmmc-probe=
-d RESULT=3Dfail>
-    2021-06-25T12:24:10.480705     =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60d5caf2658083ad334132a1
-        failing since 10 days (last pass: v4.19.194-28-g6098ecdead2c, first=
- fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-06-25T12:24:11.492803  /lava-4093975/1/../bin/lava-test-case
-    2021-06-25T12:24:11.510942  <8>[   15.634939] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
-    2021-06-25T12:24:11.511249  /lava-4093975/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60d5caf2658083ad334132ba
-        failing since 10 days (last pass: v4.19.194-28-g6098ecdead2c, first=
- fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-06-25T12:24:13.952176  /lava-4093975/1/../bin/lava-test-case<8>[  =
- 18.076945] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
-ed RESULT=3Dfail>
-    2021-06-25T12:24:13.952624  =
-
-    2021-06-25T12:24:13.952905  /lava-4093975/1/../bin/lava-test-case   =
-
- =20
