@@ -2,188 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E16B23B4790
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 18:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BCD33B479B
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 18:54:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229924AbhFYQvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Jun 2021 12:51:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60746 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229864AbhFYQvG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Jun 2021 12:51:06 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18612C061574
-        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 09:48:46 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id y21so5011352plb.4
-        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 09:48:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9Spc1TWZLwrRy9h6x+9JRsfEd/S16C8wFO0dyKYdbtA=;
-        b=cqL9Dxolu0JWIhKjDCuHsXLtsAHK/z6u6CO/j7qkdXSDszoKlK3C0/uMM1Q0px8Ff1
-         7tNifhJ1liCHw6qaS9fgGJWOjLNZ9zdsY2KPCXTR+wsy/mYfidsQnOV1qpaBLIN8REz8
-         T4Dx+og8Y1HJssva56s9Qlma+Cmte840BoBGh0pT8IogEq3oBdOM/D9zmcM3OmFe98uF
-         4ZNg8Y6Hnhx+/orB2dNe15uGFXoQJBOdTS8iVf87Kc3hS1KXA3FOh1SfMiBO8fw6NziA
-         uYUBryDQRjDNHEHuqSS6tV+kltahtjjgdHPxFGDC1Tzm8mishEmtaCBrN9eDtXmQjPil
-         lxXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9Spc1TWZLwrRy9h6x+9JRsfEd/S16C8wFO0dyKYdbtA=;
-        b=YuhGlZguh07Gtat9SO/2hJbXOIhthkYh9Sr/02+1g5x+X91hC6Ge93vhPDMHZhzuYq
-         eZJZUkYivmR3FktOyYzL0mX8jJEVpT05ig00rUH9C34l5VrMZd3Rvp+YlVtjLPaP7JNy
-         DlqxqXRANH+LRQacIQxi1ZiIWJAJ4UDI2LQUk5prDa8mOgUrvjHvFu9JkS5XOedkl7rH
-         Z5VbXu7XHA8062L6jQ+QlZa3I9s8VkL+j5V3zpnJyuDj6+Jfo3KCTe7Vck7xp5qFqQa2
-         XJ2WJHSoPxZRFoWsWjUN1zRX8AXZaisX+gI0mpYIodU8iVfz704Cr2zDoKITOoY6G2Co
-         PFhg==
-X-Gm-Message-State: AOAM5300DogDczHtqWfJ8fOatu2uY185jT2mSjRUgdCdck46eu+C//Cv
-        ABuReM436wQbXCDEAEArl5BLi7Ar4CEJwH+0
-X-Google-Smtp-Source: ABdhPJzwM9wpmC/eceyp+2X/cTH/6mExkbcSWwu8O0tav8HNqN2henoKb+58MEefT2YtPVeSKZA88Q==
-X-Received: by 2002:a17:902:bd09:b029:ec:7e58:a54a with SMTP id p9-20020a170902bd09b02900ec7e58a54amr10079125pls.62.1624639725411;
-        Fri, 25 Jun 2021 09:48:45 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k21sm5770848pgb.56.2021.06.25.09.48.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Jun 2021 09:48:45 -0700 (PDT)
-Message-ID: <60d608ed.1c69fb81.ac631.fb1b@mx.google.com>
-Date:   Fri, 25 Jun 2021 09:48:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230044AbhFYQ5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Jun 2021 12:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36318 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230037AbhFYQ5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Jun 2021 12:57:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6F206193F;
+        Fri, 25 Jun 2021 16:54:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1624640086;
+        bh=sEkPgxqfk0VrpshYLRmOVtcvJwj/6++q9U6NcXl8Xug=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=VGzSbCsBsKJxTZsiJ6Ug20dJFEb5OndynFvYA0troZL60sa7Uh8DxWK8wYz4roeEK
+         xnW0cQL4YRDaA0va9cJza66CI/kCFHAfhl5cB4eWh7nhi04GCUjSms7/i4mVQULNYH
+         FY/xxZvBUaHVGF3FW1U/fSjaeHrLnc0j2AVjkts5lmTetTmqRXUkcPPjr/v/5Fxrmo
+         ag9fHA44Oy7i2f7QwXjHxjUDqwVsJ9rVT8mPGBGlfExQAkD1i4MxaDEc1dYFffHdNu
+         wbeSMWQz7gp3EvoJ9frBoEfV2WJEjhDNDxckg1HU9wRocr2HSxBQP7HM+peFxVE75+
+         j8XB3NCviidLw==
+Message-ID: <e427c4e5877e0b036c36eedbe40020047b02a85b.camel@kernel.org>
+Subject: Re: [RFC PATCH] ceph: reduce contention in ceph_check_delayed_caps()
+From:   Jeff Layton <jlayton@kernel.org>
+To:     Luis Henriques <lhenriques@suse.de>,
+        Ilya Dryomov <idryomov@gmail.com>
+Cc:     ceph-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Date:   Fri, 25 Jun 2021 12:54:44 -0400
+In-Reply-To: <20210625154559.8148-1-lhenriques@suse.de>
+References: <20210625154559.8148-1-lhenriques@suse.de>
+Content-Type: text/plain; charset="ISO-8859-15"
+User-Agent: Evolution 3.40.2 (3.40.2-1.fc34) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.12.13-11-g6645d6f022e7
-X-Kernelci-Branch: linux-5.12.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.12.y baseline: 160 runs,
- 4 regressions (v5.12.13-11-g6645d6f022e7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.12.y baseline: 160 runs, 4 regressions (v5.12.13-11-g6645=
-d6f022e7)
+On Fri, 2021-06-25 at 16:45 +0100, Luis Henriques wrote:
+> Function ceph_check_delayed_caps() is called from the mdsc->delayed_work
+> workqueue and it can be kept looping for quite some time if caps keep being
+> added back to the mdsc->cap_delay_list.  This may result in the watchdog
+> tainting the kernel with the softlockup flag.
+> 
+> This patch re-arranges the loop through the caps list so that it initially
+> removes all the caps from list, adding them to a temporary list.  And then, with
+> less locking contention, it will eventually call the ceph_check_caps() for each
+> inode.  Any caps added to the list in the meantime will be handled in the next
+> run.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Luis Henriques <lhenriques@suse.de>
+> ---
+> Hi Jeff!
+> 
+> So, I've not based this patch on top of your patchset that gets rid of
+> ceph_async_iput() so that it will make it easier to backport it for stable
+> kernels.  Of course I'm not 100% this classifies as stable material.
+> 
+> Other than that, I've been testing this patch and I couldn't see anything
+> breaking.  Let me know what you think.
+> 
+> (I *think* I've seen a tracker bug for this in the past but I couldn't
+> find it.  I guess it could be added as a 'Link:' tag.)
+> 
+> Cheers,
+> --
+> Luis
+> 
+>  fs/ceph/caps.c | 13 +++++++++----
+>  1 file changed, 9 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+> index a5e93b185515..727e41e3b939 100644
+> --- a/fs/ceph/caps.c
+> +++ b/fs/ceph/caps.c
+> @@ -4229,6 +4229,7 @@ void ceph_check_delayed_caps(struct ceph_mds_client *mdsc)
+>  {
+>  	struct inode *inode;
+>  	struct ceph_inode_info *ci;
+> +	LIST_HEAD(caps_list);
+>  
+>  	dout("check_delayed_caps\n");
+>  	spin_lock(&mdsc->cap_delay_lock);
+> @@ -4239,19 +4240,23 @@ void ceph_check_delayed_caps(struct ceph_mds_client *mdsc)
+>  		if ((ci->i_ceph_flags & CEPH_I_FLUSH) == 0 &&
+>  		    time_before(jiffies, ci->i_hold_caps_max))
+>  			break;
+> -		list_del_init(&ci->i_cap_delay_list);
+> +		list_move_tail(&ci->i_cap_delay_list, &caps_list);
+> +	}
+> +	spin_unlock(&mdsc->cap_delay_lock);
+>  
+> +	while (!list_empty(&caps_list)) {
+> +		ci = list_first_entry(&caps_list,
+> +				      struct ceph_inode_info,
+> +				      i_cap_delay_list);
+> +		list_del_init(&ci->i_cap_delay_list);
+>  		inode = igrab(&ci->vfs_inode);
+>  		if (inode) {
+> -			spin_unlock(&mdsc->cap_delay_lock);
+>  			dout("check_delayed_caps on %p\n", inode);
+>  			ceph_check_caps(ci, 0, NULL);
+>  			/* avoid calling iput_final() in tick thread */
+>  			ceph_async_iput(inode);
+> -			spin_lock(&mdsc->cap_delay_lock);
+>  		}
+>  	}
+> -	spin_unlock(&mdsc->cap_delay_lock);
+>  }
+>  
+>  /*
 
-Regressions Summary
--------------------
+I'm not sure this approach is viable, unfortunately. Once you've dropped
+the cap_delay_lock, then nothing protects the i_cap_delay_list head
+anymore.
 
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-imx8mp-evk        | arm64 | lab-nxp       | gcc-8    | defconfig          |=
- 1          =
+So you could detach these objects and put them on the private list, and
+then once you drop the spinlock another task could find one of them and
+(e.g.) call __cap_delay_requeue on it, potentially corrupting your list.
 
-rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
- 3          =
+I think we'll need to come up with a different way to do this...
+-- 
+Jeff Layton <jlayton@kernel.org>
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.12.y/ker=
-nel/v5.12.13-11-g6645d6f022e7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.12.y
-  Describe: v5.12.13-11-g6645d6f022e7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6645d6f022e751498713e7c669a7f3c434d2c652 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-imx8mp-evk        | arm64 | lab-nxp       | gcc-8    | defconfig          |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d5d9eee78b180f7141327f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.12.y/v5.12.1=
-3-11-g6645d6f022e7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.12.y/v5.12.1=
-3-11-g6645d6f022e7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60d5d9eee78b180f71413=
-280
-        failing since 2 days (last pass: v5.12.11-49-g3197a891c08a, first f=
-ail: v5.12.12-179-g88a915cf22fc) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
- 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d5ecf32fbcfb545a413280
-
-  Results:     66 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.12.y/v5.12.1=
-3-11-g6645d6f022e7/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
-88-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.12.y/v5.12.1=
-3-11-g6645d6f022e7/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
-88-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60d5ecf42fbcfb545a41329d
-        failing since 10 days (last pass: v5.12.10, first fail: v5.12.10-17=
-4-g38004b22b0ae)
-
-    2021-06-25T14:49:16.937356  /lava-4094847/1/../bin/lava-test-case
-    2021-06-25T14:49:16.942811  <8>[   11.522895] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60d5ecf42fbcfb545a41329e
-        failing since 10 days (last pass: v5.12.10, first fail: v5.12.10-17=
-4-g38004b22b0ae)
-
-    2021-06-25T14:49:17.957075  /lava-4094847/1/../bin/lava-test-case
-    2021-06-25T14:49:17.974157  <8>[   12.542412] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
-    2021-06-25T14:49:17.974597  /lava-4094847/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60d5ecf42fbcfb545a4132b6
-        failing since 10 days (last pass: v5.12.10, first fail: v5.12.10-17=
-4-g38004b22b0ae)
-
-    2021-06-25T14:49:19.385457  /lava-4094847/1/../bin/lava-test-case
-    2021-06-25T14:49:19.402213  <8>[   13.971031] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-06-25T14:49:19.402771  /lava-4094847/1/../bin/lava-test-case   =
-
- =20
