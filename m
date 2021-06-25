@@ -2,156 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB2C53B46CA
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 17:40:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 092013B46D0
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 17:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229759AbhFYPmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Jun 2021 11:42:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45372 "EHLO
+        id S229738AbhFYPqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Jun 2021 11:46:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229738AbhFYPms (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Jun 2021 11:42:48 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49DE5C061574
-        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 08:40:27 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id b5-20020a17090a9905b029016fc06f6c5bso5754304pjp.5
-        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 08:40:27 -0700 (PDT)
+        with ESMTP id S229630AbhFYPqG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Jun 2021 11:46:06 -0400
+Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D381C061766
+        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 08:43:45 -0700 (PDT)
+Received: by mail-ot1-x332.google.com with SMTP id t4-20020a9d66c40000b029045e885b18deso9674071otm.6
+        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 08:43:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=j+JjDhnJj1pwNv6zeypYZOx7iWYpMvoVRjNG6bdCnt4=;
-        b=WmhHi+8bRQ9a/OS/iBSYmeKaE7f4bH6qYoI2xGyriTdV4wLTzr5hWspOzZ04kz1dVu
-         rl6p4GJnpmLXpU1tuGPsncfGsda3fpj5XTH6tWQlB5o8qDKpdnToW5+MK/NCHw7dnipc
-         ZvyGV9qSNI+cWEpqU8frrceRSyodbz9WhnBh/2YcOr2HpDdAdZF+e0vVLZQKZOBaBZfu
-         kA4kx6ce7BiH/P79P/0p2OucvIpLKdnp080mCH9Eiys0RtgPmgGm17p0nC0LzoVvWWlW
-         EdZ8KOf/T4unrdTqhV0SsauDJkQuJM+87ANWKXWeRgK1vHNUC9azv47oVCyI4fmhBWDh
-         5/kQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=Wh5+7k858Qc2fPloAyAtdMseJYd4M/KGdZ+LDlpsS80=;
+        b=GaGBH9vz/s7QpIxVfJd2SojBOGU8JBt+YJL0dNoqgYT4Of6q/4PfRr65dJxjn4JlDY
+         vtMK/oMs1kRzPBFiCVjOG+ZF3qh6vGokrhCY/p9cFVO0h77ERIgCauJhwLoascoxWawb
+         gVc4UqNz51qF+q8zUYxLkAIPnY/rWx9og5Rz326FOLNPN9aC+K/86ZJRGiK4GEcrep8Z
+         1QlRAx0oixUwGwXK7jrjW7BpCO8ihUorCtE1/10hL0zkZu49jheyplAWTOAJB6Rkaiv7
+         9rg+L5rr1yjqWGMl26yIc4kzjHaTPfHhgKElKVRCFcJulNuGT0qqkAkXZw587SxUXSnf
+         3IVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=j+JjDhnJj1pwNv6zeypYZOx7iWYpMvoVRjNG6bdCnt4=;
-        b=IrR0wiaYs6tDmXEgPtezi96FFPqcx/SBxSRnxUzlOLlS1czoxfgzSuAVrk1lxtujuR
-         5QNG34H133+XbECIjUWJBmTcyd/O45sNI0nb3Z6hnzcW0cgUCbRCDx75phrD9LDV+lwc
-         CiaN5DJ4cKgs83mPNzw0xP+9On2wGgVrUW+EbY4ZqQM/lCFa3kG7tO7gdzskMxSfqWlq
-         5Fo7AZirXehMOSAs7JKtQZ25TKPl991Ji1K/Q18kmOmIb7SEetWdR0Cz6FUDFXCV4mMv
-         1av6namxVEEkNAhC0L445CLMNdhiZ41Z4m6AgqKPhL7i28A4vD0TihW7hxyZIXy9/MIL
-         qGTw==
-X-Gm-Message-State: AOAM531ELASHxui8AEtTvhmCmybcqxMVMKUSm91lfxfu13jrmKLG1d9H
-        n8kHUG55G9FiCU6adp7Bjs/tqedf/dGHJTVW
-X-Google-Smtp-Source: ABdhPJzB8FPYiHyC/Fr1yYQxY5KAac1E+JMQxY9a+yBpg3OWsggLG62XYZPerGy1UgBXr6UcFaaIHA==
-X-Received: by 2002:a17:90a:9205:: with SMTP id m5mr16757570pjo.172.1624635626547;
-        Fri, 25 Jun 2021 08:40:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d16sm11421319pjs.33.2021.06.25.08.40.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Jun 2021 08:40:26 -0700 (PDT)
-Message-ID: <60d5f8ea.1c69fb81.940e8.f5a8@mx.google.com>
-Date:   Fri, 25 Jun 2021 08:40:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=Wh5+7k858Qc2fPloAyAtdMseJYd4M/KGdZ+LDlpsS80=;
+        b=YE1YQpGeIrf7QFx4aH/M2KZ+xcmsBWTQfv+frX6p/8eEK3nMeML0PST39HUiqMCZM0
+         EMMrm6HiCVKej+wbJ9O13tLMgI2hX5T52IvNy6p6V/Smaeq+f8CaqtejXjEO8lOdGiiX
+         0JE8tIcnU00s++Alz5W6z70PDnG8uIqZlKkHf/2MLu1fex7y+Rw/X+D1JXY4cEPDqMhO
+         MPQaHebhPv5WJZrP2RsiTWB3VjtuSb3SzeC/sYRo1qeMfGBE/1Th9RFvih9PRJekpv1f
+         c4kBp0rqLJTJk4OBdWUbLogWAOi7KA/StzCQIVgYYI4ef26VDV0A0Boc9nfOXTCTvj0Y
+         TrAA==
+X-Gm-Message-State: AOAM5335LOARIsw8+LE9ftDUdXUpx4MKe8/oOkFgJgAPMWcpCqth4ndO
+        Q+4lGqZarUl+zgsOZwPDS1sylv+Sr01dfnDWqVA=
+X-Google-Smtp-Source: ABdhPJz3v5O2ydYUh5oy/dVX2ljAnDScguiJCOHj8c39nurRA1ubQzC1poDEfd5b0KAJd2N0ebMH8hdZpMnvxz8oVPA=
+X-Received: by 2002:a9d:6642:: with SMTP id q2mr10300663otm.256.1624635824893;
+ Fri, 25 Jun 2021 08:43:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.128-10-g0a9712e2f437
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.4 baseline: 152 runs,
- 3 regressions (v5.4.128-10-g0a9712e2f437)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a9d:4d06:0:0:0:0:0 with HTTP; Fri, 25 Jun 2021 08:43:44
+ -0700 (PDT)
+Reply-To: westernunion8289@zohomail.com
+From:   WESTERN UNION AGENT <bw918188@gmail.com>
+Date:   Fri, 25 Jun 2021 08:43:44 -0700
+Message-ID: <CAC53gh_qd6rRVXg6avfNdM=JpK8oEA+uHOvXkvL_SHDgaJVuqQ@mail.gmail.com>
+Subject: WESTERN UNION AGENT
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 152 runs, 3 regressions (v5.4.128-10-g0a9712e=
-2f437)
+Attention,
 
-Regressions Summary
--------------------
+We have deposited the cheque of your fund ($ 2.5 Million USD) through
+Western Union department Finally after our meeting Regarding your
+fund,  All you do is to contact Western Union director Dr.Ferdinand
+Umeh via Email ( westernunion8289@zohomail.com ) he will give you
+direction on how you will be receiving the Funds daily Though,
+Dr.Ferdinand Umeh has sent $ 5,000 through Western Union  in your name
+ today  so contact  Dr.Ferdinand Umeh as soon as you receive this
+email and tell him to give you the Mtcn, sender name and question /
+answer to pick the $ 5000 and Please let us know as soon as you
+received all your fund. remember to send him your full information to
+avoid wrong transfer Such as,
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
+Receiver's Name _______________
+Address: ________________
+Country: _____________
+Phone Number: _____________
+Your email address _______________
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.128-10-g0a9712e2f437/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.128-10-g0a9712e2f437
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0a9712e2f437632b5ff15588b39db129d12bf4fa =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60d5dc9702a552b1ab41326e
-
-  Results:     66 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.128-1=
-0-g0a9712e2f437/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.128-1=
-0-g0a9712e2f437/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60d5dc9702a552b1ab41328b
-        failing since 10 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-06-25T13:39:28.844714  /lava-4094318/1/../bin/lava-test-case<8>[  =
- 14.157875] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdmmc-probe=
-d RESULT=3Dfail>
-    2021-06-25T13:39:28.845123     =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60d5dc9702a552b1ab41328c
-        failing since 10 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-06-25T13:39:29.858844  /lava-4094318/1/../bin/lava-test-case
-    2021-06-25T13:39:29.864740  <8>[   15.177352] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60d5dc9702a552b1ab4132a4
-        failing since 10 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-06-25T13:39:31.301480  /lava-4094318/1/../bin/lava-test-case<8>[  =
- 16.602985] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
-ed RESULT=3Dfail>
-    2021-06-25T13:39:31.301839  =
-
-    2021-06-25T13:39:31.302072  /lava-4094318/1/../bin/lava-test-case   =
-
- =20
+Best Regards.
+WESTERN UNION AGENT
