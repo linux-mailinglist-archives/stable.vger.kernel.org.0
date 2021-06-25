@@ -2,88 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D873B4125
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 12:09:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD7EA3B4129
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 12:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230326AbhFYKL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Jun 2021 06:11:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42224 "EHLO mail.kernel.org"
+        id S230082AbhFYKMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Jun 2021 06:12:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230082AbhFYKL5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Jun 2021 06:11:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D2A8613FF;
-        Fri, 25 Jun 2021 10:09:35 +0000 (UTC)
+        id S230010AbhFYKMw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Jun 2021 06:12:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D03D761428;
+        Fri, 25 Jun 2021 10:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624615775;
-        bh=bRP9TyRcnckW40uJixbVPjGUqG59vJZKCwinMx0WGVs=;
+        s=korg; t=1624615831;
+        bh=+md3nZ7V/ZsVebLt8CgqdAuGKz7TMOszMUfPjqMwNUs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0QGPR81pKA/prmQ9Whv67dgkKqhUu6ZTMC0KRnAmOfr1wU6WbjRwPowZ+VpYclJ4/
-         EWlyEiOGYqelApHH/9/7J9Bp4d3jAtRBY/ITWN+nrr0MV1UopHti6SLTZW/k+1NVEW
-         yUR4d81YdQ2kTRIvE22FZACg+4DMZT3nIPGxa7/4=
-Date:   Fri, 25 Jun 2021 12:09:33 +0200
+        b=Ro7vdmrt1MJMUw8Ba1dWZo+Ris+OOKy3eed+x6QUyp6GMkXXiYFO0dlG7FIMZRxi5
+         dOWPCOGhCJvgHhIfWPdGaVn1N5SXS5edhgD8D5znEOH9bwzIzLqqsTQq1aN2wl/R5X
+         yn6gY9Q+NF/pQSWsX5iAqeCa3JRHhWE9DZ2ayQV0=
+Date:   Fri, 25 Jun 2021 12:10:29 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Cc:     stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Alan Modra <amodra@gmail.com>,
-        =?utf-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
-        Quentin Perret <qperret@google.com>
-Subject: Re: [PATCH stable v5.4] arm64: link with -z norelro for LLD or
- aarch64-elf
-Message-ID: <YNWrXZNrtdg+8wEK@kroah.com>
-References: <20210624170919.3d018a1a@xhacker.debian>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        clang-built-linux@googlegroups.com
+Subject: Re: [PATCH 4.4 to 4.19] Makefile: Move -Wno-unused-but-set-variable
+ out of GCC only block
+Message-ID: <YNWrlag5xpdpBMM8@kroah.com>
+References: <20210623172610.3281050-1-nathan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210624170919.3d018a1a@xhacker.debian>
+In-Reply-To: <20210623172610.3281050-1-nathan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 24, 2021 at 05:09:19PM +0800, Jisheng Zhang wrote:
-> From: Nick Desaulniers <ndesaulniers@google.com>
+On Wed, Jun 23, 2021 at 10:26:12AM -0700, Nathan Chancellor wrote:
+> commit 885480b084696331bea61a4f7eba10652999a9c1 upstream.
 > 
-> commit 311bea3cb9ee20ef150ca76fc60a592bf6b159f5 upstream.
+> Currently, -Wunused-but-set-variable is only supported by GCC so it is
+> disabled unconditionally in a GCC only block (it is enabled with W=1).
+> clang currently has its implementation for this warning in review so
+> preemptively move this statement out of the GCC only block and wrap it
+> with cc-disable-warning so that both compilers function the same.
 > 
-> With GNU binutils 2.35+, linking with BFD produces warnings for vmlinux:
-> aarch64-linux-gnu-ld: warning: -z norelro ignored
-> 
-> BFD can produce this warning when the target emulation mode does not
-> support RELRO program headers, and -z relro or -z norelro is passed.
-> 
-> Alan Modra clarifies:
->   The default linker emulation for an aarch64-linux ld.bfd is
->   -maarch64linux, the default for an aarch64-elf linker is
->   -maarch64elf.  They are not equivalent.  If you choose -maarch64elf
->   you get an emulation that doesn't support -z relro.
-> 
-> The ARCH=arm64 kernel prefers -maarch64elf, but may fall back to
-> -maarch64linux based on the toolchain configuration.
-> 
-> LLD will always create RELRO program header regardless of target
-> emulation.
-> 
-> To avoid the above warning when linking with BFD, pass -z norelro only
-> when linking with LLD or with -maarch64linux.
-> 
-> Fixes: 3b92fa7485eb ("arm64: link with -z norelro regardless of CONFIG_RELOCATABLE")
-> Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
-> Cc: <stable@vger.kernel.org> # 5.0.x-
-> Reported-by: kernelci.org bot <bot@kernelci.org>
-> Reported-by: Quentin Perret <qperret@google.com>
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-> Acked-by: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Alan Modra <amodra@gmail.com>
-> Cc: Fāng-ruì Sòng <maskray@google.com>
-> Link: https://lore.kernel.org/r/20201218002432.788499-1-ndesaulniers@google.com
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: stable@vger.kernel.org
+> Link: https://reviews.llvm.org/D100581
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> [nc: Backport, workaround lack of e2079e93f562 in older branches]
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 > ---
->  arch/arm64/Makefile | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
+>  Makefile | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 
 Now queued up, thanks.
 
