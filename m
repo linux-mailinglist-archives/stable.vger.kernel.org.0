@@ -2,95 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 389EB3B418C
-	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 12:22:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4313B4198
+	for <lists+stable@lfdr.de>; Fri, 25 Jun 2021 12:25:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbhFYKYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Jun 2021 06:24:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44912 "EHLO mail.kernel.org"
+        id S231416AbhFYK1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Jun 2021 06:27:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230436AbhFYKYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Jun 2021 06:24:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA86B61439;
-        Fri, 25 Jun 2021 10:22:21 +0000 (UTC)
+        id S231280AbhFYK1b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Jun 2021 06:27:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F0816143B;
+        Fri, 25 Jun 2021 10:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1624616542;
-        bh=TOcbaUztKO2e1mYBAw64ee9NuniluuPC6ZDvM9kA/og=;
+        s=korg; t=1624616710;
+        bh=TGl+u/K4kLcFuQqnyAw0NqWtSoPlfqgjogOfJjHSWDo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LQNjrYcoFkrpO0bIRBGwclSHx9DAvYUCLsr6tfIbXR6zdbWTVPR5a8tHHJNbHjFe1
-         1ot4WlRffIed6w1JGCfeZmmTm9K8B23dPQCwWQ1PV24T6ZozyOfttVRRvp61uXyIvO
-         hy6xDZC0j4DcbRILLnD7T2RSfYhfSkxY02i0QkTI=
-Date:   Fri, 25 Jun 2021 12:22:19 +0200
+        b=F59eeZxfNtCO+tzIAZPWLa4PERUQa1yai7VvvnJ+9b6S8mVLW1sB9cHDUH/kmZtnx
+         hBbOXJXWHIhFZJyBQd6NAi5tiuxXkFSdkYJEmz/8uJ/pxevFm+6o//rJGrRktjVHfz
+         8UjqpjNVGTeinraCllTK43iDh4zqzJvSW7U/fz/U=
+Date:   Fri, 25 Jun 2021 12:25:08 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Aman Priyadarshi <apeureka@amazon.de>
-Cc:     Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>,
-        Alexander Graf <graf@amazon.de>,
-        Mark Rutland <mark.rutland@arm.com>, stable@vger.kernel.org,
-        Ali Saidi <alisaidi@amazon.com>
-Subject: Re: [PATCH] arm64: perf: Disable PMU while processing counter
- overflows
-Message-ID: <YNWuW3GX4HATEr2W@kroah.com>
-References: <YMoQ1MZgsL2hF2EL@kroah.com>
- <20210616192859.21708-1-apeureka@amazon.de>
- <YMrUt+Vhs5exEqVt@kroah.com>
- <87r1h1c5bo.wl-maz@kernel.org>
- <a9104042094d658a9ee86f332505dee1d2ed06fd.camel@amazon.de>
+To:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Cc:     stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Alan Modra <amodra@gmail.com>,
+        =?utf-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
+        Quentin Perret <qperret@google.com>
+Subject: Re: [PATCH stable v5.4] arm64: link with -z norelro for LLD or
+ aarch64-elf
+Message-ID: <YNWvBOEwkYu5Hiju@kroah.com>
+References: <20210624170919.3d018a1a@xhacker.debian>
+ <YNWrXZNrtdg+8wEK@kroah.com>
+ <20210625181230.7e0b02c9@xhacker.debian>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <a9104042094d658a9ee86f332505dee1d2ed06fd.camel@amazon.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210625181230.7e0b02c9@xhacker.debian>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 17, 2021 at 10:57:00AM +0200, Aman Priyadarshi wrote:
-> On Thu, 2021-06-17 at 08:34 +0100, Marc Zyngier wrote:
-> > CAUTION: This email originated from outside of the organization. Do not
-> > click links or open attachments unless you can confirm the sender and
-> > know the content is safe.
+On Fri, Jun 25, 2021 at 06:12:30PM +0800, Jisheng Zhang wrote:
+> Hi Greg,
+> 
+> On Fri, 25 Jun 2021 12:09:33 +0200
+> Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> 
+> 
 > > 
+> > On Thu, Jun 24, 2021 at 05:09:19PM +0800, Jisheng Zhang wrote:
+> > > From: Nick Desaulniers <ndesaulniers@google.com>
+> > >
+> > > commit 311bea3cb9ee20ef150ca76fc60a592bf6b159f5 upstream.
+> > >
+> > > With GNU binutils 2.35+, linking with BFD produces warnings for vmlinux:
+> > > aarch64-linux-gnu-ld: warning: -z norelro ignored
+> > >
+> > > BFD can produce this warning when the target emulation mode does not
+> > > support RELRO program headers, and -z relro or -z norelro is passed.
+> > >
+> > > Alan Modra clarifies:
+> > >   The default linker emulation for an aarch64-linux ld.bfd is
+> > >   -maarch64linux, the default for an aarch64-elf linker is
+> > >   -maarch64elf.  They are not equivalent.  If you choose -maarch64elf
+> > >   you get an emulation that doesn't support -z relro.
+> > >
+> > > The ARCH=arm64 kernel prefers -maarch64elf, but may fall back to
+> > > -maarch64linux based on the toolchain configuration.
+> > >
+> > > LLD will always create RELRO program header regardless of target
+> > > emulation.
+> > >
+> > > To avoid the above warning when linking with BFD, pass -z norelro only
+> > > when linking with LLD or with -maarch64linux.
+> > >
+> > > Fixes: 3b92fa7485eb ("arm64: link with -z norelro regardless of CONFIG_RELOCATABLE")
+> > > Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
+> > > Cc: <stable@vger.kernel.org> # 5.0.x-
+> > > Reported-by: kernelci.org bot <bot@kernelci.org>
+> > > Reported-by: Quentin Perret <qperret@google.com>
+> > > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> > > Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+> > > Acked-by: Ard Biesheuvel <ardb@kernel.org>
+> > > Cc: Alan Modra <amodra@gmail.com>
+> > > Cc: Fāng-ruì Sòng <maskray@google.com>
+> 
+> > > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> > > ---
+> > >  arch/arm64/Makefile | 10 +++++++---
+> > >  1 file changed, 7 insertions(+), 3 deletions(-)  
 > > 
-> > 
-> > On Thu, 17 Jun 2021 05:51:03 +0100,
-> > Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> > > 
-> > > On Wed, Jun 16, 2021 at 09:28:59PM +0200, Aman Priyadarshi wrote:
-> > > > From: Suzuki K Poulose <suzuki.poulose@arm.com>
-> > > > 
-> > > > [ Upstream commit 3cce50dfec4a5b0414c974190940f47dd32c6dee ]
-> > > > 
-> > > > The arm64 PMU updates the event counters and reprograms the
-> > > > counters in the overflow IRQ handler without disabling the
-> > > > PMU. This could potentially cause skews in for group counters,
-> > > > where the overflowed counters may potentially loose some event
-> > > > counts, while they are reprogrammed. To prevent this, disable
-> > > > the PMU while we process the counter overflows and enable it
-> > > > right back when we are done.
-> > > > 
-> > > > This patch also moves the PMU stop/start routines to avoid a
-> > > > forward declaration.
-> > > > 
-> > > > Suggested-by: Mark Rutland <mark.rutland@arm.com>
-> > > > Cc: Will Deacon <will.deacon@arm.com>
-> > > > Acked-by: Mark Rutland <mark.rutland@arm.com>
-> > > > Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-> > > > Signed-off-by: Will Deacon <will.deacon@arm.com>
-> > > > Signed-off-by: Aman Priyadarshi <apeureka@amazon.de>
-> > > > Cc: stable@vger.kernel.org
-> > > > ---
-> > > >  arch/arm64/kernel/perf_event.c | 50 +++++++++++++++++++-------------
-> > > > --
-> > > >  1 file changed, 28 insertions(+), 22 deletions(-)
-> > > 
-> > > What stable tree(s) do you want this applied to?
-> > 
-> > I guess that'd be 4.14 and previous stables if the patch actually
-> > applies.
+> > Now queued up, thanks.
 > > 
 > 
-> Correct. I have tested the patch on 4.14.y, can confirm that it applies
-> cleanly on 4.9.y as well.
+> I assume the two patches in v2 series are queued up. Nick pointed out
+> applying only this patch can break kernel building with lld.
 
-Now queued up, thanks.
+Yes, I now took those instead, thanks.
 
 greg k-h
