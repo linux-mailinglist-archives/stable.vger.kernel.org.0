@@ -2,244 +2,487 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 879633B4CDE
-	for <lists+stable@lfdr.de>; Sat, 26 Jun 2021 07:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C53B3B4CF4
+	for <lists+stable@lfdr.de>; Sat, 26 Jun 2021 08:14:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229635AbhFZFns (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Jun 2021 01:43:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60438 "EHLO
+        id S229924AbhFZGRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Jun 2021 02:17:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbhFZFns (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Jun 2021 01:43:48 -0400
-Received: from mail.marcansoft.com (marcansoft.com [IPv6:2a01:298:fe:f::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4B9C061574;
-        Fri, 25 Jun 2021 22:41:26 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: hector@marcansoft.com)
-        by mail.marcansoft.com (Postfix) with ESMTPSA id F1E9441AC8;
-        Sat, 26 Jun 2021 05:41:19 +0000 (UTC)
-From:   Hector Martin <marcan@marcan.st>
-To:     Jean Delvare <jdelvare@suse.com>
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        stable@vger.kernel.org
-Subject: [PATCH v3] i2c: i801: Safely share SMBus with BIOS/ACPI
-Date:   Sat, 26 Jun 2021 14:41:13 +0900
-Message-Id: <20210626054113.246309-1-marcan@marcan.st>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S229629AbhFZGRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Jun 2021 02:17:10 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92E01C061574
+        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 23:14:47 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id w15so5543256pgk.13
+        for <stable@vger.kernel.org>; Fri, 25 Jun 2021 23:14:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=h5zL8x04wEG8HG7E6qthygrubL9ZVsueSIrkDwLecag=;
+        b=kRzFDle1cKYK4KS/TCugoTdNTtadYfmIeKW+5Vy/uZ2qob8k1vyaDNUXmsXnTeg5UR
+         dx8njGW6IgleXu7gl10Ije+g/CUBG0OZ3rcQ/teCdf0bJ3ozvFk8FGwlzT8gCaL/wexE
+         0lqeK1IXdRK/U+mxSrQ8nulyuYUSNQ01uDjeBu4c/hwwbsJgjQ/Oz74KSTZpBBe6MA+s
+         JtXKPnD+DwQ6nXjLmFy+xwslVh3tA0wCOgWFqSoYy5LrPMDbgxv+yjJVikU2ZTHbudci
+         /mXpTF8AKX5AYpQ+r1/nc0Vu8Wgr1RLkLED7o+sQoSmt+2paNsOC1ro71jaCxTQbuCkI
+         6aCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=h5zL8x04wEG8HG7E6qthygrubL9ZVsueSIrkDwLecag=;
+        b=AD0RPrHtJsydW+php6Vk+aPhMsglow5ek2mP7b/pxUvFAjVIhXI6AZRHMIXwGGttqG
+         qsrVJ28mXZhMw9Nhu02cJF6D2mjwi3GVrcjeiS8oRT7vOxRiWCb72u0mDnCjpzCzQu8T
+         km8qcjOzTIOaInrmudDMZCXN4ESPQcx1WMSEgH1Rb+CsOsE1QzoFrxOnQr3tAIxr9Ry6
+         6IeOyEaaoWFAxOPyi2Fh+M2klFMCaTgTHK9P7N6hCR2A166ZDwT9gd1YZtQj7XVhUhBS
+         6CbYR1d0ehVVQs3F8P7TSfVNy1CrLpOqLV/9ogerAfaCr//kZom1QX6m0tZm3JkYwvxm
+         8mjg==
+X-Gm-Message-State: AOAM531Do6V85Ga0YIYG8MKC4msZdcQX7ffNRMhOF1Wv4Oy9YA6k1tZb
+        UIuUUACUlfZBLyTFq3F+0q3lJMzG9qH3srvX
+X-Google-Smtp-Source: ABdhPJxAeXcxMWFo9RhbQj8iV7AxS+644lrl3GdAr/Hv2372F5nJinrQTRWrWF6GHe7xqlYF2aKEhA==
+X-Received: by 2002:a63:6dca:: with SMTP id i193mr12739853pgc.107.1624688086941;
+        Fri, 25 Jun 2021 23:14:46 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x16sm7447983pfq.74.2021.06.25.23.14.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Jun 2021 23:14:46 -0700 (PDT)
+Message-ID: <60d6c5d6.1c69fb81.1da57.5e04@mx.google.com>
+Date:   Fri, 25 Jun 2021 23:14:46 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.273-54-gd789b8410427
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.4 baseline: 122 runs,
+ 11 regressions (v4.4.273-54-gd789b8410427)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The i801 controller provides a locking mechanism that the OS is supposed
-to use to safely share the SMBus with ACPI AML or other firmware.
+stable-rc/queue/4.4 baseline: 122 runs, 11 regressions (v4.4.273-54-gd789b8=
+410427)
 
-Previously, Linux attempted to get out of the way of ACPI AML entirely,
-but left the bus locked if it used it before the first AML access. This
-causes AML implementations that *do* attempt to safely share the bus
-to time out if Linux uses it first; notably, this regressed ACPI video
-backlight controls on 2015 iMacs after 01590f361e started instantiating
-SPD EEPROMs on boot.
+Regressions Summary
+-------------------
 
-Commit 065b6211a8 fixed the immediate problem of leaving the bus locked,
-but we can do better. The controller does have a proper locking mechanism,
-so let's use it as intended. Since we can't rely on the BIOS doing this
-properly, we implement the following logic:
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv2 | arm    | lab-baylibre    | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-- If ACPI AML uses the bus at all, we make a note and disable power
-  management. The latter matches already existing behavior.
-- When we want to use the bus, we attempt to lock it first. If the
-  locking attempt times out, *and* ACPI hasn't tried to use the bus at
-  all yet, we cautiously go ahead and assume the BIOS forgot to unlock
-  the bus after boot. This preserves existing behavior.
-- We always unlock the bus after a transfer.
-- If ACPI AML tries to use the bus (except trying to lock it) while
-  we're in the middle of a transfer, or after we've determined
-  locking is broken, we know we cannot safely share the bus and give up.
+qemu_arm-virt-gicv2 | arm    | lab-broonie     | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-Upon first usage of SMBus by ACPI AML, if nothing has gone horribly
-wrong so far, users will see:
+qemu_arm-virt-gicv2 | arm    | lab-cip         | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-i801_smbus 0000:00:1f.4: SMBus controller is shared with ACPI AML. This seems safe so far.
+qemu_arm-virt-gicv2 | arm    | lab-collabora   | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-If locking the SMBus times out, users will see:
+qemu_arm-virt-gicv2 | arm    | lab-linaro-lkft | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-i801_smbus 0000:00:1f.4: BIOS left SMBus locked
+qemu_arm-virt-gicv3 | arm    | lab-baylibre    | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-And if ACPI AML tries to use the bus concurrently with Linux, or it
-previously used the bus and we failed to subsequently lock it as
-above, the driver will give up and users will get:
+qemu_arm-virt-gicv3 | arm    | lab-broonie     | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-i801_smbus 0000:00:1f.4: BIOS uses SMBus unsafely
-i801_smbus 0000:00:1f.4: Driver SMBus register access inhibited
+qemu_arm-virt-gicv3 | arm    | lab-cip         | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-This fixes the regression introduced by 01590f361e, and further allows
-safely sharing the SMBus on 2015 iMacs. Tested by running `i2cdump` in a
-loop while changing backlight levels via the ACPI video device.
+qemu_arm-virt-gicv3 | arm    | lab-collabora   | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-Fixes: 01590f361e ("i2c: i801: Instantiate SPD EEPROMs automatically")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hector Martin <marcan@marcan.st>
----
- drivers/i2c/busses/i2c-i801.c | 96 ++++++++++++++++++++++++++++-------
- 1 file changed, 79 insertions(+), 17 deletions(-)
+qemu_arm-virt-gicv3 | arm    | lab-linaro-lkft | gcc-8    | multi_v7_defcon=
+fig           | 1          =
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 04a1e38f2a6f..03be6310d6d7 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -287,11 +287,18 @@ struct i801_priv {
- #endif
- 	struct platform_device *tco_pdev;
- 
-+	/* BIOS left the controller marked busy. */
-+	bool inuse_stuck;
- 	/*
--	 * If set to true the host controller registers are reserved for
--	 * ACPI AML use. Protected by acpi_lock.
-+	 * If set to true, ACPI AML uses the host controller registers.
-+	 * Protected by acpi_lock.
- 	 */
--	bool acpi_reserved;
-+	bool acpi_usage;
-+	/*
-+	 * If set to true, ACPI AML uses the host controller registers in an
-+	 * unsafe way. Protected by acpi_lock.
-+	 */
-+	bool acpi_unsafe;
- 	struct mutex acpi_lock;
- };
- 
-@@ -854,10 +861,37 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	int hwpec;
- 	int block = 0;
- 	int ret = 0, xact = 0;
-+	int timeout = 0;
- 	struct i801_priv *priv = i2c_get_adapdata(adap);
- 
-+	/*
-+	 * The controller provides a bit that implements a mutex mechanism
-+	 * between users of the bus. First, try to lock the hardware mutex.
-+	 * If this doesn't work, we give up trying to do this, but then
-+	 * bail if ACPI uses SMBus at all.
-+	 */
-+	if (!priv->inuse_stuck) {
-+		while (inb_p(SMBHSTSTS(priv)) & SMBHSTSTS_INUSE_STS) {
-+			if (++timeout >= MAX_RETRIES) {
-+				dev_warn(&priv->pci_dev->dev,
-+					 "BIOS left SMBus locked\n");
-+				priv->inuse_stuck = true;
-+				break;
-+			}
-+			usleep_range(250, 500);
-+		}
-+	}
-+
- 	mutex_lock(&priv->acpi_lock);
--	if (priv->acpi_reserved) {
-+	if (priv->acpi_usage && priv->inuse_stuck && !priv->acpi_unsafe) {
-+		priv->acpi_unsafe = true;
-+
-+		dev_warn(&priv->pci_dev->dev, "BIOS uses SMBus unsafely\n");
-+		dev_warn(&priv->pci_dev->dev,
-+			 "Driver SMBus register access inhibited\n");
-+	}
-+
-+	if (priv->acpi_unsafe) {
- 		mutex_unlock(&priv->acpi_lock);
- 		return -EBUSY;
- 	}
-@@ -1639,6 +1673,16 @@ static bool i801_acpi_is_smbus_ioport(const struct i801_priv *priv,
- 	       address <= pci_resource_end(priv->pci_dev, SMBBAR);
- }
- 
-+static acpi_status
-+i801_acpi_do_access(u32 function, acpi_physical_address address,
-+				u32 bits, u64 *value)
-+{
-+	if ((function & ACPI_IO_MASK) == ACPI_READ)
-+		return acpi_os_read_port(address, (u32 *)value, bits);
-+	else
-+		return acpi_os_write_port(address, (u32)*value, bits);
-+}
-+
- static acpi_status
- i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
- 		     u64 *value, void *handler_context, void *region_context)
-@@ -1648,17 +1692,38 @@ i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
- 	acpi_status status;
- 
- 	/*
--	 * Once BIOS AML code touches the OpRegion we warn and inhibit any
--	 * further access from the driver itself. This device is now owned
--	 * by the system firmware.
-+	 * Non-i801 accesses pass through.
- 	 */
--	mutex_lock(&priv->acpi_lock);
-+	if (!i801_acpi_is_smbus_ioport(priv, address))
-+		return i801_acpi_do_access(function, address, bits, value);
- 
--	if (!priv->acpi_reserved && i801_acpi_is_smbus_ioport(priv, address)) {
--		priv->acpi_reserved = true;
-+	if (!mutex_trylock(&priv->acpi_lock)) {
-+		mutex_lock(&priv->acpi_lock);
-+		/*
-+		 * This better be a read of the status register to acquire
-+		 * the lock...
-+		 */
-+		if (!priv->acpi_unsafe &&
-+			!(address == SMBHSTSTS(priv) &&
-+			 (function & ACPI_IO_MASK) == ACPI_READ)) {
-+			/*
-+			 * Uh-oh, ACPI AML is trying to do something with the
-+			 * controller without locking it properly.
-+			 */
-+			priv->acpi_unsafe = true;
-+
-+			dev_warn(&pdev->dev, "BIOS uses SMBus unsafely\n");
-+			dev_warn(&pdev->dev,
-+				 "Driver SMBus register access inhibited\n");
-+		}
-+	}
- 
--		dev_warn(&pdev->dev, "BIOS is accessing SMBus registers\n");
--		dev_warn(&pdev->dev, "Driver SMBus register access inhibited\n");
-+	if (!priv->acpi_usage) {
-+		priv->acpi_usage = true;
-+
-+		if (!priv->acpi_unsafe)
-+			dev_info(&pdev->dev,
-+				 "SMBus controller is shared with ACPI AML. This seems safe so far.\n");
- 
- 		/*
- 		 * BIOS is accessing the host controller so prevent it from
-@@ -1667,10 +1732,7 @@ i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
- 		pm_runtime_get_sync(&pdev->dev);
- 	}
- 
--	if ((function & ACPI_IO_MASK) == ACPI_READ)
--		status = acpi_os_read_port(address, (u32 *)value, bits);
--	else
--		status = acpi_os_write_port(address, (u32)*value, bits);
-+	status = i801_acpi_do_access(function, address, bits, value);
- 
- 	mutex_unlock(&priv->acpi_lock);
- 
-@@ -1706,7 +1768,7 @@ static void i801_acpi_remove(struct i801_priv *priv)
- 		ACPI_ADR_SPACE_SYSTEM_IO, i801_acpi_io_handler);
- 
- 	mutex_lock(&priv->acpi_lock);
--	if (priv->acpi_reserved)
-+	if (priv->acpi_usage)
- 		pm_runtime_put(&priv->pci_dev->dev);
- 	mutex_unlock(&priv->acpi_lock);
- }
--- 
-2.32.0
+qemu_x86_64         | x86_64 | lab-broonie     | gcc-8    | x86_64_defcon..=
+.6-chromebook | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.273-54-gd789b8410427/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.273-54-gd789b8410427
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d789b84104279caf1f569634b31ca3ccf35130c0 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv2 | arm    | lab-baylibre    | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d6947054b0d790c8413283
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d6947054b0d790c8413=
+284
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv2 | arm    | lab-broonie     | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d6951cb2877783e041326b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d6951cb2877783e0413=
+26c
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv2 | arm    | lab-cip         | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d6946450364da45c41328d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
+-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
+-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d6946450364da45c413=
+28e
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv2 | arm    | lab-collabora   | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d6c2af8a70f4409c41326a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
+m-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
+m-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d6c2af8a70f4409c413=
+26b
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv2 | arm    | lab-linaro-lkft | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d693b03999276a3f413290
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
+arm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
+arm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d693b03999276a3f413=
+291
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv3 | arm    | lab-baylibre    | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d6947150364da45c413292
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d6947150364da45c413=
+293
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv3 | arm    | lab-broonie     | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d69558b2877783e0413288
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d69558b2877783e0413=
+289
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv3 | arm    | lab-cip         | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d694928f19bbf493413275
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
+-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
+-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d694928f19bbf493413=
+276
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv3 | arm    | lab-collabora   | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d6c2ad8a70f4409c413267
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
+m-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
+m-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d6c2ad8a70f4409c413=
+268
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_arm-virt-gicv3 | arm    | lab-linaro-lkft | gcc-8    | multi_v7_defcon=
+fig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d693b15ef759003c41327c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
+arm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_=
+arm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d693b15ef759003c413=
+27d
+        failing since 224 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab             | compiler | defconfig      =
+              | regressions
+--------------------+--------+-----------------+----------+----------------=
+--------------+------------
+qemu_x86_64         | x86_64 | lab-broonie     | gcc-8    | x86_64_defcon..=
+.6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60d6925fccb070fc594132ac
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/ba=
+seline-qemu_x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.273-5=
+4-gd789b8410427/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/ba=
+seline-qemu_x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60d6925fccb070fc59413=
+2ad
+        new failure (last pass: v4.4.273-54-g8b667474b1d9) =
+
+ =20
