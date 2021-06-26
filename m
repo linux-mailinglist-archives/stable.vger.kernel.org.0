@@ -2,99 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D07EE3B4F7E
-	for <lists+stable@lfdr.de>; Sat, 26 Jun 2021 18:44:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B72443B5095
+	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 01:49:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbhFZQrC convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 26 Jun 2021 12:47:02 -0400
-Received: from mail-ot1-f49.google.com ([209.85.210.49]:44793 "EHLO
-        mail-ot1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229946AbhFZQrC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Jun 2021 12:47:02 -0400
-Received: by mail-ot1-f49.google.com with SMTP id 59-20020a9d0ac10000b0290462f0ab0800so5066933otq.11;
-        Sat, 26 Jun 2021 09:44:38 -0700 (PDT)
+        id S230263AbhFZXwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Jun 2021 19:52:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40854 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229850AbhFZXwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Jun 2021 19:52:18 -0400
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C41FC061766
+        for <stable@vger.kernel.org>; Sat, 26 Jun 2021 16:49:54 -0700 (PDT)
+Received: by mail-lf1-x12d.google.com with SMTP id q16so9612819lfr.4
+        for <stable@vger.kernel.org>; Sat, 26 Jun 2021 16:49:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=eISukSxr9S6lVbjbCM2Ot77tr1WgILTAvVDWCUeQenA=;
+        b=MYRxi85STBrA6ytlEgiBAF1tE55JOmd5vSToUuFjM1ecNxnCG1UeYEMOrCQTkq3P9X
+         OyesvsV1iezO8e/R1kK3dWuPHNwpgUb5ozCEm7WeNKN+sU4QAE8Zc2gS8OTGn87JNOEv
+         1IXZ60oXBsTZo03SRlWIU4LQlqeY8bwkF5QYkA2QKQ/VRVhfekQzQ9nhg2fdm4E6mOog
+         O4BNIgp9Tdjg9lF03NjUsW0NvnXYveR4cre3PMGibplazkrOI2nePRsisS1rwhjBLDpk
+         cm1lQopOxUvlIMkUK18EcgjYnLi21hgNNmFy2d6V/hG89cZTbe2iERrSysO7GnCvFwFV
+         TSEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=HxcRIBCSc7MQbCKOyndHrkKI3BYQ9FTRmkxDuLtYrT8=;
-        b=sJIoJBtoja2yelN1uMLLbJ85v1D7Fj/KYelZ/hR3ERnPxfY42FXrQubWGt7t57YEk9
-         fIfvWtCY0xryY4Ta2vQ+d6X713bvozhhnEFYqLtuuVex6+/b0+LuJLMChJtVxupG/9BF
-         3KbW1guEOUshZNhcUU2FheK5QUg3HXvjnd3Jv1NxNTCytpeAwRjGHP9G1B8FZoWtnI6J
-         JKC9tq7gvHkflwTxH0ov7D86WI5qdn/UG4rxZTzePDlJAFIhGbPfimDiUnnwuXruJW1g
-         ZCcEtDq8f4XLmmy6e97I6anbsj5t95W4bqAVvsimbNcKA/xlyGzBsz6PfXeqQPZOxq39
-         femw==
-X-Gm-Message-State: AOAM5309CxIpZeHz/ytTKyAc/9DItIY4Br/B0yATg/JEk4CKynzC0JTL
-        e1fIwQAB63Qgb6vDPBonMfgInHfd0TmAW+eLkko=
-X-Google-Smtp-Source: ABdhPJyeg/Y2k2Kh3fJCUN2qJd9anY5BtuizAmURtu6JDNx76NA/T6f3mcQX4DsZB1L0wOCadWZupcLkXqXx2M3c2+8=
-X-Received: by 2002:a05:6830:2707:: with SMTP id j7mr14916038otu.37.1624725878591;
- Sat, 26 Jun 2021 09:44:38 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=eISukSxr9S6lVbjbCM2Ot77tr1WgILTAvVDWCUeQenA=;
+        b=Iqy5FjiF0DmEYXuqeT2REKpojauJoV61INvv9YCdy3n7qFR/+2pB47Vtn859cKroj8
+         jru1V5pgV9Ip3MjeKMLRNwn5H7uMyK6chWeQ58Ce2Ne6CE74REry5VXg+FQiBUz1IA+E
+         cM2nPhbHPbmxX5R99F+mQ7l4tZbdiBArdA5DdAb3IWl/TgeU+7DE7cOshpvFNwbcHprc
+         LCsy/3S7P7sWBS6TvGJxU9pJjwy2IidPKKy6Mf0ERaiBQrOfpXgXPZUEG+KFT7e9niqt
+         kY3PRs/WQX/SyQp5+yM/MYkY+iWy3iCOjF/ASdz24Q3Fxdkf8lImHPaS6ISNdBPi1XYh
+         yRgQ==
+X-Gm-Message-State: AOAM532c+IyQAVE/97Yy/sKk5OOM2Tm1nTzFm1vHKdJMnf+a5C9a/B/E
+        DMx8QPAY9jwV7N4ByK/6bAApxQ==
+X-Google-Smtp-Source: ABdhPJwUB44QORbuNBQmNN9Dx4OyT7aCxGiEZFMKFOvUwObcavzCQU8kG1H8revzLTi6Lcqx+RAclQ==
+X-Received: by 2002:a05:6512:610:: with SMTP id b16mr13612599lfe.631.1624751392746;
+        Sat, 26 Jun 2021 16:49:52 -0700 (PDT)
+Received: from localhost.localdomain (c-fdcc225c.014-348-6c756e10.bbcust.telenor.se. [92.34.204.253])
+        by smtp.gmail.com with ESMTPSA id w17sm893700lft.285.2021.06.26.16.49.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Jun 2021 16:49:52 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Sebastian Reichel <sre@kernel.org>,
+        Marcus Cooper <codekipper@gmail.com>
+Cc:     linux-pm@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH] power: supply: ab8500: Fix an old bug
+Date:   Sun, 27 Jun 2021 01:47:49 +0200
+Message-Id: <20210626234749.2958991-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <alpine.DEB.2.21.2106260509300.37803@angie.orcam.me.uk> <alpine.DEB.2.21.2106260524430.37803@angie.orcam.me.uk>
-In-Reply-To: <alpine.DEB.2.21.2106260524430.37803@angie.orcam.me.uk>
-From:   =?UTF-8?Q?Philippe_Mathieu=2DDaud=C3=A9?= <f4bug@amsat.org>
-Date:   Sat, 26 Jun 2021 18:44:27 +0200
-Message-ID: <CAAdtpL6m6zRG7ruYdsjPjbuzuT64ZiBK9tuwcUGEcgkgTfFEmA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] MIPS: Malta: Do not byte-swap accesses to the CBUS UART
-To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jun 26, 2021 at 6:11 AM Maciej W. Rozycki <macro@orcam.me.uk> wrote:
->
-> Correct big-endian accesses to the CBUS UART, a Malta on-board discrete
-> TI16C550C part wired directly to the system controller's device bus, and
-> do not use byte swapping with the 32-bit accesses to the device.
->
-> The CBUS is used for devices such as the boot flash memory needed early
-> on in system bootstrap even before PCI has been initialised.  Therefore
-> it uses the system controller's device bus, which follows the endianness
-> set with the CPU, which means no byte-swapping is ever required for data
-> accesses to CBUS, unlike with PCI.
->
-> The CBUS UART uses the UPIO_MEM32 access method, that is the `readl' and
-> `writel' MMIO accessors, which on the MIPS platform imply byte-swapping
-> with PCI systems.  Consequently the wrong byte lane is accessed with the
-> big-endian configuration and the UART is not correctly accessed.
->
-> As it happens the UPIO_MEM32BE access method makes use of the `ioread32'
-> and `iowrite32' MMIO accessors, which still use `readl' and `writel'
-> respectively, however they byte-swap data passed, effectively cancelling
-> swapping done with the accessors themselves and making it suitable for
-> the CBUS UART.
->
-> Make the CBUS UART switch between UPIO_MEM32 and UPIO_MEM32BE then,
-> based on the endianness selected.  With this change in place the device
-> is correctly recognised with big-endian Malta at boot, along with the
-> Super I/O devices behind PCI:
->
-> Serial: 8250/16550 driver, 5 ports, IRQ sharing enabled
-> printk: console [ttyS0] disabled
-> serial8250.0: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
-> printk: console [ttyS0] enabled
-> printk: bootconsole [uart8250] disabled
-> serial8250.0: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
-> serial8250.0: ttyS2 at MMIO 0x1f000900 (irq = 20, base_baud = 230400) is a 16550A
->
-> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-> Fixes: e7c4782f92fc ("[MIPS] Put an end to <asm/serial.h>'s long and annyoing existence")
-> Cc: stable@vger.kernel.org # v2.6.23+
-> ---
-> Changes from v1:
->
-> - Remove console message duplicates from the commit description.
-> ---
->  arch/mips/mti-malta/malta-platform.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+Trying to get the AB8500 charging driver working I ran into a bit
+of bitrot: we haven't used the driver for a while so errors in
+refactorings won't be noticed.
 
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+This one is pretty self evident: use argument to the macro or we
+end up with a random pointer to something else.
+
+Cc: stable@vger.kernel.org
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Marcus Cooper <codekipper@gmail.com>
+Fixes: 297d716f6260 ("power_supply: Change ownership from driver to core")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/power/supply/ab8500-chargalg.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/power/supply/ab8500-chargalg.h b/drivers/power/supply/ab8500-chargalg.h
+index 94a6f9068bc5..07e6ff50084f 100644
+--- a/drivers/power/supply/ab8500-chargalg.h
++++ b/drivers/power/supply/ab8500-chargalg.h
+@@ -15,7 +15,7 @@
+  * - POWER_SUPPLY_TYPE_USB,
+  * because only them store as drv_data pointer to struct ux500_charger.
+  */
+-#define psy_to_ux500_charger(x) power_supply_get_drvdata(psy)
++#define psy_to_ux500_charger(x) power_supply_get_drvdata(x)
+ 
+ /* Forward declaration */
+ struct ux500_charger;
+-- 
+2.31.1
+
