@@ -2,208 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC0813B5566
-	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 23:54:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7FE3B5567
+	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 23:54:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231838AbhF0V4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Jun 2021 17:56:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55292 "EHLO mail.kernel.org"
+        id S231843AbhF0V4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Jun 2021 17:56:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231694AbhF0V4i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Jun 2021 17:56:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 823C161A1D;
-        Sun, 27 Jun 2021 21:54:12 +0000 (UTC)
+        id S231694AbhF0V4l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Jun 2021 17:56:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE62261C31;
+        Sun, 27 Jun 2021 21:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1624830852;
-        bh=BmuDkZ2rg0SlCnnw9mWYV4CNFAiV4hJ5S0+YueMrkIs=;
+        s=korg; t=1624830856;
+        bh=vFck+MhBGJ25PTdPs/LqMtIrPmEww1AaQzNKm1SVLz0=;
         h=Date:From:To:Subject:From;
-        b=vJTVr6vBVQyy0wyLuQ1lbrQ6hlAWuvJP9QE3SlmKPh38eAgFPBYsiIqXS5ubZ/vqz
-         S+eJhwKA0ZwF/udsnxI9+K+H1h5QrPjxCEvkMYkASB2eX6QkaKWVDXhihoamIKoXSY
-         Bi05flVssesqXMNwF6q2d0D88hE88BctmRi7Ek04=
-Date:   Sun, 27 Jun 2021 14:54:12 -0700
+        b=pfllxv5QSjN35AeszwvrLf2TETo6B3rQBIrhpB/SzPip4wZEapgioQf9NTlpuU0OQ
+         zsXVJbs4LTQfftdZ5ruFUpW0/3G7hVSwFXTD316Vdrk76oECAbzF8llqXBBIpjt4Q9
+         skbWe6eBOMpchg2u00tJmNrBVHjV0oslxzI3w8PQ=
+Date:   Sun, 27 Jun 2021 14:54:15 -0700
 From:   akpm@linux-foundation.org
 To:     bp@alien8.de, bp@suse.de, david@redhat.com, juew@google.com,
         luto@kernel.org, mm-commits@vger.kernel.org,
         naoya.horiguchi@nec.com, osalvador@suse.de, stable@vger.kernel.org,
         tony.luck@intel.com, yaoaili@kingsoft.com
 Subject:  [merged]
- mm-memory-failure-use-a-mutex-to-avoid-memory_failure-races.patch removed
- from -mm tree
-Message-ID: <20210627215412.pxIvw5LWw%akpm@linux-foundation.org>
+ =?US-ASCII?Q?mmhwpoison-return-ehwpoison-to-denote-that-the-page-has-alr?=
+ =?US-ASCII?Q?eady-been-poisoned.patch?= removed from -mm tree
+Message-ID: <20210627215415.opi8ksG8r%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/memory-failure: use a mutex to avoid memory_failure() races
+     Subject: mm,hwpoison: return -EHWPOISON to denote that the page has already been poisoned
 has been removed from the -mm tree.  Its filename was
-     mm-memory-failure-use-a-mutex-to-avoid-memory_failure-races.patch
+     mmhwpoison-return-ehwpoison-to-denote-that-the-page-has-already-been-poisoned.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Tony Luck <tony.luck@intel.com>
-Subject: mm/memory-failure: use a mutex to avoid memory_failure() races
+From: Aili Yao <yaoaili@kingsoft.com>
+Subject: mm,hwpoison: return -EHWPOISON to denote that the page has already been poisoned
 
-Patch series "mm,hwpoison: fix sending SIGBUS for Action Required MCE", v5.
+When memory_failure() is called with MF_ACTION_REQUIRED on the page that
+has already been hwpoisoned, memory_failure() could fail to send SIGBUS to
+the affected process, which results in infinite loop of MCEs.
 
-I wrote this patchset to materialize what I think is the current allowable
-solution mentioned by the previous discussion [1].  I simply borrowed
-Tony's mutex patch and Aili's return code patch, then I queued another one
-to find error virtual address in the best effort manner.  I know that this
-is not a perfect solution, but should work for some typical case.
+Currently memory_failure() returns 0 if it's called for already hwpoisoned
+page, then the caller, kill_me_maybe(), could return without sending
+SIGBUS to current process.  An action required MCE is raised when the
+current process accesses to the broken memory, so no SIGBUS means that the
+current process continues to run and access to the error page again soon,
+so running into MCE loop.
 
-[1]: https://lore.kernel.org/linux-mm/20210331192540.2141052f@alex-virtual-machine/
+This issue can arise for example in the following scenarios:
 
+- Two or more threads access to the poisoned page concurrently.  If
+  local MCE is enabled, MCE handler independently handles the MCE events. 
+  So there's a race among MCE events, and the second or latter threads
+  fall into the situation in question.
 
-This patch (of 2):
+- If there was a precedent memory error event and memory_failure() for
+  the event failed to unmap the error page for some reason, the subsequent
+  memory access to the error page triggers the MCE loop situation.
 
-There can be races when multiple CPUs consume poison from the same page. 
-The first into memory_failure() atomically sets the HWPoison page flag and
-begins hunting for tasks that map this page.  Eventually it invalidates
-those mappings and may send a SIGBUS to the affected tasks.
+To fix the issue, make memory_failure() return an error code when the
+error page has already been hwpoisoned.  This allows memory error handler
+to control how it sends signals to userspace.  And make sure that any
+process touching a hwpoisoned page should get a SIGBUS even in "already
+hwpoisoned" path of memory_failure() as is done in page fault path.
 
-But while all that work is going on, other CPUs see a "success" return
-code from memory_failure() and so they believe the error has been handled
-and continue executing.
-
-Fix by wrapping most of the internal parts of memory_failure() in a mutex.
-
-[akpm@linux-foundation.org: make mf_mutex local to memory_failure()]
-Link: https://lkml.kernel.org/r/20210521030156.2612074-1-nao.horiguchi@gmail.com
-Link: https://lkml.kernel.org/r/20210521030156.2612074-2-nao.horiguchi@gmail.com
-Signed-off-by: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20210521030156.2612074-3-nao.horiguchi@gmail.com
+Signed-off-by: Aili Yao <yaoaili@kingsoft.com>
 Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Aili Yao <yaoaili@kingsoft.com>
 Cc: Andy Lutomirski <luto@kernel.org>
 Cc: Borislav Petkov <bp@alien8.de>
+Cc: Borislav Petkov <bp@suse.de>
 Cc: David Hildenbrand <david@redhat.com>
 Cc: Jue Wang <juew@google.com>
+Cc: Tony Luck <tony.luck@intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory-failure.c |   36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ mm/memory-failure.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/mm/memory-failure.c~mm-memory-failure-use-a-mutex-to-avoid-memory_failure-races
+--- a/mm/memory-failure.c~mmhwpoison-return-ehwpoison-to-denote-that-the-page-has-already-been-poisoned
 +++ a/mm/memory-failure.c
-@@ -1429,9 +1429,10 @@ int memory_failure(unsigned long pfn, in
- 	struct page *hpage;
- 	struct page *orig_head;
- 	struct dev_pagemap *pgmap;
--	int res;
-+	int res = 0;
- 	unsigned long page_flags;
- 	bool retry = true;
-+	static DEFINE_MUTEX(mf_mutex);
- 
- 	if (!sysctl_memory_failure_recovery)
- 		panic("Memory failure on page %lx", pfn);
-@@ -1449,13 +1450,18 @@ int memory_failure(unsigned long pfn, in
- 		return -ENXIO;
+@@ -1253,7 +1253,7 @@ static int memory_failure_hugetlb(unsign
+ 	if (TestSetPageHWPoison(head)) {
+ 		pr_err("Memory failure: %#lx: already hardware poisoned\n",
+ 		       pfn);
+-		return 0;
++		return -EHWPOISON;
  	}
  
-+	mutex_lock(&mf_mutex);
-+
- try_again:
--	if (PageHuge(p))
--		return memory_failure_hugetlb(pfn, flags);
-+	if (PageHuge(p)) {
-+		res = memory_failure_hugetlb(pfn, flags);
-+		goto unlock_mutex;
-+	}
-+
+ 	num_poisoned_pages_inc();
+@@ -1461,6 +1461,7 @@ try_again:
  	if (TestSetPageHWPoison(p)) {
  		pr_err("Memory failure: %#lx: already hardware poisoned\n",
  			pfn);
--		return 0;
-+		goto unlock_mutex;
++		res = -EHWPOISON;
+ 		goto unlock_mutex;
  	}
  
- 	orig_head = hpage = compound_head(p);
-@@ -1488,17 +1494,19 @@ try_again:
- 				res = MF_FAILED;
- 			}
- 			action_result(pfn, MF_MSG_BUDDY, res);
--			return res == MF_RECOVERED ? 0 : -EBUSY;
-+			res = res == MF_RECOVERED ? 0 : -EBUSY;
- 		} else {
- 			action_result(pfn, MF_MSG_KERNEL_HIGH_ORDER, MF_IGNORED);
--			return -EBUSY;
-+			res = -EBUSY;
- 		}
-+		goto unlock_mutex;
- 	}
- 
- 	if (PageTransHuge(hpage)) {
- 		if (try_to_split_thp_page(p, "Memory Failure") < 0) {
- 			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
--			return -EBUSY;
-+			res = -EBUSY;
-+			goto unlock_mutex;
- 		}
- 		VM_BUG_ON_PAGE(!page_count(p), p);
- 	}
-@@ -1522,7 +1530,7 @@ try_again:
- 	if (PageCompound(p) && compound_head(p) != orig_head) {
- 		action_result(pfn, MF_MSG_DIFFERENT_COMPOUND, MF_IGNORED);
- 		res = -EBUSY;
--		goto out;
-+		goto unlock_page;
- 	}
- 
- 	/*
-@@ -1542,14 +1550,14 @@ try_again:
- 		num_poisoned_pages_dec();
- 		unlock_page(p);
- 		put_page(p);
--		return 0;
-+		goto unlock_mutex;
- 	}
- 	if (hwpoison_filter(p)) {
- 		if (TestClearPageHWPoison(p))
- 			num_poisoned_pages_dec();
- 		unlock_page(p);
- 		put_page(p);
--		return 0;
-+		goto unlock_mutex;
- 	}
- 
- 	/*
-@@ -1573,7 +1581,7 @@ try_again:
- 	if (!hwpoison_user_mappings(p, pfn, flags, &p)) {
- 		action_result(pfn, MF_MSG_UNMAP_FAILED, MF_IGNORED);
- 		res = -EBUSY;
--		goto out;
-+		goto unlock_page;
- 	}
- 
- 	/*
-@@ -1582,13 +1590,15 @@ try_again:
- 	if (PageLRU(p) && !PageSwapCache(p) && p->mapping == NULL) {
- 		action_result(pfn, MF_MSG_TRUNCATED_LRU, MF_IGNORED);
- 		res = -EBUSY;
--		goto out;
-+		goto unlock_page;
- 	}
- 
- identify_page_state:
- 	res = identify_page_state(pfn, p, page_flags);
--out:
-+unlock_page:
- 	unlock_page(p);
-+unlock_mutex:
-+	mutex_unlock(&mf_mutex);
- 	return res;
- }
- EXPORT_SYMBOL_GPL(memory_failure);
 _
 
-Patches currently in -mm which might be from tony.luck@intel.com are
+Patches currently in -mm which might be from yaoaili@kingsoft.com are
 
 
