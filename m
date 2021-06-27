@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDCDA3B53C1
-	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 16:25:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF483B53C2
+	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 16:25:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231206AbhF0O1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Jun 2021 10:27:32 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:38505 "EHLO
+        id S230260AbhF0O1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Jun 2021 10:27:34 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:58387 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230260AbhF0O1c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 10:27:32 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 1D62B194061E;
-        Sun, 27 Jun 2021 10:25:08 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 27 Jun 2021 10:25:08 -0400
+        by vger.kernel.org with ESMTP id S231210AbhF0O1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 10:27:34 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3B0C4194064C;
+        Sun, 27 Jun 2021 10:25:10 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sun, 27 Jun 2021 10:25:10 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=rXeOGM
-        pFxBlnV0Ua0jBVQc4l7udIP6Y91AY9G3G66Co=; b=RSyn+tkYEytS4FgBemNqNg
-        8FZ2H7kRc6cggaHjT7i1JuHgGdHB9IuFUhVPg1kdoOR8sQq/NYK6fl5jk7/6tuLz
-        ySLLHByN5VQ5uxQDXqCvGocYvZI3gsWOTU4hsgjMny9VaQD64vWDevn7NVvnIEXq
-        EqU0nSeNBcyZzNll2jxteAWj6gj2Y15W9y7sIBc/8ICS5xGKGZree3FCb7hpEQ9N
-        3JtiG5zGmWnCD/jYMbmnJ679PBvHDAqD+H6ZWSmSqJOQBNxcrdATNYn/+ahrMlXK
-        ep9pTSrfyoqVJllY2xw+yIn6ouwLj94Z6psS21uIr2YuhvP1Bn6wKYwpUKxsWe0A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=fJ/WHR
+        USynxyqnCIqXS0rv9sPsb58AYbQbvwLXht2KA=; b=vGDFbcMg8JyDsKK30Fk8wF
+        doyoKHVSHAM8eExlnYg6krWw9YF6ESFRI5YrvS8OwjQsMAjTlC9lU1dkFWA5EIck
+        FAX2EhOOuy3DOH9yAVQzUmcqjU2wd7xcvjbbbVEvfJsTIqY1dTVpX1EsGFhZgAhm
+        YDTrTayZOJqhr6oBogT8GH16k6XuQR0gJyYtqd2TSW56le91XKSW/ESrRVKXDAtB
+        uhKDbaVm/fbRKq+bNbMyBYNANdF3EUqP06HfBeTHep74Uy4Ge7XO6oBrf17I+d/J
+        i9nQvJGVpFfhyUNXKmVTLKNIcN8qNJpA6jD9PS1zvts3qo0Fi4lZlFxDsmE/tVkg
         ==
-X-ME-Sender: <xms:RIrYYPWcU9dRGYcXeWe30gSeilJKH_VSaYoLX9aSzDQsm9H9z0Ukqg>
-    <xme:RIrYYHkOcD28pIOQOlBk9q9P222HZjPWglchf9JGoEQ21qdN1IRLYIriJu3pGD_k4
-    1WSiWu9RZ6moA>
-X-ME-Received: <xmr:RIrYYLY3oxLHeQLIh47Bxq_RhDUNUUrb37rvF3S6__rOLHjFvhIet6mWAKOy7Zz93t-UXMZR_IT8WUGHqAAAyHmilrDIGzXT>
+X-ME-Sender: <xms:RorYYP7yr_GNiP0WVyFNMfqzPJ6HxLaFACyQERdPZlqJ932txMTfEQ>
+    <xme:RorYYE7GWIoH_2FD9p6WAC8fXPGbxJ9ppUbr20aVsuQTH4LSRXLEqjAsiH61LBGQa
+    KlvOV5hVqQ0-w>
+X-ME-Received: <xmr:RorYYGfbPhWfVzrjtML58bF7_aS9_v6lgE4ifYbB7XUyMmDhy5UpoHrNiLBSOzqvauDSHAVkBWpII88nlNdNWOslOH3-aQ9_>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeehvddgjeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    shhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:RIrYYKWoNwiMXkgjjg_xJGqWnljE14btY5ECE5PRqmVgedqG6ZvXNw>
-    <xmx:RIrYYJnQlkvKhowJDx4-_LxJ4DcEGqFXO71MmJzbtrorzvNgCt6pDg>
-    <xmx:RIrYYHfjkirPCQMfmebdBFFDIyFDYt93cO3gBmsFwUVDqx9a4tVm8A>
-    <xmx:RIrYYJtDG5caqtXYDQaorM0R-fgJqMwUs9RKSNv7q_JpEa_uzR4YQQ>
+X-ME-Proxy: <xmx:RorYYAJhuV6pDBuI4tHInqq5QeAyquzeI_aKEmympcy6wDrsnPaYjA>
+    <xmx:RorYYDLeMUhcsxu0HgHxXRCiWHRib62Xrn13byQuQTCtqvLQRjLMrA>
+    <xmx:RorYYJwj2z2EMUIzvNAZit-D1hBi4z1WWozOzOtHkGDwZ19Nu32_hw>
+    <xmx:RorYYJjKxrddMkRquviz4NF7iAe6ZStGJiIV1ApKjyYPyYkBJBu2PQ>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 27 Jun 2021 10:25:07 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/fpu: Make init_fpstate correct with optimized XSAVE" failed to apply to 4.19-stable tree
+ 27 Jun 2021 10:25:09 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86/fpu: Make init_fpstate correct with optimized XSAVE" failed to apply to 5.4-stable tree
 To:     tglx@linutronix.de, bp@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Jun 2021 16:25:02 +0200
-Message-ID: <162480390212103@kroah.com>
+Date:   Sun, 27 Jun 2021 16:25:04 +0200
+Message-ID: <162480390420065@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
