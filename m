@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99EE83B53B3
-	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 16:23:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F233B53B5
+	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 16:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230517AbhF0OZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Jun 2021 10:25:38 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:39563 "EHLO
+        id S230523AbhF0OZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Jun 2021 10:25:42 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:42673 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230505AbhF0OZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 10:25:37 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A7CFC194060D;
-        Sun, 27 Jun 2021 10:23:13 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S230505AbhF0OZl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 10:25:41 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 5167B1940611;
+        Sun, 27 Jun 2021 10:23:17 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 27 Jun 2021 10:23:13 -0400
+  by compute2.internal (MEProxy); Sun, 27 Jun 2021 10:23:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=jvxrTK
-        s+jtrkBp1a1YYQj6c/V+/pUpca6gy/JXHX1I4=; b=rMSw4OojH4Lx2Qj1Q5HiBg
-        NMBBb2P3T2EixnVzcF/h0Pkhk5AVY/qjkKZ40gd72Bcf4DyQfLlBDYJjG2/8N9GK
-        Z8JWVi+CIWZ6gRyTxqf1srKHLjri5BwFAP7Dx6Sze/qzCv7CpKFDW0hpd8kYYYIx
-        4Z/hx23SIsE7+0j5wjfceKgWxtYww9jPAFuUPGWpH1nJtXXmuitZlnyXTxw25qAu
-        WLKnBuE9l2RQZ8ieTsJNvQRshbdfvJZGl80dgARxa1A5siw15T2YVYKVEHrJGwsd
-        efoMO46jDeie5Gx3z71aJhPGABpldSZLYJKZl4mOxwPoJT80sTx8XMnQe8aWk08w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=QJbENg
+        iOCyacGesNGub8jC9h9l1BOfCYpPohwo7yNDk=; b=jm+1jDHMQwnM1Z1AbVuzjt
+        YNV4XLZbYVZCxufPGYXPz6H92UbyKRX49+050zWg91i2wOdA/U8qTBA1kPxcOrqS
+        ZxAG8LK1oNfw76CtxLjvhbrycSVlTcG7F3ju4kmvdFjIhZBnbfkUdJq5+n9NCNME
+        AWOdCmau4EeTmiZWc58yheKRqY3MMpS5l4qha/1Lpn/D/L7Gkg09s5dLN3gQj93L
+        L71R9B/uLegc0vg6H/K5vBnCKGregN68Ok9Fx222CgpbwYkq5sZhbjmte7V7r6k3
+        kVmuUtIjDsCyT7ltTJD1/WEeojwRBp4IPNlTiBHEQ0SQH1ia8lqgnOCS/b50sUkQ
         ==
-X-ME-Sender: <xms:0YnYYKFChs2sTs3Yoh3p_AAjByR0ZTe0_VR8b3biMZxpwvEmtRb1lw>
-    <xme:0YnYYLUgaXRXa898nwD9jNY4bzh53KrmujM8sS9utvLOa0xNORobVL-WxcrN4_87m
-    imwegkzOykG4A>
-X-ME-Received: <xmr:0YnYYELjYRiQnwrerEa9X4xXXD2Vmpkd7H6PeVMgAlU7wNw9OqzjEg0cewzPWGPqewbESUIpKknPMyJIE36M2NsdLZXl85x9>
+X-ME-Sender: <xms:1YnYYEVvcUntiMQSe-qxDYEL8ApR9m08aMkyUhAwyFTsSTLUSRkLLA>
+    <xme:1YnYYIl61uDJxjYrltp0S4rVCCO_P1UU2qey_Y1PUJ6d7CpybsLfDvFXqPp0edzFm
+    MzgvOduVLUIxA>
+X-ME-Received: <xmr:1YnYYIaaFSl9qgMq7DcG0k10igOgH4IlhzBRAjakih2STTQiRtgAyFM6NEkeYR40rCtdDixuxpasiFvwto8ayewJlVBjpUNz>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeehvddgjeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    shhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:0YnYYEF7llUNVXvphDdWNXIBw3Z4c8PLwG1fZuAHhjKgvqaucm_jEA>
-    <xmx:0YnYYAWl_t3c_8_LblklbTTiOJI7wDXkqiuNNb8XlqrywMob4sQhBg>
-    <xmx:0YnYYHNdMUUbtLtGADfk7tgPv5Fi3vYxVTBUTXG50kyB4bMTcFl3LQ>
-    <xmx:0YnYYNht1Xfv5qFqgW8hK2W1FdUjpMk01oIHM7pVLMyQb4exeF_Lzg>
+X-ME-Proxy: <xmx:1YnYYDWbctPViD-NOMhWdljE1DvCgXNphm8RGYB6k601dnvU-UUu2w>
+    <xmx:1YnYYOl3XUZQSagYncWjV8ty4F5NME1NNbgPjs5r5T6ixE20qRmB6g>
+    <xmx:1YnYYIcAOgnkWFymCzCcef3v9PJmwOoP-l-WwL9fMbr_GGsgvhua7w>
+    <xmx:1YnYYDw5_ueHRjZclhRf8lHN1ZLuwADWKFOWjTm1TmZOA0PurwZo4A>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 27 Jun 2021 10:23:13 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] xen/events: reset active flag for lateeoi events later" failed to apply to 4.14-stable tree
+ 27 Jun 2021 10:23:16 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] xen/events: reset active flag for lateeoi events later" failed to apply to 4.19-stable tree
 To:     jgross@suse.com, boris.ostrvsky@oracle.com, julien@xen.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Jun 2021 16:23:08 +0200
-Message-ID: <1624803788251233@kroah.com>
+Date:   Sun, 27 Jun 2021 16:23:09 +0200
+Message-ID: <162480378948125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
