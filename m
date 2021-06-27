@@ -2,227 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0EA3B5564
-	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 23:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E34C3B5565
+	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 23:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231823AbhF0V4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Jun 2021 17:56:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55194 "EHLO mail.kernel.org"
+        id S231831AbhF0V4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Jun 2021 17:56:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231694AbhF0V4b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Jun 2021 17:56:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDBE461C34;
-        Sun, 27 Jun 2021 21:54:06 +0000 (UTC)
+        id S231694AbhF0V4e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Jun 2021 17:56:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C4BC61C31;
+        Sun, 27 Jun 2021 21:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1624830847;
-        bh=k14QOCLqKs6NCYJjr/4o1U60gZzIzAAf2F4W0BgY3d0=;
+        s=korg; t=1624830849;
+        bh=qWGkj82UX1RaXBC1B/AnJH7GkzsSGVJmcAsfb/Cthxs=;
         h=Date:From:To:Subject:From;
-        b=efsvLL/6xYdKvWZC7emESZpimUJbkZ3r7Z8xLqk4g3D8Qo+RRN7isCWavJssZCJy6
-         sl/ok16ajjZ/Dj05GBXrTVo6eBlVzNB7ENmG0LkVLNa51XaHdsCXx9d5rRdgITlKMF
-         npXmVzxGklA0tpqv2BfFXirJZ0Ze3+rHtKfAVnZk=
-Date:   Sun, 27 Jun 2021 14:54:06 -0700
+        b=VhPNJil4eyq7Vl+fFm64UvTNCx9LlPIjt7TaBoi6+61x1CQo36EEuqOd4faOlJ5UP
+         3dvPVEy4NyQUCh3bo3cQ9VKkaZbDFhR+2JrAzBx3zmdCE4WSQvnEax9dIW+8DEyH6N
+         MmvQzaYS3MEy1QjGD1n4KnZ/9VYtJyqs73XC0e6U=
+Date:   Sun, 27 Jun 2021 14:54:09 -0700
 From:   akpm@linux-foundation.org
-To:     jenhaochen@google.com, liumartin@google.com, minchan@google.com,
-        mm-commits@vger.kernel.org, nathan@kernel.org,
-        ndesaulniers@google.com, oleg@redhat.com, pmladek@suse.com,
-        stable@vger.kernel.org, tj@kernel.org
+To:     dave@stgolabs.net, dvhart@infradead.org, hughd@google.com,
+        kirill.shutemov@linux.intel.com, mgorman@techsingularity.net,
+        mike.kravetz@oracle.com, mingo@redhat.com,
+        mm-commits@vger.kernel.org, neelnatu@google.com,
+        peterz@infradead.org, stable@vger.kernel.org, tglx@linutronix.de,
+        wetpzy@gmail.com, willy@infradead.org
 Subject:  [merged]
- =?US-ASCII?Q?kthread-prevent-deadlock-when-kthread=5Fmod=5Fdelayed=5Fwo?=
- =?US-ASCII?Q?rk-races-with-kthread=5Fcancel=5Fdelayed=5Fwork=5Fsync.p?=
- =?US-ASCII?Q?atch?= removed from -mm tree
-Message-ID: <20210627215406.YwhdL-mbc%akpm@linux-foundation.org>
+ mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page.patch removed from -mm
+ tree
+Message-ID: <20210627215409.Z-076rhyF%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
+     Subject: mm, futex: fix shared futex pgoff on shmem huge page
 has been removed from the -mm tree.  Its filename was
-     kthread-prevent-deadlock-when-kthread_mod_delayed_work-races-with-kthread_cancel_delayed_work_sync.patch
+     mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Petr Mladek <pmladek@suse.com>
-Subject: kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
+From: Hugh Dickins <hughd@google.com>
+Subject: mm, futex: fix shared futex pgoff on shmem huge page
 
-The system might hang with the following backtrace:
+If more than one futex is placed on a shmem huge page, it can happen that
+waking the second wakes the first instead, and leaves the second waiting:
+the key's shared.pgoff is wrong.
 
-	schedule+0x80/0x100
-	schedule_timeout+0x48/0x138
-	wait_for_common+0xa4/0x134
-	wait_for_completion+0x1c/0x2c
-	kthread_flush_work+0x114/0x1cc
-	kthread_cancel_work_sync.llvm.16514401384283632983+0xe8/0x144
-	kthread_cancel_delayed_work_sync+0x18/0x2c
-	xxxx_pm_notify+0xb0/0xd8
-	blocking_notifier_call_chain_robust+0x80/0x194
-	pm_notifier_call_chain_robust+0x28/0x4c
-	suspend_prepare+0x40/0x260
-	enter_state+0x80/0x3f4
-	pm_suspend+0x60/0xdc
-	state_store+0x108/0x144
-	kobj_attr_store+0x38/0x88
-	sysfs_kf_write+0x64/0xc0
-	kernfs_fop_write_iter+0x108/0x1d0
-	vfs_write+0x2f4/0x368
-	ksys_write+0x7c/0xec
+When 3.11 commit 13d60f4b6ab5 ("futex: Take hugepages into account when
+generating futex_key"), the only shared huge pages came from hugetlbfs,
+and the code added to deal with its exceptional page->index was put into
+hugetlb source.  Then that was missed when 4.8 added shmem huge pages.
 
-It is caused by the following race between kthread_mod_delayed_work() and
-kthread_cancel_delayed_work_sync():
+page_to_pgoff() is what others use for this nowadays: except that, as
+currently written, it gives the right answer on hugetlbfs head, but
+nonsense on hugetlbfs tails.  Fix that by calling hugetlbfs-specific
+hugetlb_basepage_index() on PageHuge tails as well as on head.
 
-CPU0				CPU1
+Yes, it's unconventional to declare hugetlb_basepage_index() there in
+pagemap.h, rather than in hugetlb.h; but I do not expect anything but
+page_to_pgoff() ever to need it.
 
-Context: Thread A		Context: Thread B
-
-kthread_mod_delayed_work()
-  spin_lock()
-  __kthread_cancel_work()
-     spin_unlock()
-     del_timer_sync()
-				kthread_cancel_delayed_work_sync()
-				  spin_lock()
-				  __kthread_cancel_work()
-				    spin_unlock()
-				    del_timer_sync()
-				    spin_lock()
-
-				  work->canceling++
-				  spin_unlock
-     spin_lock()
-   queue_delayed_work()
-     // dwork is put into the worker->delayed_work_list
-
-   spin_unlock()
-
-				  kthread_flush_work()
-     // flush_work is put at the tail of the dwork
-
-				    wait_for_completion()
-
-Context: IRQ
-
-  kthread_delayed_work_timer_fn()
-    spin_lock()
-    list_del_init(&work->node);
-    spin_unlock()
-
-BANG: flush_work is not longer linked and will never get proceed.
-
-The problem is that kthread_mod_delayed_work() checks work->canceling flag
-before canceling the timer.
-
-A simple solution is to (re)check work->canceling after
-__kthread_cancel_work().  But then it is not clear what should be returned
-when __kthread_cancel_work() removed the work from the queue (list) and it
-can't queue it again with the new @delay.
-
-The return value might be used for reference counting.  The caller has to
-know whether a new work has been queued or an existing one was replaced.
-
-The proper solution is that kthread_mod_delayed_work() will remove the
-work from the queue (list) _only_ when work->canceling is not set.  The
-flag must be checked after the timer is stopped and the remaining
-operations can be done under worker->lock.
-
-Note that kthread_mod_delayed_work() could remove the timer and then bail
-out.  It is fine.  The other canceling caller needs to cancel the timer as
-well.  The important thing is that the queue (list) manipulation is done
-atomically under worker->lock.
-
-Link: https://lkml.kernel.org/r/20210610133051.15337-3-pmladek@suse.com
-Fixes: 9a6b06c8d9a220860468a ("kthread: allow to modify delayed kthread work")
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Reported-by: Martin Liu <liumartin@google.com>
-Cc: <jenhaochen@google.com>
-Cc: Minchan Kim <minchan@google.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Tejun Heo <tj@kernel.org>
+[akpm@linux-foundation.org: give hugetlb_basepage_index() prototype the correct scope]
+Link: https://lkml.kernel.org/r/b17d946b-d09-326e-b42a-52884c36df32@google.com
+Fixes: 800d8c63b2e9 ("shmem: add huge pages support")
+Reported-by: Neel Natu <neelnatu@google.com>
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Zhang Yi <wetpzy@gmail.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- kernel/kthread.c |   35 ++++++++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+ include/linux/hugetlb.h |   16 ----------------
+ include/linux/pagemap.h |   13 +++++++------
+ kernel/futex.c          |    3 +--
+ mm/hugetlb.c            |    5 +----
+ 4 files changed, 9 insertions(+), 28 deletions(-)
 
---- a/kernel/kthread.c~kthread-prevent-deadlock-when-kthread_mod_delayed_work-races-with-kthread_cancel_delayed_work_sync
-+++ a/kernel/kthread.c
-@@ -1120,8 +1120,11 @@ static void kthread_cancel_delayed_work_
+--- a/include/linux/hugetlb.h~mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page
++++ a/include/linux/hugetlb.h
+@@ -741,17 +741,6 @@ static inline int hstate_index(struct hs
+ 	return h - hstates;
+ }
+ 
+-pgoff_t __basepage_index(struct page *page);
+-
+-/* Return page->index in PAGE_SIZE units */
+-static inline pgoff_t basepage_index(struct page *page)
+-{
+-	if (!PageCompound(page))
+-		return page->index;
+-
+-	return __basepage_index(page);
+-}
+-
+ extern int dissolve_free_huge_page(struct page *page);
+ extern int dissolve_free_huge_pages(unsigned long start_pfn,
+ 				    unsigned long end_pfn);
+@@ -988,11 +977,6 @@ static inline int hstate_index(struct hs
+ 	return 0;
+ }
+ 
+-static inline pgoff_t basepage_index(struct page *page)
+-{
+-	return page->index;
+-}
+-
+ static inline int dissolve_free_huge_page(struct page *page)
+ {
+ 	return 0;
+--- a/include/linux/pagemap.h~mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page
++++ a/include/linux/pagemap.h
+@@ -516,7 +516,7 @@ static inline struct page *read_mapping_
  }
  
  /*
-- * This function removes the work from the worker queue. Also it makes sure
-- * that it won't get queued later via the delayed work's timer.
-+ * This function removes the work from the worker queue.
-+ *
-+ * It is called under worker->lock. The caller must make sure that
-+ * the timer used by delayed work is not running, e.g. by calling
-+ * kthread_cancel_delayed_work_timer().
-  *
-  * The work might still be in use when this function finishes. See the
-  * current_work proceed by the worker.
-@@ -1129,13 +1132,8 @@ static void kthread_cancel_delayed_work_
-  * Return: %true if @work was pending and successfully canceled,
-  *	%false if @work was not pending
+- * Get index of the page with in radix-tree
++ * Get index of the page within radix-tree (but not for hugetlb pages).
+  * (TODO: remove once hugetlb pages will have ->index in PAGE_SIZE)
   */
--static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
--				  unsigned long *flags)
-+static bool __kthread_cancel_work(struct kthread_work *work)
- {
--	/* Try to cancel the timer if exists. */
--	if (is_dwork)
--		kthread_cancel_delayed_work_timer(work, flags);
--
- 	/*
- 	 * Try to remove the work from a worker list. It might either
- 	 * be from worker->work_list or from worker->delayed_work_list.
-@@ -1188,11 +1186,23 @@ bool kthread_mod_delayed_work(struct kth
- 	/* Work must not be used with >1 worker, see kthread_queue_work() */
- 	WARN_ON_ONCE(work->worker != worker);
+ static inline pgoff_t page_to_index(struct page *page)
+@@ -535,15 +535,16 @@ static inline pgoff_t page_to_index(stru
+ 	return pgoff;
+ }
  
--	/* Do not fight with another command that is canceling this work. */
-+	/*
-+	 * Temporary cancel the work but do not fight with another command
-+	 * that is canceling the work as well.
-+	 *
-+	 * It is a bit tricky because of possible races with another
-+	 * mod_delayed_work() and cancel_delayed_work() callers.
-+	 *
-+	 * The timer must be canceled first because worker->lock is released
-+	 * when doing so. But the work can be removed from the queue (list)
-+	 * only when it can be queued again so that the return value can
-+	 * be used for reference counting.
-+	 */
-+	kthread_cancel_delayed_work_timer(work, &flags);
- 	if (work->canceling)
- 		goto out;
-+	ret = __kthread_cancel_work(work);
- 
--	ret = __kthread_cancel_work(work, true, &flags);
- fast_queue:
- 	__kthread_queue_delayed_work(worker, dwork, delay);
- out:
-@@ -1214,7 +1224,10 @@ static bool __kthread_cancel_work_sync(s
- 	/* Work must not be used with >1 worker, see kthread_queue_work(). */
- 	WARN_ON_ONCE(work->worker != worker);
- 
--	ret = __kthread_cancel_work(work, is_dwork, &flags);
-+	if (is_dwork)
-+		kthread_cancel_delayed_work_timer(work, &flags);
++extern pgoff_t hugetlb_basepage_index(struct page *page);
 +
-+	ret = __kthread_cancel_work(work);
+ /*
+- * Get the offset in PAGE_SIZE.
+- * (TODO: hugepage should have ->index in PAGE_SIZE)
++ * Get the offset in PAGE_SIZE (even for hugetlb pages).
++ * (TODO: hugetlb pages should have ->index in PAGE_SIZE)
+  */
+ static inline pgoff_t page_to_pgoff(struct page *page)
+ {
+-	if (unlikely(PageHeadHuge(page)))
+-		return page->index << compound_order(page);
+-
++	if (unlikely(PageHuge(page)))
++		return hugetlb_basepage_index(page);
+ 	return page_to_index(page);
+ }
  
- 	if (worker->current_work != work)
- 		goto out_fast;
+--- a/kernel/futex.c~mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page
++++ a/kernel/futex.c
+@@ -35,7 +35,6 @@
+ #include <linux/jhash.h>
+ #include <linux/pagemap.h>
+ #include <linux/syscalls.h>
+-#include <linux/hugetlb.h>
+ #include <linux/freezer.h>
+ #include <linux/memblock.h>
+ #include <linux/fault-inject.h>
+@@ -650,7 +649,7 @@ again:
+ 
+ 		key->both.offset |= FUT_OFF_INODE; /* inode-based key */
+ 		key->shared.i_seq = get_inode_sequence_number(inode);
+-		key->shared.pgoff = basepage_index(tail);
++		key->shared.pgoff = page_to_pgoff(tail);
+ 		rcu_read_unlock();
+ 	}
+ 
+--- a/mm/hugetlb.c~mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page
++++ a/mm/hugetlb.c
+@@ -1588,15 +1588,12 @@ struct address_space *hugetlb_page_mappi
+ 	return NULL;
+ }
+ 
+-pgoff_t __basepage_index(struct page *page)
++pgoff_t hugetlb_basepage_index(struct page *page)
+ {
+ 	struct page *page_head = compound_head(page);
+ 	pgoff_t index = page_index(page_head);
+ 	unsigned long compound_idx;
+ 
+-	if (!PageHuge(page_head))
+-		return page_index(page);
+-
+ 	if (compound_order(page_head) >= MAX_ORDER)
+ 		compound_idx = page_to_pfn(page) - page_to_pfn(page_head);
+ 	else
 _
 
-Patches currently in -mm which might be from pmladek@suse.com are
+Patches currently in -mm which might be from hughd@google.com are
 
-kthread_worker-fix-return-value-when-kthread_mod_delayed_work-races-with-kthread_cancel_delayed_work_sync.patch
+mm-thp-remap_page-is-only-needed-on-anonymous-thp.patch
+mm-hwpoison_user_mappings-try_to_unmap-with-ttu_sync.patch
 
