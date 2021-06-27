@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9C23B554A
-	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 23:52:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4762C3B554B
+	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 23:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231719AbhF0VzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Jun 2021 17:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53310 "EHLO mail.kernel.org"
+        id S231713AbhF0VzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Jun 2021 17:55:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231713AbhF0VzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Jun 2021 17:55:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C69AF61C32;
-        Sun, 27 Jun 2021 21:52:34 +0000 (UTC)
+        id S231707AbhF0VzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Jun 2021 17:55:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEC4661C34;
+        Sun, 27 Jun 2021 21:52:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1624830755;
-        bh=lwSo3++hm/faJmgVZDRI49qp8rZ955xcPnE4qwwZA9M=;
+        s=korg; t=1624830758;
+        bh=BcvHONJWurD4dUC6OIccvZDssniT1zy02nVky/jZPqw=;
         h=Date:From:To:Subject:From;
-        b=sKDE8yVcGJLJUqTTbn1EwmoE8wDfZfFZpwMOCVdCVVRfJr5Ik40K5cP8xe4nQr+77
-         CEzyL/fMnhBjJN3/F/Fwg6y3pj/hQeFlz+aLCTHTt3940/wj0HNNnNdWkerM1Hhs6F
-         fGfTmYdqt0IjyDI5F9oPC7su3ZFH0Ae9ZVrQIQBQ=
-Date:   Sun, 27 Jun 2021 14:52:34 -0700
+        b=Qbw0tEe77MxsAWJVFyLHaM+Iz7YVRZp/c8x0O9QB1MPSEGmfENZ0mp7VdKs+YMy2/
+         cJ+9jydMmTC3niB1CUJm+p+Y5ykmbxnAlzBJmpFjmp/HmsvRvA1s28VQSzFZf6MtBw
+         fTg6/ZifsmXvcZELdXF0NZBawb9wfYLC5vCgu6fA=
+Date:   Sun, 27 Jun 2021 14:52:37 -0700
 From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, hughd@google.com, mm-commits@vger.kernel.org,
-        peterx@redhat.com, stable@vger.kernel.org
-Subject:  [merged]
- mm-swap-fix-pte_same_as_swp-not-removing-uffd-wp-bit-when-compare.patch
+To:     cl@linux.com, elver@google.com, guro@fb.com,
+        iamjoonsoo.kim@lge.com, keescook@chromium.org,
+        mm-commits@vger.kernel.org, penberg@kernel.org,
+        rientjes@google.com, stable@vger.kernel.org, vbabka@suse.cz,
+        zplin@psu.edu
+Subject:  [merged] mm-slub-clarify-verification-reporting.patch
  removed from -mm tree
-Message-ID: <20210627215234.6qty3u8gL%akpm@linux-foundation.org>
+Message-ID: <20210627215237.QMlxpcAwX%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -35,92 +37,155 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/swap: fix pte_same_as_swp() not removing uffd-wp bit when compare
+     Subject: mm/slub: clarify verification reporting
 has been removed from the -mm tree.  Its filename was
-     mm-swap-fix-pte_same_as_swp-not-removing-uffd-wp-bit-when-compare.patch
+     mm-slub-clarify-verification-reporting.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/swap: fix pte_same_as_swp() not removing uffd-wp bit when compare
+From: Kees Cook <keescook@chromium.org>
+Subject: mm/slub: clarify verification reporting
 
-I found it by pure code review, that pte_same_as_swp() of unuse_vma()
-didn't take uffd-wp bit into account when comparing ptes. 
-pte_same_as_swp() returning false negative could cause failure to swapoff
-swap ptes that was wr-protected by userfaultfd.
+Patch series "Actually fix freelist pointer vs redzoning", v4.
 
-Link: https://lkml.kernel.org/r/20210603180546.9083-1-peterx@redhat.com
-Fixes: f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: <stable@vger.kernel.org>	[5.7+]
+This fixes redzoning vs the freelist pointer (both for middle-position and
+very small caches).  Both are "theoretical" fixes, in that I see no
+evidence of such small-sized caches actually be used in the kernel, but
+that's no reason to let the bugs continue to exist, especially since
+people doing local development keep tripping over it.  :)
+
+
+This patch (of 3):
+
+Instead of repeating "Redzone" and "Poison", clarify which sides of those
+zones got tripped.  Additionally fix column alignment in the trailer.
+
+Before:
+
+BUG test (Tainted: G    B            ): Redzone overwritten
+...
+Redzone (____ptrval____): bb bb bb bb bb bb bb bb      ........
+Object (____ptrval____): f6 f4 a5 40 1d e8            ...@..
+Redzone (____ptrval____): 1a aa                        ..
+Padding (____ptrval____): 00 00 00 00 00 00 00 00      ........
+
+After:
+
+BUG test (Tainted: G    B            ): Right Redzone overwritten
+...
+Redzone  (____ptrval____): bb bb bb bb bb bb bb bb      ........
+Object   (____ptrval____): f6 f4 a5 40 1d e8            ...@..
+Redzone  (____ptrval____): 1a aa                        ..
+Padding  (____ptrval____): 00 00 00 00 00 00 00 00      ........
+
+The earlier commits that slowly resulted in the "Before" reporting were:
+
+  d86bd1bece6f ("mm/slub: support left redzone")
+  ffc79d288000 ("slub: use print_hex_dump")
+  2492268472e7 ("SLUB: change error reporting format to follow lockdep loosely")
+
+Link: https://lkml.kernel.org/r/20210608183955.280836-1-keescook@chromium.org
+Link: https://lkml.kernel.org/r/20210608183955.280836-2-keescook@chromium.org
+Link: https://lore.kernel.org/lkml/cfdb11d7-fb8e-e578-c939-f7f5fb69a6bd@suse.cz/
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Marco Elver <elver@google.com>
+Cc: "Lin, Zhenpeng" <zplin@psu.edu>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/swapops.h |   15 +++++++++++----
- mm/swapfile.c           |    2 +-
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ Documentation/vm/slub.rst |   10 +++++-----
+ mm/slub.c                 |   14 +++++++-------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
---- a/include/linux/swapops.h~mm-swap-fix-pte_same_as_swp-not-removing-uffd-wp-bit-when-compare
-+++ a/include/linux/swapops.h
-@@ -23,6 +23,16 @@
- #define SWP_TYPE_SHIFT	(BITS_PER_XA_VALUE - MAX_SWAPFILES_SHIFT)
- #define SWP_OFFSET_MASK	((1UL << SWP_TYPE_SHIFT) - 1)
+--- a/Documentation/vm/slub.rst~mm-slub-clarify-verification-reporting
++++ a/Documentation/vm/slub.rst
+@@ -181,7 +181,7 @@ SLUB Debug output
+ Here is a sample of slub debug output::
  
-+/* Clear all flags but only keep swp_entry_t related information */
-+static inline pte_t pte_swp_clear_flags(pte_t pte)
-+{
-+	if (pte_swp_soft_dirty(pte))
-+		pte = pte_swp_clear_soft_dirty(pte);
-+	if (pte_swp_uffd_wp(pte))
-+		pte = pte_swp_clear_uffd_wp(pte);
-+	return pte;
-+}
-+
- /*
-  * Store a type+offset into a swp_entry_t in an arch-independent format
-  */
-@@ -66,10 +76,7 @@ static inline swp_entry_t pte_to_swp_ent
- {
- 	swp_entry_t arch_entry;
+  ====================================================================
+- BUG kmalloc-8: Redzone overwritten
++ BUG kmalloc-8: Right Redzone overwritten
+  --------------------------------------------------------------------
  
--	if (pte_swp_soft_dirty(pte))
--		pte = pte_swp_clear_soft_dirty(pte);
--	if (pte_swp_uffd_wp(pte))
--		pte = pte_swp_clear_uffd_wp(pte);
-+	pte = pte_swp_clear_flags(pte);
- 	arch_entry = __pte_to_swp_entry(pte);
- 	return swp_entry(__swp_type(arch_entry), __swp_offset(arch_entry));
- }
---- a/mm/swapfile.c~mm-swap-fix-pte_same_as_swp-not-removing-uffd-wp-bit-when-compare
-+++ a/mm/swapfile.c
-@@ -1900,7 +1900,7 @@ unsigned int count_swap_pages(int type,
+  INFO: 0xc90f6d28-0xc90f6d2b. First byte 0x00 instead of 0xcc
+@@ -189,10 +189,10 @@ Here is a sample of slub debug output::
+  INFO: Object 0xc90f6d20 @offset=3360 fp=0xc90f6d58
+  INFO: Allocated in get_modalias+0x61/0xf5 age=53 cpu=1 pid=554
  
- static inline int pte_same_as_swp(pte_t pte, pte_t swp_pte)
- {
--	return pte_same(pte_swp_clear_soft_dirty(pte), swp_pte);
-+	return pte_same(pte_swp_clear_flags(pte), swp_pte);
- }
+- Bytes b4 0xc90f6d10:  00 00 00 00 00 00 00 00 5a 5a 5a 5a 5a 5a 5a 5a ........ZZZZZZZZ
+-   Object 0xc90f6d20:  31 30 31 39 2e 30 30 35                         1019.005
+-  Redzone 0xc90f6d28:  00 cc cc cc                                     .
+-  Padding 0xc90f6d50:  5a 5a 5a 5a 5a 5a 5a 5a                         ZZZZZZZZ
++ Bytes b4 (0xc90f6d10): 00 00 00 00 00 00 00 00 5a 5a 5a 5a 5a 5a 5a 5a ........ZZZZZZZZ
++ Object   (0xc90f6d20): 31 30 31 39 2e 30 30 35                         1019.005
++ Redzone  (0xc90f6d28): 00 cc cc cc                                     .
++ Padding  (0xc90f6d50): 5a 5a 5a 5a 5a 5a 5a 5a                         ZZZZZZZZ
  
- /*
+    [<c010523d>] dump_trace+0x63/0x1eb
+    [<c01053df>] show_trace_log_lvl+0x1a/0x2f
+--- a/mm/slub.c~mm-slub-clarify-verification-reporting
++++ a/mm/slub.c
+@@ -712,15 +712,15 @@ static void print_trailer(struct kmem_ca
+ 	       p, p - addr, get_freepointer(s, p));
+ 
+ 	if (s->flags & SLAB_RED_ZONE)
+-		print_section(KERN_ERR, "Redzone ", p - s->red_left_pad,
++		print_section(KERN_ERR, "Redzone  ", p - s->red_left_pad,
+ 			      s->red_left_pad);
+ 	else if (p > addr + 16)
+ 		print_section(KERN_ERR, "Bytes b4 ", p - 16, 16);
+ 
+-	print_section(KERN_ERR, "Object ", p,
++	print_section(KERN_ERR,         "Object   ", p,
+ 		      min_t(unsigned int, s->object_size, PAGE_SIZE));
+ 	if (s->flags & SLAB_RED_ZONE)
+-		print_section(KERN_ERR, "Redzone ", p + s->object_size,
++		print_section(KERN_ERR, "Redzone  ", p + s->object_size,
+ 			s->inuse - s->object_size);
+ 
+ 	off = get_info_end(s);
+@@ -732,7 +732,7 @@ static void print_trailer(struct kmem_ca
+ 
+ 	if (off != size_from_object(s))
+ 		/* Beginning of the filler is the free pointer */
+-		print_section(KERN_ERR, "Padding ", p + off,
++		print_section(KERN_ERR, "Padding  ", p + off,
+ 			      size_from_object(s) - off);
+ 
+ 	dump_stack();
+@@ -909,11 +909,11 @@ static int check_object(struct kmem_cach
+ 	u8 *endobject = object + s->object_size;
+ 
+ 	if (s->flags & SLAB_RED_ZONE) {
+-		if (!check_bytes_and_report(s, page, object, "Redzone",
++		if (!check_bytes_and_report(s, page, object, "Left Redzone",
+ 			object - s->red_left_pad, val, s->red_left_pad))
+ 			return 0;
+ 
+-		if (!check_bytes_and_report(s, page, object, "Redzone",
++		if (!check_bytes_and_report(s, page, object, "Right Redzone",
+ 			endobject, val, s->inuse - s->object_size))
+ 			return 0;
+ 	} else {
+@@ -928,7 +928,7 @@ static int check_object(struct kmem_cach
+ 		if (val != SLUB_RED_ACTIVE && (s->flags & __OBJECT_POISON) &&
+ 			(!check_bytes_and_report(s, page, p, "Poison", p,
+ 					POISON_FREE, s->object_size - 1) ||
+-			 !check_bytes_and_report(s, page, p, "Poison",
++			 !check_bytes_and_report(s, page, p, "End Poison",
+ 				p + s->object_size - 1, POISON_END, 1)))
+ 			return 0;
+ 		/*
 _
 
-Patches currently in -mm which might be from peterx@redhat.com are
+Patches currently in -mm which might be from keescook@chromium.org are
 
-mm-gup_benchmark-support-threading.patch
-mm-gup-pack-has_pinned-in-mmf_has_pinned-fix.patch
-userfaultfd-selftests-use-user-mode-only.patch
-userfaultfd-selftests-remove-the-time-check-on-delayed-uffd.patch
-userfaultfd-selftests-dropping-verify-check-in-locking_thread.patch
-userfaultfd-selftests-only-dump-counts-if-mode-enabled.patch
-userfaultfd-selftests-unify-error-handling.patch
-mm-thp-simplify-copying-of-huge-zero-page-pmd-when-fork.patch
-mm-userfaultfd-fix-uffd-wp-special-cases-for-fork.patch
-mm-userfaultfd-fix-a-few-thp-pmd-missing-uffd-wp-bit.patch
-mm-userfaultfd-fail-uffd-wp-registeration-if-not-supported.patch
-mm-pagemap-export-uffd-wp-protection-information.patch
-userfaultfd-selftests-add-pagemap-uffd-wp-test.patch
-userfaultfd-selftests-reinitialize-test-context-in-each-test-fix.patch
 
