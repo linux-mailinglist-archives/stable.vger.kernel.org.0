@@ -2,107 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 776703B538A
-	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 15:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F893B53AC
+	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 16:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbhF0Nxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Jun 2021 09:53:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51860 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229927AbhF0Nxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 09:53:52 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD8EEC061574;
-        Sun, 27 Jun 2021 06:51:27 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id kt19so423642pjb.2;
-        Sun, 27 Jun 2021 06:51:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=bTjmvU8yn2/k0kOaZkGNIygSTdPKkN7MOcxmayDA4lI=;
-        b=OdGpBXHtWVue7u4/yCfRuucDLA2lcAkTkuHNxW38YjfxpCkbjgrsqMQvzAVvwzpbje
-         NUAq5k3FZpGXY8LygkpAhG32cyPFaxj2z6HNiEjy8p1BNCvZhjSebCmuvnOvQwlGSxQu
-         9Ub9gbmhiEFgsUYrNYChAT56HHUNvoeRw0kQJbLgE8wJKawlVYuY5U1p+dRNyYpIhJ9O
-         FhDSmb9rQzHFG0svVN09s6BtJvfhn2MBda8/DIPGiy0pVsuvrWsu2AmFBHBvg1bjwgWo
-         QIsi/O9P+d5PAkU/paZmZiuSXHhJk9qyKqNdJV2lt04OndwQpmNTgUkJmYvzH/JDvLrM
-         CR+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=bTjmvU8yn2/k0kOaZkGNIygSTdPKkN7MOcxmayDA4lI=;
-        b=exZLffKMhzFMNVP0gFOTvdd+C/qc2Q72tutgiOTQv0d8MI717i4Yu5IVG74Nq7+yLd
-         pNq6WdoOkpU7utHOv/aK/JMaX3bY0zkzoXBdwdsrvdp7ut2/oKYYA8teSnHnrJD8wI+x
-         riurOKNvdwD3I2dtO9d6ChROOfH0RRWU+cyxQC8H1h5Rn2GppkdCqSCHrP1r1knXZiR/
-         IcPi1pjfFE0fNEcf1p0BNS4F4TAy1qu1cOgAeTdDx9bp5GP83x654OY4AP+b+xBnO1XL
-         uIOnsuWJwtdjhY8UUrYlqODgH8/6OCzr4r2iwQpz0dvHWgBmt6fyLgAOgPMBvgGNJNy3
-         oHHA==
-X-Gm-Message-State: AOAM532F+Y/AajCVFgXuYm/PRRv51ez2H3tyen4YG+ZgmiDCJl8Z3TqR
-        2LE3HgBU98eZzP+oyBRzf4I=
-X-Google-Smtp-Source: ABdhPJzjT7YC09scR8s5v2+ndh3rZPHMTmEYf67yRO7QQ/E4qz+CXAbP8Mm+trT56tLJrtzz3o+voA==
-X-Received: by 2002:a17:90a:b390:: with SMTP id e16mr22444595pjr.197.1624801887319;
-        Sun, 27 Jun 2021 06:51:27 -0700 (PDT)
-Received: from i9-aorus-gtx1080.localdomain (144.168.56.201.16clouds.com. [144.168.56.201])
-        by smtp.gmail.com with ESMTPSA id c5sm10870034pfv.47.2021.06.27.06.51.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Jun 2021 06:51:26 -0700 (PDT)
-From:   Bin Meng <bmeng.cn@gmail.com>
-To:     Palmer Dabbelt <palmerdabbelt@google.com>,
-        Atish Patra <atish.patra@wdc.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org
-Cc:     stable@vger.kernel.org, Bin Meng <bmeng.cn@gmail.com>
-Subject: [PATCH] riscv: Fix 32-bit RISC-V boot failure
-Date:   Sun, 27 Jun 2021 21:51:17 +0800
-Message-Id: <20210627135117.28641-1-bmeng.cn@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        id S230193AbhF0OWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Jun 2021 10:22:47 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:59245 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229973AbhF0OWr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 10:22:47 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id E48EA19404EE;
+        Sun, 27 Jun 2021 10:20:22 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Sun, 27 Jun 2021 10:20:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=gktu8n
+        fxfKIKNwJm9hxtR+yxPeyMimuGEKOUNvP7hxk=; b=PYCyT1tZhkq6+MYeTI0Xln
+        qDupuyhuEGAIdd+P4xrDOr++V1lQPJKrNd2DHqMqt5qdoHsYrkt9BItX4mJ//u8w
+        RCUvZ1cmcn8bhUH+3bdiJHHR+LZYP/W5kiaeCeiesXGSUiMtz9cGrFzFNGAlHLGj
+        F4aXPw+AUDpRKG23AIuAMigkNqU0buByJWnXpBj4cr/huAfCXVZxvA6tTH+GULsY
+        aI3gWxppI8FKCPoAkXPGWmes59dxOoSQJeaVhTzyojyWD5CzJkTfATYkrypaFBbt
+        HkN2VO4G6tJ98ESjw6JUf6rb+tMUqrIMHHCEXLk/WuBUwlFWTyzbyKwdrQPBP7Ew
+        ==
+X-ME-Sender: <xms:JonYYFdKQJHmfPmP93Q6bWEaYe6IC-hoIF8qfMvr91Jc_4byWAeRWA>
+    <xme:JonYYDPtU92vJm610s4E8vbgDq_4OoebO9pRQQtHSpjJz_g448NlosRiG6yHw8iAF
+    xRzFrs2enQwbA>
+X-ME-Received: <xmr:JonYYOgoPIAxNSUfVhgUNwi-KJ8-dDjbAD9Ryhb3rdfFK5OKdf0ka2SQ0kRxOqvrBn3n23kUVUJGbx_4j6JyZ19BFsrIFT3z>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeehvddgjeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehm
+    rghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:JonYYO9GIdHBGucsstGUHr5rudZ05h0mX6E3copEFecFMUOvH0vehQ>
+    <xmx:JonYYBuyfdM6Xja0ipA61rXKfCQymAHQeu-osbXMJ38I0bCDHDwZZQ>
+    <xmx:JonYYNGzUxbOAfsPF8afRVIlkU7aw2VL4l4Jn0Y09gfXcm3aCs1XSA>
+    <xmx:JonYYLLDgve_CNRiOOSNam6uj26ebpz0dipM1thGidRaxmCARx3HxQ>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 27 Jun 2021 10:20:22 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] s390/topology: clear thread/group maps for offline cpus" failed to apply to 5.10-stable tree
+To:     svens@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
+        mhillen@linux.ibm.com, stable@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 27 Jun 2021 16:20:20 +0200
+Message-ID: <162480362021846@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit dd2d082b5760 ("riscv: Cleanup setup_bootmem()") adjusted
-the calling sequence in setup_bootmem(), which invalidates the fix
-commit de043da0b9e7 ("RISC-V: Fix usage of memblock_enforce_memory_limit")
-did for 32-bit RISC-V unfortunately.
 
-So now 32-bit RISC-V does not boot again when testing booting kernel
-on QEMU 'virt' with '-m 2G', which was exactly what the original
-commit de043da0b9e7 ("RISC-V: Fix usage of memblock_enforce_memory_limit")
-tried to fix.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Fixes: dd2d082b5760 ("riscv: Cleanup setup_bootmem()")
-Cc: stable@vger.kernel.org # v5.12+
-Signed-off-by: Bin Meng <bmeng.cn@gmail.com>
----
+thanks,
 
- arch/riscv/mm/init.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+greg k-h
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 4c4c92ce0bb8..9b23b95c50cf 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -123,7 +123,7 @@ void __init setup_bootmem(void)
+------------------ original commit in Linus's tree ------------------
+
+From 9e3d62d55bf455d4f9fdf2ede5c8756410c64102 Mon Sep 17 00:00:00 2001
+From: Sven Schnelle <svens@linux.ibm.com>
+Date: Tue, 15 Jun 2021 15:05:22 +0200
+Subject: [PATCH] s390/topology: clear thread/group maps for offline cpus
+
+The current code doesn't clear the thread/group maps for offline
+CPUs. This may cause kernel crashes like the one bewlow in common
+code that assumes if a CPU has sibblings it is online.
+
+Unable to handle kernel pointer dereference in virtual kernel address space
+
+Call Trace:
+ [<000000013a4b8c3c>] blk_mq_map_swqueue+0x10c/0x388
+([<000000013a4b8bcc>] blk_mq_map_swqueue+0x9c/0x388)
+ [<000000013a4b9300>] blk_mq_init_allocated_queue+0x448/0x478
+ [<000000013a4b9416>] blk_mq_init_queue+0x4e/0x90
+ [<000003ff8019d3e6>] loop_add+0x106/0x278 [loop]
+ [<000003ff801b8148>] loop_init+0x148/0x1000 [loop]
+ [<0000000139de4924>] do_one_initcall+0x3c/0x1e0
+ [<0000000139ef449a>] do_init_module+0x6a/0x2a0
+ [<0000000139ef61bc>] __do_sys_finit_module+0xa4/0xc0
+ [<0000000139de9e6e>] do_syscall+0x7e/0xd0
+ [<000000013a8e0aec>] __do_syscall+0xbc/0x110
+ [<000000013a8ee2e8>] system_call+0x78/0xa0
+
+Fixes: 52aeda7accb6 ("s390/topology: remove offline CPUs from CPU topology masks")
+Cc: <stable@kernel.org> # 5.7+
+Reported-by: Marius Hillenbrand <mhillen@linux.ibm.com>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+
+diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
+index bfcc327acc6b..26aa2614ee35 100644
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@ -66,7 +66,10 @@ static void cpu_group_map(cpumask_t *dst, struct mask_info *info, unsigned int c
  {
- 	phys_addr_t vmlinux_end = __pa_symbol(&_end);
- 	phys_addr_t vmlinux_start = __pa_symbol(&_start);
--	phys_addr_t dram_end = memblock_end_of_DRAM();
-+	phys_addr_t dram_end;
- 	phys_addr_t max_mapped_addr = __pa(~(ulong)0);
+ 	static cpumask_t mask;
  
- #ifdef CONFIG_XIP_KERNEL
-@@ -146,6 +146,8 @@ void __init setup_bootmem(void)
- #endif
- 	memblock_reserve(vmlinux_start, vmlinux_end - vmlinux_start);
+-	cpumask_copy(&mask, cpumask_of(cpu));
++	cpumask_clear(&mask);
++	if (!cpu_online(cpu))
++		goto out;
++	cpumask_set_cpu(cpu, &mask);
+ 	switch (topology_mode) {
+ 	case TOPOLOGY_MODE_HW:
+ 		while (info) {
+@@ -83,10 +86,10 @@ static void cpu_group_map(cpumask_t *dst, struct mask_info *info, unsigned int c
+ 	default:
+ 		fallthrough;
+ 	case TOPOLOGY_MODE_SINGLE:
+-		cpumask_copy(&mask, cpumask_of(cpu));
+ 		break;
+ 	}
+ 	cpumask_and(&mask, &mask, cpu_online_mask);
++out:
+ 	cpumask_copy(dst, &mask);
+ }
  
-+	dram_end = memblock_end_of_DRAM();
-+
- 	/*
- 	 * memblock allocator is not aware of the fact that last 4K bytes of
- 	 * the addressable memory can not be mapped because of IS_ERR_VALUE
--- 
-2.25.1
+@@ -95,7 +98,10 @@ static void cpu_thread_map(cpumask_t *dst, unsigned int cpu)
+ 	static cpumask_t mask;
+ 	int i;
+ 
+-	cpumask_copy(&mask, cpumask_of(cpu));
++	cpumask_clear(&mask);
++	if (!cpu_online(cpu))
++		goto out;
++	cpumask_set_cpu(cpu, &mask);
+ 	if (topology_mode != TOPOLOGY_MODE_HW)
+ 		goto out;
+ 	cpu -= cpu % (smp_cpu_mtid + 1);
 
