@@ -2,55 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D73953B53B6
-	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 16:23:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC76F3B53B8
+	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 16:23:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231134AbhF0OZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Jun 2021 10:25:46 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:60027 "EHLO
+        id S231183AbhF0O0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Jun 2021 10:26:21 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:58307 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230505AbhF0OZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 10:25:44 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 3E2ED19405A1;
-        Sun, 27 Jun 2021 10:23:19 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Sun, 27 Jun 2021 10:23:19 -0400
+        by vger.kernel.org with ESMTP id S231158AbhF0O0U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 10:26:20 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0C6FD194058F;
+        Sun, 27 Jun 2021 10:23:56 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sun, 27 Jun 2021 10:23:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=7Ngri9
-        ocYa/LEiPjfHFtG2dg+7odFgMAN3i/57TMaSo=; b=qO+4xrQHaQ7jwJPDA1MOQb
-        TVAXXr/+fKypgKDmY6y5NTzUCwy7/nuFrejzVavRVivAP3dQcHyvLPgRTa5HGGqn
-        vLVcMgW+K1am+wWiIZb4pzK22yLyoGCzWRBRRdL0sfreSAFkDOOCDRiz1Ww0jjzO
-        4yvfkzlzMkRhj+BUgfdztEVIhoGncdHIkxug0pdZpOJdh44cJ1+mPMVKXOIu8Wty
-        RLp/SbiNmZ4M1eQkjCgaHoLjRw1L1+vSgMQa3HKgjsO01k3mXTT7wbAAjCKTnxH6
-        HyS5Wn100Zex7IQMIksLsVl9VREXSnPaQqx0P4qZhgn4pSDXSp5NfQA+JMb8BzHg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=J1GETi
+        XZhm4Q//4KWhDTu9dJWhh6XQ80eFWRlm1+f2E=; b=ZwMZdkgYu4xZ5ykalVNXTo
+        6OikqaxjtnmRKHw11NdNNiDnWyuVIuABz+Ry9vFfWZe9caw9tMMi9ST83BR3Flwb
+        HhiWrGGABMgl62V0bFGXbK4BwDzUCQCApXNHQn7Zi9O/Gy46jbasKywPqDtlKRJe
+        32UxFB7I+csJuPupGxrCttfdpjJsQPN6ZElQGETjqKNiiAx+ZQKBvrnQsrLopELC
+        aDmW7mmk4j+DWQmQW6BEw8ds3C5Ie1BhFOCZJXC1svoDVEESZB8jqeOggTzseF2M
+        ut0toxrdJ2JrLzn3djrVPgHZCvUclB16m1YLNIdX5GTe3YbVYIOltC2pDHmd7ATA
         ==
-X-ME-Sender: <xms:14nYYF1EwYrPSKa-n0qrbxjgbQzk1U31PZsJ55ZHwzP0yw9_borjbw>
-    <xme:14nYYMHFZ6tqInAQec9f71lPysGLy2N-hV3fEnqWWUbbDCqN40YTPG3BqzSdBR3FK
-    U2Dvi5YGjbotg>
-X-ME-Received: <xmr:14nYYF7xJtpSy_coARNCiVfs72bfXnYza7i8ecRNea8ZHinM7zemkw9g1WhJEH4Kx4q6armCqnE1JscfDeomsx1XWarOYN9m>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeehvddgjeeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:-4nYYEbwSwOXRaZAJsrGJFJYGaCI3amOVYpWnP0SCjBCa0B90QsAVQ>
+    <xme:-4nYYPZNsh2kI6deMvCkwViGnwf-dxJbdU5UF4f3qMpH0-CGubqSrvBHpisPeQb9m
+    DLBCrBCN7yuqA>
+X-ME-Received: <xmr:-4nYYO-NHgH_xG6pgxg4BhojjwnyoF3HvVOB5TEG1G8I20DaSBlC1CaRNFIjQCgUlQTFvtEJL0rchDO8xFMIUoLYPCy5rXt->
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeehvddgjeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
-    shhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:14nYYC2l-ipMcbN-0aYb6R4PrfSLlNfrnqZeiNDUd1bGMGZsf880Ww>
-    <xmx:14nYYIGG3gR4Q_0MVXz96IeNd5v_fuwVOp4QqNbUhbwWsP-r2cTULg>
-    <xmx:14nYYD_HaV0O7DKyNabwjlqDRREFgFE9zqFbrNXxv1qpONZP4IpmPA>
-    <xmx:14nYYNSCqSLf-dHpE3PY-K5AkrBl9VhD6mwtSJy2oLmJKrVq2QaEfQ>
+X-ME-Proxy: <xmx:-4nYYOqUvkwhAhuL7Z_CHJDAR5COWMS_nHAzblbTPJtzjcllnSFC_Q>
+    <xmx:-4nYYPpn61YOLum__5MWLkXd1LEz7zTtraYVNVXszFQ6CkthctUmcg>
+    <xmx:-4nYYMR9BKlxI3ZKcuabek_CbIsDSO0nCxGLAa0CSqZEXrojjLv57w>
+    <xmx:_InYYMjsQ1bCz07ONsJhlAK9xSwfZ9xY2UEGiSf2JG82zib5pxXTBurG7PI>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 27 Jun 2021 10:23:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] xen/events: reset active flag for lateeoi events later" failed to apply to 5.10-stable tree
-To:     jgross@suse.com, boris.ostrvsky@oracle.com, julien@xen.org
+ 27 Jun 2021 10:23:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] kthread_worker: split code for canceling the delayed work" failed to apply to 4.9-stable tree
+To:     pmladek@suse.com, akpm@linux-foundation.org, jenhaochen@google.com,
+        liumartin@google.com, minchan@google.com, nathan@kernel.org,
+        ndesaulniers@google.com, oleg@redhat.com, stable@vger.kernel.org,
+        tj@kernel.org, torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Jun 2021 16:23:10 +0200
-Message-ID: <1624803790144136@kroah.com>
+Date:   Sun, 27 Jun 2021 16:23:54 +0200
+Message-ID: <16248038342857@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,61 +73,101 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3de218ff39b9e3f0d453fe3154f12a174de44b25 Mon Sep 17 00:00:00 2001
-From: Juergen Gross <jgross@suse.com>
-Date: Wed, 23 Jun 2021 15:09:13 +0200
-Subject: [PATCH] xen/events: reset active flag for lateeoi events later
+From 34b3d5344719d14fd2185b2d9459b3abcb8cf9d8 Mon Sep 17 00:00:00 2001
+From: Petr Mladek <pmladek@suse.com>
+Date: Thu, 24 Jun 2021 18:39:45 -0700
+Subject: [PATCH] kthread_worker: split code for canceling the delayed work
+ timer
 
-In order to avoid a race condition for user events when changing
-cpu affinity reset the active flag only when EOI-ing the event.
+Patch series "kthread_worker: Fix race between kthread_mod_delayed_work()
+and kthread_cancel_delayed_work_sync()".
 
-This is working fine as all user events are lateeoi events. Note that
-lateeoi_ack_mask_dynirq() is not modified as there is no explicit call
-to xen_irq_lateeoi() expected later.
+This patchset fixes the race between kthread_mod_delayed_work() and
+kthread_cancel_delayed_work_sync() including proper return value
+handling.
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Fixes: b6622798bc50b62 ("xen/events: avoid handling the same event on two cpus at the same time")
-Tested-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrvsky@oracle.com>
-Link: https://lore.kernel.org/r/20210623130913.9405-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+This patch (of 2):
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 7bbfd58958bc..d7e361fb0548 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -642,6 +642,9 @@ static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
- 	}
+Simple code refactoring as a preparation step for fixing a race between
+kthread_mod_delayed_work() and kthread_cancel_delayed_work_sync().
+
+It does not modify the existing behavior.
+
+Link: https://lkml.kernel.org/r/20210610133051.15337-2-pmladek@suse.com
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Cc: <jenhaochen@google.com>
+Cc: Martin Liu <liumartin@google.com>
+Cc: Minchan Kim <minchan@google.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index fe3f2a40d61e..121a0e1fc659 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -1092,6 +1092,33 @@ void kthread_flush_work(struct kthread_work *work)
+ }
+ EXPORT_SYMBOL_GPL(kthread_flush_work);
  
- 	info->eoi_time = 0;
++/*
++ * Make sure that the timer is neither set nor running and could
++ * not manipulate the work list_head any longer.
++ *
++ * The function is called under worker->lock. The lock is temporary
++ * released but the timer can't be set again in the meantime.
++ */
++static void kthread_cancel_delayed_work_timer(struct kthread_work *work,
++					      unsigned long *flags)
++{
++	struct kthread_delayed_work *dwork =
++		container_of(work, struct kthread_delayed_work, work);
++	struct kthread_worker *worker = work->worker;
 +
-+	/* is_active hasn't been reset yet, do it now. */
-+	smp_store_release(&info->is_active, 0);
- 	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
- }
- 
-@@ -811,6 +814,7 @@ static void xen_evtchn_close(evtchn_port_t port)
- 		BUG();
- }
- 
-+/* Not called for lateeoi events. */
- static void event_handler_exit(struct irq_info *info)
++	/*
++	 * del_timer_sync() must be called to make sure that the timer
++	 * callback is not running. The lock must be temporary released
++	 * to avoid a deadlock with the callback. In the meantime,
++	 * any queuing is blocked by setting the canceling counter.
++	 */
++	work->canceling++;
++	raw_spin_unlock_irqrestore(&worker->lock, *flags);
++	del_timer_sync(&dwork->timer);
++	raw_spin_lock_irqsave(&worker->lock, *flags);
++	work->canceling--;
++}
++
+ /*
+  * This function removes the work from the worker queue. Also it makes sure
+  * that it won't get queued later via the delayed work's timer.
+@@ -1106,23 +1133,8 @@ static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
+ 				  unsigned long *flags)
  {
- 	smp_store_release(&info->is_active, 0);
-@@ -1883,7 +1887,12 @@ static void lateeoi_ack_dynirq(struct irq_data *data)
+ 	/* Try to cancel the timer if exists. */
+-	if (is_dwork) {
+-		struct kthread_delayed_work *dwork =
+-			container_of(work, struct kthread_delayed_work, work);
+-		struct kthread_worker *worker = work->worker;
+-
+-		/*
+-		 * del_timer_sync() must be called to make sure that the timer
+-		 * callback is not running. The lock must be temporary released
+-		 * to avoid a deadlock with the callback. In the meantime,
+-		 * any queuing is blocked by setting the canceling counter.
+-		 */
+-		work->canceling++;
+-		raw_spin_unlock_irqrestore(&worker->lock, *flags);
+-		del_timer_sync(&dwork->timer);
+-		raw_spin_lock_irqsave(&worker->lock, *flags);
+-		work->canceling--;
+-	}
++	if (is_dwork)
++		kthread_cancel_delayed_work_timer(work, flags);
  
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		event_handler_exit(info);
-+		/*
-+		 * Don't call event_handler_exit().
-+		 * Need to keep is_active non-zero in order to ignore re-raised
-+		 * events after cpu affinity changes while a lateeoi is pending.
-+		 */
-+		clear_evtchn(evtchn);
- 	}
- }
- 
+ 	/*
+ 	 * Try to remove the work from a worker list. It might either
 
