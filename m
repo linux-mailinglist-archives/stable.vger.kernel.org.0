@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 439A93B5549
-	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 23:52:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B9C23B554A
+	for <lists+stable@lfdr.de>; Sun, 27 Jun 2021 23:52:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231715AbhF0Vy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Jun 2021 17:54:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53272 "EHLO mail.kernel.org"
+        id S231719AbhF0VzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Jun 2021 17:55:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231713AbhF0Vy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Jun 2021 17:54:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F127561C31;
-        Sun, 27 Jun 2021 21:52:32 +0000 (UTC)
+        id S231713AbhF0VzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Jun 2021 17:55:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C69AF61C32;
+        Sun, 27 Jun 2021 21:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1624830753;
-        bh=3rKQjDi+OoHdyJVHMyiP6aHfOycZNSeRWhEZDQHcK6M=;
+        s=korg; t=1624830755;
+        bh=lwSo3++hm/faJmgVZDRI49qp8rZ955xcPnE4qwwZA9M=;
         h=Date:From:To:Subject:From;
-        b=CzvKOw130Xonyc9WdCNC8K/xEuLUjOfm78XiJwq+569hyMw3olh1r0OB5Vjoocm2p
-         TPcV4EyuHK0/d/PY2uVPA4dj4KUduXau1D/iaF7j57JTHBd6X1d8SaM0HbTx0Ipop4
-         phNBfKy06GuqqXWMPvGh2aL1gHzi3U1mj2kvMWm0=
-Date:   Sun, 27 Jun 2021 14:52:32 -0700
+        b=sKDE8yVcGJLJUqTTbn1EwmoE8wDfZfFZpwMOCVdCVVRfJr5Ik40K5cP8xe4nQr+77
+         CEzyL/fMnhBjJN3/F/Fwg6y3pj/hQeFlz+aLCTHTt3940/wj0HNNnNdWkerM1Hhs6F
+         fGfTmYdqt0IjyDI5F9oPC7su3ZFH0Ae9ZVrQIQBQ=
+Date:   Sun, 27 Jun 2021 14:52:34 -0700
 From:   akpm@linux-foundation.org
-To:     mhocko@suse.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, naoya.horiguchi@nec.com,
-        osalvador@suse.de, songmuchun@bytedance.com,
-        stable@vger.kernel.org, tony.luck@intel.com
+To:     aarcange@redhat.com, hughd@google.com, mm-commits@vger.kernel.org,
+        peterx@redhat.com, stable@vger.kernel.org
 Subject:  [merged]
- mmhwpoison-fix-race-with-hugetlb-page-allocation.patch removed from -mm
- tree
-Message-ID: <20210627215232.sY07qmHxs%akpm@linux-foundation.org>
+ mm-swap-fix-pte_same_as_swp-not-removing-uffd-wp-bit-when-compare.patch
+ removed from -mm tree
+Message-ID: <20210627215234.6qty3u8gL%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -37,167 +35,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm,hwpoison: fix race with hugetlb page allocation
+     Subject: mm/swap: fix pte_same_as_swp() not removing uffd-wp bit when compare
 has been removed from the -mm tree.  Its filename was
-     mmhwpoison-fix-race-with-hugetlb-page-allocation.patch
+     mm-swap-fix-pte_same_as_swp-not-removing-uffd-wp-bit-when-compare.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Subject: mm,hwpoison: fix race with hugetlb page allocation
+From: Peter Xu <peterx@redhat.com>
+Subject: mm/swap: fix pte_same_as_swp() not removing uffd-wp bit when compare
 
-When hugetlb page fault (under overcommitting situation) and
-memory_failure() race, VM_BUG_ON_PAGE() is triggered by the following
-race:
+I found it by pure code review, that pte_same_as_swp() of unuse_vma()
+didn't take uffd-wp bit into account when comparing ptes. 
+pte_same_as_swp() returning false negative could cause failure to swapoff
+swap ptes that was wr-protected by userfaultfd.
 
-    CPU0:                           CPU1:
-
-                                    gather_surplus_pages()
-                                      page = alloc_surplus_huge_page()
-    memory_failure_hugetlb()
-      get_hwpoison_page(page)
-        __get_hwpoison_page(page)
-          get_page_unless_zero(page)
-                                      zero = put_page_testzero(page)
-                                      VM_BUG_ON_PAGE(!zero, page)
-                                      enqueue_huge_page(h, page)
-      put_page(page)
-
-__get_hwpoison_page() only checks the page refcount before taking an
-additional one for memory error handling, which is not enough because
-there's a time window where compound pages have non-zero refcount during
-hugetlb page initialization.
-
-So make __get_hwpoison_page() check page status a bit more for hugetlb
-pages with get_hwpoison_huge_page().  Checking hugetlb-specific flags
-under hugetlb_lock makes sure that the hugetlb page is not transitive. 
-It's notable that another new function, HWPoisonHandlable(), is helpful to
-prevent a race against other transitive page states (like a generic
-compound page just before PageHuge becomes true).
-
-Link: https://lkml.kernel.org/r/20210603233632.2964832-2-nao.horiguchi@gmail.com
-Fixes: ead07f6a867b ("mm/memory-failure: introduce get_hwpoison_page() for consistent refcount handling")
-Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reported-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: <stable@vger.kernel.org>	[5.12+]
+Link: https://lkml.kernel.org/r/20210603180546.9083-1-peterx@redhat.com
+Fixes: f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>	[5.7+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/hugetlb.h |    6 ++++++
- mm/hugetlb.c            |   15 +++++++++++++++
- mm/memory-failure.c     |   29 +++++++++++++++++++++++++++--
- 3 files changed, 48 insertions(+), 2 deletions(-)
+ include/linux/swapops.h |   15 +++++++++++----
+ mm/swapfile.c           |    2 +-
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
---- a/include/linux/hugetlb.h~mmhwpoison-fix-race-with-hugetlb-page-allocation
-+++ a/include/linux/hugetlb.h
-@@ -149,6 +149,7 @@ bool hugetlb_reserve_pages(struct inode
- long hugetlb_unreserve_pages(struct inode *inode, long start, long end,
- 						long freed);
- bool isolate_huge_page(struct page *page, struct list_head *list);
-+int get_hwpoison_huge_page(struct page *page, bool *hugetlb);
- void putback_active_hugepage(struct page *page);
- void move_hugetlb_state(struct page *oldpage, struct page *newpage, int reason);
- void free_huge_page(struct page *page);
-@@ -339,6 +340,11 @@ static inline bool isolate_huge_page(str
- 	return false;
- }
+--- a/include/linux/swapops.h~mm-swap-fix-pte_same_as_swp-not-removing-uffd-wp-bit-when-compare
++++ a/include/linux/swapops.h
+@@ -23,6 +23,16 @@
+ #define SWP_TYPE_SHIFT	(BITS_PER_XA_VALUE - MAX_SWAPFILES_SHIFT)
+ #define SWP_OFFSET_MASK	((1UL << SWP_TYPE_SHIFT) - 1)
  
-+static inline int get_hwpoison_huge_page(struct page *page, bool *hugetlb)
++/* Clear all flags but only keep swp_entry_t related information */
++static inline pte_t pte_swp_clear_flags(pte_t pte)
 +{
-+	return 0;
++	if (pte_swp_soft_dirty(pte))
++		pte = pte_swp_clear_soft_dirty(pte);
++	if (pte_swp_uffd_wp(pte))
++		pte = pte_swp_clear_uffd_wp(pte);
++	return pte;
 +}
 +
- static inline void putback_active_hugepage(struct page *page)
+ /*
+  * Store a type+offset into a swp_entry_t in an arch-independent format
+  */
+@@ -66,10 +76,7 @@ static inline swp_entry_t pte_to_swp_ent
  {
- }
---- a/mm/hugetlb.c~mmhwpoison-fix-race-with-hugetlb-page-allocation
-+++ a/mm/hugetlb.c
-@@ -5857,6 +5857,21 @@ unlock:
- 	return ret;
- }
+ 	swp_entry_t arch_entry;
  
-+int get_hwpoison_huge_page(struct page *page, bool *hugetlb)
-+{
-+	int ret = 0;
-+
-+	*hugetlb = false;
-+	spin_lock_irq(&hugetlb_lock);
-+	if (PageHeadHuge(page)) {
-+		*hugetlb = true;
-+		if (HPageFreed(page) || HPageMigratable(page))
-+			ret = get_page_unless_zero(page);
-+	}
-+	spin_unlock_irq(&hugetlb_lock);
-+	return ret;
-+}
-+
- void putback_active_hugepage(struct page *page)
+-	if (pte_swp_soft_dirty(pte))
+-		pte = pte_swp_clear_soft_dirty(pte);
+-	if (pte_swp_uffd_wp(pte))
+-		pte = pte_swp_clear_uffd_wp(pte);
++	pte = pte_swp_clear_flags(pte);
+ 	arch_entry = __pte_to_swp_entry(pte);
+ 	return swp_entry(__swp_type(arch_entry), __swp_offset(arch_entry));
+ }
+--- a/mm/swapfile.c~mm-swap-fix-pte_same_as_swp-not-removing-uffd-wp-bit-when-compare
++++ a/mm/swapfile.c
+@@ -1900,7 +1900,7 @@ unsigned int count_swap_pages(int type,
+ 
+ static inline int pte_same_as_swp(pte_t pte, pte_t swp_pte)
  {
- 	spin_lock_irq(&hugetlb_lock);
---- a/mm/memory-failure.c~mmhwpoison-fix-race-with-hugetlb-page-allocation
-+++ a/mm/memory-failure.c
-@@ -949,6 +949,17 @@ static int page_action(struct page_state
- 	return (result == MF_RECOVERED || result == MF_DELAYED) ? 0 : -EBUSY;
+-	return pte_same(pte_swp_clear_soft_dirty(pte), swp_pte);
++	return pte_same(pte_swp_clear_flags(pte), swp_pte);
  }
  
-+/*
-+ * Return true if a page type of a given page is supported by hwpoison
-+ * mechanism (while handling could fail), otherwise false.  This function
-+ * does not return true for hugetlb or device memory pages, so it's assumed
-+ * to be called only in the context where we never have such pages.
-+ */
-+static inline bool HWPoisonHandlable(struct page *page)
-+{
-+	return PageLRU(page) || __PageMovable(page);
-+}
-+
- /**
-  * __get_hwpoison_page() - Get refcount for memory error handling:
-  * @page:	raw error page (hit by memory error)
-@@ -959,8 +970,22 @@ static int page_action(struct page_state
- static int __get_hwpoison_page(struct page *page)
- {
- 	struct page *head = compound_head(page);
-+	int ret = 0;
-+	bool hugetlb = false;
-+
-+	ret = get_hwpoison_huge_page(head, &hugetlb);
-+	if (hugetlb)
-+		return ret;
-+
-+	/*
-+	 * This check prevents from calling get_hwpoison_unless_zero()
-+	 * for any unsupported type of page in order to reduce the risk of
-+	 * unexpected races caused by taking a page refcount.
-+	 */
-+	if (!HWPoisonHandlable(head))
-+		return 0;
- 
--	if (!PageHuge(head) && PageTransHuge(head)) {
-+	if (PageTransHuge(head)) {
- 		/*
- 		 * Non anonymous thp exists only in allocation/free time. We
- 		 * can't handle such a case correctly, so let's give it up.
-@@ -1017,7 +1042,7 @@ try_again:
- 			ret = -EIO;
- 		}
- 	} else {
--		if (PageHuge(p) || PageLRU(p) || __PageMovable(p)) {
-+		if (PageHuge(p) || HWPoisonHandlable(p)) {
- 			ret = 1;
- 		} else {
- 			/*
+ /*
 _
 
-Patches currently in -mm which might be from naoya.horiguchi@nec.com are
+Patches currently in -mm which might be from peterx@redhat.com are
 
-mmhwpoison-send-sigbus-with-error-virutal-address.patch
-mmhwpoison-send-sigbus-with-error-virutal-address-fix.patch
-mmhwpoison-make-get_hwpoison_page-call-get_any_page.patch
-mm-hwpoison-disable-pcp-for-page_handle_poison.patch
+mm-gup_benchmark-support-threading.patch
+mm-gup-pack-has_pinned-in-mmf_has_pinned-fix.patch
+userfaultfd-selftests-use-user-mode-only.patch
+userfaultfd-selftests-remove-the-time-check-on-delayed-uffd.patch
+userfaultfd-selftests-dropping-verify-check-in-locking_thread.patch
+userfaultfd-selftests-only-dump-counts-if-mode-enabled.patch
+userfaultfd-selftests-unify-error-handling.patch
+mm-thp-simplify-copying-of-huge-zero-page-pmd-when-fork.patch
+mm-userfaultfd-fix-uffd-wp-special-cases-for-fork.patch
+mm-userfaultfd-fix-a-few-thp-pmd-missing-uffd-wp-bit.patch
+mm-userfaultfd-fail-uffd-wp-registeration-if-not-supported.patch
+mm-pagemap-export-uffd-wp-protection-information.patch
+userfaultfd-selftests-add-pagemap-uffd-wp-test.patch
+userfaultfd-selftests-reinitialize-test-context-in-each-test-fix.patch
 
