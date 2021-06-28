@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0FC3B6461
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A50FB3B647A
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236173AbhF1PHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:07:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38868 "EHLO mail.kernel.org"
+        id S235903AbhF1PIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:08:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237309AbhF1PFj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 11:05:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7B2861D7B;
-        Mon, 28 Jun 2021 14:43:36 +0000 (UTC)
+        id S237316AbhF1PFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 11:05:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C020F61D81;
+        Mon, 28 Jun 2021 14:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891417;
-        bh=NfLd0CxEmiWCnfSYGMlgS5GtNaM6EQLJ2hNcN4KTWP8=;
+        s=k20201202; t=1624891418;
+        bh=bptRCqEJ8bWyjVb1m8aqTTm0rNWtT6SP2b/8nDtdCHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udJeungxy84QzIsK2N/aKnXYdvCldMjCW4dnpREdLuY2SYx5CtYAt/YppJuxflVxq
-         rcPLeRiJlocRyUt8/mNlrOZgYBz37UymOPcH6e1MoEteWDa27XlfXrRfnBluga1w+j
-         dCnmQDqJBam2ePBjdZt5Fc/dQir+tjfThNb2Jdd4P0e9+7/hsjdugIoAJHQ4qXtmBD
-         PKSMsaj6exNzSn+N14J/RX0nGQ9Z7YGrS/eKfyOl/L8mtIfTV5cDECz6CuZ28qudTZ
-         pTy5JIDUWzKc1yApqx6sB1OMBFAA+07NGpijLl/k470xtVaoJ1Dq6JYY2xIeGyd2qm
-         XEun7whn1136w==
+        b=QSg7QZqOvF4B28t7dL6TbAqHyuh4JvNUodj5NrQmn7mVQG4QeLHwW5s/BrmyMqDZU
+         VxI51LtNw67MlaXrvM7iljq3Eo9E4tCBDq83sZxn7CRuEbKl9YOP5ozUh8vUogR8wO
+         f4l2mpV4jAujBAFNRNTItyL2VmXTTxQPrPFWeOoNxEk7ue75KEJ1axZ0xuqmz8z7Vp
+         EK7AAYk6rZV+W3W5/P/TYwVy0L+yO7HihDuPfO/f7AxCzBd8SXSByguYoeZaUcp+An
+         OGK6mQ2jiabm4va+mUewSYJ6yelaG7xFMpm445HkDs9QnkYM4FxpRjDrvELO5v/9mZ
+         jsXj70Fov0iYQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Du Cheng <ducheng2@gmail.com>,
-        syzbot+105896fac213f26056f9@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>,
+Cc:     Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 46/57] cfg80211: call cfg80211_leave_ocb when switching away from OCB
-Date:   Mon, 28 Jun 2021 10:42:45 -0400
-Message-Id: <20210628144256.34524-47-sashal@kernel.org>
+Subject: [PATCH 4.4 47/57] mac80211: drop multicast fragments
+Date:   Mon, 28 Jun 2021 10:42:46 -0400
+Message-Id: <20210628144256.34524-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
 References: <20210628144256.34524-1-sashal@kernel.org>
@@ -49,60 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit a64b6a25dd9f984ed05fade603a00e2eae787d2f ]
+[ Upstream commit a9799541ca34652d9996e45f80e8e03144c12949 ]
 
-If the userland switches back-and-forth between NL80211_IFTYPE_OCB and
-NL80211_IFTYPE_ADHOC via send_msg(NL80211_CMD_SET_INTERFACE), there is a
-chance where the cleanup cfg80211_leave_ocb() is not called. This leads
-to initialization of in-use memory (e.g. init u.ibss while in-use by
-u.ocb) due to a shared struct/union within ieee80211_sub_if_data:
+These are not permitted by the spec, just drop them.
 
-struct ieee80211_sub_if_data {
-    ...
-    union {
-        struct ieee80211_if_ap ap;
-        struct ieee80211_if_vlan vlan;
-        struct ieee80211_if_managed mgd;
-        struct ieee80211_if_ibss ibss; // <- shares address
-        struct ieee80211_if_mesh mesh;
-        struct ieee80211_if_ocb ocb; // <- shares address
-        struct ieee80211_if_mntr mntr;
-        struct ieee80211_if_nan nan;
-    } u;
-    ...
-}
-
-Therefore add handling of otype == NL80211_IFTYPE_OCB, during
-cfg80211_change_iface() to perform cleanup when leaving OCB mode.
-
-link to syzkaller bug:
-https://syzkaller.appspot.com/bug?id=0612dbfa595bf4b9b680ff7b4948257b8e3732d5
-
-Reported-by: syzbot+105896fac213f26056f9@syzkaller.appspotmail.com
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Link: https://lore.kernel.org/r/20210428063941.105161-1-ducheng2@gmail.com
+Link: https://lore.kernel.org/r/20210609161305.23def022b750.Ibd6dd3cdce573dae262fcdc47f8ac52b883a9c50@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/mac80211/rx.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index 915f1fa881e4..73c361fd4a16 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -978,6 +978,9 @@ int cfg80211_change_iface(struct cfg80211_registered_device *rdev,
- 		case NL80211_IFTYPE_MESH_POINT:
- 			/* mesh should be handled? */
- 			break;
-+		case NL80211_IFTYPE_OCB:
-+			cfg80211_leave_ocb(rdev, dev);
-+			break;
- 		default:
- 			break;
- 		}
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index ae0fba044cd0..bde924968cd2 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -1853,17 +1853,15 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ 	sc = le16_to_cpu(hdr->seq_ctrl);
+ 	frag = sc & IEEE80211_SCTL_FRAG;
+ 
+-	if (is_multicast_ether_addr(hdr->addr1)) {
+-		I802_DEBUG_INC(rx->local->dot11MulticastReceivedFrameCount);
+-		goto out_no_led;
+-	}
+-
+ 	if (rx->sta)
+ 		cache = &rx->sta->frags;
+ 
+ 	if (likely(!ieee80211_has_morefrags(fc) && frag == 0))
+ 		goto out;
+ 
++	if (is_multicast_ether_addr(hdr->addr1))
++		return RX_DROP_MONITOR;
++
+ 	I802_DEBUG_INC(rx->local->rx_handlers_fragments);
+ 
+ 	if (skb_linearize(rx->skb))
+@@ -1992,7 +1990,6 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ 
+  out:
+ 	ieee80211_led_rx(rx->local);
+- out_no_led:
+ 	if (rx->sta)
+ 		rx->sta->rx_stats.packets++;
+ 	return RX_CONTINUE;
 -- 
 2.30.2
 
