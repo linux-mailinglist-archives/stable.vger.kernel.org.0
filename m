@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 836043B6190
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 176003B6193
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234869AbhF1Og2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:36:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43572 "EHLO mail.kernel.org"
+        id S234889AbhF1Ogd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:36:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235166AbhF1OfH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235170AbhF1OfH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:35:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA83261C93;
-        Mon, 28 Jun 2021 14:30:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84AEC61C94;
+        Mon, 28 Jun 2021 14:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890620;
-        bh=55DVHUlb33fLzBbcpDnb2kMvPyNHKRg6I8U85tlirjg=;
+        s=k20201202; t=1624890621;
+        bh=hf5FMwacU/G0eR9N+ruFbvzxFqVMNR/zQV8dwFeGkgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rorbJ6C/OvxNPSRz8VsYI1C4a+4UeE4Tepf7wU/C2djWcNV3xT3um4NHVwy3ZhlS5
-         8HazmePTHIV4MqDijsCW7ivCupWfTYapYbvttO3NxEZfK43By/c1H22XH7f7HXb2Yj
-         VJlyKHcLq5lsY5InqWD17zUhu79yYUKhJkPclv/dCQt+72q/ONnlkwBqD7ZenMBDtk
-         zEbSi+xRPOYBXrlu4JXJCarBIag5AZeiWIan7QHYwvgMZpADVwNoUANU5qbdM440ch
-         P4FexHcRlnDakjuhFCwrLKM8gg98uWFzrjycBj8cso3pXjdyZ5DvxswakeOOvjUtLS
-         xgMSez7Fex5aQ==
+        b=f2HDb7vqOW6Q9NuXnF9jK33kjRK4U9Q0u1+jbxvUb4DCO5o7JnFiDE6Ia7aC8lfd6
+         VxcDnSMS1MrluGZmW4Ciw2H2EvPEQKFji1e8ffCZEuNV0JZN7ANn+M8z7EnAAlNK9q
+         Ve44FpNrkgDHvDEyk/6xtXepi3jX+3bbgYIKHdIX+zuLtQSMOcce1MONC1FR4lXsHd
+         ZAbUETRDae310BaqB+ybbyGVy4k9g90Jy1S1Gu0fMi+NMxhjriWZMdyzRLGe9ATs6R
+         PCPrS7BLLS/D+yOkwL/VuOrjvt1v7pYcYgX93Mhgq43pgR1tXW7HlYhxGls8hmemvl
+         8LnWB8gv0aPmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        syzbot+a063bbf0b15737362592@syzkaller.appspotmail.com,
+Cc:     Du Cheng <ducheng2@gmail.com>,
+        syzbot+105896fac213f26056f9@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/71] mac80211_hwsim: drop pending frames on stop
-Date:   Mon, 28 Jun 2021 10:29:08 -0400
-Message-Id: <20210628143004.32596-16-sashal@kernel.org>
+Subject: [PATCH 5.4 16/71] cfg80211: call cfg80211_leave_ocb when switching away from OCB
+Date:   Mon, 28 Jun 2021 10:29:09 -0400
+Message-Id: <20210628143004.32596-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -48,45 +49,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Du Cheng <ducheng2@gmail.com>
 
-[ Upstream commit bd18de517923903a177508fc8813f44e717b1c00 ]
+[ Upstream commit a64b6a25dd9f984ed05fade603a00e2eae787d2f ]
 
-Syzbot reports that we may be able to get into a situation where
-mac80211 has pending ACK frames on shutdown with hwsim. It appears
-that the reason for this is that syzbot uses the wmediumd hooks to
-intercept/injection frames, and may shut down hwsim, removing the
-radio(s), while frames are pending in the air simulation.
+If the userland switches back-and-forth between NL80211_IFTYPE_OCB and
+NL80211_IFTYPE_ADHOC via send_msg(NL80211_CMD_SET_INTERFACE), there is a
+chance where the cleanup cfg80211_leave_ocb() is not called. This leads
+to initialization of in-use memory (e.g. init u.ibss while in-use by
+u.ocb) due to a shared struct/union within ieee80211_sub_if_data:
 
-Clean out the pending queue when the interface is stopped, after
-this the frames can't be reported back to mac80211 properly anyway.
+struct ieee80211_sub_if_data {
+    ...
+    union {
+        struct ieee80211_if_ap ap;
+        struct ieee80211_if_vlan vlan;
+        struct ieee80211_if_managed mgd;
+        struct ieee80211_if_ibss ibss; // <- shares address
+        struct ieee80211_if_mesh mesh;
+        struct ieee80211_if_ocb ocb; // <- shares address
+        struct ieee80211_if_mntr mntr;
+        struct ieee80211_if_nan nan;
+    } u;
+    ...
+}
 
-Reported-by: syzbot+a063bbf0b15737362592@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20210517170429.b0f85ab0eda1.Ie42a6ec6b940c971f3441286aeaaae2fe368e29a@changeid
+Therefore add handling of otype == NL80211_IFTYPE_OCB, during
+cfg80211_change_iface() to perform cleanup when leaving OCB mode.
+
+link to syzkaller bug:
+https://syzkaller.appspot.com/bug?id=0612dbfa595bf4b9b680ff7b4948257b8e3732d5
+
+Reported-by: syzbot+105896fac213f26056f9@syzkaller.appspotmail.com
+Signed-off-by: Du Cheng <ducheng2@gmail.com>
+Link: https://lore.kernel.org/r/20210428063941.105161-1-ducheng2@gmail.com
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/wireless/util.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index c48c68090d76..1033513d3d9d 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -1458,8 +1458,13 @@ static int mac80211_hwsim_start(struct ieee80211_hw *hw)
- static void mac80211_hwsim_stop(struct ieee80211_hw *hw)
- {
- 	struct mac80211_hwsim_data *data = hw->priv;
-+
- 	data->started = false;
- 	hrtimer_cancel(&data->beacon_timer);
-+
-+	while (!skb_queue_empty(&data->pending))
-+		ieee80211_free_txskb(hw, skb_dequeue(&data->pending));
-+
- 	wiphy_dbg(hw->wiphy, "%s\n", __func__);
- }
- 
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index 4eae6ad32851..f0247eab5bc9 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -1006,6 +1006,9 @@ int cfg80211_change_iface(struct cfg80211_registered_device *rdev,
+ 		case NL80211_IFTYPE_MESH_POINT:
+ 			/* mesh should be handled? */
+ 			break;
++		case NL80211_IFTYPE_OCB:
++			cfg80211_leave_ocb(rdev, dev);
++			break;
+ 		default:
+ 			break;
+ 		}
 -- 
 2.30.2
 
