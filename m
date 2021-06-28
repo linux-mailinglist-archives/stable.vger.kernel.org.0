@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F02253B63E1
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:59:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A151B3B63F5
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236421AbhF1PBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37006 "EHLO mail.kernel.org"
+        id S236755AbhF1PCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:02:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235779AbhF1O7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:59:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEDCA61D5E;
-        Mon, 28 Jun 2021 14:40:41 +0000 (UTC)
+        id S235956AbhF1O77 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:59:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0F2161D60;
+        Mon, 28 Jun 2021 14:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891242;
-        bh=ygJUikFoBOHvpXqPw40mEBnNIsK8/VMRuBeqtXwJ7ms=;
+        s=k20201202; t=1624891243;
+        bh=0GmvVOHkxS3zDugced8sL6PhjzPR+8l3H4fe45G+F+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U4KNT+M0WR8WEHyvJLD5pkqKiv80fM3ldPCn7+c4E2RoNxaNTj+xdbxNJL9en+pYs
-         W4TKkwxODVW8uCyCIb3oMd8GuHZPLpXRPoXlpW5k3PERM0ZYJjGvet23zyuvnTxjRa
-         TK6q1e27Lqu/3nIzM6do41XQkY8IEMrdEeDgWoFK+/Qh3KWisQVIP686tiCSTbDK1M
-         PAPZgSg+1QM18W8+4+mzYrM4DyDYYYnW0pUD3/Iq3Ll21E9h3fKx9w9B/pCFKpWmr2
-         3ZBGKZ6bxVbyfjLA3Yn6wV6Ekfgz0N8t3037PSzsu+hYKWZagUld5o0VIXt9DgDCFe
-         mLFFOAJuAeF9g==
+        b=Sdiw5svcmU2sWjsx8wLIJRaM0W/owR2Qi0nUe7pgH9AAES2fcIgv6XsoRRtae2hId
+         rmIRHsOieOaTm/plbKwsLe6VKJlNV0RRgx6b5rVbgBDQUia2iY1Tya6FViDYae5yLm
+         1OKNPhV96oVCVCNCKUNQUxg4fpQhks0SnEfPi7KqqFu6OOW8jOw7nliOBfzn3Y249O
+         NMHWLaNaoXN57diozQTTCVdx1UzbaBHX+kfXT6UCll74M9MO+S1tKWT3OUl3RzVaAY
+         v/EATfaTAVL4hpLD0k5WGIq9jcBlSqj+vpHfJjj1MnqYcMEirEwhHmgn1cnYi0ofWO
+         lghxnmxRAHr7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bumyong Lee <bumyong.lee@samsung.com>,
-        Jongho Park <jongho7.park@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>,
+Cc:     Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 43/71] dmaengine: pl330: fix wrong usage of spinlock flags in dma_cyclc
-Date:   Mon, 28 Jun 2021 10:39:35 -0400
-Message-Id: <20210628144003.34260-44-sashal@kernel.org>
+Subject: [PATCH 4.9 44/71] net: fec_ptp: add clock rate zero check
+Date:   Mon, 28 Jun 2021 10:39:36 -0400
+Message-Id: <20210628144003.34260-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
@@ -50,55 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bumyong Lee <bumyong.lee@samsung.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-commit 4ad5dd2d7876d79507a20f026507d1a93b8fff10 upstream.
+commit cb3cefe3f3f8af27c6076ef7d1f00350f502055d upstream.
 
-flags varible which is the input parameter of pl330_prep_dma_cyclic()
-should not be used by spinlock_irq[save/restore] function.
+Add clock rate zero check to fix coverity issue of "divide by 0".
 
-Signed-off-by: Jongho Park <jongho7.park@samsung.com>
-Signed-off-by: Bumyong Lee <bumyong.lee@samsung.com>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20210507063647.111209-1-chanho61.park@samsung.com
-Fixes: f6f2421c0a1c ("dmaengine: pl330: Merge dma_pl330_dmac and pl330_dmac structs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: commit 85bd1798b24a ("net: fec: fix spin_lock dead lock")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/pl330.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fec_ptp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index f5a9bb123188..d8997dafb876 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2579,13 +2579,15 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
- 	for (i = 0; i < len / period_len; i++) {
- 		desc = pl330_get_desc(pch);
- 		if (!desc) {
-+			unsigned long iflags;
-+
- 			dev_err(pch->dmac->ddma.dev, "%s:%d Unable to fetch desc\n",
- 				__func__, __LINE__);
+diff --git a/drivers/net/ethernet/freescale/fec_ptp.c b/drivers/net/ethernet/freescale/fec_ptp.c
+index 123181612595..031d4b3a544c 100644
+--- a/drivers/net/ethernet/freescale/fec_ptp.c
++++ b/drivers/net/ethernet/freescale/fec_ptp.c
+@@ -586,6 +586,10 @@ void fec_ptp_init(struct platform_device *pdev)
+ 	fep->ptp_caps.enable = fec_ptp_enable;
  
- 			if (!first)
- 				return NULL;
+ 	fep->cycle_speed = clk_get_rate(fep->clk_ptp);
++	if (!fep->cycle_speed) {
++		fep->cycle_speed = NSEC_PER_SEC;
++		dev_err(&fep->pdev->dev, "clk_ptp clock rate is zero\n");
++	}
+ 	fep->ptp_inc = NSEC_PER_SEC / fep->cycle_speed;
  
--			spin_lock_irqsave(&pl330->pool_lock, flags);
-+			spin_lock_irqsave(&pl330->pool_lock, iflags);
- 
- 			while (!list_empty(&first->node)) {
- 				desc = list_entry(first->node.next,
-@@ -2595,7 +2597,7 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
- 
- 			list_move_tail(&first->node, &pl330->desc_pool);
- 
--			spin_unlock_irqrestore(&pl330->pool_lock, flags);
-+			spin_unlock_irqrestore(&pl330->pool_lock, iflags);
- 
- 			return NULL;
- 		}
+ 	spin_lock_init(&fep->tmreg_lock);
 -- 
 2.30.2
 
