@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9786D3B62D2
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AAE83B62CD
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236534AbhF1Oth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:49:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51824 "EHLO mail.kernel.org"
+        id S236520AbhF1Ote (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:49:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235741AbhF1Opg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235744AbhF1Opg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:45:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D7CB61CD2;
-        Mon, 28 Jun 2021 14:34:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 355CF61CDC;
+        Mon, 28 Jun 2021 14:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890854;
-        bh=3nNXwGY6/CtzdLpo740JpzmycN4ggCl0iGIXwQXwbFI=;
+        s=k20201202; t=1624890856;
+        bh=gW5PzJj/qWNuKsznF24y4Q95ZfNnYhy2Krd62iU9Skw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FH4jCLq8jeGECoWWyI/cYUCoCBhNmd4sBKkIKwkv/YX2hIYMdtLCyyS2Vv1wAgKfV
-         jq/rPNtOPUf4YTDl7Yzxb745LScVpPQLIIaYFAvX8AhNRf260xoOdIJJzymndZOWKw
-         AZegUqR2TMvVYIqSadguvQNsNo2MK7qiw/oZv2VgXCJyCf7B+HE9oWIKZKFaV0D2Sn
-         Ayqk1ERSxGIOgMv4YFYkdIc94VuwLuFDPnMtfCQz29D2dRK9kkHkYvKZQyHonrs8y+
-         Ek+gxwvsH19+rrRFk05wRheL70gocSi3z5+kAq1iz4SEnMQgOSOo5zubbzRiMU2Rx4
-         c4hwTF/y5NpQQ==
+        b=KNmOvm08nf9YvOggeqUM+5Tlj+VjRRmytRwa+WYfPrE3lNltzyoUVBWDxPVUSmVfd
+         W1waLCezEluy22Hzfplp2ApC0mU3WSr4mVhSqPO6JNbYc+Re8oY00QpAnHXGoQMqf3
+         ZVOQQl7m6x+E70V9hGXLpzQgWULzzcYOwmq8zZYTfit1hSIBnACYCPh4h5rh0GbpOW
+         Ctv7NV4X5f3fnWNJx24fF486inJ6JrolJEkh2A2s3EpnPLJatYVgZy7WTVN0SmlMFo
+         EZEKEo0D1tHjFMzr5+VUnw/bWNIIfgl5x+cokX1AxxC3QDreblbm9+rZRm1IrkUScw
+         2yNYQOjbwJF8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Auger <eric.auger@redhat.com>, Stable@vger.kernel.org,
-        Gavin Shan <gshan@redhat.com>, Marc Zyngier <maz@kernel.org>,
+Cc:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>,
+        syzbot <syzbot+0f1827363a305f74996f@syzkaller.appspotmail.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 077/109] KVM: arm/arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST read
-Date:   Mon, 28 Jun 2021 10:32:33 -0400
-Message-Id: <20210628143305.32978-78-sashal@kernel.org>
+Subject: [PATCH 4.19 078/109] can: bcm/raw/isotp: use per module netdevice notifier
+Date:   Mon, 28 Jun 2021 10:32:34 -0400
+Message-Id: <20210628143305.32978-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -48,45 +53,304 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-commit 94ac0835391efc1a30feda6fc908913ec012951e upstream.
+commit 8d0caedb759683041d9db82069937525999ada53 upstream.
 
-When reading the base address of the a REDIST region
-through KVM_VGIC_V3_ADDR_TYPE_REDIST we expect the
-redistributor region list to be populated with a single
-element.
+syzbot is reporting hung task at register_netdevice_notifier() [1] and
+unregister_netdevice_notifier() [2], for cleanup_net() might perform
+time consuming operations while CAN driver's raw/bcm/isotp modules are
+calling {register,unregister}_netdevice_notifier() on each socket.
 
-However list_first_entry() expects the list to be non empty.
-Instead we should use list_first_entry_or_null which effectively
-returns NULL if the list is empty.
+Change raw/bcm/isotp modules to call register_netdevice_notifier() from
+module's __init function and call unregister_netdevice_notifier() from
+module's __exit function, as with gw/j1939 modules are doing.
 
-Fixes: dbd9733ab674 ("KVM: arm/arm64: Replace the single rdist region by a list")
-Cc: <Stable@vger.kernel.org> # v4.18+
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Reported-by: Gavin Shan <gshan@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210412150034.29185-1-eric.auger@redhat.com
+Link: https://syzkaller.appspot.com/bug?id=391b9498827788b3cc6830226d4ff5be87107c30 [1]
+Link: https://syzkaller.appspot.com/bug?id=1724d278c83ca6e6df100a2e320c10d991cf2bce [2]
+Link: https://lore.kernel.org/r/54a5f451-05ed-f977-8534-79e7aa2bcc8f@i-love.sakura.ne.jp
+Cc: linux-stable <stable@vger.kernel.org>
+Reported-by: syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+0f1827363a305f74996f@syzkaller.appspotmail.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Tested-by: syzbot <syzbot+355f8edb2ff45d5f95fa@syzkaller.appspotmail.com>
+Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/arm/vgic/vgic-kvm-device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/can/bcm.c | 59 +++++++++++++++++++++++++++++++++++++-----------
+ net/can/raw.c | 62 +++++++++++++++++++++++++++++++++++++++------------
+ 2 files changed, 94 insertions(+), 27 deletions(-)
 
-diff --git a/virt/kvm/arm/vgic/vgic-kvm-device.c b/virt/kvm/arm/vgic/vgic-kvm-device.c
-index 6ada2432e37c..71d92096776e 100644
---- a/virt/kvm/arm/vgic/vgic-kvm-device.c
-+++ b/virt/kvm/arm/vgic/vgic-kvm-device.c
-@@ -95,8 +95,8 @@ int kvm_vgic_addr(struct kvm *kvm, unsigned long type, u64 *addr, bool write)
- 			r = vgic_v3_set_redist_base(kvm, 0, *addr, 0);
- 			goto out;
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index c82137fb2763..9f30d7b4389a 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -125,7 +125,7 @@ struct bcm_sock {
+ 	struct sock sk;
+ 	int bound;
+ 	int ifindex;
+-	struct notifier_block notifier;
++	struct list_head notifier;
+ 	struct list_head rx_ops;
+ 	struct list_head tx_ops;
+ 	unsigned long dropped_usr_msgs;
+@@ -133,6 +133,10 @@ struct bcm_sock {
+ 	char procname [32]; /* inode number in decimal with \0 */
+ };
+ 
++static LIST_HEAD(bcm_notifier_list);
++static DEFINE_SPINLOCK(bcm_notifier_lock);
++static struct bcm_sock *bcm_busy_notifier;
++
+ static inline struct bcm_sock *bcm_sk(const struct sock *sk)
+ {
+ 	return (struct bcm_sock *)sk;
+@@ -1432,20 +1436,15 @@ static int bcm_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ /*
+  * notification handler for netdevice status changes
+  */
+-static int bcm_notifier(struct notifier_block *nb, unsigned long msg,
+-			void *ptr)
++static void bcm_notify(struct bcm_sock *bo, unsigned long msg,
++		       struct net_device *dev)
+ {
+-	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
+-	struct bcm_sock *bo = container_of(nb, struct bcm_sock, notifier);
+ 	struct sock *sk = &bo->sk;
+ 	struct bcm_op *op;
+ 	int notify_enodev = 0;
+ 
+ 	if (!net_eq(dev_net(dev), sock_net(sk)))
+-		return NOTIFY_DONE;
+-
+-	if (dev->type != ARPHRD_CAN)
+-		return NOTIFY_DONE;
++		return;
+ 
+ 	switch (msg) {
+ 
+@@ -1480,7 +1479,28 @@ static int bcm_notifier(struct notifier_block *nb, unsigned long msg,
+ 				sk->sk_error_report(sk);
  		}
--		rdreg = list_first_entry(&vgic->rd_regions,
--					 struct vgic_redist_region, list);
-+		rdreg = list_first_entry_or_null(&vgic->rd_regions,
-+						 struct vgic_redist_region, list);
- 		if (!rdreg)
- 			addr_ptr = &undef_value;
- 		else
+ 	}
++}
+ 
++static int bcm_notifier(struct notifier_block *nb, unsigned long msg,
++			void *ptr)
++{
++	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
++
++	if (dev->type != ARPHRD_CAN)
++		return NOTIFY_DONE;
++	if (msg != NETDEV_UNREGISTER && msg != NETDEV_DOWN)
++		return NOTIFY_DONE;
++	if (unlikely(bcm_busy_notifier)) /* Check for reentrant bug. */
++		return NOTIFY_DONE;
++
++	spin_lock(&bcm_notifier_lock);
++	list_for_each_entry(bcm_busy_notifier, &bcm_notifier_list, notifier) {
++		spin_unlock(&bcm_notifier_lock);
++		bcm_notify(bcm_busy_notifier, msg, dev);
++		spin_lock(&bcm_notifier_lock);
++	}
++	bcm_busy_notifier = NULL;
++	spin_unlock(&bcm_notifier_lock);
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -1500,9 +1520,9 @@ static int bcm_init(struct sock *sk)
+ 	INIT_LIST_HEAD(&bo->rx_ops);
+ 
+ 	/* set notifier */
+-	bo->notifier.notifier_call = bcm_notifier;
+-
+-	register_netdevice_notifier(&bo->notifier);
++	spin_lock(&bcm_notifier_lock);
++	list_add_tail(&bo->notifier, &bcm_notifier_list);
++	spin_unlock(&bcm_notifier_lock);
+ 
+ 	return 0;
+ }
+@@ -1525,7 +1545,14 @@ static int bcm_release(struct socket *sock)
+ 
+ 	/* remove bcm_ops, timer, rx_unregister(), etc. */
+ 
+-	unregister_netdevice_notifier(&bo->notifier);
++	spin_lock(&bcm_notifier_lock);
++	while (bcm_busy_notifier == bo) {
++		spin_unlock(&bcm_notifier_lock);
++		schedule_timeout_uninterruptible(1);
++		spin_lock(&bcm_notifier_lock);
++	}
++	list_del(&bo->notifier);
++	spin_unlock(&bcm_notifier_lock);
+ 
+ 	lock_sock(sk);
+ 
+@@ -1740,6 +1767,10 @@ static struct pernet_operations canbcm_pernet_ops __read_mostly = {
+ 	.exit = canbcm_pernet_exit,
+ };
+ 
++static struct notifier_block canbcm_notifier = {
++	.notifier_call = bcm_notifier
++};
++
+ static int __init bcm_module_init(void)
+ {
+ 	int err;
+@@ -1753,12 +1784,14 @@ static int __init bcm_module_init(void)
+ 	}
+ 
+ 	register_pernet_subsys(&canbcm_pernet_ops);
++	register_netdevice_notifier(&canbcm_notifier);
+ 	return 0;
+ }
+ 
+ static void __exit bcm_module_exit(void)
+ {
+ 	can_proto_unregister(&bcm_can_proto);
++	unregister_netdevice_notifier(&canbcm_notifier);
+ 	unregister_pernet_subsys(&canbcm_pernet_ops);
+ }
+ 
+diff --git a/net/can/raw.c b/net/can/raw.c
+index 3aab7664933f..296a11a922e0 100644
+--- a/net/can/raw.c
++++ b/net/can/raw.c
+@@ -84,7 +84,7 @@ struct raw_sock {
+ 	struct sock sk;
+ 	int bound;
+ 	int ifindex;
+-	struct notifier_block notifier;
++	struct list_head notifier;
+ 	int loopback;
+ 	int recv_own_msgs;
+ 	int fd_frames;
+@@ -96,6 +96,10 @@ struct raw_sock {
+ 	struct uniqframe __percpu *uniq;
+ };
+ 
++static LIST_HEAD(raw_notifier_list);
++static DEFINE_SPINLOCK(raw_notifier_lock);
++static struct raw_sock *raw_busy_notifier;
++
+ /*
+  * Return pointer to store the extra msg flags for raw_recvmsg().
+  * We use the space of one unsigned int beyond the 'struct sockaddr_can'
+@@ -266,21 +270,16 @@ static int raw_enable_allfilters(struct net *net, struct net_device *dev,
+ 	return err;
+ }
+ 
+-static int raw_notifier(struct notifier_block *nb,
+-			unsigned long msg, void *ptr)
++static void raw_notify(struct raw_sock *ro, unsigned long msg,
++		       struct net_device *dev)
+ {
+-	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
+-	struct raw_sock *ro = container_of(nb, struct raw_sock, notifier);
+ 	struct sock *sk = &ro->sk;
+ 
+ 	if (!net_eq(dev_net(dev), sock_net(sk)))
+-		return NOTIFY_DONE;
+-
+-	if (dev->type != ARPHRD_CAN)
+-		return NOTIFY_DONE;
++		return;
+ 
+ 	if (ro->ifindex != dev->ifindex)
+-		return NOTIFY_DONE;
++		return;
+ 
+ 	switch (msg) {
+ 
+@@ -309,7 +308,28 @@ static int raw_notifier(struct notifier_block *nb,
+ 			sk->sk_error_report(sk);
+ 		break;
+ 	}
++}
++
++static int raw_notifier(struct notifier_block *nb, unsigned long msg,
++			void *ptr)
++{
++	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
++
++	if (dev->type != ARPHRD_CAN)
++		return NOTIFY_DONE;
++	if (msg != NETDEV_UNREGISTER && msg != NETDEV_DOWN)
++		return NOTIFY_DONE;
++	if (unlikely(raw_busy_notifier)) /* Check for reentrant bug. */
++		return NOTIFY_DONE;
+ 
++	spin_lock(&raw_notifier_lock);
++	list_for_each_entry(raw_busy_notifier, &raw_notifier_list, notifier) {
++		spin_unlock(&raw_notifier_lock);
++		raw_notify(raw_busy_notifier, msg, dev);
++		spin_lock(&raw_notifier_lock);
++	}
++	raw_busy_notifier = NULL;
++	spin_unlock(&raw_notifier_lock);
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -338,9 +358,9 @@ static int raw_init(struct sock *sk)
+ 		return -ENOMEM;
+ 
+ 	/* set notifier */
+-	ro->notifier.notifier_call = raw_notifier;
+-
+-	register_netdevice_notifier(&ro->notifier);
++	spin_lock(&raw_notifier_lock);
++	list_add_tail(&ro->notifier, &raw_notifier_list);
++	spin_unlock(&raw_notifier_lock);
+ 
+ 	return 0;
+ }
+@@ -355,7 +375,14 @@ static int raw_release(struct socket *sock)
+ 
+ 	ro = raw_sk(sk);
+ 
+-	unregister_netdevice_notifier(&ro->notifier);
++	spin_lock(&raw_notifier_lock);
++	while (raw_busy_notifier == ro) {
++		spin_unlock(&raw_notifier_lock);
++		schedule_timeout_uninterruptible(1);
++		spin_lock(&raw_notifier_lock);
++	}
++	list_del(&ro->notifier);
++	spin_unlock(&raw_notifier_lock);
+ 
+ 	lock_sock(sk);
+ 
+@@ -870,6 +897,10 @@ static const struct can_proto raw_can_proto = {
+ 	.prot       = &raw_proto,
+ };
+ 
++static struct notifier_block canraw_notifier = {
++	.notifier_call = raw_notifier
++};
++
+ static __init int raw_module_init(void)
+ {
+ 	int err;
+@@ -879,6 +910,8 @@ static __init int raw_module_init(void)
+ 	err = can_proto_register(&raw_can_proto);
+ 	if (err < 0)
+ 		printk(KERN_ERR "can: registration of raw protocol failed\n");
++	else
++		register_netdevice_notifier(&canraw_notifier);
+ 
+ 	return err;
+ }
+@@ -886,6 +919,7 @@ static __init int raw_module_init(void)
+ static __exit void raw_module_exit(void)
+ {
+ 	can_proto_unregister(&raw_can_proto);
++	unregister_netdevice_notifier(&canraw_notifier);
+ }
+ 
+ module_init(raw_module_init);
 -- 
 2.30.2
 
