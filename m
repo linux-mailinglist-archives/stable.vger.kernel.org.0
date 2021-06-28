@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA6E93B630A
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5458C3B630B
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:49:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233726AbhF1OvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:51:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54506 "EHLO mail.kernel.org"
+        id S233973AbhF1OvW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:51:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236442AbhF1OtS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:49:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B61C61D1E;
-        Mon, 28 Jun 2021 14:36:51 +0000 (UTC)
+        id S236453AbhF1OtV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:49:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6583561D20;
+        Mon, 28 Jun 2021 14:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891012;
-        bh=q5r+zc2/+ZEOlRlFm4x+KNypvJJNCVoTKDXamzjtQkg=;
+        s=k20201202; t=1624891013;
+        bh=OptOz2fisIGCvH3Zsww+79CKj7rj2Pu5G7SE5nhXbGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EV6fLFSMB/Lcn81AotxnEpUP0m5EyfmD/PtwJU2kktOmArYioCb05jFR9g5CfT5dU
-         lFRv8puDEsmhm9sAzGNwprqpRqY3xCa93Guf/71hNy6A8XlFQxfpmTIOeuidUrvxFS
-         DR6kuos+RE8iyIgn+AbA7DcvTY6l8Cc2Jscg1UA3btYIeQdHn5wLvzOGhA1qyemrbw
-         Litw1LcZXjoykVqKKFBMXI4lEIssUfq2eTaIYbE4O0xTNB5Qaj0bCX8eTIrqnpxhbN
-         6m++Q2CgI/hhYb8x14JqN3vIhG6978OIE71plPyz8zB1YUUC+nesUHuoPCCXc6F9mY
-         Uo88n6tKpCW9w==
+        b=cAL4pC2iDrsP++yTgz12hSRmZxJ+SQVByeQOKHxuarcavCLz5foE391ElwUDRVZ1z
+         w5y7kVzk0cbTcmcmmKiji+BIo77l4AYOUDkkRUs6kDSQiNQ3LvjJClrp4Efhd4+JDg
+         6bCDHY1AFYDcgfHQR7suqeX8GlFvTVAwofYuAwUDUi+J91M4U7M2J5CPn3z8yyUjQj
+         UmUsoVdIVFiYheALSVZssRf8M9vID6SqnjyMupuyPjVBqn0V+vUTpAXSSyUpBJOmNu
+         84VmOE2ronfoSZ9ygiuNczCG8IwFVzPR5Y2fAOmK0zgM/8QMwwZok38cDd5ElqJZyM
+         n2Su0LLZZDveg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+5134cdf021c4ed5aaa5f@syzkaller.appspotmail.com,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+Cc:     Paolo Abeni <pabeni@redhat.com>,
+        Kaustubh Pandey <kapandey@codeaurora.org>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/88] net: rds: fix memory leak in rds_recvmsg
-Date:   Mon, 28 Jun 2021 10:35:24 -0400
-Message-Id: <20210628143628.33342-25-sashal@kernel.org>
+Subject: [PATCH 4.14 25/88] udp: fix race between close() and udp_abort()
+Date:   Mon, 28 Jun 2021 10:35:25 -0400
+Message-Id: <20210628143628.33342-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.238-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.14.y
@@ -52,68 +49,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 49bfcbfd989a8f1f23e705759a6bb099de2cff9f ]
+[ Upstream commit a8b897c7bcd47f4147d066e22cc01d1026d7640e ]
 
-Syzbot reported memory leak in rds. The problem
-was in unputted refcount in case of error.
+Kaustubh reported and diagnosed a panic in udp_lib_lookup().
+The root cause is udp_abort() racing with close(). Both
+racing functions acquire the socket lock, but udp{v6}_destroy_sock()
+release it before performing destructive actions.
 
-int rds_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
-		int msg_flags)
-{
-...
+We can't easily extend the socket lock scope to avoid the race,
+instead use the SOCK_DEAD flag to prevent udp_abort from doing
+any action when the critical race happens.
 
-	if (!rds_next_incoming(rs, &inc)) {
-		...
-	}
-
-After this "if" inc refcount incremented and
-
-	if (rds_cmsg_recv(inc, msg, rs)) {
-		ret = -EFAULT;
-		goto out;
-	}
-...
-out:
-	return ret;
-}
-
-in case of rds_cmsg_recv() fail the refcount won't be
-decremented. And it's easy to see from ftrace log, that
-rds_inc_addref() don't have rds_inc_put() pair in
-rds_recvmsg() after rds_cmsg_recv()
-
- 1)               |  rds_recvmsg() {
- 1)   3.721 us    |    rds_inc_addref();
- 1)   3.853 us    |    rds_message_inc_copy_to_user();
- 1) + 10.395 us   |    rds_cmsg_recv();
- 1) + 34.260 us   |  }
-
-Fixes: bdbe6fbc6a2f ("RDS: recv.c")
-Reported-and-tested-by: syzbot+5134cdf021c4ed5aaa5f@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Diagnosed-and-tested-by: Kaustubh Pandey <kapandey@codeaurora.org>
+Fixes: 5d77dca82839 ("net: diag: support SOCK_DESTROY for UDP sockets")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/recv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/udp.c | 10 ++++++++++
+ net/ipv6/udp.c |  3 +++
+ 2 files changed, 13 insertions(+)
 
-diff --git a/net/rds/recv.c b/net/rds/recv.c
-index ef022d24f87a..a1b2bdab6655 100644
---- a/net/rds/recv.c
-+++ b/net/rds/recv.c
-@@ -663,7 +663,7 @@ int rds_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index 8f298f27f6ec..cf5c4d2f68c1 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -2337,6 +2337,9 @@ void udp_destroy_sock(struct sock *sk)
+ {
+ 	struct udp_sock *up = udp_sk(sk);
+ 	bool slow = lock_sock_fast(sk);
++
++	/* protects from races with udp_abort() */
++	sock_set_flag(sk, SOCK_DEAD);
+ 	udp_flush_pending_frames(sk);
+ 	unlock_sock_fast(sk, slow);
+ 	if (static_key_false(&udp_encap_needed) && up->encap_type) {
+@@ -2570,10 +2573,17 @@ int udp_abort(struct sock *sk, int err)
+ {
+ 	lock_sock(sk);
  
- 		if (rds_cmsg_recv(inc, msg, rs)) {
- 			ret = -EFAULT;
--			goto out;
-+			break;
- 		}
++	/* udp{v6}_destroy_sock() sets it under the sk lock, avoid racing
++	 * with close()
++	 */
++	if (sock_flag(sk, SOCK_DEAD))
++		goto out;
++
+ 	sk->sk_err = err;
+ 	sk->sk_error_report(sk);
+ 	__udp_disconnect(sk, 0);
  
- 		rds_stats_inc(s_recv_delivered);
++out:
+ 	release_sock(sk);
+ 
+ 	return 0;
+diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
+index 38ad3fac8c37..d9d25b9c07ae 100644
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1434,6 +1434,9 @@ void udpv6_destroy_sock(struct sock *sk)
+ {
+ 	struct udp_sock *up = udp_sk(sk);
+ 	lock_sock(sk);
++
++	/* protects from races with udp_abort() */
++	sock_set_flag(sk, SOCK_DEAD);
+ 	udp_v6_flush_pending_frames(sk);
+ 	release_sock(sk);
+ 
 -- 
 2.30.2
 
