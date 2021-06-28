@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 281463B6120
+	by mail.lfdr.de (Postfix) with ESMTP id E4E063B6122
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234449AbhF1Ocp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:32:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37300 "EHLO mail.kernel.org"
+        id S234335AbhF1Ocr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:32:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234919AbhF1Oam (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234922AbhF1Oam (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:30:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A402661CC9;
-        Mon, 28 Jun 2021 14:27:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACCC661CB2;
+        Mon, 28 Jun 2021 14:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890421;
-        bh=kWtUTq6WVWrZAk1658c581SNcx68NzBUN84oOZqbgZg=;
+        s=k20201202; t=1624890422;
+        bh=TqH3Pl/22eErFOrT9mnQSNNn13DRvPU+KduvnYo3RiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvAalztDUgViHNEWRc4Xo9mMORdyjH9YprbxUf6A2suFIuT5Kz03p9g31/qFW6/97
-         sMbvq5WaFw8sr5794IlHncYA/waJD6CUoq93ue2qNcOipDBOpoKOQUTUu5EuqGh433
-         gCC8FwnlUZ5QJ7mFBgyZDnOxMKWGRmX+LqvLudOkapCdmxmDoXxi3V1tyvIgL7tAVY
-         6OXQVqT7TH8i8fv4SOn021M0+HAdaLi49/BozcxjpNymo8Bqg2KmdVpPKQLWLmMluW
-         Ng44kYQVulOaGXeXhK257x3BhTamcnhMH9n2Iql7SFtTPnpSmSQP/ptiJRped0Afw1
-         I5qz14WtQmS0Q==
+        b=oIuKZOZNOVPx4O+KvD/C14IvMsCX1WeZ0DehX9ktWnzN3FKirNG++6yol2pBvkNC6
+         IuSeC2jWoUxz3TO9JUUBPa8yVypdY7/dInldowguFbC6+vOQEvtyXUfk2tJw/50p5a
+         kgcQ8jtb3pS+7NPbtws7JIABLGSu9WgKsSV8is8nQo0oNl3s6Qr0ehnxxIl9yK0vXH
+         PCZJWat7O9swb5MiGTXtyiXgiQXR/pPyh4Hj+3DnkKxQlkYfZzY5qbDPobXFRT8aAj
+         252PMzUULIdPx8ndS5wf84QpiqL5ECH9UmhgzY8AXATvThGvw7oZStbYjV/gHmcY4/
+         CwA5G5jy2xgRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        "Michael L . Semon" <mlsemon35@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/101] nilfs2: fix memory leak in nilfs_sysfs_delete_device_group
-Date:   Mon, 28 Jun 2021 10:25:28 -0400
-Message-Id: <20210628142607.32218-63-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>, stable@kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 5.10 063/101] s390/stack: fix possible register corruption with stack switch helper
+Date:   Mon, 28 Jun 2021 10:25:29 -0400
+Message-Id: <20210628142607.32218-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -51,57 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 8fd0c1b0647a6bda4067ee0cd61e8395954b6f28 ]
+commit 67147e96a332b56c7206238162771d82467f86c0 upstream.
 
-My local syzbot instance hit memory leak in nilfs2.  The problem was in
-missing kobject_put() in nilfs_sysfs_delete_device_group().
+The CALL_ON_STACK macro is used to call a C function from inline
+assembly, and therefore must consider the C ABI, which says that only
+registers 6-13, and 15 are non-volatile (restored by the called
+function).
 
-kobject_del() does not call kobject_cleanup() for passed kobject and it
-leads to leaking duped kobject name if kobject_put() was not called.
+The inline assembly incorrectly marks all registers used to pass
+parameters to the called function as read-only input operands, instead
+of operands that are read and written to. This might result in
+register corruption depending on usage, compiler, and compile options.
 
-Fail log:
+Fix this by marking all operands used to pass parameters as read/write
+operands. To keep the code simple even register 6, if used, is marked
+as read-write operand.
 
-  BUG: memory leak
-  unreferenced object 0xffff8880596171e0 (size 8):
-  comm "syz-executor379", pid 8381, jiffies 4294980258 (age 21.100s)
-  hex dump (first 8 bytes):
-    6c 6f 6f 70 30 00 00 00                          loop0...
-  backtrace:
-     kstrdup+0x36/0x70 mm/util.c:60
-     kstrdup_const+0x53/0x80 mm/util.c:83
-     kvasprintf_const+0x108/0x190 lib/kasprintf.c:48
-     kobject_set_name_vargs+0x56/0x150 lib/kobject.c:289
-     kobject_add_varg lib/kobject.c:384 [inline]
-     kobject_init_and_add+0xc9/0x160 lib/kobject.c:473
-     nilfs_sysfs_create_device_group+0x150/0x800 fs/nilfs2/sysfs.c:999
-     init_nilfs+0xe26/0x12b0 fs/nilfs2/the_nilfs.c:637
-
-Link: https://lkml.kernel.org/r/20210612140559.20022-1-paskripkin@gmail.com
-Fixes: da7141fb78db ("nilfs2: add /sys/fs/nilfs2/<device> group")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: Michael L. Semon <mlsemon35@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ff340d2472ec ("s390: add stack switch helper")
+Cc: <stable@kernel.org> # 4.20
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/include/asm/stacktrace.h | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index 303d71430bdd..9c6c0e2e5880 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -1053,6 +1053,7 @@ void nilfs_sysfs_delete_device_group(struct the_nilfs *nilfs)
- 	nilfs_sysfs_delete_superblock_group(nilfs);
- 	nilfs_sysfs_delete_segctor_group(nilfs);
- 	kobject_del(&nilfs->ns_dev_kobj);
-+	kobject_put(&nilfs->ns_dev_kobj);
- 	kfree(nilfs->ns_dev_subgroups);
- }
+diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
+index ee056f4a4fa3..ee582896b6a3 100644
+--- a/arch/s390/include/asm/stacktrace.h
++++ b/arch/s390/include/asm/stacktrace.h
+@@ -90,12 +90,16 @@ struct stack_frame {
+ 	CALL_ARGS_4(arg1, arg2, arg3, arg4);				\
+ 	register unsigned long r4 asm("6") = (unsigned long)(arg5)
  
+-#define CALL_FMT_0 "=&d" (r2) :
+-#define CALL_FMT_1 "+&d" (r2) :
+-#define CALL_FMT_2 CALL_FMT_1 "d" (r3),
+-#define CALL_FMT_3 CALL_FMT_2 "d" (r4),
+-#define CALL_FMT_4 CALL_FMT_3 "d" (r5),
+-#define CALL_FMT_5 CALL_FMT_4 "d" (r6),
++/*
++ * To keep this simple mark register 2-6 as being changed (volatile)
++ * by the called function, even though register 6 is saved/nonvolatile.
++ */
++#define CALL_FMT_0 "=&d" (r2)
++#define CALL_FMT_1 "+&d" (r2)
++#define CALL_FMT_2 CALL_FMT_1, "+&d" (r3)
++#define CALL_FMT_3 CALL_FMT_2, "+&d" (r4)
++#define CALL_FMT_4 CALL_FMT_3, "+&d" (r5)
++#define CALL_FMT_5 CALL_FMT_4, "+&d" (r6)
+ 
+ #define CALL_CLOBBER_5 "0", "1", "14", "cc", "memory"
+ #define CALL_CLOBBER_4 CALL_CLOBBER_5
+@@ -117,7 +121,7 @@ struct stack_frame {
+ 		"	brasl	14,%[_fn]\n"				\
+ 		"	la	15,0(%[_prev])\n"			\
+ 		: [_prev] "=&a" (prev), CALL_FMT_##nr			\
+-		  [_stack] "R" (stack),					\
++		: [_stack] "R" (stack),					\
+ 		  [_bc] "i" (offsetof(struct stack_frame, back_chain)),	\
+ 		  [_frame] "d" (frame),					\
+ 		  [_fn] "X" (fn) : CALL_CLOBBER_##nr);			\
 -- 
 2.30.2
 
