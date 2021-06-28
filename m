@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CBD03B603C
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC2043B6040
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233157AbhF1OWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:22:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55430 "EHLO mail.kernel.org"
+        id S233563AbhF1OXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233366AbhF1OWL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:22:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0402761C8A;
-        Mon, 28 Jun 2021 14:19:32 +0000 (UTC)
+        id S233385AbhF1OWP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:22:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE05361C7E;
+        Mon, 28 Jun 2021 14:19:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889973;
-        bh=6QHKh4yeZmygM5OMKcQH9rZqs6eSKf/IyI9ws4mRAOY=;
+        s=k20201202; t=1624889974;
+        bh=CSKpV0oXRx2md4FrADuQt7C5u018lk9k7KOhngBuVMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FRK//Of05zrL8vXauQ72mh9gD4oiMufO7a2QGYKKlRqup9TK1OtI7HdZmizuAFMNg
-         WtTVkW9ATi1O8zfo2i7T0sgvCy4W98bKGMhjudW5vddnEBPVZGm2ytD74768i9ZOxB
-         EpqLLn6TeBgh/XwJ0oEdiv9QjM9r4ED3pu3E3r/sLseddD+r7E9iPDlvYiojsbMciz
-         JaZYKM5vp3TsWzjsIS22kdUyJKgLtME8tJmV4J9uk2KEHWrHMwhuRg23RSy2o7ZebA
-         7Z2LZ0OQ90kQvT8g97Uc1ME1aYamqGelIbtyDwCH0VdUQSc+d/0ksVd/Z0wuFpP7Cl
-         oPoLifWjp7o6w==
+        b=QBJ602QBcBzdVC8gMtQ8sXyjasjmZqHeerczGfWx1dVTBKNGTekTC0WYoL2BeDVNR
+         xKDh1lvY/SUsv+Litnm51nHvUZwaB/yaYrsRKBXTEl4JyDd0wm0x4Q6jE9TEcSZy0G
+         t/SIasf6lb4ohsDvu9PJOTRpjE46DSxx3oft1sKmgnZv2nQfjL8pnfH80LvUvN+stL
+         TqrLuuJdTMxf5orOOERjN7BwIW7EqwjrEoxK+pUUDkHHakZVr1IrWya6AYST9kUuqF
+         8VH0rT5Jvg+qCCipegneK7i17cpuA+/zSzwcJJychT9V5IwVrW610qf+bRCSsm9tbY
+         foqFJvqZQbWGA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+Cc:     Juergen Gross <jgross@suse.com>, Julien Grall <julien@xen.org>,
+        Boris Ostrovsky <boris.ostrvsky@oracle.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 075/110] ceph: must hold snap_rwsem when filling inode for async create
-Date:   Mon, 28 Jun 2021 10:17:53 -0400
-Message-Id: <20210628141828.31757-76-sashal@kernel.org>
+Subject: [PATCH 5.12 076/110] xen/events: reset active flag for lateeoi events later
+Date:   Mon, 28 Jun 2021 10:17:54 -0400
+Message-Id: <20210628141828.31757-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -48,59 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 27171ae6a0fdc75571e5bf3d0961631a1e4fb765 upstream.
+commit 3de218ff39b9e3f0d453fe3154f12a174de44b25 upstream.
 
-...and add a lockdep assertion for it to ceph_fill_inode().
+In order to avoid a race condition for user events when changing
+cpu affinity reset the active flag only when EOI-ing the event.
 
-Cc: stable@vger.kernel.org # v5.7+
-Fixes: 9a8d03ca2e2c3 ("ceph: attempt to do async create when possible")
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+This is working fine as all user events are lateeoi events. Note that
+lateeoi_ack_mask_dynirq() is not modified as there is no explicit call
+to xen_irq_lateeoi() expected later.
+
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Fixes: b6622798bc50b62 ("xen/events: avoid handling the same event on two cpus at the same time")
+Tested-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrvsky@oracle.com>
+Link: https://lore.kernel.org/r/20210623130913.9405-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/file.c  | 3 +++
- fs/ceph/inode.c | 2 ++
- 2 files changed, 5 insertions(+)
+ drivers/xen/events/events_base.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index 209535d5b8d3..3d2e3dd4ee01 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -578,6 +578,7 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
- 	struct ceph_inode_info *ci = ceph_inode(dir);
- 	struct inode *inode;
- 	struct timespec64 now;
-+	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(dir->i_sb);
- 	struct ceph_vino vino = { .ino = req->r_deleg_ino,
- 				  .snap = CEPH_NOSNAP };
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 7bbfd58958bc..d7e361fb0548 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -642,6 +642,9 @@ static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
+ 	}
  
-@@ -615,8 +616,10 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
- 
- 	ceph_file_layout_to_legacy(lo, &in.layout);
- 
-+	down_read(&mdsc->snap_rwsem);
- 	ret = ceph_fill_inode(inode, NULL, &iinfo, NULL, req->r_session,
- 			      req->r_fmode, NULL);
-+	up_read(&mdsc->snap_rwsem);
- 	if (ret) {
- 		dout("%s failed to fill inode: %d\n", __func__, ret);
- 		ceph_dir_clear_complete(dir);
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index 179d2ef69a24..7ee6023adb36 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -762,6 +762,8 @@ int ceph_fill_inode(struct inode *inode, struct page *locked_page,
- 	bool new_version = false;
- 	bool fill_inline = false;
- 
-+	lockdep_assert_held(&mdsc->snap_rwsem);
+ 	info->eoi_time = 0;
 +
- 	dout("%s %p ino %llx.%llx v %llu had %llu\n", __func__,
- 	     inode, ceph_vinop(inode), le64_to_cpu(info->version),
- 	     ci->i_version);
++	/* is_active hasn't been reset yet, do it now. */
++	smp_store_release(&info->is_active, 0);
+ 	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
+ }
+ 
+@@ -811,6 +814,7 @@ static void xen_evtchn_close(evtchn_port_t port)
+ 		BUG();
+ }
+ 
++/* Not called for lateeoi events. */
+ static void event_handler_exit(struct irq_info *info)
+ {
+ 	smp_store_release(&info->is_active, 0);
+@@ -1883,7 +1887,12 @@ static void lateeoi_ack_dynirq(struct irq_data *data)
+ 
+ 	if (VALID_EVTCHN(evtchn)) {
+ 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
+-		event_handler_exit(info);
++		/*
++		 * Don't call event_handler_exit().
++		 * Need to keep is_active non-zero in order to ignore re-raised
++		 * events after cpu affinity changes while a lateeoi is pending.
++		 */
++		clear_evtchn(evtchn);
+ 	}
+ }
+ 
 -- 
 2.30.2
 
