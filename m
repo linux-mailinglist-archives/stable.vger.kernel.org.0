@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 161983B6364
+	by mail.lfdr.de (Postfix) with ESMTP id 5FF0B3B6365
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232827AbhF1O4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:56:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59412 "EHLO mail.kernel.org"
+        id S232902AbhF1O4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:56:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235845AbhF1Owy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235169AbhF1Owy (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:52:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF71061D38;
-        Mon, 28 Jun 2021 14:37:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFA0861D36;
+        Mon, 28 Jun 2021 14:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891039;
-        bh=lJ24d/MGhTh9IxIR9GnUmg82JD76yE9nm6V6CuJ950U=;
+        s=k20201202; t=1624891040;
+        bh=dOSQMVzC1+Qb8BEXXGvXIo4vTwaWNEYHD9IU7BlNKP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h22a7hLN3/q6dGawY0dmg/SOFXJKwzTEoge1Uwt0MwD0q0ebKk1uh/m12fkadNvEA
-         7cSFTiXwakR1W6Q0MuP6VKKJGbYtqYV5lZ1ZxjUAxx5PIj40H2K8y98KwZ9HJEn6t8
-         q9INLPVc0ltHBVEw1XXU0uhsD1ynB3CQw/lQSH2lDIBCUTB/VD0YzVKzpOcewwR8Zb
-         H8woJdmKTXppAz2VmhVspxRHxAsbhI6kNz9z+bqpgO/GRuEELDJ3gNXQkSgnLhixyS
-         N7sdQBSHINul9cnLbOAkOnfW7TLHyd80Q8hKm97sBjYDN8L30opCQnlqWcCclMDLqx
-         WXsvPrSANHG9A==
+        b=dIxXCB/a+nIY1xGNDfEGjO1QKBx/egH6YmHnVXI3p7xjzF/uFq6O0UIgUdxogQnUy
+         hPYPmAOIOdA39ypYHw/tZEr2Er4eKkySJltunfVKrCcrwqwTSdUwAkHBK07pgG8AuH
+         cIeopuu/bMGKsWf5LPMtEy1YM+qGpRRoM017f6vM3G6PdXdt697m0LhNGNHpRh0uYW
+         8t41dCbZWG0qNsYeAvr9uss2xP/K7L3fcMvrBg5lA21Sl5GiT8tBaX17vO65CT9oiz
+         sRZAXUv/B/vET4DHoxdVvpRsd33JrSuqjsHccgNOM2ZRr7m8uCppkai01qgySF20vr
+         woX9ghthUl8bQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>, vannguye@cisco.com,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 57/88] mm/slub.c: include swab.h
-Date:   Mon, 28 Jun 2021 10:35:57 -0400
-Message-Id: <20210628143628.33342-58-sashal@kernel.org>
+Subject: [PATCH 4.14 58/88] net: fec_ptp: add clock rate zero check
+Date:   Mon, 28 Jun 2021 10:35:58 -0400
+Message-Id: <20210628143628.33342-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -49,38 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-commit 1b3865d016815cbd69a1879ca1c8a8901fda1072 upstream.
+commit cb3cefe3f3f8af27c6076ef7d1f00350f502055d upstream.
 
-Fixes build with CONFIG_SLAB_FREELIST_HARDENED=y.
+Add clock rate zero check to fix coverity issue of "divide by 0".
 
-Hopefully.  But it's the right thing to do anwyay.
-
-Fixes: 1ad53d9fa3f61 ("slub: improve bit diffusion for freelist ptr obfuscation")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=213417
-Reported-by: <vannguye@cisco.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: commit 85bd1798b24a ("net: fec: fix spin_lock dead lock")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slub.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/freescale/fec_ptp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/mm/slub.c b/mm/slub.c
-index a0cb3568b0b5..484a75296a12 100644
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -15,6 +15,7 @@
- #include <linux/module.h>
- #include <linux/bit_spinlock.h>
- #include <linux/interrupt.h>
-+#include <linux/swab.h>
- #include <linux/bitops.h>
- #include <linux/slab.h>
- #include "slab.h"
+diff --git a/drivers/net/ethernet/freescale/fec_ptp.c b/drivers/net/ethernet/freescale/fec_ptp.c
+index e63df6455fba..40c5c09f60dc 100644
+--- a/drivers/net/ethernet/freescale/fec_ptp.c
++++ b/drivers/net/ethernet/freescale/fec_ptp.c
+@@ -586,6 +586,10 @@ void fec_ptp_init(struct platform_device *pdev)
+ 	fep->ptp_caps.enable = fec_ptp_enable;
+ 
+ 	fep->cycle_speed = clk_get_rate(fep->clk_ptp);
++	if (!fep->cycle_speed) {
++		fep->cycle_speed = NSEC_PER_SEC;
++		dev_err(&fep->pdev->dev, "clk_ptp clock rate is zero\n");
++	}
+ 	fep->ptp_inc = NSEC_PER_SEC / fep->cycle_speed;
+ 
+ 	spin_lock_init(&fep->tmreg_lock);
 -- 
 2.30.2
 
