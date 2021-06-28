@@ -2,39 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A9B3B6203
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:39:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E8B73B61E7
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:38:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234168AbhF1Ok5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:40:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43980 "EHLO mail.kernel.org"
+        id S234072AbhF1OkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:40:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234241AbhF1OhR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:37:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B31361CB5;
-        Mon, 28 Jun 2021 14:30:48 +0000 (UTC)
+        id S234333AbhF1Oh2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:37:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B112C61C8C;
+        Mon, 28 Jun 2021 14:30:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890649;
-        bh=k1tYb5xcu1TChJp/RY88O147DyCKHGkV7SwDRskNel8=;
+        s=k20201202; t=1624890651;
+        bh=nIWRpypsJOAPfHzSBNKpd1CGI0C6RbsSpnnClBOuuzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SHYZq2NEkY5b4mevKnY21Ht8V2MD61+DNIQkfLvht5/YuQi06ERtEltabKqkgmAle
-         vSF+ScrUbOC09g6QNik71cGQhMbsfRDaJDHAtIVFSRcSxSf90N6aWAIwrWXMD4f268
-         MFyWq52WooOKSgq7u1tJk/gv8llKojXlzlSPrwB1B7vd2QXBAha5g7pT0uqHV4DkEm
-         EDUzYUuFtL2B9AJReD7qIUXkSVfuDqheC3541WkjFCDKcJXySNmouoiReSyg7H6go6
-         MagwQ2Wf0GVwiSj4/rVHVr0bg67sLSGQ45Scpy6HY6LsNm9CXecVXr/G4FATgsvALH
-         ahWQ+vT02WLTw==
+        b=AS4xvDcxLixXukEF3TJYyVBLtAYFC3E9nMJKslobzjkYGEloa4TN4HLrL6cVu5XEi
+         5Dg7UJ2NgqvxE/fUWYO56FNLdzlzEPxU53ie36gn9rRIlPuYhik+b/cUcDWdflX1Mo
+         upQPNPOzBZGANkQSW1ZL1XVDsZbQL1/URP3r8Xpx4WrkXekSIS3zfHtFmcpH9kvQcN
+         mdAdEfdb5f3kX0tt8Gp2+kvO4WpW+flniUo61TceADKlJD4bF+HAnxdiIjdrNmhT1r
+         GNtrSYVPYySxCl7XpyONXEBNPiGZGNETvD66JkcFtQJKaeGRTi5e0Pre5JrGeoHB/B
+         FPKh553QM74hg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xu Yu <xuyu@linux.alibaba.com>, Hugh Dickins <hughd@google.com>,
-        Gang Deng <gavin.dg@linux.alibaba.com>,
+Cc:     Hugh Dickins <hughd@google.com>,
         "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
+        Yang Shi <shy828301@gmail.com>,
+        Wang Yugui <wangyugui@e16-tech.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>, Zi Yan <ziy@nvidia.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>, Jue Wang <juew@google.com>,
+        Peter Xu <peterx@redhat.com>, Jan Kara <jack@suse.cz>,
+        Shakeel Butt <shakeelb@google.com>,
+        Oscar Salvador <osalvador@suse.de>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 48/71] mm, thp: use head page in __migration_entry_wait()
-Date:   Mon, 28 Jun 2021 10:29:41 -0400
-Message-Id: <20210628143004.32596-49-sashal@kernel.org>
+Subject: [PATCH 5.4 49/71] mm/thp: fix __split_huge_pmd_locked() on shmem migration entry
+Date:   Mon, 28 Jun 2021 10:29:42 -0400
+Message-Id: <20210628143004.32596-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -52,68 +61,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yu <xuyu@linux.alibaba.com>
+From: Hugh Dickins <hughd@google.com>
 
-commit ffc90cbb2970ab88b66ea51dd580469eede57b67 upstream.
+[ Upstream commit 99fa8a48203d62b3743d866fc48ef6abaee682be ]
 
-We notice that hung task happens in a corner but practical scenario when
-CONFIG_PREEMPT_NONE is enabled, as follows.
+Patch series "mm/thp: fix THP splitting unmap BUGs and related", v10.
 
-Process 0                       Process 1                     Process 2..Inf
-split_huge_page_to_list
-    unmap_page
-        split_huge_pmd_address
-                                __migration_entry_wait(head)
-                                                              __migration_entry_wait(tail)
-    remap_page (roll back)
-        remove_migration_ptes
-            rmap_walk_anon
-                cond_resched
+Here is v2 batch of long-standing THP bug fixes that I had not got
+around to sending before, but prompted now by Wang Yugui's report
+https://lore.kernel.org/linux-mm/20210412180659.B9E3.409509F4@e16-tech.com/
 
-Where __migration_entry_wait(tail) is occurred in kernel space, e.g.,
-copy_to_user in fstat, which will immediately fault again without
-rescheduling, and thus occupy the cpu fully.
+Wang Yugui has tested a rollup of these fixes applied to 5.10.39, and
+they have done no harm, but have *not* fixed that issue: something more
+is needed and I have no idea of what.
 
-When there are too many processes performing __migration_entry_wait on
-tail page, remap_page will never be done after cond_resched.
+This patch (of 7):
 
-This makes __migration_entry_wait operate on the compound head page,
-thus waits for remap_page to complete, whether the THP is split
-successfully or roll back.
+Stressing huge tmpfs page migration racing hole punch often crashed on
+the VM_BUG_ON(!pmd_present) in pmdp_huge_clear_flush(), with DEBUG_VM=y
+kernel; or shortly afterwards, on a bad dereference in
+__split_huge_pmd_locked() when DEBUG_VM=n.  They forgot to allow for pmd
+migration entries in the non-anonymous case.
 
-Note that put_and_wait_on_page_locked helps to drop the page reference
-acquired with get_page_unless_zero, as soon as the page is on the wait
-queue, before actually waiting.  So splitting the THP is only prevented
-for a brief interval.
+Full disclosure: those particular experiments were on a kernel with more
+relaxed mmap_lock and i_mmap_rwsem locking, and were not repeated on the
+vanilla kernel: it is conceivable that stricter locking happens to avoid
+those cases, or makes them less likely; but __split_huge_pmd_locked()
+already allowed for pmd migration entries when handling anonymous THPs,
+so this commit brings the shmem and file THP handling into line.
 
-Link: https://lkml.kernel.org/r/b9836c1dd522e903891760af9f0c86a2cce987eb.1623144009.git.xuyu@linux.alibaba.com
-Fixes: ba98828088ad ("thp: add option to setup migration entries during PMD split")
-Suggested-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
+And while there: use old_pmd rather than _pmd, as in the following
+blocks; and make it clearer to the eye that the !vma_is_anonymous()
+block is self-contained, making an early return after accounting for
+unmapping.
+
+Link: https://lkml.kernel.org/r/af88612-1473-2eaa-903-8d1a448b26@google.com
+Link: https://lkml.kernel.org/r/dd221a99-efb3-cd1d-6256-7e646af29314@google.com
+Fixes: e71769ae5260 ("mm: enable thp migration for shmem thp")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Wang Yugui <wangyugui@e16-tech.com>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Jue Wang <juew@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Oscar Salvador <osalvador@suse.de>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+Note on stable backport: this commit made intervening cleanups in
+pmdp_huge_clear_flush() redundant: here it's rediffed to skip them.
+
+Signed-off-by: Hugh Dickins <hughd@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/migrate.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/huge_memory.c     | 27 ++++++++++++++++++---------
+ mm/pgtable-generic.c |  4 ++--
+ 2 files changed, 20 insertions(+), 11 deletions(-)
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 00bbe57c1ce2..5092ef2aa8a1 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -321,6 +321,7 @@ void __migration_entry_wait(struct mm_struct *mm, pte_t *ptep,
- 		goto out;
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 7bbf419bb86d..e74c5a505e2b 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2155,7 +2155,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 	count_vm_event(THP_SPLIT_PMD);
  
- 	page = migration_entry_to_page(entry);
-+	page = compound_head(page);
- 
- 	/*
- 	 * Once page cache replacement of page migration started, page_count
+ 	if (!vma_is_anonymous(vma)) {
+-		_pmd = pmdp_huge_clear_flush_notify(vma, haddr, pmd);
++		old_pmd = pmdp_huge_clear_flush_notify(vma, haddr, pmd);
+ 		/*
+ 		 * We are going to unmap this huge page. So
+ 		 * just go ahead and zap it
+@@ -2164,16 +2164,25 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 			zap_deposited_table(mm, pmd);
+ 		if (vma_is_dax(vma))
+ 			return;
+-		page = pmd_page(_pmd);
+-		if (!PageDirty(page) && pmd_dirty(_pmd))
+-			set_page_dirty(page);
+-		if (!PageReferenced(page) && pmd_young(_pmd))
+-			SetPageReferenced(page);
+-		page_remove_rmap(page, true);
+-		put_page(page);
++		if (unlikely(is_pmd_migration_entry(old_pmd))) {
++			swp_entry_t entry;
++
++			entry = pmd_to_swp_entry(old_pmd);
++			page = migration_entry_to_page(entry);
++		} else {
++			page = pmd_page(old_pmd);
++			if (!PageDirty(page) && pmd_dirty(old_pmd))
++				set_page_dirty(page);
++			if (!PageReferenced(page) && pmd_young(old_pmd))
++				SetPageReferenced(page);
++			page_remove_rmap(page, true);
++			put_page(page);
++		}
+ 		add_mm_counter(mm, mm_counter_file(page), -HPAGE_PMD_NR);
+ 		return;
+-	} else if (pmd_trans_huge(*pmd) && is_huge_zero_pmd(*pmd)) {
++	}
++
++	if (pmd_trans_huge(*pmd) && is_huge_zero_pmd(*pmd)) {
+ 		/*
+ 		 * FIXME: Do we want to invalidate secondary mmu by calling
+ 		 * mmu_notifier_invalidate_range() see comments below inside
+diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
+index 532c29276fce..49e8a4fbc205 100644
+--- a/mm/pgtable-generic.c
++++ b/mm/pgtable-generic.c
+@@ -126,8 +126,8 @@ pmd_t pmdp_huge_clear_flush(struct vm_area_struct *vma, unsigned long address,
+ {
+ 	pmd_t pmd;
+ 	VM_BUG_ON(address & ~HPAGE_PMD_MASK);
+-	VM_BUG_ON((pmd_present(*pmdp) && !pmd_trans_huge(*pmdp) &&
+-			   !pmd_devmap(*pmdp)) || !pmd_present(*pmdp));
++	VM_BUG_ON(pmd_present(*pmdp) && !pmd_trans_huge(*pmdp) &&
++			   !pmd_devmap(*pmdp));
+ 	pmd = pmdp_huge_get_and_clear(vma->vm_mm, address, pmdp);
+ 	flush_pmd_tlb_range(vma, address, address + HPAGE_PMD_SIZE);
+ 	return pmd;
 -- 
 2.30.2
 
