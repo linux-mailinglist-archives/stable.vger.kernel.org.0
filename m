@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECECB3B6063
+	by mail.lfdr.de (Postfix) with ESMTP id A23313B6062
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233364AbhF1OYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:24:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54734 "EHLO mail.kernel.org"
+        id S233300AbhF1OYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:24:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233352AbhF1OWu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233505AbhF1OWu (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:22:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 130B961C92;
-        Mon, 28 Jun 2021 14:20:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B439A61C97;
+        Mon, 28 Jun 2021 14:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890003;
-        bh=srZgnZQ/4lvlPxM+ZeGkFqUJ9tYOyP5DdIy7MP/865M=;
+        s=k20201202; t=1624890005;
+        bh=XP9TXJlVHKqC345cjWKD+JbDE+IeSMzMDScN87FzlxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nj4R8jnmiANl7Me9t9H3xePUd6ntBbWhVZVOnDq6YOO5b3fr+RDsXcE8mAgq0MjaA
-         zEMAMry8WM8pojmj0+scNnQ3JROlsP5RoeHRIQ4kKnk7wqvH5uhYE70CbIF/KuqN2u
-         nIpyZIcZDsZpw03Kzi4rAbVJeJr4Ikg8cXDP0SULrvWpAA/FPsvrfQSRAKRFaprJ0D
-         tJk/rp8o1jTpgYUKXCuxvVzFirevXJKdzaogPhJFxPKb+IF90vhnwB92ezSFJcXKC/
-         0KZibuveJOQFIHQK3uzpllqa9WqbFXGbQ0ZieGX1O5YChRT/sCzkTrXr2VTDrSiBDD
-         IEELdeZ2hR4KA==
+        b=YfN+V4kJbvBWR/fP5jpi+S7ix2s/UgKeVfHsutiKiodV+k7KdOOyqKUoptc8QCpzM
+         TvxQKYDkEahhA5/wOGtDcyYADJxbFuvZwrnsQgDz/2XYrnlLhe98QyNxBR/VlNJVID
+         +Y0Dp2nEp+nVqOnTuNYcaZqKZjTG8XxjqQ+RuRyMHC1Ia/mv6BZeRh8IGhw06iXRpc
+         eUhYbzOzxgWMZAj7S2JnqMYbkYtvI94OJ/+OxwX3xRceldNX+1pFX/qCvQfDbMyW9K
+         5lAYun7p6Yxn+pC1prMTOUPtoXIRGuT55N9XcZSBJJlLKn5Xy6GYN15WyASCqQA9qf
+         DFzgaoPFh92FA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hugh Dickins <hughd@google.com>,
         "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Peter Xu <peterx@redhat.com>,
         Alistair Popple <apopple@nvidia.com>,
         Matthew Wilcox <willy@infradead.org>,
+        Peter Xu <peterx@redhat.com>,
         Ralph Campbell <rcampbell@nvidia.com>,
         Wang Yugui <wangyugui@e16-tech.com>,
         Will Deacon <will@kernel.org>, Yang Shi <shy828301@gmail.com>,
@@ -37,9 +37,9 @@ Cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 093/110] mm: page_vma_mapped_walk(): prettify PVMW_MIGRATION block
-Date:   Mon, 28 Jun 2021 10:18:11 -0400
-Message-Id: <20210628141828.31757-94-sashal@kernel.org>
+Subject: [PATCH 5.12 094/110] mm: page_vma_mapped_walk(): crossing page table boundary
+Date:   Mon, 28 Jun 2021 10:18:12 -0400
+Message-Id: <20210628141828.31757-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -59,20 +59,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hugh Dickins <hughd@google.com>
 
-commit e2e1d4076c77b3671cf8ce702535ae7dee3acf89 upstream.
+commit 448282487483d6fa5b2eeeafaa0acc681e544a9c upstream.
 
-page_vma_mapped_walk() cleanup: rearrange the !pmd_present() block to
-follow the same "return not_found, return not_found, return true"
-pattern as the block above it (note: returning not_found there is never
-premature, since existence or prior existence of huge pmd guarantees
-good alignment).
+page_vma_mapped_walk() cleanup: adjust the test for crossing page table
+boundary - I believe pvmw->address is always page-aligned, but nothing
+else here assumed that; and remember to reset pvmw->pte to NULL after
+unmapping the page table, though I never saw any bug from that.
 
-Link: https://lkml.kernel.org/r/378c8650-1488-2edf-9647-32a53cf2e21@google.com
+Link: https://lkml.kernel.org/r/799b3f9c-2a9e-dfef-5d89-26e9f76fd97@google.com
 Signed-off-by: Hugh Dickins <hughd@google.com>
 Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
 Cc: Alistair Popple <apopple@nvidia.com>
 Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Peter Xu <peterx@redhat.com>
 Cc: Ralph Campbell <rcampbell@nvidia.com>
 Cc: Wang Yugui <wangyugui@e16-tech.com>
 Cc: Will Deacon <will@kernel.org>
@@ -83,52 +82,34 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_vma_mapped.c | 30 ++++++++++++++----------------
- 1 file changed, 14 insertions(+), 16 deletions(-)
+ mm/page_vma_mapped.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
-index 825c97a479e6..96cef824f52f 100644
+index 96cef824f52f..aad116532140 100644
 --- a/mm/page_vma_mapped.c
 +++ b/mm/page_vma_mapped.c
-@@ -198,24 +198,22 @@ restart:
- 			if (pmd_page(pmde) != page)
+@@ -244,16 +244,16 @@ next_pte:
+ 			if (pvmw->address >= end)
  				return not_found(pvmw);
- 			return true;
--		} else if (!pmd_present(pmde)) {
--			if (thp_migration_supported()) {
--				if (!(pvmw->flags & PVMW_MIGRATION))
--					return not_found(pvmw);
--				if (is_migration_entry(pmd_to_swp_entry(pmde))) {
--					swp_entry_t entry = pmd_to_swp_entry(pmde);
-+		}
-+		if (!pmd_present(pmde)) {
-+			swp_entry_t entry;
+ 			/* Did we cross page table boundary? */
+-			if (pvmw->address % PMD_SIZE == 0) {
+-				pte_unmap(pvmw->pte);
++			if ((pvmw->address & (PMD_SIZE - PAGE_SIZE)) == 0) {
+ 				if (pvmw->ptl) {
+ 					spin_unlock(pvmw->ptl);
+ 					pvmw->ptl = NULL;
+ 				}
++				pte_unmap(pvmw->pte);
++				pvmw->pte = NULL;
+ 				goto restart;
+-			} else {
+-				pvmw->pte++;
+ 			}
++			pvmw->pte++;
+ 		} while (pte_none(*pvmw->pte));
  
--					if (migration_entry_to_page(entry) != page)
--						return not_found(pvmw);
--					return true;
--				}
--			}
--			return not_found(pvmw);
--		} else {
--			/* THP pmd was split under us: handle on pte level */
--			spin_unlock(pvmw->ptl);
--			pvmw->ptl = NULL;
-+			if (!thp_migration_supported() ||
-+			    !(pvmw->flags & PVMW_MIGRATION))
-+				return not_found(pvmw);
-+			entry = pmd_to_swp_entry(pmde);
-+			if (!is_migration_entry(entry) ||
-+			    migration_entry_to_page(entry) != page)
-+				return not_found(pvmw);
-+			return true;
- 		}
-+		/* THP pmd was split under us: handle on pte level */
-+		spin_unlock(pvmw->ptl);
-+		pvmw->ptl = NULL;
- 	} else if (!pmd_present(pmde)) {
- 		/*
- 		 * If PVMW_SYNC, take and drop THP pmd lock so that we
+ 		if (!pvmw->ptl) {
 -- 
 2.30.2
 
