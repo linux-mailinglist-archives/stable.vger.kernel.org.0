@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A037A3B6187
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 869A53B6189
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:34:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234695AbhF1OgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:36:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37322 "EHLO mail.kernel.org"
+        id S234833AbhF1OgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234963AbhF1Oe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:34:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33DBF61C83;
-        Mon, 28 Jun 2021 14:30:13 +0000 (UTC)
+        id S235007AbhF1Oek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:34:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E43361C84;
+        Mon, 28 Jun 2021 14:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890614;
-        bh=w4g1Yro1aSeL1KLST5gE4jj4CVI7nznhLqmIM9an7uA=;
+        s=k20201202; t=1624890615;
+        bh=SbtBNEAPeD/UKetEODgR02icvIt73lWymM9zAAuBFjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkTDKmsnaQLodamyVo6A2NniBk74cKwY3ZQp0D/TtxeMRTsDQm2F9Il5AerxVEhsr
-         2ntZaZ+KnkFEtR/l5fhh6qneOKgnYfVvAOdKJHrhMvaTmPRxvl2yhUqIG89mxEVWaI
-         afUZXuZmkENE2lvsBt2/OvBasRd1vRDO1VujSUNaMkyWkAECM4VwL/urV5e8H3pPKh
-         k17VbrhvXGxF77QfEtqjm7BDnSuz1vKfl8bdutgv/RgubK39sT5kB7pjqRWw3xMb6A
-         iuVVkUJUbP09RGJDehQqL0vF4bYKkmjVdbfzum+/lLXtcg/vsXNsNZYm+vgmlL1i3o
-         m+uSx8vHRP0Sg==
+        b=ZyOoYxG8tOhX/eNrofBcAa9kjps6u0vUFozR/cVR+v4PKXmGftUJO1W5542RRF6py
+         hD/7+RAY/rF+BppL3wBNBXK1DHRgoZoueHx1a4IaSiD97wvUwUgwBZBB6lAwWAWY/i
+         GMJOZHcRDYjZt0osugWZB7dpfsj5FVWX8NKr74Y++ZaAXCYXzE/7ohVGLcNUdv4Cz1
+         Z8JMrLZ1LiNCfQOXAndF7nMaZX18aezETwc1B2NTM8G/3NsO6ncSx64lP8AbJYDiEK
+         n+eWVH/qu19s3P/mlP96lOMXOeyP/YR9b8FyowCpJP16qprcIyrXa1aScdtzSABKbA
+         Ku5o5m35KAusw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Quentin Perret <qperret@google.com>,
         Nathan Chancellor <natechancellor@gmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Alan Modra <amodra@gmail.com>,
+        =?UTF-8?q?F=C4=81ng-ru=C3=AC=20S=C3=B2ng?= <maskray@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 08/71] kbuild: add CONFIG_LD_IS_LLD
-Date:   Mon, 28 Jun 2021 10:29:01 -0400
-Message-Id: <20210628143004.32596-9-sashal@kernel.org>
+Subject: [PATCH 5.4 09/71] arm64: link with -z norelro for LLD or aarch64-elf
+Date:   Mon, 28 Jun 2021 10:29:02 -0400
+Message-Id: <20210628143004.32596-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.129-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.4.y
@@ -51,41 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit b744b43f79cc758127042e71f9ad7b1afda30f84 upstream.
+commit 311bea3cb9ee20ef150ca76fc60a592bf6b159f5 upstream.
 
-Similarly to the CC_IS_CLANG config, add LD_IS_LLD to avoid GNU ld
-specific logic such as ld-version or ld-ifversion and gain the
-ability to select potential features that depend on the linker at
-configuration time such as LTO.
+With GNU binutils 2.35+, linking with BFD produces warnings for vmlinux:
+aarch64-linux-gnu-ld: warning: -z norelro ignored
 
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Acked-by: Masahiro Yamada <masahiroy@kernel.org>
-[nc: Reword commit message]
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Reviewed-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+BFD can produce this warning when the target emulation mode does not
+support RELRO program headers, and -z relro or -z norelro is passed.
+
+Alan Modra clarifies:
+  The default linker emulation for an aarch64-linux ld.bfd is
+  -maarch64linux, the default for an aarch64-elf linker is
+  -maarch64elf.  They are not equivalent.  If you choose -maarch64elf
+  you get an emulation that doesn't support -z relro.
+
+The ARCH=arm64 kernel prefers -maarch64elf, but may fall back to
+-maarch64linux based on the toolchain configuration.
+
+LLD will always create RELRO program header regardless of target
+emulation.
+
+To avoid the above warning when linking with BFD, pass -z norelro only
+when linking with LLD or with -maarch64linux.
+
+Fixes: 3b92fa7485eb ("arm64: link with -z norelro regardless of CONFIG_RELOCATABLE")
+Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
+Cc: <stable@vger.kernel.org> # 5.0.x-
+Reported-by: kernelci.org bot <bot@kernelci.org>
+Reported-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Alan Modra <amodra@gmail.com>
+Cc: Fāng-ruì Sòng <maskray@google.com>
+Link: https://lore.kernel.org/r/20201218002432.788499-1-ndesaulniers@google.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- init/Kconfig | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/Makefile | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/init/Kconfig b/init/Kconfig
-index 4f9fd78e2200..f23e90d9935f 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -20,6 +20,9 @@ config GCC_VERSION
- config CC_IS_CLANG
- 	def_bool $(success,$(CC) --version | head -n 1 | grep -q clang)
+diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+index cd8f3cdabfd0..d227cf87c48f 100644
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -10,7 +10,7 @@
+ #
+ # Copyright (C) 1995-2001 by Russell King
  
-+config LD_IS_LLD
-+	def_bool $(success,$(LD) -v | head -n 1 | grep -q LLD)
+-LDFLAGS_vmlinux	:=--no-undefined -X -z norelro
++LDFLAGS_vmlinux	:=--no-undefined -X
+ CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)
+ GZFLAGS		:=-9
+ 
+@@ -82,17 +82,21 @@ CHECKFLAGS	+= -D__AARCH64EB__
+ AS		+= -EB
+ # Prefer the baremetal ELF build target, but not all toolchains include
+ # it so fall back to the standard linux version if needed.
+-KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb)
++KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb -z norelro)
+ UTS_MACHINE	:= aarch64_be
+ else
+ KBUILD_CPPFLAGS	+= -mlittle-endian
+ CHECKFLAGS	+= -D__AARCH64EL__
+ AS		+= -EL
+ # Same as above, prefer ELF but fall back to linux target if needed.
+-KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux)
++KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux -z norelro)
+ UTS_MACHINE	:= aarch64
+ endif
+ 
++ifeq ($(CONFIG_LD_IS_LLD), y)
++KBUILD_LDFLAGS	+= -z norelro
++endif
 +
- config CLANG_VERSION
- 	int
- 	default $(shell,$(srctree)/scripts/clang-version.sh $(CC))
+ CHECKFLAGS	+= -D__aarch64__
+ 
+ ifeq ($(CONFIG_ARM64_MODULE_PLTS),y)
 -- 
 2.30.2
 
