@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CEF23B5FFE
+	by mail.lfdr.de (Postfix) with ESMTP id B7FC13B5FFF
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232635AbhF1OVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54616 "EHLO mail.kernel.org"
+        id S233038AbhF1OVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232583AbhF1OVZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233025AbhF1OVZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:21:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09FF961C80;
-        Mon, 28 Jun 2021 14:18:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2D9561C78;
+        Mon, 28 Jun 2021 14:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889939;
-        bh=z8eva5ncGyArZ1Cou+EQgQVkiY6HiDJ2aUxVhQNwkss=;
+        s=k20201202; t=1624889940;
+        bh=ZKOlOQEc0Zv2X+bJq4CpdNmLnkZxsej9vDF0pPBnW4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGiwjWcm0s1JxKj8nKZsat4wJLPSI/tsRdqIMGFAX7CC/K+MffWrC/GRXYoK5KqtR
-         9UcJsjGQxu1kj5fqjuJdA+UV5eHZpnBfCaD/6FM35mgk6JaF1rnMzAC8+b0uAMq6JN
-         JBqSL97W7tt9r7QS3Oha31IfsUu2wIpzZlmUZrpgV63ygZXPKhq/vyHf3jzM2uheQA
-         0cHbI6cPNqnL6K5d0YcnESfFI5bgf9XVsKDWWF8AVacfyA4ykUv6V9mrqeZp6Np3U2
-         2PbJTo2QdaT9lvo7c//PEvbgHSsQRYUBpXS5QKHJDJw5sBmmxPu2kvcYgwQz1W8RBK
-         PQhdPmf57OJnQ==
+        b=DvgcRwj7Ydc02nnGm8bLBbo2r7h6Nb96/g0fV+zAAIyFqrcAqAAiGK6ymcgHNSsGl
+         1aFDmUppH8Lh8K1Hnng3e47sqeqXhhyID2ujW0letky6y6XEB3mi7rYWuFIOeglIsq
+         QoKra/SBXq6yKJFWcWNDvJlQj12d0srHkJ4v7rYdRbs+Bh8pF0l6kZDdbf+wRa/NBB
+         bfAn5CJ8nXhWjz+FLU7EjRhOoqWma8HgboCYn7rTJhU9PxtU9KE9H7EjfXb9quUNKb
+         VRPipS9kVMWo9qjPhb3nOBDN1ynGCAidP77/D5r6V3ePtFYLR404NrjFJhnFRjndlA
+         iJEvHioadmxDQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 034/110] net: ipv4: Remove unneed BUG() function
-Date:   Mon, 28 Jun 2021 10:17:12 -0400
-Message-Id: <20210628141828.31757-35-sashal@kernel.org>
+Subject: [PATCH 5.12 035/110] mac80211: drop multicast fragments
+Date:   Mon, 28 Jun 2021 10:17:13 -0400
+Message-Id: <20210628141828.31757-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -48,47 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 5ac6b198d7e312bd10ebe7d58c64690dc59cc49a ]
+[ Upstream commit a9799541ca34652d9996e45f80e8e03144c12949 ]
 
-When 'nla_parse_nested_deprecated' failed, it's no need to
-BUG() here, return -EINVAL is ok.
+These are not permitted by the spec, just drop them.
 
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210609161305.23def022b750.Ibd6dd3cdce573dae262fcdc47f8ac52b883a9c50@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/devinet.c  | 2 +-
- net/ipv6/addrconf.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/rx.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
-index 2e35f68da40a..1c6429c353a9 100644
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -1989,7 +1989,7 @@ static int inet_set_link_af(struct net_device *dev, const struct nlattr *nla,
- 		return -EAFNOSUPPORT;
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index 59de7a86599d..cb5cbf02dbac 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2239,17 +2239,15 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ 	sc = le16_to_cpu(hdr->seq_ctrl);
+ 	frag = sc & IEEE80211_SCTL_FRAG;
  
- 	if (nla_parse_nested_deprecated(tb, IFLA_INET_MAX, nla, NULL, NULL) < 0)
--		BUG();
-+		return -EINVAL;
+-	if (is_multicast_ether_addr(hdr->addr1)) {
+-		I802_DEBUG_INC(rx->local->dot11MulticastReceivedFrameCount);
+-		goto out_no_led;
+-	}
+-
+ 	if (rx->sta)
+ 		cache = &rx->sta->frags;
  
- 	if (tb[IFLA_INET_CONF]) {
- 		nla_for_each_nested(a, tb[IFLA_INET_CONF], rem)
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index a9e53f5942fa..eab0a46983c0 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -5822,7 +5822,7 @@ static int inet6_set_link_af(struct net_device *dev, const struct nlattr *nla,
- 		return -EAFNOSUPPORT;
+ 	if (likely(!ieee80211_has_morefrags(fc) && frag == 0))
+ 		goto out;
  
- 	if (nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla, NULL, NULL) < 0)
--		BUG();
-+		return -EINVAL;
++	if (is_multicast_ether_addr(hdr->addr1))
++		return RX_DROP_MONITOR;
++
+ 	I802_DEBUG_INC(rx->local->rx_handlers_fragments);
  
- 	if (tb[IFLA_INET6_TOKEN]) {
- 		err = inet6_set_iftoken(idev, nla_data(tb[IFLA_INET6_TOKEN]),
+ 	if (skb_linearize(rx->skb))
+@@ -2375,7 +2373,6 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ 
+  out:
+ 	ieee80211_led_rx(rx->local);
+- out_no_led:
+ 	if (rx->sta)
+ 		rx->sta->rx_stats.packets++;
+ 	return RX_CONTINUE;
 -- 
 2.30.2
 
