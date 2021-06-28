@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C493E3B6045
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D19D3B6046
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233240AbhF1OXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:23:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54978 "EHLO mail.kernel.org"
+        id S233233AbhF1OXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:23:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233243AbhF1OWS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:22:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BADB61C8D;
-        Mon, 28 Jun 2021 14:19:37 +0000 (UTC)
+        id S233260AbhF1OWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:22:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5385461C94;
+        Mon, 28 Jun 2021 14:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624889978;
-        bh=kRkkdBSK9MbzVLfnBU/bdoew6ycpzlGvh1n13YWZ0+w=;
+        bh=/EThqN8arWKsyFJyJoMBFWsdgXB65VMGvatB1G5SA38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8izc3dg8L92K1muzrAKF9gLEbRRQqacfITupqkals8REXZF7Ml1e8GG+Wj1Lj0o2
-         kxxcnfApOwRe5NH6gH1FUJjrrovSBN0Sccs1TAcg1JYfrGdhQ6XO6JJnVcO8pwfHIC
-         Dp8Bv5Nds+YWvD++y0JoxSznO2U4SB18lzJHHXUEkVU0NtYlEAoX7oxV00NxtNAw7O
-         3CB/RCgU2CpoJ7g/oabb60mVh1+Mv5lHmPaNVxn2AtUP/qNCCeUofzuZrUMskNqCkE
-         4GdsAntSGqouu2Ozh8zMhY3GUAkhniK26/1YrK0Ww4sJ3GstpMrLlaeA/jNi8rSOR8
-         yzkb/ULzLsASQ==
+        b=h6KVwnGiYd9Cn1p8kEIXCyoWZvkUYobyxlTO13bKlKlV38ktaVqEDTia32SK6lCnW
+         6ElcJrcp6VSxPrK2/ck54WrYTHXbDyZ1xbFgZKGvYkatDBisK2ciGIKY9uYaAaC/B9
+         fuh/p/3sQiVWEGXpTcS8uq65ZlUgzzKpllg4tDprYee/7STaOHnzQVWtqegi6kcSq5
+         qs5BIqCiNU8QLEu5sqG+ffGbQQvjzcSnX5Cch3rCI/d8q3phWBjI599J9H1pkhJrxF
+         olrEP+yRBo1WFJaXSYx7EO8tTOT+oTHcRd84+Kq0OhtjdZwetBsTkO94hBKifMIjXP
+         BXuDKUlMRIqpw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 079/110] x86/fpu: Preserve supervisor states in sanitize_restored_user_xstate()
-Date:   Mon, 28 Jun 2021 10:17:57 -0400
-Message-Id: <20210628141828.31757-80-sashal@kernel.org>
+Subject: [PATCH 5.12 080/110] x86/fpu: Make init_fpstate correct with optimized XSAVE
+Date:   Mon, 28 Jun 2021 10:17:58 -0400
+Message-Id: <20210628141828.31757-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -49,67 +49,169 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 9301982c424a003c0095bf157154a85bf5322bd0 upstream.
+commit f9dfb5e390fab2df9f7944bb91e7705aba14cd26 upstream.
 
-sanitize_restored_user_xstate() preserves the supervisor states only
-when the fx_only argument is zero, which allows unprivileged user space
-to put supervisor states back into init state.
+The XSAVE init code initializes all enabled and supported components with
+XRSTOR(S) to init state. Then it XSAVEs the state of the components back
+into init_fpstate which is used in several places to fill in the init state
+of components.
 
-Preserve them unconditionally.
+This works correctly with XSAVE, but not with XSAVEOPT and XSAVES because
+those use the init optimization and skip writing state of components which
+are in init state. So init_fpstate.xsave still contains all zeroes after
+this operation.
 
- [ bp: Fix a typo or two in the text. ]
+There are two ways to solve that:
 
-Fixes: 5d6b6a6f9b5c ("x86/fpu/xstate: Update sanitize_restored_xstate() for supervisor xstates")
+   1) Use XSAVE unconditionally, but that requires to reshuffle the buffer when
+      XSAVES is enabled because XSAVES uses compacted format.
+
+   2) Save the components which are known to have a non-zero init state by other
+      means.
+
+Looking deeper, #2 is the right thing to do because all components the
+kernel supports have all-zeroes init state except the legacy features (FP,
+SSE). Those cannot be hard coded because the states are not identical on all
+CPUs, but they can be saved with FXSAVE which avoids all conditionals.
+
+Use FXSAVE to save the legacy FP/SSE components in init_fpstate along with
+a BUILD_BUG_ON() which reminds developers to validate that a newly added
+component has all zeroes init state. As a bonus remove the now unused
+copy_xregs_to_kernel_booting() crutch.
+
+The XSAVE and reshuffle method can still be implemented in the unlikely
+case that components are added which have a non-zero init state and no
+other means to save them. For now, FXSAVE is just simple and good enough.
+
+  [ bp: Fix a typo or two in the text. ]
+
+Fixes: 6bad06b76892 ("x86, xsave: Use xsaveopt in context-switch path when supported")
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210618143444.438635017@linutronix.de
+Link: https://lkml.kernel.org/r/20210618143444.587311343@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/signal.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+ arch/x86/include/asm/fpu/internal.h | 30 ++++++---------------
+ arch/x86/kernel/fpu/xstate.c        | 41 ++++++++++++++++++++++++++---
+ 2 files changed, 46 insertions(+), 25 deletions(-)
 
-diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
-index ec3ae3054792..b7b92cdf3add 100644
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -221,28 +221,18 @@ sanitize_restored_user_xstate(union fpregs_state *state,
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index fdee23ea4e17..16bf4d4a8159 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -204,6 +204,14 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
+ 		asm volatile("fxsaveq %[fx]" : [fx] "=m" (fpu->state.fxsave));
+ }
  
- 	if (use_xsave()) {
- 		/*
--		 * Note: we don't need to zero the reserved bits in the
--		 * xstate_header here because we either didn't copy them at all,
--		 * or we checked earlier that they aren't set.
-+		 * Clear all feature bits which are not set in
-+		 * user_xfeatures and clear all extended features
-+		 * for fx_only mode.
- 		 */
-+		u64 mask = fx_only ? XFEATURE_MASK_FPSSE : user_xfeatures;
++static inline void fxsave(struct fxregs_state *fx)
++{
++	if (IS_ENABLED(CONFIG_X86_32))
++		asm volatile( "fxsave %[fx]" : [fx] "=m" (*fx));
++	else
++		asm volatile("fxsaveq %[fx]" : [fx] "=m" (*fx));
++}
++
+ /* These macros all use (%edi)/(%rdi) as the single memory argument. */
+ #define XSAVE		".byte " REX_PREFIX "0x0f,0xae,0x27"
+ #define XSAVEOPT	".byte " REX_PREFIX "0x0f,0xae,0x37"
+@@ -268,28 +276,6 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
+ 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
+ 		     : "memory")
  
- 		/*
--		 * 'user_xfeatures' might have bits clear which are
--		 * set in header->xfeatures. This represents features that
--		 * were in init state prior to a signal delivery, and need
--		 * to be reset back to the init state.  Clear any user
--		 * feature bits which are set in the kernel buffer to get
--		 * them back to the init state.
--		 *
--		 * Supervisor state is unchanged by input from userspace.
--		 * Ensure supervisor state bits stay set and supervisor
--		 * state is not modified.
-+		 * Supervisor state has to be preserved. The sigframe
-+		 * restore can only modify user features, i.e. @mask
-+		 * cannot contain them.
- 		 */
--		if (fx_only)
--			header->xfeatures = XFEATURE_MASK_FPSSE;
--		else
--			header->xfeatures &= user_xfeatures |
--					     xfeatures_mask_supervisor();
-+		header->xfeatures &= mask | xfeatures_mask_supervisor();
+-/*
+- * This function is called only during boot time when x86 caps are not set
+- * up and alternative can not be used yet.
+- */
+-static inline void copy_xregs_to_kernel_booting(struct xregs_state *xstate)
+-{
+-	u64 mask = xfeatures_mask_all;
+-	u32 lmask = mask;
+-	u32 hmask = mask >> 32;
+-	int err;
+-
+-	WARN_ON(system_state != SYSTEM_BOOTING);
+-
+-	if (boot_cpu_has(X86_FEATURE_XSAVES))
+-		XSTATE_OP(XSAVES, xstate, lmask, hmask, err);
+-	else
+-		XSTATE_OP(XSAVE, xstate, lmask, hmask, err);
+-
+-	/* We should never fault when copying to a kernel buffer: */
+-	WARN_ON_FPU(err);
+-}
+-
+ /*
+  * This function is called only during boot time when x86 caps are not set
+  * up and alternative can not be used yet.
+diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
+index 2ad57cc14b83..451435d7ff41 100644
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -440,6 +440,25 @@ static void __init print_xstate_offset_size(void)
  	}
+ }
  
- 	if (use_fxsr()) {
++/*
++ * All supported features have either init state all zeros or are
++ * handled in setup_init_fpu() individually. This is an explicit
++ * feature list and does not use XFEATURE_MASK*SUPPORTED to catch
++ * newly added supported features at build time and make people
++ * actually look at the init state for the new feature.
++ */
++#define XFEATURES_INIT_FPSTATE_HANDLED		\
++	(XFEATURE_MASK_FP |			\
++	 XFEATURE_MASK_SSE |			\
++	 XFEATURE_MASK_YMM |			\
++	 XFEATURE_MASK_OPMASK |			\
++	 XFEATURE_MASK_ZMM_Hi256 |		\
++	 XFEATURE_MASK_Hi16_ZMM	 |		\
++	 XFEATURE_MASK_PKRU |			\
++	 XFEATURE_MASK_BNDREGS |		\
++	 XFEATURE_MASK_BNDCSR |			\
++	 XFEATURE_MASK_PASID)
++
+ /*
+  * setup the xstate image representing the init state
+  */
+@@ -447,6 +466,10 @@ static void __init setup_init_fpu_buf(void)
+ {
+ 	static int on_boot_cpu __initdata = 1;
+ 
++	BUILD_BUG_ON((XFEATURE_MASK_USER_SUPPORTED |
++		      XFEATURE_MASK_SUPERVISOR_SUPPORTED) !=
++		     XFEATURES_INIT_FPSTATE_HANDLED);
++
+ 	WARN_ON_FPU(!on_boot_cpu);
+ 	on_boot_cpu = 0;
+ 
+@@ -466,10 +489,22 @@ static void __init setup_init_fpu_buf(void)
+ 	copy_kernel_to_xregs_booting(&init_fpstate.xsave);
+ 
+ 	/*
+-	 * Dump the init state again. This is to identify the init state
+-	 * of any feature which is not represented by all zero's.
++	 * All components are now in init state. Read the state back so
++	 * that init_fpstate contains all non-zero init state. This only
++	 * works with XSAVE, but not with XSAVEOPT and XSAVES because
++	 * those use the init optimization which skips writing data for
++	 * components in init state.
++	 *
++	 * XSAVE could be used, but that would require to reshuffle the
++	 * data when XSAVES is available because XSAVES uses xstate
++	 * compaction. But doing so is a pointless exercise because most
++	 * components have an all zeros init state except for the legacy
++	 * ones (FP and SSE). Those can be saved with FXSAVE into the
++	 * legacy area. Adding new features requires to ensure that init
++	 * state is all zeroes or if not to add the necessary handling
++	 * here.
+ 	 */
+-	copy_xregs_to_kernel_booting(&init_fpstate.xsave);
++	fxsave(&init_fpstate.fxsave);
+ }
+ 
+ static int xfeature_uncompacted_offset(int xfeature_nr)
 -- 
 2.30.2
 
