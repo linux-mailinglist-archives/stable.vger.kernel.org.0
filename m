@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A41653B61C8
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:37:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE223B61C9
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234873AbhF1Oir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234880AbhF1Oir (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Jun 2021 10:38:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43894 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233906AbhF1Ogr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233979AbhF1Ogr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:36:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2211A61CAB;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E11D061CAD;
         Mon, 28 Jun 2021 14:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890639;
-        bh=4JTGJ+dweL0v00504jp7U4TEdw8dKTxu+ffHav2ILNc=;
+        s=k20201202; t=1624890640;
+        bh=8GILtwPw9SY5KSXWs9PP9JaBn0w5UiKs54Z1ljDwbVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+gPyQRLH6ryh/StTx6M5+68MG+PHRhMb+iwaJzEybnfiy+ZlDM3oCGAudA6x0C9L
-         YjFACc3Yw8Pc1ZJ/KjFolCy2TbTvk7s5WUHAXccFWLAew/NDd1Pi28f2DghrC3NzGt
-         GnGHq9GBh/+AEMM5SzGqAqEhuOKtZt0I9Mza14j9Hei52M0UFowdBD1+v85QpyCKqb
-         OHPOzrD/JkU8bUkNPtmyXH1y+Aakn3zNUHqVmB3WaLMjMaFUWnVAIq0+DR9JB1US4t
-         f7R7vIKIN/9jsqgKXs7Ey+0lqOE0GXwtlgz319YVpafUpoZJEThPvtUG0y0dy8jmmH
-         AsuuRoAXMb8CA==
+        b=kkuJkRWl+09e7+7FG4Hc+KIgNckdSTZs5vWN3U+CMwxb5pWfNVO+aPUemaw9DTMvd
+         QGQzOBeaIk523XGjpjH63oQMfdY9HRpyy+wv9fMsCavmVFVhO65erZQMNAMryQfoT9
+         hKN1xjfL9kWsdflhyqsVUXjuPs8xt+qjDlzDh1vDULL+BWniHk8/bFY/Uiq11Tr8Sg
+         ILDD4+Z79EyawyRbVHoLX0Vlsa6+rjEDnE/ym6TnuaT7yqlZxvaPEq//jP0FpXQMIj
+         DspteMEbsZVy/80tGzcYO6LkVTRMQNYeW/OrwWjRRLArk4ogiSVEpcXXdVCFV9LJuC
+         sXlvAr/0UggkA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabien Dessenne <fabien.dessenne@foss.st.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        "Michael L . Semon" <mlsemon35@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 39/71] pinctrl: stm32: fix the reported number of GPIO lines per bank
-Date:   Mon, 28 Jun 2021 10:29:32 -0400
-Message-Id: <20210628143004.32596-40-sashal@kernel.org>
+Subject: [PATCH 5.4 40/71] nilfs2: fix memory leak in nilfs_sysfs_delete_device_group
+Date:   Mon, 28 Jun 2021 10:29:33 -0400
+Message-Id: <20210628143004.32596-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -48,54 +51,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Dessenne <fabien.dessenne@foss.st.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 67e2996f72c71ebe4ac2fcbcf77e54479bb7aa11 ]
+[ Upstream commit 8fd0c1b0647a6bda4067ee0cd61e8395954b6f28 ]
 
-Each GPIO bank supports a variable number of lines which is usually 16, but
-is less in some cases : this is specified by the last argument of the
-"gpio-ranges" bank node property.
-Report to the framework, the actual number of lines, so the libgpiod
-gpioinfo command lists the actually existing GPIO lines.
+My local syzbot instance hit memory leak in nilfs2.  The problem was in
+missing kobject_put() in nilfs_sysfs_delete_device_group().
 
-Fixes: 1dc9d289154b ("pinctrl: stm32: add possibility to use gpio-ranges to declare bank range")
-Signed-off-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
-Link: https://lore.kernel.org/r/20210617144629.2557693-1-fabien.dessenne@foss.st.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+kobject_del() does not call kobject_cleanup() for passed kobject and it
+leads to leaking duped kobject name if kobject_put() was not called.
+
+Fail log:
+
+  BUG: memory leak
+  unreferenced object 0xffff8880596171e0 (size 8):
+  comm "syz-executor379", pid 8381, jiffies 4294980258 (age 21.100s)
+  hex dump (first 8 bytes):
+    6c 6f 6f 70 30 00 00 00                          loop0...
+  backtrace:
+     kstrdup+0x36/0x70 mm/util.c:60
+     kstrdup_const+0x53/0x80 mm/util.c:83
+     kvasprintf_const+0x108/0x190 lib/kasprintf.c:48
+     kobject_set_name_vargs+0x56/0x150 lib/kobject.c:289
+     kobject_add_varg lib/kobject.c:384 [inline]
+     kobject_init_and_add+0xc9/0x160 lib/kobject.c:473
+     nilfs_sysfs_create_device_group+0x150/0x800 fs/nilfs2/sysfs.c:999
+     init_nilfs+0xe26/0x12b0 fs/nilfs2/the_nilfs.c:637
+
+Link: https://lkml.kernel.org/r/20210612140559.20022-1-paskripkin@gmail.com
+Fixes: da7141fb78db ("nilfs2: add /sys/fs/nilfs2/<device> group")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: Michael L. Semon <mlsemon35@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/stm32/pinctrl-stm32.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/nilfs2/sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
-index 2d5e0435af0a..bac1d040baca 100644
---- a/drivers/pinctrl/stm32/pinctrl-stm32.c
-+++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
-@@ -1153,7 +1153,7 @@ static int stm32_gpiolib_register_bank(struct stm32_pinctrl *pctl,
- 	struct resource res;
- 	struct reset_control *rstc;
- 	int npins = STM32_GPIO_PINS_PER_BANK;
--	int bank_nr, err;
-+	int bank_nr, err, i = 0;
+diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
+index e60be7bb55b0..c6c8a33c81d5 100644
+--- a/fs/nilfs2/sysfs.c
++++ b/fs/nilfs2/sysfs.c
+@@ -1054,6 +1054,7 @@ void nilfs_sysfs_delete_device_group(struct the_nilfs *nilfs)
+ 	nilfs_sysfs_delete_superblock_group(nilfs);
+ 	nilfs_sysfs_delete_segctor_group(nilfs);
+ 	kobject_del(&nilfs->ns_dev_kobj);
++	kobject_put(&nilfs->ns_dev_kobj);
+ 	kfree(nilfs->ns_dev_subgroups);
+ }
  
- 	rstc = of_reset_control_get_exclusive(np, NULL);
- 	if (!IS_ERR(rstc))
-@@ -1182,9 +1182,14 @@ static int stm32_gpiolib_register_bank(struct stm32_pinctrl *pctl,
- 
- 	of_property_read_string(np, "st,bank-name", &bank->gpio_chip.label);
- 
--	if (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3, 0, &args)) {
-+	if (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3, i, &args)) {
- 		bank_nr = args.args[1] / STM32_GPIO_PINS_PER_BANK;
- 		bank->gpio_chip.base = args.args[1];
-+
-+		npins = args.args[2];
-+		while (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3,
-+							 ++i, &args))
-+			npins += args.args[2];
- 	} else {
- 		bank_nr = pctl->nbanks;
- 		bank->gpio_chip.base = bank_nr * STM32_GPIO_PINS_PER_BANK;
 -- 
 2.30.2
 
