@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D70143B6206
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B72D3B6207
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:39:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233538AbhF1OlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234356AbhF1OlF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Jun 2021 10:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43904 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234872AbhF1Oiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234865AbhF1Oiq (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:38:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61E7F61CBC;
-        Mon, 28 Jun 2021 14:31:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 141B161CBE;
+        Mon, 28 Jun 2021 14:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890669;
-        bh=KtcymRdT+1CBlwyLc61Jqq26B+Th16uSrYJNu5eTvKE=;
+        s=k20201202; t=1624890671;
+        bh=lQ8XKibXsDiM77WPn7uPTd5+n1bpmoRJiUURmFh17/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/dY3bzaTtd/WSzkMTmNeKpF+tenpWd9hXzfC+eBQkOMAaQZ00MW5wnN6ugjdhQqU
-         c5NhI6Oq+ug5MC5WjK4yQ6In3KkGYuCe6zooI+iIGpD/UOPKq+0iyDgS3yqHhz4aw5
-         jlnXEM6Um8XOQa9nAKHvPTbWKbyq40JhJXDzjjh7MQ8vcPviRURgmAUP3E7MA/Fc/l
-         eUDRY5urTxI/6n7AMj+NkUwkaoMRYc2Tv9P5bT/mIHziwQ/l60xIM99ijsYw+WmowW
-         qt3oJWw8C1e+rOqvJvc9XLlRx27QQMSLU0zV3m8MdbjsvXXhbFwKhUAJhPWaj0ZIBa
-         PMwksRGdIbJGA==
+        b=sccxMt5sewpOtWgFg5btxP5nL1FUpC2rwswRGd/K4hpRjr7TNxwgi7hu+zYkJFCik
+         y1maCuCeVZTOewObSdVOzuY2HNsY65wkKnqipMdADtxkK9siKDSijgQuAYcl2dVgwY
+         inDAMmWaE6W2kkqRE/qJOj5xs7zlG+zWV+kVbGJ0RO9E3haZFfd4zYDWuFZ+jadXjZ
+         7rnacWadElX0B/Q/1TNyh7a+/Rvb29mRdoZ2rCRtQ3E0liT84k3aCAQcFwuVfFytqy
+         FVNJi8YpZLEkxgK6v2XFZnqmNhgqBq01mpwTOvDYkBPhXq7dQ0bxzcDeV2pSHc5ksz
+         S8vXUSS45qpMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hugh Dickins <hughd@google.com>,
@@ -37,9 +37,9 @@ Cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 58/71] mm: page_vma_mapped_walk(): use pmde for *pvmw->pmd
-Date:   Mon, 28 Jun 2021 10:29:51 -0400
-Message-Id: <20210628143004.32596-59-sashal@kernel.org>
+Subject: [PATCH 5.4 59/71] mm: page_vma_mapped_walk(): prettify PVMW_MIGRATION block
+Date:   Mon, 28 Jun 2021 10:29:52 -0400
+Message-Id: <20210628143004.32596-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -59,10 +59,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hugh Dickins <hughd@google.com>
 
-page_vma_mapped_walk() cleanup: re-evaluate pmde after taking lock, then
-use it in subsequent tests, instead of repeatedly dereferencing pointer.
+page_vma_mapped_walk() cleanup: rearrange the !pmd_present() block to
+follow the same "return not_found, return not_found, return true"
+pattern as the block above it (note: returning not_found there is never
+premature, since existence or prior existence of huge pmd guarantees
+good alignment).
 
-Link: https://lkml.kernel.org/r/53fbc9d-891e-46b2-cb4b-468c3b19238e@google.com
+Link: https://lkml.kernel.org/r/378c8650-1488-2edf-9647-32a53cf2e21@google.com
 Signed-off-by: Hugh Dickins <hughd@google.com>
 Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Reviewed-by: Peter Xu <peterx@redhat.com>
@@ -78,38 +81,52 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_vma_mapped.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ mm/page_vma_mapped.c | 30 ++++++++++++++----------------
+ 1 file changed, 14 insertions(+), 16 deletions(-)
 
 diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
-index ebf021d4e68b..76503169c1e2 100644
+index 76503169c1e2..f9833b1e586a 100644
 --- a/mm/page_vma_mapped.c
 +++ b/mm/page_vma_mapped.c
-@@ -186,18 +186,19 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 	pmde = READ_ONCE(*pvmw->pmd);
- 	if (pmd_trans_huge(pmde) || is_pmd_migration_entry(pmde)) {
- 		pvmw->ptl = pmd_lock(mm, pvmw->pmd);
--		if (likely(pmd_trans_huge(*pvmw->pmd))) {
-+		pmde = *pvmw->pmd;
-+		if (likely(pmd_trans_huge(pmde))) {
- 			if (pvmw->flags & PVMW_MIGRATION)
- 				return not_found(pvmw);
--			if (pmd_page(*pvmw->pmd) != page)
-+			if (pmd_page(pmde) != page)
+@@ -193,24 +193,22 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
+ 			if (pmd_page(pmde) != page)
  				return not_found(pvmw);
  			return true;
--		} else if (!pmd_present(*pvmw->pmd)) {
-+		} else if (!pmd_present(pmde)) {
- 			if (thp_migration_supported()) {
- 				if (!(pvmw->flags & PVMW_MIGRATION))
- 					return not_found(pvmw);
--				if (is_migration_entry(pmd_to_swp_entry(*pvmw->pmd))) {
--					swp_entry_t entry = pmd_to_swp_entry(*pvmw->pmd);
-+				if (is_migration_entry(pmd_to_swp_entry(pmde))) {
-+					swp_entry_t entry = pmd_to_swp_entry(pmde);
+-		} else if (!pmd_present(pmde)) {
+-			if (thp_migration_supported()) {
+-				if (!(pvmw->flags & PVMW_MIGRATION))
+-					return not_found(pvmw);
+-				if (is_migration_entry(pmd_to_swp_entry(pmde))) {
+-					swp_entry_t entry = pmd_to_swp_entry(pmde);
++		}
++		if (!pmd_present(pmde)) {
++			swp_entry_t entry;
  
- 					if (migration_entry_to_page(entry) != page)
- 						return not_found(pvmw);
+-					if (migration_entry_to_page(entry) != page)
+-						return not_found(pvmw);
+-					return true;
+-				}
+-			}
+-			return not_found(pvmw);
+-		} else {
+-			/* THP pmd was split under us: handle on pte level */
+-			spin_unlock(pvmw->ptl);
+-			pvmw->ptl = NULL;
++			if (!thp_migration_supported() ||
++			    !(pvmw->flags & PVMW_MIGRATION))
++				return not_found(pvmw);
++			entry = pmd_to_swp_entry(pmde);
++			if (!is_migration_entry(entry) ||
++			    migration_entry_to_page(entry) != page)
++				return not_found(pvmw);
++			return true;
+ 		}
++		/* THP pmd was split under us: handle on pte level */
++		spin_unlock(pvmw->ptl);
++		pvmw->ptl = NULL;
+ 	} else if (!pmd_present(pmde)) {
+ 		/*
+ 		 * If PVMW_SYNC, take and drop THP pmd lock so that we
 -- 
 2.30.2
 
