@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E8A03B601C
+	by mail.lfdr.de (Postfix) with ESMTP id C96A13B601D
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233354AbhF1OWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54500 "EHLO mail.kernel.org"
+        id S233365AbhF1OWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:22:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233221AbhF1OVj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:21:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A380361C7F;
-        Mon, 28 Jun 2021 14:19:13 +0000 (UTC)
+        id S233222AbhF1OVk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:21:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BE6A61C8E;
+        Mon, 28 Jun 2021 14:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624889954;
-        bh=j7cyp7H6Pq15LCDwLtRaQL0/mItbUSCDUqwruUQOUhA=;
+        bh=yGIMFfXBv351FkDVH59jFGEwcYsPTos591RKcHoH8NU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPzHivwGDQ6zxUipYtPs3Q6h1jz/bgIez6NV90+rTu7M/ZEauvy5tyvin18LosMqe
-         eYg9LvpOw/LmKYMTKfw0DYVFwN38r7N/gRQQP5iw6Qd2YcnwCPX1hEtX5gizWBCHdg
-         Ztjw+UAgnq6CHlLfvRxxS+KvayMJVZ5kF7c2NuX+8b8SeAnrYPiJTNV3kPd44WCZ38
-         QhgQmbxvlO68ytv/JmrDwjS158rgSYkzSJLtJn5LkKwd/xxbuQNdGqI/G/jiZnwVgk
-         6cXENA5ZxK6x0gLKzk0EjmwcGPXJ+iPa4C1VTouCczsAGGmY/LUPccjO9K6nzhEopb
-         JKg2/RRKvjc1A==
+        b=bQ1fDWwFvX90VHnEAYcXVahPiRwZ9oChmKoalPmSzgOlCzjYMtJ8dXx6tvArAa68N
+         mKAzeDJ8X52lCcoXFX8T1Ygw46My+BZjukllMwx+Up/t8WUuqRzOW0zMUkBkBPAcWK
+         q19U0Vboaf8edlCVUW2dwG7h1mNAzQdx4F4DXE62VSL+gkHFzYgh3o68E6JTiL5cn9
+         Vyxd0J7gfbcZyRN5BiNeKgx3XetUyr3x9KrhO1G4V1Qs/00nKPGUcUtH07uBvVjlMj
+         +SWIpom8lyM/TqAK5BcyptPGGpdWpdmE1pyYywErfOmZuAQ/7+e0YfyX2RzecSomGf
+         28HJ9rNfTdqXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fuad Tabba <tabba@google.com>, Paolo Bonzini <pbonzini@redhat.com>,
+Cc:     Kees Cook <keescook@chromium.org>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 052/110] KVM: selftests: Fix kvm_check_cap() assertion
-Date:   Mon, 28 Jun 2021 10:17:30 -0400
-Message-Id: <20210628141828.31757-53-sashal@kernel.org>
+Subject: [PATCH 5.12 053/110] net: qed: Fix memcpy() overflow of qed_dcbx_params()
+Date:   Mon, 28 Jun 2021 10:17:31 -0400
+Message-Id: <20210628141828.31757-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -47,34 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fuad Tabba <tabba@google.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit d8ac05ea13d789d5491a5920d70a05659015441d ]
+[ Upstream commit 1c200f832e14420fa770193f9871f4ce2df00d07 ]
 
-KVM_CHECK_EXTENSION ioctl can return any negative value on error,
-and not necessarily -1. Change the assertion to reflect that.
+The source (&dcbx_info->operational.params) and dest
+(&p_hwfn->p_dcbx_info->set.config.params) are both struct qed_dcbx_params
+(560 bytes), not struct qed_dcbx_admin_params (564 bytes), which is used
+as the memcpy() size.
 
-Signed-off-by: Fuad Tabba <tabba@google.com>
-Message-Id: <20210615150443.1183365-1-tabba@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+However it seems that struct qed_dcbx_operational_params
+(dcbx_info->operational)'s layout matches struct qed_dcbx_admin_params
+(p_hwfn->p_dcbx_info->set.config)'s 4 byte difference (3 padding, 1 byte
+for "valid").
+
+On the assumption that the size is wrong (rather than the source structure
+type), adjust the memcpy() size argument to be 4 bytes smaller and add
+a BUILD_BUG_ON() to validate any changes to the structure sizes.
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/lib/kvm_util.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed_dcbx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
-index 2f0e4365f61b..8b90256bca96 100644
---- a/tools/testing/selftests/kvm/lib/kvm_util.c
-+++ b/tools/testing/selftests/kvm/lib/kvm_util.c
-@@ -58,7 +58,7 @@ int kvm_check_cap(long cap)
- 		exit(KSFT_SKIP);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dcbx.c b/drivers/net/ethernet/qlogic/qed/qed_dcbx.c
+index 17d5b649eb36..e81dd34a3cac 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dcbx.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dcbx.c
+@@ -1266,9 +1266,11 @@ int qed_dcbx_get_config_params(struct qed_hwfn *p_hwfn,
+ 		p_hwfn->p_dcbx_info->set.ver_num |= DCBX_CONFIG_VERSION_STATIC;
  
- 	ret = ioctl(kvm_fd, KVM_CHECK_EXTENSION, cap);
--	TEST_ASSERT(ret != -1, "KVM_CHECK_EXTENSION IOCTL failed,\n"
-+	TEST_ASSERT(ret >= 0, "KVM_CHECK_EXTENSION IOCTL failed,\n"
- 		"  rc: %i errno: %i", ret, errno);
+ 	p_hwfn->p_dcbx_info->set.enabled = dcbx_info->operational.enabled;
++	BUILD_BUG_ON(sizeof(dcbx_info->operational.params) !=
++		     sizeof(p_hwfn->p_dcbx_info->set.config.params));
+ 	memcpy(&p_hwfn->p_dcbx_info->set.config.params,
+ 	       &dcbx_info->operational.params,
+-	       sizeof(struct qed_dcbx_admin_params));
++	       sizeof(p_hwfn->p_dcbx_info->set.config.params));
+ 	p_hwfn->p_dcbx_info->set.config.valid = true;
  
- 	close(kvm_fd);
+ 	memcpy(params, &p_hwfn->p_dcbx_info->set, sizeof(struct qed_dcbx_set));
 -- 
 2.30.2
 
