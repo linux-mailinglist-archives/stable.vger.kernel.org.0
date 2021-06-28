@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 382C93B616E
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3E933B616D
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234105AbhF1Of7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235412AbhF1Of7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Jun 2021 10:35:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36914 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234510AbhF1Oct (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234636AbhF1Oct (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:32:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EF3D61C86;
-        Mon, 28 Jun 2021 14:27:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCFF261C89;
+        Mon, 28 Jun 2021 14:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890468;
-        bh=XRC9HX24Sq8a6Dyo2UVJU6YBkEjNTR9BpAFlZxa7Baw=;
+        s=k20201202; t=1624890469;
+        bh=4dSHOaEQAwIC7L/z6GDnBLBuNItxIOeL6nJQC2uEptM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jVhUNnVByZbqf/KVZhhmMv4060sct9s5RrabqxMGzfl+d+HuEz0sz8JhnIbZcZYW1
-         zdu6s+Jbu3efyKnzQj32Zq/PB+Ud5EgktIwRQa//vPvgTCmAQTuAz5n0FDpXdnvoPY
-         RAI6LndbUtN3ThVjM8rAR29z6yF5HpGKiPfe7lelpnoYTtly9M0zW4FdTeWjmWwMOb
-         HRoEoHPspFZ1V1K0WE9thLbzJyqRodJtdjy4hwae4MfiCkLc0OQphhT/2QwXisWWTP
-         UAJpIF+VU8ku1+8IgjMqIlXtf3YY2fSn45UPe4xS1hNWVfoJDMj/HWAR8T9N+8nDB4
-         Kw5UsX06aWlvw==
+        b=VuvH/kBiSEiIE4/IOqYd95uv0Uq2grF+XynbjJpv1MKlc2DTUap4xN1yc1s7jwgA/
+         6vZQHK6xlop7wycUb3PGlbYZME5mFL4xv0C9EX6PRhyi6xWxnmh6YFyINbYcZ2fsG9
+         2fZSws1vH5f8WiQHw9p866AqyKa9ivFDS2wPKmN4ioKWgin4FuKS3DLmALKdjk1dl9
+         8pPB4J2/p4ET07VPGGvN4AuJd4O54EaL7K4IFwwKun7BU7Dcb8GQBsxEsHCoiv+ul2
+         cj3NRklOl9YSTViE4yNLjuA2UTfOgVioPZCuJ0H4mZs5g8IWTuvOGciFBC6dZtl+Lu
+         ndxTZve94CYXg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bumyong Lee <bumyong.lee@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dominique MARTINET <dominique.martinet@atmark-techno.com>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+Cc:     Jeff Layton <jlayton@kernel.org>, Andrew W Elble <aweits@rit.edu>,
+        David Howells <dhowells@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        ceph-devel@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 094/101] swiotlb: manipulate orig_addr when tlb_addr has offset
-Date:   Mon, 28 Jun 2021 10:26:00 -0400
-Message-Id: <20210628142607.32218-95-sashal@kernel.org>
+Subject: [PATCH 5.10 095/101] netfs: fix test for whether we can skip read when writing beyond EOF
+Date:   Mon, 28 Jun 2021 10:26:01 -0400
+Message-Id: <20210628142607.32218-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.47-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.10.y
@@ -53,124 +50,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bumyong Lee <bumyong.lee@samsung.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 5f89468e2f060031cd89fd4287298e0eaf246bf6 upstream.
+commit 827a746f405d25f79560c7868474aec5aee174e1 upstream.
 
-in case of driver wants to sync part of ranges with offset,
-swiotlb_tbl_sync_single() copies from orig_addr base to tlb_addr with
-offset and ends up with data mismatch.
+It's not sufficient to skip reading when the pos is beyond the EOF.
+There may be data at the head of the page that we need to fill in
+before the write.
 
-It was removed from
-"swiotlb: don't modify orig_addr in swiotlb_tbl_sync_single",
-but said logic has to be added back in.
+Add a new helper function that corrects and clarifies the logic of
+when we can skip reads, and have it only zero out the part of the page
+that won't have data copied in for the write.
 
-From Linus's email:
-"That commit which the removed the offset calculation entirely, because the old
+Finally, don't set the page Uptodate after zeroing. It's not up to date
+since the write data won't have been copied in yet.
 
-        (unsigned long)tlb_addr & (IO_TLB_SIZE - 1)
+[DH made the following changes:
 
-was wrong, but instead of removing it, I think it should have just
-fixed it to be
+ - Prefixed the new function with "netfs_".
 
-        (tlb_addr - mem->start) & (IO_TLB_SIZE - 1);
+ - Don't call zero_user_segments() for a full-page write.
 
-instead. That way the slot offset always matches the slot index calculation."
+ - Altered the beyond-last-page check to avoid a DIV instruction and got
+   rid of then-redundant zero-length file check.
+]
 
-(Unfortunatly that broke NVMe).
+[ Note: this fix is commit 827a746f405d in mainline kernels. The
+	original bug was in ceph, but got lifted into the fs/netfs
+	library for v5.13. This backport should apply to stable
+	kernels v5.10 though v5.12. ]
 
-The use-case that drivers are hitting is as follow:
-
-1. Get dma_addr_t from dma_map_single()
-
-dma_addr_t tlb_addr = dma_map_single(dev, vaddr, vsize, DMA_TO_DEVICE);
-
-    |<---------------vsize------------->|
-    +-----------------------------------+
-    |                                   | original buffer
-    +-----------------------------------+
-  vaddr
-
- swiotlb_align_offset
-     |<----->|<---------------vsize------------->|
-     +-------+-----------------------------------+
-     |       |                                   | swiotlb buffer
-     +-------+-----------------------------------+
-          tlb_addr
-
-2. Do something
-3. Sync dma_addr_t through dma_sync_single_for_device(..)
-
-dma_sync_single_for_device(dev, tlb_addr + offset, size, DMA_TO_DEVICE);
-
-  Error case.
-    Copy data to original buffer but it is from base addr (instead of
-  base addr + offset) in original buffer:
-
- swiotlb_align_offset
-     |<----->|<- offset ->|<- size ->|
-     +-------+-----------------------------------+
-     |       |            |##########|           | swiotlb buffer
-     +-------+-----------------------------------+
-          tlb_addr
-
-    |<- size ->|
-    +-----------------------------------+
-    |##########|                        | original buffer
-    +-----------------------------------+
-  vaddr
-
-The fix is to copy the data to the original buffer and take into
-account the offset, like so:
-
- swiotlb_align_offset
-     |<----->|<- offset ->|<- size ->|
-     +-------+-----------------------------------+
-     |       |            |##########|           | swiotlb buffer
-     +-------+-----------------------------------+
-          tlb_addr
-
-    |<- offset ->|<- size ->|
-    +-----------------------------------+
-    |            |##########|           | original buffer
-    +-----------------------------------+
-  vaddr
-
-[One fix which was Linus's that made more sense to as it created a
-symmetry would break NVMe. The reason for that is the:
- unsigned int offset = (tlb_addr - mem->start) & (IO_TLB_SIZE - 1);
-
-would come up with the proper offset, but it would lose the
-alignment (which this patch contains).]
-
-Fixes: 16fc3cef33a0 ("swiotlb: don't modify orig_addr in swiotlb_tbl_sync_single")
-Signed-off-by: Bumyong Lee <bumyong.lee@samsung.com>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reported-by: Dominique MARTINET <dominique.martinet@atmark-techno.com>
-Reported-by: Horia Geantă <horia.geanta@nxp.com>
-Tested-by: Horia Geantă <horia.geanta@nxp.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Fixes: e1b1240c1ff5f ("netfs: Add write_begin helper")
+Reported-by: Andrew W Elble <aweits@rit.edu>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+cc: ceph-devel@vger.kernel.org
+Link: https://lore.kernel.org/r/20210613233345.113565-1-jlayton@kernel.org/
+Link: https://lore.kernel.org/r/162367683365.460125.4467036947364047314.stgit@warthog.procyon.org.uk/ # v1
+Link: https://lore.kernel.org/r/162391826758.1173366.11794946719301590013.stgit@warthog.procyon.org.uk/ # v2
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/dma/swiotlb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ceph/addr.c | 54 ++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 41 insertions(+), 13 deletions(-)
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 0f61b14b0099..0ed0e1f215c7 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -667,6 +667,9 @@ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
- 	if (orig_addr == INVALID_PHYS_ADDR)
- 		return;
+diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
+index 35c83f65475b..8b0507f69c15 100644
+--- a/fs/ceph/addr.c
++++ b/fs/ceph/addr.c
+@@ -1302,6 +1302,45 @@ ceph_find_incompatible(struct page *page)
+ 	return NULL;
+ }
  
-+	orig_addr += (tlb_addr & (IO_TLB_SIZE - 1)) -
-+		swiotlb_align_offset(hwdev, orig_addr);
++/**
++ * prep_noread_page - prep a page for writing without reading first
++ * @page: page being prepared
++ * @pos: starting position for the write
++ * @len: length of write
++ *
++ * In some cases, write_begin doesn't need to read at all:
++ * - full page write
++ * - file is currently zero-length
++ * - write that lies in a page that is completely beyond EOF
++ * - write that covers the the page from start to EOF or beyond it
++ *
++ * If any of these criteria are met, then zero out the unwritten parts
++ * of the page and return true. Otherwise, return false.
++ */
++static bool skip_page_read(struct page *page, loff_t pos, size_t len)
++{
++	struct inode *inode = page->mapping->host;
++	loff_t i_size = i_size_read(inode);
++	size_t offset = offset_in_page(pos);
 +
- 	switch (target) {
- 	case SYNC_FOR_CPU:
- 		if (likely(dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL))
++	/* Full page write */
++	if (offset == 0 && len >= PAGE_SIZE)
++		return true;
++
++	/* pos beyond last page in the file */
++	if (pos - offset >= i_size)
++		goto zero_out;
++
++	/* write that covers the whole page from start to EOF or beyond it */
++	if (offset == 0 && (pos + len) >= i_size)
++		goto zero_out;
++
++	return false;
++zero_out:
++	zero_user_segments(page, 0, offset, offset + len, PAGE_SIZE);
++	return true;
++}
++
+ /*
+  * We are only allowed to write into/dirty the page if the page is
+  * clean, or already dirty within the same snap context.
+@@ -1315,7 +1354,6 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
+ 	struct ceph_snap_context *snapc;
+ 	struct page *page = NULL;
+ 	pgoff_t index = pos >> PAGE_SHIFT;
+-	int pos_in_page = pos & ~PAGE_MASK;
+ 	int r = 0;
+ 
+ 	dout("write_begin file %p inode %p page %p %d~%d\n", file, inode, page, (int)pos, (int)len);
+@@ -1350,19 +1388,9 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
+ 			break;
+ 		}
+ 
+-		/*
+-		 * In some cases we don't need to read at all:
+-		 * - full page write
+-		 * - write that lies completely beyond EOF
+-		 * - write that covers the the page from start to EOF or beyond it
+-		 */
+-		if ((pos_in_page == 0 && len == PAGE_SIZE) ||
+-		    (pos >= i_size_read(inode)) ||
+-		    (pos_in_page == 0 && (pos + len) >= i_size_read(inode))) {
+-			zero_user_segments(page, 0, pos_in_page,
+-					   pos_in_page + len, PAGE_SIZE);
++		/* No need to read in some cases */
++		if (skip_page_read(page, pos, len))
+ 			break;
+-		}
+ 
+ 		/*
+ 		 * We need to read it. If we get back -EINPROGRESS, then the page was
 -- 
 2.30.2
 
