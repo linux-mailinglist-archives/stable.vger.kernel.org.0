@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 998623B6439
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D48C3B643A
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235352AbhF1PGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:06:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37006 "EHLO mail.kernel.org"
+        id S235370AbhF1PGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:06:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234753AbhF1PDu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234757AbhF1PDu (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 11:03:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8029661CDA;
-        Mon, 28 Jun 2021 14:43:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A60E61CDE;
+        Mon, 28 Jun 2021 14:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624891387;
-        bh=HVjKU5j5ADRcQuZap9hsVaBsfM9OKQPMVLRn/zeOQCU=;
+        bh=c4tfBSDu/8Sb9YNPIcdis5klrUrezDTAxTa2z/cY31o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tMyRhppONMnAJEHPd/Vox9Yfdx1sRfmuPiYdlneT1BXUqJu/uGf8SpeKPD4PHjNwX
-         ZYDq0EY7FJ6rwXB6VWydDWQuB4dAgqrs7uKDC8ULC2v99bpZA9iTz0Hekl/djTEVu3
-         27FFz8hmyz1e/9aoSmA2NXkLaUe+/+VgD1dd8JkwYfBXEn/M7jrIVXr/87OaKH6+kM
-         nRuyZOBx27SahX0o+hOc/gzXjpfUvgk22/zRQPmg3atqAP6j05EVwaAX+fFF96BC+4
-         MDNA9lOgNwAzstfCBiAuM8cmUne9cLDd7bIrq8vqeZ/NFqhTAWTsD1MTlGZClp9lNG
-         uFuZX1Ebk6EDA==
+        b=ILetJ6Bp7Mv66CQJMcHsBT9ORsJrrUiAhBy3+KnagNy5Ou0s1y++jnPmBkbPerZqe
+         DiV6v9rB2l+RUqStVA/8pzLj9mToOpq7KhAVck9ygv/Gk8Mg1ztj+D4qURoK6qdspJ
+         dAgN57CiOFIGGkVALOFWxQmFMRiABgDr+CxmOy06hwrNk95GVhCRRg7LdVEk/TzeLt
+         1ACjfryc+XgqHGCBAYhxYC13TRu4ZPw1BY9/40Kib/iNQUJnOZE3wGBhrN3bV+7VAf
+         5wRm7hcXC0Rudt5fcnDJaW+nlPS/f1+tpXUO7f6RK57keoVYt+6Xy/sVQPkXrQmLk9
+         fb+dILgslgIiw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
+Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/57] rtnetlink: Fix missing error code in rtnl_bridge_notify()
-Date:   Mon, 28 Jun 2021 10:42:09 -0400
-Message-Id: <20210628144256.34524-11-sashal@kernel.org>
+Subject: [PATCH 4.4 11/57] net/x25: Return the correct errno code
+Date:   Mon, 28 Jun 2021 10:42:10 -0400
+Message-Id: <20210628144256.34524-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
 References: <20210628144256.34524-1-sashal@kernel.org>
@@ -49,42 +48,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit a8db57c1d285c758adc7fb43d6e2bad2554106e1 ]
+[ Upstream commit d7736958668c4facc15f421e622ffd718f5be80a ]
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'err'.
+When kalloc or kmemdup failed, should return ENOMEM rather than ENOBUF.
 
-Eliminate the follow smatch warning:
-
-net/core/rtnetlink.c:4834 rtnl_bridge_notify() warn: missing error code
-'err'.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/x25/af_x25.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index e2a0aed52983..11d2da8abd73 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -3240,8 +3240,10 @@ static int rtnl_bridge_notify(struct net_device *dev)
- 	if (err < 0)
- 		goto errout;
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index a9fd95d10e84..156639be7ed0 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -550,7 +550,7 @@ static int x25_create(struct net *net, struct socket *sock, int protocol,
+ 	if (protocol)
+ 		goto out;
  
--	if (!skb->len)
-+	if (!skb->len) {
-+		err = -EINVAL;
- 		goto errout;
-+	}
+-	rc = -ENOBUFS;
++	rc = -ENOMEM;
+ 	if ((sk = x25_alloc_socket(net, kern)) == NULL)
+ 		goto out;
  
- 	rtnl_notify(skb, net, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
- 	return 0;
 -- 
 2.30.2
 
