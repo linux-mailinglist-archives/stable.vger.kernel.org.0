@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6652D3B646B
+	by mail.lfdr.de (Postfix) with ESMTP id 1A9AB3B646A
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:08:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234215AbhF1PII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:08:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39796 "EHLO mail.kernel.org"
+        id S236710AbhF1PIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237477AbhF1PFy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237476AbhF1PFy (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 11:05:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AD6661D7F;
-        Mon, 28 Jun 2021 14:43:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60A2661D88;
+        Mon, 28 Jun 2021 14:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624891422;
-        bh=7FhEY9bKQFM0Cn+9zjlCF4QRg9OeLIX/jo3GWw/rZbE=;
+        bh=QR7oTvSOD4g+P2aR/hFUhfVBo6A/oBvDfcmz4ZeQt3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eC4hkrvljAvTHlHgZ3++pLp6gnzq+iy1aYVOYJHmLf8VwfSD6GcknqTsSNuXXg5yb
-         BKiBYUq5OFzpMH7UP8cgbZ/ed87y3j5juQx3sE00VR5noeNpt0nnsjCV6snfzKORfB
-         1ajYsiL3U8C96SBWhFiIFa1fjadOlp0V3AlVxhngzeoJl0I+wGold3XNPOn0c9ONSd
-         wBA4jCH1EF1LByDswtQgKgN2zVwsIW5hRvpXhU26fsAK90+XNW++EKZTqxTHvh5ZDu
-         JpjsJaJSNKC+F8E+A9Z1fnm1peZ/4zvem1F96xEBJyRABf9HQXiRxuf/jzCh9SFyEE
-         wVwM0Tlv1IKiQ==
+        b=m+jX0OLw2I3RDa438qwhCD9VaOgbJtZ91kMqjY2Yt2F2JqG/VKtuZlBMtWCJ9hQg0
+         21h9P1CIlQiqE8HqozoRzanL5nmizE9xI4v4RB7ELQU/aPTQ49Qi7PGC4CvhHZQ+L4
+         MBlxz9AECusPs8dbaxSbV0eqe4G4NUN29B+6RjiMypwmbUlKYJUeFVKypT1z4k3RXx
+         +rtO+JfZMlHR+sqLMsMzvjFAPmr0GagMnFHWC8R4Ilfp2TNzbA995TPm7kI7XbkhEO
+         c/g4tcKcZREROHouXYrXRS9K+8nSsW2ZEJHZ0WQusPJ1+0cTvDEIXO7nMtmiulrO9J
+         x9siaiV92TRKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Kees Cook <keescook@chromium.org>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 52/57] sh_eth: Avoid memcpy() over-reading of ETH_SS_STATS
-Date:   Mon, 28 Jun 2021 10:42:51 -0400
-Message-Id: <20210628144256.34524-53-sashal@kernel.org>
+Subject: [PATCH 4.4 53/57] r8169: Avoid memcpy() over-reading of ETH_SS_STATS
+Date:   Mon, 28 Jun 2021 10:42:52 -0400
+Message-Id: <20210628144256.34524-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
 References: <20210628144256.34524-1-sashal@kernel.org>
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 224004fbb033600715dbd626bceec10bfd9c58bc ]
+[ Upstream commit da5ac772cfe2a03058b0accfac03fad60c46c24d ]
 
 In preparation for FORTIFY_SOURCE performing compile-time and run-time
 field bounds checking for memcpy(), memmove(), and memset(), avoid
@@ -64,22 +64,22 @@ Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/sh_eth.c | 2 +-
+ drivers/net/ethernet/realtek/r8169.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
-index 614b83c7ce81..1942264b621b 100644
---- a/drivers/net/ethernet/renesas/sh_eth.c
-+++ b/drivers/net/ethernet/renesas/sh_eth.c
-@@ -2210,7 +2210,7 @@ static void sh_eth_get_strings(struct net_device *ndev, u32 stringset, u8 *data)
+diff --git a/drivers/net/ethernet/realtek/r8169.c b/drivers/net/ethernet/realtek/r8169.c
+index f3a685d3f649..55b0f11bf2a0 100644
+--- a/drivers/net/ethernet/realtek/r8169.c
++++ b/drivers/net/ethernet/realtek/r8169.c
+@@ -2314,7 +2314,7 @@ static void rtl8169_get_strings(struct net_device *dev, u32 stringset, u8 *data)
  {
- 	switch (stringset) {
+ 	switch(stringset) {
  	case ETH_SS_STATS:
--		memcpy(data, *sh_eth_gstrings_stats,
-+		memcpy(data, sh_eth_gstrings_stats,
- 		       sizeof(sh_eth_gstrings_stats));
+-		memcpy(data, *rtl8169_gstrings, sizeof(rtl8169_gstrings));
++		memcpy(data, rtl8169_gstrings, sizeof(rtl8169_gstrings));
  		break;
  	}
+ }
 -- 
 2.30.2
 
