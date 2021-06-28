@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4523B6A2F
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 23:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 642003B6A2A
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 23:21:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237905AbhF1VX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 17:23:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35706 "EHLO mail.kernel.org"
+        id S237345AbhF1VXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 17:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237866AbhF1VXX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237868AbhF1VXX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 17:23:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1364461D06;
-        Mon, 28 Jun 2021 21:20:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6076361D03;
+        Mon, 28 Jun 2021 21:20:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624915255;
-        bh=YKmwurZwGMWzcmhMkRf94jfggcgdhpnkZCsw9DLpBAM=;
+        s=k20201202; t=1624915257;
+        bh=uvJEh0sxCUzclhUTIdb3WixNobiqcA+N5C6zNMxBtcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzB/Ckt28AtAg30bMmDykdhYzO7+V7/zsFzPdr1mJE7Whec/DhKCVk5eqk1iD+FOS
-         cfjfVou5RidgDM3AGX8ZbcHlcCzX+4S/nBhETF1yiGkagrFilxr6Hr25KxpChkxDQ1
-         RDnPMqjiH412Zi8mMsvXU7ldSOzZTShFq2tllhYMOslkfKCN7L6W/1VFQoOYrGg16x
-         ZxaK7H5b9rkMIVOVNmGDJaPPLYDAMnQViTcVL4AwTIo5VT8qmclyatIRBU1KCEXs5q
-         V1Z7OesbxtlgWURfpqgNHh/MR1CI4iUGkoR12CC80NIWOh0WXicKlaTLPkwh91A7UC
-         4O8UuelsN2m+A==
+        b=GDghOrgAGxjexYn0aH4rZguWqJav7fNkQ03GXpFl4PhPY9A3gPcd7keLU3vKi6bQu
+         CcXB1RpifGARIAMPQ580Auhk59LbATQMWeRrDgQ8hFYqeIanITckZuzJMhGHz3FjdQ
+         VuFAet1Ll9OSEmHKGdz/6PCz2bqbnnKGY0szDJNPBYuGMZaNghqgQE41boAugdbs3m
+         1g4TwhIpvrIq+iFkE4yS4YNauYrekzvkwqCFZkaDH05xKOYQnUAbOxTerVQu5o9vVw
+         tyn8DW8GvkjVFE2cvb86XLkKyv0otRCNlBhRsbO5WwEKJnKL7qOGEktBn13S9NGrjZ
+         DUIdBha/rie3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Loic Poulain <loic.poulain@linaro.org>,
-        Michal Koziel <michal.koziel@emlogic.no>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 3/5] gpio: mxc: Fix disabled interrupt wake-up support
-Date:   Mon, 28 Jun 2021 17:20:49 -0400
-Message-Id: <20210628212051.43265-3-sashal@kernel.org>
+Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.12 4/5] drm/nouveau: fix dma_address check for CPU/GPU sync
+Date:   Mon, 28 Jun 2021 17:20:50 -0400
+Message-Id: <20210628212051.43265-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628212051.43265-1-sashal@kernel.org>
 References: <20210628212051.43265-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,39 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit 3093e6cca3ba7d47848068cb256c489675125181 ]
+[ Upstream commit d330099115597bbc238d6758a4930e72b49ea9ba ]
 
-A disabled/masked interrupt marked as wakeup source must be re-enable
-and unmasked in order to be able to wake-up the host. That can be done
-by flaging the irqchip with IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND.
+AGP for example doesn't have a dma_address array.
 
-Note: It 'sometimes' works without that change, but only thanks to the
-lazy generic interrupt disabling (keeping interrupt unmasked).
-
-Reported-by: Michal Koziel <michal.koziel@emlogic.no>
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210614110517.1624-1-christian.koenig@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mxc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_bo.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-mxc.c b/drivers/gpio/gpio-mxc.c
-index 157106e1e438..b9fdf05d7669 100644
---- a/drivers/gpio/gpio-mxc.c
-+++ b/drivers/gpio/gpio-mxc.c
-@@ -334,7 +334,7 @@ static int mxc_gpio_init_gc(struct mxc_gpio_port *port, int irq_base)
- 	ct->chip.irq_unmask = irq_gc_mask_set_bit;
- 	ct->chip.irq_set_type = gpio_set_irq_type;
- 	ct->chip.irq_set_wake = gpio_set_wake_irq;
--	ct->chip.flags = IRQCHIP_MASK_ON_SUSPEND;
-+	ct->chip.flags = IRQCHIP_MASK_ON_SUSPEND | IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND;
- 	ct->regs.ack = GPIO_ISR;
- 	ct->regs.mask = GPIO_IMR;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
+index f2720a006199..0a47a2a5553d 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_bo.c
++++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
+@@ -549,7 +549,7 @@ nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
+ 	struct ttm_tt *ttm_dma = (struct ttm_tt *)nvbo->bo.ttm;
+ 	int i, j;
  
+-	if (!ttm_dma)
++	if (!ttm_dma || !ttm_dma->dma_address)
+ 		return;
+ 	if (!ttm_dma->pages) {
+ 		NV_DEBUG(drm, "ttm_dma 0x%p: pages NULL\n", ttm_dma);
+@@ -585,7 +585,7 @@ nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
+ 	struct ttm_tt *ttm_dma = (struct ttm_tt *)nvbo->bo.ttm;
+ 	int i, j;
+ 
+-	if (!ttm_dma)
++	if (!ttm_dma || !ttm_dma->dma_address)
+ 		return;
+ 	if (!ttm_dma->pages) {
+ 		NV_DEBUG(drm, "ttm_dma 0x%p: pages NULL\n", ttm_dma);
 -- 
 2.30.2
 
