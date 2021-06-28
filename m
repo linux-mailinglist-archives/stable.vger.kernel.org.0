@@ -2,191 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B78D3B66C3
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 18:29:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C5E3B6763
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 19:13:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233977AbhF1QcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 12:32:10 -0400
-Received: from mga12.intel.com ([192.55.52.136]:36022 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233450AbhF1QcH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 12:32:07 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10029"; a="187676655"
-X-IronPort-AV: E=Sophos;i="5.83,306,1616482800"; 
-   d="scan'208";a="187676655"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2021 09:29:39 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,306,1616482800"; 
-   d="scan'208";a="640969072"
-Received: from orsmsx606.amr.corp.intel.com ([10.22.229.19])
-  by fmsmga006.fm.intel.com with ESMTP; 28 Jun 2021 09:29:38 -0700
-Received: from orsmsx608.amr.corp.intel.com (10.22.229.21) by
- ORSMSX606.amr.corp.intel.com (10.22.229.19) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.4; Mon, 28 Jun 2021 09:29:38 -0700
-Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
- orsmsx608.amr.corp.intel.com (10.22.229.21) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4
- via Frontend Transport; Mon, 28 Jun 2021 09:29:38 -0700
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.48) by
- edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2242.4; Mon, 28 Jun 2021 09:29:37 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PO4KeQeX53B41L4EhsJhfkpysfaoca2zjwCDIFtgww+0818YASAyq+RdBXhEsSPCV5te8OwlH4kl5e5OqABcVm1fM4DUAxnPRL/raJD8pm8XYurJBE+TVJg9ogMlmP/rN3sgr8u7moxHIeOJoZq3pZfscfECmKovpEAjxejualLauGn3eufqhAB6+mDQhMF9+Ky1d4/h9PfiO0zpo/hivLZsmJ5L8/S7Z4wPNqNp33sbv9rEjkZomxQ3Ue9ps5fFQcUe6rXdTmbzj4+ahb7UKhkroJqb7XfdhJceLIXepClMQwrXCD3FvT9og5umoskBpo/3Qt8fZ2zhMGPP8Ok/WA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9WrQsoCLVXvV2DIIDuWmqIaqAuzCXSLC3X17mMycZSA=;
- b=Cq1KZHMOiw0IRmrqZi7aTp77HKkPrinwDGa5FisXsP7z28QYtxOmwj4JtUOs/R15yyqQ/Tpp0RJnYLwNodF1TCtf340RUUL3RMMFXZlJ7gICjAiNfvM8MVfi1iIlr5wA9W11kQrh2ZcEX3PDibn/92jsLS6+mk2MUwxrD3Wt4OeAWhMHlkPIPOQirPFLdAX/KNkTWoJKpimF73zxgLA/Ei4OsCPBGz+tcoAXpDuvicUZNXl+SxpNX1RpQpGry2uc2SgqZ/1v/SkMPnJI/4n0PyLi5jvetfcXVT4pvE8Kyp3rVdG2H69FG5SzJqsYj7BRktpSNS9rjbMPYWeg19U1BQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=intel.onmicrosoft.com;
- s=selector2-intel-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9WrQsoCLVXvV2DIIDuWmqIaqAuzCXSLC3X17mMycZSA=;
- b=uAsm3FklyvFDORnKwi0Z3zZTNAPbP3Xa7DBx5rdIN6SqupxSxnchUVPYzOHtLr3nUxhW8eBsC4e0qgPK9oBDujEaHwvDPLgEN/2/MXe7/W9sn/nlS79D/mDeZi4WxN0iOn//PczD9wU4lfR3OzV80RiFID5ZysRfgZnvu7IAILE=
-Received: from BY5PR11MB4182.namprd11.prod.outlook.com (2603:10b6:a03:183::10)
- by SJ0PR11MB5005.namprd11.prod.outlook.com (2603:10b6:a03:2d3::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.20; Mon, 28 Jun
- 2021 16:29:37 +0000
-Received: from BY5PR11MB4182.namprd11.prod.outlook.com
- ([fe80::c9de:2018:5e7c:87c9]) by BY5PR11MB4182.namprd11.prod.outlook.com
- ([fe80::c9de:2018:5e7c:87c9%7]) with mapi id 15.20.4264.026; Mon, 28 Jun 2021
- 16:29:37 +0000
-From:   "Chrisanthus, Anitha" <anitha.chrisanthus@intel.com>
-To:     Sasha Levin <sashal@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Zhen Lei <thunder.leizhen@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>
-Subject: RE: [PATCH 5.12 019/110] drm/kmb: Fix error return code in
- kmb_hw_init()
-Thread-Topic: [PATCH 5.12 019/110] drm/kmb: Fix error return code in
- kmb_hw_init()
-Thread-Index: AQHXbCiO5NNGuFG7IEKifxAIWui3IKspnNXQ
-Date:   Mon, 28 Jun 2021 16:29:37 +0000
-Message-ID: <BY5PR11MB418269C8584FC8AAD088CA9C8C039@BY5PR11MB4182.namprd11.prod.outlook.com>
-References: <20210628141828.31757-1-sashal@kernel.org>
- <20210628141828.31757-20-sashal@kernel.org>
-In-Reply-To: <20210628141828.31757-20-sashal@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-version: 11.5.1.3
-dlp-product: dlpe-windows
-dlp-reaction: no-action
-authentication-results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=intel.com;
-x-originating-ip: [73.41.68.160]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: c40edb3a-9008-43c8-a502-08d93a51ebe0
-x-ms-traffictypediagnostic: SJ0PR11MB5005:
-x-microsoft-antispam-prvs: <SJ0PR11MB5005583379CEDC49690A02C98C039@SJ0PR11MB5005.namprd11.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:820;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: VqCpDMSUEtGXV0oa0Epp+RDJ0mQYSuSzgRshgBm48+o2WlfDWqxc/qJt2JERZkZMBI4+xveIDYICe6xttAkwUzhtSr6Ib717KGUSm4YNBYMBRHkdWbEdTPhmlwH4EmgWx2TDBCU2Dolto9olp9aQvlb2fM4tR7R9ew4uJG6Kof0TvfK8JkUOf5nJjuT1cwPy+DGDFEdnZWBEBijpF5Q6+f1kd3lirXKuff4Ho7SecMU6ImTBv5FlNvVcK1MYLVPBenG46sb8JOS33BxwZ4pGMvsR2C+qAGtYMcPwYNGCovcqg+z1F8fSxGN1+F+8+yANQLnwnVnWPy9OIt0xFSA1Tg5TAQAk+wRRwPpj27Sjhns6tuZWp4ueDzL7epoJrKTUo2TflUznXR3+Tws2wioRBFiPKxMqJENPq/trUkwVdfi1KSNvxufSimuHaJc8iQRUrhFSALh9zhiDZn/PPG9fTw9VQl5rWEl2n1o572KmT36GJDYLrK+rkFkK82KNsU6RSsmYJR/NJZMOkxxAAhPplFjPFGA5imnvr9Y7i4yMnzGdJI7U9lp4C6ovDZODrk8Zt5CuIexiRVmSzHdwRzYGtEDCNmSSHLIJz7kcuZhQVGm/jn0XBHafRKye2aVODTPXnnzUkzBsll1L/lJF4PEuC0eXi2aKz2eTvdITmeRj9EYc7NGH2bgfGKqYxNWuY6V9
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR11MB4182.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(39860400002)(366004)(346002)(376002)(396003)(136003)(83380400001)(55016002)(8676002)(9686003)(33656002)(86362001)(8936002)(66946007)(110136005)(66476007)(76116006)(122000001)(71200400001)(54906003)(316002)(26005)(52536014)(186003)(7696005)(66446008)(64756008)(4326008)(5660300002)(478600001)(966005)(6506007)(53546011)(38100700002)(2906002)(66556008);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?u7tJg3pT/O2KzYCKidUs8m6UlFPWBqWiZAFxiR/A+2kMVX1Mhwl32PWEx9GS?=
- =?us-ascii?Q?GkUPklIDZSnbo1izXn1lUlW6NuoaWTyRfjAuiBfGjg/AWeyjAD7cbZFQ4H2y?=
- =?us-ascii?Q?APgbtkf8POEsV1ZPL8cmKFIc2IoITCsTdeyVjjg6ZLKZRFumCakc6Oi272Iq?=
- =?us-ascii?Q?v/7MkO6iTzxgIoyKTo4ALRxmyh8exeyD7fonie5s+5whymo75MfVTpEMRtBo?=
- =?us-ascii?Q?YVQ1FATbKYWGaA+NHTCHmTc6mgcDBYRxazEyjjJ102QUPEE30w+q7LZORAN3?=
- =?us-ascii?Q?GAzzYrSfrmd86yJt5UwbOju/Q+JYziFGf/dt0uOGnJ09XSE3IUkLotxTvSBg?=
- =?us-ascii?Q?Fn2o9kz59c6L1dvZrIvn1/ciBCgDHvc/MnqqrrtEhkp7XhbdImvsE70vVjtk?=
- =?us-ascii?Q?IPWk6Sk6Cx3dxhMJ8p4gmXY+o67DHsQz6JDJeNHA6dYy5hwxQW+NW3tX8o6j?=
- =?us-ascii?Q?aI/78mPE+fgbsRyuGf+E/djs7uE/KiGl238JOICPOwRq8eZgQ880HD8ylzub?=
- =?us-ascii?Q?vFsV2bGnV1L/NqMpYtE7uH48k7EOLsT9O6/45Vh7YEpRjp4TTfccFzaXzZnt?=
- =?us-ascii?Q?N3TIHDE++k3rlQWgnarYN5rlIJVGjzukhIecrhzOwUFj349o9uhJP1zXHs3J?=
- =?us-ascii?Q?ylluU5mp2gL2V3n5r90fw8vinFuyshsWWAORai4JX4DxRp4+crB9QUCF6UUg?=
- =?us-ascii?Q?eAIiaJbkwZQsrld9tCW+MIk6TlyQ2yM77VtXVy2/XA7WhHar9J2mbl72oAnE?=
- =?us-ascii?Q?8AGyq/Kf9SziUFohGtLznMjHHITe8koDVQTV6jWfBH13N3+a0ogvSVxDgcQJ?=
- =?us-ascii?Q?Co6lhJ+ugP22BKcBDw2tNvt1NUk9L5eDfC9HrbY01F8XHTcEt7OWJfzgNu5m?=
- =?us-ascii?Q?U15YFDImdepOkYb/0PxELMvaBgNYaveb+SFcjhACTSOQYz62se/R4VylAL5b?=
- =?us-ascii?Q?DJ14GPf+msvnwJ0boj0vnM7lsfmuuOgltXgpPxkctghQH+Wys3DCiWDHENqa?=
- =?us-ascii?Q?tnoe6Jb0w5v4LyPrzZOcIrZhJvaYTzLqF/vrb17WLfonsbSkkJ+pQwZvDz2g?=
- =?us-ascii?Q?dH18fjmoaCOS2dDAFEMpljneGhlkgmI3j6GLuwCCZibQlGtt/J2ncksrClrw?=
- =?us-ascii?Q?biN6oC/1JxzOQtF4q6qEjkbn7F4qJc4CtNh4J7sFWWmUlgoA6/dtqoRUtV6C?=
- =?us-ascii?Q?nwspPpPNkKC2g38unYn6ug5X6yslzasOBviGR27WaX9GSeW7AhcCFBKVI7R9?=
- =?us-ascii?Q?L8LLC4c9eP+hLi7MuMdAkMTWUnr7sIjRI8JrA/i9OTnydRKacQj95UVNPkuo?=
- =?us-ascii?Q?OGk=3D?=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S232311AbhF1RQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 13:16:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45106 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232084AbhF1RQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Jun 2021 13:16:03 -0400
+Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A903C061574
+        for <stable@vger.kernel.org>; Mon, 28 Jun 2021 10:13:37 -0700 (PDT)
+Received: by mail-ot1-x334.google.com with SMTP id 110-20020a9d0a770000b0290466fa79d098so2880604otg.9
+        for <stable@vger.kernel.org>; Mon, 28 Jun 2021 10:13:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:in-reply-to:message-id:references
+         :mime-version;
+        bh=z9klk8Z34nOqGCgG0SoA5hqHrLNOmQoouehFtbCfYMo=;
+        b=YZEHW7IMYXIaxc8A94TIrtq0GMza5FMAWBGfBJnfq04y3jPmhFruaFfhXdDjA87/Ro
+         TFnbXO1OvubEHCO7Bj7TVSbv3Mcq6Ah11Btph3iGrYk9AaErpl5XJ6qMUPmCmrOqm1+T
+         R93U1YVa7Jktfkgq752Mfeei/bFrqVZJ9ULCvOCgqroFSqZHa6s300KTEImd8zFPzMc0
+         pT3xgdPXqbKSLC/pRKVZFry82RJN43V1kWxfZ9FKnxx2vb+QOpRRZ5SHdwMJNM7X3qRW
+         16OckXiOv765su4/UKPna7rPuTGLrqTDo4A6j0C9PS8ktAcxefE6U0e68IMMfilA7/L5
+         ybXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
+         :references:mime-version;
+        bh=z9klk8Z34nOqGCgG0SoA5hqHrLNOmQoouehFtbCfYMo=;
+        b=ibIP6dx6UzUD8U+pdaar18zR+J0r7NK4rtCqumokUvjWC4Js29f4AsrXfn2HtqRLr7
+         WVzIQrmMWy6Ilq/VX9uhh3HG4/+8+Ly8WNgdLOrcduRtRdQuovgYe4vV0WMD6sGwa8LV
+         2RZWgim+9ow+IQhN0DqyHsK2usvL2MRNj7/kC1P5KK4nxGXxxqyyZDCUTEuhCI5QUE1H
+         v1ZQ+5PViAgtLUSVsneQldFNFMVSsRsTEao7LliF0tVQpu11G9wDMuhzn8q5AzwtbXj+
+         XMLyb8hMYIaaZYIO+dfIx8k1qt6F5jlze12ulpsaBUXMqcdIqF6itYE1ypbCkQVugiq/
+         bWDQ==
+X-Gm-Message-State: AOAM531YuNFfVsstkqJAXx2pdJZhyhQxfhGNuwj2TUpauObBaCv1c8IQ
+        bM1VXLZyUSMV8uE89Ci4zzK7zw==
+X-Google-Smtp-Source: ABdhPJyi4mIY5wczFdcTQoyfv/1FDfaMjSssUOUUErF6OfmCZVq1Dj3awDlifC2ekaXhFlydEVwToA==
+X-Received: by 2002:a9d:364a:: with SMTP id w68mr522746otb.33.1624900416525;
+        Mon, 28 Jun 2021 10:13:36 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id e10sm326556oig.15.2021.06.28.10.13.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Jun 2021 10:13:35 -0700 (PDT)
+Date:   Mon, 28 Jun 2021 10:12:57 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.anvils
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Wang Yugui <wangyugui@e16-tech.com>,
+        Xu Yu <xuyu@linux.alibaba.com>, Jue Wang <juew@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, Alex Shi <alexs@kernel.org>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org
+Subject: Re: mm/thp commits: please wait a few days
+In-Reply-To: <YNm93fkIPrqMwHzd@kroah.com>
+Message-ID: <366846c0-245a-771e-7a1-4a307ac6e5e1@google.com>
+References: <88937026-b998-8d9b-7a23-ff24576491f4@google.com> <YMrU4FRkrQ7AVo5d@kroah.com> <YNNMGjoMajhPNyiK@kroah.com> <ca4d4e0-531-3373-c6ee-a33d379a557c@google.com> <20210623134642.2927395a89b1d07bab620a20@linux-foundation.org> <c2bf7b2-a2d9-95a1-e322-4cf4b8613e9@google.com>
+ <6b253bc4-2562-d1bb-18f2-517cfad5d5e7@google.com> <YNm93fkIPrqMwHzd@kroah.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR11MB4182.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c40edb3a-9008-43c8-a502-08d93a51ebe0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Jun 2021 16:29:37.2816
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 706XFFAuqWNVpXKBfEMvopT6Mm2wzhNCvpvQ2QKSKtXcjGHGMSABTPQnOfkPrJo2MeuvI/4xeMQb/sEdQQeNAUpwbK+uFxu9MVtB/2fuOpU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR11MB5005
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch is already pushed to drm-misc-fixes. Please check for existing p=
-atches in the dri-devel mail list before sending patches.
+On Mon, 28 Jun 2021, Greg Kroah-Hartman wrote:
+> On Fri, Jun 25, 2021 at 05:38:01PM -0700, Hugh Dickins wrote:
+> > On Wed, 23 Jun 2021, Hugh Dickins wrote:
+> > > On Wed, 23 Jun 2021, Andrew Morton wrote:
+> > > > On Wed, 23 Jun 2021 09:44:14 -0700 (PDT) Hugh Dickins <hughd@google.com> wrote:
+> > > > 
+> > > > > > Any word on this?
+> > > > > 
+> > > > > I have a "matrix" of what's needed ready, but I'm still waiting on
+> > > > > "I expect some more to follow in a few days time (thanks Andrew)":
+> > > > > I believe akpm does still intend to send them in to Linus for 5.13
+> > > > > this week, but they've not gone yet.
+> > > > 
+> > > > Linuswards tomorrow.  Is that OK?
+> > > 
+> > > That's great, thanks Andrew.  Then when they appear in Linus's tree,
+> > > I'll complete my notes and tarball, and mail GregKH in reply here.
+> > 
+> > All in now, thanks: so attached is a tarball of the variants,
+> > and here the finalized summary of what each stable needs.
+> > 
+> > 5.12.13         5.10.46      5.4.128      4.19.195     4.14.237     4.9.273
+> >                                                        4.14/0001    << chpick
+> >                 5.10/0001    << chpick    << chpick    << chpick    << chpick
+> >                 5.10/0002    << chpick    << chpick    << chpick
+> >                 5.10/0003    << chpick    << chpick    << chpick
+> > ffc90cbb2970    << chpick    << chpick
+> > 99fa8a48203d    5.10/0005    << chpick    << chpick
+> > 3b77e8c8cde5    << chpick    << chpick    << chpick
+> > 732ed55823fc    << chpick    5.04/0007    << chpick    << chpick
+> > 494334e43c16    << chpick    5.04/0008    4.19/0007    << chpick
+> > 31657170deaf    << chpick    << chpick    << chpick    << chpick
+> > 22061a1ffabd    5.10/0010    5.04/0010    << chpick
+> > 504e070dc08f    5.10/0011    5.04/0011    4.19/0010    4.14/0008   4.09/0003
+> > f003c03^..a7a69d8  chpick    << chpick    << chpick    << chpick
+> > fe19bd3dae3d    << chpick    5.04/0022    << chpick    << chpick   4.09/0004
+> > 
+> > 19 recent THP-related upstream commits for 5.13:
+> > ffc90cbb2970 mm, thp: use head page in __migration_entry_wait()
+> > 99fa8a48203d mm/thp: fix __split_huge_pmd_locked() on shmem migration entry
+> > 3b77e8c8cde5 mm/thp: make is_huge_zero_pmd() safe and quicker
+> > 732ed55823fc mm/thp: try_to_unmap() use TTU_SYNC for safe splitting
+> > 494334e43c16 mm/thp: fix vma_address() if virtual address below file offset
+> > 31657170deaf mm/thp: fix page_address_in_vma() on file THP tails
+> > 22061a1ffabd mm/thp: unmap_mapping_page() to fix THP truncate_cleanup_page()
+> > 504e070dc08f mm: thp: replace DEBUG_VM BUG with VM_WARN when unmap fails for split
+> > f003c03bd29e mm: page_vma_mapped_walk(): use page for pvmw->page
+> > 6d0fd5987657 mm: page_vma_mapped_walk(): settle PageHuge on entry
+> > 3306d3119cea mm: page_vma_mapped_walk(): use pmde for *pvmw->pmd
+> > e2e1d4076c77 mm: page_vma_mapped_walk(): prettify PVMW_MIGRATION block
+> > 448282487483 mm: page_vma_mapped_walk(): crossing page table boundary
+> > b3807a91aca7 mm: page_vma_mapped_walk(): add a level of indentation
+> > 474466301dfd mm: page_vma_mapped_walk(): use goto instead of while (1)
+> > a765c417d876 mm: page_vma_mapped_walk(): get vma_address_end() earlier
+> > a9a7504d9bea mm/thp: fix page_vma_mapped_walk() if THP mapped by ptes
+> > a7a69d8ba88d mm/thp: another PVMW_SYNC fix in page_vma_mapped_walk()
+> > fe19bd3dae3d mm, futex: fix shared futex pgoff on shmem huge page
+> > 
+> > Antecedents which get added into some older kernels:
+> > 4.14/0001 91241681c62a include/linux/mmdebug.h: make VM_WARN* non-rvals
+> > 5.10/0001 a4055888629b (part) mm: add VM_WARN_ON_ONCE_PAGE() macro
+> > 5.10/0002 e0af87ff7afc mm/rmap: remove unneeded semicolon in page_not_mapped()
+> > 5.10/0003 b7e188ec98b1 mm/rmap: use page_not_mapped in try_to_unmap()
+> > 
+> > Nothing special for 5.12.13: all 19 can be cherry-picked cleanly.
+> > 
+> > Antecedents and fixedups for 5.10.46 and older:
+> > 5.10/0001-mm-add-VM_WARN_ON_ONCE_PAGE-macro.patch
+> > 5.10/0002-mm-rmap-remove-unneeded-semicolon-in-page_not_mapped.patch
+> > 5.10/0003-mm-rmap-use-page_not_mapped-in-try_to_unmap.patch
+> > 5.10/0005-mm-thp-fix-__split_huge_pmd_locked-on-shmem-migratio.patch
+> > 5.10/0010-mm-thp-unmap_mapping_page-to-fix-THP-truncate_cleanu.patch
+> > 5.10/0011-mm-thp-replace-DEBUG_VM-BUG-with-VM_WARN-when-unmap-.patch
+> > 
+> > Fixedups for 5.4.128 and older:
+> > 5.04/0007-mm-thp-try_to_unmap-use-TTU_SYNC-for-safe-splitting.patch
+> > 5.04/0008-mm-thp-fix-vma_address-if-virtual-address-below-file.patch
+> > 5.04/0010-mm-thp-unmap_mapping_page-to-fix-THP-truncate_cleanu.patch
+> > 5.04/0011-mm-thp-replace-DEBUG_VM-BUG-with-VM_WARN-when-unmap-.patch
+> > 5.04/0022-mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page.patch
+> > 
+> > Fixedups for 4.19.195 and older:
+> > 4.19/0007-mm-thp-fix-vma_address-if-virtual-address-below-file.patch
+> > 4.19/0010-mm-thp-replace-DEBUG_VM-BUG-with-VM_WARN-when-unmap-.patch
+> > 
+> > (Why does matrix say not to port ffc90cbb2970 "use head page" to 4.19
+> > and older?  It is correct, and would apply to them: but they do not
+> > have put_and_wait_on_page_locked(), so it may behave worse on them.)
+> > 
+> > Antecedent and fixedup for 4.14.237 and older:
+> > 4.14/0001-include-linux-mmdebug.h-make-VM_WARN-non-rvals.patch
+> > 4.14/0008-mm-thp-replace-DEBUG_VM-BUG-with-VM_WARN-when-unmap-.patch
+> > 
+> > Fixedups for 4.9.273:
+> > 4.09/0003-mm-thp-replace-DEBUG_VM-BUG-with-VM_WARN-when-unmap-.patch
+> > 4.09/0004-mm-futex-fix-shared-futex-pgoff-on-shmem-huge-page.patch
+> > 
+> > No backports to 4.4.273: it's too old and different for these.
+> 
+> Thanks so much for this, and I was able to follow the above directions
+> for 5.12, 5.10, and 5.4.
 
-Thanks,
-Anitha
+Yes, I've checked the results, and you've done brilliantly: thanks.
 
-> -----Original Message-----
-> From: Sasha Levin <sashal@kernel.org>
-> Sent: Monday, June 28, 2021 7:17 AM
-> To: linux-kernel@vger.kernel.org; stable@vger.kernel.org
-> Cc: Zhen Lei <thunder.leizhen@huawei.com>; Hulk Robot
-> <hulkci@huawei.com>; Chrisanthus, Anitha <anitha.chrisanthus@intel.com>;
-> Sasha Levin <sashal@kernel.org>
-> Subject: [PATCH 5.12 019/110] drm/kmb: Fix error return code in
-> kmb_hw_init()
->=20
-> From: Zhen Lei <thunder.leizhen@huawei.com>
->=20
-> [ Upstream commit 6fd8f323b3e4e5290d02174559308669507c00dd ]
->=20
-> When the call to platform_get_irq() to obtain the IRQ of the lcd fails, t=
-he
-> returned error code should be propagated. However, we currently do not
-> explicitly assign this error code to 'ret'. As a result, 0 was incorrectl=
-y
-> returned.
->=20
-> Fixes: 7f7b96a8a0a1 ("drm/kmb: Add support for KeemBay Display")
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-> Signed-off-by: Anitha Chrisanthus <anitha.chrisanthus@intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20210513134639.6541-
-> 1-thunder.leizhen@huawei.com
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/kmb/kmb_drv.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/gpu/drm/kmb/kmb_drv.c
-> b/drivers/gpu/drm/kmb/kmb_drv.c
-> index f64e06e1067d..96ea1a2c11dd 100644
-> --- a/drivers/gpu/drm/kmb/kmb_drv.c
-> +++ b/drivers/gpu/drm/kmb/kmb_drv.c
-> @@ -137,6 +137,7 @@ static int kmb_hw_init(struct drm_device *drm,
-> unsigned long flags)
->  	/* Allocate LCD interrupt resources */
->  	irq_lcd =3D platform_get_irq(pdev, 0);
->  	if (irq_lcd < 0) {
-> +		ret =3D irq_lcd;
->  		drm_err(&kmb->drm, "irq_lcd not found");
->  		goto setup_fail;
->  	}
-> --
-> 2.30.2
+> 
+> But things fell apart for 4.19.y, when doing the backport of the longer
+> series:
+> > f003c03^..a7a69d8  chpick    << chpick    << chpick    << chpick
+> 
+> That just did not work.
 
+That's very odd.  If that worked on 5.12, 5.10, 5.4 then I don't
+understand how it does not work on 4.19: I've had no trouble repeating
+it at this end, so can only think that you must have unconsciously
+changed procedure in some way on reaching 4.19.
+
+I say "no trouble", but agree "git cherry-pick f003c03^..a7a69d8"
+does not work: because linux-stable-rc.git master has not yet been
+updated to Linus's current tree, so the tree doesn't contain those
+SHA1s.  But you already worked around that correctly on 5.12, 5.10,
+5.4; and "the matrix" wasn't expecting you to go back to 5.13 for
+those on 4.19 anyway, but to cherry-pick those ten from what you
+already correctly prepared for 5.4.  (Perhaps the right command is
+"git cherry-pick 461d351e7cd4^..d106cf83e3cb", that's what worked
+for me, but I haven't spent long enough thinking whether my tree
+is sufficiently identical to yours or not.)
+
+If that's not the issue, the other two possibilities that cross my
+mind are: you're sure that you already applied the first ten patches
+to that branch, cherry-picking from 5.4 or git-am'ing 0007 and 0010 -
+there are mods to mm/page_vma_mapped.c in a couple of those earlier
+patches, which are required for clean application of the later mods.
+
+And the other possibility: I did once or twice a few years ago have
+trouble with "git cherry-pick xxx^..yyy" syntax: it failed, but the
+equivalent series of individual cherry-picks succeeded.  If that was
+not simply pilot error, I imagine it was a git bug long since fixed,
+but mention individual cherry-picks as perhaps a workaround.
+
+> 
+> So could you just send a mbox of patches (or tarball), for the 4.19,
+> 4.14, and 4.9 trees?  That would make it much easier to ensure I got
+> them all correct.
+
+At risk of irritating you, sorry, I am resisting: the more data I send
+you, the more likely I am to mess it up in some stupid way.  Please ask
+again and I shall, but I think your success with 5.12, 5.10, 5.4 just
+means that you were right to take a break before 4.19, 4.14, 4.4.
+
+Many thanks,
+Hugh
