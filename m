@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DD453B6165
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4266E3B6168
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234579AbhF1Ofu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37322 "EHLO mail.kernel.org"
+        id S234443AbhF1Ofz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:35:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234417AbhF1Oco (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:32:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9993E61CDB;
-        Mon, 28 Jun 2021 14:27:41 +0000 (UTC)
+        id S234483AbhF1Ocr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:32:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 439A161CDD;
+        Mon, 28 Jun 2021 14:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890463;
-        bh=fFLqZkmzPU1384Yvy/HxBzHvkpdskzmZQkNtHogiB/U=;
+        s=k20201202; t=1624890464;
+        bh=s8lNDiuZotoSOodDqr/zgI3yS8B0ljGuHDkI3eMccW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k618i0iMe/MXny3oeo+X9nrUOC4Zvr8yH+jWQhjtn95y0XIYKxsnGQZHHBF2WnURl
-         cEd5KKBCiFGHWLQJk5lcroaZCsBDuSAX6eUJ8gY00L5KkHxgvUVneIA7gQawjwSCwn
-         1Xrvz6cEmJdn9er23z2x7mm0qZxGkF2r/MsSizcbH6gEDrSS67Xw/ExJNlhX0YxXTt
-         HE4Yt371RrykYvDv50ODgpm6wqAAN7jLBJTSzJzYNl0x0YpFDWBFrYRmu+U+A1RtWL
-         Q28YrOtCqhTAV1HFe/mMbw09aNy5qsVfFbnnbD9xnO+KGucPSvx11nNFKtdhybkIEE
-         zdPQpwviOGhbw==
+        b=b5Jv5a0mqCfXsQg+ge5oKYCebeDmrq+F4buwaNMMtFfyjRSWGbEXR30y56X+UhtLa
+         kttYP3CvkaRN0dN0iR/2y4yKQ3OuGadDaTJnv21aUR6YtIihjNTvP7LwaGd8kq4jXW
+         PqDgAgzJQM0Mw0iTHHAjFqbkm8JONTyBvWP/R6mUWUQYnzaWgmJwTOfnN/pVKNR5tr
+         3iIbJ8aPTEpl9ACtVU/fCwbRSyRq9GFwhExHEdwE+nl5ctLsOiATnCCZIj1Ik6noX9
+         96PiY9GfP2bWwhm/T60hO/zhxxccW640M4vKTcpNKNWuKg7lmmyYvt7ik486ggCEIn
+         5OybY8ZcQP9ng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hugh Dickins <hughd@google.com>,
         "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Wang Yugui <wangyugui@e16-tech.com>,
         Alistair Popple <apopple@nvidia.com>,
         Matthew Wilcox <willy@infradead.org>,
         Peter Xu <peterx@redhat.com>,
         Ralph Campbell <rcampbell@nvidia.com>,
-        Wang Yugui <wangyugui@e16-tech.com>,
         Will Deacon <will@kernel.org>, Yang Shi <shy828301@gmail.com>,
         Zi Yan <ziy@nvidia.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 090/101] mm/thp: fix page_vma_mapped_walk() if THP mapped by ptes
-Date:   Mon, 28 Jun 2021 10:25:56 -0400
-Message-Id: <20210628142607.32218-91-sashal@kernel.org>
+Subject: [PATCH 5.10 091/101] mm/thp: another PVMW_SYNC fix in page_vma_mapped_walk()
+Date:   Mon, 28 Jun 2021 10:25:57 -0400
+Message-Id: <20210628142607.32218-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -59,42 +59,23 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hugh Dickins <hughd@google.com>
 
-commit a9a7504d9beaf395481faa91e70e2fd08f7a3dde upstream.
+commit a7a69d8ba88d8dcee7ef00e91d413a4bd003a814 upstream.
 
-Running certain tests with a DEBUG_VM kernel would crash within hours,
-on the total_mapcount BUG() in split_huge_page_to_list(), while trying
-to free up some memory by punching a hole in a shmem huge page: split's
-try_to_unmap() was unable to find all the mappings of the page (which,
-on a !DEBUG_VM kernel, would then keep the huge page pinned in memory).
+Aha! Shouldn't that quick scan over pte_none()s make sure that it holds
+ptlock in the PVMW_SYNC case? That too might have been responsible for
+BUGs or WARNs in split_huge_page_to_list() or its unmap_page(), though
+I've never seen any.
 
-Crash dumps showed two tail pages of a shmem huge page remained mapped
-by pte: ptes in a non-huge-aligned vma of a gVisor process, at the end
-of a long unmapped range; and no page table had yet been allocated for
-the head of the huge page to be mapped into.
-
-Although designed to handle these odd misaligned huge-page-mapped-by-pte
-cases, page_vma_mapped_walk() falls short by returning false prematurely
-when !pmd_present or !pud_present or !p4d_present or !pgd_present: there
-are cases when a huge page may span the boundary, with ptes present in
-the next.
-
-Restructure page_vma_mapped_walk() as a loop to continue in these cases,
-while keeping its layout much as before.  Add a step_forward() helper to
-advance pvmw->address across those boundaries: originally I tried to use
-mm's standard p?d_addr_end() macros, but hit the same crash 512 times
-less often: because of the way redundant levels are folded together, but
-folded differently in different configurations, it was just too
-difficult to use them correctly; and step_forward() is simpler anyway.
-
-Link: https://lkml.kernel.org/r/fedb8632-1798-de42-f39e-873551d5bc81@google.com
+Link: https://lkml.kernel.org/r/1bdf384c-8137-a149-2a1e-475a4791c3c@google.com
+Link: https://lore.kernel.org/linux-mm/20210412180659.B9E3.409509F4@e16-tech.com/
 Fixes: ace71a19cec5 ("mm: introduce page_vma_mapped_walk()")
 Signed-off-by: Hugh Dickins <hughd@google.com>
 Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Tested-by: Wang Yugui <wangyugui@e16-tech.com>
 Cc: Alistair Popple <apopple@nvidia.com>
 Cc: Matthew Wilcox <willy@infradead.org>
 Cc: Peter Xu <peterx@redhat.com>
 Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: Wang Yugui <wangyugui@e16-tech.com>
 Cc: Will Deacon <will@kernel.org>
 Cc: Yang Shi <shy828301@gmail.com>
 Cc: Zi Yan <ziy@nvidia.com>
@@ -103,78 +84,24 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_vma_mapped.c | 34 +++++++++++++++++++++++++---------
- 1 file changed, 25 insertions(+), 9 deletions(-)
+ mm/page_vma_mapped.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
-index 5df88f3b454c..2ad76a3d871d 100644
+index 2ad76a3d871d..610ebbee787c 100644
 --- a/mm/page_vma_mapped.c
 +++ b/mm/page_vma_mapped.c
-@@ -115,6 +115,13 @@ static bool check_pte(struct page_vma_mapped_walk *pvmw)
- 	return pfn_is_match(pvmw->page, pfn);
- }
- 
-+static void step_forward(struct page_vma_mapped_walk *pvmw, unsigned long size)
-+{
-+	pvmw->address = (pvmw->address + size) & ~(size - 1);
-+	if (!pvmw->address)
-+		pvmw->address = ULONG_MAX;
-+}
-+
- /**
-  * page_vma_mapped_walk - check if @pvmw->page is mapped in @pvmw->vma at
-  * @pvmw->address
-@@ -182,16 +189,22 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 	if (pvmw->pte)
- 		goto next_pte;
- restart:
--	{
-+	do {
- 		pgd = pgd_offset(mm, pvmw->address);
--		if (!pgd_present(*pgd))
--			return false;
-+		if (!pgd_present(*pgd)) {
-+			step_forward(pvmw, PGDIR_SIZE);
-+			continue;
-+		}
- 		p4d = p4d_offset(pgd, pvmw->address);
--		if (!p4d_present(*p4d))
--			return false;
-+		if (!p4d_present(*p4d)) {
-+			step_forward(pvmw, P4D_SIZE);
-+			continue;
-+		}
- 		pud = pud_offset(p4d, pvmw->address);
--		if (!pud_present(*pud))
--			return false;
-+		if (!pud_present(*pud)) {
-+			step_forward(pvmw, PUD_SIZE);
-+			continue;
-+		}
- 
- 		pvmw->pmd = pmd_offset(pud, pvmw->address);
- 		/*
-@@ -238,7 +251,8 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 
- 				spin_unlock(ptl);
+@@ -275,6 +275,10 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
+ 				goto restart;
  			}
--			return false;
-+			step_forward(pvmw, PMD_SIZE);
-+			continue;
- 		}
- 		if (!map_pte(pvmw))
- 			goto next_pte;
-@@ -268,7 +282,9 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 			spin_lock(pvmw->ptl);
- 		}
- 		goto this_pte;
--	}
-+	} while (pvmw->address < end);
-+
-+	return false;
- }
+ 			pvmw->pte++;
++			if ((pvmw->flags & PVMW_SYNC) && !pvmw->ptl) {
++				pvmw->ptl = pte_lockptr(mm, pvmw->pmd);
++				spin_lock(pvmw->ptl);
++			}
+ 		} while (pte_none(*pvmw->pte));
  
- /**
+ 		if (!pvmw->ptl) {
 -- 
 2.30.2
 
