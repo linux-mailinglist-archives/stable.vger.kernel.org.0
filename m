@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EDCF3B642A
+	by mail.lfdr.de (Postfix) with ESMTP id BC2433B642B
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235141AbhF1PGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:06:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37106 "EHLO mail.kernel.org"
+        id S235179AbhF1PGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:06:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236172AbhF1PCN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236380AbhF1PCN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 11:02:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 359CF61D7C;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E990C61D7A;
         Mon, 28 Jun 2021 14:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891262;
-        bh=k5qbGDjrmYPjqZwRGbFcF5nge5fMT5E8R3/0InNUKos=;
+        s=k20201202; t=1624891263;
+        bh=lvFlG8+judcj9sNrUT0sHgsSwhWp2Q59TCC2ubJC0uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYA3k9gp/0XmhJntHEKDzuRrw/qg5ZQFzIhy50PJshB9P8aeYeBJBGWAaIQ/YoM7M
-         hLFtkGwmid1JeVl+PxqnxSPLLH0fdV1z4QYIENgu7f24AgirC3+ducK++bEO7jXY02
-         u93QUM2auV1LzneaBFPzx6aLoEYQ03jVVnLhZOMkRlgVwURoF8fX675rrWKrXWsKha
-         TKmZR548Ow31zmAxmN28NfKNBV1ZswGLeD1+Eb3Yt7EiIDrlXBtX7zIE65GigRl8Jd
-         KqyZiF5Eqwce79+rr4IzcSSQ9YhNJNIHXBhxLJbmVsg4dTm7qwYcgAqIdGZqzNPB+f
-         cxIXF3g2Sa09A==
+        b=KKgiJO2Bi6GhKuDKsaqXYVi6L+jCb1jYApr1Dq2xGWD57Or3MS62nebIJjY6AWYwD
+         GiI4jlsKSwt0ZwMM5XS5jM7INkJICFFUJUsbfYw0nybyF8Dl/Z8Bzaqg9BMg4OAyni
+         frDMiaXg+sgWIv23PO9DTAQwGtL67oc7E1AwuBytpFS/5BR5uRPaP+jdwDAQQUiIHA
+         /a7MA59YIFCA/D2ESl+aq5+Y+Da0B1WxqIUvjPMR6BaRln7/nMu3eVO3P5x+G8Y2NX
+         zCcLo3BYmzN469+0zElAvkZyWyFWrH65YEVFXCQYs69mHDh2CPxAfQrAzsq+HGeX5A
+         s1EdfBt/8M5tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
+Cc:     Esben Haabendal <esben@geanix.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 67/71] net: qed: Fix memcpy() overflow of qed_dcbx_params()
-Date:   Mon, 28 Jun 2021 10:39:59 -0400
-Message-Id: <20210628144003.34260-68-sashal@kernel.org>
+Subject: [PATCH 4.9 68/71] net: ll_temac: Avoid ndo_start_xmit returning NETDEV_TX_BUSY
+Date:   Mon, 28 Jun 2021 10:40:00 -0400
+Message-Id: <20210628144003.34260-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
@@ -48,48 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Esben Haabendal <esben@geanix.com>
 
-[ Upstream commit 1c200f832e14420fa770193f9871f4ce2df00d07 ]
+[ Upstream commit f6396341194234e9b01cd7538bc2c6ac4501ab14 ]
 
-The source (&dcbx_info->operational.params) and dest
-(&p_hwfn->p_dcbx_info->set.config.params) are both struct qed_dcbx_params
-(560 bytes), not struct qed_dcbx_admin_params (564 bytes), which is used
-as the memcpy() size.
+As documented in Documentation/networking/driver.rst, the ndo_start_xmit
+method must not return NETDEV_TX_BUSY under any normal circumstances, and
+as recommended, we simply stop the tx queue in advance, when there is a
+risk that the next xmit would cause a NETDEV_TX_BUSY return.
 
-However it seems that struct qed_dcbx_operational_params
-(dcbx_info->operational)'s layout matches struct qed_dcbx_admin_params
-(p_hwfn->p_dcbx_info->set.config)'s 4 byte difference (3 padding, 1 byte
-for "valid").
-
-On the assumption that the size is wrong (rather than the source structure
-type), adjust the memcpy() size argument to be 4 bytes smaller and add
-a BUILD_BUG_ON() to validate any changes to the structure sizes.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Esben Haabendal <esben@geanix.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_dcbx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_dcbx.c b/drivers/net/ethernet/qlogic/qed/qed_dcbx.c
-index 7b6824e560d2..59e59878a3a7 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_dcbx.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_dcbx.c
-@@ -1205,9 +1205,11 @@ int qed_dcbx_get_config_params(struct qed_hwfn *p_hwfn,
- 		p_hwfn->p_dcbx_info->set.ver_num |= DCBX_CONFIG_VERSION_IEEE;
+diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
+index 545f60877bb7..9ba36c930ce3 100644
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -735,6 +735,11 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	/* Kick off the transfer */
+ 	lp->dma_out(lp, TX_TAILDESC_PTR, tail_p); /* DMA start */
  
- 	p_hwfn->p_dcbx_info->set.enabled = dcbx_info->operational.enabled;
-+	BUILD_BUG_ON(sizeof(dcbx_info->operational.params) !=
-+		     sizeof(p_hwfn->p_dcbx_info->set.config.params));
- 	memcpy(&p_hwfn->p_dcbx_info->set.config.params,
- 	       &dcbx_info->operational.params,
--	       sizeof(struct qed_dcbx_admin_params));
-+	       sizeof(p_hwfn->p_dcbx_info->set.config.params));
- 	p_hwfn->p_dcbx_info->set.config.valid = true;
++	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1)) {
++		netdev_info(ndev, "%s -> netif_stop_queue\n", __func__);
++		netif_stop_queue(ndev);
++	}
++
+ 	return NETDEV_TX_OK;
+ }
  
- 	memcpy(params, &p_hwfn->p_dcbx_info->set, sizeof(struct qed_dcbx_set));
 -- 
 2.30.2
 
