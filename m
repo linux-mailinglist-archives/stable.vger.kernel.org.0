@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA213B615B
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A908F3B6160
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234051AbhF1Ofl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:35:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
+        id S234484AbhF1Ofq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:35:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234378AbhF1Ocm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:32:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17B3061CD7;
-        Mon, 28 Jun 2021 14:27:30 +0000 (UTC)
+        id S234382AbhF1Ocn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:32:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2D8E61CD8;
+        Mon, 28 Jun 2021 14:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890451;
-        bh=qEYB4OQa1HOIHIVfg9C7f9yt6ndEvlkLpG8xklELLPs=;
+        s=k20201202; t=1624890453;
+        bh=W1olFC36KB5osmSIm23mU0isLbt3CIIo1uPLG48GB84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PU0FdhzYjLqVrGDHjgjJ7YXmTBRyXGLgULX7A41VUJYDVipxwPOAZrlanxqVyVVbo
-         wZnYyxW7yGQGYtRuT2TySMhBmNuopdsIgaDx4XDFEo2AhO6BllaEZ3bKa2yiG+Lcz3
-         E9L6+6M8L6oiNss5I8eF8hTlmwt4gD5mQMRVCE/GtUHqoZFc5zXwP2d8F83/rNwKrT
-         6k1aRXN0O/4vKGTZIEBMwMibF02Lzi1RMt45mTdM5JYwiuTIS22eIV7Rq2OVq5Do1x
-         DbusbX3yVJJUVd23HqwbgsoB+5ZE2e6DuUDjY5BChTqJgGTUQHZjzyBvETi6oXtEhj
-         yFCjacn2f1Oug==
+        b=WhuuIvV9/VTx7lAjEVWmI1P2+3rgLokxe7u7nUYRFjT2dqUfg97Z5Dl8rf/28q775
+         r8/+hdYnKpt006r/HHCpBKdDkBLI8/SE0s1/kTTrQzE0UgoFHRpmVSwxIRt6H8i9Ak
+         A37ZgVZxBZYSU2LEzsu+tZgXXcGT8jZjrLdRqWNY/qoj/cZADwHq/lieWCw9kAsba1
+         Bnt+b7lQYmx+sMWVWIDhAlQQtVHMoaChj06YXbNAhcRuVosnOU3Uosn0Z3rcgc1nwp
+         gG3fZw8IX+B+qZfKKizgO17QZufcpfZFpDtJ75liPLAUulffVx9WdAJ3Ud5vZCSQeG
+         Ww8N6bWCRyS/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hugh Dickins <hughd@google.com>,
@@ -37,9 +37,9 @@ Cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 083/101] mm: page_vma_mapped_walk(): settle PageHuge on entry
-Date:   Mon, 28 Jun 2021 10:25:49 -0400
-Message-Id: <20210628142607.32218-84-sashal@kernel.org>
+Subject: [PATCH 5.10 084/101] mm: page_vma_mapped_walk(): use pmde for *pvmw->pmd
+Date:   Mon, 28 Jun 2021 10:25:50 -0400
+Message-Id: <20210628142607.32218-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -59,17 +59,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hugh Dickins <hughd@google.com>
 
-commit 6d0fd5987657cb0c9756ce684e3a74c0f6351728 upstream.
+commit 3306d3119ceacc43ea8b141a73e21fea68eec30c upstream.
 
-page_vma_mapped_walk() cleanup: get the hugetlbfs PageHuge case out of
-the way at the start, so no need to worry about it later.
+page_vma_mapped_walk() cleanup: re-evaluate pmde after taking lock, then
+use it in subsequent tests, instead of repeatedly dereferencing pointer.
 
-Link: https://lkml.kernel.org/r/e31a483c-6d73-a6bb-26c5-43c3b880a2@google.com
+Link: https://lkml.kernel.org/r/53fbc9d-891e-46b2-cb4b-468c3b19238e@google.com
 Signed-off-by: Hugh Dickins <hughd@google.com>
 Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Reviewed-by: Peter Xu <peterx@redhat.com>
 Cc: Alistair Popple <apopple@nvidia.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 Cc: Matthew Wilcox <willy@infradead.org>
 Cc: Ralph Campbell <rcampbell@nvidia.com>
 Cc: Wang Yugui <wangyugui@e16-tech.com>
@@ -81,47 +80,38 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_vma_mapped.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ mm/page_vma_mapped.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
-index 3cd41168e802..4f04472effb7 100644
+index 4f04472effb7..821147eca0e1 100644
 --- a/mm/page_vma_mapped.c
 +++ b/mm/page_vma_mapped.c
-@@ -152,10 +152,11 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 	if (pvmw->pmd && !pvmw->pte)
- 		return not_found(pvmw);
- 
--	if (pvmw->pte)
--		goto next_pte;
--
- 	if (unlikely(PageHuge(page))) {
-+		/* The only possible mapping was handled on last iteration */
-+		if (pvmw->pte)
-+			return not_found(pvmw);
-+
- 		/* when pud is not present, pte will be NULL */
- 		pvmw->pte = huge_pte_offset(mm, pvmw->address, page_size(page));
- 		if (!pvmw->pte)
-@@ -167,6 +168,9 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 			return not_found(pvmw);
- 		return true;
- 	}
-+
-+	if (pvmw->pte)
-+		goto next_pte;
- restart:
- 	pgd = pgd_offset(mm, pvmw->address);
- 	if (!pgd_present(*pgd))
-@@ -232,7 +236,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
+@@ -190,18 +190,19 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
+ 	pmde = READ_ONCE(*pvmw->pmd);
+ 	if (pmd_trans_huge(pmde) || is_pmd_migration_entry(pmde)) {
+ 		pvmw->ptl = pmd_lock(mm, pvmw->pmd);
+-		if (likely(pmd_trans_huge(*pvmw->pmd))) {
++		pmde = *pvmw->pmd;
++		if (likely(pmd_trans_huge(pmde))) {
+ 			if (pvmw->flags & PVMW_MIGRATION)
+ 				return not_found(pvmw);
+-			if (pmd_page(*pvmw->pmd) != page)
++			if (pmd_page(pmde) != page)
+ 				return not_found(pvmw);
  			return true;
- next_pte:
- 		/* Seek to next pte only makes sense for THP */
--		if (!PageTransHuge(page) || PageHuge(page))
-+		if (!PageTransHuge(page))
- 			return not_found(pvmw);
- 		end = vma_address_end(page, pvmw->vma);
- 		do {
+-		} else if (!pmd_present(*pvmw->pmd)) {
++		} else if (!pmd_present(pmde)) {
+ 			if (thp_migration_supported()) {
+ 				if (!(pvmw->flags & PVMW_MIGRATION))
+ 					return not_found(pvmw);
+-				if (is_migration_entry(pmd_to_swp_entry(*pvmw->pmd))) {
+-					swp_entry_t entry = pmd_to_swp_entry(*pvmw->pmd);
++				if (is_migration_entry(pmd_to_swp_entry(pmde))) {
++					swp_entry_t entry = pmd_to_swp_entry(pmde);
+ 
+ 					if (migration_entry_to_page(entry) != page)
+ 						return not_found(pvmw);
 -- 
 2.30.2
 
