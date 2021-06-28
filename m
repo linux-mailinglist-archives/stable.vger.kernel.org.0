@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1FEB3B62BC
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3843B62BD
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235279AbhF1OtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:49:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51762 "EHLO mail.kernel.org"
+        id S235297AbhF1OtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:49:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236090AbhF1OqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:46:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8804F61CD8;
-        Mon, 28 Jun 2021 14:34:28 +0000 (UTC)
+        id S236095AbhF1OqP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:46:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5557E61D0D;
+        Mon, 28 Jun 2021 14:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624890869;
-        bh=iBufuNb8wcm7PSw+Q8O6JNA9qhKBaBJUm8eK0yZTf7E=;
+        bh=DPfZD4ZRdzIUsyXMId33f2qnbbgR6PVoYec8tkw6u78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TFXJCvsmQvzu8zkI4m2vUldgIa8KW/BUd5QRgqx8WmJc8WwALyDUhugjnoFa7npQY
-         4W1HvQPlirBshBhiCBrp7L3YaFGivuwY6Ixm+B1iaLangXr7T3rnroTZTEfyultusO
-         FDKVQUVUB5/4Ku6zOjzsQ6UMWdbxKdQ0Y7pgGn6hwLFlPiGPLR8HW8UpkZ2ukBQY/b
-         i5i0ITSTPyK/FJEl4Gh5DIe/wUKeB6VmTvW7fnnzg5DyTO5c0WRXhB13y1Bjm3QO4R
-         tR0ueFrMOHod1BtrZBEAKz+u5gbc1Eqbf4DGw1UfxsuPYHj/1lO0ZIlOynYFGAeCw0
-         KszS9KLoqRVfw==
+        b=k12BIVTJhrVpfOyqwyQkvq/H60KhN9BoBcj0e/TFxoHs6VrCNPJxDz/0FysS81Z+O
+         +GfsUgmOIb9P1oTYWG5wN0ErjdUX4/DrOxqVhIneGbBSEElE5xPt3M2/1nkgVw/km8
+         QEC3Th5ev4ppgPIi70SD2Gt8jejEyu1ODgudqWy+RSI7I0COCtD9o0fMKjlOoCWpji
+         n7CEXazfOjPnaF46ogbk9U/t1iENBMDZRstU9ZZIkepVn+2HDkGcOjSLyZ2o9U+M46
+         5K9MUzPI62eXHSKWUExFpkIpBiujg63T3rTri3pg/a0kdaFvyFYQzaVh/gwY3ps+xM
+         XljrXCgEO/TVg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Austin Kim <austindh.kim@gmail.com>,
+Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 093/109] net: ethtool: clear heap allocations for ethtool function
-Date:   Mon, 28 Jun 2021 10:32:49 -0400
-Message-Id: <20210628143305.32978-94-sashal@kernel.org>
+Subject: [PATCH 4.19 094/109] ping: Check return value of function 'ping_queue_rcv_skb'
+Date:   Mon, 28 Jun 2021 10:32:50 -0400
+Message-Id: <20210628143305.32978-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -48,70 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austindh.kim@gmail.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 80ec82e3d2c1fab42eeb730aaa7985494a963d3f ]
+[ Upstream commit 9d44fa3e50cc91691896934d106c86e4027e61ca ]
 
-Several ethtool functions leave heap uncleared (potentially) by
-drivers. This will leave the unused portion of heap unchanged and
-might copy the full contents back to userspace.
+Function 'ping_queue_rcv_skb' not always return success, which will
+also return fail. If not check the wrong return value of it, lead to function
+`ping_rcv` return success.
 
-Signed-off-by: Austin Kim <austindh.kim@gmail.com>
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/ethtool.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/ipv4/ping.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/core/ethtool.c b/net/core/ethtool.c
-index 83028017c26d..4db9512feba8 100644
---- a/net/core/ethtool.c
-+++ b/net/core/ethtool.c
-@@ -1594,7 +1594,7 @@ static int ethtool_get_any_eeprom(struct net_device *dev, void __user *useraddr,
- 	if (eeprom.offset + eeprom.len > total_len)
- 		return -EINVAL;
+diff --git a/net/ipv4/ping.c b/net/ipv4/ping.c
+index c59144502ee8..862744c28548 100644
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -968,6 +968,7 @@ bool ping_rcv(struct sk_buff *skb)
+ 	struct sock *sk;
+ 	struct net *net = dev_net(skb->dev);
+ 	struct icmphdr *icmph = icmp_hdr(skb);
++	bool rc = false;
  
--	data = kmalloc(PAGE_SIZE, GFP_USER);
-+	data = kzalloc(PAGE_SIZE, GFP_USER);
- 	if (!data)
- 		return -ENOMEM;
+ 	/* We assume the packet has already been checked by icmp_rcv */
  
-@@ -1659,7 +1659,7 @@ static int ethtool_set_eeprom(struct net_device *dev, void __user *useraddr)
- 	if (eeprom.offset + eeprom.len > ops->get_eeprom_len(dev))
- 		return -EINVAL;
+@@ -982,14 +983,15 @@ bool ping_rcv(struct sk_buff *skb)
+ 		struct sk_buff *skb2 = skb_clone(skb, GFP_ATOMIC);
  
--	data = kmalloc(PAGE_SIZE, GFP_USER);
-+	data = kzalloc(PAGE_SIZE, GFP_USER);
- 	if (!data)
- 		return -ENOMEM;
+ 		pr_debug("rcv on socket %p\n", sk);
+-		if (skb2)
+-			ping_queue_rcv_skb(sk, skb2);
++		if (skb2 && !ping_queue_rcv_skb(sk, skb2))
++			rc = true;
+ 		sock_put(sk);
+-		return true;
+ 	}
+-	pr_debug("no socket, dropping\n");
  
-@@ -1840,7 +1840,7 @@ static int ethtool_self_test(struct net_device *dev, char __user *useraddr)
- 		return -EFAULT;
+-	return false;
++	if (!rc)
++		pr_debug("no socket, dropping\n");
++
++	return rc;
+ }
+ EXPORT_SYMBOL_GPL(ping_rcv);
  
- 	test.len = test_len;
--	data = kmalloc_array(test_len, sizeof(u64), GFP_USER);
-+	data = kcalloc(test_len, sizeof(u64), GFP_USER);
- 	if (!data)
- 		return -ENOMEM;
- 
-@@ -2372,7 +2372,7 @@ static int ethtool_get_tunable(struct net_device *dev, void __user *useraddr)
- 	ret = ethtool_tunable_valid(&tuna);
- 	if (ret)
- 		return ret;
--	data = kmalloc(tuna.len, GFP_USER);
-+	data = kzalloc(tuna.len, GFP_USER);
- 	if (!data)
- 		return -ENOMEM;
- 	ret = ops->get_tunable(dev, &tuna, data);
-@@ -2552,7 +2552,7 @@ static int get_phy_tunable(struct net_device *dev, void __user *useraddr)
- 	ret = ethtool_phy_tunable_valid(&tuna);
- 	if (ret)
- 		return ret;
--	data = kmalloc(tuna.len, GFP_USER);
-+	data = kzalloc(tuna.len, GFP_USER);
- 	if (!data)
- 		return -ENOMEM;
- 	mutex_lock(&phydev->lock);
 -- 
 2.30.2
 
