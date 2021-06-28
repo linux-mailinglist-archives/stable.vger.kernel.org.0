@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64DAF3B6119
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F35D3B611E
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234164AbhF1OcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37162 "EHLO mail.kernel.org"
+        id S234208AbhF1Ocm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:32:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234865AbhF1Oaf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:30:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01B0561CA0;
-        Mon, 28 Jun 2021 14:26:57 +0000 (UTC)
+        id S234916AbhF1Oal (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:30:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E443661CC7;
+        Mon, 28 Jun 2021 14:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890418;
-        bh=mQXANN3w5cpLmYEMqIngYVYU2dsvDwqsCtr/alL564U=;
+        s=k20201202; t=1624890419;
+        bh=Lwc4OapAykM3XWAJgQm9V+jdO+9llh9RAZpuM6Jm6yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIHz+C+po21/Y2ZzjNkZLBGaNQNMwml5wywpgr0vdinwEkSGK0z9+2zvD6IpGBxww
-         ePZJ3TN+D2ssGm7qMSzpiOouokC86O+I76ee/uTmzup+18VrsoImQZr4leV2Ucc+Dg
-         Yw9/o0cIDITyYTX8PhyCuWVkF4gg9adrnwW6Kcn5XkVBIeGup2jTQs8qS7wEEiQhrO
-         B0sEzmnb5QuT7wCXydOaoY02x7p6bVmAwR7etQAUe7m4fogSfxbdjXBaLAFJvrcNFN
-         zsKc+fGDV12re3v82J3si0KPOVGriEAedZsGZZudLNt1MY74BM/e7HiFUitOgy9vEP
-         MIEROXU0CIhGA==
+        b=miw2dsn9+nl8sL5YwHDlE00LW66rs7jnyRAVNAXUqNOlz2Cc4M6Ro4yoocCXTZrBT
+         ++UdEciKW8wTMx0/+Fh90+xWOfRuFdaFWMHPFVmRFteW9ERQfeJ1IyW8WpOwAG2ldD
+         Q/Vlkt0iJClwRCIaRGdkS+mQ9WKC31gaGv3JetzzYMsd+kuFSmZiM9MoMmL1W5xVpH
+         3bUYXFwbWdtx0blzYYv5LB74DG3sC+eHWppPoszLFnnrHH0XsiHQFtkgTcys/IVgYS
+         2wpAf230zcAUMd2MlbIrzXozKkteuTAwd2O9b+eYzIWBd0fy6TmrTORtn15k88ahxq
+         ucQ5IA6/mfPXg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Hector Martin <marcan@marcan.st>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+Cc:     Gabriel Knezek <gabeknez@linux.microsoft.com>,
+        Kent Gibson <warthog618@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 059/101] i2c: i801: Ensure that SMBHSTSTS_INUSE_STS is cleared when leaving i801_access
-Date:   Mon, 28 Jun 2021 10:25:25 -0400
-Message-Id: <20210628142607.32218-60-sashal@kernel.org>
+Subject: [PATCH 5.10 060/101] gpiolib: cdev: zero padding during conversion to gpioline_info_changed
+Date:   Mon, 28 Jun 2021 10:25:26 -0400
+Message-Id: <20210628142607.32218-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -49,47 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Gabriel Knezek <gabeknez@linux.microsoft.com>
 
-[ Upstream commit 065b6211a87746e196b56759a70c7851418dd741 ]
+[ Upstream commit cb8f63b8cbf39845244f3ccae43bb7e63bd70543 ]
 
-As explained in [0] currently we may leave SMBHSTSTS_INUSE_STS set,
-thus potentially breaking ACPI/BIOS usage of the SMBUS device.
+When userspace requests a GPIO v1 line info changed event,
+lineinfo_watch_read() populates and returns the gpioline_info_changed
+structure. It contains 5 words of padding at the end which are not
+initialized before being returned to userspace.
 
-Seems patch [0] needs a little bit more of review effort, therefore
-I'd suggest to apply a part of it as quick win. Just clearing
-SMBHSTSTS_INUSE_STS when leaving i801_access() should fix the
-referenced issue and leaves more time for discussing a more
-sophisticated locking handling.
+Zero the structure in gpio_v2_line_info_change_to_v1() before populating
+its contents.
 
-[0] https://www.spinics.net/lists/linux-i2c/msg51558.html
-
-Fixes: 01590f361e94 ("i2c: i801: Instantiate SPD EEPROMs automatically")
-Suggested-by: Hector Martin <marcan@marcan.st>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Hector Martin <marcan@marcan.st>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Tested-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: aad955842d1c ("gpiolib: cdev: support GPIO_V2_GET_LINEINFO_IOCTL and GPIO_V2_GET_LINEINFO_WATCH_IOCTL")
+Signed-off-by: Gabriel Knezek <gabeknez@linux.microsoft.com>
+Reviewed-by: Kent Gibson <warthog618@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpio/gpiolib-cdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index e42b87e96f74..eab6fd6b890e 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -974,6 +974,9 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	}
- 
- out:
-+	/* Unlock the SMBus device for use by BIOS/ACPI */
-+	outb_p(SMBHSTSTS_INUSE_STS, SMBHSTSTS(priv));
-+
- 	pm_runtime_mark_last_busy(&priv->pci_dev->dev);
- 	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
- 	mutex_unlock(&priv->acpi_lock);
+diff --git a/drivers/gpio/gpiolib-cdev.c b/drivers/gpio/gpiolib-cdev.c
+index ade3ecf2ee49..2613881a66e6 100644
+--- a/drivers/gpio/gpiolib-cdev.c
++++ b/drivers/gpio/gpiolib-cdev.c
+@@ -1865,6 +1865,7 @@ static void gpio_v2_line_info_changed_to_v1(
+ 		struct gpio_v2_line_info_changed *lic_v2,
+ 		struct gpioline_info_changed *lic_v1)
+ {
++	memset(lic_v1, 0, sizeof(*lic_v1));
+ 	gpio_v2_line_info_to_v1(&lic_v2->info, &lic_v1->info);
+ 	lic_v1->timestamp = lic_v2->timestamp_ns;
+ 	lic_v1->event_type = lic_v2->event_type;
 -- 
 2.30.2
 
