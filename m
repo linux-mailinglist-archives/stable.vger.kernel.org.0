@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 968863B61CA
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A41653B61C8
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:37:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234891AbhF1Ois (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:38:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43895 "EHLO mail.kernel.org"
+        id S234873AbhF1Oir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:38:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233296AbhF1Ogq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:36:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5543B61CA7;
-        Mon, 28 Jun 2021 14:30:38 +0000 (UTC)
+        id S233906AbhF1Ogr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:36:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2211A61CAB;
+        Mon, 28 Jun 2021 14:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890638;
-        bh=gIQEBC/KVGZS9UUGTzje3enWCQ/rLsBchfEZWL/OtQo=;
+        s=k20201202; t=1624890639;
+        bh=4JTGJ+dweL0v00504jp7U4TEdw8dKTxu+ffHav2ILNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dwc0vCMf981+0DbBI0TZSrwB87oikc6DprndJ3SLn8D7Oy7tUMoQ66wXcbgvm6M7v
-         OyfklAMwcRXVsJ9H0T4O3f5jN1PIkGxtwS8JHa9BsnE+QEOIUkpuBiJM/JbE4hUf2p
-         P9RXw7FkRkfNu6rQpTZpTRm80PRF5n+QkxD0GP3tVJvV1FBbn2ERo5VaSUKqJZlnZZ
-         +OMnRgppT4Dnbhz+vpqRKvTAOczBGl58xa6o5Lx/pFGXdk/dscYkjdWivRmm271i3s
-         u5K3Ya0kvav8ipbIT43n+bu4P8tMwSqeTlAR2k6PKDgoHl7Nv6FsS5jqIHP0x+VRvp
-         J6+GPaFdD2WmQ==
+        b=A+gPyQRLH6ryh/StTx6M5+68MG+PHRhMb+iwaJzEybnfiy+ZlDM3oCGAudA6x0C9L
+         YjFACc3Yw8Pc1ZJ/KjFolCy2TbTvk7s5WUHAXccFWLAew/NDd1Pi28f2DghrC3NzGt
+         GnGHq9GBh/+AEMM5SzGqAqEhuOKtZt0I9Mza14j9Hei52M0UFowdBD1+v85QpyCKqb
+         OHPOzrD/JkU8bUkNPtmyXH1y+Aakn3zNUHqVmB3WaLMjMaFUWnVAIq0+DR9JB1US4t
+         f7R7vIKIN/9jsqgKXs7Ey+0lqOE0GXwtlgz319YVpafUpoZJEThPvtUG0y0dy8jmmH
+         AsuuRoAXMb8CA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Esben Haabendal <esben@geanix.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Fabien Dessenne <fabien.dessenne@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 38/71] net: ll_temac: Avoid ndo_start_xmit returning NETDEV_TX_BUSY
-Date:   Mon, 28 Jun 2021 10:29:31 -0400
-Message-Id: <20210628143004.32596-39-sashal@kernel.org>
+Subject: [PATCH 5.4 39/71] pinctrl: stm32: fix the reported number of GPIO lines per bank
+Date:   Mon, 28 Jun 2021 10:29:32 -0400
+Message-Id: <20210628143004.32596-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -48,38 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Esben Haabendal <esben@geanix.com>
+From: Fabien Dessenne <fabien.dessenne@foss.st.com>
 
-[ Upstream commit f6396341194234e9b01cd7538bc2c6ac4501ab14 ]
+[ Upstream commit 67e2996f72c71ebe4ac2fcbcf77e54479bb7aa11 ]
 
-As documented in Documentation/networking/driver.rst, the ndo_start_xmit
-method must not return NETDEV_TX_BUSY under any normal circumstances, and
-as recommended, we simply stop the tx queue in advance, when there is a
-risk that the next xmit would cause a NETDEV_TX_BUSY return.
+Each GPIO bank supports a variable number of lines which is usually 16, but
+is less in some cases : this is specified by the last argument of the
+"gpio-ranges" bank node property.
+Report to the framework, the actual number of lines, so the libgpiod
+gpioinfo command lists the actually existing GPIO lines.
 
-Signed-off-by: Esben Haabendal <esben@geanix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1dc9d289154b ("pinctrl: stm32: add possibility to use gpio-ranges to declare bank range")
+Signed-off-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Link: https://lore.kernel.org/r/20210617144629.2557693-1-fabien.dessenne@foss.st.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/ll_temac_main.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/pinctrl/stm32/pinctrl-stm32.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
-index d3d9f7046913..9a7af7dda70d 100644
---- a/drivers/net/ethernet/xilinx/ll_temac_main.c
-+++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
-@@ -939,6 +939,11 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 	wmb();
- 	lp->dma_out(lp, TX_TAILDESC_PTR, tail_p); /* DMA start */
+diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
+index 2d5e0435af0a..bac1d040baca 100644
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -1153,7 +1153,7 @@ static int stm32_gpiolib_register_bank(struct stm32_pinctrl *pctl,
+ 	struct resource res;
+ 	struct reset_control *rstc;
+ 	int npins = STM32_GPIO_PINS_PER_BANK;
+-	int bank_nr, err;
++	int bank_nr, err, i = 0;
  
-+	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1)) {
-+		netdev_info(ndev, "%s -> netif_stop_queue\n", __func__);
-+		netif_stop_queue(ndev);
-+	}
+ 	rstc = of_reset_control_get_exclusive(np, NULL);
+ 	if (!IS_ERR(rstc))
+@@ -1182,9 +1182,14 @@ static int stm32_gpiolib_register_bank(struct stm32_pinctrl *pctl,
+ 
+ 	of_property_read_string(np, "st,bank-name", &bank->gpio_chip.label);
+ 
+-	if (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3, 0, &args)) {
++	if (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3, i, &args)) {
+ 		bank_nr = args.args[1] / STM32_GPIO_PINS_PER_BANK;
+ 		bank->gpio_chip.base = args.args[1];
 +
- 	return NETDEV_TX_OK;
- }
- 
++		npins = args.args[2];
++		while (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3,
++							 ++i, &args))
++			npins += args.args[2];
+ 	} else {
+ 		bank_nr = pctl->nbanks;
+ 		bank->gpio_chip.base = bank_nr * STM32_GPIO_PINS_PER_BANK;
 -- 
 2.30.2
 
