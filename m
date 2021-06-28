@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0FC63B6032
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB463B6034
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232417AbhF1OWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233183AbhF1OWn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Jun 2021 10:22:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54378 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233201AbhF1OWC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:22:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A76A0619BF;
-        Mon, 28 Jun 2021 14:19:26 +0000 (UTC)
+        id S233327AbhF1OWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:22:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B015561C76;
+        Mon, 28 Jun 2021 14:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889967;
-        bh=kWtUTq6WVWrZAk1658c581SNcx68NzBUN84oOZqbgZg=;
+        s=k20201202; t=1624889968;
+        bh=+TRSkwqynGvow4YcvPMYfb1aTa2wCIrpixh1uDyMy6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DlO/lQeKO5d09jCl0LL4s45iW8LTyuZywzWl59rPhki39QeQUelj6Y+9Bn+ciEQoN
-         1SET//uXm33kok83CeMuteQwo819OkKmCz8NiHESUvqW27EAHS6m7KOucopJCf7Dzp
-         BAx8MSuUKnOs4ZA/M1CZtGDDEBfw79btJSl0uwXvB+vNonoef2oQ40LSKZy8aVRgHp
-         PYmNutRL3JN19NUP0QiPgy4qgY4r5okXhXol6dD7XW42Xt9NDoXmz0I8Ofz4coE+GX
-         3Hur/Mv4oYxFKQKheHcdRsxxmHWro1JIQanYsXn75cJGuAaKLtVItd2sP7iuY4caoQ
-         McpWPHm5LHrCQ==
+        b=NyouYkqBbM5sO8B3OgTNplTha5M7FRN45092wSfLhPQ6gzRoRfv4Me4uTbGgZ0Rkn
+         uNZK0QZFKhld7mO4OhL3LFtOStsycqwMl6SjFFEW96B9XVtItOP+bWHMOR0iGIr1Fr
+         /cr4GzvNuZ7DHT6WjiqUCE3MJg9wCJvF2YqTI480QNLerCaeA8i5FO8bR/Cp1434wo
+         aya870bah8pUwKK1idNzA5okgvsN0cM1v07vf5LQBSw/MDq8O45lBeMugXRyJO0G1f
+         Lf4QspTLiX07kd5DAZ9lrLWYuIGgj9LXv7mHyRYiL/OdXtTdClSfKxiCVxcuBlHcKc
+         /QCYXASwErLWg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        "Michael L . Semon" <mlsemon35@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 068/110] nilfs2: fix memory leak in nilfs_sysfs_delete_device_group
-Date:   Mon, 28 Jun 2021 10:17:46 -0400
-Message-Id: <20210628141828.31757-69-sashal@kernel.org>
+Cc:     Sven Schnelle <svens@linux.ibm.com>, stable@kernel.org,
+        Marius Hillenbrand <mhillen@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 5.12 069/110] s390/topology: clear thread/group maps for offline cpus
+Date:   Mon, 28 Jun 2021 10:17:47 -0400
+Message-Id: <20210628141828.31757-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -51,57 +50,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 8fd0c1b0647a6bda4067ee0cd61e8395954b6f28 ]
+commit 9e3d62d55bf455d4f9fdf2ede5c8756410c64102 upstream.
 
-My local syzbot instance hit memory leak in nilfs2.  The problem was in
-missing kobject_put() in nilfs_sysfs_delete_device_group().
+The current code doesn't clear the thread/group maps for offline
+CPUs. This may cause kernel crashes like the one bewlow in common
+code that assumes if a CPU has sibblings it is online.
 
-kobject_del() does not call kobject_cleanup() for passed kobject and it
-leads to leaking duped kobject name if kobject_put() was not called.
+Unable to handle kernel pointer dereference in virtual kernel address space
 
-Fail log:
+Call Trace:
+ [<000000013a4b8c3c>] blk_mq_map_swqueue+0x10c/0x388
+([<000000013a4b8bcc>] blk_mq_map_swqueue+0x9c/0x388)
+ [<000000013a4b9300>] blk_mq_init_allocated_queue+0x448/0x478
+ [<000000013a4b9416>] blk_mq_init_queue+0x4e/0x90
+ [<000003ff8019d3e6>] loop_add+0x106/0x278 [loop]
+ [<000003ff801b8148>] loop_init+0x148/0x1000 [loop]
+ [<0000000139de4924>] do_one_initcall+0x3c/0x1e0
+ [<0000000139ef449a>] do_init_module+0x6a/0x2a0
+ [<0000000139ef61bc>] __do_sys_finit_module+0xa4/0xc0
+ [<0000000139de9e6e>] do_syscall+0x7e/0xd0
+ [<000000013a8e0aec>] __do_syscall+0xbc/0x110
+ [<000000013a8ee2e8>] system_call+0x78/0xa0
 
-  BUG: memory leak
-  unreferenced object 0xffff8880596171e0 (size 8):
-  comm "syz-executor379", pid 8381, jiffies 4294980258 (age 21.100s)
-  hex dump (first 8 bytes):
-    6c 6f 6f 70 30 00 00 00                          loop0...
-  backtrace:
-     kstrdup+0x36/0x70 mm/util.c:60
-     kstrdup_const+0x53/0x80 mm/util.c:83
-     kvasprintf_const+0x108/0x190 lib/kasprintf.c:48
-     kobject_set_name_vargs+0x56/0x150 lib/kobject.c:289
-     kobject_add_varg lib/kobject.c:384 [inline]
-     kobject_init_and_add+0xc9/0x160 lib/kobject.c:473
-     nilfs_sysfs_create_device_group+0x150/0x800 fs/nilfs2/sysfs.c:999
-     init_nilfs+0xe26/0x12b0 fs/nilfs2/the_nilfs.c:637
-
-Link: https://lkml.kernel.org/r/20210612140559.20022-1-paskripkin@gmail.com
-Fixes: da7141fb78db ("nilfs2: add /sys/fs/nilfs2/<device> group")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: Michael L. Semon <mlsemon35@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 52aeda7accb6 ("s390/topology: remove offline CPUs from CPU topology masks")
+Cc: <stable@kernel.org> # 5.7+
+Reported-by: Marius Hillenbrand <mhillen@linux.ibm.com>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/kernel/topology.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
-index 303d71430bdd..9c6c0e2e5880 100644
---- a/fs/nilfs2/sysfs.c
-+++ b/fs/nilfs2/sysfs.c
-@@ -1053,6 +1053,7 @@ void nilfs_sysfs_delete_device_group(struct the_nilfs *nilfs)
- 	nilfs_sysfs_delete_superblock_group(nilfs);
- 	nilfs_sysfs_delete_segctor_group(nilfs);
- 	kobject_del(&nilfs->ns_dev_kobj);
-+	kobject_put(&nilfs->ns_dev_kobj);
- 	kfree(nilfs->ns_dev_subgroups);
+diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
+index bfcc327acc6b..26aa2614ee35 100644
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@ -66,7 +66,10 @@ static void cpu_group_map(cpumask_t *dst, struct mask_info *info, unsigned int c
+ {
+ 	static cpumask_t mask;
+ 
+-	cpumask_copy(&mask, cpumask_of(cpu));
++	cpumask_clear(&mask);
++	if (!cpu_online(cpu))
++		goto out;
++	cpumask_set_cpu(cpu, &mask);
+ 	switch (topology_mode) {
+ 	case TOPOLOGY_MODE_HW:
+ 		while (info) {
+@@ -83,10 +86,10 @@ static void cpu_group_map(cpumask_t *dst, struct mask_info *info, unsigned int c
+ 	default:
+ 		fallthrough;
+ 	case TOPOLOGY_MODE_SINGLE:
+-		cpumask_copy(&mask, cpumask_of(cpu));
+ 		break;
+ 	}
+ 	cpumask_and(&mask, &mask, cpu_online_mask);
++out:
+ 	cpumask_copy(dst, &mask);
  }
  
+@@ -95,7 +98,10 @@ static void cpu_thread_map(cpumask_t *dst, unsigned int cpu)
+ 	static cpumask_t mask;
+ 	int i;
+ 
+-	cpumask_copy(&mask, cpumask_of(cpu));
++	cpumask_clear(&mask);
++	if (!cpu_online(cpu))
++		goto out;
++	cpumask_set_cpu(cpu, &mask);
+ 	if (topology_mode != TOPOLOGY_MODE_HW)
+ 		goto out;
+ 	cpu -= cpu % (smp_cpu_mtid + 1);
 -- 
 2.30.2
 
