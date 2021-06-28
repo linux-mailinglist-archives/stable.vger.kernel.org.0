@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B6843B6023
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0209F3B6026
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233257AbhF1OWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:22:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54998 "EHLO mail.kernel.org"
+        id S233426AbhF1OWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:22:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233258AbhF1OVs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:21:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F7F161C81;
+        id S233267AbhF1OVt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:21:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8D8061C89;
         Mon, 28 Jun 2021 14:19:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889959;
-        bh=0LOcAy/QECwBKOOsX2hdrtUq0w+pRrxBez3IxiwpgWI=;
+        s=k20201202; t=1624889960;
+        bh=6XLJmqLWxWdwkYWDhCSw4LJYmerq5v9OQx7Kgxw41dA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2npD+Hikj/TwnWNonH5WF70ZxinbzvlEYBV5kR+5CZMFozJRt/VE8eB8LFjL4UqY
-         X2qUGGIfqHuXeTwlsRKTxPMY3nK6SmAPmSj8c5Jb4SDk4aQSQbCX+wqWnelK1uaP9v
-         Mqm/kv8s3dcVgwgSSfB1CV12mYFx8u+r3nNwx6IpNeXzAUOE5s5Oe3HBqMdRSlewNB
-         Ljom57JrCQ6vbsyAsVRfvzUS5DmBwv7Q+mzWD5l2Kzx3t9eew0maITs4x1plddPXPx
-         x4VIZUAJ+PTSGRX4miBvvsCWcSqz0dsVtyrwQd3zWLzZRLUlF5Ome1rQdTRO3c1eqL
-         29y1gg2h9eHmA==
+        b=VxOrwfJT1XySU9iC+SIDNS2MS9k7vY7jszRq3GJmixHiGo7MBH9g0Ka1poKOS+sah
+         fy1h3TLEmUILnskdWpH9utlKuijXWTN8LQUBlpIMhTESw6l9eiTchDbvnuqMSCC0iM
+         V0y1XzxYQ/i8PlPcIwuglS9voBDGN3QYIcUEfjqmkkKG+affxlh9rG2su71jJAn6wr
+         N6genWe49CmRb7Ihxd0dVVRHfK6hUKGJ7Mh7DnujlekLhH2xv/Oq9MsWOYHNt6ZAHx
+         DeSWEaJ8jb7qwaSHNlByZP+GVcNAqkrV6uFRBLAS+zZpbvajRJNnLzY9Crn1smetfS
+         ekh7/w5rn3XEw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Esben Haabendal <esben@geanix.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     David Abdurachmanov <david.abdurachmanov@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 059/110] net: ll_temac: Avoid ndo_start_xmit returning NETDEV_TX_BUSY
-Date:   Mon, 28 Jun 2021 10:17:37 -0400
-Message-Id: <20210628141828.31757-60-sashal@kernel.org>
+Subject: [PATCH 5.12 060/110] riscv: dts: fu740: fix cache-controller interrupts
+Date:   Mon, 28 Jun 2021 10:17:38 -0400
+Message-Id: <20210628141828.31757-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -48,38 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Esben Haabendal <esben@geanix.com>
+From: David Abdurachmanov <david.abdurachmanov@sifive.com>
 
-[ Upstream commit f6396341194234e9b01cd7538bc2c6ac4501ab14 ]
+[ Upstream commit 7ede12b01b59dc67bef2e2035297dd2da5bfe427 ]
 
-As documented in Documentation/networking/driver.rst, the ndo_start_xmit
-method must not return NETDEV_TX_BUSY under any normal circumstances, and
-as recommended, we simply stop the tx queue in advance, when there is a
-risk that the next xmit would cause a NETDEV_TX_BUSY return.
+The order of interrupt numbers is incorrect.
 
-Signed-off-by: Esben Haabendal <esben@geanix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The order for FU740 is: DirError, DataError, DataFail, DirFail
+
+From SiFive FU740-C000 Manual:
+19 - L2 Cache DirError
+20 - L2 Cache DirFail
+21 - L2 Cache DataError
+22 - L2 Cache DataFail
+
+Signed-off-by: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/ll_temac_main.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/riscv/boot/dts/sifive/fu740-c000.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
-index b105e1d35d15..6bd3a389d389 100644
---- a/drivers/net/ethernet/xilinx/ll_temac_main.c
-+++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
-@@ -942,6 +942,11 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 	wmb();
- 	lp->dma_out(lp, TX_TAILDESC_PTR, tail_p); /* DMA start */
- 
-+	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1)) {
-+		netdev_info(ndev, "%s -> netif_stop_queue\n", __func__);
-+		netif_stop_queue(ndev);
-+	}
-+
- 	return NETDEV_TX_OK;
- }
- 
+diff --git a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
+index eeb4f8c3e0e7..d0d206cdb999 100644
+--- a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
++++ b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
+@@ -272,7 +272,7 @@
+ 			cache-size = <2097152>;
+ 			cache-unified;
+ 			interrupt-parent = <&plic0>;
+-			interrupts = <19 20 21 22>;
++			interrupts = <19 21 22 20>;
+ 			reg = <0x0 0x2010000 0x0 0x1000>;
+ 		};
+ 		gpio: gpio@10060000 {
 -- 
 2.30.2
 
