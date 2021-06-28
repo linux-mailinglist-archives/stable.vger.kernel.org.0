@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5601B3B6362
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABEC13B6366
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232702AbhF1O4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:56:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        id S232916AbhF1O4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:56:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235434AbhF1OwZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:52:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4475C61D34;
-        Mon, 28 Jun 2021 14:37:16 +0000 (UTC)
+        id S232644AbhF1Owz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:52:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B3E661D32;
+        Mon, 28 Jun 2021 14:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624891037;
-        bh=8r1oy1tkcXBR9D5VXKxTJaSV8Casni5cwexr1EDwV+M=;
+        bh=6eGUlXJ0zTfZv83a75Wr/75CS0zZoR2gC7cf6oeZV9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfHk3vnnkX2Zku1zoCnWslQJkEGVYHU8x3EPGWFEIoCaMultjB0f3gxuo63UElIDe
-         OiX6H8IWjaC5Im0cWaO/n7w/CGiPWBenTqcdqfE6x96EkoZxP9oR36vG25RujJyQPG
-         /I3fwD0hhJDnZVCx0RRwKj2peJU/qif5IibQ3N1ftlbUBgm39Cd7JVBruDHxhmk2UB
-         ahEDi0IoDR1ujF2qEHLuxZRbMQyZyP0Jk6iFSmbndxT4/q4gJgz1tWn4y+rrymLTHa
-         SBGMbxA6aPbSXtfOn6S/4y9ziYVk0uqcRc5jSSl8Rm29ARjy33eCkcxLhqK95EmOPa
-         zz8PcUOVPqstg==
+        b=EBfw7rzz8JQTKzjXBnwfO6rMHf6XQ2TLN1DHZNvWpN8W9cfAMUY01yRaiUfsRwPaq
+         odWVExGPdLDz7vaaQFDOYXP9mLY5D46LywxgEwNgaog+HJcNZWQ0Q7Mm705ojBbvgm
+         yyekgv+0k7TBPziSMbqKI5Q+4ADHvWUx26QpPvwVSBHAl3jwUED9alr86D3nmeOgBz
+         m9HVOixedirckyskwszEC2lPcnwPYrzyUcOD2Nuwrss9tyzcT03tOSAM6csO35fzT/
+         IrePbXc5lHcIooMBxLv6riNqnCTq6Th6OvaRrnPdRt5FnrEdhs1CZ10li9Y8reEZ/1
+         l8avvpl4om0Xg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bumyong Lee <bumyong.lee@samsung.com>,
-        Jongho Park <jongho7.park@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>,
+Cc:     Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 54/88] dmaengine: pl330: fix wrong usage of spinlock flags in dma_cyclc
-Date:   Mon, 28 Jun 2021 10:35:54 -0400
-Message-Id: <20210628143628.33342-55-sashal@kernel.org>
+Subject: [PATCH 4.14 55/88] net: bridge: fix vlan tunnel dst null pointer dereference
+Date:   Mon, 28 Jun 2021 10:35:55 -0400
+Message-Id: <20210628143628.33342-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -50,55 +48,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bumyong Lee <bumyong.lee@samsung.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-commit 4ad5dd2d7876d79507a20f026507d1a93b8fff10 upstream.
+commit 58e2071742e38f29f051b709a5cca014ba51166f upstream.
 
-flags varible which is the input parameter of pl330_prep_dma_cyclic()
-should not be used by spinlock_irq[save/restore] function.
+This patch fixes a tunnel_dst null pointer dereference due to lockless
+access in the tunnel egress path. When deleting a vlan tunnel the
+tunnel_dst pointer is set to NULL without waiting a grace period (i.e.
+while it's still usable) and packets egressing are dereferencing it
+without checking. Use READ/WRITE_ONCE to annotate the lockless use of
+tunnel_id, use RCU for accessing tunnel_dst and make sure it is read
+only once and checked in the egress path. The dst is already properly RCU
+protected so we don't need to do anything fancy than to make sure
+tunnel_id and tunnel_dst are read only once and checked in the egress path.
 
-Signed-off-by: Jongho Park <jongho7.park@samsung.com>
-Signed-off-by: Bumyong Lee <bumyong.lee@samsung.com>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20210507063647.111209-1-chanho61.park@samsung.com
-Fixes: f6f2421c0a1c ("dmaengine: pl330: Merge dma_pl330_dmac and pl330_dmac structs")
 Cc: stable@vger.kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 11538d039ac6 ("bridge: vlan dst_metadata hooks in ingress and egress paths")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/pl330.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/bridge/br_private.h     |  4 ++--
+ net/bridge/br_vlan_tunnel.c | 38 +++++++++++++++++++++++--------------
+ 2 files changed, 26 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index c034f506e015..a8cea236099a 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2563,13 +2563,15 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
- 	for (i = 0; i < len / period_len; i++) {
- 		desc = pl330_get_desc(pch);
- 		if (!desc) {
-+			unsigned long iflags;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 14ff034e561c..50a55553a25c 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -93,8 +93,8 @@ struct br_vlan_stats {
+ };
+ 
+ struct br_tunnel_info {
+-	__be64			tunnel_id;
+-	struct metadata_dst	*tunnel_dst;
++	__be64				tunnel_id;
++	struct metadata_dst __rcu	*tunnel_dst;
+ };
+ 
+ /**
+diff --git a/net/bridge/br_vlan_tunnel.c b/net/bridge/br_vlan_tunnel.c
+index 6d2c4eed2dc8..4d5100677c68 100644
+--- a/net/bridge/br_vlan_tunnel.c
++++ b/net/bridge/br_vlan_tunnel.c
+@@ -46,26 +46,33 @@ static struct net_bridge_vlan *br_vlan_tunnel_lookup(struct rhashtable *tbl,
+ 				      br_vlan_tunnel_rht_params);
+ }
+ 
++static void vlan_tunnel_info_release(struct net_bridge_vlan *vlan)
++{
++	struct metadata_dst *tdst = rtnl_dereference(vlan->tinfo.tunnel_dst);
 +
- 			dev_err(pch->dmac->ddma.dev, "%s:%d Unable to fetch desc\n",
- 				__func__, __LINE__);
++	WRITE_ONCE(vlan->tinfo.tunnel_id, 0);
++	RCU_INIT_POINTER(vlan->tinfo.tunnel_dst, NULL);
++	dst_release(&tdst->dst);
++}
++
+ void vlan_tunnel_info_del(struct net_bridge_vlan_group *vg,
+ 			  struct net_bridge_vlan *vlan)
+ {
+-	if (!vlan->tinfo.tunnel_dst)
++	if (!rcu_access_pointer(vlan->tinfo.tunnel_dst))
+ 		return;
+ 	rhashtable_remove_fast(&vg->tunnel_hash, &vlan->tnode,
+ 			       br_vlan_tunnel_rht_params);
+-	vlan->tinfo.tunnel_id = 0;
+-	dst_release(&vlan->tinfo.tunnel_dst->dst);
+-	vlan->tinfo.tunnel_dst = NULL;
++	vlan_tunnel_info_release(vlan);
+ }
  
- 			if (!first)
- 				return NULL;
+ static int __vlan_tunnel_info_add(struct net_bridge_vlan_group *vg,
+ 				  struct net_bridge_vlan *vlan, u32 tun_id)
+ {
+-	struct metadata_dst *metadata = NULL;
++	struct metadata_dst *metadata = rtnl_dereference(vlan->tinfo.tunnel_dst);
+ 	__be64 key = key32_to_tunnel_id(cpu_to_be32(tun_id));
+ 	int err;
  
--			spin_lock_irqsave(&pl330->pool_lock, flags);
-+			spin_lock_irqsave(&pl330->pool_lock, iflags);
+-	if (vlan->tinfo.tunnel_dst)
++	if (metadata)
+ 		return -EEXIST;
  
- 			while (!list_empty(&first->node)) {
- 				desc = list_entry(first->node.next,
-@@ -2579,7 +2581,7 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
+ 	metadata = __ip_tun_set_dst(0, 0, 0, 0, 0, TUNNEL_KEY,
+@@ -74,8 +81,8 @@ static int __vlan_tunnel_info_add(struct net_bridge_vlan_group *vg,
+ 		return -EINVAL;
  
- 			list_move_tail(&first->node, &pl330->desc_pool);
+ 	metadata->u.tun_info.mode |= IP_TUNNEL_INFO_TX | IP_TUNNEL_INFO_BRIDGE;
+-	vlan->tinfo.tunnel_dst = metadata;
+-	vlan->tinfo.tunnel_id = key;
++	rcu_assign_pointer(vlan->tinfo.tunnel_dst, metadata);
++	WRITE_ONCE(vlan->tinfo.tunnel_id, key);
  
--			spin_unlock_irqrestore(&pl330->pool_lock, flags);
-+			spin_unlock_irqrestore(&pl330->pool_lock, iflags);
+ 	err = rhashtable_lookup_insert_fast(&vg->tunnel_hash, &vlan->tnode,
+ 					    br_vlan_tunnel_rht_params);
+@@ -84,9 +91,7 @@ static int __vlan_tunnel_info_add(struct net_bridge_vlan_group *vg,
  
- 			return NULL;
- 		}
+ 	return 0;
+ out:
+-	dst_release(&vlan->tinfo.tunnel_dst->dst);
+-	vlan->tinfo.tunnel_dst = NULL;
+-	vlan->tinfo.tunnel_id = 0;
++	vlan_tunnel_info_release(vlan);
+ 
+ 	return err;
+ }
+@@ -186,12 +191,15 @@ int br_handle_ingress_vlan_tunnel(struct sk_buff *skb,
+ int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
+ 				 struct net_bridge_vlan *vlan)
+ {
++	struct metadata_dst *tunnel_dst;
++	__be64 tunnel_id;
+ 	int err;
+ 
+-	if (!vlan || !vlan->tinfo.tunnel_id)
++	if (!vlan)
+ 		return 0;
+ 
+-	if (unlikely(!skb_vlan_tag_present(skb)))
++	tunnel_id = READ_ONCE(vlan->tinfo.tunnel_id);
++	if (!tunnel_id || unlikely(!skb_vlan_tag_present(skb)))
+ 		return 0;
+ 
+ 	skb_dst_drop(skb);
+@@ -199,7 +207,9 @@ int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
+ 	if (err)
+ 		return err;
+ 
+-	skb_dst_set(skb, dst_clone(&vlan->tinfo.tunnel_dst->dst));
++	tunnel_dst = rcu_dereference(vlan->tinfo.tunnel_dst);
++	if (tunnel_dst)
++		skb_dst_set(skb, dst_clone(&tunnel_dst->dst));
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
