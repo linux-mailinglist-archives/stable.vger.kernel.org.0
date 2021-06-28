@@ -2,147 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 680EB3B6A6D
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 23:28:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBD893B6A94
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 23:48:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238219AbhF1Vai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 17:30:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44800 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238270AbhF1VaC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Jun 2021 17:30:02 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59849C06114D
-        for <stable@vger.kernel.org>; Mon, 28 Jun 2021 14:26:28 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id p8-20020a7bcc880000b02901dbb595a9f1so953769wma.2
-        for <stable@vger.kernel.org>; Mon, 28 Jun 2021 14:26:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Ui5LwDqe36oZepEmMCehlJ7iM8m12iad1EaOX0VKCQw=;
-        b=dTDHmZ1kXXEHLyd/7iTK3ei6SJ+SxTITR7T7fiJHcOMGm9vOgR34A9uKaVR8+eSxDN
-         MpG7YDEen8jA2TSW4ePhU75RYKxwa5WxlLajO1HyWcGF7YdvCtTidU1ZAYeKVLF3rG3q
-         lzETqiV59uqeE+uEvqpwzR7Mop6FwmD4fYd9QK73zlTP/TDYKAsInetXo52YMY3c/esz
-         MAHllHNf2EGwEmt1QDOrBE1FtyyqOHMWgeIXVaVpwIGbXch06OR7Zt7F6qnv5VudsI4P
-         djGn/CCED0lWXh7PW2wO7VOGjax9zybw0QgosQq8HSqJvAH4qlxRCcOs9JfbU1c0E6VO
-         UQXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Ui5LwDqe36oZepEmMCehlJ7iM8m12iad1EaOX0VKCQw=;
-        b=rdkwvv9D0aCrNbh5c60MljraC8xntBQ2lOGV5lmPA5prymN6AWUDJV74UAiqBTgNYC
-         1oe6nNjFIZEan/9Vw9dzTzzYwT00X1nR1fbc+euhy+2OJM0gTaWwxdot5gMK2TN2Kxrv
-         z5JctITa59IBB+GYZI78+ZkqZF3qUR48jIPu/xjVRUUnc2HsfNRV/hK1bC7WrwGr4R1m
-         l6wCNX6oUAu81zwF03HD6BTyxPhtoh8QErswSkEyN76wQV1PlYHs9RYM0K1nFE6SQy1G
-         9UKjJJdOxUxOmh1EVYdww8bC4K8qOCZMkXJgIkOg2bQ5sJQoSCI7K/h9cFL+6XE0+nn4
-         voGA==
-X-Gm-Message-State: AOAM5301lhUchr8gwl1eG4PV7BH1MqA9lp7A5IrOldCULwcfPXjTW/W1
-        FPYOIasnYqgcJE7o7DZ2YbI=
-X-Google-Smtp-Source: ABdhPJy4i+VFniwT5xbm9J7fyaFH/HnFipi+PmEhAhuhTH8ep55BdXRAb6ygNiFP8t3P8ARLzihcZQ==
-X-Received: by 2002:a1c:80d6:: with SMTP id b205mr899365wmd.178.1624915586913;
-        Mon, 28 Jun 2021 14:26:26 -0700 (PDT)
-Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
-        by smtp.gmail.com with ESMTPSA id o11sm14332436wmq.1.2021.06.28.14.26.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Jun 2021 14:26:26 -0700 (PDT)
-Date:   Mon, 28 Jun 2021 22:26:24 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     mbloch@nvidia.com, jgg@nvidia.com, leonro@nvidia.com,
-        maorg@nvidia.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] RDMA/mlx5: Block FDB rules when not in
- switchdev mode" failed to apply to 5.4-stable tree
-Message-ID: <YNo+gN6wsXXy9DjX@debian>
-References: <162358893110067@kroah.com>
+        id S234483AbhF1Vuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 17:50:32 -0400
+Received: from mailout4.samsung.com ([203.254.224.34]:37850 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232143AbhF1Vua (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Jun 2021 17:50:30 -0400
+Received: from epcas3p4.samsung.com (unknown [182.195.41.22])
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20210628214802epoutp04b090e4e221ddc8e592cdc7c113579d77~M3UuhxSUn1974119741epoutp04X
+        for <stable@vger.kernel.org>; Mon, 28 Jun 2021 21:48:02 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20210628214802epoutp04b090e4e221ddc8e592cdc7c113579d77~M3UuhxSUn1974119741epoutp04X
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1624916882;
+        bh=hxKzFy+xnqg7eLkEihr8gyKGDwzA+i3cWEbfDicdVYQ=;
+        h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
+        b=iAWBgtXtXIOSEceh4Lo+bthB//WQ+sMQWOqcLSPiG9+2bEKRRiEpyopvotbPHV+y2
+         Ou4CE3x560MN+NM6hgTVaiGxHnqYQWUT1tzNd7Cn5JHDzmL2SN5jEfl9oVI/0x2g9V
+         nEc86F/UPfpkenU4ACNUai7VNzyz7lttZHpRGj1s=
+Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
+        epcas3p2.samsung.com (KnoxPortal) with ESMTP id
+        20210628214801epcas3p2c230891b31fda11911574c43998d74f2~M3UuFDWC71579715797epcas3p2K;
+        Mon, 28 Jun 2021 21:48:01 +0000 (GMT)
+Received: from epcpadp4 (unknown [182.195.40.18]) by epsnrtp4.localdomain
+        (Postfix) with ESMTP id 4GDLnY6plZz4x9Pq; Mon, 28 Jun 2021 21:48:01 +0000
+        (GMT)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas2p4.samsung.com (KnoxPortal) with ESMTPA id
+        20210628100500epcas2p48c13e88e123aa002aea27a945f9e02e0~Mtu5z62Qs2064920649epcas2p4f;
+        Mon, 28 Jun 2021 10:05:00 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20210628100500epsmtrp11d4b3303a09c88356352ef48b136e491~Mtu5zA34m3193931939epsmtrp1k;
+        Mon, 28 Jun 2021 10:05:00 +0000 (GMT)
+X-AuditID: b6c32a2a-bebff70000002061-7a-60d99ecc5f26
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        A8.9B.08289.CCE99D06; Mon, 28 Jun 2021 19:05:00 +0900 (KST)
+Received: from KORCO039056 (unknown [10.229.8.156]) by epsmtip1.samsung.com
+        (KnoxPortal) with ESMTPA id
+        20210628100500epsmtip17816949dd49642b6e9c507dbc9c7f9d8~Mtu5mDvCS1050310503epsmtip1x;
+        Mon, 28 Jun 2021 10:05:00 +0000 (GMT)
+From:   "Chanho Park" <chanho61.park@samsung.com>
+To:     "'Greg KH'" <gregkh@linuxfoundation.org>
+Cc:     "'Bumyong Lee'" <bumyong.lee@samsung.com>,
+        "'Christoph Hellwig'" <hch@lst.de>,
+        "'Dominique MARTINET'" <dominique.martinet@atmark-techno.com>,
+        =?iso-8859-2?Q?'Horia_Geant=E3'?= <horia.geanta@nxp.com>,
+        <stable@vger.kernel.org>,
+        "'Konrad Rzeszutek Wilk'" <konrad.wilk@oracle.com>
+In-Reply-To: <YNmYE5aHvQBYn6cr@kroah.com>
+Subject: RE: [PATCH] swiotlb: manipulate orig_addr when tlb_addr has offset
+Date:   Mon, 28 Jun 2021 19:05:00 +0900
+Message-ID: <1891546521.01624916881934.JavaMail.epsvc@epcpadp4>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="6KOhrSPBlQ5PUvTm"
-Content-Disposition: inline
-In-Reply-To: <162358893110067@kroah.com>
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQKltQgv62cTY7iu3VSex7QwgHRErAJIYWAyAcMSlFEBi98T+QKRGoCtAf6asY+pO2LQ8A==
+Content-Language: ko
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprAIsWRmVeSWpSXmKPExsWy7bCSnO6ZeTcTDB5t0rbYe9rC4uUhTYvV
+        B5wsmhevZ7NYufook8WH84eZLJYtfsposWDjI0YHDo/O5sVMHvvnrmH32H2zgc1j47sdTB4f
+        n95i8ejbsorR4/MmuQD2KC6blNSczLLUIn27BK6MA987mAtOsFb83n6HtYFxDUsXIyeHhICJ
+        xLY/jUxdjFwcQgI7GCWWnbvHDpGQlXj2bgeULSxxv+UIK0TRM0aJzsWvwRJsAvoSLzu2sYLY
+        IgI6Eh1nTrCAFDELLGKSOD2tjx2iYyaTROfyDUA7ODg4BTQlrq6zBGkQFvCW+HXzAiOIzSKg
+        KrHhzFc2EJtXwFLiyMVrrBC2oMTJmU/ATmUWMJBYsvAXE4QtL7H97RxmiOsUJH4+XQZ1RJjE
+        i/eXmSFqRCRmd7YxT2AUnoVk1Cwko2YhGTULScsCRpZVjJKpBcW56bnFhgVGeanlesWJucWl
+        eel6yfm5mxjBkaaltYNxz6oPeocYmTgYDzFKcDArifCKVV1LEOJNSaysSi3Kjy8qzUktPsQo
+        zcGiJM57oetkvJBAemJJanZqakFqEUyWiYNTqoFJ3+SV/LOenyeFMhNm31pxyuu98xelP4rv
+        rdnje5o2tc2WZt/l/OGF7hfR75/6RUInsEZ+1n01t+5YnrzJnV6OegPpnHA5Cca0wwXrTB7q
+        v0mrrKj7MXHS69Ck0xcDGt4F3vV68eJul3uMwN9bGrpbxY+wqZQU5cgdfq45VaXGhYGxInvC
+        sy0L5Q1bQxr/zDleVnLEPed0OfusLrHlHDybE9r94vkXB0pPaUudz+yiILN8Q3Lxp+2HDl+u
+        EZs61zGaM2S/ZVXEiat/S3NPR3rZ3WvZmpr2+lxVgeA7c6fzN9WaY2K/HvvC7lH4tu2W4nFj
+        zevGPqs7t52uYXXzdTC74z7HeGvVguhpWWL+G5VYijMSDbWYi4oTAeg4uq8jAwAA
+X-CMS-MailID: 20210628100500epcas2p48c13e88e123aa002aea27a945f9e02e0
+X-Msg-Generator: CA
+X-Sendblock-Type: AUTO_CONFIDENTIAL
+X-CPGSPASS: Y
+X-Hop-Count: 3
+X-CMS-RootMailID: 20210628065823epcas2p19305f8b888a7fc0e883ec51db61e3bae
+References: <16246131632380@kroah.com>
+        <CGME20210628065823epcas2p19305f8b888a7fc0e883ec51db61e3bae@epcas2p1.samsung.com>
+        <513700442.21624870682149.JavaMail.epsvc@epcpadp4>
+        <YNmQ9ZmZS658Rxfi@kroah.com>
+        <1891546521.01624872602204.JavaMail.epsvc@epcpadp3>
+        <YNmYE5aHvQBYn6cr@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+> That does not work when the message you are sending in-reply-to is no
+> longer in the recipient's message box :)
 
---6KOhrSPBlQ5PUvTm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ah. Got it.
 
-Hi Greg,
-
-On Sun, Jun 13, 2021 at 02:55:31PM +0200, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> > This is for linux-5.12.y tree.
+> 
+> Great, thanks.
+> 
+> > > And did you send the same patch twice?
+> >
+> > No. Unfortunately, they're different due to swiotlb patches. I
+> > backported the patch to each kernel versions respectively.
+> 
+> What is the "other" patch for?
 
-Here is the backport.
+Another patch what I sent is for linux-5.10.y tree.
+Regarding linux-5.10.y's patch and linux-5.12.y's patch, below patch was
+applied only for linux-5.12.y tree and it made differences.
 
---
-Regards
-Sudip
+daf9514fd5eb swiotlb: Validate bounce size in the sync/unmap path
 
---6KOhrSPBlQ5PUvTm
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-RDMA-mlx5-Block-FDB-rules-when-not-in-switchdev-mode.patch"
-
-From 6c68435634bb5608e5ac4a215c8feb0c77c707ce Mon Sep 17 00:00:00 2001
-From: Mark Bloch <mbloch@nvidia.com>
-Date: Mon, 7 Jun 2021 11:03:12 +0300
-Subject: [PATCH] RDMA/mlx5: Block FDB rules when not in switchdev mode
-
-commit edc0b0bccc9c80d9a44d3002dcca94984b25e7cf upstream.
-
-Allow creating FDB steering rules only when in switchdev mode.
-
-The only software model where a userspace application can manipulate
-FDB entries is when it manages the eswitch. This is only possible in
-switchdev mode where we expose a single RDMA device with representors
-for all the vports that are connected to the eswitch.
-
-Fixes: 52438be44112 ("RDMA/mlx5: Allow inserting a steering rule to the FDB")
-Link: https://lore.kernel.org/r/e928ae7c58d07f104716a2a8d730963d1bd01204.1623052923.git.leonro@nvidia.com
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-[sudip: manually backport to old file]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/infiniband/hw/mlx5/flow.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/drivers/infiniband/hw/mlx5/flow.c b/drivers/infiniband/hw/mlx5/flow.c
-index b198ff10cde9..fddefb29efd7 100644
---- a/drivers/infiniband/hw/mlx5/flow.c
-+++ b/drivers/infiniband/hw/mlx5/flow.c
-@@ -13,6 +13,7 @@
- #include <rdma/ib_umem.h>
- #include <linux/mlx5/driver.h>
- #include <linux/mlx5/fs.h>
-+#include <linux/mlx5/eswitch.h>
- #include "mlx5_ib.h"
- 
- #define UVERBS_MODULE_NAME mlx5_ib
-@@ -316,6 +317,13 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_FLOW_MATCHER_CREATE)(
- 	if (err)
- 		goto end;
- 
-+	if (obj->ns_type == MLX5_FLOW_NAMESPACE_FDB &&
-+	    mlx5_eswitch_mode(dev->mdev->priv.eswitch) !=
-+			      MLX5_ESWITCH_OFFLOADS) {
-+		err = -EINVAL;
-+		goto end;
-+	}
-+
- 	uobj->object = obj;
- 	obj->mdev = dev->mdev;
- 	atomic_set(&obj->usecnt, 0);
--- 
-2.30.2
+Best Regards,
+Chanho Park
 
 
---6KOhrSPBlQ5PUvTm--
