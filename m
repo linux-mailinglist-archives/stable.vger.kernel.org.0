@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B603B63A4
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:56:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A346A3B63A3
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235396AbhF1O6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:58:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59764 "EHLO mail.kernel.org"
+        id S233298AbhF1O6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:58:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236970AbhF1O4a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:56:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8443261C89;
-        Mon, 28 Jun 2021 14:40:16 +0000 (UTC)
+        id S236984AbhF1O4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:56:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49CFF61C8E;
+        Mon, 28 Jun 2021 14:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891217;
-        bh=uMD0UneqO4c1jI3mfk7OC/s+eMI+GCawyKuTXprHWYE=;
+        s=k20201202; t=1624891218;
+        bh=FMYvws+kWjH2cfK0q5IZM3N/gw5nFfC7NZ3ZH7gG+kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bl28yal05kMTiChlhj+XqyitVCHIjAAr2yLKSrQFLs6Dz4LyYFOYaZ0MDfX/fqdI5
-         9g9zzFC1T1DVkiu+bWOvC0GtZLtrqXIURvV90vNGDjjnEmPDESyN9wLhnkRD0cIi92
-         lpfuh0bBfptTw63561xr7xT7oDeOb92Q5nv6ucaTNt8HuBvrVq2PavNYqtJI3K7mEn
-         RV4zPYM3rQEZX5ZCUYMjF/3SdgTXmVv+qigXEViKu75iGTeimE04scv+Hz+0s1DyZE
-         vkggaWjIpyiwbyStCxWaOkVei0cjgfT1btGsMpU0Bpt3kphWAB/eQczqm5iBp43ung
-         x6oiAevTAn6ww==
+        b=DTbYSrP9ylqaXJQ4nXBlNDz2wPJjYtusseW/v4nM1H8F060BQ9R7+RMc/7R8yk2ZX
+         ziMKadxFzicOIjQczl/mcZ8H+uLKTLeWT8KSOa6VJUqTi0w5JHw34+F2fpgK478Ips
+         hb42hPjk3FKwobMFJxntnzPw+Xzek6gdPOK5UdkBpgYKR9UOpTiH/YsVMGjdY20eWO
+         +vKMr6ubT85u3Oa5M5UOb8FrK3h0LqeuxqbFB6Y9RYpOLeIRg5kju6HCU/ffjl1G09
+         1Vwol5M8DT0Bl5Wv/pqjjKH0hoJ8prHCK3N+izZ+p/GlFqzdBpPMx+57VbwclwXVgb
+         dflbT1mIBGnVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Sinan Kaya <okaya@codeaurora.org>,
+        Vinod Koul <vkoul@kernel.org>, dmaengine@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 14/71] fib: Return the correct errno code
-Date:   Mon, 28 Jun 2021 10:39:06 -0400
-Message-Id: <20210628144003.34260-15-sashal@kernel.org>
+Subject: [PATCH 4.9 15/71] dmaengine: QCOM_HIDMA_MGMT depends on HAS_IOMEM
+Date:   Mon, 28 Jun 2021 10:39:07 -0400
+Message-Id: <20210628144003.34260-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
@@ -48,32 +50,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 59607863c54e9eb3f69afc5257dfe71c38bb751e ]
+[ Upstream commit 0cfbb589d67f16fa55b26ae02b69c31b52e344b1 ]
 
-When kalloc or kmemdup failed, should return ENOMEM rather than ENOBUF.
+When CONFIG_HAS_IOMEM is not set/enabled, certain iomap() family
+functions [including ioremap(), devm_ioremap(), etc.] are not
+available.
+Drivers that use these functions should depend on HAS_IOMEM so that
+they do not cause build errors.
 
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Rectifies these build errors:
+s390-linux-ld: drivers/dma/qcom/hidma_mgmt.o: in function `hidma_mgmt_probe':
+hidma_mgmt.c:(.text+0x780): undefined reference to `devm_ioremap_resource'
+s390-linux-ld: drivers/dma/qcom/hidma_mgmt.o: in function `hidma_mgmt_init':
+hidma_mgmt.c:(.init.text+0x126): undefined reference to `of_address_to_resource'
+s390-linux-ld: hidma_mgmt.c:(.init.text+0x16e): undefined reference to `of_address_to_resource'
+
+Fixes: 67a2003e0607 ("dmaengine: add Qualcomm Technologies HIDMA channel driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Sinan Kaya <okaya@codeaurora.org>
+Cc: Vinod Koul <vkoul@kernel.org>
+Cc: dmaengine@vger.kernel.org
+Link: https://lore.kernel.org/r/20210522021313.16405-3-rdunlap@infradead.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/fib_rules.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/qcom/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/core/fib_rules.c b/net/core/fib_rules.c
-index 9f172906cc88..cc6e7ca0aff5 100644
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -767,7 +767,7 @@ static void notify_rule_change(int event, struct fib_rule *rule,
- {
- 	struct net *net;
- 	struct sk_buff *skb;
--	int err = -ENOBUFS;
-+	int err = -ENOMEM;
+diff --git a/drivers/dma/qcom/Kconfig b/drivers/dma/qcom/Kconfig
+index a7761c4025f4..a97c7123d913 100644
+--- a/drivers/dma/qcom/Kconfig
++++ b/drivers/dma/qcom/Kconfig
+@@ -9,6 +9,7 @@ config QCOM_BAM_DMA
  
- 	net = ops->fro_net;
- 	skb = nlmsg_new(fib_rule_nlmsg_size(ops, rule), GFP_KERNEL);
+ config QCOM_HIDMA_MGMT
+ 	tristate "Qualcomm Technologies HIDMA Management support"
++	depends on HAS_IOMEM
+ 	select DMA_ENGINE
+ 	help
+ 	  Enable support for the Qualcomm Technologies HIDMA Management.
 -- 
 2.30.2
 
