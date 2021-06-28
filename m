@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A3C43B610A
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 718D73B60D7
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233972AbhF1Obg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:31:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
+        id S233878AbhF1Oav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:30:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234383AbhF1O3l (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234382AbhF1O3l (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:29:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F90E61C86;
-        Mon, 28 Jun 2021 14:26:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B8F561C8E;
+        Mon, 28 Jun 2021 14:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890376;
-        bh=VL+/AH8Xfy2zo2JtDmPB2fLvSbaiSbgT9qXKIlTq0DY=;
+        s=k20201202; t=1624890377;
+        bh=RlGTtRqElS40w0wiKY8c6YhLOPo5LbemZEzYQcAONsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MlXqlfdxo542gZgKCfxrQMw5+qsBg6emGxgAYZaZY4I+X6rn/rWMwkrt/4Xz2/tpn
-         THHHcpOXSxE9wGSRZvPo7LeKxXWWg7A8Ef9s+YYiGw9FADdsRSaP3tXKXZ4i9OaEwd
-         hWeT9Xtg1zwRcAvA+lC9gcLbBuTFua12bPkEQWCNqHEZeE0XvhYcBhHuRHNbJlUaod
-         M7fLotpjAoa8nPHMj6AlPj6B4IS2ziH3Tc3UOiPahFHsr1Oy0xW9E9wZzDP+mrbkP7
-         ID1ATpuwPYBls7Co8dGp0WG38FTopeOGMdhCkrVKe3c7Ydw1Devq4PTaS9VXphRa/0
-         efXGDGdxwPicg==
+        b=Ya2Omqz+uQ6SMIMeKMLwBXhG5xliI+cvG+HdgPvzZ0uKSX9J+AqQ3XtxhhIbLg11v
+         G1fyAg6Gb9eP65WdZpC4nGGrQ/7N+tmRNhkEi/q1XpVFVPF2JVwicgPkW7jNfnKNmA
+         bpDMimwEfrH8rrWhKZMSy1cPHxB+E4+LbUGgSD4Zfaft9X8slwPWm/9bxe0hWjp81E
+         5ECxCmx4WxgkX7mpJ8zeLalNDeyMXz4ptMjV2ZijyIvFCDiWbUKriAmWNQemKpU6ws
+         7QEQU4i404jUrDxu/+KaW5c17JJwBjb0wv0cyPbkbX8bHpo4+3CXI7LDDtxs9DwoFr
+         vM67DD6Rbtq9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@kernel.org,
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 007/101] drm/amdgpu: wait for moving fence after pinning
-Date:   Mon, 28 Jun 2021 10:24:33 -0400
-Message-Id: <20210628142607.32218-8-sashal@kernel.org>
+Subject: [PATCH 5.10 008/101] ARM: 9081/1: fix gcc-10 thumb2-kernel regression
+Date:   Mon, 28 Jun 2021 10:24:34 -0400
+Message-Id: <20210628142607.32218-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.47-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.10.y
@@ -49,50 +51,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 8ddf5b9bb479570a3825d70fecfb9399bc15700c upstream.
+commit dad7b9896a5dbac5da8275d5a6147c65c81fb5f2 upstream.
 
-We actually need to wait for the moving fence after pinning
-the BO to make sure that the pin is completed.
+When building the kernel wtih gcc-10 or higher using the
+CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y flag, the compiler picks a slightly
+different set of registers for the inline assembly in cpu_init() that
+subsequently results in a corrupt kernel stack as well as remaining in
+FIQ mode. If a banked register is used for the last argument, the wrong
+version of that register gets loaded into CPSR_c.  When building in Arm
+mode, the arguments are passed as immediate values and the bug cannot
+happen.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-References: https://lore.kernel.org/dri-devel/20210621151758.2347474-1-daniel.vetter@ffwll.ch/
-CC: stable@kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20210622114506.106349-3-christian.koenig@amd.com
+This got introduced when Daniel reworked the FIQ handling and was
+technically always broken, but happened to work with both clang and gcc
+before gcc-10 as long as they picked one of the lower registers.
+This is probably an indication that still very few people build the
+kernel in Thumb2 mode.
+
+Marek pointed out the problem on IRC, Arnd narrowed it down to this
+inline assembly and Russell pinpointed the exact bug.
+
+Change the constraints to force the final mode switch to use a non-banked
+register for the argument to ensure that the correct constant gets loaded.
+Another alternative would be to always use registers for the constant
+arguments to avoid the #ifdef that has now become more complex.
+
+Cc: <stable@vger.kernel.org> # v3.18+
+Cc: Daniel Thompson <daniel.thompson@linaro.org>
+Reported-by: Marek Vasut <marek.vasut@gmail.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: c0e7f7ee717e ("ARM: 8150/3: fiq: Replace default FIQ handler")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ arch/arm/kernel/setup.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c
-index 1b56dbc1f304..e93ccdc5faf4 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c
-@@ -238,9 +238,21 @@ static int amdgpu_dma_buf_pin(struct dma_buf_attachment *attach)
- {
- 	struct drm_gem_object *obj = attach->dmabuf->priv;
- 	struct amdgpu_bo *bo = gem_to_amdgpu_bo(obj);
-+	int r;
+diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+index f90479d8b50c..b06602cea99c 100644
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -544,9 +544,11 @@ void notrace cpu_init(void)
+ 	 * In Thumb-2, msr with an immediate value is not allowed.
+ 	 */
+ #ifdef CONFIG_THUMB2_KERNEL
+-#define PLC	"r"
++#define PLC_l	"l"
++#define PLC_r	"r"
+ #else
+-#define PLC	"I"
++#define PLC_l	"I"
++#define PLC_r	"I"
+ #endif
  
- 	/* pin buffer into GTT */
--	return amdgpu_bo_pin(bo, AMDGPU_GEM_DOMAIN_GTT);
-+	r = amdgpu_bo_pin(bo, AMDGPU_GEM_DOMAIN_GTT);
-+	if (r)
-+		return r;
-+
-+	if (bo->tbo.moving) {
-+		r = dma_fence_wait(bo->tbo.moving, true);
-+		if (r) {
-+			amdgpu_bo_unpin(bo);
-+			return r;
-+		}
-+	}
-+	return 0;
+ 	/*
+@@ -568,15 +570,15 @@ void notrace cpu_init(void)
+ 	"msr	cpsr_c, %9"
+ 	    :
+ 	    : "r" (stk),
+-	      PLC (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
++	      PLC_r (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
+ 	      "I" (offsetof(struct stack, irq[0])),
+-	      PLC (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
++	      PLC_r (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
+ 	      "I" (offsetof(struct stack, abt[0])),
+-	      PLC (PSR_F_BIT | PSR_I_BIT | UND_MODE),
++	      PLC_r (PSR_F_BIT | PSR_I_BIT | UND_MODE),
+ 	      "I" (offsetof(struct stack, und[0])),
+-	      PLC (PSR_F_BIT | PSR_I_BIT | FIQ_MODE),
++	      PLC_r (PSR_F_BIT | PSR_I_BIT | FIQ_MODE),
+ 	      "I" (offsetof(struct stack, fiq[0])),
+-	      PLC (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
++	      PLC_l (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
+ 	    : "r14");
+ #endif
  }
- 
- /**
 -- 
 2.30.2
 
