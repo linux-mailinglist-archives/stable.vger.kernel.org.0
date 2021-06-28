@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70DBE3B5FEF
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D4FC3B5FEC
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233099AbhF1OV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54380 "EHLO mail.kernel.org"
+        id S232779AbhF1OVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232766AbhF1OVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232758AbhF1OVQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:21:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2292661C77;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD2C861C81;
         Mon, 28 Jun 2021 14:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889928;
-        bh=grNtQweGzB7ChagePlEAlU9l3SqOz7A4AqMo/2eyJ+0=;
+        s=k20201202; t=1624889929;
+        bh=32WYo5ihIgTpcTEKbKB73QoebLnYJZOaD0OgAOWFUOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VEjjUQ7x7NLgwm3x0mhMG5zAYOnOOWfWFjkxmcf2YRj2voDyJd+bJ6TC+H6+6MpSH
-         n7EKJYdtYOZB7KBWKrQlr2qJOusudkju6UqzjVk8KtLxb0IHUnY6hNXl6NJ+z8ZJ/3
-         qCMMJUXcuTB6yBm8k7OqJ869qr0rh3H2I25hm7Wqgfawhy01KFRogvP6BkkMnM8QNB
-         5lMvap6sfSG4g/pTASLnMSvb2P5hYGEhU5q+jhQh6p2zKcSgaYaERaWVStGbOCbbJd
-         vbiSkyd/ywBFqMSNmHzEPhXmn3ll8jWeoZbMbI5BqVXuOGcEXA/7BX1vWytRHxtcOz
-         yEDF0ZSDApm1Q==
+        b=jpRUxW8BGEVzoP8Xl/XI1hPoKnO2HaG7ouRUeI379SFuYkPjYJH28VvRDP9/zyY/s
+         R882I9O8JmLTL2PIa8cEx3ZP5xQIC4V03ChgTs2BlGlX0s9m59btfefHG5OQGc97m6
+         SjseUdEKn7NEjFH1l+rLtTCKWwVXSnWWGnDg9jI8TmWBfWMS83dvZRpebOEFvJ5+u5
+         Iw+RjvIo94bzx0Od/yDYVTcazQWwmQ7UINksTthkZh+sQPhDw78GwocTEp6qrmE4Q0
+         S/CGfLvINuuxLfUXe8zrmO4RRUn43xcBQyC6VxAwa121x683MP4E7TfkLI7nnRNC4x
+         qHHfuYjKhWxsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 021/110] perf/x86/intel/lbr: Zero the xstate buffer on allocation
-Date:   Mon, 28 Jun 2021 10:16:59 -0400
-Message-Id: <20210628141828.31757-22-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 022/110] dmaengine: zynqmp_dma: Fix PM reference leak in zynqmp_dma_alloc_chan_resourc()
+Date:   Mon, 28 Jun 2021 10:17:00 -0400
+Message-Id: <20210628141828.31757-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -47,48 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 7f049fbdd57f6ea71dc741d903c19c73b2f70950 ]
+[ Upstream commit 8982d48af36d2562c0f904736b0fc80efc9f2532 ]
 
-XRSTORS requires a valid xstate buffer to work correctly. XSAVES does not
-guarantee to write a fully valid buffer according to the SDM:
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-  "XSAVES does not write to any parts of the XSAVE header other than the
-   XSTATE_BV and XCOMP_BV fields."
-
-XRSTORS triggers a #GP:
-
-  "If bytes 63:16 of the XSAVE header are not all zero."
-
-It's dubious at best how this can work at all when the buffer is not zeroed
-before use.
-
-Allocate the buffers with __GFP_ZERO to prevent XRSTORS failure.
-
-Fixes: ce711ea3cab9 ("perf/x86/intel/lbr: Support XSAVES/XRSTORS for LBR context switch")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/87wnr0wo2z.ffs@nanos.tec.linutronix.de
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20210517081826.1564698-4-yukuai3@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/lbr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/dma/xilinx/zynqmp_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/lbr.c b/arch/x86/events/intel/lbr.c
-index 22d0e40a1920..991715886246 100644
---- a/arch/x86/events/intel/lbr.c
-+++ b/arch/x86/events/intel/lbr.c
-@@ -730,7 +730,8 @@ void reserve_lbr_buffers(void)
- 		if (!kmem_cache || cpuc->lbr_xsave)
- 			continue;
+diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
+index d8419565b92c..5fecf5aa6e85 100644
+--- a/drivers/dma/xilinx/zynqmp_dma.c
++++ b/drivers/dma/xilinx/zynqmp_dma.c
+@@ -468,7 +468,7 @@ static int zynqmp_dma_alloc_chan_resources(struct dma_chan *dchan)
+ 	struct zynqmp_dma_desc_sw *desc;
+ 	int i, ret;
  
--		cpuc->lbr_xsave = kmem_cache_alloc_node(kmem_cache, GFP_KERNEL,
-+		cpuc->lbr_xsave = kmem_cache_alloc_node(kmem_cache,
-+							GFP_KERNEL | __GFP_ZERO,
- 							cpu_to_node(cpu));
- 	}
- }
+-	ret = pm_runtime_get_sync(chan->dev);
++	ret = pm_runtime_resume_and_get(chan->dev);
+ 	if (ret < 0)
+ 		return ret;
+ 
 -- 
 2.30.2
 
