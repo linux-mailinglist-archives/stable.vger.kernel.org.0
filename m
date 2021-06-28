@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7709A3B6281
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E8303B6284
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235064AbhF1OsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:48:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
+        id S235097AbhF1OsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:48:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235038AbhF1OoG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235032AbhF1OoG (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:44:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C976E61CF3;
-        Mon, 28 Jun 2021 14:33:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA9E061CED;
+        Mon, 28 Jun 2021 14:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890829;
-        bh=XjZPrMkO8TuAIQCy5hLaTk6V0SgLNRV3NBVPPfQh4+w=;
+        s=k20201202; t=1624890830;
+        bh=9DTlkVEhzTAnW3ymiCdw8IBQ2VyRuxxBEMTlR4u/3hM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZZdj5AW9wNlGm8hB5iK4aSMOMuH2oRG/QGEEhO+2Z+MdqB524FR3AF8x+6gcGoqS
-         Z65uf59OLdi5qnHnbDYy9A7Xe6VQao5A1967vjYZHQ5j4HK9ckRzv2LRd2FHlXvXTs
-         EZy8jk36ZR7mQN6IG+jjj0MQzou8IBCxB/9Dek32sZGppHU6tV7WxLnsnjyNM99vaU
-         sPkZL5LWzoExhjM7m8zg+jRsRJ5yMXcrxba0MLZPkk77YI6Xi8bVm7mv9kNZf6Uwh5
-         zIzJVQ1MoCKLcFrEzQQOR0vjEeBuXilV9oRLv09wU4CfekF6SmdxC9ITarJYNr+W83
-         5RpeYlObYNoTg==
+        b=KWspFpG8iq1Rz6dCN9Lxi5kFNtuuei0h/mL4lRb0zXojyNZ2cHmByUkfCq623hG/w
+         E367TPu03AWBwa3k0viOZ4kwoJlSzTIbSL47q+/lgw1cith4q1mz/ytL98hb+PS3q8
+         LagIuP65HhTBV6t6DTQ+5hhO4QWQQGDTV/9yl+WQo/q3Kr6Mi2MNbFLeLMcmacekJ2
+         C7RMGrt1zQxGMy99O0NwvjQ6kkMtjmTRt9SMe1tyhgKKsNCV/etWD6RDQXX5JbXG53
+         LASukgyBYWO0p7FPSQgUQc7fjt18yLRHCfyD8D+F2skyQuhv+tHEXl+6HGb6lFxIAr
+         AwsNEdlPvjJWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengyang Fan <cy.fan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/109] net: ipv4: fix memory leak in ip_mc_add1_src
-Date:   Mon, 28 Jun 2021 10:32:03 -0400
-Message-Id: <20210628143305.32978-48-sashal@kernel.org>
+Subject: [PATCH 4.19 048/109] net/af_unix: fix a data-race in unix_dgram_sendmsg / unix_release_sock
+Date:   Mon, 28 Jun 2021 10:32:04 -0400
+Message-Id: <20210628143305.32978-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -49,84 +49,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengyang Fan <cy.fan@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d8e2973029b8b2ce477b564824431f3385c77083 ]
+[ Upstream commit a494bd642d9120648b06bb7d28ce6d05f55a7819 ]
 
-BUG: memory leak
-unreferenced object 0xffff888101bc4c00 (size 32):
-  comm "syz-executor527", pid 360, jiffies 4294807421 (age 19.329s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-    01 00 00 00 00 00 00 00 ac 14 14 bb 00 00 02 00 ................
-  backtrace:
-    [<00000000f17c5244>] kmalloc include/linux/slab.h:558 [inline]
-    [<00000000f17c5244>] kzalloc include/linux/slab.h:688 [inline]
-    [<00000000f17c5244>] ip_mc_add1_src net/ipv4/igmp.c:1971 [inline]
-    [<00000000f17c5244>] ip_mc_add_src+0x95f/0xdb0 net/ipv4/igmp.c:2095
-    [<000000001cb99709>] ip_mc_source+0x84c/0xea0 net/ipv4/igmp.c:2416
-    [<0000000052cf19ed>] do_ip_setsockopt net/ipv4/ip_sockglue.c:1294 [inline]
-    [<0000000052cf19ed>] ip_setsockopt+0x114b/0x30c0 net/ipv4/ip_sockglue.c:1423
-    [<00000000477edfbc>] raw_setsockopt+0x13d/0x170 net/ipv4/raw.c:857
-    [<00000000e75ca9bb>] __sys_setsockopt+0x158/0x270 net/socket.c:2117
-    [<00000000bdb993a8>] __do_sys_setsockopt net/socket.c:2128 [inline]
-    [<00000000bdb993a8>] __se_sys_setsockopt net/socket.c:2125 [inline]
-    [<00000000bdb993a8>] __x64_sys_setsockopt+0xba/0x150 net/socket.c:2125
-    [<000000006a1ffdbd>] do_syscall_64+0x40/0x80 arch/x86/entry/common.c:47
-    [<00000000b11467c4>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+While unix_may_send(sk, osk) is called while osk is locked, it appears
+unix_release_sock() can overwrite unix_peer() after this lock has been
+released, making KCSAN unhappy.
 
-In commit 24803f38a5c0 ("igmp: do not remove igmp souce list info when set
-link down"), the ip_mc_clear_src() in ip_mc_destroy_dev() was removed,
-because it was also called in igmpv3_clear_delrec().
+Changing unix_release_sock() to access/change unix_peer()
+before lock is released should fix this issue.
 
-Rough callgraph:
+BUG: KCSAN: data-race in unix_dgram_sendmsg / unix_release_sock
 
-inetdev_destroy
--> ip_mc_destroy_dev
-     -> igmpv3_clear_delrec
-        -> ip_mc_clear_src
--> RCU_INIT_POINTER(dev->ip_ptr, NULL)
+write to 0xffff88810465a338 of 8 bytes by task 20852 on cpu 1:
+ unix_release_sock+0x4ed/0x6e0 net/unix/af_unix.c:558
+ unix_release+0x2f/0x50 net/unix/af_unix.c:859
+ __sock_release net/socket.c:599 [inline]
+ sock_close+0x6c/0x150 net/socket.c:1258
+ __fput+0x25b/0x4e0 fs/file_table.c:280
+ ____fput+0x11/0x20 fs/file_table.c:313
+ task_work_run+0xae/0x130 kernel/task_work.c:164
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:175 [inline]
+ exit_to_user_mode_prepare+0x156/0x190 kernel/entry/common.c:209
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
+ syscall_exit_to_user_mode+0x20/0x40 kernel/entry/common.c:302
+ do_syscall_64+0x56/0x90 arch/x86/entry/common.c:57
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-However, ip_mc_clear_src() called in igmpv3_clear_delrec() doesn't
-release in_dev->mc_list->sources. And RCU_INIT_POINTER() assigns the
-NULL to dev->ip_ptr. As a result, in_dev cannot be obtained through
-inetdev_by_index() and then in_dev->mc_list->sources cannot be released
-by ip_mc_del1_src() in the sock_close. Rough call sequence goes like:
+read to 0xffff88810465a338 of 8 bytes by task 20888 on cpu 0:
+ unix_may_send net/unix/af_unix.c:189 [inline]
+ unix_dgram_sendmsg+0x923/0x1610 net/unix/af_unix.c:1712
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg net/socket.c:674 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2350
+ ___sys_sendmsg net/socket.c:2404 [inline]
+ __sys_sendmmsg+0x315/0x4b0 net/socket.c:2490
+ __do_sys_sendmmsg net/socket.c:2519 [inline]
+ __se_sys_sendmmsg net/socket.c:2516 [inline]
+ __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2516
+ do_syscall_64+0x4a/0x90 arch/x86/entry/common.c:47
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-sock_close
--> __sock_release
-   -> inet_release
-      -> ip_mc_drop_socket
-         -> inetdev_by_index
-         -> ip_mc_leave_src
-            -> ip_mc_del_src
-               -> ip_mc_del1_src
+value changed: 0xffff888167905400 -> 0x0000000000000000
 
-So we still need to call ip_mc_clear_src() in ip_mc_destroy_dev() to free
-in_dev->mc_list->sources.
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 20888 Comm: syz-executor.0 Not tainted 5.13.0-rc5-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 
-Fixes: 24803f38a5c0 ("igmp: do not remove igmp souce list info ...")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chengyang Fan <cy.fan@huawei.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/igmp.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/unix/af_unix.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
-index 523d26f5e22e..ffa847fc9619 100644
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -1816,6 +1816,7 @@ void ip_mc_destroy_dev(struct in_device *in_dev)
- 	while ((i = rtnl_dereference(in_dev->mc_list)) != NULL) {
- 		in_dev->mc_list = i->next_rcu;
- 		in_dev->mc_count--;
-+		ip_mc_clear_src(i);
- 		ip_ma_put(i);
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 2020306468af..53fe5ada5a83 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -540,12 +540,14 @@ static void unix_release_sock(struct sock *sk, int embrion)
+ 	u->path.mnt = NULL;
+ 	state = sk->sk_state;
+ 	sk->sk_state = TCP_CLOSE;
++
++	skpair = unix_peer(sk);
++	unix_peer(sk) = NULL;
++
+ 	unix_state_unlock(sk);
+ 
+ 	wake_up_interruptible_all(&u->peer_wait);
+ 
+-	skpair = unix_peer(sk);
+-
+ 	if (skpair != NULL) {
+ 		if (sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET) {
+ 			unix_state_lock(skpair);
+@@ -560,7 +562,6 @@ static void unix_release_sock(struct sock *sk, int embrion)
+ 
+ 		unix_dgram_peer_wake_disconnect(sk, skpair);
+ 		sock_put(skpair); /* It may now die */
+-		unix_peer(sk) = NULL;
  	}
- }
+ 
+ 	/* Try to flush out this socket. Throw out buffers at least */
 -- 
 2.30.2
 
