@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8861B3B6370
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B6013B6374
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233043AbhF1O5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:57:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57924 "EHLO mail.kernel.org"
+        id S233148AbhF1O5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:57:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235071AbhF1OxT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:53:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C7A361D43;
-        Mon, 28 Jun 2021 14:37:28 +0000 (UTC)
+        id S235188AbhF1OxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:53:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4454261CBB;
+        Mon, 28 Jun 2021 14:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891049;
-        bh=GZR7LTOUScB2ZqvCDfM57F91uXP9lk4sueO4zBXmCKw=;
+        s=k20201202; t=1624891050;
+        bh=5LRxKuqay+9Q8Vcs8SEwtVZWitlCYL6oPSFAp+5srHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZC+A7e4uLwoTgNnM02ZEmp+DKQnSLksekfJOGULYLTIFqivgz2c74yQGRSHK+5sqC
-         3gmls6VI0ly8zVk7nYMgK1oE9D28gu7j4+UcVc/lOtSIzOxa/+EFrXblZleZY8xDbW
-         o0ZbRVQugFt0xQfKRjBHUv7qD3WD3r7TePtpL7NW0UL4TVrLnEpeZjyNl9TM7hus67
-         bavOilJGzoqMB1M7ZJwrffR1o6s4ErMJJMWwZiqUuqthD6I6ZMBbBWneRYBqqAgPLz
-         ghEnTlSmxJokO/6tR/uvH/EearKskndJy/V9+dJUm5c9W1McphQN67+psUAFIBRWqD
-         Ih6Ed4IgEkHmQ==
+        b=KxXj8jQ4pxpSqatpTOwEy1Ah6t4utFItS6bajJduAr88xLmX3uY7qUCyrN53iE7MQ
+         FAweiNGWXOKiacNlP2WfPS/ZJ0QUz+w1c1fsMXphOwXqZJwTD/N/SFandEd20gyzaP
+         Tz6JCenzKdT8ef+ij0tr8kFN0HuSJMOJnfMOk7aK6SuC0HcA8ZXTL31Dh1gVPyqhHA
+         JGdBYGi5Tm5Rs0NnJuDqA6KjU5W8irsCgLdDw0G1UYfiXX/LbGamTdmn7r5CPBd2un
+         0ojdbiI6IehdEgv1rO6jfBnP+hHQsur5pncAhg8TZf3SZFxZmGjH5KSBH390plvsm8
+         C2vXncixcFhYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        Simon Glass <sjg@chromium.org>, Tom Rini <trini@konsulko.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 68/88] Makefile: Move -Wno-unused-but-set-variable out of GCC only block
-Date:   Mon, 28 Jun 2021 10:36:08 -0400
-Message-Id: <20210628143628.33342-69-sashal@kernel.org>
+Subject: [PATCH 4.14 69/88] MIPS: generic: Update node names to avoid unit addresses
+Date:   Mon, 28 Jun 2021 10:36:09 -0400
+Message-Id: <20210628143628.33342-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -51,45 +51,137 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-commit 885480b084696331bea61a4f7eba10652999a9c1 upstream.
+commit e607ff630c6053ecc67502677c0e50053d7892d4 upstream.
 
-Currently, -Wunused-but-set-variable is only supported by GCC so it is
-disabled unconditionally in a GCC only block (it is enabled with W=1).
-clang currently has its implementation for this warning in review so
-preemptively move this statement out of the GCC only block and wrap it
-with cc-disable-warning so that both compilers function the same.
+With the latest mkimage from U-Boot 2021.04, the generic defconfigs no
+longer build, failing with:
+
+/usr/bin/mkimage: verify_header failed for FIT Image support with exit code 1
+
+This is expected after the linked U-Boot commits because '@' is
+forbidden in the node names due to the way that libfdt treats nodes with
+the same prefix but different unit addresses.
+
+Switch the '@' in the node name to '-'. Drop the unit addresses from the
+hash and kernel child nodes because there is only one node so they do
+not need to have a number to differentiate them.
 
 Cc: stable@vger.kernel.org
-Link: https://reviews.llvm.org/D100581
+Link: https://source.denx.de/u-boot/u-boot/-/commit/79af75f7776fc20b0d7eb6afe1e27c00fdb4b9b4
+Link: https://source.denx.de/u-boot/u-boot/-/commit/3f04db891a353f4b127ed57279279f851c6b4917
+Suggested-by: Simon Glass <sjg@chromium.org>
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-[nc: Backport, workaround lack of e2079e93f562 in older branches]
+Reviewed-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+[nathan: Backport to 4.14, only apply to .its.S files that exist]
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/mips/generic/board-boston.its.S   | 10 +++++-----
+ arch/mips/generic/board-ni169445.its.S | 10 +++++-----
+ arch/mips/generic/vmlinux.its.S        | 10 +++++-----
+ 3 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index bc9833fdca1a..e2977b8f8e6a 100644
---- a/Makefile
-+++ b/Makefile
-@@ -716,12 +716,11 @@ KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
- # See modpost pattern 2
- KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
- KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
--else
-+endif
+diff --git a/arch/mips/generic/board-boston.its.S b/arch/mips/generic/board-boston.its.S
+index a7f51f97b910..c45ad2759421 100644
+--- a/arch/mips/generic/board-boston.its.S
++++ b/arch/mips/generic/board-boston.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@boston {
++		fdt-boston {
+ 			description = "img,boston Device Tree";
+ 			data = /incbin/("boot/dts/img/boston.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
- # These warnings generated too much noise in a regular build.
- # Use make W=1 to enable them (see scripts/Makefile.extrawarn)
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
--endif
+ 	configurations {
+-		conf@boston {
++		conf-boston {
+ 			description = "Boston Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@boston";
++			kernel = "kernel";
++			fdt = "fdt-boston";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/board-ni169445.its.S b/arch/mips/generic/board-ni169445.its.S
+index e4cb4f95a8cc..0a2e8f7a8526 100644
+--- a/arch/mips/generic/board-ni169445.its.S
++++ b/arch/mips/generic/board-ni169445.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@ni169445 {
++		fdt-ni169445 {
+ 			description = "NI 169445 device tree";
+ 			data = /incbin/("boot/dts/ni/169445.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
- ifdef CONFIG_FRAME_POINTER
+ 	configurations {
+-		conf@ni169445 {
++		conf-ni169445 {
+ 			description = "NI 169445 Linux Kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@ni169445";
++			kernel = "kernel";
++			fdt = "fdt-ni169445";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/vmlinux.its.S b/arch/mips/generic/vmlinux.its.S
+index 1a08438fd893..3e254676540f 100644
+--- a/arch/mips/generic/vmlinux.its.S
++++ b/arch/mips/generic/vmlinux.its.S
+@@ -6,7 +6,7 @@
+ 	#address-cells = <ADDR_CELLS>;
+ 
+ 	images {
+-		kernel@0 {
++		kernel {
+ 			description = KERNEL_NAME;
+ 			data = /incbin/(VMLINUX_BINARY);
+ 			type = "kernel";
+@@ -15,18 +15,18 @@
+ 			compression = VMLINUX_COMPRESSION;
+ 			load = /bits/ ADDR_BITS <VMLINUX_LOAD_ADDRESS>;
+ 			entry = /bits/ ADDR_BITS <VMLINUX_ENTRY_ADDRESS>;
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
+ 
+ 	configurations {
+-		default = "conf@default";
++		default = "conf-default";
+ 
+-		conf@default {
++		conf-default {
+ 			description = "Generic Linux kernel";
+-			kernel = "kernel@0";
++			kernel = "kernel";
+ 		};
+ 	};
+ };
 -- 
 2.30.2
 
