@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 642733B643D
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A55CF3B6440
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235744AbhF1PG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:06:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
+        id S232837AbhF1PGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:06:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235057AbhF1PEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 11:04:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA29861CE3;
-        Mon, 28 Jun 2021 14:43:08 +0000 (UTC)
+        id S235733AbhF1PEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 11:04:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F43561CE6;
+        Mon, 28 Jun 2021 14:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891389;
-        bh=neb5ROBYa47fFc5s+CGlSPmaX5MjjpwlK7QkKoslZ0c=;
+        s=k20201202; t=1624891390;
+        bh=I1U75O5S3mjo5u3OwmNXu9uVwORj9PVFSWJjhAmQZuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+JrTJ6f9rom23RSp52jEiRMR6MXosBLyc7VI+fMwE3VNzUG2DQWdJqsVYjsVzeUm
-         qZd0xMru9kULzmab9Uw62uqLFwMowE4i0gze5K/c2TDTXnZ0BXA5Wq+d7hfH2eP3t3
-         HJB0sUZK163I8N4bApMABZruzA4qUrrSpxQlbPH1kuC4J5NFPKiN7sf1CaoaMx55Fw
-         grmjwMhu9oyHP8fjbAc/dUM1YFCnzOouJZ+X7Dz2Pk8JzEc+UXMA6Kj3PT02NkMAUo
-         w6PNk1amIDLWeHbZL57RCd+H3cqX9DAaIdcbMueI86Cn5ROtn14SbQ68wjHjDrA+Hd
-         istflbjXLHZcw==
+        b=G5PsU8C+G9aOLeC0zxzsg9opz6c24x/gnfq+IdQOlXM4S9auDFoEvXw3CanHRX8YN
+         njmGjncopmv5oft8OOH0Dsc2Q6UanP5xtk4mTFwnasjKDbPn6lPV1HSOzNJoUvjw2T
+         1DQrk4pf5P0bPHtf0TmSvD3k3lzpO9XQp4JWfAT/BOxXFcRlWUFZOLXaGpa3+X5mgx
+         PLJk2Mu57VtX0F55dR67yrSenh+BLX/pg4sSV6pQqj4DkYI/3GPy9zvwEHGseIM2BJ
+         jkPKz+wgY3mmgh+6gFqNXMxT7f39CExbisZwPWOFCvoM8gefyYOCvcRUrfviPcwrw+
+         QhL9rzHUFc0Gg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 13/57] fib: Return the correct errno code
-Date:   Mon, 28 Jun 2021 10:42:12 -0400
-Message-Id: <20210628144256.34524-14-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 14/57] dmaengine: stedma40: add missing iounmap() on error in d40_probe()
+Date:   Mon, 28 Jun 2021 10:42:13 -0400
+Message-Id: <20210628144256.34524-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
 References: <20210628144256.34524-1-sashal@kernel.org>
@@ -48,32 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 59607863c54e9eb3f69afc5257dfe71c38bb751e ]
+[ Upstream commit fffdaba402cea79b8d219355487d342ec23f91c6 ]
 
-When kalloc or kmemdup failed, should return ENOMEM rather than ENOBUF.
+Add the missing iounmap() before return from d40_probe()
+in the error handling case.
 
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8d318a50b3d7 ("DMAENGINE: Support for ST-Ericssons DMA40 block v3")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210518141108.1324127-1-yangyingliang@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/fib_rules.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/ste_dma40.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/core/fib_rules.c b/net/core/fib_rules.c
-index 2fd4aae8f285..b9cbab73d0de 100644
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -695,7 +695,7 @@ static void notify_rule_change(int event, struct fib_rule *rule,
- {
- 	struct net *net;
- 	struct sk_buff *skb;
--	int err = -ENOBUFS;
-+	int err = -ENOMEM;
+diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
+index 0fede051f4e1..e6d3ed1de374 100644
+--- a/drivers/dma/ste_dma40.c
++++ b/drivers/dma/ste_dma40.c
+@@ -3715,6 +3715,9 @@ failure:
  
- 	net = ops->fro_net;
- 	skb = nlmsg_new(fib_rule_nlmsg_size(ops, rule), GFP_KERNEL);
+ 		kfree(base->lcla_pool.base_unaligned);
+ 
++		if (base->lcpa_base)
++			iounmap(base->lcpa_base);
++
+ 		if (base->phy_lcpa)
+ 			release_mem_region(base->phy_lcpa,
+ 					   base->lcpa_size);
 -- 
 2.30.2
 
