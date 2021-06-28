@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 841C43B5FDF
+	by mail.lfdr.de (Postfix) with ESMTP id DD20D3B5FE0
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:18:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232739AbhF1OVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54242 "EHLO mail.kernel.org"
+        id S232663AbhF1OVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232642AbhF1OVE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:21:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CBFE61C79;
-        Mon, 28 Jun 2021 14:18:38 +0000 (UTC)
+        id S232677AbhF1OVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:21:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AB4761C7B;
+        Mon, 28 Jun 2021 14:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624889919;
-        bh=96ZOV61yS2P117tvuAFxNUKqWS378+Ydh4mqCt9U1uA=;
+        bh=F1dqXNFfwa12acFvwYCztOyALcH2DFJB92oD0WgQ68g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRfmKTmop7dbBoGZO0tWuzQ9moA79reLOUo7WUXK81ugfPGM9B+bhZZ3DnEU4h1OO
-         JoNe7BXtgiMYdKW6JK8V7q4MGNeSe0WpfA32fQv3p6o50OSQvBdWsAwGZ2bbR2mKYw
-         FTGiWqf0W3lMoDU9XAVh4REr9KPloXnevjiCLWMDxRuC108BSXkqrfxXNdf2sKHDqH
-         ixUVivtK08yT6q0R+lA3dkZiEtWojopcoDr/kdbSekXoAc+zqyeoUqReD/3pAfRYGk
-         QFGvdVjFvRGcO7VJx7wu+O2fm6bRaDi5GPmZupxrvFw6/gancj8DJpJGxrGMRJAIho
-         jhi4b0c4fF9kg==
+        b=aYRV0scbjXz9EmJPdrAlSknEzrvOPLaLI/5dm/kjUFLXIQKZ8oJgOQ/QFMjX0x4WL
+         Z76KdNHUolNAJxekp3IqQgvCXNWq37LCneUvuFc2GRwG2kuf7kp8gjsl1GC/ce0D9M
+         oPe3Og0izlvDzIWpvh8aRwLmbABWp2j4kCt9Bslpb0iyOka5IpyK8D/mUmkIDUMRCg
+         B7ySaATrMDxGZ39F+qjCNCnQXOE4gRI1tRhfKQMj4+sSbpsUvGsuG0iXb5POWl7fYW
+         ptNXzUGgReQGmHcsMjgfzuVAbeDpFb4ZKZAVaO73iEiK9mmcP2xKonZdAjewsVgMQF
+         AtFbIUUYHqFBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neil Armstrong <narmstrong@baylibre.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+Cc:     Johannes Weiner <hannes@cmpxchg.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 009/110] mmc: meson-gx: use memcpy_to/fromio for dram-access-quirk
-Date:   Mon, 28 Jun 2021 10:16:47 -0400
-Message-Id: <20210628141828.31757-10-sashal@kernel.org>
+Subject: [PATCH 5.12 010/110] psi: Fix psi state corruption when schedule() races with cgroup move
+Date:   Mon, 28 Jun 2021 10:16:48 -0400
+Message-Id: <20210628141828.31757-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -50,121 +49,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-commit 103a5348c22c3fca8b96c735a9e353b8a0801842 upstream.
+commit d583d360a620e6229422b3455d0be082b8255f5e upstream.
 
-It has been reported that usage of memcpy() to/from an iomem mapping is invalid,
-and a recent arm64 memcpy update [1] triggers a memory abort when dram-access-quirk
-is used on the G12A/G12B platforms.
+4117cebf1a9f ("psi: Optimize task switch inside shared cgroups")
+introduced a race condition that corrupts internal psi state. This
+manifests as kernel warnings, sometimes followed by bogusly high IO
+pressure:
 
-This adds a local sg_copy_to_buffer which makes usage of io versions of memcpy
-when dram-access-quirk is enabled.
+  psi: task underflow! cpu=1 t=2 tasks=[0 0 0 0] clear=c set=0
+  (schedule() decreasing RUNNING and ONCPU, both of which are 0)
 
-[1] 285133040e6c ("arm64: Import latest memcpy()/memmove() implementation")
+  psi: incosistent task state! task=2412744:systemd cpu=17 psi_flags=e clear=3 set=0
+  (cgroup_move_task() clearing MEMSTALL and IOWAIT, but task is MEMSTALL | RUNNING | ONCPU)
 
-Fixes: acdc8e71d9bb ("mmc: meson-gx: add dram-access-quirk")
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Suggested-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20210609150230.9291-1-narmstrong@baylibre.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+What the offending commit does is batch the two psi callbacks in
+schedule() to reduce the number of cgroup tree updates. When prev is
+deactivated and removed from the runqueue, nothing is done in psi at
+first; when the task switch completes, TSK_RUNNING and TSK_IOWAIT are
+updated along with TSK_ONCPU.
+
+However, the deactivation and the task switch inside schedule() aren't
+atomic: pick_next_task() may drop the rq lock for load balancing. When
+this happens, cgroup_move_task() can run after the task has been
+physically dequeued, but the psi updates are still pending. Since it
+looks at the task's scheduler state, it doesn't move everything to the
+new cgroup that the task switch that follows is about to clear from
+it. cgroup_move_task() will leak the TSK_RUNNING count in the old
+cgroup, and psi_sched_switch() will underflow it in the new cgroup.
+
+A similar thing can happen for iowait. TSK_IOWAIT is usually set when
+a p->in_iowait task is dequeued, but again this update is deferred to
+the switch. cgroup_move_task() can see an unqueued p->in_iowait task
+and move a non-existent TSK_IOWAIT. This results in the inconsistent
+task state warning, as well as a counter underflow that will result in
+permanent IO ghost pressure being reported.
+
+Fix this bug by making cgroup_move_task() use task->psi_flags instead
+of looking at the potentially mismatching scheduler state.
+
+[ We used the scheduler state historically in order to not rely on
+  task->psi_flags for anything but debugging. But that ship has sailed
+  anyway, and this is simpler and more robust.
+
+  We previously already batched TSK_ONCPU clearing with the
+  TSK_RUNNING update inside the deactivation call from schedule(). But
+  that ordering was safe and didn't result in TSK_ONCPU corruption:
+  unlike most places in the scheduler, cgroup_move_task() only checked
+  task_current() and handled TSK_ONCPU if the task was still queued. ]
+
+Fixes: 4117cebf1a9f ("psi: Optimize task switch inside shared cgroups")
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210503174917.38579-1-hannes@cmpxchg.org
+Cc: Oleksandr Natalenko <oleksandr@natalenko.name>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/meson-gx-mmc.c | 50 +++++++++++++++++++++++++++++----
- 1 file changed, 45 insertions(+), 5 deletions(-)
+ kernel/sched/psi.c | 36 ++++++++++++++++++++++++++----------
+ 1 file changed, 26 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/mmc/host/meson-gx-mmc.c b/drivers/mmc/host/meson-gx-mmc.c
-index 016a6106151a..3f28eb4d17fe 100644
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -165,6 +165,7 @@ struct meson_host {
- 
- 	unsigned int bounce_buf_size;
- 	void *bounce_buf;
-+	void __iomem *bounce_iomem_buf;
- 	dma_addr_t bounce_dma_addr;
- 	struct sd_emmc_desc *descs;
- 	dma_addr_t descs_dma_addr;
-@@ -745,6 +746,47 @@ static void meson_mmc_desc_chain_transfer(struct mmc_host *mmc, u32 cmd_cfg)
- 	writel(start, host->regs + SD_EMMC_START);
- }
- 
-+/* local sg copy to buffer version with _to/fromio usage for dram_access_quirk */
-+static void meson_mmc_copy_buffer(struct meson_host *host, struct mmc_data *data,
-+				  size_t buflen, bool to_buffer)
-+{
-+	unsigned int sg_flags = SG_MITER_ATOMIC;
-+	struct scatterlist *sgl = data->sg;
-+	unsigned int nents = data->sg_len;
-+	struct sg_mapping_iter miter;
-+	unsigned int offset = 0;
-+
-+	if (to_buffer)
-+		sg_flags |= SG_MITER_FROM_SG;
-+	else
-+		sg_flags |= SG_MITER_TO_SG;
-+
-+	sg_miter_start(&miter, sgl, nents, sg_flags);
-+
-+	while ((offset < buflen) && sg_miter_next(&miter)) {
-+		unsigned int len;
-+
-+		len = min(miter.length, buflen - offset);
-+
-+		/* When dram_access_quirk, the bounce buffer is a iomem mapping */
-+		if (host->dram_access_quirk) {
-+			if (to_buffer)
-+				memcpy_toio(host->bounce_iomem_buf + offset, miter.addr, len);
-+			else
-+				memcpy_fromio(miter.addr, host->bounce_iomem_buf + offset, len);
-+		} else {
-+			if (to_buffer)
-+				memcpy(host->bounce_buf + offset, miter.addr, len);
-+			else
-+				memcpy(miter.addr, host->bounce_buf + offset, len);
-+		}
-+
-+		offset += len;
-+	}
-+
-+	sg_miter_stop(&miter);
-+}
-+
- static void meson_mmc_start_cmd(struct mmc_host *mmc, struct mmc_command *cmd)
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 651218ded981..ef37acd28e4a 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -965,7 +965,7 @@ void psi_cgroup_free(struct cgroup *cgroup)
+  */
+ void cgroup_move_task(struct task_struct *task, struct css_set *to)
  {
- 	struct meson_host *host = mmc_priv(mmc);
-@@ -788,8 +830,7 @@ static void meson_mmc_start_cmd(struct mmc_host *mmc, struct mmc_command *cmd)
- 		if (data->flags & MMC_DATA_WRITE) {
- 			cmd_cfg |= CMD_CFG_DATA_WR;
- 			WARN_ON(xfer_bytes > host->bounce_buf_size);
--			sg_copy_to_buffer(data->sg, data->sg_len,
--					  host->bounce_buf, xfer_bytes);
-+			meson_mmc_copy_buffer(host, data, xfer_bytes, true);
- 			dma_wmb();
- 		}
+-	unsigned int task_flags = 0;
++	unsigned int task_flags;
+ 	struct rq_flags rf;
+ 	struct rq *rq;
  
-@@ -958,8 +999,7 @@ static irqreturn_t meson_mmc_irq_thread(int irq, void *dev_id)
- 	if (meson_mmc_bounce_buf_read(data)) {
- 		xfer_bytes = data->blksz * data->blocks;
- 		WARN_ON(xfer_bytes > host->bounce_buf_size);
--		sg_copy_from_buffer(data->sg, data->sg_len,
--				    host->bounce_buf, xfer_bytes);
-+		meson_mmc_copy_buffer(host, data, xfer_bytes, false);
- 	}
+@@ -980,15 +980,31 @@ void cgroup_move_task(struct task_struct *task, struct css_set *to)
  
- 	next_cmd = meson_mmc_get_next_command(cmd);
-@@ -1179,7 +1219,7 @@ static int meson_mmc_probe(struct platform_device *pdev)
- 		 * instead of the DDR memory
- 		 */
- 		host->bounce_buf_size = SD_EMMC_SRAM_DATA_BUF_LEN;
--		host->bounce_buf = host->regs + SD_EMMC_SRAM_DATA_BUF_OFF;
-+		host->bounce_iomem_buf = host->regs + SD_EMMC_SRAM_DATA_BUF_OFF;
- 		host->bounce_dma_addr = res->start + SD_EMMC_SRAM_DATA_BUF_OFF;
- 	} else {
- 		/* data bounce buffer */
+ 	rq = task_rq_lock(task, &rf);
+ 
+-	if (task_on_rq_queued(task)) {
+-		task_flags = TSK_RUNNING;
+-		if (task_current(rq, task))
+-			task_flags |= TSK_ONCPU;
+-	} else if (task->in_iowait)
+-		task_flags = TSK_IOWAIT;
+-
+-	if (task->in_memstall)
+-		task_flags |= TSK_MEMSTALL;
++	/*
++	 * We may race with schedule() dropping the rq lock between
++	 * deactivating prev and switching to next. Because the psi
++	 * updates from the deactivation are deferred to the switch
++	 * callback to save cgroup tree updates, the task's scheduling
++	 * state here is not coherent with its psi state:
++	 *
++	 * schedule()                   cgroup_move_task()
++	 *   rq_lock()
++	 *   deactivate_task()
++	 *     p->on_rq = 0
++	 *     psi_dequeue() // defers TSK_RUNNING & TSK_IOWAIT updates
++	 *   pick_next_task()
++	 *     rq_unlock()
++	 *                                rq_lock()
++	 *                                psi_task_change() // old cgroup
++	 *                                task->cgroups = to
++	 *                                psi_task_change() // new cgroup
++	 *                                rq_unlock()
++	 *     rq_lock()
++	 *   psi_sched_switch() // does deferred updates in new cgroup
++	 *
++	 * Don't rely on the scheduling state. Use psi_flags instead.
++	 */
++	task_flags = task->psi_flags;
+ 
+ 	if (task_flags)
+ 		psi_task_change(task, task_flags, 0);
 -- 
 2.30.2
 
