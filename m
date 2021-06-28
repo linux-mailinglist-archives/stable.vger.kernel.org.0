@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86F753B62A4
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203453B62B7
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234270AbhF1Osz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:48:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51690 "EHLO mail.kernel.org"
+        id S234732AbhF1Os6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:48:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236056AbhF1OqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236062AbhF1OqM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:46:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76B9361241;
-        Mon, 28 Jun 2021 14:34:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 576CA61C7E;
+        Mon, 28 Jun 2021 14:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890864;
-        bh=LbRUoGLthrbnarBTwl3wzxA/4jZCE9De3pFijdimHao=;
+        s=k20201202; t=1624890865;
+        bh=IIkuQRsBh3/8CB804JzthGvvYnrcFyAd5UN6Kk23CQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyAeOPJqVjMxsbVW480BRUodsTpadTvyYQjE9g5iBS1XtvDledYjwjTkLB7KIfbmh
-         BYu5i7z16G6WsDsgleAw73ADFPy0cuLANzTcCQp7QxE+Vqdv8Q6hWsnyCauVgXSKoK
-         YmJSXwLDNap+8lFifypiMoN0+61UwbTiN7rSIM208z6zDGEdNjQIh/fPn2OWuLFSeK
-         xJpgZqjMBN0DDBUqqvXA/ZSpldaTwjOVUVuuYiwzKj7Kq01pQZKiqjkMIhiCc5Lux1
-         KN6ysgLGB7wz9w2y13saP4jobg4kj30sM0CyNT3qc7+pnsRXflmGZ8LMG+5GL29R10
-         kjvUigPd17PCg==
+        b=omrLPOESbqjiL7y5N10BlEvt39RlCUL3DzPRhsSgts96aaK4jKAK5tz31Sf2ons3o
+         o4ot3R+8mQPWJR2wBEVq94GpBl7cZNDGk2VgYA5ao/bajET26azbri4cKPptzQJj43
+         E5G4EyDciwiZzWTzVu5MuZVhbUaX+GekqcBqcr5n3qKGD0FEtkY4Mw/y/YgYM5shkt
+         Nirj5ytUJ6MztmY9fleK056/VekUCSgS4y3cjnpFlAaFLB26iDbMgI1pzfT67dspVF
+         VzWmhl4l3Nzv30JXUXlu96UOdz1DOJG/Na3+LlZ6uiA+9YseZ2u5MN7qM6dzEwPmsk
+         M3W+mKCodN6gA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        Simon Glass <sjg@chromium.org>, Tom Rini <trini@konsulko.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 087/109] Makefile: Move -Wno-unused-but-set-variable out of GCC only block
-Date:   Mon, 28 Jun 2021 10:32:43 -0400
-Message-Id: <20210628143305.32978-88-sashal@kernel.org>
+Subject: [PATCH 4.19 088/109] MIPS: generic: Update node names to avoid unit addresses
+Date:   Mon, 28 Jun 2021 10:32:44 -0400
+Message-Id: <20210628143305.32978-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -51,45 +51,170 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-commit 885480b084696331bea61a4f7eba10652999a9c1 upstream.
+commit e607ff630c6053ecc67502677c0e50053d7892d4 upstream.
 
-Currently, -Wunused-but-set-variable is only supported by GCC so it is
-disabled unconditionally in a GCC only block (it is enabled with W=1).
-clang currently has its implementation for this warning in review so
-preemptively move this statement out of the GCC only block and wrap it
-with cc-disable-warning so that both compilers function the same.
+With the latest mkimage from U-Boot 2021.04, the generic defconfigs no
+longer build, failing with:
+
+/usr/bin/mkimage: verify_header failed for FIT Image support with exit code 1
+
+This is expected after the linked U-Boot commits because '@' is
+forbidden in the node names due to the way that libfdt treats nodes with
+the same prefix but different unit addresses.
+
+Switch the '@' in the node name to '-'. Drop the unit addresses from the
+hash and kernel child nodes because there is only one node so they do
+not need to have a number to differentiate them.
 
 Cc: stable@vger.kernel.org
-Link: https://reviews.llvm.org/D100581
+Link: https://source.denx.de/u-boot/u-boot/-/commit/79af75f7776fc20b0d7eb6afe1e27c00fdb4b9b4
+Link: https://source.denx.de/u-boot/u-boot/-/commit/3f04db891a353f4b127ed57279279f851c6b4917
+Suggested-by: Simon Glass <sjg@chromium.org>
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-[nc: Backport, workaround lack of e2079e93f562 in older branches]
+Reviewed-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+[nathan: Backport to 4.19, only apply to .its.S files that exist]
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/mips/generic/board-boston.its.S   | 10 +++++-----
+ arch/mips/generic/board-ni169445.its.S | 10 +++++-----
+ arch/mips/generic/board-xilfpga.its.S  | 10 +++++-----
+ arch/mips/generic/vmlinux.its.S        | 10 +++++-----
+ 4 files changed, 20 insertions(+), 20 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 9ff7a4b7b8cb..cda7a18b925a 100644
---- a/Makefile
-+++ b/Makefile
-@@ -716,12 +716,11 @@ KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
- # See modpost pattern 2
- KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
- KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
--else
-+endif
+diff --git a/arch/mips/generic/board-boston.its.S b/arch/mips/generic/board-boston.its.S
+index a7f51f97b910..c45ad2759421 100644
+--- a/arch/mips/generic/board-boston.its.S
++++ b/arch/mips/generic/board-boston.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@boston {
++		fdt-boston {
+ 			description = "img,boston Device Tree";
+ 			data = /incbin/("boot/dts/img/boston.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
- # These warnings generated too much noise in a regular build.
- # Use make W=1 to enable them (see scripts/Makefile.extrawarn)
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
--endif
+ 	configurations {
+-		conf@boston {
++		conf-boston {
+ 			description = "Boston Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@boston";
++			kernel = "kernel";
++			fdt = "fdt-boston";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/board-ni169445.its.S b/arch/mips/generic/board-ni169445.its.S
+index e4cb4f95a8cc..0a2e8f7a8526 100644
+--- a/arch/mips/generic/board-ni169445.its.S
++++ b/arch/mips/generic/board-ni169445.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@ni169445 {
++		fdt-ni169445 {
+ 			description = "NI 169445 device tree";
+ 			data = /incbin/("boot/dts/ni/169445.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
- ifdef CONFIG_FRAME_POINTER
+ 	configurations {
+-		conf@ni169445 {
++		conf-ni169445 {
+ 			description = "NI 169445 Linux Kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@ni169445";
++			kernel = "kernel";
++			fdt = "fdt-ni169445";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/board-xilfpga.its.S b/arch/mips/generic/board-xilfpga.its.S
+index a2e773d3f14f..08c1e900eb4e 100644
+--- a/arch/mips/generic/board-xilfpga.its.S
++++ b/arch/mips/generic/board-xilfpga.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@xilfpga {
++		fdt-xilfpga {
+ 			description = "MIPSfpga (xilfpga) Device Tree";
+ 			data = /incbin/("boot/dts/xilfpga/nexys4ddr.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
+ 
+ 	configurations {
+-		conf@xilfpga {
++		conf-xilfpga {
+ 			description = "MIPSfpga Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@xilfpga";
++			kernel = "kernel";
++			fdt = "fdt-xilfpga";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/vmlinux.its.S b/arch/mips/generic/vmlinux.its.S
+index 1a08438fd893..3e254676540f 100644
+--- a/arch/mips/generic/vmlinux.its.S
++++ b/arch/mips/generic/vmlinux.its.S
+@@ -6,7 +6,7 @@
+ 	#address-cells = <ADDR_CELLS>;
+ 
+ 	images {
+-		kernel@0 {
++		kernel {
+ 			description = KERNEL_NAME;
+ 			data = /incbin/(VMLINUX_BINARY);
+ 			type = "kernel";
+@@ -15,18 +15,18 @@
+ 			compression = VMLINUX_COMPRESSION;
+ 			load = /bits/ ADDR_BITS <VMLINUX_LOAD_ADDRESS>;
+ 			entry = /bits/ ADDR_BITS <VMLINUX_ENTRY_ADDRESS>;
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
+ 
+ 	configurations {
+-		default = "conf@default";
++		default = "conf-default";
+ 
+-		conf@default {
++		conf-default {
+ 			description = "Generic Linux kernel";
+-			kernel = "kernel@0";
++			kernel = "kernel";
+ 		};
+ 	};
+ };
 -- 
 2.30.2
 
