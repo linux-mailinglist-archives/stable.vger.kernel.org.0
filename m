@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA9193B63E8
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:00:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 634B33B63ED
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:00:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236664AbhF1PCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:02:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37110 "EHLO mail.kernel.org"
+        id S236702AbhF1PCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:02:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236494AbhF1PAN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236491AbhF1PAN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 11:00:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E07361D64;
-        Mon, 28 Jun 2021 14:40:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34E1B61D5A;
+        Mon, 28 Jun 2021 14:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891246;
-        bh=lhYlZohQOjQkWi4YVKwrN8xVuF2Zx6Sam0x0aFrl+gk=;
+        s=k20201202; t=1624891247;
+        bh=jW+C2Ku+2r3aj2Bp8gJmXyh/myzEPwAKl/fhAoQ7coc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TbapW1G49VQDfuKtPtKGwnidMYx3pKATnORvAovzyJpbEAhEjaARyUrRKN1FhSPsa
-         zJsXDXbEhPs9x8tA1QNs7IhnL2nmZnqfWIcjxfWrPljzaWFWOfyTJzPlaZ35X5nM2Q
-         Bs/73+n2d2F23LVBO8LXGR7lGwPvB4F2kKDAKWRi8R/vogFBJPwReZ9Mo1d+vPD4ob
-         e3UNLq6bpCU6lXALf3XNb2cDN8RXHaz6m0zojvEhTbiNsTGY+qT/H46IlmuyS3j8K3
-         TfBynNPom2fAp0viufw/1iaI6nrA66wZWuqvsLlKREiwBHQGCQWK90ZTKEolGX9K1Z
-         7X662efZ3geaQ==
+        b=BRp49dQs//rfDkl0B9Jrla1HBb54giLIbzdezACTfwzfhQubOnnQbIygAQUVbYbQN
+         U8KCPtfhfgQs2H4NzHQt+i1jNWF9Azi0eWJ6sRpcPSb/2TzMFRLouSr2DYWrhxbxhD
+         nl0hjq9JjSjh8JUbLcyRKjOYJAM9PnHZTf0/UivyLdox7GHEMMYFhTD9qNCxgFvp0S
+         P1pImFks9OvkyUMmwBQfaxW5Vj3DsXd5UMjd7axk/70QxiM2cn5j1IgOeJ5BeIRonY
+         1F2/KWV9CNThNYmzsNCOVPQL+yQj5lYqmS4HPgupWHHxiIhlPGLLj5p/yPu+T89cvJ
+         JHbnQU7DJlWOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 48/71] tracing: Do not stop recording comms if the trace file is being read
-Date:   Mon, 28 Jun 2021 10:39:40 -0400
-Message-Id: <20210628144003.34260-49-sashal@kernel.org>
+Subject: [PATCH 4.9 49/71] x86/fpu: Reset state for all signal restore failures
+Date:   Mon, 28 Jun 2021 10:39:41 -0400
+Message-Id: <20210628144003.34260-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
@@ -47,59 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 4fdd595e4f9a1ff6d93ec702eaecae451cfc6591 upstream.
+commit efa165504943f2128d50f63de0c02faf6dcceb0d upstream.
 
-A while ago, when the "trace" file was opened, tracing was stopped, and
-code was added to stop recording the comms to saved_cmdlines, for mapping
-of the pids to the task name.
+If access_ok() or fpregs_soft_set() fails in __fpu__restore_sig() then the
+function just returns but does not clear the FPU state as it does for all
+other fatal failures.
 
-Code has been added that only records the comm if a trace event occurred,
-and there's no reason to not trace it if the trace file is opened.
+Clear the FPU state for these failures as well.
 
+Fixes: 72a671ced66d ("x86, fpu: Unify signal handling code paths for x86 and x86_64 kernels")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Fixes: 7ffbd48d5cab2 ("tracing: Cache comms only after an event occurred")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lkml.kernel.org/r/87mtryyhhz.ffs@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ arch/x86/kernel/fpu/signal.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 74ec372a3286..e8bd8de856de 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1616,9 +1616,6 @@ struct saved_cmdlines_buffer {
- };
- static struct saved_cmdlines_buffer *savedcmd;
+diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
+index 769831d9fd11..07b0ebd49576 100644
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -276,15 +276,23 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 		return 0;
+ 	}
  
--/* temporary disable recording */
--static atomic_t trace_record_cmdline_disabled __read_mostly;
--
- static inline char *get_saved_cmdlines(int idx)
- {
- 	return &savedcmd->saved_cmdlines[idx * TASK_COMM_LEN];
-@@ -2825,9 +2822,6 @@ static void *s_start(struct seq_file *m, loff_t *pos)
- 		return ERR_PTR(-EBUSY);
- #endif
+-	if (!access_ok(VERIFY_READ, buf, size))
++	if (!access_ok(VERIFY_READ, buf, size)) {
++		fpu__clear(fpu);
+ 		return -EACCES;
++	}
  
--	if (!iter->snapshot)
--		atomic_inc(&trace_record_cmdline_disabled);
--
- 	if (*pos != iter->pos) {
- 		iter->ent = NULL;
- 		iter->cpu = 0;
-@@ -2870,9 +2864,6 @@ static void s_stop(struct seq_file *m, void *p)
- 		return;
- #endif
+ 	fpu__activate_curr(fpu);
  
--	if (!iter->snapshot)
--		atomic_dec(&trace_record_cmdline_disabled);
--
- 	trace_access_unlock(iter->cpu_file);
- 	trace_event_read_unlock();
- }
+-	if (!static_cpu_has(X86_FEATURE_FPU))
+-		return fpregs_soft_set(current, NULL,
+-				       0, sizeof(struct user_i387_ia32_struct),
+-				       NULL, buf) != 0;
++	if (!static_cpu_has(X86_FEATURE_FPU)) {
++		int ret = fpregs_soft_set(current, NULL, 0,
++					  sizeof(struct user_i387_ia32_struct),
++					  NULL, buf);
++
++		if (ret)
++			fpu__clear(fpu);
++
++		return ret != 0;
++	}
+ 
+ 	if (use_xsave()) {
+ 		struct _fpx_sw_bytes fx_sw_user;
 -- 
 2.30.2
 
