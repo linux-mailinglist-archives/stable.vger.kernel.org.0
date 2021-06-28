@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3B5C3B612B
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E682C3B612D
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234347AbhF1Oc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:32:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35966 "EHLO mail.kernel.org"
+        id S234403AbhF1OdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:33:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234017AbhF1Oas (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:30:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DB3361CD2;
-        Mon, 28 Jun 2021 14:27:11 +0000 (UTC)
+        id S233693AbhF1Oat (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:30:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4647961CB7;
+        Mon, 28 Jun 2021 14:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890432;
-        bh=h3ub+tAgwBelyGuzXqSYF+T6p3QrCUX64eNvdY2V4rk=;
+        s=k20201202; t=1624890433;
+        bh=xTB3YB9ZX3NmGs64ppPafeBJ+1rD9FrGam3WAqOW1fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSOw71o44q1hg/nlhas8Qwv1giW/TJLbe8UO1WxyCEAfhQBHahvr/9gjmA6bWbfEN
-         knPnjAOLVf+W/QzRp8VO0E+vMAYTxOCeAbhY8ut8VMzX22KNOg2iULGn/xqi3HyTyv
-         pBtwNxtQBoW5ADlWENCB3TweMMgUBMVuvu1azhMT05fkr+YFN3LwNucTdWCmvRnVKD
-         fWT7FLaNU8CyE3z5Grq2y5h+AaQkIa8+chbvl1NNlQ+Y4MD3g7VMrFk9eueGFbkVWn
-         OJLoyg4o8hTPpOzPMyKUjIdiOeCL6ehGt5ZsSFImAhnWu/+a8Oc/lCPJXCnLtHVWyD
-         N4CxbhsGrBf7w==
+        b=H8Gjyzm0/8duvQ42RNWcP+Epd0ioG4xqfbSdB8UzxsbP5BNRP5qnJaAX+PDevgJjz
+         6KaqzNlgX47JC5utK5/o+it90WilR/LpaCMxr+Gy0U6Iudvkgglt/LIpCwEMeyu2cv
+         QuCyidFInyISGOzwTBEJFu5B0SRxzo/R+pfazV+E4nb6ne+5jXKprzqBWSw/ghbNpp
+         F8FM11S201dEB+Spvkmw2FqudnMirv6wc0XoKcfZn0p/ikk5RWz7uub2Mn0Re+HRwF
+         SYKmS4HGyzf9Mgo2Dj8vhE3dpI8/QFNuoSjaMj5Ao7OZSgZk7jsIi4oyVAWrTrHWRj
+         1O2j96muccyng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miaohe Lin <linmiaohe@huawei.com>,
+Cc:     Xu Yu <xuyu@linux.alibaba.com>, Hugh Dickins <hughd@google.com>,
+        Gang Deng <gavin.dg@linux.alibaba.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 073/101] mm/rmap: use page_not_mapped in try_to_unmap()
-Date:   Mon, 28 Jun 2021 10:25:39 -0400
-Message-Id: <20210628142607.32218-74-sashal@kernel.org>
+Subject: [PATCH 5.10 074/101] mm, thp: use head page in __migration_entry_wait()
+Date:   Mon, 28 Jun 2021 10:25:40 -0400
+Message-Id: <20210628142607.32218-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -49,63 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Xu Yu <xuyu@linux.alibaba.com>
 
-[ Upstream commit b7e188ec98b1644ff70a6d3624ea16aadc39f5e0 ]
+commit ffc90cbb2970ab88b66ea51dd580469eede57b67 upstream.
 
-page_mapcount_is_zero() calculates accurately how many mappings a hugepage
-has in order to check against 0 only.  This is a waste of cpu time.  We
-can do this via page_not_mapped() to save some possible atomic_read
-cycles.  Remove the function page_mapcount_is_zero() as it's not used
-anymore and move page_not_mapped() above try_to_unmap() to avoid
-identifier undeclared compilation error.
+We notice that hung task happens in a corner but practical scenario when
+CONFIG_PREEMPT_NONE is enabled, as follows.
 
-Link: https://lkml.kernel.org/r/20210130084904.35307-1-linmiaohe@huawei.com
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Process 0                       Process 1                     Process 2..Inf
+split_huge_page_to_list
+    unmap_page
+        split_huge_pmd_address
+                                __migration_entry_wait(head)
+                                                              __migration_entry_wait(tail)
+    remap_page (roll back)
+        remove_migration_ptes
+            rmap_walk_anon
+                cond_resched
+
+Where __migration_entry_wait(tail) is occurred in kernel space, e.g.,
+copy_to_user in fstat, which will immediately fault again without
+rescheduling, and thus occupy the cpu fully.
+
+When there are too many processes performing __migration_entry_wait on
+tail page, remap_page will never be done after cond_resched.
+
+This makes __migration_entry_wait operate on the compound head page,
+thus waits for remap_page to complete, whether the THP is split
+successfully or roll back.
+
+Note that put_and_wait_on_page_locked helps to drop the page reference
+acquired with get_page_unless_zero, as soon as the page is on the wait
+queue, before actually waiting.  So splitting the THP is only prevented
+for a brief interval.
+
+Link: https://lkml.kernel.org/r/b9836c1dd522e903891760af9f0c86a2cce987eb.1623144009.git.xuyu@linux.alibaba.com
+Fixes: ba98828088ad ("thp: add option to setup migration entries during PMD split")
+Suggested-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/rmap.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ mm/migrate.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index 5858639443b4..38573cb93578 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -1716,9 +1716,9 @@ static bool invalid_migration_vma(struct vm_area_struct *vma, void *arg)
- 	return vma_is_temporary_stack(vma);
- }
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 7982256a5125..278e6f3fa62c 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -326,6 +326,7 @@ void __migration_entry_wait(struct mm_struct *mm, pte_t *ptep,
+ 		goto out;
  
--static int page_mapcount_is_zero(struct page *page)
-+static int page_not_mapped(struct page *page)
- {
--	return !total_mapcount(page);
-+	return !page_mapped(page);
- }
+ 	page = migration_entry_to_page(entry);
++	page = compound_head(page);
  
- /**
-@@ -1736,7 +1736,7 @@ bool try_to_unmap(struct page *page, enum ttu_flags flags)
- 	struct rmap_walk_control rwc = {
- 		.rmap_one = try_to_unmap_one,
- 		.arg = (void *)flags,
--		.done = page_mapcount_is_zero,
-+		.done = page_not_mapped,
- 		.anon_lock = page_lock_anon_vma_read,
- 	};
- 
-@@ -1760,11 +1760,6 @@ bool try_to_unmap(struct page *page, enum ttu_flags flags)
- 	return !page_mapcount(page) ? true : false;
- }
- 
--static int page_not_mapped(struct page *page)
--{
--	return !page_mapped(page);
--}
--
- /**
-  * try_to_munlock - try to munlock a page
-  * @page: the page to be munlocked
+ 	/*
+ 	 * Once page cache replacement of page migration started, page_count
 -- 
 2.30.2
 
