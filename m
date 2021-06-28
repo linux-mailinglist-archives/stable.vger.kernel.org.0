@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6775D3B5AC1
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 10:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40A203B5AC2
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 10:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232430AbhF1JA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 05:00:29 -0400
-Received: from mailout1.samsung.com ([203.254.224.24]:53903 "EHLO
-        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231698AbhF1JA3 (ORCPT
+        id S231698AbhF1JAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 05:00:31 -0400
+Received: from mailout4.samsung.com ([203.254.224.34]:48711 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230256AbhF1JA3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 28 Jun 2021 05:00:29 -0400
-Received: from epcas3p4.samsung.com (unknown [182.195.41.22])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20210628085802epoutp01b43d4ba0997e6ba436a58a265222c084~Ms0bH0-TU2500225002epoutp01L
+Received: from epcas3p2.samsung.com (unknown [182.195.41.20])
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20210628085802epoutp049ff1c80ce69ad1c90876ef0555212fe9~Ms0bunOJ91606216062epoutp047
         for <stable@vger.kernel.org>; Mon, 28 Jun 2021 08:58:02 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20210628085802epoutp01b43d4ba0997e6ba436a58a265222c084~Ms0bH0-TU2500225002epoutp01L
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20210628085802epoutp049ff1c80ce69ad1c90876ef0555212fe9~Ms0bunOJ91606216062epoutp047
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
         s=mail20170921; t=1624870682;
-        bh=VOchkg2yG85CPhvrJ5fQhVbHcHqNAu1/CG5ku1NXmB4=;
+        bh=bCN4eBh6FB3KwbBdcmUAMw2xJOLoC5gC7ShigegBltI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A2p9jyw12ZJmyD0MKdfEwGA0gF3BOsnh7AKx/v698QqFWTu0Mlwp+/wat0SEDG9ZG
-         a+WANi9gtmqOKlaCiOHJeKIapZW6CBamQUZZVkxtheS8VNkOffQyoin8aRBEQr4rSb
-         yVRa55MR/AztAS3E/lBrP4QVGbDefarbgkAKS9p0=
-Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
-        epcas3p4.samsung.com (KnoxPortal) with ESMTP id
-        20210628085801epcas3p40ffc187f5f0bbb319eef06523d35d853~Ms0a3W2ow2614926149epcas3p4O;
-        Mon, 28 Jun 2021 08:58:01 +0000 (GMT)
-Received: from epcpadp4 (unknown [182.195.40.18]) by epsnrtp2.localdomain
-        (Postfix) with ESMTP id 4GD1j55vQ1z4x9Pv; Mon, 28 Jun 2021 08:58:01 +0000
+        b=K6eYIfeG5JI3eDSs6QOvdtXD10nNwjOKNCquIu8wrSFCIk75p81Ida4b/WsCsAved
+         9OkpbHhKE7nhCB8w5vEHAEaSjmjZUPhBUA/5o0OInU7p9QY8neCaT851gapbPWIoZB
+         mlU4R5Iieb51hQ2nFs9sUKFbLIpTgCx+vxb+WjTg=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+        epcas3p2.samsung.com (KnoxPortal) with ESMTP id
+        20210628085802epcas3p28497138ef6af0cbeb58ffd2020255ac0~Ms0bRXg-j1336013360epcas3p2j;
+        Mon, 28 Jun 2021 08:58:02 +0000 (GMT)
+Received: from epcpadp4 (unknown [182.195.40.18]) by epsnrtp1.localdomain
+        (Postfix) with ESMTP id 4GD1j61BVfz4x9Q2; Mon, 28 Jun 2021 08:58:02 +0000
         (GMT)
 Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas2p2.samsung.com (KnoxPortal) with ESMTPA id
-        20210628065652epcas2p28f39187d9c1519cea42bd99a7e9dd75d~MrKomotF70030800308epcas2p2L;
-        Mon, 28 Jun 2021 06:56:52 +0000 (GMT)
+        epcas2p1.samsung.com (KnoxPortal) with ESMTPA id
+        20210628065823epcas2p19305f8b888a7fc0e883ec51db61e3bae~MrL9cXK3r0284702847epcas2p15;
+        Mon, 28 Jun 2021 06:58:23 +0000 (GMT)
 Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
         epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20210628065652epsmtrp2acec661caa0957efe3aa4858013edd3c~MrKolxRAy2610926109epsmtrp2C;
-        Mon, 28 Jun 2021 06:56:52 +0000 (GMT)
-X-AuditID: b6c32a29-5f1ff700000020ca-c0-60d972b4ee7e
+        20210628065823epsmtrp277064e27d81d28d0dfdc87dccafbdb54~MrL9bn7gR2657726577epsmtrp2W;
+        Mon, 28 Jun 2021 06:58:23 +0000 (GMT)
+X-AuditID: b6c32a29-5f1ff700000020ca-d6-60d9730f506f
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
         epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        BB.26.08394.4B279D06; Mon, 28 Jun 2021 15:56:52 +0900 (KST)
+        3F.46.08394.F0379D06; Mon, 28 Jun 2021 15:58:23 +0900 (KST)
 Received: from localhost.localdomain (unknown [10.229.9.51]) by
         epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20210628065651epsmtip25fb65a546e9d0aed668fd258af066d8c~MrKoQm6vV2734227342epsmtip2B;
-        Mon, 28 Jun 2021 06:56:51 +0000 (GMT)
+        20210628065823epsmtip21b00e496ad9054d8598dede5e54ee5cd~MrL9O-OwX2748927489epsmtip2J;
+        Mon, 28 Jun 2021 06:58:23 +0000 (GMT)
 From:   Chanho Park <chanho61.park@samsung.com>
 To:     gregkh@linuxfoundation.org
 Cc:     Bumyong Lee <bumyong.lee@samsung.com>,
@@ -55,35 +55,35 @@ Cc:     Bumyong Lee <bumyong.lee@samsung.com>,
         stable@vger.kernel.org,
         Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Subject: [PATCH] swiotlb: manipulate orig_addr when tlb_addr has offset
-Date:   Mon, 28 Jun 2021 15:57:36 +0900
-Message-Id: <1891546521.01624870681805.JavaMail.epsvc@epcpadp4>
+Date:   Mon, 28 Jun 2021 15:59:16 +0900
+Message-Id: <513700442.21624870682149.JavaMail.epsvc@epcpadp4>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <162461316120108@kroah.com>
+In-Reply-To: <16246131632380@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrHLMWRmVeSWpSXmKPExsWy7bCSvO6WopsJBt0T+Cz2nrawuLxf2+Ll
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrLLMWRmVeSWpSXmKPExsWy7bCSvC5/8c0Eg2WrxS32nrawuLxf2+Ll
         IU2L1QecLJoXr2ezWLn6KJPFh/OHmSyWLX7KaLFg4yNGB06PzubFTB77565h99h9s4HNY+O7
-        HUweH5/eYvHo27KK0ePzJrkA9igum5TUnMyy1CJ9uwSujOkrz7MVLFOsWPvmCFsD42/JLkZO
-        DgkBE4n5P1azdTFycQgJ7GaU+DVvMRtEQlbi2bsd7BC2sMT9liOsEEXvGSWuHl7BBJJgE9CV
-        2PL8FSOILSIgJ/Hk9h9mkCJmgZ1MEv9b77CCJIQF3CXO3v0EVsQioCrRtvYqmM0rYCcxuX0W
-        M8QGeYlTyw6CDeUU0JC423OLBcQWElCX6Pvzgg2iXlDi5MwnQHEOoAXqEuvnCYGEmYFam7fO
-        Zp7AKDgLSdUshKpZSKoWMDKvYpRMLSjOTc8tNiwwzEst1ytOzC0uzUvXS87P3cQIjhItzR2M
-        21d90DvEyMTBeIhRgoNZSYRXrOpaghBvSmJlVWpRfnxRaU5q8SFGaQ4WJXHeC10n44UE0hNL
-        UrNTUwtSi2CyTBycUg1MFQs6lQ+7d8pMZYyrMJ+d//2j499jYkekzvDL1+jNKtov+Z43zGZK
-        +dzpLpPW3ry6md8t3Pb1EjfrXXP5wycmzMpzqrl0Q7D7V+68FQ2/+55m5b053qiduaVXnPV6
-        s43nuQtphv0cXxf7yp12W2+2/LpXncvMya15/ncc78948a90fYJ91+K7V9K1tVeXeNsoVSXG
-        /zbeb7Byn66zecbKCfZ7srb2nHqsfur8i9U3Y4t0T8cF7BbyC50U/Z2N0VVPQX/zI0HjM+Yn
-        Zy87tutZmNj6neW8orFFftfaW8Lrq1ONPm6fcerhWaWQEy3CK7LE/iiwODcXn5h4uHOi5myO
-        1cuUb0R7ilnW3z/Gx5mmxFKckWioxVxUnAgAuAXU6AEDAAA=
-X-CMS-MailID: 20210628065652epcas2p28f39187d9c1519cea42bd99a7e9dd75d
+        HUweH5/eYvHo27KK0ePzJrkA9igum5TUnMyy1CJ9uwSujCtnXjAWPFKumL9tJ3MDY6tMFyMn
+        h4SAicSpCdfYQGwhgd2MErMOS0HEZSWevdvBDmELS9xvOcLaxcgFVPOeUWLlkT4WkASbgK7E
+        luevGEFsEQE5iSe3/zCDFDEL7GSS+N96hxUkISzgLnH27iewIhYBVYnfP7aBNfMK2Em0X7nO
+        CrFBXuLUsoNMIDangLpE/7ZeRoiL1CQ+zV3GCFEvKHFy5hOgXg6gBeoS6+cJgYSZgVqbt85m
+        nsAoOAtJ1SyEqllIqhYwMq9ilEwtKM5Nzy02LDDMSy3XK07MLS7NS9dLzs/dxAiOES3NHYzb
+        V33QO8TIxMF4iFGCg1lJhFes6lqCEG9KYmVValF+fFFpTmrxIUZpDhYlcd4LXSfjhQTSE0tS
+        s1NTC1KLYLJMHJxSDUyJy45nLFoxy4qLMUBA+nVs2kOlbfGpdeXn30wIjdrfafqnivFl5qKW
+        QF7OiGtMm57aTo41fS0jdHaN8AP+13UJ3/1Yqp4Ht+au5Hi2qDX7eXHjQ+ccc1l5XTV/+zWZ
+        rkpr1vy8XXLof970rnlCZQf0NmalXWDdI3MxfWmNToGMd9+yV4q98ufllG8Erci4kGL/X2rF
+        /IAf/ZErJywu/OjX/4Q/SN921VzRco6WpZUcp1JvKTGv25ot1qRQIXn7t/ZU/6r1BTb56vNW
+        m+1q6mzy3rg8b+pPt1WdF+atDfv5T+qMwqFJnLd3cAkvnz+V7fFzlW0W4hHmyWtXTbfb8KXQ
+        OiHyn5nB19eByzi/yCixFGckGmoxFxUnAgCWwR9RAAMAAA==
+X-CMS-MailID: 20210628065823epcas2p19305f8b888a7fc0e883ec51db61e3bae
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: AUTO_CONFIDENTIAL
 X-CPGSPASS: Y
 X-Hop-Count: 3
-X-CMS-RootMailID: 20210628065652epcas2p28f39187d9c1519cea42bd99a7e9dd75d
-References: <162461316120108@kroah.com>
-        <CGME20210628065652epcas2p28f39187d9c1519cea42bd99a7e9dd75d@epcas2p2.samsung.com>
+X-CMS-RootMailID: 20210628065823epcas2p19305f8b888a7fc0e883ec51db61e3bae
+References: <16246131632380@kroah.com>
+        <CGME20210628065823epcas2p19305f8b888a7fc0e883ec51db61e3bae@epcas2p1.samsung.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -190,23 +190,32 @@ Tested-by: Horia Geantă <horia.geanta@nxp.com>
 CC: stable@vger.kernel.org
 Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 ---
- kernel/dma/swiotlb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/dma/swiotlb.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 0f61b14b0099..0ed0e1f215c7 100644
+index fe4c01c14ab2..e96f3808e431 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -667,6 +667,9 @@ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
+@@ -724,11 +724,17 @@ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
+ 	int index = (tlb_addr - io_tlb_start) >> IO_TLB_SHIFT;
+ 	size_t orig_size = io_tlb_orig_size[index];
+ 	phys_addr_t orig_addr = io_tlb_orig_addr[index];
++	unsigned int tlb_offset;
+ 
  	if (orig_addr == INVALID_PHYS_ADDR)
  		return;
  
-+	orig_addr += (tlb_addr & (IO_TLB_SIZE - 1)) -
-+		swiotlb_align_offset(hwdev, orig_addr);
+-	validate_sync_size_and_truncate(hwdev, orig_size, &size);
++	tlb_offset = (tlb_addr & (IO_TLB_SIZE - 1)) -
++		     swiotlb_align_offset(hwdev, orig_addr);
 +
++	orig_addr += tlb_offset;
++
++	validate_sync_size_and_truncate(hwdev, orig_size - tlb_offset, &size);
+ 
  	switch (target) {
  	case SYNC_FOR_CPU:
- 		if (likely(dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL))
 -- 
 2.32.0
 
