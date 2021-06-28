@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D0543B63F2
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C6AB3B63F3
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:00:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236746AbhF1PCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236747AbhF1PCb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Jun 2021 11:02:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36516 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235081AbhF1PAU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 11:00:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3D7561D68;
-        Mon, 28 Jun 2021 14:40:52 +0000 (UTC)
+        id S232273AbhF1PAZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 11:00:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D76461D6E;
+        Mon, 28 Jun 2021 14:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891253;
-        bh=EJZLGpjTtRR6ym3kna16a+tjc2iTkuIEZ1NUSj3UT6c=;
+        s=k20201202; t=1624891254;
+        bh=RpX+WGxLTHL19BXdL9ZW8S463Uw+Gr86xTRwIYqWZKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KS5IyTOaIzFwbtKP2y/7mgx9p8TEiILiF4yYersT+j2p4GxH+KgkG3Z/qRL3cvc6S
-         EajAbymAYKeLpiJpO8IHGYmrangDD3ynC4KB/aw/UK/sQpnCt9GqWAsLgLaBPzlw+V
-         6N/4xqiiVOjz7lcArgJH51noEJdREbzE1nP6JcUJoTAauIOYGxo6Kvtz/ZDdoWM/f2
-         sHia8/Ti0K0iWDfEJ7wSxfJ8qwHryRCPICYE0sARSXQfWn/MSl27tsqJQfqDw0ogMI
-         qYd5GPeh/1uWB/9OeFF+36G8NrPlyifHWm44rtRRPy3vgXyUqS4aGiO6B8mNvtJXlj
-         c9K6w9x3Q+BAQ==
+        b=S1H2/zVt611fSdR8jGM9TW+Oaz5T+8iaSjtRwCBqi9tFZ73XwC5n13v9H6ow/wfYh
+         BvmhXTkeQ2ePdA54aMu80SUaNiPkBKVUfjW3uHv2WxZf0OE56uNA18mbbuhnauomLv
+         T5GONRQzC/nkxTKo5d669P+aK/VtMq8o3bcA3SCL9PsiOV2LBKGFUYUVzFsxFZX6aI
+         mZVfklB6jSbH3sE/Offh9nFz4b1DitRfKtVjqs4DfJ6Wg/8t2fOhkt1I/hv6NYqW4u
+         1UOokFcRdO7OGj79pjM4EDyohHllQaibzUbszNDP4YdQFtyH6OMlWldfqeHQq+nkkX
+         um+MXHXg1n7jw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Michael <phyre@rogers.com>,
-        Salvatore Bonaccorso <carnil@debian.org>,
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        syzbot+7716dbc401d9a437890d@syzkaller.appspotmail.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 55/71] Revert "PCI: PM: Do not read power state in pci_enable_device_flags()"
-Date:   Mon, 28 Jun 2021 10:39:47 -0400
-Message-Id: <20210628144003.34260-56-sashal@kernel.org>
+Subject: [PATCH 4.9 56/71] mac80211: remove warning in ieee80211_get_sband()
+Date:   Mon, 28 Jun 2021 10:39:48 -0400
+Message-Id: <20210628144003.34260-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
@@ -49,54 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 4d6035f9bf4ea12776322746a216e856dfe46698 ]
+[ Upstream commit 0ee4d55534f82a0624701d0bb9fc2304d4529086 ]
 
-Revert commit 4514d991d992 ("PCI: PM: Do not read power state in
-pci_enable_device_flags()") that is reported to cause PCI device
-initialization issues on some systems.
+Syzbot reports that it's possible to hit this from userspace,
+by trying to add a station before any other connection setup
+has been done. Instead of trying to catch this in some other
+way simply remove the warning, that will appropriately reject
+the call from userspace.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213481
-Link: https://lore.kernel.org/linux-acpi/YNDoGICcg0V8HhpQ@eldamar.lan
-Reported-by: Michael <phyre@rogers.com>
-Reported-by: Salvatore Bonaccorso <carnil@debian.org>
-Fixes: 4514d991d992 ("PCI: PM: Do not read power state in pci_enable_device_flags()")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: syzbot+7716dbc401d9a437890d@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20210517164715.f537da276d17.Id05f40ec8761d6a8cc2df87f1aa09c651988a586@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ net/mac80211/ieee80211_i.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index acd89fa9820c..e09653c73ab4 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1378,11 +1378,21 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
- 	int err;
- 	int i, bars = 0;
+diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
+index 21b35255ecc2..f5532a3ce72e 100644
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1391,7 +1391,7 @@ ieee80211_get_sband(struct ieee80211_sub_if_data *sdata)
+ 	rcu_read_lock();
+ 	chanctx_conf = rcu_dereference(sdata->vif.chanctx_conf);
  
--	if (atomic_inc_return(&dev->enable_cnt) > 1) {
--		pci_update_current_state(dev, dev->current_state);
--		return 0;		/* already enabled */
-+	/*
-+	 * Power state could be unknown at this point, either due to a fresh
-+	 * boot or a device removal call.  So get the current power state
-+	 * so that things like MSI message writing will behave as expected
-+	 * (e.g. if the device really is in D0 at enable time).
-+	 */
-+	if (dev->pm_cap) {
-+		u16 pmcsr;
-+		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
-+		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
+-	if (WARN_ON_ONCE(!chanctx_conf)) {
++	if (!chanctx_conf) {
+ 		rcu_read_unlock();
+ 		return NULL;
  	}
- 
-+	if (atomic_inc_return(&dev->enable_cnt) > 1)
-+		return 0;		/* already enabled */
-+
- 	bridge = pci_upstream_bridge(dev);
- 	if (bridge)
- 		pci_enable_bridge(bridge);
 -- 
 2.30.2
 
