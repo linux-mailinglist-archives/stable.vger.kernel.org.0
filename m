@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 166633B60F9
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7723B60F8
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233806AbhF1ObZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:31:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
+        id S233815AbhF1ObY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:31:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234746AbhF1OaZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234747AbhF1OaZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:30:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9AF161CB6;
-        Mon, 28 Jun 2021 14:26:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A807061CB8;
+        Mon, 28 Jun 2021 14:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890404;
-        bh=DGjB/1/Rh5eaQuAf30az0AE47WvO2UDmbVpcFSO+vNI=;
+        s=k20201202; t=1624890405;
+        bh=tgPcxuGjzy0G6s+Y43FulBrZ/Q/BfammVdZeVAAL3o4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GS7QrUYm9NJrRwvlcBAXFeNz7pdVttEEv9HDgD1IJ1K9KAdBkws0zkfGvPCVpmZr9
-         SeKb0goN55BhQkuLJPIIORdFIciOQgqTu9V8jiXrq/tkkccdAj//oR+KRwvigFP/Lr
-         l2LayhBgC1wJcMUdmFtRQPfANXGaBR01loRnJYLPZsQI4mTfKn3kdyRLPT4kheSPLG
-         bfzihGUYavH8b/xxYsNK/twjtdhBvuX4Lah4LYL3QQdmgaiZq7yyMpvohCAU+FwRjO
-         irDeo7/e7PL3QSpRXXEu077l5trHn3nySlF4RCPdDb1xui4mTPhhwjZj/GBWdXJBaE
-         qoQNm4XAfCPaA==
+        b=LAyL2RyHk5lllgfGLL/wMQyba1a9r3f7agGMP6MjapOgb/EHeQfxAjoV/Mf/hw7pY
+         rchJi0nsrcExWO+b+kRVnlYdPcAyCgG0f3r/IJ5MwdnDoi6xMhJ7blLxd3jhugg+Jp
+         j0mjIIVdHzLhYtr7OyiQRUU/Q5ndkk4U9I3Y1ihB57q9cwyC20mj55R0cNq4DLL1Aq
+         HDhEz3ulv/9d7vVNbl5Ee3UkZ+rz6AOiojJFc29EpvgDDG3NrcOElESnr8AkaAT6Hi
+         W6jpqzrJkpSo690jGDvdS6dgeC5TjCegsacqZqGpTo42zLT8nOtMP/aVtkZz5PJMK3
+         LemtjuY48Rczw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Praneeth Bajjuri <praneeth@ti.com>, Geet Modi <geet.modi@ti.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Khem Raj <raj.khem@gmail.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/101] net: phy: dp83867: perform soft reset and retain established link
-Date:   Mon, 28 Jun 2021 10:25:07 -0400
-Message-Id: <20210628142607.32218-42-sashal@kernel.org>
+Subject: [PATCH 5.10 042/101] riscv32: Use medany C model for modules
+Date:   Mon, 28 Jun 2021 10:25:08 -0400
+Message-Id: <20210628142607.32218-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -49,51 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Praneeth Bajjuri <praneeth@ti.com>
+From: Khem Raj <raj.khem@gmail.com>
 
-[ Upstream commit da9ef50f545f86ffe6ff786174d26500c4db737a ]
+[ Upstream commit 5d2388dbf84adebeb6d9742164be8d32728e4269 ]
 
-Current logic is performing hard reset and causing the programmed
-registers to be wiped out.
+When CONFIG_CMODEL_MEDLOW is used it ends up generating riscv_hi20_rela
+relocations in modules which are not resolved during runtime and
+following errors would be seen
 
-as per datasheet: https://www.ti.com/lit/ds/symlink/dp83867cr.pdf
-8.6.26 Control Register (CTRL)
+[    4.802714] virtio_input: target 00000000c1539090 can not be addressed by the 32-bit offset from PC = 39148b7b
+[    4.854800] virtio_input: target 00000000c1539090 can not be addressed by the 32-bit offset from PC = 9774456d
 
-do SW_RESTART to perform a reset not including the registers,
-If performed when link is already present,
-it will drop the link and trigger re-auto negotiation.
-
-Signed-off-by: Praneeth Bajjuri <praneeth@ti.com>
-Signed-off-by: Geet Modi <geet.modi@ti.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83867.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ arch/riscv/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 69d3eacc2b96..c716074fdef0 100644
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -792,16 +792,12 @@ static int dp83867_phy_reset(struct phy_device *phydev)
- {
- 	int err;
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index e241e0e85ac8..226c366072da 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -14,7 +14,7 @@ ifeq ($(CONFIG_DYNAMIC_FTRACE),y)
+ 	LDFLAGS_vmlinux := --no-relax
+ endif
  
--	err = phy_write(phydev, DP83867_CTRL, DP83867_SW_RESET);
-+	err = phy_write(phydev, DP83867_CTRL, DP83867_SW_RESTART);
- 	if (err < 0)
- 		return err;
+-ifeq ($(CONFIG_64BIT)$(CONFIG_CMODEL_MEDLOW),yy)
++ifeq ($(CONFIG_CMODEL_MEDLOW),y)
+ KBUILD_CFLAGS_MODULE += -mcmodel=medany
+ endif
  
- 	usleep_range(10, 20);
- 
--	/* After reset FORCE_LINK_GOOD bit is set. Although the
--	 * default value should be unset. Disable FORCE_LINK_GOOD
--	 * for the phy to work properly.
--	 */
- 	return phy_modify(phydev, MII_DP83867_PHYCTRL,
- 			 DP83867_PHYCR_FORCE_LINK_GOOD, 0);
- }
 -- 
 2.30.2
 
