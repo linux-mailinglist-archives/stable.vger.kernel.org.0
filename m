@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6B53B6108
+	by mail.lfdr.de (Postfix) with ESMTP id EF2C93B6109
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233849AbhF1Obf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:31:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36914 "EHLO mail.kernel.org"
+        id S233969AbhF1Obg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:31:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234824AbhF1Oab (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234823AbhF1Oab (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:30:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2708461CC3;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0AEA61CC4;
         Mon, 28 Jun 2021 14:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890414;
-        bh=mhDHTAAZ4nKLxUl2wPcuv746/b/8WFTJ+qLnCbvApbI=;
+        s=k20201202; t=1624890415;
+        bh=stz5r8xqtps6azfB/g+KpMjwljvXV6hjgWBN+qI08/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DYWESUBmBG7J0wEKvIKq4ZxUTMd5iuMYUPbBe5iLjORkSFZuZ0moPhHkhEeSOpcHn
-         3UOBDcwPpbsn293upRz1tSp2eMgIF+U2KsaC7wGzVaQv0yLrxXdWVCzHzEVpyjc2BK
-         gEtqOttKYEwyNVnYftDE0SxihlysBFircNzLtdjIxvx3zalIKhKgEGbzSykwcpnn9R
-         Iy5bwp139TPxFui/+SC4EtSQ+d20tPn22UBNZx+wZIFIwqQnmjjAxD5R91SheShUFS
-         75IGBXn4wCu4mAvBTK1qgVaJOKwNs1/z1MI+DTzeVm8mZfuEabU9GQhg+0USFqZCc7
-         U/2+gUt89wCiw==
+        b=p4vUK1KsHCdyJVh7VqTPDXzzA2w+6dLFA37NEAfZuEldmcWXDlouj3S4fih48EvZv
+         yaF1EnuYHDk7pa81UUGkt9e/sAMiF2lNdVJWChXUhLM/HqSe2sqiIZAbjYetH+ZLja
+         kKly8OPlBjUI85LlawFMJHD2r+MKQ2PXq/czErMpydPRaWupEBJsAdDpI/sAe/fdyy
+         dbtAgU3567YPcnLooyLn7waxqrD0R7lOH2n2KmFlgaQ3iyFCaS3bOWYRxo5ZnV9For
+         oB1oTmfJjk0ye/q2yJD91XXJhaJMixlqzo0A9SfzfN1vU2e7CVaHjjwtRAidzK2p4V
+         ugaqUlj+8cGbg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikel Rychliski <mikel@mikelr.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+Cc:     Esben Haabendal <esben@geanix.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/101] PCI: Add AMD RS690 quirk to enable 64-bit DMA
-Date:   Mon, 28 Jun 2021 10:25:20 -0400
-Message-Id: <20210628142607.32218-55-sashal@kernel.org>
+Subject: [PATCH 5.10 055/101] net: ll_temac: Add memory-barriers for TX BD access
+Date:   Mon, 28 Jun 2021 10:25:21 -0400
+Message-Id: <20210628142607.32218-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -48,94 +48,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikel Rychliski <mikel@mikelr.com>
+From: Esben Haabendal <esben@geanix.com>
 
-[ Upstream commit cacf994a91d3a55c0c2f853d6429cd7b86113915 ]
+[ Upstream commit 28d9fab458b16bcd83f9dd07ede3d585c3e1a69e ]
 
-Although the AMD RS690 chipset has 64-bit DMA support, BIOS implementations
-sometimes fail to configure the memory limit registers correctly.
+Add a couple of memory-barriers to ensure correct ordering of read/write
+access to TX BDs.
 
-The Acer F690GVM mainboard uses this chipset and a Marvell 88E8056 NIC. The
-sky2 driver programs the NIC to use 64-bit DMA, which will not work:
+In xmit_done, we should ensure that reading the additional BD fields are
+only done after STS_CTRL_APP0_CMPLT bit is set.
 
-  sky2 0000:02:00.0: error interrupt status=0x8
-  sky2 0000:02:00.0 eth0: tx timeout
-  sky2 0000:02:00.0 eth0: transmit ring 0 .. 22 report=0 done=0
+When xmit_done marks the BD as free by setting APP0=0, we need to ensure
+that the other BD fields are reset first, so we avoid racing with the xmit
+path, which writes to the same fields.
 
-Other drivers required by this mainboard either don't support 64-bit DMA,
-or have it disabled using driver specific quirks. For example, the ahci
-driver has quirks to enable or disable 64-bit DMA depending on the BIOS
-version (see ahci_sb600_enable_64bit() in ahci.c). This ahci quirk matches
-against the SB600 SATA controller, but the real issue is almost certainly
-with the RS690 PCI host that it was commonly attached to.
+Finally, making sure to read APP0 of next BD after the current BD, ensures
+that we see all available buffers.
 
-To avoid this issue in all drivers with 64-bit DMA support, fix the
-configuration of the PCI host. If the kernel is aware of physical memory
-above 4GB, but the BIOS never configured the PCI host with this
-information, update the registers with our values.
-
-[bhelgaas: drop PCI_DEVICE_ID_ATI_RS690 definition]
-Link: https://lore.kernel.org/r/20210611214823.4898-1-mikel@mikelr.com
-Signed-off-by: Mikel Rychliski <mikel@mikelr.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Esben Haabendal <esben@geanix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/pci/fixup.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ drivers/net/ethernet/xilinx/ll_temac_main.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/pci/fixup.c b/arch/x86/pci/fixup.c
-index 0a0e168be1cb..9b0e771302ce 100644
---- a/arch/x86/pci/fixup.c
-+++ b/arch/x86/pci/fixup.c
-@@ -779,4 +779,48 @@ DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_AMD, 0x1571, pci_amd_enable_64bit_bar);
- DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_AMD, 0x15b1, pci_amd_enable_64bit_bar);
- DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_AMD, 0x1601, pci_amd_enable_64bit_bar);
+diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
+index 01bb36e7cff0..b105e1d35d15 100644
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -774,12 +774,15 @@ static void temac_start_xmit_done(struct net_device *ndev)
+ 	stat = be32_to_cpu(cur_p->app0);
  
-+#define RS690_LOWER_TOP_OF_DRAM2	0x30
-+#define RS690_LOWER_TOP_OF_DRAM2_VALID	0x1
-+#define RS690_UPPER_TOP_OF_DRAM2	0x31
-+#define RS690_HTIU_NB_INDEX		0xA8
-+#define RS690_HTIU_NB_INDEX_WR_ENABLE	0x100
-+#define RS690_HTIU_NB_DATA		0xAC
+ 	while (stat & STS_CTRL_APP0_CMPLT) {
++		/* Make sure that the other fields are read after bd is
++		 * released by dma
++		 */
++		rmb();
+ 		dma_unmap_single(ndev->dev.parent, be32_to_cpu(cur_p->phys),
+ 				 be32_to_cpu(cur_p->len), DMA_TO_DEVICE);
+ 		skb = (struct sk_buff *)ptr_from_txbd(cur_p);
+ 		if (skb)
+ 			dev_consume_skb_irq(skb);
+-		cur_p->app0 = 0;
+ 		cur_p->app1 = 0;
+ 		cur_p->app2 = 0;
+ 		cur_p->app3 = 0;
+@@ -788,6 +791,12 @@ static void temac_start_xmit_done(struct net_device *ndev)
+ 		ndev->stats.tx_packets++;
+ 		ndev->stats.tx_bytes += be32_to_cpu(cur_p->len);
+ 
++		/* app0 must be visible last, as it is used to flag
++		 * availability of the bd
++		 */
++		smp_mb();
++		cur_p->app0 = 0;
 +
-+/*
-+ * Some BIOS implementations support RAM above 4GB, but do not configure the
-+ * PCI host to respond to bus master accesses for these addresses. These
-+ * implementations set the TOP_OF_DRAM_SLOT1 register correctly, so PCI DMA
-+ * works as expected for addresses below 4GB.
-+ *
-+ * Reference: "AMD RS690 ASIC Family Register Reference Guide" (pg. 2-57)
-+ * https://www.amd.com/system/files/TechDocs/43372_rs690_rrg_3.00o.pdf
-+ */
-+static void rs690_fix_64bit_dma(struct pci_dev *pdev)
-+{
-+	u32 val = 0;
-+	phys_addr_t top_of_dram = __pa(high_memory - 1) + 1;
+ 		lp->tx_bd_ci++;
+ 		if (lp->tx_bd_ci >= lp->tx_bd_num)
+ 			lp->tx_bd_ci = 0;
+@@ -814,6 +823,9 @@ static inline int temac_check_tx_bd_space(struct temac_local *lp, int num_frag)
+ 		if (cur_p->app0)
+ 			return NETDEV_TX_BUSY;
+ 
++		/* Make sure to read next bd app0 after this one */
++		rmb();
 +
-+	if (top_of_dram <= (1ULL << 32))
-+		return;
-+
-+	pci_write_config_dword(pdev, RS690_HTIU_NB_INDEX,
-+				RS690_LOWER_TOP_OF_DRAM2);
-+	pci_read_config_dword(pdev, RS690_HTIU_NB_DATA, &val);
-+
-+	if (val)
-+		return;
-+
-+	pci_info(pdev, "Adjusting top of DRAM to %pa for 64-bit DMA support\n", &top_of_dram);
-+
-+	pci_write_config_dword(pdev, RS690_HTIU_NB_INDEX,
-+		RS690_UPPER_TOP_OF_DRAM2 | RS690_HTIU_NB_INDEX_WR_ENABLE);
-+	pci_write_config_dword(pdev, RS690_HTIU_NB_DATA, top_of_dram >> 32);
-+
-+	pci_write_config_dword(pdev, RS690_HTIU_NB_INDEX,
-+		RS690_LOWER_TOP_OF_DRAM2 | RS690_HTIU_NB_INDEX_WR_ENABLE);
-+	pci_write_config_dword(pdev, RS690_HTIU_NB_DATA,
-+		top_of_dram | RS690_LOWER_TOP_OF_DRAM2_VALID);
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7910, rs690_fix_64bit_dma);
-+
- #endif
+ 		tail++;
+ 		if (tail >= lp->tx_bd_num)
+ 			tail = 0;
 -- 
 2.30.2
 
