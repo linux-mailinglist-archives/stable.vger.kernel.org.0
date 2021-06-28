@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF7DB3B6446
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACC0B3B643E
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234813AbhF1PGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39676 "EHLO mail.kernel.org"
+        id S235745AbhF1PG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:06:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235737AbhF1PEO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 11:04:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D99361CE9;
-        Mon, 28 Jun 2021 14:43:10 +0000 (UTC)
+        id S235715AbhF1PEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 11:04:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8129361CE8;
+        Mon, 28 Jun 2021 14:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891391;
-        bh=+gzNi0twte0ORShGUXHLG3w5L5GaRNSdfZ/2SzkHN+4=;
+        s=k20201202; t=1624891392;
+        bh=80zjMMzXKplIKYNBqWtEYGuxkeFc2XDJqFc2Ge/+TCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1dysAKqb+PgsN9CfP+MBWroBVWLb8mmKt4kXOv1/FMLP+d/ybOW005Bo9Esh+vKQ
-         pSPF4gtM6mXcG/hRfJ1PdQePFGzwske/OJNe4CG6812x8Dby0Gi0FGBIfL9UCgqMZh
-         +7gW7z5uQrbALxw43tPKX/ycBYVaRQ767rpKafZjbH/hPjA3U3uHiF8p1oQKWjcACb
-         rEisq7RU24JG2teySDcWHRgf9jUa+hJlYrquP96vB3wvRP8Cc/fEHgUdrnG1w3vjDq
-         DvRfIg4UnhVrqRwZ8Z0PvWLLyf1S4u7Tlt0av8bijYa/Arvnf8RYhx0q/aN08VfMKg
-         q/52HXr1LgbFw==
+        b=hEiCipb2rJ+/DGPJTJnJ6LHATu77e7ATdzzwPLcJa6VTo3+ZGbKSSbQEmr89pxZOq
+         MkzkqADC8Pjms+2fzP2p2NddHmvJ6JWOdT+tT0cYCOIxYHDTo8hZMpF2/aqI/faiCu
+         kziHd7x+9WU4siNtrFYX1rl0ptqVGOATxbHLzhWurOaSqL4PlFQi/W9T7Km6MzXyMY
+         nR9wSSwFO4pxu4IdBz0Bta6uT+GA89Ad7CvDZb4vkFg0ssqINtT1tid+skZSpGV1fB
+         pwKuwramd0WwMSK9YEshun2VLF9yWJb17lA4RmkAn2OX/9rbc+BvwcvEjQdFUm2gYg
+         dkxRafEg4YMsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nanyong Sun <sunnanyong@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+5134cdf021c4ed5aaa5f@syzkaller.appspotmail.com,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 15/57] net: ipv4: fix memory leak in netlbl_cipsov4_add_std
-Date:   Mon, 28 Jun 2021 10:42:14 -0400
-Message-Id: <20210628144256.34524-16-sashal@kernel.org>
+Subject: [PATCH 4.4 16/57] net: rds: fix memory leak in rds_recvmsg
+Date:   Mon, 28 Jun 2021 10:42:15 -0400
+Message-Id: <20210628144256.34524-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
 References: <20210628144256.34524-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.274-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.4.y
@@ -50,64 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit d612c3f3fae221e7ea736d196581c2217304bbbc ]
+[ Upstream commit 49bfcbfd989a8f1f23e705759a6bb099de2cff9f ]
 
-Reported by syzkaller:
-BUG: memory leak
-unreferenced object 0xffff888105df7000 (size 64):
-comm "syz-executor842", pid 360, jiffies 4294824824 (age 22.546s)
-hex dump (first 32 bytes):
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-backtrace:
-[<00000000e67ed558>] kmalloc include/linux/slab.h:590 [inline]
-[<00000000e67ed558>] kzalloc include/linux/slab.h:720 [inline]
-[<00000000e67ed558>] netlbl_cipsov4_add_std net/netlabel/netlabel_cipso_v4.c:145 [inline]
-[<00000000e67ed558>] netlbl_cipsov4_add+0x390/0x2340 net/netlabel/netlabel_cipso_v4.c:416
-[<0000000006040154>] genl_family_rcv_msg_doit.isra.0+0x20e/0x320 net/netlink/genetlink.c:739
-[<00000000204d7a1c>] genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
-[<00000000204d7a1c>] genl_rcv_msg+0x2bf/0x4f0 net/netlink/genetlink.c:800
-[<00000000c0d6a995>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
-[<00000000d78b9d2c>] genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
-[<000000009733081b>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
-[<000000009733081b>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
-[<00000000d5fd43b8>] netlink_sendmsg+0x789/0xc70 net/netlink/af_netlink.c:1929
-[<000000000a2d1e40>] sock_sendmsg_nosec net/socket.c:654 [inline]
-[<000000000a2d1e40>] sock_sendmsg+0x139/0x170 net/socket.c:674
-[<00000000321d1969>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
-[<00000000964e16bc>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
-[<000000001615e288>] __sys_sendmsg+0xd3/0x190 net/socket.c:2433
-[<000000004ee8b6a5>] do_syscall_64+0x37/0x90 arch/x86/entry/common.c:47
-[<00000000171c7cee>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+Syzbot reported memory leak in rds. The problem
+was in unputted refcount in case of error.
 
-The memory of doi_def->map.std pointing is allocated in
-netlbl_cipsov4_add_std, but no place has freed it. It should be
-freed in cipso_v4_doi_free which frees the cipso DOI resource.
+int rds_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+		int msg_flags)
+{
+...
 
-Fixes: 96cb8e3313c7a ("[NetLabel]: CIPSOv4 and Unlabeled packet integration")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Acked-by: Paul Moore <paul@paul-moore.com>
+	if (!rds_next_incoming(rs, &inc)) {
+		...
+	}
+
+After this "if" inc refcount incremented and
+
+	if (rds_cmsg_recv(inc, msg, rs)) {
+		ret = -EFAULT;
+		goto out;
+	}
+...
+out:
+	return ret;
+}
+
+in case of rds_cmsg_recv() fail the refcount won't be
+decremented. And it's easy to see from ftrace log, that
+rds_inc_addref() don't have rds_inc_put() pair in
+rds_recvmsg() after rds_cmsg_recv()
+
+ 1)               |  rds_recvmsg() {
+ 1)   3.721 us    |    rds_inc_addref();
+ 1)   3.853 us    |    rds_message_inc_copy_to_user();
+ 1) + 10.395 us   |    rds_cmsg_recv();
+ 1) + 34.260 us   |  }
+
+Fixes: bdbe6fbc6a2f ("RDS: recv.c")
+Reported-and-tested-by: syzbot+5134cdf021c4ed5aaa5f@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/cipso_ipv4.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/rds/recv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-index 0e83c5b08e0e..e798e27b3c7d 100644
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -557,6 +557,7 @@ void cipso_v4_doi_free(struct cipso_v4_doi *doi_def)
- 		kfree(doi_def->map.std->lvl.local);
- 		kfree(doi_def->map.std->cat.cipso);
- 		kfree(doi_def->map.std->cat.local);
-+		kfree(doi_def->map.std);
- 		break;
- 	}
- 	kfree(doi_def);
+diff --git a/net/rds/recv.c b/net/rds/recv.c
+index 9bf812509e0e..1ff4bc3237f0 100644
+--- a/net/rds/recv.c
++++ b/net/rds/recv.c
+@@ -482,7 +482,7 @@ int rds_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 
+ 		if (rds_cmsg_recv(inc, msg)) {
+ 			ret = -EFAULT;
+-			goto out;
++			break;
+ 		}
+ 
+ 		rds_stats_inc(s_recv_delivered);
 -- 
 2.30.2
 
