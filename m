@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E8B3B632B
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F6D3B632D
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:50:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235197AbhF1OxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:53:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54462 "EHLO mail.kernel.org"
+        id S234692AbhF1OxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:53:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235525AbhF1Ou5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:50:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4BB061D2C;
-        Mon, 28 Jun 2021 14:37:05 +0000 (UTC)
+        id S235553AbhF1OvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:51:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F6AE61D2D;
+        Mon, 28 Jun 2021 14:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891026;
-        bh=XIYvHSSButC67HzU6fduVakbD0ni65gR3K7el6VrxOs=;
+        s=k20201202; t=1624891027;
+        bh=wRJuFAUKBN9IqlvNRNlL4iFilXRpZrVKLPOlZFTk0FE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G25xqKA/eEuK0n8inIqEn8w5AbeAfSuIYcscvX0fwfcr4IBvHHt1WbuYdYkMC7omA
-         KoRFKljxewFCgzmwwirpb2O+oAhtk3W8vgFfl3BE0iqXoRN0ZDwuS2LlbV53s/dbA2
-         f9KSEsTPCjYRJsTy7boXKfYhD7tWRElnSA7nriFDCc0Ugrf5EkpFhSPsCbnuPxu3bH
-         LgESfVQFHeAelNBq9nsfUgpTtnNJ8eQwWuj0LV/WL6DAFkNzf2AJY3YeWLfQIzs4ep
-         NorE8Aa843ZZEwpT2z94bdAqxjiA0HfIXtRDfLrMkmOznMUd23Zd1fDsFp1M6cwdIz
-         0R2ovgQzTQlvg==
+        b=XooFiWyOawnpIA9OuWFcZ29PCbLJBSOVn/JqHt7agriORWy3s5JzNOsbhNea8Wney
+         Bqg3HIZg2FYajovckIXKGHX2kXRKf9pVF0qC4Tr6yrapMQDgCy6ApHVDa9UWiVZH0F
+         5iGI4LTHjjSBScrVXkyMho4AV6jjelsX6+Jsoo4MxlTDX0xWVJhgqqLeCqPIKbPTOe
+         1YOd1BLnGYUosVhC63G6r36xf7Yv4TWlBoEMHD5+bmAfXiYIK1drh45eCJeh6b1z8t
+         iIL258Ky+sGg7M2yymnFyJ77NLc704Np/Nr3eR5FvkM0pZpk6yMYc5dNk8L8SMSQNq
+         6Y4xu0r9rK/kw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Li <chenli@uniontech.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+Cc:     Riwen Lu <luriwen@kylinos.cn>, Xin Chen <chenxin@kylinos.cn>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 41/88] radeon: use memcpy_to/fromio for UVD fw upload
-Date:   Mon, 28 Jun 2021 10:35:41 -0400
-Message-Id: <20210628143628.33342-42-sashal@kernel.org>
+Subject: [PATCH 4.14 42/88] hwmon: (scpi-hwmon) shows the negative temperature properly
+Date:   Mon, 28 Jun 2021 10:35:42 -0400
+Message-Id: <20210628143628.33342-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.238-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.14.y
@@ -50,52 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Li <chenli@uniontech.com>
+From: Riwen Lu <luriwen@kylinos.cn>
 
-[ Upstream commit ab8363d3875a83f4901eb1cc00ce8afd24de6c85 ]
+[ Upstream commit 78d13552346289bad4a9bf8eabb5eec5e5a321a5 ]
 
-I met a gpu addr bug recently and the kernel log
-tells me the pc is memcpy/memset and link register is
-radeon_uvd_resume.
+The scpi hwmon shows the sub-zero temperature in an unsigned integer,
+which would confuse the users when the machine works in low temperature
+environment. This shows the sub-zero temperature in an signed value and
+users can get it properly from sensors.
 
-As we know, in some architectures, optimized memcpy/memset
-may not work well on device memory. Trival memcpy_toio/memset_io
-can fix this problem.
-
-BTW, amdgpu has already done it in:
-commit ba0b2275a678 ("drm/amdgpu: use memcpy_to/fromio for UVD fw upload"),
-that's why it has no this issue on the same gpu and platform.
-
-Signed-off-by: Chen Li <chenli@uniontech.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Riwen Lu <luriwen@kylinos.cn>
+Tested-by: Xin Chen <chenxin@kylinos.cn>
+Link: https://lore.kernel.org/r/20210604030959.736379-1-luriwen@kylinos.cn
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_uvd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwmon/scpi-hwmon.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_uvd.c b/drivers/gpu/drm/radeon/radeon_uvd.c
-index 95f4db70dd22..fde9c69ecc86 100644
---- a/drivers/gpu/drm/radeon/radeon_uvd.c
-+++ b/drivers/gpu/drm/radeon/radeon_uvd.c
-@@ -286,7 +286,7 @@ int radeon_uvd_resume(struct radeon_device *rdev)
- 	if (rdev->uvd.vcpu_bo == NULL)
- 		return -EINVAL;
+diff --git a/drivers/hwmon/scpi-hwmon.c b/drivers/hwmon/scpi-hwmon.c
+index 7e49da50bc69..562f3e287297 100644
+--- a/drivers/hwmon/scpi-hwmon.c
++++ b/drivers/hwmon/scpi-hwmon.c
+@@ -107,6 +107,15 @@ scpi_show_sensor(struct device *dev, struct device_attribute *attr, char *buf)
  
--	memcpy(rdev->uvd.cpu_addr, rdev->uvd_fw->data, rdev->uvd_fw->size);
-+	memcpy_toio((void __iomem *)rdev->uvd.cpu_addr, rdev->uvd_fw->data, rdev->uvd_fw->size);
+ 	scpi_scale_reading(&value, sensor);
  
- 	size = radeon_bo_size(rdev->uvd.vcpu_bo);
- 	size -= rdev->uvd_fw->size;
-@@ -294,7 +294,7 @@ int radeon_uvd_resume(struct radeon_device *rdev)
- 	ptr = rdev->uvd.cpu_addr;
- 	ptr += rdev->uvd_fw->size;
- 
--	memset(ptr, 0, size);
-+	memset_io((void __iomem *)ptr, 0, size);
- 
- 	return 0;
++	/*
++	 * Temperature sensor values are treated as signed values based on
++	 * observation even though that is not explicitly specified, and
++	 * because an unsigned u64 temperature does not really make practical
++	 * sense especially when the temperature is below zero degrees Celsius.
++	 */
++	if (sensor->info.class == TEMPERATURE)
++		return sprintf(buf, "%lld\n", (s64)value);
++
+ 	return sprintf(buf, "%llu\n", value);
  }
+ 
 -- 
 2.30.2
 
