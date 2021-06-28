@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE7FA3B603A
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CBD03B603C
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233513AbhF1OWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233157AbhF1OWv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Jun 2021 10:22:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55426 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233105AbhF1OWL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233366AbhF1OWL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:22:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 268C461C75;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0402761C8A;
         Mon, 28 Jun 2021 14:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889972;
-        bh=clTVkMmwrb5NQUMWg6RiOe1jwPLP/wMZCAzvehsMco4=;
+        s=k20201202; t=1624889973;
+        bh=6QHKh4yeZmygM5OMKcQH9rZqs6eSKf/IyI9ws4mRAOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKY9mBCsfiMAzTOOXQw1cTZjmsfbXbvls8AzNUOxakAkxsOaJzU9nE+TnTQ4N2wzo
-         L0TkJJfTM51KUsqSyTDDP2FkhelMLx+rBE8FmMOKt7Q4V4ZAciiMelqoHxtTsgCsbf
-         pBR0iLnwHfTNfaCVP9nbeWF0jeFDtPZt/0NMLtT8oIw9lI8Le+zm6pR7KJOZMfWGhf
-         dm6faxBXnI6wuEm15aVKPESuUluxZo59U1Xxi+mtcikfGeQaFrQ96mh1enyWCCHQcB
-         ilYCx2KULYz/k/CgHyjjxZAQxrYCPf0FnAC3AQy+bej+FpRURfblKG519dHzoJA0MT
-         1CXim6n/ACoUw==
+        b=FRK//Of05zrL8vXauQ72mh9gD4oiMufO7a2QGYKKlRqup9TK1OtI7HdZmizuAFMNg
+         WtTVkW9ATi1O8zfo2i7T0sgvCy4W98bKGMhjudW5vddnEBPVZGm2ytD74768i9ZOxB
+         EpqLLn6TeBgh/XwJ0oEdiv9QjM9r4ED3pu3E3r/sLseddD+r7E9iPDlvYiojsbMciz
+         JaZYKM5vp3TsWzjsIS22kdUyJKgLtME8tJmV4J9uk2KEHWrHMwhuRg23RSy2o7ZebA
+         7Z2LZ0OQ90kQvT8g97Uc1ME1aYamqGelIbtyDwCH0VdUQSc+d/0ksVd/Z0wuFpP7Cl
+         oPoLifWjp7o6w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        syzbot+9d7dadd15b8819d73f41@syzkaller.appspotmail.com,
-        Wolfram Sang <wsa@kernel.org>,
+Cc:     Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 074/110] i2c: robotfuzz-osif: fix control-request directions
-Date:   Mon, 28 Jun 2021 10:17:52 -0400
-Message-Id: <20210628141828.31757-75-sashal@kernel.org>
+Subject: [PATCH 5.12 075/110] ceph: must hold snap_rwsem when filling inode for async create
+Date:   Mon, 28 Jun 2021 10:17:53 -0400
+Message-Id: <20210628141828.31757-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -49,53 +48,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 4ca070ef0dd885616ef294d269a9bf8e3b258e1a upstream.
+commit 27171ae6a0fdc75571e5bf3d0961631a1e4fb765 upstream.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+...and add a lockdep assertion for it to ceph_fill_inode().
 
-Control transfers without a data stage are treated as OUT requests by
-the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-will now trigger a warning.
-
-Fix the OSIFI2C_SET_BIT_RATE and OSIFI2C_STOP requests which erroneously
-used the osif_usb_read() helper and set the IN direction bit.
-
-Reported-by: syzbot+9d7dadd15b8819d73f41@syzkaller.appspotmail.com
-Fixes: 83e53a8f120f ("i2c: Add bus driver for for OSIF USB i2c device.")
-Cc: stable@vger.kernel.org      # 3.14
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: stable@vger.kernel.org # v5.7+
+Fixes: 9a8d03ca2e2c3 ("ceph: attempt to do async create when possible")
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-robotfuzz-osif.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ceph/file.c  | 3 +++
+ fs/ceph/inode.c | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-robotfuzz-osif.c b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-index a39f7d092797..66dfa211e736 100644
---- a/drivers/i2c/busses/i2c-robotfuzz-osif.c
-+++ b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-@@ -83,7 +83,7 @@ static int osif_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
- 			}
- 		}
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index 209535d5b8d3..3d2e3dd4ee01 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -578,6 +578,7 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
+ 	struct ceph_inode_info *ci = ceph_inode(dir);
+ 	struct inode *inode;
+ 	struct timespec64 now;
++	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(dir->i_sb);
+ 	struct ceph_vino vino = { .ino = req->r_deleg_ino,
+ 				  .snap = CEPH_NOSNAP };
  
--		ret = osif_usb_read(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
-+		ret = osif_usb_write(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
- 		if (ret) {
- 			dev_err(&adapter->dev, "failure sending STOP\n");
- 			return -EREMOTEIO;
-@@ -153,7 +153,7 @@ static int osif_probe(struct usb_interface *interface,
- 	 * Set bus frequency. The frequency is:
- 	 * 120,000,000 / ( 16 + 2 * div * 4^prescale).
- 	 * Using dev = 52, prescale = 0 give 100KHz */
--	ret = osif_usb_read(&priv->adapter, OSIFI2C_SET_BIT_RATE, 52, 0,
-+	ret = osif_usb_write(&priv->adapter, OSIFI2C_SET_BIT_RATE, 52, 0,
- 			    NULL, 0);
+@@ -615,8 +616,10 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
+ 
+ 	ceph_file_layout_to_legacy(lo, &in.layout);
+ 
++	down_read(&mdsc->snap_rwsem);
+ 	ret = ceph_fill_inode(inode, NULL, &iinfo, NULL, req->r_session,
+ 			      req->r_fmode, NULL);
++	up_read(&mdsc->snap_rwsem);
  	if (ret) {
- 		dev_err(&interface->dev, "failure sending bit rate");
+ 		dout("%s failed to fill inode: %d\n", __func__, ret);
+ 		ceph_dir_clear_complete(dir);
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 179d2ef69a24..7ee6023adb36 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -762,6 +762,8 @@ int ceph_fill_inode(struct inode *inode, struct page *locked_page,
+ 	bool new_version = false;
+ 	bool fill_inline = false;
+ 
++	lockdep_assert_held(&mdsc->snap_rwsem);
++
+ 	dout("%s %p ino %llx.%llx v %llu had %llu\n", __func__,
+ 	     inode, ceph_vinop(inode), le64_to_cpu(info->version),
+ 	     ci->i_version);
 -- 
 2.30.2
 
