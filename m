@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 416143B6A55
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 23:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 114013B6A56
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 23:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238080AbhF1V0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 17:26:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35944 "EHLO mail.kernel.org"
+        id S237136AbhF1V0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 17:26:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238033AbhF1VX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 17:23:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18F1B61CF1;
-        Mon, 28 Jun 2021 21:21:20 +0000 (UTC)
+        id S238060AbhF1VYC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 17:24:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B48F961D08;
+        Mon, 28 Jun 2021 21:21:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624915280;
-        bh=mhQaTVy8s+F/kumuxowScws01H/8UkfLxvLYMWg9T48=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O57lK0vVGtZvBGdmHzTykv3edAiBMHY3TYWA424k/Xbm53+nB5nSXkxNuxc6rBvRR
-         qFzLlffp6qNCTqbPzuZE8QP6/Ofv2H2y9RCFoT+HlaKjhtVncYXramjB3qGQb4N3au
-         9a6puzbTawllLTlBQZrXKe8EBOfEpETv67nIRJILzasM4mG9094ac6D3FWsuo4sfE6
-         lgRSHltkJGckyP97PeOFPeKnmwpYpr0Td8qmgZPd1u2qkhitFRJsi0iQvxFtyHjAwx
-         7BVKDl29z2lBXChJEROWS79sAKs9I2m0tL8UQwPz2sWfBe9FrZZR1AgJC+vymY+CI5
-         cdKyXOzi1yvWA==
+        s=k20201202; t=1624915283;
+        bh=SUZu0pcvaN4PA4MzwyZI1YTZYozzoccCQpqSuz4rg0c=;
+        h=From:To:Cc:Subject:Date:From;
+        b=cYRiHOKXPcQfzVgppG9lHVhApH8Z4eq2Zju+lgw+gsI4EYEM2XWyV2ywPoOaJLZkp
+         k7lktgN3Y7BiYNTrAOS+Da6i21xuRhnogpZpPfG9ZAjkycJfDPCfrJZweDHeXrpNJY
+         CZgEuUoE1wCMwtFaGCjuXe2HW/1vU3L373gwV6qUoWsn9kflA2RyuyG6dXBkjuBNng
+         n7cT7yZ1kAQ3+OijCHsBLyrLcE88snAKJfNwJYzt2cJXjSJlAubOw2x+MqPuRqYM8S
+         iUSP9r5oPKj7jlAFv+XZeruLp5edpBAtrNFQouRh8MsZJYwlFbl6euclC/Ex5tRoq8
+         HZ2yJ42RqDumA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 2/2] drm/nouveau: fix dma_address check for CPU/GPU sync
-Date:   Mon, 28 Jun 2021 17:21:17 -0400
-Message-Id: <20210628212117.43676-2-sashal@kernel.org>
+Cc:     ManYi Li <limanyi@uniontech.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 1/2] scsi: sr: Return appropriate error code when disk is ejected
+Date:   Mon, 28 Jun 2021 17:21:20 -0400
+Message-Id: <20210628212121.43749-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210628212117.43676-1-sashal@kernel.org>
-References: <20210628212117.43676-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,42 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: ManYi Li <limanyi@uniontech.com>
 
-[ Upstream commit d330099115597bbc238d6758a4930e72b49ea9ba ]
+[ Upstream commit 7dd753ca59d6c8cc09aa1ed24f7657524803c7f3 ]
 
-AGP for example doesn't have a dma_address array.
+Handle a reported media event code of 3. This indicates that the media has
+been removed from the drive and user intervention is required to proceed.
+Return DISK_EVENT_EJECT_REQUEST in that case.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210614110517.1624-1-christian.koenig@amd.com
+Link: https://lore.kernel.org/r/20210611094402.23884-1-limanyi@uniontech.com
+Signed-off-by: ManYi Li <limanyi@uniontech.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_bo.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/sr.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-index a2e6a81669e7..94b7798bdea4 100644
---- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-@@ -447,7 +447,7 @@ nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 7dd4d9ded249..6e31cedf0b6c 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -216,6 +216,8 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
+ 		return DISK_EVENT_EJECT_REQUEST;
+ 	else if (med->media_event_code == 2)
+ 		return DISK_EVENT_MEDIA_CHANGE;
++	else if (med->media_event_code == 3)
++		return DISK_EVENT_EJECT_REQUEST;
+ 	return 0;
+ }
  
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
- 
- 	/* Don't waste time looping if the object is coherent */
-@@ -467,7 +467,7 @@ nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
- 
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
- 
- 	/* Don't waste time looping if the object is coherent */
 -- 
 2.30.2
 
