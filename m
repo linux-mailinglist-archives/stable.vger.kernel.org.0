@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50EFD3B5FE8
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8E8B3B5FEB
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232964AbhF1OVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54390 "EHLO mail.kernel.org"
+        id S232777AbhF1OVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232685AbhF1OVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232697AbhF1OVJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:21:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82AE161C83;
-        Mon, 28 Jun 2021 14:18:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4635261C7E;
+        Mon, 28 Jun 2021 14:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624889923;
-        bh=u9aiZYhgWxIbYp3LJXXFRcIEOUPwPQ7RXNA4RVaQukE=;
+        bh=crOGXuKXwaRQFu0XN370L0X2uBTEypSclEuky3oQ+kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m8TnInBRWXvNRn7uq0aEXTg/FVv9rrai2E0W9heChw9heQ6U5nyvZNNNjvqtP7nqZ
-         VQmJT7IqwNWvbIxu7Zp+no4kgXAyDN5Yes2wQzAqHaVJ5Ml95McBPxQ2UEY6qnb6rn
-         eQJdX8Tz+hHxXsJj7EW4Bzn6RKfZQKnpZsJRkVCCtM+JsGK0c8+aYDD0KcZeOkYHhN
-         0pdLTqPgSDGHbxb8q21LUPKKwFQ/UNg3n4uX8bqE+aOFNEf3hl43xPCMB4XOq8qEdU
-         /5A/sLh4369N9lvF8FxjaJg+MpCs46wyAh2fzkgv36lpv0q/6ZnzZs8xT0pNn5xGCi
-         t2aU/Ch4LFbRA==
+        b=j44m3aderhLxy7ia7w6jpsEOUrAQwTXAONHU1rvXWFZ4Ctvt66GJmF7IVdPGmBwv7
+         TnkZm3sOZp8wLhhGrrNT5ArMf995fgr/PK3S9BeemjDZLwJPnrkk7aumDkZhwN8d1Y
+         SNqaTSEzqLbVVDkgJg3H2FOvgEs/ZZ9iW8JOZSNvKs/psKouyyW73Oie1UKs7qVbBA
+         Z5n0oObQTvtt/9ZMR8UPelW815vz9cNfeBWfMCyd0ALuRGjIpxo+1cgcnAZ8AuHOTY
+         tDUYq/sYdK+CRjPz8Edw3pEIRCGvOWAMuESv+W/Q2/8mpp3rP+K/C0FJ8GfYUZAXXR
+         ciyzFYU4dp+SQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxime Ripard <maxime@cerno.tech>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 014/110] drm/vc4: hdmi: Make sure the controller is powered in detect
-Date:   Mon, 28 Jun 2021 10:16:52 -0400
-Message-Id: <20210628141828.31757-15-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 015/110] x86/entry: Fix noinstr fail in __do_fast_syscall_32()
+Date:   Mon, 28 Jun 2021 10:16:53 -0400
+Message-Id: <20210628141828.31757-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -48,51 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 9984d6664ce9dcbbc713962539eaf7636ea246c2 ]
+[ Upstream commit 240001d4e3041832e8a2654adc3ccf1683132b92 ]
 
-If the HPD GPIO is not available and drm_probe_ddc fails, we end up
-reading the HDMI_HOTPLUG register, but the controller might be powered
-off resulting in a CPU hang. Make sure we have the power domain and the
-HSM clock powered during the detect cycle to prevent the hang from
-happening.
+Fix:
 
-Fixes: 4f6e3d66ac52 ("drm/vc4: Add runtime PM support to the HDMI encoder driver")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210525091059.234116-4-maxime@cerno.tech
+  vmlinux.o: warning: objtool: __do_fast_syscall_32()+0xf5: call to trace_hardirqs_off() leaves .noinstr.text section
+
+Fixes: 5d5675df792f ("x86/entry: Fix entry/exit mismatch on failed fast 32-bit syscalls")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210621120120.467898710@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/entry/common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 84e218365045..8106b5634fe1 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -159,6 +159,8 @@ vc4_hdmi_connector_detect(struct drm_connector *connector, bool force)
- 	struct vc4_hdmi *vc4_hdmi = connector_to_vc4_hdmi(connector);
- 	bool connected = false;
+diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
+index 4efd39aacb9f..cbe19c87e6be 100644
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -127,8 +127,8 @@ static noinstr bool __do_fast_syscall_32(struct pt_regs *regs)
+ 		/* User code screwed up. */
+ 		regs->ax = -EFAULT;
  
-+	WARN_ON(pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev));
-+
- 	if (vc4_hdmi->hpd_gpio) {
- 		if (gpio_get_value_cansleep(vc4_hdmi->hpd_gpio) ^
- 		    vc4_hdmi->hpd_active_low)
-@@ -180,10 +182,12 @@ vc4_hdmi_connector_detect(struct drm_connector *connector, bool force)
- 			}
- 		}
- 
-+		pm_runtime_put(&vc4_hdmi->pdev->dev);
- 		return connector_status_connected;
+-		instrumentation_end();
+ 		local_irq_disable();
++		instrumentation_end();
+ 		irqentry_exit_to_user_mode(regs);
+ 		return false;
  	}
- 
- 	cec_phys_addr_invalidate(vc4_hdmi->cec_adap);
-+	pm_runtime_put(&vc4_hdmi->pdev->dev);
- 	return connector_status_disconnected;
- }
- 
 -- 
 2.30.2
 
