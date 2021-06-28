@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ADC03B6289
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34CD33B628A
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236390AbhF1OsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:48:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51760 "EHLO mail.kernel.org"
+        id S234442AbhF1OsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:48:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235058AbhF1OoK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235059AbhF1OoK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:44:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A61861CFE;
-        Mon, 28 Jun 2021 14:33:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3AC761CFC;
+        Mon, 28 Jun 2021 14:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890834;
-        bh=b9MMu8XBLWrujxp3HO9gdNcY7HbRGRKoWMDkOUhTSWM=;
+        s=k20201202; t=1624890835;
+        bh=9BY+7FlAR/W7EiBSFe7ISrft7bHXbXUdoK/bMZJNjuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/c3ud6mA1G18tcdJiDRBLUNMK42demcnxGpblOaKcwVDYZhLKHg6Sky/PSEsDkzZ
-         I3Cj2wWboeVeuGhWSs9GMiVDcU+CST4ef0hUb4jowDkZWfAPTOt8Hv8GqOBfYEa2xW
-         DDYuYTOGi4TgFEV9G3i5DaGRsJpbfQMQmhZKp8ce0itBMmBWGPzJnYC1PSO4uRc+5i
-         T0fgg//lyXV+4jdI2YQxmz+zSB0D51O4oFQiD7MlxDNwxzuRNM1BCbikNRvqIK+A4i
-         B4UfObdRl3GQ1kLyi6eQpK1EYaSAsNOwGDQvE/1oKuxEh6vTnCYTRYzKlIw6tsB73E
-         GgDZAO5BYZ+Bw==
+        b=OEEHgJ2TevPohkfwkQ0NQNUGEOal+jolif+x6TPgJdjNyG/BG5kBdF2Sht2E+iSnz
+         qUGosK04DmXV+y2WCrwifOqaO0nSvxWMyrDEjHKuN5fIqT4n/y5o7On1x1RGcM/70i
+         EasSa1W7NOy/PO34C6Ao/rWciqUiEq4ufnHfCEdt1iuGIFV0uRHV3cT+fFSxHbLFLS
+         sQ3oQ5bxHCgybom7nZAc+a3as/GT9zi9KVDLvbBFnrUAItHdPouQH5rBY0P0SwZbEf
+         qDMx4dvK2P24pXWawyKPhL8hA49REpSfyIqGi96mMLT7JwfzPHO8BN+pBZXlNjDxDJ
+         Qliqby+ZwwjwQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Jack Yu <jack.yu@realtek.com>, Oder Chiou <oder_chiou@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 053/109] net: ethernet: fix potential use-after-free in ec_bhf_remove
-Date:   Mon, 28 Jun 2021 10:32:09 -0400
-Message-Id: <20210628143305.32978-54-sashal@kernel.org>
+Subject: [PATCH 4.19 054/109] ASoC: rt5659: Fix the lost powers for the HDA header
+Date:   Mon, 28 Jun 2021 10:32:10 -0400
+Message-Id: <20210628143305.32978-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -48,54 +48,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Jack Yu <jack.yu@realtek.com>
 
-[ Upstream commit 9cca0c2d70149160407bda9a9446ce0c29b6e6c6 ]
+[ Upstream commit 6308c44ed6eeadf65c0a7ba68d609773ed860fbb ]
 
-static void ec_bhf_remove(struct pci_dev *dev)
-{
-...
-	struct ec_bhf_priv *priv = netdev_priv(net_dev);
+The power of "LDO2", "MICBIAS1" and "Mic Det Power" were powered off after
+the DAPM widgets were added, and these powers were set by the JD settings
+"RT5659_JD_HDA_HEADER" in the probe function. In the codec probe function,
+these powers were ignored to prevent them controlled by DAPM.
 
-	unregister_netdev(net_dev);
-	free_netdev(net_dev);
-
-	pci_iounmap(dev, priv->dma_io);
-	pci_iounmap(dev, priv->io);
-...
-}
-
-priv is netdev private data, but it is used
-after free_netdev(). It can cause use-after-free when accessing priv
-pointer. So, fix it by moving free_netdev() after pci_iounmap()
-calls.
-
-Fixes: 6af55ff52b02 ("Driver for Beckhoff CX5020 EtherCAT master module.")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
+Signed-off-by: Jack Yu <jack.yu@realtek.com>
+Message-Id: <15fced51977b458798ca4eebf03dafb9@realtek.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ec_bhf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/codecs/rt5659.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/ec_bhf.c b/drivers/net/ethernet/ec_bhf.c
-index d71cba0842c5..59dc20020c73 100644
---- a/drivers/net/ethernet/ec_bhf.c
-+++ b/drivers/net/ethernet/ec_bhf.c
-@@ -585,10 +585,12 @@ static void ec_bhf_remove(struct pci_dev *dev)
- 	struct ec_bhf_priv *priv = netdev_priv(net_dev);
+diff --git a/sound/soc/codecs/rt5659.c b/sound/soc/codecs/rt5659.c
+index b331b3ba61a9..ab73f84b5970 100644
+--- a/sound/soc/codecs/rt5659.c
++++ b/sound/soc/codecs/rt5659.c
+@@ -2473,13 +2473,18 @@ static int set_dmic_power(struct snd_soc_dapm_widget *w,
+ 	return 0;
+ }
  
- 	unregister_netdev(net_dev);
--	free_netdev(net_dev);
+-static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
++static const struct snd_soc_dapm_widget rt5659_particular_dapm_widgets[] = {
+ 	SND_SOC_DAPM_SUPPLY("LDO2", RT5659_PWR_ANLG_3, RT5659_PWR_LDO2_BIT, 0,
+ 		NULL, 0),
+-	SND_SOC_DAPM_SUPPLY("PLL", RT5659_PWR_ANLG_3, RT5659_PWR_PLL_BIT, 0,
+-		NULL, 0),
++	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
++		0, NULL, 0),
+ 	SND_SOC_DAPM_SUPPLY("Mic Det Power", RT5659_PWR_VOL,
+ 		RT5659_PWR_MIC_DET_BIT, 0, NULL, 0),
++};
++
++static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
++	SND_SOC_DAPM_SUPPLY("PLL", RT5659_PWR_ANLG_3, RT5659_PWR_PLL_BIT, 0,
++		NULL, 0),
+ 	SND_SOC_DAPM_SUPPLY("Mono Vref", RT5659_PWR_ANLG_1,
+ 		RT5659_PWR_VREF3_BIT, 0, NULL, 0),
  
- 	pci_iounmap(dev, priv->dma_io);
- 	pci_iounmap(dev, priv->io);
+@@ -2504,8 +2509,6 @@ static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
+ 		RT5659_ADC_MONO_R_ASRC_SFT, 0, NULL, 0),
+ 
+ 	/* Input Side */
+-	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
+-		0, NULL, 0),
+ 	SND_SOC_DAPM_SUPPLY("MICBIAS2", RT5659_PWR_ANLG_2, RT5659_PWR_MB2_BIT,
+ 		0, NULL, 0),
+ 	SND_SOC_DAPM_SUPPLY("MICBIAS3", RT5659_PWR_ANLG_2, RT5659_PWR_MB3_BIT,
+@@ -3700,10 +3703,23 @@ static int rt5659_set_bias_level(struct snd_soc_component *component,
+ 
+ static int rt5659_probe(struct snd_soc_component *component)
+ {
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
+ 	struct rt5659_priv *rt5659 = snd_soc_component_get_drvdata(component);
+ 
+ 	rt5659->component = component;
+ 
++	switch (rt5659->pdata.jd_src) {
++	case RT5659_JD_HDA_HEADER:
++		break;
 +
-+	free_netdev(net_dev);
++	default:
++		snd_soc_dapm_new_controls(dapm,
++			rt5659_particular_dapm_widgets,
++			ARRAY_SIZE(rt5659_particular_dapm_widgets));
++		break;
++	}
 +
- 	pci_release_regions(dev);
- 	pci_clear_master(dev);
- 	pci_disable_device(dev);
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
