@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08D53B5FE3
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:18:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50EFD3B5FE8
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232789AbhF1OVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54382 "EHLO mail.kernel.org"
+        id S232964AbhF1OVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232684AbhF1OVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232685AbhF1OVJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:21:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCB1361C7F;
-        Mon, 28 Jun 2021 14:18:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82AE161C83;
+        Mon, 28 Jun 2021 14:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889922;
-        bh=pr2RjHWHc8rFfot+Body560wA3mLcqTnexuc3AbKGfE=;
+        s=k20201202; t=1624889923;
+        bh=u9aiZYhgWxIbYp3LJXXFRcIEOUPwPQ7RXNA4RVaQukE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQrtt480LJpXd7zDiYHLYWt7reQeL4cGhU4vhVh1byVgEpqKKVtGGPlaJF6YkmMfE
-         0PDqld794cIBnV73c0sJ9RnRqwTuwKjwOQqDhdYcUh3cuKtPUCiveO3sN/o4tzbdNw
-         gQVcW7zOF4XgGWxavIPmRB2XhQN2tKpEh/JiXhpeuLCZjw3iX66ECiRwXwkwnPwc01
-         ioBYUv1M4oVdBI+/Oz5/+vHIWhZbCHUf3LSin6AX24Fg8o8ftdIW85MONOdIcLMGtz
-         ZUnCebxM7+PhTdcDebLwG0YTEnhDxnMbKa/qb2hYMYyPA4qqIppN1QQS6jJtzlFt1X
-         VS3sgxazPiU+Q==
+        b=m8TnInBRWXvNRn7uq0aEXTg/FVv9rrai2E0W9heChw9heQ6U5nyvZNNNjvqtP7nqZ
+         VQmJT7IqwNWvbIxu7Zp+no4kgXAyDN5Yes2wQzAqHaVJ5Ml95McBPxQ2UEY6qnb6rn
+         eQJdX8Tz+hHxXsJj7EW4Bzn6RKfZQKnpZsJRkVCCtM+JsGK0c8+aYDD0KcZeOkYHhN
+         0pdLTqPgSDGHbxb8q21LUPKKwFQ/UNg3n4uX8bqE+aOFNEf3hl43xPCMB4XOq8qEdU
+         /5A/sLh4369N9lvF8FxjaJg+MpCs46wyAh2fzkgv36lpv0q/6ZnzZs8xT0pNn5xGCi
+         t2aU/Ch4LFbRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Maxime Ripard <maxime@cerno.tech>,
         Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 013/110] drm/vc4: hdmi: Move the HSM clock enable to runtime_pm
-Date:   Mon, 28 Jun 2021 10:16:51 -0400
-Message-Id: <20210628141828.31757-14-sashal@kernel.org>
+Subject: [PATCH 5.12 014/110] drm/vc4: hdmi: Make sure the controller is powered in detect
+Date:   Mon, 28 Jun 2021 10:16:52 -0400
+Message-Id: <20210628141828.31757-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -50,116 +50,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 411efa18e4b03840553ff58ad9b4621b82a30c04 ]
+[ Upstream commit 9984d6664ce9dcbbc713962539eaf7636ea246c2 ]
 
-In order to access the HDMI controller, we need to make sure the HSM
-clock is enabled. If we were to access it with the clock disabled, the
-CPU would completely hang, resulting in an hard crash.
-
-Since we have different code path that would require it, let's move that
-clock enable / disable to runtime_pm that will take care of the
-reference counting for us.
+If the HPD GPIO is not available and drm_probe_ddc fails, we end up
+reading the HDMI_HOTPLUG register, but the controller might be powered
+off resulting in a CPU hang. Make sure we have the power domain and the
+HSM clock powered during the detect cycle to prevent the hang from
+happening.
 
 Fixes: 4f6e3d66ac52 ("drm/vc4: Add runtime PM support to the HDMI encoder driver")
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210525091059.234116-3-maxime@cerno.tech
+Link: https://patchwork.freedesktop.org/patch/msgid/20210525091059.234116-4-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 40 +++++++++++++++++++++++++---------
- 1 file changed, 30 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 1fda574579af..84e218365045 100644
+index 84e218365045..8106b5634fe1 100644
 --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
 +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -473,7 +473,6 @@ static void vc4_hdmi_encoder_post_crtc_powerdown(struct drm_encoder *encoder,
- 		   HDMI_READ(HDMI_VID_CTL) & ~VC4_HD_VID_CTL_ENABLE);
+@@ -159,6 +159,8 @@ vc4_hdmi_connector_detect(struct drm_connector *connector, bool force)
+ 	struct vc4_hdmi *vc4_hdmi = connector_to_vc4_hdmi(connector);
+ 	bool connected = false;
  
- 	clk_disable_unprepare(vc4_hdmi->pixel_bvb_clock);
--	clk_disable_unprepare(vc4_hdmi->hsm_clock);
- 	clk_disable_unprepare(vc4_hdmi->pixel_clock);
++	WARN_ON(pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev));
++
+ 	if (vc4_hdmi->hpd_gpio) {
+ 		if (gpio_get_value_cansleep(vc4_hdmi->hpd_gpio) ^
+ 		    vc4_hdmi->hpd_active_low)
+@@ -180,10 +182,12 @@ vc4_hdmi_connector_detect(struct drm_connector *connector, bool force)
+ 			}
+ 		}
  
- 	ret = pm_runtime_put(&vc4_hdmi->pdev->dev);
-@@ -784,13 +783,6 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder,
- 		return;
++		pm_runtime_put(&vc4_hdmi->pdev->dev);
+ 		return connector_status_connected;
  	}
  
--	ret = clk_prepare_enable(vc4_hdmi->hsm_clock);
--	if (ret) {
--		DRM_ERROR("Failed to turn on HSM clock: %d\n", ret);
--		clk_disable_unprepare(vc4_hdmi->pixel_clock);
--		return;
--	}
--
- 	vc4_hdmi_cec_update_clk_div(vc4_hdmi);
- 
- 	/*
-@@ -801,7 +793,6 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder,
- 			       (hsm_rate > VC4_HSM_MID_CLOCK ? 150000000 : 75000000));
- 	if (ret) {
- 		DRM_ERROR("Failed to set pixel bvb clock rate: %d\n", ret);
--		clk_disable_unprepare(vc4_hdmi->hsm_clock);
- 		clk_disable_unprepare(vc4_hdmi->pixel_clock);
- 		return;
- 	}
-@@ -809,7 +800,6 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder,
- 	ret = clk_prepare_enable(vc4_hdmi->pixel_bvb_clock);
- 	if (ret) {
- 		DRM_ERROR("Failed to turn on pixel bvb clock: %d\n", ret);
--		clk_disable_unprepare(vc4_hdmi->hsm_clock);
- 		clk_disable_unprepare(vc4_hdmi->pixel_clock);
- 		return;
- 	}
-@@ -1929,6 +1919,29 @@ static int vc5_hdmi_init_resources(struct vc4_hdmi *vc4_hdmi)
- 	return 0;
+ 	cec_phys_addr_invalidate(vc4_hdmi->cec_adap);
++	pm_runtime_put(&vc4_hdmi->pdev->dev);
+ 	return connector_status_disconnected;
  }
  
-+#ifdef CONFIG_PM
-+static int vc4_hdmi_runtime_suspend(struct device *dev)
-+{
-+	struct vc4_hdmi *vc4_hdmi = dev_get_drvdata(dev);
-+
-+	clk_disable_unprepare(vc4_hdmi->hsm_clock);
-+
-+	return 0;
-+}
-+
-+static int vc4_hdmi_runtime_resume(struct device *dev)
-+{
-+	struct vc4_hdmi *vc4_hdmi = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = clk_prepare_enable(vc4_hdmi->hsm_clock);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+#endif
-+
- static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
- {
- 	const struct vc4_hdmi_variant *variant = of_device_get_match_data(dev);
-@@ -2165,11 +2178,18 @@ static const struct of_device_id vc4_hdmi_dt_match[] = {
- 	{}
- };
- 
-+static const struct dev_pm_ops vc4_hdmi_pm_ops = {
-+	SET_RUNTIME_PM_OPS(vc4_hdmi_runtime_suspend,
-+			   vc4_hdmi_runtime_resume,
-+			   NULL)
-+};
-+
- struct platform_driver vc4_hdmi_driver = {
- 	.probe = vc4_hdmi_dev_probe,
- 	.remove = vc4_hdmi_dev_remove,
- 	.driver = {
- 		.name = "vc4_hdmi",
- 		.of_match_table = vc4_hdmi_dt_match,
-+		.pm = &vc4_hdmi_pm_ops,
- 	},
- };
 -- 
 2.30.2
 
