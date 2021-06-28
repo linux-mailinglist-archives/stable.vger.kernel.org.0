@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A33413B60DC
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:28:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CC123B60DD
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:28:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233549AbhF1Oa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:30:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35964 "EHLO mail.kernel.org"
+        id S233896AbhF1Oa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:30:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234450AbhF1O3u (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234451AbhF1O3u (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:29:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1043561C98;
-        Mon, 28 Jun 2021 14:26:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0ED861C9A;
+        Mon, 28 Jun 2021 14:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890382;
-        bh=iHHZRf0MOBa7sJElrMOU4S3irPArPlIZrh7zISugXjw=;
+        s=k20201202; t=1624890383;
+        bh=D/8qI1JY9A2PEQb8nd5M7pYimRyXnzzuN+W4vjx7Bdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsAqcC55DTvQtcHDLJrkjlSdIL8Ir1UD/nOdRtTYu7CPUtQnTGbbJGqqWljFwengv
-         excQEb1K2UdILLnJZBs6U0dspXeqN7xHZ2YB774OQeJo924JGQJyTkQO2MGkW2n/5M
-         ygSfmfmQMwFM+HMQNOHF/7KPJHMgUC39t9wVhVYAPFPM1xo8YJIRokN6T3jk+U5Ua7
-         gTfZf6pWBqMc/N7quZ51yeWztHN78T3adrlP1Q4ZEHD3F5NqHFFMfwB3RKT2T7/Y8m
-         iGuLYCLFOQ9u98Erj4ibKiJ9HO/7JzNR443LgD/g5BIo21ToP5cSQAqpTLhfG0hQgF
-         s0dHnAX0WWuqg==
+        b=ejl67TrDlQCvjC69yrUd4229JgiWI1wsYBPzyPsA243tWzDPBv5MUfzrN1seXXcw9
+         P1Sll1HN5kcTIH4Y4N6TT8A+hb2DIJCSG7lUfux05a+quD00er+oNwLjKI4qbA/GF3
+         QsKBO55R/5C20bDdnSJYCEJNCQZMIvUvl9pn6qQ+5u3zfQiDv+mdKguRPxwZVEmBIS
+         uss/LMTvPHgWs40nXU9fFJAkhkruM6ksr/x4jSu9gwLu8jtk61vvqKxDJ4+/oCrL/i
+         XIly5286krwiuTIYwxeXqtA0KJN1LXcgpiQITvZq8KGWBKGjLiMq0avgco367P9MJo
+         QQUcgSzJLjg7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Michael <phyre@rogers.com>,
-        Salvatore Bonaccorso <carnil@debian.org>,
+Cc:     Maxime Ripard <maxime@cerno.tech>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 014/101] Revert "PCI: PM: Do not read power state in pci_enable_device_flags()"
-Date:   Mon, 28 Jun 2021 10:24:40 -0400
-Message-Id: <20210628142607.32218-15-sashal@kernel.org>
+Subject: [PATCH 5.10 015/101] drm/vc4: hdmi: Move the HSM clock enable to runtime_pm
+Date:   Mon, 28 Jun 2021 10:24:41 -0400
+Message-Id: <20210628142607.32218-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -49,54 +48,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 4d6035f9bf4ea12776322746a216e856dfe46698 ]
+[ Upstream commit 411efa18e4b03840553ff58ad9b4621b82a30c04 ]
 
-Revert commit 4514d991d992 ("PCI: PM: Do not read power state in
-pci_enable_device_flags()") that is reported to cause PCI device
-initialization issues on some systems.
+In order to access the HDMI controller, we need to make sure the HSM
+clock is enabled. If we were to access it with the clock disabled, the
+CPU would completely hang, resulting in an hard crash.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213481
-Link: https://lore.kernel.org/linux-acpi/YNDoGICcg0V8HhpQ@eldamar.lan
-Reported-by: Michael <phyre@rogers.com>
-Reported-by: Salvatore Bonaccorso <carnil@debian.org>
-Fixes: 4514d991d992 ("PCI: PM: Do not read power state in pci_enable_device_flags()")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Since we have different code path that would require it, let's move that
+clock enable / disable to runtime_pm that will take care of the
+reference counting for us.
+
+Fixes: 4f6e3d66ac52 ("drm/vc4: Add runtime PM support to the HDMI encoder driver")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210525091059.234116-3-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 40 +++++++++++++++++++++++++---------
+ 1 file changed, 30 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index d5d9ea864fe6..9e971fffeb6a 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1874,11 +1874,21 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
- 	int err;
- 	int i, bars = 0;
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index af5f01eff872..5978e99a0e85 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -415,7 +415,6 @@ static void vc4_hdmi_encoder_post_crtc_powerdown(struct drm_encoder *encoder)
+ 		   HDMI_READ(HDMI_VID_CTL) & ~VC4_HD_VID_CTL_ENABLE);
  
--	if (atomic_inc_return(&dev->enable_cnt) > 1) {
--		pci_update_current_state(dev, dev->current_state);
--		return 0;		/* already enabled */
-+	/*
-+	 * Power state could be unknown at this point, either due to a fresh
-+	 * boot or a device removal call.  So get the current power state
-+	 * so that things like MSI message writing will behave as expected
-+	 * (e.g. if the device really is in D0 at enable time).
-+	 */
-+	if (dev->pm_cap) {
-+		u16 pmcsr;
-+		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
-+		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
+ 	clk_disable_unprepare(vc4_hdmi->pixel_bvb_clock);
+-	clk_disable_unprepare(vc4_hdmi->hsm_clock);
+ 	clk_disable_unprepare(vc4_hdmi->pixel_clock);
+ 
+ 	ret = pm_runtime_put(&vc4_hdmi->pdev->dev);
+@@ -666,13 +665,6 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder)
+ 		return;
  	}
  
-+	if (atomic_inc_return(&dev->enable_cnt) > 1)
-+		return 0;		/* already enabled */
+-	ret = clk_prepare_enable(vc4_hdmi->hsm_clock);
+-	if (ret) {
+-		DRM_ERROR("Failed to turn on HSM clock: %d\n", ret);
+-		clk_disable_unprepare(vc4_hdmi->pixel_clock);
+-		return;
+-	}
+-
+ 	vc4_hdmi_cec_update_clk_div(vc4_hdmi);
+ 
+ 	/*
+@@ -683,7 +675,6 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder)
+ 			       (hsm_rate > VC4_HSM_MID_CLOCK ? 150000000 : 75000000));
+ 	if (ret) {
+ 		DRM_ERROR("Failed to set pixel bvb clock rate: %d\n", ret);
+-		clk_disable_unprepare(vc4_hdmi->hsm_clock);
+ 		clk_disable_unprepare(vc4_hdmi->pixel_clock);
+ 		return;
+ 	}
+@@ -691,7 +682,6 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder)
+ 	ret = clk_prepare_enable(vc4_hdmi->pixel_bvb_clock);
+ 	if (ret) {
+ 		DRM_ERROR("Failed to turn on pixel bvb clock: %d\n", ret);
+-		clk_disable_unprepare(vc4_hdmi->hsm_clock);
+ 		clk_disable_unprepare(vc4_hdmi->pixel_clock);
+ 		return;
+ 	}
+@@ -1724,6 +1714,29 @@ static int vc5_hdmi_init_resources(struct vc4_hdmi *vc4_hdmi)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM
++static int vc4_hdmi_runtime_suspend(struct device *dev)
++{
++	struct vc4_hdmi *vc4_hdmi = dev_get_drvdata(dev);
 +
- 	bridge = pci_upstream_bridge(dev);
- 	if (bridge)
- 		pci_enable_bridge(bridge);
++	clk_disable_unprepare(vc4_hdmi->hsm_clock);
++
++	return 0;
++}
++
++static int vc4_hdmi_runtime_resume(struct device *dev)
++{
++	struct vc4_hdmi *vc4_hdmi = dev_get_drvdata(dev);
++	int ret;
++
++	ret = clk_prepare_enable(vc4_hdmi->hsm_clock);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++#endif
++
+ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
+ {
+ 	const struct vc4_hdmi_variant *variant = of_device_get_match_data(dev);
+@@ -1959,11 +1972,18 @@ static const struct of_device_id vc4_hdmi_dt_match[] = {
+ 	{}
+ };
+ 
++static const struct dev_pm_ops vc4_hdmi_pm_ops = {
++	SET_RUNTIME_PM_OPS(vc4_hdmi_runtime_suspend,
++			   vc4_hdmi_runtime_resume,
++			   NULL)
++};
++
+ struct platform_driver vc4_hdmi_driver = {
+ 	.probe = vc4_hdmi_dev_probe,
+ 	.remove = vc4_hdmi_dev_remove,
+ 	.driver = {
+ 		.name = "vc4_hdmi",
+ 		.of_match_table = vc4_hdmi_dt_match,
++		.pm = &vc4_hdmi_pm_ops,
+ 	},
+ };
 -- 
 2.30.2
 
