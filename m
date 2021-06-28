@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D0553B62F3
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DABF3B62F5
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:48:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235253AbhF1Oua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:50:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55610 "EHLO mail.kernel.org"
+        id S235269AbhF1Oub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:50:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236407AbhF1OsX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:48:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6461261CA7;
-        Mon, 28 Jun 2021 14:36:41 +0000 (UTC)
+        id S236406AbhF1OsW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:48:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25B9E61CB3;
+        Mon, 28 Jun 2021 14:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891001;
-        bh=B25B92srqSsF/6Dh15xn0nPKBcW6GX2zydGaLZi44Zw=;
+        s=k20201202; t=1624891002;
+        bh=YPfVsIP4uCZ7IM44bwqCjKcDi1lb2f8isXM2kOjgkkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hBGfIRg9XyviZkLoDDlywghtQup0RK1JTo+399OUzFEwK4rUgMtOa5v8LNScpfiV5
-         s3W21I433twO2DAx3FqNNQqaJ/Xog2iQBAnRPa6HI+U+0YtTsmp2dwCMTxIARATvxd
-         30iZwtWHGeHmutOnXdmNBY4yqDU6vXPUj1HKxtyIONnpxIFXKQd1eD5552NftsWtF9
-         8FOwT+zThuIA4EzPj6pllwQbRKnrPMwdduS+wZRaj3TEGf6ZrHxZgRyt8+8b6pF9LY
-         rSojNSR7JKeGoFXXdLgDlal1Jo2jAHsxh7Eip/pGJeQBQwXVMyfiymzzBDeqn2+ZyA
-         +BNSZRTbC/6Ug==
+        b=HPYPP8boh9KFI4weIqGj1dZX15twVtWgFdZ2qzz99xRt1B5JDw7K+hIDrDH9WGcYy
+         u12jd7g1Tdl6WWKBsJY+e/Dq8xhVEJN5PoPcXio3MEd9oSOtEiEweWvUfo4u7K1Ogc
+         xn78vI4/c9yYPgxVPyatxX0L+NEQWccsturGwJ0rlEhMcs0q4ibRemQ0YXJq8sFFQU
+         swSLYKtLSziQeMQIto0AQ4F1wa7rSunk+6JixarCeplYWiSl8gittz6D5Ojgx2379L
+         Mehsd6KFm2C6nvnz5t3iRnOb9FpYfQzxEBO2+30E3s8wPO3fdpm9/5EdUA/sJZPfsk
+         fb8ghjOhKUmYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josh Triplett <josh@joshtriplett.org>,
+Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/88] net: ipconfig: Don't override command-line hostnames or domains
-Date:   Mon, 28 Jun 2021 10:35:13 -0400
-Message-Id: <20210628143628.33342-14-sashal@kernel.org>
+Subject: [PATCH 4.14 14/88] rtnetlink: Fix missing error code in rtnl_bridge_notify()
+Date:   Mon, 28 Jun 2021 10:35:14 -0400
+Message-Id: <20210628143628.33342-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -48,60 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Triplett <josh@joshtriplett.org>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit b508d5fb69c2211a1b860fc058aafbefc3b3c3cd ]
+[ Upstream commit a8db57c1d285c758adc7fb43d6e2bad2554106e1 ]
 
-If the user specifies a hostname or domain name as part of the ip=
-command-line option, preserve it and don't overwrite it with one
-supplied by DHCP/BOOTP.
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'err'.
 
-For instance, ip=::::myhostname::dhcp will use "myhostname" rather than
-ignoring and overwriting it.
+Eliminate the follow smatch warning:
 
-Fix the comment on ic_bootp_string that suggests it only copies a string
-"if not already set"; it doesn't have any such logic.
+net/core/rtnetlink.c:4834 rtnl_bridge_notify() warn: missing error code
+'err'.
 
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ipconfig.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ net/core/rtnetlink.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
-index f0782c91514c..41e384834d50 100644
---- a/net/ipv4/ipconfig.c
-+++ b/net/ipv4/ipconfig.c
-@@ -881,7 +881,7 @@ static void __init ic_bootp_send_if(struct ic_device *d, unsigned long jiffies_d
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 0168c700a201..fa3ed51f846b 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3648,8 +3648,10 @@ static int rtnl_bridge_notify(struct net_device *dev)
+ 	if (err < 0)
+ 		goto errout;
  
+-	if (!skb->len)
++	if (!skb->len) {
++		err = -EINVAL;
+ 		goto errout;
++	}
  
- /*
-- *  Copy BOOTP-supplied string if not already set.
-+ *  Copy BOOTP-supplied string
-  */
- static int __init ic_bootp_string(char *dest, char *src, int len, int max)
- {
-@@ -930,12 +930,15 @@ static void __init ic_do_bootp_ext(u8 *ext)
- 		}
- 		break;
- 	case 12:	/* Host name */
--		ic_bootp_string(utsname()->nodename, ext+1, *ext,
--				__NEW_UTS_LEN);
--		ic_host_name_set = 1;
-+		if (!ic_host_name_set) {
-+			ic_bootp_string(utsname()->nodename, ext+1, *ext,
-+					__NEW_UTS_LEN);
-+			ic_host_name_set = 1;
-+		}
- 		break;
- 	case 15:	/* Domain name (DNS) */
--		ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
-+		if (!ic_domain[0])
-+			ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
- 		break;
- 	case 17:	/* Root path */
- 		if (!root_server_path[0])
+ 	rtnl_notify(skb, net, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
+ 	return 0;
 -- 
 2.30.2
 
