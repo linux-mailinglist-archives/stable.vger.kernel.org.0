@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFF393B602B
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA683B6030
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233480AbhF1OWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:22:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55090 "EHLO mail.kernel.org"
+        id S232459AbhF1OWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:22:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233296AbhF1OV4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232632AbhF1OV4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:21:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 654C161C93;
-        Mon, 28 Jun 2021 14:19:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4100D61C8B;
+        Mon, 28 Jun 2021 14:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624889962;
-        bh=46qakYsBuV8NRmvos3gw/mKbjcS14jl4gU6VCHt36Hg=;
+        bh=zg7OI1Dk3F/Bn4+tLIiV774mDoUC3mGbqqILpbbh9o4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c3xwgHA0t3ybyCKcTmbVneZHkOJ2QPEmavbQnlfbPkCZ3N5J/SMwSwX+OkRjScD3g
-         7zrib4TYpiG96T2bKbxVmP5Q1Irq5eVCE8YnYaWaeC1eIFhBjFCUjut/4dlwF7whrl
-         43IjSqsPRlCp18YR8cCmXpdlv/PNdw2aT9wURs/aZVTAJ6UFg92+egzzWGDIVFLHwF
-         epUu/YAnUi1so28hy6Cpw2fwn1WHoWgqNJm96oqY8mEE3zQd6KFVIkG7m4s+L5KLUW
-         GBUN16ayWTZvPxbBipNIstVZPALD9OLRCvMYIgdT6uIvzR3/gyZJJ3qg7FB7kTjNu4
-         bncGGcCn/KwpQ==
+        b=NaPJakhx+6quyS+a7QeKIqkbmokcYUNtZ92oTF++IBmsjFzOho/ePZ3/aLAzWTzFT
+         1a3VinrfRv06d22bUaezcmyaZ/pB/yO4aPO3YSDKSir2nuzIYzbXH7VZUfyzZx+AbV
+         IUy/R65bOJ2784Uv56ch2fYSiOC2xwfR/GpLSqWPRkxAYhGhplQ8LSO+nwnfALxphA
+         25Na9CkyzQB1BzzDFu6DTfU7Q98z1+OjR0WOA1DCTRPmQV7d/YpXHgZ41fPNV+Cwmm
+         wjP2BsGuVGchNZMYkTakYDfPfQKcCxf7x8gnu40tD9jGzaz5fMTtNdciWdKFRRPs6Q
+         EsBMeQcljMvhw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Lars Povlsen <lars.povlsen@microchip.com>,
+Cc:     Fabien Dessenne <fabien.dessenne@foss.st.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 062/110] pinctrl: microchip-sgpio: Put fwnode in error case during ->probe()
-Date:   Mon, 28 Jun 2021 10:17:40 -0400
-Message-Id: <20210628141828.31757-63-sashal@kernel.org>
+Subject: [PATCH 5.12 063/110] pinctrl: stm32: fix the reported number of GPIO lines per bank
+Date:   Mon, 28 Jun 2021 10:17:41 -0400
+Message-Id: <20210628141828.31757-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -49,39 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: Fabien Dessenne <fabien.dessenne@foss.st.com>
 
-[ Upstream commit 76b7f8fae30a9249f820e019f1e62eca992751a2 ]
+[ Upstream commit 67e2996f72c71ebe4ac2fcbcf77e54479bb7aa11 ]
 
-device_for_each_child_node() bumps a reference counting of a returned variable.
-We have to balance it whenever we return to the caller.
+Each GPIO bank supports a variable number of lines which is usually 16, but
+is less in some cases : this is specified by the last argument of the
+"gpio-ranges" bank node property.
+Report to the framework, the actual number of lines, so the libgpiod
+gpioinfo command lists the actually existing GPIO lines.
 
-Fixes: 7e5ea974e61c ("pinctrl: pinctrl-microchip-sgpio: Add pinctrl driver for Microsemi Serial GPIO")
-Cc: Lars Povlsen <lars.povlsen@microchip.com>
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210606191940.29312-1-andy.shevchenko@gmail.com
+Fixes: 1dc9d289154b ("pinctrl: stm32: add possibility to use gpio-ranges to declare bank range")
+Signed-off-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Link: https://lore.kernel.org/r/20210617144629.2557693-1-fabien.dessenne@foss.st.com
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-microchip-sgpio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pinctrl/stm32/pinctrl-stm32.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-microchip-sgpio.c b/drivers/pinctrl/pinctrl-microchip-sgpio.c
-index c12fa57ebd12..165cb7a59715 100644
---- a/drivers/pinctrl/pinctrl-microchip-sgpio.c
-+++ b/drivers/pinctrl/pinctrl-microchip-sgpio.c
-@@ -845,8 +845,10 @@ static int microchip_sgpio_probe(struct platform_device *pdev)
- 	i = 0;
- 	device_for_each_child_node(dev, fwnode) {
- 		ret = microchip_sgpio_register_bank(dev, priv, fwnode, i++);
--		if (ret)
-+		if (ret) {
-+			fwnode_handle_put(fwnode);
- 			return ret;
-+		}
- 	}
+diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
+index 7d9bdedcd71b..3af4430543dc 100644
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -1229,7 +1229,7 @@ static int stm32_gpiolib_register_bank(struct stm32_pinctrl *pctl,
+ 	struct device *dev = pctl->dev;
+ 	struct resource res;
+ 	int npins = STM32_GPIO_PINS_PER_BANK;
+-	int bank_nr, err;
++	int bank_nr, err, i = 0;
  
- 	if (priv->in.gpio.ngpio != priv->out.gpio.ngpio) {
+ 	if (!IS_ERR(bank->rstc))
+ 		reset_control_deassert(bank->rstc);
+@@ -1251,9 +1251,14 @@ static int stm32_gpiolib_register_bank(struct stm32_pinctrl *pctl,
+ 
+ 	of_property_read_string(np, "st,bank-name", &bank->gpio_chip.label);
+ 
+-	if (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3, 0, &args)) {
++	if (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3, i, &args)) {
+ 		bank_nr = args.args[1] / STM32_GPIO_PINS_PER_BANK;
+ 		bank->gpio_chip.base = args.args[1];
++
++		npins = args.args[2];
++		while (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3,
++							 ++i, &args))
++			npins += args.args[2];
+ 	} else {
+ 		bank_nr = pctl->nbanks;
+ 		bank->gpio_chip.base = bank_nr * STM32_GPIO_PINS_PER_BANK;
 -- 
 2.30.2
 
