@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6732B3B6302
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55CE43B6304
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:48:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235027AbhF1OvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:51:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
+        id S235580AbhF1OvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234265AbhF1OtC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:49:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B3F361D0C;
-        Mon, 28 Jun 2021 14:36:49 +0000 (UTC)
+        id S234721AbhF1OtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:49:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 698C361CF6;
+        Mon, 28 Jun 2021 14:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891010;
-        bh=yQdECQzGbZ+M6ZCL3Cdt8cl9/8DxbVJxr8jH26zi5bM=;
+        s=k20201202; t=1624891011;
+        bh=Cg7lHTyvOycOAplZhQEgUnyNMDp0cgGsNZ0EtmmCRfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Usz30SHh0ToAKoigobY487c7AWPtOPI2WEiUolWfZGBXU2NqAKoVUNsjaBM264d8+
-         ct/dNvwek7IkkmNSujTCjAQqnJzLvN4UOScHmtTqoo7qxknlUqQWoEUNoBjmuyeo0B
-         5t3SKzHtMyLb7XdW2dqCNJerVmB6BA/A2oAJJj0tc4z2HsSqEZiz3xKUQVVUhA64r9
-         ZlG36SAHGkMABS59r+Ti1kxPHpc09T6QFCgkXoJHjfYSbTyY8l1YT5lkugS5tbAAI5
-         MDXDMOwmlOuxFIDYB0yxYJYqVNdiAFBuMDqSbU7tKNLU1SZXzj1SGo+2Irihg+0Cp1
-         Jq7lrxETRXHsg==
+        b=BB8Mr114P0KU5Xcy2FdGNX8cAIJ9RVDZ4lZ09goMaVgpzYLIURReNp+OAYVtTIfF7
+         yym3S1zEVH4Bl9KUzxBdKHJXCiXU5kuN4xvNt+gijY1PT9LAHavpy5Z9UlQZLBqjI3
+         pGBuR8Lk8fzyYUYvKk3/tD07PWsfDzyqXAapAfoqxwi55B0tX5zo8pNZCZwD47TVUo
+         9n0EWBu7og29fwHHzX9avwvX2nAVO/xBhrai0x6ho7x2HGEkQUxNLkRQSAb6YtDd4/
+         WrC6ePAs8IVctPB/cehGFn0YmR3egQXLq3m+PZKsSZsUCiZBDofq/LLXCiQoVxACNZ
+         ROxr6aA4n+1jw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Eckelmann <sven@narfation.org>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        syzbot+c0b807de416427ff3dd1@syzkaller.appspotmail.com,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+Cc:     Nanyong Sun <sunnanyong@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/88] batman-adv: Avoid WARN_ON timing related checks
-Date:   Mon, 28 Jun 2021 10:35:22 -0400
-Message-Id: <20210628143628.33342-23-sashal@kernel.org>
+Subject: [PATCH 4.14 23/88] net: ipv4: fix memory leak in netlbl_cipsov4_add_std
+Date:   Mon, 28 Jun 2021 10:35:23 -0400
+Message-Id: <20210628143628.33342-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -50,43 +50,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-[ Upstream commit 9f460ae31c4435fd022c443a6029352217a16ac1 ]
+[ Upstream commit d612c3f3fae221e7ea736d196581c2217304bbbc ]
 
-The soft/batadv interface for a queued OGM can be changed during the time
-the OGM was queued for transmission and when the OGM is actually
-transmitted by the worker.
+Reported by syzkaller:
+BUG: memory leak
+unreferenced object 0xffff888105df7000 (size 64):
+comm "syz-executor842", pid 360, jiffies 4294824824 (age 22.546s)
+hex dump (first 32 bytes):
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+backtrace:
+[<00000000e67ed558>] kmalloc include/linux/slab.h:590 [inline]
+[<00000000e67ed558>] kzalloc include/linux/slab.h:720 [inline]
+[<00000000e67ed558>] netlbl_cipsov4_add_std net/netlabel/netlabel_cipso_v4.c:145 [inline]
+[<00000000e67ed558>] netlbl_cipsov4_add+0x390/0x2340 net/netlabel/netlabel_cipso_v4.c:416
+[<0000000006040154>] genl_family_rcv_msg_doit.isra.0+0x20e/0x320 net/netlink/genetlink.c:739
+[<00000000204d7a1c>] genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+[<00000000204d7a1c>] genl_rcv_msg+0x2bf/0x4f0 net/netlink/genetlink.c:800
+[<00000000c0d6a995>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
+[<00000000d78b9d2c>] genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+[<000000009733081b>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+[<000000009733081b>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
+[<00000000d5fd43b8>] netlink_sendmsg+0x789/0xc70 net/netlink/af_netlink.c:1929
+[<000000000a2d1e40>] sock_sendmsg_nosec net/socket.c:654 [inline]
+[<000000000a2d1e40>] sock_sendmsg+0x139/0x170 net/socket.c:674
+[<00000000321d1969>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
+[<00000000964e16bc>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
+[<000000001615e288>] __sys_sendmsg+0xd3/0x190 net/socket.c:2433
+[<000000004ee8b6a5>] do_syscall_64+0x37/0x90 arch/x86/entry/common.c:47
+[<00000000171c7cee>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-But WARN_ON must be used to denote kernel bugs and not to print simple
-warnings. A warning can simply be printed using pr_warn.
+The memory of doi_def->map.std pointing is allocated in
+netlbl_cipsov4_add_std, but no place has freed it. It should be
+freed in cipso_v4_doi_free which frees the cipso DOI resource.
 
-Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Reported-by: syzbot+c0b807de416427ff3dd1@syzkaller.appspotmail.com
-Fixes: ef0a937f7a14 ("batman-adv: consider outgoing interface in OGM sending")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Fixes: 96cb8e3313c7a ("[NetLabel]: CIPSOv4 and Unlabeled packet integration")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_iv_ogm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/cipso_ipv4.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
-index 7a723e124dbb..3ec16c48e768 100644
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -585,8 +585,10 @@ static void batadv_iv_ogm_emit(struct batadv_forw_packet *forw_packet)
- 	if (WARN_ON(!forw_packet->if_outgoing))
- 		return;
- 
--	if (WARN_ON(forw_packet->if_outgoing->soft_iface != soft_iface))
-+	if (forw_packet->if_outgoing->soft_iface != soft_iface) {
-+		pr_warn("%s: soft interface switch for queued OGM\n", __func__);
- 		return;
-+	}
- 
- 	if (forw_packet->if_incoming->if_status != BATADV_IF_ACTIVE)
- 		return;
+diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+index 6a1b52b34e20..e8b8dd1cb157 100644
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -486,6 +486,7 @@ void cipso_v4_doi_free(struct cipso_v4_doi *doi_def)
+ 		kfree(doi_def->map.std->lvl.local);
+ 		kfree(doi_def->map.std->cat.cipso);
+ 		kfree(doi_def->map.std->cat.local);
++		kfree(doi_def->map.std);
+ 		break;
+ 	}
+ 	kfree(doi_def);
 -- 
 2.30.2
 
