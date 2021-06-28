@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F219B3B630F
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:49:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 927CB3B631F
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233736AbhF1Ov2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54534 "EHLO mail.kernel.org"
+        id S234545AbhF1OwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:52:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236462AbhF1OtX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:49:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B88561D24;
-        Mon, 28 Jun 2021 14:36:56 +0000 (UTC)
+        id S236648AbhF1OuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:50:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F3D561D25;
+        Mon, 28 Jun 2021 14:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624891017;
-        bh=nAqVMz/Q0ieuVcn88c+qsvpkAbdQ8SUFXA9pBZGGx7A=;
+        bh=9FeWh6NOJYEvQc5ECtPtnkzo3aSKhubpbD6nt0RtdVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjOtGKCtmnCyf7olFo553XLsn6KJbPcJbDOr3lIc1H2fHtNpqIF3c6gWLEmwab6P6
-         xkEaNaAxCXOFA6xGyMLr99awl/oFMbIfOO0AfTqKvuxclijIE6orEPsu/LQ/a+NOnH
-         UUsR56lFjhKX/RXXB77k2jeFqNqrcWi2mQoYEeCMaIyu3E6ui71aC7ug9hzxq+o9RR
-         hgqju84/PhS66qXjELx12z2yK7frHZiM6qt1WPeYrgtgALWdD55B5o03KkkK6TXALj
-         ujDHJFtzgvINBYR1/JauGlk9L5bI0h1dbPaBUO8CgiM2Z/JZz6eDM29r+/38SpLGjW
-         XMb1Jtp2ed+Uw==
+        b=UBo7XU2dIoBm2INMB0ctP4dC920iTDDntWw+Cy+3dSiLIG4jyZwHvjbobc/D9viMn
+         JbChaIXAiJThRM2UVocbhL6hl7NNN/zxE76QV+Idh4jgcxWsz39AbDplj+eNOaOcob
+         7xsGOkLnkj7OWipsaI6ELPndzDPcpd8PExapwjROTDmBLP2s77CQjL9zET0klMv1BF
+         nB7muheuXIzF8+8OqFfBegZ40j6cjw3+E1go2ne2iBf1yBKnEHT8jT/Oa4o/62F7yx
+         w/Zz8PP4z5i6VIXf1xTehisCnjDuSbAUqI2FPirVgyqRWvY2UlnaXoS+e5FZt3pvYP
+         MiK9hSq19nA1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/88] qlcnic: Fix an error handling path in 'qlcnic_probe()'
-Date:   Mon, 28 Jun 2021 10:35:30 -0400
-Message-Id: <20210628143628.33342-31-sashal@kernel.org>
+Subject: [PATCH 4.14 31/88] netxen_nic: Fix an error handling path in 'netxen_nic_probe()'
+Date:   Mon, 28 Jun 2021 10:35:31 -0400
+Message-Id: <20210628143628.33342-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -50,29 +50,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit cb3376604a676e0302258b01893911bdd7aa5278 ]
+[ Upstream commit 49a10c7b176295f8fafb338911cf028e97f65f4d ]
 
 If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
 must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
 call, as already done in the remove function.
 
-Fixes: 451724c821c1 ("qlcnic: aer support")
+Fixes: e87ad5539343 ("netxen: support pci error handlers")
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-index 6684a4cb8b88..45361310eea0 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-@@ -2711,6 +2711,7 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	kfree(ahw);
+diff --git a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
+index 8f8a1894378e..5b91c8f823ff 100644
+--- a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
++++ b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
+@@ -1624,6 +1624,8 @@ netxen_nic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	free_netdev(netdev);
  
  err_out_free_res:
-+	pci_disable_pcie_error_reporting(pdev);
++	if (NX_IS_REVISION_P3(pdev->revision))
++		pci_disable_pcie_error_reporting(pdev);
  	pci_release_regions(pdev);
  
  err_out_disable_pdev:
