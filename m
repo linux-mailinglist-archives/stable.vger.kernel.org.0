@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 258D23B5FFB
+	by mail.lfdr.de (Postfix) with ESMTP id 6EEB33B5FFC
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232746AbhF1OVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54380 "EHLO mail.kernel.org"
+        id S233212AbhF1OVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232939AbhF1OVX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:21:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8124061C81;
-        Mon, 28 Jun 2021 14:18:57 +0000 (UTC)
+        id S233014AbhF1OVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:21:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4584461C87;
+        Mon, 28 Jun 2021 14:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624889938;
-        bh=UuIQ5unlQaOWNdi0mcr+Xm1TpJdhr29zIzU+/HsbSs4=;
+        bh=zwjrpBQ7o0x2xqtiyXHPgA7MFvj9vARlzFvp3O45wJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctVp7B9P9+AVbeK+O9uT1IIuAdVkY5O9Fd2DNfWWe4ZJI0V85t1lKyCCRIKAvoXQP
-         /3W42ebHudq3h21jcFVX0OGoWq8XsYZRAOD0E6PDoIG/ThJTLTMWa+d/lk86YLU1vo
-         0STCVSykbipqBtZmoaKX6mWgKhdIY1W7F8DnsBDL07VVzkSDzFdo7+iRImoRlHVGzj
-         SSBFAD4piEbyUSn7QmmfaFUMlcA9p4byNKCrd7kh9bG6cQPqn/kAPlddoQm22Hiig2
-         0PHmGXTil45MWC19B4JDpxrtHTeH+c8BHJfeD97oGb8LzQCcquRa9iFhxhTCWCLIHJ
-         EW+zZuP5/b4Kg==
+        b=VQylKCRnRdibHtrUxftg1xEfALUgEy04sJIpTyyxpTHDDWAsi2vkNFCiSXersQmFM
+         5E3C6K+NqbCqDF1ckKvnCDSqsD3YL6MajDNQhjIxTBRWyW/cHk9+B0wmVDh/Aq/jFv
+         afjht5Oa3maPO7Rks1lHU6XZWvM2Tfq0mbU/Kt75dmJ8LADsFP4j+h2jKolFASDZsO
+         Q4z1QsGjJ36c/97GFW98KYTo+bZPzkgx+Gi4qfpGxTAmSrYWN4XYWnLYytPrUszJ7p
+         7CWWWyjlBQoD7o/Eg9om5uCawCei8vmqm+XcXIG8rT7P35v56Hxet45qFUtKpdx3iB
+         EIxa/puQymLsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Guillaume Ranquet <granquet@baylibre.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 032/110] dmaengine: mediatek: do not issue a new desc if one is still current
-Date:   Mon, 28 Jun 2021 10:17:10 -0400
-Message-Id: <20210628141828.31757-33-sashal@kernel.org>
+Subject: [PATCH 5.12 033/110] dmaengine: mediatek: use GFP_NOWAIT instead of GFP_ATOMIC in prep_dma
+Date:   Mon, 28 Jun 2021 10:17:11 -0400
+Message-Id: <20210628141828.31757-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -49,75 +49,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guillaume Ranquet <granquet@baylibre.com>
 
-[ Upstream commit 2537b40b0a4f61d2c83900744fe89b09076be9c6 ]
+[ Upstream commit 9041575348b21ade1fb74d790f1aac85d68198c7 ]
 
-Avoid issuing a new desc if one is still being processed as this can
-lead to some desc never being marked as completed.
+As recommended by the doc in:
+Documentation/drivers-api/dmaengine/provider.rst
+
+Use GFP_NOWAIT to not deplete the emergency pool.
 
 Signed-off-by: Guillaume Ranquet <granquet@baylibre.com>
 
-Link: https://lore.kernel.org/r/20210513192642.29446-3-granquet@baylibre.com
+Link: https://lore.kernel.org/r/20210513192642.29446-4-granquet@baylibre.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/mediatek/mtk-uart-apdma.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/dma/mediatek/mtk-uart-apdma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/dma/mediatek/mtk-uart-apdma.c b/drivers/dma/mediatek/mtk-uart-apdma.c
-index e38b67fc0c0c..a09ab2dd3b46 100644
+index a09ab2dd3b46..375e7e647df6 100644
 --- a/drivers/dma/mediatek/mtk-uart-apdma.c
 +++ b/drivers/dma/mediatek/mtk-uart-apdma.c
-@@ -204,14 +204,9 @@ static void mtk_uart_apdma_start_rx(struct mtk_chan *c)
+@@ -349,7 +349,7 @@ static struct dma_async_tx_descriptor *mtk_uart_apdma_prep_slave_sg
+ 		return NULL;
  
- static void mtk_uart_apdma_tx_handler(struct mtk_chan *c)
- {
--	struct mtk_uart_apdma_desc *d = c->desc;
--
- 	mtk_uart_apdma_write(c, VFF_INT_FLAG, VFF_TX_INT_CLR_B);
- 	mtk_uart_apdma_write(c, VFF_INT_EN, VFF_INT_EN_CLR_B);
- 	mtk_uart_apdma_write(c, VFF_EN, VFF_EN_CLR_B);
--
--	list_del(&d->vd.node);
--	vchan_cookie_complete(&d->vd);
- }
- 
- static void mtk_uart_apdma_rx_handler(struct mtk_chan *c)
-@@ -242,9 +237,17 @@ static void mtk_uart_apdma_rx_handler(struct mtk_chan *c)
- 
- 	c->rx_status = d->avail_len - cnt;
- 	mtk_uart_apdma_write(c, VFF_RPT, wg);
-+}
- 
--	list_del(&d->vd.node);
--	vchan_cookie_complete(&d->vd);
-+static void mtk_uart_apdma_chan_complete_handler(struct mtk_chan *c)
-+{
-+	struct mtk_uart_apdma_desc *d = c->desc;
-+
-+	if (d) {
-+		list_del(&d->vd.node);
-+		vchan_cookie_complete(&d->vd);
-+		c->desc = NULL;
-+	}
- }
- 
- static irqreturn_t mtk_uart_apdma_irq_handler(int irq, void *dev_id)
-@@ -258,6 +261,7 @@ static irqreturn_t mtk_uart_apdma_irq_handler(int irq, void *dev_id)
- 		mtk_uart_apdma_rx_handler(c);
- 	else if (c->dir == DMA_MEM_TO_DEV)
- 		mtk_uart_apdma_tx_handler(c);
-+	mtk_uart_apdma_chan_complete_handler(c);
- 	spin_unlock_irqrestore(&c->vc.lock, flags);
- 
- 	return IRQ_HANDLED;
-@@ -363,7 +367,7 @@ static void mtk_uart_apdma_issue_pending(struct dma_chan *chan)
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&c->vc.lock, flags);
--	if (vchan_issue_pending(&c->vc)) {
-+	if (vchan_issue_pending(&c->vc) && !c->desc) {
- 		vd = vchan_next_desc(&c->vc);
- 		c->desc = to_mtk_uart_apdma_desc(&vd->tx);
+ 	/* Now allocate and setup the descriptor */
+-	d = kzalloc(sizeof(*d), GFP_ATOMIC);
++	d = kzalloc(sizeof(*d), GFP_NOWAIT);
+ 	if (!d)
+ 		return NULL;
  
 -- 
 2.30.2
