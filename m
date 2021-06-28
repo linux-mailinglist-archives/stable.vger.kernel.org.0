@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1AB33B621C
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:39:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E34473B621E
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:39:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234784AbhF1OmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:42:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43926 "EHLO mail.kernel.org"
+        id S234259AbhF1OmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:42:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235524AbhF1OkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235526AbhF1OkE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:40:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D767061CDB;
-        Mon, 28 Jun 2021 14:33:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7A0061C83;
+        Mon, 28 Jun 2021 14:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890795;
-        bh=V97tR86Nvew23PXQnLz/t0q1lng34RfS+c2bpRefKR4=;
+        s=k20201202; t=1624890796;
+        bh=1zf+BQx7t+SeimfFA/onkUY3pcops3a+BVK9iv4zMWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TGgc4EudpcAZ8y8gY5rtZb4JdylyjvxuoLEHrBUfdgxH5drqADhGuxTH7EFB9CsWP
-         7pqJSFDFV8FHESY9ZDaoht733sxPwLf1xKNPxjxPecpeEzIBHrsabpRAliCxQNHUxU
-         YhMNjxlRgSx2Fbt1krwodTfFEtTXjWtDW0Cy16N9NZTS+cUivGny0cY6aXD9JxnPhf
-         DnQi4dQn79F6P5xE91wxRCLYLKYca8oCYkGQLbnHU2AKU4ygjCAG/SRYG72m/QwB2K
-         NFQmr9KUvertDbe7W+HsWIVT43xv0vAmaVyWxRwmK63pySK0JXeUG9PN1dKtd6fEKl
-         oP3SvMBiA2FVg==
+        b=Rkm1eWMFyN8d8jnI8AUlLrefnp/lj2zKsB4Q2SLJGogy2hHubwQLBB+85d8J2opRC
+         vlm0n8dAQACoEdaRVwAEKmqLZA5ncy+LBW4ZfalKHcTIK5yWZPGx5fWYw0fn8KC7B4
+         JHtbU5BvmGNaZFURrd51xWi59k6VcU7N3lLrvqICGhCBA6yAkx5aS+7B7swR6Oi14v
+         lR5JV5O/TYXmcYbQSW7rnmQWOEWe+YxP6yJEd3B88TyUgRMYmtf2E0R6bauqF1wSa0
+         Wpqfd7fUFhFkRPDpuhY6OLMau66YCW2HClXaVp0WKsKYdRtuQ+T+QCaVdnEkscO+27
+         YgkRbrhRi1bYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hillf Danton <hdanton@sina.com>,
-        syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+Cc:     Maurizio Lombardi <mlombard@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 009/109] gfs2: Fix use-after-free in gfs2_glock_shrink_scan
-Date:   Mon, 28 Jun 2021 10:31:25 -0400
-Message-Id: <20210628143305.32978-10-sashal@kernel.org>
+Subject: [PATCH 4.19 010/109] scsi: target: core: Fix warning on realtime kernels
+Date:   Mon, 28 Jun 2021 10:31:26 -0400
+Message-Id: <20210628143305.32978-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -49,49 +49,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hillf Danton <hdanton@sina.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 1ab19c5de4c537ec0d9b21020395a5b5a6c059b2 ]
+[ Upstream commit 515da6f4295c2c42b8c54572cce3d2dd1167c41e ]
 
-The GLF_LRU flag is checked under lru_lock in gfs2_glock_remove_from_lru() to
-remove the glock from the lru list in __gfs2_glock_put().
+On realtime kernels, spin_lock_irq*(spinlock_t) do not disable the
+interrupts, a call to irqs_disabled() will return false thus firing a
+warning in __transport_wait_for_tasks().
 
-On the shrink scan path, the same flag is cleared under lru_lock but because
-of cond_resched_lock(&lru_lock) in gfs2_dispose_glock_lru(), progress on the
-put side can be made without deleting the glock from the lru list.
+Remove the warning and also replace assert_spin_locked() with
+lockdep_assert_held()
 
-Keep GLF_LRU across the race window opened by cond_resched_lock(&lru_lock) to
-ensure correct behavior on both sides - clear GLF_LRU after list_del under
-lru_lock.
-
-Reported-by: syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Link: https://lore.kernel.org/r/20210531121326.3649-1-mlombard@redhat.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/target/target_core_transport.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index c20d71d86812..14d11ccda868 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -1457,6 +1457,7 @@ __acquires(&lru_lock)
- 	while(!list_empty(list)) {
- 		gl = list_entry(list->next, struct gfs2_glock, gl_lru);
- 		list_del_init(&gl->gl_lru);
-+		clear_bit(GLF_LRU, &gl->gl_flags);
- 		if (!spin_trylock(&gl->gl_lockref.lock)) {
- add_back_to_lru:
- 			list_add(&gl->gl_lru, &lru_list);
-@@ -1502,7 +1503,6 @@ static long gfs2_scan_glock_lru(int nr)
- 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
- 			list_move(&gl->gl_lru, &dispose);
- 			atomic_dec(&lru_count);
--			clear_bit(GLF_LRU, &gl->gl_flags);
- 			freed++;
- 			continue;
- 		}
+diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
+index bdada97cd4fe..9c60a090cfd1 100644
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -2982,9 +2982,7 @@ __transport_wait_for_tasks(struct se_cmd *cmd, bool fabric_stop,
+ 	__releases(&cmd->t_state_lock)
+ 	__acquires(&cmd->t_state_lock)
+ {
+-
+-	assert_spin_locked(&cmd->t_state_lock);
+-	WARN_ON_ONCE(!irqs_disabled());
++	lockdep_assert_held(&cmd->t_state_lock);
+ 
+ 	if (fabric_stop)
+ 		cmd->transport_state |= CMD_T_FABRIC_STOP;
 -- 
 2.30.2
 
