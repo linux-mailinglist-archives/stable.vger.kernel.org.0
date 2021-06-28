@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AACE3B602E
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 785313B6031
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232545AbhF1OWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:22:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55228 "EHLO mail.kernel.org"
+        id S233131AbhF1OWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:22:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233305AbhF1OV5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:21:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBCAC619AD;
-        Mon, 28 Jun 2021 14:19:24 +0000 (UTC)
+        id S233313AbhF1OV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:21:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF54E61C83;
+        Mon, 28 Jun 2021 14:19:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889965;
-        bh=ZoSsaSq1T+7h8UdsZgbU8DVrmhz2qOrgauk/ZZVfKtQ=;
+        s=k20201202; t=1624889966;
+        bh=MsshXwOVTdMZveGiqYEW42xX7VKhpFkIC19Vl47loLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuYG7LplsMViU4uHYHnJQN0oeZyN3McUbd+I2+30GnPeBuSMga5iny4h2aeySu+4q
-         H0iQAkC2FOVaWv3dxKSY3PewvTWUSRWB4F/uxE9KNt47oNL/u3kfuqBh6wpiwqO5fi
-         lQ3AnNp3zAVAWzpL3/ReyGznpmoXPV6c8q8bD6QtKYPBanL0FiYQR/rVmN5/a+fl8s
-         QCiDd1biCR/3fwJ9TMSvMCFQRRECthahnpJRzwgY9ymlZq0UYpBfPqdHyPlicpBTBN
-         kyRJ+dXDstQp3H6uczAbhp2gROTVGog4CdKrrHP+PWXx+k/hRIkYyLAHINXS4VXYyC
-         nUKtcJFJ04mYQ==
+        b=l0uSQfK80xNu3hotEaxqdVwrNiXu4q8w379W4F8cVaDEK4i+AlcCVb4tVP4MdM9vq
+         29XCgwF/U/k1pWxgh+MS79/qG5J7bXs5rlQQJUkwfnoBq9U9kmmErt60qKnDiRozlJ
+         9s0EsHTTqiYvGHBXAj0CCz/yI7yR6hc90jnoeITDCm1k8SRDoO3TEsnwq0ODhX/Hz/
+         PDPST4wIrAL/M3KF/7J14rJJQuqkTmGAG94RpeH92hTLATo/kQ60MeIk27LmKG0VPE
+         /gklFbDGtqAEJrj1k1Vetd5TEBcRd5TTrR2XGJTFIdvFEES7ePL/3ZR8gzCbOK/BiD
+         ptq+OjPIdMnNg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
+Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 066/110] scsi: sd: Call sd_revalidate_disk() for ioctl(BLKRRPART)
-Date:   Mon, 28 Jun 2021 10:17:44 -0400
-Message-Id: <20210628141828.31757-67-sashal@kernel.org>
+Subject: [PATCH 5.12 067/110] software node: Handle software node injection to an existing device properly
+Date:   Mon, 28 Jun 2021 10:17:45 -0400
+Message-Id: <20210628141828.31757-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -49,65 +50,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-[ Upstream commit d1b7f92035c6fb42529ada531e2cbf3534544c82 ]
+[ Upstream commit 5dca69e26fe97f17d4a6cbd6872103c868577b14 ]
 
-While the disk state has nothing to do with partitions, BLKRRPART is used
-to force a full revalidate after things like a disk format for historical
-reasons. Restore that behavior.
+The function software_node_notify() - the function that creates
+and removes the symlinks between the node and the device - was
+called unconditionally in device_add_software_node() and
+device_remove_software_node(), but it needs to be called in
+those functions only in the special case where the node is
+added to a device that has already been registered.
 
-Link: https://lore.kernel.org/r/20210617115504.1732350-1-hch@lst.de
-Fixes: 471bd0af544b ("sd: use bdev_check_media_change")
-Reported-by: Xiang Chen <chenxiang66@hisilicon.com>
-Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This fixes NULL pointer dereference that happens if
+device_remove_software_node() is used with device that was
+never registered.
+
+Fixes: b622b24519f5 ("software node: Allow node addition to already existing device")
+Reported-and-tested-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sd.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/base/swnode.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index ed0b1bb99f08..a0356f3707b8 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -1387,6 +1387,22 @@ static void sd_uninit_command(struct scsi_cmnd *SCpnt)
+diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
+index 88310ac9ce90..62c536f9d925 100644
+--- a/drivers/base/swnode.c
++++ b/drivers/base/swnode.c
+@@ -1032,7 +1032,15 @@ int device_add_software_node(struct device *dev, const struct software_node *nod
  	}
- }
  
-+static bool sd_need_revalidate(struct block_device *bdev,
-+		struct scsi_disk *sdkp)
-+{
-+	if (sdkp->device->removable || sdkp->write_prot) {
-+		if (bdev_check_media_change(bdev))
-+			return true;
-+	}
+ 	set_secondary_fwnode(dev, &swnode->fwnode);
+-	software_node_notify(dev, KOBJ_ADD);
 +
 +	/*
-+	 * Force a full rescan after ioctl(BLKRRPART).  While the disk state has
-+	 * nothing to do with partitions, BLKRRPART is used to force a full
-+	 * revalidate after things like a format for historical reasons.
++	 * If the device has been fully registered by the time this function is
++	 * called, software_node_notify() must be called separately so that the
++	 * symlinks get created and the reference count of the node is kept in
++	 * balance.
 +	 */
-+	return test_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
-+}
-+
- /**
-  *	sd_open - open a scsi disk device
-  *	@bdev: Block device of the scsi disk to open
-@@ -1423,10 +1439,8 @@ static int sd_open(struct block_device *bdev, fmode_t mode)
- 	if (!scsi_block_when_processing_errors(sdev))
- 		goto error_out;
++	if (device_is_registered(dev))
++		software_node_notify(dev, KOBJ_ADD);
  
--	if (sdev->removable || sdkp->write_prot) {
--		if (bdev_check_media_change(bdev))
--			sd_revalidate_disk(bdev->bd_disk);
--	}
-+	if (sd_need_revalidate(bdev, sdkp))
-+		sd_revalidate_disk(bdev->bd_disk);
+ 	return 0;
+ }
+@@ -1052,7 +1060,8 @@ void device_remove_software_node(struct device *dev)
+ 	if (!swnode)
+ 		return;
  
- 	/*
- 	 * If the drive is empty, just let the open fail.
+-	software_node_notify(dev, KOBJ_REMOVE);
++	if (device_is_registered(dev))
++		software_node_notify(dev, KOBJ_REMOVE);
+ 	set_secondary_fwnode(dev, NULL);
+ 	kobject_put(&swnode->kobj);
+ }
+@@ -1106,8 +1115,7 @@ int software_node_notify(struct device *dev, unsigned long action)
+ 
+ 	switch (action) {
+ 	case KOBJ_ADD:
+-		ret = sysfs_create_link_nowarn(&dev->kobj, &swnode->kobj,
+-					       "software_node");
++		ret = sysfs_create_link(&dev->kobj, &swnode->kobj, "software_node");
+ 		if (ret)
+ 			break;
+ 
 -- 
 2.30.2
 
