@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D11B3B6139
+	by mail.lfdr.de (Postfix) with ESMTP id 874FA3B613A
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234621AbhF1Odk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:33:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37130 "EHLO mail.kernel.org"
+        id S234634AbhF1Odl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:33:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234080AbhF1Obi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234079AbhF1Obi (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:31:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCDD561C7F;
-        Mon, 28 Jun 2021 14:27:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCBF761CD1;
+        Mon, 28 Jun 2021 14:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890439;
-        bh=KOmltA7K/Zr3swsgS7ixdClKPaGPIhwEkP/W11d4peA=;
+        s=k20201202; t=1624890441;
+        bh=z7TXG6opi0EYiW5gSJiWzZGksIeM93MTG80nhl3JHAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDxmfiuZM2mb0THzunOCtcUjIgbcPkiZPUFmx+GEGdFeUzXGZ+T7LugpvU7sUXxik
-         iE4tr2AKqKwCFOJfWATJ9WtvWE/v1L2xnBxH4+nvizlc90k8Gd9kpj1NUQdtmhhG6X
-         qCHFujy4WV8Gs1zilm+R+AmDH4p0+y7Ki4QlwVD7din85b9zn5XHl4N0gDlSqbT7A/
-         81kxIiIcYZjrWdqR9ZXl5u0RAQ/QQgVJJt2c9YrmGQoWp2CMCuvM0TPuj3VMu1jwOa
-         Sg4tZH9tAaJoMYwAFO7C61J7pTbl2WsSlasuaga01Thf9sLjk4nV0gXoMutsHCK9Nz
-         yScUaM/MvZWVw==
+        b=IKBdIDRoFEwWigeGoCwSTrg5gWFkH0xSiOnf1cGA58OVcg6YVy3JjErQqTSe1v5m/
+         9PjYVVbI6K5B1FBNz49k9Pkhj+nwcl7G1MHGlG15Ti2g+zupIxrEVbGsbi2ymeplEd
+         ZrztSw6XSSOBu4MNc9GwMb1VsYeWSBysbm6RC+9B9Y1YirPAMGNvOEmN9C7U6eYOZm
+         fXcu2GCk1YPK95oabLim0lhnW5RJBvKzF+oencVS5RUsJeGey0dbpKQlA0AwOLb0bU
+         UdrvWSabh/jSDYlQ8oMa1ilUS4fghXgXI4pjfXKbsy0b70Ak3XaiTVhOlH6PoPWR3t
+         QVQhb02shTSsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hugh Dickins <hughd@google.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
         Alistair Popple <apopple@nvidia.com>, Jan Kara <jack@suse.cz>,
         Jue Wang <juew@google.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
         "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Miaohe Lin <linmiaohe@huawei.com>,
         Minchan Kim <minchan@kernel.org>,
@@ -42,9 +42,9 @@ Cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 077/101] mm/thp: try_to_unmap() use TTU_SYNC for safe splitting
-Date:   Mon, 28 Jun 2021 10:25:43 -0400
-Message-Id: <20210628142607.32218-78-sashal@kernel.org>
+Subject: [PATCH 5.10 078/101] mm/thp: fix vma_address() if virtual address below file offset
+Date:   Mon, 28 Jun 2021 10:25:44 -0400
+Message-Id: <20210628142607.32218-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -64,41 +64,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hugh Dickins <hughd@google.com>
 
-commit 732ed55823fc3ad998d43b86bf771887bcc5ec67 upstream.
+commit 494334e43c16d63b878536a26505397fce6ff3a2 upstream.
 
-Stressing huge tmpfs often crashed on unmap_page()'s VM_BUG_ON_PAGE
-(!unmap_success): with dump_page() showing mapcount:1, but then its raw
-struct page output showing _mapcount ffffffff i.e.  mapcount 0.
+Running certain tests with a DEBUG_VM kernel would crash within hours,
+on the total_mapcount BUG() in split_huge_page_to_list(), while trying
+to free up some memory by punching a hole in a shmem huge page: split's
+try_to_unmap() was unable to find all the mappings of the page (which,
+on a !DEBUG_VM kernel, would then keep the huge page pinned in memory).
 
-And even if that particular VM_BUG_ON_PAGE(!unmap_success) is removed,
-it is immediately followed by a VM_BUG_ON_PAGE(compound_mapcount(head)),
-and further down an IS_ENABLED(CONFIG_DEBUG_VM) total_mapcount BUG():
-all indicative of some mapcount difficulty in development here perhaps.
-But the !CONFIG_DEBUG_VM path handles the failures correctly and
-silently.
+When that BUG() was changed to a WARN(), it would later crash on the
+VM_BUG_ON_VMA(end < vma->vm_start || start >= vma->vm_end, vma) in
+mm/internal.h:vma_address(), used by rmap_walk_file() for
+try_to_unmap().
 
-I believe the problem is that once a racing unmap has cleared pte or
-pmd, try_to_unmap_one() may skip taking the page table lock, and emerge
-from try_to_unmap() before the racing task has reached decrementing
-mapcount.
+vma_address() is usually correct, but there's a wraparound case when the
+vm_start address is unusually low, but vm_pgoff not so low:
+vma_address() chooses max(start, vma->vm_start), but that decides on the
+wrong address, because start has become almost ULONG_MAX.
 
-Instead of abandoning the unsafe VM_BUG_ON_PAGE(), and the ones that
-follow, use PVMW_SYNC in try_to_unmap_one() in this case: adding
-TTU_SYNC to the options, and passing that from unmap_page().
+Rewrite vma_address() to be more careful about vm_pgoff; move the
+VM_BUG_ON_VMA() out of it, returning -EFAULT for errors, so that it can
+be safely used from page_mapped_in_vma() and page_address_in_vma() too.
 
-When CONFIG_DEBUG_VM, or for non-debug too? Consensus is to do the same
-for both: the slight overhead added should rarely matter, except perhaps
-if splitting sparsely-populated multiply-mapped shmem.  Once confident
-that bugs are fixed, TTU_SYNC here can be removed, and the race
-tolerated.
+Add vma_address_end() to apply similar care to end address calculation,
+in page_vma_mapped_walk() and page_mkclean_one() and try_to_unmap_one();
+though it raises a question of whether callers would do better to supply
+pvmw->end to page_vma_mapped_walk() - I chose not, for a smaller patch.
 
-Link: https://lkml.kernel.org/r/c1e95853-8bcd-d8fd-55fa-e7f2488e78f@google.com
-Fixes: fec89c109f3a ("thp: rewrite freeze_page()/unfreeze_page() with generic rmap walkers")
+An irritation is that their apparent generality breaks down on KSM
+pages, which cannot be located by the page->index that page_to_pgoff()
+uses: as commit 4b0ece6fa016 ("mm: migrate: fix remove_migration_pte()
+for ksm pages") once discovered.  I dithered over the best thing to do
+about that, and have ended up with a VM_BUG_ON_PAGE(PageKsm) in both
+vma_address() and vma_address_end(); though the only place in danger of
+using it on them was try_to_unmap_one().
+
+Sidenote: vma_address() and vma_address_end() now use compound_nr() on a
+head page, instead of thp_size(): to make the right calculation on a
+hugetlbfs page, whether or not THPs are configured.  try_to_unmap() is
+used on hugetlbfs pages, but perhaps the wrong calculation never
+mattered.
+
+Link: https://lkml.kernel.org/r/caf1c1a3-7cfb-7f8f-1beb-ba816e932825@google.com
+Fixes: a8fa41ad2f6f ("mm, rmap: check all VMAs that PTE-mapped THP can be part of")
 Signed-off-by: Hugh Dickins <hughd@google.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: Alistair Popple <apopple@nvidia.com>
 Cc: Jan Kara <jack@suse.cz>
 Cc: Jue Wang <juew@google.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 Cc: Miaohe Lin <linmiaohe@huawei.com>
 Cc: Minchan Kim <minchan@kernel.org>
@@ -115,94 +128,189 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/rmap.h |  1 +
- mm/huge_memory.c     |  2 +-
- mm/page_vma_mapped.c | 11 +++++++++++
- mm/rmap.c            | 17 ++++++++++++++++-
- 4 files changed, 29 insertions(+), 2 deletions(-)
+ mm/internal.h        | 53 ++++++++++++++++++++++++++++++++------------
+ mm/page_vma_mapped.c | 16 +++++--------
+ mm/rmap.c            | 16 ++++++-------
+ 3 files changed, 53 insertions(+), 32 deletions(-)
 
-diff --git a/include/linux/rmap.h b/include/linux/rmap.h
-index def5c62c93b3..8d04e7deedc6 100644
---- a/include/linux/rmap.h
-+++ b/include/linux/rmap.h
-@@ -91,6 +91,7 @@ enum ttu_flags {
+diff --git a/mm/internal.h b/mm/internal.h
+index c43ccdddb0f6..840b8a330b9a 100644
+--- a/mm/internal.h
++++ b/mm/internal.h
+@@ -379,27 +379,52 @@ static inline void mlock_migrate_page(struct page *newpage, struct page *page)
+ extern pmd_t maybe_pmd_mkwrite(pmd_t pmd, struct vm_area_struct *vma);
  
- 	TTU_SPLIT_HUGE_PMD	= 0x4,	/* split huge PMD if any */
- 	TTU_IGNORE_MLOCK	= 0x8,	/* ignore mlock */
-+	TTU_SYNC		= 0x10,	/* avoid racy checks with PVMW_SYNC */
- 	TTU_IGNORE_HWPOISON	= 0x20,	/* corrupted page is recoverable */
- 	TTU_BATCH_FLUSH		= 0x40,	/* Batch TLB flushes where possible
- 					 * and caller guarantees they will
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 7d8159be4736..14136390d641 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2342,7 +2342,7 @@ void vma_adjust_trans_huge(struct vm_area_struct *vma,
- 
- static void unmap_page(struct page *page)
+ /*
+- * At what user virtual address is page expected in @vma?
++ * At what user virtual address is page expected in vma?
++ * Returns -EFAULT if all of the page is outside the range of vma.
++ * If page is a compound head, the entire compound page is considered.
+  */
+ static inline unsigned long
+-__vma_address(struct page *page, struct vm_area_struct *vma)
++vma_address(struct page *page, struct vm_area_struct *vma)
  {
--	enum ttu_flags ttu_flags = TTU_IGNORE_MLOCK |
-+	enum ttu_flags ttu_flags = TTU_IGNORE_MLOCK | TTU_SYNC |
- 		TTU_RMAP_LOCKED | TTU_SPLIT_HUGE_PMD;
- 	bool unmap_success;
- 
-diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
-index 5e77b269c330..3ba2bedc5794 100644
---- a/mm/page_vma_mapped.c
-+++ b/mm/page_vma_mapped.c
-@@ -211,6 +211,17 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 			pvmw->ptl = NULL;
- 		}
- 	} else if (!pmd_present(pmde)) {
-+		/*
-+		 * If PVMW_SYNC, take and drop THP pmd lock so that we
-+		 * cannot return prematurely, while zap_huge_pmd() has
-+		 * cleared *pmd but not decremented compound_mapcount().
-+		 */
-+		if ((pvmw->flags & PVMW_SYNC) &&
-+		    PageTransCompound(pvmw->page)) {
-+			spinlock_t *ptl = pmd_lock(mm, pvmw->pmd);
+-	pgoff_t pgoff = page_to_pgoff(page);
+-	return vma->vm_start + ((pgoff - vma->vm_pgoff) << PAGE_SHIFT);
++	pgoff_t pgoff;
++	unsigned long address;
 +
-+			spin_unlock(ptl);
-+		}
- 		return false;
- 	}
- 	if (!map_pte(pvmw))
-diff --git a/mm/rmap.c b/mm/rmap.c
-index 38573cb93578..2b721412bd7f 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -1385,6 +1385,15 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
- 	struct mmu_notifier_range range;
- 	enum ttu_flags flags = (enum ttu_flags)(long)arg;
- 
-+	/*
-+	 * When racing against e.g. zap_pte_range() on another cpu,
-+	 * in between its ptep_get_and_clear_full() and page_remove_rmap(),
-+	 * try_to_unmap() may return false when it is about to become true,
-+	 * if page table locking is skipped: use TTU_SYNC to wait for that.
-+	 */
-+	if (flags & TTU_SYNC)
-+		pvmw.flags = PVMW_SYNC;
-+
- 	/* munlock has nothing to gain from examining un-locked vmas */
- 	if ((flags & TTU_MUNLOCK) && !(vma->vm_flags & VM_LOCKED))
- 		return true;
-@@ -1757,7 +1766,13 @@ bool try_to_unmap(struct page *page, enum ttu_flags flags)
- 	else
- 		rmap_walk(page, &rwc);
- 
--	return !page_mapcount(page) ? true : false;
-+	/*
-+	 * When racing against e.g. zap_pte_range() on another cpu,
-+	 * in between its ptep_get_and_clear_full() and page_remove_rmap(),
-+	 * try_to_unmap() may return false when it is about to become true,
-+	 * if page table locking is skipped: use TTU_SYNC to wait for that.
-+	 */
-+	return !page_mapcount(page);
++	VM_BUG_ON_PAGE(PageKsm(page), page);	/* KSM page->index unusable */
++	pgoff = page_to_pgoff(page);
++	if (pgoff >= vma->vm_pgoff) {
++		address = vma->vm_start +
++			((pgoff - vma->vm_pgoff) << PAGE_SHIFT);
++		/* Check for address beyond vma (or wrapped through 0?) */
++		if (address < vma->vm_start || address >= vma->vm_end)
++			address = -EFAULT;
++	} else if (PageHead(page) &&
++		   pgoff + compound_nr(page) - 1 >= vma->vm_pgoff) {
++		/* Test above avoids possibility of wrap to 0 on 32-bit */
++		address = vma->vm_start;
++	} else {
++		address = -EFAULT;
++	}
++	return address;
  }
  
- /**
++/*
++ * Then at what user virtual address will none of the page be found in vma?
++ * Assumes that vma_address() already returned a good starting address.
++ * If page is a compound head, the entire compound page is considered.
++ */
+ static inline unsigned long
+-vma_address(struct page *page, struct vm_area_struct *vma)
++vma_address_end(struct page *page, struct vm_area_struct *vma)
+ {
+-	unsigned long start, end;
+-
+-	start = __vma_address(page, vma);
+-	end = start + thp_size(page) - PAGE_SIZE;
+-
+-	/* page should be within @vma mapping range */
+-	VM_BUG_ON_VMA(end < vma->vm_start || start >= vma->vm_end, vma);
+-
+-	return max(start, vma->vm_start);
++	pgoff_t pgoff;
++	unsigned long address;
++
++	VM_BUG_ON_PAGE(PageKsm(page), page);	/* KSM page->index unusable */
++	pgoff = page_to_pgoff(page) + compound_nr(page);
++	address = vma->vm_start + ((pgoff - vma->vm_pgoff) << PAGE_SHIFT);
++	/* Check for address beyond vma (or wrapped through 0?) */
++	if (address < vma->vm_start || address > vma->vm_end)
++		address = vma->vm_end;
++	return address;
+ }
+ 
+ static inline struct file *maybe_unlock_mmap_for_io(struct vm_fault *vmf,
+diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
+index 3ba2bedc5794..a540af346f88 100644
+--- a/mm/page_vma_mapped.c
++++ b/mm/page_vma_mapped.c
+@@ -227,18 +227,18 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
+ 	if (!map_pte(pvmw))
+ 		goto next_pte;
+ 	while (1) {
++		unsigned long end;
++
+ 		if (check_pte(pvmw))
+ 			return true;
+ next_pte:
+ 		/* Seek to next pte only makes sense for THP */
+ 		if (!PageTransHuge(pvmw->page) || PageHuge(pvmw->page))
+ 			return not_found(pvmw);
++		end = vma_address_end(pvmw->page, pvmw->vma);
+ 		do {
+ 			pvmw->address += PAGE_SIZE;
+-			if (pvmw->address >= pvmw->vma->vm_end ||
+-			    pvmw->address >=
+-					__vma_address(pvmw->page, pvmw->vma) +
+-					thp_size(pvmw->page))
++			if (pvmw->address >= end)
+ 				return not_found(pvmw);
+ 			/* Did we cross page table boundary? */
+ 			if (pvmw->address % PMD_SIZE == 0) {
+@@ -276,14 +276,10 @@ int page_mapped_in_vma(struct page *page, struct vm_area_struct *vma)
+ 		.vma = vma,
+ 		.flags = PVMW_SYNC,
+ 	};
+-	unsigned long start, end;
+-
+-	start = __vma_address(page, vma);
+-	end = start + thp_size(page) - PAGE_SIZE;
+ 
+-	if (unlikely(end < vma->vm_start || start >= vma->vm_end))
++	pvmw.address = vma_address(page, vma);
++	if (pvmw.address == -EFAULT)
+ 		return 0;
+-	pvmw.address = max(start, vma->vm_start);
+ 	if (!page_vma_mapped_walk(&pvmw))
+ 		return 0;
+ 	page_vma_mapped_walk_done(&pvmw);
+diff --git a/mm/rmap.c b/mm/rmap.c
+index 2b721412bd7f..62cd108bb2bd 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -700,7 +700,6 @@ static bool should_defer_flush(struct mm_struct *mm, enum ttu_flags flags)
+  */
+ unsigned long page_address_in_vma(struct page *page, struct vm_area_struct *vma)
+ {
+-	unsigned long address;
+ 	if (PageAnon(page)) {
+ 		struct anon_vma *page__anon_vma = page_anon_vma(page);
+ 		/*
+@@ -715,10 +714,8 @@ unsigned long page_address_in_vma(struct page *page, struct vm_area_struct *vma)
+ 			return -EFAULT;
+ 	} else
+ 		return -EFAULT;
+-	address = __vma_address(page, vma);
+-	if (unlikely(address < vma->vm_start || address >= vma->vm_end))
+-		return -EFAULT;
+-	return address;
++
++	return vma_address(page, vma);
+ }
+ 
+ pmd_t *mm_find_pmd(struct mm_struct *mm, unsigned long address)
+@@ -912,7 +909,7 @@ static bool page_mkclean_one(struct page *page, struct vm_area_struct *vma,
+ 	 */
+ 	mmu_notifier_range_init(&range, MMU_NOTIFY_PROTECTION_PAGE,
+ 				0, vma, vma->vm_mm, address,
+-				min(vma->vm_end, address + page_size(page)));
++				vma_address_end(page, vma));
+ 	mmu_notifier_invalidate_range_start(&range);
+ 
+ 	while (page_vma_mapped_walk(&pvmw)) {
+@@ -1415,9 +1412,10 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
+ 	 * Note that the page can not be free in this function as call of
+ 	 * try_to_unmap() must hold a reference on the page.
+ 	 */
++	range.end = PageKsm(page) ?
++			address + PAGE_SIZE : vma_address_end(page, vma);
+ 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
+-				address,
+-				min(vma->vm_end, address + page_size(page)));
++				address, range.end);
+ 	if (PageHuge(page)) {
+ 		/*
+ 		 * If sharing is possible, start and end will be adjusted
+@@ -1869,6 +1867,7 @@ static void rmap_walk_anon(struct page *page, struct rmap_walk_control *rwc,
+ 		struct vm_area_struct *vma = avc->vma;
+ 		unsigned long address = vma_address(page, vma);
+ 
++		VM_BUG_ON_VMA(address == -EFAULT, vma);
+ 		cond_resched();
+ 
+ 		if (rwc->invalid_vma && rwc->invalid_vma(vma, rwc->arg))
+@@ -1923,6 +1922,7 @@ static void rmap_walk_file(struct page *page, struct rmap_walk_control *rwc,
+ 			pgoff_start, pgoff_end) {
+ 		unsigned long address = vma_address(page, vma);
+ 
++		VM_BUG_ON_VMA(address == -EFAULT, vma);
+ 		cond_resched();
+ 
+ 		if (rwc->invalid_vma && rwc->invalid_vma(vma, rwc->arg))
 -- 
 2.30.2
 
