@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 121443B622F
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6F523B6224
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:39:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233899AbhF1Oma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:42:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43980 "EHLO mail.kernel.org"
+        id S234851AbhF1OmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235558AbhF1OkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:40:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04B1C61C8E;
-        Mon, 28 Jun 2021 14:33:19 +0000 (UTC)
+        id S235567AbhF1OkJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:40:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBF4E61C4D;
+        Mon, 28 Jun 2021 14:33:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890800;
-        bh=0kW4LCoGznNzXqduOXjRaq8hiTvCc8gYT1K4vZYcHSw=;
+        s=k20201202; t=1624890801;
+        bh=88pIXm3i093tIChz13k6XghCQ0SvYtyMLsDBBea0Woo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcubnNGiUN0eu3iTuzNTGTMBOHoxBhobR05xz3l4CFCVfEZ42wZSbAZH3FGef9QFp
-         7BygSp9R5WWG259x/EFOp6S5qlvIFHvRpGPfMifNQWPH6MFm+h2LbjP3TaWwXp4/fW
-         V29vNgivsS6zkBfHUbpChmCzwGBEJKsCnqATushYrjT4VTwMaoDJ1aP88R8qS3Edom
-         Z1Kl54At4BrMrxXtfQhm0cg1bA4xitieYo4HPD4ejG7Q1mN35ynHUciHcyBnM3DLUr
-         L1KdZqi3871RKAy++wK1/Uixc/YrvKxDHen7phZQe94V/XmV8bszFHvGjUTXOegZzz
-         SrrsTswLZZL1Q==
+        b=jOHU7JG2p+6gYWiyCGE41g3QChtU5XBkWQyLiKcFdoKJPfWvXuSz5xyV0xJNPsnqS
+         ivRgJ4GY/UfYHOtnIVAdCTi+HxP4TWFgaGVSohulg4+6WcU5FWmDmAE102W16F24mM
+         4E+AD+ffnyxwdX2PFoh7ayRgB2ecLn5pWGGQQTaSY7xRWOai3sZTB6wuGc9/quNWpB
+         duIMISMcP1yaqHeJtNhe35/pzG78wg1WIeYeAic711Cw9KKS0azHkYUdzxiv4EiaqJ
+         Nflv6QnlcsHESi5xH9Z+jwO7ODOSvRvgD+Z+Ns3GS3VuzgZSqO6zZMXJUCPijRuavN
+         wAKtUIEEYKVeg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hannes Reinecke <hare@suse.de>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 015/109] nvme-loop: check for NVME_LOOP_Q_LIVE in nvme_loop_destroy_admin_queue()
-Date:   Mon, 28 Jun 2021 10:31:31 -0400
-Message-Id: <20210628143305.32978-16-sashal@kernel.org>
+Cc:     Josh Triplett <josh@joshtriplett.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 016/109] net: ipconfig: Don't override command-line hostnames or domains
+Date:   Mon, 28 Jun 2021 10:31:32 -0400
+Message-Id: <20210628143305.32978-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -48,36 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Josh Triplett <josh@joshtriplett.org>
 
-[ Upstream commit 4237de2f73a669e4f89ac0aa2b44fb1a1d9ec583 ]
+[ Upstream commit b508d5fb69c2211a1b860fc058aafbefc3b3c3cd ]
 
-We need to check the NVME_LOOP_Q_LIVE flag in
-nvme_loop_destroy_admin_queue() to protect against duplicate
-invocations eg during concurrent reset and remove calls.
+If the user specifies a hostname or domain name as part of the ip=
+command-line option, preserve it and don't overwrite it with one
+supplied by DHCP/BOOTP.
 
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+For instance, ip=::::myhostname::dhcp will use "myhostname" rather than
+ignoring and overwriting it.
+
+Fix the comment on ic_bootp_string that suggests it only copies a string
+"if not already set"; it doesn't have any such logic.
+
+Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/loop.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/ipconfig.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
-index dba0b0145f48..08b52f3ed0c3 100644
---- a/drivers/nvme/target/loop.c
-+++ b/drivers/nvme/target/loop.c
-@@ -274,7 +274,8 @@ static const struct blk_mq_ops nvme_loop_admin_mq_ops = {
+diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
+index 88212615bf4c..58719b9635d9 100644
+--- a/net/ipv4/ipconfig.c
++++ b/net/ipv4/ipconfig.c
+@@ -866,7 +866,7 @@ static void __init ic_bootp_send_if(struct ic_device *d, unsigned long jiffies_d
  
- static void nvme_loop_destroy_admin_queue(struct nvme_loop_ctrl *ctrl)
+ 
+ /*
+- *  Copy BOOTP-supplied string if not already set.
++ *  Copy BOOTP-supplied string
+  */
+ static int __init ic_bootp_string(char *dest, char *src, int len, int max)
  {
--	clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[0].flags);
-+	if (!test_and_clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[0].flags))
-+		return;
- 	nvmet_sq_destroy(&ctrl->queues[0].nvme_sq);
- 	blk_cleanup_queue(ctrl->ctrl.admin_q);
- 	blk_mq_free_tag_set(&ctrl->admin_tag_set);
+@@ -915,12 +915,15 @@ static void __init ic_do_bootp_ext(u8 *ext)
+ 		}
+ 		break;
+ 	case 12:	/* Host name */
+-		ic_bootp_string(utsname()->nodename, ext+1, *ext,
+-				__NEW_UTS_LEN);
+-		ic_host_name_set = 1;
++		if (!ic_host_name_set) {
++			ic_bootp_string(utsname()->nodename, ext+1, *ext,
++					__NEW_UTS_LEN);
++			ic_host_name_set = 1;
++		}
+ 		break;
+ 	case 15:	/* Domain name (DNS) */
+-		ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
++		if (!ic_domain[0])
++			ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
+ 		break;
+ 	case 17:	/* Root path */
+ 		if (!root_server_path[0])
 -- 
 2.30.2
 
