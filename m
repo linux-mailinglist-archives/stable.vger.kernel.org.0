@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 238863B61C2
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95CE13B61C5
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:37:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234606AbhF1Oi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:38:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43572 "EHLO mail.kernel.org"
+        id S234649AbhF1Oic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:38:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234866AbhF1Og2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:36:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E66E861CAF;
-        Mon, 28 Jun 2021 14:30:35 +0000 (UTC)
+        id S235444AbhF1Og3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:36:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5E9261CA8;
+        Mon, 28 Jun 2021 14:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890636;
-        bh=+6wiNLqqnTiDXKehP3jGCjGTfB/a5ux91Dp8LbOhIfg=;
+        s=k20201202; t=1624890637;
+        bh=Xg3ckCh4MrK9PKspTRjU2MM4Mq3C/p5v9MLKyXw03lI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qiw9XGgFyldtpN5Vv8dLmzzkEcvOfGnkN7fZPhIjojb1MVpEjYy7XbaWn72o4K0fq
-         Zpsd9VYvcz09bjbtFGnPgHzUruisINOYricY/bn0whN1HYc1IE8b+5vB5idKojW2nc
-         I21MgPi60H1ZyTlFynsWZwQ7zpGtz/RvbRk7hFSSel/HUPAhM+clGt8NM/7mhdeAFu
-         7Qi0tkHQ7zvRYCxJcmmZwLuqyI8rXx1KK/6BLkrHJWLA4Vx/prPEszZtyYl0sTJQ7s
-         6w/zpy1yrjIraUkJcMWD6hy/ENOPYFgSi3+CSre61huhwDeZstPsZ0Z32E2hjVpJNC
-         6HvCu/3ZaJwdg==
+        b=WuL/HmHDw8Gpel1c5I1BcMHJy3mBVvfmn92aeV0ctd7A06lCMjgwxQhU1ucd8KQzs
+         +Yh1B+omLU1URhn7UX/K1HsGcKUt2iItYQzlVu7f0WvepTxpw4npLeRWMWHBYGYae4
+         miAlVjbBZkbVHUUilD68uU3hWiT2WbczU/0qfh/y7yncGo93EbtNmWZJEHKSqQjpQ3
+         dYpeKM952Olb3agR3Tx63hV8C9sFdLyC6y4/eUMqTnNAywCYFyqBXLYzKY8AY2F+dK
+         +UvslJKTQWVsMfGC++HgObyTgbfKTNXI+tygZ5pP3nEe2yTHi1QPn3jEYOUxPt35PS
+         Ebwi/UxHDNP3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
+Cc:     Mikel Rychliski <mikel@mikelr.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/71] recordmcount: Correct st_shndx handling
-Date:   Mon, 28 Jun 2021 10:29:28 -0400
-Message-Id: <20210628143004.32596-36-sashal@kernel.org>
+Subject: [PATCH 5.4 36/71] PCI: Add AMD RS690 quirk to enable 64-bit DMA
+Date:   Mon, 28 Jun 2021 10:29:29 -0400
+Message-Id: <20210628143004.32596-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -49,59 +48,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Mikel Rychliski <mikel@mikelr.com>
 
-[ Upstream commit fb780761e7bd9f2e94f5b9a296ead6b35b944206 ]
+[ Upstream commit cacf994a91d3a55c0c2f853d6429cd7b86113915 ]
 
-One should only use st_shndx when >SHN_UNDEF and <SHN_LORESERVE. When
-SHN_XINDEX, then use .symtab_shndx. Otherwise use 0.
+Although the AMD RS690 chipset has 64-bit DMA support, BIOS implementations
+sometimes fail to configure the memory limit registers correctly.
 
-This handles the case: st_shndx >= SHN_LORESERVE && st_shndx != SHN_XINDEX.
+The Acer F690GVM mainboard uses this chipset and a Marvell 88E8056 NIC. The
+sky2 driver programs the NIC to use 64-bit DMA, which will not work:
 
-Link: https://lore.kernel.org/lkml/20210607023839.26387-1-mark-pk.tsai@mediatek.com/
-Link: https://lkml.kernel.org/r/20210616154126.2794-1-mark-pk.tsai@mediatek.com
+  sky2 0000:02:00.0: error interrupt status=0x8
+  sky2 0000:02:00.0 eth0: tx timeout
+  sky2 0000:02:00.0 eth0: transmit ring 0 .. 22 report=0 done=0
 
-Reported-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-[handle endianness of sym->st_shndx]
-Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Other drivers required by this mainboard either don't support 64-bit DMA,
+or have it disabled using driver specific quirks. For example, the ahci
+driver has quirks to enable or disable 64-bit DMA depending on the BIOS
+version (see ahci_sb600_enable_64bit() in ahci.c). This ahci quirk matches
+against the SB600 SATA controller, but the real issue is almost certainly
+with the RS690 PCI host that it was commonly attached to.
+
+To avoid this issue in all drivers with 64-bit DMA support, fix the
+configuration of the PCI host. If the kernel is aware of physical memory
+above 4GB, but the BIOS never configured the PCI host with this
+information, update the registers with our values.
+
+[bhelgaas: drop PCI_DEVICE_ID_ATI_RS690 definition]
+Link: https://lore.kernel.org/r/20210611214823.4898-1-mikel@mikelr.com
+Signed-off-by: Mikel Rychliski <mikel@mikelr.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/recordmcount.h | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ arch/x86/pci/fixup.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
-diff --git a/scripts/recordmcount.h b/scripts/recordmcount.h
-index f9b19524da11..1e9baa5c4fc6 100644
---- a/scripts/recordmcount.h
-+++ b/scripts/recordmcount.h
-@@ -192,15 +192,20 @@ static unsigned int get_symindex(Elf_Sym const *sym, Elf32_Word const *symtab,
- 				 Elf32_Word const *symtab_shndx)
- {
- 	unsigned long offset;
-+	unsigned short shndx = w2(sym->st_shndx);
- 	int index;
+diff --git a/arch/x86/pci/fixup.c b/arch/x86/pci/fixup.c
+index 0c67a5a94de3..76959a7d88c8 100644
+--- a/arch/x86/pci/fixup.c
++++ b/arch/x86/pci/fixup.c
+@@ -779,4 +779,48 @@ DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_AMD, 0x1571, pci_amd_enable_64bit_bar);
+ DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_AMD, 0x15b1, pci_amd_enable_64bit_bar);
+ DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_AMD, 0x1601, pci_amd_enable_64bit_bar);
  
--	if (sym->st_shndx != SHN_XINDEX)
--		return w2(sym->st_shndx);
-+	if (shndx > SHN_UNDEF && shndx < SHN_LORESERVE)
-+		return shndx;
- 
--	offset = (unsigned long)sym - (unsigned long)symtab;
--	index = offset / sizeof(*sym);
-+	if (shndx == SHN_XINDEX) {
-+		offset = (unsigned long)sym - (unsigned long)symtab;
-+		index = offset / sizeof(*sym);
- 
--	return w(symtab_shndx[index]);
-+		return w(symtab_shndx[index]);
-+	}
++#define RS690_LOWER_TOP_OF_DRAM2	0x30
++#define RS690_LOWER_TOP_OF_DRAM2_VALID	0x1
++#define RS690_UPPER_TOP_OF_DRAM2	0x31
++#define RS690_HTIU_NB_INDEX		0xA8
++#define RS690_HTIU_NB_INDEX_WR_ENABLE	0x100
++#define RS690_HTIU_NB_DATA		0xAC
 +
-+	return 0;
- }
- 
- static unsigned int get_shnum(Elf_Ehdr const *ehdr, Elf_Shdr const *shdr0)
++/*
++ * Some BIOS implementations support RAM above 4GB, but do not configure the
++ * PCI host to respond to bus master accesses for these addresses. These
++ * implementations set the TOP_OF_DRAM_SLOT1 register correctly, so PCI DMA
++ * works as expected for addresses below 4GB.
++ *
++ * Reference: "AMD RS690 ASIC Family Register Reference Guide" (pg. 2-57)
++ * https://www.amd.com/system/files/TechDocs/43372_rs690_rrg_3.00o.pdf
++ */
++static void rs690_fix_64bit_dma(struct pci_dev *pdev)
++{
++	u32 val = 0;
++	phys_addr_t top_of_dram = __pa(high_memory - 1) + 1;
++
++	if (top_of_dram <= (1ULL << 32))
++		return;
++
++	pci_write_config_dword(pdev, RS690_HTIU_NB_INDEX,
++				RS690_LOWER_TOP_OF_DRAM2);
++	pci_read_config_dword(pdev, RS690_HTIU_NB_DATA, &val);
++
++	if (val)
++		return;
++
++	pci_info(pdev, "Adjusting top of DRAM to %pa for 64-bit DMA support\n", &top_of_dram);
++
++	pci_write_config_dword(pdev, RS690_HTIU_NB_INDEX,
++		RS690_UPPER_TOP_OF_DRAM2 | RS690_HTIU_NB_INDEX_WR_ENABLE);
++	pci_write_config_dword(pdev, RS690_HTIU_NB_DATA, top_of_dram >> 32);
++
++	pci_write_config_dword(pdev, RS690_HTIU_NB_INDEX,
++		RS690_LOWER_TOP_OF_DRAM2 | RS690_HTIU_NB_INDEX_WR_ENABLE);
++	pci_write_config_dword(pdev, RS690_HTIU_NB_DATA,
++		top_of_dram | RS690_LOWER_TOP_OF_DRAM2_VALID);
++}
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7910, rs690_fix_64bit_dma);
++
+ #endif
 -- 
 2.30.2
 
