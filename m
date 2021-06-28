@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0CC3B633B
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:51:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D23813B6341
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:51:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234560AbhF1Ox3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:53:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54532 "EHLO mail.kernel.org"
+        id S235098AbhF1Ox6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:53:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235652AbhF1OvY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:51:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B38F861D30;
-        Mon, 28 Jun 2021 14:37:12 +0000 (UTC)
+        id S233843AbhF1OwE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:52:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9144D61D33;
+        Mon, 28 Jun 2021 14:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891033;
-        bh=xpSJH4nDIUttSvl+xD2dLa8v2e9SAFLNOnEpckpYODQ=;
+        s=k20201202; t=1624891034;
+        bh=elsntXTpOtuQG0Xo96u6tNv8ea2pMZ5wYhvSnG6sM/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/h6WOFFwmZHKBZV/4/pjDB3hzvj3X9thGQxod08xy3SH4igf2wckrRcD+F6YvEOV
-         ZHuJpUDqnaNPlAl9PRD05KXWoMpIkbAco2hNHH6XE2uKY3ZUXJEV3vHzNltu+ILJUh
-         xOhCpAPF5/ppDuwaS1fSJvZSHh3YwnXGYKJOBB+6Q6lVskPh7Dm3w84gTUTtex6f6L
-         7xd4CuO8RxdXs98uAlYI2G1iac4A3XL4IP9VNOjPdIYh+QQCP++19Pa+q6O0ixUXca
-         JbTPcNNu6PipmywMyReUpY7sWSyomdvt97aWycZIRqB4qkelEbfVFfY0i0JFqAb3Bk
-         oiTxCPsiko3yg==
+        b=eH/jbpPjJQiJRBpSOcAk6LWu7SFO8rzr7QY+i75Hkj9YeoX8gOH62bwBOiYt7x2UI
+         J9U+20dPwPUxf7gE4dsI1ALJWCv9DfM4gBr7TiyBN2hdlW1k8kwWTgwJnMyoR1rx4e
+         XjxMbfqfNgR8ZebwonbVKFuJG80OU7kmqVsPlRxtXbeEMysssKQouqK0eKTEPXbdwO
+         /TqnPUAhSE1p4UYWUtD4ZWLeNfGSN7x95FS/uh0ZWh/1xgfE1TFzJx2MCyPOGTr9FK
+         kLsODDcqCyIT6ZVCYFrZWe1BPVGhLLWYO1Wp5D9gtVkId6/58DSmozIGgRG9VS8zO0
+         qRETpvyNjr9Fg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shanker Donthineni <sdonthineni@nvidia.com>,
+Cc:     Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Sinan Kaya <okaya@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 50/88] PCI: Mark some NVIDIA GPUs to avoid bus reset
-Date:   Mon, 28 Jun 2021 10:35:50 -0400
-Message-Id: <20210628143628.33342-51-sashal@kernel.org>
+Subject: [PATCH 4.14 51/88] PCI: Add ACS quirk for Broadcom BCM57414 NIC
+Date:   Mon, 28 Jun 2021 10:35:51 -0400
+Message-Id: <20210628143628.33342-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -49,51 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shanker Donthineni <sdonthineni@nvidia.com>
+From: Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>
 
-commit 4c207e7121fa92b66bf1896bf8ccb9edfb0f9731 upstream.
+commit db2f77e2bd99dbd2fb23ddde58f0fae392fe3338 upstream.
 
-Some NVIDIA GPU devices do not work with SBR.  Triggering SBR leaves the
-device inoperable for the current system boot. It requires a system
-hard-reboot to get the GPU device back to normal operating condition
-post-SBR. For the affected devices, enable NO_BUS_RESET quirk to avoid the
-issue.
+The Broadcom BCM57414 NIC may be a multi-function device.  While it does
+not advertise an ACS capability, peer-to-peer transactions are not possible
+between the individual functions, so it is safe to treat them as fully
+isolated.
 
-This issue will be fixed in the next generation of hardware.
+Add an ACS quirk for this device so the functions can be in independent
+IOMMU groups and attached individually to userspace applications using
+VFIO.
 
-Link: https://lore.kernel.org/r/20210608054857.18963-8-ameynarkhede03@gmail.com
-Signed-off-by: Shanker Donthineni <sdonthineni@nvidia.com>
+[bhelgaas: commit log]
+Link: https://lore.kernel.org/r/1621645997-16251-1-git-send-email-michael.chan@broadcom.com
+Signed-off-by: Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Sinan Kaya <okaya@kernel.org>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/pci/quirks.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index f0cd8f7ce881..de7d65971d7f 100644
+index de7d65971d7f..3602e967e96a 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -3389,6 +3389,18 @@ static void quirk_no_bus_reset(struct pci_dev *dev)
- 	dev->dev_flags |= PCI_DEV_FLAGS_NO_BUS_RESET;
- }
- 
-+/*
-+ * Some NVIDIA GPU devices do not work with bus reset, SBR needs to be
-+ * prevented for those affected devices.
-+ */
-+static void quirk_nvidia_no_bus_reset(struct pci_dev *dev)
-+{
-+	if ((dev->device & 0xffc0) == 0x2340)
-+		quirk_no_bus_reset(dev);
-+}
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
-+			 quirk_nvidia_no_bus_reset);
-+
- /*
-  * Some Atheros AR9xxx and QCA988x chips do not behave after a bus reset.
-  * The device will throw a Link Down error on AER-capable systems and
+@@ -4684,6 +4684,8 @@ static const struct pci_dev_acs_enabled {
+ 	{ PCI_VENDOR_ID_AMPERE, 0xE00A, pci_quirk_xgene_acs },
+ 	{ PCI_VENDOR_ID_AMPERE, 0xE00B, pci_quirk_xgene_acs },
+ 	{ PCI_VENDOR_ID_AMPERE, 0xE00C, pci_quirk_xgene_acs },
++	/* Broadcom multi-function device */
++	{ PCI_VENDOR_ID_BROADCOM, 0x16D7, pci_quirk_mf_endpoint_acs },
+ 	{ PCI_VENDOR_ID_BROADCOM, 0xD714, pci_quirk_brcm_acs },
+ 	{ 0 }
+ };
 -- 
 2.30.2
 
