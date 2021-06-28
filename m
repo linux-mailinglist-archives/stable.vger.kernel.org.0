@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34CD33B628A
+	by mail.lfdr.de (Postfix) with ESMTP id A1BA93B628B
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234442AbhF1OsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:48:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51762 "EHLO mail.kernel.org"
+        id S233906AbhF1OsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:48:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235059AbhF1OoK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:44:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3AC761CFC;
-        Mon, 28 Jun 2021 14:33:54 +0000 (UTC)
+        id S235083AbhF1OoM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:44:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A44EE61CFD;
+        Mon, 28 Jun 2021 14:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890835;
-        bh=9BY+7FlAR/W7EiBSFe7ISrft7bHXbXUdoK/bMZJNjuw=;
+        s=k20201202; t=1624890836;
+        bh=l1dslkYCdSUrfbKPHqQMHK4DisTF696U3LOjPeX2WJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEEHgJ2TevPohkfwkQ0NQNUGEOal+jolif+x6TPgJdjNyG/BG5kBdF2Sht2E+iSnz
-         qUGosK04DmXV+y2WCrwifOqaO0nSvxWMyrDEjHKuN5fIqT4n/y5o7On1x1RGcM/70i
-         EasSa1W7NOy/PO34C6Ao/rWciqUiEq4ufnHfCEdt1iuGIFV0uRHV3cT+fFSxHbLFLS
-         sQ3oQ5bxHCgybom7nZAc+a3as/GT9zi9KVDLvbBFnrUAItHdPouQH5rBY0P0SwZbEf
-         qDMx4dvK2P24pXWawyKPhL8hA49REpSfyIqGi96mMLT7JwfzPHO8BN+pBZXlNjDxDJ
-         Qliqby+ZwwjwQ==
+        b=nPtiECbjfj1LLBdHfQAx+88weLTyY44bpXxSDcoZd21Q10haU5/tebNkC2JXl/q+z
+         5RI8mEWYepnEKsDpSkPCgCs9UmTNCPuJqz+R1WewVVg3hsooOecBwU2NBPGEOwTHrl
+         Iv30KTdMxkMdxVh/n0y4gJ0b+Ix5s95/nj2sRgpRwub5Wlm2nelYQ4XYeBA1AXoL5m
+         7cEZWqHdXewQPRXcmDhhr0BQfsYUfgOf73sLGaYil829cK1mOeWsv+HnJTKwChs2c2
+         Ei9rWdnugnCOhR+8B6FeMdy+yatt8wXK6PaWap/xWLhkcNzA82lIqg+NF6E6K8Uxzg
+         BRyK4Y/9CFNRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Yu <jack.yu@realtek.com>, Oder Chiou <oder_chiou@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/109] ASoC: rt5659: Fix the lost powers for the HDA header
-Date:   Mon, 28 Jun 2021 10:32:10 -0400
-Message-Id: <20210628143305.32978-55-sashal@kernel.org>
+Subject: [PATCH 4.19 055/109] pinctrl: ralink: rt2880: avoid to error in calls is pin is already enabled
+Date:   Mon, 28 Jun 2021 10:32:11 -0400
+Message-Id: <20210628143305.32978-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -48,83 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Yu <jack.yu@realtek.com>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-[ Upstream commit 6308c44ed6eeadf65c0a7ba68d609773ed860fbb ]
+[ Upstream commit eb367d875f94a228c17c8538e3f2efcf2eb07ead ]
 
-The power of "LDO2", "MICBIAS1" and "Mic Det Power" were powered off after
-the DAPM widgets were added, and these powers were set by the JD settings
-"RT5659_JD_HDA_HEADER" in the probe function. In the codec probe function,
-these powers were ignored to prevent them controlled by DAPM.
+In 'rt2880_pmx_group_enable' driver is printing an error and returning
+-EBUSY if a pin has been already enabled. This begets anoying messages
+in the caller when this happens like the following:
 
-Signed-off-by: Oder Chiou <oder_chiou@realtek.com>
-Signed-off-by: Jack Yu <jack.yu@realtek.com>
-Message-Id: <15fced51977b458798ca4eebf03dafb9@realtek.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+rt2880-pinmux pinctrl: pcie is already enabled
+mt7621-pci 1e140000.pcie: Error applying setting, reverse things back
+
+To avoid this just print the already enabled message in the pinctrl
+driver and return 0 instead to not confuse the user with a real
+bad problem.
+
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20210604055337.20407-1-sergio.paracuellos@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5659.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5659.c b/sound/soc/codecs/rt5659.c
-index b331b3ba61a9..ab73f84b5970 100644
---- a/sound/soc/codecs/rt5659.c
-+++ b/sound/soc/codecs/rt5659.c
-@@ -2473,13 +2473,18 @@ static int set_dmic_power(struct snd_soc_dapm_widget *w,
- 	return 0;
- }
+diff --git a/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c b/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
+index 80e7067cfb79..ad811c0438cc 100644
+--- a/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
++++ b/drivers/staging/mt7621-pinctrl/pinctrl-rt2880.c
+@@ -127,7 +127,7 @@ static int rt2880_pmx_group_enable(struct pinctrl_dev *pctrldev,
+ 	if (p->groups[group].enabled) {
+ 		dev_err(p->dev, "%s is already enabled\n",
+ 			p->groups[group].name);
+-		return -EBUSY;
++		return 0;
+ 	}
  
--static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
-+static const struct snd_soc_dapm_widget rt5659_particular_dapm_widgets[] = {
- 	SND_SOC_DAPM_SUPPLY("LDO2", RT5659_PWR_ANLG_3, RT5659_PWR_LDO2_BIT, 0,
- 		NULL, 0),
--	SND_SOC_DAPM_SUPPLY("PLL", RT5659_PWR_ANLG_3, RT5659_PWR_PLL_BIT, 0,
--		NULL, 0),
-+	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
-+		0, NULL, 0),
- 	SND_SOC_DAPM_SUPPLY("Mic Det Power", RT5659_PWR_VOL,
- 		RT5659_PWR_MIC_DET_BIT, 0, NULL, 0),
-+};
-+
-+static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
-+	SND_SOC_DAPM_SUPPLY("PLL", RT5659_PWR_ANLG_3, RT5659_PWR_PLL_BIT, 0,
-+		NULL, 0),
- 	SND_SOC_DAPM_SUPPLY("Mono Vref", RT5659_PWR_ANLG_1,
- 		RT5659_PWR_VREF3_BIT, 0, NULL, 0),
- 
-@@ -2504,8 +2509,6 @@ static const struct snd_soc_dapm_widget rt5659_dapm_widgets[] = {
- 		RT5659_ADC_MONO_R_ASRC_SFT, 0, NULL, 0),
- 
- 	/* Input Side */
--	SND_SOC_DAPM_SUPPLY("MICBIAS1", RT5659_PWR_ANLG_2, RT5659_PWR_MB1_BIT,
--		0, NULL, 0),
- 	SND_SOC_DAPM_SUPPLY("MICBIAS2", RT5659_PWR_ANLG_2, RT5659_PWR_MB2_BIT,
- 		0, NULL, 0),
- 	SND_SOC_DAPM_SUPPLY("MICBIAS3", RT5659_PWR_ANLG_2, RT5659_PWR_MB3_BIT,
-@@ -3700,10 +3703,23 @@ static int rt5659_set_bias_level(struct snd_soc_component *component,
- 
- static int rt5659_probe(struct snd_soc_component *component)
- {
-+	struct snd_soc_dapm_context *dapm =
-+		snd_soc_component_get_dapm(component);
- 	struct rt5659_priv *rt5659 = snd_soc_component_get_drvdata(component);
- 
- 	rt5659->component = component;
- 
-+	switch (rt5659->pdata.jd_src) {
-+	case RT5659_JD_HDA_HEADER:
-+		break;
-+
-+	default:
-+		snd_soc_dapm_new_controls(dapm,
-+			rt5659_particular_dapm_widgets,
-+			ARRAY_SIZE(rt5659_particular_dapm_widgets));
-+		break;
-+	}
-+
- 	return 0;
- }
- 
+ 	p->groups[group].enabled = 1;
 -- 
 2.30.2
 
