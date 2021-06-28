@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6769C3B6377
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0589E3B6379
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233650AbhF1O5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:57:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33276 "EHLO mail.kernel.org"
+        id S233779AbhF1O5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:57:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233871AbhF1Ox5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:53:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 049D561D42;
-        Mon, 28 Jun 2021 14:37:31 +0000 (UTC)
+        id S235979AbhF1OyZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:54:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C17A861D40;
+        Mon, 28 Jun 2021 14:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891052;
-        bh=ZLPt8kxCyAWdk/ZTBZbdbecFoIKHELBBeps1J3oa41Y=;
+        s=k20201202; t=1624891053;
+        bh=r8IWdIvS4jYced6+hLLBJTgjwwHA9tnMWBU3Rxhg9B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GnmSJvBLyY+JfvL/MFO6f4iD3Cm9Mu0/m2QExDJqo8J/8SIIiGxwuCG4pscVoWNYX
-         dJS7UWw1wrZxWB5NZCIqSRmPydG/Ktg2BNsm6SVZueZbpC4Mgye4yNV+OYxF3FwmAb
-         65ZNhgW+x5Ixp/FYlkCvuLmz+1OhGeYuy9oL/JP68K4S0umpLvkuUbm9wlpCkVyrE/
-         p53SFZYZwl0sRw5uEFqgNe8W3dC81y6tC0Hp+VCruCd+vuAaeVIAIZslk43yymr9d1
-         o87r2d40p4+VrOlLqgxMBBPkjQeUNgy8xqHym6iRhMbAGMWQ5nz8FTIrR7/bymc5vc
-         84mJJuqBBWD6A==
+        b=TJSuQOMukc1/TXDl7DehJIY+q7N4LwGwtobIJFrtRlkvazPEz5FQQm2njZULvUSmV
+         RPeLd5Jrv1n08yaIykuZXufRlDDo7D/3XjcNXV/YaALyjC4Kvw/itt/EByUZNE2/Ob
+         3qeV0WymbrE1RfXJ/UKQHd0H1WFIP+KswdtcvK2b/QP+zCvYumEMWX4KMLH3sKm+ZC
+         07AvkeeX/JHTI1C9RE77Y0OnIySZMtRDmjQWfBPgv2tu8CkLIlA8C6AbWDQbJkwwX9
+         ijP4T/0R6VQYYFidD+PhRpVxNU6XWEG0IzCHrFn9tWUTTKuXsaxkhxDMsnqcDxCqFy
+         d5YMz7ELYLO8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        syzbot+7716dbc401d9a437890d@syzkaller.appspotmail.com,
+Cc:     Du Cheng <ducheng2@gmail.com>,
+        syzbot+105896fac213f26056f9@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 72/88] mac80211: remove warning in ieee80211_get_sband()
-Date:   Mon, 28 Jun 2021 10:36:12 -0400
-Message-Id: <20210628143628.33342-73-sashal@kernel.org>
+Subject: [PATCH 4.14 73/88] cfg80211: call cfg80211_leave_ocb when switching away from OCB
+Date:   Mon, 28 Jun 2021 10:36:13 -0400
+Message-Id: <20210628143628.33342-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -48,37 +49,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Du Cheng <ducheng2@gmail.com>
 
-[ Upstream commit 0ee4d55534f82a0624701d0bb9fc2304d4529086 ]
+[ Upstream commit a64b6a25dd9f984ed05fade603a00e2eae787d2f ]
 
-Syzbot reports that it's possible to hit this from userspace,
-by trying to add a station before any other connection setup
-has been done. Instead of trying to catch this in some other
-way simply remove the warning, that will appropriately reject
-the call from userspace.
+If the userland switches back-and-forth between NL80211_IFTYPE_OCB and
+NL80211_IFTYPE_ADHOC via send_msg(NL80211_CMD_SET_INTERFACE), there is a
+chance where the cleanup cfg80211_leave_ocb() is not called. This leads
+to initialization of in-use memory (e.g. init u.ibss while in-use by
+u.ocb) due to a shared struct/union within ieee80211_sub_if_data:
 
-Reported-by: syzbot+7716dbc401d9a437890d@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20210517164715.f537da276d17.Id05f40ec8761d6a8cc2df87f1aa09c651988a586@changeid
+struct ieee80211_sub_if_data {
+    ...
+    union {
+        struct ieee80211_if_ap ap;
+        struct ieee80211_if_vlan vlan;
+        struct ieee80211_if_managed mgd;
+        struct ieee80211_if_ibss ibss; // <- shares address
+        struct ieee80211_if_mesh mesh;
+        struct ieee80211_if_ocb ocb; // <- shares address
+        struct ieee80211_if_mntr mntr;
+        struct ieee80211_if_nan nan;
+    } u;
+    ...
+}
+
+Therefore add handling of otype == NL80211_IFTYPE_OCB, during
+cfg80211_change_iface() to perform cleanup when leaving OCB mode.
+
+link to syzkaller bug:
+https://syzkaller.appspot.com/bug?id=0612dbfa595bf4b9b680ff7b4948257b8e3732d5
+
+Reported-by: syzbot+105896fac213f26056f9@syzkaller.appspotmail.com
+Signed-off-by: Du Cheng <ducheng2@gmail.com>
+Link: https://lore.kernel.org/r/20210428063941.105161-1-ducheng2@gmail.com
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/ieee80211_i.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/util.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 790c771e8108..0d4f7258b243 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -1393,7 +1393,7 @@ ieee80211_get_sband(struct ieee80211_sub_if_data *sdata)
- 	rcu_read_lock();
- 	chanctx_conf = rcu_dereference(sdata->vif.chanctx_conf);
- 
--	if (WARN_ON_ONCE(!chanctx_conf)) {
-+	if (!chanctx_conf) {
- 		rcu_read_unlock();
- 		return NULL;
- 	}
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index b3895a8a48ab..bf4dd297a4db 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -1041,6 +1041,9 @@ int cfg80211_change_iface(struct cfg80211_registered_device *rdev,
+ 		case NL80211_IFTYPE_MESH_POINT:
+ 			/* mesh should be handled? */
+ 			break;
++		case NL80211_IFTYPE_OCB:
++			cfg80211_leave_ocb(rdev, dev);
++			break;
+ 		default:
+ 			break;
+ 		}
 -- 
 2.30.2
 
