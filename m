@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACC0B3B643E
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F00E3B643F
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235745AbhF1PG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:06:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37106 "EHLO mail.kernel.org"
+        id S235749AbhF1PGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:06:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235715AbhF1PEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235717AbhF1PEN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 11:04:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8129361CE8;
-        Mon, 28 Jun 2021 14:43:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88CAB61CEA;
+        Mon, 28 Jun 2021 14:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891392;
-        bh=80zjMMzXKplIKYNBqWtEYGuxkeFc2XDJqFc2Ge/+TCk=;
+        s=k20201202; t=1624891393;
+        bh=eSZagC5ScpX3j4NgnygCVTYa6DhptfoBQf87XDPWdgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hEiCipb2rJ+/DGPJTJnJ6LHATu77e7ATdzzwPLcJa6VTo3+ZGbKSSbQEmr89pxZOq
-         MkzkqADC8Pjms+2fzP2p2NddHmvJ6JWOdT+tT0cYCOIxYHDTo8hZMpF2/aqI/faiCu
-         kziHd7x+9WU4siNtrFYX1rl0ptqVGOATxbHLzhWurOaSqL4PlFQi/W9T7Km6MzXyMY
-         nR9wSSwFO4pxu4IdBz0Bta6uT+GA89Ad7CvDZb4vkFg0ssqINtT1tid+skZSpGV1fB
-         pwKuwramd0WwMSK9YEshun2VLF9yWJb17lA4RmkAn2OX/9rbc+BvwcvEjQdFUm2gYg
-         dkxRafEg4YMsQ==
+        b=slU48Kl/95vJA8ghWIpqe7sFgISSfp/IugcSRo/SjwYZc44F2gMly6KFap1CfVydA
+         dSVlCG57GPhewxTtkdjJp1JB1karCz1BNDNvVFCME+cf9WS5mzmgd59QpqzNJz4PqA
+         uRySPDqDNQdMohi0oH5TbSpqucjLZu4qTDrpggcAKyHKCMVR+909QX4QnUg6McI1LH
+         tqtlUt78kkXn/OQvmbCeEWo0keLeh3s3EQhSFJ0PXccBDPUSpUrX/NCLQ/B7sZGuv6
+         9fwGw/jc6Xbmoc+R+55GFlXB3znmj6G6Du5W/DRedAhbb2TmII2PyFybPfeWczBfk/
+         BchC1V5isHluw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+5134cdf021c4ed5aaa5f@syzkaller.appspotmail.com,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+Cc:     Ido Schimmel <idosch@nvidia.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 16/57] net: rds: fix memory leak in rds_recvmsg
-Date:   Mon, 28 Jun 2021 10:42:15 -0400
-Message-Id: <20210628144256.34524-17-sashal@kernel.org>
+Subject: [PATCH 4.4 17/57] rtnetlink: Fix regression in bridge VLAN configuration
+Date:   Mon, 28 Jun 2021 10:42:16 -0400
+Message-Id: <20210628144256.34524-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
 References: <20210628144256.34524-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.274-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.4.y
@@ -52,68 +49,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 49bfcbfd989a8f1f23e705759a6bb099de2cff9f ]
+[ Upstream commit d2e381c4963663bca6f30c3b996fa4dbafe8fcb5 ]
 
-Syzbot reported memory leak in rds. The problem
-was in unputted refcount in case of error.
+Cited commit started returning errors when notification info is not
+filled by the bridge driver, resulting in the following regression:
 
-int rds_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
-		int msg_flags)
-{
-...
+ # ip link add name br1 type bridge vlan_filtering 1
+ # bridge vlan add dev br1 vid 555 self pvid untagged
+ RTNETLINK answers: Invalid argument
 
-	if (!rds_next_incoming(rs, &inc)) {
-		...
-	}
+As long as the bridge driver does not fill notification info for the
+bridge device itself, an empty notification should not be considered as
+an error. This is explained in commit 59ccaaaa49b5 ("bridge: dont send
+notification when skb->len == 0 in rtnl_bridge_notify").
 
-After this "if" inc refcount incremented and
+Fix by removing the error and add a comment to avoid future bugs.
 
-	if (rds_cmsg_recv(inc, msg, rs)) {
-		ret = -EFAULT;
-		goto out;
-	}
-...
-out:
-	return ret;
-}
-
-in case of rds_cmsg_recv() fail the refcount won't be
-decremented. And it's easy to see from ftrace log, that
-rds_inc_addref() don't have rds_inc_put() pair in
-rds_recvmsg() after rds_cmsg_recv()
-
- 1)               |  rds_recvmsg() {
- 1)   3.721 us    |    rds_inc_addref();
- 1)   3.853 us    |    rds_message_inc_copy_to_user();
- 1) + 10.395 us   |    rds_cmsg_recv();
- 1) + 34.260 us   |  }
-
-Fixes: bdbe6fbc6a2f ("RDS: recv.c")
-Reported-and-tested-by: syzbot+5134cdf021c4ed5aaa5f@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Fixes: a8db57c1d285 ("rtnetlink: Fix missing error code in rtnl_bridge_notify()")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/recv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/rtnetlink.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/rds/recv.c b/net/rds/recv.c
-index 9bf812509e0e..1ff4bc3237f0 100644
---- a/net/rds/recv.c
-+++ b/net/rds/recv.c
-@@ -482,7 +482,7 @@ int rds_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 11d2da8abd73..7d6fe9ba9a24 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3240,10 +3240,12 @@ static int rtnl_bridge_notify(struct net_device *dev)
+ 	if (err < 0)
+ 		goto errout;
  
- 		if (rds_cmsg_recv(inc, msg)) {
- 			ret = -EFAULT;
--			goto out;
-+			break;
- 		}
+-	if (!skb->len) {
+-		err = -EINVAL;
++	/* Notification info is only filled for bridge ports, not the bridge
++	 * device itself. Therefore, a zero notification length is valid and
++	 * should not result in an error.
++	 */
++	if (!skb->len)
+ 		goto errout;
+-	}
  
- 		rds_stats_inc(s_recv_delivered);
+ 	rtnl_notify(skb, net, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
+ 	return 0;
 -- 
 2.30.2
 
