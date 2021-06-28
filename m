@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4DA3B60CA
+	by mail.lfdr.de (Postfix) with ESMTP id 946453B60CB
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:28:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233651AbhF1Oao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:30:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35334 "EHLO mail.kernel.org"
+        id S233861AbhF1Oap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:30:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233717AbhF1O2f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:28:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BE5C613CB;
-        Mon, 28 Jun 2021 14:26:09 +0000 (UTC)
+        id S233977AbhF1O2g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:28:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70205619BF;
+        Mon, 28 Jun 2021 14:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890370;
-        bh=13bGL53GQMN+Kai7GTkCcsjSB4mS7bZnqp9H+29uMyA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Ln+W203l5dHpGIzLHYfwSGtQ/Hl0QiCsoFBDKyWYJP8V1/amnNRjIJ/IOWMAg7baH
-         HBaISkB98b86v9YPH2YsB/0Cjyml6CZ1vQQgi9YGHNDdHtdyZANwLXHNm7p4ZZ563J
-         8fLepAz2VRVO7XrK2gDz2UOlYJW6mmjY3IsHOcZQcrgGwHM7RIYSZjFQZ185u5lK7i
-         iASh9a2YSzjisYg8F99JVSON3oCfskODcmqGLhTGDLQENwcn1M56Kw4MY2mYG4VwJt
-         kH9UY5FBvOUeL3Tr8QuT9WjrV6uPgxjN16qEjt60ZJM/fGIaM4J6+novDptC6KJ98h
-         uDq1AGVBm2jiA==
+        s=k20201202; t=1624890371;
+        bh=hNb6fmoEw17cPpw3/BoKnm5hJ+ZN+5cx/Gw6Kva35tc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RHT9vqwIvzQnntkM34SAHqFPj824AyML9Dq5IhLpsALycvuue4Fhy1Y+qiw8DWW0a
+         hpZgNYiMaeZ2oZKZAZLA6PP8AjapgT4zXg7SsNHrn9UIQkadSRdfVx8kNgLJ+PdnuN
+         ZvWxBmwnDlwWYtE5+/ZZgDEFrGkDzkn0cM0RkVOEWFFzky+VBesF4ZCfLthTT3pYF7
+         XnidNjRSRcSrvKVb88r43k57Pt/MUbm4sszv+Nn2IWZ8B13H2oqgcyxE9nKV1tzgTN
+         ZagOZIdcqPryqbx53ZtqhYCs58NkKiWDv4S4BN9qKxBpiNpBSaVtio5rtYCt6TZSEK
+         1DrjmLJSdEu1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sasha Levin <sashal@kernel.org>, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org
-Subject: [PATCH 5.10 000/101] 5.10.47-rc1 review
-Date:   Mon, 28 Jun 2021 10:24:26 -0400
-Message-Id: <20210628142607.32218-1-sashal@kernel.org>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>, Nayna Jain <nayna@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 001/101] module: limit enabling module.sig_enforce
+Date:   Mon, 28 Jun 2021 10:24:27 -0400
+Message-Id: <20210628142607.32218-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
+References: <20210628142607.32218-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.47-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.10.y
@@ -47,345 +49,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Mimi Zohar <zohar@linux.ibm.com>
 
-This is the start of the stable review cycle for the 5.10.47 release.
-There are 101 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+[ Upstream commit 0c18f29aae7ce3dadd26d8ee3505d07cc982df75 ]
 
-Responses should be made by Wed 30 Jun 2021 02:25:36 PM UTC.
-Anything received after that time might be too late.
+Irrespective as to whether CONFIG_MODULE_SIG is configured, specifying
+"module.sig_enforce=1" on the boot command line sets "sig_enforce".
+Only allow "sig_enforce" to be set when CONFIG_MODULE_SIG is configured.
 
-The whole patch series can be found in one patch at:
-        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.10.y&id2=v5.10.46
-or in the git tree and branch at:
-        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
+This patch makes the presence of /sys/module/module/parameters/sig_enforce
+dependent on CONFIG_MODULE_SIG=y.
 
-Thanks,
-Sasha
+Fixes: fda784e50aac ("module: export module signature enforcement status")
+Reported-by: Nayna Jain <nayna@linux.ibm.com>
+Tested-by: Mimi Zohar <zohar@linux.ibm.com>
+Tested-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ kernel/module.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
--------------
-Pseudo-Shortlog of commits:
-
-Alex Shi (1):
-  mm: add VM_WARN_ON_ONCE_PAGE() macro
-
-Alper Gun (1):
-  KVM: SVM: Call SEV Guest Decommission if ASID binding fails
-
-Arnd Bergmann (1):
-  ARM: 9081/1: fix gcc-10 thumb2-kernel regression
-
-Austin Kim (1):
-  net: ethtool: clear heap allocations for ethtool function
-
-Bumyong Lee (1):
-  swiotlb: manipulate orig_addr when tlb_addr has offset
-
-Catalin Marinas (2):
-  arm64: Ignore any DMA offsets in the max_zone_phys() calculation
-  arm64: Force NO_BLOCK_MAPPINGS if crashkernel reservation is required
-
-Christian König (3):
-  drm/nouveau: wait for moving fence after pinning v2
-  drm/radeon: wait for moving fence after pinning
-  drm/amdgpu: wait for moving fence after pinning
-
-Christoph Hellwig (1):
-  scsi: sd: Call sd_revalidate_disk() for ioctl(BLKRRPART)
-
-Daniel Vetter (1):
-  Revert "drm: add a locked version of drm_is_current_master"
-
-Desmond Cheong Zhi Xi (1):
-  drm: add a locked version of drm_is_current_master
-
-Du Cheng (1):
-  cfg80211: call cfg80211_leave_ocb when switching away from OCB
-
-Eric Dumazet (6):
-  inet: annotate data race in inet_send_prepare() and
-    inet_dgram_connect()
-  net: annotate data race in sock_error()
-  inet: annotate date races around sk->sk_txhash
-  net/packet: annotate data race in packet_sendmsg()
-  net/packet: annotate accesses to po->bind
-  net/packet: annotate accesses to po->ifindex
-
-Eric Snowberg (4):
-  certs: Add EFI_CERT_X509_GUID support for dbx entries
-  certs: Move load_system_certificate_list to a common function
-  certs: Add ability to preload revocation certs
-  integrity: Load mokx variables into the blacklist keyring
-
-Esben Haabendal (2):
-  net: ll_temac: Add memory-barriers for TX BD access
-  net: ll_temac: Avoid ndo_start_xmit returning NETDEV_TX_BUSY
-
-Fabien Dessenne (1):
-  pinctrl: stm32: fix the reported number of GPIO lines per bank
-
-Fuad Tabba (1):
-  KVM: selftests: Fix kvm_check_cap() assertion
-
-Gabriel Knezek (1):
-  gpiolib: cdev: zero padding during conversion to gpioline_info_changed
-
-Guillaume Ranquet (3):
-  dmaengine: mediatek: free the proper desc in desc_free handler
-  dmaengine: mediatek: do not issue a new desc if one is still current
-  dmaengine: mediatek: use GFP_NOWAIT instead of GFP_ATOMIC in prep_dma
-
-Haibo Chen (1):
-  spi: spi-nxp-fspi: move the register operation after the clock enable
-
-Heiko Carstens (1):
-  s390/stack: fix possible register corruption with stack switch helper
-
-Heiner Kallweit (1):
-  i2c: i801: Ensure that SMBHSTSTS_INUSE_STS is cleared when leaving
-    i801_access
-
-Hugh Dickins (16):
-  mm/thp: fix __split_huge_pmd_locked() on shmem migration entry
-  mm/thp: make is_huge_zero_pmd() safe and quicker
-  mm/thp: try_to_unmap() use TTU_SYNC for safe splitting
-  mm/thp: fix vma_address() if virtual address below file offset
-  mm/thp: unmap_mapping_page() to fix THP truncate_cleanup_page()
-  mm: page_vma_mapped_walk(): use page for pvmw->page
-  mm: page_vma_mapped_walk(): settle PageHuge on entry
-  mm: page_vma_mapped_walk(): use pmde for *pvmw->pmd
-  mm: page_vma_mapped_walk(): prettify PVMW_MIGRATION block
-  mm: page_vma_mapped_walk(): crossing page table boundary
-  mm: page_vma_mapped_walk(): add a level of indentation
-  mm: page_vma_mapped_walk(): use goto instead of while (1)
-  mm: page_vma_mapped_walk(): get vma_address_end() earlier
-  mm/thp: fix page_vma_mapped_walk() if THP mapped by ptes
-  mm/thp: another PVMW_SYNC fix in page_vma_mapped_walk()
-  mm, futex: fix shared futex pgoff on shmem huge page
-
-Jeff Layton (2):
-  ceph: must hold snap_rwsem when filling inode for async create
-  netfs: fix test for whether we can skip read when writing beyond EOF
-
-Johan Hovold (1):
-  i2c: robotfuzz-osif: fix control-request directions
-
-Johannes Berg (5):
-  mac80211: remove warning in ieee80211_get_sband()
-  mac80211_hwsim: drop pending frames on stop
-  mac80211: drop multicast fragments
-  mac80211: reset profile_periodicity/ema_ap
-  mac80211: handle various extensible elements correctly
-
-Jue Wang (1):
-  mm/thp: fix page_address_in_vma() on file THP tails
-
-Kan Liang (1):
-  perf/x86: Track pmu in per-CPU cpu_hw_events
-
-Kees Cook (4):
-  r8152: Avoid memcpy() over-reading of ETH_SS_STATS
-  sh_eth: Avoid memcpy() over-reading of ETH_SS_STATS
-  r8169: Avoid memcpy() over-reading of ETH_SS_STATS
-  net: qed: Fix memcpy() overflow of qed_dcbx_params()
-
-Khem Raj (1):
-  riscv32: Use medany C model for modules
-
-Laurent Pinchart (2):
-  dmaengine: xilinx: dpdma: Add missing dependencies to Kconfig
-  dmaengine: xilinx: dpdma: Limit descriptor IDs to 16 bits
-
-Like Xu (1):
-  perf/x86/lbr: Remove cpuc->lbr_xsave allocation from atomic context
-
-Maxime Ripard (2):
-  drm/vc4: hdmi: Move the HSM clock enable to runtime_pm
-  drm/vc4: hdmi: Make sure the controller is powered in detect
-
-Miaohe Lin (2):
-  mm/rmap: remove unneeded semicolon in page_not_mapped()
-  mm/rmap: use page_not_mapped in try_to_unmap()
-
-Mikel Rychliski (1):
-  PCI: Add AMD RS690 quirk to enable 64-bit DMA
-
-Mimi Zohar (1):
-  module: limit enabling module.sig_enforce
-
-Nathan Chancellor (1):
-  MIPS: generic: Update node names to avoid unit addresses
-
-Neil Armstrong (1):
-  mmc: meson-gx: use memcpy_to/fromio for dram-access-quirk
-
-Nicholas Piggin (1):
-  KVM: do not allow mapping valid but non-reference-counted pages
-
-Pavel Skripkin (2):
-  net: caif: fix memory leak in ldisc_open
-  nilfs2: fix memory leak in nilfs_sysfs_delete_device_group
-
-Peter Zijlstra (4):
-  x86/entry: Fix noinstr fail in __do_fast_syscall_32()
-  x86/xen: Fix noinstr fail in exc_xen_unknown_trap()
-  locking/lockdep: Improve noinstr vs errors
-  recordmcount: Correct st_shndx handling
-
-Petr Mladek (2):
-  kthread_worker: split code for canceling the delayed work timer
-  kthread: prevent deadlock when kthread_mod_delayed_work() races with
-    kthread_cancel_delayed_work_sync()
-
-Praneeth Bajjuri (1):
-  net: phy: dp83867: perform soft reset and retain established link
-
-Rafael J. Wysocki (1):
-  Revert "PCI: PM: Do not read power state in pci_enable_device_flags()"
-
-Sasha Levin (1):
-  Linux 5.10.47-rc1
-
-Thomas Gleixner (3):
-  perf/x86/intel/lbr: Zero the xstate buffer on allocation
-  x86/fpu: Preserve supervisor states in sanitize_restored_user_xstate()
-  x86/fpu: Make init_fpstate correct with optimized XSAVE
-
-Xu Yu (1):
-  mm, thp: use head page in __migration_entry_wait()
-
-Yang Shi (1):
-  mm: thp: replace DEBUG_VM BUG with VM_WARN when unmap fails for split
-
-Yifan Zhang (2):
-  Revert "drm/amdgpu/gfx9: fix the doorbell missing when in CGPG issue."
-  Revert "drm/amdgpu/gfx10: enlarge CP_MEC_DOORBELL_RANGE_UPPER to cover
-    full doorbell."
-
-Yu Kuai (2):
-  dmaengine: zynqmp_dma: Fix PM reference leak in
-    zynqmp_dma_alloc_chan_resourc()
-  dmaengine: stm32-mdma: fix PM reference leak in
-    stm32_mdma_alloc_chan_resourc()
-
-Zheng Yongjun (2):
-  net: ipv4: Remove unneed BUG() function
-  ping: Check return value of function 'ping_queue_rcv_skb'
-
-Zou Wei (1):
-  dmaengine: rcar-dmac: Fix PM reference leak in rcar_dmac_probe()
-
- Makefile                                      |   4 +-
- arch/arm/kernel/setup.c                       |  16 +-
- arch/arm64/mm/init.c                          |  17 +-
- arch/arm64/mm/mmu.c                           |  37 ++--
- arch/mips/generic/board-boston.its.S          |  10 +-
- arch/mips/generic/board-ni169445.its.S        |  10 +-
- arch/mips/generic/board-ocelot.its.S          |  20 +--
- arch/mips/generic/board-xilfpga.its.S         |  10 +-
- arch/mips/generic/vmlinux.its.S               |  10 +-
- arch/riscv/Makefile                           |   2 +-
- arch/s390/include/asm/stacktrace.h            |  18 +-
- arch/x86/entry/common.c                       |   2 +-
- arch/x86/events/core.c                        |  23 ++-
- arch/x86/events/intel/core.c                  |   2 +-
- arch/x86/events/intel/ds.c                    |   4 +-
- arch/x86/events/intel/lbr.c                   |  36 ++--
- arch/x86/events/perf_event.h                  |  10 +-
- arch/x86/include/asm/fpu/internal.h           |  30 +---
- arch/x86/kernel/fpu/signal.c                  |  26 +--
- arch/x86/kernel/fpu/xstate.c                  |  41 ++++-
- arch/x86/kvm/svm/sev.c                        |  32 ++--
- arch/x86/pci/fixup.c                          |  44 +++++
- arch/x86/xen/enlighten_pv.c                   |   2 +
- certs/Kconfig                                 |  17 ++
- certs/Makefile                                |  21 ++-
- certs/blacklist.c                             |  64 +++++++
- certs/blacklist.h                             |   2 +
- certs/common.c                                |  57 +++++++
- certs/common.h                                |   9 +
- certs/revocation_certificates.S               |  21 +++
- certs/system_keyring.c                        |  55 +-----
- drivers/dma/Kconfig                           |   1 +
- drivers/dma/mediatek/mtk-uart-apdma.c         |  27 +--
- drivers/dma/sh/rcar-dmac.c                    |   2 +-
- drivers/dma/stm32-mdma.c                      |   4 +-
- drivers/dma/xilinx/xilinx_dpdma.c             |   7 +-
- drivers/dma/xilinx/zynqmp_dma.c               |   2 +-
- drivers/gpio/gpiolib-cdev.c                   |   1 +
- drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c   |  14 +-
- drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c        |   6 +-
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c         |   6 +-
- drivers/gpu/drm/nouveau/nouveau_prime.c       |  17 +-
- drivers/gpu/drm/radeon/radeon_prime.c         |  16 +-
- drivers/gpu/drm/vc4/vc4_hdmi.c                |  44 +++--
- drivers/i2c/busses/i2c-i801.c                 |   3 +
- drivers/i2c/busses/i2c-robotfuzz-osif.c       |   4 +-
- drivers/mmc/host/meson-gx-mmc.c               |  50 +++++-
- drivers/net/caif/caif_serial.c                |   1 +
- drivers/net/ethernet/qlogic/qed/qed_dcbx.c    |   4 +-
- drivers/net/ethernet/realtek/r8169_main.c     |   2 +-
- drivers/net/ethernet/renesas/sh_eth.c         |   2 +-
- drivers/net/ethernet/xilinx/ll_temac_main.c   |  19 ++-
- drivers/net/phy/dp83867.c                     |   6 +-
- drivers/net/usb/r8152.c                       |   2 +-
- drivers/net/wireless/mac80211_hwsim.c         |   5 +
- drivers/pci/pci.c                             |  16 +-
- drivers/pinctrl/stm32/pinctrl-stm32.c         |   9 +-
- drivers/scsi/sd.c                             |  22 ++-
- drivers/spi/spi-nxp-fspi.c                    |  11 +-
- fs/ceph/addr.c                                |  54 ++++--
- fs/ceph/file.c                                |   3 +
- fs/ceph/inode.c                               |   2 +
- fs/nilfs2/sysfs.c                             |   1 +
- include/keys/system_keyring.h                 |  15 ++
- include/linux/debug_locks.h                   |   2 +
- include/linux/huge_mm.h                       |   8 +-
- include/linux/hugetlb.h                       |  16 --
- include/linux/mm.h                            |   3 +
- include/linux/mmdebug.h                       |  13 ++
- include/linux/pagemap.h                       |  13 +-
- include/linux/rmap.h                          |   1 +
- include/net/sock.h                            |  17 +-
- kernel/dma/swiotlb.c                          |   3 +
- kernel/futex.c                                |   3 +-
- kernel/kthread.c                              |  77 ++++++---
- kernel/locking/lockdep.c                      |   4 +-
- kernel/module.c                               |  14 +-
- lib/debug_locks.c                             |   2 +-
- mm/huge_memory.c                              |  56 +++---
- mm/hugetlb.c                                  |   5 +-
- mm/internal.h                                 |  53 ++++--
- mm/memory.c                                   |  41 +++++
- mm/migrate.c                                  |   1 +
- mm/page_vma_mapped.c                          | 160 +++++++++++-------
- mm/pgtable-generic.c                          |   4 +-
- mm/rmap.c                                     |  50 +++---
- mm/truncate.c                                 |  43 +++--
- net/ethtool/ioctl.c                           |  10 +-
- net/ipv4/af_inet.c                            |   4 +-
- net/ipv4/devinet.c                            |   2 +-
- net/ipv4/ping.c                               |  12 +-
- net/ipv6/addrconf.c                           |   2 +-
- net/mac80211/ieee80211_i.h                    |   2 +-
- net/mac80211/mlme.c                           |   8 +
- net/mac80211/rx.c                             |   9 +-
- net/mac80211/util.c                           |  22 +--
- net/packet/af_packet.c                        |  41 +++--
- net/wireless/util.c                           |   3 +
- scripts/Makefile                              |   1 +
- scripts/recordmcount.h                        |  15 +-
- .../platform_certs/keyring_handler.c          |  11 ++
- security/integrity/platform_certs/load_uefi.c |  20 ++-
- tools/testing/selftests/kvm/lib/kvm_util.c    |   2 +-
- virt/kvm/kvm_main.c                           |  19 ++-
- 104 files changed, 1242 insertions(+), 560 deletions(-)
- create mode 100644 certs/common.c
- create mode 100644 certs/common.h
- create mode 100644 certs/revocation_certificates.S
-
+diff --git a/kernel/module.c b/kernel/module.c
+index 908d46abe165..185b2655bc20 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -272,9 +272,18 @@ static void module_assert_mutex_or_preempt(void)
+ #endif
+ }
+ 
++#ifdef CONFIG_MODULE_SIG
+ static bool sig_enforce = IS_ENABLED(CONFIG_MODULE_SIG_FORCE);
+ module_param(sig_enforce, bool_enable_only, 0644);
+ 
++void set_module_sig_enforced(void)
++{
++	sig_enforce = true;
++}
++#else
++#define sig_enforce false
++#endif
++
+ /*
+  * Export sig_enforce kernel cmdline parameter to allow other subsystems rely
+  * on that instead of directly to CONFIG_MODULE_SIG_FORCE config.
+@@ -285,11 +294,6 @@ bool is_module_sig_enforced(void)
+ }
+ EXPORT_SYMBOL(is_module_sig_enforced);
+ 
+-void set_module_sig_enforced(void)
+-{
+-	sig_enforce = true;
+-}
+-
+ /* Block module loading/unloading? */
+ int modules_disabled = 0;
+ core_param(nomodule, modules_disabled, bint, 0);
 -- 
 2.30.2
 
