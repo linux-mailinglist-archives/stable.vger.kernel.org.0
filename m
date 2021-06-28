@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D8853B610C
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDF523B610B
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233771AbhF1Obi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:31:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36746 "EHLO mail.kernel.org"
+        id S234095AbhF1Obh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234388AbhF1O3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234391AbhF1O3m (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:29:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7796B61C7C;
-        Mon, 28 Jun 2021 14:26:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D89C61C90;
+        Mon, 28 Jun 2021 14:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890379;
-        bh=t1Xb6puR9lFf/7Q8gM/4FvkHhubSiNxkSjB09XodxhE=;
+        s=k20201202; t=1624890380;
+        bh=AQ24d0Tb3LPJsOT8LGcUXwiMHqbkRbNGe/J38h75z0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtcVf4dJUnvUYV+S2npVOiSYDiunKA2D/oAK2MRF/IC8GSxdKGjDXU0R+fWlaRA7k
-         B3FNN0L0IxxkHyST1eUBmhJ4FKl02HUixV6f/cYuR86LracQUf2SndMDn2Uf+M8vBx
-         cjiiX0K/o90JP/FtrF12RsxJCwBIHjrniVtdRzlYUze5kvKKNbdF9k7ebKwEGK2Iz2
-         V3F+Qduc8VCJjxtV5aAL2K9f7A8xjuvXWiCy/gyllIcr/bitC5n+8w0z/hoIwYeo9a
-         xQ7hZO6ntjUk9ajdykjX74iATBK7sQtzKn0Iq3NXPmpQfmXgW2dfYZ4gVovSRHbHvF
-         2+SnEp0gPfp1Q==
+        b=E2+tzxTHZZRfzcZsX5CtYmIST0prmiwWG4aqNGOPIxJkSeNH5TMo6it2mb88ScHcf
+         /urV3UKAKBM8sIvbIr47FAstc/DcRfqtOp7wx0oQ9OgSHPpCHuk64L1NopEAUUVx5J
+         Rppgx2mv9iVklheOR7TEfi9OqkIw2q+JXMWFcDhYjgA1FkNWPiA0oj6B3yVm7UMxrP
+         B+MKaemyp55d3JqA+oSIooEczHire3S6idZtNt7fb0wexnwseTTtzq6FtAYq/SriP2
+         /6Hh2UWwvQXwhWxJ1mVb6SXpjLYZHPx54U85DNiKLKMtUfc1POf76n1nZi3RPSs7dc
+         oXuE+0RcXFdGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Simon Glass <sjg@chromium.org>, Tom Rini <trini@konsulko.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 010/101] MIPS: generic: Update node names to avoid unit addresses
-Date:   Mon, 28 Jun 2021 10:24:36 -0400
-Message-Id: <20210628142607.32218-11-sashal@kernel.org>
+Subject: [PATCH 5.10 011/101] arm64: Ignore any DMA offsets in the max_zone_phys() calculation
+Date:   Mon, 28 Jun 2021 10:24:37 -0400
+Message-Id: <20210628142607.32218-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -49,228 +50,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-commit e607ff630c6053ecc67502677c0e50053d7892d4 upstream.
+commit 791ab8b2e3db0c6e4295467d10398800ec29144c upstream.
 
-With the latest mkimage from U-Boot 2021.04, the generic defconfigs no
-longer build, failing with:
+Currently, the kernel assumes that if RAM starts above 32-bit (or
+zone_bits), there is still a ZONE_DMA/DMA32 at the bottom of the RAM and
+such constrained devices have a hardwired DMA offset. In practice, we
+haven't noticed any such hardware so let's assume that we can expand
+ZONE_DMA32 to the available memory if no RAM below 4GB. Similarly,
+ZONE_DMA is expanded to the 4GB limit if no RAM addressable by
+zone_bits.
 
-/usr/bin/mkimage: verify_header failed for FIT Image support with exit code 1
-
-This is expected after the linked U-Boot commits because '@' is
-forbidden in the node names due to the way that libfdt treats nodes with
-the same prefix but different unit addresses.
-
-Switch the '@' in the node name to '-'. Drop the unit addresses from the
-hash and kernel child nodes because there is only one node so they do
-not need to have a number to differentiate them.
-
-Cc: stable@vger.kernel.org
-Link: https://source.denx.de/u-boot/u-boot/-/commit/79af75f7776fc20b0d7eb6afe1e27c00fdb4b9b4
-Link: https://source.denx.de/u-boot/u-boot/-/commit/3f04db891a353f4b127ed57279279f851c6b4917
-Suggested-by: Simon Glass <sjg@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Tom Rini <trini@konsulko.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-[nathan: Backport to 5.10, only apply to .its.S files that exist]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Tested-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/20201118185809.1078362-1-catalin.marinas@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/generic/board-boston.its.S   | 10 +++++-----
- arch/mips/generic/board-ni169445.its.S | 10 +++++-----
- arch/mips/generic/board-ocelot.its.S   | 20 ++++++++++----------
- arch/mips/generic/board-xilfpga.its.S  | 10 +++++-----
- arch/mips/generic/vmlinux.its.S        | 10 +++++-----
- 5 files changed, 30 insertions(+), 30 deletions(-)
+ arch/arm64/mm/init.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/arch/mips/generic/board-boston.its.S b/arch/mips/generic/board-boston.its.S
-index a7f51f97b910..c45ad2759421 100644
---- a/arch/mips/generic/board-boston.its.S
-+++ b/arch/mips/generic/board-boston.its.S
-@@ -1,22 +1,22 @@
- / {
- 	images {
--		fdt@boston {
-+		fdt-boston {
- 			description = "img,boston Device Tree";
- 			data = /incbin/("boot/dts/img/boston.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index a985d292e820..c0a7f0d90b39 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -174,14 +174,21 @@ static void __init reserve_elfcorehdr(void)
+ #endif /* CONFIG_CRASH_DUMP */
  
- 	configurations {
--		conf@boston {
-+		conf-boston {
- 			description = "Boston Linux kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@boston";
-+			kernel = "kernel";
-+			fdt = "fdt-boston";
- 		};
- 	};
- };
-diff --git a/arch/mips/generic/board-ni169445.its.S b/arch/mips/generic/board-ni169445.its.S
-index e4cb4f95a8cc..0a2e8f7a8526 100644
---- a/arch/mips/generic/board-ni169445.its.S
-+++ b/arch/mips/generic/board-ni169445.its.S
-@@ -1,22 +1,22 @@
- / {
- 	images {
--		fdt@ni169445 {
-+		fdt-ni169445 {
- 			description = "NI 169445 device tree";
- 			data = /incbin/("boot/dts/ni/169445.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
+ /*
+- * Return the maximum physical address for a zone with a given address size
+- * limit. It currently assumes that for memory starting above 4G, 32-bit
+- * devices will use a DMA offset.
++ * Return the maximum physical address for a zone accessible by the given bits
++ * limit. If DRAM starts above 32-bit, expand the zone to the maximum
++ * available memory, otherwise cap it at 32-bit.
+  */
+ static phys_addr_t __init max_zone_phys(unsigned int zone_bits)
+ {
+-	phys_addr_t offset = memblock_start_of_DRAM() & GENMASK_ULL(63, zone_bits);
+-	return min(offset + (1ULL << zone_bits), memblock_end_of_DRAM());
++	phys_addr_t zone_mask = DMA_BIT_MASK(zone_bits);
++	phys_addr_t phys_start = memblock_start_of_DRAM();
++
++	if (phys_start > U32_MAX)
++		zone_mask = PHYS_ADDR_MAX;
++	else if (phys_start > zone_mask)
++		zone_mask = U32_MAX;
++
++	return min(zone_mask, memblock_end_of_DRAM() - 1) + 1;
+ }
  
- 	configurations {
--		conf@ni169445 {
-+		conf-ni169445 {
- 			description = "NI 169445 Linux Kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@ni169445";
-+			kernel = "kernel";
-+			fdt = "fdt-ni169445";
- 		};
- 	};
- };
-diff --git a/arch/mips/generic/board-ocelot.its.S b/arch/mips/generic/board-ocelot.its.S
-index 3da23988149a..8c7e3a1b68d3 100644
---- a/arch/mips/generic/board-ocelot.its.S
-+++ b/arch/mips/generic/board-ocelot.its.S
-@@ -1,40 +1,40 @@
- /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
- / {
- 	images {
--		fdt@ocelot_pcb123 {
-+		fdt-ocelot_pcb123 {
- 			description = "MSCC Ocelot PCB123 Device Tree";
- 			data = /incbin/("boot/dts/mscc/ocelot_pcb123.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 
--		fdt@ocelot_pcb120 {
-+		fdt-ocelot_pcb120 {
- 			description = "MSCC Ocelot PCB120 Device Tree";
- 			data = /incbin/("boot/dts/mscc/ocelot_pcb120.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
- 
- 	configurations {
--		conf@ocelot_pcb123 {
-+		conf-ocelot_pcb123 {
- 			description = "Ocelot Linux kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@ocelot_pcb123";
-+			kernel = "kernel";
-+			fdt = "fdt-ocelot_pcb123";
- 		};
- 
--		conf@ocelot_pcb120 {
-+		conf-ocelot_pcb120 {
- 			description = "Ocelot Linux kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@ocelot_pcb120";
-+			kernel = "kernel";
-+			fdt = "fdt-ocelot_pcb120";
- 		};
- 	};
- };
-diff --git a/arch/mips/generic/board-xilfpga.its.S b/arch/mips/generic/board-xilfpga.its.S
-index a2e773d3f14f..08c1e900eb4e 100644
---- a/arch/mips/generic/board-xilfpga.its.S
-+++ b/arch/mips/generic/board-xilfpga.its.S
-@@ -1,22 +1,22 @@
- / {
- 	images {
--		fdt@xilfpga {
-+		fdt-xilfpga {
- 			description = "MIPSfpga (xilfpga) Device Tree";
- 			data = /incbin/("boot/dts/xilfpga/nexys4ddr.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
- 
- 	configurations {
--		conf@xilfpga {
-+		conf-xilfpga {
- 			description = "MIPSfpga Linux kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@xilfpga";
-+			kernel = "kernel";
-+			fdt = "fdt-xilfpga";
- 		};
- 	};
- };
-diff --git a/arch/mips/generic/vmlinux.its.S b/arch/mips/generic/vmlinux.its.S
-index 1a08438fd893..3e254676540f 100644
---- a/arch/mips/generic/vmlinux.its.S
-+++ b/arch/mips/generic/vmlinux.its.S
-@@ -6,7 +6,7 @@
- 	#address-cells = <ADDR_CELLS>;
- 
- 	images {
--		kernel@0 {
-+		kernel {
- 			description = KERNEL_NAME;
- 			data = /incbin/(VMLINUX_BINARY);
- 			type = "kernel";
-@@ -15,18 +15,18 @@
- 			compression = VMLINUX_COMPRESSION;
- 			load = /bits/ ADDR_BITS <VMLINUX_LOAD_ADDRESS>;
- 			entry = /bits/ ADDR_BITS <VMLINUX_ENTRY_ADDRESS>;
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
- 
- 	configurations {
--		default = "conf@default";
-+		default = "conf-default";
- 
--		conf@default {
-+		conf-default {
- 			description = "Generic Linux kernel";
--			kernel = "kernel@0";
-+			kernel = "kernel";
- 		};
- 	};
- };
+ static void __init zone_sizes_init(unsigned long min, unsigned long max)
 -- 
 2.30.2
 
