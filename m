@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBF683B60D8
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D8853B610C
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233879AbhF1Oay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:30:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36744 "EHLO mail.kernel.org"
+        id S233771AbhF1Obi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:31:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234387AbhF1O3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234388AbhF1O3m (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:29:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8848D61C8D;
-        Mon, 28 Jun 2021 14:26:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7796B61C7C;
+        Mon, 28 Jun 2021 14:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890378;
-        bh=Jai1KlH/R1hYCaItEYvpHtpzO4wXSH9pe1TKeMf5ZVo=;
+        s=k20201202; t=1624890379;
+        bh=t1Xb6puR9lFf/7Q8gM/4FvkHhubSiNxkSjB09XodxhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TV6uQWn6QjkBjlTA4v4EuNKmKZTkNFyYbC+fix8PX1u4q38AUfNWfKrKUBUzyIuVX
-         CMCtZRHYUm73fsIrR+50VankDvcR07aibPgGP4avkBGiweONAyIXyMIc9ChHyuXOfD
-         WrR1yfuR4iigcVBvVcKYDVy2QDZdhg2iOtixn2CVKLCS/L2XeUcZwwMlyO3WYAxyv4
-         AJrZ5cV3aiRO4tQe7z9NwUnjQMhZkhHp20GePMp0nh/aFoVE3OH4wTMOnJZyr935OO
-         dE/oMbl79YzI3wa5FLzAbpLbwj0GyOyYotUScsFnRYu0ORr6DW19P6qX/qR+9Rxz1F
-         73q38owxPKvwg==
+        b=VtcVf4dJUnvUYV+S2npVOiSYDiunKA2D/oAK2MRF/IC8GSxdKGjDXU0R+fWlaRA7k
+         B3FNN0L0IxxkHyST1eUBmhJ4FKl02HUixV6f/cYuR86LracQUf2SndMDn2Uf+M8vBx
+         cjiiX0K/o90JP/FtrF12RsxJCwBIHjrniVtdRzlYUze5kvKKNbdF9k7ebKwEGK2Iz2
+         V3F+Qduc8VCJjxtV5aAL2K9f7A8xjuvXWiCy/gyllIcr/bitC5n+8w0z/hoIwYeo9a
+         xQ7hZO6ntjUk9ajdykjX74iATBK7sQtzKn0Iq3NXPmpQfmXgW2dfYZ4gVovSRHbHvF
+         2+SnEp0gPfp1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neil Armstrong <narmstrong@baylibre.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Simon Glass <sjg@chromium.org>, Tom Rini <trini@konsulko.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 009/101] mmc: meson-gx: use memcpy_to/fromio for dram-access-quirk
-Date:   Mon, 28 Jun 2021 10:24:35 -0400
-Message-Id: <20210628142607.32218-10-sashal@kernel.org>
+Subject: [PATCH 5.10 010/101] MIPS: generic: Update node names to avoid unit addresses
+Date:   Mon, 28 Jun 2021 10:24:36 -0400
+Message-Id: <20210628142607.32218-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -50,121 +49,228 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 103a5348c22c3fca8b96c735a9e353b8a0801842 upstream.
+commit e607ff630c6053ecc67502677c0e50053d7892d4 upstream.
 
-It has been reported that usage of memcpy() to/from an iomem mapping is invalid,
-and a recent arm64 memcpy update [1] triggers a memory abort when dram-access-quirk
-is used on the G12A/G12B platforms.
+With the latest mkimage from U-Boot 2021.04, the generic defconfigs no
+longer build, failing with:
 
-This adds a local sg_copy_to_buffer which makes usage of io versions of memcpy
-when dram-access-quirk is enabled.
+/usr/bin/mkimage: verify_header failed for FIT Image support with exit code 1
 
-[1] 285133040e6c ("arm64: Import latest memcpy()/memmove() implementation")
+This is expected after the linked U-Boot commits because '@' is
+forbidden in the node names due to the way that libfdt treats nodes with
+the same prefix but different unit addresses.
 
-Fixes: acdc8e71d9bb ("mmc: meson-gx: add dram-access-quirk")
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Suggested-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20210609150230.9291-1-narmstrong@baylibre.com
+Switch the '@' in the node name to '-'. Drop the unit addresses from the
+hash and kernel child nodes because there is only one node so they do
+not need to have a number to differentiate them.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://source.denx.de/u-boot/u-boot/-/commit/79af75f7776fc20b0d7eb6afe1e27c00fdb4b9b4
+Link: https://source.denx.de/u-boot/u-boot/-/commit/3f04db891a353f4b127ed57279279f851c6b4917
+Suggested-by: Simon Glass <sjg@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+[nathan: Backport to 5.10, only apply to .its.S files that exist]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/meson-gx-mmc.c | 50 +++++++++++++++++++++++++++++----
- 1 file changed, 45 insertions(+), 5 deletions(-)
+ arch/mips/generic/board-boston.its.S   | 10 +++++-----
+ arch/mips/generic/board-ni169445.its.S | 10 +++++-----
+ arch/mips/generic/board-ocelot.its.S   | 20 ++++++++++----------
+ arch/mips/generic/board-xilfpga.its.S  | 10 +++++-----
+ arch/mips/generic/vmlinux.its.S        | 10 +++++-----
+ 5 files changed, 30 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/mmc/host/meson-gx-mmc.c b/drivers/mmc/host/meson-gx-mmc.c
-index 4ec41579940a..d3f40c9a8c6c 100644
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -165,6 +165,7 @@ struct meson_host {
+diff --git a/arch/mips/generic/board-boston.its.S b/arch/mips/generic/board-boston.its.S
+index a7f51f97b910..c45ad2759421 100644
+--- a/arch/mips/generic/board-boston.its.S
++++ b/arch/mips/generic/board-boston.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@boston {
++		fdt-boston {
+ 			description = "img,boston Device Tree";
+ 			data = /incbin/("boot/dts/img/boston.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
- 	unsigned int bounce_buf_size;
- 	void *bounce_buf;
-+	void __iomem *bounce_iomem_buf;
- 	dma_addr_t bounce_dma_addr;
- 	struct sd_emmc_desc *descs;
- 	dma_addr_t descs_dma_addr;
-@@ -734,6 +735,47 @@ static void meson_mmc_desc_chain_transfer(struct mmc_host *mmc, u32 cmd_cfg)
- 	writel(start, host->regs + SD_EMMC_START);
- }
+ 	configurations {
+-		conf@boston {
++		conf-boston {
+ 			description = "Boston Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@boston";
++			kernel = "kernel";
++			fdt = "fdt-boston";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/board-ni169445.its.S b/arch/mips/generic/board-ni169445.its.S
+index e4cb4f95a8cc..0a2e8f7a8526 100644
+--- a/arch/mips/generic/board-ni169445.its.S
++++ b/arch/mips/generic/board-ni169445.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@ni169445 {
++		fdt-ni169445 {
+ 			description = "NI 169445 device tree";
+ 			data = /incbin/("boot/dts/ni/169445.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
-+/* local sg copy to buffer version with _to/fromio usage for dram_access_quirk */
-+static void meson_mmc_copy_buffer(struct meson_host *host, struct mmc_data *data,
-+				  size_t buflen, bool to_buffer)
-+{
-+	unsigned int sg_flags = SG_MITER_ATOMIC;
-+	struct scatterlist *sgl = data->sg;
-+	unsigned int nents = data->sg_len;
-+	struct sg_mapping_iter miter;
-+	unsigned int offset = 0;
-+
-+	if (to_buffer)
-+		sg_flags |= SG_MITER_FROM_SG;
-+	else
-+		sg_flags |= SG_MITER_TO_SG;
-+
-+	sg_miter_start(&miter, sgl, nents, sg_flags);
-+
-+	while ((offset < buflen) && sg_miter_next(&miter)) {
-+		unsigned int len;
-+
-+		len = min(miter.length, buflen - offset);
-+
-+		/* When dram_access_quirk, the bounce buffer is a iomem mapping */
-+		if (host->dram_access_quirk) {
-+			if (to_buffer)
-+				memcpy_toio(host->bounce_iomem_buf + offset, miter.addr, len);
-+			else
-+				memcpy_fromio(miter.addr, host->bounce_iomem_buf + offset, len);
-+		} else {
-+			if (to_buffer)
-+				memcpy(host->bounce_buf + offset, miter.addr, len);
-+			else
-+				memcpy(miter.addr, host->bounce_buf + offset, len);
-+		}
-+
-+		offset += len;
-+	}
-+
-+	sg_miter_stop(&miter);
-+}
-+
- static void meson_mmc_start_cmd(struct mmc_host *mmc, struct mmc_command *cmd)
- {
- 	struct meson_host *host = mmc_priv(mmc);
-@@ -777,8 +819,7 @@ static void meson_mmc_start_cmd(struct mmc_host *mmc, struct mmc_command *cmd)
- 		if (data->flags & MMC_DATA_WRITE) {
- 			cmd_cfg |= CMD_CFG_DATA_WR;
- 			WARN_ON(xfer_bytes > host->bounce_buf_size);
--			sg_copy_to_buffer(data->sg, data->sg_len,
--					  host->bounce_buf, xfer_bytes);
-+			meson_mmc_copy_buffer(host, data, xfer_bytes, true);
- 			dma_wmb();
- 		}
+ 	configurations {
+-		conf@ni169445 {
++		conf-ni169445 {
+ 			description = "NI 169445 Linux Kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@ni169445";
++			kernel = "kernel";
++			fdt = "fdt-ni169445";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/board-ocelot.its.S b/arch/mips/generic/board-ocelot.its.S
+index 3da23988149a..8c7e3a1b68d3 100644
+--- a/arch/mips/generic/board-ocelot.its.S
++++ b/arch/mips/generic/board-ocelot.its.S
+@@ -1,40 +1,40 @@
+ /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
+ / {
+ 	images {
+-		fdt@ocelot_pcb123 {
++		fdt-ocelot_pcb123 {
+ 			description = "MSCC Ocelot PCB123 Device Tree";
+ 			data = /incbin/("boot/dts/mscc/ocelot_pcb123.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
  
-@@ -947,8 +988,7 @@ static irqreturn_t meson_mmc_irq_thread(int irq, void *dev_id)
- 	if (meson_mmc_bounce_buf_read(data)) {
- 		xfer_bytes = data->blksz * data->blocks;
- 		WARN_ON(xfer_bytes > host->bounce_buf_size);
--		sg_copy_from_buffer(data->sg, data->sg_len,
--				    host->bounce_buf, xfer_bytes);
-+		meson_mmc_copy_buffer(host, data, xfer_bytes, false);
- 	}
+-		fdt@ocelot_pcb120 {
++		fdt-ocelot_pcb120 {
+ 			description = "MSCC Ocelot PCB120 Device Tree";
+ 			data = /incbin/("boot/dts/mscc/ocelot_pcb120.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
- 	next_cmd = meson_mmc_get_next_command(cmd);
-@@ -1168,7 +1208,7 @@ static int meson_mmc_probe(struct platform_device *pdev)
- 		 * instead of the DDR memory
- 		 */
- 		host->bounce_buf_size = SD_EMMC_SRAM_DATA_BUF_LEN;
--		host->bounce_buf = host->regs + SD_EMMC_SRAM_DATA_BUF_OFF;
-+		host->bounce_iomem_buf = host->regs + SD_EMMC_SRAM_DATA_BUF_OFF;
- 		host->bounce_dma_addr = res->start + SD_EMMC_SRAM_DATA_BUF_OFF;
- 	} else {
- 		/* data bounce buffer */
+ 	configurations {
+-		conf@ocelot_pcb123 {
++		conf-ocelot_pcb123 {
+ 			description = "Ocelot Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@ocelot_pcb123";
++			kernel = "kernel";
++			fdt = "fdt-ocelot_pcb123";
+ 		};
+ 
+-		conf@ocelot_pcb120 {
++		conf-ocelot_pcb120 {
+ 			description = "Ocelot Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@ocelot_pcb120";
++			kernel = "kernel";
++			fdt = "fdt-ocelot_pcb120";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/board-xilfpga.its.S b/arch/mips/generic/board-xilfpga.its.S
+index a2e773d3f14f..08c1e900eb4e 100644
+--- a/arch/mips/generic/board-xilfpga.its.S
++++ b/arch/mips/generic/board-xilfpga.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@xilfpga {
++		fdt-xilfpga {
+ 			description = "MIPSfpga (xilfpga) Device Tree";
+ 			data = /incbin/("boot/dts/xilfpga/nexys4ddr.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
+ 
+ 	configurations {
+-		conf@xilfpga {
++		conf-xilfpga {
+ 			description = "MIPSfpga Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@xilfpga";
++			kernel = "kernel";
++			fdt = "fdt-xilfpga";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/vmlinux.its.S b/arch/mips/generic/vmlinux.its.S
+index 1a08438fd893..3e254676540f 100644
+--- a/arch/mips/generic/vmlinux.its.S
++++ b/arch/mips/generic/vmlinux.its.S
+@@ -6,7 +6,7 @@
+ 	#address-cells = <ADDR_CELLS>;
+ 
+ 	images {
+-		kernel@0 {
++		kernel {
+ 			description = KERNEL_NAME;
+ 			data = /incbin/(VMLINUX_BINARY);
+ 			type = "kernel";
+@@ -15,18 +15,18 @@
+ 			compression = VMLINUX_COMPRESSION;
+ 			load = /bits/ ADDR_BITS <VMLINUX_LOAD_ADDRESS>;
+ 			entry = /bits/ ADDR_BITS <VMLINUX_ENTRY_ADDRESS>;
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
+ 
+ 	configurations {
+-		default = "conf@default";
++		default = "conf-default";
+ 
+-		conf@default {
++		conf-default {
+ 			description = "Generic Linux kernel";
+-			kernel = "kernel@0";
++			kernel = "kernel";
+ 		};
+ 	};
+ };
 -- 
 2.30.2
 
