@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4E063B6122
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FAD3B6123
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234335AbhF1Ocr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:32:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
+        id S234573AbhF1Ocs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:32:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234922AbhF1Oam (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:30:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACCC661CB2;
-        Mon, 28 Jun 2021 14:27:01 +0000 (UTC)
+        id S233050AbhF1Oan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:30:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87AC0600CD;
+        Mon, 28 Jun 2021 14:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890422;
-        bh=TqH3Pl/22eErFOrT9mnQSNNn13DRvPU+KduvnYo3RiE=;
+        s=k20201202; t=1624890423;
+        bh=IQGRtc+VoKYF/DYznxex+7bSCztP5SMo8MhKKeDMVNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oIuKZOZNOVPx4O+KvD/C14IvMsCX1WeZ0DehX9ktWnzN3FKirNG++6yol2pBvkNC6
-         IuSeC2jWoUxz3TO9JUUBPa8yVypdY7/dInldowguFbC6+vOQEvtyXUfk2tJw/50p5a
-         kgcQ8jtb3pS+7NPbtws7JIABLGSu9WgKsSV8is8nQo0oNl3s6Qr0ehnxxIl9yK0vXH
-         PCZJWat7O9swb5MiGTXtyiXgiQXR/pPyh4Hj+3DnkKxQlkYfZzY5qbDPobXFRT8aAj
-         252PMzUULIdPx8ndS5wf84QpiqL5ECH9UmhgzY8AXATvThGvw7oZStbYjV/gHmcY4/
-         CwA5G5jy2xgRg==
+        b=q4x1umL5s3Fm/lm01PMLLrrXpx/vnoE1QNqDzJhqvWkUuhfnajm2YW/UlOfkQ9gtD
+         iv8Jxu/0PaGNa/EGM2lPmSGEzGE0V24cFlcyxgtb83/HSvPftFGqjnGQJgE361BhXX
+         Hv1LBuLZt34y8cc1Vvox8yLBdSDTnZT5KEaRZBAW60LWjQ+MI0UOAxoJaegn3QCarw
+         /ikxTgwuQz16/STxK0y00kdIucIxtmCc6y7M9NbyWFRiMXb9DpQ8fwsk8OyzJ2uomj
+         TxVO2kN9aY6+DVzaocQ1NqK1J8G6AgNxM4UbnT/kJrLkXxwKLdAi0uk6yUQN4SsmdW
+         aLuq2jmiF6qdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>, stable@kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 063/101] s390/stack: fix possible register corruption with stack switch helper
-Date:   Mon, 28 Jun 2021 10:25:29 -0400
-Message-Id: <20210628142607.32218-64-sashal@kernel.org>
+Subject: [PATCH 5.10 064/101] KVM: do not allow mapping valid but non-reference-counted pages
+Date:   Mon, 28 Jun 2021 10:25:30 -0400
+Message-Id: <20210628142607.32218-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -48,70 +48,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 67147e96a332b56c7206238162771d82467f86c0 upstream.
+commit f8be156be163a052a067306417cd0ff679068c97 upstream.
 
-The CALL_ON_STACK macro is used to call a C function from inline
-assembly, and therefore must consider the C ABI, which says that only
-registers 6-13, and 15 are non-volatile (restored by the called
-function).
+It's possible to create a region which maps valid but non-refcounted
+pages (e.g., tail pages of non-compound higher order allocations). These
+host pages can then be returned by gfn_to_page, gfn_to_pfn, etc., family
+of APIs, which take a reference to the page, which takes it from 0 to 1.
+When the reference is dropped, this will free the page incorrectly.
 
-The inline assembly incorrectly marks all registers used to pass
-parameters to the called function as read-only input operands, instead
-of operands that are read and written to. This might result in
-register corruption depending on usage, compiler, and compile options.
+Fix this by only taking a reference on valid pages if it was non-zero,
+which indicates it is participating in normal refcounting (and can be
+released with put_page).
 
-Fix this by marking all operands used to pass parameters as read/write
-operands. To keep the code simple even register 6, if used, is marked
-as read-write operand.
+This addresses CVE-2021-22543.
 
-Fixes: ff340d2472ec ("s390: add stack switch helper")
-Cc: <stable@kernel.org> # 4.20
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Tested-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/stacktrace.h | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ virt/kvm/kvm_main.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
-index ee056f4a4fa3..ee582896b6a3 100644
---- a/arch/s390/include/asm/stacktrace.h
-+++ b/arch/s390/include/asm/stacktrace.h
-@@ -90,12 +90,16 @@ struct stack_frame {
- 	CALL_ARGS_4(arg1, arg2, arg3, arg4);				\
- 	register unsigned long r4 asm("6") = (unsigned long)(arg5)
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index f446c36f5800..1353439691cf 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1883,6 +1883,13 @@ static bool vma_is_valid(struct vm_area_struct *vma, bool write_fault)
+ 	return true;
+ }
  
--#define CALL_FMT_0 "=&d" (r2) :
--#define CALL_FMT_1 "+&d" (r2) :
--#define CALL_FMT_2 CALL_FMT_1 "d" (r3),
--#define CALL_FMT_3 CALL_FMT_2 "d" (r4),
--#define CALL_FMT_4 CALL_FMT_3 "d" (r5),
--#define CALL_FMT_5 CALL_FMT_4 "d" (r6),
-+/*
-+ * To keep this simple mark register 2-6 as being changed (volatile)
-+ * by the called function, even though register 6 is saved/nonvolatile.
-+ */
-+#define CALL_FMT_0 "=&d" (r2)
-+#define CALL_FMT_1 "+&d" (r2)
-+#define CALL_FMT_2 CALL_FMT_1, "+&d" (r3)
-+#define CALL_FMT_3 CALL_FMT_2, "+&d" (r4)
-+#define CALL_FMT_4 CALL_FMT_3, "+&d" (r5)
-+#define CALL_FMT_5 CALL_FMT_4, "+&d" (r6)
++static int kvm_try_get_pfn(kvm_pfn_t pfn)
++{
++	if (kvm_is_reserved_pfn(pfn))
++		return 1;
++	return get_page_unless_zero(pfn_to_page(pfn));
++}
++
+ static int hva_to_pfn_remapped(struct vm_area_struct *vma,
+ 			       unsigned long addr, bool *async,
+ 			       bool write_fault, bool *writable,
+@@ -1932,13 +1939,21 @@ static int hva_to_pfn_remapped(struct vm_area_struct *vma,
+ 	 * Whoever called remap_pfn_range is also going to call e.g.
+ 	 * unmap_mapping_range before the underlying pages are freed,
+ 	 * causing a call to our MMU notifier.
++	 *
++	 * Certain IO or PFNMAP mappings can be backed with valid
++	 * struct pages, but be allocated without refcounting e.g.,
++	 * tail pages of non-compound higher order allocations, which
++	 * would then underflow the refcount when the caller does the
++	 * required put_page. Don't allow those pages here.
+ 	 */ 
+-	kvm_get_pfn(pfn);
++	if (!kvm_try_get_pfn(pfn))
++		r = -EFAULT;
  
- #define CALL_CLOBBER_5 "0", "1", "14", "cc", "memory"
- #define CALL_CLOBBER_4 CALL_CLOBBER_5
-@@ -117,7 +121,7 @@ struct stack_frame {
- 		"	brasl	14,%[_fn]\n"				\
- 		"	la	15,0(%[_prev])\n"			\
- 		: [_prev] "=&a" (prev), CALL_FMT_##nr			\
--		  [_stack] "R" (stack),					\
-+		: [_stack] "R" (stack),					\
- 		  [_bc] "i" (offsetof(struct stack_frame, back_chain)),	\
- 		  [_frame] "d" (frame),					\
- 		  [_fn] "X" (fn) : CALL_CLOBBER_##nr);			\
+ out:
+ 	pte_unmap_unlock(ptep, ptl);
+ 	*p_pfn = pfn;
+-	return 0;
++
++	return r;
+ }
+ 
+ /*
 -- 
 2.30.2
 
