@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 095253B6275
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 889EF3B6278
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234017AbhF1Oru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:47:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51694 "EHLO mail.kernel.org"
+        id S234689AbhF1OsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:48:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234753AbhF1OmE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:42:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3848961CDE;
-        Mon, 28 Jun 2021 14:33:33 +0000 (UTC)
+        id S234759AbhF1OmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:42:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BB2E61CDA;
+        Mon, 28 Jun 2021 14:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890813;
-        bh=SF2bmANnvRYxYI66X36HvX9n5DFTpDxUrV8yJ69/GgM=;
+        s=k20201202; t=1624890814;
+        bh=N+bc8aPhuQ+t5a9BqUHfSsshRban8HeyM3RwcPgJgGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L4u8noM6n5WkOqERrhOx3YWp8spTZFXsDcCb1CMPNaEP61ia/HKPh8lp2xks8lMBz
-         iPrAJIbyzo57IcaZEiJVjJVrlCw/RZm7aWkqrsvFztQ2zZwN0IBSEc511nWX8WDt7U
-         W+yWBsC65YD/nqs9Zv/JWuffyXmBMGWyCnjloa3vlwURXhYMyqX6nx3gDc+Zi/lXYO
-         1tS6ATpsPdDXhB4od3P+HhKWGmWioNovGItf7m0PfJRp4y/buei4dvHtjeAGo30SsL
-         0KbLsuYV07dULbwHI7meidmph0whzKNDc0A5CWEePMYG0pfr+wGXytqlDUCVe8vwwd
-         CBqb0t3YajlUA==
+        b=T/Io4GqoaD8Vd69pQHKufhdFFJUtUD+TspFATfAXjwf7iUHpvs6biZZcKfVEojhpF
+         VqwA2kLNU049vmxf41dA0BBafL6BrB6FMfqHFlTUmLrzevXpoVk0S0J4LlFRsBtypf
+         hEaWI5gN88/WofWYDgtSEo1tYNBc1x/Dni5NFrRXDjRBdGP8krsCdtQDR06+s5q0DW
+         kFCmupiBecsQfs7phk5SxpTHN8ad2qOuTkP/0dXS/JFCK7zqfoaBeY7wdTWP3RO617
+         KlH7Hu6MDcAKIlXu7G6x7u+uIH0ZxWi3rpWjGRR4ly4JkMtMDPWYhhhDgJVjix6DHl
+         afvzWE9JT98kw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Abeni <pabeni@redhat.com>,
-        Kaustubh Pandey <kapandey@codeaurora.org>,
+Cc:     Ido Schimmel <idosch@nvidia.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 029/109] udp: fix race between close() and udp_abort()
-Date:   Mon, 28 Jun 2021 10:31:45 -0400
-Message-Id: <20210628143305.32978-30-sashal@kernel.org>
+Subject: [PATCH 4.19 030/109] rtnetlink: Fix regression in bridge VLAN configuration
+Date:   Mon, 28 Jun 2021 10:31:46 -0400
+Message-Id: <20210628143305.32978-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -49,75 +49,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit a8b897c7bcd47f4147d066e22cc01d1026d7640e ]
+[ Upstream commit d2e381c4963663bca6f30c3b996fa4dbafe8fcb5 ]
 
-Kaustubh reported and diagnosed a panic in udp_lib_lookup().
-The root cause is udp_abort() racing with close(). Both
-racing functions acquire the socket lock, but udp{v6}_destroy_sock()
-release it before performing destructive actions.
+Cited commit started returning errors when notification info is not
+filled by the bridge driver, resulting in the following regression:
 
-We can't easily extend the socket lock scope to avoid the race,
-instead use the SOCK_DEAD flag to prevent udp_abort from doing
-any action when the critical race happens.
+ # ip link add name br1 type bridge vlan_filtering 1
+ # bridge vlan add dev br1 vid 555 self pvid untagged
+ RTNETLINK answers: Invalid argument
 
-Diagnosed-and-tested-by: Kaustubh Pandey <kapandey@codeaurora.org>
-Fixes: 5d77dca82839 ("net: diag: support SOCK_DESTROY for UDP sockets")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+As long as the bridge driver does not fill notification info for the
+bridge device itself, an empty notification should not be considered as
+an error. This is explained in commit 59ccaaaa49b5 ("bridge: dont send
+notification when skb->len == 0 in rtnl_bridge_notify").
+
+Fix by removing the error and add a comment to avoid future bugs.
+
+Fixes: a8db57c1d285 ("rtnetlink: Fix missing error code in rtnl_bridge_notify()")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/udp.c | 10 ++++++++++
- net/ipv6/udp.c |  3 +++
- 2 files changed, 13 insertions(+)
+ net/core/rtnetlink.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 110af0e7dc7b..2ff9f774d446 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -2432,6 +2432,9 @@ void udp_destroy_sock(struct sock *sk)
- {
- 	struct udp_sock *up = udp_sk(sk);
- 	bool slow = lock_sock_fast(sk);
-+
-+	/* protects from races with udp_abort() */
-+	sock_set_flag(sk, SOCK_DEAD);
- 	udp_flush_pending_frames(sk);
- 	unlock_sock_fast(sk, slow);
- 	if (static_branch_unlikely(&udp_encap_needed_key) && up->encap_type) {
-@@ -2673,10 +2676,17 @@ int udp_abort(struct sock *sk, int err)
- {
- 	lock_sock(sk);
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 7f2dda27f9e7..055fd09ac111 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -4102,10 +4102,12 @@ static int rtnl_bridge_notify(struct net_device *dev)
+ 	if (err < 0)
+ 		goto errout;
  
-+	/* udp{v6}_destroy_sock() sets it under the sk lock, avoid racing
-+	 * with close()
+-	if (!skb->len) {
+-		err = -EINVAL;
++	/* Notification info is only filled for bridge ports, not the bridge
++	 * device itself. Therefore, a zero notification length is valid and
++	 * should not result in an error.
 +	 */
-+	if (sock_flag(sk, SOCK_DEAD))
-+		goto out;
-+
- 	sk->sk_err = err;
- 	sk->sk_error_report(sk);
- 	__udp_disconnect(sk, 0);
++	if (!skb->len)
+ 		goto errout;
+-	}
  
-+out:
- 	release_sock(sk);
- 
+ 	rtnl_notify(skb, net, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
  	return 0;
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 6799ad462be3..c4a76c6af205 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -1476,6 +1476,9 @@ void udpv6_destroy_sock(struct sock *sk)
- {
- 	struct udp_sock *up = udp_sk(sk);
- 	lock_sock(sk);
-+
-+	/* protects from races with udp_abort() */
-+	sock_set_flag(sk, SOCK_DEAD);
- 	udp_v6_flush_pending_frames(sk);
- 	release_sock(sk);
- 
 -- 
 2.30.2
 
