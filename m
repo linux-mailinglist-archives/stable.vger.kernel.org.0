@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA28A3B61D0
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF94D3B61CD
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233237AbhF1Oix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:38:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43926 "EHLO mail.kernel.org"
+        id S234945AbhF1Oiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:38:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234388AbhF1Ogt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234391AbhF1Ogt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:36:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6D4161CB4;
-        Mon, 28 Jun 2021 14:30:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93B0D619AD;
+        Mon, 28 Jun 2021 14:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890642;
-        bh=clTVkMmwrb5NQUMWg6RiOe1jwPLP/wMZCAzvehsMco4=;
+        s=k20201202; t=1624890643;
+        bh=8yFHiLrRjX1k85mBA24sV9BNhJyaCvEHK8f69KfRl54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bN44A1Ucb9gYrMUqAb/rk8GQByxHMdgszKKlPhPkEsGRnjQbbQlKNhYdeP6vBzknk
-         pfncTJgZY0GyfE4CylvKOlT0KH0bNAc36kvmObyaFaxVTVqio8NK7ia/75IbJfBPl2
-         e7W6cjFRLhsdoBnMgWMLyXUhLNqCYNht994lkMFX1tUYThm6YKBqw52nh6MDx6t3Pp
-         Fr2WE4J+nMMDTxYvdx36pqKwx7Shq+2RPfXEWGHh6n1uxtA/B5BqoqaJBAJKSkmSxW
-         oE3k7/LxVZSFV08yvcPBu4g7OxTUDUwiULjnnb/S69whOQGAo/xqwOKTvGZCzjSY5L
-         88ebuy/+lCwPQ==
+        b=BMqb+v+eYSm6DCFIEu/cHuYD6IpVAG3rPv4yJGD+Tm/DCFnkmJjB5llcMxWWEAb9r
+         eb3r1iKB5plyEHAIw+glYegnizrakWa4JQxc26lgoHz1hEATrpqR5dAbHsgnzkChOD
+         sk1fkUQz7ibUcb2k2tPNCskNXgme8oqm98ar2zzn0qkwTFgn300b46swLPcFJu5N8G
+         tByGGfrhKqY9NXtDzjCjTAt3R1WfCEznbRNLNjsLpZzxpCASEEcuA7GPVp2UikHhG1
+         UkJOGtKK1BYDvnNvUdhfg9WMXfOpYnmu9s1eNQugczcjjVNPZdz9i1Vrh5hA5rALH4
+         HIi43TYEfXoww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        syzbot+9d7dadd15b8819d73f41@syzkaller.appspotmail.com,
-        Wolfram Sang <wsa@kernel.org>,
+Cc:     Petr Mladek <pmladek@suse.com>, jenhaochen@google.com,
+        Martin Liu <liumartin@google.com>,
+        Minchan Kim <minchan@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 42/71] i2c: robotfuzz-osif: fix control-request directions
-Date:   Mon, 28 Jun 2021 10:29:35 -0400
-Message-Id: <20210628143004.32596-43-sashal@kernel.org>
+Subject: [PATCH 5.4 43/71] kthread_worker: split code for canceling the delayed work timer
+Date:   Mon, 28 Jun 2021 10:29:36 -0400
+Message-Id: <20210628143004.32596-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -49,53 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Petr Mladek <pmladek@suse.com>
 
-commit 4ca070ef0dd885616ef294d269a9bf8e3b258e1a upstream.
+commit 34b3d5344719d14fd2185b2d9459b3abcb8cf9d8 upstream.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+Patch series "kthread_worker: Fix race between kthread_mod_delayed_work()
+and kthread_cancel_delayed_work_sync()".
 
-Control transfers without a data stage are treated as OUT requests by
-the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-will now trigger a warning.
+This patchset fixes the race between kthread_mod_delayed_work() and
+kthread_cancel_delayed_work_sync() including proper return value
+handling.
 
-Fix the OSIFI2C_SET_BIT_RATE and OSIFI2C_STOP requests which erroneously
-used the osif_usb_read() helper and set the IN direction bit.
+This patch (of 2):
 
-Reported-by: syzbot+9d7dadd15b8819d73f41@syzkaller.appspotmail.com
-Fixes: 83e53a8f120f ("i2c: Add bus driver for for OSIF USB i2c device.")
-Cc: stable@vger.kernel.org      # 3.14
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Simple code refactoring as a preparation step for fixing a race between
+kthread_mod_delayed_work() and kthread_cancel_delayed_work_sync().
+
+It does not modify the existing behavior.
+
+Link: https://lkml.kernel.org/r/20210610133051.15337-2-pmladek@suse.com
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Cc: <jenhaochen@google.com>
+Cc: Martin Liu <liumartin@google.com>
+Cc: Minchan Kim <minchan@google.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-robotfuzz-osif.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/kthread.c | 46 +++++++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-robotfuzz-osif.c b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-index a39f7d092797..66dfa211e736 100644
---- a/drivers/i2c/busses/i2c-robotfuzz-osif.c
-+++ b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-@@ -83,7 +83,7 @@ static int osif_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
- 			}
- 		}
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index 1d4c98a19043..1086f21c641b 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -1019,6 +1019,33 @@ void kthread_flush_work(struct kthread_work *work)
+ }
+ EXPORT_SYMBOL_GPL(kthread_flush_work);
  
--		ret = osif_usb_read(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
-+		ret = osif_usb_write(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
- 		if (ret) {
- 			dev_err(&adapter->dev, "failure sending STOP\n");
- 			return -EREMOTEIO;
-@@ -153,7 +153,7 @@ static int osif_probe(struct usb_interface *interface,
- 	 * Set bus frequency. The frequency is:
- 	 * 120,000,000 / ( 16 + 2 * div * 4^prescale).
- 	 * Using dev = 52, prescale = 0 give 100KHz */
--	ret = osif_usb_read(&priv->adapter, OSIFI2C_SET_BIT_RATE, 52, 0,
-+	ret = osif_usb_write(&priv->adapter, OSIFI2C_SET_BIT_RATE, 52, 0,
- 			    NULL, 0);
- 	if (ret) {
- 		dev_err(&interface->dev, "failure sending bit rate");
++/*
++ * Make sure that the timer is neither set nor running and could
++ * not manipulate the work list_head any longer.
++ *
++ * The function is called under worker->lock. The lock is temporary
++ * released but the timer can't be set again in the meantime.
++ */
++static void kthread_cancel_delayed_work_timer(struct kthread_work *work,
++					      unsigned long *flags)
++{
++	struct kthread_delayed_work *dwork =
++		container_of(work, struct kthread_delayed_work, work);
++	struct kthread_worker *worker = work->worker;
++
++	/*
++	 * del_timer_sync() must be called to make sure that the timer
++	 * callback is not running. The lock must be temporary released
++	 * to avoid a deadlock with the callback. In the meantime,
++	 * any queuing is blocked by setting the canceling counter.
++	 */
++	work->canceling++;
++	raw_spin_unlock_irqrestore(&worker->lock, *flags);
++	del_timer_sync(&dwork->timer);
++	raw_spin_lock_irqsave(&worker->lock, *flags);
++	work->canceling--;
++}
++
+ /*
+  * This function removes the work from the worker queue. Also it makes sure
+  * that it won't get queued later via the delayed work's timer.
+@@ -1033,23 +1060,8 @@ static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
+ 				  unsigned long *flags)
+ {
+ 	/* Try to cancel the timer if exists. */
+-	if (is_dwork) {
+-		struct kthread_delayed_work *dwork =
+-			container_of(work, struct kthread_delayed_work, work);
+-		struct kthread_worker *worker = work->worker;
+-
+-		/*
+-		 * del_timer_sync() must be called to make sure that the timer
+-		 * callback is not running. The lock must be temporary released
+-		 * to avoid a deadlock with the callback. In the meantime,
+-		 * any queuing is blocked by setting the canceling counter.
+-		 */
+-		work->canceling++;
+-		raw_spin_unlock_irqrestore(&worker->lock, *flags);
+-		del_timer_sync(&dwork->timer);
+-		raw_spin_lock_irqsave(&worker->lock, *flags);
+-		work->canceling--;
+-	}
++	if (is_dwork)
++		kthread_cancel_delayed_work_timer(work, flags);
+ 
+ 	/*
+ 	 * Try to remove the work from a worker list. It might either
 -- 
 2.30.2
 
