@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7734C3B61CC
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:37:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFB723B61DF
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:38:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234939AbhF1Oiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:38:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43920 "EHLO mail.kernel.org"
+        id S233583AbhF1OkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:40:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234915AbhF1Ogt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:36:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1735D61CB3;
-        Mon, 28 Jun 2021 14:30:44 +0000 (UTC)
+        id S234175AbhF1OhK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:37:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E31C61CAE;
+        Mon, 28 Jun 2021 14:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890645;
-        bh=vDFKtKMaIeY1BUH7JlbdF87Fuw+icd2MtgcpqbBcH0Q=;
+        s=k20201202; t=1624890646;
+        bh=oBga/J/u8cNhQPE8R0NqSQWs3dwaNBfYqPb2ZELcjJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZzoznXle0VyQSHwgHYebHLqlnfpMoBICSXa5uVajijjB+fjqBn0JGtnRm8W9crHg
-         n7ESHmJdUmh27fSJ/AwSCJvf/qSV2R1+Kpvg8cUAmHGQ8DpPMaleJaGBPfqJZATMK9
-         CusFyNGmCNpakKRrmSKW2b2glvG4HZbRBpHo0DUXtcTRizr5jTSVgH+Nn4W1b4wc8S
-         Lj1D0LNLLuK5p+GmkTG/Q7h67foO1vrCJ+uI5CBGOwbvaNSNYEJ5pTYi5Bjkv4u2nK
-         STSxCQuZXK2vZOEmjq6xha/MlfMOmKB+qfW26cK5dCzHGGnLSf4Of9Us5KVjoJUUVI
-         0p+KxXof6Zw9w==
+        b=nVdmz36IuKxHIFXRkCj68LJSIRJ0d6XwEtaLa7AdPsLxTLpDzzb75cjNeSbLlpmes
+         dMnqgHx2MmwSgDfSqD+ANWB7bDknKXjccgnKnshJyFE9lN3L6pYscPxESgkLV73icO
+         nJRDQ9ji06+sayxVKWOcGv+TN+0c305OxXAq1Nt/McVZ2G2PmdYb6suT//iKB0Rkom
+         xpCKWhyn3fkvN6FMlLLPYoU81nYJSYrOGfr7I/xClU73oNm8Aqn03lvPGEEsrg4bQG
+         Ci0gMQaW9WQOzdBJZ6JFpZuy/+4aqEH/SqEiqvGkhfgon2AA9cuO3F+fxdLIucBMcL
+         RDGo5525Oj5RQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Mladek <pmladek@suse.com>, Martin Liu <liumartin@google.com>,
-        jenhaochen@google.com, Minchan Kim <minchan@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>,
+Cc:     Alex Shi <alex.shi@linux.alibaba.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Hugh Dickins <hughd@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 44/71] kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
-Date:   Mon, 28 Jun 2021 10:29:37 -0400
-Message-Id: <20210628143004.32596-45-sashal@kernel.org>
+Subject: [PATCH 5.4 45/71] mm: add VM_WARN_ON_ONCE_PAGE() macro
+Date:   Mon, 28 Jun 2021 10:29:38 -0400
+Message-Id: <20210628143004.32596-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -53,184 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+From: Alex Shi <alex.shi@linux.alibaba.com>
 
-commit 5fa54346caf67b4b1b10b1f390316ae466da4d53 upstream.
+[ Upstream commit a4055888629bc0467d12d912cd7c90acdf3d9b12 part ]
 
-The system might hang with the following backtrace:
+Add VM_WARN_ON_ONCE_PAGE() macro.
 
-	schedule+0x80/0x100
-	schedule_timeout+0x48/0x138
-	wait_for_common+0xa4/0x134
-	wait_for_completion+0x1c/0x2c
-	kthread_flush_work+0x114/0x1cc
-	kthread_cancel_work_sync.llvm.16514401384283632983+0xe8/0x144
-	kthread_cancel_delayed_work_sync+0x18/0x2c
-	xxxx_pm_notify+0xb0/0xd8
-	blocking_notifier_call_chain_robust+0x80/0x194
-	pm_notifier_call_chain_robust+0x28/0x4c
-	suspend_prepare+0x40/0x260
-	enter_state+0x80/0x3f4
-	pm_suspend+0x60/0xdc
-	state_store+0x108/0x144
-	kobj_attr_store+0x38/0x88
-	sysfs_kf_write+0x64/0xc0
-	kernfs_fop_write_iter+0x108/0x1d0
-	vfs_write+0x2f4/0x368
-	ksys_write+0x7c/0xec
-
-It is caused by the following race between kthread_mod_delayed_work()
-and kthread_cancel_delayed_work_sync():
-
-CPU0				CPU1
-
-Context: Thread A		Context: Thread B
-
-kthread_mod_delayed_work()
-  spin_lock()
-  __kthread_cancel_work()
-     spin_unlock()
-     del_timer_sync()
-				kthread_cancel_delayed_work_sync()
-				  spin_lock()
-				  __kthread_cancel_work()
-				    spin_unlock()
-				    del_timer_sync()
-				    spin_lock()
-
-				  work->canceling++
-				  spin_unlock
-     spin_lock()
-   queue_delayed_work()
-     // dwork is put into the worker->delayed_work_list
-
-   spin_unlock()
-
-				  kthread_flush_work()
-     // flush_work is put at the tail of the dwork
-
-				    wait_for_completion()
-
-Context: IRQ
-
-  kthread_delayed_work_timer_fn()
-    spin_lock()
-    list_del_init(&work->node);
-    spin_unlock()
-
-BANG: flush_work is not longer linked and will never get proceed.
-
-The problem is that kthread_mod_delayed_work() checks work->canceling
-flag before canceling the timer.
-
-A simple solution is to (re)check work->canceling after
-__kthread_cancel_work().  But then it is not clear what should be
-returned when __kthread_cancel_work() removed the work from the queue
-(list) and it can't queue it again with the new @delay.
-
-The return value might be used for reference counting.  The caller has
-to know whether a new work has been queued or an existing one was
-replaced.
-
-The proper solution is that kthread_mod_delayed_work() will remove the
-work from the queue (list) _only_ when work->canceling is not set.  The
-flag must be checked after the timer is stopped and the remaining
-operations can be done under worker->lock.
-
-Note that kthread_mod_delayed_work() could remove the timer and then
-bail out.  It is fine.  The other canceling caller needs to cancel the
-timer as well.  The important thing is that the queue (list)
-manipulation is done atomically under worker->lock.
-
-Link: https://lkml.kernel.org/r/20210610133051.15337-3-pmladek@suse.com
-Fixes: 9a6b06c8d9a220860468a ("kthread: allow to modify delayed kthread work")
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Reported-by: Martin Liu <liumartin@google.com>
-Cc: <jenhaochen@google.com>
-Cc: Minchan Kim <minchan@google.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/1604283436-18880-3-git-send-email-alex.shi@linux.alibaba.com
+Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+Note on stable backport: original commit was titled
+mm/memcg: warning on !memcg after readahead page charged
+which included uses of this macro in mm/memcontrol.c: here omitted.
+
+Signed-off-by: Hugh Dickins <hughd@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/kthread.c | 35 ++++++++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+ include/linux/mmdebug.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 1086f21c641b..2eb8d7550324 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -1047,8 +1047,11 @@ static void kthread_cancel_delayed_work_timer(struct kthread_work *work,
- }
- 
- /*
-- * This function removes the work from the worker queue. Also it makes sure
-- * that it won't get queued later via the delayed work's timer.
-+ * This function removes the work from the worker queue.
-+ *
-+ * It is called under worker->lock. The caller must make sure that
-+ * the timer used by delayed work is not running, e.g. by calling
-+ * kthread_cancel_delayed_work_timer().
-  *
-  * The work might still be in use when this function finishes. See the
-  * current_work proceed by the worker.
-@@ -1056,13 +1059,8 @@ static void kthread_cancel_delayed_work_timer(struct kthread_work *work,
-  * Return: %true if @work was pending and successfully canceled,
-  *	%false if @work was not pending
-  */
--static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
--				  unsigned long *flags)
-+static bool __kthread_cancel_work(struct kthread_work *work)
- {
--	/* Try to cancel the timer if exists. */
--	if (is_dwork)
--		kthread_cancel_delayed_work_timer(work, flags);
--
- 	/*
- 	 * Try to remove the work from a worker list. It might either
- 	 * be from worker->work_list or from worker->delayed_work_list.
-@@ -1115,11 +1113,23 @@ bool kthread_mod_delayed_work(struct kthread_worker *worker,
- 	/* Work must not be used with >1 worker, see kthread_queue_work() */
- 	WARN_ON_ONCE(work->worker != worker);
- 
--	/* Do not fight with another command that is canceling this work. */
-+	/*
-+	 * Temporary cancel the work but do not fight with another command
-+	 * that is canceling the work as well.
-+	 *
-+	 * It is a bit tricky because of possible races with another
-+	 * mod_delayed_work() and cancel_delayed_work() callers.
-+	 *
-+	 * The timer must be canceled first because worker->lock is released
-+	 * when doing so. But the work can be removed from the queue (list)
-+	 * only when it can be queued again so that the return value can
-+	 * be used for reference counting.
-+	 */
-+	kthread_cancel_delayed_work_timer(work, &flags);
- 	if (work->canceling)
- 		goto out;
-+	ret = __kthread_cancel_work(work);
- 
--	ret = __kthread_cancel_work(work, true, &flags);
- fast_queue:
- 	__kthread_queue_delayed_work(worker, dwork, delay);
- out:
-@@ -1141,7 +1151,10 @@ static bool __kthread_cancel_work_sync(struct kthread_work *work, bool is_dwork)
- 	/* Work must not be used with >1 worker, see kthread_queue_work(). */
- 	WARN_ON_ONCE(work->worker != worker);
- 
--	ret = __kthread_cancel_work(work, is_dwork, &flags);
-+	if (is_dwork)
-+		kthread_cancel_delayed_work_timer(work, &flags);
+diff --git a/include/linux/mmdebug.h b/include/linux/mmdebug.h
+index 2ad72d2c8cc5..5d0767cb424a 100644
+--- a/include/linux/mmdebug.h
++++ b/include/linux/mmdebug.h
+@@ -37,6 +37,18 @@ void dump_mm(const struct mm_struct *mm);
+ 			BUG();						\
+ 		}							\
+ 	} while (0)
++#define VM_WARN_ON_ONCE_PAGE(cond, page)	({			\
++	static bool __section(".data.once") __warned;			\
++	int __ret_warn_once = !!(cond);					\
++									\
++	if (unlikely(__ret_warn_once && !__warned)) {			\
++		dump_page(page, "VM_WARN_ON_ONCE_PAGE(" __stringify(cond)")");\
++		__warned = true;					\
++		WARN_ON(1);						\
++	}								\
++	unlikely(__ret_warn_once);					\
++})
 +
-+	ret = __kthread_cancel_work(work);
- 
- 	if (worker->current_work != work)
- 		goto out_fast;
+ #define VM_WARN_ON(cond) (void)WARN_ON(cond)
+ #define VM_WARN_ON_ONCE(cond) (void)WARN_ON_ONCE(cond)
+ #define VM_WARN_ONCE(cond, format...) (void)WARN_ONCE(cond, format)
+@@ -48,6 +60,7 @@ void dump_mm(const struct mm_struct *mm);
+ #define VM_BUG_ON_MM(cond, mm) VM_BUG_ON(cond)
+ #define VM_WARN_ON(cond) BUILD_BUG_ON_INVALID(cond)
+ #define VM_WARN_ON_ONCE(cond) BUILD_BUG_ON_INVALID(cond)
++#define VM_WARN_ON_ONCE_PAGE(cond, page)  BUILD_BUG_ON_INVALID(cond)
+ #define VM_WARN_ONCE(cond, format...) BUILD_BUG_ON_INVALID(cond)
+ #define VM_WARN(cond, format...) BUILD_BUG_ON_INVALID(cond)
+ #endif
 -- 
 2.30.2
 
