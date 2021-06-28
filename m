@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A7DC3B60E1
+	by mail.lfdr.de (Postfix) with ESMTP id E5C8E3B60E2
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233717AbhF1ObG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:31:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36332 "EHLO mail.kernel.org"
+        id S233935AbhF1ObH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:31:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234514AbhF1OaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:30:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EDBB61CA4;
+        id S234515AbhF1OaC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:30:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E873461CA5;
         Mon, 28 Jun 2021 14:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890385;
-        bh=n3LBBJFmOwhXlPnrw2Koqg9ky5QV+yoGEO/vmYx59Ow=;
+        s=k20201202; t=1624890386;
+        bh=kPp9RXNXCDj6J3644beCoJ32D6kLvlczcu3yfOCMuQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DtMFWSzGBwt+hAbzFv5nLMsjZeWu5AQ4Epv1B6KnaSlxecL8x0IThdB02Hw7AZgou
-         tNtr1jIrBL7qrYW8NqEQFEM3r6SDJteGMdUc8qQmw9YCSut78ezv5Ehs9jU+gOcxE1
-         AeezI49pH8EzzPS4awudlzHGm/sSx1FLnb6f8/vwbdNz16vpsng4aAbm21NSSRA98y
-         b81GIcPh0gZIMy3plG77Q6ODi6kc+YmOgA5C036lT/969BeVQE/yx+2ogAT1/Wz7Xm
-         RZ1qr52il6uWrYeoFjdS+8UWPwViYob92nKV5Tfd7neZe7Fqqsc0z7Ix8/IOIgINHy
-         t8A44L8oCtHDw==
+        b=MgkYyokMyYXTrC2LiIxK5o3/fonZr00TzvWw3W2gUW8NXVfSH6qF3SmstI9UBNBh7
+         0Nt1UDHHaMYTcqs9NE6FNFVoTN4OhTOe0vtlqTUlYeaUA+XRYDhXwifwUfii5Q38M6
+         OGsSvKnQtsYHOlOV27pdsPXidHI7ut2S9q60VFqNE4wY3QuBBthjh5IpFftymg1DOC
+         UdkzeCciB3O5yLNN39COSFXSF7NzA+v2Zsb4LCmfnHZObNqfVvM3gIW6aHaICMwO/n
+         e2BHLJqinlkaMvQydLe21tdK3/K/LCwm/M9/ExI7QKyGIrFpNjbu8qsEMbKJwRpfuZ
+         2wWcKTJrDFV1A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 018/101] x86/xen: Fix noinstr fail in exc_xen_unknown_trap()
-Date:   Mon, 28 Jun 2021 10:24:44 -0400
-Message-Id: <20210628142607.32218-19-sashal@kernel.org>
+Subject: [PATCH 5.10 019/101] locking/lockdep: Improve noinstr vs errors
+Date:   Mon, 28 Jun 2021 10:24:45 -0400
+Message-Id: <20210628142607.32218-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -49,36 +49,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 4c9c26f1e67648f41f28f8c997c5c9467a3dbbe4 ]
+[ Upstream commit 49faa77759b211fff344898edc23bb780707fff5 ]
 
-Fix:
+Better handle the failure paths.
 
-  vmlinux.o: warning: objtool: exc_xen_unknown_trap()+0x7: call to printk() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: debug_locks_off()+0x23: call to console_verbose() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: debug_locks_off()+0x19: call to __kasan_check_write() leaves .noinstr.text section
 
-Fixes: 2e92493637a0 ("x86/xen: avoid warning in Xen pv guest with CONFIG_AMD_MEM_ENCRYPT enabled")
+  debug_locks_off+0x19/0x40:
+  instrument_atomic_write at include/linux/instrumented.h:86
+  (inlined by) __debug_locks_off at include/linux/debug_locks.h:17
+  (inlined by) debug_locks_off at lib/debug_locks.c:41
+
+Fixes: 6eebad1ad303 ("lockdep: __always_inline more for noinstr")
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210621120120.606560778@infradead.org
+Link: https://lore.kernel.org/r/20210621120120.784404944@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/enlighten_pv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/debug_locks.h | 2 ++
+ kernel/locking/lockdep.c    | 4 +++-
+ lib/debug_locks.c           | 2 +-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 8064df638222..d3cdf467d91f 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -586,8 +586,10 @@ DEFINE_IDTENTRY_RAW(xenpv_exc_debug)
- DEFINE_IDTENTRY_RAW(exc_xen_unknown_trap)
- {
- 	/* This should never happen and there is no way to handle it. */
-+	instrumentation_begin();
- 	pr_err("Unknown trap in Xen PV mode.");
- 	BUG();
-+	instrumentation_end();
+diff --git a/include/linux/debug_locks.h b/include/linux/debug_locks.h
+index 2915f56ad421..edb5c186b0b7 100644
+--- a/include/linux/debug_locks.h
++++ b/include/linux/debug_locks.h
+@@ -27,8 +27,10 @@ extern int debug_locks_off(void);
+ 	int __ret = 0;							\
+ 									\
+ 	if (!oops_in_progress && unlikely(c)) {				\
++		instrumentation_begin();				\
+ 		if (debug_locks_off() && !debug_locks_silent)		\
+ 			WARN(1, "DEBUG_LOCKS_WARN_ON(%s)", #c);		\
++		instrumentation_end();					\
+ 		__ret = 1;						\
+ 	}								\
+ 	__ret;								\
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 858b96b438ce..cdca007551e7 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -842,7 +842,7 @@ static int count_matching_names(struct lock_class *new_class)
  }
  
- struct trap_array_entry {
+ /* used from NMI context -- must be lockless */
+-static __always_inline struct lock_class *
++static noinstr struct lock_class *
+ look_up_lock_class(const struct lockdep_map *lock, unsigned int subclass)
+ {
+ 	struct lockdep_subclass_key *key;
+@@ -850,12 +850,14 @@ look_up_lock_class(const struct lockdep_map *lock, unsigned int subclass)
+ 	struct lock_class *class;
+ 
+ 	if (unlikely(subclass >= MAX_LOCKDEP_SUBCLASSES)) {
++		instrumentation_begin();
+ 		debug_locks_off();
+ 		printk(KERN_ERR
+ 			"BUG: looking up invalid subclass: %u\n", subclass);
+ 		printk(KERN_ERR
+ 			"turning off the locking correctness validator.\n");
+ 		dump_stack();
++		instrumentation_end();
+ 		return NULL;
+ 	}
+ 
+diff --git a/lib/debug_locks.c b/lib/debug_locks.c
+index 06d3135bd184..a75ee30b77cb 100644
+--- a/lib/debug_locks.c
++++ b/lib/debug_locks.c
+@@ -36,7 +36,7 @@ EXPORT_SYMBOL_GPL(debug_locks_silent);
+ /*
+  * Generic 'turn off all lock debugging' function:
+  */
+-noinstr int debug_locks_off(void)
++int debug_locks_off(void)
+ {
+ 	if (debug_locks && __debug_locks_off()) {
+ 		if (!debug_locks_silent) {
 -- 
 2.30.2
 
