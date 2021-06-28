@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3E933B616D
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE7523B6170
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235412AbhF1Of7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:35:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36912 "EHLO mail.kernel.org"
+        id S234619AbhF1OgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:36:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234636AbhF1Oct (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:32:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCFF261C89;
-        Mon, 28 Jun 2021 14:27:48 +0000 (UTC)
+        id S234538AbhF1Ode (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:33:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C32DC61C92;
+        Mon, 28 Jun 2021 14:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890469;
-        bh=4dSHOaEQAwIC7L/z6GDnBLBuNItxIOeL6nJQC2uEptM=;
+        s=k20201202; t=1624890470;
+        bh=hzeVNsH78dsm1M5txp4v8/nXEnhHXKa/5XBxP1Ul9Go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VuvH/kBiSEiIE4/IOqYd95uv0Uq2grF+XynbjJpv1MKlc2DTUap4xN1yc1s7jwgA/
-         6vZQHK6xlop7wycUb3PGlbYZME5mFL4xv0C9EX6PRhyi6xWxnmh6YFyINbYcZ2fsG9
-         2fZSws1vH5f8WiQHw9p866AqyKa9ivFDS2wPKmN4ioKWgin4FuKS3DLmALKdjk1dl9
-         8pPB4J2/p4ET07VPGGvN4AuJd4O54EaL7K4IFwwKun7BU7Dcb8GQBsxEsHCoiv+ul2
-         cj3NRklOl9YSTViE4yNLjuA2UTfOgVioPZCuJ0H4mZs5g8IWTuvOGciFBC6dZtl+Lu
-         ndxTZve94CYXg==
+        b=IjKjo29lXGnCCrqkFGk6Kfz/6FeMpC7pVHyAG+5kQ2EeXTKFbypET8c5HqV8EWJrI
+         dU86VCgw7QTcU8uRA+RSmlPJ/VxfKJAT20cR7b+R0RyShn4CiJMHiKIi88HsYSSw1y
+         ZdUkj0vqq9f5mp7JMU2Kx1gtets+ToefLX8aPjJcJfpOIQr0aCCE/OlF+rwMlvjxmn
+         JgwoeCl9gyPkPTGiDJTVpZIodR7EJwO2ibeRgmq9ruLX7L8fkfuZahpE4adBBYADWi
+         sVFBkIkCi78W5IQc9bfW3yvJG2LA+Hl8i/pYivj1nU0F2WJDSnBeILACZut1v7F5JO
+         z7TQxDyaqiwsg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>, Andrew W Elble <aweits@rit.edu>,
-        David Howells <dhowells@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        ceph-devel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 095/101] netfs: fix test for whether we can skip read when writing beyond EOF
-Date:   Mon, 28 Jun 2021 10:26:01 -0400
-Message-Id: <20210628142607.32218-96-sashal@kernel.org>
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.10 096/101] Revert "drm: add a locked version of drm_is_current_master"
+Date:   Mon, 28 Jun 2021 10:26:02 -0400
+Message-Id: <20210628142607.32218-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -50,130 +46,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit 827a746f405d25f79560c7868474aec5aee174e1 upstream.
+commit f54b3ca7ea1e5e02f481cf4ca54568e57bd66086 upstream.
 
-It's not sufficient to skip reading when the pos is beyond the EOF.
-There may be data at the head of the page that we need to fill in
-before the write.
+This reverts commit 1815d9c86e3090477fbde066ff314a7e9721ee0f.
 
-Add a new helper function that corrects and clarifies the logic of
-when we can skip reads, and have it only zero out the part of the page
-that won't have data copied in for the write.
+Unfortunately this inverts the locking hierarchy, so back to the
+drawing board. Full lockdep splat below:
 
-Finally, don't set the page Uptodate after zeroing. It's not up to date
-since the write data won't have been copied in yet.
-
-[DH made the following changes:
-
- - Prefixed the new function with "netfs_".
-
- - Don't call zero_user_segments() for a full-page write.
-
- - Altered the beyond-last-page check to avoid a DIV instruction and got
-   rid of then-redundant zero-length file check.
-]
-
-[ Note: this fix is commit 827a746f405d in mainline kernels. The
-	original bug was in ceph, but got lifted into the fs/netfs
-	library for v5.13. This backport should apply to stable
-	kernels v5.10 though v5.12. ]
-
-Fixes: e1b1240c1ff5f ("netfs: Add write_begin helper")
-Reported-by: Andrew W Elble <aweits@rit.edu>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-cc: ceph-devel@vger.kernel.org
-Link: https://lore.kernel.org/r/20210613233345.113565-1-jlayton@kernel.org/
-Link: https://lore.kernel.org/r/162367683365.460125.4467036947364047314.stgit@warthog.procyon.org.uk/ # v1
-Link: https://lore.kernel.org/r/162391826758.1173366.11794946719301590013.stgit@warthog.procyon.org.uk/ # v2
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+======================================================
+WARNING: possible circular locking dependency detected
+5.13.0-rc7-CI-CI_DRM_10254+ #1 Not tainted
+------------------------------------------------------
+kms_frontbuffer/1087 is trying to acquire lock:
+ffff88810dcd01a8 (&dev->master_mutex){+.+.}-{3:3}, at: drm_is_current_master+0x1b/0x40
+but task is already holding lock:
+ffff88810dcd0488 (&dev->mode_config.mutex){+.+.}-{3:3}, at: drm_mode_getconnector+0x1c6/0x4a0
+which lock already depends on the new lock.
+the existing dependency chain (in reverse order) is:
+-> #2 (&dev->mode_config.mutex){+.+.}-{3:3}:
+       __mutex_lock+0xab/0x970
+       drm_client_modeset_probe+0x22e/0xca0
+       __drm_fb_helper_initial_config_and_unlock+0x42/0x540
+       intel_fbdev_initial_config+0xf/0x20 [i915]
+       async_run_entry_fn+0x28/0x130
+       process_one_work+0x26d/0x5c0
+       worker_thread+0x37/0x380
+       kthread+0x144/0x170
+       ret_from_fork+0x1f/0x30
+-> #1 (&client->modeset_mutex){+.+.}-{3:3}:
+       __mutex_lock+0xab/0x970
+       drm_client_modeset_commit_locked+0x1c/0x180
+       drm_client_modeset_commit+0x1c/0x40
+       __drm_fb_helper_restore_fbdev_mode_unlocked+0x88/0xb0
+       drm_fb_helper_set_par+0x34/0x40
+       intel_fbdev_set_par+0x11/0x40 [i915]
+       fbcon_init+0x270/0x4f0
+       visual_init+0xc6/0x130
+       do_bind_con_driver+0x1e5/0x2d0
+       do_take_over_console+0x10e/0x180
+       do_fbcon_takeover+0x53/0xb0
+       register_framebuffer+0x22d/0x310
+       __drm_fb_helper_initial_config_and_unlock+0x36c/0x540
+       intel_fbdev_initial_config+0xf/0x20 [i915]
+       async_run_entry_fn+0x28/0x130
+       process_one_work+0x26d/0x5c0
+       worker_thread+0x37/0x380
+       kthread+0x144/0x170
+       ret_from_fork+0x1f/0x30
+-> #0 (&dev->master_mutex){+.+.}-{3:3}:
+       __lock_acquire+0x151e/0x2590
+       lock_acquire+0xd1/0x3d0
+       __mutex_lock+0xab/0x970
+       drm_is_current_master+0x1b/0x40
+       drm_mode_getconnector+0x37e/0x4a0
+       drm_ioctl_kernel+0xa8/0xf0
+       drm_ioctl+0x1e8/0x390
+       __x64_sys_ioctl+0x6a/0xa0
+       do_syscall_64+0x39/0xb0
+       entry_SYSCALL_64_after_hwframe+0x44/0xae
+other info that might help us debug this:
+Chain exists of: &dev->master_mutex --> &client->modeset_mutex --> &dev->mode_config.mutex
+ Possible unsafe locking scenario:
+       CPU0                    CPU1
+       ----                    ----
+  lock(&dev->mode_config.mutex);
+                               lock(&client->modeset_mutex);
+                               lock(&dev->mode_config.mutex);
+  lock(&dev->master_mutex);
 ---
- fs/ceph/addr.c | 54 ++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 41 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/drm_auth.c | 51 ++++++++++++++------------------------
+ 1 file changed, 19 insertions(+), 32 deletions(-)
 
-diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
-index 35c83f65475b..8b0507f69c15 100644
---- a/fs/ceph/addr.c
-+++ b/fs/ceph/addr.c
-@@ -1302,6 +1302,45 @@ ceph_find_incompatible(struct page *page)
- 	return NULL;
+diff --git a/drivers/gpu/drm/drm_auth.c b/drivers/gpu/drm/drm_auth.c
+index 86d4b72e95cb..232abbba3686 100644
+--- a/drivers/gpu/drm/drm_auth.c
++++ b/drivers/gpu/drm/drm_auth.c
+@@ -61,35 +61,6 @@
+  * trusted clients.
+  */
+ 
+-static bool drm_is_current_master_locked(struct drm_file *fpriv)
+-{
+-	lockdep_assert_held_once(&fpriv->master->dev->master_mutex);
+-
+-	return fpriv->is_master && drm_lease_owner(fpriv->master) == fpriv->minor->dev->master;
+-}
+-
+-/**
+- * drm_is_current_master - checks whether @priv is the current master
+- * @fpriv: DRM file private
+- *
+- * Checks whether @fpriv is current master on its device. This decides whether a
+- * client is allowed to run DRM_MASTER IOCTLs.
+- *
+- * Most of the modern IOCTL which require DRM_MASTER are for kernel modesetting
+- * - the current master is assumed to own the non-shareable display hardware.
+- */
+-bool drm_is_current_master(struct drm_file *fpriv)
+-{
+-	bool ret;
+-
+-	mutex_lock(&fpriv->master->dev->master_mutex);
+-	ret = drm_is_current_master_locked(fpriv);
+-	mutex_unlock(&fpriv->master->dev->master_mutex);
+-
+-	return ret;
+-}
+-EXPORT_SYMBOL(drm_is_current_master);
+-
+ int drm_getmagic(struct drm_device *dev, void *data, struct drm_file *file_priv)
+ {
+ 	struct drm_auth *auth = data;
+@@ -252,7 +223,7 @@ int drm_setmaster_ioctl(struct drm_device *dev, void *data,
+ 	if (ret)
+ 		goto out_unlock;
+ 
+-	if (drm_is_current_master_locked(file_priv))
++	if (drm_is_current_master(file_priv))
+ 		goto out_unlock;
+ 
+ 	if (dev->master) {
+@@ -301,7 +272,7 @@ int drm_dropmaster_ioctl(struct drm_device *dev, void *data,
+ 	if (ret)
+ 		goto out_unlock;
+ 
+-	if (!drm_is_current_master_locked(file_priv)) {
++	if (!drm_is_current_master(file_priv)) {
+ 		ret = -EINVAL;
+ 		goto out_unlock;
+ 	}
+@@ -350,7 +321,7 @@ void drm_master_release(struct drm_file *file_priv)
+ 	if (file_priv->magic)
+ 		idr_remove(&file_priv->master->magic_map, file_priv->magic);
+ 
+-	if (!drm_is_current_master_locked(file_priv))
++	if (!drm_is_current_master(file_priv))
+ 		goto out;
+ 
+ 	drm_legacy_lock_master_cleanup(dev, master);
+@@ -371,6 +342,22 @@ void drm_master_release(struct drm_file *file_priv)
+ 	mutex_unlock(&dev->master_mutex);
  }
  
 +/**
-+ * prep_noread_page - prep a page for writing without reading first
-+ * @page: page being prepared
-+ * @pos: starting position for the write
-+ * @len: length of write
++ * drm_is_current_master - checks whether @priv is the current master
++ * @fpriv: DRM file private
 + *
-+ * In some cases, write_begin doesn't need to read at all:
-+ * - full page write
-+ * - file is currently zero-length
-+ * - write that lies in a page that is completely beyond EOF
-+ * - write that covers the the page from start to EOF or beyond it
++ * Checks whether @fpriv is current master on its device. This decides whether a
++ * client is allowed to run DRM_MASTER IOCTLs.
 + *
-+ * If any of these criteria are met, then zero out the unwritten parts
-+ * of the page and return true. Otherwise, return false.
++ * Most of the modern IOCTL which require DRM_MASTER are for kernel modesetting
++ * - the current master is assumed to own the non-shareable display hardware.
 + */
-+static bool skip_page_read(struct page *page, loff_t pos, size_t len)
++bool drm_is_current_master(struct drm_file *fpriv)
 +{
-+	struct inode *inode = page->mapping->host;
-+	loff_t i_size = i_size_read(inode);
-+	size_t offset = offset_in_page(pos);
-+
-+	/* Full page write */
-+	if (offset == 0 && len >= PAGE_SIZE)
-+		return true;
-+
-+	/* pos beyond last page in the file */
-+	if (pos - offset >= i_size)
-+		goto zero_out;
-+
-+	/* write that covers the whole page from start to EOF or beyond it */
-+	if (offset == 0 && (pos + len) >= i_size)
-+		goto zero_out;
-+
-+	return false;
-+zero_out:
-+	zero_user_segments(page, 0, offset, offset + len, PAGE_SIZE);
-+	return true;
++	return fpriv->is_master && drm_lease_owner(fpriv->master) == fpriv->minor->dev->master;
 +}
++EXPORT_SYMBOL(drm_is_current_master);
 +
- /*
-  * We are only allowed to write into/dirty the page if the page is
-  * clean, or already dirty within the same snap context.
-@@ -1315,7 +1354,6 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
- 	struct ceph_snap_context *snapc;
- 	struct page *page = NULL;
- 	pgoff_t index = pos >> PAGE_SHIFT;
--	int pos_in_page = pos & ~PAGE_MASK;
- 	int r = 0;
- 
- 	dout("write_begin file %p inode %p page %p %d~%d\n", file, inode, page, (int)pos, (int)len);
-@@ -1350,19 +1388,9 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
- 			break;
- 		}
- 
--		/*
--		 * In some cases we don't need to read at all:
--		 * - full page write
--		 * - write that lies completely beyond EOF
--		 * - write that covers the the page from start to EOF or beyond it
--		 */
--		if ((pos_in_page == 0 && len == PAGE_SIZE) ||
--		    (pos >= i_size_read(inode)) ||
--		    (pos_in_page == 0 && (pos + len) >= i_size_read(inode))) {
--			zero_user_segments(page, 0, pos_in_page,
--					   pos_in_page + len, PAGE_SIZE);
-+		/* No need to read in some cases */
-+		if (skip_page_read(page, pos, len))
- 			break;
--		}
- 
- 		/*
- 		 * We need to read it. If we get back -EINPROGRESS, then the page was
+ /**
+  * drm_master_get - reference a master pointer
+  * @master: &struct drm_master
 -- 
 2.30.2
 
