@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 875883B6075
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:23:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1613B6077
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:23:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233751AbhF1OZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:25:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
+        id S233713AbhF1OZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:25:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233050AbhF1OXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233351AbhF1OXi (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:23:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96AE161C83;
-        Mon, 28 Jun 2021 14:20:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A12861CA0;
+        Mon, 28 Jun 2021 14:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890018;
-        bh=QijCrKyhnozrfuGrRc6q4/RO0Eg7RkF09iYWG4/G5Bw=;
+        s=k20201202; t=1624890019;
+        bh=35CB7u/TEFVAwr9Xuh8Bnb1pEGX10voiJC/dsNvRedY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFo0Bbwxd7CosZD6hMOQTv2qq25v9fbgPz1kb6/1wcnp1z/8SqpH9m/480GkWoxWi
-         R/Aw3XqQn+oyQ3Sf91sGmRmE8Zyq1evFFAEZA6BQXMWp9aXcsdDREWhK7kbGxa9wfT
-         BOgVFEUN84c1jYwSmGWsJLpAzB0KeJHjmCv8xAXFT0ICHqx8WyOHSJPglu9EbZO4xG
-         +w666iHA4M7u5aM/cFsmKLwUM4CKrNlaKnHfJm6zAXnu74qs1cXDrGOEJA/VSTa5MS
-         KfG75Rj4eDMAe+wkfQOHS/3909abRt9zYNRFOsoCe6W1oEzAaGhdWboO2ja8t7Cs+h
-         v/fJKn3Z1ob/w==
+        b=o52AucQ5ILqKJgFCn4BnSS9DizLV+ShYxs6G67lV+/oesFXs26+uD2AZL622g4Yne
+         OuyC6qQhZUdtZoXAS2OI4QHJXQ9ijhZ0g+58H6nygtvajV83yW3+f08EuM02YWgOww
+         sm2+qIeCBOQSdD6mpZop9UMyKFXxS5kBFRgsSs5X7v7ly2lCEB+WddqoHb5HGYEmna
+         DsKJ1WatRUXjrMwKy5KmwDoK976ycLTfJPNVOK0kJDTyAySzJsmnOe2jb16tpDFu3t
+         Lwfn1+eiNNBrffEPHyMHtXFPHuL1xLA8sMHOb20j+laRSe3edp14f0ThZafeO2FzEM
+         Cc7z0ydDxkFcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>, Andrew W Elble <aweits@rit.edu>,
-        David Howells <dhowells@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        ceph-devel@vger.kernel.org,
+Cc:     Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 103/110] netfs: fix test for whether we can skip read when writing beyond EOF
-Date:   Mon, 28 Jun 2021 10:18:21 -0400
-Message-Id: <20210628141828.31757-104-sashal@kernel.org>
+Subject: [PATCH 5.12 104/110] mm/hwpoison: do not lock page again when me_huge_page() successfully recovers
+Date:   Mon, 28 Jun 2021 10:18:22 -0400
+Message-Id: <20210628141828.31757-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -50,130 +53,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
 
-commit 827a746f405d25f79560c7868474aec5aee174e1 upstream.
+commit ea6d0630100b285f059d0a8d8e86f38a46407536 upstream.
 
-It's not sufficient to skip reading when the pos is beyond the EOF.
-There may be data at the head of the page that we need to fill in
-before the write.
+Currently me_huge_page() temporary unlocks page to perform some actions
+then locks it again later.  My testcase (which calls hard-offline on
+some tail page in a hugetlb, then accesses the address of the hugetlb
+range) showed that page allocation code detects this page lock on buddy
+page and printed out "BUG: Bad page state" message.
 
-Add a new helper function that corrects and clarifies the logic of
-when we can skip reads, and have it only zero out the part of the page
-that won't have data copied in for the write.
+check_new_page_bad() does not consider a page with __PG_HWPOISON as bad
+page, so this flag works as kind of filter, but this filtering doesn't
+work in this case because the "bad page" is not the actual hwpoisoned
+page.  So stop locking page again.  Actions to be taken depend on the
+page type of the error, so page unlocking should be done in ->action()
+callbacks.  So let's make it assumed and change all existing callbacks
+that way.
 
-Finally, don't set the page Uptodate after zeroing. It's not up to date
-since the write data won't have been copied in yet.
-
-[DH made the following changes:
-
- - Prefixed the new function with "netfs_".
-
- - Don't call zero_user_segments() for a full-page write.
-
- - Altered the beyond-last-page check to avoid a DIV instruction and got
-   rid of then-redundant zero-length file check.
-]
-
-[ Note: this fix is commit 827a746f405d in mainline kernels. The
-	original bug was in ceph, but got lifted into the fs/netfs
-	library for v5.13. This backport should apply to stable
-	kernels v5.10 though v5.12. ]
-
-Fixes: e1b1240c1ff5f ("netfs: Add write_begin helper")
-Reported-by: Andrew W Elble <aweits@rit.edu>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-cc: ceph-devel@vger.kernel.org
-Link: https://lore.kernel.org/r/20210613233345.113565-1-jlayton@kernel.org/
-Link: https://lore.kernel.org/r/162367683365.460125.4467036947364047314.stgit@warthog.procyon.org.uk/ # v1
-Link: https://lore.kernel.org/r/162391826758.1173366.11794946719301590013.stgit@warthog.procyon.org.uk/ # v2
+Link: https://lkml.kernel.org/r/20210609072029.74645-1-nao.horiguchi@gmail.com
+Fixes: commit 78bb920344b8 ("mm: hwpoison: dissolve in-use hugepage in unrecoverable memory error")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/addr.c | 54 ++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 41 insertions(+), 13 deletions(-)
+ mm/memory-failure.c | 44 ++++++++++++++++++++++++++++++--------------
+ 1 file changed, 30 insertions(+), 14 deletions(-)
 
-diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
-index 26e66436f005..c000fe338f7e 100644
---- a/fs/ceph/addr.c
-+++ b/fs/ceph/addr.c
-@@ -1302,6 +1302,45 @@ ceph_find_incompatible(struct page *page)
- 	return NULL;
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 2dd60ad81216..4db6f95e55be 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -658,6 +658,7 @@ static int truncate_error_page(struct page *p, unsigned long pfn,
+  */
+ static int me_kernel(struct page *p, unsigned long pfn)
+ {
++	unlock_page(p);
+ 	return MF_IGNORED;
  }
  
-+/**
-+ * prep_noread_page - prep a page for writing without reading first
-+ * @page: page being prepared
-+ * @pos: starting position for the write
-+ * @len: length of write
-+ *
-+ * In some cases, write_begin doesn't need to read at all:
-+ * - full page write
-+ * - file is currently zero-length
-+ * - write that lies in a page that is completely beyond EOF
-+ * - write that covers the the page from start to EOF or beyond it
-+ *
-+ * If any of these criteria are met, then zero out the unwritten parts
-+ * of the page and return true. Otherwise, return false.
-+ */
-+static bool skip_page_read(struct page *page, loff_t pos, size_t len)
-+{
-+	struct inode *inode = page->mapping->host;
-+	loff_t i_size = i_size_read(inode);
-+	size_t offset = offset_in_page(pos);
-+
-+	/* Full page write */
-+	if (offset == 0 && len >= PAGE_SIZE)
-+		return true;
-+
-+	/* pos beyond last page in the file */
-+	if (pos - offset >= i_size)
-+		goto zero_out;
-+
-+	/* write that covers the whole page from start to EOF or beyond it */
-+	if (offset == 0 && (pos + len) >= i_size)
-+		goto zero_out;
-+
-+	return false;
-+zero_out:
-+	zero_user_segments(page, 0, offset, offset + len, PAGE_SIZE);
-+	return true;
-+}
-+
- /*
-  * We are only allowed to write into/dirty the page if the page is
-  * clean, or already dirty within the same snap context.
-@@ -1315,7 +1354,6 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
- 	struct ceph_snap_context *snapc;
- 	struct page *page = NULL;
- 	pgoff_t index = pos >> PAGE_SHIFT;
--	int pos_in_page = pos & ~PAGE_MASK;
- 	int r = 0;
+@@ -667,6 +668,7 @@ static int me_kernel(struct page *p, unsigned long pfn)
+ static int me_unknown(struct page *p, unsigned long pfn)
+ {
+ 	pr_err("Memory failure: %#lx: Unknown page state\n", pfn);
++	unlock_page(p);
+ 	return MF_FAILED;
+ }
  
- 	dout("write_begin file %p inode %p page %p %d~%d\n", file, inode, page, (int)pos, (int)len);
-@@ -1350,19 +1388,9 @@ static int ceph_write_begin(struct file *file, struct address_space *mapping,
- 			break;
- 		}
+@@ -675,6 +677,7 @@ static int me_unknown(struct page *p, unsigned long pfn)
+  */
+ static int me_pagecache_clean(struct page *p, unsigned long pfn)
+ {
++	int ret;
+ 	struct address_space *mapping;
  
--		/*
--		 * In some cases we don't need to read at all:
--		 * - full page write
--		 * - write that lies completely beyond EOF
--		 * - write that covers the the page from start to EOF or beyond it
--		 */
--		if ((pos_in_page == 0 && len == PAGE_SIZE) ||
--		    (pos >= i_size_read(inode)) ||
--		    (pos_in_page == 0 && (pos + len) >= i_size_read(inode))) {
--			zero_user_segments(page, 0, pos_in_page,
--					   pos_in_page + len, PAGE_SIZE);
-+		/* No need to read in some cases */
-+		if (skip_page_read(page, pos, len))
- 			break;
--		}
+ 	delete_from_lru_cache(p);
+@@ -683,8 +686,10 @@ static int me_pagecache_clean(struct page *p, unsigned long pfn)
+ 	 * For anonymous pages we're done the only reference left
+ 	 * should be the one m_f() holds.
+ 	 */
+-	if (PageAnon(p))
+-		return MF_RECOVERED;
++	if (PageAnon(p)) {
++		ret = MF_RECOVERED;
++		goto out;
++	}
  
+ 	/*
+ 	 * Now truncate the page in the page cache. This is really
+@@ -698,7 +703,8 @@ static int me_pagecache_clean(struct page *p, unsigned long pfn)
  		/*
- 		 * We need to read it. If we get back -EINPROGRESS, then the page was
+ 		 * Page has been teared down in the meanwhile
+ 		 */
+-		return MF_FAILED;
++		ret = MF_FAILED;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -706,7 +712,10 @@ static int me_pagecache_clean(struct page *p, unsigned long pfn)
+ 	 *
+ 	 * Open: to take i_mutex or not for this? Right now we don't.
+ 	 */
+-	return truncate_error_page(p, pfn, mapping);
++	ret = truncate_error_page(p, pfn, mapping);
++out:
++	unlock_page(p);
++	return ret;
+ }
+ 
+ /*
+@@ -782,24 +791,26 @@ static int me_pagecache_dirty(struct page *p, unsigned long pfn)
+  */
+ static int me_swapcache_dirty(struct page *p, unsigned long pfn)
+ {
++	int ret;
++
+ 	ClearPageDirty(p);
+ 	/* Trigger EIO in shmem: */
+ 	ClearPageUptodate(p);
+ 
+-	if (!delete_from_lru_cache(p))
+-		return MF_DELAYED;
+-	else
+-		return MF_FAILED;
++	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_DELAYED;
++	unlock_page(p);
++	return ret;
+ }
+ 
+ static int me_swapcache_clean(struct page *p, unsigned long pfn)
+ {
++	int ret;
++
+ 	delete_from_swap_cache(p);
+ 
+-	if (!delete_from_lru_cache(p))
+-		return MF_RECOVERED;
+-	else
+-		return MF_FAILED;
++	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_RECOVERED;
++	unlock_page(p);
++	return ret;
+ }
+ 
+ /*
+@@ -820,6 +831,7 @@ static int me_huge_page(struct page *p, unsigned long pfn)
+ 	mapping = page_mapping(hpage);
+ 	if (mapping) {
+ 		res = truncate_error_page(hpage, pfn, mapping);
++		unlock_page(hpage);
+ 	} else {
+ 		res = MF_FAILED;
+ 		unlock_page(hpage);
+@@ -834,7 +846,6 @@ static int me_huge_page(struct page *p, unsigned long pfn)
+ 			page_ref_inc(p);
+ 			res = MF_RECOVERED;
+ 		}
+-		lock_page(hpage);
+ 	}
+ 
+ 	return res;
+@@ -866,6 +877,8 @@ static struct page_state {
+ 	unsigned long mask;
+ 	unsigned long res;
+ 	enum mf_action_page_type type;
++
++	/* Callback ->action() has to unlock the relevant page inside it. */
+ 	int (*action)(struct page *p, unsigned long pfn);
+ } error_states[] = {
+ 	{ reserved,	reserved,	MF_MSG_KERNEL,	me_kernel },
+@@ -929,6 +942,7 @@ static int page_action(struct page_state *ps, struct page *p,
+ 	int result;
+ 	int count;
+ 
++	/* page p should be unlocked after returning from ps->action().  */
+ 	result = ps->action(p, pfn);
+ 
+ 	count = page_count(p) - 1;
+@@ -1313,7 +1327,7 @@ static int memory_failure_hugetlb(unsigned long pfn, int flags)
+ 		goto out;
+ 	}
+ 
+-	res = identify_page_state(pfn, p, page_flags);
++	return identify_page_state(pfn, p, page_flags);
+ out:
+ 	unlock_page(head);
+ 	return res;
+@@ -1595,6 +1609,8 @@ try_again:
+ 
+ identify_page_state:
+ 	res = identify_page_state(pfn, p, page_flags);
++	mutex_unlock(&mf_mutex);
++	return res;
+ unlock_page:
+ 	unlock_page(p);
+ unlock_mutex:
 -- 
 2.30.2
 
