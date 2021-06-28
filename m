@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC493B6296
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F873B6297
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233253AbhF1Osn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233554AbhF1Osn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Jun 2021 10:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51690 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235661AbhF1Op3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:45:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA8F361C8F;
-        Mon, 28 Jun 2021 14:34:06 +0000 (UTC)
+        id S235665AbhF1Opc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:45:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA82C61D04;
+        Mon, 28 Jun 2021 14:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890847;
-        bh=KcYifVzG9X7A7bcMwDAzKpW1uDv3YCM5opz3g4aokfo=;
+        s=k20201202; t=1624890848;
+        bh=SCIQqbUXqjLR3oFdEq2F2QswQmn+mdroBsp5TTtb8qY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=co96rN1p8tMYZAKQLEGrInmlwnw6NtlOlMc2sa0HN78D2bZJGoNL4sUc5b0Bf+I6s
-         oDOS2bgL2I9aEKunLzMzpZ1aG1YJEaLtNVhnd32iAs4J2RmAAXMpv7Fdd3bCicn2WT
-         deJx53iO+czIy3EBUKjiKoHVg/dSsrnuhHFnRYLoOmg3xky5TsdMxxucUlB1dPyNBu
-         spATOMl75Uz1jWAAHd/kKx7gux9G2AWYcQgA44/KeLoPVYiF8D2LCR3mRIbGUhg/qc
-         LzkiNT0CtnWUhJdNNRZMVho3H5Fe+PD7dusgSqbzlCB1nsex3tDe1ZE6AFrp/ykH51
-         CWuXA5W1meIag==
+        b=CrK01kHBkjrnmaKjvNDrcS3X614wTLOVS0uicb4xFH5+yp8fQiZI48DN/JkrgZ8VY
+         54KwzAqwkEi9gq6/UPqyoWLXmOIN3wlAR+Kcythk2MG3wISlUJLv/BIzL3A4xoRCmK
+         Kw0N65C+El+3fdC34iSXbRkq3skb0iCzwrf97RcqdkluQdCxGWN3TRvmaCv/oeCjpZ
+         oHEISYj7Bn0Q7VR7h47E4l1m8h0+VQT801VKOhBOJwF28HaV20jYEAeBVtbjJNNGzk
+         8yQis9+Afb124CkIpzVev4Dtydzri+zCQfI0vqRrw5B/skrwUC994lsm8k0cYbsDkV
+         jTFEymxkxB2qA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bumyong Lee <bumyong.lee@samsung.com>,
-        Jongho Park <jongho7.park@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>,
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 069/109] dmaengine: pl330: fix wrong usage of spinlock flags in dma_cyclc
-Date:   Mon, 28 Jun 2021 10:32:25 -0400
-Message-Id: <20210628143305.32978-70-sashal@kernel.org>
+Subject: [PATCH 4.19 070/109] cfg80211: make certificate generation more robust
+Date:   Mon, 28 Jun 2021 10:32:26 -0400
+Message-Id: <20210628143305.32978-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -50,55 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bumyong Lee <bumyong.lee@samsung.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 4ad5dd2d7876d79507a20f026507d1a93b8fff10 upstream.
+commit b5642479b0f7168fe16d156913533fe65ab4f8d5 upstream.
 
-flags varible which is the input parameter of pl330_prep_dma_cyclic()
-should not be used by spinlock_irq[save/restore] function.
+If all net/wireless/certs/*.hex files are deleted, the build
+will hang at this point since the 'cat' command will have no
+arguments. Do "echo | cat - ..." so that even if the "..."
+part is empty, the whole thing won't hang.
 
-Signed-off-by: Jongho Park <jongho7.park@samsung.com>
-Signed-off-by: Bumyong Lee <bumyong.lee@samsung.com>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20210507063647.111209-1-chanho61.park@samsung.com
-Fixes: f6f2421c0a1c ("dmaengine: pl330: Merge dma_pl330_dmac and pl330_dmac structs")
 Cc: stable@vger.kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210618133832.c989056c3664.Ic3b77531d00b30b26dcd69c64e55ae2f60c3f31e@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/pl330.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/wireless/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index 15b30d2d8f7e..816630505294 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -2671,13 +2671,15 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
- 	for (i = 0; i < len / period_len; i++) {
- 		desc = pl330_get_desc(pch);
- 		if (!desc) {
-+			unsigned long iflags;
-+
- 			dev_err(pch->dmac->ddma.dev, "%s:%d Unable to fetch desc\n",
- 				__func__, __LINE__);
- 
- 			if (!first)
- 				return NULL;
- 
--			spin_lock_irqsave(&pl330->pool_lock, flags);
-+			spin_lock_irqsave(&pl330->pool_lock, iflags);
- 
- 			while (!list_empty(&first->node)) {
- 				desc = list_entry(first->node.next,
-@@ -2687,7 +2689,7 @@ static struct dma_async_tx_descriptor *pl330_prep_dma_cyclic(
- 
- 			list_move_tail(&first->node, &pl330->desc_pool);
- 
--			spin_unlock_irqrestore(&pl330->pool_lock, flags);
-+			spin_unlock_irqrestore(&pl330->pool_lock, iflags);
- 
- 			return NULL;
- 		}
+diff --git a/net/wireless/Makefile b/net/wireless/Makefile
+index 8158b375d170..4500ad5f2a61 100644
+--- a/net/wireless/Makefile
++++ b/net/wireless/Makefile
+@@ -27,7 +27,7 @@ $(obj)/shipped-certs.c: $(wildcard $(srctree)/$(src)/certs/*.hex)
+ 	@$(kecho) "  GEN     $@"
+ 	@(echo '#include "reg.h"'; \
+ 	  echo 'const u8 shipped_regdb_certs[] = {'; \
+-	  cat $^ ; \
++	  echo | cat - $^ ; \
+ 	  echo '};'; \
+ 	  echo 'unsigned int shipped_regdb_certs_len = sizeof(shipped_regdb_certs);'; \
+ 	 ) > $@
 -- 
 2.30.2
 
