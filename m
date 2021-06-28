@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6FB3B6299
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7156A3B629B
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233759AbhF1Oso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:48:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51700 "EHLO mail.kernel.org"
+        id S233928AbhF1Osr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:48:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235679AbhF1Opf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:45:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B0EF619F1;
+        id S235681AbhF1Opg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:45:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 008CC61C82;
         Mon, 28 Jun 2021 14:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890849;
-        bh=4M3zh0sKiz8pFuMYN+Mx8hu3+A89vo/Vw1drW2OPuds=;
+        s=k20201202; t=1624890851;
+        bh=TmCl2+E1DvidPUwxSNA7O2T7usiyexpvtOtyxmgIppw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ciTGu3EkqSHT8wPcVaSshlQx+Rgi/p5pJXV6heQ3qGqoLN61bn0KBwDifonTqfOep
-         uKmIcTSflTbkFjNK8X9Q22oZ283qVlaElszTtGh9vThyV44kiWx8HM+FuUlXKj8GUi
-         nyJUJ9OZqG2ng20zCYdB21JdTFJSftsuWfFKPiYH34YSJHLlHwj0gXdg33oBB6VHco
-         IfHg2MZH3uk8PpvIN/bJZZzvt5yhUYg91Zd4R8fr0B+qYdyNQikdbTmARXda7JcEr9
-         kFVp6rHZrZdIic6LVCMKnse96vtMLnOyxb4Jb24uOCUU+ZPsa3bcg3jZAzWkWtPfTB
-         ecEkNFfdlRHEQ==
+        b=lZs/F40602KzhgopLiajVTy9Xsdo34loDy2upeH/H5gE3blaQVMSNbjh1IPZza5od
+         Q7sOkYpJ+yRxerNAST6pnHxacV4Cbs/IqHRXeb+ADHkI8hCvaKTXhK6s+AISg/1Sou
+         qp7wtKsH1+N+v/QKqRDrCszLbiAp5+1EUqonfiEk+FpoeaHE4jjghFAFCKtjqEUlNp
+         C542VquH0c63J/4aHtDI5stuyuDYOgaK9ujWEyH5bD7qbCUBW1OiTw8tcMV4zqzOlR
+         QaL5PnIzQHcmJo1rzcK6IUgv2xNhNTENmYzJwSpe1/ig+aFPlCIoowdy2aSHq9Xsiu
+         EFc/Lsv6G5uEw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nikolay Aleksandrov <nikolay@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Kees Cook <keescook@chromium.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Marco Elver <elver@google.com>,
+        "Lin, Zhenpeng" <zplin@psu.edu>, Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Roman Gushchin <guro@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 072/109] net: bridge: fix vlan tunnel dst refcnt when egressing
-Date:   Mon, 28 Jun 2021 10:32:28 -0400
-Message-Id: <20210628143305.32978-73-sashal@kernel.org>
+Subject: [PATCH 4.19 073/109] mm/slub: clarify verification reporting
+Date:   Mon, 28 Jun 2021 10:32:29 -0400
+Message-Id: <20210628143305.32978-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -48,90 +56,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit cfc579f9d89af4ada58c69b03bcaa4887840f3b3 upstream.
+commit 8669dbab2ae56085c128894b181c2aa50f97e368 upstream.
 
-The egress tunnel code uses dst_clone() and directly sets the result
-which is wrong because the entry might have 0 refcnt or be already deleted,
-causing number of problems. It also triggers the WARN_ON() in dst_hold()[1]
-when a refcnt couldn't be taken. Fix it by using dst_hold_safe() and
-checking if a reference was actually taken before setting the dst.
+Patch series "Actually fix freelist pointer vs redzoning", v4.
 
-[1] dmesg WARN_ON log and following refcnt errors
- WARNING: CPU: 5 PID: 38 at include/net/dst.h:230 br_handle_egress_vlan_tunnel+0x10b/0x134 [bridge]
- Modules linked in: 8021q garp mrp bridge stp llc bonding ipv6 virtio_net
- CPU: 5 PID: 38 Comm: ksoftirqd/5 Kdump: loaded Tainted: G        W         5.13.0-rc3+ #360
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
- RIP: 0010:br_handle_egress_vlan_tunnel+0x10b/0x134 [bridge]
- Code: e8 85 bc 01 e1 45 84 f6 74 90 45 31 f6 85 db 48 c7 c7 a0 02 19 a0 41 0f 94 c6 31 c9 31 d2 44 89 f6 e8 64 bc 01 e1 85 db 75 02 <0f> 0b 31 c9 31 d2 44 89 f6 48 c7 c7 70 02 19 a0 e8 4b bc 01 e1 49
- RSP: 0018:ffff8881003d39e8 EFLAGS: 00010246
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffffffffa01902a0
- RBP: ffff8881040c6700 R08: 0000000000000000 R09: 0000000000000001
- R10: 2ce93d0054fe0d00 R11: 54fe0d00000e0000 R12: ffff888109515000
- R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000401
- FS:  0000000000000000(0000) GS:ffff88822bf40000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007f42ba70f030 CR3: 0000000109926000 CR4: 00000000000006e0
- Call Trace:
-  br_handle_vlan+0xbc/0xca [bridge]
-  __br_forward+0x23/0x164 [bridge]
-  deliver_clone+0x41/0x48 [bridge]
-  br_handle_frame_finish+0x36f/0x3aa [bridge]
-  ? skb_dst+0x2e/0x38 [bridge]
-  ? br_handle_ingress_vlan_tunnel+0x3e/0x1c8 [bridge]
-  ? br_handle_frame_finish+0x3aa/0x3aa [bridge]
-  br_handle_frame+0x2c3/0x377 [bridge]
-  ? __skb_pull+0x33/0x51
-  ? vlan_do_receive+0x4f/0x36a
-  ? br_handle_frame_finish+0x3aa/0x3aa [bridge]
-  __netif_receive_skb_core+0x539/0x7c6
-  ? __list_del_entry_valid+0x16e/0x1c2
-  __netif_receive_skb_list_core+0x6d/0xd6
-  netif_receive_skb_list_internal+0x1d9/0x1fa
-  gro_normal_list+0x22/0x3e
-  dev_gro_receive+0x55b/0x600
-  ? detach_buf_split+0x58/0x140
-  napi_gro_receive+0x94/0x12e
-  virtnet_poll+0x15d/0x315 [virtio_net]
-  __napi_poll+0x2c/0x1c9
-  net_rx_action+0xe6/0x1fb
-  __do_softirq+0x115/0x2d8
-  run_ksoftirqd+0x18/0x20
-  smpboot_thread_fn+0x183/0x19c
-  ? smpboot_unregister_percpu_thread+0x66/0x66
-  kthread+0x10a/0x10f
-  ? kthread_mod_delayed_work+0xb6/0xb6
-  ret_from_fork+0x22/0x30
- ---[ end trace 49f61b07f775fd2b ]---
- dst_release: dst:00000000c02d677a refcnt:-1
- dst_release underflow
+This fixes redzoning vs the freelist pointer (both for middle-position
+and very small caches).  Both are "theoretical" fixes, in that I see no
+evidence of such small-sized caches actually be used in the kernel, but
+that's no reason to let the bugs continue to exist, especially since
+people doing local development keep tripping over it.  :)
 
-Cc: stable@vger.kernel.org
-Fixes: 11538d039ac6 ("bridge: vlan dst_metadata hooks in ingress and egress paths")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch (of 3):
+
+Instead of repeating "Redzone" and "Poison", clarify which sides of
+those zones got tripped.  Additionally fix column alignment in the
+trailer.
+
+Before:
+
+  BUG test (Tainted: G    B            ): Redzone overwritten
+  ...
+  Redzone (____ptrval____): bb bb bb bb bb bb bb bb      ........
+  Object (____ptrval____): f6 f4 a5 40 1d e8            ...@..
+  Redzone (____ptrval____): 1a aa                        ..
+  Padding (____ptrval____): 00 00 00 00 00 00 00 00      ........
+
+After:
+
+  BUG test (Tainted: G    B            ): Right Redzone overwritten
+  ...
+  Redzone  (____ptrval____): bb bb bb bb bb bb bb bb      ........
+  Object   (____ptrval____): f6 f4 a5 40 1d e8            ...@..
+  Redzone  (____ptrval____): 1a aa                        ..
+  Padding  (____ptrval____): 00 00 00 00 00 00 00 00      ........
+
+The earlier commits that slowly resulted in the "Before" reporting were:
+
+  d86bd1bece6f ("mm/slub: support left redzone")
+  ffc79d288000 ("slub: use print_hex_dump")
+  2492268472e7 ("SLUB: change error reporting format to follow lockdep loosely")
+
+Link: https://lkml.kernel.org/r/20210608183955.280836-1-keescook@chromium.org
+Link: https://lkml.kernel.org/r/20210608183955.280836-2-keescook@chromium.org
+Link: https://lore.kernel.org/lkml/cfdb11d7-fb8e-e578-c939-f7f5fb69a6bd@suse.cz/
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Marco Elver <elver@google.com>
+Cc: "Lin, Zhenpeng" <zplin@psu.edu>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_vlan_tunnel.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/vm/slub.rst | 10 +++++-----
+ mm/slub.c                 | 14 +++++++-------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/net/bridge/br_vlan_tunnel.c b/net/bridge/br_vlan_tunnel.c
-index 4d5100677c68..adb6845ceba4 100644
---- a/net/bridge/br_vlan_tunnel.c
-+++ b/net/bridge/br_vlan_tunnel.c
-@@ -208,8 +208,8 @@ int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
- 		return err;
+diff --git a/Documentation/vm/slub.rst b/Documentation/vm/slub.rst
+index 3a775fd64e2d..3602959d5f92 100644
+--- a/Documentation/vm/slub.rst
++++ b/Documentation/vm/slub.rst
+@@ -154,7 +154,7 @@ SLUB Debug output
+ Here is a sample of slub debug output::
  
- 	tunnel_dst = rcu_dereference(vlan->tinfo.tunnel_dst);
--	if (tunnel_dst)
--		skb_dst_set(skb, dst_clone(&tunnel_dst->dst));
-+	if (tunnel_dst && dst_hold_safe(&tunnel_dst->dst))
-+		skb_dst_set(skb, &tunnel_dst->dst);
+  ====================================================================
+- BUG kmalloc-8: Redzone overwritten
++ BUG kmalloc-8: Right Redzone overwritten
+  --------------------------------------------------------------------
  
- 	return 0;
- }
+  INFO: 0xc90f6d28-0xc90f6d2b. First byte 0x00 instead of 0xcc
+@@ -162,10 +162,10 @@ Here is a sample of slub debug output::
+  INFO: Object 0xc90f6d20 @offset=3360 fp=0xc90f6d58
+  INFO: Allocated in get_modalias+0x61/0xf5 age=53 cpu=1 pid=554
+ 
+- Bytes b4 0xc90f6d10:  00 00 00 00 00 00 00 00 5a 5a 5a 5a 5a 5a 5a 5a ........ZZZZZZZZ
+-   Object 0xc90f6d20:  31 30 31 39 2e 30 30 35                         1019.005
+-  Redzone 0xc90f6d28:  00 cc cc cc                                     .
+-  Padding 0xc90f6d50:  5a 5a 5a 5a 5a 5a 5a 5a                         ZZZZZZZZ
++ Bytes b4 (0xc90f6d10): 00 00 00 00 00 00 00 00 5a 5a 5a 5a 5a 5a 5a 5a ........ZZZZZZZZ
++ Object   (0xc90f6d20): 31 30 31 39 2e 30 30 35                         1019.005
++ Redzone  (0xc90f6d28): 00 cc cc cc                                     .
++ Padding  (0xc90f6d50): 5a 5a 5a 5a 5a 5a 5a 5a                         ZZZZZZZZ
+ 
+    [<c010523d>] dump_trace+0x63/0x1eb
+    [<c01053df>] show_trace_log_lvl+0x1a/0x2f
+diff --git a/mm/slub.c b/mm/slub.c
+index da141e5974f2..11a2df00729e 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -672,15 +672,15 @@ static void print_trailer(struct kmem_cache *s, struct page *page, u8 *p)
+ 	       p, p - addr, get_freepointer(s, p));
+ 
+ 	if (s->flags & SLAB_RED_ZONE)
+-		print_section(KERN_ERR, "Redzone ", p - s->red_left_pad,
++		print_section(KERN_ERR, "Redzone  ", p - s->red_left_pad,
+ 			      s->red_left_pad);
+ 	else if (p > addr + 16)
+ 		print_section(KERN_ERR, "Bytes b4 ", p - 16, 16);
+ 
+-	print_section(KERN_ERR, "Object ", p,
++	print_section(KERN_ERR,         "Object   ", p,
+ 		      min_t(unsigned int, s->object_size, PAGE_SIZE));
+ 	if (s->flags & SLAB_RED_ZONE)
+-		print_section(KERN_ERR, "Redzone ", p + s->object_size,
++		print_section(KERN_ERR, "Redzone  ", p + s->object_size,
+ 			s->inuse - s->object_size);
+ 
+ 	if (s->offset)
+@@ -695,7 +695,7 @@ static void print_trailer(struct kmem_cache *s, struct page *page, u8 *p)
+ 
+ 	if (off != size_from_object(s))
+ 		/* Beginning of the filler is the free pointer */
+-		print_section(KERN_ERR, "Padding ", p + off,
++		print_section(KERN_ERR, "Padding  ", p + off,
+ 			      size_from_object(s) - off);
+ 
+ 	dump_stack();
+@@ -873,11 +873,11 @@ static int check_object(struct kmem_cache *s, struct page *page,
+ 	u8 *endobject = object + s->object_size;
+ 
+ 	if (s->flags & SLAB_RED_ZONE) {
+-		if (!check_bytes_and_report(s, page, object, "Redzone",
++		if (!check_bytes_and_report(s, page, object, "Left Redzone",
+ 			object - s->red_left_pad, val, s->red_left_pad))
+ 			return 0;
+ 
+-		if (!check_bytes_and_report(s, page, object, "Redzone",
++		if (!check_bytes_and_report(s, page, object, "Right Redzone",
+ 			endobject, val, s->inuse - s->object_size))
+ 			return 0;
+ 	} else {
+@@ -892,7 +892,7 @@ static int check_object(struct kmem_cache *s, struct page *page,
+ 		if (val != SLUB_RED_ACTIVE && (s->flags & __OBJECT_POISON) &&
+ 			(!check_bytes_and_report(s, page, p, "Poison", p,
+ 					POISON_FREE, s->object_size - 1) ||
+-			 !check_bytes_and_report(s, page, p, "Poison",
++			 !check_bytes_and_report(s, page, p, "End Poison",
+ 				p + s->object_size - 1, POISON_END, 1)))
+ 			return 0;
+ 		/*
 -- 
 2.30.2
 
