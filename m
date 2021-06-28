@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0453B5E01
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 14:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7062D3B5E03
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 14:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232802AbhF1Mej (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 08:34:39 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:49809 "EHLO
+        id S232546AbhF1Mep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 08:34:45 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:44445 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232546AbhF1Mei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Jun 2021 08:34:38 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 0DDAD1AC0432;
-        Mon, 28 Jun 2021 08:32:11 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S232965AbhF1Meo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Jun 2021 08:34:44 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.west.internal (Postfix) with ESMTP id 67D671AC07C8;
+        Mon, 28 Jun 2021 08:32:18 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Jun 2021 08:32:12 -0400
+  by compute5.internal (MEProxy); Mon, 28 Jun 2021 08:32:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=7RMUEw
-        PhH8eF0imAcv000ImFcnF/IqjHWrcqIp6ArOc=; b=Kw+8OuSPZEDYngNtZIGQ5t
-        j3mCJjRdVMLvivbllfvgarxGQNj8KrlZgwjL2Hx24i1eGxx5A4L7qJ+wQQjCSQvI
-        Nl6K0TvztDb7gC3P9F5c3proo+IrKWLaHcOKMzH+ictCNuvKw6SabHP0ruw6V2kl
-        +8U/Kkuq/ZSJgoK13eogAoPOVdf3bqrR9Jft7wmzXiLPx9d4fC1mUOZjLcydU18A
-        ziZB7sQqmbBqIFU3RQv0f1hrvZWs5taAGckjDfCvCjeCEfvTswLOtlL8nABA6r16
-        KFZttS4ylSLDmJcJbXejkpYDt18PXDGLvW4NZ2POf0oTvmpEec6sEG/BJrggNTnQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=qQwEOI
+        0q3KcKJTlxDCPI4Lnr4NyQQRzvxeTBQaPcMtM=; b=uYD6VaNXFMi61BZZFg2HzW
+        TNhhbFGQpPV/PHVQgigJbjUleMx3Alt0B5w9FacPhro0hk/6IKZmFm9B7wwiXM5D
+        ymMgO2AYn+dwoErXgZYWYW/ikJuCAVVGDwFQ4sZIoe0K+5urY+mcAjZ36iGotC+u
+        9OYR8BR++uYQyEVNzyUMr7Owu4SsSmXqtVpYtq8j+LIUD0RsRoQCsuevJPVnzfRk
+        Jj/jHsDf8F5HrG0YYOsLpS+MDeMDEFY40YddurWQwpDPYPlDGUCY5Q3fI3kfm5l9
+        RgK4cH3UXwW1UZFv7N4fsnYxeYl8rjkuIkYPyXd12/L3tjjzmctXl6hCMMKMogMQ
         ==
-X-ME-Sender: <xms:S8HZYB5a8F5Qbq1KBstHSuFmPIgxKGCBakVZfFkSUAAvA-9GT7IhEw>
-    <xme:S8HZYO5u67xa3XYCho8qdDESYVnj1sGNRQjtXJhFiuS0lSQYzSCnX8U2_y3VVRMn6
-    E35gtM1DhbBSg>
-X-ME-Received: <xmr:S8HZYIdnsJQ0fD3INkA5Vh0hZcIBXzNPYT1A8pQoRhgVzcHf7cCOEEMFHvUudqlCFo-4jGz2BzD44NQmnFF2r4dV3i_FKUSi>
+X-ME-Sender: <xms:UcHZYCUUZv6ybh4MP-r0oZlvFlV7rSqNo-cw3qEg5R-gTjAbNwGv-w>
+    <xme:UcHZYOntofeHH3c3Ob1ZghjC_kCpRMuDG6MLphvAIKRiTtF6a9anZW1v-QUnjjhNi
+    P2kL3iFLiXfKw>
+X-ME-Received: <xmr:UcHZYGb63UN7M9nuYI5uPdgs5Yd-fsqMQIIxZAvP1CEUfoW2W3BASRNZF8R0HABaHx1LQJ_w5EoHt9dRjKjqHFYUqksCVfAI>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeehgedghedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -39,21 +39,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeehgedghedvucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:S8HZYKLKdpMTLBPIgy_5lBAqkXrhoKQWfJolYriGt2HJlD24KHZ_Fg>
-    <xmx:S8HZYFKXPQlNzW6jqSSTL_ohHZ1WNZtkq1-L9cG4ZppPWz802AiZgQ>
-    <xmx:S8HZYDy2q2GqHQrcz5e1WGwYziu1J0K1VENSiW3oH9ptZmZY2eN3RA>
-    <xmx:S8HZYKqQ5kQ-EjB75vm1Zn7ak7J-uiiUsqCMzK4OcZWPUbN_5QyxL2wLzzg>
+X-ME-Proxy: <xmx:UcHZYJWtZuMf3gMx3U4KXPUhrxrul4f_Oa6e_DustlNtLD6y1WPDnw>
+    <xmx:UcHZYMmKS4rYWQdnsmCFdVbU8Lg3zCkOUp-YCY89zEju5clDHjpDCA>
+    <xmx:UcHZYOdJDYFZvGAx93JjFMbDn6WSXIA_TvkBS__lG4EnNI6vj9QzLw>
+    <xmx:UsHZYGXE9kN7Idtqg3Pb1navzl-TCJ46Nb2mxPmjV3r8qjy9vbPKEaUQGtU>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 28 Jun 2021 08:32:10 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/hwpoison: do not lock page again when me_huge_page()" failed to apply to 4.9-stable tree
+ 28 Jun 2021 08:32:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/hwpoison: do not lock page again when me_huge_page()" failed to apply to 4.14-stable tree
 To:     naoya.horiguchi@nec.com, akpm@linux-foundation.org,
         aneesh.kumar@linux.vnet.ibm.com, mhocko@suse.com,
         osalvador@suse.de, stable@vger.kernel.org, tony.luck@intel.com,
         torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Jun 2021 14:32:05 +0200
-Message-ID: <16248835251337@kroah.com>
+Date:   Mon, 28 Jun 2021 14:32:06 +0200
+Message-ID: <16248835269612@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
