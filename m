@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 425783B63F0
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D0543B63F2
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236738AbhF1PC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:02:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36482 "EHLO mail.kernel.org"
+        id S236746AbhF1PCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:02:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236581AbhF1PAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 11:00:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE69761D6C;
-        Mon, 28 Jun 2021 14:40:51 +0000 (UTC)
+        id S235081AbhF1PAU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 11:00:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3D7561D68;
+        Mon, 28 Jun 2021 14:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891252;
-        bh=21gV05pCDisHvB5GmvFfLTpUbqjlPegoJs+6fmYqmOk=;
+        s=k20201202; t=1624891253;
+        bh=EJZLGpjTtRR6ym3kna16a+tjc2iTkuIEZ1NUSj3UT6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPu4+9xMjzPkEE14GckdlI3pY5z2z+F5A7qfaNKPpBynvBPvFko5GczM9XnR3eH50
-         3TY3gz47SJOqaVSGvVDftvppDcZBCq1hXVEtnDr/sLr+9/cTnDIWfmB+LIk2Nmyu5C
-         VodCnSRYrk1bMUClXHwhWf8bEVIfONC0xYt/BmTYNYc93+Ed5ChGYVS3RKYrWUyEST
-         qEVrQKodAUU7DQszLsvqGV1iXB1rOEO9lR0sJYC6IZRwi8qwj8cefQY9r/6MlvjHS+
-         OGEqhIfvxuS1HFN/Ls1/Z4qqrSZyYh9PR5l+O+7D+aiJ1hK8c36w6IwlevtqBAHzAu
-         NKqt/56P74uRA==
+        b=KS5IyTOaIzFwbtKP2y/7mgx9p8TEiILiF4yYersT+j2p4GxH+KgkG3Z/qRL3cvc6S
+         EajAbymAYKeLpiJpO8IHGYmrangDD3ynC4KB/aw/UK/sQpnCt9GqWAsLgLaBPzlw+V
+         6N/4xqiiVOjz7lcArgJH51noEJdREbzE1nP6JcUJoTAauIOYGxo6Kvtz/ZDdoWM/f2
+         sHia8/Ti0K0iWDfEJ7wSxfJ8qwHryRCPICYE0sARSXQfWn/MSl27tsqJQfqDw0ogMI
+         qYd5GPeh/1uWB/9OeFF+36G8NrPlyifHWm44rtRRPy3vgXyUqS4aGiO6B8mNvtJXlj
+         c9K6w9x3Q+BAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Aman Priyadarshi <apeureka@amazon.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 54/71] arm64: perf: Disable PMU while processing counter overflows
-Date:   Mon, 28 Jun 2021 10:39:46 -0400
-Message-Id: <20210628144003.34260-55-sashal@kernel.org>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Michael <phyre@rogers.com>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 55/71] Revert "PCI: PM: Do not read power state in pci_enable_device_flags()"
+Date:   Mon, 28 Jun 2021 10:39:47 -0400
+Message-Id: <20210628144003.34260-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
@@ -50,114 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-commit 3cce50dfec4a5b0414c974190940f47dd32c6dee upstream.
+[ Upstream commit 4d6035f9bf4ea12776322746a216e856dfe46698 ]
 
-The arm64 PMU updates the event counters and reprograms the
-counters in the overflow IRQ handler without disabling the
-PMU. This could potentially cause skews in for group counters,
-where the overflowed counters may potentially loose some event
-counts, while they are reprogrammed. To prevent this, disable
-the PMU while we process the counter overflows and enable it
-right back when we are done.
+Revert commit 4514d991d992 ("PCI: PM: Do not read power state in
+pci_enable_device_flags()") that is reported to cause PCI device
+initialization issues on some systems.
 
-This patch also moves the PMU stop/start routines to avoid a
-forward declaration.
-
-Suggested-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Aman Priyadarshi <apeureka@amazon.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213481
+Link: https://lore.kernel.org/linux-acpi/YNDoGICcg0V8HhpQ@eldamar.lan
+Reported-by: Michael <phyre@rogers.com>
+Reported-by: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: 4514d991d992 ("PCI: PM: Do not read power state in pci_enable_device_flags()")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/perf_event.c | 50 +++++++++++++++++++---------------
- 1 file changed, 28 insertions(+), 22 deletions(-)
+ drivers/pci/pci.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/perf_event.c b/arch/arm64/kernel/perf_event.c
-index 0770d6d1c37f..7f95d6ac2011 100644
---- a/arch/arm64/kernel/perf_event.c
-+++ b/arch/arm64/kernel/perf_event.c
-@@ -748,6 +748,28 @@ static void armv8pmu_disable_event(struct perf_event *event)
- 	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
- }
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index acd89fa9820c..e09653c73ab4 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1378,11 +1378,21 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
+ 	int err;
+ 	int i, bars = 0;
  
-+static void armv8pmu_start(struct arm_pmu *cpu_pmu)
-+{
-+	unsigned long flags;
-+	struct pmu_hw_events *events = this_cpu_ptr(cpu_pmu->hw_events);
-+
-+	raw_spin_lock_irqsave(&events->pmu_lock, flags);
-+	/* Enable all counters */
-+	armv8pmu_pmcr_write(armv8pmu_pmcr_read() | ARMV8_PMU_PMCR_E);
-+	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
-+}
-+
-+static void armv8pmu_stop(struct arm_pmu *cpu_pmu)
-+{
-+	unsigned long flags;
-+	struct pmu_hw_events *events = this_cpu_ptr(cpu_pmu->hw_events);
-+
-+	raw_spin_lock_irqsave(&events->pmu_lock, flags);
-+	/* Disable all counters */
-+	armv8pmu_pmcr_write(armv8pmu_pmcr_read() & ~ARMV8_PMU_PMCR_E);
-+	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
-+}
-+
- static irqreturn_t armv8pmu_handle_irq(int irq_num, void *dev)
- {
- 	u32 pmovsr;
-@@ -773,6 +795,11 @@ static irqreturn_t armv8pmu_handle_irq(int irq_num, void *dev)
- 	 */
- 	regs = get_irq_regs();
- 
+-	if (atomic_inc_return(&dev->enable_cnt) > 1) {
+-		pci_update_current_state(dev, dev->current_state);
+-		return 0;		/* already enabled */
 +	/*
-+	 * Stop the PMU while processing the counter overflows
-+	 * to prevent skews in group events.
++	 * Power state could be unknown at this point, either due to a fresh
++	 * boot or a device removal call.  So get the current power state
++	 * so that things like MSI message writing will behave as expected
++	 * (e.g. if the device really is in D0 at enable time).
 +	 */
-+	armv8pmu_stop(cpu_pmu);
- 	for (idx = 0; idx < cpu_pmu->num_events; ++idx) {
- 		struct perf_event *event = cpuc->events[idx];
- 		struct hw_perf_event *hwc;
-@@ -797,6 +824,7 @@ static irqreturn_t armv8pmu_handle_irq(int irq_num, void *dev)
- 		if (perf_event_overflow(event, &data, regs))
- 			cpu_pmu->disable(event);
++	if (dev->pm_cap) {
++		u16 pmcsr;
++		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
++		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
  	}
-+	armv8pmu_start(cpu_pmu);
  
- 	/*
- 	 * Handle the pending perf events.
-@@ -810,28 +838,6 @@ static irqreturn_t armv8pmu_handle_irq(int irq_num, void *dev)
- 	return IRQ_HANDLED;
- }
- 
--static void armv8pmu_start(struct arm_pmu *cpu_pmu)
--{
--	unsigned long flags;
--	struct pmu_hw_events *events = this_cpu_ptr(cpu_pmu->hw_events);
--
--	raw_spin_lock_irqsave(&events->pmu_lock, flags);
--	/* Enable all counters */
--	armv8pmu_pmcr_write(armv8pmu_pmcr_read() | ARMV8_PMU_PMCR_E);
--	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
--}
--
--static void armv8pmu_stop(struct arm_pmu *cpu_pmu)
--{
--	unsigned long flags;
--	struct pmu_hw_events *events = this_cpu_ptr(cpu_pmu->hw_events);
--
--	raw_spin_lock_irqsave(&events->pmu_lock, flags);
--	/* Disable all counters */
--	armv8pmu_pmcr_write(armv8pmu_pmcr_read() & ~ARMV8_PMU_PMCR_E);
--	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
--}
--
- static int armv8pmu_get_event_idx(struct pmu_hw_events *cpuc,
- 				  struct perf_event *event)
- {
++	if (atomic_inc_return(&dev->enable_cnt) > 1)
++		return 0;		/* already enabled */
++
+ 	bridge = pci_upstream_bridge(dev);
+ 	if (bridge)
+ 		pci_enable_bridge(bridge);
 -- 
 2.30.2
 
