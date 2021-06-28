@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E6823B6084
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 024303B6086
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233817AbhF1OZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:25:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54380 "EHLO mail.kernel.org"
+        id S233481AbhF1OZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:25:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233317AbhF1OX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:23:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81FDB61990;
-        Mon, 28 Jun 2021 14:20:23 +0000 (UTC)
+        id S233084AbhF1OYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:24:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82E7961C7C;
+        Mon, 28 Jun 2021 14:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624890024;
-        bh=vkswk7UbOZ3+JsU+pqXCR6lirRP7QuJ+DcBMYyBrDnE=;
+        bh=Qcx2exETMwbWlcfQpu+JtH3K3hkT6PG7gh86QlRK8YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SHkl/p/GmBY2PyfYfhPluG2g01VTQzg0L4UPjI3DV/NQi958aCe2iokt1QbxCGZj+
-         /cWrkOC3a4O1qIud8hZK4h7t6T+RWwUhhBoX1ztRW2p6Zmi76t+y0WHybt621hAd/y
-         gW9MEyyXOLg37eGWE2xaM6b8j1XJWGRu6FEg0qe8SSKntGs5Zc+bkWMSbH67sKLP9e
-         B1AlIjekR+yQlUrmvsFsPl+LA9xWC16jU+13JssM9nOyfCOkObUoA0hvO4cbentbpf
-         w/FJaOEtL4u7S8Wc1guOXb4IqhB+E6dhGZJekBx4M3h/1CQ7yq8P9zjq3RPtVBXGls
-         sBr/mPok4Lr8Q==
+        b=UVqMWKAOYkA/ZT506ryb44tfKp2lbwMCdhKu4/vjUhphK7BIp5PpCfruE1e7PL+Py
+         xGn3QJ9lUTB2G5Osz8DE6PITSvfv4FI5A8tYMbk+vDmoAItQjcteKo0d6HeCFZoJgY
+         qVsT3NMFfue84HPnVqwZRfPNLfwJCh8PevpdFMERi5niA80TR+27jF6DqpAfc6mAJy
+         p4I51t2s6FDnB+qmhhl1g2XHguPTxo9uLxV3feO+kXz/42JkFZbiG+bBsNvSGoeTyR
+         29r3X8Ly0YeNcmqBiMzqAY1lA/ZV8DKPt0ezzJ5ZFybdz9jcsp7aqW3DD1z2A+vybq
+         tf2lgNV4F0f0w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Snowberg <eric.snowberg@oracle.com>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>, keyrings@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 109/110] integrity: Load mokx variables into the blacklist keyring
-Date:   Mon, 28 Jun 2021 10:18:27 -0400
-Message-Id: <20210628141828.31757-110-sashal@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 110/110] Linux 5.12.14-rc1
+Date:   Mon, 28 Jun 2021 10:18:28 -0400
+Message-Id: <20210628141828.31757-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -50,71 +46,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Snowberg <eric.snowberg@oracle.com>
-
-[ Upstream commit ebd9c2ae369a45bdd9f8615484db09be58fc242b ]
-
-During boot the Secure Boot Forbidden Signature Database, dbx,
-is loaded into the blacklist keyring.  Systems booted with shim
-have an equivalent Forbidden Signature Database called mokx.
-Currently mokx is only used by shim and grub, the contents are
-ignored by the kernel.
-
-Add the ability to load mokx into the blacklist keyring during boot.
-
-Signed-off-by: Eric Snowberg <eric.snowberg@oracle.com>
-Suggested-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-cc: keyrings@vger.kernel.org
-Link: https://lore.kernel.org/r/c33c8e3839a41e9654f41cc92c7231104931b1d7.camel@HansenPartnership.com/
-Link: https://lore.kernel.org/r/20210122181054.32635-5-eric.snowberg@oracle.com/ # v5
-Link: https://lore.kernel.org/r/161428674320.677100.12637282414018170743.stgit@warthog.procyon.org.uk/
-Link: https://lore.kernel.org/r/161433313205.902181.2502803393898221637.stgit@warthog.procyon.org.uk/ # v2
-Link: https://lore.kernel.org/r/161529607422.163428.13530426573612578854.stgit@warthog.procyon.org.uk/ # v3
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/platform_certs/load_uefi.c | 20 +++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/integrity/platform_certs/load_uefi.c b/security/integrity/platform_certs/load_uefi.c
-index ee4b4c666854..f290f78c3f30 100644
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -132,8 +132,9 @@ static int __init load_moklist_certs(void)
- static int __init load_uefi_certs(void)
- {
- 	efi_guid_t secure_var = EFI_IMAGE_SECURITY_DATABASE_GUID;
--	void *db = NULL, *dbx = NULL;
--	unsigned long dbsize = 0, dbxsize = 0;
-+	efi_guid_t mok_var = EFI_SHIM_LOCK_GUID;
-+	void *db = NULL, *dbx = NULL, *mokx = NULL;
-+	unsigned long dbsize = 0, dbxsize = 0, mokxsize = 0;
- 	efi_status_t status;
- 	int rc = 0;
+diff --git a/Makefile b/Makefile
+index d2fe36db78ae..a4b63b0f262b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,8 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 12
+-SUBLEVEL = 13
+-EXTRAVERSION =
++SUBLEVEL = 14
++EXTRAVERSION = -rc1
+ NAME = Frozen Wasteland
  
-@@ -175,6 +176,21 @@ static int __init load_uefi_certs(void)
- 		kfree(dbx);
- 	}
- 
-+	mokx = get_cert_list(L"MokListXRT", &mok_var, &mokxsize, &status);
-+	if (!mokx) {
-+		if (status == EFI_NOT_FOUND)
-+			pr_debug("mokx variable wasn't found\n");
-+		else
-+			pr_info("Couldn't get mokx list\n");
-+	} else {
-+		rc = parse_efi_signature_list("UEFI:MokListXRT",
-+					      mokx, mokxsize,
-+					      get_handler_for_dbx);
-+		if (rc)
-+			pr_err("Couldn't parse mokx signatures %d\n", rc);
-+		kfree(mokx);
-+	}
-+
- 	/* Load the MokListRT certs */
- 	rc = load_moklist_certs();
- 
+ # *DOCUMENTATION*
 -- 
 2.30.2
 
