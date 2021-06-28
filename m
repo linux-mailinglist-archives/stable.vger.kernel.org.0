@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 869A53B6189
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:34:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5E43B618A
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234833AbhF1OgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:36:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
+        id S235428AbhF1OgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:36:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235007AbhF1Oek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:34:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E43361C84;
-        Mon, 28 Jun 2021 14:30:14 +0000 (UTC)
+        id S235009AbhF1Oel (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:34:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 921FF619F1;
+        Mon, 28 Jun 2021 14:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890615;
-        bh=SbtBNEAPeD/UKetEODgR02icvIt73lWymM9zAAuBFjE=;
+        s=k20201202; t=1624890616;
+        bh=r0SCym8zPSxMF17XB1U5ze7Re9IwZfcVo4Fz9FevoME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyOoYxG8tOhX/eNrofBcAa9kjps6u0vUFozR/cVR+v4PKXmGftUJO1W5542RRF6py
-         hD/7+RAY/rF+BppL3wBNBXK1DHRgoZoueHx1a4IaSiD97wvUwUgwBZBB6lAwWAWY/i
-         GMJOZHcRDYjZt0osugWZB7dpfsj5FVWX8NKr74Y++ZaAXCYXzE/7ohVGLcNUdv4Cz1
-         Z8JMrLZ1LiNCfQOXAndF7nMaZX18aezETwc1B2NTM8G/3NsO6ncSx64lP8AbJYDiEK
-         n+eWVH/qu19s3P/mlP96lOMXOeyP/YR9b8FyowCpJP16qprcIyrXa1aScdtzSABKbA
-         Ku5o5m35KAusw==
+        b=XptA8p86FDZCCLUmO17T6SnJNMNRvHCkB6zeswKlhJLdKZDMt6F02PXi0HcssfoMO
+         hulcZCtKPuDFW3s9jWMS0UCisKvgHHnocEXbrS0P5WEA9fxdEmsAm7nSJCD1cg5fwe
+         UbpUwgBaT0l5CV/at4u0k7nY+NzWg7Myr6eXp0OItAw+2kSEqsbAKZCSRExm20i1GE
+         0FxANT4RlJnpIXUJL/wjUq1Bb2+8G2fxaF22pUsSG9acfUHlycFu1FWCTQkCDl3sT+
+         AHJjdydrtRAVKbD8hAJe5s6Mu8A6zuXAYbJZM7+9U00+Tp/HOYVwYP/55t9MgTbV3H
+         Ka4vHXpbH3/EA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Quentin Perret <qperret@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Alan Modra <amodra@gmail.com>,
-        =?UTF-8?q?F=C4=81ng-ru=C3=AC=20S=C3=B2ng?= <maskray@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Simon Glass <sjg@chromium.org>, Tom Rini <trini@konsulko.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 09/71] arm64: link with -z norelro for LLD or aarch64-elf
-Date:   Mon, 28 Jun 2021 10:29:02 -0400
-Message-Id: <20210628143004.32596-10-sashal@kernel.org>
+Subject: [PATCH 5.4 10/71] MIPS: generic: Update node names to avoid unit addresses
+Date:   Mon, 28 Jun 2021 10:29:03 -0400
+Message-Id: <20210628143004.32596-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.129-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.4.y
@@ -55,85 +49,228 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 311bea3cb9ee20ef150ca76fc60a592bf6b159f5 upstream.
+commit e607ff630c6053ecc67502677c0e50053d7892d4 upstream.
 
-With GNU binutils 2.35+, linking with BFD produces warnings for vmlinux:
-aarch64-linux-gnu-ld: warning: -z norelro ignored
+With the latest mkimage from U-Boot 2021.04, the generic defconfigs no
+longer build, failing with:
 
-BFD can produce this warning when the target emulation mode does not
-support RELRO program headers, and -z relro or -z norelro is passed.
+/usr/bin/mkimage: verify_header failed for FIT Image support with exit code 1
 
-Alan Modra clarifies:
-  The default linker emulation for an aarch64-linux ld.bfd is
-  -maarch64linux, the default for an aarch64-elf linker is
-  -maarch64elf.  They are not equivalent.  If you choose -maarch64elf
-  you get an emulation that doesn't support -z relro.
+This is expected after the linked U-Boot commits because '@' is
+forbidden in the node names due to the way that libfdt treats nodes with
+the same prefix but different unit addresses.
 
-The ARCH=arm64 kernel prefers -maarch64elf, but may fall back to
--maarch64linux based on the toolchain configuration.
+Switch the '@' in the node name to '-'. Drop the unit addresses from the
+hash and kernel child nodes because there is only one node so they do
+not need to have a number to differentiate them.
 
-LLD will always create RELRO program header regardless of target
-emulation.
-
-To avoid the above warning when linking with BFD, pass -z norelro only
-when linking with LLD or with -maarch64linux.
-
-Fixes: 3b92fa7485eb ("arm64: link with -z norelro regardless of CONFIG_RELOCATABLE")
-Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
-Cc: <stable@vger.kernel.org> # 5.0.x-
-Reported-by: kernelci.org bot <bot@kernelci.org>
-Reported-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Alan Modra <amodra@gmail.com>
-Cc: Fāng-ruì Sòng <maskray@google.com>
-Link: https://lore.kernel.org/r/20201218002432.788499-1-ndesaulniers@google.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: stable@vger.kernel.org
+Link: https://source.denx.de/u-boot/u-boot/-/commit/79af75f7776fc20b0d7eb6afe1e27c00fdb4b9b4
+Link: https://source.denx.de/u-boot/u-boot/-/commit/3f04db891a353f4b127ed57279279f851c6b4917
+Suggested-by: Simon Glass <sjg@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+[nathan: Backport to 5.4, only apply to .its.S files that exist]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/Makefile | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/mips/generic/board-boston.its.S   | 10 +++++-----
+ arch/mips/generic/board-ni169445.its.S | 10 +++++-----
+ arch/mips/generic/board-ocelot.its.S   | 20 ++++++++++----------
+ arch/mips/generic/board-xilfpga.its.S  | 10 +++++-----
+ arch/mips/generic/vmlinux.its.S        | 10 +++++-----
+ 5 files changed, 30 insertions(+), 30 deletions(-)
 
-diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-index cd8f3cdabfd0..d227cf87c48f 100644
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -10,7 +10,7 @@
- #
- # Copyright (C) 1995-2001 by Russell King
+diff --git a/arch/mips/generic/board-boston.its.S b/arch/mips/generic/board-boston.its.S
+index a7f51f97b910..c45ad2759421 100644
+--- a/arch/mips/generic/board-boston.its.S
++++ b/arch/mips/generic/board-boston.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@boston {
++		fdt-boston {
+ 			description = "img,boston Device Tree";
+ 			data = /incbin/("boot/dts/img/boston.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
--LDFLAGS_vmlinux	:=--no-undefined -X -z norelro
-+LDFLAGS_vmlinux	:=--no-undefined -X
- CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)
- GZFLAGS		:=-9
+ 	configurations {
+-		conf@boston {
++		conf-boston {
+ 			description = "Boston Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@boston";
++			kernel = "kernel";
++			fdt = "fdt-boston";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/board-ni169445.its.S b/arch/mips/generic/board-ni169445.its.S
+index e4cb4f95a8cc..0a2e8f7a8526 100644
+--- a/arch/mips/generic/board-ni169445.its.S
++++ b/arch/mips/generic/board-ni169445.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@ni169445 {
++		fdt-ni169445 {
+ 			description = "NI 169445 device tree";
+ 			data = /incbin/("boot/dts/ni/169445.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
-@@ -82,17 +82,21 @@ CHECKFLAGS	+= -D__AARCH64EB__
- AS		+= -EB
- # Prefer the baremetal ELF build target, but not all toolchains include
- # it so fall back to the standard linux version if needed.
--KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb)
-+KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb -z norelro)
- UTS_MACHINE	:= aarch64_be
- else
- KBUILD_CPPFLAGS	+= -mlittle-endian
- CHECKFLAGS	+= -D__AARCH64EL__
- AS		+= -EL
- # Same as above, prefer ELF but fall back to linux target if needed.
--KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux)
-+KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux -z norelro)
- UTS_MACHINE	:= aarch64
- endif
+ 	configurations {
+-		conf@ni169445 {
++		conf-ni169445 {
+ 			description = "NI 169445 Linux Kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@ni169445";
++			kernel = "kernel";
++			fdt = "fdt-ni169445";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/board-ocelot.its.S b/arch/mips/generic/board-ocelot.its.S
+index 3da23988149a..8c7e3a1b68d3 100644
+--- a/arch/mips/generic/board-ocelot.its.S
++++ b/arch/mips/generic/board-ocelot.its.S
+@@ -1,40 +1,40 @@
+ /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
+ / {
+ 	images {
+-		fdt@ocelot_pcb123 {
++		fdt-ocelot_pcb123 {
+ 			description = "MSCC Ocelot PCB123 Device Tree";
+ 			data = /incbin/("boot/dts/mscc/ocelot_pcb123.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
  
-+ifeq ($(CONFIG_LD_IS_LLD), y)
-+KBUILD_LDFLAGS	+= -z norelro
-+endif
-+
- CHECKFLAGS	+= -D__aarch64__
+-		fdt@ocelot_pcb120 {
++		fdt-ocelot_pcb120 {
+ 			description = "MSCC Ocelot PCB120 Device Tree";
+ 			data = /incbin/("boot/dts/mscc/ocelot_pcb120.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
- ifeq ($(CONFIG_ARM64_MODULE_PLTS),y)
+ 	configurations {
+-		conf@ocelot_pcb123 {
++		conf-ocelot_pcb123 {
+ 			description = "Ocelot Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@ocelot_pcb123";
++			kernel = "kernel";
++			fdt = "fdt-ocelot_pcb123";
+ 		};
+ 
+-		conf@ocelot_pcb120 {
++		conf-ocelot_pcb120 {
+ 			description = "Ocelot Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@ocelot_pcb120";
++			kernel = "kernel";
++			fdt = "fdt-ocelot_pcb120";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/board-xilfpga.its.S b/arch/mips/generic/board-xilfpga.its.S
+index a2e773d3f14f..08c1e900eb4e 100644
+--- a/arch/mips/generic/board-xilfpga.its.S
++++ b/arch/mips/generic/board-xilfpga.its.S
+@@ -1,22 +1,22 @@
+ / {
+ 	images {
+-		fdt@xilfpga {
++		fdt-xilfpga {
+ 			description = "MIPSfpga (xilfpga) Device Tree";
+ 			data = /incbin/("boot/dts/xilfpga/nexys4ddr.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
+ 
+ 	configurations {
+-		conf@xilfpga {
++		conf-xilfpga {
+ 			description = "MIPSfpga Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@xilfpga";
++			kernel = "kernel";
++			fdt = "fdt-xilfpga";
+ 		};
+ 	};
+ };
+diff --git a/arch/mips/generic/vmlinux.its.S b/arch/mips/generic/vmlinux.its.S
+index 1a08438fd893..3e254676540f 100644
+--- a/arch/mips/generic/vmlinux.its.S
++++ b/arch/mips/generic/vmlinux.its.S
+@@ -6,7 +6,7 @@
+ 	#address-cells = <ADDR_CELLS>;
+ 
+ 	images {
+-		kernel@0 {
++		kernel {
+ 			description = KERNEL_NAME;
+ 			data = /incbin/(VMLINUX_BINARY);
+ 			type = "kernel";
+@@ -15,18 +15,18 @@
+ 			compression = VMLINUX_COMPRESSION;
+ 			load = /bits/ ADDR_BITS <VMLINUX_LOAD_ADDRESS>;
+ 			entry = /bits/ ADDR_BITS <VMLINUX_ENTRY_ADDRESS>;
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
+ 
+ 	configurations {
+-		default = "conf@default";
++		default = "conf-default";
+ 
+-		conf@default {
++		conf-default {
+ 			description = "Generic Linux kernel";
+-			kernel = "kernel@0";
++			kernel = "kernel";
+ 		};
+ 	};
+ };
 -- 
 2.30.2
 
