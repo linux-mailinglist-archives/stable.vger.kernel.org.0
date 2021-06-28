@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A7D3B637D
+	by mail.lfdr.de (Postfix) with ESMTP id E5CA53B637E
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234320AbhF1O5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:57:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34084 "EHLO mail.kernel.org"
+        id S234366AbhF1O50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236179AbhF1Oyz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236180AbhF1Oyz (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:54:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52FCE61D46;
-        Mon, 28 Jun 2021 14:37:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1832461D47;
+        Mon, 28 Jun 2021 14:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891054;
-        bh=0k/dbRhB3OSnM4i6+Q1qXH5roZi+Qm4SlE6OQ0FRZN0=;
+        s=k20201202; t=1624891055;
+        bh=eOJ+z46edWv7Od02fT3unztNXL6gqp4rt8uRSlVmuRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JtX0i8eZ5TqwNhZWu6A66f7h6NBQkkDlhusWU2Obtv+a1BmTmxUqzUi7/KR6dkeZj
-         W1wEtnqVbSnfnErSwxwUWHyuDgwFU7gMjpazY+BqlFEwP4gebcd2ywIn6fb2DvjdVZ
-         pVfS8fp8Ht20CBEE21nB9FK6z9PUnYxVwaxDuKeQJ6PV/P9m2kAirqOtUxvkkHN/fa
-         xAinQxMZSVvIK+PGNc77B73KkxC1MqrKygLvtX2B+ZO+i4KQLFozPZaB9paK6YnksW
-         EGy46f6MARMP2ZXBnzMJLZRwAwlzpA7ac6MLy1VPbQ26dD+tuUaOazvjrAeaJ0fPIu
-         Hy4VBg5u18+9g==
+        b=sfrAr2k+IbP7B2UH+2RqmaoQMYmAMwtrns1yFRE/tKYlq8NXjzBuwJwp8Fd3mw1lW
+         2uKS0i/OVXCdhM630Q2XGIoq8fflxjf+GprjsWIlGgK3sjEWByqqGxTC5lb42V7n70
+         PRFBiJvtwBxVPgihBor/6HNQfIgqKaGbBfaiwFj3/C8g7drLhNLIztDmEtAz/mZUvs
+         3fusZuN1MVxUWSYgk4MEAU7e4ebTfPn+FleSXpJ0EC7odxyM4CzxQyKOjxE/wB4G42
+         Teez7EDwaMoOqo9Wmj5ZgrF5eQPG6+BG9I2wvmF4pMhrjFiiYcmb7aM/EXQiSDFN/a
+         GetuOPlMuNzSg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 75/88] ping: Check return value of function 'ping_queue_rcv_skb'
-Date:   Mon, 28 Jun 2021 10:36:15 -0400
-Message-Id: <20210628143628.33342-76-sashal@kernel.org>
+Subject: [PATCH 4.14 76/88] inet: annotate date races around sk->sk_txhash
+Date:   Mon, 28 Jun 2021 10:36:16 -0400
+Message-Id: <20210628143628.33342-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -48,53 +49,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 9d44fa3e50cc91691896934d106c86e4027e61ca ]
+[ Upstream commit b71eaed8c04f72a919a9c44e83e4ee254e69e7f3 ]
 
-Function 'ping_queue_rcv_skb' not always return success, which will
-also return fail. If not check the wrong return value of it, lead to function
-`ping_rcv` return success.
+UDP sendmsg() path can be lockless, it is possible for another
+thread to re-connect an change sk->sk_txhash under us.
 
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+There is no serious impact, but we can use READ_ONCE()/WRITE_ONCE()
+pair to document the race.
+
+BUG: KCSAN: data-race in __ip4_datagram_connect / skb_set_owner_w
+
+write to 0xffff88813397920c of 4 bytes by task 30997 on cpu 1:
+ sk_set_txhash include/net/sock.h:1937 [inline]
+ __ip4_datagram_connect+0x69e/0x710 net/ipv4/datagram.c:75
+ __ip6_datagram_connect+0x551/0x840 net/ipv6/datagram.c:189
+ ip6_datagram_connect+0x2a/0x40 net/ipv6/datagram.c:272
+ inet_dgram_connect+0xfd/0x180 net/ipv4/af_inet.c:580
+ __sys_connect_file net/socket.c:1837 [inline]
+ __sys_connect+0x245/0x280 net/socket.c:1854
+ __do_sys_connect net/socket.c:1864 [inline]
+ __se_sys_connect net/socket.c:1861 [inline]
+ __x64_sys_connect+0x3d/0x50 net/socket.c:1861
+ do_syscall_64+0x4a/0x90 arch/x86/entry/common.c:47
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff88813397920c of 4 bytes by task 31039 on cpu 0:
+ skb_set_hash_from_sk include/net/sock.h:2211 [inline]
+ skb_set_owner_w+0x118/0x220 net/core/sock.c:2101
+ sock_alloc_send_pskb+0x452/0x4e0 net/core/sock.c:2359
+ sock_alloc_send_skb+0x2d/0x40 net/core/sock.c:2373
+ __ip6_append_data+0x1743/0x21a0 net/ipv6/ip6_output.c:1621
+ ip6_make_skb+0x258/0x420 net/ipv6/ip6_output.c:1983
+ udpv6_sendmsg+0x160a/0x16b0 net/ipv6/udp.c:1527
+ inet6_sendmsg+0x5f/0x80 net/ipv6/af_inet6.c:642
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg net/socket.c:674 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2350
+ ___sys_sendmsg net/socket.c:2404 [inline]
+ __sys_sendmmsg+0x315/0x4b0 net/socket.c:2490
+ __do_sys_sendmmsg net/socket.c:2519 [inline]
+ __se_sys_sendmmsg net/socket.c:2516 [inline]
+ __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2516
+ do_syscall_64+0x4a/0x90 arch/x86/entry/common.c:47
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0xbca3c43d -> 0xfdb309e0
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 31039 Comm: syz-executor.2 Not tainted 5.13.0-rc3-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ping.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ include/net/sock.h | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/ping.c b/net/ipv4/ping.c
-index 186fdf0922d2..aab141c4a389 100644
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -978,6 +978,7 @@ bool ping_rcv(struct sk_buff *skb)
- 	struct sock *sk;
- 	struct net *net = dev_net(skb->dev);
- 	struct icmphdr *icmph = icmp_hdr(skb);
-+	bool rc = false;
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 55d16db84ea4..70fe85bee4e5 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1744,7 +1744,8 @@ static inline u32 net_tx_rndhash(void)
  
- 	/* We assume the packet has already been checked by icmp_rcv */
- 
-@@ -992,14 +993,15 @@ bool ping_rcv(struct sk_buff *skb)
- 		struct sk_buff *skb2 = skb_clone(skb, GFP_ATOMIC);
- 
- 		pr_debug("rcv on socket %p\n", sk);
--		if (skb2)
--			ping_queue_rcv_skb(sk, skb2);
-+		if (skb2 && !ping_queue_rcv_skb(sk, skb2))
-+			rc = true;
- 		sock_put(sk);
--		return true;
- 	}
--	pr_debug("no socket, dropping\n");
- 
--	return false;
-+	if (!rc)
-+		pr_debug("no socket, dropping\n");
-+
-+	return rc;
+ static inline void sk_set_txhash(struct sock *sk)
+ {
+-	sk->sk_txhash = net_tx_rndhash();
++	/* This pairs with READ_ONCE() in skb_set_hash_from_sk() */
++	WRITE_ONCE(sk->sk_txhash, net_tx_rndhash());
  }
- EXPORT_SYMBOL_GPL(ping_rcv);
+ 
+ static inline void sk_rethink_txhash(struct sock *sk)
+@@ -2018,9 +2019,12 @@ static inline void sock_poll_wait(struct file *filp,
+ 
+ static inline void skb_set_hash_from_sk(struct sk_buff *skb, struct sock *sk)
+ {
+-	if (sk->sk_txhash) {
++	/* This pairs with WRITE_ONCE() in sk_set_txhash() */
++	u32 txhash = READ_ONCE(sk->sk_txhash);
++
++	if (txhash) {
+ 		skb->l4_hash = 1;
+-		skb->hash = sk->sk_txhash;
++		skb->hash = txhash;
+ 	}
+ }
  
 -- 
 2.30.2
