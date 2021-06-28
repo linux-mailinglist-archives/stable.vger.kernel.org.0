@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A032C3B6305
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 167A93B6301
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235586AbhF1OvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54460 "EHLO mail.kernel.org"
+        id S235572AbhF1OvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234714AbhF1Os4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234653AbhF1Os4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:48:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40ED161D10;
-        Mon, 28 Jun 2021 14:36:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3189661D1C;
+        Mon, 28 Jun 2021 14:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891007;
-        bh=hTkNF0HvWXn3x7IYcVylTQZqlyN/pW/R6aGXvTZ35o4=;
+        s=k20201202; t=1624891009;
+        bh=Rx8xXZlYFyehzv+DkWtvp+RVqPT53j4PgF4OT5QzZ7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GcGxcZN60qgz7g89F6YqAJb6GnS76ZUwwuJguNyr5NSnRi8WkRqVyJiAa+6CSm1m1
-         RCt0cSwUKRwwh1CT7ci19IJegHVNzvaPnHRdHmy/mZ/6ErSyFlnlc1hR946RW0blyw
-         MaDhUS+wF6yllv6UsyJxwZNwq0ezI+5vUv+rwuvisLQDnfxmzJ1CAph/OkaZLOmoEr
-         lSTXsG3Xwq7PDw+G9kagWfVpiMhMXvf52X/LcIRlWYUaptAfzvUTR6qipLfa4nQBy5
-         p2FNqjISGTyUMVyfmZHSNb5QRDGyHFyVX2QHX62ZJFACc/4wDlwtMtGZvr73eWFWx7
-         7e49Ze3aWLCzQ==
+        b=eRNBnezxg2XMwwskB4EVDJcoJslDcBlOImEMHGsLnalFkbH2Kax9wZyEQnd3GF4I9
+         BK+L5hk1FBln7tNE0SHteDhIc5YSRVHjdUQYxwMMr9rmGtkZnGj0wkdaaZa74Yuht2
+         7Oa5CiFFKXBZpuvJik1pCW1EePK4Lhd7n0vzToEMYVGgXcw51uotDb+bzD6aDx4TuV
+         XZ+/2hiKjrwcZDd0cmor6i7iVPL+U3+PsK3bDHfoEsCuAGQY9l9WiyobWKFEyahB9e
+         bfhhPz7udC9hpIho3ns5jJF0+gPb68Uyc8VCLezVzx0zzD/qVHk1h6WhDDxuxZ8cd4
+         CXGv/1LOjYMdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 20/88] dmaengine: stedma40: add missing iounmap() on error in d40_probe()
-Date:   Mon, 28 Jun 2021 10:35:20 -0400
-Message-Id: <20210628143628.33342-21-sashal@kernel.org>
+Cc:     yangerkun <yangerkun@huawei.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
+        Oscar Salvador <osalvador@suse.de>,
+        Yu Kuai <yukuai3@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 21/88] mm/memory-failure: make sure wait for page writeback in memory_failure
+Date:   Mon, 28 Jun 2021 10:35:21 -0400
+Message-Id: <20210628143628.33342-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -49,38 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: yangerkun <yangerkun@huawei.com>
 
-[ Upstream commit fffdaba402cea79b8d219355487d342ec23f91c6 ]
+[ Upstream commit e8675d291ac007e1c636870db880f837a9ea112a ]
 
-Add the missing iounmap() before return from d40_probe()
-in the error handling case.
+Our syzkaller trigger the "BUG_ON(!list_empty(&inode->i_wb_list))" in
+clear_inode:
 
-Fixes: 8d318a50b3d7 ("DMAENGINE: Support for ST-Ericssons DMA40 block v3")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210518141108.1324127-1-yangyingliang@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+  kernel BUG at fs/inode.c:519!
+  Internal error: Oops - BUG: 0 [#1] SMP
+  Modules linked in:
+  Process syz-executor.0 (pid: 249, stack limit = 0x00000000a12409d7)
+  CPU: 1 PID: 249 Comm: syz-executor.0 Not tainted 4.19.95
+  Hardware name: linux,dummy-virt (DT)
+  pstate: 80000005 (Nzcv daif -PAN -UAO)
+  pc : clear_inode+0x280/0x2a8
+  lr : clear_inode+0x280/0x2a8
+  Call trace:
+    clear_inode+0x280/0x2a8
+    ext4_clear_inode+0x38/0xe8
+    ext4_free_inode+0x130/0xc68
+    ext4_evict_inode+0xb20/0xcb8
+    evict+0x1a8/0x3c0
+    iput+0x344/0x460
+    do_unlinkat+0x260/0x410
+    __arm64_sys_unlinkat+0x6c/0xc0
+    el0_svc_common+0xdc/0x3b0
+    el0_svc_handler+0xf8/0x160
+    el0_svc+0x10/0x218
+  Kernel panic - not syncing: Fatal exception
+
+A crash dump of this problem show that someone called __munlock_pagevec
+to clear page LRU without lock_page: do_mmap -> mmap_region -> do_munmap
+-> munlock_vma_pages_range -> __munlock_pagevec.
+
+As a result memory_failure will call identify_page_state without
+wait_on_page_writeback.  And after truncate_error_page clear the mapping
+of this page.  end_page_writeback won't call sb_clear_inode_writeback to
+clear inode->i_wb_list.  That will trigger BUG_ON in clear_inode!
+
+Fix it by checking PageWriteback too to help determine should we skip
+wait_on_page_writeback.
+
+Link: https://lkml.kernel.org/r/20210604084705.3729204-1-yangerkun@huawei.com
+Fixes: 0bc1f8b0682c ("hwpoison: fix the handling path of the victimized page frame that belong to non-LRU")
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ste_dma40.c | 3 +++
- 1 file changed, 3 insertions(+)
+ mm/memory-failure.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
-index 90feb6a05e59..ee15d4fefbad 100644
---- a/drivers/dma/ste_dma40.c
-+++ b/drivers/dma/ste_dma40.c
-@@ -3656,6 +3656,9 @@ static int __init d40_probe(struct platform_device *pdev)
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 001b6bfccbfb..e7827b9e6397 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1267,7 +1267,12 @@ int memory_failure(unsigned long pfn, int trapno, int flags)
+ 		return 0;
+ 	}
  
- 	kfree(base->lcla_pool.base_unaligned);
+-	if (!PageTransTail(p) && !PageLRU(p))
++	/*
++	 * __munlock_pagevec may clear a writeback page's LRU flag without
++	 * page_lock. We need wait writeback completion for this page or it
++	 * may trigger vfs BUG while evict inode.
++	 */
++	if (!PageTransTail(p) && !PageLRU(p) && !PageWriteback(p))
+ 		goto identify_page_state;
  
-+	if (base->lcpa_base)
-+		iounmap(base->lcpa_base);
-+
- 	if (base->phy_lcpa)
- 		release_mem_region(base->phy_lcpa,
- 				   base->lcpa_size);
+ 	/*
 -- 
 2.30.2
 
