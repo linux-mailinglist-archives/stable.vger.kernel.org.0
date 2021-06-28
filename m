@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F6B3B600E
+	by mail.lfdr.de (Postfix) with ESMTP id 631293B600F
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233314AbhF1OV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54376 "EHLO mail.kernel.org"
+        id S233184AbhF1OV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232810AbhF1OVe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233180AbhF1OVe (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:21:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFC3261C7E;
-        Mon, 28 Jun 2021 14:19:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C19D661C8F;
+        Mon, 28 Jun 2021 14:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889948;
-        bh=68AJOoVwWxBdb/3/bzkAbDf6WVmDzmkEuw/hJ7ziSgc=;
+        s=k20201202; t=1624889949;
+        bh=HXZWMFTM4rc1VvbXjfrhFeBANb2/h4lWBdB8XBCt/d0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRPYVMNzMJuc2PQeRDrKuKIzhsne5ExAvUhF1TIfIoy+IPmPu8mHR9lVCARD0g4F6
-         JCYbTdtXM6dofdEnnRci1hvSoM8Fuo8vLRv3wJANbO2fYqraypU+YLWtJRahrDPIxA
-         7gshHDMdUno0mQ83lDDb1gRZuNGXjUfi8RZN5s0eEic2im5GBG1ndsC/j/iedC5Za0
-         idL3tya45RVnhbGXVtuvD4iT6zoDN77KSnDcpz8hdLLbOgOphTkKmRAr7qoDtdNYiw
-         G8G8kuA9xxkBAIzVreBZGO2AtYKsOmoGWIM/1HFnKTRGo/pDmflhORcsEMvL+DeeiK
-         +r1zHdiAEWsNA==
+        b=nbK6B8IN3u9+5Ad8Beg4jARH3j4ADRfDhqeAGa0MBTCFmQ/QtZOVnNJjEaF9vTut8
+         7zJbMOFA06IdXOToo4TlZ2V+V88/0wLdj5j03mrLfzqOpoKBcoVgl+wYrb+9D9RpEX
+         32/RP6oTfI6r7gJC8Ec/Xd+1tYX7Bu4w4/qspdFq1cSMGrkC5KPaR+zD+9Ffrfu687
+         CvmIwoT3Hz51EMO644CdpoiQEjR32525zfawwLRC6M6mkGzJ6ktA0fY1cW4k2DE6bc
+         JqV0BzLiuaPqsPWL8Yz2L1nUTq1I4ARof5xQkBGWqT6og5ptQodTbw/ODbAKYoYF5Z
+         xpCOmz06QXyhQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+Cc:     Kristian Evensen <kristian.evensen@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 045/110] bpf, selftests: Adjust few selftest outcomes wrt unreachable code
-Date:   Mon, 28 Jun 2021 10:17:23 -0400
-Message-Id: <20210628141828.31757-46-sashal@kernel.org>
+Subject: [PATCH 5.12 046/110] qmi_wwan: Do not call netif_rx from rx_fixup
+Date:   Mon, 28 Jun 2021 10:17:24 -0400
+Message-Id: <20210628141828.31757-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.14-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.12.y
@@ -49,328 +50,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Kristian Evensen <kristian.evensen@gmail.com>
 
-[ Upstream commit 973377ffe8148180b2651825b92ae91988141b05 ]
+[ Upstream commit 057d49334c02a79af81c30a8d240e641bd6f1741 ]
 
-In almost all cases from test_verifier that have been changed in here, we've
-had an unreachable path with a load from a register which has an invalid
-address on purpose. This was basically to make sure that we never walk this
-path and to have the verifier complain if it would otherwise. Change it to
-match on the right error for unprivileged given we now test these paths
-under speculative execution.
+When the QMI_WWAN_FLAG_PASS_THROUGH is set, netif_rx() is called from
+qmi_wwan_rx_fixup(). When the call to netif_rx() is successful (which is
+most of the time), usbnet_skb_return() is called (from rx_process()).
+usbnet_skb_return() will then call netif_rx() a second time for the same
+skb.
 
-There's one case where we match on exact # of insns_processed. Due to the
-extra path, this will of course mismatch on unprivileged. Thus, restrict the
-test->insn_processed check to privileged-only.
+Simplify the code and avoid the redundant netif_rx() call by changing
+qmi_wwan_rx_fixup() to always return 1 when QMI_WWAN_FLAG_PASS_THROUGH
+is set. We then leave it up to the existing infrastructure to call
+netif_rx().
 
-In one other case, we result in a 'pointer comparison prohibited' error. This
-is similarly due to verifying an 'invalid' branch where we end up with a value
-pointer on one side of the comparison.
-
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+Suggested-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Kristian Evensen <kristian.evensen@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_verifier.c   |  2 +-
- tools/testing/selftests/bpf/verifier/and.c    |  2 ++
- tools/testing/selftests/bpf/verifier/bounds.c | 14 ++++++++++++
- .../selftests/bpf/verifier/dead_code.c        |  2 ++
- tools/testing/selftests/bpf/verifier/jmp32.c  | 22 +++++++++++++++++++
- tools/testing/selftests/bpf/verifier/jset.c   | 10 +++++----
- tools/testing/selftests/bpf/verifier/unpriv.c |  2 ++
- .../selftests/bpf/verifier/value_ptr_arith.c  |  7 +++---
- 8 files changed, 53 insertions(+), 8 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/test_verifier.c b/tools/testing/selftests/bpf/test_verifier.c
-index 58b5a349d3ba..ea3158b0d551 100644
---- a/tools/testing/selftests/bpf/test_verifier.c
-+++ b/tools/testing/selftests/bpf/test_verifier.c
-@@ -1147,7 +1147,7 @@ static void do_test_single(struct bpf_test *test, bool unpriv,
- 		}
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 6700f1970b24..bc55ec739af9 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -575,7 +575,7 @@ static int qmi_wwan_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 
+ 	if (info->flags & QMI_WWAN_FLAG_PASS_THROUGH) {
+ 		skb->protocol = htons(ETH_P_MAP);
+-		return (netif_rx(skb) == NET_RX_SUCCESS);
++		return 1;
  	}
  
--	if (test->insn_processed) {
-+	if (!unpriv && test->insn_processed) {
- 		uint32_t insn_processed;
- 		char *proc;
- 
-diff --git a/tools/testing/selftests/bpf/verifier/and.c b/tools/testing/selftests/bpf/verifier/and.c
-index ca8fdb1b3f01..7d7ebee5cc7a 100644
---- a/tools/testing/selftests/bpf/verifier/and.c
-+++ b/tools/testing/selftests/bpf/verifier/and.c
-@@ -61,6 +61,8 @@
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R1 !read_ok",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 0
- },
-diff --git a/tools/testing/selftests/bpf/verifier/bounds.c b/tools/testing/selftests/bpf/verifier/bounds.c
-index 8a1caf46ffbc..e061e8799ce2 100644
---- a/tools/testing/selftests/bpf/verifier/bounds.c
-+++ b/tools/testing/selftests/bpf/verifier/bounds.c
-@@ -508,6 +508,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, -1),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT
- },
- {
-@@ -528,6 +530,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, -1),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT
- },
- {
-@@ -569,6 +573,8 @@
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 min value is outside of the allowed memory range",
-+	.result_unpriv = REJECT,
- 	.fixup_map_hash_8b = { 3 },
- 	.result = ACCEPT,
- },
-@@ -589,6 +595,8 @@
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 min value is outside of the allowed memory range",
-+	.result_unpriv = REJECT,
- 	.fixup_map_hash_8b = { 3 },
- 	.result = ACCEPT,
- },
-@@ -609,6 +617,8 @@
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 min value is outside of the allowed memory range",
-+	.result_unpriv = REJECT,
- 	.fixup_map_hash_8b = { 3 },
- 	.result = ACCEPT,
- },
-@@ -674,6 +684,8 @@
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 min value is outside of the allowed memory range",
-+	.result_unpriv = REJECT,
- 	.fixup_map_hash_8b = { 3 },
- 	.result = ACCEPT,
- },
-@@ -695,6 +707,8 @@
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 min value is outside of the allowed memory range",
-+	.result_unpriv = REJECT,
- 	.fixup_map_hash_8b = { 3 },
- 	.result = ACCEPT,
- },
-diff --git a/tools/testing/selftests/bpf/verifier/dead_code.c b/tools/testing/selftests/bpf/verifier/dead_code.c
-index 5cf361d8eb1c..721ec9391be5 100644
---- a/tools/testing/selftests/bpf/verifier/dead_code.c
-+++ b/tools/testing/selftests/bpf/verifier/dead_code.c
-@@ -8,6 +8,8 @@
- 	BPF_JMP_IMM(BPF_JGE, BPF_REG_0, 10, -4),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R9 !read_ok",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 7,
- },
-diff --git a/tools/testing/selftests/bpf/verifier/jmp32.c b/tools/testing/selftests/bpf/verifier/jmp32.c
-index bd5cae4a7f73..1c857b2fbdf0 100644
---- a/tools/testing/selftests/bpf/verifier/jmp32.c
-+++ b/tools/testing/selftests/bpf/verifier/jmp32.c
-@@ -87,6 +87,8 @@
- 	BPF_LDX_MEM(BPF_B, BPF_REG_8, BPF_REG_9, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R9 !read_ok",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- },
- {
-@@ -150,6 +152,8 @@
- 	BPF_LDX_MEM(BPF_B, BPF_REG_8, BPF_REG_9, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R9 !read_ok",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- },
- {
-@@ -213,6 +217,8 @@
- 	BPF_LDX_MEM(BPF_B, BPF_REG_8, BPF_REG_9, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R9 !read_ok",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- },
- {
-@@ -280,6 +286,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 2,
- },
-@@ -348,6 +356,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 2,
- },
-@@ -416,6 +426,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 2,
- },
-@@ -484,6 +496,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 2,
- },
-@@ -552,6 +566,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 2,
- },
-@@ -620,6 +636,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 2,
- },
-@@ -688,6 +706,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 2,
- },
-@@ -756,6 +776,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 2,
- },
-diff --git a/tools/testing/selftests/bpf/verifier/jset.c b/tools/testing/selftests/bpf/verifier/jset.c
-index 8dcd4e0383d5..11fc68da735e 100644
---- a/tools/testing/selftests/bpf/verifier/jset.c
-+++ b/tools/testing/selftests/bpf/verifier/jset.c
-@@ -82,8 +82,8 @@
- 	BPF_EXIT_INSN(),
- 	},
- 	.prog_type = BPF_PROG_TYPE_SOCKET_FILTER,
--	.retval_unpriv = 1,
--	.result_unpriv = ACCEPT,
-+	.errstr_unpriv = "R9 !read_ok",
-+	.result_unpriv = REJECT,
- 	.retval = 1,
- 	.result = ACCEPT,
- },
-@@ -141,7 +141,8 @@
- 	BPF_EXIT_INSN(),
- 	},
- 	.prog_type = BPF_PROG_TYPE_SOCKET_FILTER,
--	.result_unpriv = ACCEPT,
-+	.errstr_unpriv = "R9 !read_ok",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- },
- {
-@@ -162,6 +163,7 @@
- 	BPF_EXIT_INSN(),
- 	},
- 	.prog_type = BPF_PROG_TYPE_SOCKET_FILTER,
--	.result_unpriv = ACCEPT,
-+	.errstr_unpriv = "R9 !read_ok",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- },
-diff --git a/tools/testing/selftests/bpf/verifier/unpriv.c b/tools/testing/selftests/bpf/verifier/unpriv.c
-index bd436df5cc32..111801aea5e3 100644
---- a/tools/testing/selftests/bpf/verifier/unpriv.c
-+++ b/tools/testing/selftests/bpf/verifier/unpriv.c
-@@ -420,6 +420,8 @@
- 	BPF_LDX_MEM(BPF_DW, BPF_REG_0, BPF_REG_7, 0),
- 	BPF_EXIT_INSN(),
- 	},
-+	.errstr_unpriv = "R7 invalid mem access 'inv'",
-+	.result_unpriv = REJECT,
- 	.result = ACCEPT,
- 	.retval = 0,
- },
-diff --git a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-index 7ae2859d495c..a3e593ddfafc 100644
---- a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-+++ b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-@@ -120,7 +120,7 @@
- 	.fixup_map_array_48b = { 1 },
- 	.result = ACCEPT,
- 	.result_unpriv = REJECT,
--	.errstr_unpriv = "R2 tried to add from different maps, paths or scalars",
-+	.errstr_unpriv = "R2 pointer comparison prohibited",
- 	.retval = 0,
- },
- {
-@@ -159,7 +159,8 @@
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
- 	// fake-dead code; targeted from branch A to
--	// prevent dead code sanitization
-+	// prevent dead code sanitization, rejected
-+	// via branch B however
- 	BPF_LDX_MEM(BPF_B, BPF_REG_0, BPF_REG_0, 0),
- 	BPF_MOV64_IMM(BPF_REG_0, 0),
- 	BPF_EXIT_INSN(),
-@@ -167,7 +168,7 @@
- 	.fixup_map_array_48b = { 1 },
- 	.result = ACCEPT,
- 	.result_unpriv = REJECT,
--	.errstr_unpriv = "R2 tried to add from different maps, paths or scalars",
-+	.errstr_unpriv = "R0 invalid mem access 'inv'",
- 	.retval = 0,
- },
- {
+ 	switch (skb->data[0] & 0xf0) {
 -- 
 2.30.2
 
