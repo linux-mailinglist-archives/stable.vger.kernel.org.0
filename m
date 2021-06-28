@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BDE33B63EB
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:00:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 425783B63F0
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236692AbhF1PCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:02:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36480 "EHLO mail.kernel.org"
+        id S236738AbhF1PC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:02:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236569AbhF1PAR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 11:00:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D353361D6B;
-        Mon, 28 Jun 2021 14:40:50 +0000 (UTC)
+        id S236581AbhF1PAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 11:00:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE69761D6C;
+        Mon, 28 Jun 2021 14:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891251;
-        bh=pXsmKr5Tq6LwRKMdROgnntzHJX1YHsvZX76wqaDXRhk=;
+        s=k20201202; t=1624891252;
+        bh=21gV05pCDisHvB5GmvFfLTpUbqjlPegoJs+6fmYqmOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTToyHFROjfM/TY7Z4SMMH5guzFkRdMZ48yvhwF2YFZTvMYwDCfc9nRcc1Ap5sZmq
-         9IztUt3hOipG+1nOGDlD/R4jeRRS+bKh7U4qJXU2ttJ1mNGb943+TQLXUmEOGH89Qp
-         FbDL5vMqX06ap702Ru1hcj+msoO7WQz9+D7nx/s8WYbPlAHVzAhhUFkDErhUOH/r92
-         bCptdeONyjm4IUQhza6WDqwwopHIDh65RSPDCyrhxLEGO8Z2bvkJ3Tkjix+jngupGW
-         gqX8dZ2Rg2zJvEFo3jQ5b/vozwrS/9ddiRg1//WYtbI84seCZs+5PmITrBMrHzoL5/
-         7/YfnOOCGQXxQ==
+        b=qPu4+9xMjzPkEE14GckdlI3pY5z2z+F5A7qfaNKPpBynvBPvFko5GczM9XnR3eH50
+         3TY3gz47SJOqaVSGvVDftvppDcZBCq1hXVEtnDr/sLr+9/cTnDIWfmB+LIk2Nmyu5C
+         VodCnSRYrk1bMUClXHwhWf8bEVIfONC0xYt/BmTYNYc93+Ed5ChGYVS3RKYrWUyEST
+         qEVrQKodAUU7DQszLsvqGV1iXB1rOEO9lR0sJYC6IZRwi8qwj8cefQY9r/6MlvjHS+
+         OGEqhIfvxuS1HFN/Ls1/Z4qqrSZyYh9PR5l+O+7D+aiJ1hK8c36w6IwlevtqBAHzAu
+         NKqt/56P74uRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Aman Priyadarshi <apeureka@amazon.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 53/71] Makefile: Move -Wno-unused-but-set-variable out of GCC only block
-Date:   Mon, 28 Jun 2021 10:39:45 -0400
-Message-Id: <20210628144003.34260-54-sashal@kernel.org>
+Subject: [PATCH 4.9 54/71] arm64: perf: Disable PMU while processing counter overflows
+Date:   Mon, 28 Jun 2021 10:39:46 -0400
+Message-Id: <20210628144003.34260-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
@@ -49,47 +50,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit 885480b084696331bea61a4f7eba10652999a9c1 upstream.
+commit 3cce50dfec4a5b0414c974190940f47dd32c6dee upstream.
 
-Currently, -Wunused-but-set-variable is only supported by GCC so it is
-disabled unconditionally in a GCC only block (it is enabled with W=1).
-clang currently has its implementation for this warning in review so
-preemptively move this statement out of the GCC only block and wrap it
-with cc-disable-warning so that both compilers function the same.
+The arm64 PMU updates the event counters and reprograms the
+counters in the overflow IRQ handler without disabling the
+PMU. This could potentially cause skews in for group counters,
+where the overflowed counters may potentially loose some event
+counts, while they are reprogrammed. To prevent this, disable
+the PMU while we process the counter overflows and enable it
+right back when we are done.
 
-Cc: stable@vger.kernel.org
-Link: https://reviews.llvm.org/D100581
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-[nc: Backport, workaround lack of e2079e93f562 in older branches]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+This patch also moves the PMU stop/start routines to avoid a
+forward declaration.
+
+Suggested-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Aman Priyadarshi <apeureka@amazon.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm64/kernel/perf_event.c | 50 +++++++++++++++++++---------------
+ 1 file changed, 28 insertions(+), 22 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index e43823c3337f..651d4fbf56aa 100644
---- a/Makefile
-+++ b/Makefile
-@@ -718,12 +718,11 @@ KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
- # See modpost pattern 2
- KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
- KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
--else
-+endif
+diff --git a/arch/arm64/kernel/perf_event.c b/arch/arm64/kernel/perf_event.c
+index 0770d6d1c37f..7f95d6ac2011 100644
+--- a/arch/arm64/kernel/perf_event.c
++++ b/arch/arm64/kernel/perf_event.c
+@@ -748,6 +748,28 @@ static void armv8pmu_disable_event(struct perf_event *event)
+ 	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
+ }
  
- # These warnings generated too much noise in a regular build.
- # Use make W=1 to enable them (see scripts/Makefile.extrawarn)
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
--endif
++static void armv8pmu_start(struct arm_pmu *cpu_pmu)
++{
++	unsigned long flags;
++	struct pmu_hw_events *events = this_cpu_ptr(cpu_pmu->hw_events);
++
++	raw_spin_lock_irqsave(&events->pmu_lock, flags);
++	/* Enable all counters */
++	armv8pmu_pmcr_write(armv8pmu_pmcr_read() | ARMV8_PMU_PMCR_E);
++	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
++}
++
++static void armv8pmu_stop(struct arm_pmu *cpu_pmu)
++{
++	unsigned long flags;
++	struct pmu_hw_events *events = this_cpu_ptr(cpu_pmu->hw_events);
++
++	raw_spin_lock_irqsave(&events->pmu_lock, flags);
++	/* Disable all counters */
++	armv8pmu_pmcr_write(armv8pmu_pmcr_read() & ~ARMV8_PMU_PMCR_E);
++	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
++}
++
+ static irqreturn_t armv8pmu_handle_irq(int irq_num, void *dev)
+ {
+ 	u32 pmovsr;
+@@ -773,6 +795,11 @@ static irqreturn_t armv8pmu_handle_irq(int irq_num, void *dev)
+ 	 */
+ 	regs = get_irq_regs();
  
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
- ifdef CONFIG_FRAME_POINTER
++	/*
++	 * Stop the PMU while processing the counter overflows
++	 * to prevent skews in group events.
++	 */
++	armv8pmu_stop(cpu_pmu);
+ 	for (idx = 0; idx < cpu_pmu->num_events; ++idx) {
+ 		struct perf_event *event = cpuc->events[idx];
+ 		struct hw_perf_event *hwc;
+@@ -797,6 +824,7 @@ static irqreturn_t armv8pmu_handle_irq(int irq_num, void *dev)
+ 		if (perf_event_overflow(event, &data, regs))
+ 			cpu_pmu->disable(event);
+ 	}
++	armv8pmu_start(cpu_pmu);
+ 
+ 	/*
+ 	 * Handle the pending perf events.
+@@ -810,28 +838,6 @@ static irqreturn_t armv8pmu_handle_irq(int irq_num, void *dev)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void armv8pmu_start(struct arm_pmu *cpu_pmu)
+-{
+-	unsigned long flags;
+-	struct pmu_hw_events *events = this_cpu_ptr(cpu_pmu->hw_events);
+-
+-	raw_spin_lock_irqsave(&events->pmu_lock, flags);
+-	/* Enable all counters */
+-	armv8pmu_pmcr_write(armv8pmu_pmcr_read() | ARMV8_PMU_PMCR_E);
+-	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
+-}
+-
+-static void armv8pmu_stop(struct arm_pmu *cpu_pmu)
+-{
+-	unsigned long flags;
+-	struct pmu_hw_events *events = this_cpu_ptr(cpu_pmu->hw_events);
+-
+-	raw_spin_lock_irqsave(&events->pmu_lock, flags);
+-	/* Disable all counters */
+-	armv8pmu_pmcr_write(armv8pmu_pmcr_read() & ~ARMV8_PMU_PMCR_E);
+-	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
+-}
+-
+ static int armv8pmu_get_event_idx(struct pmu_hw_events *cpuc,
+ 				  struct perf_event *event)
+ {
 -- 
 2.30.2
 
