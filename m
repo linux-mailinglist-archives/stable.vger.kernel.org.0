@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 544F43B6285
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A88F3B6283
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236386AbhF1OsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:48:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51694 "EHLO mail.kernel.org"
+        id S236384AbhF1OsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:48:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235036AbhF1OoG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235030AbhF1OoG (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:44:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 988BB61CEF;
-        Mon, 28 Jun 2021 14:33:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7358D61CF4;
+        Mon, 28 Jun 2021 14:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890831;
-        bh=8cuYVK+UmOYIpAOFWKr7KC7wWX6SVKNevdghmguQInQ=;
+        s=k20201202; t=1624890832;
+        bh=UzTEwpoQtfEBrdsI/qYr0yA9V1QLcf86tCxcXt6DDiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=COzwfesDhWSGTQ9m78drwBPOCvF9xmStOR8Pspz8TUvhiFXhPgKvCTn22fGEV12qN
-         u5QnMco6ByyrOv8EZCovNRfoJWVPTsclV9dSF0vy32ml0vUdK8lz6o7KsIpl0YIo6i
-         n5mHRjK4rCUktSkg4VaGBVZ1ayFa01tq9BWN8N2jUbEZFR1ZE0ECCRo6WhEYmrwdRQ
-         QkZXzsWYM0jtNrK6HObGVkvYjMw3IhAoke7iVCa4VUD4i3BzcSJc1dTLYh6bTfa/6t
-         gf3L1Zp6BkzjTr8Rr8uQaH1gKKwXomaOkjxHTzYbvO2J2c1dc/0NqZI/0hF+kWwmJh
-         W+NHp9Ll35mLw==
+        b=pQyGamWbthw0kwi7ee9Yogr7YNae8GvJmauqZz1dCgIUz++hvLh3vW5giz5A/brB8
+         umSOgCAdaG3JjXy5hThb0m9Vs1Bx21K8eA+ic8Rrx+ihKrjXFD5HGRdByM74hkISbi
+         fR5gUe6y0A1Eo5LzfaloIMVwDUnDP/WQpYHdjHPjxn8ymDgWsZztBRUkaJl4YJeqcY
+         BsPUZcASU90VAOcDlZGl7hyc2UQ7RXKE6CtekrtZZbq1LHI7lTw+Alyj0hm5VDQiP6
+         Fw67G9Lmi/GPGy+TUXt2ZIvDJPWV1/exXa8zRsZGlQAwRj19+KOlyjOtsqpvwACwom
+         jb/eaX8+jhNUg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Somnath Kotur <somnath.kotur@broadcom.com>,
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 049/109] be2net: Fix an error handling path in 'be_probe()'
-Date:   Mon, 28 Jun 2021 10:32:05 -0400
-Message-Id: <20210628143305.32978-50-sashal@kernel.org>
+Subject: [PATCH 4.19 050/109] net: hamradio: fix memory leak in mkiss_close
+Date:   Mon, 28 Jun 2021 10:32:06 -0400
+Message-Id: <20210628143305.32978-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -49,35 +48,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit c19c8c0e666f9259e2fc4d2fa4b9ff8e3b40ee5d ]
+[ Upstream commit 7edcc682301492380fbdd604b4516af5ae667a13 ]
 
-If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
-must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
-call, as already done in the remove function.
+My local syzbot instance hit memory leak in
+mkiss_open()[1]. The problem was in missing
+free_netdev() in mkiss_close().
 
-Fixes: d6b6d9877878 ("be2net: use PCIe AER capability")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Somnath Kotur <somnath.kotur@broadcom.com>
+In mkiss_open() netdevice is allocated and then
+registered, but in mkiss_close() netdevice was
+only unregistered, but not freed.
+
+Fail log:
+
+BUG: memory leak
+unreferenced object 0xffff8880281ba000 (size 4096):
+  comm "syz-executor.1", pid 11443, jiffies 4295046091 (age 17.660s)
+  hex dump (first 32 bytes):
+    61 78 30 00 00 00 00 00 00 00 00 00 00 00 00 00  ax0.............
+    00 27 fa 2a 80 88 ff ff 00 00 00 00 00 00 00 00  .'.*............
+  backtrace:
+    [<ffffffff81a27201>] kvmalloc_node+0x61/0xf0
+    [<ffffffff8706e7e8>] alloc_netdev_mqs+0x98/0xe80
+    [<ffffffff84e64192>] mkiss_open+0xb2/0x6f0 [1]
+    [<ffffffff842355db>] tty_ldisc_open+0x9b/0x110
+    [<ffffffff84236488>] tty_set_ldisc+0x2e8/0x670
+    [<ffffffff8421f7f3>] tty_ioctl+0xda3/0x1440
+    [<ffffffff81c9f273>] __x64_sys_ioctl+0x193/0x200
+    [<ffffffff8911263a>] do_syscall_64+0x3a/0xb0
+    [<ffffffff89200068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+BUG: memory leak
+unreferenced object 0xffff8880141a9a00 (size 96):
+  comm "syz-executor.1", pid 11443, jiffies 4295046091 (age 17.660s)
+  hex dump (first 32 bytes):
+    e8 a2 1b 28 80 88 ff ff e8 a2 1b 28 80 88 ff ff  ...(.......(....
+    98 92 9c aa b0 40 02 00 00 00 00 00 00 00 00 00  .....@..........
+  backtrace:
+    [<ffffffff8709f68b>] __hw_addr_create_ex+0x5b/0x310
+    [<ffffffff8709fb38>] __hw_addr_add_ex+0x1f8/0x2b0
+    [<ffffffff870a0c7b>] dev_addr_init+0x10b/0x1f0
+    [<ffffffff8706e88b>] alloc_netdev_mqs+0x13b/0xe80
+    [<ffffffff84e64192>] mkiss_open+0xb2/0x6f0 [1]
+    [<ffffffff842355db>] tty_ldisc_open+0x9b/0x110
+    [<ffffffff84236488>] tty_set_ldisc+0x2e8/0x670
+    [<ffffffff8421f7f3>] tty_ioctl+0xda3/0x1440
+    [<ffffffff81c9f273>] __x64_sys_ioctl+0x193/0x200
+    [<ffffffff8911263a>] do_syscall_64+0x3a/0xb0
+    [<ffffffff89200068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+BUG: memory leak
+unreferenced object 0xffff8880219bfc00 (size 512):
+  comm "syz-executor.1", pid 11443, jiffies 4295046091 (age 17.660s)
+  hex dump (first 32 bytes):
+    00 a0 1b 28 80 88 ff ff 80 8f b1 8d ff ff ff ff  ...(............
+    80 8f b1 8d ff ff ff ff 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff81a27201>] kvmalloc_node+0x61/0xf0
+    [<ffffffff8706eec7>] alloc_netdev_mqs+0x777/0xe80
+    [<ffffffff84e64192>] mkiss_open+0xb2/0x6f0 [1]
+    [<ffffffff842355db>] tty_ldisc_open+0x9b/0x110
+    [<ffffffff84236488>] tty_set_ldisc+0x2e8/0x670
+    [<ffffffff8421f7f3>] tty_ioctl+0xda3/0x1440
+    [<ffffffff81c9f273>] __x64_sys_ioctl+0x193/0x200
+    [<ffffffff8911263a>] do_syscall_64+0x3a/0xb0
+    [<ffffffff89200068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+BUG: memory leak
+unreferenced object 0xffff888029b2b200 (size 256):
+  comm "syz-executor.1", pid 11443, jiffies 4295046091 (age 17.660s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff81a27201>] kvmalloc_node+0x61/0xf0
+    [<ffffffff8706f062>] alloc_netdev_mqs+0x912/0xe80
+    [<ffffffff84e64192>] mkiss_open+0xb2/0x6f0 [1]
+    [<ffffffff842355db>] tty_ldisc_open+0x9b/0x110
+    [<ffffffff84236488>] tty_set_ldisc+0x2e8/0x670
+    [<ffffffff8421f7f3>] tty_ioctl+0xda3/0x1440
+    [<ffffffff81c9f273>] __x64_sys_ioctl+0x193/0x200
+    [<ffffffff8911263a>] do_syscall_64+0x3a/0xb0
+    [<ffffffff89200068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 815f62bf7427 ("[PATCH] SMP rewrite of mkiss")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/emulex/benet/be_main.c | 1 +
+ drivers/net/hamradio/mkiss.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/emulex/benet/be_main.c b/drivers/net/ethernet/emulex/benet/be_main.c
-index 3fe6a28027fe..05cb2f7cc35c 100644
---- a/drivers/net/ethernet/emulex/benet/be_main.c
-+++ b/drivers/net/ethernet/emulex/benet/be_main.c
-@@ -6029,6 +6029,7 @@ static int be_probe(struct pci_dev *pdev, const struct pci_device_id *pdev_id)
- unmap_bars:
- 	be_unmap_pci_bars(adapter);
- free_netdev:
-+	pci_disable_pcie_error_reporting(pdev);
- 	free_netdev(netdev);
- rel_reg:
- 	pci_release_regions(pdev);
+diff --git a/drivers/net/hamradio/mkiss.c b/drivers/net/hamradio/mkiss.c
+index 3b14e6e281d4..940aa7a19f50 100644
+--- a/drivers/net/hamradio/mkiss.c
++++ b/drivers/net/hamradio/mkiss.c
+@@ -810,6 +810,7 @@ static void mkiss_close(struct tty_struct *tty)
+ 	ax->tty = NULL;
+ 
+ 	unregister_netdev(ax->dev);
++	free_netdev(ax->dev);
+ }
+ 
+ /* Perform I/O control on an active ax25 channel. */
 -- 
 2.30.2
 
