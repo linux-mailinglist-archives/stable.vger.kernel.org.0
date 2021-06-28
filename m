@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 912673B6300
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A032C3B6305
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:48:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235546AbhF1OvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54444 "EHLO mail.kernel.org"
+        id S235586AbhF1OvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233820AbhF1Osy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:48:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F30E61CB5;
-        Mon, 28 Jun 2021 14:36:46 +0000 (UTC)
+        id S234714AbhF1Os4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:48:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40ED161D10;
+        Mon, 28 Jun 2021 14:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624891007;
-        bh=FMYvws+kWjH2cfK0q5IZM3N/gw5nFfC7NZ3ZH7gG+kc=;
+        bh=hTkNF0HvWXn3x7IYcVylTQZqlyN/pW/R6aGXvTZ35o4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q48xDBUfh+X8HugwVT9rwcYrbmb3TE2S8VQGC+E9EchIJ4ByAYbROwatXF+FW5pzi
-         XrXMcmRMhBKOavfMiXXHicaigCaZq24dtbNqevbv0DFsZr/5T6+CE+FD3M+eJXS5PD
-         UBZvjBk9xShxYgnjp2icSbNglRRKOmcTDWCm0H+wYIm0vc3lyPbpdj1bVFlD9bswxU
-         C8cF3OMXCqzkMcLUzjkh1sUO0Aq7rB5Z61B/WvY+I0gd/NQEyTGYYjcTE2h02GJOfb
-         QDBtdbcdf7O3OvJy10XpK+4Cd4MKfBv7OsvcY4pWgWWcNcFbeH8I2So3zX6uhv3g+O
-         71/x7gQp2L8UA==
+        b=GcGxcZN60qgz7g89F6YqAJb6GnS76ZUwwuJguNyr5NSnRi8WkRqVyJiAa+6CSm1m1
+         RCt0cSwUKRwwh1CT7ci19IJegHVNzvaPnHRdHmy/mZ/6ErSyFlnlc1hR946RW0blyw
+         MaDhUS+wF6yllv6UsyJxwZNwq0ezI+5vUv+rwuvisLQDnfxmzJ1CAph/OkaZLOmoEr
+         lSTXsG3Xwq7PDw+G9kagWfVpiMhMXvf52X/LcIRlWYUaptAfzvUTR6qipLfa4nQBy5
+         p2FNqjISGTyUMVyfmZHSNb5QRDGyHFyVX2QHX62ZJFACc/4wDlwtMtGZvr73eWFWx7
+         7e49Ze3aWLCzQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Sinan Kaya <okaya@codeaurora.org>,
-        Vinod Koul <vkoul@kernel.org>, dmaengine@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 19/88] dmaengine: QCOM_HIDMA_MGMT depends on HAS_IOMEM
-Date:   Mon, 28 Jun 2021 10:35:19 -0400
-Message-Id: <20210628143628.33342-20-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 20/88] dmaengine: stedma40: add missing iounmap() on error in d40_probe()
+Date:   Mon, 28 Jun 2021 10:35:20 -0400
+Message-Id: <20210628143628.33342-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -50,48 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 0cfbb589d67f16fa55b26ae02b69c31b52e344b1 ]
+[ Upstream commit fffdaba402cea79b8d219355487d342ec23f91c6 ]
 
-When CONFIG_HAS_IOMEM is not set/enabled, certain iomap() family
-functions [including ioremap(), devm_ioremap(), etc.] are not
-available.
-Drivers that use these functions should depend on HAS_IOMEM so that
-they do not cause build errors.
+Add the missing iounmap() before return from d40_probe()
+in the error handling case.
 
-Rectifies these build errors:
-s390-linux-ld: drivers/dma/qcom/hidma_mgmt.o: in function `hidma_mgmt_probe':
-hidma_mgmt.c:(.text+0x780): undefined reference to `devm_ioremap_resource'
-s390-linux-ld: drivers/dma/qcom/hidma_mgmt.o: in function `hidma_mgmt_init':
-hidma_mgmt.c:(.init.text+0x126): undefined reference to `of_address_to_resource'
-s390-linux-ld: hidma_mgmt.c:(.init.text+0x16e): undefined reference to `of_address_to_resource'
-
-Fixes: 67a2003e0607 ("dmaengine: add Qualcomm Technologies HIDMA channel driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Sinan Kaya <okaya@codeaurora.org>
-Cc: Vinod Koul <vkoul@kernel.org>
-Cc: dmaengine@vger.kernel.org
-Link: https://lore.kernel.org/r/20210522021313.16405-3-rdunlap@infradead.org
+Fixes: 8d318a50b3d7 ("DMAENGINE: Support for ST-Ericssons DMA40 block v3")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210518141108.1324127-1-yangyingliang@huawei.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/qcom/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/ste_dma40.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/dma/qcom/Kconfig b/drivers/dma/qcom/Kconfig
-index a7761c4025f4..a97c7123d913 100644
---- a/drivers/dma/qcom/Kconfig
-+++ b/drivers/dma/qcom/Kconfig
-@@ -9,6 +9,7 @@ config QCOM_BAM_DMA
+diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
+index 90feb6a05e59..ee15d4fefbad 100644
+--- a/drivers/dma/ste_dma40.c
++++ b/drivers/dma/ste_dma40.c
+@@ -3656,6 +3656,9 @@ static int __init d40_probe(struct platform_device *pdev)
  
- config QCOM_HIDMA_MGMT
- 	tristate "Qualcomm Technologies HIDMA Management support"
-+	depends on HAS_IOMEM
- 	select DMA_ENGINE
- 	help
- 	  Enable support for the Qualcomm Technologies HIDMA Management.
+ 	kfree(base->lcla_pool.base_unaligned);
+ 
++	if (base->lcpa_base)
++		iounmap(base->lcpa_base);
++
+ 	if (base->phy_lcpa)
+ 		release_mem_region(base->phy_lcpa,
+ 				   base->lcpa_size);
 -- 
 2.30.2
 
