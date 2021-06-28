@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5E43B618A
+	by mail.lfdr.de (Postfix) with ESMTP id 53B7F3B618B
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235428AbhF1OgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37368 "EHLO mail.kernel.org"
+        id S234839AbhF1OgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:36:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235009AbhF1Oel (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:34:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 921FF619F1;
-        Mon, 28 Jun 2021 14:30:15 +0000 (UTC)
+        id S235024AbhF1Oep (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:34:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81FB861C85;
+        Mon, 28 Jun 2021 14:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890616;
-        bh=r0SCym8zPSxMF17XB1U5ze7Re9IwZfcVo4Fz9FevoME=;
+        s=k20201202; t=1624890617;
+        bh=LJLpET3dPdDd1QY1F/vPl2uENiMf7V+LvERm/aLbD/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XptA8p86FDZCCLUmO17T6SnJNMNRvHCkB6zeswKlhJLdKZDMt6F02PXi0HcssfoMO
-         hulcZCtKPuDFW3s9jWMS0UCisKvgHHnocEXbrS0P5WEA9fxdEmsAm7nSJCD1cg5fwe
-         UbpUwgBaT0l5CV/at4u0k7nY+NzWg7Myr6eXp0OItAw+2kSEqsbAKZCSRExm20i1GE
-         0FxANT4RlJnpIXUJL/wjUq1Bb2+8G2fxaF22pUsSG9acfUHlycFu1FWCTQkCDl3sT+
-         AHJjdydrtRAVKbD8hAJe5s6Mu8A6zuXAYbJZM7+9U00+Tp/HOYVwYP/55t9MgTbV3H
-         Ka4vHXpbH3/EA==
+        b=ET7+p7LwTXDTp3azwGc35/AJHiu+6dUB0OnfjUXfHBA0YGrvEcNQMXcYFP/BWVMmr
+         KRGFOghaIRxQ/11GM/E+pbCUWQ/8BaR1LBFLny59nXFgup53+OZZeBO+W8Dm3Wy3G3
+         r5mgdclQZy4nJaku2nbGJ/iW7tYhRP9vIKoC5CddRnElRf3eve9unYbpcawPyB6ATc
+         aXdxdAdda01LlFGfu3xe/aU12UMO6u+AsDFQ4LcTO0woii6JkbvgnJvP1b7KADH3Yf
+         sLdCQez0c3enrhiZOBse7hKyz1t8RPm7QrnZj/t5S+rPUi3SuAcKBM61VTTGuNZp4Z
+         eWU4n0cyySz7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Simon Glass <sjg@chromium.org>, Tom Rini <trini@konsulko.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 10/71] MIPS: generic: Update node names to avoid unit addresses
-Date:   Mon, 28 Jun 2021 10:29:03 -0400
-Message-Id: <20210628143004.32596-11-sashal@kernel.org>
+Cc:     Haibo Chen <haibo.chen@nxp.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 11/71] spi: spi-nxp-fspi: move the register operation after the clock enable
+Date:   Mon, 28 Jun 2021 10:29:04 -0400
+Message-Id: <20210628143004.32596-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -49,228 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-commit e607ff630c6053ecc67502677c0e50053d7892d4 upstream.
+[ Upstream commit f422316c8e9d3c4aff3c56549dfb44a677d02f14 ]
 
-With the latest mkimage from U-Boot 2021.04, the generic defconfigs no
-longer build, failing with:
+Move the register operation after the clock enable, otherwise system
+will stuck when this driver probe.
 
-/usr/bin/mkimage: verify_header failed for FIT Image support with exit code 1
-
-This is expected after the linked U-Boot commits because '@' is
-forbidden in the node names due to the way that libfdt treats nodes with
-the same prefix but different unit addresses.
-
-Switch the '@' in the node name to '-'. Drop the unit addresses from the
-hash and kernel child nodes because there is only one node so they do
-not need to have a number to differentiate them.
-
-Cc: stable@vger.kernel.org
-Link: https://source.denx.de/u-boot/u-boot/-/commit/79af75f7776fc20b0d7eb6afe1e27c00fdb4b9b4
-Link: https://source.denx.de/u-boot/u-boot/-/commit/3f04db891a353f4b127ed57279279f851c6b4917
-Suggested-by: Simon Glass <sjg@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Tom Rini <trini@konsulko.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-[nathan: Backport to 5.4, only apply to .its.S files that exist]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 71d80563b076 ("spi: spi-nxp-fspi: fix fspi panic by unexpected interrupts")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/1623317073-25158-1-git-send-email-haibo.chen@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/generic/board-boston.its.S   | 10 +++++-----
- arch/mips/generic/board-ni169445.its.S | 10 +++++-----
- arch/mips/generic/board-ocelot.its.S   | 20 ++++++++++----------
- arch/mips/generic/board-xilfpga.its.S  | 10 +++++-----
- arch/mips/generic/vmlinux.its.S        | 10 +++++-----
- 5 files changed, 30 insertions(+), 30 deletions(-)
+ drivers/spi/spi-nxp-fspi.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/mips/generic/board-boston.its.S b/arch/mips/generic/board-boston.its.S
-index a7f51f97b910..c45ad2759421 100644
---- a/arch/mips/generic/board-boston.its.S
-+++ b/arch/mips/generic/board-boston.its.S
-@@ -1,22 +1,22 @@
- / {
- 	images {
--		fdt@boston {
-+		fdt-boston {
- 			description = "img,boston Device Tree";
- 			data = /incbin/("boot/dts/img/boston.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
+diff --git a/drivers/spi/spi-nxp-fspi.c b/drivers/spi/spi-nxp-fspi.c
+index efd9e908e224..36a44a837031 100644
+--- a/drivers/spi/spi-nxp-fspi.c
++++ b/drivers/spi/spi-nxp-fspi.c
+@@ -975,12 +975,6 @@ static int nxp_fspi_probe(struct platform_device *pdev)
+ 		goto err_put_ctrl;
+ 	}
  
- 	configurations {
--		conf@boston {
-+		conf-boston {
- 			description = "Boston Linux kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@boston";
-+			kernel = "kernel";
-+			fdt = "fdt-boston";
- 		};
- 	};
- };
-diff --git a/arch/mips/generic/board-ni169445.its.S b/arch/mips/generic/board-ni169445.its.S
-index e4cb4f95a8cc..0a2e8f7a8526 100644
---- a/arch/mips/generic/board-ni169445.its.S
-+++ b/arch/mips/generic/board-ni169445.its.S
-@@ -1,22 +1,22 @@
- / {
- 	images {
--		fdt@ni169445 {
-+		fdt-ni169445 {
- 			description = "NI 169445 device tree";
- 			data = /incbin/("boot/dts/ni/169445.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
+-	/* Clear potential interrupts */
+-	reg = fspi_readl(f, f->iobase + FSPI_INTR);
+-	if (reg)
+-		fspi_writel(f, reg, f->iobase + FSPI_INTR);
+-
+-
+ 	/* find the resources - controller memory mapped space */
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "fspi_mmap");
+ 	f->ahb_addr = devm_ioremap_resource(dev, res);
+@@ -1012,6 +1006,11 @@ static int nxp_fspi_probe(struct platform_device *pdev)
+ 		goto err_put_ctrl;
+ 	}
  
- 	configurations {
--		conf@ni169445 {
-+		conf-ni169445 {
- 			description = "NI 169445 Linux Kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@ni169445";
-+			kernel = "kernel";
-+			fdt = "fdt-ni169445";
- 		};
- 	};
- };
-diff --git a/arch/mips/generic/board-ocelot.its.S b/arch/mips/generic/board-ocelot.its.S
-index 3da23988149a..8c7e3a1b68d3 100644
---- a/arch/mips/generic/board-ocelot.its.S
-+++ b/arch/mips/generic/board-ocelot.its.S
-@@ -1,40 +1,40 @@
- /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
- / {
- 	images {
--		fdt@ocelot_pcb123 {
-+		fdt-ocelot_pcb123 {
- 			description = "MSCC Ocelot PCB123 Device Tree";
- 			data = /incbin/("boot/dts/mscc/ocelot_pcb123.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 
--		fdt@ocelot_pcb120 {
-+		fdt-ocelot_pcb120 {
- 			description = "MSCC Ocelot PCB120 Device Tree";
- 			data = /incbin/("boot/dts/mscc/ocelot_pcb120.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
- 
- 	configurations {
--		conf@ocelot_pcb123 {
-+		conf-ocelot_pcb123 {
- 			description = "Ocelot Linux kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@ocelot_pcb123";
-+			kernel = "kernel";
-+			fdt = "fdt-ocelot_pcb123";
- 		};
- 
--		conf@ocelot_pcb120 {
-+		conf-ocelot_pcb120 {
- 			description = "Ocelot Linux kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@ocelot_pcb120";
-+			kernel = "kernel";
-+			fdt = "fdt-ocelot_pcb120";
- 		};
- 	};
- };
-diff --git a/arch/mips/generic/board-xilfpga.its.S b/arch/mips/generic/board-xilfpga.its.S
-index a2e773d3f14f..08c1e900eb4e 100644
---- a/arch/mips/generic/board-xilfpga.its.S
-+++ b/arch/mips/generic/board-xilfpga.its.S
-@@ -1,22 +1,22 @@
- / {
- 	images {
--		fdt@xilfpga {
-+		fdt-xilfpga {
- 			description = "MIPSfpga (xilfpga) Device Tree";
- 			data = /incbin/("boot/dts/xilfpga/nexys4ddr.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
- 
- 	configurations {
--		conf@xilfpga {
-+		conf-xilfpga {
- 			description = "MIPSfpga Linux kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@xilfpga";
-+			kernel = "kernel";
-+			fdt = "fdt-xilfpga";
- 		};
- 	};
- };
-diff --git a/arch/mips/generic/vmlinux.its.S b/arch/mips/generic/vmlinux.its.S
-index 1a08438fd893..3e254676540f 100644
---- a/arch/mips/generic/vmlinux.its.S
-+++ b/arch/mips/generic/vmlinux.its.S
-@@ -6,7 +6,7 @@
- 	#address-cells = <ADDR_CELLS>;
- 
- 	images {
--		kernel@0 {
-+		kernel {
- 			description = KERNEL_NAME;
- 			data = /incbin/(VMLINUX_BINARY);
- 			type = "kernel";
-@@ -15,18 +15,18 @@
- 			compression = VMLINUX_COMPRESSION;
- 			load = /bits/ ADDR_BITS <VMLINUX_LOAD_ADDRESS>;
- 			entry = /bits/ ADDR_BITS <VMLINUX_ENTRY_ADDRESS>;
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
- 
- 	configurations {
--		default = "conf@default";
-+		default = "conf-default";
- 
--		conf@default {
-+		conf-default {
- 			description = "Generic Linux kernel";
--			kernel = "kernel@0";
-+			kernel = "kernel";
- 		};
- 	};
- };
++	/* Clear potential interrupts */
++	reg = fspi_readl(f, f->iobase + FSPI_INTR);
++	if (reg)
++		fspi_writel(f, reg, f->iobase + FSPI_INTR);
++
+ 	/* find the irq */
+ 	ret = platform_get_irq(pdev, 0);
+ 	if (ret < 0)
 -- 
 2.30.2
 
