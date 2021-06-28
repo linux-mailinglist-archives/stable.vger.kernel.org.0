@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31E863B60E5
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:28:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22FE53B6113
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233945AbhF1ObK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:31:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37318 "EHLO mail.kernel.org"
+        id S233201AbhF1Obu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:31:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234597AbhF1OaK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234598AbhF1OaK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:30:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 523A3619BE;
-        Mon, 28 Jun 2021 14:26:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CC8E61CAE;
+        Mon, 28 Jun 2021 14:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890393;
-        bh=pHjj4eZRnD4vgLuAIM/EdDbnVLr7WOjHR5lfFeGo2dg=;
+        s=k20201202; t=1624890394;
+        bh=CtLT/lzwUI8ebT8vGhX4RAeNFaQvGQpIJCVCOAIQ0WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hpikYKsfo6XcvzYjGFu228REVjnmykoL0BRHue01KvPc2Hk8VLwzMJEcrPnPF+nDT
-         3Apu1O59sxRsL6bYUMjcEdgrrB7komtY6ptWmxmqiqKaQ9VCDND6tHTt0YQmHvmxVD
-         NKwlVLbe6//pYjqCDxkWCORS42K8mNGLGLicyAYsdHWAkLZ2JQQAMPVY8UGsiCibf1
-         Rjn9OWCwgAbz2IY7UlGVzHY3Z9Y6lE/rNy9OuFtVcw0pj2zpBGNBXenMYmu1U+rWFQ
-         FD7q0vtyxKaDKeEy4/jFUyQ574E6Fpb+GbWwxuGwiaeWTeMQ0QeVm4zYuEIs+8SOSh
-         LXF2bg9nNHTHg==
+        b=fi5MP6obMA3DT44hPFMLrAN4M+RucKADlwHe+QFK8ID8NslCfIvv0nwY+lXHicjWy
+         5T4fNFbGMFMRarTklJ5jiF61rEtESBitkSZS3BoxTMl4hatfqwm0i6NR395HWHhvcN
+         0bgsU+H02seqEXCPZe3HzYHCWd9+ETB01YhZa5JsmeqQy7tCUs9Av9Wold7So/Tz1k
+         diruF+wgzLSNEw9aslAaSXSC1gA3eMeG/Ddy5YgJY232sj4y6QBnIpeS6t3QmfThvv
+         njGYZO+STB4TDjX9+0Mvn7F74aOvSnBtQ+mxecklmET+Xv7QRlLoNyOUOFZPe/yPEI
+         h+wBc/IeawNog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Du Cheng <ducheng2@gmail.com>,
-        syzbot+105896fac213f26056f9@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/101] cfg80211: call cfg80211_leave_ocb when switching away from OCB
-Date:   Mon, 28 Jun 2021 10:24:54 -0400
-Message-Id: <20210628142607.32218-29-sashal@kernel.org>
+Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 029/101] dmaengine: rcar-dmac: Fix PM reference leak in rcar_dmac_probe()
+Date:   Mon, 28 Jun 2021 10:24:55 -0400
+Message-Id: <20210628142607.32218-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -49,60 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit a64b6a25dd9f984ed05fade603a00e2eae787d2f ]
+[ Upstream commit dea8464ddf553803382efb753b6727dbf3931d06 ]
 
-If the userland switches back-and-forth between NL80211_IFTYPE_OCB and
-NL80211_IFTYPE_ADHOC via send_msg(NL80211_CMD_SET_INTERFACE), there is a
-chance where the cleanup cfg80211_leave_ocb() is not called. This leads
-to initialization of in-use memory (e.g. init u.ibss while in-use by
-u.ocb) due to a shared struct/union within ieee80211_sub_if_data:
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-struct ieee80211_sub_if_data {
-    ...
-    union {
-        struct ieee80211_if_ap ap;
-        struct ieee80211_if_vlan vlan;
-        struct ieee80211_if_managed mgd;
-        struct ieee80211_if_ibss ibss; // <- shares address
-        struct ieee80211_if_mesh mesh;
-        struct ieee80211_if_ocb ocb; // <- shares address
-        struct ieee80211_if_mntr mntr;
-        struct ieee80211_if_nan nan;
-    } u;
-    ...
-}
-
-Therefore add handling of otype == NL80211_IFTYPE_OCB, during
-cfg80211_change_iface() to perform cleanup when leaving OCB mode.
-
-link to syzkaller bug:
-https://syzkaller.appspot.com/bug?id=0612dbfa595bf4b9b680ff7b4948257b8e3732d5
-
-Reported-by: syzbot+105896fac213f26056f9@syzkaller.appspotmail.com
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Link: https://lore.kernel.org/r/20210428063941.105161-1-ducheng2@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/1622442963-54095-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/dma/sh/rcar-dmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index 2731267fd0f9..4fb8d1b14e76 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -1059,6 +1059,9 @@ int cfg80211_change_iface(struct cfg80211_registered_device *rdev,
- 		case NL80211_IFTYPE_MESH_POINT:
- 			/* mesh should be handled? */
- 			break;
-+		case NL80211_IFTYPE_OCB:
-+			cfg80211_leave_ocb(rdev, dev);
-+			break;
- 		default:
- 			break;
- 		}
+diff --git a/drivers/dma/sh/rcar-dmac.c b/drivers/dma/sh/rcar-dmac.c
+index a57705356e8b..991a7b5da29f 100644
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -1874,7 +1874,7 @@ static int rcar_dmac_probe(struct platform_device *pdev)
+ 
+ 	/* Enable runtime PM and initialize the device. */
+ 	pm_runtime_enable(&pdev->dev);
+-	ret = pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_resume_and_get(&pdev->dev);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "runtime PM get sync failed (%d)\n", ret);
+ 		return ret;
 -- 
 2.30.2
 
