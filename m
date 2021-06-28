@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC2043B6040
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 417E93B6041
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:20:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233563AbhF1OXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:23:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55458 "EHLO mail.kernel.org"
+        id S232741AbhF1OXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:23:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233385AbhF1OWP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233384AbhF1OWP (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:22:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE05361C7E;
-        Mon, 28 Jun 2021 14:19:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AE6661C82;
+        Mon, 28 Jun 2021 14:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889974;
-        bh=CSKpV0oXRx2md4FrADuQt7C5u018lk9k7KOhngBuVMw=;
+        s=k20201202; t=1624889975;
+        bh=Tt4kKcOFumr0HGbvQ6J3GSERtHdLHRwGWxxZHxaiIlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QBJ602QBcBzdVC8gMtQ8sXyjasjmZqHeerczGfWx1dVTBKNGTekTC0WYoL2BeDVNR
-         xKDh1lvY/SUsv+Litnm51nHvUZwaB/yaYrsRKBXTEl4JyDd0wm0x4Q6jE9TEcSZy0G
-         t/SIasf6lb4ohsDvu9PJOTRpjE46DSxx3oft1sKmgnZv2nQfjL8pnfH80LvUvN+stL
-         TqrLuuJdTMxf5orOOERjN7BwIW7EqwjrEoxK+pUUDkHHakZVr1IrWya6AYST9kUuqF
-         8VH0rT5Jvg+qCCipegneK7i17cpuA+/zSzwcJJychT9V5IwVrW610qf+bRCSsm9tbY
-         foqFJvqZQbWGA==
+        b=ZTvj3g1VG0tkDI83/HICuKy69/TXhsbgdRd7o7/bMivJVJUfmvsXuaYZJwAzVPLEF
+         Q577CaXQr2qunkwIYJr1SAHsvOpdHi8AOTZmRh6oeYe0Y5ZhZkI+BXW1nPDb6aSmj8
+         fwsF+0/juC+XGmt7TxxjgKIjrCMTqIOpswyOfXZ0w77lEIQk1bjJwxxd1QFnk9PsTH
+         9DjhQaTx8BZJgb5q5LWVoDl5j8cXLQqD+GXRT0Hlcd88VhcG045i/LzGeB6ZIcd7Dy
+         HEJmGgu3T72yha/9vLyAnkeFnsx4wJ2/in7H9+yZqZYsz5Is3O7uu37lEtRyQ7ec2F
+         b59J/UqRYa3+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Julien Grall <julien@xen.org>,
-        Boris Ostrovsky <boris.ostrvsky@oracle.com>,
+Cc:     Petr Mladek <pmladek@suse.com>, jenhaochen@google.com,
+        Martin Liu <liumartin@google.com>,
+        Minchan Kim <minchan@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 076/110] xen/events: reset active flag for lateeoi events later
-Date:   Mon, 28 Jun 2021 10:17:54 -0400
-Message-Id: <20210628141828.31757-77-sashal@kernel.org>
+Subject: [PATCH 5.12 077/110] kthread_worker: split code for canceling the delayed work timer
+Date:   Mon, 28 Jun 2021 10:17:55 -0400
+Message-Id: <20210628141828.31757-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -48,66 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Petr Mladek <pmladek@suse.com>
 
-commit 3de218ff39b9e3f0d453fe3154f12a174de44b25 upstream.
+commit 34b3d5344719d14fd2185b2d9459b3abcb8cf9d8 upstream.
 
-In order to avoid a race condition for user events when changing
-cpu affinity reset the active flag only when EOI-ing the event.
+Patch series "kthread_worker: Fix race between kthread_mod_delayed_work()
+and kthread_cancel_delayed_work_sync()".
 
-This is working fine as all user events are lateeoi events. Note that
-lateeoi_ack_mask_dynirq() is not modified as there is no explicit call
-to xen_irq_lateeoi() expected later.
+This patchset fixes the race between kthread_mod_delayed_work() and
+kthread_cancel_delayed_work_sync() including proper return value
+handling.
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Fixes: b6622798bc50b62 ("xen/events: avoid handling the same event on two cpus at the same time")
-Tested-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrvsky@oracle.com>
-Link: https://lore.kernel.org/r/20210623130913.9405-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+This patch (of 2):
+
+Simple code refactoring as a preparation step for fixing a race between
+kthread_mod_delayed_work() and kthread_cancel_delayed_work_sync().
+
+It does not modify the existing behavior.
+
+Link: https://lkml.kernel.org/r/20210610133051.15337-2-pmladek@suse.com
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Cc: <jenhaochen@google.com>
+Cc: Martin Liu <liumartin@google.com>
+Cc: Minchan Kim <minchan@google.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/events/events_base.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ kernel/kthread.c | 46 +++++++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 7bbfd58958bc..d7e361fb0548 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -642,6 +642,9 @@ static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
- 	}
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index 6d3c488a0f82..fc7536079f7e 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -1091,6 +1091,33 @@ void kthread_flush_work(struct kthread_work *work)
+ }
+ EXPORT_SYMBOL_GPL(kthread_flush_work);
  
- 	info->eoi_time = 0;
++/*
++ * Make sure that the timer is neither set nor running and could
++ * not manipulate the work list_head any longer.
++ *
++ * The function is called under worker->lock. The lock is temporary
++ * released but the timer can't be set again in the meantime.
++ */
++static void kthread_cancel_delayed_work_timer(struct kthread_work *work,
++					      unsigned long *flags)
++{
++	struct kthread_delayed_work *dwork =
++		container_of(work, struct kthread_delayed_work, work);
++	struct kthread_worker *worker = work->worker;
 +
-+	/* is_active hasn't been reset yet, do it now. */
-+	smp_store_release(&info->is_active, 0);
- 	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
- }
- 
-@@ -811,6 +814,7 @@ static void xen_evtchn_close(evtchn_port_t port)
- 		BUG();
- }
- 
-+/* Not called for lateeoi events. */
- static void event_handler_exit(struct irq_info *info)
++	/*
++	 * del_timer_sync() must be called to make sure that the timer
++	 * callback is not running. The lock must be temporary released
++	 * to avoid a deadlock with the callback. In the meantime,
++	 * any queuing is blocked by setting the canceling counter.
++	 */
++	work->canceling++;
++	raw_spin_unlock_irqrestore(&worker->lock, *flags);
++	del_timer_sync(&dwork->timer);
++	raw_spin_lock_irqsave(&worker->lock, *flags);
++	work->canceling--;
++}
++
+ /*
+  * This function removes the work from the worker queue. Also it makes sure
+  * that it won't get queued later via the delayed work's timer.
+@@ -1105,23 +1132,8 @@ static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
+ 				  unsigned long *flags)
  {
- 	smp_store_release(&info->is_active, 0);
-@@ -1883,7 +1887,12 @@ static void lateeoi_ack_dynirq(struct irq_data *data)
+ 	/* Try to cancel the timer if exists. */
+-	if (is_dwork) {
+-		struct kthread_delayed_work *dwork =
+-			container_of(work, struct kthread_delayed_work, work);
+-		struct kthread_worker *worker = work->worker;
+-
+-		/*
+-		 * del_timer_sync() must be called to make sure that the timer
+-		 * callback is not running. The lock must be temporary released
+-		 * to avoid a deadlock with the callback. In the meantime,
+-		 * any queuing is blocked by setting the canceling counter.
+-		 */
+-		work->canceling++;
+-		raw_spin_unlock_irqrestore(&worker->lock, *flags);
+-		del_timer_sync(&dwork->timer);
+-		raw_spin_lock_irqsave(&worker->lock, *flags);
+-		work->canceling--;
+-	}
++	if (is_dwork)
++		kthread_cancel_delayed_work_timer(work, flags);
  
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		event_handler_exit(info);
-+		/*
-+		 * Don't call event_handler_exit().
-+		 * Need to keep is_active non-zero in order to ignore re-raised
-+		 * events after cpu affinity changes while a lateeoi is pending.
-+		 */
-+		clear_evtchn(evtchn);
- 	}
- }
- 
+ 	/*
+ 	 * Try to remove the work from a worker list. It might either
 -- 
 2.30.2
 
