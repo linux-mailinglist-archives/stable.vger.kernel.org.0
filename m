@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AAC43B6434
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 236BF3B6438
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235300AbhF1PGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:06:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36568 "EHLO mail.kernel.org"
+        id S235366AbhF1PGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:06:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236777AbhF1PCi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 11:02:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC02861CD7;
-        Mon, 28 Jun 2021 14:43:04 +0000 (UTC)
+        id S236785AbhF1PCj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 11:02:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA5B861CDD;
+        Mon, 28 Jun 2021 14:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891385;
-        bh=vn/UDLU2muWr/uJ/R2960xAjhebQsbHwhNrylMHr1Yw=;
+        s=k20201202; t=1624891386;
+        bh=XIOz4vqnwOvpOo3hRFgpsztyM9IMnV29zg9GI6fTdPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eC9hVK8iYz0fTCyZUu3HhrdaDCC5AvnVce6g0hRG1OeCJ0WQpccdKOewJ3W3lv5nz
-         lvF+S5mZdQ+WdJa8jP0KTbRJB4GHkn0Ln/m+mEHU25glnD1b+QWcjEPV3op9KoKIIN
-         EuIK4hmp8H9EX08kGcwng614GhlpGNlpNp/ONR+ct1TF9MySNCXFY+w3/7KWsgwTLb
-         i9zr3aECvbit3CLcCBgbpXFQPHlBLa75bUkIMC1pRJv+gSSlAqjhML38aZfgkGCwOr
-         y32GEBCHT778+/c3ySY97bvIDwTiPaDvLCUpl9UhQe65XtXxK9unjNfS7hVYHFwKjP
-         SWJDNjNjXK/Tw==
+        b=WF3WRx8lq64vLmG3Z7Eq5m+yL9oGWXZx7Ca7ybay4yGI6bufvl8hXxru0qz9k4rov
+         yYtusJZefZ8rWRoMqamtzX9zHOcvcHZBOo7uVcvoVsJ8Zpa18uws9whlPDKbbZEXS/
+         gD3D5oP/KsZAa0vpjqERI9Ic/GllTRiYDy/jGdLPJwDUE73Kie8WmEDpF1aMK9ywIM
+         GNCWOD/8Lt/sA5eu6jjhJOrYD3mHfjXQt6prZUJqFsD0kvN0rJOhYlCoXfNWz1NgZj
+         z9LYmHwnieYeJafQ0SqxsYdCHA9x8ZxL0uUXL5a0HW990TktM1UCvCmThC/MhLwodh
+         iScy5W2c3neVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
+Cc:     Josh Triplett <josh@joshtriplett.org>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/57] ethernet: myri10ge: Fix missing error code in myri10ge_probe()
-Date:   Mon, 28 Jun 2021 10:42:07 -0400
-Message-Id: <20210628144256.34524-9-sashal@kernel.org>
+Subject: [PATCH 4.4 09/57] net: ipconfig: Don't override command-line hostnames or domains
+Date:   Mon, 28 Jun 2021 10:42:08 -0400
+Message-Id: <20210628144256.34524-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
 References: <20210628144256.34524-1-sashal@kernel.org>
@@ -49,38 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Josh Triplett <josh@joshtriplett.org>
 
-[ Upstream commit f336d0b93ae978f12c5e27199f828da89b91e56a ]
+[ Upstream commit b508d5fb69c2211a1b860fc058aafbefc3b3c3cd ]
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'status'.
+If the user specifies a hostname or domain name as part of the ip=
+command-line option, preserve it and don't overwrite it with one
+supplied by DHCP/BOOTP.
 
-Eliminate the follow smatch warning:
+For instance, ip=::::myhostname::dhcp will use "myhostname" rather than
+ignoring and overwriting it.
 
-drivers/net/ethernet/myricom/myri10ge/myri10ge.c:3818 myri10ge_probe()
-warn: missing error code 'status'.
+Fix the comment on ic_bootp_string that suggests it only copies a string
+"if not already set"; it doesn't have any such logic.
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Josh Triplett <josh@joshtriplett.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/ipconfig.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-index 8ebf3611aba3..9ecb99a1de35 100644
---- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-+++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-@@ -4051,6 +4051,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		dev_err(&pdev->dev,
- 			"invalid sram_size %dB or board span %ldB\n",
- 			mgp->sram_size, mgp->board_span);
-+		status = -EINVAL;
- 		goto abort_with_ioremap;
- 	}
- 	memcpy_fromio(mgp->eeprom_strings,
+diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
+index 60f564db25a3..173777aa5add 100644
+--- a/net/ipv4/ipconfig.c
++++ b/net/ipv4/ipconfig.c
+@@ -890,7 +890,7 @@ static void __init ic_bootp_send_if(struct ic_device *d, unsigned long jiffies_d
+ 
+ 
+ /*
+- *  Copy BOOTP-supplied string if not already set.
++ *  Copy BOOTP-supplied string
+  */
+ static int __init ic_bootp_string(char *dest, char *src, int len, int max)
+ {
+@@ -941,12 +941,15 @@ static void __init ic_do_bootp_ext(u8 *ext)
+ 		}
+ 		break;
+ 	case 12:	/* Host name */
+-		ic_bootp_string(utsname()->nodename, ext+1, *ext,
+-				__NEW_UTS_LEN);
+-		ic_host_name_set = 1;
++		if (!ic_host_name_set) {
++			ic_bootp_string(utsname()->nodename, ext+1, *ext,
++					__NEW_UTS_LEN);
++			ic_host_name_set = 1;
++		}
+ 		break;
+ 	case 15:	/* Domain name (DNS) */
+-		ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
++		if (!ic_domain[0])
++			ic_bootp_string(ic_domain, ext+1, *ext, sizeof(ic_domain));
+ 		break;
+ 	case 17:	/* Root path */
+ 		if (!root_server_path[0])
 -- 
 2.30.2
 
