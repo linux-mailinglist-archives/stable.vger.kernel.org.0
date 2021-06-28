@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60B2E3B615F
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7091E3B6162
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234341AbhF1Ofr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234765AbhF1Ofr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Jun 2021 10:35:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36752 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234236AbhF1Ocn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234401AbhF1Ocn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:32:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0AF161C7B;
-        Mon, 28 Jun 2021 14:27:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D5FB613CB;
+        Mon, 28 Jun 2021 14:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890458;
-        bh=QUcUXl2TSA7HABT54P8HVtbuAJu/sH2Wc6I7GlpGw1o=;
+        s=k20201202; t=1624890459;
+        bh=2a3s0EbIgbmJhKLJF9C+pEbkicfstRIMwVoNI0vQbF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3QDlLuXKYUHWHMCQce/w1cntnlzZ5hncXdMDMX8Us9Kvt8nwk5xtfe+dp4BesUht
-         CzFvm4U2Jo1LktkcgtQhtfjUAwAamk3uHn8GuxLl2ttXifWeHvurkOMhvUilx6cGYk
-         ALOvEjEZzWGuudCckjzlV30l05R668zxXeblgKokpJiI5fq2a/CwGBIdePnqQrPtL0
-         cgZL51JcYPpf8XY0132TIGeI5OcI+bfQgtvaSZ6/uH4Q2Yx7KWPiVOPMHByqStyoTF
-         kcauFPZo5sJ9BKjqg0Jrr7lNAtIN3MzKGjee2POMuCQESaNiBm1c6YQH0eoWtNkhNe
-         W89jbDD606tBA==
+        b=kmwS7IGlhvk4FXI7JRDz7VTOpv8EDoFEHPIL4JeLRUuh8G5au45wkRlGHNT0Jk+4z
+         x5o4bvumyi4GWtv30iCneqpbXaDlUGOwBf0xHsYV0fSE2KfGobmUPL5NJ2lw/5DP9r
+         a/BQBPlmXUCljFJb17BIYQuop2i6SfnQqGmi+9T0N22epc0kAb5AmK2xCvptuAY+O9
+         3xuqCqqPV6LVjC9NpkbP8MBdFXTCGbjMtBVbX+RoecRmT5r3Ei+u6VujGQk95I4A5O
+         qsGUWYNKQvx7vNZHUW007jZ/mZ3CYV71qaxAMiHI2BFv6t/Kb2sVjiD+Bc4m25bMKW
+         VC4cTiDgorbZg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hugh Dickins <hughd@google.com>,
@@ -37,9 +37,9 @@ Cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 087/101] mm: page_vma_mapped_walk(): add a level of indentation
-Date:   Mon, 28 Jun 2021 10:25:53 -0400
-Message-Id: <20210628142607.32218-88-sashal@kernel.org>
+Subject: [PATCH 5.10 088/101] mm: page_vma_mapped_walk(): use goto instead of while (1)
+Date:   Mon, 28 Jun 2021 10:25:54 -0400
+Message-Id: <20210628142607.32218-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -59,16 +59,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hugh Dickins <hughd@google.com>
 
-commit b3807a91aca7d21c05d5790612e49969117a72b9 upstream.
+commit 474466301dfd8b39a10c01db740645f3f7ae9a28 upstream.
 
-page_vma_mapped_walk() cleanup: add a level of indentation to much of
-the body, making no functional change in this commit, but reducing the
-later diff when this is all converted to a loop.
+page_vma_mapped_walk() cleanup: add a label this_pte, matching next_pte,
+and use "goto this_pte", in place of the "while (1)" loop at the end.
 
-[hughd@google.com: : page_vma_mapped_walk(): add a level of indentation fix]
-  Link: https://lkml.kernel.org/r/7f817555-3ce1-c785-e438-87d8efdcaf26@google.com
-
-Link: https://lkml.kernel.org/r/efde211-f3e2-fe54-977-ef481419e7f3@google.com
+Link: https://lkml.kernel.org/r/a52b234a-851-3616-2525-f42736e8934@google.com
 Signed-off-by: Hugh Dickins <hughd@google.com>
 Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: Alistair Popple <apopple@nvidia.com>
@@ -84,130 +80,40 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_vma_mapped.c | 105 ++++++++++++++++++++++---------------------
- 1 file changed, 55 insertions(+), 50 deletions(-)
+ mm/page_vma_mapped.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
-index 36b40fd23f94..3c3a7cb2de85 100644
+index 3c3a7cb2de85..cb43affe6c76 100644
 --- a/mm/page_vma_mapped.c
 +++ b/mm/page_vma_mapped.c
-@@ -172,62 +172,67 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 	if (pvmw->pte)
- 		goto next_pte;
- restart:
--	pgd = pgd_offset(mm, pvmw->address);
--	if (!pgd_present(*pgd))
--		return false;
--	p4d = p4d_offset(pgd, pvmw->address);
--	if (!p4d_present(*p4d))
--		return false;
--	pud = pud_offset(p4d, pvmw->address);
--	if (!pud_present(*pud))
--		return false;
--	pvmw->pmd = pmd_offset(pud, pvmw->address);
--	/*
--	 * Make sure the pmd value isn't cached in a register by the
--	 * compiler and used as a stale value after we've observed a
--	 * subsequent update.
--	 */
--	pmde = READ_ONCE(*pvmw->pmd);
--	if (pmd_trans_huge(pmde) || is_pmd_migration_entry(pmde)) {
--		pvmw->ptl = pmd_lock(mm, pvmw->pmd);
--		pmde = *pvmw->pmd;
--		if (likely(pmd_trans_huge(pmde))) {
--			if (pvmw->flags & PVMW_MIGRATION)
--				return not_found(pvmw);
--			if (pmd_page(pmde) != page)
--				return not_found(pvmw);
--			return true;
--		}
--		if (!pmd_present(pmde)) {
--			swp_entry_t entry;
-+	{
-+		pgd = pgd_offset(mm, pvmw->address);
-+		if (!pgd_present(*pgd))
-+			return false;
-+		p4d = p4d_offset(pgd, pvmw->address);
-+		if (!p4d_present(*p4d))
-+			return false;
-+		pud = pud_offset(p4d, pvmw->address);
-+		if (!pud_present(*pud))
-+			return false;
- 
--			if (!thp_migration_supported() ||
--			    !(pvmw->flags & PVMW_MIGRATION))
--				return not_found(pvmw);
--			entry = pmd_to_swp_entry(pmde);
--			if (!is_migration_entry(entry) ||
--			    migration_entry_to_page(entry) != page)
--				return not_found(pvmw);
--			return true;
--		}
--		/* THP pmd was split under us: handle on pte level */
--		spin_unlock(pvmw->ptl);
--		pvmw->ptl = NULL;
--	} else if (!pmd_present(pmde)) {
-+		pvmw->pmd = pmd_offset(pud, pvmw->address);
- 		/*
--		 * If PVMW_SYNC, take and drop THP pmd lock so that we
--		 * cannot return prematurely, while zap_huge_pmd() has
--		 * cleared *pmd but not decremented compound_mapcount().
-+		 * Make sure the pmd value isn't cached in a register by the
-+		 * compiler and used as a stale value after we've observed a
-+		 * subsequent update.
- 		 */
--		if ((pvmw->flags & PVMW_SYNC) && PageTransCompound(page)) {
--			spinlock_t *ptl = pmd_lock(mm, pvmw->pmd);
-+		pmde = READ_ONCE(*pvmw->pmd);
- 
--			spin_unlock(ptl);
-+		if (pmd_trans_huge(pmde) || is_pmd_migration_entry(pmde)) {
-+			pvmw->ptl = pmd_lock(mm, pvmw->pmd);
-+			pmde = *pvmw->pmd;
-+			if (likely(pmd_trans_huge(pmde))) {
-+				if (pvmw->flags & PVMW_MIGRATION)
-+					return not_found(pvmw);
-+				if (pmd_page(pmde) != page)
-+					return not_found(pvmw);
-+				return true;
-+			}
-+			if (!pmd_present(pmde)) {
-+				swp_entry_t entry;
-+
-+				if (!thp_migration_supported() ||
-+				    !(pvmw->flags & PVMW_MIGRATION))
-+					return not_found(pvmw);
-+				entry = pmd_to_swp_entry(pmde);
-+				if (!is_migration_entry(entry) ||
-+				    migration_entry_to_page(entry) != page)
-+					return not_found(pvmw);
-+				return true;
-+			}
-+			/* THP pmd was split under us: handle on pte level */
-+			spin_unlock(pvmw->ptl);
-+			pvmw->ptl = NULL;
-+		} else if (!pmd_present(pmde)) {
-+			/*
-+			 * If PVMW_SYNC, take and drop THP pmd lock so that we
-+			 * cannot return prematurely, while zap_huge_pmd() has
-+			 * cleared *pmd but not decremented compound_mapcount().
-+			 */
-+			if ((pvmw->flags & PVMW_SYNC) &&
-+			    PageTransCompound(page)) {
-+				spinlock_t *ptl = pmd_lock(mm, pvmw->pmd);
-+
-+				spin_unlock(ptl);
-+			}
-+			return false;
+@@ -143,6 +143,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
+ {
+ 	struct mm_struct *mm = pvmw->vma->vm_mm;
+ 	struct page *page = pvmw->page;
++	unsigned long end;
+ 	pgd_t *pgd;
+ 	p4d_t *p4d;
+ 	pud_t *pud;
+@@ -232,10 +233,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
  		}
--		return false;
-+		if (!map_pte(pvmw))
-+			goto next_pte;
+ 		if (!map_pte(pvmw))
+ 			goto next_pte;
+-	}
+-	while (1) {
+-		unsigned long end;
+-
++this_pte:
+ 		if (check_pte(pvmw))
+ 			return true;
+ next_pte:
+@@ -264,6 +262,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
+ 			pvmw->ptl = pte_lockptr(mm, pvmw->pmd);
+ 			spin_lock(pvmw->ptl);
+ 		}
++		goto this_pte;
  	}
--	if (!map_pte(pvmw))
--		goto next_pte;
- 	while (1) {
- 		unsigned long end;
+ }
  
 -- 
 2.30.2
