@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBCC3B62B6
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:47:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86F753B62A4
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234878AbhF1OtC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:49:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51688 "EHLO mail.kernel.org"
+        id S234270AbhF1Osz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:48:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236053AbhF1OqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236056AbhF1OqM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:46:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DDDA61C8D;
-        Mon, 28 Jun 2021 14:34:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76B9361241;
+        Mon, 28 Jun 2021 14:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890863;
-        bh=GNsv3a9usbAxfTqVaZKEvty7Rj+yG7zrmv0yU3ONWTY=;
+        s=k20201202; t=1624890864;
+        bh=LbRUoGLthrbnarBTwl3wzxA/4jZCE9De3pFijdimHao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XdvZ6ez3vDMtICkYgSmIxNwA2ztTmV2G3pxd0YRCPkzSzoGLSJ0/4ZlzFV9A5bPJc
-         sKCQLhkwpckO2Uos9ZrpezxO5smehqPoVCGtC95dxFYkZA08zxGxFkMtswfkqf9H18
-         umQAd7RoRdKo61dM5Y20VL8huQc/iwuzu6fv7n/wJ7fmJu55uTWFlmo8M72gAAu4Hn
-         pmN01F+g0wiXbyux4dOlmzOkB14ddsU6Gt46zDzcAJDuQn/m2N627HOCiLdF5xAALQ
-         gYNTNhiDQQcfeQu2F09PhAkSi6ANj8pVDi3gxm6KR7V8unUHy6TatWqWlw90Pc+AGH
-         3LIjH5PgQuJhA==
+        b=ZyAeOPJqVjMxsbVW480BRUodsTpadTvyYQjE9g5iBS1XtvDledYjwjTkLB7KIfbmh
+         BYu5i7z16G6WsDsgleAw73ADFPy0cuLANzTcCQp7QxE+Vqdv8Q6hWsnyCauVgXSKoK
+         YmJSXwLDNap+8lFifypiMoN0+61UwbTiN7rSIM208z6zDGEdNjQIh/fPn2OWuLFSeK
+         xJpgZqjMBN0DDBUqqvXA/ZSpldaTwjOVUVuuYiwzKj7Kq01pQZKiqjkMIhiCc5Lux1
+         KN6ysgLGB7wz9w2y13saP4jobg4kj30sM0CyNT3qc7+pnsRXflmGZ8LMG+5GL29R10
+         kjvUigPd17PCg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 086/109] ARM: 9081/1: fix gcc-10 thumb2-kernel regression
-Date:   Mon, 28 Jun 2021 10:32:42 -0400
-Message-Id: <20210628143305.32978-87-sashal@kernel.org>
+Subject: [PATCH 4.19 087/109] Makefile: Move -Wno-unused-but-set-variable out of GCC only block
+Date:   Mon, 28 Jun 2021 10:32:43 -0400
+Message-Id: <20210628143305.32978-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -51,84 +49,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit dad7b9896a5dbac5da8275d5a6147c65c81fb5f2 upstream.
+commit 885480b084696331bea61a4f7eba10652999a9c1 upstream.
 
-When building the kernel wtih gcc-10 or higher using the
-CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y flag, the compiler picks a slightly
-different set of registers for the inline assembly in cpu_init() that
-subsequently results in a corrupt kernel stack as well as remaining in
-FIQ mode. If a banked register is used for the last argument, the wrong
-version of that register gets loaded into CPSR_c.  When building in Arm
-mode, the arguments are passed as immediate values and the bug cannot
-happen.
+Currently, -Wunused-but-set-variable is only supported by GCC so it is
+disabled unconditionally in a GCC only block (it is enabled with W=1).
+clang currently has its implementation for this warning in review so
+preemptively move this statement out of the GCC only block and wrap it
+with cc-disable-warning so that both compilers function the same.
 
-This got introduced when Daniel reworked the FIQ handling and was
-technically always broken, but happened to work with both clang and gcc
-before gcc-10 as long as they picked one of the lower registers.
-This is probably an indication that still very few people build the
-kernel in Thumb2 mode.
-
-Marek pointed out the problem on IRC, Arnd narrowed it down to this
-inline assembly and Russell pinpointed the exact bug.
-
-Change the constraints to force the final mode switch to use a non-banked
-register for the argument to ensure that the correct constant gets loaded.
-Another alternative would be to always use registers for the constant
-arguments to avoid the #ifdef that has now become more complex.
-
-Cc: <stable@vger.kernel.org> # v3.18+
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Reported-by: Marek Vasut <marek.vasut@gmail.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Fixes: c0e7f7ee717e ("ARM: 8150/3: fiq: Replace default FIQ handler")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: stable@vger.kernel.org
+Link: https://reviews.llvm.org/D100581
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+[nc: Backport, workaround lack of e2079e93f562 in older branches]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/setup.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
-index 7bbaa293a38c..95db057ed2fa 100644
---- a/arch/arm/kernel/setup.c
-+++ b/arch/arm/kernel/setup.c
-@@ -547,9 +547,11 @@ void notrace cpu_init(void)
- 	 * In Thumb-2, msr with an immediate value is not allowed.
- 	 */
- #ifdef CONFIG_THUMB2_KERNEL
--#define PLC	"r"
-+#define PLC_l	"l"
-+#define PLC_r	"r"
- #else
--#define PLC	"I"
-+#define PLC_l	"I"
-+#define PLC_r	"I"
- #endif
+diff --git a/Makefile b/Makefile
+index 9ff7a4b7b8cb..cda7a18b925a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -716,12 +716,11 @@ KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
+ # See modpost pattern 2
+ KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
+ KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
+-else
++endif
  
- 	/*
-@@ -571,15 +573,15 @@ void notrace cpu_init(void)
- 	"msr	cpsr_c, %9"
- 	    :
- 	    : "r" (stk),
--	      PLC (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
-+	      PLC_r (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
- 	      "I" (offsetof(struct stack, irq[0])),
--	      PLC (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
-+	      PLC_r (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
- 	      "I" (offsetof(struct stack, abt[0])),
--	      PLC (PSR_F_BIT | PSR_I_BIT | UND_MODE),
-+	      PLC_r (PSR_F_BIT | PSR_I_BIT | UND_MODE),
- 	      "I" (offsetof(struct stack, und[0])),
--	      PLC (PSR_F_BIT | PSR_I_BIT | FIQ_MODE),
-+	      PLC_r (PSR_F_BIT | PSR_I_BIT | FIQ_MODE),
- 	      "I" (offsetof(struct stack, fiq[0])),
--	      PLC (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
-+	      PLC_l (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
- 	    : "r14");
- #endif
- }
+ # These warnings generated too much noise in a regular build.
+ # Use make W=1 to enable them (see scripts/Makefile.extrawarn)
+ KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
+-endif
+ 
+ KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
+ ifdef CONFIG_FRAME_POINTER
 -- 
 2.30.2
 
