@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CF6A3B61F1
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:38:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F19463B61EE
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:38:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233690AbhF1Ok2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:40:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43926 "EHLO mail.kernel.org"
+        id S234217AbhF1OkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:40:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234927AbhF1Oiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234929AbhF1Oiu (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:38:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A5F961CBF;
-        Mon, 28 Jun 2021 14:31:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C634061CC8;
+        Mon, 28 Jun 2021 14:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890676;
-        bh=tD5U0q0grfXeU1hh5UBxu28prxSul0mtyHEP19EP680=;
+        s=k20201202; t=1624890678;
+        bh=YB6lpiG0lCSbnUZ2ll6QXaYugQpp1ukoTvc1goQrrBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTDo/lUsFQgJlp0rsai1wXPJExP9k48mN4B2I0pt+FADBPDzwSjpdlMigpiShEZyW
-         zvdWPIZjqBG2wBY/mN+DWj/xZ19R4dLe+/G5+7JzuQocfkHXACK4TU3E9B8kJalb4X
-         I0vrhSdRtlTxV8IvqYmkZTRHurm/pePu81MnV29h3jsOSeQ/4zGKu3FzTxu5nOk2XW
-         5UlE3NQKunruqVi7Dc3ofA/frXCC1IX0JxmpwaEWrXQ1KPSCp8/jylKJmxPR27MVoG
-         STy8peaJSbMC7NziaFWHors/XD8j1GZVXp0zm3JIiG9KSqnXDk5dRoFezk5zqoOQMQ
-         DbeTzG6o/Enug==
+        b=N/SxXEMsVXpac6Zxk7esUmgQ0NUbiSJopqINvknAQPNqe4fE4XIdVXj78WHWjjUvb
+         uzY+r+JoORfjFmk3TBnmxEOtQ9JWeJBoLyzxIwqhwoG6BlVtoFcD5YoG4NRHBwtAev
+         Z7jhLIisRpHgDb9A+gLt3iCZn4hhlLfI3uUyOaIWGUa72HsiUzl4L6QLCIlMllgmW2
+         6vZk0j/8I8aF+raEEOGOuqaYqZafkBD7dVly2zB8kxG4THmAhMpWw8dOVYZuuDyIFr
+         jHcFjmxPblvV0eQllwBmK48FtZf+qoM0LNfueWeZPO7O0K+FnvCpFuXYHnacPNTr6i
+         sb8TnwuT4pc7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hugh Dickins <hughd@google.com>,
@@ -37,9 +37,9 @@ Cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 62/71] mm: page_vma_mapped_walk(): use goto instead of while (1)
-Date:   Mon, 28 Jun 2021 10:29:55 -0400
-Message-Id: <20210628143004.32596-63-sashal@kernel.org>
+Subject: [PATCH 5.4 63/71] mm: page_vma_mapped_walk(): get vma_address_end() earlier
+Date:   Mon, 28 Jun 2021 10:29:56 -0400
+Message-Id: <20210628143004.32596-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -59,10 +59,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hugh Dickins <hughd@google.com>
 
-page_vma_mapped_walk() cleanup: add a label this_pte, matching next_pte,
-and use "goto this_pte", in place of the "while (1)" loop at the end.
+page_vma_mapped_walk() cleanup: get THP's vma_address_end() at the
+start, rather than later at next_pte.
 
-Link: https://lkml.kernel.org/r/a52b234a-851-3616-2525-f42736e8934@google.com
+It's a little unnecessary overhead on the first call, but makes for a
+simpler loop in the following commit.
+
+Link: https://lkml.kernel.org/r/4542b34d-862f-7cb4-bb22-e0df6ce830a2@google.com
 Signed-off-by: Hugh Dickins <hughd@google.com>
 Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: Alistair Popple <apopple@nvidia.com>
@@ -78,41 +81,40 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_vma_mapped.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ mm/page_vma_mapped.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
-index b71058fcfde9..fc68ab2d3ea1 100644
+index fc68ab2d3ea1..93dd79ba9969 100644
 --- a/mm/page_vma_mapped.c
 +++ b/mm/page_vma_mapped.c
-@@ -139,6 +139,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- {
- 	struct mm_struct *mm = pvmw->vma->vm_mm;
- 	struct page *page = pvmw->page;
-+	unsigned long end;
- 	pgd_t *pgd;
- 	p4d_t *p4d;
- 	pud_t *pud;
-@@ -228,10 +229,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 		}
- 		if (!map_pte(pvmw))
- 			goto next_pte;
--	}
--	while (1) {
--		unsigned long end;
--
-+this_pte:
+@@ -166,6 +166,15 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
+ 		return true;
+ 	}
+ 
++	/*
++	 * Seek to next pte only makes sense for THP.
++	 * But more important than that optimization, is to filter out
++	 * any PageKsm page: whose page->index misleads vma_address()
++	 * and vma_address_end() to disaster.
++	 */
++	end = PageTransCompound(page) ?
++		vma_address_end(page, pvmw->vma) :
++		pvmw->address + PAGE_SIZE;
+ 	if (pvmw->pte)
+ 		goto next_pte;
+ restart:
+@@ -233,10 +242,6 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
  		if (check_pte(pvmw))
  			return true;
  next_pte:
-@@ -260,6 +258,7 @@ bool page_vma_mapped_walk(struct page_vma_mapped_walk *pvmw)
- 			pvmw->ptl = pte_lockptr(mm, pvmw->pmd);
- 			spin_lock(pvmw->ptl);
- 		}
-+		goto this_pte;
- 	}
- }
- 
+-		/* Seek to next pte only makes sense for THP */
+-		if (!PageTransHuge(page))
+-			return not_found(pvmw);
+-		end = vma_address_end(page, pvmw->vma);
+ 		do {
+ 			pvmw->address += PAGE_SIZE;
+ 			if (pvmw->address >= end)
 -- 
 2.30.2
 
