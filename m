@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B09423B607C
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:23:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 658EB3B607E
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:23:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233785AbhF1OZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:25:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
+        id S233617AbhF1OZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:25:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233626AbhF1OXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:23:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62DBF61CA1;
-        Mon, 28 Jun 2021 14:20:20 +0000 (UTC)
+        id S232506AbhF1OXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:23:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FAB561C76;
+        Mon, 28 Jun 2021 14:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890021;
-        bh=38E7WAWrTTNitozFlnIRmZDn4WYWBI5rTmeCkotGG8E=;
+        s=k20201202; t=1624890022;
+        bh=bfqc03KbP+M36x2bY0Cu14nwEXvpv+kUEFrCEtTNsAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SF7707/cCOA0NhUOKrdKMn1D3tIOPrdSU45HpBKQUGe+Oz8QuB1Z6ZX8eF0iTq2Ra
-         faNwzU38WVwZdjJFhCuIFUOeAkntaJLzvWqDrMPidC8s94Mtc8EPKNg7yUER6YDeaT
-         uB51yIZwOaI0dIDqX+C65lupP10Soih4aQ7nlA9XCGWJgq6UKz6B17eSFZpdEJWzEW
-         UZIUVLuD9xYBtPSe2QvgiUcbq6SxJepabKwKHBCXNhj17HU1cjONTuydOr/i+DDxqs
-         TN3zc00Q7PblwFPZZukPq6WAoVcjd+v2SZlGam4y1X0ctxolSE6Fyq+UtTFCAc4Qr4
-         ujfj38h6NH5tw==
+        b=DUXNC7flpn2URWO5qbi6pEWwC8uHDif4oNm9WBMzOgxzhBrMmuy+0eKM53k1sN8ik
+         GeTcMczbAdCLF+52WcIHYCe0etGkGGauu09MS1Q0KYYaY1h7Qjrj8tKqE2cEqxnthQ
+         06FLtX/nMmNi70OIYyiPPykqxrUgfeknZVShT0hc9esl7K2hrWfBcev6MRj2gGG4lv
+         MqDO8MoxgKDoBMeTojm37fwJjq+xWxw0mDV0MepACGm/s+qsKBcb2h6GM4GBJ+fIfq
+         V4EI0cFGf7gFSzwwhYHlnTqbRchw3Ha2cE1ty/XEy8DtMCuQmtSo0JKTYkLMJ2kaFn
+         vKOYYX7mAmRZg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Eric Snowberg <eric.snowberg@oracle.com>,
-        David Howells <dhowells@redhat.com>,
         Jarkko Sakkinen <jarkko@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
-        Arnd Bergmann <arnd@kernel.org>, keyrings@vger.kernel.org,
+        David Howells <dhowells@redhat.com>, keyrings@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 106/110] certs: Add EFI_CERT_X509_GUID support for dbx entries
-Date:   Mon, 28 Jun 2021 10:18:24 -0400
-Message-Id: <20210628141828.31757-107-sashal@kernel.org>
+Subject: [PATCH 5.12 107/110] certs: Move load_system_certificate_list to a common function
+Date:   Mon, 28 Jun 2021 10:18:25 -0400
+Message-Id: <20210628141828.31757-108-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.14-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.12.y
@@ -55,218 +51,194 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Snowberg <eric.snowberg@oracle.com>
 
-[ Upstream commit 56c5812623f95313f6a46fbf0beee7fa17c68bbf ]
+[ Upstream commit 2565ca7f5ec1a98d51eea8860c4ab923f1ca2c85 ]
 
-This fixes CVE-2020-26541.
+Move functionality within load_system_certificate_list to a common
+function, so it can be reused in the future.
 
-The Secure Boot Forbidden Signature Database, dbx, contains a list of now
-revoked signatures and keys previously approved to boot with UEFI Secure
-Boot enabled.  The dbx is capable of containing any number of
-EFI_CERT_X509_SHA256_GUID, EFI_CERT_SHA256_GUID, and EFI_CERT_X509_GUID
-entries.
-
-Currently when EFI_CERT_X509_GUID are contained in the dbx, the entries are
-skipped.
-
-Add support for EFI_CERT_X509_GUID dbx entries. When a EFI_CERT_X509_GUID
-is found, it is added as an asymmetrical key to the .blacklist keyring.
-Anytime the .platform keyring is used, the keys in the .blacklist keyring
-are referenced, if a matching key is found, the key will be rejected.
-
-[DH: Made the following changes:
- - Added to have a config option to enable the facility.  This allows a
-   Kconfig solution to make sure that pkcs7_validate_trust() is
-   enabled.[1][2]
- - Moved the functions out from the middle of the blacklist functions.
- - Added kerneldoc comments.]
+DH Changes:
+ - Added inclusion of common.h to common.c (Eric [1]).
 
 Signed-off-by: Eric Snowberg <eric.snowberg@oracle.com>
+Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Randy Dunlap <rdunlap@infradead.org>
-cc: Mickaël Salaün <mic@digikod.net>
-cc: Arnd Bergmann <arnd@kernel.org>
 cc: keyrings@vger.kernel.org
-Link: https://lore.kernel.org/r/20200901165143.10295-1-eric.snowberg@oracle.com/ # rfc
-Link: https://lore.kernel.org/r/20200909172736.73003-1-eric.snowberg@oracle.com/ # v2
-Link: https://lore.kernel.org/r/20200911182230.62266-1-eric.snowberg@oracle.com/ # v3
-Link: https://lore.kernel.org/r/20200916004927.64276-1-eric.snowberg@oracle.com/ # v4
-Link: https://lore.kernel.org/r/20210122181054.32635-2-eric.snowberg@oracle.com/ # v5
-Link: https://lore.kernel.org/r/161428672051.677100.11064981943343605138.stgit@warthog.procyon.org.uk/
-Link: https://lore.kernel.org/r/161433310942.902181.4901864302675874242.stgit@warthog.procyon.org.uk/ # v2
-Link: https://lore.kernel.org/r/161529605075.163428.14625520893961300757.stgit@warthog.procyon.org.uk/ # v3
-Link: https://lore.kernel.org/r/bc2c24e3-ed68-2521-0bf4-a1f6be4a895d@infradead.org/ [1]
-Link: https://lore.kernel.org/r/20210225125638.1841436-1-arnd@kernel.org/ [2]
+Link: https://lore.kernel.org/r/EDA280F9-F72D-4181-93C7-CDBE95976FF7@oracle.com/ [1]
+Link: https://lore.kernel.org/r/20200930201508.35113-2-eric.snowberg@oracle.com/
+Link: https://lore.kernel.org/r/20210122181054.32635-3-eric.snowberg@oracle.com/ # v5
+Link: https://lore.kernel.org/r/161428672825.677100.7545516389752262918.stgit@warthog.procyon.org.uk/
+Link: https://lore.kernel.org/r/161433311696.902181.3599366124784670368.stgit@warthog.procyon.org.uk/ # v2
+Link: https://lore.kernel.org/r/161529605850.163428.7786675680201528556.stgit@warthog.procyon.org.uk/ # v3
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- certs/Kconfig                                 |  9 ++++
- certs/blacklist.c                             | 43 +++++++++++++++++++
- certs/blacklist.h                             |  2 +
- certs/system_keyring.c                        |  6 +++
- include/keys/system_keyring.h                 | 15 +++++++
- .../platform_certs/keyring_handler.c          | 11 +++++
- 6 files changed, 86 insertions(+)
+ certs/Makefile         |  2 +-
+ certs/common.c         | 57 ++++++++++++++++++++++++++++++++++++++++++
+ certs/common.h         |  9 +++++++
+ certs/system_keyring.c | 49 +++---------------------------------
+ 4 files changed, 70 insertions(+), 47 deletions(-)
+ create mode 100644 certs/common.c
+ create mode 100644 certs/common.h
 
-diff --git a/certs/Kconfig b/certs/Kconfig
-index c94e93d8bccf..76e469b56a77 100644
---- a/certs/Kconfig
-+++ b/certs/Kconfig
-@@ -83,4 +83,13 @@ config SYSTEM_BLACKLIST_HASH_LIST
- 	  wrapper to incorporate the list into the kernel.  Each <hash> should
- 	  be a string of hex digits.
+diff --git a/certs/Makefile b/certs/Makefile
+index f4c25b67aad9..f4b90bad8690 100644
+--- a/certs/Makefile
++++ b/certs/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the linux kernel signature checking certificates.
+ #
  
-+config SYSTEM_REVOCATION_LIST
-+	bool "Provide system-wide ring of revocation certificates"
-+	depends on SYSTEM_BLACKLIST_KEYRING
-+	depends on PKCS7_MESSAGE_PARSER=y
-+	help
-+	  If set, this allows revocation certificates to be stored in the
-+	  blacklist keyring and implements a hook whereby a PKCS#7 message can
-+	  be checked to see if it matches such a certificate.
+-obj-$(CONFIG_SYSTEM_TRUSTED_KEYRING) += system_keyring.o system_certificates.o
++obj-$(CONFIG_SYSTEM_TRUSTED_KEYRING) += system_keyring.o system_certificates.o common.o
+ obj-$(CONFIG_SYSTEM_BLACKLIST_KEYRING) += blacklist.o
+ ifneq ($(CONFIG_SYSTEM_BLACKLIST_HASH_LIST),"")
+ obj-$(CONFIG_SYSTEM_BLACKLIST_KEYRING) += blacklist_hashes.o
+diff --git a/certs/common.c b/certs/common.c
+new file mode 100644
+index 000000000000..16a220887a53
+--- /dev/null
++++ b/certs/common.c
+@@ -0,0 +1,57 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
 +
- endmenu
-diff --git a/certs/blacklist.c b/certs/blacklist.c
-index bffe4c6f4a9e..2b8644123d5f 100644
---- a/certs/blacklist.c
-+++ b/certs/blacklist.c
-@@ -145,6 +145,49 @@ int is_binary_blacklisted(const u8 *hash, size_t hash_len)
- }
- EXPORT_SYMBOL_GPL(is_binary_blacklisted);
- 
-+#ifdef CONFIG_SYSTEM_REVOCATION_LIST
-+/**
-+ * add_key_to_revocation_list - Add a revocation certificate to the blacklist
-+ * @data: The data blob containing the certificate
-+ * @size: The size of data blob
-+ */
-+int add_key_to_revocation_list(const char *data, size_t size)
++#include <linux/kernel.h>
++#include <linux/key.h>
++#include "common.h"
++
++int load_certificate_list(const u8 cert_list[],
++			  const unsigned long list_size,
++			  const struct key *keyring)
 +{
 +	key_ref_t key;
++	const u8 *p, *end;
++	size_t plen;
 +
-+	key = key_create_or_update(make_key_ref(blacklist_keyring, true),
-+				   "asymmetric",
-+				   NULL,
-+				   data,
-+				   size,
-+				   ((KEY_POS_ALL & ~KEY_POS_SETATTR) | KEY_USR_VIEW),
-+				   KEY_ALLOC_NOT_IN_QUOTA | KEY_ALLOC_BUILT_IN);
++	p = cert_list;
++	end = p + list_size;
++	while (p < end) {
++		/* Each cert begins with an ASN.1 SEQUENCE tag and must be more
++		 * than 256 bytes in size.
++		 */
++		if (end - p < 4)
++			goto dodgy_cert;
++		if (p[0] != 0x30 &&
++		    p[1] != 0x82)
++			goto dodgy_cert;
++		plen = (p[2] << 8) | p[3];
++		plen += 4;
++		if (plen > end - p)
++			goto dodgy_cert;
 +
-+	if (IS_ERR(key)) {
-+		pr_err("Problem with revocation key (%ld)\n", PTR_ERR(key));
-+		return PTR_ERR(key);
++		key = key_create_or_update(make_key_ref(keyring, 1),
++					   "asymmetric",
++					   NULL,
++					   p,
++					   plen,
++					   ((KEY_POS_ALL & ~KEY_POS_SETATTR) |
++					   KEY_USR_VIEW | KEY_USR_READ),
++					   KEY_ALLOC_NOT_IN_QUOTA |
++					   KEY_ALLOC_BUILT_IN |
++					   KEY_ALLOC_BYPASS_RESTRICTION);
++		if (IS_ERR(key)) {
++			pr_err("Problem loading in-kernel X.509 certificate (%ld)\n",
++			       PTR_ERR(key));
++		} else {
++			pr_notice("Loaded X.509 cert '%s'\n",
++				  key_ref_to_ptr(key)->description);
++			key_ref_put(key);
++		}
++		p += plen;
 +	}
 +
 +	return 0;
-+}
 +
-+/**
-+ * is_key_on_revocation_list - Determine if the key for a PKCS#7 message is revoked
-+ * @pkcs7: The PKCS#7 message to check
-+ */
-+int is_key_on_revocation_list(struct pkcs7_message *pkcs7)
-+{
-+	int ret;
-+
-+	ret = pkcs7_validate_trust(pkcs7, blacklist_keyring);
-+
-+	if (ret == 0)
-+		return -EKEYREJECTED;
-+
-+	return -ENOKEY;
-+}
-+#endif
-+
- /*
-  * Initialise the blacklist
-  */
-diff --git a/certs/blacklist.h b/certs/blacklist.h
-index 1efd6fa0dc60..51b320cf8574 100644
---- a/certs/blacklist.h
-+++ b/certs/blacklist.h
-@@ -1,3 +1,5 @@
- #include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <crypto/pkcs7.h>
- 
- extern const char __initconst *const blacklist_hashes[];
-diff --git a/certs/system_keyring.c b/certs/system_keyring.c
-index 4b693da488f1..ed98754d5795 100644
---- a/certs/system_keyring.c
-+++ b/certs/system_keyring.c
-@@ -242,6 +242,12 @@ int verify_pkcs7_message_sig(const void *data, size_t len,
- 			pr_devel("PKCS#7 platform keyring is not available\n");
- 			goto error;
- 		}
-+
-+		ret = is_key_on_revocation_list(pkcs7);
-+		if (ret != -ENOKEY) {
-+			pr_devel("PKCS#7 platform key is on revocation list\n");
-+			goto error;
-+		}
- 	}
- 	ret = pkcs7_validate_trust(pkcs7, trusted_keys);
- 	if (ret < 0) {
-diff --git a/include/keys/system_keyring.h b/include/keys/system_keyring.h
-index fb8b07daa9d1..875e002a4180 100644
---- a/include/keys/system_keyring.h
-+++ b/include/keys/system_keyring.h
-@@ -31,6 +31,7 @@ extern int restrict_link_by_builtin_and_secondary_trusted(
- #define restrict_link_by_builtin_and_secondary_trusted restrict_link_by_builtin_trusted
- #endif
- 
-+extern struct pkcs7_message *pkcs7;
- #ifdef CONFIG_SYSTEM_BLACKLIST_KEYRING
- extern int mark_hash_blacklisted(const char *hash);
- extern int is_hash_blacklisted(const u8 *hash, size_t hash_len,
-@@ -49,6 +50,20 @@ static inline int is_binary_blacklisted(const u8 *hash, size_t hash_len)
- }
- #endif
- 
-+#ifdef CONFIG_SYSTEM_REVOCATION_LIST
-+extern int add_key_to_revocation_list(const char *data, size_t size);
-+extern int is_key_on_revocation_list(struct pkcs7_message *pkcs7);
-+#else
-+static inline int add_key_to_revocation_list(const char *data, size_t size)
-+{
++dodgy_cert:
++	pr_err("Problem parsing in-kernel X.509 certificate list\n");
 +	return 0;
 +}
-+static inline int is_key_on_revocation_list(struct pkcs7_message *pkcs7)
-+{
-+	return -ENOKEY;
-+}
+diff --git a/certs/common.h b/certs/common.h
+new file mode 100644
+index 000000000000..abdb5795936b
+--- /dev/null
++++ b/certs/common.h
+@@ -0,0 +1,9 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++
++#ifndef _CERT_COMMON_H
++#define _CERT_COMMON_H
++
++int load_certificate_list(const u8 cert_list[], const unsigned long list_size,
++			  const struct key *keyring);
++
 +#endif
-+
- #ifdef CONFIG_IMA_BLACKLIST_KEYRING
- extern struct key *ima_blacklist_keyring;
+diff --git a/certs/system_keyring.c b/certs/system_keyring.c
+index ed98754d5795..0c9a4795e847 100644
+--- a/certs/system_keyring.c
++++ b/certs/system_keyring.c
+@@ -16,6 +16,7 @@
+ #include <keys/asymmetric-type.h>
+ #include <keys/system_keyring.h>
+ #include <crypto/pkcs7.h>
++#include "common.h"
  
-diff --git a/security/integrity/platform_certs/keyring_handler.c b/security/integrity/platform_certs/keyring_handler.c
-index c5ba695c10e3..5604bd57c990 100644
---- a/security/integrity/platform_certs/keyring_handler.c
-+++ b/security/integrity/platform_certs/keyring_handler.c
-@@ -55,6 +55,15 @@ static __init void uefi_blacklist_binary(const char *source,
- 	uefi_blacklist_hash(source, data, len, "bin:", 4);
- }
+ static struct key *builtin_trusted_keys;
+ #ifdef CONFIG_SECONDARY_TRUSTED_KEYRING
+@@ -137,54 +138,10 @@ device_initcall(system_trusted_keyring_init);
+  */
+ static __init int load_system_certificate_list(void)
+ {
+-	key_ref_t key;
+-	const u8 *p, *end;
+-	size_t plen;
+-
+ 	pr_notice("Loading compiled-in X.509 certificates\n");
  
-+/*
-+ * Add an X509 cert to the revocation list.
-+ */
-+static __init void uefi_revocation_list_x509(const char *source,
-+					     const void *data, size_t len)
-+{
-+	add_key_to_revocation_list(data, len);
-+}
-+
- /*
-  * Return the appropriate handler for particular signature list types found in
-  * the UEFI db and MokListRT tables.
-@@ -76,5 +85,7 @@ __init efi_element_handler_t get_handler_for_dbx(const efi_guid_t *sig_type)
- 		return uefi_blacklist_x509_tbs;
- 	if (efi_guidcmp(*sig_type, efi_cert_sha256_guid) == 0)
- 		return uefi_blacklist_binary;
-+	if (efi_guidcmp(*sig_type, efi_cert_x509_guid) == 0)
-+		return uefi_revocation_list_x509;
- 	return 0;
+-	p = system_certificate_list;
+-	end = p + system_certificate_list_size;
+-	while (p < end) {
+-		/* Each cert begins with an ASN.1 SEQUENCE tag and must be more
+-		 * than 256 bytes in size.
+-		 */
+-		if (end - p < 4)
+-			goto dodgy_cert;
+-		if (p[0] != 0x30 &&
+-		    p[1] != 0x82)
+-			goto dodgy_cert;
+-		plen = (p[2] << 8) | p[3];
+-		plen += 4;
+-		if (plen > end - p)
+-			goto dodgy_cert;
+-
+-		key = key_create_or_update(make_key_ref(builtin_trusted_keys, 1),
+-					   "asymmetric",
+-					   NULL,
+-					   p,
+-					   plen,
+-					   ((KEY_POS_ALL & ~KEY_POS_SETATTR) |
+-					   KEY_USR_VIEW | KEY_USR_READ),
+-					   KEY_ALLOC_NOT_IN_QUOTA |
+-					   KEY_ALLOC_BUILT_IN |
+-					   KEY_ALLOC_BYPASS_RESTRICTION);
+-		if (IS_ERR(key)) {
+-			pr_err("Problem loading in-kernel X.509 certificate (%ld)\n",
+-			       PTR_ERR(key));
+-		} else {
+-			pr_notice("Loaded X.509 cert '%s'\n",
+-				  key_ref_to_ptr(key)->description);
+-			key_ref_put(key);
+-		}
+-		p += plen;
+-	}
+-
+-	return 0;
+-
+-dodgy_cert:
+-	pr_err("Problem parsing in-kernel X.509 certificate list\n");
+-	return 0;
++	return load_certificate_list(system_certificate_list, system_certificate_list_size,
++				     builtin_trusted_keys);
  }
+ late_initcall(load_system_certificate_list);
+ 
 -- 
 2.30.2
 
