@@ -2,40 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1613B6077
+	by mail.lfdr.de (Postfix) with ESMTP id BB4E73B6079
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:23:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233713AbhF1OZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:25:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54376 "EHLO mail.kernel.org"
+        id S233777AbhF1OZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:25:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233351AbhF1OXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:23:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A12861CA0;
-        Mon, 28 Jun 2021 14:20:18 +0000 (UTC)
+        id S233625AbhF1OXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:23:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5E5061C9E;
+        Mon, 28 Jun 2021 14:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890019;
-        bh=35CB7u/TEFVAwr9Xuh8Bnb1pEGX10voiJC/dsNvRedY=;
+        s=k20201202; t=1624890020;
+        bh=d4RJ4P7dnZwGjKAF5Wz8Uts0EE2ojF4aQcj5xl+EpPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o52AucQ5ILqKJgFCn4BnSS9DizLV+ShYxs6G67lV+/oesFXs26+uD2AZL622g4Yne
-         OuyC6qQhZUdtZoXAS2OI4QHJXQ9ijhZ0g+58H6nygtvajV83yW3+f08EuM02YWgOww
-         sm2+qIeCBOQSdD6mpZop9UMyKFXxS5kBFRgsSs5X7v7ly2lCEB+WddqoHb5HGYEmna
-         DsKJ1WatRUXjrMwKy5KmwDoK976ycLTfJPNVOK0kJDTyAySzJsmnOe2jb16tpDFu3t
-         Lwfn1+eiNNBrffEPHyMHtXFPHuL1xLA8sMHOb20j+laRSe3edp14f0ThZafeO2FzEM
-         Cc7z0ydDxkFcQ==
+        b=RKARYPfoTnd+44CUnFyG95joWpZLsm0NrYFoFnoPsdP3Dh3Q7kO3XQLuAVFTkR9Qg
+         RYEi74VviFBvEeauy0ZLdXqbYXBUlWMuPdYb92TVSQ0w0urtVEY/U5ch4hkezGWxd/
+         uXP0EjmyGMSCFK1IZwRHHcRrph92KvAfuqPYq0TicO2YZZFBpiFsCHgTBfwbrSxRPQ
+         A/kkBWsTMweJGPkwASPHFmCETj4Il2lwVGEVPjCinC+GFtsp8MyIDnGOi9MzOnEWL6
+         ECyMim05/gPPCuY+uyHpPLFO75uiIX5383W6FwFwKXQC4MVUPzGhUaaLUzPlZ8H4q9
+         klti38jexJGTg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        Tony Luck <tony.luck@intel.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 104/110] mm/hwpoison: do not lock page again when me_huge_page() successfully recovers
-Date:   Mon, 28 Jun 2021 10:18:22 -0400
-Message-Id: <20210628141828.31757-105-sashal@kernel.org>
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.12 105/110] Revert "drm: add a locked version of drm_is_current_master"
+Date:   Mon, 28 Jun 2021 10:18:23 -0400
+Message-Id: <20210628141828.31757-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -53,188 +46,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit ea6d0630100b285f059d0a8d8e86f38a46407536 upstream.
+commit f54b3ca7ea1e5e02f481cf4ca54568e57bd66086 upstream.
 
-Currently me_huge_page() temporary unlocks page to perform some actions
-then locks it again later.  My testcase (which calls hard-offline on
-some tail page in a hugetlb, then accesses the address of the hugetlb
-range) showed that page allocation code detects this page lock on buddy
-page and printed out "BUG: Bad page state" message.
+This reverts commit 1815d9c86e3090477fbde066ff314a7e9721ee0f.
 
-check_new_page_bad() does not consider a page with __PG_HWPOISON as bad
-page, so this flag works as kind of filter, but this filtering doesn't
-work in this case because the "bad page" is not the actual hwpoisoned
-page.  So stop locking page again.  Actions to be taken depend on the
-page type of the error, so page unlocking should be done in ->action()
-callbacks.  So let's make it assumed and change all existing callbacks
-that way.
+Unfortunately this inverts the locking hierarchy, so back to the
+drawing board. Full lockdep splat below:
 
-Link: https://lkml.kernel.org/r/20210609072029.74645-1-nao.horiguchi@gmail.com
-Fixes: commit 78bb920344b8 ("mm: hwpoison: dissolve in-use hugepage in unrecoverable memory error")
-Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+======================================================
+WARNING: possible circular locking dependency detected
+5.13.0-rc7-CI-CI_DRM_10254+ #1 Not tainted
+------------------------------------------------------
+kms_frontbuffer/1087 is trying to acquire lock:
+ffff88810dcd01a8 (&dev->master_mutex){+.+.}-{3:3}, at: drm_is_current_master+0x1b/0x40
+but task is already holding lock:
+ffff88810dcd0488 (&dev->mode_config.mutex){+.+.}-{3:3}, at: drm_mode_getconnector+0x1c6/0x4a0
+which lock already depends on the new lock.
+the existing dependency chain (in reverse order) is:
+-> #2 (&dev->mode_config.mutex){+.+.}-{3:3}:
+       __mutex_lock+0xab/0x970
+       drm_client_modeset_probe+0x22e/0xca0
+       __drm_fb_helper_initial_config_and_unlock+0x42/0x540
+       intel_fbdev_initial_config+0xf/0x20 [i915]
+       async_run_entry_fn+0x28/0x130
+       process_one_work+0x26d/0x5c0
+       worker_thread+0x37/0x380
+       kthread+0x144/0x170
+       ret_from_fork+0x1f/0x30
+-> #1 (&client->modeset_mutex){+.+.}-{3:3}:
+       __mutex_lock+0xab/0x970
+       drm_client_modeset_commit_locked+0x1c/0x180
+       drm_client_modeset_commit+0x1c/0x40
+       __drm_fb_helper_restore_fbdev_mode_unlocked+0x88/0xb0
+       drm_fb_helper_set_par+0x34/0x40
+       intel_fbdev_set_par+0x11/0x40 [i915]
+       fbcon_init+0x270/0x4f0
+       visual_init+0xc6/0x130
+       do_bind_con_driver+0x1e5/0x2d0
+       do_take_over_console+0x10e/0x180
+       do_fbcon_takeover+0x53/0xb0
+       register_framebuffer+0x22d/0x310
+       __drm_fb_helper_initial_config_and_unlock+0x36c/0x540
+       intel_fbdev_initial_config+0xf/0x20 [i915]
+       async_run_entry_fn+0x28/0x130
+       process_one_work+0x26d/0x5c0
+       worker_thread+0x37/0x380
+       kthread+0x144/0x170
+       ret_from_fork+0x1f/0x30
+-> #0 (&dev->master_mutex){+.+.}-{3:3}:
+       __lock_acquire+0x151e/0x2590
+       lock_acquire+0xd1/0x3d0
+       __mutex_lock+0xab/0x970
+       drm_is_current_master+0x1b/0x40
+       drm_mode_getconnector+0x37e/0x4a0
+       drm_ioctl_kernel+0xa8/0xf0
+       drm_ioctl+0x1e8/0x390
+       __x64_sys_ioctl+0x6a/0xa0
+       do_syscall_64+0x39/0xb0
+       entry_SYSCALL_64_after_hwframe+0x44/0xae
+other info that might help us debug this:
+Chain exists of: &dev->master_mutex --> &client->modeset_mutex --> &dev->mode_config.mutex
+ Possible unsafe locking scenario:
+       CPU0                    CPU1
+       ----                    ----
+  lock(&dev->mode_config.mutex);
+                               lock(&client->modeset_mutex);
+                               lock(&dev->mode_config.mutex);
+  lock(&dev->master_mutex);
 ---
- mm/memory-failure.c | 44 ++++++++++++++++++++++++++++++--------------
- 1 file changed, 30 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/drm_auth.c | 51 ++++++++++++++------------------------
+ 1 file changed, 19 insertions(+), 32 deletions(-)
 
-diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index 2dd60ad81216..4db6f95e55be 100644
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -658,6 +658,7 @@ static int truncate_error_page(struct page *p, unsigned long pfn,
+diff --git a/drivers/gpu/drm/drm_auth.c b/drivers/gpu/drm/drm_auth.c
+index 86d4b72e95cb..232abbba3686 100644
+--- a/drivers/gpu/drm/drm_auth.c
++++ b/drivers/gpu/drm/drm_auth.c
+@@ -61,35 +61,6 @@
+  * trusted clients.
   */
- static int me_kernel(struct page *p, unsigned long pfn)
+ 
+-static bool drm_is_current_master_locked(struct drm_file *fpriv)
+-{
+-	lockdep_assert_held_once(&fpriv->master->dev->master_mutex);
+-
+-	return fpriv->is_master && drm_lease_owner(fpriv->master) == fpriv->minor->dev->master;
+-}
+-
+-/**
+- * drm_is_current_master - checks whether @priv is the current master
+- * @fpriv: DRM file private
+- *
+- * Checks whether @fpriv is current master on its device. This decides whether a
+- * client is allowed to run DRM_MASTER IOCTLs.
+- *
+- * Most of the modern IOCTL which require DRM_MASTER are for kernel modesetting
+- * - the current master is assumed to own the non-shareable display hardware.
+- */
+-bool drm_is_current_master(struct drm_file *fpriv)
+-{
+-	bool ret;
+-
+-	mutex_lock(&fpriv->master->dev->master_mutex);
+-	ret = drm_is_current_master_locked(fpriv);
+-	mutex_unlock(&fpriv->master->dev->master_mutex);
+-
+-	return ret;
+-}
+-EXPORT_SYMBOL(drm_is_current_master);
+-
+ int drm_getmagic(struct drm_device *dev, void *data, struct drm_file *file_priv)
  {
-+	unlock_page(p);
- 	return MF_IGNORED;
- }
+ 	struct drm_auth *auth = data;
+@@ -252,7 +223,7 @@ int drm_setmaster_ioctl(struct drm_device *dev, void *data,
+ 	if (ret)
+ 		goto out_unlock;
  
-@@ -667,6 +668,7 @@ static int me_kernel(struct page *p, unsigned long pfn)
- static int me_unknown(struct page *p, unsigned long pfn)
- {
- 	pr_err("Memory failure: %#lx: Unknown page state\n", pfn);
-+	unlock_page(p);
- 	return MF_FAILED;
- }
+-	if (drm_is_current_master_locked(file_priv))
++	if (drm_is_current_master(file_priv))
+ 		goto out_unlock;
  
-@@ -675,6 +677,7 @@ static int me_unknown(struct page *p, unsigned long pfn)
-  */
- static int me_pagecache_clean(struct page *p, unsigned long pfn)
- {
-+	int ret;
- 	struct address_space *mapping;
+ 	if (dev->master) {
+@@ -301,7 +272,7 @@ int drm_dropmaster_ioctl(struct drm_device *dev, void *data,
+ 	if (ret)
+ 		goto out_unlock;
  
- 	delete_from_lru_cache(p);
-@@ -683,8 +686,10 @@ static int me_pagecache_clean(struct page *p, unsigned long pfn)
- 	 * For anonymous pages we're done the only reference left
- 	 * should be the one m_f() holds.
- 	 */
--	if (PageAnon(p))
--		return MF_RECOVERED;
-+	if (PageAnon(p)) {
-+		ret = MF_RECOVERED;
-+		goto out;
-+	}
- 
- 	/*
- 	 * Now truncate the page in the page cache. This is really
-@@ -698,7 +703,8 @@ static int me_pagecache_clean(struct page *p, unsigned long pfn)
- 		/*
- 		 * Page has been teared down in the meanwhile
- 		 */
--		return MF_FAILED;
-+		ret = MF_FAILED;
-+		goto out;
+-	if (!drm_is_current_master_locked(file_priv)) {
++	if (!drm_is_current_master(file_priv)) {
+ 		ret = -EINVAL;
+ 		goto out_unlock;
  	}
+@@ -350,7 +321,7 @@ void drm_master_release(struct drm_file *file_priv)
+ 	if (file_priv->magic)
+ 		idr_remove(&file_priv->master->magic_map, file_priv->magic);
  
- 	/*
-@@ -706,7 +712,10 @@ static int me_pagecache_clean(struct page *p, unsigned long pfn)
- 	 *
- 	 * Open: to take i_mutex or not for this? Right now we don't.
- 	 */
--	return truncate_error_page(p, pfn, mapping);
-+	ret = truncate_error_page(p, pfn, mapping);
-+out:
-+	unlock_page(p);
-+	return ret;
- }
- 
- /*
-@@ -782,24 +791,26 @@ static int me_pagecache_dirty(struct page *p, unsigned long pfn)
-  */
- static int me_swapcache_dirty(struct page *p, unsigned long pfn)
- {
-+	int ret;
-+
- 	ClearPageDirty(p);
- 	/* Trigger EIO in shmem: */
- 	ClearPageUptodate(p);
- 
--	if (!delete_from_lru_cache(p))
--		return MF_DELAYED;
--	else
--		return MF_FAILED;
-+	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_DELAYED;
-+	unlock_page(p);
-+	return ret;
- }
- 
- static int me_swapcache_clean(struct page *p, unsigned long pfn)
- {
-+	int ret;
-+
- 	delete_from_swap_cache(p);
- 
--	if (!delete_from_lru_cache(p))
--		return MF_RECOVERED;
--	else
--		return MF_FAILED;
-+	ret = delete_from_lru_cache(p) ? MF_FAILED : MF_RECOVERED;
-+	unlock_page(p);
-+	return ret;
- }
- 
- /*
-@@ -820,6 +831,7 @@ static int me_huge_page(struct page *p, unsigned long pfn)
- 	mapping = page_mapping(hpage);
- 	if (mapping) {
- 		res = truncate_error_page(hpage, pfn, mapping);
-+		unlock_page(hpage);
- 	} else {
- 		res = MF_FAILED;
- 		unlock_page(hpage);
-@@ -834,7 +846,6 @@ static int me_huge_page(struct page *p, unsigned long pfn)
- 			page_ref_inc(p);
- 			res = MF_RECOVERED;
- 		}
--		lock_page(hpage);
- 	}
- 
- 	return res;
-@@ -866,6 +877,8 @@ static struct page_state {
- 	unsigned long mask;
- 	unsigned long res;
- 	enum mf_action_page_type type;
-+
-+	/* Callback ->action() has to unlock the relevant page inside it. */
- 	int (*action)(struct page *p, unsigned long pfn);
- } error_states[] = {
- 	{ reserved,	reserved,	MF_MSG_KERNEL,	me_kernel },
-@@ -929,6 +942,7 @@ static int page_action(struct page_state *ps, struct page *p,
- 	int result;
- 	int count;
- 
-+	/* page p should be unlocked after returning from ps->action().  */
- 	result = ps->action(p, pfn);
- 
- 	count = page_count(p) - 1;
-@@ -1313,7 +1327,7 @@ static int memory_failure_hugetlb(unsigned long pfn, int flags)
+-	if (!drm_is_current_master_locked(file_priv))
++	if (!drm_is_current_master(file_priv))
  		goto out;
- 	}
  
--	res = identify_page_state(pfn, p, page_flags);
-+	return identify_page_state(pfn, p, page_flags);
- out:
- 	unlock_page(head);
- 	return res;
-@@ -1595,6 +1609,8 @@ try_again:
+ 	drm_legacy_lock_master_cleanup(dev, master);
+@@ -371,6 +342,22 @@ out:
+ 	mutex_unlock(&dev->master_mutex);
+ }
  
- identify_page_state:
- 	res = identify_page_state(pfn, p, page_flags);
-+	mutex_unlock(&mf_mutex);
-+	return res;
- unlock_page:
- 	unlock_page(p);
- unlock_mutex:
++/**
++ * drm_is_current_master - checks whether @priv is the current master
++ * @fpriv: DRM file private
++ *
++ * Checks whether @fpriv is current master on its device. This decides whether a
++ * client is allowed to run DRM_MASTER IOCTLs.
++ *
++ * Most of the modern IOCTL which require DRM_MASTER are for kernel modesetting
++ * - the current master is assumed to own the non-shareable display hardware.
++ */
++bool drm_is_current_master(struct drm_file *fpriv)
++{
++	return fpriv->is_master && drm_lease_owner(fpriv->master) == fpriv->minor->dev->master;
++}
++EXPORT_SYMBOL(drm_is_current_master);
++
+ /**
+  * drm_master_get - reference a master pointer
+  * @master: &struct drm_master
 -- 
 2.30.2
 
