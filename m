@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 936EA3B6114
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C6E3B60F0
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:29:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234098AbhF1Obv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:31:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35966 "EHLO mail.kernel.org"
+        id S233530AbhF1ObV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:31:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234628AbhF1OaN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234633AbhF1OaN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:30:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77A8861CAF;
-        Mon, 28 Jun 2021 14:26:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D87C61C8F;
+        Mon, 28 Jun 2021 14:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624890398;
-        bh=tWHLgKCSspw/p3ROZiuTVcoKpkDiADFWqlPIp8tLqAw=;
+        bh=KhbiyuLLERIEN3mwW3CiOReyCEtnWfy9EMZ7F+JCMOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWa8rTiyxTf6tJ74Kjpp0O44rEOKiyz/O3nvC/etpgK+ygFBK1aVLsz17q99wL4wD
-         KEAe8Zf5LzWC2EggIN03nV50kzJa30QPeSDvzxI9Uf1qXEdF2HAchEFzBnG8WmmdFU
-         cwP4xCpiqOBYozEAkdX7mtchE77H2PVdz4QUuowgXdGlCDpVQBPM1aDx6er3qMnKGJ
-         VwI78zTJDlDCoh96pHh6y4zoISzzm2X3y3gnuT5VxhC5Fh+8LWsNZ8yqZqLQtMExF4
-         NsgP5xX1HeqPcf8DJn0iSERDh+WUOJCVgMasEfVr8lwT2klFFL4jqKuzhisEJxqyZF
-         FDVwtcFq6ZuEA==
+        b=X8UcPfPpStgWu3YvDjp2XISZIhHuoC7wiMhkWAJNYBHmTck2CfvysjpPt4WWa38iu
+         DEzxZxtPpH5dhbTuqySS5tGQ1Nkw3PNvwsRCC5ZoNigt+93qg6fu7bzDM8Q2R3ICGr
+         SCAMVQGJcTmyo+zrpjiE1p21MRLwwC0RJZeuw9BBRkjRHrw7NwuZd4t16+ThkczHSb
+         GUO2muq3Hsva2VNmdxc8ZwP2/W/hSomAjbtSVsIQUkO6gKgyICrg9EJe0WbX2O9OKi
+         BIVyuu1ZTKWdFscP3+uwU9Hl6Fl7uG34hdnvMgaHrfY0mPm+ApvuOdRaUp693u9Lo/
+         nBKCstB8vS5Pw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/101] net: ipv4: Remove unneed BUG() function
-Date:   Mon, 28 Jun 2021 10:24:59 -0400
-Message-Id: <20210628142607.32218-34-sashal@kernel.org>
+Subject: [PATCH 5.10 034/101] mac80211: drop multicast fragments
+Date:   Mon, 28 Jun 2021 10:25:00 -0400
+Message-Id: <20210628142607.32218-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -48,47 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 5ac6b198d7e312bd10ebe7d58c64690dc59cc49a ]
+[ Upstream commit a9799541ca34652d9996e45f80e8e03144c12949 ]
 
-When 'nla_parse_nested_deprecated' failed, it's no need to
-BUG() here, return -EINVAL is ok.
+These are not permitted by the spec, just drop them.
 
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210609161305.23def022b750.Ibd6dd3cdce573dae262fcdc47f8ac52b883a9c50@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/devinet.c  | 2 +-
- net/ipv6/addrconf.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/rx.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
-index 123a6d39438f..7c1859777429 100644
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -1989,7 +1989,7 @@ static int inet_set_link_af(struct net_device *dev, const struct nlattr *nla)
- 		return -EAFNOSUPPORT;
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index ef8ff0bc66f1..38b5695c2a0c 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2250,17 +2250,15 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ 	sc = le16_to_cpu(hdr->seq_ctrl);
+ 	frag = sc & IEEE80211_SCTL_FRAG;
  
- 	if (nla_parse_nested_deprecated(tb, IFLA_INET_MAX, nla, NULL, NULL) < 0)
--		BUG();
-+		return -EINVAL;
+-	if (is_multicast_ether_addr(hdr->addr1)) {
+-		I802_DEBUG_INC(rx->local->dot11MulticastReceivedFrameCount);
+-		goto out_no_led;
+-	}
+-
+ 	if (rx->sta)
+ 		cache = &rx->sta->frags;
  
- 	if (tb[IFLA_INET_CONF]) {
- 		nla_for_each_nested(a, tb[IFLA_INET_CONF], rem)
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 4c881f5d9080..884d430e23cb 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -5799,7 +5799,7 @@ static int inet6_set_link_af(struct net_device *dev, const struct nlattr *nla)
- 		return -EAFNOSUPPORT;
+ 	if (likely(!ieee80211_has_morefrags(fc) && frag == 0))
+ 		goto out;
  
- 	if (nla_parse_nested_deprecated(tb, IFLA_INET6_MAX, nla, NULL, NULL) < 0)
--		BUG();
-+		return -EINVAL;
++	if (is_multicast_ether_addr(hdr->addr1))
++		return RX_DROP_MONITOR;
++
+ 	I802_DEBUG_INC(rx->local->rx_handlers_fragments);
  
- 	if (tb[IFLA_INET6_TOKEN]) {
- 		err = inet6_set_iftoken(idev, nla_data(tb[IFLA_INET6_TOKEN]));
+ 	if (skb_linearize(rx->skb))
+@@ -2386,7 +2384,6 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ 
+  out:
+ 	ieee80211_led_rx(rx->local);
+- out_no_led:
+ 	if (rx->sta)
+ 		rx->sta->rx_stats.packets++;
+ 	return RX_CONTINUE;
 -- 
 2.30.2
 
