@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA9A53B63C4
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6AA73B63D5
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232434AbhF1PAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:00:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33816 "EHLO mail.kernel.org"
+        id S236069AbhF1PA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235008AbhF1O6P (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235044AbhF1O6P (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:58:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A67D61CD0;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D523861CF7;
         Mon, 28 Jun 2021 14:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891226;
-        bh=iVPNNFL1NmmQcqh1lXvw62DPBuN1pr/HXtCYEjfrhL8=;
+        s=k20201202; t=1624891227;
+        bh=wUqlFWTTXDT/AvvYM9Yv2jxrPN8b0rnTY3U+Kv9MnFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXHOuDwKLLdMe0lHaeyQO4pmMmUNXaq8GwtT0KUR7DM+M5gC8bDxTUZXNccHi64SG
-         /1q6MjDgYmCw1L9nqj/yvRw0tJD3TBtnq6p0WOFK/g9mCYT8iN0NVN5UYbEL7FYFVs
-         n9nPoZ0xeibDs+qym5DDexgzTDu7Fi3b56EUha+FWfXW7SKmJe2GXe8G3G/B2h2A8I
-         lo7csxYo4JJ8xUhgNjoTxJX/ysKt7bpr9C2mhNMdMF2XTKBImARcUWB/xzy+W5nEcj
-         w0R7K0BtLhTZQmlQ//8Z0zy+z3X4wY9Z2qvyhLXKa7elkARAMm38cDfWgScGO7dq3o
-         MHWbfVu8+mWkA==
+        b=ssR0kWArgYECKcwd2sXLflnG+BswyjIHHnfEp4iCHaXTTKp1NJCDWV/4F5EC/5ceQ
+         +qthTnNfQEnRXM+CAhhQXY6mOqS8Stjv+RZZGM3lnZ9v8KTbjiTV9+HlsAg99/vBKe
+         SNG6Vpyo2P4ZNueA+aOB/81cwKWuX2SKXiYBjR1O9KqV6hIeRsc8MWebt41mRuOWvk
+         FhZxTufqgfWWjjwrePuQjEgQGp1wtkPLmjW5V5rtTosWPx6ZquY5EEpublaa4DlVV1
+         sOrNKbht9Qqveij9eOktoCqqT7hcSTE0OezqLiQN6y1OkUJbym27ORkgXxL3DjsY8C
+         y2/yKBcCsKG9Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+Cc:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 24/71] alx: Fix an error handling path in 'alx_probe()'
-Date:   Mon, 28 Jun 2021 10:39:16 -0400
-Message-Id: <20210628144003.34260-25-sashal@kernel.org>
+Subject: [PATCH 4.9 25/71] net: stmmac: dwmac1000: Fix extended MAC address registers definition
+Date:   Mon, 28 Jun 2021 10:39:17 -0400
+Message-Id: <20210628144003.34260-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
@@ -48,34 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-[ Upstream commit 33e381448cf7a05d76ac0b47d4a6531ecd0e5c53 ]
+[ Upstream commit 1adb20f0d496b2c61e9aa1f4761b8d71f93d258e ]
 
-If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
-must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
-call, as already done in the remove function.
+The register starts from 0x800 is the 16th MAC address register rather
+than the first one.
 
-Fixes: ab69bde6b2e9 ("alx: add a simple AR816x/AR817x device driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: cffb13f4d6fb ("stmmac: extend mac addr reg and fix perfect filering")
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/atheros/alx/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac1000.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/atheros/alx/main.c b/drivers/net/ethernet/atheros/alx/main.c
-index 9de0f9f5b11c..59af298f99e0 100644
---- a/drivers/net/ethernet/atheros/alx/main.c
-+++ b/drivers/net/ethernet/atheros/alx/main.c
-@@ -1653,6 +1653,7 @@ static int alx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	free_netdev(netdev);
- out_pci_release:
- 	pci_release_mem_regions(pdev);
-+	pci_disable_pcie_error_reporting(pdev);
- out_pci_disable:
- 	pci_disable_device(pdev);
- 	return err;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h b/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h
+index ff3e5ab39bd0..24fb7a2bba62 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h
+@@ -91,10 +91,10 @@ enum power_event {
+ #define LPI_CTRL_STATUS_TLPIEN	0x00000001	/* Transmit LPI Entry */
+ 
+ /* GMAC HW ADDR regs */
+-#define GMAC_ADDR_HIGH(reg)	(((reg > 15) ? 0x00000800 : 0x00000040) + \
+-				(reg * 8))
+-#define GMAC_ADDR_LOW(reg)	(((reg > 15) ? 0x00000804 : 0x00000044) + \
+-				(reg * 8))
++#define GMAC_ADDR_HIGH(reg)	((reg > 15) ? 0x00000800 + (reg - 16) * 8 : \
++				 0x00000040 + (reg * 8))
++#define GMAC_ADDR_LOW(reg)	((reg > 15) ? 0x00000804 + (reg - 16) * 8 : \
++				 0x00000044 + (reg * 8))
+ #define GMAC_MAX_PERFECT_ADDRESSES	1
+ 
+ #define GMAC_PCS_BASE		0x000000c0	/* PCS register base */
 -- 
 2.30.2
 
