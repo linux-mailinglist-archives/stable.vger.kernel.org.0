@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B6F3B604E
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 007223B604F
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233622AbhF1OXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:23:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
+        id S233633AbhF1OXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:23:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233476AbhF1OWd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233478AbhF1OWd (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:22:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F43961C9B;
-        Mon, 28 Jun 2021 14:19:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 325D761C91;
+        Mon, 28 Jun 2021 14:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889985;
-        bh=/5uUQ4MN1I+SGvaJR6l/Uk/IS44o29wOm+SzzHc73SM=;
+        s=k20201202; t=1624889988;
+        bh=VKD+YqSlQndOJUYi9yrM1jtp34IAS0WGjZS9ks/5YT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVpunEbeoWHSUv8r/AIhhMvjU7BJ6OgN8O/cbgKLCrgrUL4JltoAAo9Bw+aPkI/dM
-         lVQPs1syqEuiYAgjh7ut1bJFt4yHyhT1Wwp8e0VvQInNrW5i/S/h6jFSd0vqe7RWKx
-         /OGbhxVFep2zKTFUgMlnM2S5RfOshWEltEvOCrC9JFPQNBjVCYuXD24YmMoBU79NrA
-         b7qMpOyWyB/1p2FswR0kQtM3Evg1hQB1UQqw4qfcC8tCeRkXdAoZL5jVakSXhJYQbD
-         hkGb9hNDPp2kDKE+aauF6eXJWVnyq0xZ+rei/QrCIBrWH6iI6isI+JAil/R5dOtQcx
-         ITPUaBcbEMgag==
+        b=ImvMOqHGvX6crlglsa7r9ujIFnnv9w6XPKE5/5tRJEjtXC6ugw2oQsruv1aZUmp/R
+         JBt/Ragoft4NlrS8dUpkQ2jIp4qoTucg0F1HmwbKn4x+A4kLFLtYaTsNqRdwKCm3QN
+         aA6kelNvnAfDnD14dpR7OM1N0sGUQZBkS0aAWM6TmaaAScblf963vuxIv2/zEACdKW
+         fNYXCecSfDIVoLd2zIUysAbVSCw0e6mS1+PaFqmjkaWBB8IMvnf4939JK7Y+yVss92
+         iQl9/zCqi6w+oMwZZJmtkWETRkARVJU8wt8Gt805m5If53dkkOeBP2NnBeNg6PiM9x
+         a+kJL9HXqgApw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hugh Dickins <hughd@google.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Yang Shi <shy828301@gmail.com>,
         Alistair Popple <apopple@nvidia.com>, Jan Kara <jack@suse.cz>,
         Jue Wang <juew@google.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
         "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Miaohe Lin <linmiaohe@huawei.com>,
         Minchan Kim <minchan@kernel.org>,
@@ -38,13 +37,14 @@ Cc:     Hugh Dickins <hughd@google.com>,
         Peter Xu <peterx@redhat.com>,
         Ralph Campbell <rcampbell@nvidia.com>,
         Shakeel Butt <shakeelb@google.com>,
-        Wang Yugui <wangyugui@e16-tech.com>, Zi Yan <ziy@nvidia.com>,
+        Wang Yugui <wangyugui@e16-tech.com>,
+        Yang Shi <shy828301@gmail.com>, Zi Yan <ziy@nvidia.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 084/110] mm/thp: make is_huge_zero_pmd() safe and quicker
-Date:   Mon, 28 Jun 2021 10:18:02 -0400
-Message-Id: <20210628141828.31757-85-sashal@kernel.org>
+Subject: [PATCH 5.12 085/110] mm/thp: try_to_unmap() use TTU_SYNC for safe splitting
+Date:   Mon, 28 Jun 2021 10:18:03 -0400
+Message-Id: <20210628141828.31757-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -64,30 +64,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hugh Dickins <hughd@google.com>
 
-commit 3b77e8c8cde581dadab9a0f1543a347e24315f11 upstream.
+commit 732ed55823fc3ad998d43b86bf771887bcc5ec67 upstream.
 
-Most callers of is_huge_zero_pmd() supply a pmd already verified
-present; but a few (notably zap_huge_pmd()) do not - it might be a pmd
-migration entry, in which the pfn is encoded differently from a present
-pmd: which might pass the is_huge_zero_pmd() test (though not on x86,
-since L1TF forced us to protect against that); or perhaps even crash in
-pmd_page() applied to a swap-like entry.
+Stressing huge tmpfs often crashed on unmap_page()'s VM_BUG_ON_PAGE
+(!unmap_success): with dump_page() showing mapcount:1, but then its raw
+struct page output showing _mapcount ffffffff i.e.  mapcount 0.
 
-Make it safe by adding pmd_present() check into is_huge_zero_pmd()
-itself; and make it quicker by saving huge_zero_pfn, so that
-is_huge_zero_pmd() will not need to do that pmd_page() lookup each time.
+And even if that particular VM_BUG_ON_PAGE(!unmap_success) is removed,
+it is immediately followed by a VM_BUG_ON_PAGE(compound_mapcount(head)),
+and further down an IS_ENABLED(CONFIG_DEBUG_VM) total_mapcount BUG():
+all indicative of some mapcount difficulty in development here perhaps.
+But the !CONFIG_DEBUG_VM path handles the failures correctly and
+silently.
 
-__split_huge_pmd_locked() checked pmd_trans_huge() before: that worked,
-but is unnecessary now that is_huge_zero_pmd() checks present.
+I believe the problem is that once a racing unmap has cleared pte or
+pmd, try_to_unmap_one() may skip taking the page table lock, and emerge
+from try_to_unmap() before the racing task has reached decrementing
+mapcount.
 
-Link: https://lkml.kernel.org/r/21ea9ca-a1f5-8b90-5e88-95fb1c49bbfa@google.com
-Fixes: e71769ae5260 ("mm: enable thp migration for shmem thp")
+Instead of abandoning the unsafe VM_BUG_ON_PAGE(), and the ones that
+follow, use PVMW_SYNC in try_to_unmap_one() in this case: adding
+TTU_SYNC to the options, and passing that from unmap_page().
+
+When CONFIG_DEBUG_VM, or for non-debug too? Consensus is to do the same
+for both: the slight overhead added should rarely matter, except perhaps
+if splitting sparsely-populated multiply-mapped shmem.  Once confident
+that bugs are fixed, TTU_SYNC here can be removed, and the race
+tolerated.
+
+Link: https://lkml.kernel.org/r/c1e95853-8bcd-d8fd-55fa-e7f2488e78f@google.com
+Fixes: fec89c109f3a ("thp: rewrite freeze_page()/unfreeze_page() with generic rmap walkers")
 Signed-off-by: Hugh Dickins <hughd@google.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
 Cc: Alistair Popple <apopple@nvidia.com>
 Cc: Jan Kara <jack@suse.cz>
 Cc: Jue Wang <juew@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 Cc: Miaohe Lin <linmiaohe@huawei.com>
 Cc: Minchan Kim <minchan@kernel.org>
@@ -97,86 +108,101 @@ Cc: Peter Xu <peterx@redhat.com>
 Cc: Ralph Campbell <rcampbell@nvidia.com>
 Cc: Shakeel Butt <shakeelb@google.com>
 Cc: Wang Yugui <wangyugui@e16-tech.com>
+Cc: Yang Shi <shy828301@gmail.com>
 Cc: Zi Yan <ziy@nvidia.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/huge_mm.h | 8 +++++++-
- mm/huge_memory.c        | 5 ++++-
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ include/linux/rmap.h |  1 +
+ mm/huge_memory.c     |  2 +-
+ mm/page_vma_mapped.c | 11 +++++++++++
+ mm/rmap.c            | 17 ++++++++++++++++-
+ 4 files changed, 29 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
-index ba973efcd369..6686a0baa91d 100644
---- a/include/linux/huge_mm.h
-+++ b/include/linux/huge_mm.h
-@@ -289,6 +289,7 @@ struct page *follow_devmap_pud(struct vm_area_struct *vma, unsigned long addr,
- vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf, pmd_t orig_pmd);
+diff --git a/include/linux/rmap.h b/include/linux/rmap.h
+index def5c62c93b3..8d04e7deedc6 100644
+--- a/include/linux/rmap.h
++++ b/include/linux/rmap.h
+@@ -91,6 +91,7 @@ enum ttu_flags {
  
- extern struct page *huge_zero_page;
-+extern unsigned long huge_zero_pfn;
- 
- static inline bool is_huge_zero_page(struct page *page)
- {
-@@ -297,7 +298,7 @@ static inline bool is_huge_zero_page(struct page *page)
- 
- static inline bool is_huge_zero_pmd(pmd_t pmd)
- {
--	return is_huge_zero_page(pmd_page(pmd));
-+	return READ_ONCE(huge_zero_pfn) == pmd_pfn(pmd) && pmd_present(pmd);
- }
- 
- static inline bool is_huge_zero_pud(pud_t pud)
-@@ -443,6 +444,11 @@ static inline bool is_huge_zero_page(struct page *page)
- 	return false;
- }
- 
-+static inline bool is_huge_zero_pmd(pmd_t pmd)
-+{
-+	return false;
-+}
-+
- static inline bool is_huge_zero_pud(pud_t pud)
- {
- 	return false;
+ 	TTU_SPLIT_HUGE_PMD	= 0x4,	/* split huge PMD if any */
+ 	TTU_IGNORE_MLOCK	= 0x8,	/* ignore mlock */
++	TTU_SYNC		= 0x10,	/* avoid racy checks with PVMW_SYNC */
+ 	TTU_IGNORE_HWPOISON	= 0x20,	/* corrupted page is recoverable */
+ 	TTU_BATCH_FLUSH		= 0x40,	/* Batch TLB flushes where possible
+ 					 * and caller guarantees they will
 diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index cd37a0829881..e1ad01e68aa3 100644
+index e1ad01e68aa3..9c71a61e4c59 100644
 --- a/mm/huge_memory.c
 +++ b/mm/huge_memory.c
-@@ -61,6 +61,7 @@ static struct shrinker deferred_split_shrinker;
+@@ -2358,7 +2358,7 @@ void vma_adjust_trans_huge(struct vm_area_struct *vma,
  
- static atomic_t huge_zero_refcount;
- struct page *huge_zero_page __read_mostly;
-+unsigned long huge_zero_pfn __read_mostly = ~0UL;
- 
- bool transparent_hugepage_enabled(struct vm_area_struct *vma)
+ static void unmap_page(struct page *page)
  {
-@@ -97,6 +98,7 @@ retry:
- 		__free_pages(zero_page, compound_order(zero_page));
- 		goto retry;
- 	}
-+	WRITE_ONCE(huge_zero_pfn, page_to_pfn(zero_page));
+-	enum ttu_flags ttu_flags = TTU_IGNORE_MLOCK |
++	enum ttu_flags ttu_flags = TTU_IGNORE_MLOCK | TTU_SYNC |
+ 		TTU_RMAP_LOCKED | TTU_SPLIT_HUGE_PMD;
+ 	bool unmap_success;
  
- 	/* We take additional reference here. It will be put back by shrinker */
- 	atomic_set(&huge_zero_refcount, 2);
-@@ -146,6 +148,7 @@ static unsigned long shrink_huge_zero_page_scan(struct shrinker *shrink,
- 	if (atomic_cmpxchg(&huge_zero_refcount, 1, 0) == 1) {
- 		struct page *zero_page = xchg(&huge_zero_page, NULL);
- 		BUG_ON(zero_page == NULL);
-+		WRITE_ONCE(huge_zero_pfn, ~0UL);
- 		__free_pages(zero_page, compound_order(zero_page));
- 		return HPAGE_PMD_NR;
+diff --git a/mm/page_vma_mapped.c b/mm/page_vma_mapped.c
+index 86e3a3688d59..da6744015abd 100644
+--- a/mm/page_vma_mapped.c
++++ b/mm/page_vma_mapped.c
+@@ -212,6 +212,17 @@ restart:
+ 			pvmw->ptl = NULL;
+ 		}
+ 	} else if (!pmd_present(pmde)) {
++		/*
++		 * If PVMW_SYNC, take and drop THP pmd lock so that we
++		 * cannot return prematurely, while zap_huge_pmd() has
++		 * cleared *pmd but not decremented compound_mapcount().
++		 */
++		if ((pvmw->flags & PVMW_SYNC) &&
++		    PageTransCompound(pvmw->page)) {
++			spinlock_t *ptl = pmd_lock(mm, pvmw->pmd);
++
++			spin_unlock(ptl);
++		}
+ 		return false;
  	}
-@@ -2073,7 +2076,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
- 		return;
- 	}
+ 	if (!map_pte(pvmw))
+diff --git a/mm/rmap.c b/mm/rmap.c
+index b0fc27e77d6d..735a1b514f83 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -1405,6 +1405,15 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
+ 	struct mmu_notifier_range range;
+ 	enum ttu_flags flags = (enum ttu_flags)(long)arg;
  
--	if (pmd_trans_huge(*pmd) && is_huge_zero_pmd(*pmd)) {
-+	if (is_huge_zero_pmd(*pmd)) {
- 		/*
- 		 * FIXME: Do we want to invalidate secondary mmu by calling
- 		 * mmu_notifier_invalidate_range() see comments below inside
++	/*
++	 * When racing against e.g. zap_pte_range() on another cpu,
++	 * in between its ptep_get_and_clear_full() and page_remove_rmap(),
++	 * try_to_unmap() may return false when it is about to become true,
++	 * if page table locking is skipped: use TTU_SYNC to wait for that.
++	 */
++	if (flags & TTU_SYNC)
++		pvmw.flags = PVMW_SYNC;
++
+ 	/* munlock has nothing to gain from examining un-locked vmas */
+ 	if ((flags & TTU_MUNLOCK) && !(vma->vm_flags & VM_LOCKED))
+ 		return true;
+@@ -1777,7 +1786,13 @@ bool try_to_unmap(struct page *page, enum ttu_flags flags)
+ 	else
+ 		rmap_walk(page, &rwc);
+ 
+-	return !page_mapcount(page) ? true : false;
++	/*
++	 * When racing against e.g. zap_pte_range() on another cpu,
++	 * in between its ptep_get_and_clear_full() and page_remove_rmap(),
++	 * try_to_unmap() may return false when it is about to become true,
++	 * if page table locking is skipped: use TTU_SYNC to wait for that.
++	 */
++	return !page_mapcount(page);
+ }
+ 
+ /**
 -- 
 2.30.2
 
