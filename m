@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F1D3B6A24
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 23:21:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4523B6A2F
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 23:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237847AbhF1VXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 17:23:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35666 "EHLO mail.kernel.org"
+        id S237905AbhF1VX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 17:23:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237598AbhF1VXU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 17:23:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB11C61D00;
-        Mon, 28 Jun 2021 21:20:53 +0000 (UTC)
+        id S237866AbhF1VXX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 17:23:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1364461D06;
+        Mon, 28 Jun 2021 21:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624915254;
-        bh=otDNswzrNoZlJxkieNYaRlw/bmg3oENY62X+0YIE9lc=;
+        s=k20201202; t=1624915255;
+        bh=YKmwurZwGMWzcmhMkRf94jfggcgdhpnkZCsw9DLpBAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCTzQCE3Qp7CY7v7Dpv9PNRPaqk1h89wdULJEQx8mxIMA+acVVJSqBu0j1zYdeqf5
-         JmUA7wMUIiUnhCHCZs3Z8akou3sfWreyXzG5+Gy/p2SUltBtYOjzr2SmN+zvoNpDzw
-         TkJlGl/1yFfBgf+5Ib6igkf1Uii6SJ0oblt1bxNo2U7qkXnhdqsojSI86lglYBcVc1
-         o3lB66jLfZxhq5tht9jjgEE3OidoBzykBtalTbvLxnX+b19NdcunENuzCWaoeaBD/9
-         PTlUtzdTDo9vyGL3+P69B1Hz9unggE9XxpA05k8IimoyrZMyZLhq3SWPI0BplHW7hl
-         EU2wd8Wk4TPug==
+        b=OzB/Ckt28AtAg30bMmDykdhYzO7+V7/zsFzPdr1mJE7Whec/DhKCVk5eqk1iD+FOS
+         cfjfVou5RidgDM3AGX8ZbcHlcCzX+4S/nBhETF1yiGkagrFilxr6Hr25KxpChkxDQ1
+         RDnPMqjiH412Zi8mMsvXU7ldSOzZTShFq2tllhYMOslkfKCN7L6W/1VFQoOYrGg16x
+         ZxaK7H5b9rkMIVOVNmGDJaPPLYDAMnQViTcVL4AwTIo5VT8qmclyatIRBU1KCEXs5q
+         V1Z7OesbxtlgWURfpqgNHh/MR1CI4iUGkoR12CC80NIWOh0WXicKlaTLPkwh91A7UC
+         4O8UuelsN2m+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 2/5] s390/vfio-ap: clean up mdev resources when remove callback invoked
-Date:   Mon, 28 Jun 2021 17:20:48 -0400
-Message-Id: <20210628212051.43265-2-sashal@kernel.org>
+Cc:     Loic Poulain <loic.poulain@linaro.org>,
+        Michal Koziel <michal.koziel@emlogic.no>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 3/5] gpio: mxc: Fix disabled interrupt wake-up support
+Date:   Mon, 28 Jun 2021 17:20:49 -0400
+Message-Id: <20210628212051.43265-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628212051.43265-1-sashal@kernel.org>
 References: <20210628212051.43265-1-sashal@kernel.org>
@@ -43,57 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Krowiak <akrowiak@linux.ibm.com>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-[ Upstream commit 8c0795d2a0f50e2b131f5b2a8c2795939a94058e ]
+[ Upstream commit 3093e6cca3ba7d47848068cb256c489675125181 ]
 
-The mdev remove callback for the vfio_ap device driver bails out with
--EBUSY if the mdev is in use by a KVM guest (i.e., the KVM pointer in the
-struct ap_matrix_mdev is not NULL). The intended purpose was
-to prevent the mdev from being removed while in use. There are two
-problems with this scenario:
+A disabled/masked interrupt marked as wakeup source must be re-enable
+and unmasked in order to be able to wake-up the host. That can be done
+by flaging the irqchip with IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND.
 
-1. Returning a non-zero return code from the remove callback does not
-   prevent the removal of the mdev.
+Note: It 'sometimes' works without that change, but only thanks to the
+lazy generic interrupt disabling (keeping interrupt unmasked).
 
-2. The KVM pointer in the struct ap_matrix_mdev will always be NULL because
-   the remove callback will not get invoked until the mdev fd is closed.
-   When the mdev fd is closed, the mdev release callback is invoked and
-   clears the KVM pointer from the struct ap_matrix_mdev.
-
-Let's go ahead and remove the check for KVM in the remove callback and
-allow the cleanup of mdev resources to proceed.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Link: https://lore.kernel.org/r/20210609224634.575156-2-akrowiak@linux.ibm.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Reported-by: Michal Koziel <michal.koziel@emlogic.no>
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/gpio/gpio-mxc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 6946a7e26eff..ef5e792c665f 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -366,16 +366,6 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+diff --git a/drivers/gpio/gpio-mxc.c b/drivers/gpio/gpio-mxc.c
+index 157106e1e438..b9fdf05d7669 100644
+--- a/drivers/gpio/gpio-mxc.c
++++ b/drivers/gpio/gpio-mxc.c
+@@ -334,7 +334,7 @@ static int mxc_gpio_init_gc(struct mxc_gpio_port *port, int irq_base)
+ 	ct->chip.irq_unmask = irq_gc_mask_set_bit;
+ 	ct->chip.irq_set_type = gpio_set_irq_type;
+ 	ct->chip.irq_set_wake = gpio_set_wake_irq;
+-	ct->chip.flags = IRQCHIP_MASK_ON_SUSPEND;
++	ct->chip.flags = IRQCHIP_MASK_ON_SUSPEND | IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND;
+ 	ct->regs.ack = GPIO_ISR;
+ 	ct->regs.mask = GPIO_IMR;
  
- 	mutex_lock(&matrix_dev->lock);
--
--	/*
--	 * If the KVM pointer is in flux or the guest is running, disallow
--	 * un-assignment of control domain.
--	 */
--	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
--		mutex_unlock(&matrix_dev->lock);
--		return -EBUSY;
--	}
--
- 	vfio_ap_mdev_reset_queues(mdev);
- 	list_del(&matrix_mdev->node);
- 	kfree(matrix_mdev);
 -- 
 2.30.2
 
