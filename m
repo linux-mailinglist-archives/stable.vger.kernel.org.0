@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 276F13B6441
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD523B6442
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234297AbhF1PGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:06:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39678 "EHLO mail.kernel.org"
+        id S234630AbhF1PGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235805AbhF1PEP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 11:04:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5535A61CD4;
-        Mon, 28 Jun 2021 14:43:14 +0000 (UTC)
+        id S235806AbhF1PEQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 11:04:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2060061CEC;
+        Mon, 28 Jun 2021 14:43:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891394;
-        bh=uz0OC/weR22y1hypAiWrhECNXa73YpaPd3rI0KJIFwo=;
+        s=k20201202; t=1624891395;
+        bh=Ym5mjMMSXYZZW/MwIBUZjxL2HOLzVQWj16e8vUkBWak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kRHKFIr5VxZHwgsNsKI2Lwou9SQsnf/FWcZ08xWcEYFBLptysWJ8RURoTpYB8u7CF
-         xTVEskGYMAoc4ADjJrK6vHG4GjkNehZoH1on2iIG+iTnXioROI/fQMu1CFIxHUksmH
-         Dm+Se1FTZGB/g+4rFsJt47vI6hYeA3nyRmdGyv0yExw3tFX8t9nRlcAqrrZkFX/Xsa
-         PV/n7gZV/xkVyRnu/NTM+sA4l5mQHG1+mlbkSvx4H3+hf/PqZx5vjg6ENbPrn6ACcy
-         qTNA/hkTE1KNJhtFItZwYNF3gtxXAlOQPTt7gv+NKLjdsuAmSIENjD+brAlgRzu+6L
-         P2JsVxbi+kTUQ==
+        b=bnETbwyEnwyPHnw5uFAIScg90T2LZBuNvvdpRHHS8fYRmx6z2b3kJlRLEYq193EXq
+         y8da/42IclK5iJXbLpb60cbYaa6YZH7sUVJFqmRg67R4IQV+DBhS0gnr7zwKLO6cz2
+         MYmzbXav5+d5LkcGezYVfgq1Gc7ALQnRcEqZzzU+8HXfLGF+Lc9YEn3Agde4zoLpsm
+         JV4XgJ9yVbxPApnQkMbXG0rNva6DvCCCRb6GfE9E8ZVtZXQ+NfdVqJ4AA5ynvolD3B
+         00Qr2f11ZK1+RU3P8bS69GzX2ZlDPNBNRRDP/83iEz4H99xt0wBMz6EddrnWpEjk7I
+         0kEvLj8IyghMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 19/57] net: stmmac: dwmac1000: Fix extended MAC address registers definition
-Date:   Mon, 28 Jun 2021 10:42:18 -0400
-Message-Id: <20210628144256.34524-20-sashal@kernel.org>
+Subject: [PATCH 4.4 20/57] qlcnic: Fix an error handling path in 'qlcnic_probe()'
+Date:   Mon, 28 Jun 2021 10:42:19 -0400
+Message-Id: <20210628144256.34524-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
 References: <20210628144256.34524-1-sashal@kernel.org>
@@ -48,40 +48,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 1adb20f0d496b2c61e9aa1f4761b8d71f93d258e ]
+[ Upstream commit cb3376604a676e0302258b01893911bdd7aa5278 ]
 
-The register starts from 0x800 is the 16th MAC address register rather
-than the first one.
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call, as already done in the remove function.
 
-Fixes: cffb13f4d6fb ("stmmac: extend mac addr reg and fix perfect filering")
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Fixes: 451724c821c1 ("qlcnic: aer support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac1000.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h b/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h
-index b3fe0575ff6b..db2a341ae4b3 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac1000.h
-@@ -83,10 +83,10 @@ enum power_event {
- #define LPI_CTRL_STATUS_TLPIEN	0x00000001	/* Transmit LPI Entry */
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+index a4b10776f834..11274b7ea36c 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+@@ -2706,6 +2706,7 @@ err_out_free_hw_res:
+ 	kfree(ahw);
  
- /* GMAC HW ADDR regs */
--#define GMAC_ADDR_HIGH(reg)	(((reg > 15) ? 0x00000800 : 0x00000040) + \
--				(reg * 8))
--#define GMAC_ADDR_LOW(reg)	(((reg > 15) ? 0x00000804 : 0x00000044) + \
--				(reg * 8))
-+#define GMAC_ADDR_HIGH(reg)	((reg > 15) ? 0x00000800 + (reg - 16) * 8 : \
-+				 0x00000040 + (reg * 8))
-+#define GMAC_ADDR_LOW(reg)	((reg > 15) ? 0x00000804 + (reg - 16) * 8 : \
-+				 0x00000044 + (reg * 8))
- #define GMAC_MAX_PERFECT_ADDRESSES	1
+ err_out_free_res:
++	pci_disable_pcie_error_reporting(pdev);
+ 	pci_release_regions(pdev);
  
- /* PCS registers (AN/TBI/SGMII/RGMII) offset */
+ err_out_disable_pdev:
 -- 
 2.30.2
 
