@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 859C73B606A
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03AE43B606B
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:22:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233521AbhF1OYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:24:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        id S233545AbhF1OYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:24:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232593AbhF1OXT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:23:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A693E619AD;
-        Mon, 28 Jun 2021 14:20:13 +0000 (UTC)
+        id S233594AbhF1OXV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:23:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 876B061C93;
+        Mon, 28 Jun 2021 14:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890015;
-        bh=hZM4slfU/fL5G4L7VUgdEfsyIL/aCjNcBMSBZ83Hc8g=;
+        s=k20201202; t=1624890016;
+        bh=GTUkTwvqEfSZdLkhjYwvkEu+T1WS+lZaUwzDLgB4YW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvFI8uCN+OMAWY/X8sKl5jCecgWNZgYtzIfmJ2xHk6BH0BQ6PTTUGHAi0Gf4VR0o8
-         VmIIUpC3HMPZOT0cd2w2dMqVSP1W5Tj5U365HrLXCF20iB/o433L3+0xkXa70yapAO
-         m8cU3NK461XivHUoVvZmyYKfieHjsbG6JsxdYQi6VfTWxroQQ9y9iOsbUFoIjT8tVg
-         ZAbfyWJ1bSe6NZMUJ0a4DXl+elyqAYwXEcAgqJqXHbt3UVocDbST87pTwFsTJBc8b/
-         b0vsjl1RPqkXHsg6FeMrhN33zXddwpgSzp8yMCj9UwEAVYG2SwXJU4EtHfnN6gheUi
-         9I2BQx0T8OIiw==
+        b=poH2/NbIrGRN1DNhl9ygqnCJ0yhOljfVRa2UNF/CTSRLB+SQJuxNcojsPG3tBuXjY
+         WNDfOSkl41DMiqjSxXgiJTuBR0MGFdIGRK4yPd2XwKhegvh5J4SNaaf210bgsO8NN8
+         4XLG81AnMUOQOyVfFch80e47jZ36K0nDsr1NavIVWbp31nZt5ts+JtA/u5Iu95KzVc
+         RLMnqqDV4a3WsmgdEyIVDzP28kQ/o+ef7e0STKojpf6B1P6vu9SxHWkAOVeWS1Xv4J
+         zLocN1DVBLLBzi2Ayou4ajFFqQMv4n2IeoFr4T+2NI3+2Jf/1fez2fFyEKp477psuJ
+         DeKe1Q3078sxw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hugh Dickins <hughd@google.com>, Neel Natu <neelnatu@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Zhang Yi <wetpzy@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Darren Hart <dvhart@infradead.org>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     Alper Gun <alpergun@google.com>, Peter Gonda <pgonda@google.com>,
+        Marc Orr <marcorr@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 100/110] mm, futex: fix shared futex pgoff on shmem huge page
-Date:   Mon, 28 Jun 2021 10:18:18 -0400
-Message-Id: <20210628141828.31757-101-sashal@kernel.org>
+Subject: [PATCH 5.12 101/110] KVM: SVM: Call SEV Guest Decommission if ASID binding fails
+Date:   Mon, 28 Jun 2021 10:18:19 -0400
+Message-Id: <20210628141828.31757-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -59,166 +49,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Alper Gun <alpergun@google.com>
 
-commit fe19bd3dae3d15d2fbfdb3de8839a6ea0fe94264 upstream.
+commit 934002cd660b035b926438244b4294e647507e13 upstream.
 
-If more than one futex is placed on a shmem huge page, it can happen
-that waking the second wakes the first instead, and leaves the second
-waiting: the key's shared.pgoff is wrong.
+Send SEV_CMD_DECOMMISSION command to PSP firmware if ASID binding
+fails. If a failure happens after  a successful LAUNCH_START command,
+a decommission command should be executed. Otherwise, guest context
+will be unfreed inside the AMD SP. After the firmware will not have
+memory to allocate more SEV guest context, LAUNCH_START command will
+begin to fail with SEV_RET_RESOURCE_LIMIT error.
 
-When 3.11 commit 13d60f4b6ab5 ("futex: Take hugepages into account when
-generating futex_key"), the only shared huge pages came from hugetlbfs,
-and the code added to deal with its exceptional page->index was put into
-hugetlb source.  Then that was missed when 4.8 added shmem huge pages.
+The existing code calls decommission inside sev_unbind_asid, but it is
+not called if a failure happens before guest activation succeeds. If
+sev_bind_asid fails, decommission is never called. PSP firmware has a
+limit for the number of guests. If sev_asid_binding fails many times,
+PSP firmware will not have resources to create another guest context.
 
-page_to_pgoff() is what others use for this nowadays: except that, as
-currently written, it gives the right answer on hugetlbfs head, but
-nonsense on hugetlbfs tails.  Fix that by calling hugetlbfs-specific
-hugetlb_basepage_index() on PageHuge tails as well as on head.
-
-Yes, it's unconventional to declare hugetlb_basepage_index() there in
-pagemap.h, rather than in hugetlb.h; but I do not expect anything but
-page_to_pgoff() ever to need it.
-
-[akpm@linux-foundation.org: give hugetlb_basepage_index() prototype the correct scope]
-
-Link: https://lkml.kernel.org/r/b17d946b-d09-326e-b42a-52884c36df32@google.com
-Fixes: 800d8c63b2e9 ("shmem: add huge pages support")
-Reported-by: Neel Natu <neelnatu@google.com>
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Zhang Yi <wetpzy@gmail.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Darren Hart <dvhart@infradead.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 59414c989220 ("KVM: SVM: Add support for KVM_SEV_LAUNCH_START command")
+Reported-by: Peter Gonda <pgonda@google.com>
+Signed-off-by: Alper Gun <alpergun@google.com>
+Reviewed-by: Marc Orr <marcorr@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20210610174604.2554090-1-alpergun@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/hugetlb.h | 16 ----------------
- include/linux/pagemap.h | 13 +++++++------
- kernel/futex.c          |  3 +--
- mm/hugetlb.c            |  5 +----
- 4 files changed, 9 insertions(+), 28 deletions(-)
+ arch/x86/kvm/svm/sev.c | 32 +++++++++++++++++++++-----------
+ 1 file changed, 21 insertions(+), 11 deletions(-)
 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 5dae4187210d..28fa3f9bbbfd 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -728,17 +728,6 @@ static inline int hstate_index(struct hstate *h)
- 	return h - hstates;
+diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+index dbc6214d69de..8f3b438f6fd3 100644
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -143,9 +143,25 @@ static void sev_asid_free(int asid)
+ 	mutex_unlock(&sev_bitmap_lock);
  }
  
--pgoff_t __basepage_index(struct page *page);
--
--/* Return page->index in PAGE_SIZE units */
--static inline pgoff_t basepage_index(struct page *page)
--{
--	if (!PageCompound(page))
--		return page->index;
--
--	return __basepage_index(page);
--}
--
- extern int dissolve_free_huge_page(struct page *page);
- extern int dissolve_free_huge_pages(unsigned long start_pfn,
- 				    unsigned long end_pfn);
-@@ -969,11 +958,6 @@ static inline int hstate_index(struct hstate *h)
- 	return 0;
- }
- 
--static inline pgoff_t basepage_index(struct page *page)
--{
--	return page->index;
--}
--
- static inline int dissolve_free_huge_page(struct page *page)
+-static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
++static void sev_decommission(unsigned int handle)
  {
- 	return 0;
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index 8c9947fd62f3..e0023e5f9aa6 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -501,7 +501,7 @@ static inline struct page *read_mapping_page(struct address_space *mapping,
- }
- 
- /*
-- * Get index of the page with in radix-tree
-+ * Get index of the page within radix-tree (but not for hugetlb pages).
-  * (TODO: remove once hugetlb pages will have ->index in PAGE_SIZE)
-  */
- static inline pgoff_t page_to_index(struct page *page)
-@@ -520,15 +520,16 @@ static inline pgoff_t page_to_index(struct page *page)
- 	return pgoff;
- }
- 
-+extern pgoff_t hugetlb_basepage_index(struct page *page);
+ 	struct sev_data_decommission *decommission;
 +
- /*
-- * Get the offset in PAGE_SIZE.
-- * (TODO: hugepage should have ->index in PAGE_SIZE)
-+ * Get the offset in PAGE_SIZE (even for hugetlb pages).
-+ * (TODO: hugetlb pages should have ->index in PAGE_SIZE)
-  */
- static inline pgoff_t page_to_pgoff(struct page *page)
- {
--	if (unlikely(PageHeadHuge(page)))
--		return page->index << compound_order(page);
++	if (!handle)
++		return;
++
++	decommission = kzalloc(sizeof(*decommission), GFP_KERNEL);
++	if (!decommission)
++		return;
++
++	decommission->handle = handle;
++	sev_guest_decommission(decommission, NULL);
++
++	kfree(decommission);
++}
++
++static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
++{
+ 	struct sev_data_deactivate *data;
+ 
+ 	if (!handle)
+@@ -165,15 +181,7 @@ static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
+ 
+ 	kfree(data);
+ 
+-	decommission = kzalloc(sizeof(*decommission), GFP_KERNEL);
+-	if (!decommission)
+-		return;
 -
-+	if (unlikely(PageHuge(page)))
-+		return hugetlb_basepage_index(page);
- 	return page_to_index(page);
+-	/* decommission handle */
+-	decommission->handle = handle;
+-	sev_guest_decommission(decommission, NULL);
+-
+-	kfree(decommission);
++	sev_decommission(handle);
  }
  
-diff --git a/kernel/futex.c b/kernel/futex.c
-index a8629b695d38..5aa6d0a6c767 100644
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -35,7 +35,6 @@
- #include <linux/jhash.h>
- #include <linux/pagemap.h>
- #include <linux/syscalls.h>
--#include <linux/hugetlb.h>
- #include <linux/freezer.h>
- #include <linux/memblock.h>
- #include <linux/fault-inject.h>
-@@ -650,7 +649,7 @@ again:
+ static int sev_guest_init(struct kvm *kvm, struct kvm_sev_cmd *argp)
+@@ -303,8 +311,10 @@ static int sev_launch_start(struct kvm *kvm, struct kvm_sev_cmd *argp)
  
- 		key->both.offset |= FUT_OFF_INODE; /* inode-based key */
- 		key->shared.i_seq = get_inode_sequence_number(inode);
--		key->shared.pgoff = basepage_index(tail);
-+		key->shared.pgoff = page_to_pgoff(tail);
- 		rcu_read_unlock();
- 	}
+ 	/* Bind ASID to this guest */
+ 	ret = sev_bind_asid(kvm, start->handle, error);
+-	if (ret)
++	if (ret) {
++		sev_decommission(start->handle);
+ 		goto e_free_session;
++	}
  
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 3da4817190f3..7ba7d9b20494 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1584,15 +1584,12 @@ struct address_space *hugetlb_page_mapping_lock_write(struct page *hpage)
- 	return NULL;
- }
- 
--pgoff_t __basepage_index(struct page *page)
-+pgoff_t hugetlb_basepage_index(struct page *page)
- {
- 	struct page *page_head = compound_head(page);
- 	pgoff_t index = page_index(page_head);
- 	unsigned long compound_idx;
- 
--	if (!PageHuge(page_head))
--		return page_index(page);
--
- 	if (compound_order(page_head) >= MAX_ORDER)
- 		compound_idx = page_to_pfn(page) - page_to_pfn(page_head);
- 	else
+ 	/* return handle to userspace */
+ 	params.handle = start->handle;
 -- 
 2.30.2
 
