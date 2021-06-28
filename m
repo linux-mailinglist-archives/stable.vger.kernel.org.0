@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F06F73B5FE2
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:18:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C84A23B5FE9
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232723AbhF1OVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54378 "EHLO mail.kernel.org"
+        id S232748AbhF1OVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232601AbhF1OVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232563AbhF1OVJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:21:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2408561C7D;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDE5561C82;
         Mon, 28 Jun 2021 14:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889920;
-        bh=zGkdKxRdBQp1OrncasTOEjRRrb+RuldE4DcSQnlrAQQ=;
+        s=k20201202; t=1624889921;
+        bh=DvIU2tOIquYSUjtpFVLqksYCeHbDH6SIwBl1dW07/kU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ouTlP1KcLmsTNiltgfDoRT8PbUd6cxLoYP8StCluLkNPlel6a+D7Mudi19a7vPDxA
-         0BBZFr2lRXPUA7h2socpo1wRP6d1MLZIzxxF+qJSX56ZpZD7f0SQUv82SUJHdhCmd/
-         gSZnE9faiCEkxdJkYwZB1x8lunGx0UTBXJzqM3NaB5slEfROePmOkhTBca4dnN4cU+
-         yUgHQwbehk4W+X5poo4+Gi53ucTJJDa7rKcybEKev76gmN+YSWgQ6JMheLPd2/IqzG
-         kcHn2tanG70wLvDldDJ7c3CWYol6JalwUnrhaEEsVcMdBTj9fIlAyoLWVeL4ECT0oF
-         st7HdiCa9Yz4w==
+        b=GbKP8CVmhR0DGnBfPQzsCs3kObC9OHQ8wPE75pah5CLM/JTPdxwaofn2AQFP/Ssnf
+         /r+Y2Q8BIHER+a2J6jERIsT28cBr9Ot+JWGnjDsCnerfr1kUT8i4JHzIccD+aH0fHl
+         aGNFumOnTwHDVYY+IPvw/m23nTmhbffOPx9vzEtnnhzf8+CMq3RlyFln7i13RY4sUv
+         VE+6huOugmqpd3CMHDi2cdWKI0vPhyYBOPaAXyt+2NE9O/ldBvBEt9f4ymj0IbTgde
+         E3tmytDnqSb9JRvP+FnW0JV60LThoooLLSy4Y0v/qL3h5HTfMYPWtJVtq2FWe6fmpk
+         rAY+Nrfum4gdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Haibo Chen <haibo.chen@nxp.com>, Mark Brown <broonie@kernel.org>,
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Michael <phyre@rogers.com>,
+        Salvatore Bonaccorso <carnil@debian.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 011/110] spi: spi-nxp-fspi: move the register operation after the clock enable
-Date:   Mon, 28 Jun 2021 10:16:49 -0400
-Message-Id: <20210628141828.31757-12-sashal@kernel.org>
+Subject: [PATCH 5.12 012/110] Revert "PCI: PM: Do not read power state in pci_enable_device_flags()"
+Date:   Mon, 28 Jun 2021 10:16:50 -0400
+Message-Id: <20210628141828.31757-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -47,51 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-[ Upstream commit f422316c8e9d3c4aff3c56549dfb44a677d02f14 ]
+[ Upstream commit 4d6035f9bf4ea12776322746a216e856dfe46698 ]
 
-Move the register operation after the clock enable, otherwise system
-will stuck when this driver probe.
+Revert commit 4514d991d992 ("PCI: PM: Do not read power state in
+pci_enable_device_flags()") that is reported to cause PCI device
+initialization issues on some systems.
 
-Fixes: 71d80563b076 ("spi: spi-nxp-fspi: fix fspi panic by unexpected interrupts")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Link: https://lore.kernel.org/r/1623317073-25158-1-git-send-email-haibo.chen@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213481
+Link: https://lore.kernel.org/linux-acpi/YNDoGICcg0V8HhpQ@eldamar.lan
+Reported-by: Michael <phyre@rogers.com>
+Reported-by: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: 4514d991d992 ("PCI: PM: Do not read power state in pci_enable_device_flags()")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-nxp-fspi.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/pci/pci.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-nxp-fspi.c b/drivers/spi/spi-nxp-fspi.c
-index ab9035662717..bcc0b5a3a459 100644
---- a/drivers/spi/spi-nxp-fspi.c
-+++ b/drivers/spi/spi-nxp-fspi.c
-@@ -1033,12 +1033,6 @@ static int nxp_fspi_probe(struct platform_device *pdev)
- 		goto err_put_ctrl;
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index e4d4e399004b..16a17215f633 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1870,11 +1870,21 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
+ 	int err;
+ 	int i, bars = 0;
+ 
+-	if (atomic_inc_return(&dev->enable_cnt) > 1) {
+-		pci_update_current_state(dev, dev->current_state);
+-		return 0;		/* already enabled */
++	/*
++	 * Power state could be unknown at this point, either due to a fresh
++	 * boot or a device removal call.  So get the current power state
++	 * so that things like MSI message writing will behave as expected
++	 * (e.g. if the device really is in D0 at enable time).
++	 */
++	if (dev->pm_cap) {
++		u16 pmcsr;
++		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
++		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
  	}
  
--	/* Clear potential interrupts */
--	reg = fspi_readl(f, f->iobase + FSPI_INTR);
--	if (reg)
--		fspi_writel(f, reg, f->iobase + FSPI_INTR);
--
--
- 	/* find the resources - controller memory mapped space */
- 	if (is_acpi_node(f->dev->fwnode))
- 		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-@@ -1076,6 +1070,11 @@ static int nxp_fspi_probe(struct platform_device *pdev)
- 		}
- 	}
- 
-+	/* Clear potential interrupts */
-+	reg = fspi_readl(f, f->iobase + FSPI_INTR);
-+	if (reg)
-+		fspi_writel(f, reg, f->iobase + FSPI_INTR);
++	if (atomic_inc_return(&dev->enable_cnt) > 1)
++		return 0;		/* already enabled */
 +
- 	/* find the irq */
- 	ret = platform_get_irq(pdev, 0);
- 	if (ret < 0)
+ 	bridge = pci_upstream_bridge(dev);
+ 	if (bridge)
+ 		pci_enable_bridge(bridge);
 -- 
 2.30.2
 
