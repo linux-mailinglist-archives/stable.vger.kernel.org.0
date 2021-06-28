@@ -2,78 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB5003B5733
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 04:28:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E012C3B57C8
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 05:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231873AbhF1Can (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Jun 2021 22:30:43 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:12077 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231678AbhF1Cam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 22:30:42 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4GCrzp26ZnzZkdZ;
-        Mon, 28 Jun 2021 10:25:10 +0800 (CST)
-Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Mon, 28 Jun 2021 10:28:10 +0800
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Mon, 28 Jun 2021 10:28:10 +0800
+        id S232052AbhF1DYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Jun 2021 23:24:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57406 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231678AbhF1DYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Jun 2021 23:24:15 -0400
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6730CC061574;
+        Sun, 27 Jun 2021 20:21:49 -0700 (PDT)
+Received: by mail-yb1-xb2d.google.com with SMTP id m9so16096655ybp.8;
+        Sun, 27 Jun 2021 20:21:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=+oBDwfkoqQBZF8b/GVv8gJiTknHVSmHA0o8eDbQJ7qw=;
+        b=beed0lhxIcJCRaaH5GRHcpVOJJi5P+mDN8/+bYP6RjuDgQHW8kmvd/GOuAv8K/62kj
+         akoNVx+UnWBiuetQAhVxfJzSaTKp/e4Rr3iCWwGMPN8G5qvBdYdilCGVsVzsduJjZwjY
+         rBuZdu+HqPBmqepHyfbtmcInWYgQyhrDEmGxAeUmDe06eFcExTSGm4goewxhpGz8S1eb
+         Zeuz4oFoFRJQOHLiJQn8Gmbi2L+VfuFIV1+qG7kJ7SS+id1EVbysa1rNtog5jGySbDYW
+         Gf2ojeNMuYqLn05rYzt69QJp+FerbJ/7bU7/jT+qqB5LujHEswLniAyKzheXKAM7bRXf
+         94SQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=+oBDwfkoqQBZF8b/GVv8gJiTknHVSmHA0o8eDbQJ7qw=;
+        b=kz2ojIFqqYYooLTS6eojeL6JsU7y+xeHm50nNS3vop8CDYuoe7kcE20+8SRXEtVh2O
+         8l97kaO6l30W/Pvvq5I6hVfoYqFMJrN/EVj32IFlGSlB+INQoFToG+RspvSpsh8Ls52C
+         IUOxy5fuU3OQGtFZPrRx6C9lTbIFRc8KZLAJVg34UmInQZP2rK+MRvjUIOqi8+4K/VvK
+         H/OkBOX2WqCd1+7WkFXLFYygbwnwLHWAvTPx8MO58K1ffgz3jFBkYByazaJaw1QmvtHa
+         mv2mXe0d28ZkttYS9R0nFBp+zK49ssEC7PIyRR4FKhzleH0gu4h2rBhi4BrbCm1rmCvQ
+         lCDA==
+X-Gm-Message-State: AOAM532y+Rklg3D4JaqwN+fjF2v95L+4gTsdQOwo7m60ARmTd+ZyWqP4
+        3wsT9TwjKUJeue7LlFL/c0RGIyP9vBGKjmudff2pcnI/
+X-Google-Smtp-Source: ABdhPJzwr3WGDedoWAjPw98+br/6i6KSq1AYI6Tz6NPl4p41ofTvwK1WH1T6PuFjIYkkH5nXUh5uTyDLQ7aKnHC7G5A=
+X-Received: by 2002:a25:2c01:: with SMTP id s1mr6424780ybs.387.1624850508742;
+ Sun, 27 Jun 2021 20:21:48 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210627135117.28641-1-bmeng.cn@gmail.com> <11706f7e-a53a-5640-d713-bc4562db71fa@huawei.com>
+ <CAEUhbmV=h3nZ8Aa94_uyjrZ_NGe+9-xAorUMubSPJXu3y60PeQ@mail.gmail.com> <aa1f027c-bbc7-92f8-80a6-fe290cd1cdf8@huawei.com>
+In-Reply-To: <aa1f027c-bbc7-92f8-80a6-fe290cd1cdf8@huawei.com>
+From:   Bin Meng <bmeng.cn@gmail.com>
+Date:   Mon, 28 Jun 2021 11:21:37 +0800
+Message-ID: <CAEUhbmXeqAsLxm+oCHRPHMZq2mQXPD6fJOFerwp_BRv1kCc7ow@mail.gmail.com>
 Subject: Re: [PATCH] riscv: Fix 32-bit RISC-V boot failure
-To:     Bin Meng <bmeng.cn@gmail.com>
-CC:     Palmer Dabbelt <palmerdabbelt@google.com>,
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc:     Palmer Dabbelt <palmerdabbelt@google.com>,
         Atish Patra <atish.patra@wdc.com>,
         linux-kernel <linux-kernel@vger.kernel.org>,
         linux-riscv <linux-riscv@lists.infradead.org>,
         stable <stable@vger.kernel.org>
-References: <20210627135117.28641-1-bmeng.cn@gmail.com>
- <11706f7e-a53a-5640-d713-bc4562db71fa@huawei.com>
- <CAEUhbmV=h3nZ8Aa94_uyjrZ_NGe+9-xAorUMubSPJXu3y60PeQ@mail.gmail.com>
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-Message-ID: <aa1f027c-bbc7-92f8-80a6-fe290cd1cdf8@huawei.com>
-Date:   Mon, 28 Jun 2021 10:28:09 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-In-Reply-To: <CAEUhbmV=h3nZ8Aa94_uyjrZ_NGe+9-xAorUMubSPJXu3y60PeQ@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Originating-IP: [10.174.177.243]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpemm500001.china.huawei.com (7.185.36.107)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 2021/6/28 9:15, Bin Meng wrote:
-> On Mon, Jun 28, 2021 at 8:53 AM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
->> Hi， sorry for the mistake，the bug is fixed by
->>
->> https://lore.kernel.org/linux-riscv/20210602085517.127481-2-wangkefeng.wang@huawei.com/
-> What are we on the patch you mentioned?
+On Mon, Jun 28, 2021 at 10:28 AM Kefeng Wang <wangkefeng.wang@huawei.com> w=
+rote:
 >
-> I don't see it applied in the linux/master.
 >
-> Also there should be a "Fixes" tag and stable@vger.kernel.org cc'ed
-> because 32-bit is broken since v5.12.
+> On 2021/6/28 9:15, Bin Meng wrote:
+> > On Mon, Jun 28, 2021 at 8:53 AM Kefeng Wang <wangkefeng.wang@huawei.com=
+> wrote:
+> >> Hi=EF=BC=8C sorry for the mistake=EF=BC=8Cthe bug is fixed by
+> >>
+> >> https://lore.kernel.org/linux-riscv/20210602085517.127481-2-wangkefeng=
+.wang@huawei.com/
+> > What are we on the patch you mentioned?
+> >
+> > I don't see it applied in the linux/master.
+> >
+> > Also there should be a "Fixes" tag and stable@vger.kernel.org cc'ed
+> > because 32-bit is broken since v5.12.
+>
+> https://kernel.googlesource.com/pub/scm/linux/kernel/git/riscv/linux/+/c9=
+811e379b211c67ba29fb09d6f644dd44cfcff2
+>
+> it's on Palmer' riscv-next.
 
-https://kernel.googlesource.com/pub/scm/linux/kernel/git/riscv/linux/+/c9811e379b211c67ba29fb09d6f644dd44cfcff2
-
-it's on Palmer' riscv-next.
-
-Hi Palmer, should I resend or could you help me to add the fixes tag?
+Not sure riscv-next is for which release? This is a regression and
+should be on 5.13.
 
 >
-> Regards,
-> Bin
->
-> _______________________________________________
-> linux-riscv mailing list
-> linux-riscv@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-riscv
+> Hi Palmer, should I resend or could you help me to add the fixes tag?
+
+Regards,
+Bin
