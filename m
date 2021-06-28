@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 994CC3B5FED
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C7543B5FF1
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233033AbhF1OV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54400 "EHLO mail.kernel.org"
+        id S233133AbhF1OVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232760AbhF1OVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232768AbhF1OVQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:21:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B901F61C85;
-        Mon, 28 Jun 2021 14:18:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 941A961C80;
+        Mon, 28 Jun 2021 14:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889930;
-        bh=ZCmDtZGyev1DPK9fMMl/6QEJ8lFloqU84FuLk3rUJ5o=;
+        s=k20201202; t=1624889931;
+        bh=94Dk+RyswTwYCQi4Pdh5ngigt3yLDRnjcPT93oze534=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0qye0khah9oN9I4EZZwxDhW4wXyCdSZHtHqF83C0iR9OgL3C41SrCpSQxh/URMYk
-         2s/JYd8dwKkeXE+bJGa8suc7xhPawcwk5H8RI+e+gUSOgUW6z0j/T3b7j942i3a/cO
-         SZtPfWjjrKXhUOYZrIC8yH7EZlF17AYFQ80zaJa42suvhidA5JtDp4HT6k4ZB7A97G
-         GSnpRYrP+XSK1qX1HZDiKoXv3WoCZHFUmJOL12QEEW71udNV9tR0yV90f0Obe2Fx/B
-         lqQOqQeaoiTd6V+llaffmGYZ0FkCDwlpjEPxcd8enoCQp6PcfZ3ftDno7cW4Cyj6un
-         70m2vazn6ZVdA==
+        b=XyTc/AADqvscJdjYVtK/x8qDM8FmXApvgk5vTUZR01O/kaDatvpb2x5s6BlKmuwuq
+         SfZK71mATbKRFfTUZFBn88zPQ013O8mWlau2811zvpgaWH0KmTwDAWDlIi9h+tXT03
+         enYafjn43MhQR4W76Io7yOeeBXvpbW9loNHHaaKFitP1/EcAUH82DyiyHJRxIEGBLQ
+         2bWqVKxl9ZPLBPtJhtPHcb98V4Bk8dX1pYDJqbPeG4az8bBH/uuqldvg2wVPQDqyw0
+         o1EfFnVE5msF8hmSxEAnGBnJooy/DRU4LhmJ0dkeSaMnnAWKBFxdHolODlmbNCY55Z
+         Jcm6fwWvGFgHw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        kernel test robot <lkp@intel.com>,
+        Jianqiang Chen <jianqiang.chen@xilinx.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 023/110] dmaengine: stm32-mdma: fix PM reference leak in stm32_mdma_alloc_chan_resourc()
-Date:   Mon, 28 Jun 2021 10:17:01 -0400
-Message-Id: <20210628141828.31757-24-sashal@kernel.org>
+Subject: [PATCH 5.12 024/110] dmaengine: xilinx: dpdma: Add missing dependencies to Kconfig
+Date:   Mon, 28 Jun 2021 10:17:02 -0400
+Message-Id: <20210628141828.31757-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -47,46 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 83eb4868d325b86e18509d0874e911497667cb54 ]
+[ Upstream commit 32828b82fb875b06511918b139d3a3cd93d34262 ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+The driver depends on both OF and IOMEM support, express those
+dependencies in Kconfig. This fixes a build failure on S390 reported by
+the 0day bot.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20210517081826.1564698-2-yukuai3@huawei.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Tested-by: Jianqiang Chen <jianqiang.chen@xilinx.com>
+Reviewed-by: Jianqiang Chen <jianqiang.chen@xilinx.com>
+Link: https://lore.kernel.org/r/20210520152420.23986-2-laurent.pinchart@ideasonboard.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/stm32-mdma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
-index 36ba8b43e78d..18cbd1e43c2e 100644
---- a/drivers/dma/stm32-mdma.c
-+++ b/drivers/dma/stm32-mdma.c
-@@ -1452,7 +1452,7 @@ static int stm32_mdma_alloc_chan_resources(struct dma_chan *c)
- 		return -ENOMEM;
- 	}
+diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
+index 03b1b0334947..c42b17b76640 100644
+--- a/drivers/dma/Kconfig
++++ b/drivers/dma/Kconfig
+@@ -690,6 +690,7 @@ config XILINX_ZYNQMP_DMA
  
--	ret = pm_runtime_get_sync(dmadev->ddev.dev);
-+	ret = pm_runtime_resume_and_get(dmadev->ddev.dev);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -1718,7 +1718,7 @@ static int stm32_mdma_pm_suspend(struct device *dev)
- 	u32 ccr, id;
- 	int ret;
- 
--	ret = pm_runtime_get_sync(dev);
-+	ret = pm_runtime_resume_and_get(dev);
- 	if (ret < 0)
- 		return ret;
- 
+ config XILINX_ZYNQMP_DPDMA
+ 	tristate "Xilinx DPDMA Engine"
++	depends on HAS_IOMEM && OF
+ 	select DMA_ENGINE
+ 	select DMA_VIRTUAL_CHANNELS
+ 	help
 -- 
 2.30.2
 
