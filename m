@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE603B62C2
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:47:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A62AE3B62BE
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236461AbhF1OtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:49:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51836 "EHLO mail.kernel.org"
+        id S236444AbhF1OtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:49:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236103AbhF1OqP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236102AbhF1OqP (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:46:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9B0E61D15;
-        Mon, 28 Jun 2021 14:34:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C54C61D14;
+        Mon, 28 Jun 2021 14:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890873;
-        bh=Wvdh4PTzJddURWGdfweacsyd0czgCd63IEmIXraD6vA=;
+        s=k20201202; t=1624890874;
+        bh=V8wVtzYXxX7ZY1kfeeRnGHt+Q4QO/IFJYN+Y6g7FpIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUmwPa/7A0AYNMtBEgi3yXfR+kRJm5MUN733nguVWdIeO1UaFV2Sp9wdcPz+JQHle
-         x69197QrRfVSgQhvAhd5aYPUVaByGe8jwqV6c3oO/hyZ9WYrBEei+WMD3BVurYC2lC
-         1AhkV/mjb/y/RFdcfyt3fLuKJ+b/D2pnnwoqdfcje2jFLeZCeTSQCVPIsyrONJ8PK2
-         QRAW+mndJSap/OWZ2EynxUzjQwZfT1y4fRzMi/cMJUEKfRdqfV0EbE+fBGSKzlgm+z
-         6EOXcONUy30yqbPOdqDbrb9aHxzV/3ty8kK4kc13WqgimpwgAjRwjhS8FLxnQ8r+iC
-         yF4VtHaPsDDcg==
+        b=uTGfy9oKFkyWM5S0n1BEgQ7Yk+R11T0F9MAYh19gdiEmHaq+uRGonyMfJb9FeXiY3
+         ony4zKsl8sv9adafCYyoT4aTEhvYWrAqeAg8w0Vds2GDnBbSPAMNYuud2nMpPMv3H5
+         4ygsSTsGjAlIK0rg8M1GlM4OMJdqZ+lCIaio+7W+5N01/U64BSuoXVwIulpPitteE4
+         0y4/BHUEnpaJF3TqxgZJ7HuvYGg9C6msZrSMfGUXrPQyUhKLr+EVNgiA9Utc5+B4+o
+         tax7giH0APgglAlgcFdEZPLevC1U8CpX9+RhvPeVOb2fn5TSUKaGZWgmbzOyaNVagb
+         /oKrGIs6xpJMA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+Cc:     Kees Cook <keescook@chromium.org>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 098/109] net/packet: annotate accesses to po->ifindex
-Date:   Mon, 28 Jun 2021 10:32:54 -0400
-Message-Id: <20210628143305.32978-99-sashal@kernel.org>
+Subject: [PATCH 4.19 099/109] r8152: Avoid memcpy() over-reading of ETH_SS_STATS
+Date:   Mon, 28 Jun 2021 10:32:55 -0400
+Message-Id: <20210628143305.32978-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -49,117 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit e032f7c9c7cefffcfb79b9fc16c53011d2d9d11f ]
+[ Upstream commit 99718abdc00e86e4f286dd836408e2834886c16e ]
 
-Like prior patch, we need to annotate lockless accesses to po->ifindex
-For instance, packet_getname() is reading po->ifindex (twice) while
-another thread is able to change po->ifindex.
+In preparation for FORTIFY_SOURCE performing compile-time and run-time
+field bounds checking for memcpy(), memmove(), and memset(), avoid
+intentionally reading across neighboring array fields.
 
-KCSAN reported:
+The memcpy() is copying the entire structure, not just the first array.
+Adjust the source argument so the compiler can do appropriate bounds
+checking.
 
-BUG: KCSAN: data-race in packet_do_bind / packet_getname
-
-write to 0xffff888143ce3cbc of 4 bytes by task 25573 on cpu 1:
- packet_do_bind+0x420/0x7e0 net/packet/af_packet.c:3191
- packet_bind+0xc3/0xd0 net/packet/af_packet.c:3255
- __sys_bind+0x200/0x290 net/socket.c:1637
- __do_sys_bind net/socket.c:1648 [inline]
- __se_sys_bind net/socket.c:1646 [inline]
- __x64_sys_bind+0x3d/0x50 net/socket.c:1646
- do_syscall_64+0x4a/0x90 arch/x86/entry/common.c:47
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff888143ce3cbc of 4 bytes by task 25578 on cpu 0:
- packet_getname+0x5b/0x1a0 net/packet/af_packet.c:3525
- __sys_getsockname+0x10e/0x1a0 net/socket.c:1887
- __do_sys_getsockname net/socket.c:1902 [inline]
- __se_sys_getsockname net/socket.c:1899 [inline]
- __x64_sys_getsockname+0x3e/0x50 net/socket.c:1899
- do_syscall_64+0x4a/0x90 arch/x86/entry/common.c:47
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x00000000 -> 0x00000001
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 25578 Comm: syz-executor.5 Not tainted 5.13.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/net/usb/r8152.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 42299fa02038..8d9005019ef7 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -3157,11 +3157,11 @@ static int packet_do_bind(struct sock *sk, const char *name, int ifindex,
- 		if (unlikely(unlisted)) {
- 			dev_put(dev);
- 			po->prot_hook.dev = NULL;
--			po->ifindex = -1;
-+			WRITE_ONCE(po->ifindex, -1);
- 			packet_cached_dev_reset(po);
- 		} else {
- 			po->prot_hook.dev = dev;
--			po->ifindex = dev ? dev->ifindex : 0;
-+			WRITE_ONCE(po->ifindex, dev ? dev->ifindex : 0);
- 			packet_cached_dev_assign(po, dev);
- 		}
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index a27ea04cfa6c..726fb5561a0f 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -4649,7 +4649,7 @@ static void rtl8152_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+ {
+ 	switch (stringset) {
+ 	case ETH_SS_STATS:
+-		memcpy(data, *rtl8152_gstrings, sizeof(rtl8152_gstrings));
++		memcpy(data, rtl8152_gstrings, sizeof(rtl8152_gstrings));
+ 		break;
  	}
-@@ -3476,7 +3476,7 @@ static int packet_getname_spkt(struct socket *sock, struct sockaddr *uaddr,
- 	uaddr->sa_family = AF_PACKET;
- 	memset(uaddr->sa_data, 0, sizeof(uaddr->sa_data));
- 	rcu_read_lock();
--	dev = dev_get_by_index_rcu(sock_net(sk), pkt_sk(sk)->ifindex);
-+	dev = dev_get_by_index_rcu(sock_net(sk), READ_ONCE(pkt_sk(sk)->ifindex));
- 	if (dev)
- 		strlcpy(uaddr->sa_data, dev->name, sizeof(uaddr->sa_data));
- 	rcu_read_unlock();
-@@ -3491,16 +3491,18 @@ static int packet_getname(struct socket *sock, struct sockaddr *uaddr,
- 	struct sock *sk = sock->sk;
- 	struct packet_sock *po = pkt_sk(sk);
- 	DECLARE_SOCKADDR(struct sockaddr_ll *, sll, uaddr);
-+	int ifindex;
- 
- 	if (peer)
- 		return -EOPNOTSUPP;
- 
-+	ifindex = READ_ONCE(po->ifindex);
- 	sll->sll_family = AF_PACKET;
--	sll->sll_ifindex = po->ifindex;
-+	sll->sll_ifindex = ifindex;
- 	sll->sll_protocol = READ_ONCE(po->num);
- 	sll->sll_pkttype = 0;
- 	rcu_read_lock();
--	dev = dev_get_by_index_rcu(sock_net(sk), po->ifindex);
-+	dev = dev_get_by_index_rcu(sock_net(sk), ifindex);
- 	if (dev) {
- 		sll->sll_hatype = dev->type;
- 		sll->sll_halen = dev->addr_len;
-@@ -4079,7 +4081,7 @@ static int packet_notifier(struct notifier_block *this,
- 				}
- 				if (msg == NETDEV_UNREGISTER) {
- 					packet_cached_dev_reset(po);
--					po->ifindex = -1;
-+					WRITE_ONCE(po->ifindex, -1);
- 					if (po->prot_hook.dev)
- 						dev_put(po->prot_hook.dev);
- 					po->prot_hook.dev = NULL;
-@@ -4598,7 +4600,7 @@ static int packet_seq_show(struct seq_file *seq, void *v)
- 			   refcount_read(&s->sk_refcnt),
- 			   s->sk_type,
- 			   ntohs(READ_ONCE(po->num)),
--			   po->ifindex,
-+			   READ_ONCE(po->ifindex),
- 			   po->running,
- 			   atomic_read(&s->sk_rmem_alloc),
- 			   from_kuid_munged(seq_user_ns(seq), sock_i_uid(s)),
+ }
 -- 
 2.30.2
 
