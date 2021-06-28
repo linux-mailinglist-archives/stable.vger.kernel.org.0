@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 999D43B600B
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22ADF3B600C
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:19:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233247AbhF1OV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:21:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55090 "EHLO mail.kernel.org"
+        id S233302AbhF1OV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:21:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233161AbhF1OVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:21:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5890F61C82;
-        Mon, 28 Jun 2021 14:19:05 +0000 (UTC)
+        id S233170AbhF1OVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:21:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4941361C75;
+        Mon, 28 Jun 2021 14:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1624889946;
-        bh=v/nOJmQQ08mnD/U/0+K6FWc6VBo1nCPFpakS1BX+18o=;
+        bh=Fn+MfaRfUiknVaKYJyn4fWh6H+UdE8WZcI2glV1+a94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fe9ctVyWISiUu7wK5w7EnBbaBEnCwJlNIlxxms+uKT2EGcxVP8EUevg4gdJdMVktQ
-         +cAKAHqiR0kanYy08NZnbZSI06vIvewO1QT6g7BCoGu991DcTRsGiynSGlxRHu1N84
-         wldgIh6bwjGnmnNYSbAI2YwOkLrC5f0RgvQQrDv9RLDUVNKpT4dZlePr2Y3fSqGGSC
-         t4j3K+/qKF+1u0hd0vDuR1bEBsdjXvGY93t3abfzTYS5YnnLQU8RrNEZmbVnGs7mSZ
-         7KL9W9r4OFFvs1Wk3fIjAuio2nG+cUObbyZ3sMlCMHsvh6eHscd1TOSIsuuT5sXOJr
-         16S2NZ7URnlCA==
+        b=rDAmV9tQcKfZkflEWVic6m0nd47cksrP1ACNmIpclSMXATZPfKpk0XABSsPTd1qvy
+         Li8H1EfwCIbDmX5Nwf61XiuDd4vftBicoqRU9wNjzMowHJR0oRM61cKXdywvjdLY8d
+         DNkPOU4OSk5kpAr7rye5LketKqw4YA6xyThkykSNZ3iCxcS/NvKo8fzQYqtJ7a0DJp
+         YdsXXV9XkGZ+1aRvUEiQ0ockhIhNHuuOaO+m9/ertfH+rPPNqoxIudwI80ppIntIXB
+         LyQxNGjdEcIWa1F1Oyoo7rpVYZG6Z8VGE4EtDj0ZDDlxAJF7u1VXE0N3sPXPOX0Bhg
+         sGvFoDYH6bITg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Praneeth Bajjuri <praneeth@ti.com>, Geet Modi <geet.modi@ti.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Khem Raj <raj.khem@gmail.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 042/110] net: phy: dp83867: perform soft reset and retain established link
-Date:   Mon, 28 Jun 2021 10:17:20 -0400
-Message-Id: <20210628141828.31757-43-sashal@kernel.org>
+Subject: [PATCH 5.12 043/110] riscv32: Use medany C model for modules
+Date:   Mon, 28 Jun 2021 10:17:21 -0400
+Message-Id: <20210628141828.31757-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -49,51 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Praneeth Bajjuri <praneeth@ti.com>
+From: Khem Raj <raj.khem@gmail.com>
 
-[ Upstream commit da9ef50f545f86ffe6ff786174d26500c4db737a ]
+[ Upstream commit 5d2388dbf84adebeb6d9742164be8d32728e4269 ]
 
-Current logic is performing hard reset and causing the programmed
-registers to be wiped out.
+When CONFIG_CMODEL_MEDLOW is used it ends up generating riscv_hi20_rela
+relocations in modules which are not resolved during runtime and
+following errors would be seen
 
-as per datasheet: https://www.ti.com/lit/ds/symlink/dp83867cr.pdf
-8.6.26 Control Register (CTRL)
+[    4.802714] virtio_input: target 00000000c1539090 can not be addressed by the 32-bit offset from PC = 39148b7b
+[    4.854800] virtio_input: target 00000000c1539090 can not be addressed by the 32-bit offset from PC = 9774456d
 
-do SW_RESTART to perform a reset not including the registers,
-If performed when link is already present,
-it will drop the link and trigger re-auto negotiation.
-
-Signed-off-by: Praneeth Bajjuri <praneeth@ti.com>
-Signed-off-by: Geet Modi <geet.modi@ti.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83867.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ arch/riscv/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 9bd9a5c0b1db..6bbc81ad295f 100644
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -826,16 +826,12 @@ static int dp83867_phy_reset(struct phy_device *phydev)
- {
- 	int err;
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 5243bf2327c0..a5ee34117321 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -16,7 +16,7 @@ ifeq ($(CONFIG_DYNAMIC_FTRACE),y)
+ 	CC_FLAGS_FTRACE := -fpatchable-function-entry=8
+ endif
  
--	err = phy_write(phydev, DP83867_CTRL, DP83867_SW_RESET);
-+	err = phy_write(phydev, DP83867_CTRL, DP83867_SW_RESTART);
- 	if (err < 0)
- 		return err;
+-ifeq ($(CONFIG_64BIT)$(CONFIG_CMODEL_MEDLOW),yy)
++ifeq ($(CONFIG_CMODEL_MEDLOW),y)
+ KBUILD_CFLAGS_MODULE += -mcmodel=medany
+ endif
  
- 	usleep_range(10, 20);
- 
--	/* After reset FORCE_LINK_GOOD bit is set. Although the
--	 * default value should be unset. Disable FORCE_LINK_GOOD
--	 * for the phy to work properly.
--	 */
- 	return phy_modify(phydev, MII_DP83867_PHYCTRL,
- 			 DP83867_PHYCR_FORCE_LINK_GOOD, 0);
- }
 -- 
 2.30.2
 
