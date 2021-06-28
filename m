@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C723B638C
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B95263B6392
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232754AbhF1O5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
+        id S234599AbhF1O6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:58:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236305AbhF1OzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:55:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE9F661466;
-        Mon, 28 Jun 2021 14:40:05 +0000 (UTC)
+        id S236718AbhF1Oz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:55:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D5806141B;
+        Mon, 28 Jun 2021 14:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891206;
-        bh=KOvLGEf+Ck0j8c0WN1TU3LbJg9b+AQt02Dl/KhY48YE=;
+        s=k20201202; t=1624891207;
+        bh=mmoRBbN8jbnNMclRxAC+IJf3w21VBf1HJgDECfgzels=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pdsDOQpVOq98NHgggcFWPIPUfippTV2BdKYkDbhfALs/nm+N9fgOaCw9m9UVU1Bwn
-         VA4JrLjpsa/FUwsW/4MMm9SjFtluaI5kd7KoozTXYzovCwfHTyXVL7uHkz4caaaAtQ
-         El1kRRZfNJW7GwM1IO8ILEgKu6Tygxf8Zz4Y7hZ9xdnlCNp0IcWLI//zwQoQoO/atN
-         7mU1Eq1MPs0KrowttGFAm5fYKvcUlV08INC7komI3wMx5LKNeOJnwYEL/uwbtuea1L
-         Vb+jVrdyiVseWtPtsQI2PXiI/+G05J01fSO0SrlETI/59MqEO+YnZA0lfda6GEj1n6
-         dAkwUircfgSxA==
+        b=h9nAIQG9Ha7XcDQYw4eu4ZGykXdxD/09toglkNiCVNp6TDH81pimXcmPmWpsTbfKI
+         9poN8i+LCW1+HPUGConJTLDYrpiBvIHDdtW/2glokogf07LqkgzZRLDzjifFt7yVGl
+         Nab+5MXG34ZJDisDlSlCrpjA/to2RD3FdqCihQfV74FyqxidNRXK8mVsyovI4hVGYn
+         njIF38pWfcuGIoTb+KD77w3D6AFbnyJOBvP/8A4/DsHeUjDVSQTfOHgTVQlhZLWC+Z
+         Xk0PZhiLH+10Rs+zjLl/lbYHfXGmy3o1VnCl97igQXG6rzn32+R2ghvsx93Ev++7J/
+         qRlEY9QKnglKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Robertson <dan@dlrobertson.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 01/71] net: ieee802154: fix null deref in parse dev addr
-Date:   Mon, 28 Jun 2021 10:38:53 -0400
-Message-Id: <20210628144003.34260-2-sashal@kernel.org>
+Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 02/71] HID: hid-sensor-hub: Return error for hid_set_field() failure
+Date:   Mon, 28 Jun 2021 10:38:54 -0400
+Message-Id: <20210628144003.34260-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
@@ -49,51 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Robertson <dan@dlrobertson.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 9fdd04918a452980631ecc499317881c1d120b70 ]
+[ Upstream commit edb032033da0dc850f6e7740fa1023c73195bc89 ]
 
-Fix a logic error that could result in a null deref if the user sets
-the mode incorrectly for the given addr type.
+In the function sensor_hub_set_feature(), return error when hid_set_field()
+fails.
 
-Signed-off-by: Dan Robertson <dan@dlrobertson.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210423040214.15438-2-dan@dlrobertson.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl802154.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/hid/hid-sensor-hub.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index cfc01314958f..936371340dc3 100644
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1330,19 +1330,20 @@ ieee802154_llsec_parse_dev_addr(struct nlattr *nla,
- 				     nl802154_dev_addr_policy))
- 		return -EINVAL;
- 
--	if (!attrs[NL802154_DEV_ADDR_ATTR_PAN_ID] ||
--	    !attrs[NL802154_DEV_ADDR_ATTR_MODE] ||
--	    !(attrs[NL802154_DEV_ADDR_ATTR_SHORT] ||
--	      attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]))
-+	if (!attrs[NL802154_DEV_ADDR_ATTR_PAN_ID] || !attrs[NL802154_DEV_ADDR_ATTR_MODE])
- 		return -EINVAL;
- 
- 	addr->pan_id = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_PAN_ID]);
- 	addr->mode = nla_get_u32(attrs[NL802154_DEV_ADDR_ATTR_MODE]);
- 	switch (addr->mode) {
- 	case NL802154_DEV_ADDR_SHORT:
-+		if (!attrs[NL802154_DEV_ADDR_ATTR_SHORT])
-+			return -EINVAL;
- 		addr->short_addr = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_SHORT]);
- 		break;
- 	case NL802154_DEV_ADDR_EXTENDED:
-+		if (!attrs[NL802154_DEV_ADDR_ATTR_EXTENDED])
-+			return -EINVAL;
- 		addr->extended_addr = nla_get_le64(attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]);
- 		break;
- 	default:
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 7001f07ca399..4ea18f07c65b 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -223,16 +223,21 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 	buffer_size = buffer_size / sizeof(__s32);
+ 	if (buffer_size) {
+ 		for (i = 0; i < buffer_size; ++i) {
+-			hid_set_field(report->field[field_index], i,
+-				      (__force __s32)cpu_to_le32(*buf32));
++			ret = hid_set_field(report->field[field_index], i,
++					    (__force __s32)cpu_to_le32(*buf32));
++			if (ret)
++				goto done_proc;
++
+ 			++buf32;
+ 		}
+ 	}
+ 	if (remaining_bytes) {
+ 		value = 0;
+ 		memcpy(&value, (u8 *)buf32, remaining_bytes);
+-		hid_set_field(report->field[field_index], i,
+-			      (__force __s32)cpu_to_le32(value));
++		ret = hid_set_field(report->field[field_index], i,
++				    (__force __s32)cpu_to_le32(value));
++		if (ret)
++			goto done_proc;
+ 	}
+ 	hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
+ 	hid_hw_wait(hsdev->hdev);
 -- 
 2.30.2
 
