@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A55CF3B6440
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF7DB3B6446
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 17:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232837AbhF1PGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:06:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39674 "EHLO mail.kernel.org"
+        id S234813AbhF1PGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:06:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235733AbhF1PEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235737AbhF1PEO (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 11:04:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F43561CE6;
-        Mon, 28 Jun 2021 14:43:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D99361CE9;
+        Mon, 28 Jun 2021 14:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891390;
-        bh=I1U75O5S3mjo5u3OwmNXu9uVwORj9PVFSWJjhAmQZuY=;
+        s=k20201202; t=1624891391;
+        bh=+gzNi0twte0ORShGUXHLG3w5L5GaRNSdfZ/2SzkHN+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5PsU8C+G9aOLeC0zxzsg9opz6c24x/gnfq+IdQOlXM4S9auDFoEvXw3CanHRX8YN
-         njmGjncopmv5oft8OOH0Dsc2Q6UanP5xtk4mTFwnasjKDbPn6lPV1HSOzNJoUvjw2T
-         1DQrk4pf5P0bPHtf0TmSvD3k3lzpO9XQp4JWfAT/BOxXFcRlWUFZOLXaGpa3+X5mgx
-         PLJk2Mu57VtX0F55dR67yrSenh+BLX/pg4sSV6pQqj4DkYI/3GPy9zvwEHGseIM2BJ
-         jkPKz+wgY3mmgh+6gFqNXMxT7f39CExbisZwPWOFCvoM8gefyYOCvcRUrfviPcwrw+
-         QhL9rzHUFc0Gg==
+        b=R1dysAKqb+PgsN9CfP+MBWroBVWLb8mmKt4kXOv1/FMLP+d/ybOW005Bo9Esh+vKQ
+         pSPF4gtM6mXcG/hRfJ1PdQePFGzwske/OJNe4CG6812x8Dby0Gi0FGBIfL9UCgqMZh
+         +7gW7z5uQrbALxw43tPKX/ycBYVaRQ767rpKafZjbH/hPjA3U3uHiF8p1oQKWjcACb
+         rEisq7RU24JG2teySDcWHRgf9jUa+hJlYrquP96vB3wvRP8Cc/fEHgUdrnG1w3vjDq
+         DvRfIg4UnhVrqRwZ8Z0PvWLLyf1S4u7Tlt0av8bijYa/Arvnf8RYhx0q/aN08VfMKg
+         q/52HXr1LgbFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+Cc:     Nanyong Sun <sunnanyong@huawei.com>,
         Hulk Robot <hulkci@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 14/57] dmaengine: stedma40: add missing iounmap() on error in d40_probe()
-Date:   Mon, 28 Jun 2021 10:42:13 -0400
-Message-Id: <20210628144256.34524-15-sashal@kernel.org>
+        Paul Moore <paul@paul-moore.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 15/57] net: ipv4: fix memory leak in netlbl_cipsov4_add_std
+Date:   Mon, 28 Jun 2021 10:42:14 -0400
+Message-Id: <20210628144256.34524-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
 References: <20210628144256.34524-1-sashal@kernel.org>
@@ -49,38 +50,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-[ Upstream commit fffdaba402cea79b8d219355487d342ec23f91c6 ]
+[ Upstream commit d612c3f3fae221e7ea736d196581c2217304bbbc ]
 
-Add the missing iounmap() before return from d40_probe()
-in the error handling case.
+Reported by syzkaller:
+BUG: memory leak
+unreferenced object 0xffff888105df7000 (size 64):
+comm "syz-executor842", pid 360, jiffies 4294824824 (age 22.546s)
+hex dump (first 32 bytes):
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+backtrace:
+[<00000000e67ed558>] kmalloc include/linux/slab.h:590 [inline]
+[<00000000e67ed558>] kzalloc include/linux/slab.h:720 [inline]
+[<00000000e67ed558>] netlbl_cipsov4_add_std net/netlabel/netlabel_cipso_v4.c:145 [inline]
+[<00000000e67ed558>] netlbl_cipsov4_add+0x390/0x2340 net/netlabel/netlabel_cipso_v4.c:416
+[<0000000006040154>] genl_family_rcv_msg_doit.isra.0+0x20e/0x320 net/netlink/genetlink.c:739
+[<00000000204d7a1c>] genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+[<00000000204d7a1c>] genl_rcv_msg+0x2bf/0x4f0 net/netlink/genetlink.c:800
+[<00000000c0d6a995>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
+[<00000000d78b9d2c>] genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+[<000000009733081b>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+[<000000009733081b>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
+[<00000000d5fd43b8>] netlink_sendmsg+0x789/0xc70 net/netlink/af_netlink.c:1929
+[<000000000a2d1e40>] sock_sendmsg_nosec net/socket.c:654 [inline]
+[<000000000a2d1e40>] sock_sendmsg+0x139/0x170 net/socket.c:674
+[<00000000321d1969>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
+[<00000000964e16bc>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
+[<000000001615e288>] __sys_sendmsg+0xd3/0x190 net/socket.c:2433
+[<000000004ee8b6a5>] do_syscall_64+0x37/0x90 arch/x86/entry/common.c:47
+[<00000000171c7cee>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 8d318a50b3d7 ("DMAENGINE: Support for ST-Ericssons DMA40 block v3")
+The memory of doi_def->map.std pointing is allocated in
+netlbl_cipsov4_add_std, but no place has freed it. It should be
+freed in cipso_v4_doi_free which frees the cipso DOI resource.
+
+Fixes: 96cb8e3313c7a ("[NetLabel]: CIPSOv4 and Unlabeled packet integration")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210518141108.1324127-1-yangyingliang@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ste_dma40.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/cipso_ipv4.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/ste_dma40.c b/drivers/dma/ste_dma40.c
-index 0fede051f4e1..e6d3ed1de374 100644
---- a/drivers/dma/ste_dma40.c
-+++ b/drivers/dma/ste_dma40.c
-@@ -3715,6 +3715,9 @@ failure:
- 
- 		kfree(base->lcla_pool.base_unaligned);
- 
-+		if (base->lcpa_base)
-+			iounmap(base->lcpa_base);
-+
- 		if (base->phy_lcpa)
- 			release_mem_region(base->phy_lcpa,
- 					   base->lcpa_size);
+diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+index 0e83c5b08e0e..e798e27b3c7d 100644
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -557,6 +557,7 @@ void cipso_v4_doi_free(struct cipso_v4_doi *doi_def)
+ 		kfree(doi_def->map.std->lvl.local);
+ 		kfree(doi_def->map.std->cat.cipso);
+ 		kfree(doi_def->map.std->cat.local);
++		kfree(doi_def->map.std);
+ 		break;
+ 	}
+ 	kfree(doi_def);
 -- 
 2.30.2
 
