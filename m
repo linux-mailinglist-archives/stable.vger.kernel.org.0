@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 889EF3B6278
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFCBE3B6273
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234689AbhF1OsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:48:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
+        id S236353AbhF1Orp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:47:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234759AbhF1OmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234568AbhF1OmF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:42:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BB2E61CDA;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF3F861CDF;
         Mon, 28 Jun 2021 14:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890814;
-        bh=N+bc8aPhuQ+t5a9BqUHfSsshRban8HeyM3RwcPgJgGY=;
+        s=k20201202; t=1624890815;
+        bh=ugoJC3wP4h9abBjTmplBKBMow6jxyx9uXeDiuZFMKYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/Io4GqoaD8Vd69pQHKufhdFFJUtUD+TspFATfAXjwf7iUHpvs6biZZcKfVEojhpF
-         VqwA2kLNU049vmxf41dA0BBafL6BrB6FMfqHFlTUmLrzevXpoVk0S0J4LlFRsBtypf
-         hEaWI5gN88/WofWYDgtSEo1tYNBc1x/Dni5NFrRXDjRBdGP8krsCdtQDR06+s5q0DW
-         kFCmupiBecsQfs7phk5SxpTHN8ad2qOuTkP/0dXS/JFCK7zqfoaBeY7wdTWP3RO617
-         KlH7Hu6MDcAKIlXu7G6x7u+uIH0ZxWi3rpWjGRR4ly4JkMtMDPWYhhhDgJVjix6DHl
-         afvzWE9JT98kw==
+        b=N+ng3s+vy5wYB+nnYA+VwVWpX8ThthQ8+ktC+xKNvXQcofxpNm8eDDv53/KmTNmX2
+         yCHBnrYOUP9w2f3WNfCdM5U3ps6F9z14/68I+oTW7XRm3VTtKix0kac0gBG7aUQM1S
+         D0hjKmsgAxm4Lvt79/9A3uMmD4P+NEhDdYT/xKxeWEmmJvP41Tr6Aeqq+LLEzdIydC
+         vw23/BE/m3lB05dOCeea4WT6hpGQ7KxTWsD8xOudKusEoqXPKNLKaUX6fkLF6GOTY4
+         i2pH5XOLvKr02NYg5FB6wtV8H/r9sovcuGehqThkMcnbma8hn+ToX2ctgw0IgrjgpC
+         81V/OzJ2CH8xA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ido Schimmel <idosch@nvidia.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Huy Nguyen <huyn@nvidia.com>, Raed Salem <raeds@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 030/109] rtnetlink: Fix regression in bridge VLAN configuration
-Date:   Mon, 28 Jun 2021 10:31:46 -0400
-Message-Id: <20210628143305.32978-31-sashal@kernel.org>
+Subject: [PATCH 4.19 031/109] net/mlx5e: Remove dependency in IPsec initialization flows
+Date:   Mon, 28 Jun 2021 10:31:47 -0400
+Message-Id: <20210628143305.32978-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143305.32978-1-sashal@kernel.org>
 References: <20210628143305.32978-1-sashal@kernel.org>
@@ -49,53 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Huy Nguyen <huyn@nvidia.com>
 
-[ Upstream commit d2e381c4963663bca6f30c3b996fa4dbafe8fcb5 ]
+[ Upstream commit 8ad893e516a77209a1818a2072d2027d87db809f ]
 
-Cited commit started returning errors when notification info is not
-filled by the bridge driver, resulting in the following regression:
+Currently, IPsec feature is disabled because mlx5e_build_nic_netdev
+is required to be called after mlx5e_ipsec_init. This requirement is
+invalid as mlx5e_build_nic_netdev and mlx5e_ipsec_init initialize
+independent resources.
 
- # ip link add name br1 type bridge vlan_filtering 1
- # bridge vlan add dev br1 vid 555 self pvid untagged
- RTNETLINK answers: Invalid argument
+Remove ipsec pointer check in mlx5e_build_nic_netdev so that the
+two functions can be called at any order.
 
-As long as the bridge driver does not fill notification info for the
-bridge device itself, an empty notification should not be considered as
-an error. This is explained in commit 59ccaaaa49b5 ("bridge: dont send
-notification when skb->len == 0 in rtnl_bridge_notify").
-
-Fix by removing the error and add a comment to avoid future bugs.
-
-Fixes: a8db57c1d285 ("rtnetlink: Fix missing error code in rtnl_bridge_notify()")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 547eede070eb ("net/mlx5e: IPSec, Innova IPSec offload infrastructure")
+Signed-off-by: Huy Nguyen <huyn@nvidia.com>
+Reviewed-by: Raed Salem <raeds@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 7f2dda27f9e7..055fd09ac111 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -4102,10 +4102,12 @@ static int rtnl_bridge_notify(struct net_device *dev)
- 	if (err < 0)
- 		goto errout;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
+index cf58c9637904..c467f5e981f6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
+@@ -515,9 +515,6 @@ void mlx5e_ipsec_build_netdev(struct mlx5e_priv *priv)
+ 	struct mlx5_core_dev *mdev = priv->mdev;
+ 	struct net_device *netdev = priv->netdev;
  
--	if (!skb->len) {
--		err = -EINVAL;
-+	/* Notification info is only filled for bridge ports, not the bridge
-+	 * device itself. Therefore, a zero notification length is valid and
-+	 * should not result in an error.
-+	 */
-+	if (!skb->len)
- 		goto errout;
--	}
- 
- 	rtnl_notify(skb, net, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
- 	return 0;
+-	if (!priv->ipsec)
+-		return;
+-
+ 	if (!(mlx5_accel_ipsec_device_caps(mdev) & MLX5_ACCEL_IPSEC_CAP_ESP) ||
+ 	    !MLX5_CAP_ETH(mdev, swp)) {
+ 		mlx5_core_dbg(mdev, "mlx5e: ESP and SWP offload not supported\n");
 -- 
 2.30.2
 
