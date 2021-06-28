@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFFEF3B611F
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 281463B6120
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:30:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234394AbhF1Ocn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:32:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
+        id S234449AbhF1Ocp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:32:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234918AbhF1Oam (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234919AbhF1Oam (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:30:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB2361CC8;
-        Mon, 28 Jun 2021 14:26:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A402661CC9;
+        Mon, 28 Jun 2021 14:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890420;
-        bh=6I0DsTk/Xh4iQ6sYHzAovpIdEDkO9rNngvr9DRZZToU=;
+        s=k20201202; t=1624890421;
+        bh=kWtUTq6WVWrZAk1658c581SNcx68NzBUN84oOZqbgZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVeIE4SGbk/BsrUR2xZ0v17zQ5hUF4udyFBP/R2w54opzNQfsiWPZtd/rpXewZ0w3
-         qbD11pOZOkZ7WnsfxW63bRS8nWkW9kUEwyihIaavkv9OOAXn0antJvzGyaCLXHoNiP
-         AlMxwQgRZfQGh8bDfRJm6Si3dY8gNtfm1nYHn30Xks/5VJF4cd+LhJbhYHK7bVCtIP
-         yWyAwBCbZ2K2TJWOofA+SHD2xpH+pW1VVNsLBlPmfwpJwf323CzzlX1eOANGbqWAPT
-         i+nYtPDUscRdeSuvMyFTWeO0ZAdAKu1AOyRJ6aJDCk/nz2UK7IlpkieYlWxAS79clg
-         wRsSyAv1w5Jsw==
+        b=HvAalztDUgViHNEWRc4Xo9mMORdyjH9YprbxUf6A2suFIuT5Kz03p9g31/qFW6/97
+         sMbvq5WaFw8sr5794IlHncYA/waJD6CUoq93ue2qNcOipDBOpoKOQUTUu5EuqGh433
+         gCC8FwnlUZ5QJ7mFBgyZDnOxMKWGRmX+LqvLudOkapCdmxmDoXxi3V1tyvIgL7tAVY
+         6OXQVqT7TH8i8fv4SOn021M0+HAdaLi49/BozcxjpNymo8Bqg2KmdVpPKQLWLmMluW
+         Ng44kYQVulOaGXeXhK257x3BhTamcnhMH9n2Iql7SFtTPnpSmSQP/ptiJRped0Afw1
+         I5qz14WtQmS0Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        "Michael L . Semon" <mlsemon35@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/101] scsi: sd: Call sd_revalidate_disk() for ioctl(BLKRRPART)
-Date:   Mon, 28 Jun 2021 10:25:27 -0400
-Message-Id: <20210628142607.32218-62-sashal@kernel.org>
+Subject: [PATCH 5.10 062/101] nilfs2: fix memory leak in nilfs_sysfs_delete_device_group
+Date:   Mon, 28 Jun 2021 10:25:28 -0400
+Message-Id: <20210628142607.32218-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
 References: <20210628142607.32218-1-sashal@kernel.org>
@@ -49,65 +51,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit d1b7f92035c6fb42529ada531e2cbf3534544c82 ]
+[ Upstream commit 8fd0c1b0647a6bda4067ee0cd61e8395954b6f28 ]
 
-While the disk state has nothing to do with partitions, BLKRRPART is used
-to force a full revalidate after things like a disk format for historical
-reasons. Restore that behavior.
+My local syzbot instance hit memory leak in nilfs2.  The problem was in
+missing kobject_put() in nilfs_sysfs_delete_device_group().
 
-Link: https://lore.kernel.org/r/20210617115504.1732350-1-hch@lst.de
-Fixes: 471bd0af544b ("sd: use bdev_check_media_change")
-Reported-by: Xiang Chen <chenxiang66@hisilicon.com>
-Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+kobject_del() does not call kobject_cleanup() for passed kobject and it
+leads to leaking duped kobject name if kobject_put() was not called.
+
+Fail log:
+
+  BUG: memory leak
+  unreferenced object 0xffff8880596171e0 (size 8):
+  comm "syz-executor379", pid 8381, jiffies 4294980258 (age 21.100s)
+  hex dump (first 8 bytes):
+    6c 6f 6f 70 30 00 00 00                          loop0...
+  backtrace:
+     kstrdup+0x36/0x70 mm/util.c:60
+     kstrdup_const+0x53/0x80 mm/util.c:83
+     kvasprintf_const+0x108/0x190 lib/kasprintf.c:48
+     kobject_set_name_vargs+0x56/0x150 lib/kobject.c:289
+     kobject_add_varg lib/kobject.c:384 [inline]
+     kobject_init_and_add+0xc9/0x160 lib/kobject.c:473
+     nilfs_sysfs_create_device_group+0x150/0x800 fs/nilfs2/sysfs.c:999
+     init_nilfs+0xe26/0x12b0 fs/nilfs2/the_nilfs.c:637
+
+Link: https://lkml.kernel.org/r/20210612140559.20022-1-paskripkin@gmail.com
+Fixes: da7141fb78db ("nilfs2: add /sys/fs/nilfs2/<device> group")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: Michael L. Semon <mlsemon35@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sd.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ fs/nilfs2/sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 20a6564f87d9..01f87bcab3dd 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -1389,6 +1389,22 @@ static void sd_uninit_command(struct scsi_cmnd *SCpnt)
- 	}
+diff --git a/fs/nilfs2/sysfs.c b/fs/nilfs2/sysfs.c
+index 303d71430bdd..9c6c0e2e5880 100644
+--- a/fs/nilfs2/sysfs.c
++++ b/fs/nilfs2/sysfs.c
+@@ -1053,6 +1053,7 @@ void nilfs_sysfs_delete_device_group(struct the_nilfs *nilfs)
+ 	nilfs_sysfs_delete_superblock_group(nilfs);
+ 	nilfs_sysfs_delete_segctor_group(nilfs);
+ 	kobject_del(&nilfs->ns_dev_kobj);
++	kobject_put(&nilfs->ns_dev_kobj);
+ 	kfree(nilfs->ns_dev_subgroups);
  }
  
-+static bool sd_need_revalidate(struct block_device *bdev,
-+		struct scsi_disk *sdkp)
-+{
-+	if (sdkp->device->removable || sdkp->write_prot) {
-+		if (bdev_check_media_change(bdev))
-+			return true;
-+	}
-+
-+	/*
-+	 * Force a full rescan after ioctl(BLKRRPART).  While the disk state has
-+	 * nothing to do with partitions, BLKRRPART is used to force a full
-+	 * revalidate after things like a format for historical reasons.
-+	 */
-+	return test_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
-+}
-+
- /**
-  *	sd_open - open a scsi disk device
-  *	@bdev: Block device of the scsi disk to open
-@@ -1425,10 +1441,8 @@ static int sd_open(struct block_device *bdev, fmode_t mode)
- 	if (!scsi_block_when_processing_errors(sdev))
- 		goto error_out;
- 
--	if (sdev->removable || sdkp->write_prot) {
--		if (bdev_check_media_change(bdev))
--			sd_revalidate_disk(bdev->bd_disk);
--	}
-+	if (sd_need_revalidate(bdev, sdkp))
-+		sd_revalidate_disk(bdev->bd_disk);
- 
- 	/*
- 	 * If the drive is empty, just let the open fail.
 -- 
 2.30.2
 
