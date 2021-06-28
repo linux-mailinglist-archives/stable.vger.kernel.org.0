@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A887C3B6388
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC9A3B6385
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234664AbhF1O5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:57:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57924 "EHLO mail.kernel.org"
+        id S234740AbhF1O5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:57:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236291AbhF1OzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:55:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F94261C9F;
+        id S236284AbhF1OzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:55:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBF2B61D4A;
         Mon, 28 Jun 2021 14:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891064;
-        bh=soKdrIrjGWFd8GretO+M1IOS6fwcavIuqIpdqdH9hdk=;
+        s=k20201202; t=1624891065;
+        bh=+Q6c51PZYLxR1l5LiZhgvYZwZcDH5hLn+4Dne76I/1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8Upno6RnHJQ629jGqw3khWmyl96OoeKehpD05LOdRpSAO4XOlqo1ZNvYXdxUXgaf
-         FeepTDXsGRQslfFubMYUAPqnI8M4s21iZfWC4SmGt66KWh20cgrgfqoOi+oNKGL7iq
-         QuunIHmt2Bh4hmTOhE9X9a8+xfKbfGpql79VaiH1E2GyFwq+Ftjj3sNoRIs86Dd6wI
-         e4kgc5cHzsYahbLIx8lPDOggGXglH8C5wQuJ244AzG3fWtG3pTq4jfrmsgJfIk0alB
-         +Bh0GF8a8HT8w8PFEtYVgEtap6NcCwmUr3bkpvfHcPcwT5zwbhG9yC+GYIh0Mmwo7W
-         q9mu3jF4n5yqQ==
+        b=I6+Fk3zt0X6C8xgDVt/ufgDVHxuqaA9eae5dt316yMU9dpu1cgCmdw6kFOENAPn33
+         lmV4zxwmjE2eTKSIOrLpkKG19FINrnNqgVoTLpv8ROF3qPlVx0f5jPCUObHFzLEbDt
+         i2ttyjD4G5a1CnsbQr/4Udx4G7W/uj84xUW5ySE2EK38AIA5ox4TICSSa8WTDz8JhK
+         +llBPQyo68207v7b+Gb9GQXWTpb5nP0F0sNUUytNyxto457u9xJEiszsB6HeJr4FvF
+         2dAs0XKJeehGdjlKaoc8boDP9sGA2Ymyk2uLL0g9N1bLC0zRTZ3ViyNdJSd3OQmNBC
+         J11B2awnbjsfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        syzbot+9d7dadd15b8819d73f41@syzkaller.appspotmail.com,
-        Wolfram Sang <wsa@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 87/88] i2c: robotfuzz-osif: fix control-request directions
-Date:   Mon, 28 Jun 2021 10:36:27 -0400
-Message-Id: <20210628143628.33342-88-sashal@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 88/88] Linux 4.14.238-rc1
+Date:   Mon, 28 Jun 2021 10:36:28 -0400
+Message-Id: <20210628143628.33342-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -49,53 +46,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
-
-commit 4ca070ef0dd885616ef294d269a9bf8e3b258e1a upstream.
-
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
-
-Control transfers without a data stage are treated as OUT requests by
-the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-will now trigger a warning.
-
-Fix the OSIFI2C_SET_BIT_RATE and OSIFI2C_STOP requests which erroneously
-used the osif_usb_read() helper and set the IN direction bit.
-
-Reported-by: syzbot+9d7dadd15b8819d73f41@syzkaller.appspotmail.com
-Fixes: 83e53a8f120f ("i2c: Add bus driver for for OSIF USB i2c device.")
-Cc: stable@vger.kernel.org      # 3.14
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-robotfuzz-osif.c | 4 ++--
+ Makefile | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-robotfuzz-osif.c b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-index 9c0f52b7ff7e..b9b4758c6be7 100644
---- a/drivers/i2c/busses/i2c-robotfuzz-osif.c
-+++ b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-@@ -89,7 +89,7 @@ static int osif_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
- 			}
- 		}
+diff --git a/Makefile b/Makefile
+index e2977b8f8e6a..79d42138af06 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,8 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 4
+ PATCHLEVEL = 14
+-SUBLEVEL = 237
+-EXTRAVERSION =
++SUBLEVEL = 238
++EXTRAVERSION = -rc1
+ NAME = Petit Gorille
  
--		ret = osif_usb_read(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
-+		ret = osif_usb_write(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
- 		if (ret) {
- 			dev_err(&adapter->dev, "failure sending STOP\n");
- 			return -EREMOTEIO;
-@@ -159,7 +159,7 @@ static int osif_probe(struct usb_interface *interface,
- 	 * Set bus frequency. The frequency is:
- 	 * 120,000,000 / ( 16 + 2 * div * 4^prescale).
- 	 * Using dev = 52, prescale = 0 give 100KHz */
--	ret = osif_usb_read(&priv->adapter, OSIFI2C_SET_BIT_RATE, 52, 0,
-+	ret = osif_usb_write(&priv->adapter, OSIFI2C_SET_BIT_RATE, 52, 0,
- 			    NULL, 0);
- 	if (ret) {
- 		dev_err(&interface->dev, "failure sending bit rate");
+ # *DOCUMENTATION*
 -- 
 2.30.2
 
