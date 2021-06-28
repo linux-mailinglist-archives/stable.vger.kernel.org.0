@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F6D3B632D
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:50:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3010B3B632F
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:50:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234692AbhF1OxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235869AbhF1OxD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Jun 2021 10:53:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235553AbhF1OvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:51:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F6AE61D2D;
-        Mon, 28 Jun 2021 14:37:06 +0000 (UTC)
+        id S235576AbhF1OvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:51:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7237961CB8;
+        Mon, 28 Jun 2021 14:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891027;
-        bh=wRJuFAUKBN9IqlvNRNlL4iFilXRpZrVKLPOlZFTk0FE=;
+        s=k20201202; t=1624891028;
+        bh=LMluAgVmoP3/7m5lVRKMgPgZgdEGwdM9G99ODqOPB1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XooFiWyOawnpIA9OuWFcZ29PCbLJBSOVn/JqHt7agriORWy3s5JzNOsbhNea8Wney
-         Bqg3HIZg2FYajovckIXKGHX2kXRKf9pVF0qC4Tr6yrapMQDgCy6ApHVDa9UWiVZH0F
-         5iGI4LTHjjSBScrVXkyMho4AV6jjelsX6+Jsoo4MxlTDX0xWVJhgqqLeCqPIKbPTOe
-         1YOd1BLnGYUosVhC63G6r36xf7Yv4TWlBoEMHD5+bmAfXiYIK1drh45eCJeh6b1z8t
-         iIL258Ky+sGg7M2yymnFyJ77NLc704Np/Nr3eR5FvkM0pZpk6yMYc5dNk8L8SMSQNq
-         6Y4xu0r9rK/kw==
+        b=fESEnCgl/LsziaR1M7LttwyAOCvyyLHi7LI/Pk8zDdM+wdkK1WjZ3pOTilUXC1M32
+         AvYne/XWNj24CAqJMZOn/MKfPGnojzdnqx8lTNYM0JdBaZSZBSiYrucElh9zyxCTKG
+         MD+WAYjfPkDsr6X32MqTakKcUI4dAkPSb832b5ilwQ+ha3lOOWGPXwYowJytCWBS59
+         /9fgYnlVLmO/puP9zwTt6+Ecv+yX/Xyf+I0LD6GdyLE2lDaR68fiK6OZ74ki6C2mEA
+         QlNPov+JDFM7Exy66uH2IxEpcGT7q66Vp4QupD7oFvIQfjFh3ogkS0sZEcd5M4npsp
+         oUm2xYJZk7OKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Riwen Lu <luriwen@kylinos.cn>, Xin Chen <chenxin@kylinos.cn>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 42/88] hwmon: (scpi-hwmon) shows the negative temperature properly
-Date:   Mon, 28 Jun 2021 10:35:42 -0400
-Message-Id: <20210628143628.33342-43-sashal@kernel.org>
+Cc:     Norbert Slusarek <nslusarek@gmx.net>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.14 43/88] can: bcm: fix infoleak in struct bcm_msg_head
+Date:   Mon, 28 Jun 2021 10:35:43 -0400
+Message-Id: <20210628143628.33342-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -48,44 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riwen Lu <luriwen@kylinos.cn>
+From: Norbert Slusarek <nslusarek@gmx.net>
 
-[ Upstream commit 78d13552346289bad4a9bf8eabb5eec5e5a321a5 ]
+commit 5e87ddbe3942e27e939bdc02deb8579b0cbd8ecc upstream.
 
-The scpi hwmon shows the sub-zero temperature in an unsigned integer,
-which would confuse the users when the machine works in low temperature
-environment. This shows the sub-zero temperature in an signed value and
-users can get it properly from sensors.
+On 64-bit systems, struct bcm_msg_head has an added padding of 4 bytes between
+struct members count and ival1. Even though all struct members are initialized,
+the 4-byte hole will contain data from the kernel stack. This patch zeroes out
+struct bcm_msg_head before usage, preventing infoleaks to userspace.
 
-Signed-off-by: Riwen Lu <luriwen@kylinos.cn>
-Tested-by: Xin Chen <chenxin@kylinos.cn>
-Link: https://lore.kernel.org/r/20210604030959.736379-1-luriwen@kylinos.cn
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ffd980f976e7 ("[CAN]: Add broadcast manager (bcm) protocol")
+Link: https://lore.kernel.org/r/trinity-7c1b2e82-e34f-4885-8060-2cd7a13769ce-1623532166177@3c-app-gmx-bs52
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Norbert Slusarek <nslusarek@gmx.net>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/scpi-hwmon.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/can/bcm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hwmon/scpi-hwmon.c b/drivers/hwmon/scpi-hwmon.c
-index 7e49da50bc69..562f3e287297 100644
---- a/drivers/hwmon/scpi-hwmon.c
-+++ b/drivers/hwmon/scpi-hwmon.c
-@@ -107,6 +107,15 @@ scpi_show_sensor(struct device *dev, struct device_attribute *attr, char *buf)
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index 12d851c4604d..f691afcc5b8b 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -406,6 +406,7 @@ static void bcm_tx_timeout_tsklet(unsigned long data)
+ 		if (!op->count && (op->flags & TX_COUNTEVT)) {
  
- 	scpi_scale_reading(&value, sensor);
+ 			/* create notification to user */
++			memset(&msg_head, 0, sizeof(msg_head));
+ 			msg_head.opcode  = TX_EXPIRED;
+ 			msg_head.flags   = op->flags;
+ 			msg_head.count   = op->count;
+@@ -453,6 +454,7 @@ static void bcm_rx_changed(struct bcm_op *op, struct canfd_frame *data)
+ 	/* this element is not throttled anymore */
+ 	data->flags &= (BCM_CAN_FLAGS_MASK|RX_RECV);
  
-+	/*
-+	 * Temperature sensor values are treated as signed values based on
-+	 * observation even though that is not explicitly specified, and
-+	 * because an unsigned u64 temperature does not really make practical
-+	 * sense especially when the temperature is below zero degrees Celsius.
-+	 */
-+	if (sensor->info.class == TEMPERATURE)
-+		return sprintf(buf, "%lld\n", (s64)value);
-+
- 	return sprintf(buf, "%llu\n", value);
- }
++	memset(&head, 0, sizeof(head));
+ 	head.opcode  = RX_CHANGED;
+ 	head.flags   = op->flags;
+ 	head.count   = op->count;
+@@ -567,6 +569,7 @@ static void bcm_rx_timeout_tsklet(unsigned long data)
+ 	struct bcm_msg_head msg_head;
  
+ 	/* create notification to user */
++	memset(&msg_head, 0, sizeof(msg_head));
+ 	msg_head.opcode  = RX_TIMEOUT;
+ 	msg_head.flags   = op->flags;
+ 	msg_head.count   = op->count;
 -- 
 2.30.2
 
