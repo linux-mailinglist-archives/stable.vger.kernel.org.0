@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2443B63D9
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF04C3B63D3
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236150AbhF1PBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 11:01:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34936 "EHLO mail.kernel.org"
+        id S235905AbhF1PA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 11:00:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235265AbhF1O6g (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235310AbhF1O6g (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Jun 2021 10:58:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E94D561D59;
-        Mon, 28 Jun 2021 14:40:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C54E961D5B;
+        Mon, 28 Jun 2021 14:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624891237;
-        bh=6i1YjUFRA8gMsuP5+Mq6nTgsQgS+2zzqxMkUp3Q3QnE=;
+        s=k20201202; t=1624891238;
+        bh=wjlRGEyEhK5QfdHxbFqQU5wyo2gj13nDhPg+Lam3VJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ct5az0/wfqQzraa6ZuVmPu//+v5j3hbUXn3rdYcMbYGoiu9+Jh3EIy2OmOVMolnR6
-         8hE6EH1biv+Z7sxOXegOIAoqllYH9ZHIz7lZirKnHXuqEpj57O+3eNCx5joKdLx/Fi
-         XYwqyzDZEDyxkfUrEpTXDJdoBzUOi188pnvcsbiNqtw8+go1w8nf4y5R/mXV46JvwA
-         J6qJ6VbS1TOK9tS9RkVYyIMy1IrnxBWMT+UTR5YTKBjPr3cJ2EBLaX7Yr4X762bObo
-         wr+tUr+qoCvj9C36RR/gcVQzoO1y220KYpwpwr4BoLrF7BTAZBcKvNP38YqAgUg1aF
-         u1BN3Mmb6ezQQ==
+        b=DXtnuk2aZslAaDEg3apl4oKgkLk0Frqic5MEKw9DaJx9yvRhGYaA05NPv7bW++p+3
+         V7/5s+esMYleLHyjJoPBYsQqeY0NDq+IzVv3n7Wc6s+Z+hgtFSNpa7D5TIfV8LyzU7
+         mqYsD+Qz/UegkG2mjT0DZVbXPiPHheKJ5UUfOqOCEkPZcYinf8BVdE2FTRq27gFRAs
+         zlZAhDM1oU8Jo6BbSiJMl0daHod3mVXj9SaYcxPIyL5AvkWVLASWO1k4o2nmaa5/gY
+         zk18Om51giel7jrDpWrO/1QkM48+aquUNMjbhu8dvJFfGYKUVZ0t9WS0/2QvenvnXl
+         E6VnuKYQO9V1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Li <chenli@uniontech.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 37/71] radeon: use memcpy_to/fromio for UVD fw upload
-Date:   Mon, 28 Jun 2021 10:39:29 -0400
-Message-Id: <20210628144003.34260-38-sashal@kernel.org>
+Cc:     Norbert Slusarek <nslusarek@gmx.net>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.9 38/71] can: bcm: fix infoleak in struct bcm_msg_head
+Date:   Mon, 28 Jun 2021 10:39:30 -0400
+Message-Id: <20210628144003.34260-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
 References: <20210628144003.34260-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.274-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.9.y
@@ -50,52 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Li <chenli@uniontech.com>
+From: Norbert Slusarek <nslusarek@gmx.net>
 
-[ Upstream commit ab8363d3875a83f4901eb1cc00ce8afd24de6c85 ]
+commit 5e87ddbe3942e27e939bdc02deb8579b0cbd8ecc upstream.
 
-I met a gpu addr bug recently and the kernel log
-tells me the pc is memcpy/memset and link register is
-radeon_uvd_resume.
+On 64-bit systems, struct bcm_msg_head has an added padding of 4 bytes between
+struct members count and ival1. Even though all struct members are initialized,
+the 4-byte hole will contain data from the kernel stack. This patch zeroes out
+struct bcm_msg_head before usage, preventing infoleaks to userspace.
 
-As we know, in some architectures, optimized memcpy/memset
-may not work well on device memory. Trival memcpy_toio/memset_io
-can fix this problem.
-
-BTW, amdgpu has already done it in:
-commit ba0b2275a678 ("drm/amdgpu: use memcpy_to/fromio for UVD fw upload"),
-that's why it has no this issue on the same gpu and platform.
-
-Signed-off-by: Chen Li <chenli@uniontech.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ffd980f976e7 ("[CAN]: Add broadcast manager (bcm) protocol")
+Link: https://lore.kernel.org/r/trinity-7c1b2e82-e34f-4885-8060-2cd7a13769ce-1623532166177@3c-app-gmx-bs52
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Norbert Slusarek <nslusarek@gmx.net>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/radeon_uvd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/can/bcm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_uvd.c b/drivers/gpu/drm/radeon/radeon_uvd.c
-index 16239b07ce45..2610919eb709 100644
---- a/drivers/gpu/drm/radeon/radeon_uvd.c
-+++ b/drivers/gpu/drm/radeon/radeon_uvd.c
-@@ -286,7 +286,7 @@ int radeon_uvd_resume(struct radeon_device *rdev)
- 	if (rdev->uvd.vcpu_bo == NULL)
- 		return -EINVAL;
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index c99e7c75eeee..077606585ed9 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -405,6 +405,7 @@ static void bcm_tx_timeout_tsklet(unsigned long data)
+ 		if (!op->count && (op->flags & TX_COUNTEVT)) {
  
--	memcpy(rdev->uvd.cpu_addr, rdev->uvd_fw->data, rdev->uvd_fw->size);
-+	memcpy_toio((void __iomem *)rdev->uvd.cpu_addr, rdev->uvd_fw->data, rdev->uvd_fw->size);
+ 			/* create notification to user */
++			memset(&msg_head, 0, sizeof(msg_head));
+ 			msg_head.opcode  = TX_EXPIRED;
+ 			msg_head.flags   = op->flags;
+ 			msg_head.count   = op->count;
+@@ -452,6 +453,7 @@ static void bcm_rx_changed(struct bcm_op *op, struct canfd_frame *data)
+ 	/* this element is not throttled anymore */
+ 	data->flags &= (BCM_CAN_FLAGS_MASK|RX_RECV);
  
- 	size = radeon_bo_size(rdev->uvd.vcpu_bo);
- 	size -= rdev->uvd_fw->size;
-@@ -294,7 +294,7 @@ int radeon_uvd_resume(struct radeon_device *rdev)
- 	ptr = rdev->uvd.cpu_addr;
- 	ptr += rdev->uvd_fw->size;
++	memset(&head, 0, sizeof(head));
+ 	head.opcode  = RX_CHANGED;
+ 	head.flags   = op->flags;
+ 	head.count   = op->count;
+@@ -566,6 +568,7 @@ static void bcm_rx_timeout_tsklet(unsigned long data)
+ 	struct bcm_msg_head msg_head;
  
--	memset(ptr, 0, size);
-+	memset_io((void __iomem *)ptr, 0, size);
- 
- 	return 0;
- }
+ 	/* create notification to user */
++	memset(&msg_head, 0, sizeof(msg_head));
+ 	msg_head.opcode  = RX_TIMEOUT;
+ 	msg_head.flags   = op->flags;
+ 	msg_head.count   = op->count;
 -- 
 2.30.2
 
