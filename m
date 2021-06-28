@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFB723B61DF
-	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:38:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 188053B6201
+	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233583AbhF1OkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:40:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43968 "EHLO mail.kernel.org"
+        id S234111AbhF1Okx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:40:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234175AbhF1OhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:37:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E31C61CAE;
-        Mon, 28 Jun 2021 14:30:45 +0000 (UTC)
+        id S234242AbhF1OhR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:37:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C07E461CA5;
+        Mon, 28 Jun 2021 14:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890646;
-        bh=oBga/J/u8cNhQPE8R0NqSQWs3dwaNBfYqPb2ZELcjJM=;
+        s=k20201202; t=1624890647;
+        bh=L/1j9FrTpoWtOcRqVWUfJQRSZAQ4h/0dQCzvtgV6X9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nVdmz36IuKxHIFXRkCj68LJSIRJ0d6XwEtaLa7AdPsLxTLpDzzb75cjNeSbLlpmes
-         dMnqgHx2MmwSgDfSqD+ANWB7bDknKXjccgnKnshJyFE9lN3L6pYscPxESgkLV73icO
-         nJRDQ9ji06+sayxVKWOcGv+TN+0c305OxXAq1Nt/McVZ2G2PmdYb6suT//iKB0Rkom
-         xpCKWhyn3fkvN6FMlLLPYoU81nYJSYrOGfr7I/xClU73oNm8Aqn03lvPGEEsrg4bQG
-         Ci0gMQaW9WQOzdBJZ6JFpZuy/+4aqEH/SqEiqvGkhfgon2AA9cuO3F+fxdLIucBMcL
-         RDGo5525Oj5RQ==
+        b=C58yBZfXsii+7JC9FTHUUobKXTCGs/QreIZPfQn/m9/2cUZnZQtWJWNmlT7Pi1UWx
+         36YxRl6GeiQU6zKAW1ArVpqXley3YaBFxx7zKrF1MtMB1QonK/N1qPZ7qcsSGxt4Mb
+         bqBhmnR4jEtyUU1CsqHESuWiKPRVg4/wdSL1tLa+VQLP1mEMSqAN273CYGAu9q6gn2
+         0S6MCB59nyKhKcJF3LKvZVbf3cOH+Qz4PyarzEAjdr2UT0XXFyldiW46cL7lUsrMnp
+         7HM9GRIZyCPDtbQffOsbpaJI/lwYRxoSGydx2Xhh122m9WszXyf65cvbnGj6qhRD6H
+         p/yU7Sg8UFkEw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Shi <alex.shi@linux.alibaba.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Hugh Dickins <hughd@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
+Cc:     Miaohe Lin <linmiaohe@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 45/71] mm: add VM_WARN_ON_ONCE_PAGE() macro
-Date:   Mon, 28 Jun 2021 10:29:38 -0400
-Message-Id: <20210628143004.32596-46-sashal@kernel.org>
+Subject: [PATCH 5.4 46/71] mm/rmap: remove unneeded semicolon in page_not_mapped()
+Date:   Mon, 28 Jun 2021 10:29:39 -0400
+Message-Id: <20210628143004.32596-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143004.32596-1-sashal@kernel.org>
 References: <20210628143004.32596-1-sashal@kernel.org>
@@ -53,62 +49,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Shi <alex.shi@linux.alibaba.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit a4055888629bc0467d12d912cd7c90acdf3d9b12 part ]
+[ Upstream commit e0af87ff7afcde2660be44302836d2d5618185af ]
 
-Add VM_WARN_ON_ONCE_PAGE() macro.
+Remove extra semicolon without any functional change intended.
 
-Link: https://lkml.kernel.org/r/1604283436-18880-3-git-send-email-alex.shi@linux.alibaba.com
-Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Link: https://lkml.kernel.org/r/20210127093425.39640-1-linmiaohe@huawei.com
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-Note on stable backport: original commit was titled
-mm/memcg: warning on !memcg after readahead page charged
-which included uses of this macro in mm/memcontrol.c: here omitted.
-
-Signed-off-by: Hugh Dickins <hughd@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mmdebug.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ mm/rmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/mmdebug.h b/include/linux/mmdebug.h
-index 2ad72d2c8cc5..5d0767cb424a 100644
---- a/include/linux/mmdebug.h
-+++ b/include/linux/mmdebug.h
-@@ -37,6 +37,18 @@ void dump_mm(const struct mm_struct *mm);
- 			BUG();						\
- 		}							\
- 	} while (0)
-+#define VM_WARN_ON_ONCE_PAGE(cond, page)	({			\
-+	static bool __section(".data.once") __warned;			\
-+	int __ret_warn_once = !!(cond);					\
-+									\
-+	if (unlikely(__ret_warn_once && !__warned)) {			\
-+		dump_page(page, "VM_WARN_ON_ONCE_PAGE(" __stringify(cond)")");\
-+		__warned = true;					\
-+		WARN_ON(1);						\
-+	}								\
-+	unlikely(__ret_warn_once);					\
-+})
-+
- #define VM_WARN_ON(cond) (void)WARN_ON(cond)
- #define VM_WARN_ON_ONCE(cond) (void)WARN_ON_ONCE(cond)
- #define VM_WARN_ONCE(cond, format...) (void)WARN_ONCE(cond, format)
-@@ -48,6 +60,7 @@ void dump_mm(const struct mm_struct *mm);
- #define VM_BUG_ON_MM(cond, mm) VM_BUG_ON(cond)
- #define VM_WARN_ON(cond) BUILD_BUG_ON_INVALID(cond)
- #define VM_WARN_ON_ONCE(cond) BUILD_BUG_ON_INVALID(cond)
-+#define VM_WARN_ON_ONCE_PAGE(cond, page)  BUILD_BUG_ON_INVALID(cond)
- #define VM_WARN_ONCE(cond, format...) BUILD_BUG_ON_INVALID(cond)
- #define VM_WARN(cond, format...) BUILD_BUG_ON_INVALID(cond)
- #endif
+diff --git a/mm/rmap.c b/mm/rmap.c
+index 0c7b2a9400d4..ccc8a780e348 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -1737,7 +1737,7 @@ bool try_to_unmap(struct page *page, enum ttu_flags flags)
+ static int page_not_mapped(struct page *page)
+ {
+ 	return !page_mapped(page);
+-};
++}
+ 
+ /**
+  * try_to_munlock - try to munlock a page
 -- 
 2.30.2
 
