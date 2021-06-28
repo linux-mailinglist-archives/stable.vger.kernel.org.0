@@ -2,34 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D19D3B6046
+	by mail.lfdr.de (Postfix) with ESMTP id D00583B6048
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233233AbhF1OXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        id S233197AbhF1OXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233260AbhF1OWT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:22:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5385461C94;
-        Mon, 28 Jun 2021 14:19:38 +0000 (UTC)
+        id S233421AbhF1OWU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:22:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2149061C95;
+        Mon, 28 Jun 2021 14:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624889978;
-        bh=/EThqN8arWKsyFJyJoMBFWsdgXB65VMGvatB1G5SA38=;
+        s=k20201202; t=1624889980;
+        bh=/B3PocEAdMGFBNlkc9BqDH+WNw/ZyVBO3rD7Cb0QLyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h6KVwnGiYd9Cn1p8kEIXCyoWZvkUYobyxlTO13bKlKlV38ktaVqEDTia32SK6lCnW
-         6ElcJrcp6VSxPrK2/ck54WrYTHXbDyZ1xbFgZKGvYkatDBisK2ciGIKY9uYaAaC/B9
-         fuh/p/3sQiVWEGXpTcS8uq65ZlUgzzKpllg4tDprYee/7STaOHnzQVWtqegi6kcSq5
-         qs5BIqCiNU8QLEu5sqG+ffGbQQvjzcSnX5Cch3rCI/d8q3phWBjI599J9H1pkhJrxF
-         olrEP+yRBo1WFJaXSYx7EO8tTOT+oTHcRd84+Kq0OhtjdZwetBsTkO94hBKifMIjXP
-         BXuDKUlMRIqpw==
+        b=q92LE29AdQ6WLeDGMIp+CCLgIAiGFR73+TeJ8uJkLfusDjCiaVdQSdOue7L/8TqxN
+         5tQCknYy/hVt21JX4zJMZXFS5Byr+bJ4nPiY8y6dLEJZvdPyvxIHzPfDExIY3UWdbe
+         JOkfULIB0XPoTLZDvT8j5PEULeuJPKZaiw1EBhyWArDIdJLY595KhzQk+J0CuC3hRL
+         NAEVfBv/5EWoVuBq1VnObUNJYKsZX/324io+jYWVyooLSb2a8IUj+ZP7AkoIJnyJ8l
+         cS1NSh3vX2FoPi0We0nIg5ASRgty+Iq1WRFQXA0nTdpWz3l3ydl9sV3KKpUmmMizDP
+         +7Fl/LkuH4cIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
+Cc:     Tony Luck <tony.luck@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Borislav Petkov <bp@suse.de>,
+        Oscar Salvador <osalvador@suse.de>,
+        Aili Yao <yaoaili@kingsoft.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        David Hildenbrand <david@redhat.com>,
+        Jue Wang <juew@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.12 080/110] x86/fpu: Make init_fpstate correct with optimized XSAVE
-Date:   Mon, 28 Jun 2021 10:17:58 -0400
-Message-Id: <20210628141828.31757-81-sashal@kernel.org>
+Subject: [PATCH 5.12 081/110] mm/memory-failure: use a mutex to avoid memory_failure() races
+Date:   Mon, 28 Jun 2021 10:17:59 -0400
+Message-Id: <20210628141828.31757-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628141828.31757-1-sashal@kernel.org>
 References: <20210628141828.31757-1-sashal@kernel.org>
@@ -47,171 +57,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Tony Luck <tony.luck@intel.com>
 
-commit f9dfb5e390fab2df9f7944bb91e7705aba14cd26 upstream.
+commit 171936ddaf97e6f4e1264f4128bb5cf15691339c upstream.
 
-The XSAVE init code initializes all enabled and supported components with
-XRSTOR(S) to init state. Then it XSAVEs the state of the components back
-into init_fpstate which is used in several places to fill in the init state
-of components.
+Patch series "mm,hwpoison: fix sending SIGBUS for Action Required MCE", v5.
 
-This works correctly with XSAVE, but not with XSAVEOPT and XSAVES because
-those use the init optimization and skip writing state of components which
-are in init state. So init_fpstate.xsave still contains all zeroes after
-this operation.
+I wrote this patchset to materialize what I think is the current
+allowable solution mentioned by the previous discussion [1].  I simply
+borrowed Tony's mutex patch and Aili's return code patch, then I queued
+another one to find error virtual address in the best effort manner.  I
+know that this is not a perfect solution, but should work for some
+typical case.
 
-There are two ways to solve that:
+[1]: https://lore.kernel.org/linux-mm/20210331192540.2141052f@alex-virtual-machine/
 
-   1) Use XSAVE unconditionally, but that requires to reshuffle the buffer when
-      XSAVES is enabled because XSAVES uses compacted format.
+This patch (of 2):
 
-   2) Save the components which are known to have a non-zero init state by other
-      means.
+There can be races when multiple CPUs consume poison from the same page.
+The first into memory_failure() atomically sets the HWPoison page flag
+and begins hunting for tasks that map this page.  Eventually it
+invalidates those mappings and may send a SIGBUS to the affected tasks.
 
-Looking deeper, #2 is the right thing to do because all components the
-kernel supports have all-zeroes init state except the legacy features (FP,
-SSE). Those cannot be hard coded because the states are not identical on all
-CPUs, but they can be saved with FXSAVE which avoids all conditionals.
+But while all that work is going on, other CPUs see a "success" return
+code from memory_failure() and so they believe the error has been
+handled and continue executing.
 
-Use FXSAVE to save the legacy FP/SSE components in init_fpstate along with
-a BUILD_BUG_ON() which reminds developers to validate that a newly added
-component has all zeroes init state. As a bonus remove the now unused
-copy_xregs_to_kernel_booting() crutch.
+Fix by wrapping most of the internal parts of memory_failure() in a
+mutex.
 
-The XSAVE and reshuffle method can still be implemented in the unlikely
-case that components are added which have a non-zero init state and no
-other means to save them. For now, FXSAVE is just simple and good enough.
+[akpm@linux-foundation.org: make mf_mutex local to memory_failure()]
 
-  [ bp: Fix a typo or two in the text. ]
-
-Fixes: 6bad06b76892 ("x86, xsave: Use xsaveopt in context-switch path when supported")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210521030156.2612074-1-nao.horiguchi@gmail.com
+Link: https://lkml.kernel.org/r/20210521030156.2612074-2-nao.horiguchi@gmail.com
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
 Reviewed-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210618143444.587311343@linutronix.de
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Aili Yao <yaoaili@kingsoft.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jue Wang <juew@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/fpu/internal.h | 30 ++++++---------------
- arch/x86/kernel/fpu/xstate.c        | 41 ++++++++++++++++++++++++++---
- 2 files changed, 46 insertions(+), 25 deletions(-)
+ mm/memory-failure.c | 36 +++++++++++++++++++++++-------------
+ 1 file changed, 23 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
-index fdee23ea4e17..16bf4d4a8159 100644
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -204,6 +204,14 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
- 		asm volatile("fxsaveq %[fx]" : [fx] "=m" (fpu->state.fxsave));
- }
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 704d05057d8c..2dd60ad81216 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1429,9 +1429,10 @@ int memory_failure(unsigned long pfn, int flags)
+ 	struct page *hpage;
+ 	struct page *orig_head;
+ 	struct dev_pagemap *pgmap;
+-	int res;
++	int res = 0;
+ 	unsigned long page_flags;
+ 	bool retry = true;
++	static DEFINE_MUTEX(mf_mutex);
  
-+static inline void fxsave(struct fxregs_state *fx)
-+{
-+	if (IS_ENABLED(CONFIG_X86_32))
-+		asm volatile( "fxsave %[fx]" : [fx] "=m" (*fx));
-+	else
-+		asm volatile("fxsaveq %[fx]" : [fx] "=m" (*fx));
-+}
-+
- /* These macros all use (%edi)/(%rdi) as the single memory argument. */
- #define XSAVE		".byte " REX_PREFIX "0x0f,0xae,0x27"
- #define XSAVEOPT	".byte " REX_PREFIX "0x0f,0xae,0x37"
-@@ -268,28 +276,6 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
- 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
- 		     : "memory")
- 
--/*
-- * This function is called only during boot time when x86 caps are not set
-- * up and alternative can not be used yet.
-- */
--static inline void copy_xregs_to_kernel_booting(struct xregs_state *xstate)
--{
--	u64 mask = xfeatures_mask_all;
--	u32 lmask = mask;
--	u32 hmask = mask >> 32;
--	int err;
--
--	WARN_ON(system_state != SYSTEM_BOOTING);
--
--	if (boot_cpu_has(X86_FEATURE_XSAVES))
--		XSTATE_OP(XSAVES, xstate, lmask, hmask, err);
--	else
--		XSTATE_OP(XSAVE, xstate, lmask, hmask, err);
--
--	/* We should never fault when copying to a kernel buffer: */
--	WARN_ON_FPU(err);
--}
--
- /*
-  * This function is called only during boot time when x86 caps are not set
-  * up and alternative can not be used yet.
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index 2ad57cc14b83..451435d7ff41 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -440,6 +440,25 @@ static void __init print_xstate_offset_size(void)
+ 	if (!sysctl_memory_failure_recovery)
+ 		panic("Memory failure on page %lx", pfn);
+@@ -1449,13 +1450,18 @@ int memory_failure(unsigned long pfn, int flags)
+ 		return -ENXIO;
  	}
- }
  
-+/*
-+ * All supported features have either init state all zeros or are
-+ * handled in setup_init_fpu() individually. This is an explicit
-+ * feature list and does not use XFEATURE_MASK*SUPPORTED to catch
-+ * newly added supported features at build time and make people
-+ * actually look at the init state for the new feature.
-+ */
-+#define XFEATURES_INIT_FPSTATE_HANDLED		\
-+	(XFEATURE_MASK_FP |			\
-+	 XFEATURE_MASK_SSE |			\
-+	 XFEATURE_MASK_YMM |			\
-+	 XFEATURE_MASK_OPMASK |			\
-+	 XFEATURE_MASK_ZMM_Hi256 |		\
-+	 XFEATURE_MASK_Hi16_ZMM	 |		\
-+	 XFEATURE_MASK_PKRU |			\
-+	 XFEATURE_MASK_BNDREGS |		\
-+	 XFEATURE_MASK_BNDCSR |			\
-+	 XFEATURE_MASK_PASID)
++	mutex_lock(&mf_mutex);
 +
- /*
-  * setup the xstate image representing the init state
-  */
-@@ -447,6 +466,10 @@ static void __init setup_init_fpu_buf(void)
- {
- 	static int on_boot_cpu __initdata = 1;
- 
-+	BUILD_BUG_ON((XFEATURE_MASK_USER_SUPPORTED |
-+		      XFEATURE_MASK_SUPERVISOR_SUPPORTED) !=
-+		     XFEATURES_INIT_FPSTATE_HANDLED);
+ try_again:
+-	if (PageHuge(p))
+-		return memory_failure_hugetlb(pfn, flags);
++	if (PageHuge(p)) {
++		res = memory_failure_hugetlb(pfn, flags);
++		goto unlock_mutex;
++	}
 +
- 	WARN_ON_FPU(!on_boot_cpu);
- 	on_boot_cpu = 0;
+ 	if (TestSetPageHWPoison(p)) {
+ 		pr_err("Memory failure: %#lx: already hardware poisoned\n",
+ 			pfn);
+-		return 0;
++		goto unlock_mutex;
+ 	}
  
-@@ -466,10 +489,22 @@ static void __init setup_init_fpu_buf(void)
- 	copy_kernel_to_xregs_booting(&init_fpstate.xsave);
+ 	orig_head = hpage = compound_head(p);
+@@ -1488,17 +1494,19 @@ try_again:
+ 				res = MF_FAILED;
+ 			}
+ 			action_result(pfn, MF_MSG_BUDDY, res);
+-			return res == MF_RECOVERED ? 0 : -EBUSY;
++			res = res == MF_RECOVERED ? 0 : -EBUSY;
+ 		} else {
+ 			action_result(pfn, MF_MSG_KERNEL_HIGH_ORDER, MF_IGNORED);
+-			return -EBUSY;
++			res = -EBUSY;
+ 		}
++		goto unlock_mutex;
+ 	}
+ 
+ 	if (PageTransHuge(hpage)) {
+ 		if (try_to_split_thp_page(p, "Memory Failure") < 0) {
+ 			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
+-			return -EBUSY;
++			res = -EBUSY;
++			goto unlock_mutex;
+ 		}
+ 		VM_BUG_ON_PAGE(!page_count(p), p);
+ 	}
+@@ -1522,7 +1530,7 @@ try_again:
+ 	if (PageCompound(p) && compound_head(p) != orig_head) {
+ 		action_result(pfn, MF_MSG_DIFFERENT_COMPOUND, MF_IGNORED);
+ 		res = -EBUSY;
+-		goto out;
++		goto unlock_page;
+ 	}
  
  	/*
--	 * Dump the init state again. This is to identify the init state
--	 * of any feature which is not represented by all zero's.
-+	 * All components are now in init state. Read the state back so
-+	 * that init_fpstate contains all non-zero init state. This only
-+	 * works with XSAVE, but not with XSAVEOPT and XSAVES because
-+	 * those use the init optimization which skips writing data for
-+	 * components in init state.
-+	 *
-+	 * XSAVE could be used, but that would require to reshuffle the
-+	 * data when XSAVES is available because XSAVES uses xstate
-+	 * compaction. But doing so is a pointless exercise because most
-+	 * components have an all zeros init state except for the legacy
-+	 * ones (FP and SSE). Those can be saved with FXSAVE into the
-+	 * legacy area. Adding new features requires to ensure that init
-+	 * state is all zeroes or if not to add the necessary handling
-+	 * here.
- 	 */
--	copy_xregs_to_kernel_booting(&init_fpstate.xsave);
-+	fxsave(&init_fpstate.fxsave);
- }
+@@ -1542,14 +1550,14 @@ try_again:
+ 		num_poisoned_pages_dec();
+ 		unlock_page(p);
+ 		put_page(p);
+-		return 0;
++		goto unlock_mutex;
+ 	}
+ 	if (hwpoison_filter(p)) {
+ 		if (TestClearPageHWPoison(p))
+ 			num_poisoned_pages_dec();
+ 		unlock_page(p);
+ 		put_page(p);
+-		return 0;
++		goto unlock_mutex;
+ 	}
  
- static int xfeature_uncompacted_offset(int xfeature_nr)
+ 	/*
+@@ -1573,7 +1581,7 @@ try_again:
+ 	if (!hwpoison_user_mappings(p, pfn, flags, &p)) {
+ 		action_result(pfn, MF_MSG_UNMAP_FAILED, MF_IGNORED);
+ 		res = -EBUSY;
+-		goto out;
++		goto unlock_page;
+ 	}
+ 
+ 	/*
+@@ -1582,13 +1590,15 @@ try_again:
+ 	if (PageLRU(p) && !PageSwapCache(p) && p->mapping == NULL) {
+ 		action_result(pfn, MF_MSG_TRUNCATED_LRU, MF_IGNORED);
+ 		res = -EBUSY;
+-		goto out;
++		goto unlock_page;
+ 	}
+ 
+ identify_page_state:
+ 	res = identify_page_state(pfn, p, page_flags);
+-out:
++unlock_page:
+ 	unlock_page(p);
++unlock_mutex:
++	mutex_unlock(&mf_mutex);
+ 	return res;
+ }
+ EXPORT_SYMBOL_GPL(memory_failure);
 -- 
 2.30.2
 
