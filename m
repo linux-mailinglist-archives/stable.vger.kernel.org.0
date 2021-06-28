@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C58463B62EF
+	by mail.lfdr.de (Postfix) with ESMTP id 7BFEB3B62EE
 	for <lists+stable@lfdr.de>; Mon, 28 Jun 2021 16:48:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235091AbhF1OuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 10:50:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54532 "EHLO mail.kernel.org"
+        id S235062AbhF1OuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 10:50:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236328AbhF1OrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 10:47:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 133F66192F;
-        Mon, 28 Jun 2021 14:36:37 +0000 (UTC)
+        id S236329AbhF1OrX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 10:47:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFA5561CA8;
+        Mon, 28 Jun 2021 14:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624890998;
-        bh=i1zJ5xSc8Sfmde+KY3el5b++VGj1rNSB8rjx38J9gXs=;
+        s=k20201202; t=1624890999;
+        bh=x2c4b1/n9pTYYdcPDTBCvUOkjOIDOUolY33xlgn3Wuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ORhXERaLY6UGJGlBZlyVGi88Ub55syZcY1kaWKxtRauviX3rnY+rO+CEZFSIQD+vw
-         xogBdqDC21vafhInj8yGpjIsf2aV8tIwsjN7eQlvahh3HrQKegQ8v+YK5Hv/Eg4RGp
-         xsIfrfaViOP/OREBxBpvt0g0cguiMx4zrrApU3ecDhfKxEOXzGeJX0ik8x9DU6mood
-         3Bi70X5e8Td5w/gr5oUCi3GsokY/K1ejlcORWKP2Gm0VV3nhHUp/fXoLkuj0KzwJz4
-         vzEaRmKQKY2EyaRnY/un7lbgs6x8oMO6Rm8r9G3H6HXVri9+73/TxIbnwcJJhQeLh+
-         48xNuV4X4B1BA==
+        b=e5LnRc9mH1s7H+pFbRbCC5Maxyh/DG3Zym2hJzFHo/q/SaUHkh0eMq9wZig0hcVm9
+         9V3ZApHtQwX3W9mYL+KXamHRGOaj5hV4LTx2HX2fPjDR70O0leDE0KtqkTMVdDf7w1
+         K+GVowT+5PR0MM8xQP9xccqT7BqW1+h0vMZRtL4hPeM6TE/cjEzPy/ykVyrHZ/Fsq7
+         mnc0mm9g/VfI8+8oT7Pw2zF0QG+b4JyJcjldfBqHwcqobjilWjiNWOIp3mqQCEHSEO
+         7dnuNrtpT1Fy7Ue7WxwZKrGSoRY4ijYJylhpdAyBU5I7RLJjZUWo/4bAMX4x2qrUQf
+         LTwm3eTg7yZXw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/88] ethernet: myri10ge: Fix missing error code in myri10ge_probe()
-Date:   Mon, 28 Jun 2021 10:35:09 -0400
-Message-Id: <20210628143628.33342-10-sashal@kernel.org>
+Cc:     Hannes Reinecke <hare@suse.de>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 10/88] nvme-loop: reset queue count to 1 in nvme_loop_destroy_io_queues()
+Date:   Mon, 28 Jun 2021 10:35:10 -0400
+Message-Id: <20210628143628.33342-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
 References: <20210628143628.33342-1-sashal@kernel.org>
@@ -49,38 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit f336d0b93ae978f12c5e27199f828da89b91e56a ]
+[ Upstream commit a6c144f3d2e230f2b3ac5ed8c51e0f0391556197 ]
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'status'.
+The queue count is increased in nvme_loop_init_io_queues(), so we
+need to reset it to 1 at the end of nvme_loop_destroy_io_queues().
+Otherwise the function is not re-entrant safe, and crash will happen
+during concurrent reset and remove calls.
 
-Eliminate the follow smatch warning:
-
-drivers/net/ethernet/myricom/myri10ge/myri10ge.c:3818 myri10ge_probe()
-warn: missing error code 'status'.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 1 +
+ drivers/nvme/target/loop.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-index a0a555052d8c..1ac2bc75edb1 100644
---- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-+++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-@@ -3853,6 +3853,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		dev_err(&pdev->dev,
- 			"invalid sram_size %dB or board span %ldB\n",
- 			mgp->sram_size, mgp->board_span);
-+		status = -EINVAL;
- 		goto abort_with_ioremap;
+diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
+index 3388d2788fe0..5f33c3a9469b 100644
+--- a/drivers/nvme/target/loop.c
++++ b/drivers/nvme/target/loop.c
+@@ -322,6 +322,7 @@ static void nvme_loop_destroy_io_queues(struct nvme_loop_ctrl *ctrl)
+ 		clear_bit(NVME_LOOP_Q_LIVE, &ctrl->queues[i].flags);
+ 		nvmet_sq_destroy(&ctrl->queues[i].nvme_sq);
  	}
- 	memcpy_fromio(mgp->eeprom_strings,
++	ctrl->ctrl.queue_count = 1;
+ }
+ 
+ static int nvme_loop_init_io_queues(struct nvme_loop_ctrl *ctrl)
 -- 
 2.30.2
 
