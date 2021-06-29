@@ -2,165 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2C13B6DD4
-	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 07:12:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09B03B6E16
+	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 08:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231244AbhF2FOg convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 29 Jun 2021 01:14:36 -0400
-Received: from mga04.intel.com ([192.55.52.120]:55906 "EHLO mga04.intel.com"
+        id S231920AbhF2GKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Jun 2021 02:10:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229969AbhF2FOg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Jun 2021 01:14:36 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10029"; a="206261755"
-X-IronPort-AV: E=Sophos;i="5.83,308,1616482800"; 
-   d="scan'208";a="206261755"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jun 2021 22:12:08 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,308,1616482800"; 
-   d="scan'208";a="625502307"
-Received: from fmsmsx606.amr.corp.intel.com ([10.18.126.86])
-  by orsmga005.jf.intel.com with ESMTP; 28 Jun 2021 22:12:08 -0700
-Received: from shsmsx603.ccr.corp.intel.com (10.109.6.143) by
- fmsmsx606.amr.corp.intel.com (10.18.126.86) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.4; Mon, 28 Jun 2021 22:12:07 -0700
-Received: from shsmsx603.ccr.corp.intel.com (10.109.6.143) by
- SHSMSX603.ccr.corp.intel.com (10.109.6.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.4; Tue, 29 Jun 2021 13:12:05 +0800
-Received: from shsmsx603.ccr.corp.intel.com ([10.109.6.143]) by
- SHSMSX603.ccr.corp.intel.com ([10.109.6.143]) with mapi id 15.01.2242.008;
- Tue, 29 Jun 2021 13:12:05 +0800
-From:   "Zhang, Rui" <rui.zhang@intel.com>
-To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
-        "amitk@kernel.org" <amitk@kernel.org>
-CC:     "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [UPDATE][PATCH] thermal: int340x: processor_thermal: Fix tcc
- setting
-Thread-Topic: [UPDATE][PATCH] thermal: int340x: processor_thermal: Fix tcc
- setting
-Thread-Index: AQHXbGiwqq3P26te60OZFhNIzULFPqsqcalQ
-Date:   Tue, 29 Jun 2021 05:12:05 +0000
-Message-ID: <553943329ddf452c80c15fc6cdded366@intel.com>
-References: <20210628215803.75038-1-srinivas.pandruvada@linux.intel.com>
-In-Reply-To: <20210628215803.75038-1-srinivas.pandruvada@linux.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-reaction: no-action
-dlp-version: 11.5.1.3
-x-originating-ip: [10.239.127.36]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S232011AbhF2GKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Jun 2021 02:10:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF01261D91;
+        Tue, 29 Jun 2021 06:08:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1624946890;
+        bh=BuQ5gWlmyqWbW8ze1zM1UxibZ0wxfgu50CR4zqmNpL8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DO3JhWoLenUQFj9mdNvlCWClt2w47drY+hygpNmYYNRqtv9sTCGi6jY2KUbB8ZKdE
+         elJZxNpO+WMY0g1P9nEsyPdAo9efd77dp32GdKz60+UkkllMFEdnMSyIqvjte43anN
+         IXIstkIO2DhfnrLjsOEy7GN+9cBMZcBFE8ipaCM4=
+Date:   Tue, 29 Jun 2021 08:08:08 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Wang Yugui <wangyugui@e16-tech.com>,
+        Xu Yu <xuyu@linux.alibaba.com>, Jue Wang <juew@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Alex Shi <alexs@kernel.org>, Miaohe Lin <linmiaohe@huawei.com>,
+        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org
+Subject: Re: mm/thp commits: please wait a few days
+Message-ID: <YNq4yJls+PKsULh0@kroah.com>
+References: <88937026-b998-8d9b-7a23-ff24576491f4@google.com>
+ <YMrU4FRkrQ7AVo5d@kroah.com>
+ <YNNMGjoMajhPNyiK@kroah.com>
+ <ca4d4e0-531-3373-c6ee-a33d379a557c@google.com>
+ <20210623134642.2927395a89b1d07bab620a20@linux-foundation.org>
+ <c2bf7b2-a2d9-95a1-e322-4cf4b8613e9@google.com>
+ <6b253bc4-2562-d1bb-18f2-517cfad5d5e7@google.com>
+ <YNm93fkIPrqMwHzd@kroah.com>
+ <366846c0-245a-771e-7a1-4a307ac6e5e1@google.com>
+ <YNqTCV7DmYGZiZ7N@sashalap>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YNqTCV7DmYGZiZ7N@sashalap>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jun 28, 2021 at 11:27:05PM -0400, Sasha Levin wrote:
+> On Mon, Jun 28, 2021 at 10:12:57AM -0700, Hugh Dickins wrote:
+> > On Mon, 28 Jun 2021, Greg Kroah-Hartman wrote:
+> > > So could you just send a mbox of patches (or tarball), for the 4.19,
+> > > 4.14, and 4.9 trees?  That would make it much easier to ensure I got
+> > > them all correct.
+> > 
+> > At risk of irritating you, sorry, I am resisting: the more data I send
+> > you, the more likely I am to mess it up in some stupid way.  Please ask
+> > again and I shall, but I think your success with 5.12, 5.10, 5.4 just
+> > means that you were right to take a break before 4.19, 4.14, 4.4.
+> 
+> I've tried following the instructions for 4.19, and that worked fine on
+> my end too.
+> 
+> If no one objects, I can pick up 4.9-4.19 after the current set of
+> kernels is released.
 
+No objection from me, thanks!
 
-> -----Original Message-----
-> From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> Sent: Tuesday, June 29, 2021 5:58 AM
-> To: daniel.lezcano@linaro.org; Zhang, Rui <rui.zhang@intel.com>;
-> amitk@kernel.org
-> Cc: linux-pm@vger.kernel.org; linux-kernel@vger.kernel.org; Srinivas
-> Pandruvada <srinivas.pandruvada@linux.intel.com>; stable@vger.kernel.org
-> Subject: [UPDATE][PATCH] thermal: int340x: processor_thermal: Fix tcc setting
-> Importance: High
-> 
-> The following fixes are done for tcc sysfs interface:
-> - TCC is 6 bits only from bit 29-24
-> - TCC of 0 is valid
-> - When BIT(31) is set, this register is read only
-> - Check for invalid tcc value
-> - Error for negative values
-> 
-> Fixes: fdf4f2fb8e899 ("drivers: thermal: processor_thermal_device:
-> Export sysfs interface for TCC offset"
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> Cc: stable@vger.kernel.org
-
-Acked-by: Zhang Rui <rui.zhang@intel.com>
-> ---
-> Update
-> 	Added Fixes tag and cc to stable
-> 
->  .../processor_thermal_device.c                | 20 +++++++++++--------
->  1 file changed, 12 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-> b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-> index de4fc640deb0..0f0038af2ad4 100644
-> --- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-> +++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-> @@ -78,24 +78,27 @@ static ssize_t tcc_offset_degree_celsius_show(struct
-> device *dev,
->  	if (err)
->  		return err;
-> 
-> -	val = (val >> 24) & 0xff;
-> +	val = (val >> 24) & 0x3f;
->  	return sprintf(buf, "%d\n", (int)val);  }
-> 
-> -static int tcc_offset_update(int tcc)
-> +static int tcc_offset_update(unsigned int tcc)
->  {
->  	u64 val;
->  	int err;
-> 
-> -	if (!tcc)
-> +	if (tcc > 63)
->  		return -EINVAL;
-> 
->  	err = rdmsrl_safe(MSR_IA32_TEMPERATURE_TARGET, &val);
->  	if (err)
->  		return err;
-> 
-> -	val &= ~GENMASK_ULL(31, 24);
-> -	val |= (tcc & 0xff) << 24;
-> +	if (val & BIT(31))
-> +		return -EPERM;
-> +
-> +	val &= ~GENMASK_ULL(29, 24);
-> +	val |= (tcc & 0x3f) << 24;
-> 
->  	err = wrmsrl_safe(MSR_IA32_TEMPERATURE_TARGET, val);
->  	if (err)
-> @@ -104,14 +107,15 @@ static int tcc_offset_update(int tcc)
->  	return 0;
->  }
-> 
-> -static int tcc_offset_save;
-> +static unsigned int tcc_offset_save;
-> 
->  static ssize_t tcc_offset_degree_celsius_store(struct device *dev,
->  				struct device_attribute *attr, const char *buf,
->  				size_t count)
->  {
-> +	unsigned int tcc;
->  	u64 val;
-> -	int tcc, err;
-> +	int err;
-> 
->  	err = rdmsrl_safe(MSR_PLATFORM_INFO, &val);
->  	if (err)
-> @@ -120,7 +124,7 @@ static ssize_t tcc_offset_degree_celsius_store(struct
-> device *dev,
->  	if (!(val & BIT(30)))
->  		return -EACCES;
-> 
-> -	if (kstrtoint(buf, 0, &tcc))
-> +	if (kstrtouint(buf, 0, &tcc))
->  		return -EINVAL;
-> 
->  	err = tcc_offset_update(tcc);
-> --
-> 2.27.0
-
+greg k-h
