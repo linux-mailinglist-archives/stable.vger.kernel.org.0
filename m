@@ -2,92 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 822B93B741F
-	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 16:17:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF4A3B7463
+	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 16:33:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234269AbhF2OTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Jun 2021 10:19:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43260 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234262AbhF2OTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 10:19:51 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114B7C061767
-        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 07:17:23 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id e20so18662783pgg.0
-        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 07:17:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=IArjopqIDg6BvXPUtumLL/oLHZrtIdyh0yhSmO6KMNo=;
-        b=cSXVWRUqtGI4bt48bQhXvOSfa9n1a8ZVYjIKAmuyaD7HhtEWK/JRkJxuEABjXMi1ML
-         mc7fCb42mJqHKfQqiX/tFabnDwBmefDYamsO/YPKy4ULbt1CxNGwvEO1hxrwZB/n9b5S
-         uTydVdvwWi2zYRs9AM44OOgeS7jlr2PSBWWdg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=IArjopqIDg6BvXPUtumLL/oLHZrtIdyh0yhSmO6KMNo=;
-        b=iNdUDskXU4u7Fzl4J8WNH/Mumn/FDz71u8MAoL9yr31sZcoWrYYjmpoTse2gEHZf3d
-         Wcg05ZoZwr+9eaER7nlNuYkybyGbGJhm/cGDK8d5cu2Y84CQSkrcb8vGS8J/qXHrHleQ
-         K82gtTk+J9WWmco+T3a+gMq7ctFryBDgOenr3oK1d5cCjrLArIbATNZ8dbzRnTwY+pdb
-         SZ1Jkj4yOFkmDLwEedBh5A5R/1U3vbaPQjjK72tVhZA18S9RCK4XQSxZNpXbX8K0fRcy
-         m1K150sDHzuYbJjGPj3jUAwlx+Mk+6V60dkRj6eSvi0PmvgqNZuTO/IBuvT22eIJ4e2O
-         5QKQ==
-X-Gm-Message-State: AOAM532r2w0MVEoZBHbH68Ydc8obwqMvcIkuqoa3t/SMd8rG6VFNZk+U
-        ulw5I47N0RPdq/CKZJID2JK+1Q==
-X-Google-Smtp-Source: ABdhPJx7K8mQ3oTesZDtPCFys1fAQ5JZculaDZfoCHJ/pcLX1MXf9lej76mubPb12pVdVPxQsD3nwg==
-X-Received: by 2002:a63:3e0f:: with SMTP id l15mr15945191pga.23.1624976242641;
-        Tue, 29 Jun 2021 07:17:22 -0700 (PDT)
-Received: from localhost ([2620:15c:202:201:7cc8:c334:f56f:576d])
-        by smtp.gmail.com with UTF8SMTPSA id e1sm18333781pfd.16.2021.06.29.07.17.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 29 Jun 2021 07:17:22 -0700 (PDT)
-Date:   Tue, 29 Jun 2021 07:17:20 -0700
-From:   Matthias Kaehlcke <mka@chromium.org>
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc:     bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, thara.gopinath@linaro.org,
+        id S234398AbhF2OgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Jun 2021 10:36:22 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:57310 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234285AbhF2OgV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 10:36:21 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 81DA9226CB;
+        Tue, 29 Jun 2021 14:33:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1624977233; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=l27yWpUOt7K6JE8GkAbI88JtQoiyZZfThwFoqr+iDA4=;
+        b=U4QMH2o29Jz5J6WBl+WVh97CQszudPV29Q6xctPTJ7Ttob9J3hjuprMtUCwAf7h6nDuz/g
+        jhdMxb4IJVR/NFmJmMnDCDHOakR/5FQ0Hmkg1B+tZ01pPj9sgGwVxDoq+W8f3rUCSYVBZG
+        UqwI21drNzvRTP/YvoHtE+zzQK2CBIM=
+Received: from alley.suse.cz (unknown [10.100.216.66])
+        by relay2.suse.de (Postfix) with ESMTP id 2A645A3B85;
+        Tue, 29 Jun 2021 14:33:53 +0000 (UTC)
+From:   Petr Mladek <pmladek@suse.com>
+To:     John Ogness <john.ogness@linutronix.de>
+Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH] soc: qcom: aoss: Fix the out of bound usage of
- cooling_devs
-Message-ID: <YNsrcHOf90rZl44z@google.com>
-References: <20210628172741.16894-1-manivannan.sadhasivam@linaro.org>
- <YNpVMvhEfrz9EqyO@google.com>
- <20210629042558.GA3580@workstation>
+Subject: [PATCH] printk/console: Check consistent sequence number when handling race in console_unlock()
+Date:   Tue, 29 Jun 2021 16:33:41 +0200
+Message-Id: <20210629143341.19284-1-pmladek@suse.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210629042558.GA3580@workstation>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 29, 2021 at 09:55:58AM +0530, Manivannan Sadhasivam wrote:
-> On Mon, Jun 28, 2021 at 04:03:14PM -0700, Matthias Kaehlcke wrote:
-> 
-> [...]
-> 
-> > 
-> > 
-> > A few more previous lines of code for context:
-> > 
-> >   int count = QMP_NUM_COOLING_RESOURCES;
-> > 
-> >   qmp->cooling_devs = devm_kcalloc(qmp->dev, count,
-> >                                    sizeof(*qmp->cooling_devs),
-> >                                    GFP_KERNEL);
-> > 
-> > I would suggest to initialize 'count' to 0 from the start and pass
-> > QMP_NUM_COOLING_RESOURCES to devm_kcalloc() rather than 'count',
-> > instead of resetting 'count' afterwards.
-> 
-> Yeah, I thought about it but the actual bug in the code is not resetting
-> the count value to 0. So fixing this way seems a better option.
+The standard printk() tries to flush the message to the console
+immediately. It tries to take the console lock. If the lock is
+already taken then the current owner is responsible for flushing
+even the new message.
 
-I don't agree that it's the better option. IMO it's clearer to pass
-the constant QMP_NUM_COOLING_RESOURCES directly to devm_kcalloc(),
-rather than giving the impression that the number of allocated items
-is variable. Repurposing variables can be confusing and led to this
-bug. Also the resulting code doesn't need to re-initialize 'count'.
+There is a small race window between checking whether a new message is
+available and releasing the console lock. It is solved by re-checking
+the state after releasing the console lock. If the check is positive
+then console_unlock() tries to take the lock again and process the new
+message as well.
+
+The commit 996e966640ddea7b535c ("printk: remove logbuf_lock") causes that
+console_seq is not longer read atomically. As a result, the re-check might
+be done with an inconsistent 64-bit index.
+
+Solve it by using the last sequence number that has been checked under
+the console lock. In the worst case, it will take the lock again only
+to realized that the new message has already been proceed. But it
+was possible even before.
+
+Fixes: commit 996e966640ddea7b535c ("printk: remove logbuf_lock")
+Cc: stable@vger.kernel.org # 5.13
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+---
+ kernel/printk/printk.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 142a58d124d9..87411084075e 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -2545,6 +2545,7 @@ void console_unlock(void)
+ 	bool do_cond_resched, retry;
+ 	struct printk_info info;
+ 	struct printk_record r;
++	u64 next_seq;
+ 
+ 	if (console_suspended) {
+ 		up_console_sem();
+@@ -2654,8 +2655,10 @@ void console_unlock(void)
+ 			cond_resched();
+ 	}
+ 
+-	console_locked = 0;
++	/* Get consistent value of the next-to-be-used sequence number. */
++	next_seq = console_seq;
+ 
++	console_locked = 0;
+ 	up_console_sem();
+ 
+ 	/*
+@@ -2664,7 +2667,7 @@ void console_unlock(void)
+ 	 * there's a new owner and the console_unlock() from them will do the
+ 	 * flush, no worries.
+ 	 */
+-	retry = prb_read_valid(prb, console_seq, NULL);
++	retry = prb_read_valid(prb, next_seq, NULL);
+ 	printk_safe_exit_irqrestore(flags);
+ 
+ 	if (retry && console_trylock())
+-- 
+2.26.2
+
