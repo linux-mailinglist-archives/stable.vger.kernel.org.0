@@ -2,197 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6138B3B74B6
-	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 16:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D36F53B7527
+	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 17:28:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234520AbhF2OzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Jun 2021 10:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51252 "EHLO
+        id S234793AbhF2Paw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Jun 2021 11:30:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234413AbhF2OzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 10:55:06 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD1FAC061760
-        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 07:52:38 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id q14so31668048eds.5
-        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 07:52:38 -0700 (PDT)
+        with ESMTP id S234718AbhF2Paw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 11:30:52 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23287C0617A6
+        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 08:28:24 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id i4so11102577plt.12
+        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 08:28:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=DPU9Q6gwrzv94ZsGwUmEvxsph9n8pWTojpUV5jCNo9g=;
-        b=A8iBjZPbzMenjyuebF6rSpOt8ubLUNgXGEzjEu14nxKlq6jdBbEG7EVv5iP4suBuBE
-         iNAxPQKC2TL+KufioLj0P2w+Y/uObzskg+M+/VNfnRvCJBBhPpbeeoGP+Y5D6rRlYfe/
-         A/aHn/5McNMSCYAJcMYg3V5imX0HvHH/P6lpOZIuumXvfepa2xGKs6afznR0vTjhubNj
-         eDgJPbDFLL0Z6W9+wOqpP5w53gl2cLyPiojFLAdqK/J7YInJaqT3G9Rs0LzQNrUxYSu7
-         hffvXdMKlshQCnKjYARsCrNW9io2A6dJfzPiawxiyemLTpLPHBpvDKw4Uy9c+dDq9Z8W
-         xqWA==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=VuuCdU8uAmKGBo8SImwfisVY2Ba0hcixfgMHcrixL7o=;
+        b=AKt8HPsPsJ2ywzYB8tqCs5F9/z9DqNbOFY13/dcY+xCSNrsNs6CYe5lT+IWiyMvkfG
+         fFwovFSVwNF/Hnu1M4O3dYwOKtkE/u7irgBvBu7A0XYi02tOP7U4A0+8DrPRZVw2K7cZ
+         MJGvGNqOh1JkWlbazcA1e1itTxT2tqNkDkqdQUy5TgY84UAr/uuZx1JtTnnrt+G9o5wq
+         hUnaEYBV9xyOXdRMGFXj4Van+AFQU+JUqO5srbSsJNLmT38fjNAJJTJZAXSoHyve4mVV
+         KbLLcF9YxEl0MT893LOlU/erZSMAIDOMX9WwMWGxADL81IrjIpveSAoNjHvHzEFuV4gh
+         nkZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=DPU9Q6gwrzv94ZsGwUmEvxsph9n8pWTojpUV5jCNo9g=;
-        b=bk3ATjfdGi+utIcm8RNIcFr6+KElWKx/FuKGt0D9FkWdxUanzNsHBn3zVCYd3ROmP0
-         14ABOrClwyN06rkDlZd8XKBCQi1DgcweEpqtSLwNJMZGa9uCT6QhmjAhPSmd941Op5bU
-         a8A2sAwwaGJf5Ac89gkmRUD4D1KQjVibPXDHNa07OxWkc1YL8nazCQXphc0MfrvSPeoc
-         sTgoku8s9WfFy8V/4ULm3XigBVbjRE+iHc8C4JJ+mIPd8PrGFfvPouWw8ypi5/pEO9AM
-         U6yqfbgnY1ABjiZrybm2FC+mLKG8Tb4y3pxSq29EV25MGtP9ZPqVVoK+m2NepAXOoS1I
-         LIIA==
-X-Gm-Message-State: AOAM532m4AObX4SfVGPNlQ1Okk3fGZqBMsBvHFVwPJ4mYRYQRuQ/emlx
-        UYbYJAvfuq+IcqhGMxPeKZa651vb2oPof2XnsHHXpg==
-X-Google-Smtp-Source: ABdhPJwejZhCljL+LLqakBbwrTGTXpTO+OdismZ3LiT50zPXGdwTZH4aHAqnVF9FiNjqqYZRmChpMn/+9IW7gsqcQ4w=
-X-Received: by 2002:a05:6402:152:: with SMTP id s18mr40196473edu.221.1624978357112;
- Tue, 29 Jun 2021 07:52:37 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=VuuCdU8uAmKGBo8SImwfisVY2Ba0hcixfgMHcrixL7o=;
+        b=ZQiMF6vvcnqkWkRtq1cdsyweZz/FLiqPoAjn9yZVtb4ZMekdc4sYciBd18pXICYp0c
+         mW8d8F1zntS2eT+BpbHRUguUb7tidxKCxG/w6PRBgGJKj3LDBlj3uZtLwYV6wi6wZmw2
+         +OuYPseZLRnxcV55Q5iW/kBqhlrWQC0eQzlASLMzE4EkdEHPaZC6VFoGpZwlf9gzhcZt
+         LMvLcCo/PRPPHLp2D8znO+a+XjnHbQtZCeq0NBeWCAMD47dkHdE/SOmVMtpbQMSUtmm9
+         i0Vf++yPJj9vdZDw5R7GqLfr9MJMB+dp0pETAxiiEqfROdOBUqG9E9JNZ/wZypsL1QMC
+         E0ag==
+X-Gm-Message-State: AOAM530mF7uC/kkr1RHnTKQeS6CEH8VMPWSleHDr8e0GmNBVP9klRf6W
+        BzSrito44YQbTr1Z5qI6VAnd
+X-Google-Smtp-Source: ABdhPJzNywL9BPuI+wsO40c0iGHp9swihEt0eL3tAyyRzrd+pc0kOG4MJpi2KK1UBS2vhuxCv/2jxQ==
+X-Received: by 2002:a17:90a:390d:: with SMTP id y13mr43719932pjb.133.1624980503512;
+        Tue, 29 Jun 2021 08:28:23 -0700 (PDT)
+Received: from workstation ([120.138.12.32])
+        by smtp.gmail.com with ESMTPSA id cs1sm3420299pjb.56.2021.06.29.08.28.21
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 29 Jun 2021 08:28:22 -0700 (PDT)
+Date:   Tue, 29 Jun 2021 20:58:19 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Matthias Kaehlcke <mka@chromium.org>
+Cc:     bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, thara.gopinath@linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] soc: qcom: aoss: Fix the out of bound usage of
+ cooling_devs
+Message-ID: <20210629152819.GC3580@workstation>
+References: <20210628172741.16894-1-manivannan.sadhasivam@linaro.org>
+ <YNpVMvhEfrz9EqyO@google.com>
+ <20210629042558.GA3580@workstation>
+ <YNsrcHOf90rZl44z@google.com>
 MIME-Version: 1.0
-References: <20210628144256.34524-1-sashal@kernel.org>
-In-Reply-To: <20210628144256.34524-1-sashal@kernel.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 29 Jun 2021 20:22:25 +0530
-Message-ID: <CA+G9fYs1ExQAXQ8KfHAQ2HFTyjij0JV8H_yqnyjmBTY5BMYEbg@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/57] 4.4.274-rc1 review
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YNsrcHOf90rZl44z@google.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Jun 2021 at 20:16, Sasha Levin <sashal@kernel.org> wrote:
->
->
-> This is the start of the stable review cycle for the 4.4.274 release.
-> There are 57 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed 30 Jun 2021 02:42:54 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git/patch/?id=3Dlinux-4.4.y&id2=3Dv4.4.273
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> Thanks,
-> Sasha
+On Tue, Jun 29, 2021 at 07:17:20AM -0700, Matthias Kaehlcke wrote:
+> On Tue, Jun 29, 2021 at 09:55:58AM +0530, Manivannan Sadhasivam wrote:
+> > On Mon, Jun 28, 2021 at 04:03:14PM -0700, Matthias Kaehlcke wrote:
+> > 
+> > [...]
+> > 
+> > > 
+> > > 
+> > > A few more previous lines of code for context:
+> > > 
+> > >   int count = QMP_NUM_COOLING_RESOURCES;
+> > > 
+> > >   qmp->cooling_devs = devm_kcalloc(qmp->dev, count,
+> > >                                    sizeof(*qmp->cooling_devs),
+> > >                                    GFP_KERNEL);
+> > > 
+> > > I would suggest to initialize 'count' to 0 from the start and pass
+> > > QMP_NUM_COOLING_RESOURCES to devm_kcalloc() rather than 'count',
+> > > instead of resetting 'count' afterwards.
+> > 
+> > Yeah, I thought about it but the actual bug in the code is not resetting
+> > the count value to 0. So fixing this way seems a better option.
+> 
+> I don't agree that it's the better option. IMO it's clearer to pass
+> the constant QMP_NUM_COOLING_RESOURCES directly to devm_kcalloc(),
+> rather than giving the impression that the number of allocated items
+> is variable. Repurposing variables can be confusing and led to this
+> bug. Also the resulting code doesn't need to re-initialize 'count'.
 
+I don't dis-agree with you on this :) Let me send v2 incorporating the
+comments.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 4.4.274-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.4.y
-* git commit: 5429409d4e80dda1d9007a0212f7bc9686802783
-* git describe: v4.4.273-57-g5429409d4e80
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.y/build/v4.4.2=
-73-57-g5429409d4e80
-
-## No regressions (compared to v4.4.273-45-g39f2381bafbb)
-
-## No fixes (compared to v4.4.273-45-g39f2381bafbb)
-
-## Test result summary
- total: 23394, pass: 18219, fail: 152, skip: 4281, xfail: 742,
-
-## Build Summary
-* arm: 96 total, 96 passed, 0 failed
-* arm64: 23 total, 23 passed, 0 failed
-* i386: 13 total, 13 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 36 total, 36 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 13 total, 13 passed, 0 failed
-
-## Test suites summary
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-zram
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Thanks,
+Mani
