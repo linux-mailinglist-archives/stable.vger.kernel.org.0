@@ -2,111 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1783C3B73F9
-	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 16:11:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 822B93B741F
+	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 16:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229990AbhF2ONn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Jun 2021 10:13:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41778 "EHLO
+        id S234269AbhF2OTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Jun 2021 10:19:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233052AbhF2ONm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 10:13:42 -0400
-Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E42C061760;
-        Tue, 29 Jun 2021 07:11:14 -0700 (PDT)
-Received: by mail-ot1-x334.google.com with SMTP id h24-20020a9d64180000b029036edcf8f9a6so22780353otl.3;
-        Tue, 29 Jun 2021 07:11:14 -0700 (PDT)
+        with ESMTP id S234262AbhF2OTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 10:19:51 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114B7C061767
+        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 07:17:23 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id e20so18662783pgg.0
+        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 07:17:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=SDRI5SAWEYbyZFbcLOlnGR/Otk9unY8wQ0WSUowIuSE=;
-        b=liLtCV0Twjw/EqTjPwmXLyLVnyvZpA8iNoMkqf94/+lUTxSTXH9Hto7oMaR9xj+HJ3
-         LmuMr+AgdSoedIcZbPTT4OiJubHAaihS74dOF3H9HWjl0KMIu+ICnmsyxnZKZNkpVJGb
-         WMmjV8UE9B+++6T9jbQem4bN5nze/+3oaG1xppa2neMcvV7dLTFIts9Rmb2NMWvmosT5
-         TlvhmZZZG1b2HKlT6hiqTDy7B2DcK/sO2rDH9cNgCaUwp5IHERA3DOiGFa4KCbGlHIfb
-         nSOcEkcxl6Hp0EJMcKv7m+SZ4IrqDlq0Nki9kT2a8KBBpaij2rDeDqEPyRrM66Hkr6Y8
-         jj7w==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=IArjopqIDg6BvXPUtumLL/oLHZrtIdyh0yhSmO6KMNo=;
+        b=cSXVWRUqtGI4bt48bQhXvOSfa9n1a8ZVYjIKAmuyaD7HhtEWK/JRkJxuEABjXMi1ML
+         mc7fCb42mJqHKfQqiX/tFabnDwBmefDYamsO/YPKy4ULbt1CxNGwvEO1hxrwZB/n9b5S
+         uTydVdvwWi2zYRs9AM44OOgeS7jlr2PSBWWdg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=SDRI5SAWEYbyZFbcLOlnGR/Otk9unY8wQ0WSUowIuSE=;
-        b=fibkpBQsSJRMj5OpIt7taOBcb7pXkRJYxW150iG6syJpK7RArqcXW8mLrTYljvblfD
-         BgTgeO8238qtftPsrZX264VfgTitB42HoDfEOXDlje//zxxVFTXUzsqyrWp2w50NV5E6
-         H5IpH4ySp0AA+m9Buj9pnGxsIaPUdXAXhNb0slvHtesSGT5rVuNGGAnWR94fxWdiu036
-         Sdzfp8MRkdc1Fe2WgsldGz9koehp55LoorIF2NcaVLiPalcPFzhZ/6bx6xAZODTwakzF
-         iHdd+I5yFsd5xGZP4l4V43mgxTiLPBpJZMxWqh6EP0yV0x5oty34GGjEd4KBVEJ+Qu10
-         3R7Q==
-X-Gm-Message-State: AOAM533eXdaZBML5qBDl9r9JiDVCjr27MfKLBq0ndn3gKc+nfvCO+8L4
-        2gWPhYDwl0gYaaYPaLFkPlg=
-X-Google-Smtp-Source: ABdhPJxta3WThBijkDaUvKfG6kmxy821BFidaj8ylOKOB3fyyCoSLvdixoM1dt+WQV4JlKHsDsdv7A==
-X-Received: by 2002:a9d:80a:: with SMTP id 10mr4640988oty.192.1624975873315;
-        Tue, 29 Jun 2021 07:11:13 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y20sm2365720ots.23.2021.06.29.07.11.11
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=IArjopqIDg6BvXPUtumLL/oLHZrtIdyh0yhSmO6KMNo=;
+        b=iNdUDskXU4u7Fzl4J8WNH/Mumn/FDz71u8MAoL9yr31sZcoWrYYjmpoTse2gEHZf3d
+         Wcg05ZoZwr+9eaER7nlNuYkybyGbGJhm/cGDK8d5cu2Y84CQSkrcb8vGS8J/qXHrHleQ
+         K82gtTk+J9WWmco+T3a+gMq7ctFryBDgOenr3oK1d5cCjrLArIbATNZ8dbzRnTwY+pdb
+         SZ1Jkj4yOFkmDLwEedBh5A5R/1U3vbaPQjjK72tVhZA18S9RCK4XQSxZNpXbX8K0fRcy
+         m1K150sDHzuYbJjGPj3jUAwlx+Mk+6V60dkRj6eSvi0PmvgqNZuTO/IBuvT22eIJ4e2O
+         5QKQ==
+X-Gm-Message-State: AOAM532r2w0MVEoZBHbH68Ydc8obwqMvcIkuqoa3t/SMd8rG6VFNZk+U
+        ulw5I47N0RPdq/CKZJID2JK+1Q==
+X-Google-Smtp-Source: ABdhPJx7K8mQ3oTesZDtPCFys1fAQ5JZculaDZfoCHJ/pcLX1MXf9lej76mubPb12pVdVPxQsD3nwg==
+X-Received: by 2002:a63:3e0f:: with SMTP id l15mr15945191pga.23.1624976242641;
+        Tue, 29 Jun 2021 07:17:22 -0700 (PDT)
+Received: from localhost ([2620:15c:202:201:7cc8:c334:f56f:576d])
+        by smtp.gmail.com with UTF8SMTPSA id e1sm18333781pfd.16.2021.06.29.07.17.21
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 29 Jun 2021 07:11:12 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 4.9 00/71] 4.9.274-rc1 review
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        Tue, 29 Jun 2021 07:17:22 -0700 (PDT)
+Date:   Tue, 29 Jun 2021 07:17:20 -0700
+From:   Matthias Kaehlcke <mka@chromium.org>
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, thara.gopinath@linaro.org,
         stable@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org
-References: <20210628144003.34260-1-sashal@kernel.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <ecff1d13-9535-f12b-4efc-e214d7bd51e7@roeck-us.net>
-Date:   Tue, 29 Jun 2021 07:11:10 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+Subject: Re: [PATCH] soc: qcom: aoss: Fix the out of bound usage of
+ cooling_devs
+Message-ID: <YNsrcHOf90rZl44z@google.com>
+References: <20210628172741.16894-1-manivannan.sadhasivam@linaro.org>
+ <YNpVMvhEfrz9EqyO@google.com>
+ <20210629042558.GA3580@workstation>
 MIME-Version: 1.0
-In-Reply-To: <20210628144003.34260-1-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210629042558.GA3580@workstation>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/28/21 7:38 AM, Sasha Levin wrote:
+On Tue, Jun 29, 2021 at 09:55:58AM +0530, Manivannan Sadhasivam wrote:
+> On Mon, Jun 28, 2021 at 04:03:14PM -0700, Matthias Kaehlcke wrote:
 > 
-> This is the start of the stable review cycle for the 4.9.274 release.
-> There are 71 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> [...]
 > 
-> Responses should be made by Wed 30 Jun 2021 02:39:51 PM UTC.
-> Anything received after that time might be too late.
+> > 
+> > 
+> > A few more previous lines of code for context:
+> > 
+> >   int count = QMP_NUM_COOLING_RESOURCES;
+> > 
+> >   qmp->cooling_devs = devm_kcalloc(qmp->dev, count,
+> >                                    sizeof(*qmp->cooling_devs),
+> >                                    GFP_KERNEL);
+> > 
+> > I would suggest to initialize 'count' to 0 from the start and pass
+> > QMP_NUM_COOLING_RESOURCES to devm_kcalloc() rather than 'count',
+> > instead of resetting 'count' afterwards.
 > 
+> Yeah, I thought about it but the actual bug in the code is not resetting
+> the count value to 0. So fixing this way seems a better option.
 
-Build reference: v4.9.273-71-ga12e33370009
-gcc version: arc-elf-gcc (GCC) 10.3.0
-
-
-Building arc:tb10x_defconfig ... failed
---------------
-Error log:
-In file included from include/asm-generic/signal.h:10,
-                  from arch/arc/include/uapi/asm/signal.h:25,
-                  from include/uapi/linux/signal.h:4,
-                  from include/linux/signal.h:6,
-                  from include/linux/sched.h:37,
-                  from arch/arc/kernel/asm-offsets.c:9:
-arch/arc/include/uapi/asm/sigcontext.h:20:25: error: field 'v2abi' has incomplete type
-
----
-
-Building arcv2:defconfig ... failed
---------------
-Error log:
-In file included from include/asm-generic/signal.h:10,
-                  from arch/arc/include/uapi/asm/signal.h:25,
-                  from include/uapi/linux/signal.h:4,
-                  from include/linux/signal.h:6,
-                  from include/linux/sched.h:37,
-                  from arch/arc/kernel/asm-offsets.c:9:
-arch/arc/include/uapi/asm/sigcontext.h:20:25: error: field 'v2abi' has incomplete type
-
-Guenter
+I don't agree that it's the better option. IMO it's clearer to pass
+the constant QMP_NUM_COOLING_RESOURCES directly to devm_kcalloc(),
+rather than giving the impression that the number of allocated items
+is variable. Repurposing variables can be confusing and led to this
+bug. Also the resulting code doesn't need to re-initialize 'count'.
