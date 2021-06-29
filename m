@@ -2,91 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B2B3B6D9B
-	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 06:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5241F3B6DD1
+	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 07:04:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229622AbhF2E2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Jun 2021 00:28:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52852 "EHLO
+        id S229792AbhF2FGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Jun 2021 01:06:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229517AbhF2E2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 00:28:30 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1751FC061574
-        for <stable@vger.kernel.org>; Mon, 28 Jun 2021 21:26:03 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id q91so351794pjk.3
-        for <stable@vger.kernel.org>; Mon, 28 Jun 2021 21:26:03 -0700 (PDT)
+        with ESMTP id S229480AbhF2FGg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 01:06:36 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D9DC061574
+        for <stable@vger.kernel.org>; Mon, 28 Jun 2021 22:04:08 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id l11so11640889pji.5
+        for <stable@vger.kernel.org>; Mon, 28 Jun 2021 22:04:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=9Mv1hXNnZzD23y7DKDXFCUL2Q/g72yLCDWXSEXlIRgc=;
-        b=Esp829CCH1PuwpOymHn7E7OTRNjAZHod05d0GEqXe863S7ReRl2zFVtBoPfr2EzYGu
-         51Sqi1hoA/OEPCCyNsRxhQ2WcElHLzjbwPJgyu8ycT4w4rvbgoLIyy5BoJSLvl86rv9g
-         Fvz/bx14EFJvNkUAVb74kBkPKDddHQzImmzUdMNrC2o1faYniyQLsL31t8Y5pBmT1hr2
-         UufSy+Vil0tOhNbZmOc04vOrKD8C7EtGSGSmoS05ECfH15JwP1cbfRZi3ab/UlBwLxTe
-         Dpq32HtuxiTXkBtBul/t2LnIYW3Kd77t8M4TMk15cIrTgNHqCHdLY3zGvj35VbEfC/QD
-         7Sdw==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=mrGNIXYlkF5K/oGK2d2isVBgqRmzvCLsBVQfr88Rjr8=;
+        b=HahzQXzNekb5e9HwiGse8c6y+IkYPuAY+WNLhohXHcUilyf0ED15YIAWAokZ4Cug7m
+         jvG9qf75i1yJ7oaraR9v4b14VcIaTDmOao4LIH27XW+6dMNgLm3xnJvHzK50A1Rvb9Wk
+         oaN8KGtkYePYLPMpVRqea6G7eE00CWIWcc9x3U8qve9uCF6gFJ/n3qJnlYw2u1mMjR/g
+         9Z2FkvXUiFXKBRFtLrxyhFdUZzesCQhwgN6vtGKoQZcwlkWd2CB94ZsI+9bGAJhk6+7Q
+         Dr66dxgNRdSJvt3oSw6D2Q1DGYM3p8K0o4rePhiuAVsHSP8focO3GfaLVU4byLIu5yiu
+         oGbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=9Mv1hXNnZzD23y7DKDXFCUL2Q/g72yLCDWXSEXlIRgc=;
-        b=GreYqdN9LCG8ueuAgnVBcmDMZsvgtqf9JPyWu678iHsmxjH/uKjMg7U+EoPjl/igOm
-         7Qd/bovcCh2ljW3yggQBM6FQ1umbwHawHdNTk0FFRWdkcuHW33hQJBZSV8gy+7hEZYdx
-         co8QoAGtlJZjCJcrpcX1AqTF4/YtK9d/XMNbYmWayym7UjUANXnxl/dz9T4rdhK8BclW
-         7QsbgN0QaK4xDMJbmSieSW9MYlHpcWkPoJlXFKt+fVVsLT+3erHCMAZD3gx/dNCdru/y
-         rwDt+kg0sdLvqlI5Qs3+zWnWpiWsbEyF5o0Z8xMYqp0zU6ESA4YVkyjvI2HwgxGcg4XM
-         1jzA==
-X-Gm-Message-State: AOAM532PK188+BsULi1QeFbd/LeTM9z+R7Y+DxoX4C2AfNqqLABOkYfO
-        lZMRUXFmxfXx7Ay+38pfl0kY
-X-Google-Smtp-Source: ABdhPJwk6bQ+0eUyJC0EO3pZiT41ajJqG7DFEtayr7QChFiJLZJPlVPRzjvoNsJGY4/56R1ygHEx6Q==
-X-Received: by 2002:a17:90a:5406:: with SMTP id z6mr41126480pjh.61.1624940762599;
-        Mon, 28 Jun 2021 21:26:02 -0700 (PDT)
-Received: from workstation ([120.138.12.32])
-        by smtp.gmail.com with ESMTPSA id u13sm3341334pfi.54.2021.06.28.21.26.00
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 28 Jun 2021 21:26:02 -0700 (PDT)
-Date:   Tue, 29 Jun 2021 09:55:58 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Matthias Kaehlcke <mka@chromium.org>
-Cc:     bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, thara.gopinath@linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] soc: qcom: aoss: Fix the out of bound usage of
- cooling_devs
-Message-ID: <20210629042558.GA3580@workstation>
-References: <20210628172741.16894-1-manivannan.sadhasivam@linaro.org>
- <YNpVMvhEfrz9EqyO@google.com>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=mrGNIXYlkF5K/oGK2d2isVBgqRmzvCLsBVQfr88Rjr8=;
+        b=G+4aP9ih2/QMMdZUw0tuyFen9ZIghPwwzr5pCVrij0Jz3TjW7cFW/MZxAffgU+B1By
+         1+iZv9lngtv7QlfB/GYGxkb23ZTWoBIZJhXdMaUpMdJ7WvEcx3gyYE/ohtt81AQEl7ip
+         fjMDEBRPK/B0CWalVt89TYVA5ULEdSprBH+AWj7GkHCjz1o8Cp5d29sdutoJKvKg3yvc
+         g8NdFZan4V9RbXydU9rlq4HMtb/gNBXNofE6aTdQJFQ5/1BqHOLSCCmO3pKcR/UBFs9u
+         JQgyFI9N30j01zfHtzgAO4TKxPvy11w6B/+VvWzgqRe4m/NZQclH5Y8mfItEbizwM8rS
+         hfKA==
+X-Gm-Message-State: AOAM532vFhGCxc2u3FClnyQI3p6pr5oamF+BFm9Iq4zCdgQ+JdV6l2p6
+        W38fQaTxPjQ180PiaIf6+VJR6vDTwWhyP3PQpU4=
+X-Google-Smtp-Source: ABdhPJxRA6IamQ5P0smpvKADx3aA1anigJWAjlmptw9h/PfhmRU5axfNtvPGMGB9dbg/SkkLijkDCfv0GB59Ir3HfV4=
+X-Received: by 2002:a17:90a:fa92:: with SMTP id cu18mr6946767pjb.215.1624943048328;
+ Mon, 28 Jun 2021 22:04:08 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YNpVMvhEfrz9EqyO@google.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Received: by 2002:a17:90a:650a:0:0:0:0 with HTTP; Mon, 28 Jun 2021 22:04:07
+ -0700 (PDT)
+Reply-To: ayishagddafio@mail.ru
+From:   AISHA GADDAFI <mrmusakabore13@gmail.com>
+Date:   Mon, 28 Jun 2021 22:04:07 -0700
+Message-ID: <CAJ-siTqFNQTOTkW1zhVfzHZ50-Am6Ck==iY2vE-aSrJxaMXpMg@mail.gmail.com>
+Subject: Dearest Friend,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 28, 2021 at 04:03:14PM -0700, Matthias Kaehlcke wrote:
+Liebster Freund,
 
-[...]
+Im Namen Gottes, des gn=C3=A4digsten, barmherzigsten.
 
-> 
-> 
-> A few more previous lines of code for context:
-> 
->   int count = QMP_NUM_COOLING_RESOURCES;
-> 
->   qmp->cooling_devs = devm_kcalloc(qmp->dev, count,
->                                    sizeof(*qmp->cooling_devs),
->                                    GFP_KERNEL);
-> 
-> I would suggest to initialize 'count' to 0 from the start and pass
-> QMP_NUM_COOLING_RESOURCES to devm_kcalloc() rather than 'count',
-> instead of resetting 'count' afterwards.
+Friede sei mit dir und Barmherzigkeit sei mit dir und Segen sei mit dir.
+Ich habe die Summe von 27,5 Millionen USD f=C3=BCr Investitionen, ich
+interessiere mich f=C3=BCr Sie f=C3=BCr die Unterst=C3=BCtzung von
+Investitionsprojekten in Ihrem Land. Mein Name ist Aisha Gaddafi und
+lebe derzeit im Oman, ich bin eine Witwe und alleinerziehende Mutter
+mit drei Kindern, die einzige leibliche Tochter des verstorbenen
+libyschen Pr=C3=A4sidenten (dem verstorbenen Oberst Muammar Gaddafi) und
+stehe derzeit unter politischem Asylschutz der omanischen Regierung.
 
-Yeah, I thought about it but the actual bug in the code is not resetting
-the count value to 0. So fixing this way seems a better option.
+Bitte antworten Sie dringend f=C3=BCr weitere Details.
 
-Thanks,
-Mani
+Vielen Dank
+Mit freundlichen Gr=C3=BC=C3=9Fen Aisha
+
+
+Dearest Friend,
+
+In the name of God, Most Gracious, Most Merciful.
+
+Peace be upon you and mercy be upon you and blessings be upon you.
+I have the sum of $27.5 million USD for investment, I am interested in
+you for investment project assistance in your country. My name is
+Aisha  Gaddafi and presently living in Oman, I am a Widow and single
+Mother with three Children, the only biological Daughter of late
+Libyan President (Late Colonel Muammar Gaddafi) and presently I am
+under political asylum protection by the Omani Government.
+
+Kindly reply urgently for more details.
+
+Thanks
+Yours Truly Aisha
