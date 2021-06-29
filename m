@@ -2,195 +2,256 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D91CA3B6C82
-	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 04:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA1553B6C83
+	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 04:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231350AbhF2Cfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Jun 2021 22:35:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56594 "EHLO mail.kernel.org"
+        id S231536AbhF2Cfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Jun 2021 22:35:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230152AbhF2Cfv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Jun 2021 22:35:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8620461CEF;
-        Tue, 29 Jun 2021 02:33:23 +0000 (UTC)
+        id S230152AbhF2Cfy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Jun 2021 22:35:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A93AB61CCA;
+        Tue, 29 Jun 2021 02:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1624934003;
-        bh=2BK385grdXPQaDmjglunI40ekSMZ9yoQy40WnQ4N2bc=;
+        s=korg; t=1624934007;
+        bh=pbbYAV4ZKm0JuWuSHuMQGVrJr1txisKGxhNjLWI9r2I=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=wceDGRyms9lDAWf5hMPpEpiWcxJwN6F1fEE7Nq7EEQXm2UnysVBTfUJn0dsQydVxC
-         UQFiAMmHNXUS0ENpj4E0KBISjWSDP8wumBu4gxNFEiQGfvVmRP1aLsFyDakz1PLHcV
-         yE5LTfrfNs7UQbwsiD76eqDUeJiYOWwEERpxrMFM=
-Date:   Mon, 28 Jun 2021 19:33:23 -0700
+        b=UMv/odjXvshSwGWPi0Dery3mCPfqLr4KpqiC7O0zHblxy+CpJtZyZ+JiyCk7S9oGO
+         rk8bAhh5xQd45vVhHCJII29w/Wf06xYPTpKUdH2o6wWTEnk9SkY2R6z2OCqBnIjsAC
+         4MeDrwon8J4NOQfE5utDNAVVi6N5hr0S8/ZGgcnk=
+Date:   Mon, 28 Jun 2021 19:33:26 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, jack@suse.cz, jannh@google.com,
-        jhubbard@nvidia.com, kirill@shutemov.name, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, willy@infradead.org
-Subject:  [patch 001/192] mm/gup: fix try_grab_compound_head() race
- with split_huge_page()
-Message-ID: <20210629023323.iLF4YuI6F%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, bhe@redhat.com, bp@alien8.de,
+        david@redhat.com, linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        robert.shteynfeld@gmail.com, rppt@linux.ibm.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        vbabka@suse.cz
+Subject:  [patch 002/192] mm/page_alloc: fix memory map
+ initialization for descending nodes
+Message-ID: <20210629023326.bOcAMqu3H%akpm@linux-foundation.org>
 In-Reply-To: <20210628193256.008961950a714730751c1423@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
-Subject: mm/gup: fix try_grab_compound_head() race with split_huge_page()
+From: Mike Rapoport <rppt@linux.ibm.com>
+Subject: mm/page_alloc: fix memory map initialization for descending nodes
 
-try_grab_compound_head() is used to grab a reference to a page from
-get_user_pages_fast(), which is only protected against concurrent freeing
-of page tables (via local_irq_save()), but not against concurrent TLB
-flushes, freeing of data pages, or splitting of compound pages.
+On systems with memory nodes sorted in descending order, for instance Dell
+Precision WorkStation T5500, the struct pages for higher PFNs and
+respectively lower nodes, could be overwritten by the initialization of
+struct pages corresponding to the holes in the memory sections.
 
-Because no reference is held to the page when try_grab_compound_head() is
-called, the page may have been freed and reallocated by the time its
-refcount has been elevated; therefore, once we're holding a stable
-reference to the page, the caller re-checks whether the PTE still points
-to the same page (with the same access rights).
+For example for the below memory layout
 
-The problem is that try_grab_compound_head() has to grab a reference on
-the head page; but between the time we look up what the head page is and
-the time we actually grab a reference on the head page, the compound page
-may have been split up (either explicitly through split_huge_page() or by
-freeing the compound page to the buddy allocator and then allocating its
-individual order-0 pages).  If that happens, get_user_pages_fast() may end
-up returning the right page but lifting the refcount on a now-unrelated
-page, leading to use-after-free of pages.
+[    0.245624] Early memory node ranges
+[    0.248496]   node   1: [mem 0x0000000000001000-0x0000000000090fff]
+[    0.251376]   node   1: [mem 0x0000000000100000-0x00000000dbdf8fff]
+[    0.254256]   node   1: [mem 0x0000000100000000-0x0000001423ffffff]
+[    0.257144]   node   0: [mem 0x0000001424000000-0x0000002023ffffff]
 
-To fix it: Re-check whether the pages still belong together after lifting
-the refcount on the head page.  Move anything else that checks
-compound_head(page) below the refcount increment.
+the range 0x1424000000 - 0x1428000000 in the beginning of node 0 starts in
+the middle of a section and will be considered as a hole during the
+initialization of the last section in node 1.
 
-This can't actually happen on bare-metal x86 (because there, disabling
-IRQs locks out remote TLB flushes), but it can happen on virtualized x86
-(e.g.  under KVM) and probably also on arm64.  The race window is pretty
-narrow, and constantly allocating and shattering hugepages isn't exactly
-fast; for now I've only managed to reproduce this in an x86 KVM guest with
-an artificially widened timing window (by adding a loop that repeatedly
-calls `inl(0x3f8 + 5)` in `try_get_compound_head()` to force VM exits, so
-that PV TLB flushes are used instead of IPIs).
+The wrong initialization of the memory map causes panic on boot when
+CONFIG_DEBUG_VM is enabled.
 
-As requested on the list, also replace the existing VM_BUG_ON_PAGE() with
-a warning and bailout.  Since the existing code only performed the BUG_ON
-check on DEBUG_VM kernels, ensure that the new code also only performs the
-check under that configuration - I don't want to mix two logically
-separate changes together too much.  The macro VM_WARN_ON_ONCE_PAGE()
-doesn't return a value on !DEBUG_VM, so wrap the whole check in an #ifdef
-block.  An alternative would be to change the VM_WARN_ON_ONCE_PAGE()
-definition for !DEBUG_VM such that it always returns false, but since that
-would differ from the behavior of the normal WARN macros, it might be too
-confusing for readers.
+Reorder loop order of the memory map initialization so that the outer loop
+will always iterate over populated memory regions in the ascending order
+and the inner loop will select the zone corresponding to the PFN range.
 
-Link: https://lkml.kernel.org/r/20210615012014.1100672-1-jannh@google.com
-Fixes: 7aef4172c795 ("mm: handle PTE-mapped tail pages in gerneric fast gup implementaiton")
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Jan Kara <jack@suse.cz>
+This way initialization of the struct pages for the memory holes will be
+always done for the ranges that are actually not populated.
+
+[akpm@linux-foundation.org: coding style fixes]
+Link: https://lkml.kernel.org/r/YNXlMqBbL+tBG7yq@kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213073
+Link: https://lkml.kernel.org/r/20210624062305.10940-1-rppt@kernel.org
+Fixes: 0740a50b9baa ("mm/page_alloc.c: refactor initialization of struct page for holes in memory layout")
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Boris Petkov <bp@alien8.de>
+Cc: Robert Shteynfeld <robert.shteynfeld@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Hildenbrand <david@redhat.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/gup.c |   58 +++++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 43 insertions(+), 15 deletions(-)
+ include/linux/mm.h |    1 
+ mm/page_alloc.c    |   96 ++++++++++++++++++++++++++-----------------
+ 2 files changed, 59 insertions(+), 38 deletions(-)
 
---- a/mm/gup.c~mm-gup-fix-try_grab_compound_head-race-with-split_huge_page
-+++ a/mm/gup.c
-@@ -44,6 +44,23 @@ static void hpage_pincount_sub(struct pa
- 	atomic_sub(refs, compound_pincount_ptr(page));
- }
+--- a/include/linux/mm.h~mm-page_alloc-fix-memory-map-initialization-for-descending-nodes
++++ a/include/linux/mm.h
+@@ -2474,7 +2474,6 @@ extern void set_dma_reserve(unsigned lon
+ extern void memmap_init_range(unsigned long, int, unsigned long,
+ 		unsigned long, unsigned long, enum meminit_context,
+ 		struct vmem_altmap *, int migratetype);
+-extern void memmap_init_zone(struct zone *zone);
+ extern void setup_per_zone_wmarks(void);
+ extern int __meminit init_per_zone_wmark_min(void);
+ extern void mem_init(void);
+--- a/mm/page_alloc.c~mm-page_alloc-fix-memory-map-initialization-for-descending-nodes
++++ a/mm/page_alloc.c
+@@ -6400,7 +6400,7 @@ void __ref memmap_init_zone_device(struc
+ 		return;
  
-+/* Equivalent to calling put_page() @refs times. */
-+static void put_page_refs(struct page *page, int refs)
-+{
-+#ifdef CONFIG_DEBUG_VM
-+	if (VM_WARN_ON_ONCE_PAGE(page_ref_count(page) < refs, page))
-+		return;
-+#endif
-+
-+	/*
-+	 * Calling put_page() for each ref is unnecessarily slow. Only the last
-+	 * ref needs a put_page().
-+	 */
-+	if (refs > 1)
-+		page_ref_sub(page, refs - 1);
-+	put_page(page);
-+}
-+
+ 	/*
+-	 * The call to memmap_init_zone should have already taken care
++	 * The call to memmap_init should have already taken care
+ 	 * of the pages reserved for the memmap, so we can just jump to
+ 	 * the end of that region and start processing the device pages.
+ 	 */
+@@ -6465,7 +6465,7 @@ static void __meminit zone_init_free_lis
  /*
-  * Return the compound head page with ref appropriately incremented,
-  * or NULL if that failed.
-@@ -56,6 +73,21 @@ static inline struct page *try_get_compo
- 		return NULL;
- 	if (unlikely(!page_cache_add_speculative(head, refs)))
- 		return NULL;
-+
-+	/*
-+	 * At this point we have a stable reference to the head page; but it
-+	 * could be that between the compound_head() lookup and the refcount
-+	 * increment, the compound page was split, in which case we'd end up
-+	 * holding a reference on a page that has nothing to do with the page
-+	 * we were given anymore.
-+	 * So now that the head page is stable, recheck that the pages still
-+	 * belong together.
-+	 */
-+	if (unlikely(compound_head(page) != head)) {
-+		put_page_refs(head, refs);
-+		return NULL;
-+	}
-+
- 	return head;
- }
- 
-@@ -96,6 +128,14 @@ __maybe_unused struct page *try_grab_com
- 			return NULL;
- 
- 		/*
-+		 * CAUTION: Don't use compound_head() on the page before this
-+		 * point, the result won't be stable.
-+		 */
-+		page = try_get_compound_head(page, refs);
-+		if (!page)
-+			return NULL;
-+
-+		/*
- 		 * When pinning a compound page of order > 1 (which is what
- 		 * hpage_pincount_available() checks for), use an exact count to
- 		 * track it, via hpage_pincount_add/_sub().
-@@ -103,15 +143,10 @@ __maybe_unused struct page *try_grab_com
- 		 * However, be sure to *also* increment the normal page refcount
- 		 * field at least once, so that the page really is pinned.
- 		 */
--		if (!hpage_pincount_available(page))
--			refs *= GUP_PIN_COUNTING_BIAS;
--
--		page = try_get_compound_head(page, refs);
--		if (!page)
--			return NULL;
--
- 		if (hpage_pincount_available(page))
- 			hpage_pincount_add(page, refs);
-+		else
-+			page_ref_add(page, refs * (GUP_PIN_COUNTING_BIAS - 1));
- 
- 		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_ACQUIRED,
- 				    orig_refs);
-@@ -135,14 +170,7 @@ static void put_compound_head(struct pag
- 			refs *= GUP_PIN_COUNTING_BIAS;
+  * Only struct pages that correspond to ranges defined by memblock.memory
+  * are zeroed and initialized by going through __init_single_page() during
+- * memmap_init_zone().
++ * memmap_init_zone_range().
+  *
+  * But, there could be struct pages that correspond to holes in
+  * memblock.memory. This can happen because of the following reasons:
+@@ -6484,9 +6484,9 @@ static void __meminit zone_init_free_lis
+  *   zone/node above the hole except for the trailing pages in the last
+  *   section that will be appended to the zone/node below.
+  */
+-static u64 __meminit init_unavailable_range(unsigned long spfn,
+-					    unsigned long epfn,
+-					    int zone, int node)
++static void __init init_unavailable_range(unsigned long spfn,
++					  unsigned long epfn,
++					  int zone, int node)
+ {
+ 	unsigned long pfn;
+ 	u64 pgcnt = 0;
+@@ -6502,56 +6502,77 @@ static u64 __meminit init_unavailable_ra
+ 		pgcnt++;
  	}
  
--	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
--	/*
--	 * Calling put_page() for each ref is unnecessarily slow. Only the last
--	 * ref needs a put_page().
--	 */
--	if (refs > 1)
--		page_ref_sub(page, refs - 1);
--	put_page(page);
-+	put_page_refs(page, refs);
+-	return pgcnt;
++	if (pgcnt)
++		pr_info("On node %d, zone %s: %lld pages in unavailable ranges",
++			node, zone_names[zone], pgcnt);
+ }
+ #else
+-static inline u64 init_unavailable_range(unsigned long spfn, unsigned long epfn,
+-					 int zone, int node)
++static inline void init_unavailable_range(unsigned long spfn,
++					  unsigned long epfn,
++					  int zone, int node)
+ {
+-	return 0;
+ }
+ #endif
+ 
+-void __meminit __weak memmap_init_zone(struct zone *zone)
++static void __init memmap_init_zone_range(struct zone *zone,
++					  unsigned long start_pfn,
++					  unsigned long end_pfn,
++					  unsigned long *hole_pfn)
+ {
+ 	unsigned long zone_start_pfn = zone->zone_start_pfn;
+ 	unsigned long zone_end_pfn = zone_start_pfn + zone->spanned_pages;
+-	int i, nid = zone_to_nid(zone), zone_id = zone_idx(zone);
+-	static unsigned long hole_pfn;
++	int nid = zone_to_nid(zone), zone_id = zone_idx(zone);
++
++	start_pfn = clamp(start_pfn, zone_start_pfn, zone_end_pfn);
++	end_pfn = clamp(end_pfn, zone_start_pfn, zone_end_pfn);
++
++	if (start_pfn >= end_pfn)
++		return;
++
++	memmap_init_range(end_pfn - start_pfn, nid, zone_id, start_pfn,
++			  zone_end_pfn, MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
++
++	if (*hole_pfn < start_pfn)
++		init_unavailable_range(*hole_pfn, start_pfn, zone_id, nid);
++
++	*hole_pfn = end_pfn;
++}
++
++static void __init memmap_init(void)
++{
+ 	unsigned long start_pfn, end_pfn;
+-	u64 pgcnt = 0;
++	unsigned long hole_pfn = 0;
++	int i, j, zone_id, nid;
+ 
+-	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
+-		start_pfn = clamp(start_pfn, zone_start_pfn, zone_end_pfn);
+-		end_pfn = clamp(end_pfn, zone_start_pfn, zone_end_pfn);
++	for_each_mem_pfn_range(i, MAX_NUMNODES, &start_pfn, &end_pfn, &nid) {
++		struct pglist_data *node = NODE_DATA(nid);
++
++		for (j = 0; j < MAX_NR_ZONES; j++) {
++			struct zone *zone = node->node_zones + j;
++
++			if (!populated_zone(zone))
++				continue;
+ 
+-		if (end_pfn > start_pfn)
+-			memmap_init_range(end_pfn - start_pfn, nid,
+-					zone_id, start_pfn, zone_end_pfn,
+-					MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
+-
+-		if (hole_pfn < start_pfn)
+-			pgcnt += init_unavailable_range(hole_pfn, start_pfn,
+-							zone_id, nid);
+-		hole_pfn = end_pfn;
++			memmap_init_zone_range(zone, start_pfn, end_pfn,
++					       &hole_pfn);
++			zone_id = j;
++		}
+ 	}
+ 
+ #ifdef CONFIG_SPARSEMEM
+ 	/*
+-	 * Initialize the hole in the range [zone_end_pfn, section_end].
+-	 * If zone boundary falls in the middle of a section, this hole
+-	 * will be re-initialized during the call to this function for the
+-	 * higher zone.
++	 * Initialize the memory map for hole in the range [memory_end,
++	 * section_end].
++	 * Append the pages in this hole to the highest zone in the last
++	 * node.
++	 * The call to init_unavailable_range() is outside the ifdef to
++	 * silence the compiler warining about zone_id set but not used;
++	 * for FLATMEM it is a nop anyway
+ 	 */
+-	end_pfn = round_up(zone_end_pfn, PAGES_PER_SECTION);
++	end_pfn = round_up(end_pfn, PAGES_PER_SECTION);
+ 	if (hole_pfn < end_pfn)
+-		pgcnt += init_unavailable_range(hole_pfn, end_pfn,
+-						zone_id, nid);
+ #endif
+-
+-	if (pgcnt)
+-		pr_info("  %s zone: %llu pages in unavailable ranges\n",
+-			zone->name, pgcnt);
++		init_unavailable_range(hole_pfn, end_pfn, zone_id, nid);
  }
  
- /**
+ static int zone_batchsize(struct zone *zone)
+@@ -7254,7 +7275,6 @@ static void __init free_area_init_core(s
+ 		set_pageblock_order();
+ 		setup_usemap(zone);
+ 		init_currently_empty_zone(zone, zone->zone_start_pfn, size);
+-		memmap_init_zone(zone);
+ 	}
+ }
+ 
+@@ -7780,6 +7800,8 @@ void __init free_area_init(unsigned long
+ 			node_set_state(nid, N_MEMORY);
+ 		check_for_memory(pgdat, nid);
+ 	}
++
++	memmap_init();
+ }
+ 
+ static int __init cmdline_parse_core(char *p, unsigned long *core,
 _
