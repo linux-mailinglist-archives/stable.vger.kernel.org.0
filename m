@@ -2,237 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 780573B6EC0
-	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 09:29:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C9E3B6F11
+	for <lists+stable@lfdr.de>; Tue, 29 Jun 2021 10:09:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232138AbhF2HcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Jun 2021 03:32:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36548 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232221AbhF2HcC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 03:32:02 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2944CC061760
-        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 00:29:35 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id o5so9612695ejy.7
-        for <stable@vger.kernel.org>; Tue, 29 Jun 2021 00:29:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=03PV4K48V6c5/R86L70XCFhcKvRTMy+AXQxfxuAmtVE=;
-        b=L7KJevzhmo86xhp86Z6zI9rdQnlmfbzYjTFcsW7ijmWlCiKdt1qwKek4x8Phd7cBq8
-         vA4JSMGA8kDeKz2Aur4Tr2la+iQS9pgt9LwpoSSPoZgs2XcJq3PJt1aB3JUkAJ5AL9yz
-         XwLAZXCSwVL0+XOqtGb8W32rhUxH8KLkJy9uwGxVWMoi9bArHJssX+04Dkf/uGjKzcIL
-         F+qoaG927E5Q2tlNcpjXc3MMbwcLYiAqr33ajjzUcmKL3eLqenOf000Fd/4x8oyNdHeJ
-         v2/Y+OdgHuk09vY6vetsU+/0gKYgCcbIfKHJXVfnQQA2KkivKZZAbMb2rJwpYU2aougb
-         6zoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=03PV4K48V6c5/R86L70XCFhcKvRTMy+AXQxfxuAmtVE=;
-        b=D5RE+ouD+b1MuwV0AZucHvWnHbFDdyzYch57g77uUAQLoHkBcekLF6SSvb+6hAdW+2
-         rvGkjN/MeYhGWyCJpwPxFfSvrek+XGGT2sMi32RbvCoK4Z/HPKBX5eKCln278AhTOcwY
-         S4oX42JqbwL8Ajjot/fXhJKWxexozBoa21/9ybFJLzkWT7QhhZ3jR+PMGMcOJTO0h4zE
-         1JSl4lhX3htq1UevknoDHkjj+xktR2RTzBH140rXlrpWglh2JWU6SNYc5UV9o6kgL5pM
-         dCYYOO9fkrI7Ezds/Qt0sx9Hkersb0pvlQKp4xvA1FIvcaJJGl8Nms3gmkfIah6LBxft
-         hXyw==
-X-Gm-Message-State: AOAM530HIyZScOfSd6xOxHDbzwEFcwAuPSfNAtTbAjdcEACm/kk+if7d
-        fJ4LvUpZ7/O0D2LyX5tPfjTwTLswPS/Dv6+AOMB6UA==
-X-Google-Smtp-Source: ABdhPJx13l3BNeNDnbsxjk6VQ2Yn4sEnRVmUSxU/d4gNvrl3CB2QGvLbfV9KGmcEKC1EgyqpkmEhbk6SjxccEe82sl0=
-X-Received: by 2002:a17:906:25db:: with SMTP id n27mr27747079ejb.170.1624951773414;
- Tue, 29 Jun 2021 00:29:33 -0700 (PDT)
+        id S232327AbhF2ILV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Jun 2021 04:11:21 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31516 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232272AbhF2ILV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Jun 2021 04:11:21 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 15T84FU4073675;
+        Tue, 29 Jun 2021 04:08:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=RsIMVnamhB6FYa7FfF0w4uQRw+Kcw3nQxnVdRE1/Fv4=;
+ b=Lst/v2MLPzGLS81nSf7dPD3ptWkhy65uSDp30t/ejUH4GOrNf3Tvi2It5zcdul33J3TQ
+ E+C3TN0yD3uFZfqIiVSqfrxEhhZTP3VS4xRkhxS/XobQeCqvLBx/OBv6KWqwOf0fAH4x
+ E+uCcs7Wuqqu/R5RAbeW4fuENENIK29kDOJ4ZjomiTIv1KR3+naE8CFUgxXQItjajUTI
+ 3mX5bMkifhOgWjAmS4QEgjJfaWAq8IFYnX3t79wPYbP8PsYVNwDZlfld8gyNKGlH1acY
+ yXEnQAQ08LPRi9TGOmx2sxVI9N2xSjTN1x5Ad1UCyY/0WS3bCMnQuccZAfz2OkdMfYkK mA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39fv03wc34-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Jun 2021 04:08:44 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 15T869hB084165;
+        Tue, 29 Jun 2021 04:08:43 -0400
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39fv03wc2j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Jun 2021 04:08:43 -0400
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 15T86NDG021853;
+        Tue, 29 Jun 2021 08:08:42 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma02dal.us.ibm.com with ESMTP id 39duvbwbpr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Jun 2021 08:08:42 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 15T88f1M27263300
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 29 Jun 2021 08:08:41 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 503996E090;
+        Tue, 29 Jun 2021 08:08:41 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 828826E05B;
+        Tue, 29 Jun 2021 08:08:35 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.199.45.57])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 29 Jun 2021 08:08:35 +0000 (GMT)
+Subject: Re: [PATCH] fpga: dfl: fme: Fix cpu hotplug issue in performance
+ reporting
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     will@kernel.org, hao.wu@intel.com, mark.rutland@arm.com,
+        trix@redhat.com, yilun.xu@intel.com, mdf@kernel.org,
+        linux-fpga@vger.kernel.org, maddy@linux.vnet.ibm.com,
+        atrajeev@linux.vnet.ibm.com, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, rnsastry@linux.ibm.com,
+        linux-perf-users@vger.kernel.org, stable@vger.kernel.org
+References: <20210628101721.188991-1-kjain@linux.ibm.com>
+ <adc3b013-d39b-a183-dfce-86ca857949b8@linux.ibm.com>
+ <YNrLRLyyUeDemxTS@kroah.com>
+From:   kajoljain <kjain@linux.ibm.com>
+Message-ID: <8a70f71a-f75c-427b-cf6a-b63bf7682f36@linux.ibm.com>
+Date:   Tue, 29 Jun 2021 13:38:33 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
+In-Reply-To: <YNrLRLyyUeDemxTS@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: hetGeLcYCXc8AdjqHgud-38bTHz1rVQn
+X-Proofpoint-GUID: q5oo3cYrBGcZjkPfLbOJVvffHymg3jFJ
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-References: <20210628142607.32218-1-sashal@kernel.org>
-In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 29 Jun 2021 12:59:22 +0530
-Message-ID: <CA+G9fYuVhXzNGuk+Gp+PSGdRyqbXCJG2d98inqF2wqH3jNHprg@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/101] 5.10.47-rc1 review
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-06-29_02:2021-06-25,2021-06-29 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
+ impostorscore=0 priorityscore=1501 malwarescore=0 bulkscore=0
+ clxscore=1015 phishscore=0 lowpriorityscore=0 mlxlogscore=914 adultscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2106290056
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Jun 2021 at 19:56, Sasha Levin <sashal@kernel.org> wrote:
->
->
-> This is the start of the stable review cycle for the 5.10.47 release.
-> There are 101 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed 30 Jun 2021 02:25:36 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git/patch/?id=3Dlinux-5.10.y&id2=3Dv5.10.46
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> Thanks,
-> Sasha
-
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 5.10.47-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.10.y
-* git commit: a41d5119dc1eec2f0ffaa0a1777b0218a76b9f0e
-* git describe: v5.10.46-101-ga41d5119dc1e
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.46-101-ga41d5119dc1e
-
-## No regressions (compared to v5.10.46-13-g88b257611f2a)
 
 
-## No fixes (compared to v5.10.46-13-g88b257611f2a)
+On 6/29/21 12:57 PM, Greg KH wrote:
+> On Tue, Jun 29, 2021 at 12:45:20PM +0530, kajoljain wrote:
+>>
+>>
+>> On 6/28/21 3:47 PM, Kajol Jain wrote:
+>>> The performance reporting driver added cpu hotplug
+>>> feature but it didn't add pmu migration call in cpu
+>>> offline function.
+>>> This can create an issue incase the current designated
+>>> cpu being used to collect fme pmu data got offline,
+>>> as based on current code we are not migrating fme pmu to
+>>> new target cpu. Because of that perf will still try to
+>>> fetch data from that offline cpu and hence we will not
+>>> get counter data.
+>>>
+>>> Patch fixed this issue by adding pmu_migrate_context call
+>>> in fme_perf_offline_cpu function.
+>>>
+>>
+>> Adding stable@vger.kernel.org in cc list as suggested by Moritz Fischer.
+> 
+> 
+> <formletter>
+> 
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.  Please read:
+>     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> for how to do this properly.
 
+Thanks Greg for pointing it, I will take care in my next version.
 
-## Test result summary
- total: 80209, pass: 65767, fail: 2329, skip: 11358, xfail: 755,
+Thanks,
+Kajol Jain
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 26 total, 26 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+> 
+> </formletter>
+> 
