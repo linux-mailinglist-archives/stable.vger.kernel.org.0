@@ -2,182 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA31F3B8A72
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 00:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A23843B8A75
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 00:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233072AbhF3Wck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 18:32:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48752 "EHLO
+        id S231738AbhF3Wdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 18:33:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232797AbhF3Wci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 18:32:38 -0400
-Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D790C061756
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:30:08 -0700 (PDT)
-Received: by mail-qt1-x834.google.com with SMTP id j10so1340735qtx.13
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:30:08 -0700 (PDT)
+        with ESMTP id S231799AbhF3Wdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 18:33:42 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02857C0617A8
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:31:12 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id j11-20020a05600c1c0bb02901e23d4c0977so5544440wms.0
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:31:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Hiptwy9TUvWyDXIfvAtOM6Kej8lazuA4fp4IHXgFEhA=;
-        b=l0phQZTqmoJDi9w/25alZe0CUOgvyrerAYN4ksIjN3XQzYhjFywzQQM9zLWORpjAHY
-         TR/bgReRORJbKHhGgEy3CRtXOMHFbyS2fvJH69GKHNPOjrF58lBBGX/5o7lNtvZA8Yau
-         XrPJEba8gk0NpHC3uBuNjlyrVQME5lCs3bgODUU5QVhZOoyR8NPCOuEFbPgT3GYfCMYy
-         ARXPYd/u+oeYXlIA0SpGqGJtFCUkTEYfGPZQGrfllgrGqI+j8FM0CiPaW2qMfEKO3FXZ
-         Lm4/MgZCo/QeYjY2F9A8gdhdqYJ+Lu6NQ1ZEz7M7dcBZxWUGg7kSjAFNZEhTwNJGvRys
-         WjFA==
+        d=linuxfoundation.org; s=google;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=GMyVPuFMxYNbLMHQBfZilBl/NBmnN5vmlOEDJDVgikA=;
+        b=H6lxDxqfFalvZBt10BgprhpbLvdq+DLerLRsXowgxYS2LE3FLuoCBt5dBBadg0Xghf
+         KNDj9akhByJUB+imIU+sZmgZhWGTlhLfIXeCi6ADK574Zg1+4THNfr254tFvYlWUE2m7
+         g3kxUdJVWLcLarbekZcB5Ay6FOh7hXYRuMJZU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Hiptwy9TUvWyDXIfvAtOM6Kej8lazuA4fp4IHXgFEhA=;
-        b=CmPN3UD1DwWkdF/PqaMf/vaPhCPbM3c3dLkqUGvwBAC9V8aWR3PniIquSwZzDOjDj+
-         4sl2AmOJJForhzFYSLvi1lWyC5euYO067tGW8rnFXXDOzA8AKeIdniEG0PaACpCZhFbW
-         Etw4H/Ns36yJolTAQcwhKjRFLcXxI0VOBS29cfM+DW5v8n+vxjPB72mrpuSJdOdKb/oh
-         2898eBL8zJcgcD7wFFi6FexGcJtjEbm9r+8wHHfmeiZFQ8kYJhxhmuG6uPGMOuBZJpef
-         1k/lX22n4ZWzMPkhJZFtG297xJ6IlkuUILN12lMFF3FCZ1NYpyGV9heqV75EO9mSpb7e
-         ASYQ==
-X-Gm-Message-State: AOAM533X7FMYI6WE2Gj77TjQAGifsd/rzcmLiDxUJnvNt2ZkA8Gh4ROJ
-        9GO44eT1WsboDWQuNBIEIhtACQ9cq8n6xfGcZqLdIw==
-X-Google-Smtp-Source: ABdhPJxaKRUyPs4V1DSgIvmJq4TKnBpdyjCHx41DHlWJ5jxaPeUqodvfc4mqeHL+zXsZzsJQvDEkpuOiY4kYLWBnAG8=
-X-Received: by 2002:a05:622a:316:: with SMTP id q22mr33689033qtw.153.1625092206907;
- Wed, 30 Jun 2021 15:30:06 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210630003406.4013668-1-paulburton@google.com>
-In-Reply-To: <20210630003406.4013668-1-paulburton@google.com>
-From:   Joel Fernandes <joelaf@google.com>
-Date:   Wed, 30 Jun 2021 18:29:55 -0400
-Message-ID: <CAJWu+ooRQ6hFtaA4tr3BNs9Btss1yan8taua=VMWMopGmEVhSA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] tracing: Simplify & fix saved_tgids logic
-To:     Paul Burton <paulburton@google.com>
-Cc:     linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>, stable@vger.kernel.org
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=GMyVPuFMxYNbLMHQBfZilBl/NBmnN5vmlOEDJDVgikA=;
+        b=KyfybPNGP+r0fSB9P1Tb174XHHcS/huZl13duKi9MaB89YN6eOTSIEbaQPbg7lJsKS
+         UzrJVzvkUB8Gzori+f8pgY3rjT2JcF7Kds/8IiijyVSvWH9Jf8OybLi1FDyM50Cm3Ynq
+         mvINgG8FHe34GKxDUfI2M57hVkCx5BeHGbZzXlGw72VjThunYSC/i+g8rCBw/Sh8uobT
+         BJaVR23J//y8AXItH6vD04RgDGMhfPjM+RiiKTmHbqZhV7AVOsRRSN9VGJ418ScleC+U
+         BbhRL5CHRL/gUJV19UNguou6UplNICFcHlaR2WJah0dXLUpMmpl9Z3KdihwpKNYvYkEo
+         7Kaw==
+X-Gm-Message-State: AOAM5333Wgeni/VOm3OBhwJLGBQl2O85KO/lZ6Bs0+WPvOxCuQK205le
+        BQxKS7WNdUwQsyKeMexx7USXEg==
+X-Google-Smtp-Source: ABdhPJy+CBMlPBMOCn9DqrFiuK/2gDYg8Q4k6hyOxw0ZdBbgaxtH1RipwSDFUB/kwHiOL8sYZTnBPw==
+X-Received: by 2002:a7b:ce82:: with SMTP id q2mr6904410wmj.60.1625092269984;
+        Wed, 30 Jun 2021 15:31:09 -0700 (PDT)
+Received: from ?IPv6:2001:8b0:aba:5f3c:a683:959f:4ccb:54d6? ([2001:8b0:aba:5f3c:a683:959f:4ccb:54d6])
+        by smtp.gmail.com with ESMTPSA id t11sm23408362wrz.7.2021.06.30.15.31.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Jun 2021 15:31:09 -0700 (PDT)
+Message-ID: <696dc58209707ce364616430673998d0124a9a31.camel@linuxfoundation.org>
+Subject: Re: [PATCH] cgroup1: fix leaked context root causing sporadic NULL
+ deref in LTP
+From:   Richard Purdie <richard.purdie@linuxfoundation.org>
+To:     Mark Brown <broonie@kernel.org>, Tejun Heo <tj@kernel.org>
+Cc:     Paul Gortmaker <paul.gortmaker@windriver.com>,
+        linux-kernel@vger.kernel.org, cgroups@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>, stable@vger.kernel.org
+Date:   Wed, 30 Jun 2021 23:31:06 +0100
+In-Reply-To: <20210630161036.GA43693@sirena.org.uk>
+References: <20210616125157.438837-1-paul.gortmaker@windriver.com>
+         <YMoXdljfOFjoVO93@slm.duckdns.org> <20210630161036.GA43693@sirena.org.uk>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.0-1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 29, 2021 at 8:34 PM Paul Burton <paulburton@google.com> wrote:
->
-> The tgid_map array records a mapping from pid to tgid, where the index
-> of an entry within the array is the pid & the value stored at that index
-> is the tgid.
->
-> The saved_tgids_next() function iterates over pointers into the tgid_map
-> array & dereferences the pointers which results in the tgid, but then it
-> passes that dereferenced value to trace_find_tgid() which treats it as a
-> pid & does a further lookup within the tgid_map array. It seems likely
-> that the intent here was to skip over entries in tgid_map for which the
-> recorded tgid is zero, but instead we end up skipping over entries for
-> which the thread group leader hasn't yet had its own tgid recorded in
-> tgid_map.
->
-> A minimal fix would be to remove the call to trace_find_tgid, turning:
->
->   if (trace_find_tgid(*ptr))
->
-> into:
->
->   if (*ptr)
->
-> ..but it seems like this logic can be much simpler if we simply let
-> seq_read() iterate over the whole tgid_map array & filter out empty
-> entries by returning SEQ_SKIP from saved_tgids_show(). Here we take that
-> approach, removing the incorrect logic here entirely.
+On Wed, 2021-06-30 at 17:10 +0100, Mark Brown wrote:
+> On Wed, Jun 16, 2021 at 11:23:34AM -0400, Tejun Heo wrote:
+> > On Wed, Jun 16, 2021 at 08:51:57AM -0400, Paul Gortmaker wrote:
+> 
+> > > A fix would be to not leave the stale reference in fc->root as follows:
+> 
+> > >    --------------
+> > >                   dput(fc->root);
+> > >   +               fc->root = NULL;
+> > >                   deactivate_locked_super(sb);
+> > >    --------------
+> 
+> > > ...but then we are just open-coding a duplicate of fc_drop_locked() so we
+> > > simply use that instead.
+> 
+> > As this is unlikely to be a real-world problem both in probability and
+> > circumstances, I'm applying this to cgroup/for-5.14 instead of
+> > cgroup/for-5.13-fixes.
+> 
+> FWIW at Arm we've started seeing what appears to be this issue blow up
+> very frequently in some of our internal LTP CI runs against -next, seems
+> to be mostly on lower end platforms.  We seem to have started finding it
+> at roughly the same time that the Yocto people did, I guess some other
+> change made it more likely to trigger.  Not exactly real world usage
+> obviously but it's creating quite a bit of noise in testing which is
+> disruptive so it'd be good to get it into -next as a fix.
 
-Looks reasonable except for one nit:
+It is a horrible bug to debug as you end up with "random" failures on the 
+systems which are hard to pin down. Along with the RCU stall hangs it
+was all a bit of a nightmare.
 
-> Signed-off-by: Paul Burton <paulburton@google.com>
-> Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
-> Cc: Steven Rostedt <rostedt@goodmis.org>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Joel Fernandes <joelaf@google.com>
-> Cc: <stable@vger.kernel.org>
-> ---
->  kernel/trace/trace.c | 38 +++++++++++++-------------------------
->  1 file changed, 13 insertions(+), 25 deletions(-)
->
-> diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-> index d23a09d3eb37b..9570667310bcc 100644
-> --- a/kernel/trace/trace.c
-> +++ b/kernel/trace/trace.c
-> @@ -5608,37 +5608,20 @@ static const struct file_operations tracing_readme_fops = {
->
->  static void *saved_tgids_next(struct seq_file *m, void *v, loff_t *pos)
->  {
-> -       int *ptr = v;
-> +       int pid = ++(*pos);
->
-> -       if (*pos || m->count)
-> -               ptr++;
-> -
-> -       (*pos)++;
-> -
-> -       for (; ptr <= &tgid_map[PID_MAX_DEFAULT]; ptr++) {
-> -               if (trace_find_tgid(*ptr))
-> -                       return ptr;
+Out of interest are you also seeing the proc01 test hang on a non-blocking
+read of /proc/kmsg periodically?
 
-It would be great if you can add back the check for !tgid_map to both
-next() and show() as well, for added robustness (since the old code
-previously did it).
+https://bugzilla.yoctoproject.org/show_bug.cgi?id=14460
 
-With that change:
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+I've not figured out a way to reproduce it at will yet and it seems strace
+was enough to unblock it. It seems arm specific.
 
-thanks,
+Cheers,
 
--Joel
+Richard
 
 
-> -       }
-> +       if (pid > PID_MAX_DEFAULT)
-> +               return NULL;
->
-> -       return NULL;
-> +       return &tgid_map[pid];
->  }
->
->  static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
->  {
-> -       void *v;
-> -       loff_t l = 0;
-> -
-> -       if (!tgid_map)
-> +       if (!tgid_map || *pos > PID_MAX_DEFAULT)
->                 return NULL;
->
-> -       v = &tgid_map[0];
-> -       while (l <= *pos) {
-> -               v = saved_tgids_next(m, v, &l);
-> -               if (!v)
-> -                       return NULL;
-> -       }
-> -
-> -       return v;
-> +       return &tgid_map[*pos];
->  }
->
->  static void saved_tgids_stop(struct seq_file *m, void *v)
-> @@ -5647,9 +5630,14 @@ static void saved_tgids_stop(struct seq_file *m, void *v)
->
->  static int saved_tgids_show(struct seq_file *m, void *v)
->  {
-> -       int pid = (int *)v - tgid_map;
-> +       int *entry = (int *)v;
-> +       int pid = entry - tgid_map;
-> +       int tgid = *entry;
-> +
-> +       if (tgid == 0)
-> +               return SEQ_SKIP;
->
-> -       seq_printf(m, "%d %d\n", pid, trace_find_tgid(pid));
-> +       seq_printf(m, "%d %d\n", pid, tgid);
->         return 0;
->  }
->
->
-> base-commit: 62fb9874f5da54fdb243003b386128037319b219
-> --
-> 2.32.0.93.g670b81a890-goog
->
+
