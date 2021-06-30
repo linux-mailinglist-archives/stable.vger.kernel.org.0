@@ -2,61 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80FCC3B823E
-	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 14:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 369E43B8254
+	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 14:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234622AbhF3Mhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 08:37:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47840 "EHLO mail.kernel.org"
+        id S234606AbhF3Mpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 08:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234553AbhF3Mho (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Jun 2021 08:37:44 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE68C61584;
-        Wed, 30 Jun 2021 12:35:14 +0000 (UTC)
-Date:   Wed, 30 Jun 2021 08:35:13 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Paul Burton <paulburton@google.com>
-Cc:     linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joelaf@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] tracing: Resize tgid_map to PID_MAX_LIMIT, not
- PID_MAX_DEFAULT
-Message-ID: <20210630083513.1658a6fb@oasis.local.home>
-In-Reply-To: <20210630003406.4013668-2-paulburton@google.com>
-References: <20210630003406.4013668-1-paulburton@google.com>
-        <20210630003406.4013668-2-paulburton@google.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        id S234713AbhF3Mpr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Jun 2021 08:45:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2738E61461;
+        Wed, 30 Jun 2021 12:43:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1625056998;
+        bh=J0Gszs8pv1ZVL9B9l2TF6Y0s+M7aKB70DnAjQIctv0c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nU2WTDr7v65lyactIc5lmNxQx01B4g2ebLDbUjUnj68SmArfYikVP++lDEzyQAvdp
+         AflRvkxgCGGIIAxXEMn14rrnX09gOxRy49iF0PnJzz1Gh7SCWcqS9GBxEBgrNFbj2O
+         cFeCmI6XY8U4CADW64ACd1GWYnkq3nVItsXkbC9695ADa0JBEFjPlLEB6y+WbG9CBj
+         o5G/jYPbU9LeWIG0nUYa/Jwt62jZhR4MnfcKyaCxudo94lvBXpXT3I9QsRrp/CJwi+
+         uhb5p49NHHLDKsoMPQp5BOr7MZzPhT5wHYPkFGVlKs/GxKpmE8fP3l+itrvTtLpbcR
+         8/u6edBlrrVqQ==
+Date:   Wed, 30 Jun 2021 08:43:17 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Fox Chen <foxhlchen@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org
+Subject: Re: [PATCH 5.12 000/110] 5.12.14-rc1 review
+Message-ID: <YNxm5VZ1K/IIzVfu@sashalap>
+References: <20210628141828.31757-1-sashal@kernel.org>
+ <60da130e.1c69fb81.c638f.a74a@mx.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <60da130e.1c69fb81.c638f.a74a@mx.google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 29 Jun 2021 17:34:06 -0700
-Paul Burton <paulburton@google.com> wrote:
+On Mon, Jun 28, 2021 at 11:21:02AM -0700, Fox Chen wrote:
+>On Mon, 28 Jun 2021 10:16:38 -0400, Sasha Levin <sashal@kernel.org> wrote:
+>>
+>> This is the start of the stable review cycle for the 5.12.14 release.
+>> There are 110 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+>>
+>> Responses should be made by Wed 30 Jun 2021 02:18:05 PM UTC.
+>> Anything received after that time might be too late.
+>>
+>> The whole patch series can be found in one patch at:
+>>         https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.12.y&id2=v5.12.13
+>> or in the git tree and branch at:
+>>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+>> and the diffstat can be found below.
+>>
+>> Thanks,
+>> Sasha
+>>
+>
+>5.12.14-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+>
+>Tested-by: Fox Chen <foxhlchen@gmail.com>
 
-> On 64 bit systems this will increase the size of tgid_map from 256KiB to
-> 16MiB. Whilst this 64x increase in memory overhead sounds significant 64
-> bit systems are presumably best placed to accommodate it, and since
-> tgid_map is only allocated when the record-tgid option is actually used
-> presumably the user would rather it spends sufficient memory to actually
-> record the tgids they expect.
+Thanks for testing Fox!
 
-NAK. Please see how I fixed this for the saved_cmdlines, and implement
-it the same way.
-
-785e3c0a3a87 ("tracing: Map all PIDs to command lines")
-
-It's a cache, it doesn't need to save everything.
-
--- Steve
-
-
-> 
-> The size of tgid_map will also increase for CONFIG_BASE_SMALL=y
-> configurations, but these seem unlikely to be systems upon which people
-> are running ftrace with record-tgid anyway.
-
+-- 
+Thanks,
+Sasha
