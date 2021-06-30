@@ -2,126 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81F7C3B8045
-	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 11:46:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0045A3B806B
+	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 11:52:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233929AbhF3Jsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 05:48:53 -0400
-Received: from mail-dm6nam10on2040.outbound.protection.outlook.com ([40.107.93.40]:13824
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S233849AbhF3Jsw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Jun 2021 05:48:52 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FT0gD3fswjBfBXGCO1Zil93+mY4j5X0w+UZdXt7EhAzAbRCkJKfu0r+74KhSjyjXb2O1k11pIKSJfxKEwSw7YV5g5cKrGMTfV5HKCgazqLMcuZwmedTtyvYiD7hZqS+C3xsY1waeY4nalU2tUBK8KQxLkrg3FWxaJ0iDM+CEwjtg5oOa9lXv0YUzaNWt+E5cFqAD0UxCcUjCUr6X1IXlw1X6b6XGHZclohsYzmdlT9DuFJKQoymyf4QzQZfUiR4ZkLoc+FvqQn4zI2ZYI7C2gx9mgSwYSyF833X12Gg2vZUorN5S8dTA35yThsaeFD1IavqPgz2jQepRes+Zu7g9OQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IYxRuYI3uNDG1f5jYBr+msiZ8/j+R6rQWJfEwtvmcrY=;
- b=kG0Xzz+A7i+Il8TJ4cHny2yDGTXpP8nvz5YMO+CGIoaJhxmdq9RNRcevzEqIWNg/hz3nh0svXkRNzxVLhSH9GnzBt7KGVfpEgMky9slNwS3YYjUY7tz127uEFoWxuI3gDsXq9MowuD3UtHYON8ya5/dQxWbk9JjudX4ybS1ns7qQ6kmwBeNcFpm8xkhSN9PopYqRPN+o/8CJTujdfmZ075aHV0UNQ07Rzi93O5LIO2yaNjT4tPncJgL0CSvAuwu7hIkhSwM/XFxJ0ZsW7oDwaTgyeXiSA+sgS/aK5Fd22ZWJ7bXbQyWha4WAjARny5PZnGaR1asZ0+3QlMtLzWaYRw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.35) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IYxRuYI3uNDG1f5jYBr+msiZ8/j+R6rQWJfEwtvmcrY=;
- b=BjUtF//UV+ZBlVkOF+t7+JD4rKb/jtkg+3Vzk7DGgwV9hOc7FaEZkiwBW5IRI0JsJ7PP8NJi7MQm2YCnruDgI9y9nnA4Gd6R8VKkyfzJ0caojsDmThFZHTCQI4xyZpMtPnq7HUL0BpZ/Od2Zoqlww0DlzxleX/ToHTSdAPnZ9ekb6evkdrlxcdO4c/fBGiSSER9dnJ0TXp2txVRSboJZs1N4mVAgI/ObJ5gy+AcnCXrmPmCUOQ4Vc4GE4d9/zLW5b741mE+wWqbUV6PrZaRHMhyV6UwZzY1wvQeSCTu7HpaTrI0C2ZRVYQn8BQ8b9KXoRZuBveXFQZWXKvOjWdQumw==
-Received: from DM5PR13CA0027.namprd13.prod.outlook.com (2603:10b6:3:7b::13) by
- BYAPR12MB2919.namprd12.prod.outlook.com (2603:10b6:a03:12c::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4264.23; Wed, 30 Jun
- 2021 09:46:22 +0000
-Received: from DM6NAM11FT049.eop-nam11.prod.protection.outlook.com
- (2603:10b6:3:7b:cafe::79) by DM5PR13CA0027.outlook.office365.com
- (2603:10b6:3:7b::13) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.8 via Frontend
- Transport; Wed, 30 Jun 2021 09:46:22 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.35)
- smtp.mailfrom=nvidia.com; vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.35 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.35; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.35) by
- DM6NAM11FT049.mail.protection.outlook.com (10.13.172.188) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4287.22 via Frontend Transport; Wed, 30 Jun 2021 09:46:22 +0000
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 30 Jun
- 2021 09:46:21 +0000
-Received: from moonraker.nvidia.com (172.20.187.6) by mail.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 30 Jun 2021 09:46:19 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>
-CC:     Laxman Dewangan <ldewangan@nvidia.com>,
-        Krishna Yarlagadda <kyarlagadda@nvidia.com>,
-        <linux-serial@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        Jon Hunter <jonathanh@nvidia.com>, <stable@vger.kernel.org>
-Subject: [PATCH] serial: tegra: Only print FIFO error message when an error occurs
-Date:   Wed, 30 Jun 2021 10:46:01 +0100
-Message-ID: <20210630094601.136280-1-jonathanh@nvidia.com>
-X-Mailer: git-send-email 2.25.1
+        id S233899AbhF3JzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 05:55:00 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:39694 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233886AbhF3Jy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 05:54:59 -0400
+Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id A55911FE5F;
+        Wed, 30 Jun 2021 09:52:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1625046750; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ltRNr4B+l+889GdS96xK+Aj1swrLWkljO+/5u65nZ+o=;
+        b=yC8h05yh5z+mhlMRV0MCRFL3ZZcPyaHerVoKb2IaV/tENGTd0Scm+8f1nq+I33koUy0MN3
+        E+N3gX8Mslt3C3d61aBIplImn84a9BekdgtSbVtk1TzqFgREGHaI7ro/iKelnZzrjIrDTP
+        XkIUuCaERUenH8KdR8Dydc4DFyMjQyA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1625046750;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ltRNr4B+l+889GdS96xK+Aj1swrLWkljO+/5u65nZ+o=;
+        b=caHLNKFpGID7jvvXi0keBYMW+/xBCH0CCDRDzAIu2v17ufPqGSpiWg7TTTdrB1dXGcUXu7
+        l/lnML+hv0hvZlAQ==
+Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        by imap.suse.de (Postfix) with ESMTP id 5936311906;
+        Wed, 30 Jun 2021 09:52:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1625046750; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ltRNr4B+l+889GdS96xK+Aj1swrLWkljO+/5u65nZ+o=;
+        b=yC8h05yh5z+mhlMRV0MCRFL3ZZcPyaHerVoKb2IaV/tENGTd0Scm+8f1nq+I33koUy0MN3
+        E+N3gX8Mslt3C3d61aBIplImn84a9BekdgtSbVtk1TzqFgREGHaI7ro/iKelnZzrjIrDTP
+        XkIUuCaERUenH8KdR8Dydc4DFyMjQyA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1625046750;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ltRNr4B+l+889GdS96xK+Aj1swrLWkljO+/5u65nZ+o=;
+        b=caHLNKFpGID7jvvXi0keBYMW+/xBCH0CCDRDzAIu2v17ufPqGSpiWg7TTTdrB1dXGcUXu7
+        l/lnML+hv0hvZlAQ==
+Received: from director2.suse.de ([192.168.254.72])
+        by imap3-int with ESMTPSA
+        id mLPWFN4+3GBKcwAALh3uQQ
+        (envelope-from <tzimmermann@suse.de>); Wed, 30 Jun 2021 09:52:30 +0000
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
+        rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch,
+        chris@chris-wilson.co.uk, mika.kuoppala@linux.intel.com,
+        matthew.brost@intel.com, maarten.lankhorst@linux.intel.com,
+        lucas.demarchi@intel.com, ville.syrjala@linux.intel.com
+Cc:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>, stable@vger.kernel.org
+Subject: [PATCH v3 2/2] drm/i915: Drop all references to DRM IRQ midlayer
+Date:   Wed, 30 Jun 2021 11:52:28 +0200
+Message-Id: <20210630095228.6665-3-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210630095228.6665-1-tzimmermann@suse.de>
+References: <20210630095228.6665-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-X-NVConfidentiality: public
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 35674360-3272-4e52-2618-08d93babeb42
-X-MS-TrafficTypeDiagnostic: BYAPR12MB2919:
-X-Microsoft-Antispam-PRVS: <BYAPR12MB291937356A57B4FD8888B715D9019@BYAPR12MB2919.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6430;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: PaoqJbnJOW7cTQYyUz4ATbeJZQ2W79maV/XfK81Rdnft4owOoPYdB0BAWkXQLrL3y5uYyiIoO7JCkaKXcFE1o4K1ScO/cNGJJamzS/xEpzXPAILAcmSfmMa/T3v0izKLNfP0Bk8IJiT/2zFMeSvh7tZWv8lUkY2gc1y3AK6RYHbLWVoe9d8PdE7hJ3YdgTCGZWCAnVVqIGQmyxksZCF0gO3jEMAltrpaeeRZTOma2Ks8yUwIG0s7ekhau3xkNx3UwOHahUPOgPl73pcm5oTH1yx1auA1jw7czuXoJuwWdcnQWqXCDUIlwAl/OhjXpdUtAA/HCfhuuO14xCFqbTLrJ0OeK2IMNoVq5srfQpjIPayXUGLa2mFAChb9DFUjgiQQin4TgO+Qo/sckwC/yzLm94wtdMK00EkSkE4o9YILtXjZ1wTV3hmaU7wY589lb/tb5DM7EP10QToC0lP1W/Ewb7sNRkBJ7gXyCxKkCxjMdkF62UyIRdrxGmQkX15dk/b00JmGofKSU1/tbibgnojVtOysFj750BMPmzFFaiLSmfh+T7AbXoC0Hl8or4HGNzbg6w/HWXvEoVzzQvfKlupWnfC3CteMenr13Nnv8cxueDx0X0Lc/bOc4KXcNZl6ZY1bupmmmBsHI6PDSIQtsrUEOD2FbW4TpVE/LnRzuWwJvPmtjVmXZ/M4Gkfe0UVXhbZhmVobu5f1HK/1AzxVfEs8eg==
-X-Forefront-Antispam-Report: CIP:216.228.112.35;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid02.nvidia.com;CAT:NONE;SFS:(4636009)(346002)(136003)(376002)(396003)(39860400002)(46966006)(36840700001)(36860700001)(426003)(54906003)(336012)(82740400003)(110136005)(316002)(26005)(82310400003)(186003)(83380400001)(5660300002)(47076005)(70206006)(6666004)(1076003)(36756003)(15650500001)(2906002)(86362001)(2616005)(7636003)(7696005)(356005)(478600001)(8676002)(70586007)(4326008)(8936002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jun 2021 09:46:22.1103
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 35674360-3272-4e52-2618-08d93babeb42
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.35];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT049.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB2919
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Tegra serial driver always prints an error message when enabling the
-FIFO for devices that have support for checking the FIFO enable status.
-Fix this by only display the error message, when an error occurs.
+Remove all references to DRM's IRQ midlayer. i915 uses Linux' interrupt
+functions directly.
 
-Fixes: 222dcdff3405 ("serial: tegra: check for FIFO mode enabled status")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+v2:
+	* also remove an outdated comment
+	* move IRQ fix into separate patch
+	* update Fixes tag (Daniel)
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: b318b82455bd ("drm/i915: Nuke drm_driver irq vfuncs")
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.4+
 ---
- drivers/tty/serial/serial-tegra.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/i915_drv.c | 1 -
+ drivers/gpu/drm/i915/i915_irq.c | 5 -----
+ 2 files changed, 6 deletions(-)
 
-diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
-index 222032792d6c..cd481f7ba8eb 100644
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -1045,9 +1045,10 @@ static int tegra_uart_hw_init(struct tegra_uart_port *tup)
+diff --git a/drivers/gpu/drm/i915/i915_drv.c b/drivers/gpu/drm/i915/i915_drv.c
+index 850b499c71c8..73de45472f60 100644
+--- a/drivers/gpu/drm/i915/i915_drv.c
++++ b/drivers/gpu/drm/i915/i915_drv.c
+@@ -42,7 +42,6 @@
+ #include <drm/drm_aperture.h>
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_ioctl.h>
+-#include <drm/drm_irq.h>
+ #include <drm/drm_managed.h>
+ #include <drm/drm_probe_helper.h>
  
- 	if (tup->cdata->fifo_mode_enable_status) {
- 		ret = tegra_uart_wait_fifo_mode_enabled(tup);
--		dev_err(tup->uport.dev, "FIFO mode not enabled\n");
--		if (ret < 0)
-+		if (ret < 0) {
-+			dev_err(tup->uport.dev, "FIFO mode not enabled\n");
- 			return ret;
-+		}
- 	} else {
- 		/*
- 		 * For all tegra devices (up to t210), there is a hardware
+diff --git a/drivers/gpu/drm/i915/i915_irq.c b/drivers/gpu/drm/i915/i915_irq.c
+index 2203dca19895..1d4c683c9de9 100644
+--- a/drivers/gpu/drm/i915/i915_irq.c
++++ b/drivers/gpu/drm/i915/i915_irq.c
+@@ -33,7 +33,6 @@
+ #include <linux/sysrq.h>
+ 
+ #include <drm/drm_drv.h>
+-#include <drm/drm_irq.h>
+ 
+ #include "display/intel_de.h"
+ #include "display/intel_display_types.h"
+@@ -4564,10 +4563,6 @@ void intel_runtime_pm_enable_interrupts(struct drm_i915_private *dev_priv)
+ 
+ bool intel_irqs_enabled(struct drm_i915_private *dev_priv)
+ {
+-	/*
+-	 * We only use drm_irq_uninstall() at unload and VT switch, so
+-	 * this is the only thing we need to check.
+-	 */
+ 	return dev_priv->runtime_pm.irqs_enabled;
+ }
+ 
 -- 
-2.25.1
+2.32.0
 
