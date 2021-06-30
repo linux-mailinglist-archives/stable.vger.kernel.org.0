@@ -2,288 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B74003B89A8
-	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 22:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EC873B89F9
+	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 23:09:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234397AbhF3UX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 16:23:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48924 "EHLO
+        id S234890AbhF3VMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 17:12:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234376AbhF3UX5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 16:23:57 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B57B5C061756
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 13:21:27 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id pf4-20020a17090b1d84b029016f6699c3f2so5166077pjb.0
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 13:21:27 -0700 (PDT)
+        with ESMTP id S234208AbhF3VMW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 17:12:22 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27E7CC0617A8
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 14:09:52 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id n11so2689714pjo.1
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 14:09:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=h3wn4s4871BQqvdGSb8GZVMjHGHl0w/BkKc85IDBdto=;
-        b=lzkrX3iPQV2RtzyA0ylrnV3vv3jXRRYJGYmznMdElSYGTd05FrILpK3sPIytVth4nS
-         +J+wt5C0/RsY6TEJtG2hmSx6MXljarGOrxcPx5dt5NvcHYRiGRiUkcobt3ygdh/Gl0O7
-         wFm89gwmRZxXmbCrm7G60XUo4R/RGHDtZLXtmKfSV9UXMGazIU0Szyi+JoAwnFTVpAGM
-         ZLtVymgOb0/6M+IeJQS0I7qMGTs3t+fIIAwBXchBQAfcWbSAznQTJQp04WNBrtHOgMeF
-         XB0WIs8A36qXGDKgFd3r+dquMYAfkrbvifTEi8bt2TSexf/s0T0tFuszHMqp4kPnEe1+
-         5CfA==
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=zliHdHGG472sIu8ixUkfKUhqE1vaBtcNdSUI7bd2ULM=;
+        b=ZInbAOcF/bWPptX9K7BG4muTK2GRM1TyOAjCIFajbG8pSNpLPkh+GEf4zu5didRBgu
+         nqe5ArkROxRRSgOVcKZ2g9mcivD16da0D1PUviKDUxosFwf/x167OGeoGK6n0Ly97BrV
+         Hm1d1gWqRlFHlcL4gkjmD+PFPnz8SQLyMw4P/63UjVR+OG6iM2GLlwzn9g8TxK0m1ji1
+         zCwRnxAIn+KdORyoqhVmap0arTgM/iE/raOmi/4+Ws6F0P/UV+MUAmClTo3rRfCuMKvw
+         gO8yXeCRXfNA+75jmu+n/L2X/f2ZtOE6VSDacONss2iF6k9M7SdkAmQ+iinPccSLB37F
+         6Alg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=h3wn4s4871BQqvdGSb8GZVMjHGHl0w/BkKc85IDBdto=;
-        b=BsBtj730GqTLrLZs2k58vls0RaPU7LLMMkTSYNwy2h2efh69W3tEYF5sGrvyCqjjzz
-         vYDSr06gxoB5O8XbqVzbS2IrluRBO+1r2nY5qtMQbY4Xo6dOk5Oc+J4TJtKZ/4cT7MiD
-         Z4sn6eoxCLLD/ubfdJ7C8sBp1wtxh0DFqlI/E2e9o1iPeG4xis9/iYfXh/1pQaDs+cT3
-         gepA7lwO1IFR8ErYESLStbpOeSTofh5tC/NnMysR59s7MfGG/eSXeXcElK+VMECrAVt4
-         AoAMJ2fkl6YgJfSc7nRVngyk7OL3Rq7eD3CpkNyYbNvkTOFc3d7UM9D2bmi8rH0FNHdO
-         sPVw==
-X-Gm-Message-State: AOAM531HgNhqaeIXxhsiT/qWvp2///RYITmA0N/O2X6ULnnoi03igbGo
-        8oZQkox6++iRRoGPA9V13APUxfvvgxw2BxQ7
-X-Google-Smtp-Source: ABdhPJyCPQ3XKYKrHwztwbd8Kr4CAM24j3OUl119NfuObifGciJWpDs/iQ/bzScskg6jOhos8OdQ/g==
-X-Received: by 2002:a17:902:d213:b029:127:9520:7649 with SMTP id t19-20020a170902d213b029012795207649mr27191909ply.10.1625084487046;
-        Wed, 30 Jun 2021 13:21:27 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u13sm24021844pga.64.2021.06.30.13.21.26
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=zliHdHGG472sIu8ixUkfKUhqE1vaBtcNdSUI7bd2ULM=;
+        b=hVxC57eUwUlYaLCUdzHSP+x+whE2QybmDv68TxuYXDS1dXoeeC6bKxX4uah1pZTYWb
+         02byaa6ZVH9m100NlQh541auo+k1wjzht/N4vCkG4EWOH8y+wus5pV4WdIMmlBqGmYxR
+         jkCoeE+d5riQcnA7E94gIoYN+ugbnygp0/jH4Bf7xrvDTBAgxzDeGJispIJXDzJA85PE
+         MRLn/qIk9YfJ9a4Nexk2D9l4l/br75j0lrngGJDoccSQgg9RB/GdYHjvm8/rUbpDeh+c
+         OsUkb5moGjaeciEfNVNZ5NZ/PUiLa8T17Hm5jxTy1RvgScboQc9tPWva5+WiJp/vPZ18
+         LKxg==
+X-Gm-Message-State: AOAM5325AL33/tJjxuaYQnQnELVU3Gg+CecfosY0G3WsUdrS1k08pouq
+        IwjgKN38ILoW8TTIa/A0h7+OUw==
+X-Google-Smtp-Source: ABdhPJydqCEOn2deMKN7lqCp97zhVvtslBQti30JyKwMfzP0zuCEM5QbR2pAjfLPg7FW4QhNSePQsA==
+X-Received: by 2002:a17:90b:380a:: with SMTP id mq10mr6092395pjb.79.1625087391352;
+        Wed, 30 Jun 2021 14:09:51 -0700 (PDT)
+Received: from google.com ([2620:15c:280:201:b405:10e4:843c:2483])
+        by smtp.gmail.com with ESMTPSA id o15sm23758482pfd.96.2021.06.30.14.09.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Jun 2021 13:21:26 -0700 (PDT)
-Message-ID: <60dcd246.1c69fb81.8ee42.75f7@mx.google.com>
-Date:   Wed, 30 Jun 2021 13:21:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 30 Jun 2021 14:09:48 -0700 (PDT)
+Date:   Wed, 30 Jun 2021 14:09:42 -0700
+From:   Paul Burton <paulburton@google.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joelaf@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] tracing: Resize tgid_map to PID_MAX_LIMIT, not
+ PID_MAX_DEFAULT
+Message-ID: <YNzdllg/634Sa6Rt@google.com>
+References: <20210630003406.4013668-1-paulburton@google.com>
+ <20210630003406.4013668-2-paulburton@google.com>
+ <20210630083513.1658a6fb@oasis.local.home>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.129
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable/linux-5.4.y baseline: 148 runs, 6 regressions (v5.4.129)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210630083513.1658a6fb@oasis.local.home>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y baseline: 148 runs, 6 regressions (v5.4.129)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-bcm2837-rpi-3-b-32   | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig=
-   | 1          =
-
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
-v5.4.129/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.4.y
-  Describe: v5.4.129
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      82ffbc138a1fc9076f55e626bd8352fc9a2ca9e9 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-bcm2837-rpi-3-b-32   | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig=
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60dca10f98e63d6f3123bbd7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60dca10f98e63d6f3123b=
-bd8
-        new failure (last pass: v5.4.128) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60dc9fdebc6788f39423bbcc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ri=
-scv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ri=
-scv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60dc9fdebc6788f39423b=
-bcd
-        failing since 223 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60dc9e8a8a811852d623bbc8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60dc9e8a8a811852d623b=
-bc9
-        failing since 223 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60dca0bd7b2b340b5e23bbc6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60dca0bd7b2b340b5e23b=
-bc7
-        failing since 223 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60dc9f05def7593d1023bbe6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60dc9f05def7593d1023b=
-be7
-        failing since 223 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60dca5a478e896ab0023bbd3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.129/ar=
-m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60dca5a478e896ab0023b=
-bd4
-        failing since 223 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =20
+Hi Steven,
+
+On Wed, Jun 30, 2021 at 08:35:13AM -0400, Steven Rostedt wrote:
+> On Tue, 29 Jun 2021 17:34:06 -0700
+> Paul Burton <paulburton@google.com> wrote:
+> 
+> > On 64 bit systems this will increase the size of tgid_map from 256KiB to
+> > 16MiB. Whilst this 64x increase in memory overhead sounds significant 64
+> > bit systems are presumably best placed to accommodate it, and since
+> > tgid_map is only allocated when the record-tgid option is actually used
+> > presumably the user would rather it spends sufficient memory to actually
+> > record the tgids they expect.
+> 
+> NAK. Please see how I fixed this for the saved_cmdlines, and implement
+> it the same way.
+> 
+> 785e3c0a3a87 ("tracing: Map all PIDs to command lines")
+> 
+> It's a cache, it doesn't need to save everything.
+
+Well sure, but it's a cache that (modulo pid recycling) previously had a
+100% hit rate for tasks observed in sched_switch events.
+
+It differs from saved_cmdlines in a few key ways that led me to treat it
+differently:
+
+1) The cost of allocating map_pid_to_cmdline is paid by all users of
+   ftrace, whilst as I mentioned in my commit description the cost of
+   allocating tgid_map is only paid by those who actually enable the
+   record-tgid option.
+
+2) We verify that the data in map_pid_to_cmdline is valid by
+   cross-referencing it against map_cmdline_to_pid before reporting it.
+   We don't currently have an equivalent for tgid_map, so we'd need to
+   add a second array or make tgid_map an array of struct { int pid; int
+   tgid; } to avoid reporting incorrect tgids. We therefore need to
+   double the memory we consume or further reduce the effectiveness of
+   this cache.
+
+3) As mentioned before, with the default pid_max tgid_map/record-tgid
+   has a 100% hit rate which was never the case for saved_cmdlines. If
+   we go with a solution that changes this property then I certainly
+   think the docs need updating - the description of saved_tgids in
+   Documentation/trace/ftrace.rst makes no mention of this being
+   anything but a perfect recreation of pid->tgid relationships, and
+   unlike the description of saved_cmdlines it doesn't use the word
+   "cache" at all.
+
+Having said that I think taking a similar approach to saved_cmdlines
+would be better than what we have now, though I'm not sure whether it'll
+be sufficient to actually be usable for me. My use case is grouping
+threads into processes when displaying scheduling information, and
+experience tells me that if any threads don't get grouped appropriately
+the result will be questions.
+
+Thanks,
+    Paul
