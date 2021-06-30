@@ -2,103 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED53D3B827D
-	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 14:52:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98C2B3B8281
+	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 14:54:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234718AbhF3Myf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 08:54:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32950 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234831AbhF3My1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 08:54:27 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6274FC061768
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 05:51:58 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id m1so3061097edq.8
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 05:51:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=YZVcvXsh9AfzJI6jbm0SsE03VaPhGLXjHeQSQx7brV4=;
-        b=XeSerHgCDgJE0QIu3Cq3gv8sFnHdnDrcWv63/iUtqeUsffeXC+/dUkNPVr90Wuq2uT
-         3y9EXjcez2a7aaCkyrNbfh0RIA1pESpwtnLM/3jNimq1Ni0ldSNvO7mipJz7OFzkay1K
-         cJMNGRQnmSCQ7O3Z/G0QkhW2h4zwNa3EEYB8Hi4+nt5+VwhnEnQUgjwtGyLGyCuuHcPK
-         eZFywlgGu1wZ1pfKKqX/ndFZB/qrIgXWygGl3C3zTS4+RpwsI+FFxEnXMiBbCKE1PeeA
-         GdBzxjzXl9ZlzQak5KR2EL2lYgY07cwYbR0ZCbaaSnoAx9lX4mgDO+8MOoh9i2SbKt+U
-         lNdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=YZVcvXsh9AfzJI6jbm0SsE03VaPhGLXjHeQSQx7brV4=;
-        b=slO+bDSp0aqGtlss6e4ZmSskXjZX86GL9NMAVaxy6dmeYJN+qBlMrj1qTMJgDZ59uf
-         kpYjz0jf9iVc4daeYnMOuq/AXU/1PGtemhTaZC5Js7KnRUy1s1YsOB/DH4OsR8pFFgCz
-         Aktjqnv+YlMQBQ3arSVmneVT2qPN4lDQcgGG1UXfmd0Sr3DSt0/zf9w8WxC9J9D6jdSS
-         aHopobVKjyGoD+XCcHCh29w9Y8PGs+fcWMwi8rBTrE9/LU3OLAJg1NVpShgwJsiWj99s
-         sx5Bu9tdK85x7F4YAA5NcMrP4ML1AfTA1BfNsQkH+8hlggeiSZefmgW+GAPwnnUK5mjn
-         sOag==
-X-Gm-Message-State: AOAM533yqjHf0EAptcI8mKMrNhAWtimqvGin70YfOfTFgZ2N+XbqJnyG
-        J6PFpPBxKL/P3mubmUZnepg=
-X-Google-Smtp-Source: ABdhPJwyf46rMdiUnsEenWD7zMuqf6I5CvJWYIhKLiSPmQ9A9wBJNXaNmAXLPu+nikL9P/7S5hZsJQ==
-X-Received: by 2002:a05:6402:1001:: with SMTP id c1mr46334020edu.26.1625057517040;
-        Wed, 30 Jun 2021 05:51:57 -0700 (PDT)
-Received: from eldamar (host-87-6-245-254.retail.telecomitalia.it. [87.6.245.254])
-        by smtp.gmail.com with ESMTPSA id z10sm7884226edc.28.2021.06.30.05.51.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Jun 2021 05:51:56 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Wed, 30 Jun 2021 14:51:53 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Anil Altinay <aaltinay@google.com>, stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: Re: CVE-2021-3444
-Message-ID: <YNxo6REUcm8gFdjR@eldamar.lan>
-References: <CACCxZWMREz1AVchULrWpdvtXYdDXJPNbC3qJicQ-S6UnfTbCUQ@mail.gmail.com>
- <YNuYZqgFY5VM0hRr@sashalap>
+        id S234618AbhF3M4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 08:56:40 -0400
+Received: from mga06.intel.com ([134.134.136.31]:61814 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234481AbhF3M4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Jun 2021 08:56:38 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10030"; a="269474485"
+X-IronPort-AV: E=Sophos;i="5.83,312,1616482800"; 
+   d="scan'208";a="269474485"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jun 2021 05:54:08 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.83,312,1616482800"; 
+   d="scan'208";a="455246293"
+Received: from linux.intel.com ([10.54.29.200])
+  by orsmga008.jf.intel.com with ESMTP; 30 Jun 2021 05:54:08 -0700
+Received: from [10.209.45.119] (kliang2-MOBL.ccr.corp.intel.com [10.209.45.119])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by linux.intel.com (Postfix) with ESMTPS id 4E226580279;
+        Wed, 30 Jun 2021 05:54:07 -0700 (PDT)
+Subject: Re: [PATCH V3 5/6] perf/x86/intel/uncore: Fix invalid unit check
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     peterz@infradead.org, mingo@redhat.com, acme@kernel.org,
+        linux-kernel@vger.kernel.org, eranian@google.com,
+        namhyung@kernel.org, jolsa@redhat.com, ak@linux.intel.com,
+        yao.jin@linux.intel.com, stable@vger.kernel.org
+References: <1624990443-168533-1-git-send-email-kan.liang@linux.intel.com>
+ <1624990443-168533-6-git-send-email-kan.liang@linux.intel.com>
+ <YNw7CT2sBE0l8aNf@kroah.com>
+From:   "Liang, Kan" <kan.liang@linux.intel.com>
+Message-ID: <cb0d2d43-102a-994c-f777-e11d61c77bf5@linux.intel.com>
+Date:   Wed, 30 Jun 2021 08:54:05 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YNuYZqgFY5VM0hRr@sashalap>
+In-Reply-To: <YNw7CT2sBE0l8aNf@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Anil,
 
-On Tue, Jun 29, 2021 at 06:02:14PM -0400, Sasha Levin wrote:
-> On Tue, Jun 29, 2021 at 01:06:00PM -0700, Anil Altinay wrote:
-> > Hi,
-> > 
-> > I realized that this cve(
-> > https://www.openwall.com/lists/oss-security/2021/03/23/2 ) is not in
-> > the 4.19 tree but the commits introduced the vulnerability before
-> > 4.19. Is there any reason that the fix was not cherry-picked to 4.19?
+
+On 6/30/2021 5:36 AM, Greg KH wrote:
+> On Tue, Jun 29, 2021 at 11:14:02AM -0700, kan.liang@linux.intel.com wrote:
+>> From: Kan Liang <kan.liang@linux.intel.com>
+>>
+>> The uncore unit with the type ID 0 and the unit ID 0 is missed.
+>>
+>> The table3 of the uncore unit maybe 0. The
+>> uncore_discovery_invalid_unit() mistakenly treated it as an invalid
+>> value.
+>>
+>> Remove the !unit.table3 check.
+>>
+>> Fixes: edae1f06c2cd ("perf/x86/intel/uncore: Parse uncore discovery tables")
+>> Reviewed-by: Andi Kleen <ak@linux.intel.com>
+>> Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+>> Cc: stable@vger.kernel.org
+>> ---
+>>   arch/x86/events/intel/uncore_discovery.h | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Backport wasn't trivial, and no one seemed to care enough about 4.19.
-> Feel free to backport the fix and send it out for review.
+> Why is a bugfix that needs to be backported patch 5 in the series?
+> Shouldn't that be totally independant and sent on its own and not part
+> of this series at all so that it can be accepted and merged much
+> quicker?  It also should not depened on the previous 4 patches, right?
+>
 
-FWIW, thre was/is some work in progress from this for the 4.19.y
-series and in fact they are already done by Thadeu Lima de Souza
-Cascardo, based on earlier version from Daniel. They are not yet in a
-form probably to be accepted for stable@... they need some adaption to
-commit message to reflect the needed changes for the backport, as
-clean cyerry-picks were not possible and are based on earlier versions
-of the patches.
+Yes, you are right.
 
-There is a prerequisite needed, which is not in mainline, which is a
-aprtial undo of old commit 144cd91c4c2b ("bpf: move tmp variable into
-ax register in interpreter") and on top of it first a backport needed
-for e88b2c6e5a4d ("bpf: Fix 32 bit src register truncation on
-div/mod") (which is the fix for CVE-2021-3600), and then a backport of
-the CVE-2021-3444.
+I found the bug when I tested this patch set. so I appended it at the 
+end of the patch set. I will split the patch and send it separately.
 
-Cascardo, Daniel, Alexei, should we post that series here so maybe
-someone is able to fixup the patches as needed for inclusion in
-4.19.y?
-
-Regards,
-Salvatore
+Thanks,
+Kan
