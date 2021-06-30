@@ -2,113 +2,397 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 410863B8A20
-	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 23:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C793B8A25
+	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 23:39:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231770AbhF3Vgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 17:36:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45094 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229705AbhF3Vgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Jun 2021 17:36:32 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A8EB6146D;
-        Wed, 30 Jun 2021 21:34:02 +0000 (UTC)
-Date:   Wed, 30 Jun 2021 17:34:00 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Paul Burton <paulburton@google.com>
-Cc:     linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joelaf@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] tracing: Resize tgid_map to PID_MAX_LIMIT, not
- PID_MAX_DEFAULT
-Message-ID: <20210630173400.7963f619@oasis.local.home>
-In-Reply-To: <YNzdllg/634Sa6Rt@google.com>
-References: <20210630003406.4013668-1-paulburton@google.com>
-        <20210630003406.4013668-2-paulburton@google.com>
-        <20210630083513.1658a6fb@oasis.local.home>
-        <YNzdllg/634Sa6Rt@google.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        id S231799AbhF3Vlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 17:41:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37624 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229705AbhF3Vlt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 17:41:49 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAF9AC061756
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 14:39:19 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id u19so2273891plc.3
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 14:39:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rR2qhb1nRfFI3LRnSFdPDXrURO+FYhRD1lte9gdXfYQ=;
+        b=ZfI6w3k8+XVKZ9LaLOcpRSTvlrLyAVZG7bZw2qNgAtOCP1hDBIg0/TOoEPWlqA8t6D
+         soxETc/XIwlqq7UhoY75JUBH6S7lkIVSBops407lafgSnObxH71Thv7QwO8P5HqdiO+K
+         eN957BMtj/Y0TM1AJBzc/qRv9izXoaZvexGMhCIu+xh1K1NgAppXBga2bi+JkqRPkkw+
+         ddGtxYlGVqGSUD8Qqx+pksD6RnN3m7i8DgtWHlrh/ztPB3cyVXdJjA3blWjyYxTeR+SM
+         wQALZb9w+EoqyxHsn8RVeyCGrSmkTc5cXARipnh9Z4IqMSi4HPmUXIx1RiXfr9kFKXk0
+         a3ug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rR2qhb1nRfFI3LRnSFdPDXrURO+FYhRD1lte9gdXfYQ=;
+        b=CBCZHozKGaTYFZyu/d6SEEJ+g+9HOomNOpP0DtZap7XbWeMSbU7nIxqdMSnfOHe2SB
+         UjiqHOkKfHm58P7Gab+st2gAmVM1KcK+xYXO+OaepCpG8UDXTBTxWzg9CchM+ngpLbI2
+         FDQiE4Td7t+qN8Z33lYBJi5pBnyhvqH7BIsr41HRyfdo66s4puB6TCXKloJlMnPmX+zg
+         pq5syTqTPTagSSKlZxi+LpyrXgooFZqN+ZtxHDHw6AAFsgzCQMC5jrgxUyuG/alEHqA0
+         efpE3vqUtUHHreot5u2naC/cNraZKoj7UNciEI8NrkUHfNviN8sGLZH/0poWYfZCH4QR
+         S0hg==
+X-Gm-Message-State: AOAM530QUNfFSXQBtHch62T3WUoIegwj1E0YZ01nfOYy/96OL4aGqg4J
+        PgJhNzdYdQCFIIwUYCE+dSzS0G1TP6A8vstX
+X-Google-Smtp-Source: ABdhPJyjiNZhQXTFUEuyqDsFqFo5P9LBp9FkuEFeXdouzvwcHLmFU3jVJ8jTd1xUx9giSdM6l0Zhcg==
+X-Received: by 2002:a17:90a:7891:: with SMTP id x17mr6377647pjk.106.1625089158291;
+        Wed, 30 Jun 2021 14:39:18 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h10sm19586563pfh.33.2021.06.30.14.39.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Jun 2021 14:39:18 -0700 (PDT)
+Message-ID: <60dce486.1c69fb81.64c27.aa46@mx.google.com>
+Date:   Wed, 30 Jun 2021 14:39:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.274
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y baseline: 101 runs, 9 regressions (v4.4.274)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 30 Jun 2021 14:09:42 -0700
-Paul Burton <paulburton@google.com> wrote:
+stable-rc/linux-4.4.y baseline: 101 runs, 9 regressions (v4.4.274)
 
-> Hi Steven,
-> 
-> On Wed, Jun 30, 2021 at 08:35:13AM -0400, Steven Rostedt wrote:
-> > On Tue, 29 Jun 2021 17:34:06 -0700
-> > Paul Burton <paulburton@google.com> wrote:
-> >   
-> > > On 64 bit systems this will increase the size of tgid_map from 256KiB to
-> > > 16MiB. Whilst this 64x increase in memory overhead sounds significant 64
-> > > bit systems are presumably best placed to accommodate it, and since
-> > > tgid_map is only allocated when the record-tgid option is actually used
-> > > presumably the user would rather it spends sufficient memory to actually
-> > > record the tgids they expect.  
-> > 
-> > NAK. Please see how I fixed this for the saved_cmdlines, and implement
-> > it the same way.
-> > 
-> > 785e3c0a3a87 ("tracing: Map all PIDs to command lines")
-> > 
-> > It's a cache, it doesn't need to save everything.  
-> 
-> Well sure, but it's a cache that (modulo pid recycling) previously had a
-> 100% hit rate for tasks observed in sched_switch events.
+Regressions Summary
+-------------------
 
-Obviously it wasn't 100% when it went over the PID_MAX_DEFAULT.
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+dove-cubox          | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfi=
+g | 1          =
 
-> 
-> It differs from saved_cmdlines in a few key ways that led me to treat it
-> differently:
-> 
-> 1) The cost of allocating map_pid_to_cmdline is paid by all users of
->    ftrace, whilst as I mentioned in my commit description the cost of
->    allocating tgid_map is only paid by those who actually enable the
->    record-tgid option.
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-I'll admit that this is a valid point.
+qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-> 
-> 2) We verify that the data in map_pid_to_cmdline is valid by
->    cross-referencing it against map_cmdline_to_pid before reporting it.
->    We don't currently have an equivalent for tgid_map, so we'd need to
->    add a second array or make tgid_map an array of struct { int pid; int
->    tgid; } to avoid reporting incorrect tgids. We therefore need to
->    double the memory we consume or further reduce the effectiveness of
->    this cache.
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-Double 256K is just 512K which is still much less than 16M.
+qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-> 
-> 3) As mentioned before, with the default pid_max tgid_map/record-tgid
->    has a 100% hit rate which was never the case for saved_cmdlines. If
->    we go with a solution that changes this property then I certainly
->    think the docs need updating - the description of saved_tgids in
->    Documentation/trace/ftrace.rst makes no mention of this being
->    anything but a perfect recreation of pid->tgid relationships, and
->    unlike the description of saved_cmdlines it doesn't use the word
->    "cache" at all.
-> 
-> Having said that I think taking a similar approach to saved_cmdlines
-> would be better than what we have now, though I'm not sure whether it'll
-> be sufficient to actually be usable for me. My use case is grouping
-> threads into processes when displaying scheduling information, and
-> experience tells me that if any threads don't get grouped appropriately
-> the result will be questions.
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-I found a few bugs recently in the saved_cmdlines that were causing a
-much higher miss rate, but now it's been rather accurate. I wonder how
-much pain that's been causing you?
+qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-Anyway, I'll wait to hear what Joel says on this. If he thinks this is
-worth 16M of memory when enabled, I may take it.
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
--- Steve
+qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.274/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.274
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      200ecf5055dfba12b9bff6984830a7cdddee8ab1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+dove-cubox          | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcaae92e20abd9e223bc04
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: mvebu_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dove-cubox.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dove-cubox.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcaae92e20abd9e223b=
+c05
+        new failure (last pass: v4.4.273-56-gc1d107bc0e6b) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcadb586ffe7a7ab23bbc3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcadb586ffe7a7ab23b=
+bc4
+        failing since 228 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcb77ee9f812cab723bbf3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcb77ee9f812cab723b=
+bf4
+        failing since 228 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcad5f19f8dfe58923bbbd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcad5f19f8dfe58923b=
+bbe
+        failing since 228 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcbb7f94a6290ac523bbf1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-virt-gicv2.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcbb7f94a6290ac523b=
+bf2
+        failing since 228 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcae2dd3f1aa275d23bbd2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcae2dd3f1aa275d23b=
+bd3
+        failing since 228 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcb81f0d8e9e4cca23bbe9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcb81f0d8e9e4cca23b=
+bea
+        failing since 228 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcadd786ffe7a7ab23bc34
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcadd786ffe7a7ab23b=
+c35
+        failing since 228 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcbc1bc0a54054d223bbc8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.274=
+/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-virt-gicv3.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcbc1bc0a54054d223b=
+bc9
+        failing since 228 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =20
