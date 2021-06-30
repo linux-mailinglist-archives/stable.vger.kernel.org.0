@@ -2,156 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 595753B8A77
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 00:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 241E33B8A8B
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 00:35:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232511AbhF3WeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 18:34:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49142 "EHLO
+        id S234445AbhF3WhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 18:37:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231864AbhF3WeU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 18:34:20 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1277AC061756
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:31:51 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id y17so3860443pgf.12
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:31:51 -0700 (PDT)
+        with ESMTP id S234134AbhF3Wgy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 18:36:54 -0400
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD1FC0617A8
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:34:23 -0700 (PDT)
+Received: by mail-qt1-x834.google.com with SMTP id c13so2733166qtb.12
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:34:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pvyntMPPZrC81ZximJkMNTs70LmkBjxhK6bluDbZQng=;
-        b=HZsoPQNlff0tL5II922de56RCfqj655IRDp1QK+0cGIoJ1+haSEYllbKwzsKMFiMoz
-         pWDn56T7RzfH/fapmlTVubRb4mMBGsLw02ZaNPsaDoHm1BPnDUXoRFYVROkIVR/94udB
-         milwD7luJoi5or5hua5gHSnx6ry0OI72hJZ1ROnQnNS9Gt2ayPKL0g+mUtivF+5SRobG
-         dpCkTI8cYVA5NA4fkDyhMkHCRZWRy8Lx8YAPhbRgw+5dZCJdoOkR+4nPtQX855/1qlWa
-         zJvLu7KnFFOJq3wnUs73M/NcNDn1A0MJYIU7iRZP40UIvIp41yi3MWiNhq5pTfwyZ5C+
-         C9Mg==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=oDBeFzOeSYMajUq4z+RXiKNq7rQAt1gBDq5Z6Cf+y/c=;
+        b=eY7qay9OFBKD9WyfWcDfvsAExyXjD6G8Z7MCYiObz3P66eVyVXJDuYc4I4H7YBjv1G
+         LOrUtyvR8gPD1V2BpTy+08a+Ws64UX1vkAYLpZLd18850iBLxI0L8S9SuvhqrNGW6P3M
+         9XVRxoWLFj5l8WNxyarmxWFjieIpR/TkCxru8yAtgRTaeoz5Y81AN4OFx7Ttxg5zTudc
+         hUzlfOSJmXGRmArpkrAuCpKCxEIIG0JjfcthhTAgXLvqT8+KdmL9PaRPTbPp3bPDRI4t
+         czh1HsjsMrBNSQOqIFZbI0PlWCfRGLkcVX6DA3NFzy+SU5QHWZh8RnfvGULN8JDfDYuC
+         ATDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pvyntMPPZrC81ZximJkMNTs70LmkBjxhK6bluDbZQng=;
-        b=ixVyu/IdQHsOJJNtWFCFEPfS2gFcWeL78t4hsg8RjrX+NRg8l88Vxy/CZ8xYSgKaoQ
-         3KaCPZjfyv63qvtsVm6Sd94b3ibhUB81Plh/hlOlcZJlFnH8U8x3VaGTIFsdjZzKRwAM
-         HJBOc4EkkwEP8fqIsfYRoTDbPaZ7mCa5s+M9T43qIsQYXhF98MwyibBrQmVodKs0ynRO
-         agkBGpuJ7wUk9WZH8Wq7qHtGBNJCamMkYI9wtueR7ab4nuq+JKJLFv73+VZZcGOg7ybt
-         5znaDQ/HeUdMmtKkqyBEC1x9Vw0zX2VgtPYtb2u/liz2Nnu3GkkrfyOXa0eUrfywRV7G
-         aFCg==
-X-Gm-Message-State: AOAM533fqRcSPZw64B8YVOOT7nwqwe6K5y9b3QfN69m4SyxoZ8+HCO60
-        365rvsLfpvt97ftxNML5vDfWrl3IYD0mkS0F
-X-Google-Smtp-Source: ABdhPJzfc4yNAMslcx6ukWJZvVKvPPiGpkKCwIRH4pH8p0IIvPkIv2wk0pK747H8UuncbC0BQk1QWA==
-X-Received: by 2002:a63:4a18:: with SMTP id x24mr35844019pga.303.1625092310428;
-        Wed, 30 Jun 2021 15:31:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c5sm23138388pfi.81.2021.06.30.15.31.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Jun 2021 15:31:50 -0700 (PDT)
-Message-ID: <60dcf0d6.1c69fb81.12503.5d88@mx.google.com>
-Date:   Wed, 30 Jun 2021 15:31:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=oDBeFzOeSYMajUq4z+RXiKNq7rQAt1gBDq5Z6Cf+y/c=;
+        b=rOdHchogsmI8EaHNoZ3H5s7doVakYelaTdAwLh29jjeb0twB/38B/1039A+cc1BZo3
+         qq0WMg7Ee3aW7X3v5S/lCFo+E43F20IW4bX+umjJKwba4PKv0SwzZujp07hgg5EZrXNn
+         3QmzM+4mm8gYPsjvqP/RFZXPCxROK7brAYnDbtQr/qDrVQdLddgV0xI+kgYPPvYbA5Fz
+         NQIxD1P8GVVc9AO8gmaSiawvAUvCX68daGSrKff2jACxlweedVEFousxB8HcMKu6ue0p
+         qsLdKsWZQDLt0BJHXT4OIdisGk9kIYisKceg1B3JJ2Gv3sv95npQC1Bl0Kk8VbVA3pL8
+         qQxQ==
+X-Gm-Message-State: AOAM531hKetkfQKbfGvtBAiCf1VodWp46opNgv6cIQEXG4dSuhtSeRtv
+        fjA0Pm/4KZsfBlE/cC0u2qqKQcYLxLQxUF2PxiUmsg==
+X-Google-Smtp-Source: ABdhPJwrSvGWPQao8zHcABCMuiXxI/BRQPB4DIe7y60UDvcfYfGul0J9WFL1LSjY4Je8Ohgl7IefoZENhmAxer+HXXc=
+X-Received: by 2002:ac8:604:: with SMTP id d4mr33769426qth.304.1625092462907;
+ Wed, 30 Jun 2021 15:34:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.47
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable-rc/linux-5.10.y baseline: 153 runs, 2 regressions (v5.10.47)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20210630003406.4013668-1-paulburton@google.com>
+ <20210630003406.4013668-2-paulburton@google.com> <20210630083513.1658a6fb@oasis.local.home>
+ <YNzdllg/634Sa6Rt@google.com> <20210630173400.7963f619@oasis.local.home>
+In-Reply-To: <20210630173400.7963f619@oasis.local.home>
+From:   Joel Fernandes <joelaf@google.com>
+Date:   Wed, 30 Jun 2021 18:34:11 -0400
+Message-ID: <CAJWu+ooJzcTFBFPSqWE5oHe2_4Gt_GHXftcXutk5mm-UX_hUUA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] tracing: Resize tgid_map to PID_MAX_LIMIT, not PID_MAX_DEFAULT
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Paul Burton <paulburton@google.com>, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 153 runs, 2 regressions (v5.10.47)
+On Wed, Jun 30, 2021 at 5:34 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+[..]
+> > Having said that I think taking a similar approach to saved_cmdlines
+> > would be better than what we have now, though I'm not sure whether it'll
+> > be sufficient to actually be usable for me. My use case is grouping
+> > threads into processes when displaying scheduling information, and
+> > experience tells me that if any threads don't get grouped appropriately
+> > the result will be questions.
+>
+> I found a few bugs recently in the saved_cmdlines that were causing a
+> much higher miss rate, but now it's been rather accurate. I wonder how
+> much pain that's been causing you?
+>
+> Anyway, I'll wait to hear what Joel says on this. If he thinks this is
+> worth 16M of memory when enabled, I may take it.
 
-Regressions Summary
--------------------
+I am not a huge fan of the 16M, in Android we enable this feature on
+all devices. Low end Android devices traced in the field are sometimes
+1 GB and the added memory pressure may be unwelcome. Very least, maybe
+make it optional only for folks who increase pid_max?
 
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
-
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.47/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.47
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4357ae26d4cd133a86982f23cb6b321304faac50 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60dcbe1113fa75ce8023bbd7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
-7/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
-7/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60dcbe1113fa75ce8023b=
-bd8
-        new failure (last pass: v5.10.46-101-ga41d5119dc1e) =
-
- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60dcbd313b9bb0490923bbe2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
-7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
-7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60dcbd313b9bb0490923b=
-be3
-        new failure (last pass: v5.10.46-13-g88b257611f2a) =
-
- =20
+thanks,
+-Joel
