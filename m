@@ -2,89 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 032A43B7D53
-	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 08:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99CF93B7D99
+	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 08:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229933AbhF3GWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 02:22:31 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:9299 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229532AbhF3GWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 02:22:30 -0400
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4GF9zg6nFBz1BRjB;
-        Wed, 30 Jun 2021 14:14:39 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Wed, 30 Jun 2021 14:19:59 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Wed, 30 Jun 2021 14:19:58 +0800
-Subject: Re: [PATCH 4.14 00/88] 4.14.238-rc1 review
-To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>
-References: <20210628143628.33342-1-sashal@kernel.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <c1e29a9a-7561-3aa0-8589-949dcf6d9304@huawei.com>
-Date:   Wed, 30 Jun 2021 14:19:58 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S232441AbhF3Gvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 02:51:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36118 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232370AbhF3Gvy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 02:51:54 -0400
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6C1C061766;
+        Tue, 29 Jun 2021 23:49:25 -0700 (PDT)
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.94.2)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1lyU29-00Dfk2-PY; Wed, 30 Jun 2021 08:49:17 +0200
+Message-ID: <33878426ded4c2b5af3e0cd5b36fbc2e475e2f43.camel@sipsolutions.net>
+Subject: Re: [PATCH v2 11/12] mac80211: drop data frames without key on
+ encrypted links
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     Pali =?ISO-8859-1?Q?Roh=E1r?= <pali@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, Luca Coelho <luca@coelho.fi>,
+        linux-wireless@vger.kernel.org, stable@vger.kernel.org
+Date:   Wed, 30 Jun 2021 08:49:16 +0200
+In-Reply-To: <20210629213214.wgypgbxor7mhutni@pali>
+References: <iwlwifi.20200326150855.6865c7f28a14.I9fb1d911b064262d33e33dfba730cdeef83926ca@changeid>
+         <20200327150342.252AF20748@mail.kernel.org>
+         <20210611101046.zej2t2oc6hsc67yv@pali>
+         <804462f2381df5fb30fba7e186e62375352b8adc.camel@sipsolutions.net>
+         <20210629213214.wgypgbxor7mhutni@pali>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
 MIME-Version: 1.0
-In-Reply-To: <20210628143628.33342-1-sashal@kernel.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-malware-bazaar: not-scanned
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/6/28 22:35, Sasha Levin wrote:
+On Tue, 2021-06-29 at 23:32 +0200, Pali Rohár wrote:
+> On Wednesday 23 June 2021 14:16:12 Johannes Berg wrote:
+> > On Fri, 2021-06-11 at 12:10 +0200, Pali Rohár wrote:
+> > > 
+> > > @@ -341,8 +341,11 @@ static void ieee80211_key_replace(struct ieee80211_sub_if_data *sdata,
+> > >  	if (sta) {
+> > >  		if (pairwise) {
+> > >  			rcu_assign_pointer(sta->ptk[idx], new);
+> > > -			sta->ptk_idx = idx;
+> > > -			ieee80211_check_fast_xmit(sta);
+> > > +			if (new) {
+> > > +				set_sta_flag(new->sta, WLAN_STA_USES_ENCRYPTION);
+> > > +				new->sta->ptk_idx = new->conf.keyidx;
+> > 
+> > I'm not entirely sure moving that assignment under the guard is correct.
+> > 
+> > > +				ieee80211_check_fast_xmit(new->sta);
+> > 
+> > and I'm pretty sure that moving call under the guard is incorrect,
+> > although in the end it probably doesn't even matter if we will drop all
+> > frames anyway (due to this patch).
+> > 
+> > So all you need under the assignment is the flag, but also only
+> > theoretically, because the function cannot be called with old==NULL &&
+> > new==NULL, the first time around it's called we must have old==NULL (no
+> > key was ever installed), and so the first time it's called it must be
+> > old==NULL && new!=NULL, and then the flag gets set and we never want to
+> > clear it again, so I believe you don't need the "if (new)" condition at
+> > all.
+> > 
+> > In the code as it was in (and before) my patch the condition is
+> > necessary because we use 'new' to obtain the 'sta' and 'local' pointers,
+> > but otherwise we don't really need it even in the current version.
+> > 
+> > johannes
 > 
-> This is the start of the stable review cycle for the 4.14.238 release.
-> There are 88 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Now I see, thank you for explanation. So the code should be like this:
 > 
-> Responses should be made by Wed 30 Jun 2021 02:36:04 PM UTC.
-> Anything received after that time might be too late.
+>  		if (pairwise) {
+>  			rcu_assign_pointer(sta->ptk[idx], new);
+> +			set_sta_flag(sta, WLAN_STA_USES_ENCRYPTION);
+>  			sta->ptk_idx = idx;
+>  			ieee80211_check_fast_xmit(sta);
+>  		} else {
 > 
-> The whole patch series can be found in one patch at:
->          https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-4.14.y&id2=v4.14.237
-> or in the git tree and branch at:
->          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
-> 
-> Thanks,
-> Sasha
-> 
+> Right?
 
-Tested on x86 for 4.14.238-rc1,
+Yes, I think so.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.14.y
-Version: 4.14.238-rc1
-Commit: f8f0323505c56f13af223c8b9ad54f2fad125756
-Compiler: gcc version 7.3.0 (GCC)
+johannes
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8836
-passed: 8836
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
