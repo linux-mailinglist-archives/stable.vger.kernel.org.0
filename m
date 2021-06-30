@@ -2,93 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CF93B7D99
-	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 08:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92C713B7DC0
+	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 08:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232441AbhF3Gvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 02:51:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36118 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232370AbhF3Gvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 02:51:54 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6C1C061766;
-        Tue, 29 Jun 2021 23:49:25 -0700 (PDT)
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.94.2)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1lyU29-00Dfk2-PY; Wed, 30 Jun 2021 08:49:17 +0200
-Message-ID: <33878426ded4c2b5af3e0cd5b36fbc2e475e2f43.camel@sipsolutions.net>
-Subject: Re: [PATCH v2 11/12] mac80211: drop data frames without key on
- encrypted links
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Pali =?ISO-8859-1?Q?Roh=E1r?= <pali@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>, Luca Coelho <luca@coelho.fi>,
-        linux-wireless@vger.kernel.org, stable@vger.kernel.org
-Date:   Wed, 30 Jun 2021 08:49:16 +0200
-In-Reply-To: <20210629213214.wgypgbxor7mhutni@pali>
-References: <iwlwifi.20200326150855.6865c7f28a14.I9fb1d911b064262d33e33dfba730cdeef83926ca@changeid>
-         <20200327150342.252AF20748@mail.kernel.org>
-         <20210611101046.zej2t2oc6hsc67yv@pali>
-         <804462f2381df5fb30fba7e186e62375352b8adc.camel@sipsolutions.net>
-         <20210629213214.wgypgbxor7mhutni@pali>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
+        id S232445AbhF3HAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 03:00:24 -0400
+Received: from mailout2.secunet.com ([62.96.220.49]:39740 "EHLO
+        mailout2.secunet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232018AbhF3HAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 03:00:24 -0400
+Received: from cas-essen-01.secunet.de (unknown [10.53.40.201])
+        by mailout2.secunet.com (Postfix) with ESMTP id 0B058800056;
+        Wed, 30 Jun 2021 08:57:54 +0200 (CEST)
+Received: from mbx-essen-01.secunet.de (10.53.40.197) by
+ cas-essen-01.secunet.de (10.53.40.201) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Wed, 30 Jun 2021 08:57:53 +0200
+Received: from gauss2.secunet.de (10.182.7.193) by mbx-essen-01.secunet.de
+ (10.53.40.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Wed, 30 Jun
+ 2021 08:57:53 +0200
+Received: by gauss2.secunet.de (Postfix, from userid 1000)
+        id 26EA4318040F; Wed, 30 Jun 2021 08:57:53 +0200 (CEST)
+Date:   Wed, 30 Jun 2021 08:57:53 +0200
+From:   Steffen Klassert <steffen.klassert@secunet.com>
+To:     Frederic Weisbecker <frederic@kernel.org>
+CC:     LKML <linux-kernel@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        "Ahmed S . Darwish" <a.darwish@linutronix.de>,
+        <stable@vger.kernel.org>, Varad Gautam <varad.gautam@suse.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        <netdev@vger.kernel.org>
+Subject: Re: [PATCH] xfrm: Fix RCU vs hash_resize_mutex lock inversion
+Message-ID: <20210630065753.GU40979@gauss3.secunet.de>
+References: <20210628133428.5660-1-frederic@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-malware-bazaar: not-scanned
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20210628133428.5660-1-frederic@kernel.org>
+X-ClientProxiedBy: cas-essen-02.secunet.de (10.53.40.202) To
+ mbx-essen-01.secunet.de (10.53.40.197)
+X-EXCLAIMER-MD-CONFIG: 2c86f778-e09b-4440-8b15-867914633a10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2021-06-29 at 23:32 +0200, Pali Rohár wrote:
-> On Wednesday 23 June 2021 14:16:12 Johannes Berg wrote:
-> > On Fri, 2021-06-11 at 12:10 +0200, Pali Rohár wrote:
-> > > 
-> > > @@ -341,8 +341,11 @@ static void ieee80211_key_replace(struct ieee80211_sub_if_data *sdata,
-> > >  	if (sta) {
-> > >  		if (pairwise) {
-> > >  			rcu_assign_pointer(sta->ptk[idx], new);
-> > > -			sta->ptk_idx = idx;
-> > > -			ieee80211_check_fast_xmit(sta);
-> > > +			if (new) {
-> > > +				set_sta_flag(new->sta, WLAN_STA_USES_ENCRYPTION);
-> > > +				new->sta->ptk_idx = new->conf.keyidx;
-> > 
-> > I'm not entirely sure moving that assignment under the guard is correct.
-> > 
-> > > +				ieee80211_check_fast_xmit(new->sta);
-> > 
-> > and I'm pretty sure that moving call under the guard is incorrect,
-> > although in the end it probably doesn't even matter if we will drop all
-> > frames anyway (due to this patch).
-> > 
-> > So all you need under the assignment is the flag, but also only
-> > theoretically, because the function cannot be called with old==NULL &&
-> > new==NULL, the first time around it's called we must have old==NULL (no
-> > key was ever installed), and so the first time it's called it must be
-> > old==NULL && new!=NULL, and then the flag gets set and we never want to
-> > clear it again, so I believe you don't need the "if (new)" condition at
-> > all.
-> > 
-> > In the code as it was in (and before) my patch the condition is
-> > necessary because we use 'new' to obtain the 'sta' and 'local' pointers,
-> > but otherwise we don't really need it even in the current version.
-> > 
-> > johannes
+On Mon, Jun 28, 2021 at 03:34:28PM +0200, Frederic Weisbecker wrote:
+> xfrm_bydst_resize() calls synchronize_rcu() while holding
+> hash_resize_mutex. But then on PREEMPT_RT configurations,
+> xfrm_policy_lookup_bytype() may acquire that mutex while running in an
+> RCU read side critical section. This results in a deadlock.
 > 
-> Now I see, thank you for explanation. So the code should be like this:
+> In fact the scope of hash_resize_mutex is way beyond the purpose of
+> xfrm_policy_lookup_bytype() to just fetch a coherent and stable policy
+> for a given destination/direction, along with other details.
 > 
->  		if (pairwise) {
->  			rcu_assign_pointer(sta->ptk[idx], new);
-> +			set_sta_flag(sta, WLAN_STA_USES_ENCRYPTION);
->  			sta->ptk_idx = idx;
->  			ieee80211_check_fast_xmit(sta);
->  		} else {
+> The lower level net->xfrm.xfrm_policy_lock, which among other things
+> protects per destination/direction references to policy entries, is
+> enough to serialize and benefit from priority inheritance against the
+> write side. As a bonus, it makes it officially a per network namespace
+> synchronization business where a policy table resize on namespace A
+> shouldn't block a policy lookup on namespace B.
 > 
-> Right?
+> Fixes: 77cc278f7b20 (xfrm: policy: Use sequence counters with associated lock)
+> Cc: stable@vger.kernel.org
+> Cc: Ahmed S. Darwish <a.darwish@linutronix.de>
+> Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Cc: Varad Gautam <varad.gautam@suse.com>
+> Cc: Steffen Klassert <steffen.klassert@secunet.com>
+> Cc: Herbert Xu <herbert@gondor.apana.org.au>
+> Cc: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 
-Yes, I think so.
+Your patch has a conflicht with ("commit d7b0408934c7 xfrm: policy: Read
+seqcount outside of rcu-read side in xfrm_policy_lookup_bytype")
+from Varad. Can you please rebase onto the ipsec tree?
 
-johannes
+Btw. Varad, your above mentioned patch tried to fix the same issue.
+Do we still need it, or is it obsolete with the fix from Frederic?
 
+Thanks!
