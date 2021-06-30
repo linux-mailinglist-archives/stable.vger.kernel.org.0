@@ -2,112 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A23843B8A75
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 00:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 595753B8A77
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 00:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231738AbhF3Wdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 18:33:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48992 "EHLO
+        id S232511AbhF3WeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 18:34:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231799AbhF3Wdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 18:33:42 -0400
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02857C0617A8
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:31:12 -0700 (PDT)
-Received: by mail-wm1-x32e.google.com with SMTP id j11-20020a05600c1c0bb02901e23d4c0977so5544440wms.0
-        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:31:11 -0700 (PDT)
+        with ESMTP id S231864AbhF3WeU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 18:34:20 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1277AC061756
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:31:51 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id y17so3860443pgf.12
+        for <stable@vger.kernel.org>; Wed, 30 Jun 2021 15:31:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=GMyVPuFMxYNbLMHQBfZilBl/NBmnN5vmlOEDJDVgikA=;
-        b=H6lxDxqfFalvZBt10BgprhpbLvdq+DLerLRsXowgxYS2LE3FLuoCBt5dBBadg0Xghf
-         KNDj9akhByJUB+imIU+sZmgZhWGTlhLfIXeCi6ADK574Zg1+4THNfr254tFvYlWUE2m7
-         g3kxUdJVWLcLarbekZcB5Ay6FOh7hXYRuMJZU=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pvyntMPPZrC81ZximJkMNTs70LmkBjxhK6bluDbZQng=;
+        b=HZsoPQNlff0tL5II922de56RCfqj655IRDp1QK+0cGIoJ1+haSEYllbKwzsKMFiMoz
+         pWDn56T7RzfH/fapmlTVubRb4mMBGsLw02ZaNPsaDoHm1BPnDUXoRFYVROkIVR/94udB
+         milwD7luJoi5or5hua5gHSnx6ry0OI72hJZ1ROnQnNS9Gt2ayPKL0g+mUtivF+5SRobG
+         dpCkTI8cYVA5NA4fkDyhMkHCRZWRy8Lx8YAPhbRgw+5dZCJdoOkR+4nPtQX855/1qlWa
+         zJvLu7KnFFOJq3wnUs73M/NcNDn1A0MJYIU7iRZP40UIvIp41yi3MWiNhq5pTfwyZ5C+
+         C9Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=GMyVPuFMxYNbLMHQBfZilBl/NBmnN5vmlOEDJDVgikA=;
-        b=KyfybPNGP+r0fSB9P1Tb174XHHcS/huZl13duKi9MaB89YN6eOTSIEbaQPbg7lJsKS
-         UzrJVzvkUB8Gzori+f8pgY3rjT2JcF7Kds/8IiijyVSvWH9Jf8OybLi1FDyM50Cm3Ynq
-         mvINgG8FHe34GKxDUfI2M57hVkCx5BeHGbZzXlGw72VjThunYSC/i+g8rCBw/Sh8uobT
-         BJaVR23J//y8AXItH6vD04RgDGMhfPjM+RiiKTmHbqZhV7AVOsRRSN9VGJ418ScleC+U
-         BbhRL5CHRL/gUJV19UNguou6UplNICFcHlaR2WJah0dXLUpMmpl9Z3KdihwpKNYvYkEo
-         7Kaw==
-X-Gm-Message-State: AOAM5333Wgeni/VOm3OBhwJLGBQl2O85KO/lZ6Bs0+WPvOxCuQK205le
-        BQxKS7WNdUwQsyKeMexx7USXEg==
-X-Google-Smtp-Source: ABdhPJy+CBMlPBMOCn9DqrFiuK/2gDYg8Q4k6hyOxw0ZdBbgaxtH1RipwSDFUB/kwHiOL8sYZTnBPw==
-X-Received: by 2002:a7b:ce82:: with SMTP id q2mr6904410wmj.60.1625092269984;
-        Wed, 30 Jun 2021 15:31:09 -0700 (PDT)
-Received: from ?IPv6:2001:8b0:aba:5f3c:a683:959f:4ccb:54d6? ([2001:8b0:aba:5f3c:a683:959f:4ccb:54d6])
-        by smtp.gmail.com with ESMTPSA id t11sm23408362wrz.7.2021.06.30.15.31.09
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pvyntMPPZrC81ZximJkMNTs70LmkBjxhK6bluDbZQng=;
+        b=ixVyu/IdQHsOJJNtWFCFEPfS2gFcWeL78t4hsg8RjrX+NRg8l88Vxy/CZ8xYSgKaoQ
+         3KaCPZjfyv63qvtsVm6Sd94b3ibhUB81Plh/hlOlcZJlFnH8U8x3VaGTIFsdjZzKRwAM
+         HJBOc4EkkwEP8fqIsfYRoTDbPaZ7mCa5s+M9T43qIsQYXhF98MwyibBrQmVodKs0ynRO
+         agkBGpuJ7wUk9WZH8Wq7qHtGBNJCamMkYI9wtueR7ab4nuq+JKJLFv73+VZZcGOg7ybt
+         5znaDQ/HeUdMmtKkqyBEC1x9Vw0zX2VgtPYtb2u/liz2Nnu3GkkrfyOXa0eUrfywRV7G
+         aFCg==
+X-Gm-Message-State: AOAM533fqRcSPZw64B8YVOOT7nwqwe6K5y9b3QfN69m4SyxoZ8+HCO60
+        365rvsLfpvt97ftxNML5vDfWrl3IYD0mkS0F
+X-Google-Smtp-Source: ABdhPJzfc4yNAMslcx6ukWJZvVKvPPiGpkKCwIRH4pH8p0IIvPkIv2wk0pK747H8UuncbC0BQk1QWA==
+X-Received: by 2002:a63:4a18:: with SMTP id x24mr35844019pga.303.1625092310428;
+        Wed, 30 Jun 2021 15:31:50 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c5sm23138388pfi.81.2021.06.30.15.31.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Jun 2021 15:31:09 -0700 (PDT)
-Message-ID: <696dc58209707ce364616430673998d0124a9a31.camel@linuxfoundation.org>
-Subject: Re: [PATCH] cgroup1: fix leaked context root causing sporadic NULL
- deref in LTP
-From:   Richard Purdie <richard.purdie@linuxfoundation.org>
-To:     Mark Brown <broonie@kernel.org>, Tejun Heo <tj@kernel.org>
-Cc:     Paul Gortmaker <paul.gortmaker@windriver.com>,
-        linux-kernel@vger.kernel.org, cgroups@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>, stable@vger.kernel.org
-Date:   Wed, 30 Jun 2021 23:31:06 +0100
-In-Reply-To: <20210630161036.GA43693@sirena.org.uk>
-References: <20210616125157.438837-1-paul.gortmaker@windriver.com>
-         <YMoXdljfOFjoVO93@slm.duckdns.org> <20210630161036.GA43693@sirena.org.uk>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.40.0-1 
+        Wed, 30 Jun 2021 15:31:50 -0700 (PDT)
+Message-ID: <60dcf0d6.1c69fb81.12503.5d88@mx.google.com>
+Date:   Wed, 30 Jun 2021 15:31:50 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.47
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y baseline: 153 runs, 2 regressions (v5.10.47)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2021-06-30 at 17:10 +0100, Mark Brown wrote:
-> On Wed, Jun 16, 2021 at 11:23:34AM -0400, Tejun Heo wrote:
-> > On Wed, Jun 16, 2021 at 08:51:57AM -0400, Paul Gortmaker wrote:
-> 
-> > > A fix would be to not leave the stale reference in fc->root as follows:
-> 
-> > >    --------------
-> > >                   dput(fc->root);
-> > >   +               fc->root = NULL;
-> > >                   deactivate_locked_super(sb);
-> > >    --------------
-> 
-> > > ...but then we are just open-coding a duplicate of fc_drop_locked() so we
-> > > simply use that instead.
-> 
-> > As this is unlikely to be a real-world problem both in probability and
-> > circumstances, I'm applying this to cgroup/for-5.14 instead of
-> > cgroup/for-5.13-fixes.
-> 
-> FWIW at Arm we've started seeing what appears to be this issue blow up
-> very frequently in some of our internal LTP CI runs against -next, seems
-> to be mostly on lower end platforms.  We seem to have started finding it
-> at roughly the same time that the Yocto people did, I guess some other
-> change made it more likely to trigger.  Not exactly real world usage
-> obviously but it's creating quite a bit of noise in testing which is
-> disruptive so it'd be good to get it into -next as a fix.
+stable-rc/linux-5.10.y baseline: 153 runs, 2 regressions (v5.10.47)
 
-It is a horrible bug to debug as you end up with "random" failures on the 
-systems which are hard to pin down. Along with the RCU stall hangs it
-was all a bit of a nightmare.
+Regressions Summary
+-------------------
 
-Out of interest are you also seeing the proc01 test hang on a non-blocking
-read of /proc/kmsg periodically?
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
+1          =
 
-https://bugzilla.yoctoproject.org/show_bug.cgi?id=14460
+imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
+1          =
 
-I've not figured out a way to reproduce it at will yet and it seems strace
-was enough to unblock it. It seems arm specific.
 
-Cheers,
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.47/plan/baseline/
 
-Richard
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.47
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4357ae26d4cd133a86982f23cb6b321304faac50 =
 
 
 
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcbe1113fa75ce8023bbd7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+7/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+7/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcbe1113fa75ce8023b=
+bd8
+        new failure (last pass: v5.10.46-101-ga41d5119dc1e) =
+
+ =
+
+
+
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60dcbd313b9bb0490923bbe2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60dcbd313b9bb0490923b=
+be3
+        new failure (last pass: v5.10.46-13-g88b257611f2a) =
+
+ =20
