@@ -2,114 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 706943B7DCD
-	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 09:02:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F54A3B7E69
+	for <lists+stable@lfdr.de>; Wed, 30 Jun 2021 09:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232704AbhF3HFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Jun 2021 03:05:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39210 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232018AbhF3HFZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 03:05:25 -0400
-Received: from mail-ua1-x933.google.com (mail-ua1-x933.google.com [IPv6:2607:f8b0:4864:20::933])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306CDC061766;
-        Wed, 30 Jun 2021 00:02:56 -0700 (PDT)
-Received: by mail-ua1-x933.google.com with SMTP id c20so618764uar.12;
-        Wed, 30 Jun 2021 00:02:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=DWGJQjLPHSCbQm/Yojx5qSO/ziuBYx37jmq+GyBBQNA=;
-        b=NRSymyDmOFevXISrQD3H5aC2pmJ6AvTmWud+3xO6T5O2wvFj+vqFmQ1bd4TL9qyvRH
-         rYtv3y3KDLfgQjQ1i1t5WJsQd3qSgLQwLgQisQTKENnPkk+86N+QISP02Qhh2n4PzA1H
-         RA4FsznmVS6Lf7j9EUQypfp+Y401dXqSzp8nqNYPxHAjjbHxz2PrPxGozTyGVFtX8Ycg
-         PRF29KJaC55AAv07F58A7UR/z/hOwVH0m7dOmmDIPOXQ1VZf03hSa2K6CsnYVCtn8TTf
-         326E6AG82FdSH7WpmR0LLSXJ/KFAgHpClrWpwKcPbpRKdBexW79Uh3p/CWEKFVGRkhXR
-         qWag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=DWGJQjLPHSCbQm/Yojx5qSO/ziuBYx37jmq+GyBBQNA=;
-        b=k7G9UCskDvr0YBPu6yWhr4L/lMhd2jNLhztX0FD6biDT8DkjLBOEg7Fj1FyaTD893o
-         Q7QbIAp4GPEutDuByApON5807N7kZfG6LkChF56tRIhZIFWet9f4a2bk2uMGfgRSrPEr
-         J0YCh5GhLhscN5OGi/MZHPUlQA1KJbCCucSs+9x0KdDRMFvjD95lP0ufh2CsfwOb8cvi
-         i5QDQL0jMTO2mefEylscZjgL9/eK7K/HQTuw9lxnhrJCPWWLgF73g1mGMI9F1OyoswDG
-         bEW0VDUs3li1BJlP9OEI8WmY8hawPPn0pGpdmcgg/cmJTbJOnZgFcVRY+50od4oTmbKL
-         XYNA==
-X-Gm-Message-State: AOAM532PiizCYpMV8BXEYhfNwJIR9OSWtqDaEfnHxtVYx93Y4XmDXe4b
-        ILxk/XyDsVgE2Xn96X3QU3i3GA6XQFzy8ZzscXI=
-X-Google-Smtp-Source: ABdhPJwYoGKIfotZeQTeYk/Fps+YEiMMdTjYBiQq8rzg4yQdxhpX9sPXUqSrgq0gFfUdpgg66wWjoHgyfiEgZAhLJ+Q=
-X-Received: by 2002:ab0:36da:: with SMTP id v26mr14995990uau.118.1625036575349;
- Wed, 30 Jun 2021 00:02:55 -0700 (PDT)
+        id S233022AbhF3IAi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Jun 2021 04:00:38 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:42640 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232788AbhF3IAh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Jun 2021 04:00:37 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 6E9881FE49;
+        Wed, 30 Jun 2021 07:58:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1625039888; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=UYwudJQvE/P1/JgBMyFI0UJyzcBpmhJEU0VqB/kinxI=;
+        b=aGWAmdBp69e9o+mZojP67Bo5yQFF4Wt56wZxe3gChcxQ28ZO4asaecShm48LPdwtvX2nu8
+        ZaMpGfEOU7oNSTjOvzb2t01HeOORwg50F0LNWesV8ngy5488xsJvc6q3VQ+0zJqSAfvqTs
+        Cp/VsBpUX0+KCA4mzvnC61XsYozu2ms=
+Received: from suse.cz (unknown [10.100.224.162])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 1FFE7A3B8F;
+        Wed, 30 Jun 2021 07:58:08 +0000 (UTC)
+Date:   Wed, 30 Jun 2021 09:58:07 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc:     John Ogness <john.ogness@linutronix.de>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] printk/console: Check consistent sequence number when
+ handling race in console_unlock()
+Message-ID: <YNwkD3bTikepZr+k@alley>
+References: <20210629143341.19284-1-pmladek@suse.com>
+ <YNs/Vbi2Yt0s10Ye@google.com>
 MIME-Version: 1.0
-References: <20210629161738.936790-1-glider@google.com>
-In-Reply-To: <20210629161738.936790-1-glider@google.com>
-From:   Souptick Joarder <jrdr.linux@gmail.com>
-Date:   Wed, 30 Jun 2021 12:32:43 +0530
-Message-ID: <CAFqt6zZ8ZL8WtTg368VJ0WHjXc+YzMuA9D8OBXJ5T9j0ePctQQ@mail.gmail.com>
-Subject: Re: [PATCH v2] kfence: skip DMA allocations
-To:     Alexander Potapenko <glider@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Dmitry Vyukov <dvyukov@google.com>, elver@google.com,
-        linux-kernel@vger.kernel.org, Linux-MM <linux-mm@kvack.org>,
-        stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YNs/Vbi2Yt0s10Ye@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 29, 2021 at 9:47 PM Alexander Potapenko <glider@google.com> wrote:
->
-> Allocation requests with __GFP_DMA/__GFP_DMA32 or
-> SLAB_CACHE_DMA/SLAB_CACHE_DMA32 cannot be fulfilled by KFENCE, because
-> they must reside in low memory, whereas KFENCE memory pool is located in
-> high memory.
->
-> Skip such allocations to avoid crashes where DMAable memory is expected.
->
-> Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Dmitry Vyukov <dvyukov@google.com>
-> Cc: Marco Elver <elver@google.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: stable@vger.kernel.org # 5.12+
-> Signed-off-by: Alexander Potapenko <glider@google.com>
->
-> ---
->
-> v2:
->  - added parentheses around the GFP clause, as requested by Marco
-> ---
->  mm/kfence/core.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
->
-> diff --git a/mm/kfence/core.c b/mm/kfence/core.c
-> index 4d21ac44d5d35..f7ce3d876bc9e 100644
-> --- a/mm/kfence/core.c
-> +++ b/mm/kfence/core.c
-> @@ -760,6 +760,14 @@ void *__kfence_alloc(struct kmem_cache *s, size_t size, gfp_t flags)
->         if (size > PAGE_SIZE)
->                 return NULL;
->
-> +       /*
-> +        * Skip DMA allocations. These must reside in the low memory, which we
-> +        * cannot guarantee.
-> +        */
-> +       if ((flags & (__GFP_DMA | __GFP_DMA32)) ||
-> +           (s->flags & (SLAB_CACHE_DMA | SLAB_CACHE_DMA32)))
-> +               return NULL;
-> +
+On Wed 2021-06-30 00:42:13, Sergey Senozhatsky wrote:
+> On (21/06/29 16:33), Petr Mladek wrote:
+> > The standard printk() tries to flush the message to the console
+> > immediately. It tries to take the console lock. If the lock is
+> > already taken then the current owner is responsible for flushing
+> > even the new message.
+> > 
+> > There is a small race window between checking whether a new message is
+> > available and releasing the console lock. It is solved by re-checking
+> > the state after releasing the console lock. If the check is positive
+> > then console_unlock() tries to take the lock again and process the new
+> > message as well.
+> [..]
+> > diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+> > index 142a58d124d9..87411084075e 100644
+> > --- a/kernel/printk/printk.c
+> > +++ b/kernel/printk/printk.c
+> > @@ -2545,6 +2545,7 @@ void console_unlock(void)
+> >  	bool do_cond_resched, retry;
+> >  	struct printk_info info;
+> >  	struct printk_record r;
+> > +	u64 next_seq;
+> >  
+> >  	if (console_suspended) {
+> >  		up_console_sem();
+> > @@ -2654,8 +2655,10 @@ void console_unlock(void)
+> >  			cond_resched();
+> >  	}
+> >  
+> > -	console_locked = 0;
+> > +	/* Get consistent value of the next-to-be-used sequence number. */
+> > +	next_seq = console_seq;
+> >  
+> > +	console_locked = 0;
+> >  	up_console_sem();
+> >  
+> >  	/*
+> > @@ -2664,7 +2667,7 @@ void console_unlock(void)
+> >  	 * there's a new owner and the console_unlock() from them will do the
+> >  	 * flush, no worries.
+> >  	 */
+> > -	retry = prb_read_valid(prb, console_seq, NULL);
+> > +	retry = prb_read_valid(prb, next_seq, NULL);
+> >  	printk_safe_exit_irqrestore(flags);
+> >  
+> >  	if (retry && console_trylock())
+> 
+> Maybe it's too late here in my time zone, but what are the consequences
+> of this race?
+> 
+> `retry` can be falsely set, console_trylock() does not spin on owner,
+> so the context that just released the lock can grab it again only if
+> it's unlocked. For the context that just has released the console_sem
+> and then acquired it again, because of the race, - console_seq will be
+> valid after it acquires the lock, then it'll jump to `retry` and
+> re-validated the console_seq - prb_read_valid(). If it's valid, it'll
+> print the message; and should another CPU printk that CPU will spin on
+> owner and then the current console_sem owner will yield to it via
+> console_lock_spinning branch.
 
-I prefer to move this check at the top of the function.
-Although it won't make much difference except avoiding atomic operations
-in case this condition is true.
+I am not sure that I follow it correctly. IMHO, there are two possible
+races. I believe that you are talking about the 2nd scenario:
 
->         return kfence_guarded_alloc(s, size, flags);
->  }
->
-> --
-> 2.32.0.93.g670b81a890-goog
->
->
+1st scenario: console_unlock() retries but the message has been proceed
+   in the meantime:
+
+CPU0				CPU1
+
+console_unlock()
+
+  // process all pending messages
+  next_seq = 100;
+  up_console_sem();
+
+				printk()
+				  vprintk_store()
+				    // storing message with seq = 100;
+
+				  console_trylock_spinning()
+				     //succees
+				  console_unlock()
+				    // show message with seq == 100
+				    console_seq++; (101)
+
+				  next_seq = 101;
+				  up_consle_sem()
+
+   retry = prb_read_valid(prb, next_seq, NULL);
+     // true because next_seq == 100
+   goto retry;
+
+   if (!prb_read_valid(prb, console_seq, &r))
+     break;
+     // breaks because console_seq == 101
+
+Result: CPU0 retired just to realize that the message
+	has already been procceed.
+
+
+2nd scenario: printk() caller spins when other process is already
+	processing it's message
+
+
+CPU0				CPU1
+
+printk()
+  vprintk_store()
+     // storing message with seq == 100
+
+  console_trylock_spinning()
+     // succees
+  console_unlock()
+    // show message with seq == 100
+      console_seq++; (=> 101)
+
+      next_seq = 101;
+      up_console_sem();
+
+			       printk()
+				  vprintk_store()
+				  // storing message with seq == 101
+
+     retry = prb_read_valid(prb, next_seq, NULL);
+     // true because next_seq == 101
+     goto retry
+
+     if (!prb_read_valid(prb, console_seq, &r))
+       // read messages with seq == 101
+
+     console_seq++;  (=> 102)
+
+     console_lock_spinning_enable();
+     call_console_drivers();
+
+				  console_trylock_spinning()
+				    // spinning
+
+     if (console_lock_spinning_disable_and_check())
+	return;
+
+     // returns because there is a waiter
+
+				  // got the console lock
+				  console_unlock()
+				    if (!prb_read_valid(prb, console_seq, &r))
+				      break;
+				     // breaks because console_seq == 102
+
+
+Result: CPU1 was spinning just to realize that the message has already
+	been proceed.
+
+
+It is not ideal. But the result is always correct.
+
+The races have been there already before. Only the race window in 1st
+scenario was a bit smaller.
+
+Anyway, thanks for the review.
+
+Best Regards,
+Petr
