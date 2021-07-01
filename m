@@ -2,90 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0946B3B9600
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 20:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3AED3B9607
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 20:15:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233996AbhGASPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 14:15:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55436 "EHLO
+        id S233645AbhGASSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 14:18:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233988AbhGASPd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 14:15:33 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93208C061764
-        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 11:13:01 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id d12so6861915pgd.9
-        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 11:13:01 -0700 (PDT)
+        with ESMTP id S233140AbhGASSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 14:18:15 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16CDFC061764
+        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 11:15:44 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id u19so4123352plc.3
+        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 11:15:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=L4frH1VEvCLr/97mRnBCvwJ264/bfXW3vbuxhIoApP4=;
-        b=qA+se5SJjZr+edTPOtLJ7h0aK2mPbTeo9tni19LQFLZuBI+p3YeyI7z/yPAsj12icH
-         7KhYeS0BPjRms2/R92sWpz4TiT5RJ9mrlMyg8HCT2QcpGyZ58ET7r4mAa3k4Drpr+Bb3
-         IfY9Gp7+ov4NClwHadaJqCz+hXCppAnHa3UmocoYKqmhH0TbOD+8Yn5aZIyT78ZRSSI5
-         otiTRLiW+MfEBcx0p0eLWitE5WsVroKp0vbBjWKncZ5dyzTmm2kwl2iIHAqsyFjf5rq9
-         ZN+OYlmgboGfR9wCF37Q+VH2aaI4krgxWU1h60MFRwIDt9V5opaKYxwZ5d9spW5i62X2
-         NINw==
+        bh=VBK3elG7+RffbG0U9TL73XjsoLZSaxYTEj/YLeL64j4=;
+        b=F4yNM9ndU/GFX5Dpx1BNEVZH7b9oSr88oWu0kz62oL9CJgaPBh/H+hgIGXunaN2WTt
+         uZjvt5G1mUhUjVH9m6/v8w3WKGzo228LP2r6bRnqP4wZFsKZBWbbh1sjJYLEZgzPmMC4
+         XtkhmMyF6RaCmjzBMGycnZY0qoIFT8ePmVeaz1hSrUZgYtLrEZobquEFLKEodvtVpy5K
+         ykSuAWf+OI0h/q2uGyQhhgQKVtRVvvTYcIy1142iiXk/mBQHJ3MCEFePfQ/YPt0RpBKy
+         yDCa0L0EZlR9eoBxm06lh7Pn7kuMYlsMiP6M2ORVr6eZi2Bs3S+jcPRbHxiE9bPs9CBx
+         VTYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=L4frH1VEvCLr/97mRnBCvwJ264/bfXW3vbuxhIoApP4=;
-        b=OIzqgnOpwKd115dufY6vf9QRA4olRxN6wYGP6EEWiiy9OSO1Acs1r7XVzHYc+2zEZa
-         /6FzG8x2Sti4dz5msoaBwzeAGrZY/2IdyMwpySy//cmYQBzVvayfvL5Qk/+P13fqB67x
-         2kPbMuG8f2F8AB5ig67VNyBU+f8CBieaMhfO6BWqtBP+c5Ima2Ah7roL+TjIkI0eA2tO
-         3RS3VtkyCqrLwrhCN6FJNKTzYqg8jk4MLvc1LZzzzMyVWX1YmqqlKs1xk9Ofm7UJTds3
-         /vpA6zW/y7YiCV2hwq550Wg3nn9Cwy8UrcGLPyIm4mlS+0IPUnLLB5ivd1wQMXsetSPP
-         8XlA==
-X-Gm-Message-State: AOAM5317HY/U3+ZKjtEAqoPQCM/GbMo6XV4n25Alk0l7n7dIFYXsho2e
-        xyThkjvJmm4xHIEDBw3lsrpsFA==
-X-Google-Smtp-Source: ABdhPJyxS2vr04XyiD8xgxoJw4VetJ6DJ10MV3IeZpelDf+BgQOvWN3SJQFtJxjKNv4LWx4oiHeI5w==
-X-Received: by 2002:a63:2dc6:: with SMTP id t189mr827230pgt.442.1625163180986;
-        Thu, 01 Jul 2021 11:13:00 -0700 (PDT)
+        bh=VBK3elG7+RffbG0U9TL73XjsoLZSaxYTEj/YLeL64j4=;
+        b=h1OT5NJHWvVHVoLRgTUlfaJHP2PG6nhM2+7ezwnTxNbxcOTUDwtiDhvonZKJlNWtLC
+         whRLgczPW3KYofjxEXzDZx/l9ByZkMtbCfhHSaYWHjalHB5VOqbZIiT2nOkDOjYE9MO8
+         OoJFL9v5KtxZX4eKRW7O2eIj4wVv7kAO+qj/GHPDeynz6Agp/oAKbvaJedknUeOAb4KR
+         AvH6W2D234MBR/MTKmRXNeP5Q05ghK8mj798t2TBcrSYXY/+Oy2THh4vDZEjkNQRSnko
+         tnD3NNh3ifEVOIbwQDMwMej2I8V4xLKHIaxDWRgvOFWCi6AR6XgNAMAkbGmDdFr+S/tn
+         CJ/A==
+X-Gm-Message-State: AOAM533OqwTSPw/KdXFRUnhEGyHXJ214PFbQf48MY3khbX4lWvRpt3Ih
+        mzzW3Xg33y2+BjUIzqpL+pCb7w==
+X-Google-Smtp-Source: ABdhPJx+0AKjtxUAwtA0opUfMtTSNeImrLpUEBTW3u8J/HIZARu6V3+zpwFavk5Btxnje99bkW6jWQ==
+X-Received: by 2002:a17:90b:46c3:: with SMTP id jx3mr901300pjb.206.1625163343317;
+        Thu, 01 Jul 2021 11:15:43 -0700 (PDT)
 Received: from google.com ([2620:15c:280:201:558a:406a:d453:dbe5])
-        by smtp.gmail.com with ESMTPSA id m10sm649105pff.215.2021.07.01.11.12.59
+        by smtp.gmail.com with ESMTPSA id n23sm714011pff.93.2021.07.01.11.15.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Jul 2021 11:13:00 -0700 (PDT)
-Date:   Thu, 1 Jul 2021 11:12:54 -0700
+        Thu, 01 Jul 2021 11:15:42 -0700 (PDT)
+Date:   Thu, 1 Jul 2021 11:15:37 -0700
 From:   Paul Burton <paulburton@google.com>
 To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Joel Fernandes <joelaf@google.com>, linux-kernel@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] tracing: Simplify & fix saved_tgids logic
-Message-ID: <YN4Fpl+dhijItkUP@google.com>
-References: <20210630003406.4013668-1-paulburton@google.com>
- <CAJWu+ooRQ6hFtaA4tr3BNs9Btss1yan8taua=VMWMopGmEVhSA@mail.gmail.com>
- <YN38D3dg0fLzL0Ia@google.com>
- <20210701140754.5847a50f@oasis.local.home>
+Cc:     linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joelaf@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] tracing: Resize tgid_map to pid_max, not
+ PID_MAX_DEFAULT
+Message-ID: <YN4GSV8/AzK1fz4o@google.com>
+References: <20210701095525.400839d3@oasis.local.home>
+ <20210701172407.889626-1-paulburton@google.com>
+ <20210701172407.889626-2-paulburton@google.com>
+ <20210701141221.1d0b1fe0@oasis.local.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210701140754.5847a50f@oasis.local.home>
+In-Reply-To: <20210701141221.1d0b1fe0@oasis.local.home>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 01, 2021 at 02:07:54PM -0400, Steven Rostedt wrote:
-> On Thu, 1 Jul 2021 10:31:59 -0700
+Hi Steven,
+
+On Thu, Jul 01, 2021 at 02:12:21PM -0400, Steven Rostedt wrote:
+> On Thu,  1 Jul 2021 10:24:07 -0700
 > Paul Burton <paulburton@google.com> wrote:
 > 
-> > I was tempted to just add the redundant checks anyway (pick your battles
-> > and all) but for show() in particular it wound up making things seem
-> > non-sensical to me ("display the value describing this non-NULL pointer
-> > into tgid_map only if tgid_map is not NULL?").
+> > +static int *trace_find_tgid_ptr(int pid)
+> > +{
+> > +	// Pairs with the smp_store_release in set_tracer_flag() to ensure that
+> > +	// if we observe a non-NULL tgid_map then we also observe the correct
+> > +	// tgid_map_max.
 > 
-> I agree with your assessment, and will actually take your first patch,
-> as I don't think the comment is that helpful,
+> BTW, it's against the Linux kernel coding style to use // for comments.
+> 
+> I can take this patch, but I need to change this to:
+> 
+> 	/*
+> 	 * Pairs with the smp_store_release in set_tracer_flag() to ensure that
+> 	 * if we observe a non-NULL tgid_map then we also observe the correct
+> 	 * tgid_map_max.
+> 	 */
+> 
+> Same with the other comments. Please follow coding style that can be
+> found in:
+> 
+>    Documentation/process/coding-style.rst
+> 
+> And see section 8 on Commenting.
 
-Thanks - agreed, the comment doesn't add much.
+Yeah, sorry about that - I should know better having been a maintainer
+in a former life...
 
-> not to mention, we don't
-> use '//' comments in the kernel, so that would have to be changed.
-
-D'oh! Apparently a year away from the kernel melted my internal style
-checker. Interestingly though, checkpatch didn't complain about this as
-I would have expected...
+Just to confirm - are you happy to fix those up when applying or should
+I send a v3?
 
 Thanks,
     Paul
