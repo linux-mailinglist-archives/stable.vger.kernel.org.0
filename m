@@ -2,160 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5B83B9842
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 23:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 456573B9971
+	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 01:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234269AbhGAVn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 17:43:59 -0400
-Received: from out02.mta.xmission.com ([166.70.13.232]:58272 "EHLO
-        out02.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229934AbhGAVn6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 17:43:58 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lz4R2-00CqTz-JP; Thu, 01 Jul 2021 15:41:24 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95]:51614 helo=email.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lz4R1-00CJeQ-F2; Thu, 01 Jul 2021 15:41:24 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Marco Elver <elver@google.com>
-Cc:     peterz@infradead.org, tglx@linutronix.de, mingo@kernel.org,
-        kasan-dev@googlegroups.com, linux-kernel@vger.kernel.org,
-        mingo@redhat.com, acme@kernel.org, mark.rutland@arm.com,
-        alexander.shishkin@linux.intel.com, jolsa@redhat.com,
-        namhyung@kernel.org, linux-perf-users@vger.kernel.org,
-        omosnace@redhat.com, serge@hallyn.com,
-        linux-security-module@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Vyukov <dvyukov@google.com>
-References: <20210701083842.580466-1-elver@google.com>
-Date:   Thu, 01 Jul 2021 16:41:15 -0500
-In-Reply-To: <20210701083842.580466-1-elver@google.com> (Marco Elver's message
-        of "Thu, 1 Jul 2021 10:38:43 +0200")
-Message-ID: <87h7hdn24k.fsf@disp2133>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S234265AbhGAXhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 19:37:06 -0400
+Received: from mailout1.samsung.com ([203.254.224.24]:25507 "EHLO
+        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234260AbhGAXhF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 19:37:05 -0400
+Received: from epcas1p1.samsung.com (unknown [182.195.41.45])
+        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20210701233433epoutp017233b7f9c89eb11fc57f0ba130e50590~NztlBJqzG2456824568epoutp01-
+        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 23:34:33 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20210701233433epoutp017233b7f9c89eb11fc57f0ba130e50590~NztlBJqzG2456824568epoutp01-
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1625182473;
+        bh=MR6i795Z9h2ZYoQAPlWh6TEORJYNBnsE5kTXALfg9uw=;
+        h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
+        b=aeo9Xiesv//ZKRV9AEXbEf3TSK9Tb6O+FmLt0aWc/DCqtNn+ejewLcQ6yBgTKrA2l
+         Bb0sGGiE4LpuT90xlkhN3H+/kFiYK2wjJVaXN2aDWxGNUPtdkX0CsHVyVYAteUPwZ9
+         zriulDrQZUOkwfQKlbp2QUiwrHeOrWw/W74OCyFM=
+Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
+        epcas1p4.samsung.com (KnoxPortal) with ESMTP id
+        20210701233432epcas1p4871c75658a01c84d37c9e659ab2390c5~NztkpdhEr2277322773epcas1p4t;
+        Thu,  1 Jul 2021 23:34:32 +0000 (GMT)
+Received: from epsmges1p1.samsung.com (unknown [182.195.40.165]) by
+        epsnrtp4.localdomain (Postfix) with ESMTP id 4GGF1358wfz4x9Pw; Thu,  1 Jul
+        2021 23:34:31 +0000 (GMT)
+Received: from epcas1p1.samsung.com ( [182.195.41.45]) by
+        epsmges1p1.samsung.com (Symantec Messaging Gateway) with SMTP id
+        75.64.09952.7015ED06; Fri,  2 Jul 2021 08:34:31 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20210701233430epcas1p1dd9e84341c510b430d8d630ebd84551c~Nzti4zKA82257722577epcas1p1K;
+        Thu,  1 Jul 2021 23:34:30 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20210701233430epsmtrp14f57b7e9ef1eb892ba7e062188b35235~Nzti4RWY23002130021epsmtrp1P;
+        Thu,  1 Jul 2021 23:34:30 +0000 (GMT)
+X-AuditID: b6c32a35-45dff700000026e0-15-60de5107fe49
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        BE.96.08394.6015ED06; Fri,  2 Jul 2021 08:34:30 +0900 (KST)
+Received: from namjaejeon01 (unknown [10.89.31.77]) by epsmtip1.samsung.com
+        (KnoxPortal) with ESMTPA id
+        20210701233430epsmtip1d5139340da171a7eb06d83a27798e9de~NztinLQOI0863508635epsmtip14;
+        Thu,  1 Jul 2021 23:34:30 +0000 (GMT)
+From:   "Namjae Jeon" <namjae.jeon@samsung.com>
+To:     "'Chris Down'" <chris@chrisdown.name>
+Cc:     <linux-fsdevel@vger.kernel.org>, <flrncrmr@gmail.com>,
+        <stable@vger.kernel.org>
+In-Reply-To: <YN4RoCAWq5SMXmaN@chrisdown.name>
+Subject: RE: [PATCH] exfat: handle wrong stream entry size in
+ exfat_readdir()
+Date:   Fri, 2 Jul 2021 08:34:30 +0900
+Message-ID: <014f01d76ed1$a3c843f0$eb58cbd0$@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1lz4R1-00CJeQ-F2;;;mid=<87h7hdn24k.fsf@disp2133>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+7+SbuL4vTLyI6IaqmY8TWPh1qYr3dYsI=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa04.xmission.com
-X-Spam-Level: 
-X-Spam-Status: No, score=0.5 required=8.0 tests=ALL_TRUSTED,BAYES_50,
-        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,XMSubLong autolearn=disabled
-        version=3.4.2
-X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4941]
-        *  0.7 XMSubLong Long Subject
-        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
-        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-        *      [sa04 1397; Body=1 Fuz1=1 Fuz2=1]
-X-Spam-DCC: XMission; sa04 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ;Marco Elver <elver@google.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 503 ms - load_scoreonly_sql: 0.08 (0.0%),
-        signal_user_changed: 11 (2.3%), b_tie_ro: 10 (1.9%), parse: 1.23
-        (0.2%), extract_message_metadata: 4.7 (0.9%), get_uri_detail_list: 2.0
-        (0.4%), tests_pri_-1000: 4.4 (0.9%), tests_pri_-950: 1.34 (0.3%),
-        tests_pri_-900: 1.09 (0.2%), tests_pri_-90: 129 (25.7%), check_bayes:
-        128 (25.4%), b_tokenize: 9 (1.8%), b_tok_get_all: 9 (1.8%),
-        b_comp_prob: 2.8 (0.5%), b_tok_touch_all: 104 (20.7%), b_finish: 0.82
-        (0.2%), tests_pri_0: 327 (65.0%), check_dkim_signature: 0.92 (0.2%),
-        check_dkim_adsp: 2.7 (0.5%), poll_dns_idle: 0.74 (0.1%), tests_pri_10:
-        2.2 (0.4%), tests_pri_500: 12 (2.4%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH v2] perf: Require CAP_KILL if sigtrap is requested
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQHtYa6HDZ3zKB0Tzc4hP4i9K19tVAGye6HqApO4bbaq4KexkA==
+Content-Language: ko
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrDKsWRmVeSWpSXmKPExsWy7bCmri574L0Egw+nZC0uzPvLbNG7dgGb
+        xZ69J1ksFmx8xOjA4rHm2nVWj52z7rJ7fN4kF8AclWOTkZqYklqkkJqXnJ+SmZduq+QdHO8c
+        b2pmYKhraGlhrqSQl5ibaqvk4hOg65aZA7RNSaEsMacUKBSQWFyspG9nU5RfWpKqkJFfXGKr
+        lFqQklNgaFCgV5yYW1yal66XnJ9rZWhgYGQKVJmQk3F5YgdzwULJikn9S5gbGA+JdDFyckgI
+        mEjMPrmXpYuRi0NIYAejxN+bzcwQzidGid63c9ggnG+MEtfOtLLCtEw5+p0RIrGXUaLv+BFW
+        COcFo8SOc89ZQKrYBHQl/v3ZzwZiiwhoSjw/Mg+og4ODWSBUYnNzPUiYU0BPYm7PViYQW1jA
+        X+LI6/OMIDaLgIrE1rlfWUDKeQUsJbrfs4OEeQUEJU7OfAI2nVlAXmL72znMEPcoSPx8uowV
+        YpOTxKtdj6BqRCRmd7ZB1Xxll+i8qAZhu0iser6FEcIWlnh1fAs7hC0l8bK/Dcoulzhx8hcT
+        hF0jsWHePnaQcyQEjCV6XpRAPKIpsX6XPkSFosTO33MZIbbySbz72sMKUc0r0dEmBFGiKtF3
+        6TDUQGmJrvYP7BMYlWYh+WsWkr9mIbl/FsKyBYwsqxjFUguKc9NTiw0LDJFjehMjOBlqme5g
+        nPj2g94hRiYOxkOMEhzMSiK8E6bfTRDiTUmsrEotyo8vKs1JLT7EaAoM6InMUqLJ+cB0nFcS
+        b2hqZGxsbGFiZm5maqwkzruT7VCCkEB6YklqdmpqQWoRTB8TB6dUA9P+ZdWOz73mO+3wmL0u
+        86BQg9uMsw8nGn4SPDqPI6jnzaG3NzU4s3x80jnP+6Q/zu1OP6q7typcb/mRKJu22NyzCZMZ
+        nLd0R79aU7x/042ll8x3F23ove23au2Lp698P6TOkz7IkiKt9eXM9Ikpd9xusCpwtzH6al+P
+        vXxHJPjySwMVYRnZXzfK0iXr72zdKbr71v01aWc58k0Zq+5GSf5vZVvMlbHRzcD7pGX/tqud
+        m5NfXQ5oO7hCXTF8Kd+0GP2lwXN25O/6Iqg2d9qjNV5Plzx1emhS5PHg3Z/8AlM14ydGu9e7
+        aZSeLFggcmnO356qitAVH8LjF4ma3zxn5vVL8pGfw72DH9W6Vxu+Ll2uxFKckWioxVxUnAgA
+        8rbOVQ8EAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrOLMWRmVeSWpSXmKPExsWy7bCSnC5b4L0Eg6/7lS0uzPvLbNG7dgGb
+        xZ69J1ksFmx8xOjA4rHm2nVWj52z7rJ7fN4kF8AcxWWTkpqTWZZapG+XwJVxeWIHc8FCyYpJ
+        /UuYGxgPiXQxcnJICJhITDn6nbGLkYtDSGA3o8SEj/1MEAlpiWMnzjB3MXIA2cIShw8XQ9Q8
+        Y5Q4vmcjO0gNm4CuxL8/+9lAbBEBTYnnR+YxgtjMAuESbdffsEI0rGeUOHdrJliCU0BPYm7P
+        VrAFwgK+Eo9OfgOLswioSGyd+5UFZBmvgKVE93uw+bwCghInZz4BCzMDtbZthBovL7H97Rxm
+        iDMVJH4+XcYKcYKTxKtdj1ggakQkZne2MU9gFJ6FZNIshEmzkEyahaRjASPLKkbJ1ILi3PTc
+        YsMCw7zUcr3ixNzi0rx0veT83E2M4LjQ0tzBuH3VB71DjEwcjIcYJTiYlUR4J0y/myDEm5JY
+        WZValB9fVJqTWnyIUZqDRUmc90LXyXghgfTEktTs1NSC1CKYLBMHp1QD07pz5e636xwnOGkK
+        Vazb5cHqbVQ4l0tD6dfR3fOjagQuuZzz2euXMLVlQsOsALXF933K/uzXfVBun7tW8moZ46Y+
+        fWOJ0om6C+qS9nadOXjm29sn2f37d6yvCnTgXPNh7et13xbvmLZ7qrRie41/ENudfdk9H3Ja
+        38Ud1njFm/bFqLXyUV79/8bVjFo8VXu3T/niHecj72g03XHimg1/y20lZ5h/2bth1gJOmcyp
+        c35/YNxfqj33v1qEOcNKr8b75229VlqsWLZ8at/tdeZN3Vf+qMdNMtvPJCEq94O3ftvSG4p3
+        3FY2XX6bwPx1Q+W2OVqMHAt+cXour2PUWFxa92LCsRe6UasO9cx/oPi+fb0SS3FGoqEWc1Fx
+        IgBNLPk4+gIAAA==
+X-CMS-MailID: 20210701233430epcas1p1dd9e84341c510b430d8d630ebd84551c
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: SVC_REQ_APPROVE
+CMS-TYPE: 101P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20210611004956epcas1p262dc7907165782173692d7cf9e571dfe
+References: <CGME20210611004956epcas1p262dc7907165782173692d7cf9e571dfe@epcas1p2.samsung.com>
+        <20210611004024.2925-1-namjae.jeon@samsung.com>
+        <YN4RoCAWq5SMXmaN@chrisdown.name>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Marco Elver <elver@google.com> writes:
+> Namjae Jeon writes:
+> >The compatibility issue between linux exfat and exfat of some camera
+> >company was reported from Florian. In their exfat, if the number of
+> >files exceeds any limit, the DataLength in stream entry of the
+> >directory is no longer updated. So some files created from camera does
+> >not show in linux exfat. because linux exfat doesn't allow that cpos
+> >becomes larger than DataLength of stream entry. This patch check
+> >DataLength in stream entry only if the type is ALLOC_NO_FAT_CHAIN and
+> >add the check ensure that dentry offset does not exceed max dentries
+> >size(256 MB) to avoid the circular FAT chain issue.
+> >
+> >Fixes: ca06197382bd ("exfat: add directory operations")
+> >Cc: stable@vger.kernel.org # v5.9
+> >Reported-by: Florian Cramer <flrncrmr@gmail.com>
+> >Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+> >Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+> 
+> Tested-by: Chris Down <chris@chrisdown.name>
+Thanks for your test!
+> 
+> Thanks, I came across this while debugging why directories produced on my Fuji
+> X-T4 were truncated at 2^12 dentries.
+> 
+> If the other report was also Fuji, maybe this is worth asking them to fix in firmware?
+Well, I am not sure that they will respond to your report well. If you can
+reproduce same issue even when plugging your exfat into windows, I think
+that it is worth reporting to them.
 
-> If perf_event_open() is called with another task as target and
-> perf_event_attr::sigtrap is set, and the target task's user does not
-> match the calling user, also require the CAP_KILL capability.
->
-> Otherwise, with the CAP_PERFMON capability alone it would be possible
-> for a user to send SIGTRAP signals via perf events to another user's
-> tasks. This could potentially result in those tasks being terminated if
-> they cannot handle SIGTRAP signals.
->
-> Note: The check complements the existing capability check, but is not
-> supposed to supersede the ptrace_may_access() check. At a high level we
-> now have:
->
-> 	capable of CAP_PERFMON and (CAP_KILL if sigtrap)
-> 		OR
-> 	ptrace_may_access() // also checks for same thread-group and uid
+> >---
+> > fs/exfat/dir.c | 8 +++++---
+> > 1 file changed, 5 insertions(+), 3 deletions(-)
+> >
+> >diff --git a/fs/exfat/dir.c b/fs/exfat/dir.c index
+> >c4523648472a..f4e4d8d9894d 100644
+> >--- a/fs/exfat/dir.c
+> >+++ b/fs/exfat/dir.c
+> >@@ -63,7 +63,7 @@ static void exfat_get_uniname_from_ext_entry(struct
+> >super_block *sb,  static int exfat_readdir(struct inode *inode, loff_t
+> >*cpos, struct exfat_dir_entry *dir_entry)  {
+> > 	int i, dentries_per_clu, dentries_per_clu_bits = 0, num_ext;
+> >-	unsigned int type, clu_offset;
+> >+	unsigned int type, clu_offset, max_dentries;
+> > 	sector_t sector;
+> > 	struct exfat_chain dir, clu;
+> > 	struct exfat_uni_name uni_name;
+> >@@ -86,6 +86,8 @@ static int exfat_readdir(struct inode *inode, loff_t
+> >*cpos, struct exfat_dir_ent
+> >
+> > 	dentries_per_clu = sbi->dentries_per_clu;
+> > 	dentries_per_clu_bits = ilog2(dentries_per_clu);
+> >+	max_dentries = (unsigned int)min_t(u64, MAX_EXFAT_DENTRIES,
+> >+					   (u64)sbi->num_clusters << dentries_per_clu_bits);
+> >
+> > 	clu_offset = dentry >> dentries_per_clu_bits;
+> > 	exfat_chain_dup(&clu, &dir);
+> >@@ -109,7 +111,7 @@ static int exfat_readdir(struct inode *inode, loff_t *cpos, struct exfat_dir_ent
+> > 		}
+> > 	}
+> >
+> >-	while (clu.dir != EXFAT_EOF_CLUSTER) {
+> >+	while (clu.dir != EXFAT_EOF_CLUSTER && dentry < max_dentries) {
+> > 		i = dentry & (dentries_per_clu - 1);
+> >
+> > 		for ( ; i < dentries_per_clu; i++, dentry++) { @@ -245,7 +247,7 @@
+> >static int exfat_iterate(struct file *filp, struct dir_context *ctx)
+> > 	if (err)
+> > 		goto unlock;
+> > get_new:
+> >-	if (cpos >= i_size_read(inode))
+> >+	if (ei->flags == ALLOC_NO_FAT_CHAIN && cpos >= i_size_read(inode))
+> > 		goto end_of_dir;
+> >
+> > 	err = exfat_readdir(inode, &cpos, &de);
+> >--
+> >2.17.1
+> >
 
-Is there anyway we could have a comment that makes the required
-capability checks clear?
-
-Basically I see an inlined version of kill_ok_by_cred being implemented
-without the comments on why the various pieces make sense.
-
-Certainly ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS) should not
-be a check to allow writing/changing a task.  It needs to be
-PTRACE_MODE_ATTACH_REALCREDS, like /proc/self/mem uses.
-
-Now in practice I think your patch probably has the proper checks in
-place for sending a signal but it is far from clear.
-
-Eric
-
-
-> Fixes: 97ba62b27867 ("perf: Add support for SIGTRAP on perf events")
-> Cc: <stable@vger.kernel.org> # 5.13+
-> Reported-by: Dmitry Vyukov <dvyukov@google.com>
-> Signed-off-by: Marco Elver <elver@google.com>
-> ---
-> v2:
-> * Drop kill_capable() and just check CAP_KILL (reported by Ondrej Mosnacek).
-> * Use ns_capable(__task_cred(task)->user_ns, CAP_KILL) to check for
->   capability in target task's ns (reported by Ondrej Mosnacek).
-> ---
->  kernel/events/core.c | 15 ++++++++++++++-
->  1 file changed, 14 insertions(+), 1 deletion(-)
->
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index fe88d6eea3c2..43c99695dc3f 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -12152,10 +12152,23 @@ SYSCALL_DEFINE5(perf_event_open,
->  	}
->  
->  	if (task) {
-> +		bool is_capable;
-> +
->  		err = down_read_interruptible(&task->signal->exec_update_lock);
->  		if (err)
->  			goto err_file;
->  
-> +		is_capable = perfmon_capable();
-> +		if (attr.sigtrap) {
-> +			/*
-> +			 * perf_event_attr::sigtrap sends signals to the other
-> +			 * task. Require the current task to have CAP_KILL.
-> +			 */
-> +			rcu_read_lock();
-> +			is_capable &= ns_capable(__task_cred(task)->user_ns, CAP_KILL);
-> +			rcu_read_unlock();
-> +		}
-> +
->  		/*
->  		 * Preserve ptrace permission check for backwards compatibility.
->  		 *
-> @@ -12165,7 +12178,7 @@ SYSCALL_DEFINE5(perf_event_open,
->  		 * perf_event_exit_task() that could imply).
->  		 */
->  		err = -EACCES;
-> -		if (!perfmon_capable() && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
-> +		if (!is_capable && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
->  			goto err_cred;
->  	}
