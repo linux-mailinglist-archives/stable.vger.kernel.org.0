@@ -2,105 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD333B951E
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 19:00:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 384C93B9530
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 19:04:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229974AbhGARCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 13:02:44 -0400
-Received: from mga11.intel.com ([192.55.52.93]:60460 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230006AbhGARCn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 1 Jul 2021 13:02:43 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10032"; a="205568458"
-X-IronPort-AV: E=Sophos;i="5.83,315,1616482800"; 
-   d="scan'208";a="205568458"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2021 10:00:11 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,315,1616482800"; 
-   d="scan'208";a="457738053"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.171])
-  by fmsmga008.fm.intel.com with SMTP; 01 Jul 2021 10:00:07 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Thu, 01 Jul 2021 20:00:05 +0300
-Date:   Thu, 1 Jul 2021 20:00:05 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@intel.com>
-Subject: Re: [PATCH] drm/i915/gt: Fix -EDEADLK handling regression
-Message-ID: <YN30lZ1aC+KDpMWQ@intel.com>
-References: <20210630164413.25481-1-ville.syrjala@linux.intel.com>
- <2edf584b-3835-53ed-f6e3-76c7e8d581ed@linux.intel.com>
+        id S233132AbhGARG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 13:06:27 -0400
+Received: from 6.mo5.mail-out.ovh.net ([178.32.119.138]:40010 "EHLO
+        6.mo5.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233131AbhGARG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 13:06:26 -0400
+Received: from player791.ha.ovh.net (unknown [10.110.115.3])
+        by mo5.mail-out.ovh.net (Postfix) with ESMTP id A6E732C8794
+        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 18:54:55 +0200 (CEST)
+Received: from RCM-web7.webmail.mail.ovh.net (static-176-175-108-40.ftth.abo.bbox.fr [176.175.108.40])
+        (Authenticated sender: adel.ks@zegrapher.com)
+        by player791.ha.ovh.net (Postfix) with ESMTPSA id 3F1611FBF86D1;
+        Thu,  1 Jul 2021 16:54:53 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2edf584b-3835-53ed-f6e3-76c7e8d581ed@linux.intel.com>
-X-Patchwork-Hint: comment
+Date:   Thu, 01 Jul 2021 18:54:53 +0200
+From:   adel.ks@zegrapher.com
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+Subject: Re: Kernel 5.12.10 and 5.12.9 freezing after boot-up with while sound
+ output is looping
+In-Reply-To: <754c7a20704ffb5fa1259035f29eff1b@zegrapher.com>
+References: <d086de2a793eb2ea52acb11ed143675c@zegrapher.com>
+ <YMbmeRH38Wp6BHPf@kroah.com>
+ <b56d3d96-70d6-4ad5-9b8f-9b6fea958ad7@zegrapher.com>
+ <f454b38b7987773caa72b656c4d2e3fb@zegrapher.com>
+ <YMdgev1GDhmbAF4U@kroah.com>
+ <13e1cfa157a63ff5dcacdbc0c4a41418@zegrapher.com>
+ <fc8c123077a4892ca0c2e0d610d840f2@zegrapher.com>
+ <754c7a20704ffb5fa1259035f29eff1b@zegrapher.com>
+User-Agent: Roundcube Webmail/1.4.10
+Message-ID: <b02b1c3e8bb378da56780ee91025a9b6@zegrapher.com>
+X-Sender: adel.ks@zegrapher.com
+X-Originating-IP: 176.175.108.40
+X-Webmail-UserID: adel.ks@zegrapher.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-Ovh-Tracer-Id: 17536735474727462587
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduledrfeeiiedguddtgecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeggfffhvffujghffgfkgihitgfgsehtjehjtddtredvnecuhfhrohhmpegruggvlhdrkhhsseiivghgrhgrphhhvghrrdgtohhmnecuggftrfgrthhtvghrnhepgfeiveduuedvjeffudejveffleelkeeuvdffleefudejueduueffleehhfeigfegnecukfhppedtrddtrddtrddtpddujeeirddujeehrddutdekrdegtdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejledurdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheprgguvghlrdhkshesiigvghhrrghphhgvrhdrtghomhdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 01, 2021 at 09:07:27AM +0200, Maarten Lankhorst wrote:
-> Op 30-06-2021 om 18:44 schreef Ville Syrjala:
-> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> >
-> > The conversion to ww mutexes failed to address the fence code which
-> > already returns -EDEADLK when we run out of fences. Ww mutexes on
-> > the other hand treat -EDEADLK as an internal errno value indicating
-> > a need to restart the operation due to a deadlock. So now when the
-> > fence code returns -EDEADLK the higher level code erroneously
-> > restarts everything instead of returning the error to userspace
-> > as is expected.
-> >
-> > To remedy this let's switch the fence code to use a different errno
-> > value for this. -ENOBUFS seems like a semi-reasonable unique choice.
-> > Apart from igt the only user of this I could find is sna, and even
-> > there all we do is dump the current fence registers from debugfs
-> > into the X server log. So no user visible functionality is affected.
-> > If we really cared about preserving this we could of course convert
-> > back to -EDEADLK higher up, but doesn't seem like that's worth
-> > the hassle here.
-> >
-> > Not quite sure which commit specifically broke this, but I'll
-> > just attribute it to the general gem ww mutex work.
-> >
-> > Cc: stable@vger.kernel.org
-> > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> > Cc: Thomas Hellström <thomas.hellstrom@intel.com>
-> > Testcase: igt/gem_pread/exhaustion
-> > Testcase: igt/gem_pwrite/basic-exhaustion
-> > Testcase: igt/gem_fenced_exec_thrash/too-many-fences
-> > Fixes: 80f0b679d6f0 ("drm/i915: Add an implementation for i915_gem_ww_ctx locking, v2.")
-> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > ---
-> >  drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-> > index cac7f3f44642..f8948de72036 100644
-> > --- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-> > +++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-> > @@ -348,7 +348,7 @@ static struct i915_fence_reg *fence_find(struct i915_ggtt *ggtt)
-> >  	if (intel_has_pending_fb_unpin(ggtt->vm.i915))
-> >  		return ERR_PTR(-EAGAIN);
-> >  
-> > -	return ERR_PTR(-EDEADLK);
-> > +	return ERR_PTR(-ENOBUFS);
-> >  }
-> >  
-> >  int __i915_vma_pin_fence(struct i915_vma *vma)
-> 
-> Makes sense..
-> 
-> Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> 
-> Is it a slightly more reent commit? Might probably be the part that converts execbuffer to use ww locks.
+Hello,
 
-No idea about the specific commit since I've not actually bisected it.
-It's just been bugging CI for quite a while now so figured I need to
-fix it.
+Kernel versions back to 5.9 were freezing on my machine. Which clearly 
+indicated that something was wrong with my hardware: I pinpointed the 
+issue to my BIOS. I had a few CPU options toggled on: "Global C states 
+control", "Collaborative Processor Performance Control (CPPC)" and "CPPC 
+Prefered cores". Toggling those settings back to "auto" (which means 
+probably it's off ?) prevented the issue from happening since then. Note 
+that the hardware these freezes was happening on is a AMD Ryzen 5950X 
+with a X570 chipset motherboard.
 
--- 
-Ville Syrjälä
-Intel
+Thank you
+
+Kind regards,
+
+Adel KARA SLIMANE
