@@ -2,77 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5ECB3B9159
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 13:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D24923B9181
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 14:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236244AbhGAL5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 07:57:51 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:33642 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236230AbhGAL5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 07:57:51 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id A5DC21C0B77; Thu,  1 Jul 2021 13:55:18 +0200 (CEST)
-Date:   Thu, 1 Jul 2021 13:55:18 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org
-Subject: Re: [PATCH 5.10 000/101] 5.10.47-rc1 review
-Message-ID: <20210701115517.GA7328@amd>
-References: <20210628142607.32218-1-sashal@kernel.org>
+        id S236256AbhGAMOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 08:14:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48686 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236192AbhGAMOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 1 Jul 2021 08:14:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3BA561403;
+        Thu,  1 Jul 2021 12:12:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1625141522;
+        bh=TT5ATJx6/SGmcZ2onpZJhXly2bwzw4Mlao44OlsAkcw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=X6ITX7x1DYq7u9skUcCsAXk3eYjBdE/n3aYvabBb9yGroo1OOK3laVLG6iEkcQOEZ
+         1gX9jQqStMnE0JdKtFWtTjvYsDGPvpf6y3BhxX+f1j5qlcWWO+6r05StyYejnLbxoM
+         opX/2D54G7wzk1Htc+PDmkkFZuBRsaL6qC9xI6984+rZzShRwVYhCBSbSTU4sVMJ7R
+         kWF2JMPzomyvyLkCTrc8JOf3beh5LCdRO0T3+vEZfR3Mp0i9v+iagq5N+qCTx7Ma2N
+         3B+UHeaduFzw4a2xaBONWMSZV2uD5+/BxPJ0OLEy315cIu4IaDcTxOStA3r5DOF9ep
+         AOxRVONgQmdcQ==
+Date:   Thu, 1 Jul 2021 13:11:33 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Richard Purdie <richard.purdie@linuxfoundation.org>
+Cc:     Tejun Heo <tj@kernel.org>,
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        linux-kernel@vger.kernel.org, cgroups@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] cgroup1: fix leaked context root causing sporadic NULL
+ deref in LTP
+Message-ID: <20210701121133.GA4641@sirena.org.uk>
+References: <20210616125157.438837-1-paul.gortmaker@windriver.com>
+ <YMoXdljfOFjoVO93@slm.duckdns.org>
+ <20210630161036.GA43693@sirena.org.uk>
+ <696dc58209707ce364616430673998d0124a9a31.camel@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
 Content-Disposition: inline
-In-Reply-To: <20210628142607.32218-1-sashal@kernel.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <696dc58209707ce364616430673998d0124a9a31.camel@linuxfoundation.org>
+X-Cookie: Turn off engine while fueling.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---ikeVEW9yuYc//A+q
+--FL5UXtIhxfXey3p5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi!
+On Wed, Jun 30, 2021 at 11:31:06PM +0100, Richard Purdie wrote:
 
-> This is the start of the stable review cycle for the 5.10.47 release.
-> There are 101 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Out of interest are you also seeing the proc01 test hang on a non-blocking
+> read of /proc/kmsg periodically?
 
-Could I get Cc-ed on these mails for 5.10-stable releases? You'll get
-more timely test results in exchange.
+> https://bugzilla.yoctoproject.org/show_bug.cgi?id=14460
 
-CIP testing did not find any kernel problems there (siemens board has
-problems with network connectivity in bootloader?)
+> I've not figured out a way to reproduce it at will yet and it seems strace
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-5.10.y
+I've been talking to Ross, he mentioned it but no, rings no bells.
 
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+> was enough to unblock it. It seems arm specific.
 
-Best regards,
-                                                                Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+If it's 32 bit I'm not really doing anything that looks at it.
 
---ikeVEW9yuYc//A+q
+--FL5UXtIhxfXey3p5
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
 
-iEYEARECAAYFAmDdrSUACgkQMOfwapXb+vLhIwCglEgclh0qjyXLGJkW6zzSkXUL
-yfcAniscUs9NkURJ7PjRtsL/QQAm6Mqq
-=wkg1
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmDdsPQACgkQJNaLcl1U
+h9CWJwf/YF+XAA1qBYxWYCc8ZI/W6jctkkgrPHFx22WMAE341gHUGHvmC7twHrgI
+DcCGdXI1CL2IQ0YJos9z2ydV66ZTtH2qP1K2Ugt2GzZyL0zL+P5hgndYquVXNOFQ
+p736kNqsvsB3tOrsIDzLeVheqJmQwH4E60rBgU40C5oRkNYmO1aA9KLDhOxa5NAX
+KfZ3to8t+mR1KCh/LipJaBgmmLli9c0s+reuz9bfnJnAqW7VHSQvGopo5afkmWYO
+RO32LIAwI81JTGOyG+gWjSExxS8sMWYEuSMkCWiXwtrKKjm5XD91W4465CmfOtgb
+UeHMvCVvCwaU5A+cq9VTN6vsMx7Qhg==
+=UGEt
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--FL5UXtIhxfXey3p5--
