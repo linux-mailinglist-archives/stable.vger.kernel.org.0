@@ -2,108 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDBE73B93EE
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 17:28:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C7393B941C
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 17:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233239AbhGAPbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 11:31:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54043 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232969AbhGAPbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 11:31:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1625153322;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=DmXj8caY15pwsQgjtiEZnmZUg1bkwyeXw/rOXNl13yM=;
-        b=hdAaYu1ItddJGhG8tyWL0+KyGJlU/RA5IxOXyAc2NGmxLWhznoAha6Yi4LJcy9mZek6B1W
-        F74XEVMMlUJBaUs26aOG6mOlz77iQfDU7AuS8f3Kb+LrzJLN/DbI37SM3/tJw+mmQ1etYh
-        /uybaaUMifn6dmCsxP521o+xvBAtbnE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-31-2j6XOe-zPpK98edlVNmnrw-1; Thu, 01 Jul 2021 11:28:38 -0400
-X-MC-Unique: 2j6XOe-zPpK98edlVNmnrw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7C42B19611AE;
-        Thu,  1 Jul 2021 15:28:36 +0000 (UTC)
-Received: from fedora.hsd1.ca.comcast.net (ovpn-116-250.rdu2.redhat.com [10.10.116.250])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 233C85C22B;
-        Thu,  1 Jul 2021 15:28:31 +0000 (UTC)
-From:   jglisse@redhat.com
-To:     linux-kernel@vger.kernel.org
-Cc:     =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Diego Santa Cruz <Diego.SantaCruz@spinetix.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Jon Hunter <jonathanh@nvidia.com>, stable@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH] misc: eeprom: at24: Always append device id even if label property is set.
-Date:   Thu,  1 Jul 2021 08:28:25 -0700
-Message-Id: <20210701152825.265729-1-jglisse@redhat.com>
+        id S233585AbhGAPmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 11:42:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233478AbhGAPmJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 11:42:09 -0400
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199CFC061762;
+        Thu,  1 Jul 2021 08:39:39 -0700 (PDT)
+Received: by mail-oi1-x231.google.com with SMTP id a133so7679358oib.13;
+        Thu, 01 Jul 2021 08:39:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=KEplDKp1FOGLfnZGT2m2+KyDyN4fHFRZtave3m+V8GE=;
+        b=ZGMiu+fEWdzxTL9k5TUnYzQvOwgDnFXhbJAaUylvJZgHMOrexCscTfx04QmN/s1oL2
+         pl4aAciUGurxIi/Wy2+zYKSAmo15K6MpgGTkqT5KvzFu+z8N7o7pcFzsXiapZ/VNOKbY
+         veeyRxFEuINqa67cEW+Q6xo+16JOoYAoEY3w7YnU1+d2fs3ANHBfDjkP1yGnx0e+Tlom
+         Xmmy5+s5i9QBcpn2rmtTZ4l3g0LWzaoS/5Tr8bbr9hBO1ptQCZosKEMjaPhCer9l8OJI
+         /VouAIwy4bJS/VMJunZ8aidbGvc4Ee1TKCopSgky01tnc6DpCK8AeKiVEHa0oh8tfP8q
+         N3FA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=KEplDKp1FOGLfnZGT2m2+KyDyN4fHFRZtave3m+V8GE=;
+        b=iWEPYH+HmkJMS+niTR38rcQgvABeGpErQE0iFMxNAxgoZZ46w2zFWKz0eG5quW2eqE
+         W/D4xwIVcwYTiQnjZPuXDbCiFJQfgQJtZM14V++EWuV4guQFMX0tgCWZJaG8vO8Wovbx
+         MiU5gIaMGDy7EMIT2OcQkhXWkkTcpVNv5s7Bbsfp4MJnoXU96cu8ccIkJ9EcHO67fLC6
+         0WOjYK0pF36A2NF7UR2gFdaYwxv6PhJPYwzwPcfjeCPxHhUhHKOu1iQ7+Oa1FYV8h2O5
+         PgRcFiXPToGhr6+j97JvGKgY0ay3I+cjR7GQX5DwuZmCnGiJ2JciFWbebDphgyhJcuIk
+         N9rA==
+X-Gm-Message-State: AOAM533NNrM+wYi+LaequeX6SdfrVgOotiwDT4QKSHBe8Ne4LoZbw+U/
+        eRqXZq4k4TD2MOsQ/lVII7g=
+X-Google-Smtp-Source: ABdhPJzouFR2MKj1BAD/FyNWrocTXMmWe5UT92xiGJBAhsBbCPoyksfTAgYlQOj1xeCDXduK4uj77g==
+X-Received: by 2002:a05:6808:1313:: with SMTP id y19mr83454oiv.37.1625153978493;
+        Thu, 01 Jul 2021 08:39:38 -0700 (PDT)
+Received: from Davids-MacBook-Pro.local ([8.48.134.38])
+        by smtp.googlemail.com with ESMTPSA id n72sm57531oig.5.2021.07.01.08.39.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Jul 2021 08:39:37 -0700 (PDT)
+Subject: Re: [regression] UDP recv data corruption
+To:     Matthias Treydte <mt@waldheinz.de>, stable@vger.kernel.org,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     netdev@vger.kernel.org, regressions@lists.linux.dev,
+        davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org
+References: <20210701124732.Horde.HT4urccbfqv0Nr1Aayuy0BM@mail.your-server.de>
+From:   David Ahern <dsahern@gmail.com>
+Message-ID: <38ddc0e8-ba27-279b-8b76-4062db6719c6@gmail.com>
+Date:   Thu, 1 Jul 2021 09:39:36 -0600
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20210701124732.Horde.HT4urccbfqv0Nr1Aayuy0BM@mail.your-server.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Glisse <jglisse@redhat.com>
+[ adding Paolo, author of 18f25dc39990 ]
 
-We need to append device id even if eeprom have a label property set as some
-platform can have multiple eeproms with same label and we can not register
-each of those with same label. Failing to register those eeproms trigger
-cascade failures on such platform (system is no longer working).
-
-This fix regression on such platform introduced with 4e302c3b568e
-
-Signed-off-by: Jérôme Glisse <jglisse@redhat.com>
-Cc: Diego Santa Cruz <Diego.SantaCruz@spinetix.com>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Jon Hunter <jonathanh@nvidia.com>
-Cc: stable@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
----
- drivers/misc/eeprom/at24.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 7a6f01ace78a..305ffad131a2 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -714,23 +714,20 @@ static int at24_probe(struct i2c_client *client)
- 	}
- 
- 	/*
--	 * If the 'label' property is not present for the AT24 EEPROM,
--	 * then nvmem_config.id is initialised to NVMEM_DEVID_AUTO,
--	 * and this will append the 'devid' to the name of the NVMEM
--	 * device. This is purely legacy and the AT24 driver has always
--	 * defaulted to this. However, if the 'label' property is
--	 * present then this means that the name is specified by the
--	 * firmware and this name should be used verbatim and so it is
--	 * not necessary to append the 'devid'.
-+	 * We initialize nvmem_config.id to NVMEM_DEVID_AUTO even if the
-+	 * label property is set as some platform can have multiple eeproms
-+	 * with same label and we can not register each of those with same
-+	 * label. Failing to register those eeproms trigger cascade failure
-+	 * on such platform.
- 	 */
-+	nvmem_config.id = NVMEM_DEVID_AUTO;
-+
- 	if (device_property_present(dev, "label")) {
--		nvmem_config.id = NVMEM_DEVID_NONE;
- 		err = device_property_read_string(dev, "label",
- 						  &nvmem_config.name);
- 		if (err)
- 			return err;
- 	} else {
--		nvmem_config.id = NVMEM_DEVID_AUTO;
- 		nvmem_config.name = dev_name(dev);
- 	}
- 
--- 
-2.31.1
+On 7/1/21 4:47 AM, Matthias Treydte wrote:
+> Hello,
+> 
+> we recently upgraded the Linux kernel from 5.11.21 to 5.12.12 in our
+> video stream receiver appliance and noticed compression artifacts on
+> video streams that were previously looking fine. We are receiving UDP
+> multicast MPEG TS streams through an FFMpeg / libav layer which does the
+> socket and lower level protocol handling. For affected kernels it spills
+> the log with messages like
+> 
+>> [mpegts @ 0x7fa130000900] Packet corrupt (stream = 0, dts = 6870802195).
+>> [mpegts @ 0x7fa11c000900] Packet corrupt (stream = 0, dts = 6870821068).
+> 
+> Bisecting identified commit 18f25dc399901426dff61e676ba603ff52c666f7 as
+> the one introducing the problem in the mainline kernel. It was
+> backported to the 5.12 series in
+> 450687386cd16d081b58cd7a342acff370a96078. Some random observations which
+> may help to understand what's going on:
+> 
+>    * the problem exists in Linux 5.13
+>    * reverting that commit on top of 5.13 makes the problem go away
+>    * Linux 5.10.45 is fine
+>    * no relevant output in dmesg
+>    * can be reproduced on different hardware (Intel, AMD, different
+> NICs, ...)
+>    * we do use the bonding driver on the systems (but I did not yet
+> verify that this is related)
+>    * we do not use vxlan (mentioned in the commit message)
+>    * the relevant code in FFMpeg identifying packet corruption is here:
+>     
+> https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/mpegts.c#L2758
+> 
+> And the bonding configuration:
+> 
+> # cat /proc/net/bonding/bond0
+> Ethernet Channel Bonding Driver: v5.10.45
+> 
+> Bonding Mode: fault-tolerance (active-backup)
+> Primary Slave: None
+> Currently Active Slave: enp2s0
+> MII Status: up
+> MII Polling Interval (ms): 100
+> Up Delay (ms): 0
+> Down Delay (ms): 0
+> Peer Notification Delay (ms): 0
+> 
+> Slave Interface: enp2s0
+> MII Status: up
+> Speed: 1000 Mbps
+> Duplex: full
+> Link Failure Count: 0
+> Permanent HW addr: 80:ee:73:XX:XX:XX
+> Slave queue ID: 0
+> 
+> Slave Interface: enp3s0
+> MII Status: down
+> Speed: Unknown
+> Duplex: Unknown
+> Link Failure Count: 0
+> Permanent HW addr: 80:ee:73:XX:XX:XX
+> Slave queue ID: 0
+> 
+> 
+> If there is anything else I can do to help tracking this down please let
+> me know.
+> 
+> 
+> Regards,
+> -Matthias Treydte
+> 
+> 
 
