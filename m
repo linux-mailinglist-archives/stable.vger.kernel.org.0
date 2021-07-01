@@ -2,87 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D24923B9181
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 14:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A97213B9189
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 14:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236256AbhGAMOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 08:14:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48686 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236192AbhGAMOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 1 Jul 2021 08:14:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3BA561403;
-        Thu,  1 Jul 2021 12:12:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625141522;
-        bh=TT5ATJx6/SGmcZ2onpZJhXly2bwzw4Mlao44OlsAkcw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=X6ITX7x1DYq7u9skUcCsAXk3eYjBdE/n3aYvabBb9yGroo1OOK3laVLG6iEkcQOEZ
-         1gX9jQqStMnE0JdKtFWtTjvYsDGPvpf6y3BhxX+f1j5qlcWWO+6r05StyYejnLbxoM
-         opX/2D54G7wzk1Htc+PDmkkFZuBRsaL6qC9xI6984+rZzShRwVYhCBSbSTU4sVMJ7R
-         kWF2JMPzomyvyLkCTrc8JOf3beh5LCdRO0T3+vEZfR3Mp0i9v+iagq5N+qCTx7Ma2N
-         3B+UHeaduFzw4a2xaBONWMSZV2uD5+/BxPJ0OLEy315cIu4IaDcTxOStA3r5DOF9ep
-         AOxRVONgQmdcQ==
-Date:   Thu, 1 Jul 2021 13:11:33 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Richard Purdie <richard.purdie@linuxfoundation.org>
-Cc:     Tejun Heo <tj@kernel.org>,
-        Paul Gortmaker <paul.gortmaker@windriver.com>,
-        linux-kernel@vger.kernel.org, cgroups@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] cgroup1: fix leaked context root causing sporadic NULL
- deref in LTP
-Message-ID: <20210701121133.GA4641@sirena.org.uk>
-References: <20210616125157.438837-1-paul.gortmaker@windriver.com>
- <YMoXdljfOFjoVO93@slm.duckdns.org>
- <20210630161036.GA43693@sirena.org.uk>
- <696dc58209707ce364616430673998d0124a9a31.camel@linuxfoundation.org>
+        id S236306AbhGAMTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 08:19:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60258 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236192AbhGAMTn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 08:19:43 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D435C061756
+        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 05:17:13 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id w17so8096946edd.10
+        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 05:17:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=GdG37Fau00oTVKmW6BzgExzV9qbFfqB9ZIZw4LCMePs=;
+        b=S4ZSWa+w93/TA5OZ/OteGOq4rA/a1JCPEwxV2/mnfgy2+G9Kpiu1+LeFlSHrpvLdle
+         mf7evHDP7meCR+jXEtfh9pYeAGyk132OiMC+cO/TJc4LWQQhLcS/zSDuEzuisZfVtD98
+         B5kdcliX1VnMNR83DGhZSknWPV0qvECpB5VwEIm8JnR7mqAQGIaGEBowxWNXVRUhjTIY
+         MeMj9N32Ec9VGIqyWM/zWXGXrhhBTqnxbFc1/8y/jHAzPaFqf0S3qDZaVAn7LLmfxrEH
+         CB4i0V2PHi8NkK51YPufy7VoO5obWCWHvobG7zzYuado0rY5s1bbL/r+6whg3FGW7PaY
+         BCmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=GdG37Fau00oTVKmW6BzgExzV9qbFfqB9ZIZw4LCMePs=;
+        b=EepnOTqjvxchg1dUDB8e0KDWRc4bLIW6F/uRwCvxy6KP7LBlwy4VL/gh1//AiCv3l3
+         YdXoz7GEPXzcFblaV420e/25ZNFQBtNz4ILdqsWQC/7wo/NU1Redu5YBlwFhLWRZmndE
+         TRZKZE8tkk9OU4yLB4W4EHZlAlsYb5p8AWPA5Ley6M6NNZUmgylWYGxnibl8WXMHkV0N
+         cwXDUxXuY1f0k/O41wfv0PoSYX5tMNzi89ylo5a+oM7IfLqxcJpamusOKgXdDMI609Kl
+         S/VA9ckHiYtt+FR5XBeo6yk3oOk21jVVAd/ljj8q+RuYweOCx9QmakkLuCtMdyJvsmsF
+         O1Gg==
+X-Gm-Message-State: AOAM533BqSTAHB8YBxFdoVVnUuYzn/qBiQlekf2HhAiAjMHzu9L1DOga
+        SeJBwG5CEp4F9fw0O6i15sErXRr0cmQlfd3m6qo=
+X-Google-Smtp-Source: ABdhPJwj+96B+HT045TE5D6Eb665L/JGdHRlS1puNiM/K2NZy1/+8hJ0v1ncw1NYQpgcamiYvVEg0rMQNKtfxOgi81M=
+X-Received: by 2002:a05:6402:2805:: with SMTP id h5mr52602989ede.255.1625141831486;
+ Thu, 01 Jul 2021 05:17:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
-Content-Disposition: inline
-In-Reply-To: <696dc58209707ce364616430673998d0124a9a31.camel@linuxfoundation.org>
-X-Cookie: Turn off engine while fueling.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Received: by 2002:a17:906:d14c:0:0:0:0 with HTTP; Thu, 1 Jul 2021 05:17:11
+ -0700 (PDT)
+Reply-To: asita.hussain0@gmail.com
+From:   Asita Hussain <mail34an66@gmail.com>
+Date:   Thu, 1 Jul 2021 05:17:11 -0700
+Message-ID: <CAHMYjS6L33O_t2YjmavTdcDp3Cvv6K6OJ_WngfKQ-m5EPkQ6tA@mail.gmail.com>
+Subject: Hello,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Jun 30, 2021 at 11:31:06PM +0100, Richard Purdie wrote:
-
-> Out of interest are you also seeing the proc01 test hang on a non-blocking
-> read of /proc/kmsg periodically?
-
-> https://bugzilla.yoctoproject.org/show_bug.cgi?id=14460
-
-> I've not figured out a way to reproduce it at will yet and it seems strace
-
-I've been talking to Ross, he mentioned it but no, rings no bells.
-
-> was enough to unblock it. It seems arm specific.
-
-If it's 32 bit I'm not really doing anything that looks at it.
-
---FL5UXtIhxfXey3p5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmDdsPQACgkQJNaLcl1U
-h9CWJwf/YF+XAA1qBYxWYCc8ZI/W6jctkkgrPHFx22WMAE341gHUGHvmC7twHrgI
-DcCGdXI1CL2IQ0YJos9z2ydV66ZTtH2qP1K2Ugt2GzZyL0zL+P5hgndYquVXNOFQ
-p736kNqsvsB3tOrsIDzLeVheqJmQwH4E60rBgU40C5oRkNYmO1aA9KLDhOxa5NAX
-KfZ3to8t+mR1KCh/LipJaBgmmLli9c0s+reuz9bfnJnAqW7VHSQvGopo5afkmWYO
-RO32LIAwI81JTGOyG+gWjSExxS8sMWYEuSMkCWiXwtrKKjm5XD91W4465CmfOtgb
-UeHMvCVvCwaU5A+cq9VTN6vsMx7Qhg==
-=UGEt
------END PGP SIGNATURE-----
-
---FL5UXtIhxfXey3p5--
+Hello,
+From Mr. Asita Hussain
+This message might meet you in utmost surprise.
+I am a banker by profession in Burkina-Faso, West Africa and currently
+holding the post of manager in account and auditing department in our
+bank. I have the opportunity of transferring the left over funds ($
+25.5 Million Dollars 15 kilos of Gold bar) belonging to our deceased
+customer who died along with his entire family in a bomb attack.
+Please indicate your willingness by sending the below information for
+more clarification and easy communication.
+Please Contact me with the following information's for more details.
+(1) YOUR FULL NAME.......................
+(2) YOUR AGE AND SEX......................
+(3) YOUR CONTACT ADDRESS...............
+(4) YOUR PRIVATE PHONE N0..........
+(5) FAX NUMBER..............
+(6) YOUR COUNTRY OF ORIGIN.................
+(7) YOUR OCCUPATION.................... .....
+ Please Contact me for more details in this E-mail address
+(asita.hussain0@gmail.com)
+Trusting to hear from you immediately.
+Thanks & Best Regards,
+From Mr. Asita Hussain
