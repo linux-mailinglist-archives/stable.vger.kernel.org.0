@@ -2,96 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 027523B8E08
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 09:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A983B8EF9
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 10:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234553AbhGAHKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 03:10:02 -0400
-Received: from mga17.intel.com ([192.55.52.151]:25662 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234529AbhGAHKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 1 Jul 2021 03:10:02 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10031"; a="188867514"
-X-IronPort-AV: E=Sophos;i="5.83,313,1616482800"; 
-   d="scan'208";a="188867514"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2021 00:07:31 -0700
-X-IronPort-AV: E=Sophos;i="5.83,313,1616482800"; 
-   d="scan'208";a="447778411"
-Received: from bjvanakk-mobl.ger.corp.intel.com (HELO [10.252.61.209]) ([10.252.61.209])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2021 00:07:29 -0700
-Subject: Re: [PATCH] drm/i915/gt: Fix -EDEADLK handling regression
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org,
-        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= <thomas.hellstrom@intel.com>
-References: <20210630164413.25481-1-ville.syrjala@linux.intel.com>
-From:   Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Message-ID: <2edf584b-3835-53ed-f6e3-76c7e8d581ed@linux.intel.com>
-Date:   Thu, 1 Jul 2021 09:07:27 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.0
-MIME-Version: 1.0
-In-Reply-To: <20210630164413.25481-1-ville.syrjala@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+        id S235488AbhGAInW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 04:43:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40260 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235375AbhGAInV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 04:43:21 -0400
+Received: from mail-qk1-x74a.google.com (mail-qk1-x74a.google.com [IPv6:2607:f8b0:4864:20::74a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1211C0617AD
+        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 01:40:51 -0700 (PDT)
+Received: by mail-qk1-x74a.google.com with SMTP id b6-20020a05620a1186b02903b429a7ee4bso3106276qkk.4
+        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 01:40:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=5iHoNZMOeP6TxsWwP/0krCRRwCbLGs4FQeU+EZRnVpw=;
+        b=FMpj5JxuvGNfBzF6vXgu2ty+hfpspeI/EDm3LJYTsJoaCNE3k6TVARsbPBxXFX4nWm
+         1HoNvamktFRK3begTvvzpfatrEad5S90Acr/VAL1gvywFra+8hYcXivsK0/KDNEQmoL+
+         Vfqp6Ej0zCR4SHWdJKdm0irz/YBGo4kKOJyhXv7XrFMuCtX7xJfrRIGY7RGmQMtl2ifu
+         dm8fMDH76QKCAL5NJBWJXdxOoqNHMBdk5/w03UE3OnrblaMwURXPUro8tyjfXesNsIeB
+         tJIHFJqgIgZzyVsNbxUVFSlBS3fFw7lBxxoX5x3NbOv5OZ4Xm2qPiN7EUtBzyqiN9TXX
+         oSVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=5iHoNZMOeP6TxsWwP/0krCRRwCbLGs4FQeU+EZRnVpw=;
+        b=DLi/mJ2fkj/actBQtMXHqTV4iiPWvdnqJkMdglDvV1uCLcAHiGqQyPvHUjsFv+bFlP
+         xl2RhoQ5H5TYTJrUAVESftLIMqMCSKrzUmWuhtgIX4m3oxgFfz8ROARQcHIJ2VrVkpO3
+         /t2azuI3xfCCVkDs3o3KKGra8J2Ex7HaQ++S8dYtz0ghjP5IwjIVhdUk5e60RpTSS48K
+         7uahgTZKWy2KsVyGLplAVUUR+nIim6DYsh3EUnTGo8zF+GIwA/BNx63Q8CcCeb5dFkp5
+         lMirqfjipQOw2z8dgUjXv7isRP3sw3VPBH6xHlIO/DWCHsdOCVNb33tW9Ly8yEC4MLFm
+         qatw==
+X-Gm-Message-State: AOAM531gjXe9NnvrmSazICcH/RdrhOxDSELFBwsZ6OHkWUs22x2BrlYU
+        sGoPqWOr0dxGtAZa6eUMIzyyl72eag==
+X-Google-Smtp-Source: ABdhPJzh0BWd6kKdTshLd8GOa6BvrBKw2SUY1e5kpAyenT4O3KV55wn97GNSQeSm1oacAHDSzUhCAtKGzg==
+X-Received: from elver.muc.corp.google.com ([2a00:79e0:15:13:8b0e:c57f:ff29:7e4])
+ (user=elver job=sendgmr) by 2002:ad4:4ba4:: with SMTP id i4mr34049163qvw.42.1625128850422;
+ Thu, 01 Jul 2021 01:40:50 -0700 (PDT)
+Date:   Thu,  1 Jul 2021 10:38:43 +0200
+Message-Id: <20210701083842.580466-1-elver@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.32.0.93.g670b81a890-goog
+Subject: [PATCH v2] perf: Require CAP_KILL if sigtrap is requested
+From:   Marco Elver <elver@google.com>
+To:     elver@google.com, peterz@infradead.org
+Cc:     tglx@linutronix.de, mingo@kernel.org, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, mingo@redhat.com, acme@kernel.org,
+        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
+        jolsa@redhat.com, namhyung@kernel.org,
+        linux-perf-users@vger.kernel.org, ebiederm@xmission.com,
+        omosnace@redhat.com, serge@hallyn.com,
+        linux-security-module@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Vyukov <dvyukov@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Op 30-06-2021 om 18:44 schreef Ville Syrjala:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
->
-> The conversion to ww mutexes failed to address the fence code which
-> already returns -EDEADLK when we run out of fences. Ww mutexes on
-> the other hand treat -EDEADLK as an internal errno value indicating
-> a need to restart the operation due to a deadlock. So now when the
-> fence code returns -EDEADLK the higher level code erroneously
-> restarts everything instead of returning the error to userspace
-> as is expected.
->
-> To remedy this let's switch the fence code to use a different errno
-> value for this. -ENOBUFS seems like a semi-reasonable unique choice.
-> Apart from igt the only user of this I could find is sna, and even
-> there all we do is dump the current fence registers from debugfs
-> into the X server log. So no user visible functionality is affected.
-> If we really cared about preserving this we could of course convert
-> back to -EDEADLK higher up, but doesn't seem like that's worth
-> the hassle here.
->
-> Not quite sure which commit specifically broke this, but I'll
-> just attribute it to the general gem ww mutex work.
->
-> Cc: stable@vger.kernel.org
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Cc: Thomas Hellström <thomas.hellstrom@intel.com>
-> Testcase: igt/gem_pread/exhaustion
-> Testcase: igt/gem_pwrite/basic-exhaustion
-> Testcase: igt/gem_fenced_exec_thrash/too-many-fences
-> Fixes: 80f0b679d6f0 ("drm/i915: Add an implementation for i915_gem_ww_ctx locking, v2.")
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> ---
->  drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-> index cac7f3f44642..f8948de72036 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-> @@ -348,7 +348,7 @@ static struct i915_fence_reg *fence_find(struct i915_ggtt *ggtt)
->  	if (intel_has_pending_fb_unpin(ggtt->vm.i915))
->  		return ERR_PTR(-EAGAIN);
->  
-> -	return ERR_PTR(-EDEADLK);
-> +	return ERR_PTR(-ENOBUFS);
->  }
->  
->  int __i915_vma_pin_fence(struct i915_vma *vma)
+If perf_event_open() is called with another task as target and
+perf_event_attr::sigtrap is set, and the target task's user does not
+match the calling user, also require the CAP_KILL capability.
 
-Makes sense..
+Otherwise, with the CAP_PERFMON capability alone it would be possible
+for a user to send SIGTRAP signals via perf events to another user's
+tasks. This could potentially result in those tasks being terminated if
+they cannot handle SIGTRAP signals.
 
-Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Note: The check complements the existing capability check, but is not
+supposed to supersede the ptrace_may_access() check. At a high level we
+now have:
 
-Is it a slightly more reent commit? Might probably be the part that converts execbuffer to use ww locks.
+	capable of CAP_PERFMON and (CAP_KILL if sigtrap)
+		OR
+	ptrace_may_access() // also checks for same thread-group and uid
+
+Fixes: 97ba62b27867 ("perf: Add support for SIGTRAP on perf events")
+Cc: <stable@vger.kernel.org> # 5.13+
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Marco Elver <elver@google.com>
+---
+v2:
+* Drop kill_capable() and just check CAP_KILL (reported by Ondrej Mosnacek).
+* Use ns_capable(__task_cred(task)->user_ns, CAP_KILL) to check for
+  capability in target task's ns (reported by Ondrej Mosnacek).
+---
+ kernel/events/core.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index fe88d6eea3c2..43c99695dc3f 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -12152,10 +12152,23 @@ SYSCALL_DEFINE5(perf_event_open,
+ 	}
+ 
+ 	if (task) {
++		bool is_capable;
++
+ 		err = down_read_interruptible(&task->signal->exec_update_lock);
+ 		if (err)
+ 			goto err_file;
+ 
++		is_capable = perfmon_capable();
++		if (attr.sigtrap) {
++			/*
++			 * perf_event_attr::sigtrap sends signals to the other
++			 * task. Require the current task to have CAP_KILL.
++			 */
++			rcu_read_lock();
++			is_capable &= ns_capable(__task_cred(task)->user_ns, CAP_KILL);
++			rcu_read_unlock();
++		}
++
+ 		/*
+ 		 * Preserve ptrace permission check for backwards compatibility.
+ 		 *
+@@ -12165,7 +12178,7 @@ SYSCALL_DEFINE5(perf_event_open,
+ 		 * perf_event_exit_task() that could imply).
+ 		 */
+ 		err = -EACCES;
+-		if (!perfmon_capable() && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
++		if (!is_capable && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
+ 			goto err_cred;
+ 	}
+ 
+-- 
+2.32.0.93.g670b81a890-goog
 
