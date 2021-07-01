@@ -2,80 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A97213B9189
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 14:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A4233B91B9
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 14:43:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236306AbhGAMTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 08:19:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60258 "EHLO
+        id S236392AbhGAMpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 08:45:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236192AbhGAMTn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 08:19:43 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D435C061756
-        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 05:17:13 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id w17so8096946edd.10
-        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 05:17:12 -0700 (PDT)
+        with ESMTP id S236282AbhGAMpy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 08:45:54 -0400
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2E7DC061756
+        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 05:43:23 -0700 (PDT)
+Received: by mail-wm1-x335.google.com with SMTP id u8-20020a7bcb080000b02901e44e9caa2aso3970442wmj.4
+        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 05:43:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=GdG37Fau00oTVKmW6BzgExzV9qbFfqB9ZIZw4LCMePs=;
-        b=S4ZSWa+w93/TA5OZ/OteGOq4rA/a1JCPEwxV2/mnfgy2+G9Kpiu1+LeFlSHrpvLdle
-         mf7evHDP7meCR+jXEtfh9pYeAGyk132OiMC+cO/TJc4LWQQhLcS/zSDuEzuisZfVtD98
-         B5kdcliX1VnMNR83DGhZSknWPV0qvECpB5VwEIm8JnR7mqAQGIaGEBowxWNXVRUhjTIY
-         MeMj9N32Ec9VGIqyWM/zWXGXrhhBTqnxbFc1/8y/jHAzPaFqf0S3qDZaVAn7LLmfxrEH
-         CB4i0V2PHi8NkK51YPufy7VoO5obWCWHvobG7zzYuado0rY5s1bbL/r+6whg3FGW7PaY
-         BCmg==
+        d=linuxfoundation.org; s=google;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=mo6oA/XnbDUGfk8NTnLtsX2Oxt2DjcL5ZEyjcIbXJxE=;
+        b=ZoT209PloXnbOEhL1QU7auZZ8wiKaoDhkCY5o/ymMMMc54wtJgZRSBBst/6uWhboWC
+         HJUkHBzw6bANDxSgtGj3yL1oQE4Q6Lxw9ITAw68rg6FgsGIcy5ANlDp5PbqojKIES3/e
+         ZlmYBBAluT51L1CqtjRWPvBnwPN/vR35iWVlA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=GdG37Fau00oTVKmW6BzgExzV9qbFfqB9ZIZw4LCMePs=;
-        b=EepnOTqjvxchg1dUDB8e0KDWRc4bLIW6F/uRwCvxy6KP7LBlwy4VL/gh1//AiCv3l3
-         YdXoz7GEPXzcFblaV420e/25ZNFQBtNz4ILdqsWQC/7wo/NU1Redu5YBlwFhLWRZmndE
-         TRZKZE8tkk9OU4yLB4W4EHZlAlsYb5p8AWPA5Ley6M6NNZUmgylWYGxnibl8WXMHkV0N
-         cwXDUxXuY1f0k/O41wfv0PoSYX5tMNzi89ylo5a+oM7IfLqxcJpamusOKgXdDMI609Kl
-         S/VA9ckHiYtt+FR5XBeo6yk3oOk21jVVAd/ljj8q+RuYweOCx9QmakkLuCtMdyJvsmsF
-         O1Gg==
-X-Gm-Message-State: AOAM533BqSTAHB8YBxFdoVVnUuYzn/qBiQlekf2HhAiAjMHzu9L1DOga
-        SeJBwG5CEp4F9fw0O6i15sErXRr0cmQlfd3m6qo=
-X-Google-Smtp-Source: ABdhPJwj+96B+HT045TE5D6Eb665L/JGdHRlS1puNiM/K2NZy1/+8hJ0v1ncw1NYQpgcamiYvVEg0rMQNKtfxOgi81M=
-X-Received: by 2002:a05:6402:2805:: with SMTP id h5mr52602989ede.255.1625141831486;
- Thu, 01 Jul 2021 05:17:11 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a17:906:d14c:0:0:0:0 with HTTP; Thu, 1 Jul 2021 05:17:11
- -0700 (PDT)
-Reply-To: asita.hussain0@gmail.com
-From:   Asita Hussain <mail34an66@gmail.com>
-Date:   Thu, 1 Jul 2021 05:17:11 -0700
-Message-ID: <CAHMYjS6L33O_t2YjmavTdcDp3Cvv6K6OJ_WngfKQ-m5EPkQ6tA@mail.gmail.com>
-Subject: Hello,
-To:     undisclosed-recipients:;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=mo6oA/XnbDUGfk8NTnLtsX2Oxt2DjcL5ZEyjcIbXJxE=;
+        b=ivSi8jg0a/othU4YxEVbyG5OdUoZV0zqR80qZ61X7eRq99I0FE9pBeZRXoekp1/11Q
+         Gn+InYyqTKxplm9toptKFCQd/qu8C6BC+AlIrvvA9s488L6PmZvVjPllPyfCorV/4PYc
+         byPlTBhdRrRpca91zDpJhTvgUfAZsm1Dd/MTQ7buLIYZGuUfr8bVHStwFYN3qjTmFWsp
+         fNfSJpW4ECH1bt8z8YthmDgX5aAhGoF4wQPIP+8MJfBjlU85VihDJoOlFfYMbnP48ZMG
+         liWoFNOa962skjfkApVMoAFIqjdMfKrM0GmUrFUqIovbjbz79J9jX7iYN5ytcReCA0ds
+         +STg==
+X-Gm-Message-State: AOAM532gAXsFBWsx8CGNeD7gQp4tMEr3lYuMoOCtPGGn53SaMQEShNkS
+        oKp/slRXsfdXmjd91VYVRDLRpg==
+X-Google-Smtp-Source: ABdhPJzTAwPPPR6L6P6uS3+LRZi3ZK1wPBHWPVvFvkqIsj03BGz5+yt7Zwi0kIGdB+vlNRETEs5OjQ==
+X-Received: by 2002:a1c:7314:: with SMTP id d20mr42940651wmb.167.1625143402298;
+        Thu, 01 Jul 2021 05:43:22 -0700 (PDT)
+Received: from ?IPv6:2001:8b0:aba:5f3c:a683:959f:4ccb:54d6? ([2001:8b0:aba:5f3c:a683:959f:4ccb:54d6])
+        by smtp.gmail.com with ESMTPSA id f6sm8278917wrs.13.2021.07.01.05.43.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Jul 2021 05:43:21 -0700 (PDT)
+Message-ID: <8f20f2edd60fbff426b086599ae943ff09195b9c.camel@linuxfoundation.org>
+Subject: Re: [PATCH] cgroup1: fix leaked context root causing sporadic NULL
+ deref in LTP
+From:   Richard Purdie <richard.purdie@linuxfoundation.org>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Tejun Heo <tj@kernel.org>,
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        linux-kernel@vger.kernel.org, cgroups@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>, stable@vger.kernel.org
+Date:   Thu, 01 Jul 2021 13:43:19 +0100
+In-Reply-To: <20210701121133.GA4641@sirena.org.uk>
+References: <20210616125157.438837-1-paul.gortmaker@windriver.com>
+         <YMoXdljfOFjoVO93@slm.duckdns.org> <20210630161036.GA43693@sirena.org.uk>
+         <696dc58209707ce364616430673998d0124a9a31.camel@linuxfoundation.org>
+         <20210701121133.GA4641@sirena.org.uk>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.0-1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-From Mr. Asita Hussain
-This message might meet you in utmost surprise.
-I am a banker by profession in Burkina-Faso, West Africa and currently
-holding the post of manager in account and auditing department in our
-bank. I have the opportunity of transferring the left over funds ($
-25.5 Million Dollars 15 kilos of Gold bar) belonging to our deceased
-customer who died along with his entire family in a bomb attack.
-Please indicate your willingness by sending the below information for
-more clarification and easy communication.
-Please Contact me with the following information's for more details.
-(1) YOUR FULL NAME.......................
-(2) YOUR AGE AND SEX......................
-(3) YOUR CONTACT ADDRESS...............
-(4) YOUR PRIVATE PHONE N0..........
-(5) FAX NUMBER..............
-(6) YOUR COUNTRY OF ORIGIN.................
-(7) YOUR OCCUPATION.................... .....
- Please Contact me for more details in this E-mail address
-(asita.hussain0@gmail.com)
-Trusting to hear from you immediately.
-Thanks & Best Regards,
-From Mr. Asita Hussain
+On Thu, 2021-07-01 at 13:11 +0100, Mark Brown wrote:
+> On Wed, Jun 30, 2021 at 11:31:06PM +0100, Richard Purdie wrote:
+> 
+> > Out of interest are you also seeing the proc01 test hang on a non-blocking
+> > read of /proc/kmsg periodically?
+> 
+> > https://bugzilla.yoctoproject.org/show_bug.cgi?id=14460
+> 
+> > I've not figured out a way to reproduce it at will yet and it seems strace
+> 
+> I've been talking to Ross, he mentioned it but no, rings no bells.
+> 
+> > was enough to unblock it. It seems arm specific.
+> 
+> If it's 32 bit I'm not really doing anything that looks at it.
+
+Its aarch64 in qemu running on aarch64 hardware with KVM.
+
+If you do happen to see anything let us know!
+
+Cheers,
+
+Richard
+
+
