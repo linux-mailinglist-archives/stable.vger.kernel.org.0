@@ -2,133 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68A983B8EF9
-	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 10:40:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B90213B9065
+	for <lists+stable@lfdr.de>; Thu,  1 Jul 2021 12:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235488AbhGAInW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 04:43:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40260 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235375AbhGAInV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 04:43:21 -0400
-Received: from mail-qk1-x74a.google.com (mail-qk1-x74a.google.com [IPv6:2607:f8b0:4864:20::74a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1211C0617AD
-        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 01:40:51 -0700 (PDT)
-Received: by mail-qk1-x74a.google.com with SMTP id b6-20020a05620a1186b02903b429a7ee4bso3106276qkk.4
-        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 01:40:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=5iHoNZMOeP6TxsWwP/0krCRRwCbLGs4FQeU+EZRnVpw=;
-        b=FMpj5JxuvGNfBzF6vXgu2ty+hfpspeI/EDm3LJYTsJoaCNE3k6TVARsbPBxXFX4nWm
-         1HoNvamktFRK3begTvvzpfatrEad5S90Acr/VAL1gvywFra+8hYcXivsK0/KDNEQmoL+
-         Vfqp6Ej0zCR4SHWdJKdm0irz/YBGo4kKOJyhXv7XrFMuCtX7xJfrRIGY7RGmQMtl2ifu
-         dm8fMDH76QKCAL5NJBWJXdxOoqNHMBdk5/w03UE3OnrblaMwURXPUro8tyjfXesNsIeB
-         tJIHFJqgIgZzyVsNbxUVFSlBS3fFw7lBxxoX5x3NbOv5OZ4Xm2qPiN7EUtBzyqiN9TXX
-         oSVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=5iHoNZMOeP6TxsWwP/0krCRRwCbLGs4FQeU+EZRnVpw=;
-        b=DLi/mJ2fkj/actBQtMXHqTV4iiPWvdnqJkMdglDvV1uCLcAHiGqQyPvHUjsFv+bFlP
-         xl2RhoQ5H5TYTJrUAVESftLIMqMCSKrzUmWuhtgIX4m3oxgFfz8ROARQcHIJ2VrVkpO3
-         /t2azuI3xfCCVkDs3o3KKGra8J2Ex7HaQ++S8dYtz0ghjP5IwjIVhdUk5e60RpTSS48K
-         7uahgTZKWy2KsVyGLplAVUUR+nIim6DYsh3EUnTGo8zF+GIwA/BNx63Q8CcCeb5dFkp5
-         lMirqfjipQOw2z8dgUjXv7isRP3sw3VPBH6xHlIO/DWCHsdOCVNb33tW9Ly8yEC4MLFm
-         qatw==
-X-Gm-Message-State: AOAM531gjXe9NnvrmSazICcH/RdrhOxDSELFBwsZ6OHkWUs22x2BrlYU
-        sGoPqWOr0dxGtAZa6eUMIzyyl72eag==
-X-Google-Smtp-Source: ABdhPJzh0BWd6kKdTshLd8GOa6BvrBKw2SUY1e5kpAyenT4O3KV55wn97GNSQeSm1oacAHDSzUhCAtKGzg==
-X-Received: from elver.muc.corp.google.com ([2a00:79e0:15:13:8b0e:c57f:ff29:7e4])
- (user=elver job=sendgmr) by 2002:ad4:4ba4:: with SMTP id i4mr34049163qvw.42.1625128850422;
- Thu, 01 Jul 2021 01:40:50 -0700 (PDT)
-Date:   Thu,  1 Jul 2021 10:38:43 +0200
-Message-Id: <20210701083842.580466-1-elver@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.32.0.93.g670b81a890-goog
-Subject: [PATCH v2] perf: Require CAP_KILL if sigtrap is requested
-From:   Marco Elver <elver@google.com>
-To:     elver@google.com, peterz@infradead.org
-Cc:     tglx@linutronix.de, mingo@kernel.org, kasan-dev@googlegroups.com,
-        linux-kernel@vger.kernel.org, mingo@redhat.com, acme@kernel.org,
-        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
-        jolsa@redhat.com, namhyung@kernel.org,
-        linux-perf-users@vger.kernel.org, ebiederm@xmission.com,
-        omosnace@redhat.com, serge@hallyn.com,
-        linux-security-module@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Vyukov <dvyukov@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S235126AbhGAKSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 06:18:17 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:52018 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235864AbhGAKSR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 06:18:17 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 0799A1C0B77; Thu,  1 Jul 2021 12:15:46 +0200 (CEST)
+Date:   Thu, 1 Jul 2021 12:15:45 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Maxime Ripard <maxime@cerno.tech>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>
+Subject: Re: [PATCH 5.10 016/101] drm/vc4: hdmi: Make sure the controller is
+ powered in detect
+Message-ID: <20210701101545.GA2423@amd>
+References: <20210628142607.32218-1-sashal@kernel.org>
+ <20210628142607.32218-17-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+Content-Disposition: inline
+In-Reply-To: <20210628142607.32218-17-sashal@kernel.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If perf_event_open() is called with another task as target and
-perf_event_attr::sigtrap is set, and the target task's user does not
-match the calling user, also require the CAP_KILL capability.
 
-Otherwise, with the CAP_PERFMON capability alone it would be possible
-for a user to send SIGTRAP signals via perf events to another user's
-tasks. This could potentially result in those tasks being terminated if
-they cannot handle SIGTRAP signals.
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Note: The check complements the existing capability check, but is not
-supposed to supersede the ptrace_may_access() check. At a high level we
-now have:
+Hi!
 
-	capable of CAP_PERFMON and (CAP_KILL if sigtrap)
-		OR
-	ptrace_may_access() // also checks for same thread-group and uid
+> [ Upstream commit 9984d6664ce9dcbbc713962539eaf7636ea246c2 ]
+>=20
+> If the HPD GPIO is not available and drm_probe_ddc fails, we end up
+> reading the HDMI_HOTPLUG register, but the controller might be powered
+> off resulting in a CPU hang. Make sure we have the power domain and the
+> HSM clock powered during the detect cycle to prevent the hang from
+> happening.
 
-Fixes: 97ba62b27867 ("perf: Add support for SIGTRAP on perf events")
-Cc: <stable@vger.kernel.org> # 5.13+
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Marco Elver <elver@google.com>
----
-v2:
-* Drop kill_capable() and just check CAP_KILL (reported by Ondrej Mosnacek).
-* Use ns_capable(__task_cred(task)->user_ns, CAP_KILL) to check for
-  capability in target task's ns (reported by Ondrej Mosnacek).
----
- kernel/events/core.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+If the WARN_ON ever triggers, we'll get unbalance on pm usage
+counts. This should use pm_runtime_get_sync().
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index fe88d6eea3c2..43c99695dc3f 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -12152,10 +12152,23 @@ SYSCALL_DEFINE5(perf_event_open,
- 	}
- 
- 	if (task) {
-+		bool is_capable;
-+
- 		err = down_read_interruptible(&task->signal->exec_update_lock);
- 		if (err)
- 			goto err_file;
- 
-+		is_capable = perfmon_capable();
-+		if (attr.sigtrap) {
-+			/*
-+			 * perf_event_attr::sigtrap sends signals to the other
-+			 * task. Require the current task to have CAP_KILL.
-+			 */
-+			rcu_read_lock();
-+			is_capable &= ns_capable(__task_cred(task)->user_ns, CAP_KILL);
-+			rcu_read_unlock();
-+		}
-+
- 		/*
- 		 * Preserve ptrace permission check for backwards compatibility.
- 		 *
-@@ -12165,7 +12178,7 @@ SYSCALL_DEFINE5(perf_event_open,
- 		 * perf_event_exit_task() that could imply).
- 		 */
- 		err = -EACCES;
--		if (!perfmon_capable() && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
-+		if (!is_capable && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
- 			goto err_cred;
- 	}
- 
--- 
-2.32.0.93.g670b81a890-goog
+Plus, we don't really need to duplicate code at function exit.
 
+Signed-off-by: Pavel Machek <pavel@denx.de>
+
+> +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+> @@ -146,6 +146,8 @@ vc4_hdmi_connector_detect(struct drm_connector *conne=
+ctor, bool force)
+>  	struct vc4_hdmi *vc4_hdmi =3D connector_to_vc4_hdmi(connector);
+>  	bool connected =3D false;
+> =20
+> +	WARN_ON(pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev));
+> +
+>  	if (vc4_hdmi->hpd_gpio) {
+>  		if (gpio_get_value_cansleep(vc4_hdmi->hpd_gpio) ^
+>  		    vc4_hdmi->hpd_active_low)
+> @@ -167,10 +169,12 @@ vc4_hdmi_connector_detect(struct drm_connector *con=
+nector, bool force)
+>  			}
+>  		}
+> =20
+> +		pm_runtime_put(&vc4_hdmi->pdev->dev);
+>  		return connector_status_connected;
+>  	}
+> =20
+>  	cec_phys_addr_invalidate(vc4_hdmi->cec_adap);
+> +	pm_runtime_put(&vc4_hdmi->pdev->dev);
+>  	return connector_status_disconnected;
+>  }
+> =20
+
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 88a8cb840cd5..3b145f9f6c87 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -146,7 +146,7 @@ vc4_hdmi_connector_detect(struct drm_connector *connect=
+or, bool force)
+ 	struct vc4_hdmi *vc4_hdmi =3D connector_to_vc4_hdmi(connector);
+ 	bool connected =3D false;
+=20
+-	WARN_ON(pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev));
++	WARN_ON(pm_runtime_get_sync(&vc4_hdmi->pdev->dev));
+=20
+ 	if (vc4_hdmi->hpd_gpio) {
+ 		if (gpio_get_value_cansleep(vc4_hdmi->hpd_gpio) ^
+@@ -168,12 +168,9 @@ vc4_hdmi_connector_detect(struct drm_connector *connec=
+tor, bool force)
+ 				kfree(edid);
+ 			}
+ 		}
++	} else
++		cec_phys_addr_invalidate(vc4_hdmi->cec_adap);
+=20
+-		pm_runtime_put(&vc4_hdmi->pdev->dev);
+-		return connector_status_connected;
+-	}
+-
+-	cec_phys_addr_invalidate(vc4_hdmi->cec_adap);
+ 	pm_runtime_put(&vc4_hdmi->pdev->dev);
+ 	return connector_status_disconnected;
+ }
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--cNdxnHkX5QqsyA0e
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmDdldEACgkQMOfwapXb+vIb9QCfUP/sNuiKsPVgcDxuC12gwWlu
++WYAoIkNG4hIPlFRo7RZH+jpQ/g2LyDN
+=3ydh
+-----END PGP SIGNATURE-----
+
+--cNdxnHkX5QqsyA0e--
