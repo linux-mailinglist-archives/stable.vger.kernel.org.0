@@ -2,114 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 849A73BA237
-	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 16:32:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 810873BA252
+	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 16:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232952AbhGBOed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Jul 2021 10:34:33 -0400
-Received: from www259.your-server.de ([188.40.28.39]:56536 "EHLO
-        www259.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232930AbhGBOed (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Jul 2021 10:34:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=waldheinz.de; s=default1911; h=MIME-Version:Content-Type:In-Reply-To:
-        References:Subject:Cc:To:From:Message-ID:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID;
-        bh=FXc7LzDoxI7AGLPQwAClDkV+Z2ijm7twtsV2j4xH0c4=; b=M1Glb+7z44cQSbPGmPbAFuykNz
-        FARWANMSx1rhetywpRuVbfMrsnagVvUt/njXjiS9OQemUjpr7oG3bbYaphYYf4Y6hU3acPzTE/VDb
-        SYf9ZxjNky93oHtWnY1XgS6lI+cwWiCJx39aO+s9BMQ9WZT/auzkQKmJwba9zXN8iKYUbg5Qq2KU9
-        g9w9jCiS5gm1iEEE2c2wt7spMczkbT2c4EDbufxLa5M1a6Rl+27H6BhVzxImoMQeRHlAwLzPEiIhm
-        g9Gw6Kz902LlP8h4ItQiFxU1/+kNHvKoDb3nBfu2MaoL8tk9FGXgTs1eTgAlU1EcurssU8V0AwVM/
-        BbH85vNg==;
-Received: from sslproxy05.your-server.de ([78.46.172.2])
-        by www259.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92.3)
-        (envelope-from <mt@waldheinz.de>)
-        id 1lzKCr-00052i-EY; Fri, 02 Jul 2021 16:31:49 +0200
-Received: from [192.168.0.32] (helo=mail.your-server.de)
-        by sslproxy05.your-server.de with esmtpsa (TLSv1.2:ECDHE-RSA-CHACHA20-POLY1305:256)
-        (Exim 4.92)
-        (envelope-from <mt@waldheinz.de>)
-        id 1lzKCr-000Spp-3h; Fri, 02 Jul 2021 16:31:49 +0200
-Received: from ip4d1584d2.dynamic.kabel-deutschland.de
- (ip4d1584d2.dynamic.kabel-deutschland.de [77.21.132.210]) by
- mail.your-server.de (Horde Framework) with HTTPS; Fri, 02 Jul 2021 16:31:49
- +0200
-Date:   Fri, 02 Jul 2021 16:31:48 +0200
-Message-ID: <20210702163148.Horde.OPbmfqdhfEMDjt3Q2A7ru7c@mail.your-server.de>
-From:   Matthias Treydte <mt@waldheinz.de>
-To:     Paolo Abeni <pabeni@redhat.com>
-Cc:     stable@vger.kernel.org, netdev@vger.kernel.org,
-        regressions@lists.linux.dev, davem@davemloft.net,
-        yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        David Ahern <dsahern@gmail.com>
-Subject: Re: [regression] UDP recv data corruption
-References: <20210701124732.Horde.HT4urccbfqv0Nr1Aayuy0BM@mail.your-server.de>
- <38ddc0e8-ba27-279b-8b76-4062db6719c6@gmail.com>
- <CA+FuTSc3POcZo0En3JBqRwq2+eF645_Cs4U-4nBmTs9FvjoVkg@mail.gmail.com>
- <39df657bee89e56c704782e0c061383d276d2f7c.camel@redhat.com>
-In-Reply-To: <39df657bee89e56c704782e0c061383d276d2f7c.camel@redhat.com>
-User-Agent: Horde Application Framework 5
-Content-Type: text/plain; charset=utf-8; format=flowed; DelSp=Yes
+        id S232935AbhGBOtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Jul 2021 10:49:47 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:39931 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232930AbhGBOtq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Jul 2021 10:49:46 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 42E475C012A;
+        Fri,  2 Jul 2021 10:47:14 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 02 Jul 2021 10:47:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=auSwHk3r7cardj7nXW1L5fB3OAn
+        30noyQVw1mcZGr9Q=; b=V/8AwNrJUywwVXvYKt3hQCTA8It1gLXPikT9vbxM6Of
+        C7/nAjUOj+0i1lgPewifcC+ilTMkAAbpO2bMVyURWOcaOEiaMGEnzm5/XgH/79ca
+        Daff3fUicVrnaxd8FoOElj5HXxIIe9S56/0ZwTQGVYffYcwYoAwIZ7h9DGc8P4zY
+        5Ya/IKvs5l7uq+fZtteM1sBNCKDFzoX7AM2k93xQzgYJGrWnL+OUnc5Am5BlciXy
+        Uu5CKcvdfmmR8qTTpLSMZoGm1Mfo6fnObCijNUK+A3eDN8yp5eVzaDCQOKpNIlA3
+        nqNLiNz0gk8bGl7OENPaw+Eztx/DG57j9o8j0ep7SYw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=auSwHk
+        3r7cardj7nXW1L5fB3OAn30noyQVw1mcZGr9Q=; b=GY4j7zzTMxFDAfebXv51jm
+        IL8PJ3+ry6Tx1NetN/t1wMpQp1ElMe1GiKJEWKhbE4tCeTAzC7S+yiKBZcHuxl67
+        LYtrABgbzeAX8U1n//SQpTgsfhE3lkz8Z3fUnJS0w7bPo26cxu45O5LdreUaoOH/
+        SCN2ksVN5LmL7Y/UvTP0cy84eZezqPm4ylDnum4RehPGWB9gYNp28R3GiOzGt+UQ
+        ECoIMCZNR+d3AmMg90It40KKoqrx0Ia+RCDxCElSu2ovtq1mBc4nvurdWnHJ/2ke
+        ngujDLHrZH8z9QT72r6ue47SJKfsTXQlPoRNrdTtc8/8bUyH9AtrQtvmVfx8yHSQ
+        ==
+X-ME-Sender: <xms:8SbfYITgam-VN7unJtp6X9aqwjgnSYeuy0EwCoxTuhrOO7HNCreWyg>
+    <xme:8SbfYFxM3i_vPd1DzX_9e_uJMD5LU6Z_1GOgcr9o0TOA_cwG--6zB8wcBOVlK9cwo
+    EE40IEQinfbgQ>
+X-ME-Received: <xmr:8SbfYF2DcT5GdcJ3Q98cJRO2CqiSbMAsQmWWH3bq-KRvrFfDiYS5KKUy5f7hwBUNa2_mUaozrhf1MGLI9alXyJArxaeHyaIA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfeeikedgjeelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:8SbfYMDo-ZYe6T5FzWweEFMEsKFXLuzHybeQe8y5jdWgiPx26JKLiQ>
+    <xmx:8SbfYBheyBytZpgq3oeIK516jgpnEuO6kKLP742S-ETpy5bTXBvhAQ>
+    <xmx:8SbfYIo84FSjI67s3HiK6UkTh5P00kir1fV3bG82Pe92yJ1_7WHHCg>
+    <xmx:8ibfYMVuIQeOnYOs-Ha2z5-M75d_NXWFY8kK41xGRgcna_HJg0YLYw>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 2 Jul 2021 10:47:13 -0400 (EDT)
+Date:   Fri, 2 Jul 2021 16:47:11 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/6] USB: serial: cp210x: fix control-characters error
+ handling
+Message-ID: <YN8m7wk0dfSLi+c5@kroah.com>
+References: <20210702134227.24621-1-johan@kernel.org>
+ <20210702134227.24621-2-johan@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Authenticated-Sender: mt@waldheinz.de
-X-Virus-Scanned: Clear (ClamAV 0.103.2/26219/Fri Jul  2 13:06:52 2021)
+In-Reply-To: <20210702134227.24621-2-johan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jul 02, 2021 at 03:42:22PM +0200, Johan Hovold wrote:
+> In the unlikely event that setting the software flow-control characters
+> fails the other flow-control settings should still be updated.
+> 
+> Fixes: 7748feffcd80 ("USB: serial: cp210x: add support for software flow control")
+> Cc: stable@vger.kernel.org	# 5.11
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/usb/serial/cp210x.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
+> index 09b845d0da41..b41e2c7649fb 100644
+> --- a/drivers/usb/serial/cp210x.c
+> +++ b/drivers/usb/serial/cp210x.c
+> @@ -1217,9 +1217,7 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
+>  		chars.bXonChar = START_CHAR(tty);
+>  		chars.bXoffChar = STOP_CHAR(tty);
+>  
+> -		ret = cp210x_set_chars(port, &chars);
+> -		if (ret)
+> -			return;
+> +		cp210x_set_chars(port, &chars);
 
-Quoting Paolo Abeni <pabeni@redhat.com>:
+What's the odds that someone tries to add the error checking back in
+here, in a few years?  Can you put a comment here saying why you are not
+checking it?
 
-Finally got your mail, seems it was delayed, sorry.
+thanks,
 
-> - check, if possibly, how exactly the pkts are corrupted. Wrong size?
-> bad csum? what else?
->
-> - ideally a short pcap trace comprising the problematic packets would
-> be great!
-
-While trying to produce something I came up with an interesting  
-observation which seems to indicate that the problem lies in the  
-combination of GRO and fragmented UDP packets:
-
-Tuning the sending side (for my testing purposes also FFMpeg) to send  
-UDP packets of 1316 bytes tops makes the problem go away in the  
-receiver. The value must be an exact multiple of 188 (the MPEG TS  
-frame size) to cause FFMpeg not to send fragmented packets at all.
-
-Using this we were able to do the following on our normal desktop machines:
-
-The sending side uses an command like this:
-
-ffmpeg \
-   -stream_loop -1 \
-   -re -i "$video" \
-   -c:v copy -c:a copy \
-   -f mpegts "udp://239.12.23.0:1935"
-
-and the receiver (in our case using Linux 5.12.14) "mpv  
-udp://239.12.23.0:1935" to see the stream. For our test $video was  
-just some h264 encoded MKV I had laying around. The receiver sees  
-compression artifacts and the "Packet corrupt" messages in the  
-console. Now there are two ways to improve this situation:
-
-1) The receiver uses ethtool to disable GRO
-2) The sender changes the URL to be "udp://239.12.23.0:1935?pkt_size=1316"
-
-At this point I assume there are better ways to reproduce this using  
-netcat or the like. But being a video guy, well, here we are. ;-)
-
-My knowledge about the inner workings of Linux' IP stack are lacking,  
-but because tcpdump "sees" packets before they are reassembled and the  
-problem seems to exist only with packets that were fragmented and  
-reassembled (as they are presented to libav), I have the feeling that  
-a pcap file would not be that helpful with this, right?
-
-
-Regards,
--Matthias
-
+greg k-h
