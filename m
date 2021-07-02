@@ -2,80 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFFE3BA30E
-	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 18:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EBD43BA41F
+	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 20:57:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229536AbhGBQKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Jul 2021 12:10:32 -0400
-Received: from www259.your-server.de ([188.40.28.39]:54474 "EHLO
-        www259.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbhGBQKb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Jul 2021 12:10:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=waldheinz.de; s=default1911; h=MIME-Version:Content-Type:In-Reply-To:
-        References:Subject:Cc:To:From:Message-ID:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID;
-        bh=hWt17Shkuog8hefVCxJUntGf6/HLr5wdnQGS2wj7iuU=; b=RC5ZjxwoL0R3e0YelkR4/L5oW/
-        DAOvoftFt5Cp9AF431KKPDxtckbhh3gDM+NqIWli5j+LJZuZVdBLVE/ztIb9JWuyhzVHe0F2N86HN
-        QV14FF9IM/TA8ONSKPkGX1TLXzu+LMgnP1LOFawTFJOEYc2x4+x8iZiepRg881DlfLsEFpTdm9sbF
-        Z2QoUR/cWIsD5EGIKED08f8ijzvp1S/cUaAaFATE3XiZ6+k94q+48V+dGebuerZs2goS4ZP2A74Ol
-        UEvQPVacHs0G9C43tApNta4C90O4t9trayYhirbmbayMmnKr4nGjoGsU68ro16G3QaIolJnP6Lmbh
-        2xzbcWUg==;
-Received: from sslproxy05.your-server.de ([78.46.172.2])
-        by www259.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92.3)
-        (envelope-from <mt@waldheinz.de>)
-        id 1lzLhn-0009hO-KU; Fri, 02 Jul 2021 18:07:51 +0200
-Received: from [192.168.0.32] (helo=mail.your-server.de)
-        by sslproxy05.your-server.de with esmtpsa (TLSv1.2:ECDHE-RSA-CHACHA20-POLY1305:256)
-        (Exim 4.92)
-        (envelope-from <mt@waldheinz.de>)
-        id 1lzLhn-000Wz4-Bs; Fri, 02 Jul 2021 18:07:51 +0200
-Received: from ip4d1584d2.dynamic.kabel-deutschland.de
- (ip4d1584d2.dynamic.kabel-deutschland.de [77.21.132.210]) by
- mail.your-server.de (Horde Framework) with HTTPS; Fri, 02 Jul 2021 18:07:51
- +0200
-Date:   Fri, 02 Jul 2021 18:07:51 +0200
-Message-ID: <20210702180751.Horde.xzhWI6XTdaZk0z3VkOQvQEv@mail.your-server.de>
-From:   Matthias Treydte <mt@waldheinz.de>
-To:     Paolo Abeni <pabeni@redhat.com>
-Cc:     Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        David Ahern <dsahern@gmail.com>, stable@vger.kernel.org,
-        netdev@vger.kernel.org, regressions@lists.linux.dev,
-        davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org
-Subject: Re: [regression] UDP recv data corruption
-References: <20210701124732.Horde.HT4urccbfqv0Nr1Aayuy0BM@mail.your-server.de>
- <38ddc0e8-ba27-279b-8b76-4062db6719c6@gmail.com>
- <CA+FuTSc3POcZo0En3JBqRwq2+eF645_Cs4U-4nBmTs9FvjoVkg@mail.gmail.com>
- <20210702143642.Horde.PFbG3LFNTZ3wp0TYiBRGsCM@mail.your-server.de>
- <6c6eee2832c658d689895aa9585fd30f54ab3ed9.camel@redhat.com>
- <d8061b19ec2a8123d7cf69dad03f1250a5b03220.camel@redhat.com>
- <20210702172345.Horde.VhYvsDcOcRfOxOFrUo9F1Ge@mail.your-server.de>
- <54cd08089682aa14cc43236b0799ebf8424a23c5.camel@redhat.com>
-In-Reply-To: <54cd08089682aa14cc43236b0799ebf8424a23c5.camel@redhat.com>
-User-Agent: Horde Application Framework 5
-Content-Type: text/plain; charset=utf-8; format=flowed; DelSp=Yes
+        id S229996AbhGBTAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Jul 2021 15:00:08 -0400
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:9662 "EHLO
+        esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229536AbhGBTAI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Jul 2021 15:00:08 -0400
+X-Greylist: delayed 426 seconds by postgrey-1.27 at vger.kernel.org; Fri, 02 Jul 2021 15:00:08 EDT
+IronPort-SDR: 2u/tDuPx+OtzPgBuHaH85sAfoUHyFKi3dRfj4zWG/yvIo4UDhZ/6CZdFd19ae9flh6K31QIy32
+ uuTSl5QsgPPsBcGf78DdB8dW2+RwME4luY6pcPD0lnh17s71EbxaFchfylfDAW3gcedJZLD/Q1
+ g1spN57bVfGJNvVf8mI1lP1aXJwmsB+E1vK2OFrElUf6Mnvy9llf4l9Nvas63oS0n1VxX/V606
+ l94bJiuJZsZTg9AqFe9+IAkdrK5OpauSFrs/Z5LT/cQVf4L+KegfktK5Ye24v9KWKV0bnnLAIs
+ YSE=
+X-IronPort-AV: E=Sophos;i="5.83,319,1616486400"; 
+   d="scan'208";a="63097658"
+Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
+  by esa3.mentor.iphmx.com with ESMTP; 02 Jul 2021 10:50:28 -0800
+IronPort-SDR: 1cCgpck76aZwU8ttF9Ytuqri9zCgnn4leh+ChPWJMAoHVxuR5ZVFsXVtoqrNf3oenztA5tNjSb
+ VBVnHUfvEWZ1bGAeuVtF6GL2FGNkQs5mjhUvAV8mU2v7VzmKrzYpGdI+JUBT9su8WzIaxI7jDA
+ Vn1kcCUl6D9pV10K7mQZvY1gL2oVsAdOngJ+eAe4jlxP93TXuI40rLW0pIvK15Gx8zHzpPGKCi
+ DY3St/pdUyE4aBrpadiw5nxZ3BgZuUjixFVZOLZggnRSrF6Yllnn8xwdNGCZ6k0aU/3jbDTnv6
+ eNo=
+From:   Andrew Gabbasov <andrew_gabbasov@mentor.com>
+To:     Macpaul Lin <macpaul.lin@mediatek.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>, Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>
+Subject: Re: [PATCH] usb: gadget: f_fs: Fix setting of device and driver data cross-references
+Date:   Fri, 2 Jul 2021 13:49:56 -0500
+Message-ID: <20210702184957.4479-1-andrew_gabbasov@mentor.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <CACCg+XO+D+2SWJq0C=_sWXj53L1fh-wra8dmCb3VQ4bYCZQryA@mail.gmail.com>
+References: <20210603171507.22514-1-andrew_gabbasov@mentor.com> <20210604110503.GA23002@vmlxhi-102.adit-jv.com> <CACCg+XO+D+2SWJq0C=_sWXj53L1fh-wra8dmCb3VQ4bYCZQryA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-X-Authenticated-Sender: mt@waldheinz.de
-X-Virus-Scanned: Clear (ClamAV 0.103.2/26219/Fri Jul  2 13:06:52 2021)
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [137.202.0.90]
+X-ClientProxiedBy: svr-ies-mbx-06.mgc.mentorg.com (139.181.222.6) To
+ svr-ies-mbx-01.mgc.mentorg.com (139.181.222.1)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Quoting Paolo Abeni <pabeni@redhat.com>:
+> -----Original Message-----
+> From: Macpaul Lin <macpaul@gmail.com>
+> Sent: Friday, July 02, 2021 6:02 PM
+> To: Eugeniu Rosca <erosca@de.adit-jv.com>; stable@vger.kernel.org
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>; Felipe Balbi <balbi@kernel.org>; Gabbasov, Andrew
+> <Andrew_Gabbasov@mentor.com>; linux-usb@vger.kernel.org; linux-kernel@vger.kernel.org; Eugeniu Rosca
+> <roscaeugeniu@gmail.com>; Macpaul Lin <macpaul.lin@mediatek.com>; Eddie Hung <eddie.hung@mediatek.com>
+> Subject: Re: [PATCH] usb: gadget: f_fs: Fix setting of device and driver data cross-references
+> 
+> Eugeniu Rosca <erosca@de.adit-jv.com> wrote:
+> >
+> > Hello,
+> >
+> > On Thu, Jun 03, 2021 at 12:15:07PM -0500, Andrew Gabbasov wrote:
+> > > FunctionFS device structure 'struct ffs_dev' and driver data structure
+> > > 'struct ffs_data' are bound to each other with cross-reference pointers
+> > > 'ffs_data->private_data' and 'ffs_dev->ffs_data'. While the first one
+> > > is supposed to be valid through the whole life of 'struct ffs_data'
+> > > (and while 'struct ffs_dev' exists non-freed), the second one is cleared
+> > > in 'ffs_closed()' (called from 'ffs_data_reset()' or the last
+> > > 'ffs_data_put()'). This can be called several times, alternating in
+> > > different order with 'ffs_free_inst()', that, if possible, clears
+> > > the other cross-reference.
+> > >
+> 
+> [Skip some comment...]
+> 
+> > I confirm there are at least two KASAN use-after-free issues
+> > consistently/100% reproducible on v5.13-rc4-88-gf88cd3fb9df2:
+> >
+> > https://gist.github.com/erosca/b5976a96789e574b319cb9e076938b5c
+> > https://gist.github.com/erosca/4ded55ed32f0133bc2f4ccfe821c7776
+> >
+> > These two can no longer be seen after the patch is applied.
+> >
+> > In addition, below static analysis tools did not spot any regressions:
+> > cppcheck 2.4, smatch v0.5.0-7445-g58776ae33ae8, make W=1, coccicheck
+> >
+> > Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+> > Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+> >
+> > --
+> > Best regards,
+> > Eugeniu Rosca
+> 
+> It like there is similar issue on kernel-4.14 reported by our customer
+> (Android).
+> The back trace are similar.
+> It looks like this patch has fixed issue existed in earlier kernels.
+> Could Engeniu and Andrew help to comment if this fix is suggested to be pick to
+> stable-tree? I've tried to port it onto kernel-4.14, kernel-4.19, and
+> kernel-5.10.
+> But it seems there is some revise work to do.
+> If the origin issue affect multiple LTS kernel versions, then it will
+> be better to be
+> cherry-pick to stable-tree after it has been merged.
+> Thanks!
+> 
+> --
+> Best regards,
+> Macpaul Lin
 
-> Would be great instead if you could have a spin to the proposed variant
-> above - not stritly needed, I'm really asking for a few extra miles
-> here ;)
+Hello!
 
-Although this variant lacks the "else", to my surprise I have to admit  
-that it works just as well. :-)
+Originally this issue was discovered exactly in v4.14 (non-Android),
+and the fix was developed for that version and later forward-ported to
+latest mainline 5.13. So, indeed, it makes sense to apply the fix
+to stable versions (after it has been merged to mainline).
 
+I'm submitting the same patch, back-ported to stable/linux-4.14.y.
+It can also be applied to linux-4.19.y. While original 5.13 fix is
+applicable to linux-5.10.y.
 
-It was a pleasure and thanks for your work,
--Matthias
+Thanks!
 
+Best regards,
+Andrew Gabbasov
 
