@@ -2,111 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4109B3B99BC
-	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 01:50:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D9B73B99E4
+	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 02:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234063AbhGAXwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 19:52:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45306 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234312AbhGAXwd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 19:52:33 -0400
-Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84453C061764
-        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 16:50:01 -0700 (PDT)
-Received: by mail-qt1-x82a.google.com with SMTP id v10so5437442qto.1
-        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 16:50:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XdggwryIUp9QtckUNzdZvsJzKexlZ+NGR6XKEUlG0tk=;
-        b=JhO/r7KTD/sn2gY+rlBgDO2A8GJC4yCyDOe+QQtQTFbxnRrQd7HYgtKbPvsagxRZQD
-         1XnUkCjVNwzbnOIVBsTuDcwaaZJMqOuy+7XYSNpxaBRRsWwyL38///A22cTQ7GkT02C+
-         +XeY28vzty/smthsGg5qtpk5IsHTJgBYjo23ctVuqJYoV6T/HKv0A/3PoT0jCyFaldLs
-         BYBDYSnrtp2zhvwf12gyeoGK64RYQk1RkumzRK/i6AfGq0hMRPDff0rxUajnY6KVS+Ia
-         v+2ZjxoOBDC8Zh1yjScRtTsVwOQa3AlHEUFuTkN8BPYwwboBJVDNCOvxEA36slsPWkth
-         z08A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XdggwryIUp9QtckUNzdZvsJzKexlZ+NGR6XKEUlG0tk=;
-        b=gSt/L0LYSR6fJY9cp2KrXbI1TJh7VfbOzgkA/Anru/SRL4DfG4N1sgLcIW4pwXplPi
-         za4qi/sCjbgHA1N8plB/XTFc/2LPVMLIVcyUzfnf/4x5EsvHFQVKODrfd7fw3C12Hrcj
-         0ne3Ms0parcIDG3nr+ds1ZWC0NAmhThN4p5A/N2EEZMSV6Q7UDpe8F6e8b4wPFmXGBf0
-         MZEVgbJCK4c578Uh9xFb/vKPXdUnqr89XKeKubt3RfHVtRIej2In603+V1QQ2a3DUxoV
-         qwqUWzrKI5ih21IFL7s8xVcrusj6akG6rZyaagh0QuG2i5CuP7EDZJG7BtEXynm7S6U2
-         0eiw==
-X-Gm-Message-State: AOAM5339LjIQQ8fFp6qaaLedOW0b9URi3intFOltOGkSc1C1hc8RcD7C
-        A2wLJRj9Ei3hQdtMZKCxM+f4bZ34KmcT0I3M/+jFsA==
-X-Google-Smtp-Source: ABdhPJzLTtm3sQdESTRNPGYHm3SYeT9dgI4UrSvDrQZ10wk/+gwcF4B56Gor+2HriupEN0NnfSwPz+jqwqiNVIMxfl0=
-X-Received: by 2002:ac8:57d6:: with SMTP id w22mr1260062qta.153.1625183400171;
- Thu, 01 Jul 2021 16:50:00 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210630003406.4013668-1-paulburton@google.com>
- <CAJWu+ooRQ6hFtaA4tr3BNs9Btss1yan8taua=VMWMopGmEVhSA@mail.gmail.com>
- <YN38D3dg0fLzL0Ia@google.com> <20210701140754.5847a50f@oasis.local.home>
- <YN4Fpl+dhijItkUP@google.com> <20210701142624.44bb4dde@oasis.local.home>
- <51babd56c2fe53ba011152700a546151@perches.com> <20210701155100.3f29ddfb@oasis.local.home>
- <5666edba28107559db23ba0f948c1f82@perches.com>
-In-Reply-To: <5666edba28107559db23ba0f948c1f82@perches.com>
-From:   Joel Fernandes <joelaf@google.com>
-Date:   Thu, 1 Jul 2021 19:49:49 -0400
-Message-ID: <CAJWu+orwiU805LxM87TPXwL1Ptkx7yLrRKpCfpT2Tp3ROVDgww@mail.gmail.com>
-Subject: Re: [PATCH 1/2] tracing: Simplify & fix saved_tgids logic
-To:     Joe Perches <joe@perches.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Paul Burton <paulburton@google.com>,
-        linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        id S234306AbhGBAL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 20:11:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43431 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234195AbhGBALz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 20:11:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1625184564;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SMNrgBD2P+mpu5V6r1wSaYNHV2zW5QRjAUAFoKSsKrk=;
+        b=FtaGVl8PVzeNB/MBxnvLHbL9Od0bEG1LEo7xAqX971eBc7s7W4shu3l8mPeagQiyQi3uET
+        EtHg7uVrwkZuT8Psdb5+574ij1kMBcz7tNSdIqZpGsCwYKYJ9vFWtRlnaO7Gr0icG/CjAs
+        0OnMIl96GoZXlTMOEM9tL6tfuBJtKBo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-568-9miYEK19OdqoJwpVg5seYQ-1; Thu, 01 Jul 2021 20:09:21 -0400
+X-MC-Unique: 9miYEK19OdqoJwpVg5seYQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B5470100B3AD;
+        Fri,  2 Jul 2021 00:09:19 +0000 (UTC)
+Received: from T590 (ovpn-12-65.pek2.redhat.com [10.72.12.65])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id DAB0B10016F5;
+        Fri,  2 Jul 2021 00:09:12 +0000 (UTC)
+Date:   Fri, 2 Jul 2021 08:09:08 +0800
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Tyrel Datwyler <tyreld@linux.ibm.com>
+Cc:     martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
+        james.bottomley@hansenpartnership.com, brking@linux.ibm.com,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] scsi: core: fix bad pointer dereference when ehandler
+ kthread is invalid
+Message-ID: <YN5ZJGp2l/AP8x3L@T590>
+References: <20210701195659.3185475-1-tyreld@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210701195659.3185475-1-tyreld@linux.ibm.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 1, 2021 at 5:07 PM Joe Perches <joe@perches.com> wrote:
->
-> On 2021-07-01 12:51, Steven Rostedt wrote:
-> > On Thu, 01 Jul 2021 12:35:29 -0700
-> > Joe Perches <joe@perches.com> wrote:
-> >
-> >> C99 comments are allowed since about 5 years ago.
-> >
-> > Really, I thought Linus hated them. Personally, I find them rather ugly
-> > myself. The only user of them I see in the kernel/ directory appears to
-> > be for RCU. But Paul's on the C/C++ committee, so perhaps he favors
-> > them.
-> >
-> > The net/ directory doesn't have any, except perhaps to comment out code
-> > (which I sometimes use it for that too).
-> >
-> > The block/, arch/x86/ directories don't have them either.
-> >
-> > I wouldn't go and change checkpatch, but I still rather avoid them,
-> > especially for multi line comments.
-> >
-> >  /*
-> >   * When it comes to multi line comments I prefer using something
-> >   * that denotes a start and an end to the comment, as it makes it
-> >   * look like a nice clip of information.
-> >   */
-> >
-> > Instead of:
-> >
-> >   // When it comes to multi line comments I prefer using something
-> >   // that denotes a start and an end to the comment, as it makes it
-> >   // look like a nice clip of information.
-> >
-> > Which just looks like noise. But hey, maybe that's just me because I
-> > find "*" as a sign of information and '//' something to ignore. ;-)
->
-> May I suggest using something other than an amber vt220?
+On Thu, Jul 01, 2021 at 01:56:59PM -0600, Tyrel Datwyler wrote:
+> Commit 66a834d ("scsi: core: Fix error handling of scsi_host_alloc()")
+> changed the allocation logic to call put_device() to perform host
+> cleanup with the assumption that IDA removal and stopping the kthread
+> would properly be peformed in scsi_host_dev_release(). However, in the
+> unlikely case that the error handler thread fails to spawn
+> shost->ehandler is set to ERR_PTR(-ENOMEM). The error handler cleanup
+> code in scsi_host_dev_release() will call kthread_stop() if
+> shost->ehandler != NULL which will always be the case whether the
+> kthread was succesfully spawned or not. In the case that it failed to
+> spawn this has the nasty side effect of trying to dereference an
+> invalid pointer when kthread_stop() is called. The follwing splat
+> provides an example of this behavior in the wild:
+> 
+> scsi host11: error handler thread failed to spawn, error = -4
+> Kernel attempted to read user page (10c) - exploit attempt? (uid: 0)
+> BUG: Kernel NULL pointer dereference on read at 0x0000010c
+> Faulting instruction address: 0xc00000000818e9a8
+> Oops: Kernel access of bad area, sig: 11 [#1]
+> LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+> Modules linked in: ibmvscsi(+) scsi_transport_srp dm_multipath dm_mirror dm_region
+>  hash dm_log dm_mod fuse overlay squashfs loop
+> CPU: 12 PID: 274 Comm: systemd-udevd Not tainted 5.13.0-rc7 #1
+> NIP:  c00000000818e9a8 LR: c0000000089846e8 CTR: 0000000000007ee8
+> REGS: c000000037d12ea0 TRAP: 0300   Not tainted  (5.13.0-rc7)
+> MSR:  800000000280b033 &lt;SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE&gt;  CR: 28228228
+> XER: 20040001
+> CFAR: c0000000089846e4 DAR: 000000000000010c DSISR: 40000000 IRQMASK: 0
+> GPR00: c0000000089846e8 c000000037d13140 c000000009cc1100 fffffffffffffffc
+> GPR04: 0000000000000001 0000000000000000 0000000000000000 c000000037dc0000
+> GPR08: 0000000000000000 c000000037dc0000 0000000000000001 00000000fffff7ff
+> GPR12: 0000000000008000 c00000000a049000 c000000037d13d00 000000011134d5a0
+> GPR16: 0000000000001740 c0080000190d0000 c0080000190d1740 c000000009129288
+> GPR20: c000000037d13bc0 0000000000000001 c000000037d13bc0 c0080000190b7898
+> GPR24: c0080000190b7708 0000000000000000 c000000033bb2c48 0000000000000000
+> GPR28: c000000046b28280 0000000000000000 000000000000010c fffffffffffffffc
+> NIP [c00000000818e9a8] kthread_stop+0x38/0x230
+> LR [c0000000089846e8] scsi_host_dev_release+0x98/0x160
+> Call Trace:
+> [c000000033bb2c48] 0xc000000033bb2c48 (unreliable)
+> [c0000000089846e8] scsi_host_dev_release+0x98/0x160
+> [c00000000891e960] device_release+0x60/0x100
+> [c0000000087e55c4] kobject_release+0x84/0x210
+> [c00000000891ec78] put_device+0x28/0x40
+> [c000000008984ea4] scsi_host_alloc+0x314/0x430
+> [c0080000190b38bc] ibmvscsi_probe+0x54/0xad0 [ibmvscsi]
+> [c000000008110104] vio_bus_probe+0xa4/0x4b0
+> [c00000000892a860] really_probe+0x140/0x680
+> [c00000000892aefc] driver_probe_device+0x15c/0x200
+> [c00000000892b63c] device_driver_attach+0xcc/0xe0
+> [c00000000892b740] __driver_attach+0xf0/0x200
+> [c000000008926f28] bus_for_each_dev+0xa8/0x130
+> [c000000008929ce4] driver_attach+0x34/0x50
+> [c000000008928fc0] bus_add_driver+0x1b0/0x300
+> [c00000000892c798] driver_register+0x98/0x1a0
+> [c00000000810eb60] __vio_register_driver+0x80/0xe0
+> [c0080000190b4a30] ibmvscsi_module_init+0x9c/0xdc [ibmvscsi]
+> [c0000000080121d0] do_one_initcall+0x60/0x2d0
+> [c000000008261abc] do_init_module+0x7c/0x320
+> [c000000008265700] load_module+0x2350/0x25b0
+> [c000000008265cb4] __do_sys_finit_module+0xd4/0x160
+> [c000000008031110] system_call_exception+0x150/0x2d0
+> [c00000000800d35c] system_call_common+0xec/0x278
+> 
+> Fix this be nulling shost->ehandler when the kthread fails to spawn.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 66a834d ("scsi: core: Fix error handling of scsi_host_alloc()")
+> Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-Steve - mostly comments are to be ignored and the code is the ultimate
-source of truth ;-), so // is fine :-D
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
 
-That said, don't discard the amber vt220 I recently sent you just
-because Joe says so ;-) <:o)
 
-- Joel
+Thanks,
+Ming
+
