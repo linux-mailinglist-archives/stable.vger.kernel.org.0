@@ -2,86 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DEF3B9A55
-	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 03:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF0103B9B3F
+	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 06:09:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234604AbhGBBC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 21:02:57 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:13050 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234561AbhGBBC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 21:02:56 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4GGGrX60zfzZlwv;
-        Fri,  2 Jul 2021 08:57:16 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Fri, 2 Jul 2021 09:00:24 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Fri, 2 Jul 2021 09:00:23 +0800
-Subject: Re: Linux 4.14.238
-To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>, <akpm@linux-foundation.org>,
-        <torvalds@linux-foundation.org>
-CC:     <lwn@lwn.net>, <jslaby@suse.cz>, <gregkh@linuxfoundation.org>
-References: <20210630134100.478528-1-sashal@kernel.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <8571f95a-da89-9e79-ba59-7149b443279e@huawei.com>
-Date:   Fri, 2 Jul 2021 09:00:23 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S230095AbhGBEM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Jul 2021 00:12:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58504 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229870AbhGBEM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Jul 2021 00:12:28 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD02861413;
+        Fri,  2 Jul 2021 04:09:56 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1lzAV1-000eQN-Ng; Fri, 02 Jul 2021 00:09:55 -0400
+Message-ID: <20210702040955.567600244@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Fri, 02 Jul 2021 00:09:37 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joelaf@google.com>, <stable@vger.kernel.org>,
+        Paul Burton <paulburton@google.com>
+Subject: [for-next][PATCH 1/2] tracing: Simplify & fix saved_tgids logic
+References: <20210702040936.551628380@goodmis.org>
 MIME-Version: 1.0
-In-Reply-To: <20210630134100.478528-1-sashal@kernel.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Paul Burton <paulburton@google.com>
 
+The tgid_map array records a mapping from pid to tgid, where the index
+of an entry within the array is the pid & the value stored at that index
+is the tgid.
 
-On 2021/6/30 21:40, Sasha Levin wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA512
-> 
-> I'm announcing the release of the 4.14.238 kernel.
-> 
-> All users of the 4.14 kernel series must upgrade.
-> 
-> The updated 4.14.y git tree can be found at:
->          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
-> and can be browsed at the normal kernel.org git web browser:
->          https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-> 
-> 
-> Thanks,
-> Sasha
-> 
+The saved_tgids_next() function iterates over pointers into the tgid_map
+array & dereferences the pointers which results in the tgid, but then it
+passes that dereferenced value to trace_find_tgid() which treats it as a
+pid & does a further lookup within the tgid_map array. It seems likely
+that the intent here was to skip over entries in tgid_map for which the
+recorded tgid is zero, but instead we end up skipping over entries for
+which the thread group leader hasn't yet had its own tgid recorded in
+tgid_map.
 
-Tested on x86 for 4.14.238,
+A minimal fix would be to remove the call to trace_find_tgid, turning:
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.14.y
-Version: 4.14.238
-Commit: 313e82bbefb3d1d926858b58092f5d50f41d924d
-Compiler: gcc version 7.3.0 (GCC)
+  if (trace_find_tgid(*ptr))
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8835
-passed: 8835
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+into:
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+  if (*ptr)
+
+..but it seems like this logic can be much simpler if we simply let
+seq_read() iterate over the whole tgid_map array & filter out empty
+entries by returning SEQ_SKIP from saved_tgids_show(). Here we take that
+approach, removing the incorrect logic here entirely.
+
+Link: https://lkml.kernel.org/r/20210630003406.4013668-1-paulburton@google.com
+
+Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Fernandes <joelaf@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Burton <paulburton@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/trace/trace.c | 38 +++++++++++++-------------------------
+ 1 file changed, 13 insertions(+), 25 deletions(-)
+
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 60492464281e..4843076d67d3 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5662,37 +5662,20 @@ static const struct file_operations tracing_readme_fops = {
+ 
+ static void *saved_tgids_next(struct seq_file *m, void *v, loff_t *pos)
+ {
+-	int *ptr = v;
++	int pid = ++(*pos);
+ 
+-	if (*pos || m->count)
+-		ptr++;
+-
+-	(*pos)++;
+-
+-	for (; ptr <= &tgid_map[PID_MAX_DEFAULT]; ptr++) {
+-		if (trace_find_tgid(*ptr))
+-			return ptr;
+-	}
++	if (pid > PID_MAX_DEFAULT)
++		return NULL;
+ 
+-	return NULL;
++	return &tgid_map[pid];
+ }
+ 
+ static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
+ {
+-	void *v;
+-	loff_t l = 0;
+-
+-	if (!tgid_map)
++	if (!tgid_map || *pos > PID_MAX_DEFAULT)
+ 		return NULL;
+ 
+-	v = &tgid_map[0];
+-	while (l <= *pos) {
+-		v = saved_tgids_next(m, v, &l);
+-		if (!v)
+-			return NULL;
+-	}
+-
+-	return v;
++	return &tgid_map[*pos];
+ }
+ 
+ static void saved_tgids_stop(struct seq_file *m, void *v)
+@@ -5701,9 +5684,14 @@ static void saved_tgids_stop(struct seq_file *m, void *v)
+ 
+ static int saved_tgids_show(struct seq_file *m, void *v)
+ {
+-	int pid = (int *)v - tgid_map;
++	int *entry = (int *)v;
++	int pid = entry - tgid_map;
++	int tgid = *entry;
++
++	if (tgid == 0)
++		return SEQ_SKIP;
+ 
+-	seq_printf(m, "%d %d\n", pid, trace_find_tgid(pid));
++	seq_printf(m, "%d %d\n", pid, tgid);
+ 	return 0;
+ }
+ 
+-- 
+2.30.2
