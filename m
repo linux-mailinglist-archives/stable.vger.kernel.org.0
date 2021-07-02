@@ -2,86 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CBD23BA002
-	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 13:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A19DB3BA01E
+	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 13:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231936AbhGBLuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Jul 2021 07:50:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51006 "EHLO mail.kernel.org"
+        id S231981AbhGBL72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Jul 2021 07:59:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231935AbhGBLuj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Jul 2021 07:50:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2ED4E61402;
-        Fri,  2 Jul 2021 11:48:05 +0000 (UTC)
-Date:   Fri, 2 Jul 2021 12:48:02 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Lokesh Gidra <lokeshgidra@google.com>
-Cc:     Peter Collingbourne <pcc@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Dave Martin <Dave.Martin@arm.com>,
-        Will Deacon <will@kernel.org>,
+        id S231974AbhGBL72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Jul 2021 07:59:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1666961422;
+        Fri,  2 Jul 2021 11:56:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1625227016;
+        bh=V76FDQFzhFGz1WAZt1hX4+78RHjyg2wI0NDbhJQWcu8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=G77ZBx1DB07MMgUYHL6uqYdJjLWTBEXcbC0qfwwcZuNt8PjmxcAMsRaWdmPTLQDt7
+         TvNTWDw4FgqeeoPYaTRXkbZJ0JFj11SC8jjddOa/FkkCnZDQaxsaMQiG46cJJuCjCM
+         quq9RqIoxLgWXCZ59zCk4xNqN5vJeB7le/4lpQyYV5+UibGoNGXsKz50JakEPhMgoe
+         PGdOOIEcXC7K7lDNFTKuhrMGnuMKchsiyzvxFzD/y8/fW6NlUthAikPDy2aqTAWJ2s
+         v3JlDGXImTbx7l+8Td1BPzZXOGD1fPJezIIXKN5tnvXYw+f/K3rV+cDqf0pfmXOgts
+         laAmy4gi+QCMA==
+Date:   Fri, 2 Jul 2021 07:56:55 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Alistair Delva <adelva@google.com>,
-        William McVicker <willmcvicker@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Mitch Phillips <mitchp@google.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] userfaultfd: preserve user-supplied address tag in
- struct uffd_msg
-Message-ID: <20210702114802.GA685@arm.com>
-References: <20210630232931.3779403-1-pcc@google.com>
- <20210701155148.GB12484@arm.com>
- <CAMn1gO5SKNOg8Dwf6JxSNaBLuoxDs9Bo9zC+k-20drjd6s47Vg@mail.gmail.com>
- <CA+EESO6wnoBnA5QKTmpWJTvTcAP-2v7pWOBWxdH18GsqCeG9pQ@mail.gmail.com>
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Wang Yugui <wangyugui@e16-tech.com>,
+        Xu Yu <xuyu@linux.alibaba.com>, Jue Wang <juew@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Alex Shi <alexs@kernel.org>, Miaohe Lin <linmiaohe@huawei.com>,
+        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org
+Subject: Re: mm/thp commits: please wait a few days
+Message-ID: <YN7/B8q2uuHr6TfZ@sashalap>
+References: <ca4d4e0-531-3373-c6ee-a33d379a557c@google.com>
+ <20210623134642.2927395a89b1d07bab620a20@linux-foundation.org>
+ <c2bf7b2-a2d9-95a1-e322-4cf4b8613e9@google.com>
+ <6b253bc4-2562-d1bb-18f2-517cfad5d5e7@google.com>
+ <YNm93fkIPrqMwHzd@kroah.com>
+ <366846c0-245a-771e-7a1-4a307ac6e5e1@google.com>
+ <YNqTCV7DmYGZiZ7N@sashalap>
+ <YNq4yJls+PKsULh0@kroah.com>
+ <265a4571-7eb6-e2e6-7cf9-6ef825cd3152@google.com>
+ <8ca517a0-421f-5aa0-26f7-f4c09f50ca2b@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CA+EESO6wnoBnA5QKTmpWJTvTcAP-2v7pWOBWxdH18GsqCeG9pQ@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <8ca517a0-421f-5aa0-26f7-f4c09f50ca2b@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 01, 2021 at 10:27:31PM -0700, Lokesh Gidra wrote:
-> On Thu, Jul 1, 2021 at 10:50 AM Peter Collingbourne <pcc@google.com> wrote:
-> > On Thu, Jul 1, 2021 at 8:51 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
-> > > On Wed, Jun 30, 2021 at 04:29:31PM -0700, Peter Collingbourne wrote:
-> > > > If a user program uses userfaultfd on ranges of heap memory, it may
-> > > > end up passing a tagged pointer to the kernel in the range.start
-> > > > field of the UFFDIO_REGISTER ioctl. This can happen when using an
-> > > > MTE-capable allocator, or on Android if using the Tagged Pointers
-> > > > feature for MTE readiness [1].
-> > >
-> > > When we added the tagged addr ABI, we realised it's nearly impossible to
-> > > sort out all ioctls, so we added a note to the documentation that any
-> > > address other than pointer to user structures as arguments to ioctl()
-> > > should be untagged. Arguably, userfaultfd is not a random device but if
-> > > we place it in the same category as mmap/mremap/brk, those don't allow
-> > > tagged pointers either. And we do expect some apps to break when they
-> > > rely on malloc() to return untagged pointers.
-> >
-> > Okay, so arguably another approach would be to make userfaultfd
-> > consistent with mmap/mremap/brk and let the UFFDIO_REGISTER fail if
-> > given a tagged address.
+On Thu, Jul 01, 2021 at 12:47:48PM -0700, Hugh Dickins wrote:
+>On Mon, 28 Jun 2021, Hugh Dickins wrote:
+>> On Tue, 29 Jun 2021, Greg Kroah-Hartman wrote:
+>> > On Mon, Jun 28, 2021 at 11:27:05PM -0400, Sasha Levin wrote:
+>> > > On Mon, Jun 28, 2021 at 10:12:57AM -0700, Hugh Dickins wrote:
+>> > > > On Mon, 28 Jun 2021, Greg Kroah-Hartman wrote:
+>> > > > > So could you just send a mbox of patches (or tarball), for the 4.19,
+>> > > > > 4.14, and 4.9 trees?  That would make it much easier to ensure I got
+>> > > > > them all correct.
+>> > > >
+>> > > > At risk of irritating you, sorry, I am resisting: the more data I send
+>> > > > you, the more likely I am to mess it up in some stupid way.  Please ask
+>> > > > again and I shall, but I think your success with 5.12, 5.10, 5.4 just
+>> > > > means that you were right to take a break before 4.19, 4.14, 4.4.
+>> > >
+>> > > I've tried following the instructions for 4.19, and that worked fine on
+>> > > my end too.
+>> > >
+>> > > If no one objects, I can pick up 4.9-4.19 after the current set of
+>> > > kernels is released.
+>> >
+>> > No objection from me, thanks!
+>> >
+>> > greg k-h
+>>
+>> Sure, Sasha, whenever suits you: thanks to you both.
 >
-> This approach also seems reasonable. The problem, as things stand
-> today, is that UFFDIO_REGISTER doesn't complain when a tagged pointer
-> is used to register a memory range. But eventually the returned fault
-> address in messages are untagged. If UFFDIO_REGISTER were to fail on
-> passing a tagged pointer, then the userspace can address the issue.
+>I've now checked today's queue/4.19, queue/4.14, queue/4.9:
+>exactly as intended, thanks.
 
-On the mmap etc. functions we get an error as a side effect of addr
-being larger than TASK_SIZE (unless explicitly untagged). The
-userfaultfd_register() function had similar checks but they were relaxed
-by commit 7d0325749a6c ("userfaultfd: untag user pointers").
-
-I think we should revert the above, or part of it. We did something
-similar for mmap/mremap/brk when untagging the address broke glibc:
-commit dcde237319e6 ("mm: Avoid creating virtual address aliases in
-brk()/mmap()/mremap()").
+Thanks for confirming Hugh!
 
 -- 
-Catalin
+Thanks,
+Sasha
