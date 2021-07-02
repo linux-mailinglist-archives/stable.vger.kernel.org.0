@@ -2,128 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9B73B99E4
-	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 02:09:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD103B9A1A
+	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 02:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234306AbhGBAL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Jul 2021 20:11:58 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43431 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234195AbhGBALz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 20:11:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1625184564;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=SMNrgBD2P+mpu5V6r1wSaYNHV2zW5QRjAUAFoKSsKrk=;
-        b=FtaGVl8PVzeNB/MBxnvLHbL9Od0bEG1LEo7xAqX971eBc7s7W4shu3l8mPeagQiyQi3uET
-        EtHg7uVrwkZuT8Psdb5+574ij1kMBcz7tNSdIqZpGsCwYKYJ9vFWtRlnaO7Gr0icG/CjAs
-        0OnMIl96GoZXlTMOEM9tL6tfuBJtKBo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-568-9miYEK19OdqoJwpVg5seYQ-1; Thu, 01 Jul 2021 20:09:21 -0400
-X-MC-Unique: 9miYEK19OdqoJwpVg5seYQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B5470100B3AD;
-        Fri,  2 Jul 2021 00:09:19 +0000 (UTC)
-Received: from T590 (ovpn-12-65.pek2.redhat.com [10.72.12.65])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id DAB0B10016F5;
-        Fri,  2 Jul 2021 00:09:12 +0000 (UTC)
-Date:   Fri, 2 Jul 2021 08:09:08 +0800
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Tyrel Datwyler <tyreld@linux.ibm.com>
-Cc:     martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
-        james.bottomley@hansenpartnership.com, brking@linux.ibm.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] scsi: core: fix bad pointer dereference when ehandler
- kthread is invalid
-Message-ID: <YN5ZJGp2l/AP8x3L@T590>
-References: <20210701195659.3185475-1-tyreld@linux.ibm.com>
+        id S230369AbhGBAea (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Jul 2021 20:34:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54400 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230427AbhGBAe3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Jul 2021 20:34:29 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FAA8C061764
+        for <stable@vger.kernel.org>; Thu,  1 Jul 2021 17:31:57 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id bg14so13372172ejb.9
+        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 17:31:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=jY4md3mqLHqztzu+evEzUfuOkWX+XTGArVYH6u63Kg4=;
+        b=T10DDQ1Xik+8Y9hhpOldamAbvYgad+QOrl2OYn1mc8db60egX9skNM4GA5/Z8xLrYP
+         tCfsRAe9THqjzvrJwthqKO39LRNyzD2K5lXsi0I9PzCnw1FK8eObgIm2HglFHrmfrNRk
+         x5+8cGHfKAxa6bKc3kpHEP7pVwe/I1/mttBlaVFksfMvBSFP34+/+69Fe1o/FYpUaXSz
+         45j3QrIYE54wR6txWFgbF36k6f4TqKWTJmTtS8e9w8MecHMR7kwcL6bTkAePX3XHS4Cv
+         MDH6pJd20CmTkbyQsFLys5oyAiv7QxEkdxYhiimtH/2lBL/Bf2wKh8wrDluPR3bYWej9
+         O38g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jY4md3mqLHqztzu+evEzUfuOkWX+XTGArVYH6u63Kg4=;
+        b=YTLNX1vypw++8MgIZZCLttOsFX3mOt0JjEUVQsoA+H9YmDpb607vtfRvMn9vvKNfR4
+         MMg+nlzqSuFPXVlRR9lOet07MkJ+NaqB2Cj+tfF0kH1wkHmvGz+KPsqaNKV9xI6IHAYC
+         Im7Uz2SvECLSlV/ycjn5ixP6a9H5CESRoy+Ffh4zwjUDys96eZMpP4PCLiYq3cGXDYI/
+         KTgUGgnz47PUfDAuZr3ElGNE9bin8q92YwIEEysKNLaV/Rrdftr0RDlzfwfOD90TAOcY
+         O5vMasN8XuPDEHZ1aFCr0HD8gB1LIs1bph+ybpxZ2Ah+i+4jkccEGhTFj/Hju0zitkG6
+         VWUA==
+X-Gm-Message-State: AOAM5309arle0lvm6JC6HD3HLE3j7NAHHTgBnzOM737rOrhDNuoARBoS
+        nPvuFQqQqjt1tE7DvQ0qIYBQX/Yx+CA=
+X-Google-Smtp-Source: ABdhPJxum8dy1J1OmvrgtjSDIy7el1UK7ThG47TV0NmluFdC2PuRp8OixRaWROAjGYRPyfq0AZzHnw==
+X-Received: by 2002:a17:907:1690:: with SMTP id hc16mr2597432ejc.247.1625185915967;
+        Thu, 01 Jul 2021 17:31:55 -0700 (PDT)
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com. [209.85.221.50])
+        by smtp.gmail.com with ESMTPSA id y27sm430006ejk.89.2021.07.01.17.31.54
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Jul 2021 17:31:55 -0700 (PDT)
+Received: by mail-wr1-f50.google.com with SMTP id m18so10390714wrv.2
+        for <stable@vger.kernel.org>; Thu, 01 Jul 2021 17:31:54 -0700 (PDT)
+X-Received: by 2002:a5d:6502:: with SMTP id x2mr2440520wru.327.1625185914070;
+ Thu, 01 Jul 2021 17:31:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210701195659.3185475-1-tyreld@linux.ibm.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+References: <20210701124732.Horde.HT4urccbfqv0Nr1Aayuy0BM@mail.your-server.de> <38ddc0e8-ba27-279b-8b76-4062db6719c6@gmail.com>
+In-Reply-To: <38ddc0e8-ba27-279b-8b76-4062db6719c6@gmail.com>
+From:   Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date:   Thu, 1 Jul 2021 20:31:14 -0400
+X-Gmail-Original-Message-ID: <CA+FuTSc3POcZo0En3JBqRwq2+eF645_Cs4U-4nBmTs9FvjoVkg@mail.gmail.com>
+Message-ID: <CA+FuTSc3POcZo0En3JBqRwq2+eF645_Cs4U-4nBmTs9FvjoVkg@mail.gmail.com>
+Subject: Re: [regression] UDP recv data corruption
+To:     David Ahern <dsahern@gmail.com>
+Cc:     Matthias Treydte <mt@waldheinz.de>, stable@vger.kernel.org,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        regressions@lists.linux.dev, davem@davemloft.net,
+        yoshfuji@linux-ipv6.org, dsahern@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 01, 2021 at 01:56:59PM -0600, Tyrel Datwyler wrote:
-> Commit 66a834d ("scsi: core: Fix error handling of scsi_host_alloc()")
-> changed the allocation logic to call put_device() to perform host
-> cleanup with the assumption that IDA removal and stopping the kthread
-> would properly be peformed in scsi_host_dev_release(). However, in the
-> unlikely case that the error handler thread fails to spawn
-> shost->ehandler is set to ERR_PTR(-ENOMEM). The error handler cleanup
-> code in scsi_host_dev_release() will call kthread_stop() if
-> shost->ehandler != NULL which will always be the case whether the
-> kthread was succesfully spawned or not. In the case that it failed to
-> spawn this has the nasty side effect of trying to dereference an
-> invalid pointer when kthread_stop() is called. The follwing splat
-> provides an example of this behavior in the wild:
-> 
-> scsi host11: error handler thread failed to spawn, error = -4
-> Kernel attempted to read user page (10c) - exploit attempt? (uid: 0)
-> BUG: Kernel NULL pointer dereference on read at 0x0000010c
-> Faulting instruction address: 0xc00000000818e9a8
-> Oops: Kernel access of bad area, sig: 11 [#1]
-> LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-> Modules linked in: ibmvscsi(+) scsi_transport_srp dm_multipath dm_mirror dm_region
->  hash dm_log dm_mod fuse overlay squashfs loop
-> CPU: 12 PID: 274 Comm: systemd-udevd Not tainted 5.13.0-rc7 #1
-> NIP:  c00000000818e9a8 LR: c0000000089846e8 CTR: 0000000000007ee8
-> REGS: c000000037d12ea0 TRAP: 0300   Not tainted  (5.13.0-rc7)
-> MSR:  800000000280b033 &lt;SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE&gt;  CR: 28228228
-> XER: 20040001
-> CFAR: c0000000089846e4 DAR: 000000000000010c DSISR: 40000000 IRQMASK: 0
-> GPR00: c0000000089846e8 c000000037d13140 c000000009cc1100 fffffffffffffffc
-> GPR04: 0000000000000001 0000000000000000 0000000000000000 c000000037dc0000
-> GPR08: 0000000000000000 c000000037dc0000 0000000000000001 00000000fffff7ff
-> GPR12: 0000000000008000 c00000000a049000 c000000037d13d00 000000011134d5a0
-> GPR16: 0000000000001740 c0080000190d0000 c0080000190d1740 c000000009129288
-> GPR20: c000000037d13bc0 0000000000000001 c000000037d13bc0 c0080000190b7898
-> GPR24: c0080000190b7708 0000000000000000 c000000033bb2c48 0000000000000000
-> GPR28: c000000046b28280 0000000000000000 000000000000010c fffffffffffffffc
-> NIP [c00000000818e9a8] kthread_stop+0x38/0x230
-> LR [c0000000089846e8] scsi_host_dev_release+0x98/0x160
-> Call Trace:
-> [c000000033bb2c48] 0xc000000033bb2c48 (unreliable)
-> [c0000000089846e8] scsi_host_dev_release+0x98/0x160
-> [c00000000891e960] device_release+0x60/0x100
-> [c0000000087e55c4] kobject_release+0x84/0x210
-> [c00000000891ec78] put_device+0x28/0x40
-> [c000000008984ea4] scsi_host_alloc+0x314/0x430
-> [c0080000190b38bc] ibmvscsi_probe+0x54/0xad0 [ibmvscsi]
-> [c000000008110104] vio_bus_probe+0xa4/0x4b0
-> [c00000000892a860] really_probe+0x140/0x680
-> [c00000000892aefc] driver_probe_device+0x15c/0x200
-> [c00000000892b63c] device_driver_attach+0xcc/0xe0
-> [c00000000892b740] __driver_attach+0xf0/0x200
-> [c000000008926f28] bus_for_each_dev+0xa8/0x130
-> [c000000008929ce4] driver_attach+0x34/0x50
-> [c000000008928fc0] bus_add_driver+0x1b0/0x300
-> [c00000000892c798] driver_register+0x98/0x1a0
-> [c00000000810eb60] __vio_register_driver+0x80/0xe0
-> [c0080000190b4a30] ibmvscsi_module_init+0x9c/0xdc [ibmvscsi]
-> [c0000000080121d0] do_one_initcall+0x60/0x2d0
-> [c000000008261abc] do_init_module+0x7c/0x320
-> [c000000008265700] load_module+0x2350/0x25b0
-> [c000000008265cb4] __do_sys_finit_module+0xd4/0x160
-> [c000000008031110] system_call_exception+0x150/0x2d0
-> [c00000000800d35c] system_call_common+0xec/0x278
-> 
-> Fix this be nulling shost->ehandler when the kthread fails to spawn.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 66a834d ("scsi: core: Fix error handling of scsi_host_alloc()")
-> Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+On Thu, Jul 1, 2021 at 11:39 AM David Ahern <dsahern@gmail.com> wrote:
+>
+> [ adding Paolo, author of 18f25dc39990 ]
+>
+> On 7/1/21 4:47 AM, Matthias Treydte wrote:
+> > Hello,
+> >
+> > we recently upgraded the Linux kernel from 5.11.21 to 5.12.12 in our
+> > video stream receiver appliance and noticed compression artifacts on
+> > video streams that were previously looking fine. We are receiving UDP
+> > multicast MPEG TS streams through an FFMpeg / libav layer which does the
+> > socket and lower level protocol handling. For affected kernels it spills
+> > the log with messages like
+> >
+> >> [mpegts @ 0x7fa130000900] Packet corrupt (stream = 0, dts = 6870802195).
+> >> [mpegts @ 0x7fa11c000900] Packet corrupt (stream = 0, dts = 6870821068).
+> >
+> > Bisecting identified commit 18f25dc399901426dff61e676ba603ff52c666f7 as
+> > the one introducing the problem in the mainline kernel. It was
+> > backported to the 5.12 series in
+> > 450687386cd16d081b58cd7a342acff370a96078. Some random observations which
+> > may help to understand what's going on:
+> >
+> >    * the problem exists in Linux 5.13
+> >    * reverting that commit on top of 5.13 makes the problem go away
+> >    * Linux 5.10.45 is fine
+> >    * no relevant output in dmesg
+> >    * can be reproduced on different hardware (Intel, AMD, different
+> > NICs, ...)
+> >    * we do use the bonding driver on the systems (but I did not yet
+> > verify that this is related)
+> >    * we do not use vxlan (mentioned in the commit message)
+> >    * the relevant code in FFMpeg identifying packet corruption is here:
+> >
+> > https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/mpegts.c#L2758
+> >
+> > And the bonding configuration:
+> >
+> > # cat /proc/net/bonding/bond0
+> > Ethernet Channel Bonding Driver: v5.10.45
+> >
+> > Bonding Mode: fault-tolerance (active-backup)
+> > Primary Slave: None
+> > Currently Active Slave: enp2s0
+> > MII Status: up
+> > MII Polling Interval (ms): 100
+> > Up Delay (ms): 0
+> > Down Delay (ms): 0
+> > Peer Notification Delay (ms): 0
+> >
+> > Slave Interface: enp2s0
+> > MII Status: up
+> > Speed: 1000 Mbps
+> > Duplex: full
+> > Link Failure Count: 0
+> > Permanent HW addr: 80:ee:73:XX:XX:XX
+> > Slave queue ID: 0
+> >
+> > Slave Interface: enp3s0
+> > MII Status: down
+> > Speed: Unknown
+> > Duplex: Unknown
+> > Link Failure Count: 0
+> > Permanent HW addr: 80:ee:73:XX:XX:XX
+> > Slave queue ID: 0
+> >
+> >
+> > If there is anything else I can do to help tracking this down please let
+> > me know.
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
+That library does not enable UDP_GRO. You do not have any UDP based
+tunnel devices (besides vxlan) configured, either, right?
 
+Then no socket lookup should take place, so sk is NULL.
 
-Thanks,
-Ming
+It is also unlikely that the device has either of NETIF_F_GRO_FRAGLIST
+or NETIF_F_GRO_UDP_FWD configured. This can be checked with `ethtool
+-K $DEV`, shown as "rx-gro-list" and "rx-udp-gro-forwarding",
+respectively.
 
+Then udp_gro_receive_segment is not called.
+
+So this should just return the packet without applying any GRO.
+
+I'm referring to this block of code in udp_gro_receive:
+
+        if (!sk || !udp_sk(sk)->gro_receive) {
+                if (skb->dev->features & NETIF_F_GRO_FRAGLIST)
+                        NAPI_GRO_CB(skb)->is_flist = sk ?
+!udp_sk(sk)->gro_enabled : 1;
+
+                if ((!sk && (skb->dev->features & NETIF_F_GRO_UDP_FWD)) ||
+                    (sk && udp_sk(sk)->gro_enabled) ||
+NAPI_GRO_CB(skb)->is_flist)
+                        pp = call_gro_receive(udp_gro_receive_segment,
+head, skb);
+                return pp;
+        }
+
+I don't see what could be up.
+
+One possible short-term workaround is to disable GRO. If this commit
+is implicated, that should fix it. At some obvious possible cycle
+cost.
