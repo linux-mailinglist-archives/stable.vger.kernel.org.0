@@ -2,161 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 886E63B9CCE
-	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 09:14:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7143B9CDC
+	for <lists+stable@lfdr.de>; Fri,  2 Jul 2021 09:21:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230110AbhGBHQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Jul 2021 03:16:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57246 "EHLO
+        id S230099AbhGBHXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Jul 2021 03:23:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbhGBHQe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Jul 2021 03:16:34 -0400
-Received: from canardo.mork.no (canardo.mork.no [IPv6:2001:4641::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05957C061762;
-        Fri,  2 Jul 2021 00:14:02 -0700 (PDT)
-Received: from miraculix.mork.no (fwa219.mork.no [192.168.9.219])
-        (authenticated bits=0)
-        by canardo.mork.no (8.15.2/8.15.2) with ESMTPSA id 1627DiI7029093
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Fri, 2 Jul 2021 09:13:44 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mork.no; s=b;
-        t=1625210024; bh=R+jGgdiTe8/f1x+VMR1Hlad0GTYYmFFXNCFVp1D8WiY=;
-        h=From:To:Cc:Subject:Date:Message-Id:From;
-        b=Q8esaDJGLcbe6m7l22xWUab1Yisgb9k6VR7wxObgfc1/KK8Kj/zp5FSceDqSveIp+
-         ky7NjtELywL+126oALJhqI620YBbiaixU5cjOlbGJj/OXIAMYdi7d5QCGbo+0d+zL6
-         huMsiDRpKv/PzobC5rv7R1WTq7+TTeGTeZUZatI8=
-Received: from bjorn by miraculix.mork.no with local (Exim 4.94.2)
-        (envelope-from <bjorn@miraculix.mork.no>)
-        id 1lzDMt-000B8i-Sf; Fri, 02 Jul 2021 09:13:43 +0200
-From:   =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
-To:     Mathias Nyman <mathias.nyman@intel.com>
-Cc:     linux-usb@vger.kernel.org,
-        Jonathan Bell <jonathan@raspberrypi.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
-Subject: [PATCH] xhci: add quirk for host controllers that don't update endpoint DCS
-Date:   Fri,  2 Jul 2021 09:13:38 +0200
-Message-Id: <20210702071338.42777-1-bjorn@mork.no>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S230040AbhGBHXk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Jul 2021 03:23:40 -0400
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42EBCC061764
+        for <stable@vger.kernel.org>; Fri,  2 Jul 2021 00:21:09 -0700 (PDT)
+Received: by mail-oi1-x22c.google.com with SMTP id a133so10259748oib.13
+        for <stable@vger.kernel.org>; Fri, 02 Jul 2021 00:21:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=irzywLWlswN5yWOuh85DPqMNyXrjycgbBXoyqQ4WPFg=;
+        b=JC7b7TxAUyZbowqRZZujuFRQ4jMvxzVzW5L18cOjNIWPYWOoRv5VxYWXCyqAACj0I2
+         S78j2TDcTg0MVmGQdnUnfdCT/QWofJjHmNSJZDeAFOGNWS+iLKUmlit0N6Wymj3GCK1e
+         GhKBkdsdL9uGbxPWrKaWNV9lPPJX5Z/KovNiydJIpFa08zhcUZ6utUFwaoc03DI8A0FS
+         5Sek3lMDaaZeViIJujC3baLCO9LrHsZpj5rVWPx7sYuhSQXvgu2rv1hl9tdfhyFFfA4C
+         S/+/wogEltIR1Iuveius1Ov2nCc007UXrmTOSiPFEDXAXjvXZL79ngn6KW4E2hIDBY9z
+         IaCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=irzywLWlswN5yWOuh85DPqMNyXrjycgbBXoyqQ4WPFg=;
+        b=sYtPmKl+vks3Rmr9B/zJz2WIRZ3zRSEDBPguG2aKXCRs3n4UDoU0PuPMAfLJfVeTqw
+         e0Vo7y8UWeP1NTUAGfh9v+UfeBUaZj2TGEPyQBL/K3KspHqbx6ccl41ImHHddI7a9aSn
+         MxM0Bvy5dfAcT6psF+miiJELZrrlmoNnQT/D1K0oxPENxWoNNz3d9szPX8sGxyobrA+s
+         NWVSPc20EhWWJ19r/dn3ff8d86iNGesQssbm01UKw0B+jw8LavMrUW9/VHJgF82vXRFq
+         3WnUYnDG1VGyr7vYKegj/m/rQXDH9rm/tXfGj4ghUXo0TVum3A+c0v4u2sC4OR4haEYL
+         VtLA==
+X-Gm-Message-State: AOAM5328kZnRthDp6zBS+qZnUMaOgUDjLY4VbUsZrGzP45+ahBgI7/9l
+        vKThaBTewcxMZE2x7WWP0qD+JbEf9WdRBHK95bPZZA==
+X-Google-Smtp-Source: ABdhPJzx9YkOfmdJBiDYcvhF1GSrrKeq0URo76Fdf7LELK6PY7vxwExXdGkmvivC7wAMZ8sNCkOZvRut+96K0jF6SJo=
+X-Received: by 2002:a05:6808:210e:: with SMTP id r14mr2100654oiw.172.1625210468059;
+ Fri, 02 Jul 2021 00:21:08 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.103.2 at canardo
-X-Virus-Status: Clean
+References: <20210701083842.580466-1-elver@google.com> <87h7hdn24k.fsf@disp2133>
+In-Reply-To: <87h7hdn24k.fsf@disp2133>
+From:   Marco Elver <elver@google.com>
+Date:   Fri, 2 Jul 2021 09:20:56 +0200
+Message-ID: <CANpmjNMtK53SiZwm0N9VuwGJthY0unZ_1_mZ=gXdMH0_LAFr5A@mail.gmail.com>
+Subject: Re: [PATCH v2] perf: Require CAP_KILL if sigtrap is requested
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     peterz@infradead.org, tglx@linutronix.de, mingo@kernel.org,
+        kasan-dev@googlegroups.com, linux-kernel@vger.kernel.org,
+        mingo@redhat.com, acme@kernel.org, mark.rutland@arm.com,
+        alexander.shishkin@linux.intel.com, jolsa@redhat.com,
+        namhyung@kernel.org, linux-perf-users@vger.kernel.org,
+        omosnace@redhat.com, serge@hallyn.com,
+        linux-security-module@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Vyukov <dvyukov@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bell <jonathan@raspberrypi.org>
+On Thu, 1 Jul 2021 at 23:41, Eric W. Biederman <ebiederm@xmission.com> wrote:
+>
+> Marco Elver <elver@google.com> writes:
+>
+> > If perf_event_open() is called with another task as target and
+> > perf_event_attr::sigtrap is set, and the target task's user does not
+> > match the calling user, also require the CAP_KILL capability.
+> >
+> > Otherwise, with the CAP_PERFMON capability alone it would be possible
+> > for a user to send SIGTRAP signals via perf events to another user's
+> > tasks. This could potentially result in those tasks being terminated if
+> > they cannot handle SIGTRAP signals.
+> >
+> > Note: The check complements the existing capability check, but is not
+> > supposed to supersede the ptrace_may_access() check. At a high level we
+> > now have:
+> >
+> >       capable of CAP_PERFMON and (CAP_KILL if sigtrap)
+> >               OR
+> >       ptrace_may_access() // also checks for same thread-group and uid
+>
+> Is there anyway we could have a comment that makes the required
+> capability checks clear?
+>
+> Basically I see an inlined version of kill_ok_by_cred being implemented
+> without the comments on why the various pieces make sense.
 
-Seen on a VLI VL805 PCIe to USB controller. For non-stream endpoints
-at least, if the xHC halts on a particular TRB due to an error then
-the DCS field in the Out Endpoint Context maintained by the hardware
-is not updated with the current cycle state.
+I'll add more comments. It probably also makes sense to factor the
+code here into its own helper.
 
-Using the quirk XHCI_EP_CTX_BROKEN_DCS and instead fetch the DCS bit
-from the TRB that the xHC stopped on.
+> Certainly ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS) should not
+> be a check to allow writing/changing a task.  It needs to be
+> PTRACE_MODE_ATTACH_REALCREDS, like /proc/self/mem uses.
 
-Cc: stable@vger.kernel.org
-Link: https://github.com/raspberrypi/linux/issues/3060
-Signed-off-by: Jonathan Bell <jonathan@raspberrypi.org>
-Signed-off-by: Bjørn Mork <bjorn@mork.no>
----
+So if attr.sigtrap the checked ptrace mode needs to switch to
+PTRACE_MODE_ATTACH_REALCREDS. Otherwise, it is possible to send a
+signal if only read-ptrace permissions are granted.
 
-Ran into this issue on an RPi4 running Debian bullseye, having mostly
-a plain v5.10.40 kernel. Using an RTL2838 (0bda:2838) with rtl-sdr
-just did not work, showing all the issues described on the above link.
+Is my assumption here correct?
 
-This quirk found in https://github.com/raspberrypi/linux.git solves
-the problem for me.  I don't see why it shouldn't be in mainline. And
-I propose adding it to stable as well, since it solves a real problem.
-Mostly for my own convenience as I'd prefer just using a Debian built
-kernel ;-)
+> Now in practice I think your patch probably has the proper checks in
+> place for sending a signal but it is far from clear.
 
-Did not check this submission with Jonathan - hoping it is OK...
-
-
-Bjørn
-
- drivers/usb/host/xhci-pci.c  |  4 +++-
- drivers/usb/host/xhci-ring.c | 26 ++++++++++++++++++++++++++
- drivers/usb/host/xhci.h      |  1 +
- 3 files changed, 30 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index 18c2bbddf080..6f3bed09028c 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -279,8 +279,10 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
- 			pdev->device == 0x3432)
- 		xhci->quirks |= XHCI_BROKEN_STREAMS;
- 
--	if (pdev->vendor == PCI_VENDOR_ID_VIA && pdev->device == 0x3483)
-+	if (pdev->vendor == PCI_VENDOR_ID_VIA && pdev->device == 0x3483) {
- 		xhci->quirks |= XHCI_LPM_SUPPORT;
-+		xhci->quirks |= XHCI_EP_CTX_BROKEN_DCS;
-+	}
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
- 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI)
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 8fea44bbc266..a9c860ff5177 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -559,8 +559,11 @@ static int xhci_move_dequeue_past_td(struct xhci_hcd *xhci,
- 	struct xhci_ring *ep_ring;
- 	struct xhci_command *cmd;
- 	struct xhci_segment *new_seg;
-+	struct xhci_segment *halted_seg = NULL;
- 	union xhci_trb *new_deq;
- 	int new_cycle;
-+	union xhci_trb *halted_trb;
-+	int index = 0;
- 	dma_addr_t addr;
- 	u64 hw_dequeue;
- 	bool cycle_found = false;
-@@ -600,6 +603,29 @@ static int xhci_move_dequeue_past_td(struct xhci_hcd *xhci,
- 	new_deq = ep_ring->dequeue;
- 	new_cycle = hw_dequeue & 0x1;
- 
-+	/*
-+	 * Quirk: xHC write-back of the DCS field in the hardware dequeue
-+	 * pointer is wrong - use the cycle state of the TRB pointed to by
-+	 * the dequeue pointer.
-+	 */
-+	if (xhci->quirks & XHCI_EP_CTX_BROKEN_DCS &&
-+	    !(ep->ep_state & EP_HAS_STREAMS))
-+		halted_seg = trb_in_td(xhci, cur_td->start_seg,
-+				       cur_td->first_trb, cur_td->last_trb,
-+				       hw_dequeue & ~0xf, false);
-+	if (halted_seg) {
-+		index = ((dma_addr_t)(hw_dequeue & ~0xf) - halted_seg->dma) /
-+			 sizeof(*halted_trb);
-+		halted_trb = &halted_seg->trbs[index];
-+		state->new_cycle_state = halted_trb->generic.field[3] & 0x1;
-+		xhci_dbg(xhci, "Endpoint DCS = %d TRB index = %d cycle = %d\n",
-+			 (u8)(hw_dequeue & 0x1), index,
-+			 state->new_cycle_state);
-+	} else {
-+		state->new_cycle_state = hw_dequeue & 0x1;
-+	}
-+	state->stream_id = stream_id;
-+
- 	/*
- 	 * We want to find the pointer, segment and cycle state of the new trb
- 	 * (the one after current TD's last_trb). We know the cycle state at
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 3c7d281672ae..911aeb7d8a19 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1896,6 +1896,7 @@ struct xhci_hcd {
- #define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
- #define XHCI_NO_SOFT_RETRY	BIT_ULL(40)
- #define XHCI_BROKEN_D3COLD	BIT_ULL(41)
-+#define XHCI_EP_CTX_BROKEN_DCS	BIT_ULL(42)
- 
- 	unsigned int		num_active_eps;
- 	unsigned int		limit_active_eps;
--- 
-2.30.2
-
+Thanks,
+-- Marco
