@@ -2,180 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85AB73BA6A9
-	for <lists+stable@lfdr.de>; Sat,  3 Jul 2021 03:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7546F3BA788
+	for <lists+stable@lfdr.de>; Sat,  3 Jul 2021 08:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230094AbhGCBof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Jul 2021 21:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48846 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230017AbhGCBof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Jul 2021 21:44:35 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E79FC061762
-        for <stable@vger.kernel.org>; Fri,  2 Jul 2021 18:42:02 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id 21so10825075pfp.3
-        for <stable@vger.kernel.org>; Fri, 02 Jul 2021 18:42:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fiLtwtFrT2obLQT58VycRTLuvA9LAS4OeNvhndB7uyw=;
-        b=18YZixcsro3RKrl2P2lz9meiRKDe7SVTwkVg7Iw7qSZAATLZy5sPvsOzHHn3NO+neO
-         UBxdEe2EzYTZUtRJeVNMDHClxdeMGcQb5fHhQZwuJbqkVAthiuM7d3RUsA16SWQgmDZK
-         4iKLj3kUQ+PNbuu2sFrXs0emSJLzEl92aZR7jrCvN8vBZR3uPO4Qt9HR8N8Soj2tAXjf
-         KZ0c0bYQzI0TTl+DAc1OjKjCpQc57bePhwbrFubrsmj3PkHyB0MaD0BwgvG8/uLr3zEA
-         IY//m+z1W5XChG+C+inTWVdKeCST+uRj3z5tHlpvjGBde7l2Hk5OjPHZV7vQou4P7wdU
-         ejrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fiLtwtFrT2obLQT58VycRTLuvA9LAS4OeNvhndB7uyw=;
-        b=Ztm0K3JCm2XNxQNhmn1H8wJxwQQBy9vb9tvUGmJrcLNmqme1TibPNcbWPpTBRvN3tA
-         9+2STqcnaAC5vZK+4tNVgQ1T1b1utOmyzhyUv+vSa5XOWIHNDtldAd2a8RA/FSkMFHZP
-         1YZSZZeyNdGKdo/vV1073Mw2EYBeyqD1HSqtjERyiFCJRbrJ9cmPsdZmiNOsYGWGTj5a
-         kh/UhRSTA/qGTkt+t6qUK/OVIS0slB7OVB7p78XMVPThl0B8jvUFgSZPYPyT4kYlBxvo
-         R13YqONBqOvjF9f/B06vhwo+eHFegO5LXFy0JYNktP9HY91zPqSC86svrsyw1D+8bLlC
-         enNQ==
-X-Gm-Message-State: AOAM532ShXQJL3sbVhvLOkJlsg8tmssHFwH0t+a7m2OsMwuOapVtDFyC
-        sac1IKgRZXwmrr6PrzwZsYeVIOuaJCMOFFat
-X-Google-Smtp-Source: ABdhPJwj0tziExoF6WbHav6mj9dkbOTcwMWGQokEZaDENECTgeleOBUEGy99PXlJdBsDDLZKL9wIxg==
-X-Received: by 2002:a63:471f:: with SMTP id u31mr2842873pga.85.1625276521760;
-        Fri, 02 Jul 2021 18:42:01 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t66sm4893312pfb.102.2021.07.02.18.42.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Jul 2021 18:42:01 -0700 (PDT)
-Message-ID: <60dfc069.1c69fb81.31d46.1d6a@mx.google.com>
-Date:   Fri, 02 Jul 2021 18:42:01 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229898AbhGCG2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Jul 2021 02:28:38 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:50148 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229539AbhGCG2i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Jul 2021 02:28:38 -0400
+From:   John Ogness <john.ogness@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1625293563;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=E1w9z+m05U11bCJWPaqIpRI46cJ8XT+ChnLkjheQPUg=;
+        b=ZxkhxCaF3SrbJ4mstujFbBh7N0TJiejcfiXENfVhW8zhIvcL48GtXmbFYv7N0NDWD7xu7Y
+        /fJiKKg4rgJhQP/6ldJUrvLuw47pKTAHSr/wfSMMIwXIr7DZzOAe/SPef/Mgf9m1HgwSFm
+        0GCZiKiXpkqP0XMSHbnHmngC0QyBYGWQPN4Q5xzXhKPN3GcDe0rfTYGcZ1oQVDe2/A2l3W
+        XRzIgqr9UqRB5K3I09Sm9V0SnFNCIkEJKLcAogDSb7ci9jUckh0onAu5YyE1+EP4RzhwBr
+        9iROrZt494fIdj6PvCibyZi1fNDXyd1gkmP3+JcXtE8f5lbupUvJvWn3UhkMTA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1625293563;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=E1w9z+m05U11bCJWPaqIpRI46cJ8XT+ChnLkjheQPUg=;
+        b=9TJROphteBASQXzW0cB+SANWL9D7t6yAJzrHdHHUwX2vKH9QuMmIG4ygUL34cbbO1N193d
+        SRteFoUBtyiKuuDw==
+To:     Petr Mladek <pmladek@suse.com>
+Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
+        kernel test robot <lkp@intel.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] printk/console: Check consistent sequence number when handling race in console_unlock()
+In-Reply-To: <20210702150657.26760-1-pmladek@suse.com>
+References: <20210702150657.26760-1-pmladek@suse.com>
+Date:   Sat, 03 Jul 2021 08:32:02 +0206
+Message-ID: <87y2an7w1x.fsf@jogness.linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.238-19-gde73aa6e4dbd
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 165 runs,
- 4 regressions (v4.14.238-19-gde73aa6e4dbd)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 165 runs, 4 regressions (v4.14.238-19-gde73a=
-a6e4dbd)
+On 2021-07-02, Petr Mladek <pmladek@suse.com> wrote:
+> The standard printk() tries to flush the message to the console
+> immediately. It tries to take the console lock. If the lock is
+> already taken then the current owner is responsible for flushing
+> even the new message.
+>
+> There is a small race window between checking whether a new message is
+> available and releasing the console lock. It is solved by re-checking
+> the state after releasing the console lock. If the check is positive
+> then console_unlock() tries to take the lock again and process the new
+> message as well.
+>
+> The commit 996e966640ddea7b535c ("printk: remove logbuf_lock") causes that
+> console_seq is not longer read atomically. As a result, the re-check might
+> be done with an inconsistent 64-bit index.
+>
+> Solve it by using the last sequence number that has been checked under
+> the console lock. In the worst case, it will take the lock again only
+> to realized that the new message has already been proceed. But it
+> was possible even before.
+>
+> The variable next_seq is marked as __maybe_unused to call down compiler
+> warning when CONFIG_PRINTK is not defined.
 
-Regressions Summary
--------------------
+As Sergey already pointed out, this patch is not fixing a real
+problem. An inconsistent value (or an increased consistent value) would
+mean that another printer is actively printing, and thus a retry is not
+necessary anyway. But this patch will avoid a KASAN message about an
+unmarked (although safe) data race.
 
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-meson-gxm-q200    | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
- 1          =
+> Fixes: commit 996e966640ddea7b535c ("printk: remove logbuf_lock")
+> Reported-by: kernel test robot <lkp@intel.com>  # unused next_seq warning
+> Cc: stable@vger.kernel.org # 5.13
+> Signed-off-by: Petr Mladek <pmladek@suse.com>
+> Acked-by: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
- 3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.238-19-gde73aa6e4dbd/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.238-19-gde73aa6e4dbd
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      de73aa6e4dbd33c961e6d36664eaceed6de81101 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-meson-gxm-q200    | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60dfa397f8100dcb0f11798f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.238=
--19-gde73aa6e4dbd/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.238=
--19-gde73aa6e4dbd/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60dfa397f8100dcb0f117=
-990
-        failing since 123 days (last pass: v4.14.222-11-g13b8482a0f700, fir=
-st fail: v4.14.222-120-gdc8887cba23e) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
- 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60df8f95c165f742cb11796b
-
-  Results:     63 PASS, 6 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.238=
--19-gde73aa6e4dbd/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.238=
--19-gde73aa6e4dbd/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60df8f95c165f742cb117983
-        failing since 17 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583) =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60df8f95c165f742cb11799c
-        failing since 17 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583) =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60df8f95c165f742cb11799d
-        failing since 17 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583)
-
-    2021-07-02T22:13:20.836178  /lava-4130415/1/../bin/lava-test-case
-    2021-07-02T22:13:20.841471  [   12.801494] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
+Reviewed-by: John Ogness <john.ogness@linutronix.de>
