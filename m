@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46ADD3BB316
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0A53BB367
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233404AbhGDXRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:17:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56944 "EHLO mail.kernel.org"
+        id S232218AbhGDXSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:18:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234103AbhGDXOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:14:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70CAA619AF;
-        Sun,  4 Jul 2021 23:11:07 +0000 (UTC)
+        id S234105AbhGDXOy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:14:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA7826195E;
+        Sun,  4 Jul 2021 23:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440268;
-        bh=H1TAw+jYiFqK/+76CJFoGVomhGVc6IPWcDDj50dcKzI=;
+        s=k20201202; t=1625440269;
+        bh=CwCNt3yYNT3YccVLM099YhA2gJ/GSS2zbts+Qyv2fxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFHZZKJu2T3ivbACXbvXcnt6G0zqEFy+akyPoDaWML7cohRsLrUxUn/2y0eKUn/I0
-         hKd98vTjmSP/ajjT/EdtAQJ+V/B15nItAoRDb8jR32EH2/WktTDR7c1HwvEPQHoKXX
-         jzKZc1FVwUWqYOXYT/B+to4C5bytcwgF97U4tav15lj6nhX1WtqtHUkgtXy2UCeo5e
-         nAtyyKscMM68brvB+iBCTy4LsoRBVP71P3vq7RqiPrTinqMaUIIcUk/1TCxrR6atDo
-         0Q1DBM26frkmSytPQYMjgR/mgC8IwfkJefv/4P+m917h4ZptnSk+KFIIfBJtAaGbaG
-         lJUFhMirE9/6Q==
+        b=XisMKD1Hag+oR2Np2khRD+eP9aviJpf2VYtRGwaSOWU9ALAdGcm6xa5Re9rtl1SVV
+         904Crdt3ve4Cy/zLcwxYplDTt7w+b7SRpFe5U0drs/HRTUZZAaxGEmvg5WlYbhNt5j
+         mIgZlGM4EjZzKOhXG08s1jFSoOnFq4m6AoxoVmNt3s6sBq6c7wOmPMvxvyYy7PJglO
+         SPqQi5hFhAFzxtZYgL2gixAXpav68oU+vDQybZMGnoWlmx/RkmlssLN0wvORhWWGFi
+         0Gw1hQbRwIFW9qYzT2D0JNHBsUuzt8GaHuHQ16Q337LcQwQUfaUjP7H7ptVqkXpTsX
+         0umLT3HjG5mPQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzbot+e1de8986786b3722050e@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 19/31] media: st-hva: Fix potential NULL pointer dereferences
-Date:   Sun,  4 Jul 2021 19:10:31 -0400
-Message-Id: <20210704231043.1491209-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 20/31] media: dvd_usb: memory leak in cinergyt2_fe_attach
+Date:   Sun,  4 Jul 2021 19:10:32 -0400
+Message-Id: <20210704231043.1491209-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231043.1491209-1-sashal@kernel.org>
 References: <20210704231043.1491209-1-sashal@kernel.org>
@@ -43,38 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit b7fdd208687ba59ebfb09b2199596471c63b69e3 ]
+[ Upstream commit 9ad1efee086e0e913914fa2b2173efb830bad68c ]
 
-When ctx_id >= HVA_MAX_INSTANCES in hva_hw_its_irq_thread() it tries to
-access fields of ctx that is NULL at that point. The patch gets rid of
-these accesses.
+When the driver fails to talk with the hardware with dvb_usb_generic_rw,
+it will return an error to dvb_usb_adapter_frontend_init. However, the
+driver forgets to free the resource (e.g., struct cinergyt2_fe_state),
+which leads to a memory leak.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Fix this by freeing struct cinergyt2_fe_state when dvb_usb_generic_rw
+fails in cinergyt2_frontend_attach.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+backtrace:
+  [<0000000056e17b1a>] kmalloc include/linux/slab.h:552 [inline]
+  [<0000000056e17b1a>] kzalloc include/linux/slab.h:682 [inline]
+  [<0000000056e17b1a>] cinergyt2_fe_attach+0x21/0x80 drivers/media/usb/dvb-usb/cinergyT2-fe.c:271
+  [<00000000ae0b1711>] cinergyt2_frontend_attach+0x21/0x70 drivers/media/usb/dvb-usb/cinergyT2-core.c:74
+  [<00000000d0254861>] dvb_usb_adapter_frontend_init+0x11b/0x1b0 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:290
+  [<0000000002e08ac6>] dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:84 [inline]
+  [<0000000002e08ac6>] dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:173 [inline]
+  [<0000000002e08ac6>] dvb_usb_device_init.cold+0x4d0/0x6ae drivers/media/usb/dvb-usb/dvb-usb-init.c:287
+
+Reported-by: syzbot+e1de8986786b3722050e@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/hva/hva-hw.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/usb/dvb-usb/cinergyT2-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/sti/hva/hva-hw.c b/drivers/media/platform/sti/hva/hva-hw.c
-index d826c011c095..6b852b0bb15a 100644
---- a/drivers/media/platform/sti/hva/hva-hw.c
-+++ b/drivers/media/platform/sti/hva/hva-hw.c
-@@ -130,8 +130,7 @@ static irqreturn_t hva_hw_its_irq_thread(int irq, void *arg)
- 	ctx_id = (hva->sts_reg & 0xFF00) >> 8;
- 	if (ctx_id >= HVA_MAX_INSTANCES) {
- 		dev_err(dev, "%s     %s: bad context identifier: %d\n",
--			ctx->name, __func__, ctx_id);
--		ctx->hw_err = true;
-+			HVA_PREFIX, __func__, ctx_id);
- 		goto out;
- 	}
+diff --git a/drivers/media/usb/dvb-usb/cinergyT2-core.c b/drivers/media/usb/dvb-usb/cinergyT2-core.c
+index 6131aa7914a9..fb59dda7547a 100644
+--- a/drivers/media/usb/dvb-usb/cinergyT2-core.c
++++ b/drivers/media/usb/dvb-usb/cinergyT2-core.c
+@@ -88,6 +88,8 @@ static int cinergyt2_frontend_attach(struct dvb_usb_adapter *adap)
  
+ 	ret = dvb_usb_generic_rw(d, st->data, 1, st->data, 3, 0);
+ 	if (ret < 0) {
++		if (adap->fe_adap[0].fe)
++			adap->fe_adap[0].fe->ops.release(adap->fe_adap[0].fe);
+ 		deb_rc("cinergyt2_power_ctrl() Failed to retrieve sleep state info\n");
+ 	}
+ 	mutex_unlock(&d->data_mutex);
 -- 
 2.30.2
 
