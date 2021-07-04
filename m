@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CFC13BB1B2
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:11:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2F8F3BB1AF
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231983AbhGDXMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:12:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48918 "EHLO mail.kernel.org"
+        id S231989AbhGDXMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:12:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231453AbhGDXJo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:09:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 467D46194A;
-        Sun,  4 Jul 2021 23:07:03 +0000 (UTC)
+        id S232003AbhGDXJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:09:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 869B961483;
+        Sun,  4 Jul 2021 23:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440024;
-        bh=Vys9mD3EkaYftCei4LNcZ76AI27GxMfOdMxo5nT9LRM=;
+        s=k20201202; t=1625440025;
+        bh=U22md1fiLFhqHVO0DXdfZM26MVUAJZq1Lq19F9yOlwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SV/7DI1R/eDzJ8DcGtWXvjwXJPHbbP8T/4dRV8TmgoWyfXiA/9W+UxqHszT5yV2kk
-         p9vDEj/883OkxRD5lw+04E1PGs+LHJQfDvrx2sZFpPDimN5GmriZhVFqFZ0ufSfXCM
-         5eKRWlr8ykC6R7ycQk0cptwAfjV9xm16RUcPaZgpq1d1WTBzI9+01DFzbiO0EQuPba
-         d0mgwnHSDnuJkN27+7WQJJGRMS5UFQD6AWIbG71BAJV0cP4TXsyDM2oxOtYFyNS9dl
-         FGunRFmXv7/Y6qMDKATyPNyJqUC/UISWbHRLPqHorW4cnbbrsti2xZppKZ7dQut/rX
-         S1o+K56YOUh2g==
+        b=Co4cF2bLJ0QXZq2rTIPaAbDYirpzJbFg9/A9hZMwplVfXSa39KPKB9ZIMQZIFLlN1
+         osiCvxbBCiMo+vWc9lpVxJTtbQSct0mU9AAk+9cFKP41SbpinW4wP0J9zODcJNFmnd
+         OKSaRkG5xlpXvENngr9Ckhi7TgfBvbZcw3lrc6zxWe9BvGMzj27CVuUrtcRlz9uK5Z
+         8pVybOfgiMy7KRV8HnBEoqSWnUgypobqad0IsF9+TCVaZc4Jl8Sts0wG7dplrCrgXC
+         LTLd9EP/7sAw0r946r5RzFq+4VWbNLCmeNehVoN3BI5B/W4u5JgdBQB68z/ap17Kl4
+         ErTlglNanMl/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tian Tao <tiantao6@hisilicon.com>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-perf-users@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 34/80] arm64: perf: Convert snprintf to sysfs_emit
-Date:   Sun,  4 Jul 2021 19:05:30 -0400
-Message-Id: <20210704230616.1489200-34-sashal@kernel.org>
+Cc:     Odin Ugedal <odin@uged.al>, Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 35/80] sched/fair: Fix ascii art by relpacing tabs
+Date:   Sun,  4 Jul 2021 19:05:31 -0400
+Message-Id: <20210704230616.1489200-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230616.1489200-1-sashal@kernel.org>
 References: <20210704230616.1489200-1-sashal@kernel.org>
@@ -43,35 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tian Tao <tiantao6@hisilicon.com>
+From: Odin Ugedal <odin@uged.al>
 
-[ Upstream commit a5740e955540181f4ab8f076cc9795c6bbe4d730 ]
+[ Upstream commit 08f7c2f4d0e9f4283f5796b8168044c034a1bfcb ]
 
-Use sysfs_emit instead of snprintf to avoid buf overrun,because in
-sysfs_emit it strictly checks whether buf is null or buf whether
-pagesize aligned, otherwise it returns an error.
+When using something other than 8 spaces per tab, this ascii art
+makes not sense, and the reader might end up wondering what this
+advanced equation "is".
 
-Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
-Link: https://lore.kernel.org/r/1621497585-30887-1-git-send-email-tiantao6@hisilicon.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/20210518125202.78658-4-odin@uged.al
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/perf_event.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kernel/perf_event.c b/arch/arm64/kernel/perf_event.c
-index 4658fcf88c2b..3baca49fcf6b 100644
---- a/arch/arm64/kernel/perf_event.c
-+++ b/arch/arm64/kernel/perf_event.c
-@@ -312,7 +312,7 @@ static ssize_t slots_show(struct device *dev, struct device_attribute *attr,
- 	struct arm_pmu *cpu_pmu = container_of(pmu, struct arm_pmu, pmu);
- 	u32 slots = cpu_pmu->reg_pmmir & ARMV8_PMU_SLOTS_MASK;
- 
--	return snprintf(page, PAGE_SIZE, "0x%08x\n", slots);
-+	return sysfs_emit(page, "0x%08x\n", slots);
- }
- 
- static DEVICE_ATTR_RO(slots);
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 47fcc3fe9dc5..272c583fc167 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3134,7 +3134,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = -----------------------------               (1)
+- *			  \Sum grq->load.weight
++ *                       \Sum grq->load.weight
+  *
+  * Now, because computing that sum is prohibitively expensive to compute (been
+  * there, done that) we approximate it with this average stuff. The average
+@@ -3148,7 +3148,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->avg.load_avg
+  *   ge->load.weight = ------------------------------              (3)
+- *				tg->load_avg
++ *                             tg->load_avg
+  *
+  * Where: tg->load_avg ~= \Sum grq->avg.load_avg
+  *
+@@ -3164,7 +3164,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = ----------------------------- = tg->weight   (4)
+- *			    grp->load.weight
++ *                         grp->load.weight
+  *
+  * That is, the sum collapses because all other CPUs are idle; the UP scenario.
+  *
+@@ -3183,7 +3183,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = -----------------------------		   (6)
+- *				tg_load_avg'
++ *                             tg_load_avg'
+  *
+  * Where:
+  *
 -- 
 2.30.2
 
