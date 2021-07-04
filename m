@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4285B3BB059
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:08:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8B93BB057
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:08:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231231AbhGDXIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230505AbhGDXIS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 4 Jul 2021 19:08:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46686 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230488AbhGDXIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:08:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6660A613F9;
-        Sun,  4 Jul 2021 23:05:23 +0000 (UTC)
+        id S230497AbhGDXIB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:08:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF12861364;
+        Sun,  4 Jul 2021 23:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439924;
-        bh=b+dbzik4gF/bptX3LTN5yD5r59X5tqhaXyxGi2QAB1k=;
+        s=k20201202; t=1625439925;
+        bh=nSAQl4N0ksjmALGA8Vfx17EaJJ31UKUQVACEeMKFCyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T9IzHrxQ4AZYeGak7mjV3nz3Jkrfzl3+WnbAunzaQ9b7qsjwHOQmVV03H3mmDXuN6
-         6gzHxzEz19PQbksLBQ4qRjMYJSrvcK5TRO2VDYKbdgTJ6C5x5OTRVWbMqd7plYwecT
-         f8ZR/HcSfkuUBryozrkGFg7QEC/6RHo7bWzcyUWJXLQfSRPTAffW7wNzYVeCO1hmAJ
-         hvESIcOud4axCX5KW5Fcz/dcStRkbUKsGNRKEm9rZJzDe5Wzk1Fiw5UuR8dMJtF4/T
-         Mvjnlb+e5pluaMTaphHGV06XdZ4FKjYVfSRZh43Xw5z29NvZYdmw6HcoDrhsRoFXmu
-         q41A7rN1TTgEw==
+        b=BgDmN8cTROO+EAKGR/aX2j/4qPWj8zuSvrYini9wHFWq2uSz57KJYmjEaOR5HfU2n
+         BMyHSu/hejluqTI73XF+kxPTavKq9lQ7ygpqFKEGaDV/u5Y/4y0fKwmH9+v+Ji2CnT
+         ooXFwstfMzNpN969/Gq1Riv6s4HY9IwNYElLfH5BNzX+3ETi8bZ7ShL24dtDCB1Xy5
+         Q4FtXngGU+DtplJNA/v+7n2fwTcUIFXBsQ494OW8gy2R8Ye0fB2ObUjoblcBd1ZGcR
+         c/JW6IJBT1FaNgaxvIb+Y/Zzmod2uOLnKQ8X8cvKZSIgvOji/ycxbkQRqk0C7nE7Vn
+         OTH0JigCyyw/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 46/85] media: st-hva: Fix potential NULL pointer dereferences
-Date:   Sun,  4 Jul 2021 19:03:41 -0400
-Message-Id: <20210704230420.1488358-46-sashal@kernel.org>
+Cc:     Kai Ye <yekai13@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 47/85] crypto: hisilicon/sec - fixup 3des minimum key size declaration
+Date:   Sun,  4 Jul 2021 19:03:42 -0400
+Message-Id: <20210704230420.1488358-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230420.1488358-1-sashal@kernel.org>
 References: <20210704230420.1488358-1-sashal@kernel.org>
@@ -43,38 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Kai Ye <yekai13@huawei.com>
 
-[ Upstream commit b7fdd208687ba59ebfb09b2199596471c63b69e3 ]
+[ Upstream commit 6161f40c630bd7ced5f236cd5fbabec06e47afae ]
 
-When ctx_id >= HVA_MAX_INSTANCES in hva_hw_its_irq_thread() it tries to
-access fields of ctx that is NULL at that point. The patch gets rid of
-these accesses.
+Fixup the 3des algorithm  minimum key size declaration.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Kai Ye <yekai13@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/hva/hva-hw.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/crypto/hisilicon/sec2/sec_crypto.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/sti/hva/hva-hw.c b/drivers/media/platform/sti/hva/hva-hw.c
-index f59811e27f51..6eeee5017fac 100644
---- a/drivers/media/platform/sti/hva/hva-hw.c
-+++ b/drivers/media/platform/sti/hva/hva-hw.c
-@@ -130,8 +130,7 @@ static irqreturn_t hva_hw_its_irq_thread(int irq, void *arg)
- 	ctx_id = (hva->sts_reg & 0xFF00) >> 8;
- 	if (ctx_id >= HVA_MAX_INSTANCES) {
- 		dev_err(dev, "%s     %s: bad context identifier: %d\n",
--			ctx->name, __func__, ctx_id);
--		ctx->hw_err = true;
-+			HVA_PREFIX, __func__, ctx_id);
- 		goto out;
- 	}
+diff --git a/drivers/crypto/hisilicon/sec2/sec_crypto.c b/drivers/crypto/hisilicon/sec2/sec_crypto.c
+index 133aede8bf07..b43fad8b9e8d 100644
+--- a/drivers/crypto/hisilicon/sec2/sec_crypto.c
++++ b/drivers/crypto/hisilicon/sec2/sec_crypto.c
+@@ -1541,11 +1541,11 @@ static struct skcipher_alg sec_skciphers[] = {
+ 			 AES_BLOCK_SIZE, AES_BLOCK_SIZE)
  
+ 	SEC_SKCIPHER_ALG("ecb(des3_ede)", sec_setkey_3des_ecb,
+-			 SEC_DES3_2KEY_SIZE, SEC_DES3_3KEY_SIZE,
++			 SEC_DES3_3KEY_SIZE, SEC_DES3_3KEY_SIZE,
+ 			 DES3_EDE_BLOCK_SIZE, 0)
+ 
+ 	SEC_SKCIPHER_ALG("cbc(des3_ede)", sec_setkey_3des_cbc,
+-			 SEC_DES3_2KEY_SIZE, SEC_DES3_3KEY_SIZE,
++			 SEC_DES3_3KEY_SIZE, SEC_DES3_3KEY_SIZE,
+ 			 DES3_EDE_BLOCK_SIZE, DES3_EDE_BLOCK_SIZE)
+ 
+ 	SEC_SKCIPHER_ALG("xts(sm4)", sec_setkey_sm4_xts,
 -- 
 2.30.2
 
