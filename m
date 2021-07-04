@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B531F3BB359
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 975833BB326
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230285AbhGDXRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:17:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55624 "EHLO mail.kernel.org"
+        id S232783AbhGDXR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:17:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234236AbhGDXO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234237AbhGDXO6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 022466196A;
-        Sun,  4 Jul 2021 23:11:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 340796194A;
+        Sun,  4 Jul 2021 23:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440305;
-        bh=hRFKIK6k3TvBRNhZs6G6KD7/pPjulXOjkSzZ6JsNB/A=;
+        s=k20201202; t=1625440307;
+        bh=4ZnzUUKSz85sl/IAufS0xM2QhkVjHpaSanDIfksVdXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VuFvURpDjpCPOErzYNQ/OGD8fbF9UgN/pPgOFuCvMviRbFnycYomwjLeZYjosruid
-         IMbKq9cY1y5gMtxffJAIkRfmZJR0lZUD4biB2P5j152mDz5UM3wjjgwM6slMl+2tmT
-         oyQ1x2U/xp4cEPM4qUbedhLbH6EtYHd3DZpzoRB+vm6Bk9zaT2Q4MjRjGjx6/Q3aXf
-         3U76HWTTV3xBvj14v8/E0pvl+CBBOzsPcmTvfxQm8X3nPCRwq2QJDuWjgM3xafFZef
-         K/A7nzGv47O9gSw+3dG07CbpXZxNrFSVdzIzy3499SxvxQrxMsbrlec3jkd6IAoSQO
-         U4dtr+EebevPQ==
+        b=jv0xdTI/tBji96EaJSGZKudb4T/b2BgJAVT7fE3sM+JHDZvLgRYsl8uJACCdOT1+M
+         319N6gTfJOlF1yP53QpliLn45MOne0hdzRRT3zEXNCwMvh+MAxWKSKi3IyGSVsTx/P
+         lfp7ndonuVLNYmqMT6M9HAqDLj7cOLtUWJJRCx9gvwh3qmgpOzmGRCI9DLt1NW8ii4
+         T2f5w8zvys6lnB444+cZKZwnZBLqQqi73qBP/epb30z8wnbXJkc/PpE2yygD3w12GG
+         /fLWtYLIAqSM+ZHZomgmKy0c9i01rsD5Jzr8syJBPOB7WLPB/ipgFJufUPw0o5Qpys
+         TUlTMSzUu83RQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 17/25] mmc: via-sdmmc: add a check against NULL pointer dereference
-Date:   Sun,  4 Jul 2021 19:11:15 -0400
-Message-Id: <20210704231123.1491517-17-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 18/25] crypto: shash - avoid comparing pointers to exported functions under CFI
+Date:   Sun,  4 Jul 2021 19:11:16 -0400
+Message-Id: <20210704231123.1491517-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231123.1491517-1-sashal@kernel.org>
 References: <20210704231123.1491517-1-sashal@kernel.org>
@@ -42,138 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 45c8ddd06c4b729c56a6083ab311bfbd9643f4a6 ]
+[ Upstream commit 22ca9f4aaf431a9413dcc115dd590123307f274f ]
 
-Before referencing 'host->data', the driver needs to check whether it is
-null pointer, otherwise it will cause a null pointer reference.
+crypto_shash_alg_has_setkey() is implemented by testing whether the
+.setkey() member of a struct shash_alg points to the default version,
+called shash_no_setkey(). As crypto_shash_alg_has_setkey() is a static
+inline, this requires shash_no_setkey() to be exported to modules.
 
-This log reveals it:
+Unfortunately, when building with CFI, function pointers are routed
+via CFI stubs which are private to each module (or to the kernel proper)
+and so this function pointer comparison may fail spuriously.
 
-[   29.355199] BUG: kernel NULL pointer dereference, address:
-0000000000000014
-[   29.357323] #PF: supervisor write access in kernel mode
-[   29.357706] #PF: error_code(0x0002) - not-present page
-[   29.358088] PGD 0 P4D 0
-[   29.358280] Oops: 0002 [#1] PREEMPT SMP PTI
-[   29.358595] CPU: 2 PID: 0 Comm: swapper/2 Not tainted 5.12.4-
-g70e7f0549188-dirty #102
-[   29.359164] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[   29.359978] RIP: 0010:via_sdc_isr+0x21f/0x410
-[   29.360314] Code: ff ff e8 84 aa d0 fd 66 45 89 7e 28 66 41 f7 c4 00
-10 75 56 e8 72 aa d0 fd 66 41 f7 c4 00 c0 74 10 e8 65 aa d0 fd 48 8b 43
-18 <c7> 40 14 ac ff ff ff e8 55 aa d0 fd 48 89 df e8 ad fb ff ff e9 77
-[   29.361661] RSP: 0018:ffffc90000118e98 EFLAGS: 00010046
-[   29.362042] RAX: 0000000000000000 RBX: ffff888107d77880
-RCX: 0000000000000000
-[   29.362564] RDX: 0000000000000000 RSI: ffffffff835d20bb
-RDI: 00000000ffffffff
-[   29.363085] RBP: ffffc90000118ed8 R08: 0000000000000001
-R09: 0000000000000001
-[   29.363604] R10: 0000000000000000 R11: 0000000000000001
-R12: 0000000000008600
-[   29.364128] R13: ffff888107d779c8 R14: ffffc90009c00200
-R15: 0000000000008000
-[   29.364651] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000)
-knlGS:0000000000000000
-[   29.365235] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   29.365655] CR2: 0000000000000014 CR3: 0000000005a2e000
-CR4: 00000000000006e0
-[   29.366170] DR0: 0000000000000000 DR1: 0000000000000000
-DR2: 0000000000000000
-[   29.366683] DR3: 0000000000000000 DR6: 00000000fffe0ff0
-DR7: 0000000000000400
-[   29.367197] Call Trace:
-[   29.367381]  <IRQ>
-[   29.367537]  __handle_irq_event_percpu+0x53/0x3e0
-[   29.367916]  handle_irq_event_percpu+0x35/0x90
-[   29.368247]  handle_irq_event+0x39/0x60
-[   29.368632]  handle_fasteoi_irq+0xc2/0x1d0
-[   29.368950]  __common_interrupt+0x7f/0x150
-[   29.369254]  common_interrupt+0xb4/0xd0
-[   29.369547]  </IRQ>
-[   29.369708]  asm_common_interrupt+0x1e/0x40
-[   29.370016] RIP: 0010:native_safe_halt+0x17/0x20
-[   29.370360] Code: 07 0f 00 2d db 80 43 00 f4 5d c3 0f 1f 84 00 00 00
-00 00 8b 05 c2 37 e5 01 55 48 89 e5 85 c0 7e 07 0f 00 2d bb 80 43 00 fb
-f4 <5d> c3 cc cc cc cc cc cc cc 55 48 89 e5 e8 67 53 ff ff 8b 0d f9 91
-[   29.371696] RSP: 0018:ffffc9000008fe90 EFLAGS: 00000246
-[   29.372079] RAX: 0000000000000000 RBX: 0000000000000002
-RCX: 0000000000000000
-[   29.372595] RDX: 0000000000000000 RSI: ffffffff854f67a4
-RDI: ffffffff85403406
-[   29.373122] RBP: ffffc9000008fe90 R08: 0000000000000001
-R09: 0000000000000001
-[   29.373646] R10: 0000000000000000 R11: 0000000000000001
-R12: ffffffff86009188
-[   29.374160] R13: 0000000000000000 R14: 0000000000000000
-R15: ffff888100258000
-[   29.374690]  default_idle+0x9/0x10
-[   29.374944]  arch_cpu_idle+0xa/0x10
-[   29.375198]  default_idle_call+0x6e/0x250
-[   29.375491]  do_idle+0x1f0/0x2d0
-[   29.375740]  cpu_startup_entry+0x18/0x20
-[   29.376034]  start_secondary+0x11f/0x160
-[   29.376328]  secondary_startup_64_no_verify+0xb0/0xbb
-[   29.376705] Modules linked in:
-[   29.376939] Dumping ftrace buffer:
-[   29.377187]    (ftrace buffer empty)
-[   29.377460] CR2: 0000000000000014
-[   29.377712] ---[ end trace 51a473dffb618c47 ]---
-[   29.378056] RIP: 0010:via_sdc_isr+0x21f/0x410
-[   29.378380] Code: ff ff e8 84 aa d0 fd 66 45 89 7e 28 66 41 f7 c4 00
-10 75 56 e8 72 aa d0 fd 66 41 f7 c4 00 c0 74 10 e8 65 aa d0 fd 48 8b 43
-18 <c7> 40 14 ac ff ff ff e8 55 aa d0 fd 48 89 df e8 ad fb ff ff e9 77
-[   29.379714] RSP: 0018:ffffc90000118e98 EFLAGS: 00010046
-[   29.380098] RAX: 0000000000000000 RBX: ffff888107d77880
-RCX: 0000000000000000
-[   29.380614] RDX: 0000000000000000 RSI: ffffffff835d20bb
-RDI: 00000000ffffffff
-[   29.381134] RBP: ffffc90000118ed8 R08: 0000000000000001
-R09: 0000000000000001
-[   29.381653] R10: 0000000000000000 R11: 0000000000000001
-R12: 0000000000008600
-[   29.382176] R13: ffff888107d779c8 R14: ffffc90009c00200
-R15: 0000000000008000
-[   29.382697] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000)
-knlGS:0000000000000000
-[   29.383277] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   29.383697] CR2: 0000000000000014 CR3: 0000000005a2e000
-CR4: 00000000000006e0
-[   29.384223] DR0: 0000000000000000 DR1: 0000000000000000
-DR2: 0000000000000000
-[   29.384736] DR3: 0000000000000000 DR6: 00000000fffe0ff0
-DR7: 0000000000000400
-[   29.385260] Kernel panic - not syncing: Fatal exception in interrupt
-[   29.385882] Dumping ftrace buffer:
-[   29.386135]    (ftrace buffer empty)
-[   29.386401] Kernel Offset: disabled
-[   29.386656] Rebooting in 1 seconds..
+Let's fix this by turning crypto_shash_alg_has_setkey() into an out of
+line function.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1622727200-15808-1-git-send-email-zheyuma97@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/via-sdmmc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ crypto/shash.c                 | 18 +++++++++++++++---
+ include/crypto/internal/hash.h |  8 +-------
+ 2 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
-index 8c0e348c6053..4e5043657ee2 100644
---- a/drivers/mmc/host/via-sdmmc.c
-+++ b/drivers/mmc/host/via-sdmmc.c
-@@ -865,6 +865,9 @@ static void via_sdc_data_isr(struct via_crdr_mmc_host *host, u16 intmask)
- {
- 	BUG_ON(intmask == 0);
+diff --git a/crypto/shash.c b/crypto/shash.c
+index a04145e5306a..55e7a2f63b34 100644
+--- a/crypto/shash.c
++++ b/crypto/shash.c
+@@ -25,12 +25,24 @@
  
-+	if (!host->data)
-+		return;
+ static const struct crypto_type crypto_shash_type;
+ 
+-int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
+-		    unsigned int keylen)
++static int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
++			   unsigned int keylen)
+ {
+ 	return -ENOSYS;
+ }
+-EXPORT_SYMBOL_GPL(shash_no_setkey);
 +
- 	if (intmask & VIA_CRDR_SDSTS_DT)
- 		host->data->error = -ETIMEDOUT;
- 	else if (intmask & (VIA_CRDR_SDSTS_RC | VIA_CRDR_SDSTS_WC))
++/*
++ * Check whether an shash algorithm has a setkey function.
++ *
++ * For CFI compatibility, this must not be an inline function.  This is because
++ * when CFI is enabled, modules won't get the same address for shash_no_setkey
++ * (if it were exported, which inlining would require) as the core kernel will.
++ */
++bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
++{
++	return alg->setkey != shash_no_setkey;
++}
++EXPORT_SYMBOL_GPL(crypto_shash_alg_has_setkey);
+ 
+ static int shash_setkey_unaligned(struct crypto_shash *tfm, const u8 *key,
+ 				  unsigned int keylen)
+diff --git a/include/crypto/internal/hash.h b/include/crypto/internal/hash.h
+index 27040a46d50a..556b40fee2d1 100644
+--- a/include/crypto/internal/hash.h
++++ b/include/crypto/internal/hash.h
+@@ -82,13 +82,7 @@ int ahash_register_instance(struct crypto_template *tmpl,
+ 			    struct ahash_instance *inst);
+ void ahash_free_instance(struct crypto_instance *inst);
+ 
+-int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
+-		    unsigned int keylen);
+-
+-static inline bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
+-{
+-	return alg->setkey != shash_no_setkey;
+-}
++bool crypto_shash_alg_has_setkey(struct shash_alg *alg);
+ 
+ bool crypto_hash_alg_has_setkey(struct hash_alg_common *halg);
+ 
 -- 
 2.30.2
 
