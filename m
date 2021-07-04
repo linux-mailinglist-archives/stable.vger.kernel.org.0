@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 384CD3BB015
+	by mail.lfdr.de (Postfix) with ESMTP id AB4473BB016
 	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:08:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230198AbhGDXHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:07:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45726 "EHLO mail.kernel.org"
+        id S230201AbhGDXHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:07:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230137AbhGDXH2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:07:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F6DE613E9;
-        Sun,  4 Jul 2021 23:04:51 +0000 (UTC)
+        id S230181AbhGDXH3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:07:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F01F3611ED;
+        Sun,  4 Jul 2021 23:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439892;
-        bh=vKftHj88RLYECuwHY64g8MmF5WQxGF4qF+Dprtnl6OE=;
+        s=k20201202; t=1625439893;
+        bh=LSWH/woqNWIjGDaCBkBIa1h0TErufIHLKuaj3Mebucg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTWBbwIRfuk3S33Rv3VnILe8h6AoMJl51wOdbpp8kjOZJSca28BZ4TCTk58Q90nM5
-         LucunG/s2u9TXfKv1ItGdKqkcuptK4k2V1F3u3K9gHjC9kuRn3xyilIQ9BHINogKDp
-         Soh5/SNvFtV044HxqKyeBbmMVqeX8Hg9P/eRwdo9jWMsqgDlCvGgG8GsQ3Sumbzqkn
-         6hRaatS2gLIom9ZxRabTIuacJwuZw/WjXlF5Fz50CcYyl/j9w86/26NG5igEAP6oiw
-         jZMjwfHCKiH88+n6ecztCxzX3k5fshTaofQGXENw81U6p8VLG/hvycMSP+3iJOekqZ
-         Tbtq6lqoyqlzQ==
+        b=r0zyjcz4YyUvhqL5x48YYyz0YDgfNSuZemxlzdbEvKDET/q9TDOQMnlfKLXjuA5Mi
+         VXA1XPOsktDNG9tjQaxRDhIKX30vWX7FZhTerpXpuvnnNSzN3gU8B30w6XGWgV73Nx
+         KZ9OshtVjE2IZy3J6fzo+ZW3bEt6Ucemb5vlrFsW5gACMd2rvbuLvAZU2D5LQY5UQN
+         q9/NgObsTXWv8D8P9VF/XLx5forAyxmE3YhrNneQDZGlcv17+3b9BI43Znf+xgTlYd
+         NmXFVEhDPWiJ7ILl9TNVOi9pVV5V9hC0QzIfZwBeZT92vdOMQ9AHeM4qx0iWCqFtzZ
+         6L/XcP+kg3w8g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.13 22/85] crypto: nx - add missing MODULE_DEVICE_TABLE
-Date:   Sun,  4 Jul 2021 19:03:17 -0400
-Message-Id: <20210704230420.1488358-22-sashal@kernel.org>
+Cc:     Lucas Tanure <tanureal@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 23/85] regmap-i2c: Set regmap max raw r/w from quirks
+Date:   Sun,  4 Jul 2021 19:03:18 -0400
+Message-Id: <20210704230420.1488358-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230420.1488358-1-sashal@kernel.org>
 References: <20210704230420.1488358-1-sashal@kernel.org>
@@ -43,34 +42,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit 06676aa1f455c74e3ad1624cea3acb9ed2ef71ae ]
+[ Upstream commit ea030ca688193462b8d612c1628c37129aa30072 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+Set regmap raw read/write from i2c quirks max read/write
+so regmap_raw_read/write can split the access into chunks
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210512135222.223203-1-tanureal@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/nx/nx-842-pseries.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/base/regmap/regmap-i2c.c | 45 +++++++++++++++++++++++++++-----
+ drivers/base/regmap/regmap.c     |  2 ++
+ include/linux/regmap.h           |  2 ++
+ 3 files changed, 42 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/crypto/nx/nx-842-pseries.c b/drivers/crypto/nx/nx-842-pseries.c
-index cc8dd3072b8b..8ee547ee378e 100644
---- a/drivers/crypto/nx/nx-842-pseries.c
-+++ b/drivers/crypto/nx/nx-842-pseries.c
-@@ -1069,6 +1069,7 @@ static const struct vio_device_id nx842_vio_driver_ids[] = {
- 	{"ibm,compression-v1", "ibm,compression"},
- 	{"", ""},
- };
-+MODULE_DEVICE_TABLE(vio, nx842_vio_driver_ids);
+diff --git a/drivers/base/regmap/regmap-i2c.c b/drivers/base/regmap/regmap-i2c.c
+index 62b95a9212ae..980e5ce6a3a3 100644
+--- a/drivers/base/regmap/regmap-i2c.c
++++ b/drivers/base/regmap/regmap-i2c.c
+@@ -306,33 +306,64 @@ static const struct regmap_bus regmap_i2c_smbus_i2c_block_reg16 = {
+ static const struct regmap_bus *regmap_get_i2c_bus(struct i2c_client *i2c,
+ 					const struct regmap_config *config)
+ {
++	const struct i2c_adapter_quirks *quirks;
++	const struct regmap_bus *bus = NULL;
++	struct regmap_bus *ret_bus;
++	u16 max_read = 0, max_write = 0;
++
+ 	if (i2c_check_functionality(i2c->adapter, I2C_FUNC_I2C))
+-		return &regmap_i2c;
++		bus = &regmap_i2c;
+ 	else if (config->val_bits == 8 && config->reg_bits == 8 &&
+ 		 i2c_check_functionality(i2c->adapter,
+ 					 I2C_FUNC_SMBUS_I2C_BLOCK))
+-		return &regmap_i2c_smbus_i2c_block;
++		bus = &regmap_i2c_smbus_i2c_block;
+ 	else if (config->val_bits == 8 && config->reg_bits == 16 &&
+ 		i2c_check_functionality(i2c->adapter,
+ 					I2C_FUNC_SMBUS_I2C_BLOCK))
+-		return &regmap_i2c_smbus_i2c_block_reg16;
++		bus = &regmap_i2c_smbus_i2c_block_reg16;
+ 	else if (config->val_bits == 16 && config->reg_bits == 8 &&
+ 		 i2c_check_functionality(i2c->adapter,
+ 					 I2C_FUNC_SMBUS_WORD_DATA))
+ 		switch (regmap_get_val_endian(&i2c->dev, NULL, config)) {
+ 		case REGMAP_ENDIAN_LITTLE:
+-			return &regmap_smbus_word;
++			bus = &regmap_smbus_word;
++			break;
+ 		case REGMAP_ENDIAN_BIG:
+-			return &regmap_smbus_word_swapped;
++			bus = &regmap_smbus_word_swapped;
++			break;
+ 		default:		/* everything else is not supported */
+ 			break;
+ 		}
+ 	else if (config->val_bits == 8 && config->reg_bits == 8 &&
+ 		 i2c_check_functionality(i2c->adapter,
+ 					 I2C_FUNC_SMBUS_BYTE_DATA))
+-		return &regmap_smbus_byte;
++		bus = &regmap_smbus_byte;
++
++	if (!bus)
++		return ERR_PTR(-ENOTSUPP);
++
++	quirks = i2c->adapter->quirks;
++	if (quirks) {
++		if (quirks->max_read_len &&
++		    (bus->max_raw_read == 0 || bus->max_raw_read > quirks->max_read_len))
++			max_read = quirks->max_read_len;
++
++		if (quirks->max_write_len &&
++		    (bus->max_raw_write == 0 || bus->max_raw_write > quirks->max_write_len))
++			max_write = quirks->max_write_len;
++
++		if (max_read || max_write) {
++			ret_bus = kmemdup(bus, sizeof(*bus), GFP_KERNEL);
++			if (!ret_bus)
++				return ERR_PTR(-ENOMEM);
++			ret_bus->free_on_exit = true;
++			ret_bus->max_raw_read = max_read;
++			ret_bus->max_raw_write = max_write;
++			bus = ret_bus;
++		}
++	}
  
- static struct vio_driver nx842_vio_driver = {
- 	.name = KBUILD_MODNAME,
+-	return ERR_PTR(-ENOTSUPP);
++	return bus;
+ }
+ 
+ struct regmap *__regmap_init_i2c(struct i2c_client *i2c,
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 297e95be25b3..0d185ec018a5 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1496,6 +1496,8 @@ void regmap_exit(struct regmap *map)
+ 		mutex_destroy(&map->mutex);
+ 	kfree_const(map->name);
+ 	kfree(map->patch);
++	if (map->bus && map->bus->free_on_exit)
++		kfree(map->bus);
+ 	kfree(map);
+ }
+ EXPORT_SYMBOL_GPL(regmap_exit);
+diff --git a/include/linux/regmap.h b/include/linux/regmap.h
+index f87a11a5cc4a..8c16e6fa0f66 100644
+--- a/include/linux/regmap.h
++++ b/include/linux/regmap.h
+@@ -502,6 +502,7 @@ typedef void (*regmap_hw_free_context)(void *context);
+  *     DEFAULT, BIG is assumed.
+  * @max_raw_read: Max raw read size that can be used on the bus.
+  * @max_raw_write: Max raw write size that can be used on the bus.
++ * @free_on_exit: kfree this on exit of regmap
+  */
+ struct regmap_bus {
+ 	bool fast_io;
+@@ -519,6 +520,7 @@ struct regmap_bus {
+ 	enum regmap_endian val_format_endian_default;
+ 	size_t max_raw_read;
+ 	size_t max_raw_write;
++	bool free_on_exit;
+ };
+ 
+ /*
 -- 
 2.30.2
 
