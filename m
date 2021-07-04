@@ -2,149 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F11A73BAE26
-	for <lists+stable@lfdr.de>; Sun,  4 Jul 2021 20:02:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2773BAE79
+	for <lists+stable@lfdr.de>; Sun,  4 Jul 2021 21:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229645AbhGDSFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 14:05:04 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:55752 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229636AbhGDSFE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Jul 2021 14:05:04 -0400
-Date:   Sun, 04 Jul 2021 18:02:24 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1625421746;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Zl8b24X6b1YuA30lD6ejZ4gDTXykbocVgLDWkfJ7uEM=;
-        b=alMnw2V1th7Er7OLL0ge1JxaMW+IWqZueNPEw3JBcQwqV4Id/jCcDbHXwfQBTPVIUJEfHu
-        drLr25WD9S9BWuPllveT/shoHogG11khF/6y7znaOt/SiCaXILqh2RjAWp3/xCAA06XiTk
-        ufIIi0cTEEp+sG9QxkdR9ezh19JIxI0gGpZJeesg/dr55najdCBjTazFYsc9gUUW8HYLi6
-        xPgZ6am5BlNRhC4LKyVt1LbfRmRFQ6yaazQPFysVYuxsCzmL1aREUc/EImL4q9faPz9C7v
-        PYLgjhwhje3jAfUDlJ4Z1sn7L77/b/lKEUFa2SnJVGxHuxoJxm1oUY5wsr8TAg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1625421746;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Zl8b24X6b1YuA30lD6ejZ4gDTXykbocVgLDWkfJ7uEM=;
-        b=MSJLGGRHOmExeY1FCvXzQzscO5tdutKsUzvCcs2Q6fyxtcoEE4WrbmvvhznBpmtwERaOfG
-        oQ91VLTqFeFtM+Bg==
-From:   "thermal-bot for Srinivas Pandruvada" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-pm@vger.kernel.org
-To:     linux-pm@vger.kernel.org
-Subject: [thermal: thermal/next] thermal/drivers/int340x/processor_thermal:
- Fix tcc setting
-Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>, amitk@kernel.org
-In-Reply-To: <20210628215803.75038-1-srinivas.pandruvada@linux.intel.com>
-References: <20210628215803.75038-1-srinivas.pandruvada@linux.intel.com>
+        id S229774AbhGDTFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 15:05:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229724AbhGDTFE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 15:05:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CEE6613E2;
+        Sun,  4 Jul 2021 19:02:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1625425347;
+        bh=C1S3o3r6K16gvr7br8hFJWysya72Q68pIr48FMzjAWc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PRh+Mq0I2VF/0nNEoKBVMJ/BUU7x1RvdNnhdSz5PfWstKP85q7Rp/wu2TJ6q2Cy/o
+         8LCQTJo6YichiCmsS+An8TCxoK7mXWz7VJusw/gL/sIdqUmA8Iep5LBI+m6tt8tCox
+         TrNbT7cSwygQ9fEllp2vcMeXxGERkPwblrp+ECxI=
+Date:   Sun, 4 Jul 2021 21:02:25 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     John Wood <john.wood@gmx.com>
+Cc:     Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        stable@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bluetooth/virtio_bt: Fix dereference null return value
+Message-ID: <YOIFwdlqdEldzg6B@kroah.com>
+References: <20210704145504.24756-1-john.wood@gmx.com>
 MIME-Version: 1.0
-Message-ID: <162542174492.395.18073104723994090543.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210704145504.24756-1-john.wood@gmx.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the thermal/next branch of thermal:
+On Sun, Jul 04, 2021 at 04:55:04PM +0200, John Wood wrote:
+> The alloc_skb function returns NULL on error. So, test this case and
+> avoid a NULL dereference (skb->data).
+> 
+> Addresses-Coverity-ID: 1484718 ("Dereference null return value")
+> Fixes: afd2daa26c7ab ("Bluetooth: Add support for virtio transport driver")
+> Signed-off-by: John Wood <john.wood@gmx.com>
+> ---
+>  drivers/bluetooth/virtio_bt.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Commit-ID:     fe6a6de6692e7f7159c1ff42b07ecd737df712b4
-Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git//fe6a6de6692e7f7159c1ff42b07ecd737df712b4
-Author:        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-AuthorDate:    Mon, 28 Jun 2021 14:58:03 -07:00
-Committer:     Daniel Lezcano <daniel.lezcano@linaro.org>
-CommitterDate: Sun, 04 Jul 2021 18:28:04 +02:00
 
-thermal/drivers/int340x/processor_thermal: Fix tcc setting
+<formletter>
 
-The following fixes are done for tcc sysfs interface:
-- TCC is 6 bits only from bit 29-24
-- TCC of 0 is valid
-- When BIT(31) is set, this register is read only
-- Check for invalid tcc value
-- Error for negative values
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Fixes: fdf4f2fb8e899 ("drivers: thermal: processor_thermal_device: Export sysfs interface for TCC offset")
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: stable@vger.kernel.org
-Acked-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210628215803.75038-1-srinivas.pandruvada@linux.intel.com
----
- drivers/thermal/intel/int340x_thermal/processor_thermal_device.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-index de4fc64..0f0038a 100644
---- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-+++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
-@@ -78,24 +78,27 @@ static ssize_t tcc_offset_degree_celsius_show(struct device *dev,
- 	if (err)
- 		return err;
- 
--	val = (val >> 24) & 0xff;
-+	val = (val >> 24) & 0x3f;
- 	return sprintf(buf, "%d\n", (int)val);
- }
- 
--static int tcc_offset_update(int tcc)
-+static int tcc_offset_update(unsigned int tcc)
- {
- 	u64 val;
- 	int err;
- 
--	if (!tcc)
-+	if (tcc > 63)
- 		return -EINVAL;
- 
- 	err = rdmsrl_safe(MSR_IA32_TEMPERATURE_TARGET, &val);
- 	if (err)
- 		return err;
- 
--	val &= ~GENMASK_ULL(31, 24);
--	val |= (tcc & 0xff) << 24;
-+	if (val & BIT(31))
-+		return -EPERM;
-+
-+	val &= ~GENMASK_ULL(29, 24);
-+	val |= (tcc & 0x3f) << 24;
- 
- 	err = wrmsrl_safe(MSR_IA32_TEMPERATURE_TARGET, val);
- 	if (err)
-@@ -104,14 +107,15 @@ static int tcc_offset_update(int tcc)
- 	return 0;
- }
- 
--static int tcc_offset_save;
-+static unsigned int tcc_offset_save;
- 
- static ssize_t tcc_offset_degree_celsius_store(struct device *dev,
- 				struct device_attribute *attr, const char *buf,
- 				size_t count)
- {
-+	unsigned int tcc;
- 	u64 val;
--	int tcc, err;
-+	int err;
- 
- 	err = rdmsrl_safe(MSR_PLATFORM_INFO, &val);
- 	if (err)
-@@ -120,7 +124,7 @@ static ssize_t tcc_offset_degree_celsius_store(struct device *dev,
- 	if (!(val & BIT(30)))
- 		return -EACCES;
- 
--	if (kstrtoint(buf, 0, &tcc))
-+	if (kstrtouint(buf, 0, &tcc))
- 		return -EINVAL;
- 
- 	err = tcc_offset_update(tcc);
+</formletter>
