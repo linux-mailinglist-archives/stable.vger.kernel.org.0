@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEFF33BB043
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:08:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0B0A3BB045
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:08:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbhGDXII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231137AbhGDXII (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 4 Jul 2021 19:08:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46062 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230427AbhGDXHu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:07:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D0E76135D;
-        Sun,  4 Jul 2021 23:05:14 +0000 (UTC)
+        id S230244AbhGDXHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:07:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79D59613E9;
+        Sun,  4 Jul 2021 23:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439915;
-        bh=kzLbysrn0WTVXqGNPCytiyLqvBomL/QjZ69Hv/nPQ3Y=;
+        s=k20201202; t=1625439916;
+        bh=RMOrC1frwt1UylxJ7TKcgEozTKZQbIES9glVwdgUp2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jvg4CMt1/j7FjW8NBBG8JctaI6ErzKPz1J//pSdHEQYQJDmAH7HQ/xhBwufmrJ5g4
-         q+HxFdo2dRUYdOyprmW7muDn5UbBIhPO4lHVdGn3WkQQV8+Sv9R16VValwpY9HhReo
-         4bSEkfAMwED1ZZzqs2U3+qWLgbFFflpwubPJyDVfyHeca8KzfToOaFWbRiGbFCxtOu
-         I2fqT+BW2HK5//RZvY3PcMDmZmAYmmmBm1uXAgWzKCljRgLe2HSZPtyl2ehAM4vRYP
-         Hg+U2CbLJy19f1k65ajfPM2jHGBs9Ar+QzCtBim1uEPzwtWN12AAcSLyYtJq/k81z/
-         qDtOx37IleCWw==
+        b=WYzyJAlKOLXrDSruS8JBQYvUTl62K/YJ3VS1tLy4tnnIqYlSo3Jm7jzBJla9263a3
+         Rk63t2hEpmAsIHXlUYS+ePKCe9wTcTy6TaFdWOQwK8fwsOZ6Gq7z5LgqMUqkSNoJ0G
+         npOXmFKlqIaHQpaMR2xunF/k89vW1JV5U+uJoL8n8OHE8FiMQVOhqB5BgCPdmWtp/4
+         KO+XHdhZVWlEGYpLpS/POt8JzlF1YjTVkhcIK0ByKTXtE3fhuBeNi8R3X157wkyxz7
+         TQvQntYG5vSS6Ruvo1f3Mdc9fbCprbOiVD7ndhc7YrrpQlvvVXhgqZV+u1LJW5XO0e
+         N9wbn3wGKRoaQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dillon Min <dillon.minfei@gmail.com>,
-        Lad Prabhakar <prabhakar.csengg@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+Cc:     Tong Zhang <ztong0001@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 39/85] media: i2c: ov2659: Use clk_{prepare_enable,disable_unprepare}() to set xvclk on/off
-Date:   Sun,  4 Jul 2021 19:03:34 -0400
-Message-Id: <20210704230420.1488358-39-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 40/85] media: bt878: do not schedule tasklet when it is not setup
+Date:   Sun,  4 Jul 2021 19:03:35 -0400
+Message-Id: <20210704230420.1488358-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230420.1488358-1-sashal@kernel.org>
 References: <20210704230420.1488358-1-sashal@kernel.org>
@@ -44,103 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Min <dillon.minfei@gmail.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 24786ccd9c80fdb05494aa4d90fcb8f34295c193 ]
+[ Upstream commit a3a54bf4bddaecda8b5767209cfc703f0be2841d ]
 
-On some platform(imx6q), xvclk might not switch on in advance,
-also for power save purpose, xvclk should not be always on.
-so, add clk_prepare_enable(), clk_disable_unprepare() in driver
-side to set xvclk on/off at proper stage.
+There is a problem with the tasklet in bt878. bt->tasklet is set by
+dvb-bt8xx.ko, and bt878.ko can be loaded independently.
+In this case if interrupt comes it may cause null-ptr-dereference.
+To solve this issue, we check if the tasklet is actually set before
+calling tasklet_schedule.
 
-Add following changes:
-- add 'struct clk *clk;' in 'struct ov2659 {}'
-- enable xvclk in ov2659_power_on()
-- disable xvclk in ov2659_power_off()
+[    1.750438] bt878(0): irq FDSR FBUS risc_pc=
+[    1.750728] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[    1.752969] RIP: 0010:0x0
+[    1.757526] Call Trace:
+[    1.757659]  <IRQ>
+[    1.757770]  tasklet_action_common.isra.0+0x107/0x110
+[    1.758041]  tasklet_action+0x22/0x30
+[    1.758237]  __do_softirq+0xe0/0x29b
+[    1.758430]  irq_exit_rcu+0xa4/0xb0
+[    1.758618]  common_interrupt+0x8d/0xa0
+[    1.758824]  </IRQ>
 
-Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
-Acked-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov2659.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/media/pci/bt8xx/bt878.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
-index 42f64175a6df..fb78a1cedc03 100644
---- a/drivers/media/i2c/ov2659.c
-+++ b/drivers/media/i2c/ov2659.c
-@@ -204,6 +204,7 @@ struct ov2659 {
- 	struct i2c_client *client;
- 	struct v4l2_ctrl_handler ctrls;
- 	struct v4l2_ctrl *link_frequency;
-+	struct clk *clk;
- 	const struct ov2659_framesize *frame_size;
- 	struct sensor_register *format_ctrl_regs;
- 	struct ov2659_pll_ctrl pll;
-@@ -1270,6 +1271,8 @@ static int ov2659_power_off(struct device *dev)
- 
- 	gpiod_set_value(ov2659->pwdn_gpio, 1);
- 
-+	clk_disable_unprepare(ov2659->clk);
-+
- 	return 0;
- }
- 
-@@ -1278,9 +1281,17 @@ static int ov2659_power_on(struct device *dev)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
- 	struct ov2659 *ov2659 = to_ov2659(sd);
-+	int ret;
- 
- 	dev_dbg(&client->dev, "%s:\n", __func__);
- 
-+	ret = clk_prepare_enable(ov2659->clk);
-+	if (ret) {
-+		dev_err(&client->dev, "%s: failed to enable clock\n",
-+			__func__);
-+		return ret;
-+	}
-+
- 	gpiod_set_value(ov2659->pwdn_gpio, 0);
- 
- 	if (ov2659->resetb_gpio) {
-@@ -1425,7 +1436,6 @@ static int ov2659_probe(struct i2c_client *client)
- 	const struct ov2659_platform_data *pdata = ov2659_get_pdata(client);
- 	struct v4l2_subdev *sd;
- 	struct ov2659 *ov2659;
--	struct clk *clk;
- 	int ret;
- 
- 	if (!pdata) {
-@@ -1440,11 +1450,11 @@ static int ov2659_probe(struct i2c_client *client)
- 	ov2659->pdata = pdata;
- 	ov2659->client = client;
- 
--	clk = devm_clk_get(&client->dev, "xvclk");
--	if (IS_ERR(clk))
--		return PTR_ERR(clk);
-+	ov2659->clk = devm_clk_get(&client->dev, "xvclk");
-+	if (IS_ERR(ov2659->clk))
-+		return PTR_ERR(ov2659->clk);
- 
--	ov2659->xvclk_frequency = clk_get_rate(clk);
-+	ov2659->xvclk_frequency = clk_get_rate(ov2659->clk);
- 	if (ov2659->xvclk_frequency < 6000000 ||
- 	    ov2659->xvclk_frequency > 27000000)
- 		return -EINVAL;
-@@ -1506,7 +1516,9 @@ static int ov2659_probe(struct i2c_client *client)
- 	ov2659->frame_size = &ov2659_framesizes[2];
- 	ov2659->format_ctrl_regs = ov2659_formats[0].format_ctrl_regs;
- 
--	ov2659_power_on(&client->dev);
-+	ret = ov2659_power_on(&client->dev);
-+	if (ret < 0)
-+		goto error;
- 
- 	ret = ov2659_detect(sd);
- 	if (ret < 0)
+diff --git a/drivers/media/pci/bt8xx/bt878.c b/drivers/media/pci/bt8xx/bt878.c
+index 78dd35c9b65d..7ca309121fb5 100644
+--- a/drivers/media/pci/bt8xx/bt878.c
++++ b/drivers/media/pci/bt8xx/bt878.c
+@@ -300,7 +300,8 @@ static irqreturn_t bt878_irq(int irq, void *dev_id)
+ 		}
+ 		if (astat & BT878_ARISCI) {
+ 			bt->finished_block = (stat & BT878_ARISCS) >> 28;
+-			tasklet_schedule(&bt->tasklet);
++			if (bt->tasklet.callback)
++				tasklet_schedule(&bt->tasklet);
+ 			break;
+ 		}
+ 		count++;
 -- 
 2.30.2
 
