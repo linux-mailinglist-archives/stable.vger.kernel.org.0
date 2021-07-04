@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F6C3BB2F5
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B4A3BB27E
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:14:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230148AbhGDXQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:16:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50832 "EHLO mail.kernel.org"
+        id S232589AbhGDXPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:15:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233510AbhGDXOa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233512AbhGDXOa (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF2E46198F;
-        Sun,  4 Jul 2021 23:09:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD0626195C;
+        Sun,  4 Jul 2021 23:10:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440200;
-        bh=QscHBCdwyz845ByNO9AmsX1v5TFqG9DVE99wooaq7oI=;
+        s=k20201202; t=1625440201;
+        bh=pUMr10Mt4SCKAEeSUQG9mur+NfbW4jFFoQ3QkBymMrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbrdEEz4dDqMw0eStAvRtHmSNlNPndcKvleqUxT5lB4z0UZSjzBDj0q/bHPHBjQHh
-         UAld1omJ5Em0XLXHN9V4r5uyozB5XJ55i4v0xZtYwqjw8uh5m0fL2ua6zuhHVLAsle
-         5spZcj8y0Zax/R8qpy3kdD9mUmsQPz8/0EfzV43APimNSwiWN2Jmwy51bNyIeDkkS8
-         BDkv1cE0DMCdiH8JJjCiwseelkceTT8v8bXFzmsyrZ1QPgYrsgvo5kXYOVmcyycgbJ
-         iMJlJ74riDqOX0rb2uZpbwlEy/VqH49ECfMYMAaRZ8EVnoGBlTidylxl5PQaTXld0y
-         ObyVJ/vUfBM0A==
+        b=ZhoQlAus17pFgPjLX7ult0HJ9FSMLwN5uafUrCjqCgBTemWgkUY0Z8xz5gjFQTobq
+         a64Mm/DyTNC15gRInp/u3hz8w3J6JWr4RvWS+gendw8VJSC+8WFV8p3ZD40U6gTMmi
+         JI6wZx/zxohNuUN2wTWRAHghiqGDj2iGmEHDOuQP1Aqtou9LtnjYR5V6La7CuaCm8K
+         Cpl4aTMzkhQMr8J99w9ylVTwpnGjOwA4bIjV7yIbeXnba6utq2r+RDEL1ohdph1vkj
+         VbXjtnw9SHcQuMi+wB5vB04hg4DYBaakfQMljny/kbH51/myNK0sQ/RybWrm4lMxdD
+         BanCF93B5wYvQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
+        syzbot+e74a998ca8f1df9cc332@syzkaller.appspotmail.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 17/50] media: cobalt: fix race condition in setting HPD
-Date:   Sun,  4 Jul 2021 19:09:05 -0400
-Message-Id: <20210704230938.1490742-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 18/50] media: pvrusb2: fix warning in pvr2_i2c_core_done
+Date:   Sun,  4 Jul 2021 19:09:06 -0400
+Message-Id: <20210704230938.1490742-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230938.1490742-1-sashal@kernel.org>
 References: <20210704230938.1490742-1-sashal@kernel.org>
@@ -42,68 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit 3d37ef41bed0854805ab9af22c422267510e1344 ]
+[ Upstream commit f8194e5e63fdcb349e8da9eef9e574d5b1d687cb ]
 
-The cobalt_s_bit_sysctrl reads the old register value over PCI,
-then changes a bit and sets writes the new value to the register.
+syzbot has reported the following warning in pvr2_i2c_done:
 
-This is used among other things for setting the HPD output pin.
+	sysfs group 'power' not found for kobject '1-0043'
 
-But if the HPD is changed for multiple inputs at the same time,
-then this causes a race condition where a stale value is read.
+When the device is disconnected (pvr_hdw_disconnect), the i2c adapter is
+not unregistered along with the USB and v4l2 teardown. As part of the USB
+device disconnect, the sysfs files of the subdevices are also deleted.
+So, by the time pvr_i2c_core_done is called by pvr_context_destroy, the
+sysfs files have been deleted.
 
-Serialize this function with a mutex.
+To fix this, unregister the i2c adapter too in pvr_hdw_disconnect. Make
+the device deregistration code shared by calling pvr_hdw_disconnect from
+pvr2_hdw_destroy.
 
+Reported-by: syzbot+e74a998ca8f1df9cc332@syzkaller.appspotmail.com
+Tested-by: syzbot+e74a998ca8f1df9cc332@syzkaller.appspotmail.com
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cobalt/cobalt-driver.c | 1 +
- drivers/media/pci/cobalt/cobalt-driver.h | 7 ++++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/cobalt/cobalt-driver.c b/drivers/media/pci/cobalt/cobalt-driver.c
-index 0695078ef812..1bd8bbe57a30 100644
---- a/drivers/media/pci/cobalt/cobalt-driver.c
-+++ b/drivers/media/pci/cobalt/cobalt-driver.c
-@@ -667,6 +667,7 @@ static int cobalt_probe(struct pci_dev *pci_dev,
- 		return -ENOMEM;
- 	cobalt->pci_dev = pci_dev;
- 	cobalt->instance = i;
-+	mutex_init(&cobalt->pci_lock);
- 
- 	retval = v4l2_device_register(&pci_dev->dev, &cobalt->v4l2_dev);
- 	if (retval) {
-diff --git a/drivers/media/pci/cobalt/cobalt-driver.h b/drivers/media/pci/cobalt/cobalt-driver.h
-index bca68572b324..12c33e035904 100644
---- a/drivers/media/pci/cobalt/cobalt-driver.h
-+++ b/drivers/media/pci/cobalt/cobalt-driver.h
-@@ -251,6 +251,8 @@ struct cobalt {
- 	int instance;
- 	struct pci_dev *pci_dev;
- 	struct v4l2_device v4l2_dev;
-+	/* serialize PCI access in cobalt_s_bit_sysctrl() */
-+	struct mutex pci_lock;
- 
- 	void __iomem *bar0, *bar1;
- 
-@@ -320,10 +322,13 @@ static inline u32 cobalt_g_sysctrl(struct cobalt *cobalt)
- static inline void cobalt_s_bit_sysctrl(struct cobalt *cobalt,
- 					int bit, int val)
+diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+index 1cfb7cf64131..4c991eae53cd 100644
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -2677,9 +2677,8 @@ void pvr2_hdw_destroy(struct pvr2_hdw *hdw)
+ 		pvr2_stream_destroy(hdw->vid_stream);
+ 		hdw->vid_stream = NULL;
+ 	}
+-	pvr2_i2c_core_done(hdw);
+ 	v4l2_device_unregister(&hdw->v4l2_dev);
+-	pvr2_hdw_remove_usb_stuff(hdw);
++	pvr2_hdw_disconnect(hdw);
+ 	mutex_lock(&pvr2_unit_mtx);
+ 	do {
+ 		if ((hdw->unit_number >= 0) &&
+@@ -2706,6 +2705,7 @@ void pvr2_hdw_disconnect(struct pvr2_hdw *hdw)
  {
--	u32 ctrl = cobalt_read_bar1(cobalt, COBALT_SYS_CTRL_BASE);
-+	u32 ctrl;
- 
-+	mutex_lock(&cobalt->pci_lock);
-+	ctrl = cobalt_read_bar1(cobalt, COBALT_SYS_CTRL_BASE);
- 	cobalt_write_bar1(cobalt, COBALT_SYS_CTRL_BASE,
- 			(ctrl & ~(1UL << bit)) | (val << bit));
-+	mutex_unlock(&cobalt->pci_lock);
- }
- 
- static inline u32 cobalt_g_sysstat(struct cobalt *cobalt)
+ 	pvr2_trace(PVR2_TRACE_INIT,"pvr2_hdw_disconnect(hdw=%p)",hdw);
+ 	LOCK_TAKE(hdw->big_lock);
++	pvr2_i2c_core_done(hdw);
+ 	LOCK_TAKE(hdw->ctl_lock);
+ 	pvr2_hdw_remove_usb_stuff(hdw);
+ 	LOCK_GIVE(hdw->ctl_lock);
 -- 
 2.30.2
 
