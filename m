@@ -2,89 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D490F3BAD84
-	for <lists+stable@lfdr.de>; Sun,  4 Jul 2021 16:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CBFE3BAD89
+	for <lists+stable@lfdr.de>; Sun,  4 Jul 2021 17:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbhGDO6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 10:58:10 -0400
-Received: from mout.gmx.net ([212.227.17.21]:38079 "EHLO mout.gmx.net"
+        id S229547AbhGDPCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 11:02:49 -0400
+Received: from mout.gmx.net ([212.227.15.18]:55911 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229547AbhGDO6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 10:58:09 -0400
+        id S229537AbhGDPCt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 11:02:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1625410532;
-        bh=sOGXehM1tLZ6085q2bAyEipEHuIDLW99g0jEdsG2oko=;
+        s=badeba3b8450; t=1625410787;
+        bh=RNSQYYFuIriR47EualGe3dVp1QibTFyz3MT30NUh6sY=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=KByv1+fLFfkFlb/oT6T5CHrnN+tCaib55Oip7pjBiS394gK9fxKEblAvsaNAo6XrS
-         VR7IDbpBTjTEYs49QSRVGmYmKMFMFVHcWRjbe7/6PkAS6kAKMk1gQGW+AG6p5wzQ9D
-         K+OTa5UX39he49OKgdXXmkWFukwporJYORJItJkY=
+        b=WaA3l5izUOfpKq09VsyYtEPvfGNAxKPfn1QJewZviQ9xE3fVfsoEKszGO49PupjfP
+         DGsmYQOrD6qQxpZdSF9J/JtpSldUQrFH47JKXpFQFcattEnEi1bysQjyys/0Piq/Yb
+         xhlm7nJo3srfAfG0zQ5izlUJslGvYcMoa8K4DioE=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
 Received: from localhost.localdomain ([83.52.228.41]) by mail.gmx.net
- (mrgmx104 [212.227.17.174]) with ESMTPSA (Nemesis) id
- 1MA7GM-1lu1ub38bi-00Bg2d; Sun, 04 Jul 2021 16:55:31 +0200
+ (mrgmx005 [212.227.17.184]) with ESMTPSA (Nemesis) id
+ 1M3lY1-1m0KqP3TZj-000rM9; Sun, 04 Jul 2021 16:59:47 +0200
 From:   John Wood <john.wood@gmx.com>
-To:     Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>
-Cc:     John Wood <john.wood@gmx.com>, stable@vger.kernel.org,
-        linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] bluetooth/virtio_bt: Fix dereference null return value
-Date:   Sun,  4 Jul 2021 16:55:04 +0200
-Message-Id: <20210704145504.24756-1-john.wood@gmx.com>
+To:     Felix Fietkau <nbd@nbd.name>,
+        Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>,
+        Ryder Lee <ryder.lee@mediatek.com>
+Cc:     John Wood <john.wood@gmx.com>, Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Shayne Chen <shayne.chen@mediatek.com>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2] mt76/mt7915: Fix unsigned compared against zero
+Date:   Sun,  4 Jul 2021 16:59:20 +0200
+Message-Id: <20210704145920.24899-1-john.wood@gmx.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:+Bb+LJ6hEp5FkU0Ty6vgHXhvNSVHjKFxNZ32v7cj48ZledK+47z
- ho59QPdZI4SqrO/qg8OiC4qCNeY6xQcGffORnIcTsaoXcwvNcIFTFJiDDZUOSV1Vkcan5x4
- gZ69pgPe/cTDcozlflyNgNz5VKbI4xcGAUJ0ffD/yzsXMKHcZN6ryVTRVUpBTZWW3+ThsTc
- tCEqv9VwwU/iArj71yrFg==
+X-Provags-ID: V03:K1:n/VraqA2jUH1gvdW771kpSf31uZTCCCagc9quqqb0EcgjiFgR5E
+ u02NcADrvAdAoJ7O8MzGR/tdK562pg3DCMXw2jvJ6HT4oH+WmA0ehebmASfgVEB5nmvgWNR
+ 1NjJGg1/vL2VQIaMMtHs/kXsIJYJk5QqRz3v7lwV7gjmmudpmhjzhnah2VMDpP09x5kvQs7
+ DVgkaDUr7f3r6wemEOY6w==
 X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:jfEjBhVmTbc=:XXFC+AsCMXRZqok/1arJ8E
- DH6R4NbF35KNeTSY7cjwA8USqJ2bltknRJzJKT95OKrqqq1EY67GjK3+LUlXw4wKVsx7g1UhK
- VBGldQvs9vkEVftIvAO1MSXbIjyFU8+bqfA5t1uMnGqqiAubK/f2UyFb6Dnkmys1nQXT/81S5
- uXb1TdPmyitBN22LhQjDMFD7WwuF7h0Ev1qCpqV7hxS03K4MvgD1ldJA/PvjhbQkK781xMezt
- fF4IGlUt2MKSYlejSwnf9GDnMNVhsXk2n6F+g5ZBVyBJYm6ojQ11QhWNi80/yRGhmTcHyu7gR
- 3tTN7QkJK0IbvpFFeVBmzeSznkSSCcgnsdeuhDiIrtQP/ZXJR0PgmcD8AbSOqcHte0i0/NxHT
- YiW5nGpyJr0uEc9W3kdxs+QemKeCncWj9F70AkL657VBYZcvAlaMlAKwybsxE1a1qLg/fz1L1
- O0Wl8QzdwCLFa56AA8mSAzdIxdSoImWO3Za6QjPnPIL3Qv0zbZi9njQ8T3JNCiQ9tSbboFeWD
- jvx6D+MOZYvmlx2C0Y6CXk+wU+9WmaQAtDKfckkf4BBYz4cZM5Lkdx4ExE0I8KpLJBKYeHOlR
- Rc9OCbTXyE2Fcxh1zvyKWeOzS3RGerwXQ0l3kTEvE0TzeVMavc4Ipb2gIFo6q8xd8gDCJp9OQ
- 77sHhrO1iaIx9K6bKfLoedJK7bsUvgQSiu8ZUZkRpAeIC57lFU0tCIr0GM98utB6r1maPAvBh
- j+DHJQzDKMZ+91gnFNQ/Xal64XGeDxpOTQLC4oRA/wOos8jOVNgE6NGi21AedC+seiAhzA7SQ
- HnN9f1OCtldrzghREwmBf4ngGbYfDnoimYsgPWKbgBWOQp+KVMLJhP4ffBeQ+aQBlnusHB5dR
- bMsjP16UtqKz7K4hI17A0QRIA8xvtjB2H1SoynKJhoo3UW1vt+IN9TdoTADwJ9eyP+qTdk9i+
- In/G0g4cGr3qrKA6Qyuz5crNaM0Ao3aJ+v7DeqMZ0kletTkFftEzSqBg1jVEN4OUlajikucD4
- TRN1u4jwtuHEWyR670Sl6YfJUIG5OUQF93tECcYR4VG/uskgD4aamh4elvVNmq1C3n4EDsEeN
- fLA9ZX7+2YwTibzavE12RmRQgBcldDtQzC/
+X-UI-Out-Filterresults: notjunk:1;V03:K0:oC2EW4JkHSE=:C895kBVBwg/Pcc8pMrv+Vk
+ uPfCGXmCkV9eRvAMFe6mTYc/cfYoozl33Sm53y9veWv+5NkvGFYWfH5mHa94R66A/mu8nLCs/
+ vhTca6Ihd3nbDwNiGqzw6XGWniL64q1OHF1yJdDWvCEROTbOuFVXXjBlCgPTqE/+OrsqaBYAY
+ TxN+n30EWO8K0J72k5VfaneU0m939BctjsPeqauDJ0FD0V4eDQLSWcE6vN1NyKGQ5Nh91q3Dy
+ Jy2wSi9YyQBuBjxco1XoAjwta1R+UzoHw6Qed4r3GWMWeygx8PTJo1umFa8tDhr/EH+6DH8y3
+ qFbBBmXFy2Uz7oKMPS8qs/CF/sPgNPX/TRY9MOQz6M+M47SVnb0f7F3rn/MpUY6buLToDLIze
+ UwKrWNZAhF+N1JsfziJr9LIEgdcjYHNbB7k22ZSa8xWRhFgL/WPQJY94AXyl7lHzufetyZz8V
+ md4kbrt2u12Hh4x1KCCw4NBUiOMhIdnmHKlbSYE7CxjIF2YozcST19EjXSVqg9xZBdW8ZxSh9
+ CN4SZSSiasvrMAkXkiSOPXjC0PXEQdzvacnHNiXvA0QynC+r+Y3WtjWfbDsWU5Q9mmnuKWhO2
+ +fZGzLSJJMcnwTnPkCAKycyC2b+XqzEmwkRv8HTiaQWgMdsRcJV0yA64MyNdV/NVX4eFnG/a3
+ JdUPzSb/w5rFhh6PCU2ApWRgciIdSpdp1LhLqmIQNMncgOWOjCL8Z2TnB+VF0fDK/Cqzw5Rlh
+ JUB1XrFsFSDLr07/awBpyPzkmlmlB3BGifPxRzNTUmqK7FKqjvwV3TLLVevG+hAD5gQ+map8N
+ HwHxcha1Mnx222JXzspCAPG3Ce9kKxffpUzT/K788EU/B66ePFovV9uyER0KIV8WxnUuJNFlQ
+ eLWaneAQRS4mK5ByGyhBIywhiB71uGEDhPlnkvzTOzird2XRGvao3ubpfr6Oc5bJhAB/raWnH
+ pg4ije8C7onQ/9Pggih+Wdo2GZrWdcSQdpBMolblCHwsdyIEGl2k2F88bQJXTSSpxmQVdhvnk
+ 4Qh2yjUR9N4igHuFqJQ4snz1jWLDFrE2tBaCYOxvtNBvA4s7iF0KqFRCJk27oM69c3K3wEI16
+ uYHRzlZXuHk7uhC8oxgDO+pFHE8dOOacElD
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The alloc_skb function returns NULL on error. So, test this case and
-avoid a NULL dereference (skb->data).
+The mt7915_dpd_freq_idx() function can return a negative value but this
+value is assigned to an unsigned variable named idx. Then, the code
+tests if this variable is less than zero. This can never happen with an
+unsigned type.
 
-Addresses-Coverity-ID: 1484718 ("Dereference null return value")
-Fixes: afd2daa26c7ab ("Bluetooth: Add support for virtio transport driver"=
-)
+So, change the idx type to a signed one.
+
+Addresses-Coverity-ID: 1484753 ("Unsigned compared against 0")
+Fixes: 495184ac91bb8 ("mt76: mt7915: add support for applying pre-calibrat=
+ion data")
 Signed-off-by: John Wood <john.wood@gmx.com>
 =2D--
- drivers/bluetooth/virtio_bt.c | 2 ++
- 1 file changed, 2 insertions(+)
+Changelog v1 -> v2
+- Add Cc to stable@vger.kernel.org
 
-diff --git a/drivers/bluetooth/virtio_bt.c b/drivers/bluetooth/virtio_bt.c
-index c804db7e90f8..5f82574236c0 100644
-=2D-- a/drivers/bluetooth/virtio_bt.c
-+++ b/drivers/bluetooth/virtio_bt.c
-@@ -34,6 +34,8 @@ static int virtbt_add_inbuf(struct virtio_bluetooth *vbt=
-)
- 	int err;
+ drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- 	skb =3D alloc_skb(1000, GFP_KERNEL);
-+	if (!skb)
-+		return -ENOMEM;
- 	sg_init_one(sg, skb->data, 1000);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net=
+/wireless/mediatek/mt76/mt7915/mcu.c
+index b3f14ff67c5a..764f25a828fa 100644
+=2D-- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -3440,8 +3440,9 @@ int mt7915_mcu_apply_tx_dpd(struct mt7915_phy *phy)
+ {
+ 	struct mt7915_dev *dev =3D phy->dev;
+ 	struct cfg80211_chan_def *chandef =3D &phy->mt76->chandef;
+-	u16 total =3D 2, idx, center_freq =3D chandef->center_freq1;
++	u16 total =3D 2, center_freq =3D chandef->center_freq1;
+ 	u8 *cal =3D dev->cal, *eep =3D dev->mt76.eeprom.data;
++	int idx;
 
- 	err =3D virtqueue_add_inbuf(vq, sg, 1, skb, GFP_KERNEL);
+ 	if (!(eep[MT_EE_DO_PRE_CAL] & MT_EE_WIFI_CAL_DPD))
+ 		return 0;
 =2D-
 2.25.1
 
