@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF7A3BB093
+	by mail.lfdr.de (Postfix) with ESMTP id 891BE3BB094
 	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:08:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230443AbhGDXIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231544AbhGDXIz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 4 Jul 2021 19:08:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46062 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231285AbhGDXIZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:08:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B90456135A;
-        Sun,  4 Jul 2021 23:05:48 +0000 (UTC)
+        id S231303AbhGDXI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:08:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23B0B6141C;
+        Sun,  4 Jul 2021 23:05:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439949;
-        bh=yaW7+70CuaDLoBk5O5YDDWAkIkBx39uUB+sEvBYbA7s=;
+        s=k20201202; t=1625439950;
+        bh=Y79Tu5inYouxog4c2RHMq8XZy2RswmsWUHasd3uD/K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gta56AG+818Q7R+XWMnhJih/WDexNfVpevWi88Rccc4b3lhPkU815SFmKVye1apaX
-         QmwXcuhoQR5m2/p/NiClDPBcSivMCLNpDlLxe7g/uLh9PW4Tw8QB4lTXXDqcKzeGbT
-         hYRIZSiPM1KHqp8yM8mHJN9yc+tAGJWDjTpKBy9io+YitnO72YIlMRvaiQGC6ICl4j
-         fpdttHjK4KcEnDb1EjjBA1vmjf3aynFF4hBN1T3HJNB7UEXK01GsyfrJy8rzpSv7Q/
-         riK+u9bXwV7KDttSz+ZQSdMsZCyPTJvjL27qfLTjzMmZITO9s6FHIWAzGUuPuCfexc
-         oUJcPsJ7QPI8A==
+        b=L15+rRwWSr6NrQOE3aWb4LRDamAasga4S2+Pmn2zrWzLHBnL5zW1dQxCOMOz7tpN/
+         tqCiI3WC8w24QbKvbg7e5atY4RSh3i81QROcB/DtbtjV70pyg9L442+Zok9tBIjI/K
+         WZiEpf4Cz7Zvxx73uPUddmkxkFtSbGpzK1qVgTJYTANXzR1XOWkL5dCyQ2+k2/chZe
+         sSym0MTiyOM5cnPTbbSh5jcSxwxnWkuSJqtMQD6UDGPIULyc556bK84hd35b1HAIAK
+         QC0mRK3yLLmoQH0bGSyIhBBO/uMSCUh6VNXZz2AnwAtK/kZqPwPj3re+ENIs6uj/Mn
+         HEBeyfhs2CzHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lukasz Luba <lukasz.luba@arm.com>,
+Cc:     Kan Liang <kan.liang@linux.intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.13 65/85] sched/fair: Take thermal pressure into account while estimating energy
-Date:   Sun,  4 Jul 2021 19:04:00 -0400
-Message-Id: <20210704230420.1488358-65-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 66/85] perf/x86: Reset the dirty counter to prevent the leak for an RDPMC task
+Date:   Sun,  4 Jul 2021 19:04:01 -0400
+Message-Id: <20210704230420.1488358-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230420.1488358-1-sashal@kernel.org>
 References: <20210704230420.1488358-1-sashal@kernel.org>
@@ -44,90 +43,230 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Luba <lukasz.luba@arm.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 489f16459e0008c7a5c4c5af34bd80898aa82c2d ]
+[ Upstream commit 5471eea5d3bf850316f1064a6f57b34c444bce67 ]
 
-Energy Aware Scheduling (EAS) needs to be able to predict the frequency
-requests made by the SchedUtil governor to properly estimate energy used
-in the future. It has to take into account CPUs utilization and forecast
-Performance Domain (PD) frequency. There is a corner case when the max
-allowed frequency might be reduced due to thermal. SchedUtil is aware of
-that reduced frequency, so it should be taken into account also in EAS
-estimations.
+The counter value of a perf task may leak to another RDPMC task.
+For example, a perf stat task as below is running on CPU 0.
 
-SchedUtil, as a CPUFreq governor, knows the maximum allowed frequency of
-a CPU, thanks to cpufreq_driver_resolve_freq() and internal clamping
-to 'policy::max'. SchedUtil is responsible to respect that upper limit
-while setting the frequency through CPUFreq drivers. This effective
-frequency is stored internally in 'sugov_policy::next_freq' and EAS has
-to predict that value.
+    perf stat -e 'branches,cycles' -- taskset -c 0 ./workload
 
-In the existing code the raw value of arch_scale_cpu_capacity() is used
-for clamping the returned CPU utilization from effective_cpu_util().
-This patch fixes issue with too big single CPU utilization, by introducing
-clamping to the allowed CPU capacity. The allowed CPU capacity is a CPU
-capacity reduced by thermal pressure raw value.
+In the meantime, an RDPMC task, which is also running on CPU 0, may read
+the GP counters periodically. (The RDPMC task creates a fixed event,
+but read four GP counters.)
 
-Thanks to knowledge about allowed CPU capacity, we don't get too big value
-for a single CPU utilization, which is then added to the util sum. The
-util sum is used as a source of information for estimating whole PD energy.
-To avoid wrong energy estimation in EAS (due to capped frequency), make
-sure that the calculation of util sum is aware of allowed CPU capacity.
+    $./rdpmc_read_all_counters
+    index 0x0 value 0x8001e5970f99
+    index 0x1 value 0x8005d750edb6
+    index 0x2 value 0x0
+    index 0x3 value 0x0
 
-This thermal pressure might be visible in scenarios where the CPUs are not
-heavily loaded, but some other component (like GPU) drastically reduced
-available power budget and increased the SoC temperature. Thus, we still
-use EAS for task placement and CPUs are not over-utilized.
+    index 0x0 value 0x8002358e48a5
+    index 0x1 value 0x8006bd1e3bc9
+    index 0x2 value 0x0
+    index 0x3 value 0x0
 
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
+It is a potential security issue. Once the attacker knows what the other
+thread is counting. The PerfMon counter can be used as a side-channel to
+attack cryptosystems.
+
+The counter value of the perf stat task leaks to the RDPMC task because
+perf never clears the counter when it's stopped.
+
+Three methods were considered to address the issue.
+
+ - Unconditionally reset the counter in x86_pmu_del(). It can bring extra
+   overhead even when there is no RDPMC task running.
+
+ - Only reset the un-assigned dirty counters when the RDPMC task is
+   scheduled in via sched_task(). It fails for the below case.
+
+	Thread A			Thread B
+
+	clone(CLONE_THREAD) --->
+	set_affine(0)
+					set_affine(1)
+					while (!event-enabled)
+						;
+	event = perf_event_open()
+	mmap(event)
+	ioctl(event, IOC_ENABLE); --->
+					RDPMC
+
+   Counters are still leaked to the thread B.
+
+ - Only reset the un-assigned dirty counters before updating the CR4.PCE
+   bit. The method is implemented here.
+
+The dirty counter is a counter, on which the assigned event has been
+deleted, but the counter is not reset. To track the dirty counters,
+add a 'dirty' variable in the struct cpu_hw_events.
+
+The security issue can only be found with an RDPMC task. To enable the
+RDMPC, the CR4.PCE bit has to be updated. Add a
+perf_clear_dirty_counters() right before updating the CR4.PCE bit to
+clear the existing dirty counters. Only the current un-assigned dirty
+counters are reset, because the RDPMC assigned dirty counters will be
+updated soon.
+
+After applying the patch,
+
+        $ ./rdpmc_read_all_counters
+        index 0x0 value 0x0
+        index 0x1 value 0x0
+        index 0x2 value 0x0
+        index 0x3 value 0x0
+
+        index 0x0 value 0x0
+        index 0x1 value 0x0
+        index 0x2 value 0x0
+        index 0x3 value 0x0
+
+Performance
+
+The performance of a context switch only be impacted when there are two
+or more perf users and one of the users must be an RDPMC user. In other
+cases, there is no performance impact.
+
+The worst-case occurs when there are two users: the RDPMC user only
+uses one counter; while the other user uses all available counters.
+When the RDPMC task is scheduled in, all the counters, other than the
+RDPMC assigned one, have to be reset.
+
+Test results for the worst-case, using a modified lat_ctx as measured
+on an Ice Lake platform, which has 8 GP and 3 FP counters (ignoring
+SLOTS).
+
+    lat_ctx -s 128K -N 1000 processes 2
+
+Without the patch:
+  The context switch time is 4.97 us
+
+With the patch:
+  The context switch time is 5.16 us
+
+There is ~4% performance drop for the context switching time in the
+worst-case.
+
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Link: https://lore.kernel.org/r/20210614191128.22735-1-lukasz.luba@arm.com
+Link: https://lkml.kernel.org/r/1623693582-187370-1-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/x86/events/core.c            | 28 +++++++++++++++++++++++++++-
+ arch/x86/events/perf_event.h      |  1 +
+ arch/x86/include/asm/perf_event.h |  1 +
+ arch/x86/mm/tlb.c                 | 10 ++++++++--
+ 4 files changed, 37 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 190ae8004a22..e807b743353d 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6620,8 +6620,11 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
- 	struct cpumask *pd_mask = perf_domain_span(pd);
- 	unsigned long cpu_cap = arch_scale_cpu_capacity(cpumask_first(pd_mask));
- 	unsigned long max_util = 0, sum_util = 0;
-+	unsigned long _cpu_cap = cpu_cap;
- 	int cpu;
+diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+index 8f71dd72ef95..1eb45139fcc6 100644
+--- a/arch/x86/events/core.c
++++ b/arch/x86/events/core.c
+@@ -1626,6 +1626,8 @@ static void x86_pmu_del(struct perf_event *event, int flags)
+ 	if (cpuc->txn_flags & PERF_PMU_TXN_ADD)
+ 		goto do_del;
  
-+	_cpu_cap -= arch_scale_thermal_pressure(cpumask_first(pd_mask));
++	__set_bit(event->hw.idx, cpuc->dirty);
 +
  	/*
- 	 * The capacity state of CPUs of the current rd can be driven by CPUs
- 	 * of another rd if they belong to the same pd. So, account for the
-@@ -6657,8 +6660,10 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
- 		 * is already enough to scale the EM reported power
- 		 * consumption at the (eventually clamped) cpu_capacity.
- 		 */
--		sum_util += effective_cpu_util(cpu, util_running, cpu_cap,
--					       ENERGY_UTIL, NULL);
-+		cpu_util = effective_cpu_util(cpu, util_running, cpu_cap,
-+					      ENERGY_UTIL, NULL);
+ 	 * Not a TXN, therefore cleanup properly.
+ 	 */
+@@ -2474,6 +2476,31 @@ static int x86_pmu_event_init(struct perf_event *event)
+ 	return err;
+ }
+ 
++void perf_clear_dirty_counters(void)
++{
++	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
++	int i;
 +
-+		sum_util += min(cpu_util, _cpu_cap);
++	 /* Don't need to clear the assigned counter. */
++	for (i = 0; i < cpuc->n_events; i++)
++		__clear_bit(cpuc->assign[i], cpuc->dirty);
++
++	if (bitmap_empty(cpuc->dirty, X86_PMC_IDX_MAX))
++		return;
++
++	for_each_set_bit(i, cpuc->dirty, X86_PMC_IDX_MAX) {
++		/* Metrics and fake events don't have corresponding HW counters. */
++		if (is_metric_idx(i) || (i == INTEL_PMC_IDX_FIXED_VLBR))
++			continue;
++		else if (i >= INTEL_PMC_IDX_FIXED)
++			wrmsrl(MSR_ARCH_PERFMON_FIXED_CTR0 + (i - INTEL_PMC_IDX_FIXED), 0);
++		else
++			wrmsrl(x86_pmu_event_addr(i), 0);
++	}
++
++	bitmap_zero(cpuc->dirty, X86_PMC_IDX_MAX);
++}
++
+ static void x86_pmu_event_mapped(struct perf_event *event, struct mm_struct *mm)
+ {
+ 	if (!(event->hw.flags & PERF_X86_EVENT_RDPMC_ALLOWED))
+@@ -2497,7 +2524,6 @@ static void x86_pmu_event_mapped(struct perf_event *event, struct mm_struct *mm)
  
- 		/*
- 		 * Performance domain frequency: utilization clamping
-@@ -6669,7 +6674,7 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
- 		 */
- 		cpu_util = effective_cpu_util(cpu, util_freq, cpu_cap,
- 					      FREQUENCY_UTIL, tsk);
--		max_util = max(max_util, cpu_util);
-+		max_util = max(max_util, min(cpu_util, _cpu_cap));
- 	}
+ static void x86_pmu_event_unmapped(struct perf_event *event, struct mm_struct *mm)
+ {
+-
+ 	if (!(event->hw.flags & PERF_X86_EVENT_RDPMC_ALLOWED))
+ 		return;
  
- 	return em_cpu_energy(pd->em_pd, max_util, sum_util);
+diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
+index ad87cb36f7c8..2bf1c7ea2758 100644
+--- a/arch/x86/events/perf_event.h
++++ b/arch/x86/events/perf_event.h
+@@ -229,6 +229,7 @@ struct cpu_hw_events {
+ 	 */
+ 	struct perf_event	*events[X86_PMC_IDX_MAX]; /* in counter order */
+ 	unsigned long		active_mask[BITS_TO_LONGS(X86_PMC_IDX_MAX)];
++	unsigned long		dirty[BITS_TO_LONGS(X86_PMC_IDX_MAX)];
+ 	int			enabled;
+ 
+ 	int			n_events; /* the # of events in the below arrays */
+diff --git a/arch/x86/include/asm/perf_event.h b/arch/x86/include/asm/perf_event.h
+index 544f41a179fb..8fc1b5003713 100644
+--- a/arch/x86/include/asm/perf_event.h
++++ b/arch/x86/include/asm/perf_event.h
+@@ -478,6 +478,7 @@ struct x86_pmu_lbr {
+ 
+ extern void perf_get_x86_pmu_capability(struct x86_pmu_capability *cap);
+ extern void perf_check_microcode(void);
++extern void perf_clear_dirty_counters(void);
+ extern int x86_perf_rdpmc_index(struct perf_event *event);
+ #else
+ static inline void perf_get_x86_pmu_capability(struct x86_pmu_capability *cap)
+diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+index 78804680e923..cfe6b1e85fa6 100644
+--- a/arch/x86/mm/tlb.c
++++ b/arch/x86/mm/tlb.c
+@@ -14,6 +14,7 @@
+ #include <asm/nospec-branch.h>
+ #include <asm/cache.h>
+ #include <asm/apic.h>
++#include <asm/perf_event.h>
+ 
+ #include "mm_internal.h"
+ 
+@@ -404,9 +405,14 @@ static inline void cr4_update_pce_mm(struct mm_struct *mm)
+ {
+ 	if (static_branch_unlikely(&rdpmc_always_available_key) ||
+ 	    (!static_branch_unlikely(&rdpmc_never_available_key) &&
+-	     atomic_read(&mm->context.perf_rdpmc_allowed)))
++	     atomic_read(&mm->context.perf_rdpmc_allowed))) {
++		/*
++		 * Clear the existing dirty counters to
++		 * prevent the leak for an RDPMC task.
++		 */
++		perf_clear_dirty_counters();
+ 		cr4_set_bits_irqsoff(X86_CR4_PCE);
+-	else
++	} else
+ 		cr4_clear_bits_irqsoff(X86_CR4_PCE);
+ }
+ 
 -- 
 2.30.2
 
