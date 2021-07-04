@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB143BB0C0
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BBBD3BB0CA
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:09:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231538AbhGDXJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:09:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
+        id S231684AbhGDXJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:09:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231594AbhGDXJA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:09:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A86CD61405;
-        Sun,  4 Jul 2021 23:06:21 +0000 (UTC)
+        id S231614AbhGDXJB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:09:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B5EC613FC;
+        Sun,  4 Jul 2021 23:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439982;
-        bh=ht5TsiapjXMHML+LcVLYQqsFvSYjeNKVivTIumc8ekE=;
+        s=k20201202; t=1625439983;
+        bh=IaLWchXqtwge6yNl+R9qPP2VlfBnURJKq1vPQED7chQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBQxGmdrKNUBSWsYEqrG2abO9mqniTfu0oCMwfl+qVvdxhhDKk0L/MdOTcZL9fTVW
-         XmWgL9fnTasEMHqbICUkHX8/EQ7IwPXw8Vp5MgTjNHIJckJYU5J+kfbgu4XaYqkfsx
-         t9wD1p6giz+RGVROCS7LvB/u9/gjUoOkYvBOV3/doGYH0IZDulZ7QCYs5c/qlijZm4
-         RIJigtZ3Hd4dN2T+IQyzJ6pq3EJD32RmECVCwQfbwqp9Q7ODKD/2So50ZLEudViONK
-         morV0UKE5VFuDycfeekN12rO4KNe+JRuzm3gadngNPcUf6yXdvJImjfaDP0EAmexSh
-         Sx2auzAuy4TTg==
+        b=Onf4y0Tc5fsacsAQuVlBoFqxSpHTM8VL5Z+EovaqmLVSwUQkYBH3qSELl93w+6QR4
+         oVnxU5mEY5EKuZi6Cxl57YMv6/d9L4zqB2nCsb//TUqCvejU8HpxCA3jzn4Zl6hVw3
+         4X7IZygkvnpYDqkSZ2FY0Qq150Li/DK2mfVp/uKOUwgnfo3UfV/uZcktL/lecqUf2J
+         vIerWK3jdCcmRIi9cI/ZohHH6z9GQd1JWpA1mTOCGMfysBEIyvyASY+1Q538rJtbye
+         oH+RJIyAQfLHmL3hP2NmEAxwjNRqs9pB0sDFMbL53+kQOBo0+V9GCurKtQVJUeLm93
+         40cCPOAca4ecQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 04/80] media: i2c: imx334: fix the pm runtime get logic
-Date:   Sun,  4 Jul 2021 19:05:00 -0400
-Message-Id: <20210704230616.1489200-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 05/80] media: marvel-ccic: fix some issues when getting pm_runtime
+Date:   Sun,  4 Jul 2021 19:05:01 -0400
+Message-Id: <20210704230616.1489200-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230616.1489200-1-sashal@kernel.org>
 References: <20210704230616.1489200-1-sashal@kernel.org>
@@ -46,56 +44,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 62c90446868b439929cb04395f04a709a64ae04b ]
+[ Upstream commit e7c617cab7a522fba5b20f9033ee98565b6f3546 ]
 
-The PM runtime get logic is currently broken, as it checks if
-ret is zero instead of checking if it is an error code,
-as reported by Dan Carpenter.
+Calling pm_runtime_get_sync() is bad, since even when it
+returns an error, pm_runtime_put*() should be called.
+So, use instead pm_runtime_resume_and_get().
 
-While here, use the pm_runtime_resume_and_get() as added by:
-commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-added pm_runtime_resume_and_get() in order to automatically handle
-dev->power.usage_count decrement on errors. As a bonus, such function
-always return zero on success.
+While here, ensure that the error condition will be checked
+during clock enable an media open() calls.
 
-It should also be noticed that a fail of pm_runtime_get_sync() would
-potentially result in a spurious runtime_suspend(), instead of
-using pm_runtime_put_noidle().
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx334.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/media/platform/marvell-ccic/mcam-core.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/imx334.c b/drivers/media/i2c/imx334.c
-index ad530f0d338a..02d22907c75c 100644
---- a/drivers/media/i2c/imx334.c
-+++ b/drivers/media/i2c/imx334.c
-@@ -717,9 +717,9 @@ static int imx334_set_stream(struct v4l2_subdev *sd, int enable)
+diff --git a/drivers/media/platform/marvell-ccic/mcam-core.c b/drivers/media/platform/marvell-ccic/mcam-core.c
+index 141bf5d97a04..ea87110d9073 100644
+--- a/drivers/media/platform/marvell-ccic/mcam-core.c
++++ b/drivers/media/platform/marvell-ccic/mcam-core.c
+@@ -918,6 +918,7 @@ static int mclk_enable(struct clk_hw *hw)
+ 	struct mcam_camera *cam = container_of(hw, struct mcam_camera, mclk_hw);
+ 	int mclk_src;
+ 	int mclk_div;
++	int ret;
+ 
+ 	/*
+ 	 * Clock the sensor appropriately.  Controller clock should
+@@ -931,7 +932,9 @@ static int mclk_enable(struct clk_hw *hw)
+ 		mclk_div = 2;
  	}
  
- 	if (enable) {
--		ret = pm_runtime_get_sync(imx334->dev);
--		if (ret)
--			goto error_power_off;
-+		ret = pm_runtime_resume_and_get(imx334->dev);
-+		if (ret < 0)
-+			goto error_unlock;
- 
- 		ret = imx334_start_streaming(imx334);
+-	pm_runtime_get_sync(cam->dev);
++	ret = pm_runtime_resume_and_get(cam->dev);
++	if (ret < 0)
++		return ret;
+ 	clk_enable(cam->clk[0]);
+ 	mcam_reg_write(cam, REG_CLKCTRL, (mclk_src << 29) | mclk_div);
+ 	mcam_ctlr_power_up(cam);
+@@ -1611,7 +1614,9 @@ static int mcam_v4l_open(struct file *filp)
+ 		ret = sensor_call(cam, core, s_power, 1);
  		if (ret)
-@@ -737,6 +737,7 @@ static int imx334_set_stream(struct v4l2_subdev *sd, int enable)
- 
- error_power_off:
- 	pm_runtime_put(imx334->dev);
-+error_unlock:
- 	mutex_unlock(&imx334->mutex);
- 
- 	return ret;
+ 			goto out;
+-		pm_runtime_get_sync(cam->dev);
++		ret = pm_runtime_resume_and_get(cam->dev);
++		if (ret < 0)
++			goto out;
+ 		__mcam_cam_reset(cam);
+ 		mcam_set_config_needed(cam, 1);
+ 	}
 -- 
 2.30.2
 
