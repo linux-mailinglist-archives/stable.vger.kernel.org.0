@@ -2,138 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27F263BAAD5
-	for <lists+stable@lfdr.de>; Sun,  4 Jul 2021 03:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D490F3BAD84
+	for <lists+stable@lfdr.de>; Sun,  4 Jul 2021 16:55:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229919AbhGDBhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Jul 2021 21:37:47 -0400
-Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:14463 "EHLO
-        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229596AbhGDBhq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Jul 2021 21:37:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1625362512; x=1656898512;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=d12ngtaNL85OjZKjEac9shxBSZoy7AyPEUt7niWW5MI=;
-  b=FKva5AIhuWcYtn4ekyiB+Chv6Os6HpJsx+vqjGnGjcC2Y3dyC4ki9S/S
-   vWrXcNcg1r737SIZO31IurrNVlGjXEBkQG5hnkvIBPTLH4UjIfgfDKKKv
-   AfloShb0EMDH2NJ356CUrWlf3iPe/oSGy8UK9i2awh8/IBV9uNf6pj+sn
-   s=;
-X-IronPort-AV: E=Sophos;i="5.83,323,1616457600"; 
-   d="scan'208";a="118498715"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1e-303d0b0e.us-east-1.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-4101.iad4.amazon.com with ESMTP; 04 Jul 2021 01:35:11 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan2.iad.amazon.com [10.40.159.162])
-        by email-inbound-relay-1e-303d0b0e.us-east-1.amazon.com (Postfix) with ESMTPS id 8D303A2555;
-        Sun,  4 Jul 2021 01:35:10 +0000 (UTC)
-Received: from EX13D19UWC004.ant.amazon.com (10.43.162.56) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.18; Sun, 4 Jul 2021 01:35:09 +0000
-Received: from EX13D19UWC001.ant.amazon.com (10.43.162.64) by
- EX13D19UWC004.ant.amazon.com (10.43.162.56) with Microsoft SMTP Server (TLS)
- id 15.0.1497.18; Sun, 4 Jul 2021 01:35:09 +0000
-Received: from EX13D19UWC001.ant.amazon.com ([10.43.162.64]) by
- EX13D19UWC001.ant.amazon.com ([10.43.162.64]) with mapi id 15.00.1497.018;
- Sun, 4 Jul 2021 01:35:09 +0000
-From:   "Erdogan, Tahsin" <trdgn@amazon.com>
-To:     Theodore Ts'o <tytso@mit.edu>
-CC:     Jan Kara <jack@suse.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH 4.19] ext4: eliminate bogus error in
- ext4_data_block_valid_rcu()
-Thread-Topic: [PATCH 4.19] ext4: eliminate bogus error in
- ext4_data_block_valid_rcu()
-Thread-Index: AQHXcHTT8UN1zsnza0mnnGKkuTe2tA==
-Date:   Sun, 4 Jul 2021 01:35:09 +0000
-Message-ID: <1625362509314.54473@amazon.com>
-References: <20210703230555.4093-1-trdgn@amazon.com>,<YOEHmjjY9facxtIY@mit.edu>
-In-Reply-To: <YOEHmjjY9facxtIY@mit.edu>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.43.160.66]
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S229557AbhGDO6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 10:58:10 -0400
+Received: from mout.gmx.net ([212.227.17.21]:38079 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229547AbhGDO6J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 10:58:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1625410532;
+        bh=sOGXehM1tLZ6085q2bAyEipEHuIDLW99g0jEdsG2oko=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=KByv1+fLFfkFlb/oT6T5CHrnN+tCaib55Oip7pjBiS394gK9fxKEblAvsaNAo6XrS
+         VR7IDbpBTjTEYs49QSRVGmYmKMFMFVHcWRjbe7/6PkAS6kAKMk1gQGW+AG6p5wzQ9D
+         K+OTa5UX39he49OKgdXXmkWFukwporJYORJItJkY=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from localhost.localdomain ([83.52.228.41]) by mail.gmx.net
+ (mrgmx104 [212.227.17.174]) with ESMTPSA (Nemesis) id
+ 1MA7GM-1lu1ub38bi-00Bg2d; Sun, 04 Jul 2021 16:55:31 +0200
+From:   John Wood <john.wood@gmx.com>
+To:     Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+Cc:     John Wood <john.wood@gmx.com>, stable@vger.kernel.org,
+        linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] bluetooth/virtio_bt: Fix dereference null return value
+Date:   Sun,  4 Jul 2021 16:55:04 +0200
+Message-Id: <20210704145504.24756-1-john.wood@gmx.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:+Bb+LJ6hEp5FkU0Ty6vgHXhvNSVHjKFxNZ32v7cj48ZledK+47z
+ ho59QPdZI4SqrO/qg8OiC4qCNeY6xQcGffORnIcTsaoXcwvNcIFTFJiDDZUOSV1Vkcan5x4
+ gZ69pgPe/cTDcozlflyNgNz5VKbI4xcGAUJ0ffD/yzsXMKHcZN6ryVTRVUpBTZWW3+ThsTc
+ tCEqv9VwwU/iArj71yrFg==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:jfEjBhVmTbc=:XXFC+AsCMXRZqok/1arJ8E
+ DH6R4NbF35KNeTSY7cjwA8USqJ2bltknRJzJKT95OKrqqq1EY67GjK3+LUlXw4wKVsx7g1UhK
+ VBGldQvs9vkEVftIvAO1MSXbIjyFU8+bqfA5t1uMnGqqiAubK/f2UyFb6Dnkmys1nQXT/81S5
+ uXb1TdPmyitBN22LhQjDMFD7WwuF7h0Ev1qCpqV7hxS03K4MvgD1ldJA/PvjhbQkK781xMezt
+ fF4IGlUt2MKSYlejSwnf9GDnMNVhsXk2n6F+g5ZBVyBJYm6ojQ11QhWNi80/yRGhmTcHyu7gR
+ 3tTN7QkJK0IbvpFFeVBmzeSznkSSCcgnsdeuhDiIrtQP/ZXJR0PgmcD8AbSOqcHte0i0/NxHT
+ YiW5nGpyJr0uEc9W3kdxs+QemKeCncWj9F70AkL657VBYZcvAlaMlAKwybsxE1a1qLg/fz1L1
+ O0Wl8QzdwCLFa56AA8mSAzdIxdSoImWO3Za6QjPnPIL3Qv0zbZi9njQ8T3JNCiQ9tSbboFeWD
+ jvx6D+MOZYvmlx2C0Y6CXk+wU+9WmaQAtDKfckkf4BBYz4cZM5Lkdx4ExE0I8KpLJBKYeHOlR
+ Rc9OCbTXyE2Fcxh1zvyKWeOzS3RGerwXQ0l3kTEvE0TzeVMavc4Ipb2gIFo6q8xd8gDCJp9OQ
+ 77sHhrO1iaIx9K6bKfLoedJK7bsUvgQSiu8ZUZkRpAeIC57lFU0tCIr0GM98utB6r1maPAvBh
+ j+DHJQzDKMZ+91gnFNQ/Xal64XGeDxpOTQLC4oRA/wOos8jOVNgE6NGi21AedC+seiAhzA7SQ
+ HnN9f1OCtldrzghREwmBf4ngGbYfDnoimYsgPWKbgBWOQp+KVMLJhP4ffBeQ+aQBlnusHB5dR
+ bMsjP16UtqKz7K4hI17A0QRIA8xvtjB2H1SoynKJhoo3UW1vt+IN9TdoTADwJ9eyP+qTdk9i+
+ In/G0g4cGr3qrKA6Qyuz5crNaM0Ao3aJ+v7DeqMZ0kletTkFftEzSqBg1jVEN4OUlajikucD4
+ TRN1u4jwtuHEWyR670Sl6YfJUIG5OUQF93tECcYR4VG/uskgD4aamh4elvVNmq1C3n4EDsEeN
+ fLA9ZX7+2YwTibzavE12RmRQgBcldDtQzC/
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> If I understand the commit description, this patch is only intended=0A=
-> for the 4.19 stable kernel.  If this is the case, I'd suggest using=0A=
-> the Subject prefix [PATCH 4.19] for future patches.  This is more=0A=
-=0A=
-Hi Ted, yes this is only intended for 4.19. Thanks for the tip on subject l=
-ine,=0A=
-I will keep that in mind in the future.=0A=
-=0A=
-> if you could indicate whether a similar fix is needed for 4.14, and=0A=
-> other older LTS kernels, or whether the only stable backport which had=0A=
-> this bug was 4.19.=0A=
-=0A=
-I have checked 4.4, 4.9, 4.14, 5.8. They all look fine. I believe this prob=
-lem=0A=
-only affects 4.19.=0A=
-=0A=
-> P.S.  Great to see you've landed at Amazon!  It's been a while; if I=0A=
-> have a chance to make it out to Seattle, one of these days, it would=0A=
-> be great to catch up.=0A=
-=0A=
-Absolutely, drop me a note next time you are around Seattle.=0A=
-=0A=
-thanks=0A=
-tahsin=0A=
-=0A=
-________________________________________=0A=
-From: Theodore Ts'o <tytso@mit.edu>=0A=
-Sent: Saturday, July 3, 2021 5:58 PM=0A=
-To: Erdogan, Tahsin=0A=
-Cc: Jan Kara; Greg Kroah-Hartman; stable@vger.kernel.org; Andreas Dilger; l=
-inux-ext4@vger.kernel.org; linux-kernel@vger.kernel.org=0A=
-Subject: RE: [EXTERNAL] [PATCH] ext4: eliminate bogus error in ext4_data_bl=
-ock_valid_rcu()=0A=
-=0A=
-CAUTION: This email originated from outside of the organization. Do not cli=
-ck links or open attachments unless you can confirm the sender and know the=
- content is safe.=0A=
-=0A=
-=0A=
-=0A=
-On Sat, Jul 03, 2021 at 04:05:55PM -0700, Tahsin Erdogan wrote:=0A=
-> Mainline commit ce9f24cccdc0 ("ext4: check journal inode extents more car=
-efully")=0A=
-> enabled validity checks for journal inode's data blocks. This change got=
-=0A=
-> ported to stable branches, but the backport for 4.19 has a bug where it w=
-ill=0A=
-> flag an error even when system block entry's inode number matches journal=
-=0A=
-> inode.=0A=
-=0A=
-Tahsin,=0A=
-=0A=
-If I understand the commit description, this patch is only intended=0A=
-for the 4.19 stable kernel.  If this is the case, I'd suggest using=0A=
-the Subject prefix [PATCH 4.19] for future patches.  This is more=0A=
-likely to be clearer (via a quick glance at the Subject line) for=0A=
-subsystem maintainers, as well as for stable kernel maintainers, that=0A=
-this is meant for the stable kernel.  It would perhaps also be useful=0A=
-if you could indicate whether a similar fix is needed for 4.14, and=0A=
-other older LTS kernels, or whether the only stable backport which had=0A=
-this bug was 4.19.=0A=
-=0A=
-Cheers,=0A=
-=0A=
-                                        - Ted=0A=
-=0A=
-P.S.  Great to see you've landed at Amazon!  It's been a while; if I=0A=
-have a chance to make it out to Seattle, one of these days, it would=0A=
-be great to catch up.=0A=
+The alloc_skb function returns NULL on error. So, test this case and
+avoid a NULL dereference (skb->data).
+
+Addresses-Coverity-ID: 1484718 ("Dereference null return value")
+Fixes: afd2daa26c7ab ("Bluetooth: Add support for virtio transport driver"=
+)
+Signed-off-by: John Wood <john.wood@gmx.com>
+=2D--
+ drivers/bluetooth/virtio_bt.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/bluetooth/virtio_bt.c b/drivers/bluetooth/virtio_bt.c
+index c804db7e90f8..5f82574236c0 100644
+=2D-- a/drivers/bluetooth/virtio_bt.c
++++ b/drivers/bluetooth/virtio_bt.c
+@@ -34,6 +34,8 @@ static int virtbt_add_inbuf(struct virtio_bluetooth *vbt=
+)
+ 	int err;
+
+ 	skb =3D alloc_skb(1000, GFP_KERNEL);
++	if (!skb)
++		return -ENOMEM;
+ 	sg_init_one(sg, skb->data, 1000);
+
+ 	err =3D virtqueue_add_inbuf(vq, sg, 1, skb, GFP_KERNEL);
+=2D-
+2.25.1
+
