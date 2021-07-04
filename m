@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D42B93BAFFA
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:07:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96CCB3BAFFC
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230108AbhGDXHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:07:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
+        id S230117AbhGDXHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:07:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230085AbhGDXHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:07:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18ADC613D2;
-        Sun,  4 Jul 2021 23:04:42 +0000 (UTC)
+        id S230086AbhGDXHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:07:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 345E3613F7;
+        Sun,  4 Jul 2021 23:04:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439882;
-        bh=bNjkqoyhJ5ZdEXcY3Uw5trWV/WihKOhEWTJBt87HekM=;
+        s=k20201202; t=1625439883;
+        bh=lhb3/D/4Mn7jqL1ZwtUoDo2N41CiC20+NvwYCX7ZD9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3h8Evy2Lflu45S4YpRJxGK51I7SRjBTwF5iesUSMQKAYhemi99S8KUMWcRyVqYki
-         dtCJFxX9ef+pyfLqdnOGQsYViEFfYjJRfmPnkuZ8nqxOPKE1k6X87lC3h6QuvKQJBT
-         SDWaClNiWKrHPm0jbdhdMkzLgvK0sTx7zsrrlFg6/hsuXHfPYOzRj2CRNfWhgC3e64
-         PkT2Mxm7EX4ywQLV8LUeWopQxYP7qhvTBfYP5r+VUnRi7LAegZbfWzFXE0BH0nALEx
-         Vcxt9DAJWnOe0Krw4FKOTK/YdiU73VU3bNTJ3AfHR1XtWcap4Ag8syV/NoYcJ3HEQo
-         XN9RRKqb4kDJg==
+        b=REC3FKjj5FB20m2/2etwxZ1bYDPBDD72kfZz2oYkWibKFOUWtLsuL+YcwR+SVq5xQ
+         hOX/ObF2PYxAKiS30b9jVqy9CHLrocuEopOEwItglaup4lnJMUHg1s/xSf6DzIqJ3r
+         u1cxOJ+4kr07sfdBMD/dwIiym8gGUSIhCxyGwGQh3kw12Og3DkxSYL2kt3OEFE7klB
+         WkEDmD17VevnHobfPzQXGqYbs0/Yb3USh3E+WpNO9iZMd+0cejDx+j1ECSAkZ4+ye6
+         R8KVskH8Zvoq4eVlLvPAj2D52k2Ccx2w43FEgibGVm2eQrRJdwIRd93qw0VGf00V92
+         O44r5CBOdgd8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jay Fang <f.fangjian@huawei.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 16/85] spi: spi-loopback-test: Fix 'tx_buf' might be 'rx_buf'
-Date:   Sun,  4 Jul 2021 19:03:11 -0400
-Message-Id: <20210704230420.1488358-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 17/85] spi: spi-topcliff-pch: Fix potential double free in pch_spi_process_messages()
+Date:   Sun,  4 Jul 2021 19:03:12 -0400
+Message-Id: <20210704230420.1488358-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230420.1488358-1-sashal@kernel.org>
 References: <20210704230420.1488358-1-sashal@kernel.org>
@@ -43,31 +43,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jay Fang <f.fangjian@huawei.com>
 
-[ Upstream commit 9e37a3ab0627011fb63875e9a93094b6fc8ddf48 ]
+[ Upstream commit 026a1dc1af52742c5897e64a3431445371a71871 ]
 
-In function 'spi_test_run_iter': Value 'tx_buf' might be 'rx_buf'.
+pch_spi_set_tx() frees data->pkt_tx_buff on failure of kzalloc() for
+data->pkt_rx_buff, but its caller, pch_spi_process_messages(), will
+free data->pkt_tx_buff again. Set data->pkt_tx_buff to NULL after
+kfree() to avoid double free.
 
 Signed-off-by: Jay Fang <f.fangjian@huawei.com>
-Link: https://lore.kernel.org/r/1620629903-15493-5-git-send-email-f.fangjian@huawei.com
+Link: https://lore.kernel.org/r/1620284888-65215-1-git-send-email-f.fangjian@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-loopback-test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-topcliff-pch.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
-index f1cf2232f0b5..4d4f77a186a9 100644
---- a/drivers/spi/spi-loopback-test.c
-+++ b/drivers/spi/spi-loopback-test.c
-@@ -875,7 +875,7 @@ static int spi_test_run_iter(struct spi_device *spi,
- 		test.transfers[i].len = len;
- 		if (test.transfers[i].tx_buf)
- 			test.transfers[i].tx_buf += tx_off;
--		if (test.transfers[i].tx_buf)
-+		if (test.transfers[i].rx_buf)
- 			test.transfers[i].rx_buf += rx_off;
+diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
+index b8870784fc6e..8c4615b76339 100644
+--- a/drivers/spi/spi-topcliff-pch.c
++++ b/drivers/spi/spi-topcliff-pch.c
+@@ -580,8 +580,10 @@ static void pch_spi_set_tx(struct pch_spi_data *data, int *bpw)
+ 	data->pkt_tx_buff = kzalloc(size, GFP_KERNEL);
+ 	if (data->pkt_tx_buff != NULL) {
+ 		data->pkt_rx_buff = kzalloc(size, GFP_KERNEL);
+-		if (!data->pkt_rx_buff)
++		if (!data->pkt_rx_buff) {
+ 			kfree(data->pkt_tx_buff);
++			data->pkt_tx_buff = NULL;
++		}
  	}
  
+ 	if (!data->pkt_rx_buff) {
 -- 
 2.30.2
 
