@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BE463BB060
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:08:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A3A3BB062
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230398AbhGDXIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:08:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46804 "EHLO mail.kernel.org"
+        id S231254AbhGDXIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:08:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230406AbhGDXIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:08:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F33D611ED;
-        Sun,  4 Jul 2021 23:05:27 +0000 (UTC)
+        id S230514AbhGDXIG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:08:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2BEC61958;
+        Sun,  4 Jul 2021 23:05:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439928;
-        bh=Dk48NbV8rLWqDR+JaOsvZjWWOogARq/S0oZtHIEKpAU=;
+        s=k20201202; t=1625439929;
+        bh=lJ3hh8R41P8DiijbBEOO6KYz41OVlnc6F8l5msauMoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zl5aK3wCO1rrxXTNmJc/c134jCqBGo3Iu6JOEf4E5ca5f0XthO2TsmtzT9KnOxylV
-         7ZFXQ7YpoQVnzd3W2DNYFSDmHfi7FPTS90YTPRU08XxSqBrUXsqA4J1ayT3tsl1Bk0
-         f5EL11NotXjpwUGIdzW5eKR/olicQ0k5mJtB6CFv1ROwNPwqFIqWWtn+97Dn32cGca
-         5sVoe1UEdPBmIovQIyNuP0WfBKU2hdtUVtaMABRpSOyQ3khkRXAdgD1beWKd31mYft
-         ZdCjrxPbSu0JqNk4cHeZLMAixEXBWTBnUrVYAqy0Xc1dKvAWVATsXGV3f0hNN0g/fA
-         RhMDHLNf10Weg==
+        b=bxUxEWfHaNARcDRTpbbju8O7cUDJRpg8+zzWq3KLLhDoMwQcrTd7CLJgV+7HIu4io
+         aUKQWIVC7FX5qZPFgDxwy3+CxqSXtDj7/cnSYNe+4AKJb3oX/f2rrPpYG4MdEQpuQB
+         vE8X9cF29iyQaTPa30AHC4v7PHKTkpEOYKQIeeAULqRSZjZCUZc9PKRdcFOaXtB8vu
+         jlrus60jcdpv0B9KD79Llmbb/ZYh/iLPfXzcVKqh7JhBJeyiyvHWRPJxGcsdA5T5wy
+         lQ2dbvwibXqNxl/Yi+bu5GltZSSdcOWSNgrLt7LhtalHnlXsNPCOSM4v49Ck+mlhQt
+         f3QDkQo2RbjZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Peter Collingbourne <pcc@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 49/85] Makefile: fix GDB warning with CONFIG_RELR
-Date:   Sun,  4 Jul 2021 19:03:44 -0400
-Message-Id: <20210704230420.1488358-49-sashal@kernel.org>
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzbot+e1de8986786b3722050e@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 50/85] media: dvd_usb: memory leak in cinergyt2_fe_attach
+Date:   Sun,  4 Jul 2021 19:03:45 -0400
+Message-Id: <20210704230420.1488358-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230420.1488358-1-sashal@kernel.org>
 References: <20210704230420.1488358-1-sashal@kernel.org>
@@ -44,63 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 27f2a4db76e8d8a8b601fc1c6a7a17f88bd907ab ]
+[ Upstream commit 9ad1efee086e0e913914fa2b2173efb830bad68c ]
 
-GDB produces the following warning when debugging kernels built with
-CONFIG_RELR:
+When the driver fails to talk with the hardware with dvb_usb_generic_rw,
+it will return an error to dvb_usb_adapter_frontend_init. However, the
+driver forgets to free the resource (e.g., struct cinergyt2_fe_state),
+which leads to a memory leak.
 
-BFD: /android0/linux-next/vmlinux: unknown type [0x13] section `.relr.dyn'
+Fix this by freeing struct cinergyt2_fe_state when dvb_usb_generic_rw
+fails in cinergyt2_frontend_attach.
 
-when loading a kernel built with CONFIG_RELR into GDB. It can also
-prevent debugging symbols using such relocations.
+backtrace:
+  [<0000000056e17b1a>] kmalloc include/linux/slab.h:552 [inline]
+  [<0000000056e17b1a>] kzalloc include/linux/slab.h:682 [inline]
+  [<0000000056e17b1a>] cinergyt2_fe_attach+0x21/0x80 drivers/media/usb/dvb-usb/cinergyT2-fe.c:271
+  [<00000000ae0b1711>] cinergyt2_frontend_attach+0x21/0x70 drivers/media/usb/dvb-usb/cinergyT2-core.c:74
+  [<00000000d0254861>] dvb_usb_adapter_frontend_init+0x11b/0x1b0 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:290
+  [<0000000002e08ac6>] dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:84 [inline]
+  [<0000000002e08ac6>] dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:173 [inline]
+  [<0000000002e08ac6>] dvb_usb_device_init.cold+0x4d0/0x6ae drivers/media/usb/dvb-usb/dvb-usb-init.c:287
 
-Peter sugguests:
-  [That flag] means that lld will use dynamic tags and section type
-  numbers in the OS-specific range rather than the generic range. The
-  kernel itself doesn't care about these numbers; it determines the
-  location of the RELR section using symbols defined by a linker script.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1057
-Suggested-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20210522012626.2811297-1-ndesaulniers@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: syzbot+e1de8986786b3722050e@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile                      | 2 +-
- scripts/tools-support-relr.sh | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/usb/dvb-usb/cinergyT2-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Makefile b/Makefile
-index 0565caea0362..88888fff4c62 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1039,7 +1039,7 @@ LDFLAGS_vmlinux	+= $(call ld-option, -X,)
- endif
+diff --git a/drivers/media/usb/dvb-usb/cinergyT2-core.c b/drivers/media/usb/dvb-usb/cinergyT2-core.c
+index 969a7ec71dff..4116ba5c45fc 100644
+--- a/drivers/media/usb/dvb-usb/cinergyT2-core.c
++++ b/drivers/media/usb/dvb-usb/cinergyT2-core.c
+@@ -78,6 +78,8 @@ static int cinergyt2_frontend_attach(struct dvb_usb_adapter *adap)
  
- ifeq ($(CONFIG_RELR),y)
--LDFLAGS_vmlinux	+= --pack-dyn-relocs=relr
-+LDFLAGS_vmlinux	+= --pack-dyn-relocs=relr --use-android-relr-tags
- endif
- 
- # We never want expected sections to be placed heuristically by the
-diff --git a/scripts/tools-support-relr.sh b/scripts/tools-support-relr.sh
-index 45e8aa360b45..cb55878bd5b8 100755
---- a/scripts/tools-support-relr.sh
-+++ b/scripts/tools-support-relr.sh
-@@ -7,7 +7,8 @@ trap "rm -f $tmp_file.o $tmp_file $tmp_file.bin" EXIT
- cat << "END" | $CC -c -x c - -o $tmp_file.o >/dev/null 2>&1
- void *p = &p;
- END
--$LD $tmp_file.o -shared -Bsymbolic --pack-dyn-relocs=relr -o $tmp_file
-+$LD $tmp_file.o -shared -Bsymbolic --pack-dyn-relocs=relr \
-+  --use-android-relr-tags -o $tmp_file
- 
- # Despite printing an error message, GNU nm still exits with exit code 0 if it
- # sees a relr section. So we need to check that nothing is printed to stderr.
+ 	ret = dvb_usb_generic_rw(d, st->data, 1, st->data, 3, 0);
+ 	if (ret < 0) {
++		if (adap->fe_adap[0].fe)
++			adap->fe_adap[0].fe->ops.release(adap->fe_adap[0].fe);
+ 		deb_rc("cinergyt2_power_ctrl() Failed to retrieve sleep state info\n");
+ 	}
+ 	mutex_unlock(&d->data_mutex);
 -- 
 2.30.2
 
