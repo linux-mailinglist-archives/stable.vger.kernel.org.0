@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3864F3BB2D9
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE92C3BB259
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234268AbhGDXQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:16:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50862 "EHLO mail.kernel.org"
+        id S231757AbhGDXPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:15:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232681AbhGDXNQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:13:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5F256196A;
-        Sun,  4 Jul 2021 23:09:07 +0000 (UTC)
+        id S229956AbhGDXNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:13:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DE1461973;
+        Sun,  4 Jul 2021 23:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440148;
-        bh=svsv6M47GusGxdoHHlZTnG/iyReb7Lr39eIxDeEHyp8=;
+        s=k20201202; t=1625440150;
+        bh=FWdpgeLZjTV3yUDS9DmJf5529C3/nxBDlPw9YGo3gao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgslcqF+5yt8m8DFjeOzpLvLL8HUITx98FtEjnlmUzBaoT5+IERoXgND+t+wWkIzj
-         EHWDHBwsTsnHDB4sj4GygZhRo/+oePfmQ5DGMTnHGGDrT8coHWbiN1sayFReJHxMzi
-         K2xaxanNU4HKTWb/rXbodAU4YCI1B7Xl60tPem+cEhVzDqYQCr3vOdVk7g/FvQBsla
-         FUXXisLeM74Sq8d7cIAL6vu5fEIqYuMCIuFPjmDSIVbtt2/KDoRH1GNlu5muomuxFM
-         Ao5K8ALEFIx8EJWkgrWkWLjVq0lSk5kcYBjRuQ9ZDtA03I4zJXphgUzxOpJz8kguny
-         y9S1hFcBFauOw==
+        b=W7zNWvIxumvZ08vQaMrHxATGEh0ww9QpXfzs3wuYGJlJfFTHDmwS3y4LHOAKCX93V
+         CmeEHkjVmdPywBDQe96dOdobWLQp0cnaQYwMSssVvVCaxIITuBAlcyAcEzO8rFKCvA
+         kgp2V6aJ7N8q+QTPFK7+a8VHhvXeh3eYYst5gg+UAzDi1pcWh/VY+e3Y27MouWpLTu
+         OdprazkyvO7Xn4C5DuIApBFoVw4qO3zy3/9QY1M4u8DyFe0wVQ/7gOX8XywEJ8tU9k
+         7n08StqAITnQQwrGm2sjsuhLj+aTSsVTVxlU8RCLr6lH1kph71ytBzdBPeGsFIHZ78
+         e5EqSwyBmOkrw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     zpershuai <zpershuai@gmail.com>,
@@ -31,9 +31,9 @@ Cc:     zpershuai <zpershuai@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 48/70] spi: meson-spicc: fix a wrong goto jump for avoiding memory leak.
-Date:   Sun,  4 Jul 2021 19:07:41 -0400
-Message-Id: <20210704230804.1490078-48-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 49/70] spi: meson-spicc: fix memory leak in meson_spicc_probe
+Date:   Sun,  4 Jul 2021 19:07:42 -0400
+Message-Id: <20210704230804.1490078-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230804.1490078-1-sashal@kernel.org>
 References: <20210704230804.1490078-1-sashal@kernel.org>
@@ -47,46 +47,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: zpershuai <zpershuai@gmail.com>
 
-[ Upstream commit 95730d5eb73170a6d225a9998c478be273598634 ]
+[ Upstream commit b2d501c13470409ee7613855b17e5e5ec4111e1c ]
 
-In meson_spifc_probe function, when enable the device pclk clock is
-error, it should use clk_disable_unprepare to release the core clock.
+when meson_spicc_clk_init returns failed, it should goto the
+out_clk label.
 
 Signed-off-by: zpershuai <zpershuai@gmail.com>
 Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/1623562172-22056-1-git-send-email-zpershuai@gmail.com
+Link: https://lore.kernel.org/r/1623562156-21995-1-git-send-email-zpershuai@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-meson-spicc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/spi/spi-meson-spicc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/spi/spi-meson-spicc.c b/drivers/spi/spi-meson-spicc.c
-index ecba6b4a5d85..51aef2c6e966 100644
+index 51aef2c6e966..b2c4621db34d 100644
 --- a/drivers/spi/spi-meson-spicc.c
 +++ b/drivers/spi/spi-meson-spicc.c
-@@ -725,7 +725,7 @@ static int meson_spicc_probe(struct platform_device *pdev)
- 	ret = clk_prepare_enable(spicc->pclk);
+@@ -752,7 +752,7 @@ static int meson_spicc_probe(struct platform_device *pdev)
+ 	ret = meson_spicc_clk_init(spicc);
  	if (ret) {
- 		dev_err(&pdev->dev, "pclk clock enable failed\n");
+ 		dev_err(&pdev->dev, "clock registration failed\n");
 -		goto out_master;
-+		goto out_core_clk;
++		goto out_clk;
  	}
  
- 	device_reset_optional(&pdev->dev);
-@@ -764,9 +764,11 @@ static int meson_spicc_probe(struct platform_device *pdev)
- 	return 0;
- 
- out_clk:
--	clk_disable_unprepare(spicc->core);
- 	clk_disable_unprepare(spicc->pclk);
- 
-+out_core_clk:
-+	clk_disable_unprepare(spicc->core);
-+
- out_master:
- 	spi_master_put(master);
- 
+ 	ret = devm_spi_register_master(&pdev->dev, master);
 -- 
 2.30.2
 
