@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 135273BB3DC
+	by mail.lfdr.de (Postfix) with ESMTP id DD3373BB3DE
 	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232034AbhGDXUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49476 "EHLO mail.kernel.org"
+        id S231941AbhGDXUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:20:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232540AbhGDXNQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232672AbhGDXNQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:13:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EEDC6195F;
-        Sun,  4 Jul 2021 23:09:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B8A361968;
+        Sun,  4 Jul 2021 23:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440144;
-        bh=lJ3hh8R41P8DiijbBEOO6KYz41OVlnc6F8l5msauMoA=;
+        s=k20201202; t=1625440145;
+        bh=+0RmVVSDzLNt2nkptVlfGz2MqVzeDxn8hiCZHkPC86c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVLGVzv4oA2JqcOdiBVHArEjeEV6hqwtiINscPgSuap3f6MyVZ5EwISWCOefS0KCO
-         z1f5yGVLJ3jgbQxDIHW36aII8UK3Hg8bsC3qMWKFHahW56ShFaB3ga/ELbDFgcKGMQ
-         k7mxP2pGhc7wrbgigNlgDDNHI5SviUPb0tyc0XBlvY1IAkfFjR3tvPDk+1CchcYJzW
-         gMEDRUjyi8LcfAsI+jRESiXjmNj0JNh2xkHkfbaub012uIjqDWexiLdVBneHN532Wi
-         CTwQoHF9GINchy4605LQW3J322WfS+KwEJG3YRS+K03luEkqVCGYq/78j9DD0eUNSH
-         P+Bp3B5rTiQVg==
+        b=Y+Vzg+pxbYyAnHc/hPVd57UFA02LmWukZjxANQIC9lYZIdmXczOrf3+fPbnE6J8UA
+         vhuqE20btL2uVszRALtAkOwfgzmXt4DS+TJePHEAwciLKwBW8CW6TZeX+cAjlhZXC8
+         Jp9N6IkS2Tcsb/AULLN3AphUIDBxGdzkHq6d72DqSLDRMZcmoe0YOcCtMd27wCZJAK
+         76tLrqv+gBIoXqpAXuUxP7yAeyZZRxA8A38DBTrGAGwHdHynnm9bR6Bk05oyaRvfEo
+         PYshyydWjmu8+oXcnCPUc8FimMGjvksHkbFXiy1wrNlh8TEn5AQrXDTkhDQwIbKomL
+         2yURN0h0qfPKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzbot+e1de8986786b3722050e@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 44/70] media: dvd_usb: memory leak in cinergyt2_fe_attach
-Date:   Sun,  4 Jul 2021 19:07:37 -0400
-Message-Id: <20210704230804.1490078-44-sashal@kernel.org>
+Cc:     Tong Zhang <ztong0001@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 45/70] memstick: rtsx_usb_ms: fix UAF
+Date:   Sun,  4 Jul 2021 19:07:38 -0400
+Message-Id: <20210704230804.1490078-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230804.1490078-1-sashal@kernel.org>
 References: <20210704230804.1490078-1-sashal@kernel.org>
@@ -44,50 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 9ad1efee086e0e913914fa2b2173efb830bad68c ]
+[ Upstream commit 42933c8aa14be1caa9eda41f65cde8a3a95d3e39 ]
 
-When the driver fails to talk with the hardware with dvb_usb_generic_rw,
-it will return an error to dvb_usb_adapter_frontend_init. However, the
-driver forgets to free the resource (e.g., struct cinergyt2_fe_state),
-which leads to a memory leak.
+This patch fixes the following issues:
+1. memstick_free_host() will free the host, so the use of ms_dev(host) after
+it will be a problem. To fix this, move memstick_free_host() after when we
+are done with ms_dev(host).
+2. In rtsx_usb_ms_drv_remove(), pm need to be disabled before we remove
+and free host otherwise memstick_check will be called and UAF will
+happen.
 
-Fix this by freeing struct cinergyt2_fe_state when dvb_usb_generic_rw
-fails in cinergyt2_frontend_attach.
+[   11.351173] BUG: KASAN: use-after-free in rtsx_usb_ms_drv_remove+0x94/0x140 [rtsx_usb_ms]
+[   11.357077]  rtsx_usb_ms_drv_remove+0x94/0x140 [rtsx_usb_ms]
+[   11.357376]  platform_remove+0x2a/0x50
+[   11.367531] Freed by task 298:
+[   11.368537]  kfree+0xa4/0x2a0
+[   11.368711]  device_release+0x51/0xe0
+[   11.368905]  kobject_put+0xa2/0x120
+[   11.369090]  rtsx_usb_ms_drv_remove+0x8c/0x140 [rtsx_usb_ms]
+[   11.369386]  platform_remove+0x2a/0x50
 
-backtrace:
-  [<0000000056e17b1a>] kmalloc include/linux/slab.h:552 [inline]
-  [<0000000056e17b1a>] kzalloc include/linux/slab.h:682 [inline]
-  [<0000000056e17b1a>] cinergyt2_fe_attach+0x21/0x80 drivers/media/usb/dvb-usb/cinergyT2-fe.c:271
-  [<00000000ae0b1711>] cinergyt2_frontend_attach+0x21/0x70 drivers/media/usb/dvb-usb/cinergyT2-core.c:74
-  [<00000000d0254861>] dvb_usb_adapter_frontend_init+0x11b/0x1b0 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:290
-  [<0000000002e08ac6>] dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:84 [inline]
-  [<0000000002e08ac6>] dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:173 [inline]
-  [<0000000002e08ac6>] dvb_usb_device_init.cold+0x4d0/0x6ae drivers/media/usb/dvb-usb/dvb-usb-init.c:287
+[   12.038408] BUG: KASAN: use-after-free in __mutex_lock.isra.0+0x3ec/0x7c0
+[   12.045432]  mutex_lock+0xc9/0xd0
+[   12.046080]  memstick_check+0x6a/0x578 [memstick]
+[   12.046509]  process_one_work+0x46d/0x750
+[   12.052107] Freed by task 297:
+[   12.053115]  kfree+0xa4/0x2a0
+[   12.053272]  device_release+0x51/0xe0
+[   12.053463]  kobject_put+0xa2/0x120
+[   12.053647]  rtsx_usb_ms_drv_remove+0xc4/0x140 [rtsx_usb_ms]
+[   12.053939]  platform_remove+0x2a/0x50
 
-Reported-by: syzbot+e1de8986786b3722050e@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Co-developed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20210511163944.1233295-1-ztong0001@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/cinergyT2-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/memstick/host/rtsx_usb_ms.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/cinergyT2-core.c b/drivers/media/usb/dvb-usb/cinergyT2-core.c
-index 969a7ec71dff..4116ba5c45fc 100644
---- a/drivers/media/usb/dvb-usb/cinergyT2-core.c
-+++ b/drivers/media/usb/dvb-usb/cinergyT2-core.c
-@@ -78,6 +78,8 @@ static int cinergyt2_frontend_attach(struct dvb_usb_adapter *adap)
+diff --git a/drivers/memstick/host/rtsx_usb_ms.c b/drivers/memstick/host/rtsx_usb_ms.c
+index 102dbb8080da..29271ad4728a 100644
+--- a/drivers/memstick/host/rtsx_usb_ms.c
++++ b/drivers/memstick/host/rtsx_usb_ms.c
+@@ -799,9 +799,9 @@ static int rtsx_usb_ms_drv_probe(struct platform_device *pdev)
  
- 	ret = dvb_usb_generic_rw(d, st->data, 1, st->data, 3, 0);
- 	if (ret < 0) {
-+		if (adap->fe_adap[0].fe)
-+			adap->fe_adap[0].fe->ops.release(adap->fe_adap[0].fe);
- 		deb_rc("cinergyt2_power_ctrl() Failed to retrieve sleep state info\n");
+ 	return 0;
+ err_out:
+-	memstick_free_host(msh);
+ 	pm_runtime_disable(ms_dev(host));
+ 	pm_runtime_put_noidle(ms_dev(host));
++	memstick_free_host(msh);
+ 	return err;
+ }
+ 
+@@ -828,9 +828,6 @@ static int rtsx_usb_ms_drv_remove(struct platform_device *pdev)
  	}
- 	mutex_unlock(&d->data_mutex);
+ 	mutex_unlock(&host->host_mutex);
+ 
+-	memstick_remove_host(msh);
+-	memstick_free_host(msh);
+-
+ 	/* Balance possible unbalanced usage count
+ 	 * e.g. unconditional module removal
+ 	 */
+@@ -838,10 +835,11 @@ static int rtsx_usb_ms_drv_remove(struct platform_device *pdev)
+ 		pm_runtime_put(ms_dev(host));
+ 
+ 	pm_runtime_disable(ms_dev(host));
+-	platform_set_drvdata(pdev, NULL);
+-
++	memstick_remove_host(msh);
+ 	dev_dbg(ms_dev(host),
+ 		": Realtek USB Memstick controller has been removed\n");
++	memstick_free_host(msh);
++	platform_set_drvdata(pdev, NULL);
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
