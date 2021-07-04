@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1403BB212
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F4D3BB206
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:12:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232965AbhGDXNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:13:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47722 "EHLO mail.kernel.org"
+        id S232439AbhGDXNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:13:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231548AbhGDXJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:09:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3835C61405;
-        Sun,  4 Jul 2021 23:06:50 +0000 (UTC)
+        id S231864AbhGDXJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:09:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F26A613FC;
+        Sun,  4 Jul 2021 23:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440010;
-        bh=Jpu2OkJlctmizry71UWTTbldb6Cg3pFimtL1fW2c7GA=;
+        s=k20201202; t=1625440012;
+        bh=nP61IyDwMKPULtKhpyhNvfOHA4ogTEHHQM3vW2uT22k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aSIUrBBHvE9diio5KUU5tp0xVdPEbZt224l8YEdhzE5PKA5PeaRjsMEQML4a09tfZ
-         oUn0k431WAE8tqPFdv4aI+vXhskQ7EhZeTGbDp7p9hC8BRnULOiNeIBBuRiBoDQDVb
-         OrNacriO4wJcc+5qRu/icalElO3qSYmTjZgKpwC9NJqCdTXn9FiY3MY8YpkKD2v85e
-         O2XXa83W/sl0S45xv9Lmf2oWKpY6p/mBHWM/EZXG/o2FzcZV/dcw0YwwrmMObdBFlw
-         V5dcjdqI7wxwnN1oxRxRZKbko7hBi6muEN49VZODt0awBvHp0VALU1eS/X61a9UaLv
-         HdQo4P8+m2koQ==
+        b=lNlUCAPd6Tlb2z7HmcEST6sjh0jcETodIGIuRWyG48lTX5KABrl2hYJKHWPwhrg04
+         MEHPxYiyrFURFScC0vLSUvqp2rJObsGbnQmABivcA7BdV47K5fwvnTQ3QMm+BuDqY/
+         XT/5GtiCJp4nDN7pl9AwNUX0YYceQQTjnnihmGXVwkjPB69nKfLG43s1pudhDf3pgP
+         j3D//YML79SF8/A21naUywK6rsKg/Iv1XabQ9LxB+xRnOEps68e6HxZkXJ1QxiK0hm
+         BeFV4DWzOb0FdE84gtRtnxThbVoOQ6G9n0qy1s7GSPdvVOGKHdN0sOiiyGx1PahDkl
+         P+liEH07lDjuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Valentin Schneider <valentin.schneider@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 25/80] sched: Make the idle task quack like a per-CPU kthread
-Date:   Sun,  4 Jul 2021 19:05:21 -0400
-Message-Id: <20210704230616.1489200-25-sashal@kernel.org>
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+d1e69c888f0d3866ead4@syzkaller.appspotmail.com,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 26/80] media: cpia2: fix memory leak in cpia2_usb_probe
+Date:   Sun,  4 Jul 2021 19:05:22 -0400
+Message-Id: <20210704230616.1489200-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230616.1489200-1-sashal@kernel.org>
 References: <20210704230616.1489200-1-sashal@kernel.org>
@@ -42,142 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 00b89fe0197f0c55a045775c11553c0cdb7082fe ]
+[ Upstream commit be8656e62e9e791837b606a027802b504a945c97 ]
 
-For all intents and purposes, the idle task is a per-CPU kthread. It isn't
-created via the same route as other pcpu kthreads however, and as a result
-it is missing a few bells and whistles: it fails kthread_is_per_cpu() and
-it doesn't have PF_NO_SETAFFINITY set.
+syzbot reported leak in cpia2 usb driver. The problem was
+in invalid error handling.
 
-Fix the former by giving the idle task a kthread struct along with the
-KTHREAD_IS_PER_CPU flag. This requires some extra iffery as init_idle()
-call be called more than once on the same idle task.
+v4l2_device_register() is called in cpia2_init_camera_struct(), but
+all error cases after cpia2_init_camera_struct() did not call the
+v4l2_device_unregister()
 
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210510151024.2448573-2-valentin.schneider@arm.com
+Reported-by: syzbot+d1e69c888f0d3866ead4@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kthread.h |  2 ++
- kernel/kthread.c        | 30 ++++++++++++++++++------------
- kernel/sched/core.c     | 21 +++++++++++++++------
- 3 files changed, 35 insertions(+), 18 deletions(-)
+ drivers/media/usb/cpia2/cpia2.h      |  1 +
+ drivers/media/usb/cpia2/cpia2_core.c | 12 ++++++++++++
+ drivers/media/usb/cpia2/cpia2_usb.c  | 13 +++++++------
+ 3 files changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index 2484ed97e72f..d9133d6db308 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -33,6 +33,8 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 					  unsigned int cpu,
- 					  const char *namefmt);
- 
-+void set_kthread_struct(struct task_struct *p);
-+
- void kthread_set_per_cpu(struct task_struct *k, int cpu);
- bool kthread_is_per_cpu(struct task_struct *k);
- 
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 6d3c488a0f82..77dd0ea1d35d 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -68,16 +68,6 @@ enum KTHREAD_BITS {
- 	KTHREAD_SHOULD_PARK,
- };
- 
--static inline void set_kthread_struct(void *kthread)
--{
--	/*
--	 * We abuse ->set_child_tid to avoid the new member and because it
--	 * can't be wrongly copied by copy_process(). We also rely on fact
--	 * that the caller can't exec, so PF_KTHREAD can't be cleared.
--	 */
--	current->set_child_tid = (__force void __user *)kthread;
--}
--
- static inline struct kthread *to_kthread(struct task_struct *k)
- {
- 	WARN_ON(!(k->flags & PF_KTHREAD));
-@@ -103,6 +93,22 @@ static inline struct kthread *__to_kthread(struct task_struct *p)
- 	return kthread;
+diff --git a/drivers/media/usb/cpia2/cpia2.h b/drivers/media/usb/cpia2/cpia2.h
+index 50835f5f7512..57b7f1ea68da 100644
+--- a/drivers/media/usb/cpia2/cpia2.h
++++ b/drivers/media/usb/cpia2/cpia2.h
+@@ -429,6 +429,7 @@ int cpia2_send_command(struct camera_data *cam, struct cpia2_command *cmd);
+ int cpia2_do_command(struct camera_data *cam,
+ 		     unsigned int command,
+ 		     unsigned char direction, unsigned char param);
++void cpia2_deinit_camera_struct(struct camera_data *cam, struct usb_interface *intf);
+ struct camera_data *cpia2_init_camera_struct(struct usb_interface *intf);
+ int cpia2_init_camera(struct camera_data *cam);
+ int cpia2_allocate_buffers(struct camera_data *cam);
+diff --git a/drivers/media/usb/cpia2/cpia2_core.c b/drivers/media/usb/cpia2/cpia2_core.c
+index e747548ab286..b5a2d06fb356 100644
+--- a/drivers/media/usb/cpia2/cpia2_core.c
++++ b/drivers/media/usb/cpia2/cpia2_core.c
+@@ -2163,6 +2163,18 @@ static void reset_camera_struct(struct camera_data *cam)
+ 	cam->height = cam->params.roi.height;
  }
  
-+void set_kthread_struct(struct task_struct *p)
++/******************************************************************************
++ *
++ *  cpia2_init_camera_struct
++ *
++ *  Deinitialize camera struct
++ *****************************************************************************/
++void cpia2_deinit_camera_struct(struct camera_data *cam, struct usb_interface *intf)
 +{
-+	struct kthread *kthread;
-+
-+	if (__to_kthread(p))
-+		return;
-+
-+	kthread = kzalloc(sizeof(*kthread), GFP_KERNEL);
-+	/*
-+	 * We abuse ->set_child_tid to avoid the new member and because it
-+	 * can't be wrongly copied by copy_process(). We also rely on fact
-+	 * that the caller can't exec, so PF_KTHREAD can't be cleared.
-+	 */
-+	p->set_child_tid = (__force void __user *)kthread;
++	v4l2_device_unregister(&cam->v4l2_dev);
++	kfree(cam);
 +}
 +
- void free_kthread_struct(struct task_struct *k)
- {
- 	struct kthread *kthread;
-@@ -272,8 +278,8 @@ static int kthread(void *_create)
- 	struct kthread *self;
- 	int ret;
+ /******************************************************************************
+  *
+  *  cpia2_init_camera_struct
+diff --git a/drivers/media/usb/cpia2/cpia2_usb.c b/drivers/media/usb/cpia2/cpia2_usb.c
+index 3ab80a7b4498..76aac06f9fb8 100644
+--- a/drivers/media/usb/cpia2/cpia2_usb.c
++++ b/drivers/media/usb/cpia2/cpia2_usb.c
+@@ -844,15 +844,13 @@ static int cpia2_usb_probe(struct usb_interface *intf,
+ 	ret = set_alternate(cam, USBIF_CMDONLY);
+ 	if (ret < 0) {
+ 		ERR("%s: usb_set_interface error (ret = %d)\n", __func__, ret);
+-		kfree(cam);
+-		return ret;
++		goto alt_err;
+ 	}
  
--	self = kzalloc(sizeof(*self), GFP_KERNEL);
--	set_kthread_struct(self);
-+	set_kthread_struct(current);
-+	self = to_kthread(current);
  
- 	/* If user was SIGKILLed, I release the structure. */
- 	done = xchg(&create->done, NULL);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index e25b2d8ec18d..17f612045271 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -7435,12 +7435,25 @@ void __init init_idle(struct task_struct *idle, int cpu)
+ 	if((ret = cpia2_init_camera(cam)) < 0) {
+ 		ERR("%s: failed to initialize cpia2 camera (ret = %d)\n", __func__, ret);
+-		kfree(cam);
+-		return ret;
++		goto alt_err;
+ 	}
+ 	LOG("  CPiA Version: %d.%02d (%d.%d)\n",
+ 	       cam->params.version.firmware_revision_hi,
+@@ -872,11 +870,14 @@ static int cpia2_usb_probe(struct usb_interface *intf,
+ 	ret = cpia2_register_camera(cam);
+ 	if (ret < 0) {
+ 		ERR("%s: Failed to register cpia2 camera (ret = %d)\n", __func__, ret);
+-		kfree(cam);
+-		return ret;
++		goto alt_err;
+ 	}
  
- 	__sched_fork(0, idle);
- 
-+	/*
-+	 * The idle task doesn't need the kthread struct to function, but it
-+	 * is dressed up as a per-CPU kthread and thus needs to play the part
-+	 * if we want to avoid special-casing it in code that deals with per-CPU
-+	 * kthreads.
-+	 */
-+	set_kthread_struct(idle);
+ 	return 0;
 +
- 	raw_spin_lock_irqsave(&idle->pi_lock, flags);
- 	raw_spin_lock(&rq->lock);
++alt_err:
++	cpia2_deinit_camera_struct(cam, intf);
++	return ret;
+ }
  
- 	idle->state = TASK_RUNNING;
- 	idle->se.exec_start = sched_clock();
--	idle->flags |= PF_IDLE;
-+	/*
-+	 * PF_KTHREAD should already be set at this point; regardless, make it
-+	 * look like a proper per-CPU kthread.
-+	 */
-+	idle->flags |= PF_IDLE | PF_KTHREAD | PF_NO_SETAFFINITY;
-+	kthread_set_per_cpu(idle, cpu);
- 
- 	scs_task_reset(idle);
- 	kasan_unpoison_task_stack(idle);
-@@ -7647,12 +7660,8 @@ static void balance_push(struct rq *rq)
- 	/*
- 	 * Both the cpu-hotplug and stop task are in this case and are
- 	 * required to complete the hotplug process.
--	 *
--	 * XXX: the idle task does not match kthread_is_per_cpu() due to
--	 * histerical raisins.
- 	 */
--	if (rq->idle == push_task ||
--	    kthread_is_per_cpu(push_task) ||
-+	if (kthread_is_per_cpu(push_task) ||
- 	    is_migration_disabled(push_task)) {
- 
- 		/*
+ /******************************************************************************
 -- 
 2.30.2
 
