@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFEB3BB339
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:16:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCFDC3BB33B
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:16:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232985AbhGDXRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:17:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56944 "EHLO mail.kernel.org"
+        id S233422AbhGDXRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:17:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234290AbhGDXO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234289AbhGDXO7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16B2B615FF;
-        Sun,  4 Jul 2021 23:11:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 353B661375;
+        Sun,  4 Jul 2021 23:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440319;
-        bh=GKouUk8aDWduzqzmTINVVQTIzZrxjfxi9+MXQT7MVCY=;
+        s=k20201202; t=1625440321;
+        bh=xNZHQJvcgNRFaQ8eiwggEpWrLCEadieOmm+NlS87DBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QAlQ4v94a9ozPfY5/ISGEfjBlzfZ/wAoowIf/IB3JBUMVHT6aM1e97mkYweIw4dRa
-         Kpzm8Yw3AUSPW8PaNMkprip/TsuC7iEgUZVrtgcYjyIB7Esf7xYaDJzzJUGHT6yRAs
-         El8WpYjTKer+R7SyMkTCNbZuqkLHrm08afgL8JEnfuvdcFfn6OgbhzguXmmR+wKIV1
-         A+IiyV1YdA5km+d0x9cBEDGgA6szb2tS+kMDQYNJHv7egSPvh5X7urs++WDnCphByu
-         +NzKyC3+NLCaXeEMjF+RF8NrHQKmQPqQi02K0V0YHakWpPplozFkL6yf7sc+eq146q
-         eoU11uCOebZIw==
+        b=QULguvyZPxA82Z+hbArm95IH3ck1+A+Pvh1JFaq0k3fuFLTYppOmFFPXPdQVVDWnk
+         7bCMqZkUgW75CzhxuYzKRGtgDaDq8doytpTfqgVnWp08/azx4kLawWhTjqggRT6zgU
+         LF3+rDBjW/rDErOfZ4GKLUblAS6Wnk8+kwrAYSLSyNUCZWfPIRGm2zTlnwhgjYS3BQ
+         X6uDwkirCP08Zp+3gjJ6JAoGRSrxBJaToOuv3QYWFtXLvDkqyrnlWXflhSyv7CJ5q0
+         0rTC5Tu2dwkwSZSuWsWERzNwWMB8UMGyDaErZbJCJgz/pRdwmHzIYTagCYqH2uO8se
+         bOoRTPFX57ZLQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tian Tao <tiantao6@hisilicon.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 03/20] spi: omap-100k: Fix the length judgment problem
-Date:   Sun,  4 Jul 2021 19:11:38 -0400
-Message-Id: <20210704231155.1491795-3-sashal@kernel.org>
+Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 04/20] crypto: nx - add missing MODULE_DEVICE_TABLE
+Date:   Sun,  4 Jul 2021 19:11:39 -0400
+Message-Id: <20210704231155.1491795-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231155.1491795-1-sashal@kernel.org>
 References: <20210704231155.1491795-1-sashal@kernel.org>
@@ -41,34 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tian Tao <tiantao6@hisilicon.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit e7a1a3abea373e41ba7dfe0fbc93cb79b6a3a529 ]
+[ Upstream commit 06676aa1f455c74e3ad1624cea3acb9ed2ef71ae ]
 
-word_len should be checked in the omap1_spi100k_setup_transfer
-function to see if it exceeds 32.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
-Link: https://lore.kernel.org/r/1619695248-39045-1-git-send-email-tiantao6@hisilicon.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-omap-100k.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/nx/nx-842-pseries.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-omap-100k.c b/drivers/spi/spi-omap-100k.c
-index 1eccdc4a4581..2eeb0fe2eed2 100644
---- a/drivers/spi/spi-omap-100k.c
-+++ b/drivers/spi/spi-omap-100k.c
-@@ -251,7 +251,7 @@ static int omap1_spi100k_setup_transfer(struct spi_device *spi,
- 	else
- 		word_len = spi->bits_per_word;
+diff --git a/drivers/crypto/nx/nx-842-pseries.c b/drivers/crypto/nx/nx-842-pseries.c
+index cddc6d8b55d9..2e5b4004f0ee 100644
+--- a/drivers/crypto/nx/nx-842-pseries.c
++++ b/drivers/crypto/nx/nx-842-pseries.c
+@@ -1086,6 +1086,7 @@ static struct vio_device_id nx842_vio_driver_ids[] = {
+ 	{"ibm,compression-v1", "ibm,compression"},
+ 	{"", ""},
+ };
++MODULE_DEVICE_TABLE(vio, nx842_vio_driver_ids);
  
--	if (spi->bits_per_word > 32)
-+	if (word_len > 32)
- 		return -EINVAL;
- 	cs->word_len = word_len;
- 
+ static struct vio_driver nx842_vio_driver = {
+ 	.name = KBUILD_MODNAME,
 -- 
 2.30.2
 
