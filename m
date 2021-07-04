@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF60C3BB2FC
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 971523BB387
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:17:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230478AbhGDXQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:16:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56966 "EHLO mail.kernel.org"
+        id S233295AbhGDXSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:18:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233528AbhGDXOb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233534AbhGDXOb (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42D3A6197E;
-        Sun,  4 Jul 2021 23:10:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B537E6197D;
+        Sun,  4 Jul 2021 23:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440206;
-        bh=YNE87x3dW6Wqycoe5tTp/rWbfZKiosqjDcU+YXDRDSE=;
+        s=k20201202; t=1625440207;
+        bh=oVUO/BphEoCkynoRb4MuWNMVteXgceEelZdwaJlgJIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmi6SjBkE2V5I3eQSNOYQk5rOLPS21UH7Jx2X4Xe5tvRCLg1U9IxA2APp0w2wp8a3
-         Nm57AQVsz8EVQhI3JUGAq2qtXujylyfs73GflO3ClArGcv85XEXODFZUco80fOryOl
-         UGOY6wNqBXfWOxt5W+/gT6BIwaS0cCT7CqlF+nubPfi3zpm1ajZEd8jT0goft9FwSs
-         /WbkmMTUdTotV/NAhBoOce8H420y5DBjAucWz6NgqKQ4kPpx7In8UFU8mO4hGRTKiz
-         mpXyO86D50p7e3hmlD9s+g2jqkqVRH9DBIJuliilzM+mOJAPYptXwsYfw4SUCoy2hM
-         nvRvEnr1O0Rzg==
+        b=CdH3a5WKEINkR9JK1YsxImuDJdVzY2DEUVei9YFbku7p85yQdMlzQPG/P1c/ZRG72
+         6yjLda29IGezvA7VXxC6jlMN72a5yAS685c+uBB7yLbypJ2hgTy4qZo69IoLzkXh80
+         /VQqpIe9q1CGkyZFiq37JGGl8FMx0CCejSWJB2ktLdFGDcXs/Yn/qLWthNPUGSesVk
+         AQdrBAXK/MnXDOqEmVUxZH2czfxpMm1fpyysVbVfxxdkJJGhb+hE2OkiVcMXrXpJRN
+         Wo3g5UtUHydJfGjwskc7JpND3F13YtaabjpRh7x2e80ElHCc3ybUi6FC8ftRMte7e7
+         StDFSEP1unDBA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Xu <jack.xu@intel.com>, Zhehui Xiang <zhehui.xiang@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, qat-linux@intel.com,
-        linux-crypto@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 21/50] crypto: qat - remove unused macro in FW loader
-Date:   Sun,  4 Jul 2021 19:09:09 -0400
-Message-Id: <20210704230938.1490742-21-sashal@kernel.org>
+Cc:     Odin Ugedal <odin@uged.al>, Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 22/50] sched/fair: Fix ascii art by relpacing tabs
+Date:   Sun,  4 Jul 2021 19:09:10 -0400
+Message-Id: <20210704230938.1490742-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230938.1490742-1-sashal@kernel.org>
 References: <20210704230938.1490742-1-sashal@kernel.org>
@@ -44,40 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Xu <jack.xu@intel.com>
+From: Odin Ugedal <odin@uged.al>
 
-[ Upstream commit 9afe77cf25d9670e61b489fd52cc6f75fd7f6803 ]
+[ Upstream commit 08f7c2f4d0e9f4283f5796b8168044c034a1bfcb ]
 
-Remove the unused macro ICP_DH895XCC_PESRAM_BAR_SIZE in the firmware
-loader.
+When using something other than 8 spaces per tab, this ascii art
+makes not sense, and the reader might end up wondering what this
+advanced equation "is".
 
-This is to fix the following warning when compiling the driver using the
-clang compiler with CC=clang W=2:
-
-    drivers/crypto/qat/qat_common/qat_uclo.c:345:9: warning: macro is not used [-Wunused-macros]
-
-Signed-off-by: Jack Xu <jack.xu@intel.com>
-Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/20210518125202.78658-4-odin@uged.al
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_uclo.c | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/sched/fair.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/qat_uclo.c b/drivers/crypto/qat/qat_common/qat_uclo.c
-index aeb03081415c..9542423bb7ca 100644
---- a/drivers/crypto/qat/qat_common/qat_uclo.c
-+++ b/drivers/crypto/qat/qat_common/qat_uclo.c
-@@ -385,7 +385,6 @@ static int qat_uclo_init_umem_seg(struct icp_qat_fw_loader_handle *handle,
- 	return 0;
- }
- 
--#define ICP_DH895XCC_PESRAM_BAR_SIZE 0x80000
- static int qat_uclo_init_ae_memory(struct icp_qat_fw_loader_handle *handle,
- 				   struct icp_qat_uof_initmem *init_mem)
- {
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index d3f4113e87de..d2ba080ea742 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2927,7 +2927,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = -----------------------------               (1)
+- *			  \Sum grq->load.weight
++ *                       \Sum grq->load.weight
+  *
+  * Now, because computing that sum is prohibitively expensive to compute (been
+  * there, done that) we approximate it with this average stuff. The average
+@@ -2941,7 +2941,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->avg.load_avg
+  *   ge->load.weight = ------------------------------              (3)
+- *				tg->load_avg
++ *                             tg->load_avg
+  *
+  * Where: tg->load_avg ~= \Sum grq->avg.load_avg
+  *
+@@ -2957,7 +2957,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = ----------------------------- = tg->weight   (4)
+- *			    grp->load.weight
++ *                         grp->load.weight
+  *
+  * That is, the sum collapses because all other CPUs are idle; the UP scenario.
+  *
+@@ -2976,7 +2976,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = -----------------------------		   (6)
+- *				tg_load_avg'
++ *                             tg_load_avg'
+  *
+  * Where:
+  *
 -- 
 2.30.2
 
