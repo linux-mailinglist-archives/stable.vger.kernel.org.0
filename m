@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE303BB30C
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34F183BB312
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232486AbhGDXRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
+        id S233342AbhGDXRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:17:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233968AbhGDXOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:14:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D31FC611ED;
-        Sun,  4 Jul 2021 23:10:41 +0000 (UTC)
+        id S233971AbhGDXOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:14:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D51A16194D;
+        Sun,  4 Jul 2021 23:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440242;
-        bh=xX8VyNOodZXaJbZ6Zo8s39DpvovzD6FKkh4MDY9d7wE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHoQeBRHj+7qDYvecfGE24g+I7xbRNDYHyAx9AtxloUMkFEkJrRhZvF/RtpXO+kGU
-         94Me2h1eRPtxBTcKxqRxOdMUXgAcFRB7ECyK7a5VSSG+4Mj7btAsrzENIHvouX41MF
-         Tlp+mEScfItml+F1U/ZAsmNTcjZQsmBRTFetHcrTrUuz2be7ikvgyTEfhqfxq5WKIx
-         YFOWJw5jeFQ+5sUbu/wAlECCo45OAtY+ONzpNUqME4P5OFiHRdIneOQ9rTB8uBN2cf
-         iFNTQErVReVT5blH4oilqiU3fzpRfsfH9c7tUlh3Vqa7QUQbPw0DEeqnS3bMBpj/ko
-         OEUn7tlPDeBJQ==
+        s=k20201202; t=1625440245;
+        bh=pLUBppy2NntjW6LxoqFLLJMRfIOI3xab7b4GNtAQPlw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NajRSLTCPQvQ/E8cQ/zZ8uH0voQ7MACqrlPaSO0Do414O+Jx/u3TM1CVAQwyDRNWF
+         GPpd2jYTDj4hVXgS+Q3PcbZH6XaqlTOEL3fQC5kPzuH2m4allHR0Ey9IUzDpaVARvU
+         hZvDwHkZzmSLrvRra+U7qEyUKgmlZuBEhIfVSNWaFj4EGtcgWfLnp69QV+JADowYPt
+         n8X4qH49QFQmSSi4rntMUBIKhwLwh+TWRaky/N6D//pLLMow9r3uJlAESD2ugK/Lhh
+         Zk/YYYJejKoolnMQeFy2gkXXXDa1R7s51V8uwrSqo3hZYG0RuVH3D09SfbZsuQGI5D
+         WxNlrGfz7G0RQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shuah Khan <skhan@linuxfoundation.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 50/50] media: Fix Media Controller API config checks
-Date:   Sun,  4 Jul 2021 19:09:38 -0400
-Message-Id: <20210704230938.1490742-50-sashal@kernel.org>
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/31] spi: Make of_register_spi_device also set the fwnode
+Date:   Sun,  4 Jul 2021 19:10:13 -0400
+Message-Id: <20210704231043.1491209-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210704230938.1490742-1-sashal@kernel.org>
-References: <20210704230938.1490742-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,86 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 50e7a31d30e8221632675abed3be306382324ca2 ]
+[ Upstream commit 0e793ba77c18382f08e440260fe72bc6fce2a3cb ]
 
-Smatch static checker warns that "mdev" can be null:
+Currently, the SPI core doesn't set the struct device fwnode pointer
+when it creates a new SPI device. This means when the device is
+registered the fwnode is NULL and the check in device_add which sets
+the fwnode->dev pointer is skipped. This wasn't previously an issue,
+however these two patches:
 
-sound/usb/media.c:287 snd_media_device_create()
-    warn: 'mdev' can also be NULL
+commit 4731210c09f5 ("gpiolib: Bind gpio_device to a driver to enable
+fw_devlink=on by default")
+commit ced2af419528 ("gpiolib: Don't probe gpio_device if it's not the
+primary device")
 
-If CONFIG_MEDIA_CONTROLLER is disabled, this file should not be included
-in the build.
+Added some code to the GPIO core which relies on using that
+fwnode->dev pointer to determine if a driver is bound to the fwnode
+and if not bind a stub GPIO driver. This means the GPIO providers
+behind SPI will get both the expected driver and this stub driver
+causing the stub driver to fail if it attempts to request any pin
+configuration. For example on my system:
 
-The below conditions in the sound/usb/Makefile are in place to ensure that
-media.c isn't included in the build.
+madera-pinctrl madera-pinctrl: pin gpio5 already requested by madera-pinctrl; cannot claim for gpiochip3
+madera-pinctrl madera-pinctrl: pin-4 (gpiochip3) status -22
+madera-pinctrl madera-pinctrl: could not request pin 4 (gpio5) from group aif1  on device madera-pinctrl
+gpio_stub_drv gpiochip3: Error applying setting, reverse things back
+gpio_stub_drv: probe of gpiochip3 failed with error -22
 
-sound/usb/Makefile:
-snd-usb-audio-$(CONFIG_SND_USB_AUDIO_USE_MEDIA_CONTROLLER) += media.o
+The firmware node on the device created by the GPIO framework is set
+through the of_node pointer hence things generally actually work,
+however that fwnode->dev is never set, as the check was skipped at
+device_add time. This fix appears to match how the I2C subsystem
+handles the same situation.
 
-select SND_USB_AUDIO_USE_MEDIA_CONTROLLER if MEDIA_CONTROLLER &&
-       (MEDIA_SUPPORT=y || MEDIA_SUPPORT=SND_USB_AUDIO)
-
-The following config check in include/media/media-dev-allocator.h is
-in place to enable the API only when CONFIG_MEDIA_CONTROLLER and
-CONFIG_USB are enabled.
-
- #if defined(CONFIG_MEDIA_CONTROLLER) && defined(CONFIG_USB)
-
-This check doesn't work as intended when CONFIG_USB=m. When CONFIG_USB=m,
-CONFIG_USB_MODULE is defined and CONFIG_USB is not. The above config check
-doesn't catch that CONFIG_USB is defined as a module and disables the API.
-This results in sound/usb enabling Media Controller specific ALSA driver
-code, while Media disables the Media Controller API.
-
-Fix the problem requires two changes:
-
-1. Change the check to use IS_ENABLED to detect when CONFIG_USB is enabled
-   as a module or static. Since CONFIG_MEDIA_CONTROLLER is a bool, leave
-   the check unchanged to be consistent with drivers/media/Makefile.
-
-2. Change the drivers/media/mc/Makefile to include mc-dev-allocator.o
-   in mc-objs when CONFIG_USB is enabled.
-
-Link: https://lore.kernel.org/alsa-devel/YLeAvT+R22FQ%2FEyw@mwanda/
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210421101402.8468-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/mc/Makefile           | 2 +-
- include/media/media-dev-allocator.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/mc/Makefile b/drivers/media/mc/Makefile
-index 119037f0e686..2b7af42ba59c 100644
---- a/drivers/media/mc/Makefile
-+++ b/drivers/media/mc/Makefile
-@@ -3,7 +3,7 @@
- mc-objs	:= mc-device.o mc-devnode.o mc-entity.o \
- 	   mc-request.o
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index bbe33016d371..49f592e433a8 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -1678,6 +1678,7 @@ of_register_spi_device(struct spi_controller *ctlr, struct device_node *nc)
+ 	/* Store a pointer to the node in the device structure */
+ 	of_node_get(nc);
+ 	spi->dev.of_node = nc;
++	spi->dev.fwnode = of_fwnode_handle(nc);
  
--ifeq ($(CONFIG_USB),y)
-+ifneq ($(CONFIG_USB),)
- 	mc-objs += mc-dev-allocator.o
- endif
- 
-diff --git a/include/media/media-dev-allocator.h b/include/media/media-dev-allocator.h
-index b35ea6062596..2ab54d426c64 100644
---- a/include/media/media-dev-allocator.h
-+++ b/include/media/media-dev-allocator.h
-@@ -19,7 +19,7 @@
- 
- struct usb_device;
- 
--#if defined(CONFIG_MEDIA_CONTROLLER) && defined(CONFIG_USB)
-+#if defined(CONFIG_MEDIA_CONTROLLER) && IS_ENABLED(CONFIG_USB)
- /**
-  * media_device_usb_allocate() - Allocate and return struct &media device
-  *
+ 	/* Register the new device */
+ 	rc = spi_add_device(spi);
 -- 
 2.30.2
 
