@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 907FE3BB1B3
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:11:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A2F63BB1BE
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232403AbhGDXMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:12:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
+        id S232287AbhGDXNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:13:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231976AbhGDXJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231978AbhGDXJn (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:09:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B44A613D2;
-        Sun,  4 Jul 2021 23:07:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 060FB61364;
+        Sun,  4 Jul 2021 23:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440021;
-        bh=TSvhwjjIRCuy4ZF5RtOACoeAoEzRBrwReraD+c3BIGQ=;
+        s=k20201202; t=1625440022;
+        bh=6qvfVHz8Ivbu+S8FtkH8bJH6LL/dj1fkRbuXihqrtqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dzisoAQa0RGotAquflVuOnGu1NCwNceClXCQg7nyU5/m3254WQCJZXcwyfWR5ZzMK
-         l0E4J2F6hRr/l8OACzzqM2wV+L2tJ+guOFcdK0eUMIUDoiphES2yCWAiwoMR7HSAd5
-         BQ90BoVrRdfNfONh/3yRkOGNtrFUW+Oz64ztZra5m8rri1zg4WsSWXf+rNqotYijzq
-         osbTJhqniHXfVCoven4vaUxnAMc87JuPhMfeaIk64cPcVAblLfvTMCoEJSZXMNno35
-         LejeT3NOTl0e7kc3dg/roBDHrTq9K70BmUy5Dtkk917H2uxENPcgoh+X3pW1e1VRfa
-         u2TizaUrCGJHg==
+        b=FICfvCr+4Omb76EBhX6cX3Uv2h2GqZNAq/q4isvwyetp4VeHkzeheTUAB7uj5JSnR
+         pYyk+UdcEjTu8OtZ6Oto6qmfaHGQJ+PvZY+5OYq5xF5XVDxSdOQUkGBMX+I/AxQhWb
+         xinkchX0htaZ1SAoiJh42mdtWD2/qfR3XkceJWqUhBB8XgFyPqXeI8EvpQ6xflL/m6
+         +GMIOa6SydtbZtvedVMuogf/JfwCLPWdyyOluVVy66qF6q/4h6HfbDkC6HG58UzgqT
+         ILtkeQhbNw2tQ+nY4Mbax4xYlOUM4AfhEM8VaDa/X3pEyjZzY62piquuHt3w0AUlSt
+         P7wQ4jLAcGlqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Xu <jack.xu@intel.com>, Zhehui Xiang <zhehui.xiang@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+Cc:     Thara Gopinath <thara.gopinath@linaro.org>,
         Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, qat-linux@intel.com,
-        linux-crypto@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.12 32/80] crypto: qat - remove unused macro in FW loader
-Date:   Sun,  4 Jul 2021 19:05:28 -0400
-Message-Id: <20210704230616.1489200-32-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 33/80] crypto: qce: skcipher: Fix incorrect sg count for dma transfers
+Date:   Sun,  4 Jul 2021 19:05:29 -0400
+Message-Id: <20210704230616.1489200-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230616.1489200-1-sashal@kernel.org>
 References: <20210704230616.1489200-1-sashal@kernel.org>
@@ -44,40 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Xu <jack.xu@intel.com>
+From: Thara Gopinath <thara.gopinath@linaro.org>
 
-[ Upstream commit 9afe77cf25d9670e61b489fd52cc6f75fd7f6803 ]
+[ Upstream commit 1339a7c3ba05137a2d2fe75f602311bbfc6fab33 ]
 
-Remove the unused macro ICP_DH895XCC_PESRAM_BAR_SIZE in the firmware
-loader.
+Use the sg count returned by dma_map_sg to call into
+dmaengine_prep_slave_sg rather than using the original sg count. dma_map_sg
+can merge consecutive sglist entries, thus making the original sg count
+wrong. This is a fix for memory coruption issues observed while testing
+encryption/decryption of large messages using libkcapi framework.
 
-This is to fix the following warning when compiling the driver using the
-clang compiler with CC=clang W=2:
+Patch has been tested further by running full suite of tcrypt.ko tests
+including fuzz tests.
 
-    drivers/crypto/qat/qat_common/qat_uclo.c:345:9: warning: macro is not used [-Wunused-macros]
-
-Signed-off-by: Jack Xu <jack.xu@intel.com>
-Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Thara Gopinath <thara.gopinath@linaro.org>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_uclo.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/crypto/qce/skcipher.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/qat_uclo.c b/drivers/crypto/qat/qat_common/qat_uclo.c
-index 1fb5fc852f6b..6d95160e451e 100644
---- a/drivers/crypto/qat/qat_common/qat_uclo.c
-+++ b/drivers/crypto/qat/qat_common/qat_uclo.c
-@@ -342,7 +342,6 @@ static int qat_uclo_init_umem_seg(struct icp_qat_fw_loader_handle *handle,
- 	return 0;
- }
+diff --git a/drivers/crypto/qce/skcipher.c b/drivers/crypto/qce/skcipher.c
+index a2d3da0ad95f..5a6559131eac 100644
+--- a/drivers/crypto/qce/skcipher.c
++++ b/drivers/crypto/qce/skcipher.c
+@@ -71,7 +71,7 @@ qce_skcipher_async_req_handle(struct crypto_async_request *async_req)
+ 	struct scatterlist *sg;
+ 	bool diff_dst;
+ 	gfp_t gfp;
+-	int ret;
++	int dst_nents, src_nents, ret;
  
--#define ICP_DH895XCC_PESRAM_BAR_SIZE 0x80000
- static int qat_uclo_init_ae_memory(struct icp_qat_fw_loader_handle *handle,
- 				   struct icp_qat_uof_initmem *init_mem)
- {
+ 	rctx->iv = req->iv;
+ 	rctx->ivsize = crypto_skcipher_ivsize(skcipher);
+@@ -122,21 +122,22 @@ qce_skcipher_async_req_handle(struct crypto_async_request *async_req)
+ 	sg_mark_end(sg);
+ 	rctx->dst_sg = rctx->dst_tbl.sgl;
+ 
+-	ret = dma_map_sg(qce->dev, rctx->dst_sg, rctx->dst_nents, dir_dst);
+-	if (ret < 0)
++	dst_nents = dma_map_sg(qce->dev, rctx->dst_sg, rctx->dst_nents, dir_dst);
++	if (dst_nents < 0)
+ 		goto error_free;
+ 
+ 	if (diff_dst) {
+-		ret = dma_map_sg(qce->dev, req->src, rctx->src_nents, dir_src);
+-		if (ret < 0)
++		src_nents = dma_map_sg(qce->dev, req->src, rctx->src_nents, dir_src);
++		if (src_nents < 0)
+ 			goto error_unmap_dst;
+ 		rctx->src_sg = req->src;
+ 	} else {
+ 		rctx->src_sg = rctx->dst_sg;
++		src_nents = dst_nents - 1;
+ 	}
+ 
+-	ret = qce_dma_prep_sgs(&qce->dma, rctx->src_sg, rctx->src_nents,
+-			       rctx->dst_sg, rctx->dst_nents,
++	ret = qce_dma_prep_sgs(&qce->dma, rctx->src_sg, src_nents,
++			       rctx->dst_sg, dst_nents,
+ 			       qce_skcipher_done, async_req);
+ 	if (ret)
+ 		goto error_unmap_src;
 -- 
 2.30.2
 
