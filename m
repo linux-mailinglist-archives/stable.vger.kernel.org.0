@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 992D23BB2AA
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:14:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 024793BB2A7
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234622AbhGDXQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:16:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50600 "EHLO mail.kernel.org"
+        id S232387AbhGDXQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:16:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234217AbhGDXO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234224AbhGDXO5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C2E361936;
-        Sun,  4 Jul 2021 23:11:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB8C961945;
+        Sun,  4 Jul 2021 23:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440298;
-        bh=/E9/ZizkB3VQvBKEl336Wh/NfyX46/O5edmmaZXQVHE=;
+        s=k20201202; t=1625440299;
+        bh=9n/9ERnGy4SFNu9jXLK/NJj9xkVR33f2i6F+nPHlb9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WAb+iNvf+HAFwmMegkGmaa8vwbkttmsOgR88ffeT7/v6MjUvdG1qNpOHwCAejWgeE
-         sGD40obwIxdvRjdFRJ0JtIH+fZaHsGx7n61dB43CWOKSXdaFce6KcT4tpytuiOlI36
-         arhefHg3+bcK8cNfj7dNsAli2qUPQLldJ1pA+6vCUQRQ6hUgQlRums+ienVAaokvFj
-         baPLUlU8IPqmAuAi6F9qCC98sEI21ZOe5TlRIs6WyyQbkppsxPQbpju7/fN5KLxFBi
-         ZaFkw2VViYTVzJq6OkMWzTMzFZCUr+PZF160LB2AI5ILAjnjVxuKwrGaskRolHH4gK
-         SlAtYX8CvbqqA==
+        b=QhwJHNYG1/NG3TMC/ytOZv/tJdJ1HcpYOBmdXaWvkEgAeVfNGhUAnJRntnUjG5blb
+         CFPfuevQCDeNaZVYyLkRprbLu03mIKUYeyXQyuwpz80hUpra9pejgZKtI65ZET0FTM
+         Q1afCTD7T65KOHKquuAtKoGXSdVVauJDbUX4jqJGvGgHp/fDnlSBQvUQDumw2fPper
+         aT2+++NxSmLwkDHKz/sQpdIb/pbCFPZCpK2uzsm4hUpmRqPfQpTfeHUcVngoOhDoII
+         KrNHEOiqHC9QnoXlBmEzbYPUpVMjN7SwFmGNq6Ki8YmUFE2bqy4p98m+Cbup3zhlGM
+         Kuwy3vyjcCQBg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Xu <jack.xu@intel.com>, Zhehui Xiang <zhehui.xiang@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, qat-linux@intel.com,
-        linux-crypto@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 11/25] crypto: qat - remove unused macro in FW loader
-Date:   Sun,  4 Jul 2021 19:11:09 -0400
-Message-Id: <20210704231123.1491517-11-sashal@kernel.org>
+Cc:     Igor Matheus Andrade Torrente <igormtorrente@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 12/25] media: em28xx: Fix possible memory leak of em28xx struct
+Date:   Sun,  4 Jul 2021 19:11:10 -0400
+Message-Id: <20210704231123.1491517-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231123.1491517-1-sashal@kernel.org>
 References: <20210704231123.1491517-1-sashal@kernel.org>
@@ -44,40 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Xu <jack.xu@intel.com>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-[ Upstream commit 9afe77cf25d9670e61b489fd52cc6f75fd7f6803 ]
+[ Upstream commit ac5688637144644f06ed1f3c6d4dd8bb7db96020 ]
 
-Remove the unused macro ICP_DH895XCC_PESRAM_BAR_SIZE in the firmware
-loader.
+The em28xx struct kref isn't being decreased after an error in the
+em28xx_ir_init, leading to a possible memory leak.
 
-This is to fix the following warning when compiling the driver using the
-clang compiler with CC=clang W=2:
+A kref_put and em28xx_shutdown_buttons is added to the error handler code.
 
-    drivers/crypto/qat/qat_common/qat_uclo.c:345:9: warning: macro is not used [-Wunused-macros]
-
-Signed-off-by: Jack Xu <jack.xu@intel.com>
-Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_uclo.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/usb/em28xx/em28xx-input.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/qat_uclo.c b/drivers/crypto/qat/qat_common/qat_uclo.c
-index 4f1cd83bf56f..a8e3191e5185 100644
---- a/drivers/crypto/qat/qat_common/qat_uclo.c
-+++ b/drivers/crypto/qat/qat_common/qat_uclo.c
-@@ -385,7 +385,6 @@ static int qat_uclo_init_umem_seg(struct icp_qat_fw_loader_handle *handle,
- 	return 0;
+diff --git a/drivers/media/usb/em28xx/em28xx-input.c b/drivers/media/usb/em28xx/em28xx-input.c
+index 046223de1e91..b8c94b4ad232 100644
+--- a/drivers/media/usb/em28xx/em28xx-input.c
++++ b/drivers/media/usb/em28xx/em28xx-input.c
+@@ -710,7 +710,8 @@ static int em28xx_ir_init(struct em28xx *dev)
+ 			dev->board.has_ir_i2c = 0;
+ 			dev_warn(&dev->intf->dev,
+ 				 "No i2c IR remote control device found.\n");
+-			return -ENODEV;
++			err = -ENODEV;
++			goto ref_put;
+ 		}
+ 	}
+ 
+@@ -725,7 +726,7 @@ static int em28xx_ir_init(struct em28xx *dev)
+ 
+ 	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
+ 	if (!ir)
+-		return -ENOMEM;
++		goto ref_put;
+ 	rc = rc_allocate_device(RC_DRIVER_SCANCODE);
+ 	if (!rc)
+ 		goto error;
+@@ -836,6 +837,9 @@ static int em28xx_ir_init(struct em28xx *dev)
+ 	dev->ir = NULL;
+ 	rc_free_device(rc);
+ 	kfree(ir);
++ref_put:
++	em28xx_shutdown_buttons(dev);
++	kref_put(&dev->ref, em28xx_free_device);
+ 	return err;
  }
  
--#define ICP_DH895XCC_PESRAM_BAR_SIZE 0x80000
- static int qat_uclo_init_ae_memory(struct icp_qat_fw_loader_handle *handle,
- 				   struct icp_qat_uof_initmem *init_mem)
- {
 -- 
 2.30.2
 
