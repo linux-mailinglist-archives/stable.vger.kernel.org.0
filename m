@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3CC93BB118
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D643BB113
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:09:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231160AbhGDXKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:10:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
+        id S230037AbhGDXKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:10:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232204AbhGDXKF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:10:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9854561405;
-        Sun,  4 Jul 2021 23:07:27 +0000 (UTC)
+        id S232214AbhGDXKG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:10:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07F306141C;
+        Sun,  4 Jul 2021 23:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440048;
-        bh=FWdpgeLZjTV3yUDS9DmJf5529C3/nxBDlPw9YGo3gao=;
+        s=k20201202; t=1625440049;
+        bh=raElE/LTi6RdTWtu6Qz0VjOIA0GIV9i4FphLeAtxHu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9i8DhZd1L0JbsjC2Hzvp9ZLWjQ+miY02hK/HMDVxfQ4wehaWpTayOgMgyRmeDhuU
-         igg+nlN2lhX94ovScVU09XjH3JnXMaLAcd14XmcvZRE1Dn/wb/NkrW1ykp9N/4jP8E
-         WctHvKOAJnNENPUmbWEpXeGkp5GGx71eCJyfkp8puraC+sej4g/MNnNEktEUhmw8by
-         d9AxbUplUTPw1qGw9emQ+S03LheJyuXP/XlI8A+xT652iXLh+5RGAqv4rVPDZlxY7s
-         wlo5s7chz5WpNE/d+mRYufNN2BoAs/d7/rbvBR12LrEecLOH1WfAEvHITR2JzbT97Z
-         G56C606hF31bA==
+        b=WY2WEJL8tB8Q2Se0ECpbVo/4D+hwkZfYXUVpkyHRq7FD8py58icXHlxnVv8fGdB1/
+         WoLnA9nSO/LSrSlN7QQ5gbQZNOrVtljbTbJ1XRpbTbV6DoaQomUJWEI4CDsXobC4kw
+         Sdmb2qv8eX30PlYGvWMEJFw4+1GOshDIVjSrHaBeePOpFcM34e88sJyrRoaUSx28Nl
+         yNHg4kOr3hs/VPKJXrp79Fk+siYW5EPhkL7oZ8n+Pb2RazUmm07L59Fl7lzNv3YnFI
+         ElVJPe4M3JNBK+Jq9CA/dQy8BBQkAlX/0GfW17OCXaL8bV/CteJ3OwAuylMNLiooqg
+         XwbOM9N548vFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zpershuai <zpershuai@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+Cc:     Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 53/80] spi: meson-spicc: fix memory leak in meson_spicc_probe
-Date:   Sun,  4 Jul 2021 19:05:49 -0400
-Message-Id: <20210704230616.1489200-53-sashal@kernel.org>
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 54/80] regulator: mt6315: Fix checking return value of devm_regmap_init_spmi_ext
+Date:   Sun,  4 Jul 2021 19:05:50 -0400
+Message-Id: <20210704230616.1489200-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230616.1489200-1-sashal@kernel.org>
 References: <20210704230616.1489200-1-sashal@kernel.org>
@@ -45,35 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zpershuai <zpershuai@gmail.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit b2d501c13470409ee7613855b17e5e5ec4111e1c ]
+[ Upstream commit 70d654ea3de937d7754c107bb8eeb20e30262c89 ]
 
-when meson_spicc_clk_init returns failed, it should goto the
-out_clk label.
+devm_regmap_init_spmi_ext() returns ERR_PTR() on error.
 
-Signed-off-by: zpershuai <zpershuai@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/1623562156-21995-1-git-send-email-zpershuai@gmail.com
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20210615132934.3453965-1-axel.lin@ingics.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-meson-spicc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/mt6315-regulator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-meson-spicc.c b/drivers/spi/spi-meson-spicc.c
-index 51aef2c6e966..b2c4621db34d 100644
---- a/drivers/spi/spi-meson-spicc.c
-+++ b/drivers/spi/spi-meson-spicc.c
-@@ -752,7 +752,7 @@ static int meson_spicc_probe(struct platform_device *pdev)
- 	ret = meson_spicc_clk_init(spicc);
- 	if (ret) {
- 		dev_err(&pdev->dev, "clock registration failed\n");
--		goto out_master;
-+		goto out_clk;
- 	}
+diff --git a/drivers/regulator/mt6315-regulator.c b/drivers/regulator/mt6315-regulator.c
+index 6b8be52c3772..7514702f78cf 100644
+--- a/drivers/regulator/mt6315-regulator.c
++++ b/drivers/regulator/mt6315-regulator.c
+@@ -223,8 +223,8 @@ static int mt6315_regulator_probe(struct spmi_device *pdev)
+ 	int i;
  
- 	ret = devm_spi_register_master(&pdev->dev, master);
+ 	regmap = devm_regmap_init_spmi_ext(pdev, &mt6315_regmap_config);
+-	if (!regmap)
+-		return -ENODEV;
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
+ 
+ 	chip = devm_kzalloc(dev, sizeof(struct mt6315_chip), GFP_KERNEL);
+ 	if (!chip)
 -- 
 2.30.2
 
