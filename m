@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C8E3BB30F
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 916193BB292
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:14:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231654AbhGDXRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:17:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50600 "EHLO mail.kernel.org"
+        id S231811AbhGDXPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:15:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233975AbhGDXOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233978AbhGDXOt (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F063A61416;
-        Sun,  4 Jul 2021 23:10:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44A8461474;
+        Sun,  4 Jul 2021 23:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440246;
-        bh=37z3XHH9xjvhReLs/bGj/iV8WdTVclypy0jnbAomuwI=;
+        s=k20201202; t=1625440247;
+        bh=GJW+XwTpghEy/djo4LQnTgcM+lW9Hi3uBgSWOPf9BiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTSaNV9DkjEAwS3ZV6ADwVq3uAZ4+8r9SlTtIuQ2q3dRmiPLX4fU2q6L8a+1GsE8g
-         Jufoznrsqhy3rZvtD+K3UE1jpeze7Pl1eRKZIlh4u8jrDFW5/kw0076GoIoac1oQns
-         YCBy2PRAdLf6l+k31z5ffB8fnsVO5lGuBQqR8uGF7isb8xhHyHGA0ctvUaQnnwxH++
-         UYyqwclthXVbVOGJvTtkbKBbtcX4fIjv5jucQQpXqbA1QUht8pnkqdeo7eddf5mERr
-         V2AeCaThEq1xJs+96cI6vx29Rf1tPm8qN4CMKE1FRSBGil/jNeWoDVfqL1ZQd+1efz
-         nHvNgsGqDAonw==
+        b=MvQ3EyBz0v7aRCBd8Jykvi4J0BS8OyaAKPcv4WzyKSFTn3vPskDRufSQCD159KZGE
+         csZNVXPZ428gwsKOojqmSyF00seDu61ZapS9+N26elQn1bwVJPWOXe9K6yA9wBsg9F
+         jKaMV+ChzoNuRZjFcLaw2lnPwDWN3Wy9lSyEJERr99KjYq78C6dL9+JNmPxPQO6FVX
+         fp8S72O/X+2oP+eMGqhLc0uuV6TbNW1V5TsCBATaHNbVDozp/tIOcMwwCRqjPYDkV4
+         sWNwbJJDUc5YjDTjO3tGfSir3hpU9bpWYlHoK7i/XR4nWW6vtDh70TXmeIhPx9yrzv
+         AiOmpm4feGGIg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/31] media: s5p: fix pm_runtime_get_sync() usage count
-Date:   Sun,  4 Jul 2021 19:10:14 -0400
-Message-Id: <20210704231043.1491209-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 03/31] media: sh_vou: fix pm_runtime_get_sync() usage count
+Date:   Sun,  4 Jul 2021 19:10:15 -0400
+Message-Id: <20210704231043.1491209-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231043.1491209-1-sashal@kernel.org>
 References: <20210704231043.1491209-1-sashal@kernel.org>
@@ -46,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit fdc34e82c0f968ac4c157bd3d8c299ebc24c9c63 ]
+[ Upstream commit 6e8b1526db164c9d4b9dacfb9bc48e365d7c4860 ]
 
 The pm_runtime_get_sync() internally increments the
 dev->power.usage_count without decrementing it, even on errors.
@@ -55,37 +53,32 @@ commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with us
 in order to properly decrement the usage counter, avoiding
 a potential PM usage counter leak.
 
-While here, check if the PM runtime error was caught at
-s5p_cec_adap_enable().
+While here, check if the PM runtime error was caught at open time.
 
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-cec/s5p_cec.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/platform/sh_vou.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/s5p-cec/s5p_cec.c b/drivers/media/platform/s5p-cec/s5p_cec.c
-index 8837e2678bde..fe78292df8a6 100644
---- a/drivers/media/platform/s5p-cec/s5p_cec.c
-+++ b/drivers/media/platform/s5p-cec/s5p_cec.c
-@@ -39,10 +39,13 @@ MODULE_PARM_DESC(debug, "debug level (0-2)");
- 
- static int s5p_cec_adap_enable(struct cec_adapter *adap, bool enable)
- {
-+	int ret;
- 	struct s5p_cec_dev *cec = cec_get_drvdata(adap);
- 
- 	if (enable) {
--		pm_runtime_get_sync(cec->dev);
-+		ret = pm_runtime_resume_and_get(cec->dev);
-+		if (ret < 0)
-+			return ret;
- 
- 		s5p_cec_reset(cec);
- 
+diff --git a/drivers/media/platform/sh_vou.c b/drivers/media/platform/sh_vou.c
+index 6135e13e24d4..02d35e34694e 100644
+--- a/drivers/media/platform/sh_vou.c
++++ b/drivers/media/platform/sh_vou.c
+@@ -1144,7 +1144,11 @@ static int sh_vou_open(struct file *file)
+ 	if (v4l2_fh_is_singular_file(file) &&
+ 	    vou_dev->status == SH_VOU_INITIALISING) {
+ 		/* First open */
+-		pm_runtime_get_sync(vou_dev->v4l2_dev.dev);
++		err = pm_runtime_resume_and_get(vou_dev->v4l2_dev.dev);
++		if (err < 0) {
++			v4l2_fh_release(file);
++			goto done_open;
++		}
+ 		err = sh_vou_hw_init(vou_dev);
+ 		if (err < 0) {
+ 			pm_runtime_put(vou_dev->v4l2_dev.dev);
 -- 
 2.30.2
 
