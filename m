@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 928D73BB1DC
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 759B03BB1FD
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:12:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232758AbhGDXNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48966 "EHLO mail.kernel.org"
+        id S232653AbhGDXNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:13:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232401AbhGDXMd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:12:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B68461452;
-        Sun,  4 Jul 2021 23:08:51 +0000 (UTC)
+        id S229530AbhGDXMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:12:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C85E56196C;
+        Sun,  4 Jul 2021 23:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440132;
-        bh=hF4Q/9GmtMFqpmdZrRJtN6H6n90Vyg18Ug/dsbuAqHE=;
+        s=k20201202; t=1625440133;
+        bh=H6I1CzE8LzvNbpcekBj5LRlqnEHe8h7OLwJsoz0QF8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLXdCEqaRaXPHUSjOXCmWsutvWHGySghbmz9JBnQneo/8TdVwNaEKfVWvsmxwyI4g
-         i5fA920ZBK53pHsNdj10ij3jqN9VtOh3mE09CvNUgJAR/tVCsQvZpvU2ZYx1AgnCZD
-         QNURVHtEHygTuIxDrRSQsXXdHPrS8Xo9LHn1EWaoqRw6sZmvEqoRRb1l153Qqsows2
-         V9NVaMkC7qOaFrTlgxaJKT2KKry+ptAYgwXt43/KT1wIeruhO5Em0yRHB0/CYVmda/
-         dIhngIjVzBJtKG4zf+MrGH4k8CFb2eakbZgNvKUmf4jl7jEU1BhPr8i7phJkqD1hI1
-         EwXicHGG+Cl7A==
+        b=JpejvAOp7CZOsdmOtzi04sfg6xfjhUzl4Fnn1FvMcVnBWARraqoFl0qPqtnl7CNTT
+         RJi4G73jy3497PN7mNxonSAFDGftDenwDZwgEiLrQ7i3LLNgUyfSPkxqGGvw9W/iuI
+         M+8PrWwUidoSKkXeDf0LcBHllxHBFawVua5ArHZ0NxyF+aA/C+MnYu5cdoKnSTyrLz
+         /F00IsxTj/tMJkVmpAUu4GMVzckqU42aN7FnPXXTLvlcME+sJW+P7S/yZaW85g+yHH
+         lDxX65YPlFocGtOMat36k7ozvuyw6+BDyEs4K8eravhFs0IOCOu4OY6F+PJOtMDjNC
+         13p/jImO8W8xA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tong Zhang <ztong0001@gmail.com>,
+Cc:     Igor Matheus Andrade Torrente <igormtorrente@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 35/70] media: bt878: do not schedule tasklet when it is not setup
-Date:   Sun,  4 Jul 2021 19:07:28 -0400
-Message-Id: <20210704230804.1490078-35-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 36/70] media: em28xx: Fix possible memory leak of em28xx struct
+Date:   Sun,  4 Jul 2021 19:07:29 -0400
+Message-Id: <20210704230804.1490078-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230804.1490078-1-sashal@kernel.org>
 References: <20210704230804.1490078-1-sashal@kernel.org>
@@ -43,50 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-[ Upstream commit a3a54bf4bddaecda8b5767209cfc703f0be2841d ]
+[ Upstream commit ac5688637144644f06ed1f3c6d4dd8bb7db96020 ]
 
-There is a problem with the tasklet in bt878. bt->tasklet is set by
-dvb-bt8xx.ko, and bt878.ko can be loaded independently.
-In this case if interrupt comes it may cause null-ptr-dereference.
-To solve this issue, we check if the tasklet is actually set before
-calling tasklet_schedule.
+The em28xx struct kref isn't being decreased after an error in the
+em28xx_ir_init, leading to a possible memory leak.
 
-[    1.750438] bt878(0): irq FDSR FBUS risc_pc=
-[    1.750728] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[    1.752969] RIP: 0010:0x0
-[    1.757526] Call Trace:
-[    1.757659]  <IRQ>
-[    1.757770]  tasklet_action_common.isra.0+0x107/0x110
-[    1.758041]  tasklet_action+0x22/0x30
-[    1.758237]  __do_softirq+0xe0/0x29b
-[    1.758430]  irq_exit_rcu+0xa4/0xb0
-[    1.758618]  common_interrupt+0x8d/0xa0
-[    1.758824]  </IRQ>
+A kref_put and em28xx_shutdown_buttons is added to the error handler code.
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/bt8xx/bt878.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/usb/em28xx/em28xx-input.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/bt8xx/bt878.c b/drivers/media/pci/bt8xx/bt878.c
-index 79ba15a9385a..69a304e0db11 100644
---- a/drivers/media/pci/bt8xx/bt878.c
-+++ b/drivers/media/pci/bt8xx/bt878.c
-@@ -300,7 +300,8 @@ static irqreturn_t bt878_irq(int irq, void *dev_id)
+diff --git a/drivers/media/usb/em28xx/em28xx-input.c b/drivers/media/usb/em28xx/em28xx-input.c
+index 5aa15a7a49de..59529cbf9cd0 100644
+--- a/drivers/media/usb/em28xx/em28xx-input.c
++++ b/drivers/media/usb/em28xx/em28xx-input.c
+@@ -720,7 +720,8 @@ static int em28xx_ir_init(struct em28xx *dev)
+ 			dev->board.has_ir_i2c = 0;
+ 			dev_warn(&dev->intf->dev,
+ 				 "No i2c IR remote control device found.\n");
+-			return -ENODEV;
++			err = -ENODEV;
++			goto ref_put;
  		}
- 		if (astat & BT878_ARISCI) {
- 			bt->finished_block = (stat & BT878_ARISCS) >> 28;
--			tasklet_schedule(&bt->tasklet);
-+			if (bt->tasklet.callback)
-+				tasklet_schedule(&bt->tasklet);
- 			break;
- 		}
- 		count++;
+ 	}
+ 
+@@ -735,7 +736,7 @@ static int em28xx_ir_init(struct em28xx *dev)
+ 
+ 	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
+ 	if (!ir)
+-		return -ENOMEM;
++		goto ref_put;
+ 	rc = rc_allocate_device(RC_DRIVER_SCANCODE);
+ 	if (!rc)
+ 		goto error;
+@@ -839,6 +840,9 @@ static int em28xx_ir_init(struct em28xx *dev)
+ 	dev->ir = NULL;
+ 	rc_free_device(rc);
+ 	kfree(ir);
++ref_put:
++	em28xx_shutdown_buttons(dev);
++	kref_put(&dev->ref, em28xx_free_device);
+ 	return err;
+ }
+ 
 -- 
 2.30.2
 
