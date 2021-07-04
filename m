@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAED33BB140
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:10:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E10433BB143
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232289AbhGDXLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:11:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50590 "EHLO mail.kernel.org"
+        id S232305AbhGDXLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:11:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230350AbhGDXKQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S229881AbhGDXKQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:10:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA5A7613F3;
-        Sun,  4 Jul 2021 23:07:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1776E613E5;
+        Sun,  4 Jul 2021 23:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440058;
-        bh=eTrAhuEnhf1jwS563QR50Re9w5Dovg9QzGL1lL+ozPY=;
+        s=k20201202; t=1625440059;
+        bh=jGefM4KX59krCZI0Jsx9eGT5A89qWv1VfSStZg28we0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvOB7QoUTG/nrc1DtjGD1mxjaFBF25L2wBr7MMLYwnB4QpN5nknqOMeokRtEQ2XeT
-         tljpCEWJ0hgir3xT70BS6NuF3xgtHx8dK968FYqYuzC2X7Z6HN+sGr3TTYpz9C1G7O
-         oJbGW3l6fD4xfa/QJGlPdJZySwzQxjXe9885OECbmbWLQjxjOxMzQQ+61w/r81MXNC
-         mSlE/sA3NCf6AVJ7O+z4B/XSsMNPGR2+AdFgXsS2aDunwrkp3Mdbeeq+wHkTOnGyx0
-         fZEXNsQFDXGMvg0Pz7tt/H0eWCK95jb9fYRPXp0pJLBSlNRE4NExsLJhAmi+yb4Rf2
-         +PaIInuUfhcVQ==
+        b=mqwMrXgY/Ii0GOSSVgoepmtFT3ZITnBfQXdUeAB2kcVY4X1xmjwoyKY8KubRLj2sY
+         99WYh6/8EgO3mklQvcAZx+rB99DSZB0z1WEo976A6wyTggSuzJoII34wU7djW4coNX
+         1784MmrWVzNIoL1crOfo/yLt8lw25fq+JVyLnNZ4GB2rmMeEYv6a8+VB4kD/I8EPI8
+         mnt7PaUBTqb+i/lED2ok/5J7JDx97yOd0voOFgEwNFXr7juat1U2pZ7DZJwIlNCyRT
+         G6sKqJC5OtF9pWHIbt2PmZnp6TsTUZCmatjjRsqWcHGfvvaTYqyBqgZtHj0ZXaz8es
+         unGVZIY+/eVhg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        =?UTF-8?q?Jan=20Kundr=C3=A1t?= <jan.kundrat@cesnet.cz>,
-        =?UTF-8?q?V=C3=A1clav=20Kubern=C3=A1t?= <kubernat@cesnet.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 61/80] hwmon: (max31790) Fix pwmX_enable attributes
-Date:   Sun,  4 Jul 2021 19:05:57 -0400
-Message-Id: <20210704230616.1489200-61-sashal@kernel.org>
+Cc:     Lukasz Luba <lukasz.luba@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 62/80] sched/fair: Take thermal pressure into account while estimating energy
+Date:   Sun,  4 Jul 2021 19:05:58 -0400
+Message-Id: <20210704230616.1489200-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230616.1489200-1-sashal@kernel.org>
 References: <20210704230616.1489200-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,135 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Lukasz Luba <lukasz.luba@arm.com>
 
-[ Upstream commit 148c847c9e5a54b99850617bf9c143af9a344f92 ]
+[ Upstream commit 489f16459e0008c7a5c4c5af34bd80898aa82c2d ]
 
-pwmX_enable supports three possible values:
+Energy Aware Scheduling (EAS) needs to be able to predict the frequency
+requests made by the SchedUtil governor to properly estimate energy used
+in the future. It has to take into account CPUs utilization and forecast
+Performance Domain (PD) frequency. There is a corner case when the max
+allowed frequency might be reduced due to thermal. SchedUtil is aware of
+that reduced frequency, so it should be taken into account also in EAS
+estimations.
 
-0: Fan control disabled. Duty cycle is fixed to 0%
-1: Fan control enabled, pwm mode. Duty cycle is determined by
-   values written into Target Duty Cycle registers.
-2: Fan control enabled, rpm mode
-   Duty cycle is adjusted such that fan speed matches
-   the values in Target Count registers
+SchedUtil, as a CPUFreq governor, knows the maximum allowed frequency of
+a CPU, thanks to cpufreq_driver_resolve_freq() and internal clamping
+to 'policy::max'. SchedUtil is responsible to respect that upper limit
+while setting the frequency through CPUFreq drivers. This effective
+frequency is stored internally in 'sugov_policy::next_freq' and EAS has
+to predict that value.
 
-The current code does not do this; instead, it mixes pwm control
-configuration with fan speed monitoring configuration. Worse, it
-reports that pwm control would be disabled (pwmX_enable==0) when
-it is in fact enabled in pwm mode. Part of the problem may be that
-the chip sets the "TACH input enable" bit on its own whenever the
-mode bit is set to RPM mode, but that doesn't mean that "TACH input
-enable" accurately reflects the pwm mode.
+In the existing code the raw value of arch_scale_cpu_capacity() is used
+for clamping the returned CPU utilization from effective_cpu_util().
+This patch fixes issue with too big single CPU utilization, by introducing
+clamping to the allowed CPU capacity. The allowed CPU capacity is a CPU
+capacity reduced by thermal pressure raw value.
 
-Fix it up and only handle pwm control with the pwmX_enable attributes.
-In the documentation, clarify that disabling pwm control (pwmX_enable=0)
-sets the pwm duty cycle to 0%. In the code, explain why TACH_INPUT_EN
-is set together with RPM_MODE.
+Thanks to knowledge about allowed CPU capacity, we don't get too big value
+for a single CPU utilization, which is then added to the util sum. The
+util sum is used as a source of information for estimating whole PD energy.
+To avoid wrong energy estimation in EAS (due to capped frequency), make
+sure that the calculation of util sum is aware of allowed CPU capacity.
 
-While at it, only update the configuration register if the configuration
-has changed, and only update the cached configuration if updating the
-chip configuration was successful.
+This thermal pressure might be visible in scenarios where the CPUs are not
+heavily loaded, but some other component (like GPU) drastically reduced
+available power budget and increased the SoC temperature. Thus, we still
+use EAS for task placement and CPUs are not over-utilized.
 
-Cc: Jan Kundrát <jan.kundrat@cesnet.cz>
-Cc: Václav Kubernát <kubernat@cesnet.cz>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Václav Kubernát <kubernat@cesnet.cz>
-Reviewed-by: Jan Kundrát <jan.kundrat@cesnet.cz>
-Link: https://lore.kernel.org/r/20210526154022.3223012-4-linux@roeck-us.net
+Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Link: https://lore.kernel.org/r/20210614191128.22735-1-lukasz.luba@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/hwmon/max31790.rst |  2 +-
- drivers/hwmon/max31790.c         | 41 ++++++++++++++++++++------------
- 2 files changed, 27 insertions(+), 16 deletions(-)
+ kernel/sched/fair.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/hwmon/max31790.rst b/Documentation/hwmon/max31790.rst
-index 54ff0f49e28f..7b097c3b9b90 100644
---- a/Documentation/hwmon/max31790.rst
-+++ b/Documentation/hwmon/max31790.rst
-@@ -38,7 +38,7 @@ Sysfs entries
- fan[1-12]_input    RO  fan tachometer speed in RPM
- fan[1-12]_fault    RO  fan experienced fault
- fan[1-6]_target    RW  desired fan speed in RPM
--pwm[1-6]_enable    RW  regulator mode, 0=disabled, 1=manual mode, 2=rpm mode
-+pwm[1-6]_enable    RW  regulator mode, 0=disabled (duty cycle=0%), 1=manual mode, 2=rpm mode
- pwm[1-6]           RW  read: current pwm duty cycle,
-                        write: target pwm duty cycle (0-255)
- ================== === =======================================================
-diff --git a/drivers/hwmon/max31790.c b/drivers/hwmon/max31790.c
-index 8ad7a45bfe68..76aa96f5b984 100644
---- a/drivers/hwmon/max31790.c
-+++ b/drivers/hwmon/max31790.c
-@@ -27,6 +27,7 @@
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 272c583fc167..20ac5dff9a0c 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6564,8 +6564,11 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
+ 	struct cpumask *pd_mask = perf_domain_span(pd);
+ 	unsigned long cpu_cap = arch_scale_cpu_capacity(cpumask_first(pd_mask));
+ 	unsigned long max_util = 0, sum_util = 0;
++	unsigned long _cpu_cap = cpu_cap;
+ 	int cpu;
  
- /* Fan Config register bits */
- #define MAX31790_FAN_CFG_RPM_MODE	0x80
-+#define MAX31790_FAN_CFG_CTRL_MON	0x10
- #define MAX31790_FAN_CFG_TACH_INPUT_EN	0x08
- #define MAX31790_FAN_CFG_TACH_INPUT	0x01
++	_cpu_cap -= arch_scale_thermal_pressure(cpumask_first(pd_mask));
++
+ 	/*
+ 	 * The capacity state of CPUs of the current rd can be driven by CPUs
+ 	 * of another rd if they belong to the same pd. So, account for the
+@@ -6601,8 +6604,10 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
+ 		 * is already enough to scale the EM reported power
+ 		 * consumption at the (eventually clamped) cpu_capacity.
+ 		 */
+-		sum_util += effective_cpu_util(cpu, util_running, cpu_cap,
+-					       ENERGY_UTIL, NULL);
++		cpu_util = effective_cpu_util(cpu, util_running, cpu_cap,
++					      ENERGY_UTIL, NULL);
++
++		sum_util += min(cpu_util, _cpu_cap);
  
-@@ -271,12 +272,12 @@ static int max31790_read_pwm(struct device *dev, u32 attr, int channel,
- 		*val = data->pwm[channel] >> 8;
- 		return 0;
- 	case hwmon_pwm_enable:
--		if (fan_config & MAX31790_FAN_CFG_RPM_MODE)
-+		if (fan_config & MAX31790_FAN_CFG_CTRL_MON)
-+			*val = 0;
-+		else if (fan_config & MAX31790_FAN_CFG_RPM_MODE)
- 			*val = 2;
--		else if (fan_config & MAX31790_FAN_CFG_TACH_INPUT_EN)
--			*val = 1;
- 		else
--			*val = 0;
-+			*val = 1;
- 		return 0;
- 	default:
- 		return -EOPNOTSUPP;
-@@ -307,23 +308,33 @@ static int max31790_write_pwm(struct device *dev, u32 attr, int channel,
- 	case hwmon_pwm_enable:
- 		fan_config = data->fan_config[channel];
- 		if (val == 0) {
--			fan_config &= ~(MAX31790_FAN_CFG_TACH_INPUT_EN |
--					MAX31790_FAN_CFG_RPM_MODE);
-+			fan_config |= MAX31790_FAN_CFG_CTRL_MON;
-+			/*
-+			 * Disable RPM mode; otherwise disabling fan speed
-+			 * monitoring is not possible.
-+			 */
-+			fan_config &= ~MAX31790_FAN_CFG_RPM_MODE;
- 		} else if (val == 1) {
--			fan_config = (fan_config |
--				      MAX31790_FAN_CFG_TACH_INPUT_EN) &
--				     ~MAX31790_FAN_CFG_RPM_MODE;
-+			fan_config &= ~(MAX31790_FAN_CFG_CTRL_MON | MAX31790_FAN_CFG_RPM_MODE);
- 		} else if (val == 2) {
--			fan_config |= MAX31790_FAN_CFG_TACH_INPUT_EN |
--				      MAX31790_FAN_CFG_RPM_MODE;
-+			fan_config &= ~MAX31790_FAN_CFG_CTRL_MON;
-+			/*
-+			 * The chip sets MAX31790_FAN_CFG_TACH_INPUT_EN on its
-+			 * own if MAX31790_FAN_CFG_RPM_MODE is set.
-+			 * Do it here as well to reflect the actual register
-+			 * value in the cache.
-+			 */
-+			fan_config |= (MAX31790_FAN_CFG_RPM_MODE | MAX31790_FAN_CFG_TACH_INPUT_EN);
- 		} else {
- 			err = -EINVAL;
- 			break;
- 		}
--		data->fan_config[channel] = fan_config;
--		err = i2c_smbus_write_byte_data(client,
--					MAX31790_REG_FAN_CONFIG(channel),
--					fan_config);
-+		if (fan_config != data->fan_config[channel]) {
-+			err = i2c_smbus_write_byte_data(client, MAX31790_REG_FAN_CONFIG(channel),
-+							fan_config);
-+			if (!err)
-+				data->fan_config[channel] = fan_config;
-+		}
- 		break;
- 	default:
- 		err = -EOPNOTSUPP;
+ 		/*
+ 		 * Performance domain frequency: utilization clamping
+@@ -6613,7 +6618,7 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
+ 		 */
+ 		cpu_util = effective_cpu_util(cpu, util_freq, cpu_cap,
+ 					      FREQUENCY_UTIL, tsk);
+-		max_util = max(max_util, cpu_util);
++		max_util = max(max_util, min(cpu_util, _cpu_cap));
+ 	}
+ 
+ 	return em_cpu_energy(pd->em_pd, max_util, sum_util);
 -- 
 2.30.2
 
