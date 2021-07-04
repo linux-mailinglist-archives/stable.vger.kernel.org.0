@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 991793BB349
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:16:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FEF53BB347
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230417AbhGDXRt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:17:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56944 "EHLO mail.kernel.org"
+        id S231255AbhGDXRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:17:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234377AbhGDXPG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234380AbhGDXPG (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:15:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B78E0613FC;
-        Sun,  4 Jul 2021 23:12:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 271B4613F9;
+        Sun,  4 Jul 2021 23:12:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440346;
-        bh=xNZHQJvcgNRFaQ8eiwggEpWrLCEadieOmm+NlS87DBc=;
+        s=k20201202; t=1625440348;
+        bh=qBkLDj45rb1PF1V9JD3djCM3r5QgQxga8StteyAHacw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmZKOJLRaQNEchyMHfHmea06e8rIPTE4DrXG0WKQSFZZ/Q9fUe4He/KWNqCq8TJKm
-         yhEIKLceAnBSyeGqK+ea1IKLZQe9bd8Inw8Ts78atQzLpjPBiJEuVzwGTd22Gc90eD
-         JA8fVpReYoAN9OdoO1uweEMT0FACPAGTXa8UXImfyaIQYh33sxy6ujCEWcOHBlc3cz
-         WxG1Wa+sUOTOVBbvFbCNLJ5JJstdwIBEQnbQ4wPZVYh+r3j1F0ulZs/sc5ewLUClOe
-         x6EmLOMNeKr13mGHXq6FZdq17/EOlwib++T1uDnADy/qp83PqZ7v8P55jRUJzUelGw
-         gNSztrdd4hhog==
+        b=t5t5JGx+NY82FZkogefPEtKPSOgeYJt11lq0YaHq9huJFxqHnCWoPZsMRCDmeIt2w
+         92bVIO5G0ZYcrUveRZ6OdGmqXJURT01Vt0kcM9fW7/nK+DDyEYdEC5yagpursQAYJD
+         fa+bX+zocs6fmXZnBdm1OSKC/XMIYbxLwXVIA94J0nfnrYznKH2LfxCxZ9ir8ErHPJ
+         YAn3mSK4gyOhJ9/XcQ7JwrAbSEzJjyClIn9Lkom7RukEcUt78tuIkYZvHgrA9J4cV+
+         32UA0W3khPkCWiMYIzV5vTPTvD9/G4k7fdoWMEe8AjxYKpkkWGLtNV+he0mKECs9m4
+         iB3dcih70oskw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 03/15] crypto: nx - add missing MODULE_DEVICE_TABLE
-Date:   Sun,  4 Jul 2021 19:12:09 -0400
-Message-Id: <20210704231222.1492037-3-sashal@kernel.org>
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+d1e69c888f0d3866ead4@syzkaller.appspotmail.com,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 04/15] media: cpia2: fix memory leak in cpia2_usb_probe
+Date:   Sun,  4 Jul 2021 19:12:10 -0400
+Message-Id: <20210704231222.1492037-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231222.1492037-1-sashal@kernel.org>
 References: <20210704231222.1492037-1-sashal@kernel.org>
@@ -43,34 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 06676aa1f455c74e3ad1624cea3acb9ed2ef71ae ]
+[ Upstream commit be8656e62e9e791837b606a027802b504a945c97 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+syzbot reported leak in cpia2 usb driver. The problem was
+in invalid error handling.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+v4l2_device_register() is called in cpia2_init_camera_struct(), but
+all error cases after cpia2_init_camera_struct() did not call the
+v4l2_device_unregister()
+
+Reported-by: syzbot+d1e69c888f0d3866ead4@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/nx/nx-842-pseries.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/cpia2/cpia2.h      |  1 +
+ drivers/media/usb/cpia2/cpia2_core.c | 12 ++++++++++++
+ drivers/media/usb/cpia2/cpia2_usb.c  | 13 +++++++------
+ 3 files changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/crypto/nx/nx-842-pseries.c b/drivers/crypto/nx/nx-842-pseries.c
-index cddc6d8b55d9..2e5b4004f0ee 100644
---- a/drivers/crypto/nx/nx-842-pseries.c
-+++ b/drivers/crypto/nx/nx-842-pseries.c
-@@ -1086,6 +1086,7 @@ static struct vio_device_id nx842_vio_driver_ids[] = {
- 	{"ibm,compression-v1", "ibm,compression"},
- 	{"", ""},
- };
-+MODULE_DEVICE_TABLE(vio, nx842_vio_driver_ids);
+diff --git a/drivers/media/usb/cpia2/cpia2.h b/drivers/media/usb/cpia2/cpia2.h
+index cdef677d57ec..80a7af6482ae 100644
+--- a/drivers/media/usb/cpia2/cpia2.h
++++ b/drivers/media/usb/cpia2/cpia2.h
+@@ -442,6 +442,7 @@ int cpia2_send_command(struct camera_data *cam, struct cpia2_command *cmd);
+ int cpia2_do_command(struct camera_data *cam,
+ 		     unsigned int command,
+ 		     unsigned char direction, unsigned char param);
++void cpia2_deinit_camera_struct(struct camera_data *cam, struct usb_interface *intf);
+ struct camera_data *cpia2_init_camera_struct(struct usb_interface *intf);
+ int cpia2_init_camera(struct camera_data *cam);
+ int cpia2_allocate_buffers(struct camera_data *cam);
+diff --git a/drivers/media/usb/cpia2/cpia2_core.c b/drivers/media/usb/cpia2/cpia2_core.c
+index 187012ce444b..35c9e00267d5 100644
+--- a/drivers/media/usb/cpia2/cpia2_core.c
++++ b/drivers/media/usb/cpia2/cpia2_core.c
+@@ -2158,6 +2158,18 @@ static void reset_camera_struct(struct camera_data *cam)
+ 	cam->height = cam->params.roi.height;
+ }
  
- static struct vio_driver nx842_vio_driver = {
- 	.name = KBUILD_MODNAME,
++/******************************************************************************
++ *
++ *  cpia2_init_camera_struct
++ *
++ *  Deinitialize camera struct
++ *****************************************************************************/
++void cpia2_deinit_camera_struct(struct camera_data *cam, struct usb_interface *intf)
++{
++	v4l2_device_unregister(&cam->v4l2_dev);
++	kfree(cam);
++}
++
+ /******************************************************************************
+  *
+  *  cpia2_init_camera_struct
+diff --git a/drivers/media/usb/cpia2/cpia2_usb.c b/drivers/media/usb/cpia2/cpia2_usb.c
+index 76b9cb940b87..7bd50feadfe4 100644
+--- a/drivers/media/usb/cpia2/cpia2_usb.c
++++ b/drivers/media/usb/cpia2/cpia2_usb.c
+@@ -835,15 +835,13 @@ static int cpia2_usb_probe(struct usb_interface *intf,
+ 	ret = set_alternate(cam, USBIF_CMDONLY);
+ 	if (ret < 0) {
+ 		ERR("%s: usb_set_interface error (ret = %d)\n", __func__, ret);
+-		kfree(cam);
+-		return ret;
++		goto alt_err;
+ 	}
+ 
+ 
+ 	if((ret = cpia2_init_camera(cam)) < 0) {
+ 		ERR("%s: failed to initialize cpia2 camera (ret = %d)\n", __func__, ret);
+-		kfree(cam);
+-		return ret;
++		goto alt_err;
+ 	}
+ 	LOG("  CPiA Version: %d.%02d (%d.%d)\n",
+ 	       cam->params.version.firmware_revision_hi,
+@@ -863,11 +861,14 @@ static int cpia2_usb_probe(struct usb_interface *intf,
+ 	ret = cpia2_register_camera(cam);
+ 	if (ret < 0) {
+ 		ERR("%s: Failed to register cpia2 camera (ret = %d)\n", __func__, ret);
+-		kfree(cam);
+-		return ret;
++		goto alt_err;
+ 	}
+ 
+ 	return 0;
++
++alt_err:
++	cpia2_deinit_camera_struct(cam, intf);
++	return ret;
+ }
+ 
+ /******************************************************************************
 -- 
 2.30.2
 
