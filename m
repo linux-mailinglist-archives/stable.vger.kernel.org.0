@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 891BE3BB094
+	by mail.lfdr.de (Postfix) with ESMTP id D50323BB095
 	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:08:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231544AbhGDXIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:08:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46604 "EHLO mail.kernel.org"
+        id S231546AbhGDXI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:08:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231303AbhGDXI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:08:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23B0B6141C;
-        Sun,  4 Jul 2021 23:05:50 +0000 (UTC)
+        id S229740AbhGDXI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:08:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F5EC611ED;
+        Sun,  4 Jul 2021 23:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439950;
-        bh=Y79Tu5inYouxog4c2RHMq8XZy2RswmsWUHasd3uD/K4=;
+        s=k20201202; t=1625439952;
+        bh=GZThXBkEDJrPkBQ6gYuFdb3WkyY1+rD+VFNgn18u+z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L15+rRwWSr6NrQOE3aWb4LRDamAasga4S2+Pmn2zrWzLHBnL5zW1dQxCOMOz7tpN/
-         tqCiI3WC8w24QbKvbg7e5atY4RSh3i81QROcB/DtbtjV70pyg9L442+Zok9tBIjI/K
-         WZiEpf4Cz7Zvxx73uPUddmkxkFtSbGpzK1qVgTJYTANXzR1XOWkL5dCyQ2+k2/chZe
-         sSym0MTiyOM5cnPTbbSh5jcSxwxnWkuSJqtMQD6UDGPIULyc556bK84hd35b1HAIAK
-         QC0mRK3yLLmoQH0bGSyIhBBO/uMSCUh6VNXZz2AnwAtK/kZqPwPj3re+ENIs6uj/Mn
-         HEBeyfhs2CzHg==
+        b=fCgQr/5V/6thl2FbtWFfp1K4lguGpU84+xutcAAw2iRkFwsvisCT+0SFz/RN7kQsJ
+         4OVJYFMfyIsaEUM6Y6jkC3oEszPNb9VtNmnjjVE9Lg+D94zf2m8jfwnKZOwW3rZ//p
+         nFhX3KOUo2/NvAn2LPlfO/77jDNWKJi+3xBj1oZpQY1Z3BhT31vFjGtdbUGSsPyok6
+         i7eAY1j21purXaRtcRmEAU0wnFAi52nS1yYm2pn8+fVODBbgDnYg/Q5o6HRLywG7SU
+         FxOGw13Fqj5O2edb5lmnE5n+cUQ3Qtkvt/Gc1BdVjMjWIKgjYMDcBJWWhlc61upm8g
+         9TxMsg4frkjiw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-perf-users@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 66/85] perf/x86: Reset the dirty counter to prevent the leak for an RDPMC task
-Date:   Sun,  4 Jul 2021 19:04:01 -0400
-Message-Id: <20210704230420.1488358-66-sashal@kernel.org>
+Cc:     Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.13 67/85] drivers/perf: fix the missed ida_simple_remove() in ddr_perf_probe()
+Date:   Sun,  4 Jul 2021 19:04:02 -0400
+Message-Id: <20210704230420.1488358-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230420.1488358-1-sashal@kernel.org>
 References: <20210704230420.1488358-1-sashal@kernel.org>
@@ -43,229 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 5471eea5d3bf850316f1064a6f57b34c444bce67 ]
+[ Upstream commit d96b1b8c9f79b6bb234a31c80972a6f422079376 ]
 
-The counter value of a perf task may leak to another RDPMC task.
-For example, a perf stat task as below is running on CPU 0.
+ddr_perf_probe() misses to call ida_simple_remove() in an error path.
+Jump to cpuhp_state_err to fix it.
 
-    perf stat -e 'branches,cycles' -- taskset -c 0 ./workload
-
-In the meantime, an RDPMC task, which is also running on CPU 0, may read
-the GP counters periodically. (The RDPMC task creates a fixed event,
-but read four GP counters.)
-
-    $./rdpmc_read_all_counters
-    index 0x0 value 0x8001e5970f99
-    index 0x1 value 0x8005d750edb6
-    index 0x2 value 0x0
-    index 0x3 value 0x0
-
-    index 0x0 value 0x8002358e48a5
-    index 0x1 value 0x8006bd1e3bc9
-    index 0x2 value 0x0
-    index 0x3 value 0x0
-
-It is a potential security issue. Once the attacker knows what the other
-thread is counting. The PerfMon counter can be used as a side-channel to
-attack cryptosystems.
-
-The counter value of the perf stat task leaks to the RDPMC task because
-perf never clears the counter when it's stopped.
-
-Three methods were considered to address the issue.
-
- - Unconditionally reset the counter in x86_pmu_del(). It can bring extra
-   overhead even when there is no RDPMC task running.
-
- - Only reset the un-assigned dirty counters when the RDPMC task is
-   scheduled in via sched_task(). It fails for the below case.
-
-	Thread A			Thread B
-
-	clone(CLONE_THREAD) --->
-	set_affine(0)
-					set_affine(1)
-					while (!event-enabled)
-						;
-	event = perf_event_open()
-	mmap(event)
-	ioctl(event, IOC_ENABLE); --->
-					RDPMC
-
-   Counters are still leaked to the thread B.
-
- - Only reset the un-assigned dirty counters before updating the CR4.PCE
-   bit. The method is implemented here.
-
-The dirty counter is a counter, on which the assigned event has been
-deleted, but the counter is not reset. To track the dirty counters,
-add a 'dirty' variable in the struct cpu_hw_events.
-
-The security issue can only be found with an RDPMC task. To enable the
-RDMPC, the CR4.PCE bit has to be updated. Add a
-perf_clear_dirty_counters() right before updating the CR4.PCE bit to
-clear the existing dirty counters. Only the current un-assigned dirty
-counters are reset, because the RDPMC assigned dirty counters will be
-updated soon.
-
-After applying the patch,
-
-        $ ./rdpmc_read_all_counters
-        index 0x0 value 0x0
-        index 0x1 value 0x0
-        index 0x2 value 0x0
-        index 0x3 value 0x0
-
-        index 0x0 value 0x0
-        index 0x1 value 0x0
-        index 0x2 value 0x0
-        index 0x3 value 0x0
-
-Performance
-
-The performance of a context switch only be impacted when there are two
-or more perf users and one of the users must be an RDPMC user. In other
-cases, there is no performance impact.
-
-The worst-case occurs when there are two users: the RDPMC user only
-uses one counter; while the other user uses all available counters.
-When the RDPMC task is scheduled in, all the counters, other than the
-RDPMC assigned one, have to be reset.
-
-Test results for the worst-case, using a modified lat_ctx as measured
-on an Ice Lake platform, which has 8 GP and 3 FP counters (ignoring
-SLOTS).
-
-    lat_ctx -s 128K -N 1000 processes 2
-
-Without the patch:
-  The context switch time is 4.97 us
-
-With the patch:
-  The context switch time is 5.16 us
-
-There is ~4% performance drop for the context switching time in the
-worst-case.
-
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/1623693582-187370-1-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Link: https://lore.kernel.org/r/20210617122614.166823-1-jingxiangfeng@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/core.c            | 28 +++++++++++++++++++++++++++-
- arch/x86/events/perf_event.h      |  1 +
- arch/x86/include/asm/perf_event.h |  1 +
- arch/x86/mm/tlb.c                 | 10 ++++++++--
- 4 files changed, 37 insertions(+), 3 deletions(-)
+ drivers/perf/fsl_imx8_ddr_perf.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-index 8f71dd72ef95..1eb45139fcc6 100644
---- a/arch/x86/events/core.c
-+++ b/arch/x86/events/core.c
-@@ -1626,6 +1626,8 @@ static void x86_pmu_del(struct perf_event *event, int flags)
- 	if (cpuc->txn_flags & PERF_PMU_TXN_ADD)
- 		goto do_del;
+diff --git a/drivers/perf/fsl_imx8_ddr_perf.c b/drivers/perf/fsl_imx8_ddr_perf.c
+index 2bbb93188064..7b87aaf267d5 100644
+--- a/drivers/perf/fsl_imx8_ddr_perf.c
++++ b/drivers/perf/fsl_imx8_ddr_perf.c
+@@ -705,8 +705,10 @@ static int ddr_perf_probe(struct platform_device *pdev)
  
-+	__set_bit(event->hw.idx, cpuc->dirty);
-+
- 	/*
- 	 * Not a TXN, therefore cleanup properly.
- 	 */
-@@ -2474,6 +2476,31 @@ static int x86_pmu_event_init(struct perf_event *event)
- 	return err;
- }
- 
-+void perf_clear_dirty_counters(void)
-+{
-+	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
-+	int i;
-+
-+	 /* Don't need to clear the assigned counter. */
-+	for (i = 0; i < cpuc->n_events; i++)
-+		__clear_bit(cpuc->assign[i], cpuc->dirty);
-+
-+	if (bitmap_empty(cpuc->dirty, X86_PMC_IDX_MAX))
-+		return;
-+
-+	for_each_set_bit(i, cpuc->dirty, X86_PMC_IDX_MAX) {
-+		/* Metrics and fake events don't have corresponding HW counters. */
-+		if (is_metric_idx(i) || (i == INTEL_PMC_IDX_FIXED_VLBR))
-+			continue;
-+		else if (i >= INTEL_PMC_IDX_FIXED)
-+			wrmsrl(MSR_ARCH_PERFMON_FIXED_CTR0 + (i - INTEL_PMC_IDX_FIXED), 0);
-+		else
-+			wrmsrl(x86_pmu_event_addr(i), 0);
+ 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, DDR_PERF_DEV_NAME "%d",
+ 			      num);
+-	if (!name)
+-		return -ENOMEM;
++	if (!name) {
++		ret = -ENOMEM;
++		goto cpuhp_state_err;
 +	}
-+
-+	bitmap_zero(cpuc->dirty, X86_PMC_IDX_MAX);
-+}
-+
- static void x86_pmu_event_mapped(struct perf_event *event, struct mm_struct *mm)
- {
- 	if (!(event->hw.flags & PERF_X86_EVENT_RDPMC_ALLOWED))
-@@ -2497,7 +2524,6 @@ static void x86_pmu_event_mapped(struct perf_event *event, struct mm_struct *mm)
  
- static void x86_pmu_event_unmapped(struct perf_event *event, struct mm_struct *mm)
- {
--
- 	if (!(event->hw.flags & PERF_X86_EVENT_RDPMC_ALLOWED))
- 		return;
- 
-diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
-index ad87cb36f7c8..2bf1c7ea2758 100644
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -229,6 +229,7 @@ struct cpu_hw_events {
- 	 */
- 	struct perf_event	*events[X86_PMC_IDX_MAX]; /* in counter order */
- 	unsigned long		active_mask[BITS_TO_LONGS(X86_PMC_IDX_MAX)];
-+	unsigned long		dirty[BITS_TO_LONGS(X86_PMC_IDX_MAX)];
- 	int			enabled;
- 
- 	int			n_events; /* the # of events in the below arrays */
-diff --git a/arch/x86/include/asm/perf_event.h b/arch/x86/include/asm/perf_event.h
-index 544f41a179fb..8fc1b5003713 100644
---- a/arch/x86/include/asm/perf_event.h
-+++ b/arch/x86/include/asm/perf_event.h
-@@ -478,6 +478,7 @@ struct x86_pmu_lbr {
- 
- extern void perf_get_x86_pmu_capability(struct x86_pmu_capability *cap);
- extern void perf_check_microcode(void);
-+extern void perf_clear_dirty_counters(void);
- extern int x86_perf_rdpmc_index(struct perf_event *event);
- #else
- static inline void perf_get_x86_pmu_capability(struct x86_pmu_capability *cap)
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 78804680e923..cfe6b1e85fa6 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -14,6 +14,7 @@
- #include <asm/nospec-branch.h>
- #include <asm/cache.h>
- #include <asm/apic.h>
-+#include <asm/perf_event.h>
- 
- #include "mm_internal.h"
- 
-@@ -404,9 +405,14 @@ static inline void cr4_update_pce_mm(struct mm_struct *mm)
- {
- 	if (static_branch_unlikely(&rdpmc_always_available_key) ||
- 	    (!static_branch_unlikely(&rdpmc_never_available_key) &&
--	     atomic_read(&mm->context.perf_rdpmc_allowed)))
-+	     atomic_read(&mm->context.perf_rdpmc_allowed))) {
-+		/*
-+		 * Clear the existing dirty counters to
-+		 * prevent the leak for an RDPMC task.
-+		 */
-+		perf_clear_dirty_counters();
- 		cr4_set_bits_irqsoff(X86_CR4_PCE);
--	else
-+	} else
- 		cr4_clear_bits_irqsoff(X86_CR4_PCE);
- }
+ 	pmu->devtype_data = of_device_get_match_data(&pdev->dev);
  
 -- 
 2.30.2
