@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 209A53BB2C8
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA0803BB311
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233186AbhGDXQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:16:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57068 "EHLO mail.kernel.org"
+        id S233383AbhGDXRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:17:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234058AbhGDXOw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234077AbhGDXOw (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07ED3619AD;
-        Sun,  4 Jul 2021 23:11:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B9CA619AE;
+        Sun,  4 Jul 2021 23:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440265;
-        bh=uVfsS63Qi3htFTA0i7wUs5QP7thxs7kRT0WREXLPXCE=;
+        s=k20201202; t=1625440267;
+        bh=FDm9lmUGfFP/rBX18p2Hhq4VW+iQ9IuZ4GLw+Nndhdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhM1bKMOo/qvkiinJwztq0+MRIyVugeC6Jhjez3h7iCwcCU133RIrVtJrPRstt1D7
-         2MnElsU1CXAf2TCfyaBOQnHS6XmjiYKnZjoWnqX7b7XEN+WU5k4Z8O4JFJ1RhRIGy3
-         ZGqs5ZWyuHMIsCSJcIGuS8EJcPOeI4hq9lps23OklUbNZ/30JFRBkQ16MTjbDX7BHM
-         QGVZwMthJPqH8Y4hfL4AbL6nKalDb0EWajZQBboJaHeTBzY14cakx9lrOQLY0YhkNp
-         KHl7YEylMUIvwg8tkv6Vqb3J7GbZmQXcwRD6F+Yytdgb+P/0IcMU57iKVaIvwKMPdm
-         LXX35Pp+VrlLQ==
+        b=g1az6AIS/1MBQG+/wRwcwPeKxtrtYvigCCSk9d33CTDq5O2M0ptHNmqD/y9WgFhjj
+         3YlbYKVBX10fiRgVQ7EGTz1JHJWw33IFVLQEkDUA/Ck3Hojk30KgMeSzQNVhqhIesV
+         AAkS5ju+iKcfjijMcxvYCcPlY+uUimNSZskbUdDQBjOw0QvLjKbCHz5H5qoIRaQ1qe
+         vueSZ9iABOi+QjYvJplmkxQ4yBBeatyDG4U/rwX56IMTYr/d68nKI3mQb90Hy3Fxeu
+         BoO+4Yvq3byPIosknJnWfjKqiPwHYe3b0Lgijo7a6daduSmVGhLTvNYHtHUQgjrLcK
+         UPRQPc4iZNEkg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+Cc:     Zheyu Ma <zheyuma97@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 17/31] media: v4l2-core: Avoid the dangling pointer in v4l2_fh_release
-Date:   Sun,  4 Jul 2021 19:10:29 -0400
-Message-Id: <20210704231043.1491209-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 18/31] media: bt8xx: Fix a missing check bug in bt878_probe
+Date:   Sun,  4 Jul 2021 19:10:30 -0400
+Message-Id: <20210704231043.1491209-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231043.1491209-1-sashal@kernel.org>
 References: <20210704231043.1491209-1-sashal@kernel.org>
@@ -43,37 +43,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 7dd0c9e547b6924e18712b6b51aa3cba1896ee2c ]
+[ Upstream commit 1a4520090681853e6b850cbe54b27247a013e0e5 ]
 
-A use after free bug caused by the dangling pointer
-filp->privitate_data in v4l2_fh_release.
-See https://lore.kernel.org/patchwork/patch/1419058/.
+In 'bt878_irq', the driver calls 'tasklet_schedule', but this tasklet is
+set in 'dvb_bt8xx_load_card' of another driver 'dvb-bt8xx'.
+However, this two drivers are separate. The user may not load the
+'dvb-bt8xx' driver when loading the 'bt8xx' driver, that is, the tasklet
+has not been initialized when 'tasklet_schedule' is called, so it is
+necessary to check whether the tasklet is initialized in 'bt878_probe'.
 
-My patch sets the dangling pointer to NULL to provide
-robust.
+Fix this by adding a check at the end of bt878_probe.
 
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+The KASAN's report reveals it:
+
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+PGD 800000006aab2067 P4D 800000006aab2067 PUD 6b2ea067 PMD 0
+Oops: 0010 [#1] PREEMPT SMP KASAN PTI
+CPU: 2 PID: 8724 Comm: syz-executor.0 Not tainted 4.19.177-
+gdba4159c14ef-dirty #40
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-
+gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+RIP: 0010:          (null)
+Code: Bad RIP value.
+RSP: 0018:ffff88806c287ea0 EFLAGS: 00010246
+RAX: fffffbfff1b01774 RBX: dffffc0000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 1ffffffff1b01775 RDI: 0000000000000000
+RBP: ffff88806c287f00 R08: fffffbfff1b01774 R09: fffffbfff1b01774
+R10: 0000000000000001 R11: fffffbfff1b01773 R12: 0000000000000000
+R13: ffff88806c29f530 R14: ffffffff8d80bb88 R15: ffffffff8d80bb90
+FS:  00007f6b550e6700(0000) GS:ffff88806c280000(0000) knlGS:
+0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 000000005ec98000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <IRQ>
+ tasklet_action_common.isra.17+0x141/0x420 kernel/softirq.c:522
+ tasklet_action+0x50/0x70 kernel/softirq.c:540
+ __do_softirq+0x224/0x92c kernel/softirq.c:292
+ invoke_softirq kernel/softirq.c:372 [inline]
+ irq_exit+0x15a/0x180 kernel/softirq.c:412
+ exiting_irq arch/x86/include/asm/apic.h:535 [inline]
+ do_IRQ+0x123/0x1e0 arch/x86/kernel/irq.c:260
+ common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
+ </IRQ>
+RIP: 0010:__do_sys_interrupt kernel/sys.c:2593 [inline]
+RIP: 0010:__se_sys_interrupt kernel/sys.c:2584 [inline]
+RIP: 0010:__x64_sys_interrupt+0x5b/0x80 kernel/sys.c:2584
+Code: ba 00 04 00 00 48 c7 c7 c0 99 31 8c e8 ae 76 5e 01 48 85 c0 75 21 e8
+14 ae 24 00 48 c7 c3 c0 99 31 8c b8 0c 00 00 00 0f 01 c1 <31> db e8 fe ad
+24 00 48 89 d8 5b 5d c3 48 c7 c3 ea ff ff ff eb ec
+RSP: 0018:ffff888054167f10 EFLAGS: 00000212 ORIG_RAX: ffffffffffffffde
+RAX: 000000000000000c RBX: ffffffff8c3199c0 RCX: ffffc90001ca6000
+RDX: 000000000000001a RSI: ffffffff813478fc RDI: ffffffff8c319dc0
+RBP: ffff888054167f18 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000080 R11: fffffbfff18633b7 R12: ffff888054167f58
+R13: ffff88805f638000 R14: 0000000000000000 R15: 0000000000000000
+ do_syscall_64+0xb0/0x4e0 arch/x86/entry/common.c:293
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x4692a9
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
+ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f6b550e5c48 EFLAGS: 00000246 ORIG_RAX: 000000000000014f
+RAX: ffffffffffffffda RBX: 000000000077bf60 RCX: 00000000004692a9
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000020000140
+RBP: 00000000004cf7eb R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000077bf60
+R13: 0000000000000000 R14: 000000000077bf60 R15: 00007fff55a1dca0
+Modules linked in:
+Dumping ftrace buffer:
+   (ftrace buffer empty)
+CR2: 0000000000000000
+---[ end trace 68e5849c3f77cbb6 ]---
+RIP: 0010:          (null)
+Code: Bad RIP value.
+RSP: 0018:ffff88806c287ea0 EFLAGS: 00010246
+RAX: fffffbfff1b01774 RBX: dffffc0000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 1ffffffff1b01775 RDI: 0000000000000000
+RBP: ffff88806c287f00 R08: fffffbfff1b01774 R09: fffffbfff1b01774
+R10: 0000000000000001 R11: fffffbfff1b01773 R12: 0000000000000000
+R13: ffff88806c29f530 R14: ffffffff8d80bb88 R15: ffffffff8d80bb90
+FS:  00007f6b550e6700(0000) GS:ffff88806c280000(0000) knlGS:
+0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 000000005ec98000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-fh.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/pci/bt8xx/bt878.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/v4l2-core/v4l2-fh.c b/drivers/media/v4l2-core/v4l2-fh.c
-index c91a7bd3ecfc..ac8282d059fc 100644
---- a/drivers/media/v4l2-core/v4l2-fh.c
-+++ b/drivers/media/v4l2-core/v4l2-fh.c
-@@ -104,6 +104,7 @@ int v4l2_fh_release(struct file *filp)
- 		v4l2_fh_del(fh);
- 		v4l2_fh_exit(fh);
- 		kfree(fh);
-+		filp->private_data = NULL;
- 	}
+diff --git a/drivers/media/pci/bt8xx/bt878.c b/drivers/media/pci/bt8xx/bt878.c
+index f5f87e03f94b..855f8dc2a4ee 100644
+--- a/drivers/media/pci/bt8xx/bt878.c
++++ b/drivers/media/pci/bt8xx/bt878.c
+@@ -494,6 +494,9 @@ static int bt878_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
+ 	btwrite(0, BT878_AINT_MASK);
+ 	bt878_num++;
+ 
++	if (!bt->tasklet.func)
++		tasklet_disable(&bt->tasklet);
++
  	return 0;
- }
+ 
+       fail2:
 -- 
 2.30.2
 
