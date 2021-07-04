@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 275F33BB0BD
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB143BB0C0
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:09:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231535AbhGDXJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231538AbhGDXJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 4 Jul 2021 19:09:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47610 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231587AbhGDXJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231594AbhGDXJA (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:09:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 493906141C;
-        Sun,  4 Jul 2021 23:06:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A86CD61405;
+        Sun,  4 Jul 2021 23:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439981;
-        bh=HZKz708QQAe/6KtyqJ8F5LJ5x4ZN6OM3xsa305vbhbM=;
+        s=k20201202; t=1625439982;
+        bh=ht5TsiapjXMHML+LcVLYQqsFvSYjeNKVivTIumc8ekE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VXaJa0quEppcPLV8gjwJ0TdZeGnEa1SAOe0VTL5jegs5IA4NaIYpRiAmLlmSxN4gB
-         a/CNhcBN55+bhOsfFAr8MDlCSKI+/f9irbOEbTv/d00jQRVOH8qyUpFdKDJPJ3fKyU
-         mL63gTiTxL1oOna0BWvj6kBfkWjppmh5Nhd9wfJWUnI1Fa5JrgcPzCTiNFOXkg4rdl
-         Ro05M8Aot0I/FkyTdBz1WDswhwnrS3gsqPzk9ckgzZRdm7gnTZauHK4rTz+kGjQs/3
-         bOF1wUAGDme4W6IKf5Oy/2Le9GbhondJjsHvheLoE5GUeNP7sKl+FZB32NBKv8zD33
-         bqAPFPtNPWJ4w==
+        b=fBQxGmdrKNUBSWsYEqrG2abO9mqniTfu0oCMwfl+qVvdxhhDKk0L/MdOTcZL9fTVW
+         XmWgL9fnTasEMHqbICUkHX8/EQ7IwPXw8Vp5MgTjNHIJckJYU5J+kfbgu4XaYqkfsx
+         t9wD1p6giz+RGVROCS7LvB/u9/gjUoOkYvBOV3/doGYH0IZDulZ7QCYs5c/qlijZm4
+         RIJigtZ3Hd4dN2T+IQyzJ6pq3EJD32RmECVCwQfbwqp9Q7ODKD/2So50ZLEudViONK
+         morV0UKE5VFuDycfeekN12rO4KNe+JRuzm3gadngNPcUf6yXdvJImjfaDP0EAmexSh
+         Sx2auzAuy4TTg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-rockchip@lists.infradead.org, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.12 03/80] staging: media: rkvdec: fix pm_runtime_get_sync() usage count
-Date:   Sun,  4 Jul 2021 19:04:59 -0400
-Message-Id: <20210704230616.1489200-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 04/80] media: i2c: imx334: fix the pm runtime get logic
+Date:   Sun,  4 Jul 2021 19:05:00 -0400
+Message-Id: <20210704230616.1489200-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230616.1489200-1-sashal@kernel.org>
 References: <20210704230616.1489200-1-sashal@kernel.org>
@@ -46,36 +46,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit e90812c47b958407b54d05780dc483fdc1b57a93 ]
+[ Upstream commit 62c90446868b439929cb04395f04a709a64ae04b ]
 
-The pm_runtime_get_sync() internally increments the
-dev->power.usage_count without decrementing it, even on errors.
-Replace it by the new pm_runtime_resume_and_get(), introduced by:
+The PM runtime get logic is currently broken, as it checks if
+ret is zero instead of checking if it is an error code,
+as reported by Dan Carpenter.
+
+While here, use the pm_runtime_resume_and_get() as added by:
 commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-in order to properly decrement the usage counter, avoiding
-a potential PM usage counter leak.
+added pm_runtime_resume_and_get() in order to automatically handle
+dev->power.usage_count decrement on errors. As a bonus, such function
+always return zero on success.
 
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+It should also be noticed that a fail of pm_runtime_get_sync() would
+potentially result in a spurious runtime_suspend(), instead of
+using pm_runtime_put_noidle().
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkvdec/rkvdec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/imx334.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
-index d821661d30f3..8c17615f3a7a 100644
---- a/drivers/staging/media/rkvdec/rkvdec.c
-+++ b/drivers/staging/media/rkvdec/rkvdec.c
-@@ -658,7 +658,7 @@ static void rkvdec_device_run(void *priv)
- 	if (WARN_ON(!desc))
- 		return;
+diff --git a/drivers/media/i2c/imx334.c b/drivers/media/i2c/imx334.c
+index ad530f0d338a..02d22907c75c 100644
+--- a/drivers/media/i2c/imx334.c
++++ b/drivers/media/i2c/imx334.c
+@@ -717,9 +717,9 @@ static int imx334_set_stream(struct v4l2_subdev *sd, int enable)
+ 	}
  
--	ret = pm_runtime_get_sync(rkvdec->dev);
-+	ret = pm_runtime_resume_and_get(rkvdec->dev);
- 	if (ret < 0) {
- 		rkvdec_job_finish_no_pm(ctx, VB2_BUF_STATE_ERROR);
- 		return;
+ 	if (enable) {
+-		ret = pm_runtime_get_sync(imx334->dev);
+-		if (ret)
+-			goto error_power_off;
++		ret = pm_runtime_resume_and_get(imx334->dev);
++		if (ret < 0)
++			goto error_unlock;
+ 
+ 		ret = imx334_start_streaming(imx334);
+ 		if (ret)
+@@ -737,6 +737,7 @@ static int imx334_set_stream(struct v4l2_subdev *sd, int enable)
+ 
+ error_power_off:
+ 	pm_runtime_put(imx334->dev);
++error_unlock:
+ 	mutex_unlock(&imx334->mutex);
+ 
+ 	return ret;
 -- 
 2.30.2
 
