@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E9A33BB35C
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:16:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB453BB2C1
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231816AbhGDXR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57108 "EHLO mail.kernel.org"
+        id S233979AbhGDXQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:16:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234120AbhGDXOy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234123AbhGDXOy (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A47FE619AC;
-        Sun,  4 Jul 2021 23:11:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3932F619B2;
+        Sun,  4 Jul 2021 23:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440275;
-        bh=rLIR0S92aTlG9q/OkSLRKIJuW7+/bZqEm10UhBiwYL8=;
+        s=k20201202; t=1625440276;
+        bh=49DCbnA0cnfQ0y/NVqb4dio+tUOrIVniIoqo9KXsdK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PsVS8KEYC6PnvvFYAqSbo6uIr2rYwZZ4KIJTFPSTRiMJ/cRry8pKeu7TgBOXPRmeL
-         SDu+/4hTD7uo0lgQrTwihfSxyfpJoa1glO7oKCiaOhBcEqRyRd8wO12Wnbri9pJ6FU
-         +dRJiizUK0/bJMfH1FMhxoyrJ3zZIohnWnxUv5aXR6I0e2VMZ1jVDH56rENT1pFNzi
-         oK0z5vHMV5GoxW/1lLj489GmMR48SI+E2PbtP8Pf75Ynt7QFPd7X3FPLVjw8ofOL/9
-         ByRCn5MdgCqiNddt7cLkJI9UGbGgpAiMBY98C3Ej5N+4HwRkZkCcgKiBeNUwBAeZzr
-         ohWiaJMt9srIw==
+        b=FF4hNDl083boPyvEB65F1sn/pVufCYvvvAn7qF5XdP8NfZdD4IMVfP5itOZacevKp
+         doT/tAdHrjQenADhOqkjmSsSodldbFCjUobfIEy8B7WbrGEQe559LGN8KMdgnjHix/
+         wjmWASTMLHK6BI/CkJcHYg8Jnl8YoDR9H/fyY6tjH9/tFNVoybp79z5yqNuPwpCjQ2
+         24Qcr/xE4YX7WRZab6hEy5cEy3ZMYpcyBIQaUYJu8hWzyd9G9GnetsFCYdDQhHIZ2N
+         fgeH3kxhkIbokfqF25XffMuswgRMf2iOdnarfiVxEVFbDe5uFEA5qd4HuUic7kPDfT
+         6p8JHsi8uNnWg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve Longerbeam <slongerbeam@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Tim Harvey <tharvey@gateworks.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-staging@lists.linux.dev, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 25/31] media: imx-csi: Skip first few frames from a BT.656 source
-Date:   Sun,  4 Jul 2021 19:10:37 -0400
-Message-Id: <20210704231043.1491209-25-sashal@kernel.org>
+Cc:     Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 26/31] btrfs: fix error handling in __btrfs_update_delayed_inode
+Date:   Sun,  4 Jul 2021 19:10:38 -0400
+Message-Id: <20210704231043.1491209-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231043.1491209-1-sashal@kernel.org>
 References: <20210704231043.1491209-1-sashal@kernel.org>
@@ -46,61 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Longerbeam <slongerbeam@gmail.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit e198be37e52551bb863d07d2edc535d0932a3c4f ]
+[ Upstream commit bb385bedded3ccbd794559600de4a09448810f4a ]
 
-Some BT.656 sensors (e.g. ADV718x) transmit frames with unstable BT.656
-sync codes after initial power on. This confuses the imx CSI,resulting
-in vertical and/or horizontal sync issues. Skip the first 20 frames
-to avoid the unstable sync codes.
+If we get an error while looking up the inode item we'll simply bail
+without cleaning up the delayed node.  This results in this style of
+warning happening on commit:
 
-[fabio: fixed checkpatch warning and increased the frame skipping to 20]
+  WARNING: CPU: 0 PID: 76403 at fs/btrfs/delayed-inode.c:1365 btrfs_assert_delayed_root_empty+0x5b/0x90
+  CPU: 0 PID: 76403 Comm: fsstress Tainted: G        W         5.13.0-rc1+ #373
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  RIP: 0010:btrfs_assert_delayed_root_empty+0x5b/0x90
+  RSP: 0018:ffffb8bb815a7e50 EFLAGS: 00010286
+  RAX: 0000000000000000 RBX: ffff95d6d07e1888 RCX: ffff95d6c0fa3000
+  RDX: 0000000000000002 RSI: 000000000029e91c RDI: ffff95d6c0fc8060
+  RBP: ffff95d6c0fc8060 R08: 00008d6d701a2c1d R09: 0000000000000000
+  R10: ffff95d6d1760ea0 R11: 0000000000000001 R12: ffff95d6c15a4d00
+  R13: ffff95d6c0fa3000 R14: 0000000000000000 R15: ffffb8bb815a7e90
+  FS:  00007f490e8dbb80(0000) GS:ffff95d73bc00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f6e75555cb0 CR3: 00000001101ce001 CR4: 0000000000370ef0
+  Call Trace:
+   btrfs_commit_transaction+0x43c/0xb00
+   ? finish_wait+0x80/0x80
+   ? vfs_fsync_range+0x90/0x90
+   iterate_supers+0x8c/0x100
+   ksys_sync+0x50/0x90
+   __do_sys_sync+0xa/0x10
+   do_syscall_64+0x3d/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Tim Harvey <tharvey@gateworks.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Because the iref isn't dropped and this leaves an elevated node->count,
+so any release just re-queues it onto the delayed inodes list.  Fix this
+by going to the out label to handle the proper cleanup of the delayed
+node.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx-media-csi.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ fs/btrfs/delayed-inode.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/media/imx/imx-media-csi.c b/drivers/staging/media/imx/imx-media-csi.c
-index 0f8fdc347091..c7df0ffb3510 100644
---- a/drivers/staging/media/imx/imx-media-csi.c
-+++ b/drivers/staging/media/imx/imx-media-csi.c
-@@ -730,9 +730,10 @@ static int csi_setup(struct csi_priv *priv)
+diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
+index fea5ccfade5c..f3994ee1a6e6 100644
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -1030,12 +1030,10 @@ static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
+ 	nofs_flag = memalloc_nofs_save();
+ 	ret = btrfs_lookup_inode(trans, root, path, &key, mod);
+ 	memalloc_nofs_restore(nofs_flag);
+-	if (ret > 0) {
+-		btrfs_release_path(path);
+-		return -ENOENT;
+-	} else if (ret < 0) {
+-		return ret;
+-	}
++	if (ret > 0)
++		ret = -ENOENT;
++	if (ret < 0)
++		goto out;
  
- static int csi_start(struct csi_priv *priv)
- {
--	struct v4l2_fract *output_fi;
-+	struct v4l2_fract *input_fi, *output_fi;
- 	int ret;
- 
-+	input_fi = &priv->frame_interval[CSI_SINK_PAD];
- 	output_fi = &priv->frame_interval[priv->active_output_pad];
- 
- 	/* start upstream */
-@@ -741,6 +742,17 @@ static int csi_start(struct csi_priv *priv)
- 	if (ret)
- 		return ret;
- 
-+	/* Skip first few frames from a BT.656 source */
-+	if (priv->upstream_ep.bus_type == V4L2_MBUS_BT656) {
-+		u32 delay_usec, bad_frames = 20;
-+
-+		delay_usec = DIV_ROUND_UP_ULL((u64)USEC_PER_SEC *
-+			input_fi->numerator * bad_frames,
-+			input_fi->denominator);
-+
-+		usleep_range(delay_usec, delay_usec + 1000);
-+	}
-+
- 	if (priv->dest == IPU_CSI_DEST_IDMAC) {
- 		ret = csi_idmac_start(priv);
- 		if (ret)
+ 	leaf = path->nodes[0];
+ 	inode_item = btrfs_item_ptr(leaf, path->slots[0],
 -- 
 2.30.2
 
