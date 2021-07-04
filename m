@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE34A3BAFD8
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB8E3BAFDD
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:07:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229893AbhGDXHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:07:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44982 "EHLO mail.kernel.org"
+        id S229930AbhGDXHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:07:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229874AbhGDXHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Jul 2021 19:07:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE2A9613D2;
-        Sun,  4 Jul 2021 23:04:28 +0000 (UTC)
+        id S229907AbhGDXHH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Jul 2021 19:07:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1223761283;
+        Sun,  4 Jul 2021 23:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625439869;
-        bh=/FSnNNOCk5OXokZXqDDrrMtWOMQjuygAvziNQZGw/TY=;
+        s=k20201202; t=1625439871;
+        bh=Lz+/JlLUf0y6vdpM5zzN5Pg+5vyv1ERRqgWrhzFUI5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=by6Fv+KJcSveRWAd5mFoxp0JwLQ0BCLptBPuInkxMhoyozLYBaZRaxgeVYq0hfNNx
-         IIIAlMM5ISxukxo8NwIy6vpZkhRhGsZeYUfFc6+A2LioLD3CmN1DkIT/A8d74e/adV
-         49Ubo5geJDT8GTWysir4qDHY7chmgVCgMUAK46f+6PiP3yVpywI00K/fPwruwyat4p
-         jpVM7qAddlMsiJNhCyio/VdpuHeG6BsG8KH+/f1RFbhsUlV+b+/Usg8Kfw/AbWpepX
-         U0TU2dKGo7OrUuzyESkHZBRIxsjGLCy6sl52XW/2I7EqoAW0oxGxpC7xvTJpwDLBX3
-         dc/+5rEAEetRQ==
+        b=pDBzVMZCpYWL7kFR/jW5nOiW0ECZnFgq888zCES31Ks92bNjvyYS6e3+2H+HiMOjf
+         EcdRUV48/ghYPSF7Ptr0oSiqYtbNZg117p38fmXHna73UhnuBAu3a148hZE/RUBmRX
+         ozOMS+03E75fofvBMHYJcy5XfgZSlFOHhPl6GJb5w01WzPQrpt4yLyi3bRrZc8Dt6M
+         43bl7uK5dH76dLGazB4O0OLwCrd9fiLa0Ovb8BX0dsWkMKaxBxeuwawTKiaTZ17jmS
+         0YuJTrQ3E/yGH7xXMsgsDO2+tHt1bq51EwciWKDyLKvMB62GqG3XqGhDmbh5EeDTon
+         kZ4rWr3KhJGrg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 06/85] media: mdk-mdp: fix pm_runtime_get_sync() usage count
-Date:   Sun,  4 Jul 2021 19:03:01 -0400
-Message-Id: <20210704230420.1488358-6-sashal@kernel.org>
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 07/85] media: s5p: fix pm_runtime_get_sync() usage count
+Date:   Sun,  4 Jul 2021 19:03:02 -0400
+Message-Id: <20210704230420.1488358-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230420.1488358-1-sashal@kernel.org>
 References: <20210704230420.1488358-1-sashal@kernel.org>
@@ -46,7 +47,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit d07bb9702cf5f5ccf3fb661e6cab54bbc33cd23f ]
+[ Upstream commit fdc34e82c0f968ac4c157bd3d8c299ebc24c9c63 ]
 
 The pm_runtime_get_sync() internally increments the
 dev->power.usage_count without decrementing it, even on errors.
@@ -55,37 +56,37 @@ commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with us
 in order to properly decrement the usage counter, avoiding
 a potential PM usage counter leak.
 
-While here, fix the return contition of mtk_mdp_m2m_start_streaming(),
-as it doesn't make any sense to return 0 if the PM runtime failed
-to resume.
+While here, check if the PM runtime error was caught at
+s5p_cec_adap_enable().
 
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/cec/platform/s5p/s5p_cec.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c b/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c
-index ace4528cdc5e..f14779e7596e 100644
---- a/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c
-+++ b/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c
-@@ -391,12 +391,12 @@ static int mtk_mdp_m2m_start_streaming(struct vb2_queue *q, unsigned int count)
- 	struct mtk_mdp_ctx *ctx = q->drv_priv;
- 	int ret;
+diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
+index 2a3e7ffefe0a..2250c1cbc64e 100644
+--- a/drivers/media/cec/platform/s5p/s5p_cec.c
++++ b/drivers/media/cec/platform/s5p/s5p_cec.c
+@@ -35,10 +35,13 @@ MODULE_PARM_DESC(debug, "debug level (0-2)");
  
--	ret = pm_runtime_get_sync(&ctx->mdp_dev->pdev->dev);
-+	ret = pm_runtime_resume_and_get(&ctx->mdp_dev->pdev->dev);
- 	if (ret < 0)
--		mtk_mdp_dbg(1, "[%d] pm_runtime_get_sync failed:%d",
-+		mtk_mdp_dbg(1, "[%d] pm_runtime_resume_and_get failed:%d",
- 			    ctx->id, ret);
+ static int s5p_cec_adap_enable(struct cec_adapter *adap, bool enable)
+ {
++	int ret;
+ 	struct s5p_cec_dev *cec = cec_get_drvdata(adap);
  
--	return 0;
-+	return ret;
- }
+ 	if (enable) {
+-		pm_runtime_get_sync(cec->dev);
++		ret = pm_runtime_resume_and_get(cec->dev);
++		if (ret < 0)
++			return ret;
  
- static void *mtk_mdp_m2m_buf_remove(struct mtk_mdp_ctx *ctx,
+ 		s5p_cec_reset(cec);
+ 
 -- 
 2.30.2
 
