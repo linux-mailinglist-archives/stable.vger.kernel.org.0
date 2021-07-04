@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD94E3BB2A0
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:14:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D26B3BB2C6
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbhGDXQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:16:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55624 "EHLO mail.kernel.org"
+        id S233202AbhGDXQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:16:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234137AbhGDXOz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234141AbhGDXOz (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 072B8619B0;
-        Sun,  4 Jul 2021 23:11:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AF89619A5;
+        Sun,  4 Jul 2021 23:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440281;
-        bh=b/CIhG+SKlQx6SI8ki7u97CIeZH13CqdD0xfsr05kgU=;
+        s=k20201202; t=1625440282;
+        bh=oELBDiCkfRqdOuU0PT4sHdy7R3CRpNSQfTPY0Vfv2u0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsG3bBCW+GpfvqgKWRhRrdo2Q5v7ZJqPtXjv9NoOawkjH1W3Rxfq0OG3iKxhBlWdQ
-         jIOKPbgbrkNcvpO3PDQwesvTttsIhX95aoo/TBTJA9hNkHhz9Icq8/NK7xO9i1IG1r
-         BugFFakoaTRPU7Dsck0I4zpOAc+KF3ibIY77m+n2ICVd/8/s9HkqolIsGTd5zHul0j
-         E2nqivIqGx3JriQ8hHhI9CO29XX+8vyPv48Sj6fGR13o2xWiX2tOjnvtLp+lD16qSO
-         ZOhR+L1pB4lc1PXAiCFle6/LZ8uStexRZgdsEBirvh0mJsF1tXrhq66/w54xeYMy9/
-         2hFuCEXL3rUIg==
+        b=AvSiTngkQb7DoZqXnM31SEvCWHfnc/+27m01YCmNJqskbJUm2MW7lsKRzMBVfCG3e
+         CAzrcu9DJZpINEJAUVYSRHrwQ9Be8VB53iOthXBLBeM2z4ycg//9vspY+ZhhzDoirm
+         bQASf42GYbKIHXaC8XTHeBs5brdwogQrMC7Guc52MxD2g2qg9g2BsIqktsYX7uYbjn
+         QkwnaHZVuCBh9shbHpjt6uK72Rt+MgcVcOGnhZf5IaKpE1iP5cl7vGjczbpF0lzl31
+         SZZRm8Hqr/OntXl8gl/51wnKWXxFN/uVw7XcRNNDgOH4FNuFleXONOJYx3YdAh5+Vl
+         eiLPcvmjhMuhA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        kernel test robot <lkp@intel.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 30/31] btrfs: disable build on platforms having page size 256K
-Date:   Sun,  4 Jul 2021 19:10:42 -0400
-Message-Id: <20210704231043.1491209-30-sashal@kernel.org>
+Cc:     Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 31/31] regulator: da9052: Ensure enough delay time for .set_voltage_time_sel
+Date:   Sun,  4 Jul 2021 19:10:43 -0400
+Message-Id: <20210704231043.1491209-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231043.1491209-1-sashal@kernel.org>
 References: <20210704231043.1491209-1-sashal@kernel.org>
@@ -43,52 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit b05fbcc36be1f8597a1febef4892053a0b2f3f60 ]
+[ Upstream commit a336dc8f683e5be794186b5643cd34cb28dd2c53 ]
 
-With a config having PAGE_SIZE set to 256K, BTRFS build fails
-with the following message
+Use DIV_ROUND_UP to prevent truncation by integer division issue.
+This ensures we return enough delay time.
 
-  include/linux/compiler_types.h:326:38: error: call to
-  '__compiletime_assert_791' declared with attribute error:
-  BUILD_BUG_ON failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0
+Also fix returning negative value when new_sel < old_sel.
 
-BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms with
-256K pages at the time being.
-
-There are two platforms that can select 256K pages:
- - hexagon
- - powerpc
-
-Disable BTRFS when 256K page size is selected. Supporting this would
-require changes to the subpage mode that's currently being developed.
-Given that 256K is many times larger than page sizes commonly used and
-for what the algorithms and structures have been tuned, it's out of
-scope and disabling build is a reasonable option.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[ update changelog ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20210618141412.4014912-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/regulator/da9052-regulator.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/Kconfig b/fs/btrfs/Kconfig
-index 23537bc8c827..7233127bb93a 100644
---- a/fs/btrfs/Kconfig
-+++ b/fs/btrfs/Kconfig
-@@ -12,6 +12,8 @@ config BTRFS_FS
- 	select RAID6_PQ
- 	select XOR_BLOCKS
- 	select SRCU
-+	depends on !PPC_256K_PAGES	# powerpc
-+	depends on !PAGE_SIZE_256KB	# hexagon
+diff --git a/drivers/regulator/da9052-regulator.c b/drivers/regulator/da9052-regulator.c
+index 9ececfef42d6..bd91c95f73e0 100644
+--- a/drivers/regulator/da9052-regulator.c
++++ b/drivers/regulator/da9052-regulator.c
+@@ -258,7 +258,8 @@ static int da9052_regulator_set_voltage_time_sel(struct regulator_dev *rdev,
+ 	case DA9052_ID_BUCK3:
+ 	case DA9052_ID_LDO2:
+ 	case DA9052_ID_LDO3:
+-		ret = (new_sel - old_sel) * info->step_uV / 6250;
++		ret = DIV_ROUND_UP(abs(new_sel - old_sel) * info->step_uV,
++				   6250);
+ 		break;
+ 	}
  
- 	help
- 	  Btrfs is a general purpose copy-on-write filesystem with extents,
 -- 
 2.30.2
 
