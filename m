@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78D9C3BB391
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 016E03BB265
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:14:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233328AbhGDXSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:18:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50862 "EHLO mail.kernel.org"
+        id S231618AbhGDXP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:15:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233158AbhGDXON (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233157AbhGDXON (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE51E61985;
-        Sun,  4 Jul 2021 23:09:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FB5361986;
+        Sun,  4 Jul 2021 23:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440173;
-        bh=EywfHatNm1SZCrBd4brLnFKJ2Kt742Eq5XgSccTvliA=;
+        s=k20201202; t=1625440175;
+        bh=Auz1i9Vu8ZGHbO+T/8MnQgeUUVcxEUmWz8KkWj4sn7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Em8yaZmUoetNyMMYRrUuy5+KR0GQ1cPU6VVsKBf1bMXWhwWkgA+LL+WgfelIADzBd
-         D9BR+ZslNlJB9InW61CSIwntqV43x8U5sF037cmqVktFSdu3Rl1iCYHMr69n0uvz2p
-         fJU3lR7wb2CvciquXJC5DDdFz1bSpVv8iHdK6whJlP2XCwDIv82O9dOueEGrOb8H3G
-         wCBjlXeXwGVo0reizH1heAN/ILQg3UPWVjsQ/Fj6Cz98AGioweUbFcYwfvaTw8YSLw
-         JYXqzmQ7niB58KwvcMnhpTBD7Lea2CuiOyUjXSGZQsU4n/RvrOCfRmwWCQYb7Caxxc
-         mImn3ACS2GnFg==
+        b=mGXiEwL1KqETYQrvX9PFQO5T7FKUEXcWnMo9njNR0aXGI8Kj5iRbFSJwWSQ6E1hOL
+         ZGzBTVYSJxHX1kMp7IlaoUfnqElJu1pbGHjsJh5SGYUC1TdHLbrvozuh8fFBGSHbbC
+         AolD4AOldM+ojmeb95nXuPvqlL1wrCVY/y7FifMah3sh1JcbarblS6n61KBi4TXJ+s
+         TtdP420eJFBPqoqVGSz/s2iFr4F1iv93K7WUWSUYMa/tgrtGyokBBLDPt7dtKht9VC
+         LU47qTk9tOXMajsVUnR2Eiy52wfUw+kkcUzkFVnu66HWrqYJDdHn3eUOpVmDtsJ7+G
+         NHvxam3/AEO2w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 67/70] KVM: s390: get rid of register asm usage
-Date:   Sun,  4 Jul 2021 19:08:00 -0400
-Message-Id: <20210704230804.1490078-67-sashal@kernel.org>
+Cc:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 68/70] regulator: mt6358: Fix vdram2 .vsel_mask
+Date:   Sun,  4 Jul 2021 19:08:01 -0400
+Message-Id: <20210704230804.1490078-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704230804.1490078-1-sashal@kernel.org>
 References: <20210704230804.1490078-1-sashal@kernel.org>
@@ -46,76 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 
-[ Upstream commit 4fa3b91bdee1b08348c82660668ca0ca34e271ad ]
+[ Upstream commit 50c9462edcbf900f3d5097ca3ad60171346124de ]
 
-Using register asm statements has been proven to be very error prone,
-especially when using code instrumentation where gcc may add function
-calls, which clobbers register contents in an unexpected way.
+The valid vsel value are 0 and 12, so the .vsel_mask should be 0xf.
 
-Therefore get rid of register asm statements in kvm code, even though
-there is currently nothing wrong with them. This way we know for sure
-that this bug class won't be introduced here.
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210621140356.1210771-1-hca@linux.ibm.com
-[borntraeger@de.ibm.com: checkpatch strict fix]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+Reviewed-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/1624424169-510-1-git-send-email-hsin-hsiung.wang@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/regulator/mt6358-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 20afffd6b982..f94b4f78d4da 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -327,31 +327,31 @@ static void allow_cpu_feat(unsigned long nr)
- 
- static inline int plo_test_bit(unsigned char nr)
- {
--	register unsigned long r0 asm("0") = (unsigned long) nr | 0x100;
-+	unsigned long function = (unsigned long)nr | 0x100;
- 	int cc;
- 
- 	asm volatile(
-+		"	lgr	0,%[function]\n"
- 		/* Parameter registers are ignored for "test bit" */
- 		"	plo	0,0,0,0(0)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28\n"
- 		: "=d" (cc)
--		: "d" (r0)
--		: "cc");
-+		: [function] "d" (function)
-+		: "cc", "0");
- 	return cc == 0;
- }
- 
- static __always_inline void __insn32_query(unsigned int opcode, u8 *query)
- {
--	register unsigned long r0 asm("0") = 0;	/* query function */
--	register unsigned long r1 asm("1") = (unsigned long) query;
--
- 	asm volatile(
--		/* Parameter regs are ignored */
-+		"	lghi	0,0\n"
-+		"	lgr	1,%[query]\n"
-+		/* Parameter registers are ignored */
- 		"	.insn	rrf,%[opc] << 16,2,4,6,0\n"
- 		:
--		: "d" (r0), "a" (r1), [opc] "i" (opcode)
--		: "cc", "memory");
-+		: [query] "d" ((unsigned long)query), [opc] "i" (opcode)
-+		: "cc", "memory", "0", "1");
- }
- 
- #define INSN_SORTL 0xb938
+diff --git a/drivers/regulator/mt6358-regulator.c b/drivers/regulator/mt6358-regulator.c
+index 13cb6ac9a892..1d4eb5dc4fac 100644
+--- a/drivers/regulator/mt6358-regulator.c
++++ b/drivers/regulator/mt6358-regulator.c
+@@ -457,7 +457,7 @@ static struct mt6358_regulator_info mt6358_regulators[] = {
+ 	MT6358_REG_FIXED("ldo_vaud28", VAUD28,
+ 			 MT6358_LDO_VAUD28_CON0, 0, 2800000),
+ 	MT6358_LDO("ldo_vdram2", VDRAM2, vdram2_voltages, vdram2_idx,
+-		   MT6358_LDO_VDRAM2_CON0, 0, MT6358_LDO_VDRAM2_ELR0, 0x10, 0),
++		   MT6358_LDO_VDRAM2_CON0, 0, MT6358_LDO_VDRAM2_ELR0, 0xf, 0),
+ 	MT6358_LDO("ldo_vsim1", VSIM1, vsim_voltages, vsim_idx,
+ 		   MT6358_LDO_VSIM1_CON0, 0, MT6358_VSIM1_ANA_CON0, 0xf00, 8),
+ 	MT6358_LDO("ldo_vibr", VIBR, vibr_voltages, vibr_idx,
 -- 
 2.30.2
 
