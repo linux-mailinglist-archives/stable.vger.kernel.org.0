@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B9D93BB2C4
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:15:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D993BB29C
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 01:14:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234038AbhGDXQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Jul 2021 19:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56970 "EHLO mail.kernel.org"
+        id S234606AbhGDXP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Jul 2021 19:15:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234144AbhGDXOz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234143AbhGDXOz (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 4 Jul 2021 19:14:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC8E61965;
-        Sun,  4 Jul 2021 23:11:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D5C5619B5;
+        Sun,  4 Jul 2021 23:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625440286;
-        bh=ZwCIXI+anUKvUjBFbZwfOKZagOMJbFXhrHhA7no+JHg=;
+        s=k20201202; t=1625440287;
+        bh=VVcjGQYbJrYJ1CLTZT5bHW7YYA5rx/mZZv2CqF8HFWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Svs6O3mjp4hMbEvi3wlA13QW1Gi4amLQNEsqGGCRdHiBn2JBTGeg8JA8aGiZqV9RI
-         BRxVplMPoUK9hIoMm4oMyLntND8aRFZnD6RsVJ3s9EyFg6MXRfPfeFAQY5vaX7PBRo
-         41ylio+C19zp4o3p1c2EvpBrkLpWEZtPqMjdgM+jRBNakjKUQBaBhuh/tKz4QvuU+J
-         Qh3RZBEdYz/ntgOYutnriYlKIyT+eNrAY61gl7F7wu95q08yEpyhyzUByhTMHNj4V/
-         P6iLmiVQ5kbdBemgidMiqAX+XpzEQRb4arz8OvlBvU9/6pMdeMwbYF0I9QNWUHPshP
-         Gbzh05nwEgTIg==
+        b=CTArC8nFeEJsBHr0gm6VtKzc2B4mAcqjutsE9vlmZoDMRpWnlGfY38HPthBNMFDzd
+         iFnIoxdWRbU/sPq8L2mANm7Js3XWehrL3e05nrVyO47OShUBr/KWYgP4semWOueFCs
+         XWzztVTfCpFv7VE2GBTg0fVrHH5MI97sxLcma9fmZpGsyzzjqL9zgfO7Nv+4GbPEhY
+         qv8gK/A/xp5igolugwbnnHmUX1/018vnxmdjuFA6EkldUyJ3vTdKgxVAOcGWD0s1qC
+         mOP2h5d+YY6zy8sPY/RQxwXnnkzoqv7BSxKnIH+o6thY3l0mh21kgFdMsBSGQ2P4sK
+         m2IqUqXgq6UrQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/25] media: sh_vou: fix pm_runtime_get_sync() usage count
-Date:   Sun,  4 Jul 2021 19:11:00 -0400
-Message-Id: <20210704231123.1491517-2-sashal@kernel.org>
+Cc:     Jay Fang <f.fangjian@huawei.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/25] spi: spi-loopback-test: Fix 'tx_buf' might be 'rx_buf'
+Date:   Sun,  4 Jul 2021 19:11:01 -0400
+Message-Id: <20210704231123.1491517-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210704231123.1491517-1-sashal@kernel.org>
 References: <20210704231123.1491517-1-sashal@kernel.org>
@@ -42,43 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Jay Fang <f.fangjian@huawei.com>
 
-[ Upstream commit 6e8b1526db164c9d4b9dacfb9bc48e365d7c4860 ]
+[ Upstream commit 9e37a3ab0627011fb63875e9a93094b6fc8ddf48 ]
 
-The pm_runtime_get_sync() internally increments the
-dev->power.usage_count without decrementing it, even on errors.
-Replace it by the new pm_runtime_resume_and_get(), introduced by:
-commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-in order to properly decrement the usage counter, avoiding
-a potential PM usage counter leak.
+In function 'spi_test_run_iter': Value 'tx_buf' might be 'rx_buf'.
 
-While here, check if the PM runtime error was caught at open time.
-
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Jay Fang <f.fangjian@huawei.com>
+Link: https://lore.kernel.org/r/1620629903-15493-5-git-send-email-f.fangjian@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sh_vou.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/spi/spi-loopback-test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/sh_vou.c b/drivers/media/platform/sh_vou.c
-index 871da2a2a91c..06381c88229f 100644
---- a/drivers/media/platform/sh_vou.c
-+++ b/drivers/media/platform/sh_vou.c
-@@ -1147,7 +1147,11 @@ static int sh_vou_open(struct file *file)
- 	if (v4l2_fh_is_singular_file(file) &&
- 	    vou_dev->status == SH_VOU_INITIALISING) {
- 		/* First open */
--		pm_runtime_get_sync(vou_dev->v4l2_dev.dev);
-+		err = pm_runtime_resume_and_get(vou_dev->v4l2_dev.dev);
-+		if (err < 0) {
-+			v4l2_fh_release(file);
-+			goto done_open;
-+		}
- 		err = sh_vou_hw_init(vou_dev);
- 		if (err < 0) {
- 			pm_runtime_put(vou_dev->v4l2_dev.dev);
+diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
+index b9a7117b6dce..85d3475915dd 100644
+--- a/drivers/spi/spi-loopback-test.c
++++ b/drivers/spi/spi-loopback-test.c
+@@ -877,7 +877,7 @@ static int spi_test_run_iter(struct spi_device *spi,
+ 		test.transfers[i].len = len;
+ 		if (test.transfers[i].tx_buf)
+ 			test.transfers[i].tx_buf += tx_off;
+-		if (test.transfers[i].tx_buf)
++		if (test.transfers[i].rx_buf)
+ 			test.transfers[i].rx_buf += rx_off;
+ 	}
+ 
 -- 
 2.30.2
 
