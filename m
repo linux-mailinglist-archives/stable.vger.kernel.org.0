@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 635333BBFFD
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B563BBFF3
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232479AbhGEPeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:34:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57322 "EHLO mail.kernel.org"
+        id S232036AbhGEPd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232738AbhGEPdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:33:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D35E619AC;
-        Mon,  5 Jul 2021 15:30:26 +0000 (UTC)
+        id S232244AbhGEPdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:33:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 789516198B;
+        Mon,  5 Jul 2021 15:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499027;
-        bh=UR+XYQAXUwgZ8/KKoXPfCS7hXQWs9X4z7ocp7oltBuc=;
+        s=k20201202; t=1625499028;
+        bh=hEXybyKNzNQh9GIrfXSwiHb+N8bB+QE1nn7cGPVvTAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PfUhkXhE7U4VGcYdS4ZUHb+fvpwjxrwuP4WeLhu1dHF8RuVsmwLqYIaKz8iN1GyPA
-         A4rnKlBthvcJ2zZzVWtBgEdNII6bKFIUoRxgbxzkxq8qgSXNk8aBphbFVNQPTFup1a
-         diRU7oWW2kUH1H9jEkB5XD2zH2jTWKmXcf+2VszJB6846BPZ790fRSCTsTjGNKDT43
-         HLPWQOC4Zz2M82zwUINEGm4/u0et8/JlTVrx39UPa8q+PZQBZQRnaKo3e5W3W0hRHf
-         OoxiUws+wa65zOp124+lF6cGxQnTCp7izqp3H5JDhaQIBWV8LeSkUzpQE2MTorp9kI
-         e/Nt4xYkjhjFA==
+        b=tL4ouPiXpCDzeCC5yJUHpgntuNrxavQBmUC29IB7FlOpeu9MUTj1eBNqTBiAgOmcl
+         woaW+2tURToJl6Qb4jtntt/4PlcJseSG2Y+Se2U6bkyVUwQupemqLLQ4oBiU7RjOVp
+         MRpswnCvir0QJviiXeWbraVezgiU0RhYBXfD2t2VgolbTI+9z7yrH+g2CQ3BvvBNJf
+         6Mr80SKS1zBNKoOj/9+/opI11RTCQKp8WV1aBxgemfae07rdeFSYhIDea2dLUgynbW
+         aUOGVlLTUWYuU7ks6Di3xK+7GqFbUuQ/97GlbbLzPHylNPK25DzRlsEI68yCTHOxYR
+         Tpod9Zaq8U3Vg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hui Wang <hui.wang@canonical.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Manuel Krause <manuelkrause@netscape.net>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 20/41] ACPI: resources: Add checks for ACPI IRQ override
-Date:   Mon,  5 Jul 2021 11:29:40 -0400
-Message-Id: <20210705153001.1521447-20-sashal@kernel.org>
+Cc:     Ming Lei <ming.lei@redhat.com>, Yi Zhang <yi.zhang@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 21/41] block: fix race between adding/removing rq qos and normal IO
+Date:   Mon,  5 Jul 2021 11:29:41 -0400
+Message-Id: <20210705153001.1521447-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153001.1521447-1-sashal@kernel.org>
 References: <20210705153001.1521447-1-sashal@kernel.org>
@@ -43,80 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 0ec4e55e9f571f08970ed115ec0addc691eda613 ]
+[ Upstream commit 2cafe29a8d03f02a3d16193bdaae2f3e82a423f9 ]
 
-The laptop keyboard doesn't work on many MEDION notebooks, but the
-keyboard works well under Windows and Unix.
+Yi reported several kernel panics on:
 
-Through debugging, we found this log in the dmesg:
+[16687.001777] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
+...
+[16687.163549] pc : __rq_qos_track+0x38/0x60
 
- ACPI: IRQ 1 override to edge, high
- pnp 00:03: Plug and Play ACPI device, IDs PNP0303 (active)
+or
 
- And we checked the IRQ definition in the DSDT, it is:
+[  997.690455] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
+...
+[  997.850347] pc : __rq_qos_done+0x2c/0x50
 
-    IRQ (Level, ActiveLow, Exclusive, )
-        {1}
+Turns out it is caused by race between adding rq qos(wbt) and normal IO
+because rq_qos_add can be run when IO is being submitted, fix this issue
+by freezing queue before adding/deleting rq qos to queue.
 
-So the BIOS defines the keyboard IRQ to Level_Low, but the Linux
-kernel override it to Edge_High. If the Linux kernel is modified
-to skip the IRQ override, the keyboard will work normally.
+rq_qos_exit() needn't to freeze queue because it is called after queue
+has been frozen.
 
-From the existing comment in acpi_dev_get_irqresource(), the override
-function only needs to be called when IRQ() or IRQNoFlags() is used
-to populate the resource descriptor, and according to Section 6.4.2.1
-of ACPI 6.4 [1], if IRQ() is empty or IRQNoFlags() is used, the IRQ
-is High true, edge sensitive and non-shareable. ACPICA also assumes
-that to be the case (see acpi_rs_set_irq[] in rsirq.c).
+iolatency calls rq_qos_add() during allocating queue, so freezing won't
+add delay because queue usage refcount works at atomic mode at that
+time.
 
-In accordance with the above, check 3 additional conditions
-(EdgeSensitive, ActiveHigh and Exclusive) when deciding whether or
-not to treat an ACPI_RESOURCE_TYPE_IRQ resource as "legacy", in which
-case the IRQ override is applicable to it.
+iocost calls rq_qos_add() when writing cgroup attribute file, that is
+fine to freeze queue at that time since we usually freeze queue when
+storing to queue sysfs attribute, meantime iocost only exists on the
+root cgroup.
 
-Link: https://uefi.org/specs/ACPI/6.4/06_Device_Configuration/Device_Configuration.html#irq-descriptor # [1]
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213031
-BugLink: http://bugs.launchpad.net/bugs/1909814
-Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reported-by: Manuel Krause <manuelkrause@netscape.net>
-Tested-by: Manuel Krause <manuelkrause@netscape.net>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-[ rjw: Subject rewrite, changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+wbt_init calls it in blk_register_queue() and queue sysfs attribute
+store(queue_wb_lat_store() when write it 1st time in case of !BLK_WBT_MQ),
+the following patch will speedup the queue freezing in wbt_init.
+
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Link: https://lore.kernel.org/r/20210609015822.103433-2-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/resource.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ block/blk-rq-qos.h | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index f2f5f1dc7c61..9d82440a1d75 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -430,6 +430,13 @@ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
- 	}
- }
+diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
+index 2bc43e94f4c4..2bcb3495e376 100644
+--- a/block/blk-rq-qos.h
++++ b/block/blk-rq-qos.h
+@@ -7,6 +7,7 @@
+ #include <linux/blk_types.h>
+ #include <linux/atomic.h>
+ #include <linux/wait.h>
++#include <linux/blk-mq.h>
  
-+static bool irq_is_legacy(struct acpi_resource_irq *irq)
-+{
-+	return irq->triggering == ACPI_EDGE_SENSITIVE &&
-+		irq->polarity == ACPI_ACTIVE_HIGH &&
-+		irq->shareable == ACPI_EXCLUSIVE;
-+}
+ #include "blk-mq-debugfs.h"
+ 
+@@ -99,8 +100,21 @@ static inline void rq_wait_init(struct rq_wait *rq_wait)
+ 
+ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
+ {
++	/*
++	 * No IO can be in-flight when adding rqos, so freeze queue, which
++	 * is fine since we only support rq_qos for blk-mq queue.
++	 *
++	 * Reuse ->queue_lock for protecting against other concurrent
++	 * rq_qos adding/deleting
++	 */
++	blk_mq_freeze_queue(q);
 +
- /**
-  * acpi_dev_resource_interrupt - Extract ACPI interrupt resource information.
-  * @ares: Input ACPI resource object.
-@@ -468,7 +475,7 @@ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
++	spin_lock_irq(&q->queue_lock);
+ 	rqos->next = q->rq_qos;
+ 	q->rq_qos = rqos;
++	spin_unlock_irq(&q->queue_lock);
++
++	blk_mq_unfreeze_queue(q);
+ 
+ 	if (rqos->ops->debugfs_attrs)
+ 		blk_mq_debugfs_register_rqos(rqos);
+@@ -110,12 +124,22 @@ static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
+ {
+ 	struct rq_qos **cur;
+ 
++	/*
++	 * See comment in rq_qos_add() about freezing queue & using
++	 * ->queue_lock.
++	 */
++	blk_mq_freeze_queue(q);
++
++	spin_lock_irq(&q->queue_lock);
+ 	for (cur = &q->rq_qos; *cur; cur = &(*cur)->next) {
+ 		if (*cur == rqos) {
+ 			*cur = rqos->next;
+ 			break;
  		}
- 		acpi_dev_get_irqresource(res, irq->interrupts[index],
- 					 irq->triggering, irq->polarity,
--					 irq->shareable, true);
-+					 irq->shareable, irq_is_legacy(irq));
- 		break;
- 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
- 		ext_irq = &ares->data.extended_irq;
+ 	}
++	spin_unlock_irq(&q->queue_lock);
++
++	blk_mq_unfreeze_queue(q);
+ 
+ 	blk_mq_debugfs_unregister_rqos(rqos);
+ }
 -- 
 2.30.2
 
