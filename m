@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C47D93BBF5F
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:29:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67A7A3BBF4B
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:29:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232287AbhGEPcO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:32:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56364 "EHLO mail.kernel.org"
+        id S232331AbhGEPcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232008AbhGEPbr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:31:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C19D61970;
-        Mon,  5 Jul 2021 15:29:09 +0000 (UTC)
+        id S232037AbhGEPbs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:31:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D5CBA61997;
+        Mon,  5 Jul 2021 15:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625498950;
-        bh=x64vuByuN8kJItEe+sAuXAhoznJt8trCXN6NHO1poMU=;
+        s=k20201202; t=1625498951;
+        bh=U/Wk3xklJzSoSp+qrIP77EGaiACD/fE7Vvq6NiNz9cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YbWb+tLOC7q9rs2l+bDi2zjdjrxhymNd4yx51lx2b76tLatMOotyOH7INudyZn5Zo
-         nAPqm8buwG+WIrRUxewF3PcOyXBlRH891tYEBkQItIT+ynMHrGHgpNeUxKRxCFG6yJ
-         QZsUJQHIx3cBcejq+Or2j1/0GNibIs9zFVhmZf1m/9p8ijvpX1lmnKnxzwhloGFsCV
-         Y/Aqn7fx5D3ylycmEwk4kumoCe8djQR0/0w3wk26SG44XWYSrOk/LGPpKTv7rZBRkI
-         dVllJge3YmuY2ZOBKO3t3OOd8zHrtroMWRvtzqqNY4GxEHNjvrXPB+HNLuIADDvqR/
-         UO32b7ju3vT4w==
+        b=PzaB1+P9j2UtYj9H79VtpSFfWzLzAQcAt+rzCQKtajcCpurn0qpWM0T4Bd1Rr+7n8
+         aAavToladcggHXCaoCRYd/J4CBFBHud4CUmvLqa7AhmlQJGF6kcbYBrBZmJDZzmkE8
+         X0Uk3X42t3JxTmX0DG6gtZRw4puGUFXnwGgIkUTOYrRl0T9wtVDZW5CIRDRShL3BuX
+         FqvmqpYm32M/9xlWhQTDMno2PbzfaNR0luw8E/zuJhDhSLuRBJJnyH6YM8Ym9gN90t
+         igEO6Xz/BBpze38XfYKOePEvfbd16hRk0Uq5G7jAfXQQa20YMvSR/JFrydZFbTDIAf
+         ICa96HY0tMg8g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Steve French <stfrench@microsoft.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Samuel Cabrero <scabrero@suse.de>,
         Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
         samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.13 41/59] smb3: fix uninitialized value for port in witness protocol move
-Date:   Mon,  5 Jul 2021 11:27:57 -0400
-Message-Id: <20210705152815.1520546-41-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 42/59] cifs: fix SMB1 error path in cifs_get_file_info_unix
+Date:   Mon,  5 Jul 2021 11:27:58 -0400
+Message-Id: <20210705152815.1520546-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705152815.1520546-1-sashal@kernel.org>
 References: <20210705152815.1520546-1-sashal@kernel.org>
@@ -47,57 +44,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit ff93b71a3eff25fe9d4364ef13b6e01d935600c6 ]
+[ Upstream commit e39df24169a2ceb0d359eb3a05ff982711f2eb32 ]
 
-Although in practice this can not occur (since IPv4 and IPv6 are the
-only two cases currently supported), it is cleaner to avoid uninitialized
-variable warnings.
+We were trying to fill in uninitialized file attributes in the error case.
 
-Addresses smatch warning:
-  fs/cifs/cifs_swn.c:468 cifs_swn_store_swn_addr() error: uninitialized symbol 'port'.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-CC: Samuel Cabrero <scabrero@suse.de>
+Addresses-Coverity: 139689 ("Uninitialized variables")
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifs_swn.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ fs/cifs/inode.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/cifs_swn.c b/fs/cifs/cifs_swn.c
-index d829b8bf833e..93b47818c6c2 100644
---- a/fs/cifs/cifs_swn.c
-+++ b/fs/cifs/cifs_swn.c
-@@ -447,15 +447,13 @@ static int cifs_swn_store_swn_addr(const struct sockaddr_storage *new,
- 				   const struct sockaddr_storage *old,
- 				   struct sockaddr_storage *dst)
- {
--	__be16 port;
-+	__be16 port = cpu_to_be16(CIFS_PORT);
- 
- 	if (old->ss_family == AF_INET) {
- 		struct sockaddr_in *ipv4 = (struct sockaddr_in *)old;
- 
- 		port = ipv4->sin_port;
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index 1dfa57982522..f60f068d33e8 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -367,9 +367,12 @@ cifs_get_file_info_unix(struct file *filp)
+ 	} else if (rc == -EREMOTE) {
+ 		cifs_create_dfs_fattr(&fattr, inode->i_sb);
+ 		rc = 0;
 -	}
--
--	if (old->ss_family == AF_INET6) {
-+	} else if (old->ss_family == AF_INET6) {
- 		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)old;
++	} else
++		goto cifs_gfiunix_out;
  
- 		port = ipv6->sin6_port;
-@@ -465,9 +463,7 @@ static int cifs_swn_store_swn_addr(const struct sockaddr_storage *new,
- 		struct sockaddr_in *ipv4 = (struct sockaddr_in *)new;
- 
- 		ipv4->sin_port = port;
--	}
--
--	if (new->ss_family == AF_INET6) {
-+	} else if (new->ss_family == AF_INET6) {
- 		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)new;
- 
- 		ipv6->sin6_port = port;
+ 	rc = cifs_fattr_to_inode(inode, &fattr);
++
++cifs_gfiunix_out:
+ 	free_xid(xid);
+ 	return rc;
+ }
 -- 
 2.30.2
 
