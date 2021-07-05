@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A38D3BBBBC
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 12:59:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF9053BBBBE
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 12:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231223AbhGELCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 07:02:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47182 "EHLO mail.kernel.org"
+        id S231250AbhGELCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 07:02:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231184AbhGELCO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 07:02:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 013156142F;
-        Mon,  5 Jul 2021 10:59:36 +0000 (UTC)
+        id S230511AbhGELCP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 07:02:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB404613B9;
+        Mon,  5 Jul 2021 10:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625482777;
-        bh=YCXtV/pR9YFL5eLGNB9mKwdY0EYLoXZSs9y4rTOPIAc=;
+        s=k20201202; t=1625482778;
+        bh=otDNswzrNoZlJxkieNYaRlw/bmg3oENY62X+0YIE9lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iSPX5mBYUquN7pzEUjsp+fH1LKFNKG3WfP1lesTBsGYbTYn8i8+PxPnBllP0DmFTy
-         NFsv2h1AdfT7/bhON64dOPXio9fxncxUwMeyJw54MnoG93kB0DpntcgSiixbzPNmR+
-         jr/tkk7Oz7uhYNLqzGAzXqHvN0Z3ia6zHZ6YJfHZKrSxtSrgT7LnSCtdVzzLnlqr2M
-         v1y+7I0q3pneZBR024GHf4aTAizdd2kLNOzTK9HIduczP6/AwI8P6cpf+Fwm/Lpgcj
-         UWAS2SMnT+Z21n+OFyYTFooPzuqR81vDaf0kkG+eWb4812boCLhf2/VhQ1gQL36rdp
-         ncLo4gw+gYTow==
+        b=HpYMvoTeFy+k6tczpQoDwt9EswrL4xFt3olhL3fjTkvFTL1/tc7jPBGwrAfE6fwux
+         y+Avo8O00LoUKeCVhJMkUQ04KCA+G2fNHeMCtRDPN1p/YHIqAhLCkl84J+xgT5dE5t
+         b+efEejj+BctT4qKAiNtIDbbvBg+yThwHXF3y0nWQlp8gxnH9Nhk9j+iUu+2EqDOee
+         usWzs5OR6sA9dfpzERbFA0l/8CbiAAPfAJlNT9TzvOvsxRJo0y6qXmUSnZsmAD/ToQ
+         QLdPsYgqLavD2wubXlyRRiHlbs0DkNs3RXJ2TMKi1Wx5HV2SnmvG1b8qhS7em2xL0W
+         pxipTwdawKMPA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     ManYi Li <limanyi@uniontech.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 1/7] scsi: sr: Return appropriate error code when disk is ejected
-Date:   Mon,  5 Jul 2021 06:59:28 -0400
-Message-Id: <20210705105934.1513188-2-sashal@kernel.org>
+Subject: [PATCH 5.12 2/7] s390/vfio-ap: clean up mdev resources when remove callback invoked
+Date:   Mon,  5 Jul 2021 06:59:29 -0400
+Message-Id: <20210705105934.1513188-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705105934.1513188-1-sashal@kernel.org>
 References: <20210705105934.1513188-1-sashal@kernel.org>
@@ -48,35 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ManYi Li <limanyi@uniontech.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-[ Upstream commit 7dd753ca59d6c8cc09aa1ed24f7657524803c7f3 ]
+[ Upstream commit 8c0795d2a0f50e2b131f5b2a8c2795939a94058e ]
 
-Handle a reported media event code of 3. This indicates that the media has
-been removed from the drive and user intervention is required to proceed.
-Return DISK_EVENT_EJECT_REQUEST in that case.
+The mdev remove callback for the vfio_ap device driver bails out with
+-EBUSY if the mdev is in use by a KVM guest (i.e., the KVM pointer in the
+struct ap_matrix_mdev is not NULL). The intended purpose was
+to prevent the mdev from being removed while in use. There are two
+problems with this scenario:
 
-Link: https://lore.kernel.org/r/20210611094402.23884-1-limanyi@uniontech.com
-Signed-off-by: ManYi Li <limanyi@uniontech.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+1. Returning a non-zero return code from the remove callback does not
+   prevent the removal of the mdev.
+
+2. The KVM pointer in the struct ap_matrix_mdev will always be NULL because
+   the remove callback will not get invoked until the mdev fd is closed.
+   When the mdev fd is closed, the mdev release callback is invoked and
+   clears the KVM pointer from the struct ap_matrix_mdev.
+
+Let's go ahead and remove the check for KVM in the remove callback and
+allow the cleanup of mdev resources to proceed.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lore.kernel.org/r/20210609224634.575156-2-akrowiak@linux.ibm.com
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/crypto/vfio_ap_ops.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index e4633b84c556..7815ed642d43 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -220,6 +220,8 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
- 		return DISK_EVENT_EJECT_REQUEST;
- 	else if (med->media_event_code == 2)
- 		return DISK_EVENT_MEDIA_CHANGE;
-+	else if (med->media_event_code == 3)
-+		return DISK_EVENT_EJECT_REQUEST;
- 	return 0;
- }
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 6946a7e26eff..ef5e792c665f 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -366,16 +366,6 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
  
+ 	mutex_lock(&matrix_dev->lock);
+-
+-	/*
+-	 * If the KVM pointer is in flux or the guest is running, disallow
+-	 * un-assignment of control domain.
+-	 */
+-	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
+-		mutex_unlock(&matrix_dev->lock);
+-		return -EBUSY;
+-	}
+-
+ 	vfio_ap_mdev_reset_queues(mdev);
+ 	list_del(&matrix_mdev->node);
+ 	kfree(matrix_mdev);
 -- 
 2.30.2
 
