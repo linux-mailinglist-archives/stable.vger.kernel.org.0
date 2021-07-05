@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A894F3BC0B8
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:35:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA123BC0BA
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233740AbhGEPhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233742AbhGEPhR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 5 Jul 2021 11:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58632 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233476AbhGEPgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233192AbhGEPgL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Jul 2021 11:36:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07A7061A2D;
-        Mon,  5 Jul 2021 15:31:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AE7C61A30;
+        Mon,  5 Jul 2021 15:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499113;
-        bh=kTVddoRfG4DNgDSYwVJCYQv5jeIAYXyncwB1agdGmCs=;
+        s=k20201202; t=1625499115;
+        bh=b4Yuh9ZXGTBdk6of/NfxeZDGAlGbAWPMhlBaB7ZNN9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=up1EyCs8gW1ZGpOp1geFcLAnGbzDotyD9ATC3w44ESp6r8lIZqEt8ou9rc9lg5mYV
-         Mm7QrZH8iHsOu3hGXVB1fvYR5fxrw4lXYh8J9fMbfOpxyfXh4MnQDZ+eySoU0vuLHz
-         AOFY980ejAqzgZ7rCMD9YAGAfhoEXvovYIOZRvWauTq5oWxppeVchNRpoYcOSsgAn1
-         crkqLw6+/cLNR82bsqt8LlCL4Q4Gn0ikdKhoDO5Upd8ChTwQoVDzqP4fEJ+5X/rXrT
-         d3C7AZ1DpMb3sXhpEa69u/8xH74o+gO8jb3+c2Ji48D5GRgmL4GQbymcT6eMb79af0
-         oGq/6BzfSzc5w==
+        b=VCJPWXFVgB0oPmXXYL8pf44XyaROplYoXqhhaAt9IsQmxF4gBIxNpKsyxYAY3F1m0
+         ypDlkfkOCctdLCyjKw8z33CM9FFcccyemfrM/bMUMjCvD/OcKYkHIwnEOYVwzqMFYO
+         w3/2R/M06XS+4gVfXKqbxLDo2NUKWOG2MnbNORO7zro9ZeYpeCkDo6pyhegrhC0vy0
+         +UT+0XvpS0zPGN1oITzLGka87Ng4e6WCu+nHKzN2SJ5CGmXU8qqK+Eha6lMVPGfX7s
+         K7RqjsAvTncfgULEmtmDvb/+JEFkCJ6F1Y8Hc6lcO6ODYBtctTDpQpMk+ypfv5RGXy
+         jrV2/ZSqZ+Dcw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Gerecke <killertofu@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 14/15] HID: wacom: Correct base usage for capacitive ExpressKey status bits
-Date:   Mon,  5 Jul 2021 11:31:35 -0400
-Message-Id: <20210705153136.1522245-14-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 15/15] ia64: mca_drv: fix incorrect array size calculation
+Date:   Mon,  5 Jul 2021 11:31:36 -0400
+Message-Id: <20210705153136.1522245-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153136.1522245-1-sashal@kernel.org>
 References: <20210705153136.1522245-1-sashal@kernel.org>
@@ -43,33 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 424d8237945c6c448c8b3f23885d464fb5685c97 ]
+[ Upstream commit c5f320ff8a79501bb59338278336ec43acb9d7e2 ]
 
-The capacitive status of ExpressKeys is reported with usages beginning
-at 0x940, not 0x950. Bring our driver into alignment with reality.
+gcc points out a mistake in the mca driver that goes back to before the
+git history:
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+arch/ia64/kernel/mca_drv.c: In function 'init_record_index_pools':
+arch/ia64/kernel/mca_drv.c:346:54: error: expression does not compute the number of elements in this array; element typ
+e is 'int', not 'size_t' {aka 'long unsigned int'} [-Werror=sizeof-array-div]
+  346 |         for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
+      |                                                      ^
+
+This is the same as sizeof(size_t), which is two shorter than the actual
+array.  Use the ARRAY_SIZE() macro to get the correct calculation instead.
+
+Link: https://lkml.kernel.org/r/20210514214123.875971-1-arnd@kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.h | 2 +-
+ arch/ia64/kernel/mca_drv.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index d2fe7af2c152..55b542a6a66b 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -121,7 +121,7 @@
- #define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0454)
- #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
- #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
--#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
-+#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0940)
- #define WACOM_HID_WD_MODE_CHANGE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0980)
- #define WACOM_HID_WD_MUTE_DEVICE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0981)
- #define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER | 0x0982)
+diff --git a/arch/ia64/kernel/mca_drv.c b/arch/ia64/kernel/mca_drv.c
+index 94f8bf777afa..3503d488e9b3 100644
+--- a/arch/ia64/kernel/mca_drv.c
++++ b/arch/ia64/kernel/mca_drv.c
+@@ -343,7 +343,7 @@ init_record_index_pools(void)
+ 
+ 	/* - 2 - */
+ 	sect_min_size = sal_log_sect_min_sizes[0];
+-	for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
++	for (i = 1; i < ARRAY_SIZE(sal_log_sect_min_sizes); i++)
+ 		if (sect_min_size > sal_log_sect_min_sizes[i])
+ 			sect_min_size = sal_log_sect_min_sizes[i];
+ 
 -- 
 2.30.2
 
