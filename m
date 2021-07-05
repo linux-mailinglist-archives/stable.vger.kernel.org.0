@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E14213BBFD6
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 622263BBFDA
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232817AbhGEPd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:33:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58756 "EHLO mail.kernel.org"
+        id S231922AbhGEPda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:33:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232583AbhGEPcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:32:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF72E61998;
-        Mon,  5 Jul 2021 15:30:14 +0000 (UTC)
+        id S232033AbhGEPcy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:32:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EEA46199D;
+        Mon,  5 Jul 2021 15:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499015;
-        bh=+GLCrOlqm+ecTRN01ebH+RNaYpzSgm+wgO5kZtnb/hY=;
+        s=k20201202; t=1625499017;
+        bh=4/fj7jMKvf97oJGUy609WjmY9aB7ngVl9DfQpJb7/Ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HqJ2shKYG3EDhG0V5A8t5geQqfvOYfF4nhyF+kPnst6SgViJ7zUb6gVD9j0iZilxX
-         l24Bm9o+7IOsU+0IareJNBD7SV+w/i6UemgeygZq3v8jxjKiz9Pn8Zz/vnqF/J1PbM
-         y5lx/4LkGdmom6hGt/yFvSdJNfbziKj1TbgzBI34q0Qyt3rORT7oqU0ZXnUwGccXrs
-         3ZOiXpM7gJxBMALxkoo0eUUVn/VtiufIgPxV+kvk5uobRej6CrKzjedg70TBYbQ3nG
-         qCBKeKGxx4IsML3aj2L2nT7jpqHm55Yv4Xoo4+wLzm0giqKfV6NuTCVZoSMClt76AJ
-         2h2iNZ+sGR5YQ==
+        b=QMkVpq+cj2g4JcztQck3Vmcopbl52b0s6EP2ike1/KQyfPd+t0B0f2+EkK4x/zlDc
+         hvMMzvkWi0tQtvy9fREHqXUDAMQVrYzY2ZaN+N0VyWyvayxt8FaZl/UyqzvuZ21pOT
+         l2BWe2tWzpwlGkd4F/mapZxSEmYCB1omB1422OLxB9+oI/bBxSx99et3dcAZHnl2gZ
+         ptt1om8yiiuYsIQoKAQivN0FVOY3xKDZ0CIf7ltgjnxuwHF2dVEH2WdeuZFpLDwp1o
+         MBrM9b6b58SykfVFtTFE13D6z/KoQKZ4fOSwhDRtEv5yCsG6Zk2i4ESRThrmnCERwF
+         KJ97gFedFDRkg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ming Lei <ming.lei@redhat.com>, John Garry <john.garry@huawei.com>,
-        Christoph Hellwig <hch@lst.de>,
+        David Jeffery <djeffery@redhat.com>,
         Bart Van Assche <bvanassche@acm.org>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 11/41] blk-mq: grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter
-Date:   Mon,  5 Jul 2021 11:29:31 -0400
-Message-Id: <20210705153001.1521447-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 12/41] blk-mq: clear stale request in tags->rq[] before freeing one request pool
+Date:   Mon,  5 Jul 2021 11:29:32 -0400
+Message-Id: <20210705153001.1521447-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153001.1521447-1-sashal@kernel.org>
 References: <20210705153001.1521447-1-sashal@kernel.org>
@@ -46,175 +46,157 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 2e315dc07df009c3e29d6926871f62a30cfae394 ]
+[ Upstream commit bd63141d585bef14f4caf111f6d0e27fe2300ec6 ]
 
-Grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter(), and
-this way will prevent the request from being re-used when ->fn is
-running. The approach is same as what we do during handling timeout.
+refcount_inc_not_zero() in bt_tags_iter() still may read one freed
+request.
 
-Fix request use-after-free(UAF) related with completion race or queue
-releasing:
+Fix the issue by the following approach:
 
-- If one rq is referred before rq->q is frozen, then queue won't be
-frozen before the request is released during iteration.
+1) hold a per-tags spinlock when reading ->rqs[tag] and calling
+refcount_inc_not_zero in bt_tags_iter()
 
-- If one rq is referred after rq->q is frozen, refcount_inc_not_zero()
-will return false, and we won't iterate over this request.
+2) clearing stale request referred via ->rqs[tag] before freeing
+request pool, the per-tags spinlock is held for clearing stale
+->rq[tag]
 
-However, still one request UAF not covered: refcount_inc_not_zero() may
-read one freed request, and it will be handled in next patch.
+So after we cleared stale requests, bt_tags_iter() won't observe
+freed request any more, also the clearing will wait for pending
+request reference.
+
+The idea of clearing ->rqs[] is borrowed from John Garry's previous
+patch and one recent David's patch.
 
 Tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: David Jeffery <djeffery@redhat.com>
 Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20210511152236.763464-3-ming.lei@redhat.com
+Link: https://lore.kernel.org/r/20210511152236.763464-4-ming.lei@redhat.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-tag.c | 44 +++++++++++++++++++++++++++++++++-----------
- block/blk-mq.c     | 14 +++++++++-----
- block/blk-mq.h     |  1 +
- 3 files changed, 43 insertions(+), 16 deletions(-)
+ block/blk-mq-tag.c |  9 +++++++--
+ block/blk-mq-tag.h |  6 ++++++
+ block/blk-mq.c     | 46 +++++++++++++++++++++++++++++++++++++++++-----
+ 3 files changed, 54 insertions(+), 7 deletions(-)
 
 diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
-index 9c92053e704d..6772c3728865 100644
+index 6772c3728865..c4f2f6c123ae 100644
 --- a/block/blk-mq-tag.c
 +++ b/block/blk-mq-tag.c
-@@ -199,6 +199,16 @@ struct bt_iter_data {
- 	bool reserved;
+@@ -202,10 +202,14 @@ struct bt_iter_data {
+ static struct request *blk_mq_find_and_get_req(struct blk_mq_tags *tags,
+ 		unsigned int bitnr)
+ {
+-	struct request *rq = tags->rqs[bitnr];
++	struct request *rq;
++	unsigned long flags;
+ 
++	spin_lock_irqsave(&tags->lock, flags);
++	rq = tags->rqs[bitnr];
+ 	if (!rq || !refcount_inc_not_zero(&rq->ref))
+-		return NULL;
++		rq = NULL;
++	spin_unlock_irqrestore(&tags->lock, flags);
+ 	return rq;
+ }
+ 
+@@ -538,6 +542,7 @@ struct blk_mq_tags *blk_mq_init_tags(unsigned int total_tags,
+ 
+ 	tags->nr_tags = total_tags;
+ 	tags->nr_reserved_tags = reserved_tags;
++	spin_lock_init(&tags->lock);
+ 
+ 	if (flags & BLK_MQ_F_TAG_HCTX_SHARED)
+ 		return tags;
+diff --git a/block/blk-mq-tag.h b/block/blk-mq-tag.h
+index 7d3e6b333a4a..f887988e5ef6 100644
+--- a/block/blk-mq-tag.h
++++ b/block/blk-mq-tag.h
+@@ -20,6 +20,12 @@ struct blk_mq_tags {
+ 	struct request **rqs;
+ 	struct request **static_rqs;
+ 	struct list_head page_list;
++
++	/*
++	 * used to clear request reference in rqs[] before freeing one
++	 * request pool
++	 */
++	spinlock_t lock;
  };
  
-+static struct request *blk_mq_find_and_get_req(struct blk_mq_tags *tags,
-+		unsigned int bitnr)
-+{
-+	struct request *rq = tags->rqs[bitnr];
-+
-+	if (!rq || !refcount_inc_not_zero(&rq->ref))
-+		return NULL;
-+	return rq;
-+}
-+
- static bool bt_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
- {
- 	struct bt_iter_data *iter_data = data;
-@@ -206,18 +216,22 @@ static bool bt_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
- 	struct blk_mq_tags *tags = hctx->tags;
- 	bool reserved = iter_data->reserved;
- 	struct request *rq;
-+	bool ret = true;
- 
- 	if (!reserved)
- 		bitnr += tags->nr_reserved_tags;
--	rq = tags->rqs[bitnr];
--
- 	/*
- 	 * We can hit rq == NULL here, because the tagging functions
- 	 * test and set the bit before assigning ->rqs[].
- 	 */
--	if (rq && rq->q == hctx->queue && rq->mq_hctx == hctx)
--		return iter_data->fn(hctx, rq, iter_data->data, reserved);
--	return true;
-+	rq = blk_mq_find_and_get_req(tags, bitnr);
-+	if (!rq)
-+		return true;
-+
-+	if (rq->q == hctx->queue && rq->mq_hctx == hctx)
-+		ret = iter_data->fn(hctx, rq, iter_data->data, reserved);
-+	blk_mq_put_rq_ref(rq);
-+	return ret;
- }
- 
- /**
-@@ -264,6 +278,8 @@ static bool bt_tags_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
- 	struct blk_mq_tags *tags = iter_data->tags;
- 	bool reserved = iter_data->flags & BT_TAG_ITER_RESERVED;
- 	struct request *rq;
-+	bool ret = true;
-+	bool iter_static_rqs = !!(iter_data->flags & BT_TAG_ITER_STATIC_RQS);
- 
- 	if (!reserved)
- 		bitnr += tags->nr_reserved_tags;
-@@ -272,16 +288,19 @@ static bool bt_tags_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
- 	 * We can hit rq == NULL here, because the tagging functions
- 	 * test and set the bit before assigning ->rqs[].
- 	 */
--	if (iter_data->flags & BT_TAG_ITER_STATIC_RQS)
-+	if (iter_static_rqs)
- 		rq = tags->static_rqs[bitnr];
- 	else
--		rq = tags->rqs[bitnr];
-+		rq = blk_mq_find_and_get_req(tags, bitnr);
- 	if (!rq)
- 		return true;
--	if ((iter_data->flags & BT_TAG_ITER_STARTED) &&
--	    !blk_mq_request_started(rq))
--		return true;
--	return iter_data->fn(rq, iter_data->data, reserved);
-+
-+	if (!(iter_data->flags & BT_TAG_ITER_STARTED) ||
-+	    blk_mq_request_started(rq))
-+		ret = iter_data->fn(rq, iter_data->data, reserved);
-+	if (!iter_static_rqs)
-+		blk_mq_put_rq_ref(rq);
-+	return ret;
- }
- 
- /**
-@@ -348,6 +367,9 @@ void blk_mq_all_tag_iter(struct blk_mq_tags *tags, busy_tag_iter_fn *fn,
-  *		indicates whether or not @rq is a reserved request. Return
-  *		true to continue iterating tags, false to stop.
-  * @priv:	Will be passed as second argument to @fn.
-+ *
-+ * We grab one request reference before calling @fn and release it after
-+ * @fn returns.
-  */
- void blk_mq_tagset_busy_iter(struct blk_mq_tag_set *tagset,
- 		busy_tag_iter_fn *fn, void *priv)
+ extern struct blk_mq_tags *blk_mq_init_tags(unsigned int nr_tags,
 diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 4bf9449b4586..50d3527a5d97 100644
+index 50d3527a5d97..00d6ed2fe812 100644
 --- a/block/blk-mq.c
 +++ b/block/blk-mq.c
-@@ -927,6 +927,14 @@ static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
- 	return false;
+@@ -2276,6 +2276,45 @@ blk_qc_t blk_mq_submit_bio(struct bio *bio)
+ 	return BLK_QC_T_NONE;
  }
  
-+void blk_mq_put_rq_ref(struct request *rq)
++static size_t order_to_size(unsigned int order)
 +{
-+	if (is_flush_rq(rq, rq->mq_hctx))
-+		rq->end_io(rq, 0);
-+	else if (refcount_dec_and_test(&rq->ref))
-+		__blk_mq_free_request(rq);
++	return (size_t)PAGE_SIZE << order;
 +}
 +
- static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
- 		struct request *rq, void *priv, bool reserved)
++/* called before freeing request pool in @tags */
++static void blk_mq_clear_rq_mapping(struct blk_mq_tag_set *set,
++		struct blk_mq_tags *tags, unsigned int hctx_idx)
++{
++	struct blk_mq_tags *drv_tags = set->tags[hctx_idx];
++	struct page *page;
++	unsigned long flags;
++
++	list_for_each_entry(page, &tags->page_list, lru) {
++		unsigned long start = (unsigned long)page_address(page);
++		unsigned long end = start + order_to_size(page->private);
++		int i;
++
++		for (i = 0; i < set->queue_depth; i++) {
++			struct request *rq = drv_tags->rqs[i];
++			unsigned long rq_addr = (unsigned long)rq;
++
++			if (rq_addr >= start && rq_addr < end) {
++				WARN_ON_ONCE(refcount_read(&rq->ref) != 0);
++				cmpxchg(&drv_tags->rqs[i], rq, NULL);
++			}
++		}
++	}
++
++	/*
++	 * Wait until all pending iteration is done.
++	 *
++	 * Request reference is cleared and it is guaranteed to be observed
++	 * after the ->lock is released.
++	 */
++	spin_lock_irqsave(&drv_tags->lock, flags);
++	spin_unlock_irqrestore(&drv_tags->lock, flags);
++}
++
+ void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
+ 		     unsigned int hctx_idx)
  {
-@@ -960,11 +968,7 @@ static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
- 	if (blk_mq_req_expired(rq, next))
- 		blk_mq_rq_timed_out(rq, reserved);
+@@ -2294,6 +2333,8 @@ void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
+ 		}
+ 	}
  
--	if (is_flush_rq(rq, hctx))
--		rq->end_io(rq, 0);
--	else if (refcount_dec_and_test(&rq->ref))
--		__blk_mq_free_request(rq);
--
-+	blk_mq_put_rq_ref(rq);
- 	return true;
++	blk_mq_clear_rq_mapping(set, tags, hctx_idx);
++
+ 	while (!list_empty(&tags->page_list)) {
+ 		page = list_first_entry(&tags->page_list, struct page, lru);
+ 		list_del_init(&page->lru);
+@@ -2353,11 +2394,6 @@ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
+ 	return tags;
  }
  
-diff --git a/block/blk-mq.h b/block/blk-mq.h
-index d2359f7cfd5f..f792a0920ebb 100644
---- a/block/blk-mq.h
-+++ b/block/blk-mq.h
-@@ -47,6 +47,7 @@ void blk_mq_add_to_requeue_list(struct request *rq, bool at_head,
- void blk_mq_flush_busy_ctxs(struct blk_mq_hw_ctx *hctx, struct list_head *list);
- struct request *blk_mq_dequeue_from_ctx(struct blk_mq_hw_ctx *hctx,
- 					struct blk_mq_ctx *start);
-+void blk_mq_put_rq_ref(struct request *rq);
- 
- /*
-  * Internal helpers for allocating/freeing the request map
+-static size_t order_to_size(unsigned int order)
+-{
+-	return (size_t)PAGE_SIZE << order;
+-}
+-
+ static int blk_mq_init_request(struct blk_mq_tag_set *set, struct request *rq,
+ 			       unsigned int hctx_idx, int node)
+ {
 -- 
 2.30.2
 
