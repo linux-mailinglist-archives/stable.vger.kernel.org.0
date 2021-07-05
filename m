@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A36693BBFEE
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 635333BBFFD
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232686AbhGEPdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:33:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56364 "EHLO mail.kernel.org"
+        id S232479AbhGEPeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:34:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232692AbhGEPdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:33:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DE79619AA;
-        Mon,  5 Jul 2021 15:30:25 +0000 (UTC)
+        id S232738AbhGEPdR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:33:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D35E619AC;
+        Mon,  5 Jul 2021 15:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499025;
-        bh=gD4mp4a9Q6gxyCGTWtos+XvRDZiiDOibuXhFg6BVkpI=;
+        s=k20201202; t=1625499027;
+        bh=UR+XYQAXUwgZ8/KKoXPfCS7hXQWs9X4z7ocp7oltBuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M05v4UWSDBedppTHE4TP56UgUcPspIBtr2W0pv9eV9P07vZFi9r8sTsVLMQFktprK
-         Ug7VXibo5Kiq7a2P14wqxo28D7eJsToTzIVnl40BX2iOmnOP9gQM58BDowUaJ5+C5Q
-         iheczwCT2FIoq4t2ezkQk5wCn2X0xxvJ1XVAs99r6WK+wTx55RmWfSqFN4QwXy5Ixe
-         Tc7+AkRD3p7YxopKSLVJFnf0eLxLROfMHehcVuEId7rqJKlmzNgGxIeWcooKcqUukA
-         NN0JhKRAztOMNdizimdcACUnkT1cESvR/QohfmbB5qCkfHXl9n+ezTOGx3EZoDf31H
-         Ni59rU0ge2NZQ==
+        b=PfUhkXhE7U4VGcYdS4ZUHb+fvpwjxrwuP4WeLhu1dHF8RuVsmwLqYIaKz8iN1GyPA
+         A4rnKlBthvcJ2zZzVWtBgEdNII6bKFIUoRxgbxzkxq8qgSXNk8aBphbFVNQPTFup1a
+         diRU7oWW2kUH1H9jEkB5XD2zH2jTWKmXcf+2VszJB6846BPZ790fRSCTsTjGNKDT43
+         HLPWQOC4Zz2M82zwUINEGm4/u0et8/JlTVrx39UPa8q+PZQBZQRnaKo3e5W3W0hRHf
+         OoxiUws+wa65zOp124+lF6cGxQnTCp7izqp3H5JDhaQIBWV8LeSkUzpQE2MTorp9kI
+         e/Nt4xYkjhjFA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hanjun Guo <guohanjun@huawei.com>,
+Cc:     Hui Wang <hui.wang@canonical.com>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Manuel Krause <manuelkrause@netscape.net>,
         Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 19/41] ACPI: bus: Call kobject_put() in acpi_init() error path
-Date:   Mon,  5 Jul 2021 11:29:39 -0400
-Message-Id: <20210705153001.1521447-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 20/41] ACPI: resources: Add checks for ACPI IRQ override
+Date:   Mon,  5 Jul 2021 11:29:40 -0400
+Message-Id: <20210705153001.1521447-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153001.1521447-1-sashal@kernel.org>
 References: <20210705153001.1521447-1-sashal@kernel.org>
@@ -42,34 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit 4ac7a817f1992103d4e68e9837304f860b5e7300 ]
+[ Upstream commit 0ec4e55e9f571f08970ed115ec0addc691eda613 ]
 
-Although the system will not be in a good condition or it will not
-boot if acpi_bus_init() fails, it is still necessary to put the
-kobject in the error path before returning to avoid leaking memory.
+The laptop keyboard doesn't work on many MEDION notebooks, but the
+keyboard works well under Windows and Unix.
 
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-[ rjw: Subject and changelog edits ]
+Through debugging, we found this log in the dmesg:
+
+ ACPI: IRQ 1 override to edge, high
+ pnp 00:03: Plug and Play ACPI device, IDs PNP0303 (active)
+
+ And we checked the IRQ definition in the DSDT, it is:
+
+    IRQ (Level, ActiveLow, Exclusive, )
+        {1}
+
+So the BIOS defines the keyboard IRQ to Level_Low, but the Linux
+kernel override it to Edge_High. If the Linux kernel is modified
+to skip the IRQ override, the keyboard will work normally.
+
+From the existing comment in acpi_dev_get_irqresource(), the override
+function only needs to be called when IRQ() or IRQNoFlags() is used
+to populate the resource descriptor, and according to Section 6.4.2.1
+of ACPI 6.4 [1], if IRQ() is empty or IRQNoFlags() is used, the IRQ
+is High true, edge sensitive and non-shareable. ACPICA also assumes
+that to be the case (see acpi_rs_set_irq[] in rsirq.c).
+
+In accordance with the above, check 3 additional conditions
+(EdgeSensitive, ActiveHigh and Exclusive) when deciding whether or
+not to treat an ACPI_RESOURCE_TYPE_IRQ resource as "legacy", in which
+case the IRQ override is applicable to it.
+
+Link: https://uefi.org/specs/ACPI/6.4/06_Device_Configuration/Device_Configuration.html#irq-descriptor # [1]
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213031
+BugLink: http://bugs.launchpad.net/bugs/1909814
+Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Manuel Krause <manuelkrause@netscape.net>
+Tested-by: Manuel Krause <manuelkrause@netscape.net>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+[ rjw: Subject rewrite, changelog edits ]
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/bus.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/resource.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-index 1682f8b454a2..e317214aabec 100644
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -1245,6 +1245,7 @@ static int __init acpi_init(void)
- 
- 	result = acpi_bus_init();
- 	if (result) {
-+		kobject_put(acpi_kobj);
- 		disable_acpi();
- 		return result;
+diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
+index f2f5f1dc7c61..9d82440a1d75 100644
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -430,6 +430,13 @@ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
  	}
+ }
+ 
++static bool irq_is_legacy(struct acpi_resource_irq *irq)
++{
++	return irq->triggering == ACPI_EDGE_SENSITIVE &&
++		irq->polarity == ACPI_ACTIVE_HIGH &&
++		irq->shareable == ACPI_EXCLUSIVE;
++}
++
+ /**
+  * acpi_dev_resource_interrupt - Extract ACPI interrupt resource information.
+  * @ares: Input ACPI resource object.
+@@ -468,7 +475,7 @@ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
+ 		}
+ 		acpi_dev_get_irqresource(res, irq->interrupts[index],
+ 					 irq->triggering, irq->polarity,
+-					 irq->shareable, true);
++					 irq->shareable, irq_is_legacy(irq));
+ 		break;
+ 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
+ 		ext_irq = &ares->data.extended_irq;
 -- 
 2.30.2
 
