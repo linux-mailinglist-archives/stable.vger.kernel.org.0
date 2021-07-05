@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2763BC070
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C988E3BC072
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232583AbhGEPgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:36:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58510 "EHLO mail.kernel.org"
+        id S233449AbhGEPgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232936AbhGEPey (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233160AbhGEPey (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Jul 2021 11:34:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7F38619AC;
-        Mon,  5 Jul 2021 15:31:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3C7A619AD;
+        Mon,  5 Jul 2021 15:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499083;
-        bh=U7k+PNZbCKVLmzpmoLrO/fWhqyAmpo7Pbowg/bsCwGo=;
+        s=k20201202; t=1625499084;
+        bh=PWDQcW0qgTf0nfb1boA+21LCDTNkO+PPhim+Nm5vvaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jTexSd7t7DujbnfC2W6px47lxK8+MTWjlxVc2stj4/xidOZPKw6qms/9biD+yAajB
-         RqPYi1PW4cl1jXB60rInMywOWo1zvjGg1SgB0zZwUdwLHQMLUoYYwZNyQSwo5pksB4
-         Bt7XU3cEIWwZF3SpyRYMHTzYr7T9SsIPkVb9a0bRc5rjZfG8gcGKH/wJ1o3a1+v14x
-         m4SPiZqdmEdCWqVNORPmMaCpjtJllp/Vg865BI6zxOsGqvT1/07KL8DQ1xQrYm58jP
-         W9hrG2sUPtDL6lElpE69DwIJOmM9rJODae3ZfvXSanYpSq54Vt4eV1Y/MX0BU0rx3U
-         mK3HJYFscbRLw==
+        b=rskuZiWAO6TUmBB9VL9mdK6l9sjE4NJq+GJwFi10KoMjhcIK/f0V9kQrexBo7+Ivl
+         CDyOlonE2DvFP9W/RebbyBYw3hgadH/rwOWqOh7pVEgGWpzqDlYStOrD1XezgqK0KQ
+         5U3ANVvudyT+CHc3gN7A2nUzSoyS/Xi9vYBjqzy23mBVxD0uqk0B34iqJuJsfekQJ3
+         DZOHpj4RieiyAUCy4otAFUoePeh8wriB+cWRyE/n5KuT/vMO7j9dx7wm408/b+M6lB
+         VMpkGljtpEhRBwQrGXMB1Y7VqdSlkv3YQR3yc0f81R2fy3nCjxX8A964UPx2RIOPjO
+         9JPkkVmIkI1kA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "zhangyi (F)" <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 07/17] block_dump: remove block_dump feature in mark_inode_dirty()
-Date:   Mon,  5 Jul 2021 11:31:03 -0400
-Message-Id: <20210705153114.1522046-7-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.19 08/17] fs: dlm: cancel work sync othercon
+Date:   Mon,  5 Jul 2021 11:31:04 -0400
+Message-Id: <20210705153114.1522046-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153114.1522046-1-sashal@kernel.org>
 References: <20210705153114.1522046-1-sashal@kernel.org>
@@ -42,82 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "zhangyi (F)" <yi.zhang@huawei.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 12e0613715e1cf305fffafaf0e89d810d9a85cc0 ]
+[ Upstream commit c6aa00e3d20c2767ba3f57b64eb862572b9744b3 ]
 
-block_dump is an old debugging interface, one of it's functions is used
-to print the information about who write which file on disk. If we
-enable block_dump through /proc/sys/vm/block_dump and turn on debug log
-level, we can gather information about write process name, target file
-name and disk from kernel message. This feature is realized in
-block_dump___mark_inode_dirty(), it print above information into kernel
-message directly when marking inode dirty, so it is noisy and can easily
-trigger log storm. At the same time, get the dentry refcount is also not
-safe, we found it will lead to deadlock on ext4 file system with
-data=journal mode.
+These rx tx flags arguments are for signaling close_connection() from
+which worker they are called. Obviously the receive worker cannot cancel
+itself and vice versa for swork. For the othercon the receive worker
+should only be used, however to avoid deadlocks we should pass the same
+flags as the original close_connection() was called.
 
-After tracepoints has been introduced into the kernel, we got a
-tracepoint in __mark_inode_dirty(), which is a better replacement of
-block_dump___mark_inode_dirty(). The only downside is that it only trace
-the inode number and not a file name, but it probably doesn't matter
-because the original printed file name in block_dump is not accurate in
-some cases, and we can still find it through the inode number and device
-id. So this patch delete the dirting inode part of block_dump feature.
-
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210313030146.2882027-2-yi.zhang@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fs-writeback.c | 25 -------------------------
- 1 file changed, 25 deletions(-)
+ fs/dlm/lowcomms.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index a247cb4b00e2..fc9167e65287 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -2115,28 +2115,6 @@ int dirtytime_interval_handler(struct ctl_table *table, int write,
- 	return ret;
- }
- 
--static noinline void block_dump___mark_inode_dirty(struct inode *inode)
--{
--	if (inode->i_ino || strcmp(inode->i_sb->s_id, "bdev")) {
--		struct dentry *dentry;
--		const char *name = "?";
--
--		dentry = d_find_alias(inode);
--		if (dentry) {
--			spin_lock(&dentry->d_lock);
--			name = (const char *) dentry->d_name.name;
--		}
--		printk(KERN_DEBUG
--		       "%s(%d): dirtied inode %lu (%s) on %s\n",
--		       current->comm, task_pid_nr(current), inode->i_ino,
--		       name, inode->i_sb->s_id);
--		if (dentry) {
--			spin_unlock(&dentry->d_lock);
--			dput(dentry);
--		}
--	}
--}
--
- /**
-  * __mark_inode_dirty -	internal function
-  *
-@@ -2196,9 +2174,6 @@ void __mark_inode_dirty(struct inode *inode, int flags)
- 	    (dirtytime && (inode->i_state & I_DIRTY_INODE)))
- 		return;
- 
--	if (unlikely(block_dump))
--		block_dump___mark_inode_dirty(inode);
--
- 	spin_lock(&inode->i_lock);
- 	if (dirtytime && (inode->i_state & I_DIRTY_INODE))
- 		goto out_unlock_inode;
+diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
+index a93ebffe84b3..f476a90e8aae 100644
+--- a/fs/dlm/lowcomms.c
++++ b/fs/dlm/lowcomms.c
+@@ -609,7 +609,7 @@ static void close_connection(struct connection *con, bool and_other,
+ 	}
+ 	if (con->othercon && and_other) {
+ 		/* Will only re-enter once. */
+-		close_connection(con->othercon, false, true, true);
++		close_connection(con->othercon, false, tx, rx);
+ 	}
+ 	if (con->rx_page) {
+ 		__free_page(con->rx_page);
 -- 
 2.30.2
 
