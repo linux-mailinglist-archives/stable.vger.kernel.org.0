@@ -2,234 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 230F83BBCFF
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 14:45:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1E3C3BBD0F
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 14:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231329AbhGEMrz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 08:47:55 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:40816 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230326AbhGEMry (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Jul 2021 08:47:54 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 391A5225E6;
-        Mon,  5 Jul 2021 12:45:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1625489117; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qkix/MuBeaAucqA02/qtk3Y8Hdui/c9rKLpTFt2ykBw=;
-        b=LkJQx+ddyN6izZIXOb1HMR9lu30V6etFzdUGo/p0X9MXhFMF7I0RVBbFeBABSBLAsNQwXX
-        pW0Eo3n8DIZxCbwGBkHmCelG44WpqWe6RemiPGB3xDfjHTUsaf9p+35L4k2AyQKahbiXMG
-        V+qEEMd/T0KC8rYS13NvBfcQyvjrR7Y=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1625489117;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qkix/MuBeaAucqA02/qtk3Y8Hdui/c9rKLpTFt2ykBw=;
-        b=elfIQrMRXqdeAOuAsSvPziBDivWjLkEFxoSRfnhGP2+W4LANYZ4n/JQnxRP/HmtmucwWoP
-        /fECSQAsWUobGqDA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 048F013A7E;
-        Mon,  5 Jul 2021 12:45:17 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id EKc+AN3+4mDkcAAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Mon, 05 Jul 2021 12:45:17 +0000
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     daniel@ffwll.ch, airlied@redhat.com, sam@ravnborg.org,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        emil.velikov@collabora.com, John.p.donnelly@oracle.com
-Cc:     dri-devel@lists.freedesktop.org,
-        Thomas Zimmermann <tzimmermann@suse.de>, stable@vger.kernel.org
-Subject: [PATCH 01/12] drm/mgag200: Select clock in PLL update functions
-Date:   Mon,  5 Jul 2021 14:45:04 +0200
-Message-Id: <20210705124515.27253-2-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210705124515.27253-1-tzimmermann@suse.de>
-References: <20210705124515.27253-1-tzimmermann@suse.de>
+        id S230247AbhGEMto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 08:49:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49804 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230188AbhGEMto (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 08:49:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 989506135F;
+        Mon,  5 Jul 2021 12:47:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1625489227;
+        bh=0roFNllKY9iPA4LuoFrjB0k+/abhW27hg6meO0rDgoI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rHIXXEb+8d97+7DYmzogbcGyGq2sAMtMIusGr7SioLLAydeXkfNOyHjB8riXH9foS
+         ToW/u1opdH7ZCwwzEe/DDGWXSEPVRfl5iddZNnLiNky6uiUR1ZphCUyvPQDTFYZTW9
+         p6eSkdN95UaHTiV1yKh9u1ZFOJUYB92K+ulyC9/w=
+Date:   Mon, 5 Jul 2021 14:47:02 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Alper Gun <alpergun@google.com>, stable@vger.kernel.org,
+        Peter Gonda <pgonda@google.com>, Marc Orr <marcorr@google.com>
+Subject: Re: [PATCH 5.4] KVM: SVM: Call SEV Guest Decommission if ASID
+ binding fails
+Message-ID: <YOL/Rpsw9JkEE8dR@kroah.com>
+References: <20210628211054.61528-1-alpergun@google.com>
+ <YOKxf/8AT5LA5wfu@kroah.com>
+ <d857d3b7-edef-d9ea-98ac-70c4c5783c88@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d857d3b7-edef-d9ea-98ac-70c4c5783c88@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Put the clock-selection code into each of the PLL-update functions to
-make them select the correct pixel clock.
+On Mon, Jul 05, 2021 at 01:40:39PM +0200, Paolo Bonzini wrote:
+> On 05/07/21 09:15, Greg KH wrote:
+> > On Mon, Jun 28, 2021 at 09:10:54PM +0000, Alper Gun wrote:
+> > > commit 934002cd660b035b926438244b4294e647507e13 upstream.
+> > > 
+> > > Send SEV_CMD_DECOMMISSION command to PSP firmware if ASID binding
+> > > fails. If a failure happens after  a successful LAUNCH_START command,
+> > > a decommission command should be executed. Otherwise, guest context
+> > > will be unfreed inside the AMD SP. After the firmware will not have
+> > > memory to allocate more SEV guest context, LAUNCH_START command will
+> > > begin to fail with SEV_RET_RESOURCE_LIMIT error.
+> > > 
+> > > The existing code calls decommission inside sev_unbind_asid, but it is
+> > > not called if a failure happens before guest activation succeeds. If
+> > > sev_bind_asid fails, decommission is never called. PSP firmware has a
+> > > limit for the number of guests. If sev_asid_binding fails many times,
+> > > PSP firmware will not have resources to create another guest context.
+> > > 
+> > > Cc: stable@vger.kernel.org
+> > > Fixes: 59414c989220 ("KVM: SVM: Add support for KVM_SEV_LAUNCH_START command")
+> > > Reported-by: Peter Gonda <pgonda@google.com>
+> > > Signed-off-by: Alper Gun <alpergun@google.com>
+> > > Reviewed-by: Marc Orr <marcorr@google.com>
+> > > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> > > Message-Id: <20210610174604.2554090-1-alpergun@google.com>
+> > 
+> > Message-id?  Odd...
+> 
+> Not that much, see "git log -- drivers | grep Message-Id".  A link to
+> lore.kernel.org is getting more popular these days, but Message-Id is what
+> "git am" knows about.
+> 
+> > > ---
+> > >   arch/x86/kvm/svm.c | 32 +++++++++++++++++++++-----------
+> > >   1 file changed, 21 insertions(+), 11 deletions(-)
+> > 
+> > <snip>
+> > 
+> > Can you also provide working backports for the newer kernel trees as
+> > well?  We would need this in 5.10 and 5.12, right?
+> 
+> Already queued:
+> 
+> https://lore.kernel.org/stable/20210628141828.31757-102-sashal@kernel.org/
+> for 5.12
+> https://lore.kernel.org/stable/20210628142607.32218-94-sashal@kernel.org/
+> for 5.10
 
-The pixel clock for video output was not actually set before programming
-the clock's values. It worked because the device had the correct clock
-pre-set.
+Ah, you are right, I forgot to update my local tree, my fault.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: db05f8d3dc87 ("drm/mgag200: Split MISC register update into PLL selection, SYNC and I/O")
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Emil Velikov <emil.velikov@collabora.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.9+
----
- drivers/gpu/drm/mgag200/mgag200_mode.c | 47 ++++++++++++++++++++------
- 1 file changed, 37 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
-index 3b3059f471c2..482843ebb69f 100644
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -130,6 +130,7 @@ static int mgag200_g200_set_plls(struct mga_device *mdev, long clock)
- 	long ref_clk = mdev->model.g200.ref_clk;
- 	long p_clk_min = mdev->model.g200.pclk_min;
- 	long p_clk_max =  mdev->model.g200.pclk_max;
-+	u8 misc;
- 
- 	if (clock > p_clk_max) {
- 		drm_err(dev, "Pixel Clock %ld too high\n", clock);
-@@ -174,6 +175,11 @@ static int mgag200_g200_set_plls(struct mga_device *mdev, long clock)
- 	drm_dbg_kms(dev, "clock: %ld vco: %ld m: %d n: %d p: %d s: %d\n",
- 		    clock, f_vco, m, n, p, s);
- 
-+	misc = RREG8(MGA_MISC_IN);
-+	misc &= ~MGAREG_MISC_CLK_SEL_MASK;
-+	misc |= MGAREG_MISC_CLK_SEL_MGA_MSK;
-+	WREG8(MGA_MISC_OUT, misc);
-+
- 	WREG_DAC(MGA1064_PIX_PLLC_M, m);
- 	WREG_DAC(MGA1064_PIX_PLLC_N, n);
- 	WREG_DAC(MGA1064_PIX_PLLC_P, (p | (s << 3)));
-@@ -194,6 +200,7 @@ static int mga_g200se_set_plls(struct mga_device *mdev, long clock)
- 	unsigned int pvalues_e4[P_ARRAY_SIZE] = {16, 14, 12, 10, 8, 6, 4, 2, 1};
- 	unsigned int fvv;
- 	unsigned int i;
-+	u8 misc;
- 
- 	if (unique_rev_id <= 0x03) {
- 
-@@ -289,6 +296,11 @@ static int mga_g200se_set_plls(struct mga_device *mdev, long clock)
- 		return 1;
- 	}
- 
-+	misc = RREG8(MGA_MISC_IN);
-+	misc &= ~MGAREG_MISC_CLK_SEL_MASK;
-+	misc |= MGAREG_MISC_CLK_SEL_MGA_MSK;
-+	WREG8(MGA_MISC_OUT, misc);
-+
- 	WREG_DAC(MGA1064_PIX_PLLC_M, m);
- 	WREG_DAC(MGA1064_PIX_PLLC_N, n);
- 	WREG_DAC(MGA1064_PIX_PLLC_P, p);
-@@ -312,7 +324,7 @@ static int mga_g200wb_set_plls(struct mga_device *mdev, long clock)
- 	unsigned int computed;
- 	int i, j, tmpcount, vcount;
- 	bool pll_locked = false;
--	u8 tmp;
-+	u8 tmp, misc;
- 
- 	m = n = p = 0;
- 
-@@ -385,6 +397,11 @@ static int mga_g200wb_set_plls(struct mga_device *mdev, long clock)
- 		}
- 	}
- 
-+	misc = RREG8(MGA_MISC_IN);
-+	misc &= ~MGAREG_MISC_CLK_SEL_MASK;
-+	misc |= MGAREG_MISC_CLK_SEL_MGA_MSK;
-+	WREG8(MGA_MISC_OUT, misc);
-+
- 	for (i = 0; i <= 32 && pll_locked == false; i++) {
- 		if (i > 0) {
- 			WREG8(MGAREG_CRTC_INDEX, 0x1e);
-@@ -489,7 +506,7 @@ static int mga_g200ev_set_plls(struct mga_device *mdev, long clock)
- 	unsigned int testp, testm, testn;
- 	unsigned int p, m, n;
- 	unsigned int computed;
--	u8 tmp;
-+	u8 tmp, misc;
- 
- 	m = n = p = 0;
- 	vcomax = 550000;
-@@ -522,6 +539,11 @@ static int mga_g200ev_set_plls(struct mga_device *mdev, long clock)
- 		}
- 	}
- 
-+	misc = RREG8(MGA_MISC_IN);
-+	misc &= ~MGAREG_MISC_CLK_SEL_MASK;
-+	misc |= MGAREG_MISC_CLK_SEL_MGA_MSK;
-+	WREG8(MGA_MISC_OUT, misc);
-+
- 	WREG8(DAC_INDEX, MGA1064_PIX_CLK_CTL);
- 	tmp = RREG8(DAC_DATA);
- 	tmp |= MGA1064_PIX_CLK_CTL_CLK_DIS;
-@@ -583,7 +605,7 @@ static int mga_g200eh_set_plls(struct mga_device *mdev, long clock)
- 	unsigned int p, m, n;
- 	unsigned int computed;
- 	int i, j, tmpcount, vcount;
--	u8 tmp;
-+	u8 tmp, misc;
- 	bool pll_locked = false;
- 
- 	m = n = p = 0;
-@@ -654,6 +676,12 @@ static int mga_g200eh_set_plls(struct mga_device *mdev, long clock)
- 			}
- 		}
- 	}
-+
-+	misc = RREG8(MGA_MISC_IN);
-+	misc &= ~MGAREG_MISC_CLK_SEL_MASK;
-+	misc |= MGAREG_MISC_CLK_SEL_MGA_MSK;
-+	WREG8(MGA_MISC_OUT, misc);
-+
- 	for (i = 0; i <= 32 && pll_locked == false; i++) {
- 		WREG8(DAC_INDEX, MGA1064_PIX_CLK_CTL);
- 		tmp = RREG8(DAC_DATA);
-@@ -714,6 +742,7 @@ static int mga_g200er_set_plls(struct mga_device *mdev, long clock)
- 	unsigned int p, m, n;
- 	unsigned int computed, vco;
- 	int tmp;
-+	u8 misc;
- 
- 	m = n = p = 0;
- 	vcomax = 1488000;
-@@ -754,6 +783,11 @@ static int mga_g200er_set_plls(struct mga_device *mdev, long clock)
- 		}
- 	}
- 
-+	misc = RREG8(MGA_MISC_IN);
-+	misc &= ~MGAREG_MISC_CLK_SEL_MASK;
-+	misc |= MGAREG_MISC_CLK_SEL_MGA_MSK;
-+	WREG8(MGA_MISC_OUT, misc);
-+
- 	WREG8(DAC_INDEX, MGA1064_PIX_CLK_CTL);
- 	tmp = RREG8(DAC_DATA);
- 	tmp |= MGA1064_PIX_CLK_CTL_CLK_DIS;
-@@ -787,8 +821,6 @@ static int mga_g200er_set_plls(struct mga_device *mdev, long clock)
- 
- static int mgag200_crtc_set_plls(struct mga_device *mdev, long clock)
- {
--	u8 misc;
--
- 	switch(mdev->type) {
- 	case G200_PCI:
- 	case G200_AGP:
-@@ -808,11 +840,6 @@ static int mgag200_crtc_set_plls(struct mga_device *mdev, long clock)
- 		return mga_g200er_set_plls(mdev, clock);
- 	}
- 
--	misc = RREG8(MGA_MISC_IN);
--	misc &= ~MGAREG_MISC_CLK_SEL_MASK;
--	misc |= MGAREG_MISC_CLK_SEL_MGA_MSK;
--	WREG8(MGA_MISC_OUT, misc);
--
- 	return 0;
- }
- 
--- 
-2.32.0
-
+greg k-h
