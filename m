@@ -2,54 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A6EE3BB794
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 09:13:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6CD33BB79B
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 09:15:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229987AbhGEHQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 03:16:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58302 "EHLO mail.kernel.org"
+        id S229970AbhGEHRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 03:17:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229817AbhGEHQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 03:16:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 151B2613E1;
-        Mon,  5 Jul 2021 07:13:49 +0000 (UTC)
+        id S229884AbhGEHRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 03:17:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47504613E7;
+        Mon,  5 Jul 2021 07:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625469230;
-        bh=BCNSfe7pDOpKXgbu1jFyiIwbNvw48jmLXMGdSrQj6xg=;
+        s=korg; t=1625469313;
+        bh=SOjGa1fUpp7kWo5PgWHKJPZDcl2wZsXkl22SDaP62uM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=t9oCCBET/2rYC1HOTAc+5KHWeqKHNrli/oGc2ruHDCSSUMMiAjRNfBPWZsgVO9F6S
-         S6N7LuFxuCIqPKewkuMwK6UG8wquWjahjQHSUTbO7Jv8C/SIqQu5n1HMftXZUOlDMF
-         e5Kbpy+m2pqCdGEbqjC11584ybJQdZ9vUg36K+3k=
-Date:   Mon, 5 Jul 2021 09:13:48 +0200
+        b=JRKlug1B56OpbdsEjLHMyYk5Ywc/LQ+hPWpolQCL7qKudBGfj2ZKidWC+j2vlvcY9
+         Ze5kTNFu3g8bkjgpgNHAgoh9pH0GOiXQDodD2swgNEXOiJR/tsto79CmMb/JPpQhyo
+         bADiT3W70DH52YReQMarlHtLsNQzInETAmJHiqq0=
+Date:   Mon, 5 Jul 2021 09:15:11 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     mbloch@nvidia.com, jgg@nvidia.com, leonro@nvidia.com,
-        maorg@nvidia.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] RDMA/mlx5: Block FDB rules when not in
- switchdev mode" failed to apply to 5.10-stable tree
-Message-ID: <YOKxLPPQMl+nr/+v@kroah.com>
-References: <1623589674120109@kroah.com>
- <YNo+Kyd8bbGB6uAM@debian>
+To:     Alper Gun <alpergun@google.com>
+Cc:     stable@vger.kernel.org, Peter Gonda <pgonda@google.com>,
+        Marc Orr <marcorr@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 5.4] KVM: SVM: Call SEV Guest Decommission if ASID
+ binding fails
+Message-ID: <YOKxf/8AT5LA5wfu@kroah.com>
+References: <20210628211054.61528-1-alpergun@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YNo+Kyd8bbGB6uAM@debian>
+In-Reply-To: <20210628211054.61528-1-alpergun@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 28, 2021 at 10:24:59PM +0100, Sudip Mukherjee wrote:
-> Hi Greg,
+On Mon, Jun 28, 2021 at 09:10:54PM +0000, Alper Gun wrote:
+> commit 934002cd660b035b926438244b4294e647507e13 upstream.
 > 
-> On Sun, Jun 13, 2021 at 03:07:54PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.10-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
+> Send SEV_CMD_DECOMMISSION command to PSP firmware if ASID binding
+> fails. If a failure happens after  a successful LAUNCH_START command,
+> a decommission command should be executed. Otherwise, guest context
+> will be unfreed inside the AMD SP. After the firmware will not have
+> memory to allocate more SEV guest context, LAUNCH_START command will
+> begin to fail with SEV_RET_RESOURCE_LIMIT error.
 > 
-> Here is the backport.
+> The existing code calls decommission inside sev_unbind_asid, but it is
+> not called if a failure happens before guest activation succeeds. If
+> sev_bind_asid fails, decommission is never called. PSP firmware has a
+> limit for the number of guests. If sev_asid_binding fails many times,
+> PSP firmware will not have resources to create another guest context.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 59414c989220 ("KVM: SVM: Add support for KVM_SEV_LAUNCH_START command")
+> Reported-by: Peter Gonda <pgonda@google.com>
+> Signed-off-by: Alper Gun <alpergun@google.com>
+> Reviewed-by: Marc Orr <marcorr@google.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Message-Id: <20210610174604.2554090-1-alpergun@google.com>
 
-Both backports now queued up, thanks!
+Message-id?  Odd...
+
+> ---
+>  arch/x86/kvm/svm.c | 32 +++++++++++++++++++++-----------
+>  1 file changed, 21 insertions(+), 11 deletions(-)
+
+<snip>
+
+Can you also provide working backports for the newer kernel trees as
+well?  We would need this in 5.10 and 5.12, right?
+
+thanks,
 
 greg k-h
