@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E77B33BBF18
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 833613BBF1C
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232009AbhGEPb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:31:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56052 "EHLO mail.kernel.org"
+        id S232099AbhGEPbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:31:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232023AbhGEPbW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:31:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 803046197F;
-        Mon,  5 Jul 2021 15:28:44 +0000 (UTC)
+        id S232008AbhGEPbX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:31:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A67AC6198C;
+        Mon,  5 Jul 2021 15:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625498925;
-        bh=8elQxYq1HPPZFOtDMNr1juoBYQjgziwAnZkffRxeYxM=;
+        s=k20201202; t=1625498926;
+        bh=ZmkX+OYTX8ndWco2Efv9dhKBErMVHquuUcJrOOdq8vY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8jUBWnlTrk15kcvVgpU6IT6bNRKTAcc2nlM1LSQ1btauGXnpFS6vVleXweiO8DbO
-         H//hGWsWJ+4rLDx9BTZSjTt97gcQr+xJCPHQF8F1RESNBk6gphFZ5bPK3Ek9urnmU6
-         hoG3uu+eAKIuNKucThLTeYwVIHCKWfKe50yvLPmnN5hTNke4FtyHLRFkSKsG+uPdzm
-         h0EBL5dmV/F9WrOBWJ01sMeX3rG49tmlTefxwZqdFdJuHEd9wi/UKSuPm39mTv9GgC
-         UhGEjfU0seI06J5ku6MGq1gkhMLKjMUwgl2+Fkb+gFVdOIybszk24FXtrGCFDbJRf9
-         s+DpnyL8By5Kw==
+        b=f2DfzEptYWefCx96yqUDirUvs0zs9z54lXgxXsh6tRy+rpfJqQwFeyE03QrnakPJa
+         6M10n+uFawxHFb3x9aClGPdjRkXC3+RfprAyIJlH9UtfQ8JdahwVGffCHTJsRSnv7R
+         RBiCyScfypinFHovtVZTBXfpWZhisCVHjajWmqOeklHau3dRtohW2rU3xE8pVOZJs+
+         Pl2MZK8H+51Z/DPg8xRAlL8PrBQq1QLhNBH3gFAdL457s+vVpn8UcAeEKs4w/b8sY0
+         ljYDyXdM2BlNI0oG0hoencf3wq3UbA0OMtOvaLLb8AgICVaaEnBLwAbbBd80wMCLgC
+         Rpw5illwQ47IQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Aring <aahringo@redhat.com>,
         David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.13 22/59] fs: dlm: fix lowcomms_start error case
-Date:   Mon,  5 Jul 2021 11:27:38 -0400
-Message-Id: <20210705152815.1520546-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 23/59] fs: dlm: fix memory leak when fenced
+Date:   Mon,  5 Jul 2021 11:27:39 -0400
+Message-Id: <20210705152815.1520546-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705152815.1520546-1-sashal@kernel.org>
 References: <20210705152815.1520546-1-sashal@kernel.org>
@@ -44,68 +44,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit fcef0e6c27ce109d2c617aa12f0bfd9f7ff47d38 ]
+[ Upstream commit 700ab1c363c7b54c9ea3222379b33fc00ab02f7b ]
 
-This patch fixes the error path handling in lowcomms_start(). We need to
-cleanup some static allocated data structure and cleanup possible
-workqueue if these have started.
+I got some kmemleak report when a node was fenced. The user space tool
+dlm_controld will therefore run some rmdir() in dlm configfs which was
+triggering some memleaks. This patch stores the sps and cms attributes
+which stores some handling for subdirectories of the configfs cluster
+entry and free them if they get released as the parent directory gets
+freed.
+
+unreferenced object 0xffff88810d9e3e00 (size 192):
+  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 73 70 61 63 65 73 00 00  ........spaces..
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000db8b640b>] make_cluster+0x5d/0x360
+    [<000000006a571db4>] configfs_mkdir+0x274/0x730
+    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
+    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
+    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
+    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+unreferenced object 0xffff88810d9e3a00 (size 192):
+  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 63 6f 6d 6d 73 00 00 00  ........comms...
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000a7ef6ad2>] make_cluster+0x82/0x360
+    [<000000006a571db4>] configfs_mkdir+0x274/0x730
+    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
+    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
+    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
+    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
 Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lowcomms.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ fs/dlm/config.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index b1dd850a4699..9bf920bee292 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -1666,10 +1666,15 @@ static void process_send_sockets(struct work_struct *work)
- 
- static void work_stop(void)
- {
--	if (recv_workqueue)
-+	if (recv_workqueue) {
- 		destroy_workqueue(recv_workqueue);
--	if (send_workqueue)
-+		recv_workqueue = NULL;
-+	}
+diff --git a/fs/dlm/config.c b/fs/dlm/config.c
+index 88d95d96e36c..52bcda64172a 100644
+--- a/fs/dlm/config.c
++++ b/fs/dlm/config.c
+@@ -79,6 +79,9 @@ struct dlm_cluster {
+ 	unsigned int cl_new_rsb_count;
+ 	unsigned int cl_recover_callbacks;
+ 	char cl_cluster_name[DLM_LOCKSPACE_LEN];
 +
-+	if (send_workqueue) {
- 		destroy_workqueue(send_workqueue);
-+		send_workqueue = NULL;
-+	}
++	struct dlm_spaces *sps;
++	struct dlm_comms *cms;
+ };
+ 
+ static struct dlm_cluster *config_item_to_cluster(struct config_item *i)
+@@ -409,6 +412,9 @@ static struct config_group *make_cluster(struct config_group *g,
+ 	if (!cl || !sps || !cms)
+ 		goto fail;
+ 
++	cl->sps = sps;
++	cl->cms = cms;
++
+ 	config_group_init_type_name(&cl->group, name, &cluster_type);
+ 	config_group_init_type_name(&sps->ss_group, "spaces", &spaces_type);
+ 	config_group_init_type_name(&cms->cs_group, "comms", &comms_type);
+@@ -458,6 +464,9 @@ static void drop_cluster(struct config_group *g, struct config_item *i)
+ static void release_cluster(struct config_item *i)
+ {
+ 	struct dlm_cluster *cl = config_item_to_cluster(i);
++
++	kfree(cl->sps);
++	kfree(cl->cms);
+ 	kfree(cl);
  }
  
- static int work_start(void)
-@@ -1686,6 +1691,7 @@ static int work_start(void)
- 	if (!send_workqueue) {
- 		log_print("can't start dlm_send");
- 		destroy_workqueue(recv_workqueue);
-+		recv_workqueue = NULL;
- 		return -ENOMEM;
- 	}
- 
-@@ -1823,7 +1829,7 @@ int dlm_lowcomms_start(void)
- 
- 	error = work_start();
- 	if (error)
--		goto fail;
-+		goto fail_local;
- 
- 	dlm_allow_conn = 1;
- 
-@@ -1840,6 +1846,9 @@ int dlm_lowcomms_start(void)
- fail_unlisten:
- 	dlm_allow_conn = 0;
- 	dlm_close_sock(&listen_con.sock);
-+	work_stop();
-+fail_local:
-+	deinit_local();
- fail:
- 	return error;
- }
 -- 
 2.30.2
 
