@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F093BBFBD
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C7E3BBFC6
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232740AbhGEPdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:33:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57322 "EHLO mail.kernel.org"
+        id S232773AbhGEPdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:33:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232377AbhGEPch (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:32:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E48236199B;
-        Mon,  5 Jul 2021 15:29:58 +0000 (UTC)
+        id S232166AbhGEPck (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:32:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B94DF61986;
+        Mon,  5 Jul 2021 15:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625498999;
-        bh=x64vuByuN8kJItEe+sAuXAhoznJt8trCXN6NHO1poMU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCuZ71hs+pvMCPu2mobQO/4GxwOqNw/dW/e6EtyYiRTxSdlc7k4w35xJD0jFa6TWo
-         B5GAFDp8cfWXm0IsSJY4sI3tksXmpdTJcK5P0mxhvn1h6EE0tGwjMFoDSNWFHlGEnv
-         ZeC8mIFfL8HVzepMlwrie1DELv5BcPHNfg9QALYxRncE0VOtulBCnrenstqx9R8Upd
-         M5eXDrfXtrDSqJ+RB1OFIUhOLHHLRfCXqPIeLX9H4VGja/GWeEQrAaIkimyTBG9631
-         Rh0ohA8hkSZSh9M1l7Aa06q2ClB9n2WDu3XFvoR6+zTXbYyUQV6qN/ga5W8O3ty6Ed
-         ERsxP2H7n/ZnQ==
+        s=k20201202; t=1625499003;
+        bh=rrd+/5m+XlZ0KDdlO/QC2mj8cTFCxMABq/dve2gKSus=;
+        h=From:To:Cc:Subject:Date:From;
+        b=HnVoknjJefw21tPX7he7+MJjan35c7mhqDJbwcF+4DHYqBAZApvmH/9UkqyX30EpW
+         ua31ogeMhvwhgnZEhS656gWa1FXPVOU4JeibpzEAUqBqHkFYNpaEDWqRKTkqZJzHSy
+         HeOmSSYT8JwADdJaMZuLbUGFykqi1zaV7Bg3nORLsChOkbQkg06iI0cdtk+wEO2f4f
+         ZFt119OmKf+8XijHZ7R+kWXp0AEU9TYhQffnecgMxZc4Y0RQAQEELlRl05RW0b+dPa
+         b//sGaV6pY5Zs3DeGJd51hliEx3vdoInZ7pZ49UGT5zAA6y528tZ+jwHHFi+h6qx3d
+         7m79xHBK2DiMg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve French <stfrench@microsoft.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Samuel Cabrero <scabrero@suse.de>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.12 37/52] smb3: fix uninitialized value for port in witness protocol move
-Date:   Mon,  5 Jul 2021 11:28:58 -0400
-Message-Id: <20210705152913.1521036-37-sashal@kernel.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/41] HID: do not use down_interruptible() when unbinding devices
+Date:   Mon,  5 Jul 2021 11:29:21 -0400
+Message-Id: <20210705153001.1521447-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210705152913.1521036-1-sashal@kernel.org>
-References: <20210705152913.1521036-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,59 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit ff93b71a3eff25fe9d4364ef13b6e01d935600c6 ]
+[ Upstream commit f2145f8dc566c4f3b5a8deb58dcd12bed4e20194 ]
 
-Although in practice this can not occur (since IPv4 and IPv6 are the
-only two cases currently supported), it is cleaner to avoid uninitialized
-variable warnings.
+Action of unbinding driver from a device is not cancellable and should not
+fail, and driver core does not pay attention to the result of "remove"
+method, therefore using down_interruptible() in hid_device_remove() does
+not make sense.
 
-Addresses smatch warning:
-  fs/cifs/cifs_swn.c:468 cifs_swn_store_swn_addr() error: uninitialized symbol 'port'.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-CC: Samuel Cabrero <scabrero@suse.de>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifs_swn.c | 10 +++-------
+ drivers/hid/hid-core.c | 10 +++-------
  1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/fs/cifs/cifs_swn.c b/fs/cifs/cifs_swn.c
-index d829b8bf833e..93b47818c6c2 100644
---- a/fs/cifs/cifs_swn.c
-+++ b/fs/cifs/cifs_swn.c
-@@ -447,15 +447,13 @@ static int cifs_swn_store_swn_addr(const struct sockaddr_storage *new,
- 				   const struct sockaddr_storage *old,
- 				   struct sockaddr_storage *dst)
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 0f69f35f2957..5550c943f985 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2306,12 +2306,8 @@ static int hid_device_remove(struct device *dev)
  {
--	__be16 port;
-+	__be16 port = cpu_to_be16(CIFS_PORT);
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct hid_driver *hdrv;
+-	int ret = 0;
  
- 	if (old->ss_family == AF_INET) {
- 		struct sockaddr_in *ipv4 = (struct sockaddr_in *)old;
- 
- 		port = ipv4->sin_port;
+-	if (down_interruptible(&hdev->driver_input_lock)) {
+-		ret = -EINTR;
+-		goto end;
 -	}
--
--	if (old->ss_family == AF_INET6) {
-+	} else if (old->ss_family == AF_INET6) {
- 		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)old;
++	down(&hdev->driver_input_lock);
+ 	hdev->io_started = false;
  
- 		port = ipv6->sin6_port;
-@@ -465,9 +463,7 @@ static int cifs_swn_store_swn_addr(const struct sockaddr_storage *new,
- 		struct sockaddr_in *ipv4 = (struct sockaddr_in *)new;
+ 	hdrv = hdev->driver;
+@@ -2326,8 +2322,8 @@ static int hid_device_remove(struct device *dev)
  
- 		ipv4->sin_port = port;
--	}
--
--	if (new->ss_family == AF_INET6) {
-+	} else if (new->ss_family == AF_INET6) {
- 		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)new;
+ 	if (!hdev->io_started)
+ 		up(&hdev->driver_input_lock);
+-end:
+-	return ret;
++
++	return 0;
+ }
  
- 		ipv6->sin6_port = port;
+ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
 -- 
 2.30.2
 
