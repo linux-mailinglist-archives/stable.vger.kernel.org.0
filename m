@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 262753BBF85
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 080233BBF8F
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231814AbhGEPcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:32:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
+        id S232443AbhGEPc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:32:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232354AbhGEPcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:32:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2156861978;
-        Mon,  5 Jul 2021 15:29:32 +0000 (UTC)
+        id S232363AbhGEPcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:32:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2632761176;
+        Mon,  5 Jul 2021 15:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625498972;
-        bh=+7mU4Z0yAsxln+wq4nJ1jQzGwlMOiI8KrVghTM5I2dg=;
+        s=k20201202; t=1625498973;
+        bh=GsM7kTT8tLZRHnd8pH8qOql2SjIfQ9+HXrYJLfJFeGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iFLBnESgTY9MXVdO5dlr+MeqGrmaUHwYvTk2iptty9xc7BHnCRaopcJHnxnc5km7q
-         mb1gsgL/JpDwbKroEPpEl42IUvpBREflRFEY71r/G406Y4xxZJq0T3Yv0f3o+tkmZ2
-         ttvEFYAIcI4D8LDsx4JxFx7oQXElNUbd6a5PvoIClli7XknKNtjMaeQINMY04PrgTa
-         PsBXbYwtQBHnXW3TFAmBnIqywgIOHJbqXQJ8pldUjEwCIzHI+sxajhtVy78+rEQcBn
-         kXz/6dPolkQbYIfFZH0WONkdeHPxMCOb6+P1HoFNgHEQPEDh5xQp/11UsIedyJmU5i
-         tt0JRS4oiKixA==
+        b=N3gdTXmHG3G/+OLlfmXr/o9cHyF4HCRY4o6EJMWhdFqEmsJwQYDxC9Ai8VwBnAGED
+         chXNgbU8UClZFcn9zYn4ZCWuoZ5KrqtGmIXBSAJW0h4P42TH0jzvgDpWOX/yqoWEZC
+         g9Zzr7kqNlrUmX98ADahUMsYPQVUr1mEjumpVZ3o7CO3tcJDx/hf7GfTOLXvNzZz35
+         1NP37VxWeGK296fA723f63WKv+KBTmqSOsQJBiTzbrdRSY+HfRSUwwIWSLhsQvJQa/
+         wHu9sJ1h1amSKNfcmifoteVuHV8bUwUp59evxIHAFGnASsLvWi5PXJ78Wgm7twYFLR
+         2zG4K8P0/S0sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.12 15/52] fs: dlm: cancel work sync othercon
-Date:   Mon,  5 Jul 2021 11:28:36 -0400
-Message-Id: <20210705152913.1521036-15-sashal@kernel.org>
+Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
+        kernel test robot <lkp@intel.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 16/52] random32: Fix implicit truncation warning in prandom_seed_state()
+Date:   Mon,  5 Jul 2021 11:28:37 -0400
+Message-Id: <20210705152913.1521036-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705152913.1521036-1-sashal@kernel.org>
 References: <20210705152913.1521036-1-sashal@kernel.org>
@@ -42,36 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit c6aa00e3d20c2767ba3f57b64eb862572b9744b3 ]
+[ Upstream commit d327ea15a305024ef0085252fa3657bbb1ce25f5 ]
 
-These rx tx flags arguments are for signaling close_connection() from
-which worker they are called. Obviously the receive worker cannot cancel
-itself and vice versa for swork. For the othercon the receive worker
-should only be used, however to avoid deadlocks we should pass the same
-flags as the original close_connection() was called.
+sparse generates the following warning:
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+ include/linux/prandom.h:114:45: sparse: sparse: cast truncates bits from
+ constant value
+
+This is because the 64-bit seed value is manipulated and then placed in a
+u32, causing an implicit cast and truncation. A forced cast to u32 doesn't
+prevent this warning, which is reasonable because a typecast doesn't prove
+that truncation was expected.
+
+Logical-AND the value with 0xffffffff to make explicit that truncation to
+32-bit is intended.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20210525122012.6336-3-rf@opensource.cirrus.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lowcomms.c | 2 +-
+ include/linux/prandom.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 01b672cee783..7e6736c70e11 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -714,7 +714,7 @@ static void close_connection(struct connection *con, bool and_other,
+diff --git a/include/linux/prandom.h b/include/linux/prandom.h
+index bbf4b4ad61df..056d31317e49 100644
+--- a/include/linux/prandom.h
++++ b/include/linux/prandom.h
+@@ -111,7 +111,7 @@ static inline u32 __seed(u32 x, u32 m)
+  */
+ static inline void prandom_seed_state(struct rnd_state *state, u64 seed)
+ {
+-	u32 i = (seed >> 32) ^ (seed << 10) ^ seed;
++	u32 i = ((seed >> 32) ^ (seed << 10) ^ seed) & 0xffffffffUL;
  
- 	if (con->othercon && and_other) {
- 		/* Will only re-enter once. */
--		close_connection(con->othercon, false, true, true);
-+		close_connection(con->othercon, false, tx, rx);
- 	}
- 
- 	con->rx_leftover = 0;
+ 	state->s1 = __seed(i,   2U);
+ 	state->s2 = __seed(i,   8U);
 -- 
 2.30.2
 
