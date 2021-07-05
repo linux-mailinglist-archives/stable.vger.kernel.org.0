@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D473BC00D
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E5C83BC00E
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232324AbhGEPeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:34:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58662 "EHLO mail.kernel.org"
+        id S232788AbhGEPeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:34:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232792AbhGEPdY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:33:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B4D06199B;
-        Mon,  5 Jul 2021 15:30:41 +0000 (UTC)
+        id S232345AbhGEPdZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:33:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37396619AB;
+        Mon,  5 Jul 2021 15:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499041;
-        bh=CH9eElRT5RNJxZqcoMoN5seW43F1BV6jQscQB0vKfSk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=sGU0b++aj7Aq23cIA3fQkp4Fd6eT49Re3XwJShhwK3WKUmtajNEytH89DRW8I8RyQ
-         lloSZ/+9LPPsjt4TNjVMt7llcnMggcwXR4BZ/XaKr8E3Ae/bj9QKrs3J9koELDFPah
-         8pwXnCwuwf58eyzE+1HRDaBgIz64A828L/NX1Edqg3OjwdNM5p1fGFK2lGWDh0gYew
-         p5tUXN+31mI4do0hZ3GbRJsA4Vgmza38tM5K+hrbJVSw/0o+9e6DPShg8DeFV2tZ38
-         kfzRJaxIis5X1YgfdCZRhfUqtFrK6j6GO0toBPcCHxjxhQhZxohkolnBU1dUjMVlzI
-         gZyD+YiFDkzDQ==
+        s=k20201202; t=1625499043;
+        bh=qhTj9uSII5ZOyscOWtIA1ByZou17aKyjeerJ5d4Q/6c=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=arxJMs4G/yXD/+VV0S3Z7VoH4Cm60eEEJn+6exxyBwLkhDArDxkkWuI4YRl5ODYNl
+         il4boLbeSDoVNp/i/WWMKKHH9n/fXmPtoOuenrr8lsUh05ng/BVaSNEAzys4xiD1Gg
+         0B3obpXBt5vSHI+bDMyoGrtvAZm93W4qNdRNUtFfa/RZsqamR4sSe//la4hzDTtsfr
+         g+xTZrc7DrF8A+rjNj14WaRRvr/brYeBm5NrKrQ+4bDWLcZbChiLbHu0h/DoFyH2kI
+         CNN6VtWvUeKWK4mIm347Uhj7a2z0uDdvrn5OqPyh1747s+QUj+4NN9WhLufdtWoMBu
+         a9vHsN3OLbDmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 01/26] HID: do not use down_interruptible() when unbinding devices
-Date:   Mon,  5 Jul 2021 11:30:14 -0400
-Message-Id: <20210705153039.1521781-1-sashal@kernel.org>
+Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Borislav Petkov <bp@suse.de>, Tero Kristo <kristo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 02/26] EDAC/ti: Add missing MODULE_DEVICE_TABLE
+Date:   Mon,  5 Jul 2021 11:30:15 -0400
+Message-Id: <20210705153039.1521781-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210705153039.1521781-1-sashal@kernel.org>
+References: <20210705153039.1521781-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,51 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit f2145f8dc566c4f3b5a8deb58dcd12bed4e20194 ]
+[ Upstream commit 0a37f32ba5272b2d4ec8c8d0f6b212b81b578f7e ]
 
-Action of unbinding driver from a device is not cancellable and should not
-fail, and driver core does not pay attention to the result of "remove"
-method, therefore using down_interruptible() in hid_device_remove() does
-not make sense.
+The module misses MODULE_DEVICE_TABLE() for of_device_id tables and thus
+never autoloads on ID matches.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Add the missing declaration.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Tero Kristo <kristo@kernel.org>
+Link: https://lkml.kernel.org/r/20210512033727.26701-1-cuibixuan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/edac/ti_edac.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 550fff6e41ec..b6740ad773ee 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2299,12 +2299,8 @@ static int hid_device_remove(struct device *dev)
+diff --git a/drivers/edac/ti_edac.c b/drivers/edac/ti_edac.c
+index 324768946743..9ab9fa0a911b 100644
+--- a/drivers/edac/ti_edac.c
++++ b/drivers/edac/ti_edac.c
+@@ -197,6 +197,7 @@ static const struct of_device_id ti_edac_of_match[] = {
+ 	{ .compatible = "ti,emif-dra7xx", .data = (void *)EMIF_TYPE_DRA7 },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, ti_edac_of_match);
+ 
+ static int _emif_get_id(struct device_node *node)
  {
- 	struct hid_device *hdev = to_hid_device(dev);
- 	struct hid_driver *hdrv;
--	int ret = 0;
- 
--	if (down_interruptible(&hdev->driver_input_lock)) {
--		ret = -EINTR;
--		goto end;
--	}
-+	down(&hdev->driver_input_lock);
- 	hdev->io_started = false;
- 
- 	hdrv = hdev->driver;
-@@ -2319,8 +2315,8 @@ static int hid_device_remove(struct device *dev)
- 
- 	if (!hdev->io_started)
- 		up(&hdev->driver_input_lock);
--end:
--	return ret;
-+
-+	return 0;
- }
- 
- static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
 -- 
 2.30.2
 
