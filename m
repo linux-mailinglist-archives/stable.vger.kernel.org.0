@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33DF13BBBD2
+	by mail.lfdr.de (Postfix) with ESMTP id A16393BBBD3
 	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 13:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231440AbhGELCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231422AbhGELCn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 5 Jul 2021 07:02:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47714 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231402AbhGELCj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231308AbhGELCj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Jul 2021 07:02:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D40D6142F;
-        Mon,  5 Jul 2021 11:00:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69B0D6145D;
+        Mon,  5 Jul 2021 11:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625482802;
-        bh=IW0R6kgmf6PFdCJOSJkRf6uhmpkBAYUPXrL6zXFRqLg=;
+        s=k20201202; t=1625482803;
+        bh=aYDKaucny87sagAC2JtISSqkoyLoQQcF0M5+HEzqVMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdCf1vA4ym4tv4e+OIlh5bKMGzOFWEakagbjEYFK994cepm4vLrnRTHs0sFoYxWVO
-         ch9kI4nrCxm7FycQZKcKMYpztr4lo6pD7mgvEyBM4tqso2DSpwfGkh2BYrRgYPdgYP
-         cLpX11lHSRdy0B9xZKepZpLR7XVVkracNOz+fftM4rgr7Y15VXpSIfaqI5Gsk0R+gd
-         5KV1/Z9sjs/T9pGKN3fDbA65UaQ30PTUcP/ETTQrf8TRMiqNKBgNqdtKiyLUWbn+oT
-         U/6KvDxx36OIA9AmxmRxrNnXyagw6hcYqWLDuzfGbpdviuBZDMamSyGYxvjj5/8pE0
-         tlrQYpTr6Dl4Q==
+        b=W+Z+c+lCk8vlnHeHRI5JHA3vILxY19+mjRmX9v4/ccp+RBMtBzy+1+zyKprlCszbI
+         idoG1UO0c87Z6w129vdAMAaWjdOlz2MBRSNteun4nFGfUGkqkn6Pw2M40J1Z0P7zrS
+         DkxkaNePxRJo5/rn//KHWMwz5C/OIp08ZwEbrOVE23nkLYWqeAZ1jHBixmCCfFw6Ha
+         UWN4r/jKg5mIDRRKAlJ72/RYvExJJnAXcKXpWyI/859yhP8DnqFgaLXVERtwlItefM
+         w84iXSqavhBUU3hJRR8zXDCGg3t9vUjgXZuMMzHto/T6YTCBwIBNAxKR6+QytMD6o4
+         CeHkXF5fL3tow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        kernel test robot <lkp@intel.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 3/7] drm/nouveau: fix dma_address check for CPU/GPU sync
-Date:   Mon,  5 Jul 2021 06:59:53 -0400
-Message-Id: <20210705105957.1513284-4-sashal@kernel.org>
+Subject: [PATCH 5.10 4/7] gpio: AMD8111 and TQMX86 require HAS_IOPORT_MAP
+Date:   Mon,  5 Jul 2021 06:59:54 -0400
+Message-Id: <20210705105957.1513284-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705105957.1513284-1-sashal@kernel.org>
 References: <20210705105957.1513284-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.48-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.10.y
@@ -49,42 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit d330099115597bbc238d6758a4930e72b49ea9ba ]
+[ Upstream commit c6414e1a2bd26b0071e2b9d6034621f705dfd4c0 ]
 
-AGP for example doesn't have a dma_address array.
+Both of these drivers use ioport_map(), so they need to
+depend on HAS_IOPORT_MAP. Otherwise, they cannot be built
+even with COMPILE_TEST on architectures without an ioport
+implementation, such as ARCH=um.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210614110517.1624-1-christian.koenig@amd.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_bo.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpio/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-index 7daa12eec01b..b4946b595d86 100644
---- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-@@ -590,7 +590,7 @@ nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 14751c7ccd1f..d1300fc003ed 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -1337,6 +1337,7 @@ config GPIO_TPS68470
+ config GPIO_TQMX86
+ 	tristate "TQ-Systems QTMX86 GPIO"
+ 	depends on MFD_TQMX86 || COMPILE_TEST
++	depends on HAS_IOPORT_MAP
+ 	select GPIOLIB_IRQCHIP
+ 	help
+ 	  This driver supports GPIO on the TQMX86 IO controller.
+@@ -1404,6 +1405,7 @@ menu "PCI GPIO expanders"
+ config GPIO_AMD8111
+ 	tristate "AMD 8111 GPIO driver"
+ 	depends on X86 || COMPILE_TEST
++	depends on HAS_IOPORT_MAP
+ 	help
+ 	  The AMD 8111 south bridge contains 32 GPIO pins which can be used.
  
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
- 
- 	/* Don't waste time looping if the object is coherent */
-@@ -610,7 +610,7 @@ nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
- 
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
- 
- 	/* Don't waste time looping if the object is coherent */
 -- 
 2.30.2
 
