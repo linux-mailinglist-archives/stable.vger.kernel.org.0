@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FE533BC0AF
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:35:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A894F3BC0B8
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233424AbhGEPhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:37:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58562 "EHLO mail.kernel.org"
+        id S233740AbhGEPhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:37:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233435AbhGEPgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:36:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF32261A1D;
-        Mon,  5 Jul 2021 15:31:51 +0000 (UTC)
+        id S233476AbhGEPgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:36:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07A7061A2D;
+        Mon,  5 Jul 2021 15:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499112;
-        bh=Cu5gKInQhBuXt9wr8GYj+02+hl0rME7bI/i5jZLGIFg=;
+        s=k20201202; t=1625499113;
+        bh=kTVddoRfG4DNgDSYwVJCYQv5jeIAYXyncwB1agdGmCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AL2HqlqHKyxXDzHaFs8Pzv9JaunE6lmHQdxqJhfGmC5WPRew6kCl/zM2YGRtTSsNC
-         cpaZ4MsfFT5oYyAO9UDQFVYp8mRvaoVUjPdChOaxzePDjLsCAw1XRlR05yr1o/RMiK
-         oqd3y6OG00ho9mdi4fY7Mc91Jx+TEKVr4FqAwuiTCmY9s/MQJF9uHJAwfGc4tUDDZk
-         pF4j95C8kPUIXCciHMWFD+zXl0yISRjAT2CoePsDDC4YV+aeHye5bqbAlQFoS30Dqx
-         Jwj2rafje0/NaoU+bRwdeJLFbtMJAWmG/5A1dV05k5COEp74cVRfWwNHylCw446l+I
-         XqG8Tf49ubiMQ==
+        b=up1EyCs8gW1ZGpOp1geFcLAnGbzDotyD9ATC3w44ESp6r8lIZqEt8ou9rc9lg5mYV
+         Mm7QrZH8iHsOu3hGXVB1fvYR5fxrw4lXYh8J9fMbfOpxyfXh4MnQDZ+eySoU0vuLHz
+         AOFY980ejAqzgZ7rCMD9YAGAfhoEXvovYIOZRvWauTq5oWxppeVchNRpoYcOSsgAn1
+         crkqLw6+/cLNR82bsqt8LlCL4Q4Gn0ikdKhoDO5Upd8ChTwQoVDzqP4fEJ+5X/rXrT
+         d3C7AZ1DpMb3sXhpEa69u/8xH74o+gO8jb3+c2Ji48D5GRgmL4GQbymcT6eMb79af0
+         oGq/6BzfSzc5w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 13/15] ACPI: tables: Add custom DSDT file as makefile prerequisite
-Date:   Mon,  5 Jul 2021 11:31:34 -0400
-Message-Id: <20210705153136.1522245-13-sashal@kernel.org>
+Cc:     Jason Gerecke <killertofu@gmail.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 14/15] HID: wacom: Correct base usage for capacitive ExpressKey status bits
+Date:   Mon,  5 Jul 2021 11:31:35 -0400
+Message-Id: <20210705153136.1522245-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153136.1522245-1-sashal@kernel.org>
 References: <20210705153136.1522245-1-sashal@kernel.org>
@@ -42,41 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-[ Upstream commit d1059c1b1146870c52f3dac12cb7b6cbf39ed27f ]
+[ Upstream commit 424d8237945c6c448c8b3f23885d464fb5685c97 ]
 
-A custom DSDT file is mostly used during development or debugging,
-and in that case it is quite likely to want to rebuild the kernel
-after changing ONLY the content of the DSDT.
+The capacitive status of ExpressKeys is reported with usages beginning
+at 0x940, not 0x950. Bring our driver into alignment with reality.
 
-This patch adds the custom DSDT as a prerequisite to tables.o
-to ensure a rebuild if the DSDT file is updated. Make will merge
-the prerequisites from multiple rules for the same target.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/wacom_wac.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
-index cd1abc9bc325..f9df9541f2ce 100644
---- a/drivers/acpi/Makefile
-+++ b/drivers/acpi/Makefile
-@@ -8,6 +8,11 @@ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
- #
- # ACPI Boot-Time Table Parsing
- #
-+ifeq ($(CONFIG_ACPI_CUSTOM_DSDT),y)
-+tables.o: $(src)/../../include/$(subst $\",,$(CONFIG_ACPI_CUSTOM_DSDT_FILE)) ;
-+
-+endif
-+
- obj-$(CONFIG_ACPI)		+= tables.o
- obj-$(CONFIG_X86)		+= blacklist.o
- 
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index d2fe7af2c152..55b542a6a66b 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -121,7 +121,7 @@
+ #define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0454)
+ #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
+ #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
+-#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
++#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0940)
+ #define WACOM_HID_WD_MODE_CHANGE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0980)
+ #define WACOM_HID_WD_MUTE_DEVICE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0981)
+ #define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER | 0x0982)
 -- 
 2.30.2
 
