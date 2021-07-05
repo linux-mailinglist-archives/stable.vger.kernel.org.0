@@ -2,83 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBE0E3BB800
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 09:40:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25A23BB808
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 09:42:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229972AbhGEHnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 03:43:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33864 "EHLO mail.kernel.org"
+        id S230014AbhGEHol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 03:44:41 -0400
+Received: from first.geanix.com ([116.203.34.67]:49190 "EHLO first.geanix.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229817AbhGEHnY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 03:43:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A4AD613AE;
-        Mon,  5 Jul 2021 07:40:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625470848;
-        bh=zGHYK/Zq0c0G17od5h7JCpFMDS+7oZHhjCoKS9yvD1A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZYRb2xrtH6IOdMRfo6tCJsxnvrTlVnqTYw1JI97/GePDOIf8XqaCW3dp2t7YL25tm
-         Fp+S9zeDciRovRfrkPAD6AKqkcvyXtjQ69vhKM+rMs4QjzyPT6P6jgDh+DKvM5QDT/
-         J39RRbPOmyjYtIhXzjY8nnyXhE4UUNHO3qfVSyrlY1LXPHgxk5V0p4JDakveWnnNBi
-         u2w44OKTmdggKYV8+NUgw73niuZYuf2mvX45vaZcb26+47zskTJUH2X/Rjf3gxkQb9
-         TzxU0qp9UIp/79cHNlv47Q5xW3DZiKMtZ9pQUpe6e8mW+7PxRPARA9Tto64k7c3HqL
-         sWbnYlU1aNHcg==
-Received: from johan by xi with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1m0JDe-00087u-03; Mon, 05 Jul 2021 09:40:42 +0200
-Date:   Mon, 5 Jul 2021 09:40:41 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/6] USB: serial: cp210x: fix control-characters error
- handling
-Message-ID: <YOK3ecvJz3xV6C1j@hovoldconsulting.com>
-References: <20210702134227.24621-1-johan@kernel.org>
- <20210702134227.24621-2-johan@kernel.org>
- <YN8m7wk0dfSLi+c5@kroah.com>
+        id S230033AbhGEHok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 03:44:40 -0400
+Received: from localhost (80-62-117-165-mobile.dk.customer.tdc.net [80.62.117.165])
+        by first.geanix.com (Postfix) with ESMTPSA id 04F814C528F;
+        Mon,  5 Jul 2021 07:42:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
+        t=1625470922; bh=dgpgbFO+AkeqP2aXFDpwiwm4oc+y3Uzbs8GvMijlFxw=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To;
+        b=f5URPZai2agU/HGKuv5ZFecSTAuW6f5YrAmez15mBR/3bvpFC3Wka4WqcipDIoxQk
+         Log0IGZV+zy7UxcBWnXavpug/0Fch+vE0WZPEqqkiweJpz6BIkWh+XHxm9vIsSBPHS
+         saWNN/4eInPczVyiNLCSZBzwx8Cn34Z9Gci++1Trk4cRCtAzS/wZYpwAA+rY3dfvJV
+         IbkdqkQ0/KDHQraPKR0PXyyvq0R+VGNtvvFmLAMXEupdZ9iaX+cy2a3h84TWAmPSZE
+         TTjbwPeNE+mEh7a2ZgwG15949w+XSYU+TA/A0RpiW4KxZrMcrXhA3N3lGNcHuqAMC/
+         BoeMeqWS2X7lg==
+From:   Esben Haabendal <esben@geanix.com>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 5.10 055/101] net: ll_temac: Add memory-barriers for TX
+ BD access
+References: <20210628142607.32218-1-sashal@kernel.org>
+        <20210628142607.32218-56-sashal@kernel.org>
+        <20210703152218.GD3004@amd>
+Date:   Mon, 05 Jul 2021 09:42:01 +0200
+In-Reply-To: <20210703152218.GD3004@amd> (Pavel Machek's message of "Sat, 3
+        Jul 2021 17:22:18 +0200")
+Message-ID: <87zgv1tdfa.fsf@geanix.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YN8m7wk0dfSLi+c5@kroah.com>
+Content-Type: text/plain
+X-Spam-Status: No, score=-3.1 required=4.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,URIBL_BLOCKED
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on 93bd6fdb21b5
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 02, 2021 at 04:47:11PM +0200, Greg Kroah-Hartman wrote:
-> On Fri, Jul 02, 2021 at 03:42:22PM +0200, Johan Hovold wrote:
-> > In the unlikely event that setting the software flow-control characters
-> > fails the other flow-control settings should still be updated.
-> > 
-> > Fixes: 7748feffcd80 ("USB: serial: cp210x: add support for software flow control")
-> > Cc: stable@vger.kernel.org	# 5.11
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> >  drivers/usb/serial/cp210x.c | 4 +---
-> >  1 file changed, 1 insertion(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-> > index 09b845d0da41..b41e2c7649fb 100644
-> > --- a/drivers/usb/serial/cp210x.c
-> > +++ b/drivers/usb/serial/cp210x.c
-> > @@ -1217,9 +1217,7 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
-> >  		chars.bXonChar = START_CHAR(tty);
-> >  		chars.bXoffChar = STOP_CHAR(tty);
-> >  
-> > -		ret = cp210x_set_chars(port, &chars);
-> > -		if (ret)
-> > -			return;
-> > +		cp210x_set_chars(port, &chars);
-> 
-> What's the odds that someone tries to add the error checking back in
-> here, in a few years?  Can you put a comment here saying why you are not
-> checking it?
+Pavel Machek <pavel@denx.de> writes:
 
-This is just how set_termios() works and how the other requests are
-handled by the driver. I can add an explicit error message here though
-just like when setting the line-control register so that it doesn't look
-like an oversight. The error message is currently printed by the
-set_chars() helper, but I can move that out when removing the helper
-later in the series.
+> Hi!
+>
+>> Add a couple of memory-barriers to ensure correct ordering of read/write
+>> access to TX BDs.
+>
+> So... this is dealing with CPU-to-device consistency, not CPU-to-CPU,
+> right?
 
-Johan
+Actually, One of both.  When looping over the buffers, looking for CMPLT
+bit in APP0 (in temac_start_xmit_done()), the challenge is CPU-to-device
+consistency, as the CMPLT bit is set by device, and read by CPU.
+
+But when we clear APP0 (and the other fields) in the same loop, it is
+CPU-to-CPU, as APP0 is cleared by CPU and read by CPU.
+
+>
+>> +++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+>> @@ -774,12 +774,15 @@ static void temac_start_xmit_done(struct net_device *ndev)
+>>  	stat = be32_to_cpu(cur_p->app0);
+>>  
+>>  	while (stat & STS_CTRL_APP0_CMPLT) {
+>> +		/* Make sure that the other fields are read after bd is
+>> +		 * released by dma
+>> +		 */
+>> +		rmb();
+>>  		dma_unmap_single(ndev->dev.parent,
+>
+> Full barrier, as expected.
+>
+>> @@ -788,6 +791,12 @@ static void temac_start_xmit_done(struct net_device *ndev)
+>>  		ndev->stats.tx_packets++;
+>>  		ndev->stats.tx_bytes += be32_to_cpu(cur_p->len);
+>>  
+>> +		/* app0 must be visible last, as it is used to flag
+>> +		 * availability of the bd
+>> +		 */
+>> +		smp_mb();
+>
+> SMP-only barrier, but full barrier is needed here AFAICT.
+
+I don't think that is needed.  See above.
+
+/Esben
