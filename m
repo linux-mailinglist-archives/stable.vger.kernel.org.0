@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0273BBF89
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE5F3BBF92
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232435AbhGEPc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57624 "EHLO mail.kernel.org"
+        id S232031AbhGEPca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:32:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232381AbhGEPcR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:32:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E88761997;
-        Mon,  5 Jul 2021 15:29:39 +0000 (UTC)
+        id S232397AbhGEPcS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:32:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86F0261975;
+        Mon,  5 Jul 2021 15:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625498980;
-        bh=gg5h5lXBXeF2yN98tkTNtp6fmsB1jEPgZngd+iNITuY=;
+        s=k20201202; t=1625498981;
+        bh=9IN4mdPOZIJkEmHGxG01aTcoyfS0FNKSFSazwpYZr+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9/gr5MuMsmM6sbqvi3Qh5K2eyWmhihugoNnzZ6nd932s7L22KKY4vCUMSq+6lzix
-         01L47D445/LC4JaP7sPFgfskoUY8nBVQdwZkHpgpMnXjqcX4c/A4EMP8TfNyaL1oEB
-         Sp/eiKtOJvIkCr687exSGG8sdDt1N1taSxbQnCMuvnGkWTvIp/X9bZVZfqlfbFAKp1
-         pj3mpzwBiju2gK8xx8AdsG7GuNpLWlY1QLcXGS5mLfMJ/9pFuWqMrdba5B7HZizhDT
-         mdZ5Ws3+Xp7QABWBbVnBAk5GOPcVOipVpaPFEIw9ujJmvRa7+6d+hugQ3dbA86KtbO
-         7Z6VJaTDVqX4w==
+        b=flqB5hRQ1By9bLoWdk/DHewCxB3zTa+NoU26+kThEtpkd75LJNh2BbEOPOYc3+bBP
+         UJv2k/V9ctMvJTB27nKAsGpVaSIxBay2O9XdAkM/40tNYfwHW/9pqwNznsy4/HK3ye
+         nRcd1NHdtH8rfcvEJa7iCN50LN9LAsBIIYKRXSSrV/G1EjL7wzhxjpYEV36yh4PpIR
+         RHKKrZ0gFzA3M3L6jAg5p8sCjfLxB+cMVtsMVowiSfdiHnC12JeAbQVwMF0fe3SuuD
+         AxOtPYIJESy9M8JlJk2gSPCoZ/B7o0EGLjEcvRvORVU3VrZStW3ldqNgv3mwL8PUvn
+         ltmvDvbTSQIKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Erik Kaneda <erik.kaneda@intel.com>,
-        Shawn Guo <shawn.guo@linaro.org>,
-        Bob Moore <robert.moore@intel.com>,
+Cc:     Hanjun Guo <guohanjun@huawei.com>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 5.12 21/52] ACPICA: Fix memory leak caused by _CID repair function
-Date:   Mon,  5 Jul 2021 11:28:42 -0400
-Message-Id: <20210705152913.1521036-21-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 22/52] ACPI: bus: Call kobject_put() in acpi_init() error path
+Date:   Mon,  5 Jul 2021 11:28:43 -0400
+Message-Id: <20210705152913.1521036-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705152913.1521036-1-sashal@kernel.org>
 References: <20210705152913.1521036-1-sashal@kernel.org>
@@ -45,53 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Kaneda <erik.kaneda@intel.com>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-[ Upstream commit c27bac0314131b11bccd735f7e8415ac6444b667 ]
+[ Upstream commit 4ac7a817f1992103d4e68e9837304f860b5e7300 ]
 
-ACPICA commit 180cb53963aa876c782a6f52cc155d951b26051a
+Although the system will not be in a good condition or it will not
+boot if acpi_bus_init() fails, it is still necessary to put the
+kobject in the error path before returning to avoid leaking memory.
 
-According to the ACPI spec, _CID returns a package containing
-hardware ID's. Each element of an ASL package contains a reference
-count from the parent package as well as the element itself.
-
-Name (TEST, Package() {
-    "String object" // this package element has a reference count of 2
-})
-
-A memory leak was caused in the _CID repair function because it did
-not decrement the reference count created by the package. Fix the
-memory leak by calling acpi_ut_remove_reference on _CID package elements
-that represent a hardware ID (_HID).
-
-Link: https://github.com/acpica/acpica/commit/180cb539
-Tested-by: Shawn Guo <shawn.guo@linaro.org>
-Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+[ rjw: Subject and changelog edits ]
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/nsrepair2.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/acpi/bus.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/acpica/nsrepair2.c b/drivers/acpi/acpica/nsrepair2.c
-index 14b71b41e845..38e10ab976e6 100644
---- a/drivers/acpi/acpica/nsrepair2.c
-+++ b/drivers/acpi/acpica/nsrepair2.c
-@@ -379,6 +379,13 @@ acpi_ns_repair_CID(struct acpi_evaluate_info *info,
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index a4bd673934c0..44b4f02e2c6d 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -1321,6 +1321,7 @@ static int __init acpi_init(void)
  
- 			(*element_ptr)->common.reference_count =
- 			    original_ref_count;
-+
-+			/*
-+			 * The original_element holds a reference from the package object
-+			 * that represents _HID. Since a new element was created by _HID,
-+			 * remove the reference from the _CID package.
-+			 */
-+			acpi_ut_remove_reference(original_element);
- 		}
- 
- 		element_ptr++;
+ 	result = acpi_bus_init();
+ 	if (result) {
++		kobject_put(acpi_kobj);
+ 		disable_acpi();
+ 		return result;
+ 	}
 -- 
 2.30.2
 
