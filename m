@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C22BA3BC057
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C26763BC052
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:34:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233277AbhGEPfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:35:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58848 "EHLO mail.kernel.org"
+        id S233262AbhGEPfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:35:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232100AbhGEPeQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232809AbhGEPeQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Jul 2021 11:34:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B441619C0;
-        Mon,  5 Jul 2021 15:31:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB488619CD;
+        Mon,  5 Jul 2021 15:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499071;
-        bh=YmZvJ4+3XUk477qyxdL5bFEK3VrT0RD5RLuRY7lPUE0=;
+        s=k20201202; t=1625499073;
+        bh=VfZMHmrMkR5FKZSV0EAtpTsIsFOSua5Z84CgBXwadr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dj4lvTj1CEbHhkgaAceANFWOZF6zqtjMnMEExT8t9uP6OwNmSAudfa0cLnPr8zn/6
-         ywqjQHBA5XnTLmVHO5Vxvl9ZvhYInHYV7LXj5DePsReeeyQXonS3jXr2rL+v0GKWnB
-         edqL/GENvtXfM0AGyG5J6esUCZs4D50hTypxtIbrENwyuM41OJd6thrrnyVue76MND
-         5qgXsoi/BWe6W/1GBU2VfqxP3Uvo++zsJbrb4W6qwcNF+UwZcfA8/Dx8DTY5jRzH4Z
-         P36AB9iSDOcRQjsMecxslWwjhyMi9nyIaboZvn2cuS/h7EBUcKAjiE9hgYdFeL6mEN
-         JLhPFPfnEMm2A==
+        b=Kdk5GG0CPI5OVvOq6fsYbAM5qIQUPzWxk0q8i0OuH1sQjmK4V2U+dBbsfmXnV1/qb
+         i0u3Nw1p+IpGMdwT3lakgOUMSRWtebYIb/jY4xSpvImZWTqADyIeoxTWopb1vcXc41
+         E2hE57JJCAUusawCxvVizy6oaMZaxCJ38f5u520o4+L8qT3rCBeStpMz1FsrdYcq10
+         IepFJHpvujg9UJApQciEktKR/rvjw54S8jRCqhk1uNg5X9Ik7tPcXotMoCyKuimMLE
+         FY4A/tluWpbwTOOj0z1R8Cy8hZn3Sj1bAdUS4J/ll1eAPcluJ8Enji46uZD4mw+jFM
+         pblDGYQhPAGjg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
+Cc:     Roman Gushchin <guro@fb.com>, Jan Kara <jack@suse.com>,
+        Jan Kara <jack@suse.cz>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Dave Chinner <dchinner@redhat.com>,
+        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 25/26] ia64: mca_drv: fix incorrect array size calculation
-Date:   Mon,  5 Jul 2021 11:30:38 -0400
-Message-Id: <20210705153039.1521781-25-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 26/26] writeback, cgroup: increment isw_nr_in_flight before grabbing an inode
+Date:   Mon,  5 Jul 2021 11:30:39 -0400
+Message-Id: <20210705153039.1521781-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153039.1521781-1-sashal@kernel.org>
 References: <20210705153039.1521781-1-sashal@kernel.org>
@@ -45,46 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Roman Gushchin <guro@fb.com>
 
-[ Upstream commit c5f320ff8a79501bb59338278336ec43acb9d7e2 ]
+[ Upstream commit 8826ee4fe75051f8cbfa5d4a9aa70565938e724c ]
 
-gcc points out a mistake in the mca driver that goes back to before the
-git history:
+isw_nr_in_flight is used to determine whether the inode switch queue
+should be flushed from the umount path.  Currently it's increased after
+grabbing an inode and even scheduling the switch work.  It means the
+umount path can walk past cleanup_offline_cgwb() with active inode
+references, which can result in a "Busy inodes after unmount." message and
+use-after-free issues (with inode->i_sb which gets freed).
 
-arch/ia64/kernel/mca_drv.c: In function 'init_record_index_pools':
-arch/ia64/kernel/mca_drv.c:346:54: error: expression does not compute the number of elements in this array; element typ
-e is 'int', not 'size_t' {aka 'long unsigned int'} [-Werror=sizeof-array-div]
-  346 |         for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
-      |                                                      ^
+Fix it by incrementing isw_nr_in_flight before doing anything with the
+inode and decrementing in the case when switching wasn't scheduled.
 
-This is the same as sizeof(size_t), which is two shorter than the actual
-array.  Use the ARRAY_SIZE() macro to get the correct calculation instead.
+The problem hasn't yet been seen in the real life and was discovered by
+Jan Kara by looking into the code.
 
-Link: https://lkml.kernel.org/r/20210514214123.875971-1-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lkml.kernel.org/r/20210608230225.2078447-4-guro@fb.com
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Suggested-by: Jan Kara <jack@suse.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Dave Chinner <dchinner@redhat.com>
+Cc: Dennis Zhou <dennis@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/mca_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fs-writeback.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/kernel/mca_drv.c b/arch/ia64/kernel/mca_drv.c
-index 4d0ab323dee8..2a40268c3d49 100644
---- a/arch/ia64/kernel/mca_drv.c
-+++ b/arch/ia64/kernel/mca_drv.c
-@@ -343,7 +343,7 @@ init_record_index_pools(void)
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index fd6b50582c87..3a0d7b8af141 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -505,6 +505,8 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
+ 	if (!isw)
+ 		return;
  
- 	/* - 2 - */
- 	sect_min_size = sal_log_sect_min_sizes[0];
--	for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
-+	for (i = 1; i < ARRAY_SIZE(sal_log_sect_min_sizes); i++)
- 		if (sect_min_size > sal_log_sect_min_sizes[i])
- 			sect_min_size = sal_log_sect_min_sizes[i];
++	atomic_inc(&isw_nr_in_flight);
++
+ 	/* find and pin the new wb */
+ 	rcu_read_lock();
+ 	memcg_css = css_from_id(new_wb_id, &memory_cgrp_subsys);
+@@ -535,11 +537,10 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
+ 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
+ 	 */
+ 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
+-
+-	atomic_inc(&isw_nr_in_flight);
+ 	return;
  
+ out_free:
++	atomic_dec(&isw_nr_in_flight);
+ 	if (isw->new_wb)
+ 		wb_put(isw->new_wb);
+ 	kfree(isw);
 -- 
 2.30.2
 
