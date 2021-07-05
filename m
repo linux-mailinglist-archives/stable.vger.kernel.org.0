@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08123BBFCB
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6133BBFD1
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232132AbhGEPdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:33:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58632 "EHLO mail.kernel.org"
+        id S231942AbhGEPdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:33:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232549AbhGEPcs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:32:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BAB7619A0;
-        Mon,  5 Jul 2021 15:30:10 +0000 (UTC)
+        id S232563AbhGEPcu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:32:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44078619A5;
+        Mon,  5 Jul 2021 15:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499011;
-        bh=5YQzn5VTPGA3RcWIpzC4eQz/17IKiMjdivRT+lqiYjk=;
+        s=k20201202; t=1625499013;
+        bh=dXXVnySI/CpXWxQ8VvGu2yX/iHzyHAWviakPv4O1TGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GEEEwOhwHp+V7rgXgtQGwWAx+Z/bChQbMQ2pu2B45bF8B61WAdV1psqfM3jdFZwjN
-         aCGKu0Dxx7ck8CtZwejarb4GaPOB0dsnXrZFHRPJJe4WIfPXs4+L0rD1ZN4vSJddyo
-         sJhvGkZQpWdDqadJDigmn+lS8/m81IEFOg2rFXShhAlgYKF+QWunhky5cs2qcsrkHl
-         AWDtj/cGkGleklV0djPgCafd8iMFkC4cUK6uRzix8lk0EgiHGCuMFkmovDy7Jdoj7c
-         /bg/ECU73HcwT+Fx4A8S0tOb6lVu1Yn6u3WS1SCAyaSY4VExzX+UO5cxBqg8qAxNR/
-         9EUqUJlXJSNew==
+        b=KFPU6785V6GLPxXnbSggVqjbG0SddjzHaL3tuLu+u8gVj5K/nPOXfKMVwgbQv9YQ5
+         Fk+/oWvw9hsWpCOe2Y/pxr5fYm1rTWD8fViSQGLCwm8KhM/QWODz6w4AtWNdp7JjD9
+         2yH/8EYL/F+J7kVfPR0/eaPWYRuZlKMghjb4+xzNwl82i2XwT9E6S2JKvUTVYp29xF
+         gRnJb3k6I6WWiSAzuATmrbSR1zDPp+IMAtwwviVDKqVjdFo9aFP2PzvTqeY1oSkP9L
+         onVn1dAlL9oepa1FxxAvcYJ7IhMlnplOQ/bMq7Z2Gk8NiO34fQJip9scB8dky7cF2B
+         xHBOfq47t3MAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Bastien Nocera <hadess@hadess.net>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 08/41] platform/x86: touchscreen_dmi: Add info for the Goodix GT912 panel of TM800A550L tablets
-Date:   Mon,  5 Jul 2021 11:29:28 -0400
-Message-Id: <20210705153001.1521447-8-sashal@kernel.org>
+Cc:     Chris Chiu <chris.chiu@canonical.com>,
+        Jian-Hong Pan <jhp@endlessos.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 09/41] ACPI: EC: Make more Asus laptops use ECDT _GPE
+Date:   Mon,  5 Jul 2021 11:29:29 -0400
+Message-Id: <20210705153001.1521447-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153001.1521447-1-sashal@kernel.org>
 References: <20210705153001.1521447-1-sashal@kernel.org>
@@ -43,73 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Chris Chiu <chris.chiu@canonical.com>
 
-[ Upstream commit fcd8cf0e3e48f4c66af82c8e799c37cb0cccffe0 ]
+[ Upstream commit 6306f0431914beaf220634ad36c08234006571d5 ]
 
-The Bay Trail Glavey TM800A550L tablet, which ships with Android installed
-from the factory, uses a GT912 touchscreen controller which needs to have
-its firmware uploaded by the OS to work (this is a first for a x86 based
-device with a Goodix touchscreen controller).
+More ASUS laptops have the _GPE define in the DSDT table with a
+different value than the _GPE number in the ECDT.
 
-Add a touchscreen_dmi entry for this which specifies the filenames
-to use for the firmware and config files needed for this.
+This is causing media keys not working on ASUS X505BA/BP, X542BA/BP
 
-Note this matches on a GDIX1001 ACPI HID, while the original DSDT uses
-a HID of GODX0911. For the touchscreen to work on these devices a DSDT
-override is necessary to fix a missing IRQ and broken GPIO settings in
-the ACPI-resources for the touchscreen. This override also changes the
-HID to the standard GDIX1001 id typically used for Goodix touchscreens.
-The DSDT override is available here:
-https://fedorapeople.org/~jwrdegoede/glavey-tm800a550l-dsdt-override/
+Add model info to the quirks list.
 
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210504185746.175461-5-hdegoede@redhat.com
+Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
+Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/acpi/ec.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index ebae21b78327..99260915122c 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -316,6 +316,18 @@ static const struct ts_dmi_data gdix1001_01_upside_down_data = {
- 	.properties	= gdix1001_upside_down_props,
- };
- 
-+static const struct property_entry glavey_tm800a550l_props[] = {
-+	PROPERTY_ENTRY_STRING("firmware-name", "gt912-glavey-tm800a550l.fw"),
-+	PROPERTY_ENTRY_STRING("goodix,config-name", "gt912-glavey-tm800a550l.cfg"),
-+	PROPERTY_ENTRY_U32("goodix,main-clk", 54),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data glavey_tm800a550l_data = {
-+	.acpi_name	= "GDIX1001:00",
-+	.properties	= glavey_tm800a550l_props,
-+};
-+
- static const struct property_entry gp_electronic_t701_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 960),
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 640),
-@@ -1012,6 +1024,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "eSTAR BEAUTY HD Intel Quad core"),
- 		},
- 	},
-+	{	/* Glavey TM800A550L */
-+		.driver_data = (void *)&glavey_tm800a550l_data,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
-+			/* Above strings are too generic, also match on BIOS version */
-+			DMI_MATCH(DMI_BIOS_VERSION, "ZY-8-BI-PX4S70VTR400-X423B-005-D"),
-+		},
-+	},
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index e0cb1bcfffb2..32f3b6d268f5 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -1859,6 +1859,22 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 	DMI_MATCH(DMI_PRODUCT_NAME, "GL702VMK"),}, NULL},
  	{
- 		/* GP-electronic T701 */
- 		.driver_data = (void *)&gp_electronic_t701_data,
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BA", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X505BA"),}, NULL},
++	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BP", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X505BP"),}, NULL},
++	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BA", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X542BA"),}, NULL},
++	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BP", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X542BP"),}, NULL},
++	{
+ 	ec_honor_ecdt_gpe, "ASUS X550VXK", {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 	DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),}, NULL},
 -- 
 2.30.2
 
