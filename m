@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B2C3BBF2C
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:29:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 971F83BBF2F
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:29:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232023AbhGEPbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232215AbhGEPbp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 5 Jul 2021 11:31:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56354 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232091AbhGEPbe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232097AbhGEPbe (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Jul 2021 11:31:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA00661999;
-        Mon,  5 Jul 2021 15:28:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E23561990;
+        Mon,  5 Jul 2021 15:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625498933;
-        bh=hEXybyKNzNQh9GIrfXSwiHb+N8bB+QE1nn7cGPVvTAw=;
+        s=k20201202; t=1625498935;
+        bh=DtKzevK9mx9JWos5XHHq3fhiw8NE8RpYSofLHes60QM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6LKAHP6n0wILXxxFk22Z3GRXj/WwBulBAlc7wDTIgIRHuKyer7HtDUrfLQPcFv0D
-         klBsz12bfrXqIbeEgFKVoFVKQbkTp83rRB2nURzqdZ89M+hG2HT2bvoLaU8uUGKmMT
-         7IohRprSdN+uF/AvpnRg5CopBanWSzlhImTQh3zo2ssXt85FROsJ2mkPbmx3/xCq7z
-         qm3hr+T1lRk/kVGx3e43wIJkMAFgfoyxlTSIlD7mv+o5bV3vH7PE92tlPe0ZCSBSvF
-         HFYLxQKI+BC8i4Ra/iK4th88gC+OuO1i/GVQhZrmTW/7UABnb4rGipBA2bewVt6D86
-         m6qU5aeeteisA==
+        b=Hlin/v6Xn/EOHRtptGgIB8PxaYA1NMncuiP9BkroWzyD1VMSJCG5Ls4Lb+ZyYvRZE
+         wBxqMWRxVnjUV7GPfeWZzLJNNos9lrSR6Cg6gBBVseWQhcishs3QB4hhcXgplLrhT2
+         e+OlqYyOBc824dmezkZ0L5/MmwVABlsMUwcMmffxqZgvXpLpLv7fTYKlzQ8rM4rUBQ
+         3OPcO8nIGmuBR1WSpfBZtTimXkmyNy0tzwGnZb0lm7EED0HHY6TeXjsgGk9xKC5opp
+         DDdGCZiam9ztSJFYChmGaQW66gDzpGmiYANthKZnL/MiUJKW8fEwS4Zkif+Bvd9GDR
+         tr30lS6B0q6Zw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ming Lei <ming.lei@redhat.com>, Yi Zhang <yi.zhang@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 29/59] block: fix race between adding/removing rq qos and normal IO
-Date:   Mon,  5 Jul 2021 11:27:45 -0400
-Message-Id: <20210705152815.1520546-29-sashal@kernel.org>
+Cc:     "Luke D. Jones" <luke@ljones.dev>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        acpi4asus-user@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 30/59] platform/x86: asus-nb-wmi: Revert "Drop duplicate DMI quirk structures"
+Date:   Mon,  5 Jul 2021 11:27:46 -0400
+Message-Id: <20210705152815.1520546-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705152815.1520546-1-sashal@kernel.org>
 References: <20210705152815.1520546-1-sashal@kernel.org>
@@ -43,111 +44,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: "Luke D. Jones" <luke@ljones.dev>
 
-[ Upstream commit 2cafe29a8d03f02a3d16193bdaae2f3e82a423f9 ]
+[ Upstream commit 98c0c85b1040db24f0d04d3e1d315c6c7b05cc07 ]
 
-Yi reported several kernel panics on:
+This is a preparation revert for reverting the "add support for ASUS ROG
+Zephyrus G14 and G15" change. This reverts
+commit 67186653c903 ("platform/x86: asus-nb-wmi: Drop duplicate DMI quirk
+structures")
 
-[16687.001777] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
-...
-[16687.163549] pc : __rq_qos_track+0x38/0x60
-
-or
-
-[  997.690455] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
-...
-[  997.850347] pc : __rq_qos_done+0x2c/0x50
-
-Turns out it is caused by race between adding rq qos(wbt) and normal IO
-because rq_qos_add can be run when IO is being submitted, fix this issue
-by freezing queue before adding/deleting rq qos to queue.
-
-rq_qos_exit() needn't to freeze queue because it is called after queue
-has been frozen.
-
-iolatency calls rq_qos_add() during allocating queue, so freezing won't
-add delay because queue usage refcount works at atomic mode at that
-time.
-
-iocost calls rq_qos_add() when writing cgroup attribute file, that is
-fine to freeze queue at that time since we usually freeze queue when
-storing to queue sysfs attribute, meantime iocost only exists on the
-root cgroup.
-
-wbt_init calls it in blk_register_queue() and queue sysfs attribute
-store(queue_wb_lat_store() when write it 1st time in case of !BLK_WBT_MQ),
-the following patch will speedup the queue freezing in wbt_init.
-
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Tested-by: Yi Zhang <yi.zhang@redhat.com>
-Link: https://lore.kernel.org/r/20210609015822.103433-2-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
+Link: https://lore.kernel.org/r/20210419074915.393433-2-luke@ljones.dev
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-rq-qos.h | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/platform/x86/asus-nb-wmi.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
-index 2bc43e94f4c4..2bcb3495e376 100644
---- a/block/blk-rq-qos.h
-+++ b/block/blk-rq-qos.h
-@@ -7,6 +7,7 @@
- #include <linux/blk_types.h>
- #include <linux/atomic.h>
- #include <linux/wait.h>
-+#include <linux/blk-mq.h>
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index d41d7ad14be0..b07b1288346e 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -110,7 +110,12 @@ static struct quirk_entry quirk_asus_forceals = {
+ 	.wmi_force_als_set = true,
+ };
  
- #include "blk-mq-debugfs.h"
- 
-@@ -99,8 +100,21 @@ static inline void rq_wait_init(struct rq_wait *rq_wait)
- 
- static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
- {
-+	/*
-+	 * No IO can be in-flight when adding rqos, so freeze queue, which
-+	 * is fine since we only support rq_qos for blk-mq queue.
-+	 *
-+	 * Reuse ->queue_lock for protecting against other concurrent
-+	 * rq_qos adding/deleting
-+	 */
-+	blk_mq_freeze_queue(q);
+-static struct quirk_entry quirk_asus_vendor_backlight = {
++static struct quirk_entry quirk_asus_ga401i = {
++	.wmi_backlight_power = true,
++	.wmi_backlight_set_devstate = true,
++};
 +
-+	spin_lock_irq(&q->queue_lock);
- 	rqos->next = q->rq_qos;
- 	q->rq_qos = rqos;
-+	spin_unlock_irq(&q->queue_lock);
-+
-+	blk_mq_unfreeze_queue(q);
- 
- 	if (rqos->ops->debugfs_attrs)
- 		blk_mq_debugfs_register_rqos(rqos);
-@@ -110,12 +124,22 @@ static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
- {
- 	struct rq_qos **cur;
- 
-+	/*
-+	 * See comment in rq_qos_add() about freezing queue & using
-+	 * ->queue_lock.
-+	 */
-+	blk_mq_freeze_queue(q);
-+
-+	spin_lock_irq(&q->queue_lock);
- 	for (cur = &q->rq_qos; *cur; cur = &(*cur)->next) {
- 		if (*cur == rqos) {
- 			*cur = rqos->next;
- 			break;
- 		}
- 	}
-+	spin_unlock_irq(&q->queue_lock);
-+
-+	blk_mq_unfreeze_queue(q);
- 
- 	blk_mq_debugfs_unregister_rqos(rqos);
- }
++static struct quirk_entry quirk_asus_ga502i = {
+ 	.wmi_backlight_power = true,
+ 	.wmi_backlight_set_devstate = true,
+ };
+@@ -432,7 +437,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IH"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -441,7 +446,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401II"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -450,7 +455,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IU"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -459,7 +464,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IV"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -468,7 +473,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IVC"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 		{
+ 		.callback = dmi_matched,
+@@ -477,7 +482,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA502II"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga502i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -486,7 +491,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA502IU"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga502i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -495,7 +500,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA502IV"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga502i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
 -- 
 2.30.2
 
