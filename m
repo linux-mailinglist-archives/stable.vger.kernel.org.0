@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F5FB3BBF35
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE3D3BBF37
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:29:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232103AbhGEPbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:31:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56186 "EHLO mail.kernel.org"
+        id S232056AbhGEPbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:31:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232118AbhGEPbg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:31:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 358D661995;
-        Mon,  5 Jul 2021 15:28:58 +0000 (UTC)
+        id S231932AbhGEPbh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:31:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A8A561977;
+        Mon,  5 Jul 2021 15:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625498938;
-        bh=V7EyXYKUimWcMCi0dwLr/tKJynbs5rtBHmEcMuYnu5c=;
+        s=k20201202; t=1625498940;
+        bh=US1hJ2G3OSXq4i3pt6pdZkmGAzaPlgomDJpyu+3aiJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyN065jiqezXt2GGbHWeDRhy5I5zDqCakJkcg/a2NDZ2l0bk/MZOITNfYRwQFLGq5
-         YW2ssyZ37pH0BtVuxHSroiGHKKBGbUh5G87grv6ww7JtAGJkEDypBDrM+6GEUzBv6l
-         uxPoliUMvKOA+Zbzix3le1XUbg3ZV01V/IAHcTJqPAuhI6dSyXy9Lx1Z40jKdyECuv
-         GMFF5kdUdDU10oMq6gQra/RK+TRdSJqZPkKIRCsiD+KpsrgwxJ+fsbnqfeG1/UgzGd
-         f1uc0brAwS4uX/IJ0eelFKB3597nkl/6xghfM49oruFa3rpzvuM5JYPQlaeIilMmcZ
-         8Mg0bSX+mjBlw==
+        b=NvBCGrvySMq/PrX46WykOWii0gJdqPnjFpc/GanOIKsdTfnBSZUzMr6qqCbZhEzCG
+         mtam0agDaAXkwunRqRFOrp7zqQhqUOAG2olzZ9MJHxfJ4zlQkUq4fX5rQF28R6v47P
+         4LxeUFmedLhmJFrHL7kLV0ZOwl1uyF+7nN62zatRpr++Ey8KjCvs0tzCb0kIGvSByV
+         C4Tjr5zelryZfxuqufcsfg4IAnvasxyTZus0EKz8O37lp4oTnyOv4BEu+ydZwxCPPt
+         ZQacHBC2L+8PO/umtGmGgUF6o4qMYz/rdbrhOyg9hVW1S4oNUIvt/0j1jSPy4rs+SK
+         +xrCv7QK/fZ7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     JK Kim <jongkang.kim2@gmail.com>, Christoph Hellwig <hch@lst.de>,
+Cc:     Hannes Reinecke <hare@suse.de>, James Smart <jsmart2021@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 33/59] nvme-pci: fix var. type for increasing cq_head
-Date:   Mon,  5 Jul 2021 11:27:49 -0400
-Message-Id: <20210705152815.1520546-33-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 34/59] nvmet-fc: do not check for invalid target port in nvmet_fc_handle_fcp_rqst()
+Date:   Mon,  5 Jul 2021 11:27:50 -0400
+Message-Id: <20210705152815.1520546-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705152815.1520546-1-sashal@kernel.org>
 References: <20210705152815.1520546-1-sashal@kernel.org>
@@ -41,42 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JK Kim <jongkang.kim2@gmail.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit a0aac973a26d1ac814b9e131e209eb39472a67ce ]
+[ Upstream commit 2a4a910aa4f0acc428dc8d10227c42e14ed21d10 ]
 
-nvmeq->cq_head is compared with nvmeq->q_depth and changed the value
-and cq_phase for handling the next cq db.
+When parsing a request in nvmet_fc_handle_fcp_rqst() we should not
+check for invalid target ports; if we do the command is aborted
+from the fcp layer, causing the host to assume a transport error.
+Rather we should still forward this request to the nvmet layer, which
+will then correctly fail the command with an appropriate error status.
 
-but, nvmeq->q_depth's type is u32 and max. value is 0x10000 when
-CQP.MSQE is 0xffff and io_queue_depth is 0x10000.
-
-current temp. variable for comparing with nvmeq->q_depth is overflowed
-when previous nvmeq->cq_head is 0xffff.
-
-in this case, nvmeq->cq_phase is not updated.
-so, fix data type for temp. variable to u32.
-
-Signed-off-by: JK Kim <jongkang.kim2@gmail.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/target/fc.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index a29b170701fc..2995e87ce776 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1032,7 +1032,7 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
+diff --git a/drivers/nvme/target/fc.c b/drivers/nvme/target/fc.c
+index 19e113240fff..22b5108168a6 100644
+--- a/drivers/nvme/target/fc.c
++++ b/drivers/nvme/target/fc.c
+@@ -2510,13 +2510,6 @@ nvmet_fc_handle_fcp_rqst(struct nvmet_fc_tgtport *tgtport,
+ 	u32 xfrlen = be32_to_cpu(cmdiu->data_len);
+ 	int ret;
  
- static inline void nvme_update_cq_head(struct nvme_queue *nvmeq)
- {
--	u16 tmp = nvmeq->cq_head + 1;
-+	u32 tmp = nvmeq->cq_head + 1;
+-	/*
+-	 * if there is no nvmet mapping to the targetport there
+-	 * shouldn't be requests. just terminate them.
+-	 */
+-	if (!tgtport->pe)
+-		goto transport_error;
+-
+ 	/*
+ 	 * Fused commands are currently not supported in the linux
+ 	 * implementation.
+@@ -2544,7 +2537,8 @@ nvmet_fc_handle_fcp_rqst(struct nvmet_fc_tgtport *tgtport,
  
- 	if (tmp == nvmeq->q_depth) {
- 		nvmeq->cq_head = 0;
+ 	fod->req.cmd = &fod->cmdiubuf.sqe;
+ 	fod->req.cqe = &fod->rspiubuf.cqe;
+-	fod->req.port = tgtport->pe->port;
++	if (tgtport->pe)
++		fod->req.port = tgtport->pe->port;
+ 
+ 	/* clear any response payload */
+ 	memset(&fod->rspiubuf, 0, sizeof(fod->rspiubuf));
 -- 
 2.30.2
 
