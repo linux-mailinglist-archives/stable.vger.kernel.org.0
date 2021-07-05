@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B02B3BBFAD
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5991A3BBFA8
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:33:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232570AbhGEPcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:32:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58050 "EHLO mail.kernel.org"
+        id S232559AbhGEPct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:32:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232122AbhGEPca (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Jul 2021 11:32:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B99161983;
-        Mon,  5 Jul 2021 15:29:52 +0000 (UTC)
+        id S232392AbhGEPcc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Jul 2021 11:32:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B714C61992;
+        Mon,  5 Jul 2021 15:29:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625498993;
-        bh=ZXVkRE0eMa6tUcXFoASwTNYODjtKrHfUEbwIwsYpgaE=;
+        s=k20201202; t=1625498994;
+        bh=SMypIDn/QlcJR33Og0VFeTr1hr+6S7cZNu+bYwTl6K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DeRAV7RGpiJk9r2yFZ+hEbHy9uKG709x6X3T8OmracZ05xrOnxpUNZF7t4hCGLj37
-         9YxSgLhSOA9jQ86TaUTfXmFYA0UxFWHFX1/jyrU1m5cc7BovmtIMdQK71/ePy70E8O
-         C8QnLt8dIWEaN6TG2RVhMmNHbQrzZvr/Bu0bc1kBXad3mQW554v2yQFjG3Ap6uULEO
-         SlTWYI2dO1WOwTiDiDhjp1iMe+d9oE52igR+QDeCgbdOPTqxgulhj5I4qeq8dwdZGO
-         jpTmR0txbACMO0kToL3zZi4ze0WBUk3Hy8F98/19+g0Onf8cS+3MCiVPcZ96StWT5h
-         78XFau5yeR3jA==
+        b=rY5FtgC66WXkAUiEdK5NRM2tbQCq24x9p6gxTsvPkzYEWGh2/BRry+nZ4Mtl/xu/z
+         +p8teb6sXDumy88bByEwp7z8MzA+j+2hl9hi5A3+VRr6BNIFJ28wQL2gGwsFZdP8ow
+         8jCNBemQQt0AWRNr1Zcqux2Ghr1Cc3ersZzmtvA+7coI8wt4mxWuzitjIZTgWEltKJ
+         cZ1Io5slCvdyCSsijUnwhOOCZx65A8X/8HUpceOCF62BuULbSQh/BYI4ld9EQkoucs
+         cKKrmQY08HMstrAOfAp5vWs7zFCaDUV9ZcsWsOiVL7A8KG/2cN+j23O8aWgvAPWTG4
+         7pKdDu/YPOv0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Luck, Tony" <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
-        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 32/52] EDAC/Intel: Do not load EDAC driver when running as a guest
-Date:   Mon,  5 Jul 2021 11:28:53 -0400
-Message-Id: <20210705152913.1521036-32-sashal@kernel.org>
+Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 33/52] tools/power/x86/intel-speed-select: Fix uncore memory frequency display
+Date:   Mon,  5 Jul 2021 11:28:54 -0400
+Message-Id: <20210705152913.1521036-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705152913.1521036-1-sashal@kernel.org>
 References: <20210705152913.1521036-1-sashal@kernel.org>
@@ -41,85 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Luck, Tony" <tony.luck@intel.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit f0a029fff4a50eb01648810a77ba1873e829fdd4 ]
+[ Upstream commit 159f130f60f402273b235801d1fde3fc115c6795 ]
 
-There's little to no point in loading an EDAC driver running in a guest:
-1) The CPU model reported by CPUID may not represent actual h/w
-2) The hypervisor likely does not pass in access to memory controller devices
-3) Hypervisors generally do not pass corrected error details to guests
+The uncore memory frequency value from the mailbox command
+CONFIG_TDP_GET_MEM_FREQ needs to be scaled based on the platform for
+display. There is no single constant multiplier.
 
-Add a check in each of the Intel EDAC drivers for X86_FEATURE_HYPERVISOR
-and simply return -ENODEV in the init routine.
+This change introduces CPU model specific memory frequency multiplier.
 
-Acked-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/20210615174419.GA1087688@agluck-desk2.amr.corp.intel.com
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/i10nm_base.c | 3 +++
- drivers/edac/pnd2_edac.c  | 3 +++
- drivers/edac/sb_edac.c    | 3 +++
- drivers/edac/skx_base.c   | 3 +++
- 4 files changed, 12 insertions(+)
+ tools/power/x86/intel-speed-select/isst-config.c | 16 ++++++++++++++++
+ tools/power/x86/intel-speed-select/isst-core.c   | 15 +++++++++++++++
+ .../power/x86/intel-speed-select/isst-display.c  |  2 +-
+ tools/power/x86/intel-speed-select/isst.h        |  2 ++
+ 4 files changed, 34 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/edac/i10nm_base.c b/drivers/edac/i10nm_base.c
-index 238a4ad1e526..37b4e875420e 100644
---- a/drivers/edac/i10nm_base.c
-+++ b/drivers/edac/i10nm_base.c
-@@ -278,6 +278,9 @@ static int __init i10nm_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
+diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
+index 582feb88eca3..3ff8d64369d7 100644
+--- a/tools/power/x86/intel-speed-select/isst-config.c
++++ b/tools/power/x86/intel-speed-select/isst-config.c
+@@ -106,6 +106,22 @@ int is_skx_based_platform(void)
+ 	return 0;
+ }
  
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
++int is_spr_platform(void)
++{
++	if (cpu_model == 0x8F)
++		return 1;
 +
- 	id = x86_match_cpu(i10nm_cpuids);
- 	if (!id)
- 		return -ENODEV;
-diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
-index 928f63a374c7..c94ca1f790c4 100644
---- a/drivers/edac/pnd2_edac.c
-+++ b/drivers/edac/pnd2_edac.c
-@@ -1554,6 +1554,9 @@ static int __init pnd2_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
++	return 0;
++}
++
++int is_icx_platform(void)
++{
++	if (cpu_model == 0x6A || cpu_model == 0x6C)
++		return 1;
++
++	return 0;
++}
++
+ static int update_cpu_model(void)
+ {
+ 	unsigned int ebx, ecx, edx;
+diff --git a/tools/power/x86/intel-speed-select/isst-core.c b/tools/power/x86/intel-speed-select/isst-core.c
+index 6a26d5769984..4431c8a0d40a 100644
+--- a/tools/power/x86/intel-speed-select/isst-core.c
++++ b/tools/power/x86/intel-speed-select/isst-core.c
+@@ -201,6 +201,7 @@ void isst_get_uncore_mem_freq(int cpu, int config_index,
+ {
+ 	unsigned int resp;
+ 	int ret;
++
+ 	ret = isst_send_mbox_command(cpu, CONFIG_TDP, CONFIG_TDP_GET_MEM_FREQ,
+ 				     0, config_index, &resp);
+ 	if (ret) {
+@@ -209,6 +210,20 @@ void isst_get_uncore_mem_freq(int cpu, int config_index,
+ 	}
  
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
-+
- 	id = x86_match_cpu(pnd2_cpuids);
- 	if (!id)
- 		return -ENODEV;
-diff --git a/drivers/edac/sb_edac.c b/drivers/edac/sb_edac.c
-index 93daa4297f2e..4c626fcd4dcb 100644
---- a/drivers/edac/sb_edac.c
-+++ b/drivers/edac/sb_edac.c
-@@ -3510,6 +3510,9 @@ static int __init sbridge_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
+ 	ctdp_level->mem_freq = resp & GENMASK(7, 0);
++	if (is_spr_platform()) {
++		ctdp_level->mem_freq *= 200;
++	} else if (is_icx_platform()) {
++		if (ctdp_level->mem_freq < 7) {
++			ctdp_level->mem_freq = (12 - ctdp_level->mem_freq) * 133.33 * 2 * 10;
++			ctdp_level->mem_freq /= 10;
++			if (ctdp_level->mem_freq % 10 > 5)
++				ctdp_level->mem_freq++;
++		} else {
++			ctdp_level->mem_freq = 0;
++		}
++	} else {
++		ctdp_level->mem_freq = 0;
++	}
+ 	debug_printf(
+ 		"cpu:%d ctdp:%d CONFIG_TDP_GET_MEM_FREQ resp:%x uncore mem_freq:%d\n",
+ 		cpu, config_index, resp, ctdp_level->mem_freq);
+diff --git a/tools/power/x86/intel-speed-select/isst-display.c b/tools/power/x86/intel-speed-select/isst-display.c
+index 3bf1820c0da1..f97d8859ada7 100644
+--- a/tools/power/x86/intel-speed-select/isst-display.c
++++ b/tools/power/x86/intel-speed-select/isst-display.c
+@@ -446,7 +446,7 @@ void isst_ctdp_display_information(int cpu, FILE *outf, int tdp_level,
+ 		if (ctdp_level->mem_freq) {
+ 			snprintf(header, sizeof(header), "mem-frequency(MHz)");
+ 			snprintf(value, sizeof(value), "%d",
+-				 ctdp_level->mem_freq * DISP_FREQ_MULTIPLIER);
++				 ctdp_level->mem_freq);
+ 			format_and_print(outf, level + 2, header, value);
+ 		}
  
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
-+
- 	id = x86_match_cpu(sbridge_cpuids);
- 	if (!id)
- 		return -ENODEV;
-diff --git a/drivers/edac/skx_base.c b/drivers/edac/skx_base.c
-index 6a4f0b27c654..4dbd46575bfb 100644
---- a/drivers/edac/skx_base.c
-+++ b/drivers/edac/skx_base.c
-@@ -656,6 +656,9 @@ static int __init skx_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
-+
- 	id = x86_match_cpu(skx_cpuids);
- 	if (!id)
- 		return -ENODEV;
+diff --git a/tools/power/x86/intel-speed-select/isst.h b/tools/power/x86/intel-speed-select/isst.h
+index 0cac6c54be87..1aa15d5ea57c 100644
+--- a/tools/power/x86/intel-speed-select/isst.h
++++ b/tools/power/x86/intel-speed-select/isst.h
+@@ -257,5 +257,7 @@ extern int get_cpufreq_base_freq(int cpu);
+ extern int isst_read_pm_config(int cpu, int *cp_state, int *cp_cap);
+ extern void isst_display_error_info_message(int error, char *msg, int arg_valid, int arg);
+ extern int is_skx_based_platform(void);
++extern int is_spr_platform(void);
++extern int is_icx_platform(void);
+ extern void isst_trl_display_information(int cpu, FILE *outf, unsigned long long trl);
+ #endif
 -- 
 2.30.2
 
