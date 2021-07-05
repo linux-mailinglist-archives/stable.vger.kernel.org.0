@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF4E3BC0C8
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB183BC0CC
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233783AbhGEPhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:37:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58828 "EHLO mail.kernel.org"
+        id S233804AbhGEPhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:37:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233042AbhGEPgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233506AbhGEPgY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Jul 2021 11:36:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA20C61C17;
-        Mon,  5 Jul 2021 15:32:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E30AD61C18;
+        Mon,  5 Jul 2021 15:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499122;
-        bh=YQqC+kuQ824pfnGx0FiZRw+KqiQr83Qr104Ugy1swkE=;
+        s=k20201202; t=1625499123;
+        bh=I3izLJNUmoAdfeCBSK9qtUKZYViYQap6iNtnK9J94ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VeXTFtPkNVqxbWtcUHyEHApfDQIRe+qrH1RKDSwvpcTA7RYYAkz9924B8C+Hu1Yd9
-         1omx5Mbhcm2/UCM8Eg5oErpQNo6tcs0MYbYk/J8EqiVwG2AUGtaRYFNzfoYXeU1FUh
-         OXcDtoucLIXbbIa1YIY6ePpQ2WFrwbaDjsRZHlKXYSIasnVEFITPm1QWrLzrt6oIqr
-         XqYMpjNmM0q4xvVfWCxqoessAx8zCH69x381a5mB1zf+WMsWMn56B/E6xWifiIDR2M
-         Rk+bhaZZQC+xchgv9UJBDZmcJeeXe2IIN+ershCkvghb4oHUBl8GF+il4ZvDrX2WhB
-         ZRlDaHuIcDkcA==
+        b=AvLXoPzj1BflofhAbtQ74Mfv7xNLBKX0fiq2cArNWl3Idthm55lK3NeO/HF4fBaza
+         oiRZNW+sW9xNnEj6p5ld0A//unpq9Jb4xvWJjRt2R5nPnbLgXMXH26hFIOlZbg7xrN
+         ljC9vtf2xz8Nx5ok09kmG/V+w/TVQPm1AP+pkwRY0bS3TY/3/CM4ykSdDaaUKCblft
+         g7wWA7kEgUWgd4MGQBYYEtOzwDTglEcvWGWieAjDM93g3hzfQBiKmSGJ62BDIzOTHv
+         e9aadu9It2w6r9qBcfICz1za5mz5d5P914EsenFDvHDr98SspysquTXQtjdtnb1hrZ
+         XNQ7YFspef6kA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.9 5/9] fs: dlm: fix memory leak when fenced
-Date:   Mon,  5 Jul 2021 11:31:51 -0400
-Message-Id: <20210705153155.1522423-5-sashal@kernel.org>
+Cc:     Hanjun Guo <guohanjun@huawei.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 6/9] ACPI: bus: Call kobject_put() in acpi_init() error path
+Date:   Mon,  5 Jul 2021 11:31:52 -0400
+Message-Id: <20210705153155.1522423-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153155.1522423-1-sashal@kernel.org>
 References: <20210705153155.1522423-1-sashal@kernel.org>
@@ -42,83 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-[ Upstream commit 700ab1c363c7b54c9ea3222379b33fc00ab02f7b ]
+[ Upstream commit 4ac7a817f1992103d4e68e9837304f860b5e7300 ]
 
-I got some kmemleak report when a node was fenced. The user space tool
-dlm_controld will therefore run some rmdir() in dlm configfs which was
-triggering some memleaks. This patch stores the sps and cms attributes
-which stores some handling for subdirectories of the configfs cluster
-entry and free them if they get released as the parent directory gets
-freed.
+Although the system will not be in a good condition or it will not
+boot if acpi_bus_init() fails, it is still necessary to put the
+kobject in the error path before returning to avoid leaking memory.
 
-unreferenced object 0xffff88810d9e3e00 (size 192):
-  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 73 70 61 63 65 73 00 00  ........spaces..
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000db8b640b>] make_cluster+0x5d/0x360
-    [<000000006a571db4>] configfs_mkdir+0x274/0x730
-    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
-    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
-    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
-    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-unreferenced object 0xffff88810d9e3a00 (size 192):
-  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 63 6f 6d 6d 73 00 00 00  ........comms...
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000a7ef6ad2>] make_cluster+0x82/0x360
-    [<000000006a571db4>] configfs_mkdir+0x274/0x730
-    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
-    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
-    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
-    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/config.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/acpi/bus.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/dlm/config.c b/fs/dlm/config.c
-index 6def89d2209d..10d25b7830bf 100644
---- a/fs/dlm/config.c
-+++ b/fs/dlm/config.c
-@@ -80,6 +80,9 @@ struct dlm_cluster {
- 	unsigned int cl_new_rsb_count;
- 	unsigned int cl_recover_callbacks;
- 	char cl_cluster_name[DLM_LOCKSPACE_LEN];
-+
-+	struct dlm_spaces *sps;
-+	struct dlm_comms *cms;
- };
- 
- static struct dlm_cluster *config_item_to_cluster(struct config_item *i)
-@@ -356,6 +359,9 @@ static struct config_group *make_cluster(struct config_group *g,
- 	if (!cl || !sps || !cms)
- 		goto fail;
- 
-+	cl->sps = sps;
-+	cl->cms = cms;
-+
- 	config_group_init_type_name(&cl->group, name, &cluster_type);
- 	config_group_init_type_name(&sps->ss_group, "spaces", &spaces_type);
- 	config_group_init_type_name(&cms->cs_group, "comms", &comms_type);
-@@ -405,6 +411,9 @@ static void drop_cluster(struct config_group *g, struct config_item *i)
- static void release_cluster(struct config_item *i)
- {
- 	struct dlm_cluster *cl = config_item_to_cluster(i);
-+
-+	kfree(cl->sps);
-+	kfree(cl->cms);
- 	kfree(cl);
- }
- 
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index 6b2c9d68d810..1c13e5fe10d9 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -1184,6 +1184,7 @@ static int __init acpi_init(void)
+ 	init_acpi_device_notify();
+ 	result = acpi_bus_init();
+ 	if (result) {
++		kobject_put(acpi_kobj);
+ 		disable_acpi();
+ 		return result;
+ 	}
 -- 
 2.30.2
 
