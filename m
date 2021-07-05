@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4129D3BC0D1
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FF5B3BC0D3
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233514AbhGEPhk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:37:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58844 "EHLO mail.kernel.org"
+        id S233824AbhGEPhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:37:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233529AbhGEPg2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233533AbhGEPg2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Jul 2021 11:36:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B82161C1D;
-        Mon,  5 Jul 2021 15:32:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5676061C1F;
+        Mon,  5 Jul 2021 15:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499125;
-        bh=fV6bIYL1TAT2KqUVFIlxoCnLkvrPe4BRbeM0ImjmfBM=;
+        s=k20201202; t=1625499127;
+        bh=b4Yuh9ZXGTBdk6of/NfxeZDGAlGbAWPMhlBaB7ZNN9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FIgOT+uJkuTSBD9gsqKJkgDdbNwDG8lrcfXviEqQvqV/43NNvUOrB3bDLl7tQDmRP
-         wEsz1yfpjxP2OCjWDc1fkNMKMImJTargwG9I7EuDy8YxZ27H3k0c+wH6Wrr4gINijZ
-         gWQbbRpzkeWT6wNaiagfBs+PmyHsgJ5b+x5afEE7NwMBtbwXaGkZBQMJnYOGS7oflK
-         koImz0RZjrpYUg5KOQGE2v/tMIhFMbqB0ZtkJgGwc1AiU07zXEq60XPJTWzR04JxPB
-         gN79edWyfW/J8rqVtLDshP8cV88qFh1quavbvS37CQiHHIkED52t3UrmzxK8yoxX8Z
-         HKuWM2Ic1baqg==
+        b=fY/A502FfFnD4cVBayY7BLdLqLkEd2s4e8odCFNyaL/SQ871M+lujeTb9eiNmB1r/
+         vpoU7LiD9OFbKBYmOb1NR8yrgQLCm0/l4Sepd8gca9cVU3ORS5JrczencDB0k5YPj1
+         LIW30s427HMffDOhsvQ5V4EfmTX0i4vKXxobslVZX7KInBFRJ/UpB8/yyz3azbSvP4
+         4Jiv7UPgPctucZbMZmjE0WMYwXXGEGVccZy/YwXr2sfKdjzIUQ7mkpmCoBddYvcYNO
+         mNfBAov70nJIiUumZZxuvXgwdxA6txpalYSHbED4tqwz+/VsTwKbsGcPWQwCXnbZg3
+         1eDdE05oR5Udw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 8/9] ACPI: tables: Add custom DSDT file as makefile prerequisite
-Date:   Mon,  5 Jul 2021 11:31:54 -0400
-Message-Id: <20210705153155.1522423-8-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 9/9] ia64: mca_drv: fix incorrect array size calculation
+Date:   Mon,  5 Jul 2021 11:31:55 -0400
+Message-Id: <20210705153155.1522423-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153155.1522423-1-sashal@kernel.org>
 References: <20210705153155.1522423-1-sashal@kernel.org>
@@ -42,40 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d1059c1b1146870c52f3dac12cb7b6cbf39ed27f ]
+[ Upstream commit c5f320ff8a79501bb59338278336ec43acb9d7e2 ]
 
-A custom DSDT file is mostly used during development or debugging,
-and in that case it is quite likely to want to rebuild the kernel
-after changing ONLY the content of the DSDT.
+gcc points out a mistake in the mca driver that goes back to before the
+git history:
 
-This patch adds the custom DSDT as a prerequisite to tables.o
-to ensure a rebuild if the DSDT file is updated. Make will merge
-the prerequisites from multiple rules for the same target.
+arch/ia64/kernel/mca_drv.c: In function 'init_record_index_pools':
+arch/ia64/kernel/mca_drv.c:346:54: error: expression does not compute the number of elements in this array; element typ
+e is 'int', not 'size_t' {aka 'long unsigned int'} [-Werror=sizeof-array-div]
+  346 |         for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
+      |                                                      ^
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This is the same as sizeof(size_t), which is two shorter than the actual
+array.  Use the ARRAY_SIZE() macro to get the correct calculation instead.
+
+Link: https://lkml.kernel.org/r/20210514214123.875971-1-arnd@kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/ia64/kernel/mca_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
-index 4c5678cfa9c4..c466d7bc861a 100644
---- a/drivers/acpi/Makefile
-+++ b/drivers/acpi/Makefile
-@@ -7,6 +7,11 @@ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
- #
- # ACPI Boot-Time Table Parsing
- #
-+ifeq ($(CONFIG_ACPI_CUSTOM_DSDT),y)
-+tables.o: $(src)/../../include/$(subst $\",,$(CONFIG_ACPI_CUSTOM_DSDT_FILE)) ;
-+
-+endif
-+
- obj-$(CONFIG_ACPI)		+= tables.o
- obj-$(CONFIG_X86)		+= blacklist.o
+diff --git a/arch/ia64/kernel/mca_drv.c b/arch/ia64/kernel/mca_drv.c
+index 94f8bf777afa..3503d488e9b3 100644
+--- a/arch/ia64/kernel/mca_drv.c
++++ b/arch/ia64/kernel/mca_drv.c
+@@ -343,7 +343,7 @@ init_record_index_pools(void)
+ 
+ 	/* - 2 - */
+ 	sect_min_size = sal_log_sect_min_sizes[0];
+-	for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
++	for (i = 1; i < ARRAY_SIZE(sal_log_sect_min_sizes); i++)
+ 		if (sect_min_size > sal_log_sect_min_sizes[i])
+ 			sect_min_size = sal_log_sect_min_sizes[i];
  
 -- 
 2.30.2
