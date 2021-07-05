@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 282E03BC10A
-	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2E33BC106
+	for <lists+stable@lfdr.de>; Mon,  5 Jul 2021 17:40:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbhGEPiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Jul 2021 11:38:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58400 "EHLO mail.kernel.org"
+        id S233732AbhGEPis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Jul 2021 11:38:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232591AbhGEPhK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233127AbhGEPhK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Jul 2021 11:37:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82C3861A11;
-        Mon,  5 Jul 2021 15:32:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B575D6199F;
+        Mon,  5 Jul 2021 15:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625499136;
-        bh=yDH8cV6MFLEEu2EKWdiakBTwPlzjkcvVf4r8ExwE1d8=;
+        s=k20201202; t=1625499137;
+        bh=b4Yuh9ZXGTBdk6of/NfxeZDGAlGbAWPMhlBaB7ZNN9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJn689cJDVHCjngrJ2FSnYTmgG7uRW7dJ/5kc3rOsOrBt/zR8STHmT0GjDC86nzLF
-         Fd1KnYQVinsvkprFJf6BauOP6zENWp07DUOFO4S60IHb/iZThO+jBqb/Ml7fVlJetq
-         tqvBarlFbO6momR1g/S6XJ/ASmzraKAmPLfiTuzyxd8lS3iq39aq5BmlEyu7VX9zcD
-         RWbU/VQghxLV/Q8bx+8Row9aIZqosA2CLGLVNn0hItuSnVbXyeBWe7Jer2idWB+kT0
-         odDFt9Asi/6BK9BpwkSBrXmcyI1Sq0RXAxfcAxDrNk0CQEpm33CaZlnfB8h884yDy3
-         OvX36BJIfsNwQ==
+        b=NBpXU6aGmQRxqPm4h1tC5XbCaKW96/4RjRuoIrWsNyqMc71R+ZhdXSqrwjlTCA96l
+         v7GTRjeqoNJQFGrnNmGOwcWHnonzhSkD/3HxfEZfwfrZhq/GgvxFdv32slMQ2TgiMy
+         T8G9DeHvOXSDZ7y7ea7d+C23VvgQMfKXyNiHIuEqBjNbjceqSZzTBld45xU6rpp/4W
+         VO8cf+3+Ld2a703bukB+GofAcVDSXbMFauSbkzYdT0Z7Qyd3F6OW720HNOOLX+AHwy
+         PPakaVZ9V/eE/Nk62oiqAIgMhDNfl76MVCY5Xux0hswGkR1M2mA6JBkoZguR8jl9qA
+         Fuq7ndKyh10GQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 6/7] platform/x86: toshiba_acpi: Fix missing error code in toshiba_acpi_setup_keyboard()
-Date:   Mon,  5 Jul 2021 11:32:06 -0400
-Message-Id: <20210705153208.1522553-6-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 7/7] ia64: mca_drv: fix incorrect array size calculation
+Date:   Mon,  5 Jul 2021 11:32:07 -0400
+Message-Id: <20210705153208.1522553-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210705153208.1522553-1-sashal@kernel.org>
 References: <20210705153208.1522553-1-sashal@kernel.org>
@@ -44,38 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 28e367127718a9cb85d615a71e152f7acee41bfc ]
+[ Upstream commit c5f320ff8a79501bb59338278336ec43acb9d7e2 ]
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'error'.
+gcc points out a mistake in the mca driver that goes back to before the
+git history:
 
-Eliminate the follow smatch warning:
+arch/ia64/kernel/mca_drv.c: In function 'init_record_index_pools':
+arch/ia64/kernel/mca_drv.c:346:54: error: expression does not compute the number of elements in this array; element typ
+e is 'int', not 'size_t' {aka 'long unsigned int'} [-Werror=sizeof-array-div]
+  346 |         for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
+      |                                                      ^
 
-drivers/platform/x86/toshiba_acpi.c:2834 toshiba_acpi_setup_keyboard()
-warn: missing error code 'error'.
+This is the same as sizeof(size_t), which is two shorter than the actual
+array.  Use the ARRAY_SIZE() macro to get the correct calculation instead.
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Link: https://lore.kernel.org/r/1622628348-87035-1-git-send-email-jiapeng.chong@linux.alibaba.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lkml.kernel.org/r/20210514214123.875971-1-arnd@kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/toshiba_acpi.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/ia64/kernel/mca_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/toshiba_acpi.c b/drivers/platform/x86/toshiba_acpi.c
-index 1ff95b5a429d..974d4ac78d10 100644
---- a/drivers/platform/x86/toshiba_acpi.c
-+++ b/drivers/platform/x86/toshiba_acpi.c
-@@ -2448,6 +2448,7 @@ static int toshiba_acpi_setup_keyboard(struct toshiba_acpi_dev *dev)
+diff --git a/arch/ia64/kernel/mca_drv.c b/arch/ia64/kernel/mca_drv.c
+index 94f8bf777afa..3503d488e9b3 100644
+--- a/arch/ia64/kernel/mca_drv.c
++++ b/arch/ia64/kernel/mca_drv.c
+@@ -343,7 +343,7 @@ init_record_index_pools(void)
  
- 	if (!dev->info_supported && !dev->system_event_supported) {
- 		pr_warn("No hotkey query interface found\n");
-+		error = -EINVAL;
- 		goto err_remove_filter;
- 	}
+ 	/* - 2 - */
+ 	sect_min_size = sal_log_sect_min_sizes[0];
+-	for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
++	for (i = 1; i < ARRAY_SIZE(sal_log_sect_min_sizes); i++)
+ 		if (sect_min_size > sal_log_sect_min_sizes[i])
+ 			sect_min_size = sal_log_sect_min_sizes[i];
  
 -- 
 2.30.2
