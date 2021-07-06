@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D703BCCA7
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 259ED3BCC40
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:16:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233029AbhGFLTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54440 "EHLO mail.kernel.org"
+        id S232532AbhGFLSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:18:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232542AbhGFLS3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:18:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C93DE61C28;
-        Tue,  6 Jul 2021 11:15:50 +0000 (UTC)
+        id S232548AbhGFLSb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:18:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04A8F61A14;
+        Tue,  6 Jul 2021 11:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570151;
-        bh=shD/dtpzmLlRN3eevtwaao4gYZqp1iic4C5S5c6TrC0=;
+        s=k20201202; t=1625570152;
+        bh=OZVZebsjwdl1JxRsp/zcRmFGerLEwI0om/fVkc0q93U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fYHbjeIfX1Vbpu7dzd73KQmVapjH2UYyvkXEbcvtPYFsPxe9um+GGHkAi3fg/uFwp
-         YWrpHvDuF3WoDlM+Fh/bzVHz5hLDVN3KQlHJA/9MzbELxprvUggAb16zqJEhhg0tKk
-         QGYO662v37FuhKHkpXFI7YT1JV5gCs8RYUD9kFUSqn9BjbEE+58fGOkeZIgi2zSGFm
-         y4iqbwh1LVKN1dlPggg9DKVKOv2TAxdXBHcOj2CsQLEXrZYf8r9nsCRIJ6LNrjPVYo
-         HGtTj1xfKLcOygD57YzROS8uHcBPLeZJzfp806e8vdmKg8PaZJdmBZTd96n90EF5Vl
-         h1Dut0d4qTLOg==
+        b=ez1ij4PznlRxb/a2xK2rPUDkBLSmDt6NNwBGwZ5xmVSA66OBE52s8lH/q8GWECsRP
+         cZTupCOWJq9uWPncfodiDTqQ22vU5Igrb6tU+Ee2k7qUpJv4K/Vo9e8aqO0tw+AwP0
+         tQUd8NrGwLHY9EA1LHOG0Ni/BRQS6fjVLlPPT8E/MYfyqY5b4TFHVpp6tnBnr5Kf9n
+         3uEgEPDEyzuLM+XIKcOho8vGu31Mgce67Z2HtTu0j4hab41Fm84sciftGTW24tC1tJ
+         8X8BbI/rHtWUuCcPQmzqaE20RZJ0LEa1Ml2vQWToQ81iczmM5FzWT1CTVu5vzn6BK+
+         wz/XqoKlNzqhw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joe Thornber <ejt@redhat.com>, Mike Snitzer <snitzer@redhat.com>,
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.13 074/189] dm space maps: don't reset space map allocation cursor when committing
-Date:   Tue,  6 Jul 2021 07:12:14 -0400
-Message-Id: <20210706111409.2058071-74-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 075/189] dm writecache: don't split bios when overwriting contiguous cache content
+Date:   Tue,  6 Jul 2021 07:12:15 -0400
+Message-Id: <20210706111409.2058071-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -41,87 +42,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
+[ Upstream commit ee50cc19d80e9b9a8283d1fb517a778faf2f6899 ]
 
-Current commit code resets the place where the search for free blocks
-will begin back to the start of the metadata device.  There are a couple
-of repercussions to this:
+If dm-writecache overwrites existing cached data, it splits the
+incoming bio into many block-sized bios. The I/O scheduler does merge
+these bios into one large request but this needless splitting and
+merging causes performance degradation.
 
-- The first allocation after the commit is likely to take longer than
-  normal as it searches for a free block in an area that is likely to
-  have very few free blocks (if any).
+Fix this by avoiding bio splitting if the cache target area that is
+being overwritten is contiguous.
 
-- Any free blocks it finds will have been recently freed.  Reusing them
-  means we have fewer old copies of the metadata to aid recovery from
-  hardware error.
-
-Fix these issues by leaving the cursor alone, only resetting when the
-search hits the end of the metadata device.
-
-Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
- drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ drivers/md/dm-writecache.c | 38 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 30 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
-index 61f56909e00b..4f8069bb0481 100644
---- a/drivers/md/persistent-data/dm-space-map-disk.c
-+++ b/drivers/md/persistent-data/dm-space-map-disk.c
-@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smd->begin and the end of the metadata device.
-+		 * We search before smd->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
-+	}
-+
- 	if (r)
- 		return r;
+diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
+index aecc246ade26..a44007297e63 100644
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -1360,14 +1360,18 @@ static int writecache_map(struct dm_target *ti, struct bio *bio)
+ 	} else {
+ 		do {
+ 			bool found_entry = false;
++			bool search_used = false;
+ 			if (writecache_has_error(wc))
+ 				goto unlock_error;
+ 			e = writecache_find_entry(wc, bio->bi_iter.bi_sector, 0);
+ 			if (e) {
+-				if (!writecache_entry_is_committed(wc, e))
++				if (!writecache_entry_is_committed(wc, e)) {
++					search_used = true;
+ 					goto bio_copy;
++				}
+ 				if (!WC_MODE_PMEM(wc) && !e->write_in_progress) {
+ 					wc->overwrote_committed = true;
++					search_used = true;
+ 					goto bio_copy;
+ 				}
+ 				found_entry = true;
+@@ -1404,13 +1408,31 @@ static int writecache_map(struct dm_target *ti, struct bio *bio)
+ 				sector_t current_cache_sec = start_cache_sec + (bio_size >> SECTOR_SHIFT);
  
-@@ -194,7 +202,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
- 		return r;
- 
- 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
--	smd->begin = 0;
- 	smd->nr_allocated_this_transaction = 0;
- 
- 	return 0;
-diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
-index 9e3c64ec2026..da439ac85796 100644
---- a/drivers/md/persistent-data/dm-space-map-metadata.c
-+++ b/drivers/md/persistent-data/dm-space-map-metadata.c
-@@ -452,6 +452,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smm->begin and the end of the metadata device.
-+		 * We search before smm->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
-+	}
-+
- 	if (r)
- 		return r;
- 
-@@ -503,7 +511,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
- 		return r;
- 
- 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
--	smm->begin = 0;
- 	smm->allocated_this_transaction = 0;
- 
- 	return 0;
+ 				while (bio_size < bio->bi_iter.bi_size) {
+-					struct wc_entry *f = writecache_pop_from_freelist(wc, current_cache_sec);
+-					if (!f)
+-						break;
+-					write_original_sector_seq_count(wc, f, bio->bi_iter.bi_sector +
+-									(bio_size >> SECTOR_SHIFT), wc->seq_count);
+-					writecache_insert_entry(wc, f);
+-					wc->uncommitted_blocks++;
++					if (!search_used) {
++						struct wc_entry *f = writecache_pop_from_freelist(wc, current_cache_sec);
++						if (!f)
++							break;
++						write_original_sector_seq_count(wc, f, bio->bi_iter.bi_sector +
++										(bio_size >> SECTOR_SHIFT), wc->seq_count);
++						writecache_insert_entry(wc, f);
++						wc->uncommitted_blocks++;
++					} else {
++						struct wc_entry *f;
++						struct rb_node *next = rb_next(&e->rb_node);
++						if (!next)
++							break;
++						f = container_of(next, struct wc_entry, rb_node);
++						if (f != e + 1)
++							break;
++						if (read_original_sector(wc, f) !=
++						    read_original_sector(wc, e) + (wc->block_size >> SECTOR_SHIFT))
++							break;
++						if (unlikely(f->write_in_progress))
++							break;
++						if (writecache_entry_is_committed(wc, f))
++							wc->overwrote_committed = true;
++						e = f;
++					}
+ 					bio_size += wc->block_size;
+ 					current_cache_sec += wc->block_size >> SECTOR_SHIFT;
+ 				}
 -- 
 2.30.2
 
