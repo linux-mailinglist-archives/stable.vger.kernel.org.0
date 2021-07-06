@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A33CE3BD4DE
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9313BD4DF
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239252AbhGFMRu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:17:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42668 "EHLO mail.kernel.org"
+        id S234778AbhGFMRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:17:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236215AbhGFLew (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:34:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E617F61E12;
-        Tue,  6 Jul 2021 11:23:12 +0000 (UTC)
+        id S236259AbhGFLe6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:34:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5316761E19;
+        Tue,  6 Jul 2021 11:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570593;
-        bh=OM0QNoOAzXMgTPxuxyfZQkJXBzjgf6bYaRl08h2/2Kc=;
+        s=k20201202; t=1625570596;
+        bh=XTHGgfCtlB80EBeLshK0W/9LLK0O1nil14S3ALd6SGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kakDgglNvEmXlGqR0/5vnN9Jaas6KGddaN+6hZPhI2USTOplC6e12VOAXYwCXG9oE
-         HQsp8/CUmrJB1hCsmTKUr/uUGb2CprY6B8+oiIY8FmjzPiHZyrt5WNSw0AeSQbS5/m
-         2fiJW5TGOs41W8KS6CxVtzZx6rLKavpz7NkxIcl0zsgNbb3m3e7yihkpmPIKHrTU99
-         ex/TwhxB4sR6UaLzrHkXAdwCufwxfjib1UEUO3SbWd3OGADOjOsXDLFUfc1V08N2zG
-         w7Wpv+LrhUvIyk8h5LHVn64KcLIeuqTyuxDTzxgAAYBE+J63FXK+oznUwIrdo9A9wA
-         5bTPHLgS6xR/g==
+        b=WcqelTdaPojC/ywwP3/4PJr0G7cLDoBBS+zoZYw+UIJ0bFuk0+XiwzZOID/nlqBqT
+         lvWA9O2WEGrgwI5MGYcwXA5OU2t88w/oe9R2rQ2LhIPwrMRXQ+wAjgfi78nB2f+qhu
+         uQ6Sug3troNxL0czAjIdmZ36ctS4I/Q3If1I+9N7ncnfHG3xmtEGQR4mE7VFBtEeXQ
+         tzYOk9Ih8dehjbDwpl+RScl+jTf5TBU0x6y6XRgePPqWgHcDICPLxj16ZnMT1nPyEE
+         1r0Iy+e6PQTIa6/SUbiKvegTILprvNjExJDETXzkce+rqnV6/ixg4qLbH7XmMmlnAm
+         w1Ly7j6P3Qkxw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joe Thornber <ejt@redhat.com>, Mike Snitzer <snitzer@redhat.com>,
+Cc:     Damien Le Moal <damien.lemoal@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.10 054/137] dm space maps: don't reset space map allocation cursor when committing
-Date:   Tue,  6 Jul 2021 07:20:40 -0400
-Message-Id: <20210706112203.2062605-54-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 056/137] dm: Fix dm_accept_partial_bio() relative to zone management commands
+Date:   Tue,  6 Jul 2021 07:20:42 -0400
+Message-Id: <20210706112203.2062605-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -41,87 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
+[ Upstream commit 6842d264aa5205da338b6dcc6acfa2a6732558f1 ]
 
-Current commit code resets the place where the search for free blocks
-will begin back to the start of the metadata device.  There are a couple
-of repercussions to this:
+Fix dm_accept_partial_bio() to actually check that zone management
+commands are not passed as explained in the function documentation
+comment. Also, since a zone append operation cannot be split, add
+REQ_OP_ZONE_APPEND as a forbidden command.
 
-- The first allocation after the commit is likely to take longer than
-  normal as it searches for a free block in an area that is likely to
-  have very few free blocks (if any).
+White lines are added around the group of BUG_ON() calls to make the
+code more legible.
 
-- Any free blocks it finds will have been recently freed.  Reusing them
-  means we have fewer old copies of the metadata to aid recovery from
-  hardware error.
-
-Fix these issues by leaving the cursor alone, only resetting when the
-search hits the end of the metadata device.
-
-Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
- drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ drivers/md/dm.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
-index bf4c5e2ccb6f..e0acae7a3815 100644
---- a/drivers/md/persistent-data/dm-space-map-disk.c
-+++ b/drivers/md/persistent-data/dm-space-map-disk.c
-@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smd->begin and the end of the metadata device.
-+		 * We search before smd->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
-+	}
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 638c04f9e832..19a70f434029 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1230,8 +1230,8 @@ static int dm_dax_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff,
+ 
+ /*
+  * A target may call dm_accept_partial_bio only from the map routine.  It is
+- * allowed for all bio types except REQ_PREFLUSH, REQ_OP_ZONE_RESET,
+- * REQ_OP_ZONE_OPEN, REQ_OP_ZONE_CLOSE and REQ_OP_ZONE_FINISH.
++ * allowed for all bio types except REQ_PREFLUSH, REQ_OP_ZONE_* zone management
++ * operations and REQ_OP_ZONE_APPEND (zone append writes).
+  *
+  * dm_accept_partial_bio informs the dm that the target only wants to process
+  * additional n_sectors sectors of the bio and the rest of the data should be
+@@ -1261,9 +1261,13 @@ void dm_accept_partial_bio(struct bio *bio, unsigned n_sectors)
+ {
+ 	struct dm_target_io *tio = container_of(bio, struct dm_target_io, clone);
+ 	unsigned bi_size = bio->bi_iter.bi_size >> SECTOR_SHIFT;
 +
- 	if (r)
- 		return r;
- 
-@@ -199,7 +207,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
- 		return r;
- 
- 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
--	smd->begin = 0;
- 	smd->nr_allocated_this_transaction = 0;
- 
- 	r = sm_disk_get_nr_free(sm, &nr_free);
-diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
-index 9e3c64ec2026..da439ac85796 100644
---- a/drivers/md/persistent-data/dm-space-map-metadata.c
-+++ b/drivers/md/persistent-data/dm-space-map-metadata.c
-@@ -452,6 +452,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smm->begin and the end of the metadata device.
-+		 * We search before smm->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
-+	}
+ 	BUG_ON(bio->bi_opf & REQ_PREFLUSH);
++	BUG_ON(op_is_zone_mgmt(bio_op(bio)));
++	BUG_ON(bio_op(bio) == REQ_OP_ZONE_APPEND);
+ 	BUG_ON(bi_size > *tio->len_ptr);
+ 	BUG_ON(n_sectors > bi_size);
 +
- 	if (r)
- 		return r;
- 
-@@ -503,7 +511,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
- 		return r;
- 
- 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
--	smm->begin = 0;
- 	smm->allocated_this_transaction = 0;
- 
- 	return 0;
+ 	*tio->len_ptr -= bi_size - n_sectors;
+ 	bio->bi_iter.bi_size = n_sectors << SECTOR_SHIFT;
+ }
 -- 
 2.30.2
 
