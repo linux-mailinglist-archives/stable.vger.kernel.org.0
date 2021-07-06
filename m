@@ -2,82 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0710D3BD53A
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D353BD69E
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:38:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240053AbhGFMUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:20:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47606 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238110AbhGFLjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:39:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00F6661FA1;
-        Tue,  6 Jul 2021 11:30:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625571009;
-        bh=WXq/Ij1/cKkAuJkhQc6Fzv5tex8hpFP0eYifhDzDPDY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JPzK4xkrWtz1BTWIW88/isGuw9l9pf+YB1l0WVKEYWHxfggMSjjeAGWNyi/TxdaxW
-         bRbOGAWbEHR7GrmizyOCwCc44SN5oOg3NrI1b76si1cbIsqV1+GBnZhHq5wZfZ1ph/
-         cpc3Ic7Sa/d+pPR7h4iK/g9MjmBC+53Urk3QFBVQHSHClLWcZx+k7AX0d5cz1rMKDd
-         s40MD84Oy3571LUiWa28qelYImMYXX2uVN03ZkPgNYfQzS4Rg5KXutGk9RmLF01N55
-         2TTC/Li90I3KD2UcrCDcDJNt6KdiRP6A1FttPvjV4uzkJo2u8VHZF0GXa7PoB73Q6a
-         yFX3cSSJ8NPWw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-sctp@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 31/31] sctp: add size validation when walking chunks
-Date:   Tue,  6 Jul 2021 07:29:31 -0400
-Message-Id: <20210706112931.2066397-31-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210706112931.2066397-1-sashal@kernel.org>
-References: <20210706112931.2066397-1-sashal@kernel.org>
+        id S233869AbhGFMlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:41:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57012 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344041AbhGFMV2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Jul 2021 08:21:28 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26D1C035467
+        for <stable@vger.kernel.org>; Tue,  6 Jul 2021 05:13:20 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id l17-20020a9d6a910000b029048a51f0bc3cso9562615otq.13
+        for <stable@vger.kernel.org>; Tue, 06 Jul 2021 05:13:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=xT5Ejeo6/6cwzsWp7a4nezNTb+upxL4oHKLSsxXG9+U=;
+        b=BBK0tQSZB5GYeyBtHejdC1anIZkCyMbwnLVHuJMSkIWwGOzhz1G+m52FfyPF0F6KxR
+         FxE0iQMLRC/p3mCDLQM6JcQD99WhkSt1Sl84fgkvDw/3vHIt0DFuoH1B9bEEc4NqKlAp
+         31iM8CNlY7hN/HPdl8k8+UbtiYCS2H1kz5UhCPqlG2MJ5inq2uRYLFhKZJQ3KzRYlYqT
+         qxVQRd5ncXOI0vpvLATjFy/vbgI00IAWNPqocMQhsOSUDC1hiY0JFvWSCnoh5AftvFiW
+         yyt8xYToXIZ5it2cktweDsL1LS1xW/123oeA/sBJm8x9B9YkncE3B8mOgQJdKazy7wC4
+         bZqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=xT5Ejeo6/6cwzsWp7a4nezNTb+upxL4oHKLSsxXG9+U=;
+        b=lcYqzO7ZRayzh3utytojefIAzWJZUQr124bS5v1rsy1udfc2tFru8qBG3JjkAvtI4n
+         GBYV3sf06+kVqfoilOPjyVe9NVQ6Jf5QJ2bhBR0dmskuNnaq2cyInR0E31H3C4oHD63N
+         896eH4tybyGDBwGGu8JXz5QkfulNUq2Iu7GzwIQfD2lbN/ftWrLdXh9Ztg752W/zWY5s
+         h7o4bsHKuPWHUDjKxuZxTLbiYYhdddDzIHk9E0imKwclCvx0zhUD1+pd2N1HXAGlEm22
+         VACufhdhXAuxQwy1ZOC6seIJIdJVGsqTMZawJfW8FytgV/lA/pDCzn8KAEIAlsh1axZD
+         +BxA==
+X-Gm-Message-State: AOAM532+XscQFioEvZ8x5Sr/5jG4TxB8XHxjzecz9ThyEVrVJpXrvJoQ
+        RJWNCt7X1vIURYVgYAg3+9G1rpGiq3vNXOYnBe4=
+X-Google-Smtp-Source: ABdhPJz99xqUmMjhbzfdyvnWbBJK8Hxl1VXfP9KziRP4QTNPzCUOlgkqlWrTsJ1wInf6Of2AHY7cPOLmw9E2zUZOyZY=
+X-Received: by 2002:a05:6830:34a2:: with SMTP id c34mr14717318otu.59.1625573600232;
+ Tue, 06 Jul 2021 05:13:20 -0700 (PDT)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a9d:8c3:0:0:0:0:0 with HTTP; Tue, 6 Jul 2021 05:13:19 -0700 (PDT)
+Reply-To: alexankobe22@gmail.com
+From:   Alexander Kobe <miriamluo910@gmail.com>
+Date:   Tue, 6 Jul 2021 05:13:19 -0700
+Message-ID: <CAD=chZvt2DZEACsDKPdeHQZ04=nBx1DFMEMX5zugGZx8HgXm2g@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-
-[ Upstream commit 50619dbf8db77e98d821d615af4f634d08e22698 ]
-
-The first chunk in a packet is ensured to be present at the beginning of
-sctp_rcv(), as a packet needs to have at least 1 chunk. But the second
-one, may not be completely available and ch->length can be over
-uninitialized memory.
-
-Fix here is by only trying to walk on the next chunk if there is enough to
-hold at least the header, and then proceed with the ch->length validation
-that is already there.
-
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/sctp/input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index 9fa89a35afcd..9dcc18db9918 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -1086,7 +1086,7 @@ static struct sctp_association *__sctp_rcv_walk_lookup(struct net *net,
- 
- 		ch = (sctp_chunkhdr_t *) ch_end;
- 		chunk_num++;
--	} while (ch_end < skb_tail_pointer(skb));
-+	} while (ch_end + sizeof(*ch) < skb_tail_pointer(skb));
- 
- 	return asoc;
- }
 -- 
-2.30.2
-
+How are you? I am writing to confirm if you received my previous
+message. I will proceed further immediately i receive your response.
+Have a nice day.
