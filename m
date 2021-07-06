@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 474EB3BD114
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:36:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F0903BD119
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236120AbhGFLiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:38:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42474 "EHLO mail.kernel.org"
+        id S234465AbhGFLiV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:38:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234453AbhGFLdc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:33:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1B5461D1B;
-        Tue,  6 Jul 2021 11:22:54 +0000 (UTC)
+        id S234566AbhGFLdf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:33:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3341461D25;
+        Tue,  6 Jul 2021 11:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570575;
-        bh=fkdniDa+xDCETYQggD9oaebwsk6k8b5LwB+FE25nR24=;
+        s=k20201202; t=1625570577;
+        bh=VOd0m6jZONjoND+jTrjgd4uo7g4q1WQ+8SkWRsDct7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kUhVgvI/BLoF7raQZLrIgHfD/TJtS6WMyLRdvdZpzVsyA3oBb83tEN85Gjuc9xyT2
-         VDyWiBgY4PSgUzssz/MwNUhSZaonARyPrrcoj7DTBn58Vt7sirWW4bcjSLg1rAUVWS
-         wbFjD7Boh/YL3QzD22ACQgAhUX2rjYKF7TyjQbRhhdgGz1nF35q9I541nNzEFhdZMK
-         0v60Q+YFgHVpZ65tDBMxVgvR+wLTYE/bkWm8y3xn/XXR+T5INUTlfhw/g1kDrRdANC
-         IQsdV+44ScjucIdeNx2eafv9l4+nMzdLTKpqewgWnJvvUYqh4B4jkIMQGYPlwx24Db
-         PsQGD3gpKYoAQ==
+        b=oERb9Cb16oUySdmlv7LJbK49ZAO38la9al8RCHl7VtAyoxYY3EwNeR4uY+PaHL9Vu
+         tTIs09EqviFa4gWH/2K9UNbm4aY6KAkR9GYP3UX+/4l2ZofaY0tqvFIHHOEtcgIyTL
+         XK4+sAgvik0O8Rdww7LRpBTDBTauFtMjOecZf3joNAYHQpeI8PhoJFlR0tAxKRUBKu
+         GF8cO3WS1RNL4If/tnNZ3yUj1qe6RDIhNYpObBrm1LysIQCKFhTDRk+R/ZivMZBEWV
+         MVGDuNe7MUrJ4BhY8y61xw/DFtIi4zutXMkuQtzaj1ywTN3glYE0O/4V56zk5RS/2R
+         FGWBVtobHQD5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Bee <knaerzche@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 040/137] drm: rockchip: add missing registers for RK3066
-Date:   Tue,  6 Jul 2021 07:20:26 -0400
-Message-Id: <20210706112203.2062605-40-sashal@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 041/137] net: stmmac: the XPCS obscures a potential "PHY not found" error
+Date:   Tue,  6 Jul 2021 07:20:27 -0400
+Message-Id: <20210706112203.2062605-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -44,78 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Bee <knaerzche@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 742203cd56d150eb7884eb45abb7d9dbc2bdbf04 ]
+[ Upstream commit 4751d2aa321f2828d8c5d2f7ce4ed18a01e47f46 ]
 
-Add dither_up, dsp_lut_en and data_blank registers to enable their
-respective functionality for RK3066's VOP.
+stmmac_mdio_register() has logic to search for PHYs on the MDIO bus and
+assign them IRQ lines, as well as to set priv->plat->phy_addr.
 
-While at that also fix .rb_swap and .format registers for all windows,
-which have to be set though RK3066_SYS_CTRL1 register.
-Also remove .scl from win1: Scaling is only supported on the primary
-plane.
+If no PHY is found, the "found" variable remains set to 0 and the
+function errors out.
 
-Signed-off-by: Alex Bee <knaerzche@gmail.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210528130554.72191-4-knaerzche@gmail.com
+After the introduction of commit f213bbe8a9d6 ("net: stmmac: Integrate
+it with DesignWare XPCS"), the "found" variable was immediately reused
+for searching for a PCS on the same MDIO bus.
+
+This can result in 2 types of potential problems (none of them seems to
+be seen on the only Intel system that sets has_xpcs = true, otherwise it
+would have been reported):
+
+1. If a PCS is found but a PHY is not, then the code happily exits with
+   no error. One might say "yes, but this is not possible, because
+   of_mdiobus_register will probe a PHY for all MDIO addresses,
+   including for the XPCS, so if an XPCS exists, then a PHY certainly
+   exists too". Well, that is not true, see intel_mgbe_common_data():
+
+	/* Ensure mdio bus scan skips intel serdes and pcs-xpcs */
+	plat->mdio_bus_data->phy_mask = 1 << INTEL_MGBE_ADHOC_ADDR;
+	plat->mdio_bus_data->phy_mask |= 1 << INTEL_MGBE_XPCS_ADDR;
+
+2. A PHY is found but an MDIO device with the XPCS PHY ID isn't, and in
+   that case, the error message will be "No PHY found". Confusing.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20210527155959.3270478-1-olteanv@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_vop_reg.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ .../net/ethernet/stmicro/stmmac/stmmac_mdio.c | 21 +++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
-index b8dcee64a1f7..a6fe03c3748a 100644
---- a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
-@@ -349,8 +349,8 @@ static const struct vop_win_phy rk3066_win0_data = {
- 	.nformats = ARRAY_SIZE(formats_win_full),
- 	.format_modifiers = format_modifiers_win_full,
- 	.enable = VOP_REG(RK3066_SYS_CTRL1, 0x1, 0),
--	.format = VOP_REG(RK3066_SYS_CTRL0, 0x7, 4),
--	.rb_swap = VOP_REG(RK3066_SYS_CTRL0, 0x1, 19),
-+	.format = VOP_REG(RK3066_SYS_CTRL1, 0x7, 4),
-+	.rb_swap = VOP_REG(RK3066_SYS_CTRL1, 0x1, 19),
- 	.act_info = VOP_REG(RK3066_WIN0_ACT_INFO, 0x1fff1fff, 0),
- 	.dsp_info = VOP_REG(RK3066_WIN0_DSP_INFO, 0x0fff0fff, 0),
- 	.dsp_st = VOP_REG(RK3066_WIN0_DSP_ST, 0x1fff1fff, 0),
-@@ -361,13 +361,12 @@ static const struct vop_win_phy rk3066_win0_data = {
- };
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c
+index b2a707e2ef43..678726c62a8a 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c
+@@ -441,6 +441,12 @@ int stmmac_mdio_register(struct net_device *ndev)
+ 		found = 1;
+ 	}
  
- static const struct vop_win_phy rk3066_win1_data = {
--	.scl = &rk3066_win_scl,
- 	.data_formats = formats_win_full,
- 	.nformats = ARRAY_SIZE(formats_win_full),
- 	.format_modifiers = format_modifiers_win_full,
- 	.enable = VOP_REG(RK3066_SYS_CTRL1, 0x1, 1),
--	.format = VOP_REG(RK3066_SYS_CTRL0, 0x7, 7),
--	.rb_swap = VOP_REG(RK3066_SYS_CTRL0, 0x1, 23),
-+	.format = VOP_REG(RK3066_SYS_CTRL1, 0x7, 7),
-+	.rb_swap = VOP_REG(RK3066_SYS_CTRL1, 0x1, 23),
- 	.act_info = VOP_REG(RK3066_WIN1_ACT_INFO, 0x1fff1fff, 0),
- 	.dsp_info = VOP_REG(RK3066_WIN1_DSP_INFO, 0x0fff0fff, 0),
- 	.dsp_st = VOP_REG(RK3066_WIN1_DSP_ST, 0x1fff1fff, 0),
-@@ -382,8 +381,8 @@ static const struct vop_win_phy rk3066_win2_data = {
- 	.nformats = ARRAY_SIZE(formats_win_lite),
- 	.format_modifiers = format_modifiers_win_lite,
- 	.enable = VOP_REG(RK3066_SYS_CTRL1, 0x1, 2),
--	.format = VOP_REG(RK3066_SYS_CTRL0, 0x7, 10),
--	.rb_swap = VOP_REG(RK3066_SYS_CTRL0, 0x1, 27),
-+	.format = VOP_REG(RK3066_SYS_CTRL1, 0x7, 10),
-+	.rb_swap = VOP_REG(RK3066_SYS_CTRL1, 0x1, 27),
- 	.dsp_info = VOP_REG(RK3066_WIN2_DSP_INFO, 0x0fff0fff, 0),
- 	.dsp_st = VOP_REG(RK3066_WIN2_DSP_ST, 0x1fff1fff, 0),
- 	.yrgb_mst = VOP_REG(RK3066_WIN2_MST, 0xffffffff, 0),
-@@ -408,6 +407,9 @@ static const struct vop_common rk3066_common = {
- 	.dither_down_en = VOP_REG(RK3066_DSP_CTRL0, 0x1, 11),
- 	.dither_down_mode = VOP_REG(RK3066_DSP_CTRL0, 0x1, 10),
- 	.dsp_blank = VOP_REG(RK3066_DSP_CTRL1, 0x1, 24),
-+	.dither_up = VOP_REG(RK3066_DSP_CTRL0, 0x1, 9),
-+	.dsp_lut_en = VOP_REG(RK3066_SYS_CTRL1, 0x1, 31),
-+	.data_blank = VOP_REG(RK3066_DSP_CTRL1, 0x1, 25),
- };
++	if (!found && !mdio_node) {
++		dev_warn(dev, "No PHY found\n");
++		err = -ENODEV;
++		goto no_phy_found;
++	}
++
+ 	/* Try to probe the XPCS by scanning all addresses. */
+ 	if (priv->hw->xpcs) {
+ 		struct mdio_xpcs_args *xpcs = &priv->hw->xpcs_args;
+@@ -449,6 +455,7 @@ int stmmac_mdio_register(struct net_device *ndev)
  
- static const struct vop_win_data rk3066_vop_win_data[] = {
+ 		xpcs->bus = new_bus;
+ 
++		found = 0;
+ 		for (addr = 0; addr < max_addr; addr++) {
+ 			xpcs->addr = addr;
+ 
+@@ -458,13 +465,12 @@ int stmmac_mdio_register(struct net_device *ndev)
+ 				break;
+ 			}
+ 		}
+-	}
+ 
+-	if (!found && !mdio_node) {
+-		dev_warn(dev, "No PHY found\n");
+-		mdiobus_unregister(new_bus);
+-		mdiobus_free(new_bus);
+-		return -ENODEV;
++		if (!found && !mdio_node) {
++			dev_warn(dev, "No XPCS found\n");
++			err = -ENODEV;
++			goto no_xpcs_found;
++		}
+ 	}
+ 
+ bus_register_done:
+@@ -472,6 +478,9 @@ int stmmac_mdio_register(struct net_device *ndev)
+ 
+ 	return 0;
+ 
++no_xpcs_found:
++no_phy_found:
++	mdiobus_unregister(new_bus);
+ bus_register_fail:
+ 	mdiobus_free(new_bus);
+ 	return err;
 -- 
 2.30.2
 
