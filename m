@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1258F3BD530
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1125D3BD53F
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235160AbhGFMTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:19:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47620 "EHLO mail.kernel.org"
+        id S236051AbhGFMTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:19:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237164AbhGFLf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93EA861ECD;
-        Tue,  6 Jul 2021 11:25:48 +0000 (UTC)
+        id S237172AbhGFLf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:35:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7228961EB7;
+        Tue,  6 Jul 2021 11:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570749;
-        bh=iEXuc2D8om0atvMRk10gMHiPfJTXx2mXNvzdvpuYWCw=;
+        s=k20201202; t=1625570752;
+        bh=5tDp/ZueAwz4bjmm/8YY1xZ7y9gXCB+4EX/TPbZVNk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NfmKmCd85BMIZb9mjaduw0sRBOSGgi0Xb2J8bb1tMLBQUoE9HhKAURNCBXYadXb3L
-         Ys1eAiVTBfAy/iY5q61u2oBX5iN9hEsymFtmJjlbFcKrEpuKQFBQ/4PI3RKSpqO5Dm
-         vEtFnqVD5qGbTBQG2B0U9di+FIYCn2JgWxL4KyjOD3B5DrotQ8YGRKDB+cy/cdmF9E
-         LQK4IKWdQlMHawe6bHvjDc7brTjWfUJeA+dTgrS/VZNIR3/DngcdFjaX7DeKQwq2Nb
-         SiLciUgI5nxIftVb7lb8cLVxBagYf+N3UrhJEPmTfE3vevw7mdNNHqycG2jdV8n2Lj
-         u/c85pRRn8F3w==
+        b=AY4yKzukE8h/dLQteHUOUUZspIAy7nlqrAAf05bwDkSrT/Zp/4I7CxFjy0h3qSSj0
+         5V2jFYIigC3Qw7SiuVEwks0joiWyAY6kvSPCvZVlw6YDZp0z9nkbsSi0mGIuWpk6Vd
+         9msgG1AglgNorW7aluf3dCoTtuIp815cLvSRhxFfQ/SRkrqUejYYzxI6nKTonlLaVi
+         wBoKI0vxhmNbwLqQUTuOFVHQSMEsNtMrBGHpFDEmGtEYUwS4ULBhHKDGFscZJ3Ijed
+         sZHmso5IO3wozXGsMtJ7z0vj0uHByDyLYsUROrpkJjqlM3AFHwWJcTM+ePAauFampk
+         ZogTiEefxi7qA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wesley Chalmers <Wesley.Chalmers@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 37/74] drm/amd/display: Set DISPCLK_MAX_ERRDET_CYCLES to 7
-Date:   Tue,  6 Jul 2021 07:24:25 -0400
-Message-Id: <20210706112502.2064236-37-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 39/74] fjes: check return value after calling platform_get_resource()
+Date:   Tue,  6 Jul 2021 07:24:27 -0400
+Message-Id: <20210706112502.2064236-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112502.2064236-1-sashal@kernel.org>
 References: <20210706112502.2064236-1-sashal@kernel.org>
@@ -46,37 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Chalmers <Wesley.Chalmers@amd.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3577e1678772ce3ede92af3a75b44a4b76f9b4ad ]
+[ Upstream commit f18c11812c949553d2b2481ecaa274dd51bed1e7 ]
 
-[WHY]
-DISPCLK_MAX_ERRDET_CYCLES must be 7 to prevent connection loss when
-changing DENTIST_DISPCLK_WDIVIDER from 126 to 127 and back.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Stylon Wang <stylon.wang@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/fjes/fjes_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 083c42e521f5..03a2e1d7f067 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -126,7 +126,7 @@ void dcn20_dccg_init(struct dce_hwseq *hws)
- 	REG_WRITE(MILLISECOND_TIME_BASE_DIV, 0x1186a0);
+diff --git a/drivers/net/fjes/fjes_main.c b/drivers/net/fjes/fjes_main.c
+index 91a1059517f5..b89b4a3800a4 100644
+--- a/drivers/net/fjes/fjes_main.c
++++ b/drivers/net/fjes/fjes_main.c
+@@ -1262,6 +1262,10 @@ static int fjes_probe(struct platform_device *plat_dev)
+ 	adapter->interrupt_watch_enable = false;
  
- 	/* This value is dependent on the hardware pipeline delay so set once per SOC */
--	REG_WRITE(DISPCLK_FREQ_CHANGE_CNTL, 0x801003c);
-+	REG_WRITE(DISPCLK_FREQ_CHANGE_CNTL, 0xe01003c);
- }
- void dcn20_display_init(struct dc *dc)
- {
+ 	res = platform_get_resource(plat_dev, IORESOURCE_MEM, 0);
++	if (!res) {
++		err = -EINVAL;
++		goto err_free_control_wq;
++	}
+ 	hw->hw_res.start = res->start;
+ 	hw->hw_res.size = resource_size(res);
+ 	hw->hw_res.irq = platform_get_irq(plat_dev, 0);
 -- 
 2.30.2
 
