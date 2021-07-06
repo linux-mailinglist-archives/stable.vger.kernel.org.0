@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C513BD14B
+	by mail.lfdr.de (Postfix) with ESMTP id D96173BD14D
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236187AbhGFLi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:38:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47556 "EHLO mail.kernel.org"
+        id S236252AbhGFLjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:39:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236755AbhGFLfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236754AbhGFLfj (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:35:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5886E61E4D;
-        Tue,  6 Jul 2021 11:24:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FE1761E3B;
+        Tue,  6 Jul 2021 11:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570651;
-        bh=3vY8jkLEb5T5wUhD3hW2OPPBQIV5VgHI3/oaBlcpP+M=;
+        s=k20201202; t=1625570653;
+        bh=LlaTLV09ZOd1n20+MzKTB7XuZ8GKeoabfTM8sYe0jq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UihvQ41FTflT4FSzxdB10FZ4vQXii/1Bgrx4psmtzHipVX4AClj5ZKYgIwOwQQy9z
-         /BFacIZmGbftHAI2F2Sf3SdpZHCCkK21LChHmEy3mHTvmEeZTD1Q5ygZzSBWvzGAlo
-         /S46sa8cSdQIxtbM15nxdXhSiucfwk6Eg7TT3xVAx56MuysOD/JAC4lI+M3htfC5o2
-         T00H1T2s6hDTFM7P0X/rAnrOe8LtjeHwgf1xwkc10j/zOoHGngLQkehgmKsli001Yi
-         NRwDNnYjn1mpJvOUFn2AfyxwjDt+bk40Vs1QPwtknQyP5bgE402FOG3klRbMeR/X9p
-         w5RS9EN5n2TcQ==
+        b=YDFznyjUol6dJhqMU8IWaNImKMQE9TvBF9m6B/DWnjdPJIyWcQPiTAAHrZr2/g1tG
+         PjXJBEdnhGLhYRSzuW9nzRt5739cm4tVZxYpZilpWKASEi80SRD89dsP3cCp0NNMIG
+         dK+eJ1IM/Z5o0D4Rn4h+38XgxJ8ctm7wn9Wr3SSWhb2H9VIfArtODEboZQej37wmTa
+         qNQDFvwGU697jB/ZZtzFkP66PZBNILACVPtrzjWoMtTllHziZ79w+Dx/dKsLeGok/n
+         3tpBDB2dH9IYZh4lX4AYZQi+YDcAWGrB1V9/ECana2ORvlKtNVXJZkNXHPie15YlNU
+         JuG5/8oY5MZyA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huang Pei <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 099/137] MIPS: add PMD table accounting into MIPS'pmd_alloc_one
-Date:   Tue,  6 Jul 2021 07:21:25 -0400
-Message-Id: <20210706112203.2062605-99-sashal@kernel.org>
+Cc:     Fugang Duan <fugang.duan@nxp.com>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        kernel test robot <lkp@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 100/137] net: fec: add ndo_select_queue to fix TX bandwidth fluctuations
+Date:   Tue,  6 Jul 2021 07:21:26 -0400
+Message-Id: <20210706112203.2062605-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -42,48 +45,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Pei <huangpei@loongson.cn>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit ed914d48b6a1040d1039d371b56273d422c0081e ]
+[ Upstream commit 52c4a1a85f4b346c39c896c0168f4a843b3385ff ]
 
-This fixes Page Table accounting bug.
+As we know that AVB is enabled by default, and the ENET IP design is
+queue 0 for best effort, queue 1&2 for AVB Class A&B. Bandwidth of each
+queue 1&2 set in driver is 50%, TX bandwidth fluctuated when selecting
+tx queues randomly with FEC_QUIRK_HAS_AVB quirk available.
 
-MIPS is the ONLY arch just defining __HAVE_ARCH_PMD_ALLOC_ONE alone.
-Since commit b2b29d6d011944 (mm: account PMD tables like PTE tables),
-"pmd_free" in asm-generic with PMD table accounting and "pmd_alloc_one"
-in MIPS without PMD table accounting causes PageTable accounting number
-negative, which read by global_zone_page_state(), always returns 0.
+This patch adds ndo_select_queue callback to select queues for
+transmitting to fix this issue. It will always return queue 0 if this is
+not a vlan packet, and return queue 1 or 2 based on priority of vlan
+packet.
 
-Signed-off-by: Huang Pei <huangpei@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+You may complain that in fact we only use single queue for trasmitting
+if we are not targeted to VLAN. Yes, but seems we have no choice, since
+AVB is enabled when the driver probed, we can't switch this feature
+dynamicly. After compare multiple queues to single queue, TX throughput
+almost no improvement.
+
+One way we can implemet is to configure the driver to multiple queues
+with Round-robin scheme by default. Then add ndo_setup_tc callback to
+enable/disable AVB feature for users. Unfortunately, ENET AVB IP seems
+not follow the standard 802.1Qav spec. We only can program
+DMAnCFG[IDLE_SLOPE] field to calculate bandwidth fraction. And idle
+slope is restricted to certain valus (a total of 19). It's far away from
+CBS QDisc implemented in Linux TC framework. If you strongly suggest to do
+this, I think we only can support limited numbers of bandwidth and reject
+others, but it's really urgly and wried.
+
+With this patch, VLAN tagged packets route to queue 0/1/2 based on vlan
+priority; VLAN untagged packets route to queue 0.
+
+Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Reported-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/pgalloc.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 32 +++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
-index 8b18424b3120..d0cf997b4ba8 100644
---- a/arch/mips/include/asm/pgalloc.h
-+++ b/arch/mips/include/asm/pgalloc.h
-@@ -59,11 +59,15 @@ do {							\
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 960def41cc55..2cb73e850a32 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -75,6 +75,8 @@ static void fec_enet_itr_coal_init(struct net_device *ndev);
  
- static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	pmd_t *pmd;
-+	pmd_t *pmd = NULL;
-+	struct page *pg;
+ #define DRIVER_NAME	"fec"
  
--	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ORDER);
--	if (pmd)
-+	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
-+	if (pg) {
-+		pgtable_pmd_page_ctor(pg);
-+		pmd = (pmd_t *)page_address(pg);
- 		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
-+	}
- 	return pmd;
++static const u16 fec_enet_vlan_pri_to_queue[8] = {0, 0, 1, 1, 1, 2, 2, 2};
++
+ /* Pause frame feild and FIFO threshold */
+ #define FEC_ENET_FCE	(1 << 5)
+ #define FEC_ENET_RSEM_V	0x84
+@@ -3222,10 +3224,40 @@ static int fec_set_features(struct net_device *netdev,
+ 	return 0;
  }
  
++static u16 fec_enet_get_raw_vlan_tci(struct sk_buff *skb)
++{
++	struct vlan_ethhdr *vhdr;
++	unsigned short vlan_TCI = 0;
++
++	if (skb->protocol == htons(ETH_P_ALL)) {
++		vhdr = (struct vlan_ethhdr *)(skb->data);
++		vlan_TCI = ntohs(vhdr->h_vlan_TCI);
++	}
++
++	return vlan_TCI;
++}
++
++static u16 fec_enet_select_queue(struct net_device *ndev, struct sk_buff *skb,
++				 struct net_device *sb_dev)
++{
++	struct fec_enet_private *fep = netdev_priv(ndev);
++	u16 vlan_tag;
++
++	if (!(fep->quirks & FEC_QUIRK_HAS_AVB))
++		return netdev_pick_tx(ndev, skb, NULL);
++
++	vlan_tag = fec_enet_get_raw_vlan_tci(skb);
++	if (!vlan_tag)
++		return vlan_tag;
++
++	return fec_enet_vlan_pri_to_queue[vlan_tag >> 13];
++}
++
+ static const struct net_device_ops fec_netdev_ops = {
+ 	.ndo_open		= fec_enet_open,
+ 	.ndo_stop		= fec_enet_close,
+ 	.ndo_start_xmit		= fec_enet_start_xmit,
++	.ndo_select_queue       = fec_enet_select_queue,
+ 	.ndo_set_rx_mode	= set_multicast_list,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_tx_timeout		= fec_timeout,
 -- 
 2.30.2
 
