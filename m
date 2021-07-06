@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87D5E3BD4C6
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 266443BD4C7
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238201AbhGFMRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:17:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42614 "EHLO mail.kernel.org"
+        id S238215AbhGFMRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:17:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235941AbhGFLaf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:30:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C825D61DF7;
-        Tue,  6 Jul 2021 11:22:18 +0000 (UTC)
+        id S233975AbhGFLam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:30:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1347161DFA;
+        Tue,  6 Jul 2021 11:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570539;
-        bh=l98UumLjQANUw6mZMLJC464/eEz4GzVb3MFkIc5GbkI=;
+        s=k20201202; t=1625570540;
+        bh=swNqVe0z99ZqvzGEdEapp55al/zXzvnmMw+OPrrGzhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRNCK/mm82Cha1VWWvcO3Wny2RPuvzHOsNj7LG5FYLm9YKBw/gU8tcB2f0xGTxQzk
-         7y7g+doBrXOwnn+MIfvY6FNfDIFM+k60Rbaao/sxtFXA3xA68H7s30W3ED6xzRUah7
-         dwUhRrAJQo5bjNPPx/8FUPWczHTbHM1Glg4EgGu9ZjY3zARKsuSYk4QRhFvAsbbG3o
-         aW4Moy5U4ppDijixkaKbKj8kbx+OCR9YVPlDPJ3Eo9WXq+IbXk8vl7ddl2gCyLnBcb
-         3n5wQOFzyzqN9UTrDjQKLpXmuoyXag6d5shHTA5Tjq7tF1bWkRKVWwJvE6SSGrFOvB
-         lAUNg8JwTU2Zw==
+        b=WxNDUjJ87IjYjZylFfBAN2JHsPCnWpSPsS9iKAzXjySCJ4MKFoL9ZYsGTFsxYa5oy
+         bZh/Dein5jolUHBO0ANUY52oV3Pr3KnywbL6hUARBGAg2xuDIIycAsFMR06KtDrep5
+         u/beuBH3FNLvuVDDpf/rnaYGxrC0Wi4+B2xvc8JII0/Ftc/VsNuXzVF22dVTUXVlzc
+         Bu5TgQLC3KJhpr5BS9DB2C3z3Onxwr8ld08LwRDJCxbn5zu6AYKsBiwhuCThkgXDCr
+         5aXsS6/S3tUMcWdmghQitsyxwLZfIM6/zmajuloJnbyvhEiSe4DwuzNZakxDOr2wAA
+         zDe312GeMzg1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 011/137] clk: renesas: rcar-usb2-clock-sel: Fix error handling in .probe()
-Date:   Tue,  6 Jul 2021 07:19:57 -0400
-Message-Id: <20210706112203.2062605-11-sashal@kernel.org>
+Cc:     Bibo Mao <maobibo@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 012/137] hugetlb: clear huge pte during flush function on mips platform
+Date:   Tue,  6 Jul 2021 07:19:58 -0400
+Message-Id: <20210706112203.2062605-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -43,81 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Bibo Mao <maobibo@loongson.cn>
 
-[ Upstream commit a20a40a8bbc2cf4b29d7248ea31e974e9103dd7f ]
+[ Upstream commit 33ae8f801ad8bec48e886d368739feb2816478f2 ]
 
-The error handling paths after pm_runtime_get_sync() have no refcount
-decrement, which leads to refcount leak.
+If multiple threads are accessing the same huge page at the same
+time, hugetlb_cow will be called if one thread write the COW huge
+page. And function huge_ptep_clear_flush is called to notify other
+threads to clear the huge pte tlb entry. The other threads clear
+the huge pte tlb entry and reload it from page table, the reload
+huge pte entry may be old.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20210415073338.22287-1-dinghao.liu@zju.edu.cn
-[geert: Remove now unused variable priv]
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+This patch fixes this issue on mips platform, and it clears huge
+pte entry before notifying other threads to flush current huge
+page entry, it is similar with other architectures.
+
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/rcar-usb2-clock-sel.c | 24 ++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ arch/mips/include/asm/hugetlb.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/renesas/rcar-usb2-clock-sel.c b/drivers/clk/renesas/rcar-usb2-clock-sel.c
-index d4c02986c34e..0ccc6e709a38 100644
---- a/drivers/clk/renesas/rcar-usb2-clock-sel.c
-+++ b/drivers/clk/renesas/rcar-usb2-clock-sel.c
-@@ -128,10 +128,8 @@ static int rcar_usb2_clock_sel_resume(struct device *dev)
- static int rcar_usb2_clock_sel_remove(struct platform_device *pdev)
+diff --git a/arch/mips/include/asm/hugetlb.h b/arch/mips/include/asm/hugetlb.h
+index 10e3be870df7..c2144409c0c4 100644
+--- a/arch/mips/include/asm/hugetlb.h
++++ b/arch/mips/include/asm/hugetlb.h
+@@ -46,7 +46,13 @@ static inline pte_t huge_ptep_get_and_clear(struct mm_struct *mm,
+ static inline void huge_ptep_clear_flush(struct vm_area_struct *vma,
+ 					 unsigned long addr, pte_t *ptep)
  {
- 	struct device *dev = &pdev->dev;
--	struct usb2_clock_sel_priv *priv = platform_get_drvdata(pdev);
- 
- 	of_clk_del_provider(dev->of_node);
--	clk_hw_unregister(&priv->hw);
- 	pm_runtime_put(dev);
- 	pm_runtime_disable(dev);
- 
-@@ -164,9 +162,6 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->rsts))
- 		return PTR_ERR(priv->rsts);
- 
--	pm_runtime_enable(dev);
--	pm_runtime_get_sync(dev);
--
- 	clk = devm_clk_get(dev, "usb_extal");
- 	if (!IS_ERR(clk) && !clk_prepare_enable(clk)) {
- 		priv->extal = !!clk_get_rate(clk);
-@@ -183,6 +178,8 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 		return -ENOENT;
- 	}
- 
-+	pm_runtime_enable(dev);
-+	pm_runtime_get_sync(dev);
- 	platform_set_drvdata(pdev, priv);
- 	dev_set_drvdata(dev, priv);
- 
-@@ -193,11 +190,20 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 	init.num_parents = 0;
- 	priv->hw.init = &init;
- 
--	clk = clk_register(NULL, &priv->hw);
--	if (IS_ERR(clk))
--		return PTR_ERR(clk);
-+	ret = devm_clk_hw_register(NULL, &priv->hw);
-+	if (ret)
-+		goto pm_put;
-+
-+	ret = of_clk_add_hw_provider(np, of_clk_hw_simple_get, &priv->hw);
-+	if (ret)
-+		goto pm_put;
-+
-+	return 0;
- 
--	return of_clk_add_hw_provider(np, of_clk_hw_simple_get, &priv->hw);
-+pm_put:
-+	pm_runtime_put(dev);
-+	pm_runtime_disable(dev);
-+	return ret;
+-	flush_tlb_page(vma, addr & huge_page_mask(hstate_vma(vma)));
++	/*
++	 * clear the huge pte entry firstly, so that the other smp threads will
++	 * not get old pte entry after finishing flush_tlb_page and before
++	 * setting new huge pte entry
++	 */
++	huge_ptep_get_and_clear(vma->vm_mm, addr, ptep);
++	flush_tlb_page(vma, addr);
  }
  
- static const struct dev_pm_ops rcar_usb2_clock_sel_pm_ops = {
+ #define __HAVE_ARCH_HUGE_PTE_NONE
 -- 
 2.30.2
 
