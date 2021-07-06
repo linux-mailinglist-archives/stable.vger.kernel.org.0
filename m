@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD6C3BCBAE
+	by mail.lfdr.de (Postfix) with ESMTP id F31703BCBAF
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:15:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231953AbhGFLRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51772 "EHLO mail.kernel.org"
+        id S231955AbhGFLRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231934AbhGFLRD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:17:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64C6A61C20;
-        Tue,  6 Jul 2021 11:14:23 +0000 (UTC)
+        id S231895AbhGFLRE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:17:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D68F619D1;
+        Tue,  6 Jul 2021 11:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570065;
-        bh=y5INbB7BhKNTobXp8zKDbun0s0xvNKCmJ4x0sSzC/yY=;
+        s=k20201202; t=1625570066;
+        bh=1o/EPkiVtXhvVfmXjShWcDVSYPIUVdVKqQjORRabH3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOflU0SmNHhx9ZD7E5bVRgQAF+hpzGj7ix+DC4hKXwsL9Irnsh+x1iKRVfif8QWwg
-         cIKt0yynK0HOFUPi7jrulpab62nLKfI2Z5ElOBpiSG/hYOeWAPxRl2OKLNKsF1tE/C
-         3XLNXupcrOEAlnwnta9H57CqHg4af7KTKI2528MQy5DVatJIUFfMXc7b9FuQOFxNsC
-         H9Y8OwrchjB6u1Pgh78EJJv1Ah7nqLFS95ZU97DLXumnnhnYHOpGPoGX5nkipnVvug
-         54MT9ux04tPsqKeguOf2dn3CSUUtHJmMYp+xaECcqOPyz6On5AnSKYJjS7kJB5i4sG
-         FgyFxdNoZexMA==
+        b=eUyZlKkCjd4pPkM6R2cXVtAgHxruPszQ9TYZw5+FYf9lmEmc7HXR2WCe3H5OX9Xir
+         ZPpQRUmoeSjh99iXij8VZq6l2BdU9G8ZCtjO0f57F6vFZexHZjJltKG3crg259+IPm
+         K4cKuFsgoiPx13hwmvtKj97ovuuT/akY4dNpcrwrDMAxi0TSc4uR+vl1jtwLE6PVdc
+         DMfcNBOAxG4lU+k/M8T8Ho8Rb7nUEWws0IZyxaXe7jUwGcw32tDgiLHA+WeCJ9XvYm
+         skkMdkxv6Jm76hfSoC3BwygUU14hgAvGL7FSDz+iGNNpcaJE7BI0cTn5LphoJqJ2YL
+         G8AvPMdEcqAVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liu Ying <victor.liu@nxp.com>, Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Robert Chiras <robert.chiras@nxp.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
+Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.13 010/189] drm/bridge: nwl-dsi: Force a full modeset when crtc_state->active is changed to be true
-Date:   Tue,  6 Jul 2021 07:11:10 -0400
-Message-Id: <20210706111409.2058071-10-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.13 011/189] drm/imx: ipuv3-plane: do not advertise YUV formats on planes without CSC
+Date:   Tue,  6 Jul 2021 07:11:11 -0400
+Message-Id: <20210706111409.2058071-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,153 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Ying <victor.liu@nxp.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit 3afb2a28fa2404d11cce1956a003f2aaca4da421 ]
+[ Upstream commit 06841148c570832d4d247b0f6befc1922a84120b ]
 
-This patch replaces ->mode_fixup() with ->atomic_check() so that
-a full modeset can be requested from there when crtc_state->active
-is changed to be true(which implies only connector's DPMS is brought
-out of "Off" status, though not necessarily).  Bridge functions are
-added or changed to accommodate the ->atomic_check() callback.  That
-full modeset is needed by the up-coming patch which gets MIPI DSI
-controller and PHY ready in ->mode_set(), because it makes sure
-->mode_set() and ->atomic_disable() are called in pairs.
+Only planes that are displayed via the Display Processor (DP) path
+support color space conversion. Limit formats on planes that are
+shown via the direct Display Controller (DC) path to RGB.
 
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Robert Foss <robert.foss@linaro.org>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Jonas Karlman <jonas@kwiboo.se>
-Cc: Jernej Skrabec <jernej.skrabec@siol.net>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Guido Günther <agx@sigxcpu.org>
-Cc: Robert Chiras <robert.chiras@nxp.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Signed-off-by: Liu Ying <victor.liu@nxp.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1619170003-4817-2-git-send-email-victor.liu@nxp.com
+Reported-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/nwl-dsi.c | 61 ++++++++++++++++++++------------
- 1 file changed, 39 insertions(+), 22 deletions(-)
+ drivers/gpu/drm/imx/ipuv3-plane.c | 41 ++++++++++++++++++++++++++++---
+ 1 file changed, 37 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
-index 66b67402f1ac..c65ca860712d 100644
---- a/drivers/gpu/drm/bridge/nwl-dsi.c
-+++ b/drivers/gpu/drm/bridge/nwl-dsi.c
-@@ -21,6 +21,7 @@
- #include <linux/sys_soc.h>
- #include <linux/time64.h>
- 
-+#include <drm/drm_atomic_state_helper.h>
- #include <drm/drm_bridge.h>
- #include <drm/drm_mipi_dsi.h>
- #include <drm/drm_of.h>
-@@ -742,7 +743,9 @@ static int nwl_dsi_disable(struct nwl_dsi *dsi)
- 	return 0;
+diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
+index fa5009705365..fc8f4834ed7b 100644
+--- a/drivers/gpu/drm/imx/ipuv3-plane.c
++++ b/drivers/gpu/drm/imx/ipuv3-plane.c
+@@ -35,7 +35,7 @@ static inline struct ipu_plane *to_ipu_plane(struct drm_plane *p)
+ 	return container_of(p, struct ipu_plane, base);
  }
  
--static void nwl_dsi_bridge_disable(struct drm_bridge *bridge)
-+static void
-+nwl_dsi_bridge_atomic_disable(struct drm_bridge *bridge,
-+			      struct drm_bridge_state *old_bridge_state)
- {
- 	struct nwl_dsi *dsi = bridge_to_dsi(bridge);
- 	int ret;
-@@ -803,17 +806,6 @@ static int nwl_dsi_get_dphy_params(struct nwl_dsi *dsi,
- 	return 0;
- }
- 
--static bool nwl_dsi_bridge_mode_fixup(struct drm_bridge *bridge,
--				      const struct drm_display_mode *mode,
--				      struct drm_display_mode *adjusted_mode)
--{
--	/* At least LCDIF + NWL needs active high sync */
--	adjusted_mode->flags |= (DRM_MODE_FLAG_PHSYNC | DRM_MODE_FLAG_PVSYNC);
--	adjusted_mode->flags &= ~(DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC);
--
--	return true;
--}
--
- static enum drm_mode_status
- nwl_dsi_bridge_mode_valid(struct drm_bridge *bridge,
- 			  const struct drm_display_info *info,
-@@ -831,6 +823,24 @@ nwl_dsi_bridge_mode_valid(struct drm_bridge *bridge,
- 	return MODE_OK;
- }
- 
-+static int nwl_dsi_bridge_atomic_check(struct drm_bridge *bridge,
-+				       struct drm_bridge_state *bridge_state,
-+				       struct drm_crtc_state *crtc_state,
-+				       struct drm_connector_state *conn_state)
-+{
-+	struct drm_display_mode *adjusted_mode = &crtc_state->adjusted_mode;
-+
-+	/* At least LCDIF + NWL needs active high sync */
-+	adjusted_mode->flags |= (DRM_MODE_FLAG_PHSYNC | DRM_MODE_FLAG_PVSYNC);
-+	adjusted_mode->flags &= ~(DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC);
-+
-+	/* Do a full modeset if crtc_state->active is changed to be true. */
-+	if (crtc_state->active_changed && crtc_state->active)
-+		crtc_state->mode_changed = true;
-+
-+	return 0;
-+}
-+
- static void
- nwl_dsi_bridge_mode_set(struct drm_bridge *bridge,
- 			const struct drm_display_mode *mode,
-@@ -862,7 +872,9 @@ nwl_dsi_bridge_mode_set(struct drm_bridge *bridge,
- 	drm_mode_debug_printmodeline(adjusted_mode);
- }
- 
--static void nwl_dsi_bridge_pre_enable(struct drm_bridge *bridge)
-+static void
-+nwl_dsi_bridge_atomic_pre_enable(struct drm_bridge *bridge,
-+				 struct drm_bridge_state *old_bridge_state)
- {
- 	struct nwl_dsi *dsi = bridge_to_dsi(bridge);
- 	int ret;
-@@ -897,7 +909,9 @@ static void nwl_dsi_bridge_pre_enable(struct drm_bridge *bridge)
- 	}
- }
- 
--static void nwl_dsi_bridge_enable(struct drm_bridge *bridge)
-+static void
-+nwl_dsi_bridge_atomic_enable(struct drm_bridge *bridge,
-+			     struct drm_bridge_state *old_bridge_state)
- {
- 	struct nwl_dsi *dsi = bridge_to_dsi(bridge);
- 	int ret;
-@@ -942,14 +956,17 @@ static void nwl_dsi_bridge_detach(struct drm_bridge *bridge)
- }
- 
- static const struct drm_bridge_funcs nwl_dsi_bridge_funcs = {
--	.pre_enable = nwl_dsi_bridge_pre_enable,
--	.enable     = nwl_dsi_bridge_enable,
--	.disable    = nwl_dsi_bridge_disable,
--	.mode_fixup = nwl_dsi_bridge_mode_fixup,
--	.mode_set   = nwl_dsi_bridge_mode_set,
--	.mode_valid = nwl_dsi_bridge_mode_valid,
--	.attach	    = nwl_dsi_bridge_attach,
--	.detach	    = nwl_dsi_bridge_detach,
-+	.atomic_duplicate_state	= drm_atomic_helper_bridge_duplicate_state,
-+	.atomic_destroy_state	= drm_atomic_helper_bridge_destroy_state,
-+	.atomic_reset		= drm_atomic_helper_bridge_reset,
-+	.atomic_check		= nwl_dsi_bridge_atomic_check,
-+	.atomic_pre_enable	= nwl_dsi_bridge_atomic_pre_enable,
-+	.atomic_enable		= nwl_dsi_bridge_atomic_enable,
-+	.atomic_disable		= nwl_dsi_bridge_atomic_disable,
-+	.mode_set		= nwl_dsi_bridge_mode_set,
-+	.mode_valid		= nwl_dsi_bridge_mode_valid,
-+	.attach			= nwl_dsi_bridge_attach,
-+	.detach			= nwl_dsi_bridge_detach,
+-static const uint32_t ipu_plane_formats[] = {
++static const uint32_t ipu_plane_all_formats[] = {
+ 	DRM_FORMAT_ARGB1555,
+ 	DRM_FORMAT_XRGB1555,
+ 	DRM_FORMAT_ABGR1555,
+@@ -72,6 +72,31 @@ static const uint32_t ipu_plane_formats[] = {
+ 	DRM_FORMAT_BGRX8888_A8,
  };
  
- static int nwl_dsi_parse_dt(struct nwl_dsi *dsi)
++static const uint32_t ipu_plane_rgb_formats[] = {
++	DRM_FORMAT_ARGB1555,
++	DRM_FORMAT_XRGB1555,
++	DRM_FORMAT_ABGR1555,
++	DRM_FORMAT_XBGR1555,
++	DRM_FORMAT_RGBA5551,
++	DRM_FORMAT_BGRA5551,
++	DRM_FORMAT_ARGB4444,
++	DRM_FORMAT_ARGB8888,
++	DRM_FORMAT_XRGB8888,
++	DRM_FORMAT_ABGR8888,
++	DRM_FORMAT_XBGR8888,
++	DRM_FORMAT_RGBA8888,
++	DRM_FORMAT_RGBX8888,
++	DRM_FORMAT_BGRA8888,
++	DRM_FORMAT_BGRX8888,
++	DRM_FORMAT_RGB565,
++	DRM_FORMAT_RGB565_A8,
++	DRM_FORMAT_BGR565_A8,
++	DRM_FORMAT_RGB888_A8,
++	DRM_FORMAT_BGR888_A8,
++	DRM_FORMAT_RGBX8888_A8,
++	DRM_FORMAT_BGRX8888_A8,
++};
++
+ static const uint64_t ipu_format_modifiers[] = {
+ 	DRM_FORMAT_MOD_LINEAR,
+ 	DRM_FORMAT_MOD_INVALID
+@@ -830,16 +855,24 @@ struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
+ 	struct ipu_plane *ipu_plane;
+ 	const uint64_t *modifiers = ipu_format_modifiers;
+ 	unsigned int zpos = (type == DRM_PLANE_TYPE_PRIMARY) ? 0 : 1;
++	unsigned int format_count;
++	const uint32_t *formats;
+ 	int ret;
+ 
+ 	DRM_DEBUG_KMS("channel %d, dp flow %d, possible_crtcs=0x%x\n",
+ 		      dma, dp, possible_crtcs);
+ 
++	if (dp == IPU_DP_FLOW_SYNC_BG || dp == IPU_DP_FLOW_SYNC_FG) {
++		formats = ipu_plane_all_formats;
++		format_count = ARRAY_SIZE(ipu_plane_all_formats);
++	} else {
++		formats = ipu_plane_rgb_formats;
++		format_count = ARRAY_SIZE(ipu_plane_rgb_formats);
++	}
+ 	ipu_plane = drmm_universal_plane_alloc(dev, struct ipu_plane, base,
+ 					       possible_crtcs, &ipu_plane_funcs,
+-					       ipu_plane_formats,
+-					       ARRAY_SIZE(ipu_plane_formats),
+-					       modifiers, type, NULL);
++					       formats, format_count, modifiers,
++					       type, NULL);
+ 	if (IS_ERR(ipu_plane)) {
+ 		DRM_ERROR("failed to allocate and initialize %s plane\n",
+ 			  zpos ? "overlay" : "primary");
 -- 
 2.30.2
 
