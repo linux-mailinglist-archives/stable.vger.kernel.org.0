@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 952CC3BD519
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE92F3BD51C
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbhGFMS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:18:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47602 "EHLO mail.kernel.org"
+        id S233257AbhGFMTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:19:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237069AbhGFLfx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237079AbhGFLfx (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:35:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99C9D61CDD;
-        Tue,  6 Jul 2021 11:25:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D801E61CDE;
+        Tue,  6 Jul 2021 11:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570721;
-        bh=QPgQE2G1/gCeuN/4WN1kwXiMfVifxrdMfmmLcWoYOf8=;
+        s=k20201202; t=1625570722;
+        bh=18fgVgkfhPUIGec/6E1Vn564JtfINYGTaYagY/Gshxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DRWqc8bbvOxzVj9IzbXjPTJD8/9AqXkU5IAhz+Es6FbBXOuoeVJESdB6al4BH9Cih
-         G5on2aKtzwPdHp8gerKKzt+BMu/e+3sVg6a/21EGNjSGz0Ew3fuNuFWh5BeLzZLOoM
-         5D4JEIYV7+EA4VYIbW9cEUWFpIeFkF14Iq1zHXRA82NXXyx9zCNck5IilHmQtdK62b
-         89ztS3zCYck1y/Rx6TeSFmBttwlgkY9xtZyWO1VNxqZWzGbtXuLnihArf5LR2i7M87
-         GxfMqX3FCAsbyRiM6vVywy9YwjPWif9ZQ2jvDMOZxaOKTKTQ2HsWA8KXY+Yw8NFiAX
-         v45Nit+3bhVgQ==
+        b=i8HAmqMgJFt/Q9bhhkm1jxMWHUJA10QcwyD++yHUft4tg/eGozbd2mf3C1nJobByS
+         JVKTRbaLIDuII+98WeUAg3SEmNe/7DOU9NQ252dauAGUGdC4+h2x8SNpWnACxBWg9i
+         EkwBn4Hs6pvy8G6Bbn7PURyxsv/pEXy5UwK+LB8AyfoAViySrm3juSlgPLPq1Ds0Bj
+         /MBD2+0RxW/GjRqxQA71pAlgvbpQrJTbswHGU46rH2XBAh5U2mH4G1KRS1Fw0oUMFp
+         gkmP601shn81XB8BMGswyzo+i7aQiTRm//zdSn+VEXjrTNZ27T49N813xRepxdZrgH
+         mN4tPEwVdI03Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        reiserfs-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 14/74] reiserfs: add check for invalid 1st journal block
-Date:   Tue,  6 Jul 2021 07:24:02 -0400
-Message-Id: <20210706112502.2064236-14-sashal@kernel.org>
+Cc:     Xie Yongji <xieyongji@bytedance.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.4 15/74] drm/virtio: Fixes a potential NULL pointer dereference on probe failure
+Date:   Tue,  6 Jul 2021 07:24:03 -0400
+Message-Id: <20210706112502.2064236-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112502.2064236-1-sashal@kernel.org>
 References: <20210706112502.2064236-1-sashal@kernel.org>
@@ -43,55 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit a149127be52fa7eaf5b3681a0317a2bbb772d5a9 ]
+[ Upstream commit 17f46f488a5d82c5568e6e786cd760bba1c2ee09 ]
 
-syzbot reported divide error in reiserfs.
-The problem was in incorrect journal 1st block.
+The dev->dev_private might not be allocated if virtio_gpu_pci_quirk()
+or virtio_gpu_init() failed. In this case, we should avoid the cleanup
+in virtio_gpu_release().
 
-Syzbot's reproducer manualy generated wrong superblock
-with incorrect 1st block. In journal_init() wasn't
-any checks about this particular case.
-
-For example, if 1st journal block is before superblock
-1st block, it can cause zeroing important superblock members
-in do_journal_end().
-
-Link: https://lore.kernel.org/r/20210517121545.29645-1-paskripkin@gmail.com
-Reported-by: syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210517084913.403-1-xieyongji@bytedance.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/journal.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_kms.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
-index 4b3e3e73b512..09ad022a78a5 100644
---- a/fs/reiserfs/journal.c
-+++ b/fs/reiserfs/journal.c
-@@ -2763,6 +2763,20 @@ int journal_init(struct super_block *sb, const char *j_dev_name,
- 		goto free_and_return;
- 	}
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 6dcc05ab31eb..5c0249d3bd53 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -243,6 +243,9 @@ void virtio_gpu_deinit(struct drm_device *dev)
+ 	vgdev->vdev->config->reset(vgdev->vdev);
+ 	vgdev->vdev->config->del_vqs(vgdev->vdev);
  
-+	/*
-+	 * Sanity check to see if journal first block is correct.
-+	 * If journal first block is invalid it can cause
-+	 * zeroing important superblock members.
-+	 */
-+	if (!SB_ONDISK_JOURNAL_DEVICE(sb) &&
-+	    SB_ONDISK_JOURNAL_1st_BLOCK(sb) < SB_JOURNAL_1st_RESERVED_BLOCK(sb)) {
-+		reiserfs_warning(sb, "journal-1393",
-+				 "journal 1st super block is invalid: 1st reserved block %d, but actual 1st block is %d",
-+				 SB_JOURNAL_1st_RESERVED_BLOCK(sb),
-+				 SB_ONDISK_JOURNAL_1st_BLOCK(sb));
-+		goto free_and_return;
-+	}
++	if (!vgdev)
++		return;
 +
- 	if (journal_init_dev(sb, journal, j_dev_name) != 0) {
- 		reiserfs_warning(sb, "sh-462",
- 				 "unable to initialize journal device");
+ 	virtio_gpu_modeset_fini(vgdev);
+ 	virtio_gpu_ttm_fini(vgdev);
+ 	virtio_gpu_free_vbufs(vgdev);
 -- 
 2.30.2
 
