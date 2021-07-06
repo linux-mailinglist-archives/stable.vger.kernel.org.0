@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 158973BD1C8
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 575F73BD2CE
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238909AbhGFLkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238894AbhGFLkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Jul 2021 07:40:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237397AbhGFLgH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237398AbhGFLgH (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:36:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB4C761EFF;
-        Tue,  6 Jul 2021 11:27:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AD8561CBE;
+        Tue,  6 Jul 2021 11:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570841;
-        bh=aGOBuTpCyBT/9YPbAH2QN7D0OjQUj74F9IAvV0an/SQ=;
+        s=k20201202; t=1625570842;
+        bh=NYdkv1krDDvfASXYqmGKcEbFBMGcWOv8+irBhrGseyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPgaXiG4bf9n7h4llmKaw4OW+3fceDTtlZexuJ/jKwuVy3ZQ9XfQX6HD3r9x739Pm
-         pSNdvIHtqnr09uX8MDih8jUNwc9JHjmvsePAh4FNdpI8RcWGM8mDrNDJMuhZeddS9c
-         ga6GnzFyoctOItIs66H/bvMYKnZX1oTKmJEyy2YOG1mSfz94jABLH5dQ/VB2hPhlSD
-         paX1TD/vXv+rjWcJ7DhMoz+zJOTvF3Va/xY40t9SlQjLXXfoZPOUlSwFCpRi1BNrwb
-         bMCven+G4HGKzXF+xKLx9vNrDV/mRywQPuJaQ0IyOjKSd9GRz3vN39iCeDn7lTKtYF
-         wSzUDn4bg9X0Q==
+        b=XxIY7jTMoQyKrjdHnOpaKdGpCFtuMbl/NMvcWyqW/4gH/gtqJzHxy5WZHo0L+AEEP
+         HyN3vDaBe3o0/1ok43GnCv6NoSgmOLb4NiJjC2JfmymjkTahsiDwiP4z6vMO7kiKxn
+         IOfa5YIBBaG9CcBe11mdaJ9xZ1hdmBdb1EMiiu6BH5U7phQsAXIiV+FQRJsQukjtiF
+         rzIT1koc/LQ2liSuKC21wTF9dhuCCxx3EtHAg8Vl8/IFnO9VvaZluzTAVKbTb7arTX
+         48+JdTVzyFVRqsvHJgkRVcNKZTgdAV8TFuyVFAW5VwAoxYDGywy2F1h+ZfzECsoZ30
+         ZagmVxbn5bKNg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 34/55] cw1200: add missing MODULE_DEVICE_TABLE
-Date:   Tue,  6 Jul 2021 07:26:17 -0400
-Message-Id: <20210706112638.2065023-34-sashal@kernel.org>
+Cc:     Jian Shen <shenjian15@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 35/55] net: fix mistake path for netdev_features_strings
+Date:   Tue,  6 Jul 2021 07:26:18 -0400
+Message-Id: <20210706112638.2065023-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112638.2065023-1-sashal@kernel.org>
 References: <20210706112638.2065023-1-sashal@kernel.org>
@@ -43,35 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit dd778f89225cd258e8f0fed2b7256124982c8bb5 ]
+[ Upstream commit 2d8ea148e553e1dd4e80a87741abdfb229e2b323 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+Th_strings arrays netdev_features_strings, tunable_strings, and
+phy_tunable_strings has been moved to file net/ethtool/common.c.
+So fixes the comment.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1620788714-14300-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/st/cw1200/cw1200_sdio.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/netdev_features.h | 2 +-
+ include/uapi/linux/ethtool.h    | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/st/cw1200/cw1200_sdio.c b/drivers/net/wireless/st/cw1200/cw1200_sdio.c
-index 1037ec62659d..ee86436bf152 100644
---- a/drivers/net/wireless/st/cw1200/cw1200_sdio.c
-+++ b/drivers/net/wireless/st/cw1200/cw1200_sdio.c
-@@ -63,6 +63,7 @@ static const struct sdio_device_id cw1200_sdio_ids[] = {
- 	{ SDIO_DEVICE(SDIO_VENDOR_ID_STE, SDIO_DEVICE_ID_STE_CW1200) },
- 	{ /* end: all zeroes */			},
+diff --git a/include/linux/netdev_features.h b/include/linux/netdev_features.h
+index 4c76fe2c8488..2a8105d204a9 100644
+--- a/include/linux/netdev_features.h
++++ b/include/linux/netdev_features.h
+@@ -88,7 +88,7 @@ enum {
+ 
+ 	/*
+ 	 * Add your fresh new feature above and remember to update
+-	 * netdev_features_strings[] in net/core/ethtool.c and maybe
++	 * netdev_features_strings[] in net/ethtool/common.c and maybe
+ 	 * some feature mask #defines below. Please also describe it
+ 	 * in Documentation/networking/netdev-features.txt.
+ 	 */
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index fc21d3726b59..35b11c246aeb 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -227,7 +227,7 @@ enum tunable_id {
+ 	ETHTOOL_PFC_PREVENTION_TOUT, /* timeout in msecs */
+ 	/*
+ 	 * Add your fresh new tunable attribute above and remember to update
+-	 * tunable_strings[] in net/core/ethtool.c
++	 * tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_TUNABLE_COUNT,
  };
-+MODULE_DEVICE_TABLE(sdio, cw1200_sdio_ids);
- 
- /* hwbus_ops implemetation */
- 
+@@ -261,7 +261,7 @@ enum phy_tunable_id {
+ 	ETHTOOL_PHY_DOWNSHIFT,
+ 	/*
+ 	 * Add your fresh new phy tunable attribute above and remember to update
+-	 * phy_tunable_strings[] in net/core/ethtool.c
++	 * phy_tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_PHY_TUNABLE_COUNT,
+ };
 -- 
 2.30.2
 
