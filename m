@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD5F63BD1AF
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:38:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C14C23BD1BC
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238757AbhGFLkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:40:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
+        id S238820AbhGFLkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:40:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237317AbhGFLgF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237319AbhGFLgF (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:36:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EADFC61EF8;
-        Tue,  6 Jul 2021 11:26:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 588F261EF9;
+        Tue,  6 Jul 2021 11:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570813;
-        bh=xRK/PhhfhjCInaS+gdP9roevZksbjf9A37UbDK8ficc=;
+        s=k20201202; t=1625570815;
+        bh=AE2ODXO1OyHIAhGncv2pn4YNtNxzIUeIs4tpORT9ccE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClMSUBRXfUzFdrc0o65VCJdYNxQj/CrOOGhYWnDTImesHB22eZEjllFaocII7CafB
-         f/ae8yQ9li3Bvb2F8dx/cQ8/c5C72nytga3IqMfXRNboeVP6/20x8zXLOjgV+PXNJB
-         N/27ona6ZM+XasQKfyqwlZ1l5wOBLsG0R0FT+6QVif1O0r8USy0tcBdS5bjGyt/qOr
-         w45+PyaeS1D39ZQAFXpYz5dUE7UiXmR69kx3q4JwXqCyyvxfdROJfj4Gb3vPpxhB/t
-         kVNr8BAOkzD1a9bO8OC80J7kpNm0hhnj0T+jmLTLu8b61UqoLwWgF8K+1EovxyVu2e
-         ifc5RMlpGmbQQ==
+        b=TRjm42yFpmP2Y5ExMg0uHBaJeqhNhtECdBGTD2xa3LeK2Ggvr0I9WguX214x78OD9
+         C9dy2fDemc34ZDiZ+FwE28DRs/Pn9E5W9ChPapyH0FwqG7WzVB2p8giTF0RILsgNPs
+         iQly9YlgPST9rw6GiH5Cx5Ym3KLN3L5z3sqHKudzooxaS6h0DS1gpjVcSOggkPrTkI
+         YtP2X2VE0RCdM48gO4wagbL/eBuIzxrInw0UqmvpeXGG+Woi7iU3+ulXQQcKO+7aTX
+         TPaQJSz0AQimKtr9VhsjsGBOAknuYKJzdXjSWBtMoWTryfKXeFFazDzGxX8aVSRteo
+         kXo08mC1HXr1A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 11/55] net: Treat __napi_schedule_irqoff() as __napi_schedule() on PREEMPT_RT
-Date:   Tue,  6 Jul 2021 07:25:54 -0400
-Message-Id: <20210706112638.2065023-11-sashal@kernel.org>
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        reiserfs-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 12/55] reiserfs: add check for invalid 1st journal block
+Date:   Tue,  6 Jul 2021 07:25:55 -0400
+Message-Id: <20210706112638.2065023-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112638.2065023-1-sashal@kernel.org>
 References: <20210706112638.2065023-1-sashal@kernel.org>
@@ -44,62 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 8380c81d5c4fced6f4397795a5ae65758272bbfd ]
+[ Upstream commit a149127be52fa7eaf5b3681a0317a2bbb772d5a9 ]
 
-__napi_schedule_irqoff() is an optimized version of __napi_schedule()
-which can be used where it is known that interrupts are disabled,
-e.g. in interrupt-handlers, spin_lock_irq() sections or hrtimer
-callbacks.
+syzbot reported divide error in reiserfs.
+The problem was in incorrect journal 1st block.
 
-On PREEMPT_RT enabled kernels this assumptions is not true. Force-
-threaded interrupt handlers and spinlocks are not disabling interrupts
-and the NAPI hrtimer callback is forced into softirq context which runs
-with interrupts enabled as well.
+Syzbot's reproducer manualy generated wrong superblock
+with incorrect 1st block. In journal_init() wasn't
+any checks about this particular case.
 
-Chasing all usage sites of __napi_schedule_irqoff() is a whack-a-mole
-game so make __napi_schedule_irqoff() invoke __napi_schedule() for
-PREEMPT_RT kernels.
+For example, if 1st journal block is before superblock
+1st block, it can cause zeroing important superblock members
+in do_journal_end().
 
-The callers of ____napi_schedule() in the networking core have been
-audited and are correct on PREEMPT_RT kernels as well.
-
-Reported-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210517121545.29645-1-paskripkin@gmail.com
+Reported-by: syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ fs/reiserfs/journal.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 7803bd9628dc..722ae0b57f3f 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5931,11 +5931,18 @@ EXPORT_SYMBOL(napi_schedule_prep);
-  * __napi_schedule_irqoff - schedule for receive
-  * @n: entry to schedule
-  *
-- * Variant of __napi_schedule() assuming hard irqs are masked
-+ * Variant of __napi_schedule() assuming hard irqs are masked.
-+ *
-+ * On PREEMPT_RT enabled kernels this maps to __napi_schedule()
-+ * because the interrupt disabled assumption might not be true
-+ * due to force-threaded interrupts and spinlock substitution.
-  */
- void __napi_schedule_irqoff(struct napi_struct *n)
- {
--	____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	else
-+		__napi_schedule(n);
- }
- EXPORT_SYMBOL(__napi_schedule_irqoff);
+diff --git a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
+index 8a76f9d14bc6..78be6dbcd762 100644
+--- a/fs/reiserfs/journal.c
++++ b/fs/reiserfs/journal.c
+@@ -2772,6 +2772,20 @@ int journal_init(struct super_block *sb, const char *j_dev_name,
+ 		goto free_and_return;
+ 	}
  
++	/*
++	 * Sanity check to see if journal first block is correct.
++	 * If journal first block is invalid it can cause
++	 * zeroing important superblock members.
++	 */
++	if (!SB_ONDISK_JOURNAL_DEVICE(sb) &&
++	    SB_ONDISK_JOURNAL_1st_BLOCK(sb) < SB_JOURNAL_1st_RESERVED_BLOCK(sb)) {
++		reiserfs_warning(sb, "journal-1393",
++				 "journal 1st super block is invalid: 1st reserved block %d, but actual 1st block is %d",
++				 SB_JOURNAL_1st_RESERVED_BLOCK(sb),
++				 SB_ONDISK_JOURNAL_1st_BLOCK(sb));
++		goto free_and_return;
++	}
++
+ 	if (journal_init_dev(sb, journal, j_dev_name) != 0) {
+ 		reiserfs_warning(sb, "sh-462",
+ 				 "unable to initialize journal device");
 -- 
 2.30.2
 
