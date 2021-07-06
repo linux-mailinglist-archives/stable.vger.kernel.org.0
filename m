@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8C03BCED4
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D3613BCED9
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234319AbhGFL1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:27:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35602 "EHLO mail.kernel.org"
+        id S234325AbhGFL1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:27:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234629AbhGFLYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:24:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAE2F61D03;
-        Tue,  6 Jul 2021 11:18:44 +0000 (UTC)
+        id S234657AbhGFLYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:24:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 609D761D13;
+        Tue,  6 Jul 2021 11:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570325;
-        bh=0TEEtHfReXo4F18sk6Sba1Yo0FUOojEbgub7tLSmUa8=;
+        s=k20201202; t=1625570327;
+        bh=MaeIWtLhtIZhFqpcnfSychCtPCsJtn+TIlgkZ58IfsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anKbKc+742Aeholnx4xqGRip0GWMoaDxdig64/MRhcLINz+aPNliZycBSFUqCFSxQ
-         fZxQ1WAwpZKL8Ki7cdE4+whZ7RXAMmYc75bIxjGivRYhchaKHwtIOKY93Sqm9cSK6p
-         LdLdqyi1AndAiVDB6u3Y+ko0MVkd+QzmboPJNRRTVHvGmLRFWk9qoLW31mTz+/Ox1H
-         R6w+0/Fj2fMPE4OsvWuk/qkSbmji3V6rrwPcxCgJLKQDVANCGamSxTtWVsmd4ZhWLx
-         73HFTGtrvl4oTF80pJCIUIJvuKfdx2/0+JzmNj5xbRiEPLTYkGDA3/EuWrraeQO7b2
-         +JC3qZYj1Vn4Q==
+        b=OmUgd2lcIFH+BTOW0rcN9pkDp6EzSMkBuaOiLtvpIowVSPOZV83mBRuANwzJRhOOX
+         a9w+++YfMe3QmbwGu0zmRfDgBZyE05PeutlasfxOM+kK4bB3c/YJzBQe6/xAoeag6S
+         9Ui3iy9L9O/RDNm6nm4avV2nSNExQVAABIcElHw/gMvNEz/CAgthIQtKv/CIv0oXyS
+         QDqJc4cEpKZAUuoZTeHGtH+iIkuw0AukiMzW+f+gTlLqWB9IvzCBmEBfkLz/70fn1R
+         soyrWeK9PrwA2NIESCeOBOxWbKnGInoOwXUvRreeGI2dhgO+uZ/sAepFE13MZ8SuRZ
+         q3wov4eUaD/og==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Stylon Wang <stylon.wang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 013/160] drm/amd/display: fix use_max_lb flag for 420 pixel formats
-Date:   Tue,  6 Jul 2021 07:15:59 -0400
-Message-Id: <20210706111827.2060499-13-sashal@kernel.org>
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 014/160] clk: renesas: rcar-usb2-clock-sel: Fix error handling in .probe()
+Date:   Tue,  6 Jul 2021 07:16:00 -0400
+Message-Id: <20210706111827.2060499-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -45,44 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 8809a7a4afe90ad9ffb42f72154d27e7c47551ae ]
+[ Upstream commit a20a40a8bbc2cf4b29d7248ea31e974e9103dd7f ]
 
-Right now the flag simply selects memory config 0 when flag is true
-however 420 modes benefit more from memory config 3.
+The error handling paths after pm_runtime_get_sync() have no refcount
+decrement, which leads to refcount leak.
 
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Stylon Wang <stylon.wang@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20210415073338.22287-1-dinghao.liu@zju.edu.cn
+[geert: Remove now unused variable priv]
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/clk/renesas/rcar-usb2-clock-sel.c | 24 ++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-index efa86d5c6847..98ab4b776924 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-@@ -496,10 +496,13 @@ static enum lb_memory_config dpp1_dscl_find_lb_memory_config(struct dcn10_dpp *d
- 	int vtaps_c = scl_data->taps.v_taps_c;
- 	int ceil_vratio = dc_fixpt_ceil(scl_data->ratios.vert);
- 	int ceil_vratio_c = dc_fixpt_ceil(scl_data->ratios.vert_c);
--	enum lb_memory_config mem_cfg = LB_MEMORY_CONFIG_0;
+diff --git a/drivers/clk/renesas/rcar-usb2-clock-sel.c b/drivers/clk/renesas/rcar-usb2-clock-sel.c
+index 3abafd78f7c8..8b4e43659023 100644
+--- a/drivers/clk/renesas/rcar-usb2-clock-sel.c
++++ b/drivers/clk/renesas/rcar-usb2-clock-sel.c
+@@ -128,10 +128,8 @@ static int rcar_usb2_clock_sel_resume(struct device *dev)
+ static int rcar_usb2_clock_sel_remove(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+-	struct usb2_clock_sel_priv *priv = platform_get_drvdata(pdev);
  
--	if (dpp->base.ctx->dc->debug.use_max_lb)
--		return mem_cfg;
-+	if (dpp->base.ctx->dc->debug.use_max_lb) {
-+		if (scl_data->format == PIXEL_FORMAT_420BPP8
-+				|| scl_data->format == PIXEL_FORMAT_420BPP10)
-+			return LB_MEMORY_CONFIG_3;
-+		return LB_MEMORY_CONFIG_0;
-+	}
+ 	of_clk_del_provider(dev->of_node);
+-	clk_hw_unregister(&priv->hw);
+ 	pm_runtime_put(dev);
+ 	pm_runtime_disable(dev);
  
- 	dpp->base.caps->dscl_calc_lb_num_partitions(
- 			scl_data, LB_MEMORY_CONFIG_1, &num_part_y, &num_part_c);
+@@ -164,9 +162,6 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->rsts))
+ 		return PTR_ERR(priv->rsts);
+ 
+-	pm_runtime_enable(dev);
+-	pm_runtime_get_sync(dev);
+-
+ 	clk = devm_clk_get(dev, "usb_extal");
+ 	if (!IS_ERR(clk) && !clk_prepare_enable(clk)) {
+ 		priv->extal = !!clk_get_rate(clk);
+@@ -183,6 +178,8 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
+ 		return -ENOENT;
+ 	}
+ 
++	pm_runtime_enable(dev);
++	pm_runtime_get_sync(dev);
+ 	platform_set_drvdata(pdev, priv);
+ 	dev_set_drvdata(dev, priv);
+ 
+@@ -193,11 +190,20 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
+ 	init.num_parents = 0;
+ 	priv->hw.init = &init;
+ 
+-	clk = clk_register(NULL, &priv->hw);
+-	if (IS_ERR(clk))
+-		return PTR_ERR(clk);
++	ret = devm_clk_hw_register(NULL, &priv->hw);
++	if (ret)
++		goto pm_put;
++
++	ret = of_clk_add_hw_provider(np, of_clk_hw_simple_get, &priv->hw);
++	if (ret)
++		goto pm_put;
++
++	return 0;
+ 
+-	return of_clk_add_hw_provider(np, of_clk_hw_simple_get, &priv->hw);
++pm_put:
++	pm_runtime_put(dev);
++	pm_runtime_disable(dev);
++	return ret;
+ }
+ 
+ static const struct dev_pm_ops rcar_usb2_clock_sel_pm_ops = {
 -- 
 2.30.2
 
