@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 802D13BCC81
+	by mail.lfdr.de (Postfix) with ESMTP id D61703BCC82
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232651AbhGFLTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:19:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        id S232091AbhGFLTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:19:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232711AbhGFLS7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:18:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63D0A61C37;
-        Tue,  6 Jul 2021 11:16:20 +0000 (UTC)
+        id S232725AbhGFLTA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:19:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89A0D61C68;
+        Tue,  6 Jul 2021 11:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570181;
-        bh=Urdi0RMyDw7osxiomLrzAYzglhIWs81NXDgqg0/pm+w=;
+        s=k20201202; t=1625570182;
+        bh=Tfh6DbfihezcnpoZW0Us+LUNS/1aFfBJ0MFWIvIOQco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCRo0o5R04MKzMqq7RIzMURtSPrD7/0pVqMCp8RnL7hnZs5dWmQ7EBon7/DY9F35+
-         MBQH9QnZJd++zWO4rRjVPpAkT4Ml4HUc3H6ZLlOC0rEl0XVQ8JsthNKaC+a2/91uUm
-         mBL71d9/a8V0b9eT3oyPoDlXbTb8LkKxQ/NSLUsNskhw2VCl0jNxysUOoI5kOEOgej
-         IK1aqBl5fHraKvKRLb1VgYKufgy9q9wPppfkUXCyF+3rOevvIs2OAVwiTq7ZGHjJn5
-         4FCBquazsIXsQ4ZSIaqilrQg4XZWMY2cIQNnFTAh6HV4v1dfZ8sI34XYIPt0Qu5EKD
-         vLDL980QHSQtA==
+        b=ATU2kNfmxc6ppJiCFuj6J9MeMLN2id6An1McNGl6EFjppORaMk4CV52BCzoHNDZsc
+         v5jwe8uItlJayXBPbzqCklavZBHGSjD5WSuubiUOovF6cK5W6hHx+pdlhu6wqnnCFZ
+         MHPuIbTXYBWAu3gSBaSH+oidHlmVyBEfVsVQWOoBBkSe3SXPv5+kDFpqsOUivcMTLE
+         mMFJJ8d0KwPeg4jdF4N5v8BsLPAGU8WHMe91m5eebocXo278CG93k0/YFBPvbbnqTu
+         3R5mjRBw0nvO8XR5k5mXkFQPYzKGzWuuBXnQlxf7Cz60+7cjBRIqFZlXiIpRG7DDxj
+         QDam+x3ftFjrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 097/189] net: sgi: ioc3-eth: check return value after calling platform_get_resource()
-Date:   Tue,  6 Jul 2021 07:12:37 -0400
-Message-Id: <20210706111409.2058071-97-sashal@kernel.org>
+Cc:     Nirmoy Das <nirmoy.das@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.13 098/189] drm/amdkfd: use allowed domain for vmbo validation
+Date:   Tue,  6 Jul 2021 07:12:38 -0400
+Message-Id: <20210706111409.2058071-98-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,35 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-[ Upstream commit db8f7be1e1d64fbf113a456ef94534fbf5e9a9af ]
+[ Upstream commit bc05716d4fdd065013633602c5960a2bf1511b9c ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+Fixes handling when page tables are in system memory.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+v3: remove struct amdgpu_vm_parser.
+v2: remove unwanted variable.
+    change amdgpu_amdkfd_validate instead of amdgpu_amdkfd_bo_validate.
+
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sgi/ioc3-eth.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c  | 21 ++++---------------
+ 1 file changed, 4 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/ethernet/sgi/ioc3-eth.c b/drivers/net/ethernet/sgi/ioc3-eth.c
-index 6eef0f45b133..2b29fd4cbdf4 100644
---- a/drivers/net/ethernet/sgi/ioc3-eth.c
-+++ b/drivers/net/ethernet/sgi/ioc3-eth.c
-@@ -835,6 +835,10 @@ static int ioc3eth_probe(struct platform_device *pdev)
- 	int err;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+index 7d4118c8128a..5e69b5b50a19 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+@@ -50,12 +50,6 @@ static struct {
+ 	spinlock_t mem_limit_lock;
+ } kfd_mem_limit;
  
- 	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!regs) {
-+		dev_err(&pdev->dev, "Invalid resource\n");
-+		return -EINVAL;
-+	}
- 	/* get mac addr from one wire prom */
- 	if (ioc3eth_get_mac_addr(regs, mac_addr))
- 		return -EPROBE_DEFER; /* not available yet */
+-/* Struct used for amdgpu_amdkfd_bo_validate */
+-struct amdgpu_vm_parser {
+-	uint32_t        domain;
+-	bool            wait;
+-};
+-
+ static const char * const domain_bit_to_string[] = {
+ 		"CPU",
+ 		"GTT",
+@@ -346,11 +340,9 @@ static int amdgpu_amdkfd_bo_validate(struct amdgpu_bo *bo, uint32_t domain,
+ 	return ret;
+ }
+ 
+-static int amdgpu_amdkfd_validate(void *param, struct amdgpu_bo *bo)
++static int amdgpu_amdkfd_validate_vm_bo(void *_unused, struct amdgpu_bo *bo)
+ {
+-	struct amdgpu_vm_parser *p = param;
+-
+-	return amdgpu_amdkfd_bo_validate(bo, p->domain, p->wait);
++	return amdgpu_amdkfd_bo_validate(bo, bo->allowed_domains, false);
+ }
+ 
+ /* vm_validate_pt_pd_bos - Validate page table and directory BOs
+@@ -364,20 +356,15 @@ static int vm_validate_pt_pd_bos(struct amdgpu_vm *vm)
+ {
+ 	struct amdgpu_bo *pd = vm->root.base.bo;
+ 	struct amdgpu_device *adev = amdgpu_ttm_adev(pd->tbo.bdev);
+-	struct amdgpu_vm_parser param;
+ 	int ret;
+ 
+-	param.domain = AMDGPU_GEM_DOMAIN_VRAM;
+-	param.wait = false;
+-
+-	ret = amdgpu_vm_validate_pt_bos(adev, vm, amdgpu_amdkfd_validate,
+-					&param);
++	ret = amdgpu_vm_validate_pt_bos(adev, vm, amdgpu_amdkfd_validate_vm_bo, NULL);
+ 	if (ret) {
+ 		pr_err("failed to validate PT BOs\n");
+ 		return ret;
+ 	}
+ 
+-	ret = amdgpu_amdkfd_validate(&param, pd);
++	ret = amdgpu_amdkfd_validate_vm_bo(NULL, pd);
+ 	if (ret) {
+ 		pr_err("failed to validate PD\n");
+ 		return ret;
 -- 
 2.30.2
 
