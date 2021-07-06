@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5D33BCC75
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:17:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E823BCC77
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:17:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232215AbhGFLTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232343AbhGFLTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Jul 2021 07:19:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54674 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232644AbhGFLSq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:18:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BFA061C5E;
-        Tue,  6 Jul 2021 11:16:07 +0000 (UTC)
+        id S232655AbhGFLSs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:18:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F0AC61C6C;
+        Tue,  6 Jul 2021 11:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570168;
-        bh=LUddqVS7juItvlJP47q9S0eA1W8luO+r258Pe877anQ=;
+        s=k20201202; t=1625570170;
+        bh=Nje1VY87Mw8n/VyptInx2sozSQq7QStzqy3xJAt1djg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGbSL/NrapMXjBUPqzCU3zQ6dJC0SgakThJxkykABmuP1QYA+Xd6Qd7Ui40A47SP3
-         /1mzDNEakBVo//UMzNIiMXewhOGw8ZMULzqHJIZPOAIUqukrcYsqGgbnRpCHREMUW4
-         i8pVcowQaFsPm94dHwr7x3IQHd4XZA538VxsdF+Rx5oWTEhGSRtm2imqNlbn3Tf9yQ
-         UFsMqei14KBEDRqx84YIh4Uh0SxaNJBPLFziKMAyMCFX5uQtZBdFrq62sOZYApT+vm
-         Iv87m2fOPiiQzVme4/WkYg+t14gSxRa1lJ7H5cp5iYgTVhPZ1WNyGdCbbTcbannn1/
-         LhHHWuL//mYdQ==
+        b=OnKNnSucVVBAB0ofbPqb5ZsN6UdrJXEUV6vQH8ebaGjVu4fE3zBeHWSGvWPTjPzDN
+         DsFgk6ZEgQOf+M/djTGdsLVm1pxuu4SZ9h+mr4fFhfYGZGCrKqNwATNUKm+yW+g0lv
+         spP0ezkQ+9BFdojZFp9ErE6GG4B4YVc9FGF1cll6aROf84LYiHjJ+iQBxWWdh8ltWX
+         KaEBF5Z3KhxmT8vVH7MLyDRoPTpZ/DbKoPpD8sxsRroB0G5Y8k6CKZyjTECMocaIcu
+         y4LT526cMbOTP+kpxc9oSt1iIYEoydg0QtZGtYdwVITRmviYL9DKmnrf/uEbKWc7FZ
+         5YSnNKKhRK1Aw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nikola Cornij <nikola.cornij@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+Cc:     Ilya Bakoulin <Ilya.Bakoulin@amd.com>, Sung Lee <Sung.Lee@amd.com>,
         Stylon Wang <stylon.wang@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.13 088/189] drm/amd/display: Fix DCN 3.01 DSCCLK validation
-Date:   Tue,  6 Jul 2021 07:12:28 -0400
-Message-Id: <20210706111409.2058071-88-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 089/189] drm/amd/display: Revert "Fix clock table filling logic"
+Date:   Tue,  6 Jul 2021 07:12:29 -0400
+Message-Id: <20210706111409.2058071-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -46,132 +45,204 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikola Cornij <nikola.cornij@amd.com>
+From: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
 
-[ Upstream commit 346cf627fb27c0fea63a041cedbaa4f31784e504 ]
+[ Upstream commit ae88357c7966ec2a52cb1e70fd42f74a40c9dfcb ]
 
-[why]
-DSCCLK validation is not necessary because DSCCLK is derrived from
-DISPCLK, therefore if DISPCLK validation passes, DSCCLK is valid, too.
-Doing DSCLK validation in addition to DISPCLK leads to modes being
-wrongly rejected when DSCCLK was incorrectly set outside of DML.
+[Why]
+This change was found to break some high-refresh modes. Reverting
+to unblock mainline.
 
-[how]
-Remove DSCCLK validation because it's implicitly validated under DISPCLK
-
-Signed-off-by: Nikola Cornij <nikola.cornij@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Signed-off-by: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
+Reviewed-by: Sung Lee <Sung.Lee@amd.com>
 Acked-by: Stylon Wang <stylon.wang@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../dc/dml/dcn30/display_mode_vba_30.c        | 64 ++++++-------------
- 1 file changed, 21 insertions(+), 43 deletions(-)
+ .../amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c | 78 +++++++------------
+ .../drm/amd/display/dc/dcn21/dcn21_resource.c | 33 +++-----
+ 2 files changed, 39 insertions(+), 72 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-index cb3f70a71b51..af7d57602b2c 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-@@ -64,6 +64,7 @@ typedef struct {
- #define BPP_INVALID 0
- #define BPP_BLENDED_PIPE 0xffffffff
- #define DCN30_MAX_DSC_IMAGE_WIDTH 5184
-+#define DCN30_MAX_FMT_420_BUFFER_WIDTH 4096
- 
- static void DisplayPipeConfiguration(struct display_mode_lib *mode_lib);
- static void DISPCLKDPPCLKDCFCLKDeepSleepPrefetchParametersWatermarksAndPerformanceCalculation(
-@@ -3987,19 +3988,30 @@ void dml30_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 				} else if (v->PlaneRequiredDISPCLKWithoutODMCombine > v->MaxDispclkRoundedDownToDFSGranularity) {
- 					v->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 					v->PlaneRequiredDISPCLK = v->PlaneRequiredDISPCLKWithODMCombine2To1;
--				} else if (v->DSCEnabled[k] && (v->HActive[k] > DCN30_MAX_DSC_IMAGE_WIDTH)) {
--					v->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
--					v->PlaneRequiredDISPCLK = v->PlaneRequiredDISPCLKWithODMCombine2To1;
- 				} else {
- 					v->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_disabled;
- 					v->PlaneRequiredDISPCLK = v->PlaneRequiredDISPCLKWithoutODMCombine;
--					/*420 format workaround*/
--					if (v->HActive[k] > 4096 && v->OutputFormat[k] == dm_420) {
-+				}
-+				if (v->DSCEnabled[k] && v->HActive[k] > DCN30_MAX_DSC_IMAGE_WIDTH
-+						&& v->ODMCombineEnablePerState[i][k] != dm_odm_combine_mode_4to1) {
-+					if (v->HActive[k] / 2 > DCN30_MAX_DSC_IMAGE_WIDTH) {
-+						v->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_4to1;
-+						v->PlaneRequiredDISPCLK = v->PlaneRequiredDISPCLKWithODMCombine4To1;
-+					} else {
-+						v->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
-+						v->PlaneRequiredDISPCLK = v->PlaneRequiredDISPCLKWithODMCombine2To1;
-+					}
-+				}
-+				if (v->OutputFormat[k] == dm_420 && v->HActive[k] > DCN30_MAX_FMT_420_BUFFER_WIDTH
-+						&& v->ODMCombineEnablePerState[i][k] != dm_odm_combine_mode_4to1) {
-+					if (v->HActive[k] / 2 > DCN30_MAX_FMT_420_BUFFER_WIDTH) {
-+						v->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_4to1;
-+						v->PlaneRequiredDISPCLK = v->PlaneRequiredDISPCLKWithODMCombine4To1;
-+					} else {
- 						v->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 						v->PlaneRequiredDISPCLK = v->PlaneRequiredDISPCLKWithODMCombine2To1;
- 					}
- 				}
--
- 				if (v->ODMCombineEnablePerState[i][k] == dm_odm_combine_mode_4to1) {
- 					v->MPCCombine[i][j][k] = false;
- 					v->NoOfDPP[i][j][k] = 4;
-@@ -4281,42 +4293,8 @@ void dml30_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 		}
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+index 1f56ceab5922..75ba86f951f8 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+@@ -835,66 +835,47 @@ static struct wm_table lpddr4_wm_table_rn = {
  	}
+ };
  
--	for (i = 0; i < v->soc.num_states; i++) {
--		v->DSCCLKRequiredMoreThanSupported[i] = false;
--		for (k = 0; k <= v->NumberOfActivePlanes - 1; k++) {
--			if (v->BlendingAndTiming[k] == k) {
--				if (v->Output[k] == dm_dp || v->Output[k] == dm_edp) {
--					if (v->OutputFormat[k] == dm_420) {
--						v->DSCFormatFactor = 2;
--					} else if (v->OutputFormat[k] == dm_444) {
--						v->DSCFormatFactor = 1;
--					} else if (v->OutputFormat[k] == dm_n422) {
--						v->DSCFormatFactor = 2;
--					} else {
--						v->DSCFormatFactor = 1;
--					}
--					if (v->RequiresDSC[i][k] == true) {
--						if (v->ODMCombineEnablePerState[i][k] == dm_odm_combine_mode_4to1) {
--							if (v->PixelClockBackEnd[k] / 12.0 / v->DSCFormatFactor
--									> (1.0 - v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0) * v->MaxDSCCLK[i]) {
--								v->DSCCLKRequiredMoreThanSupported[i] = true;
--							}
--						} else if (v->ODMCombineEnablePerState[i][k] == dm_odm_combine_mode_2to1) {
--							if (v->PixelClockBackEnd[k] / 6.0 / v->DSCFormatFactor
--									> (1.0 - v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0) * v->MaxDSCCLK[i]) {
--								v->DSCCLKRequiredMoreThanSupported[i] = true;
--							}
--						} else {
--							if (v->PixelClockBackEnd[k] / 3.0 / v->DSCFormatFactor
--									> (1.0 - v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0) * v->MaxDSCCLK[i]) {
--								v->DSCCLKRequiredMoreThanSupported[i] = true;
--							}
--						}
--					}
--				}
--			}
+-static unsigned int find_max_fclk_for_voltage(struct dpm_clocks *clock_table,
+-		unsigned int voltage)
++static unsigned int find_socclk_for_voltage(struct dpm_clocks *clock_table, unsigned int voltage)
+ {
+ 	int i;
+-	uint32_t max_clk = 0;
+ 
+-	for (i = 0; i < PP_SMU_NUM_FCLK_DPM_LEVELS; i++) {
+-		if (clock_table->FClocks[i].Vol <= voltage) {
+-			max_clk = clock_table->FClocks[i].Freq > max_clk ?
+-				clock_table->FClocks[i].Freq : max_clk;
 -		}
 -	}
-+	/* Skip dscclk validation: as long as dispclk is supported, dscclk is also implicitly supported */
+-
+-	return max_clk;
+-}
+-
+-static unsigned int find_max_memclk_for_voltage(struct dpm_clocks *clock_table,
+-		unsigned int voltage)
+-{
+-	int i;
+-	uint32_t max_clk = 0;
+-
+-	for (i = 0; i < PP_SMU_NUM_MEMCLK_DPM_LEVELS; i++) {
+-		if (clock_table->MemClocks[i].Vol <= voltage) {
+-			max_clk = clock_table->MemClocks[i].Freq > max_clk ?
+-				clock_table->MemClocks[i].Freq : max_clk;
+-		}
++	for (i = 0; i < PP_SMU_NUM_SOCCLK_DPM_LEVELS; i++) {
++		if (clock_table->SocClocks[i].Vol == voltage)
++			return clock_table->SocClocks[i].Freq;
+ 	}
+ 
+-	return max_clk;
++	ASSERT(0);
++	return 0;
+ }
+ 
+-static unsigned int find_max_socclk_for_voltage(struct dpm_clocks *clock_table,
+-		unsigned int voltage)
++static unsigned int find_dcfclk_for_voltage(struct dpm_clocks *clock_table, unsigned int voltage)
+ {
+ 	int i;
+-	uint32_t max_clk = 0;
+ 
+-	for (i = 0; i < PP_SMU_NUM_SOCCLK_DPM_LEVELS; i++) {
+-		if (clock_table->SocClocks[i].Vol <= voltage) {
+-			max_clk = clock_table->SocClocks[i].Freq > max_clk ?
+-				clock_table->SocClocks[i].Freq : max_clk;
+-		}
++	for (i = 0; i < PP_SMU_NUM_DCFCLK_DPM_LEVELS; i++) {
++		if (clock_table->DcfClocks[i].Vol == voltage)
++			return clock_table->DcfClocks[i].Freq;
+ 	}
+ 
+-	return max_clk;
++	ASSERT(0);
++	return 0;
+ }
+ 
+ static void rn_clk_mgr_helper_populate_bw_params(struct clk_bw_params *bw_params, struct dpm_clocks *clock_table, struct integrated_info *bios_info)
+ {
+ 	int i, j = 0;
+-	unsigned int volt;
+ 
+ 	j = -1;
+ 
+-	/* Find max DPM */
+-	for (i = 0; i < PP_SMU_NUM_DCFCLK_DPM_LEVELS; ++i) {
+-		if (clock_table->DcfClocks[i].Freq != 0 &&
+-				clock_table->DcfClocks[i].Vol != 0)
++	ASSERT(PP_SMU_NUM_FCLK_DPM_LEVELS <= MAX_NUM_DPM_LVL);
 +
- 	for (i = 0; i < v->soc.num_states; i++) {
- 		v->NotEnoughDSCUnits[i] = false;
- 		v->TotalDSCUnitsRequired = 0.0;
-@@ -5319,7 +5297,7 @@ void dml30_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 		for (j = 0; j < 2; j++) {
- 			if (v->ScaleRatioAndTapsSupport == 1 && v->SourceFormatPixelAndScanSupport == 1 && v->ViewportSizeSupport[i][j] == 1
- 					&& v->DIOSupport[i] == 1 && v->ODMCombine4To1SupportCheckOK[i] == 1
--					&& v->NotEnoughDSCUnits[i] == 0 && v->DSCCLKRequiredMoreThanSupported[i] == 0
-+					&& v->NotEnoughDSCUnits[i] == 0
- 					&& v->DTBCLKRequiredMoreThanSupported[i] == 0
- 					&& v->ROBSupport[i][j] == 1 && v->DISPCLK_DPPCLK_Support[i][j] == 1 && v->TotalAvailablePipesSupport[i][j] == 1
- 					&& EnoughWritebackUnits == 1 && WritebackModeSupport == 1
++	/* Find lowest DPM, FCLK is filled in reverse order*/
++
++	for (i = PP_SMU_NUM_FCLK_DPM_LEVELS - 1; i >= 0; i--) {
++		if (clock_table->FClocks[i].Freq != 0 && clock_table->FClocks[i].Vol != 0) {
+ 			j = i;
++			break;
++		}
+ 	}
+ 
+ 	if (j == -1) {
+@@ -905,18 +886,13 @@ static void rn_clk_mgr_helper_populate_bw_params(struct clk_bw_params *bw_params
+ 
+ 	bw_params->clk_table.num_entries = j + 1;
+ 
+-	for (i = 0; i < bw_params->clk_table.num_entries; i++) {
+-		volt = clock_table->DcfClocks[i].Vol;
+-
+-		bw_params->clk_table.entries[i].voltage = volt;
+-		bw_params->clk_table.entries[i].dcfclk_mhz =
+-			clock_table->DcfClocks[i].Freq;
+-		bw_params->clk_table.entries[i].fclk_mhz =
+-			find_max_fclk_for_voltage(clock_table, volt);
+-		bw_params->clk_table.entries[i].memclk_mhz =
+-			find_max_memclk_for_voltage(clock_table, volt);
+-		bw_params->clk_table.entries[i].socclk_mhz =
+-			find_max_socclk_for_voltage(clock_table, volt);
++	for (i = 0; i < bw_params->clk_table.num_entries; i++, j--) {
++		bw_params->clk_table.entries[i].fclk_mhz = clock_table->FClocks[j].Freq;
++		bw_params->clk_table.entries[i].memclk_mhz = clock_table->MemClocks[j].Freq;
++		bw_params->clk_table.entries[i].voltage = clock_table->FClocks[j].Vol;
++		bw_params->clk_table.entries[i].dcfclk_mhz = find_dcfclk_for_voltage(clock_table, clock_table->FClocks[j].Vol);
++		bw_params->clk_table.entries[i].socclk_mhz = find_socclk_for_voltage(clock_table,
++									bw_params->clk_table.entries[i].voltage);
+ 	}
+ 
+ 	bw_params->vram_type = bios_info->memory_type;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index 38a2aa87f5f5..8e3f1d0b4cc3 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -1575,12 +1575,10 @@ static struct _vcs_dpi_voltage_scaling_st construct_low_pstate_lvl(struct clk_li
+ 	low_pstate_lvl.phyclk_d18_mhz = dcn2_1_soc.clock_limits[high_voltage_lvl].phyclk_d18_mhz;
+ 	low_pstate_lvl.phyclk_mhz = dcn2_1_soc.clock_limits[high_voltage_lvl].phyclk_mhz;
+ 
+-	if (clk_table->num_entries < MAX_NUM_DPM_LVL) {
+-		for (i = clk_table->num_entries; i > 1; i--)
+-			clk_table->entries[i] = clk_table->entries[i-1];
+-		clk_table->entries[1] = clk_table->entries[0];
+-		clk_table->num_entries++;
+-	}
++	for (i = clk_table->num_entries; i > 1; i--)
++		clk_table->entries[i] = clk_table->entries[i-1];
++	clk_table->entries[1] = clk_table->entries[0];
++	clk_table->num_entries++;
+ 
+ 	return low_pstate_lvl;
+ }
+@@ -1612,6 +1610,10 @@ static void update_bw_bounding_box(struct dc *dc, struct clk_bw_params *bw_param
+ 			}
+ 		}
+ 
++		/* clk_table[1] is reserved for min DF PState.  skip here to fill in later. */
++		if (i == 1)
++			k++;
++
+ 		clock_limits[k].state = k;
+ 		clock_limits[k].dcfclk_mhz = clk_table->entries[i].dcfclk_mhz;
+ 		clock_limits[k].fabricclk_mhz = clk_table->entries[i].fclk_mhz;
+@@ -1628,25 +1630,14 @@ static void update_bw_bounding_box(struct dc *dc, struct clk_bw_params *bw_param
+ 
+ 		k++;
+ 	}
+-
+-	if (clk_table->num_entries >= MAX_NUM_DPM_LVL) {
+-		for (i = 0; i < clk_table->num_entries + 1; i++)
+-			dcn2_1_soc.clock_limits[i] = clock_limits[i];
+-	} else {
+-		dcn2_1_soc.clock_limits[0] = clock_limits[0];
+-		for (i = 2; i < clk_table->num_entries + 1; i++) {
+-			dcn2_1_soc.clock_limits[i] = clock_limits[i - 1];
+-			dcn2_1_soc.clock_limits[i].state = i;
+-		}
+-	}
+-
++	for (i = 0; i < clk_table->num_entries + 1; i++)
++		dcn2_1_soc.clock_limits[i] = clock_limits[i];
+ 	if (clk_table->num_entries) {
++		dcn2_1_soc.num_states = clk_table->num_entries + 1;
+ 		/* fill in min DF PState */
+ 		dcn2_1_soc.clock_limits[1] = construct_low_pstate_lvl(clk_table, closest_clk_lvl);
+-		dcn2_1_soc.num_states = clk_table->num_entries;
+ 		/* duplicate last level */
+-		dcn2_1_soc.clock_limits[dcn2_1_soc.num_states] =
+-			dcn2_1_soc.clock_limits[dcn2_1_soc.num_states - 1];
++		dcn2_1_soc.clock_limits[dcn2_1_soc.num_states] = dcn2_1_soc.clock_limits[dcn2_1_soc.num_states - 1];
+ 		dcn2_1_soc.clock_limits[dcn2_1_soc.num_states].state = dcn2_1_soc.num_states;
+ 	}
+ 
 -- 
 2.30.2
 
