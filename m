@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F043BD4E8
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 552A93BD4EA
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239586AbhGFMSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237850AbhGFMSG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Jul 2021 08:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47606 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236412AbhGFLfS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C82A61E2F;
-        Tue,  6 Jul 2021 11:23:34 +0000 (UTC)
+        id S236435AbhGFLfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:35:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBC0861C6A;
+        Tue,  6 Jul 2021 11:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570615;
-        bh=FpXv05j5ov1KxBl3Y58dYnCzDu2V3IJY+Ifx2h/hag4=;
+        s=k20201202; t=1625570616;
+        bh=4wq+6xr6u201ec9VCBKH650shM95NMLWgbAR6Iwvqsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OkajYKkYFvQtuHMl70v/PoyBWg654SdPVo0IyVISCaqvOByOlDynZHrrnbISS+H9N
-         T8uP8KwBUogcaV5OcCHNL8r+52+EVpqyGFTremZPPv5YuPvnX2LNdnIgJFGL1j2mvP
-         Iuh+7TLUNCQScFpMD98yxcDqr9+ygM0FPsju8DGI3O1ZgvPbYPls1VijBo9Kzb2KQ/
-         040oFH85u3saZgTYfFf4QC82cKQ6Dl2m5hyfFOWdq9tvKchUPO9GJgfqmRMbCENFJg
-         q7dQuNsaYiemMr8COEzADCG1qMJiNWQGVBsUzqkqm14UJowIgUjfVhoCkhETvcl3VL
-         ZRbXge9VaYiwg==
+        b=OYlqbafK3EHKdLxmNsobnl1G/aqQGzjEjrYuPdLOlwMCAU2hB49cKnchX2r0KZKz9
+         0+kHRFY9EX6awrfHZQ/sbDviGYsFwE3PyqeaaW0DHLS/JgG8QBKnZSUvsp+eqw/O20
+         rUXEUXio6vmtzVd3WULxzB9bo+vlnu7NgyMFXiJb+8i0JW0O/X2sfY2UtfXbBnrEI1
+         I3uPMzCMUfAnz99v6aqXQW21H6Mu07TVF+BSQ1d8DIy0pMMtQhyJeQ5mqCDpVAyXgJ
+         FwuuQ7Vu61x0+QCcqBfc65R481ybK9xp5cs+5MW9PUSYQEjRuEL1p9J0fbhmH+Pig5
+         JLdqMcZjm+UXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wesley Chalmers <Wesley.Chalmers@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 071/137] drm/amd/display: Fix off-by-one error in DML
-Date:   Tue,  6 Jul 2021 07:20:57 -0400
-Message-Id: <20210706112203.2062605-71-sashal@kernel.org>
+Cc:     Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 072/137] net: phy: realtek: add delay to fix RXC generation issue
+Date:   Tue,  6 Jul 2021 07:20:58 -0400
+Message-Id: <20210706112203.2062605-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -46,64 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Chalmers <Wesley.Chalmers@amd.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit e4e3678260e9734f6f41b4325aac0b171833a618 ]
+[ Upstream commit 6813cc8cfdaf401476e1a007cec8ae338cefa573 ]
 
-[WHY]
-For DCN30 and later, there is no data in DML arrays indexed by state at
-index num_states.
+PHY will delay about 11.5ms to generate RXC clock when switching from
+power down to normal operation. Read/write registers would also cause RXC
+become unstable and stop for a while during this process. Realtek engineer
+suggests 15ms or more delay can workaround this issue.
 
-Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Stylon Wang <stylon.wang@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/display/dc/dml/dcn30/display_mode_vba_30.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/phy/realtek.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-index d66e89283c48..2663f1b31842 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-@@ -2053,7 +2053,7 @@ static void DISPCLKDPPCLKDCFCLKDeepSleepPrefetchParametersWatermarksAndPerforman
- 			v->DISPCLKWithoutRamping,
- 			v->DISPCLKDPPCLKVCOSpeed);
- 	v->MaxDispclkRoundedToDFSGranularity = RoundToDFSGranularityDown(
--			v->soc.clock_limits[mode_lib->soc.num_states].dispclk_mhz,
-+			v->soc.clock_limits[mode_lib->soc.num_states - 1].dispclk_mhz,
- 			v->DISPCLKDPPCLKVCOSpeed);
- 	if (v->DISPCLKWithoutRampingRoundedToDFSGranularity
- 			> v->MaxDispclkRoundedToDFSGranularity) {
-@@ -3958,20 +3958,20 @@ void dml30_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 			for (k = 0; k <= v->NumberOfActivePlanes - 1; k++) {
- 				v->PlaneRequiredDISPCLKWithoutODMCombine = v->PixelClock[k] * (1.0 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0)
- 						* (1.0 + v->DISPCLKRampingMargin / 100.0);
--				if ((v->PlaneRequiredDISPCLKWithoutODMCombine >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states]
--						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states])) {
-+				if ((v->PlaneRequiredDISPCLKWithoutODMCombine >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states - 1]
-+						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states - 1])) {
- 					v->PlaneRequiredDISPCLKWithoutODMCombine = v->PixelClock[k] * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0);
- 				}
- 				v->PlaneRequiredDISPCLKWithODMCombine2To1 = v->PixelClock[k] / 2 * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0)
- 						* (1 + v->DISPCLKRampingMargin / 100.0);
--				if ((v->PlaneRequiredDISPCLKWithODMCombine2To1 >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states]
--						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states])) {
-+				if ((v->PlaneRequiredDISPCLKWithODMCombine2To1 >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states - 1]
-+						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states - 1])) {
- 					v->PlaneRequiredDISPCLKWithODMCombine2To1 = v->PixelClock[k] / 2 * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0);
- 				}
- 				v->PlaneRequiredDISPCLKWithODMCombine4To1 = v->PixelClock[k] / 4 * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0)
- 						* (1 + v->DISPCLKRampingMargin / 100.0);
--				if ((v->PlaneRequiredDISPCLKWithODMCombine4To1 >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states]
--						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states])) {
-+				if ((v->PlaneRequiredDISPCLKWithODMCombine4To1 >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states - 1]
-+						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states - 1])) {
- 					v->PlaneRequiredDISPCLKWithODMCombine4To1 = v->PixelClock[k] / 4 * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0);
- 				}
+diff --git a/drivers/net/phy/realtek.c b/drivers/net/phy/realtek.c
+index 575580d3ffe0..b4879306bb8a 100644
+--- a/drivers/net/phy/realtek.c
++++ b/drivers/net/phy/realtek.c
+@@ -246,6 +246,19 @@ static int rtl8211f_config_init(struct phy_device *phydev)
+ 	return 0;
+ }
  
++static int rtl821x_resume(struct phy_device *phydev)
++{
++	int ret;
++
++	ret = genphy_resume(phydev);
++	if (ret < 0)
++		return ret;
++
++	msleep(20);
++
++	return 0;
++}
++
+ static int rtl8211e_config_init(struct phy_device *phydev)
+ {
+ 	int ret = 0, oldpage;
+@@ -624,7 +637,7 @@ static struct phy_driver realtek_drvs[] = {
+ 		.ack_interrupt	= &rtl8211f_ack_interrupt,
+ 		.config_intr	= &rtl8211f_config_intr,
+ 		.suspend	= genphy_suspend,
+-		.resume		= genphy_resume,
++		.resume		= rtl821x_resume,
+ 		.read_page	= rtl821x_read_page,
+ 		.write_page	= rtl821x_write_page,
+ 	}, {
 -- 
 2.30.2
 
