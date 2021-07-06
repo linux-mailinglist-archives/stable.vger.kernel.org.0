@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09D683BCEAA
+	by mail.lfdr.de (Postfix) with ESMTP id CED843BCEAC
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233023AbhGFL04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234103AbhGFL04 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Jul 2021 07:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55764 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233911AbhGFLXH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:23:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBC9161CF5;
-        Tue,  6 Jul 2021 11:18:07 +0000 (UTC)
+        id S233934AbhGFLXI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:23:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ECB561D01;
+        Tue,  6 Jul 2021 11:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570288;
-        bh=eKX49emukDMwE44pP/xuqP89fE1fH4GYou94kjiKakc=;
+        s=k20201202; t=1625570289;
+        bh=m3dohVFWiNvNrxgZb3MiEuDyl8NHehKbXvCYfxO7etI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+BnkE0R+N0eQKZAfv446Qyttf9ONnp+ZoCfVVsNK7ii5XJpEDf4ZZ6b2rA5fiaPA
-         lTdYPk9BOHEU/D3OIlR6jCqFb+g4C0CsN2MeHS5v7aSdWGpgOBneHuRGohg2WmMYiB
-         lChgugUOb9vEXr+tfoueXxBd/WnQIBTE5K1m5i/l+MF11+Ewnhc2jKIYmMT74DUwJG
-         /4Sg9j2bWj//nLM9roDt2jtGqNU8xZVXroAu3dz6cMKOAtSv7EnjgoSEQvm9sC5gFo
-         Ne/ZaJXmq2Xnr/AM01Oz1GFwC8OM+22MRg/wpqMQKyV/AwrdzoQDcjSKQSHu6YzzO1
-         EElfSFZ/xPBCw==
+        b=GHh77UVJ4uUECyp5T+lSyZAzx2cXToXNEvt7fInk+hk4JW8QWxAfYuGr7XnJqewbV
+         TiBsy3D82zxC5nBwKrl67IFVlU0JNMbnDXQlcNmv1R5qpDI+RhN/v0Gv1o6+48bhxe
+         JxKtanm6/j/FB68orKX5YtUGgaChK3WeEoh40K91D2WCkip1W6EVUgum5tUuIMXYGQ
+         OxVIGTSax9MztyJC5gwcc/WdeVLl4irrs8Hvi/spu5Y3+BDVSlhucDcoPn2lEFct5N
+         XX4n4MfwRuByslPWEi/y9LljLqlEcvwRWQJ5deMVVF8Kvytla9Gehe4hf10zamdDte
+         HKTNHrFU2WcJw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hilda Wu <hildawu@realtek.com>,
+Cc:     Tedd Ho-Jeong An <tedd.an@intel.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 178/189] Bluetooth: btusb: Add support USB ALT 3 for WBS
-Date:   Tue,  6 Jul 2021 07:13:58 -0400
-Message-Id: <20210706111409.2058071-178-sashal@kernel.org>
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 179/189] Bluetooth: mgmt: Fix the command returns garbage parameter value
+Date:   Tue,  6 Jul 2021 07:13:59 -0400
+Message-Id: <20210706111409.2058071-179-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -43,42 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hilda Wu <hildawu@realtek.com>
+From: Tedd Ho-Jeong An <tedd.an@intel.com>
 
-[ Upstream commit e848dbd364aca44c9d23c04bef964fab79e2b34f ]
+[ Upstream commit 02ce2c2c24024aade65a8d91d6a596651eaf2d0a ]
 
-Because mSBC frames do not need to be aligned to the SCO packet
-boundary. Using USB ALT 3 let HCI payload >= 60 bytes, let mSBC
-data satisfy 60 Bytes avoid payload unaligned situation and fixed
-some headset no voise issue.
+When the Get Device Flags command fails, it returns the error status
+with the parameters filled with the garbage values. Although the
+parameters are not used, it is better to fill with zero than the random
+values.
 
-USB Alt 3 supported also need HFP support transparent MTU in 72 Bytes.
-
-Signed-off-by: Hilda Wu <hildawu@realtek.com>
+Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/bluetooth/mgmt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 90872099d9c3..4c18a85a1070 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -1751,6 +1751,13 @@ static void btusb_work(struct work_struct *work)
- 			 * which work with WBS at all.
- 			 */
- 			new_alts = btusb_find_altsetting(data, 6) ? 6 : 1;
-+			/* Because mSBC frames do not need to be aligned to the
-+			 * SCO packet boundary. If support the Alt 3, use the
-+			 * Alt 3 for HCI payload >= 60 Bytes let air packet
-+			 * data satisfy 60 bytes.
-+			 */
-+			if (new_alts == 1 && btusb_find_altsetting(data, 3))
-+				new_alts = 3;
- 		}
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index 425502f1d380..d0c8b8a41914 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -4061,6 +4061,8 @@ static int get_device_flags(struct sock *sk, struct hci_dev *hdev, void *data,
  
- 		if (btusb_switch_alt_setting(hdev, new_alts) < 0)
+ 	hci_dev_lock(hdev);
+ 
++	memset(&rp, 0, sizeof(rp));
++
+ 	if (cp->addr.type == BDADDR_BREDR) {
+ 		br_params = hci_bdaddr_list_lookup_with_flags(&hdev->whitelist,
+ 							      &cp->addr.bdaddr,
 -- 
 2.30.2
 
