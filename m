@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9013BD21C
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBB0C3BD221
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237353AbhGFLlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:41:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47624 "EHLO mail.kernel.org"
+        id S239310AbhGFLlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:41:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237483AbhGFLgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237492AbhGFLgL (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:36:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E70E61DAA;
-        Tue,  6 Jul 2021 11:28:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B224D61F03;
+        Tue,  6 Jul 2021 11:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570887;
-        bh=/igo3ebrR8QciGvy20obvHxH2VztbqWyx4RvM716H/k=;
+        s=k20201202; t=1625570888;
+        bh=3IVAtzPpxoEBVV2EqKmnxyEFuGzcWDzdLnb0XTy4L4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enCVLrdzdys7bePbjp4KXHF6YUFxdoCFp/7qdr0mOj5DrY0VQU0ALCbO1QzdCjGaG
-         h5tkraxepNg3wLGOC0c0ZUaC2UgIpAXa+4Yucf5q5/UvCn+xoTFar3C+WVX3roiFau
-         CPUqiyDF/KX+zRe+2EXJji+MWbm6HrK0+UO8DPvrdgpl3mVK66Ny+ZHqHGI6THSxlR
-         wKUOg8HI6MKXSm5ek8KiAoUkk3p1/CEC8ix4XO88LJbVtZziygMZwYlGMMiOci74HX
-         OQ8IIDajBOZBtnus4iHMO8zBM+3GTffO+OIZHn5149P/ZQG6vYoqHS37FeKYnAWmhm
-         o6fSVFsUXVTcA==
+        b=lcYeJYB1Lj092JR+sQQyetyHyHZGJGSasy7OvoMnOauV8zexBqidtaV/EuGWmnGOJ
+         p4s3+nISQgAB56wRP0acgywIdERM4zoDn04VThyvCxeAZd2qJrH5VJ+Ie5S+QKbhmY
+         p0jT6E4wycVvZYvx0gef9ds7J8LQz+MWu+ZfrPoCyH6uleD/iBYiJ2Xl8zoTDZ8WF1
+         URslWVkXrTuT5VklWyBvE9z9zSoAmr1+HPZar+xF4x4Zf/X1B2PspeXHpDyHbZzNxQ
+         keIsJyp4TOBFsnlnQoKz+QYYn0MVSMPTVDWQ3zTpMEvj3OLYImb8WP6G37zPAqvFbV
+         O/M5fOW9nPtJQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie Yongji <xieyongji@bytedance.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.14 13/45] drm/virtio: Fix double free on probe failure
-Date:   Tue,  6 Jul 2021 07:27:17 -0400
-Message-Id: <20210706112749.2065541-13-sashal@kernel.org>
+Cc:     Arturo Giusti <koredump@protonmail.com>, Jan Kara <jack@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 14/45] udf: Fix NULL pointer dereference in udf_symlink function
+Date:   Tue,  6 Jul 2021 07:27:18 -0400
+Message-Id: <20210706112749.2065541-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112749.2065541-1-sashal@kernel.org>
 References: <20210706112749.2065541-1-sashal@kernel.org>
@@ -44,36 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Arturo Giusti <koredump@protonmail.com>
 
-[ Upstream commit cec7f1774605a5ef47c134af62afe7c75c30b0ee ]
+[ Upstream commit fa236c2b2d4436d9f19ee4e5d5924e90ffd7bb43 ]
 
-The virtio_gpu_init() will free vgdev and vgdev->vbufs on failure.
-But such failure will be caught by virtio_gpu_probe() and then
-virtio_gpu_release() will be called to do some cleanup which
-will free vgdev and vgdev->vbufs again. So let's set dev->dev_private
-to NULL to avoid double free.
+In function udf_symlink, epos.bh is assigned with the value returned
+by udf_tgetblk. The function udf_tgetblk is defined in udf/misc.c
+and returns the value of sb_getblk function that could be NULL.
+Then, epos.bh is used without any check, causing a possible
+NULL pointer dereference when sb_getblk fails.
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210517084913.403-2-xieyongji@bytedance.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+This fix adds a check to validate the value of epos.bh.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213083
+Signed-off-by: Arturo Giusti <koredump@protonmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_kms.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/udf/namei.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index e1a5e74f4080..edca3e827369 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -237,6 +237,7 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
- err_vbufs:
- 	vgdev->vdev->config->del_vqs(vgdev->vdev);
- err_vqs:
-+	dev->dev_private = NULL;
- 	kfree(vgdev);
- 	return ret;
- }
+diff --git a/fs/udf/namei.c b/fs/udf/namei.c
+index 041bf34f781f..d5516f025bad 100644
+--- a/fs/udf/namei.c
++++ b/fs/udf/namei.c
+@@ -956,6 +956,10 @@ static int udf_symlink(struct inode *dir, struct dentry *dentry,
+ 				iinfo->i_location.partitionReferenceNum,
+ 				0);
+ 		epos.bh = udf_tgetblk(sb, block);
++		if (unlikely(!epos.bh)) {
++			err = -ENOMEM;
++			goto out_no_entry;
++		}
+ 		lock_buffer(epos.bh);
+ 		memset(epos.bh->b_data, 0x00, bsize);
+ 		set_buffer_uptodate(epos.bh);
 -- 
 2.30.2
 
