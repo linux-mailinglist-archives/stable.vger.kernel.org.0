@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F3E3BCEFB
+	by mail.lfdr.de (Postfix) with ESMTP id F12443BCEFC
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234477AbhGFL1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:27:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35602 "EHLO mail.kernel.org"
+        id S234490AbhGFL1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:27:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234891AbhGFLZL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:25:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 013EB61D42;
-        Tue,  6 Jul 2021 11:19:10 +0000 (UTC)
+        id S234908AbhGFLZN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:25:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36B3E61D2F;
+        Tue,  6 Jul 2021 11:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570351;
-        bh=ejLs/9B8myPw5TPe2fDeG1oNOhZQi2VNiScpEUlppV4=;
+        s=k20201202; t=1625570352;
+        bh=jsq9Lm87mEaGrOMSoJNKmgrmnj6vOX9jZw1y6QOjEsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BSt//SlTLwFvlnJsVeJcAfRH5QrLDml/MVnbYROMfk2LDdxlFxjbnOtonL8J+QNpY
-         7/uwZnqifoR8z6YDzn1GLqaX+mzdgj/Nre9JvCKDHjvqdzdpi59lRcxrvQDk4pWu3/
-         vZXUCGesoG7zT+JxTOI2IglOowWPW58FCspsUOU2CeUND0LiYhrjwSTj30hB4Duqdd
-         b9c8VbdEZAox70IMq4NTYdH0vgQMom0MF8RkpwefOkiKiiqTsuHc8WgUIFqRZgficB
-         kMioItnt9024jPQQyuLQ8cazJEoD+374GQnBcX7TzagdtyTJOt9U6DzJpQmZOzExg8
-         tn9TW3qtzBK7A==
+        b=VIzSFby6c8AR8/z8wnI6IjnRy+FnhloF/yDAYXm/fOsVyOU8Bpgtu2i+wLYZMKQ7X
+         5ahqFJ7IGOwqpFh/wNXqg0docs23PWXWlrQXxeVi/A/uNRYJUfj6p0IA9e4kT9EfrM
+         AvHbpx7mEq6xxaBcqS3NcJgIE94trQ7vvTv/ab3I3xVWfjWgQNywQpT2pKkC2D54S9
+         132ZOzkYCLfKaXZ6lf/HRt0VlXt1kEXOvjbFJMwa8puK4/RdQmOyz+EncNjZjG0Q8x
+         pJaO2AHiHj9h9aLCqyrIxXXxAlJ8ntIQ6py7O9Zlq5yuXekpsH1Fw+ePUB6YEvcWUn
+         vGZooZdYkNDCA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 033/160] net: xilinx_emaclite: Do not print real IOMEM pointer
-Date:   Tue,  6 Jul 2021 07:16:19 -0400
-Message-Id: <20210706111827.2060499-33-sashal@kernel.org>
+Cc:     Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.12 034/160] drm/vc4: Fix clock source for VEC PixelValve on BCM2711
+Date:   Tue,  6 Jul 2021 07:16:20 -0400
+Message-Id: <20210706111827.2060499-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -43,39 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
 
-[ Upstream commit d0d62baa7f505bd4c59cd169692ff07ec49dde37 ]
+[ Upstream commit fc7a8abcee2225d6279ff785d33e24d70c738c6e ]
 
-Printing kernel pointers is discouraged because they might leak kernel
-memory layout.  This fixes smatch warning:
+On the BCM2711 (Raspberry Pi 4), the VEC is actually connected to
+output 2 of pixelvalve3.
 
-drivers/net/ethernet/xilinx/xilinx_emaclite.c:1191 xemaclite_of_probe() warn:
- argument 4 to %08lX specifier is cast from pointer
+NOTE: This contradicts the Broadcom docs, but has been empirically
+tested and confirmed by Raspberry Pi firmware devs.
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210520150344.273900-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_emaclite.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index 007840d4a807..3ffe8d2a1f14 100644
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -1193,9 +1193,8 @@ static int xemaclite_of_probe(struct platform_device *ofdev)
- 	}
+diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
+index 76657dcdf9b0..665ddf8f347f 100644
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -994,7 +994,7 @@ static const struct vc4_pv_data bcm2711_pv3_data = {
+ 	.fifo_depth = 64,
+ 	.pixels_per_clock = 1,
+ 	.encoder_types = {
+-		[0] = VC4_ENCODER_TYPE_VEC,
++		[PV_CONTROL_CLK_SELECT_VEC] = VC4_ENCODER_TYPE_VEC,
+ 	},
+ };
  
- 	dev_info(dev,
--		 "Xilinx EmacLite at 0x%08lX mapped to 0x%08lX, irq=%d\n",
--		 (unsigned long __force)ndev->mem_start,
--		 (unsigned long __force)lp->base_addr, ndev->irq);
-+		 "Xilinx EmacLite at 0x%08lX mapped to 0x%p, irq=%d\n",
-+		 (unsigned long __force)ndev->mem_start, lp->base_addr, ndev->irq);
- 	return 0;
- 
- error:
 -- 
 2.30.2
 
