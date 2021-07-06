@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 056B33BD556
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:19:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C15AC3BD559
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:20:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238846AbhGFMTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:19:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47622 "EHLO mail.kernel.org"
+        id S238897AbhGFMTx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:19:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234861AbhGFLhE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:37:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A32961DB7;
-        Tue,  6 Jul 2021 11:29:39 +0000 (UTC)
+        id S233923AbhGFLhW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:37:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBCF861F67;
+        Tue,  6 Jul 2021 11:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570980;
-        bh=6kOTvq4E3rR5CPoaAQ9Fp/M1XbL8Na3T0jlE76f1Qms=;
+        s=k20201202; t=1625570989;
+        bh=ETxWTFrPy6RHA/XYbcx8W2DT0j29TsA9wcVhITPA1/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YI74vwJJ6LnA+5E61zRFcCl8butWZHe9ifOSitwTBXLfvXm+1VEJPBSJbICcBSIAK
-         mppLlrIVFVFg6RW086u0NWmlxoOijuVhKmpfFczZ+Q13UUQRwvNZ45lil5Mv6+Ri7/
-         7I+LRUX5nW1cAzI3PonkczK5X5OkTUM3lULBJ1rI7BECrGezu1e3aHwErPO7eStCr7
-         Ee06DcqXAX0xrMD5qCM6ZFb8BL0M16HAT6Xx0/qTkyPDpcaf+avedIceUAN+T9bYeQ
-         Rz9ycQXF2XguHezlYpnHCTU6XTYPnk3pnX/e9ExWmX2CJkZUI03oVtkd/nBgJ9We+R
-         8m1LD9W/37XRw==
+        b=iUtWIBxipF7QMYKJOqbvr0E4roD/ipJp3Njn75QNJcMos5XzPSm88ClUEo0ibEpsL
+         lkn/7lkM1o/islg+AEhfnHnmUF0qrIIrG2PipGDzEkX6r7x+33rtf7+8pIQCsHTEDb
+         i925oDfUkVbLGpWCgjjpIF7oulLs0jbqEvXGw25+9wuZB+SxEpVPP/IwGogf72uWXZ
+         IeZOyvmZMXkt6WPaGDzDfXMwDSzn2cCfJR4kVyqW4XbMOQjBNyir6HWIaBeSHmPwet
+         zWEpmXG0a4SfJHXZYhSTTJFX/qEyAQP41HMm3eNVR5LGVPi++/yPmts6MO+U9E/MJ5
+         QKrPkHn6bNTxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 06/31] net: Treat __napi_schedule_irqoff() as __napi_schedule() on PREEMPT_RT
-Date:   Tue,  6 Jul 2021 07:29:06 -0400
-Message-Id: <20210706112931.2066397-6-sashal@kernel.org>
+Cc:     Joe Thornber <ejt@redhat.com>, Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.4 14/31] dm space maps: don't reset space map allocation cursor when committing
+Date:   Tue,  6 Jul 2021 07:29:14 -0400
+Message-Id: <20210706112931.2066397-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112931.2066397-1-sashal@kernel.org>
 References: <20210706112931.2066397-1-sashal@kernel.org>
@@ -44,62 +41,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Joe Thornber <ejt@redhat.com>
 
-[ Upstream commit 8380c81d5c4fced6f4397795a5ae65758272bbfd ]
+[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
 
-__napi_schedule_irqoff() is an optimized version of __napi_schedule()
-which can be used where it is known that interrupts are disabled,
-e.g. in interrupt-handlers, spin_lock_irq() sections or hrtimer
-callbacks.
+Current commit code resets the place where the search for free blocks
+will begin back to the start of the metadata device.  There are a couple
+of repercussions to this:
 
-On PREEMPT_RT enabled kernels this assumptions is not true. Force-
-threaded interrupt handlers and spinlocks are not disabling interrupts
-and the NAPI hrtimer callback is forced into softirq context which runs
-with interrupts enabled as well.
+- The first allocation after the commit is likely to take longer than
+  normal as it searches for a free block in an area that is likely to
+  have very few free blocks (if any).
 
-Chasing all usage sites of __napi_schedule_irqoff() is a whack-a-mole
-game so make __napi_schedule_irqoff() invoke __napi_schedule() for
-PREEMPT_RT kernels.
+- Any free blocks it finds will have been recently freed.  Reusing them
+  means we have fewer old copies of the metadata to aid recovery from
+  hardware error.
 
-The callers of ____napi_schedule() in the networking core have been
-audited and are correct on PREEMPT_RT kernels as well.
+Fix these issues by leaving the cursor alone, only resetting when the
+search hits the end of the metadata device.
 
-Reported-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
+ drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 6fd356e72211..9a0c726bd124 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4723,11 +4723,18 @@ EXPORT_SYMBOL(__napi_schedule);
-  * __napi_schedule_irqoff - schedule for receive
-  * @n: entry to schedule
-  *
-- * Variant of __napi_schedule() assuming hard irqs are masked
-+ * Variant of __napi_schedule() assuming hard irqs are masked.
-+ *
-+ * On PREEMPT_RT enabled kernels this maps to __napi_schedule()
-+ * because the interrupt disabled assumption might not be true
-+ * due to force-threaded interrupts and spinlock substitution.
-  */
- void __napi_schedule_irqoff(struct napi_struct *n)
- {
--	____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	else
-+		__napi_schedule(n);
- }
- EXPORT_SYMBOL(__napi_schedule_irqoff);
+diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
+index bf4c5e2ccb6f..e0acae7a3815 100644
+--- a/drivers/md/persistent-data/dm-space-map-disk.c
++++ b/drivers/md/persistent-data/dm-space-map-disk.c
+@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smd->begin and the end of the metadata device.
++		 * We search before smd->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
  
+@@ -199,7 +207,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
+ 		return r;
+ 
+ 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
+-	smd->begin = 0;
+ 	smd->nr_allocated_this_transaction = 0;
+ 
+ 	r = sm_disk_get_nr_free(sm, &nr_free);
+diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
+index 967d8f2a731f..62a4d7da9bd9 100644
+--- a/drivers/md/persistent-data/dm-space-map-metadata.c
++++ b/drivers/md/persistent-data/dm-space-map-metadata.c
+@@ -451,6 +451,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smm->begin and the end of the metadata device.
++		 * We search before smm->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
+ 
+@@ -502,7 +510,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
+ 		return r;
+ 
+ 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
+-	smm->begin = 0;
+ 	smm->allocated_this_transaction = 0;
+ 
+ 	return 0;
 -- 
 2.30.2
 
