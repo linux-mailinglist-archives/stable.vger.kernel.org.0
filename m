@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E95C13BD13A
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 651EE3BD13D
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234588AbhGFLip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:38:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47556 "EHLO mail.kernel.org"
+        id S234832AbhGFLiq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:38:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236593AbhGFLfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236602AbhGFLfb (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:35:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F137D61E3A;
-        Tue,  6 Jul 2021 11:23:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20BC761E35;
+        Tue,  6 Jul 2021 11:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570627;
-        bh=jFSMofy9TP1jCzwJh7+cw0YgBnKGkyqc4awKL9lg4B0=;
+        s=k20201202; t=1625570628;
+        bh=gQvJRFM6NdQV4GzQ2npWN1NIBM9y32kxi3ccaS/EeTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rHMOLE7zyBQ8GMW2fZcHPgKKw9294HeuhQR21oxQS+6se6L1wSnahCPv+LE/JoB+p
-         N7FeN6PMp0pAoekrc4GOYC1FUn8A6ZH0Nu6wx/sIom6kXizu+GtuChOzhzybDNg1vL
-         TT2Iow1zOYzoYrM1Na7n1zFcPEWE8WGTsits5c5NiOwQt/vtu07kBz9DAeQ+YVTj52
-         9OjVeKz6DVR2aUFTZ+k/BMJlZLtfolBJjsvBa1oouPrfuJuDHpjsHRzdsp9Ouzx1o0
-         Cakjb1aOYEUejnYwb69e4yeQiIuPr8WLXPUFO9RDXhkrdW03zrf2FHPoLhZI+XaTfR
-         z9FEX/glc2vmg==
+        b=kbHTpCgR8+xvn1jOMO05Hk6NechPhQE9dHdghJFj6O53JrpTorayJK4fY7ws5xGvq
+         kfavetgcsenLdAUS0xSj42GE0wLu9cxpr2wIgJXXgmrGyiBG4BUrtjagubdQOE5oxO
+         ZfJaJjkahFIyccTQp2KNm/687v1nH6aNk8k8zoUjihK3m7C04riB9a+/rmljHGTw2q
+         9vzVWKjhl9cJwiEVFf2hugceR+R77vVskKSJaMQaQ+8t2JJ2WW3xW97qmT0kv2VMm1
+         aaXrgGcW+alcf/CXxVTCJVXuviwrF+fqbx4t+V+9zHEbYsUp1aQfjq1VUVTDtzD+8t
+         vjvYhlHpDTFxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steffen Klassert <steffen.klassert@secunet.com>,
-        Tobias Brunner <tobias@strongswan.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 080/137] xfrm: Fix error reporting in xfrm_state_construct.
-Date:   Tue,  6 Jul 2021 07:21:06 -0400
-Message-Id: <20210706112203.2062605-80-sashal@kernel.org>
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.10 081/137] dm writecache: commit just one block, not a full page
+Date:   Tue,  6 Jul 2021 07:21:07 -0400
+Message-Id: <20210706112203.2062605-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -42,72 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 6fd06963fa74197103cdbb4b494763127b3f2f34 ]
+[ Upstream commit 991bd8d7bc78966b4dc427b53a144f276bffcd52 ]
 
-When memory allocation for XFRMA_ENCAP or XFRMA_COADDR fails,
-the error will not be reported because the -ENOMEM assignment
-to the err variable is overwritten before. Fix this by moving
-these two in front of the function so that memory allocation
-failures will be reported.
+Some architectures have pages larger than 4k and committing a full
+page causes needless overhead.
 
-Reported-by: Tobias Brunner <tobias@strongswan.org>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fix this by writing a single block when committing the superblock.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/md/dm-writecache.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index d0c32a8fcc4a..45f86a97eaf2 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -580,6 +580,20 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
+diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
+index 64c2980aaa54..894b58bbe56e 100644
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -532,11 +532,7 @@ static void ssd_commit_superblock(struct dm_writecache *wc)
  
- 	copy_from_user_state(x, p);
- 
-+	if (attrs[XFRMA_ENCAP]) {
-+		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
-+				   sizeof(*x->encap), GFP_KERNEL);
-+		if (x->encap == NULL)
-+			goto error;
-+	}
-+
-+	if (attrs[XFRMA_COADDR]) {
-+		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
-+				    sizeof(*x->coaddr), GFP_KERNEL);
-+		if (x->coaddr == NULL)
-+			goto error;
-+	}
-+
- 	if (attrs[XFRMA_SA_EXTRA_FLAGS])
- 		x->props.extra_flags = nla_get_u32(attrs[XFRMA_SA_EXTRA_FLAGS]);
- 
-@@ -600,23 +614,9 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
- 				   attrs[XFRMA_ALG_COMP])))
- 		goto error;
- 
--	if (attrs[XFRMA_ENCAP]) {
--		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
--				   sizeof(*x->encap), GFP_KERNEL);
--		if (x->encap == NULL)
--			goto error;
--	}
+ 	region.bdev = wc->ssd_dev->bdev;
+ 	region.sector = 0;
+-	region.count = PAGE_SIZE >> SECTOR_SHIFT;
 -
- 	if (attrs[XFRMA_TFCPAD])
- 		x->tfcpad = nla_get_u32(attrs[XFRMA_TFCPAD]);
- 
--	if (attrs[XFRMA_COADDR]) {
--		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
--				    sizeof(*x->coaddr), GFP_KERNEL);
--		if (x->coaddr == NULL)
--			goto error;
--	}
+-	if (unlikely(region.sector + region.count > wc->metadata_sectors))
+-		region.count = wc->metadata_sectors - region.sector;
 -
- 	xfrm_mark_get(attrs, &x->mark);
++	region.count = wc->block_size >> SECTOR_SHIFT;
+ 	region.sector += wc->start_sector;
  
- 	xfrm_smark_init(attrs, &x->props.smark);
+ 	req.bi_op = REQ_OP_WRITE;
 -- 
 2.30.2
 
