@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3BC23BD502
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0912A3BD503
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:16:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235485AbhGFMSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:18:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47620 "EHLO mail.kernel.org"
+        id S235828AbhGFMSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:18:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236853AbhGFLfn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26818608FC;
-        Tue,  6 Jul 2021 11:24:29 +0000 (UTC)
+        id S236879AbhGFLfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:35:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44C2761C38;
+        Tue,  6 Jul 2021 11:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570670;
-        bh=q40AHm9I5Lk5DXFmVPqQqxkyiDbwGY8e1r7ys0fjt1E=;
+        s=k20201202; t=1625570675;
+        bh=umTpPidblLEoLIcldFS+oYQrpZPqv5PsjC7OHkD8deQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozAWuTlqn1I6XNqqo9o7PugS7alBnrBJtpsKgwVEnSkLmsFPaKplVQGRucnxHxBYq
-         awddRvEEDsfATs9nwajCoZ6pxR17fD26IfaR7Hw+XTi12SaD4LyjpZIpD/RGWUxwOB
-         XkOXFSNUgSd51uX462mUYM/NrndyOheJcfWJo48MOoC+hCzKgqw3bheE+JEMWVFwKN
-         AVeYSjR1ZSGfJpCiZwsHEtDUDSw3V4Z1W9r7q+FGSU7Hqq+wuQ7/5Co5kXEEUkJZJj
-         tRb+a6Xs3gkenhHg9euA+fd24ub6OF8/UiHjmZKakWM5LgQOGEKVi6HiAxGRqOTVoi
-         u3jGE1En/oSsQ==
+        b=AR9e0RmPvjDhPw6/jh9YOk+PT+lLAzQYR6elQgeZBVo9WyBsCMAM3J72mNKoQTwti
+         ioVAHESxtVOnn8Lj3E8CGGdfnx3yH2c8JLCeoNuRjQE3tiYD2xJRxJnAt6+eQuE0oM
+         6uxK0B2uesssMXFn5/o6NtkQjyZoIvSStEGreJUb7E0bACj7utd6TBsA72qWC7jLZr
+         LPiXD2WcWRr75HFgHm7TtVq1j6ZXA0il5sZvD+lfVS7+k9977UoJ93AD2ap+0YfEkj
+         Lg/Lf59H69GI6v4oun+3mKgZ2vlZyHZUJS4eha307Qzfy9EJKR9A+aSyEHRRyYwu5D
+         VCP7jrbXg/6vQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 113/137] wireless: wext-spy: Fix out-of-bounds warning
-Date:   Tue,  6 Jul 2021 07:21:39 -0400
-Message-Id: <20210706112203.2062605-113-sashal@kernel.org>
+Cc:     Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Alaa Hleihel <alaa@nvidia.com>,
+        Israel Rukshin <israelr@nvidia.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 117/137] IB/isert: Align target max I/O size to initiator size
+Date:   Tue,  6 Jul 2021 07:21:43 -0400
+Message-Id: <20210706112203.2062605-117-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -45,76 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
 
-[ Upstream commit e93bdd78406da9ed01554c51e38b2a02c8ef8025 ]
+[ Upstream commit 109d19a5eb3ddbdb87c43bfd4bcf644f4569da64 ]
 
-Fix the following out-of-bounds warning:
+Since the Linux iser initiator default max I/O size set to 512KB and since
+there is no handshake procedure for this size in iser protocol, set the
+default max IO size of the target to 512KB as well.
 
-net/wireless/wext-spy.c:178:2: warning: 'memcpy' offset [25, 28] from the object at 'threshold' is out of the bounds of referenced subobject 'low' with type 'struct iw_quality' at offset 20 [-Warray-bounds]
+For changing the default values, there is a module parameter for both
+drivers.
 
-The problem is that the original code is trying to copy data into a
-couple of struct members adjacent to each other in a single call to
-memcpy(). This causes a legitimate compiler warning because memcpy()
-overruns the length of &threshold.low and &spydata->spy_thr_low. As
-these are just a couple of struct members, fix this by using direct
-assignments, instead of memcpy().
-
-This helps with the ongoing efforts to globally enable -Warray-bounds
-and get us closer to being able to tighten the FORTIFY_SOURCE routines
-on memcpy().
-
-Link: https://github.com/KSPP/linux/issues/109
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210422200032.GA168995@embeddedor
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20210524085215.29005-1-mgurtovoy@nvidia.com
+Reviewed-by: Alaa Hleihel <alaa@nvidia.com>
+Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Acked-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/wext-spy.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/infiniband/ulp/isert/ib_isert.c | 4 ++--
+ drivers/infiniband/ulp/isert/ib_isert.h | 3 ---
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/net/wireless/wext-spy.c b/net/wireless/wext-spy.c
-index 33bef22e44e9..b379a0371653 100644
---- a/net/wireless/wext-spy.c
-+++ b/net/wireless/wext-spy.c
-@@ -120,8 +120,8 @@ int iw_handler_set_thrspy(struct net_device *	dev,
- 		return -EOPNOTSUPP;
+diff --git a/drivers/infiniband/ulp/isert/ib_isert.c b/drivers/infiniband/ulp/isert/ib_isert.c
+index e653c83f8a35..edea37da8a5b 100644
+--- a/drivers/infiniband/ulp/isert/ib_isert.c
++++ b/drivers/infiniband/ulp/isert/ib_isert.c
+@@ -35,10 +35,10 @@ static const struct kernel_param_ops sg_tablesize_ops = {
+ 	.get = param_get_int,
+ };
  
- 	/* Just do it */
--	memcpy(&(spydata->spy_thr_low), &(threshold->low),
--	       2 * sizeof(struct iw_quality));
-+	spydata->spy_thr_low = threshold->low;
-+	spydata->spy_thr_high = threshold->high;
+-static int isert_sg_tablesize = ISCSI_ISER_DEF_SG_TABLESIZE;
++static int isert_sg_tablesize = ISCSI_ISER_MIN_SG_TABLESIZE;
+ module_param_cb(sg_tablesize, &sg_tablesize_ops, &isert_sg_tablesize, 0644);
+ MODULE_PARM_DESC(sg_tablesize,
+-		 "Number of gather/scatter entries in a single scsi command, should >= 128 (default: 256, max: 4096)");
++		 "Number of gather/scatter entries in a single scsi command, should >= 128 (default: 128, max: 4096)");
  
- 	/* Clear flag */
- 	memset(spydata->spy_thr_under, '\0', sizeof(spydata->spy_thr_under));
-@@ -147,8 +147,8 @@ int iw_handler_get_thrspy(struct net_device *	dev,
- 		return -EOPNOTSUPP;
+ static DEFINE_MUTEX(device_list_mutex);
+ static LIST_HEAD(device_list);
+diff --git a/drivers/infiniband/ulp/isert/ib_isert.h b/drivers/infiniband/ulp/isert/ib_isert.h
+index 6c5af13db4e0..ca8cfebe26ca 100644
+--- a/drivers/infiniband/ulp/isert/ib_isert.h
++++ b/drivers/infiniband/ulp/isert/ib_isert.h
+@@ -65,9 +65,6 @@
+  */
+ #define ISER_RX_SIZE		(ISCSI_DEF_MAX_RECV_SEG_LEN + 1024)
  
- 	/* Just do it */
--	memcpy(&(threshold->low), &(spydata->spy_thr_low),
--	       2 * sizeof(struct iw_quality));
-+	threshold->low = spydata->spy_thr_low;
-+	threshold->high = spydata->spy_thr_high;
+-/* Default I/O size is 1MB */
+-#define ISCSI_ISER_DEF_SG_TABLESIZE 256
+-
+ /* Minimum I/O size is 512KB */
+ #define ISCSI_ISER_MIN_SG_TABLESIZE 128
  
- 	return 0;
- }
-@@ -173,10 +173,10 @@ static void iw_send_thrspy_event(struct net_device *	dev,
- 	memcpy(threshold.addr.sa_data, address, ETH_ALEN);
- 	threshold.addr.sa_family = ARPHRD_ETHER;
- 	/* Copy stats */
--	memcpy(&(threshold.qual), wstats, sizeof(struct iw_quality));
-+	threshold.qual = *wstats;
- 	/* Copy also thresholds */
--	memcpy(&(threshold.low), &(spydata->spy_thr_low),
--	       2 * sizeof(struct iw_quality));
-+	threshold.low = spydata->spy_thr_low;
-+	threshold.high = spydata->spy_thr_high;
- 
- 	/* Send event to user space */
- 	wireless_send_event(dev, SIOCGIWTHRSPY, &wrqu, (char *) &threshold);
 -- 
 2.30.2
 
