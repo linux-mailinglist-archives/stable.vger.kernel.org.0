@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE7593BD20D
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE493BD23E
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237402AbhGFLlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:41:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47572 "EHLO mail.kernel.org"
+        id S237237AbhGFLlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:41:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237500AbhGFLgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237499AbhGFLgL (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:36:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B592261F1E;
-        Tue,  6 Jul 2021 11:28:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D808761F24;
+        Tue,  6 Jul 2021 11:28:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570894;
-        bh=XVELak/A53j3wbXPO7smMGauYy+KwP/a/wsJCFJNp/g=;
+        s=k20201202; t=1625570895;
+        bh=kmGKFWbJJL9Hw2c1Zq2y3HJdEnTJrqSwgwIX2ATRWXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ETaDQgFa1mpNsygMtB96S7inywHFqjOqQ2CIWnX4tEFrTWtSwth157LY2Aya2vH3u
-         FPHkBBi+u2kaV2X4rKVibikF/iTFNIUjrlsrZVaExGaRzoM8pKEOV4WvrwNVQ3xyjn
-         e5G2qnfsaYppNGizdmNIY5qV8rMbt8yXQBsfrtUhkcf04PR3hS4vfsq5IpDLNSf+FI
-         hgqHr1RKwYsUaun0q0MtFoXDgYURiApW5vKtLow1j8fKckmrP2z5ArPZneHboHgAAE
-         0hw5fLaNRGjz+rLoi5WK54NwEjAfhiBqB2DZ0WJgMdQKe5kCDgKCi48mK2KMxph35A
-         uSoGE+NRkm5Jg==
+        b=TL11lzfuEyi9yq8ysr49aHI1ok4omfUlUhLiI5UKRPnJUFWk0D1UR9fH/k4dsziOj
+         +r+hBy/TGkerrllI3br3l/JHxpcZtt8Syze776cNh19f1GS9V/KoXrS2hGSkURJyku
+         of+wgdvPLXioSdvY2eRm+GjJ99jPUK1ZPuaYZcRUUai/WAtO66s4zOSsx344nwggU4
+         1NTJmdnYC7jPwNzNWuFTd3XqV7w4pCxSqwSNq1DuZ4CIxs5KHFMP5gBY6Lm9OQL+kH
+         4+y4TbbdgozXrPZmYqSB7dAXEzPrjGuJXx0I7eufhszwtWcq9UAWMSnEto9Be4GXQr
+         tJAc4ZDuL33VA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 19/45] RDMA/cxgb4: Fix missing error code in create_qp()
-Date:   Tue,  6 Jul 2021 07:27:23 -0400
-Message-Id: <20210706112749.2065541-19-sashal@kernel.org>
+Cc:     Joe Thornber <ejt@redhat.com>, Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.14 20/45] dm space maps: don't reset space map allocation cursor when committing
+Date:   Tue,  6 Jul 2021 07:27:24 -0400
+Message-Id: <20210706112749.2065541-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112749.2065541-1-sashal@kernel.org>
 References: <20210706112749.2065541-1-sashal@kernel.org>
@@ -43,38 +41,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Joe Thornber <ejt@redhat.com>
 
-[ Upstream commit aeb27bb76ad8197eb47890b1ff470d5faf8ec9a5 ]
+[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
 
-The error code is missing in this code scenario so 0 will be returned. Add
-the error code '-EINVAL' to the return value 'ret'.
+Current commit code resets the place where the search for free blocks
+will begin back to the start of the metadata device.  There are a couple
+of repercussions to this:
 
-Eliminates the follow smatch warning:
+- The first allocation after the commit is likely to take longer than
+  normal as it searches for a free block in an area that is likely to
+  have very few free blocks (if any).
 
-drivers/infiniband/hw/cxgb4/qp.c:298 create_qp() warn: missing error code 'ret'.
+- Any free blocks it finds will have been recently freed.  Reusing them
+  means we have fewer old copies of the metadata to aid recovery from
+  hardware error.
 
-Link: https://lore.kernel.org/r/1622545669-20625-1-git-send-email-jiapeng.chong@linux.alibaba.com
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fix these issues by leaving the cursor alone, only resetting when the
+search hits the end of the metadata device.
+
+Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/qp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
+ drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
-index 15a867d62d02..325561580729 100644
---- a/drivers/infiniband/hw/cxgb4/qp.c
-+++ b/drivers/infiniband/hw/cxgb4/qp.c
-@@ -277,6 +277,7 @@ static int create_qp(struct c4iw_rdev *rdev, struct t4_wq *wq,
- 	if (user && (!wq->sq.bar2_pa || !wq->rq.bar2_pa)) {
- 		pr_warn("%s: sqid %u or rqid %u not in BAR2 range\n",
- 			pci_name(rdev->lldi.pdev), wq->sq.qid, wq->rq.qid);
-+		ret = -EINVAL;
- 		goto free_dma;
- 	}
+diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
+index bf4c5e2ccb6f..e0acae7a3815 100644
+--- a/drivers/md/persistent-data/dm-space-map-disk.c
++++ b/drivers/md/persistent-data/dm-space-map-disk.c
+@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smd->begin and the end of the metadata device.
++		 * We search before smd->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
  
+@@ -199,7 +207,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
+ 		return r;
+ 
+ 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
+-	smd->begin = 0;
+ 	smd->nr_allocated_this_transaction = 0;
+ 
+ 	r = sm_disk_get_nr_free(sm, &nr_free);
+diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
+index 31a999458be9..b3ded452e573 100644
+--- a/drivers/md/persistent-data/dm-space-map-metadata.c
++++ b/drivers/md/persistent-data/dm-space-map-metadata.c
+@@ -451,6 +451,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smm->begin and the end of the metadata device.
++		 * We search before smm->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
+ 
+@@ -502,7 +510,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
+ 		return r;
+ 
+ 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
+-	smm->begin = 0;
+ 	smm->allocated_this_transaction = 0;
+ 
+ 	return 0;
 -- 
 2.30.2
 
