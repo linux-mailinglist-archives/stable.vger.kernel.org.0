@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E09D73BCF5F
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70EFA3BCFAA
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:29:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234757AbhGFL2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:28:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35348 "EHLO mail.kernel.org"
+        id S234606AbhGFLbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:31:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233713AbhGFL0P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:26:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7EEF61CC3;
-        Tue,  6 Jul 2021 11:19:44 +0000 (UTC)
+        id S233857AbhGFL02 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:26:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C50D61CC9;
+        Tue,  6 Jul 2021 11:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570385;
-        bh=aP/EM1b9qK2BBJm0OU5caXqsX2vV20/HThE6Niuaryw=;
+        s=k20201202; t=1625570387;
+        bh=XM0qc8OEyEQoRAXRwwR3NOU253deuvnzcoUFNMEsi9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E4V+KQ8pkzlMqbsCxr67PCSgIY4LQZ0qmVWWO5xKzj88B4BzM16HjAxwN4GwZ2aJL
-         P/397APfKyqWln11raOKa4bKZy/9VyayDi0zSpEQwVJvQznNYCThxUFYjQ7xcoc9ag
-         rzp65/X0TrAUmVc3nQAr8hNtZlaSCAkHXJM4UdljOjgqhF0HzEGKnrF/wgQMUmQzda
-         QS7HQQ8cFxxLB7wUuAby7pvhBplTkiVDpOv7r/fCN+Y/aaiMfHlXhZ1nzRmBYgiMdW
-         61ZHtdMruJGx5zwRDjSdJEayfVq01kQHIK6dhx7zBatSvuJz8PLfeo3JdvEvp0pV51
-         kN3nTj35nGpug==
+        b=n51W0YNVPM+UyS0Ai9f5U8mHC2CLsEo6Xfi3eTdOqpJr1r1ag/9xJfPRD07kvDyGa
+         VUenYFeaVy12bJfyVHgAm2tuOOUu4xA4thXPxX8C8h/hodv1vr7NIYAfAqTwvlXJxG
+         sBzcKCB/Bq1ViJeaw4PhBXB8aRtDUzth2ziQRv5uKUvMeV6TqR5yzaNqFmaXfoqkg+
+         gIvT6noQ+zEsPn8p1Thxcjf/IiIhxgFzQr9C5JRz99zPZUzJ26ydHocE8aDQ2oHm1s
+         ZmA9HlA77jSb0gKjjXSRvVAyHTGpkiWlMEEUmG6keO4tP1pDcsh8jBVePq8m3C48uV
+         QRc/pEigteNAA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yuchung Cheng <ycheng@google.com>,
-        mingkun bian <bianmingkun@gmail.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 059/160] net: tcp better handling of reordering then loss cases
-Date:   Tue,  6 Jul 2021 07:16:45 -0400
-Message-Id: <20210706111827.2060499-59-sashal@kernel.org>
+Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 060/160] RDMA/cxgb4: Fix missing error code in create_qp()
+Date:   Tue,  6 Jul 2021 07:16:46 -0400
+Message-Id: <20210706111827.2060499-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -45,116 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuchung Cheng <ycheng@google.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit a29cb6914681a55667436a9eb7a42e28da8cf387 ]
+[ Upstream commit aeb27bb76ad8197eb47890b1ff470d5faf8ec9a5 ]
 
-This patch aims to improve the situation when reordering and loss are
-ocurring in the same flight of packets.
+The error code is missing in this code scenario so 0 will be returned. Add
+the error code '-EINVAL' to the return value 'ret'.
 
-Previously the reordering would first induce a spurious recovery, then
-the subsequent ACK may undo the cwnd (based on the timestamps e.g.).
-However the current loss recovery does not proceed to invoke
-RACK to install a reordering timer. If some packets are also lost, this
-may lead to a long RTO-based recovery. An example is
-https://groups.google.com/g/bbr-dev/c/OFHADvJbTEI
+Eliminates the follow smatch warning:
 
-The solution is to after reverting the recovery, always invoke RACK
-to either mount the RACK timer to fast retransmit after the reordering
-window, or restarts the recovery if new loss is identified. Hence
-it is possible the sender may go from Recovery to Disorder/Open to
-Recovery again in one ACK.
+drivers/infiniband/hw/cxgb4/qp.c:298 create_qp() warn: missing error code 'ret'.
 
-Reported-by: mingkun bian <bianmingkun@gmail.com>
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/1622545669-20625-1-git-send-email-jiapeng.chong@linux.alibaba.com
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c | 45 +++++++++++++++++++++++++-------------------
- 1 file changed, 26 insertions(+), 19 deletions(-)
+ drivers/infiniband/hw/cxgb4/qp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 69a545db80d2..e567fff1d1a6 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -2816,8 +2816,17 @@ static void tcp_process_loss(struct sock *sk, int flag, int num_dupack,
- 	*rexmit = REXMIT_LOST;
- }
- 
-+static bool tcp_force_fast_retransmit(struct sock *sk)
-+{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+
-+	return after(tcp_highest_sack_seq(tp),
-+		     tp->snd_una + tp->reordering * tp->mss_cache);
-+}
-+
- /* Undo during fast recovery after partial ACK. */
--static bool tcp_try_undo_partial(struct sock *sk, u32 prior_snd_una)
-+static bool tcp_try_undo_partial(struct sock *sk, u32 prior_snd_una,
-+				 bool *do_lost)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 
-@@ -2842,7 +2851,9 @@ static bool tcp_try_undo_partial(struct sock *sk, u32 prior_snd_una)
- 		tcp_undo_cwnd_reduction(sk, true);
- 		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPPARTIALUNDO);
- 		tcp_try_keep_open(sk);
--		return true;
-+	} else {
-+		/* Partial ACK arrived. Force fast retransmit. */
-+		*do_lost = tcp_force_fast_retransmit(sk);
+diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
+index d109bb3822a5..c9403743346e 100644
+--- a/drivers/infiniband/hw/cxgb4/qp.c
++++ b/drivers/infiniband/hw/cxgb4/qp.c
+@@ -295,6 +295,7 @@ static int create_qp(struct c4iw_rdev *rdev, struct t4_wq *wq,
+ 	if (user && (!wq->sq.bar2_pa || (need_rq && !wq->rq.bar2_pa))) {
+ 		pr_warn("%s: sqid %u or rqid %u not in BAR2 range\n",
+ 			pci_name(rdev->lldi.pdev), wq->sq.qid, wq->rq.qid);
++		ret = -EINVAL;
+ 		goto free_dma;
  	}
- 	return false;
- }
-@@ -2866,14 +2877,6 @@ static void tcp_identify_packet_loss(struct sock *sk, int *ack_flag)
- 	}
- }
  
--static bool tcp_force_fast_retransmit(struct sock *sk)
--{
--	struct tcp_sock *tp = tcp_sk(sk);
--
--	return after(tcp_highest_sack_seq(tp),
--		     tp->snd_una + tp->reordering * tp->mss_cache);
--}
--
- /* Process an event, which can update packets-in-flight not trivially.
-  * Main goal of this function is to calculate new estimate for left_out,
-  * taking into account both packets sitting in receiver's buffer and
-@@ -2943,17 +2946,21 @@ static void tcp_fastretrans_alert(struct sock *sk, const u32 prior_snd_una,
- 		if (!(flag & FLAG_SND_UNA_ADVANCED)) {
- 			if (tcp_is_reno(tp))
- 				tcp_add_reno_sack(sk, num_dupack, ece_ack);
--		} else {
--			if (tcp_try_undo_partial(sk, prior_snd_una))
--				return;
--			/* Partial ACK arrived. Force fast retransmit. */
--			do_lost = tcp_force_fast_retransmit(sk);
--		}
--		if (tcp_try_undo_dsack(sk)) {
--			tcp_try_keep_open(sk);
-+		} else if (tcp_try_undo_partial(sk, prior_snd_una, &do_lost))
- 			return;
--		}
-+
-+		if (tcp_try_undo_dsack(sk))
-+			tcp_try_keep_open(sk);
-+
- 		tcp_identify_packet_loss(sk, ack_flag);
-+		if (icsk->icsk_ca_state != TCP_CA_Recovery) {
-+			if (!tcp_time_to_recover(sk, flag))
-+				return;
-+			/* Undo reverts the recovery state. If loss is evident,
-+			 * starts a new recovery (e.g. reordering then loss);
-+			 */
-+			tcp_enter_recovery(sk, ece_ack);
-+		}
- 		break;
- 	case TCP_CA_Loss:
- 		tcp_process_loss(sk, flag, num_dupack, rexmit);
 -- 
 2.30.2
 
