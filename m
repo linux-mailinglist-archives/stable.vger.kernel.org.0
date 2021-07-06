@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D025C3BD50E
+	by mail.lfdr.de (Postfix) with ESMTP id 1BCF83BD50C
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:16:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232427AbhGFMSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:18:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47624 "EHLO mail.kernel.org"
+        id S233504AbhGFMSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:18:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236978AbhGFLft (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236989AbhGFLft (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:35:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9554761C9D;
-        Tue,  6 Jul 2021 11:24:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBD2861C9C;
+        Tue,  6 Jul 2021 11:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570698;
-        bh=tMnwuOqsKetrJOZHCxfof29wQdNfyrd0hr/fLSioJSQ=;
+        s=k20201202; t=1625570699;
+        bh=GptNHRxt4NSFEH5/XvLFiuhi1vJsblNqdlsj4pppnKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RmrQg/YCG3nY/ElkgqFgzySCVW8/Ya1Y31XOyXMnpBrtMrus+NaFUjxf2K48U6cTj
-         s2+z37kOP7A7+1pJ9Kl1kNZWL4JRNXd9HhiaAHFBiAYIO8zUwGp8XJkb/7GHBHMkSk
-         +XichBMPH2WlGo2WWM9u/fk/wFX1u6YmdcXaSmO5rUvi18CPZl9Fknqy9KrnA4Dxka
-         2Dt60UQq6Nwt5uBVy0Kw8gQOHd2wSde/2Uh8DxoZeMTpbn3EuDqmfUQp/r30RubntI
-         OGSG/zgdzn90tflnP/tCu7OY1AJfvG73fasGglxsoKf6C24xB4QkVy5uSePvydXtWN
-         baUP5mZHmXTCg==
+        b=L9sS8hLk7CqTBTt2LGR3WOvhHomOPwAatNVUTKNV/r1Rx7UrjawVTAQmvssn5PxuW
+         2SFH4FSUyfBHcC8eTwN+jvx9MzzLHE5exp0E5QSEDk1YPaf7TBdyqhG3jkHbgSEjYf
+         pbmx1Oq+jLJ4IqMdg5ZQbZM0wh5jWVvZtWFHJL7FBBSnY9dCUhFKfQgXpU8XcPUUxl
+         wJe5WHA3YVGU+L3SlzuAY/qjq4K4BNO+oO8dskBthhh5SEHOqrQO+LgCGXal6iMV7v
+         P7DA8uuClHGNJphXjEVHceKqe50p5v2kLOxRlcv9JIIJgiNNZn1IBUYs8RKnq4HV4X
+         i4DXo2PsyILPw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-sctp@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 135/137] sctp: add size validation when walking chunks
-Date:   Tue,  6 Jul 2021 07:22:01 -0400
-Message-Id: <20210706112203.2062605-135-sashal@kernel.org>
+Cc:     zhanglianjie <zhanglianjie@uniontech.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 136/137] MIPS: loongsoon64: Reserve memory below starting pfn to prevent Oops
+Date:   Tue,  6 Jul 2021 07:22:02 -0400
+Message-Id: <20210706112203.2062605-136-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -44,40 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: zhanglianjie <zhanglianjie@uniontech.com>
 
-[ Upstream commit 50619dbf8db77e98d821d615af4f634d08e22698 ]
+[ Upstream commit 6817c944430d00f71ccaa9c99ff5b0096aeb7873 ]
 
-The first chunk in a packet is ensured to be present at the beginning of
-sctp_rcv(), as a packet needs to have at least 1 chunk. But the second
-one, may not be completely available and ch->length can be over
-uninitialized memory.
+The cause of the problem is as follows:
+1. when cat /sys/devices/system/memory/memory0/valid_zones,
+   test_pages_in_a_zone() will be called.
+2. test_pages_in_a_zone() finds the zone according to stat_pfn = 0.
+   The smallest pfn of the numa node in the mips architecture is 128,
+   and the page corresponding to the previous 0~127 pfn is not
+   initialized (page->flags is 0xFFFFFFFF)
+3. The nid and zonenum obtained using page_zone(pfn_to_page(0)) are out
+   of bounds in the corresponding array,
+   &NODE_DATA(page_to_nid(page))->node_zones[page_zonenum(page)],
+   access to the out-of-bounds zone member variables appear abnormal,
+   resulting in Oops.
+Therefore, it is necessary to keep the page between 0 and the minimum
+pfn to prevent Oops from appearing.
 
-Fix here is by only trying to walk on the next chunk if there is enough to
-hold at least the header, and then proceed with the ch->length validation
-that is already there.
-
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: zhanglianjie <zhanglianjie@uniontech.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/loongson64/numa.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index 8924e2e142c8..f72bff93745c 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -1247,7 +1247,7 @@ static struct sctp_association *__sctp_rcv_walk_lookup(struct net *net,
- 
- 		ch = (struct sctp_chunkhdr *)ch_end;
- 		chunk_num++;
--	} while (ch_end < skb_tail_pointer(skb));
-+	} while (ch_end + sizeof(*ch) < skb_tail_pointer(skb));
- 
- 	return asoc;
+diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
+index cf9459f79f9b..e4c461df3ee6 100644
+--- a/arch/mips/loongson64/numa.c
++++ b/arch/mips/loongson64/numa.c
+@@ -182,6 +182,9 @@ static void __init node_mem_init(unsigned int node)
+ 		if (node_end_pfn(0) >= (0xffffffff >> PAGE_SHIFT))
+ 			memblock_reserve((node_addrspace_offset | 0xfe000000),
+ 					 32 << 20);
++
++		/* Reserve pfn range 0~node[0]->node_start_pfn */
++		memblock_reserve(0, PAGE_SIZE * start_pfn);
+ 	}
  }
+ 
 -- 
 2.30.2
 
