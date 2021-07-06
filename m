@@ -2,72 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE59A3BDBA4
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 18:45:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D00223BDDCD
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 21:08:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230197AbhGFQrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 12:47:36 -0400
-Received: from mga01.intel.com ([192.55.52.88]:52110 "EHLO mga01.intel.com"
+        id S231588AbhGFTKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 15:10:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230048AbhGFQrd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 12:47:33 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10037"; a="230883143"
-X-IronPort-AV: E=Sophos;i="5.83,328,1616482800"; 
-   d="scan'208";a="230883143"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2021 09:44:53 -0700
-X-IronPort-AV: E=Sophos;i="5.83,328,1616482800"; 
-   d="scan'208";a="457133171"
-Received: from agluck-desk2.sc.intel.com (HELO agluck-desk2.amr.corp.intel.com) ([10.3.52.146])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2021 09:44:52 -0700
-Date:   Tue, 6 Jul 2021 09:44:51 -0700
-From:   "Luck, Tony" <tony.luck@intel.com>
-To:     Ding Hui <dinghui@sangfor.com.cn>
-Cc:     bp@alien8.de, bp@suse.de, naoya.horiguchi@nec.com,
-        osalvador@suse.de, peterz@infradead.org,
-        linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
-        tglx@linutronix.de, mingo@redhat.com, x86@kernel.org,
-        hpa@zytor.com, youquan.song@intel.com, huangcun@sangfor.com.cn,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] x86/mce: Fix endless loop when run task works after
- #MC
-Message-ID: <20210706164451.GA1289248@agluck-desk2.amr.corp.intel.com>
-References: <20210706121606.15864-1-dinghui@sangfor.com.cn>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210706121606.15864-1-dinghui@sangfor.com.cn>
+        id S231489AbhGFTKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 15:10:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C775E61C23;
+        Tue,  6 Jul 2021 19:07:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1625598480;
+        bh=vlPyGefJ0JCr70vLnVlxZhyC+O0CrvODK63+VJMM0Aw=;
+        h=Date:From:To:Subject:From;
+        b=s+/dZqUNTaA9hreAeFxtVgtQtPf3jqnRdkn/S/UYnmIbu/3geI9x00+wAboHXCyXs
+         Pihel3KHAR6F1iJZw/j4ltT824cRJ51XurcNKB7g2N/cSBGcDzOzRb1hj+QC00X+5s
+         A96mf9Je7NbOQQwjXxeF+zD7OkcXt/KwWA1/vtz0=
+Date:   Tue, 06 Jul 2021 12:07:59 -0700
+From:   akpm@linux-foundation.org
+To:     jack@suse.cz, jannh@google.com, jhubbard@nvidia.com,
+        kirill@shutemov.name, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, willy@infradead.org
+Subject:  [merged]
+ mm-gup-fix-try_grab_compound_head-race-with-split_huge_page.patch removed
+ from -mm tree
+Message-ID: <20210706190759._ZDDwl3lf%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 06, 2021 at 08:16:06PM +0800, Ding Hui wrote:
-> Recently we encounter multi #MC on the same task when it's
-> task_work_run() has not been called, current->mce_kill_me was
-> added to task_works list more than once, that make a circular
-> linked task_works, so task_work_run() will do a endless loop.
 
-I saw the same and posted a similar fix a while back:
+The patch titled
+     Subject: mm/gup: fix try_grab_compound_head() race with split_huge_page()
+has been removed from the -mm tree.  Its filename was
+     mm-gup-fix-try_grab_compound_head-race-with-split_huge_page.patch
 
-https://www.spinics.net/lists/linux-mm/msg251006.html
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-It didn't get merged because some validation tests began failing
-around the same time.  I'm now pretty sure I understand what happened
-with those other tests.
+------------------------------------------------------
+From: Jann Horn <jannh@google.com>
+Subject: mm/gup: fix try_grab_compound_head() race with split_huge_page()
 
-I'll post my updated version (second patch in a three part series)
-later today.
+try_grab_compound_head() is used to grab a reference to a page from
+get_user_pages_fast(), which is only protected against concurrent freeing
+of page tables (via local_irq_save()), but not against concurrent TLB
+flushes, freeing of data pages, or splitting of compound pages.
 
-> diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+Because no reference is held to the page when try_grab_compound_head() is
+called, the page may have been freed and reallocated by the time its
+refcount has been elevated; therefore, once we're holding a stable
+reference to the page, the caller re-checks whether the PTE still points
+to the same page (with the same access rights).
 
-> +	if (!cmpxchg(&current->mce_kill_me.func, NULL, ch.func)) {
-> +		current->mce_addr = m->addr;
-> +		current->mce_kflags = m->kflags;
-> +		current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
-> +		current->mce_whole_page = whole_page(m);
+The problem is that try_grab_compound_head() has to grab a reference on
+the head page; but between the time we look up what the head page is and
+the time we actually grab a reference on the head page, the compound page
+may have been split up (either explicitly through split_huge_page() or by
+freeing the compound page to the buddy allocator and then allocating its
+individual order-0 pages).  If that happens, get_user_pages_fast() may end
+up returning the right page but lifting the refcount on a now-unrelated
+page, leading to use-after-free of pages.
 
-You don't need an atomic cmpxchg here (nor the WRITE_ONCE() to clear it).
-The task is operating on its own task_struct. Nobody else should touch
-the mce_kill_me field.
+To fix it: Re-check whether the pages still belong together after lifting
+the refcount on the head page.  Move anything else that checks
+compound_head(page) below the refcount increment.
 
--Tony
+This can't actually happen on bare-metal x86 (because there, disabling
+IRQs locks out remote TLB flushes), but it can happen on virtualized x86
+(e.g.  under KVM) and probably also on arm64.  The race window is pretty
+narrow, and constantly allocating and shattering hugepages isn't exactly
+fast; for now I've only managed to reproduce this in an x86 KVM guest with
+an artificially widened timing window (by adding a loop that repeatedly
+calls `inl(0x3f8 + 5)` in `try_get_compound_head()` to force VM exits, so
+that PV TLB flushes are used instead of IPIs).
+
+As requested on the list, also replace the existing VM_BUG_ON_PAGE() with
+a warning and bailout.  Since the existing code only performed the BUG_ON
+check on DEBUG_VM kernels, ensure that the new code also only performs the
+check under that configuration - I don't want to mix two logically
+separate changes together too much.  The macro VM_WARN_ON_ONCE_PAGE()
+doesn't return a value on !DEBUG_VM, so wrap the whole check in an #ifdef
+block.  An alternative would be to change the VM_WARN_ON_ONCE_PAGE()
+definition for !DEBUG_VM such that it always returns false, but since that
+would differ from the behavior of the normal WARN macros, it might be too
+confusing for readers.
+
+Link: https://lkml.kernel.org/r/20210615012014.1100672-1-jannh@google.com
+Fixes: 7aef4172c795 ("mm: handle PTE-mapped tail pages in gerneric fast gup implementaiton")
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/gup.c |   58 +++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 43 insertions(+), 15 deletions(-)
+
+--- a/mm/gup.c~mm-gup-fix-try_grab_compound_head-race-with-split_huge_page
++++ a/mm/gup.c
+@@ -44,6 +44,23 @@ static void hpage_pincount_sub(struct pa
+ 	atomic_sub(refs, compound_pincount_ptr(page));
+ }
+ 
++/* Equivalent to calling put_page() @refs times. */
++static void put_page_refs(struct page *page, int refs)
++{
++#ifdef CONFIG_DEBUG_VM
++	if (VM_WARN_ON_ONCE_PAGE(page_ref_count(page) < refs, page))
++		return;
++#endif
++
++	/*
++	 * Calling put_page() for each ref is unnecessarily slow. Only the last
++	 * ref needs a put_page().
++	 */
++	if (refs > 1)
++		page_ref_sub(page, refs - 1);
++	put_page(page);
++}
++
+ /*
+  * Return the compound head page with ref appropriately incremented,
+  * or NULL if that failed.
+@@ -56,6 +73,21 @@ static inline struct page *try_get_compo
+ 		return NULL;
+ 	if (unlikely(!page_cache_add_speculative(head, refs)))
+ 		return NULL;
++
++	/*
++	 * At this point we have a stable reference to the head page; but it
++	 * could be that between the compound_head() lookup and the refcount
++	 * increment, the compound page was split, in which case we'd end up
++	 * holding a reference on a page that has nothing to do with the page
++	 * we were given anymore.
++	 * So now that the head page is stable, recheck that the pages still
++	 * belong together.
++	 */
++	if (unlikely(compound_head(page) != head)) {
++		put_page_refs(head, refs);
++		return NULL;
++	}
++
+ 	return head;
+ }
+ 
+@@ -96,6 +128,14 @@ __maybe_unused struct page *try_grab_com
+ 			return NULL;
+ 
+ 		/*
++		 * CAUTION: Don't use compound_head() on the page before this
++		 * point, the result won't be stable.
++		 */
++		page = try_get_compound_head(page, refs);
++		if (!page)
++			return NULL;
++
++		/*
+ 		 * When pinning a compound page of order > 1 (which is what
+ 		 * hpage_pincount_available() checks for), use an exact count to
+ 		 * track it, via hpage_pincount_add/_sub().
+@@ -103,15 +143,10 @@ __maybe_unused struct page *try_grab_com
+ 		 * However, be sure to *also* increment the normal page refcount
+ 		 * field at least once, so that the page really is pinned.
+ 		 */
+-		if (!hpage_pincount_available(page))
+-			refs *= GUP_PIN_COUNTING_BIAS;
+-
+-		page = try_get_compound_head(page, refs);
+-		if (!page)
+-			return NULL;
+-
+ 		if (hpage_pincount_available(page))
+ 			hpage_pincount_add(page, refs);
++		else
++			page_ref_add(page, refs * (GUP_PIN_COUNTING_BIAS - 1));
+ 
+ 		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_ACQUIRED,
+ 				    orig_refs);
+@@ -135,14 +170,7 @@ static void put_compound_head(struct pag
+ 			refs *= GUP_PIN_COUNTING_BIAS;
+ 	}
+ 
+-	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
+-	/*
+-	 * Calling put_page() for each ref is unnecessarily slow. Only the last
+-	 * ref needs a put_page().
+-	 */
+-	if (refs > 1)
+-		page_ref_sub(page, refs - 1);
+-	put_page(page);
++	put_page_refs(page, refs);
+ }
+ 
+ /**
+_
+
+Patches currently in -mm which might be from jannh@google.com are
+
+
