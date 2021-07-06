@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 492D73BD4EB
+	by mail.lfdr.de (Postfix) with ESMTP id C78E23BD4EC
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234166AbhGFMSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:18:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
+        id S233480AbhGFMSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:18:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236580AbhGFLfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6F2961D3A;
-        Tue,  6 Jul 2021 11:23:42 +0000 (UTC)
+        id S236606AbhGFLfc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:35:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3078061E3F;
+        Tue,  6 Jul 2021 11:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570623;
-        bh=gD93Bd/J9PwIC6ylbhcrcIv0gxefV7yCn5BZu7DNqXU=;
+        s=k20201202; t=1625570630;
+        bh=NQy8nTnLvXU/vhv4B5FMdCwgkqRgd+S+GC6IS4N4NfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DS/xpGnT1Lu90YbrwW3mcRGEWiAY+MT8kLyV47vAu1uiX2VqqmUZ/66rRXByay4if
-         O/am54aCSAMjUh/6H+lWR2oQvKt9n7oe9fk5eTaaGgfmI8nc9DUnbVbFhmfdJ1waly
-         Q/nqQdyB+fRATnemg20bD7BqiMlyEzcUkj1pe69XU83ENjdZTv9+4w6esaDBGrPG+z
-         MoQbcjpN6RHNvZDvprzBQSdl39TyAfx1CXg41ZX0+OmZQtg5NJbPkZa7EJHeOKG9uM
-         To0C0NeA6i5n3PgqmXERBVk0iDu3Oi8dAFKAxAtjDDTS4fzRRJz06Imqcp4CSjd86o
-         EGxK8L4/cnffA==
+        b=JUrLxS9KRY/4wQj4FwIsEKwveZCUDADaTKf4urI4KLtVgfrj+WFyzpZ5QsVNfqvqi
+         V7gto+4lZWzUUcqIeebc/Pu6JliES2buV6ri/y4LJxgEs1XjgkTLKGhH382R48KhWJ
+         B/EiuQVYlVfNKgZid7gnbKn8+BNXxLRFJpOFy/C3jWBkXLe4N427B0wfGIg0RlkFKH
+         k/xuLUZ96aZo2m2HhZZ9IF2+t93Fx57RMfP/qXKz61h5WbjK/aeS289hDBYe00czbg
+         5/0ociJFJbOxyUij+ch3MVpJxHyycqU8xYbmhfqZzRiI+MCWXADoNOHeQAuUUhyS7q
+         U9DDU4YqGe5RA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Minchan Kim <minchan@kernel.org>, Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 077/137] selinux: use __GFP_NOWARN with GFP_NOWAIT in the AVC
-Date:   Tue,  6 Jul 2021 07:21:03 -0400
-Message-Id: <20210706112203.2062605-77-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>,
+        Carl Philipp Klemm <philipp@uvos.xyz>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 082/137] wlcore/wl12xx: Fix wl12xx get_mac error if device is in ELP
+Date:   Tue,  6 Jul 2021 07:21:08 -0400
+Message-Id: <20210706112203.2062605-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -41,130 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minchan Kim <minchan@kernel.org>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 648f2c6100cfa18e7dfe43bc0b9c3b73560d623c ]
+[ Upstream commit 11ef6bc846dcdce838f0b00c5f6a562c57e5d43b ]
 
-In the field, we have seen lots of allocation failure from the call
-path below.
+At least on wl12xx, reading the MAC after boot can fail with a warning
+at drivers/net/wireless/ti/wlcore/sdio.c:78 wl12xx_sdio_raw_read.
+The failed call comes from wl12xx_get_mac() that wlcore_nvs_cb() calls
+after request_firmware_work_func().
 
-06-03 13:29:12.999 1010315 31557 31557 W Binder  : 31542_2: page allocation failure: order:0, mode:0x800(GFP_NOWAIT), nodemask=(null),cpuset=background,mems_allowed=0
-...
-...
-06-03 13:29:12.999 1010315 31557 31557 W Call trace:
-06-03 13:29:12.999 1010315 31557 31557 W         : dump_backtrace.cfi_jt+0x0/0x8
-06-03 13:29:12.999 1010315 31557 31557 W         : dump_stack+0xc8/0x14c
-06-03 13:29:12.999 1010315 31557 31557 W         : warn_alloc+0x158/0x1c8
-06-03 13:29:12.999 1010315 31557 31557 W         : __alloc_pages_slowpath+0x9d8/0xb80
-06-03 13:29:12.999 1010315 31557 31557 W         : __alloc_pages_nodemask+0x1c4/0x430
-06-03 13:29:12.999 1010315 31557 31557 W         : allocate_slab+0xb4/0x390
-06-03 13:29:12.999 1010315 31557 31557 W         : ___slab_alloc+0x12c/0x3a4
-06-03 13:29:12.999 1010315 31557 31557 W         : kmem_cache_alloc+0x358/0x5e4
-06-03 13:29:12.999 1010315 31557 31557 W         : avc_alloc_node+0x30/0x184
-06-03 13:29:12.999 1010315 31557 31557 W         : avc_update_node+0x54/0x4f0
-06-03 13:29:12.999 1010315 31557 31557 W         : avc_has_extended_perms+0x1a4/0x460
-06-03 13:29:12.999 1010315 31557 31557 W         : selinux_file_ioctl+0x320/0x3d0
-06-03 13:29:12.999 1010315 31557 31557 W         : __arm64_sys_ioctl+0xec/0x1fc
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_svc_common+0xc0/0x24c
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_svc+0x28/0x88
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_sync_handler+0x8c/0xf0
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_sync+0x1a4/0x1c0
-..
-..
-06-03 13:29:12.999 1010315 31557 31557 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010315 31557 31557 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010315 31557 31557 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 10230 30892 30892 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 10230 30892 30892 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 10230 30892 30892 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 10230 30892 30892 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 10230 30892 30892 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+After the error, no wireless interface is created. Reloading the wl12xx
+module makes the interface work.
 
-Based on [1], selinux is tolerate for failure of memory allocation.
-Then, use __GFP_NOWARN together.
+Turns out the wlan controller can be in a low-power ELP state after the
+boot from the bootloader or kexec, and needs to be woken up first.
 
-[1] 476accbe2f6e ("selinux: use GFP_NOWAIT in the AVC kmem_caches")
+Let's wake the hardware and add a sleep after that similar to
+wl12xx_pre_boot() is already doing.
 
-Signed-off-by: Minchan Kim <minchan@kernel.org>
-[PM: subj fix, line wraps, normalized commit refs]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Note that a similar issue could exist for wl18xx, but I have not seen it
+so far. And a search for wl18xx_get_mac and wl12xx_sdio_raw_read did not
+produce similar errors.
+
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210603062814.19464-1-tony@atomide.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/avc.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ti/wl12xx/main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 3c05827608b6..884a014ce2b8 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -297,26 +297,27 @@ static struct avc_xperms_decision_node
- 	struct avc_xperms_decision_node *xpd_node;
- 	struct extended_perms_decision *xpd;
+diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
+index 9d7dbfe7fe0c..c6da0cfb4afb 100644
+--- a/drivers/net/wireless/ti/wl12xx/main.c
++++ b/drivers/net/wireless/ti/wl12xx/main.c
+@@ -1503,6 +1503,13 @@ static int wl12xx_get_fuse_mac(struct wl1271 *wl)
+ 	u32 mac1, mac2;
+ 	int ret;
  
--	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep, GFP_NOWAIT);
-+	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep,
-+				     GFP_NOWAIT | __GFP_NOWARN);
- 	if (!xpd_node)
- 		return NULL;
- 
- 	xpd = &xpd_node->xpd;
- 	if (which & XPERMS_ALLOWED) {
- 		xpd->allowed = kmem_cache_zalloc(avc_xperms_data_cachep,
--						GFP_NOWAIT);
-+						GFP_NOWAIT | __GFP_NOWARN);
- 		if (!xpd->allowed)
- 			goto error;
- 	}
- 	if (which & XPERMS_AUDITALLOW) {
- 		xpd->auditallow = kmem_cache_zalloc(avc_xperms_data_cachep,
--						GFP_NOWAIT);
-+						GFP_NOWAIT | __GFP_NOWARN);
- 		if (!xpd->auditallow)
- 			goto error;
- 	}
- 	if (which & XPERMS_DONTAUDIT) {
- 		xpd->dontaudit = kmem_cache_zalloc(avc_xperms_data_cachep,
--						GFP_NOWAIT);
-+						GFP_NOWAIT | __GFP_NOWARN);
- 		if (!xpd->dontaudit)
- 			goto error;
- 	}
-@@ -344,7 +345,7 @@ static struct avc_xperms_node *avc_xperms_alloc(void)
- {
- 	struct avc_xperms_node *xp_node;
- 
--	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT);
-+	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT | __GFP_NOWARN);
- 	if (!xp_node)
- 		return xp_node;
- 	INIT_LIST_HEAD(&xp_node->xpd_head);
-@@ -500,7 +501,7 @@ static struct avc_node *avc_alloc_node(struct selinux_avc *avc)
- {
- 	struct avc_node *node;
- 
--	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT);
-+	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT | __GFP_NOWARN);
- 	if (!node)
++	/* Device may be in ELP from the bootloader or kexec */
++	ret = wlcore_write32(wl, WL12XX_WELP_ARM_COMMAND, WELP_ARM_COMMAND_VAL);
++	if (ret < 0)
++		goto out;
++
++	usleep_range(500000, 700000);
++
+ 	ret = wlcore_set_partition(wl, &wl->ptable[PART_DRPW]);
+ 	if (ret < 0)
  		goto out;
- 
 -- 
 2.30.2
 
