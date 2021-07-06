@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E16B3BD179
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9673BD176
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:38:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238406AbhGFLjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:39:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47620 "EHLO mail.kernel.org"
+        id S238413AbhGFLje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:39:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237092AbhGFLfy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BECC761363;
-        Tue,  6 Jul 2021 11:25:26 +0000 (UTC)
+        id S237117AbhGFLfz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:35:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1056361EA3;
+        Tue,  6 Jul 2021 11:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570727;
-        bh=DXNw3JdV5Xk7dzotIKYtcXxrIDggvEiE7eo5uR+1n8Q=;
+        s=k20201202; t=1625570734;
+        bh=NKRBa+ZnalVf/of+MHcxQ4XWS/mH2Exv8L+GNaH1lEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eDHuEaG8phvKBPvIcyUFcqngo7mpHg3leoMLKPTZ+R0zxUlLI3+5eDxtl7EuNoe/y
-         o8Lbn+jxI4Dmy8XGQ5pv1QnchA9Vm00WQcba65hESVtCZB+uALg0jLnVXtknW43ScX
-         rEoh3aCg6LIDjp8q7V2n93Ia3rwmz44Hyk7G2DDjwu8mcMu/MMy4reKeV/FHuQm4/B
-         SYrZnG9Eqm6TqeddP4983QBj3rsW9T3lYcN5xQVp1WiViOhrCOUJdF58Nrtq9aEzB7
-         tIFA/nvUhdr2o6C5VhFyVeJD517lPosBZ2M6qjm1EBh2L82gJ1Daz9B/9czvXd/jhf
-         jQSxzD1BjFpQg==
+        b=SD61JUi6gP0doGXaq/Ns91IMRg7Ogh8uGVAse23X8zphUFSD8NAy1+abFL+7nf6Eh
+         Cz/qzi/HxB9EsnfjzcxjSh0GKfFTy/vueUJ0uqh2HFENibrdOIKIpJQ1auWiDfnC6/
+         5110THqbKddKq5fDM+g4G66tcthoA8+k/KAMMUrDgmiGmDWstOi140Xk1J0Ut95cRe
+         8Ezx4SN8qmHRmPbw9WnZGjKc7nOtsd1cbtZ+AhFgpCwrzWo2CYPKM9o7w7uwCJNBdV
+         3epriRoRI4ppk3I7OSyHp54FjYIOyGBeMFFpCSRQsrkX3fpPlmsCedpodHhrKZT5bP
+         eNo8uX3XgVJhQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arturo Giusti <koredump@protonmail.com>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 19/74] udf: Fix NULL pointer dereference in udf_symlink function
-Date:   Tue,  6 Jul 2021 07:24:07 -0400
-Message-Id: <20210706112502.2064236-19-sashal@kernel.org>
+Cc:     Willy Tarreau <w@1wt.eu>, Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 25/74] ipv6: use prandom_u32() for ID generation
+Date:   Tue,  6 Jul 2021 07:24:13 -0400
+Message-Id: <20210706112502.2064236-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112502.2064236-1-sashal@kernel.org>
 References: <20210706112502.2064236-1-sashal@kernel.org>
@@ -41,41 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arturo Giusti <koredump@protonmail.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit fa236c2b2d4436d9f19ee4e5d5924e90ffd7bb43 ]
+[ Upstream commit 62f20e068ccc50d6ab66fdb72ba90da2b9418c99 ]
 
-In function udf_symlink, epos.bh is assigned with the value returned
-by udf_tgetblk. The function udf_tgetblk is defined in udf/misc.c
-and returns the value of sb_getblk function that could be NULL.
-Then, epos.bh is used without any check, causing a possible
-NULL pointer dereference when sb_getblk fails.
+This is a complement to commit aa6dd211e4b1 ("inet: use bigger hash
+table for IP ID generation"), but focusing on some specific aspects
+of IPv6.
 
-This fix adds a check to validate the value of epos.bh.
+Contary to IPv4, IPv6 only uses packet IDs with fragments, and with a
+minimum MTU of 1280, it's much less easy to force a remote peer to
+produce many fragments to explore its ID sequence. In addition packet
+IDs are 32-bit in IPv6, which further complicates their analysis. On
+the other hand, it is often easier to choose among plenty of possible
+source addresses and partially work around the bigger hash table the
+commit above permits, which leaves IPv6 partially exposed to some
+possibilities of remote analysis at the risk of weakening some
+protocols like DNS if some IDs can be predicted with a good enough
+probability.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=213083
-Signed-off-by: Arturo Giusti <koredump@protonmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Given the wide range of permitted IDs, the risk of collision is extremely
+low so there's no need to rely on the positive increment algorithm that
+is shared with the IPv4 code via ip_idents_reserve(). We have a fast
+PRNG, so let's simply call prandom_u32() and be done with it.
+
+Performance measurements at 10 Gbps couldn't show any difference with
+the previous code, even when using a single core, because due to the
+large fragments, we're limited to only ~930 kpps at 10 Gbps and the cost
+of the random generation is completely offset by other operations and by
+the network transfer time. In addition, this change removes the need to
+update a shared entry in the idents table so it may even end up being
+slightly faster on large scale systems where this matters.
+
+The risk of at least one collision here is about 1/80 million among
+10 IDs, 1/850k among 100 IDs, and still only 1/8.5k among 1000 IDs,
+which remains very low compared to IPv4 where all IDs are reused
+every 4 to 80ms on a 10 Gbps flow depending on packet sizes.
+
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210529110746.6796-1-w@1wt.eu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/namei.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv6/output_core.c | 28 +++++-----------------------
+ 1 file changed, 5 insertions(+), 23 deletions(-)
 
-diff --git a/fs/udf/namei.c b/fs/udf/namei.c
-index 77b6d89b9bcd..3c3d3b20889c 100644
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -933,6 +933,10 @@ static int udf_symlink(struct inode *dir, struct dentry *dentry,
- 				iinfo->i_location.partitionReferenceNum,
- 				0);
- 		epos.bh = udf_tgetblk(sb, block);
-+		if (unlikely(!epos.bh)) {
-+			err = -ENOMEM;
-+			goto out_no_entry;
-+		}
- 		lock_buffer(epos.bh);
- 		memset(epos.bh->b_data, 0x00, bsize);
- 		set_buffer_uptodate(epos.bh);
+diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
+index af36acc1a644..2880dc7d9a49 100644
+--- a/net/ipv6/output_core.c
++++ b/net/ipv6/output_core.c
+@@ -15,29 +15,11 @@ static u32 __ipv6_select_ident(struct net *net,
+ 			       const struct in6_addr *dst,
+ 			       const struct in6_addr *src)
+ {
+-	const struct {
+-		struct in6_addr dst;
+-		struct in6_addr src;
+-	} __aligned(SIPHASH_ALIGNMENT) combined = {
+-		.dst = *dst,
+-		.src = *src,
+-	};
+-	u32 hash, id;
+-
+-	/* Note the following code is not safe, but this is okay. */
+-	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
+-		get_random_bytes(&net->ipv4.ip_id_key,
+-				 sizeof(net->ipv4.ip_id_key));
+-
+-	hash = siphash(&combined, sizeof(combined), &net->ipv4.ip_id_key);
+-
+-	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
+-	 * set the hight order instead thus minimizing possible future
+-	 * collisions.
+-	 */
+-	id = ip_idents_reserve(hash, 1);
+-	if (unlikely(!id))
+-		id = 1 << 31;
++	u32 id;
++
++	do {
++		id = prandom_u32();
++	} while (!id);
+ 
+ 	return id;
+ }
 -- 
 2.30.2
 
