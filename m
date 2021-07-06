@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F28F3BD25C
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF733BD258
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:41:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237545AbhGFLmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:42:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
+        id S237526AbhGFLmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237638AbhGFLgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237639AbhGFLgU (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:36:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BD2E61F6A;
-        Tue,  6 Jul 2021 11:29:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2A1361F05;
+        Tue,  6 Jul 2021 11:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570942;
-        bh=bneTy3l4dtaTdeZs1Xduz3nnufrr2WqhPF/+LlNBZy8=;
+        s=k20201202; t=1625570943;
+        bh=5i7m6YX8SA5KT6nhg8VE7TWcYW8SL3Nb60FoMy3MKc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qiMDxnOUFOi+rse9XEQ7PrxUn6l7ff0Z6Iy7pH1+GcgbmOZ932f+Um9MNZoQtU9xR
-         m/6Ga7HU2R19Lty9RMtNfRMQNsj7ID1bUBwNo74RMFZ9XyQHw8FIDC1yXGU2tIlnsY
-         jgCw/ilxZVKEEaYOBN/2LU4L/Xa2UmySmOQ40KdCFRYVVOAL3PW5b5OacfEvxbzRqz
-         WHErI08EZBRxDVJMygk4SP8SKorOuD7tjuR7V3x+ghfPM1TLn2GGR0lZ1D7Pjf3ObV
-         aUn7kIl6rsr3H3w2RtgwIjFel6CnzNF0Q0VBX/FyidGWGzy1hAwxEEix/Su48hc3Sl
-         p5nialY0SvH7g==
+        b=GmLewHrEGRrdRDEcJURYWZSLhdr2DjGl5+lBjltGfcLqnQ7DVPR7YUkCmL5gl/q+k
+         MKRi/u7RI9PjY8qgQNZebHInxNI8IVI4gbgjNX4I0twh8ejPZmm3J9/OXVGchzfPfu
+         VIr+PDAikSnB0qs9+gi3Pt/HlsDgjbCH117GPoYz591askH1bxOMunvweCWuBcBl6U
+         mphu2teODYHOdUa4T62qS819wJTwIS+rXiogqgSzmgI3p9aVJ5usTx3CQmnEdgXPl3
+         g2p5ScqFkACaW2DCQ5+cByJ7c/ScdBr8xyqlm6ODa8410jHabechO6y5C+73tvRkRk
+         htbq3UywLHeUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 11/35] e100: handle eeprom as little endian
-Date:   Tue,  6 Jul 2021 07:28:23 -0400
-Message-Id: <20210706112848.2066036-11-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 12/35] clk: tegra: Ensure that PLLU configuration is applied properly
+Date:   Tue,  6 Jul 2021 07:28:24 -0400
+Message-Id: <20210706112848.2066036-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112848.2066036-1-sashal@kernel.org>
 References: <20210706112848.2066036-1-sashal@kernel.org>
@@ -43,67 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit d4ef55288aa2e1b76033717242728ac98ddc4721 ]
+[ Upstream commit a7196048cd5168096c2c4f44a3939d7a6dcd06b9 ]
 
-Sparse tool was warning on some implicit conversions from
-little endian data read from the EEPROM on the e100 cards.
+The PLLU (USB) consists of the PLL configuration itself and configuration
+of the PLLU outputs. The PLLU programming is inconsistent on T30 vs T114,
+where T114 immediately bails out if PLLU is enabled and T30 re-enables
+a potentially already enabled PLL (left after bootloader) and then fully
+reprograms it, which could be unsafe to do. The correct way should be to
+skip enabling of the PLL if it's already enabled and then apply
+configuration to the outputs. This patch doesn't fix any known problems,
+it's a minor improvement.
 
-Fix these by being explicit about the conversions using
-le16_to_cpu().
-
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e100.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/clk/tegra/clk-pll.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index 93c29094ceff..9035cb5fc70d 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -1423,7 +1423,7 @@ static int e100_phy_check_without_mii(struct nic *nic)
- 	u8 phy_type;
- 	int without_mii;
+diff --git a/drivers/clk/tegra/clk-pll.c b/drivers/clk/tegra/clk-pll.c
+index 1ab36a355daf..789efad791a3 100644
+--- a/drivers/clk/tegra/clk-pll.c
++++ b/drivers/clk/tegra/clk-pll.c
+@@ -1085,7 +1085,8 @@ static int clk_pllu_enable(struct clk_hw *hw)
+ 	if (pll->lock)
+ 		spin_lock_irqsave(pll->lock, flags);
  
--	phy_type = (nic->eeprom[eeprom_phy_iface] >> 8) & 0x0f;
-+	phy_type = (le16_to_cpu(nic->eeprom[eeprom_phy_iface]) >> 8) & 0x0f;
+-	_clk_pll_enable(hw);
++	if (!clk_pll_is_enabled(hw))
++		_clk_pll_enable(hw);
  
- 	switch (phy_type) {
- 	case NoSuchPhy: /* Non-MII PHY; UNTESTED! */
-@@ -1543,7 +1543,7 @@ static int e100_phy_init(struct nic *nic)
- 		mdio_write(netdev, nic->mii.phy_id, MII_BMCR, bmcr);
- 	} else if ((nic->mac >= mac_82550_D102) || ((nic->flags & ich) &&
- 	   (mdio_read(netdev, nic->mii.phy_id, MII_TPISTATUS) & 0x8000) &&
--		(nic->eeprom[eeprom_cnfg_mdix] & eeprom_mdix_enabled))) {
-+	   (le16_to_cpu(nic->eeprom[eeprom_cnfg_mdix]) & eeprom_mdix_enabled))) {
- 		/* enable/disable MDI/MDI-X auto-switching. */
- 		mdio_write(netdev, nic->mii.phy_id, MII_NCONFIG,
- 				nic->mii.force_media ? 0 : NCONFIG_AUTO_SWITCH);
-@@ -2298,9 +2298,9 @@ static int e100_asf(struct nic *nic)
- {
- 	/* ASF can be enabled from eeprom */
- 	return (nic->pdev->device >= 0x1050) && (nic->pdev->device <= 0x1057) &&
--	   (nic->eeprom[eeprom_config_asf] & eeprom_asf) &&
--	   !(nic->eeprom[eeprom_config_asf] & eeprom_gcl) &&
--	   ((nic->eeprom[eeprom_smbus_addr] & 0xFF) != 0xFE);
-+	   (le16_to_cpu(nic->eeprom[eeprom_config_asf]) & eeprom_asf) &&
-+	   !(le16_to_cpu(nic->eeprom[eeprom_config_asf]) & eeprom_gcl) &&
-+	   ((le16_to_cpu(nic->eeprom[eeprom_smbus_addr]) & 0xFF) != 0xFE);
- }
+ 	ret = clk_pll_wait_for_lock(pll);
+ 	if (ret < 0)
+@@ -1702,7 +1703,8 @@ static int clk_pllu_tegra114_enable(struct clk_hw *hw)
+ 	if (pll->lock)
+ 		spin_lock_irqsave(pll->lock, flags);
  
- static int e100_up(struct nic *nic)
-@@ -2952,7 +2952,7 @@ static int e100_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+-	_clk_pll_enable(hw);
++	if (!clk_pll_is_enabled(hw))
++		_clk_pll_enable(hw);
  
- 	/* Wol magic packet can be enabled from eeprom */
- 	if ((nic->mac >= mac_82558_D101_A4) &&
--	   (nic->eeprom[eeprom_id] & eeprom_id_wol)) {
-+	   (le16_to_cpu(nic->eeprom[eeprom_id]) & eeprom_id_wol)) {
- 		nic->flags |= wol_magic;
- 		device_set_wakeup_enable(&pdev->dev, true);
- 	}
+ 	ret = clk_pll_wait_for_lock(pll);
+ 	if (ret < 0)
 -- 
 2.30.2
 
