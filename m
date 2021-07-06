@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77A403BD543
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 184D13BD546
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237120AbhGFMTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:19:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47624 "EHLO mail.kernel.org"
+        id S237363AbhGFMTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:19:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234657AbhGFLgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:36:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B2FD61DA8;
-        Tue,  6 Jul 2021 11:29:15 +0000 (UTC)
+        id S234908AbhGFLgd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:36:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C91561CF6;
+        Tue,  6 Jul 2021 11:29:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570956;
-        bh=/XRd8tULFtrzaCZ6URnc8c+qKudLE1jX9tJAc3DmZao=;
+        s=k20201202; t=1625570958;
+        bh=MCQpnu3VrSwS07KU2tshh1HSlp1qQeuYL1AzCQd7Sjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3I9JGsAZtqKXx3OdHc1z5sIiZMYZoPwh8ifMVLE8bBkmRlTNhSQ5AZjBej+CgHsi
-         IETq+kRyN/8DbgxfCzvB+u7dPOFmjCc0vltpMAx2lcZfHhps/HOOqHKnwfvsgfCCvM
-         XNniMcR5j7ao6leXsiM0EF11HdbwIR2TIOZA6eQa4QKzdIAT5RkP6Fveq5rVIcG4FG
-         TLnODBxfzS4f0bM9uk/ddhda3zftpU6UD5mt3XSmUX7JCVF0irG5KYMgTE+rtUkpRz
-         1aFLOeyJNlE4v8Z9jEnrD2oqA4cpl9ec8rmoMKvKvtl8IzqiPvHzjXqf/BcP471owv
-         mTF6S4UlUiZNw==
+        b=mDuq2UVDMUVfvR/S2uIkUZCh6aCwxgUDcJfM6TQN6ioYRBqh2dR1is0FRzErQv8AD
+         csEih3jSoRDox0ceyfMeRYzwXHCE35hrxGV1AxtekoSqWLBGuwOgt1J5o/JVxvPPxR
+         nKvOCygaEvBvmLvTCuDSO55rHPRtI5vXlIFN+zLJHZ20zlTDs7a41HsDI3h4PPXYE5
+         1DSQ34GVI0TC8GHOXAVMJsXp2/IB+GCCuvHoskn8VU9KVwm+UsPjCxRkPOqVA8Yomj
+         JDSK0GhIQIPDeEe+OwI03rSP024bHN0y5qI7Jk3zadutSzs5axbLf/hSSt5H/f5xjD
+         RJz6DVTPDw7QQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 23/35] cw1200: add missing MODULE_DEVICE_TABLE
-Date:   Tue,  6 Jul 2021 07:28:35 -0400
-Message-Id: <20210706112848.2066036-23-sashal@kernel.org>
+Cc:     Huang Pei <huangpei@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 24/35] MIPS: add PMD table accounting into MIPS'pmd_alloc_one
+Date:   Tue,  6 Jul 2021 07:28:36 -0400
+Message-Id: <20210706112848.2066036-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112848.2066036-1-sashal@kernel.org>
 References: <20210706112848.2066036-1-sashal@kernel.org>
@@ -43,34 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Huang Pei <huangpei@loongson.cn>
 
-[ Upstream commit dd778f89225cd258e8f0fed2b7256124982c8bb5 ]
+[ Upstream commit ed914d48b6a1040d1039d371b56273d422c0081e ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+This fixes Page Table accounting bug.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1620788714-14300-1-git-send-email-zou_wei@huawei.com
+MIPS is the ONLY arch just defining __HAVE_ARCH_PMD_ALLOC_ONE alone.
+Since commit b2b29d6d011944 (mm: account PMD tables like PTE tables),
+"pmd_free" in asm-generic with PMD table accounting and "pmd_alloc_one"
+in MIPS without PMD table accounting causes PageTable accounting number
+negative, which read by global_zone_page_state(), always returns 0.
+
+Signed-off-by: Huang Pei <huangpei@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/st/cw1200/cw1200_sdio.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/include/asm/pgalloc.h | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/st/cw1200/cw1200_sdio.c b/drivers/net/wireless/st/cw1200/cw1200_sdio.c
-index d3acc85932a5..de92107549ee 100644
---- a/drivers/net/wireless/st/cw1200/cw1200_sdio.c
-+++ b/drivers/net/wireless/st/cw1200/cw1200_sdio.c
-@@ -62,6 +62,7 @@ static const struct sdio_device_id cw1200_sdio_ids[] = {
- 	{ SDIO_DEVICE(SDIO_VENDOR_ID_STE, SDIO_DEVICE_ID_STE_CW1200) },
- 	{ /* end: all zeroes */			},
- };
-+MODULE_DEVICE_TABLE(sdio, cw1200_sdio_ids);
+diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
+index a03e86969f78..ff982d8b62f6 100644
+--- a/arch/mips/include/asm/pgalloc.h
++++ b/arch/mips/include/asm/pgalloc.h
+@@ -107,11 +107,15 @@ do {							\
  
- /* hwbus_ops implemetation */
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+-	pmd_t *pmd;
++	pmd_t *pmd = NULL;
++	struct page *pg;
+ 
+-	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ORDER);
+-	if (pmd)
++	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
++	if (pg) {
++		pgtable_pmd_page_ctor(pg);
++		pmd = (pmd_t *)page_address(pg);
+ 		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
++	}
+ 	return pmd;
+ }
  
 -- 
 2.30.2
