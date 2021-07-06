@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE8F3BCFFC
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:29:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A443BD003
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234107AbhGFLb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:31:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42402 "EHLO mail.kernel.org"
+        id S236049AbhGFLcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:32:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235445AbhGFLaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235444AbhGFLaF (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:30:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F411161DB6;
-        Tue,  6 Jul 2021 11:21:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3EDA61DBB;
+        Tue,  6 Jul 2021 11:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570466;
-        bh=YHHFx1qwWhBrcZ1n1JNW4wvjeABGSRVWte2cISSaodM=;
+        s=k20201202; t=1625570467;
+        bh=yQK+7EMPW+anCuBOtmGBLrgSUk/BCsTb+VKx6gKoMiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNEXFI27hHIov+i96EoQbwJc2EM6pSwOAGcehEEVKZhCwWCxT7SRrG8WmOTyFyeB6
-         YOdKn+EHw3feST4KnbaCH4Stmi2Ho1/CMEhM8QlcIQdc2H1UdbLRVqusY18y67IIKB
-         CMs3eJaGFnwrEX+hvXhbW3mVO6r/UIYpPGedrHb+bLFQj7HAHoz0ILAXvbq78/5mUp
-         1qeDVyu8zQtB+P+aiujJ7xYRs59tkEhJNQohiCB1MtzyGamm9nt5IsJ3Ue85WlF2Jb
-         hO63jRUD2r4Pc5yf5A/pq7Ae8IPCMvTG68iYMKqHkqyo2vG2KPhIXlI2cg1JKpalQq
-         eAw3umz28GpCg==
+        b=UjRvVEA9KyHjCXluSZ5kRVFszc+87RCSDcVZwE2kZXByfEkI9awGR22QlIkjWojJ5
+         RKP49lOX8uYDz6lU3kHfLle8Njf5jcyqJybeh1DPk8rghO9CsGyk9fRu0nUpGapFA5
+         tp7W4RARzK/T2KJY9R1FppT+z+2COgyPmwNiJbWp6N/Q3R2Qm796Q88svouMQkD8uk
+         dIGqpbPEWko8YHSDAdw0lEEK+NHpJPcgim7/Fd9jSH75tm4as8u5GOXjIJcPBsqkMg
+         4yMHOc9+MrP1EzXA+3UzMVEHBuyk9NH8B76ONU+AVlxP5TQjbH1vRxWmqeco5LahUJ
+         q6AEY6OtHIogA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Longpeng(Mike)" <longpeng2@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Andra Paraschiv <andraprs@amazon.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        David Brazdil <dbrazdil@google.com>,
-        Alexander Popov <alex.popov@linux.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        lixianming <lixianming5@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 118/160] vsock: notify server to shutdown when client has pending signal
-Date:   Tue,  6 Jul 2021 07:17:44 -0400
-Message-Id: <20210706111827.2060499-118-sashal@kernel.org>
+Cc:     Logush Oliver <ollogush@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>,
+        Bindu Ramamurthy <bindu.r@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.12 119/160] drm/amd/display: Fix edp_bootup_bl_level initialization issue
+Date:   Tue,  6 Jul 2021 07:17:45 -0400
+Message-Id: <20210706111827.2060499-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -51,70 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Longpeng(Mike)" <longpeng2@huawei.com>
+From: Logush Oliver <ollogush@amd.com>
 
-[ Upstream commit c7ff9cff70601ea19245d997bb977344663434c7 ]
+[ Upstream commit eeb90e26ed05dd44553d557057bf35f08f853af8 ]
 
-The client's sk_state will be set to TCP_ESTABLISHED if the server
-replay the client's connect request.
+[why]
+Updating the file to fix the missing line
 
-However, if the client has pending signal, its sk_state will be set
-to TCP_CLOSE without notify the server, so the server will hold the
-corrupt connection.
-
-            client                        server
-
-1. sk_state=TCP_SYN_SENT         |
-2. call ->connect()              |
-3. wait reply                    |
-                                 | 4. sk_state=TCP_ESTABLISHED
-                                 | 5. insert to connected list
-                                 | 6. reply to the client
-7. sk_state=TCP_ESTABLISHED      |
-8. insert to connected list      |
-9. *signal pending* <--------------------- the user kill client
-10. sk_state=TCP_CLOSE           |
-client is exiting...             |
-11. call ->release()             |
-     virtio_transport_close
-      if (!(sk->sk_state == TCP_ESTABLISHED ||
-	      sk->sk_state == TCP_CLOSING))
-		return true; *return at here, the server cannot notice the connection is corrupt*
-
-So the client should notify the peer in this case.
-
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Jorgen Hansen <jhansen@vmware.com>
-Cc: Norbert Slusarek <nslusarek@gmx.net>
-Cc: Andra Paraschiv <andraprs@amazon.com>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: David Brazdil <dbrazdil@google.com>
-Cc: Alexander Popov <alex.popov@linux.com>
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lkml.org/lkml/2021/5/17/418
-Signed-off-by: lixianming <lixianming5@huawei.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Logush Oliver <ollogush@amd.com>
+Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
+Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 2 +-
+ drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index bc7fb9bf3351..2a82fbf32ccc 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1369,7 +1369,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
+diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+index 9f9fda3118d1..500bcd0ecf4d 100644
+--- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
++++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+@@ -1944,7 +1944,7 @@ static enum bp_result get_integrated_info_v2_1(
+ 		info_v2_1->edp1_info.edp_pwr_down_bloff_to_vary_bloff;
+ 	info->edp1_info.edp_panel_bpc =
+ 		info_v2_1->edp1_info.edp_panel_bpc;
+-	info->edp1_info.edp_bootup_bl_level =
++	info->edp1_info.edp_bootup_bl_level = info_v2_1->edp1_info.edp_bootup_bl_level;
  
- 		if (signal_pending(current)) {
- 			err = sock_intr_errno(timeout);
--			sk->sk_state = TCP_CLOSE;
-+			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
- 			sock->state = SS_UNCONNECTED;
- 			vsock_transport_cancel_pkt(vsk);
- 			goto out_wait;
+ 	info->edp2_info.edp_backlight_pwm_hz =
+ 	le16_to_cpu(info_v2_1->edp2_info.edp_backlight_pwm_hz);
 -- 
 2.30.2
 
