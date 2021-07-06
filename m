@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CED843BCEAC
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F8AF3BCEAE
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234103AbhGFL04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
+        id S234117AbhGFL1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:27:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233934AbhGFLXI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:23:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ECB561D01;
-        Tue,  6 Jul 2021 11:18:09 +0000 (UTC)
+        id S233204AbhGFLXf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:23:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A30961CF0;
+        Tue,  6 Jul 2021 11:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570289;
-        bh=m3dohVFWiNvNrxgZb3MiEuDyl8NHehKbXvCYfxO7etI=;
+        s=k20201202; t=1625570291;
+        bh=1BuftYxYlodzTTWsccJ8mb6qMW4RWaRgd+qRmstKHp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHh77UVJ4uUECyp5T+lSyZAzx2cXToXNEvt7fInk+hk4JW8QWxAfYuGr7XnJqewbV
-         TiBsy3D82zxC5nBwKrl67IFVlU0JNMbnDXQlcNmv1R5qpDI+RhN/v0Gv1o6+48bhxe
-         JxKtanm6/j/FB68orKX5YtUGgaChK3WeEoh40K91D2WCkip1W6EVUgum5tUuIMXYGQ
-         OxVIGTSax9MztyJC5gwcc/WdeVLl4irrs8Hvi/spu5Y3+BDVSlhucDcoPn2lEFct5N
-         XX4n4MfwRuByslPWEi/y9LljLqlEcvwRWQJ5deMVVF8Kvytla9Gehe4hf10zamdDte
-         HKTNHrFU2WcJw==
+        b=QGEgwba3Va+gk81pNqR13zE49FwsrLkacowwel5I7JpU2pfiM2hTuC3yJo5YMTKmR
+         xNgaQOc091BYdw5AubERb8VqArvkk7xgIVNaynOeu/48YASd7d3CBhP3Z+boClEbS5
+         FNkuTYvYg9d7vcuhrYPcZkH7Aq3M6KB3IIDWEaXC8BUwHvJUc38RcSu+xWubWe0c0Y
+         GA4tNkYQFBTMfyv9NarquvS6+hMCtkdIJxicxrBBh8cfvdFa4IDP+fmVEC4f/lqhbz
+         N5RMoBi3i1KwaCS85URSylmHjZ6P6bH5Sks7wtxG6N6+NvSCC9BzmZlC/wTc8CLHEv
+         /WkRDBVFGHbaQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tedd Ho-Jeong An <tedd.an@intel.com>,
+Cc:     Tim Jiang <tjiang@codeaurora.org>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 179/189] Bluetooth: mgmt: Fix the command returns garbage parameter value
-Date:   Tue,  6 Jul 2021 07:13:59 -0400
-Message-Id: <20210706111409.2058071-179-sashal@kernel.org>
+        linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 180/189] Bluetooth: btusb: use default nvm if boardID is 0 for wcn6855.
+Date:   Tue,  6 Jul 2021 07:14:00 -0400
+Message-Id: <20210706111409.2058071-180-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -43,35 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tedd Ho-Jeong An <tedd.an@intel.com>
+From: Tim Jiang <tjiang@codeaurora.org>
 
-[ Upstream commit 02ce2c2c24024aade65a8d91d6a596651eaf2d0a ]
+[ Upstream commit ca17a5cccf8b6d35dab4729bea8f4350bc0b4caf ]
 
-When the Get Device Flags command fails, it returns the error status
-with the parameters filled with the garbage values. Although the
-parameters are not used, it is better to fill with zero than the random
-values.
+if boardID is 0, will use the default nvm file without surfix.
 
-Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Tim Jiang <tjiang@codeaurora.org>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/bluetooth/btusb.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index 425502f1d380..d0c8b8a41914 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -4061,6 +4061,8 @@ static int get_device_flags(struct sock *sk, struct hci_dev *hdev, void *data,
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 4c18a85a1070..1cec9b2353c6 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -4163,9 +4163,15 @@ static int btusb_setup_qca_load_nvm(struct hci_dev *hdev,
+ 	int err;
  
- 	hci_dev_lock(hdev);
- 
-+	memset(&rp, 0, sizeof(rp));
-+
- 	if (cp->addr.type == BDADDR_BREDR) {
- 		br_params = hci_bdaddr_list_lookup_with_flags(&hdev->whitelist,
- 							      &cp->addr.bdaddr,
+ 	if (((ver->flag >> 8) & 0xff) == QCA_FLAG_MULTI_NVM) {
+-		snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x_%04x.bin",
+-			 le32_to_cpu(ver->rom_version),
+-			 le16_to_cpu(ver->board_id));
++		/* if boardid equal 0, use default nvm without surfix */
++		if (le16_to_cpu(ver->board_id) == 0x0) {
++			snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x.bin",
++				 le32_to_cpu(ver->rom_version));
++		} else {
++			snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x_%04x.bin",
++				le32_to_cpu(ver->rom_version),
++				le16_to_cpu(ver->board_id));
++		}
+ 	} else {
+ 		snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x.bin",
+ 			 le32_to_cpu(ver->rom_version));
 -- 
 2.30.2
 
