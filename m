@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E0503BD4D8
+	by mail.lfdr.de (Postfix) with ESMTP id E7D3C3BD4D9
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236058AbhGFMRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:17:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42520 "EHLO mail.kernel.org"
+        id S238664AbhGFMRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:17:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234888AbhGFLdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234886AbhGFLdr (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:33:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F23AC61D08;
-        Tue,  6 Jul 2021 11:22:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5985A61E0A;
+        Tue,  6 Jul 2021 11:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570579;
-        bh=9xVSFwSdGvi+MG5/iZ3T4N9Ju40mVHzCL+79qf0SEa0=;
+        s=k20201202; t=1625570581;
+        bh=J9jzMF9UE8azGOzNI1ZPfuhQllO46jyFP0pJ2whawEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WhSDS41Z0KmVJmGpPkkcS8bnF49S6hSHw0VfOdSHLDtqvFwldm0VqAWe5bGQvy7hO
-         b3W5RKsC4f6jcijkKf3RpzAobQ+T1bWtbPgBDmG56zoXZvjtkbGI+iCAoyIIGdJXHX
-         Vt9YBGoH5BTHOMeNFrD9SFo7P3M2vmx+fmtuFnpHEDnIIzIz00mAKtcF5ovpEDZzop
-         NzfKs9aeBADrwsfjTvfP6oVHlE+le28uIp4X1O+YIfgWpDXtQWTfaxygAYldTuU8Ct
-         Hp5ailXwRMbOhWt/3Ppb5AIdu9CXyKxuC7UJOPjzpPpRGhFm3MkXb+Qz6VXt783ErC
-         KekDoKi+sC3Kg==
+        b=DXhsM1+6c1yaUlgQHEGYYRYIav3wuXasSobVmHXaizCNf0UEWDbMl0bj2dW3W5b6D
+         tMDERoMKBOdX6jJ1nXVwsdX803BTegVv/D/VMyNZRRmPpcho5GwdgX41x9PKmY/Wud
+         qd0RClcncsrmw9OKbVwMWyBB8h46/QB4wnVSDouKRfo3UK/xUxv4Mh5EUKmB5egdgS
+         uJedQsrsQQI/8B/4nm63xm7Tz+FUo+FdAMWuRddk9oZYoYoKMSZbtL/nRaQKCJdzuY
+         1jUDfSON3aYcpencIaZ2Fkj6YEhU2NJr504CeVW3xqOeAlwAR4yR1fgRYcCJgstOsQ
+         U3s6z3MQ+o4sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dmitry Osipenko <digetx@gmail.com>,
         Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
         linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 043/137] clk: tegra: Fix refcounting of gate clocks
-Date:   Tue,  6 Jul 2021 07:20:29 -0400
-Message-Id: <20210706112203.2062605-43-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 044/137] clk: tegra: Ensure that PLLU configuration is applied properly
+Date:   Tue,  6 Jul 2021 07:20:30 -0400
+Message-Id: <20210706112203.2062605-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -45,187 +45,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit c592c8a28f5821e880ac6675781cd8a151b0737c ]
+[ Upstream commit a7196048cd5168096c2c4f44a3939d7a6dcd06b9 ]
 
-The refcounting of the gate clocks has a bug causing the enable_refcnt
-to underflow when unused clocks are disabled. This happens because clk
-provider erroneously bumps the refcount if clock is enabled at a boot
-time, which it shouldn't be doing, and it does this only for the gate
-clocks, while peripheral clocks are using the same gate ops and the
-peripheral clocks are missing the initial bump. Hence the refcount of
-the peripheral clocks is 0 when unused clocks are disabled and then the
-counter is decremented further by the gate ops, causing the integer
-underflow.
-
-Fix this problem by removing the erroneous bump and by implementing the
-disable_unused() callback, which disables the unused gates properly.
-
-The visible effect of the bug is such that the unused clocks are never
-gated if a loaded kernel module grabs the unused clocks and starts to use
-them. In practice this shouldn't cause any real problems for the drivers
-and boards supported by the kernel today.
+The PLLU (USB) consists of the PLL configuration itself and configuration
+of the PLLU outputs. The PLLU programming is inconsistent on T30 vs T114,
+where T114 immediately bails out if PLLU is enabled and T30 re-enables
+a potentially already enabled PLL (left after bootloader) and then fully
+reprograms it, which could be unsafe to do. The correct way should be to
+skip enabling of the PLL if it's already enabled and then apply
+configuration to the outputs. This patch doesn't fix any known problems,
+it's a minor improvement.
 
 Acked-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-periph-gate.c | 72 +++++++++++++++++++----------
- drivers/clk/tegra/clk-periph.c      | 11 +++++
- 2 files changed, 58 insertions(+), 25 deletions(-)
+ drivers/clk/tegra/clk-pll.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-periph-gate.c b/drivers/clk/tegra/clk-periph-gate.c
-index 4b31beefc9fc..dc3f92678407 100644
---- a/drivers/clk/tegra/clk-periph-gate.c
-+++ b/drivers/clk/tegra/clk-periph-gate.c
-@@ -48,18 +48,9 @@ static int clk_periph_is_enabled(struct clk_hw *hw)
- 	return state;
- }
+diff --git a/drivers/clk/tegra/clk-pll.c b/drivers/clk/tegra/clk-pll.c
+index c5cc0a2dac6f..d709ecb7d8d7 100644
+--- a/drivers/clk/tegra/clk-pll.c
++++ b/drivers/clk/tegra/clk-pll.c
+@@ -1131,7 +1131,8 @@ static int clk_pllu_enable(struct clk_hw *hw)
+ 	if (pll->lock)
+ 		spin_lock_irqsave(pll->lock, flags);
  
--static int clk_periph_enable(struct clk_hw *hw)
-+static void clk_periph_enable_locked(struct clk_hw *hw)
- {
- 	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
--	unsigned long flags = 0;
--
--	spin_lock_irqsave(&periph_ref_lock, flags);
--
--	gate->enable_refcnt[gate->clk_num]++;
--	if (gate->enable_refcnt[gate->clk_num] > 1) {
--		spin_unlock_irqrestore(&periph_ref_lock, flags);
--		return 0;
--	}
+-	_clk_pll_enable(hw);
++	if (!clk_pll_is_enabled(hw))
++		_clk_pll_enable(hw);
  
- 	write_enb_set(periph_clk_to_bit(gate), gate);
- 	udelay(2);
-@@ -78,6 +69,32 @@ static int clk_periph_enable(struct clk_hw *hw)
- 		udelay(1);
- 		writel_relaxed(0, gate->clk_base + LVL2_CLK_GATE_OVRE);
+ 	ret = clk_pll_wait_for_lock(pll);
+ 	if (ret < 0)
+@@ -1748,15 +1749,13 @@ static int clk_pllu_tegra114_enable(struct clk_hw *hw)
+ 		return -EINVAL;
  	}
-+}
-+
-+static void clk_periph_disable_locked(struct clk_hw *hw)
-+{
-+	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
-+
-+	/*
-+	 * If peripheral is in the APB bus then read the APB bus to
-+	 * flush the write operation in apb bus. This will avoid the
-+	 * peripheral access after disabling clock
-+	 */
-+	if (gate->flags & TEGRA_PERIPH_ON_APB)
-+		tegra_read_chipid();
-+
-+	write_enb_clr(periph_clk_to_bit(gate), gate);
-+}
-+
-+static int clk_periph_enable(struct clk_hw *hw)
-+{
-+	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
-+	unsigned long flags = 0;
-+
-+	spin_lock_irqsave(&periph_ref_lock, flags);
-+
-+	if (!gate->enable_refcnt[gate->clk_num]++)
-+		clk_periph_enable_locked(hw);
  
- 	spin_unlock_irqrestore(&periph_ref_lock, flags);
- 
-@@ -91,21 +108,28 @@ static void clk_periph_disable(struct clk_hw *hw)
- 
- 	spin_lock_irqsave(&periph_ref_lock, flags);
- 
--	gate->enable_refcnt[gate->clk_num]--;
--	if (gate->enable_refcnt[gate->clk_num] > 0) {
--		spin_unlock_irqrestore(&periph_ref_lock, flags);
--		return;
--	}
-+	WARN_ON(!gate->enable_refcnt[gate->clk_num]);
-+
-+	if (--gate->enable_refcnt[gate->clk_num] == 0)
-+		clk_periph_disable_locked(hw);
-+
-+	spin_unlock_irqrestore(&periph_ref_lock, flags);
-+}
-+
-+static void clk_periph_disable_unused(struct clk_hw *hw)
-+{
-+	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
-+	unsigned long flags = 0;
-+
-+	spin_lock_irqsave(&periph_ref_lock, flags);
- 
- 	/*
--	 * If peripheral is in the APB bus then read the APB bus to
--	 * flush the write operation in apb bus. This will avoid the
--	 * peripheral access after disabling clock
-+	 * Some clocks are duplicated and some of them are marked as critical,
-+	 * like fuse and fuse_burn for example, thus the enable_refcnt will
-+	 * be non-zero here if the "unused" duplicate is disabled by CCF.
- 	 */
--	if (gate->flags & TEGRA_PERIPH_ON_APB)
--		tegra_read_chipid();
+-	if (clk_pll_is_enabled(hw))
+-		return 0;
 -
--	write_enb_clr(periph_clk_to_bit(gate), gate);
-+	if (!gate->enable_refcnt[gate->clk_num])
-+		clk_periph_disable_locked(hw);
+ 	input_rate = clk_hw_get_rate(__clk_get_hw(osc));
  
- 	spin_unlock_irqrestore(&periph_ref_lock, flags);
- }
-@@ -114,6 +138,7 @@ const struct clk_ops tegra_clk_periph_gate_ops = {
- 	.is_enabled = clk_periph_is_enabled,
- 	.enable = clk_periph_enable,
- 	.disable = clk_periph_disable,
-+	.disable_unused = clk_periph_disable_unused,
- };
+ 	if (pll->lock)
+ 		spin_lock_irqsave(pll->lock, flags);
  
- struct clk *tegra_clk_register_periph_gate(const char *name,
-@@ -148,9 +173,6 @@ struct clk *tegra_clk_register_periph_gate(const char *name,
- 	gate->enable_refcnt = enable_refcnt;
- 	gate->regs = pregs;
+-	_clk_pll_enable(hw);
++	if (!clk_pll_is_enabled(hw))
++		_clk_pll_enable(hw);
  
--	if (read_enb(gate) & periph_clk_to_bit(gate))
--		enable_refcnt[clk_num]++;
--
- 	/* Data in .init is copied by clk_register(), so stack variable OK */
- 	gate->hw.init = &init;
- 
-diff --git a/drivers/clk/tegra/clk-periph.c b/drivers/clk/tegra/clk-periph.c
-index 67620c7ecd9e..79ca3aa072b7 100644
---- a/drivers/clk/tegra/clk-periph.c
-+++ b/drivers/clk/tegra/clk-periph.c
-@@ -100,6 +100,15 @@ static void clk_periph_disable(struct clk_hw *hw)
- 	gate_ops->disable(gate_hw);
- }
- 
-+static void clk_periph_disable_unused(struct clk_hw *hw)
-+{
-+	struct tegra_clk_periph *periph = to_clk_periph(hw);
-+	const struct clk_ops *gate_ops = periph->gate_ops;
-+	struct clk_hw *gate_hw = &periph->gate.hw;
-+
-+	gate_ops->disable_unused(gate_hw);
-+}
-+
- static void clk_periph_restore_context(struct clk_hw *hw)
- {
- 	struct tegra_clk_periph *periph = to_clk_periph(hw);
-@@ -126,6 +135,7 @@ const struct clk_ops tegra_clk_periph_ops = {
- 	.is_enabled = clk_periph_is_enabled,
- 	.enable = clk_periph_enable,
- 	.disable = clk_periph_disable,
-+	.disable_unused = clk_periph_disable_unused,
- 	.restore_context = clk_periph_restore_context,
- };
- 
-@@ -135,6 +145,7 @@ static const struct clk_ops tegra_clk_periph_nodiv_ops = {
- 	.is_enabled = clk_periph_is_enabled,
- 	.enable = clk_periph_enable,
- 	.disable = clk_periph_disable,
-+	.disable_unused = clk_periph_disable_unused,
- 	.restore_context = clk_periph_restore_context,
- };
- 
+ 	ret = clk_pll_wait_for_lock(pll);
+ 	if (ret < 0)
 -- 
 2.30.2
 
