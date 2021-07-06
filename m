@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6552A3BCEE8
+	by mail.lfdr.de (Postfix) with ESMTP id AF9D73BCEE9
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234398AbhGFL1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:27:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35426 "EHLO mail.kernel.org"
+        id S234407AbhGFL1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:27:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234778AbhGFLZE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234777AbhGFLZE (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:25:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F031261D10;
-        Tue,  6 Jul 2021 11:18:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6592861D1B;
+        Tue,  6 Jul 2021 11:18:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570334;
-        bh=nNXWJASWbqVzB4ij2p9OyJuCJirxGwfels93t9uK/8c=;
+        s=k20201202; t=1625570336;
+        bh=dT8hcCxhperB/T+8aYy1wP8AerwINrRNIYBFnfhjs7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvaRXVqYMbJVCyjOjpGxiaWuQx7toyM+Hf3swgq/BN/qrybECmtOCvViHl6stkCPI
-         zx5bS+x7fE8W5UesBI6BHNKQSA25GFsGKLuJWtrblR/rLVh/vmOBNshaj4NWsbGThK
-         bXnrHclEsTQcJEV0hf6sVRYxkUHH1seGsRQQmFfT7sV9Nmb4R9riBOQHyRXl4XVQ+L
-         YDov0Gz8jL0XJx+VWj9KKfNL/uszsugxycCXVynUARdA3gbucHwPG4ia5E7mG0gSoF
-         LUMjNczoie2dw2h2quR69YOnbw97uv2NXSwhB73Kci6MVUhq8GtLVLOvsGSqsLX2Vs
-         vzFCyQefzLaGg==
+        b=a43ZbDH3kD9W2AfJQC6dXonmvsMCKoq+EwVfiSPPysZmF+7QKBG1Nzpi83O0vAJfU
+         T2uyCZ4AkZ8j0AZS7TyjLax2t4mYzx5pVyeH4904Z3YePeaYB7YyS3OsSJFA1duy8D
+         xM/fGdozWO2nMcaoi6q5SriJXuQ8h2G0ZeAI34729EsxUHVP1S/whCwSCWFZyq5ip0
+         fo3b6WmgPIZkPSBqt+8lYtvacAV1ZsQzoJrud5yPK3d0wki020zhndHfnibCLCy1Jp
+         ARqDn3xln5GNAhQqog5uMcyHJ7qkYuA3tsgvFfOY36dRKKrQKbKLcLEOpbjl8NXT44
+         UblFgN72++e7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Li <wangli74@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 020/160] drm/mediatek: Fix PM reference leak in mtk_crtc_ddp_hw_init()
-Date:   Tue,  6 Jul 2021 07:16:06 -0400
-Message-Id: <20210706111827.2060499-20-sashal@kernel.org>
+Cc:     Ansuel Smith <ansuelsmth@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 021/160] net: mdio: ipq8064: add regmap config to disable REGCACHE
+Date:   Tue,  6 Jul 2021 07:16:07 -0400
+Message-Id: <20210706111827.2060499-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -45,36 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Li <wangli74@huawei.com>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-[ Upstream commit 69777e6ca396f0a7e1baff40fcad4a9d3d445b7a ]
+[ Upstream commit b097bea10215315e8ee17f88b4c1bbb521b1878c ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+mdio drivers should not use REGCHACHE. Also disable locking since it's
+handled by the mdio users and regmap is always accessed atomically.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Li <wangli74@huawei.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/mdio/mdio-ipq8064.c | 33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-index 8b0de90156c6..69d23ce56d2c 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-@@ -259,7 +259,7 @@ static int mtk_crtc_ddp_hw_init(struct mtk_drm_crtc *mtk_crtc)
- 		drm_connector_list_iter_end(&conn_iter);
- 	}
+diff --git a/drivers/net/mdio/mdio-ipq8064.c b/drivers/net/mdio/mdio-ipq8064.c
+index 1bd18857e1c5..f0a6bfa61645 100644
+--- a/drivers/net/mdio/mdio-ipq8064.c
++++ b/drivers/net/mdio/mdio-ipq8064.c
+@@ -10,7 +10,7 @@
+ #include <linux/module.h>
+ #include <linux/regmap.h>
+ #include <linux/of_mdio.h>
+-#include <linux/phy.h>
++#include <linux/of_address.h>
+ #include <linux/platform_device.h>
+ #include <linux/mfd/syscon.h>
  
--	ret = pm_runtime_get_sync(crtc->dev->dev);
-+	ret = pm_runtime_resume_and_get(crtc->dev->dev);
- 	if (ret < 0) {
- 		DRM_ERROR("Failed to enable power domain: %d\n", ret);
- 		return ret;
+@@ -96,14 +96,34 @@ ipq8064_mdio_write(struct mii_bus *bus, int phy_addr, int reg_offset, u16 data)
+ 	return ipq8064_mdio_wait_busy(priv);
+ }
+ 
++static const struct regmap_config ipq8064_mdio_regmap_config = {
++	.reg_bits = 32,
++	.reg_stride = 4,
++	.val_bits = 32,
++	.can_multi_write = false,
++	/* the mdio lock is used by any user of this mdio driver */
++	.disable_locking = true,
++
++	.cache_type = REGCACHE_NONE,
++};
++
+ static int
+ ipq8064_mdio_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct ipq8064_mdio *priv;
++	struct resource res;
+ 	struct mii_bus *bus;
++	void __iomem *base;
+ 	int ret;
+ 
++	if (of_address_to_resource(np, 0, &res))
++		return -ENOMEM;
++
++	base = ioremap(res.start, resource_size(&res));
++	if (!base)
++		return -ENOMEM;
++
+ 	bus = devm_mdiobus_alloc_size(&pdev->dev, sizeof(*priv));
+ 	if (!bus)
+ 		return -ENOMEM;
+@@ -115,15 +135,10 @@ ipq8064_mdio_probe(struct platform_device *pdev)
+ 	bus->parent = &pdev->dev;
+ 
+ 	priv = bus->priv;
+-	priv->base = device_node_to_regmap(np);
+-	if (IS_ERR(priv->base)) {
+-		if (priv->base == ERR_PTR(-EPROBE_DEFER))
+-			return -EPROBE_DEFER;
+-
+-		dev_err(&pdev->dev, "error getting device regmap, error=%pe\n",
+-			priv->base);
++	priv->base = devm_regmap_init_mmio(&pdev->dev, base,
++					   &ipq8064_mdio_regmap_config);
++	if (IS_ERR(priv->base))
+ 		return PTR_ERR(priv->base);
+-	}
+ 
+ 	ret = of_mdiobus_register(bus, np);
+ 	if (ret)
 -- 
 2.30.2
 
