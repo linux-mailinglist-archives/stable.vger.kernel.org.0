@@ -2,94 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7AB3BD9DA
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 17:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE59A3BDBA4
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 18:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232085AbhGFPRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 11:17:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42064 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232037AbhGFPRD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Jul 2021 11:17:03 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6416C0613E0;
-        Tue,  6 Jul 2021 08:14:23 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id d2so2863163wrn.0;
-        Tue, 06 Jul 2021 08:14:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=DgjljfmGgSx9QEsOVA6OlKs2IlS/qr/eXPZE0FkrXyg=;
-        b=mM29XqYWQPm+Tom9Y5OS+sukydghYiDLIULz6QS2lw7Uvb1ZqlQIDlu9YXk4zFZ+k7
-         uZgNOY3AWdZEGFzgeaDsNhQdT0BzKmn6QObEnfQRUeHSEOvKZM8JQ3xoKwBs+1G6OP8z
-         zrVEFr7gNPufKrkhQE+Q+0N0+Ivc1kDu4ppye2Va73C2YYAExQOAoI/3+3vf4eAeCngo
-         2s1xY9t02b6WEzuw6/aBdDl0BYNLYtMB+ggPiuA1/60UxvWt88UBf0ti3xr2PYznlG9k
-         Afh94gHmMW+xxVsi78k2zCVzAQ+zElk+nqZZSVJnuPOQV4z3ujQiEtYSmevqP01Ft0rM
-         0DWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=DgjljfmGgSx9QEsOVA6OlKs2IlS/qr/eXPZE0FkrXyg=;
-        b=mACIeR4VlIq1+b+QMFUlKy+9iNiIaUt3DsYkaqcn2o7gaE3JGwp531x2eOipcS1RS0
-         TwZ308ijzL0FMQ2orzpYGBQ0HCu4tNErDBYiru7KemXnFf1XRR8gS8/DXAZd+pmqaefj
-         up0CTrxVqo6mgT0c0L3vgB3Npb79aFE8KwVpEmHqQM8wm64dqXVHYuaK6KhFzsQhgAHf
-         r/Q4B+9BkY8zJfqOrS5SUDM7f/dBBezTLLivNEXnyyBZc5NjOuGKwXDBp5gOcNwPbQe+
-         7P1uZ5OFTaoVVw8Ie0Eupa34cb5MZy8UGOWIA9ryhy7b2b2k8n6uO863kydyvtZTBLNO
-         jh1Q==
-X-Gm-Message-State: AOAM533hjMiJqY3DKmo4mlt9lOOaE49+ZOEQtk7m0Zk2O/FC6+cf5tc6
-        8q6Jj29VcdlW72qWzLzSIMQ=
-X-Google-Smtp-Source: ABdhPJzau4ygOdzbje3ufpsMlCIHsY3m+TjCycdriA59yVS0Ue6Jl9IlcBsUquztXDmLe5yQF2a3+g==
-X-Received: by 2002:a5d:6ac4:: with SMTP id u4mr3972919wrw.166.1625584462255;
-        Tue, 06 Jul 2021 08:14:22 -0700 (PDT)
-Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
-        by smtp.gmail.com with ESMTPSA id h9sm15840112wmb.35.2021.07.06.08.14.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Jul 2021 08:14:21 -0700 (PDT)
-Date:   Tue, 6 Jul 2021 16:14:20 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de
-Subject: Re: [PATCH 5.10 0/7] 5.10.48-rc1 review
-Message-ID: <YORzTK+qJrbMo8IM@debian>
-References: <20210705105957.1513284-1-sashal@kernel.org>
+        id S230197AbhGFQrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 12:47:36 -0400
+Received: from mga01.intel.com ([192.55.52.88]:52110 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230048AbhGFQrd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 12:47:33 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10037"; a="230883143"
+X-IronPort-AV: E=Sophos;i="5.83,328,1616482800"; 
+   d="scan'208";a="230883143"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2021 09:44:53 -0700
+X-IronPort-AV: E=Sophos;i="5.83,328,1616482800"; 
+   d="scan'208";a="457133171"
+Received: from agluck-desk2.sc.intel.com (HELO agluck-desk2.amr.corp.intel.com) ([10.3.52.146])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2021 09:44:52 -0700
+Date:   Tue, 6 Jul 2021 09:44:51 -0700
+From:   "Luck, Tony" <tony.luck@intel.com>
+To:     Ding Hui <dinghui@sangfor.com.cn>
+Cc:     bp@alien8.de, bp@suse.de, naoya.horiguchi@nec.com,
+        osalvador@suse.de, peterz@infradead.org,
+        linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+        tglx@linutronix.de, mingo@redhat.com, x86@kernel.org,
+        hpa@zytor.com, youquan.song@intel.com, huangcun@sangfor.com.cn,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] x86/mce: Fix endless loop when run task works after
+ #MC
+Message-ID: <20210706164451.GA1289248@agluck-desk2.amr.corp.intel.com>
+References: <20210706121606.15864-1-dinghui@sangfor.com.cn>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210705105957.1513284-1-sashal@kernel.org>
+In-Reply-To: <20210706121606.15864-1-dinghui@sangfor.com.cn>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+On Tue, Jul 06, 2021 at 08:16:06PM +0800, Ding Hui wrote:
+> Recently we encounter multi #MC on the same task when it's
+> task_work_run() has not been called, current->mce_kill_me was
+> added to task_works list more than once, that make a circular
+> linked task_works, so task_work_run() will do a endless loop.
 
-On Mon, Jul 05, 2021 at 06:59:50AM -0400, Sasha Levin wrote:
-> 
-> This is the start of the stable review cycle for the 5.10.48 release.
-> There are 7 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 07 Jul 2021 10:59:49 AM UTC.
-> Anything received after that time might be too late.
+I saw the same and posted a similar fix a while back:
 
-Build test:
-mips (gcc version 11.1.1 20210702): 63 configs -> no failure
-arm (gcc version 11.1.1 20210702): 105 configs -> no new failure
-arm64 (gcc version 11.1.1 20210702): 3 configs -> no failure
-x86_64 (gcc version 10.2.1 20210110): 2 configs -> no failure
+https://www.spinics.net/lists/linux-mm/msg251006.html
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression.
-arm64: Booted on rpi4b (4GB model). No regression.
+It didn't get merged because some validation tests began failing
+around the same time.  I'm now pretty sure I understand what happened
+with those other tests.
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+I'll post my updated version (second patch in a three part series)
+later today.
 
---
-Regards
-Sudip
+> diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+
+> +	if (!cmpxchg(&current->mce_kill_me.func, NULL, ch.func)) {
+> +		current->mce_addr = m->addr;
+> +		current->mce_kflags = m->kflags;
+> +		current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
+> +		current->mce_whole_page = whole_page(m);
+
+You don't need an atomic cmpxchg here (nor the WRITE_ONCE() to clear it).
+The task is operating on its own task_struct. Nobody else should touch
+the mce_kill_me field.
+
+-Tony
