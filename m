@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A552A3BD02D
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F273BD02C
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:30:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236106AbhGFLcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:32:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42404 "EHLO mail.kernel.org"
+        id S235411AbhGFLcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:32:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235849AbhGFLa3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:30:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35D5361DCD;
-        Tue,  6 Jul 2021 11:21:58 +0000 (UTC)
+        id S235870AbhGFLaa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:30:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BAA261DEB;
+        Tue,  6 Jul 2021 11:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570518;
-        bh=Ww0TzZHtaUT5LYnKFZ3fmFAe+pRCnhdhpKfT7Z/wy+0=;
+        s=k20201202; t=1625570521;
+        bh=zitxiL8u4atmdpJKFak6cKFgHg9rSPTOWKskZ6B1fKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JvUzzLgGDLhTgoUGJ0gKE87Lagm5PBVN6G5ukkQUDwCjN4eaBJxKnSSMm0p/tomF5
-         OPSdxLl+LdO+/69j0+0Pyb5lqBNBGiNEgyk7CrJyLoKbJKr2c2d05RoI0wuUuYvpK+
-         gqFi8AEiuOkUKanRg+XKKEh9dSUgFlWiQM4Z3oXMbTu2q2jWRf0YFO1k1xjvkL6nJz
-         x/V0B7NBPFZJpLxs4etpUMK6m1/A9b4JshcazufqkFvNT+loVDXDNPzSSu9nuyMWev
-         x31UkTCrw3aDC42RPRdsHaLKTp3JV9+qV7+c/5HslYRWEV9rptvou6nY6RCaJjNluC
-         rLU8EK4sGDbIw==
+        b=R4NmY1UGecH6R676i9CSNeeYug6GV8RGVRz7MryV3O3ChHpErrBa68UG3QUROg4Qg
+         34QtEKZbzHpt51c2C7g3MnhaQOdqanJABbcEjIuMgD1sKvNijnmas8YLczHSJqdKOO
+         5LYkJu9xX4NH/VlT/MvfISp8A16tKE66hVWCjgRUr78RtgB5vmEsE+MhONsgEqWEpL
+         4dkqFkIUmdzUZ8lS4XGQoju3fa7HObaUW4NlIXVuGHGzDngJE6705QQEokAWd6YWWc
+         EF3bC/Zv9BIbt4ETNfpeIZoZdqTX0ua5aPpvHO47pCdoTJHBYwo5ftO78vTUqpzxtU
+         y0gHcNvZfh8yA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhanglianjie <zhanglianjie@uniontech.com>,
+Cc:     =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20=28Zhou=20Yanjie=29?= 
+        <zhouyanjie@wanyeetech.com>, Nikolaus Schaller <hns@goldelico.com>,
+        Paul Cercueil <paul@crapouillou.net>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 158/160] MIPS: loongsoon64: Reserve memory below starting pfn to prevent Oops
-Date:   Tue,  6 Jul 2021 07:18:24 -0400
-Message-Id: <20210706111827.2060499-158-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 160/160] MIPS: CI20: Reduce clocksource to 750 kHz.
+Date:   Tue,  6 Jul 2021 07:18:26 -0400
+Message-Id: <20210706111827.2060499-160-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,46 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhanglianjie <zhanglianjie@uniontech.com>
+From: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
 
-[ Upstream commit 6817c944430d00f71ccaa9c99ff5b0096aeb7873 ]
+[ Upstream commit 23c64447b3538a6f34cb38aae3bc19dc1ec53436 ]
 
-The cause of the problem is as follows:
-1. when cat /sys/devices/system/memory/memory0/valid_zones,
-   test_pages_in_a_zone() will be called.
-2. test_pages_in_a_zone() finds the zone according to stat_pfn = 0.
-   The smallest pfn of the numa node in the mips architecture is 128,
-   and the page corresponding to the previous 0~127 pfn is not
-   initialized (page->flags is 0xFFFFFFFF)
-3. The nid and zonenum obtained using page_zone(pfn_to_page(0)) are out
-   of bounds in the corresponding array,
-   &NODE_DATA(page_to_nid(page))->node_zones[page_zonenum(page)],
-   access to the out-of-bounds zone member variables appear abnormal,
-   resulting in Oops.
-Therefore, it is necessary to keep the page between 0 and the minimum
-pfn to prevent Oops from appearing.
+The original clock (3 MHz) is too fast for the clocksource,
+there will be a chance that the system may get stuck.
 
-Signed-off-by: zhanglianjie <zhanglianjie@uniontech.com>
+Reported-by: Nikolaus Schaller <hns@goldelico.com>
+Tested-by: Nikolaus Schaller <hns@goldelico.com> # on CI20
+Signed-off-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+Acked-by: Paul Cercueil <paul@crapouillou.net>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/loongson64/numa.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/boot/dts/ingenic/ci20.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
-index a8f57bf01285..a791863ed352 100644
---- a/arch/mips/loongson64/numa.c
-+++ b/arch/mips/loongson64/numa.c
-@@ -118,6 +118,9 @@ static void __init node_mem_init(unsigned int node)
- 		if (node_end_pfn(0) >= (0xffffffff >> PAGE_SHIFT))
- 			memblock_reserve((node_addrspace_offset | 0xfe000000),
- 					 32 << 20);
-+
-+		/* Reserve pfn range 0~node[0]->node_start_pfn */
-+		memblock_reserve(0, PAGE_SIZE * start_pfn);
- 	}
- }
+diff --git a/arch/mips/boot/dts/ingenic/ci20.dts b/arch/mips/boot/dts/ingenic/ci20.dts
+index 8877c62609de..3a4eaf1f3f48 100644
+--- a/arch/mips/boot/dts/ingenic/ci20.dts
++++ b/arch/mips/boot/dts/ingenic/ci20.dts
+@@ -525,10 +525,10 @@ pins_mmc1: mmc1 {
  
+ &tcu {
+ 	/*
+-	 * 750 kHz for the system timer and 3 MHz for the clocksource,
++	 * 750 kHz for the system timer and clocksource,
+ 	 * use channel #0 for the system timer, #1 for the clocksource.
+ 	 */
+ 	assigned-clocks = <&tcu TCU_CLK_TIMER0>, <&tcu TCU_CLK_TIMER1>,
+ 					  <&tcu TCU_CLK_OST>;
+-	assigned-clock-rates = <750000>, <3000000>, <3000000>;
++	assigned-clock-rates = <750000>, <750000>, <3000000>;
+ };
 -- 
 2.30.2
 
