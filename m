@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7208D3BCECD
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D70F3BCED1
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234285AbhGFL1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:27:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35492 "EHLO mail.kernel.org"
+        id S234299AbhGFL1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:27:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234536AbhGFLYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:24:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8452F61CFE;
-        Tue,  6 Jul 2021 11:18:40 +0000 (UTC)
+        id S234600AbhGFLYq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:24:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D79F861C65;
+        Tue,  6 Jul 2021 11:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570321;
-        bh=04UNlnn7rAQzOgsTowxlOTBwvmSSP0cGxpJZNri9chQ=;
+        s=k20201202; t=1625570323;
+        bh=Ix9/zcKoy7BIBKCHzKGocvecCkbEtmdiGceJiXA6MVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TGpIBy2hszV1fBGRTG9sSUznQTOjDyshSbm+/Kd9luzsDX0Dj7icoIuWltb3W98m7
-         IdDV3GAY+yX2SFjle6eh88DhEc6gw50/kNJlRhpd42cXvqk1QOoMTOIzeaDuo1cinv
-         E+jwGXqKnYOxozDA7een4JCh/rCgYXlHYIwXKxx8vJq7ZgUyrT9jNFVn9UNlDtUK9o
-         Xmu4FhUVThipMhizwpmZH9m3u3O2df48vIqGLxA1nMU//ZZqYH3+WbA//lq9f1P3Pu
-         4pu6CgjV1e0Z/mGRKK+m/+1/Ib1v2f4ZhgQi3UZJPF/EDg34fCmafovdro71GwgivW
-         2xZgUVi+ro2AQ==
+        b=Toh/4HmmAV2kLJ4hGcs9RcyP+z0y25WbC5zePCru5fGLL+xx8/Ak8/gRRVx526Xg6
+         8hmKo+EYS2w2KfI1hknNwXCA28aHLPiDkpSyKpyFj+j0JajIvbKoyZEuJCuHlRR78O
+         f7sqv4fPfgojzDzVzGF4yFsihL5fAac0TNlVykvPiyi0oF0JcCCnd1RoJL+wVN6o3C
+         di5z1jm4j+Nk1AcrI8SzBXFfXD+xFi9DyTNT3qmfbhowAcGJuJFM5lmM6Y2ijR5hBq
+         yhE66eW7QlDN6mzLPu2ho7inhWwOBXkdyPTw6qQ52f7XvezcKQ9eeUMcRSM6wEwn/D
+         xPq16gshuaNMA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Flavio Suligoi <f.suligoi@asem.it>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 010/160] net: pch_gbe: Use proper accessors to BE data in pch_ptp_match()
-Date:   Tue,  6 Jul 2021 07:15:56 -0400
-Message-Id: <20210706111827.2060499-10-sashal@kernel.org>
+Cc:     Roman Li <Roman.Li@amd.com>, Lang Yu <Lang.Yu@amd.com>,
+        Qingqing Zhuo <Qingqing.Zhuo@amd.com>,
+        Wayne Lin <Wayne.Lin@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.12 011/160] drm/amd/display: fix potential gpu reset deadlock
+Date:   Tue,  6 Jul 2021 07:15:57 -0400
+Message-Id: <20210706111827.2060499-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -44,85 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Roman Li <Roman.Li@amd.com>
 
-[ Upstream commit 443ef39b499cc9c6635f83238101f1bb923e9326 ]
+[ Upstream commit cf8b92a75646735136053ce51107bfa8cfc23191 ]
 
-Sparse is not happy about handling of strict types in pch_ptp_match():
+[Why]
+In gpu reset dc_lock acquired in dm_suspend().
+Asynchronously handle_hpd_rx_irq can also be called
+through amdgpu_dm_irq_suspend->flush_work, which also
+tries to acquire dc_lock. That causes a deadlock.
 
-  .../pch_gbe_main.c:158:33: warning: incorrect type in argument 2 (different base types)
-  .../pch_gbe_main.c:158:33:    expected unsigned short [usertype] uid_hi
-  .../pch_gbe_main.c:158:33:    got restricted __be16 [usertype]
-  .../pch_gbe_main.c:158:45: warning: incorrect type in argument 3 (different base types)
-  .../pch_gbe_main.c:158:45:    expected unsigned int [usertype] uid_lo
-  .../pch_gbe_main.c:158:45:    got restricted __be32 [usertype]
-  .../pch_gbe_main.c:158:56: warning: incorrect type in argument 4 (different base types)
-  .../pch_gbe_main.c:158:56:    expected unsigned short [usertype] seqid
-  .../pch_gbe_main.c:158:56:    got restricted __be16 [usertype]
+[How]
+Check if amdgpu executing reset before acquiring dc_lock.
 
-Fix that by switching to use proper accessors to BE data.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Flavio Suligoi <f.suligoi@asem.it>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lang Yu <Lang.Yu@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Reviewed-by: Qingqing Zhuo <Qingqing.Zhuo@amd.com>
+Acked-by: Wayne Lin <Wayne.Lin@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 140cee7c459d..acf0abf6d183 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -107,7 +107,7 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
- {
- 	u8 *data = skb->data;
- 	unsigned int offset;
--	u16 *hi, *id;
-+	u16 hi, id;
- 	u32 lo;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index eed494630583..d95569e0e53a 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2624,13 +2624,15 @@ static void handle_hpd_rx_irq(void *param)
+ 		}
+ 	}
  
- 	if (ptp_classify_raw(skb) == PTP_CLASS_NONE)
-@@ -118,14 +118,11 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
- 	if (skb->len < offset + OFF_PTP_SEQUENCE_ID + sizeof(seqid))
- 		return 0;
+-	mutex_lock(&adev->dm.dc_lock);
++	if (!amdgpu_in_reset(adev))
++		mutex_lock(&adev->dm.dc_lock);
+ #ifdef CONFIG_DRM_AMD_DC_HDCP
+ 	result = dc_link_handle_hpd_rx_irq(dc_link, &hpd_irq_data, NULL);
+ #else
+ 	result = dc_link_handle_hpd_rx_irq(dc_link, NULL, NULL);
+ #endif
+-	mutex_unlock(&adev->dm.dc_lock);
++	if (!amdgpu_in_reset(adev))
++		mutex_unlock(&adev->dm.dc_lock);
  
--	hi = (u16 *)(data + offset + OFF_PTP_SOURCE_UUID);
--	id = (u16 *)(data + offset + OFF_PTP_SEQUENCE_ID);
-+	hi = get_unaligned_be16(data + offset + OFF_PTP_SOURCE_UUID + 0);
-+	lo = get_unaligned_be32(data + offset + OFF_PTP_SOURCE_UUID + 2);
-+	id = get_unaligned_be16(data + offset + OFF_PTP_SEQUENCE_ID);
- 
--	memcpy(&lo, &hi[1], sizeof(lo));
--
--	return (uid_hi == *hi &&
--		uid_lo == lo &&
--		seqid  == *id);
-+	return (uid_hi == hi && uid_lo == lo && seqid == id);
- }
- 
- static void
-@@ -135,7 +132,6 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
- 	struct pci_dev *pdev;
- 	u64 ns;
- 	u32 hi, lo, val;
--	u16 uid, seq;
- 
- 	if (!adapter->hwts_rx_en)
- 		return;
-@@ -151,10 +147,7 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
- 	lo = pch_src_uuid_lo_read(pdev);
- 	hi = pch_src_uuid_hi_read(pdev);
- 
--	uid = hi & 0xffff;
--	seq = (hi >> 16) & 0xffff;
--
--	if (!pch_ptp_match(skb, htons(uid), htonl(lo), htons(seq)))
-+	if (!pch_ptp_match(skb, hi, lo, hi >> 16))
- 		goto out;
- 
- 	ns = pch_rx_snap_read(pdev);
+ out:
+ 	if (result && !is_mst_root_connector) {
 -- 
 2.30.2
 
