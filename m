@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9892E3BD190
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A0A3BD1A5
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:38:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238536AbhGFLjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:39:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47578 "EHLO mail.kernel.org"
+        id S238674AbhGFLj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:39:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237250AbhGFLgC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:36:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A1B261EE9;
-        Tue,  6 Jul 2021 11:26:26 +0000 (UTC)
+        id S237253AbhGFLgD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:36:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 700F861ED3;
+        Tue,  6 Jul 2021 11:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570787;
-        bh=eSSeVjX4tABcygdynp3aCwh5KTzk60SBxkDdrdVEiRs=;
+        s=k20201202; t=1625570788;
+        bh=YKDKaRGl7fO7ELmzr9hBkOFhBeqnWCkO4x0aW4zfCPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+3Wgea/axzVa6Wvx+T0F8rq35JWKiN2x75OHBc17Tfs2egdchJp5GP/UDzk8bx09
-         roULUIlGn5WC0Q54b9giWF2MZ1o/mmS1SwUI/0NFPF/V1OFQHGa0rKsXmx3mIh8Zx8
-         KcdF4la9ZSL6ke10PMHtS6KXkPE0d73q4bJ4oL1SEqSkeLj2LgABdbOQ+HXkI/VA/n
-         fX3UXKNV3iH5Czknw1QYRB7N+BVTNlpFf+2QCXC5VDcqlWazEflPpg/bL/FVN0umEr
-         Kdu6OTQbba6rBbD3ywVEenIXNe+UZ8ralW/VJFophUoaOdEK241UYEhXw7LHtQ2j6y
-         iwblqLxPsdQUQ==
+        b=LV5S6k/nPF7tUbmUa1I+tjokFUrBsh9V/vgIDhZ/o/hF5Iw35csRC6Y4HUanRDH7L
+         M9Dr9DXL/f5S+gGjO3LcwUPdDTBEFnSXYdayJODuFzFa2qfcGUgUtj3A4tM8S+YhZS
+         tJIRebgctlR+T0AyrHxhxVDjNsMhtt3labW8nAoVCMR9vYINSDQxNBhz0a7voolQRi
+         9EwAyqU9/3V/4+ksZd9Lh9oX0NsgNxCoMpK/1PORj5JIp7EUw+oRsgn/s2SYzhMO1m
+         VHGxCke2/N/0EHKj3vZnOHOS60wnscEXpXOw47pHcRM/2DgQh/IQ3mHLiiWxbtWVc4
+         1JvdOpLfy9iFQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gerd Rausch <gerd.rausch@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 66/74] RDMA/cma: Fix rdma_resolve_route() memory leak
-Date:   Tue,  6 Jul 2021 07:24:54 -0400
-Message-Id: <20210706112502.2064236-66-sashal@kernel.org>
+Cc:     "mark-yw.chen" <mark-yw.chen@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 67/74] Bluetooth: btusb: Fixed too many in-token issue for Mediatek Chip.
+Date:   Tue,  6 Jul 2021 07:24:55 -0400
+Message-Id: <20210706112502.2064236-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112502.2064236-1-sashal@kernel.org>
 References: <20210706112502.2064236-1-sashal@kernel.org>
@@ -42,39 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Rausch <gerd.rausch@oracle.com>
+From: "mark-yw.chen" <mark-yw.chen@mediatek.com>
 
-[ Upstream commit 74f160ead74bfe5f2b38afb4fcf86189f9ff40c9 ]
+[ Upstream commit 8454ed9ff9647e31e061fb5eb2e39ce79bc5e960 ]
 
-Fix a memory leak when "mda_resolve_route() is called more than once on
-the same "rdma_cm_id".
+This patch reduce in-token during download patch procedure.
+Don't submit urb for polling event before sending hci command.
 
-This is possible if cma_query_handler() triggers the
-RDMA_CM_EVENT_ROUTE_ERROR flow which puts the state machine back and
-allows rdma_resolve_route() to be called again.
-
-Link: https://lore.kernel.org/r/f6662b7b-bdb7-2706-1e12-47c61d3474b6@oracle.com
-Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: mark-yw.chen <mark-yw.chen@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btusb.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 92428990f0cc..ec9e9598894f 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2719,7 +2719,8 @@ static int cma_resolve_ib_route(struct rdma_id_private *id_priv,
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index b467fd05c5e8..27ff7a6e2fc9 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2700,11 +2700,6 @@ static int btusb_mtk_hci_wmt_sync(struct hci_dev *hdev,
+ 	struct btmtk_wmt_hdr *hdr;
+ 	int err;
  
- 	cma_init_resolve_route_work(work, id_priv);
+-	/* Submit control IN URB on demand to process the WMT event */
+-	err = btusb_mtk_submit_wmt_recv_urb(hdev);
+-	if (err < 0)
+-		return err;
+-
+ 	/* Send the WMT command and wait until the WMT event returns */
+ 	hlen = sizeof(*hdr) + wmt_params->dlen;
+ 	if (hlen > 255)
+@@ -2726,6 +2721,11 @@ static int btusb_mtk_hci_wmt_sync(struct hci_dev *hdev,
+ 		return err;
+ 	}
  
--	route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
-+	if (!route->path_rec)
-+		route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
- 	if (!route->path_rec) {
- 		ret = -ENOMEM;
- 		goto err1;
++	/* Submit control IN URB on demand to process the WMT event */
++	err = btusb_mtk_submit_wmt_recv_urb(hdev);
++	if (err < 0)
++		return err;
++
+ 	/* The vendor specific WMT commands are all answered by a vendor
+ 	 * specific event and will have the Command Status or Command
+ 	 * Complete as with usual HCI command flow control.
 -- 
 2.30.2
 
