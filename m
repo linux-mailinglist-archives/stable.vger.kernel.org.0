@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 626603BD023
+	by mail.lfdr.de (Postfix) with ESMTP id B5A1C3BD024
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234586AbhGFLcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42622 "EHLO mail.kernel.org"
+        id S233887AbhGFLc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:32:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235775AbhGFLa0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235786AbhGFLa0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:30:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2943161DE4;
-        Tue,  6 Jul 2021 11:21:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38FC061DE7;
+        Tue,  6 Jul 2021 11:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570510;
-        bh=uNeipIKXrHdGL9rAuof73YYg8QiXPXN5XDsB8t2siVY=;
+        s=k20201202; t=1625570512;
+        bh=OcBE34AguHoPWHw6ROp+Ya4DImUDdr+os1VtKQ4LYOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u9hWHEYQj5OIp8lFePtuUEfbpV/4H2W1MExi4p6ydM5INdf8n0V2EdhhD3U9xUWtX
-         fh9g+KPkQwwygwKyZIjG/LEcTBJ/3XIKeutTHVPS/yVdox12Nf3i0mj6UvOz28CXMP
-         GZBiEjssV6ZHgwzkXKLCasu3BAOmEYPB32YlRz9q862NYgK5IQYMohp9D7JPhfJB4b
-         Dh5WOZnDlY9knDq/fzNX+MXk7kXf3m+L868PzRDkVyjwbhTmra/MwZnujRmwl2P62q
-         CxqGe1/Yjl6EXG5eytoN7cuP41LTp0ZykjPL1KmvYjAGhe9vYa2f4z9z1TfhRArekE
-         rPejSJSGkQeOQ==
+        b=VOeq+RRc0U3JXyi2BvwW+dCLKwneIkb/VjG/KWh5sAn0tbYEg069xdA4QbeCOut04
+         6WchFiOOKm8kVFTb8dArIAqPcvg6WrrLRIJzzWhBbb8YgEkw+9WoxRIWM/H+9hKy/d
+         G+Q9nuVA8g7U7uUuJSpZsA4Jm1ql5M+5OuaqvL84KjC5jIyuw5zsUgfTPVcOuNAqQr
+         a322F+4+R1/RRRY1SmYsEuKD6lh3lUSVv8bMKUNi/HcHP0vtaI+Tr4HlRtKFZZtFcm
+         Q3SiGFheduD3tQir3PzGo7gs+R58lla9eWKaDHP3/p/T72EXmljAIpsjMZ5wPqDSoe
+         81mLUY3n97/2w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tim Jiang <tjiang@codeaurora.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 152/160] Bluetooth: btusb: fix bt fiwmare downloading failure issue for qca btsoc.
-Date:   Tue,  6 Jul 2021 07:18:18 -0400
-Message-Id: <20210706111827.2060499-152-sashal@kernel.org>
+Cc:     Odin Ugedal <odin@uged.al>,
+        Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 153/160] sched/fair: Ensure _sum and _avg values stay consistent
+Date:   Tue,  6 Jul 2021 07:18:19 -0400
+Message-Id: <20210706111827.2060499-153-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -43,37 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Jiang <tjiang@codeaurora.org>
+From: Odin Ugedal <odin@uged.al>
 
-[ Upstream commit 4f00bfb372674d586c4a261bfc595cbce101fbb6 ]
+[ Upstream commit 1c35b07e6d3986474e5635be566e7bc79d97c64d ]
 
-This is btsoc timing issue, after host start to downloading bt firmware,
-ep2 need time to switch from function acl to function dfu, so host add
-20ms delay as workaround.
+The _sum and _avg values are in general sync together with the PELT
+divider. They are however not always completely in perfect sync,
+resulting in situations where _sum gets to zero while _avg stays
+positive. Such situations are undesirable.
 
-Signed-off-by: Tim Jiang <tjiang@codeaurora.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+This comes from the fact that PELT will increase period_contrib, also
+increasing the PELT divider, without updating _sum and _avg values to
+stay in perfect sync where (_sum == _avg * divider). However, such PELT
+change will never lower _sum, making it impossible to end up in a
+situation where _sum is zero and _avg is not.
+
+Therefore, we need to ensure that when subtracting load outside PELT,
+that when _sum is zero, _avg is also set to zero. This occurs when
+(_sum < _avg * divider), and the subtracted (_avg * divider) is bigger
+or equal to the current _sum, while the subtracted _avg is smaller than
+the current _avg.
+
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Link: https://lore.kernel.org/r/20210624111815.57937-1-odin@uged.al
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/sched/fair.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 64b0e68c68eb..a97e5c476adf 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -4136,6 +4136,11 @@ static int btusb_setup_qca_download_fw(struct hci_dev *hdev,
- 	sent += size;
- 	count -= size;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 47fcc3fe9dc5..b4fa8b16c69c 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3665,15 +3665,15 @@ update_cfs_rq_load_avg(u64 now, struct cfs_rq *cfs_rq)
  
-+	/* ep2 need time to switch from function acl to function dfu,
-+	 * so we add 20ms delay here.
-+	 */
-+	msleep(20);
-+
- 	while (count) {
- 		size = min_t(size_t, count, QCA_DFU_PACKET_LEN);
+ 		r = removed_load;
+ 		sub_positive(&sa->load_avg, r);
+-		sub_positive(&sa->load_sum, r * divider);
++		sa->load_sum = sa->load_avg * divider;
  
+ 		r = removed_util;
+ 		sub_positive(&sa->util_avg, r);
+-		sub_positive(&sa->util_sum, r * divider);
++		sa->util_sum = sa->util_avg * divider;
+ 
+ 		r = removed_runnable;
+ 		sub_positive(&sa->runnable_avg, r);
+-		sub_positive(&sa->runnable_sum, r * divider);
++		sa->runnable_sum = sa->runnable_avg * divider;
+ 
+ 		/*
+ 		 * removed_runnable is the unweighted version of removed_load so we
 -- 
 2.30.2
 
