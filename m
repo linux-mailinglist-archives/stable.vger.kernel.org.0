@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EE133BD148
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E458C3BD147
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235861AbhGFLi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:38:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47622 "EHLO mail.kernel.org"
+        id S235736AbhGFLi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:38:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236712AbhGFLfi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236733AbhGFLfi (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:35:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8688161E04;
-        Tue,  6 Jul 2021 11:24:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D82361E32;
+        Tue,  6 Jul 2021 11:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570645;
-        bh=Ry1aG034I40ds9gCDxFiOmtRE8P3ZjPlXbEhpRWYn94=;
+        s=k20201202; t=1625570648;
+        bh=ywqNzcJWC1iCcLtLuxp5/Cii7zk7uyXau/bWP/zwWdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZlTseCKFdRzzlDxHj4VbS6f+eskRyhZInTtZY2nBiwF++bmYDmDKnpasjyCzHaVId
-         IXJG1cU8sEBEJHy7cCwla52BGwcBkQgIX9wcoZCl5xyv13pHIABtz/40SNZIQmuSl0
-         I1nBm2D7YN4nZXlwP1Wz+2X/h3uXpjtnfpQbi5tGcWcoHFcJdtAbyQG5EMSx2nzJwg
-         9IcYqNx17XxLunr5lzfSkw6LxBKoC4ldwLwYgjfT1M2aTRcJ1GeXFwsR9zKFRy8jaM
-         0S/KB9j+u+p99v1w9q+AinWKQhdZjMjCtbpj9cTZmke1lfBD34v/OD/2j83HzjujuP
-         1LIT8WI96GH8g==
+        b=AGnbFEpPClTebDZ0ltgXwnEg+IcMEgMr7YpAmYuJtUYYlR5xZGWn3/V53M8ol2EV9
+         1wT8DVsukaHiO4FHEBrxuzhW12a0yfdK/z184rbsth68McSBj01sQR/FQmUC8d3z2c
+         q+fvz1nwDB/Z4Eu7Rcpnmla3dpj4nE4REkR04ELoHpzn0aGfpwCMYfAm+GcRLSeXVQ
+         LjHEoemqRmL5g/jAW3Bzy0Md4NVqK3j7FaYJB3IloCKD6n2OkLNBkUccbKzrIF86Fl
+         SbVtScmUbgDrh93di+uI2rn1cPmWtCK545wk3dZY4kLzVui4/R7oL2xSP6uUQoCYTZ
+         +dbaoj0AZWxKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        syzbot+ea2f1484cffe5109dc10@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 094/137] io_uring: fix false WARN_ONCE
-Date:   Tue,  6 Jul 2021 07:21:20 -0400
-Message-Id: <20210706112203.2062605-94-sashal@kernel.org>
+Cc:     xinhui pan <xinhui.pan@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 096/137] drm/amdkfd: Walk through list with dqm lock hold
+Date:   Tue,  6 Jul 2021 07:21:22 -0400
+Message-Id: <20210706112203.2062605-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -43,48 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: xinhui pan <xinhui.pan@amd.com>
 
-[ Upstream commit e6ab8991c5d0b0deae0961dc22c0edd1dee328f5 ]
+[ Upstream commit 56f221b6389e7ab99c30bbf01c71998ae92fc584 ]
 
-WARNING: CPU: 1 PID: 11749 at fs/io-wq.c:244 io_wqe_wake_worker fs/io-wq.c:244 [inline]
-WARNING: CPU: 1 PID: 11749 at fs/io-wq.c:244 io_wqe_enqueue+0x7f6/0x910 fs/io-wq.c:751
+To avoid any list corruption.
 
-A WARN_ON_ONCE() in io_wqe_wake_worker() can be triggered by a valid
-userspace setup. Replace it with pr_warn.
-
-Reported-by: syzbot+ea2f1484cffe5109dc10@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/f7ede342c3342c4c26668f5168e2993e38bbd99c.1623949695.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../drm/amd/amdkfd/kfd_device_queue_manager.c | 22 ++++++++++---------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index f72d53848dcb..8bb17b6d4de3 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -299,7 +299,8 @@ static void io_wqe_wake_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
- 	 * Most likely an attempt to queue unbounded work on an io_wq that
- 	 * wasn't setup with any unbounded workers.
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+index ffb3d37881a8..352a32dc609b 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+@@ -1712,7 +1712,7 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
+ 		struct qcm_process_device *qpd)
+ {
+ 	int retval;
+-	struct queue *q, *next;
++	struct queue *q;
+ 	struct kernel_queue *kq, *kq_next;
+ 	struct mqd_manager *mqd_mgr;
+ 	struct device_process_node *cur, *next_dpn;
+@@ -1769,24 +1769,26 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
+ 		qpd->reset_wavefronts = false;
+ 	}
+ 
+-	dqm_unlock(dqm);
+-
+-	/* Outside the DQM lock because under the DQM lock we can't do
+-	 * reclaim or take other locks that others hold while reclaiming.
+-	 */
+-	if (found)
+-		kfd_dec_compute_active(dqm->dev);
+-
+ 	/* Lastly, free mqd resources.
+ 	 * Do free_mqd() after dqm_unlock to avoid circular locking.
  	 */
--	WARN_ON_ONCE(!acct->max_workers);
-+	if (unlikely(!acct->max_workers))
-+		pr_warn_once("io-wq is not configured for unbound workers");
+-	list_for_each_entry_safe(q, next, &qpd->queues_list, list) {
++	while (!list_empty(&qpd->queues_list)) {
++		q = list_first_entry(&qpd->queues_list, struct queue, list);
+ 		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
+ 				q->properties.type)];
+ 		list_del(&q->list);
+ 		qpd->queue_count--;
++		dqm_unlock(dqm);
+ 		mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
++		dqm_lock(dqm);
+ 	}
++	dqm_unlock(dqm);
++
++	/* Outside the DQM lock because under the DQM lock we can't do
++	 * reclaim or take other locks that others hold while reclaiming.
++	 */
++	if (found)
++		kfd_dec_compute_active(dqm->dev);
  
- 	rcu_read_lock();
- 	ret = io_wqe_activate_free_worker(wqe);
-@@ -1085,6 +1086,8 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
- 
- 	if (WARN_ON_ONCE(!data->free_work || !data->do_work))
- 		return ERR_PTR(-EINVAL);
-+	if (WARN_ON_ONCE(!bounded))
-+		return ERR_PTR(-EINVAL);
- 
- 	wq = kzalloc(sizeof(*wq), GFP_KERNEL);
- 	if (!wq)
+ 	return retval;
+ }
 -- 
 2.30.2
 
