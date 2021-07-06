@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF2D3BCE8C
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 315DA3BCC39
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:16:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233988AbhGFL0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:26:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53758 "EHLO mail.kernel.org"
+        id S232592AbhGFLSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:18:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232277AbhGFLSA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:18:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CC5361C5C;
-        Tue,  6 Jul 2021 11:15:21 +0000 (UTC)
+        id S232360AbhGFLSN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:18:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8908961C22;
+        Tue,  6 Jul 2021 11:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570122;
-        bh=yYQX/l86/tT//dk9dZb0R3ZlXb4iOuPLeiwiA8cA/Ds=;
+        s=k20201202; t=1625570123;
+        bh=qwDOPYoWnDfuwo7d96yAIbMByB5OAY5HzokkWBqgC+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faFK7j/lIQIxBvz/+HSdBQsfwQhiDzhoSVbvaIkFjUnEzXy8Ye8GSNaCuPjDPJ6K8
-         D+UWLuQ1Sp0aASvV6u98ZzhuR0kGk/eedSEuis4xYobV4IIzRhpJmV34D29Y5FtTyj
-         3S0vh0Dy9D2VPhmdz6Vc9Y8/wjVufdaXZ13sf6VhP3nXtfJtYC3vsyJdgoCWCkaJbp
-         OsRHCJh0UGUjmLRgLmx1QHd8CjlZ/ifoU/GVzN4R0MpBFwKG5y9PPnO/xdyKLVWLkp
-         Je57xGQwFN2Iz5vNXD4t/0QPHEBxEbmP0jcJO273j2vesfCV2xQjVj5x/WvYOIwJAd
-         3iGSsWErWU66Q==
+        b=h4K9FovNyZWFz9aoYze++dt8RTkctRKZvMvLo0IqwHs9MbcUbc6sDGdez+FWyYhp+
+         832ac/w68VsJOaOumApmRBbmsSrw3WJ0+jDEP4rGpEKnnUw+D3Vtl7X165UwD4eDIH
+         D6hTUTpKSyklQ50lW7O98JJDlgtD8UvhTOaY45QTvQxTjhX8/ZsvjChT1wKO799BtP
+         aEP2mD45sEMxokkcxqsMw0ttJ7NPCgJ5FEu9TqFJQhHPKQAcLOb5REU7wVcjGoxYD3
+         yNPQvaRY4L2Vi9AGYAC9El+iLyA1JN1m5w7P0gSqfBHky5rYLe5VT8H90CKCgSiZ5T
+         LMFkWIdG9Y5Tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.13 051/189] drm/amdgpu/swsmu/aldebaran: fix check in is_dpm_running
-Date:   Tue,  6 Jul 2021 07:11:51 -0400
-Message-Id: <20210706111409.2058071-51-sashal@kernel.org>
+Cc:     Huy Nguyen <huyn@nvidia.com>, Raed Salem <raeds@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 052/189] net/mlx5e: IPsec/rep_tc: Fix rep_tc_update_skb drops IPsec packet
+Date:   Tue,  6 Jul 2021 07:11:52 -0400
+Message-Id: <20210706111409.2058071-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -44,41 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Huy Nguyen <huyn@nvidia.com>
 
-[ Upstream commit dd1d82c04e111b5a864638ede8965db2fe6d8653 ]
+[ Upstream commit c07274ab1ab2c38fb128e32643c22c89cb319384 ]
 
-If smu_cmn_get_enabled_mask() fails, return false to be
-consistent with other asics.
+rep_tc copy REG_C1 to REG_B. IPsec crypto utilizes the whole REG_B
+register with BIT31 as IPsec marker. rep_tc_update_skb drops
+IPsec because it thought REG_B contains bad value.
 
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Reviewed-by: Lee Jones <lee.jones@linaro.org>
+In previous patch, BIT 31 of REG_C1 is reserved for IPsec.
+Skip the rep_tc_update_skb if BIT31 of REG_B is set.
+
+Signed-off-by: Huy Nguyen <huyn@nvidia.com>
+Signed-off-by: Raed Salem <raeds@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_rx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
-index 16ad4683eb69..0d2f61f56f45 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
-@@ -1290,10 +1290,13 @@ static int aldebaran_usr_edit_dpm_table(struct smu_context *smu, enum PP_OD_DPM_
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+index f90894eea9e0..5346271974f5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+@@ -1310,7 +1310,8 @@ static void mlx5e_handle_rx_cqe_rep(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe)
+ 	if (rep->vlan && skb_vlan_tag_present(skb))
+ 		skb_vlan_pop(skb);
  
- static bool aldebaran_is_dpm_running(struct smu_context *smu)
- {
--	int ret = 0;
-+	int ret;
- 	uint32_t feature_mask[2];
- 	unsigned long feature_enabled;
-+
- 	ret = smu_cmn_get_enabled_mask(smu, feature_mask, 2);
-+	if (ret)
-+		return false;
- 	feature_enabled = (unsigned long)((uint64_t)feature_mask[0] |
- 					  ((uint64_t)feature_mask[1] << 32));
- 	return !!(feature_enabled & SMC_DPM_FEATURE);
+-	if (!mlx5e_rep_tc_update_skb(cqe, skb, &tc_priv)) {
++	if (unlikely(!mlx5_ipsec_is_rx_flow(cqe) &&
++		     !mlx5e_rep_tc_update_skb(cqe, skb, &tc_priv))) {
+ 		dev_kfree_skb_any(skb);
+ 		goto free_wqe;
+ 	}
+@@ -1367,7 +1368,8 @@ static void mlx5e_handle_rx_cqe_mpwrq_rep(struct mlx5e_rq *rq, struct mlx5_cqe64
+ 
+ 	mlx5e_complete_rx_cqe(rq, cqe, cqe_bcnt, skb);
+ 
+-	if (!mlx5e_rep_tc_update_skb(cqe, skb, &tc_priv)) {
++	if (unlikely(!mlx5_ipsec_is_rx_flow(cqe) &&
++		     !mlx5e_rep_tc_update_skb(cqe, skb, &tc_priv))) {
+ 		dev_kfree_skb_any(skb);
+ 		goto mpwrq_cqe_out;
+ 	}
 -- 
 2.30.2
 
