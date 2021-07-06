@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B14F93BCF86
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CC9C3BCFE3
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234039AbhGFLan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:30:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35426 "EHLO mail.kernel.org"
+        id S235706AbhGFLbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:31:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232364AbhGFL22 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:28:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8410261D6A;
-        Tue,  6 Jul 2021 11:20:13 +0000 (UTC)
+        id S234728AbhGFL2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:28:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FB5961D66;
+        Tue,  6 Jul 2021 11:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570414;
-        bh=dQZVRB0s0ZaI5JuJSNJrI0CmVThru6IXPILSsXFNzc4=;
+        s=k20201202; t=1625570415;
+        bh=NK1C+OqojIwMpGe7AJKnUxjuIRKG0Oa2NtHXQG3auq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDXx/lmD6ldq0uDfrxY7ObOem9cVH5NnQ9ia81j6PWW4KPl3uEPyO7gDyPhHehuRI
-         IiUIrGEs6x7Qcl2an3ZAVdrV5igTllhVdXLrandmiqtTHEZx092nYKViX2+0a6A2rz
-         KhnDdtvH1e1PQKK2mmros92zzmpJPAmpV7QFls9BoXkS0nzt7XuNd5nH5r/fqG2t2J
-         f8PgOQbWY694smVrcUy0Uo+JxJpbbcLktoC4BMajl2CT9JX6RiTSLdBB5lswDJVP3h
-         SvQgtX3lWZ7v+P15ViQBf3/j0UayqSIAjPf81ljTGBiwTsBOxRPMMGCEw7f/uaVHu2
-         klhB6b8VgVoFg==
+        b=iHMmyzSMRw9qvpCjlC0dospDwRt7W7GJV7l5f/tAfq5lflLxBWIcrbWpl/FBt8KH2
+         XBADejaFEmKwj1pvWVaRHAupfLUA/QblDFKc5Y7otBGGPjRzEbtmugSsrmhhDV0ihQ
+         WAheasn6y0213sFGGq/sHTs2CACPmZ7Yp2QhkJQ6kRqWH7VeKBl3R/uDJcrzFzQgvY
+         dHr/YmJDQMp2x7LBBp1NRDCm8JaAfEHuyTJx7b3PAX0zl2ygAE6OOU7EYi2g2wgzo6
+         gjyOthRqCooFHCcoM2w8y81LW1mzrXFvgAytNVKejFHN2mTYvn7kwqczOOe3lzL10m
+         QllIVpzhS0Dvw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aric Cyr <aric.cyr@amd.com>,
-        Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 080/160] drm/amd/display: Fix crash during MPO + ODM combine mode recalculation
-Date:   Tue,  6 Jul 2021 07:17:06 -0400
-Message-Id: <20210706111827.2060499-80-sashal@kernel.org>
+Cc:     Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 081/160] net: phy: realtek: add delay to fix RXC generation issue
+Date:   Tue,  6 Jul 2021 07:17:07 -0400
+Message-Id: <20210706111827.2060499-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -46,45 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aric Cyr <aric.cyr@amd.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit 665f28507a2a3d8d72ed9afa9a2b9b17fd43add1 ]
+[ Upstream commit 6813cc8cfdaf401476e1a007cec8ae338cefa573 ]
 
-[Why]
-When calculating recout width for an MPO plane on a mode that's using
-ODM combine, driver can calculate a negative value, resulting in a
-crash.
+PHY will delay about 11.5ms to generate RXC clock when switching from
+power down to normal operation. Read/write registers would also cause RXC
+become unstable and stop for a while during this process. Realtek engineer
+suggests 15ms or more delay can workaround this issue.
 
-[How]
-For negative widths, use zero such that validation will prune the
-configuration correctly and disallow MPO.
-
-Signed-off-by: Aric Cyr <aric.cyr@amd.com>
-Reviewed-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
-Acked-by: Stylon Wang <stylon.wang@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/phy/realtek.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index 325e0d656d6a..749189eb20ba 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -733,6 +733,11 @@ static void calculate_recout(struct pipe_ctx *pipe_ctx)
- 			if (split_idx == split_count) {
- 				/* rightmost pipe is the remainder recout */
- 				data->recout.width -= data->h_active * split_count - data->recout.x;
+diff --git a/drivers/net/phy/realtek.c b/drivers/net/phy/realtek.c
+index 821e85a97367..7b99a3234c65 100644
+--- a/drivers/net/phy/realtek.c
++++ b/drivers/net/phy/realtek.c
+@@ -357,6 +357,19 @@ static int rtl8211f_config_init(struct phy_device *phydev)
+ 	return 0;
+ }
+ 
++static int rtl821x_resume(struct phy_device *phydev)
++{
++	int ret;
 +
-+				/* ODM combine cases with MPO we can get negative widths */
-+				if (data->recout.width < 0)
-+					data->recout.width = 0;
++	ret = genphy_resume(phydev);
++	if (ret < 0)
++		return ret;
 +
- 				data->recout.x = 0;
- 			} else
- 				data->recout.width = data->h_active - data->recout.x;
++	msleep(20);
++
++	return 0;
++}
++
+ static int rtl8211e_config_init(struct phy_device *phydev)
+ {
+ 	int ret = 0, oldpage;
+@@ -852,7 +865,7 @@ static struct phy_driver realtek_drvs[] = {
+ 		.config_intr	= &rtl8211f_config_intr,
+ 		.handle_interrupt = rtl8211f_handle_interrupt,
+ 		.suspend	= genphy_suspend,
+-		.resume		= genphy_resume,
++		.resume		= rtl821x_resume,
+ 		.read_page	= rtl821x_read_page,
+ 		.write_page	= rtl821x_write_page,
+ 	}, {
 -- 
 2.30.2
 
