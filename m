@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EE773BCEFD
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:27:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63BB93BCF00
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:27:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234507AbhGFL1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:27:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35650 "EHLO mail.kernel.org"
+        id S234519AbhGFL1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:27:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234912AbhGFLZN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:25:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ACA461C78;
-        Tue,  6 Jul 2021 11:19:13 +0000 (UTC)
+        id S234943AbhGFLZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:25:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89EDF61D41;
+        Tue,  6 Jul 2021 11:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570354;
-        bh=dt0lmIzopvOs6fP5lPadlUl/1tb7ZOp1dDHOIVae8BQ=;
+        s=k20201202; t=1625570355;
+        bh=SJnchJOCWq86jSivAcKUt8nRUW+Uh1jnOWnGDw2p6Uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfMyvQu3YbjIWd6VHyFtqx+X7UYFSTHoYTYouv2v3/Zre2plxkxvVJhoTzMDmYATy
-         hfDQduE5m47Dlon4e47RNDazw42fW1cS3utWDbwkiDgaSXccCv3xEkpT46SsiV/Z2o
-         tq88v4WeN6x97ae4nOHGyGB7EL9YAHBUBtuPTPVj6MO5cVKcHyypgMv3qBXUvKtc79
-         2TF4MBILX+NnQyMdG3I5vz4MWRCvmYU6inpXh5JtDiMGUXKlpA6MUWoaCHPUg06mVG
-         3rvWghbjBYG4oyhlWuC5SHxIEdcy7JFZyDXAMMR/68NHysqRxpGbynlVj7bCuUh+0G
-         9Q7qyV2Uq/qvg==
+        b=e1KkVK9h3rvznYF1eZnICc8HtHLcSmzKVkGPNCeHUrTnlMdEr2RVavylFnF2OGN5P
+         gUfXbgxK6UQhCKLfcyK4s+KJKNNFDkH7+BPxYWZHM+NL2C7iiuBcv6f20DFOWvrU5M
+         Lo23Lzrlnw1Vj2XYJlebsGA6/XD1nCcr5/L4pMGrB5+cXcgU/3sIs+O9i07nCnDjr3
+         9meOLViOjYKWrKM/98wGQ7VbVeOE/s5xaJNHwO0YsBeJoOLuybdv3xRlA+/ya4FwQw
+         SllUoxyhLSUr5skIlTP+g0RfMsuuV/50DYAr/Myg4r8m9r4L+5FucbGXL4QlRdoEDq
+         IbkXWp5Phh9+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+Cc:     Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 035/160] drm/vc4: hdmi: Fix PM reference leak in vc4_hdmi_encoder_pre_crtc_co()
-Date:   Tue,  6 Jul 2021 07:16:21 -0400
-Message-Id: <20210706111827.2060499-35-sashal@kernel.org>
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 036/160] e100: handle eeprom as little endian
+Date:   Tue,  6 Jul 2021 07:16:22 -0400
+Message-Id: <20210706111827.2060499-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -43,37 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-[ Upstream commit 5e4322a8b266bc9f5ee7ea4895f661c01dbd7cb3 ]
+[ Upstream commit d4ef55288aa2e1b76033717242728ac98ddc4721 ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+Sparse tool was warning on some implicit conversions from
+little endian data read from the EEPROM on the e100 cards.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/1621840854-105978-1-git-send-email-zou_wei@huawei.com
+Fix these by being explicit about the conversions using
+le16_to_cpu().
+
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e100.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 8106b5634fe1..d1c9819ea9f9 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -745,7 +745,7 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder,
- 	unsigned long pixel_rate, hsm_rate;
- 	int ret;
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index f8d78af76d7d..1b0958bd24f6 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -1395,7 +1395,7 @@ static int e100_phy_check_without_mii(struct nic *nic)
+ 	u8 phy_type;
+ 	int without_mii;
  
--	ret = pm_runtime_get_sync(&vc4_hdmi->pdev->dev);
-+	ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
- 	if (ret < 0) {
- 		DRM_ERROR("Failed to retain power domain: %d\n", ret);
- 		return;
+-	phy_type = (nic->eeprom[eeprom_phy_iface] >> 8) & 0x0f;
++	phy_type = (le16_to_cpu(nic->eeprom[eeprom_phy_iface]) >> 8) & 0x0f;
+ 
+ 	switch (phy_type) {
+ 	case NoSuchPhy: /* Non-MII PHY; UNTESTED! */
+@@ -1515,7 +1515,7 @@ static int e100_phy_init(struct nic *nic)
+ 		mdio_write(netdev, nic->mii.phy_id, MII_BMCR, bmcr);
+ 	} else if ((nic->mac >= mac_82550_D102) || ((nic->flags & ich) &&
+ 	   (mdio_read(netdev, nic->mii.phy_id, MII_TPISTATUS) & 0x8000) &&
+-		(nic->eeprom[eeprom_cnfg_mdix] & eeprom_mdix_enabled))) {
++	   (le16_to_cpu(nic->eeprom[eeprom_cnfg_mdix]) & eeprom_mdix_enabled))) {
+ 		/* enable/disable MDI/MDI-X auto-switching. */
+ 		mdio_write(netdev, nic->mii.phy_id, MII_NCONFIG,
+ 				nic->mii.force_media ? 0 : NCONFIG_AUTO_SWITCH);
+@@ -2269,9 +2269,9 @@ static int e100_asf(struct nic *nic)
+ {
+ 	/* ASF can be enabled from eeprom */
+ 	return (nic->pdev->device >= 0x1050) && (nic->pdev->device <= 0x1057) &&
+-	   (nic->eeprom[eeprom_config_asf] & eeprom_asf) &&
+-	   !(nic->eeprom[eeprom_config_asf] & eeprom_gcl) &&
+-	   ((nic->eeprom[eeprom_smbus_addr] & 0xFF) != 0xFE);
++	   (le16_to_cpu(nic->eeprom[eeprom_config_asf]) & eeprom_asf) &&
++	   !(le16_to_cpu(nic->eeprom[eeprom_config_asf]) & eeprom_gcl) &&
++	   ((le16_to_cpu(nic->eeprom[eeprom_smbus_addr]) & 0xFF) != 0xFE);
+ }
+ 
+ static int e100_up(struct nic *nic)
+@@ -2926,7 +2926,7 @@ static int e100_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ 	/* Wol magic packet can be enabled from eeprom */
+ 	if ((nic->mac >= mac_82558_D101_A4) &&
+-	   (nic->eeprom[eeprom_id] & eeprom_id_wol)) {
++	   (le16_to_cpu(nic->eeprom[eeprom_id]) & eeprom_id_wol)) {
+ 		nic->flags |= wol_magic;
+ 		device_set_wakeup_enable(&pdev->dev, true);
+ 	}
 -- 
 2.30.2
 
