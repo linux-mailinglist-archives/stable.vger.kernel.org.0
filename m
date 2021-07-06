@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AFFA3BD25A
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E617A3BD265
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239396AbhGFLmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:42:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47572 "EHLO mail.kernel.org"
+        id S237650AbhGFLmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:42:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237645AbhGFLgU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:36:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0F4061F1A;
-        Tue,  6 Jul 2021 11:29:06 +0000 (UTC)
+        id S237651AbhGFLgV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:36:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFA4D61DF2;
+        Tue,  6 Jul 2021 11:29:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570947;
-        bh=ETxWTFrPy6RHA/XYbcx8W2DT0j29TsA9wcVhITPA1/s=;
+        s=k20201202; t=1625570948;
+        bh=n2vsdjTx/lctda6weRG5p0tIWznoempiBW0ujVFOs84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfC7x3imBgznro7CQ3kWAChzxeW8d7Cffi3JouBsNBttpsaC97uEnUw05FDLK/LWJ
-         WsV+I2bHoyJo5gN7bUSzIN9iXO2U65Rl1xCFRRBFs8wGu8j9OJfMwYOlhPxGix9qx1
-         DN7Zy81fiVpURbX4bkPf5VCQbBZpmcC6ppUiz7SMWScFX3jfFYhEGktQ0tJ84KVENV
-         WpP38kVBm6X1zXBjfWHmnbKIEXDD0Q6UKtJHFcJ0nA348E0vAHYWoJVWjoBfP/jffZ
-         MO6x7aActT65x6jI2BWp56+BObdpnv3xqu/Jd7wX1LvUYMFcbLdIYgYCuaXHUFy+00
-         Z+CIno2QxRetw==
+        b=l86Lc+aNWQFiqgxxp0kqjLj260/IynvQwHk1WGNeTbg5YNA1dWYkl0kvams6LM6rk
+         lhhaVqMLakekAi/ZcTzrYKvVRoACCAIYOCiJGwL/bK4oFP1+r4qkKJnEYWObdci0oB
+         fiFruFLyjXhxdacvjeTnC2Qa1Oxxa1SoCEeNjgMeFyl8cV38InCqjYpy83IekfFqMl
+         uPjv786NtrtWo4+6N4OvhF+U86oPeFZvZM0Uf8u35FD+35gWTv0W2rYMT/LTxhczVA
+         ZezK7JiMSA5VIX17vRzpidipatSG9a0Gd777kuDJOaHZLzfLWrYQJ47YVjL0uez1D2
+         cZirIG/lWI1HQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joe Thornber <ejt@redhat.com>, Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.9 15/35] dm space maps: don't reset space map allocation cursor when committing
-Date:   Tue,  6 Jul 2021 07:28:27 -0400
-Message-Id: <20210706112848.2066036-15-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 16/35] net: micrel: check return value after calling platform_get_resource()
+Date:   Tue,  6 Jul 2021 07:28:28 -0400
+Message-Id: <20210706112848.2066036-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112848.2066036-1-sashal@kernel.org>
 References: <20210706112848.2066036-1-sashal@kernel.org>
@@ -41,87 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
+[ Upstream commit 20f1932e2282c58cb5ac59517585206cf5b385ae ]
 
-Current commit code resets the place where the search for free blocks
-will begin back to the start of the metadata device.  There are a couple
-of repercussions to this:
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-- The first allocation after the commit is likely to take longer than
-  normal as it searches for a free block in an area that is likely to
-  have very few free blocks (if any).
-
-- Any free blocks it finds will have been recently freed.  Reusing them
-  means we have fewer old copies of the metadata to aid recovery from
-  hardware error.
-
-Fix these issues by leaving the cursor alone, only resetting when the
-search hits the end of the metadata device.
-
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
- drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/micrel/ks8842.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
-index bf4c5e2ccb6f..e0acae7a3815 100644
---- a/drivers/md/persistent-data/dm-space-map-disk.c
-+++ b/drivers/md/persistent-data/dm-space-map-disk.c
-@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smd->begin and the end of the metadata device.
-+		 * We search before smd->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
+diff --git a/drivers/net/ethernet/micrel/ks8842.c b/drivers/net/ethernet/micrel/ks8842.c
+index cb0102dd7f70..d691c33dffc6 100644
+--- a/drivers/net/ethernet/micrel/ks8842.c
++++ b/drivers/net/ethernet/micrel/ks8842.c
+@@ -1150,6 +1150,10 @@ static int ks8842_probe(struct platform_device *pdev)
+ 	unsigned i;
+ 
+ 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!iomem) {
++		dev_err(&pdev->dev, "Invalid resource\n");
++		return -EINVAL;
 +	}
-+
- 	if (r)
- 		return r;
+ 	if (!request_mem_region(iomem->start, resource_size(iomem), DRV_NAME))
+ 		goto err_mem_region;
  
-@@ -199,7 +207,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
- 		return r;
- 
- 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
--	smd->begin = 0;
- 	smd->nr_allocated_this_transaction = 0;
- 
- 	r = sm_disk_get_nr_free(sm, &nr_free);
-diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
-index 967d8f2a731f..62a4d7da9bd9 100644
---- a/drivers/md/persistent-data/dm-space-map-metadata.c
-+++ b/drivers/md/persistent-data/dm-space-map-metadata.c
-@@ -451,6 +451,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smm->begin and the end of the metadata device.
-+		 * We search before smm->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
-+	}
-+
- 	if (r)
- 		return r;
- 
-@@ -502,7 +510,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
- 		return r;
- 
- 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
--	smm->begin = 0;
- 	smm->allocated_this_transaction = 0;
- 
- 	return 0;
 -- 
 2.30.2
 
