@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 380053BCEED
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8775D3BCEF4
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233319AbhGFL1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:27:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35448 "EHLO mail.kernel.org"
+        id S232212AbhGFL1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:27:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234801AbhGFLZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:25:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 647EF61D2A;
-        Tue,  6 Jul 2021 11:19:00 +0000 (UTC)
+        id S234823AbhGFLZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:25:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C112C61D25;
+        Tue,  6 Jul 2021 11:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570341;
-        bh=IFG7ElW86piU0V3nsWrsJoKtuF6YvL1FgXA/ieXfuD4=;
+        s=k20201202; t=1625570342;
+        bh=dtaz5WaHJMcuKrjLxqgKVd0VmEwxN7a/SQ8NSOvtu2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/gFODX3sAoW9skIaOgBkC1lxYNXOFnFAE3JJ0+mtH7sd3S/8Q8pBgTmeirx52C/U
-         p1b1733oz0heUf5qwK7f8AbItQLWsJcaRPSxy13FBXkpp3FXQDBqeH0A+Y9rU2m9X9
-         l9iqtkiMbNL44PKG0w7T9qYhyNdl08izHzHx+HcU3/Gv77Fw+LeSK3Rb59n2rBVp++
-         OIlbNMO99ChWsiRS8w46ifluyLScOCtw5A+q4O8R9wsra5cgHRF7zSS8CySAM4P2Py
-         JCtBRS89bbuJQfhgEtzy4Bu0zlUmclp1j7YTGKux/6BGJjCHGUt1AgwhpLl9qbnO6v
-         DDlvFs2h2WBBg==
+        b=F0nexKX+y+f3CeHJTzmRKQ9bRYROYpzQhswvlKykGfPn46g82Ucl1SZNEmdIB27n8
+         HaYWXUjHRCu5fvhe+kY2emuyYt/wRApBW75MpWgKjETBVWgS6LSbfRaHoDZ/4YUZz1
+         Rh/yuVa25i1Bevx8u5s0pzq4Tx7/JSnYbkH7iSAIrzyS5SsS6lHsv49cmQN5rSVews
+         mBbX7pw4/LMXzpb45WIpY0ePw5mJQZeioBuasew35dxWBaFFSi7zKKNMq4sfJMk7g9
+         qq6Vx3XAAcMTRkSyZxMMrmNaTKDFatuj2jpdPvosl64S4aRjesNZD0/kyvzH5tQYtK
+         HbMnoQE9eKlbw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie Yongji <xieyongji@bytedance.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.12 025/160] drm/virtio: Fix double free on probe failure
-Date:   Tue,  6 Jul 2021 07:16:11 -0400
-Message-Id: <20210706111827.2060499-25-sashal@kernel.org>
+Cc:     Dongseok Yi <dseok.yi@samsung.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Willem de Bruijn <willemb@google.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 026/160] bpf: Check for BPF_F_ADJ_ROOM_FIXED_GSO when bpf_skb_change_proto
+Date:   Tue,  6 Jul 2021 07:16:12 -0400
+Message-Id: <20210706111827.2060499-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -44,34 +44,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Dongseok Yi <dseok.yi@samsung.com>
 
-[ Upstream commit cec7f1774605a5ef47c134af62afe7c75c30b0ee ]
+[ Upstream commit fa7b83bf3b156c767f3e4a25bbf3817b08f3ff8e ]
 
-The virtio_gpu_init() will free vgdev and vgdev->vbufs on failure.
-But such failure will be caught by virtio_gpu_probe() and then
-virtio_gpu_release() will be called to do some cleanup which
-will free vgdev and vgdev->vbufs again. So let's set dev->dev_private
-to NULL to avoid double free.
+In the forwarding path GRO -> BPF 6 to 4 -> GSO for TCP traffic, the
+coalesced packet payload can be > MSS, but < MSS + 20.
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210517084913.403-2-xieyongji@bytedance.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+bpf_skb_proto_6_to_4() will upgrade the MSS and it can be > the payload
+length. After then tcp_gso_segment checks for the payload length if it
+is <= MSS. The condition is causing the packet to be dropped.
+
+tcp_gso_segment():
+        [...]
+        mss = skb_shinfo(skb)->gso_size;
+        if (unlikely(skb->len <= mss))
+                goto out;
+        [...]
+
+Allow to upgrade/downgrade MSS only when BPF_F_ADJ_ROOM_FIXED_GSO is
+not set.
+
+Signed-off-by: Dongseok Yi <dseok.yi@samsung.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/bpf/1620804453-57566-1-git-send-email-dseok.yi@samsung.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_kms.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/filter.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index aa532ad31a23..f3379059f324 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -234,6 +234,7 @@ int virtio_gpu_init(struct drm_device *dev)
- err_vbufs:
- 	vgdev->vdev->config->del_vqs(vgdev->vdev);
- err_vqs:
-+	dev->dev_private = NULL;
- 	kfree(vgdev);
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 52f4359efbd2..849b08350a39 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -3238,7 +3238,7 @@ static int bpf_skb_net_hdr_pop(struct sk_buff *skb, u32 off, u32 len)
+ 	return ret;
+ }
+ 
+-static int bpf_skb_proto_4_to_6(struct sk_buff *skb)
++static int bpf_skb_proto_4_to_6(struct sk_buff *skb, u64 flags)
+ {
+ 	const u32 len_diff = sizeof(struct ipv6hdr) - sizeof(struct iphdr);
+ 	u32 off = skb_mac_header_len(skb);
+@@ -3267,7 +3267,9 @@ static int bpf_skb_proto_4_to_6(struct sk_buff *skb)
+ 		}
+ 
+ 		/* Due to IPv6 header, MSS needs to be downgraded. */
+-		skb_decrease_gso_size(shinfo, len_diff);
++		if (!(flags & BPF_F_ADJ_ROOM_FIXED_GSO))
++			skb_decrease_gso_size(shinfo, len_diff);
++
+ 		/* Header must be checked, and gso_segs recomputed. */
+ 		shinfo->gso_type |= SKB_GSO_DODGY;
+ 		shinfo->gso_segs = 0;
+@@ -3279,7 +3281,7 @@ static int bpf_skb_proto_4_to_6(struct sk_buff *skb)
+ 	return 0;
+ }
+ 
+-static int bpf_skb_proto_6_to_4(struct sk_buff *skb)
++static int bpf_skb_proto_6_to_4(struct sk_buff *skb, u64 flags)
+ {
+ 	const u32 len_diff = sizeof(struct ipv6hdr) - sizeof(struct iphdr);
+ 	u32 off = skb_mac_header_len(skb);
+@@ -3308,7 +3310,9 @@ static int bpf_skb_proto_6_to_4(struct sk_buff *skb)
+ 		}
+ 
+ 		/* Due to IPv4 header, MSS can be upgraded. */
+-		skb_increase_gso_size(shinfo, len_diff);
++		if (!(flags & BPF_F_ADJ_ROOM_FIXED_GSO))
++			skb_increase_gso_size(shinfo, len_diff);
++
+ 		/* Header must be checked, and gso_segs recomputed. */
+ 		shinfo->gso_type |= SKB_GSO_DODGY;
+ 		shinfo->gso_segs = 0;
+@@ -3320,17 +3324,17 @@ static int bpf_skb_proto_6_to_4(struct sk_buff *skb)
+ 	return 0;
+ }
+ 
+-static int bpf_skb_proto_xlat(struct sk_buff *skb, __be16 to_proto)
++static int bpf_skb_proto_xlat(struct sk_buff *skb, __be16 to_proto, u64 flags)
+ {
+ 	__be16 from_proto = skb->protocol;
+ 
+ 	if (from_proto == htons(ETH_P_IP) &&
+ 	      to_proto == htons(ETH_P_IPV6))
+-		return bpf_skb_proto_4_to_6(skb);
++		return bpf_skb_proto_4_to_6(skb, flags);
+ 
+ 	if (from_proto == htons(ETH_P_IPV6) &&
+ 	      to_proto == htons(ETH_P_IP))
+-		return bpf_skb_proto_6_to_4(skb);
++		return bpf_skb_proto_6_to_4(skb, flags);
+ 
+ 	return -ENOTSUPP;
+ }
+@@ -3340,7 +3344,7 @@ BPF_CALL_3(bpf_skb_change_proto, struct sk_buff *, skb, __be16, proto,
+ {
+ 	int ret;
+ 
+-	if (unlikely(flags))
++	if (unlikely(flags & ~(BPF_F_ADJ_ROOM_FIXED_GSO)))
+ 		return -EINVAL;
+ 
+ 	/* General idea is that this helper does the basic groundwork
+@@ -3360,7 +3364,7 @@ BPF_CALL_3(bpf_skb_change_proto, struct sk_buff *, skb, __be16, proto,
+ 	 * that. For offloads, we mark packet as dodgy, so that headers
+ 	 * need to be verified first.
+ 	 */
+-	ret = bpf_skb_proto_xlat(skb, proto);
++	ret = bpf_skb_proto_xlat(skb, proto, flags);
+ 	bpf_compute_data_pointers(skb);
  	return ret;
  }
 -- 
