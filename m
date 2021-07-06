@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E14303BCD63
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 864BF3BCD6A
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:20:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233308AbhGFLVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:21:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56556 "EHLO mail.kernel.org"
+        id S233214AbhGFLVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:21:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233184AbhGFLUN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:20:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB1DA61C66;
-        Tue,  6 Jul 2021 11:17:17 +0000 (UTC)
+        id S233207AbhGFLUR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:20:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4606261C84;
+        Tue,  6 Jul 2021 11:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570238;
-        bh=qMPU3zfiHGCSq5ZYLRlXr/Vg957eiNDmbSieY5bsNkM=;
+        s=k20201202; t=1625570240;
+        bh=2ozA3x8WpznmspZinYc9ZWSLYqnmg4yNP8tlXOX0c2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JqhhWAqH0HrIePT/dytRt005RYhgm6VL2hhchBWPXO6QQgF1NleEPaesmsFN7TfFJ
-         vYz88WIgZ2639q0GrZ18EsJHCR6xrFJgJaxugzMP+27cF/cS8g4BTohOz327cVqkj5
-         HC2ftRDgSpDzBWpK8d37/mcVIr1p4X9vo0Tc3p1MxSq0x166HWoXbqfaIm5Ec/moU0
-         3os1xC2NodbTOvON4G3HbPoefpNrsibrNCThK5fCqWJrLd0y1HqfP/SKeore+mNBQL
-         VEZ/hgEtD2Vhj/LYvhVlzXpG90d4g3j1VzBSh39vD+4bUxnaDpU8rjor7qubdP3W/s
-         fdV062Zibp3eA==
+        b=Ukzb37Ev09pgQIFC7Go1UiBoKnBu8e182eeFdGlq4cuVxOz/uBKi8NmyOklwCXpae
+         hhXWgDoQRnzvD4wjzrrXHryUBgoCs0nndtFy0TZJmS1dUwruozFVwQBIPky5lt4hfq
+         2lDcmPs7U0GZl3/qNfvBrJXBhVwTXJhphBBtIHtEvBiYVOocgnL/xr9SfyKO1yQeMh
+         mXhy9eV61l/KpxhoB3ciUERIaD2URtMlVFHkCthGVsbrdZU/7R9pxpwNFfrXfO+alh
+         rrmAkPbW4J7Xoh521evyOJWozRM5DS/5AEupu6BslGOsqkTzaFkzJKHvYxxnPOLg8L
+         Ae9gDP8PHtPkQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Weihang Li <liweihang@huawei.com>,
-        kernel test robot <lkp@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 140/189] RDMA/hns: Add a check to ensure integer mtu is positive
-Date:   Tue,  6 Jul 2021 07:13:20 -0400
-Message-Id: <20210706111409.2058071-140-sashal@kernel.org>
+Cc:     Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 141/189] net: fec: add FEC_QUIRK_HAS_MULTI_QUEUES represents i.MX6SX ENET IP
+Date:   Tue,  6 Jul 2021 07:13:21 -0400
+Message-Id: <20210706111409.2058071-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -43,76 +43,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weihang Li <liweihang@huawei.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit fe331da0f210c60342b042a03fe53f1b564b412b ]
+[ Upstream commit 471ff4455d61c9929ae912328859921708e1eafc ]
 
-GCC may reports an running time assert error when a value calculated from
-ib_mtu_enum_to_int() is using as 'val' in FIELD_PREDP:
+Frieder Schrempf reported a TX throuthput issue [1], it happens quite often
+that the measured bandwidth in TX direction drops from its expected/nominal
+value to something like ~50% (for 100M) or ~67% (for 1G) connections.
 
-include/linux/compiler_types.h:328:38: error: call to
-'__compiletime_assert_1524' declared with attribute error: FIELD_PREP:
-value too large for the field
+[1] https://lore.kernel.org/linux-arm-kernel/421cc86c-b66f-b372-32f7-21e59f9a98bc@kontron.de/
 
-So a check is added about whether integer mtu from ib_mtu_enum_to_int() is
-negative to avoid this warning.
+The issue becomes clear after digging into it, Net core would select
+queues when transmitting packets. Since FEC have not impletemented
+ndo_select_queue callback yet, so it will call netdev_pick_tx to select
+queues randomly.
 
-Link: https://lore.kernel.org/r/1624262443-24528-3-git-send-email-liweihang@huawei.com
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+For i.MX6SX ENET IP with AVB support, driver default enables this
+feature. According to the setting of QOS/RCMRn/DMAnCFG registers, AVB
+configured to Credit-based scheme, 50% bandwidth of each queue 1&2.
+
+With below tests let me think more:
+1) With FEC_QUIRK_HAS_AVB quirk, can reproduce TX bandwidth fluctuations issue.
+2) Without FEC_QUIRK_HAS_AVB quirk, can't reproduce TX bandwidth fluctuations issue.
+
+The related difference with or w/o FEC_QUIRK_HAS_AVB quirk is that, whether we
+program FTYPE field of TxBD or not. As I describe above, AVB feature is
+enabled by default. With FEC_QUIRK_HAS_AVB quirk, frames in queue 0
+marked as non-AVB, and frames in queue 1&2 marked as AVB Class A&B. It's
+unreasonable if frames in queue 1&2 are not required to be time-sensitive.
+So when Net core select tx queues ramdomly, Credit-based scheme would work
+and lead to TX bandwidth fluctuated. On the other hand, w/o
+FEC_QUIRK_HAS_AVB quirk, frames in queue 1&2 are all marked as non-AVB, so
+Credit-based scheme would not work.
+
+Till now, how can we fix this TX throughput issue? Yes, please remove
+FEC_QUIRK_HAS_AVB quirk if you suffer it from time-nonsensitive networking.
+However, this quirk is used to indicate i.MX6SX, other setting depends
+on it. So this patch adds a new quirk FEC_QUIRK_HAS_MULTI_QUEUES to
+represent i.MX6SX, it is safe for us remove FEC_QUIRK_HAS_AVB quirk
+now.
+
+FEC_QUIRK_HAS_AVB quirk is set by default in the driver, and users may
+not know much about driver details, they would waste effort to find the
+root cause, that is not we want. The following patch is a implementation
+to fix it and users don't need to modify the driver.
+
+Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Reported-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/freescale/fec.h      |  5 +++++
+ drivers/net/ethernet/freescale/fec_main.c | 11 ++++++-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 7652dafe32ec..bedb0d1caeee 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4485,12 +4485,13 @@ static int modify_qp_init_to_rtr(struct ib_qp *ibqp,
- 	struct ib_device *ibdev = &hr_dev->ib_dev;
- 	dma_addr_t trrl_ba;
- 	dma_addr_t irrl_ba;
--	enum ib_mtu mtu;
-+	enum ib_mtu ib_mtu;
- 	u8 lp_pktn_ini;
- 	u64 *mtts;
- 	u8 *dmac;
- 	u8 *smac;
- 	u32 port;
-+	int mtu;
- 	int ret;
+diff --git a/drivers/net/ethernet/freescale/fec.h b/drivers/net/ethernet/freescale/fec.h
+index 0602d5d5d2ee..2e002e4b4b4a 100644
+--- a/drivers/net/ethernet/freescale/fec.h
++++ b/drivers/net/ethernet/freescale/fec.h
+@@ -467,6 +467,11 @@ struct bufdesc_ex {
+  */
+ #define FEC_QUIRK_NO_HARD_RESET		(1 << 18)
  
- 	ret = config_qp_rq_buf(hr_dev, hr_qp, context, qpc_mask);
-@@ -4574,19 +4575,23 @@ static int modify_qp_init_to_rtr(struct ib_qp *ibqp,
- 	roce_set_field(qpc_mask->byte_52_udpspn_dmac, V2_QPC_BYTE_52_DMAC_M,
- 		       V2_QPC_BYTE_52_DMAC_S, 0);
- 
--	mtu = get_mtu(ibqp, attr);
--	hr_qp->path_mtu = mtu;
-+	ib_mtu = get_mtu(ibqp, attr);
-+	hr_qp->path_mtu = ib_mtu;
++/* i.MX6SX ENET IP supports multiple queues (3 queues), use this quirk to
++ * represents this ENET IP.
++ */
++#define FEC_QUIRK_HAS_MULTI_QUEUES	(1 << 19)
 +
-+	mtu = ib_mtu_enum_to_int(ib_mtu);
-+	if (WARN_ON(mtu < 0))
-+		return -EINVAL;
+ struct bufdesc_prop {
+ 	int qid;
+ 	/* Address of Rx and Tx buffers */
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index ad82cffc6f3f..98cd38379275 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -122,7 +122,7 @@ static const struct fec_devinfo fec_imx6x_info = {
+ 		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
+ 		  FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
+ 		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE |
+-		  FEC_QUIRK_CLEAR_SETUP_MII,
++		  FEC_QUIRK_CLEAR_SETUP_MII | FEC_QUIRK_HAS_MULTI_QUEUES,
+ };
  
- 	if (attr_mask & IB_QP_PATH_MTU) {
- 		roce_set_field(context->byte_24_mtu_tc, V2_QPC_BYTE_24_MTU_M,
--			       V2_QPC_BYTE_24_MTU_S, mtu);
-+			       V2_QPC_BYTE_24_MTU_S, ib_mtu);
- 		roce_set_field(qpc_mask->byte_24_mtu_tc, V2_QPC_BYTE_24_MTU_M,
- 			       V2_QPC_BYTE_24_MTU_S, 0);
+ static const struct fec_devinfo fec_imx6ul_info = {
+@@ -421,6 +421,7 @@ fec_enet_txq_submit_frag_skb(struct fec_enet_priv_tx_q *txq,
+ 				estatus |= FEC_TX_BD_FTYPE(txq->bd.qid);
+ 			if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 				estatus |= BD_ENET_TX_PINS | BD_ENET_TX_IINS;
++
+ 			ebdp->cbd_bdu = 0;
+ 			ebdp->cbd_esc = cpu_to_fec32(estatus);
+ 		}
+@@ -954,7 +955,7 @@ fec_restart(struct net_device *ndev)
+ 	 * For i.MX6SX SOC, enet use AXI bus, we use disable MAC
+ 	 * instead of reset MAC itself.
+ 	 */
+-	if (fep->quirks & FEC_QUIRK_HAS_AVB ||
++	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES ||
+ 	    ((fep->quirks & FEC_QUIRK_NO_HARD_RESET) && fep->link)) {
+ 		writel(0, fep->hwp + FEC_ECNTRL);
+ 	} else {
+@@ -1165,7 +1166,7 @@ fec_stop(struct net_device *ndev)
+ 	 * instead of reset MAC itself.
+ 	 */
+ 	if (!(fep->wol_flag & FEC_WOL_FLAG_SLEEP_ON)) {
+-		if (fep->quirks & FEC_QUIRK_HAS_AVB) {
++		if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+ 			writel(0, fep->hwp + FEC_ECNTRL);
+ 		} else {
+ 			writel(1, fep->hwp + FEC_ECNTRL);
+@@ -2570,7 +2571,7 @@ static void fec_enet_itr_coal_set(struct net_device *ndev)
+ 
+ 	writel(tx_itr, fep->hwp + FEC_TXIC0);
+ 	writel(rx_itr, fep->hwp + FEC_RXIC0);
+-	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
++	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+ 		writel(tx_itr, fep->hwp + FEC_TXIC1);
+ 		writel(rx_itr, fep->hwp + FEC_RXIC1);
+ 		writel(tx_itr, fep->hwp + FEC_TXIC2);
+@@ -3371,7 +3372,7 @@ static int fec_enet_init(struct net_device *ndev)
+ 		fep->csum_flags |= FLAG_RX_CSUM_ENABLED;
  	}
  
- #define MAX_LP_MSG_LEN 65536
- 	/* MTU * (2 ^ LP_PKTN_INI) shouldn't be bigger than 64KB */
--	lp_pktn_ini = ilog2(MAX_LP_MSG_LEN / ib_mtu_enum_to_int(mtu));
-+	lp_pktn_ini = ilog2(MAX_LP_MSG_LEN / mtu);
- 
- 	roce_set_field(context->byte_56_dqpn_err, V2_QPC_BYTE_56_LP_PKTN_INI_M,
- 		       V2_QPC_BYTE_56_LP_PKTN_INI_S, lp_pktn_ini);
+-	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
++	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+ 		fep->tx_align = 0;
+ 		fep->rx_align = 0x3f;
+ 	}
 -- 
 2.30.2
 
