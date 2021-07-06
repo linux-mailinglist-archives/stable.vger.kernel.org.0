@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B3193BD509
+	by mail.lfdr.de (Postfix) with ESMTP id 948903BD50A
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232630AbhGFMSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:18:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47600 "EHLO mail.kernel.org"
+        id S231573AbhGFMSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:18:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236951AbhGFLfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F09CE61C5C;
-        Tue,  6 Jul 2021 11:24:50 +0000 (UTC)
+        id S236973AbhGFLft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:35:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8DCD61C67;
+        Tue,  6 Jul 2021 11:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570691;
-        bh=weH4CNkH3qClIGicJA8ZV2exCFsK3zq5d/yVwQmLTII=;
+        s=k20201202; t=1625570695;
+        bh=39gpyIivHJFOU7uLtvdFVi/kaUVGioQxAgNGDj3CG5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfGbyRz4qEcLJFYLyQVKvS/M8QaNj8YRj/MHvGGDSezmg/+tSnZ1cDRLtSF9ZHtYD
-         MLOUxfkxIIgiK77OH0IFoMVJeSeSr8DaGKDC1+SpLjG+swOXUPIe6RJh/zUOgWFBSO
-         k0ZitEqJu640sh96pdqmBD/6Q+xAP7CoBFRyUbVwTyTmxd3zl52l/VJdd+/Y7IWaOW
-         +79zqTQH7vaIGtZSwA6xoEyna0LErkSGc0pG1SoSFwBjbC7cPSvTjAPavIfxL0rQZY
-         hgTazPSzAmCh9IK0SSJBry9BEUI5apqCp4r1Buj6nO3ssd2QTLRCPKsln5uET1KvNM
-         +nkNuaeeFSh9Q==
+        b=fQE8TVjY83gacYwi2BIxzJ4bUKXN8y+oYvi21XytYSSCLI4kVUUBUjL3cnk9Kakrn
+         CwpMCkE19I6R/WfE9ULphEkbTIYY6vHjrfh/8OJU2U/UZkdMSVqGRit+oFMWUO5TAI
+         qcon0NShyua9EgMrXpQjvvd7akrYmFmkZc+owWjokAPEQb/6meO86gGe5ET2f3bD0T
+         NyQBktTyiWe1BFtVIa+Qja/MkHnWrpVRFLCE5DPbIaf2+jHdkWvtqEkHIXUhW1ih06
+         9Ir0XTAqSR4vaAS8qUdrsG8670r9+1zrQaYgcDvssTcNRMzHQu1r6R4UbRnHQedqYw
+         oIltyPSONl9fA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tim Jiang <tjiang@codeaurora.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 130/137] Bluetooth: btusb: fix bt fiwmare downloading failure issue for qca btsoc.
-Date:   Tue,  6 Jul 2021 07:21:56 -0400
-Message-Id: <20210706112203.2062605-130-sashal@kernel.org>
+Cc:     gushengxian <gushengxian@yulong.com>,
+        gushengxian <13145886936@163.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 133/137] flow_offload: action should not be NULL when it is referenced
+Date:   Tue,  6 Jul 2021 07:21:59 -0400
+Message-Id: <20210706112203.2062605-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -43,37 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Jiang <tjiang@codeaurora.org>
+From: gushengxian <gushengxian@yulong.com>
 
-[ Upstream commit 4f00bfb372674d586c4a261bfc595cbce101fbb6 ]
+[ Upstream commit 9ea3e52c5bc8bb4a084938dc1e3160643438927a ]
 
-This is btsoc timing issue, after host start to downloading bt firmware,
-ep2 need time to switch from function acl to function dfu, so host add
-20ms delay as workaround.
+"action" should not be NULL when it is referenced.
 
-Signed-off-by: Tim Jiang <tjiang@codeaurora.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: gushengxian <13145886936@163.com>
+Signed-off-by: gushengxian <gushengxian@yulong.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/net/flow_offload.h | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index b3c63e06838d..afd2b1f12d49 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -3558,6 +3558,11 @@ static int btusb_setup_qca_download_fw(struct hci_dev *hdev,
- 	sent += size;
- 	count -= size;
+diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
+index 123b1e9ea304..161b90979038 100644
+--- a/include/net/flow_offload.h
++++ b/include/net/flow_offload.h
+@@ -312,12 +312,14 @@ flow_action_mixed_hw_stats_check(const struct flow_action *action,
+ 	if (flow_offload_has_one_action(action))
+ 		return true;
  
-+	/* ep2 need time to switch from function acl to function dfu,
-+	 * so we add 20ms delay here.
-+	 */
-+	msleep(20);
-+
- 	while (count) {
- 		size = min_t(size_t, count, QCA_DFU_PACKET_LEN);
- 
+-	flow_action_for_each(i, action_entry, action) {
+-		if (i && action_entry->hw_stats != last_hw_stats) {
+-			NL_SET_ERR_MSG_MOD(extack, "Mixing HW stats types for actions is not supported");
+-			return false;
++	if (action) {
++		flow_action_for_each(i, action_entry, action) {
++			if (i && action_entry->hw_stats != last_hw_stats) {
++				NL_SET_ERR_MSG_MOD(extack, "Mixing HW stats types for actions is not supported");
++				return false;
++			}
++			last_hw_stats = action_entry->hw_stats;
+ 		}
+-		last_hw_stats = action_entry->hw_stats;
+ 	}
+ 	return true;
+ }
 -- 
 2.30.2
 
