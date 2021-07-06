@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 770A73BD237
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A20763BD249
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:40:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235461AbhGFLlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47558 "EHLO mail.kernel.org"
+        id S235610AbhGFLmA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:42:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237547AbhGFLgN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:36:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6199761F3C;
-        Tue,  6 Jul 2021 11:28:33 +0000 (UTC)
+        id S237551AbhGFLgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:36:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7623261F42;
+        Tue,  6 Jul 2021 11:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570914;
-        bh=4AXBdRasTNrjpeGkDLubeXWyuqHllUH+Ebid30jEHL8=;
+        s=k20201202; t=1625570915;
+        bh=CRhnpIES/O14e/HOgu3M9ws0S+gaHqEuYpVrWjrjz64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fwL23mGHg9ceAu86WwSf+DIb7G2+xyQ9pJSF2TICBACLuK7wtBOIWgoSeVBiMBaHZ
-         7A0Ge4dT0zFUrK4xzsudRyvAyKtgxOYUHFlXRWjahwl3tLwPy/UpPULw6SZCv6HxJw
-         ZDtFAc6NuU37e5jxnsl4AapqpsODCYWtCfyvuF8gFJf1jimJs+TV4SA5VLssgfgG8h
-         wZwWqPs3KPH3cTtCIIFWBW97IaQq3j/sJknCqpr2NMWoIJ5+z5up1x45KnKbl1XvJw
-         jVoRELq7dhulwBflZCQku7ienvDTYTOr1lZEF0cQTRWmXcSm1kOI6AbUhDV8xJOAtO
-         MmwqbiOjGKayw==
+        b=K/qeNCfwnDCGSdird+U7XEI/0d9R0HFN+OGpAQoULbGTmVHlg70+mw/TdK3xhGpCN
+         scaITgWEvO5QacdBqXhnwXjUiYMjhV6JPffUs/cDhaqXoozyvg48kp/A5XYtndyfYc
+         p4HFOt8zlZzqEV1MH5HHj06wBn/tTsr3Jwhoh9w0iGjRwyQnp8T61cEZRRHI9+HNpt
+         VPWJau7Q3my9CxYze8BUBvoBv/ZVc+sna0FeEhMJhgD7cBLUm7+FqLGp9VGrrB+ZVK
+         tQ8nTxgNtegSb/DQLFlJ52NlCzGUdRxsmJjr6ZnKEM8k7cJ9FU3G4fIuShFmEZAJdk
+         Zfab1eO4JweGQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiao Yang <yangx.jy@fujitsu.com>, Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 35/45] RDMA/rxe: Don't overwrite errno from ib_umem_get()
-Date:   Tue,  6 Jul 2021 07:27:39 -0400
-Message-Id: <20210706112749.2065541-35-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 36/45] iwlwifi: mvm: don't change band on bound PHY contexts
+Date:   Tue,  6 Jul 2021 07:27:40 -0400
+Message-Id: <20210706112749.2065541-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112749.2065541-1-sashal@kernel.org>
 References: <20210706112749.2065541-1-sashal@kernel.org>
@@ -41,38 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Yang <yangx.jy@fujitsu.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 20ec0a6d6016aa28b9b3299be18baef1a0f91cd2 ]
+[ Upstream commit 8835a64f74c46baebfc946cd5a2c861b866ebcee ]
 
-rxe_mr_init_user() always returns the fixed -EINVAL when ib_umem_get()
-fails so it's hard for user to know which actual error happens in
-ib_umem_get(). For example, ib_umem_get() will return -EOPNOTSUPP when
-trying to pin pages on a DAX file.
+When we have a P2P Device active, we attempt to only change the
+PHY context it uses when we get a new remain-on-channel, if the
+P2P Device is the only user of the PHY context.
 
-Return actual error as mlx4/mlx5 does.
+This is fine if we're switching within a band, but if we're
+switching bands then the switch implies a removal and re-add
+of the PHY context, which isn't permitted by the firmware while
+it's bound to an interface.
 
-Link: https://lore.kernel.org/r/20210621071456.4259-1-ice_yangxiao@163.com
-Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fix the code to skip the unbind/release/... cycle only if the
+band doesn't change (or we have old devices that can switch the
+band on the fly as well.)
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210612142637.e9ac313f70f3.I713b9d109957df7e7d9ed0861d5377ce3f8fccd3@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_mr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/wireless/intel/iwlwifi/mvm/mac80211.c | 24 ++++++++++++++-----
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
-index a0d2a2350c7e..cf18e61934f7 100644
---- a/drivers/infiniband/sw/rxe/rxe_mr.c
-+++ b/drivers/infiniband/sw/rxe/rxe_mr.c
-@@ -175,7 +175,7 @@ int rxe_mem_init_user(struct rxe_dev *rxe, struct rxe_pd *pd, u64 start,
- 	if (IS_ERR(umem)) {
- 		pr_warn("err %d from rxe_umem_get\n",
- 			(int)PTR_ERR(umem));
--		err = -EINVAL;
-+		err = PTR_ERR(umem);
- 		goto err1;
- 	}
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 9aab9a026954..d82d8cfe2e41 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -3270,6 +3270,7 @@ static int iwl_mvm_roc(struct ieee80211_hw *hw,
+ 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
+ 	struct cfg80211_chan_def chandef;
+ 	struct iwl_mvm_phy_ctxt *phy_ctxt;
++	bool band_change_removal;
+ 	int ret, i;
  
+ 	IWL_DEBUG_MAC80211(mvm, "enter (%d, %d, %d)\n", channel->hw_value,
+@@ -3335,19 +3336,30 @@ static int iwl_mvm_roc(struct ieee80211_hw *hw,
+ 	cfg80211_chandef_create(&chandef, channel, NL80211_CHAN_NO_HT);
+ 
+ 	/*
+-	 * Change the PHY context configuration as it is currently referenced
+-	 * only by the P2P Device MAC
++	 * Check if the remain-on-channel is on a different band and that
++	 * requires context removal, see iwl_mvm_phy_ctxt_changed(). If
++	 * so, we'll need to release and then re-configure here, since we
++	 * must not remove a PHY context that's part of a binding.
+ 	 */
+-	if (mvmvif->phy_ctxt->ref == 1) {
++	band_change_removal =
++		fw_has_capa(&mvm->fw->ucode_capa,
++			    IWL_UCODE_TLV_CAPA_BINDING_CDB_SUPPORT) &&
++		mvmvif->phy_ctxt->channel->band != chandef.chan->band;
++
++	if (mvmvif->phy_ctxt->ref == 1 && !band_change_removal) {
++		/*
++		 * Change the PHY context configuration as it is currently
++		 * referenced only by the P2P Device MAC (and we can modify it)
++		 */
+ 		ret = iwl_mvm_phy_ctxt_changed(mvm, mvmvif->phy_ctxt,
+ 					       &chandef, 1, 1);
+ 		if (ret)
+ 			goto out_unlock;
+ 	} else {
+ 		/*
+-		 * The PHY context is shared with other MACs. Need to remove the
+-		 * P2P Device from the binding, allocate an new PHY context and
+-		 * create a new binding
++		 * The PHY context is shared with other MACs (or we're trying to
++		 * switch bands), so remove the P2P Device from the binding,
++		 * allocate an new PHY context and create a new binding.
+ 		 */
+ 		phy_ctxt = iwl_mvm_get_free_phy_ctxt(mvm);
+ 		if (!phy_ctxt) {
 -- 
 2.30.2
 
