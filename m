@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0912A3BD503
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 008B03BD505
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:16:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235828AbhGFMSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
+        id S233167AbhGFMSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:18:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236879AbhGFLfp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44C2761C38;
-        Tue,  6 Jul 2021 11:24:34 +0000 (UTC)
+        id S236892AbhGFLfq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:35:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F3F261C27;
+        Tue,  6 Jul 2021 11:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570675;
-        bh=umTpPidblLEoLIcldFS+oYQrpZPqv5PsjC7OHkD8deQ=;
+        s=k20201202; t=1625570678;
+        bh=9MrIMMYsrdUVoHD7fJaIySMwIZD4V2nAg3wCypgUlzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AR9e0RmPvjDhPw6/jh9YOk+PT+lLAzQYR6elQgeZBVo9WyBsCMAM3J72mNKoQTwti
-         ioVAHESxtVOnn8Lj3E8CGGdfnx3yH2c8JLCeoNuRjQE3tiYD2xJRxJnAt6+eQuE0oM
-         6uxK0B2uesssMXFn5/o6NtkQjyZoIvSStEGreJUb7E0bACj7utd6TBsA72qWC7jLZr
-         LPiXD2WcWRr75HFgHm7TtVq1j6ZXA0il5sZvD+lfVS7+k9977UoJ93AD2ap+0YfEkj
-         Lg/Lf59H69GI6v4oun+3mKgZ2vlZyHZUJS4eha307Qzfy9EJKR9A+aSyEHRRyYwu5D
-         VCP7jrbXg/6vQ==
+        b=mzfud9sRTuWqUekKzZFbBMbyCvw2kTEcygkv2G1q3goq7LS4HoXkpFquitUpMYHU/
+         RTW3bjbHgsh07lJs6aQt7v+x0fWjPZ4TIqqKsdHqMTcG6fPan2XzfFzzNKc8w277UR
+         KXMktyVuYxnUwnuKQuhE3VUGjjccvEY+nhspRqeUTgUDXX8lXi1C60j3c9vUnY1taM
+         cOqmIC05PVANrvfATeakHf3lGes6K+5+JT8CYfu9P+MMMXPACGLRFCQoPr6XBoYyZZ
+         g9bsjSHksr7AJrPNfWx+S+7rMLMbq5HQJh8jEvL4R6VbleYna7LmuBAdPatFqJebOX
+         zwoAxy0BhYTDQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Alaa Hleihel <alaa@nvidia.com>,
-        Israel Rukshin <israelr@nvidia.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 117/137] IB/isert: Align target max I/O size to initiator size
-Date:   Tue,  6 Jul 2021 07:21:43 -0400
-Message-Id: <20210706112203.2062605-117-sashal@kernel.org>
+Cc:     Jakub Kicinski <kuba@kernel.org>, Dave Jones <dsj@fb.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 119/137] net: ip: avoid OOM kills with large UDP sends over loopback
+Date:   Tue,  6 Jul 2021 07:21:45 -0400
+Message-Id: <20210706112203.2062605-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -46,60 +42,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 109d19a5eb3ddbdb87c43bfd4bcf644f4569da64 ]
+[ Upstream commit 6d123b81ac615072a8525c13c6c41b695270a15d ]
 
-Since the Linux iser initiator default max I/O size set to 512KB and since
-there is no handshake procedure for this size in iser protocol, set the
-default max IO size of the target to 512KB as well.
+Dave observed number of machines hitting OOM on the UDP send
+path. The workload seems to be sending large UDP packets over
+loopback. Since loopback has MTU of 64k kernel will try to
+allocate an skb with up to 64k of head space. This has a good
+chance of failing under memory pressure. What's worse if
+the message length is <32k the allocation may trigger an
+OOM killer.
 
-For changing the default values, there is a module parameter for both
-drivers.
+This is entirely avoidable, we can use an skb with page frags.
 
-Link: https://lore.kernel.org/r/20210524085215.29005-1-mgurtovoy@nvidia.com
-Reviewed-by: Alaa Hleihel <alaa@nvidia.com>
-Reviewed-by: Israel Rukshin <israelr@nvidia.com>
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Acked-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+af_unix solves a similar problem by limiting the head
+length to SKB_MAX_ALLOC. This seems like a good and simple
+approach. It means that UDP messages > 16kB will now
+use fragments if underlying device supports SG, if extra
+allocator pressure causes regressions in real workloads
+we can switch to trying the large allocation first and
+falling back.
+
+v4: pre-calculate all the additions to alloclen so
+    we can be sure it won't go over order-2
+
+Reported-by: Dave Jones <dsj@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/isert/ib_isert.c | 4 ++--
- drivers/infiniband/ulp/isert/ib_isert.h | 3 ---
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ net/ipv4/ip_output.c  | 32 ++++++++++++++++++--------------
+ net/ipv6/ip6_output.c | 32 +++++++++++++++++---------------
+ 2 files changed, 35 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/isert/ib_isert.c b/drivers/infiniband/ulp/isert/ib_isert.c
-index e653c83f8a35..edea37da8a5b 100644
---- a/drivers/infiniband/ulp/isert/ib_isert.c
-+++ b/drivers/infiniband/ulp/isert/ib_isert.c
-@@ -35,10 +35,10 @@ static const struct kernel_param_ops sg_tablesize_ops = {
- 	.get = param_get_int,
- };
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index 97975bed491a..560d5dc43562 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -1053,7 +1053,7 @@ static int __ip_append_data(struct sock *sk,
+ 			unsigned int datalen;
+ 			unsigned int fraglen;
+ 			unsigned int fraggap;
+-			unsigned int alloclen;
++			unsigned int alloclen, alloc_extra;
+ 			unsigned int pagedlen;
+ 			struct sk_buff *skb_prev;
+ alloc_new_skb:
+@@ -1073,35 +1073,39 @@ static int __ip_append_data(struct sock *sk,
+ 			fraglen = datalen + fragheaderlen;
+ 			pagedlen = 0;
  
--static int isert_sg_tablesize = ISCSI_ISER_DEF_SG_TABLESIZE;
-+static int isert_sg_tablesize = ISCSI_ISER_MIN_SG_TABLESIZE;
- module_param_cb(sg_tablesize, &sg_tablesize_ops, &isert_sg_tablesize, 0644);
- MODULE_PARM_DESC(sg_tablesize,
--		 "Number of gather/scatter entries in a single scsi command, should >= 128 (default: 256, max: 4096)");
-+		 "Number of gather/scatter entries in a single scsi command, should >= 128 (default: 128, max: 4096)");
++			alloc_extra = hh_len + 15;
++			alloc_extra += exthdrlen;
++
++			/* The last fragment gets additional space at tail.
++			 * Note, with MSG_MORE we overallocate on fragments,
++			 * because we have no idea what fragment will be
++			 * the last.
++			 */
++			if (datalen == length + fraggap)
++				alloc_extra += rt->dst.trailer_len;
++
+ 			if ((flags & MSG_MORE) &&
+ 			    !(rt->dst.dev->features&NETIF_F_SG))
+ 				alloclen = mtu;
+-			else if (!paged)
++			else if (!paged &&
++				 (fraglen + alloc_extra < SKB_MAX_ALLOC ||
++				  !(rt->dst.dev->features & NETIF_F_SG)))
+ 				alloclen = fraglen;
+ 			else {
+ 				alloclen = min_t(int, fraglen, MAX_HEADER);
+ 				pagedlen = fraglen - alloclen;
+ 			}
  
- static DEFINE_MUTEX(device_list_mutex);
- static LIST_HEAD(device_list);
-diff --git a/drivers/infiniband/ulp/isert/ib_isert.h b/drivers/infiniband/ulp/isert/ib_isert.h
-index 6c5af13db4e0..ca8cfebe26ca 100644
---- a/drivers/infiniband/ulp/isert/ib_isert.h
-+++ b/drivers/infiniband/ulp/isert/ib_isert.h
-@@ -65,9 +65,6 @@
-  */
- #define ISER_RX_SIZE		(ISCSI_DEF_MAX_RECV_SEG_LEN + 1024)
- 
--/* Default I/O size is 1MB */
--#define ISCSI_ISER_DEF_SG_TABLESIZE 256
+-			alloclen += exthdrlen;
 -
- /* Minimum I/O size is 512KB */
- #define ISCSI_ISER_MIN_SG_TABLESIZE 128
+-			/* The last fragment gets additional space at tail.
+-			 * Note, with MSG_MORE we overallocate on fragments,
+-			 * because we have no idea what fragment will be
+-			 * the last.
+-			 */
+-			if (datalen == length + fraggap)
+-				alloclen += rt->dst.trailer_len;
++			alloclen += alloc_extra;
  
+ 			if (transhdrlen) {
+-				skb = sock_alloc_send_skb(sk,
+-						alloclen + hh_len + 15,
++				skb = sock_alloc_send_skb(sk, alloclen,
+ 						(flags & MSG_DONTWAIT), &err);
+ 			} else {
+ 				skb = NULL;
+ 				if (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=
+ 				    2 * sk->sk_sndbuf)
+-					skb = alloc_skb(alloclen + hh_len + 15,
++					skb = alloc_skb(alloclen,
+ 							sk->sk_allocation);
+ 				if (unlikely(!skb))
+ 					err = -ENOBUFS;
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 077d43af8226..e889655ca0e2 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1554,7 +1554,7 @@ static int __ip6_append_data(struct sock *sk,
+ 			unsigned int datalen;
+ 			unsigned int fraglen;
+ 			unsigned int fraggap;
+-			unsigned int alloclen;
++			unsigned int alloclen, alloc_extra;
+ 			unsigned int pagedlen;
+ alloc_new_skb:
+ 			/* There's no room in the current skb */
+@@ -1581,17 +1581,28 @@ static int __ip6_append_data(struct sock *sk,
+ 			fraglen = datalen + fragheaderlen;
+ 			pagedlen = 0;
+ 
++			alloc_extra = hh_len;
++			alloc_extra += dst_exthdrlen;
++			alloc_extra += rt->dst.trailer_len;
++
++			/* We just reserve space for fragment header.
++			 * Note: this may be overallocation if the message
++			 * (without MSG_MORE) fits into the MTU.
++			 */
++			alloc_extra += sizeof(struct frag_hdr);
++
+ 			if ((flags & MSG_MORE) &&
+ 			    !(rt->dst.dev->features&NETIF_F_SG))
+ 				alloclen = mtu;
+-			else if (!paged)
++			else if (!paged &&
++				 (fraglen + alloc_extra < SKB_MAX_ALLOC ||
++				  !(rt->dst.dev->features & NETIF_F_SG)))
+ 				alloclen = fraglen;
+ 			else {
+ 				alloclen = min_t(int, fraglen, MAX_HEADER);
+ 				pagedlen = fraglen - alloclen;
+ 			}
+-
+-			alloclen += dst_exthdrlen;
++			alloclen += alloc_extra;
+ 
+ 			if (datalen != length + fraggap) {
+ 				/*
+@@ -1601,30 +1612,21 @@ static int __ip6_append_data(struct sock *sk,
+ 				datalen += rt->dst.trailer_len;
+ 			}
+ 
+-			alloclen += rt->dst.trailer_len;
+ 			fraglen = datalen + fragheaderlen;
+ 
+-			/*
+-			 * We just reserve space for fragment header.
+-			 * Note: this may be overallocation if the message
+-			 * (without MSG_MORE) fits into the MTU.
+-			 */
+-			alloclen += sizeof(struct frag_hdr);
+-
+ 			copy = datalen - transhdrlen - fraggap - pagedlen;
+ 			if (copy < 0) {
+ 				err = -EINVAL;
+ 				goto error;
+ 			}
+ 			if (transhdrlen) {
+-				skb = sock_alloc_send_skb(sk,
+-						alloclen + hh_len,
++				skb = sock_alloc_send_skb(sk, alloclen,
+ 						(flags & MSG_DONTWAIT), &err);
+ 			} else {
+ 				skb = NULL;
+ 				if (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=
+ 				    2 * sk->sk_sndbuf)
+-					skb = alloc_skb(alloclen + hh_len,
++					skb = alloc_skb(alloclen,
+ 							sk->sk_allocation);
+ 				if (unlikely(!skb))
+ 					err = -ENOBUFS;
 -- 
 2.30.2
 
