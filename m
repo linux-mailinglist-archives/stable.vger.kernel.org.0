@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B66493BD20C
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:40:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B98B63BD240
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237305AbhGFLlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:41:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47608 "EHLO mail.kernel.org"
+        id S237097AbhGFLlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:41:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237479AbhGFLgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237484AbhGFLgL (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:36:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9270E61D99;
-        Tue,  6 Jul 2021 11:27:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECA2961DAC;
+        Tue,  6 Jul 2021 11:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570875;
-        bh=vXYDH9K+6se0soj7y+zLJcB1T3Flabi/5hQ0OnzmT0Y=;
+        s=k20201202; t=1625570876;
+        bh=wrthiZxoYzHAOIM/zYDPEA/Ffyh62jqK+IpwXjfqEYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gC9YJYJxt4mmfr++LX6HQMfTwjT/5P0m1rSJyUaHl6uLuAaWCoDatmqPyhhXk06NU
-         lsBnRkosvTe1PcVR0CfLhfMqgV2lEsbHrpqsUNltJXHy+fx77D8tbHYwE0mMiy4Uaw
-         eHMyAqzRRi7I/XWxbcySEC9EJqpg/JdUbVKYnqpH53RmavV5a1FJ4wGr8xxR1ikBVp
-         BT+1D/c4abCb5DS28yBvkKyiZ0seHesJ2YpxaQoR2L/bkroRd8bYlYe2L+cMGhZl25
-         22Ijp/Qv6KNX0uXW+G/2iPbY+aoqeaT/MpAAn4W5PBbirEZOzWM6+i5B5IHU5osFWn
-         J/VYHqUNlkCgw==
+        b=Qg1lJ8Z55i6mBUkJZ7yQpwusU4NX/vR11yGnLJkvBSAsDe2CnQDxLnz9tROaIpKIm
+         wfOpGWirnRHG6oZSb3wOe3eFuRKBbSMGfQufaZLkfSARsEomt/DfvMPAykPsHvkrdP
+         FAjZJRTPWcD82f7HiqcCt7tu8J2dyakPAbatg/3pWWgfyV3P3a6NqRaGNxb+ALE8m6
+         aqtGbZc2jDl2HRg826V3gxU+NJ+4DroLLLpcL5PRflmSlJ8DoYPyKXNNJ2fuNlrUwR
+         JYLd97aK1VgzCG/mf2QC1+ghgrtyMgqbCd+xzAC2BoYt9IQH+5F1bmNuCjgm8j9YTc
+         nuiDxO5WaLz4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Zhang <Jack.Zhang1@amd.com>, Emily Deng <Emily.Deng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 04/45] drm/amd/amdgpu/sriov disable all ip hw status by default
-Date:   Tue,  6 Jul 2021 07:27:08 -0400
-Message-Id: <20210706112749.2065541-4-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        kernel test robot <lkp@intel.com>,
+        Flavio Suligoi <f.suligoi@asem.it>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 05/45] net: pch_gbe: Use proper accessors to BE data in pch_ptp_match()
+Date:   Tue,  6 Jul 2021 07:27:09 -0400
+Message-Id: <20210706112749.2065541-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112749.2065541-1-sashal@kernel.org>
 References: <20210706112749.2065541-1-sashal@kernel.org>
@@ -43,39 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Zhang <Jack.Zhang1@amd.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 95ea3dbc4e9548d35ab6fbf67675cef8c293e2f5 ]
+[ Upstream commit 443ef39b499cc9c6635f83238101f1bb923e9326 ]
 
-Disable all ip's hw status to false before any hw_init.
-Only set it to true until its hw_init is executed.
+Sparse is not happy about handling of strict types in pch_ptp_match():
 
-The old 5.9 branch has this change but somehow the 5.11 kernrel does
-not have this fix.
+  .../pch_gbe_main.c:158:33: warning: incorrect type in argument 2 (different base types)
+  .../pch_gbe_main.c:158:33:    expected unsigned short [usertype] uid_hi
+  .../pch_gbe_main.c:158:33:    got restricted __be16 [usertype]
+  .../pch_gbe_main.c:158:45: warning: incorrect type in argument 3 (different base types)
+  .../pch_gbe_main.c:158:45:    expected unsigned int [usertype] uid_lo
+  .../pch_gbe_main.c:158:45:    got restricted __be32 [usertype]
+  .../pch_gbe_main.c:158:56: warning: incorrect type in argument 4 (different base types)
+  .../pch_gbe_main.c:158:56:    expected unsigned short [usertype] seqid
+  .../pch_gbe_main.c:158:56:    got restricted __be16 [usertype]
 
-Without this change, sriov tdr have gfx IB test fail.
+Fix that by switching to use proper accessors to BE data.
 
-Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
-Review-by: Emily Deng <Emily.Deng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Flavio Suligoi <f.suligoi@asem.it>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index bc746a6e0ecc..076b22c44122 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -1823,7 +1823,7 @@ static int amdgpu_sriov_reinit_early(struct amdgpu_device *adev)
- 		AMD_IP_BLOCK_TYPE_IH,
- 	};
+diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+index 5ae9681a2da7..d06b666c58fc 100644
+--- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
++++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+@@ -124,7 +124,7 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
+ {
+ 	u8 *data = skb->data;
+ 	unsigned int offset;
+-	u16 *hi, *id;
++	u16 hi, id;
+ 	u32 lo;
  
--	for (i = 0; i < ARRAY_SIZE(ip_order); i++) {
-+	for (i = 0; i < adev->num_ip_blocks; i++) {
- 		int j;
- 		struct amdgpu_ip_block *block;
+ 	if (ptp_classify_raw(skb) == PTP_CLASS_NONE)
+@@ -135,14 +135,11 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
+ 	if (skb->len < offset + OFF_PTP_SEQUENCE_ID + sizeof(seqid))
+ 		return 0;
  
+-	hi = (u16 *)(data + offset + OFF_PTP_SOURCE_UUID);
+-	id = (u16 *)(data + offset + OFF_PTP_SEQUENCE_ID);
++	hi = get_unaligned_be16(data + offset + OFF_PTP_SOURCE_UUID + 0);
++	lo = get_unaligned_be32(data + offset + OFF_PTP_SOURCE_UUID + 2);
++	id = get_unaligned_be16(data + offset + OFF_PTP_SEQUENCE_ID);
+ 
+-	memcpy(&lo, &hi[1], sizeof(lo));
+-
+-	return (uid_hi == *hi &&
+-		uid_lo == lo &&
+-		seqid  == *id);
++	return (uid_hi == hi && uid_lo == lo && seqid == id);
+ }
+ 
+ static void
+@@ -152,7 +149,6 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
+ 	struct pci_dev *pdev;
+ 	u64 ns;
+ 	u32 hi, lo, val;
+-	u16 uid, seq;
+ 
+ 	if (!adapter->hwts_rx_en)
+ 		return;
+@@ -168,10 +164,7 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
+ 	lo = pch_src_uuid_lo_read(pdev);
+ 	hi = pch_src_uuid_hi_read(pdev);
+ 
+-	uid = hi & 0xffff;
+-	seq = (hi >> 16) & 0xffff;
+-
+-	if (!pch_ptp_match(skb, htons(uid), htonl(lo), htons(seq)))
++	if (!pch_ptp_match(skb, hi, lo, hi >> 16))
+ 		goto out;
+ 
+ 	ns = pch_rx_snap_read(pdev);
 -- 
 2.30.2
 
