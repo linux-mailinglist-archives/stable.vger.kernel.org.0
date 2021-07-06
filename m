@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 110713BCCA3
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B2133BCC67
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232565AbhGFLTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:19:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54548 "EHLO mail.kernel.org"
+        id S232701AbhGFLS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:18:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232566AbhGFLSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:18:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 466D261C73;
-        Tue,  6 Jul 2021 11:15:54 +0000 (UTC)
+        id S232487AbhGFLSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:18:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D37CC61C37;
+        Tue,  6 Jul 2021 11:15:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570155;
-        bh=C7djTTCjYd0cKj88eqwliCRjLiPRX/To8ipnMZj28IM=;
+        s=k20201202; t=1625570156;
+        bh=UIZQa9iSQhxcVaXMJJxbl1bvgrn5SEdBhZXIr0j9owk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMBNs7TsYsMr7p8ZSpDFz4n1LrajOJjXgJAoBKpwJayIvWWKB9XVPaS25dempyp+H
-         HA0Ct9E2Ak2oe4Vvsoi+WPOct3hoZRCHOc16PpqHKp4rfTmikHYqM2yXU3TXgq0veD
-         TC+3oujimV/17NEnwbFEenv4WRtvY15L6B6nuTs4Qr4Dj3ZVD2TwUjotc7BZn3JtYH
-         GOMTGLyA+/rRcyYWvrso4o3N9M3NbcQBEL5ReKmWFljT8M95Lfe8FyF6zwoxUZ9feU
-         uKqc/sG1B/nH6aAUvxOtoGk3dJwgZKj/C29ACGXHzWqNBVnenjqUTpGij/jkAcOmHa
-         x1s21AyPgWrsw==
+        b=Jtw9A6YhntZ9/WUFChD6fbVNxkJM5XymcKkRDFbIuOMGNfxbepMHhmzriv87GZC1Y
+         JTauwuVaMO4BZnlezQrsfgJbj6j49TSkero6BQNN4Jst568HdkEzqc4c55SULQd4tU
+         fJPSVogcU3GwMq7+7Y5Po5USVVo0RzDfzOWnoLeByrdFroimZZY210ECo62cHvDopR
+         JpEEDHlR/qw7E048bwUturxUepoAO8mJf20s/ILskQcy3tYQrJ5mxaXwFc0GY4423u
+         Au3/d3hTS8Ka35hBMZvntUDxCgqji6/F+4NvVZCc474MmEHtxqLP2CN12W626Q+8/2
+         iyPxpzCjfF9Pg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Damien Le Moal <damien.lemoal@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 077/189] block: introduce BIO_ZONE_WRITE_LOCKED bio flag
-Date:   Tue,  6 Jul 2021 07:12:17 -0400
-Message-Id: <20210706111409.2058071-77-sashal@kernel.org>
+Cc:     Horatiu Vultur <horatiu.vultur@microchip.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 078/189] net: bridge: mrp: Update ring transitions.
+Date:   Tue,  6 Jul 2021 07:12:18 -0400
+Message-Id: <20210706111409.2058071-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -46,47 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-[ Upstream commit 9ffbbb435d8f566a0924ce4b5dc7fc1bceb6dbf8 ]
+[ Upstream commit fcb34635854a5a5814227628867ea914a9805384 ]
 
-Introduce the BIO flag BIO_ZONE_WRITE_LOCKED to indicate that a BIO owns
-the write lock of the zone it is targeting. This is the counterpart of
-the struct request flag RQF_ZONE_WRITE_LOCKED.
+According to the standard IEC 62439-2, the number of transitions needs
+to be counted for each transition 'between' ring state open and ring
+state closed and not from open state to closed state.
 
-This new BIO flag is reserved for now for zone write locking control
-for device mapper targets exposing a zoned block device. Since in this
-case, the lock flag must not be propagated to the struct request that
-will be used to process the BIO, a BIO private flag is used rather than
-changing the RQF_ZONE_WRITE_LOCKED request flag into a common REQ_XXX
-flag that could be used for both BIO and request. This avoids conflicts
-down the stack with the block IO scheduler zone write locking
-(in mq-deadline).
+Therefore fix this for both ring and interconnect ring.
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Acked-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/blk_types.h | 1 +
- 1 file changed, 1 insertion(+)
+ net/bridge/br_mrp.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
-index db026b6ec15a..e5cf12f102a2 100644
---- a/include/linux/blk_types.h
-+++ b/include/linux/blk_types.h
-@@ -304,6 +304,7 @@ enum {
- 	BIO_CGROUP_ACCT,	/* has been accounted to a cgroup */
- 	BIO_TRACKED,		/* set if bio goes through the rq_qos path */
- 	BIO_REMAPPED,
-+	BIO_ZONE_WRITE_LOCKED,	/* Owns a zoned device zone write lock */
- 	BIO_FLAG_LAST
- };
+diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+index cd2b1e424e54..f7012b7d7ce4 100644
+--- a/net/bridge/br_mrp.c
++++ b/net/bridge/br_mrp.c
+@@ -627,8 +627,7 @@ int br_mrp_set_ring_state(struct net_bridge *br,
+ 	if (!mrp)
+ 		return -EINVAL;
  
+-	if (mrp->ring_state == BR_MRP_RING_STATE_CLOSED &&
+-	    state->ring_state != BR_MRP_RING_STATE_CLOSED)
++	if (mrp->ring_state != state->ring_state)
+ 		mrp->ring_transitions++;
+ 
+ 	mrp->ring_state = state->ring_state;
+@@ -715,8 +714,7 @@ int br_mrp_set_in_state(struct net_bridge *br, struct br_mrp_in_state *state)
+ 	if (!mrp)
+ 		return -EINVAL;
+ 
+-	if (mrp->in_state == BR_MRP_IN_STATE_CLOSED &&
+-	    state->in_state != BR_MRP_IN_STATE_CLOSED)
++	if (mrp->in_state != state->in_state)
+ 		mrp->in_transitions++;
+ 
+ 	mrp->in_state = state->in_state;
 -- 
 2.30.2
 
