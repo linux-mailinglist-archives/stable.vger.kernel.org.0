@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB5F53BD4E0
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7F9B3BD4E2
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:15:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239457AbhGFMR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:17:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
+        id S239487AbhGFMR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:17:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236272AbhGFLe7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236278AbhGFLe7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:34:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C832361E29;
-        Tue,  6 Jul 2021 11:23:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D378661E17;
+        Tue,  6 Jul 2021 11:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570598;
-        bh=+DqxFN9ITQT8/uYsw9hTN5wttBWimqS6cfsrA3DFqjI=;
+        s=k20201202; t=1625570599;
+        bh=d0xJ5IqhciSCUZX4+3tX78VLP+tSPx1jaMcPTeNp7EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KS/hSAK0p78Afmdn/qNT/v9PryckRDF4/d9Iqaf6Nkmz4KpO1UfHWA/D/WbdeR/TM
-         l3ku1gEFufGNLMt30WOe0O0GaQn4Pw0Yy3HdTVmnQy6gkRnrWH8tvpeluZPQLV3Kqj
-         0FzBc+9qzPO1JBRa9BTczxVtdqTmMCbFbIFXOy18BOGRAfDBgbF+LytvkuABQPyiHA
-         o5N/yQ5uyX5PAX1AAVM/mXYOFT3SNrqjJz+NAOAYqusVVFtdTKLkjf6jtlwBw7GMsA
-         khRnYKnu4iaveVCaR4/PfpG560YUQM1KaNimIMRLKrNuLG89Y40p3Ltv6dklJOpCyd
-         1QJl4Qo51Egng==
+        b=nUJHOJM/QuHbnhs4ZkjDf7nDSg4jB9AJS2JHU1QWtwePC5e+3F5HTIhw5wOTTUiWV
+         DcNMVAI9aYJ2qMh4PjxWFhnxbGCZLpXQPkV4IeQkTci0QOam/NEwILb9q8LDElMlhJ
+         6gsq9E7/4VIjDWus1klLSBcMmgwPgsr5fLxtggdPZC51O0TNW900BarNqXkcQJi/2R
+         GZkZtMT0vJ0VTSqNQ3LcshPC5fRv2i+k4c6n2lhSHXardRin63sKjgbfskbQDxzndT
+         kS4PKa38OOTZH0dBW5b3Yjk0EAWz2a24htFUlZdwki0AC3ylkV8BYHfAaG2+W1KukK
+         5yNLrzHZJWWxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Radim Pavlik <radim.pavlik@tbs-biometrics.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 058/137] pinctrl: mcp23s08: fix race condition in irq handler
-Date:   Tue,  6 Jul 2021 07:20:44 -0400
-Message-Id: <20210706112203.2062605-58-sashal@kernel.org>
+Cc:     Liwei Song <liwei.song@windriver.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 059/137] ice: set the value of global config lock timeout longer
+Date:   Tue,  6 Jul 2021 07:20:45 -0400
+Message-Id: <20210706112203.2062605-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -42,57 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radim Pavlik <radim.pavlik@tbs-biometrics.com>
+From: Liwei Song <liwei.song@windriver.com>
 
-[ Upstream commit 897120d41e7afd9da435cb00041a142aeeb53c07 ]
+[ Upstream commit fb3612840d4f587a0af9511a11d7989d1fa48206 ]
 
-Checking value of MCP_INTF in mcp23s08_irq suggests that the handler may be
-called even when there is no interrupt pending.
+It may need hold Global Config Lock a longer time when download DDP
+package file, extend the timeout value to 5000ms to ensure that
+download can be finished before other AQ command got time to run,
+this will fix the issue below when probe the device, 5000ms is a test
+value that work with both Backplane and BreakoutCable NVM image:
 
-But the actual interrupt could happened between reading MCP_INTF and MCP_GPIO.
-In this situation we got nothing from MCP_INTF, but the event gets acknowledged
-on the expander by reading MCP_GPIO. This leads to losing events.
+ice 0000:f4:00.0: VSI 12 failed lan queue config, error ICE_ERR_CFG
+ice 0000:f4:00.0: Failed to delete VSI 12 in FW - error: ICE_ERR_AQ_TIMEOUT
+ice 0000:f4:00.0: probe failed due to setup PF switch: -12
+ice: probe of 0000:f4:00.0 failed with error -12
 
-Fix the problem by not reading any register until we see something in MCP_INTF.
-
-The error was reproduced and fix tested on MCP23017.
-
-Signed-off-by: Radim Pavlik <radim.pavlik@tbs-biometrics.com>
-Link: https://lore.kernel.org/r/AM7PR06MB6769E1183F68DEBB252F665ABA3E9@AM7PR06MB6769.eurprd06.prod.outlook.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Liwei Song <liwei.song@windriver.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-mcp23s08.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_type.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
-index ce2d8014b7e0..799d596a1a4b 100644
---- a/drivers/pinctrl/pinctrl-mcp23s08.c
-+++ b/drivers/pinctrl/pinctrl-mcp23s08.c
-@@ -351,6 +351,11 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
- 	if (mcp_read(mcp, MCP_INTF, &intf))
- 		goto unlock;
+diff --git a/drivers/net/ethernet/intel/ice/ice_type.h b/drivers/net/ethernet/intel/ice/ice_type.h
+index 1bed183d96a0..ee3497d25464 100644
+--- a/drivers/net/ethernet/intel/ice/ice_type.h
++++ b/drivers/net/ethernet/intel/ice/ice_type.h
+@@ -63,7 +63,7 @@ enum ice_aq_res_ids {
+ /* FW update timeout definitions are in milliseconds */
+ #define ICE_NVM_TIMEOUT			180000
+ #define ICE_CHANGE_LOCK_TIMEOUT		1000
+-#define ICE_GLOBAL_CFG_LOCK_TIMEOUT	3000
++#define ICE_GLOBAL_CFG_LOCK_TIMEOUT	5000
  
-+	if (intf == 0) {
-+		/* There is no interrupt pending */
-+		return IRQ_HANDLED;
-+	}
-+
- 	if (mcp_read(mcp, MCP_INTCAP, &intcap))
- 		goto unlock;
- 
-@@ -368,11 +373,6 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
- 	mcp->cached_gpio = gpio;
- 	mutex_unlock(&mcp->lock);
- 
--	if (intf == 0) {
--		/* There is no interrupt pending */
--		return IRQ_HANDLED;
--	}
--
- 	dev_dbg(mcp->chip.parent,
- 		"intcap 0x%04X intf 0x%04X gpio_orig 0x%04X gpio 0x%04X\n",
- 		intcap, intf, gpio_orig, gpio);
+ enum ice_aq_res_access_type {
+ 	ICE_RES_READ = 1,
 -- 
 2.30.2
 
