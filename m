@@ -2,115 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2164C3BDF18
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 23:44:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53FE83BDF51
+	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 00:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229811AbhGFVrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 17:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44582 "EHLO
+        id S229753AbhGFWSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 18:18:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229787AbhGFVrY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Jul 2021 17:47:24 -0400
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F3D8C061574;
-        Tue,  6 Jul 2021 14:44:44 -0700 (PDT)
-Received: by mail-oi1-x233.google.com with SMTP id m3so936352oig.10;
-        Tue, 06 Jul 2021 14:44:44 -0700 (PDT)
+        with ESMTP id S229975AbhGFWSi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Jul 2021 18:18:38 -0400
+Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 787ECC061574
+        for <stable@vger.kernel.org>; Tue,  6 Jul 2021 15:15:58 -0700 (PDT)
+Received: by mail-ot1-x332.google.com with SMTP id n99-20020a9d206c0000b029045d4f996e62so329339ota.4
+        for <stable@vger.kernel.org>; Tue, 06 Jul 2021 15:15:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=02NGKANC6bWRviktL9XwvAT8xDpibT4kcz5eISh/RS0=;
-        b=Jr+EhbKVszQ7Dl4PYYZKnvaWVb/MSuomxwnEc1wXFqNiUUwIJFdeGCuVKV0BoTFVe4
-         1gMXZ43NFBElK2Bha/35aW1zVuwUI40RpETpyPXISezds6jPxZWW/J8zKIp8e8hr0gL6
-         gL3cBQ/kKYoRm43yP4kbMfwKEeuH8FuwohI1spoXtreMogVoacJv1LzcN+CT8ckhg4Fp
-         W38vLGaVD/csV/Ob6zAgCn0UOORtuej0EzXjMSW1A+MEsZ2ukim95KMkJgBVPLzBXi9g
-         l1ApVUqcP62AgYMPkRVI+E1NWiEOPg87QHTDjfnuNFgJq4GuUrOnUHQiT1sPgcgZC7QE
-         Tw9A==
+        d=linuxtx.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=4pk6Sq7/DdUaC7GkGc4VzxZTNhY8KMhDPrLUMFvev0s=;
+        b=Hq1uiaI75WO3E4BVIgeQ0zAv2baYsrbDYbxxcM98u4EqkBIlHWhGTnZ+gSCXCJWi79
+         04GcafYYpPf8L3bqPAxh1FE4biwDDHeVAyrIsh6TLbHWCln3H6xH+P3FiqvIGWmRBhHW
+         UPKoYxxGKIMoq4sg6cMlXj8mu7zrHt49uvYa8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=02NGKANC6bWRviktL9XwvAT8xDpibT4kcz5eISh/RS0=;
-        b=V1gNQVHAYtIHvn4XZQ/Le9aJSShsprqAWcaIJAoAberra0PaOBG3LMQ/sSD+dbtOtv
-         pbynHH7Pr0JWtuLEfYhgFNLo1xHbCeP+y6XVa6jw0cG/1NxjcesOXSymq+Nrk2Gr28jx
-         HYMh389UfypHZweI/YH7jGRt17o+I0I5/PzEldS+BiGs5PDNAo6xLvUrkbLn5Qpr+sla
-         T9HcZxL7C/KTQwytFKZt0X/jIU2LX8TUy3swTAX5ugmTbAcRP1V1Z4Z2V39H7JU0LcTz
-         IGveOlLg8edzQY3I4I5056yk4vwPPiDkIIl9rFFvKlrqsQrTf4ToesLtmi6iJXdnLwDe
-         4tvA==
-X-Gm-Message-State: AOAM530vbLxBe63a+SLK18CU4ZuJ/ks8BmAMug5tUIg97XfG9iO8ynrg
-        kBKTgUlYSAytQ1fvka6bkKYZ0xlq1y7AjEaYSYM=
-X-Google-Smtp-Source: ABdhPJyJt9TJEJerAMmCKYsbved+w6V/cNsXV68GF6PloP4xXpQNkMpmSAMYxKqeYYk3SHLvNpM8HdrL6BTx20w4ZxY=
-X-Received: by 2002:aca:ac15:: with SMTP id v21mr2045269oie.5.1625607883766;
- Tue, 06 Jul 2021 14:44:43 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210706111409.2058071-1-sashal@kernel.org> <20210706111409.2058071-113-sashal@kernel.org>
-In-Reply-To: <20210706111409.2058071-113-sashal@kernel.org>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Tue, 6 Jul 2021 17:44:32 -0400
-Message-ID: <CADnq5_ObmVRjwUB5Lw0bLZLL-+=CqvGkJZ+2DY5ZDh+uN-oo0g@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.13 113/189] drm/amdgpu/gfx9: fix the doorbell
- missing when in CGPG issue.
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=4pk6Sq7/DdUaC7GkGc4VzxZTNhY8KMhDPrLUMFvev0s=;
+        b=XwoeBRxZiJlTQQDEzsPPJCiuvxGMOI7V99gMMsAQSQ2R3zwjjLRljRMMbuHfF7nAkd
+         HFe/+99G6apcaZQ4sR+HKTRtdJeIDSkD6f46mXfmwmZ7mMW+2AnLSAxeYe0J3kUk3sYR
+         SpNymlB3mWa6PZ/FksXcWOKM/1zNdwujLNDQN8Rbl06kU2TRxH6PEw/vtY8WtJAfjnMP
+         0ABxJPzZSr+Um0mZnXRGfQbjTKFdGWKZbsKByHFICAWSsldBkyGncaquD1IJJC4J5bJi
+         fSYSQ8T6WfjJBrt9iHBj1JWcM3Gt0LcqIp3tpI15SgtyF3YbAPYrj+98pitsNRCjyaaS
+         S+yQ==
+X-Gm-Message-State: AOAM530XA5YoXDIqLJ9WG+LF4ENsNpEIEHHOCO+Ph/bcE5qZ3WZzDuqf
+        Vs0ip76UHWUYmu8HkP02gjb0uw==
+X-Google-Smtp-Source: ABdhPJwpJL51bCm1sdJCF2o/TPvKub6NbwooJ4g6637IJu8FcOK8BJDuutsJlvxI5XIA04eHhlUazA==
+X-Received: by 2002:a05:6830:1e62:: with SMTP id m2mr16437384otr.290.1625609757652;
+        Tue, 06 Jul 2021 15:15:57 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id r186sm3679913oia.6.2021.07.06.15.15.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Jul 2021 15:15:57 -0700 (PDT)
+Date:   Tue, 6 Jul 2021 17:15:55 -0500
+From:   Justin Forbes <jmforbes@linuxtx.org>
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        "for 3.8" <stable@vger.kernel.org>,
-        Yifan Zhang <yifan1.zhang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Maling list - DRI developers 
-        <dri-devel@lists.freedesktop.org>,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        Alex Deucher <alexander.deucher@amd.com>
-Content-Type: text/plain; charset="UTF-8"
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de
+Subject: Re: [PATCH 5.12 0/7] 5.12.15-rc1 review
+Message-ID: <YOTWGzxh0XpYLlmT@fedora64.linuxtx.org>
+References: <20210705105934.1513188-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210705105934.1513188-1-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 6, 2021 at 7:16 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Yifan Zhang <yifan1.zhang@amd.com>
->
-> [ Upstream commit 631003101c516ea29a74aee59666708857b9a805 ]
->
-> If GC has entered CGPG, ringing doorbell > first page doesn't wakeup GC.
-> Enlarge CP_MEC_DOORBELL_RANGE_UPPER to workaround this issue.
->
-> Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
-> Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+On Mon, Jul 05, 2021 at 06:59:27AM -0400, Sasha Levin wrote:
+> 
+> This is the start of the stable review cycle for the 5.12.15 release.
+> There are 7 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed 07 Jul 2021 10:59:20 AM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+>         https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.12.y&id2=v5.12.14
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> Thanks,
+> Sasha
+> 
 
-This should be dropped.  It was already reverted.
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Alex
-
-
-> ---
->  drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-> index 516467e962b7..c09225d065c2 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-> @@ -3673,8 +3673,12 @@ static int gfx_v9_0_kiq_init_register(struct amdgpu_ring *ring)
->         if (ring->use_doorbell) {
->                 WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_LOWER,
->                                         (adev->doorbell_index.kiq * 2) << 2);
-> +               /* If GC has entered CGPG, ringing doorbell > first page doesn't
-> +                * wakeup GC. Enlarge CP_MEC_DOORBELL_RANGE_UPPER to workaround
-> +                * this issue.
-> +                */
->                 WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_UPPER,
-> -                                       (adev->doorbell_index.userqueue_end * 2) << 2);
-> +                                       (adev->doorbell.size - 4));
->         }
->
->         WREG32_SOC15_RLC(GC, 0, mmCP_HQD_PQ_DOORBELL_CONTROL,
-> --
-> 2.30.2
->
-> _______________________________________________
-> amd-gfx mailing list
-> amd-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/amd-gfx
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
