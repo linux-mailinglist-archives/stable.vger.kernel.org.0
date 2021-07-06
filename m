@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B40BD3BD514
+	by mail.lfdr.de (Postfix) with ESMTP id B3A393BD513
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:16:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234693AbhGFMS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:18:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47578 "EHLO mail.kernel.org"
+        id S234182AbhGFMSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:18:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237031AbhGFLfv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237038AbhGFLfv (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:35:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8671461CA3;
-        Tue,  6 Jul 2021 11:25:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E60A61CAC;
+        Tue,  6 Jul 2021 11:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570712;
-        bh=N0yqi/fE7VKWJ21/uelkUPX4mEQZlqAA9NU03kqqLWU=;
+        s=k20201202; t=1625570714;
+        bh=hwQiKcNGE0Xio6rSiYQJxLTcOiPsZ+b0zJLF94n8MdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oyY/254Wr5ro0jWp1HxtIxCbAROu9P8pjTFXzD5jUrBcHj41HoAl/UKWoO6mjbj5W
-         4f/v9ZhuyWrDTJ0zUWR1Aey0fojB8a31vIgh8WiTXxHPMoW30/IwD92HYjuQs6EMAu
-         IFL2R1pFWcZdQUW83lyTlYOlFHG8pTcanoJvVFY1sYUZhMk6+7uKaw9v+KHz41lg4b
-         JHOKQOoa7bnn4jNROl7kXrtwNA3KeNFmGCKtx/mIqnLmRwjCpiLtzi6ufB0eQBrngo
-         6Me3EslIcOVSy7480tEhgCTUSNYr1g99E1dl79euy41MI2/jw9O7zZbuoPDQUOJrbZ
-         yIPHmtZ0uzCUg==
+        b=lvFYKdqXQJXKx20ViK/tVbDlPfGZOUJyXpjQ4R2m+NyNujedyv2VLVRP1jZI5dp12
+         boo+LcQJ2/npOllhG0E4M90SD9sFVNExkhbAK4n7zPHRHujlg5Hgkoi0DzA0V/cu3v
+         WnCxo4KwZHKuh4OacM9ZR3BSA+QpffPPmOTlSkJGxC7CFY+NzFNpQt/DzJI1Y/ATHv
+         oMoa+SkmcZd+6GUU8DHQnTuxUi/MvOo1eY5I4BkFy5+CxqnjIsNuIG08z3CNzzl9Xn
+         UxOEjSzOr4s/GbA/OWykkJS+4pDiBoWcS1QczDTOxoTs0yxbmgNRPQ0xcXK+Kqxqvh
+         bGBjsX8e5Sh4Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Stylon Wang <stylon.wang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 07/74] drm/amd/display: fix use_max_lb flag for 420 pixel formats
-Date:   Tue,  6 Jul 2021 07:23:55 -0400
-Message-Id: <20210706112502.2064236-7-sashal@kernel.org>
+Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 09/74] atm: iphase: fix possible use-after-free in ia_module_exit()
+Date:   Tue,  6 Jul 2021 07:23:57 -0400
+Message-Id: <20210706112502.2064236-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112502.2064236-1-sashal@kernel.org>
 References: <20210706112502.2064236-1-sashal@kernel.org>
@@ -45,44 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 8809a7a4afe90ad9ffb42f72154d27e7c47551ae ]
+[ Upstream commit 1c72e6ab66b9598cac741ed397438a52065a8f1f ]
 
-Right now the flag simply selects memory config 0 when flag is true
-however 420 modes benefit more from memory config 3.
+This module's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
 
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Stylon Wang <stylon.wang@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/atm/iphase.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-index d67e0abeee93..11a89d873384 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-@@ -484,10 +484,13 @@ static enum lb_memory_config dpp1_dscl_find_lb_memory_config(struct dcn10_dpp *d
- 	int vtaps_c = scl_data->taps.v_taps_c;
- 	int ceil_vratio = dc_fixpt_ceil(scl_data->ratios.vert);
- 	int ceil_vratio_c = dc_fixpt_ceil(scl_data->ratios.vert_c);
--	enum lb_memory_config mem_cfg = LB_MEMORY_CONFIG_0;
+diff --git a/drivers/atm/iphase.c b/drivers/atm/iphase.c
+index 8c7a996d1f16..46990352b5d3 100644
+--- a/drivers/atm/iphase.c
++++ b/drivers/atm/iphase.c
+@@ -3295,7 +3295,7 @@ static void __exit ia_module_exit(void)
+ {
+ 	pci_unregister_driver(&ia_driver);
  
--	if (dpp->base.ctx->dc->debug.use_max_lb)
--		return mem_cfg;
-+	if (dpp->base.ctx->dc->debug.use_max_lb) {
-+		if (scl_data->format == PIXEL_FORMAT_420BPP8
-+				|| scl_data->format == PIXEL_FORMAT_420BPP10)
-+			return LB_MEMORY_CONFIG_3;
-+		return LB_MEMORY_CONFIG_0;
-+	}
+-        del_timer(&ia_timer);
++	del_timer_sync(&ia_timer);
+ }
  
- 	dpp->base.caps->dscl_calc_lb_num_partitions(
- 			scl_data, LB_MEMORY_CONFIG_1, &num_part_y, &num_part_c);
+ module_init(ia_module_init);
 -- 
 2.30.2
 
