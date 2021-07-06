@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 944B73BCEA6
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFCF33BCEA8
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234080AbhGFL0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:26:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56324 "EHLO mail.kernel.org"
+        id S233139AbhGFL0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232538AbhGFLXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233900AbhGFLXG (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:23:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAAA461CE8;
-        Tue,  6 Jul 2021 11:18:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 424BD61CE9;
+        Tue,  6 Jul 2021 11:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570284;
-        bh=uukFyebvLjMkKGfyTL+jcY1K9MuCKoKq1HHkshqZF1s=;
+        s=k20201202; t=1625570286;
+        bh=Ia9rktBdiHb6EMa1fSBNeBeKeuUl/zIf8i7KRp0qjnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=asABJulQJUBuAamn5gPAM2dSs/t/+fEdZ+R4DIjRWpV/5/7zCIxWbNOCtWAo6Nz2i
-         9IKT55YvtMF0Jk1+P3bDM2Q4GaX4vTZCoBycc/kTrXwHSZhpdFMyvbKiUs0FREJWwM
-         sOXxFmIqwJP/4YGmnuluflXwYB9XbePz09lh+K86plO2b1RPgkZb5idKQgFdQqYHrS
-         PrSXmN5MkUKTBPUsIBz2jw/JKZZJnzhFdQWAN7HnX4KyG65uWTIPTHzMiLuewaftq4
-         6AmI34syZCu67M127EIjcCkGmnfofjp8H/A0BjeEJOHGAN4VAH6LDPWlmYr/I6TzVQ
-         Xd6lxzzLZqzkw==
+        b=aNcfdBIOXI/UixgN8tSHDRLFnIiQchoeG637Y1UgsuKWFxMCrexQmiNuFgGDeOFCD
+         1IPN0vm9rUj++W7S5LEE3bpAXna++ifM5EhQd8kAJbzVXURbUlW3E5n5EE5vFz6oAO
+         1Y+jvUieGGoRQHR0XxSvMvS3koihCLB9hfQuvdrhCUpV8Cz1tVlhOFug7fSt/FHHNz
+         ccRM2JfkdW1L1KGaPzdFj0seU5g3OQbz4BVoQ4eYda/21V/vxt9mdz3xqqWJyKIBa3
+         W3Oa8DAWJ8duDL9J4YSdoMak/lDdnVfwxQ9+vzCVdLemN4qLoykEYmSzOOoIh6qNU3
+         pxBSv7ZfJRC6g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Lenski <dlenski@gmail.com>,
+Cc:     Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 175/189] Bluetooth: btusb: Add a new QCA_ROME device (0cf3:e500)
-Date:   Tue,  6 Jul 2021 07:13:55 -0400
-Message-Id: <20210706111409.2058071-175-sashal@kernel.org>
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 176/189] Bluetooth: L2CAP: Fix invalid access if ECRED Reconfigure fails
+Date:   Tue,  6 Jul 2021 07:13:56 -0400
+Message-Id: <20210706111409.2058071-176-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -43,71 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Lenski <dlenski@gmail.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 0324d19cb99804d99e42c990b8b1e191575a091b ]
+[ Upstream commit 1fa20d7d4aad02206e84b74915819fbe9f81dab3 ]
 
-This patch adds the 0cf3:e500 Bluetooth device (from a QCA9377 board) as a
-QCA_ROME device.  It appears to be functionally identical to another device
-ID, also from a QCA9377 board, which was previously marked as QCA_ROME in
-0a03f98b98c201191e3ba15a0e33f46d8660e1fd
-("Bluetooth: Add a new 04ca:3015 QCA_ROME device").
+The use of l2cap_chan_del is not safe under a loop using
+list_for_each_entry.
 
-Without this patch, the WiFi side of the QCA9377 board is slow or unusable
-when the Bluetooth side is in use.
-
-See https://askubuntu.com/a/1137852 for another report of QCA_ROME fixing
-this issue for this device ID.
-
-/sys/kernel/debug/usb/devices:
-
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.01 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=0cf3 ProdID=e500 Rev= 0.01
-C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-
-Signed-off-by: Daniel Lenski <dlenski@gmail.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/l2cap_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 99fd88f7653d..90872099d9c3 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -270,6 +270,8 @@ static const struct usb_device_id blacklist_table[] = {
- 						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0cf3, 0xe360), .driver_info = BTUSB_QCA_ROME |
- 						     BTUSB_WIDEBAND_SPEECH },
-+	{ USB_DEVICE(0x0cf3, 0xe500), .driver_info = BTUSB_QCA_ROME |
-+						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0489, 0xe092), .driver_info = BTUSB_QCA_ROME |
- 						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0489, 0xe09f), .driver_info = BTUSB_QCA_ROME |
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index b6a88b8256c7..9b6e57204f51 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -6248,7 +6248,7 @@ static inline int l2cap_ecred_reconf_rsp(struct l2cap_conn *conn,
+ 					 struct l2cap_cmd_hdr *cmd, u16 cmd_len,
+ 					 u8 *data)
+ {
+-	struct l2cap_chan *chan;
++	struct l2cap_chan *chan, *tmp;
+ 	struct l2cap_ecred_conn_rsp *rsp = (void *) data;
+ 	u16 result;
+ 
+@@ -6262,7 +6262,7 @@ static inline int l2cap_ecred_reconf_rsp(struct l2cap_conn *conn,
+ 	if (!result)
+ 		return 0;
+ 
+-	list_for_each_entry(chan, &conn->chan_l, list) {
++	list_for_each_entry_safe(chan, tmp, &conn->chan_l, list) {
+ 		if (chan->ident != cmd->ident)
+ 			continue;
+ 
 -- 
 2.30.2
 
