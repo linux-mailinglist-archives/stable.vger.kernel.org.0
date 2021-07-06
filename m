@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E273BCFE4
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:29:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB92F3BCFE5
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235986AbhGFLbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:31:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42572 "EHLO mail.kernel.org"
+        id S236001AbhGFLbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:31:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235275AbhGFL3v (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235274AbhGFL3v (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:29:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4BCA61DA4;
-        Tue,  6 Jul 2021 11:20:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3019C61D9A;
+        Tue,  6 Jul 2021 11:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570450;
-        bh=pOJ1w1dBinbT0HX1LaUNE1gDjLBmaqvMRUrFCRootGg=;
+        s=k20201202; t=1625570452;
+        bh=0Em+bgYmrDU1JOZhftUS5xrrOixdfruBKkFRuFCROBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E5AsPV2XrHdaF9RwuZPu6/5N+G86fXNTY6rj+hR4iIymu83tei9k/TUbkTL6medCH
-         yKaFB97UOhGQscCuV9AXkg4rNoOT7qbWfTY7fXS0SedpmGJcP1wHUK0lTQ6DhJKM8X
-         1Gsmg9u7CHMbfMW9m13lfLaqlt0vhtQW4OH3DMlaUOLptTcu3uhkN4tPs4ygDABB+u
-         W2Q+FtdD3SfVMv142uBSMykKwY9j4eK/lALyPv2ZMHwYLiELcWZHJMTwgyEEl2Hhc2
-         Nwe6f5Fia+ALe15EX5AcB8q+mFAZHR0Zi5C4rHgi7aMHpCGr2aGC6qhe96WWOA2GLu
-         dnslguFBk42HA==
+        b=ezmbkfPPBgn08cZzpOT0MzDt+NOvKBVcgESV38rpBroP97DOkBn7PAp5A02Xco46X
+         0Zzo3D8qE1a4bQ42deg9m3BPmAvQTXiQwtyFh6/QVsn0iX/WtlN0MR94Z9dBQ95ka0
+         +DbKICXP1viYQKd+eyYW9MbnnWA7Fuk3bO9fC6KYfO9fn9Enyo0kP7VgvHewhDPZX7
+         KYvsR0fjXOo6m4U/Pz/d9Dpu80DggStMO+11x5bADN6A1H77DnudWEMW+H18NWwmoX
+         jzgKBU+bo75DoSQv7wPJA5XsWG4s/D36cfRerGsieBOihTsseY53DZLijy8m6Gha4v
+         BbAwz06HDyXpg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     xinhui pan <xinhui.pan@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 108/160] drm/amdkfd: Walk through list with dqm lock hold
-Date:   Tue,  6 Jul 2021 07:17:34 -0400
-Message-Id: <20210706111827.2060499-108-sashal@kernel.org>
+Cc:     Evelyn Tsai <evelyn.tsai@mediatek.com>,
+        Shayne Chen <shayne.chen@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 109/160] mt76: mt7915: fix tssi indication field of DBDC NICs
+Date:   Tue,  6 Jul 2021 07:17:35 -0400
+Message-Id: <20210706111827.2060499-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -44,69 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinhui pan <xinhui.pan@amd.com>
+From: Evelyn Tsai <evelyn.tsai@mediatek.com>
 
-[ Upstream commit 56f221b6389e7ab99c30bbf01c71998ae92fc584 ]
+[ Upstream commit 64cf5ad3c2fa841e4b416343a7ea69c63d60fa4e ]
 
-To avoid any list corruption.
+Correct the bitfield which indicates TSSI on/off for MT7915D NIC.
 
-Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Evelyn Tsai <evelyn.tsai@mediatek.com>
+Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/amdkfd/kfd_device_queue_manager.c | 22 ++++++++++---------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index 3d66565a618f..b2e55917c308 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -1712,7 +1712,7 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
- 		struct qcm_process_device *qpd)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
+index 3ee8c27bb61b..40a51d99a781 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
+@@ -116,12 +116,15 @@ static inline bool
+ mt7915_tssi_enabled(struct mt7915_dev *dev, enum nl80211_band band)
  {
- 	int retval;
--	struct queue *q, *next;
-+	struct queue *q;
- 	struct kernel_queue *kq, *kq_next;
- 	struct mqd_manager *mqd_mgr;
- 	struct device_process_node *cur, *next_dpn;
-@@ -1769,24 +1769,26 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
- 		qpd->reset_wavefronts = false;
- 	}
+ 	u8 *eep = dev->mt76.eeprom.data;
++	u8 val = eep[MT_EE_WIFI_CONF + 7];
  
--	dqm_unlock(dqm);
--
--	/* Outside the DQM lock because under the DQM lock we can't do
--	 * reclaim or take other locks that others hold while reclaiming.
--	 */
--	if (found)
--		kfd_dec_compute_active(dqm->dev);
--
- 	/* Lastly, free mqd resources.
- 	 * Do free_mqd() after dqm_unlock to avoid circular locking.
- 	 */
--	list_for_each_entry_safe(q, next, &qpd->queues_list, list) {
-+	while (!list_empty(&qpd->queues_list)) {
-+		q = list_first_entry(&qpd->queues_list, struct queue, list);
- 		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
- 				q->properties.type)];
- 		list_del(&q->list);
- 		qpd->queue_count--;
-+		dqm_unlock(dqm);
- 		mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
-+		dqm_lock(dqm);
- 	}
-+	dqm_unlock(dqm);
+-	/* TODO: DBDC */
+-	if (band == NL80211_BAND_5GHZ)
+-		return eep[MT_EE_WIFI_CONF + 7] & MT_EE_WIFI_CONF7_TSSI0_5G;
++	if (band == NL80211_BAND_2GHZ)
++		return val & MT_EE_WIFI_CONF7_TSSI0_2G;
 +
-+	/* Outside the DQM lock because under the DQM lock we can't do
-+	 * reclaim or take other locks that others hold while reclaiming.
-+	 */
-+	if (found)
-+		kfd_dec_compute_active(dqm->dev);
- 
- 	return retval;
++	if (dev->dbdc_support)
++		return val & MT_EE_WIFI_CONF7_TSSI1_5G;
+ 	else
+-		return eep[MT_EE_WIFI_CONF + 7] & MT_EE_WIFI_CONF7_TSSI0_2G;
++		return val & MT_EE_WIFI_CONF7_TSSI0_5G;
  }
+ 
+ extern const struct sku_group mt7915_sku_groups[];
 -- 
 2.30.2
 
