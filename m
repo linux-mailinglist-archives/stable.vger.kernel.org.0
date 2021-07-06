@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF733BD258
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 299203BD259
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237526AbhGFLmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
+        id S239387AbhGFLmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237639AbhGFLgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237641AbhGFLgU (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:36:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2A1361F05;
-        Tue,  6 Jul 2021 11:29:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECB0E61F06;
+        Tue,  6 Jul 2021 11:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570943;
-        bh=5i7m6YX8SA5KT6nhg8VE7TWcYW8SL3Nb60FoMy3MKc0=;
+        s=k20201202; t=1625570944;
+        bh=1N49bbMHVi60qH2SwZUdfq5ibqi1/BbLdVyMTBqsI3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GmLewHrEGRrdRDEcJURYWZSLhdr2DjGl5+lBjltGfcLqnQ7DVPR7YUkCmL5gl/q+k
-         MKRi/u7RI9PjY8qgQNZebHInxNI8IVI4gbgjNX4I0twh8ejPZmm3J9/OXVGchzfPfu
-         VIr+PDAikSnB0qs9+gi3Pt/HlsDgjbCH117GPoYz591askH1bxOMunvweCWuBcBl6U
-         mphu2teODYHOdUa4T62qS819wJTwIS+rXiogqgSzmgI3p9aVJ5usTx3CQmnEdgXPl3
-         g2p5ScqFkACaW2DCQ5+cByJ7c/ScdBr8xyqlm6ODa8410jHabechO6y5C+73tvRkRk
-         htbq3UywLHeUQ==
+        b=S/zmjOLXq4aKN533qgk8GFGHD+oEtN9fGj1FoGFF/9JlyD5Zg1QT91/qm9ehaqOvW
+         /lDAyasqBdqrlBwNTcr9eKJ8Lo/q130TkNwiUINc9/WGa4GH8Z3Io0SESiYqsXmgbH
+         /pYGuJcUDrk0MEddb4TszYEPZnZsl+FBNkrACIKLQcpUjN2cI4vpKJzPFI7nsGHv8n
+         5DO/k57OiONp6U2wJXI8u9wNigzAI0sXQbtC7HYuzTjeW1CpkXSIY2OcBBQBXNXiBj
+         lltRu+WQIlPipjdcHOEal90Oo7pbepm2JwBQYf8eJ9z0Cp9ShQNcUcdd227vlsQMnI
+         ZtROGUUEN3Rxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 12/35] clk: tegra: Ensure that PLLU configuration is applied properly
-Date:   Tue,  6 Jul 2021 07:28:24 -0400
-Message-Id: <20210706112848.2066036-12-sashal@kernel.org>
+Cc:     Willy Tarreau <w@1wt.eu>, Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 13/35] ipv6: use prandom_u32() for ID generation
+Date:   Tue,  6 Jul 2021 07:28:25 -0400
+Message-Id: <20210706112848.2066036-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112848.2066036-1-sashal@kernel.org>
 References: <20210706112848.2066036-1-sashal@kernel.org>
@@ -43,51 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit a7196048cd5168096c2c4f44a3939d7a6dcd06b9 ]
+[ Upstream commit 62f20e068ccc50d6ab66fdb72ba90da2b9418c99 ]
 
-The PLLU (USB) consists of the PLL configuration itself and configuration
-of the PLLU outputs. The PLLU programming is inconsistent on T30 vs T114,
-where T114 immediately bails out if PLLU is enabled and T30 re-enables
-a potentially already enabled PLL (left after bootloader) and then fully
-reprograms it, which could be unsafe to do. The correct way should be to
-skip enabling of the PLL if it's already enabled and then apply
-configuration to the outputs. This patch doesn't fix any known problems,
-it's a minor improvement.
+This is a complement to commit aa6dd211e4b1 ("inet: use bigger hash
+table for IP ID generation"), but focusing on some specific aspects
+of IPv6.
 
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Contary to IPv4, IPv6 only uses packet IDs with fragments, and with a
+minimum MTU of 1280, it's much less easy to force a remote peer to
+produce many fragments to explore its ID sequence. In addition packet
+IDs are 32-bit in IPv6, which further complicates their analysis. On
+the other hand, it is often easier to choose among plenty of possible
+source addresses and partially work around the bigger hash table the
+commit above permits, which leaves IPv6 partially exposed to some
+possibilities of remote analysis at the risk of weakening some
+protocols like DNS if some IDs can be predicted with a good enough
+probability.
+
+Given the wide range of permitted IDs, the risk of collision is extremely
+low so there's no need to rely on the positive increment algorithm that
+is shared with the IPv4 code via ip_idents_reserve(). We have a fast
+PRNG, so let's simply call prandom_u32() and be done with it.
+
+Performance measurements at 10 Gbps couldn't show any difference with
+the previous code, even when using a single core, because due to the
+large fragments, we're limited to only ~930 kpps at 10 Gbps and the cost
+of the random generation is completely offset by other operations and by
+the network transfer time. In addition, this change removes the need to
+update a shared entry in the idents table so it may even end up being
+slightly faster on large scale systems where this matters.
+
+The risk of at least one collision here is about 1/80 million among
+10 IDs, 1/850k among 100 IDs, and still only 1/8.5k among 1000 IDs,
+which remains very low compared to IPv4 where all IDs are reused
+every 4 to 80ms on a 10 Gbps flow depending on packet sizes.
+
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210529110746.6796-1-w@1wt.eu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-pll.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/ipv6/output_core.c | 28 +++++-----------------------
+ 1 file changed, 5 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-pll.c b/drivers/clk/tegra/clk-pll.c
-index 1ab36a355daf..789efad791a3 100644
---- a/drivers/clk/tegra/clk-pll.c
-+++ b/drivers/clk/tegra/clk-pll.c
-@@ -1085,7 +1085,8 @@ static int clk_pllu_enable(struct clk_hw *hw)
- 	if (pll->lock)
- 		spin_lock_irqsave(pll->lock, flags);
+diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
+index 6a6d01cb1ace..9c25e8b09306 100644
+--- a/net/ipv6/output_core.c
++++ b/net/ipv6/output_core.c
+@@ -14,29 +14,11 @@ static u32 __ipv6_select_ident(struct net *net,
+ 			       const struct in6_addr *dst,
+ 			       const struct in6_addr *src)
+ {
+-	const struct {
+-		struct in6_addr dst;
+-		struct in6_addr src;
+-	} __aligned(SIPHASH_ALIGNMENT) combined = {
+-		.dst = *dst,
+-		.src = *src,
+-	};
+-	u32 hash, id;
+-
+-	/* Note the following code is not safe, but this is okay. */
+-	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
+-		get_random_bytes(&net->ipv4.ip_id_key,
+-				 sizeof(net->ipv4.ip_id_key));
+-
+-	hash = siphash(&combined, sizeof(combined), &net->ipv4.ip_id_key);
+-
+-	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
+-	 * set the hight order instead thus minimizing possible future
+-	 * collisions.
+-	 */
+-	id = ip_idents_reserve(hash, 1);
+-	if (unlikely(!id))
+-		id = 1 << 31;
++	u32 id;
++
++	do {
++		id = prandom_u32();
++	} while (!id);
  
--	_clk_pll_enable(hw);
-+	if (!clk_pll_is_enabled(hw))
-+		_clk_pll_enable(hw);
- 
- 	ret = clk_pll_wait_for_lock(pll);
- 	if (ret < 0)
-@@ -1702,7 +1703,8 @@ static int clk_pllu_tegra114_enable(struct clk_hw *hw)
- 	if (pll->lock)
- 		spin_lock_irqsave(pll->lock, flags);
- 
--	_clk_pll_enable(hw);
-+	if (!clk_pll_is_enabled(hw))
-+		_clk_pll_enable(hw);
- 
- 	ret = clk_pll_wait_for_lock(pll);
- 	if (ret < 0)
+ 	return id;
+ }
 -- 
 2.30.2
 
