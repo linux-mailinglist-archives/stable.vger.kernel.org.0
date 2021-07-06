@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC603BD529
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:19:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E183BD532
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 14:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235022AbhGFMTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 08:19:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47602 "EHLO mail.kernel.org"
+        id S235221AbhGFMTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 08:19:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237151AbhGFLf5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACFC361EAF;
-        Tue,  6 Jul 2021 11:25:43 +0000 (UTC)
+        id S237159AbhGFLf6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:35:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDC3E61EC4;
+        Tue,  6 Jul 2021 11:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570744;
-        bh=iQuNtrz8wjlsTe62AYtmmRArf0A0Q00ObZJPInEUwrk=;
+        s=k20201202; t=1625570746;
+        bh=sq4FR28qT3ecGDxkRRfT2wgAZvuM7kKOwPjlT6KPaUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rH7t9/3yxuqjjMukjOdL6CevPGnkifOnvjnWNxoz/HeoBjqwAkNtvyGlo9BpsqLWM
-         4bcgzZWrmI6IJVqxoDrTIAQV1LoomAnuvpmPWeooA0cUnajJoMdkiNkaHSPtvzeNfC
-         aKxLfb6snHR2e4GmlR9TpKxa8yxgmhNN/+3ZQCiOBFOD2PECVAl+QodM/tp8gIHsZp
-         hiuoVrEO14eR8WnYHse4teDfyv/Y1GYGLKrxXph+duZc3LR33xkTPq51GNxMIYNznF
-         6H3e1V/6Nd367frJuRlU5Ni/HF7vQVbXWBakQFjClhjF3V8/BEyguV2q+z50VHaZn+
-         EoZG8qIVJ+n8g==
+        b=VHovagydwhOT9CWWKG5eeIPi85I6ud6/K4JAImgvpHWcNNnW5dn4pJi+FXA1+pAOZ
+         SIFLc4QQIDcuAj3TIzu/RhjWlRfAPWal55S0oCELk85YLfUzmzB6AH2lchlTwjQ9aB
+         hY5YkSY0wXnC8bgkFGUQgDjsLemdNnjh+OdnTsNOo9nv6zofpBKw9As4u0V8JA8UuK
+         IBY75lgXJmUXAF01HmqejN3CyvTYvygLIiz/PrjJQw/v4sovRCVbPwHrxdo0LCHVZ0
+         l4NpR+qo+XsnLKj5PxRH63s4/ic/LEPiiTiRe+04JcZjVm5IJR1juDSM7uYSlxxR1P
+         SBWGdu5W0Qlcg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 33/74] net: micrel: check return value after calling platform_get_resource()
-Date:   Tue,  6 Jul 2021 07:24:21 -0400
-Message-Id: <20210706112502.2064236-33-sashal@kernel.org>
+Cc:     Roman Li <roman.li@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Stylon Wang <stylon.wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 35/74] drm/amd/display: Update scaling settings on modeset
+Date:   Tue,  6 Jul 2021 07:24:23 -0400
+Message-Id: <20210706112502.2064236-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112502.2064236-1-sashal@kernel.org>
 References: <20210706112502.2064236-1-sashal@kernel.org>
@@ -42,34 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Roman Li <roman.li@amd.com>
 
-[ Upstream commit 20f1932e2282c58cb5ac59517585206cf5b385ae ]
+[ Upstream commit c521fc316d12fb9ea7b7680e301d673bceda922e ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+[Why]
+We update scaling settings when scaling mode has been changed.
+However when changing mode from native resolution the scaling mode previously
+set gets ignored.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[How]
+Perform scaling settings update on modeset.
+
+Signed-off-by: Roman Li <roman.li@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Stylon Wang <stylon.wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8842.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8842.c b/drivers/net/ethernet/micrel/ks8842.c
-index da329ca115cc..fb838e29d52d 100644
---- a/drivers/net/ethernet/micrel/ks8842.c
-+++ b/drivers/net/ethernet/micrel/ks8842.c
-@@ -1136,6 +1136,10 @@ static int ks8842_probe(struct platform_device *pdev)
- 	unsigned i;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 6e31e899192c..fca466d4806b 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -6832,7 +6832,8 @@ static int dm_update_crtc_state(struct amdgpu_display_manager *dm,
+ 	BUG_ON(dm_new_crtc_state->stream == NULL);
  
- 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!iomem) {
-+		dev_err(&pdev->dev, "Invalid resource\n");
-+		return -EINVAL;
-+	}
- 	if (!request_mem_region(iomem->start, resource_size(iomem), DRV_NAME))
- 		goto err_mem_region;
+ 	/* Scaling or underscan settings */
+-	if (is_scaling_state_different(dm_old_conn_state, dm_new_conn_state))
++	if (is_scaling_state_different(dm_old_conn_state, dm_new_conn_state) ||
++				drm_atomic_crtc_needs_modeset(new_crtc_state))
+ 		update_stream_scaling_settings(
+ 			&new_crtc_state->mode, dm_new_conn_state, dm_new_crtc_state->stream);
  
 -- 
 2.30.2
