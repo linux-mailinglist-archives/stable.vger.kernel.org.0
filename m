@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F85D3BD026
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 626603BD023
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235309AbhGFLcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234586AbhGFLcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Jul 2021 07:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42614 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235765AbhGFLaZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:30:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0755861DE5;
-        Tue,  6 Jul 2021 11:21:48 +0000 (UTC)
+        id S235775AbhGFLa0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:30:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2943161DE4;
+        Tue,  6 Jul 2021 11:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570509;
-        bh=stvcF6uXrbquSGSrH8uLYFq78eQal4IKJZFjo3M7OhA=;
+        s=k20201202; t=1625570510;
+        bh=uNeipIKXrHdGL9rAuof73YYg8QiXPXN5XDsB8t2siVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i574mTBt+A3GniqD0AJwzFqy+2PadelR5zjB3TPAQT4oNZ8LVpQToTtufZ0i1TGAO
-         A9ZYXO+YhJFh795C6yNpIwe9QhlejsZ0ix+w7zMkvFcF7E2jrwK7qdRruqNKr53/mi
-         kvsmQ3cnP3QvexhU2U5HvcYYI6vMozz0QMB64V3NHg0h8+R6v/lVx9vLceMxMkLysR
-         gU/6pOKL6I/n3gwq0sAWgHIt6G/trx1bAPKb0khMK+h+R6ircYB3az3TX/zfghxwSx
-         vKndxdgNBLXmzmvdX9mDsIb6hEbyRvUHdTfUSAqnVHf4NQnQiYUFVFkiHoLlDQqTWO
-         jyfb7/QlPvuSA==
+        b=u9hWHEYQj5OIp8lFePtuUEfbpV/4H2W1MExi4p6ydM5INdf8n0V2EdhhD3U9xUWtX
+         fh9g+KPkQwwygwKyZIjG/LEcTBJ/3XIKeutTHVPS/yVdox12Nf3i0mj6UvOz28CXMP
+         GZBiEjssV6ZHgwzkXKLCasu3BAOmEYPB32YlRz9q862NYgK5IQYMohp9D7JPhfJB4b
+         Dh5WOZnDlY9knDq/fzNX+MXk7kXf3m+L868PzRDkVyjwbhTmra/MwZnujRmwl2P62q
+         CxqGe1/Yjl6EXG5eytoN7cuP41LTp0ZykjPL1KmvYjAGhe9vYa2f4z9z1TfhRArekE
+         rPejSJSGkQeOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Tim Jiang <tjiang@codeaurora.org>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 151/160] Bluetooth: btusb: use default nvm if boardID is 0 for wcn6855.
-Date:   Tue,  6 Jul 2021 07:18:17 -0400
-Message-Id: <20210706111827.2060499-151-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 152/160] Bluetooth: btusb: fix bt fiwmare downloading failure issue for qca btsoc.
+Date:   Tue,  6 Jul 2021 07:18:18 -0400
+Message-Id: <20210706111827.2060499-152-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -45,40 +45,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tim Jiang <tjiang@codeaurora.org>
 
-[ Upstream commit ca17a5cccf8b6d35dab4729bea8f4350bc0b4caf ]
+[ Upstream commit 4f00bfb372674d586c4a261bfc595cbce101fbb6 ]
 
-if boardID is 0, will use the default nvm file without surfix.
+This is btsoc timing issue, after host start to downloading bt firmware,
+ep2 need time to switch from function acl to function dfu, so host add
+20ms delay as workaround.
 
 Signed-off-by: Tim Jiang <tjiang@codeaurora.org>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/bluetooth/btusb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index ec17772defc2..64b0e68c68eb 100644
+index 64b0e68c68eb..a97e5c476adf 100644
 --- a/drivers/bluetooth/btusb.c
 +++ b/drivers/bluetooth/btusb.c
-@@ -4228,9 +4228,15 @@ static int btusb_setup_qca_load_nvm(struct hci_dev *hdev,
- 	int err;
+@@ -4136,6 +4136,11 @@ static int btusb_setup_qca_download_fw(struct hci_dev *hdev,
+ 	sent += size;
+ 	count -= size;
  
- 	if (((ver->flag >> 8) & 0xff) == QCA_FLAG_MULTI_NVM) {
--		snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x_%04x.bin",
--			 le32_to_cpu(ver->rom_version),
--			 le16_to_cpu(ver->board_id));
-+		/* if boardid equal 0, use default nvm without surfix */
-+		if (le16_to_cpu(ver->board_id) == 0x0) {
-+			snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x.bin",
-+				 le32_to_cpu(ver->rom_version));
-+		} else {
-+			snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x_%04x.bin",
-+				le32_to_cpu(ver->rom_version),
-+				le16_to_cpu(ver->board_id));
-+		}
- 	} else {
- 		snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x.bin",
- 			 le32_to_cpu(ver->rom_version));
++	/* ep2 need time to switch from function acl to function dfu,
++	 * so we add 20ms delay here.
++	 */
++	msleep(20);
++
+ 	while (count) {
+ 		size = min_t(size_t, count, QCA_DFU_PACKET_LEN);
+ 
 -- 
 2.30.2
 
