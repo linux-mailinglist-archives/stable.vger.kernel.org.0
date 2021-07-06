@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DBE23BCD16
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1DE3BCD14
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233192AbhGFLUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232428AbhGFLUa (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Jul 2021 07:20:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56654 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232949AbhGFLTe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:19:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0819261C82;
-        Tue,  6 Jul 2021 11:16:53 +0000 (UTC)
+        id S232546AbhGFLTf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:19:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B98C61C92;
+        Tue,  6 Jul 2021 11:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570214;
-        bh=dZoRcGT2l2N1ojgVouYDpVeg3f2oqSndGIb4YvlkbrY=;
+        s=k20201202; t=1625570215;
+        bh=oufMQSq/HD270ct52SaTBS/clIfip/4ZbIOyx8NQw7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDNvzlNgFzYS5YBkvp8sMLKI6oI7OA7xCpyXImDhVRakzhD/0VVwfLuCwb/IAJ9WI
-         XCM4mamwfv6ltenNHTd+lWM0K6vu2ibEyDoJLS4TTDaZRqugz2DEm3gZ+q+b8YgCll
-         QjZtOpLR7tKRIoR8msTb7EN/POlA5fBMv2kC1IE5aGgCxMOASe2PBv12s0OC8nI4rf
-         e3PURRXvzmn6ZXfctoJl/IzHBnMIUKXcSDndsw86arOsC9hsNwmORC/p9t0TD9VvEA
-         4liES/FpJqKH5ciByT8eMVt12zB1teaQWasT49WEG9wm6mXW/j2nBJmUxhqMTpekDp
-         uWyPW+Q8praqg==
+        b=QQBK8k+4ZgA45EkzNkgX2Adl4sxSDZFYLrY9vfDK+jNZxPIJMetFUrRIOyvtCCuwd
+         CO8HfGIoofhpwXTKW0UabcFRKJ6stn0hCeqz2xBu+A7ILH7eVnT80cyAJqgjOAdwbz
+         wMdGQ25porQwOpT7k/9SHHzBGLZlYG6Uc/9uhStbSmd1gPhbEKDW4+H0c9Vg45lVsK
+         w4jvfLZa3ZW+FpwIXgr1V9/YHbQu5SnVsm0bIu0imARgdXkRAy5MG8gbehYcs6dQD2
+         b+QMegP1SCYMuVO6VDvW1Ca9bfav2el+p3NNY5VhRQ7p36PMz8jRjnSuWSC+bA4b4i
+         86dxvjPluA0Vw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 123/189] mt76: dma: use ieee80211_tx_status_ext to free packets when tx fails
-Date:   Tue,  6 Jul 2021 07:13:03 -0400
-Message-Id: <20210706111409.2058071-123-sashal@kernel.org>
+Cc:     Jian Shen <shenjian15@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 124/189] net: fix mistake path for netdev_features_strings
+Date:   Tue,  6 Jul 2021 07:13:04 -0400
+Message-Id: <20210706111409.2058071-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -43,62 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit 94e4f5794627a80ce036c35b32a9900daeb31be3 ]
+[ Upstream commit 2d8ea148e553e1dd4e80a87741abdfb229e2b323 ]
 
-Fixes AQL issues on full queues, especially with 802.3 encap offload
+Th_strings arrays netdev_features_strings, tunable_strings, and
+phy_tunable_strings has been moved to file net/ethtool/common.c.
+So fixes the comment.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/dma.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ include/linux/netdev_features.h | 2 +-
+ include/uapi/linux/ethtool.h    | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index 72b1cc0ecfda..e5c324dd24f9 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -349,6 +349,9 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, struct mt76_queue *q,
- 		      struct sk_buff *skb, struct mt76_wcid *wcid,
- 		      struct ieee80211_sta *sta)
- {
-+	struct ieee80211_tx_status status = {
-+		.sta = sta,
-+	};
- 	struct mt76_tx_info tx_info = {
- 		.skb = skb,
- 	};
-@@ -360,11 +363,9 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, struct mt76_queue *q,
- 	u8 *txwi;
+diff --git a/include/linux/netdev_features.h b/include/linux/netdev_features.h
+index 3de38d6a0aea..2c6b9e416225 100644
+--- a/include/linux/netdev_features.h
++++ b/include/linux/netdev_features.h
+@@ -93,7 +93,7 @@ enum {
  
- 	t = mt76_get_txwi(dev);
--	if (!t) {
--		hw = mt76_tx_status_get_hw(dev, skb);
--		ieee80211_free_txskb(hw, skb);
--		return -ENOMEM;
--	}
-+	if (!t)
-+		goto free_skb;
-+
- 	txwi = mt76_get_txwi_ptr(dev, t);
- 
- 	skb->prev = skb->next = NULL;
-@@ -427,8 +428,13 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, struct mt76_queue *q,
- 	}
- #endif
- 
--	dev_kfree_skb(tx_info.skb);
- 	mt76_put_txwi(dev, t);
-+
-+free_skb:
-+	status.skb = tx_info.skb;
-+	hw = mt76_tx_status_get_hw(dev, tx_info.skb);
-+	ieee80211_tx_status_ext(hw, &status);
-+
- 	return ret;
- }
- 
+ 	/*
+ 	 * Add your fresh new feature above and remember to update
+-	 * netdev_features_strings[] in net/core/ethtool.c and maybe
++	 * netdev_features_strings[] in net/ethtool/common.c and maybe
+ 	 * some feature mask #defines below. Please also describe it
+ 	 * in Documentation/networking/netdev-features.rst.
+ 	 */
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index cfef6b08169a..67aa7134b301 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -233,7 +233,7 @@ enum tunable_id {
+ 	ETHTOOL_PFC_PREVENTION_TOUT, /* timeout in msecs */
+ 	/*
+ 	 * Add your fresh new tunable attribute above and remember to update
+-	 * tunable_strings[] in net/core/ethtool.c
++	 * tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_TUNABLE_COUNT,
+ };
+@@ -297,7 +297,7 @@ enum phy_tunable_id {
+ 	ETHTOOL_PHY_EDPD,
+ 	/*
+ 	 * Add your fresh new phy tunable attribute above and remember to update
+-	 * phy_tunable_strings[] in net/core/ethtool.c
++	 * phy_tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_PHY_TUNABLE_COUNT,
+ };
 -- 
 2.30.2
 
