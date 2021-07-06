@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0F883BCFE1
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:29:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 663153BCFDF
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235982AbhGFLbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235702AbhGFLbn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 6 Jul 2021 07:31:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35572 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234843AbhGFL3S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:29:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C08D861D67;
-        Tue,  6 Jul 2021 11:20:27 +0000 (UTC)
+        id S234885AbhGFL3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:29:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5E2061C6E;
+        Tue,  6 Jul 2021 11:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570428;
-        bh=7kuPAle+KPL7uygDvyN/+ufX7FKfapEBVkAtmCuLYLA=;
+        s=k20201202; t=1625570429;
+        bh=NQy8nTnLvXU/vhv4B5FMdCwgkqRgd+S+GC6IS4N4NfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lyo0MrxY0RTb7ZtygqOmeoohaztIXFgFCW6DVG+AQHQJID+R4us3K4xMKOezDxEVZ
-         1QqIzqJPOf+qEFgcHDsS/7coa7ByvZntfGYjnUPp9axlhNhk53FKDq4SvSzlGL+orq
-         Op6zQX2vrFeaAORNMvfo0v2UKT+4iMxmyf710d3Qs/gq9L8War/ovKOIf+myP+EspB
-         BWeb9WKMDqoPW+qgdHkOVGSU+ZOrYo98tqIbq3Px55DPmn4yDEyPGwQOCiU3RIcSXQ
-         FeGJd761wsO9Y1FAYdIdUODbgASrF/TgKo8qEtia+vFdeUfaAn/8O+ILPlhgcvABlU
-         jeCpBHA5hidHw==
+        b=oZCUtU7hbTAZnfCHnp6Dn+Ugg5FaaFH8eyCMWZkUmc7bDiC0WlqDFo4uHQ6rnjn5m
+         llGLJd8WO6DXM8pLgvM1FKAzwsLSAt6aKeEOUTBucwgamTTk80AassSMAPZvTkcAPV
+         lUyJrUPrnmDTiCro55praPTSq25No28UF5oVztkaDejrS1OLckGsz1xwCpJznOCeM+
+         qMYbdkXuSHlnksc8cAZgcU4PmkMhM6WibY9p0bwgpija/2gBy4xFQALHhtK0AVJ2fV
+         6hj9eweMgOpaq7brFKLYwJb68M63zvCjCpgr2KBUDlLao3Ms/jITXsHai4R9+JCu1R
+         Jga5UIhWrr2VA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.12 091/160] dm writecache: commit just one block, not a full page
-Date:   Tue,  6 Jul 2021 07:17:17 -0400
-Message-Id: <20210706111827.2060499-91-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>,
+        Carl Philipp Klemm <philipp@uvos.xyz>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 092/160] wlcore/wl12xx: Fix wl12xx get_mac error if device is in ELP
+Date:   Tue,  6 Jul 2021 07:17:18 -0400
+Message-Id: <20210706111827.2060499-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -42,39 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 991bd8d7bc78966b4dc427b53a144f276bffcd52 ]
+[ Upstream commit 11ef6bc846dcdce838f0b00c5f6a562c57e5d43b ]
 
-Some architectures have pages larger than 4k and committing a full
-page causes needless overhead.
+At least on wl12xx, reading the MAC after boot can fail with a warning
+at drivers/net/wireless/ti/wlcore/sdio.c:78 wl12xx_sdio_raw_read.
+The failed call comes from wl12xx_get_mac() that wlcore_nvs_cb() calls
+after request_firmware_work_func().
 
-Fix this by writing a single block when committing the superblock.
+After the error, no wireless interface is created. Reloading the wl12xx
+module makes the interface work.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Turns out the wlan controller can be in a low-power ELP state after the
+boot from the bootloader or kexec, and needs to be woken up first.
+
+Let's wake the hardware and add a sleep after that similar to
+wl12xx_pre_boot() is already doing.
+
+Note that a similar issue could exist for wl18xx, but I have not seen it
+so far. And a search for wl18xx_get_mac and wl12xx_sdio_raw_read did not
+produce similar errors.
+
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210603062814.19464-1-tony@atomide.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-writecache.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/wireless/ti/wl12xx/main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
-index 7bb4d83e90cc..51b26db56ba9 100644
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -532,11 +532,7 @@ static void ssd_commit_superblock(struct dm_writecache *wc)
+diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
+index 9d7dbfe7fe0c..c6da0cfb4afb 100644
+--- a/drivers/net/wireless/ti/wl12xx/main.c
++++ b/drivers/net/wireless/ti/wl12xx/main.c
+@@ -1503,6 +1503,13 @@ static int wl12xx_get_fuse_mac(struct wl1271 *wl)
+ 	u32 mac1, mac2;
+ 	int ret;
  
- 	region.bdev = wc->ssd_dev->bdev;
- 	region.sector = 0;
--	region.count = PAGE_SIZE >> SECTOR_SHIFT;
--
--	if (unlikely(region.sector + region.count > wc->metadata_sectors))
--		region.count = wc->metadata_sectors - region.sector;
--
-+	region.count = wc->block_size >> SECTOR_SHIFT;
- 	region.sector += wc->start_sector;
- 
- 	req.bi_op = REQ_OP_WRITE;
++	/* Device may be in ELP from the bootloader or kexec */
++	ret = wlcore_write32(wl, WL12XX_WELP_ARM_COMMAND, WELP_ARM_COMMAND_VAL);
++	if (ret < 0)
++		goto out;
++
++	usleep_range(500000, 700000);
++
+ 	ret = wlcore_set_partition(wl, &wl->ptable[PART_DRPW]);
+ 	if (ret < 0)
+ 		goto out;
 -- 
 2.30.2
 
