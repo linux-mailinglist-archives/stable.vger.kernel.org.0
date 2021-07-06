@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE6C3BCEC9
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7208D3BCECD
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234280AbhGFL1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:27:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35478 "EHLO mail.kernel.org"
+        id S234285AbhGFL1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:27:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234526AbhGFLYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234536AbhGFLYi (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:24:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4416761D06;
-        Tue,  6 Jul 2021 11:18:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8452F61CFE;
+        Tue,  6 Jul 2021 11:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570320;
-        bh=y6z0+aKNZ1HSjDGs74IirbkHZSxxDP6hcwBliJXkb/Q=;
+        s=k20201202; t=1625570321;
+        bh=04UNlnn7rAQzOgsTowxlOTBwvmSSP0cGxpJZNri9chQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzpO78KjefyZPTjh2u/4PReBB4eLSbVJ26xTjXk3HXEEXVhNDUxlrnB+jLDZaGErU
-         uwGrULiWc+4940th+eaUrGQz03jZKkTy2KAo4w+S0n2T2hmcBn2p5RcmSDIxZGWKk3
-         a/tSYFyULzYq/lNk05F51BF+2zFXpYBeBLXCLCG+2ycnAwc+F9xWqUiftLnjeygJdj
-         GmDTyFKRv2xHMiP4b5I1pXl+ih405YJOERlAeti09fZNizgPLNrpeivC6umRKhtcTy
-         qafnaGDNVijvgSe/fky9GhI8SMWhmSClWnBADouiJjySODqn4Co/AXC4gnpZ/iyJq8
-         TPKSSFIL9MNAw==
+        b=TGpIBy2hszV1fBGRTG9sSUznQTOjDyshSbm+/Kd9luzsDX0Dj7icoIuWltb3W98m7
+         IdDV3GAY+yX2SFjle6eh88DhEc6gw50/kNJlRhpd42cXvqk1QOoMTOIzeaDuo1cinv
+         E+jwGXqKnYOxozDA7een4JCh/rCgYXlHYIwXKxx8vJq7ZgUyrT9jNFVn9UNlDtUK9o
+         Xmu4FhUVThipMhizwpmZH9m3u3O2df48vIqGLxA1nMU//ZZqYH3+WbA//lq9f1P3Pu
+         4pu6CgjV1e0Z/mGRKK+m/+1/Ib1v2f4ZhgQi3UZJPF/EDg34fCmafovdro71GwgivW
+         2xZgUVi+ro2AQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 009/160] drm/imx: ipuv3-plane: do not advertise YUV formats on planes without CSC
-Date:   Tue,  6 Jul 2021 07:15:55 -0400
-Message-Id: <20210706111827.2060499-9-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        kernel test robot <lkp@intel.com>,
+        Flavio Suligoi <f.suligoi@asem.it>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 010/160] net: pch_gbe: Use proper accessors to BE data in pch_ptp_match()
+Date:   Tue,  6 Jul 2021 07:15:56 -0400
+Message-Id: <20210706111827.2060499-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -44,94 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 06841148c570832d4d247b0f6befc1922a84120b ]
+[ Upstream commit 443ef39b499cc9c6635f83238101f1bb923e9326 ]
 
-Only planes that are displayed via the Display Processor (DP) path
-support color space conversion. Limit formats on planes that are
-shown via the direct Display Controller (DC) path to RGB.
+Sparse is not happy about handling of strict types in pch_ptp_match():
 
-Reported-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+  .../pch_gbe_main.c:158:33: warning: incorrect type in argument 2 (different base types)
+  .../pch_gbe_main.c:158:33:    expected unsigned short [usertype] uid_hi
+  .../pch_gbe_main.c:158:33:    got restricted __be16 [usertype]
+  .../pch_gbe_main.c:158:45: warning: incorrect type in argument 3 (different base types)
+  .../pch_gbe_main.c:158:45:    expected unsigned int [usertype] uid_lo
+  .../pch_gbe_main.c:158:45:    got restricted __be32 [usertype]
+  .../pch_gbe_main.c:158:56: warning: incorrect type in argument 4 (different base types)
+  .../pch_gbe_main.c:158:56:    expected unsigned short [usertype] seqid
+  .../pch_gbe_main.c:158:56:    got restricted __be16 [usertype]
+
+Fix that by switching to use proper accessors to BE data.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Flavio Suligoi <f.suligoi@asem.it>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/ipuv3-plane.c | 41 ++++++++++++++++++++++++++++---
- 1 file changed, 37 insertions(+), 4 deletions(-)
+ .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
-index 075508051b5f..c5ff966e2ceb 100644
---- a/drivers/gpu/drm/imx/ipuv3-plane.c
-+++ b/drivers/gpu/drm/imx/ipuv3-plane.c
-@@ -35,7 +35,7 @@ static inline struct ipu_plane *to_ipu_plane(struct drm_plane *p)
- 	return container_of(p, struct ipu_plane, base);
+diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+index 140cee7c459d..acf0abf6d183 100644
+--- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
++++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+@@ -107,7 +107,7 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
+ {
+ 	u8 *data = skb->data;
+ 	unsigned int offset;
+-	u16 *hi, *id;
++	u16 hi, id;
+ 	u32 lo;
+ 
+ 	if (ptp_classify_raw(skb) == PTP_CLASS_NONE)
+@@ -118,14 +118,11 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
+ 	if (skb->len < offset + OFF_PTP_SEQUENCE_ID + sizeof(seqid))
+ 		return 0;
+ 
+-	hi = (u16 *)(data + offset + OFF_PTP_SOURCE_UUID);
+-	id = (u16 *)(data + offset + OFF_PTP_SEQUENCE_ID);
++	hi = get_unaligned_be16(data + offset + OFF_PTP_SOURCE_UUID + 0);
++	lo = get_unaligned_be32(data + offset + OFF_PTP_SOURCE_UUID + 2);
++	id = get_unaligned_be16(data + offset + OFF_PTP_SEQUENCE_ID);
+ 
+-	memcpy(&lo, &hi[1], sizeof(lo));
+-
+-	return (uid_hi == *hi &&
+-		uid_lo == lo &&
+-		seqid  == *id);
++	return (uid_hi == hi && uid_lo == lo && seqid == id);
  }
  
--static const uint32_t ipu_plane_formats[] = {
-+static const uint32_t ipu_plane_all_formats[] = {
- 	DRM_FORMAT_ARGB1555,
- 	DRM_FORMAT_XRGB1555,
- 	DRM_FORMAT_ABGR1555,
-@@ -72,6 +72,31 @@ static const uint32_t ipu_plane_formats[] = {
- 	DRM_FORMAT_BGRX8888_A8,
- };
+ static void
+@@ -135,7 +132,6 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
+ 	struct pci_dev *pdev;
+ 	u64 ns;
+ 	u32 hi, lo, val;
+-	u16 uid, seq;
  
-+static const uint32_t ipu_plane_rgb_formats[] = {
-+	DRM_FORMAT_ARGB1555,
-+	DRM_FORMAT_XRGB1555,
-+	DRM_FORMAT_ABGR1555,
-+	DRM_FORMAT_XBGR1555,
-+	DRM_FORMAT_RGBA5551,
-+	DRM_FORMAT_BGRA5551,
-+	DRM_FORMAT_ARGB4444,
-+	DRM_FORMAT_ARGB8888,
-+	DRM_FORMAT_XRGB8888,
-+	DRM_FORMAT_ABGR8888,
-+	DRM_FORMAT_XBGR8888,
-+	DRM_FORMAT_RGBA8888,
-+	DRM_FORMAT_RGBX8888,
-+	DRM_FORMAT_BGRA8888,
-+	DRM_FORMAT_BGRX8888,
-+	DRM_FORMAT_RGB565,
-+	DRM_FORMAT_RGB565_A8,
-+	DRM_FORMAT_BGR565_A8,
-+	DRM_FORMAT_RGB888_A8,
-+	DRM_FORMAT_BGR888_A8,
-+	DRM_FORMAT_RGBX8888_A8,
-+	DRM_FORMAT_BGRX8888_A8,
-+};
-+
- static const uint64_t ipu_format_modifiers[] = {
- 	DRM_FORMAT_MOD_LINEAR,
- 	DRM_FORMAT_MOD_INVALID
-@@ -822,16 +847,24 @@ struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
- 	struct ipu_plane *ipu_plane;
- 	const uint64_t *modifiers = ipu_format_modifiers;
- 	unsigned int zpos = (type == DRM_PLANE_TYPE_PRIMARY) ? 0 : 1;
-+	unsigned int format_count;
-+	const uint32_t *formats;
- 	int ret;
+ 	if (!adapter->hwts_rx_en)
+ 		return;
+@@ -151,10 +147,7 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
+ 	lo = pch_src_uuid_lo_read(pdev);
+ 	hi = pch_src_uuid_hi_read(pdev);
  
- 	DRM_DEBUG_KMS("channel %d, dp flow %d, possible_crtcs=0x%x\n",
- 		      dma, dp, possible_crtcs);
+-	uid = hi & 0xffff;
+-	seq = (hi >> 16) & 0xffff;
+-
+-	if (!pch_ptp_match(skb, htons(uid), htonl(lo), htons(seq)))
++	if (!pch_ptp_match(skb, hi, lo, hi >> 16))
+ 		goto out;
  
-+	if (dp == IPU_DP_FLOW_SYNC_BG || dp == IPU_DP_FLOW_SYNC_FG) {
-+		formats = ipu_plane_all_formats;
-+		format_count = ARRAY_SIZE(ipu_plane_all_formats);
-+	} else {
-+		formats = ipu_plane_rgb_formats;
-+		format_count = ARRAY_SIZE(ipu_plane_rgb_formats);
-+	}
- 	ipu_plane = drmm_universal_plane_alloc(dev, struct ipu_plane, base,
- 					       possible_crtcs, &ipu_plane_funcs,
--					       ipu_plane_formats,
--					       ARRAY_SIZE(ipu_plane_formats),
--					       modifiers, type, NULL);
-+					       formats, format_count, modifiers,
-+					       type, NULL);
- 	if (IS_ERR(ipu_plane)) {
- 		DRM_ERROR("failed to allocate and initialize %s plane\n",
- 			  zpos ? "overlay" : "primary");
+ 	ns = pch_rx_snap_read(pdev);
 -- 
 2.30.2
 
