@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D4EB3BCEC0
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A46E3BCEBE
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234202AbhGFL1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:27:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35430 "EHLO mail.kernel.org"
+        id S234179AbhGFL1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:27:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234473AbhGFLYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234475AbhGFLYc (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 6 Jul 2021 07:24:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABB9161CD2;
-        Tue,  6 Jul 2021 11:18:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1453C61CCB;
+        Tue,  6 Jul 2021 11:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570310;
-        bh=8zY8dRMfQiVYsok90pcHhDj8dcATD+Fzm7MWBbgQjNk=;
+        s=k20201202; t=1625570311;
+        bh=epLAffIQc77bcA44wYbXzn+8dh4Eepktdm8W90mUD4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IQG54Ngrqdby+BGhfmS87/wptvwXnS/n+/Uro8aFgArALTnuCQAb3nAxE/omTQd8U
-         VMHIieVmLBxbEV/3mt7ledKA+Q6HJwDshfBUt+lysUs5StwWusUBK2eheh1D/uMZ3o
-         v8H8zDjECiIv0lu/F2HBmtuFrzoNMKYoCfZenseDe1vzQUP3GYVYcfzmRIvujPY8mb
-         D7m7I/cpe1Cx1G85u9c1r5gQQEONeDP6FL2DdYKWp+beq55Rm5Fmk5IjqOQI/0UJ/I
-         OAQBiBwGyq+nlpRIy7b3PbY+rZLeBY6R6PcKbZ0iL6fehlmsQ0f+f4zXLIMqlV3iLq
-         D58lG6xRpZGuA==
+        b=kQXlZ61oIYUGX17vPtS1S8vUWkh8KHDQrbhln33IA/+haqgJQof19qPDYZJb57/1L
+         4A+92eDHMWmxV1TF3yuC1TtA9jpCL9zpW1ninAAYxxJDF9+tPGGTXjW4V2bu8io+n+
+         qEwILY+jA25lVAvzxShBXyqJCZzMj6UT9sBEb8WcA8JD39cOFzPOt6vTRrf1k+3ds4
+         u4GonmnU54B4dfp88/OoZYFV/4hVROEi6DJ0gO6fKrrYsfPBwyqRw1h6Ia856aTk2l
+         4KmnXfy+sD4cujlnXqUhLEoUqgFt7bW45JBGk/QhXUpEk1miKRZ4XtqQ3ufKS+VCwC
+         enopPndhZwKAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Thomas Zimmermann <tzimmermann@suse.de>,
-        Stefan Agner <stefan@agner.ch>,
         Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 002/160] drm/mxsfb: Don't select DRM_KMS_FB_HELPER
-Date:   Tue,  6 Jul 2021 07:15:48 -0400
-Message-Id: <20210706111827.2060499-2-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.12 003/160] drm/zte: Don't select DRM_KMS_FB_HELPER
+Date:   Tue,  6 Jul 2021 07:15:49 -0400
+Message-Id: <20210706111827.2060499-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
 References: <20210706111827.2060499-1-sashal@kernel.org>
@@ -47,32 +45,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 13b29cc3a722c2c0bc9ab9f72f9047d55d08a2f9 ]
+[ Upstream commit a50e74bec1d17e95275909660c6b43ffe11ebcf0 ]
 
 Selecting DRM_FBDEV_EMULATION will include the correct settings for
 fbdev emulation. Drivers should not override this.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Stefan Agner <stefan@agner.ch>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210415110040.23525-3-tzimmermann@suse.de
+Link: https://patchwork.freedesktop.org/patch/msgid/20210415110040.23525-4-tzimmermann@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mxsfb/Kconfig | 1 -
+ drivers/gpu/drm/zte/Kconfig | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mxsfb/Kconfig b/drivers/gpu/drm/mxsfb/Kconfig
-index 0143d539f8f8..ee22cd25d3e3 100644
---- a/drivers/gpu/drm/mxsfb/Kconfig
-+++ b/drivers/gpu/drm/mxsfb/Kconfig
-@@ -10,7 +10,6 @@ config DRM_MXSFB
- 	depends on COMMON_CLK
- 	select DRM_MXS
- 	select DRM_KMS_HELPER
--	select DRM_KMS_FB_HELPER
+diff --git a/drivers/gpu/drm/zte/Kconfig b/drivers/gpu/drm/zte/Kconfig
+index 90ebaedc11fd..aa8594190b50 100644
+--- a/drivers/gpu/drm/zte/Kconfig
++++ b/drivers/gpu/drm/zte/Kconfig
+@@ -3,7 +3,6 @@ config DRM_ZTE
+ 	tristate "DRM Support for ZTE SoCs"
+ 	depends on DRM && ARCH_ZX
  	select DRM_KMS_CMA_HELPER
- 	select DRM_PANEL
- 	select DRM_PANEL_BRIDGE
+-	select DRM_KMS_FB_HELPER
+ 	select DRM_KMS_HELPER
+ 	select SND_SOC_HDMI_CODEC if SND_SOC
+ 	select VIDEOMODE_HELPERS
 -- 
 2.30.2
 
