@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ADE03BCE96
+	by mail.lfdr.de (Postfix) with ESMTP id DE6993BCE98
 	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233822AbhGFL0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:26:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55924 "EHLO mail.kernel.org"
+        id S233922AbhGFL0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:26:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233719AbhGFLWO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:22:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6399261C82;
-        Tue,  6 Jul 2021 11:17:50 +0000 (UTC)
+        id S232968AbhGFLWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:22:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEB3461CCF;
+        Tue,  6 Jul 2021 11:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570271;
-        bh=OLYz9Fhx4UCce3belqp6thG8WF8rjYVJA9ABbB28Ka4=;
+        s=k20201202; t=1625570272;
+        bh=9oZV2sweLG7QNjxJq5lidgr3AufUJfafWyGDoLTwjao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PgBViOdj5lkNm7oNONIoO+Gr04jsevzXGQraQ/bgLCDJ57rwj26RBo1LKZCVJX8CJ
-         0OyjYNBFz6hozNB3LeHiyI8KhMOAsFZtrm39nVu022OmfiA7ZP797OmgTaW7aZMQwj
-         h0il4yBajuftoYT1asfAgUWH25atXXft1GiTXFabazrPd5D7yQK8HhtGIvalDuY0PD
-         lHCaK85vRmQNZDrQFguS5qNkKBxyUXltrVqxyH3cnsdEqzjvsA362XluAQSmXIrOLx
-         WiFXd/3EY2PnhJu4rlObWdKPDil6AfLk+D/SmtCH3dhfH2edbQdoPOQgKZb/ktOw/O
-         intfkRMOZQLlg==
+        b=DQqPS8W+Jd7nHe7k1BuMziAnV5Ys9SxcLxb/1XmZIRqDEvUZvcLzlgUxaHTsggrux
+         DDOXUIuDWv0jrNIWhirDfFSfPo58HDfRytzceZylLy3F/gUnj9dafm5qNoZnMgQ5gb
+         2+pnrqscWtIZvHkZjhStySkhNLdEUTxlo1Fws4suCKuFXBDv6pQnVX/cKHqy929+dy
+         1osbaf6KPBoVKYm7VYzVzHNCbJRqWzxT65PHZKT9Ciax3Jrauqmlp/ZOEMNF0WqfkD
+         GEm0U81vwTE7MTt8Xv88WCnY3AnmJPJPiUKZT0zy+11YW9nNbquvTIoLCmxukCx5Hx
+         caM7U1jUdxJYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Alaa Hleihel <alaa@nvidia.com>,
-        Israel Rukshin <israelr@nvidia.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 165/189] IB/isert: Align target max I/O size to initiator size
-Date:   Tue,  6 Jul 2021 07:13:45 -0400
-Message-Id: <20210706111409.2058071-165-sashal@kernel.org>
+Cc:     Sean Young <sean@mess.org>, Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 166/189] media, bpf: Do not copy more entries than user space requested
+Date:   Tue,  6 Jul 2021 07:13:46 -0400
+Message-Id: <20210706111409.2058071-166-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -46,60 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 109d19a5eb3ddbdb87c43bfd4bcf644f4569da64 ]
+[ Upstream commit 647d446d66e493d23ca1047fa8492b0269674530 ]
 
-Since the Linux iser initiator default max I/O size set to 512KB and since
-there is no handshake procedure for this size in iser protocol, set the
-default max IO size of the target to 512KB as well.
+The syscall bpf(BPF_PROG_QUERY, &attr) should use the prog_cnt field to
+see how many entries user space provided and return ENOSPC if there are
+more programs than that. Before this patch, this is not checked and
+ENOSPC is never returned.
 
-For changing the default values, there is a module parameter for both
-drivers.
+Note that one lirc device is limited to 64 bpf programs, and user space
+I'm aware of -- ir-keytable -- always gives enough space for 64 entries
+already. However, we should not copy program ids than are requested.
 
-Link: https://lore.kernel.org/r/20210524085215.29005-1-mgurtovoy@nvidia.com
-Reviewed-by: Alaa Hleihel <alaa@nvidia.com>
-Reviewed-by: Israel Rukshin <israelr@nvidia.com>
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Acked-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210623213754.632-1-sean@mess.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/isert/ib_isert.c | 4 ++--
- drivers/infiniband/ulp/isert/ib_isert.h | 3 ---
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ drivers/media/rc/bpf-lirc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/isert/ib_isert.c b/drivers/infiniband/ulp/isert/ib_isert.c
-index 18266f07c58d..de3fc05fd2e8 100644
---- a/drivers/infiniband/ulp/isert/ib_isert.c
-+++ b/drivers/infiniband/ulp/isert/ib_isert.c
-@@ -35,10 +35,10 @@ static const struct kernel_param_ops sg_tablesize_ops = {
- 	.get = param_get_int,
- };
+diff --git a/drivers/media/rc/bpf-lirc.c b/drivers/media/rc/bpf-lirc.c
+index 3fe3edd80876..afae0afe3f81 100644
+--- a/drivers/media/rc/bpf-lirc.c
++++ b/drivers/media/rc/bpf-lirc.c
+@@ -326,7 +326,8 @@ int lirc_prog_query(const union bpf_attr *attr, union bpf_attr __user *uattr)
+ 	}
  
--static int isert_sg_tablesize = ISCSI_ISER_DEF_SG_TABLESIZE;
-+static int isert_sg_tablesize = ISCSI_ISER_MIN_SG_TABLESIZE;
- module_param_cb(sg_tablesize, &sg_tablesize_ops, &isert_sg_tablesize, 0644);
- MODULE_PARM_DESC(sg_tablesize,
--		 "Number of gather/scatter entries in a single scsi command, should >= 128 (default: 256, max: 4096)");
-+		 "Number of gather/scatter entries in a single scsi command, should >= 128 (default: 128, max: 4096)");
+ 	if (attr->query.prog_cnt != 0 && prog_ids && cnt)
+-		ret = bpf_prog_array_copy_to_user(progs, prog_ids, cnt);
++		ret = bpf_prog_array_copy_to_user(progs, prog_ids,
++						  attr->query.prog_cnt);
  
- static DEFINE_MUTEX(device_list_mutex);
- static LIST_HEAD(device_list);
-diff --git a/drivers/infiniband/ulp/isert/ib_isert.h b/drivers/infiniband/ulp/isert/ib_isert.h
-index 6c5af13db4e0..ca8cfebe26ca 100644
---- a/drivers/infiniband/ulp/isert/ib_isert.h
-+++ b/drivers/infiniband/ulp/isert/ib_isert.h
-@@ -65,9 +65,6 @@
-  */
- #define ISER_RX_SIZE		(ISCSI_DEF_MAX_RECV_SEG_LEN + 1024)
- 
--/* Default I/O size is 1MB */
--#define ISCSI_ISER_DEF_SG_TABLESIZE 256
--
- /* Minimum I/O size is 512KB */
- #define ISCSI_ISER_MIN_SG_TABLESIZE 128
- 
+ unlock:
+ 	mutex_unlock(&ir_raw_handler_lock);
 -- 
 2.30.2
 
