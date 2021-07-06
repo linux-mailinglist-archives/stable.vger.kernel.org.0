@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 252C03BC5C0
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 06:49:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F0C3BC5CC
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 06:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230032AbhGFEwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 00:52:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42346 "EHLO
+        id S229991AbhGFEzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 00:55:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229950AbhGFEwG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Jul 2021 00:52:06 -0400
+        with ESMTP id S229950AbhGFEzX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Jul 2021 00:55:23 -0400
 Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE720C06175F
-        for <stable@vger.kernel.org>; Mon,  5 Jul 2021 21:49:26 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id t3so26207753edc.7
-        for <stable@vger.kernel.org>; Mon, 05 Jul 2021 21:49:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9734C06175F
+        for <stable@vger.kernel.org>; Mon,  5 Jul 2021 21:52:45 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id l24so26207452edr.11
+        for <stable@vger.kernel.org>; Mon, 05 Jul 2021 21:52:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=jELG4lIy9CnXksyY1hPYmbkLYOjbAA5UXxfHqrz9WZI=;
-        b=joFF/8m84G9Q816dx4HzYLFh3yIo3QGMwj2PCof0hAyORWaeUUehIU+slAAkW8oAcP
-         jmRc93sme9ghO7X4/zHUi2QcJabLz8paUL+eGkSvzFeCVc9q8rfXA4WOmZf3wi8yPARP
-         hzxuyyYR7gcGBf6WfknnR35eoXGTBnEo8+AtWdmKsgmsGXr56S2mIxMVQ2JF2nnxMtfn
-         8GgtfmhNOehiUve5OaLYqn6vCUQktWXE9ZnlIgK7A7PURD84rJ/d9cVtrO8wdX+fsqN3
-         c9JecMiUEqabgMr6ih2UA9Z5hj/0kBqyukQETqIhu6zXGh4oy/hFJaJCJPyAPK4wlQ44
-         4XcQ==
+        bh=D/eej8vbwviU04q4fS0jX/CNEpMOA9iWE2FiJXiWWk8=;
+        b=pTtExl3W3H+bGihHW6HDvhnwU1XGxjPOTeU6jv/v1mJB/GeN5qFyJ0Bvx92sgrtQ+r
+         +ibOq3U7ft71GpDHTsG1huDoYJ/xl2tDOX/N3f5LHbB2eb2DN11jm0oMKEXTO2n5yXRk
+         hmytvQFkg6h+uQavTkauuOBbKZelrNi1CIak15i8FOYaPsHvOk0OuIT2+pX31CaBC0wk
+         qyP68xAZkCraeHsqCTS2DglEw34mYZVqrJUsNHKc18T6dyinET5qBHXC8cXJ8DIpB93v
+         rup+zJ9b5ShuRwM2XdpA5ghVGZ642r9xzDMAWBjjfs4taJ79/a4XOSFGppCQLhqghW/k
+         pXHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=jELG4lIy9CnXksyY1hPYmbkLYOjbAA5UXxfHqrz9WZI=;
-        b=fCvlFZKM9Ac+03z67e6kzxsQfUjqjFXXk/q3kEePcCWxWFey02FwCoifq1l26ZqnHU
-         DJeG7rXGN8rgR9sXS5DTCCLDnDhSDnEoJvdoBR1Bo6Z9uIljphBa9MMggpOVOVXigpD4
-         P7DcZY9eG1ZK7CPk943+ZMlxLUGSz4Mb4rs0SoOIJTth++AB1LZlH8nVH2/Qiwer6nQl
-         ar2ees4LBqh1SHEOiwwsbdK3IPxr+kkf0WDZ1PQz6um71GhUk3i0osLBSzej6W73yVc3
-         F/W7E4URhiGc87fDyFCk5i0zSRpmN+hXyZ6s2nfmS2Sgjmdcc+/BbilDNxuT1Cxdrkm2
-         9EkA==
-X-Gm-Message-State: AOAM533qzKazwxFL22GTfDkE1HEmkV4IZ77fDI312/3SbaWsMuTg7v4c
-        Ge2HPJTYwZvr+TT5xGeC15HI/xVBCDh5zAXOh0Zyuw==
-X-Google-Smtp-Source: ABdhPJxUmMRGEmWAJTaewSIaFmnzZ+BuduG+GMQhkDfVPtmOys+Bi5Cx+hu6P/A+suippZ3UyZEZ0ujetIHwlDJtuxM=
-X-Received: by 2002:aa7:d38d:: with SMTP id x13mr20323803edq.23.1625546965417;
- Mon, 05 Jul 2021 21:49:25 -0700 (PDT)
+        bh=D/eej8vbwviU04q4fS0jX/CNEpMOA9iWE2FiJXiWWk8=;
+        b=jtM2R7rrYm62pc+eYFNE5ZhlE1Bhmt2Bd3l7ft+30G6bu+RZ4sL7THgQrbopHclXN0
+         BzUFwFgUSqaDLvVg2sAu7ma6uDDYyV2yXUZp4pAE9poOzH7M+PVM0ajkc3C0lpo5gxbs
+         Gt+BeKIbxwhESxrqFh+aX40IuViNBMrfs91QG7Y0LA1E23xYCqRJ9h+OMs0uODyCi/iC
+         lYcmPmz1OWEt5QIZf2/NRat/H1rFQrwynUacv/YLtDaiMpDzvXexfxjexk2OHsp/HC1D
+         NwDCSK8Ig2gP5+5vjdLAHqhhIs9Fnoyf0bB4jOGctT9gAF8sDv7mtOLC1mo2gSTv3tRc
+         A6Gg==
+X-Gm-Message-State: AOAM530ffc9nUAmXt5cpKEcG5DSXhY3HdvnihDrzt0KZXTLEB9+9Q4GZ
+        VKuunhtWzW6ptFqbqMyJ0KbCjHOQhNypVC6p3wW+uA==
+X-Google-Smtp-Source: ABdhPJwy3qXdeQ6rTWLlIrQNetzYkvxUm1IWtnoMHdPxqxY5bgVr+8kQiOSTzaOy3jcklZLCfSqfWyRq7UJrMPpDpYg=
+X-Received: by 2002:a05:6402:1e8e:: with SMTP id f14mr7523534edf.52.1625547164284;
+ Mon, 05 Jul 2021 21:52:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210705105656.1512997-1-sashal@kernel.org>
-In-Reply-To: <20210705105656.1512997-1-sashal@kernel.org>
+References: <20210705105934.1513188-1-sashal@kernel.org>
+In-Reply-To: <20210705105934.1513188-1-sashal@kernel.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 6 Jul 2021 10:19:14 +0530
-Message-ID: <CA+G9fYvETgFUefSkrsZ5DaBomzZm5dzrh8HHLJJWX6egTPvhwQ@mail.gmail.com>
-Subject: Re: [PATCH 5.13 0/2] 5.13.1-rc1 review
+Date:   Tue, 6 Jul 2021 10:22:33 +0530
+Message-ID: <CA+G9fYsjk-F8YzbdkTZr71nPWqCC02dBLVgaLZbMie8+bgfLAQ@mail.gmail.com>
+Subject: Re: [PATCH 5.12 0/7] 5.12.15-rc1 review
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -61,23 +61,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 5 Jul 2021 at 16:27, Sasha Levin <sashal@kernel.org> wrote:
+On Mon, 5 Jul 2021 at 16:29, Sasha Levin <sashal@kernel.org> wrote:
 >
 >
-> This is the start of the stable review cycle for the 5.13.1 release.
-> There are 2 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.12.15 release.
+> There are 7 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
-> Responses should be made by Wed 07 Jul 2021 10:49:46 AM UTC.
+> Responses should be made by Wed 07 Jul 2021 10:59:20 AM UTC.
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
 >         https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git/patch/?id=3Dlinux-5.13.y&id2=3Dv5.13
+le-rc.git/patch/?id=3Dlinux-5.12.y&id2=3Dv5.12.14
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.13.y
+-rc.git linux-5.12.y
 > and the diffstat can be found below.
 >
 > Thanks,
@@ -89,25 +89,22 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 5.13.1-rc1
-* git: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git',
-'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
-* git branch: linux-5.13.y
-* git commit: eedde12f53553760b1f31f52f1ddf4445528ca23
-* git describe: v5.13-3-geedde12f5355
+* kernel: 5.12.15-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.12.y
+* git commit: b9d039f0f2f2c67492e003b60d5bebb6efc4c40b
+* git describe: v5.12.14-7-gb9d039f0f2f2
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.13.y/build/v5.13=
--3-geedde12f5355
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.12.y/build/v5.12=
+.14-7-gb9d039f0f2f2
 
-## No regressions (compared to v5.13-2-g58f1766113f0)
+## No regressions (compared to v5.12.14)
 
-
-## No fixes (compared to v5.13-2-g58f1766113f0)
-
+## No fixes (compared to v5.12.14)
 
 ## Test result summary
- total: 84198, pass: 69181, fail: 2092, skip: 11875, xfail: 1050,
+ total: 84116, pass: 68959, fail: 1982, skip: 11980, xfail: 1195,
 
 ## Build Summary
 * arc: 10 total, 10 passed, 0 failed
