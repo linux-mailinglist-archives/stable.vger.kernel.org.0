@@ -2,44 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D79053BCD99
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C26743BCD92
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233362AbhGFLW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:22:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55924 "EHLO mail.kernel.org"
+        id S233008AbhGFLWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:22:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233274AbhGFLUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:20:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66A8561C98;
-        Tue,  6 Jul 2021 11:17:24 +0000 (UTC)
+        id S232895AbhGFLUu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:20:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5324A61CC3;
+        Tue,  6 Jul 2021 11:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570245;
-        bh=aTLbfS26FUjGL5zsttRHB8OvZgZDTjIUGN4Syj05pLY=;
+        s=k20201202; t=1625570247;
+        bh=+gJwqH3qnoQPAxy9N5oXl0R72nGKihjj2Ere3lD/uGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYVdQxt/Ke3ekiZ9Qq1/O1+AzvzPI177MMUAljTU6HHSjyujHt1kB1NYrGSKo8NvW
-         HDRXAX1H0smVReHoyFYycdSRXAMQUllNSmcKS9dRh9v1g4aqEGZT70BAqVtujFYzFi
-         s3Jzpku+DH3MdBVtZZcvKsww9QKq1Hp0MmcDWaJrdR4bmAZ+KSkSfuZtudsaFvIsFv
-         30pQ1zYKnsKSdKbJjPLQtA5i93Uovg5HUHAREf+JAuxn3IIwxy6bH5fLrKW193SX9T
-         tjZIn60wwFhKIHqbGhYJVtFaFKxEJtIpYagNwjavUTYAaavAG87vVeSFg3US8ONhTU
-         0q6I7tXxRKjog==
+        b=c96PTx90zQu2iIZsfxotCuXhno1bl6k4tYzcCrxodzq+VhCAxWiXNvCOBesZehdtN
+         1vMZEsYpLzgXey0r57aYd0pfwPqZ/wx0MB3xh3FeKoCSW4Q1kIGB9iHe9dMC6RbPdr
+         QN5o6WJBWkMQwDIb9eSF4m9yzP/St+wC5F4+TrZjnY0tTv1JuwmAbv2ujQUYONY1Wt
+         xv5+3N90q6qCpoABuPwLjT6FFFjqGxd4twgRbpHbhsJsJdU6iK5GIcFm6pChE7duWc
+         m3XBmnu3HE71ytT8utvgQJBbG2pfuX9t4laFOAgUMxRdoq0lxTg7Mrku+Iq26dCXjy
+         L/Xemd9T8g/zQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Longpeng(Mike)" <longpeng2@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Andra Paraschiv <andraprs@amazon.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        David Brazdil <dbrazdil@google.com>,
-        Alexander Popov <alex.popov@linux.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        lixianming <lixianming5@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 145/189] vsock: notify server to shutdown when client has pending signal
-Date:   Tue,  6 Jul 2021 07:13:25 -0400
-Message-Id: <20210706111409.2058071-145-sashal@kernel.org>
+Cc:     Yifan Zhang <yifan1.zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.13 146/189] Revert "drm/amdgpu/gfx9: fix the doorbell missing when in CGPG issue."
+Date:   Tue,  6 Jul 2021 07:13:26 -0400
+Message-Id: <20210706111409.2058071-146-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
 References: <20210706111409.2058071-1-sashal@kernel.org>
@@ -51,70 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Longpeng(Mike)" <longpeng2@huawei.com>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-[ Upstream commit c7ff9cff70601ea19245d997bb977344663434c7 ]
+[ Upstream commit 962f2f1ae273399e357a3192d5413ca57f9b4885 ]
 
-The client's sk_state will be set to TCP_ESTABLISHED if the server
-replay the client's connect request.
+This reverts commit 631003101c516ea29a74aee59666708857b9a805.
 
-However, if the client has pending signal, its sk_state will be set
-to TCP_CLOSE without notify the server, so the server will hold the
-corrupt connection.
+Reason for revert: side effect of enlarging CP_MEC_DOORBELL_RANGE may
+cause some APUs fail to enter gfxoff in certain user cases.
 
-            client                        server
-
-1. sk_state=TCP_SYN_SENT         |
-2. call ->connect()              |
-3. wait reply                    |
-                                 | 4. sk_state=TCP_ESTABLISHED
-                                 | 5. insert to connected list
-                                 | 6. reply to the client
-7. sk_state=TCP_ESTABLISHED      |
-8. insert to connected list      |
-9. *signal pending* <--------------------- the user kill client
-10. sk_state=TCP_CLOSE           |
-client is exiting...             |
-11. call ->release()             |
-     virtio_transport_close
-      if (!(sk->sk_state == TCP_ESTABLISHED ||
-	      sk->sk_state == TCP_CLOSING))
-		return true; *return at here, the server cannot notice the connection is corrupt*
-
-So the client should notify the peer in this case.
-
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Jorgen Hansen <jhansen@vmware.com>
-Cc: Norbert Slusarek <nslusarek@gmx.net>
-Cc: Andra Paraschiv <andraprs@amazon.com>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: David Brazdil <dbrazdil@google.com>
-Cc: Alexander Popov <alex.popov@linux.com>
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lkml.org/lkml/2021/5/17/418
-Signed-off-by: lixianming <lixianming5@huawei.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 92a72f0e0d94..ae11311807fd 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1369,7 +1369,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index c09225d065c2..516467e962b7 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -3673,12 +3673,8 @@ static int gfx_v9_0_kiq_init_register(struct amdgpu_ring *ring)
+ 	if (ring->use_doorbell) {
+ 		WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_LOWER,
+ 					(adev->doorbell_index.kiq * 2) << 2);
+-		/* If GC has entered CGPG, ringing doorbell > first page doesn't
+-		 * wakeup GC. Enlarge CP_MEC_DOORBELL_RANGE_UPPER to workaround
+-		 * this issue.
+-		 */
+ 		WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_UPPER,
+-					(adev->doorbell.size - 4));
++					(adev->doorbell_index.userqueue_end * 2) << 2);
+ 	}
  
- 		if (signal_pending(current)) {
- 			err = sock_intr_errno(timeout);
--			sk->sk_state = TCP_CLOSE;
-+			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
- 			sock->state = SS_UNCONNECTED;
- 			vsock_transport_cancel_pkt(vsk);
- 			goto out_wait;
+ 	WREG32_SOC15_RLC(GC, 0, mmCP_HQD_PQ_DOORBELL_CONTROL,
 -- 
 2.30.2
 
