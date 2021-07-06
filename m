@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ABB53BD1B7
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B37193BD1A9
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238809AbhGFLkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47546 "EHLO mail.kernel.org"
+        id S238692AbhGFLkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:40:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237309AbhGFLgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:36:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 054CA61C4E;
-        Tue,  6 Jul 2021 11:26:44 +0000 (UTC)
+        id S237308AbhGFLgE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:36:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B91161EF6;
+        Tue,  6 Jul 2021 11:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570805;
-        bh=Bqc2szj6gI1h6frMbsTHf0tYw7/042x5/joLnv7q+6o=;
+        s=k20201202; t=1625570807;
+        bh=oIr9xYI+G5Elf4HGQenNpItBKjF/lPCc8SszNoGqv9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gbALQ2yWFuz2pUBq9UEisFslkSx1pqauF/u4vtmIdma2uEZTgbC9G9DLlNHA71DKd
-         r4I09i5CFQY52tgjy8465nj8X1NArHf/taxkvbxLa9qwPNNxpGYUbpm6EHs5QYaSaW
-         ukXkd7sSqcg9NhKGtu5AS9MkTG3Ryar9AmDP02ff6ZPzAvYFCYgK5qGbq2AQxR+uSW
-         2BhA65LklTTDGgxq1i5lsipgkWnMRRKApkZ0mdPYuz0mVVxnOfootbGD3FPJF51FGR
-         H7P0IPW0j79/n3fuPbi2jg4i5Yg1BGYhLRby61cpGeI3izjNvgYvHJYBwXm3+Q1528
-         RBm1XDb5K2g6Q==
+        b=hoqRmuJbKVWRn3IQzC1ipwC4SM8zqrtdkqTOgKjTh8wjwqJuBcII7V3KcCw60wMj1
+         9EUKcr3zqH2ezo2VMLbYBVBmPjktBZpU9E9CNUV584x0GH1pZrz9hz/uT9GkWA8rQL
+         UtIZ1M9CX8H8ENg0GsF7MJ06AwynntpTMiJlmtA4aU+KCo9O0rZM7YWTFXN9X0b7LP
+         VmudohmBDzo5UVs6T/Urcb+J7ne7/IkLX2h0GJmL5XdTEQw3RV7g8fGRpyTujnyoGI
+         m2IbxcnzKsjIj5nYoiiES9zUgzISG7HYYwHVqawg0lOOuoIHU3GPiAX5haJxWNUgYi
+         wEVMuGjOzyMaw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Flavio Suligoi <f.suligoi@asem.it>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 05/55] net: pch_gbe: Use proper accessors to BE data in pch_ptp_match()
-Date:   Tue,  6 Jul 2021 07:25:48 -0400
-Message-Id: <20210706112638.2065023-5-sashal@kernel.org>
+Cc:     Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>, Stylon Wang <stylon.wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 06/55] drm/amd/display: fix use_max_lb flag for 420 pixel formats
+Date:   Tue,  6 Jul 2021 07:25:49 -0400
+Message-Id: <20210706112638.2065023-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112638.2065023-1-sashal@kernel.org>
 References: <20210706112638.2065023-1-sashal@kernel.org>
@@ -44,85 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
 
-[ Upstream commit 443ef39b499cc9c6635f83238101f1bb923e9326 ]
+[ Upstream commit 8809a7a4afe90ad9ffb42f72154d27e7c47551ae ]
 
-Sparse is not happy about handling of strict types in pch_ptp_match():
+Right now the flag simply selects memory config 0 when flag is true
+however 420 modes benefit more from memory config 3.
 
-  .../pch_gbe_main.c:158:33: warning: incorrect type in argument 2 (different base types)
-  .../pch_gbe_main.c:158:33:    expected unsigned short [usertype] uid_hi
-  .../pch_gbe_main.c:158:33:    got restricted __be16 [usertype]
-  .../pch_gbe_main.c:158:45: warning: incorrect type in argument 3 (different base types)
-  .../pch_gbe_main.c:158:45:    expected unsigned int [usertype] uid_lo
-  .../pch_gbe_main.c:158:45:    got restricted __be32 [usertype]
-  .../pch_gbe_main.c:158:56: warning: incorrect type in argument 4 (different base types)
-  .../pch_gbe_main.c:158:56:    expected unsigned short [usertype] seqid
-  .../pch_gbe_main.c:158:56:    got restricted __be16 [usertype]
-
-Fix that by switching to use proper accessors to BE data.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Flavio Suligoi <f.suligoi@asem.it>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Stylon Wang <stylon.wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 3a4225837049..faed5f3a5415 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -118,7 +118,7 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
- {
- 	u8 *data = skb->data;
- 	unsigned int offset;
--	u16 *hi, *id;
-+	u16 hi, id;
- 	u32 lo;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
+index 321af9af95e8..8f5246308d26 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
+@@ -476,10 +476,13 @@ static enum lb_memory_config dpp1_dscl_find_lb_memory_config(struct dcn10_dpp *d
+ 	int vtaps_c = scl_data->taps.v_taps_c;
+ 	int ceil_vratio = dc_fixpt_ceil(scl_data->ratios.vert);
+ 	int ceil_vratio_c = dc_fixpt_ceil(scl_data->ratios.vert_c);
+-	enum lb_memory_config mem_cfg = LB_MEMORY_CONFIG_0;
  
- 	if (ptp_classify_raw(skb) == PTP_CLASS_NONE)
-@@ -129,14 +129,11 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
- 	if (skb->len < offset + OFF_PTP_SEQUENCE_ID + sizeof(seqid))
- 		return 0;
+-	if (dpp->base.ctx->dc->debug.use_max_lb)
+-		return mem_cfg;
++	if (dpp->base.ctx->dc->debug.use_max_lb) {
++		if (scl_data->format == PIXEL_FORMAT_420BPP8
++				|| scl_data->format == PIXEL_FORMAT_420BPP10)
++			return LB_MEMORY_CONFIG_3;
++		return LB_MEMORY_CONFIG_0;
++	}
  
--	hi = (u16 *)(data + offset + OFF_PTP_SOURCE_UUID);
--	id = (u16 *)(data + offset + OFF_PTP_SEQUENCE_ID);
-+	hi = get_unaligned_be16(data + offset + OFF_PTP_SOURCE_UUID + 0);
-+	lo = get_unaligned_be32(data + offset + OFF_PTP_SOURCE_UUID + 2);
-+	id = get_unaligned_be16(data + offset + OFF_PTP_SEQUENCE_ID);
- 
--	memcpy(&lo, &hi[1], sizeof(lo));
--
--	return (uid_hi == *hi &&
--		uid_lo == lo &&
--		seqid  == *id);
-+	return (uid_hi == hi && uid_lo == lo && seqid == id);
- }
- 
- static void
-@@ -146,7 +143,6 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
- 	struct pci_dev *pdev;
- 	u64 ns;
- 	u32 hi, lo, val;
--	u16 uid, seq;
- 
- 	if (!adapter->hwts_rx_en)
- 		return;
-@@ -162,10 +158,7 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
- 	lo = pch_src_uuid_lo_read(pdev);
- 	hi = pch_src_uuid_hi_read(pdev);
- 
--	uid = hi & 0xffff;
--	seq = (hi >> 16) & 0xffff;
--
--	if (!pch_ptp_match(skb, htons(uid), htonl(lo), htons(seq)))
-+	if (!pch_ptp_match(skb, hi, lo, hi >> 16))
- 		goto out;
- 
- 	ns = pch_rx_snap_read(pdev);
+ 	dpp->base.caps->dscl_calc_lb_num_partitions(
+ 			scl_data, LB_MEMORY_CONFIG_1, &num_part_y, &num_part_c);
 -- 
 2.30.2
 
