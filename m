@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BBF73BD145
-	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE133BD148
+	for <lists+stable@lfdr.de>; Tue,  6 Jul 2021 13:36:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235423AbhGFLiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Jul 2021 07:38:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47602 "EHLO mail.kernel.org"
+        id S235861AbhGFLi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Jul 2021 07:38:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236648AbhGFLfe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Jul 2021 07:35:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CB8C61DFD;
-        Tue,  6 Jul 2021 11:23:58 +0000 (UTC)
+        id S236712AbhGFLfi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Jul 2021 07:35:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8688161E04;
+        Tue,  6 Jul 2021 11:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625570639;
-        bh=aAtpwhKuMZGDxNZ3FqxdQXfUEParfME5aHdCkcyIr3M=;
+        s=k20201202; t=1625570645;
+        bh=Ry1aG034I40ds9gCDxFiOmtRE8P3ZjPlXbEhpRWYn94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFvRzh67DU/PDB8cFE2Oxr5znnAWAcNJO9JWDR/40taqSa6GApGEo1IXskLJzGizL
-         W0tHmMZFpuGSU2CMRxq0Ow2cbGbdFfS/52lkUPOYuvxaYGk5OqZoQ7EC2sXVy2gRB9
-         l9x5BZQVVByYQdZ2TfJI9iii8dKpZ+AeqS8Oln58ZkFIa8MKkMvrV8r5hK8srrGU2m
-         vn/yC+mvstTkY56emyIUNi7bDdjqGFY6ky/3SAGx9MwF7C7xho2+lXWZ1jexSCxzcL
-         +SBSBxf8XBZZbXsqc/bmnrHq8ybd/6U3JpvQuq88fU2P90hPPL335nVLB3TWr3TrMs
-         cXvN+G3gUjy5Q==
+        b=ZlTseCKFdRzzlDxHj4VbS6f+eskRyhZInTtZY2nBiwF++bmYDmDKnpasjyCzHaVId
+         IXJG1cU8sEBEJHy7cCwla52BGwcBkQgIX9wcoZCl5xyv13pHIABtz/40SNZIQmuSl0
+         I1nBm2D7YN4nZXlwP1Wz+2X/h3uXpjtnfpQbi5tGcWcoHFcJdtAbyQG5EMSx2nzJwg
+         9IcYqNx17XxLunr5lzfSkw6LxBKoC4ldwLwYgjfT1M2aTRcJ1GeXFwsR9zKFRy8jaM
+         0S/KB9j+u+p99v1w9q+AinWKQhdZjMjCtbpj9cTZmke1lfBD34v/OD/2j83HzjujuP
+         1LIT8WI96GH8g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 089/137] ice: mark PTYPE 2 as reserved
-Date:   Tue,  6 Jul 2021 07:21:15 -0400
-Message-Id: <20210706112203.2062605-89-sashal@kernel.org>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        syzbot+ea2f1484cffe5109dc10@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 094/137] io_uring: fix false WARN_ONCE
+Date:   Tue,  6 Jul 2021 07:21:20 -0400
+Message-Id: <20210706112203.2062605-94-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
@@ -44,38 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 0c526d440f76676733cb470b454db9d5507a3a50 ]
+[ Upstream commit e6ab8991c5d0b0deae0961dc22c0edd1dee328f5 ]
 
-The entry for PTYPE 2 in the ice_ptype_lkup table incorrectly states
-that this is an L2 packet with no payload. According to the datasheet,
-this PTYPE is actually unused and reserved.
+WARNING: CPU: 1 PID: 11749 at fs/io-wq.c:244 io_wqe_wake_worker fs/io-wq.c:244 [inline]
+WARNING: CPU: 1 PID: 11749 at fs/io-wq.c:244 io_wqe_enqueue+0x7f6/0x910 fs/io-wq.c:751
 
-Fix the lookup entry to indicate this is an unused entry that is
-reserved.
+A WARN_ON_ONCE() in io_wqe_wake_worker() can be triggered by a valid
+userspace setup. Replace it with pr_warn.
 
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reported-by: syzbot+ea2f1484cffe5109dc10@syzkaller.appspotmail.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/f7ede342c3342c4c26668f5168e2993e38bbd99c.1623949695.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io-wq.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
-index 98a7f27c532b..c0ee0541e53f 100644
---- a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
-+++ b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
-@@ -608,7 +608,7 @@ static const struct ice_rx_ptype_decoded ice_ptype_lkup[] = {
- 	/* L2 Packet types */
- 	ICE_PTT_UNUSED_ENTRY(0),
- 	ICE_PTT(1, L2, NONE, NOF, NONE, NONE, NOF, NONE, PAY2),
--	ICE_PTT(2, L2, NONE, NOF, NONE, NONE, NOF, NONE, NONE),
-+	ICE_PTT_UNUSED_ENTRY(2),
- 	ICE_PTT_UNUSED_ENTRY(3),
- 	ICE_PTT_UNUSED_ENTRY(4),
- 	ICE_PTT_UNUSED_ENTRY(5),
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index f72d53848dcb..8bb17b6d4de3 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -299,7 +299,8 @@ static void io_wqe_wake_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
+ 	 * Most likely an attempt to queue unbounded work on an io_wq that
+ 	 * wasn't setup with any unbounded workers.
+ 	 */
+-	WARN_ON_ONCE(!acct->max_workers);
++	if (unlikely(!acct->max_workers))
++		pr_warn_once("io-wq is not configured for unbound workers");
+ 
+ 	rcu_read_lock();
+ 	ret = io_wqe_activate_free_worker(wqe);
+@@ -1085,6 +1086,8 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ 
+ 	if (WARN_ON_ONCE(!data->free_work || !data->do_work))
+ 		return ERR_PTR(-EINVAL);
++	if (WARN_ON_ONCE(!bounded))
++		return ERR_PTR(-EINVAL);
+ 
+ 	wq = kzalloc(sizeof(*wq), GFP_KERNEL);
+ 	if (!wq)
 -- 
 2.30.2
 
