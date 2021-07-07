@@ -2,163 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C053BE841
-	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 14:48:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58FBE3BE844
+	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 14:48:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231469AbhGGMvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Jul 2021 08:51:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50462 "EHLO mail.kernel.org"
+        id S231708AbhGGMvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Jul 2021 08:51:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231696AbhGGMvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 7 Jul 2021 08:51:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A361E61CBB;
-        Wed,  7 Jul 2021 12:48:21 +0000 (UTC)
+        id S231696AbhGGMvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Jul 2021 08:51:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0121661CBA;
+        Wed,  7 Jul 2021 12:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625662102;
-        bh=yzDNPJRst6QjXAneojtBIKy2pA4Qr4wPPz6Fi14/Zcc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgYkm3DIGiFEhLwl0YnwQ11lNaUAVz7rP0OTl5JmsTQvH3FJ8iFVa/cnLml4+Kpwh
-         a4tje0bF/LOibQhX5MwnTqIuKYTFqEcrN+QO9iyesnxslyRcGPRVIiHBvFipMpfbJW
-         kKN0PWmMcVM7jWC349Gxusgu4o1tVPx1Co8ADBa7X3pLrjLdMt8XbIyvLCWmnxLaw6
-         voz9HrpNvtwzAfPKxFy+g2VwuYqSLgjxo4T8iy2TBYTMWxxo4Axt3QXq/6/3B3mB/4
-         BHlMaC+klnn/Z56J3AEic8qVozje76hRrsxxfHlwbSsnEB4q7nlPKdr7C6xKosCwFo
-         MlI0bzE8r6brg==
+        s=k20201202; t=1625662110;
+        bh=0RC3E3ae+rfUs1h+OgZcJb1GWK6Xb95duNQPMcdah9s=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tPtSw5i4hNWBe5fOZO7yBE7aAc2mgZ65ZQqvHA19nXodEe7kLfXq1+l88kcOH5qj2
+         6V3PbzNAduu5vErQED1geAvKf4M8B7BiNF38odF+YabRngwcILJavp8eSxl9B8bg/q
+         qYn+5slkPyC97FxCqPpWmatURskHGFzSMXd/sk5n6MH8267c77MM7TH+vsXatMcMYV
+         Id7EzApsiGzv8Of4KnbVj1iS5tqxvbNLzW1iNkiUjcUtqZXMr4NxnnZhWs5ocWRg0S
+         xMobKJalcO91CumaNkUbr1utQ8WBqndgTVwoJCCmRXx/vDUnaKjoomB1Lv4i1fs0tb
+         5JOkWnkb2icKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         akpm@linux-foundation.org, torvalds@linux-foundation.org
 Cc:     lwn@lwn.net, jslaby@suse.cz, gregkh@linuxfoundation.org
-Subject: Re: Linux 5.10.48
-Date:   Wed,  7 Jul 2021 08:48:19 -0400
-Message-Id: <20210707124819.2443474-2-sashal@kernel.org>
+Subject: Linux 5.4.130
+Date:   Wed,  7 Jul 2021 08:48:27 -0400
+Message-Id: <20210707124828.2443579-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210707124819.2443474-1-sashal@kernel.org>
-References: <20210707124819.2443474-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index fb2937bca41b..52dcfe3371c4 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 10
--SUBLEVEL = 47
-+SUBLEVEL = 48
- EXTRAVERSION =
- NAME = Dare mighty things
- 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index ef56780022c3..d1ac2de41ea8 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -296,6 +296,7 @@ union kvm_mmu_extended_role {
- 		unsigned int cr4_pke:1;
- 		unsigned int cr4_smap:1;
- 		unsigned int cr4_smep:1;
-+		unsigned int cr4_la57:1;
- 		unsigned int maxphyaddr:6;
- 	};
- };
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 6b794344c02d..f2eeaf197294 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4442,6 +4442,7 @@ static union kvm_mmu_extended_role kvm_calc_mmu_role_ext(struct kvm_vcpu *vcpu)
- 	ext.cr4_smap = !!kvm_read_cr4_bits(vcpu, X86_CR4_SMAP);
- 	ext.cr4_pse = !!is_pse(vcpu);
- 	ext.cr4_pke = !!kvm_read_cr4_bits(vcpu, X86_CR4_PKE);
-+	ext.cr4_la57 = !!kvm_read_cr4_bits(vcpu, X86_CR4_LA57);
- 	ext.maxphyaddr = cpuid_maxphyaddr(vcpu);
- 
- 	ext.valid = 1;
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 14751c7ccd1f..d1300fc003ed 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -1337,6 +1337,7 @@ config GPIO_TPS68470
- config GPIO_TQMX86
- 	tristate "TQ-Systems QTMX86 GPIO"
- 	depends on MFD_TQMX86 || COMPILE_TEST
-+	depends on HAS_IOPORT_MAP
- 	select GPIOLIB_IRQCHIP
- 	help
- 	  This driver supports GPIO on the TQMX86 IO controller.
-@@ -1404,6 +1405,7 @@ menu "PCI GPIO expanders"
- config GPIO_AMD8111
- 	tristate "AMD 8111 GPIO driver"
- 	depends on X86 || COMPILE_TEST
-+	depends on HAS_IOPORT_MAP
- 	help
- 	  The AMD 8111 south bridge contains 32 GPIO pins which can be used.
- 
-diff --git a/drivers/gpio/gpio-mxc.c b/drivers/gpio/gpio-mxc.c
-index 643f4c557ac2..ba6ed2a413f5 100644
---- a/drivers/gpio/gpio-mxc.c
-+++ b/drivers/gpio/gpio-mxc.c
-@@ -361,7 +361,7 @@ static int mxc_gpio_init_gc(struct mxc_gpio_port *port, int irq_base)
- 	ct->chip.irq_unmask = irq_gc_mask_set_bit;
- 	ct->chip.irq_set_type = gpio_set_irq_type;
- 	ct->chip.irq_set_wake = gpio_set_wake_irq;
--	ct->chip.flags = IRQCHIP_MASK_ON_SUSPEND;
-+	ct->chip.flags = IRQCHIP_MASK_ON_SUSPEND | IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND;
- 	ct->regs.ack = GPIO_ISR;
- 	ct->regs.mask = GPIO_IMR;
- 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-index 7daa12eec01b..b4946b595d86 100644
---- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-@@ -590,7 +590,7 @@ nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
- 
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
- 
- 	/* Don't waste time looping if the object is coherent */
-@@ -610,7 +610,7 @@ nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
- 
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
- 
- 	/* Don't waste time looping if the object is coherent */
-diff --git a/drivers/infiniband/hw/mlx5/fs.c b/drivers/infiniband/hw/mlx5/fs.c
-index 13d50b178166..b3391ecedda7 100644
---- a/drivers/infiniband/hw/mlx5/fs.c
-+++ b/drivers/infiniband/hw/mlx5/fs.c
-@@ -2136,6 +2136,13 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_FLOW_MATCHER_CREATE)(
- 	if (err)
- 		goto end;
- 
-+	if (obj->ns_type == MLX5_FLOW_NAMESPACE_FDB &&
-+	    mlx5_eswitch_mode(dev->mdev->priv.eswitch) !=
-+			      MLX5_ESWITCH_OFFLOADS) {
-+		err = -EINVAL;
-+		goto end;
-+	}
-+
- 	uobj->object = obj;
- 	obj->mdev = dev->mdev;
- 	atomic_set(&obj->usecnt, 0);
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index fd4b582110b2..77961f058367 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -220,6 +220,8 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
- 		return DISK_EVENT_EJECT_REQUEST;
- 	else if (med->media_event_code == 2)
- 		return DISK_EVENT_MEDIA_CHANGE;
-+	else if (med->media_event_code == 3)
-+		return DISK_EVENT_EJECT_REQUEST;
- 	return 0;
- }
- 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+I'm announcing the release of the 5.4.130 kernel.
+
+All users of the 5.4 kernel series must upgrade.
+
+The updated 5.4.y git tree can be found at:
+        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+        https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+
+Thanks,
+Sasha
+
+- ------------
+
+
+ Makefile                                      | 2 +-
+ drivers/gpio/Kconfig                          | 2 ++
+ drivers/gpu/drm/nouveau/nouveau_bo.c          | 4 ++--
+ drivers/infiniband/hw/mlx5/flow.c             | 8 ++++++++
+ drivers/scsi/sr.c                             | 2 ++
+ security/integrity/platform_certs/load_uefi.c | 5 -----
+ 6 files changed, 15 insertions(+), 8 deletions(-)
+
+Christian König (1):
+      drm/nouveau: fix dma_address check for CPU/GPU sync
+
+Johannes Berg (1):
+      gpio: AMD8111 and TQMX86 require HAS_IOPORT_MAP
+
+ManYi Li (1):
+      scsi: sr: Return appropriate error code when disk is ejected
+
+Mark Bloch (1):
+      RDMA/mlx5: Block FDB rules when not in switchdev mode
+
+Sasha Levin (1):
+      Linux 5.4.130
+
+YueHaibing (1):
+      x86/efi: remove unused variables
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE4n5dijQDou9mhzu83qZv95d3LNwFAmDlopkACgkQ3qZv95d3
+LNxXEg//cOzICk7j6/qzijKVxiuJC3YBJ99U05fap7EjShpomDrxs9q4yhbOeBAn
+Q7GdF8XDa4si/32T0fAojLKLWMvGN6gwjIm1mKFPcSte2lLiO3KnlQubjdo2dwJi
+VFtmkMd+Op+77WhzFBpEYRiFisnzg4376eQIp/rzxC64faVkbp8mobtq0KCTIvqv
+OT05R1Z/DMR2pl5vI1ho592oVvl4FbWWZJRcTc05RAzdPpOsFqmJZkIua5Q0GQzo
+iovxwsVz7cH7RMcXIQ65emuNFIFlB1qfKfA1VR/WPxuj/gmtOJth2mU0+BO5qSYK
+9z1mbCUFjEDjgI2dBshNzlKIERoo6tExWiy6BOmuQyf5KTzJLpaLtLXvxygak6GB
+FT3rGmcV85ec4wAgHeFgBeEJWyMgmgiNopx0intVkNwhx7Ulsg3aB8vrMwn+QJSN
+2kPA/rip8VEignB2wzw0o/0yiAp2tjszcpwTFVIjo7JnfzjDyhzANdslEFu+yjUm
+FomT+mXe/yGfoKHl8YqXYaVntu/YGbocd2pGg5337zwFimR88YfVpfAezTmnrg8L
+8xI8q7v3b8vcXzxCbLE801tMuU1gKFj9m7/DAWp+F/ak9jV0M7lelnpGF3lr4DDP
+3MU6J+Y4faiC2LT6KcRaBkoPXPXVdYjH9yYA+l8jwaAbDK3fFCE=
+=60Aw
+-----END PGP SIGNATURE-----
