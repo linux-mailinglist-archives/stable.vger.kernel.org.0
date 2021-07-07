@@ -2,120 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A1A93BE5F5
-	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 11:51:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B76D3BE681
+	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 12:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231316AbhGGJyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Jul 2021 05:54:15 -0400
-Received: from mail-m118208.qiye.163.com ([115.236.118.208]:35846 "EHLO
-        mail-m118208.qiye.163.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231362AbhGGJyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Jul 2021 05:54:13 -0400
-Received: from [0.0.0.0] (unknown [113.118.122.203])
-        by mail-m118208.qiye.163.com (Hmail) with ESMTPA id 0C072E0335;
-        Wed,  7 Jul 2021 17:51:28 +0800 (CST)
-Subject: Re: [PATCH v2] x86/mce: Fix endless loop when run task works after
- #MC
-From:   Ding Hui <dinghui@sangfor.com.cn>
-To:     "Luck, Tony" <tony.luck@intel.com>
-Cc:     bp@alien8.de, bp@suse.de, naoya.horiguchi@nec.com,
-        osalvador@suse.de, peterz@infradead.org,
-        linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
-        tglx@linutronix.de, mingo@redhat.com, x86@kernel.org,
-        hpa@zytor.com, youquan.song@intel.com, huangcun@sangfor.com.cn,
-        stable@vger.kernel.org
-References: <20210706121606.15864-1-dinghui@sangfor.com.cn>
- <20210706164451.GA1289248@agluck-desk2.amr.corp.intel.com>
- <6a1b1371-50e4-f0f6-1ebd-0a91fc9d7bcc@sangfor.com.cn>
-Message-ID: <fffec03b-2601-a0c0-5954-ee05fe046ba1@sangfor.com.cn>
-Date:   Wed, 7 Jul 2021 17:51:20 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S231404AbhGGKsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Jul 2021 06:48:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33670 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231243AbhGGKsO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Jul 2021 06:48:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF60360FF0;
+        Wed,  7 Jul 2021 10:45:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1625654734;
+        bh=3D/5zjSCzpHDTDTXUpdP6UzY3JY64bboQX+7H4xyk8o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MVlUte8yb2BNRR3yXPmjBhGvOJWr4h1jf+bwVoQVSrkWeTZi2GW+0oipjtsz4qkND
+         lW/eUai7RYA49P8Evpfibsl/tv5livmuLjhDvmQMSMB9OBvxFy3cqBVSmyictzOk3M
+         /JVwaKJPYbKjuSJMoFmqzF/KU0QdbWJdOMV+nJ14S75QT//OLyXbUJp8lPXNTswcK7
+         UjVuRmLvQD9iCugXuUe38TpRSQxkhenBi12DKd9UIj3YFIcDxHMw56JYS9HCRyZrIO
+         1Yl3HHSnVPnrq/a9pydTxd+HJ1711kD6eOlFOU4M3jt/vffbfG9Cw1s9wZXdpHkcNL
+         BaOf/XqOxAg+Q==
+Date:   Wed, 7 Jul 2021 06:45:32 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.10 113/137] wireless: wext-spy: Fix
+ out-of-bounds warning
+Message-ID: <YOWFzFBGGqiYWsI6@sashalap>
+References: <20210706112203.2062605-1-sashal@kernel.org>
+ <20210706112203.2062605-113-sashal@kernel.org>
+ <5da1f4fbdac533be3b753e54b43e2058ba270bc8.camel@sipsolutions.net>
 MIME-Version: 1.0
-In-Reply-To: <6a1b1371-50e4-f0f6-1ebd-0a91fc9d7bcc@sangfor.com.cn>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-HM-Spam-Status: e1kfGhgUHx5ZQUtXWQgYFAkeWUFZS1VLWVdZKFlBSE83V1ktWUFJV1kPCR
-        oVCBIfWUFZGU9LTFYZQk1OGRpPTUJNHkJVEwETFhoSFyQUDg9ZV1kWGg8SFR0UWUFZT0tIVUpKS0
-        hKQ1VLWQY+
-X-HM-Sender-Digest: e1kMHhlZQR0aFwgeV1kSHx4VD1lBWUc6PRQ6Pxw4ND9RKh08ORg6Fks5
-        MjMaCUpVSlVKTUlOTU5KT0NDQkNPVTMWGhIXVR8SFRwTDhI7CBoVHB0UCVUYFBZVGBVFWVdZEgtZ
-        QVlKSkhVSkpDVUpJSVVJS0hZV1kIAVlBT05ISTcG
-X-HM-Tid: 0a7a806127a32c17kusn0c072e0335
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <5da1f4fbdac533be3b753e54b43e2058ba270bc8.camel@sipsolutions.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021/7/7 11:39, Ding Hui wrote:
-> On 2021/7/7 0:44, Luck, Tony wrote:
->> On Tue, Jul 06, 2021 at 08:16:06PM +0800, Ding Hui wrote:
->>> Recently we encounter multi #MC on the same task when it's
->>> task_work_run() has not been called, current->mce_kill_me was
->>> added to task_works list more than once, that make a circular
->>> linked task_works, so task_work_run() will do a endless loop.
+On Tue, Jul 06, 2021 at 04:08:09PM +0200, Johannes Berg wrote:
+>On Tue, 2021-07-06 at 07:21 -0400, Sasha Levin wrote:
+>> From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 >>
->> I saw the same and posted a similar fix a while back:
+>> [ Upstream commit e93bdd78406da9ed01554c51e38b2a02c8ef8025 ]
 >>
->> https://www.spinics.net/lists/linux-mm/msg251006.html
+>> Fix the following out-of-bounds warning:
 >>
->> It didn't get merged because some validation tests began failing
->> around the same time.  I'm now pretty sure I understand what happened
->> with those other tests.
->>
->> I'll post my updated version (second patch in a three part series)
->> later today.
->>
-> 
-> Thanks for your fixes.
-> 
-> After digging my original problem, maybe I find out why I met #MC flood.
-> 
-> My test case:
-> 1. run qemu-kvm guest VM, OS is memtest86+.iso
-> 2. inject SRAR UE to VM memory and wait #MC
-> When VM trigger #MC, I expect that qemu will receive SIGBUS signal ASAP, 
-> and with the modifed qemu, I will kill VM.
-> 
-> In this case, do_machine_check() maybe called by kvm_machine_check() in 
-> vmx.c.
-> 
-> Before [1], memory_failure() is called in do_machine_check(), so 
-> TIF_SIGPENDING is set on due to SIGBUS signal, vcpu_run() checked the 
-> pending singal, so return to qemu to handle SIGBUS.
-> 
-> After [1], do_machine_check() only add task work but not send SIGBUS 
-> directly, vcpu_run() will not break the for-loop because 
-> vcpu_enter_guest() return 1 and not set TIF_SIGPENDING on, task works 
-> never executed until sth else happen. So the kvm enter guest repeatedly 
-> and the #MC is triggered repeatedly.
-> 
+>> net/wireless/wext-spy.c:178:2: warning: 'memcpy' offset [25, 28] from the object at 'threshold' is out of the bounds of referenced subobject 'low' with type 'struct iw_quality' at offset 20 [-Warray-bounds]
+>
+>For the record: while this clearly isn't harmful, there's almost
+>basically no chance that the stable kernel will ever compile warning-
+>free with -Warray-bounds, so there's not much point in backporting this
+>patch.
 
-Sorry for my incorrect description.
-
-I figure out that my test kernel is not the lastest, it's without [2] 
-commit 72c3c0fe54a3 （"x86/kvm: Use generic xfer to guest work 
-function"), so vcpu_run() only care about signal_pending but not 
-TIF_NOTIFY_RESUME which set on in task_work_add().
-
-After [2], #MC flood should not exist.
-
-Also thank Thomas Gleixner.
-
-> Can you consider to fix cases like this?
-> 
-> And do you mind to give me some advice for my temporary workaround about 
-> this #MC flood:
-> I want to check the context of do_machine_check() is exception or kvm, 
-> and fallback to call kill_me_xxx directly when in kvm context. (I 
-> already tested simply and met my expection)
-> 
-
-So ignore my ask, please.
-
-> [1]: commit 5567d11c21a1 ("x86/mce: Send #MC singal from task work")
-
+While the warning is a non-issue, it wasn't clear if it fixes a real bug
+or just silences the warning which is why I took it in.
 
 -- 
 Thanks,
-- Ding Hui
+Sasha
