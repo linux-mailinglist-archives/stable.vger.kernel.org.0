@@ -2,63 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A86F63BE689
-	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 12:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C9393BE68E
+	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 12:46:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231478AbhGGKsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Jul 2021 06:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33974 "EHLO mail.kernel.org"
+        id S231517AbhGGKtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Jul 2021 06:49:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231474AbhGGKsy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 7 Jul 2021 06:48:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1EEC61C73;
-        Wed,  7 Jul 2021 10:46:13 +0000 (UTC)
+        id S231321AbhGGKtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Jul 2021 06:49:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8815C61CAA;
+        Wed,  7 Jul 2021 10:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625654774;
-        bh=KdVRnitHyB86oNcQyTTnLF0QMsDGQxcMy5DFv3SFvEI=;
+        s=k20201202; t=1625654797;
+        bh=x/6yJbDlJx88gXff2NPaDoOf2VTEmW/FiSuagMfWqrE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oRsfd4KoSV4+ZIUPZ0L9MjLFhVp4g+h5d1l1gYlFRpFxq/+KxUd5SirljP0G0VwaE
-         lknTnGqmBea5Dqtg90lUyR2rH9C7jZV54OGjqQoeOQzhqrF8g6EOzau7xd4Pajepha
-         e2pbnjO0cMDltDnP6+gBm79WSUZTndzZGZsYHZ3RSYWqKr4qbTB9khmZlJDGwGiWiJ
-         92rrzKrBwh15kVtOXz0AqzGjTyzD8Jzn9qvH3294jqZ4RUEo6vftcS0Uk85j9KjjgF
-         HHXMUpUAFvlQNzCgmpZo1P6MIGoOwUlxu3Bmlr1RxHZNq2FgR5pnA/CrIKnpRGNAkY
-         tc6pjQ1qLbQzg==
-Date:   Wed, 7 Jul 2021 06:46:13 -0400
+        b=DeSb7RTenYR1UxkiWCo6aig5ZaRjJCOaklGoahkm78lFkC7RH6QMYEC6DGriMJnFZ
+         MjTG84pV43p9AGNw5QcyjNi5ISj4L6msunpox/EgkIsIFrK10P6LQO/zkhAtyvKwsB
+         rNdDnEKkMhFito12aHrPihmkN9G4u5/sc1TLRPy6xuiaiFCtakU67dptaeszT//Ope
+         Q8x3sbojAks+WaQHC4pSb28iGhVWeISBoa5xXgLZqOmkss+XIW1/I9m6G8STIUpA3R
+         /gZUWs9Lqmpxl+JxTf77MmGgyQFuZXRTrSXTz+0RGcslFjui0OEJvBQ/XscTjNaWyR
+         yxszLHWpW3qtg==
+Date:   Wed, 7 Jul 2021 06:46:36 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.13 152/189] iwlwifi: mvm: support LONG_GROUP
- for WOWLAN_GET_STATUSES version
-Message-ID: <YOWF9WOUegrto00D@sashalap>
+To:     Felix Kuehling <felix.kuehling@amd.com>
+Cc:     Alex Deucher <alexdeucher@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "for 3.8" <stable@vger.kernel.org>,
+        Yifan Zhang <yifan1.zhang@amd.com>,
+        Maling list - DRI developers 
+        <dri-devel@lists.freedesktop.org>,
+        amd-gfx list <amd-gfx@lists.freedesktop.org>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: Re: [PATCH AUTOSEL 5.13 113/189] drm/amdgpu/gfx9: fix the doorbell
+ missing when in CGPG issue.
+Message-ID: <YOWGDHa3fdUPsdRS@sashalap>
 References: <20210706111409.2058071-1-sashal@kernel.org>
- <20210706111409.2058071-152-sashal@kernel.org>
- <d1ee65748d6ee788c1f882b2f73dddaf7eb191e6.camel@sipsolutions.net>
+ <20210706111409.2058071-113-sashal@kernel.org>
+ <CADnq5_ObmVRjwUB5Lw0bLZLL-+=CqvGkJZ+2DY5ZDh+uN-oo0g@mail.gmail.com>
+ <affee955-54bc-11c3-8ccd-5678f7aee687@amd.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <d1ee65748d6ee788c1f882b2f73dddaf7eb191e6.camel@sipsolutions.net>
+In-Reply-To: <affee955-54bc-11c3-8ccd-5678f7aee687@amd.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 06, 2021 at 04:09:10PM +0200, Johannes Berg wrote:
->On Tue, 2021-07-06 at 07:13 -0400, Sasha Levin wrote:
->> From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
->>
->> [ Upstream commit d65ab7c0e0b92056754185d3f6925d7318730e94 ]
->>
->> It's been a while that the firmware uses LONG_GROUP by default
->> and not LEGACY_GROUP.
->> Until now the firmware wrongly advertise the WOWLAN_GET_STATUS
->> command's version with LEGACY_GROUP, but it is now being fixed.
+On Tue, Jul 06, 2021 at 07:09:37PM -0400, Felix Kuehling wrote:
+>Am 2021-07-06 um 5:44 p.m. schrieb Alex Deucher:
+>> On Tue, Jul 6, 2021 at 7:16 AM Sasha Levin <sashal@kernel.org> wrote:
+>>> From: Yifan Zhang <yifan1.zhang@amd.com>
+>>>
+>>> [ Upstream commit 631003101c516ea29a74aee59666708857b9a805 ]
+>>>
+>>> If GC has entered CGPG, ringing doorbell > first page doesn't wakeup GC.
+>>> Enlarge CP_MEC_DOORBELL_RANGE_UPPER to workaround this issue.
+>>>
+>>> Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+>>> Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+>>> Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+>>> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> This should be dropped.  It was already reverted.
 >
->"Being fixed" here is the key - this will affect only firmware versions
->that the older drivers in stable won't load. No need to backport this.
+>Patch 146 of this series is the corresponding revert.
 
-I'll drop it, thanks!
+I'll drop both, thanks!
 
 -- 
 Thanks,
