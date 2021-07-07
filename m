@@ -2,86 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECECE3BE6AC
-	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 12:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C83C53BE6B7
+	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 12:55:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231430AbhGGKzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Jul 2021 06:55:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48534 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231220AbhGGKzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Jul 2021 06:55:11 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A969AC061574
-        for <stable@vger.kernel.org>; Wed,  7 Jul 2021 03:52:31 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=[IPv6:::1])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <l.stach@pengutronix.de>)
-        id 1m15AK-0007KA-CP; Wed, 07 Jul 2021 12:52:28 +0200
-Message-ID: <099ef9f1cd1b865afd9cb8849d5485776ad1b868.camel@pengutronix.de>
-Subject: Re: [PATCH AUTOSEL 5.13 001/189] drm/etnaviv: fix NULL check before
- some freeing functions is not needed
-From:   Lucas Stach <l.stach@pengutronix.de>
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Tian Tao <tiantao6@hisilicon.com>,
-        Christian =?ISO-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-        etnaviv@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Date:   Wed, 07 Jul 2021 12:52:25 +0200
-In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
-References: <20210706111409.2058071-1-sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.40.1 (3.40.1-1.fc34) 
+        id S231283AbhGGK6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Jul 2021 06:58:12 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:51884 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231274AbhGGK6L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Jul 2021 06:58:11 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 28E1C2203E;
+        Wed,  7 Jul 2021 10:55:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1625655331; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=dFk9WWUY0k/N1hD9DATQGxyyNt/P111NDg4+WjkF+9k=;
+        b=XtyWZykU0Ogynlim5SWd1Py4ae5NBYtRVZ4RscyUlMYlUJ/jog2wt1JqOSqExgdQ26ILw/
+        b5QGmznHxi3tFRMQjzXqSg21r0AVGnK7EprdC38vhXtxSF5BGH3YfDM7BphdkHTkipEUx8
+        gYzyaPJs/kG19pOHegLeJmuAJD+vo2M=
+Received: from suse.cz (unknown [10.100.216.66])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 04DF3A3BA9;
+        Wed,  7 Jul 2021 10:55:30 +0000 (UTC)
+Date:   Wed, 7 Jul 2021 12:55:30 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, akpm@linux-foundation.org,
+        jenhaochen@google.com, liumartin@google.com, minchan@google.com,
+        nathan@kernel.org, ndesaulniers@google.com, oleg@redhat.com,
+        tj@kernel.org, torvalds@linux-foundation.org
+Subject: Re: [PATCH 0/2] kthread_worker: Fix race between
+ kthread_mod_delayed_work()
+Message-ID: <YOWIIok+uvE+/xt6@alley>
+References: <162480383515619@kroah.com>
+ <20210630110149.25086-1-pmladek@suse.com>
+ <YNxQPzcr7FaMERZd@kroah.com>
+ <YNxWIb1GBU0hOE8B@alley>
+ <YOKwgmjdIF0Eunaq@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: l.stach@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YOKwgmjdIF0Eunaq@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am Dienstag, dem 06.07.2021 um 07:11 -0400 schrieb Sasha Levin:
-> From: Tian Tao <tiantao6@hisilicon.com>
+On Mon 2021-07-05 09:10:58, Greg KH wrote:
+> On Wed, Jun 30, 2021 at 01:31:45PM +0200, Petr Mladek wrote:
+> > On Wed 2021-06-30 13:06:39, Greg KH wrote:
+> > > On Wed, Jun 30, 2021 at 01:01:47PM +0200, Petr Mladek wrote:
+> > > > This is backport of the series for the following stable trees:
+> > > > 
+> > > >    + 4.9
+> > > >    + 4.14
+> > > >    + 4.19
+> > > > 
+> > > > The orignal series did not apply because of a conflict with the commit
+> > > > ("kthread: Convert worker lock to raw spinlock").
+> > > > 
+> > > > Petr Mladek (2):
+> > > >   kthread_worker: split code for canceling the delayed work timer
+> > > >   kthread: prevent deadlock when kthread_mod_delayed_work() races with
+> > > >     kthread_cancel_delayed_work_sync()
+> > > > 
+> > > >  kernel/kthread.c | 77 ++++++++++++++++++++++++++++++++----------------
+> > > >  1 file changed, 51 insertions(+), 26 deletions(-)
+> > > > 
+> > > > -- 
+> > > > 2.26.2
+> > > > 
+> > > 
+> > > What is the original git commit ids of these patches in Linus's tree?
+> > 
+> > commit 34b3d5344719d14fd2185b2d9459b3abcb8cf9d8 ("kthread_worker: split code for canceling the delayed work timer")
+> > commit 5fa54346caf67b4b1b10b1f390316ae466da4d53 ("kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync())"
+> > 
+> > The original commits have already been taken for the newer stable trees.
+> > 
+> > I am sorry for the inconvenience.
 > 
-> [ Upstream commit 7d614ab2f20503ed8766363d41f8607337571adf ]
-> 
-> fixed the below warning:
-> drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c:84:2-8: WARNING: NULL check
-> before some freeing functions is not needed.
+> What about backports for 5.4, 5.10, and 5.12?  We can not take patches
+> only for older kernels, otherwise people upgrading to newer ones would
+> have a regression.  Please can you submit these patches for those trees
+> too?  Until that, I can not take these.
 
-While the subject contains "fix" this only removes a duplicated NULL
-check, so the code is correct before and after this change.
-Is this really stable material? Doesn't this just add commit noise to
-the stable kernels?
+The patches for 5.4, 5.10, and 5.12 did not need any changes. My
+understanding is that the original commits have already been queued
+for these never code trees. See the mail in stable-commits:
 
-Regards,
-Lucas
+for 5.4:
 
-> 
-> Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
-> Acked-by: Christian König <christian.koenig@amd.com>
-> Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-> index b390dd4d60b7..d741b1d735f7 100644
-> --- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-> +++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-> @@ -80,8 +80,7 @@ static void etnaviv_gem_prime_release(struct etnaviv_gem_object *etnaviv_obj)
->  	/* Don't drop the pages for imported dmabuf, as they are not
->  	 * ours, just free the array we allocated:
->  	 */
-> -	if (etnaviv_obj->pages)
-> -		kvfree(etnaviv_obj->pages);
-> +	kvfree(etnaviv_obj->pages);
->  
->  	drm_prime_gem_destroy(&etnaviv_obj->base, etnaviv_obj->sgt);
->  }
+https://www.spinics.net/lists/stable-commits/msg203482.html
+https://www.spinics.net/lists/stable-commits/msg203481.html
 
+for 5.10:
 
+https://www.spinics.net/lists/stable-commits/msg203486.html
+https://www.spinics.net/lists/stable-commits/msg203485.html
+
+for 5.12:
+
+https://www.spinics.net/lists/stable-commits/msg203494.html
+https://www.spinics.net/lists/stable-commits/msg203493.html
+
+I am sorry, I should have mentioned this in the cover letter.
+
+Best Regards,
+Petr
