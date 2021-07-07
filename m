@@ -2,245 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C08E73BF14E
-	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 23:18:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB843BF15F
+	for <lists+stable@lfdr.de>; Wed,  7 Jul 2021 23:23:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230295AbhGGVU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Jul 2021 17:20:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47746 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229829AbhGGVU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Jul 2021 17:20:59 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C3F6C061574
-        for <stable@vger.kernel.org>; Wed,  7 Jul 2021 14:18:18 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id y2so1786860plc.8
-        for <stable@vger.kernel.org>; Wed, 07 Jul 2021 14:18:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=z03lXGzIPy/zRuNZ4SlBDeOByI7kVXqONGtj202E08A=;
-        b=hCK0peqkHt3n1kWd7jwFCQbQDIVfKYKPZ2ykMMh1ihRl0f8Vcy4Yl+B2Chq1v/ktHv
-         BSqEoeQCZUgV/HeBe3lFt0H+38lo8ITKexk5MlKPO3zlLf7Oqm7/69j3AbSmo4sEyqI9
-         N+9hFQ/i0tg/AZZz/OY4YxmDpN3JWDS1YVfIK/Me7fEZD7aAWkRpbz9Q/53rKo6Z9HEy
-         IeKHu0bqGNlAR1BUYuduQOT0hv+4u2anMhU+331dzbFpgmaUd/8YWadfOh30nlStuBur
-         AxRbvk4c4jWf+RIqVgQsP1DUHh6qOWPxBDgko1UvzJ468Tlc9ynrLr4f+cXYVV4Le0mJ
-         nw8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=z03lXGzIPy/zRuNZ4SlBDeOByI7kVXqONGtj202E08A=;
-        b=XQtf7uj54v+J7Daxn309DZvBh4Bqn74DZfZRhcTvwU8DvPHKaAQTCwNvyQJMj4i3mF
-         idlGP2KbyI6IRT0r254HDSXzBCvLQ9y4M2q9pO3mtT2qBXWDiLl+mF2GoINVzag2g/zA
-         fLNUFZjbJVrlgodYbal7cEEl16gGQv6hVaOv7jEPX8bkYdDeoAXpgY5NtTo9UbDG7840
-         2mZmvFkhFnMPP7MxODvXgwtuelvWg8mRk+7vd0mcz1nykG7OBFPYykbVTESFyW0epgA+
-         BhDp80X/OaCua0tazeDPmGddjL6tzdD+XEW32KW+wXZtI3Ea3y69uB3Y+4zkbKUAcTfR
-         lV4w==
-X-Gm-Message-State: AOAM533A3rc7vbeaDWq7hGpbVeS37NR1AO1/TxzZIr6LdeGD8nmiTOKf
-        hip3QFcWcH9i4UiosAhi56p+axHggxp3/Zcn
-X-Google-Smtp-Source: ABdhPJxxZpw2RC/avPy00xCFks0XctMS9bTo769gTRI9UhGHvR06dFBtoaKzfSPaohtAnywrVm3/IA==
-X-Received: by 2002:a17:90a:ea98:: with SMTP id h24mr1018784pjz.7.1625692697922;
-        Wed, 07 Jul 2021 14:18:17 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t6sm7279294pjo.4.2021.07.07.14.18.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Jul 2021 14:18:17 -0700 (PDT)
-Message-ID: <60e61a19.1c69fb81.dfb01.6b2f@mx.google.com>
-Date:   Wed, 07 Jul 2021 14:18:17 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230432AbhGGV01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Jul 2021 17:26:27 -0400
+Received: from angie.orcam.me.uk ([78.133.224.34]:60500 "EHLO
+        angie.orcam.me.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232603AbhGGV01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Jul 2021 17:26:27 -0400
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+        id AA3C392009C; Wed,  7 Jul 2021 23:23:43 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by angie.orcam.me.uk (Postfix) with ESMTP id A294892009B;
+        Wed,  7 Jul 2021 23:23:43 +0200 (CEST)
+Date:   Wed, 7 Jul 2021 23:23:43 +0200 (CEST)
+From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
+To:     Bjorn Helgaas <bhelgaas@google.com>
+cc:     linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] PCI: Do not restore firmware BAR assignments behind a PCI-PCI
+ bridge
+Message-ID: <alpine.DEB.2.21.2104211620400.44318@angie.orcam.me.uk>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.48
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable/linux-5.10.y baseline: 221 runs, 6 regressions (v5.10.48)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 221 runs, 6 regressions (v5.10.48)
+Fix an issue with the Tyan Tomcat IV S1564D system, the BIOS of which 
+does not assign PCI buses beyond #2, where our resource reallocation 
+code preserves the reset default of an I/O BAR assignment outside its 
+upstream PCI-to-PCI bridge's I/O forwarding range for device 06:08.0 in 
+this log:
 
-Regressions Summary
--------------------
+pci_bus 0000:00: max bus depth: 4 pci_try_num: 5
+[...]
+pci 0000:06:08.0: BAR 4: no space for [io  size 0x0020]
+pci 0000:06:08.0: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+pci 0000:06:08.0: BAR 4: assigned [io  0xfce0-0xfcff]
+pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
+pci 0000:06:08.1: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff] conflicts with 0000:06:08.0 [io  0xfce0-0xfcff]
+pci 0000:06:08.1: BAR 4: failed to assign [io  size 0x0020]
+pci 0000:05:00.0: PCI bridge to [bus 06]
+pci 0000:05:00.0:   bridge window [mem 0xd8000000-0xd85fffff]
+[...]
+pci 0000:00:11.0: PCI bridge to [bus 01-06]
+pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+pci 0000:00:11.0:   bridge window [mem 0xd8000000-0xdfffffff]
+pci 0000:00:11.0:   bridge window [mem 0xa8000000-0xafffffff 64bit pref]
+pci_bus 0000:00: No. 2 try to assign unassigned res
+[...]
+pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
+pci 0000:06:08.1: BAR 4: trying firmware assignment [io  0xfce0-0xfcff]
+pci 0000:06:08.1: BAR 4: [io  0xfce0-0xfcff] conflicts with 0000:06:08.0 [io  0xfce0-0xfcff]
+pci 0000:06:08.1: BAR 4: failed to assign [io  size 0x0020]
+pci 0000:05:00.0: PCI bridge to [bus 06]
+pci 0000:05:00.0:   bridge window [mem 0xd8000000-0xd85fffff]
+[...]
+pci 0000:00:11.0: PCI bridge to [bus 01-06]
+pci 0000:00:11.0:   bridge window [io  0xe000-0xefff]
+pci 0000:00:11.0:   bridge window [mem 0xd8000000-0xdfffffff]
+pci 0000:00:11.0:   bridge window [mem 0xa8000000-0xafffffff 64bit pref]
+pci_bus 0000:00: No. 3 try to assign unassigned res
+pci 0000:00:11.0: resource 7 [io  0xe000-0xefff] released
+[...]
+pci 0000:06:08.1: BAR 4: assigned [io  0x2000-0x201f]
+pci 0000:05:00.0: PCI bridge to [bus 06]
+pci 0000:05:00.0:   bridge window [io  0x2000-0x2fff]
+pci 0000:05:00.0:   bridge window [mem 0xd8000000-0xd85fffff]
+[...]
+pci 0000:00:11.0: PCI bridge to [bus 01-06]
+pci 0000:00:11.0:   bridge window [io  0x1000-0x2fff]
+pci 0000:00:11.0:   bridge window [mem 0xd8000000-0xdfffffff]
+pci 0000:00:11.0:   bridge window [mem 0xa8000000-0xafffffff 64bit pref]
+pci_bus 0000:00: resource 4 [io  0x0000-0xffff]
+pci_bus 0000:00: resource 5 [mem 0x00000000-0xffffffff]
+pci_bus 0000:01: resource 0 [io  0x1000-0x2fff]
+pci_bus 0000:01: resource 1 [mem 0xd8000000-0xdfffffff]
+pci_bus 0000:01: resource 2 [mem 0xa8000000-0xafffffff 64bit pref]
+pci_bus 0000:02: resource 0 [io  0x1000-0x2fff]
+pci_bus 0000:02: resource 1 [mem 0xd8000000-0xd8bfffff]
+pci_bus 0000:04: resource 0 [io  0x1000-0x1fff]
+pci_bus 0000:04: resource 1 [mem 0xd8600000-0xd8afffff]
+pci_bus 0000:05: resource 0 [io  0x2000-0x2fff]
+pci_bus 0000:05: resource 1 [mem 0xd8000000-0xd85fffff]
+pci_bus 0000:06: resource 0 [io  0x2000-0x2fff]
+pci_bus 0000:06: resource 1 [mem 0xd8000000-0xd85fffff]
 
-platform             | arch  | lab           | compiler | defconfig        =
-  | regressions
----------------------+-------+---------------+----------+------------------=
---+------------
-hip07-d05            | arm64 | lab-collabora | gcc-8    | defconfig        =
-  | 1          =
+-- note that the assignment of 0xfce0-0xfcff is outside the range of 
+0x2000-0x2fff assigned to bus #6:
 
-imx8mp-evk           | arm64 | lab-nxp       | gcc-8    | defconfig        =
-  | 1          =
+05:00.0 PCI bridge: Texas Instruments XIO2000(A)/XIO2200A PCI Express-to-PCI Bridge (rev 03) (prog-if 00 [Normal decode])
+        Flags: bus master, fast devsel, latency 0
+        Bus: primary=05, secondary=06, subordinate=06, sec-latency=0
+        I/O behind bridge: 00002000-00002fff
+        Memory behind bridge: d8000000-d85fffff
+        Capabilities: [50] Power Management version 2
+        Capabilities: [60] Message Signalled Interrupts: 64bit+ Queue=0/4 Enable-
+        Capabilities: [80] #0d [0000]
+        Capabilities: [90] Express PCI/PCI-X Bridge IRQ 0
 
-meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-  | 1          =
+06:08.0 USB controller: VIA Technologies, Inc. VT82xx/62xx/VX700/8x0/900 UHCI USB 1.1 Controller (rev 61) (prog-if 00 [UHCI])
+	Subsystem: VIA Technologies, Inc. VT82xx/62xx/VX700/8x0/900 UHCI USB 1.1 Controller
+        Flags: bus master, medium devsel, latency 22, IRQ 5
+        I/O ports at fce0 [size=32]
+        Capabilities: [80] Power Management version 2
 
-rk3288-veyron-jaq    | arm   | lab-collabora | gcc-8    | multi_v7_defconfi=
-g | 3          =
+06:08.1 USB controller: VIA Technologies, Inc. VT82xx/62xx/VX700/8x0/900 UHCI USB 1.1 Controller (rev 61) (prog-if 00 [UHCI])
+	Subsystem: VIA Technologies, Inc. VT82xx/62xx/VX700/8x0/900 UHCI USB 1.1 Controller
+        Flags: bus master, medium devsel, latency 22, IRQ 5
+        I/O ports at 2000 [size=32]
+        Capabilities: [80] Power Management version 2
 
+Since both 06:08.0 and 06:08.1 have the same reset defaults the latter 
+device escapes its fate and gets a good assignment owing to an address 
+conflict with the former device.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.48/plan/baseline/
+Consequently when the device driver tries to access 06:08.0 according to 
+its designated address range it pokes at an unassigned I/O location, 
+likely subtractively decoded by the southbridge and forwarded to ISA, 
+causing the driver to become confused and bail out:
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.48
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      a09a52277207fa79fc1aa7c32be6035c264a79c4 =
+uhci_hcd 0000:06:08.0: host system error, PCI problems?
+uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
+uhci_hcd 0000:06:08.0: host controller halted, very bad!
+uhci_hcd 0000:06:08.0: HCRESET not completed yet!
+uhci_hcd 0000:06:08.0: HC died; cleaning up
 
+if good luck happens or if bad luck does, an infinite flood of messages:
 
+uhci_hcd 0000:06:08.0: host system error, PCI problems?
+uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
+uhci_hcd 0000:06:08.0: host system error, PCI problems?
+uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
+uhci_hcd 0000:06:08.0: host system error, PCI problems?
+uhci_hcd 0000:06:08.0: host controller process error, something bad happened!
+[...]
 
-Test Regressions
----------------- =
+making the system virtually unusuable.
 
+This is because we have code to deal with a situation from PR #16263, 
+where broken ACPI firmware reports the wrong address range for the host 
+bridge's decoding window and trying to adjust to the window causes more 
+breakage than leaving the BIOS assignments intact.
 
+This may work for a device directly on the root bus decoded by the host 
+bridge only, but for a device behind one or more PCI-to-PCI (or CardBus) 
+bridges those bridges' forwarding windows have been standardised and 
+need to be respected, or leaving whatever has been there in a downstream 
+device's BAR will have no effect as cycles for the addresses recorded 
+there will have no chance to appear on the bus the device has been 
+immediately attached to.
 
-platform             | arch  | lab           | compiler | defconfig        =
-  | regressions
----------------------+-------+---------------+----------+------------------=
---+------------
-hip07-d05            | arm64 | lab-collabora | gcc-8    | defconfig        =
-  | 1          =
+Do not restore the firmware assignment for a device behind a PCI-to-PCI 
+bridge then, fixing the system concerned as follows:
 
+pci_bus 0000:00: max bus depth: 4 pci_try_num: 5
+[...]
+pci 0000:06:08.0: BAR 4: no space for [io  size 0x0020]
+pci 0000:06:08.0: BAR 4: failed to assign [io  size 0x0020]
+pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
+pci 0000:06:08.1: BAR 4: failed to assign [io  size 0x0020]
+[...]
+pci_bus 0000:00: No. 2 try to assign unassigned res
+[...]
+pci 0000:06:08.0: BAR 4: no space for [io  size 0x0020]
+pci 0000:06:08.0: BAR 4: failed to assign [io  size 0x0020]
+pci 0000:06:08.1: BAR 4: no space for [io  size 0x0020]
+pci 0000:06:08.1: BAR 4: failed to assign [io  size 0x0020]
+[...]
+pci_bus 0000:00: No. 3 try to assign unassigned res
+[...]
+pci 0000:06:08.0: BAR 4: assigned [io  0x2000-0x201f]
+pci 0000:06:08.1: BAR 4: assigned [io  0x2020-0x203f]
 
-  Details:     https://kernelci.org/test/plan/id/60e5e9fec8b2befc38117982
+and making device 06:08.0 work correctly.
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.48/a=
-rm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.48/a=
-rm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+Cf. <https://bugzilla.kernel.org/show_bug.cgi?id=16263>
 
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 58c84eda0756 ("PCI: fall back to original BIOS BAR addresses")
+Cc: stable@vger.kernel.org # v2.6.35+
+---
+For the record the system's bus topology is as follows:
 
+-[0000:00]-+-00.0
+           +-07.0
+           +-07.1
+           +-07.2
+           +-11.0-[0000:01-06]----00.0-[0000:02-06]--+-00.0-[0000:03]--
+           |                                         +-01.0-[0000:04]--+-00.0
+           |                                         |                 \-00.3
+           |                                         \-02.0-[0000:05-06]----00.0-[0000:06]--+-05.0
+           |                                                                                +-08.0
+           |                                                                                +-08.1
+           |                                                                                \-08.2
+           +-12.0
+           +-13.0
+           \-14.0
+---
+ drivers/pci/setup-res.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-  * baseline.login: https://kernelci.org/test/case/id/60e5e9fec8b2befc38117=
-983
-        new failure (last pass: v5.10.46) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-  | regressions
----------------------+-------+---------------+----------+------------------=
---+------------
-imx8mp-evk           | arm64 | lab-nxp       | gcc-8    | defconfig        =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e5e5d4d4a079e48711797a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.48/a=
-rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.48/a=
-rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e5e5d4d4a079e487117=
-97b
-        new failure (last pass: v5.10.47) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-  | regressions
----------------------+-------+---------------+----------+------------------=
---+------------
-meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e5ea7659df209baa117976
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.48/a=
-rm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905d-p230.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.48/a=
-rm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905d-p230.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e5ea7659df209baa117=
-977
-        failing since 7 days (last pass: v5.10.46, first fail: v5.10.47) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-  | regressions
----------------------+-------+---------------+----------+------------------=
---+------------
-rk3288-veyron-jaq    | arm   | lab-collabora | gcc-8    | multi_v7_defconfi=
-g | 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e5e4879935eb1d35117976
-
-  Results:     67 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.48/a=
-rm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.48/a=
-rm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60e5e4889935eb1d3511798a
-        failing since 21 days (last pass: v5.10.43, first fail: v5.10.44)
-
-    2021-07-07T17:29:21.617104  /lava-4153400/1/../bin/lava-test-case
-    2021-07-07T17:29:21.634309  <8>[   13.241482] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-07-07T17:29:21.634873  /lava-4153400/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60e5e4889935eb1d351179a2
-        failing since 21 days (last pass: v5.10.43, first fail: v5.10.44)
-
-    2021-07-07T17:29:20.187944  /lava-4153400/1/../bin/lava-test-case
-    2021-07-07T17:29:20.193515  <8>[   11.813370] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60e5e4889935eb1d351179a3
-        failing since 21 days (last pass: v5.10.43, first fail: v5.10.44)
-
-    2021-07-07T17:29:19.168983  /lava-4153400/1/../bin/lava-test-case
-    2021-07-07T17:29:19.174310  <8>[   10.793495] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
+linux-pci-setup-res-fw-address-nobridge.diff
+Index: linux-macro-ide-tty/drivers/pci/setup-res.c
+===================================================================
+--- linux-macro-ide-tty.orig/drivers/pci/setup-res.c
++++ linux-macro-ide-tty/drivers/pci/setup-res.c
+@@ -328,13 +328,15 @@ int pci_assign_resource(struct pci_dev *
+ 	ret = _pci_assign_resource(dev, resno, size, align);
+ 
+ 	/*
+-	 * If we failed to assign anything, let's try the address
+-	 * where firmware left it.  That at least has a chance of
+-	 * working, which is better than just leaving it disabled.
++	 * If we failed to assign anything and we're not behind a P2P
++	 * or CardBus bridge, let's try the address where firmware
++	 * left it.  That at least has a chance of working, which is
++	 * better than just leaving it disabled.
+ 	 */
+ 	if (ret < 0) {
+ 		pci_info(dev, "BAR %d: no space for %pR\n", resno, res);
+-		ret = pci_revert_fw_address(res, dev, resno, size);
++		if (!dev->bus->parent)
++			ret = pci_revert_fw_address(res, dev, resno, size);
+ 	}
+ 
+ 	if (ret < 0) {
