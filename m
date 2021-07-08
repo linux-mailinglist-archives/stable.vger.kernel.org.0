@@ -2,130 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2133BF353
-	for <lists+stable@lfdr.de>; Thu,  8 Jul 2021 03:10:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F193BF4F5
+	for <lists+stable@lfdr.de>; Thu,  8 Jul 2021 07:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230234AbhGHBM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Jul 2021 21:12:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53246 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230169AbhGHBM5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 7 Jul 2021 21:12:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8F461C77;
-        Thu,  8 Jul 2021 01:10:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1625706616;
-        bh=c58G42tAplLF5/KPACite1bg2ijNN7fTerdBh9raGmc=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=xCxAkZX7HilYDYIC+MpkYdEr1mRriJlIYn2ByL/9R1GOZ9KZlwqRVUIkJI48vNfYB
-         OjA2eEUPeZKztSdga5m3CMRGaGGJJTohsVwbfBy+6byG+Cu9RuG9sXeAZcgP8DRLAm
-         0Jgtr1Q73LRZGzdvA4IjEr/2lpZPykx9wTYO418U=
-Date:   Wed, 07 Jul 2021 18:10:15 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, aneesh.kumar@linux.ibm.com,
-        christophe.leroy@csgroup.eu, hughd@google.com,
-        joel@joelfernandes.org, kaleshsingh@google.com,
-        kirill.shutemov@linux.intel.com, kirill@shutemov.name,
-        linux-mm@kvack.org, mm-commits@vger.kernel.org, mpe@ellerman.id.au,
-        npiggin@gmail.com, sfr@canb.auug.org.au, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 51/54] mm/mremap: hold the rmap lock in write mode
- when moving page table entries.
-Message-ID: <20210708011015.CbAeaXmtO%akpm@linux-foundation.org>
-In-Reply-To: <20210707175950.eceddb86c6c555555d4730e2@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S229579AbhGHFNg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Jul 2021 01:13:36 -0400
+Received: from mo-csw-fb1516.securemx.jp ([210.130.202.172]:43468 "EHLO
+        mo-csw-fb.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229541AbhGHFNf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Jul 2021 01:13:35 -0400
+X-Greylist: delayed 462 seconds by postgrey-1.27 at vger.kernel.org; Thu, 08 Jul 2021 01:13:35 EDT
+Received: by mo-csw-fb.securemx.jp (mx-mo-csw-fb1516) id 16853AEx006751; Thu, 8 Jul 2021 14:03:11 +0900
+Received: by mo-csw.securemx.jp (mx-mo-csw1516) id 16852xCX011764; Thu, 8 Jul 2021 14:02:59 +0900
+X-Iguazu-Qid: 34tMQyetGqxOwDtXk9
+X-Iguazu-QSIG: v=2; s=0; t=1625720578; q=34tMQyetGqxOwDtXk9; m=om0/MT42/M7qUcisJqqNBVyJ4caSpew5qbE9LLratRw=
+Received: from imx12-a.toshiba.co.jp (imx12-a.toshiba.co.jp [61.202.160.135])
+        by relay.securemx.jp (mx-mr1510) id 16852w2q037734
+        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
+        Thu, 8 Jul 2021 14:02:58 +0900
+Received: from enc02.toshiba.co.jp (enc02.toshiba.co.jp [61.202.160.51])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by imx12-a.toshiba.co.jp (Postfix) with ESMTPS id 05CD21000F7;
+        Thu,  8 Jul 2021 14:02:58 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id 16852vr9026178;
+        Thu, 8 Jul 2021 14:02:57 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        David Rientjes <rientjes@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH for 4.19, 5.4] KVM: SVM: Periodically schedule when unregistering regions on destroy
+Date:   Thu,  8 Jul 2021 14:02:53 +0900
+X-TSB-HOP: ON
+Message-Id: <20210708050253.341098-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+X-Mailer: git-send-email 2.32.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: mm/mremap: hold the rmap lock in write mode when moving page table entries.
+From: David Rientjes <rientjes@google.com>
 
-To avoid a race between rmap walk and mremap, mremap does
-take_rmap_locks().  The lock was taken to ensure that rmap walk don't miss
-a page table entry due to PTE moves via move_pagetables().  The kernel
-does further optimization of this lock such that if we are going to find
-the newly added vma after the old vma, the rmap lock is not taken.  This
-is because rmap walk would find the vmas in the same order and if we don't
-find the page table attached to older vma we would find it with the new
-vma which we would iterate later.
+commit 7be74942f184fdfba34ddd19a0d995deb34d4a03 upstream.
 
-As explained in commit eb66ae030829 ("mremap: properly flush TLB before
-releasing the page") mremap is special in that it doesn't take ownership
-of the page.  The optimized version for PUD/PMD aligned mremap also
-doesn't hold the ptl lock.  This can result in stale TLB entries as show
-below.
+There may be many encrypted regions that need to be unregistered when a
+SEV VM is destroyed.  This can lead to soft lockups.  For example, on a
+host running 4.15:
 
-This patch updates the rmap locking requirement in mremap to handle the race condition
-explained below with optimized mremap::
+watchdog: BUG: soft lockup - CPU#206 stuck for 11s! [t_virtual_machi:194348]
+CPU: 206 PID: 194348 Comm: t_virtual_machi
+RIP: 0010:free_unref_page_list+0x105/0x170
+...
+Call Trace:
+ [<0>] release_pages+0x159/0x3d0
+ [<0>] sev_unpin_memory+0x2c/0x50 [kvm_amd]
+ [<0>] __unregister_enc_region_locked+0x2f/0x70 [kvm_amd]
+ [<0>] svm_vm_destroy+0xa9/0x200 [kvm_amd]
+ [<0>] kvm_arch_destroy_vm+0x47/0x200
+ [<0>] kvm_put_kvm+0x1a8/0x2f0
+ [<0>] kvm_vm_release+0x25/0x30
+ [<0>] do_exit+0x335/0xc10
+ [<0>] do_group_exit+0x3f/0xa0
+ [<0>] get_signal+0x1bc/0x670
+ [<0>] do_signal+0x31/0x130
 
-Optmized PMD move
+Although the CLFLUSH is no longer issued on every encrypted region to be
+unregistered, there are no other changes that can prevent soft lockups for
+very large SEV VMs in the latest kernel.
 
-    CPU 1                           CPU 2                                   CPU 3
+Periodically schedule if necessary.  This still holds kvm->lock across the
+resched, but since this only happens when the VM is destroyed this is
+assumed to be acceptable.
 
-    mremap(old_addr, new_addr)      page_shrinker/try_to_unmap_one
-
-    mmap_write_lock_killable()
-
-                                    addr = old_addr
-                                    lock(pte_ptl)
-    lock(pmd_ptl)
-    pmd = *old_pmd
-    pmd_clear(old_pmd)
-    flush_tlb_range(old_addr)
-
-    *new_pmd = pmd
-                                                                            *new_addr = 10; and fills
-                                                                            TLB with new addr
-                                                                            and old pfn
-
-    unlock(pmd_ptl)
-                                    ptep_clear_flush()
-                                    old pfn is free.
-                                                                            Stale TLB entry
-
-Optimized PUD move also suffers from a similar race.  Both the above race
-condition can be fixed if we force mremap path to take rmap lock.
-
-Link: https://lkml.kernel.org/r/20210616045239.370802-7-aneesh.kumar@linux.ibm.com
-Fixes: 2c91bd4a4e2e ("mm: speed up mremap by 20x on large regions")
-Fixes: c49dd3401802 ("mm: speedup mremap on 1GB or larger regions")
-Link: https://lore.kernel.org/linux-mm/CAHk-=wgXVR04eBNtxQfevontWnP6FDm+oj5vauQXP3S-huwbPw@mail.gmail.com
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Cc: Kalesh Singh <kaleshsingh@google.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: David Rientjes <rientjes@google.com>
+Message-Id: <alpine.DEB.2.23.453.2008251255240.2987727@chino.kir.corp.google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[iwamatsu: adjust filename.]
+Reference: CVE-2020-36311
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 ---
+ arch/x86/kvm/svm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- mm/mremap.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index c5673bda4b66df..3f776e654e3aec 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1910,6 +1910,7 @@ static void sev_vm_destroy(struct kvm *kvm)
+ 		list_for_each_safe(pos, q, head) {
+ 			__unregister_enc_region_locked(kvm,
+ 				list_entry(pos, struct enc_region, list));
++			cond_resched();
+ 		}
+ 	}
+ 
+-- 
+2.31.1
 
---- a/mm/mremap.c~mm-mremap-hold-the-rmap-lock-in-write-mode-when-moving-page-table-entries
-+++ a/mm/mremap.c
-@@ -504,7 +504,7 @@ unsigned long move_page_tables(struct vm
- 		} else if (IS_ENABLED(CONFIG_HAVE_MOVE_PUD) && extent == PUD_SIZE) {
- 
- 			if (move_pgt_entry(NORMAL_PUD, vma, old_addr, new_addr,
--					   old_pud, new_pud, need_rmap_locks))
-+					   old_pud, new_pud, true))
- 				continue;
- 		}
- 
-@@ -531,7 +531,7 @@ unsigned long move_page_tables(struct vm
- 			 * moving at the PMD level if possible.
- 			 */
- 			if (move_pgt_entry(NORMAL_PMD, vma, old_addr, new_addr,
--					   old_pmd, new_pmd, need_rmap_locks))
-+					   old_pmd, new_pmd, true))
- 				continue;
- 		}
- 
-_
