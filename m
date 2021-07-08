@@ -2,104 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F193BF4F5
-	for <lists+stable@lfdr.de>; Thu,  8 Jul 2021 07:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 158BB3BF5C7
+	for <lists+stable@lfdr.de>; Thu,  8 Jul 2021 08:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbhGHFNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Jul 2021 01:13:36 -0400
-Received: from mo-csw-fb1516.securemx.jp ([210.130.202.172]:43468 "EHLO
-        mo-csw-fb.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbhGHFNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Jul 2021 01:13:35 -0400
-X-Greylist: delayed 462 seconds by postgrey-1.27 at vger.kernel.org; Thu, 08 Jul 2021 01:13:35 EDT
-Received: by mo-csw-fb.securemx.jp (mx-mo-csw-fb1516) id 16853AEx006751; Thu, 8 Jul 2021 14:03:11 +0900
-Received: by mo-csw.securemx.jp (mx-mo-csw1516) id 16852xCX011764; Thu, 8 Jul 2021 14:02:59 +0900
-X-Iguazu-Qid: 34tMQyetGqxOwDtXk9
-X-Iguazu-QSIG: v=2; s=0; t=1625720578; q=34tMQyetGqxOwDtXk9; m=om0/MT42/M7qUcisJqqNBVyJ4caSpew5qbE9LLratRw=
-Received: from imx12-a.toshiba.co.jp (imx12-a.toshiba.co.jp [61.202.160.135])
-        by relay.securemx.jp (mx-mr1510) id 16852w2q037734
-        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
-        Thu, 8 Jul 2021 14:02:58 +0900
-Received: from enc02.toshiba.co.jp (enc02.toshiba.co.jp [61.202.160.51])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by imx12-a.toshiba.co.jp (Postfix) with ESMTPS id 05CD21000F7;
-        Thu,  8 Jul 2021 14:02:58 +0900 (JST)
-Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id 16852vr9026178;
-        Thu, 8 Jul 2021 14:02:57 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+        id S229843AbhGHGwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Jul 2021 02:52:43 -0400
+Received: from smtp.gentoo.org ([140.211.166.183]:45682 "EHLO smtp.gentoo.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229842AbhGHGwn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Jul 2021 02:52:43 -0400
+X-Greylist: delayed 593 seconds by postgrey-1.27 at vger.kernel.org; Thu, 08 Jul 2021 02:52:43 EDT
+Date:   Wed, 7 Jul 2021 23:40:02 -0700
+From:   Georgy Yakovlev <gyakovlev@gentoo.org>
 To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        David Rientjes <rientjes@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH for 4.19, 5.4] KVM: SVM: Periodically schedule when unregistering regions on destroy
-Date:   Thu,  8 Jul 2021 14:02:53 +0900
-X-TSB-HOP: ON
-Message-Id: <20210708050253.341098-1-nobuhiro1.iwamatsu@toshiba.co.jp>
-X-Mailer: git-send-email 2.32.0
+Cc:     paulus@ozlabs.org, farosas@linux.ibm.com, kernel@gentoo.org,
+        dist-kernel@gentoo.org
+Subject: please include KVM: PPC: Book3S HV: Save and restore FSCR in the P9
+ path
+Message-ID: <20210708064002.hzkjvvzhjticalzm@cerberus>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Rientjes <rientjes@google.com>
+Hi,
 
-commit 7be74942f184fdfba34ddd19a0d995deb34d4a03 upstream.
+I'd like to propose the following patch for inclusion into 5.10 LTS
 
-There may be many encrypted regions that need to be unregistered when a
-SEV VM is destroyed.  This can lead to soft lockups.  For example, on a
-host running 4.15:
+commit: 25edcc50d76c834479d11fcc7de46f3da4d95121
+subject: [PATCH] KVM: PPC: Book3S HV: Save and restore FSCR in the P9 path
 
-watchdog: BUG: soft lockup - CPU#206 stuck for 11s! [t_virtual_machi:194348]
-CPU: 206 PID: 194348 Comm: t_virtual_machi
-RIP: 0010:free_unref_page_list+0x105/0x170
-...
-Call Trace:
- [<0>] release_pages+0x159/0x3d0
- [<0>] sev_unpin_memory+0x2c/0x50 [kvm_amd]
- [<0>] __unregister_enc_region_locked+0x2f/0x70 [kvm_amd]
- [<0>] svm_vm_destroy+0xa9/0x200 [kvm_amd]
- [<0>] kvm_arch_destroy_vm+0x47/0x200
- [<0>] kvm_put_kvm+0x1a8/0x2f0
- [<0>] kvm_vm_release+0x25/0x30
- [<0>] do_exit+0x335/0xc10
- [<0>] do_group_exit+0x3f/0xa0
- [<0>] get_signal+0x1bc/0x670
- [<0>] do_signal+0x31/0x130
+Without this patch qemu does not work on POWER9 on modern glibc,
+so I think it should be included in at least 5.10 lts branch.
 
-Although the CLFLUSH is no longer issued on every encrypted region to be
-unregistered, there are no other changes that can prevent soft lockups for
-very large SEV VMs in the latest kernel.
+I cannot test on older LTS versions unfortunately, only 5.10.
 
-Periodically schedule if necessary.  This still holds kvm->lock across the
-resched, but since this only happens when the VM is destroyed this is
-assumed to be acceptable.
+Started Virtual Machine qemu-2-gentoo-ppc64-stable.
+Facility 'SCV' unavailable (12), exception at 0x7fff9f81d4b0, MSR=900000000280f033
+CPU 0/KVM[2914766]: illegal instruction (4) at 7fff9f81d4b0 nip 7fff9f81d4b0 lr 13e6048e0 code 1 in libc-2.33.so[7fff9f6f0000+200000]
+CPU 0/KVM[2914766]: code: e8010010 7c0803a6 4e800020 60420000 7ca42b78 4bffedb5 60000000 38210020
+CPU 0/KVM[2914766]: code: e8010010 7c0803a6 4e800020 60420000 <44000001> 4bffffb8 60000000 60420000
 
-Signed-off-by: David Rientjes <rientjes@google.com>
-Message-Id: <alpine.DEB.2.23.453.2008251255240.2987727@chino.kir.corp.google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[iwamatsu: adjust filename.]
-Reference: CVE-2020-36311
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
----
- arch/x86/kvm/svm.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index c5673bda4b66df..3f776e654e3aec 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -1910,6 +1910,7 @@ static void sev_vm_destroy(struct kvm *kvm)
- 		list_for_each_safe(pos, q, head) {
- 			__unregister_enc_region_locked(kvm,
- 				list_entry(pos, struct enc_region, list));
-+			cond_resched();
- 		}
- 	}
- 
 -- 
-2.31.1
-
+Best regards,
+Georgy
