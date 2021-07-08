@@ -2,272 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4573BF212
-	for <lists+stable@lfdr.de>; Thu,  8 Jul 2021 00:26:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2133BF353
+	for <lists+stable@lfdr.de>; Thu,  8 Jul 2021 03:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230453AbhGGW3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Jul 2021 18:29:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34524 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230436AbhGGW3P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Jul 2021 18:29:15 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 978ECC061574
-        for <stable@vger.kernel.org>; Wed,  7 Jul 2021 15:26:33 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id d9-20020a17090ae289b0290172f971883bso4051000pjz.1
-        for <stable@vger.kernel.org>; Wed, 07 Jul 2021 15:26:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=n3vJQVa1FFK7SuFEcyxY1MAF4+P2NhhYqhT2YI9kQo8=;
-        b=nnzanRy1q2wwRwmhNJAV96Me9dGnWTs31KVqoHa223ohbTSRTUhspI9Im3WBLR2sc1
-         e9S8cgYWKvKkMwLw2KdxG45RVfUtImjM+MT34IDYVh5vHvfdnV1sriNQoQaYStnChJiS
-         Mhs/0sWBfVc0/SiUuKnOmzQftnmq7Bb3S+SFz+RN0c8Ldu2bqJdjHEj0I+mqJRuQnZLY
-         lUCR5dYAcjVW9Pz7wka1MsF92bu5+qKvoZhH0gZ3sTF++f41OPee3MkC0RUui/+FNFWO
-         Vq/mh3dlxQDvocMRhJuMzYrVOrMQsat2Q/MrfNra8nTVR7BDBEJl0hQVcB/DuW22ABZz
-         A2+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=n3vJQVa1FFK7SuFEcyxY1MAF4+P2NhhYqhT2YI9kQo8=;
-        b=DN07GP2KrEBIDW0e6ThLqL0UlVlMrkXW3o28OhYktG1gcEVrayLAyp3tllx4JSojR6
-         ny5MsHRoHrFeohXrPm63gTy87a65RPyg9kqLFAoerFH7ACmNzVw9GVda6OQb1gVW4RU2
-         1bpdwcCKH0WXIKQMxwSDGdDzL0+FnlqlPBwIx4zg58fw9xPUrP50KFPDDePNocWKFsG6
-         3lA5c0H5nKmeETBiKZzAnaKpYSfOWFCAhtKa8D9fHBLc9LuN1riwtt3dS7oSJO5YGG8V
-         Rb+xvhZQ4DR0rpy7hTT1ehenJqCBwrtly8RZ5Zf/uHhv4m5rFLRaDwE4uMoeILnrHzw/
-         YyWg==
-X-Gm-Message-State: AOAM531z73vtNBfkVrkpf7qkQEyInEG1laXH/SbCU7CZ4BW8Rn0gbFI+
-        bjkfl4TTunxtbK7w9UF5Vq/y19cTh2pRUeX+
-X-Google-Smtp-Source: ABdhPJxCv2UWHvlC2UOB8j17b1yKO7hW2rsNqCSphkCX+BdHDbniKGaQ9MZsHGkNsuJM+fHXfc6urw==
-X-Received: by 2002:a17:90a:5907:: with SMTP id k7mr28629850pji.196.1625696793006;
-        Wed, 07 Jul 2021 15:26:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q12sm197449pfj.220.2021.07.07.15.26.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Jul 2021 15:26:32 -0700 (PDT)
-Message-ID: <60e62a18.1c69fb81.7f64b.1285@mx.google.com>
-Date:   Wed, 07 Jul 2021 15:26:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.274-6-g4b625addef567
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 149 runs,
- 5 regressions (v4.9.274-6-g4b625addef567)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S230234AbhGHBM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Jul 2021 21:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53246 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230169AbhGHBM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Jul 2021 21:12:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8F461C77;
+        Thu,  8 Jul 2021 01:10:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1625706616;
+        bh=c58G42tAplLF5/KPACite1bg2ijNN7fTerdBh9raGmc=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=xCxAkZX7HilYDYIC+MpkYdEr1mRriJlIYn2ByL/9R1GOZ9KZlwqRVUIkJI48vNfYB
+         OjA2eEUPeZKztSdga5m3CMRGaGGJJTohsVwbfBy+6byG+Cu9RuG9sXeAZcgP8DRLAm
+         0Jgtr1Q73LRZGzdvA4IjEr/2lpZPykx9wTYO418U=
+Date:   Wed, 07 Jul 2021 18:10:15 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, aneesh.kumar@linux.ibm.com,
+        christophe.leroy@csgroup.eu, hughd@google.com,
+        joel@joelfernandes.org, kaleshsingh@google.com,
+        kirill.shutemov@linux.intel.com, kirill@shutemov.name,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org, mpe@ellerman.id.au,
+        npiggin@gmail.com, sfr@canb.auug.org.au, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 51/54] mm/mremap: hold the rmap lock in write mode
+ when moving page table entries.
+Message-ID: <20210708011015.CbAeaXmtO%akpm@linux-foundation.org>
+In-Reply-To: <20210707175950.eceddb86c6c555555d4730e2@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 149 runs, 5 regressions (v4.9.274-6-g4b625add=
-ef567)
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Subject: mm/mremap: hold the rmap lock in write mode when moving page table entries.
 
-Regressions Summary
--------------------
+To avoid a race between rmap walk and mremap, mremap does
+take_rmap_locks().  The lock was taken to ensure that rmap walk don't miss
+a page table entry due to PTE moves via move_pagetables().  The kernel
+does further optimization of this lock such that if we are going to find
+the newly added vma after the old vma, the rmap lock is not taken.  This
+is because rmap walk would find the vmas in the same order and if we don't
+find the page table attached to older vma we would find it with the new
+vma which we would iterate later.
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
+As explained in commit eb66ae030829 ("mremap: properly flush TLB before
+releasing the page") mremap is special in that it doesn't take ownership
+of the page.  The optimized version for PUD/PMD aligned mremap also
+doesn't hold the ptl lock.  This can result in stale TLB entries as show
+below.
 
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+This patch updates the rmap locking requirement in mremap to handle the race condition
+explained below with optimized mremap::
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+Optmized PMD move
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+    CPU 1                           CPU 2                                   CPU 3
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+    mremap(old_addr, new_addr)      page_shrinker/try_to_unmap_one
 
+    mmap_write_lock_killable()
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.274-6-g4b625addef567/plan/baseline/
+                                    addr = old_addr
+                                    lock(pte_ptl)
+    lock(pmd_ptl)
+    pmd = *old_pmd
+    pmd_clear(old_pmd)
+    flush_tlb_range(old_addr)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.274-6-g4b625addef567
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4b625addef56749a3d47b88c34887275672bc134 =
+    *new_pmd = pmd
+                                                                            *new_addr = 10; and fills
+                                                                            TLB with new addr
+                                                                            and old pfn
 
+    unlock(pmd_ptl)
+                                    ptep_clear_flush()
+                                    old pfn is free.
+                                                                            Stale TLB entry
 
+Optimized PUD move also suffers from a similar race.  Both the above race
+condition can be fixed if we force mremap path to take rmap lock.
 
-Test Regressions
----------------- =
+Link: https://lkml.kernel.org/r/20210616045239.370802-7-aneesh.kumar@linux.ibm.com
+Fixes: 2c91bd4a4e2e ("mm: speed up mremap by 20x on large regions")
+Fixes: c49dd3401802 ("mm: speedup mremap on 1GB or larger regions")
+Link: https://lore.kernel.org/linux-mm/CAHk-=wgXVR04eBNtxQfevontWnP6FDm+oj5vauQXP3S-huwbPw@mail.gmail.com
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Kalesh Singh <kaleshsingh@google.com>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ mm/mremap.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e5f125c5f6eff92e11797b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e5f125c5f6eff92e117=
-97c
-        failing since 235 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e5f8722860d74410117991
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e5f8722860d74410117=
-992
-        failing since 235 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e5f12c4c2ccaa864117972
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e5f12c4c2ccaa864117=
-973
-        failing since 235 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e5f10a35e164e5961179c5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e5f10a35e164e596117=
-9c6
-        failing since 235 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e5f09af7724cdec411796b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.274-6=
--g4b625addef567/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e5f09af7724cdec4117=
-96c
-        failing since 235 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+--- a/mm/mremap.c~mm-mremap-hold-the-rmap-lock-in-write-mode-when-moving-page-table-entries
++++ a/mm/mremap.c
+@@ -504,7 +504,7 @@ unsigned long move_page_tables(struct vm
+ 		} else if (IS_ENABLED(CONFIG_HAVE_MOVE_PUD) && extent == PUD_SIZE) {
+ 
+ 			if (move_pgt_entry(NORMAL_PUD, vma, old_addr, new_addr,
+-					   old_pud, new_pud, need_rmap_locks))
++					   old_pud, new_pud, true))
+ 				continue;
+ 		}
+ 
+@@ -531,7 +531,7 @@ unsigned long move_page_tables(struct vm
+ 			 * moving at the PMD level if possible.
+ 			 */
+ 			if (move_pgt_entry(NORMAL_PMD, vma, old_addr, new_addr,
+-					   old_pmd, new_pmd, need_rmap_locks))
++					   old_pmd, new_pmd, true))
+ 				continue;
+ 		}
+ 
+_
