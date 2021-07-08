@@ -2,125 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8DDC3C14EB
-	for <lists+stable@lfdr.de>; Thu,  8 Jul 2021 16:14:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 247363C1582
+	for <lists+stable@lfdr.de>; Thu,  8 Jul 2021 16:55:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231593AbhGHOQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Jul 2021 10:16:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58186 "EHLO
+        id S229738AbhGHO5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Jul 2021 10:57:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27900 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231152AbhGHOQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Jul 2021 10:16:52 -0400
+        by vger.kernel.org with ESMTP id S231858AbhGHO5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Jul 2021 10:57:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1625753650;
+        s=mimecast20190719; t=1625756111;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=TntTIb+1S1FuwVReDa+/7xgwmFfelIwb8SEWxcwP4uk=;
-        b=Yl3owvWm/p+O2RvzIJfReQnCcjJ/GnyxMXicppkQtRSeBhC2ttMlUPACtsGnf4LE/U//UN
-        qEGPu33MdDIEpuLUhyNpLAH1GVljY4URyl6i1GrDZKSGoPseHK7+jX70rc2rNxhlu68Y3Q
-        a5QQKpApXA9nxabBC8Y5cANjXcJNNCk=
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=vn4Iw4rKn4KgREOV9J8dhiG81JB34qcsT1rWAqvgmiI=;
+        b=hZ02kmRSVzqOF6qtYQnKhVl9k03SLe0gHx0pG2RfVly9zymIjSTq/pHowDManw1OS5igjm
+        8k1Kgd2Fqwuubt4bQ1aAL65AWTJSwENEbCBFRboOTXuW7La6QHUsSaaJBhMSYPOKFFiE75
+        RF4VXPfegHoXOt7R5HYtp/2qaQkFi6o=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-197-no09P7ZuMFGIzIP2Yguptw-1; Thu, 08 Jul 2021 10:14:08 -0400
-X-MC-Unique: no09P7ZuMFGIzIP2Yguptw-1
+ us-mta-26-LEzu5iB-NYiq8jTnSMKRnw-1; Thu, 08 Jul 2021 10:55:10 -0400
+X-MC-Unique: LEzu5iB-NYiq8jTnSMKRnw-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 28B9E1084F54;
-        Thu,  8 Jul 2021 14:14:07 +0000 (UTC)
-Received: from x1.localdomain (ovpn-114-156.ams2.redhat.com [10.36.114.156])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EA9CC5D6D1;
-        Thu,  8 Jul 2021 14:14:05 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-media@vger.kernel.org,
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 385BA8030B0;
+        Thu,  8 Jul 2021 14:55:09 +0000 (UTC)
+Received: from lorien.usersys.redhat.com (unknown [10.22.8.35])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 094CA5D6D1;
+        Thu,  8 Jul 2021 14:54:59 +0000 (UTC)
+Date:   Thu, 8 Jul 2021 10:54:58 -0400
+From:   Phil Auld <pauld@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         stable@vger.kernel.org
-Subject: [PATCH for 5.10.y] media: uvcvideo: Support devices that report an OT as an entity source
-Date:   Thu,  8 Jul 2021 16:14:04 +0200
-Message-Id: <20210708141404.14826-1-hdegoede@redhat.com>
+Subject: Re: [PATCH] sched: Fix nr_uninterruptible race causing increasing
+ load average
+Message-ID: <YOcRwhF6XkYWPjvV@lorien.usersys.redhat.com>
+References: <20210707190457.60521-1-pauld@redhat.com>
+ <YOaoomJAS2FzXi7I@hirez.programming.kicks-ass.net>
+ <YOatszHNZc9XRbYB@hirez.programming.kicks-ass.net>
+ <YOavHgRUBM6cc95s@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YOavHgRUBM6cc95s@hirez.programming.kicks-ass.net>
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+On Thu, Jul 08, 2021 at 09:54:06AM +0200 Peter Zijlstra wrote:
+> On Thu, Jul 08, 2021 at 09:48:03AM +0200, Peter Zijlstra wrote:
+> > On Thu, Jul 08, 2021 at 09:26:26AM +0200, Peter Zijlstra wrote:
+> > > On Wed, Jul 07, 2021 at 03:04:57PM -0400, Phil Auld wrote:
+> > > > On systems with weaker memory ordering (e.g. power) commit dbfb089d360b
+> > > > ("sched: Fix loadavg accounting race") causes increasing values of load
+> > > > average (via rq->calc_load_active and calc_load_tasks) due to the wakeup
+> > > > CPU not always seeing the write to task->sched_contributes_to_load in
+> > > > __schedule(). Missing that we fail to decrement nr_uninterruptible when
+> > > > waking up a task which incremented nr_uninterruptible when it slept.
+> > > > 
+> > > > The rq->lock serialization is insufficient across different rq->locks.
+> > > > 
+> > > > Add smp_wmb() to schedule and smp_rmb() before the read in
+> > > > ttwu_do_activate().
+> > > 
+> > > > diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> > > > index 4ca80df205ce..ced7074716eb 100644
+> > > > --- a/kernel/sched/core.c
+> > > > +++ b/kernel/sched/core.c
+> > > > @@ -2992,6 +2992,8 @@ ttwu_do_activate(struct rq *rq, struct task_struct *p, int wake_flags,
+> > > >  
+> > > >  	lockdep_assert_held(&rq->lock);
+> > > >  
+> > > > +	/* Pairs with smp_wmb in __schedule() */
+> > > > +	smp_rmb();
+> > > >  	if (p->sched_contributes_to_load)
+> > > >  		rq->nr_uninterruptible--;
+> > > >  
+> > > 
+> > > Is this really needed ?! (this question is a big fat clue the comment is
+> > > insufficient). AFAICT try_to_wake_up() has a LOAD-ACQUIRE on p->on_rq
+> > > and hence the p->sched_contributed_to_load must already happen after.
+> > > 
+> > > > @@ -5084,6 +5086,11 @@ static void __sched notrace __schedule(bool preempt)
+> > > >  				!(prev_state & TASK_NOLOAD) &&
+> > > >  				!(prev->flags & PF_FROZEN);
+> > > >  
+> > > > +			/*
+> > > > +			 * Make sure the previous write is ordered before p->on_rq etc so
+> > > > +			 * that it is visible to other cpus in the wakeup path (ttwu_do_activate()).
+> > > > +			 */
+> > > > +			smp_wmb();
+> > > >  			if (prev->sched_contributes_to_load)
+> > > >  				rq->nr_uninterruptible++;
+> > > 
+> > > That comment is terrible, look at all the other barrier comments around
+> > > there for clues; in effect you're worrying about:
+> > > 
+> > > 	p->sched_contributes_to_load = X	R1 = p->on_rq
+> > > 	WMB					RMB
+> > > 	p->on_rq = Y				R2 = p->sched_contributes_to_load
+> > > 
+> > > Right?
+> > > 
+> > > 
+> > > Bah bah bah.. I so detest having to add barriers here for silly
+> > > accounting. Let me think about this a little.
+> > 
+> > I got the below:
+> > 
+> > __schedule()					ttwu()
+> > 
+> > rq_lock()					raw_spin_lock(&p->pi_lock)
+> > smp_mb__after_spinlock();			smp_mb__after_spinlock();
+> > 
+> > p->sched_contributes_to_load = X;		if (READ_ONCE(p->on_rq) && ...)
+> > 						  goto unlock;
+> > 						smp_acquire__after_ctrl_dep();
+> > 
+> > 						smp_cond_load_acquire(&p->on_cpu, !VAL)
+> > 
+> > deactivate_task()
+> >   p->on_rq = 0;
+> > 
+> > context_switch()
+> >   finish_task_switch()
+> >     finish_task()
+> >       smp_store_release(p->on_cpu, 0);
+> > 
+> > 						ttwu_queue()
+> > 						  rq_lock()
+> > 						    ttwu_do_activate()
+> > 						      if (p->sched_contributes_to_load)
+> > 						        ...
+> > 						  rq_unlock()
+> > 						raw_spin_unlock(&p->pi_lock);
+> >     finish_lock_switch()
+> >       rq_unlock();
+> > 
+> > 
+> > 
+> > The only way for ttwu() to end up in an enqueue, is if it did a
+> > LOAD-ACQUIRE on ->on_cpu, 
+> 
+> That's not completely true; there's the WF_ON_CPU case, but in that
+> scenario we IPI the CPU doing __schedule and it becomes simple UP/PO and
+> everything must trivially work.
+>
+> > but that orders with the STORE-RELEASE on the
+> > same, which ensures the p->sched_contributes_to_load LOAD must happen
+> > after the STORE.
+> > 
+> > What am I missing? Your Changelog/comments provide insufficient clues..
+> 
 
-[ Upstream commit 4ca052b4ea621d0002a5e5feace51f60ad5e6b23 ]
+Sorry... I don't have a nice diagram. I'm still looking at what all those
+macros actually mean on the various architectures.
 
-Some devices reference an output terminal as the source of extension
-units. This is incorrect, as output terminals only have an input pin,
-and thus can't be connected to any entity in the forward direction. The
-resulting topology would cause issues when registering the media
-controller graph. To avoid this problem, connect the extension unit to
-the source of the output terminal instead.
+"Works great in practice but how does it work in theory?" :)
 
-While at it, and while no device has been reported to be affected by
-this issue, also handle forward scans where two output terminals would
-be connected together, and skip the terminals found through such an
-invalid connection.
+Using what you have above I get the same thing. It looks like it should be
+ordered but in practice it's not, and ordering it "more" as I did in the
+patch, fixes it.
 
-Cc: stable@vger.kernel.org # v5.10
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/media/usb/uvc/uvc_driver.c | 32 ++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+Is it possible that the bit field is causing some of the assumptions about
+ordering in those various macros to be off?
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index 5ad528264135..282f3d2388cc 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -1588,6 +1588,31 @@ static int uvc_scan_chain_forward(struct uvc_video_chain *chain,
- 				return -EINVAL;
- 			}
- 
-+			/*
-+			 * Some devices reference an output terminal as the
-+			 * source of extension units. This is incorrect, as
-+			 * output terminals only have an input pin, and thus
-+			 * can't be connected to any entity in the forward
-+			 * direction. The resulting topology would cause issues
-+			 * when registering the media controller graph. To
-+			 * avoid this problem, connect the extension unit to
-+			 * the source of the output terminal instead.
-+			 */
-+			if (UVC_ENTITY_IS_OTERM(entity)) {
-+				struct uvc_entity *source;
-+
-+				source = uvc_entity_by_id(chain->dev,
-+							  entity->baSourceID[0]);
-+				if (!source) {
-+					uvc_trace(UVC_TRACE_DESCR,
-+						"Can't connect extension unit %u in chain\n",
-+						forward->id);
-+					break;
-+				}
-+
-+				forward->baSourceID[0] = source->id;
-+			}
-+
- 			list_add_tail(&forward->chain, &chain->entities);
- 			if (uvc_trace_param & UVC_TRACE_PROBE) {
- 				if (!found)
-@@ -1608,6 +1633,13 @@ static int uvc_scan_chain_forward(struct uvc_video_chain *chain,
- 				return -EINVAL;
- 			}
- 
-+			if (UVC_ENTITY_IS_OTERM(entity)) {
-+				uvc_trace(UVC_TRACE_DESCR,
-+					"Unsupported connection between output terminals %u and %u\n",
-+					entity->id, forward->id);
-+				break;
-+			}
-+
- 			list_add_tail(&forward->chain, &chain->entities);
- 			if (uvc_trace_param & UVC_TRACE_PROBE) {
- 				if (!found)
+I notice in all the comments about smp_mb__after_spinlock etc, it's always
+WRITE_ONCE/READ_ONCE on the variables in question but we can't do that with
+the bit field. 
+
+
+I appreciate your time on this.
+
+
+Cheers,
+Phil
+
 -- 
-2.31.1
 
