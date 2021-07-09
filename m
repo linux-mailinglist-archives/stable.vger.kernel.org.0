@@ -2,118 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 315053C242A
+	by mail.lfdr.de (Postfix) with ESMTP id C50ED3C242C
 	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231815AbhGINVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:21:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51452 "EHLO mail.kernel.org"
+        id S231623AbhGINVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231623AbhGINVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:21:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76BDB61377;
-        Fri,  9 Jul 2021 13:18:38 +0000 (UTC)
+        id S231605AbhGINVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:21:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C45AE613B6;
+        Fri,  9 Jul 2021 13:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836718;
-        bh=C4Q81nmVs3j9ma5tCYfNtT6ohH6asiT6PrgqvgQYX4U=;
-        h=From:To:Cc:Subject:Date:From;
-        b=htm317IPMvjaEnOlutzFi2q7yJQjWqbMNHa5pAsyrrcSRPCtssO0fuqPTaUpoZ1dc
-         WdUWmiFoLD7CT1ffZ+h8WVY/EGkJUW2s9EBrdzX36vJkTf2Tu5mrD5T2xohxia0w0Z
-         DoRqi2YtRTmvsk1nDmmiDh3lfuBxrlZqUakxP3Eo=
+        s=korg; t=1625836721;
+        bh=meWJgC+veHMqH+lP3kH65iI4Alc7pQicK4wPeAjIBJ0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=itMP1ddEuYN5PmFrlgyDHPVBYe21DBiEu9G6J5D+omHnETSX4zIwjBsOeKwt50cn/
+         38oXvv8UnaXKYZC/pXjNqLHbOV8DyFFvi9XdLY7HGdhBxNvAm0IQTvzEJxHCXmgHmI
+         yuLWVezKicjzEHQE4hi3DjwLoaS+JskZkgX0qo/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.9 0/9] 4.9.275-rc1 review
-Date:   Fri,  9 Jul 2021 15:18:27 +0200
-Message-Id: <20210709131542.410636747@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 1/9] include/linux/mmdebug.h: make VM_WARN* non-rvals
+Date:   Fri,  9 Jul 2021 15:18:28 +0200
+Message-Id: <20210709131544.767197681@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-MIME-Version: 1.0
+In-Reply-To: <20210709131542.410636747@linuxfoundation.org>
+References: <20210709131542.410636747@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.275-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.275-rc1
-X-KernelTest-Deadline: 2021-07-11T13:15+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.275 release.
-There are 9 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Michal Hocko <mhocko@kernel.org>
 
-Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 91241681c62a5a690c88eb2aca027f094125eaac ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.275-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+At present the construct
 
-thanks,
+	if (VM_WARN(...))
 
-greg k-h
+will compile OK with CONFIG_DEBUG_VM=y and will fail with
+CONFIG_DEBUG_VM=n.  The reason is that VM_{WARN,BUG}* have always been
+special wrt.  {WARN/BUG}* and never generate any code when DEBUG_VM is
+disabled.  So we cannot really use it in conditionals.
 
--------------
-Pseudo-Shortlog of commits:
+We considered changing things so that this construct works in both cases
+but that might cause unwanted code generation with CONFIG_DEBUG_VM=n.
+It is safer and simpler to make the build fail in both cases.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.275-rc1
+[akpm@linux-foundation.org: changelog]
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ include/linux/mmdebug.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Juergen Gross <jgross@suse.com>
-    xen/events: reset active flag for lateeoi events later
+diff --git a/include/linux/mmdebug.h b/include/linux/mmdebug.h
+index 451a811f48f2..deaba1cc3cfc 100644
+--- a/include/linux/mmdebug.h
++++ b/include/linux/mmdebug.h
+@@ -36,10 +36,10 @@ void dump_mm(const struct mm_struct *mm);
+ 			BUG();						\
+ 		}							\
+ 	} while (0)
+-#define VM_WARN_ON(cond) WARN_ON(cond)
+-#define VM_WARN_ON_ONCE(cond) WARN_ON_ONCE(cond)
+-#define VM_WARN_ONCE(cond, format...) WARN_ONCE(cond, format)
+-#define VM_WARN(cond, format...) WARN(cond, format)
++#define VM_WARN_ON(cond) (void)WARN_ON(cond)
++#define VM_WARN_ON_ONCE(cond) (void)WARN_ON_ONCE(cond)
++#define VM_WARN_ONCE(cond, format...) (void)WARN_ONCE(cond, format)
++#define VM_WARN(cond, format...) (void)WARN(cond, format)
+ #else
+ #define VM_BUG_ON(cond) BUILD_BUG_ON_INVALID(cond)
+ #define VM_BUG_ON_PAGE(cond, page) VM_BUG_ON(cond)
+-- 
+2.30.2
 
-Petr Mladek <pmladek@suse.com>
-    kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
-
-Petr Mladek <pmladek@suse.com>
-    kthread_worker: split code for canceling the delayed work timer
-
-Christian König <christian.koenig@amd.com>
-    drm/nouveau: fix dma_address check for CPU/GPU sync
-
-ManYi Li <limanyi@uniontech.com>
-    scsi: sr: Return appropriate error code when disk is ejected
-
-Hugh Dickins <hughd@google.com>
-    mm, futex: fix shared futex pgoff on shmem huge page
-
-Yang Shi <shy828301@gmail.com>
-    mm: thp: replace DEBUG_VM BUG with VM_WARN when unmap fails for split
-
-Alex Shi <alex.shi@linux.alibaba.com>
-    mm: add VM_WARN_ON_ONCE_PAGE() macro
-
-Michal Hocko <mhocko@kernel.org>
-    include/linux/mmdebug.h: make VM_WARN* non-rvals
-
-
--------------
-
-Diffstat:
-
- Makefile                             |  4 +-
- drivers/gpu/drm/nouveau/nouveau_bo.c |  4 +-
- drivers/scsi/sr.c                    |  2 +
- drivers/xen/events/events_base.c     | 23 +++++++++--
- include/linux/hugetlb.h              | 15 -------
- include/linux/mmdebug.h              | 21 ++++++++--
- include/linux/pagemap.h              | 13 +++---
- kernel/futex.c                       |  2 +-
- kernel/kthread.c                     | 77 ++++++++++++++++++++++++------------
- mm/huge_memory.c                     | 29 +++++---------
- mm/hugetlb.c                         |  5 +--
- 11 files changed, 112 insertions(+), 83 deletions(-)
 
 
