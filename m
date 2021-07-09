@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBDB03C2447
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF5C3C243D
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:19:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232160AbhGINWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:22:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52272 "EHLO mail.kernel.org"
+        id S231964AbhGINVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:21:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232105AbhGINV4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:21:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F220A613B6;
-        Fri,  9 Jul 2021 13:19:11 +0000 (UTC)
+        id S232018AbhGINVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:21:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B0CE613C0;
+        Fri,  9 Jul 2021 13:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836752;
-        bh=kHbbBboG5HV3y4ScKuG/6BoVheTlA4jdGKRY4jJ2r0A=;
+        s=korg; t=1625836740;
+        bh=7OBvIgY/mu4ghOF4e8YIKI9egdN+elgz6iGh9GwKvGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D0NmztbxJXcFN8PX2y2FSpLWf6Z5AZG0ZYNr4Mz7F9kivW+zQbJUO87U8c4PjV76O
-         johdsLh1Fx2BDTTUB+SMQhs9pT5XNrPNb3sbacPz5l2VfLEO9WmmD4p+MtOBFJfv6c
-         XrODVNchXDI0WcmMzu6/Rm9Z+zvj2ZP80HZahD3k=
+        b=0Pmb0rsPIwUeEFzEw9OZGxOHr8+NrNKfZr4jAoECt7d58AmyidAfY6+oPoIWc0in5
+         vC+LS4CiqDRjKES4kN79CxMP5mKUBaWsbn0+AVxeq8/NclfWzuWTvvNJ2xjFDEYW6G
+         gHFtQ/NAN0AnEF4WYS1xiUd2RLxtHXTq4Aa/dicg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
+        Martin Liu <liumartin@google.com>, jenhaochen@google.com,
+        Minchan Kim <minchan@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/25] mm/rmap: remove unneeded semicolon in page_not_mapped()
-Date:   Fri,  9 Jul 2021 15:18:34 +0200
-Message-Id: <20210709131629.943931913@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 8/9] kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
+Date:   Fri,  9 Jul 2021 15:18:35 +0200
+Message-Id: <20210709131553.749112172@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210709131627.928131764@linuxfoundation.org>
-References: <20210709131627.928131764@linuxfoundation.org>
+In-Reply-To: <20210709131542.410636747@linuxfoundation.org>
+References: <20210709131542.410636747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +45,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Petr Mladek <pmladek@suse.com>
 
-[ Upstream commit e0af87ff7afcde2660be44302836d2d5618185af ]
+commit 5fa54346caf67b4b1b10b1f390316ae466da4d53 upstream.
 
-Remove extra semicolon without any functional change intended.
+The system might hang with the following backtrace:
 
-Link: https://lkml.kernel.org/r/20210127093425.39640-1-linmiaohe@huawei.com
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+	schedule+0x80/0x100
+	schedule_timeout+0x48/0x138
+	wait_for_common+0xa4/0x134
+	wait_for_completion+0x1c/0x2c
+	kthread_flush_work+0x114/0x1cc
+	kthread_cancel_work_sync.llvm.16514401384283632983+0xe8/0x144
+	kthread_cancel_delayed_work_sync+0x18/0x2c
+	xxxx_pm_notify+0xb0/0xd8
+	blocking_notifier_call_chain_robust+0x80/0x194
+	pm_notifier_call_chain_robust+0x28/0x4c
+	suspend_prepare+0x40/0x260
+	enter_state+0x80/0x3f4
+	pm_suspend+0x60/0xdc
+	state_store+0x108/0x144
+	kobj_attr_store+0x38/0x88
+	sysfs_kf_write+0x64/0xc0
+	kernfs_fop_write_iter+0x108/0x1d0
+	vfs_write+0x2f4/0x368
+	ksys_write+0x7c/0xec
+
+It is caused by the following race between kthread_mod_delayed_work()
+and kthread_cancel_delayed_work_sync():
+
+CPU0				CPU1
+
+Context: Thread A		Context: Thread B
+
+kthread_mod_delayed_work()
+  spin_lock()
+  __kthread_cancel_work()
+     spin_unlock()
+     del_timer_sync()
+				kthread_cancel_delayed_work_sync()
+				  spin_lock()
+				  __kthread_cancel_work()
+				    spin_unlock()
+				    del_timer_sync()
+				    spin_lock()
+
+				  work->canceling++
+				  spin_unlock
+     spin_lock()
+   queue_delayed_work()
+     // dwork is put into the worker->delayed_work_list
+
+   spin_unlock()
+
+				  kthread_flush_work()
+     // flush_work is put at the tail of the dwork
+
+				    wait_for_completion()
+
+Context: IRQ
+
+  kthread_delayed_work_timer_fn()
+    spin_lock()
+    list_del_init(&work->node);
+    spin_unlock()
+
+BANG: flush_work is not longer linked and will never get proceed.
+
+The problem is that kthread_mod_delayed_work() checks work->canceling
+flag before canceling the timer.
+
+A simple solution is to (re)check work->canceling after
+__kthread_cancel_work().  But then it is not clear what should be
+returned when __kthread_cancel_work() removed the work from the queue
+(list) and it can't queue it again with the new @delay.
+
+The return value might be used for reference counting.  The caller has
+to know whether a new work has been queued or an existing one was
+replaced.
+
+The proper solution is that kthread_mod_delayed_work() will remove the
+work from the queue (list) _only_ when work->canceling is not set.  The
+flag must be checked after the timer is stopped and the remaining
+operations can be done under worker->lock.
+
+Note that kthread_mod_delayed_work() could remove the timer and then
+bail out.  It is fine.  The other canceling caller needs to cancel the
+timer as well.  The important thing is that the queue (list)
+manipulation is done atomically under worker->lock.
+
+Link: https://lkml.kernel.org/r/20210610133051.15337-3-pmladek@suse.com
+Fixes: 9a6b06c8d9a220860468a ("kthread: allow to modify delayed kthread work")
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Reported-by: Martin Liu <liumartin@google.com>
+Cc: <jenhaochen@google.com>
+Cc: Minchan Kim <minchan@google.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- mm/rmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/kthread.c |   35 ++++++++++++++++++++++++-----------
+ 1 file changed, 24 insertions(+), 11 deletions(-)
 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index 8bd2ddd8febd..e2506b6adb6a 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -1671,7 +1671,7 @@ bool try_to_unmap(struct page *page, enum ttu_flags flags)
- static int page_not_mapped(struct page *page)
- {
- 	return !page_mapped(page);
--};
-+}
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -979,8 +979,11 @@ static void kthread_cancel_delayed_work_
+ }
  
- /**
-  * try_to_munlock - try to munlock a page
--- 
-2.30.2
-
+ /*
+- * This function removes the work from the worker queue. Also it makes sure
+- * that it won't get queued later via the delayed work's timer.
++ * This function removes the work from the worker queue.
++ *
++ * It is called under worker->lock. The caller must make sure that
++ * the timer used by delayed work is not running, e.g. by calling
++ * kthread_cancel_delayed_work_timer().
+  *
+  * The work might still be in use when this function finishes. See the
+  * current_work proceed by the worker.
+@@ -988,13 +991,8 @@ static void kthread_cancel_delayed_work_
+  * Return: %true if @work was pending and successfully canceled,
+  *	%false if @work was not pending
+  */
+-static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
+-				  unsigned long *flags)
++static bool __kthread_cancel_work(struct kthread_work *work)
+ {
+-	/* Try to cancel the timer if exists. */
+-	if (is_dwork)
+-		kthread_cancel_delayed_work_timer(work, flags);
+-
+ 	/*
+ 	 * Try to remove the work from a worker list. It might either
+ 	 * be from worker->work_list or from worker->delayed_work_list.
+@@ -1047,11 +1045,23 @@ bool kthread_mod_delayed_work(struct kth
+ 	/* Work must not be used with >1 worker, see kthread_queue_work() */
+ 	WARN_ON_ONCE(work->worker != worker);
+ 
+-	/* Do not fight with another command that is canceling this work. */
++	/*
++	 * Temporary cancel the work but do not fight with another command
++	 * that is canceling the work as well.
++	 *
++	 * It is a bit tricky because of possible races with another
++	 * mod_delayed_work() and cancel_delayed_work() callers.
++	 *
++	 * The timer must be canceled first because worker->lock is released
++	 * when doing so. But the work can be removed from the queue (list)
++	 * only when it can be queued again so that the return value can
++	 * be used for reference counting.
++	 */
++	kthread_cancel_delayed_work_timer(work, &flags);
+ 	if (work->canceling)
+ 		goto out;
++	ret = __kthread_cancel_work(work);
+ 
+-	ret = __kthread_cancel_work(work, true, &flags);
+ fast_queue:
+ 	__kthread_queue_delayed_work(worker, dwork, delay);
+ out:
+@@ -1073,7 +1083,10 @@ static bool __kthread_cancel_work_sync(s
+ 	/* Work must not be used with >1 worker, see kthread_queue_work(). */
+ 	WARN_ON_ONCE(work->worker != worker);
+ 
+-	ret = __kthread_cancel_work(work, is_dwork, &flags);
++	if (is_dwork)
++		kthread_cancel_delayed_work_timer(work, &flags);
++
++	ret = __kthread_cancel_work(work);
+ 
+ 	if (worker->current_work != work)
+ 		goto out_fast;
 
 
