@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD5203C24E6
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE8673C24E8
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:23:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232939AbhGINZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:25:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57662 "EHLO mail.kernel.org"
+        id S232343AbhGINZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:25:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232907AbhGINZ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:25:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2276A613C5;
-        Fri,  9 Jul 2021 13:22:41 +0000 (UTC)
+        id S232958AbhGINZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:25:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 798E0613CC;
+        Fri,  9 Jul 2021 13:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836962;
-        bh=9AVHih9IUu3qx2WhPzSKsM/xNQgOP5+1tn/e3byMiPE=;
+        s=korg; t=1625836965;
+        bh=EUsgZ38tymH3moKDPNSnr3o+5hGH0xDo3WB11SPtJDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TV40BLgOiJr4VwyY7R99TapMPuoIoyCHh/eKIlZ0c1rI9Q7QQAO+obxTdISpD+Lq5
-         vo+9ej3uPVcsdm1GykMGc/ah6QHBeHNNL/ePuhvOqjmLVlJkUaw2byUsbDdGa0IeeG
-         lvuPp5v3L2gxMOMt+bHArDGbiyJeCzXmCfSj4egg=
+        b=KWdSoLKjGiw5yNf6mFVtk/Cd7ogRueNS/UxBdVOuOnHwpxBRN/PgUGRXaolpiJVYg
+         GUxtK6JmDla6H7Qjvr0y7Jdfvnj2gx3NAz3fpTIdFM9bY3xzc/NZba8UtbZUbp4e9c
+         06iuYwyRkpVy6wYUqoTBp2McGnFHptLN0h8Oy3jE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
         Lorenzo Bianconi <lorenzo@kernel.org>,
         Felix Fietkau <nbd@nbd.name>, Deren Wu <Deren.Wu@mediatek.com>
-Subject: [PATCH 5.12 06/11] mt76: mt7921: introduce __mt7921_start utility routine
-Date:   Fri,  9 Jul 2021 15:21:43 +0200
-Message-Id: <20210709131557.974264191@linuxfoundation.org>
+Subject: [PATCH 5.12 07/11] mt76: dma: introduce mt76_dma_queue_reset routine
+Date:   Fri,  9 Jul 2021 15:21:44 +0200
+Message-Id: <20210709131559.167287713@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210709131549.679160341@linuxfoundation.org>
 References: <20210709131549.679160341@linuxfoundation.org>
@@ -42,9 +42,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 1f7396acfef4691b8cf4a3e631fd3f59d779c0f2 upstream.
+commit 3990465db6829c91e8ebfde51ba2d98885020249 upstream.
 
-This is a preliminary patch to introduce mt7921 chip reset support.
+Introduce mt76_dma_queue_reset utility routine to reset a given hw
+queue. This is a preliminary patch to introduce mt7921 chip reset
+support.
 
 Co-developed-by: Sean Wang <sean.wang@mediatek.com>
 Signed-off-by: Sean Wang <sean.wang@mediatek.com>
@@ -54,76 +56,110 @@ Cc: Deren Wu <Deren.Wu@mediatek.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/main.c   |   35 ++++++++++++---------
- drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h |    1 
- 2 files changed, 22 insertions(+), 14 deletions(-)
+ drivers/net/wireless/mediatek/mt76/dma.c  |   46 ++++++++++++++++++------------
+ drivers/net/wireless/mediatek/mt76/mt76.h |    3 +
+ 2 files changed, 31 insertions(+), 18 deletions(-)
 
---- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-@@ -168,33 +168,40 @@ void mt7921_set_stream_he_caps(struct mt
- 	}
+--- a/drivers/net/wireless/mediatek/mt76/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/dma.c
+@@ -79,13 +79,38 @@ mt76_free_pending_txwi(struct mt76_dev *
+ 	local_bh_enable();
  }
  
--static int mt7921_start(struct ieee80211_hw *hw)
-+int __mt7921_start(struct mt7921_phy *phy)
- {
--	struct mt7921_dev *dev = mt7921_hw_dev(hw);
--	struct mt7921_phy *phy = mt7921_hw_phy(hw);
-+	struct mt76_phy *mphy = phy->mt76;
- 	int err;
- 
--	mt7921_mutex_acquire(dev);
--
--	err = mt76_connac_mcu_set_mac_enable(&dev->mt76, 0, true, false);
-+	err = mt76_connac_mcu_set_mac_enable(mphy->dev, 0, true, false);
- 	if (err)
--		goto out;
-+		return err;
- 
--	err = mt76_connac_mcu_set_channel_domain(phy->mt76);
-+	err = mt76_connac_mcu_set_channel_domain(mphy);
- 	if (err)
--		goto out;
-+		return err;
- 
- 	err = mt7921_mcu_set_chan_info(phy, MCU_EXT_CMD_SET_RX_PATH);
- 	if (err)
--		goto out;
-+		return err;
- 
- 	mt7921_mac_reset_counters(phy);
--	set_bit(MT76_STATE_RUNNING, &phy->mt76->state);
-+	set_bit(MT76_STATE_RUNNING, &mphy->state);
- 
--	ieee80211_queue_delayed_work(hw, &phy->mt76->mac_work,
-+	ieee80211_queue_delayed_work(mphy->hw, &mphy->mac_work,
- 				     MT7921_WATCHDOG_TIME);
--out:
--	mt7921_mutex_release(dev);
-+
-+	return 0;
++static void
++mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
++{
++	writel(q->desc_dma, &q->regs->desc_base);
++	writel(q->ndesc, &q->regs->ring_size);
++	q->head = readl(&q->regs->dma_idx);
++	q->tail = q->head;
 +}
 +
-+static int mt7921_start(struct ieee80211_hw *hw)
++static void
++mt76_dma_queue_reset(struct mt76_dev *dev, struct mt76_queue *q)
 +{
-+	struct mt7921_phy *phy = mt7921_hw_phy(hw);
-+	int err;
++	int i;
 +
-+	mt7921_mutex_acquire(phy->dev);
-+	err = __mt7921_start(phy);
-+	mt7921_mutex_release(phy->dev);
++	if (!q)
++		return;
++
++	/* clear descriptors */
++	for (i = 0; i < q->ndesc; i++)
++		q->desc[i].ctrl = cpu_to_le32(MT_DMA_CTL_DMA_DONE);
++
++	writel(0, &q->regs->cpu_idx);
++	writel(0, &q->regs->dma_idx);
++	mt76_dma_sync_idx(dev, q);
++}
++
+ static int
+ mt76_dma_alloc_queue(struct mt76_dev *dev, struct mt76_queue *q,
+ 		     int idx, int n_desc, int bufsize,
+ 		     u32 ring_base)
+ {
+ 	int size;
+-	int i;
  
- 	return err;
+ 	spin_lock_init(&q->lock);
+ 	spin_lock_init(&q->cleanup_lock);
+@@ -105,14 +130,7 @@ mt76_dma_alloc_queue(struct mt76_dev *de
+ 	if (!q->entry)
+ 		return -ENOMEM;
+ 
+-	/* clear descriptors */
+-	for (i = 0; i < q->ndesc; i++)
+-		q->desc[i].ctrl = cpu_to_le32(MT_DMA_CTL_DMA_DONE);
+-
+-	writel(q->desc_dma, &q->regs->desc_base);
+-	writel(0, &q->regs->cpu_idx);
+-	writel(0, &q->regs->dma_idx);
+-	writel(q->ndesc, &q->regs->ring_size);
++	mt76_dma_queue_reset(dev, q);
+ 
+ 	return 0;
  }
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-@@ -209,6 +209,7 @@ extern struct pci_driver mt7921_pci_driv
+@@ -202,15 +220,6 @@ mt76_dma_tx_cleanup_idx(struct mt76_dev
+ }
  
- u32 mt7921_reg_map(struct mt7921_dev *dev, u32 addr);
+ static void
+-mt76_dma_sync_idx(struct mt76_dev *dev, struct mt76_queue *q)
+-{
+-	writel(q->desc_dma, &q->regs->desc_base);
+-	writel(q->ndesc, &q->regs->ring_size);
+-	q->head = readl(&q->regs->dma_idx);
+-	q->tail = q->head;
+-}
+-
+-static void
+ mt76_dma_kick_queue(struct mt76_dev *dev, struct mt76_queue *q)
+ {
+ 	wmb();
+@@ -640,6 +649,7 @@ mt76_dma_init(struct mt76_dev *dev)
+ static const struct mt76_queue_ops mt76_dma_ops = {
+ 	.init = mt76_dma_init,
+ 	.alloc = mt76_dma_alloc_queue,
++	.reset_q = mt76_dma_queue_reset,
+ 	.tx_queue_skb_raw = mt76_dma_tx_queue_skb_raw,
+ 	.tx_queue_skb = mt76_dma_tx_queue_skb,
+ 	.tx_cleanup = mt76_dma_tx_cleanup,
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -191,6 +191,8 @@ struct mt76_queue_ops {
+ 			   bool flush);
  
-+int __mt7921_start(struct mt7921_phy *phy);
- int mt7921_register_device(struct mt7921_dev *dev);
- void mt7921_unregister_device(struct mt7921_dev *dev);
- int mt7921_eeprom_init(struct mt7921_dev *dev);
+ 	void (*kick)(struct mt76_dev *dev, struct mt76_queue *q);
++
++	void (*reset_q)(struct mt76_dev *dev, struct mt76_queue *q);
+ };
+ 
+ enum mt76_wcid_flags {
+@@ -786,6 +788,7 @@ static inline u16 mt76_rev(struct mt76_d
+ #define mt76_queue_rx_reset(dev, ...)	(dev)->mt76.queue_ops->rx_reset(&((dev)->mt76), __VA_ARGS__)
+ #define mt76_queue_tx_cleanup(dev, ...)        (dev)->mt76.queue_ops->tx_cleanup(&((dev)->mt76), __VA_ARGS__)
+ #define mt76_queue_kick(dev, ...)	(dev)->mt76.queue_ops->kick(&((dev)->mt76), __VA_ARGS__)
++#define mt76_queue_reset(dev, ...)	(dev)->mt76.queue_ops->reset_q(&((dev)->mt76), __VA_ARGS__)
+ 
+ #define mt76_for_each_q_rx(dev, i)	\
+ 	for (i = 0; i < ARRAY_SIZE((dev)->q_rx) && \
 
 
