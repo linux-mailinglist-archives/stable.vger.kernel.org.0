@@ -2,97 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 395B13C2424
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBFCB3C241F
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231574AbhGINVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:21:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51146 "EHLO mail.kernel.org"
+        id S231543AbhGINVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:21:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231776AbhGINVI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:21:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24CF0613B6;
-        Fri,  9 Jul 2021 13:18:24 +0000 (UTC)
+        id S231454AbhGINVD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:21:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 913CA61377;
+        Fri,  9 Jul 2021 13:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836704;
-        bh=gJRhTVBdQ1m3hYZc97kyOXs22b98oz/0Illy7o76wHg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=VQ1U3ptdoI0V3KXlXDph9Ybr93h0IlvG1ZJ+AEy1wlLeon5pOgnpM7oiuIcqNd2Pj
-         LzBrtyYaLhXkGYJecqFW3T+RGN1Es8sheEdGfGqh82oMdktMQwL4bXlfm4IobJ2dNv
-         EcUyYrXADeiif0Fof6WhE1Dy0/RRWzzHELmt+NEs=
+        s=korg; t=1625836700;
+        bh=SUZu0pcvaN4PA4MzwyZI1YTZYozzoccCQpqSuz4rg0c=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=uRhAsj1gvISnuZjmbA1W0U3so9nm5NjyL6o15uIh/gghGS3AtxurzIT8df9HHVSBy
+         VlrvdNfL7Ua64+GQEmVk5RZ0p+OP9zD+3qd+sZkHsJIiWYKnDVOhmsaNW2ZjNF7UDP
+         KqrLqYgUwHTCVeNnjJsSHaHIlgTJmeJYmfP5Jc2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.4 0/4] 4.4.275-rc1 review
-Date:   Fri,  9 Jul 2021 15:18:12 +0200
-Message-Id: <20210709131529.395072769@linuxfoundation.org>
+        stable@vger.kernel.org, ManYi Li <limanyi@uniontech.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 1/4] scsi: sr: Return appropriate error code when disk is ejected
+Date:   Fri,  9 Jul 2021 15:18:13 +0200
+Message-Id: <20210709131531.830394957@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-MIME-Version: 1.0
+In-Reply-To: <20210709131529.395072769@linuxfoundation.org>
+References: <20210709131529.395072769@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.275-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.275-rc1
-X-KernelTest-Deadline: 2021-07-11T13:15+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.275 release.
-There are 4 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: ManYi Li <limanyi@uniontech.com>
 
-Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 7dd753ca59d6c8cc09aa1ed24f7657524803c7f3 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.275-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+Handle a reported media event code of 3. This indicates that the media has
+been removed from the drive and user intervention is required to proceed.
+Return DISK_EVENT_EJECT_REQUEST in that case.
 
-thanks,
+Link: https://lore.kernel.org/r/20210611094402.23884-1-limanyi@uniontech.com
+Signed-off-by: ManYi Li <limanyi@uniontech.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/scsi/sr.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-greg k-h
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 7dd4d9ded249..6e31cedf0b6c 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -216,6 +216,8 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
+ 		return DISK_EVENT_EJECT_REQUEST;
+ 	else if (med->media_event_code == 2)
+ 		return DISK_EVENT_MEDIA_CHANGE;
++	else if (med->media_event_code == 3)
++		return DISK_EVENT_EJECT_REQUEST;
+ 	return 0;
+ }
+ 
+-- 
+2.30.2
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.275-rc1
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    arm: kprobes: Allow to handle reentered kprobe on single-stepping
-
-Juergen Gross <jgross@suse.com>
-    xen/events: reset active flag for lateeoi events later
-
-Christian König <christian.koenig@amd.com>
-    drm/nouveau: fix dma_address check for CPU/GPU sync
-
-ManYi Li <limanyi@uniontech.com>
-    scsi: sr: Return appropriate error code when disk is ejected
-
-
--------------
-
-Diffstat:
-
- Makefile                             |  4 ++--
- arch/arm/probes/kprobes/core.c       |  6 ++++++
- drivers/gpu/drm/nouveau/nouveau_bo.c |  4 ++--
- drivers/scsi/sr.c                    |  2 ++
- drivers/xen/events/events_base.c     | 23 +++++++++++++++++++----
- 5 files changed, 31 insertions(+), 8 deletions(-)
 
 
