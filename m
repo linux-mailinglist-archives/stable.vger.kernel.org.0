@@ -2,93 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2A43C2428
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 315053C242A
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231808AbhGINVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:21:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51300 "EHLO mail.kernel.org"
+        id S231815AbhGINVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:21:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231839AbhGINVN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:21:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F50E61377;
-        Fri,  9 Jul 2021 13:18:29 +0000 (UTC)
+        id S231623AbhGINVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:21:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76BDB61377;
+        Fri,  9 Jul 2021 13:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836710;
-        bh=UA7kM1YSUvyFkHA+LB4CsP59vVgFeTQm0Av8wunOy4c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVXqqB0aNxJ4vrqTnEhguwpM9eFYNJIK9xvyooUf5gbxbLeYFstfrYOvdMV2SpYMj
-         AqmBT709JuCPeHvgDu/qQE1ERVbkG+SbyRfsAMk/INkagbM1OuBS4tnSk3ZQzyRlus
-         +MRTy9E3I0FiAqNxJWJ/GI1WA6xejg66OA/J2UVM=
+        s=korg; t=1625836718;
+        bh=C4Q81nmVs3j9ma5tCYfNtT6ohH6asiT6PrgqvgQYX4U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=htm317IPMvjaEnOlutzFi2q7yJQjWqbMNHa5pAsyrrcSRPCtssO0fuqPTaUpoZ1dc
+         WdUWmiFoLD7CT1ffZ+h8WVY/EGkJUW2s9EBrdzX36vJkTf2Tu5mrD5T2xohxia0w0Z
+         DoRqi2YtRTmvsk1nDmmiDh3lfuBxrlZqUakxP3Eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Jon Medhurst <tixy@linaro.org>,
-        huangshaobo <huangshaobo6@huawei.com>
-Subject: [PATCH 4.4 4/4] arm: kprobes: Allow to handle reentered kprobe on single-stepping
-Date:   Fri,  9 Jul 2021 15:18:16 +0200
-Message-Id: <20210709131536.103724111@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.9 0/9] 4.9.275-rc1 review
+Date:   Fri,  9 Jul 2021 15:18:27 +0200
+Message-Id: <20210709131542.410636747@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210709131529.395072769@linuxfoundation.org>
-References: <20210709131529.395072769@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.275-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.275-rc1
+X-KernelTest-Deadline: 2021-07-11T13:15+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+This is the start of the stable review cycle for the 4.9.275 release.
+There are 9 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit f3fbd7ec62dec1528fb8044034e2885f2b257941 upstream.
+Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
+Anything received after that time might be too late.
 
-This is arm port of commit 6a5022a56ac3 ("kprobes/x86: Allow to
-handle reentered kprobe on single-stepping")
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.275-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-Since the FIQ handlers can interrupt in the single stepping
-(or preparing the single stepping, do_debug etc.), we should
-consider a kprobe is hit in the NMI handler. Even in that
-case, the kprobe is allowed to be reentered as same as the
-kprobes hit in kprobe handlers
-(KPROBE_HIT_ACTIVE or KPROBE_HIT_SSDONE).
+thanks,
 
-The real issue will happen when a kprobe hit while another
-reentered kprobe is processing (KPROBE_REENTER), because
-we already consumed a saved-area for the previous kprobe.
+greg k-h
 
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Jon Medhurst <tixy@linaro.org>
-Fixes: 24ba613c9d6c ("ARM kprobes: core code")
-Cc: stable@vger.kernel.org #v2.6.25~v4.11
-Signed-off-by: huangshaobo <huangshaobo6@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm/probes/kprobes/core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/arch/arm/probes/kprobes/core.c
-+++ b/arch/arm/probes/kprobes/core.c
-@@ -270,6 +270,7 @@ void __kprobes kprobe_handler(struct pt_
- 			switch (kcb->kprobe_status) {
- 			case KPROBE_HIT_ACTIVE:
- 			case KPROBE_HIT_SSDONE:
-+			case KPROBE_HIT_SS:
- 				/* A pre- or post-handler probe got us here. */
- 				kprobes_inc_nmissed_count(p);
- 				save_previous_kprobe(kcb);
-@@ -278,6 +279,11 @@ void __kprobes kprobe_handler(struct pt_
- 				singlestep(p, regs, kcb);
- 				restore_previous_kprobe(kcb);
- 				break;
-+			case KPROBE_REENTER:
-+				/* A nested probe was hit in FIQ, it is a BUG */
-+				pr_warn("Unrecoverable kprobe detected at %p.\n",
-+					p->addr);
-+				/* fall through */
- 			default:
- 				/* impossible cases */
- 				BUG();
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.275-rc1
+
+Juergen Gross <jgross@suse.com>
+    xen/events: reset active flag for lateeoi events later
+
+Petr Mladek <pmladek@suse.com>
+    kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
+
+Petr Mladek <pmladek@suse.com>
+    kthread_worker: split code for canceling the delayed work timer
+
+Christian König <christian.koenig@amd.com>
+    drm/nouveau: fix dma_address check for CPU/GPU sync
+
+ManYi Li <limanyi@uniontech.com>
+    scsi: sr: Return appropriate error code when disk is ejected
+
+Hugh Dickins <hughd@google.com>
+    mm, futex: fix shared futex pgoff on shmem huge page
+
+Yang Shi <shy828301@gmail.com>
+    mm: thp: replace DEBUG_VM BUG with VM_WARN when unmap fails for split
+
+Alex Shi <alex.shi@linux.alibaba.com>
+    mm: add VM_WARN_ON_ONCE_PAGE() macro
+
+Michal Hocko <mhocko@kernel.org>
+    include/linux/mmdebug.h: make VM_WARN* non-rvals
+
+
+-------------
+
+Diffstat:
+
+ Makefile                             |  4 +-
+ drivers/gpu/drm/nouveau/nouveau_bo.c |  4 +-
+ drivers/scsi/sr.c                    |  2 +
+ drivers/xen/events/events_base.c     | 23 +++++++++--
+ include/linux/hugetlb.h              | 15 -------
+ include/linux/mmdebug.h              | 21 ++++++++--
+ include/linux/pagemap.h              | 13 +++---
+ kernel/futex.c                       |  2 +-
+ kernel/kthread.c                     | 77 ++++++++++++++++++++++++------------
+ mm/huge_memory.c                     | 29 +++++---------
+ mm/hugetlb.c                         |  5 +--
+ 11 files changed, 112 insertions(+), 83 deletions(-)
 
 
