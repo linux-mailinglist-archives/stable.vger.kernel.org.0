@@ -2,107 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 955B93C2476
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDD433C247B
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:20:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232363AbhGINWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:22:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53918 "EHLO mail.kernel.org"
+        id S232421AbhGINXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232378AbhGINWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:22:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01CF9611B0;
-        Fri,  9 Jul 2021 13:20:00 +0000 (UTC)
+        id S232413AbhGINXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:23:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3080F608FE;
+        Fri,  9 Jul 2021 13:20:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836801;
-        bh=PZ6EJcrDKzfN3PJu5a68vxiQpKR6yp/1vj+22G8udRs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wqqpQlKNgzZ4hxe0RI5EgFBIm9bjVtUcrVedU9ruFYDCwXoD5/h5cGjXNW1YeqQ9l
-         bmLibcsikudQUcjIF8EA8rxlpnxI8xXl5qUFJQUlNWGwGmLtJZidLAa1U1792KpycA
-         iWfF8ACJ4rbPA1Jn6+XQKcrmhy9hk2yHTpqDTlVo=
+        s=korg; t=1625836823;
+        bh=O0M0pxLYjP0vqL1M7/m3fHuBafy0fs0uj3AAK7Rj/Mc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=WI26g4DC+98gHLFcDFoaBxNzomSREJNV3LU4MEolp8a44YYUp5RgXQqy2n5aCQ0bz
+         6EHHsQLlPt7yX7gHa3b++m/5k1I26SDh5jzunyaoPpLzINXi8UVdVXdexGUQT0uxqE
+         V3BzRPTgpIOMNRFpZppHhqSSRLwD9CA2CYsDtrS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrvsky@oracle.com>
-Subject: [PATCH 4.14 25/25] xen/events: reset active flag for lateeoi events later
-Date:   Fri,  9 Jul 2021 15:18:56 +0200
-Message-Id: <20210709131643.055966920@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 0/4] 5.4.131-rc1 review
+Date:   Fri,  9 Jul 2021 15:20:14 +0200
+Message-Id: <20210709131531.277334979@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210709131627.928131764@linuxfoundation.org>
-References: <20210709131627.928131764@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.131-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.131-rc1
+X-KernelTest-Deadline: 2021-07-11T13:15+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+This is the start of the stable review cycle for the 5.4.131 release.
+There are 4 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 3de218ff39b9e3f0d453fe3154f12a174de44b25 upstream.
+Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
+Anything received after that time might be too late.
 
-In order to avoid a race condition for user events when changing
-cpu affinity reset the active flag only when EOI-ing the event.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.131-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-This is working fine as all user events are lateeoi events. Note that
-lateeoi_ack_mask_dynirq() is not modified as there is no explicit call
-to xen_irq_lateeoi() expected later.
+thanks,
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Fixes: b6622798bc50b62 ("xen/events: avoid handling the same event on two cpus at the same time")
-Tested-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrvsky@oracle.com>
-Link: https://lore.kernel.org/r/20210623130913.9405-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+greg k-h
 
----
- drivers/xen/events/events_base.c |   23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -524,6 +524,9 @@ static void xen_irq_lateeoi_locked(struc
- 	}
- 
- 	info->eoi_time = 0;
-+
-+	/* is_active hasn't been reset yet, do it now. */
-+	smp_store_release(&info->is_active, 0);
- 	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
- }
- 
-@@ -1780,10 +1783,22 @@ static void lateeoi_ack_dynirq(struct ir
- 	struct irq_info *info = info_for_irq(data->irq);
- 	evtchn_port_t evtchn = info ? info->evtchn : 0;
- 
--	if (VALID_EVTCHN(evtchn)) {
--		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		ack_dynirq(data);
--	}
-+	if (!VALID_EVTCHN(evtchn))
-+		return;
-+
-+	do_mask(info, EVT_MASK_REASON_EOI_PENDING);
-+
-+	if (unlikely(irqd_is_setaffinity_pending(data)) &&
-+	    likely(!irqd_irq_disabled(data))) {
-+		do_mask(info, EVT_MASK_REASON_TEMPORARY);
-+
-+		clear_evtchn(evtchn);
-+
-+		irq_move_masked_irq(data);
-+
-+		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
-+	} else
-+		clear_evtchn(evtchn);
- }
- 
- static void lateeoi_mask_ack_dynirq(struct irq_data *data)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.131-rc1
+
+Juergen Gross <jgross@suse.com>
+    xen/events: reset active flag for lateeoi events later
+
+Alper Gun <alpergun@google.com>
+    KVM: SVM: Call SEV Guest Decommission if ASID binding fails
+
+Heiko Carstens <hca@linux.ibm.com>
+    s390/stack: fix possible register corruption with stack switch helper
+
+David Rientjes <rientjes@google.com>
+    KVM: SVM: Periodically schedule when unregistering regions on destroy
+
+
+-------------
+
+Diffstat:
+
+ Makefile                           |  4 ++--
+ arch/s390/include/asm/stacktrace.h | 18 +++++++++++-------
+ arch/x86/kvm/svm.c                 | 33 ++++++++++++++++++++++-----------
+ drivers/xen/events/events_base.c   | 23 +++++++++++++++++++----
+ 4 files changed, 54 insertions(+), 24 deletions(-)
 
 
