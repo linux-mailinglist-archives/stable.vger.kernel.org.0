@@ -2,91 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E7003C1FDC
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 09:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7AB03C1FF2
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 09:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230465AbhGIHLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 03:11:40 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:58738 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S230121AbhGIHLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 03:11:40 -0400
-X-UUID: 5d6e8de1c19f437fbe5038b7416755df-20210709
-X-UUID: 5d6e8de1c19f437fbe5038b7416755df-20210709
-Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
-        (envelope-from <deren.wu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 221871096; Fri, 09 Jul 2021 15:08:53 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 9 Jul 2021 15:08:51 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 9 Jul 2021 15:08:51 +0800
-From:   Deren Wu <Deren.Wu@mediatek.com>
-To:     <stable@vger.kernel.org>
-CC:     Felix Fietkau <nbd@nbd.name>,
-        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Deren Wu <deren.wu@mediatek.com>
-Subject: [PATCH 1/1] mt76: mt7921: get rid of mcu_reset function pointer
-Date:   Fri, 9 Jul 2021 15:07:19 +0800
-Message-ID: <05ba0c23ecacf740942f62b12fe2f39ed31be106.1625806023.git.deren.wu@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <cover.1625806023.git.deren.wu@mediatek.com>
-References: <cover.1625806023.git.deren.wu@mediatek.com>
+        id S230312AbhGIHXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 03:23:30 -0400
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:53046 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231192AbhGIHXa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 03:23:30 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UfC4ohT_1625815243;
+Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0UfC4ohT_1625815243)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 09 Jul 2021 15:20:45 +0800
+Date:   Fri, 9 Jul 2021 15:20:41 +0800
+From:   Gao Xiang <hsiangkao@linux.alibaba.com>
+To:     stable <stable@vger.kernel.org>
+Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Nick Terrell <terrelln@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable <stable@vger.kernel.org>,
+        kernel test robot <lkp@intel.com>
+Subject: Re: [linux-stable-rc:linux-5.4.y 7045/7049] mipsel-linux-ld:
+ decompress.c:undefined reference to `memmove'
+Message-ID: <YOf4yZIld6L6XP13@B-P7TQMD6M-0146.local>
+References: <202107070120.6dOj1kB7-lkp@intel.com>
+ <YOfjmCT6n61Yidvp@B-P7TQMD6M-0146.local>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YOfjmCT6n61Yidvp@B-P7TQMD6M-0146.local>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+Hi Greg, stable all,
 
-[ Upstream commit d43b3257621dfe57c71d875afd3f624b9a042fc5 ]
+On Fri, Jul 09, 2021 at 01:50:16PM +0800, Gao Xiang wrote:
+> On Wed, Jul 07, 2021 at 01:15:28AM +0800, kernel test robot wrote:
+> > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> > head:   3909e2374335335c9504467caabc906d3f7487e4
+> > commit: defcc2b5e54a4724fb5733f802edf5dd596018b6 [7045/7049] lib/lz4: explicitly support in-place decompression
+> > config: mips-randconfig-r036-20210706 (attached as .config)
+> > compiler: mipsel-linux-gcc (GCC) 9.3.0
+> > reproduce (this is a W=1 build):
+> >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+> >         chmod +x ~/bin/make.cross
+> >         # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=defcc2b5e54a4724fb5733f802edf5dd596018b6
+> >         git remote add linux-stable-rc https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> >         git fetch --no-tags linux-stable-rc linux-5.4.y
+> >         git checkout defcc2b5e54a4724fb5733f802edf5dd596018b6
+> >         # save the attached .config to linux build tree
+> >         mkdir build_dir
+> >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross O=build_dir ARCH=mips SHELL=/bin/bash
+> > 
+> > If you fix the issue, kindly add following tag as appropriate
+> > Reported-by: kernel test robot <lkp@intel.com>
+> 
+> Which is weird, does the preboot environment miss memmove() on mipsel?
+> Just a guess, I may look into that myself later...
+> 
 
-since mcu_reset it used only by mt7921, move the reset callback to
-mt7921_mcu_parse_response routine and get rid of the function pointer.
+After manually checking, I found memmove() for the mips preboot environment
+was incidentally introduced by commit a510b616131f ("MIPS: Add support for
+ZSTD-compressed kernels") which wasn't included in v5.4, but included in
+v5.10 as below (so v5.10.y is fine):
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/arch/mips/boot/compressed?h=v5.10&id=a510b616131f85215ba156ed67e5ed1c0701f80f
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/linux-wireless/364293ec8609dd254067d8173c1599526ffd662c.1619000828.git.lorenzo@kernel.org/
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Cc: <stable@vger.kernel.org> # 5.12: f92f81d35ac2 mt76: mt7921: check mcu returned values in mt7921_start
-Cc: <stable@vger.kernel.org> # 5.12: d32464e68ffc mt76: mt7921: introduce mt7921_run_firmware utility routine.
-Cc: <stable@vger.kernel.org> # 5.12: 1f7396acfef4 mt76: mt7921: introduce __mt7921_start utility routine
-Cc: <stable@vger.kernel.org> # 5.12: 3990465db682 mt76: dma: introduce mt76_dma_queue_reset routine
-Cc: <stable@vger.kernel.org> # 5.12: c001df978e4c mt76: dma: export mt76_dma_rx_cleanup routine
-Cc: <stable@vger.kernel.org> # 5.12: 0c1ce9884607 mt76: mt7921: add wifi reset support
-Cc: <stable@vger.kernel.org> # 5.12: e513ae49088b mt76: mt7921: abort uncompleted scan by wifi reset
-Cc: <stable@vger.kernel.org> # 5.12
----
- drivers/net/wireless/mediatek/mt76/mt7921/mcu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+And when I applied the following patch partially from the original
+commit, the compile error with the command lines mentioned above was gone:
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-index d0d6de3f6d41..a4f070cd78fd 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-@@ -161,6 +161,8 @@ mt7921_mcu_parse_response(struct mt76_dev *mdev, int cmd,
- 	if (!skb) {
- 		dev_err(mdev->dev, "Message %d (seq %d) timeout\n",
- 			cmd, seq);
-+		mt7921_reset(mdev);
+diff --git a/arch/mips/boot/compressed/string.c b/arch/mips/boot/compressed/string.c
+index 43beecc3587c..e9ab7ea592ba 100644
+--- a/arch/mips/boot/compressed/string.c
++++ b/arch/mips/boot/compressed/string.c
+@@ -27,3 +27,19 @@ void *memset(void *s, int c, size_t n)
+ 		ss[i] = c;
+ 	return s;
+ }
 +
- 		return -ETIMEDOUT;
- 	}
- 
-@@ -952,7 +954,6 @@ int mt7921_mcu_init(struct mt7921_dev *dev)
- 		.mcu_skb_send_msg = mt7921_mcu_send_message,
- 		.mcu_parse_response = mt7921_mcu_parse_response,
- 		.mcu_restart = mt7921_mcu_restart,
--		.mcu_reset = mt7921_reset,
- 	};
- 
- 	dev->mt76.mcu_ops = &mt7921_mcu_ops;
--- 
-2.25.1
++void * __weak memmove(void *dest, const void *src, size_t n)
++{
++	unsigned int i;
++	const char *s = src;
++	char *d = dest;
++
++	if ((uintptr_t)dest < (uintptr_t)src) {
++		for (i = 0; i < n; i++)
++			d[i] = s[i];
++	} else {
++		for (i = n; i > 0; i--)
++			d[i - 1] = s[i - 1];
++	}
++	return dest;
++}
 
+How to backport such commit partially to the v5.4.y stable kernel?
+... Also, it would be better to check other mips compile combinations
+automatically since it's hard for me to check all such combinations
+one-by-one...
+
+Thanks,
+Gao Xiang
+
+> Thanks,
+> Gao Xiang
+> 
+> > 
+> > All errors (new ones prefixed by >>):
+> > 
+> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_safe_withSmallPrefix':
+> >    decompress.c:(.text+0x220): undefined reference to `memmove'
+> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_fast_extDict':
+> >    decompress.c:(.text+0x694): undefined reference to `memmove'
+> > >> mipsel-linux-ld: decompress.c:(.text+0x774): undefined reference to `memmove'
+> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_safe':
+> >    decompress.c:(.text+0xb88): undefined reference to `memmove'
+> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_safe_partial':
+> >    decompress.c:(.text+0x1078): undefined reference to `memmove'
+> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o:decompress.c:(.text+0x12f8): more undefined references to `memmove' follow
+> > 
+> > ---
+> > 0-DAY CI Kernel Test Service, Intel Corporation
+> > https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+> 
