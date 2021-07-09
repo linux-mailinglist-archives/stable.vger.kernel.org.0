@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C453C2422
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BB423C2426
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231419AbhGINVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:21:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
+        id S231791AbhGINVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:21:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231454AbhGINVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:21:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E98A161357;
-        Fri,  9 Jul 2021 13:18:21 +0000 (UTC)
+        id S231815AbhGINVL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:21:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DC9F61357;
+        Fri,  9 Jul 2021 13:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836702;
-        bh=cwwtqavFK7tU7JXzqiqwlEYlXq2bfP6ekDHIVIt8nIE=;
+        s=korg; t=1625836707;
+        bh=denMVhT9adw/N1SJptjRT5U9cniFnK/UQPmn521OKI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKww+u9AlLVXQoLUgqjbGRTKVmdBIqT+ydinR8bTiQ5OxcqxyuQMwiqOg6EYWh9+d
-         ZnLRT1RN7e+KU6tfLuBgXrt4cI11JlU9aQoLTidME6myYqw3zfnuv8bQmpd0x3KwnJ
-         urwH18XfzFdhm0IjSfj/7Ei+GNo2RKjcrdE8+Ej4=
+        b=m4K+ZcXKWN0s2JepltFx4QOSLb578aeQexpCoXn8X8JL1/BRylq8dIoGjhY4zVQmQ
+         sQD5I6utF5yHl4VOuqpNtwuvoWrHfTytTaM4qLVtumDwlm3sdLyjCoBrp6NdKTJ95v
+         M7JlBM48P6zJyF+2pAdL0h7aWqXvKUp9PLK/IO+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 2/4] drm/nouveau: fix dma_address check for CPU/GPU sync
-Date:   Fri,  9 Jul 2021 15:18:14 +0200
-Message-Id: <20210709131533.590063641@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrvsky@oracle.com>
+Subject: [PATCH 4.4 3/4] xen/events: reset active flag for lateeoi events later
+Date:   Fri,  9 Jul 2021 15:18:15 +0200
+Message-Id: <20210709131535.098023418@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210709131529.395072769@linuxfoundation.org>
 References: <20210709131529.395072769@linuxfoundation.org>
@@ -41,44 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit d330099115597bbc238d6758a4930e72b49ea9ba ]
+commit 3de218ff39b9e3f0d453fe3154f12a174de44b25 upstream.
 
-AGP for example doesn't have a dma_address array.
+In order to avoid a race condition for user events when changing
+cpu affinity reset the active flag only when EOI-ing the event.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210614110517.1624-1-christian.koenig@amd.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is working fine as all user events are lateeoi events. Note that
+lateeoi_ack_mask_dynirq() is not modified as there is no explicit call
+to xen_irq_lateeoi() expected later.
+
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Fixes: b6622798bc50b62 ("xen/events: avoid handling the same event on two cpus at the same time")
+Tested-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrvsky@oracle.com>
+Link: https://lore.kernel.org/r/20210623130913.9405-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/nouveau/nouveau_bo.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/xen/events/events_base.c |   23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-index 78f520d05de9..58c310930bf2 100644
---- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-@@ -458,7 +458,7 @@ nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -533,6 +533,9 @@ static void xen_irq_lateeoi_locked(struc
+ 	}
  
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
+ 	info->eoi_time = 0;
++
++	/* is_active hasn't been reset yet, do it now. */
++	smp_store_release(&info->is_active, 0);
+ 	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
+ }
  
- 	/* Don't waste time looping if the object is coherent */
-@@ -478,7 +478,7 @@ nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
+@@ -1777,10 +1780,22 @@ static void lateeoi_ack_dynirq(struct ir
+ 	struct irq_info *info = info_for_irq(data->irq);
+ 	evtchn_port_t evtchn = info ? info->evtchn : 0;
  
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
+-	if (VALID_EVTCHN(evtchn)) {
+-		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
+-		ack_dynirq(data);
+-	}
++	if (!VALID_EVTCHN(evtchn))
++		return;
++
++	do_mask(info, EVT_MASK_REASON_EOI_PENDING);
++
++	if (unlikely(irqd_is_setaffinity_pending(data)) &&
++	    likely(!irqd_irq_disabled(data))) {
++		do_mask(info, EVT_MASK_REASON_TEMPORARY);
++
++		clear_evtchn(evtchn);
++
++		irq_move_masked_irq(data);
++
++		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
++	} else
++		clear_evtchn(evtchn);
+ }
  
- 	/* Don't waste time looping if the object is coherent */
--- 
-2.30.2
-
+ static void lateeoi_mask_ack_dynirq(struct irq_data *data)
 
 
