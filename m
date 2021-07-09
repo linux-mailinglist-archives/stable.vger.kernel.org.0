@@ -2,124 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 679FD3C253F
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D9D3C257C
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 16:02:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231622AbhGINwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:52:23 -0400
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:55027 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231454AbhGINwW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 09:52:22 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R271e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UfDrXrP_1625838575;
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0UfDrXrP_1625838575)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 09 Jul 2021 21:49:36 +0800
-Date:   Fri, 9 Jul 2021 21:49:35 +0800
-From:   Gao Xiang <hsiangkao@linux.alibaba.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>, kbuild-all@lists.01.org,
-        linux-kernel@vger.kernel.org, Nick Terrell <terrelln@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        kernel test robot <lkp@intel.com>
-Subject: Re: [linux-stable-rc:linux-5.4.y 7045/7049] mipsel-linux-ld:
- decompress.c:undefined reference to `memmove'
-Message-ID: <YOhT78jt3rkCmudH@B-P7TQMD6M-0146.local>
-References: <202107070120.6dOj1kB7-lkp@intel.com>
- <YOfjmCT6n61Yidvp@B-P7TQMD6M-0146.local>
- <YOf4yZIld6L6XP13@B-P7TQMD6M-0146.local>
- <YOglcE85xuwfD7It@kroah.com>
+        id S232165AbhGIOFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 10:05:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35714 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229499AbhGIOFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 10:05:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 728BD61378;
+        Fri,  9 Jul 2021 14:02:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1625839341;
+        bh=NroP3ziw+PZUVQqJc/UKEOyljdUa1HDh2/1Wmds2e+o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=b74PP76Jkp8/wKRiezq9PSq2rELIChW04OYpiRQ3Tt2/7SOCUXZhKazb3kxOK3gPb
+         le+imDuo+mRntlAWfQulsfS5Xj3pPwZQ29/nqeV+o8+E2/vjv0cT0rAFWBBYFDWyWP
+         0wzBUeEwbcy4v8ptUnX7kOb/KW82It4L1TpY/c3rTKe7/GYUmmP4CEjW+kiB/xjzkH
+         yrQ2cpyB7lXVU6Qnd9o9pkrk1IFfPVpTDW3Fnxy0E3h/vMN6+UzTZfDyaUJYKyx2Ps
+         Q5Ljd3VNDHnbGScSr3tgBcz8m0rreTQ/+OhTxVBiu0Zt4X57SAYIuKk6z/U0KgAT3C
+         SmiXJ/4A+4Lsg==
+Date:   Fri, 9 Jul 2021 10:02:20 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Lucas Tanure <tanureal@opensource.cirrus.com>
+Subject: Re: [PATCH AUTOSEL 5.13 23/85] regmap-i2c: Set regmap max raw r/w
+ from quirks
+Message-ID: <YOhW7BoCy+dqgWSB@sashalap>
+References: <20210704230420.1488358-1-sashal@kernel.org>
+ <20210704230420.1488358-23-sashal@kernel.org>
+ <20210705120920.GA4574@sirena.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <YOglcE85xuwfD7It@kroah.com>
+In-Reply-To: <20210705120920.GA4574@sirena.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 09, 2021 at 12:31:12PM +0200, Greg Kroah-Hartman wrote:
-> On Fri, Jul 09, 2021 at 03:20:41PM +0800, Gao Xiang wrote:
-> > Hi Greg, stable all,
-> > 
-> > On Fri, Jul 09, 2021 at 01:50:16PM +0800, Gao Xiang wrote:
-> > > On Wed, Jul 07, 2021 at 01:15:28AM +0800, kernel test robot wrote:
-> > > > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > > > head:   3909e2374335335c9504467caabc906d3f7487e4
-> > > > commit: defcc2b5e54a4724fb5733f802edf5dd596018b6 [7045/7049] lib/lz4: explicitly support in-place decompression
-> > > > config: mips-randconfig-r036-20210706 (attached as .config)
-> > > > compiler: mipsel-linux-gcc (GCC) 9.3.0
-> > > > reproduce (this is a W=1 build):
-> > > >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-> > > >         chmod +x ~/bin/make.cross
-> > > >         # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=defcc2b5e54a4724fb5733f802edf5dd596018b6
-> > > >         git remote add linux-stable-rc https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > > >         git fetch --no-tags linux-stable-rc linux-5.4.y
-> > > >         git checkout defcc2b5e54a4724fb5733f802edf5dd596018b6
-> > > >         # save the attached .config to linux build tree
-> > > >         mkdir build_dir
-> > > >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross O=build_dir ARCH=mips SHELL=/bin/bash
-> > > > 
-> > > > If you fix the issue, kindly add following tag as appropriate
-> > > > Reported-by: kernel test robot <lkp@intel.com>
-> > > 
-> > > Which is weird, does the preboot environment miss memmove() on mipsel?
-> > > Just a guess, I may look into that myself later...
-> > > 
-> > 
-> > After manually checking, I found memmove() for the mips preboot environment
-> > was incidentally introduced by commit a510b616131f ("MIPS: Add support for
-> > ZSTD-compressed kernels") which wasn't included in v5.4, but included in
-> > v5.10 as below (so v5.10.y is fine):
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/arch/mips/boot/compressed?h=v5.10&id=a510b616131f85215ba156ed67e5ed1c0701f80f
-> > 
-> > And when I applied the following patch partially from the original
-> > commit, the compile error with the command lines mentioned above was gone:
-> > 
-> > diff --git a/arch/mips/boot/compressed/string.c b/arch/mips/boot/compressed/string.c
-> > index 43beecc3587c..e9ab7ea592ba 100644
-> > --- a/arch/mips/boot/compressed/string.c
-> > +++ b/arch/mips/boot/compressed/string.c
-> > @@ -27,3 +27,19 @@ void *memset(void *s, int c, size_t n)
-> >  		ss[i] = c;
-> >  	return s;
-> >  }
-> > +
-> > +void * __weak memmove(void *dest, const void *src, size_t n)
-> > +{
-> > +	unsigned int i;
-> > +	const char *s = src;
-> > +	char *d = dest;
-> > +
-> > +	if ((uintptr_t)dest < (uintptr_t)src) {
-> > +		for (i = 0; i < n; i++)
-> > +			d[i] = s[i];
-> > +	} else {
-> > +		for (i = n; i > 0; i--)
-> > +			d[i - 1] = s[i - 1];
-> > +	}
-> > +	return dest;
-> > +}
-> > 
-> > How to backport such commit partially to the v5.4.y stable kernel?
-> 
-> Please submit it in a format which we can apply it.
+On Mon, Jul 05, 2021 at 01:09:20PM +0100, Mark Brown wrote:
+>On Sun, Jul 04, 2021 at 07:03:18PM -0400, Sasha Levin wrote:
+>> From: Lucas Tanure <tanureal@opensource.cirrus.com>
+>>
+>> [ Upstream commit ea030ca688193462b8d612c1628c37129aa30072 ]
+>>
+>> Set regmap raw read/write from i2c quirks max read/write
+>> so regmap_raw_read/write can split the access into chunks
+>
+>This seems a bit new featureish to be backporting to stable.
 
-I've sent out a patch (although not sure if the exact format like this):
-https://lore.kernel.org/r/20210709132408.174206-1-hsiangkao@linux.alibaba.com/
+That's fair, I'll drop it.
 
-> 
-> > ... Also, it would be better to check other mips compile combinations
-> > automatically since it's hard for me to check all such combinations
-> > one-by-one...
-> 
-> That's what kernelci is for, can you use that?
-
-I'm not sure how to use kernelci myself, maybe I missed something...
-
+-- 
 Thanks,
-Gao Xiang
-
-> 
-> thanks,
-> 
-> greg k-h
+Sasha
