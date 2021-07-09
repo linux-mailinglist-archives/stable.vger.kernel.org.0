@@ -2,91 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71ADD3C2A3A
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 22:16:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 927223C2ACA
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 23:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230166AbhGIUTA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 16:19:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54250 "EHLO
+        id S229931AbhGIVaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 17:30:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbhGIUS7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 16:18:59 -0400
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21CD6C0613DD
-        for <stable@vger.kernel.org>; Fri,  9 Jul 2021 13:16:16 -0700 (PDT)
-Received: by mail-oi1-x234.google.com with SMTP id m3so13647383oig.10
-        for <stable@vger.kernel.org>; Fri, 09 Jul 2021 13:16:16 -0700 (PDT)
+        with ESMTP id S229506AbhGIVaw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 17:30:52 -0400
+Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 211E8C0613E5
+        for <stable@vger.kernel.org>; Fri,  9 Jul 2021 14:28:07 -0700 (PDT)
+Received: by mail-oi1-x22d.google.com with SMTP id t39so4054656oiw.6
+        for <stable@vger.kernel.org>; Fri, 09 Jul 2021 14:28:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=BBvdLPUp1m+HXK69n7OATymjGuvCZxWxCSR0ix7+dv0=;
-        b=dR/n8C+hlpZVLjmZeJmIVx6TYKt48giIUSAaDU4DGooHrNZvbapDPieGGif/iQKrgx
-         bttRvYi3oDrmZ2vjWgAtio6IvydB8mWT1oEhB5B/Opgnset6jawAvNW0yi8R5ov2YDdb
-         pDy+EMhu70A1v9yRELqS4XEUw+VKIknNjoDmewLYvKNEqPd6UxJyislSO9Pr7w8LLKt6
-         GG2umXWiEaS3dkYV66pfOscu29CqbN7YMciRKsWvxh42/p21sUdFn9e7KcXOB4TXVOZf
-         AI+zAqbsmYmL2e63RPP1z7xnWgQgI0keOgb7MX1fVwE7yX7vF6Sq4AHQqlYbdY+PlC0h
-         6YNw==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Qh4edRTsB2afFFaPsQqCE4vA8FR4pyqPTCpmX9vbySU=;
+        b=SJZQR9auMPCeAZVtfBAwqP0iKkFKnF/mxiOLZ9TRyfPauM38QnTu3NqRRDoJuuPYbL
+         nQjfQD1Dcgvb/ru/TAgD/aQWnSDLzeuzJGcbbw3AJdmRgzBRhHp9jjoTVw8jv3/MBQ+X
+         6kfahjz0NFXwcxRMf8fawCNTQjqDm8OCSo9W4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=BBvdLPUp1m+HXK69n7OATymjGuvCZxWxCSR0ix7+dv0=;
-        b=JnxqEmmVYkEgmddFbRgL+Op+ncIPgXT7kQPN58zKLhusyGR5Tb0UN/chhVU9YiEvLK
-         GGW4cOf+KT3L5kmZdhM88rvi+LszBYIW6A2p6Qbh8xa7mhrBWNmYxXmMlnBb7qHSURRl
-         NU863p1fU+JCVyaY6frtkrSqH6SyhV0c/xQUNgFmgPQDekb8jEu3SYFIzYNlMWb5MlZv
-         ylc9B+0nAUOP0XNwxl1+YCCeFU5uGxPlOhBcjPqoZyNSQgm7L4fDCzVEtmgd0e28a54U
-         8111hX7B5CXnUnVFAhOSkybQEtHxPp/8h5a0kfmaAat47VE7rwMDShHweznk2hxr+i8v
-         vMhg==
-X-Gm-Message-State: AOAM533zeHzjf2AXsjiTKjKuNrFTYxnDLbS1fTxgUuHdQbvgH+EjORHM
-        999at9LO90a/Fnjbj+eCFduvU6maNzdJz25NbT4=
-X-Google-Smtp-Source: ABdhPJxgMqYDS3RG7CG5XrNsJXRCbVOhCXf5a++tfSG/w2jezQtxzZDEGLlQRwIQRt3VKakorL6MjOH9CoCWUbLOE+E=
-X-Received: by 2002:aca:c741:: with SMTP id x62mr537971oif.79.1625861775408;
- Fri, 09 Jul 2021 13:16:15 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Qh4edRTsB2afFFaPsQqCE4vA8FR4pyqPTCpmX9vbySU=;
+        b=CX9I5KbwKL0JR6fmwD4Fi6ODuHydu+tEo62pgM6nzAxDbIVUsYcrxr5uzocP0VOKcw
+         mpCwxLRmxfRPo8yGlOS5bRaja7d9smzCIDLmvJ/sHz99rGSewOk0EeNiV8BKQUxdTaFC
+         DZhU8E3eT/YZNijHXratmM/+ordmLkZboc0qPzk1ir/2YyMclSi8fmE52k9wFDvkI3qQ
+         Y3grJEvHqUB3swgd3dKFGKWqgFKgJ3EgfglpO5Tz2kt5BuvvOs5ywHh8XWPJBg+lgw+9
+         joKe32HPyQo+m3C510v4Ig6ShT9kqBGqJ4jtLp0QO4zbpCtTPt9zSLZX633raoOO7yoZ
+         7/rg==
+X-Gm-Message-State: AOAM530BKFClPuAhmS4VcVNm9bB7qrRHEOa/+XlegxVdeQRq9dtrmkOZ
+        02evtoYMAq+ws35dNKGwGFVQjQ==
+X-Google-Smtp-Source: ABdhPJw+zVNsZ/ouMYYuHErXETNmetuIKZl/ywbZTDef0QqBAE8WaQBCgva8l+SlxC2fMGJB1wwofA==
+X-Received: by 2002:a54:4609:: with SMTP id p9mr28694620oip.107.1625866086391;
+        Fri, 09 Jul 2021 14:28:06 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id k25sm1242799ood.45.2021.07.09.14.28.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 09 Jul 2021 14:28:05 -0700 (PDT)
+Subject: Re: [PATCH 5.12 00/11] 5.12.16-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210709131549.679160341@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <4b9b7a2f-b2fc-1aa1-2065-c6bab829f599@linuxfoundation.org>
+Date:   Fri, 9 Jul 2021 15:28:04 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Reply-To: patzengu@outlook.com
-Sender: vidamichael4@gmail.com
-Received: by 2002:aca:d945:0:0:0:0:0 with HTTP; Fri, 9 Jul 2021 13:16:14 -0700 (PDT)
-From:   p z <rm2568590@gmail.com>
-Date:   Fri, 9 Jul 2021 22:16:14 +0200
-X-Google-Sender-Auth: _cGrNoOc97rtYtwJjm3vdAMSsYw
-Message-ID: <CAD_SncATFwQVm9UEAFtOMSxtdQM8oi69y7VsumZYJwgOMDCSdg@mail.gmail.com>
-Subject: i need your co-operation
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210709131549.679160341@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Dear Friend,
+On 7/9/21 7:21 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.12.16 release.
+> There are 11 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.16-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-I am Mr.Patrice Zengu ,from Burkina Faso and i am the new bank telex
-manager of our bank here in Africa.
+Compiled and booted on my test system. No dmesg regressions.
 
-I have the opportunity to transfer the sum of US$ 10.5Million to your
-bank account which i personally placed on an Escrow account without a
-name.
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-I must tell you that after revision of files both old and new as the
-new telex manager ,i discovered that if these funds remains here
-without transferring it offshore ,it will be lawfully recovered and
-moved to the  Government of Burkina Faso treasury as an abandoned
-funds without any name.
-
-I want to let you know that a Burkinabe cannot stand as the depositor
-of these US dollars  since we are not allowed to operate on foreign
-currency. I do not intend to work  and stay in Africa till the rest of
-my life.
-
-More so ,i will not want my bank to know about these funds and if they
-happens to know probably ,the funds will be moved to the Burkina Faso
-Government public treasury as an abandoned funds.
-
-I will furnish you with more details of this transfer and how it can
-be perfectly and legally executed without any hitch since i am now in
-control.
-
-I am waiting to hear from you urgently to proceed.
-
-
-Yours sincerely,
-Mr.Patrice Zengu.
+thanks,
+-- Shuah
