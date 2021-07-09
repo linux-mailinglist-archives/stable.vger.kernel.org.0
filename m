@@ -2,85 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4F93C24EF
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:23:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E3C23C24FD
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233086AbhGINZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:25:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56330 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233029AbhGINZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:25:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B169D61377;
-        Fri,  9 Jul 2021 13:22:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836974;
-        bh=u0DPRHnA81eONtWYWsapGza7NAVDu4368Xw5ICQf5XQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unhkiDYgZ6SsvjasGGIaPen71TjIFlMQE1Rf2bvwIbeguzUqWoBr1gpowjab5uWgD
-         YNn0r/Ap6kMil/Q3OHDK5qz3qZZKqsqHFR5mxHkWnoAi+FiOdHW0EEUdc/uczFKmHh
-         AVW03c10edeIyLuQHrUE+iptz5rHHEmnaL2XN+zU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+        id S232477AbhGIN1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:27:00 -0400
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:58939 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232333AbhGIN1A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 09:27:00 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UfDrTKB_1625837049;
+Received: from e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0UfDrTKB_1625837049)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 09 Jul 2021 21:24:15 +0800
+From:   Gao Xiang <hsiangkao@linux.alibaba.com>
+To:     stable <stable@vger.kernel.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Deren Wu <deren.wu@mediatek.com>
-Subject: [PATCH 5.12 11/11] mt76: mt7921: get rid of mcu_reset function pointer
-Date:   Fri,  9 Jul 2021 15:21:48 +0200
-Message-Id: <20210709131604.189244317@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210709131549.679160341@linuxfoundation.org>
-References: <20210709131549.679160341@linuxfoundation.org>
-User-Agent: quilt/0.66
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 5.4.y stable only] MIPS: fix "mipsel-linux-ld: decompress.c:undefined reference to `memmove'"
+Date:   Fri,  9 Jul 2021 21:24:08 +0800
+Message-Id: <20210709132408.174206-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
+In-Reply-To: <YOglcE85xuwfD7It@kroah.com>
+References: <YOglcE85xuwfD7It@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+commit a510b616131f85215ba156ed67e5ed1c0701f80f upstream.
 
-commit d43b3257621dfe57c71d875afd3f624b9a042fc5 upstream.
+kernel test robot reported a 5.4.y build issue found by randconfig [1]
+after backporting commit 89b158635ad7 ("lib/lz4: explicitly support
+in-place decompression""). This isn't a problem for v5.10+ since
+commit a510b616131f ("MIPS: Add support for ZSTD-compressed kernels")
+which wasn't included in v5.4, but included in v5.10.y, so only v5.4.y
+is effected.
 
-since mcu_reset it used only by mt7921, move the reset callback to
-mt7921_mcu_parse_response routine and get rid of the function pointer.
+This partially cherry-picks the memmove part of commit a510b616131f
+to fix the reported build issue for v5.4.y stable only. Hopefully
+kernelci could also double check this.
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/linux-wireless/364293ec8609dd254067d8173c1599526ffd662c.1619000828.git.lorenzo@kernel.org/
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Cc: <stable@vger.kernel.org> # 5.12: f92f81d35ac2 mt76: mt7921: check mcu returned values in mt7921_start
-Cc: <stable@vger.kernel.org> # 5.12: d32464e68ffc mt76: mt7921: introduce mt7921_run_firmware utility routine.
-Cc: <stable@vger.kernel.org> # 5.12: 1f7396acfef4 mt76: mt7921: introduce __mt7921_start utility routine
-Cc: <stable@vger.kernel.org> # 5.12: 3990465db682 mt76: dma: introduce mt76_dma_queue_reset routine
-Cc: <stable@vger.kernel.org> # 5.12: c001df978e4c mt76: dma: export mt76_dma_rx_cleanup routine
-Cc: <stable@vger.kernel.org> # 5.12: 0c1ce9884607 mt76: mt7921: add wifi reset support
-Cc: <stable@vger.kernel.org> # 5.12: e513ae49088b mt76: mt7921: abort uncompleted scan by wifi reset
-Cc: <stable@vger.kernel.org> # 5.12
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1] https://lore.kernel.org/r/202107070120.6dOj1kB7-lkp@intel.com/
+Fixes: defcc2b5e54a ("lib/lz4: explicitly support in-place decompression") # 5.4.y
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/mcu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+not sure if the stable-only patch format is like this, it partially
+cherry-picks the useful memmove part of commit a510b616131f to fix
+the build issue found by randconfig fuzz only.
 
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-@@ -161,6 +161,8 @@ mt7921_mcu_parse_response(struct mt76_de
- 	if (!skb) {
- 		dev_err(mdev->dev, "Message %d (seq %d) timeout\n",
- 			cmd, seq);
-+		mt7921_reset(mdev);
+ arch/mips/boot/compressed/string.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/arch/mips/boot/compressed/string.c b/arch/mips/boot/compressed/string.c
+index 43beecc3587c..e9ab7ea592ba 100644
+--- a/arch/mips/boot/compressed/string.c
++++ b/arch/mips/boot/compressed/string.c
+@@ -27,3 +27,19 @@ void *memset(void *s, int c, size_t n)
+ 		ss[i] = c;
+ 	return s;
+ }
 +
- 		return -ETIMEDOUT;
- 	}
- 
-@@ -952,7 +954,6 @@ int mt7921_mcu_init(struct mt7921_dev *d
- 		.mcu_skb_send_msg = mt7921_mcu_send_message,
- 		.mcu_parse_response = mt7921_mcu_parse_response,
- 		.mcu_restart = mt7921_mcu_restart,
--		.mcu_reset = mt7921_reset,
- 	};
- 
- 	dev->mt76.mcu_ops = &mt7921_mcu_ops;
-
++void * __weak memmove(void *dest, const void *src, size_t n)
++{
++	unsigned int i;
++	const char *s = src;
++	char *d = dest;
++
++	if ((uintptr_t)dest < (uintptr_t)src) {
++		for (i = 0; i < n; i++)
++			d[i] = s[i];
++	} else {
++		for (i = n; i > 0; i--)
++			d[i - 1] = s[i - 1];
++	}
++	return dest;
++}
+-- 
+2.24.4
 
