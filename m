@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBFCB3C241F
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90C453C2422
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231543AbhGINVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:21:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51032 "EHLO mail.kernel.org"
+        id S231419AbhGINVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:21:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231454AbhGINVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:21:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 913CA61377;
-        Fri,  9 Jul 2021 13:18:19 +0000 (UTC)
+        id S231454AbhGINVG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:21:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E98A161357;
+        Fri,  9 Jul 2021 13:18:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836700;
-        bh=SUZu0pcvaN4PA4MzwyZI1YTZYozzoccCQpqSuz4rg0c=;
+        s=korg; t=1625836702;
+        bh=cwwtqavFK7tU7JXzqiqwlEYlXq2bfP6ekDHIVIt8nIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRhAsj1gvISnuZjmbA1W0U3so9nm5NjyL6o15uIh/gghGS3AtxurzIT8df9HHVSBy
-         VlrvdNfL7Ua64+GQEmVk5RZ0p+OP9zD+3qd+sZkHsJIiWYKnDVOhmsaNW2ZjNF7UDP
-         KqrLqYgUwHTCVeNnjJsSHaHIlgTJmeJYmfP5Jc2I=
+        b=SKww+u9AlLVXQoLUgqjbGRTKVmdBIqT+ydinR8bTiQ5OxcqxyuQMwiqOg6EYWh9+d
+         ZnLRT1RN7e+KU6tfLuBgXrt4cI11JlU9aQoLTidME6myYqw3zfnuv8bQmpd0x3KwnJ
+         urwH18XfzFdhm0IjSfj/7Ei+GNo2RKjcrdE8+Ej4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ManYi Li <limanyi@uniontech.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 1/4] scsi: sr: Return appropriate error code when disk is ejected
-Date:   Fri,  9 Jul 2021 15:18:13 +0200
-Message-Id: <20210709131531.830394957@linuxfoundation.org>
+Subject: [PATCH 4.4 2/4] drm/nouveau: fix dma_address check for CPU/GPU sync
+Date:   Fri,  9 Jul 2021 15:18:14 +0200
+Message-Id: <20210709131533.590063641@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210709131529.395072769@linuxfoundation.org>
 References: <20210709131529.395072769@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,35 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ManYi Li <limanyi@uniontech.com>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit 7dd753ca59d6c8cc09aa1ed24f7657524803c7f3 ]
+[ Upstream commit d330099115597bbc238d6758a4930e72b49ea9ba ]
 
-Handle a reported media event code of 3. This indicates that the media has
-been removed from the drive and user intervention is required to proceed.
-Return DISK_EVENT_EJECT_REQUEST in that case.
+AGP for example doesn't have a dma_address array.
 
-Link: https://lore.kernel.org/r/20210611094402.23884-1-limanyi@uniontech.com
-Signed-off-by: ManYi Li <limanyi@uniontech.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210614110517.1624-1-christian.koenig@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/nouveau/nouveau_bo.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 7dd4d9ded249..6e31cedf0b6c 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -216,6 +216,8 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
- 		return DISK_EVENT_EJECT_REQUEST;
- 	else if (med->media_event_code == 2)
- 		return DISK_EVENT_MEDIA_CHANGE;
-+	else if (med->media_event_code == 3)
-+		return DISK_EVENT_EJECT_REQUEST;
- 	return 0;
- }
+diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
+index 78f520d05de9..58c310930bf2 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_bo.c
++++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
+@@ -458,7 +458,7 @@ nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
+ 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
+ 	int i;
  
+-	if (!ttm_dma)
++	if (!ttm_dma || !ttm_dma->dma_address)
+ 		return;
+ 
+ 	/* Don't waste time looping if the object is coherent */
+@@ -478,7 +478,7 @@ nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
+ 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
+ 	int i;
+ 
+-	if (!ttm_dma)
++	if (!ttm_dma || !ttm_dma->dma_address)
+ 		return;
+ 
+ 	/* Don't waste time looping if the object is coherent */
 -- 
 2.30.2
 
