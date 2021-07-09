@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1333C2478
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 806AC3C246D
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:20:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232385AbhGINW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:22:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54008 "EHLO mail.kernel.org"
+        id S232299AbhGINWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:22:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232438AbhGINWr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:22:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 532E5613C1;
-        Fri,  9 Jul 2021 13:20:03 +0000 (UTC)
+        id S232355AbhGINWj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:22:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A056613C0;
+        Fri,  9 Jul 2021 13:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836803;
-        bh=RwhlPo07q9Dnn5VRY+Wwcbl/ggE2l517T8cSxQVsESI=;
+        s=korg; t=1625836794;
+        bh=gs/iwV97RTWQsFLmC09p3GByGLkEda3sj8zGr7drqTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAebzRqgryajMjf+/BME3Vcx3O7HgUPP47M9PalCHOLQ5ORML2eOcBMtAJAsYG1mk
-         kk1MczJHNl8xyoebEyh94x0+Tz3BUD3FWiDTRhcUb3HEZ2xs9DLFBjtggMwkFCW1zn
-         iDRjm4a0BXnyx3F2Wgo6x6dZC48kFdIbRi6+i3R4=
+        b=KAPLuD3Ut909FoDsE7PT9WgydD4dJQLGgwTwTnjKlaOKS19+nvMR17dZUFpAT42BI
+         NTHgte7ja3+mb1zJ3mnB0RB3JTdVz3PjA1cREaJUq5lyVur3uYINk1k3zoYtDaTR3Y
+         lS+jbcDtLPXzFyC1ZzQp8FXTl2B4Ar7l2y2qagto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/25] drm/nouveau: fix dma_address check for CPU/GPU sync
-Date:   Fri,  9 Jul 2021 15:18:52 +0200
-Message-Id: <20210709131640.641808247@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Stefani Seibold <stefani@seibold.net>,
+        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
+        Matthew Weber <matthew.weber@collins.com>
+Subject: [PATCH 4.14 22/25] kfifo: DECLARE_KIFO_PTR(fifo, u64) does not work on arm 32 bit
+Date:   Fri,  9 Jul 2021 15:18:53 +0200
+Message-Id: <20210709131641.269666523@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210709131627.928131764@linuxfoundation.org>
 References: <20210709131627.928131764@linuxfoundation.org>
@@ -41,44 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit d330099115597bbc238d6758a4930e72b49ea9ba ]
+commit 8a866fee3909c49738e1c4429a8d2b9bf27e015d upstream.
 
-AGP for example doesn't have a dma_address array.
+If you try to store u64 in a kfifo (or a struct with u64 members),
+then the buf member of __STRUCT_KFIFO_PTR will cause 4 bytes
+padding due to alignment (note that struct __kfifo is 20 bytes
+on 32 bit).
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210614110517.1624-1-christian.koenig@amd.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+That in turn causes the __is_kfifo_ptr() to fail, which is caught
+by kfifo_alloc(), which now returns EINVAL.
+
+So, ensure that __is_kfifo_ptr() compares to the right structure.
+
+Signed-off-by: Sean Young <sean@mess.org>
+Acked-by: Stefani Seibold <stefani@seibold.net>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Signed-off-by: Matthew Weber <matthew.weber@collins.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/nouveau/nouveau_bo.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/kfifo.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-index e427f80344c4..a2d770acd10a 100644
---- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-@@ -450,7 +450,7 @@ nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
+--- a/include/linux/kfifo.h
++++ b/include/linux/kfifo.h
+@@ -113,7 +113,8 @@ struct kfifo_rec_ptr_2 __STRUCT_KFIFO_PT
+  * array is a part of the structure and the fifo type where the array is
+  * outside of the fifo structure.
+  */
+-#define	__is_kfifo_ptr(fifo)	(sizeof(*fifo) == sizeof(struct __kfifo))
++#define	__is_kfifo_ptr(fifo) \
++	(sizeof(*fifo) == sizeof(STRUCT_KFIFO_PTR(typeof(*(fifo)->type))))
  
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
- 
- 	/* Don't waste time looping if the object is coherent */
-@@ -470,7 +470,7 @@ nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
- 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
- 	int i;
- 
--	if (!ttm_dma)
-+	if (!ttm_dma || !ttm_dma->dma_address)
- 		return;
- 
- 	/* Don't waste time looping if the object is coherent */
--- 
-2.30.2
-
+ /**
+  * DECLARE_KFIFO_PTR - macro to declare a fifo pointer object
 
 
