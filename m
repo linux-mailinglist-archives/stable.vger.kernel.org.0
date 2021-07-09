@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 247753C2473
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 955B93C2476
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232382AbhGINWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:22:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53840 "EHLO mail.kernel.org"
+        id S232363AbhGINWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:22:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232386AbhGINWm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:22:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA8A2613C3;
-        Fri,  9 Jul 2021 13:19:58 +0000 (UTC)
+        id S232378AbhGINWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:22:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01CF9611B0;
+        Fri,  9 Jul 2021 13:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836799;
-        bh=bbUEBjXvmRthSEased0vM4NUCYT5Doe2Ds5jTyGtS1E=;
+        s=korg; t=1625836801;
+        bh=PZ6EJcrDKzfN3PJu5a68vxiQpKR6yp/1vj+22G8udRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDOTE7ukGziAxd2e6DH9X7GRAL7O0jnLObBVMYtrnExP4cUJuzcHC22u2dYl2maLI
-         Y3g1gYFnvi9H2YzkaW/u3pdgNh6zNJBvvdBkWNblY1pw6bHjQhTDhh3fXXfwRDlCQA
-         udG9+N7yfdXeQdvpzyTmRWghPsS3GJM6632i7sTw=
+        b=wqqpQlKNgzZ4hxe0RI5EgFBIm9bjVtUcrVedU9ruFYDCwXoD5/h5cGjXNW1YeqQ9l
+         bmLibcsikudQUcjIF8EA8rxlpnxI8xXl5qUFJQUlNWGwGmLtJZidLAa1U1792KpycA
+         iWfF8ACJ4rbPA1Jn6+XQKcrmhy9hk2yHTpqDTlVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
-        Martin Liu <liumartin@google.com>, jenhaochen@google.com,
-        Minchan Kim <minchan@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 24/25] kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
-Date:   Fri,  9 Jul 2021 15:18:55 +0200
-Message-Id: <20210709131642.430593730@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrvsky@oracle.com>
+Subject: [PATCH 4.14 25/25] xen/events: reset active flag for lateeoi events later
+Date:   Fri,  9 Jul 2021 15:18:56 +0200
+Message-Id: <20210709131643.055966920@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210709131627.928131764@linuxfoundation.org>
 References: <20210709131627.928131764@linuxfoundation.org>
@@ -45,182 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 5fa54346caf67b4b1b10b1f390316ae466da4d53 upstream.
+commit 3de218ff39b9e3f0d453fe3154f12a174de44b25 upstream.
 
-The system might hang with the following backtrace:
+In order to avoid a race condition for user events when changing
+cpu affinity reset the active flag only when EOI-ing the event.
 
-	schedule+0x80/0x100
-	schedule_timeout+0x48/0x138
-	wait_for_common+0xa4/0x134
-	wait_for_completion+0x1c/0x2c
-	kthread_flush_work+0x114/0x1cc
-	kthread_cancel_work_sync.llvm.16514401384283632983+0xe8/0x144
-	kthread_cancel_delayed_work_sync+0x18/0x2c
-	xxxx_pm_notify+0xb0/0xd8
-	blocking_notifier_call_chain_robust+0x80/0x194
-	pm_notifier_call_chain_robust+0x28/0x4c
-	suspend_prepare+0x40/0x260
-	enter_state+0x80/0x3f4
-	pm_suspend+0x60/0xdc
-	state_store+0x108/0x144
-	kobj_attr_store+0x38/0x88
-	sysfs_kf_write+0x64/0xc0
-	kernfs_fop_write_iter+0x108/0x1d0
-	vfs_write+0x2f4/0x368
-	ksys_write+0x7c/0xec
+This is working fine as all user events are lateeoi events. Note that
+lateeoi_ack_mask_dynirq() is not modified as there is no explicit call
+to xen_irq_lateeoi() expected later.
 
-It is caused by the following race between kthread_mod_delayed_work()
-and kthread_cancel_delayed_work_sync():
-
-CPU0				CPU1
-
-Context: Thread A		Context: Thread B
-
-kthread_mod_delayed_work()
-  spin_lock()
-  __kthread_cancel_work()
-     spin_unlock()
-     del_timer_sync()
-				kthread_cancel_delayed_work_sync()
-				  spin_lock()
-				  __kthread_cancel_work()
-				    spin_unlock()
-				    del_timer_sync()
-				    spin_lock()
-
-				  work->canceling++
-				  spin_unlock
-     spin_lock()
-   queue_delayed_work()
-     // dwork is put into the worker->delayed_work_list
-
-   spin_unlock()
-
-				  kthread_flush_work()
-     // flush_work is put at the tail of the dwork
-
-				    wait_for_completion()
-
-Context: IRQ
-
-  kthread_delayed_work_timer_fn()
-    spin_lock()
-    list_del_init(&work->node);
-    spin_unlock()
-
-BANG: flush_work is not longer linked and will never get proceed.
-
-The problem is that kthread_mod_delayed_work() checks work->canceling
-flag before canceling the timer.
-
-A simple solution is to (re)check work->canceling after
-__kthread_cancel_work().  But then it is not clear what should be
-returned when __kthread_cancel_work() removed the work from the queue
-(list) and it can't queue it again with the new @delay.
-
-The return value might be used for reference counting.  The caller has
-to know whether a new work has been queued or an existing one was
-replaced.
-
-The proper solution is that kthread_mod_delayed_work() will remove the
-work from the queue (list) _only_ when work->canceling is not set.  The
-flag must be checked after the timer is stopped and the remaining
-operations can be done under worker->lock.
-
-Note that kthread_mod_delayed_work() could remove the timer and then
-bail out.  It is fine.  The other canceling caller needs to cancel the
-timer as well.  The important thing is that the queue (list)
-manipulation is done atomically under worker->lock.
-
-Link: https://lkml.kernel.org/r/20210610133051.15337-3-pmladek@suse.com
-Fixes: 9a6b06c8d9a220860468a ("kthread: allow to modify delayed kthread work")
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Reported-by: Martin Liu <liumartin@google.com>
-Cc: <jenhaochen@google.com>
-Cc: Minchan Kim <minchan@google.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Fixes: b6622798bc50b62 ("xen/events: avoid handling the same event on two cpus at the same time")
+Tested-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrvsky@oracle.com>
+Link: https://lore.kernel.org/r/20210623130913.9405-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kthread.c |   35 ++++++++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+ drivers/xen/events/events_base.c |   23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -1006,8 +1006,11 @@ static void kthread_cancel_delayed_work_
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -524,6 +524,9 @@ static void xen_irq_lateeoi_locked(struc
+ 	}
+ 
+ 	info->eoi_time = 0;
++
++	/* is_active hasn't been reset yet, do it now. */
++	smp_store_release(&info->is_active, 0);
+ 	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
  }
  
- /*
-- * This function removes the work from the worker queue. Also it makes sure
-- * that it won't get queued later via the delayed work's timer.
-+ * This function removes the work from the worker queue.
-+ *
-+ * It is called under worker->lock. The caller must make sure that
-+ * the timer used by delayed work is not running, e.g. by calling
-+ * kthread_cancel_delayed_work_timer().
-  *
-  * The work might still be in use when this function finishes. See the
-  * current_work proceed by the worker.
-@@ -1015,13 +1018,8 @@ static void kthread_cancel_delayed_work_
-  * Return: %true if @work was pending and successfully canceled,
-  *	%false if @work was not pending
-  */
--static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
--				  unsigned long *flags)
-+static bool __kthread_cancel_work(struct kthread_work *work)
- {
--	/* Try to cancel the timer if exists. */
--	if (is_dwork)
--		kthread_cancel_delayed_work_timer(work, flags);
--
- 	/*
- 	 * Try to remove the work from a worker list. It might either
- 	 * be from worker->work_list or from worker->delayed_work_list.
-@@ -1074,11 +1072,23 @@ bool kthread_mod_delayed_work(struct kth
- 	/* Work must not be used with >1 worker, see kthread_queue_work() */
- 	WARN_ON_ONCE(work->worker != worker);
+@@ -1780,10 +1783,22 @@ static void lateeoi_ack_dynirq(struct ir
+ 	struct irq_info *info = info_for_irq(data->irq);
+ 	evtchn_port_t evtchn = info ? info->evtchn : 0;
  
--	/* Do not fight with another command that is canceling this work. */
-+	/*
-+	 * Temporary cancel the work but do not fight with another command
-+	 * that is canceling the work as well.
-+	 *
-+	 * It is a bit tricky because of possible races with another
-+	 * mod_delayed_work() and cancel_delayed_work() callers.
-+	 *
-+	 * The timer must be canceled first because worker->lock is released
-+	 * when doing so. But the work can be removed from the queue (list)
-+	 * only when it can be queued again so that the return value can
-+	 * be used for reference counting.
-+	 */
-+	kthread_cancel_delayed_work_timer(work, &flags);
- 	if (work->canceling)
- 		goto out;
-+	ret = __kthread_cancel_work(work);
- 
--	ret = __kthread_cancel_work(work, true, &flags);
- fast_queue:
- 	__kthread_queue_delayed_work(worker, dwork, delay);
- out:
-@@ -1100,7 +1110,10 @@ static bool __kthread_cancel_work_sync(s
- 	/* Work must not be used with >1 worker, see kthread_queue_work(). */
- 	WARN_ON_ONCE(work->worker != worker);
- 
--	ret = __kthread_cancel_work(work, is_dwork, &flags);
-+	if (is_dwork)
-+		kthread_cancel_delayed_work_timer(work, &flags);
+-	if (VALID_EVTCHN(evtchn)) {
+-		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
+-		ack_dynirq(data);
+-	}
++	if (!VALID_EVTCHN(evtchn))
++		return;
 +
-+	ret = __kthread_cancel_work(work);
++	do_mask(info, EVT_MASK_REASON_EOI_PENDING);
++
++	if (unlikely(irqd_is_setaffinity_pending(data)) &&
++	    likely(!irqd_irq_disabled(data))) {
++		do_mask(info, EVT_MASK_REASON_TEMPORARY);
++
++		clear_evtchn(evtchn);
++
++		irq_move_masked_irq(data);
++
++		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
++	} else
++		clear_evtchn(evtchn);
+ }
  
- 	if (worker->current_work != work)
- 		goto out_fast;
+ static void lateeoi_mask_ack_dynirq(struct irq_data *data)
 
 
