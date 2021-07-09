@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C95B23C24BF
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8698B3C24CC
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232739AbhGINYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:24:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56494 "EHLO mail.kernel.org"
+        id S232820AbhGINZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:25:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232588AbhGINYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:24:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52D5E611B0;
-        Fri,  9 Jul 2021 13:21:59 +0000 (UTC)
+        id S232832AbhGINYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:24:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6C39613CF;
+        Fri,  9 Jul 2021 13:22:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836919;
-        bh=oHQ1gm4eQNg1mKCYKYKsR+xSheM7O4CGggSF8u4Jz4c=;
+        s=korg; t=1625836931;
+        bh=RdzA3Fw0OCLpAkDR6iOZAvqfZ7YVbpS6iarEZOss05k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jsLIAn2tiRyh/ASITMjhCy+QgrcaU9USDN1Ox0A/hDJfH6tythiHVzxzq2q78bTx8
-         cxv79hojGPHYWh192+EGMsfHUPn8X7hmxTA/RSS21jhK1u3GnlnB4ReBrvNHH0ar8R
-         tlRnqhYRC2rFx2ea40l2JZM9AZibTSndwdZRPB/M=
+        b=p06cJDcgdddGiZvWowSOPKeg1WcI858HsTzT1WMjUQTFgrhFDKJyDm0GR0T/ErKvN
+         DSN/ksN+UWIMicydiW5tJry5SOW8Mu3zkqtQ/8ufUWWQHkJZgZuXOUM53ctA3AAcr5
+         5SK6Zx/+fMj4kuUvcDXF3/h/1Ax0JuCl5kZmxCJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Gonda <pgonda@google.com>,
-        Alper Gun <alpergun@google.com>, Marc Orr <marcorr@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 30/34] KVM: SVM: Call SEV Guest Decommission if ASID binding fails
-Date:   Fri,  9 Jul 2021 15:20:46 +0200
-Message-Id: <20210709131701.044926822@linuxfoundation.org>
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Keerthy <j-keerthy@ti.com>, Tero Kristo <kristo@kernel.org>,
+        afzal mohammed <afzal.mohd.ma@gmail.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 4.19 31/34] ARM: OMAP: replace setup_irq() by request_irq()
+Date:   Fri,  9 Jul 2021 15:20:47 +0200
+Message-Id: <20210709131701.570019661@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210709131644.969303901@linuxfoundation.org>
 References: <20210709131644.969303901@linuxfoundation.org>
@@ -40,93 +41,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alper Gun <alpergun@google.com>
+From: afzal mohammed <afzal.mohd.ma@gmail.com>
 
-commit 934002cd660b035b926438244b4294e647507e13 upstream.
+commit b75ca5217743e4d7076cf65e044e88389e44318d upstream.
 
-Send SEV_CMD_DECOMMISSION command to PSP firmware if ASID binding
-fails. If a failure happens after  a successful LAUNCH_START command,
-a decommission command should be executed. Otherwise, guest context
-will be unfreed inside the AMD SP. After the firmware will not have
-memory to allocate more SEV guest context, LAUNCH_START command will
-begin to fail with SEV_RET_RESOURCE_LIMIT error.
+request_irq() is preferred over setup_irq(). Invocations of setup_irq()
+occur after memory allocators are ready.
 
-The existing code calls decommission inside sev_unbind_asid, but it is
-not called if a failure happens before guest activation succeeds. If
-sev_bind_asid fails, decommission is never called. PSP firmware has a
-limit for the number of guests. If sev_asid_binding fails many times,
-PSP firmware will not have resources to create another guest context.
+Per tglx[1], setup_irq() existed in olden days when allocators were not
+ready by the time early interrupts were initialized.
 
-Cc: stable@vger.kernel.org
-Fixes: 59414c989220 ("KVM: SVM: Add support for KVM_SEV_LAUNCH_START command")
-Reported-by: Peter Gonda <pgonda@google.com>
-Signed-off-by: Alper Gun <alpergun@google.com>
-Reviewed-by: Marc Orr <marcorr@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <20210610174604.2554090-1-alpergun@google.com>
+Hence replace setup_irq() by request_irq().
+
+[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
+
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Tero Kristo <kristo@kernel.org>
+Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kvm/svm.c |   32 +++++++++++++++++++++-----------
- 1 file changed, 21 insertions(+), 11 deletions(-)
+ arch/arm/mach-omap1/pm.c       |   13 ++++++-------
+ arch/arm/mach-omap1/time.c     |   10 +++-------
+ arch/arm/mach-omap1/timer32k.c |   10 +++-------
+ arch/arm/mach-omap2/timer.c    |   11 +++--------
+ 4 files changed, 15 insertions(+), 29 deletions(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -1791,9 +1791,25 @@ static void sev_asid_free(struct kvm *kv
- 	__sev_asid_free(sev->asid);
+--- a/arch/arm/mach-omap1/pm.c
++++ b/arch/arm/mach-omap1/pm.c
+@@ -610,11 +610,6 @@ static irqreturn_t omap_wakeup_interrupt
+ 	return IRQ_HANDLED;
  }
  
--static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
-+static void sev_decommission(unsigned int handle)
+-static struct irqaction omap_wakeup_irq = {
+-	.name		= "peripheral wakeup",
+-	.handler	= omap_wakeup_interrupt
+-};
+-
+ 
+ 
+ static const struct platform_suspend_ops omap_pm_ops = {
+@@ -627,6 +622,7 @@ static const struct platform_suspend_ops
+ static int __init omap_pm_init(void)
  {
- 	struct sev_data_decommission *decommission;
-+
-+	if (!handle)
-+		return;
-+
-+	decommission = kzalloc(sizeof(*decommission), GFP_KERNEL);
-+	if (!decommission)
-+		return;
-+
-+	decommission->handle = handle;
-+	sev_guest_decommission(decommission, NULL);
-+
-+	kfree(decommission);
-+}
-+
-+static void sev_unbind_asid(struct kvm *kvm, unsigned int handle)
-+{
- 	struct sev_data_deactivate *data;
+ 	int error = 0;
++	int irq;
  
- 	if (!handle)
-@@ -1811,15 +1827,7 @@ static void sev_unbind_asid(struct kvm *
- 	sev_guest_df_flush(NULL);
- 	kfree(data);
+ 	if (!cpu_class_is_omap1())
+ 		return -ENODEV;
+@@ -670,9 +666,12 @@ static int __init omap_pm_init(void)
+ 	arm_pm_idle = omap1_pm_idle;
  
--	decommission = kzalloc(sizeof(*decommission), GFP_KERNEL);
--	if (!decommission)
--		return;
--
--	/* decommission handle */
--	decommission->handle = handle;
--	sev_guest_decommission(decommission, NULL);
--
--	kfree(decommission);
-+	sev_decommission(handle);
+ 	if (cpu_is_omap7xx())
+-		setup_irq(INT_7XX_WAKE_UP_REQ, &omap_wakeup_irq);
++		irq = INT_7XX_WAKE_UP_REQ;
+ 	else if (cpu_is_omap16xx())
+-		setup_irq(INT_1610_WAKE_UP_REQ, &omap_wakeup_irq);
++		irq = INT_1610_WAKE_UP_REQ;
++	if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup",
++			NULL))
++		pr_err("Failed to request irq %d (peripheral wakeup)\n", irq);
+ 
+ 	/* Program new power ramp-up time
+ 	 * (0 for most boards since we don't lower voltage when in deep sleep)
+--- a/arch/arm/mach-omap1/time.c
++++ b/arch/arm/mach-omap1/time.c
+@@ -155,15 +155,11 @@ static irqreturn_t omap_mpu_timer1_inter
+ 	return IRQ_HANDLED;
  }
  
- static struct page **sev_pin_memory(struct kvm *kvm, unsigned long uaddr,
-@@ -6469,8 +6477,10 @@ static int sev_launch_start(struct kvm *
+-static struct irqaction omap_mpu_timer1_irq = {
+-	.name		= "mpu_timer1",
+-	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
+-	.handler	= omap_mpu_timer1_interrupt,
+-};
+-
+ static __init void omap_init_mpu_timer(unsigned long rate)
+ {
+-	setup_irq(INT_TIMER1, &omap_mpu_timer1_irq);
++	if (request_irq(INT_TIMER1, omap_mpu_timer1_interrupt,
++			IRQF_TIMER | IRQF_IRQPOLL, "mpu_timer1", NULL))
++		pr_err("Failed to request irq %d (mpu_timer1)\n", INT_TIMER1);
+ 	omap_mpu_timer_start(0, (rate / HZ) - 1, 1);
  
- 	/* Bind ASID to this guest */
- 	ret = sev_bind_asid(kvm, start->handle, error);
--	if (ret)
-+	if (ret) {
-+		sev_decommission(start->handle);
- 		goto e_free_session;
-+	}
+ 	clockevent_mpu_timer1.cpumask = cpumask_of(0);
+--- a/arch/arm/mach-omap1/timer32k.c
++++ b/arch/arm/mach-omap1/timer32k.c
+@@ -148,15 +148,11 @@ static irqreturn_t omap_32k_timer_interr
+ 	return IRQ_HANDLED;
+ }
  
- 	/* return handle to userspace */
- 	params.handle = start->handle;
+-static struct irqaction omap_32k_timer_irq = {
+-	.name		= "32KHz timer",
+-	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
+-	.handler	= omap_32k_timer_interrupt,
+-};
+-
+ static __init void omap_init_32k_timer(void)
+ {
+-	setup_irq(INT_OS_TIMER, &omap_32k_timer_irq);
++	if (request_irq(INT_OS_TIMER, omap_32k_timer_interrupt,
++			IRQF_TIMER | IRQF_IRQPOLL, "32KHz timer", NULL))
++		pr_err("Failed to request irq %d(32KHz timer)\n", INT_OS_TIMER);
+ 
+ 	clockevent_32k_timer.cpumask = cpumask_of(0);
+ 	clockevents_config_and_register(&clockevent_32k_timer,
+--- a/arch/arm/mach-omap2/timer.c
++++ b/arch/arm/mach-omap2/timer.c
+@@ -92,12 +92,6 @@ static irqreturn_t omap2_gp_timer_interr
+ 	return IRQ_HANDLED;
+ }
+ 
+-static struct irqaction omap2_gp_timer_irq = {
+-	.name		= "gp_timer",
+-	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
+-	.handler	= omap2_gp_timer_interrupt,
+-};
+-
+ static int omap2_gp_timer_set_next_event(unsigned long cycles,
+ 					 struct clock_event_device *evt)
+ {
+@@ -383,8 +377,9 @@ static void __init omap2_gp_clockevent_i
+ 				     &clockevent_gpt.name, OMAP_TIMER_POSTED);
+ 	BUG_ON(res);
+ 
+-	omap2_gp_timer_irq.dev_id = &clkev;
+-	setup_irq(clkev.irq, &omap2_gp_timer_irq);
++	if (request_irq(clkev.irq, omap2_gp_timer_interrupt,
++			IRQF_TIMER | IRQF_IRQPOLL, "gp_timer", &clkev))
++		pr_err("Failed to request irq %d (gp_timer)\n", clkev.irq);
+ 
+ 	__omap_dm_timer_int_enable(&clkev, OMAP_TIMER_INT_OVERFLOW);
+ 
 
 
