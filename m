@@ -2,164 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA3683C2A2B
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 22:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71ADD3C2A3A
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 22:16:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229948AbhGIUNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 16:13:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53076 "EHLO
+        id S230166AbhGIUTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 16:19:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229703AbhGIUNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 16:13:44 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27A5C0613DD
-        for <stable@vger.kernel.org>; Fri,  9 Jul 2021 13:11:00 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id o201so4683473pfd.1
-        for <stable@vger.kernel.org>; Fri, 09 Jul 2021 13:11:00 -0700 (PDT)
+        with ESMTP id S229552AbhGIUS7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 16:18:59 -0400
+Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21CD6C0613DD
+        for <stable@vger.kernel.org>; Fri,  9 Jul 2021 13:16:16 -0700 (PDT)
+Received: by mail-oi1-x234.google.com with SMTP id m3so13647383oig.10
+        for <stable@vger.kernel.org>; Fri, 09 Jul 2021 13:16:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/Y9KPk9RXMpJfDngVZBexC9N57bL12fYZli23afUWxc=;
-        b=ZDemEmPSpo2cs5A4vQ1kk5ddoU2GeRqEEL0eHs5EeOW6n4/QQt7jiX5EfjbRp+mj79
-         d88XuH003xHhRZFPkbGoTVI4cexN+my3mKcj7MKgvNZ0WJMZsQRcnrNrUQaCR9RZOcly
-         ooeoZu12rtHjEznz/7jYfFUtkT+sp1VnuUmRZB7CIYeFWdQAF9ypauqAvJxuGZ/I7yim
-         ZhGCNIQljLUiHWWy7hVbngmhDvAciRw8xnI4eP8ht7aqj5lhMdilkjBsFmLoR/2/Npbd
-         7hsPnKg5gK96G6cCmipmLpjk0ClogelWgOQXqMzfxl/MDDesr9culVMu6UT59BQ+zQMG
-         xr5w==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=BBvdLPUp1m+HXK69n7OATymjGuvCZxWxCSR0ix7+dv0=;
+        b=dR/n8C+hlpZVLjmZeJmIVx6TYKt48giIUSAaDU4DGooHrNZvbapDPieGGif/iQKrgx
+         bttRvYi3oDrmZ2vjWgAtio6IvydB8mWT1oEhB5B/Opgnset6jawAvNW0yi8R5ov2YDdb
+         pDy+EMhu70A1v9yRELqS4XEUw+VKIknNjoDmewLYvKNEqPd6UxJyislSO9Pr7w8LLKt6
+         GG2umXWiEaS3dkYV66pfOscu29CqbN7YMciRKsWvxh42/p21sUdFn9e7KcXOB4TXVOZf
+         AI+zAqbsmYmL2e63RPP1z7xnWgQgI0keOgb7MX1fVwE7yX7vF6Sq4AHQqlYbdY+PlC0h
+         6YNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/Y9KPk9RXMpJfDngVZBexC9N57bL12fYZli23afUWxc=;
-        b=rcJimY4LRjbpjQIT3INTlc7n4hxGMMBDjzDwtYa7Z8lKj+qfwJzPLyIgYLDOK8Iqkb
-         58yNbGhK4M9cYTJ4zSIJIfEdDjBlentce3mnYng/wUXjUyCkWOHD7cXBBAaovstfWLmx
-         pRSmC5lDsIL6SCnT6Tc/hBD5b4jWael2Aue1zYF3qi88ig3DZkyyzHL9MeamOOiRFbvi
-         +Dw9WKzsgFidzUjlnKY5P91X/nWMM47xu0OTAAFqOrf48wPZwszi3khhu6dU/4IbNJTX
-         g90yjYeSRl5eXuS0EFGD6sH90tFA4XzImEaj1Z5p0hIs8bDPCfjfWJ+RHMykw1GR+20b
-         wC3Q==
-X-Gm-Message-State: AOAM531RMACyQBTC3BPNfn5VT4IXIgEKAY9vGSHmLUenJs+FmYqMZAJn
-        4tg/GyoWI/fF8PE1izB7eYasrMP3bTwulC1f
-X-Google-Smtp-Source: ABdhPJzFdtohtnxofW36TuwckxeSjFFeJ97v63SZ5DTl4G3DBE8Rz66FUyjfXY/L7aJ3GIFRnI/07w==
-X-Received: by 2002:a63:a545:: with SMTP id r5mr4471324pgu.204.1625861460097;
-        Fri, 09 Jul 2021 13:11:00 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a65sm7814045pfa.11.2021.07.09.13.10.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Jul 2021 13:10:59 -0700 (PDT)
-Message-ID: <60e8ad53.1c69fb81.5bc82.7412@mx.google.com>
-Date:   Fri, 09 Jul 2021 13:10:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=BBvdLPUp1m+HXK69n7OATymjGuvCZxWxCSR0ix7+dv0=;
+        b=JnxqEmmVYkEgmddFbRgL+Op+ncIPgXT7kQPN58zKLhusyGR5Tb0UN/chhVU9YiEvLK
+         GGW4cOf+KT3L5kmZdhM88rvi+LszBYIW6A2p6Qbh8xa7mhrBWNmYxXmMlnBb7qHSURRl
+         NU863p1fU+JCVyaY6frtkrSqH6SyhV0c/xQUNgFmgPQDekb8jEu3SYFIzYNlMWb5MlZv
+         ylc9B+0nAUOP0XNwxl1+YCCeFU5uGxPlOhBcjPqoZyNSQgm7L4fDCzVEtmgd0e28a54U
+         8111hX7B5CXnUnVFAhOSkybQEtHxPp/8h5a0kfmaAat47VE7rwMDShHweznk2hxr+i8v
+         vMhg==
+X-Gm-Message-State: AOAM533zeHzjf2AXsjiTKjKuNrFTYxnDLbS1fTxgUuHdQbvgH+EjORHM
+        999at9LO90a/Fnjbj+eCFduvU6maNzdJz25NbT4=
+X-Google-Smtp-Source: ABdhPJxgMqYDS3RG7CG5XrNsJXRCbVOhCXf5a++tfSG/w2jezQtxzZDEGLlQRwIQRt3VKakorL6MjOH9CoCWUbLOE+E=
+X-Received: by 2002:aca:c741:: with SMTP id x62mr537971oif.79.1625861775408;
+ Fri, 09 Jul 2021 13:16:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.238-25-g9c581bc5c560
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 127 runs,
- 2 regressions (v4.14.238-25-g9c581bc5c560)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Reply-To: patzengu@outlook.com
+Sender: vidamichael4@gmail.com
+Received: by 2002:aca:d945:0:0:0:0:0 with HTTP; Fri, 9 Jul 2021 13:16:14 -0700 (PDT)
+From:   p z <rm2568590@gmail.com>
+Date:   Fri, 9 Jul 2021 22:16:14 +0200
+X-Google-Sender-Auth: _cGrNoOc97rtYtwJjm3vdAMSsYw
+Message-ID: <CAD_SncATFwQVm9UEAFtOMSxtdQM8oi69y7VsumZYJwgOMDCSdg@mail.gmail.com>
+Subject: i need your co-operation
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 127 runs, 2 regressions (v4.14.238-25-g9c581=
-bc5c560)
+My Dear Friend,
 
-Regressions Summary
--------------------
+I am Mr.Patrice Zengu ,from Burkina Faso and i am the new bank telex
+manager of our bank here in Africa.
 
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-meson-gxm-q200   | arm64  | lab-baylibre | gcc-8    | defconfig        | 1 =
-         =
+I have the opportunity to transfer the sum of US$ 10.5Million to your
+bank account which i personally placed on an Escrow account without a
+name.
 
-qemu_x86_64-uefi | x86_64 | lab-broonie  | gcc-8    | x86_64_defconfig | 1 =
-         =
+I must tell you that after revision of files both old and new as the
+new telex manager ,i discovered that if these funds remains here
+without transferring it offshore ,it will be lawfully recovered and
+moved to the  Government of Burkina Faso treasury as an abandoned
+funds without any name.
 
+I want to let you know that a Burkinabe cannot stand as the depositor
+of these US dollars  since we are not allowed to operate on foreign
+currency. I do not intend to work  and stay in Africa till the rest of
+my life.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.238-25-g9c581bc5c560/plan/baseline/
+More so ,i will not want my bank to know about these funds and if they
+happens to know probably ,the funds will be moved to the Burkina Faso
+Government public treasury as an abandoned funds.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.238-25-g9c581bc5c560
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9c581bc5c560a2ba098dd8d2bc9bf58b82b93783 =
+I will furnish you with more details of this transfer and how it can
+be perfectly and legally executed without any hitch since i am now in
+control.
 
-
-
-Test Regressions
----------------- =
+I am waiting to hear from you urgently to proceed.
 
 
-
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-meson-gxm-q200   | arm64  | lab-baylibre | gcc-8    | defconfig        | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e87dc49c72827c0a117a5f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.238=
--25-g9c581bc5c560/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.238=
--25-g9c581bc5c560/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e87dc49c72827c0a117=
-a60
-        failing since 130 days (last pass: v4.14.222-11-g13b8482a0f700, fir=
-st fail: v4.14.222-120-gdc8887cba23e) =
-
- =
-
-
-
-platform         | arch   | lab          | compiler | defconfig        | re=
-gressions
------------------+--------+--------------+----------+------------------+---=
----------
-qemu_x86_64-uefi | x86_64 | lab-broonie  | gcc-8    | x86_64_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e87bb6c4381e0f5c117984
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.238=
--25-g9c581bc5c560/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x=
-86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.238=
--25-g9c581bc5c560/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x=
-86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e87bb6c4381e0f5c117=
-985
-        failing since 0 day (last pass: v4.14.238-21-g49bfe4ee578d0, first =
-fail: v4.14.238-25-gc68d366ca9ae) =
-
- =20
+Yours sincerely,
+Mr.Patrice Zengu.
