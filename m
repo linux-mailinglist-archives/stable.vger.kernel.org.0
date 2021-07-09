@@ -2,133 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 546DF3C20FA
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 10:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D923C214A
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 11:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231609AbhGIIqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 04:46:31 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59478 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231585AbhGIIqa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 04:46:30 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 1698X3ui034061;
-        Fri, 9 Jul 2021 04:43:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=YGU1/GMvFydHj3oddOrY0kMV2Ha7vK1EMdXlqyXSdvY=;
- b=AKCLp/hCQtoTj6eIGpIazqFDRhlEjljHN9HqN3SSoKBX7CP/OcHF63jgoAdFQYDIvDP9
- bhVGmfpX2T2jPGbqsU1I68Ar/MSeh4VycLWdEWkfQYMpPptvfTokqzvx0wEy8MnaFK/n
- NpP/UN+VphrGvKwj55XrPDPXTQje3USSyQOKiMIBvbOafl9kb6ZwoNbBogVSQyAs4nQU
- 4smcQyX2CjgU15bTxG4qc/29MNVvCTZCQxEDSG886YfTHxaQMgC19VcToTwDA3iNwwKU
- WSn9fHBL2Q0Oe60Dg2zj/NCVo++nhEz/Dydr2y6DuZRBUkV8/6GtE9bGSo9P+5OZvLf+ 0Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39p0hr8k7r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 09 Jul 2021 04:43:38 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1698XGBR034456;
-        Fri, 9 Jul 2021 04:43:38 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39p0hr8k6g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 09 Jul 2021 04:43:37 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1698eejn025403;
-        Fri, 9 Jul 2021 08:43:36 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06fra.de.ibm.com with ESMTP id 39jf5hhcuc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 09 Jul 2021 08:43:36 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1698hWEG34472422
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 9 Jul 2021 08:43:33 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C82D9A405C;
-        Fri,  9 Jul 2021 08:43:32 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B572AA4054;
-        Fri,  9 Jul 2021 08:43:27 +0000 (GMT)
-Received: from localhost.localdomain.com (unknown [9.199.39.183])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  9 Jul 2021 08:43:27 +0000 (GMT)
-From:   Kajol Jain <kjain@linux.ibm.com>
-To:     will@kernel.org, hao.wu@intel.com, mark.rutland@arm.com
-Cc:     trix@redhat.com, yilun.xu@intel.com, mdf@kernel.org,
-        linux-fpga@vger.kernel.org, maddy@linux.ibm.com,
-        atrajeev@linux.vnet.ibm.com, kjain@linux.ibm.com,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        rnsastry@linux.ibm.com, linux-perf-users@vger.kernel.org,
+        id S231573AbhGIJPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 05:15:39 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:35068 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229559AbhGIJPj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 05:15:39 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 13BB22217F;
+        Fri,  9 Jul 2021 09:12:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1625821975; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wuq8AXnGSyHPWHlBAgr2stU1z9+pJd/xXc0LihvQkIg=;
+        b=pLKGEPz4RX9m9xhtNK/iehnkcQPfsO/AwJ5/p4NWMXdfaIK0vEyogXXGG7pqB7oaqjt3IQ
+        lfPrkyT0SJWHh4hgIYA9i77fRlp5EnqR+cEJgpGzHXsYcpz5ofWwFL4d0Oobg24cvqcfaO
+        8foEucjWZLfQFVmWv/aamHQhOU9hWic=
+Received: from suse.cz (unknown [10.100.216.66])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id BBDDAA3BC7;
+        Fri,  9 Jul 2021 09:12:54 +0000 (UTC)
+Date:   Fri, 9 Jul 2021 11:12:54 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     John Ogness <john.ogness@linutronix.de>
+Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH v2] fpga: dfl: fme: Fix cpu hotplug issue in performance reporting
-Date:   Fri,  9 Jul 2021 14:13:19 +0530
-Message-Id: <20210709084319.33776-1-kjain@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5asgOQpK-L42J3lVBxCXJt5uqxvGUtbb
-X-Proofpoint-ORIG-GUID: 5m_umRQ0G3-bQzjaZVAZ1BURCgNMWqVG
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+Subject: Re: [PATCH v2] printk/console: Check consistent sequence number when
+ handling race in console_unlock()
+Message-ID: <YOgTFsuYYNE3fnkw@alley>
+References: <20210702150657.26760-1-pmladek@suse.com>
+ <87y2an7w1x.fsf@jogness.linutronix.de>
+ <YOWdWs8foEWKbgXy@alley>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-09_04:2021-07-09,2021-07-09 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- suspectscore=0 priorityscore=1501 adultscore=0 lowpriorityscore=0
- mlxscore=0 phishscore=0 impostorscore=0 clxscore=1015 bulkscore=0
- malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107090042
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YOWdWs8foEWKbgXy@alley>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The performance reporting driver added cpu hotplug
-feature but it didn't add pmu migration call in cpu
-offline function.
-This can create an issue incase the current designated
-cpu being used to collect fme pmu data got offline,
-as based on current code we are not migrating fme pmu to
-new target cpu. Because of that perf will still try to
-fetch data from that offline cpu and hence we will not
-get counter data.
+On Wed 2021-07-07 14:26:03, Petr Mladek wrote:
+> On Sat 2021-07-03 08:32:02, John Ogness wrote:
+> > On 2021-07-02, Petr Mladek <pmladek@suse.com> wrote:
+> > > The standard printk() tries to flush the message to the console
+> > > immediately. It tries to take the console lock. If the lock is
+> > > already taken then the current owner is responsible for flushing
+> > > even the new message.
+> > >
+> > > There is a small race window between checking whether a new message is
+> > > available and releasing the console lock. It is solved by re-checking
+> > > the state after releasing the console lock. If the check is positive
+> > > then console_unlock() tries to take the lock again and process the new
+> > > message as well.
+> > >
+> > > The commit 996e966640ddea7b535c ("printk: remove logbuf_lock") causes that
+> > > console_seq is not longer read atomically. As a result, the re-check might
+> > > be done with an inconsistent 64-bit index.
+> > >
+> > > Solve it by using the last sequence number that has been checked under
+> > > the console lock. In the worst case, it will take the lock again only
+> > > to realized that the new message has already been proceed. But it
+> > > was possible even before.
+> > >
+> > > The variable next_seq is marked as __maybe_unused to call down compiler
+> > > warning when CONFIG_PRINTK is not defined.
+> > 
+> > As Sergey already pointed out, this patch is not fixing a real
+> > problem. An inconsistent value (or an increased consistent value) would
+> > mean that another printer is actively printing, and thus a retry is not
+> > necessary anyway.
+> 
+> Ah, I misunderstood that part. You are right. CPU_X might see wrong
+> console_seq only when CPU_Y incremented console_seq. If CPU_X does not do
+> retry because of racy console_seq. Then CPU_Y would do retry when
+> yet another CPU added yet another new message in the meantime.
+> 
+> > But this patch will avoid a KASAN message about an unmarked
+> > (although safe) data race.
+> 
+> Yup.
+> 
+> OK, I am going to queue the patch for-5.15. There is no need to
+> rush it for-4.14.
 
-Patch fixed this issue by adding pmu_migrate_context call
-in fme_perf_offline_cpu function.
+The patch has been committed into printk/linux.git, branch
+rework/fixup-for-5.15.
 
-Fixes: 724142f8c42a ("fpga: dfl: fme: add performance reporting support")
-Tested-by: Xu Yilun <yilun.xu@intel.com>
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Cc: stable@vger.kernel.org
----
- drivers/fpga/dfl-fme-perf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Note that I am going to use topic branches rework/* for the printk
+rework from now on. It will allow to be more flexible with pushing
+big changes and fixes into linux-next and mainline.
 
----
-Changelog:
-v1 -> v2:
-- Add stable@vger.kernel.org in cc list
+The "rework/" prefix will still allow to differ printk rework-related
+changes from "unrelated" printk features and fixes.
 
-RFC -> PATCH v1
-- Remove RFC tag
-- Did nits changes on subject and commit message as suggested by Xu Yilun
-- Added Tested-by tag
-- Link to rfc patch: https://lkml.org/lkml/2021/6/28/112
----
-diff --git a/drivers/fpga/dfl-fme-perf.c b/drivers/fpga/dfl-fme-perf.c
-index 4299145ef347..b9a54583e505 100644
---- a/drivers/fpga/dfl-fme-perf.c
-+++ b/drivers/fpga/dfl-fme-perf.c
-@@ -953,6 +953,10 @@ static int fme_perf_offline_cpu(unsigned int cpu, struct hlist_node *node)
- 		return 0;
- 
- 	priv->cpu = target;
-+
-+	/* Migrate fme_perf pmu events to the new target cpu */
-+	perf_pmu_migrate_context(&priv->pmu, cpu, target);
-+
- 	return 0;
- }
- 
--- 
-2.31.1
+As a result, "printk-rework" branch will not longer be merged into
+"for-next" or "for-linus" branches. But I am still going to merge
+"rework/*" branches there so that "printk-rework" branch shows
+the printk rework history. I think about renaming this branch
+to "rework/history" or "rework/HEAD".
 
+Best Regards,
+Petr
