@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D2F53C2450
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA5113C244E
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232059AbhGINWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:22:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52396 "EHLO mail.kernel.org"
+        id S232100AbhGINWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:22:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232105AbhGINWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:22:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7853613B6;
-        Fri,  9 Jul 2021 13:19:20 +0000 (UTC)
+        id S231605AbhGINWH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:22:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D134613BC;
+        Fri,  9 Jul 2021 13:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836761;
-        bh=FRXk0/dm+qtUFBK4/Y8rPXbnnd8S/gPnPr9JJwUCFjI=;
+        s=korg; t=1625836763;
+        bh=9mmBXJAnuL45EjK73Ph5Tb8Ht2zMq3a3Jkp3+nOqYGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NFb5eKW74xs4x3pQ7gbEpA8vpPgY7n1rJwKSAHO10Bcf0grDu4AMfpl9vAzidSgOZ
-         QJrSh/5le2om8LHHmSMzXUfelXJqgeGZ5uUZX6UFR3ivEWFw0Guw9M2ivT4HLVeD0C
-         mxcivvwyYn+gwTlv72aOdM+BZr1aR6yWAQPCS03k=
+        b=MdVLAewMCtzqostPIGHFXq8owmwAZ5/WoZfCoMK3TVuC8m8dWHVPWVrkBQcPx5o51
+         bPZezmUSdjUf33TXTnT/2dWhFtSQZM8yngrjVurgKpZwvQfAv/6fst/g8J1so96P2N
+         U2fSfCxJvpHTLIODha6oJMiB41I5YUcNLksBcXos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jue Wang <juew@google.com>,
-        Hugh Dickins <hughd@google.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Yang Shi <shy828301@gmail.com>,
+        stable@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
+        Zi Yan <ziy@nvidia.com>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Hugh Dickins <hughd@google.com>,
         Alistair Popple <apopple@nvidia.com>, Jan Kara <jack@suse.cz>,
+        Jue Wang <juew@google.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Miaohe Lin <linmiaohe@huawei.com>,
         Minchan Kim <minchan@kernel.org>,
         Naoya Horiguchi <naoya.horiguchi@nec.com>,
@@ -36,13 +37,13 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Peter Xu <peterx@redhat.com>,
         Ralph Campbell <rcampbell@nvidia.com>,
         Shakeel Butt <shakeelb@google.com>,
-        Wang Yugui <wangyugui@e16-tech.com>, Zi Yan <ziy@nvidia.com>,
+        Wang Yugui <wangyugui@e16-tech.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/25] mm/thp: fix page_address_in_vma() on file THP tails
-Date:   Fri,  9 Jul 2021 15:18:38 +0200
-Message-Id: <20210709131632.341145716@linuxfoundation.org>
+Subject: [PATCH 4.14 08/25] mm: thp: replace DEBUG_VM BUG with VM_WARN when unmap fails for split
+Date:   Fri,  9 Jul 2021 15:18:39 +0200
+Message-Id: <20210709131632.916418953@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210709131627.928131764@linuxfoundation.org>
 References: <20210709131627.928131764@linuxfoundation.org>
@@ -54,27 +55,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jue Wang <juew@google.com>
+From: Yang Shi <shy828301@gmail.com>
 
-[ Upstream commit 31657170deaf1d8d2f6a1955fbc6fa9d228be036 ]
+[ Upstream commit 504e070dc08f757bccaed6d05c0f53ecbfac8a23 ]
 
-Anon THP tails were already supported, but memory-failure may need to
-use page_address_in_vma() on file THP tails, which its page->mapping
-check did not permit: fix it.
+When debugging the bug reported by Wang Yugui [1], try_to_unmap() may
+fail, but the first VM_BUG_ON_PAGE() just checks page_mapcount() however
+it may miss the failure when head page is unmapped but other subpage is
+mapped.  Then the second DEBUG_VM BUG() that check total mapcount would
+catch it.  This may incur some confusion.
 
-hughd adds: no current usage is known to hit the issue, but this does
-fix a subtle trap in a general helper: best fixed in stable sooner than
-later.
+As this is not a fatal issue, so consolidate the two DEBUG_VM checks
+into one VM_WARN_ON_ONCE_PAGE().
 
-Link: https://lkml.kernel.org/r/a0d9b53-bf5d-8bab-ac5-759dc61819c1@google.com
-Fixes: 800d8c63b2e9 ("shmem: add huge pages support")
-Signed-off-by: Jue Wang <juew@google.com>
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
+[1] https://lore.kernel.org/linux-mm/20210412180659.B9E3.409509F4@e16-tech.com/
+
+Link: https://lkml.kernel.org/r/d0f0db68-98b8-ebfb-16dc-f29df24cf012@google.com
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
 Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Hugh Dickins <hughd@google.com>
 Cc: Alistair Popple <apopple@nvidia.com>
 Cc: Jan Kara <jack@suse.cz>
+Cc: Jue Wang <juew@google.com>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 Cc: Miaohe Lin <linmiaohe@huawei.com>
 Cc: Minchan Kim <minchan@kernel.org>
 Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
@@ -83,35 +87,89 @@ Cc: Peter Xu <peterx@redhat.com>
 Cc: Ralph Campbell <rcampbell@nvidia.com>
 Cc: Shakeel Butt <shakeelb@google.com>
 Cc: Wang Yugui <wangyugui@e16-tech.com>
-Cc: Zi Yan <ziy@nvidia.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+Note on stable backport: fixed up variables, split_queue_lock, tree_lock
+in split_huge_page_to_list(), and conflict on ttu_flags in unmap_page().
+
+Signed-off-by: Hugh Dickins <hughd@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/rmap.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ mm/huge_memory.c | 24 +++++++-----------------
+ 1 file changed, 7 insertions(+), 17 deletions(-)
 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index bebe29a2c5f2..8ed8ec113d5a 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -695,11 +695,11 @@ unsigned long page_address_in_vma(struct page *page, struct vm_area_struct *vma)
- 		if (!vma->anon_vma || !page__anon_vma ||
- 		    vma->anon_vma->root != page__anon_vma->root)
- 			return -EFAULT;
--	} else if (page->mapping) {
--		if (!vma->vm_file || vma->vm_file->f_mapping != page->mapping)
--			return -EFAULT;
--	} else
-+	} else if (!vma->vm_file) {
-+		return -EFAULT;
-+	} else if (vma->vm_file->f_mapping != compound_head(page)->mapping) {
- 		return -EFAULT;
-+	}
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 5705ccff3e7f..972893908bcd 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2325,15 +2325,15 @@ static void unmap_page(struct page *page)
+ {
+ 	enum ttu_flags ttu_flags = TTU_IGNORE_MLOCK | TTU_IGNORE_ACCESS |
+ 		TTU_RMAP_LOCKED | TTU_SPLIT_HUGE_PMD | TTU_SYNC;
+-	bool unmap_success;
  
- 	return vma_address(page, vma);
+ 	VM_BUG_ON_PAGE(!PageHead(page), page);
+ 
+ 	if (PageAnon(page))
+ 		ttu_flags |= TTU_SPLIT_FREEZE;
+ 
+-	unmap_success = try_to_unmap(page, ttu_flags);
+-	VM_BUG_ON_PAGE(!unmap_success, page);
++	try_to_unmap(page, ttu_flags);
++
++	VM_WARN_ON_ONCE_PAGE(page_mapped(page), page);
  }
+ 
+ static void remap_page(struct page *page)
+@@ -2586,7 +2586,7 @@ int split_huge_page_to_list(struct page *page, struct list_head *list)
+ 	struct pglist_data *pgdata = NODE_DATA(page_to_nid(head));
+ 	struct anon_vma *anon_vma = NULL;
+ 	struct address_space *mapping = NULL;
+-	int count, mapcount, extra_pins, ret;
++	int extra_pins, ret;
+ 	bool mlocked;
+ 	unsigned long flags;
+ 	pgoff_t end;
+@@ -2648,7 +2648,6 @@ int split_huge_page_to_list(struct page *page, struct list_head *list)
+ 
+ 	mlocked = PageMlocked(page);
+ 	unmap_page(head);
+-	VM_BUG_ON_PAGE(compound_mapcount(head), head);
+ 
+ 	/* Make sure the page is not on per-CPU pagevec as it takes pin */
+ 	if (mlocked)
+@@ -2674,9 +2673,7 @@ int split_huge_page_to_list(struct page *page, struct list_head *list)
+ 
+ 	/* Prevent deferred_split_scan() touching ->_refcount */
+ 	spin_lock(&pgdata->split_queue_lock);
+-	count = page_count(head);
+-	mapcount = total_mapcount(head);
+-	if (!mapcount && page_ref_freeze(head, 1 + extra_pins)) {
++	if (page_ref_freeze(head, 1 + extra_pins)) {
+ 		if (!list_empty(page_deferred_list(head))) {
+ 			pgdata->split_queue_len--;
+ 			list_del(page_deferred_list(head));
+@@ -2692,16 +2689,9 @@ int split_huge_page_to_list(struct page *page, struct list_head *list)
+ 		} else
+ 			ret = 0;
+ 	} else {
+-		if (IS_ENABLED(CONFIG_DEBUG_VM) && mapcount) {
+-			pr_alert("total_mapcount: %u, page_count(): %u\n",
+-					mapcount, count);
+-			if (PageTail(page))
+-				dump_page(head, NULL);
+-			dump_page(page, "total_mapcount(head) > 0");
+-			BUG();
+-		}
+ 		spin_unlock(&pgdata->split_queue_lock);
+-fail:		if (mapping)
++fail:
++		if (mapping)
+ 			spin_unlock(&mapping->tree_lock);
+ 		spin_unlock_irqrestore(zone_lru_lock(page_zone(head)), flags);
+ 		remap_page(head);
 -- 
 2.30.2
 
