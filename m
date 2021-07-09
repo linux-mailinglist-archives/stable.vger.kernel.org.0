@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BB423C2426
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2A43C2428
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 15:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231791AbhGINVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 09:21:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51244 "EHLO mail.kernel.org"
+        id S231808AbhGINVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 09:21:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231815AbhGINVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 09:21:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DC9F61357;
-        Fri,  9 Jul 2021 13:18:27 +0000 (UTC)
+        id S231839AbhGINVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 09:21:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F50E61377;
+        Fri,  9 Jul 2021 13:18:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625836707;
-        bh=denMVhT9adw/N1SJptjRT5U9cniFnK/UQPmn521OKI0=;
+        s=korg; t=1625836710;
+        bh=UA7kM1YSUvyFkHA+LB4CsP59vVgFeTQm0Av8wunOy4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4K+ZcXKWN0s2JepltFx4QOSLb578aeQexpCoXn8X8JL1/BRylq8dIoGjhY4zVQmQ
-         sQD5I6utF5yHl4VOuqpNtwuvoWrHfTytTaM4qLVtumDwlm3sdLyjCoBrp6NdKTJ95v
-         M7JlBM48P6zJyF+2pAdL0h7aWqXvKUp9PLK/IO+U=
+        b=bVXqqB0aNxJ4vrqTnEhguwpM9eFYNJIK9xvyooUf5gbxbLeYFstfrYOvdMV2SpYMj
+         AqmBT709JuCPeHvgDu/qQE1ERVbkG+SbyRfsAMk/INkagbM1OuBS4tnSk3ZQzyRlus
+         +MRTy9E3I0FiAqNxJWJ/GI1WA6xejg66OA/J2UVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrvsky@oracle.com>
-Subject: [PATCH 4.4 3/4] xen/events: reset active flag for lateeoi events later
-Date:   Fri,  9 Jul 2021 15:18:15 +0200
-Message-Id: <20210709131535.098023418@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Jon Medhurst <tixy@linaro.org>,
+        huangshaobo <huangshaobo6@huawei.com>
+Subject: [PATCH 4.4 4/4] arm: kprobes: Allow to handle reentered kprobe on single-stepping
+Date:   Fri,  9 Jul 2021 15:18:16 +0200
+Message-Id: <20210709131536.103724111@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210709131529.395072769@linuxfoundation.org>
 References: <20210709131529.395072769@linuxfoundation.org>
@@ -40,69 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 3de218ff39b9e3f0d453fe3154f12a174de44b25 upstream.
+commit f3fbd7ec62dec1528fb8044034e2885f2b257941 upstream.
 
-In order to avoid a race condition for user events when changing
-cpu affinity reset the active flag only when EOI-ing the event.
+This is arm port of commit 6a5022a56ac3 ("kprobes/x86: Allow to
+handle reentered kprobe on single-stepping")
 
-This is working fine as all user events are lateeoi events. Note that
-lateeoi_ack_mask_dynirq() is not modified as there is no explicit call
-to xen_irq_lateeoi() expected later.
+Since the FIQ handlers can interrupt in the single stepping
+(or preparing the single stepping, do_debug etc.), we should
+consider a kprobe is hit in the NMI handler. Even in that
+case, the kprobe is allowed to be reentered as same as the
+kprobes hit in kprobe handlers
+(KPROBE_HIT_ACTIVE or KPROBE_HIT_SSDONE).
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Fixes: b6622798bc50b62 ("xen/events: avoid handling the same event on two cpus at the same time")
-Tested-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrvsky@oracle.com>
-Link: https://lore.kernel.org/r/20210623130913.9405-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+The real issue will happen when a kprobe hit while another
+reentered kprobe is processing (KPROBE_REENTER), because
+we already consumed a saved-area for the previous kprobe.
+
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Jon Medhurst <tixy@linaro.org>
+Fixes: 24ba613c9d6c ("ARM kprobes: core code")
+Cc: stable@vger.kernel.org #v2.6.25~v4.11
+Signed-off-by: huangshaobo <huangshaobo6@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/xen/events/events_base.c |   23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ arch/arm/probes/kprobes/core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -533,6 +533,9 @@ static void xen_irq_lateeoi_locked(struc
- 	}
- 
- 	info->eoi_time = 0;
-+
-+	/* is_active hasn't been reset yet, do it now. */
-+	smp_store_release(&info->is_active, 0);
- 	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
- }
- 
-@@ -1777,10 +1780,22 @@ static void lateeoi_ack_dynirq(struct ir
- 	struct irq_info *info = info_for_irq(data->irq);
- 	evtchn_port_t evtchn = info ? info->evtchn : 0;
- 
--	if (VALID_EVTCHN(evtchn)) {
--		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		ack_dynirq(data);
--	}
-+	if (!VALID_EVTCHN(evtchn))
-+		return;
-+
-+	do_mask(info, EVT_MASK_REASON_EOI_PENDING);
-+
-+	if (unlikely(irqd_is_setaffinity_pending(data)) &&
-+	    likely(!irqd_irq_disabled(data))) {
-+		do_mask(info, EVT_MASK_REASON_TEMPORARY);
-+
-+		clear_evtchn(evtchn);
-+
-+		irq_move_masked_irq(data);
-+
-+		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
-+	} else
-+		clear_evtchn(evtchn);
- }
- 
- static void lateeoi_mask_ack_dynirq(struct irq_data *data)
+--- a/arch/arm/probes/kprobes/core.c
++++ b/arch/arm/probes/kprobes/core.c
+@@ -270,6 +270,7 @@ void __kprobes kprobe_handler(struct pt_
+ 			switch (kcb->kprobe_status) {
+ 			case KPROBE_HIT_ACTIVE:
+ 			case KPROBE_HIT_SSDONE:
++			case KPROBE_HIT_SS:
+ 				/* A pre- or post-handler probe got us here. */
+ 				kprobes_inc_nmissed_count(p);
+ 				save_previous_kprobe(kcb);
+@@ -278,6 +279,11 @@ void __kprobes kprobe_handler(struct pt_
+ 				singlestep(p, regs, kcb);
+ 				restore_previous_kprobe(kcb);
+ 				break;
++			case KPROBE_REENTER:
++				/* A nested probe was hit in FIQ, it is a BUG */
++				pr_warn("Unrecoverable kprobe detected at %p.\n",
++					p->addr);
++				/* fall through */
+ 			default:
+ 				/* impossible cases */
+ 				BUG();
 
 
