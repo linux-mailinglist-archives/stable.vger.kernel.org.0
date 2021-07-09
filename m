@@ -2,154 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC7C3C1EC5
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 07:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E76123C1FDB
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 09:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229762AbhGIFOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 01:14:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46912 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229719AbhGIFOM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 01:14:12 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A583FC061574
-        for <stable@vger.kernel.org>; Thu,  8 Jul 2021 22:11:28 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id g24so5106280pji.4
-        for <stable@vger.kernel.org>; Thu, 08 Jul 2021 22:11:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=xpqB69cuZO+1sEXdMBC6CDUHV9mbcie5/EPkohGFjEs=;
-        b=IzhjQt0ohtbEL5ZIwSQySCbDyNmf3983dun8kJsneSG9hDcpGm+9Nqwo1LQ3QBgwcR
-         ryyJuL8ZXC/Hj2/8iwscU72pU15AntKjX8LQp2Bq1hCue6kj1JRUEp9pZH6TPwzBMUCd
-         WVVrniLpu6LSvr4KolJ+8CPx7jQJhBU0Za+yGxyLc2Ly1MrgFWC8ahpicgLy9x4qg/ru
-         abE7+vP9UrEVip7FRH/Rd1zTKi8SNDZl7ef5pS125KLUlpjJca8Q+HzQh8S4dmhlCxcK
-         Nq2I2p4w2tCpvauObdzlEMp9ARj8KjvsStKPuHptexZ0NYWJNLCbkeT4hpTAFHa5+OEL
-         cZUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=xpqB69cuZO+1sEXdMBC6CDUHV9mbcie5/EPkohGFjEs=;
-        b=X/MkcErHhekiHMGzp/LnsYxqN+sFkBQ+OJZRVv8QBCgMo3qwe1xH9bVtmS8eS8CSDt
-         WXKFZY2UdOIDLOOJE/g8HtAsmiwg8Kv8kH/UHuq6/RfuWnmmiAKEHunGEg+Fkq6wFMRW
-         +UXtZ6FYGaxfa8DsgXgUg4i+hjzm6IHpd5yAhA9hbCX5z6sELzyZ/1Rv+lnoffpysE8T
-         IJFBx8F4R8V6qcvRVFUUbzUdFFfgNm5HHXNOKsbkq2jbavJ8mFtL8TLuaj+/6q7C3a52
-         xMwe4kqPrN8kWRrkOGqfYpZfcBjJHxlSUrVm6Eo2yrE2F1U7C7LjCGQ74AbK1UniVSUT
-         XX5w==
-X-Gm-Message-State: AOAM532Fz/iwj8h6k8P2MyNDFtPxfjLYs4ivNZBoQqpqBY/rNALFwCQY
-        wl5UsT1q68BJQncZGklNycWxcWYTeRsgyS0t
-X-Google-Smtp-Source: ABdhPJxxARoOi4Fua2aPR9qjUo+X57VzNEXkD5acxVYF7+xwXdg+5Eb7fqkVhdEfuG4ZVLjw4hF1rg==
-X-Received: by 2002:a17:90b:3b46:: with SMTP id ot6mr8561606pjb.113.1625807487736;
-        Thu, 08 Jul 2021 22:11:27 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q5sm5144066pgt.46.2021.07.08.22.11.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Jul 2021 22:11:27 -0700 (PDT)
-Message-ID: <60e7da7f.1c69fb81.a30ea.120a@mx.google.com>
-Date:   Thu, 08 Jul 2021 22:11:27 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230418AbhGIHLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 03:11:36 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:40770 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S230121AbhGIHLf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 03:11:35 -0400
+X-UUID: 5afdd196da154ef3924c3bb0530fd006-20210709
+X-UUID: 5afdd196da154ef3924c3bb0530fd006-20210709
+Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
+        (envelope-from <deren.wu@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 811500575; Fri, 09 Jul 2021 15:08:50 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 9 Jul 2021 15:08:41 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 9 Jul 2021 15:08:42 +0800
+From:   Deren Wu <Deren.Wu@mediatek.com>
+To:     <stable@vger.kernel.org>
+CC:     Felix Fietkau <nbd@nbd.name>,
+        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Deren Wu <deren.wu@mediatek.com>
+Subject: [PATCH 0/1] mt76: mt7921: Fix resume fail if fw was dropped
+Date:   Fri, 9 Jul 2021 15:07:18 +0800
+Message-ID: <cover.1625806023.git.deren.wu@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.12.15-3-g5f1dd5a13f07
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.12
-Subject: stable-rc/queue/5.12 baseline: 134 runs,
- 3 regressions (v5.12.15-3-g5f1dd5a13f07)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.12 baseline: 134 runs, 3 regressions (v5.12.15-3-g5f1dd5a=
-13f07)
+From: Deren Wu <deren.wu@mediatek.com>
 
-Regressions Summary
--------------------
+Hi,
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
+The bug is found on some devices which power off pcie bus
+in suspend mode. In this case, mt7921 would resume fail on
+interactive commands. This patch could recover the failure in
+command timeout.
 
+Need to apply patches below for dependency. Those patches work
+for stability improvment as well.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
-nel/v5.12.15-3-g5f1dd5a13f07/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.12
-  Describe: v5.12.15-3-g5f1dd5a13f07
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5f1dd5a13f07f41406201ebbaff28b5c0b084b76 =
+upstream patches:
+commit f92f81d35ac2 ("mt76: mt7921: check mcu returned values in mt7921_start")
+commit d32464e68ffc ("mt76: mt7921: introduce mt7921_run_firmware utility routine.")
+commit 1f7396acfef4 ("mt76: mt7921: introduce __mt7921_start utility routine")
+commit 3990465db682 ("mt76: dma: introduce mt76_dma_queue_reset routine")
+commit c001df978e4c ("mt76: dma: export mt76_dma_rx_cleanup routine")
+commit 0c1ce9884607 ("mt76: mt7921: add wifi reset support")
+commit e513ae49088b ("mt76: mt7921: abort uncompleted scan by wifi reset")
 
 
+Lorenzo Bianconi (1):
+  mt76: mt7921: get rid of mcu_reset function pointer
 
-Test Regressions
----------------- =
+ drivers/net/wireless/mediatek/mt76/mt7921/mcu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
+-- 
+2.25.1
 
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e7bb362d3cd87376117991
-
-  Results:     67 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.15-=
-3-g5f1dd5a13f07/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.15-=
-3-g5f1dd5a13f07/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60e7bb362d3cd873761179a5
-        failing since 24 days (last pass: v5.12.10-48-g5e97c6651365, first =
-fail: v5.12.10-173-gfd0b35fa0b0c)
-
-    2021-07-09T02:57:40.766841  /lava-4162062/1/../bin/lava-test-case
-    2021-07-09T02:57:40.784969  <8>[   13.653157] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-07-09T02:57:40.785308  /lava-4162062/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60e7bb362d3cd873761179bd
-        failing since 24 days (last pass: v5.12.10-48-g5e97c6651365, first =
-fail: v5.12.10-173-gfd0b35fa0b0c)
-
-    2021-07-09T02:57:39.339038  /lava-4162062/1/../bin/lava-test-case
-    2021-07-09T02:57:39.356431  <8>[   12.224531] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
-    2021-07-09T02:57:39.356663  /lava-4162062/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60e7bb362d3cd873761179be
-        failing since 24 days (last pass: v5.12.10-48-g5e97c6651365, first =
-fail: v5.12.10-173-gfd0b35fa0b0c)
-
-    2021-07-09T02:57:38.318873  /lava-4162062/1/../bin/lava-test-case
-    2021-07-09T02:57:38.324995  <8>[   11.204943] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
