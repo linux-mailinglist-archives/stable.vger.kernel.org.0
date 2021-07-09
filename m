@@ -2,234 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C86E3C201A
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 09:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F6F3C20E2
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 10:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231314AbhGIHkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 03:40:45 -0400
-Received: from muru.com ([72.249.23.125]:39314 "EHLO muru.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230526AbhGIHkp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 03:40:45 -0400
-Received: from hillo.muru.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTP id 461BD8050;
-        Fri,  9 Jul 2021 07:38:15 +0000 (UTC)
-From:   Tony Lindgren <tony@atomide.com>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Keerthy <j-keerthy@ti.com>, Tero Kristo <kristo@kernel.org>
-Subject: [Backport for 4.19.y PATCH 4/4] clocksource/drivers/timer-ti-dm: Handle dra7 timer wrap errata i940
-Date:   Fri,  9 Jul 2021 10:37:45 +0300
-Message-Id: <20210709073745.13916-4-tony@atomide.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210709073745.13916-1-tony@atomide.com>
-References: <20210709073745.13916-1-tony@atomide.com>
+        id S231628AbhGIIgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 04:36:51 -0400
+Received: from mail-mw2nam12on2067.outbound.protection.outlook.com ([40.107.244.67]:22113
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231382AbhGIIgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 04:36:50 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=FZyYrtRWhMK/YkEnY9eVZGeQoYdu/SJ+ZdtMIqokStEIru/aiblXYQLcqeLZ1XE6v+eNo5ovM0+1Fa3vwZod/uhOPhpDHvYp78cZEa6Gifl/A09HSdr3BlyFWRTYf/mgnchKyij5gv86t+VrPQTtFMPZ0yWwHvWFb9Jnp0+aI/I7NE/qSBec9RoNzY9UwXVwrCPK+A1k6jkXdF5OGg5tRoa33O4Msd/W9+77G+TiGS8sW1/HRvEHqZ78Zmv6Y5zK19d3qG3xoeUurBLtrMbHEL5apRPJyoxjJpQHEV5MILVZB2RLMzEU1n5SkZQI8irloGelakpB8JpyXQYxEZv4lA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QkjvjaBHugt2zg3+w/dZfGO1RyA1pc5GcXl255bR5pY=;
+ b=EXyMtS3C+PVxFjbcL/CGebF2iwpVzH78Nzb8QrTQt24XVYDBDr66G6bKuI3fO91gwGZ8lUJCDP840B9B27/0KWKEmbDqh5V32uGqYyGtoocRmHDCiQBGNPVhJlbkCPDxiCFg/Sk5P0f76Y9FXyO3gTUg1xql0m3QInbojDnYrnyRsGuIJ4D5faTPkANgBfYjauND4P4pAqShdPuaoxdI+so/uRaovmiPFN84NyFGgXqIOPg2sVvCBZ0LolW2uHxdRlUPCPqBuA+AnI2XcqAXfgfK2WUR4pkkKbL4JUwhV7jj1mjSQGOd0LeB0HTot+z0NwYJ9YiPkW2Di3tBccXz9g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.34) smtp.rcpttodomain=kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QkjvjaBHugt2zg3+w/dZfGO1RyA1pc5GcXl255bR5pY=;
+ b=cEfMHr6DtZzOSEvUFz8uswfCYkTZ8ZkmxgyOTIG9pS9NsPgj/nzip87j7SG1kHbiKBUvu9c8VqEWNwaIeiSlIDwf0iHkg9/C7AuPLmxqDbNToTy3cPSK5EvI63E8NIYpTcQ7+lwsJxhfhYDZ3GhMFZb9DLXG/zpQ4yVuswXqG+fE497jr42TY8dMTcJnscTwBf1Dj25qp07roVgoDziD1ZFc4JwK2bLp+HQ+lfrViMlborqz1C1NiyqHEpFLJz3mWf5rkyg+OjWrzoM1b2HCWAjabn/QuaXRHrjjMViNv3ynpsopDoSl+MgV/CyMcctMtth8EyBqBtqiV+TD/Pt76A==
+Received: from DM5PR07CA0104.namprd07.prod.outlook.com (2603:10b6:4:ae::33) by
+ SA0PR12MB4574.namprd12.prod.outlook.com (2603:10b6:806:94::22) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4308.21; Fri, 9 Jul 2021 08:34:06 +0000
+Received: from DM6NAM11FT054.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:4:ae:cafe::eb) by DM5PR07CA0104.outlook.office365.com
+ (2603:10b6:4:ae::33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.23 via Frontend
+ Transport; Fri, 9 Jul 2021 08:34:06 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
+ smtp.mailfrom=nvidia.com; kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.34; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.34) by
+ DM6NAM11FT054.mail.protection.outlook.com (10.13.173.95) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4308.20 via Frontend Transport; Fri, 9 Jul 2021 08:34:05 +0000
+Received: from [10.26.49.10] (172.20.187.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Fri, 9 Jul
+ 2021 08:34:03 +0000
+Subject: Re: [PATCH V2] serial: tegra: Only print FIFO error message when an
+ error occurs
+To:     =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        "Laxman Dewangan" <ldewangan@nvidia.com>,
+        Krishna Yarlagadda <kyarlagadda@nvidia.com>,
+        <linux-serial@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <20210630125643.264264-1-jonathanh@nvidia.com>
+ <YOd7ZTJf0WoQ8oKo@qmqm.qmqm.pl>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <aad402e7-a2b7-1faf-bc22-eb90bee39d3b@nvidia.com>
+Date:   Fri, 9 Jul 2021 09:34:01 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
+In-Reply-To: <YOd7ZTJf0WoQ8oKo@qmqm.qmqm.pl>
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-Originating-IP: [172.20.187.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 806dc0ae-22fd-45ff-661f-08d942b4506a
+X-MS-TrafficTypeDiagnostic: SA0PR12MB4574:
+X-Microsoft-Antispam-PRVS: <SA0PR12MB4574DC0C590899B0EA5FD793D9189@SA0PR12MB4574.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 7hEf8U0LmpA/+BfUlfnRVagExV4/J9gKTCaHVSWVHpF61Hs6gN7Toatm2M9pbBt+sWoGWmGmlbZ6kbOXbugfFySYGVxOJR+WVDRTzuYmfXiuGpKVziMStCRF84dVIMBZEv7jaqhjd6zDZ5KOTdct74oDe51YcSd83kTdCvzhdgYiUOwbb61Y38VodxMiq46PQk+z9WwYGsvUsvd++MTK4g2fylMLwIfezUQzymSctuUI6e/gKlLU14wSsahqhUhKkUpW/k6RX4NId/ZEhsxcsey3/ReR+C7e+RC73tBWANsCt8VR25s/VKbUH/DIWB066jfsJ4U1JXVKuqdDdLKQx5o7uU1U9usgdOUWOCGaB71FtNZG7qIq3E8VqcKQtXmaKPqqgl5KpzHF9SOUTyw7bdD3YRZ0BAAjsuipRxDVj0fnwlwN+YRWTWr1samJE2cbe3PTs0gKQNedCUHNb52GOIJ4/RrdL0vBjZzbNNtSkakW5f4c5mmUtWbau+WYdsi+wAcEPQZJY0T96Zax7OLCF28HdGb4Eb7kqbZ6XEq3gEceKL7oY5lbSkv8Zk+WjZyTV+zSgcaGDKvzBuVzLGRQnTa7NwPVUzwE6gGcGc14BvhSA+z7y8jCmXtOo682GX9by6APkIBr4blapD3ObHtcWqQnM2LpIkn8bMkWZbqi4ul4awjsvqRpeAHeqSFGSO7TgpP7O4T7t2JQMiZdAUqsty/TiPfZzn6NgzhQSDhUIO460WyrPTuuCIiPFS227vSsMDdE0KUDCgDA09sEKp7Vmw==
+X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(396003)(346002)(376002)(39850400004)(136003)(36840700001)(46966006)(86362001)(54906003)(83380400001)(16576012)(4326008)(82310400003)(2616005)(15650500001)(36860700001)(82740400003)(7636003)(31696002)(336012)(316002)(426003)(36906005)(6916009)(66574015)(31686004)(47076005)(356005)(4744005)(2906002)(5660300002)(70586007)(8936002)(53546011)(186003)(36756003)(70206006)(34070700002)(16526019)(26005)(8676002)(478600001)(43740500002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jul 2021 08:34:05.9283
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 806dc0ae-22fd-45ff-661f-08d942b4506a
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT054.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4574
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 25de4ce5ed02994aea8bc111d133308f6fd62566 upstream.
 
-There is a timer wrap issue on dra7 for the ARM architected timer.
-In a typical clock configuration the timer fails to wrap after 388 days.
 
-To work around the issue, we need to use timer-ti-dm percpu timers instead.
+On 08/07/2021 23:25, Micha³ Miros³aw wrote:
+> On Wed, Jun 30, 2021 at 01:56:43PM +0100, Jon Hunter wrote:
+>> The Tegra serial driver always prints an error message when enabling the
+>> FIFO for devices that have support for checking the FIFO enable status.
+>> Fix this by displaying the error message, only when an error occurs.
+>>
+>> Finally, update the error message to make it clear that enabling the
+>> FIFO failed and display the error code.
+> [...]
+>> @@ -1045,9 +1045,11 @@ static int tegra_uart_hw_init(struct tegra_uart_port *tup)
+>>  
+>>  	if (tup->cdata->fifo_mode_enable_status) {
+>>  		ret = tegra_uart_wait_fifo_mode_enabled(tup);
+>> -		dev_err(tup->uport.dev, "FIFO mode not enabled\n");
+>> -		if (ret < 0)
+>> +		if (ret < 0) {
+>> +			dev_err(tup->uport.dev,
+>> +				"Failed to enable FIFO mode: %d\n", ret);
+> 
+> Could you change this to use %pe and ERR_PTR(ret)?
 
-Let's configure dmtimer3 and 4 as percpu timers by default, and warn about
-the issue if the dtb is not configured properly.
+Sorry, but it is not clear to me why this would be necessary in this case.
 
-For more information, please see the errata for "AM572x Sitara Processors
-Silicon Revisions 1.1, 2.0":
+Jon
 
-https://www.ti.com/lit/er/sprz429m/sprz429m.pdf
-
-The concept is based on earlier reference patches done by Tero Kristo and
-Keerthy.
-
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Keerthy <j-keerthy@ti.com>
-Cc: Tero Kristo <kristo@kernel.org>
-[tony@atomide.com: backported to 4.19.y]
-Signed-off-by: Tony Lindgren <tony@atomide.com>
----
- arch/arm/boot/dts/dra7.dtsi         | 11 ++++++
- arch/arm/mach-omap2/board-generic.c |  4 +--
- arch/arm/mach-omap2/timer.c         | 53 ++++++++++++++++++++++++++++-
- drivers/clk/ti/clk-7xx.c            |  1 +
- include/linux/cpuhotplug.h          |  1 +
- 5 files changed, 67 insertions(+), 3 deletions(-)
-
-diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
---- a/arch/arm/boot/dts/dra7.dtsi
-+++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -48,6 +48,7 @@
- 
- 	timer {
- 		compatible = "arm,armv7-timer";
-+		status = "disabled";	/* See ARM architected timer wrap erratum i940 */
- 		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
- 			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
- 			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
-@@ -910,6 +911,8 @@
- 			reg = <0x48032000 0x80>;
- 			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
- 			ti,hwmods = "timer2";
-+			clock-names = "fck";
-+			clocks = <&l4per_clkctrl DRA7_TIMER2_CLKCTRL 24>;
- 		};
- 
- 		timer3: timer@48034000 {
-@@ -917,6 +920,10 @@
- 			reg = <0x48034000 0x80>;
- 			interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
- 			ti,hwmods = "timer3";
-+			clock-names = "fck";
-+			clocks = <&l4per_clkctrl DRA7_TIMER3_CLKCTRL 24>;
-+			assigned-clocks = <&l4per_clkctrl DRA7_TIMER3_CLKCTRL 24>;
-+			assigned-clock-parents = <&timer_sys_clk_div>;
- 		};
- 
- 		timer4: timer@48036000 {
-@@ -924,6 +931,10 @@
- 			reg = <0x48036000 0x80>;
- 			interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
- 			ti,hwmods = "timer4";
-+			clock-names = "fck";
-+			clocks = <&l4per_clkctrl DRA7_TIMER4_CLKCTRL 24>;
-+			assigned-clocks = <&l4per_clkctrl DRA7_TIMER4_CLKCTRL 24>;
-+			assigned-clock-parents = <&timer_sys_clk_div>;
- 		};
- 
- 		timer5: timer@48820000 {
-diff --git a/arch/arm/mach-omap2/board-generic.c b/arch/arm/mach-omap2/board-generic.c
---- a/arch/arm/mach-omap2/board-generic.c
-+++ b/arch/arm/mach-omap2/board-generic.c
-@@ -330,7 +330,7 @@ DT_MACHINE_START(DRA74X_DT, "Generic DRA74X (Flattened Device Tree)")
- 	.init_late	= dra7xx_init_late,
- 	.init_irq	= omap_gic_of_init,
- 	.init_machine	= omap_generic_init,
--	.init_time	= omap5_realtime_timer_init,
-+	.init_time	= omap3_gptimer_timer_init,
- 	.dt_compat	= dra74x_boards_compat,
- 	.restart	= omap44xx_restart,
- MACHINE_END
-@@ -353,7 +353,7 @@ DT_MACHINE_START(DRA72X_DT, "Generic DRA72X (Flattened Device Tree)")
- 	.init_late	= dra7xx_init_late,
- 	.init_irq	= omap_gic_of_init,
- 	.init_machine	= omap_generic_init,
--	.init_time	= omap5_realtime_timer_init,
-+	.init_time	= omap3_gptimer_timer_init,
- 	.dt_compat	= dra72x_boards_compat,
- 	.restart	= omap44xx_restart,
- MACHINE_END
-diff --git a/arch/arm/mach-omap2/timer.c b/arch/arm/mach-omap2/timer.c
---- a/arch/arm/mach-omap2/timer.c
-+++ b/arch/arm/mach-omap2/timer.c
-@@ -42,6 +42,7 @@
- #include <linux/platform_device.h>
- #include <linux/platform_data/dmtimer-omap.h>
- #include <linux/sched_clock.h>
-+#include <linux/cpu.h>
- 
- #include <asm/mach/time.h>
- #include <asm/smp_twd.h>
-@@ -421,6 +422,53 @@ static void __init dmtimer_clkevt_init_common(struct dmtimer_clockevent *clkevt,
- 		timer->rate);
- }
- 
-+static DEFINE_PER_CPU(struct dmtimer_clockevent, dmtimer_percpu_timer);
-+
-+static int omap_gptimer_starting_cpu(unsigned int cpu)
-+{
-+	struct dmtimer_clockevent *clkevt = per_cpu_ptr(&dmtimer_percpu_timer, cpu);
-+	struct clock_event_device *dev = &clkevt->dev;
-+	struct omap_dm_timer *timer = &clkevt->timer;
-+
-+	clockevents_config_and_register(dev, timer->rate, 3, ULONG_MAX);
-+	irq_force_affinity(dev->irq, cpumask_of(cpu));
-+
-+	return 0;
-+}
-+
-+static int __init dmtimer_percpu_quirk_init(void)
-+{
-+	struct dmtimer_clockevent *clkevt;
-+	struct clock_event_device *dev;
-+	struct device_node *arm_timer;
-+	struct omap_dm_timer *timer;
-+	int cpu = 0;
-+
-+	arm_timer = of_find_compatible_node(NULL, NULL, "arm,armv7-timer");
-+	if (of_device_is_available(arm_timer)) {
-+		pr_warn_once("ARM architected timer wrap issue i940 detected\n");
-+		return 0;
-+	}
-+
-+	for_each_possible_cpu(cpu) {
-+		clkevt = per_cpu_ptr(&dmtimer_percpu_timer, cpu);
-+		dev = &clkevt->dev;
-+		timer = &clkevt->timer;
-+
-+		dmtimer_clkevt_init_common(clkevt, 0, "timer_sys_ck",
-+					   CLOCK_EVT_FEAT_ONESHOT,
-+					   cpumask_of(cpu),
-+					   "assigned-clock-parents",
-+					   500, "percpu timer");
-+	}
-+
-+	cpuhp_setup_state(CPUHP_AP_OMAP_DM_TIMER_STARTING,
-+			  "clockevents/omap/gptimer:starting",
-+			  omap_gptimer_starting_cpu, NULL);
-+
-+	return 0;
-+}
-+
- /* Clocksource code */
- static struct omap_dm_timer clksrc;
- static bool use_gptimer_clksrc __initdata;
-@@ -565,6 +613,9 @@ static void __init __omap_sync32k_timer_init(int clkev_nr, const char *clkev_src
- 					3, /* Timer internal resynch latency */
- 					0xffffffff);
- 
-+	if (soc_is_dra7xx())
-+		dmtimer_percpu_quirk_init();
-+
- 	/* Enable the use of clocksource="gp_timer" kernel parameter */
- 	if (use_gptimer_clksrc || gptimer)
- 		omap2_gptimer_clocksource_init(clksrc_nr, clksrc_src,
-@@ -592,7 +643,7 @@ void __init omap3_secure_sync32k_timer_init(void)
- #endif /* CONFIG_ARCH_OMAP3 */
- 
- #if defined(CONFIG_ARCH_OMAP3) || defined(CONFIG_SOC_AM33XX) || \
--	defined(CONFIG_SOC_AM43XX)
-+	defined(CONFIG_SOC_AM43XX) || defined(CONFIG_SOC_DRA7XX)
- void __init omap3_gptimer_timer_init(void)
- {
- 	__omap_sync32k_timer_init(2, "timer_sys_ck", NULL,
-diff --git a/drivers/clk/ti/clk-7xx.c b/drivers/clk/ti/clk-7xx.c
---- a/drivers/clk/ti/clk-7xx.c
-+++ b/drivers/clk/ti/clk-7xx.c
-@@ -733,6 +733,7 @@ const struct omap_clkctrl_data dra7_clkctrl_data[] __initconst = {
- static struct ti_dt_clk dra7xx_clks[] = {
- 	DT_CLK(NULL, "timer_32k_ck", "sys_32k_ck"),
- 	DT_CLK(NULL, "sys_clkin_ck", "timer_sys_clk_div"),
-+	DT_CLK(NULL, "timer_sys_ck", "timer_sys_clk_div"),
- 	DT_CLK(NULL, "sys_clkin", "sys_clkin1"),
- 	DT_CLK(NULL, "atl_dpll_clk_mux", "atl_cm:0000:24"),
- 	DT_CLK(NULL, "atl_gfclk_mux", "atl_cm:0000:26"),
-diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -118,6 +118,7 @@ enum cpuhp_state {
- 	CPUHP_AP_ARM_L2X0_STARTING,
- 	CPUHP_AP_EXYNOS4_MCT_TIMER_STARTING,
- 	CPUHP_AP_ARM_ARCH_TIMER_STARTING,
-+	CPUHP_AP_OMAP_DM_TIMER_STARTING,
- 	CPUHP_AP_ARM_GLOBAL_TIMER_STARTING,
- 	CPUHP_AP_JCORE_TIMER_STARTING,
- 	CPUHP_AP_ARM_TWD_STARTING,
 -- 
-2.32.0
+nvpublic
