@@ -2,128 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7AB03C1FF2
-	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 09:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C863C2011
+	for <lists+stable@lfdr.de>; Fri,  9 Jul 2021 09:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230312AbhGIHXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 03:23:30 -0400
-Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:53046 "EHLO
-        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231192AbhGIHXa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 03:23:30 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UfC4ohT_1625815243;
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0UfC4ohT_1625815243)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 09 Jul 2021 15:20:45 +0800
-Date:   Fri, 9 Jul 2021 15:20:41 +0800
-From:   Gao Xiang <hsiangkao@linux.alibaba.com>
-To:     stable <stable@vger.kernel.org>
-Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Nick Terrell <terrelln@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable <stable@vger.kernel.org>,
-        kernel test robot <lkp@intel.com>
-Subject: Re: [linux-stable-rc:linux-5.4.y 7045/7049] mipsel-linux-ld:
- decompress.c:undefined reference to `memmove'
-Message-ID: <YOf4yZIld6L6XP13@B-P7TQMD6M-0146.local>
-References: <202107070120.6dOj1kB7-lkp@intel.com>
- <YOfjmCT6n61Yidvp@B-P7TQMD6M-0146.local>
+        id S231256AbhGIHkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 03:40:35 -0400
+Received: from muru.com ([72.249.23.125]:39292 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230121AbhGIHke (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 03:40:34 -0400
+Received: from hillo.muru.com (localhost [127.0.0.1])
+        by muru.com (Postfix) with ESMTP id 6928F8050;
+        Fri,  9 Jul 2021 07:38:04 +0000 (UTC)
+From:   Tony Lindgren <tony@atomide.com>
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
+        afzal mohammed <afzal.mohd.ma@gmail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Keerthy <j-keerthy@ti.com>, Tero Kristo <kristo@kernel.org>
+Subject: [Backport for 4.19.y PATCH 1/4] ARM: OMAP: replace setup_irq() by request_irq()
+Date:   Fri,  9 Jul 2021 10:37:42 +0300
+Message-Id: <20210709073745.13916-1-tony@atomide.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YOfjmCT6n61Yidvp@B-P7TQMD6M-0146.local>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg, stable all,
+From: afzal mohammed <afzal.mohd.ma@gmail.com>
 
-On Fri, Jul 09, 2021 at 01:50:16PM +0800, Gao Xiang wrote:
-> On Wed, Jul 07, 2021 at 01:15:28AM +0800, kernel test robot wrote:
-> > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > head:   3909e2374335335c9504467caabc906d3f7487e4
-> > commit: defcc2b5e54a4724fb5733f802edf5dd596018b6 [7045/7049] lib/lz4: explicitly support in-place decompression
-> > config: mips-randconfig-r036-20210706 (attached as .config)
-> > compiler: mipsel-linux-gcc (GCC) 9.3.0
-> > reproduce (this is a W=1 build):
-> >         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-> >         chmod +x ~/bin/make.cross
-> >         # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?id=defcc2b5e54a4724fb5733f802edf5dd596018b6
-> >         git remote add linux-stable-rc https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> >         git fetch --no-tags linux-stable-rc linux-5.4.y
-> >         git checkout defcc2b5e54a4724fb5733f802edf5dd596018b6
-> >         # save the attached .config to linux build tree
-> >         mkdir build_dir
-> >         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross O=build_dir ARCH=mips SHELL=/bin/bash
-> > 
-> > If you fix the issue, kindly add following tag as appropriate
-> > Reported-by: kernel test robot <lkp@intel.com>
-> 
-> Which is weird, does the preboot environment miss memmove() on mipsel?
-> Just a guess, I may look into that myself later...
-> 
+commit b75ca5217743e4d7076cf65e044e88389e44318d upstream.
 
-After manually checking, I found memmove() for the mips preboot environment
-was incidentally introduced by commit a510b616131f ("MIPS: Add support for
-ZSTD-compressed kernels") which wasn't included in v5.4, but included in
-v5.10 as below (so v5.10.y is fine):
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/arch/mips/boot/compressed?h=v5.10&id=a510b616131f85215ba156ed67e5ed1c0701f80f
+request_irq() is preferred over setup_irq(). Invocations of setup_irq()
+occur after memory allocators are ready.
 
-And when I applied the following patch partially from the original
-commit, the compile error with the command lines mentioned above was gone:
+Per tglx[1], setup_irq() existed in olden days when allocators were not
+ready by the time early interrupts were initialized.
 
-diff --git a/arch/mips/boot/compressed/string.c b/arch/mips/boot/compressed/string.c
-index 43beecc3587c..e9ab7ea592ba 100644
---- a/arch/mips/boot/compressed/string.c
-+++ b/arch/mips/boot/compressed/string.c
-@@ -27,3 +27,19 @@ void *memset(void *s, int c, size_t n)
- 		ss[i] = c;
- 	return s;
+Hence replace setup_irq() by request_irq().
+
+[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
+
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Tero Kristo <kristo@kernel.org>
+Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ arch/arm/mach-omap1/pm.c       | 13 ++++++-------
+ arch/arm/mach-omap1/time.c     | 10 +++-------
+ arch/arm/mach-omap1/timer32k.c | 10 +++-------
+ arch/arm/mach-omap2/timer.c    | 11 +++--------
+ 4 files changed, 15 insertions(+), 29 deletions(-)
+
+diff --git a/arch/arm/mach-omap1/pm.c b/arch/arm/mach-omap1/pm.c
+--- a/arch/arm/mach-omap1/pm.c
++++ b/arch/arm/mach-omap1/pm.c
+@@ -610,11 +610,6 @@ static irqreturn_t omap_wakeup_interrupt(int irq, void *dev)
+ 	return IRQ_HANDLED;
  }
-+
-+void * __weak memmove(void *dest, const void *src, size_t n)
-+{
-+	unsigned int i;
-+	const char *s = src;
-+	char *d = dest;
-+
-+	if ((uintptr_t)dest < (uintptr_t)src) {
-+		for (i = 0; i < n; i++)
-+			d[i] = s[i];
-+	} else {
-+		for (i = n; i > 0; i--)
-+			d[i - 1] = s[i - 1];
-+	}
-+	return dest;
-+}
-
-How to backport such commit partially to the v5.4.y stable kernel?
-... Also, it would be better to check other mips compile combinations
-automatically since it's hard for me to check all such combinations
-one-by-one...
-
-Thanks,
-Gao Xiang
-
-> Thanks,
-> Gao Xiang
-> 
-> > 
-> > All errors (new ones prefixed by >>):
-> > 
-> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_safe_withSmallPrefix':
-> >    decompress.c:(.text+0x220): undefined reference to `memmove'
-> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_fast_extDict':
-> >    decompress.c:(.text+0x694): undefined reference to `memmove'
-> > >> mipsel-linux-ld: decompress.c:(.text+0x774): undefined reference to `memmove'
-> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_safe':
-> >    decompress.c:(.text+0xb88): undefined reference to `memmove'
-> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_safe_partial':
-> >    decompress.c:(.text+0x1078): undefined reference to `memmove'
-> >    mipsel-linux-ld: arch/mips/boot/compressed/decompress.o:decompress.c:(.text+0x12f8): more undefined references to `memmove' follow
-> > 
-> > ---
-> > 0-DAY CI Kernel Test Service, Intel Corporation
-> > https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
-> 
+ 
+-static struct irqaction omap_wakeup_irq = {
+-	.name		= "peripheral wakeup",
+-	.handler	= omap_wakeup_interrupt
+-};
+-
+ 
+ 
+ static const struct platform_suspend_ops omap_pm_ops = {
+@@ -627,6 +622,7 @@ static const struct platform_suspend_ops omap_pm_ops = {
+ static int __init omap_pm_init(void)
+ {
+ 	int error = 0;
++	int irq;
+ 
+ 	if (!cpu_class_is_omap1())
+ 		return -ENODEV;
+@@ -670,9 +666,12 @@ static int __init omap_pm_init(void)
+ 	arm_pm_idle = omap1_pm_idle;
+ 
+ 	if (cpu_is_omap7xx())
+-		setup_irq(INT_7XX_WAKE_UP_REQ, &omap_wakeup_irq);
++		irq = INT_7XX_WAKE_UP_REQ;
+ 	else if (cpu_is_omap16xx())
+-		setup_irq(INT_1610_WAKE_UP_REQ, &omap_wakeup_irq);
++		irq = INT_1610_WAKE_UP_REQ;
++	if (request_irq(irq, omap_wakeup_interrupt, 0, "peripheral wakeup",
++			NULL))
++		pr_err("Failed to request irq %d (peripheral wakeup)\n", irq);
+ 
+ 	/* Program new power ramp-up time
+ 	 * (0 for most boards since we don't lower voltage when in deep sleep)
+diff --git a/arch/arm/mach-omap1/time.c b/arch/arm/mach-omap1/time.c
+--- a/arch/arm/mach-omap1/time.c
++++ b/arch/arm/mach-omap1/time.c
+@@ -155,15 +155,11 @@ static irqreturn_t omap_mpu_timer1_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static struct irqaction omap_mpu_timer1_irq = {
+-	.name		= "mpu_timer1",
+-	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
+-	.handler	= omap_mpu_timer1_interrupt,
+-};
+-
+ static __init void omap_init_mpu_timer(unsigned long rate)
+ {
+-	setup_irq(INT_TIMER1, &omap_mpu_timer1_irq);
++	if (request_irq(INT_TIMER1, omap_mpu_timer1_interrupt,
++			IRQF_TIMER | IRQF_IRQPOLL, "mpu_timer1", NULL))
++		pr_err("Failed to request irq %d (mpu_timer1)\n", INT_TIMER1);
+ 	omap_mpu_timer_start(0, (rate / HZ) - 1, 1);
+ 
+ 	clockevent_mpu_timer1.cpumask = cpumask_of(0);
+diff --git a/arch/arm/mach-omap1/timer32k.c b/arch/arm/mach-omap1/timer32k.c
+--- a/arch/arm/mach-omap1/timer32k.c
++++ b/arch/arm/mach-omap1/timer32k.c
+@@ -148,15 +148,11 @@ static irqreturn_t omap_32k_timer_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static struct irqaction omap_32k_timer_irq = {
+-	.name		= "32KHz timer",
+-	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
+-	.handler	= omap_32k_timer_interrupt,
+-};
+-
+ static __init void omap_init_32k_timer(void)
+ {
+-	setup_irq(INT_OS_TIMER, &omap_32k_timer_irq);
++	if (request_irq(INT_OS_TIMER, omap_32k_timer_interrupt,
++			IRQF_TIMER | IRQF_IRQPOLL, "32KHz timer", NULL))
++		pr_err("Failed to request irq %d(32KHz timer)\n", INT_OS_TIMER);
+ 
+ 	clockevent_32k_timer.cpumask = cpumask_of(0);
+ 	clockevents_config_and_register(&clockevent_32k_timer,
+diff --git a/arch/arm/mach-omap2/timer.c b/arch/arm/mach-omap2/timer.c
+--- a/arch/arm/mach-omap2/timer.c
++++ b/arch/arm/mach-omap2/timer.c
+@@ -92,12 +92,6 @@ static irqreturn_t omap2_gp_timer_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static struct irqaction omap2_gp_timer_irq = {
+-	.name		= "gp_timer",
+-	.flags		= IRQF_TIMER | IRQF_IRQPOLL,
+-	.handler	= omap2_gp_timer_interrupt,
+-};
+-
+ static int omap2_gp_timer_set_next_event(unsigned long cycles,
+ 					 struct clock_event_device *evt)
+ {
+@@ -383,8 +377,9 @@ static void __init omap2_gp_clockevent_init(int gptimer_id,
+ 				     &clockevent_gpt.name, OMAP_TIMER_POSTED);
+ 	BUG_ON(res);
+ 
+-	omap2_gp_timer_irq.dev_id = &clkev;
+-	setup_irq(clkev.irq, &omap2_gp_timer_irq);
++	if (request_irq(clkev.irq, omap2_gp_timer_interrupt,
++			IRQF_TIMER | IRQF_IRQPOLL, "gp_timer", &clkev))
++		pr_err("Failed to request irq %d (gp_timer)\n", clkev.irq);
+ 
+ 	__omap_dm_timer_int_enable(&clkev, OMAP_TIMER_INT_OVERFLOW);
+ 
+-- 
+2.32.0
