@@ -2,87 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CBA03C2B69
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 00:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 741813C2B7B
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 00:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229546AbhGIWeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 18:34:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56152 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229542AbhGIWeK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 18:34:10 -0400
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2AB2C0613E5
-        for <stable@vger.kernel.org>; Fri,  9 Jul 2021 15:31:26 -0700 (PDT)
-Received: by mail-ot1-x335.google.com with SMTP id i5-20020a9d68c50000b02904b41fa91c97so6634608oto.5
-        for <stable@vger.kernel.org>; Fri, 09 Jul 2021 15:31:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=upnsK0auCIcTjX2QtwPLQv5a6TArKtIxfo8S37Wtnfs=;
-        b=Qft4v/xwBCfQcddpia9jMHw5kKnmLVllVM3y6HuoDlppu5J2Ni8Fd8PHGnXdfWdTNL
-         NhWvJHzGzaZJKL3XioV/TUQ4PHZJIsnexyKu2vP5L1zUffD7lFef+rCAOfXVcmOc2XfX
-         K41/iQqEwSMif1obLWxAmgbGfBN8jzZYl+fuA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=upnsK0auCIcTjX2QtwPLQv5a6TArKtIxfo8S37Wtnfs=;
-        b=XQE4Wymd3Wj2fXipu25OWCvw8e3/eegtfHK8d7c9GQcCdwzUjWar6jiQQg5VNWhYPd
-         4t68u87wvkiDZaDAbbRmH4oVTHjpcY+RlNHWXaRELWpjShWXNSG/7buxjnf7ndJAccBm
-         2txf1ZrtdGWsNUF25aBE/Gm0YGmO5wN3AgNNZqj0zndS9ncE5JQXvYPWXTgZAJ8De9yI
-         9VEVSRLDrS/i7gP6LHRWFneMfJIR09d8ezFY+BUiZvN1pnnTVWCelEAq1hlzNK7LT2vr
-         od9yf7C7WQXJqKDsfP8Nxx8uOjfceLmq9oqS5bS6HzUs7+SOSiquSsaTnpfiGkdMVnlj
-         1ykQ==
-X-Gm-Message-State: AOAM531+YXYyv3zp6fxTy0iEVs5Z14XNx7C0uGqPgXmiV9xSfZMxX1eM
-        vXA+WOiKnSvHoAc40rWuaQ8NHg==
-X-Google-Smtp-Source: ABdhPJx1FIPZQPmZES91xkjfzCpLwt8JsT5qoan7BcrRjah1PiaY+zBPiZqvGYZJ/JEOj0zXxU/svQ==
-X-Received: by 2002:a05:6830:2487:: with SMTP id u7mr27068811ots.48.1625869886226;
-        Fri, 09 Jul 2021 15:31:26 -0700 (PDT)
-Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
-        by smtp.gmail.com with ESMTPSA id w15sm1459523oie.21.2021.07.09.15.31.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Jul 2021 15:31:25 -0700 (PDT)
-Date:   Fri, 9 Jul 2021 17:31:23 -0500
-From:   Justin Forbes <jmforbes@linuxtx.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.12 00/11] 5.12.16-rc1 review
-Message-ID: <YOjOOxDbRF34EXke@fedora64.linuxtx.org>
-References: <20210709131549.679160341@linuxfoundation.org>
+        id S229563AbhGIWxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 18:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55024 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229542AbhGIWxp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 18:53:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C94A661167;
+        Fri,  9 Jul 2021 22:51:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1625871061;
+        bh=CZ9vlu8ot7ATJ4GSUWvUwNvpFPD/UIkd8XMXHRimFdY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=M052tdprrB7wvEJOQ5kG2fdURHDeCOWT+LvS1saTyLNwulfZb9wFSRermniXIjT7m
+         j7VFO1id+EYh2OvdVgxhNRj7AYgDy1//S9YtQDgdEhupIjiXX8vhjJhvdni2qRCA7X
+         XcTMp2oE5BVbREFJF07405CGPE7GVXG2yywewEtF9kfAN+obp/Tu+BtZtSjDwMJMOS
+         teyBVRTDSrUq+QcTzZkqUxAF15FCqJU82b31I5f6CBi0VVWDt0GiC+F28ttpoFP2Ey
+         oEY8DuOSX2yk28WUkP2zJyvFyQimAqJ1SJJTiAXOmPc8OMNbwqjUAnEQFWcUceQQtY
+         xNxMwPY8liwTw==
+Date:   Fri, 9 Jul 2021 18:50:59 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Luke D. Jones" <luke@ljones.dev>,
+        acpi4asus-user@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.13 31/59] platform/x86: asus-nb-wmi: Revert
+ "add support for ASUS ROG Zephyrus G14 and G15"
+Message-ID: <YOjS08Rc6jO4LO/+@sashalap>
+References: <20210705152815.1520546-1-sashal@kernel.org>
+ <20210705152815.1520546-31-sashal@kernel.org>
+ <c8ecb9c4-d6b7-bff5-e070-2504069d57f5@redhat.com>
+ <826c32c5-0b00-b3ad-008f-7264bf5254e6@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20210709131549.679160341@linuxfoundation.org>
+In-Reply-To: <826c32c5-0b00-b3ad-008f-7264bf5254e6@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 09, 2021 at 03:21:37PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.12.16 release.
-> There are 11 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.16-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Mon, Jul 05, 2021 at 07:09:03PM +0200, Hans de Goede wrote:
+>Hi,
+>
+>On 7/5/21 7:08 PM, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 7/5/21 5:27 PM, Sasha Levin wrote:
+>>> From: "Luke D. Jones" <luke@ljones.dev>
+>>>
+>>> [ Upstream commit 28117f3a5c3c8375a3304af76357d5bf9cf30f0b ]
+>>>
+>>> The quirks added to asus-nb-wmi for the ASUS ROG Zephyrus G14 and G15 are
+>>> wrong, they tell the asus-wmi code to use the vendor specific WMI backlight
+>>> interface. But there is no such interface on these laptops.
+>>>
+>>> As a side effect, these quirks stop the acpi_video driver to register since
+>>> they make acpi_video_get_backlight_type() return acpi_backlight_vendor,
+>>> leaving only the native AMD backlight driver in place, which is the one we
+>>> want. This happy coincidence is being replaced with a new quirk in
+>>> drivers/acpi/video_detect.c which actually sets the backlight_type to
+>>> acpi_backlight_native fixinf this properly. This reverts
+>>> commit 13bceda68fb9 ("platform/x86: asus-nb-wmi: add support for ASUS ROG
+>>> Zephyrus G14 and G15").
+>>>
+>>> Signed-off-by: Luke D. Jones <luke@ljones.dev>
+>>> Link: https://lore.kernel.org/r/20210419074915.393433-3-luke@ljones.dev
+>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>
+>> Note this should only be cherry-picked if commit 2dfbacc65d1d
+>> ("ACPI: video: use native backlight for GA401/GA502/GA503"):
+>> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2dfbacc65d1d2eae587ccb6b93f6280542641858
+>>
+>> Is also being cherry-picked, since the quirk added in that commit
+>> replaces the quirks which are being reverted here.
+>
+>p.s.
+>
+>The same remark also replies to the 5.12 and 5.10 cherry-picks of
+>this commit.
 
-Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
-s390x, x86_64), and boot tested x86_64. No regressions noted.
+I'll take it too, thanks!
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+-- 
+Thanks,
+Sasha
