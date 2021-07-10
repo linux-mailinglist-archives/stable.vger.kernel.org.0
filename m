@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E30E43C397E
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 258203C3969
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231386AbhGKAAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 20:00:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
+        id S233381AbhGJX7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:59:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234007AbhGJX6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:58:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14DF061432;
-        Sat, 10 Jul 2021 23:52:55 +0000 (UTC)
+        id S233539AbhGJX60 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:58:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49AF56142C;
+        Sat, 10 Jul 2021 23:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961176;
-        bh=sOegZowR/q6LjkYuDLD0rmnPgFbxkZDZqKqGHP7LqKk=;
+        s=k20201202; t=1625961178;
+        bh=yZiHhf7MDMsrBOm+Rfirza9bKGPc4BGe3mcHCLe6UbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GBccE+z/gbgOShBKpIBlj9Tm7c4fY6kVHMEMr/257CurPrD2n1/M8Gukgdtw3pViN
-         CPQjp/sA/N1Wpedbg4zehdc5V47qY3nctFCX88pI/ZOXh7n7ySfxzdBDYbMgGy+gFK
-         uqKoiscSuIzK4mkpErJPdQqknZHYl0gmBZhxcEqnHysWf/r/vnNfVNG1/0hf52ov/Q
-         ODAnUWP+AxY4YdfmXsuKiVEr2xFnv71YJuhrH233kJaGYVSSYN4d7F7tAvR/rWySVr
-         bOHbciWFpA/qwhFzDE7yPJ27iGaajLjjmAYnB1F6Qmx8VLvCl5DMZPCQXGfAB+ukVA
-         xzYBUCqZIf/Gw==
+        b=O94iuvZXk4uGfJb4ZnYK2KI77MeMFWbUF99qGbrmtrmmsVBztDF7Ofz5dtPhRgtTv
+         1qF7N1Sy/YPPLzssFHso6a7Xs/iBIgE6bOzeE5/eNeNCs0D5Hjc/RjiJoECkh4+fuu
+         x78w0IG/eKVLGD0qxqNhS7KIs1JNzZxEthI54q6nU1BaZhlVxVoFQ7Mb9VtYPqenYn
+         xgNs1G8yrCOrimIwtKyu3dpdgZFs/ZLRiCQw1EUULu/PjeV6ugsLcEPd2pbpo+u7sB
+         HC9QxPVZs+Efudjarg82k1VnagyQW2GTueVVck9r23vUBj2L0WDlx+RBJ4X0u/ykhm
+         Hia1D113fPEbQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 12/16] power: supply: ab8500: add missing MODULE_DEVICE_TABLE
-Date:   Sat, 10 Jul 2021 19:52:36 -0400
-Message-Id: <20210710235240.3222618-12-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 13/16] pwm: tegra: Don't modify HW state in .remove callback
+Date:   Sat, 10 Jul 2021 19:52:37 -0400
+Message-Id: <20210710235240.3222618-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235240.3222618-1-sashal@kernel.org>
 References: <20210710235240.3222618-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,60 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit dfe52db13ab8d24857a9840ec7ca75eef800c26c ]
+[ Upstream commit 86f7fa71cd830d18d7ebcaf719dffd5ddfe1acdd ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+A consumer is expected to disable a PWM before calling pwm_put(). And if
+they didn't there is hopefully a good reason (or the consumer needs
+fixing). Also if disabling an enabled PWM was the right thing to do,
+this should better be done in the framework instead of in each low level
+driver.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+So drop the hardware modification from the .remove() callback.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_btemp.c   | 1 +
- drivers/power/supply/ab8500_charger.c | 1 +
- drivers/power/supply/ab8500_fg.c      | 1 +
- 3 files changed, 3 insertions(+)
+ drivers/pwm/pwm-tegra.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-diff --git a/drivers/power/supply/ab8500_btemp.c b/drivers/power/supply/ab8500_btemp.c
-index 6ffdc18f2599..9f17d81767ea 100644
---- a/drivers/power/supply/ab8500_btemp.c
-+++ b/drivers/power/supply/ab8500_btemp.c
-@@ -1181,6 +1181,7 @@ static const struct of_device_id ab8500_btemp_match[] = {
- 	{ .compatible = "stericsson,ab8500-btemp", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ab8500_btemp_match);
+diff --git a/drivers/pwm/pwm-tegra.c b/drivers/pwm/pwm-tegra.c
+index 7e8906d6ab7a..d76698ce6472 100644
+--- a/drivers/pwm/pwm-tegra.c
++++ b/drivers/pwm/pwm-tegra.c
+@@ -228,7 +228,6 @@ static int tegra_pwm_probe(struct platform_device *pdev)
+ static int tegra_pwm_remove(struct platform_device *pdev)
+ {
+ 	struct tegra_pwm_chip *pc = platform_get_drvdata(pdev);
+-	unsigned int i;
+ 	int err;
  
- static struct platform_driver ab8500_btemp_driver = {
- 	.probe = ab8500_btemp_probe,
-diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
-index 2d44a68b62c0..56b502331433 100644
---- a/drivers/power/supply/ab8500_charger.c
-+++ b/drivers/power/supply/ab8500_charger.c
-@@ -3752,6 +3752,7 @@ static const struct of_device_id ab8500_charger_match[] = {
- 	{ .compatible = "stericsson,ab8500-charger", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ab8500_charger_match);
+ 	if (WARN_ON(!pc))
+@@ -238,18 +237,6 @@ static int tegra_pwm_remove(struct platform_device *pdev)
+ 	if (err < 0)
+ 		return err;
  
- static struct platform_driver ab8500_charger_driver = {
- 	.probe = ab8500_charger_probe,
-diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
-index ea8c26a108f0..d6079e892e11 100644
---- a/drivers/power/supply/ab8500_fg.c
-+++ b/drivers/power/supply/ab8500_fg.c
-@@ -3229,6 +3229,7 @@ static const struct of_device_id ab8500_fg_match[] = {
- 	{ .compatible = "stericsson,ab8500-fg", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ab8500_fg_match);
+-	for (i = 0; i < pc->chip.npwm; i++) {
+-		struct pwm_device *pwm = &pc->chip.pwms[i];
+-
+-		if (!pwm_is_enabled(pwm))
+-			if (clk_prepare_enable(pc->clk) < 0)
+-				continue;
+-
+-		pwm_writel(pc, i, 0);
+-
+-		clk_disable_unprepare(pc->clk);
+-	}
+-
+ 	reset_control_assert(pc->rst);
+ 	clk_disable_unprepare(pc->clk);
  
- static struct platform_driver ab8500_fg_driver = {
- 	.probe = ab8500_fg_probe,
 -- 
 2.30.2
 
