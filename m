@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9431C3C386D
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:52:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 106823C386E
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233572AbhGJXy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 19:54:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
+        id S233013AbhGJXzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:55:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233582AbhGJXyB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:54:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDB3C613B6;
-        Sat, 10 Jul 2021 23:51:09 +0000 (UTC)
+        id S232739AbhGJXyC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:54:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1766961369;
+        Sat, 10 Jul 2021 23:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961070;
-        bh=31Q2SxNVO6mzsD2YnuunmRyukAVykWhnb+sZHX1XplY=;
+        s=k20201202; t=1625961071;
+        bh=lwqM6PvVga1wrNPdaKICIzDas3E2Hl7kjyv++ULeiNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdCfux7knLCBRFPBtRWD1FUq2WFeCHMTI4aLMQ/XOUOUowB8yJ2KHIbkRzbAOBtMb
-         tjoEN5ZcGJsxOQuJZ0DiGR9RlbYaegZmLewG2s1Jmj0mnOssy2gExK721MBEV+bnyV
-         ga3HpsoKYB3/Y+hKAHE9kM2f4/a1caCe1UgOIbyXpOZP8tSoNGJQ6VCFSK2Rr3Ot1n
-         bzaVf3PlBPiPNDS2FpT9w9KzK59Wg6w2ZgFSxdk9MAb/rddeBg/IuNwqTdmGOHshc8
-         mnp687yamiwgJ4et4sP6VYdCoRtPPMlnMX+hFzwtxvh6kE5M8yo5qPpLi8x1jcvCJl
-         /M+rlhfZGA0Iw==
+        b=mF0EDTX4nnLISE4irYTvWwP1OZpGLCNXhXRgD3obORLpjIgE/PIXupSYYQBDemG2b
+         mtC1sUJGWKE3zcjih7SXBgdkcEvN596X/FJwrHVIzyq1dZBmEvZvIlGVgXLiBakKxP
+         L040KTvmIlkIb7XffRgAAXiJlgt7+JxmmLHZNE6tjVJQ9ACG79JBZZuOMNTdHj97Vd
+         QTZmSQ4nEq4+BXGaax0ONSvyh/I+Toj3wr5HVdlaVHpC4tBm1wUOycIEUR8RcVYxX+
+         WhwQgI7PRGMbZs1rWdYqw++LM0se0Iy2WIvJwfzw2ZI09mV4UI8x3KG+dlOZGgzmrf
+         OTeA0YcNaxNVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 02/28] power: supply: sc2731_charger: Add missing MODULE_DEVICE_TABLE
-Date:   Sat, 10 Jul 2021 19:50:41 -0400
-Message-Id: <20210710235107.3221840-2-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 03/28] pwm: spear: Don't modify HW state in .remove callback
+Date:   Sat, 10 Jul 2021 19:50:42 -0400
+Message-Id: <20210710235107.3221840-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235107.3221840-1-sashal@kernel.org>
 References: <20210710235107.3221840-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,34 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 2aac79d14d76879c8e307820b31876e315b1b242 ]
+[ Upstream commit b601a18f12383001e7a8da238de7ca1559ebc450 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+A consumer is expected to disable a PWM before calling pwm_put(). And if
+they didn't there is hopefully a good reason (or the consumer needs
+fixing). Also if disabling an enabled PWM was the right thing to do,
+this should better be done in the framework instead of in each low level
+driver.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+So drop the hardware modification from the .remove() callback.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/sc2731_charger.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pwm/pwm-spear.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/power/supply/sc2731_charger.c b/drivers/power/supply/sc2731_charger.c
-index 335cb857ef30..288b79836c13 100644
---- a/drivers/power/supply/sc2731_charger.c
-+++ b/drivers/power/supply/sc2731_charger.c
-@@ -524,6 +524,7 @@ static const struct of_device_id sc2731_charger_of_match[] = {
- 	{ .compatible = "sprd,sc2731-charger", },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(of, sc2731_charger_of_match);
+diff --git a/drivers/pwm/pwm-spear.c b/drivers/pwm/pwm-spear.c
+index 6c6b44fd3f43..2d11ac277de8 100644
+--- a/drivers/pwm/pwm-spear.c
++++ b/drivers/pwm/pwm-spear.c
+@@ -231,10 +231,6 @@ static int spear_pwm_probe(struct platform_device *pdev)
+ static int spear_pwm_remove(struct platform_device *pdev)
+ {
+ 	struct spear_pwm_chip *pc = platform_get_drvdata(pdev);
+-	int i;
+-
+-	for (i = 0; i < NUM_PWM; i++)
+-		pwm_disable(&pc->chip.pwms[i]);
  
- static struct platform_driver sc2731_charger_driver = {
- 	.driver = {
+ 	/* clk was prepared in probe, hence unprepare it here */
+ 	clk_unprepare(pc->clk);
 -- 
 2.30.2
 
