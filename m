@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8893C3026
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69E8F3C3030
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234518AbhGJCdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:33:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48724 "EHLO mail.kernel.org"
+        id S234305AbhGJCdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:33:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232496AbhGJCbt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232833AbhGJCbt (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:31:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7E7E613DF;
-        Sat, 10 Jul 2021 02:27:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33ECE613F7;
+        Sat, 10 Jul 2021 02:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884068;
-        bh=5M9tpNwTPwogTjQ1oUkxOk+hKX3PShmn3FpkKt+Fn7E=;
+        s=k20201202; t=1625884070;
+        bh=5cpcAIYiiUrvrbp6zJ3Lo+6pZN1Wc1h5upkrtGZTPSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZmfxTvJSoHu4RLUr7LV1wwkP9nJ6nURmS+ygJTC0pgnByoQO8t9fOheg2hBvTPcK
-         lsh6QbtEHXCVhlwdpz65lZDE62TemL6HrKFdN97Fhfq9hIJLz0Lm8EcqyfwKozPoU6
-         ATzDGZEuDe+ywfNQEGOHzpTWm0Sr9Gf7P11LDMyEnv8RYDoxc5L9Hx8Fla1esGIXYg
-         XLDWngWqbjG5PefT5hqaUxj1qdYv1bw606mu3pG2xpIBAq9j2/uZ7GK9SygSKpTjrt
-         B4kASIP8LiMrGMZTYj0IJe9BQQ9St9ATyvnhzVjAxyaP1OZNnawk0CiBz0TyZ+sFX5
-         2b4SXU78dDqRw==
+        b=gI/S4Re9914MwD2N9pH5TlAS4F7nhVS0aLvou4qvAcAJSzP5OoUec8S5kYP2XdXkY
+         S9WG+Pl08DGVFEL86wVSw1m4UuTe2NOtX5Wg9lTJRxi8zV0Jh0WZkGF030q2OVMTcA
+         vHTNA75YJbOTbVr5pXMQVbw1nm2d3vYvTDVbcL1lGJThz4epqjhZY4b87t1Kwynna6
+         f6R7VcrhucZ8kAe+jRjQfE7y+3PbycXp1ZessXhFqHuDwIzDDysdWG9zvdsgvuKQ7G
+         6y6p72Vf7VRsLp+VLXrPcCVUDcJHXlQPbj+s4Awuzg0FmixxQAaoacBgGNLGFEyAVY
+         EGiOqrcoVpK0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Mack <daniel@zonque.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 30/63] serial: tty: uartlite: fix console setup
-Date:   Fri,  9 Jul 2021 22:26:36 -0400
-Message-Id: <20210710022709.3170675-30-sashal@kernel.org>
+Cc:     Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 31/63] s390/sclp_vt220: fix console name to match device
+Date:   Fri,  9 Jul 2021 22:26:37 -0400
+Message-Id: <20210710022709.3170675-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022709.3170675-1-sashal@kernel.org>
 References: <20210710022709.3170675-1-sashal@kernel.org>
@@ -42,90 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Mack <daniel@zonque.org>
+From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
 
-[ Upstream commit d157fca711ad42e75efef3444c83d2e1a17be27a ]
+[ Upstream commit b7d91d230a119fdcc334d10c9889ce9c5e15118b ]
 
-Remove the hack to assign the global console_port variable at probe time.
-This assumption that cons->index is -1 is wrong for systems that specify
-'console=' in the cmdline (or 'stdout-path' in dts). Hence, on such system
-the actual console assignment is ignored, and the first UART that happens
-to be probed is used as console instead.
+Console name reported in /proc/consoles:
 
-Move the logic to console_setup() and map the console to the correct port
-through the array of available ports instead.
+  ttyS1                -W- (EC p  )    4:65
 
-Signed-off-by: Daniel Mack <daniel@zonque.org>
-Link: https://lore.kernel.org/r/20210528133321.1859346-1-daniel@zonque.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+does not match the char device name:
+
+  crw--w----    1 root     root        4,  65 May 17 12:18 /dev/ttysclp0
+
+so debian-installer inside a QEMU s390x instance gets confused and fails
+to start with the following error:
+
+  steal-ctty: No such file or directory
+
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Link: https://lore.kernel.org/r/20210427194010.9330-1-vvidic@valentin-vidic.from.hr
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/uartlite.c | 27 ++++++---------------------
- 1 file changed, 6 insertions(+), 21 deletions(-)
+ arch/s390/kernel/setup.c       | 2 +-
+ drivers/s390/char/sclp_vt220.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/uartlite.c b/drivers/tty/serial/uartlite.c
-index 06e79c11141d..56066d93a65b 100644
---- a/drivers/tty/serial/uartlite.c
-+++ b/drivers/tty/serial/uartlite.c
-@@ -508,21 +508,23 @@ static void ulite_console_write(struct console *co, const char *s,
- 
- static int ulite_console_setup(struct console *co, char *options)
- {
--	struct uart_port *port;
-+	struct uart_port *port = NULL;
- 	int baud = 9600;
- 	int bits = 8;
- 	int parity = 'n';
- 	int flow = 'n';
- 
--
--	port = console_port;
-+	if (co->index >= 0 && co->index < ULITE_NR_UARTS)
-+		port = ulite_ports + co->index;
- 
- 	/* Has the device been initialized yet? */
--	if (!port->mapbase) {
-+	if (!port || !port->mapbase) {
- 		pr_debug("console on ttyUL%i not present\n", co->index);
- 		return -ENODEV;
- 	}
- 
-+	console_port = port;
-+
- 	/* not initialized yet? */
- 	if (!port->membase) {
- 		if (ulite_request_port(port))
-@@ -658,17 +660,6 @@ static int ulite_assign(struct device *dev, int id, u32 base, int irq,
- 
- 	dev_set_drvdata(dev, port);
- 
--#ifdef CONFIG_SERIAL_UARTLITE_CONSOLE
--	/*
--	 * If console hasn't been found yet try to assign this port
--	 * because it is required to be assigned for console setup function.
--	 * If register_console() don't assign value, then console_port pointer
--	 * is cleanup.
--	 */
--	if (ulite_uart_driver.cons->index == -1)
--		console_port = port;
--#endif
--
- 	/* Register the port */
- 	rc = uart_add_one_port(&ulite_uart_driver, port);
- 	if (rc) {
-@@ -678,12 +669,6 @@ static int ulite_assign(struct device *dev, int id, u32 base, int irq,
- 		return rc;
- 	}
- 
--#ifdef CONFIG_SERIAL_UARTLITE_CONSOLE
--	/* This is not port which is used for console that's why clean it up */
--	if (ulite_uart_driver.cons->index == -1)
--		console_port = NULL;
--#endif
--
- 	return 0;
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 3588f4c65a4d..f661f176966f 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -162,7 +162,7 @@ static void __init set_preferred_console(void)
+ 	else if (CONSOLE_IS_3270)
+ 		add_preferred_console("tty3270", 0, NULL);
+ 	else if (CONSOLE_IS_VT220)
+-		add_preferred_console("ttyS", 1, NULL);
++		add_preferred_console("ttysclp", 0, NULL);
+ 	else if (CONSOLE_IS_HVC)
+ 		add_preferred_console("hvc", 0, NULL);
  }
+diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
+index 3f9a6ef650fa..3c2ed6d01387 100644
+--- a/drivers/s390/char/sclp_vt220.c
++++ b/drivers/s390/char/sclp_vt220.c
+@@ -35,8 +35,8 @@
+ #define SCLP_VT220_MINOR		65
+ #define SCLP_VT220_DRIVER_NAME		"sclp_vt220"
+ #define SCLP_VT220_DEVICE_NAME		"ttysclp"
+-#define SCLP_VT220_CONSOLE_NAME		"ttyS"
+-#define SCLP_VT220_CONSOLE_INDEX	1	/* console=ttyS1 */
++#define SCLP_VT220_CONSOLE_NAME		"ttysclp"
++#define SCLP_VT220_CONSOLE_INDEX	0	/* console=ttysclp0 */
  
+ /* Representation of a single write request */
+ struct sclp_vt220_request {
 -- 
 2.30.2
 
