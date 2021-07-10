@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 220D83C31E8
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 553193C31E3
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235341AbhGJCpX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:45:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34528 "EHLO mail.kernel.org"
+        id S235319AbhGJCpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:45:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233970AbhGJCns (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235408AbhGJCns (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:43:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3788A61413;
-        Sat, 10 Jul 2021 02:39:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 868D561409;
+        Sat, 10 Jul 2021 02:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884783;
-        bh=XWiPw7umbjmeU/JEnr2FjZX9/PD8fOl6yYG1jQX7LoE=;
+        s=k20201202; t=1625884784;
+        bh=+GxOXwBIVChAEIPaJlTqVRD9YIlZFBH0s/v8OF5M8is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKpaC9YT9EGd5beK5xHOqMUR0WubI+jLXZ/xYkUg8aEQPp87TayPhGET9Z5A4bfOw
-         zZtIulWDBPUWeJ5zMss+aRqIw3l79PJCHiKtj7/VmjPLr0Q1788OKRamDGbiJfKKhW
-         DQA5Qjmjf6PFvldIf8TYmR5erEav8CFDfDTJ01ZGM5OFSq0tIJVc44WFcZIwA9fIQc
-         XqGvlwOLzmOpOoHLDzteqETbgnSW5mVETLCRlSQkFtLavUwZtXqgXkOBCE4XB/417w
-         4wNWZ51y39OBIq9ZMVAYoOw41Xl0M7pzvY7DLSgHP0EoSfgynb7gcN+rnku3DaWPLt
-         X36hyoX5Mj9/g==
+        b=QBRc8JRgMf5yDi2YaVcLlvQFWEgdJ7CTSVImLjzdFS9EiG2Z4eWQ+hQTXGc3BWJf9
+         k7JJmxZUWvTC38wXxRODnHJm2/Nw53dpYtQ1os6sn26gG5DSacIPGk4mlN1PR825iU
+         R1PI5ACcj7hd4pMcHBp/gKP+xLWpPYg9ojiWfvJz85ZwKdb0Tma8zZWQRU9qCY9ZBD
+         Jyv5jMjhzal4HujEItagPzKudhUHVPNjjSVrBFE+5i685xM9zR+IMQAKIdSTY0H/4b
+         ZYXP6ISLj9dEMpIHdBMtifCbht8ZT+NtNHytwCO08jZseIHzutyoOO4F9T8iftkrLQ
+         aFGvEYaKZqnqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 20/23] backlight: lm3630a: Fix return code of .update_status() callback
-Date:   Fri,  9 Jul 2021 22:39:09 -0400
-Message-Id: <20210710023912.3172972-20-sashal@kernel.org>
+Cc:     Jiajun Cao <jjcao20@fudan.edu.cn>, Xin Tan <tanxin.ctf@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 21/23] ALSA: hda: Add IRQ check for platform_get_irq()
+Date:   Fri,  9 Jul 2021 22:39:10 -0400
+Message-Id: <20210710023912.3172972-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023912.3172972-1-sashal@kernel.org>
 References: <20210710023912.3172972-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,69 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Jiajun Cao <jjcao20@fudan.edu.cn>
 
-[ Upstream commit b9481a667a90ec739995e85f91f3672ca44d6ffa ]
+[ Upstream commit 8c13212443230d03ff25014514ec0d53498c0912 ]
 
-According to <linux/backlight.h> .update_status() is supposed to
-return 0 on success and a negative error code otherwise. Adapt
-lm3630a_bank_a_update_status() and lm3630a_bank_b_update_status() to
-actually do it.
+The function hda_tegra_first_init() neglects to check the return
+value after executing platform_get_irq().
 
-While touching that also add the error code to the failure message.
+hda_tegra_first_init() should check the return value (if negative
+error number) for errors so as to not pass a negative value to
+the devm_request_irq().
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fix it by adding a check for the return value irq_id.
+
+Signed-off-by: Jiajun Cao <jjcao20@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20210622131947.94346-1-jjcao20@fudan.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/lm3630a_bl.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/pci/hda/hda_tegra.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
-index 5ef6f9d420a2..ab882c04f975 100644
---- a/drivers/video/backlight/lm3630a_bl.c
-+++ b/drivers/video/backlight/lm3630a_bl.c
-@@ -183,7 +183,7 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
- 	if ((pwm_ctrl & LM3630A_PWM_BANK_A) != 0) {
- 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
- 				 bl->props.max_brightness);
--		return bl->props.brightness;
-+		return 0;
- 	}
+diff --git a/sound/pci/hda/hda_tegra.c b/sound/pci/hda/hda_tegra.c
+index 039fbbb1e53c..89359a962e47 100644
+--- a/sound/pci/hda/hda_tegra.c
++++ b/sound/pci/hda/hda_tegra.c
+@@ -363,6 +363,9 @@ static int hda_tegra_first_init(struct azx *chip, struct platform_device *pdev)
+ 	unsigned short gcap;
+ 	int irq_id = platform_get_irq(pdev, 0);
  
- 	/* disable sleep */
-@@ -203,8 +203,8 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
- 	return 0;
- 
- out_i2c_err:
--	dev_err(pchip->dev, "i2c failed to access\n");
--	return bl->props.brightness;
-+	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
-+	return ret;
- }
- 
- static int lm3630a_bank_a_get_brightness(struct backlight_device *bl)
-@@ -260,7 +260,7 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
- 	if ((pwm_ctrl & LM3630A_PWM_BANK_B) != 0) {
- 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
- 				 bl->props.max_brightness);
--		return bl->props.brightness;
-+		return 0;
- 	}
- 
- 	/* disable sleep */
-@@ -280,8 +280,8 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
- 	return 0;
- 
- out_i2c_err:
--	dev_err(pchip->dev, "i2c failed to access REG_CTRL\n");
--	return bl->props.brightness;
-+	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
-+	return ret;
- }
- 
- static int lm3630a_bank_b_get_brightness(struct backlight_device *bl)
++	if (irq_id < 0)
++		return irq_id;
++
+ 	err = hda_tegra_init_chip(chip, pdev);
+ 	if (err)
+ 		return err;
 -- 
 2.30.2
 
