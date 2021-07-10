@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D52AB3C3110
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 071D53C311B
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233950AbhGJCkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:40:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58368 "EHLO mail.kernel.org"
+        id S233322AbhGJCkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:40:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235787AbhGJCjq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:39:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E5C76141D;
-        Sat, 10 Jul 2021 02:35:50 +0000 (UTC)
+        id S235789AbhGJCjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:39:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6678961420;
+        Sat, 10 Jul 2021 02:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884551;
-        bh=eGypJuKBfiwtYZyFp2YvA7vPL8SEaM2BpjpZPLQbBUQ=;
+        s=k20201202; t=1625884552;
+        bh=mrt589wS+yaIuYhEoK1hDGW+oRU/G8TwBt8BJea3Fv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+YemxgqtGJXkJQyw+h45hkk6viq22oWBILiy2nHhb1Jd+gqkdzWMhscTfyYsisoJ
-         mnFVs9ki/q4AxNQbjllepQXsCyE9n8hYIY5x4TB1UAJXw9uWXAZKGxF7ZUyLGgCjwP
-         bxNXjJZn9gTH9OF6W4HyJ8fLjddhPInuU6XqyUMG3l3uh3Dmq3D9uQXbkmSvOXCN+X
-         wp1kp+y0z2UT6byT+THFSXC5ox/XtEfHjhVeHazCM/fRpuZBbis+wCl1+7uiAdGCEm
-         1CHA41YcvyPnbDQ85etihaFZzObM3KXLDK3+IGlYB3SfR0bCDxDEzScWzzUu6hL5MW
-         DJbBe3wtGznbA==
+        b=HXo77z1cO/AOxmJMSxQZC+X/eJtlOf1Ha7a7WWmT5t8cueLrHEQjmYGP0qu4Ez5Ul
+         ymQ0nZb3RhIy9jQWcyxHAM1rEB0+qRax52y3hrlqGUDJQBQODk/R1Z+GynBW+XdoOm
+         x5DYlljperDWGJEezzG/MCsiZNfFr4soV23vLv95pfEhXZmztpLStCYqGPI8kuTPIt
+         kohNmPMgqIjQTjaaipFSny/VNKzqq/oZlzzM7LNXalhYebQcTSeEDMATRh4tm4SZnI
+         N62VllPijAlRoZym2G7li2ooHX5vE4ALw+W5wpu8aFzXwNa0sfKOAfZ+9dzF4cKg62
+         sW9xQDh09Dbeg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ruslan Bilovol <ruslan.bilovol@gmail.com>,
-        Fabien Chouteau <fabien.chouteau@barco.com>,
-        Segiy Stetsyuk <serg_stetsuk@ukr.net>,
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 24/33] usb: gadget: f_hid: fix endianness issue with descriptors
-Date:   Fri,  9 Jul 2021 22:35:06 -0400
-Message-Id: <20210710023516.3172075-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 25/33] usb: gadget: hid: fix error return code in hid_bind()
+Date:   Fri,  9 Jul 2021 22:35:07 -0400
+Message-Id: <20210710023516.3172075-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023516.3172075-1-sashal@kernel.org>
 References: <20210710023516.3172075-1-sashal@kernel.org>
@@ -44,43 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 33cb46c4676d01956811b68a29157ea969a5df70 ]
+[ Upstream commit 88693f770bb09c196b1eb5f06a484a254ecb9924 ]
 
-Running sparse checker it shows warning message about
-incorrect endianness used for descriptor initialization:
+Fix to return a negative error code from the error handling
+case instead of 0.
 
-| f_hid.c:91:43: warning: incorrect type in initializer (different base types)
-| f_hid.c:91:43:    expected restricted __le16 [usertype] bcdHID
-| f_hid.c:91:43:    got int
-
-Fixing issue with cpu_to_le16() macro, however this is not a real issue
-as the value is the same both endians.
-
-Cc: Fabien Chouteau <fabien.chouteau@barco.com>
-Cc: Segiy Stetsyuk <serg_stetsuk@ukr.net>
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Link: https://lore.kernel.org/r/20210617162755.29676-1-ruslan.bilovol@gmail.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210618043835.2641360-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_hid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/legacy/hid.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
-index 77d1183775ef..e9b772a9902b 100644
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -92,7 +92,7 @@ static struct usb_interface_descriptor hidg_interface_desc = {
- static struct hid_descriptor hidg_desc = {
- 	.bLength			= sizeof hidg_desc,
- 	.bDescriptorType		= HID_DT_HID,
--	.bcdHID				= 0x0101,
-+	.bcdHID				= cpu_to_le16(0x0101),
- 	.bCountryCode			= 0x00,
- 	.bNumDescriptors		= 0x1,
- 	/*.desc[0].bDescriptorType	= DYNAMIC */
+diff --git a/drivers/usb/gadget/legacy/hid.c b/drivers/usb/gadget/legacy/hid.c
+index a71a884f79fc..cccbb948821b 100644
+--- a/drivers/usb/gadget/legacy/hid.c
++++ b/drivers/usb/gadget/legacy/hid.c
+@@ -175,8 +175,10 @@ static int hid_bind(struct usb_composite_dev *cdev)
+ 		struct usb_descriptor_header *usb_desc;
+ 
+ 		usb_desc = usb_otg_descriptor_alloc(gadget);
+-		if (!usb_desc)
++		if (!usb_desc) {
++			status = -ENOMEM;
+ 			goto put;
++		}
+ 		usb_otg_descriptor_init(gadget, usb_desc);
+ 		otg_desc[0] = usb_desc;
+ 		otg_desc[1] = NULL;
 -- 
 2.30.2
 
