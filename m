@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72ECA3C2F7C
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7F243C2F7F
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234042AbhGJCbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:31:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41906 "EHLO mail.kernel.org"
+        id S231872AbhGJCbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234653AbhGJC3j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:29:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8315A60BD3;
-        Sat, 10 Jul 2021 02:26:54 +0000 (UTC)
+        id S234676AbhGJC3k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:29:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3C05613DC;
+        Sat, 10 Jul 2021 02:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884015;
-        bh=mwAXzCQTCpeyzRqdPBQBVEoSYtdysFiIiiFsm4R9IlM=;
+        s=k20201202; t=1625884016;
+        bh=JgL551oFfxdmH9y/atJVWQ9IvGlZp0b9DjZZSGo8qz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gX8nVLYDusUOkI+laedW/dd1q2li9XoDtkIlGKIuUf41hMz6ICniOQEyCFJWFvh5W
-         n2CF9cW9M9NA9A2c8QxTkGvcTTeqDAs9/NSr50Iom6HRY79X9cabh44qULYIf88CJx
-         wcZz84Eass1fYr7cXb7vUQ0ZkDnlgegnH2h1xeQKMWnRN/l/SK2kGywL64BG+wyTyX
-         hOgjb0oa4BoBUFiyGuOXxaP1vhpTiBCm76c2CUeVTZvr4nwTvu7hIIXTP9FWbdqSBj
-         RoMmZLxCi7VGDug1FsthdDcqFkH3WLO3U4j2eXFR07/1ZlhgvpwdhDGkyOfhSRpIE9
-         RuWV1uDm5m4Sg==
+        b=e4c+qDCRau+izxok/F4tByOieO1ygOvosv/W+gHFboDqqzzsyNRMwJXIh/cnHcupc
+         ckm7Q0jprlogd1BX+8eOkIIaV+ew6ElboWKofAkCEoYxxPh+fgK/AikXNSF+t/UVhm
+         VbYz/mU90IRrgGG7eyGM7eJm5YXnxV0XCNElbi3wWgawg9jsyY9xiJjImXkGQXePuo
+         vCFxepZE+r+x/3oO37Ep9iQaRoHE70NY+VqqD8XZZiF7v1D9MepC27SlNOgczum7ek
+         Yt1Lxlr/LNcsPH21jKYaCPOEs9TPM3fN4vtKvZxMO8Am28gduo6/Gw3fvergL7o1yM
+         vb0YviROqD4kA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        jfs-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.10 86/93] jfs: fix GPF in diFree
-Date:   Fri,  9 Jul 2021 22:24:20 -0400
-Message-Id: <20210710022428.3169839-86-sashal@kernel.org>
+Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-leds@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 87/93] leds: turris-omnia: add missing MODULE_DEVICE_TABLE
+Date:   Fri,  9 Jul 2021 22:24:21 -0400
+Message-Id: <20210710022428.3169839-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -44,49 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 9d574f985fe33efd6911f4d752de6f485a1ea732 ]
+[ Upstream commit 9d0150db97583cfbb6b44cbe02241a1a48f90210 ]
 
-Avoid passing inode with
-JFS_SBI(inode->i_sb)->ipimap == NULL to
-diFree()[1]. GFP will appear:
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-	struct inode *ipimap = JFS_SBI(ip->i_sb)->ipimap;
-	struct inomap *imap = JFS_IP(ipimap)->i_imap;
-
-JFS_IP() will return invalid pointer when ipimap == NULL
-
-Call Trace:
- diFree+0x13d/0x2dc0 fs/jfs/jfs_imap.c:853 [1]
- jfs_evict_inode+0x2c9/0x370 fs/jfs/inode.c:154
- evict+0x2ed/0x750 fs/inode.c:578
- iput_final fs/inode.c:1654 [inline]
- iput.part.0+0x3fe/0x820 fs/inode.c:1680
- iput+0x58/0x70 fs/inode.c:1670
-
-Reported-and-tested-by: syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/leds/leds-turris-omnia.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/jfs/inode.c b/fs/jfs/inode.c
-index 6f65bfa9f18d..b0eb9c85eea0 100644
---- a/fs/jfs/inode.c
-+++ b/fs/jfs/inode.c
-@@ -151,7 +151,8 @@ void jfs_evict_inode(struct inode *inode)
- 			if (test_cflag(COMMIT_Freewmap, inode))
- 				jfs_free_zero_link(inode);
+diff --git a/drivers/leds/leds-turris-omnia.c b/drivers/leds/leds-turris-omnia.c
+index 880fc8def530..ec87a958f151 100644
+--- a/drivers/leds/leds-turris-omnia.c
++++ b/drivers/leds/leds-turris-omnia.c
+@@ -277,6 +277,7 @@ static const struct i2c_device_id omnia_id[] = {
+ 	{ "omnia", 0 },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(i2c, omnia_id);
  
--			diFree(inode);
-+			if (JFS_SBI(inode->i_sb)->ipimap)
-+				diFree(inode);
- 
- 			/*
- 			 * Free the inode from the quota allocation.
+ static struct i2c_driver omnia_leds_driver = {
+ 	.probe		= omnia_leds_probe,
 -- 
 2.30.2
 
