@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A7A3C3124
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD973C311C
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235007AbhGJCkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:40:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58438 "EHLO mail.kernel.org"
+        id S234118AbhGJCkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:40:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235896AbhGJCju (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235895AbhGJCju (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15B1461453;
-        Sat, 10 Jul 2021 02:36:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6918761448;
+        Sat, 10 Jul 2021 02:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884582;
-        bh=KotAUrAl+RS3cUxE3mRhWKLWrAvMmX+ljQlrGK8O/Gg=;
+        s=k20201202; t=1625884584;
+        bh=U3XyAJ4TRtQBnQOuHtoGHvzGvSgBkJEg6w1xIsCvSHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hhg6Gc45STzJSmWZuFicY5p7B4mjT2KXgymo/jJUUCjlcpsHR6ArgH3TGh6bgcwfd
-         p1+cg93QSrGmyYkkmhrRxLszFJNroyQhmas4jAY7tvH7cUwS/tPgOtKp0VYuJS3K8r
-         RfH6uD1QEC+JnY1nIA3ENVbL8aFyvZoJFvoDJeIRTF8ehOPg8YD9aathbv34+w3GGG
-         NiG5Co5SfWZ7eBnTtui69q/WgV8MO/QqDD1Oq3x9vmJAiASMC+MWftJtrA2yiwef3O
-         4F4hAMcCT1bjxvVVhbIWGChH3a5dh18PJurXu0oIBug4qTWzfuYfFXg69V2suxBuvi
-         aWbeN95LYxnFw==
+        b=RZN+hKUacznt6k8fjUImicpY3mN+46b5dxUFe5aK/UYYT83XIH+Wf6FuGTWGawQP7
+         ZYEE1TdtI8atF+NFZyDq+yYwNIvrg7U24lIaDt5eMwtHkHU6AJqB6tnw6GVnvU7yqi
+         RHlQ02BVIUMCvpHogMG3/jhQ9fdiqSYivn1bdr++G4c0Jx8PAH16C6mInoxcBKregS
+         3Mpa40/E5evKonFIarW79KvIa34M7adzF14oo400O5f1T/xNj8SrmXCNeerrfpkyQh
+         f42LLfmJCNmV5aKGRzmRG9Vb+ufPNN4k33RPmV+HLIEaEIaHCk/dE3tdQz4D4Buzbs
+         E+qu08T/kKwuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Neeli <srinivas.neeli@xilinx.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 14/26] gpio: zynq: Check return value of pm_runtime_get_sync
-Date:   Fri,  9 Jul 2021 22:35:52 -0400
-Message-Id: <20210710023604.3172486-14-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 15/26] ALSA: ppc: fix error return code in snd_pmac_probe()
+Date:   Fri,  9 Jul 2021 22:35:53 -0400
+Message-Id: <20210710023604.3172486-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023604.3172486-1-sashal@kernel.org>
 References: <20210710023604.3172486-1-sashal@kernel.org>
@@ -43,38 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Neeli <srinivas.neeli@xilinx.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a51b2fb94b04ab71e53a71b9fad03fa826941254 ]
+[ Upstream commit 80b9c1be567c3c6bbe0d4b290af578e630485b5d ]
 
-Return value of "pm_runtime_get_sync" API was neither captured nor checked.
-Fixed it by capturing the return value and then checking for any warning.
+If snd_pmac_tumbler_init() or snd_pmac_tumbler_post_init() fails,
+snd_pmac_probe() need return error code.
 
-Addresses-Coverity: "check_return"
-Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210616021121.1991502-1-yangyingliang@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-zynq.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/ppc/powermac.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-zynq.c b/drivers/gpio/gpio-zynq.c
-index 6b4d10d6e10f..5038d771ac6e 100644
---- a/drivers/gpio/gpio-zynq.c
-+++ b/drivers/gpio/gpio-zynq.c
-@@ -778,8 +778,11 @@ static int zynq_gpio_probe(struct platform_device *pdev)
- static int zynq_gpio_remove(struct platform_device *pdev)
- {
- 	struct zynq_gpio *gpio = platform_get_drvdata(pdev);
-+	int ret;
- 
--	pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_get_sync(&pdev->dev);
-+	if (ret < 0)
-+		dev_warn(&pdev->dev, "pm_runtime_get_sync() Failed\n");
- 	gpiochip_remove(&gpio->chip);
- 	clk_disable_unprepare(gpio->clk);
- 	device_set_wakeup_capable(&pdev->dev, 0);
+diff --git a/sound/ppc/powermac.c b/sound/ppc/powermac.c
+index 33c6be9fb388..7c70ba5e2540 100644
+--- a/sound/ppc/powermac.c
++++ b/sound/ppc/powermac.c
+@@ -90,7 +90,11 @@ static int snd_pmac_probe(struct platform_device *devptr)
+ 		sprintf(card->shortname, "PowerMac %s", name_ext);
+ 		sprintf(card->longname, "%s (Dev %d) Sub-frame %d",
+ 			card->shortname, chip->device_id, chip->subframe);
+-		if ( snd_pmac_tumbler_init(chip) < 0 || snd_pmac_tumbler_post_init() < 0)
++		err = snd_pmac_tumbler_init(chip);
++		if (err < 0)
++			goto __error;
++		err = snd_pmac_tumbler_post_init();
++		if (err < 0)
+ 			goto __error;
+ 		break;
+ 	case PMAC_AWACS:
 -- 
 2.30.2
 
