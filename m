@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 144703C2E29
+	by mail.lfdr.de (Postfix) with ESMTP id 634EB3C2E2A
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233538AbhGJC02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:26:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42484 "EHLO mail.kernel.org"
+        id S233153AbhGJC03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:26:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233151AbhGJCZt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233335AbhGJCZt (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:25:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15B186140C;
-        Sat, 10 Jul 2021 02:23:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22F68613EC;
+        Sat, 10 Jul 2021 02:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883781;
-        bh=Nr5gL9JOSKUjbA100HeDI/KrMsIKYBDVkr9sctcPrpw=;
+        s=k20201202; t=1625883782;
+        bh=1tBw5Zt9YPIrQK/9dRp5GoREl6y7xA8VRfsxmcF8F8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NwvGeZM2Kwb0vZSLF9gytrFWDkapKmohXxNrRboQCy8UTNzhNFzYA04zXK90bjYk8
-         0m9O/jddVEvGmSNwIr6fjqz+BWKi1/weN8nXF4wU5RdPcg0eij5XdNq25LiQTWZdh/
-         S9pOabVGpLWwaezTZIkAeoe/C45AZ66+6ACIgLZeNOPeM18h8zHM3hvSFSyajK/uKX
-         e1vmsLeyMv8zd0qvSAfJBtQ4kkuCGS+IByOr+R51Ww1LJ6L39GIKVl0ZW8hA/TWtwP
-         ZjfAIngNnUJ4aZXul9Txekqs53S5U+lIP+Z34vAOgKnsm/KPBP0k96mYxxkT21eQHA
-         9Oin3L6OJHs6w==
+        b=hOEpe/HulsGkBKcjfy/0WvTWFGdB5J+x+BKAE7nOJFPBA01MWlWjlvrkKn6iDcvPK
+         HrQB48wpBk/AOJeil6GgYO2t4m7VZ1G1atF2NDXe9XThCUskB7cEqzKDxj9fYPxRq8
+         T7+XNhlarJ4jef3McBtnGbOv/6jBYEp+Z1oWgTw/edCAdFy1k/SsATd7XmJjaAqASV
+         arymNa7lcCkFG8nGC/QqGWDXoXPtbNQMtb9S3tDym+TTkPiRJWOzXwhXayoSMsAjDW
+         RG6j3OgJu+GXxFBy0gjZsziNhK3bJLBBU+NNvGdAS6ZSeUMgFCUwcAvlS08UYSGZNm
+         fHldJUL+8Ck1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eli Billauer <eli.billauer@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 049/104] char: xillybus: Fix condition for invoking the xillybus/ subdirectory
-Date:   Fri,  9 Jul 2021 22:21:01 -0400
-Message-Id: <20210710022156.3168825-49-sashal@kernel.org>
+Cc:     Yufen Yu <yuyufen@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.12 050/104] ASoC: img: Fix PM reference leak in img_i2s_in_probe()
+Date:   Fri,  9 Jul 2021 22:21:02 -0400
+Message-Id: <20210710022156.3168825-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
 References: <20210710022156.3168825-1-sashal@kernel.org>
@@ -42,35 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Billauer <eli.billauer@gmail.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit 1b1ee3a91d21fdf7d415c1060db1a7a07ae296b6 ]
+[ Upstream commit 81aad47278539f02de808bcc8251fed0ad3d6f55 ]
 
-As Xillybus' configuration symbol hierarchy has been reorganized recently,
-the correct condition for compiling the xillybus/ subdirectory is now
-CONFIG_XILLYBUS_CLASS, and not CONFIG_XILLYBUS.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-Reported-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Eli Billauer <eli.billauer@gmail.com>
-Link: https://lore.kernel.org/r/20210528092242.51104-1-eli.billauer@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Link: https://lore.kernel.org/r/20210524093521.612176-1-yuyufen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/Makefile | 2 +-
+ sound/soc/img/img-i2s-in.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/Makefile b/drivers/char/Makefile
-index ffce287ef415..c7e4fc733a37 100644
---- a/drivers/char/Makefile
-+++ b/drivers/char/Makefile
-@@ -44,6 +44,6 @@ obj-$(CONFIG_TCG_TPM)		+= tpm/
+diff --git a/sound/soc/img/img-i2s-in.c b/sound/soc/img/img-i2s-in.c
+index 0843235d73c9..fd3432a1d6ab 100644
+--- a/sound/soc/img/img-i2s-in.c
++++ b/sound/soc/img/img-i2s-in.c
+@@ -464,7 +464,7 @@ static int img_i2s_in_probe(struct platform_device *pdev)
+ 		if (ret)
+ 			goto err_pm_disable;
+ 	}
+-	ret = pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_resume_and_get(&pdev->dev);
+ 	if (ret < 0)
+ 		goto err_suspend;
  
- obj-$(CONFIG_PS3_FLASH)		+= ps3flash.o
- 
--obj-$(CONFIG_XILLYBUS)		+= xillybus/
-+obj-$(CONFIG_XILLYBUS_CLASS)	+= xillybus/
- obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
- obj-$(CONFIG_ADI)		+= adi.o
 -- 
 2.30.2
 
