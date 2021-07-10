@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C96D3C2F17
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D337F3C2F1B
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233708AbhGJCa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:30:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41906 "EHLO mail.kernel.org"
+        id S234175AbhGJCae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:30:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234813AbhGJC3q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:29:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1353A613DF;
-        Sat, 10 Jul 2021 02:27:00 +0000 (UTC)
+        id S234866AbhGJC3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:29:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C958613D1;
+        Sat, 10 Jul 2021 02:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884021;
-        bh=nro3MGa7h3qaKoTs4yw4efAa7zU3Ahe3U9SERvsOMXQ=;
+        s=k20201202; t=1625884023;
+        bh=+uFTDpvKhWHlQ5H7ysMc7Ohh59fU2zT9cKN7k1vT62k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZaRvaPjZgKB7LWVnHcqjfNykrKAhY5LsNL/tSs6RuyncCFhJ8Q+tObvKS8NcIafB
-         cSNplMDAKLp7AH/mHUJ7WpAbHA4cbb5dmTiQ7E2kUjwSyCGUvGH9XeSlqL+GPnBJGk
-         P+fEYcMBEJ28VgPxcpWrW/lOEXBCChuX/E1F6YHPq2EMmJhDYL07CK6Rn1rqLoWByY
-         1Ja1v5uaYYQE7UHE56Y2aI/ffJ21Fwu2ugj7gJ19hYIO7lKqcvvYD8RLtpHkriR4Yq
-         LNufWWGzs85++g6fgpHZNUPVaKd4XBFhIP2E3KCEYxvzkAjunjS6BcOWXVuFOb1dMq
-         4MzLR3Qn0ZD2A==
+        b=MURAU9aWG/WrLQ1f4jQglZtZLHRScfwejL2yy3TBpN5ghb0Nbz5YHaJQx1vvH+15U
+         D/qISoJmrsKyUEkP3kJc1A+ytbU0jCGNHyGf7zwVXOWEDy6aDDB8Cq9WIxEyZGfLmP
+         ax0uJFHXh4fPZeylSP7IWJEFWuDb5ysX4ssN5YHzPn2Hr3kZbNyyeIjyHUQoNBWRhP
+         4WczDGEaIg2Nwhof0S2tWMD4UizoRXhnCEig7kYZt7CDuTQZeG5OJCfwDoyggxMzlB
+         sAFOQX17ifgFL+wLjcI+HAOqg/wNMYZwH+VuDbI7iGIc1iOxT02Igz5uUVhw9q23HC
+         zT9nuBJFbJksg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rashmi A <rashmi.a@intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-phy@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 91/93] phy: intel: Fix for warnings due to EMMC clock 175Mhz change in FIP
-Date:   Fri,  9 Jul 2021 22:24:25 -0400
-Message-Id: <20210710022428.3169839-91-sashal@kernel.org>
+Cc:     Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
+        Kyungsik Lee <kyungsik.lee@lge.com>,
+        Yinghai Lu <yinghai@kernel.org>,
+        Bongkyu Kim <bongkyu.kim@lge.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
+        Rajat Asthana <thisisrast7@gmail.com>,
+        Nick Terrell <terrelln@fb.com>,
+        Gao Xiang <hsiangkao@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 92/93] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
+Date:   Fri,  9 Jul 2021 22:24:26 -0400
+Message-Id: <20210710022428.3169839-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -44,43 +51,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rashmi A <rashmi.a@intel.com>
+From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
 
-[ Upstream commit 2f2b73a29d2aabf5ad0150856c3e5cb6e04dcfc1 ]
+[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
 
-Since the EMMC clock was changed from 200Mhz to 175Mhz in FIP,
-there were some warnings introduced, as the frequency values
-being checked was still wrt 200Mhz in code. Hence, the frequency
-checks are now updated based on the current 175Mhz EMMC clock changed
-in FIP.
+lz4 compatible decompressor is simple.  The format is underspecified and
+relies on EOF notification to determine when to stop.  Initramfs buffer
+format[1] explicitly states that it can have arbitrary number of zero
+padding.  Thus when operating without a fill function, be extra careful to
+ensure that sizes less than 4, or apperantly empty chunksizes are treated
+as EOF.
 
-Spamming kernel log msg:
-"phy phy-20290000.mmc_phy.2: Unsupported rate: 43750000"
+To test this I have created two cpio initrds, first a normal one,
+main.cpio.  And second one with just a single /test-file with content
+"second" second.cpio.  Then i compressed both of them with gzip, and with
+lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
+count=4).  To create four testcase initrds:
 
-Signed-off-by: Rashmi A <rashmi.a@intel.com>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-By: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210603182242.25733-3-rashmi.a@intel.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+ 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
+ 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
+ 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
+ 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
+
+The pad4 test-cases replicate the initrd load by grub, as it pads and
+aligns every initrd it loads.
+
+All of the above boot, however /test-file was not accessible in the initrd
+for the testcase #4, as decoding in lz4 decompressor failed.  Also an
+error message printed which usually is harmless.
+
+Whith a patched kernel, all of the above testcases now pass, and
+/test-file is accessible.
+
+This fixes lz4 initrd decompress warning on every boot with grub.  And
+more importantly this fixes inability to load multiple lz4 compressed
+initrds with grub.  This patch has been shipping in Ubuntu kernels since
+January 2021.
+
+[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
+
+BugLink: https://bugs.launchpad.net/bugs/1835660
+Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
+Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
+Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Cc: Kyungsik Lee <kyungsik.lee@lge.com>
+Cc: Yinghai Lu <yinghai@kernel.org>
+Cc: Bongkyu Kim <bongkyu.kim@lge.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
+Cc: Rajat Asthana <thisisrast7@gmail.com>
+Cc: Nick Terrell <terrelln@fb.com>
+Cc: Gao Xiang <hsiangkao@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/intel/phy-intel-keembay-emmc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ lib/decompress_unlz4.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/phy/intel/phy-intel-keembay-emmc.c b/drivers/phy/intel/phy-intel-keembay-emmc.c
-index eb7c635ed89a..0eb11ac7c2e2 100644
---- a/drivers/phy/intel/phy-intel-keembay-emmc.c
-+++ b/drivers/phy/intel/phy-intel-keembay-emmc.c
-@@ -95,7 +95,8 @@ static int keembay_emmc_phy_power(struct phy *phy, bool on_off)
- 	else
- 		freqsel = 0x0;
+diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
+index c0cfcfd486be..e6327391b6b6 100644
+--- a/lib/decompress_unlz4.c
++++ b/lib/decompress_unlz4.c
+@@ -112,6 +112,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 				error("data corrupted");
+ 				goto exit_2;
+ 			}
++		} else if (size < 4) {
++			/* empty or end-of-file */
++			goto exit_3;
+ 		}
  
--	if (mhz < 50 || mhz > 200)
-+	/* Check for EMMC clock rate*/
-+	if (mhz > 175)
- 		dev_warn(&phy->dev, "Unsupported rate: %d MHz\n", mhz);
+ 		chunksize = get_unaligned_le32(inp);
+@@ -125,6 +128,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 			continue;
+ 		}
  
- 	/*
++		if (!fill && chunksize == 0) {
++			/* empty or end-of-file */
++			goto exit_3;
++		}
+ 
+ 		if (posp)
+ 			*posp += 4;
+@@ -184,6 +191,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 		}
+ 	}
+ 
++exit_3:
+ 	ret = 0;
+ exit_2:
+ 	if (!input)
 -- 
 2.30.2
 
