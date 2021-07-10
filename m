@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A972E3C3072
+	by mail.lfdr.de (Postfix) with ESMTP id F23A43C3073
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233338AbhGJCfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
+        id S234362AbhGJCfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:35:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234855AbhGJCeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:34:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4A07613C8;
-        Sat, 10 Jul 2021 02:31:35 +0000 (UTC)
+        id S234874AbhGJCeW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:34:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06181613E3;
+        Sat, 10 Jul 2021 02:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884296;
-        bh=gQzsgDPXcbcYollQuPdz1JDbABIJHDdOb+hjNlPbhik=;
+        s=k20201202; t=1625884297;
+        bh=c3pGcO7VwwhEPAcrjKBb3SnOFO6hstcNqRSHQqU0mt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpNN2G/bLEfrpAJVP2lT4hoJ26y4JUU7l8kbN/XOIZ51J2a4uZti4d4UmZak9nhVV
-         NjaGJh5thSlT7hebKcgTNzVLDxC790T4syU7Iio7iFwkHJffKMh2R5+JKnMZqUCamL
-         ar47f1D7+RR3xFBsHHPG3xvk8uk6SOQXswVI1kI2mon6W79j37yChQFhmqfGgQvoR8
-         2XlxnTjsIHtV3RB0Hk/TSgUrDz6N19is5vgh9wemZ/cKRcy5DB2ANecz+LM2iwQznV
-         lhn4foncnl+LXu2A6LpgZmVYLHccqzTZohvsx3ZoYLhDK+D9lpxRfHIF8G0T9RdKNE
-         RQBuyIJ8h9TyA==
+        b=H12tsEtqhx0pBtrYDNH6V656P0+5RgH1SvEHObssLXaKVlLLpO5NKQ/T6I9aEMBZB
+         AJS9k4T+rUOYPBeuLI3sP6CWuJ/fOMNtwGn1sF3zxHTUQk1+7ljfGa/wEaiMLpRxB/
+         Nv1HG+wVdI0P8XkyhopsCVYrkUccAiAsX/YAO+6WYilmD42z0i6xGiD6xi37Jtoanb
+         lWTZtTwT9aox6CCktP1jckUFfZGgUrE7TRDd1kHJ0it4103faud33jqQXyAJtoJN7O
+         +TgDUHkNXOrkMSb/YmUPSRdIu6tIjcZP9iNkDquelLLZ1G0gEtTQtYmVJMPsFR5dZH
+         LRx/gWzNb5E5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhen Lei <thunder.leizhen@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 42/63] ASoC: soc-core: Fix the error return code in snd_soc_of_parse_audio_routing()
-Date:   Fri,  9 Jul 2021 22:26:48 -0400
-Message-Id: <20210710022709.3170675-42-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 43/63] s390/processor: always inline stap() and __load_psw_mask()
+Date:   Fri,  9 Jul 2021 22:26:49 -0400
+Message-Id: <20210710022709.3170675-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022709.3170675-1-sashal@kernel.org>
 References: <20210710022709.3170675-1-sashal@kernel.org>
@@ -42,34 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 7d3865a10b9ff2669c531d5ddd60bf46b3d48f1e ]
+[ Upstream commit 9c9a915afd90f7534c16a71d1cd44b58596fddf3 ]
 
-When devm_kcalloc() fails, the error code -ENOMEM should be returned
-instead of -EINVAL.
+s390 is the only architecture which makes use of the __no_kasan_or_inline
+attribute for two functions. Given that both stap() and __load_psw_mask()
+are very small functions they can and should be always inlined anyway.
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210617103729.1918-1-thunder.leizhen@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Therefore get rid of __no_kasan_or_inline and always inline these
+functions.
+
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/processor.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 9df20768a8f2..c0e03cc8ea82 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -3178,7 +3178,7 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
- 	if (!routes) {
- 		dev_err(card->dev,
- 			"ASoC: Could not allocate DAPM route table\n");
--		return -EINVAL;
-+		return -ENOMEM;
- 	}
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index 560d8b77b1d1..48d6ccdef5f7 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -215,7 +215,7 @@ static inline unsigned long current_stack_pointer(void)
+ 	return sp;
+ }
  
- 	for (i = 0; i < num_routes; i++) {
+-static __no_kasan_or_inline unsigned short stap(void)
++static __always_inline unsigned short stap(void)
+ {
+ 	unsigned short cpu_address;
+ 
+@@ -254,7 +254,7 @@ static inline void __load_psw(psw_t psw)
+  * Set PSW mask to specified value, while leaving the
+  * PSW addr pointing to the next instruction.
+  */
+-static __no_kasan_or_inline void __load_psw_mask(unsigned long mask)
++static __always_inline void __load_psw_mask(unsigned long mask)
+ {
+ 	unsigned long addr;
+ 	psw_t psw;
 -- 
 2.30.2
 
