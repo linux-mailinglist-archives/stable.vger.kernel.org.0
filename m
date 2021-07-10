@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E56AE3C315A
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5623C310B
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234414AbhGJClO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:41:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58440 "EHLO mail.kernel.org"
+        id S234783AbhGJCkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:40:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235607AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235608AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 644716140A;
-        Sat, 10 Jul 2021 02:35:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B21FA6124C;
+        Sat, 10 Jul 2021 02:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884526;
-        bh=8reeUWS3OZIXMIggPrH9xwvCwsqYreQzFLQhwmF0rjI=;
+        s=k20201202; t=1625884527;
+        bh=YBbsfupXMjTT6ifevQa5TsXdZ6/h/HIV/MLtHSlXhUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHWVWQj0gmvLr5LHLdkVwl+5AQrc1p7eHRyNbcWRG7sXuc4fBAk+A3rxDLcpo3I5b
-         XNXPeTfgDOR/KPVpcCPEDDSo0Qn60A6E0S0RkqzxObzHOMT1M2Pd5gqyAjkj+G04Mu
-         Q/N3LMvXOlrFayZ2S/ePmpaZuJkgqiehCw+oSnBrbhfor1UiO74IaGH0VFdws+nsyb
-         20lF3IS8O0nPYXtEbbhsB97LCBBjlD9isQbCHO4SVvQ6mX18dlfxm6CITMSDuYgkrV
-         1YrfI2whVexZHZrvaNGPH3PL8D1eYZmFAXkkiFaI6YVSJz/XdZxO4gKRWbPRzsQpCP
-         R7ewK79sHM+Pw==
+        b=rtR8czNAg2ruxX7meBTjc13MKKB7PAiX4OoTFLvfrcvk2Pq3XZXoslh4M2FpoKc7Z
+         ki7K8bq4+OnFcRliy7Y8ddP/D0UbAsLMg0BKblS/yCKAd5ty4FFvn4hksXStw9nu5x
+         mlJY4OzUKRWr+zmGdY0cr6NuGu2daVEEDCcEvIJjkMfynsCvIiAcUbVzsKxhf1IGLp
+         AorCVFlU8ufDAzU8F1Scx9ErjIyBTrSf944rh/I/lecD+1dsfX+wG4irLvoOoS2Ht1
+         TF/kLAK7uHlrJet5kedn6KFtlefWHqk+aBmsHDHDpXv/H5ksOJ/GWWuZAJSPnp9ewY
+         8o9FhnXW4KUZw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 08/33] scsi: core: Cap scsi_host cmd_per_lun at can_queue
-Date:   Fri,  9 Jul 2021 22:34:50 -0400
-Message-Id: <20210710023516.3172075-8-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 09/33] tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
+Date:   Fri,  9 Jul 2021 22:34:51 -0400
+Message-Id: <20210710023516.3172075-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023516.3172075-1-sashal@kernel.org>
 References: <20210710023516.3172075-1-sashal@kernel.org>
@@ -43,49 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit ea2f0f77538c50739b9fb4de4700cee5535e1f77 ]
+[ Upstream commit fad92b11047a748c996ebd6cfb164a63814eeb2e ]
 
-The sysfs handling function sdev_store_queue_depth() enforces that the sdev
-queue depth cannot exceed shost can_queue. The initial sdev queue depth
-comes from shost cmd_per_lun. However, the LLDD may manually set
-cmd_per_lun to be larger than can_queue, which leads to an initial sdev
-queue depth greater than can_queue.
+In the probe function, if the final 'serial_config()' fails, 'info' is
+leaking.
 
-Such an issue was reported in [0], which caused a hang. That has since been
-fixed in commit fc09acb7de31 ("scsi: scsi_debug: Fix cmd_per_lun, set to
-max_queue").
+Add a resource handling path to free this memory.
 
-Stop this possibly happening for other drivers by capping shost cmd_per_lun
-at shost can_queue.
-
-[0] https://lore.kernel.org/linux-scsi/YHaez6iN2HHYxYOh@T590/
-
-Link: https://lore.kernel.org/r/1621434662-173079-1-git-send-email-john.garry@huawei.com
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/dc25f96b7faebf42e60fe8d02963c941cf4d8124.1621971720.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hosts.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/serial/8250/serial_cs.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index 5788a2ce3571..4b771bf0c9e4 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -213,6 +213,9 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
- 		goto fail;
- 	}
+diff --git a/drivers/tty/serial/8250/serial_cs.c b/drivers/tty/serial/8250/serial_cs.c
+index 8106353ce7aa..38e8045a36cc 100644
+--- a/drivers/tty/serial/8250/serial_cs.c
++++ b/drivers/tty/serial/8250/serial_cs.c
+@@ -305,6 +305,7 @@ static int serial_resume(struct pcmcia_device *link)
+ static int serial_probe(struct pcmcia_device *link)
+ {
+ 	struct serial_info *info;
++	int ret;
  
-+	shost->cmd_per_lun = min_t(short, shost->cmd_per_lun,
-+				   shost->can_queue);
+ 	dev_dbg(&link->dev, "serial_attach()\n");
+ 
+@@ -319,7 +320,15 @@ static int serial_probe(struct pcmcia_device *link)
+ 	if (do_sound)
+ 		link->config_flags |= CONF_ENABLE_SPKR;
+ 
+-	return serial_config(link);
++	ret = serial_config(link);
++	if (ret)
++		goto free_info;
 +
- 	error = scsi_init_sense_cache(shost);
- 	if (error)
- 		goto fail;
++	return 0;
++
++free_info:
++	kfree(info);
++	return ret;
+ }
+ 
+ static void serial_detach(struct pcmcia_device *link)
 -- 
 2.30.2
 
