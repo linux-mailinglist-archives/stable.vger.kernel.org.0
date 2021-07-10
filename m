@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 076C13C2EBE
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8534F3C2EC2
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234035AbhGJC2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:28:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43262 "EHLO mail.kernel.org"
+        id S233830AbhGJC2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:28:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233686AbhGJC1m (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233527AbhGJC1m (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:27:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59C19613EB;
-        Sat, 10 Jul 2021 02:24:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB50C613F0;
+        Sat, 10 Jul 2021 02:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883882;
-        bh=pIwBGZLcAwHPab1BmjIP3lOqixEZ9GBTnCHdnSwJV9U=;
+        s=k20201202; t=1625883883;
+        bh=4DYIJkBBNEgbBtLUIK/WIpKbeZB5/9WqbXBS6E8Bh54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hDVS/FGgTlEo9Zj5EvjWe/0v1O4dPHbQ1xN1FuHE1/M585beN3+k5u+4YoW3Ilfk0
-         7pJpXtbyX7SiGer8gA8bmb76fUdxmkXSUB6HP7FyMYOfelZLU5lurz8FEhkj+0B10g
-         +D6PuBT4tRsbey+dEt3AlGJ2zLNZytUV7pBXoTQfetDSHkjq3Scn40ka6ATUG31ozx
-         CtnEI2ABpkXCEH4zEgAFt6y3GRjTM4ItDUwQ4ADwHIPMKdPqZA+J8MulJW66VmIeNp
-         3opxxMPdGBCcq7/HA3XJCKlMtVtz2wSqXIodZOHREDhkpzTPmGjYUMK3ppLjPluV5B
-         Og54+5gxUq0pA==
+        b=RWtic0tqHD5v9JvKJWM6dJDYH1M5i4Pr1rKs8Q02qcbJaBKGHO8T6ViH5MWrJN+rB
+         yzWOmYTI0T6IFqdI/T4hHO/FAYNjyiRXLRfQueOPU9dpF1O41nGHPMrXt28rFIQ9LY
+         KFMQJ89tW3KaUbiXG8NCSgzFy6FmAHPFy0Hb23BLvH8f6H3zo27ehuYSvZWMwnln6l
+         I1eBMG4iuuXm3lRYxHjScvU0QZ66kSdlmnA7XcvvnWSC/0vM+RC867tmi0QrmQzVJc
+         gype1Qf4/AVpVgGon92XanuWiZ3VMl9Hzz42lw6MvOw+69iV/54zWa3YXSnFutFq/U
+         yu8gS3oXfZwKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jim Quinlan <jim2101024@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Al Cooper <alcooperx@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+Cc:     Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 10/93] serial: 8250: of: Check for CONFIG_SERIAL_8250_BCM7271
-Date:   Fri,  9 Jul 2021 22:23:04 -0400
-Message-Id: <20210710022428.3169839-10-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 11/93] misc/libmasm/module: Fix two use after free in ibmasm_init_one
+Date:   Fri,  9 Jul 2021 22:23:05 -0400
+Message-Id: <20210710022428.3169839-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -45,66 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Quinlan <jim2101024@gmail.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit f5b08386dee439c7a9e60ce0a4a4a705f3a60dff ]
+[ Upstream commit 7272b591c4cb9327c43443f67b8fbae7657dd9ae ]
 
-Our SoC's have always had a NS16650A UART core and older SoC's would
-have a compatible string of: 'compatible = ""ns16550a"' and use the
-8250_of driver. Our newer SoC's have added enhancements to the base
-core to add support for DMA and accurate high speed baud rates and use
-this newer 8250_bcm7271 driver. The Device Tree node for our enhanced
-UARTs has a compatible string of: 'compatible = "brcm,bcm7271-uart",
-"ns16550a"''. With both drivers running and the link order setup so
-that the 8250_bcm7217 driver is initialized before the 8250_of driver,
-we should bind the 8250_bcm7271 driver to the enhanced UART, or for
-upstream kernels that don't have the 8250_bcm7271 driver, we bind to
-the 8250_of driver.
+In ibmasm_init_one, it calls ibmasm_init_remote_input_dev().
+Inside ibmasm_init_remote_input_dev, mouse_dev and keybd_dev are
+allocated by input_allocate_device(), and assigned to
+sp->remote.mouse_dev and sp->remote.keybd_dev respectively.
 
-The problem is that when both the 8250_of and 8250_bcm7271 drivers
-were running, occasionally the 8250_of driver would be bound to the
-enhanced UART instead of the 8250_bcm7271 driver. This was happening
-because we use SCMI based clocks which come up late in initialization
-and cause probe DEFER's when the two drivers get their clocks.
+In the err_free_devices error branch of ibmasm_init_one,
+mouse_dev and keybd_dev are freed by input_free_device(), and return
+error. Then the execution runs into error_send_message error branch
+of ibmasm_init_one, where ibmasm_free_remote_input_dev(sp) is called
+to unregister the freed sp->remote.mouse_dev and sp->remote.keybd_dev.
 
-Occasionally the SCMI clock would become ready between the 8250_bcm7271
-probe and the 8250_of probe and the 8250_of driver would be bound. To
-fix this we decided to config only our 8250_bcm7271 driver and added
-"ns16665a0" to the compatible string so the driver would work on our
-older system.
+My patch add a "error_init_remote" label to handle the error of
+ibmasm_init_remote_input_dev(), to avoid the uaf bugs.
 
-This commit has of_platform_serial_probe() check specifically for the
-"brcm,bcm7271-uart" and whether its companion driver is enabled. If it
-is the case, and the clock provider is not ready, we want to make sure
-that when the 8250_bcm7271.c driver returns EPROBE_DEFER, we are not
-getting the UART registered via 8250_of.c.
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Jim Quinlan <jim2101024@gmail.com>
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20210423183206.3917725-1-f.fainelli@gmail.com
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/20210426170620.10546-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_of.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/misc/ibmasm/module.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_of.c b/drivers/tty/serial/8250/8250_of.c
-index 65e9045dafe6..aa458f3c6644 100644
---- a/drivers/tty/serial/8250/8250_of.c
-+++ b/drivers/tty/serial/8250/8250_of.c
-@@ -192,6 +192,10 @@ static int of_platform_serial_probe(struct platform_device *ofdev)
- 	u32 tx_threshold;
- 	int ret;
+diff --git a/drivers/misc/ibmasm/module.c b/drivers/misc/ibmasm/module.c
+index 4edad6c445d3..dc8a06c06c63 100644
+--- a/drivers/misc/ibmasm/module.c
++++ b/drivers/misc/ibmasm/module.c
+@@ -111,7 +111,7 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	result = ibmasm_init_remote_input_dev(sp);
+ 	if (result) {
+ 		dev_err(sp->dev, "Failed to initialize remote queue\n");
+-		goto error_send_message;
++		goto error_init_remote;
+ 	}
  
-+	if (IS_ENABLED(CONFIG_SERIAL_8250_BCM7271) &&
-+	    of_device_is_compatible(ofdev->dev.of_node, "brcm,bcm7271-uart"))
-+		return -ENODEV;
-+
- 	port_type = (unsigned long)of_device_get_match_data(&ofdev->dev);
- 	if (port_type == PORT_UNKNOWN)
- 		return -EINVAL;
+ 	result = ibmasm_send_driver_vpd(sp);
+@@ -131,8 +131,9 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	return 0;
+ 
+ error_send_message:
+-	disable_sp_interrupts(sp->base_address);
+ 	ibmasm_free_remote_input_dev(sp);
++error_init_remote:
++	disable_sp_interrupts(sp->base_address);
+ 	free_irq(sp->irq, (void *)sp);
+ error_request_irq:
+ 	iounmap(sp->base_address);
 -- 
 2.30.2
 
