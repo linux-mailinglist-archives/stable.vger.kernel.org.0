@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5BD63C37A7
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C62483C37AA
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232338AbhGJXwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 19:52:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39598 "EHLO mail.kernel.org"
+        id S232817AbhGJXwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:52:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232042AbhGJXw3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:52:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A997610CA;
-        Sat, 10 Jul 2021 23:49:43 +0000 (UTC)
+        id S232448AbhGJXwb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:52:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CEF961184;
+        Sat, 10 Jul 2021 23:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625960984;
-        bh=szqNDRpSbTtzUOoilzlCi13S2opHe+4em96fXDSRtdg=;
+        s=k20201202; t=1625960985;
+        bh=96LjCpP+q2lNFwkuwSh8WkFF0CnkOkRCU0meSQEXn2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILdPD6MDi1wGU80x3l+1Lkl1L9xOulFWWnAIIIEvBn7lsoFw0Gt0joSvopH1qxkBs
-         7pF0pLjaMClhEiGZ4Rna5jO+xoyso7M/fjL48N/liRU1wSJ20dGOL7dd0utCniY0zN
-         JjW92ZsAUcrUWiTgMRGUg/Lvn7ZEXTSjnX/rv9TRtn+ap5Ss/M3g82prpJQoib44TN
-         7hvtWtrF2z0JdnJw+/kaIRXKVtSkOiPIeZ5NXxoHRRqZttVYG8rT8aM8p6GjN6zuLq
-         pltFLM48Qntga3qArM3VOpjGJ5AGOrLkGGj8xpw+ca0Zuq155QWz84Ht8TXj2fiXTp
-         +zvrxIUkrKlPA==
+        b=e1hYjV4+cZESIsRRAiuRevXwDp6R2FZj2X0ivwOBv8j91KicCIStlYbHZWJGjnaku
+         o6nexiSFr9ca9/z1pB8ZwxkqOySxrkhnS59fTrM7jDyDLomCbx25DqDzLRBMjNaZlr
+         ZFBuFw//oW1bP9Ac4CoWNrJXkDKx8MAPFm0cAhDs5EqcU+hF85yh+hqR3z7X4AmYmV
+         UhkVEmw1DjcH23+xY7lOaIL5mObuOeVr2rzrd0BvClJBFe6UrYJpTRAsv5ABziapvp
+         m7kxQ6dU9q6rJFOV5h7RcaMRaRXBvB9okUFg/F+nB3seI79H/KfZqrwQD2HxQLM+yQ
+         p6NbrLdkAHU9Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Eichenberger <eichest@gmail.com>,
+Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 18/43] watchdog: imx_sc_wdt: fix pretimeout
-Date:   Sat, 10 Jul 2021 19:48:50 -0400
-Message-Id: <20210710234915.3220342-18-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 19/43] watchdog: iTCO_wdt: Account for rebooting on second timeout
+Date:   Sat, 10 Jul 2021 19:48:51 -0400
+Message-Id: <20210710234915.3220342-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710234915.3220342-1-sashal@kernel.org>
 References: <20210710234915.3220342-1-sashal@kernel.org>
@@ -46,67 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Eichenberger <eichest@gmail.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-[ Upstream commit 854478a381078ee86ae2a7908a934b1ded399130 ]
+[ Upstream commit cb011044e34c293e139570ce5c01aed66a34345c ]
 
-If the WDIOF_PRETIMEOUT flag is not set when registering the device the
-driver will not show the sysfs entries or register the default governor.
-By moving the registering after the decision whether pretimeout is
-supported this gets fixed.
+This was already attempted to fix via 1fccb73011ea: If the BIOS did not
+enable TCO SMIs, the timer definitely needs to trigger twice in order to
+cause a reboot. If TCO SMIs are on, as well as SMIs in general, we can
+continue to assume that the BIOS will perform a reboot on the first
+timeout.
 
-Signed-off-by: Stefan Eichenberger <eichest@gmail.com>
+QEMU with its ICH9 and related BIOS falls into the former category,
+currently taking twice the configured timeout in order to reboot the
+machine. For iTCO version that fall under turn_SMI_watchdog_clear_off,
+this is also true and was currently only addressed for v1, irrespective
+of the turn_SMI_watchdog_clear_off value.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20210519080311.142928-1-eichest@gmail.com
+Link: https://lore.kernel.org/r/0b8bb307-d08b-41b5-696c-305cdac6789c@siemens.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/imx_sc_wdt.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/watchdog/iTCO_wdt.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
-index e9ee22a7cb45..8ac021748d16 100644
---- a/drivers/watchdog/imx_sc_wdt.c
-+++ b/drivers/watchdog/imx_sc_wdt.c
-@@ -183,16 +183,12 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
- 	watchdog_stop_on_reboot(wdog);
- 	watchdog_stop_on_unregister(wdog);
+diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
+index bf31d7b67a69..3f1324871cfd 100644
+--- a/drivers/watchdog/iTCO_wdt.c
++++ b/drivers/watchdog/iTCO_wdt.c
+@@ -71,6 +71,8 @@
+ #define TCOBASE(p)	((p)->tco_res->start)
+ /* SMI Control and Enable Register */
+ #define SMI_EN(p)	((p)->smi_res->start)
++#define TCO_EN		(1 << 13)
++#define GBL_SMI_EN	(1 << 0)
  
--	ret = devm_watchdog_register_device(dev, wdog);
--	if (ret)
--		return ret;
--
- 	ret = imx_scu_irq_group_enable(SC_IRQ_GROUP_WDOG,
- 				       SC_IRQ_WDOG,
- 				       true);
- 	if (ret) {
- 		dev_warn(dev, "Enable irq failed, pretimeout NOT supported\n");
--		return 0;
-+		goto register_device;
+ #define TCO_RLD(p)	(TCOBASE(p) + 0x00) /* TCO Timer Reload/Curr. Value */
+ #define TCOv1_TMR(p)	(TCOBASE(p) + 0x01) /* TCOv1 Timer Initial Value*/
+@@ -355,8 +357,12 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
+ 
+ 	tmrval = seconds_to_ticks(p, t);
+ 
+-	/* For TCO v1 the timer counts down twice before rebooting */
+-	if (p->iTCO_version == 1)
++	/*
++	 * If TCO SMIs are off, the timer counts down twice before rebooting.
++	 * Otherwise, the BIOS generally reboots when the SMI triggers.
++	 */
++	if (p->smi_res &&
++	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
+ 		tmrval /= 2;
+ 
+ 	/* from the specs: */
+@@ -521,7 +527,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
+ 		 * Disables TCO logic generating an SMI#
+ 		 */
+ 		val32 = inl(SMI_EN(p));
+-		val32 &= 0xffffdfff;	/* Turn off SMI clearing watchdog */
++		val32 &= ~TCO_EN;	/* Turn off SMI clearing watchdog */
+ 		outl(val32, SMI_EN(p));
  	}
  
- 	imx_sc_wdd->wdt_notifier.notifier_call = imx_sc_wdt_notify;
-@@ -203,7 +199,7 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
- 					 false);
- 		dev_warn(dev,
- 			 "Register irq notifier failed, pretimeout NOT supported\n");
--		return 0;
-+		goto register_device;
- 	}
- 
- 	ret = devm_add_action_or_reset(dev, imx_sc_wdt_action,
-@@ -213,7 +209,8 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
- 	else
- 		dev_warn(dev, "Add action failed, pretimeout NOT supported\n");
- 
--	return 0;
-+register_device:
-+	return devm_watchdog_register_device(dev, wdog);
- }
- 
- static int __maybe_unused imx_sc_wdt_suspend(struct device *dev)
 -- 
 2.30.2
 
