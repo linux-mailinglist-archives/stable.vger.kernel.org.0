@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F583C3079
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07BC53C3076
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233728AbhGJCfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234036AbhGJCfk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 9 Jul 2021 22:35:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53317 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235259AbhGJCel (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235263AbhGJCel (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:34:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78DC6613E4;
-        Sat, 10 Jul 2021 02:31:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A162D613D3;
+        Sat, 10 Jul 2021 02:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884301;
-        bh=OU7RHW8RCJ20JtwD/Ek2scsCmITqJZlaW4FZJH/iKEk=;
+        s=k20201202; t=1625884302;
+        bh=hwI9xTL2ebUdO0DmxdC1jpzwPPvsqSev3UsSzitDOfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IF6oD5clXfytMiCbyx+Uze4ksmrNltCWDk6sVeUWkRpp7i3NsMySTKJi/mg/lfDBX
-         MxEb8yW4u1ukiietVTQW/lWJDXU7bdQbSmedNzxffPzFAoWs07AguCTOBhl2xVHJ+o
-         LPxSxLurCqSJA/QoTzYUJYb9D/Py1jm8ZjBYhcjV/LGpsl+QkiMIbJEXBNGF7qAvJ+
-         lZzTsyhXJRRhspWK1gs6P15sSh1hOKRdGqebYUtrQ/69b6Q6hS6dIqDd7man13IdE+
-         BqXkagFli97R6oL6gqfcJ5Nbcr8vPvpY8WXewY19vHxoIIOWuI/JJiEAsl9nvWoXzl
-         G6q9fB4BeXulw==
+        b=hwFbaZNqSjYwUYUJ9d0mJtS+nSIkbLHAHcGzChFqP0BWYISmzF4q2fIxVdxyZq5NF
+         52Q7B5qQuf0UmI7gu7ibvlbeSpBR4OLlJm+kcbayob4H548z9U4fEW82NnKHpZm79O
+         ELZcyLk6sPNvNeecpFqbBcv2f8H+hhb/plPG31Y+wi59iXvfw+nYNhuVjghDU1LUP/
+         CeCjMfC3R2KMSYTGlzXwyyIzNvgNQrYSkdt0H4juJ0Rt5r6cnIGlhdJmvMkmBpCa8D
+         Qer2jw3agJr7pAR3QsedXhtx75hhkCTByzFbOtMmZjV4VTosKLwHhxnt61eYoSV1PF
+         nM5nDfLuymMNw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 46/63] s390/mem_detect: fix tprot() program check new psw handling
-Date:   Fri,  9 Jul 2021 22:26:52 -0400
-Message-Id: <20210710022709.3170675-46-sashal@kernel.org>
+Cc:     Yizhuo Zhai <yzhai003@ucr.edu>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 47/63] Input: hideep - fix the uninitialized use in hideep_nvm_unlock()
+Date:   Fri,  9 Jul 2021 22:26:53 -0400
+Message-Id: <20210710022709.3170675-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022709.3170675-1-sashal@kernel.org>
 References: <20210710022709.3170675-1-sashal@kernel.org>
@@ -42,77 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Yizhuo Zhai <yzhai003@ucr.edu>
 
-[ Upstream commit da9057576785aaab52e706e76c0475c85b77ec14 ]
+[ Upstream commit cac7100d4c51c04979dacdfe6c9a5e400d3f0a27 ]
 
-The tprot() inline asm temporarily changes the program check new psw
-to redirect a potential program check on the diag instruction.
-Restoring of the program check new psw is done in C code behind the
-inline asm.
+Inside function hideep_nvm_unlock(), variable "unmask_code" could
+be uninitialized if hideep_pgm_r_reg() returns error, however, it
+is used in the later if statement after an "and" operation, which
+is potentially unsafe.
 
-This can be problematic, especially if the function is inlined, since
-the compiler can reorder instructions in such a way that a different
-instruction, which may result in a program check, might be executed
-before the program check new psw has been restored.
-
-To avoid such a scenario move restoring into the inline asm. For
-consistency reasons move also saving of the original program check new
-psw into the inline asm.
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Yizhuo <yzhai003@ucr.edu>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/mem_detect.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ drivers/input/touchscreen/hideep.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/boot/mem_detect.c b/arch/s390/boot/mem_detect.c
-index 032d68165216..85049541c191 100644
---- a/arch/s390/boot/mem_detect.c
-+++ b/arch/s390/boot/mem_detect.c
-@@ -115,24 +115,30 @@ static int diag260(void)
- 
- static int tprot(unsigned long addr)
- {
--	unsigned long pgm_addr;
-+	unsigned long reg1, reg2;
- 	int rc = -EFAULT;
--	psw_t old = S390_lowcore.program_new_psw;
-+	psw_t old;
- 
--	S390_lowcore.program_new_psw.mask = __extract_psw();
- 	asm volatile(
--		"	larl	%[pgm_addr],1f\n"
--		"	stg	%[pgm_addr],%[psw_pgm_addr]\n"
-+		"	mvc	0(16,%[psw_old]),0(%[psw_pgm])\n"
-+		"	epsw	%[reg1],%[reg2]\n"
-+		"	st	%[reg1],0(%[psw_pgm])\n"
-+		"	st	%[reg2],4(%[psw_pgm])\n"
-+		"	larl	%[reg1],1f\n"
-+		"	stg	%[reg1],8(%[psw_pgm])\n"
- 		"	tprot	0(%[addr]),0\n"
- 		"	ipm	%[rc]\n"
- 		"	srl	%[rc],28\n"
--		"1:\n"
--		: [pgm_addr] "=&d"(pgm_addr),
--		  [psw_pgm_addr] "=Q"(S390_lowcore.program_new_psw.addr),
--		  [rc] "+&d"(rc)
--		: [addr] "a"(addr)
-+		"1:	mvc	0(16,%[psw_pgm]),0(%[psw_old])\n"
-+		: [reg1] "=&d" (reg1),
-+		  [reg2] "=&a" (reg2),
-+		  [rc] "+&d" (rc),
-+		  "=Q" (S390_lowcore.program_new_psw.addr),
-+		  "=Q" (old)
-+		: [psw_old] "a" (&old),
-+		  [psw_pgm] "a" (&S390_lowcore.program_new_psw),
-+		  [addr] "a" (addr)
- 		: "cc", "memory");
--	S390_lowcore.program_new_psw = old;
- 	return rc;
+diff --git a/drivers/input/touchscreen/hideep.c b/drivers/input/touchscreen/hideep.c
+index ddad4a82a5e5..e9547ee29756 100644
+--- a/drivers/input/touchscreen/hideep.c
++++ b/drivers/input/touchscreen/hideep.c
+@@ -361,13 +361,16 @@ static int hideep_enter_pgm(struct hideep_ts *ts)
+ 	return -EIO;
  }
  
+-static void hideep_nvm_unlock(struct hideep_ts *ts)
++static int hideep_nvm_unlock(struct hideep_ts *ts)
+ {
+ 	u32 unmask_code;
++	int error;
+ 
+ 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_SFR_RPAGE);
+-	hideep_pgm_r_reg(ts, 0x0000000C, &unmask_code);
++	error = hideep_pgm_r_reg(ts, 0x0000000C, &unmask_code);
+ 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_DEFAULT_PAGE);
++	if (error)
++		return error;
+ 
+ 	/* make it unprotected code */
+ 	unmask_code &= ~HIDEEP_PROT_MODE;
+@@ -384,6 +387,8 @@ static void hideep_nvm_unlock(struct hideep_ts *ts)
+ 	NVM_W_SFR(HIDEEP_NVM_MASK_OFS, ts->nvm_mask);
+ 	SET_FLASH_HWCONTROL();
+ 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_DEFAULT_PAGE);
++
++	return 0;
+ }
+ 
+ static int hideep_check_status(struct hideep_ts *ts)
+@@ -462,7 +467,9 @@ static int hideep_program_nvm(struct hideep_ts *ts,
+ 	u32 addr = 0;
+ 	int error;
+ 
+-	hideep_nvm_unlock(ts);
++       error = hideep_nvm_unlock(ts);
++       if (error)
++               return error;
+ 
+ 	while (ucode_len > 0) {
+ 		xfer_len = min_t(size_t, ucode_len, HIDEEP_NVM_PAGE_SIZE);
 -- 
 2.30.2
 
