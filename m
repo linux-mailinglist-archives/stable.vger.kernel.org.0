@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5493C314B
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C8D3C315F
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234319AbhGJClI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:41:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58366 "EHLO mail.kernel.org"
+        id S234971AbhGJClP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:41:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235597AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235603AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA6E0613CC;
-        Sat, 10 Jul 2021 02:35:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B29BC61404;
+        Sat, 10 Jul 2021 02:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884521;
-        bh=AaxiyUJgb/wWIUCoEmwa22p47FjVGGBCNWT7ikz188s=;
+        s=k20201202; t=1625884522;
+        bh=rHxthK1+Cw4VJf1piyGcFFv6xnz2BwQWElOink4w288=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=blYYA+oKWT6Xm/GQVvvDYBY2NFgud8BdhLTF56pHrcsN0+7y3nUms8MzkRJ+F33Hy
-         KYuvy3buklL/P8xd+MsZpRUkRKBW1lyPdPMzPAQPBE4x3jjSElehje8FGXfBUiFH14
-         s9/3Am4HatEiW3rXeTAF8ObomU+Ia1qgbfXrCsI99NCuHxgKHNBMxcwAAYsljskiXg
-         b444iM9hEpp50Qpp66hIAe1wqX3O1tHC0LpAphaYk1KWZ2Jhx9kfSjd0NOCqZXWmfS
-         3HWrm2yojZsT39VvYDnEC6Dm5SfE2A/kEHjw+SJbmBLT35px3WFIGcAVl4Ih9PM+Tn
-         ZQK7c4qY1EEEg==
+        b=F3wnIX9Z5N6fNzoVDbKso61oBU24XRM7AdVR5Yv6zZiNsnVr/Syql4FcbNTrcgErK
+         nmIsdhiyUYpzb5GmqqHkibOLro6zbtB+zaQG/52T8oJ480Gm5OvDgD6EVUX9en9Wkh
+         S+uVrR7PjDmrsAEBchy7BBYDubiVyyfG5odOHoAilRk+/FUrc6prSocUBlToKOPWPf
+         zcZuBlvxs18PJTvmv3lOMHRpbKPeml+V9l0TrMMTC/1ku5AUTV+0UjYQTq2BPeJVY/
+         QURkZ2TboWRcs50OjTa1+HonRxv+5rPYZm6pTqdkL8rwbZCx2I8S3as/eohWl5Ei10
+         9vCe+T5Fm2zWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luiz Sampaio <sampaio.ime@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 04/33] w1: ds2438: fixing bug that would always get page0
-Date:   Fri,  9 Jul 2021 22:34:46 -0400
-Message-Id: <20210710023516.3172075-4-sashal@kernel.org>
+Cc:     Sergey Shtylyov <s.shtylyov@omp.ru>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 05/33] scsi: hisi_sas: Propagate errors in interrupt_init_v1_hw()
+Date:   Fri,  9 Jul 2021 22:34:47 -0400
+Message-Id: <20210710023516.3172075-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023516.3172075-1-sashal@kernel.org>
 References: <20210710023516.3172075-1-sashal@kernel.org>
@@ -42,43 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Sampaio <sampaio.ime@gmail.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 1f5e7518f063728aee0679c5086b92d8ea429e11 ]
+[ Upstream commit ab17122e758ef68fb21033e25c041144067975f5 ]
 
-The purpose of the w1_ds2438_get_page function is to get the register
-values at the page passed as the pageno parameter. However, the page0 was
-hardcoded, such that the function always returned the page0 contents. Fixed
-so that the function can retrieve any page.
+After commit 6c11dc060427 ("scsi: hisi_sas: Fix IRQ checks") we have the
+error codes returned by platform_get_irq() ready for the propagation
+upsream in interrupt_init_v1_hw() -- that will fix still broken deferred
+probing. Let's propagate the error codes from devm_request_irq() as well
+since I don't see the reason to override them with -ENOENT...
 
-Signed-off-by: Luiz Sampaio <sampaio.ime@gmail.com>
-Link: https://lore.kernel.org/r/20210519223046.13798-5-sampaio.ime@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/49ba93a3-d427-7542-d85a-b74fe1a33a73@omp.ru
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/slaves/w1_ds2438.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/w1/slaves/w1_ds2438.c b/drivers/w1/slaves/w1_ds2438.c
-index 7c4e33dbee4d..b005dda9c697 100644
---- a/drivers/w1/slaves/w1_ds2438.c
-+++ b/drivers/w1/slaves/w1_ds2438.c
-@@ -64,13 +64,13 @@ static int w1_ds2438_get_page(struct w1_slave *sl, int pageno, u8 *buf)
- 		if (w1_reset_select_slave(sl))
- 			continue;
- 		w1_buf[0] = W1_DS2438_RECALL_MEMORY;
--		w1_buf[1] = 0x00;
-+		w1_buf[1] = (u8)pageno;
- 		w1_write_block(sl->master, w1_buf, 2);
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index 08eca20b0b81..8b41545ff8d9 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1746,7 +1746,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 				dev_err(dev,
+ 					"irq init: fail map phy interrupt %d\n",
+ 					idx);
+-				return -ENOENT;
++				return irq;
+ 			}
  
- 		if (w1_reset_select_slave(sl))
- 			continue;
- 		w1_buf[0] = W1_DS2438_READ_SCRATCH;
--		w1_buf[1] = 0x00;
-+		w1_buf[1] = (u8)pageno;
- 		w1_write_block(sl->master, w1_buf, 2);
+ 			rc = devm_request_irq(dev, irq, phy_interrupts[j], 0,
+@@ -1755,7 +1755,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 				dev_err(dev, "irq init: could not request "
+ 					"phy interrupt %d, rc=%d\n",
+ 					irq, rc);
+-				return -ENOENT;
++				return rc;
+ 			}
+ 		}
+ 	}
+@@ -1766,7 +1766,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (!irq) {
+ 			dev_err(dev, "irq init: could not map cq interrupt %d\n",
+ 				idx);
+-			return -ENOENT;
++			return irq;
+ 		}
  
- 		count = w1_read_block(sl->master, buf, DS2438_PAGE_SIZE + 1);
+ 		rc = devm_request_irq(dev, irq, cq_interrupt_v1_hw, 0,
+@@ -1774,7 +1774,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (rc) {
+ 			dev_err(dev, "irq init: could not request cq interrupt %d, rc=%d\n",
+ 				irq, rc);
+-			return -ENOENT;
++			return rc;
+ 		}
+ 	}
+ 
+@@ -1784,7 +1784,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (!irq) {
+ 			dev_err(dev, "irq init: could not map fatal interrupt %d\n",
+ 				idx);
+-			return -ENOENT;
++			return irq;
+ 		}
+ 
+ 		rc = devm_request_irq(dev, irq, fatal_interrupts[i], 0,
+@@ -1793,7 +1793,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 			dev_err(dev,
+ 				"irq init: could not request fatal interrupt %d, rc=%d\n",
+ 				irq, rc);
+-			return -ENOENT;
++			return rc;
+ 		}
+ 	}
+ 
 -- 
 2.30.2
 
