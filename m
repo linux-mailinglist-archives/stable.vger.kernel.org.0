@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C33B3C3827
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40BE63C3825
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233259AbhGJXyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 19:54:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41268 "EHLO mail.kernel.org"
+        id S233264AbhGJXx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:53:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232827AbhGJXxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:53:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7059C613FE;
-        Sat, 10 Jul 2021 23:50:36 +0000 (UTC)
+        id S232775AbhGJXxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:53:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 389686139A;
+        Sat, 10 Jul 2021 23:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961037;
-        bh=xWCCHaF5NQH3bwlPXq7cZGPq7DcVswBFm6vzcPVvN44=;
+        s=k20201202; t=1625961039;
+        bh=4l/AoMsvGwjk7Lsth8aoRoQQpUwOUt4rTVkI0sOT9vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ausojwp/os5x0zEOFg3oxGMqivSkRggxBkFgP4KKxVeQvghVPqS8qcMgpGzLhUB8S
-         Nvpn2jGtDVYLixU0j26iSt18/qG8Rjq7mdr5rh9Iwzqmem1Y36fT7wKCkLwwsAGAeJ
-         cDTk3YVHhW5OYbUu3Wzkn39mHnQZpqdVbryXQeUfM7v7rsoGFezVgU5ziAjJfHElTJ
-         zhe6J8N5YycAV4CVBPkuUDzsOtX1T2IzsGxB1vWeWoTyX5iARhAMOZLALA9X1ocaat
-         kzaca6pGBz5e/OQ6MqvPUNJafYnlykfhVAB9yGffSk/cyqhY3iB9ndqOb9dFnfJk2M
-         cn1Stc2N67wYg==
+        b=TE6JovPzR6zvKsghLdm1tD1Vdtebtcvos95PVBpMois3LJZ9gSNjBks+6KZxUKVuz
+         2sYAIk2IkHMjSwCMEjPa5YvwMmH1JcCr55mktz7nI63XA76mqlr59FwpyLtp9THfYj
+         MwIfb82c0JjV9htX9ZKsJkaNdmwzqVQ/UNYnHqq8VooGACQBnuwr/woRb4ixZYgJ9Z
+         aITr5fcSPh7SlnvWfyHYKS1rkTEWwCrGSaFDmH7KveFNINQpdaFynTM77ZIrNepZTD
+         mw7vgEVTaodh76atdIfNmeZv/BeBFRIf/mOQUzKLZRKlOx3AEGxhtYMs9ude/q1r4/
+         YcjQmSJdNdzcA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
         Guenter Roeck <linux@roeck-us.net>,
+        Vladimir Zapolskiy <vz@mleia.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 15/37] watchdog: sc520_wdt: Fix possible use-after-free in wdt_turnoff()
-Date:   Sat, 10 Jul 2021 19:49:53 -0400
-Message-Id: <20210710235016.3221124-15-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 16/37] watchdog: Fix possible use-after-free by calling del_timer_sync()
+Date:   Sat, 10 Jul 2021 19:49:54 -0400
+Message-Id: <20210710235016.3221124-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235016.3221124-1-sashal@kernel.org>
 References: <20210710235016.3221124-1-sashal@kernel.org>
@@ -45,9 +48,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 90b7c141132244e8e49a34a4c1e445cce33e07f4 ]
+[ Upstream commit d0212f095ab56672f6f36aabc605bda205e1e0bf ]
 
-This module's remove path calls del_timer(). However, that function
+This driver's remove path calls del_timer(). However, that function
 does not wait until the timer handler finishes. This means that the
 timer handler may still be running after the driver's remove function
 has finished, which would result in a use-after-free.
@@ -58,27 +61,42 @@ has finished, and unable to re-schedule itself.
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Zou Wei <zou_wei@huawei.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/1620716691-108460-1-git-send-email-zou_wei@huawei.com
+Acked-by: Vladimir Zapolskiy <vz@mleia.com>
+Link: https://lore.kernel.org/r/1620802676-19701-1-git-send-email-zou_wei@huawei.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/sc520_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/lpc18xx_wdt.c | 2 +-
+ drivers/watchdog/w83877f_wdt.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/sc520_wdt.c b/drivers/watchdog/sc520_wdt.c
-index e66e6b905964..ca65468f4b9c 100644
---- a/drivers/watchdog/sc520_wdt.c
-+++ b/drivers/watchdog/sc520_wdt.c
-@@ -186,7 +186,7 @@ static int wdt_startup(void)
- static int wdt_turnoff(void)
+diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
+index 78cf11c94941..60b6d74f267d 100644
+--- a/drivers/watchdog/lpc18xx_wdt.c
++++ b/drivers/watchdog/lpc18xx_wdt.c
+@@ -292,7 +292,7 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
+ 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
+ 
+ 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
+-	del_timer(&lpc18xx_wdt->timer);
++	del_timer_sync(&lpc18xx_wdt->timer);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
+index 5772cc5d3780..f2650863fd02 100644
+--- a/drivers/watchdog/w83877f_wdt.c
++++ b/drivers/watchdog/w83877f_wdt.c
+@@ -166,7 +166,7 @@ static void wdt_startup(void)
+ static void wdt_turnoff(void)
  {
  	/* Stop the timer */
 -	del_timer(&timer);
 +	del_timer_sync(&timer);
  
- 	/* Stop the watchdog */
- 	wdt_config(0);
+ 	wdt_change(WDT_DISABLE);
+ 
 -- 
 2.30.2
 
