@@ -2,101 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EFED3C332E
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 08:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5273B3C3343
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 08:40:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231856AbhGJG0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 02:26:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50384 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229690AbhGJG0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 02:26:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4856B6135E;
-        Sat, 10 Jul 2021 06:23:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1625898233;
-        bh=um1mjck2OpH0dlbxwBVsj3YOXSr1yh5jhoDQmozzXs0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jTakte/qWz55fN3YJjEFur1kfnRc8U2b/y6n3jrXj+9wcNNjDpSJHTJmf8wiU/dmA
-         myZo59fjwT+HEvWww9rZZHHOjX8BsLVoiCk9qjwscDwYC2vmVaQ0T98kO72lOiWzRI
-         +iU8i20nBKfMokDYKTd0czVucwdBclLk02E/9T80=
-Date:   Sat, 10 Jul 2021 08:23:50 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Johan Hovold <johan@kernel.org>,
-        syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com,
-        linux-usb@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.13 062/114] USB: core: Avoid WARNings for
- 0-length descriptor requests
-Message-ID: <YOk89mYb8p0Dm23k@kroah.com>
-References: <20210710021748.3167666-1-sashal@kernel.org>
- <20210710021748.3167666-62-sashal@kernel.org>
+        id S229612AbhGJGne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 02:43:34 -0400
+Received: from szxga03-in.huawei.com ([45.249.212.189]:10347 "EHLO
+        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231783AbhGJGne (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Jul 2021 02:43:34 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4GML0665gNz77dB;
+        Sat, 10 Jul 2021 14:36:22 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Sat, 10 Jul 2021 14:40:47 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Sat, 10 Jul 2021 14:40:46 +0800
+Subject: Re: [PATCH 5.10 0/6] 5.10.49-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210709131537.035851348@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <78c131c4-16bc-1a43-79b0-02af9ed7459a@huawei.com>
+Date:   Sat, 10 Jul 2021 14:40:45 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210710021748.3167666-62-sashal@kernel.org>
+In-Reply-To: <20210709131537.035851348@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 09, 2021 at 10:16:56PM -0400, Sasha Levin wrote:
-> From: Alan Stern <stern@rowland.harvard.edu>
+
+
+On 2021/7/9 21:21, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.49 release.
+> There are 6 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> [ Upstream commit 60dfe484cef45293e631b3a6e8995f1689818172 ]
+> Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
+> Anything received after that time might be too late.
 > 
-> The USB core has utility routines to retrieve various types of
-> descriptors.  These routines will now provoke a WARN if they are asked
-> to retrieve 0 bytes (USB "receive" requests must not have zero
-> length), so avert this by checking the size argument at the start.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.49-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 > 
-> CC: Johan Hovold <johan@kernel.org>
-> Reported-and-tested-by: syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com
-> Reviewed-by: Johan Hovold <johan@kernel.org>
-> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-> Link: https://lore.kernel.org/r/20210607152307.GD1768031@rowland.harvard.edu
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/usb/core/message.c | 6 ++++++
->  1 file changed, 6 insertions(+)
+> thanks,
 > 
-> diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-> index 30e9e680c74c..4d59d927ae3e 100644
-> --- a/drivers/usb/core/message.c
-> +++ b/drivers/usb/core/message.c
-> @@ -783,6 +783,9 @@ int usb_get_descriptor(struct usb_device *dev, unsigned char type,
->  	int i;
->  	int result;
->  
-> +	if (size <= 0)		/* No point in asking for no data */
-> +		return -EINVAL;
-> +
->  	memset(buf, 0, size);	/* Make sure we parse really received data */
->  
->  	for (i = 0; i < 3; ++i) {
-> @@ -832,6 +835,9 @@ static int usb_get_string(struct usb_device *dev, unsigned short langid,
->  	int i;
->  	int result;
->  
-> +	if (size <= 0)		/* No point in asking for no data */
-> +		return -EINVAL;
-> +
->  	for (i = 0; i < 3; ++i) {
->  		/* retry on length 0 or stall; some devices are flakey */
->  		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-> -- 
-> 2.30.2
+> greg k-h
 > 
 
-This patch should be dropped from all of the autosel branches it was
-picked to, as I do not think the USB core has been fixed up, along with
-all of the different drivers that we noticed doing this, in the stable
-trees.
+Tested on arm64 and x86 for 5.10.49-rc1,
 
-So please drop from everywhere at this time.
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.49-rc1
+Commit: 5b40bcb16853d5fa948446202f43ea3fbcc14f33
+Compiler: gcc version 7.3.0 (GCC)
 
-thanks,
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-greg k-h
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
