@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D43093C389D
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 012123C38A0
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233705AbhGJXzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233095AbhGJXzh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 10 Jul 2021 19:55:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40528 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233491AbhGJXyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232827AbhGJXyo (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 10 Jul 2021 19:54:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6A01613F2;
-        Sat, 10 Jul 2021 23:51:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB1BF613FE;
+        Sat, 10 Jul 2021 23:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961088;
-        bh=9sHeRwrUUh9yPtTPlC8N358xe2XQYAzu9ijcoIe1FJA=;
+        s=k20201202; t=1625961089;
+        bh=wJTkCpPAafROXRuvciOmVlu458zkKHcOo7i/SuZMZz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGt79SQzNd2GNs4veI8EtKwK+zqNb5k8wWRhp0AaYITSahHn9RcP8k5JyC/KO/ox3
-         CbjZxD1PKc7jBvC1tUk8MY6/pY+RN7yGw1kb1Uow8sMgl3gUbK2BbMDPx+eRhbsXjf
-         4HSymDyL8+MaXUxNGkHF22ETA+tpeQR+W3UN1GWqUfisrtNTdxbWz4W+tNxRTKaBia
-         RrPmw2XNCRKIrIy1QPZtRJ+ZohmB+frHCgTFZZeT8QRiJbvOxhFnFPKgDZcyNKxW7f
-         rJUQSQgYNNtMSDnM1LOnpE5wcX0DraGAmrScKv7c26DCUN07DVr7QVvAOcmOZ89sYQ
-         +3I4n/mnqexXg==
+        b=h/d0TIukZ46jI/uZOEGpmvOnhsg9rdun1V7Pnr+00RG3T/WXMkj67I8TsLeMnNW0o
+         ugRzgzo0c9K8aDTRyzgKWR/Fmiigesoj32EGToW461BvnynjoKtoCCkMpeFSekRY0B
+         VHCbW11mmk2jHMRr/O9ZLgkVw2HCegnK4ydqPYvLAkswrKkPKHG8WRHhkhz22aB10Y
+         wb4y0wFrmEto1XKVJBZqyf6WcS8YNhtlZne6LFk88asYrSXA3gwopixU0fAVR2Q99R
+         WydOF9EN95rgaSnt0B9YyHuMjipAK6mau6+IJGUpoWcNjuACWE7HuZOg1tpYWcTDyn
+         /oWlZs4snAZzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Marshall <hubcap@omnibond.com>,
-        Sasha Levin <sashal@kernel.org>, devel@lists.orangefs.org
-Subject: [PATCH AUTOSEL 5.4 16/28] orangefs: fix orangefs df output.
-Date:   Sat, 10 Jul 2021 19:50:55 -0400
-Message-Id: <20210710235107.3221840-16-sashal@kernel.org>
+Cc:     Jeff Layton <jlayton@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 17/28] ceph: remove bogus checks and WARN_ONs from ceph_set_page_dirty
+Date:   Sat, 10 Jul 2021 19:50:56 -0400
+Message-Id: <20210710235107.3221840-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235107.3221840-1-sashal@kernel.org>
 References: <20210710235107.3221840-1-sashal@kernel.org>
@@ -41,32 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marshall <hubcap@omnibond.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 0fdec1b3c9fbb5e856a40db5993c9eaf91c74a83 ]
+[ Upstream commit 22d41cdcd3cfd467a4af074165357fcbea1c37f5 ]
 
-Orangefs df output is whacky. Walt Ligon suggested this might fix it.
-It seems way more in line with reality now...
+The checks for page->mapping are odd, as set_page_dirty is an
+address_space operation, and I don't see where it would be called on a
+non-pagecache page.
 
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+The warning about the page lock also seems bogus.  The comment over
+set_page_dirty() says that it can be called without the page lock in
+some rare cases. I don't think we want to warn if that's the case.
+
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/addr.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/fs/orangefs/super.c b/fs/orangefs/super.c
-index ee5efdc35cc1..2f2e430461b2 100644
---- a/fs/orangefs/super.c
-+++ b/fs/orangefs/super.c
-@@ -209,7 +209,7 @@ static int orangefs_statfs(struct dentry *dentry, struct kstatfs *buf)
- 	buf->f_bavail = (sector_t) new_op->downcall.resp.statfs.blocks_avail;
- 	buf->f_files = (sector_t) new_op->downcall.resp.statfs.files_total;
- 	buf->f_ffree = (sector_t) new_op->downcall.resp.statfs.files_avail;
--	buf->f_frsize = sb->s_blocksize;
-+	buf->f_frsize = 0;
+diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
+index a02e845eb0fb..34ab7b892b70 100644
+--- a/fs/ceph/addr.c
++++ b/fs/ceph/addr.c
+@@ -76,10 +76,6 @@ static int ceph_set_page_dirty(struct page *page)
+ 	struct inode *inode;
+ 	struct ceph_inode_info *ci;
+ 	struct ceph_snap_context *snapc;
+-	int ret;
+-
+-	if (unlikely(!mapping))
+-		return !TestSetPageDirty(page);
  
- out_op_release:
- 	op_release(new_op);
+ 	if (PageDirty(page)) {
+ 		dout("%p set_page_dirty %p idx %lu -- already dirty\n",
+@@ -125,11 +121,7 @@ static int ceph_set_page_dirty(struct page *page)
+ 	page->private = (unsigned long)snapc;
+ 	SetPagePrivate(page);
+ 
+-	ret = __set_page_dirty_nobuffers(page);
+-	WARN_ON(!PageLocked(page));
+-	WARN_ON(!page->mapping);
+-
+-	return ret;
++	return __set_page_dirty_nobuffers(page);
+ }
+ 
+ /*
 -- 
 2.30.2
 
