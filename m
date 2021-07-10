@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 441883C3098
+	by mail.lfdr.de (Postfix) with ESMTP id 8CA393C3099
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235056AbhGJCf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235075AbhGJCf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 9 Jul 2021 22:35:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53326 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235644AbhGJCe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235652AbhGJCe5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:34:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BCF26124C;
-        Sat, 10 Jul 2021 02:32:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7DCC613FC;
+        Sat, 10 Jul 2021 02:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884326;
-        bh=jubVaQRlhNSmiN+XmTt572cEjRXXkVgH+Bp7bvrT6Vg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=JbONIqs5EynXwNL7RjgaOGjuP7BVbgW1N0Pt1yUkiR2abyRLO1aCRCWrejKGa3Otx
-         6fjzA2IGLzgRDUr5X+9AuSRhppXZnV8XgNwzt/eb7GqPxcnA4FfZ/RnicKMTvCQd0O
-         UWPc3zB4cFcC3GH5Tnk34nhg+XfzEgxGQVzVvR008G8CuOhYCOzAYCHylyyyn06Pit
-         MklNqLg9DbtQIJuuz5EROreiy7WyGgE3GC9c8pBCF3mvY4oMBMVCYrw8OuJTp+auP5
-         3UqWXbF/nMJp/OYybbT4K/L3gLG+pSTiLMxkOEIxXBy4dzH+DqE4Rg+hJywpqEGytE
-         ULQRKhXrKx6mg==
+        s=k20201202; t=1625884327;
+        bh=WNLCTHcArbCKBQSrN3A9yasW6vH5jkHjhis2KN5BEow=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jy1syUmQZYR8W+yXGUjvbS25JyOH1gZ2TBEDqf2qpkuai0WhgvMXNSbVFyoAKkq6s
+         tsFR6qO/c/gJFQ39+hUGtgztYLDC7pAjTRQu4EVKvpTcYsDnj7kikG0k0fZcfLqWto
+         6zApKPr3875e39n/wjsoKajROV17c/TkzuJmWUb5sjIxW6fI67QS8z/R8/kdCzfCLB
+         hCO7CDCO41q6JtDdTTnGyrzCR493l8rShHYPV2qSN+VBtOjpP4/x5OoMcSPaotUtoT
+         cJWFUyAMGaPLwurqNwalcHXPO9WgS2dnzAAXRapKE6lU/7rCB+9PjQsEC2dII7cXVF
+         NVSTmuHaTTrBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sherry Sun <sherry.sun@nxp.com>,
+Cc:     Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 01/39] tty: serial: fsl_lpuart: fix the potential risk of division or modulo by zero
-Date:   Fri,  9 Jul 2021 22:31:26 -0400
-Message-Id: <20210710023204.3171428-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 02/39] misc/libmasm/module: Fix two use after free in ibmasm_init_one
+Date:   Fri,  9 Jul 2021 22:31:27 -0400
+Message-Id: <20210710023204.3171428-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210710023204.3171428-1-sashal@kernel.org>
+References: <20210710023204.3171428-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,38 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit fcb10ee27fb91b25b68d7745db9817ecea9f1038 ]
+[ Upstream commit 7272b591c4cb9327c43443f67b8fbae7657dd9ae ]
 
-We should be very careful about the register values that will be used
-for division or modulo operations, althrough the possibility that the
-UARTBAUD register value is zero is very low, but we had better to deal
-with the "bad data" of hardware in advance to avoid division or modulo
-by zero leading to undefined kernel behavior.
+In ibmasm_init_one, it calls ibmasm_init_remote_input_dev().
+Inside ibmasm_init_remote_input_dev, mouse_dev and keybd_dev are
+allocated by input_allocate_device(), and assigned to
+sp->remote.mouse_dev and sp->remote.keybd_dev respectively.
 
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20210427021226.27468-1-sherry.sun@nxp.com
+In the err_free_devices error branch of ibmasm_init_one,
+mouse_dev and keybd_dev are freed by input_free_device(), and return
+error. Then the execution runs into error_send_message error branch
+of ibmasm_init_one, where ibmasm_free_remote_input_dev(sp) is called
+to unregister the freed sp->remote.mouse_dev and sp->remote.keybd_dev.
+
+My patch add a "error_init_remote" label to handle the error of
+ibmasm_init_remote_input_dev(), to avoid the uaf bugs.
+
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/20210426170620.10546-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/misc/ibmasm/module.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 4b9f42269477..deb9d4fa9cb0 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1992,6 +1992,9 @@ lpuart32_console_get_options(struct lpuart_port *sport, int *baud,
+diff --git a/drivers/misc/ibmasm/module.c b/drivers/misc/ibmasm/module.c
+index e914b8c80943..9f8344169845 100644
+--- a/drivers/misc/ibmasm/module.c
++++ b/drivers/misc/ibmasm/module.c
+@@ -125,7 +125,7 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	result = ibmasm_init_remote_input_dev(sp);
+ 	if (result) {
+ 		dev_err(sp->dev, "Failed to initialize remote queue\n");
+-		goto error_send_message;
++		goto error_init_remote;
+ 	}
  
- 	bd = lpuart32_read(&sport->port, UARTBAUD);
- 	bd &= UARTBAUD_SBR_MASK;
-+	if (!bd)
-+		return;
-+
- 	sbr = bd;
- 	uartclk = clk_get_rate(sport->clk);
- 	/*
+ 	result = ibmasm_send_driver_vpd(sp);
+@@ -145,8 +145,9 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	return 0;
+ 
+ error_send_message:
+-	disable_sp_interrupts(sp->base_address);
+ 	ibmasm_free_remote_input_dev(sp);
++error_init_remote:
++	disable_sp_interrupts(sp->base_address);
+ 	free_irq(sp->irq, (void *)sp);
+ error_request_irq:
+ 	iounmap(sp->base_address);
 -- 
 2.30.2
 
