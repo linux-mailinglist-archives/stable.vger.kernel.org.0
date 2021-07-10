@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF323C2E96
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40D103C2E94
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:27:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233687AbhGJC1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:27:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43192 "EHLO mail.kernel.org"
+        id S232821AbhGJC1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:27:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233681AbhGJC05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233685AbhGJC05 (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:26:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FE0360BD3;
-        Sat, 10 Jul 2021 02:24:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D5722613F7;
+        Sat, 10 Jul 2021 02:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883848;
-        bh=FtsKgyelD/tkbRcocyAuAOEID4i70bVczFLLqLRBYL0=;
+        s=k20201202; t=1625883849;
+        bh=tRb1rL9r1jHfW6knxthlrBoGc/o/vZ5eKhsuyfbMuSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUcDd8R9LD5LRs+prfUpED0Q68aUzuXWFXb1ri4nytfud7hWuls651xpxD19TL6kp
-         0DBqhuBSTGABSgD92X3zc6HYBSkh8TiM/BL0EWrSuiLexZdIK5uYmZvDW6XYWnfeLE
-         iFQ9VMU6/f/uexXJzDv/kGKmOm5dGrr1KtWOj/ZHYrcDyY0AueFE34luu2buzbtWXP
-         MEGS+OSRqsQgxiT7ao/yDfs5CK7XZ4KajCRPZkYCIzMMqrinQQMEtwlJRV9GFjjPFP
-         qODIJB6jMmUFeImYuNcmaNYFEBUvMXCEjSN8LzX6//GSp7x5fbJ7DwUZJ0Nnvgp5x/
-         zXS0KKDoIG4OQ==
+        b=JRRoM5REPs5+yPQ4tSwce3OPKUFk/aYyShGMXUcV0tbctp5uKYbSU8uwx5t8VzEDK
+         001LFLCp1kgsEakWt+sTZBS+RuoqHQ5nXfFTaqSlgZooKQrnSI8LD6h/Ftqh0eFhvW
+         5d9Wg5o/whmmJlMYgzsMb+a7WARK2aTQ+CUMEbkWuioHQU9hnmN592Ulg/I4Zl0jpK
+         862RDdHo/do42OKI/QzrPw3qfEb9XVP2uFw8ZSz1KB58kF6vO48L002sT8DrbXFfpE
+         uoPtY50zHuzFSyZHZJush3IrWO3vWTKhjly9iSopDUl/spgWQKo3J+maqnlJEs55vv
+         rql9dLLrtVq1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Paul Olaru <paul.olaru@oss.nxp.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.12 092/104] ASoC: Intel: kbl_da7219_max98357a: shrink platform_id below 20 characters
-Date:   Fri,  9 Jul 2021 22:21:44 -0400
-Message-Id: <20210710022156.3168825-92-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 093/104] backlight: lm3630a: Fix return code of .update_status() callback
+Date:   Fri,  9 Jul 2021 22:21:45 -0400
+Message-Id: <20210710022156.3168825-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
 References: <20210710022156.3168825-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,61 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 94efd726b947f265bd313605c9f73edec5469d65 ]
+[ Upstream commit b9481a667a90ec739995e85f91f3672ca44d6ffa ]
 
-Sparse throws the following warnings:
+According to <linux/backlight.h> .update_status() is supposed to
+return 0 on success and a negative error code otherwise. Adapt
+lm3630a_bank_a_update_status() and lm3630a_bank_b_update_status() to
+actually do it.
 
-sound/soc/intel/boards/kbl_da7219_max98357a.c:647:25: error: too long
-initializer-string for array of char(no space for nul char)
+While touching that also add the error code to the failure message.
 
-Fix by using the 'mx' acronym for Maxim.
-
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Paul Olaru <paul.olaru@oss.nxp.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Link: https://lore.kernel.org/r/20210621194057.21711-6-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/kbl_da7219_max98357a.c     | 4 ++--
- sound/soc/intel/common/soc-acpi-intel-kbl-match.c | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/video/backlight/lm3630a_bl.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/intel/boards/kbl_da7219_max98357a.c b/sound/soc/intel/boards/kbl_da7219_max98357a.c
-index dc3d897ad280..36f1f49e0b76 100644
---- a/sound/soc/intel/boards/kbl_da7219_max98357a.c
-+++ b/sound/soc/intel/boards/kbl_da7219_max98357a.c
-@@ -594,7 +594,7 @@ static int kabylake_audio_probe(struct platform_device *pdev)
+diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
+index e88a2b0e5904..7140b0d98082 100644
+--- a/drivers/video/backlight/lm3630a_bl.c
++++ b/drivers/video/backlight/lm3630a_bl.c
+@@ -190,7 +190,7 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
+ 	if ((pwm_ctrl & LM3630A_PWM_BANK_A) != 0) {
+ 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
+ 				 bl->props.max_brightness);
+-		return bl->props.brightness;
++		return 0;
+ 	}
  
- static const struct platform_device_id kbl_board_ids[] = {
- 	{
--		.name = "kbl_da7219_max98357a",
-+		.name = "kbl_da7219_mx98357a",
- 		.driver_data =
- 			(kernel_ulong_t)&kabylake_audio_card_da7219_m98357a,
- 	},
-@@ -616,4 +616,4 @@ module_platform_driver(kabylake_audio)
- MODULE_DESCRIPTION("Audio Machine driver-DA7219 & MAX98357A in I2S mode");
- MODULE_AUTHOR("Naveen Manohar <naveen.m@intel.com>");
- MODULE_LICENSE("GPL v2");
--MODULE_ALIAS("platform:kbl_da7219_max98357a");
-+MODULE_ALIAS("platform:kbl_da7219_mx98357a");
-diff --git a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
-index 47dadc9d5d2a..ba5ff468c265 100644
---- a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
-@@ -113,7 +113,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_kbl_machines[] = {
- 	},
- 	{
- 		.id = "DLGS7219",
--		.drv_name = "kbl_da7219_max98373",
-+		.drv_name = "kbl_da7219_mx98373",
- 		.fw_filename = "intel/dsp_fw_kbl.bin",
- 		.machine_quirk = snd_soc_acpi_codec_list,
- 		.quirk_data = &kbl_7219_98373_codecs,
+ 	/* disable sleep */
+@@ -210,8 +210,8 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
+ 	return 0;
+ 
+ out_i2c_err:
+-	dev_err(pchip->dev, "i2c failed to access\n");
+-	return bl->props.brightness;
++	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
++	return ret;
+ }
+ 
+ static int lm3630a_bank_a_get_brightness(struct backlight_device *bl)
+@@ -267,7 +267,7 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
+ 	if ((pwm_ctrl & LM3630A_PWM_BANK_B) != 0) {
+ 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
+ 				 bl->props.max_brightness);
+-		return bl->props.brightness;
++		return 0;
+ 	}
+ 
+ 	/* disable sleep */
+@@ -287,8 +287,8 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
+ 	return 0;
+ 
+ out_i2c_err:
+-	dev_err(pchip->dev, "i2c failed to access REG_CTRL\n");
+-	return bl->props.brightness;
++	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
++	return ret;
+ }
+ 
+ static int lm3630a_bank_b_get_brightness(struct backlight_device *bl)
 -- 
 2.30.2
 
