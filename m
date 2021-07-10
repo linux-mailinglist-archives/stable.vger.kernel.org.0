@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D337F3C2F1B
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9F163C2F84
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234175AbhGJCae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:30:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
+        id S234428AbhGJCbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234866AbhGJC3s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:29:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C958613D1;
-        Sat, 10 Jul 2021 02:27:02 +0000 (UTC)
+        id S234905AbhGJC3u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:29:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A546B613D9;
+        Sat, 10 Jul 2021 02:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884023;
-        bh=+uFTDpvKhWHlQ5H7ysMc7Ohh59fU2zT9cKN7k1vT62k=;
+        s=k20201202; t=1625884026;
+        bh=45GuMCIsNAAFPuiEtXYLR8ryh0fkkKY+94o5SajtHBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MURAU9aWG/WrLQ1f4jQglZtZLHRScfwejL2yy3TBpN5ghb0Nbz5YHaJQx1vvH+15U
-         D/qISoJmrsKyUEkP3kJc1A+ytbU0jCGNHyGf7zwVXOWEDy6aDDB8Cq9WIxEyZGfLmP
-         ax0uJFHXh4fPZeylSP7IWJEFWuDb5ysX4ssN5YHzPn2Hr3kZbNyyeIjyHUQoNBWRhP
-         4WczDGEaIg2Nwhof0S2tWMD4UizoRXhnCEig7kYZt7CDuTQZeG5OJCfwDoyggxMzlB
-         sAFOQX17ifgFL+wLjcI+HAOqg/wNMYZwH+VuDbI7iGIc1iOxT02Igz5uUVhw9q23HC
-         zT9nuBJFbJksg==
+        b=FLTOOvOfzwtqxGOrHCeLVO90KsEz85LuFU5vq8f9C5SXoafnSew91SV8q6yAU2UWY
+         pb20S05imMwxClvAZ3kd8Tid4q1Yj4JKP4PDFSTe5pnrWvVRIQ06uNdVZFPAmDq5hf
+         7/vYNfjncDw1O/eIRSVOOT7IZh43OoGpxLpjzevw/wUz1EUSDXtygik5Z9vwWZjCf9
+         ajEawcR+xnWqJzeIRJqm6n1YGkJR5G+exvo3VfUR0lqNCRBdNNgLGRFZAYao7kZ+70
+         Ig1g44JeF9ShoNi7IUzw/R6q3X3dSR7ImwlSc7jGvjSk9OJRbbB2K5T361kZTgfy9h
+         22Naol5/svXOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
-        Kyungsik Lee <kyungsik.lee@lge.com>,
-        Yinghai Lu <yinghai@kernel.org>,
-        Bongkyu Kim <bongkyu.kim@lge.com>,
+Cc:     Marco Elver <elver@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Miguel Ojeda <ojeda@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Kees Cook <keescook@chromium.org>,
-        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
-        Rajat Asthana <thisisrast7@gmail.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
+        Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 92/93] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
-Date:   Fri,  9 Jul 2021 22:24:26 -0400
-Message-Id: <20210710022428.3169839-92-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.10 93/93] kcov: add __no_sanitize_coverage to fix noinstr for all architectures
+Date:   Fri,  9 Jul 2021 22:24:27 -0400
+Message-Id: <20210710022428.3169839-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -51,97 +58,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
+[ Upstream commit 540540d06e9d9b3769b46d88def90f7e7c002322 ]
 
-lz4 compatible decompressor is simple.  The format is underspecified and
-relies on EOF notification to determine when to stop.  Initramfs buffer
-format[1] explicitly states that it can have arbitrary number of zero
-padding.  Thus when operating without a fill function, be extra careful to
-ensure that sizes less than 4, or apperantly empty chunksizes are treated
-as EOF.
+Until now no compiler supported an attribute to disable coverage
+instrumentation as used by KCOV.
 
-To test this I have created two cpio initrds, first a normal one,
-main.cpio.  And second one with just a single /test-file with content
-"second" second.cpio.  Then i compressed both of them with gzip, and with
-lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
-count=4).  To create four testcase initrds:
+To work around this limitation on x86, noinstr functions have their
+coverage instrumentation turned into nops by objtool.  However, this
+solution doesn't scale automatically to other architectures, such as
+arm64, which are migrating to use the generic entry code.
 
- 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
- 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
- 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
- 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
+Clang [1] and GCC [2] have added support for the attribute recently.
+[1] https://github.com/llvm/llvm-project/commit/280333021e9550d80f5c1152a34e33e81df1e178
+[2] https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=cec4d4a6782c9bd8d071839c50a239c49caca689
+The changes will appear in Clang 13 and GCC 12.
 
-The pad4 test-cases replicate the initrd load by grub, as it pads and
-aligns every initrd it loads.
+Add __no_sanitize_coverage for both compilers, and add it to noinstr.
 
-All of the above boot, however /test-file was not accessible in the initrd
-for the testcase #4, as decoding in lz4 decompressor failed.  Also an
-error message printed which usually is harmless.
+Note: In the Clang case, __has_feature(coverage_sanitizer) is only true if
+the feature is enabled, and therefore we do not require an additional
+defined(CONFIG_KCOV) (like in the GCC case where __has_attribute(..) is
+always true) to avoid adding redundant attributes to functions if KCOV is
+off.  That being said, compilers that support the attribute will not
+generate errors/warnings if the attribute is redundantly used; however,
+where possible let's avoid it as it reduces preprocessed code size and
+associated compile-time overheads.
 
-Whith a patched kernel, all of the above testcases now pass, and
-/test-file is accessible.
+[elver@google.com: Implement __has_feature(coverage_sanitizer) in Clang]
+  Link: https://lkml.kernel.org/r/20210527162655.3246381-1-elver@google.com
+[elver@google.com: add comment explaining __has_feature() in Clang]
+  Link: https://lkml.kernel.org/r/20210527194448.3470080-1-elver@google.com
 
-This fixes lz4 initrd decompress warning on every boot with grub.  And
-more importantly this fixes inability to load multiple lz4 compressed
-initrds with grub.  This patch has been shipping in Ubuntu kernels since
-January 2021.
-
-[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
-
-BugLink: https://bugs.launchpad.net/bugs/1835660
-Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
-Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Cc: Kyungsik Lee <kyungsik.lee@lge.com>
-Cc: Yinghai Lu <yinghai@kernel.org>
-Cc: Bongkyu Kim <bongkyu.kim@lge.com>
+Link: https://lkml.kernel.org/r/20210525175819.699786-1-elver@google.com
+Signed-off-by: Marco Elver <elver@google.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
 Cc: Kees Cook <keescook@chromium.org>
-Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
-Cc: Rajat Asthana <thisisrast7@gmail.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Gao Xiang <hsiangkao@redhat.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Cc: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/decompress_unlz4.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/linux/compiler-clang.h | 17 +++++++++++++++++
+ include/linux/compiler-gcc.h   |  6 ++++++
+ include/linux/compiler_types.h |  2 +-
+ 3 files changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
-index c0cfcfd486be..e6327391b6b6 100644
---- a/lib/decompress_unlz4.c
-+++ b/lib/decompress_unlz4.c
-@@ -112,6 +112,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 				error("data corrupted");
- 				goto exit_2;
- 			}
-+		} else if (size < 4) {
-+			/* empty or end-of-file */
-+			goto exit_3;
- 		}
+diff --git a/include/linux/compiler-clang.h b/include/linux/compiler-clang.h
+index 189149de77a9..9ba951e3a6c2 100644
+--- a/include/linux/compiler-clang.h
++++ b/include/linux/compiler-clang.h
+@@ -23,6 +23,12 @@
+ /* all clang versions usable with the kernel support KASAN ABI version 5 */
+ #define KASAN_ABI_VERSION 5
  
- 		chunksize = get_unaligned_le32(inp);
-@@ -125,6 +128,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 			continue;
- 		}
++/*
++ * Note: Checking __has_feature(*_sanitizer) is only true if the feature is
++ * enabled. Therefore it is not required to additionally check defined(CONFIG_*)
++ * to avoid adding redundant attributes in other configurations.
++ */
++
+ #if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
+ /* Emulate GCC's __SANITIZE_ADDRESS__ flag */
+ #define __SANITIZE_ADDRESS__
+@@ -55,6 +61,17 @@
+ #define __no_sanitize_undefined
+ #endif
  
-+		if (!fill && chunksize == 0) {
-+			/* empty or end-of-file */
-+			goto exit_3;
-+		}
++/*
++ * Support for __has_feature(coverage_sanitizer) was added in Clang 13 together
++ * with no_sanitize("coverage"). Prior versions of Clang support coverage
++ * instrumentation, but cannot be queried for support by the preprocessor.
++ */
++#if __has_feature(coverage_sanitizer)
++#define __no_sanitize_coverage __attribute__((no_sanitize("coverage")))
++#else
++#define __no_sanitize_coverage
++#endif
++
+ /*
+  * Not all versions of clang implement the type-generic versions
+  * of the builtin overflow checkers. Fortunately, clang implements
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index 555ab0fddbef..4cf524ccab43 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -137,6 +137,12 @@
+ #define __no_sanitize_undefined
+ #endif
  
- 		if (posp)
- 			*posp += 4;
-@@ -184,6 +191,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 		}
- 	}
++#if defined(CONFIG_KCOV) && __has_attribute(__no_sanitize_coverage__)
++#define __no_sanitize_coverage __attribute__((no_sanitize_coverage))
++#else
++#define __no_sanitize_coverage
++#endif
++
+ #if GCC_VERSION >= 50100
+ #define COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW 1
+ #endif
+diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
+index ac3fa37a84f9..2a1c202baa1f 100644
+--- a/include/linux/compiler_types.h
++++ b/include/linux/compiler_types.h
+@@ -205,7 +205,7 @@ struct ftrace_likely_data {
+ /* Section for code which can't be instrumented at all */
+ #define noinstr								\
+ 	noinline notrace __attribute((__section__(".noinstr.text")))	\
+-	__no_kcsan __no_sanitize_address
++	__no_kcsan __no_sanitize_address __no_sanitize_coverage
  
-+exit_3:
- 	ret = 0;
- exit_2:
- 	if (!input)
+ #endif /* __KERNEL__ */
+ 
 -- 
 2.30.2
 
