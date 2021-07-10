@@ -2,90 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CDBD3C3307
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 07:19:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EFED3C332E
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 08:24:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231860AbhGJFVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 01:21:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231745AbhGJFVp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Jul 2021 01:21:45 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F5FFC0613DD;
-        Fri,  9 Jul 2021 22:19:01 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id p8so15105050wrr.1;
-        Fri, 09 Jul 2021 22:19:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:date:from:user-agent:mime-version:to:cc:subject
-         :references:in-reply-to:content-transfer-encoding;
-        bh=Jtn56XLH2QkfaDg3gwg1AB2JcOKA++ICyx4Y04ZigbI=;
-        b=CV8/BoCUCggAdPmhCBSsdRk+it7M5/aY/bMMjBn7FghfzE3FmI0UCgyOqVjRVi7FAQ
-         lqHOJiZCy0niHpnbJiWF2bDc1qfKP7cQCPlGmXbObtYdK6lytu3vCMIlYIkVRjNvodpu
-         z5mAjxILqLH0mf++ZU4mylU5u4nv9/Jj/gL9IJR+KJtfmykpT3AFdspewpl7y1ntzT67
-         45v0VJzvONqA/kr/+fE408/1Nus1I7ISNzXZ+OSaG1rYL1DxIjm2owM0nC+YsEXXrQIb
-         ZsVe9llhKPdknBVVwU8EestZDoa/6wqwJoZjHdB70ztgw5dE86fO+aTtcQIq/ZniMahQ
-         sRTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:user-agent:mime-version:to
-         :cc:subject:references:in-reply-to:content-transfer-encoding;
-        bh=Jtn56XLH2QkfaDg3gwg1AB2JcOKA++ICyx4Y04ZigbI=;
-        b=cFi52FH0apGItG8gZQg8ZksrRK3EfCpTNVhSqj0DkhMlJoDDyXmTpALuFAQrFiJKv1
-         37Z1nTcUnn+x2NcJIQ/G+Bz26T9aafaHEsRRZhUuDfal/Lj3tO36c/jMWvb0Ua1sRraX
-         cOJzKLckQxpL02vzh4YP91BI0MZAgYXPi9uHcCh9nKB/zEPZn/yRr1Os7L2ytAD4htj8
-         a8Yig7AbDziXaEpp9xUbd7ZUvoRMsaVB3vJym5qDkbED/YiV0JcBRlrtqIUwENlVlR8h
-         TDTUjVyXGB8feLTdqRLQKp+56OSeYLANRl5TLIcllhvOvboF4buDhtLnCe+No4k9fq1n
-         IAuA==
-X-Gm-Message-State: AOAM531jtBqK/UporU2kEakKlOpGJS30SDaSg82YJ2OqOFe/Ecm1+nxg
-        n2qpdM1H413KzR2wWyFfLGc=
-X-Google-Smtp-Source: ABdhPJxDt2aHyCzWTNWavgeqsBRdeUXaZZRzCnaXR+bHXxtcU8Op+e8uOYL6+CqMWuQN0Tbo+TzbWA==
-X-Received: by 2002:adf:ec07:: with SMTP id x7mr19360436wrn.262.1625894339814;
-        Fri, 09 Jul 2021 22:18:59 -0700 (PDT)
-Received: from [89.139.72.61] (89-139-72-61.bb.netvision.net.il. [89.139.72.61])
-        by smtp.gmail.com with ESMTPSA id s7sm7268565wrp.97.2021.07.09.22.18.58
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Fri, 09 Jul 2021 22:18:59 -0700 (PDT)
-Message-ID: <60E92D53.50704@gmail.com>
-Date:   Sat, 10 Jul 2021 08:17:07 +0300
-From:   Eli Billauer <eli.billauer@gmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.12) Gecko/20100907 Fedora/3.0.7-1.fc12 Thunderbird/3.0.7
-MIME-Version: 1.0
+        id S231856AbhGJG0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 02:26:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50384 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229690AbhGJG0j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 02:26:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4856B6135E;
+        Sat, 10 Jul 2021 06:23:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1625898233;
+        bh=um1mjck2OpH0dlbxwBVsj3YOXSr1yh5jhoDQmozzXs0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jTakte/qWz55fN3YJjEFur1kfnRc8U2b/y6n3jrXj+9wcNNjDpSJHTJmf8wiU/dmA
+         myZo59fjwT+HEvWww9rZZHHOjX8BsLVoiCk9qjwscDwYC2vmVaQ0T98kO72lOiWzRI
+         +iU8i20nBKfMokDYKTd0czVucwdBclLk02E/9T80=
+Date:   Sat, 10 Jul 2021 08:23:50 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Sasha Levin <sashal@kernel.org>
-CC:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH AUTOSEL 5.13 053/114] char: xillybus: Fix condition for
- invoking the xillybus/ subdirectory
-References: <20210710021748.3167666-1-sashal@kernel.org> <20210710021748.3167666-53-sashal@kernel.org>
-In-Reply-To: <20210710021748.3167666-53-sashal@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com,
+        linux-usb@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.13 062/114] USB: core: Avoid WARNings for
+ 0-length descriptor requests
+Message-ID: <YOk89mYb8p0Dm23k@kroah.com>
+References: <20210710021748.3167666-1-sashal@kernel.org>
+ <20210710021748.3167666-62-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210710021748.3167666-62-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Sasha,
+On Fri, Jul 09, 2021 at 10:16:56PM -0400, Sasha Levin wrote:
+> From: Alan Stern <stern@rowland.harvard.edu>
+> 
+> [ Upstream commit 60dfe484cef45293e631b3a6e8995f1689818172 ]
+> 
+> The USB core has utility routines to retrieve various types of
+> descriptors.  These routines will now provoke a WARN if they are asked
+> to retrieve 0 bytes (USB "receive" requests must not have zero
+> length), so avert this by checking the size argument at the start.
+> 
+> CC: Johan Hovold <johan@kernel.org>
+> Reported-and-tested-by: syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com
+> Reviewed-by: Johan Hovold <johan@kernel.org>
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> Link: https://lore.kernel.org/r/20210607152307.GD1768031@rowland.harvard.edu
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/usb/core/message.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+> index 30e9e680c74c..4d59d927ae3e 100644
+> --- a/drivers/usb/core/message.c
+> +++ b/drivers/usb/core/message.c
+> @@ -783,6 +783,9 @@ int usb_get_descriptor(struct usb_device *dev, unsigned char type,
+>  	int i;
+>  	int result;
+>  
+> +	if (size <= 0)		/* No point in asking for no data */
+> +		return -EINVAL;
+> +
+>  	memset(buf, 0, size);	/* Make sure we parse really received data */
+>  
+>  	for (i = 0; i < 3; ++i) {
+> @@ -832,6 +835,9 @@ static int usb_get_string(struct usb_device *dev, unsigned short langid,
+>  	int i;
+>  	int result;
+>  
+> +	if (size <= 0)		/* No point in asking for no data */
+> +		return -EINVAL;
+> +
+>  	for (i = 0; i < 3; ++i) {
+>  		/* retry on length 0 or stall; some devices are flakey */
+>  		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
+> -- 
+> 2.30.2
+> 
 
-Thanks for trying, but this is a NACK.
+This patch should be dropped from all of the autosel branches it was
+picked to, as I do not think the USB core has been fixed up, along with
+all of the different drivers that we noticed doing this, in the stable
+trees.
 
-On 10/07/21 05:16, Sasha Levin wrote:
-> diff --git a/drivers/char/Makefile b/drivers/char/Makefile
-> index ffce287ef415..c7e4fc733a37 100644
-> --- a/drivers/char/Makefile
-> +++ b/drivers/char/Makefile
-> @@ -44,6 +44,6 @@ obj-$(CONFIG_TCG_TPM)		+= tpm/
->
->   obj-$(CONFIG_PS3_FLASH)		+= ps3flash.o
->
-> -obj-$(CONFIG_XILLYBUS)		+= xillybus/
-> +obj-$(CONFIG_XILLYBUS_CLASS)	+= xillybus/
->   obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
->    
-CONFIG_XILLYBUS_CLASS will be introduced in v5.14, so backporting this 
-commit will break the kernel's build.
+So please drop from everywhere at this time.
 
-Since this patch was created for three kernel versions, I'm repeating 
-this response on all three, just be sure. Hope I'm not being annoying.
+thanks,
 
-    Eli
+greg k-h
