@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A72C53C37BA
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:50:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5476B3C37BC
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232697AbhGJXw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 19:52:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39816 "EHLO mail.kernel.org"
+        id S232990AbhGJXw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:52:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232478AbhGJXwh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:52:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B08361369;
-        Sat, 10 Jul 2021 23:49:50 +0000 (UTC)
+        id S232034AbhGJXwi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:52:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6D60613B0;
+        Sat, 10 Jul 2021 23:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625960991;
-        bh=PisIxenSRs/4tKpO8gET1MYJfXCfcgqgPRZaeMD+0ik=;
+        s=k20201202; t=1625960992;
+        bh=IWa6rNN8M5qqyxJN6EtU7EI4tHS7i0cvTiHx3ChZI0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YL/Y8NDgyOn+wIz8TOQqLixN/N7QNF5QkZmkneSjyL1EhOwjPO3qIPK5cYWiwrFqe
-         nSXxpKRNN3JIUzZAuqrOnydZVNGwH95YmuemJp3dW8mcAtkRUx8ICgrVDCleileZbZ
-         lZU8R1jO/uoFFyiAq5fYyt67LsqCp06ezbcqadxi6nwxIn0PZ9gR8ZY6n6L2AOzVtE
-         qcpURjxc0FjgpAr1Y6bxkKg//T4H2P//8eN464dWNL5lY5uHVC7DDyKtR3foGcjvxX
-         C/+8OP5nogyC5AuuBwSZE1CZdN6EM0qruhhq6WMNu7pVllbglBLiqIRGZEA6lopEAl
-         4TKkyFSderfgg==
+        b=IVTThEcoQtKq0NcVQmvWpInor8Er8DVSENlNsph8nJWwGQADB4Wg2znv6buhsa6V5
+         PKhEgyE2cYZTBg08H4Y8O5N7DVp3e6nqcGR9vBnxfO5hk5i4RbZFN/eRwDahIyxI7D
+         MzVr2IBEZpPH3tZeKldkIc9xUhLk1U7ZqdJuWcGPe0ElOG0ubpk8DSF6kjn4/Xb7mx
+         HouDI7o3RDj7hvoOr4AJ7pBM45F5eQLgxpQAvh9yx0nnUTGvpNmHQbsPHu1Fj1KpRg
+         gfQUVpYwhCRqyajsEistBhUGeFFGYB804lr3h8HmcB18zQ2GrheKLqgViqbhPpuP47
+         DfqZN4uFYnAEQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 24/43] ceph: remove bogus checks and WARN_ONs from ceph_set_page_dirty
-Date:   Sat, 10 Jul 2021 19:48:56 -0400
-Message-Id: <20210710234915.3220342-24-sashal@kernel.org>
+Cc:     Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.12 25/43] drm/gma500: Add the missed drm_gem_object_put() in psb_user_framebuffer_create()
+Date:   Sat, 10 Jul 2021 19:48:57 -0400
+Message-Id: <20210710234915.3220342-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710234915.3220342-1-sashal@kernel.org>
 References: <20210710234915.3220342-1-sashal@kernel.org>
@@ -43,54 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 22d41cdcd3cfd467a4af074165357fcbea1c37f5 ]
+[ Upstream commit cd8f318fbd266b127ffc93cc4c1eaf9a5196fafb ]
 
-The checks for page->mapping are odd, as set_page_dirty is an
-address_space operation, and I don't see where it would be called on a
-non-pagecache page.
+psb_user_framebuffer_create() misses to call drm_gem_object_put() in an
+error path. Add the missed function call to fix it.
 
-The warning about the page lock also seems bogus.  The comment over
-set_page_dirty() says that it can be called without the page lock in
-some rare cases. I don't think we want to warn if that's the case.
-
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210629115956.15160-1-jingxiangfeng@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/addr.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ drivers/gpu/drm/gma500/framebuffer.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
-index c000fe338f7e..c54317c10f58 100644
---- a/fs/ceph/addr.c
-+++ b/fs/ceph/addr.c
-@@ -78,10 +78,6 @@ static int ceph_set_page_dirty(struct page *page)
- 	struct inode *inode;
- 	struct ceph_inode_info *ci;
- 	struct ceph_snap_context *snapc;
--	int ret;
--
--	if (unlikely(!mapping))
--		return !TestSetPageDirty(page);
+diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
+index ebe9dccf2d83..0b8648396fb2 100644
+--- a/drivers/gpu/drm/gma500/framebuffer.c
++++ b/drivers/gpu/drm/gma500/framebuffer.c
+@@ -352,6 +352,7 @@ static struct drm_framebuffer *psb_user_framebuffer_create
+ 			 const struct drm_mode_fb_cmd2 *cmd)
+ {
+ 	struct drm_gem_object *obj;
++	struct drm_framebuffer *fb;
  
- 	if (PageDirty(page)) {
- 		dout("%p set_page_dirty %p idx %lu -- already dirty\n",
-@@ -127,11 +123,7 @@ static int ceph_set_page_dirty(struct page *page)
- 	page->private = (unsigned long)snapc;
- 	SetPagePrivate(page);
+ 	/*
+ 	 *	Find the GEM object and thus the gtt range object that is
+@@ -362,7 +363,11 @@ static struct drm_framebuffer *psb_user_framebuffer_create
+ 		return ERR_PTR(-ENOENT);
  
--	ret = __set_page_dirty_nobuffers(page);
--	WARN_ON(!PageLocked(page));
--	WARN_ON(!page->mapping);
--
--	return ret;
-+	return __set_page_dirty_nobuffers(page);
+ 	/* Let the core code do all the work */
+-	return psb_framebuffer_create(dev, cmd, obj);
++	fb = psb_framebuffer_create(dev, cmd, obj);
++	if (IS_ERR(fb))
++		drm_gem_object_put(obj);
++
++	return fb;
  }
  
- /*
+ static int psbfb_probe(struct drm_fb_helper *fb_helper,
 -- 
 2.30.2
 
