@@ -2,146 +2,226 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCED43C31E2
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2BAC3C3227
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 05:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235214AbhGJCpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:45:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34536 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235412AbhGJCns (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:43:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E35B6141A;
-        Sat, 10 Jul 2021 02:39:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884787;
-        bh=YXEHPD2Vi2xEUHW1TMUFHUcpQOipBhA/X0A+7MOjTEs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcnECSuOF+V2XKHUHDm4OPbdRazcOonnmgmdd8kgzwZSPoGMbW5ldXOf1UXbqGNFP
-         1Y6pW6aMjS8Gf1CpcqYhBe/kGQn2RAZ9kYBR8tYG4JaUHLUallRzpc8M527a55dfgu
-         PhASfemjL5eiyemhG6ToUilc7Cqt3v2cAVtlyPkSEQ5Px2gB+Q6+DZ8vrwlWB2QWHj
-         iXq6eT4P8C3+MFBPLBZVM8n7BVqUXnvUqgAufNBJIhmqdUfUnrDJAqs9/ELalOIe4A
-         9seQSo78jaHfBhHxzy2B96HHATIKR8VEr/6NCQesBw6aUWHgY/DvJezg1Omb3ltadr
-         qu9L2ZL2ylojg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
-        Kyungsik Lee <kyungsik.lee@lge.com>,
-        Yinghai Lu <yinghai@kernel.org>,
-        Bongkyu Kim <bongkyu.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
-        Rajat Asthana <thisisrast7@gmail.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 23/23] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
-Date:   Fri,  9 Jul 2021 22:39:12 -0400
-Message-Id: <20210710023912.3172972-23-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210710023912.3172972-1-sashal@kernel.org>
-References: <20210710023912.3172972-1-sashal@kernel.org>
+        id S230365AbhGJDKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 23:10:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60564 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230233AbhGJDKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 23:10:47 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67FC7C0613DD
+        for <stable@vger.kernel.org>; Fri,  9 Jul 2021 20:08:02 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id f17so10510492pfj.8
+        for <stable@vger.kernel.org>; Fri, 09 Jul 2021 20:08:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=svbIw6+M1t1Sn7Rop9g3p88T3GZmJLPmqtu6rGx/3So=;
+        b=USI3HH8XDBHJZ2yBctKbaMRKhhEzjUG3nsREwQV+WLGR/+HPma1ZlE3GK0T4/nmE2e
+         MkGiFNooe4pmiQ4lPhxTmGXwvTNMWSeweOBSMSF+JiMuswRx29Q3Mg1WZpkv1T9eLt1t
+         7+9aFAKuK+gkbL2Gmv0XAxI3Za930sFE9nLkmpHhReBE4jSA6F+DdX9q0KxYiY6V9TA1
+         rIEErNV60HwlV8IVjzFxru8VSLfMWmKk8HYRkILeYdm6j6c3CiNlGchFy+L2PuQ3UzLT
+         9ug9M2P6EJIiesQa70ULNqsZqtNh9ZacFxQlw1e0DJoTpLX8y5ohF71l1vsEIdbnddqz
+         X2Lw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=svbIw6+M1t1Sn7Rop9g3p88T3GZmJLPmqtu6rGx/3So=;
+        b=BI0YmwKMomcU7W4YIeiw81gvEPHtYbb7oMmGl1jEeqnWIu0JJQPIT0RFDPxVVMQiVa
+         PME9b5WADty8ThRbDVBXSygqSJekmKLT0BEQYWt+fwdatcN73Z0PIYr2dkborUrmYud9
+         53f9J7Zn0SroiPju6+iWO0ukAv05Oc/vQckKQz9aM1sq/dqrr5cRDJcuOKe3Xi2i7/jI
+         ea3tZ4YPZH1AzadJAmMB8nB8hkhAmvrqgszKoCSPQRq8dcwBTTGZKT4XwXdMa6TClBD1
+         FhSBeJEidsD/mKiPQH76JanetyxIqgTyTwsiBdufqfp7JkMVJDwggN4YcY330A9ND4gF
+         q+kA==
+X-Gm-Message-State: AOAM530NejhptTkvmrPhhz2hc7hKTqxtDbDAtpJH2kwb+GhUtI+5diAs
+        vTRJUaqTixvBPN8TflEq9yiUvmDMsu4PxQ3Q
+X-Google-Smtp-Source: ABdhPJz07KVdTXnHwd9EM8Qkfo0s1EqIBoiUB1LgLbnE6aMq/5/ZwSb2Kx29AT5J/29P9R5Io0iHAQ==
+X-Received: by 2002:a62:507:0:b029:31c:c439:83ab with SMTP id 7-20020a6205070000b029031cc43983abmr34431164pff.65.1625886481012;
+        Fri, 09 Jul 2021 20:08:01 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v1sm7821166pfn.40.2021.07.09.20.08.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Jul 2021 20:08:00 -0700 (PDT)
+Message-ID: <60e90f10.1c69fb81.52ad8.942f@mx.google.com>
+Date:   Fri, 09 Jul 2021 20:08:00 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.12.15-11-g1a88438d15d2
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.12
+Subject: stable-rc/queue/5.12 baseline: 197 runs,
+ 5 regressions (v5.12.15-11-g1a88438d15d2)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+stable-rc/queue/5.12 baseline: 197 runs, 5 regressions (v5.12.15-11-g1a8843=
+8d15d2)
 
-[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
+Regressions Summary
+-------------------
 
-lz4 compatible decompressor is simple.  The format is underspecified and
-relies on EOF notification to determine when to stop.  Initramfs buffer
-format[1] explicitly states that it can have arbitrary number of zero
-padding.  Thus when operating without a fill function, be extra careful to
-ensure that sizes less than 4, or apperantly empty chunksizes are treated
-as EOF.
+platform           | arch  | lab           | compiler | defconfig          =
+| regressions
+-------------------+-------+---------------+----------+--------------------=
++------------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig  =
+| 1          =
 
-To test this I have created two cpio initrds, first a normal one,
-main.cpio.  And second one with just a single /test-file with content
-"second" second.cpio.  Then i compressed both of them with gzip, and with
-lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
-count=4).  To create four testcase initrds:
+hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig          =
+| 1          =
 
- 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
- 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
- 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
- 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
+rk3288-veyron-jaq  | arm   | lab-collabora | gcc-8    | multi_v7_defconfig =
+| 3          =
 
-The pad4 test-cases replicate the initrd load by grub, as it pads and
-aligns every initrd it loads.
 
-All of the above boot, however /test-file was not accessible in the initrd
-for the testcase #4, as decoding in lz4 decompressor failed.  Also an
-error message printed which usually is harmless.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
+nel/v5.12.15-11-g1a88438d15d2/plan/baseline/
 
-Whith a patched kernel, all of the above testcases now pass, and
-/test-file is accessible.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.12
+  Describe: v5.12.15-11-g1a88438d15d2
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1a88438d15d215c4704f9e93b59491c5b73bd297 =
 
-This fixes lz4 initrd decompress warning on every boot with grub.  And
-more importantly this fixes inability to load multiple lz4 compressed
-initrds with grub.  This patch has been shipping in Ubuntu kernels since
-January 2021.
 
-[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
 
-BugLink: https://bugs.launchpad.net/bugs/1835660
-Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
-Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Cc: Kyungsik Lee <kyungsik.lee@lge.com>
-Cc: Yinghai Lu <yinghai@kernel.org>
-Cc: Bongkyu Kim <bongkyu.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
-Cc: Rajat Asthana <thisisrast7@gmail.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Gao Xiang <hsiangkao@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- lib/decompress_unlz4.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Test Regressions
+---------------- =
 
-diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
-index 036fc882cd72..f1449244fdd4 100644
---- a/lib/decompress_unlz4.c
-+++ b/lib/decompress_unlz4.c
-@@ -115,6 +115,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 				error("data corrupted");
- 				goto exit_2;
- 			}
-+		} else if (size < 4) {
-+			/* empty or end-of-file */
-+			goto exit_3;
- 		}
- 
- 		chunksize = get_unaligned_le32(inp);
-@@ -128,6 +131,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 			continue;
- 		}
- 
-+		if (!fill && chunksize == 0) {
-+			/* empty or end-of-file */
-+			goto exit_3;
-+		}
- 
- 		if (posp)
- 			*posp += 4;
-@@ -184,6 +191,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 		}
- 	}
- 
-+exit_3:
- 	ret = 0;
- exit_2:
- 	if (!input)
--- 
-2.30.2
 
+
+platform           | arch  | lab           | compiler | defconfig          =
+| regressions
+-------------------+-------+---------------+----------+--------------------=
++------------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig  =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60e8dd377babedbd38117981
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.15-=
+11-g1a88438d15d2/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
+rpi-3-b-32.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.15-=
+11-g1a88438d15d2/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
+rpi-3-b-32.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60e8dd377babedbd38117=
+982
+        failing since 4 days (last pass: v5.12.14-5-gb49b7dd97218, first fa=
+il: v5.12.14-6-g9a76cc7cd8f73) =
+
+ =
+
+
+
+platform           | arch  | lab           | compiler | defconfig          =
+| regressions
+-------------------+-------+---------------+----------+--------------------=
++------------
+hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig          =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60e8eaa3e5231c74f111796c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.15-=
+11-g1a88438d15d2/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.15-=
+11-g1a88438d15d2/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60e8eaa3e5231c74f1117=
+96d
+        failing since 8 days (last pass: v5.12.13-109-g5add6842f3ea, first =
+fail: v5.12.13-109-g47e1fda87919) =
+
+ =
+
+
+
+platform           | arch  | lab           | compiler | defconfig          =
+| regressions
+-------------------+-------+---------------+----------+--------------------=
++------------
+rk3288-veyron-jaq  | arm   | lab-collabora | gcc-8    | multi_v7_defconfig =
+| 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60e8ec49fa4d1e310811796f
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.15-=
+11-g1a88438d15d2/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.15-=
+11-g1a88438d15d2/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/60e8ec4afa4d1e3108117987
+        failing since 24 days (last pass: v5.12.10-48-g5e97c6651365, first =
+fail: v5.12.10-173-gfd0b35fa0b0c)
+
+    2021-07-10T00:39:27.173241  /lava-4168522/1/../bin/lava-test-case<8>[  =
+ 14.035184] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-07-10T00:39:27.173737  =
+
+    2021-07-10T00:39:27.174090  /lava-4168522/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/60e8ec4afa4d1e310811799f
+        failing since 24 days (last pass: v5.12.10-48-g5e97c6651365, first =
+fail: v5.12.10-173-gfd0b35fa0b0c)
+
+    2021-07-10T00:39:25.729056  /lava-4168522/1/../bin/lava-test-case
+    2021-07-10T00:39:25.746791  <8>[   12.608910] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/60e8ec4afa4d1e31081179a0
+        failing since 24 days (last pass: v5.12.10-48-g5e97c6651365, first =
+fail: v5.12.10-173-gfd0b35fa0b0c)
+
+    2021-07-10T00:39:24.715583  /lava-4168522/1/../bin/lava-test-case<8>[  =
+ 11.589572] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdmmc-probe=
+d RESULT=3Dfail>
+    2021-07-10T00:39:24.716213     =
+
+ =20
