@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A3043C3985
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51C0A3C398B
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234163AbhGKAAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 20:00:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48486 "EHLO mail.kernel.org"
+        id S232890AbhGKAA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 20:00:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231922AbhGJX62 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:58:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11522613E3;
-        Sat, 10 Jul 2021 23:53:04 +0000 (UTC)
+        id S231728AbhGJX6b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:58:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 321B76142D;
+        Sat, 10 Jul 2021 23:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961185;
-        bh=l2ZY/OygMY7GtzSUBEg80RiwOHk+3ZXdv5CwlpCv/5g=;
+        s=k20201202; t=1625961186;
+        bh=vGFioSWvtRgICLzoYPoDXxpPQu2d3N5bConmOJySD3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7Klw6dFIS56dMehJTL6Y3n2W28bkeqtDQ4XVqx95Gf0035TBL1NLQhDA/P7nBmc5
-         JvERz5mVc0qEwMppdqqzsZkW34IHHuIYK8+q+P1R7zlXUsGVXFxHjAuURzFvPVDb6q
-         BJFHemc0D2s8PKoCL4VJ5lTucyF1l/HlGZvtdhZH33Y3xExtPzUt0w5XFKyXi1g0o5
-         BUr6/33enqxgFrrw3kI4VvuwGPV0qfkWNMOU4pabEERUa/jzv7FngcLCD5I6XpZfwr
-         P0BqL7tvF9WEfPhanvdM1cMR/wnSU75s/0mHOmMrbsV5hguoZrlQ4Ln9viALbAqUDy
-         TGhMJBbmR+Z9Q==
+        b=htN2q+ETW4NojaNIq1URjQzQfw/QofVbmxLN4Gyt7XNRKHVGWoafQUbGEvCRfQW/d
+         ctE+Vs04QaJojaMUSft5KZIYGoAawwF14vXh54gCF5CQz6ZThtvZKtUhL3sMgCxwpT
+         +eEpAqsCXWfAOFO6Hhgq5pHFsNjnMSvmEGGKj1BkvSNYW0xSKEBns/Dng/zB0CXa0a
+         W7tLKx139HVhxSKA+gGn6u33tcoFpMjsLQtA+xeCITELYUuYfWRfSaWRouVS1kch7p
+         14y2JejWS8/Vd7hBmT3V1kXBUw80Z6mmtsrjGvS2riLQ6kSkIVDlBs196ZIEBz7A02
+         aDkAnv4U82fvg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
+Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 02/12] power: supply: ab8500: Avoid NULL pointers
-Date:   Sat, 10 Jul 2021 19:52:52 -0400
-Message-Id: <20210710235302.3222809-2-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 03/12] power: reset: gpio-poweroff: add missing MODULE_DEVICE_TABLE
+Date:   Sat, 10 Jul 2021 19:52:53 -0400
+Message-Id: <20210710235302.3222809-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235302.3222809-1-sashal@kernel.org>
 References: <20210710235302.3222809-1-sashal@kernel.org>
@@ -42,58 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 5bcb5087c9dd3dca1ff0ebd8002c5313c9332b56 ]
+[ Upstream commit ed3443fb4df4e140a22f65144546c8a8e1e27f4e ]
 
-Sometimes the code will crash because we haven't enabled
-AC or USB charging and thus not created the corresponding
-psy device. Fix it by checking that it is there before
-notifying.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/ab8500_charger.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/power/reset/gpio-poweroff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/ab8500_charger.c b/drivers/power/ab8500_charger.c
-index e388171f4e58..98724c3a28e5 100644
---- a/drivers/power/ab8500_charger.c
-+++ b/drivers/power/ab8500_charger.c
-@@ -409,6 +409,14 @@ static void ab8500_enable_disable_sw_fallback(struct ab8500_charger *di,
- static void ab8500_power_supply_changed(struct ab8500_charger *di,
- 					struct power_supply *psy)
- {
-+	/*
-+	 * This happens if we get notifications or interrupts and
-+	 * the platform has been configured not to support one or
-+	 * other type of charging.
-+	 */
-+	if (!psy)
-+		return;
-+
- 	if (di->autopower_cfg) {
- 		if (!di->usb.charger_connected &&
- 		    !di->ac.charger_connected &&
-@@ -435,7 +443,15 @@ static void ab8500_charger_set_usb_connected(struct ab8500_charger *di,
- 		if (!connected)
- 			di->flags.vbus_drop_end = false;
+diff --git a/drivers/power/reset/gpio-poweroff.c b/drivers/power/reset/gpio-poweroff.c
+index be3d81ff51cc..a44e3427fdeb 100644
+--- a/drivers/power/reset/gpio-poweroff.c
++++ b/drivers/power/reset/gpio-poweroff.c
+@@ -84,6 +84,7 @@ static const struct of_device_id of_gpio_poweroff_match[] = {
+ 	{ .compatible = "gpio-poweroff", },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, of_gpio_poweroff_match);
  
--		sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL, "present");
-+		/*
-+		 * Sometimes the platform is configured not to support
-+		 * USB charging and no psy has been created, but we still
-+		 * will get these notifications.
-+		 */
-+		if (di->usb_chg.psy) {
-+			sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL,
-+				     "present");
-+		}
- 
- 		if (connected) {
- 			mutex_lock(&di->charger_attached_mutex);
+ static struct platform_driver gpio_poweroff_driver = {
+ 	.probe = gpio_poweroff_probe,
 -- 
 2.30.2
 
