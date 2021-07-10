@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1A9C3C3993
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 151D53C396B
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232989AbhGKABA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 20:01:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48986 "EHLO mail.kernel.org"
+        id S232876AbhGJX7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:59:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234325AbhGJX6w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:58:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B89D1613AF;
-        Sat, 10 Jul 2021 23:53:15 +0000 (UTC)
+        id S233235AbhGJX7A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:59:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D351C61433;
+        Sat, 10 Jul 2021 23:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961196;
-        bh=rzyprTXoujcTc1uUtwZJEXB6M9vxG1VTdx4qM9kIjVw=;
+        s=k20201202; t=1625961197;
+        bh=nTT+xchQK5zW6cns9KJcPWUUEfrXKrOpcI7iLsIGi1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=loNi5Sil2S7WU2B1VvtCqYQ0xrEN0GrR1TqvPiKvgHDe5Oe1w8VRBVos1kTeTvnN5
-         X3yMLne7ne8a6waaIY3gWKPDbjhk0JdYfnSm0yQAlHsDz+3t4zFgMSIggTWS5KiAIS
-         +u7/9d0AO5oft9NPnaO28MIub1z+uKY5KrNInKJwptUBZKezspfEWj2T87GKQNCbeg
-         mYh3oPvyPdFlBPDvPRTz7H5qRevL2r7d4woiiNXEdQw5qPF5FS0tdlHQRH5OhPOhea
-         uoGi6vneOsNVXfSg1gZL6EUeXVymrcMljxD7Ut2KFB2ftIiHWcAkH6C9VqX99W5s5f
-         CIM8WCJrNNlqg==
+        b=Dt7bIVdFGrkeGrhe7pvTOD+fUK2voE7K8TLWSMGDUazJJnYg0x0zEKWG28uwvWOvO
+         mYvjsJtEDlMi4s4wV1KZZYiJjAbnj4iAojdXjzLF1VZhDIRGxH//jMsMfs/2crzWEh
+         1Y3WWv31VVpBiq7vXEHS56dd9oSw0hNJV4qm2fSBq/2UHCrQLdVbKYTmdNCBSz/yRM
+         nD/LWkhiCCJmDyva9yWyaWdi+3BKezT8hk2LZm05NOi2pgOJ98/RbeMb6OJZt3dR3s
+         6dIWTf2hYjh5y8rAW0oE8i6zghVE4oqbFZ8ZkCKNQAMeEQr4so0IhvCN/XNO7Kipg6
+         Y8OBfbVC7U3ew==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 10/12] power: supply: ab8500: add missing MODULE_DEVICE_TABLE
-Date:   Sat, 10 Jul 2021 19:53:00 -0400
-Message-Id: <20210710235302.3222809-10-sashal@kernel.org>
+Cc:     Xie Yongji <xieyongji@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 11/12] virtio-blk: Fix memory leak among suspend/resume procedure
+Date:   Sat, 10 Jul 2021 19:53:01 -0400
+Message-Id: <20210710235302.3222809-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235302.3222809-1-sashal@kernel.org>
 References: <20210710235302.3222809-1-sashal@kernel.org>
@@ -42,60 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit dfe52db13ab8d24857a9840ec7ca75eef800c26c ]
+[ Upstream commit b71ba22e7c6c6b279c66f53ee7818709774efa1f ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+The vblk->vqs should be freed before we call init_vqs()
+in virtblk_restore().
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: https://lore.kernel.org/r/20210517084332.280-1-xieyongji@bytedance.com
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/ab8500_btemp.c   | 1 +
- drivers/power/ab8500_charger.c | 1 +
- drivers/power/ab8500_fg.c      | 1 +
- 3 files changed, 3 insertions(+)
+ drivers/block/virtio_blk.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/power/ab8500_btemp.c b/drivers/power/ab8500_btemp.c
-index 8f8044e1acf3..24732df01cf9 100644
---- a/drivers/power/ab8500_btemp.c
-+++ b/drivers/power/ab8500_btemp.c
-@@ -1186,6 +1186,7 @@ static const struct of_device_id ab8500_btemp_match[] = {
- 	{ .compatible = "stericsson,ab8500-btemp", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ab8500_btemp_match);
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index bdc3efacd0d2..2bcc2bc64149 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -808,6 +808,8 @@ static int virtblk_freeze(struct virtio_device *vdev)
+ 	blk_mq_stop_hw_queues(vblk->disk->queue);
  
- static struct platform_driver ab8500_btemp_driver = {
- 	.probe = ab8500_btemp_probe,
-diff --git a/drivers/power/ab8500_charger.c b/drivers/power/ab8500_charger.c
-index 98724c3a28e5..1a7013ec0caf 100644
---- a/drivers/power/ab8500_charger.c
-+++ b/drivers/power/ab8500_charger.c
-@@ -3756,6 +3756,7 @@ static const struct of_device_id ab8500_charger_match[] = {
- 	{ .compatible = "stericsson,ab8500-charger", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ab8500_charger_match);
+ 	vdev->config->del_vqs(vdev);
++	kfree(vblk->vqs);
++
+ 	return 0;
+ }
  
- static struct platform_driver ab8500_charger_driver = {
- 	.probe = ab8500_charger_probe,
-diff --git a/drivers/power/ab8500_fg.c b/drivers/power/ab8500_fg.c
-index d91111200dde..c58b496ca05a 100644
---- a/drivers/power/ab8500_fg.c
-+++ b/drivers/power/ab8500_fg.c
-@@ -3239,6 +3239,7 @@ static const struct of_device_id ab8500_fg_match[] = {
- 	{ .compatible = "stericsson,ab8500-fg", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ab8500_fg_match);
- 
- static struct platform_driver ab8500_fg_driver = {
- 	.probe = ab8500_fg_probe,
 -- 
 2.30.2
 
