@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08DCF3C3984
+	by mail.lfdr.de (Postfix) with ESMTP id 54F1C3C3987
 	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233840AbhGKAAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 20:00:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48438 "EHLO mail.kernel.org"
+        id S233214AbhGKAAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 20:00:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231642AbhGJX61 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233949AbhGJX61 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 10 Jul 2021 19:58:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0431461436;
-        Sat, 10 Jul 2021 23:53:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC9556136D;
+        Sat, 10 Jul 2021 23:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961181;
-        bh=SpbH99waIHWnRMoF0oYxp765ixe9wOOqLld2vMvrrgo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZDce41uq7OExYfiHu5ahh9rlTGPTl+9YxA82oKH2QPgkMUT+tPHgucXyTpVOYOy5
-         AgXEpJv65CTPqN4GvQPPRl2GyezcxH6Z5egLRruDO+0Ti4gp5voGM3EkfgQI+kz6/e
-         GraJ8y/34gicIsss9eOin1PK7iH5qiXJf7aAPlKwiR+SiB3DaQBEiDv4rin7btoyd4
-         VsJFo1TQZawWcmnQaEHvTZu0tsfMyYvrua3+3xgAE9d/T70oKER//xCIZc84ARu4b1
-         FosNENcOyqQxFdGInaorI2a0ybnV8rmbNCtvxwqdcLY7FQXXZ+bxQFkZsRPyjFtHi4
-         EJBcXCRY6p71A==
+        s=k20201202; t=1625961184;
+        bh=lwqM6PvVga1wrNPdaKICIzDas3E2Hl7kjyv++ULeiNA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nm/5CPmqI7PW9UzuukoCVTkBk+mDPazHNP4nVQpwjSfnI7pdw2mUSkja1a78JWXVj
+         +VpL07koGLxyMrN0p158iHTRLS7hM9ns+IKOa5uvcxed7CTWMlKq9CqwCwn/yL5MEH
+         +b8jXprQK4wZmUvhPOaiPCCTDxNNTK9Cxz3UHIyF2GaIK1Af6n1JmotIicBbVUBbWM
+         ZnZC/WL2tTW+iNmC/ukynQjZUCn7tZwHNjTQHILwjgn2vZBZmDyNpY2Jq+2mnnvODQ
+         zlONzPLuBdEbC8Mk9VXlRO6LXBq5CXib9BhvjGJcGkRlIlQHslRlnubHNmXF7Ghv86
+         vQ+vNJUwPauDQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.9 16/16] virtio_console: Assure used length from device is limited
-Date:   Sat, 10 Jul 2021 19:52:40 -0400
-Message-Id: <20210710235240.3222618-16-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 01/12] pwm: spear: Don't modify HW state in .remove callback
+Date:   Sat, 10 Jul 2021 19:52:51 -0400
+Message-Id: <20210710235302.3222809-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210710235240.3222618-1-sashal@kernel.org>
-References: <20210710235240.3222618-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,45 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit d00d8da5869a2608e97cfede094dfc5e11462a46 ]
+[ Upstream commit b601a18f12383001e7a8da238de7ca1559ebc450 ]
 
-The buf->len might come from an untrusted device. This
-ensures the value would not exceed the size of the buffer
-to avoid data corruption or loss.
+A consumer is expected to disable a PWM before calling pwm_put(). And if
+they didn't there is hopefully a good reason (or the consumer needs
+fixing). Also if disabling an enabled PWM was the right thing to do,
+this should better be done in the framework instead of in each low level
+driver.
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20210525125622.1203-1-xieyongji@bytedance.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+So drop the hardware modification from the .remove() callback.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/virtio_console.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pwm/pwm-spear.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 4ec08c7a7b65..2632b0fdb1b5 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -492,7 +492,7 @@ static struct port_buffer *get_inbuf(struct port *port)
+diff --git a/drivers/pwm/pwm-spear.c b/drivers/pwm/pwm-spear.c
+index 6c6b44fd3f43..2d11ac277de8 100644
+--- a/drivers/pwm/pwm-spear.c
++++ b/drivers/pwm/pwm-spear.c
+@@ -231,10 +231,6 @@ static int spear_pwm_probe(struct platform_device *pdev)
+ static int spear_pwm_remove(struct platform_device *pdev)
+ {
+ 	struct spear_pwm_chip *pc = platform_get_drvdata(pdev);
+-	int i;
+-
+-	for (i = 0; i < NUM_PWM; i++)
+-		pwm_disable(&pc->chip.pwms[i]);
  
- 	buf = virtqueue_get_buf(port->in_vq, &len);
- 	if (buf) {
--		buf->len = len;
-+		buf->len = min_t(size_t, len, buf->size);
- 		buf->offset = 0;
- 		port->stats.bytes_received += len;
- 	}
-@@ -1758,7 +1758,7 @@ static void control_work_handler(struct work_struct *work)
- 	while ((buf = virtqueue_get_buf(vq, &len))) {
- 		spin_unlock(&portdev->c_ivq_lock);
- 
--		buf->len = len;
-+		buf->len = min_t(size_t, len, buf->size);
- 		buf->offset = 0;
- 
- 		handle_control_message(vq->vdev, portdev, buf);
+ 	/* clk was prepared in probe, hence unprepare it here */
+ 	clk_unprepare(pc->clk);
 -- 
 2.30.2
 
