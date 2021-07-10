@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CFFC3C2EFF
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC7123C2EFE
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbhGJCaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:30:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42484 "EHLO mail.kernel.org"
+        id S233967AbhGJCaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:30:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234120AbhGJC3I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:29:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A76C7613B7;
-        Sat, 10 Jul 2021 02:25:27 +0000 (UTC)
+        id S234133AbhGJC3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:29:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 446E5613E8;
+        Sat, 10 Jul 2021 02:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883928;
-        bh=qGZ/XPXWZNsgiZS33sYC3mAXAM5fqIhgEEX1RPAfsW4=;
+        s=k20201202; t=1625883929;
+        bh=Nr5gL9JOSKUjbA100HeDI/KrMsIKYBDVkr9sctcPrpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XeX45Vo++SJOmYGbozG7rxI0cGEIIj4GEViFa/nRslZUsCCWx285zeNUwPlIK45xW
-         kFUobjnDiRso54bs2UCRQl4d+FLvtWoUIytGoXpxrjTctBvtVkpPbPos9qFWsAw6Tl
-         kBdDXZ8sSOEVa/+6SWmAsAutyEqEwtALwffHZicsFUiUQthGf/4t7nyey+Pl5HmcEg
-         zLgM+aYNkOGnFBpiZ4hO8ZhddAmK+VVtG5VMlI16IOH5RhLLpNE3OvX0xPHmGcK3P7
-         uw7S0M2MDVen0bEeOSVKEhHmP7cSqNp8qvYifY6UPcAyLRb5UPwHjTHgzqrX+UF1Ry
-         0KCUx7m1iU9yw==
+        b=lbIdeQ06T+zT93xNqyI5xFHkDYEqEOGV8sKgH3guvGVDeLkpm3lEs33ZimO72JIlX
+         UYdPjPgnrWOfsLwX0zEMo/bZp8z6uj2bN9BSXw5/aOU5trL5/qtEqQWb2/52Yu6wNa
+         Ec6x24qF5ZRfOuGMizRUg7x6BSXAwY9n2wKMZrQz6SzpHRsMyeixhW3Lyc4SF4xs7+
+         DP/UMXOmAC7lMXZdcIG904y9Vh5fCq8EfRDuSGX5nfJdkswtv3aeWnG8ny13RwEp+J
+         L/OHcbxbZ0x6cWe2o05RUslqlGmDkk2Ud6C7FvE2JE0/IO8g659cUdX6KBgf8FndKK
+         fuSevkTNCLcoA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        Carl Philipp Klemm <philipp@uvos.xyz>,
-        Ivan Jelincic <parazyd@dyne.org>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        "Sicelo A . Mhlongo" <absicsz@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
+Cc:     Eli Billauer <eli.billauer@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 45/93] mfd: cpcap: Fix cpcap dmamask not set warnings
-Date:   Fri,  9 Jul 2021 22:23:39 -0400
-Message-Id: <20210710022428.3169839-45-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 46/93] char: xillybus: Fix condition for invoking the xillybus/ subdirectory
+Date:   Fri,  9 Jul 2021 22:23:40 -0400
+Message-Id: <20210710022428.3169839-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -48,60 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Eli Billauer <eli.billauer@gmail.com>
 
-[ Upstream commit 0b7cbe811ca524295ea43d9a4d73d3427e419c54 ]
+[ Upstream commit 1b1ee3a91d21fdf7d415c1060db1a7a07ae296b6 ]
 
-We have started to get a bunch of pointless dmamask not set warnings
-that makes the output of dmesg -l err,warn hard to read with many
-extra warnings:
+As Xillybus' configuration symbol hierarchy has been reorganized recently,
+the correct condition for compiling the xillybus/ subdirectory is now
+CONFIG_XILLYBUS_CLASS, and not CONFIG_XILLYBUS.
 
-cpcap-regulator cpcap-regulator.0: DMA mask not set
-cpcap_adc cpcap_adc.0: DMA mask not set
-cpcap_battery cpcap_battery.0: DMA mask not set
-cpcap-charger cpcap-charger.0: DMA mask not set
-cpcap-pwrbutton cpcap-pwrbutton.0: DMA mask not set
-cpcap-led cpcap-led.0: DMA mask not set
-cpcap-led cpcap-led.1: DMA mask not set
-cpcap-led cpcap-led.2: DMA mask not set
-cpcap-led cpcap-led.3: DMA mask not set
-cpcap-led cpcap-led.4: DMA mask not set
-cpcap-rtc cpcap-rtc.0: DMA mask not set
-cpcap-usb-phy cpcap-usb-phy.0: DMA mask not set
-
-This seems to have started with commit 4d8bde883bfb ("OF: Don't set
-default coherent DMA mask"). We have the parent SPI controller use
-DMA, while CPCAP driver and it's children do not. For audio, the
-DMA is handled over I2S bus with the McBSP driver.
-
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Cc: Ivan Jelincic <parazyd@dyne.org>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Sicelo A. Mhlongo <absicsz@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reported-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Eli Billauer <eli.billauer@gmail.com>
+Link: https://lore.kernel.org/r/20210528092242.51104-1-eli.billauer@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/motorola-cpcap.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/char/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-index 30d82bfe5b02..6fb206da2729 100644
---- a/drivers/mfd/motorola-cpcap.c
-+++ b/drivers/mfd/motorola-cpcap.c
-@@ -327,6 +327,10 @@ static int cpcap_probe(struct spi_device *spi)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/char/Makefile b/drivers/char/Makefile
+index ffce287ef415..c7e4fc733a37 100644
+--- a/drivers/char/Makefile
++++ b/drivers/char/Makefile
+@@ -44,6 +44,6 @@ obj-$(CONFIG_TCG_TPM)		+= tpm/
  
-+	/* Parent SPI controller uses DMA, CPCAP and child devices do not */
-+	spi->dev.coherent_dma_mask = 0;
-+	spi->dev.dma_mask = &spi->dev.coherent_dma_mask;
-+
- 	return devm_mfd_add_devices(&spi->dev, 0, cpcap_mfd_devices,
- 				    ARRAY_SIZE(cpcap_mfd_devices), NULL, 0, NULL);
- }
+ obj-$(CONFIG_PS3_FLASH)		+= ps3flash.o
+ 
+-obj-$(CONFIG_XILLYBUS)		+= xillybus/
++obj-$(CONFIG_XILLYBUS_CLASS)	+= xillybus/
+ obj-$(CONFIG_POWERNV_OP_PANEL)	+= powernv-op-panel.o
+ obj-$(CONFIG_ADI)		+= adi.o
 -- 
 2.30.2
 
