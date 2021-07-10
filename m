@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C55EC3C2F59
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B48C13C2F56
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234356AbhGJCbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:31:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43064 "EHLO mail.kernel.org"
+        id S234352AbhGJCbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:31:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234394AbhGJC30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234396AbhGJC30 (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:29:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE21F60BD3;
-        Sat, 10 Jul 2021 02:26:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 394DE613F8;
+        Sat, 10 Jul 2021 02:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883986;
-        bh=jwxkV8jZGl94FlM/nlAXZjfg9eIq3wI2w8TCMXtD7B8=;
+        s=k20201202; t=1625883987;
+        bh=PIdH4y8f3X9A2AP25GCCZEy7yKFv7zIOPSRZxeVfm6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyxt8e2GCV5YsE+RPm8/gNSy5chWZxaKuudMqIoFsmuaa1T2yGsE/tO/uno+HgydL
-         UyE90TpXnQ4FQRJhuRCeP7Uj4+O++9q8hjN+YvNIrvgivcTiOZvTijgb5BhDiSO6+R
-         LJ2Ec375OFexlpGL6nRrNzyXc1QpJVNJCF6zRjOKxLGplvoEZV95+RQ3/iFPyE4h8G
-         Yxjyx2x4VlvWsEHTugdWU+DGNNEzCF5IFg4iOjHg8VhpRROzH9MC8GsRtYkm1cxr+Q
-         J7qu0CJHvfwNwh9t6NMfZbgDVRGhnM/BVL791jLh9FXCGsQAwlD9j8WutDuxpofW6/
-         w0bN4yP9jhDHw==
+        b=C5E54xChUnJBwTBaRETOygGavYcgiXNCmro71MsHKm3hwsF4y4SbHhOIzSL9MgdhN
+         XF4S8OD5a+c0JYwFd4nlAGwta70cFRHc25A3n1wFdt3rKB/Y+BCNflbw6dxNPYW/ju
+         sRQ3DKlCreEVmhBRzW7DDcYxVl1jMtkx0mLcORiwtunn0541l1KLlGC3j1OSTNpU6n
+         GyCrKvaNvvrFOt8M+U9L9hRlSPxUgoFC40X1i1hSvXY2clZjchAQDjx4ybKtuPSUuR
+         JyvxQwqpz38U/OHhCTDuth5ITgQDgMwE5QfWPZH0NZIYwCRC33qxXT6asmzjQPyVVy
+         5/OW4yp2tBQGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Shirisha Ganta <shirisha.ganta1@ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 63/93] selftests/powerpc: Fix "no_handler" EBB selftest
-Date:   Fri,  9 Jul 2021 22:23:57 -0400
-Message-Id: <20210710022428.3169839-63-sashal@kernel.org>
+Cc:     Peter Robinson <pbrobinson@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 64/93] gpio: pca953x: Add support for the On Semi pca9655
+Date:   Fri,  9 Jul 2021 22:23:58 -0400
+Message-Id: <20210710022428.3169839-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -44,43 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Peter Robinson <pbrobinson@gmail.com>
 
-[ Upstream commit 45677c9aebe926192e59475b35a1ff35ff2d4217 ]
+[ Upstream commit 6d49b3a0f351925b5ea5047166c112b7590b918a ]
 
-The "no_handler_test" in ebb selftests attempts to read the PMU
-registers twice via helper function "dump_ebb_state". First dump is
-just before closing of event and the second invocation is done after
-closing of the event. The original intention of second
-dump_ebb_state was to dump the state of registers at the end of
-the test when the counters are frozen. But this will be achieved
-with the first call itself since sample period is set to low value
-and PMU will be frozen by then. Hence patch removes the
-dump which was done before closing of the event.
+The On Semi pca9655 is a 16 bit variant of the On Semi pca9654 GPIO
+expander, with 16 GPIOs and interrupt functionality.
 
-Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com <mailto:rnsastry@linux.ibm.com>>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1621950703-1532-2-git-send-email-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+[Bartosz: fixed indentation as noted by Andy]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpio/gpio-pca953x.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c b/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
-index fc5bf4870d8e..01e827c31169 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
-@@ -50,8 +50,6 @@ static int no_handler_test(void)
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 6898c27f71f8..7cc7d137133a 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -1239,6 +1239,7 @@ static const struct of_device_id pca953x_dt_ids[] = {
  
- 	event_close(&event);
+ 	{ .compatible = "onnn,cat9554", .data = OF_953X( 8, PCA_INT), },
+ 	{ .compatible = "onnn,pca9654", .data = OF_953X( 8, PCA_INT), },
++	{ .compatible = "onnn,pca9655", .data = OF_953X(16, PCA_INT), },
  
--	dump_ebb_state();
--
- 	/* The real test is that we never took an EBB at 0x0 */
- 
- 	return 0;
+ 	{ .compatible = "exar,xra1202", .data = OF_953X( 8, 0), },
+ 	{ }
 -- 
 2.30.2
 
