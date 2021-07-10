@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7122D3C3106
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC8363C3150
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234970AbhGJCj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:39:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58378 "EHLO mail.kernel.org"
+        id S234572AbhGJClK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235621AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235625AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69C246140F;
-        Sat, 10 Jul 2021 02:35:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89A72613E6;
+        Sat, 10 Jul 2021 02:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884538;
-        bh=FyrjZ1RTao5syKYtfJ/7HgX6cs7d7hvz3SfCLP7np0A=;
+        s=k20201202; t=1625884539;
+        bh=JnqOo6e8vJHDhZEst7h5OxBKz9ibCdmtPW/E9fJiiCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owEVmhSt/XnCGFhwbtAbUmwsOgAAPmKBHY6TYm/wpaejlzyN0EWxiXdgAkb+yXrOS
-         sUc7mmuA9xNPb/JFIhBBytem00Gh6T5Ya0ePP0v/JArGmtB4KOi1E5WdvtGq/NAftT
-         wezlpzzNftxWa+0ST6R02o37IE6LRK/Jxn3Ula62LDJIb0OST/lGlXY9e7dbWOx7Uy
-         JVKEkahtqbEkv9ryEb3q86x7o19AtoLXNet5yHL+l+/ZAb5Jnl9NRhZ5Cy5txdFbA4
-         KOLONx+t8WpXOKZHhZX6QWZQNZwOH7oBfWaEPviZ7EUX7xhY3BcQ6Wh2BReyAY5X1+
-         FXS5T3LSAw+ZA==
+        b=eB6wyN6ZlozGbwnhg+PsKVy3n1c9iKWHyebi2FXu2wXilE+IwcXQhVUQYnFK+dE2a
+         pj8UyEQPmv6LLY3pMcKL6X/V+j1bPJM1bau2IK7JjJluiCcKSmm8pRPxptT/L88NlB
+         yaF3/IFwHtz9Jo7kliONwtrWtU8X+6wmWbnG3pRuv2xLGrxVKyeyca9JrnniAKz4Xs
+         LatUDsGI33CAScZ64C1ayAqkMzcUJ0JVtffemqjky+ThfdgJFCEdCFiOkxIZMYEDix
+         Vq5GV22u/xMZcTdZ4e/L5SnzM6XDtwqUxEPABP/2dITgUNmp1wWkbkglmdanw2MQeW
+         jLFvTPQL6NQlA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 17/33] ALSA: sb: Fix potential double-free of CSP mixer elements
-Date:   Fri,  9 Jul 2021 22:34:59 -0400
-Message-Id: <20210710023516.3172075-17-sashal@kernel.org>
+Cc:     Geoff Levand <geoff@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 18/33] powerpc/ps3: Add dma_mask to ps3_dma_region
+Date:   Fri,  9 Jul 2021 22:35:00 -0400
+Message-Id: <20210710023516.3172075-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023516.3172075-1-sashal@kernel.org>
 References: <20210710023516.3172075-1-sashal@kernel.org>
@@ -41,45 +42,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Geoff Levand <geoff@infradead.org>
 
-[ Upstream commit c305366a37441c2ac90b08711cb6f032b43672f2 ]
+[ Upstream commit 9733862e50fdba55e7f1554e4286fcc5302ff28e ]
 
-snd_sb_qsound_destroy() contains the calls of removing the previously
-created mixer controls, but it doesn't clear the pointers.  As
-snd_sb_qsound_destroy() itself may be repeatedly called via ioctl,
-this could lead to double-free potentially.
+Commit f959dcd6ddfd29235030e8026471ac1b022ad2b0 (dma-direct: Fix
+potential NULL pointer dereference) added a null check on the
+dma_mask pointer of the kernel's device structure.
 
-Fix it by clearing the struct fields properly afterwards.
+Add a dma_mask variable to the ps3_dma_region structure and set
+the device structure's dma_mask pointer to point to this new variable.
 
-Link: https://lore.kernel.org/r/20210608140540.17885-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes runtime errors like these:
+# WARNING: Fixes tag on line 10 doesn't match correct format
+# WARNING: Fixes tag on line 10 doesn't match correct format
+
+  ps3_system_bus_match:349: dev=8.0(sb_01), drv=8.0(ps3flash): match
+  WARNING: CPU: 0 PID: 1 at kernel/dma/mapping.c:151 .dma_map_page_attrs+0x34/0x1e0
+  ps3flash sb_01: ps3stor_setup:193: map DMA region failed
+
+Signed-off-by: Geoff Levand <geoff@infradead.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/562d0c9ea0100a30c3b186bcc7adb34b0bbd2cd7.1622746428.git.geoff@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/sb/sb16_csp.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/ps3.h  |  2 ++
+ arch/powerpc/platforms/ps3/mm.c | 12 ++++++++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/sound/isa/sb/sb16_csp.c b/sound/isa/sb/sb16_csp.c
-index 5450f58e4f2e..69f392cf67b6 100644
---- a/sound/isa/sb/sb16_csp.c
-+++ b/sound/isa/sb/sb16_csp.c
-@@ -1086,10 +1086,14 @@ static void snd_sb_qsound_destroy(struct snd_sb_csp * p)
- 	card = p->chip->card;	
- 	
- 	down_write(&card->controls_rwsem);
--	if (p->qsound_switch)
-+	if (p->qsound_switch) {
- 		snd_ctl_remove(card, p->qsound_switch);
--	if (p->qsound_space)
-+		p->qsound_switch = NULL;
-+	}
-+	if (p->qsound_space) {
- 		snd_ctl_remove(card, p->qsound_space);
-+		p->qsound_space = NULL;
-+	}
- 	up_write(&card->controls_rwsem);
+diff --git a/arch/powerpc/include/asm/ps3.h b/arch/powerpc/include/asm/ps3.h
+index 17ee719e799f..013d24d246d6 100644
+--- a/arch/powerpc/include/asm/ps3.h
++++ b/arch/powerpc/include/asm/ps3.h
+@@ -83,6 +83,7 @@ struct ps3_dma_region_ops;
+  * @bus_addr: The 'translated' bus address of the region.
+  * @len: The length in bytes of the region.
+  * @offset: The offset from the start of memory of the region.
++ * @dma_mask: Device dma_mask.
+  * @ioid: The IOID of the device who owns this region
+  * @chunk_list: Opaque variable used by the ioc page manager.
+  * @region_ops: struct ps3_dma_region_ops - dma region operations
+@@ -97,6 +98,7 @@ struct ps3_dma_region {
+ 	enum ps3_dma_region_type region_type;
+ 	unsigned long len;
+ 	unsigned long offset;
++	u64 dma_mask;
  
- 	/* cancel pending transfer of QSound parameters */
+ 	/* driver variables  (set by ps3_dma_region_create) */
+ 	unsigned long bus_addr;
+diff --git a/arch/powerpc/platforms/ps3/mm.c b/arch/powerpc/platforms/ps3/mm.c
+index 19bae78b1f25..76cbf1be9962 100644
+--- a/arch/powerpc/platforms/ps3/mm.c
++++ b/arch/powerpc/platforms/ps3/mm.c
+@@ -18,6 +18,7 @@
+  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ 
++#include <linux/dma-mapping.h>
+ #include <linux/kernel.h>
+ #include <linux/export.h>
+ #include <linux/memblock.h>
+@@ -1132,6 +1133,7 @@ int ps3_dma_region_init(struct ps3_system_bus_device *dev,
+ 	enum ps3_dma_region_type region_type, void *addr, unsigned long len)
+ {
+ 	unsigned long lpar_addr;
++	int result;
+ 
+ 	lpar_addr = addr ? ps3_mm_phys_to_lpar(__pa(addr)) : 0;
+ 
+@@ -1143,6 +1145,16 @@ int ps3_dma_region_init(struct ps3_system_bus_device *dev,
+ 		r->offset -= map.r1.offset;
+ 	r->len = len ? len : _ALIGN_UP(map.total, 1 << r->page_size);
+ 
++	dev->core.dma_mask = &r->dma_mask;
++
++	result = dma_set_mask_and_coherent(&dev->core, DMA_BIT_MASK(32));
++
++	if (result < 0) {
++		dev_err(&dev->core, "%s:%d: dma_set_mask_and_coherent failed: %d\n",
++			__func__, __LINE__, result);
++		return result;
++	}
++
+ 	switch (dev->dev_type) {
+ 	case PS3_DEVICE_TYPE_SB:
+ 		r->region_ops =  (USE_DYNAMIC_DMA)
 -- 
 2.30.2
 
