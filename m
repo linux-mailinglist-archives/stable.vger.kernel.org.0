@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E729A3C31E5
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCED43C31E2
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234146AbhGJCpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33904 "EHLO mail.kernel.org"
+        id S235214AbhGJCpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:45:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235407AbhGJCns (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235412AbhGJCns (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:43:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E79D06141D;
-        Sat, 10 Jul 2021 02:39:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E35B6141A;
+        Sat, 10 Jul 2021 02:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884785;
-        bh=J63qNQ5wbp4Y3iHsK/XG9gvi5r6sP9RqpPWd3wMQybE=;
+        s=k20201202; t=1625884787;
+        bh=YXEHPD2Vi2xEUHW1TMUFHUcpQOipBhA/X0A+7MOjTEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gL/thfnZQD+6RSyz9JYzoFF7lNmhlykbyUEmUm7FsyHumJAY12aLSoQxzUAsmyw4t
-         2NtqjBT13Y8thFajRcOVCxR9lnWPuOXk7mAnaZE7WChQ23zcCPHcDWJ/XZsfkdV+hP
-         B0pUvM82JOgqi7gOLtVVGolxw69Exnzlo/xO8Rd8DeVC+zdcY7UntBCu1nwuMWPLBv
-         mxJOd8ugz/IfFf0h2LfqIjw1g32yQRLY8yTk/K32XfFOPT/2YKDZBkkFDmj/WBmrY1
-         aOTgdXrm3ZYLYS5TazcWf9tjNP+TBZwrYAteo03+IBWroQWUyxNZ4CKQ1AFt6GqE8v
-         LRMbNddFu2Wxw==
+        b=NcnECSuOF+V2XKHUHDm4OPbdRazcOonnmgmdd8kgzwZSPoGMbW5ldXOf1UXbqGNFP
+         1Y6pW6aMjS8Gf1CpcqYhBe/kGQn2RAZ9kYBR8tYG4JaUHLUallRzpc8M527a55dfgu
+         PhASfemjL5eiyemhG6ToUilc7Cqt3v2cAVtlyPkSEQ5Px2gB+Q6+DZ8vrwlWB2QWHj
+         iXq6eT4P8C3+MFBPLBZVM8n7BVqUXnvUqgAufNBJIhmqdUfUnrDJAqs9/ELalOIe4A
+         9seQSo78jaHfBhHxzy2B96HHATIKR8VEr/6NCQesBw6aUWHgY/DvJezg1Omb3ltadr
+         qu9L2ZL2ylojg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        jfs-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.4 22/23] jfs: fix GPF in diFree
-Date:   Fri,  9 Jul 2021 22:39:11 -0400
-Message-Id: <20210710023912.3172972-22-sashal@kernel.org>
+Cc:     Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
+        Kyungsik Lee <kyungsik.lee@lge.com>,
+        Yinghai Lu <yinghai@kernel.org>,
+        Bongkyu Kim <bongkyu.kim@lge.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
+        Rajat Asthana <thisisrast7@gmail.com>,
+        Nick Terrell <terrelln@fb.com>,
+        Gao Xiang <hsiangkao@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 23/23] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
+Date:   Fri,  9 Jul 2021 22:39:12 -0400
+Message-Id: <20210710023912.3172972-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023912.3172972-1-sashal@kernel.org>
 References: <20210710023912.3172972-1-sashal@kernel.org>
@@ -44,49 +51,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
 
-[ Upstream commit 9d574f985fe33efd6911f4d752de6f485a1ea732 ]
+[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
 
-Avoid passing inode with
-JFS_SBI(inode->i_sb)->ipimap == NULL to
-diFree()[1]. GFP will appear:
+lz4 compatible decompressor is simple.  The format is underspecified and
+relies on EOF notification to determine when to stop.  Initramfs buffer
+format[1] explicitly states that it can have arbitrary number of zero
+padding.  Thus when operating without a fill function, be extra careful to
+ensure that sizes less than 4, or apperantly empty chunksizes are treated
+as EOF.
 
-	struct inode *ipimap = JFS_SBI(ip->i_sb)->ipimap;
-	struct inomap *imap = JFS_IP(ipimap)->i_imap;
+To test this I have created two cpio initrds, first a normal one,
+main.cpio.  And second one with just a single /test-file with content
+"second" second.cpio.  Then i compressed both of them with gzip, and with
+lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
+count=4).  To create four testcase initrds:
 
-JFS_IP() will return invalid pointer when ipimap == NULL
+ 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
+ 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
+ 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
+ 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
 
-Call Trace:
- diFree+0x13d/0x2dc0 fs/jfs/jfs_imap.c:853 [1]
- jfs_evict_inode+0x2c9/0x370 fs/jfs/inode.c:154
- evict+0x2ed/0x750 fs/inode.c:578
- iput_final fs/inode.c:1654 [inline]
- iput.part.0+0x3fe/0x820 fs/inode.c:1680
- iput+0x58/0x70 fs/inode.c:1670
+The pad4 test-cases replicate the initrd load by grub, as it pads and
+aligns every initrd it loads.
 
-Reported-and-tested-by: syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+All of the above boot, however /test-file was not accessible in the initrd
+for the testcase #4, as decoding in lz4 decompressor failed.  Also an
+error message printed which usually is harmless.
+
+Whith a patched kernel, all of the above testcases now pass, and
+/test-file is accessible.
+
+This fixes lz4 initrd decompress warning on every boot with grub.  And
+more importantly this fixes inability to load multiple lz4 compressed
+initrds with grub.  This patch has been shipping in Ubuntu kernels since
+January 2021.
+
+[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
+
+BugLink: https://bugs.launchpad.net/bugs/1835660
+Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
+Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
+Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Cc: Kyungsik Lee <kyungsik.lee@lge.com>
+Cc: Yinghai Lu <yinghai@kernel.org>
+Cc: Bongkyu Kim <bongkyu.kim@lge.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
+Cc: Rajat Asthana <thisisrast7@gmail.com>
+Cc: Nick Terrell <terrelln@fb.com>
+Cc: Gao Xiang <hsiangkao@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ lib/decompress_unlz4.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/jfs/inode.c b/fs/jfs/inode.c
-index 41aa3ca6a6a4..b318732a8562 100644
---- a/fs/jfs/inode.c
-+++ b/fs/jfs/inode.c
-@@ -160,7 +160,8 @@ void jfs_evict_inode(struct inode *inode)
- 			if (test_cflag(COMMIT_Freewmap, inode))
- 				jfs_free_zero_link(inode);
+diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
+index 036fc882cd72..f1449244fdd4 100644
+--- a/lib/decompress_unlz4.c
++++ b/lib/decompress_unlz4.c
+@@ -115,6 +115,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 				error("data corrupted");
+ 				goto exit_2;
+ 			}
++		} else if (size < 4) {
++			/* empty or end-of-file */
++			goto exit_3;
+ 		}
  
--			diFree(inode);
-+			if (JFS_SBI(inode->i_sb)->ipimap)
-+				diFree(inode);
+ 		chunksize = get_unaligned_le32(inp);
+@@ -128,6 +131,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 			continue;
+ 		}
  
- 			/*
- 			 * Free the inode from the quota allocation.
++		if (!fill && chunksize == 0) {
++			/* empty or end-of-file */
++			goto exit_3;
++		}
+ 
+ 		if (posp)
+ 			*posp += 4;
+@@ -184,6 +191,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 		}
+ 	}
+ 
++exit_3:
+ 	ret = 0;
+ exit_2:
+ 	if (!input)
 -- 
 2.30.2
 
