@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BF263C2E81
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E7E93C2E7E
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:27:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233578AbhGJC1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:27:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42882 "EHLO mail.kernel.org"
+        id S233585AbhGJC1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:27:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233445AbhGJC0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233598AbhGJC0p (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:26:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A83FF613EB;
-        Sat, 10 Jul 2021 02:23:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E931F613E8;
+        Sat, 10 Jul 2021 02:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883835;
-        bh=hwI9xTL2ebUdO0DmxdC1jpzwPPvsqSev3UsSzitDOfE=;
+        s=k20201202; t=1625883836;
+        bh=zmj9WyXtSseTTgocPzLouGUl1hEY6kvuM9oHZQw1Zo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFBPbhIorIDBmBQmQ8UZa8EkrWgfFq09XfTwpxsPy432lalYp7Afp0MXy23EuUw44
-         cbbeN4BZOY7eYaLvYa/n+ZSwVS6ptUgJZWyoEHBXZI05sSJ/Ux3w+TCfani32yMFE0
-         gnziORBM0h2Ciip3OvgBViTBWHwam5daFJTICYc7+Xa5xiPynqxE3ciQ5J6ZnFT4c0
-         gY6dS24P2kY/0oNSESCFkpkZPjbxdn6/k6x0YPZI13NbWxGgB+ZIn8yK3QAmN2lnLU
-         YLxff0l3wSRfbdVAVCutDnKwvSswHaHbxt57ydcyWmdskeOMpfar2vXE/ajYh7OQxe
-         WiakyaBofHIXQ==
+        b=LUb3ZjoctrQKPVEzYtWT+OFXwik0fHuRD7D7dVl80lV3TmXOLs0uDlL4b50aYPwY3
+         zlTdc1ftTI72GqQIZXyXfYVaUH2tApEAhvPxNOMQKJRpX3dU2GZ1KJK+j6e1syYWR3
+         uEbcg2hPDBlH+oHqpHapVAzAeKXkjUEsO8+TLEx9lin2OfgetqZBTuedv0sX3z+SAh
+         IHeLpWGQml4ostakBar/Xy+JNcLijdlNNA/An9w5lZkniiz6+H0Lr/xBQZrzvjR/x8
+         tSRKnj5t9CmwBZbI53IfXsecUS6X1pvZgcgEkVhC8r7kG+rTVo1UAWxzpv2+CB1aOO
+         DTF0j07nRDVcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yizhuo Zhai <yzhai003@ucr.edu>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 082/104] Input: hideep - fix the uninitialized use in hideep_nvm_unlock()
-Date:   Fri,  9 Jul 2021 22:21:34 -0400
-Message-Id: <20210710022156.3168825-82-sashal@kernel.org>
+Cc:     Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Daniel Jozsef <daniel.jozsef@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.12 083/104] ALSA: bebob: add support for ToneWeal FW66
+Date:   Fri,  9 Jul 2021 22:21:35 -0400
+Message-Id: <20210710022156.3168825-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
 References: <20210710022156.3168825-1-sashal@kernel.org>
@@ -42,65 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yizhuo Zhai <yzhai003@ucr.edu>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit cac7100d4c51c04979dacdfe6c9a5e400d3f0a27 ]
+[ Upstream commit 50ebe56222bfa0911a932930f9229ee5995508d9 ]
 
-Inside function hideep_nvm_unlock(), variable "unmask_code" could
-be uninitialized if hideep_pgm_r_reg() returns error, however, it
-is used in the later if statement after an "and" operation, which
-is potentially unsafe.
+A user of FFADO project reported the issue of ToneWeal FW66. As a result,
+the device is identified as one of applications of BeBoB solution.
 
-Signed-off-by: Yizhuo <yzhai003@ucr.edu>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+I note that in the report the device returns contradictory result in plug
+discovery process for audio subunit. Fortunately ALSA BeBoB driver doesn't
+perform it thus it's likely to handle the device without issues.
+
+I receive no reaction to test request for this patch yet, however it would
+be worth to add support for it.
+
+daniel@gibbonmoon:/sys/bus/firewire/devices/fw1$ grep -r . *
+Binary file config_rom matches
+dev:244:1
+guid:0x0023270002000000
+hardware_version:0x000002
+is_local:0
+model:0x020002
+model_name:FW66
+power/runtime_active_time:0
+power/runtime_active_kids:0
+power/runtime_usage:0
+power/runtime_status:unsupported
+power/async:disabled
+power/runtime_suspended_time:0
+power/runtime_enabled:disabled
+power/control:auto
+subsystem/drivers_autoprobe:1
+uevent:MAJOR=244
+uevent:MINOR=1
+uevent:DEVNAME=fw1
+units:0x00a02d:0x010001
+vendor:0x002327
+vendor_name:ToneWeal
+fw1.0/uevent:MODALIAS=ieee1394:ven00002327mo00020002sp0000A02Dver00010001
+fw1.0/power/runtime_active_time:0
+fw1.0/power/runtime_active_kids:0
+fw1.0/power/runtime_usage:0
+fw1.0/power/runtime_status:unsupported
+fw1.0/power/async:disabled
+fw1.0/power/runtime_suspended_time:0
+fw1.0/power/runtime_enabled:disabled
+fw1.0/power/control:auto
+fw1.0/model:0x020002
+fw1.0/rom_index:15
+fw1.0/specifier_id:0x00a02d
+fw1.0/model_name:FW66
+fw1.0/version:0x010001
+fw1.0/modalias:ieee1394:ven00002327mo00020002sp0000A02Dver00010001
+
+Cc: Daniel Jozsef <daniel.jozsef@gmail.com>
+Reference: https://lore.kernel.org/alsa-devel/20200119164335.GA11974@workstation/
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210619083922.16060-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/hideep.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ sound/firewire/Kconfig       | 1 +
+ sound/firewire/bebob/bebob.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/input/touchscreen/hideep.c b/drivers/input/touchscreen/hideep.c
-index ddad4a82a5e5..e9547ee29756 100644
---- a/drivers/input/touchscreen/hideep.c
-+++ b/drivers/input/touchscreen/hideep.c
-@@ -361,13 +361,16 @@ static int hideep_enter_pgm(struct hideep_ts *ts)
- 	return -EIO;
- }
+diff --git a/sound/firewire/Kconfig b/sound/firewire/Kconfig
+index def1f3d5ecf5..12664c3a1414 100644
+--- a/sound/firewire/Kconfig
++++ b/sound/firewire/Kconfig
+@@ -110,6 +110,7 @@ config SND_BEBOB
+ 	  * M-Audio Ozonic/NRV10/ProfireLightBridge
+ 	  * M-Audio FireWire 1814/ProjectMix IO
+ 	  * Digidesign Mbox 2 Pro
++	  * ToneWeal FW66
  
--static void hideep_nvm_unlock(struct hideep_ts *ts)
-+static int hideep_nvm_unlock(struct hideep_ts *ts)
- {
- 	u32 unmask_code;
-+	int error;
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called snd-bebob.
+diff --git a/sound/firewire/bebob/bebob.c b/sound/firewire/bebob/bebob.c
+index 90e98a6d1546..67fa0f2178b0 100644
+--- a/sound/firewire/bebob/bebob.c
++++ b/sound/firewire/bebob/bebob.c
+@@ -59,6 +59,7 @@ static DECLARE_BITMAP(devices_used, SNDRV_CARDS);
+ #define VEN_MAUDIO1	0x00000d6c
+ #define VEN_MAUDIO2	0x000007f5
+ #define VEN_DIGIDESIGN	0x00a07e
++#define OUI_SHOUYO	0x002327
  
- 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_SFR_RPAGE);
--	hideep_pgm_r_reg(ts, 0x0000000C, &unmask_code);
-+	error = hideep_pgm_r_reg(ts, 0x0000000C, &unmask_code);
- 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_DEFAULT_PAGE);
-+	if (error)
-+		return error;
- 
- 	/* make it unprotected code */
- 	unmask_code &= ~HIDEEP_PROT_MODE;
-@@ -384,6 +387,8 @@ static void hideep_nvm_unlock(struct hideep_ts *ts)
- 	NVM_W_SFR(HIDEEP_NVM_MASK_OFS, ts->nvm_mask);
- 	SET_FLASH_HWCONTROL();
- 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_DEFAULT_PAGE);
-+
-+	return 0;
- }
- 
- static int hideep_check_status(struct hideep_ts *ts)
-@@ -462,7 +467,9 @@ static int hideep_program_nvm(struct hideep_ts *ts,
- 	u32 addr = 0;
- 	int error;
- 
--	hideep_nvm_unlock(ts);
-+       error = hideep_nvm_unlock(ts);
-+       if (error)
-+               return error;
- 
- 	while (ucode_len > 0) {
- 		xfer_len = min_t(size_t, ucode_len, HIDEEP_NVM_PAGE_SIZE);
+ #define MODEL_FOCUSRITE_SAFFIRE_BOTH	0x00000000
+ #define MODEL_MAUDIO_AUDIOPHILE_BOTH	0x00010060
+@@ -486,6 +487,8 @@ static const struct ieee1394_device_id bebob_id_table[] = {
+ 			    &maudio_special_spec),
+ 	/* Digidesign Mbox 2 Pro */
+ 	SND_BEBOB_DEV_ENTRY(VEN_DIGIDESIGN, 0x0000a9, &spec_normal),
++	// Toneweal FW66.
++	SND_BEBOB_DEV_ENTRY(OUI_SHOUYO, 0x020002, &spec_normal),
+ 	/* IDs are unknown but able to be supported */
+ 	/*  Apogee, Mini-ME Firewire */
+ 	/*  Apogee, Mini-DAC Firewire */
 -- 
 2.30.2
 
