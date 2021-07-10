@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A963C316B
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D52B13C3169
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233838AbhGJClU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58378 "EHLO mail.kernel.org"
+        id S232917AbhGJClT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:41:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235807AbhGJCjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235808AbhGJCjr (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6E5861430;
-        Sat, 10 Jul 2021 02:36:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 000B061437;
+        Sat, 10 Jul 2021 02:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884567;
-        bh=NmpHhKxyWabwxzoQk+F8jXQUcqsTQj1VPDk0XMEuu2M=;
+        s=k20201202; t=1625884568;
+        bh=QeLUFQxy6JlMBjtj8OBi4oV5VQjWo0ufIQd5sr2UTYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LIO4QGPY5B8WalpPv0ClcL9ndgHBP/qAfH7xDYHMFxyf/+lF4Zn7GfanXbBEs3lNf
-         SMdoVad6GH1qUnNqcvfs0yWNn3rWh/wbvAkjzuHiwnmXj1mf8kn3yytieTKmzSRpud
-         KQGtfoFK91LS9dnJ/KoTUwwlUCQSPc2ZNdxu1dbTIYzA8xQMmkLaL9kGTKdAUr4XZU
-         ApwSYUQXrEnyZwGsYmJKsX6dvxMaYuYjXYTzn9+As1+aPY1lMu81zJ879F+ghjPGF9
-         H4aBr4WebajBp1M+QFaJxkZIk9SCtCIu1z263fs8imZzI+UVVXU8jd2xK+pGhMlcYj
-         vPPUIP0qsxI0g==
+        b=br5GaZcGNQ8ts+I3CE6PgJka1pj7uhIPor8RuPw6b/liiMMUXjwyaDQLQYcqPAvIL
+         pjPCHqLETYS0p8nyMJYIHk9Zo8ubzCvDIAVsX1InZu4FtQEC6TxkkJWY5m+A6yhj2O
+         e2jU+OojieZbbOPWNTJJH61pVC0yLJ3aCff8STU5OjFMBzx5S9/GWAZUiB05lVFgwN
+         FhvLYmL9lNRT6KbygMHG+WQpozZnRnMHS8Frbo5lFPnktLBFH/mxRDGN3n9aMiOU2f
+         DA4E4c0GfxNOJosicuog4IIZ5TNMe3sAQAMWtRs+NrMVwZWzYQwYlY/kFplHegiJ93
+         htFV8AYuXE0ig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 02/26] misc/libmasm/module: Fix two use after free in ibmasm_init_one
-Date:   Fri,  9 Jul 2021 22:35:40 -0400
-Message-Id: <20210710023604.3172486-2-sashal@kernel.org>
+Cc:     Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.9 03/26] Revert "ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro"
+Date:   Fri,  9 Jul 2021 22:35:41 -0400
+Message-Id: <20210710023604.3172486-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023604.3172486-1-sashal@kernel.org>
 References: <20210710023604.3172486-1-sashal@kernel.org>
@@ -42,56 +42,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 7272b591c4cb9327c43443f67b8fbae7657dd9ae ]
+[ Upstream commit 5d6fb80a142b5994355ce675c517baba6089d199 ]
 
-In ibmasm_init_one, it calls ibmasm_init_remote_input_dev().
-Inside ibmasm_init_remote_input_dev, mouse_dev and keybd_dev are
-allocated by input_allocate_device(), and assigned to
-sp->remote.mouse_dev and sp->remote.keybd_dev respectively.
+This reverts commit 0edabdfe89581669609eaac5f6a8d0ae6fe95e7f.
 
-In the err_free_devices error branch of ibmasm_init_one,
-mouse_dev and keybd_dev are freed by input_free_device(), and return
-error. Then the execution runs into error_send_message error branch
-of ibmasm_init_one, where ibmasm_free_remote_input_dev(sp) is called
-to unregister the freed sp->remote.mouse_dev and sp->remote.keybd_dev.
+I've explained that optional FireWire card for d.2 is also built-in to
+d.2 Pro, however it's wrong. The optional card uses DM1000 ASIC and has
+'Mackie DJ Mixer' in its model name of configuration ROM. On the other
+hand, built-in FireWire card for d.2 Pro and d.4 Pro uses OXFW971 ASIC
+and has 'd.Pro' in its model name according to manuals and user
+experiences. The former card is not the card for d.2 Pro. They are similar
+in appearance but different internally.
 
-My patch add a "error_init_remote" label to handle the error of
-ibmasm_init_remote_input_dev(), to avoid the uaf bugs.
-
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Link: https://lore.kernel.org/r/20210426170620.10546-1-lyl2019@mail.ustc.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210518084557.102681-2-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/ibmasm/module.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/firewire/Kconfig       | 4 ++--
+ sound/firewire/bebob/bebob.c | 2 +-
+ sound/firewire/oxfw/oxfw.c   | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/ibmasm/module.c b/drivers/misc/ibmasm/module.c
-index 6b3bf9ab051d..706decef68a0 100644
---- a/drivers/misc/ibmasm/module.c
-+++ b/drivers/misc/ibmasm/module.c
-@@ -123,7 +123,7 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	result = ibmasm_init_remote_input_dev(sp);
- 	if (result) {
- 		dev_err(sp->dev, "Failed to initialize remote queue\n");
--		goto error_send_message;
-+		goto error_init_remote;
- 	}
- 
- 	result = ibmasm_send_driver_vpd(sp);
-@@ -143,8 +143,9 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	return 0;
- 
- error_send_message:
--	disable_sp_interrupts(sp->base_address);
- 	ibmasm_free_remote_input_dev(sp);
-+error_init_remote:
-+	disable_sp_interrupts(sp->base_address);
- 	free_irq(sp->irq, (void *)sp);
- error_request_irq:
- 	iounmap(sp->base_address);
+diff --git a/sound/firewire/Kconfig b/sound/firewire/Kconfig
+index f7b8dcb57815..da9874d54676 100644
+--- a/sound/firewire/Kconfig
++++ b/sound/firewire/Kconfig
+@@ -36,7 +36,7 @@ config SND_OXFW
+ 	   * Mackie(Loud) Onyx-i series (former models)
+ 	   * Mackie(Loud) Onyx Satellite
+ 	   * Mackie(Loud) Tapco Link.Firewire
+-	   * Mackie(Loud) d.4 pro
++	   * Mackie(Loud) d.2 pro/d.4 pro (built-in FireWire card with OXFW971 ASIC)
+ 	   * Mackie(Loud) U.420/U.420d
+ 	   * TASCAM FireOne
+ 	   * Stanton Controllers & Systems 1 Deck/Mixer
+@@ -82,7 +82,7 @@ config SND_BEBOB
+ 	  * PreSonus FIREBOX/FIREPOD/FP10/Inspire1394
+ 	  * BridgeCo RDAudio1/Audio5
+ 	  * Mackie Onyx 1220/1620/1640 (FireWire I/O Card)
+-	  * Mackie d.2 (FireWire Option) and d.2 Pro
++	  * Mackie d.2 (optional FireWire card with DM1000 ASIC)
+ 	  * Stanton FinalScratch 2 (ScratchAmp)
+ 	  * Tascam IF-FW/DM
+ 	  * Behringer XENIX UFX 1204/1604
+diff --git a/sound/firewire/bebob/bebob.c b/sound/firewire/bebob/bebob.c
+index 9d620a7c283f..c51564213365 100644
+--- a/sound/firewire/bebob/bebob.c
++++ b/sound/firewire/bebob/bebob.c
+@@ -414,7 +414,7 @@ static const struct ieee1394_device_id bebob_id_table[] = {
+ 	SND_BEBOB_DEV_ENTRY(VEN_BRIDGECO, 0x00010049, &spec_normal),
+ 	/* Mackie, Onyx 1220/1620/1640 (Firewire I/O Card) */
+ 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE2, 0x00010065, &spec_normal),
+-	// Mackie, d.2 (Firewire option card) and d.2 Pro (the card is built-in).
++	// Mackie, d.2 (optional Firewire card with DM1000).
+ 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE1, 0x00010067, &spec_normal),
+ 	/* Stanton, ScratchAmp */
+ 	SND_BEBOB_DEV_ENTRY(VEN_STANTON, 0x00000001, &spec_normal),
+diff --git a/sound/firewire/oxfw/oxfw.c b/sound/firewire/oxfw/oxfw.c
+index 44ecf2f5f65f..e2932ac9d487 100644
+--- a/sound/firewire/oxfw/oxfw.c
++++ b/sound/firewire/oxfw/oxfw.c
+@@ -405,7 +405,7 @@ static const struct ieee1394_device_id oxfw_id_table[] = {
+ 	 *  Onyx-i series (former models):	0x081216
+ 	 *  Mackie Onyx Satellite:		0x00200f
+ 	 *  Tapco LINK.firewire 4x6:		0x000460
+-	 *  d.4 pro:				Unknown
++	 *  d.2 pro/d.4 pro (built-in card):	Unknown
+ 	 *  U.420:				Unknown
+ 	 *  U.420d:				Unknown
+ 	 */
 -- 
 2.30.2
 
