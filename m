@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 399C43C3103
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31D913C3108
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234952AbhGJCj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:39:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58448 "EHLO mail.kernel.org"
+        id S233594AbhGJCkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:40:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235620AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235618AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79D4F61417;
-        Sat, 10 Jul 2021 02:35:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEED761414;
+        Sat, 10 Jul 2021 02:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884534;
-        bh=hW8Q2O61AkaJlvZF1qqBNpySKBd2DXLScMrgUKomg9w=;
+        s=k20201202; t=1625884535;
+        bh=W6/seEQ/mmK4LdL/pqfbA97mfOAQ/d3/aYwthDbPhWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OqXVMUhcFzpemmBknybkjQSgY+D3+W2aYUXkzeoLeUE9SkoaO8pivk235s0eeekRP
-         ishNO60LLRwFr0aJbNH9QQnixTZRqenx7pKwKLu5sdugLkrWnNuj0fcditOgtxmFik
-         HCnmsIw6Ec6lDgYyYTlbmpNWQEGBWSu4e1cTbdxAlQvm69nizQ6tVrucF2/KMvrQXz
-         atN5IdOZ2h7uAGp+Llvwm57vzxcTXzwD0K9t3iki9kizvqAGc0kQ9PaSizeJnkrIzg
-         gJtwMyuBGZoKooiPvUMPveEvrMUU8Psg4i3IH5WcLMb8aZ60s9KEpNczg8BG7OhDfW
-         bTizVEYjYGmeQ==
+        b=q5ZAlGKkTCr9lh8EVdCd1J9rc65PF0DmS0nMplL0m9EEnf/lYd044uyH72iI22FZq
+         IaRCcpsAGE6sOn+Q2jB4JxfCtmtebMLwgVl92HIPn0dM9C2ItLRiP3XWu8ZOCRrpCv
+         CFzZB9Ek0BvPeWubJlNfWCzV0I85VxYN0rWfE5DXyA6SEGZqFfxgKI05NPOgfP0KMD
+         vhzgIthoOPODxGGd1e4DW7fHqdTsMxfgweWZB5WJVP93YDOq1MZxbLXxo76NuwqAtZ
+         ILtnuPXlhOQlwSLcFMmrFfHgZYQwLGJGTHtNcQDBPnTNw7OGShY/bG+BOXJ0mnvsDi
+         /fLDbvQZdrWbw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 14/33] mfd: da9052/stmpe: Add and modify MODULE_DEVICE_TABLE
-Date:   Fri,  9 Jul 2021 22:34:56 -0400
-Message-Id: <20210710023516.3172075-14-sashal@kernel.org>
+Cc:     Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 15/33] s390/sclp_vt220: fix console name to match device
+Date:   Fri,  9 Jul 2021 22:34:57 -0400
+Message-Id: <20210710023516.3172075-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023516.3172075-1-sashal@kernel.org>
 References: <20210710023516.3172075-1-sashal@kernel.org>
@@ -44,48 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
 
-[ Upstream commit 4700ef326556ed74aba188f12396740a8c1c21dd ]
+[ Upstream commit b7d91d230a119fdcc334d10c9889ce9c5e15118b ]
 
-This patch adds/modifies MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+Console name reported in /proc/consoles:
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+  ttyS1                -W- (EC p  )    4:65
+
+does not match the char device name:
+
+  crw--w----    1 root     root        4,  65 May 17 12:18 /dev/ttysclp0
+
+so debian-installer inside a QEMU s390x instance gets confused and fails
+to start with the following error:
+
+  steal-ctty: No such file or directory
+
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Link: https://lore.kernel.org/r/20210427194010.9330-1-vvidic@valentin-vidic.from.hr
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/da9052-i2c.c | 1 +
- drivers/mfd/stmpe-i2c.c  | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/kernel/setup.c       | 2 +-
+ drivers/s390/char/sclp_vt220.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/da9052-i2c.c b/drivers/mfd/da9052-i2c.c
-index 578e881067a5..4094f97ec7dc 100644
---- a/drivers/mfd/da9052-i2c.c
-+++ b/drivers/mfd/da9052-i2c.c
-@@ -118,6 +118,7 @@ static const struct i2c_device_id da9052_i2c_id[] = {
- 	{"da9053-bc", DA9053_BC},
- 	{}
- };
-+MODULE_DEVICE_TABLE(i2c, da9052_i2c_id);
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 42025e33a4e0..ceaee215e243 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -140,7 +140,7 @@ static void __init set_preferred_console(void)
+ 	else if (CONSOLE_IS_3270)
+ 		add_preferred_console("tty3270", 0, NULL);
+ 	else if (CONSOLE_IS_VT220)
+-		add_preferred_console("ttyS", 1, NULL);
++		add_preferred_console("ttysclp", 0, NULL);
+ 	else if (CONSOLE_IS_HVC)
+ 		add_preferred_console("hvc", 0, NULL);
+ }
+diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
+index e84395d71389..0b9a83d51e2b 100644
+--- a/drivers/s390/char/sclp_vt220.c
++++ b/drivers/s390/char/sclp_vt220.c
+@@ -35,8 +35,8 @@
+ #define SCLP_VT220_MINOR		65
+ #define SCLP_VT220_DRIVER_NAME		"sclp_vt220"
+ #define SCLP_VT220_DEVICE_NAME		"ttysclp"
+-#define SCLP_VT220_CONSOLE_NAME		"ttyS"
+-#define SCLP_VT220_CONSOLE_INDEX	1	/* console=ttyS1 */
++#define SCLP_VT220_CONSOLE_NAME		"ttysclp"
++#define SCLP_VT220_CONSOLE_INDEX	0	/* console=ttysclp0 */
  
- #ifdef CONFIG_OF
- static const struct of_device_id dialog_dt_ids[] = {
-diff --git a/drivers/mfd/stmpe-i2c.c b/drivers/mfd/stmpe-i2c.c
-index 863c39a3353c..d284df25c76b 100644
---- a/drivers/mfd/stmpe-i2c.c
-+++ b/drivers/mfd/stmpe-i2c.c
-@@ -109,7 +109,7 @@ static const struct i2c_device_id stmpe_i2c_id[] = {
- 	{ "stmpe2403", STMPE2403 },
- 	{ }
- };
--MODULE_DEVICE_TABLE(i2c, stmpe_id);
-+MODULE_DEVICE_TABLE(i2c, stmpe_i2c_id);
- 
- static struct i2c_driver stmpe_i2c_driver = {
- 	.driver = {
+ /* Representation of a single write request */
+ struct sclp_vt220_request {
 -- 
 2.30.2
 
