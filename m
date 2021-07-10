@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81CDD3C2EBA
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DBC23C2EBC
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233684AbhGJC2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:28:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43192 "EHLO mail.kernel.org"
+        id S234028AbhGJC2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:28:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233662AbhGJC1h (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233534AbhGJC1h (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:27:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33276613D1;
-        Sat, 10 Jul 2021 02:24:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B5AB613E8;
+        Sat, 10 Jul 2021 02:24:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883879;
-        bh=gLr8AGwzad/+lkLaGkCkTb6n2SoLCd488fNl48G1pGw=;
+        s=k20201202; t=1625883880;
+        bh=Wqxmro3W+5ccL+hctX7Erm55wgwe6w9dc9oi77S6ap4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQrpfU87OUQRJ3ad8U+RVs/A9z28PaR6hZuiWpz0XA4NCblxpZ6HJn2xy/kJ7z8Qp
-         DHHrsft8EMtc8GzzjUrs+fsLis3tuvLgzLfbt4lkvmDitIayWdisf3fbsQNRrtteM4
-         uf53keE4JjKDSSpWonJQGXIbFbfdWJSmVQdNckAvahFrIL2fIRIZquIVu3yx765/d/
-         1bPIw27aa/XuVBMI7dwc3JI50wFZSu9Zhnx/PzdVKUbTJHHni52wCTObrDr8b/DvZF
-         q4o9UBLCAFBBPBgx/XDunfZ1M2yYDUwTjVf7QzxJZVsIxi2ALJrMoC9CV1wLJPm4Bo
-         p7e05TN3syHrw==
+        b=rjnQiVWj8yGm5OiaEbHz7BUrWUO9V1IeJdrTQC5QiLSOJar6qxb81JMb4U3i8z0hA
+         83jts0Gje+NdLs561TPYj5xaPd0ZxFNliOe0PNSsppPUpT/Q8Q+xkRl02uJror+0NY
+         KAnYrC//A32OlHrpYJ85h8/KWihnQtmngPfPBXtTvfx5/op0s9nDbSmXXRw9EwpYrp
+         wzvRtHCnM6QwHFuotzHlCf6gVqbhq0tzX0tJGn/9Z8YZliDvGk4eoDm2rMKHsJiCe9
+         V4Q0goP5SZXaFgisIfbc1PudK7C19GlD1qQUpEVQg9J7V7jy7WUyWZ5csKNieNdk9K
+         ZhUKWvZV9WK0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sherry Sun <sherry.sun@nxp.com>,
+Cc:     Michael Walle <michael@walle.cc>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 08/93] tty: serial: fsl_lpuart: fix the potential risk of division or modulo by zero
-Date:   Fri,  9 Jul 2021 22:23:02 -0400
-Message-Id: <20210710022428.3169839-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 09/93] serial: fsl_lpuart: disable DMA for console and fix sysrq
+Date:   Fri,  9 Jul 2021 22:23:03 -0400
+Message-Id: <20210710022428.3169839-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -42,38 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit fcb10ee27fb91b25b68d7745db9817ecea9f1038 ]
+[ Upstream commit 8cac2f6eb8548245e6f8fb893fc7f2a714952654 ]
 
-We should be very careful about the register values that will be used
-for division or modulo operations, althrough the possibility that the
-UARTBAUD register value is zero is very low, but we had better to deal
-with the "bad data" of hardware in advance to avoid division or modulo
-by zero leading to undefined kernel behavior.
+SYSRQ doesn't work with DMA. This is because there is no error
+indication whether a symbol had a framing error or not. Actually,
+this is not completely correct, there is a bit in the data register
+which is set in this case, but we'd have to read change the DMA access
+to 16 bit and we'd need to post process the data, thus make the DMA
+pointless in the first place.
 
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20210427021226.27468-1-sherry.sun@nxp.com
+Signed-off-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20210512141255.18277-10-michael@walle.cc
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/serial/fsl_lpuart.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index bd047e1f9bea..7aab87c92192 100644
+index 7aab87c92192..996e9aaa243e 100644
 --- a/drivers/tty/serial/fsl_lpuart.c
 +++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -2414,6 +2414,9 @@ lpuart32_console_get_options(struct lpuart_port *sport, int *baud,
+@@ -1581,6 +1581,9 @@ static void lpuart_tx_dma_startup(struct lpuart_port *sport)
+ 	u32 uartbaud;
+ 	int ret;
  
- 	bd = lpuart32_read(&sport->port, UARTBAUD);
- 	bd &= UARTBAUD_SBR_MASK;
-+	if (!bd)
-+		return;
++	if (uart_console(&sport->port))
++		goto err;
 +
- 	sbr = bd;
- 	uartclk = lpuart_get_baud_clk_rate(sport);
- 	/*
+ 	if (!sport->dma_tx_chan)
+ 		goto err;
+ 
+@@ -1610,6 +1613,9 @@ static void lpuart_rx_dma_startup(struct lpuart_port *sport)
+ 	int ret;
+ 	unsigned char cr3;
+ 
++	if (uart_console(&sport->port))
++		goto err;
++
+ 	if (!sport->dma_rx_chan)
+ 		goto err;
+ 
 -- 
 2.30.2
 
