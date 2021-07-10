@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E38B63C2DD5
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5325A3C2DD6
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233028AbhGJCZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232063AbhGJCZS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 9 Jul 2021 22:25:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41906 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232307AbhGJCZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:25:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94C57613BE;
-        Sat, 10 Jul 2021 02:22:23 +0000 (UTC)
+        id S232525AbhGJCZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:25:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE2CD613E6;
+        Sat, 10 Jul 2021 02:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883744;
-        bh=wrF8ezly5hOS9kAYOcf2E6X904LNxqEox+vrkpnSTug=;
+        s=k20201202; t=1625883745;
+        bh=N9tg4uOowuFl6i9wi0x5B9WKbHwNGTjWXkUqtqYIuno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B2NDQqbMgAL59i9YS0WefAN1NXdlCZcMcvh09trfP6+M+yHCS/3j5U7Kv4kMfDz2s
-         A/8mA5NSX5vnvLo4EwcCDvjb8zR/UEj8pSfo1JV4bV0MSAd/GhAFXfIVhr4Ch6L2lF
-         fs+rJDutwnCJ8rhoieTg5y2/bBDH6b++aL9M5A2qflmARSh1KV8NNobqrHTS+E08K6
-         dE1ZJRLTGTTsfXNelNaaZuTDH/TyJxB486/YQ7EXEaWkWTszJHoocHon+P9kXiYP65
-         B7W/GpVamPs4RKz2LDVlHzhC2kdFl9TabHgB/MdxX1S/8jvJKbBJ8YgE819210cOPu
-         OQsgtxW9AOAvg==
+        b=swyS7SKCsqM3yDLRaE2A+hDf1c3nyOkKXW5SX4LsiRAQNumIu9SU7jrLEI1uAT46b
+         2Zf2p6iceP5WpF8aNqwNTh7Vpyu7kBLMNewDOGtkufegJhQGfV2CF2/9ZToeuFkvZu
+         l8QdhO2lSzOG+0c3S7GQINs/lYK6Jd4Pqyo26b8c0aQjfw4zxyW4K7apa0xdgd6m6f
+         9xVG+l73kYFv6wPlHI1PFHpMbSkuWE1F2zYqGkqh/eMz5jnmLQwa6BoUg4RDrKCMwL
+         VjdFJ0Dx79LtqXYgw3KnMQa69i4336ta/Mm0SWtvVs8LHnLcqSS7PBfThT7iriCeOR
+         E0Q2u2K/XOolA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.12 021/104] Revert "ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro"
-Date:   Fri,  9 Jul 2021 22:20:33 -0400
-Message-Id: <20210710022156.3168825-21-sashal@kernel.org>
+Cc:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 022/104] usb: common: usb-conn-gpio: fix NULL pointer dereference of charger
+Date:   Fri,  9 Jul 2021 22:20:34 -0400
+Message-Id: <20210710022156.3168825-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
 References: <20210710022156.3168825-1-sashal@kernel.org>
@@ -42,78 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit 5d6fb80a142b5994355ce675c517baba6089d199 ]
+[ Upstream commit 880287910b1892ed2cb38977893b947382a09d21 ]
 
-This reverts commit 0edabdfe89581669609eaac5f6a8d0ae6fe95e7f.
+When power on system with OTG cable, IDDIG's interrupt arises before
+the charger registration, it will cause a NULL pointer dereference,
+fix the issue by registering the power supply before requesting
+IDDIG/VBUS irq.
 
-I've explained that optional FireWire card for d.2 is also built-in to
-d.2 Pro, however it's wrong. The optional card uses DM1000 ASIC and has
-'Mackie DJ Mixer' in its model name of configuration ROM. On the other
-hand, built-in FireWire card for d.2 Pro and d.4 Pro uses OXFW971 ASIC
-and has 'd.Pro' in its model name according to manuals and user
-experiences. The former card is not the card for d.2 Pro. They are similar
-in appearance but different internally.
-
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210518084557.102681-2-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1621406386-18838-1-git-send-email-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/Kconfig       | 4 ++--
- sound/firewire/bebob/bebob.c | 2 +-
- sound/firewire/oxfw/oxfw.c   | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/common/usb-conn-gpio.c | 44 ++++++++++++++++++------------
+ 1 file changed, 26 insertions(+), 18 deletions(-)
 
-diff --git a/sound/firewire/Kconfig b/sound/firewire/Kconfig
-index 9897bd26a438..def1f3d5ecf5 100644
---- a/sound/firewire/Kconfig
-+++ b/sound/firewire/Kconfig
-@@ -38,7 +38,7 @@ config SND_OXFW
- 	   * Mackie(Loud) Onyx 1640i (former model)
- 	   * Mackie(Loud) Onyx Satellite
- 	   * Mackie(Loud) Tapco Link.Firewire
--	   * Mackie(Loud) d.4 pro
-+	   * Mackie(Loud) d.2 pro/d.4 pro (built-in FireWire card with OXFW971 ASIC)
- 	   * Mackie(Loud) U.420/U.420d
- 	   * TASCAM FireOne
- 	   * Stanton Controllers & Systems 1 Deck/Mixer
-@@ -84,7 +84,7 @@ config SND_BEBOB
- 	  * PreSonus FIREBOX/FIREPOD/FP10/Inspire1394
- 	  * BridgeCo RDAudio1/Audio5
- 	  * Mackie Onyx 1220/1620/1640 (FireWire I/O Card)
--	  * Mackie d.2 (FireWire Option) and d.2 Pro
-+	  * Mackie d.2 (optional FireWire card with DM1000 ASIC)
- 	  * Stanton FinalScratch 2 (ScratchAmp)
- 	  * Tascam IF-FW/DM
- 	  * Behringer XENIX UFX 1204/1604
-diff --git a/sound/firewire/bebob/bebob.c b/sound/firewire/bebob/bebob.c
-index daeecfa8b9aa..90e98a6d1546 100644
---- a/sound/firewire/bebob/bebob.c
-+++ b/sound/firewire/bebob/bebob.c
-@@ -387,7 +387,7 @@ static const struct ieee1394_device_id bebob_id_table[] = {
- 	SND_BEBOB_DEV_ENTRY(VEN_BRIDGECO, 0x00010049, &spec_normal),
- 	/* Mackie, Onyx 1220/1620/1640 (Firewire I/O Card) */
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE2, 0x00010065, &spec_normal),
--	// Mackie, d.2 (Firewire option card) and d.2 Pro (the card is built-in).
-+	// Mackie, d.2 (optional Firewire card with DM1000).
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE1, 0x00010067, &spec_normal),
- 	/* Stanton, ScratchAmp */
- 	SND_BEBOB_DEV_ENTRY(VEN_STANTON, 0x00000001, &spec_normal),
-diff --git a/sound/firewire/oxfw/oxfw.c b/sound/firewire/oxfw/oxfw.c
-index 9eea25c46dc7..5490637d278a 100644
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -355,7 +355,7 @@ static const struct ieee1394_device_id oxfw_id_table[] = {
- 	 *  Onyx-i series (former models):	0x081216
- 	 *  Mackie Onyx Satellite:		0x00200f
- 	 *  Tapco LINK.firewire 4x6:		0x000460
--	 *  d.4 pro:				Unknown
-+	 *  d.2 pro/d.4 pro (built-in card):	Unknown
- 	 *  U.420:				Unknown
- 	 *  U.420d:				Unknown
- 	 */
+diff --git a/drivers/usb/common/usb-conn-gpio.c b/drivers/usb/common/usb-conn-gpio.c
+index 6c4e3a19f42c..c9545a4eff66 100644
+--- a/drivers/usb/common/usb-conn-gpio.c
++++ b/drivers/usb/common/usb-conn-gpio.c
+@@ -149,14 +149,32 @@ static int usb_charger_get_property(struct power_supply *psy,
+ 	return 0;
+ }
+ 
+-static int usb_conn_probe(struct platform_device *pdev)
++static int usb_conn_psy_register(struct usb_conn_info *info)
+ {
+-	struct device *dev = &pdev->dev;
+-	struct power_supply_desc *desc;
+-	struct usb_conn_info *info;
++	struct device *dev = info->dev;
++	struct power_supply_desc *desc = &info->desc;
+ 	struct power_supply_config cfg = {
+ 		.of_node = dev->of_node,
+ 	};
++
++	desc->name = "usb-charger";
++	desc->properties = usb_charger_properties;
++	desc->num_properties = ARRAY_SIZE(usb_charger_properties);
++	desc->get_property = usb_charger_get_property;
++	desc->type = POWER_SUPPLY_TYPE_USB;
++	cfg.drv_data = info;
++
++	info->charger = devm_power_supply_register(dev, desc, &cfg);
++	if (IS_ERR(info->charger))
++		dev_err(dev, "Unable to register charger\n");
++
++	return PTR_ERR_OR_ZERO(info->charger);
++}
++
++static int usb_conn_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct usb_conn_info *info;
+ 	bool need_vbus = true;
+ 	int ret = 0;
+ 
+@@ -218,6 +236,10 @@ static int usb_conn_probe(struct platform_device *pdev)
+ 		return PTR_ERR(info->role_sw);
+ 	}
+ 
++	ret = usb_conn_psy_register(info);
++	if (ret)
++		goto put_role_sw;
++
+ 	if (info->id_gpiod) {
+ 		info->id_irq = gpiod_to_irq(info->id_gpiod);
+ 		if (info->id_irq < 0) {
+@@ -252,20 +274,6 @@ static int usb_conn_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	desc = &info->desc;
+-	desc->name = "usb-charger";
+-	desc->properties = usb_charger_properties;
+-	desc->num_properties = ARRAY_SIZE(usb_charger_properties);
+-	desc->get_property = usb_charger_get_property;
+-	desc->type = POWER_SUPPLY_TYPE_USB;
+-	cfg.drv_data = info;
+-
+-	info->charger = devm_power_supply_register(dev, desc, &cfg);
+-	if (IS_ERR(info->charger)) {
+-		dev_err(dev, "Unable to register charger\n");
+-		return PTR_ERR(info->charger);
+-	}
+-
+ 	platform_set_drvdata(pdev, info);
+ 
+ 	/* Perform initial detection */
 -- 
 2.30.2
 
