@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E26DC3C30A4
+	by mail.lfdr.de (Postfix) with ESMTP id 761C63C30A3
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235171AbhGJCgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235168AbhGJCgA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 9 Jul 2021 22:36:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53572 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235732AbhGJCfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:35:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F69D613D4;
-        Sat, 10 Jul 2021 02:32:16 +0000 (UTC)
+        id S235756AbhGJCfD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:35:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82C8E613E6;
+        Sat, 10 Jul 2021 02:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884337;
-        bh=xZ6YVHXSIOKtRCgjGj41LBEve8g6KiGyPeuZocFI7rs=;
+        s=k20201202; t=1625884338;
+        bh=FouFDJmTwQE7solqH69bOIMe0yKX0MOK+I9G50PhMqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzpEHVw8u/f3bGlRJ06eMlfew4y2DB2dzSoHE64WgvUDjmZEDUCCAl3+lh2lol7sR
-         Y/WdvkzukFHC8Fe/eZMwORhAuUSnYfklJ1RKAEYsvHUwDCZlydPfsu6+zmyE7A8YKT
-         xmzfaIA/PATGnyUePb0GU3COnPv5EMU83SlxkVXHAsfpZK7o0dbXuXYl4r+z2U9/N0
-         7JkfH3a3G9uh94x04ZXCstSE5h12PpGu71MJbiUIAGI+K0J0PZ/vxTcyRqaXhpmdae
-         toLhQH66yGawAMNYwqMrNkT7ObjAQjcCsD/0SeqzSE0Dnce7Ej7u2JqHemIF6j7kE0
-         nz1daNTPW0mdQ==
+        b=lYeYOLeKTdtAk0Cb8j9xSdl3PX4D+P/OEQHztIq1ajMlP5Q6sxojZMTGxQbVM9u6T
+         S5EA0oTO3f0vwnHGMWkYUCyiXvNuxYk6/EiyHNmW0hGB+4prAwq7yOTx7iNYN1x5BP
+         SGiv/UhGcNJMh90W8Gs3Uy9q5c3VhVzdPAyC4Qz9roZLV6OoSOQl2eKQDZCm5/7Y4a
+         ohrMb/7QS+yzBljUQ9bdzko2CCLsSDMOVxBtIBgZCr4m69XpnmqDb8Xn4UvNzYMxZe
+         LJw3nuRG5i+U4vjnUyy7ncsyRop1imBol+SOvTV8gixGaeNkfn+auD1vu2yg0l1CJw
+         WQEyYeSYpoxLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 10/39] tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
-Date:   Fri,  9 Jul 2021 22:31:35 -0400
-Message-Id: <20210710023204.3171428-10-sashal@kernel.org>
+Cc:     Hannes Reinecke <hare@suse.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 11/39] scsi: scsi_dh_alua: Check for negative result value
+Date:   Fri,  9 Jul 2021 22:31:36 -0400
+Message-Id: <20210710023204.3171428-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023204.3171428-1-sashal@kernel.org>
 References: <20210710023204.3171428-1-sashal@kernel.org>
@@ -42,52 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit fad92b11047a748c996ebd6cfb164a63814eeb2e ]
+[ Upstream commit 7e26e3ea028740f934477ec01ba586ab033c35aa ]
 
-In the probe function, if the final 'serial_config()' fails, 'info' is
-leaking.
+scsi_execute() will now return a negative error if there was an error prior
+to command submission; evaluate that instead if checking for DRIVER_ERROR.
 
-Add a resource handling path to free this memory.
+[mkp: build fix]
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/dc25f96b7faebf42e60fe8d02963c941cf4d8124.1621971720.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210427083046.31620-6-hare@suse.de
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/serial_cs.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/serial_cs.c b/drivers/tty/serial/8250/serial_cs.c
-index c8186a05a453..271c0388e00d 100644
---- a/drivers/tty/serial/8250/serial_cs.c
-+++ b/drivers/tty/serial/8250/serial_cs.c
-@@ -306,6 +306,7 @@ static int serial_resume(struct pcmcia_device *link)
- static int serial_probe(struct pcmcia_device *link)
- {
- 	struct serial_info *info;
-+	int ret;
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index efd2b4312528..41e8c9e68878 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -562,12 +562,12 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 			kfree(buff);
+ 			return SCSI_DH_OK;
+ 		}
+-		if (!scsi_sense_valid(&sense_hdr)) {
++		if (retval < 0 || !scsi_sense_valid(&sense_hdr)) {
+ 			sdev_printk(KERN_INFO, sdev,
+ 				    "%s: rtpg failed, result %d\n",
+ 				    ALUA_DH_NAME, retval);
+ 			kfree(buff);
+-			if (driver_byte(retval) == DRIVER_ERROR)
++			if (retval < 0)
+ 				return SCSI_DH_DEV_TEMP_BUSY;
+ 			return SCSI_DH_IO;
+ 		}
+@@ -789,11 +789,11 @@ static unsigned alua_stpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 	retval = submit_stpg(sdev, pg->group_id, &sense_hdr);
  
- 	dev_dbg(&link->dev, "serial_attach()\n");
- 
-@@ -320,7 +321,15 @@ static int serial_probe(struct pcmcia_device *link)
- 	if (do_sound)
- 		link->config_flags |= CONF_ENABLE_SPKR;
- 
--	return serial_config(link);
-+	ret = serial_config(link);
-+	if (ret)
-+		goto free_info;
-+
-+	return 0;
-+
-+free_info:
-+	kfree(info);
-+	return ret;
- }
- 
- static void serial_detach(struct pcmcia_device *link)
+ 	if (retval) {
+-		if (!scsi_sense_valid(&sense_hdr)) {
++		if (retval < 0 || !scsi_sense_valid(&sense_hdr)) {
+ 			sdev_printk(KERN_INFO, sdev,
+ 				    "%s: stpg failed, result %d",
+ 				    ALUA_DH_NAME, retval);
+-			if (driver_byte(retval) == DRIVER_ERROR)
++			if (retval < 0)
+ 				return SCSI_DH_DEV_TEMP_BUSY;
+ 		} else {
+ 			sdev_printk(KERN_INFO, sdev, "%s: stpg failed\n",
 -- 
 2.30.2
 
