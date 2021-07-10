@@ -2,75 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC563C34BE
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 15:44:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A0E33C34CB
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 16:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229835AbhGJNre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 09:47:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58114 "EHLO
+        id S230325AbhGJOIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 10:08:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229501AbhGJNrd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Jul 2021 09:47:33 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 277DFC0613E5
-        for <stable@vger.kernel.org>; Sat, 10 Jul 2021 06:44:48 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id nd37so22258179ejc.3
-        for <stable@vger.kernel.org>; Sat, 10 Jul 2021 06:44:48 -0700 (PDT)
+        with ESMTP id S229968AbhGJOIX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 10 Jul 2021 10:08:23 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A57C0613E5
+        for <stable@vger.kernel.org>; Sat, 10 Jul 2021 07:05:37 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id s15so18583831edt.13
+        for <stable@vger.kernel.org>; Sat, 10 Jul 2021 07:05:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=S0cFkdwp0bEWZTl2ElhiwTD0Iwt90QyTrrE3B5CNeyU=;
-        b=uzm8uQLlWH/PUcfzk3WLalcBuhqRG1Rv4vEd4ZDPIiXe3Kh0kYQVhGmsvHAQA2vZHL
-         tjlKRFY/5HfzRpcAM35L5ER9QItaMJcUeRkfTLyiYuFygTNW6aepM2UXldAOzzAN1zYS
-         9vVUTb5WUd8SynvAOtT21C6bM0LcOhRsttLIvJzOjeajjjApuyX5+n9vMXP8SYIR/F8D
-         qvgS7eASjPFJxPCqonraWfirD7RP4Vv5YmnioN0B+AtprkYZQ6Jm1mEkNmMrAKfk3ovT
-         UPU4ePUnQ74eggIzWKDS/tMtme68oBy0mpVSi3xzRxwdlvS5YjNcSTBbL0QER/G6SvtW
-         PWCQ==
+        bh=EYwqPF/Efyc/51Og33CRU1VurVxgBcOLAgbCveQdHqc=;
+        b=Js/sNv5bECh9nP6bOR4pevkrlWEfNrCchqyUTtblwQs8gS01hZNHjg189/wy4YMHgE
+         34QdFmUf4zVxRTjuVMi18B/0w1ON1RKc/5Nj1dUn9c9WkkZpJHLKhvzmQ0ZCP333mk1F
+         zIaijOk9YGp/tbSowpkggRlwHovxW9CE4QmhmVCB9qXVQfKFtcouG+SbT9u1rtnJgJAY
+         pTRjSHh1JIH35UhuCnqwhGFlQbfqbI4CneNocNgzizyHe9JvCVrr5Dl35JcgodPkfqR+
+         +B8A1oIN1cAceOcPBfL+oM+0skIXsnB7LV/W5zFpps1aUoo/h6MsFJBn07fd24GedOYw
+         hxOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=S0cFkdwp0bEWZTl2ElhiwTD0Iwt90QyTrrE3B5CNeyU=;
-        b=Ylt7eGjGHf+gkkygezICCh6rQMNIt2ntlLcIhqdv4geV9RAE76HGT8FnhGiEfEz7Qi
-         zJhVUMQ3Qjoe+spf1/0rf9a5GNgZ+QF+Vj0BBHKmWfHFmnGL9mD59FSinc3yWefyYRDV
-         MBbL2Yn+YPVEQE/Bkp0CAfbWMOgBVyicE1mABg8l5sw7vENJ62bIKC7DC5IYRqqrjEmG
-         GNUvljebzgjcrIQm6AwbfzOWzVyVHKjSrPLWfimmSCfc6JJJwQMXgiWFAZtQ+ng9gUiN
-         FCjebErV3Z6XM3/gX17CcUgPR6FA3ZBsHNzq5qKSNgP7fBBQ0EVJJGwYFQb+WLOVwCkB
-         auqg==
-X-Gm-Message-State: AOAM530ciLscD55Z7leNEE8Csx9PYHbhdR/HD+TnoW25nGCzmxK+oC+w
-        rwUPRSstPyCzRyYbq4kR1LOClsdessru0rAu20p56g==
-X-Google-Smtp-Source: ABdhPJz5I4BoUc63XJ+J0hN4mzcNW1rWKYOIrqWxNSz7sZ/wqntGxMbngLVSfZdD2cJk7d+JDIG7s2Rk4jfr0myT+ko=
-X-Received: by 2002:a17:906:cec1:: with SMTP id si1mr24929089ejb.18.1625924686273;
- Sat, 10 Jul 2021 06:44:46 -0700 (PDT)
+        bh=EYwqPF/Efyc/51Og33CRU1VurVxgBcOLAgbCveQdHqc=;
+        b=Vzi53V14sB+nuseqCEhh+LmGJeLpjXJGNMRhqX4+LMvibjcVW8X3jcTzyLUwRC0CHp
+         9f6yF8CtLIan2znEQsiPo5kJ3iMKBglrr+OQJ/Gcc7zh3Ss/jpf7wjiX/grGr9os9FVH
+         +pIbuJY10+Ccq612EgTk7L/EVTC/htiB0X5thkiCvw1yaE2xpEpAf9YFLTd3+d/Gatmz
+         m9DYiZebmTvPSEae5hXw6B9l9bKvXuW7Th5MQHlGP1Smun2GM7NRg6RhXlj2NOrh2NT8
+         adUzp4mbN8THhmkg6N43ws2Y7JCzbwBivZtQOgej0VWMo6RMvAxPmOTVjmzBMpAJiNMD
+         TkhQ==
+X-Gm-Message-State: AOAM530a8QQ8DLhBu/b3jGslbAc4J3ShmrIVagr84hFeuTjyPuXV3l7Q
+        c1QNnKsE3HO1Dw+QaodFwA0Ar0TeB6wu6Zu25CbrjA==
+X-Google-Smtp-Source: ABdhPJzrFD5UQZXt9OAU76wAjkdfw4LYgKlh++OOD1LfW8Du8j58JVEcvCx/XMxDQwNZ+6kcWp2WbmYuGxirdjamb9k=
+X-Received: by 2002:a05:6402:1e8e:: with SMTP id f14mr40981426edf.52.1625925935363;
+ Sat, 10 Jul 2021 07:05:35 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210709131644.969303901@linuxfoundation.org>
-In-Reply-To: <20210709131644.969303901@linuxfoundation.org>
+References: <20210709131627.928131764@linuxfoundation.org>
+In-Reply-To: <20210709131627.928131764@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 10 Jul 2021 19:14:34 +0530
-Message-ID: <CA+G9fYsvDCBtxXO1UKfKLWNK3hG+g7QHJ4Gw27AMOngFKgFrhQ@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/34] 4.19.197-rc1 review
+Date:   Sat, 10 Jul 2021 19:35:24 +0530
+Message-ID: <CA+G9fYtqJqR2_cL7B8SbBJkQuhwx+TLGK28TwaJm9tLCJ+O6Xw@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/25] 4.14.239-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 9 Jul 2021 at 18:51, Greg Kroah-Hartman
+On Fri, 9 Jul 2021 at 18:49, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 4.19.197 release.
-> There are 34 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.14.239 release.
+> There are 25 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,10 +79,10 @@ On Fri, 9 Jul 2021 at 18:51, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.197-rc1.gz
+4.14.239-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
+-rc.git linux-4.14.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -95,42 +95,42 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 4.19.197-rc1
+* kernel: 4.14.239-rc1
 * git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
 rc.git
-* git branch: linux-4.19.y
-* git commit: df520a4397b2a281e4b2ac05b0c85f8875c3ea11
-* git describe: v4.19.196-35-gdf520a4397b2
+* git branch: linux-4.14.y
+* git commit: 89bdc2d2afb34594a4865d7be3a8b4b898e0d955
+* git describe: v4.14.238-26-g89bdc2d2afb3
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.196-35-gdf520a4397b2
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
+.238-26-g89bdc2d2afb3
 
-## No regressions (compared to v4.19.196-25-g7bbc9654862c)
+## No regressions (compared to v4.14.238-22-g6fb138f75307)
 
-## No fixes (compared to v4.19.196-25-g7bbc9654862c)
+
+## No fixes (compared to v4.14.238-22-g6fb138f75307)
+
 
 ## Test result summary
- total: 82675, pass: 62074, fail: 2967, skip: 15186, xfail: 2448,
+ total: 66243, pass: 52214, fail: 682, skip: 11377, xfail: 1970,
 
 ## Build Summary
 * arm: 97 total, 97 passed, 0 failed
-* arm64: 25 total, 25 passed, 0 failed
-* dragonboard-410c: 2 total, 2 passed, 0 failed
-* hi6220-hikey: 2 total, 2 passed, 0 failed
-* i386: 15 total, 15 passed, 0 failed
-* juno-r2: 2 total, 2 passed, 0 failed
-* mips: 39 total, 39 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
+* arm64: 24 total, 24 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 14 total, 14 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 36 total, 36 passed, 0 failed
 * sparc: 9 total, 9 passed, 0 failed
-* x15: 2 total, 2 passed, 0 failed
-* x86: 2 total, 2 passed, 0 failed
-* x86_64: 15 total, 15 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 14 total, 14 passed, 0 failed
 
 ## Test suites summary
 * fwts
 * igt-gpu-tools
 * install-android-platform-tools-r2600
-* kselftest-
 * kselftest-android
 * kselftest-bpf
 * kselftest-breakpoints
@@ -187,8 +187,6 @@ https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
 * kselftest-tpm2
 * kselftest-user
 * kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
 * kselftest-x86
 * kselftest-zram
 * kvm-unit-tests
