@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 898BF3C3152
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 399C43C3103
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234445AbhGJClK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:41:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58376 "EHLO mail.kernel.org"
+        id S234952AbhGJCj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:39:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235615AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235620AbhGJCji (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36D2761409;
-        Sat, 10 Jul 2021 02:35:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79D4F61417;
+        Sat, 10 Jul 2021 02:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884533;
-        bh=emOo2aHnIfRVPklH5pf65FQLyk1hn0nHm2BI7xulBqE=;
+        s=k20201202; t=1625884534;
+        bh=hW8Q2O61AkaJlvZF1qqBNpySKBd2DXLScMrgUKomg9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gq1L/VA3tYwfqA7wzMLQruNulDHozfXkOURWUIBhzxYp7dNAybS+6SoCvp/obLTj2
-         herfKA7FW6mDlgWR2qK7HxmrEARcCEYMX9PBIX/YPY2yQho93FQi3wEm+mbEOpXtIW
-         evUUeGULnHupjyrD0Ir1VXDi7V/LYtDbK5abh1WUnw0dx9YrbcZiYrR76IK79ug1JJ
-         upDhnHazWvIlu+z0o6B4w6RRkRB5i2iPm0wYTqKYVYghmHq8AB+phPuz986vqiqrCO
-         /gR/wOrYvd04c8ZZfN9BdUObeL1B9U8XsqNxERXGaZvYwiAc2baNei071It/VrZgxn
-         9k4GWVtMBwtQg==
+        b=OqXVMUhcFzpemmBknybkjQSgY+D3+W2aYUXkzeoLeUE9SkoaO8pivk235s0eeekRP
+         ishNO60LLRwFr0aJbNH9QQnixTZRqenx7pKwKLu5sdugLkrWnNuj0fcditOgtxmFik
+         HCnmsIw6Ec6lDgYyYTlbmpNWQEGBWSu4e1cTbdxAlQvm69nizQ6tVrucF2/KMvrQXz
+         atN5IdOZ2h7uAGp+Llvwm57vzxcTXzwD0K9t3iki9kizvqAGc0kQ9PaSizeJnkrIzg
+         gJtwMyuBGZoKooiPvUMPveEvrMUU8Psg4i3IH5WcLMb8aZ60s9KEpNczg8BG7OhDfW
+         bTizVEYjYGmeQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 13/33] scsi: qedi: Fix null ref during abort handling
-Date:   Fri,  9 Jul 2021 22:34:55 -0400
-Message-Id: <20210710023516.3172075-13-sashal@kernel.org>
+Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 14/33] mfd: da9052/stmpe: Add and modify MODULE_DEVICE_TABLE
+Date:   Fri,  9 Jul 2021 22:34:56 -0400
+Message-Id: <20210710023516.3172075-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023516.3172075-1-sashal@kernel.org>
 References: <20210710023516.3172075-1-sashal@kernel.org>
@@ -43,36 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 5777b7f0f03ce49372203b6521631f62f2810c8f ]
+[ Upstream commit 4700ef326556ed74aba188f12396740a8c1c21dd ]
 
-If qedi_process_cmd_cleanup_resp finds the cmd it frees the work and sets
-list_tmf_work to NULL, so qedi_tmf_work should check if list_tmf_work is
-non-NULL when it wants to force cleanup.
+This patch adds/modifies MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-20-michael.christie@oracle.com
-Reviewed-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_fw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/da9052-i2c.c | 1 +
+ drivers/mfd/stmpe-i2c.c  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
-index e8f2c662471e..662444bb67f6 100644
---- a/drivers/scsi/qedi/qedi_fw.c
-+++ b/drivers/scsi/qedi/qedi_fw.c
-@@ -1474,7 +1474,7 @@ static void qedi_tmf_work(struct work_struct *work)
+diff --git a/drivers/mfd/da9052-i2c.c b/drivers/mfd/da9052-i2c.c
+index 578e881067a5..4094f97ec7dc 100644
+--- a/drivers/mfd/da9052-i2c.c
++++ b/drivers/mfd/da9052-i2c.c
+@@ -118,6 +118,7 @@ static const struct i2c_device_id da9052_i2c_id[] = {
+ 	{"da9053-bc", DA9053_BC},
+ 	{}
+ };
++MODULE_DEVICE_TABLE(i2c, da9052_i2c_id);
  
- ldel_exit:
- 	spin_lock_bh(&qedi_conn->tmf_work_lock);
--	if (!qedi_cmd->list_tmf_work) {
-+	if (qedi_cmd->list_tmf_work) {
- 		list_del_init(&list_work->list);
- 		qedi_cmd->list_tmf_work = NULL;
- 		kfree(list_work);
+ #ifdef CONFIG_OF
+ static const struct of_device_id dialog_dt_ids[] = {
+diff --git a/drivers/mfd/stmpe-i2c.c b/drivers/mfd/stmpe-i2c.c
+index 863c39a3353c..d284df25c76b 100644
+--- a/drivers/mfd/stmpe-i2c.c
++++ b/drivers/mfd/stmpe-i2c.c
+@@ -109,7 +109,7 @@ static const struct i2c_device_id stmpe_i2c_id[] = {
+ 	{ "stmpe2403", STMPE2403 },
+ 	{ }
+ };
+-MODULE_DEVICE_TABLE(i2c, stmpe_id);
++MODULE_DEVICE_TABLE(i2c, stmpe_i2c_id);
+ 
+ static struct i2c_driver stmpe_i2c_driver = {
+ 	.driver = {
 -- 
 2.30.2
 
