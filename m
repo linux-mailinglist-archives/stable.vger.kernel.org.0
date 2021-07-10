@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A3E93C2E8A
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C943C2E93
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:27:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231708AbhGJC1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:27:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41746 "EHLO mail.kernel.org"
+        id S233671AbhGJC1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:27:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232734AbhGJC0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233104AbhGJC0z (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:26:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23CB06140C;
-        Sat, 10 Jul 2021 02:24:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46887613ED;
+        Sat, 10 Jul 2021 02:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883841;
-        bh=q6r+96DNfehs42FToLeU7CUqZMXqYiP4s8FIw2Wg+/8=;
+        s=k20201202; t=1625883843;
+        bh=dHZi18C9lJeUvnD0sWQG3L29nXUo5nkGqGTKq+/lsCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjCrZ/mPvbBrlE9w458mYRrJ2zVZxVEbKC+DUCHZ7rIM7L7jbl+w2I45zhoSfdhB7
-         OztXbkLNbZ6QU+vYiw+seabQW9AGmpy9PU3RioW/WfN0AsWoDIpotAIiwlmjYBiSDB
-         DeCBfXrJhw1BnTy2t/obZtblYqsYcUS84fVP213gAh+8w+Bh8bmGx9zIwmYGgYQVub
-         lUwVyv89KEZzD3yiHWOIJnuVds1tEURbX/WK+bp0Uh/gaV+EkIfU2fUkI13GPrsAmK
-         /4jxRzFfFZp5an8L426Pd8gz7kvdahbk4JGX6UI/E/x1BgnOcq0bND+HaMOuJ9lVDb
-         Mlpd7m3GVjoUQ==
+        b=bwhjOEaeUuYDT6i8wQK+gfBESQo3c8eKC2loSVV+tehFh/XCwDGR1agelJzIeBLbP
+         zKFDKcGpLdn98xDNS5uaWadg5fMxQp9EBDfkmuz2mVTmqyYM4W3uH7SKnR1gzBPbYd
+         DxIUoLGnSHeY+CTavSCKTfG1/vHqDWA+hPntTHQaSBQzbfPVNFrRYyrda/pr8Ydq9P
+         oONJAkY/Oa5pzSzFEJIvdvZoOiGUT+Tt5JjQpZqik4OBh0JDkJAgvBAHZrdgqYG8v1
+         GvtS6614QzLv8KuLMTvMlWohss98VKUxe8NnXz2yFAc+OtnXcjDIXxRLmY9lNdH3pC
+         xj0IMUdC8Pv0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Geoffrey D. Bennett" <g@b4.vu>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.12 087/104] ALSA: usb-audio: scarlett2: Fix scarlett2_*_ctl_put() return values
-Date:   Fri,  9 Jul 2021 22:21:39 -0400
-Message-Id: <20210710022156.3168825-87-sashal@kernel.org>
+Cc:     Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+        Fabien Chouteau <fabien.chouteau@barco.com>,
+        Segiy Stetsyuk <serg_stetsuk@ukr.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 088/104] usb: gadget: f_hid: fix endianness issue with descriptors
+Date:   Fri,  9 Jul 2021 22:21:40 -0400
+Message-Id: <20210710022156.3168825-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
 References: <20210710022156.3168825-1-sashal@kernel.org>
@@ -41,61 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Geoffrey D. Bennett" <g@b4.vu>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-[ Upstream commit c5d8e008032f3cd5f266d552732973a960b0bd4b ]
+[ Upstream commit 33cb46c4676d01956811b68a29157ea969a5df70 ]
 
-Mixer control put callbacks should return 1 if the value is changed.
-Fix the sw_hw, level, pad, and button controls accordingly.
+Running sparse checker it shows warning message about
+incorrect endianness used for descriptor initialization:
 
-Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
-Link: https://lore.kernel.org/r/20210620164645.GA9221@m.b4.vu
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+| f_hid.c:91:43: warning: incorrect type in initializer (different base types)
+| f_hid.c:91:43:    expected restricted __le16 [usertype] bcdHID
+| f_hid.c:91:43:    got int
+
+Fixing issue with cpu_to_le16() macro, however this is not a real issue
+as the value is the same both endians.
+
+Cc: Fabien Chouteau <fabien.chouteau@barco.com>
+Cc: Segiy Stetsyuk <serg_stetsuk@ukr.net>
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/20210617162755.29676-1-ruslan.bilovol@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer_scarlett_gen2.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/gadget/function/f_hid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/usb/mixer_scarlett_gen2.c b/sound/usb/mixer_scarlett_gen2.c
-index 63d6a5e45ba9..a829c3c7a30c 100644
---- a/sound/usb/mixer_scarlett_gen2.c
-+++ b/sound/usb/mixer_scarlett_gen2.c
-@@ -1179,6 +1179,8 @@ static int scarlett2_sw_hw_enum_ctl_put(struct snd_kcontrol *kctl,
- 	/* Send SW/HW switch change to the device */
- 	err = scarlett2_usb_set_config(mixer, SCARLETT2_CONFIG_SW_HW_SWITCH,
- 				       index, val);
-+	if (err == 0)
-+		err = 1;
- 
- unlock:
- 	mutex_unlock(&private->data_mutex);
-@@ -1239,6 +1241,8 @@ static int scarlett2_level_enum_ctl_put(struct snd_kcontrol *kctl,
- 	/* Send switch change to the device */
- 	err = scarlett2_usb_set_config(mixer, SCARLETT2_CONFIG_LEVEL_SWITCH,
- 				       index, val);
-+	if (err == 0)
-+		err = 1;
- 
- unlock:
- 	mutex_unlock(&private->data_mutex);
-@@ -1289,6 +1293,8 @@ static int scarlett2_pad_ctl_put(struct snd_kcontrol *kctl,
- 	/* Send switch change to the device */
- 	err = scarlett2_usb_set_config(mixer, SCARLETT2_CONFIG_PAD_SWITCH,
- 				       index, val);
-+	if (err == 0)
-+		err = 1;
- 
- unlock:
- 	mutex_unlock(&private->data_mutex);
-@@ -1344,6 +1350,8 @@ static int scarlett2_button_ctl_put(struct snd_kcontrol *kctl,
- 	/* Send switch change to the device */
- 	err = scarlett2_usb_set_config(mixer, SCARLETT2_CONFIG_BUTTONS,
- 				       index, val);
-+	if (err == 0)
-+		err = 1;
- 
- unlock:
- 	mutex_unlock(&private->data_mutex);
+diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
+index e55699308117..a82b3de1a54b 100644
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -88,7 +88,7 @@ static struct usb_interface_descriptor hidg_interface_desc = {
+ static struct hid_descriptor hidg_desc = {
+ 	.bLength			= sizeof hidg_desc,
+ 	.bDescriptorType		= HID_DT_HID,
+-	.bcdHID				= 0x0101,
++	.bcdHID				= cpu_to_le16(0x0101),
+ 	.bCountryCode			= 0x00,
+ 	.bNumDescriptors		= 0x1,
+ 	/*.desc[0].bDescriptorType	= DYNAMIC */
 -- 
 2.30.2
 
