@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48FA23C3895
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:52:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ADB93C3898
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:52:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233619AbhGJXz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 19:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41052 "EHLO mail.kernel.org"
+        id S233634AbhGJXz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:55:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233711AbhGJXyc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233713AbhGJXyc (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 10 Jul 2021 19:54:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEA2D613D2;
-        Sat, 10 Jul 2021 23:51:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23460613B7;
+        Sat, 10 Jul 2021 23:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961084;
-        bh=tCUh3rEoL7t0V6Q9DxLofggK+iSzdMEzMiUzlyIwDPc=;
+        s=k20201202; t=1625961085;
+        bh=VN4Y+FpsP27Ub+rsgDyJmi/V48KYLIuW8ep61SNb5gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RoD8Y0c+qpsB5OKYw27avvDXSXBDajIRNRHUadxwsHRLY30xXNcn3blEiqhv0GJRO
-         GItiSbVh4Q9OBoKVDzyf5g4iLwdgbzEeS0uB+kRp3xaijU1dC82aWQnnnrA+LLiwqr
-         3HY/+OFBz+fcYMiJOG4PuRFJwtauQveMzQNhm+tRLXXRPd22A+xh4OkoMgVxzEAmd2
-         s05uX+pTaA6C1l4NMpV2T713GRkYB99vkJ3/t+5lkG0hLKFEJDJ0rrx7WTq7u9HhDN
-         F+AntMcgv2exX7qt23NhnPq2jMZ5gOlCXwaEXoFtiCgpPF5aaEpS6Ho86i44DMdByY
-         mdNhABNtGPkxg==
+        b=Bt5NTm1/pY5n0w8/AbKf2dMSNXsOCEJ+Kj1tm359O7fY303ODIAaKZOWqsQXxAVuI
+         ew9EEH9YQx8Zrlyfm5TJqdVHFYD1y9FSTTHSqR0ddhcuAsLUZ3IgjwPpIVxpAgpKAS
+         sY0uKQyNeBLhMcKzG8bJODbKPlY1CsOTyXKP+lVcEkchoQ8zfbJ1FV0yyvxLSO/dWU
+         5N8oVDLMRMoWakr3VF7DYnCUx4ZLU8GeY8qhsYD3rmAAUFcjCXFtZRlYzIVA2H6hM8
+         c+R1XVMK4C4YcsT9ELz+pAZLK9oKauNs8C/UWF5vlLjJh4P4X+3oXvkhpj+Ta+XzxB
+         oKt9tM1hkZNXw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/28] watchdog: iTCO_wdt: Account for rebooting on second timeout
-Date:   Sat, 10 Jul 2021 19:50:52 -0400
-Message-Id: <20210710235107.3221840-13-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 14/28] x86/fpu: Return proper error codes from user access functions
+Date:   Sat, 10 Jul 2021 19:50:53 -0400
+Message-Id: <20210710235107.3221840-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235107.3221840-1-sashal@kernel.org>
 References: <20210710235107.3221840-1-sashal@kernel.org>
@@ -43,68 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit cb011044e34c293e139570ce5c01aed66a34345c ]
+[ Upstream commit aee8c67a4faa40a8df4e79316dbfc92d123989c1 ]
 
-This was already attempted to fix via 1fccb73011ea: If the BIOS did not
-enable TCO SMIs, the timer definitely needs to trigger twice in order to
-cause a reboot. If TCO SMIs are on, as well as SMIs in general, we can
-continue to assume that the BIOS will perform a reboot on the first
-timeout.
+When *RSTOR from user memory raises an exception, there is no way to
+differentiate them. That's bad because it forces the slow path even when
+the failure was not a fault. If the operation raised eg. #GP then going
+through the slow path is pointless.
 
-QEMU with its ICH9 and related BIOS falls into the former category,
-currently taking twice the configured timeout in order to reboot the
-machine. For iTCO version that fall under turn_SMI_watchdog_clear_off,
-this is also true and was currently only addressed for v1, irrespective
-of the turn_SMI_watchdog_clear_off value.
+Use _ASM_EXTABLE_FAULT() which stores the trap number and let the exception
+fixup return the negated trap number as error.
 
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/0b8bb307-d08b-41b5-696c-305cdac6789c@siemens.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+This allows to separate the fast path and let it handle faults directly and
+avoid the slow path for all other exceptions.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210623121457.601480369@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/iTCO_wdt.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/fpu/internal.h | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index e707c4797f76..08e534fba1bf 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -72,6 +72,8 @@
- #define TCOBASE(p)	((p)->tco_res->start)
- /* SMI Control and Enable Register */
- #define SMI_EN(p)	((p)->smi_res->start)
-+#define TCO_EN		(1 << 13)
-+#define GBL_SMI_EN	(1 << 0)
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index 9f135e5b9cf5..a9d1dd82d820 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -102,6 +102,7 @@ static inline void fpstate_init_fxstate(struct fxregs_state *fx)
+ }
+ extern void fpstate_sanitize_xstate(struct fpu *fpu);
  
- #define TCO_RLD(p)	(TCOBASE(p) + 0x00) /* TCO Timer Reload/Curr. Value */
- #define TCOv1_TMR(p)	(TCOBASE(p) + 0x01) /* TCOv1 Timer Initial Value*/
-@@ -344,8 +346,12 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
++/* Returns 0 or the negated trap number, which results in -EFAULT for #PF */
+ #define user_insn(insn, output, input...)				\
+ ({									\
+ 	int err;							\
+@@ -109,14 +110,14 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
+ 	might_fault();							\
+ 									\
+ 	asm volatile(ASM_STAC "\n"					\
+-		     "1:" #insn "\n\t"					\
++		     "1: " #insn "\n"					\
+ 		     "2: " ASM_CLAC "\n"				\
+ 		     ".section .fixup,\"ax\"\n"				\
+-		     "3:  movl $-1,%[err]\n"				\
++		     "3:  negl %%eax\n"					\
+ 		     "    jmp  2b\n"					\
+ 		     ".previous\n"					\
+-		     _ASM_EXTABLE(1b, 3b)				\
+-		     : [err] "=r" (err), output				\
++		     _ASM_EXTABLE_FAULT(1b, 3b)				\
++		     : [err] "=a" (err), output				\
+ 		     : "0"(0), input);					\
+ 	err;								\
+ })
+@@ -210,16 +211,20 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
+ #define XRSTOR		".byte " REX_PREFIX "0x0f,0xae,0x2f"
+ #define XRSTORS		".byte " REX_PREFIX "0x0f,0xc7,0x1f"
  
- 	tmrval = seconds_to_ticks(p, t);
- 
--	/* For TCO v1 the timer counts down twice before rebooting */
--	if (p->iTCO_version == 1)
-+	/*
-+	 * If TCO SMIs are off, the timer counts down twice before rebooting.
-+	 * Otherwise, the BIOS generally reboots when the SMI triggers.
-+	 */
-+	if (p->smi_res &&
-+	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
- 		tmrval /= 2;
- 
- 	/* from the specs: */
-@@ -510,7 +516,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
- 		 * Disables TCO logic generating an SMI#
- 		 */
- 		val32 = inl(SMI_EN(p));
--		val32 &= 0xffffdfff;	/* Turn off SMI clearing watchdog */
-+		val32 &= ~TCO_EN;	/* Turn off SMI clearing watchdog */
- 		outl(val32, SMI_EN(p));
- 	}
++/*
++ * After this @err contains 0 on success or the negated trap number when
++ * the operation raises an exception. For faults this results in -EFAULT.
++ */
+ #define XSTATE_OP(op, st, lmask, hmask, err)				\
+ 	asm volatile("1:" op "\n\t"					\
+ 		     "xor %[err], %[err]\n"				\
+ 		     "2:\n\t"						\
+ 		     ".pushsection .fixup,\"ax\"\n\t"			\
+-		     "3: movl $-2,%[err]\n\t"				\
++		     "3: negl %%eax\n\t"				\
+ 		     "jmp 2b\n\t"					\
+ 		     ".popsection\n\t"					\
+-		     _ASM_EXTABLE(1b, 3b)				\
+-		     : [err] "=r" (err)					\
++		     _ASM_EXTABLE_FAULT(1b, 3b)				\
++		     : [err] "=a" (err)					\
+ 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
+ 		     : "memory")
  
 -- 
 2.30.2
