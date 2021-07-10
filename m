@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E4B3C3198
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A05863C3194
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235244AbhGJCnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:43:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60628 "EHLO mail.kernel.org"
+        id S234747AbhGJCmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:42:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235231AbhGJClm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:41:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED4A1613BE;
-        Sat, 10 Jul 2021 02:38:56 +0000 (UTC)
+        id S235239AbhGJCln (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:41:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4998F613D3;
+        Sat, 10 Jul 2021 02:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884737;
-        bh=nrRvggJviXFfdy9LsU0DWs5Wxc2DOv6ikzovAtFzfGs=;
+        s=k20201202; t=1625884738;
+        bh=0qHn9VaHBqd6Gx7tq3pjOXAu9w80RSUBs+m5shv83k4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=niYLsVpJ5/5/9Ufm7f5xudvGUXpEgEivJdfjwk6mHG4cdpr77zjU91GQKmqjZMCDD
-         W7CGfTvf+A5U/+9Duej4fsfGswrRgGi0TVlH2q60GnOAzt6pCnMY3e8tr9HuBbbPTq
-         N152wOTVxpnEh4KsPV49dGoM8U7F3kfJB7PpUGaHO7PNLy6Wjf2+GV8lV0m2yBp22s
-         J3ekLono9Np+34wC3fUJrGS8KniPaMVvJe0LAl647WBdRLKBy1BPejQ7BpiCAFKZyE
-         Hyg9QPCPOfaq65t+fVZKelXSndDmxi02cRK5A6um98rWRNFHpO1jg8ODdyS3gPwnGT
-         55o5nIgzAOQ0A==
+        b=Jr2eEt1fauIcxzsihfBx0FSUyGKwNM9JLH39EiSbNTr/6tkYASWluQqd7sC94S3WE
+         8cchwjCFVA5FqS4B40r86dwR3yMELbAULxx3eG49WWnOXrmnwHPe/Tw8Z1msz+wb2T
+         gkwcGf1P/gtDRMGZlTBDPTFdRitWdfSSY4PCthjnR9X8dWvoHOaUI2MuTjD01XlU4+
+         S2cI9CEUkt80XxqBM6Ed/8JrI52wTnBJDK+1gVneNgrJ6KPYF8x+ZBQjLgTOPiAh7g
+         fTsfp3Wk+VHiC30jh8aD1XnKZlYttFPmyi593/hHfPRqCrkoY6r5m28NogbLGXPzvp
+         XLGQHdh9ZRt+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Shirisha Ganta <shirisha.ganta1@ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 16/26] selftests/powerpc: Fix "no_handler" EBB selftest
-Date:   Fri,  9 Jul 2021 22:35:54 -0400
-Message-Id: <20210710023604.3172486-16-sashal@kernel.org>
+Cc:     Zhen Lei <thunder.leizhen@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.9 17/26] ASoC: soc-core: Fix the error return code in snd_soc_of_parse_audio_routing()
+Date:   Fri,  9 Jul 2021 22:35:55 -0400
+Message-Id: <20210710023604.3172486-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023604.3172486-1-sashal@kernel.org>
 References: <20210710023604.3172486-1-sashal@kernel.org>
@@ -44,43 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 45677c9aebe926192e59475b35a1ff35ff2d4217 ]
+[ Upstream commit 7d3865a10b9ff2669c531d5ddd60bf46b3d48f1e ]
 
-The "no_handler_test" in ebb selftests attempts to read the PMU
-registers twice via helper function "dump_ebb_state". First dump is
-just before closing of event and the second invocation is done after
-closing of the event. The original intention of second
-dump_ebb_state was to dump the state of registers at the end of
-the test when the counters are frozen. But this will be achieved
-with the first call itself since sample period is set to low value
-and PMU will be frozen by then. Hence patch removes the
-dump which was done before closing of the event.
+When devm_kcalloc() fails, the error code -ENOMEM should be returned
+instead of -EINVAL.
 
-Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com <mailto:rnsastry@linux.ibm.com>>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1621950703-1532-2-git-send-email-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210617103729.1918-1-thunder.leizhen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c | 2 --
- 1 file changed, 2 deletions(-)
+ sound/soc/soc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c b/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
-index 8341d7778d5e..87630d44fb4c 100644
---- a/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
-+++ b/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
-@@ -50,8 +50,6 @@ static int no_handler_test(void)
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 168559b5e9f3..0344d4423167 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -3644,7 +3644,7 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
+ 	if (!routes) {
+ 		dev_err(card->dev,
+ 			"ASoC: Could not allocate DAPM route table\n");
+-		return -EINVAL;
++		return -ENOMEM;
+ 	}
  
- 	event_close(&event);
- 
--	dump_ebb_state();
--
- 	/* The real test is that we never took an EBB at 0x0 */
- 
- 	return 0;
+ 	for (i = 0; i < num_routes; i++) {
 -- 
 2.30.2
 
