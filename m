@@ -2,146 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E17E3C3140
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4524F3C31F5
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233732AbhGJClB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:41:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58382 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234933AbhGJCjS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:39:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98EF2613F4;
-        Sat, 10 Jul 2021 02:35:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884515;
-        bh=kbisOGd3B+uqzPfIHDpDeTo7WJGM1uM+KCB1rcbZ+h4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cz+tZrPa7DKTQ9njUt55M62+lEz8yU7+SRH1k0tbVdlPUXdVkeO48MVeCNe0utQCb
-         ChwW1/cQM24yZjj9BdLJ/TfNrTlYJm6piI0Wgw5ANpsU3ZFDVTws7yFJyo1rGfyIci
-         WOnOaf/3/bEQj2mklAp/KdWFctXx2KkpE4Gydr8Mkx0pB4n8lRPiU+BOjpKjnuIV2j
-         D6HhGto0NTPwLnRyJpXqoaOvXjMsROhZ+geF++vr1gl0EYKn1tC6B3SWafZU0cN47b
-         rtODg4WWedwfQTez2JA5ZswPcWAb+PDYBO8U57QIiIeWgx3rB/VrQoT0wMnOwwKFvd
-         00SE0iL9DnErQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
-        Kyungsik Lee <kyungsik.lee@lge.com>,
-        Yinghai Lu <yinghai@kernel.org>,
-        Bongkyu Kim <bongkyu.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
-        Rajat Asthana <thisisrast7@gmail.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 39/39] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
-Date:   Fri,  9 Jul 2021 22:32:04 -0400
-Message-Id: <20210710023204.3171428-39-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210710023204.3171428-1-sashal@kernel.org>
-References: <20210710023204.3171428-1-sashal@kernel.org>
+        id S233832AbhGJCrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:47:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53996 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235223AbhGJCrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Jul 2021 22:47:05 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C78FC028116;
+        Fri,  9 Jul 2021 19:33:34 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id p4-20020a17090a9304b029016f3020d867so7090941pjo.3;
+        Fri, 09 Jul 2021 19:33:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=49HWs+ixRqF3ieorF0UDQZVsTzBIiB467SvhUde4lt4=;
+        b=YUeil/Hofs4LLQMw2L0hjCYdQ5nDkQD8QDOBUJDRI8cqBlPJYLjxSuBzw7Qj3xt6Wt
+         +ZDLQztaRpPittEEUV9rq2/Fx/4BOuh9ovCg1IlsN+IKEbVKJ2o3QAICIDCZ6Mon5iSE
+         CDTocxUJ5qgy6zZdqPiDYpdK85yah8PqxCakK39ZmnvUu9WT64xKweUSuoK2KexHDxsv
+         ExrGsftxn/Lva00tMwntLW86KwmpQ92/ncIlgXYHfFOiI3HDB3lbNPWIbMkxj5SeY4+H
+         8cMoJ94qN6pxDB4D2PHpDlTK9zzahO5Jnb972/S8WWvNjA8QS3EAA/0yXDv919EhFRvG
+         q/6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=49HWs+ixRqF3ieorF0UDQZVsTzBIiB467SvhUde4lt4=;
+        b=uIUXcd3FJjuK877KLXq7seiRcf14geJj0CYjDXgb609/7sFGxJxlvtGH398ssjw+Wx
+         Eu2BzwsQBEAXTh7vCsgpDHTodEppk2NnhDAIG48O4CP192PE9NgJ4NQTX0VVoKblJvDb
+         +/BQzYBVshB5+tK+bkt0FftdS6FRbyNzDK71LwXasP6aopTEwuOuglmlzKKN3uLPS0kK
+         dJwiAPo0yko2+TtP+HCtKj776p8GTeHwOGSuss6AAGIPss6HYJgLU1x29B49xjllp8d5
+         KO8XQNyqlHciN6X1BzysZdqxQiIAzBBQScfhGzcyQX8gd66txtaTK+REU8ByxXLQJk+K
+         GEbw==
+X-Gm-Message-State: AOAM533/Tw8J0ucUuSWQfb4fh6B7deHsVbsW5NSxFQV8EOy4R4gWXLxJ
+        SXd7GEzUf0hD0n5Sqycu8lNy+hZd5AWneQ==
+X-Google-Smtp-Source: ABdhPJwnOzEuKK3CNlelDD0Q4VoMYekxvzFlbaYLHTVlMCkxNJhzAOucZPosEb3GpachzeROCTwjbw==
+X-Received: by 2002:a17:90a:1b07:: with SMTP id q7mr41480652pjq.181.1625884413715;
+        Fri, 09 Jul 2021 19:33:33 -0700 (PDT)
+Received: from [10.230.31.46] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id a6sm6613242pjq.27.2021.07.09.19.33.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 09 Jul 2021 19:33:32 -0700 (PDT)
+Subject: Re: [PATCH AUTOSEL 5.13 013/114] serial: 8250: of: Check for
+ CONFIG_SERIAL_8250_BCM7271
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Jim Quinlan <jim2101024@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Al Cooper <alcooperx@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-serial@vger.kernel.org
+References: <20210710021748.3167666-1-sashal@kernel.org>
+ <20210710021748.3167666-13-sashal@kernel.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <b431c751-0a45-47f1-c5c6-7ca02581ad57@gmail.com>
+Date:   Fri, 9 Jul 2021 19:33:25 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210710021748.3167666-13-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
 
-[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
 
-lz4 compatible decompressor is simple.  The format is underspecified and
-relies on EOF notification to determine when to stop.  Initramfs buffer
-format[1] explicitly states that it can have arbitrary number of zero
-padding.  Thus when operating without a fill function, be extra careful to
-ensure that sizes less than 4, or apperantly empty chunksizes are treated
-as EOF.
+On 7/9/2021 7:16 PM, Sasha Levin wrote:
+> From: Jim Quinlan <jim2101024@gmail.com>
+> 
+> [ Upstream commit f5b08386dee439c7a9e60ce0a4a4a705f3a60dff ]
+> 
+> Our SoC's have always had a NS16650A UART core and older SoC's would
+> have a compatible string of: 'compatible = ""ns16550a"' and use the
+> 8250_of driver. Our newer SoC's have added enhancements to the base
+> core to add support for DMA and accurate high speed baud rates and use
+> this newer 8250_bcm7271 driver. The Device Tree node for our enhanced
+> UARTs has a compatible string of: 'compatible = "brcm,bcm7271-uart",
+> "ns16550a"''. With both drivers running and the link order setup so
+> that the 8250_bcm7217 driver is initialized before the 8250_of driver,
+> we should bind the 8250_bcm7271 driver to the enhanced UART, or for
+> upstream kernels that don't have the 8250_bcm7271 driver, we bind to
+> the 8250_of driver.
+> 
+> The problem is that when both the 8250_of and 8250_bcm7271 drivers
+> were running, occasionally the 8250_of driver would be bound to the
+> enhanced UART instead of the 8250_bcm7271 driver. This was happening
+> because we use SCMI based clocks which come up late in initialization
+> and cause probe DEFER's when the two drivers get their clocks.
+> 
+> Occasionally the SCMI clock would become ready between the 8250_bcm7271
+> probe and the 8250_of probe and the 8250_of driver would be bound. To
+> fix this we decided to config only our 8250_bcm7271 driver and added
+> "ns16665a0" to the compatible string so the driver would work on our
+> older system.
+> 
+> This commit has of_platform_serial_probe() check specifically for the
+> "brcm,bcm7271-uart" and whether its companion driver is enabled. If it
+> is the case, and the clock provider is not ready, we want to make sure
+> that when the 8250_bcm7271.c driver returns EPROBE_DEFER, we are not
+> getting the UART registered via 8250_of.c.
+> 
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> Signed-off-by: Jim Quinlan <jim2101024@gmail.com>
+> Signed-off-by: Al Cooper <alcooperx@gmail.com>
+> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> Link: https://lore.kernel.org/r/20210423183206.3917725-1-f.fainelli@gmail.com
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-To test this I have created two cpio initrds, first a normal one,
-main.cpio.  And second one with just a single /test-file with content
-"second" second.cpio.  Then i compressed both of them with gzip, and with
-lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
-count=4).  To create four testcase initrds:
+This commit is only relevant with 
+41a469482de257ea8db43cf74b6311bd055de030 ("serial: 8250: Add new 
+8250-core based Broadcom STB driver") which is included in v5.13 and 
+newer. You would want to drop that commit from the 5.12, 5.10 and 5.4 
+auto-selection.
 
- 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
- 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
- 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
- 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
-
-The pad4 test-cases replicate the initrd load by grub, as it pads and
-aligns every initrd it loads.
-
-All of the above boot, however /test-file was not accessible in the initrd
-for the testcase #4, as decoding in lz4 decompressor failed.  Also an
-error message printed which usually is harmless.
-
-Whith a patched kernel, all of the above testcases now pass, and
-/test-file is accessible.
-
-This fixes lz4 initrd decompress warning on every boot with grub.  And
-more importantly this fixes inability to load multiple lz4 compressed
-initrds with grub.  This patch has been shipping in Ubuntu kernels since
-January 2021.
-
-[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
-
-BugLink: https://bugs.launchpad.net/bugs/1835660
-Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
-Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Cc: Kyungsik Lee <kyungsik.lee@lge.com>
-Cc: Yinghai Lu <yinghai@kernel.org>
-Cc: Bongkyu Kim <bongkyu.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
-Cc: Rajat Asthana <thisisrast7@gmail.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Gao Xiang <hsiangkao@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- lib/decompress_unlz4.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
-index 1b0baf3008ea..b202aa864c48 100644
---- a/lib/decompress_unlz4.c
-+++ b/lib/decompress_unlz4.c
-@@ -115,6 +115,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 				error("data corrupted");
- 				goto exit_2;
- 			}
-+		} else if (size < 4) {
-+			/* empty or end-of-file */
-+			goto exit_3;
- 		}
- 
- 		chunksize = get_unaligned_le32(inp);
-@@ -128,6 +131,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 			continue;
- 		}
- 
-+		if (!fill && chunksize == 0) {
-+			/* empty or end-of-file */
-+			goto exit_3;
-+		}
- 
- 		if (posp)
- 			*posp += 4;
-@@ -187,6 +194,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 		}
- 	}
- 
-+exit_3:
- 	ret = 0;
- exit_2:
- 	if (!input)
+Thanks!
 -- 
-2.30.2
-
+Florian
