@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 198483C2D70
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D983C2DA4
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:25:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233089AbhGJCWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:22:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38804 "EHLO mail.kernel.org"
+        id S230494AbhGJCYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:24:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232589AbhGJCWT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:22:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9BF4613B7;
-        Sat, 10 Jul 2021 02:19:28 +0000 (UTC)
+        id S230248AbhGJCYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:24:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA93E613BE;
+        Sat, 10 Jul 2021 02:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883569;
-        bh=H65BQimBAwbH5n7kbcYzCOuiT8nnBa5h2f5AOhcpIMw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N5fKqCtBoSv2maue9+0qlOgqnMvetaBeAaGBJr5bWneS34KfwzlhqHZq1m6ApXHOe
-         7+IWHjKvXkzvSpvrP+PSeEgCFloc8tFPH9Z7VLuQB/01RWNoSRp4mlWNYYX0Mek5BG
-         23Bpw41AVM58SzfMOhxhsnSXybISMEO91C2Ybd4T6xq9pzh0PiTobGU+At4JD1I8GH
-         EoW4m0v2q0LR9Psv8wvsMlytfb8kxNO9xsm/HuxZgq72zx9ds9IOcqBJZ4+S97ah5G
-         vJmc3f6xkZWmnLL25ceX0eHeNhKtXQ2nf0dUEVRldA46umOwRNf86TLLu/+RpbRSeO
-         bVQMw/WTt5NLw==
+        s=k20201202; t=1625883718;
+        bh=YUEniXoGWoNOiBcC3NU1p9VwfWhDIBz0E7edYEnC7PY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=blsH2fzyrkOyHrDZLaadFUcWhjACb81kUPzEkD67HDfBRN+lR6zI3hMusgm1Un+ys
+         tsfEEDkROUOYRQWzGhoUyj7KKb2Eh2Y3s8StJ50boN0Jh4fb2yHk3joXam0rDNBztZ
+         WTluYkwJ65L6RsyJO5kwKPMnuOY7Kqosg069OeY4RT18namQVeitKUF3IVxeh+gtRm
+         Q7ok100K5k/dJ585EWh77F8qwP7MmRVgMByrk3i50CR8BKHUa8vW+n2awtqdSytmkd
+         PlxXH+VI1erx2dvXLp7SGLEJnPe6P75oFeajNXynLTCR66J5qQzen/jQXpRLhqO1M2
+         r4S6AGF6BGbDQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.13 075/114] ALSA: ppc: fix error return code in snd_pmac_probe()
-Date:   Fri,  9 Jul 2021 22:17:09 -0400
-Message-Id: <20210710021748.3167666-75-sashal@kernel.org>
+        Hulk Robot <hulkci@huawei.com>, Pavel Machek <pavel@ucw.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-leds@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 001/104] leds: tlc591xx: fix return value check in tlc591xx_probe()
+Date:   Fri,  9 Jul 2021 22:20:13 -0400
+Message-Id: <20210710022156.3168825-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210710021748.3167666-1-sashal@kernel.org>
-References: <20210710021748.3167666-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,37 +42,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 80b9c1be567c3c6bbe0d4b290af578e630485b5d ]
+[ Upstream commit ee522bcf026ec82ada793979c3a906274430595a ]
 
-If snd_pmac_tumbler_init() or snd_pmac_tumbler_post_init() fails,
-snd_pmac_probe() need return error code.
+After device_get_match_data(), tlc591xx is not checked, add
+check for it and also check np after dev_of_node.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210616021121.1991502-1-yangyingliang@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/ppc/powermac.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/leds/leds-tlc591xx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/ppc/powermac.c b/sound/ppc/powermac.c
-index 9fb51ebafde1..8088f77d5a74 100644
---- a/sound/ppc/powermac.c
-+++ b/sound/ppc/powermac.c
-@@ -76,7 +76,11 @@ static int snd_pmac_probe(struct platform_device *devptr)
- 		sprintf(card->shortname, "PowerMac %s", name_ext);
- 		sprintf(card->longname, "%s (Dev %d) Sub-frame %d",
- 			card->shortname, chip->device_id, chip->subframe);
--		if ( snd_pmac_tumbler_init(chip) < 0 || snd_pmac_tumbler_post_init() < 0)
-+		err = snd_pmac_tumbler_init(chip);
-+		if (err < 0)
-+			goto __error;
-+		err = snd_pmac_tumbler_post_init();
-+		if (err < 0)
- 			goto __error;
- 		break;
- 	case PMAC_AWACS:
+diff --git a/drivers/leds/leds-tlc591xx.c b/drivers/leds/leds-tlc591xx.c
+index 5b9dfdf743ec..cb7bd1353f9f 100644
+--- a/drivers/leds/leds-tlc591xx.c
++++ b/drivers/leds/leds-tlc591xx.c
+@@ -148,16 +148,20 @@ static int
+ tlc591xx_probe(struct i2c_client *client,
+ 	       const struct i2c_device_id *id)
+ {
+-	struct device_node *np = dev_of_node(&client->dev), *child;
++	struct device_node *np, *child;
+ 	struct device *dev = &client->dev;
+ 	const struct tlc591xx *tlc591xx;
+ 	struct tlc591xx_priv *priv;
+ 	int err, count, reg;
+ 
+-	tlc591xx = device_get_match_data(dev);
++	np = dev_of_node(dev);
+ 	if (!np)
+ 		return -ENODEV;
+ 
++	tlc591xx = device_get_match_data(dev);
++	if (!tlc591xx)
++		return -ENODEV;
++
+ 	count = of_get_available_child_count(np);
+ 	if (!count || count > tlc591xx->max_leds)
+ 		return -EINVAL;
 -- 
 2.30.2
 
