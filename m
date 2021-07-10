@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C18423C3094
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A4D13C3095
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234692AbhGJCfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:35:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53320 "EHLO mail.kernel.org"
+        id S234979AbhGJCfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:35:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235635AbhGJCe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235640AbhGJCe5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:34:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38CD4613C9;
-        Sat, 10 Jul 2021 02:31:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60520613CC;
+        Sat, 10 Jul 2021 02:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884319;
-        bh=YrfJ8dKNlutmPddgbdWUgLKsXiT8/9F7vm9xuBCNROM=;
+        s=k20201202; t=1625884321;
+        bh=L7B8jWpA0eVGQdZRPFLwWbDUxnKVm/LaZBmlk4YsjAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g7zVk5Iu7gY1cvOivMFw4Qcl53iDYiTUINdp13aMhOK9auJ1vItyWfXHuoCbbZpCu
-         t1swNH1qnL7vdmRtIHxcZ92MXyEU0U0mwQh3PK+4cKbWsBDx5HYh7bbuVdkp0GHk9U
-         Lvbls/GiONlgZR3dp6/aVJMlf0PeOSmbdKPtfrr901HqiJPOw6nJlJVa+wvHftcm04
-         lr6wwwnSgm+2f7/TFh0cMxTzB26QuBPuVUtQeyGurtl4bRmoBfnOOykk1m25kWv/na
-         4O9sQb09ynGrnXbKKuhCUEqRj10L0XhamfakZih7BBi1jpovjrRMn32uk0pTnX85uD
-         3XMLgUInO/+iw==
+        b=fdel0uMAXurKDW704DIT7lMbC9K4pXDBpgOJsXSzrYw6T/zjCsxxfYELEtEXK0pF2
+         lbah/ITHLNOcOwAdK36+CytdNNX1/pCBEr/NjeYLJcuV3+rXvbjdfpwYgSCwQseagA
+         c7WCcqJUEP+3p9U/oCApQhSQj6olxGfdT7+lKx7NdLzNKXF+PMXkX8A6n1IVYj/tcQ
+         P4VRrexn+ugKeeGdj7hggwiWSViehFfvISGaZ2Mp7G7sjfK4xHSvLpIKGpSwxtkjjF
+         gCvewTg1RM2htukzQb2B8jKtSC0ItJiB08rUTO8bHhQuKNajADF8cpjL/MFI/vxVw2
+         v+JDhS3+6xOwA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 61/63] intel_th: Wait until port is in reset before programming it
-Date:   Fri,  9 Jul 2021 22:27:07 -0400
-Message-Id: <20210710022709.3170675-61-sashal@kernel.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 62/63] i2c: core: Disable client irq on reboot/shutdown
+Date:   Fri,  9 Jul 2021 22:27:08 -0400
+Message-Id: <20210710022709.3170675-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022709.3170675-1-sashal@kernel.org>
 References: <20210710022709.3170675-1-sashal@kernel.org>
@@ -43,117 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit ab1afed701d2db7eb35c1a2526a29067a38e93d1 ]
+[ Upstream commit b64210f2f7c11c757432ba3701d88241b2b98fb1 ]
 
-Some devices don't drain their pipelines if we don't make sure that
-the corresponding output port is in reset before programming it for
-a new trace capture, resulting in bits of old trace appearing in the
-new trace capture. Fix that by explicitly making sure the reset is
-asserted before programming new trace capture.
+If an i2c client receives an interrupt during reboot or shutdown it may
+be too late to service it by making an i2c transaction on the bus
+because the i2c controller has already been shutdown. This can lead to
+system hangs if the i2c controller tries to make a transfer that is
+doomed to fail because the access to the i2c pins is already shut down,
+or an iommu translation has been torn down so i2c controller register
+access doesn't work.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Link: https://lore.kernel.org/r/20210621151246.31891-5-alexander.shishkin@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Let's simply disable the irq if there isn't a shutdown callback for an
+i2c client when there is an irq associated with the device. This will
+make sure that irqs don't come in later than the time that we can handle
+it. We don't do this if the i2c client device already has a shutdown
+callback because presumably they're doing the right thing and quieting
+the device so irqs don't come in after the shutdown callback returns.
+
+Reported-by: kernel test robot <lkp@intel.com>
+[swboyd@chromium.org: Dropped newline, added commit text, added
+interrupt.h for robot build error]
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/intel_th/core.c     | 17 +++++++++++++++++
- drivers/hwtracing/intel_th/gth.c      | 16 ++++++++++++++++
- drivers/hwtracing/intel_th/intel_th.h |  3 +++
- 3 files changed, 36 insertions(+)
+ drivers/i2c/i2c-core-base.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hwtracing/intel_th/core.c b/drivers/hwtracing/intel_th/core.c
-index c9ac3dc65113..9cb8c7d13d46 100644
---- a/drivers/hwtracing/intel_th/core.c
-+++ b/drivers/hwtracing/intel_th/core.c
-@@ -215,6 +215,22 @@ static ssize_t port_show(struct device *dev, struct device_attribute *attr,
- 
- static DEVICE_ATTR_RO(port);
- 
-+static void intel_th_trace_prepare(struct intel_th_device *thdev)
-+{
-+	struct intel_th_device *hub = to_intel_th_hub(thdev);
-+	struct intel_th_driver *hubdrv = to_intel_th_driver(hub->dev.driver);
-+
-+	if (hub->type != INTEL_TH_SWITCH)
-+		return;
-+
-+	if (thdev->type != INTEL_TH_OUTPUT)
-+		return;
-+
-+	pm_runtime_get_sync(&thdev->dev);
-+	hubdrv->prepare(hub, &thdev->output);
-+	pm_runtime_put(&thdev->dev);
-+}
-+
- static int intel_th_output_activate(struct intel_th_device *thdev)
- {
- 	struct intel_th_driver *thdrv =
-@@ -235,6 +251,7 @@ static int intel_th_output_activate(struct intel_th_device *thdev)
- 	if (ret)
- 		goto fail_put;
- 
-+	intel_th_trace_prepare(thdev);
- 	if (thdrv->activate)
- 		ret = thdrv->activate(thdev);
- 	else
-diff --git a/drivers/hwtracing/intel_th/gth.c b/drivers/hwtracing/intel_th/gth.c
-index 28509b02a0b5..b3308934a687 100644
---- a/drivers/hwtracing/intel_th/gth.c
-+++ b/drivers/hwtracing/intel_th/gth.c
-@@ -564,6 +564,21 @@ static void gth_tscu_resync(struct gth_device *gth)
- 	iowrite32(reg, gth->base + REG_TSCU_TSUCTRL);
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 840f59650c7c..1b93fae58ec7 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -24,6 +24,7 @@
+ #include <linux/i2c-smbus.h>
+ #include <linux/idr.h>
+ #include <linux/init.h>
++#include <linux/interrupt.h>
+ #include <linux/irqflags.h>
+ #include <linux/jump_label.h>
+ #include <linux/kernel.h>
+@@ -459,6 +460,8 @@ static void i2c_device_shutdown(struct device *dev)
+ 	driver = to_i2c_driver(dev->driver);
+ 	if (driver->shutdown)
+ 		driver->shutdown(client);
++	else if (client->irq > 0)
++		disable_irq(client->irq);
  }
  
-+static void intel_th_gth_prepare(struct intel_th_device *thdev,
-+				 struct intel_th_output *output)
-+{
-+	struct gth_device *gth = dev_get_drvdata(&thdev->dev);
-+	int count;
-+
-+	/*
-+	 * Wait until the output port is in reset before we start
-+	 * programming it.
-+	 */
-+	for (count = GTH_PLE_WAITLOOP_DEPTH;
-+	     count && !(gth_output_get(gth, output->port) & BIT(5)); count--)
-+		cpu_relax();
-+}
-+
- /**
-  * intel_th_gth_enable() - enable tracing to an output device
-  * @thdev:	GTH device
-@@ -815,6 +830,7 @@ static struct intel_th_driver intel_th_gth_driver = {
- 	.assign		= intel_th_gth_assign,
- 	.unassign	= intel_th_gth_unassign,
- 	.set_output	= intel_th_gth_set_output,
-+	.prepare	= intel_th_gth_prepare,
- 	.enable		= intel_th_gth_enable,
- 	.trig_switch	= intel_th_gth_switch,
- 	.disable	= intel_th_gth_disable,
-diff --git a/drivers/hwtracing/intel_th/intel_th.h b/drivers/hwtracing/intel_th/intel_th.h
-index 5fe694708b7a..595615b79108 100644
---- a/drivers/hwtracing/intel_th/intel_th.h
-+++ b/drivers/hwtracing/intel_th/intel_th.h
-@@ -143,6 +143,7 @@ intel_th_output_assigned(struct intel_th_device *thdev)
-  * @remove:	remove method
-  * @assign:	match a given output type device against available outputs
-  * @unassign:	deassociate an output type device from an output port
-+ * @prepare:	prepare output port for tracing
-  * @enable:	enable tracing for a given output device
-  * @disable:	disable tracing for a given output device
-  * @irq:	interrupt callback
-@@ -164,6 +165,8 @@ struct intel_th_driver {
- 					  struct intel_th_device *othdev);
- 	void			(*unassign)(struct intel_th_device *thdev,
- 					    struct intel_th_device *othdev);
-+	void			(*prepare)(struct intel_th_device *thdev,
-+					   struct intel_th_output *output);
- 	void			(*enable)(struct intel_th_device *thdev,
- 					  struct intel_th_output *output);
- 	void			(*trig_switch)(struct intel_th_device *thdev,
+ static void i2c_client_dev_release(struct device *dev)
 -- 
 2.30.2
 
