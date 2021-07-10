@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5539B3C301F
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:46:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F14373C3024
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:46:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234583AbhGJCd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:33:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48668 "EHLO mail.kernel.org"
+        id S234484AbhGJCdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:33:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234095AbhGJCbf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:31:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2507C6142D;
-        Sat, 10 Jul 2021 02:27:45 +0000 (UTC)
+        id S234519AbhGJCbq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:31:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B393D61413;
+        Sat, 10 Jul 2021 02:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884066;
-        bh=0WSpC4dOuuA7TizWJx5jNXiXsDXdY7vk7rwBBTqBOu0=;
+        s=k20201202; t=1625884067;
+        bh=hau0c91h4BJ9V9i1sgzxQVHOLNVU2hgyRWuAw9aeMe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8FT/yHt/tUN2ESa7ADurwINAP5enwzpiam+Ps/NL2OyBRkG1Le38CkiayjCyrjus
-         GVckFdo8KcapZv5KbNw0zSH7j+F0cZz/6QGOO9hFnL7lF02ICMcqR/CNdTOiaNw/0f
-         ggl9bycjwm/p3rj65lSLHZkrVGMtnbPuN0I3OsxdT+inRe6Zg37kfloEm2lQ7LWOKT
-         uBC32zUKpNuR6AJvdQsbxh11/4ljTXpR6uM8YiZoVk3B7o+ToSlQNIsMR3FCRAjguZ
-         i4bpBV8IZvWoy6J3gjmfb55t8UzKMQ2KzgI1rkFoB1JvIK1eVcwsCuf/Dpo5Dg5Y3R
-         FDn8I+cxBvVCg==
+        b=prx/qnzigWMBnlyJ2rSLOZ/5waHiX98SsZ4VDBP4ODh9VN3grlJArWu416pSPB/0s
+         SjTLtv1XILZ8LJpeR+Vco7fY3vU/n0SoZtbRNuYrt2VKZtUatmM6GEmk9Fo1RxIEi6
+         YK4NLPKBtaHv6y0sXkHLHdipH7K+SriuXK0lQVmi5l6mDw4wsV4xfLgIQQp5JKTbPr
+         venA++bECiPoO5fcHBWJSJ0iWBSZ0QyGlvRyCEnG9lx2MttMV039DiaJrI4O5ClKwa
+         ojhOuAGj8rLeCu3kuR7CyIzFAzzbG7DDX7mY4XyqB1v0EsVmUo3JCFuCbUIUGe2XE7
+         /kXSn+GNerCdg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        Carl Philipp Klemm <philipp@uvos.xyz>,
-        Ivan Jelincic <parazyd@dyne.org>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        "Sicelo A . Mhlongo" <absicsz@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 28/63] mfd: cpcap: Fix cpcap dmamask not set warnings
-Date:   Fri,  9 Jul 2021 22:26:34 -0400
-Message-Id: <20210710022709.3170675-28-sashal@kernel.org>
+Cc:     Yufen Yu <yuyufen@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 29/63] ASoC: img: Fix PM reference leak in img_i2s_in_probe()
+Date:   Fri,  9 Jul 2021 22:26:35 -0400
+Message-Id: <20210710022709.3170675-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022709.3170675-1-sashal@kernel.org>
 References: <20210710022709.3170675-1-sashal@kernel.org>
@@ -48,60 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit 0b7cbe811ca524295ea43d9a4d73d3427e419c54 ]
+[ Upstream commit 81aad47278539f02de808bcc8251fed0ad3d6f55 ]
 
-We have started to get a bunch of pointless dmamask not set warnings
-that makes the output of dmesg -l err,warn hard to read with many
-extra warnings:
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-cpcap-regulator cpcap-regulator.0: DMA mask not set
-cpcap_adc cpcap_adc.0: DMA mask not set
-cpcap_battery cpcap_battery.0: DMA mask not set
-cpcap-charger cpcap-charger.0: DMA mask not set
-cpcap-pwrbutton cpcap-pwrbutton.0: DMA mask not set
-cpcap-led cpcap-led.0: DMA mask not set
-cpcap-led cpcap-led.1: DMA mask not set
-cpcap-led cpcap-led.2: DMA mask not set
-cpcap-led cpcap-led.3: DMA mask not set
-cpcap-led cpcap-led.4: DMA mask not set
-cpcap-rtc cpcap-rtc.0: DMA mask not set
-cpcap-usb-phy cpcap-usb-phy.0: DMA mask not set
-
-This seems to have started with commit 4d8bde883bfb ("OF: Don't set
-default coherent DMA mask"). We have the parent SPI controller use
-DMA, while CPCAP driver and it's children do not. For audio, the
-DMA is handled over I2S bus with the McBSP driver.
-
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Cc: Ivan Jelincic <parazyd@dyne.org>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Sicelo A. Mhlongo <absicsz@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Link: https://lore.kernel.org/r/20210524093521.612176-1-yuyufen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/motorola-cpcap.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/img/img-i2s-in.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-index 52f38e57cdc1..1ae58c977e1b 100644
---- a/drivers/mfd/motorola-cpcap.c
-+++ b/drivers/mfd/motorola-cpcap.c
-@@ -305,6 +305,10 @@ static int cpcap_probe(struct spi_device *spi)
- 	if (ret)
- 		return ret;
+diff --git a/sound/soc/img/img-i2s-in.c b/sound/soc/img/img-i2s-in.c
+index bb668551dd4b..243f916355ee 100644
+--- a/sound/soc/img/img-i2s-in.c
++++ b/sound/soc/img/img-i2s-in.c
+@@ -464,7 +464,7 @@ static int img_i2s_in_probe(struct platform_device *pdev)
+ 		if (ret)
+ 			goto err_pm_disable;
+ 	}
+-	ret = pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_resume_and_get(&pdev->dev);
+ 	if (ret < 0)
+ 		goto err_suspend;
  
-+	/* Parent SPI controller uses DMA, CPCAP and child devices do not */
-+	spi->dev.coherent_dma_mask = 0;
-+	spi->dev.dma_mask = &spi->dev.coherent_dma_mask;
-+
- 	return devm_mfd_add_devices(&spi->dev, 0, cpcap_mfd_devices,
- 				    ARRAY_SIZE(cpcap_mfd_devices), NULL, 0, NULL);
- }
 -- 
 2.30.2
 
