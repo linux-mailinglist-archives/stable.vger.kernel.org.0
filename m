@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30B303C37AB
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 586263C37AF
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232286AbhGJXwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 19:52:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39290 "EHLO mail.kernel.org"
+        id S232868AbhGJXwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:52:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232622AbhGJXwc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:52:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA7326135E;
-        Sat, 10 Jul 2021 23:49:45 +0000 (UTC)
+        id S232661AbhGJXwd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:52:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E983061057;
+        Sat, 10 Jul 2021 23:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625960986;
-        bh=iM1K6mqKlaFRjb/3+kOuMfyvud8VMFcfwJgch6Mi2cM=;
+        s=k20201202; t=1625960987;
+        bh=NSz0HggK+LEffCybsslj3iHeHYAzmgeuo1Ce2nB3UMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u7GzLP3aGFsazaTxbpCX9eBhrYEnk6iXXGSYXDjd/K9ikLNyzoObcSARXDrv13lNQ
-         OO/JAYBU/qDird9CfUcs7gpsK5Xnad9J/8GyT7PJnpCxdPVOmpSD6rOEuJN/XivMnY
-         eJHG0gwR3KI4HN5J5qwvBnqVFbpvkhIS/Llr7/yX+MwmGv/D+PAQpuB3KeYd68oS4B
-         D3rbV0dmGwa28rbF1QPZ0sjJ9Ex0wZs2ZWyoI5SB23n8D6U+iKL7UEklEydHkFoa+f
-         /1ZEREDNi8tmVX22xvuqFPwHtWHwgp2OsuEpuSeokvI7QbtZf+S6KT7v+l30VP+1az
-         b+0zPg1jl6wng==
+        b=Wy9SllXM/QTJzg/TD2YBlO+SLbJCYrRvMmxFKX//88DyYjPAP+00d57tmWkdxSa+x
+         H8gLaFLZNSNd64J4M3qQkXeLvrOAZicjcUkjUreB+42oVB3LkwS1LJg4szeM3riIu1
+         aTetV+dtoAuu5yAogyWFxECBT9zD3eLSeSwg3DoHWbaEFDg0EZ3/17pKlrYJvMAtMp
+         dkttwJnjy4rjuzixY9gFoEQplEy5QkWrp5R3PN2pdv7NSbcg+kJbjmuGWYnH9dntom
+         jsSZnqRS/n+IFXzkQr9d9efqPz1RO8QT/NphbuaMaGSmMDl7hBXc4DuGqm1JUi9aW7
+         dV7QUD5C/C8Zw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 20/43] x86/fpu: Return proper error codes from user access functions
-Date:   Sat, 10 Jul 2021 19:48:52 -0400
-Message-Id: <20210710234915.3220342-20-sashal@kernel.org>
+Cc:     Siddharth Gupta <sidgup@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-remoteproc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 21/43] remoteproc: core: Fix cdev remove and rproc del
+Date:   Sat, 10 Jul 2021 19:48:53 -0400
+Message-Id: <20210710234915.3220342-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710234915.3220342-1-sashal@kernel.org>
 References: <20210710234915.3220342-1-sashal@kernel.org>
@@ -41,84 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Siddharth Gupta <sidgup@codeaurora.org>
 
-[ Upstream commit aee8c67a4faa40a8df4e79316dbfc92d123989c1 ]
+[ Upstream commit 930eec0be20c93a53160c74005a1485a230e6911 ]
 
-When *RSTOR from user memory raises an exception, there is no way to
-differentiate them. That's bad because it forces the slow path even when
-the failure was not a fault. If the operation raised eg. #GP then going
-through the slow path is pointless.
+The rproc_char_device_remove() call currently unmaps the cdev
+region instead of simply deleting the cdev that was added as a
+part of the rproc_char_device_add() call. This change fixes that
+behaviour, and also fixes the order in which device_del() and
+cdev_del() need to be called.
 
-Use _ASM_EXTABLE_FAULT() which stores the trap number and let the exception
-fixup return the negated trap number as error.
-
-This allows to separate the fast path and let it handle faults directly and
-avoid the slow path for all other exceptions.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210623121457.601480369@linutronix.de
+Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
+Link: https://lore.kernel.org/r/1623723671-5517-4-git-send-email-sidgup@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/fpu/internal.h | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/remoteproc/remoteproc_cdev.c | 2 +-
+ drivers/remoteproc/remoteproc_core.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
-index 16bf4d4a8159..4e5af2b00d89 100644
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -103,6 +103,7 @@ static inline void fpstate_init_fxstate(struct fxregs_state *fx)
+diff --git a/drivers/remoteproc/remoteproc_cdev.c b/drivers/remoteproc/remoteproc_cdev.c
+index b19ea3057bde..ff92ed25d8b0 100644
+--- a/drivers/remoteproc/remoteproc_cdev.c
++++ b/drivers/remoteproc/remoteproc_cdev.c
+@@ -111,7 +111,7 @@ int rproc_char_device_add(struct rproc *rproc)
+ 
+ void rproc_char_device_remove(struct rproc *rproc)
+ {
+-	__unregister_chrdev(MAJOR(rproc->dev.devt), rproc->index, 1, "remoteproc");
++	cdev_del(&rproc->cdev);
  }
- extern void fpstate_sanitize_xstate(struct fpu *fpu);
  
-+/* Returns 0 or the negated trap number, which results in -EFAULT for #PF */
- #define user_insn(insn, output, input...)				\
- ({									\
- 	int err;							\
-@@ -110,14 +111,14 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
- 	might_fault();							\
- 									\
- 	asm volatile(ASM_STAC "\n"					\
--		     "1:" #insn "\n\t"					\
-+		     "1: " #insn "\n"					\
- 		     "2: " ASM_CLAC "\n"				\
- 		     ".section .fixup,\"ax\"\n"				\
--		     "3:  movl $-1,%[err]\n"				\
-+		     "3:  negl %%eax\n"					\
- 		     "    jmp  2b\n"					\
- 		     ".previous\n"					\
--		     _ASM_EXTABLE(1b, 3b)				\
--		     : [err] "=r" (err), output				\
-+		     _ASM_EXTABLE_FAULT(1b, 3b)				\
-+		     : [err] "=a" (err), output				\
- 		     : "0"(0), input);					\
- 	err;								\
- })
-@@ -219,16 +220,20 @@ static inline void fxsave(struct fxregs_state *fx)
- #define XRSTOR		".byte " REX_PREFIX "0x0f,0xae,0x2f"
- #define XRSTORS		".byte " REX_PREFIX "0x0f,0xc7,0x1f"
+ void __init rproc_init_cdev(void)
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index ab150765d124..d9d2a240dd58 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -2357,7 +2357,6 @@ int rproc_del(struct rproc *rproc)
+ 	mutex_unlock(&rproc->lock);
  
-+/*
-+ * After this @err contains 0 on success or the negated trap number when
-+ * the operation raises an exception. For faults this results in -EFAULT.
-+ */
- #define XSTATE_OP(op, st, lmask, hmask, err)				\
- 	asm volatile("1:" op "\n\t"					\
- 		     "xor %[err], %[err]\n"				\
- 		     "2:\n\t"						\
- 		     ".pushsection .fixup,\"ax\"\n\t"			\
--		     "3: movl $-2,%[err]\n\t"				\
-+		     "3: negl %%eax\n\t"				\
- 		     "jmp 2b\n\t"					\
- 		     ".popsection\n\t"					\
--		     _ASM_EXTABLE(1b, 3b)				\
--		     : [err] "=r" (err)					\
-+		     _ASM_EXTABLE_FAULT(1b, 3b)				\
-+		     : [err] "=a" (err)					\
- 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
- 		     : "memory")
+ 	rproc_delete_debug_dir(rproc);
+-	rproc_char_device_remove(rproc);
  
+ 	/* the rproc is downref'ed as soon as it's removed from the klist */
+ 	mutex_lock(&rproc_list_mutex);
+@@ -2368,6 +2367,7 @@ int rproc_del(struct rproc *rproc)
+ 	synchronize_rcu();
+ 
+ 	device_del(&rproc->dev);
++	rproc_char_device_remove(rproc);
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
