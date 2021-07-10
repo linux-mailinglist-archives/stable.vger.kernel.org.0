@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D02423C2EAE
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A44A53C2EC9
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233442AbhGJC2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:28:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42072 "EHLO mail.kernel.org"
+        id S233121AbhGJC23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:28:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233789AbhGJC1R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:27:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF5AD613F3;
-        Sat, 10 Jul 2021 02:24:18 +0000 (UTC)
+        id S233244AbhGJC1W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:27:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D70C61419;
+        Sat, 10 Jul 2021 02:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883859;
-        bh=ck5Q6GVks57jWIqjHyZOElFXukj7+nakjKh8+cKT8/A=;
+        s=k20201202; t=1625883861;
+        bh=nro3MGa7h3qaKoTs4yw4efAa7zU3Ahe3U9SERvsOMXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aKbVVUf09IS76F9e3tMY4AZ1+WrwbsWTKQvDBiI+Oq3VIbKTFc1HWofy/RPmfZY4f
-         FgsR8XtTxZZmzypMy5u587JQe1Milp9LBnhzgSIIb8wPoCQApcR9qKV56XKcMdowNI
-         P91XTNTauSRPeIGZ5j0AcPDSCSHpu4X4qPUS/EpHSpIA84ZTCH5rSNvTqYx3lpoHAV
-         JrgSgvA8FjDHLbsK58mVhUrPePG3uSJ80ogUDLEl5i1qd7q7GMZjjXYG5SNmG5QSSD
-         9cIZD1lwm2O6Fu1XboF1TUjBZ617hv3u1cpqrO9DVjQag+GQhNT3GXLYN1kdJ3VhZb
-         WdEk4QlxnmbFg==
+        b=YIxfmYMUeKdfMAIdgx4bWlvMri3OdC057+uCtM/+0rryuXlpxIj48HRpRDy7pm9wK
+         zwWHU+gurv+KZZivqMPPovZ4wJcjxJP5UbaCfLWM/onfhXll5AxP/I0d//6Y7H2InE
+         9EnIxISSNJXu6nB3rV+VlFCtd0Idc9xnRRg1lALyXRuXdjQ0UDhIzc6W34K+OiRN38
+         y71+LITiZiDhQQ4kGf8HfAeBAhNpIN70TjvAdGPjMXwludQpV+DCTukgNOR/KhM8xY
+         CdqNW+sViKXviL8ah3aE45NeL0ziHHunDpZ6btTfgqSGGapMGd3e0YBavGNFhNvGeY
+         T7dOFEkRpPIhA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 101/104] i2c: core: Disable client irq on reboot/shutdown
-Date:   Fri,  9 Jul 2021 22:21:53 -0400
-Message-Id: <20210710022156.3168825-101-sashal@kernel.org>
+Cc:     Rashmi A <rashmi.a@intel.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-phy@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 102/104] phy: intel: Fix for warnings due to EMMC clock 175Mhz change in FIP
+Date:   Fri,  9 Jul 2021 22:21:54 -0400
+Message-Id: <20210710022156.3168825-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
 References: <20210710022156.3168825-1-sashal@kernel.org>
@@ -44,57 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Rashmi A <rashmi.a@intel.com>
 
-[ Upstream commit b64210f2f7c11c757432ba3701d88241b2b98fb1 ]
+[ Upstream commit 2f2b73a29d2aabf5ad0150856c3e5cb6e04dcfc1 ]
 
-If an i2c client receives an interrupt during reboot or shutdown it may
-be too late to service it by making an i2c transaction on the bus
-because the i2c controller has already been shutdown. This can lead to
-system hangs if the i2c controller tries to make a transfer that is
-doomed to fail because the access to the i2c pins is already shut down,
-or an iommu translation has been torn down so i2c controller register
-access doesn't work.
+Since the EMMC clock was changed from 200Mhz to 175Mhz in FIP,
+there were some warnings introduced, as the frequency values
+being checked was still wrt 200Mhz in code. Hence, the frequency
+checks are now updated based on the current 175Mhz EMMC clock changed
+in FIP.
 
-Let's simply disable the irq if there isn't a shutdown callback for an
-i2c client when there is an irq associated with the device. This will
-make sure that irqs don't come in later than the time that we can handle
-it. We don't do this if the i2c client device already has a shutdown
-callback because presumably they're doing the right thing and quieting
-the device so irqs don't come in after the shutdown callback returns.
+Spamming kernel log msg:
+"phy phy-20290000.mmc_phy.2: Unsupported rate: 43750000"
 
-Reported-by: kernel test robot <lkp@intel.com>
-[swboyd@chromium.org: Dropped newline, added commit text, added
-interrupt.h for robot build error]
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Rashmi A <rashmi.a@intel.com>
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-By: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210603182242.25733-3-rashmi.a@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/phy/intel/phy-intel-keembay-emmc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index f21362355973..8e4be0d4ce34 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -24,6 +24,7 @@
- #include <linux/i2c-smbus.h>
- #include <linux/idr.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/irqflags.h>
- #include <linux/jump_label.h>
- #include <linux/kernel.h>
-@@ -587,6 +588,8 @@ static void i2c_device_shutdown(struct device *dev)
- 	driver = to_i2c_driver(dev->driver);
- 	if (driver->shutdown)
- 		driver->shutdown(client);
-+	else if (client->irq > 0)
-+		disable_irq(client->irq);
- }
+diff --git a/drivers/phy/intel/phy-intel-keembay-emmc.c b/drivers/phy/intel/phy-intel-keembay-emmc.c
+index eb7c635ed89a..0eb11ac7c2e2 100644
+--- a/drivers/phy/intel/phy-intel-keembay-emmc.c
++++ b/drivers/phy/intel/phy-intel-keembay-emmc.c
+@@ -95,7 +95,8 @@ static int keembay_emmc_phy_power(struct phy *phy, bool on_off)
+ 	else
+ 		freqsel = 0x0;
  
- static void i2c_client_dev_release(struct device *dev)
+-	if (mhz < 50 || mhz > 200)
++	/* Check for EMMC clock rate*/
++	if (mhz > 175)
+ 		dev_warn(&phy->dev, "Unsupported rate: %d MHz\n", mhz);
+ 
+ 	/*
 -- 
 2.30.2
 
