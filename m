@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 032073C31DF
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ABC93C31DE
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235306AbhGJCpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:45:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34506 "EHLO mail.kernel.org"
+        id S235222AbhGJCpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:45:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235356AbhGJCnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235357AbhGJCnq (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:43:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15DC8613F3;
-        Sat, 10 Jul 2021 02:39:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61CCC613F2;
+        Sat, 10 Jul 2021 02:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884762;
-        bh=4rn0DvzLIFcOqynHc6wHvqocZvVdk8ucUZb092b96/o=;
+        s=k20201202; t=1625884764;
+        bh=gUwThY0EYXJoMtoHlTaJafFz+jl0r42OKpAgT6CENmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPDnnm/fq9sUoFIAfiRUbn8rCKnY31tVFSGWZ5fSeWE6Vk3tttOLDp97syoV3M3c2
-         OTHPLvJbDcbpc8N+V2hwsdrzBolW4InpMXemFYxX9fh57zG/8TG9V3WTKDd4hlSJQ+
-         4T/OibkoAoZfGMGLhD2UawUK70mmKCQPNEuRAjC6S/yomwPdjXjk3gXnd+EkVC9HZO
-         mGdWL11VToAUSMlnjjZvsovJfpCxIZGKGYYxKuwYSY8HQDk1c+b1SGaansstSbHBjf
-         GR3cdygTcNTyXfBW4lq8l3KwhzWJ2rS0JYUSMZDSb+o1JRNc4/YvHTiss3NW1t540r
-         zUWNpo02+s7Jw==
+        b=JrKZ8w7/ZLDbg1Vpc2CuvjsEq2RtcZ+DHFzonVkLUb/sem6wSHfpVKliyRWLp7SmB
+         2jN1ctCcEBLtORHmwtZRAgPxOFh64Ik5tYWMCD6vdauMaMGm9RbOFZkLMmGojqyrLg
+         KwAORS4iDm++DvvLlVlbcM+0ocZbHBplhR3deAe017NgMYe4B2NnGRZdvc2EXUpoAH
+         41ScJbzFitlwNvQ8uKXXd2AYzaXloOyZdHb+QGL3//L4kY6xjnWjJ8uZOVO1E0e6ZL
+         b6F5/yebrfl2R6tZq3CbFxjRHjVp3LPeroZX+6gr7KeasSOzG9ji1AmzXdVgok8wec
+         yar+iMOnvzKww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 08/23] mfd: da9052/stmpe: Add and modify MODULE_DEVICE_TABLE
-Date:   Fri,  9 Jul 2021 22:38:57 -0400
-Message-Id: <20210710023912.3172972-8-sashal@kernel.org>
+Cc:     Alan Stern <stern@rowland.harvard.edu>,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 09/23] USB: core: Avoid WARNings for 0-length descriptor requests
+Date:   Fri,  9 Jul 2021 22:38:58 -0400
+Message-Id: <20210710023912.3172972-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023912.3172972-1-sashal@kernel.org>
 References: <20210710023912.3172972-1-sashal@kernel.org>
@@ -44,48 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 4700ef326556ed74aba188f12396740a8c1c21dd ]
+[ Upstream commit 60dfe484cef45293e631b3a6e8995f1689818172 ]
 
-This patch adds/modifies MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+The USB core has utility routines to retrieve various types of
+descriptors.  These routines will now provoke a WARN if they are asked
+to retrieve 0 bytes (USB "receive" requests must not have zero
+length), so avert this by checking the size argument at the start.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+CC: Johan Hovold <johan@kernel.org>
+Reported-and-tested-by: syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210607152307.GD1768031@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/da9052-i2c.c | 1 +
- drivers/mfd/stmpe-i2c.c  | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/core/message.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/mfd/da9052-i2c.c b/drivers/mfd/da9052-i2c.c
-index 2697ffb08009..2992fd94bc0c 100644
---- a/drivers/mfd/da9052-i2c.c
-+++ b/drivers/mfd/da9052-i2c.c
-@@ -118,6 +118,7 @@ static const struct i2c_device_id da9052_i2c_id[] = {
- 	{"da9053-bc", DA9053_BC},
- 	{}
- };
-+MODULE_DEVICE_TABLE(i2c, da9052_i2c_id);
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index e568325cb6e1..8b6e25f11d87 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -643,6 +643,9 @@ int usb_get_descriptor(struct usb_device *dev, unsigned char type,
+ 	int i;
+ 	int result;
  
- #ifdef CONFIG_OF
- static const struct of_device_id dialog_dt_ids[] = {
-diff --git a/drivers/mfd/stmpe-i2c.c b/drivers/mfd/stmpe-i2c.c
-index c3f4aab53b07..663a6c1c3d0d 100644
---- a/drivers/mfd/stmpe-i2c.c
-+++ b/drivers/mfd/stmpe-i2c.c
-@@ -107,7 +107,7 @@ static const struct i2c_device_id stmpe_i2c_id[] = {
- 	{ "stmpe2403", STMPE2403 },
- 	{ }
- };
--MODULE_DEVICE_TABLE(i2c, stmpe_id);
-+MODULE_DEVICE_TABLE(i2c, stmpe_i2c_id);
++	if (size <= 0)		/* No point in asking for no data */
++		return -EINVAL;
++
+ 	memset(buf, 0, size);	/* Make sure we parse really received data */
  
- static struct i2c_driver stmpe_i2c_driver = {
- 	.driver = {
+ 	for (i = 0; i < 3; ++i) {
+@@ -691,6 +694,9 @@ static int usb_get_string(struct usb_device *dev, unsigned short langid,
+ 	int i;
+ 	int result;
+ 
++	if (size <= 0)		/* No point in asking for no data */
++		return -EINVAL;
++
+ 	for (i = 0; i < 3; ++i) {
+ 		/* retry on length 0 or stall; some devices are flakey */
+ 		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 -- 
 2.30.2
 
