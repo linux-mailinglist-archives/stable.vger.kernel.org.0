@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B32A53C2ECF
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A583C2ED9
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233746AbhGJC2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:28:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42628 "EHLO mail.kernel.org"
+        id S233897AbhGJC2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:28:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233878AbhGJC1t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:27:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63B0E61435;
-        Sat, 10 Jul 2021 02:24:46 +0000 (UTC)
+        id S233773AbhGJC16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:27:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BFA761414;
+        Sat, 10 Jul 2021 02:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883887;
-        bh=NIOvFFYGolkiUWHbQp1PRNxwIQ3ks2cXnYip0cqAkgI=;
+        s=k20201202; t=1625883888;
+        bh=KRbNFtgLa7uy+upaXNk0ep7zr+WJWjk7VFl4kzY/Jk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A98+6luNEsTlY+uwEL6epNkXqKPyf6nMCqAhcuyGVxAlJVUUZxlW9wJcjoDcR/f25
-         HbV+mWhDHhvihb+nOETXUsV0eT7UVhloeLd0M4S0SUVXkwwB3l326n/1tO9+S9C6Jv
-         Ot0XE8GEe6YDwykWtVnuu+Y2XhysQpD5dfbLKfltJeS/alAEdcJYUMRxiA0PqKy2UR
-         4w/SD4dZsHaD3oa5SY3WXmOLm9PJGm9jX/BzUtT8NaVIwQF8HyLxxe0oGCczBn2wIE
-         pPvwr2v7kh19tS/b2DfzXqH7OfHDT5S/JHeauS+/lSMlg4KOf214iZxL/3vfQ76vG/
-         UrJmuMlgyeegg==
+        b=DtIOtV+LpGG+ib+Ms0bvXQkAO/d6yu59Dh/yQD2IuHzbDn1in72GH6TRpnBIW8OJT
+         zB3z3lSy8EcKGV6Nbh0x9Fo3h7441jO0Milq5+rxiqZA7OVTH9iRwbcbgcrIOMpp6W
+         AxYDgJWGKSbDEW757DkOu7KWe+/h/2ZrRSgEq7C6xNJPeQc6yHIsEqS6WAr0bw2IGt
+         jJE4QG8RDpRH3PG1ROrHS3drJVWou1D+yAawJOj8IZ4K4Bm0EohEfg9ZrK3ShM7d3n
+         DJ6+5Mxk7RJvJck9WDbekOpW/O3fEFdIERzOvpqk6IQXbvE8vkH4pPuKXkupn/UwNB
+         El2TgK1BWtNVA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        linux-ntfs-dev@lists.sourceforge.net, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 14/93] partitions: msdos: fix one-byte get_unaligned()
-Date:   Fri,  9 Jul 2021 22:23:08 -0400
-Message-Id: <20210710022428.3169839-14-sashal@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Rui Miguel Silva <rui.silva@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 15/93] iio: gyro: fxa21002c: Balance runtime pm + use pm_runtime_resume_and_get().
+Date:   Fri,  9 Jul 2021 22:23:09 -0400
+Message-Id: <20210710022428.3169839-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -41,140 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 1b1774998b2dec837a57d729d1a22e5eb2d6d206 ]
+[ Upstream commit 41120ebbb1eb5e9dec93320e259d5b2c93226073 ]
 
-A simplification of get_unaligned() clashes with callers that pass
-in a character pointer, causing a harmless warning like:
+In both the probe() error path and remove() pm_runtime_put_noidle()
+is called which will decrement the runtime pm reference count.
+However, there is no matching function to have raised the reference count.
+Not this isn't a fix as the runtime pm core will stop the reference count
+going negative anyway.
 
-block/partitions/msdos.c: In function 'msdos_partition':
-include/asm-generic/unaligned.h:13:22: warning: 'packed' attribute ignored for field of type 'u8' {aka 'unsigned char'} [-Wattributes]
+An alternative would have been to raise the count in these paths, but
+it is not clear why that would be necessary.
 
-Remove the SYS_IND() macro with the get_unaligned() call
-and just use the ->ind field directly.
+Whilst we are here replace some boilerplate with pm_runtime_resume_and_get()
+Found using coccicheck script under review at:
+https://lore.kernel.org/lkml/20210427141946.2478411-1-Julia.Lawall@inria.fr/
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Rui Miguel Silva <rui.silva@linaro.org>
+Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://lore.kernel.org/r/20210509113354.660190-2-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/partitions/ldm.c   |  2 +-
- block/partitions/ldm.h   |  3 ---
- block/partitions/msdos.c | 24 +++++++++++-------------
- 3 files changed, 12 insertions(+), 17 deletions(-)
+ drivers/iio/gyro/fxas21002c_core.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/block/partitions/ldm.c b/block/partitions/ldm.c
-index d333786b5c7e..cc86534c80ad 100644
---- a/block/partitions/ldm.c
-+++ b/block/partitions/ldm.c
-@@ -510,7 +510,7 @@ static bool ldm_validate_partition_table(struct parsed_partitions *state)
+diff --git a/drivers/iio/gyro/fxas21002c_core.c b/drivers/iio/gyro/fxas21002c_core.c
+index b7523357d8eb..ec6bd15bd2d4 100644
+--- a/drivers/iio/gyro/fxas21002c_core.c
++++ b/drivers/iio/gyro/fxas21002c_core.c
+@@ -366,14 +366,7 @@ static int fxas21002c_write(struct fxas21002c_data *data,
  
- 	p = (struct msdos_partition *)(data + 0x01BE);
- 	for (i = 0; i < 4; i++, p++)
--		if (SYS_IND (p) == LDM_PARTITION) {
-+		if (p->sys_ind == LDM_PARTITION) {
- 			result = true;
- 			break;
- 		}
-diff --git a/block/partitions/ldm.h b/block/partitions/ldm.h
-index d8d6beaa72c4..8693704dcf5e 100644
---- a/block/partitions/ldm.h
-+++ b/block/partitions/ldm.h
-@@ -84,9 +84,6 @@ struct parsed_partitions;
- #define TOC_BITMAP1		"config"	/* Names of the two defined */
- #define TOC_BITMAP2		"log"		/* bitmaps in the TOCBLOCK. */
- 
--/* Borrowed from msdos.c */
--#define SYS_IND(p)		(get_unaligned(&(p)->sys_ind))
--
- struct frag {				/* VBLK Fragment handling */
- 	struct list_head list;
- 	u32		group;
-diff --git a/block/partitions/msdos.c b/block/partitions/msdos.c
-index 8f2fcc080264..c94de377c502 100644
---- a/block/partitions/msdos.c
-+++ b/block/partitions/msdos.c
-@@ -38,8 +38,6 @@
-  */
- #include <asm/unaligned.h>
- 
--#define SYS_IND(p)	get_unaligned(&p->sys_ind)
--
- static inline sector_t nr_sects(struct msdos_partition *p)
+ static int  fxas21002c_pm_get(struct fxas21002c_data *data)
  {
- 	return (sector_t)get_unaligned_le32(&p->nr_sects);
-@@ -52,9 +50,9 @@ static inline sector_t start_sect(struct msdos_partition *p)
- 
- static inline int is_extended_partition(struct msdos_partition *p)
- {
--	return (SYS_IND(p) == DOS_EXTENDED_PARTITION ||
--		SYS_IND(p) == WIN98_EXTENDED_PARTITION ||
--		SYS_IND(p) == LINUX_EXTENDED_PARTITION);
-+	return (p->sys_ind == DOS_EXTENDED_PARTITION ||
-+		p->sys_ind == WIN98_EXTENDED_PARTITION ||
-+		p->sys_ind == LINUX_EXTENDED_PARTITION);
+-	struct device *dev = regmap_get_device(data->regmap);
+-	int ret;
+-
+-	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
+-		pm_runtime_put_noidle(dev);
+-
+-	return ret;
++	return pm_runtime_resume_and_get(regmap_get_device(data->regmap));
  }
  
- #define MSDOS_LABEL_MAGIC1	0x55
-@@ -193,7 +191,7 @@ static void parse_extended(struct parsed_partitions *state,
+ static int  fxas21002c_pm_put(struct fxas21002c_data *data)
+@@ -1005,7 +998,6 @@ int fxas21002c_core_probe(struct device *dev, struct regmap *regmap, int irq,
+ pm_disable:
+ 	pm_runtime_disable(dev);
+ 	pm_runtime_set_suspended(dev);
+-	pm_runtime_put_noidle(dev);
  
- 			put_partition(state, state->next, next, size);
- 			set_info(state, state->next, disksig);
--			if (SYS_IND(p) == LINUX_RAID_PARTITION)
-+			if (p->sys_ind == LINUX_RAID_PARTITION)
- 				state->parts[state->next].flags = ADDPART_FLAG_RAID;
- 			loopct = 0;
- 			if (++state->next == state->limit)
-@@ -546,7 +544,7 @@ static void parse_minix(struct parsed_partitions *state,
- 	 * a secondary MBR describing its subpartitions, or
- 	 * the normal boot sector. */
- 	if (msdos_magic_present(data + 510) &&
--	    SYS_IND(p) == MINIX_PARTITION) { /* subpartition table present */
-+	    p->sys_ind == MINIX_PARTITION) { /* subpartition table present */
- 		char tmp[1 + BDEVNAME_SIZE + 10 + 9 + 1];
+ 	return ret;
+ }
+@@ -1019,7 +1011,6 @@ void fxas21002c_core_remove(struct device *dev)
  
- 		snprintf(tmp, sizeof(tmp), " %s%d: <minix:", state->name, origin);
-@@ -555,7 +553,7 @@ static void parse_minix(struct parsed_partitions *state,
- 			if (state->next == state->limit)
- 				break;
- 			/* add each partition in use */
--			if (SYS_IND(p) == MINIX_PARTITION)
-+			if (p->sys_ind == MINIX_PARTITION)
- 				put_partition(state, state->next++,
- 					      start_sect(p), nr_sects(p));
- 		}
-@@ -643,7 +641,7 @@ int msdos_partition(struct parsed_partitions *state)
- 	p = (struct msdos_partition *) (data + 0x1be);
- 	for (slot = 1 ; slot <= 4 ; slot++, p++) {
- 		/* If this is an EFI GPT disk, msdos should ignore it. */
--		if (SYS_IND(p) == EFI_PMBR_OSTYPE_EFI_GPT) {
-+		if (p->sys_ind == EFI_PMBR_OSTYPE_EFI_GPT) {
- 			put_dev_sector(sect);
- 			return 0;
- 		}
-@@ -685,11 +683,11 @@ int msdos_partition(struct parsed_partitions *state)
- 		}
- 		put_partition(state, slot, start, size);
- 		set_info(state, slot, disksig);
--		if (SYS_IND(p) == LINUX_RAID_PARTITION)
-+		if (p->sys_ind == LINUX_RAID_PARTITION)
- 			state->parts[slot].flags = ADDPART_FLAG_RAID;
--		if (SYS_IND(p) == DM6_PARTITION)
-+		if (p->sys_ind == DM6_PARTITION)
- 			strlcat(state->pp_buf, "[DM]", PAGE_SIZE);
--		if (SYS_IND(p) == EZD_PARTITION)
-+		if (p->sys_ind == EZD_PARTITION)
- 			strlcat(state->pp_buf, "[EZD]", PAGE_SIZE);
- 	}
+ 	pm_runtime_disable(dev);
+ 	pm_runtime_set_suspended(dev);
+-	pm_runtime_put_noidle(dev);
+ }
+ EXPORT_SYMBOL_GPL(fxas21002c_core_remove);
  
-@@ -698,7 +696,7 @@ int msdos_partition(struct parsed_partitions *state)
- 	/* second pass - output for each on a separate line */
- 	p = (struct msdos_partition *) (0x1be + data);
- 	for (slot = 1 ; slot <= 4 ; slot++, p++) {
--		unsigned char id = SYS_IND(p);
-+		unsigned char id = p->sys_ind;
- 		int n;
- 
- 		if (!nr_sects(p))
 -- 
 2.30.2
 
