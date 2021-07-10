@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE8AC3C2F30
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7D93C2EEC
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233028AbhGJCaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:30:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
+        id S234937AbhGJC34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:29:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233828AbhGJC2P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:28:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF6B1613DC;
-        Sat, 10 Jul 2021 02:25:08 +0000 (UTC)
+        id S233829AbhGJC2S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:28:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 275CD6141E;
+        Sat, 10 Jul 2021 02:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883909;
-        bh=DHpdsGlTnLmqejQwndL91YHZHzGmomgPIabgNGWW8Rs=;
+        s=k20201202; t=1625883910;
+        bh=JPtE6/POe2kzDiNAsnf2rJwrMZwZuBqlLA51f9qPsE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WCuQ/3h/4ZXqRgAPSt1UCqbGnaVPAKgoVRHsF4fN4FmBRjxv0p2bvmeL7QNKDc4py
-         GDFC1ldL+LfhTjMKeJ3eklh7sTetzdfH+PJKx5FQUVkwOjiSYupHE1Iw2N9JEJe9GS
-         ktEQthVrf2OsZxdJ0aJ1zMwxG6j/jLl8XFzBwoB591R1zLo/ncXWwWCQXNibgPEkI/
-         /485Jb4b5LJbG+sClgauprg9E0w/iRXbrP1S6gwH1o1tzyrCaSJ/YaOCPztVSmDW6g
-         uNNBqjMZ2K5hh37CUJ3Fd8MutYENKfLWzCjx2sGXSZWtELHmVo5RHRwHvRfL6eqkMs
-         cukLMMcpeccBg==
+        b=rmeREEa1SADrSV3P5GBGeq+y/0yimPz0dpdu6PGid/RSDmAXuKnuGeVaLPSoIGDqd
+         rEY7SuUKCXv4f03MY/MVwVorhahf2SYTc89Pv3N5yy0QT1lQKBEEWPOum9x9Yl2KAF
+         c3pT2GFzQAJQUs7+P4rT9q7Gn8DCIIL19O/HxYWbI91EsJcKNM+96E7byg6zCmPGCL
+         MV258sc0YMKeoeITpEhD7TL3UtROzIP/w/VppaBVcyERlfMhmnifhJ1B4+HTdJBRjf
+         799o+M3ZdFO8Lw7M6DIF0lve7CPMZFUFBcLQFpci4cW536lG75Oivd5+Ymm8Xtl4YF
+         b/gqfdCLeiSMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hannes Reinecke <hare@suse.de>,
-        Bart Van Assche <bvanassche@acm.org>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 31/93] scsi: core: Fixup calling convention for scsi_mode_sense()
-Date:   Fri,  9 Jul 2021 22:23:25 -0400
-Message-Id: <20210710022428.3169839-31-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 32/93] scsi: scsi_dh_alua: Check for negative result value
+Date:   Fri,  9 Jul 2021 22:23:26 -0400
+Message-Id: <20210710022428.3169839-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -45,159 +44,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 8793613de913e03e7c884f4cc56e350bc716431e ]
+[ Upstream commit 7e26e3ea028740f934477ec01ba586ab033c35aa ]
 
-The description for scsi_mode_sense() claims to return the number of valid
-bytes on success, which is not what the code does.  Additionally there is
-no gain in returning the SCSI status, as everything the callers do is to
-check against scsi_result_is_good(), which is what scsi_mode_sense() does
-already.  So change the calling convention to return a standard error code
-on failure, and 0 on success, and adapt the description and all callers.
+scsi_execute() will now return a negative error if there was an error prior
+to command submission; evaluate that instead if checking for DRIVER_ERROR.
 
-Link: https://lore.kernel.org/r/20210427083046.31620-4-hare@suse.de
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+[mkp: build fix]
+
+Link: https://lore.kernel.org/r/20210427083046.31620-6-hare@suse.de
 Signed-off-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_lib.c           | 10 ++++++----
- drivers/scsi/scsi_transport_sas.c |  9 ++++-----
- drivers/scsi/sd.c                 | 12 ++++++------
- drivers/scsi/sr.c                 |  2 +-
- 4 files changed, 17 insertions(+), 16 deletions(-)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 31d7a6ddc9db..c639d30ade68 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -2071,9 +2071,7 @@ EXPORT_SYMBOL_GPL(scsi_mode_select);
-  *	@sshdr: place to put sense data (or NULL if no sense to be collected).
-  *		must be SCSI_SENSE_BUFFERSIZE big.
-  *
-- *	Returns zero if unsuccessful, or the header offset (either 4
-- *	or 8 depending on whether a six or ten byte command was
-- *	issued) if successful.
-+ *	Returns zero if successful, or a negative error number on failure
-  */
- int
- scsi_mode_sense(struct scsi_device *sdev, int dbd, int modepage,
-@@ -2120,6 +2118,8 @@ scsi_mode_sense(struct scsi_device *sdev, int dbd, int modepage,
- 
- 	result = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buffer, len,
- 				  sshdr, timeout, retries, NULL);
-+	if (result < 0)
-+		return result;
- 
- 	/* This code looks awful: what it's doing is making sure an
- 	 * ILLEGAL REQUEST sense return identifies the actual command
-@@ -2164,13 +2164,15 @@ scsi_mode_sense(struct scsi_device *sdev, int dbd, int modepage,
- 			data->block_descriptor_length = buffer[3];
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index df5a3bbeba5e..4743317a269a 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -548,12 +548,12 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 			kfree(buff);
+ 			return SCSI_DH_OK;
  		}
- 		data->header_length = header_length;
-+		result = 0;
- 	} else if ((status_byte(result) == CHECK_CONDITION) &&
- 		   scsi_sense_valid(sshdr) &&
- 		   sshdr->sense_key == UNIT_ATTENTION && retry_count) {
- 		retry_count--;
- 		goto retry;
- 	}
--
-+	if (result > 0)
-+		result = -EIO;
- 	return result;
- }
- EXPORT_SYMBOL(scsi_mode_sense);
-diff --git a/drivers/scsi/scsi_transport_sas.c b/drivers/scsi/scsi_transport_sas.c
-index c9abed8429c9..4a96fb05731d 100644
---- a/drivers/scsi/scsi_transport_sas.c
-+++ b/drivers/scsi/scsi_transport_sas.c
-@@ -1229,16 +1229,15 @@ int sas_read_port_mode_page(struct scsi_device *sdev)
- 	char *buffer = kzalloc(BUF_SIZE, GFP_KERNEL), *msdata;
- 	struct sas_end_device *rdev = sas_sdev_to_rdev(sdev);
- 	struct scsi_mode_data mode_data;
--	int res, error;
-+	int error;
+-		if (!scsi_sense_valid(&sense_hdr)) {
++		if (retval < 0 || !scsi_sense_valid(&sense_hdr)) {
+ 			sdev_printk(KERN_INFO, sdev,
+ 				    "%s: rtpg failed, result %d\n",
+ 				    ALUA_DH_NAME, retval);
+ 			kfree(buff);
+-			if (driver_byte(retval) == DRIVER_ERROR)
++			if (retval < 0)
+ 				return SCSI_DH_DEV_TEMP_BUSY;
+ 			return SCSI_DH_IO;
+ 		}
+@@ -775,11 +775,11 @@ static unsigned alua_stpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 	retval = submit_stpg(sdev, pg->group_id, &sense_hdr);
  
- 	if (!buffer)
- 		return -ENOMEM;
- 
--	res = scsi_mode_sense(sdev, 1, 0x19, buffer, BUF_SIZE, 30*HZ, 3,
--			      &mode_data, NULL);
-+	error = scsi_mode_sense(sdev, 1, 0x19, buffer, BUF_SIZE, 30*HZ, 3,
-+				&mode_data, NULL);
- 
--	error = -EINVAL;
--	if (!scsi_status_is_good(res))
-+	if (error)
- 		goto out;
- 
- 	msdata = buffer +  mode_data.header_length +
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 01f87bcab3dd..f0c0935d7909 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -2687,18 +2687,18 @@ sd_read_write_protect_flag(struct scsi_disk *sdkp, unsigned char *buffer)
- 		 * 5: Illegal Request, Sense Code 24: Invalid field in
- 		 * CDB.
- 		 */
--		if (!scsi_status_is_good(res))
-+		if (res < 0)
- 			res = sd_do_mode_sense(sdkp, 0, 0, buffer, 4, &data, NULL);
- 
- 		/*
- 		 * Third attempt: ask 255 bytes, as we did earlier.
- 		 */
--		if (!scsi_status_is_good(res))
-+		if (res < 0)
- 			res = sd_do_mode_sense(sdkp, 0, 0x3F, buffer, 255,
- 					       &data, NULL);
- 	}
- 
--	if (!scsi_status_is_good(res)) {
-+	if (res < 0) {
- 		sd_first_printk(KERN_WARNING, sdkp,
- 			  "Test WP failed, assume Write Enabled\n");
- 	} else {
-@@ -2759,7 +2759,7 @@ sd_read_cache_type(struct scsi_disk *sdkp, unsigned char *buffer)
- 	res = sd_do_mode_sense(sdkp, dbd, modepage, buffer, first_len,
- 			&data, &sshdr);
- 
--	if (!scsi_status_is_good(res))
-+	if (res < 0)
- 		goto bad_sense;
- 
- 	if (!data.header_length) {
-@@ -2791,7 +2791,7 @@ sd_read_cache_type(struct scsi_disk *sdkp, unsigned char *buffer)
- 		res = sd_do_mode_sense(sdkp, dbd, modepage, buffer, len,
- 				&data, &sshdr);
- 
--	if (scsi_status_is_good(res)) {
-+	if (!res) {
- 		int offset = data.header_length + data.block_descriptor_length;
- 
- 		while (offset < len) {
-@@ -2909,7 +2909,7 @@ static void sd_read_app_tag_own(struct scsi_disk *sdkp, unsigned char *buffer)
- 	res = scsi_mode_sense(sdp, 1, 0x0a, buffer, 36, SD_TIMEOUT,
- 			      sdkp->max_retries, &data, &sshdr);
- 
--	if (!scsi_status_is_good(res) || !data.header_length ||
-+	if (res < 0 || !data.header_length ||
- 	    data.length < 6) {
- 		sd_first_printk(KERN_WARNING, sdkp,
- 			  "getting Control mode page failed, assume no ATO\n");
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 77961f058367..726b7048a767 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -930,7 +930,7 @@ static void get_capabilities(struct scsi_cd *cd)
- 	rc = scsi_mode_sense(cd->device, 0, 0x2a, buffer, ms_len,
- 			     SR_TIMEOUT, 3, &data, NULL);
- 
--	if (!scsi_status_is_good(rc) || data.length > ms_len ||
-+	if (rc < 0 || data.length > ms_len ||
- 	    data.header_length + data.block_descriptor_length > data.length) {
- 		/* failed, drive doesn't have capabilities mode page */
- 		cd->cdi.speed = 1;
+ 	if (retval) {
+-		if (!scsi_sense_valid(&sense_hdr)) {
++		if (retval < 0 || !scsi_sense_valid(&sense_hdr)) {
+ 			sdev_printk(KERN_INFO, sdev,
+ 				    "%s: stpg failed, result %d",
+ 				    ALUA_DH_NAME, retval);
+-			if (driver_byte(retval) == DRIVER_ERROR)
++			if (retval < 0)
+ 				return SCSI_DH_DEV_TEMP_BUSY;
+ 		} else {
+ 			sdev_printk(KERN_INFO, sdev, "%s: stpg failed\n",
 -- 
 2.30.2
 
