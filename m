@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BAEB3C316F
+	by mail.lfdr.de (Postfix) with ESMTP id A82143C3170
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:49:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234551AbhGJClV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:41:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58442 "EHLO mail.kernel.org"
+        id S234539AbhGJClW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:41:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235803AbhGJCjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235802AbhGJCjr (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B411961435;
-        Sat, 10 Jul 2021 02:36:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B05261439;
+        Sat, 10 Jul 2021 02:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884561;
-        bh=gX80I4HjBwctd2RK6SB6nTUgM99aqqGzzWuj3XnhyDo=;
+        s=k20201202; t=1625884563;
+        bh=kbisOGd3B+uqzPfIHDpDeTo7WJGM1uM+KCB1rcbZ+h4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fp/YLjqb2PoCot5lhJp/UJkw6o3FECuc4AyYzPNEaayDWpaIvPx/mfSPoGcbmcyLY
-         3K/OjG9Usw92H/zB+/Ec806o+eggzTpAwyomI7ow+rJKUQHGogxN+eWBHCcMjpqiy3
-         qLKuq1xUVdPLOmoP9zfftwSg2ju3DNJfh3EZkyVxKMY1+OT0HiDXlKAPLSRbrV/vqA
-         KVfiFxH1pJNzOVbHwTFznMT9fHxBW4dw0xUDNm4sTALidf6qiwRhZxLuRsAbTstOvB
-         lbVsFVlzRpGiSw+jIPyReDMu3SRUao8ID0Sku3NHwcNTzOlWqGLXzmrf6lr1W6rmTD
-         7prLsArZRyBxQ==
+        b=dgY7az9bVc1VssC/DItFI0C2jbER91gSSz9qEsRO/iYEFvHng/mVeWydNe558MKAY
+         uFbt7ki3p8hWh4+tcj4yfBdOzT/Mm9qgqp4d2j+phx2qUgVSfyhDNl+hkYBn8Ulk0D
+         wsyp3G9SjMUDMz8cXyhzQD1RxNrtmh7qTP6WSKe58rwlFJBu4idwF0b+3LVqXRQ070
+         FyXl3tanTWHCNkuzjBuXPdkgKfevkZwmLL/glVgVcPxzC5Fynq0pNwTrDKo5pcEFee
+         yC4EjZ4bktjqk7Ym/KIUWEHtuFIRmvBZYyqij/k32Cb5u6cHWEm3tYB1kKXH5cMBYg
+         apHYQVHTQ1X8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 32/33] i2c: core: Disable client irq on reboot/shutdown
-Date:   Fri,  9 Jul 2021 22:35:14 -0400
-Message-Id: <20210710023516.3172075-32-sashal@kernel.org>
+Cc:     Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
+        Kyungsik Lee <kyungsik.lee@lge.com>,
+        Yinghai Lu <yinghai@kernel.org>,
+        Bongkyu Kim <bongkyu.kim@lge.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
+        Rajat Asthana <thisisrast7@gmail.com>,
+        Nick Terrell <terrelln@fb.com>,
+        Gao Xiang <hsiangkao@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 33/33] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
+Date:   Fri,  9 Jul 2021 22:35:15 -0400
+Message-Id: <20210710023516.3172075-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023516.3172075-1-sashal@kernel.org>
 References: <20210710023516.3172075-1-sashal@kernel.org>
@@ -44,57 +51,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
 
-[ Upstream commit b64210f2f7c11c757432ba3701d88241b2b98fb1 ]
+[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
 
-If an i2c client receives an interrupt during reboot or shutdown it may
-be too late to service it by making an i2c transaction on the bus
-because the i2c controller has already been shutdown. This can lead to
-system hangs if the i2c controller tries to make a transfer that is
-doomed to fail because the access to the i2c pins is already shut down,
-or an iommu translation has been torn down so i2c controller register
-access doesn't work.
+lz4 compatible decompressor is simple.  The format is underspecified and
+relies on EOF notification to determine when to stop.  Initramfs buffer
+format[1] explicitly states that it can have arbitrary number of zero
+padding.  Thus when operating without a fill function, be extra careful to
+ensure that sizes less than 4, or apperantly empty chunksizes are treated
+as EOF.
 
-Let's simply disable the irq if there isn't a shutdown callback for an
-i2c client when there is an irq associated with the device. This will
-make sure that irqs don't come in later than the time that we can handle
-it. We don't do this if the i2c client device already has a shutdown
-callback because presumably they're doing the right thing and quieting
-the device so irqs don't come in after the shutdown callback returns.
+To test this I have created two cpio initrds, first a normal one,
+main.cpio.  And second one with just a single /test-file with content
+"second" second.cpio.  Then i compressed both of them with gzip, and with
+lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
+count=4).  To create four testcase initrds:
 
-Reported-by: kernel test robot <lkp@intel.com>
-[swboyd@chromium.org: Dropped newline, added commit text, added
-interrupt.h for robot build error]
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+ 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
+ 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
+ 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
+ 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
+
+The pad4 test-cases replicate the initrd load by grub, as it pads and
+aligns every initrd it loads.
+
+All of the above boot, however /test-file was not accessible in the initrd
+for the testcase #4, as decoding in lz4 decompressor failed.  Also an
+error message printed which usually is harmless.
+
+Whith a patched kernel, all of the above testcases now pass, and
+/test-file is accessible.
+
+This fixes lz4 initrd decompress warning on every boot with grub.  And
+more importantly this fixes inability to load multiple lz4 compressed
+initrds with grub.  This patch has been shipping in Ubuntu kernels since
+January 2021.
+
+[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
+
+BugLink: https://bugs.launchpad.net/bugs/1835660
+Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
+Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
+Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Cc: Kyungsik Lee <kyungsik.lee@lge.com>
+Cc: Yinghai Lu <yinghai@kernel.org>
+Cc: Bongkyu Kim <bongkyu.kim@lge.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
+Cc: Rajat Asthana <thisisrast7@gmail.com>
+Cc: Nick Terrell <terrelln@fb.com>
+Cc: Gao Xiang <hsiangkao@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 3 +++
- 1 file changed, 3 insertions(+)
+ lib/decompress_unlz4.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 39065a5d50fc..b7fe8075f2b8 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -31,6 +31,7 @@
- #include <linux/i2c.h>
- #include <linux/idr.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/irqflags.h>
- #include <linux/jump_label.h>
- #include <linux/kernel.h>
-@@ -452,6 +453,8 @@ static void i2c_device_shutdown(struct device *dev)
- 	driver = to_i2c_driver(dev->driver);
- 	if (driver->shutdown)
- 		driver->shutdown(client);
-+	else if (client->irq > 0)
-+		disable_irq(client->irq);
- }
+diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
+index 1b0baf3008ea..b202aa864c48 100644
+--- a/lib/decompress_unlz4.c
++++ b/lib/decompress_unlz4.c
+@@ -115,6 +115,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 				error("data corrupted");
+ 				goto exit_2;
+ 			}
++		} else if (size < 4) {
++			/* empty or end-of-file */
++			goto exit_3;
+ 		}
  
- static void i2c_client_dev_release(struct device *dev)
+ 		chunksize = get_unaligned_le32(inp);
+@@ -128,6 +131,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 			continue;
+ 		}
+ 
++		if (!fill && chunksize == 0) {
++			/* empty or end-of-file */
++			goto exit_3;
++		}
+ 
+ 		if (posp)
+ 			*posp += 4;
+@@ -187,6 +194,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 		}
+ 	}
+ 
++exit_3:
+ 	ret = 0;
+ exit_2:
+ 	if (!input)
 -- 
 2.30.2
 
