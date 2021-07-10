@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE0393C2E69
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:27:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C913C2E6B
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233346AbhGJC1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:27:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
+        id S233735AbhGJC1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:27:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233125AbhGJC0f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:26:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CED6F613D1;
-        Sat, 10 Jul 2021 02:23:46 +0000 (UTC)
+        id S232524AbhGJC0h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:26:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D733A613CC;
+        Sat, 10 Jul 2021 02:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883827;
-        bh=IMXjVUquktrG3q+4vQMwMY2LBFaGvm7PDZoGBRFpqBk=;
+        s=k20201202; t=1625883828;
+        bh=KVl5Z7EL1bfUcpunYKuwJFM9lGykpGF8c+Qa7itN/4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=idczcJ86jA8o8TtFxDOQOwQ0qnm+c1Ts1czWuds6CGRXrEUkrJ0kINFUBX2B3CZAg
-         DIDh8JdMghVxVOOG01DxyQfa3HjucY0b6TQcShtRXQcjBBKvAzEKJNTmA6wCz4vCf4
-         EFnST4eAU8fs2ho7nFNUeKmOAXOgjrwESosPatVK9EKxBqLxCsb1KC0Usc0kB6QnH+
-         BJCSBbk7pTEQBw1OsCbLw2m8Rwp3L3WoBQcbuGjzXRtmQvlfq/F32T3JNNPqAtThmG
-         ILgTZw0jeG38F7PjSzo8z4qTrqelAcbx+n8d/KZ1WcjB/u2/pXSbDfUaPSka43cn3p
-         nNTnawD0aNsgg==
+        b=m3IBL7LQDkfEtTcl0j/y1DlvRo16X87VgnXtp3EgxAthxiig1jTnNyJ2V1KNWKaR0
+         OZ7HJG4A+8v6luC8iwtsdmRnEQH24tQrPpcrfnStxOyE8ZclzKqbf387tj04t1OuJg
+         frLatAmhBwDYvJygGsMJqmjZGGei0P3skfL3om1tXr0QKRDLY4u+O38uc4v/3BzU4A
+         HniEA/GtbsmmsHIJ4miqkFtC29e/d01sICikWIbd5NpDVVRecWe3u8D32tdyOJ0FV3
+         sqfRDe1aqpAIO6LDCM55SnlmxWk7HYG6wKHwq0NsVoXpTHzdWe07y+r0qF+lRvCNf/
+         yvXukaOGkZK9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Koby Elbaz <kelbaz@habana.ai>, Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 075/104] habanalabs: set rc as 'valid' in case of intentional func exit
-Date:   Fri,  9 Jul 2021 22:21:27 -0400
-Message-Id: <20210710022156.3168825-75-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 076/104] habanalabs: remove node from list before freeing the node
+Date:   Fri,  9 Jul 2021 22:21:28 -0400
+Message-Id: <20210710022156.3168825-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
 References: <20210710022156.3168825-1-sashal@kernel.org>
@@ -43,56 +43,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Koby Elbaz <kelbaz@habana.ai>
 
-[ Upstream commit 11d5cb8b95456e2432dfee2ffcebf0623998493a ]
+[ Upstream commit f5eb7bf0c487a212ebda3c1b048fc3ccabacc147 ]
 
 fix the following smatch warnings:
-hl_fw_static_init_cpu() warn: missing error code 'rc'
+
+goya_pin_memory_before_cs()
+warn: '&userptr->job_node' not removed from list
+
+gaudi_pin_memory_before_cs()
+warn: '&userptr->job_node' not removed from list
 
 Signed-off-by: Koby Elbaz <kelbaz@habana.ai>
 Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/device.c      | 5 +++--
- drivers/misc/habanalabs/common/firmware_if.c | 5 ++++-
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/misc/habanalabs/gaudi/gaudi.c | 1 +
+ drivers/misc/habanalabs/goya/goya.c   | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/misc/habanalabs/common/device.c b/drivers/misc/habanalabs/common/device.c
-index 334009e83823..b11e9830422e 100644
---- a/drivers/misc/habanalabs/common/device.c
-+++ b/drivers/misc/habanalabs/common/device.c
-@@ -1370,8 +1370,9 @@ int hl_device_init(struct hl_device *hdev, struct class *hclass)
- 	}
+diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
+index a03f13aa47f8..0c6092ebbc04 100644
+--- a/drivers/misc/habanalabs/gaudi/gaudi.c
++++ b/drivers/misc/habanalabs/gaudi/gaudi.c
+@@ -4901,6 +4901,7 @@ static int gaudi_pin_memory_before_cs(struct hl_device *hdev,
+ 	return 0;
  
- 	/*
--	 * From this point, in case of an error, add char devices and create
--	 * sysfs nodes as part of the error flow, to allow debugging.
-+	 * From this point, override rc (=0) in case of an error to allow
-+	 * debugging (by adding char devices and create sysfs nodes as part of
-+	 * the error flow).
- 	 */
- 	add_cdev_sysfs_on_err = true;
+ unpin_memory:
++	list_del(&userptr->job_node);
+ 	hl_unpin_host_memory(hdev, userptr);
+ free_userptr:
+ 	kfree(userptr);
+diff --git a/drivers/misc/habanalabs/goya/goya.c b/drivers/misc/habanalabs/goya/goya.c
+index ed566c52ccaa..45c9065c4b92 100644
+--- a/drivers/misc/habanalabs/goya/goya.c
++++ b/drivers/misc/habanalabs/goya/goya.c
+@@ -3249,6 +3249,7 @@ static int goya_pin_memory_before_cs(struct hl_device *hdev,
+ 	return 0;
  
-diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
-index 09706c571e95..7a96c9753dbf 100644
---- a/drivers/misc/habanalabs/common/firmware_if.c
-+++ b/drivers/misc/habanalabs/common/firmware_if.c
-@@ -803,11 +803,14 @@ int hl_fw_init_cpu(struct hl_device *hdev, u32 cpu_boot_status_reg,
- 
- 	if (!(hdev->fw_loading & FW_TYPE_LINUX)) {
- 		dev_info(hdev->dev, "Skip loading Linux F/W\n");
-+		rc = 0;
- 		goto out;
- 	}
- 
--	if (status == CPU_BOOT_STATUS_SRAM_AVAIL)
-+	if (status == CPU_BOOT_STATUS_SRAM_AVAIL) {
-+		rc = 0;
- 		goto out;
-+	}
- 
- 	dev_info(hdev->dev,
- 		"Loading firmware to device, may take some time...\n");
+ unpin_memory:
++	list_del(&userptr->job_node);
+ 	hl_unpin_host_memory(hdev, userptr);
+ free_userptr:
+ 	kfree(userptr);
 -- 
 2.30.2
 
