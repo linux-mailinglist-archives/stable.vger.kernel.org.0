@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A396F3C38EE
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:54:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297163C38EF
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234185AbhGJX4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 19:56:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
+        id S232154AbhGJX4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233312AbhGJXzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Jul 2021 19:55:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75CFE61412;
-        Sat, 10 Jul 2021 23:52:01 +0000 (UTC)
+        id S233907AbhGJXzv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Jul 2021 19:55:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E47C613DA;
+        Sat, 10 Jul 2021 23:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961122;
-        bh=6IYPfWE+5IeR/dEkm7wv/Js5ccM0uPOpf+6BdWqZWuE=;
+        s=k20201202; t=1625961123;
+        bh=v9fKI3g9CGS+M7/RcSjVHRLlssIUn3seZ0gjiK4qS+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9gzFWkg5CnYM42X/0FdRv7rCjf6/1gE1BPIbqQxfhh24BtECr68rLw0rQ6somRR5
-         PuGuuX+erC1hbGFri29DUylq3EisjIfOiX9ohWjGdJsuSSQowhTmFrVVqHRcgLq4It
-         4Kw3vW40J98QOf42n7ApDrfwe9iu+7h6r7WjHcRq9+9RHKTuZmRqeKmmPMTN5FevVZ
-         hUlO1SF6mWGv17ws6DgexwM9TjpuVC3ugdncA+FcZbdc3a0FmSAe6c5xdLKFsfviL7
-         CoMv5W1RI0P1YScmubb6gYGaLbjEM03QRAACn/yK8jNOUQsdYarutEGJBpsxtdCKLM
-         LqLHVCND1BveA==
+        b=CPmww+QZm0/a28NDeh0orn2b+aKtDO7BDdsfng2al0xqBg0jOqVG2IVtmXHahMM3Y
+         TRCpAHxYEXIF5l7l7ta+i7tzFkkT6kiTG4t5vi4hqbFJixFLJLSupDIlgUrQgeVSj3
+         ZdGGJ2O0Vqfxz/cq8pHIXIlwASLCM7GUqKQtwVTACS3JZCsxkpQUysT/FsoK1zNbSN
+         8ifLCZatoC9HVGupvGW/i8i0zfQ71cdTgS8ZgpU6s3lpV6TcYLyoBvFlytQWzLLQFT
+         xABJOIvIiB/rPe7Jto1o0gGyobJzvHzPaUTe959z46iMVZ1O1AgV57ty14MfW6o478
+         aKAOllnVvnkpg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/22] NFS: nfs_find_open_context() may only select open files
-Date:   Sat, 10 Jul 2021 19:51:35 -0400
-Message-Id: <20210710235143.3222129-14-sashal@kernel.org>
+Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 15/22] power: supply: charger-manager: add missing MODULE_DEVICE_TABLE
+Date:   Sat, 10 Jul 2021 19:51:36 -0400
+Message-Id: <20210710235143.3222129-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235143.3222129-1-sashal@kernel.org>
 References: <20210710235143.3222129-1-sashal@kernel.org>
@@ -41,62 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit e97bc66377bca097e1f3349ca18ca17f202ff659 ]
+[ Upstream commit 073b5d5b1f9cc94a3eea25279fbafee3f4f5f097 ]
 
-If a file has already been closed, then it should not be selected to
-support further I/O.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-[Trond: Fix an invalid pointer deref reported by Colin Ian King]
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c         | 4 ++++
- include/linux/nfs_fs.h | 1 +
- 2 files changed, 5 insertions(+)
+ drivers/power/supply/charger-manager.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index dc55ecc3bec4..2cdd8883b7c5 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -1038,6 +1038,7 @@ EXPORT_SYMBOL_GPL(nfs_inode_attach_open_context);
- void nfs_file_set_open_context(struct file *filp, struct nfs_open_context *ctx)
+diff --git a/drivers/power/supply/charger-manager.c b/drivers/power/supply/charger-manager.c
+index 7ae983e37f64..eec79db9b750 100644
+--- a/drivers/power/supply/charger-manager.c
++++ b/drivers/power/supply/charger-manager.c
+@@ -1484,6 +1484,7 @@ static const struct of_device_id charger_manager_match[] = {
+ 	},
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, charger_manager_match);
+ 
+ static struct charger_desc *of_cm_parse_desc(struct device *dev)
  {
- 	filp->private_data = get_nfs_open_context(ctx);
-+	set_bit(NFS_CONTEXT_FILE_OPEN, &ctx->flags);
- 	if (list_empty(&ctx->list))
- 		nfs_inode_attach_open_context(ctx);
- }
-@@ -1057,6 +1058,8 @@ struct nfs_open_context *nfs_find_open_context(struct inode *inode, struct rpc_c
- 			continue;
- 		if ((pos->mode & (FMODE_READ|FMODE_WRITE)) != mode)
- 			continue;
-+		if (!test_bit(NFS_CONTEXT_FILE_OPEN, &pos->flags))
-+			continue;
- 		ctx = get_nfs_open_context(pos);
- 		break;
- 	}
-@@ -1071,6 +1074,7 @@ void nfs_file_clear_open_context(struct file *filp)
- 	if (ctx) {
- 		struct inode *inode = d_inode(ctx->dentry);
- 
-+		clear_bit(NFS_CONTEXT_FILE_OPEN, &ctx->flags);
- 		/*
- 		 * We fatal error on write before. Try to writeback
- 		 * every page again.
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index a0831e9d19c9..0ff7dd2bf8a4 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -78,6 +78,7 @@ struct nfs_open_context {
- #define NFS_CONTEXT_RESEND_WRITES	(1)
- #define NFS_CONTEXT_BAD			(2)
- #define NFS_CONTEXT_UNLOCK	(3)
-+#define NFS_CONTEXT_FILE_OPEN		(4)
- 	int error;
- 
- 	struct list_head list;
 -- 
 2.30.2
 
