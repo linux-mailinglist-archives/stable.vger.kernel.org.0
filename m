@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0883C30C4
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:47:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78BF33C30CA
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234877AbhGJCgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:36:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
+        id S234496AbhGJCg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:36:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234151AbhGJCfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:35:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E8BA61414;
-        Sat, 10 Jul 2021 02:32:32 +0000 (UTC)
+        id S234124AbhGJCfe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:35:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABC48613E4;
+        Sat, 10 Jul 2021 02:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884353;
-        bh=To1gUqapLgeZjXIKulL3uwXVhMqJs/4HoSOsGhsuboE=;
+        s=k20201202; t=1625884354;
+        bh=U3XyAJ4TRtQBnQOuHtoGHvzGvSgBkJEg6w1xIsCvSHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=snJxFKexuBL99uPvN7qv0OBzdNxMFVn9toqdbJmPkfHyxMu2EOQuMNvZXc8uLXT1j
-         AOHueQ3gHyKEDGsvyB4Sh79RhvG/TqyndjwN2YOG2iYKZoDz5qEIESqnX469efkEga
-         2N43C5BeXnjmJjGqxTYmc2Zrz/5bQAsh6O1pwD7cUtvIWn9a1GEs6PX5tB+yehryHW
-         Q6ZBneiiCl7j6mJQuvbl0Cx5gvAQA+tdYpOXFcxJl4C1oft3v0TWBbtD6SFW+Anvoa
-         WqyZESGgslW42NfgEYhomdBaFVEX+uJ8gsaSPRVOtFxm7sCtomYJzSDA/AhqGzFhbL
-         7RHZP9Vlt+Gbw==
+        b=ZLf2yHXO3+AeNx+z0Vjta93t+r14m659XYX4XWPuqjjvOUSqicZe7FRZ3kTAGaBF8
+         +8wxVbtL42au3Xge/P487XL/OBocn2SSK2RoJitJFeJXxKekeVj03qUkpTlcWw9XOl
+         Hx0s1A4002AwlqhXRaqutbGlOeGoUJrZtAM2olLAoE2kDGeYMHN4MqP2jqeNwUmkmm
+         bAgh4AuPhsUf8py7yLaH8JvAaDPl98f043aNbj6w7hloTNqAByl5JA10af1dtAMssd
+         BDZWDIj1NEf5LtdRPHUkM1cGFbdTl/7+iEFY3g14IP1V3LYanRACozRBCYjyjFqj/9
+         K9CA5gfNsL+LA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Neeli <srinivas.neeli@xilinx.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 23/39] gpio: zynq: Check return value of pm_runtime_get_sync
-Date:   Fri,  9 Jul 2021 22:31:48 -0400
-Message-Id: <20210710023204.3171428-23-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 24/39] ALSA: ppc: fix error return code in snd_pmac_probe()
+Date:   Fri,  9 Jul 2021 22:31:49 -0400
+Message-Id: <20210710023204.3171428-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023204.3171428-1-sashal@kernel.org>
 References: <20210710023204.3171428-1-sashal@kernel.org>
@@ -43,38 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Neeli <srinivas.neeli@xilinx.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a51b2fb94b04ab71e53a71b9fad03fa826941254 ]
+[ Upstream commit 80b9c1be567c3c6bbe0d4b290af578e630485b5d ]
 
-Return value of "pm_runtime_get_sync" API was neither captured nor checked.
-Fixed it by capturing the return value and then checking for any warning.
+If snd_pmac_tumbler_init() or snd_pmac_tumbler_post_init() fails,
+snd_pmac_probe() need return error code.
 
-Addresses-Coverity: "check_return"
-Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210616021121.1991502-1-yangyingliang@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-zynq.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/ppc/powermac.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-zynq.c b/drivers/gpio/gpio-zynq.c
-index 5dec96155814..c2279b28bcb9 100644
---- a/drivers/gpio/gpio-zynq.c
-+++ b/drivers/gpio/gpio-zynq.c
-@@ -919,8 +919,11 @@ static int zynq_gpio_probe(struct platform_device *pdev)
- static int zynq_gpio_remove(struct platform_device *pdev)
- {
- 	struct zynq_gpio *gpio = platform_get_drvdata(pdev);
-+	int ret;
- 
--	pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_get_sync(&pdev->dev);
-+	if (ret < 0)
-+		dev_warn(&pdev->dev, "pm_runtime_get_sync() Failed\n");
- 	gpiochip_remove(&gpio->chip);
- 	clk_disable_unprepare(gpio->clk);
- 	device_set_wakeup_capable(&pdev->dev, 0);
+diff --git a/sound/ppc/powermac.c b/sound/ppc/powermac.c
+index 33c6be9fb388..7c70ba5e2540 100644
+--- a/sound/ppc/powermac.c
++++ b/sound/ppc/powermac.c
+@@ -90,7 +90,11 @@ static int snd_pmac_probe(struct platform_device *devptr)
+ 		sprintf(card->shortname, "PowerMac %s", name_ext);
+ 		sprintf(card->longname, "%s (Dev %d) Sub-frame %d",
+ 			card->shortname, chip->device_id, chip->subframe);
+-		if ( snd_pmac_tumbler_init(chip) < 0 || snd_pmac_tumbler_post_init() < 0)
++		err = snd_pmac_tumbler_init(chip);
++		if (err < 0)
++			goto __error;
++		err = snd_pmac_tumbler_post_init();
++		if (err < 0)
+ 			goto __error;
+ 		break;
+ 	case PMAC_AWACS:
 -- 
 2.30.2
 
