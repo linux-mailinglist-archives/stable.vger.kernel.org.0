@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B3B3C3144
+	by mail.lfdr.de (Postfix) with ESMTP id 5927A3C3143
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233742AbhGJClF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58374 "EHLO mail.kernel.org"
+        id S233958AbhGJClD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:41:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234917AbhGJCjS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234926AbhGJCjS (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BAC0613E8;
-        Sat, 10 Jul 2021 02:35:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7C05613EC;
+        Sat, 10 Jul 2021 02:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884509;
-        bh=yD6W4/r6M9zDVJ64wHXlrnyWoD3qTyHoWwz14c6ixt4=;
+        s=k20201202; t=1625884510;
+        bh=uyH98worKDCuEIvIP5fQMxJG9xlQztNJsqIkPCqEcSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nnPrCb1Doaxepl9wlkK6hGlgZDzDYHPHSpc2rCSKlMutI65iRc5KEc9OhQaOlmko9
-         GxYnziQwldvpLrKrbDasJFw4Y3eJZQXLXmuHitBza29XVHPJbmT2ndAnEPWMcgIQd6
-         BGRYMMMT9r6v0XlWic1uwjPDVJ7ZQ0NbMEP/mpFx8PCndo3ZPAVq4rUcwSSOrITi2n
-         4FdC2ElmP9MCHQLyxd70kvsEMIo4dUR6RS72OjB6BBe3ujuO/vvlZoL0i0EABYWlgR
-         P5bxklgBr/e947P0Ne4AR3zWoM22Tp0wd2P0AHp6/EVhJAiVaFnIe7IFrCYpOVCfmC
-         hY+uhWfMqCeZw==
+        b=Y0L4KCl+k72C5tZMl++fcq2RqdDfEqYL27lezT/cFWZZBpjS8EFTPrVqQHQvsGwbk
+         lRFZZyMaUAN+5FOhSUN+55Ilo2U8HJcvNTOtNG6AZhy66wcvaThrQHFpZ1YUPqQCLi
+         yMFiyfls8WDn4eWDhHrWjOjDw+AAHCWjlIa8dDvfJdFqFplZXgPrsedEJKd1jgvspm
+         znc+dZYjjySXL+omYuiGpM3DQdv0Q3yFvRNJ5XSgnufmGjtjIcJ9PtNkj/1Rue3hwS
+         rCacfCghHKwz9c7MOQz2YQsZTQFaxPm9wV+WLbCIBQltdiqcSPcx4R9Xynv0rvfp1/
+         yivuCnmj4Dh3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        jfs-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 35/39] jfs: fix GPF in diFree
-Date:   Fri,  9 Jul 2021 22:32:00 -0400
-Message-Id: <20210710023204.3171428-35-sashal@kernel.org>
+Cc:     Fabio Aiuto <fabioaiuto83@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.19 36/39] staging: rtl8723bs: fix macro value for 2.4Ghz only device
+Date:   Fri,  9 Jul 2021 22:32:01 -0400
+Message-Id: <20210710023204.3171428-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023204.3171428-1-sashal@kernel.org>
 References: <20210710023204.3171428-1-sashal@kernel.org>
@@ -44,49 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Fabio Aiuto <fabioaiuto83@gmail.com>
 
-[ Upstream commit 9d574f985fe33efd6911f4d752de6f485a1ea732 ]
+[ Upstream commit 6d490a27e23c5fb79b766530016ab8665169498e ]
 
-Avoid passing inode with
-JFS_SBI(inode->i_sb)->ipimap == NULL to
-diFree()[1]. GFP will appear:
+fix IQK_Matrix_Settings_NUM macro value to 14 which is
+the max channel number value allowed in a 2.4Ghz device.
 
-	struct inode *ipimap = JFS_SBI(ip->i_sb)->ipimap;
-	struct inomap *imap = JFS_IP(ipimap)->i_imap;
-
-JFS_IP() will return invalid pointer when ipimap == NULL
-
-Call Trace:
- diFree+0x13d/0x2dc0 fs/jfs/jfs_imap.c:853 [1]
- jfs_evict_inode+0x2c9/0x370 fs/jfs/inode.c:154
- evict+0x2ed/0x750 fs/inode.c:578
- iput_final fs/inode.c:1654 [inline]
- iput.part.0+0x3fe/0x820 fs/inode.c:1680
- iput+0x58/0x70 fs/inode.c:1670
-
-Reported-and-tested-by: syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Fabio Aiuto <fabioaiuto83@gmail.com>
+Link: https://lore.kernel.org/r/0b4a876929949248aa18cb919da3583c65e4ee4e.1624367072.git.fabioaiuto83@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8723bs/hal/odm.h | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/fs/jfs/inode.c b/fs/jfs/inode.c
-index 054cc761b426..87b41edc800d 100644
---- a/fs/jfs/inode.c
-+++ b/fs/jfs/inode.c
-@@ -161,7 +161,8 @@ void jfs_evict_inode(struct inode *inode)
- 			if (test_cflag(COMMIT_Freewmap, inode))
- 				jfs_free_zero_link(inode);
+diff --git a/drivers/staging/rtl8723bs/hal/odm.h b/drivers/staging/rtl8723bs/hal/odm.h
+index 23ab160ac2c8..ff8e22d70d4c 100644
+--- a/drivers/staging/rtl8723bs/hal/odm.h
++++ b/drivers/staging/rtl8723bs/hal/odm.h
+@@ -197,10 +197,7 @@ typedef struct _ODM_RATE_ADAPTIVE {
  
--			diFree(inode);
-+			if (JFS_SBI(inode->i_sb)->ipimap)
-+				diFree(inode);
+ #define AVG_THERMAL_NUM		8
+ #define IQK_Matrix_REG_NUM	8
+-#define IQK_Matrix_Settings_NUM	(14 + 24 + 21) /*   Channels_2_4G_NUM
+-						* + Channels_5G_20M_NUM
+-						* + Channels_5G
+-						*/
++#define IQK_Matrix_Settings_NUM	14 /* Channels_2_4G_NUM */
  
- 			/*
- 			 * Free the inode from the quota allocation.
+ #define		DM_Type_ByFW			0
+ #define		DM_Type_ByDriver		1
 -- 
 2.30.2
 
