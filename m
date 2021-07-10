@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CCB73C2CBD
+	by mail.lfdr.de (Postfix) with ESMTP id 9ADD03C2CBE
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231700AbhGJCUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231682AbhGJCUo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 9 Jul 2021 22:20:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36978 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231355AbhGJCUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:20:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46430613C7;
-        Sat, 10 Jul 2021 02:17:54 +0000 (UTC)
+        id S229606AbhGJCUk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:20:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 677E0613CC;
+        Sat, 10 Jul 2021 02:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883474;
-        bh=79/HYkvwxCe55o5MFGHNpPyyxL7jdePrtaRs3K2/aC4=;
+        s=k20201202; t=1625883476;
+        bh=IYoubfj/OlkMZZB5SY71eKlG6nEiNmDXtp7ZUMa6i/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOAUGs+A/2a+qPEmsK9O6wIi7XjLF5Q7bnG6nqG+AgSErxmcq7IOjBjaGUJJrW1lj
-         tVop+r1s/avchqEfTRCx9fKKkmv+rHP9iv6Gza84nXoPVqXnyVecql+YjQc0ZHCGI3
-         7PbPL+GQF83NLqrsJ7pe+zSZ6D0R/B6Am7EKO1ZEZmBbQul0ZF8hRCq5W19nFlmly1
-         vxY0InIKi+oUDjDCfzcAHPice6utMffdVh4Ap3LQAaddaSnLgjk612zUhFxKNebMnv
-         ZJfxihgGajtlwSsw4Tjsy9FdEvFEjzOF6vIIpWv53g1IapBlYc7ZWk1qydBgX0PTmR
-         f5jDe/AhKv/+A==
+        b=aavYFtroZ2SF1hetHju66MbxSQsoP5wlOzooVrGeJ1UenmsYmc14AO0LIGju7V6Tu
+         nlTLhVEOOluVJU7XWo1A+Al8ScoUJAglJsm6cHdBpAl68dEl+w/GrdhEd2JFldwUb1
+         aRavOQB4agC81zUWPtIs1yvwBMBlO3xch3dzMHmDAvnUdSzHzgADiilFsxELtseGYY
+         oJoRn0QLCU99V2c0SRWAsEKxQvD4KzOWIkEYTNjVLsMHZAkPO6x0a5dquawtFVXVi0
+         2qA/NL44ARc6DC17U6CXkWbNJPQFIsDj5HAam1vOV/4RJBIisEbdCEty8rTBrhHziW
+         li8zBKiNItBrg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 004/114] dmaengine: fsl-qdma: check dma_set_mask return value
-Date:   Fri,  9 Jul 2021 22:15:58 -0400
-Message-Id: <20210710021748.3167666-4-sashal@kernel.org>
+Cc:     ching Huang <ching2048@areca.com.tw>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 005/114] scsi: arcmsr: Fix the wrong CDB payload report to IOP
+Date:   Fri,  9 Jul 2021 22:15:59 -0400
+Message-Id: <20210710021748.3167666-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710021748.3167666-1-sashal@kernel.org>
 References: <20210710021748.3167666-1-sashal@kernel.org>
@@ -41,39 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: ching Huang <ching2048@areca.com.tw>
 
-[ Upstream commit f0c07993af0acf5545d5c1445798846565f4f147 ]
+[ Upstream commit 5b8644968d2ca85abb785e83efec36934974b0c2 ]
 
-For fix below warning reported by static code analysis tool like Coverity
-from Synopsys:
+This patch fixes the wrong CDB payload report to IOP.
 
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Addresses-Coverity-ID: 12285639 ("Unchecked return value")
-Link: https://lore.kernel.org/r/1619427549-20498-1-git-send-email-yibin.gong@nxp.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/d2c97df3c817595c6faf582839316209022f70da.camel@areca.com.tw
+Signed-off-by: ching Huang <ching2048@areca.com.tw>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/fsl-qdma.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/arcmsr/arcmsr_hba.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/fsl-qdma.c b/drivers/dma/fsl-qdma.c
-index ed2ab46b15e7..045ead46ec8f 100644
---- a/drivers/dma/fsl-qdma.c
-+++ b/drivers/dma/fsl-qdma.c
-@@ -1235,7 +1235,11 @@ static int fsl_qdma_probe(struct platform_device *pdev)
- 	fsl_qdma->dma_dev.device_synchronize = fsl_qdma_synchronize;
- 	fsl_qdma->dma_dev.device_terminate_all = fsl_qdma_terminate_all;
+diff --git a/drivers/scsi/arcmsr/arcmsr_hba.c b/drivers/scsi/arcmsr/arcmsr_hba.c
+index 4b79661275c9..930972cda38c 100644
+--- a/drivers/scsi/arcmsr/arcmsr_hba.c
++++ b/drivers/scsi/arcmsr/arcmsr_hba.c
+@@ -1923,8 +1923,12 @@ static void arcmsr_post_ccb(struct AdapterControlBlock *acb, struct CommandContr
  
--	dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
-+	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
-+	if (ret) {
-+		dev_err(&pdev->dev, "dma_set_mask failure.\n");
-+		return ret;
-+	}
- 
- 	platform_set_drvdata(pdev, fsl_qdma);
- 
+ 		if (ccb->arc_cdb_size <= 0x300)
+ 			arc_cdb_size = (ccb->arc_cdb_size - 1) >> 6 | 1;
+-		else
+-			arc_cdb_size = (((ccb->arc_cdb_size + 0xff) >> 8) + 2) << 1 | 1;
++		else {
++			arc_cdb_size = ((ccb->arc_cdb_size + 0xff) >> 8) + 2;
++			if (arc_cdb_size > 0xF)
++				arc_cdb_size = 0xF;
++			arc_cdb_size = (arc_cdb_size << 1) | 1;
++		}
+ 		ccb_post_stamp = (ccb->smid | arc_cdb_size);
+ 		writel(0, &pmu->inbound_queueport_high);
+ 		writel(ccb_post_stamp, &pmu->inbound_queueport_low);
 -- 
 2.30.2
 
