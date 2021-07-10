@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 470B23C2D68
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:20:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 198483C2D70
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:20:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231875AbhGJCWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:22:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38204 "EHLO mail.kernel.org"
+        id S233089AbhGJCWq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:22:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232876AbhGJCWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232589AbhGJCWT (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:22:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D2FE60BD3;
-        Sat, 10 Jul 2021 02:19:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9BF4613B7;
+        Sat, 10 Jul 2021 02:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883568;
-        bh=2PZ0lzObAQRnJF57W3GYqnaYB/bfZfQaQjuMHASKseE=;
+        s=k20201202; t=1625883569;
+        bh=H65BQimBAwbH5n7kbcYzCOuiT8nnBa5h2f5AOhcpIMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKi4YEPkVQyi21Mpv7GAZoEW4OeWp7Oh05C9omxhyxKgMFn/KvUj9XGsCuO7XJwPW
-         vCVRrniomo+9x3GVXy/5YYUpwTTWT1E6q2lqc3V+wPLTkpPbks8CeJJl6wpFEVOZiC
-         gtK7UU9+b8Bwbjwsv/T8HsyXc2EvqMZaMQScyQT1d2UGCFoSjVWaxOumpeSn+Ijpvn
-         5eWK9ke+OXXYHCzwmvJQ+MohLui5pyxWcctWURKnCCnLAzfgwBguvK+0ambQb6wZSj
-         7K+c5kCMWzqG5L9x2wm+LBwSgTsRQVW90X2RHzwqGuP/p1Hh2viGtQXcbxcCnNNYf+
-         rEGtR5WFULdng==
+        b=N5fKqCtBoSv2maue9+0qlOgqnMvetaBeAaGBJr5bWneS34KfwzlhqHZq1m6ApXHOe
+         7+IWHjKvXkzvSpvrP+PSeEgCFloc8tFPH9Z7VLuQB/01RWNoSRp4mlWNYYX0Mek5BG
+         23Bpw41AVM58SzfMOhxhsnSXybISMEO91C2Ybd4T6xq9pzh0PiTobGU+At4JD1I8GH
+         EoW4m0v2q0LR9Psv8wvsMlytfb8kxNO9xsm/HuxZgq72zx9ds9IOcqBJZ4+S97ah5G
+         vJmc3f6xkZWmnLL25ceX0eHeNhKtXQ2nf0dUEVRldA46umOwRNf86TLLu/+RpbRSeO
+         bVQMw/WTt5NLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Kelley <mikelley@microsoft.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 074/114] scsi: storvsc: Correctly handle multiple flags in srb_status
-Date:   Fri,  9 Jul 2021 22:17:08 -0400
-Message-Id: <20210710021748.3167666-74-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.13 075/114] ALSA: ppc: fix error return code in snd_pmac_probe()
+Date:   Fri,  9 Jul 2021 22:17:09 -0400
+Message-Id: <20210710021748.3167666-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710021748.3167666-1-sashal@kernel.org>
 References: <20210710021748.3167666-1-sashal@kernel.org>
@@ -43,118 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 52e1b3b3daa9d53f0204bf474ee1d4b1beb38234 ]
+[ Upstream commit 80b9c1be567c3c6bbe0d4b290af578e630485b5d ]
 
-Hyper-V is observed to sometimes set multiple flags in the srb_status, such
-as ABORTED and ERROR. Current code in storvsc_handle_error() handles only a
-single flag being set, and does nothing when multiple flags are set.  Fix
-this by changing the case statement into a series of "if" statements
-testing individual flags. The functionality for handling each flag is
-unchanged.
+If snd_pmac_tumbler_init() or snd_pmac_tumbler_post_init() fails,
+snd_pmac_probe() need return error code.
 
-Link: https://lore.kernel.org/r/1622827263-12516-3-git-send-email-mikelley@microsoft.com
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210616021121.1991502-1-yangyingliang@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/storvsc_drv.c | 61 +++++++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 28 deletions(-)
+ sound/ppc/powermac.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index e6718a74e5da..b2e28197a086 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -1009,17 +1009,40 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
- 	struct storvsc_scan_work *wrk;
- 	void (*process_err_fn)(struct work_struct *work);
- 	struct hv_host_device *host_dev = shost_priv(host);
--	bool do_work = false;
- 
--	switch (SRB_STATUS(vm_srb->srb_status)) {
--	case SRB_STATUS_ERROR:
-+	/*
-+	 * In some situations, Hyper-V sets multiple bits in the
-+	 * srb_status, such as ABORTED and ERROR. So process them
-+	 * individually, with the most specific bits first.
-+	 */
-+
-+	if (vm_srb->srb_status & SRB_STATUS_INVALID_LUN) {
-+		set_host_byte(scmnd, DID_NO_CONNECT);
-+		process_err_fn = storvsc_remove_lun;
-+		goto do_work;
-+	}
-+
-+	if (vm_srb->srb_status & SRB_STATUS_ABORTED) {
-+		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID &&
-+		    /* Capacity data has changed */
-+		    (asc == 0x2a) && (ascq == 0x9)) {
-+			process_err_fn = storvsc_device_scan;
-+			/*
-+			 * Retry the I/O that triggered this.
-+			 */
-+			set_host_byte(scmnd, DID_REQUEUE);
-+			goto do_work;
-+		}
-+	}
-+
-+	if (vm_srb->srb_status & SRB_STATUS_ERROR) {
- 		/*
- 		 * Let upper layer deal with error when
- 		 * sense message is present.
- 		 */
--
- 		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID)
--			break;
-+			return;
-+
- 		/*
- 		 * If there is an error; offline the device since all
- 		 * error recovery strategies would have already been
-@@ -1032,37 +1055,19 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
- 			set_host_byte(scmnd, DID_PASSTHROUGH);
- 			break;
- 		/*
--		 * On Some Windows hosts TEST_UNIT_READY command can return
--		 * SRB_STATUS_ERROR, let the upper level code deal with it
--		 * based on the sense information.
-+		 * On some Hyper-V hosts TEST_UNIT_READY command can
-+		 * return SRB_STATUS_ERROR. Let the upper level code
-+		 * deal with it based on the sense information.
- 		 */
- 		case TEST_UNIT_READY:
- 			break;
- 		default:
- 			set_host_byte(scmnd, DID_ERROR);
- 		}
--		break;
--	case SRB_STATUS_INVALID_LUN:
--		set_host_byte(scmnd, DID_NO_CONNECT);
--		do_work = true;
--		process_err_fn = storvsc_remove_lun;
--		break;
--	case SRB_STATUS_ABORTED:
--		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID &&
--		    (asc == 0x2a) && (ascq == 0x9)) {
--			do_work = true;
--			process_err_fn = storvsc_device_scan;
--			/*
--			 * Retry the I/O that triggered this.
--			 */
--			set_host_byte(scmnd, DID_REQUEUE);
--		}
--		break;
- 	}
-+	return;
- 
--	if (!do_work)
--		return;
--
-+do_work:
- 	/*
- 	 * We need to schedule work to process this error; schedule it.
- 	 */
+diff --git a/sound/ppc/powermac.c b/sound/ppc/powermac.c
+index 9fb51ebafde1..8088f77d5a74 100644
+--- a/sound/ppc/powermac.c
++++ b/sound/ppc/powermac.c
+@@ -76,7 +76,11 @@ static int snd_pmac_probe(struct platform_device *devptr)
+ 		sprintf(card->shortname, "PowerMac %s", name_ext);
+ 		sprintf(card->longname, "%s (Dev %d) Sub-frame %d",
+ 			card->shortname, chip->device_id, chip->subframe);
+-		if ( snd_pmac_tumbler_init(chip) < 0 || snd_pmac_tumbler_post_init() < 0)
++		err = snd_pmac_tumbler_init(chip);
++		if (err < 0)
++			goto __error;
++		err = snd_pmac_tumbler_post_init();
++		if (err < 0)
+ 			goto __error;
+ 		break;
+ 	case PMAC_AWACS:
 -- 
 2.30.2
 
