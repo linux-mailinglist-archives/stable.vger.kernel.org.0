@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF8E3C2E14
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 253093C2E11
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233466AbhGJC0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:26:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42882 "EHLO mail.kernel.org"
+        id S233267AbhGJC0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:26:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233125AbhGJCZi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:25:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0039661416;
-        Sat, 10 Jul 2021 02:22:52 +0000 (UTC)
+        id S233266AbhGJCZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:25:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4788D613D1;
+        Sat, 10 Jul 2021 02:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883773;
-        bh=5uGHoFbxC057inXKnuUYBivDyaNYMVwoUbIjXcXUV6s=;
+        s=k20201202; t=1625883775;
+        bh=jdfYX0R3B7r3OaAnlg2mI6ZrXYkuBBieHVRjDgBSaa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkBLE7WLJs+vbilk2T+xFlg24mVxG0MD4pF9bU3374SwYbtyIwH26uCcJTTEcwxWG
-         5kcM96F5IlkFrL5TZcOhUdu2oe5eYqWYC/5kXcEE7wZapfFoqs8pJmvZSjmESklbVm
-         YZbld5Trm9lqXXKg385L9ZFPnBilLhy0czcTaiF3VUToEhZPf96JdBmHQTqevp2jzC
-         bLKRlNvn0PlXwQFnBsT8/q08Uh5nm0dRfQxxkWGof/3EMKqua+3J6OyGAzQrR/H6Sn
-         OAagx8NTueNEXAyOI4sl95r0UP6Q0H4uI0rrErOEQ4gl3VLk6AcPOq1Yj9zCq1PVta
-         Dc4VE/RAB4cFQ==
+        b=XKcONEKoMQ/F7wU/IU6+nayQTIWoNOB96Ntut7ffHvmL/ZEVm1NooYKedSZFmR4Sh
+         MXjDs1Xj+gpSFM+aio5R6XdTsJ2M7QoEM7gqiuVUk6MIkaDs5zHWV/mHENRuRhxzpu
+         tEEgokmz7Laal+hYAHSEPE5Z2qpKgYo/z98RHDCEIncC8hHL8J+4rHi3Y08WCFwFX2
+         JS+bs25eAMAe+rEP4D0smc6s0PQ5s6rFakifY5FhpobM8M6LqAIiSoURgF3gG0N1dh
+         m3Ji+QnqmwHVZPXJBhE6QbU9yox0LhWLjD8JLrGz3Rrh3XGiXILGQZXzRaqMQKO3sW
+         b/0BCoNYYfudQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mike Christie <michael.christie@oracle.com>,
         Manish Rangankar <mrangankar@marvell.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 043/104] scsi: qedi: Fix null ref during abort handling
-Date:   Fri,  9 Jul 2021 22:20:55 -0400
-Message-Id: <20210710022156.3168825-43-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 044/104] scsi: qedi: Fix race during abort timeouts
+Date:   Fri,  9 Jul 2021 22:20:56 -0400
+Message-Id: <20210710022156.3168825-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022156.3168825-1-sashal@kernel.org>
 References: <20210710022156.3168825-1-sashal@kernel.org>
@@ -45,34 +45,189 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 5777b7f0f03ce49372203b6521631f62f2810c8f ]
+[ Upstream commit 2ce002366a3fcc3f9616d4583194f65dde0ad253 ]
 
-If qedi_process_cmd_cleanup_resp finds the cmd it frees the work and sets
-list_tmf_work to NULL, so qedi_tmf_work should check if list_tmf_work is
-non-NULL when it wants to force cleanup.
+If the SCSI cmd completes after qedi_tmf_work calls iscsi_itt_to_task then
+the qedi qedi_cmd->task_id could be freed and used for another cmd. If we
+then call qedi_iscsi_cleanup_task with that task_id we will be cleaning up
+the wrong cmd.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-20-michael.christie@oracle.com
+Wait to release the task_id until the last put has been done on the
+iscsi_task. Because libiscsi grabs a ref to the task when sending the
+abort, we know that for the non-abort timeout case that the task_id we are
+referencing is for the cmd that was supposed to be aborted.
+
+A latter commit will fix the case where the abort times out while we are
+running qedi_tmf_work.
+
+Link: https://lore.kernel.org/r/20210525181821.7617-21-michael.christie@oracle.com
 Reviewed-by: Manish Rangankar <mrangankar@marvell.com>
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_fw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qedi/qedi_fw.c    | 15 ---------------
+ drivers/scsi/qedi/qedi_iscsi.c | 20 +++++++++++++++++---
+ 2 files changed, 17 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
-index 440ddd2309f1..cf57b4e49700 100644
+index cf57b4e49700..c12bb2dd5ff9 100644
 --- a/drivers/scsi/qedi/qedi_fw.c
 +++ b/drivers/scsi/qedi/qedi_fw.c
-@@ -1453,7 +1453,7 @@ static void qedi_tmf_work(struct work_struct *work)
+@@ -73,7 +73,6 @@ static void qedi_process_logout_resp(struct qedi_ctx *qedi,
+ 	spin_unlock(&qedi_conn->list_lock);
  
- ldel_exit:
- 	spin_lock_bh(&qedi_conn->tmf_work_lock);
--	if (!qedi_cmd->list_tmf_work) {
-+	if (qedi_cmd->list_tmf_work) {
- 		list_del_init(&list_work->list);
- 		qedi_cmd->list_tmf_work = NULL;
- 		kfree(list_work);
+ 	cmd->state = RESPONSE_RECEIVED;
+-	qedi_clear_task_idx(qedi, cmd->task_id);
+ 	__iscsi_complete_pdu(conn, (struct iscsi_hdr *)resp_hdr, NULL, 0);
+ 
+ 	spin_unlock(&session->back_lock);
+@@ -138,7 +137,6 @@ static void qedi_process_text_resp(struct qedi_ctx *qedi,
+ 	spin_unlock(&qedi_conn->list_lock);
+ 
+ 	cmd->state = RESPONSE_RECEIVED;
+-	qedi_clear_task_idx(qedi, cmd->task_id);
+ 
+ 	__iscsi_complete_pdu(conn, (struct iscsi_hdr *)resp_hdr_ptr,
+ 			     qedi_conn->gen_pdu.resp_buf,
+@@ -164,13 +162,11 @@ static void qedi_tmf_resp_work(struct work_struct *work)
+ 	iscsi_block_session(session->cls_session);
+ 	rval = qedi_cleanup_all_io(qedi, qedi_conn, qedi_cmd->task, true);
+ 	if (rval) {
+-		qedi_clear_task_idx(qedi, qedi_cmd->task_id);
+ 		iscsi_unblock_session(session->cls_session);
+ 		goto exit_tmf_resp;
+ 	}
+ 
+ 	iscsi_unblock_session(session->cls_session);
+-	qedi_clear_task_idx(qedi, qedi_cmd->task_id);
+ 
+ 	spin_lock(&session->back_lock);
+ 	__iscsi_complete_pdu(conn, (struct iscsi_hdr *)resp_hdr_ptr, NULL, 0);
+@@ -245,8 +241,6 @@ static void qedi_process_tmf_resp(struct qedi_ctx *qedi,
+ 		goto unblock_sess;
+ 	}
+ 
+-	qedi_clear_task_idx(qedi, qedi_cmd->task_id);
+-
+ 	__iscsi_complete_pdu(conn, (struct iscsi_hdr *)resp_hdr_ptr, NULL, 0);
+ 	kfree(resp_hdr_ptr);
+ 
+@@ -314,7 +308,6 @@ static void qedi_process_login_resp(struct qedi_ctx *qedi,
+ 		  "Freeing tid=0x%x for cid=0x%x\n",
+ 		  cmd->task_id, qedi_conn->iscsi_conn_id);
+ 	cmd->state = RESPONSE_RECEIVED;
+-	qedi_clear_task_idx(qedi, cmd->task_id);
+ }
+ 
+ static void qedi_get_rq_bdq_buf(struct qedi_ctx *qedi,
+@@ -468,7 +461,6 @@ static int qedi_process_nopin_mesg(struct qedi_ctx *qedi,
+ 		}
+ 
+ 		spin_unlock(&qedi_conn->list_lock);
+-		qedi_clear_task_idx(qedi, cmd->task_id);
+ 	}
+ 
+ done:
+@@ -673,7 +665,6 @@ static void qedi_scsi_completion(struct qedi_ctx *qedi,
+ 	if (qedi_io_tracing)
+ 		qedi_trace_io(qedi, task, cmd->task_id, QEDI_IO_TRACE_RSP);
+ 
+-	qedi_clear_task_idx(qedi, cmd->task_id);
+ 	__iscsi_complete_pdu(conn, (struct iscsi_hdr *)hdr,
+ 			     conn->data, datalen);
+ error:
+@@ -730,7 +721,6 @@ static void qedi_process_nopin_local_cmpl(struct qedi_ctx *qedi,
+ 		  cqe->itid, cmd->task_id);
+ 
+ 	cmd->state = RESPONSE_RECEIVED;
+-	qedi_clear_task_idx(qedi, cmd->task_id);
+ 
+ 	spin_lock_bh(&session->back_lock);
+ 	__iscsi_put_task(task);
+@@ -748,7 +738,6 @@ static void qedi_process_cmd_cleanup_resp(struct qedi_ctx *qedi,
+ 	itt_t protoitt = 0;
+ 	int found = 0;
+ 	struct qedi_cmd *qedi_cmd = NULL;
+-	u32 rtid = 0;
+ 	u32 iscsi_cid;
+ 	struct qedi_conn *qedi_conn;
+ 	struct qedi_cmd *dbg_cmd;
+@@ -779,7 +768,6 @@ static void qedi_process_cmd_cleanup_resp(struct qedi_ctx *qedi,
+ 			found = 1;
+ 			mtask = qedi_cmd->task;
+ 			tmf_hdr = (struct iscsi_tm *)mtask->hdr;
+-			rtid = work->rtid;
+ 
+ 			list_del_init(&work->list);
+ 			kfree(work);
+@@ -821,8 +809,6 @@ static void qedi_process_cmd_cleanup_resp(struct qedi_ctx *qedi,
+ 			if (qedi_cmd->state == CLEANUP_WAIT_FAILED)
+ 				qedi_cmd->state = CLEANUP_RECV;
+ 
+-			qedi_clear_task_idx(qedi_conn->qedi, rtid);
+-
+ 			spin_lock(&qedi_conn->list_lock);
+ 			if (likely(dbg_cmd->io_cmd_in_list)) {
+ 				dbg_cmd->io_cmd_in_list = false;
+@@ -856,7 +842,6 @@ static void qedi_process_cmd_cleanup_resp(struct qedi_ctx *qedi,
+ 		QEDI_INFO(&qedi->dbg_ctx, QEDI_LOG_TID,
+ 			  "Freeing tid=0x%x for cid=0x%x\n",
+ 			  cqe->itid, qedi_conn->iscsi_conn_id);
+-		qedi_clear_task_idx(qedi_conn->qedi, cqe->itid);
+ 
+ 	} else {
+ 		qedi_get_proto_itt(qedi, cqe->itid, &ptmp_itt);
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index ef16537c523c..a7003847bd4c 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -772,7 +772,6 @@ static int qedi_mtask_xmit(struct iscsi_conn *conn, struct iscsi_task *task)
+ 	}
+ 
+ 	cmd->conn = conn->dd_data;
+-	cmd->scsi_cmd = NULL;
+ 	return qedi_iscsi_send_generic_request(task);
+ }
+ 
+@@ -783,6 +782,10 @@ static int qedi_task_xmit(struct iscsi_task *task)
+ 	struct qedi_cmd *cmd = task->dd_data;
+ 	struct scsi_cmnd *sc = task->sc;
+ 
++	/* Clear now so in cleanup_task we know it didn't make it */
++	cmd->scsi_cmd = NULL;
++	cmd->task_id = U16_MAX;
++
+ 	if (test_bit(QEDI_IN_SHUTDOWN, &qedi_conn->qedi->flags))
+ 		return -ENODEV;
+ 
+@@ -1383,13 +1386,24 @@ static umode_t qedi_attr_is_visible(int param_type, int param)
+ 
+ static void qedi_cleanup_task(struct iscsi_task *task)
+ {
+-	if (!task->sc || task->state == ISCSI_TASK_PENDING) {
++	struct qedi_cmd *cmd;
++
++	if (task->state == ISCSI_TASK_PENDING) {
+ 		QEDI_INFO(NULL, QEDI_LOG_IO, "Returning ref_cnt=%d\n",
+ 			  refcount_read(&task->refcount));
+ 		return;
+ 	}
+ 
+-	qedi_iscsi_unmap_sg_list(task->dd_data);
++	if (task->sc)
++		qedi_iscsi_unmap_sg_list(task->dd_data);
++
++	cmd = task->dd_data;
++	if (cmd->task_id != U16_MAX)
++		qedi_clear_task_idx(iscsi_host_priv(task->conn->session->host),
++				    cmd->task_id);
++
++	cmd->task_id = U16_MAX;
++	cmd->scsi_cmd = NULL;
+ }
+ 
+ struct iscsi_transport qedi_iscsi_transport = {
 -- 
 2.30.2
 
