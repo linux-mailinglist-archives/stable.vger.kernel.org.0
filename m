@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97D753C2D69
+	by mail.lfdr.de (Postfix) with ESMTP id 470B23C2D68
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:20:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232849AbhGJCWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231875AbhGJCWm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 9 Jul 2021 22:22:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37728 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232867AbhGJCWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232876AbhGJCWT (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:22:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4C17613AF;
-        Sat, 10 Jul 2021 02:19:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D2FE60BD3;
+        Sat, 10 Jul 2021 02:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883566;
-        bh=0YPOTlGAevRTrCYvMVP6goKkOJ4HD5gtpQFiIRIXX6I=;
+        s=k20201202; t=1625883568;
+        bh=2PZ0lzObAQRnJF57W3GYqnaYB/bfZfQaQjuMHASKseE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OTXAruOJ4APS5gHShb3eJJdgD0oRtS+GAKJmf0zILeA5+hsmQTOK4pL/3LcJDAndG
-         NK/XPCMkQw7rxYIAExUoYYlqZxGaQpAc4X0xqkUaue+aN2wnYeQZwCa5URZ3dOu86N
-         an3nK68JDU1uXnTXa1xBurnIbAyyQWjp2F9JStKnZfB9KHZFacoAH7cldFcyaYHkFt
-         pm+Q7l2V99J8BfpT6DQ0S7HiC89VncusYHHSGBDuyO0mehnsNLDanyw8Ng+uMGy1UI
-         SNRqU3BhlytNRxQiEl6jLhFM5woXswPbm/Qpms1h2t4KRrosGVcs4zfhI0R+hkMbOE
-         Xe951GQmUOHUw==
+        b=lKi4YEPkVQyi21Mpv7GAZoEW4OeWp7Oh05C9omxhyxKgMFn/KvUj9XGsCuO7XJwPW
+         vCVRrniomo+9x3GVXy/5YYUpwTTWT1E6q2lqc3V+wPLTkpPbks8CeJJl6wpFEVOZiC
+         gtK7UU9+b8Bwbjwsv/T8HsyXc2EvqMZaMQScyQT1d2UGCFoSjVWaxOumpeSn+Ijpvn
+         5eWK9ke+OXXYHCzwmvJQ+MohLui5pyxWcctWURKnCCnLAzfgwBguvK+0ambQb6wZSj
+         7K+c5kCMWzqG5L9x2wm+LBwSgTsRQVW90X2RHzwqGuP/p1Hh2viGtQXcbxcCnNNYf+
+         rEGtR5WFULdng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.13 073/114] powerpc/inst: Fix sparse detection on get_user_instr()
-Date:   Fri,  9 Jul 2021 22:17:07 -0400
-Message-Id: <20210710021748.3167666-73-sashal@kernel.org>
+Cc:     Michael Kelley <mikelley@microsoft.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 074/114] scsi: storvsc: Correctly handle multiple flags in srb_status
+Date:   Fri,  9 Jul 2021 22:17:08 -0400
+Message-Id: <20210710021748.3167666-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710021748.3167666-1-sashal@kernel.org>
 References: <20210710021748.3167666-1-sashal@kernel.org>
@@ -42,49 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit b3a9e523237013477bea914b7fbfbe420428b988 ]
+[ Upstream commit 52e1b3b3daa9d53f0204bf474ee1d4b1beb38234 ]
 
-get_user_instr() lacks sparse detection for the __user tag.
+Hyper-V is observed to sometimes set multiple flags in the srb_status, such
+as ABORTED and ERROR. Current code in storvsc_handle_error() handles only a
+single flag being set, and does nothing when multiple flags are set.  Fix
+this by changing the case statement into a series of "if" statements
+testing individual flags. The functionality for handling each flag is
+unchanged.
 
-This is because __gui_ptr is assigned with a cast.
-
-Fix that by adding a __chk_user_ptr()
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0320e5b41a794fd456ab8c5993bbfadcf9e1d8b4.1621516826.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/1622827263-12516-3-git-send-email-mikelley@microsoft.com
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/inst.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/scsi/storvsc_drv.c | 61 +++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 28 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/inst.h b/arch/powerpc/include/asm/inst.h
-index 268d3bd073c8..887ef150fdda 100644
---- a/arch/powerpc/include/asm/inst.h
-+++ b/arch/powerpc/include/asm/inst.h
-@@ -12,6 +12,8 @@
- 	unsigned long __gui_ptr = (unsigned long)ptr;			\
- 	struct ppc_inst __gui_inst;					\
- 	unsigned int __prefix, __suffix;				\
-+									\
-+	__chk_user_ptr(ptr);						\
- 	__gui_ret = gu_op(__prefix, (unsigned int __user *)__gui_ptr);	\
- 	if (__gui_ret == 0) {						\
- 		if ((__prefix >> 26) == OP_PREFIX) {			\
-@@ -29,7 +31,10 @@
- })
- #else /* !CONFIG_PPC64 */
- #define ___get_user_instr(gu_op, dest, ptr)				\
--	gu_op((dest).val, (u32 __user *)(ptr))
-+({									\
-+	__chk_user_ptr(ptr);						\
-+	gu_op((dest).val, (u32 __user *)(ptr));				\
-+})
- #endif /* CONFIG_PPC64 */
+diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+index e6718a74e5da..b2e28197a086 100644
+--- a/drivers/scsi/storvsc_drv.c
++++ b/drivers/scsi/storvsc_drv.c
+@@ -1009,17 +1009,40 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
+ 	struct storvsc_scan_work *wrk;
+ 	void (*process_err_fn)(struct work_struct *work);
+ 	struct hv_host_device *host_dev = shost_priv(host);
+-	bool do_work = false;
  
- #define get_user_instr(x, ptr) \
+-	switch (SRB_STATUS(vm_srb->srb_status)) {
+-	case SRB_STATUS_ERROR:
++	/*
++	 * In some situations, Hyper-V sets multiple bits in the
++	 * srb_status, such as ABORTED and ERROR. So process them
++	 * individually, with the most specific bits first.
++	 */
++
++	if (vm_srb->srb_status & SRB_STATUS_INVALID_LUN) {
++		set_host_byte(scmnd, DID_NO_CONNECT);
++		process_err_fn = storvsc_remove_lun;
++		goto do_work;
++	}
++
++	if (vm_srb->srb_status & SRB_STATUS_ABORTED) {
++		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID &&
++		    /* Capacity data has changed */
++		    (asc == 0x2a) && (ascq == 0x9)) {
++			process_err_fn = storvsc_device_scan;
++			/*
++			 * Retry the I/O that triggered this.
++			 */
++			set_host_byte(scmnd, DID_REQUEUE);
++			goto do_work;
++		}
++	}
++
++	if (vm_srb->srb_status & SRB_STATUS_ERROR) {
+ 		/*
+ 		 * Let upper layer deal with error when
+ 		 * sense message is present.
+ 		 */
+-
+ 		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID)
+-			break;
++			return;
++
+ 		/*
+ 		 * If there is an error; offline the device since all
+ 		 * error recovery strategies would have already been
+@@ -1032,37 +1055,19 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
+ 			set_host_byte(scmnd, DID_PASSTHROUGH);
+ 			break;
+ 		/*
+-		 * On Some Windows hosts TEST_UNIT_READY command can return
+-		 * SRB_STATUS_ERROR, let the upper level code deal with it
+-		 * based on the sense information.
++		 * On some Hyper-V hosts TEST_UNIT_READY command can
++		 * return SRB_STATUS_ERROR. Let the upper level code
++		 * deal with it based on the sense information.
+ 		 */
+ 		case TEST_UNIT_READY:
+ 			break;
+ 		default:
+ 			set_host_byte(scmnd, DID_ERROR);
+ 		}
+-		break;
+-	case SRB_STATUS_INVALID_LUN:
+-		set_host_byte(scmnd, DID_NO_CONNECT);
+-		do_work = true;
+-		process_err_fn = storvsc_remove_lun;
+-		break;
+-	case SRB_STATUS_ABORTED:
+-		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID &&
+-		    (asc == 0x2a) && (ascq == 0x9)) {
+-			do_work = true;
+-			process_err_fn = storvsc_device_scan;
+-			/*
+-			 * Retry the I/O that triggered this.
+-			 */
+-			set_host_byte(scmnd, DID_REQUEUE);
+-		}
+-		break;
+ 	}
++	return;
+ 
+-	if (!do_work)
+-		return;
+-
++do_work:
+ 	/*
+ 	 * We need to schedule work to process this error; schedule it.
+ 	 */
 -- 
 2.30.2
 
