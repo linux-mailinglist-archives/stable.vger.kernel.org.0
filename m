@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8534F3C2EC2
+	by mail.lfdr.de (Postfix) with ESMTP id F18DF3C2EC3
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233830AbhGJC2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:28:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
+        id S233532AbhGJC2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:28:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233527AbhGJC1m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:27:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB50C613F0;
-        Sat, 10 Jul 2021 02:24:42 +0000 (UTC)
+        id S233862AbhGJC1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:27:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC66561402;
+        Sat, 10 Jul 2021 02:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883883;
-        bh=4DYIJkBBNEgbBtLUIK/WIpKbeZB5/9WqbXBS6E8Bh54=;
+        s=k20201202; t=1625883884;
+        bh=8s8TEK/Xbj+pB8AdCTlyVxz3O5KUi40VYYY3jTVFzuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWtic0tqHD5v9JvKJWM6dJDYH1M5i4Pr1rKs8Q02qcbJaBKGHO8T6ViH5MWrJN+rB
-         yzWOmYTI0T6IFqdI/T4hHO/FAYNjyiRXLRfQueOPU9dpF1O41nGHPMrXt28rFIQ9LY
-         KFMQJ89tW3KaUbiXG8NCSgzFy6FmAHPFy0Hb23BLvH8f6H3zo27ehuYSvZWMwnln6l
-         I1eBMG4iuuXm3lRYxHjScvU0QZ66kSdlmnA7XcvvnWSC/0vM+RC867tmi0QrmQzVJc
-         gype1Qf4/AVpVgGon92XanuWiZ3VMl9Hzz42lw6MvOw+69iV/54zWa3YXSnFutFq/U
-         yu8gS3oXfZwKA==
+        b=HmN6XNMgHSCElCqyoAxHrQzpCHhksShTFNgeGaP3Rs0/PdpQV0o9iTgh087hE37XR
+         97ajyBHcmocFiLLl77PWbCVHx0rJrxMjsKUnJifbmO4QwpJBoSA+fhHP3hyQoHgfQ1
+         6kqoJngJxsSylDFbQW4oi1B8QSIvHeQ63jomzjV997xIHnT04VGBVZWujCZT72qYtN
+         JNq84yUaaIS+oufKX9vL2P1JInQfipeVRia6vcwrimPki3OEarPetSt24Fnl8gVaFg
+         q107HMues2htf/LP7XX3m0eEU2iGGfHbTcxRwCQTDnnXlVICcxGjQuDvJ7ipIdxwVJ
+         PsBjZbQ6D9lew==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+Cc:     Tong Zhang <ztong0001@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 11/93] misc/libmasm/module: Fix two use after free in ibmasm_init_one
-Date:   Fri,  9 Jul 2021 22:23:05 -0400
-Message-Id: <20210710022428.3169839-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 12/93] misc: alcor_pci: fix null-ptr-deref when there is no PCI bridge
+Date:   Fri,  9 Jul 2021 22:23:06 -0400
+Message-Id: <20210710022428.3169839-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -42,56 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 7272b591c4cb9327c43443f67b8fbae7657dd9ae ]
+[ Upstream commit 3ce3e45cc333da707d4d6eb433574b990bcc26f5 ]
 
-In ibmasm_init_one, it calls ibmasm_init_remote_input_dev().
-Inside ibmasm_init_remote_input_dev, mouse_dev and keybd_dev are
-allocated by input_allocate_device(), and assigned to
-sp->remote.mouse_dev and sp->remote.keybd_dev respectively.
+There is an issue with the ASPM(optional) capability checking function.
+A device might be attached to root complex directly, in this case,
+bus->self(bridge) will be NULL, thus priv->parent_pdev is NULL.
+Since alcor_pci_init_check_aspm(priv->parent_pdev) checks the PCI link's
+ASPM capability and populate parent_cap_off, which will be used later by
+alcor_pci_aspm_ctrl() to dynamically turn on/off device, what we can do
+here is to avoid checking the capability if we are on the root complex.
+This will make pdev_cap_off 0 and alcor_pci_aspm_ctrl() will simply
+return when bring called, effectively disable ASPM for the device.
 
-In the err_free_devices error branch of ibmasm_init_one,
-mouse_dev and keybd_dev are freed by input_free_device(), and return
-error. Then the execution runs into error_send_message error branch
-of ibmasm_init_one, where ibmasm_free_remote_input_dev(sp) is called
-to unregister the freed sp->remote.mouse_dev and sp->remote.keybd_dev.
+[    1.246492] BUG: kernel NULL pointer dereference, address: 00000000000000c0
+[    1.248731] RIP: 0010:pci_read_config_byte+0x5/0x40
+[    1.253998] Call Trace:
+[    1.254131]  ? alcor_pci_find_cap_offset.isra.0+0x3a/0x100 [alcor_pci]
+[    1.254476]  alcor_pci_probe+0x169/0x2d5 [alcor_pci]
 
-My patch add a "error_init_remote" label to handle the error of
-ibmasm_init_remote_input_dev(), to avoid the uaf bugs.
-
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Link: https://lore.kernel.org/r/20210426170620.10546-1-lyl2019@mail.ustc.edu.cn
+Co-developed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210513040732.1310159-1-ztong0001@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/ibmasm/module.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/misc/cardreader/alcor_pci.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/ibmasm/module.c b/drivers/misc/ibmasm/module.c
-index 4edad6c445d3..dc8a06c06c63 100644
---- a/drivers/misc/ibmasm/module.c
-+++ b/drivers/misc/ibmasm/module.c
-@@ -111,7 +111,7 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	result = ibmasm_init_remote_input_dev(sp);
- 	if (result) {
- 		dev_err(sp->dev, "Failed to initialize remote queue\n");
--		goto error_send_message;
-+		goto error_init_remote;
- 	}
+diff --git a/drivers/misc/cardreader/alcor_pci.c b/drivers/misc/cardreader/alcor_pci.c
+index cd402c89189e..0a62307f7ffb 100644
+--- a/drivers/misc/cardreader/alcor_pci.c
++++ b/drivers/misc/cardreader/alcor_pci.c
+@@ -139,7 +139,13 @@ static void alcor_pci_init_check_aspm(struct alcor_pci_priv *priv)
+ 	u32 val32;
  
- 	result = ibmasm_send_driver_vpd(sp);
-@@ -131,8 +131,9 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	return 0;
+ 	priv->pdev_cap_off    = alcor_pci_find_cap_offset(priv, priv->pdev);
+-	priv->parent_cap_off = alcor_pci_find_cap_offset(priv,
++	/*
++	 * A device might be attached to root complex directly and
++	 * priv->parent_pdev will be NULL. In this case we don't check its
++	 * capability and disable ASPM completely.
++	 */
++	if (!priv->parent_pdev)
++		priv->parent_cap_off = alcor_pci_find_cap_offset(priv,
+ 							 priv->parent_pdev);
  
- error_send_message:
--	disable_sp_interrupts(sp->base_address);
- 	ibmasm_free_remote_input_dev(sp);
-+error_init_remote:
-+	disable_sp_interrupts(sp->base_address);
- 	free_irq(sp->irq, (void *)sp);
- error_request_irq:
- 	iounmap(sp->base_address);
+ 	if ((priv->pdev_cap_off == 0) || (priv->parent_cap_off == 0)) {
 -- 
 2.30.2
 
