@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A663C2CFF
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:20:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C493C2D09
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbhGJCVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37728 "EHLO mail.kernel.org"
+        id S232305AbhGJCVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:21:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232235AbhGJCVR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Jul 2021 22:21:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72E47613D0;
-        Sat, 10 Jul 2021 02:18:32 +0000 (UTC)
+        id S232277AbhGJCVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Jul 2021 22:21:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEE87613BE;
+        Sat, 10 Jul 2021 02:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883513;
-        bh=1m5z75DwI4RoLI8EnXWRT11op3skV4v8WeTYrrnBb04=;
+        s=k20201202; t=1625883514;
+        bh=psjiZPoJqTbIx9wY8pQaLI33HJVWFseOA6R/5ygYdO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TW88wyBEGUEXcoUY7welB4ZaXEFz2qGpJ/MMOF41QnlGgC1r7o+nq46cTuLxh70qM
-         qlsVlvLSsgaG2uR5g1xW61D8oemHy+qI+blYlH1ONcLxUJA6PuLhQKBiLTTf39DlKG
-         REkZin30Jd1i26q69KtsMQ5cGdNa2/SzPLpzwtXIt7jRr6666UwRPmNrsGpFE7oXqx
-         yVWzD7NGCApNr7nTEKjFMiEsc6vSm1UtbYNA+AwNRdHYrhFAOPWTxHqTQpF9TfeTNo
-         MRKsgxPNpxJx2LKaHEuLa/oGfkUT8ZS6qRVxycAurO4EtiRMm6ALW9JGrhKlre/Qyk
-         yM0PBZlLZ5DXw==
+        b=SG0f8xiiuz8y8/650POICuvLZ1vRS9ekdqPPhvevvwejdukf6Q12DP4s8439PNuQ7
+         zJgWOoripkh22akuukxsuCYIrc7AfcDh5aY6H5l4AzXJ4XQCrmaHS4TnHBM2ShIWH2
+         UdB3Dh1cctvjiptKIv2M3AuRoFHvEDDLn+ddOE3faYE8BKOsJYUTc2Xv9cX5EhBOYj
+         IODffDLy8T8AX/wTPWaFUL/upkBK1NMq6qtepq1kBPM3LQdW1A7VbbPAcsCzMYQXTe
+         1VH9cxjx9ITS5pGDCvJ7xzPNhsjm2EnXvqe6JJwvjSF1BiLluVoQfmux1BOaaoqYLB
+         2SirhZdwSBBpA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 032/114] scsi: core: Cap scsi_host cmd_per_lun at can_queue
-Date:   Fri,  9 Jul 2021 22:16:26 -0400
-Message-Id: <20210710021748.3167666-32-sashal@kernel.org>
+Cc:     Yufen Yu <yuyufen@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.13 033/114] ALSA: ac97: fix PM reference leak in ac97_bus_remove()
+Date:   Fri,  9 Jul 2021 22:16:27 -0400
+Message-Id: <20210710021748.3167666-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710021748.3167666-1-sashal@kernel.org>
 References: <20210710021748.3167666-1-sashal@kernel.org>
@@ -43,49 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit ea2f0f77538c50739b9fb4de4700cee5535e1f77 ]
+[ Upstream commit a38e93302ee25b2ca6f4ee76c6c974cf3637985e ]
 
-The sysfs handling function sdev_store_queue_depth() enforces that the sdev
-queue depth cannot exceed shost can_queue. The initial sdev queue depth
-comes from shost cmd_per_lun. However, the LLDD may manually set
-cmd_per_lun to be larger than can_queue, which leads to an initial sdev
-queue depth greater than can_queue.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-Such an issue was reported in [0], which caused a hang. That has since been
-fixed in commit fc09acb7de31 ("scsi: scsi_debug: Fix cmd_per_lun, set to
-max_queue").
-
-Stop this possibly happening for other drivers by capping shost cmd_per_lun
-at shost can_queue.
-
-[0] https://lore.kernel.org/linux-scsi/YHaez6iN2HHYxYOh@T590/
-
-Link: https://lore.kernel.org/r/1621434662-173079-1-git-send-email-john.garry@huawei.com
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Link: https://lore.kernel.org/r/20210524093811.612302-1-yuyufen@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hosts.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/ac97/bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index cd52664920e1..2684be9a79a8 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -220,6 +220,9 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
- 		goto fail;
- 	}
+diff --git a/sound/ac97/bus.c b/sound/ac97/bus.c
+index d9077e91382b..6ddf646cda65 100644
+--- a/sound/ac97/bus.c
++++ b/sound/ac97/bus.c
+@@ -520,7 +520,7 @@ static int ac97_bus_remove(struct device *dev)
+ 	struct ac97_codec_driver *adrv = to_ac97_driver(dev->driver);
+ 	int ret;
  
-+	shost->cmd_per_lun = min_t(short, shost->cmd_per_lun,
-+				   shost->can_queue);
-+
- 	error = scsi_init_sense_cache(shost);
- 	if (error)
- 		goto fail;
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0)
+ 		return ret;
+ 
 -- 
 2.30.2
 
