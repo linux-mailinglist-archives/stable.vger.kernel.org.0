@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 270553C38B2
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E25C73C38B5
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 01:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233917AbhGJXzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 19:55:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
+        id S233926AbhGJXzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Jul 2021 19:55:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233266AbhGJXy5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232681AbhGJXy5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 10 Jul 2021 19:54:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04944613E5;
-        Sat, 10 Jul 2021 23:51:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51B72613F3;
+        Sat, 10 Jul 2021 23:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625961095;
-        bh=7K9eVUMY1pQAF+2qstCDKAH0TI5uw0X4L1n6GzI9Y7E=;
+        s=k20201202; t=1625961096;
+        bh=Kr5HoqsE5MPFdwwLrEQmw5vIHfZj7/DGPLKFuD6t3uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OX1igyvBMZWwzVR/U5Sq+zqQ8jYeZGnNVBPyIdjVcWM7NGHvyn0nctjIeczsPhzTS
-         c78uWevnqxAvpqiYjSgFbTBD8ea479EgzGjfDYUD4AjF248BwyJXG2lRpp9I5sKb17
-         0fNHVlao2c+pUrYfesZHdqu4uubSe5SVPSLbuCsiW22lXKXKYAWS3FEEdG/nmCkjaF
-         msB0SIhGqiGzXyV5eUyv+IeoveT0uStjZFrGki6awLZmqxQmip9NTlb+qGzTQaHdi1
-         wOd8HNHdMGBK5viZWNhCWmuYkMn7QDr2Jv0TZGgnQ3n4n9xYiD5mB44nQ1xCmONxLA
-         JWfEVQgCsSKUQ==
+        b=eg6dTszqYKK7MoqMiYm5eoL2Aa15wqQ+XxGCmyvGxaTbGAau1hPrk9uxKHOzo3Gzv
+         re/7GL9pmq5DkP3QEBIcKnkID4ekOIO4Aa19L+r9/2M6ZYdT3lxYSIhLC/M90MeZgi
+         NbONtkVyN+ZnB+xfRu1ya0VsIlV1jjFqfZhTZEKQvJl0uqAl6Y6RYl4ioloLH+A905
+         p0Yp58DckWCcFAlQiErD8WFEKtrA+Lo4OzX2aVWHcG1kJya3t+L0ISkhUtbePTXCUR
+         rc0j06u5EFNyCNIkQluJ9zazx8HC0cPrVJ4m6iq7H4n4azHucIpTtbbh4eTMzrkCEg
+         Zy1F3wOsIGrOA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 22/28] pwm: tegra: Don't modify HW state in .remove callback
-Date:   Sat, 10 Jul 2021 19:51:01 -0400
-Message-Id: <20210710235107.3221840-22-sashal@kernel.org>
+Cc:     Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 23/28] ACPI: AMBA: Fix resource name in /proc/iomem
+Date:   Sat, 10 Jul 2021 19:51:02 -0400
+Message-Id: <20210710235107.3221840-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235107.3221840-1-sashal@kernel.org>
 References: <20210710235107.3221840-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,56 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Liguang Zhang <zhangliguang@linux.alibaba.com>
 
-[ Upstream commit 86f7fa71cd830d18d7ebcaf719dffd5ddfe1acdd ]
+[ Upstream commit 7718629432676b5ebd9a32940782fe297a0abf8d ]
 
-A consumer is expected to disable a PWM before calling pwm_put(). And if
-they didn't there is hopefully a good reason (or the consumer needs
-fixing). Also if disabling an enabled PWM was the right thing to do,
-this should better be done in the framework instead of in each low level
-driver.
+In function amba_handler_attach(), dev->res.name is initialized by
+amba_device_alloc. But when address_found is false, dev->res.name is
+assigned to null value, which leads to wrong resource name display in
+/proc/iomem, "<BAD>" is seen for those resources.
 
-So drop the hardware modification from the .remove() callback.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-tegra.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ drivers/acpi/acpi_amba.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pwm/pwm-tegra.c b/drivers/pwm/pwm-tegra.c
-index aa12fb3ed92e..3d55e30a6866 100644
---- a/drivers/pwm/pwm-tegra.c
-+++ b/drivers/pwm/pwm-tegra.c
-@@ -232,7 +232,6 @@ static int tegra_pwm_probe(struct platform_device *pdev)
- static int tegra_pwm_remove(struct platform_device *pdev)
- {
- 	struct tegra_pwm_chip *pc = platform_get_drvdata(pdev);
--	unsigned int i;
- 	int err;
- 
- 	if (WARN_ON(!pc))
-@@ -242,18 +241,6 @@ static int tegra_pwm_remove(struct platform_device *pdev)
- 	if (err < 0)
- 		return err;
- 
--	for (i = 0; i < pc->chip.npwm; i++) {
--		struct pwm_device *pwm = &pc->chip.pwms[i];
--
--		if (!pwm_is_enabled(pwm))
--			if (clk_prepare_enable(pc->clk) < 0)
--				continue;
--
--		pwm_writel(pc, i, 0);
--
--		clk_disable_unprepare(pc->clk);
--	}
--
- 	reset_control_assert(pc->rst);
- 	clk_disable_unprepare(pc->clk);
- 
+diff --git a/drivers/acpi/acpi_amba.c b/drivers/acpi/acpi_amba.c
+index 49b781a9cd97..ab8a4e0191b1 100644
+--- a/drivers/acpi/acpi_amba.c
++++ b/drivers/acpi/acpi_amba.c
+@@ -76,6 +76,7 @@ static int amba_handler_attach(struct acpi_device *adev,
+ 		case IORESOURCE_MEM:
+ 			if (!address_found) {
+ 				dev->res = *rentry->res;
++				dev->res.name = dev_name(&dev->dev);
+ 				address_found = true;
+ 			}
+ 			break;
 -- 
 2.30.2
 
