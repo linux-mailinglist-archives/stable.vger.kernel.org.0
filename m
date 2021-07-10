@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E6103C2F03
-	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:28:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A5103C2F4D
+	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:29:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232335AbhGJCaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:30:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42146 "EHLO mail.kernel.org"
+        id S233308AbhGJCbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:31:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234317AbhGJC3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234318AbhGJC3W (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:29:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B3D461437;
-        Sat, 10 Jul 2021 02:25:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F1C061419;
+        Sat, 10 Jul 2021 02:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625883944;
-        bh=3l0hm/n+PZ0Ti6m3rzVF1Hvo6vMMTW5neVE/CU70Buc=;
+        s=k20201202; t=1625883946;
+        bh=ryTTaVA44sGuLatGbFmEcoxmJyTLZaMZkUGnrbDWVsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+Q+BtW9ZSxXgVZCK6YABOWb6YUwR2rGVS7n6PdVtbxAcocKRdYOxupMWTiKxnnky
-         Mz5kIoZnV4DPCifqIsPZbJY9fGCaDh7/tvtLU/PoTBuzlQm7LtcONUZ41/iK9J9VyE
-         2+lJPWBheJySEtcVZXyxOU/Md4ObpuXT3SB1kz5+LbVMZ7LzXW9XGfVSS9NFq8xbEq
-         r451Y7to8LtLIgdqRHCY/GQQQH1s6NZzCo1WkV6nAuydLp1yMVGifwL8tqnHaKIpPL
-         ihHbHwYvxNP5VUw9Nw3Rrtj0NF9gNvCoAKuc8+vtk2l7EahgOta8nacmi4QeztggLT
-         3FAcU5XHg0MGw==
+        b=bCMQSpbKGPDE0Qd7nMh+MB6aFoxO4WoJhCUpXYz4nFkK+n+RHlwyd7IOdXkGdBrMI
+         5kQ7t+xmf2yAPm3e0FPvrqTLfTu86DkGdbH0KxBdm2euvm+ir+uxro7Pd7RGvePzYN
+         RzYTVXSJxZZ17+R8wwEV2vX3MtZbh1uxeUoF2Z1oS27judiiYg6EESkLnhrf6CK1+Q
+         XFMBOidRY/I9ymir+ONaG8hUpW50ZGkhFsIMGhoyee59zRM1/9/ttcizq67/FEvX5Q
+         0dZC+2HsjlUoS9Tpuki4Ybvt8fLN03MLO7rztTE7Jy1t6A44ueonYtJvgsEyPSinpK
+         cc+Hv3hPqnhKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaroslav Kysela <perex@perex.cz>, Mark Brown <broonie@kernel.org>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 58/93] ASoC: soc-pcm: fix the return value in dpcm_apply_symmetry()
-Date:   Fri,  9 Jul 2021 22:23:52 -0400
-Message-Id: <20210710022428.3169839-58-sashal@kernel.org>
+Cc:     Srinivas Neeli <srinivas.neeli@xilinx.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 59/93] gpio: zynq: Check return value of pm_runtime_get_sync
+Date:   Fri,  9 Jul 2021 22:23:53 -0400
+Message-Id: <20210710022428.3169839-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710022428.3169839-1-sashal@kernel.org>
 References: <20210710022428.3169839-1-sashal@kernel.org>
@@ -42,37 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaroslav Kysela <perex@perex.cz>
+From: Srinivas Neeli <srinivas.neeli@xilinx.com>
 
-[ Upstream commit 12ffd726824a2f52486f72338b6fd3244b512959 ]
+[ Upstream commit a51b2fb94b04ab71e53a71b9fad03fa826941254 ]
 
-In case, where the loops are not executed for a reason, the uninitialized
-variable 'err' is returned to the caller. Make code fully predictible
-and assign zero in the declaration.
+Return value of "pm_runtime_get_sync" API was neither captured nor checked.
+Fixed it by capturing the return value and then checking for any warning.
 
-Signed-off-by: Jaroslav Kysela <perex@perex.cz>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20210614071746.1787072-1-perex@perex.cz
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Addresses-Coverity: "check_return"
+Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-zynq.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 91bf33958159..8b8a9aca2912 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1738,7 +1738,7 @@ static int dpcm_apply_symmetry(struct snd_pcm_substream *fe_substream,
- 	struct snd_soc_dpcm *dpcm;
- 	struct snd_soc_pcm_runtime *fe = asoc_substream_to_rtd(fe_substream);
- 	struct snd_soc_dai *fe_cpu_dai;
--	int err;
-+	int err = 0;
- 	int i;
+diff --git a/drivers/gpio/gpio-zynq.c b/drivers/gpio/gpio-zynq.c
+index 3521c1dc3ac0..fb8684d70fe3 100644
+--- a/drivers/gpio/gpio-zynq.c
++++ b/drivers/gpio/gpio-zynq.c
+@@ -1001,8 +1001,11 @@ static int zynq_gpio_probe(struct platform_device *pdev)
+ static int zynq_gpio_remove(struct platform_device *pdev)
+ {
+ 	struct zynq_gpio *gpio = platform_get_drvdata(pdev);
++	int ret;
  
- 	/* apply symmetry for FE */
+-	pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_get_sync(&pdev->dev);
++	if (ret < 0)
++		dev_warn(&pdev->dev, "pm_runtime_get_sync() Failed\n");
+ 	gpiochip_remove(&gpio->chip);
+ 	clk_disable_unprepare(gpio->clk);
+ 	device_set_wakeup_capable(&pdev->dev, 0);
 -- 
 2.30.2
 
