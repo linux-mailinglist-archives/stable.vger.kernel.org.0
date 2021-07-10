@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D52B13C3169
+	by mail.lfdr.de (Postfix) with ESMTP id 8C87B3C3168
 	for <lists+stable@lfdr.de>; Sat, 10 Jul 2021 04:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232917AbhGJClT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Jul 2021 22:41:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58448 "EHLO mail.kernel.org"
+        id S234850AbhGJClR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Jul 2021 22:41:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235808AbhGJCjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235811AbhGJCjr (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 9 Jul 2021 22:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 000B061437;
-        Sat, 10 Jul 2021 02:36:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 245D461441;
+        Sat, 10 Jul 2021 02:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1625884568;
-        bh=QeLUFQxy6JlMBjtj8OBi4oV5VQjWo0ufIQd5sr2UTYw=;
+        s=k20201202; t=1625884569;
+        bh=Dij0Ao0YicGgV1e19xlHHk5GMgXy4+H8nCFRBrXWngI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=br5GaZcGNQ8ts+I3CE6PgJka1pj7uhIPor8RuPw6b/liiMMUXjwyaDQLQYcqPAvIL
-         pjPCHqLETYS0p8nyMJYIHk9Zo8ubzCvDIAVsX1InZu4FtQEC6TxkkJWY5m+A6yhj2O
-         e2jU+OojieZbbOPWNTJJH61pVC0yLJ3aCff8STU5OjFMBzx5S9/GWAZUiB05lVFgwN
-         FhvLYmL9lNRT6KbygMHG+WQpozZnRnMHS8Frbo5lFPnktLBFH/mxRDGN3n9aMiOU2f
-         DA4E4c0GfxNOJosicuog4IIZ5TNMe3sAQAMWtRs+NrMVwZWzYQwYlY/kFplHegiJ93
-         htFV8AYuXE0ig==
+        b=OQQzjIdj0LBndY8RX82A1Rqv+tKymV2G9hPeh74fvTKGWcE2BuOqBnSgPW9CCy1G3
+         s4PjGzBBXPzy5EpUTei2vf2khNAsio0KVat17SOamaF6zZMs/LHT9ll8y1dubUuvFf
+         47X8M3GkSlgHWfQbdHV3jDYxVb4PBeKn9j1dRfnCa5DBrCwtq1vXJGOqeI3JvbjP6K
+         D16Fp6AQMw1N0NkM7pJ9DFFcwsROBaiQWqv8D5+XyG1C0EKfmjyHccAe/2rn1E22AJ
+         DgtDkwxe5TRqXmqwpO8/fn3ZGpPThVM/NLF1tWugMqNEk+XIw/h/MKQp12XDo1Yrcq
+         DysbXf0L46kNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 03/26] Revert "ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro"
-Date:   Fri,  9 Jul 2021 22:35:41 -0400
-Message-Id: <20210710023604.3172486-3-sashal@kernel.org>
+Cc:     Sergey Shtylyov <s.shtylyov@omp.ru>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 04/26] scsi: hisi_sas: Propagate errors in interrupt_init_v1_hw()
+Date:   Fri,  9 Jul 2021 22:35:42 -0400
+Message-Id: <20210710023604.3172486-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710023604.3172486-1-sashal@kernel.org>
 References: <20210710023604.3172486-1-sashal@kernel.org>
@@ -42,78 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 5d6fb80a142b5994355ce675c517baba6089d199 ]
+[ Upstream commit ab17122e758ef68fb21033e25c041144067975f5 ]
 
-This reverts commit 0edabdfe89581669609eaac5f6a8d0ae6fe95e7f.
+After commit 6c11dc060427 ("scsi: hisi_sas: Fix IRQ checks") we have the
+error codes returned by platform_get_irq() ready for the propagation
+upsream in interrupt_init_v1_hw() -- that will fix still broken deferred
+probing. Let's propagate the error codes from devm_request_irq() as well
+since I don't see the reason to override them with -ENOENT...
 
-I've explained that optional FireWire card for d.2 is also built-in to
-d.2 Pro, however it's wrong. The optional card uses DM1000 ASIC and has
-'Mackie DJ Mixer' in its model name of configuration ROM. On the other
-hand, built-in FireWire card for d.2 Pro and d.4 Pro uses OXFW971 ASIC
-and has 'd.Pro' in its model name according to manuals and user
-experiences. The former card is not the card for d.2 Pro. They are similar
-in appearance but different internally.
-
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210518084557.102681-2-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/49ba93a3-d427-7542-d85a-b74fe1a33a73@omp.ru
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/Kconfig       | 4 ++--
- sound/firewire/bebob/bebob.c | 2 +-
- sound/firewire/oxfw/oxfw.c   | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/sound/firewire/Kconfig b/sound/firewire/Kconfig
-index f7b8dcb57815..da9874d54676 100644
---- a/sound/firewire/Kconfig
-+++ b/sound/firewire/Kconfig
-@@ -36,7 +36,7 @@ config SND_OXFW
- 	   * Mackie(Loud) Onyx-i series (former models)
- 	   * Mackie(Loud) Onyx Satellite
- 	   * Mackie(Loud) Tapco Link.Firewire
--	   * Mackie(Loud) d.4 pro
-+	   * Mackie(Loud) d.2 pro/d.4 pro (built-in FireWire card with OXFW971 ASIC)
- 	   * Mackie(Loud) U.420/U.420d
- 	   * TASCAM FireOne
- 	   * Stanton Controllers & Systems 1 Deck/Mixer
-@@ -82,7 +82,7 @@ config SND_BEBOB
- 	  * PreSonus FIREBOX/FIREPOD/FP10/Inspire1394
- 	  * BridgeCo RDAudio1/Audio5
- 	  * Mackie Onyx 1220/1620/1640 (FireWire I/O Card)
--	  * Mackie d.2 (FireWire Option) and d.2 Pro
-+	  * Mackie d.2 (optional FireWire card with DM1000 ASIC)
- 	  * Stanton FinalScratch 2 (ScratchAmp)
- 	  * Tascam IF-FW/DM
- 	  * Behringer XENIX UFX 1204/1604
-diff --git a/sound/firewire/bebob/bebob.c b/sound/firewire/bebob/bebob.c
-index 9d620a7c283f..c51564213365 100644
---- a/sound/firewire/bebob/bebob.c
-+++ b/sound/firewire/bebob/bebob.c
-@@ -414,7 +414,7 @@ static const struct ieee1394_device_id bebob_id_table[] = {
- 	SND_BEBOB_DEV_ENTRY(VEN_BRIDGECO, 0x00010049, &spec_normal),
- 	/* Mackie, Onyx 1220/1620/1640 (Firewire I/O Card) */
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE2, 0x00010065, &spec_normal),
--	// Mackie, d.2 (Firewire option card) and d.2 Pro (the card is built-in).
-+	// Mackie, d.2 (optional Firewire card with DM1000).
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE1, 0x00010067, &spec_normal),
- 	/* Stanton, ScratchAmp */
- 	SND_BEBOB_DEV_ENTRY(VEN_STANTON, 0x00000001, &spec_normal),
-diff --git a/sound/firewire/oxfw/oxfw.c b/sound/firewire/oxfw/oxfw.c
-index 44ecf2f5f65f..e2932ac9d487 100644
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -405,7 +405,7 @@ static const struct ieee1394_device_id oxfw_id_table[] = {
- 	 *  Onyx-i series (former models):	0x081216
- 	 *  Mackie Onyx Satellite:		0x00200f
- 	 *  Tapco LINK.firewire 4x6:		0x000460
--	 *  d.4 pro:				Unknown
-+	 *  d.2 pro/d.4 pro (built-in card):	Unknown
- 	 *  U.420:				Unknown
- 	 *  U.420d:				Unknown
- 	 */
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index c0ac49d8bc8d..5c49806a7ae3 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1709,7 +1709,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 				dev_err(dev,
+ 					"irq init: fail map phy interrupt %d\n",
+ 					idx);
+-				return -ENOENT;
++				return irq;
+ 			}
+ 
+ 			rc = devm_request_irq(dev, irq, phy_interrupts[j], 0,
+@@ -1718,7 +1718,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 				dev_err(dev, "irq init: could not request "
+ 					"phy interrupt %d, rc=%d\n",
+ 					irq, rc);
+-				return -ENOENT;
++				return rc;
+ 			}
+ 		}
+ 	}
+@@ -1729,7 +1729,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (!irq) {
+ 			dev_err(dev, "irq init: could not map cq interrupt %d\n",
+ 				idx);
+-			return -ENOENT;
++			return irq;
+ 		}
+ 
+ 		rc = devm_request_irq(dev, irq, cq_interrupt_v1_hw, 0,
+@@ -1737,7 +1737,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (rc) {
+ 			dev_err(dev, "irq init: could not request cq interrupt %d, rc=%d\n",
+ 				irq, rc);
+-			return -ENOENT;
++			return rc;
+ 		}
+ 	}
+ 
+@@ -1747,7 +1747,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (!irq) {
+ 			dev_err(dev, "irq init: could not map fatal interrupt %d\n",
+ 				idx);
+-			return -ENOENT;
++			return irq;
+ 		}
+ 
+ 		rc = devm_request_irq(dev, irq, fatal_interrupts[i], 0,
+@@ -1756,7 +1756,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 			dev_err(dev,
+ 				"irq init: could not request fatal interrupt %d, rc=%d\n",
+ 				irq, rc);
+-			return -ENOENT;
++			return rc;
+ 		}
+ 	}
+ 
 -- 
 2.30.2
 
