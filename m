@@ -2,64 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2EAE3C3CB6
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 15:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 857563C3CB8
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 15:04:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232730AbhGKNFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 09:05:31 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:50185 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231658AbhGKNFb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 09:05:31 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id 0ACA51AC057C;
-        Sun, 11 Jul 2021 09:02:43 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Sun, 11 Jul 2021 09:02:44 -0400
+        id S232554AbhGKNHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 09:07:06 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:55693 "EHLO
+        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231658AbhGKNHF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 09:07:05 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id D845919405A7;
+        Sun, 11 Jul 2021 09:04:18 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Sun, 11 Jul 2021 09:04:18 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aUKr21
-        NLCkAXgjYUexlJd0+LsCdRq9Afnzp/TGDIWFE=; b=YjaTqSTFJi4FY3ufq0JhU2
-        c8Qoy4FDkrxTHXL2TpzJOo/vuSmawqdZQgevJoL/zaa0wF8RCw+tLtJLKCMEgbxL
-        8OrTwPnrSUrxRAvQErSO9U7jtvJw4BYqUmNkFEvgmEX6Jvu2M+dWqLJD8DRu10wZ
-        T2UPh55qTC47D4xHCjAbrhmXMvWy6VLe8fM7ZE8DnVYXM+MhMFq/6vf70sF8Ld+V
-        1O7AMM1NHdBaS07Ji/VAUXoK75M9G4OwLldbwFfDD/MByGnNiXWATYjKfcRwkxA+
-        TM5Ra17jHaMC3/G2cDbf3vm7U6mYgqngGOv4w9kgTbiI/Co6GdYtLuYGZeD92nTg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Mnifqe
+        j9fi0mvIucmzi9I/BUY/yqsOJ1QxdJhPoFp9g=; b=UETsjHetS0dFrIvx2KhTww
+        +KE7SZ6K9zLy1hfahO3WEM/qvKTT1q/LrbcSQCHKhHLXSWK6bSX8ezMun3rxoNuY
+        whjY5vVJuinmTiuaRL+rIwZhXGcv2R3yWN+tQOmjXNur7Z1Z7r9tgs9o2t+yu3P7
+        86L4oWT6geURgTNcLhnC9nuWXF2LOkJSC/qWx2SKmljQ1PdNM6HxnVSHE60b5g9+
+        ShHa4nEIG6UDUEHqz+cR/xtaB2YJT+QGfnhGT7CJdk2uyWotqkjTPrLd9ZYsMEre
+        yNoiRmyXWIbU1dapQfyk4U2IxOZWrccHL9/iP7u1U0pz4shcjOgjvs4hsGohvfIQ
         ==
-X-ME-Sender: <xms:8-vqYLZigoi0aitqIqnOH90CB9HkVb2Pyx09t98MooMCAW6YOPnTIA>
-    <xme:8-vqYKan8V_b-bDztdvjmfxcCtTPTQ6pwMggEtJhSTg3IcePuCip1s8AKahBwVkO_
-    jkUEVpbXC5WxA>
-X-ME-Received: <xmr:8-vqYN_d626yDkL0ahOObREdxhibbDFtE2jXan0lzMah5UI3XxH61y1Hg9koR78IqrS8df6rz-u6nwDgvINhwPNXlg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehkecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:UuzqYNPxTnIQpc9HUVA8m100SyTikYqBMNiJRbpoDswsNOa0a_V_3Q>
+    <xme:UuzqYP-kWskIkO93zXUhA1f06YkfkjxW_nxErMMyVw5d9inAGVNdJwNPYkTfBN1x6
+    Fiu5JGrljY6Iw>
+X-ME-Received: <xmr:UuzqYMSySWA2wyWVzso--7XqYdMVN4NTbzNYpb0nwvTSBi2uzB9QKfzqcvdk7NzmUM49aOlqQSbSIO7ZP3c9hMkM-w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehlecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeekjefgffetgfevgeeghedugfelheektdehtdeihfeile
-    eiteevjedvgfdvleejleenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:8-vqYBo-O1QdIcIi2lZBl6Jy4bwZRmF8f-rmwfuB1RU_lgZOhnblRA>
-    <xmx:8-vqYGqRQB-bcC3-WtRrAwCqPZ3H_el-5GEUmOc-eKI4y3VxUkL9gA>
-    <xmx:8-vqYHTCwcvssKi3TV1UgnmfIkKNMGFRnZL8TCE4wXUSj6GBYbxwgw>
-    <xmx:8-vqYLAyTuLbM9CyYQn3ahP7uUNHfS9SCmABB8DAcChVjJoJakuGOff4Jlo>
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgr
+    ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:UuzqYJuhkD_FENCG0n5n9PNollbLXOlqUuzXSZIyOsrH_kfV4f6NYg>
+    <xmx:UuzqYFfV7aJEtANMvQ-F44TwuMsOyIJpzgr2ap8bODY05tlVnNaknw>
+    <xmx:UuzqYF2cCqy8mHz4JAs0V2vD5CrMzqfmGnImJkMaoLvnk8sj3sm9EA>
+    <xmx:UuzqYEzUmr5VMMyQ7qEn9EIhD_9BqQd8pm1P40rgM8HJsbqmHw7Aww>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 09:02:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] serial: mvebu-uart: fix calculation of clock divisor" failed to apply to 4.19-stable tree
-To:     pali@kernel.org, gregkh@linuxfoundation.org
+ 11 Jul 2021 09:04:18 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Revert "drm/amd/display: Fix overlay validation by" failed to apply to 5.13-stable tree
+To:     Rodrigo.Siqueira@amd.com, Harry.Wentland@amd.com,
+        Nicholas.Kazlauskas@amd.com, alexander.deucher@amd.com,
+        gregkh@linuxfoundation.org, harry.wentland@amd.com,
+        hersenxs.wu@amd.com, markyacoub@chromium.org, seanpaul@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 15:02:41 +0200
-Message-ID: <16260085611907@kroah.com>
+Date:   Sun, 11 Jul 2021 15:04:17 +0200
+Message-ID: <1626008657175201@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,33 +72,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9078204ca5c33ba20443a8623a41a68a9995a70d Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Date: Fri, 25 Jun 2021 00:49:00 +0200
-Subject: [PATCH] serial: mvebu-uart: fix calculation of clock divisor
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From e7d9560aeae51415f6c9bc343feb783a441ff4c5 Mon Sep 17 00:00:00 2001
+From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Date: Wed, 16 Jun 2021 12:21:30 -0400
+Subject: [PATCH] Revert "drm/amd/display: Fix overlay validation by
+ considering cursors"
 
-The clock divisor should be rounded to the closest value.
+This reverts commit 33f409e60eb0c59a4d0d06a62ab4642a988e17f7.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
-Cc: stable@vger.kernel.org # 0e4cf69ede87 ("serial: mvebu-uart: clarify the baud rate derivation")
-Link: https://lore.kernel.org/r/20210624224909.6350-2-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The patch that we are reverting here was originally applied because it
+fixes multiple IGT issues and flickering in Android. However, after a
+discussion with Sean Paul and Mark, it looks like that this patch might
+cause problems on ChromeOS. For this reason, we decided to revert this
+patch.
 
-diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
-index 04c41689d81c..f3ecbcf495ee 100644
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -463,7 +463,7 @@ static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
- 	 * makes use of D to configure the desired baudrate.
- 	 */
- 	m_divisor = OSAMP_DEFAULT_DIVISOR;
--	d_divisor = DIV_ROUND_UP(port->uartclk, baud * m_divisor);
-+	d_divisor = DIV_ROUND_CLOSEST(port->uartclk, baud * m_divisor);
+Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Cc: Harry Wentland <Harry.Wentland@amd.com>
+Cc: Hersen Wu <hersenxs.wu@amd.com>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Mark Yacoub <markyacoub@chromium.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 2688a2e759de..cfb2f9e43661 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -10120,8 +10120,8 @@ static int validate_overlay(struct drm_atomic_state *state)
+ {
+ 	int i;
+ 	struct drm_plane *plane;
+-	struct drm_plane_state *new_plane_state;
+-	struct drm_plane_state *primary_state, *cursor_state, *overlay_state = NULL;
++	struct drm_plane_state *old_plane_state, *new_plane_state;
++	struct drm_plane_state *primary_state, *overlay_state = NULL;
  
- 	brdv = readl(port->membase + UART_BRDV);
- 	brdv &= ~BRDV_BAUD_MASK;
+ 	/* Check if primary plane is contained inside overlay */
+ 	for_each_new_plane_in_state_reverse(state, plane, new_plane_state, i) {
+@@ -10151,14 +10151,6 @@ static int validate_overlay(struct drm_atomic_state *state)
+ 	if (!primary_state->crtc)
+ 		return 0;
+ 
+-	/* check if cursor plane is enabled */
+-	cursor_state = drm_atomic_get_plane_state(state, overlay_state->crtc->cursor);
+-	if (IS_ERR(cursor_state))
+-		return PTR_ERR(cursor_state);
+-
+-	if (drm_atomic_plane_disabling(plane->state, cursor_state))
+-		return 0;
+-
+ 	/* Perform the bounds check to ensure the overlay plane covers the primary */
+ 	if (primary_state->crtc_x < overlay_state->crtc_x ||
+ 	    primary_state->crtc_y < overlay_state->crtc_y ||
 
