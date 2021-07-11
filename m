@@ -2,554 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0978A3C3BCC
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 13:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAE663C3BD0
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 13:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232692AbhGKLYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 07:24:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45090 "EHLO mail.kernel.org"
+        id S232679AbhGKLYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 07:24:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232679AbhGKLYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Jul 2021 07:24:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E424661209;
-        Sun, 11 Jul 2021 11:21:44 +0000 (UTC)
+        id S232718AbhGKLYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Jul 2021 07:24:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 454186121E;
+        Sun, 11 Jul 2021 11:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626002505;
-        bh=eJBeppZLNhGymhUYxKLnmnrjXgoqnuHMvm3b6U3HqPo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y4PSFoDaX2CeA1FkMyGrtPy1cx+qx1nhwGzJ7lzTXV6REzGLbds8KGOJyR1MHEFQC
-         pt3ET5Qp0RcZmuSTiKVRTPOSxlw6B4KsAdtfSAkUdmJEl+6TUtyu0jMMp/HDtR8qL5
-         x9lZMHfKy9pYE64qYmLqPbVVQQmKokxoCmlG2I7Q=
+        s=korg; t=1626002507;
+        bh=pEBQuiYjo/xtO5EydGk0IA+q+EOm3AqGl4c8P0RH/Qg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XazSU8kCRvpFSHzqTmNKAZpgZKX3p3v8VRUt8YzRvuQCVZZ/AOg3tkUcZZ0FGnyN5
+         PGUO4dOC21eXOOpi0vD4aslFCUPbUlY+sfjbfykSeT4MY7JYYA0NJ1GDUJDIqJN/bm
+         a6qeb4fWhCayM3cn2GkX+FKDsvScbCEriEYU3G7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.10.49
-Date:   Sun, 11 Jul 2021 13:21:37 +0200
-Message-Id: <162600249586135@kroah.com>
+Subject: Linux 5.12.16
+Date:   Sun, 11 Jul 2021 13:21:42 +0200
+Message-Id: <1626002501134199@kroah.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <16260024956466@kroah.com>
-References: <16260024956466@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 52dcfe3371c4..c51b73455ea3 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 10
--SUBLEVEL = 48
-+SUBLEVEL = 49
- EXTRAVERSION =
- NAME = Dare mighty things
- 
-diff --git a/arch/hexagon/Makefile b/arch/hexagon/Makefile
-index c168c6980d05..74b644ea8a00 100644
---- a/arch/hexagon/Makefile
-+++ b/arch/hexagon/Makefile
-@@ -10,6 +10,9 @@ LDFLAGS_vmlinux += -G0
- # Do not use single-byte enums; these will overflow.
- KBUILD_CFLAGS += -fno-short-enums
- 
-+# We must use long-calls:
-+KBUILD_CFLAGS += -mlong-calls
-+
- # Modules must use either long-calls, or use pic/plt.
- # Use long-calls for now, it's easier.  And faster.
- # KBUILD_CFLAGS_MODULE += -fPIC
-@@ -30,9 +33,6 @@ TIR_NAME := r19
- KBUILD_CFLAGS += -ffixed-$(TIR_NAME) -DTHREADINFO_REG=$(TIR_NAME) -D__linux__
- KBUILD_AFLAGS += -DTHREADINFO_REG=$(TIR_NAME)
- 
--LIBGCC := $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name 2>/dev/null)
--libs-y += $(LIBGCC)
--
- head-y := arch/hexagon/kernel/head.o
- 
- core-y += arch/hexagon/kernel/ \
-diff --git a/arch/hexagon/include/asm/futex.h b/arch/hexagon/include/asm/futex.h
-index 6b9c554aee78..9fb00a0ae89f 100644
---- a/arch/hexagon/include/asm/futex.h
-+++ b/arch/hexagon/include/asm/futex.h
-@@ -21,7 +21,7 @@
- 	"3:\n" \
- 	".section .fixup,\"ax\"\n" \
- 	"4: %1 = #%5;\n" \
--	"   jump 3b\n" \
-+	"   jump ##3b\n" \
- 	".previous\n" \
- 	".section __ex_table,\"a\"\n" \
- 	".long 1b,4b,2b,4b\n" \
-@@ -90,7 +90,7 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr, u32 oldval,
- 	"3:\n"
- 	".section .fixup,\"ax\"\n"
- 	"4: %0 = #%6\n"
--	"   jump 3b\n"
-+	"   jump ##3b\n"
- 	".previous\n"
- 	".section __ex_table,\"a\"\n"
- 	".long 1b,4b,2b,4b\n"
-diff --git a/arch/hexagon/include/asm/timex.h b/arch/hexagon/include/asm/timex.h
-index 78338d8ada83..8d4ec76fceb4 100644
---- a/arch/hexagon/include/asm/timex.h
-+++ b/arch/hexagon/include/asm/timex.h
-@@ -8,6 +8,7 @@
- 
- #include <asm-generic/timex.h>
- #include <asm/timer-regs.h>
-+#include <asm/hexagon_vm.h>
- 
- /* Using TCX0 as our clock.  CLOCK_TICK_RATE scheduled to be removed. */
- #define CLOCK_TICK_RATE              TCX0_CLK_RATE
-@@ -16,7 +17,7 @@
- 
- static inline int read_current_timer(unsigned long *timer_val)
- {
--	*timer_val = (unsigned long) __vmgettime();
-+	*timer_val = __vmgettime();
- 	return 0;
- }
- 
-diff --git a/arch/hexagon/kernel/hexagon_ksyms.c b/arch/hexagon/kernel/hexagon_ksyms.c
-index 6fb1aaab1c29..35545a7386a0 100644
---- a/arch/hexagon/kernel/hexagon_ksyms.c
-+++ b/arch/hexagon/kernel/hexagon_ksyms.c
-@@ -35,8 +35,8 @@ EXPORT_SYMBOL(_dflt_cache_att);
- DECLARE_EXPORT(__hexagon_memcpy_likely_aligned_min32bytes_mult8bytes);
- 
- /* Additional functions */
--DECLARE_EXPORT(__divsi3);
--DECLARE_EXPORT(__modsi3);
--DECLARE_EXPORT(__udivsi3);
--DECLARE_EXPORT(__umodsi3);
-+DECLARE_EXPORT(__hexagon_divsi3);
-+DECLARE_EXPORT(__hexagon_modsi3);
-+DECLARE_EXPORT(__hexagon_udivsi3);
-+DECLARE_EXPORT(__hexagon_umodsi3);
- DECLARE_EXPORT(csum_tcpudp_magic);
-diff --git a/arch/hexagon/kernel/ptrace.c b/arch/hexagon/kernel/ptrace.c
-index a5a89e944257..8975f9b4cedf 100644
---- a/arch/hexagon/kernel/ptrace.c
-+++ b/arch/hexagon/kernel/ptrace.c
-@@ -35,7 +35,7 @@ void user_disable_single_step(struct task_struct *child)
- 
- static int genregs_get(struct task_struct *target,
- 		   const struct user_regset *regset,
--		   srtuct membuf to)
-+		   struct membuf to)
- {
- 	struct pt_regs *regs = task_pt_regs(target);
- 
-@@ -54,7 +54,7 @@ static int genregs_get(struct task_struct *target,
- 	membuf_store(&to, regs->m0);
- 	membuf_store(&to, regs->m1);
- 	membuf_store(&to, regs->usr);
--	membuf_store(&to, regs->p3_0);
-+	membuf_store(&to, regs->preds);
- 	membuf_store(&to, regs->gp);
- 	membuf_store(&to, regs->ugp);
- 	membuf_store(&to, pt_elr(regs)); // pc
-diff --git a/arch/hexagon/lib/Makefile b/arch/hexagon/lib/Makefile
-index 54be529d17a2..a64641e89d5f 100644
---- a/arch/hexagon/lib/Makefile
-+++ b/arch/hexagon/lib/Makefile
-@@ -2,4 +2,5 @@
- #
- # Makefile for hexagon-specific library files.
- #
--obj-y = checksum.o io.o memcpy.o memset.o
-+obj-y = checksum.o io.o memcpy.o memset.o memcpy_likely_aligned.o \
-+         divsi3.o modsi3.o udivsi3.o  umodsi3.o
-diff --git a/arch/hexagon/lib/divsi3.S b/arch/hexagon/lib/divsi3.S
-new file mode 100644
-index 000000000000..783e09424c2c
---- /dev/null
-+++ b/arch/hexagon/lib/divsi3.S
-@@ -0,0 +1,67 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) 2021, The Linux Foundation. All rights reserved.
-+ */
-+
-+#include <linux/linkage.h>
-+
-+SYM_FUNC_START(__hexagon_divsi3)
-+        {
-+                p0 = cmp.gt(r0,#-1)
-+                p1 = cmp.gt(r1,#-1)
-+                r3:2 = vabsw(r1:0)
-+        }
-+        {
-+                p3 = xor(p0,p1)
-+                r4 = sub(r2,r3)
-+                r6 = cl0(r2)
-+                p0 = cmp.gtu(r3,r2)
-+        }
-+        {
-+                r0 = mux(p3,#-1,#1)
-+                r7 = cl0(r3)
-+                p1 = cmp.gtu(r3,r4)
-+        }
-+        {
-+                r0 = mux(p0,#0,r0)
-+                p0 = or(p0,p1)
-+                if (p0.new) jumpr:nt r31
-+                r6 = sub(r7,r6)
-+        }
-+        {
-+                r7 = r6
-+                r5:4 = combine(#1,r3)
-+                r6 = add(#1,lsr(r6,#1))
-+                p0 = cmp.gtu(r6,#4)
-+        }
-+        {
-+                r5:4 = vaslw(r5:4,r7)
-+                if (!p0) r6 = #3
-+        }
-+        {
-+                loop0(1f,r6)
-+                r7:6 = vlsrw(r5:4,#1)
-+                r1:0 = #0
-+        }
-+        .falign
-+1:
-+        {
-+                r5:4 = vlsrw(r5:4,#2)
-+                if (!p0.new) r0 = add(r0,r5)
-+                if (!p0.new) r2 = sub(r2,r4)
-+                p0 = cmp.gtu(r4,r2)
-+        }
-+        {
-+                r7:6 = vlsrw(r7:6,#2)
-+                if (!p0.new) r0 = add(r0,r7)
-+                if (!p0.new) r2 = sub(r2,r6)
-+                p0 = cmp.gtu(r6,r2)
-+        }:endloop0
-+        {
-+                if (!p0) r0 = add(r0,r7)
-+        }
-+        {
-+                if (p3) r0 = sub(r1,r0)
-+                jumpr r31
-+        }
-+SYM_FUNC_END(__hexagon_divsi3)
-diff --git a/arch/hexagon/lib/memcpy_likely_aligned.S b/arch/hexagon/lib/memcpy_likely_aligned.S
-new file mode 100644
-index 000000000000..6a541fb90a54
---- /dev/null
-+++ b/arch/hexagon/lib/memcpy_likely_aligned.S
-@@ -0,0 +1,56 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) 2021, The Linux Foundation. All rights reserved.
-+ */
-+
-+#include <linux/linkage.h>
-+
-+SYM_FUNC_START(__hexagon_memcpy_likely_aligned_min32bytes_mult8bytes)
-+        {
-+                p0 = bitsclr(r1,#7)
-+                p0 = bitsclr(r0,#7)
-+                if (p0.new) r5:4 = memd(r1)
-+                if (p0.new) r7:6 = memd(r1+#8)
-+        }
-+        {
-+                if (!p0) jump:nt .Lmemcpy_call
-+                if (p0) r9:8 = memd(r1+#16)
-+                if (p0) r11:10 = memd(r1+#24)
-+                p0 = cmp.gtu(r2,#64)
-+        }
-+        {
-+                if (p0) jump:nt .Lmemcpy_call
-+                if (!p0) memd(r0) = r5:4
-+                if (!p0) memd(r0+#8) = r7:6
-+                p0 = cmp.gtu(r2,#32)
-+        }
-+        {
-+                p1 = cmp.gtu(r2,#40)
-+                p2 = cmp.gtu(r2,#48)
-+                if (p0) r13:12 = memd(r1+#32)
-+                if (p1.new) r15:14 = memd(r1+#40)
-+        }
-+        {
-+                memd(r0+#16) = r9:8
-+                memd(r0+#24) = r11:10
-+        }
-+        {
-+                if (p0) memd(r0+#32) = r13:12
-+                if (p1) memd(r0+#40) = r15:14
-+                if (!p2) jumpr:t r31
-+        }
-+        {
-+                p0 = cmp.gtu(r2,#56)
-+                r5:4 = memd(r1+#48)
-+                if (p0.new) r7:6 = memd(r1+#56)
-+        }
-+        {
-+                memd(r0+#48) = r5:4
-+                if (p0) memd(r0+#56) = r7:6
-+                jumpr r31
-+        }
-+
-+.Lmemcpy_call:
-+        jump memcpy
-+
-+SYM_FUNC_END(__hexagon_memcpy_likely_aligned_min32bytes_mult8bytes)
-diff --git a/arch/hexagon/lib/modsi3.S b/arch/hexagon/lib/modsi3.S
-new file mode 100644
-index 000000000000..9ea1c86efac2
---- /dev/null
-+++ b/arch/hexagon/lib/modsi3.S
-@@ -0,0 +1,46 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) 2021, The Linux Foundation. All rights reserved.
-+ */
-+
-+#include <linux/linkage.h>
-+
-+SYM_FUNC_START(__hexagon_modsi3)
-+        {
-+                p2 = cmp.ge(r0,#0)
-+                r2 = abs(r0)
-+                r1 = abs(r1)
-+        }
-+        {
-+                r3 = cl0(r2)
-+                r4 = cl0(r1)
-+                p0 = cmp.gtu(r1,r2)
-+        }
-+        {
-+                r3 = sub(r4,r3)
-+                if (p0) jumpr r31
-+        }
-+        {
-+                p1 = cmp.eq(r3,#0)
-+                loop0(1f,r3)
-+                r0 = r2
-+                r2 = lsl(r1,r3)
-+        }
-+        .falign
-+1:
-+        {
-+                p0 = cmp.gtu(r2,r0)
-+                if (!p0.new) r0 = sub(r0,r2)
-+                r2 = lsr(r2,#1)
-+                if (p1) r1 = #0
-+        }:endloop0
-+        {
-+                p0 = cmp.gtu(r2,r0)
-+                if (!p0.new) r0 = sub(r0,r1)
-+                if (p2) jumpr r31
-+        }
-+        {
-+                r0 = neg(r0)
-+                jumpr r31
-+        }
-+SYM_FUNC_END(__hexagon_modsi3)
-diff --git a/arch/hexagon/lib/udivsi3.S b/arch/hexagon/lib/udivsi3.S
-new file mode 100644
-index 000000000000..477f27b9311c
---- /dev/null
-+++ b/arch/hexagon/lib/udivsi3.S
-@@ -0,0 +1,38 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) 2021, The Linux Foundation. All rights reserved.
-+ */
-+
-+#include <linux/linkage.h>
-+
-+SYM_FUNC_START(__hexagon_udivsi3)
-+        {
-+                r2 = cl0(r0)
-+                r3 = cl0(r1)
-+                r5:4 = combine(#1,#0)
-+                p0 = cmp.gtu(r1,r0)
-+        }
-+        {
-+                r6 = sub(r3,r2)
-+                r4 = r1
-+                r1:0 = combine(r0,r4)
-+                if (p0) jumpr r31
-+        }
-+        {
-+                r3:2 = vlslw(r5:4,r6)
-+                loop0(1f,r6)
-+        }
-+        .falign
-+1:
-+        {
-+                p0 = cmp.gtu(r2,r1)
-+                if (!p0.new) r1 = sub(r1,r2)
-+                if (!p0.new) r0 = add(r0,r3)
-+                r3:2 = vlsrw(r3:2,#1)
-+        }:endloop0
-+        {
-+                p0 = cmp.gtu(r2,r1)
-+                if (!p0.new) r0 = add(r0,r3)
-+                jumpr r31
-+        }
-+SYM_FUNC_END(__hexagon_udivsi3)
-diff --git a/arch/hexagon/lib/umodsi3.S b/arch/hexagon/lib/umodsi3.S
-new file mode 100644
-index 000000000000..280bf06a55e7
---- /dev/null
-+++ b/arch/hexagon/lib/umodsi3.S
-@@ -0,0 +1,36 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) 2021, The Linux Foundation. All rights reserved.
-+ */
-+
-+#include <linux/linkage.h>
-+
-+SYM_FUNC_START(__hexagon_umodsi3)
-+        {
-+                r2 = cl0(r0)
-+                r3 = cl0(r1)
-+                p0 = cmp.gtu(r1,r0)
-+        }
-+        {
-+                r2 = sub(r3,r2)
-+                if (p0) jumpr r31
-+        }
-+        {
-+                loop0(1f,r2)
-+                p1 = cmp.eq(r2,#0)
-+                r2 = lsl(r1,r2)
-+        }
-+        .falign
-+1:
-+        {
-+                p0 = cmp.gtu(r2,r0)
-+                if (!p0.new) r0 = sub(r0,r2)
-+                r2 = lsr(r2,#1)
-+                if (p1) r1 = #0
-+        }:endloop0
-+        {
-+                p0 = cmp.gtu(r2,r0)
-+                if (!p0.new) r0 = sub(r0,r1)
-+                jumpr r31
-+        }
-+SYM_FUNC_END(__hexagon_umodsi3)
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 280f7992ae99..965b702208d8 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3583,6 +3583,7 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
- 	unsigned long host_tidr = mfspr(SPRN_TIDR);
- 	unsigned long host_iamr = mfspr(SPRN_IAMR);
- 	unsigned long host_amr = mfspr(SPRN_AMR);
-+	unsigned long host_fscr = mfspr(SPRN_FSCR);
- 	s64 dec;
- 	u64 tb;
- 	int trap, save_pmu;
-@@ -3726,6 +3727,9 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
- 	if (host_amr != vcpu->arch.amr)
- 		mtspr(SPRN_AMR, host_amr);
- 
-+	if (host_fscr != vcpu->arch.fscr)
-+		mtspr(SPRN_FSCR, host_fscr);
-+
- 	msr_check_and_set(MSR_FP | MSR_VEC | MSR_VSX);
- 	store_fp_state(&vcpu->arch.fp);
- #ifdef CONFIG_ALTIVEC
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index 5ad528264135..282f3d2388cc 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -1588,6 +1588,31 @@ static int uvc_scan_chain_forward(struct uvc_video_chain *chain,
- 				return -EINVAL;
- 			}
- 
-+			/*
-+			 * Some devices reference an output terminal as the
-+			 * source of extension units. This is incorrect, as
-+			 * output terminals only have an input pin, and thus
-+			 * can't be connected to any entity in the forward
-+			 * direction. The resulting topology would cause issues
-+			 * when registering the media controller graph. To
-+			 * avoid this problem, connect the extension unit to
-+			 * the source of the output terminal instead.
-+			 */
-+			if (UVC_ENTITY_IS_OTERM(entity)) {
-+				struct uvc_entity *source;
-+
-+				source = uvc_entity_by_id(chain->dev,
-+							  entity->baSourceID[0]);
-+				if (!source) {
-+					uvc_trace(UVC_TRACE_DESCR,
-+						"Can't connect extension unit %u in chain\n",
-+						forward->id);
-+					break;
-+				}
-+
-+				forward->baSourceID[0] = source->id;
-+			}
-+
- 			list_add_tail(&forward->chain, &chain->entities);
- 			if (uvc_trace_param & UVC_TRACE_PROBE) {
- 				if (!found)
-@@ -1608,6 +1633,13 @@ static int uvc_scan_chain_forward(struct uvc_video_chain *chain,
- 				return -EINVAL;
- 			}
- 
-+			if (UVC_ENTITY_IS_OTERM(entity)) {
-+				uvc_trace(UVC_TRACE_DESCR,
-+					"Unsupported connection between output terminals %u and %u\n",
-+					entity->id, forward->id);
-+				break;
-+			}
-+
- 			list_add_tail(&forward->chain, &chain->entities);
- 			if (uvc_trace_param & UVC_TRACE_PROBE) {
- 				if (!found)
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 29bec0720514..af0f6ad32522 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -583,6 +583,9 @@ static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
- 	}
- 
- 	info->eoi_time = 0;
-+
-+	/* is_active hasn't been reset yet, do it now. */
-+	smp_store_release(&info->is_active, 0);
- 	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
- }
- 
-@@ -1807,10 +1810,22 @@ static void lateeoi_ack_dynirq(struct irq_data *data)
- 	struct irq_info *info = info_for_irq(data->irq);
- 	evtchn_port_t evtchn = info ? info->evtchn : 0;
- 
--	if (VALID_EVTCHN(evtchn)) {
--		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		ack_dynirq(data);
--	}
-+	if (!VALID_EVTCHN(evtchn))
-+		return;
-+
-+	do_mask(info, EVT_MASK_REASON_EOI_PENDING);
-+
-+	if (unlikely(irqd_is_setaffinity_pending(data)) &&
-+	    likely(!irqd_irq_disabled(data))) {
-+		do_mask(info, EVT_MASK_REASON_TEMPORARY);
-+
-+		clear_evtchn(evtchn);
-+
-+		irq_move_masked_irq(data);
-+
-+		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
-+	} else
-+		clear_evtchn(evtchn);
- }
- 
- static void lateeoi_mask_ack_dynirq(struct irq_data *data)
+I'm announcing the release of the 5.12.16 kernel.
+
+All users of the 5.12 kernel series must upgrade.
+
+The updated 5.12.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.12.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                           |    2 
+ arch/hexagon/Makefile                              |    6 
+ arch/hexagon/include/asm/futex.h                   |    4 
+ arch/hexagon/include/asm/timex.h                   |    3 
+ arch/hexagon/kernel/hexagon_ksyms.c                |    8 
+ arch/hexagon/kernel/ptrace.c                       |    4 
+ arch/hexagon/lib/Makefile                          |    3 
+ arch/hexagon/lib/divsi3.S                          |   67 ++++++
+ arch/hexagon/lib/memcpy_likely_aligned.S           |   56 +++++
+ arch/hexagon/lib/modsi3.S                          |   46 ++++
+ arch/hexagon/lib/udivsi3.S                         |   38 +++
+ arch/hexagon/lib/umodsi3.S                         |   36 +++
+ drivers/net/wireless/mediatek/mt76/dma.c           |   47 ++--
+ drivers/net/wireless/mediatek/mt76/mt76.h          |    8 
+ drivers/net/wireless/mediatek/mt76/mt7921/init.c   |    3 
+ drivers/net/wireless/mediatek/mt76/mt7921/mac.c    |  209 +++++++++++++++------
+ drivers/net/wireless/mediatek/mt76/mt7921/main.c   |   38 ++-
+ drivers/net/wireless/mediatek/mt76/mt7921/mcu.c    |   36 ++-
+ drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h |    6 
+ drivers/net/wireless/mediatek/mt76/mt7921/regs.h   |    4 
+ 20 files changed, 507 insertions(+), 117 deletions(-)
+
+Greg Kroah-Hartman (1):
+      Linux 5.12.16
+
+Lorenzo Bianconi (7):
+      mt76: mt7921: check mcu returned values in mt7921_start
+      mt76: mt7921: introduce mt7921_run_firmware utility routine.
+      mt76: mt7921: introduce __mt7921_start utility routine
+      mt76: dma: introduce mt76_dma_queue_reset routine
+      mt76: dma: export mt76_dma_rx_cleanup routine
+      mt76: mt7921: add wifi reset support
+      mt76: mt7921: get rid of mcu_reset function pointer
+
+Sean Wang (1):
+      mt76: mt7921: abort uncompleted scan by wifi reset
+
+Sid Manning (3):
+      Hexagon: fix build errors
+      Hexagon: add target builtins to kernel
+      Hexagon: change jumps to must-extend in futex_atomic_*
+
