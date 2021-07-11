@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FAB23C3C82
+	by mail.lfdr.de (Postfix) with ESMTP id C7A9D3C3C83
 	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:43:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232793AbhGKMpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:45:05 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41809 "EHLO
+        id S232798AbhGKMpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:45:13 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:40163 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229688AbhGKMpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:45:05 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 808691AC0F9A;
-        Sun, 11 Jul 2021 08:42:18 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 11 Jul 2021 08:42:18 -0400
+        by vger.kernel.org with ESMTP id S229688AbhGKMpN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:45:13 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 33AD01AC0DBA;
+        Sun, 11 Jul 2021 08:42:26 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 11 Jul 2021 08:42:26 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=VnmRWh
-        OP8HJBOcNOCr0Lvxg4cNQYpRYbcB2vozwTDiQ=; b=L7Ssq27RI1YDQYYbrNWoMS
-        Xmzt296xcV0Ch0+RuzQfsS28FefrTJQ/z0akrkNDGIeE3ZAFtX60H3c1+r9ZFQvi
-        rHKgV/pHJkcQ19xt9KnQzrNzjjIzPTgsrnql+rVMe5/C7vMA8ddh5qw63yNJB4eE
-        evUEjarfKLASrGlaitVaC2/syb2qAv/LiGQyosgd6a/ckhq9N0EAnXOK07wtz2c4
-        YZ5cXp3tvSBwi9zK+V7NEwZIalhHIjynjtKi0Fmbo+Qszha/LXzuCrXAh9m7hAj2
-        VTiqTCOSwnfOeBOYB27h9ZVM+QdcUi9z1o/J0ERnaQkv6FKyhczqWoJ6hi8DVb5Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=sU9Bxs
+        RWVlqIKftSAFPQCCORYD52Br+fu6u88KvBXJc=; b=ccislS52No3dwS10Tvg9B5
+        5w4GzJKdNxYsc28TYQrRL+h6xCJFt8hwi55Vt6MynYxJWsnABpgkfhGRAg/dfg3w
+        EibmOfei+Dawnbhv7o4rRFu3aAreTkt3FW1huv8etBdfHXfjACTl6u09UixpC4jk
+        3dJws7kgCGhS7VVDEZBYVaZfY88NjwXUKbJIgcZklU78ekARHjszBOA1zwLvHN3h
+        eZONQpE6qVd4JiXK9E9b4sS3sO6cFNmuvZQe1E0IvF3WmypBs9SLRbiUaqB6DCWB
+        07gOsNW4amC+Waneavd1LuLAYBCyuYS0vTLc969w9pRMBSUuWapX47B67J9ayQEg
         ==
-X-ME-Sender: <xms:KefqYPHVtF_5J6XCYHqdYNpm9DVln9WYmcsiTf3vmheZIJXnyt3gAw>
-    <xme:KefqYMW5V7igYY8DPTqk3ABQjS9KSew8QVUCuRL8PHHuXhUMV7qTV4NlTh9OR3SZl
-    bDM2U81NBvlWg>
-X-ME-Received: <xmr:KefqYBJvPV1Tq2RJMj2Wom2W7HaU7ZvW-y2hSEfJPIfTyec1sLMSXk2mbMxCtPQstH4aER-_I969QdH3pfTszFBnHg>
+X-ME-Sender: <xms:MefqYLFEA22G4l0J-OeAt2bfD9dad7rOlfNcXLHRoNwocBcES-ooGA>
+    <xme:MefqYIVhPXOVBUwNLd_6unOa-o7H5HU1CItrq3ud0LhLUBvw5S77WSC0sD0ThAV7S
+    Pk7tEnx4qlzsA>
+X-ME-Received: <xmr:MefqYNJbvGqMIjebyOYrTz7-tx4DeM4qQesrkRJ8ghqPS5mmW6nZFWzOSKgBoQ6kjlxlDJ1aqJj75ieRU2LphFZe_Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgr
+    evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmhgr
     ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:KefqYNHibSr8R3gPpZbPNTAU2stkHVdJ3l2DPE9CuWL1G2Tp_Us03A>
-    <xmx:KefqYFUdgV1olCnWzjS96RG1XpvYVkSg-RGApjZ2ntx2WhiF1KtLNA>
-    <xmx:KefqYIN3lhEWiTcnMw9JyFWrWsrrCcdh6NFICGC6pb9yaizzM4eYSw>
-    <xmx:KufqYCig8AMEIpV6czAdhsjJwb8aH0DnaZvO8Ewu2pfsWUItF-9zp5aD3UM>
+X-ME-Proxy: <xmx:MefqYJEwLbMUKmj6wcPr0nZ-szzj6a__LPahPXvyGluFQ8bjvIUgVw>
+    <xmx:MefqYBW4z6NhAHRHInNV0PUivEMREFw-oCdLarL2fekBf7tuoGSl2A>
+    <xmx:MefqYEPbFslS4MESq3S7G0_I655MDJXf7MHm_49utWY4h02GSRbX0A>
+    <xmx:MefqYOjS74PeLuSMW2TMZoS21KNwxY37RGtoqmQGN_zRq-G59X_mSyvEfGo>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:42:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: x86: Force all MMUs to reinitialize if guest CPUID is" failed to apply to 5.10-stable tree
+ 11 Jul 2021 08:42:25 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86: Force all MMUs to reinitialize if guest CPUID is" failed to apply to 5.4-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com, yu.c.zhang@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:42:16 +0200
-Message-ID: <1626007336166149@kroah.com>
+Date:   Sun, 11 Jul 2021 14:42:23 +0200
+Message-ID: <162600734361124@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
