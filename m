@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6327A3C3C39
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A32763C3C3B
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:21:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232793AbhGKMYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:24:11 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:50485 "EHLO
+        id S232803AbhGKMYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:24:21 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:57623 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232792AbhGKMYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:24:10 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id EF23F1AC04A7;
-        Sun, 11 Jul 2021 08:21:23 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S232792AbhGKMYV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:24:21 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id A64AB1AC04BD;
+        Sun, 11 Jul 2021 08:21:34 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sun, 11 Jul 2021 08:21:24 -0400
+  by compute1.internal (MEProxy); Sun, 11 Jul 2021 08:21:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=yYmHBr
-        n2inInloi/7ogfnbKxaT6SkkzK8x7oA/IZU6I=; b=Wckj11u5Y+vWmsH+VFkkWV
-        Dk60jaq60ekNyrbJAOczizOfZuWkjlW3MVoITkU0izghGPlrIH+/b9SEpXg4BbNn
-        a6Q0G/l5Grn8zHj0mFw5WFbJowOG0LbVdmM1BgFTjjnOSXWIWX3c5pwAF2RPzODC
-        mUtA/RJ0Goph89LOZI0EYn9Ky72+JIWGT7jFxQu/043bkqZwG7ULkeQ96sSRwxfp
-        M/lYksnh1wrwISHAGSBre+KpPkyV1UMFgAwoLRCajEScbxJ25+DyeQ5lmN1VMc9N
-        Da4Zqaigzodeq9kE82z1vJEpHxIdGSZcyxblazvr3vBevWeiyl+VCr2zbeX8EP5w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+AJyyN
+        snf/OOIHlUsQyLoQ0+7OzL4N2pDTrqCYOMKRA=; b=T4X13xxBwFX3/7EturE7DS
+        /l4T7at2wm2EvYH1Snfi9aBrG/3yV32R1YJr7NUHKzVoGme0huo/dZc3ph/ub/iU
+        kQTf9+pI9JSPx5PCPob36HMNkhnhcWs/cy83g4vPWerVT6XiCBauqnajt/s2S1pE
+        2kocAlxtLB9Ppt38SwWuYTJl8C2uf4Y9ocVyhsgCjTUkDtsnYaQwozp1l8jKktwP
+        aRi+aoEWfRMXDg99NJQ1h/cMeEuNUwG5S9yYezudtezLFGsONstg5lm7XL+EM2/1
+        bJ/DmtHq77fBRqr/YIuwVhTZnaV7QA7ZP9oVw4ZzqSpggj193X/tvz2JwgsWqYgA
         ==
-X-ME-Sender: <xms:Q-LqYCwIRWTG3LItk2Nuh69LF28G0QJjoTFmlLVbYloa8z9WgYBdwg>
-    <xme:Q-LqYOQeQq97386mHMaybFO2TNb54Q6UxsPBPkKJ28zXXxU4t9FQaTvwlEqHcxhfZ
-    7yEJ44kmxMkmQ>
-X-ME-Received: <xmr:Q-LqYEVXeDASoQgyNWfdv4ota1vez2hodmMxjirfcYG6xUqA__dDpOV2iHrCmZ5WvbVOV2L8UhVXQd2O5aGr-HglDA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehudcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:TuLqYIXUzQ1ye7VTFZbmOjWNtiyiO0ZbqPMjnPxhlvS2hbP70uHOrQ>
+    <xme:TuLqYMkWJVbwCGVNeP7RNw3sE-hSRUFi7vKQvUHOXHJ4S6HkPXcw_SEnkWi-BTjXC
+    hPTuYExFKwoHw>
+X-ME-Received: <xmr:TuLqYMah70ZLkuI4mdbruG9PRTVYMTYTAIcldmd5JToG-t69Ibs65BSJk8sLXE650FjdIvI_tkvfIoLZ6m0T_NVcqg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgr
     ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Q-LqYIiSJFDM9hIyLeurLjnGE7NmGxmjktvB9HWRHh1srDBsCXnTRw>
-    <xmx:Q-LqYEBY3Dxeq08p1huVzlfsHo8Zc-5nN5EdkvGyGsYKaD_eFCmLCQ>
-    <xmx:Q-LqYJKvAT0LgsXZZ68NDRvpg5aRNS6hbHdpGraX6XSaofRP9vjOzQ>
-    <xmx:Q-LqYPo3_Z2YJSOLGhUgqsGBT3htfFMia9bjPg9kOW7A-kLXcdSBKWcjnbY>
+X-ME-Proxy: <xmx:TuLqYHUxy5qGhCJ2Jj_JY_r90WY7l2MHGlAsetAG7urDT6cZmckR7Q>
+    <xmx:TuLqYCnxEsEy11pC9fAcKWm39-jiOBPOeqK14WXGqF3K3d-irlawpw>
+    <xmx:TuLqYMcgbprzOQP3CMGm9TJEcLGIOfhxVIuRdIRonEgdTreDEeJcPQ>
+    <xmx:TuLqYJvxSH6ePerICSQ875TQOhyXNTpfXmEdO32agctE0faltMnhIGjW-hI>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:21:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: compression: don't try to compress if we don't have" failed to apply to 4.4-stable tree
+ 11 Jul 2021 08:21:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: compression: don't try to compress if we don't have" failed to apply to 4.9-stable tree
 To:     dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:21:21 +0200
-Message-ID: <1626006081229238@kroah.com>
+Date:   Sun, 11 Jul 2021 14:21:22 +0200
+Message-ID: <162600608216394@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
