@@ -2,146 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6133C3A00
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 05:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB0863C3A0C
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 05:59:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231140AbhGKD4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Jul 2021 23:56:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45094 "EHLO
+        id S229523AbhGKECA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 00:02:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231376AbhGKD4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 10 Jul 2021 23:56:30 -0400
-Received: from mail-oo1-xc31.google.com (mail-oo1-xc31.google.com [IPv6:2607:f8b0:4864:20::c31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C81C3C0613E5
-        for <stable@vger.kernel.org>; Sat, 10 Jul 2021 20:53:44 -0700 (PDT)
-Received: by mail-oo1-xc31.google.com with SMTP id p22-20020a4a3c560000b0290256475d95fbso3457165oof.12
-        for <stable@vger.kernel.org>; Sat, 10 Jul 2021 20:53:44 -0700 (PDT)
+        with ESMTP id S229485AbhGKECA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 00:02:00 -0400
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 908F8C0613DD;
+        Sat, 10 Jul 2021 20:59:13 -0700 (PDT)
+Received: by mail-pf1-x432.google.com with SMTP id m83so5176643pfd.0;
+        Sat, 10 Jul 2021 20:59:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jlekstrand-net.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=8g0NKGsiBt+LRz/CeZwrcLpTtaHucndBMGpot3ZHzBo=;
-        b=CWj1U9WycxGbEo1lWQsXldXtETWmHxTdqr2CAeNuOhFjS7ftCDZ84EM/gD3UELOfNl
-         TILwRrujwFfVbUwFRjh+65CdPAc6zjZtdbjVpQfFIxU2Hp/X43UzuZF8edOUIpgTXir3
-         Rmu3CgbeZNKinrb40jv5NWjz5Bo4zG86lQ1luUSYwyKk/WKkP3bAcQzh6HftDbY3rMvL
-         nM6wnPda5R2zIqDz/yF45xM+vHzcT6NtmgHeH2l9H8tqIjtQYF5+M8QlGK6aBUkzQmTo
-         yWg54h5a8bQzcpZNVHCnH0yeTvX4sCEB4vO6eluQ/QPzivLCcouSwjClMfzsS5d3yWh9
-         MPgg==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=X/EQQKppqgbfsqBSJj0WKfpFQ+bVsBg3tkp3u97wDog=;
+        b=JEi3mk3fkKPY0yXYjN6P2K1cEyUSBlgGqN816ua6/pMHMAw5BoXCM4UtdUu6wYO1HY
+         cJpAVOxQNR+8xKKm+BHSIsSEdkxH7BMHfCUTZ62ZwDEM+M/iNd/7cQ2SQRO9tuE24sLb
+         +ClGSTm7reIkA3HzYOK7tZaaqAFe8Nmu98Lv8gSyh2jmspElvL2LOl2G3W2ubCqy8YHW
+         bZ3wdL+0v5blPpPZqBCD544j1xI6Bn2AN/HnDR8uIeRDkjSGQnn6SVJ0VI7aJW1LkMY9
+         CfCPveLcykjARNpQ2I9xoYteYWsGuXZGM0let73hCCcSJtumgd7yQYx9Cc5uAi13PHM1
+         7mkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=8g0NKGsiBt+LRz/CeZwrcLpTtaHucndBMGpot3ZHzBo=;
-        b=Vrb/TZ8vfT7rLjJMXwoBBLemrI/AyzcUrO0e8/qX14XChQQbnIN0OwZI/RpRF9GYv/
-         aa3o5mzkF/qHAWpub3ZPLkYmp74rzhIWr91ECt+Yh7q4uNDQd9y6fHffmQXU9y9c9dAa
-         i19n5qrHaSln0B+wiAcLr2Ea2vz1u45sLqXIPgYvmjBIRJDYZizswxY4y2Icc2L3OpgB
-         ocdRK84sWeO8E9hKTnb9tuKHOaCMXSWu9lrLiAlRphFK45ehvA5OdNw0NZA+1Lk1EyCj
-         t0+5Jemik7Q3ojYtcxudzIyQTTRfgXDHa7xNEuMDcaUEIfYevANveeUVdCXnZtcN3pdf
-         NFqg==
-X-Gm-Message-State: AOAM531vd3m93FgHLKwZA/WdgWm94PgnZdYV7aZ1DtVfvORC07kOuGwZ
-        j4WCiiLmb9oq+iqCQjtJR4pk6A==
-X-Google-Smtp-Source: ABdhPJwp0zPBXlmm05pTnn7gZ7FnNnEroogyFOjyRbn6K41ibsDQY+xmMQIbodr145LKZM/ULH+0Rg==
-X-Received: by 2002:a4a:dd09:: with SMTP id m9mr28018133oou.42.1625975624010;
-        Sat, 10 Jul 2021 20:53:44 -0700 (PDT)
-Received: from omlet.lan ([68.203.99.148])
-        by smtp.gmail.com with ESMTPSA id a11sm2310188otr.48.2021.07.10.20.53.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Jul 2021 20:53:43 -0700 (PDT)
-From:   Jason Ekstrand <jason@jlekstrand.net>
-To:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Cc:     Jason Ekstrand <jason@jlekstrand.net>,
-        Marcin Slusarz <marcin.slusarz@intel.com>,
-        stable@vger.kernel.org, Jason Ekstrand <jason.ekstrand@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jon Bloomfield <jon.bloomfield@intel.com>
-Subject: [PATCH 2/5] Revert "drm/i915: Propagate errors on awaiting already signaled fences"
-Date:   Sat, 10 Jul 2021 22:53:33 -0500
-Message-Id: <20210711035336.803025-3-jason@jlekstrand.net>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210711035336.803025-1-jason@jlekstrand.net>
-References: <20210711035336.803025-1-jason@jlekstrand.net>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=X/EQQKppqgbfsqBSJj0WKfpFQ+bVsBg3tkp3u97wDog=;
+        b=dTYeaJKAoyBREdc+iGQnkzhAlVsO8gnpKAUkNJPgl0Z3Pj0QkGRXdk+4pWGQl3s9Id
+         hUSEqCNSz8AheAx9iLA34qV72FEncIJ4l2ImVgKjQ40nYLtDRqpG5pg9gL1BOKdkgZis
+         Dm5JJ2qPQu6QQzBkaChmbr3zmRH8aDCuHnnqE5I1HpYLz8CtAdHrHaXmRcK82mXxFPZJ
+         yxQmdz/x5fW+FhtpVx9dBoMV4J4/PQjO4IJa4hNfI7K5FeL7PTqug/1Od69O3/1gC4Ch
+         eZSXNW+aFiOlRT/dlRsClz30kHJy77t6KTOPwXgiWeNhnzFBcycvsehdbiJUFbD8qW6i
+         54uA==
+X-Gm-Message-State: AOAM5316P7sI0n7nzdOmzXYd50X7xNq2JxghcDm+gwtmWqSNBZG88IQw
+        lMw/fubW/Fqiv68ZpbOndPHx4YRBAsc=
+X-Google-Smtp-Source: ABdhPJwn2j4GpAnimor5ge0YM1rgVHUen9omcrgHFm5rSmFAVyrXsW2cNs+w3CtoeiHqjWo0VMPD6g==
+X-Received: by 2002:a63:ef12:: with SMTP id u18mr46191843pgh.331.1625975952500;
+        Sat, 10 Jul 2021 20:59:12 -0700 (PDT)
+Received: from [192.168.1.121] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
+        by smtp.gmail.com with ESMTPSA id x7sm3985879pfc.96.2021.07.10.20.58.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 10 Jul 2021 20:59:11 -0700 (PDT)
+Subject: Re: [PATCH 4.9 0/9] 4.9.275-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210709131542.410636747@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <973b8925-de61-873a-3e9b-9ec59e5ca2e1@gmail.com>
+Date:   Sat, 10 Jul 2021 20:58:42 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210709131542.410636747@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
-since that commit, we've been having issues where a hang in one client
-can propagate to another.  In particular, a hang in an app can propagate
-to the X server which causes the whole desktop to lock up.
 
-Error propagation along fences sound like a good idea, but as your bug
-shows, surprising consequences, since propagating errors across security
-boundaries is not a good thing.
 
-What we do have is track the hangs on the ctx, and report information to
-userspace using RESET_STATS. That's how arb_robustness works. Also, if my
-understanding is still correct, the EIO from execbuf is when your context
-is banned (because not recoverable or too many hangs). And in all these
-cases it's up to userspace to figure out what is all impacted and should
-be reported to the application, that's not on the kernel to guess and
-automatically propagate.
+On 7/9/2021 6:18 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.275 release.
+> There are 9 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.275-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-What's more, we're also building more features on top of ctx error
-reporting with RESET_STATS ioctl: Encrypted buffers use the same, and the
-userspace fence wait also relies on that mechanism. So it is the path
-going forward for reporting gpu hangs and resets to userspace.
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-So all together that's why I think we should just bury this idea again as
-not quite the direction we want to go to, hence why I think the revert is
-the right option here.
-
-For backporters: Please note that you _must_ have a backport of
-https://lore.kernel.org/dri-devel/20210602164149.391653-2-jason@jlekstrand.net/
-for otherwise backporting just this patch opens up a security bug.
-
-v2: Augment commit message. Also restore Jason's sob that I
-accidentally lost.
-
-v3: Add a note for backporters
-
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Reported-by: Marcin Slusarz <marcin.slusarz@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Cc: Jason Ekstrand <jason.ekstrand@intel.com>
-Cc: Marcin Slusarz <marcin.slusarz@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
-Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
----
- drivers/gpu/drm/i915/i915_request.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 86b4c9f2613d5..09ebea9a0090a 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1399,10 +1399,8 @@ i915_request_await_execution(struct i915_request *rq,
- 
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
- 
- 		if (fence->context == rq->fence.context)
- 			continue;
-@@ -1499,10 +1497,8 @@ i915_request_await_dma_fence(struct i915_request *rq, struct dma_fence *fence)
- 
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
- 
- 		/*
- 		 * Requests on the same timeline are explicitly ordered, along
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.31.1
-
+Florian
