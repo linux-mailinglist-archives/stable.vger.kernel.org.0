@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C25DF3C3CC0
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 15:12:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 945033C3CC1
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 15:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232792AbhGKNOs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 09:14:48 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:45387 "EHLO
+        id S232775AbhGKNO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 09:14:56 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:52947 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232544AbhGKNOr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 09:14:47 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id D305A1AC0349;
-        Sun, 11 Jul 2021 09:12:00 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 11 Jul 2021 09:12:01 -0400
+        by vger.kernel.org with ESMTP id S232544AbhGKNO4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 09:14:56 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 16B8D1AC0679;
+        Sun, 11 Jul 2021 09:12:09 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Sun, 11 Jul 2021 09:12:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=7H7jjy
-        H5M9aU3wdHhKs/ETaHld/ldInRkLUnfv2VH6c=; b=S6fe+6fXP0fZDUA17OROLD
-        Dc5D6dRtS8wKPvXCSHRF6Wdjmwuyqo6mlKJ351fKiIiTV7yd111HlzKPY+lRn7hB
-        EqvgSnl0mpiHZ4no/ayPSWkgHPv/vwBKC0tziS9W8sAwsl3ygdUzl4PW0itU4sn+
-        Pz0PNddM3usZK1Xgk5e9fnbMnxHv3VyaiadRE6OeSWqHMOujhIJojbgIyYjupkRe
-        JcUCG846hG/wH277CQ+Oy9gJzuixPEjbE3frpY8TdGvu/yuOaGtKduRRirH5shC6
-        hD43XRgx2Fcultiu06MaQ1myYG++BMpfA6mSE2+ajrr/DUW7HAop/iSiRsA7zKbg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=68EG5q
+        eFSTusxJ0r/zoZo/rVfj1rVw4rt1CDw2Vwve4=; b=i2PZS2/tcOGLFeEUayqRIJ
+        x1NeoyH5V6qV6ZfYC88UETecp338Mz0GJk5+bB4OVjrqhTKLPsr2Yip049ap3s8F
+        7o0IXtLvldyEY5SC1c2FCz+aqh9MPfhjmHbY1NadrgudeC0uk196cUGmAVnkvhUB
+        Cf96ETVKYDimpCw0ARHhTSPcGXgQVLVKGtxSztsRvN/b+czYd874Ei0fX+weCnJL
+        OlRFutvNa/aiMxUtGbuHP7Lw/GKiUaI2yPDdhwsqrgStOJ41VjnlsHyj7Ss00SCI
+        Lq+UdxSh1Lq8Wb42F9muUQq3Ex1swpDJ1u7TyzMEAT8miAHvOSGi29z6xSoqGjOA
         ==
-X-ME-Sender: <xms:IO7qYD68byEC_z7UE67tXIPVYKRvjlHJNSxhdDVXI5Uc4dXIpEMY3A>
-    <xme:IO7qYI720DT9cTWFX95_RKQcNsksbDI3CfrmwkPaWvStlV_HtvskNsDQd1jAhs8As
-    iPyDv3ZQ5eoUw>
-X-ME-Received: <xmr:IO7qYKfmxKAn_YnexbStsE06bXlec7CBNqOkxPmQ5i5aFUJKqLVlkwa1ZgKkIYVd6_Q9igPtXstTPPT4u-VKIkEfdw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdeiudcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:KO7qYDfJ8LhjExLVXHZv9q7Ikjh2J-5jUDVHrc7icpr7Hj1ESCObAg>
+    <xme:KO7qYJMy94uX42tvualfepVpHqvbcKu3ue8pzziKHJg96VfpM3WNpIK_WGHGsBZyy
+    8bSnzTHK0NS4Q>
+X-ME-Received: <xmr:KO7qYMjylMAXcxdp34Vgu6mcjDUU2UEU5cuixFVQ-pQWEwXjnnM5KU5H6o5kZnrhPG63qsVGOiv3fTojC1L7UqtO2w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdeitdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgr
     ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:IO7qYEKr5xPq3zXQI60dLzVUj1pVk-BuJfrp7z5xHTthaD1m2i7jLA>
-    <xmx:IO7qYHL7nPb68UeqOZujdJJT5G8-HAQVloe-Jq3asEAzipIMqdS5Xw>
-    <xmx:IO7qYNwXvjTdzSPnxu8Y0GPVy7b2aZ8kF8ADGURCrFrWCIeSKdEVUA>
-    <xmx:IO7qYOVErSwlNYpH8KjO8igIMS0hcNaAaUSNa_YeTmnglXkMKzCwp9The0A>
+X-ME-Proxy: <xmx:KO7qYE97zlYTSwB9dzv8g0sJfdI68VOFO-QDJMOSIann2KIkfNjYYQ>
+    <xmx:KO7qYPs-y-OiQ4vq1gZJi7fFd4wo00DeWrmhDBEODqKxCvizBL8VFw>
+    <xmx:KO7qYDHvadJniRiU6NJ-K0DEjMIFQG6ipKX3y5krrWYF8pp_XGSzjw>
+    <xmx:KO7qYI4QY1VqxNOj2jMJ19d46NK1Fx6iw7HZ0gqjxoj0uDuq3uAFMQ7QQTs>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 09:11:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] fuse: reject internal errno" failed to apply to 4.4-stable tree
+ 11 Jul 2021 09:12:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] fuse: reject internal errno" failed to apply to 4.14-stable tree
 To:     mszeredi@redhat.com, anatoly.trosinenko@gmail.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 15:11:58 +0200
-Message-ID: <162600911821044@kroah.com>
+Date:   Sun, 11 Jul 2021 15:11:59 +0200
+Message-ID: <16260091193762@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
