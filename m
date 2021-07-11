@@ -2,78 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C353C3B21
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 10:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 889C73C3B62
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 11:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230198AbhGKIDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 04:03:01 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:59308 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230168AbhGKIDA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 04:03:00 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id C1E231C0B77; Sun, 11 Jul 2021 10:00:13 +0200 (CEST)
-Date:   Sun, 11 Jul 2021 10:00:13 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 0/6] 5.10.49-rc1 review
-Message-ID: <20210711080013.GB14434@duo.ucw.cz>
-References: <20210709131537.035851348@linuxfoundation.org>
+        id S231987AbhGKKAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 06:00:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38996 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229688AbhGKKAt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 06:00:49 -0400
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F404C0613DD
+        for <stable@vger.kernel.org>; Sun, 11 Jul 2021 02:58:02 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id k16-20020a05600c1c90b02901f4ed0fcfe7so9253455wms.5
+        for <stable@vger.kernel.org>; Sun, 11 Jul 2021 02:58:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=56+H0JW/2Pf8Zd1MqwXSgnDI7f6wt6P7h2rgDhNLDzw=;
+        b=2SWIhAmM/X3Wr1qK+Dv/WefXxS8j/OeK/rYdidcI2C8scWZphuHeyX+27t7ecpw0Yy
+         IhDrog9fyOANod3Ks0XB7rUyIRphlclCh+nttWNI0WvJRwJA6CWT2Cv5eqCcr8jPu/P9
+         ApimnWJ9MaqywU7Afg3cl3NxCXM4zsIaMmxfjY0aLBZTGt0ZL7XsFR1s0w5bJgLK0h5A
+         hNOCCqOl7xDNa+BBrsFu9Rh+PvCkiN1u0mEZIdbJ1F2h1kRC9Tbb1JHWRQbVTa0EBZSe
+         Y/w79cyZp7Jkxzz+T8ZkhltkXa6TIPMYIwvGQZxg37W6YjgAgG0xhzwQ8eQVHu479Te8
+         h83Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=56+H0JW/2Pf8Zd1MqwXSgnDI7f6wt6P7h2rgDhNLDzw=;
+        b=kNViMCIWcEgbHWxd0oBcDfajaIdu1aKWeGHfZ6IZLrNGTQ1ytoV0FEpqL4k9a07m+D
+         Wos1ZZDCw3G7zxxKCeGAfakwVCQpRVZjsFq4e0IJs0sjCgcETowJ04tzG5PYAH9uBYzn
+         F3jgy8+W0n9g72laz8YTVe/6IpH1DL6uAikLhoiHNrYVh/fuiuUEIKbMWeVQaqH/E4wk
+         aF2eKLfLr7vPUcqOljIOvj0cLelSaat0NmbOzna2bJsSyy4Hy7PMtpTUw0Dv791Pof40
+         fcBVnNYYayGO3PAQ6M8HheGbV46T3z/3jbpBKzK0odh95P412j+5DDIhZ1T7VM9AF41y
+         9KjA==
+X-Gm-Message-State: AOAM532KsL2L70HGAPeW1x9Ycn2Ox4t/gAEpUA2/sAZGNFmnf7xB4NPj
+        hoyxV0/TUnfbguLztVzevILY8w==
+X-Google-Smtp-Source: ABdhPJwSBLwReyDtz2OpqQaw1MV+mnyo5FLW9+AhuJbYvT3hwZIIOotUastfEa+IUTAVKxBKFekZaA==
+X-Received: by 2002:a1c:1bd4:: with SMTP id b203mr8725783wmb.171.1625997481209;
+        Sun, 11 Jul 2021 02:58:01 -0700 (PDT)
+Received: from debil.vdiclient.nvidia.com (84-238-136-197.ip.btc-net.bg. [84.238.136.197])
+        by smtp.gmail.com with ESMTPSA id m18sm9095567wmq.45.2021.07.11.02.58.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 11 Jul 2021 02:58:00 -0700 (PDT)
+From:   Nikolay Aleksandrov <razor@blackwall.org>
+To:     netdev@vger.kernel.org
+Cc:     stable@vger.kernel.org, roopa@nvidia.com,
+        bridge@lists.linux-foundation.org,
+        Nikolay Aleksandrov <nikolay@nvidia.com>
+Subject: [PATCH net 0/2] net: bridge: multicast: fix automatic router port marking races
+Date:   Sun, 11 Jul 2021 12:56:27 +0300
+Message-Id: <20210711095629.2986949-1-razor@blackwall.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
-Content-Disposition: inline
-In-Reply-To: <20210709131537.035851348@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
---FkmkrVfFsRoUs1wW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
+While working on per-vlan multicast snooping I found two race conditions
+when multicast snooping is enabled. They're identical and happen when
+the router port list is modified without the multicast lock. One requires
+a PIM hello message to be received on a port and the other an MRD
+advertisement. To fix them we just need to take the multicast_lock when
+adding the ports to the router port list (marking them as router ports).
+Tested on an affected setup by generating the required packets while
+modifying the port list in parallel.
 
-Hi!
+Thanks,
+ Nik
 
-> This is the start of the stable review cycle for the 5.10.49 release.
-> There are 6 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Nikolay Aleksandrov (2):
+  net: bridge: multicast: fix PIM hello router port marking race
+  net: bridge: multicast: fix MRD advertisement router port marking race
 
-CIP testing did not find any problems here:                                =
-             =20
-                                                                           =
-             =20
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-5.10.y       =20
-                                                                           =
-             =20
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>                              =
-             =20
-                                                                           =
-             =20
-Best regards,                                                              =
-             =20
-                                                                Pavel      =
-             =20
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+ net/bridge/br_multicast.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---FkmkrVfFsRoUs1wW
-Content-Type: application/pgp-signature; name="signature.asc"
+-- 
+2.31.1
 
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYOqlDQAKCRAw5/Bqldv6
-8tkDAJ9GxrFLhQoG732lY0sYxo1S/8wOSgCfdwipjDgAGbxgmXXxV56tqbnoikw=
-=h3sF
------END PGP SIGNATURE-----
-
---FkmkrVfFsRoUs1wW--
