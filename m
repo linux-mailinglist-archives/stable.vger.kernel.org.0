@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C41F83C3EAD
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 20:04:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAD383C3EAE
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 20:04:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230353AbhGKSHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 14:07:12 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:60783 "EHLO
+        id S230399AbhGKSHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 14:07:19 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:35839 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229801AbhGKSHL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 14:07:11 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 901C419406C7;
-        Sun, 11 Jul 2021 14:04:24 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Sun, 11 Jul 2021 14:04:24 -0400
+        by vger.kernel.org with ESMTP id S229801AbhGKSHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 14:07:19 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 6934E194069E;
+        Sun, 11 Jul 2021 14:04:32 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 11 Jul 2021 14:04:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Jh7L00
-        +ejqejVzr1TcFOeUL6fbeLpHGHEkJmiWvbJ/E=; b=AVwQQfZoZk0ymZsnVSb39G
-        quXbsFN1b6Tjo6Lla1ygof+IyCnbX2o7jnZ0ElLNWWnv36Oa8F5U29h+CFPsXGDw
-        sr3VZIntG/ZKWdLJbmE7ZBv5SUbFLf9jcrWBVWAmtcAvLYEq236A+bW9JeSMTmya
-        YeX1pe6qpnAkEfxqmwT3r4ktbOihzZhCBPkj2w0ATH1sTk8pzl7UeaqvbYz9Y/Dv
-        P30bh72oJEYmlnN+YYRtjn8deOob7cGsJVzTL4Lrvrt7mvwLI8y46zG1Z4u3dyTi
-        VS4DtGYzHOUlZoTCKfsCyR3O/CPuNbnwrcUwyvxb5z0hexk5MqiCGUUlvSunCmzA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=FDIV7W
+        2Vdy6CGX9l21bfnUk4UhVA4UcfS7MQf/intcI=; b=FO00ZAooMydShwcU/7SNKa
+        RhebCCL9sbxBzo9lnj6pEvROyq/pzBmEegRJ29ugpBZzTS53is1ouavo/b/FW6nQ
+        vZWgAapXb0DrBEbO+dy5QzI734HBJJA/s7dFhezN7EjBUzxWxykk47i9ew6T/zgD
+        hWL7HEhrjNPyi1u0DtLOi0clLHfLbPejIrbRDPS6o3fmZ88JJRazw9t7tR8TYOgW
+        yrVtUFTHibTjr4ppeqiI/qgq0p5BIEgu41QqFbhOry+fvgAOlatHdffl4qxIrbmE
+        ZqVB/deczOOr6vjO3Vre1bqYbDCrW+j+VDO+LAM7TB2ZW6gM870Fxj+8cSSau6Kg
         ==
-X-ME-Sender: <xms:pzLrYPMDcSDXCUnQc00UnY-_M9hz21GTWoHm3k6SD6gZVDUrV34WHw>
-    <xme:pzLrYJ8cpf_R57ZgdZLc9NrDSr3EVsLDt8H44bdoEox-_sF_54Oqqv2YEceceN6Xs
-    xU5l-Hl1TeKKQ>
-X-ME-Received: <xmr:pzLrYORh-Gxc5_RlWUtujEBXYqkxwPmAz3Ro8r8cYNVSDyo2b8ml6wzO-SvXu-85lmdbXP1fSEmZA01_u9aCrNvn_Q>
+X-ME-Sender: <xms:rzLrYHrBx40sgjC_voHzJfbVKI-qVu9GZDcGwl-J1wa_PzjSJa7cww>
+    <xme:rzLrYBoZT0Yrjm3eYDj3omzE-ZZ3WeT2AFZwqyRFhGbdUYwHuaagWVOIHN1VxuxVh
+    AsnVlO-cVSd7g>
+X-ME-Received: <xmr:rzLrYENkk6d_4Tg-Zr1UfzPi-uMGz2NEkWqyIvMYox6Jd1YzVeh85yy2P6rXY7Fb0JSWdabhvzAFdJrLlecNYUCq0g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdduudelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -39,18 +39,18 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdduudelucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
     shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
     grhhdrtghomh
-X-ME-Proxy: <xmx:pzLrYDvyx8jrpJ9AG22Yocc9029ozWSsk7UsTKRBEfQLJsINgaZ-IQ>
-    <xmx:pzLrYHfpatVDLVUOkLAQ2ZtQXBcqccwJR1TOohzuKvrYDyPWLj3gig>
-    <xmx:pzLrYP3t4NhcHDR4RxuLwbBIworA54PvZ0NGNaufdbUQ_5kolNqqvQ>
-    <xmx:qDLrYIoOx01AqmvQS9KkBkel_ejEFERQzMvzh1WzcLKO4-dewNKiPQ>
+X-ME-Proxy: <xmx:rzLrYK5OfZLwgZmB_kbGK5ifi1uzbiLhK-lmcbYllbvua0EhZnLo3Q>
+    <xmx:rzLrYG6YtpzHLrd50laYB_S5RjfAPwcM101j78Le3il6vTWWnwNvcw>
+    <xmx:rzLrYChXADFEgxOv1762NDdSbLEgQ7P-impAPqJ3yLtuc7Z-P8K1kA>
+    <xmx:sDLrYGEF57JOauR5ZV7fuhvcgt29tey3WKwPMi2yEdcEZaHVPb0FhQ>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 14:04:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: Fix race condition when sqp thread goes to sleep" failed to apply to 5.13-stable tree
+ 11 Jul 2021 14:04:31 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: Fix race condition when sqp thread goes to sleep" failed to apply to 5.12-stable tree
 To:     olivier@trillion01.com, asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 11 Jul 2021 20:04:22 +0200
-Message-ID: <1626026662135154@kroah.com>
+Message-ID: <1626026662108242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
