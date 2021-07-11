@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 849CF3C3C80
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FAB23C3C82
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:43:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232792AbhGKMoX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:44:23 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:52195 "EHLO
+        id S232793AbhGKMpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:45:05 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41809 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229688AbhGKMoX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:44:23 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.west.internal (Postfix) with ESMTP id 7A2B61AC0F9A;
-        Sun, 11 Jul 2021 08:41:36 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Sun, 11 Jul 2021 08:41:36 -0400
+        by vger.kernel.org with ESMTP id S229688AbhGKMpF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:45:05 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 808691AC0F9A;
+        Sun, 11 Jul 2021 08:42:18 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Sun, 11 Jul 2021 08:42:18 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=e4IwTU
-        WgchkCUMIyTw+pkWnEGuNhic0Sdk952oSnBUg=; b=kHAlse9KmoffiM7zN/qk0x
-        4zi/hzOmrKwhA3K0mMKHtep4Ql2IXkrIkHbVcQPA7YZjJEa8NSWsAevJYOpmBq8n
-        uMEiiLtAUkly5KWFVdZK8Qo4Pn1P/Y6Rok5ttcIj8g5B6OM2DF+/kkEGAEp2hci4
-        oZZ1/4be1TTjPC/MWZqed36oT8nReSj77jXWrLkOv3aOjiEkAGRYBGW4l8OCkNp4
-        GIiaBn3vq5yyh4XSGGQbub5hoqM88rs1DVjjM0hlKx2BZTnObdQKCwhdEoCKahb7
-        ztVsBxDysZF2j7WWktYxHl1Id/vbxUhegIqJpGhuE02dmspRpYVdlNtbBM7PbDNw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=VnmRWh
+        OP8HJBOcNOCr0Lvxg4cNQYpRYbcB2vozwTDiQ=; b=L7Ssq27RI1YDQYYbrNWoMS
+        Xmzt296xcV0Ch0+RuzQfsS28FefrTJQ/z0akrkNDGIeE3ZAFtX60H3c1+r9ZFQvi
+        rHKgV/pHJkcQ19xt9KnQzrNzjjIzPTgsrnql+rVMe5/C7vMA8ddh5qw63yNJB4eE
+        evUEjarfKLASrGlaitVaC2/syb2qAv/LiGQyosgd6a/ckhq9N0EAnXOK07wtz2c4
+        YZ5cXp3tvSBwi9zK+V7NEwZIalhHIjynjtKi0Fmbo+Qszha/LXzuCrXAh9m7hAj2
+        VTiqTCOSwnfOeBOYB27h9ZVM+QdcUi9z1o/J0ERnaQkv6FKyhczqWoJ6hi8DVb5Q
         ==
-X-ME-Sender: <xms:AOfqYHN9f7Tw6iXRK1X-jJpVWP7m89zGcewtQlV3AdSNgT0qVRi_qw>
-    <xme:AOfqYB_Y9wxsJjoTyQt83pP2rFq2TrhLSs3foW9oAMHSHAbz-zEF8k-sfD5rkHL42
-    9SoNG8mnI51NQ>
-X-ME-Received: <xmr:AOfqYGQ3p0cXWnmprw6EW8_tQ8aM5gpiLKodfM2mDSqj-G2BR1XIFfcduPQD6uPFjA8D18QlFDUN4UFqB6Dq40eTnQ>
+X-ME-Sender: <xms:KefqYPHVtF_5J6XCYHqdYNpm9DVln9WYmcsiTf3vmheZIJXnyt3gAw>
+    <xme:KefqYMW5V7igYY8DPTqk3ABQjS9KSew8QVUCuRL8PHHuXhUMV7qTV4NlTh9OR3SZl
+    bDM2U81NBvlWg>
+X-ME-Received: <xmr:KefqYBJvPV1Tq2RJMj2Wom2W7HaU7ZvW-y2hSEfJPIfTyec1sLMSXk2mbMxCtPQstH4aER-_I969QdH3pfTszFBnHg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -38,18 +38,18 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehgecutefuodetggdote
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgr
     ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:AOfqYLvZCcutk-Q1qRDvR2KhAR2YlRFFd8V5V9xyFor0Y1kCt4yf7w>
-    <xmx:AOfqYPd6d2thQAf1MxgdcdJcdrVMYkZIzz_7uB9Co-ecextOYP9qsw>
-    <xmx:AOfqYH3h8yhieHqNJt_jnTv7a5UicqewLvxeaoPnAig9vWVHFZSxjw>
-    <xmx:AOfqYHFB3gKFAZXWFPr9DjF1fjvN2dSmmJeVlVrfz3Do8WnEA3mmblv8hAg>
+X-ME-Proxy: <xmx:KefqYNHibSr8R3gPpZbPNTAU2stkHVdJ3l2DPE9CuWL1G2Tp_Us03A>
+    <xmx:KefqYFUdgV1olCnWzjS96RG1XpvYVkSg-RGApjZ2ntx2WhiF1KtLNA>
+    <xmx:KefqYIN3lhEWiTcnMw9JyFWrWsrrCcdh6NFICGC6pb9yaizzM4eYSw>
+    <xmx:KufqYCig8AMEIpV6czAdhsjJwb8aH0DnaZvO8Ewu2pfsWUItF-9zp5aD3UM>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:41:35 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Use MMU's role to detect CR4.SMEP value in" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com
+ 11 Jul 2021 08:42:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86: Force all MMUs to reinitialize if guest CPUID is" failed to apply to 5.10-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com, yu.c.zhang@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:41:34 +0200
-Message-ID: <1626007294131216@kroah.com>
+Date:   Sun, 11 Jul 2021 14:42:16 +0200
+Message-ID: <1626007336166149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,37 +69,106 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ef318b9edf66a082f23d00d79b70c17b4c055a26 Mon Sep 17 00:00:00 2001
+From 49c6f8756cdffeb9af1fbcb86bacacced26465d7 Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 22 Jun 2021 10:56:49 -0700
-Subject: [PATCH] KVM: x86/mmu: Use MMU's role to detect CR4.SMEP value in
- nested NPT walk
+Date: Tue, 22 Jun 2021 10:56:51 -0700
+Subject: [PATCH] KVM: x86: Force all MMUs to reinitialize if guest CPUID is
+ modified
 
-Use the MMU's role to get its effective SMEP value when injecting a fault
-into the guest.  When walking L1's (nested) NPT while L2 is active, vCPU
-state will reflect L2, whereas NPT uses the host's (L1 in this case) CR0,
-CR4, EFER, etc...  If L1 and L2 have different settings for SMEP and
-L1 does not have EFER.NX=1, this can result in an incorrect PFEC.FETCH
-when injecting #NPF.
+Invalidate all MMUs' roles after a CPUID update to force reinitizliation
+of the MMU context/helpers.  Despite the efforts of commit de3ccd26fafc
+("KVM: MMU: record maximum physical address width in kvm_mmu_extended_role"),
+there are still a handful of CPUID-based properties that affect MMU
+behavior but are not incorporated into mmu_role.  E.g. 1gb hugepage
+support, AMD vs. Intel handling of bit 8, and SEV's C-Bit location all
+factor into the guest's reserved PTE bits.
 
-Fixes: e57d4a356ad3 ("KVM: Add instruction fetch checking when walking guest page table")
+The obvious alternative would be to add all such properties to mmu_role,
+but doing so provides no benefit over simply forcing a reinitialization
+on every CPUID update, as setting guest CPUID is a rare operation.
+
+Note, reinitializing all MMUs after a CPUID update does not fix all of
+KVM's woes.  Specifically, kvm_mmu_page_role doesn't track the CPUID
+properties, which means that a vCPU can reuse shadow pages that should
+not exist for the new vCPU model, e.g. that map GPAs that are now illegal
+(due to MAXPHYADDR changes) or that set bits that are now reserved
+(PAGE_SIZE for 1gb pages), etc...
+
+Tracking the relevant CPUID properties in kvm_mmu_page_role would address
+the majority of problems, but fully tracking that much state in the
+shadow page role comes with an unpalatable cost as it would require a
+non-trivial increase in KVM's memory footprint.  The GBPAGES case is even
+worse, as neither Intel nor AMD provides a way to disable 1gb hugepage
+support in the hardware page walker, i.e. it's a virtualization hole that
+can't be closed when using TDP.
+
+In other words, resetting the MMU after a CPUID update is largely a
+superficial fix.  But, it will allow reverting the tracking of MAXPHYADDR
+in the mmu_role, and that case in particular needs to mostly work because
+KVM's shadow_root_level depends on guest MAXPHYADDR when 5-level paging
+is supported.  For cases where KVM botches guest behavior, the damage is
+limited to that guest.  But for the shadow_root_level, a misconfigured
+MMU can cause KVM to incorrectly access memory, e.g. due to walking off
+the end of its shadow page tables.
+
+Fixes: 7dcd57552008 ("x86/kvm/mmu: check if tdp/shadow MMU reconfiguration is needed")
+Cc: Yu Zhang <yu.c.zhang@linux.intel.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210622175739.3610207-5-seanjc@google.com>
+Message-Id: <20210622175739.3610207-7-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/mmu/paging_tmpl.h b/arch/x86/kvm/mmu/paging_tmpl.h
-index 823a5919f9fa..52fffd68b522 100644
---- a/arch/x86/kvm/mmu/paging_tmpl.h
-+++ b/arch/x86/kvm/mmu/paging_tmpl.h
-@@ -471,8 +471,7 @@ static int FNAME(walk_addr_generic)(struct guest_walker *walker,
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index a474cd13b0c8..f1e4d5f2bf8d 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1496,6 +1496,7 @@ int kvm_mmu_create(struct kvm_vcpu *vcpu);
+ void kvm_mmu_init_vm(struct kvm *kvm);
+ void kvm_mmu_uninit_vm(struct kvm *kvm);
  
- error:
- 	errcode |= write_fault | user_fault;
--	if (fetch_fault && (mmu->nx ||
--			    kvm_read_cr4_bits(vcpu, X86_CR4_SMEP)))
-+	if (fetch_fault && (mmu->nx || mmu->mmu_role.ext.cr4_smep))
- 		errcode |= PFERR_FETCH_MASK;
++void kvm_mmu_after_set_cpuid(struct kvm_vcpu *vcpu);
+ void kvm_mmu_reset_context(struct kvm_vcpu *vcpu);
+ void kvm_mmu_slot_remove_write_access(struct kvm *kvm,
+ 				      struct kvm_memory_slot *memslot,
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index b4da665bb892..c42613cfb5ba 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -202,10 +202,10 @@ static void kvm_vcpu_after_set_cpuid(struct kvm_vcpu *vcpu)
+ 	static_call(kvm_x86_vcpu_after_set_cpuid)(vcpu);
  
- 	walker->fault.vector = PF_VECTOR;
+ 	/*
+-	 * Except for the MMU, which needs to be reset after any vendor
+-	 * specific adjustments to the reserved GPA bits.
++	 * Except for the MMU, which needs to do its thing any vendor specific
++	 * adjustments to the reserved GPA bits.
+ 	 */
+-	kvm_mmu_reset_context(vcpu);
++	kvm_mmu_after_set_cpuid(vcpu);
+ }
+ 
+ static int is_efer_nx(void)
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index fa35762f325c..1ab3fdb1f2e4 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -4903,6 +4903,18 @@ kvm_mmu_calc_root_page_role(struct kvm_vcpu *vcpu)
+ 	return role.base;
+ }
+ 
++void kvm_mmu_after_set_cpuid(struct kvm_vcpu *vcpu)
++{
++	/*
++	 * Invalidate all MMU roles to force them to reinitialize as CPUID
++	 * information is factored into reserved bit calculations.
++	 */
++	vcpu->arch.root_mmu.mmu_role.ext.valid = 0;
++	vcpu->arch.guest_mmu.mmu_role.ext.valid = 0;
++	vcpu->arch.nested_mmu.mmu_role.ext.valid = 0;
++	kvm_mmu_reset_context(vcpu);
++}
++
+ void kvm_mmu_reset_context(struct kvm_vcpu *vcpu)
+ {
+ 	kvm_mmu_unload(vcpu);
 
