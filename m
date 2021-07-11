@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBCBC3C3C47
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:24:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB483C3C48
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232792AbhGKM1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:27:42 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:39155 "EHLO
+        id S232793AbhGKM1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:27:50 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:32983 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232730AbhGKM1l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:27:41 -0400
+        by vger.kernel.org with ESMTP id S232730AbhGKM1t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:27:49 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id B2CC51AC04A7;
-        Sun, 11 Jul 2021 08:24:54 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 11 Jul 2021 08:24:55 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id B36E81AC0D0B;
+        Sun, 11 Jul 2021 08:25:02 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 11 Jul 2021 08:25:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GzFyx1
-        i05nJfYCbGRHdNcb4+0odYzC9gA60vT44PZng=; b=II+eMqcm7hUYq3fiTlErRm
-        v2BvH3zJpjyBv7sLuCWNSyLlARM/wb72xWax8oikwH5L3MxuvEYQx3aaU/Ml5xBt
-        A2jbYZZPhWDuSuqvP5LT3RrYIdk0hvCLUiarUo9cjv/ZYwzD+cs4tJH96B6yOFQO
-        taLgSOHXZzUKgfszcOhnEmrfVj0Zh09oQHop6BKloJMeikPncMEuisM0jkW48Y/o
-        gpiyU321vIz5O3EU9v1S4syYqp14AE59UzAYpk+5Rduxr5LMuLbw+d/h2xjRJB2q
-        8TLXRrsUYCOjzYVtR9FdGtsamIlOYplawSHpoPhLk+V+DWac5+hBL7rbJVs1C2Xg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PIiO6c
+        Dn2jgn0IL/h76FjVKXj0T3TVAR5OR72eRorr0=; b=b/4cIlhDA2ArhkfIQXc90Y
+        6KdGbicIQRL2AwDrlGzPujJuHaFwjWDZGpt5R/2enToEE6ZssAdYCOgOy6tFukA/
+        LGxx4+ExdwQEMvd2G7R4PRKg1C4/nayQCg72emSdy12YIeDnVHLmczElLbF4/IhK
+        0Y8SoTz+EV9wGVFEfB68pneoTCm1daFuKdFAhej3Jl/8koyoXyFQc1OnuChrVwN+
+        6oyXii0gwcuKsOZDdQxf6ub1cl2lbyaWfZYqJVxGDoqTVgU7AS3z/feouXmoneVr
+        EB2sSwsDjVQtYHv7ePzgHCrv8D+HR4JLsf3E9+ZxQolMT+wZOQFx+ZCDcOP9ji5A
         ==
-X-ME-Sender: <xms:FePqYA7sztjmQx4nAyLONFn-WKULhIGq3hhHKD-RxACyNDNttHd6yA>
-    <xme:FePqYB4yDUHQfF3re2ACHzyZYIBoBOlA2nW4NglQvew8sTPCEl-E-rf8kX5AINei5
-    01JuqqTctnBRg>
-X-ME-Received: <xmr:FePqYPeirbxoJybpPRc-cc93S-tsJWTEz4aoJz-f7zK950aoKU1OuYrXUW33uam1cSGI_eE9qAK5zGGDd1HYwo9beg>
+X-ME-Sender: <xms:HuPqYP4I0j6grEpbAum-EqGRxfI73ywzfG43zRXEHFcTFyWCqInfJA>
+    <xme:HuPqYE4koElVW9DpuggC6beV4EKJr6OO8VQ4a_VXXES2kjwEMa6lHQaYWSzCk5eVj
+    EpThAK1OU7CVg>
+X-ME-Received: <xmr:HuPqYGfhFU3iQ_EuocdEhGz__uKuk6bWFqlMr71SWYRfMMFCnGnDHSDD0iF9wmzfkuPFWhc0TXaAEkf13skAyKxDIw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
     hhrdgtohhm
-X-ME-Proxy: <xmx:FePqYFK57wjG01Rd-cClXuGPIgzdTxva_rbvInnDTDEM0voKhRgYrA>
-    <xmx:FePqYEJYbV5AnUzyINwFD5WyAc8XQuyw4CK9k4NyaYp9A6bqeHXn4A>
-    <xmx:FePqYGx8mIvK8h2gdj1YYNS3nfLLTKHOD3zE4svueMqA-YFZwp1jyQ>
-    <xmx:FuPqYJFQr7ds-hto_9Iqu4DvWNAimNljXoSN-sXeCNKJlz26OPdYVbzODhM>
+X-ME-Proxy: <xmx:HuPqYALvqtykbf3lcJ40r0ms5ixZpgpCaocSlv8nTG09IQ0KdH79AA>
+    <xmx:HuPqYDJUn9U6UJyJTUAspMlYLGLMMbNeAOk_V_gCorfPdIF4fRrCHw>
+    <xmx:HuPqYJxhepXWLpBtGSM2DO6fm1WLlF3HxFVm0dVL610kdPr-PUEfdQ>
+    <xmx:HuPqYAFE3jYqF5Nd99zd5Us5-OG7thWqQX8WqzMjXeTNCVTReY9eGtLOob0>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:24:53 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] can: bcm: delay release of struct bcm_op after" failed to apply to 4.4-stable tree
+ 11 Jul 2021 08:25:01 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] can: bcm: delay release of struct bcm_op after" failed to apply to 4.9-stable tree
 To:     cascardo@canonical.com, mkl@pengutronix.de, nslusarek@gmx.net,
         socketcan@hartkopp.net, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:24:51 +0200
-Message-ID: <162600629174130@kroah.com>
+Date:   Sun, 11 Jul 2021 14:24:52 +0200
+Message-ID: <162600629218492@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
