@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E20093C3CB2
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 15:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 600FA3C3CB3
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 15:01:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232775AbhGKNE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 09:04:26 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:42499 "EHLO
+        id S232789AbhGKNE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 09:04:29 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:38627 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231658AbhGKNE0 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 11 Jul 2021 09:04:26 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id 452F61AC0DBA;
-        Sun, 11 Jul 2021 09:01:39 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Sun, 11 Jul 2021 09:01:39 -0400
+        by vger.kernel.org with ESMTP id S231658AbhGKNE3 (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 11 Jul 2021 09:04:29 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.west.internal (Postfix) with ESMTP id 3E2AE1AC0EE2;
+        Sun, 11 Jul 2021 09:01:42 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Sun, 11 Jul 2021 09:01:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=/LHo2n
-        0vNfOs2/We0rJwAs+lRioOmO6v3WEeg6wCL4k=; b=FCI+B/ydyOH28kId09Vdx3
-        sJfpsLYXjhmq3UtxDnhr4ii04SJMcYg3zSzU7vD5cXw1IbdNTn3LhdVF8gCGkhRE
-        kgQnnyVnFu+AxPAEn9jaTRDxTTYunuUkzT3mfuUg43TddTU4gLI9Nl5M5xgCmIaZ
-        NG2KL3O3ITQ3fkYumEEm6TSMbTE7ofh9a1KhNdOtQbobulUMoEUqNjvBuS2FtX6g
-        42QT57Ovf1v4gpL/N3P32YBbzs64yBkRFG6PxWeaQFTNrs5mURU7a269lB1IvwLV
-        5Bq6EuO9hQoOqNzGUhGA14H1fvKb+pFam2A4bSj5HE2Wsk8PMSkxTF1ovaRch8ww
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ugr4qS
+        eEYJeWrtlP7BfMIu+LZai/ophuP1HCw7UjPlY=; b=pgS3+rU5IJqwlCPVMG9cxN
+        9xQ2yYyPI+TGMqlgN/zMq6JB5GhcnqQzXIRiKX93Ff2FaeBKaOxOO200DKZhxOGj
+        3n3aBk01+i76Qzm9IBPDoZG8odeqpHm94DyhjuzmB6e3Pvw/T35DKn1vwmzmj+Jp
+        0/kQRVpL5ibhGCBQSzx4IkhoZau27ACpUINXjuGi0mMLeevRMCGst3ArJYdUkGt2
+        uIcqz2Q6jlMw7SUsPTnL/s6naMAofRjebi88bug0aGTPhI8DQ4+D9974b4+8E1qP
+        mLLw6OJz750zgFpW++4oCF2qqbCQoLlFmweNeNm2zkqZtlNcQzysXCmwNDwSqDTw
         ==
-X-ME-Sender: <xms:suvqYCvJ9ojv3tDu4x8NMU8WYz14mhNl1zEF29xmh9mmyI7r6G3a-g>
-    <xme:suvqYHdlag-WIN22DVeWuK0x5rFprATxtJFbefywmZws_mZ0YExfSnC-OFtIMh1-H
-    eYoTh8MH8bqFQ>
-X-ME-Received: <xmr:suvqYNx1itqzdTsT0qGFAIDUMDMDNyY--GBViudA_DBjw9m3zKqTdX2AaU3NmJ-08biRj59kD5tZ1sfyCqdkov-Qdw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehlecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:tevqYCwWfE5pzkATiZ37pDN90RARCFZRishd29X8eGmr_utpumkd6g>
+    <xme:tevqYOQUR8ejAIpXh2hraOOqify613rSdCtkPrtJcAt36VuRb5sgXLJRHbtngtR0y
+    Yo9AdhuT21LPQ>
+X-ME-Received: <xmr:tevqYEUVmaeW4wXkFoC4Cj53J2Q3Ps0u6p0xaPLK-hm_yhlugfnUJkFtKToqS_CDlCGD7KOTsBtZ8jxgvv-eJ_FScg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
@@ -40,19 +40,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehlecutefuodetggdote
     tghomhdpohgtthhophgrrhhtrdgtohhmpdhkvghrnhgvlhdrohhrghenucevlhhushhtvg
     hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
     tghomh
-X-ME-Proxy: <xmx:suvqYNNCiyb-cxiRmnbE4S0yET2nJURLBprf6vM8W3GK0NNa6aHJbQ>
-    <xmx:suvqYC_KHFjubkiZko7SRDaEmXeXXGO19V2ZYVpSngf3F5rnENT97Q>
-    <xmx:suvqYFXsIgg8CSmO4VGhPGKkUPj8RGJAeDAAku0Erk5pT0K6xdqQtQ>
-    <xmx:suvqYGa-ZRSdJzk_uMGhvsA1rHbdE4A7sKBa7xOK8dJb7cviG34mkznQdnU>
+X-ME-Proxy: <xmx:tevqYIh4yZu3qfbJEckkUAy45W0mJbMtntKl8Dd9_qxyEPHYYwhkjQ>
+    <xmx:tevqYEBGtqBkH3JNoJk29EjtwUUmxZC6ifvus2WaksHoxoG3tHjauQ>
+    <xmx:tevqYJIFoPTANmYfJRiNtTM1Dd8upknctwl6grAzCDWdoO7aFOImVg>
+    <xmx:tevqYH-RrwyPqA0Gt3nZmlIYi-P5Spvp_tHQQQ1aLGCek92decF_0qCLtOQ>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 09:01:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio: accel: bma180: Fix BMA25x bandwidth register values" failed to apply to 4.19-stable tree
+ 11 Jul 2021 09:01:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: accel: bma180: Fix BMA25x bandwidth register values" failed to apply to 4.14-stable tree
 To:     stephan@gerhold.net, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, linus.walleij@linaro.org, pmeerw@pmeerw.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 15:01:28 +0200
-Message-ID: <1626008488210176@kroah.com>
+Date:   Sun, 11 Jul 2021 15:01:29 +0200
+Message-ID: <1626008489181117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
