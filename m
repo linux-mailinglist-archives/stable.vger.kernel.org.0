@@ -2,71 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1269B3C3A20
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 06:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E55063C3A25
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 06:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229800AbhGKE0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 00:26:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22700 "EHLO
+        id S231386AbhGKE1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 00:27:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42527 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229544AbhGKE0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 00:26:53 -0400
+        by vger.kernel.org with ESMTP id S231376AbhGKE1l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 00:27:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1625977447;
+        s=mimecast20190719; t=1625977495;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=02U4tJtEiOM0qkKaodpq8DMAnRGvc/YpIqhPzDDp4BM=;
-        b=E0NS3TAz2jsVyC4t2qS8v5+XeGBCaHxTqCOQvjhLKzgIY/VbbTwrew02DpGQTqD+S0Jksf
-        2vxvtHuvvqKVRr+YN0ejlXUgfGwgs1JmG3cFxhY5mtzZNuzXDfLuIOjP0SkI6j08lZTVy8
-        TSscC23hnzlpV6uGe8/Bt+QJIuRWm24=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-512-e4D6pAsBNLW6a_tJLK61gQ-1; Sun, 11 Jul 2021 00:24:05 -0400
-X-MC-Unique: e4D6pAsBNLW6a_tJLK61gQ-1
-Received: by mail-ed1-f70.google.com with SMTP id n6-20020aa7c4460000b02903a12bbba1ebso4358060edr.6
-        for <stable@vger.kernel.org>; Sat, 10 Jul 2021 21:24:05 -0700 (PDT)
+        bh=aZYL5aYn0xhNCuQJ4VSpLl42cD0uGgHWKGK+S3b+4Xw=;
+        b=YKVI+J504f/VpNk7vjjnN81fN71xa5kNd7H6G6PWMQR6vG4Qe+RtgdG8tGNporYIdKuDWK
+        kRPiKZ2GsV30CCof7XKvJZgpGOiugXg/G0wmJrOomWSHa9Ej/TorjgvX5wCkjzCQiN8fA3
+        uuL82QI7V2gvXeiFM0xmli+Ok/GIEh8=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-139-uTAl68y7NyiUATnPPtxAQg-1; Sun, 11 Jul 2021 00:24:51 -0400
+X-MC-Unique: uTAl68y7NyiUATnPPtxAQg-1
+Received: by mail-ed1-f71.google.com with SMTP id s6-20020a0564020146b029039578926b8cso7773787edu.20
+        for <stable@vger.kernel.org>; Sat, 10 Jul 2021 21:24:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=02U4tJtEiOM0qkKaodpq8DMAnRGvc/YpIqhPzDDp4BM=;
-        b=RxYt87uXRlClprqmYe3N+uXGMqoRXvoibKxQa5+RfE1MvgTTTWh5wZv5+7pGXOFIZ/
-         2QH39wK4q5uYGaNZHVS/5d7ZKTNrg6iXCOAtDX5TMBSQsPXYamnL2/yrQBAgSIFV800b
-         oI971hCjqfRkWO2FboxlarfWfAyLLuAw3F8Aw/Cs6mC5CqekekrWbPlYLLGBz9xgmw+c
-         5NHw4BnpoQwd0kamPVSgrKsqVTyvivqUehdrqg3x+DKHl7Q0dtYMsu1ciW3HapQ4uLG6
-         n33M4MNmCt+KEk1Bvf1Ax6ZCBa6G7liA7rbICDpEWs4tvlAuGnV+q54ilFbmmwz1QIE1
-         Ikdg==
-X-Gm-Message-State: AOAM532sY5v9QLnRKdYfiPp3b3aprh9ayFxtjCHaGTwU5REeVFrVq91f
-        TyOEPZ7tLSLnQsFWJPNKEPMKWlmTqE4CZTUt8m8bAKW1lEK5GXlbk5kDyB8QbuTLx6LYQAWmiJP
-        Vkt6/3vtDUSHDvCIM
-X-Received: by 2002:a17:907:2067:: with SMTP id qp7mr10660519ejb.225.1625977444402;
-        Sat, 10 Jul 2021 21:24:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJws63KcGvr+pdP3lOGZXLaXHF/jMHxo99OfYK1sKTi6JsWEKwIv7VTilCS2Xif47SisBKLkUQ==
-X-Received: by 2002:a17:907:2067:: with SMTP id qp7mr10660506ejb.225.1625977444236;
-        Sat, 10 Jul 2021 21:24:04 -0700 (PDT)
+        bh=aZYL5aYn0xhNCuQJ4VSpLl42cD0uGgHWKGK+S3b+4Xw=;
+        b=GPvPDKeX+sSjdmK5azRoCZEjmcd9n2XS2Rw40+TYLdEQoi/fh+pGy3zPwOmvKA+TF3
+         jj8HAudDMUSl6A/YhRCP1zyDlz5U0Bnx+OAKYpYDcg8MSCEazfnhzYW3wYkHcVi/C6Jz
+         p2xwskYTeBBDROJvo/WAKPwqd6Y2aVAckACrL3X1h4Ts9y91DnFixdLerlTnkqSFNCul
+         XElGAfTNUnz4/YEri83ERSrWVX4eFKPnaaXWUw1eYSVGf6HbRpOyyIdNnjHn1e0L2iMb
+         hVNFQKGbOoDhNZjeZ1ZQF3nHk03uoaeDSB081+UmExQOgY4ZwuV1U52DSiWXW9nd6GCW
+         sDmg==
+X-Gm-Message-State: AOAM530SUz7BUkE/BR762sBd7Y8+tLbRNorgwhzb7/VI62M+jYCxJOFM
+        gYoqsXOwHkykyGvBWZEMDYVZBUDGcmnh0atmDD9NOO6XGsYccNt5v1Xa4kCqx6uLy1vQaND6QPo
+        IjI6OS/usNhQbiWds
+X-Received: by 2002:a17:907:3f21:: with SMTP id hq33mr46593695ejc.101.1625977490655;
+        Sat, 10 Jul 2021 21:24:50 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx2631mvc12XNn+pwQYGuAoTleaNH4+BbnJXIlHyuX714kOlbFAfCmFuHzVyxmLUCkbND1PJQ==
+X-Received: by 2002:a17:907:3f21:: with SMTP id hq33mr46593678ejc.101.1625977490452;
+        Sat, 10 Jul 2021 21:24:50 -0700 (PDT)
 Received: from redhat.com ([2.55.136.76])
-        by smtp.gmail.com with ESMTPSA id i11sm5521539edu.97.2021.07.10.21.24.01
+        by smtp.gmail.com with ESMTPSA id c2sm4560282ejz.73.2021.07.10.21.24.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Jul 2021 21:24:03 -0700 (PDT)
-Date:   Sun, 11 Jul 2021 00:23:59 -0400
+        Sat, 10 Jul 2021 21:24:49 -0700 (PDT)
+Date:   Sun, 11 Jul 2021 00:24:47 -0400
 From:   "Michael S. Tsirkin" <mst@redhat.com>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH AUTOSEL 5.12 42/43] virtio: fix up virtio_disable_cb
-Message-ID: <20210711002242-mutt-send-email-mst@kernel.org>
-References: <20210710234915.3220342-1-sashal@kernel.org>
- <20210710234915.3220342-42-sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.4 28/28] virtio: fix up virtio_disable_cb
+Message-ID: <20210711002423-mutt-send-email-mst@kernel.org>
+References: <20210710235107.3221840-1-sashal@kernel.org>
+ <20210710235107.3221840-28-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210710234915.3220342-42-sashal@kernel.org>
+In-Reply-To: <20210710235107.3221840-28-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 10, 2021 at 07:49:14PM -0400, Sasha Levin wrote:
+On Sat, Jul 10, 2021 at 07:51:07PM -0400, Sasha Levin wrote:
 > From: "Michael S. Tsirkin" <mst@redhat.com>
 > 
 > [ Upstream commit 8d622d21d24803408b256d96463eac4574dcf067 ]
@@ -92,15 +92,15 @@ On Sat, Jul 10, 2021 at 07:49:14PM -0400, Sasha Levin wrote:
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-I am not sure we want this in stable yet. It should in theory
-fix the reported interrupt storms but the reporter is on vacation.
+I don't think we should have it in stable just yet.
+Let's make sure it fixes the issue first.
 
 > ---
 >  drivers/virtio/virtio_ring.c | 26 +++++++++++++++++++++++++-
 >  1 file changed, 25 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 71e16b53e9c1..88f0b16b11b8 100644
+> index 97e8a195e18f..b6e1e0598529 100644
 > --- a/drivers/virtio/virtio_ring.c
 > +++ b/drivers/virtio/virtio_ring.c
 > @@ -113,6 +113,9 @@ struct vring_virtqueue {
