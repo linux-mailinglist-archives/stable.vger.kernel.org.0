@@ -2,156 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED293C3EA3
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 19:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 049873C3EA8
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 20:01:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230176AbhGKR7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 13:59:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59884 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229801AbhGKR7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 13:59:54 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4128BC0613DD
-        for <stable@vger.kernel.org>; Sun, 11 Jul 2021 10:57:06 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id s18so396838pgq.3
-        for <stable@vger.kernel.org>; Sun, 11 Jul 2021 10:57:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=o3MPVBRK4+oKK+ZcO+Gls/BxB18vHfaoIGXHKNVPgvk=;
-        b=qkrrjqUbVMefjF0oQB2TYjbOgHpO1vhSdVyX2vT9xkn7VCfTmeVDK6yx3qUUDTIgjG
-         ooSa6H1wUIfIaYjClw7ZwCWI9u/X4xvgKrbcwuwkOP5FWFoCYGl+VC3VghBDRkXk1W0i
-         5QZOzXb+CrCVqe9z4XijoS4GS06N6DMZzOaW4JM4VxNjyKuUgz/S8JYO0Vj8oohfBCwv
-         n1kkQZtods8aaICUexuYtl6RHRHYzAxGeIekUlJBDiTy9r6fGf5M/jbkRtISelECAbBF
-         6yCzoI9PeqEmndxb2HOnEYNAvEjlRmcwP5LKy3kKs/o2+vlxlyhm6Co26be1CuAGNGLw
-         B9kA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=o3MPVBRK4+oKK+ZcO+Gls/BxB18vHfaoIGXHKNVPgvk=;
-        b=PwAAH/0UArBdYhrVhtFcjdJCtUxE5FUrpJKKs6vWpuEN+mt0qL0UxSrPI7UVDZY6D7
-         c61M9n1InSe/6xoSJHRTopcGiZuw/QRmfjhMknq3CHAF2X3Ye7RvSTEIWHO5FAsdaY/R
-         KSdd6uuLvC4KQ4zQ/aouKnoDJm/UicGforu/qGLw0l04DEXw0x/8yjDW6S9jCfgVO3fu
-         mSKODfM7hN5Jn7p5EGbsIPWiblvdhfpIk+3dlGh4YLclJ6bcUEYnERCPFiGdPIWl0jK9
-         W3EmzuPiIE5icOGC4PGo10Y16Vh5uhgA4kJv+Vh4dv4TZcyeA0COKZCQANX4LxtXynBg
-         A7tQ==
-X-Gm-Message-State: AOAM531bd7eZw+6PEQCMWjaKgQIFNIfvQHPq3VfS0l2wdpORfTYQJ9hl
-        wJv7f9c9jjVRbwSJsEAJoGKc1gANSmwLgrYU
-X-Google-Smtp-Source: ABdhPJyIln6Eu4muGlQE5uNRskz4DD+FvuFh/4kSmL83SmxCm3r22l7DtAFr0g3ZuDQuR65GlcbsoQ==
-X-Received: by 2002:a63:1266:: with SMTP id 38mr43125268pgs.154.1626026225619;
-        Sun, 11 Jul 2021 10:57:05 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b4sm11181243pji.52.2021.07.11.10.57.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Jul 2021 10:57:05 -0700 (PDT)
-Message-ID: <60eb30f1.1c69fb81.1007.12a9@mx.google.com>
-Date:   Sun, 11 Jul 2021 10:57:05 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230176AbhGKSDs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 14:03:48 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:51943 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229801AbhGKSDs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 14:03:48 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 579D21940160;
+        Sun, 11 Jul 2021 14:01:01 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Sun, 11 Jul 2021 14:01:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=QtxFDT
+        1AwbKlbmK1EV/D8aDkJHSKDTCcCQXehx++ze4=; b=vp8O/DPbjJeX8yCuqUFR/8
+        eduChaPwtiokV8Hyy+7F+jV5nIPMji7Q8RZb8sHxFNyb75S7UzNL1eStGTgfu25+
+        RdaJCfXE7y3k3XkJnoa+RRtwExev7n0WMfzOdJBKWWMj5YHUrp0gcqYF0A6A8003
+        vUBYJFT/4kI0+MOigjY8Nn7kzGW5FWpO32DK8K7UhGNRAXT9jefg3sGZfcEGeyZX
+        1kRgy4Eoh8Z4HBZzCfT5aiORogbVvrmpsVlcOKk5O6HTTntArOe0xS625AKz9pzU
+        EtvBN6Y89SYpY+rCKoRLRRODULftOD1hacdjsrKP2Fw7tV37GH6pl+0w1DNwx5kQ
+        ==
+X-ME-Sender: <xms:3DHrYF_bLzatGuRmj7BRo1rHwZP7BLmns2EPckQQ4-I_WPGFkRAsUA>
+    <xme:3DHrYJvdAfcwpyJbSPCkzr-OBFQsrgA6tRbwn16WyN6HZmn7M5N6WWFc2sq1T-IF3
+    LVzJ-lVfjXjpg>
+X-ME-Received: <xmr:3DHrYDD1KIVpSysw1shinPzjIlb4S7GKQV4GOFXbF7CbtJjXo8AvRkUZ_mOVkUg2ItSoDLOYHe203_uAMnuTzq_EDA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdduudekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhu
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    grhhdrtghomh
+X-ME-Proxy: <xmx:3THrYJfx3Gushq6hBjDcjfIChrsUhlN3H4VvvosW9GI6JcXZQHLoHA>
+    <xmx:3THrYKNLmFP8LHs0fYDfQddTRtnpt5TrqoRKSy1BpEUZNQKNIBWBDw>
+    <xmx:3THrYLlC9wAikvSHDXp_vxe8XEjUAyrjXyUEy1GZl_CLMJVoK0s4aw>
+    <xmx:3THrYM34sfDeP0bWDSRMiaDRKy9CbbneLk4CXZ15RAfQuB6deFgvhg>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 11 Jul 2021 14:01:00 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] fscrypt: don't ignore minor_hash when hash is 0" failed to apply to 5.4-stable tree
+To:     ebiggers@google.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 11 Jul 2021 20:00:59 +0200
+Message-ID: <162602645949183@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.13.1
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.13.y
-Subject: stable-rc/linux-5.13.y baseline: 224 runs, 2 regressions (v5.13.1)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.13.y baseline: 224 runs, 2 regressions (v5.13.1)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
+thanks,
 
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.13.y/ker=
-nel/v5.13.1/plan/baseline/
+From 77f30bfcfcf484da7208affd6a9e63406420bf91 Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Thu, 27 May 2021 16:52:36 -0700
+Subject: [PATCH] fscrypt: don't ignore minor_hash when hash is 0
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.13.y
-  Describe: v5.13.1
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      aaa1f5834d71fe7b687a0c41834bd8d4cc733d90 =
+When initializing a no-key name, fscrypt_fname_disk_to_usr() sets the
+minor_hash to 0 if the (major) hash is 0.
 
+This doesn't make sense because 0 is a valid hash code, so we shouldn't
+ignore the filesystem-provided minor_hash in that case.  Fix this by
+removing the special case for 'hash == 0'.
 
+This is an old bug that appears to have originated when the encryption
+code in ext4 and f2fs was moved into fs/crypto/.  The original ext4 and
+f2fs code passed the hash by pointer instead of by value.  So
+'if (hash)' actually made sense then, as it was checking whether a
+pointer was NULL.  But now the hashes are passed by value, and
+filesystems just pass 0 for any hashes they don't have.  There is no
+need to handle this any differently from the hashes actually being 0.
 
-Test Regressions
----------------- =
+It is difficult to reproduce this bug, as it only made a difference in
+the case where a filename's 32-bit major hash happened to be 0.
+However, it probably had the largest chance of causing problems on
+ubifs, since ubifs uses minor_hash to do lookups of no-key names, in
+addition to using it as a readdir cookie.  ext4 only uses minor_hash as
+a readdir cookie, and f2fs doesn't use minor_hash at all.
 
+Fixes: 0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
+Cc: <stable@vger.kernel.org> # v4.6+
+Link: https://lore.kernel.org/r/20210527235236.2376556-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 
+diff --git a/fs/crypto/fname.c b/fs/crypto/fname.c
+index 6ca7d16593ff..d00455440d08 100644
+--- a/fs/crypto/fname.c
++++ b/fs/crypto/fname.c
+@@ -344,13 +344,9 @@ int fscrypt_fname_disk_to_usr(const struct inode *inode,
+ 		     offsetof(struct fscrypt_nokey_name, sha256));
+ 	BUILD_BUG_ON(BASE64_CHARS(FSCRYPT_NOKEY_NAME_MAX) > NAME_MAX);
+ 
+-	if (hash) {
+-		nokey_name.dirhash[0] = hash;
+-		nokey_name.dirhash[1] = minor_hash;
+-	} else {
+-		nokey_name.dirhash[0] = 0;
+-		nokey_name.dirhash[1] = 0;
+-	}
++	nokey_name.dirhash[0] = hash;
++	nokey_name.dirhash[1] = minor_hash;
++
+ 	if (iname->len <= sizeof(nokey_name.bytes)) {
+ 		memcpy(nokey_name.bytes, iname->name, iname->len);
+ 		size = offsetof(struct fscrypt_nokey_name, bytes[iname->len]);
 
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e776591f1807404b117a20
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.13.y/v5.13.1=
-/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.13.y/v5.13.1=
-/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e776591f1807404b117=
-a21
-        new failure (last pass: v5.13.1-1-g80f33de843bdd) =
-
- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60e77961a2e8b17fe9117993
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.13.y/v5.13.1=
-/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.13.y/v5.13.1=
-/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60e77961a2e8b17fe9117=
-994
-        new failure (last pass: v5.13.1-1-g80f33de843bdd) =
-
- =20
