@@ -2,97 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CAC73C3A10
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 06:07:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1269B3C3A20
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 06:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229523AbhGKEKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 00:10:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48106 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229485AbhGKEKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 00:10:23 -0400
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D0DBC0613DD;
-        Sat, 10 Jul 2021 21:07:37 -0700 (PDT)
-Received: by mail-pg1-x52e.google.com with SMTP id d12so14418759pgd.9;
-        Sat, 10 Jul 2021 21:07:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=dKsAYqxzYgd7z5GtPq+7QygjY/n937HhMVrbA1SRbwY=;
-        b=b0KUIPzVWUGhcugYBElLH2qIZngK8VeLpDjs0zccWBCJ7qK/ahi4pyPXA8guTSnPTt
-         r/XPBfjK1ogl58WgZYbzvXAV/bWDolLvK93TAFBG/HRci1Okai0GAjNM4u4GoACFYq+r
-         1GGqtYqe7iWX5og/p0Ez0pj5FOdmoStRYG4NMm0SJmppeWQ+LTByW9ebE4xqALiRvGh2
-         NvtO6gGGUhHcDdtbVs/qflVBVPG74oc20ENmZDNYzTghnQy9BFWMzCvUJp94+wayN6TK
-         dj/9tVZCtL8CFro16sbslpzZcnObjwRiBqpItMKY+dUu0UIfWN/48YwJKOKIicuOLVoc
-         W1Dw==
+        id S229800AbhGKE0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 00:26:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22700 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229544AbhGKE0x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 00:26:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1625977447;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=02U4tJtEiOM0qkKaodpq8DMAnRGvc/YpIqhPzDDp4BM=;
+        b=E0NS3TAz2jsVyC4t2qS8v5+XeGBCaHxTqCOQvjhLKzgIY/VbbTwrew02DpGQTqD+S0Jksf
+        2vxvtHuvvqKVRr+YN0ejlXUgfGwgs1JmG3cFxhY5mtzZNuzXDfLuIOjP0SkI6j08lZTVy8
+        TSscC23hnzlpV6uGe8/Bt+QJIuRWm24=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-512-e4D6pAsBNLW6a_tJLK61gQ-1; Sun, 11 Jul 2021 00:24:05 -0400
+X-MC-Unique: e4D6pAsBNLW6a_tJLK61gQ-1
+Received: by mail-ed1-f70.google.com with SMTP id n6-20020aa7c4460000b02903a12bbba1ebso4358060edr.6
+        for <stable@vger.kernel.org>; Sat, 10 Jul 2021 21:24:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=dKsAYqxzYgd7z5GtPq+7QygjY/n937HhMVrbA1SRbwY=;
-        b=ZCBSGLTrMGEuNC3SDbTcplHflt0eqm1XDJFTeL0Cp5TnnTpeuOBb4Z4VlVoQdEGGle
-         +/nSkmHhApEqEiwFOdu7N3zJy5Lxn9bINCbwG7xmwHR+zqhLxH3ww5JIZXV9zsyvXV76
-         yuU7rk3rPORdePaH3ANpsSTbb8Daqtg010IF5xdCQuMRIhdA52p778zNf0aqzD3FUp0s
-         2p7RgAqujE6MKLG20BHxgIBLUnogRdxpP+AOML/EQhJKK6rSQ/27Ybx3rt6oQfyshOtH
-         GsDzPjSc+Sr9qlzTg2VQhhC+U9OKSxSzstIvJatOp5omdN7HINFd1Qyzfh0XE3oaAN0N
-         rYVg==
-X-Gm-Message-State: AOAM532pl69zgty6aczcR5cvxDm5GJqNEE6L/EGrHVZ85pN1MXSOeeOs
-        4X1ouD2OO0BhvV0BFt5Ox5tMrGfyVzo=
-X-Google-Smtp-Source: ABdhPJz5Un1Thv32tPo1p+lUMStY7vyIHw7hYRBxIVkNSG5Du0mH8Pt58GYw7Kw7azZtkTpHtyUVqw==
-X-Received: by 2002:a62:d447:0:b029:291:19f7:ddcd with SMTP id u7-20020a62d4470000b029029119f7ddcdmr46508689pfl.54.1625976455968;
-        Sat, 10 Jul 2021 21:07:35 -0700 (PDT)
-Received: from [192.168.1.121] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
-        by smtp.gmail.com with ESMTPSA id t13sm9540885pjg.34.2021.07.10.21.07.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 10 Jul 2021 21:07:35 -0700 (PDT)
-Subject: Re: [PATCH 5.4 0/4] 5.4.131-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210709131531.277334979@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <c898f2bc-dfc9-7812-5e0e-9d412d94f0ac@gmail.com>
-Date:   Sat, 10 Jul 2021 21:07:24 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=02U4tJtEiOM0qkKaodpq8DMAnRGvc/YpIqhPzDDp4BM=;
+        b=RxYt87uXRlClprqmYe3N+uXGMqoRXvoibKxQa5+RfE1MvgTTTWh5wZv5+7pGXOFIZ/
+         2QH39wK4q5uYGaNZHVS/5d7ZKTNrg6iXCOAtDX5TMBSQsPXYamnL2/yrQBAgSIFV800b
+         oI971hCjqfRkWO2FboxlarfWfAyLLuAw3F8Aw/Cs6mC5CqekekrWbPlYLLGBz9xgmw+c
+         5NHw4BnpoQwd0kamPVSgrKsqVTyvivqUehdrqg3x+DKHl7Q0dtYMsu1ciW3HapQ4uLG6
+         n33M4MNmCt+KEk1Bvf1Ax6ZCBa6G7liA7rbICDpEWs4tvlAuGnV+q54ilFbmmwz1QIE1
+         Ikdg==
+X-Gm-Message-State: AOAM532sY5v9QLnRKdYfiPp3b3aprh9ayFxtjCHaGTwU5REeVFrVq91f
+        TyOEPZ7tLSLnQsFWJPNKEPMKWlmTqE4CZTUt8m8bAKW1lEK5GXlbk5kDyB8QbuTLx6LYQAWmiJP
+        Vkt6/3vtDUSHDvCIM
+X-Received: by 2002:a17:907:2067:: with SMTP id qp7mr10660519ejb.225.1625977444402;
+        Sat, 10 Jul 2021 21:24:04 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJws63KcGvr+pdP3lOGZXLaXHF/jMHxo99OfYK1sKTi6JsWEKwIv7VTilCS2Xif47SisBKLkUQ==
+X-Received: by 2002:a17:907:2067:: with SMTP id qp7mr10660506ejb.225.1625977444236;
+        Sat, 10 Jul 2021 21:24:04 -0700 (PDT)
+Received: from redhat.com ([2.55.136.76])
+        by smtp.gmail.com with ESMTPSA id i11sm5521539edu.97.2021.07.10.21.24.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 10 Jul 2021 21:24:03 -0700 (PDT)
+Date:   Sun, 11 Jul 2021 00:23:59 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH AUTOSEL 5.12 42/43] virtio: fix up virtio_disable_cb
+Message-ID: <20210711002242-mutt-send-email-mst@kernel.org>
+References: <20210710234915.3220342-1-sashal@kernel.org>
+ <20210710234915.3220342-42-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20210709131531.277334979@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210710234915.3220342-42-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 7/9/2021 6:20 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.131 release.
-> There are 4 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Sat, Jul 10, 2021 at 07:49:14PM -0400, Sasha Levin wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
 > 
-> Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
-> Anything received after that time might be too late.
+> [ Upstream commit 8d622d21d24803408b256d96463eac4574dcf067 ]
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.131-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> virtio_disable_cb is currently a nop for split ring with event index.
+> This is because it used to be always called from a callback when we know
+> device won't trigger more events until we update the index.  However,
+> now that we run with interrupts enabled a lot we also poll without a
+> callback so that is different: disabling callbacks will help reduce the
+> number of spurious interrupts.
+> Further, if using event index with a packed ring, and if being called
+> from a callback, we actually do disable interrupts which is unnecessary.
 > 
-> thanks,
+> Fix both issues by tracking whenever we get a callback. If that is
+> the case disabling interrupts with event index can be a nop.
+> If not the case disable interrupts. Note: with a split ring
+> there's no explicit "no interrupts" value. For now we write
+> a fixed value so our chance of triggering an interupt
+> is 1/ring size. It's probably better to write something
+> related to the last used index there to reduce the chance
+> even further. For now I'm keeping it simple.
 > 
-> greg k-h
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
+I am not sure we want this in stable yet. It should in theory
+fix the reported interrupt storms but the reporter is on vacation.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+> ---
+>  drivers/virtio/virtio_ring.c | 26 +++++++++++++++++++++++++-
+>  1 file changed, 25 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 71e16b53e9c1..88f0b16b11b8 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -113,6 +113,9 @@ struct vring_virtqueue {
+>  	/* Last used index we've seen. */
+>  	u16 last_used_idx;
+>  
+> +	/* Hint for event idx: already triggered no need to disable. */
+> +	bool event_triggered;
+> +
+>  	union {
+>  		/* Available for split ring */
+>  		struct {
+> @@ -739,7 +742,10 @@ static void virtqueue_disable_cb_split(struct virtqueue *_vq)
+>  
+>  	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
+>  		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
+> -		if (!vq->event)
+> +		if (vq->event)
+> +			/* TODO: this is a hack. Figure out a cleaner value to write. */
+> +			vring_used_event(&vq->split.vring) = 0x0;
+> +		else
+>  			vq->split.vring.avail->flags =
+>  				cpu_to_virtio16(_vq->vdev,
+>  						vq->split.avail_flags_shadow);
+> @@ -1605,6 +1611,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>  	vq->weak_barriers = weak_barriers;
+>  	vq->broken = false;
+>  	vq->last_used_idx = 0;
+> +	vq->event_triggered = false;
+>  	vq->num_added = 0;
+>  	vq->packed_ring = true;
+>  	vq->use_dma_api = vring_use_dma_api(vdev);
+> @@ -1919,6 +1926,12 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> +	/* If device triggered an event already it won't trigger one again:
+> +	 * no need to disable.
+> +	 */
+> +	if (vq->event_triggered)
+> +		return;
+> +
+>  	if (vq->packed_ring)
+>  		virtqueue_disable_cb_packed(_vq);
+>  	else
+> @@ -1942,6 +1955,9 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> +	if (vq->event_triggered)
+> +		vq->event_triggered = false;
+> +
+>  	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(_vq) :
+>  				 virtqueue_enable_cb_prepare_split(_vq);
+>  }
+> @@ -2005,6 +2021,9 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> +	if (vq->event_triggered)
+> +		vq->event_triggered = false;
+> +
+>  	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
+>  				 virtqueue_enable_cb_delayed_split(_vq);
+>  }
+> @@ -2044,6 +2063,10 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+>  	if (unlikely(vq->broken))
+>  		return IRQ_HANDLED;
+>  
+> +	/* Just a hint for performance: so it's ok that this can be racy! */
+> +	if (vq->event)
+> +		vq->event_triggered = true;
+> +
+>  	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
+>  	if (vq->vq.callback)
+>  		vq->vq.callback(&vq->vq);
+> @@ -2083,6 +2106,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+>  	vq->weak_barriers = weak_barriers;
+>  	vq->broken = false;
+>  	vq->last_used_idx = 0;
+> +	vq->event_triggered = false;
+>  	vq->num_added = 0;
+>  	vq->use_dma_api = vring_use_dma_api(vdev);
+>  #ifdef DEBUG
+> -- 
+> 2.30.2
+
