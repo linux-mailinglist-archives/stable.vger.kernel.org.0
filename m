@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A453C3C30
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6327A3C3C39
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbhGKMUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:20:19 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:50247 "EHLO
+        id S232793AbhGKMYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:24:11 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:50485 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232071AbhGKMUT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:20:19 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 6FDDD1AC0D1D;
-        Sun, 11 Jul 2021 08:17:32 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S232792AbhGKMYK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:24:10 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id EF23F1AC04A7;
+        Sun, 11 Jul 2021 08:21:23 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 11 Jul 2021 08:17:32 -0400
+  by compute3.internal (MEProxy); Sun, 11 Jul 2021 08:21:24 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=lucLBf
-        he6706n6vthm7S/IbA2dZMkl9NANEEYVgboAo=; b=JywXRU7W3uzh5J+BWmUB7w
-        BUbUIVexwB1ErQkaHSDPDN5mNnRK7iO74LsHyITY4VDdjLCYNwOG1BwOqDe73oCU
-        jHVHys4LZhTokQkl0R3n4AQ4WVGk7t41uI8QrDZmhZ7MCwWKV1HxBe5AKEPT7RAD
-        clg8FEPdKCQPMMpG7tBvCoLhSmxbqv64LlkZojD7//4FdA/Rh3QBtGa+2qtRxzTC
-        Ze2+rfr/8nyvCy2mBUD1Fv+GLq1JLpcq7doeowasO7zjKlvOi+mqLoofOygJnjMv
-        iXt8bAN0VAPY+z1nDdhCoPHSG2MLyVD+Gga4XpSYpR/oAr2G7EXmzmlTHfY8YrTQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=yYmHBr
+        n2inInloi/7ogfnbKxaT6SkkzK8x7oA/IZU6I=; b=Wckj11u5Y+vWmsH+VFkkWV
+        Dk60jaq60ekNyrbJAOczizOfZuWkjlW3MVoITkU0izghGPlrIH+/b9SEpXg4BbNn
+        a6Q0G/l5Grn8zHj0mFw5WFbJowOG0LbVdmM1BgFTjjnOSXWIWX3c5pwAF2RPzODC
+        mUtA/RJ0Goph89LOZI0EYn9Ky72+JIWGT7jFxQu/043bkqZwG7ULkeQ96sSRwxfp
+        M/lYksnh1wrwISHAGSBre+KpPkyV1UMFgAwoLRCajEScbxJ25+DyeQ5lmN1VMc9N
+        Da4Zqaigzodeq9kE82z1vJEpHxIdGSZcyxblazvr3vBevWeiyl+VCr2zbeX8EP5w
         ==
-X-ME-Sender: <xms:WuHqYO_mMNvmrgt1MIm-nB276AQccYrNKOzovefpP7Z7ICmZsec4rA>
-    <xme:WuHqYOspl7F19fmJdIsY_U_rHS1louN7tjbwyqDf3_wR_PtsOnlowMU_jIgYptLDb
-    fpTg8B21Yk9gw>
-X-ME-Received: <xmr:WuHqYEBTCtOjz4laZpsna0AiGKZCqvUkDwQMqU1-H7d-S9upQQM2MU7SMZoXq6XmKuoH5p-BLbRuj0X29hGb18TYMQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehtdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:Q-LqYCwIRWTG3LItk2Nuh69LF28G0QJjoTFmlLVbYloa8z9WgYBdwg>
+    <xme:Q-LqYOQeQq97386mHMaybFO2TNb54Q6UxsPBPkKJ28zXXxU4t9FQaTvwlEqHcxhfZ
+    7yEJ44kmxMkmQ>
+X-ME-Received: <xmr:Q-LqYEVXeDASoQgyNWfdv4ota1vez2hodmMxjirfcYG6xUqA__dDpOV2iHrCmZ5WvbVOV2L8UhVXQd2O5aGr-HglDA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgr
     ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:WuHqYGdeFKat1ff9-4OujQ_Vm0Ebz34WAKmBZhhmV_TbQT8guQ_GkQ>
-    <xmx:WuHqYDOAtJgz9KcKhr4FewOSz4o5U84GenIzksgENY63eDeM4upsYg>
-    <xmx:WuHqYAkE8xl3mLfAIwtT_LF37tYmWuwxicz4QsfN_f_0-dbKJcxGpQ>
-    <xmx:XOHqYMZADrzJC1OV9C0FLZHvkQ1yEcl1AwBS0Nh0A6qv6GQrgrUW6t0T1nc>
+X-ME-Proxy: <xmx:Q-LqYIiSJFDM9hIyLeurLjnGE7NmGxmjktvB9HWRHh1srDBsCXnTRw>
+    <xmx:Q-LqYEBY3Dxeq08p1huVzlfsHo8Zc-5nN5EdkvGyGsYKaD_eFCmLCQ>
+    <xmx:Q-LqYJKvAT0LgsXZZ68NDRvpg5aRNS6hbHdpGraX6XSaofRP9vjOzQ>
+    <xmx:Q-LqYPo3_Z2YJSOLGhUgqsGBT3htfFMia9bjPg9kOW7A-kLXcdSBKWcjnbY>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:17:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: ccp - Annotate SEV Firmware file names" failed to apply to 5.4-stable tree
-To:     jroedel@suse.de, herbert@gondor.apana.org.au,
-        thomas.lendacky@amd.com
+ 11 Jul 2021 08:21:23 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: compression: don't try to compress if we don't have" failed to apply to 4.4-stable tree
+To:     dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:17:29 +0200
-Message-ID: <1626005849185115@kroah.com>
+Date:   Sun, 11 Jul 2021 14:21:21 +0200
+Message-ID: <1626006081229238@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,37 +69,36 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c8671c7dc7d51125ab9f651697866bf4a9132277 Mon Sep 17 00:00:00 2001
-From: Joerg Roedel <jroedel@suse.de>
-Date: Mon, 26 Apr 2021 10:17:48 +0200
-Subject: [PATCH] crypto: ccp - Annotate SEV Firmware file names
+From f2165627319ffd33a6217275e5690b1ab5c45763 Mon Sep 17 00:00:00 2001
+From: David Sterba <dsterba@suse.com>
+Date: Mon, 14 Jun 2021 12:45:18 +0200
+Subject: [PATCH] btrfs: compression: don't try to compress if we don't have
+ enough pages
 
-Annotate the firmware files CCP might need using MODULE_FIRMWARE().
-This will get them included into an initrd when CCP is also included
-there. Otherwise the CCP module will not find its firmware when loaded
-before the root-fs is mounted.
-This can cause problems when the pre-loaded SEV firmware is too old to
-support current SEV and SEV-ES virtualization features.
+The early check if we should attempt compression does not take into
+account the number of input pages. It can happen that there's only one
+page, eg. a tail page after some ranges of the BTRFS_MAX_UNCOMPRESSED
+have been processed, or an isolated page that won't be converted to an
+inline extent.
 
-Fixes: e93720606efd ("crypto: ccp - Allow SEV firmware to be chosen based on Family and Model")
-Cc: stable@vger.kernel.org # v4.20+
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The single page would be compressed but a later check would drop it
+again because the result size must be at least one block shorter than
+the input. That can never work with just one page.
 
-diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index 3506b2050fb8..91808402e0bf 100644
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -43,6 +43,10 @@ static int psp_probe_timeout = 5;
- module_param(psp_probe_timeout, int, 0644);
- MODULE_PARM_DESC(psp_probe_timeout, " default timeout value, in seconds, during PSP device probe");
- 
-+MODULE_FIRMWARE("amd/amd_sev_fam17h_model0xh.sbin"); /* 1st gen EPYC */
-+MODULE_FIRMWARE("amd/amd_sev_fam17h_model3xh.sbin"); /* 2nd gen EPYC */
-+MODULE_FIRMWARE("amd/amd_sev_fam19h_model0xh.sbin"); /* 3rd gen EPYC */
-+
- static bool psp_dead;
- static int psp_timeout;
- 
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index a2494c645681..e6eb20987351 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -629,7 +629,7 @@ static noinline int compress_file_range(struct async_chunk *async_chunk)
+ 	 * inode has not been flagged as nocompress.  This flag can
+ 	 * change at any time if we discover bad compression ratios.
+ 	 */
+-	if (inode_need_compress(BTRFS_I(inode), start, end)) {
++	if (nr_pages > 1 && inode_need_compress(BTRFS_I(inode), start, end)) {
+ 		WARN_ON(pages);
+ 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
+ 		if (!pages) {
 
