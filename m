@@ -2,97 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF4EA3C3CC3
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 15:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6776D3C3CC7
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 15:20:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232789AbhGKNPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 09:15:01 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:59595 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232544AbhGKNPB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 09:15:01 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 1A85A1AC0745;
-        Sun, 11 Jul 2021 09:12:14 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 11 Jul 2021 09:12:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+CAA8Y
-        eKS8AkJS7UYJYOWqGOEiF6zsjM+MDOULFXViI=; b=YoXNRxC0giysJjbojGqT5f
-        gSeSmBqTefLwtevmCwXWScTlWZ4+1w1PExkW66tzdI7ORa4tV5x6Obhp940A2K8G
-        WcJvm4mmpx6/atoDKOtTmNhJ1qkVgnKx1Tk3ljsPXBYF4Xy1kbl+TUuP9guWVuZL
-        7akb8ShVhQ5ynptVVEjeg4e0JHqlj0YwQ51VkhSJQ4Rtxv5BRhzFZdYRErQ4c+qo
-        TnM8qoknTftALUJyKjDwhmgww1NHDvMn4uv04QqSPhTlQ7dYKoLBoz695cVirJPV
-        6Pz3Pxy5/O58b7wEWSxQrg5Af5sAUyGDiPyNpw+6HKCoXTrlE827s9bnmNLIQD7A
-        ==
-X-ME-Sender: <xms:Le7qYGPwkFphb-HAGEpjmiGT7BW0VEJ8ogOgFLmcdZchXD0iSDhZMw>
-    <xme:Le7qYE9o6YSwhnjF0oYMXmtvCzfYqz1F2m8el0aWRhnWRBNy955_4E0rC9xi2DgkE
-    eup1EL7l12l6g>
-X-ME-Received: <xmr:Le7qYNS7TO1din38hDJ8-zdZrqYxoYSgvut76KRPLNlifpG-DSoAkUVZLCRJwTDL4rjVEHTmcdLWYKos4ILFEb3OuQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdeitdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgr
-    ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Le7qYGvdvz54GsCioqh3-5sIW9KrGl5-Ou17DVQOlpdZk6sbUxn6gw>
-    <xmx:Le7qYOcshz39sDivs1uftrKBvrwjEL6lJOEyeH6HZ-OIwQa6K36xVg>
-    <xmx:Le7qYK1EwNwQSkwli4zyRYZlhgJHTIb4S39IjI0xVgDU1Xg5q3csVg>
-    <xmx:Le7qYPpPfpbz1-7J_PGA31Jy1ZVw5w9XHoL0VFEGZhQIxLHLxE6S5LCHzE4>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 09:12:13 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] fuse: reject internal errno" failed to apply to 4.9-stable tree
-To:     mszeredi@redhat.com, anatoly.trosinenko@gmail.com,
+        id S232544AbhGKNXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 09:23:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46205 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232658AbhGKNXE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 09:23:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626009617;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ii+7ydEQcrkoc4EY60mMuxmS0HQ1FH1ba93hoFgQD7Q=;
+        b=bEDNsNxkqs1rZ2ZWZL9IAuqZ6oAVCM+pzO4DGviw3FIdGuWymqkC9SQ0ExcvCgtgxCKCt3
+        EBtkUbyByScdQpHevvz39kapt598bM5PY7jjhcY71F2Q7RwPHdz+So2VFT7VLZxVxWMTJr
+        6ezDHmIiqvaEnhPhu9iH9bRsrltRFMU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-507-LEf1oYJsMVipokhaqNcy_w-1; Sun, 11 Jul 2021 09:20:16 -0400
+X-MC-Unique: LEf1oYJsMVipokhaqNcy_w-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A7AAE801107;
+        Sun, 11 Jul 2021 13:20:14 +0000 (UTC)
+Received: from lorien.usersys.redhat.com (unknown [10.22.8.24])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id EED2B5C22B;
+        Sun, 11 Jul 2021 13:19:57 +0000 (UTC)
+Date:   Sun, 11 Jul 2021 09:19:56 -0400
+From:   Phil Auld <pauld@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 15:11:59 +0200
-Message-ID: <162600911919776@kroah.com>
+Subject: Re: [PATCH] sched: Fix nr_uninterruptible race causing increasing
+ load average
+Message-ID: <YOrv/PvjudQ3HLPD@lorien.usersys.redhat.com>
+References: <20210707190457.60521-1-pauld@redhat.com>
+ <YOaoomJAS2FzXi7I@hirez.programming.kicks-ass.net>
+ <YOatszHNZc9XRbYB@hirez.programming.kicks-ass.net>
+ <YOavHgRUBM6cc95s@hirez.programming.kicks-ass.net>
+ <YOcRwhF6XkYWPjvV@lorien.usersys.redhat.com>
+ <YOhHphFWGbfAVODd@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YOhHphFWGbfAVODd@hirez.programming.kicks-ass.net>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Peter,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Fri, Jul 09, 2021 at 02:57:10PM +0200 Peter Zijlstra wrote:
+> On Thu, Jul 08, 2021 at 10:54:58AM -0400, Phil Auld wrote:
+> > Sorry... I don't have a nice diagram. I'm still looking at what all those
+> > macros actually mean on the various architectures.
+> 
+> Don't worry about other architectures, lets focus on Power, because
+> that's the case where you can reprouce funnies. Now Power only has 2
+> barrier ops (not quite true, but close enough for all this):
+> 
+>  - SYNC is the full barrier
+> 
+>  - LWSYNC is a TSO like barrier
+> 
+> Pretty much everything (LOAD-ACQUIRE, STORE-RELEASE, WMB, RMB) uses
+> LWSYNC. Only MB result in SYNC.
+> 
+> Power is 'funny' because their spinlocks are weaker than everybody
+> else's, but AFAICT that doesn't seem relevant here.
+>
 
-thanks,
+Thanks.
 
-greg k-h
+> > Using what you have above I get the same thing. It looks like it should be
+> > ordered but in practice it's not, and ordering it "more" as I did in the
+> > patch, fixes it.
+> 
+> And you're running Linus' tree, not some franken-kernel from RHT, right?
+> As asked in that other email, can you try with just the WMB added? I
+> really don't believe that RMB you added can make a difference.
 
------------------- original commit in Linus's tree ------------------
+So, no. Right now the reproducer is on the franken-kernel :(
 
-From 49221cf86d18bb66fe95d3338cb33bd4b9880ca5 Mon Sep 17 00:00:00 2001
-From: Miklos Szeredi <mszeredi@redhat.com>
-Date: Tue, 22 Jun 2021 09:15:35 +0200
-Subject: [PATCH] fuse: reject internal errno
+As far as I can tell the relevant code paths (schedule, barriers, wakeup
+etc) are all current and the same. I traced through your diagram and
+it all matches exactly.
 
-Don't allow userspace to report errors that could be kernel-internal.
+I have a suspicion that Linus's tree may hide it. I believe this is tickled
+by NFS io, which I _think_ is effected by the unboud workqueue changes
+that may make it less likely to do the wakeup on a different cpu. But
+that's just speculation. 
 
-Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
-Fixes: 334f485df85a ("[PATCH] FUSE - device functions")
-Cc: <stable@vger.kernel.org> # v2.6.14
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+The issue is that the systems under test here are in a partner's lab
+to which I have no direct access. 
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 6e63bcba2a40..b8d58aa08206 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -1867,7 +1867,7 @@ static ssize_t fuse_dev_do_write(struct fuse_dev *fud,
- 	}
- 
- 	err = -EINVAL;
--	if (oh.error <= -1000 || oh.error > 0)
-+	if (oh.error <= -512 || oh.error > 0)
- 		goto copy_finish;
- 
- 	spin_lock(&fpq->lock);
+I will try to get an upstream build on there, if possible, as soon
+as I can.
+
+> 
+> Also, can you try with TTWU_QUEUE disabled (without any additional
+> barriers added), that simplifies the wakeup path a lot.
+>
+
+Will do. 
+
+
+> > Is it possible that the bit field is causing some of the assumptions about
+> > ordering in those various macros to be off?
+> 
+> *should* not matter...
+> 
+> 	prev->sched_contributes_to_load = X;
+> 
+> 	smp_store_release(&prev->on_cpu, 0);
+> 	  asm("LWSYNC" : : : "memory");
+> 	  WRITE_ONCE(prev->on_cpu, 0);
+> 
+> due to that memory clobber, the compiler must emit whatever stores are
+> required for the bitfield prior to the LWSYNC.
+> 
+> > I notice in all the comments about smp_mb__after_spinlock etc, it's always
+> > WRITE_ONCE/READ_ONCE on the variables in question but we can't do that with
+> > the bit field.
+> 
+> Yeah, but both ->on_rq and ->sched_contributes_to_load are 'normal'
+> stores. That said, given that ttwu() does a READ_ONCE() on ->on_rq, we
+> should match that with WRITE_ONCE()...
+> 
+> So I think we should do the below, but I don't believe it'll make a
+> difference. Let me stare more.
+>
+
+I'm out of the office for the next week+ so don't stare to hard. I'll try to
+get the tests you asked for as soon as I get back in the (home) office.
+
+I'm not sure the below will make a difference either, but will try it too.
+
+Thanks again for the help. And sorry for the timing.
+
+
+Cheers,
+Phil
+
+
+> ---
+> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> index ca9a523c9a6c..da93551b298d 100644
+> --- a/kernel/sched/core.c
+> +++ b/kernel/sched/core.c
+> @@ -1973,12 +1973,12 @@ void activate_task(struct rq *rq, struct task_struct *p, int flags)
+>  {
+>  	enqueue_task(rq, p, flags);
+>  
+> -	p->on_rq = TASK_ON_RQ_QUEUED;
+> +	WRITE_ONCE(p->on_rq, TASK_ON_RQ_QUEUED);
+>  }
+>  
+>  void deactivate_task(struct rq *rq, struct task_struct *p, int flags)
+>  {
+> -	p->on_rq = (flags & DEQUEUE_SLEEP) ? 0 : TASK_ON_RQ_MIGRATING;
+> +	WRITE_ONCE(p->on_rq, (flags & DEQUEUE_SLEEP) ? 0 : TASK_ON_RQ_MIGRATING);
+>  
+>  	dequeue_task(rq, p, flags);
+>  }
+> @@ -5662,11 +5662,11 @@ static bool try_steal_cookie(int this, int that)
+>  		if (p->core_occupation > dst->idle->core_occupation)
+>  			goto next;
+>  
+> -		p->on_rq = TASK_ON_RQ_MIGRATING;
+> +		WRITE_ONCE(p->on_rq, TASK_ON_RQ_MIGRATING);
+>  		deactivate_task(src, p, 0);
+>  		set_task_cpu(p, this);
+>  		activate_task(dst, p, 0);
+> -		p->on_rq = TASK_ON_RQ_QUEUED;
+> +		WRITE_ONCE(p->on_rq, TASK_ON_RQ_QUEUED);
+>  
+>  		resched_curr(dst);
+>  
+> 
+
+-- 
 
