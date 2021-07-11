@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 337AA3C3C4D
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:27:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588A53C3C4F
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229688AbhGKM3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:29:44 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:36981 "EHLO
+        id S232554AbhGKMbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:31:06 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:47725 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232544AbhGKM3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:29:43 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id E02A01AC0D0B;
-        Sun, 11 Jul 2021 08:26:56 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S232544AbhGKMbG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:31:06 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id 9726A1AC0DB3;
+        Sun, 11 Jul 2021 08:28:19 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 11 Jul 2021 08:26:57 -0400
+  by compute2.internal (MEProxy); Sun, 11 Jul 2021 08:28:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=YUQnho
-        +Mm+XiLqXS9E9aDEpYpcpydSFP9ZNkTDc4PCk=; b=aT8Yd0AGqMVEkClmuj+RB/
-        MNvliydSjWOqYnKHq74V8ggrHdc2CRhKD2tk2haECl5XF1QdSPC31q9oUOiqtWBy
-        fLbFM+A5PipdY8hkWZ6PVb56JvkbUwJudiiqNCOklvegC8uAo8VkwN9PQuBi/tvM
-        Nz2gS8UUrvXl6JvD93va7AWKBV+3i6P/ObVprt1RkXJ1VOm7TmteC+wvD4ord6cu
-        57ABjVGiWEJ+hzqK6Zz3jGEQejsp5Vdpe570Nnq+hyqf3eNZojmLGaeIgUIp3Vdk
-        9PJ3hjUqpoY2EmDZ6O0GZOmDHYoUXg0ATiLUG0HfsuIA+RcmAxpSmUboR8FBatEw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=I7vlhx
+        LAY76QIPTy+5PIgLDXbuNB+EiyY75XJ4+J1Lk=; b=pAzJHYlCABcZeeUKBI7Yst
+        IOmvurcEnqL+BgAayhhY/9AAMpR2OK6ddwpdbbCN4Qiv3gh+T9cWuREBT0v3fLGr
+        wt0e6yku7Zojw6pup/U4U02/02MIE35dBZ//pewJU5xIocBTw3UI3DJRQpvdjFrV
+        1SHRwfcYJiqbdD3mMG9aAo0FBGnQutnVZb0Qtrl19jChssOu8Y4MwXX1WOKRqL7/
+        iertk0WlyxZx+3SqNChVJ6KdgoDujVGnyyfPBwNPz2qDdIvxLGZUBmE4oNhYz3bh
+        jSvyREVO9Pj76M6tHLQx7xIWE/dm4sOCGU3PJvixKv653N+6F+ZSnoZZPh4O686g
         ==
-X-ME-Sender: <xms:j-PqYJqEKkNPCwo1lOqVk9P6S4CrAqZT2kPfX0MbnFKivtCtskdBSQ>
-    <xme:j-PqYLrtKt5ddJh04sdR-zjeoigiVPdxWpajIppwXqOL11Vg615ZX8LeGyJjZxWhr
-    8CobJO_zN22cw>
-X-ME-Received: <xmr:j-PqYGOstJSI1wKY7FQMKQeomJ-iDlJBrEPVh-inEY9-6n996M7xXfyT9HWrmz3yyS8cn8j0aGfAXfiSvFdhOgG2Sg>
+X-ME-Sender: <xms:4uPqYOZwe_b_Tf50opRfJBtQBgQUHpL4F-SQAA0TdhSOoX7EULhW4g>
+    <xme:4uPqYBbS-6kqBvxllv6pCB_5CQpcCePlszBvn_FXK72Ojc5O_8o8B4tS7UoeEMFgy
+    kW6TAzcVSeePg>
+X-ME-Received: <xmr:4uPqYI-PoFbFGqgXo3JPB6fDxIjs7TCWcevi9YYLDN4gGMoZVaQiyv9aOdpnTsKYs3j2BRC50c-FOvaMn5ZUzoG_lg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhs
-    thgvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:kOPqYE7E9a2662w18hGIngINepZvujbedCUWoZ2dkIEydGDmn2qLxg>
-    <xmx:kOPqYI5tLrheO-IzbsMKOc9avqvQg-mlo6W2T2LyrEsIYF8DpwXQKg>
-    <xmx:kOPqYMjVAMZEG7aiqnBw02LDJ_N6E4hr13vzD-jAAynouaIDaTa7lA>
-    <xmx:kOPqYGTLN_4qbPDloWrH5RqXOJ8TrtcFr-cpAsU3C-ngd_zdraZBR0qrS7k>
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgr
+    ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:4uPqYAoGD8Ljzf_YjKso8MNZ8FBJbUgV-VphWskKvyu7y-EFCBUJwQ>
+    <xmx:4uPqYJpSTplE2Tnm6C9DQT0LD-TJkkBycJAfxt4Bjh2BNHR_gRzimg>
+    <xmx:4uPqYOQjbtfNHwpdgW14hoCx4SmzKsUVOTvzErDhQmZtyfB1inXcmw>
+    <xmx:4-PqYKAIeYkcMCxIzaLl2fvYukmX_2HHwT7dUqk5kpB3wEP0pHbGkEMVMx0>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:26:55 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mac80211: remove iwlwifi specific workaround that broke sta" failed to apply to 4.19-stable tree
-To:     nbd@nbd.name, johannes.berg@intel.com
+ 11 Jul 2021 08:28:18 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: send: fix invalid path for unlink operations after" failed to apply to 4.4-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:26:54 +0200
-Message-ID: <1626006414162219@kroah.com>
+Date:   Sun, 11 Jul 2021 14:28:17 +0200
+Message-ID: <162600649710370@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,61 +69,170 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e41eb3e408de27982a5f8f50b2dd8002bed96908 Mon Sep 17 00:00:00 2001
-From: Felix Fietkau <nbd@nbd.name>
-Date: Sat, 19 Jun 2021 12:15:17 +0200
-Subject: [PATCH] mac80211: remove iwlwifi specific workaround that broke sta
- NDP tx
+From d8ac76cdd1755b21e8c008c28d0b7251c0b14986 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Wed, 9 Jun 2021 11:25:03 +0100
+Subject: [PATCH] btrfs: send: fix invalid path for unlink operations after
+ parent orphanization
 
-Sending nulldata packets is important for sw AP link probing and detecting
-4-address mode links. The checks that dropped these packets were apparently
-added to work around an iwlwifi firmware bug with multi-TID aggregation.
+During an incremental send operation, when processing the new references
+for the current inode, we might send an unlink operation for another inode
+that has a conflicting path and has more than one hard link. However this
+path was computed and cached before we processed previous new references
+for the current inode. We may have orphanized a directory of that path
+while processing a previous new reference, in which case the path will
+be invalid and cause the receiver process to fail.
 
-Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20210619101517.90806-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+The following reproducer triggers the problem and explains how/why it
+happens in its comments:
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-index 1ad621d13ad3..0a13c2bda2ee 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-@@ -1032,6 +1032,9 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
- 	if (WARN_ON_ONCE(mvmsta->sta_id == IWL_MVM_INVALID_STA))
- 		return -1;
- 
-+	if (unlikely(ieee80211_is_any_nullfunc(fc)) && sta->he_cap.has_he)
-+		return -1;
-+
- 	if (unlikely(ieee80211_is_probe_resp(fc)))
- 		iwl_mvm_probe_resp_set_noa(mvm, skb);
- 
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 3f2aad2e7436..b1c44fa63a06 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1094,11 +1094,6 @@ void ieee80211_send_nullfunc(struct ieee80211_local *local,
- 	struct ieee80211_hdr_3addr *nullfunc;
- 	struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
- 
--	/* Don't send NDPs when STA is connected HE */
--	if (sdata->vif.type == NL80211_IFTYPE_STATION &&
--	    !(ifmgd->flags & IEEE80211_STA_DISABLE_HE))
--		return;
--
- 	skb = ieee80211_nullfunc_get(&local->hw, &sdata->vif,
- 		!ieee80211_hw_check(&local->hw, DOESNT_SUPPORT_QOS_NDP));
- 	if (!skb)
-@@ -1130,10 +1125,6 @@ static void ieee80211_send_4addr_nullfunc(struct ieee80211_local *local,
- 	if (WARN_ON(sdata->vif.type != NL80211_IFTYPE_STATION))
- 		return;
- 
--	/* Don't send NDPs when connected HE */
--	if (!(sdata->u.mgd.flags & IEEE80211_STA_DISABLE_HE))
--		return;
--
- 	skb = dev_alloc_skb(local->hw.extra_tx_headroom + 30);
- 	if (!skb)
- 		return;
+  $ cat test-send-unlink.sh
+  #!/bin/bash
+
+  DEV=/dev/sdi
+  MNT=/mnt/sdi
+
+  mkfs.btrfs -f $DEV >/dev/null
+  mount $DEV $MNT
+
+  # Create our test files and directory. Inode 259 (file3) has two hard
+  # links.
+  touch $MNT/file1
+  touch $MNT/file2
+  touch $MNT/file3
+
+  mkdir $MNT/A
+  ln $MNT/file3 $MNT/A/hard_link
+
+  # Filesystem looks like:
+  #
+  # .                                     (ino 256)
+  # |----- file1                          (ino 257)
+  # |----- file2                          (ino 258)
+  # |----- file3                          (ino 259)
+  # |----- A/                             (ino 260)
+  #        |---- hard_link                (ino 259)
+  #
+
+  # Now create the base snapshot, which is going to be the parent snapshot
+  # for a later incremental send.
+  btrfs subvolume snapshot -r $MNT $MNT/snap1
+  btrfs send -f /tmp/snap1.send $MNT/snap1
+
+  # Move inode 257 into directory inode 260. This results in computing the
+  # path for inode 260 as "/A" and caching it.
+  mv $MNT/file1 $MNT/A/file1
+
+  # Move inode 258 (file2) into directory inode 260, with a name of
+  # "hard_link", moving first inode 259 away since it currently has that
+  # location and name.
+  mv $MNT/A/hard_link $MNT/tmp
+  mv $MNT/file2 $MNT/A/hard_link
+
+  # Now rename inode 260 to something else (B for example) and then create
+  # a hard link for inode 258 that has the old name and location of inode
+  # 260 ("/A").
+  mv $MNT/A $MNT/B
+  ln $MNT/B/hard_link $MNT/A
+
+  # Filesystem now looks like:
+  #
+  # .                                     (ino 256)
+  # |----- tmp                            (ino 259)
+  # |----- file3                          (ino 259)
+  # |----- B/                             (ino 260)
+  # |      |---- file1                    (ino 257)
+  # |      |---- hard_link                (ino 258)
+  # |
+  # |----- A                              (ino 258)
+
+  # Create another snapshot of our subvolume and use it for an incremental
+  # send.
+  btrfs subvolume snapshot -r $MNT $MNT/snap2
+  btrfs send -f /tmp/snap2.send -p $MNT/snap1 $MNT/snap2
+
+  # Now unmount the filesystem, create a new one, mount it and try to
+  # apply both send streams to recreate both snapshots.
+  umount $DEV
+
+  mkfs.btrfs -f $DEV >/dev/null
+
+  mount $DEV $MNT
+
+  # First add the first snapshot to the new filesystem by applying the
+  # first send stream.
+  btrfs receive -f /tmp/snap1.send $MNT
+
+  # The incremental receive operation below used to fail with the
+  # following error:
+  #
+  #    ERROR: unlink A/hard_link failed: No such file or directory
+  #
+  # This is because when send is processing inode 257, it generates the
+  # path for inode 260 as "/A", since that inode is its parent in the send
+  # snapshot, and caches that path.
+  #
+  # Later when processing inode 258, it first processes its new reference
+  # that has the path of "/A", which results in orphanizing inode 260
+  # because there is a a path collision. This results in issuing a rename
+  # operation from "/A" to "/o260-6-0".
+  #
+  # Finally when processing the new reference "B/hard_link" for inode 258,
+  # it notices that it collides with inode 259 (not yet processed, because
+  # it has a higher inode number), since that inode has the name
+  # "hard_link" under the directory inode 260. It also checks that inode
+  # 259 has two hardlinks, so it decides to issue a unlink operation for
+  # the name "hard_link" for inode 259. However the path passed to the
+  # unlink operation is "/A/hard_link", which is incorrect since currently
+  # "/A" does not exists, due to the orphanization of inode 260 mentioned
+  # before. The path is incorrect because it was computed and cached
+  # before the orphanization. This results in the receiver to fail with
+  # the above error.
+  btrfs receive -f /tmp/snap2.send $MNT
+
+  umount $MNT
+
+When running the test, it fails like this:
+
+  $ ./test-send-unlink.sh
+  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap1'
+  At subvol /mnt/sdi/snap1
+  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap2'
+  At subvol /mnt/sdi/snap2
+  At subvol snap1
+  At snapshot snap2
+  ERROR: unlink A/hard_link failed: No such file or directory
+
+Fix this by recomputing a path before issuing an unlink operation when
+processing the new references for the current inode if we previously
+have orphanized a directory.
+
+A test case for fstests will follow soon.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index bd69db72acc5..a2b3c594379d 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -4064,6 +4064,17 @@ static int process_recorded_refs(struct send_ctx *sctx, int *pending_move)
+ 				if (ret < 0)
+ 					goto out;
+ 			} else {
++				/*
++				 * If we previously orphanized a directory that
++				 * collided with a new reference that we already
++				 * processed, recompute the current path because
++				 * that directory may be part of the path.
++				 */
++				if (orphanized_dir) {
++					ret = refresh_ref_path(sctx, cur);
++					if (ret < 0)
++						goto out;
++				}
+ 				ret = send_unlink(sctx, cur->full_path);
+ 				if (ret < 0)
+ 					goto out;
 
