@@ -2,93 +2,461 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 092ED3C3BAE
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 13:08:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 116443C3BB0
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 13:08:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232365AbhGKLLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 07:11:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43662 "EHLO mail.kernel.org"
+        id S229688AbhGKLL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 07:11:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231197AbhGKLLX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 11 Jul 2021 07:11:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D793611CB;
-        Sun, 11 Jul 2021 11:08:36 +0000 (UTC)
+        id S232024AbhGKLL3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 11 Jul 2021 07:11:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CDBB611CB;
+        Sun, 11 Jul 2021 11:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626001716;
-        bh=st6HhwgwdP5QJVXB+o5Wg+ulbLX2voOe4vBQ1v6w2c8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Xf4darpmnXByb+ZE7du1cW3tq+9YNNMtM6ffzTTeIMjgbE7NuYctIHD4DnxfZUjMW
-         Eq0nburQUMye5VKd1wbeiMD67Tcb4uziK17qe/AvBBYoFeyyp0Kves3g6Q52ahoviL
-         bPYFMXgxKaDxFxLczgQY6wmGaGJKvsmjy1IDmHPA=
+        s=korg; t=1626001722;
+        bh=M1kV99dOUp03xwqJi/8lKTrG+N+vm9wScxU6+XIHs/E=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Xt8zFmfDJTX7tnPaU0SC4N3oePf+gxWmGkWN516apK6ZU+zFKsiKId6H4a/wv/xaS
+         Qp01s0GJwfHJ1E3lU+c9g79ekk8wWxbfKV+njAhYm1N/5GXcQTzyC7tPe2gV5eH9Ti
+         0xo8q9BOZHie1Cbgi3oTvKbUWF1Ig/bS+k96V58M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.9.275
-Date:   Sun, 11 Jul 2021 13:08:31 +0200
-Message-Id: <162600171022946@kroah.com>
+Subject: Re: Linux 4.9.275
+Date:   Sun, 11 Jul 2021 13:08:32 +0200
+Message-Id: <16260017102199@kroah.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <162600171022946@kroah.com>
+References: <162600171022946@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.9.275 kernel.
-
-All users of the 4.9 kernel series must upgrade.
-
-The updated 4.9.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                             |    2 
- drivers/gpu/drm/nouveau/nouveau_bo.c |    4 -
- drivers/scsi/sr.c                    |    2 
- drivers/xen/events/events_base.c     |   23 ++++++++--
- include/linux/hugetlb.h              |   15 ------
- include/linux/mmdebug.h              |   21 +++++++--
- include/linux/pagemap.h              |   13 +++--
- kernel/futex.c                       |    2 
- kernel/kthread.c                     |   77 +++++++++++++++++++++++------------
- mm/huge_memory.c                     |   29 ++++---------
- mm/hugetlb.c                         |    5 --
- 11 files changed, 111 insertions(+), 82 deletions(-)
-
-Alex Shi (1):
-      mm: add VM_WARN_ON_ONCE_PAGE() macro
-
-Christian König (1):
-      drm/nouveau: fix dma_address check for CPU/GPU sync
-
-Greg Kroah-Hartman (1):
-      Linux 4.9.275
-
-Hugh Dickins (1):
-      mm, futex: fix shared futex pgoff on shmem huge page
-
-Juergen Gross (1):
-      xen/events: reset active flag for lateeoi events later
-
-ManYi Li (1):
-      scsi: sr: Return appropriate error code when disk is ejected
-
-Michal Hocko (1):
-      include/linux/mmdebug.h: make VM_WARN* non-rvals
-
-Petr Mladek (2):
-      kthread_worker: split code for canceling the delayed work timer
-      kthread: prevent deadlock when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
-
-Yang Shi (1):
-      mm: thp: replace DEBUG_VM BUG with VM_WARN when unmap fails for split
-
+diff --git a/Makefile b/Makefile
+index 3002dfee3231..dfd253648758 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 9
+-SUBLEVEL = 274
++SUBLEVEL = 275
+ EXTRAVERSION =
+ NAME = Roaring Lionus
+ 
+diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
+index a2e6a81669e7..94b7798bdea4 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_bo.c
++++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
+@@ -447,7 +447,7 @@ nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
+ 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
+ 	int i;
+ 
+-	if (!ttm_dma)
++	if (!ttm_dma || !ttm_dma->dma_address)
+ 		return;
+ 
+ 	/* Don't waste time looping if the object is coherent */
+@@ -467,7 +467,7 @@ nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
+ 	struct ttm_dma_tt *ttm_dma = (struct ttm_dma_tt *)nvbo->bo.ttm;
+ 	int i;
+ 
+-	if (!ttm_dma)
++	if (!ttm_dma || !ttm_dma->dma_address)
+ 		return;
+ 
+ 	/* Don't waste time looping if the object is coherent */
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 67a73ea0a615..5e51a39a0c27 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -216,6 +216,8 @@ static unsigned int sr_get_events(struct scsi_device *sdev)
+ 		return DISK_EVENT_EJECT_REQUEST;
+ 	else if (med->media_event_code == 2)
+ 		return DISK_EVENT_MEDIA_CHANGE;
++	else if (med->media_event_code == 3)
++		return DISK_EVENT_EJECT_REQUEST;
+ 	return 0;
+ }
+ 
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index ea307f40cab1..c6e6b7470cbf 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -533,6 +533,9 @@ static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
+ 	}
+ 
+ 	info->eoi_time = 0;
++
++	/* is_active hasn't been reset yet, do it now. */
++	smp_store_release(&info->is_active, 0);
+ 	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
+ }
+ 
+@@ -1778,10 +1781,22 @@ static void lateeoi_ack_dynirq(struct irq_data *data)
+ 	struct irq_info *info = info_for_irq(data->irq);
+ 	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+-	if (VALID_EVTCHN(evtchn)) {
+-		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
+-		ack_dynirq(data);
+-	}
++	if (!VALID_EVTCHN(evtchn))
++		return;
++
++	do_mask(info, EVT_MASK_REASON_EOI_PENDING);
++
++	if (unlikely(irqd_is_setaffinity_pending(data)) &&
++	    likely(!irqd_irq_disabled(data))) {
++		do_mask(info, EVT_MASK_REASON_TEMPORARY);
++
++		clear_evtchn(evtchn);
++
++		irq_move_masked_irq(data);
++
++		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
++	} else
++		clear_evtchn(evtchn);
+ }
+ 
+ static void lateeoi_mask_ack_dynirq(struct irq_data *data)
+diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+index 8dd365c65478..6417bc845db5 100644
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -451,17 +451,6 @@ static inline int hstate_index(struct hstate *h)
+ 	return h - hstates;
+ }
+ 
+-pgoff_t __basepage_index(struct page *page);
+-
+-/* Return page->index in PAGE_SIZE units */
+-static inline pgoff_t basepage_index(struct page *page)
+-{
+-	if (!PageCompound(page))
+-		return page->index;
+-
+-	return __basepage_index(page);
+-}
+-
+ extern int dissolve_free_huge_pages(unsigned long start_pfn,
+ 				    unsigned long end_pfn);
+ static inline bool hugepage_migration_supported(struct hstate *h)
+@@ -529,10 +518,6 @@ static inline unsigned int pages_per_huge_page(struct hstate *h)
+ #define hstate_index_to_shift(index) 0
+ #define hstate_index(h) 0
+ 
+-static inline pgoff_t basepage_index(struct page *page)
+-{
+-	return page->index;
+-}
+ #define dissolve_free_huge_pages(s, e)	0
+ #define hugepage_migration_supported(h)	false
+ 
+diff --git a/include/linux/mmdebug.h b/include/linux/mmdebug.h
+index 451a811f48f2..d1fb3bbff37a 100644
+--- a/include/linux/mmdebug.h
++++ b/include/linux/mmdebug.h
+@@ -36,10 +36,22 @@ void dump_mm(const struct mm_struct *mm);
+ 			BUG();						\
+ 		}							\
+ 	} while (0)
+-#define VM_WARN_ON(cond) WARN_ON(cond)
+-#define VM_WARN_ON_ONCE(cond) WARN_ON_ONCE(cond)
+-#define VM_WARN_ONCE(cond, format...) WARN_ONCE(cond, format)
+-#define VM_WARN(cond, format...) WARN(cond, format)
++#define VM_WARN_ON_ONCE_PAGE(cond, page)	({			\
++	static bool __section(".data.once") __warned;			\
++	int __ret_warn_once = !!(cond);					\
++									\
++	if (unlikely(__ret_warn_once && !__warned)) {			\
++		dump_page(page, "VM_WARN_ON_ONCE_PAGE(" __stringify(cond)")");\
++		__warned = true;					\
++		WARN_ON(1);						\
++	}								\
++	unlikely(__ret_warn_once);					\
++})
++
++#define VM_WARN_ON(cond) (void)WARN_ON(cond)
++#define VM_WARN_ON_ONCE(cond) (void)WARN_ON_ONCE(cond)
++#define VM_WARN_ONCE(cond, format...) (void)WARN_ONCE(cond, format)
++#define VM_WARN(cond, format...) (void)WARN(cond, format)
+ #else
+ #define VM_BUG_ON(cond) BUILD_BUG_ON_INVALID(cond)
+ #define VM_BUG_ON_PAGE(cond, page) VM_BUG_ON(cond)
+@@ -47,6 +59,7 @@ void dump_mm(const struct mm_struct *mm);
+ #define VM_BUG_ON_MM(cond, mm) VM_BUG_ON(cond)
+ #define VM_WARN_ON(cond) BUILD_BUG_ON_INVALID(cond)
+ #define VM_WARN_ON_ONCE(cond) BUILD_BUG_ON_INVALID(cond)
++#define VM_WARN_ON_ONCE_PAGE(cond, page)  BUILD_BUG_ON_INVALID(cond)
+ #define VM_WARN_ONCE(cond, format...) BUILD_BUG_ON_INVALID(cond)
+ #define VM_WARN(cond, format...) BUILD_BUG_ON_INVALID(cond)
+ #endif
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index 35f4c4d9c405..8672291633dd 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -374,7 +374,7 @@ static inline struct page *read_mapping_page(struct address_space *mapping,
+ }
+ 
+ /*
+- * Get index of the page with in radix-tree
++ * Get index of the page within radix-tree (but not for hugetlb pages).
+  * (TODO: remove once hugetlb pages will have ->index in PAGE_SIZE)
+  */
+ static inline pgoff_t page_to_index(struct page *page)
+@@ -393,15 +393,16 @@ static inline pgoff_t page_to_index(struct page *page)
+ 	return pgoff;
+ }
+ 
++extern pgoff_t hugetlb_basepage_index(struct page *page);
++
+ /*
+- * Get the offset in PAGE_SIZE.
+- * (TODO: hugepage should have ->index in PAGE_SIZE)
++ * Get the offset in PAGE_SIZE (even for hugetlb pages).
++ * (TODO: hugetlb pages should have ->index in PAGE_SIZE)
+  */
+ static inline pgoff_t page_to_pgoff(struct page *page)
+ {
+-	if (unlikely(PageHeadHuge(page)))
+-		return page->index << compound_order(page);
+-
++	if (unlikely(PageHuge(page)))
++		return hugetlb_basepage_index(page);
+ 	return page_to_index(page);
+ }
+ 
+diff --git a/kernel/futex.c b/kernel/futex.c
+index 324fb85c8904..b3823736af6f 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -717,7 +717,7 @@ get_futex_key(u32 __user *uaddr, int fshared, union futex_key *key, int rw)
+ 
+ 		key->both.offset |= FUT_OFF_INODE; /* inode-based key */
+ 		key->shared.i_seq = get_inode_sequence_number(inode);
+-		key->shared.pgoff = basepage_index(tail);
++		key->shared.pgoff = page_to_pgoff(tail);
+ 		rcu_read_unlock();
+ 	}
+ 
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index 60f54c5a07a4..52b89c582189 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -952,8 +952,38 @@ void kthread_flush_work(struct kthread_work *work)
+ EXPORT_SYMBOL_GPL(kthread_flush_work);
+ 
+ /*
+- * This function removes the work from the worker queue. Also it makes sure
+- * that it won't get queued later via the delayed work's timer.
++ * Make sure that the timer is neither set nor running and could
++ * not manipulate the work list_head any longer.
++ *
++ * The function is called under worker->lock. The lock is temporary
++ * released but the timer can't be set again in the meantime.
++ */
++static void kthread_cancel_delayed_work_timer(struct kthread_work *work,
++					      unsigned long *flags)
++{
++	struct kthread_delayed_work *dwork =
++		container_of(work, struct kthread_delayed_work, work);
++	struct kthread_worker *worker = work->worker;
++
++	/*
++	 * del_timer_sync() must be called to make sure that the timer
++	 * callback is not running. The lock must be temporary released
++	 * to avoid a deadlock with the callback. In the meantime,
++	 * any queuing is blocked by setting the canceling counter.
++	 */
++	work->canceling++;
++	spin_unlock_irqrestore(&worker->lock, *flags);
++	del_timer_sync(&dwork->timer);
++	spin_lock_irqsave(&worker->lock, *flags);
++	work->canceling--;
++}
++
++/*
++ * This function removes the work from the worker queue.
++ *
++ * It is called under worker->lock. The caller must make sure that
++ * the timer used by delayed work is not running, e.g. by calling
++ * kthread_cancel_delayed_work_timer().
+  *
+  * The work might still be in use when this function finishes. See the
+  * current_work proceed by the worker.
+@@ -961,28 +991,8 @@ EXPORT_SYMBOL_GPL(kthread_flush_work);
+  * Return: %true if @work was pending and successfully canceled,
+  *	%false if @work was not pending
+  */
+-static bool __kthread_cancel_work(struct kthread_work *work, bool is_dwork,
+-				  unsigned long *flags)
++static bool __kthread_cancel_work(struct kthread_work *work)
+ {
+-	/* Try to cancel the timer if exists. */
+-	if (is_dwork) {
+-		struct kthread_delayed_work *dwork =
+-			container_of(work, struct kthread_delayed_work, work);
+-		struct kthread_worker *worker = work->worker;
+-
+-		/*
+-		 * del_timer_sync() must be called to make sure that the timer
+-		 * callback is not running. The lock must be temporary released
+-		 * to avoid a deadlock with the callback. In the meantime,
+-		 * any queuing is blocked by setting the canceling counter.
+-		 */
+-		work->canceling++;
+-		spin_unlock_irqrestore(&worker->lock, *flags);
+-		del_timer_sync(&dwork->timer);
+-		spin_lock_irqsave(&worker->lock, *flags);
+-		work->canceling--;
+-	}
+-
+ 	/*
+ 	 * Try to remove the work from a worker list. It might either
+ 	 * be from worker->work_list or from worker->delayed_work_list.
+@@ -1035,11 +1045,23 @@ bool kthread_mod_delayed_work(struct kthread_worker *worker,
+ 	/* Work must not be used with >1 worker, see kthread_queue_work() */
+ 	WARN_ON_ONCE(work->worker != worker);
+ 
+-	/* Do not fight with another command that is canceling this work. */
++	/*
++	 * Temporary cancel the work but do not fight with another command
++	 * that is canceling the work as well.
++	 *
++	 * It is a bit tricky because of possible races with another
++	 * mod_delayed_work() and cancel_delayed_work() callers.
++	 *
++	 * The timer must be canceled first because worker->lock is released
++	 * when doing so. But the work can be removed from the queue (list)
++	 * only when it can be queued again so that the return value can
++	 * be used for reference counting.
++	 */
++	kthread_cancel_delayed_work_timer(work, &flags);
+ 	if (work->canceling)
+ 		goto out;
++	ret = __kthread_cancel_work(work);
+ 
+-	ret = __kthread_cancel_work(work, true, &flags);
+ fast_queue:
+ 	__kthread_queue_delayed_work(worker, dwork, delay);
+ out:
+@@ -1061,7 +1083,10 @@ static bool __kthread_cancel_work_sync(struct kthread_work *work, bool is_dwork)
+ 	/* Work must not be used with >1 worker, see kthread_queue_work(). */
+ 	WARN_ON_ONCE(work->worker != worker);
+ 
+-	ret = __kthread_cancel_work(work, is_dwork, &flags);
++	if (is_dwork)
++		kthread_cancel_delayed_work_timer(work, &flags);
++
++	ret = __kthread_cancel_work(work);
+ 
+ 	if (worker->current_work != work)
+ 		goto out_fast;
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 14cd0ef33b62..177ca028b986 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1891,7 +1891,7 @@ static void unmap_page(struct page *page)
+ {
+ 	enum ttu_flags ttu_flags = TTU_IGNORE_MLOCK | TTU_IGNORE_ACCESS |
+ 		TTU_RMAP_LOCKED;
+-	int i, ret;
++	int i;
+ 
+ 	VM_BUG_ON_PAGE(!PageHead(page), page);
+ 
+@@ -1899,15 +1899,16 @@ static void unmap_page(struct page *page)
+ 		ttu_flags |= TTU_MIGRATION;
+ 
+ 	/* We only need TTU_SPLIT_HUGE_PMD once */
+-	ret = try_to_unmap(page, ttu_flags | TTU_SPLIT_HUGE_PMD);
+-	for (i = 1; !ret && i < HPAGE_PMD_NR; i++) {
++	try_to_unmap(page, ttu_flags | TTU_SPLIT_HUGE_PMD);
++	for (i = 1; i < HPAGE_PMD_NR; i++) {
+ 		/* Cut short if the page is unmapped */
+ 		if (page_count(page) == 1)
+ 			return;
+ 
+-		ret = try_to_unmap(page + i, ttu_flags);
++		try_to_unmap(page + i, ttu_flags);
+ 	}
+-	VM_BUG_ON_PAGE(ret, page + i - 1);
++
++	VM_WARN_ON_ONCE_PAGE(page_mapped(page), page);
+ }
+ 
+ static void remap_page(struct page *page)
+@@ -2137,7 +2138,7 @@ int split_huge_page_to_list(struct page *page, struct list_head *list)
+ 	struct pglist_data *pgdata = NODE_DATA(page_to_nid(head));
+ 	struct anon_vma *anon_vma = NULL;
+ 	struct address_space *mapping = NULL;
+-	int count, mapcount, extra_pins, ret;
++	int extra_pins, ret;
+ 	bool mlocked;
+ 	unsigned long flags;
+ 	pgoff_t end;
+@@ -2200,7 +2201,6 @@ int split_huge_page_to_list(struct page *page, struct list_head *list)
+ 
+ 	mlocked = PageMlocked(page);
+ 	unmap_page(head);
+-	VM_BUG_ON_PAGE(compound_mapcount(head), head);
+ 
+ 	/* Make sure the page is not on per-CPU pagevec as it takes pin */
+ 	if (mlocked)
+@@ -2226,9 +2226,7 @@ int split_huge_page_to_list(struct page *page, struct list_head *list)
+ 
+ 	/* Prevent deferred_split_scan() touching ->_refcount */
+ 	spin_lock(&pgdata->split_queue_lock);
+-	count = page_count(head);
+-	mapcount = total_mapcount(head);
+-	if (!mapcount && page_ref_freeze(head, 1 + extra_pins)) {
++	if (page_ref_freeze(head, 1 + extra_pins)) {
+ 		if (!list_empty(page_deferred_list(head))) {
+ 			pgdata->split_queue_len--;
+ 			list_del(page_deferred_list(head));
+@@ -2239,16 +2237,9 @@ int split_huge_page_to_list(struct page *page, struct list_head *list)
+ 		__split_huge_page(page, list, end, flags);
+ 		ret = 0;
+ 	} else {
+-		if (IS_ENABLED(CONFIG_DEBUG_VM) && mapcount) {
+-			pr_alert("total_mapcount: %u, page_count(): %u\n",
+-					mapcount, count);
+-			if (PageTail(page))
+-				dump_page(head, NULL);
+-			dump_page(page, "total_mapcount(head) > 0");
+-			BUG();
+-		}
+ 		spin_unlock(&pgdata->split_queue_lock);
+-fail:		if (mapping)
++fail:
++		if (mapping)
+ 			spin_unlock(&mapping->tree_lock);
+ 		spin_unlock_irqrestore(zone_lru_lock(page_zone(head)), flags);
+ 		remap_page(head);
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index b7215b0807ca..de89e9295f6c 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1380,15 +1380,12 @@ int PageHeadHuge(struct page *page_head)
+ 	return get_compound_page_dtor(page_head) == free_huge_page;
+ }
+ 
+-pgoff_t __basepage_index(struct page *page)
++pgoff_t hugetlb_basepage_index(struct page *page)
+ {
+ 	struct page *page_head = compound_head(page);
+ 	pgoff_t index = page_index(page_head);
+ 	unsigned long compound_idx;
+ 
+-	if (!PageHuge(page_head))
+-		return page_index(page);
+-
+ 	if (compound_order(page_head) >= MAX_ORDER)
+ 		compound_idx = page_to_pfn(page) - page_to_pfn(page_head);
+ 	else
