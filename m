@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 140573C3C4A
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 337AA3C3C4D
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:27:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232772AbhGKM2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:28:13 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:43765 "EHLO
+        id S229688AbhGKM3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:29:44 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:36981 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232575AbhGKM2N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:28:13 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 5A9491AC0D0B;
-        Sun, 11 Jul 2021 08:25:26 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S232544AbhGKM3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:29:43 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailforward.west.internal (Postfix) with ESMTP id E02A01AC0D0B;
+        Sun, 11 Jul 2021 08:26:56 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 11 Jul 2021 08:25:26 -0400
+  by compute6.internal (MEProxy); Sun, 11 Jul 2021 08:26:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=SLNR7J
-        m1QYray4dbrYRgjxkwZmZ6J/yoLanqgMJB1Tg=; b=L9MI1l12Gb+fImwfC0tf+q
-        NyH/erBSoGpKuJi/yCetkRYR6cEFC4bTZa3RJm8RgQB2aiai80P0i/ABC0dyA87g
-        vbJuYcTaVuaaovq85i7tKP0aH30R1ZmQpLDQn9hcqAsek8RV5VPm1FtNpqhG6Svk
-        WhJPbHQanpfOgmfkgdyUwOZJ0cXjI6UvOYmfuMsPBm9ejua45ikG3YJ5AmhDQZZT
-        MadfwzuzOpIue4IgkgLekO6IPW6FfwJ71V4K/7s5N0bbUr0DuGmTs0yNhvebposH
-        CLAEarakvyvdycTux74iGoeuyK56kR5M7vqKB2oDJpoZwBVbBuUihWYRBe6sBeUQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=YUQnho
+        +Mm+XiLqXS9E9aDEpYpcpydSFP9ZNkTDc4PCk=; b=aT8Yd0AGqMVEkClmuj+RB/
+        MNvliydSjWOqYnKHq74V8ggrHdc2CRhKD2tk2haECl5XF1QdSPC31q9oUOiqtWBy
+        fLbFM+A5PipdY8hkWZ6PVb56JvkbUwJudiiqNCOklvegC8uAo8VkwN9PQuBi/tvM
+        Nz2gS8UUrvXl6JvD93va7AWKBV+3i6P/ObVprt1RkXJ1VOm7TmteC+wvD4ord6cu
+        57ABjVGiWEJ+hzqK6Zz3jGEQejsp5Vdpe570Nnq+hyqf3eNZojmLGaeIgUIp3Vdk
+        9PJ3hjUqpoY2EmDZ6O0GZOmDHYoUXg0ATiLUG0HfsuIA+RcmAxpSmUboR8FBatEw
         ==
-X-ME-Sender: <xms:NePqYLb9CkVPAz2X26ffuGPkVnqr2vayjYW0pSJIjJHsn0POCul4kA>
-    <xme:NePqYKamXUXaB7iOwUgWCVqdwMiWCIGvPekUdNxtDPneNRErQZMEvmPVn0JMM9aT9
-    xF2BGOYeqKFiA>
-X-ME-Received: <xmr:NePqYN9wATm0Pqeqt-5krRDL2wiVmlT8yR1-5Tfv8FDCOA5rhvhv2CM_qvUMhke3dPdiu_wSu5VJQV7ZAcx-OLR1rw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehudcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:j-PqYJqEKkNPCwo1lOqVk9P6S4CrAqZT2kPfX0MbnFKivtCtskdBSQ>
+    <xme:j-PqYLrtKt5ddJh04sdR-zjeoigiVPdxWpajIppwXqOL11Vg615ZX8LeGyJjZxWhr
+    8CobJO_zN22cw>
+X-ME-Received: <xmr:j-PqYGOstJSI1wKY7FQMKQeomJ-iDlJBrEPVh-inEY9-6n996M7xXfyT9HWrmz3yyS8cn8j0aGfAXfiSvFdhOgG2Sg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhs
-    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    thgvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
     hhrdgtohhm
-X-ME-Proxy: <xmx:NePqYBrVfEVicG4EDflbsRe0DOb-yXlEClPymF-XM2-6PaccBcTq_g>
-    <xmx:NePqYGrc1_k37MwBeajOJfcRyqL1LWaGjqXD3DAZkVrdOaHIM9pQLg>
-    <xmx:NePqYHSxju8Yaz73hrYTeOwRs4TL_C8PEeFEF9HAH5LvrH9_wIcPTw>
-    <xmx:NuPqYN1M1rRbiXEz2TAQfeZSmvT7zBhOfMZVK7w3Akf_tpR_EsgpQ9-Uauw>
+X-ME-Proxy: <xmx:kOPqYE7E9a2662w18hGIngINepZvujbedCUWoZ2dkIEydGDmn2qLxg>
+    <xmx:kOPqYI5tLrheO-IzbsMKOc9avqvQg-mlo6W2T2LyrEsIYF8DpwXQKg>
+    <xmx:kOPqYMjVAMZEG7aiqnBw02LDJ_N6E4hr13vzD-jAAynouaIDaTa7lA>
+    <xmx:kOPqYGTLN_4qbPDloWrH5RqXOJ8TrtcFr-cpAsU3C-ngd_zdraZBR0qrS7k>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:25:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] can: gw: synchronize rcu operations before removing gw job" failed to apply to 4.9-stable tree
-To:     socketcan@hartkopp.net, mkl@pengutronix.de, stable@vger.kernel.org
+ 11 Jul 2021 08:26:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mac80211: remove iwlwifi specific workaround that broke sta" failed to apply to 4.19-stable tree
+To:     nbd@nbd.name, johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:25:16 +0200
-Message-ID: <162600631685@kroah.com>
+Date:   Sun, 11 Jul 2021 14:26:54 +0200
+Message-ID: <1626006414162219@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,49 +70,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fb8696ab14adadb2e3f6c17c18ed26b3ecd96691 Mon Sep 17 00:00:00 2001
-From: Oliver Hartkopp <socketcan@hartkopp.net>
-Date: Fri, 18 Jun 2021 19:36:45 +0200
-Subject: [PATCH] can: gw: synchronize rcu operations before removing gw job
- entry
+From e41eb3e408de27982a5f8f50b2dd8002bed96908 Mon Sep 17 00:00:00 2001
+From: Felix Fietkau <nbd@nbd.name>
+Date: Sat, 19 Jun 2021 12:15:17 +0200
+Subject: [PATCH] mac80211: remove iwlwifi specific workaround that broke sta
+ NDP tx
 
-can_can_gw_rcv() is called under RCU protection, so after calling
-can_rx_unregister(), we have to call synchronize_rcu in order to wait
-for any RCU read-side critical sections to finish before removing the
-kmem_cache entry with the referenced gw job entry.
+Sending nulldata packets is important for sw AP link probing and detecting
+4-address mode links. The checks that dropped these packets were apparently
+added to work around an iwlwifi firmware bug with multi-TID aggregation.
 
-Link: https://lore.kernel.org/r/20210618173645.2238-1-socketcan@hartkopp.net
-Fixes: c1aabdf379bc ("can-gw: add netlink based CAN routing")
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
+Cc: stable@vger.kernel.org
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20210619101517.90806-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-diff --git a/net/can/gw.c b/net/can/gw.c
-index ba4124805602..d8861e862f15 100644
---- a/net/can/gw.c
-+++ b/net/can/gw.c
-@@ -596,6 +596,7 @@ static int cgw_notifier(struct notifier_block *nb,
- 			if (gwj->src.dev == dev || gwj->dst.dev == dev) {
- 				hlist_del(&gwj->list);
- 				cgw_unregister_filter(net, gwj);
-+				synchronize_rcu();
- 				kmem_cache_free(cgw_cache, gwj);
- 			}
- 		}
-@@ -1154,6 +1155,7 @@ static void cgw_remove_all_jobs(struct net *net)
- 	hlist_for_each_entry_safe(gwj, nx, &net->can.cgw_list, list) {
- 		hlist_del(&gwj->list);
- 		cgw_unregister_filter(net, gwj);
-+		synchronize_rcu();
- 		kmem_cache_free(cgw_cache, gwj);
- 	}
- }
-@@ -1222,6 +1224,7 @@ static int cgw_remove_job(struct sk_buff *skb, struct nlmsghdr *nlh,
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+index 1ad621d13ad3..0a13c2bda2ee 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+@@ -1032,6 +1032,9 @@ static int iwl_mvm_tx_mpdu(struct iwl_mvm *mvm, struct sk_buff *skb,
+ 	if (WARN_ON_ONCE(mvmsta->sta_id == IWL_MVM_INVALID_STA))
+ 		return -1;
  
- 		hlist_del(&gwj->list);
- 		cgw_unregister_filter(net, gwj);
-+		synchronize_rcu();
- 		kmem_cache_free(cgw_cache, gwj);
- 		err = 0;
- 		break;
++	if (unlikely(ieee80211_is_any_nullfunc(fc)) && sta->he_cap.has_he)
++		return -1;
++
+ 	if (unlikely(ieee80211_is_probe_resp(fc)))
+ 		iwl_mvm_probe_resp_set_noa(mvm, skb);
+ 
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 3f2aad2e7436..b1c44fa63a06 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -1094,11 +1094,6 @@ void ieee80211_send_nullfunc(struct ieee80211_local *local,
+ 	struct ieee80211_hdr_3addr *nullfunc;
+ 	struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
+ 
+-	/* Don't send NDPs when STA is connected HE */
+-	if (sdata->vif.type == NL80211_IFTYPE_STATION &&
+-	    !(ifmgd->flags & IEEE80211_STA_DISABLE_HE))
+-		return;
+-
+ 	skb = ieee80211_nullfunc_get(&local->hw, &sdata->vif,
+ 		!ieee80211_hw_check(&local->hw, DOESNT_SUPPORT_QOS_NDP));
+ 	if (!skb)
+@@ -1130,10 +1125,6 @@ static void ieee80211_send_4addr_nullfunc(struct ieee80211_local *local,
+ 	if (WARN_ON(sdata->vif.type != NL80211_IFTYPE_STATION))
+ 		return;
+ 
+-	/* Don't send NDPs when connected HE */
+-	if (!(sdata->u.mgd.flags & IEEE80211_STA_DISABLE_HE))
+-		return;
+-
+ 	skb = dev_alloc_skb(local->hw.extra_tx_headroom + 30);
+ 	if (!skb)
+ 		return;
 
