@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBB03C3C75
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B59553C3C77
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232813AbhGKMmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:42:19 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:38177 "EHLO
+        id S232554AbhGKMnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:43:39 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:43395 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229688AbhGKMmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:42:19 -0400
+        by vger.kernel.org with ESMTP id S229688AbhGKMni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:43:38 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id D20D31AC0E9D;
-        Sun, 11 Jul 2021 08:39:31 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id DA6341AC0F92;
+        Sun, 11 Jul 2021 08:40:51 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 11 Jul 2021 08:39:32 -0400
+  by compute4.internal (MEProxy); Sun, 11 Jul 2021 08:40:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=s2rB0W
-        bsyNE5upJbTqJX+tY5tan6+IkTTu9O4tzsPG0=; b=bS35mbCUr85iiFTNvV4jP3
-        cVHhupbXBEWX1lz2AeVSiTqR9e2/rXuHGHkh/jauJvIwxNf2kkmjIjKKRkDauXuL
-        Jp02fU6O5jzIXHKwGabMu7O2FGANs9CoagCQinMKMqxZRnQU+47RaGBn9rvvduVb
-        T98CAYvRxnvq5kzGhcw3zoRsMW0r8IVml3xNa/T1gD3+Wc4lxJ6ovDfiVLITTQLQ
-        a0DBGFH7bBwSCWiWXbsvmx/4wj8sQBTegbUacAbPIOm+Ea+Qn9LAx7OIlolI4edc
-        ECpbh/3oQI4s1zv3eG49WUfhcsw/AG8TDf6yvs+oMfiYrSSxMcVRN7rdKiUJrU5Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=USarev
+        hsm2SHUd2GVpBHz+56vvOF12TuO7RLx09Quto=; b=p1YKJpfa8q/6dkRbM1TG6E
+        LWd05RgvrBolf97npvlKjX5s7wmd7gJ62M5LqWo+9RZy5Ja6C5wB9t1+VWlKIqwR
+        KHceH/wtgep/EcZ9d9hE4k8eGAwzJzqfW8cJRF5puAU8Ync2J4ISWIc78vfdPIf8
+        wQhPc3UPaQhKuAxywQGB4iSzx+0Ryc/IfZzVBDSuPHb0D9PhpkO531ppwhONENZb
+        3+3mG1EuVJVGmglXxT9zdxcER5D+/O1xB6aLV7ZgaPccjhyI/LC2O2GZQpykVh4A
+        oJwNj1wUmqLMn48kE49cX7MaKrPkSsPWrKzJ16cvd/IwWVGLmK/07CDvu6bYQksg
         ==
-X-ME-Sender: <xms:g-bqYNaKBWtBRVXLOE6lYYO_mqHLcc8t8LwALUtzUW_QmHKH8uzSNQ>
-    <xme:g-bqYEZ9VmUDV6IqhdKQWBRXqVSkLmhCx0JHQmqA-1qNRp-NRoP_qPTzhDeT4XLFb
-    c3YQ0bK-8t7PA>
-X-ME-Received: <xmr:g-bqYP-SSAKKaeaE43fOti1nepNbcM4uDOy4iNYOrnwmP_5sAymaZKxNi6uVMuRlCAdmXVqK-dfJYXDg6wp0cIQvGw>
+X-ME-Sender: <xms:0-bqYOvAaPa6_y7oHJnTbpEA3f7bWSACAvn2zgQMkMSEHyt7I22FQg>
+    <xme:0-bqYDdih_Lk3N5n1woPjU2lo_MagFF99ILtJLLzCDm-YvWbOlWitxXDA1SATyXya
+    BlZ6wSyxgf0IA>
+X-ME-Received: <xmr:0-bqYJyT9hlBiw_vSKysaEgCX1VodvxiNcpgA3SLjU4aQ6V8hU1Rf-FFcDGsu5ZhG6hsJIg1rtgBpA8OyaHalCqQJA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeefvdfhvefhtdekffejteffvdefieefteeuteehleevle
-    fhfeekieetlefflefhheenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhrmhhhrghn
-    ughlvghrshdrshgsnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrghilh
-    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:g-bqYLoc7xYmUuOGc4PXMQ2Cm_nlmh27OlpxL7wNtYP5f8SP7_ehPA>
-    <xmx:g-bqYIobWpvgD9gdC0nJdiinV3K8nVyHB860uiwUSOypHp6NdJzpgg>
-    <xmx:g-bqYBRSOqpLaSUXuZzkmiU7LZlliHnNsUY1uwUADIQrQHh2JQlnHw>
-    <xmx:g-bqYP1PdWsd6OteicaC-jWc8fk9XMAsDqVUjjdDJ7cF3TF5AUqfsKL_IVY>
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgr
+    ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:0-bqYJNtTjfSymZ8hdRiyxZ-ZELHU9jW8Q90yCL2MOaBk3XLmeuZTw>
+    <xmx:0-bqYO99nrwnfgKN7BswD5skI9O-tEtDvZIOchlzZ3OCa4CylE7TrA>
+    <xmx:0-bqYBX12o9l5XY2xhY5W-GE7uv7y1BFIHLSduW2aCB4sOS3pMBk7Q>
+    <xmx:0-bqYEl4wBXQdK-wbiXio6vAT6P2Typ6OJhqdsn-ll_AhpT_y9dACkHqxfk>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:39:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: PPC: Book3S HV: Save host FSCR in the P7/8 path" failed to apply to 5.13-stable tree
-To:     npiggin@gmail.com, farosas@linux.ibm.com, mpe@ellerman.id.au
+ 11 Jul 2021 08:40:50 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP" failed to apply to 5.4-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:39:29 +0200
-Message-ID: <1626007169217115@kroah.com>
+Date:   Sun, 11 Jul 2021 14:40:49 +0200
+Message-ID: <162600724959170@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,69 +69,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6ba53317d497dec029bfb040b1daf38328fa00ab Mon Sep 17 00:00:00 2001
-From: Nicholas Piggin <npiggin@gmail.com>
-Date: Wed, 26 May 2021 22:58:51 +1000
-Subject: [PATCH] KVM: PPC: Book3S HV: Save host FSCR in the P7/8 path
+From 112022bdb5bc372e00e6e43cb88ee38ea67b97bd Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Tue, 22 Jun 2021 10:56:47 -0700
+Subject: [PATCH] KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP
+ shadow MMUs
 
-Similar to commit 25edcc50d76c ("KVM: PPC: Book3S HV: Save and restore
-FSCR in the P9 path"), ensure the P7/8 path saves and restores the host
-FSCR. The logic explained in that patch actually applies there to the
-old path well: a context switch can be made before kvmppc_vcpu_run_hv
-restores the host FSCR and returns.
+Mark NX as being used for all non-nested shadow MMUs, as KVM will set the
+NX bit for huge SPTEs if the iTLB mutli-hit mitigation is enabled.
+Checking the mitigation itself is not sufficient as it can be toggled on
+at any time and KVM doesn't reset MMU contexts when that happens.  KVM
+could reset the contexts, but that would require purging all SPTEs in all
+MMUs, for no real benefit.  And, KVM already forces EFER.NX=1 when TDP is
+disabled (for WP=0, SMEP=1, NX=0), so technically NX is never reserved
+for shadow MMUs.
 
-Now both the p9 and the p7/8 paths now save and restore their FSCR, it
-no longer needs to be restored at the end of kvmppc_vcpu_run_hv
+Fixes: b8e8c8303ff2 ("kvm: mmu: ITLB_MULTIHIT mitigation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210622175739.3610207-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Fixes: b005255e12a3 ("KVM: PPC: Book3S HV: Context-switch new POWER8 SPRs")
-Cc: stable@vger.kernel.org # v3.14+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210526125851.3436735-1-npiggin@gmail.com
-
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 28a80d240b76..13728495ac66 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -4455,7 +4455,6 @@ static int kvmppc_vcpu_run_hv(struct kvm_vcpu *vcpu)
- 		mtspr(SPRN_EBBRR, ebb_regs[1]);
- 		mtspr(SPRN_BESCR, ebb_regs[2]);
- 		mtspr(SPRN_TAR, user_tar);
--		mtspr(SPRN_FSCR, current->thread.fscr);
- 	}
- 	mtspr(SPRN_VRSAVE, user_vrsave);
- 
-diff --git a/arch/powerpc/kvm/book3s_hv_rmhandlers.S b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-index 5e634db4809b..004f0d4e665f 100644
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -59,6 +59,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_ARCH_300)
- #define STACK_SLOT_UAMOR	(SFS-88)
- #define STACK_SLOT_DAWR1	(SFS-96)
- #define STACK_SLOT_DAWRX1	(SFS-104)
-+#define STACK_SLOT_FSCR		(SFS-112)
- /* the following is used by the P9 short path */
- #define STACK_SLOT_NVGPRS	(SFS-152)	/* 18 gprs */
- 
-@@ -686,6 +687,8 @@ BEGIN_FTR_SECTION
- 	std	r6, STACK_SLOT_DAWR0(r1)
- 	std	r7, STACK_SLOT_DAWRX0(r1)
- 	std	r8, STACK_SLOT_IAMR(r1)
-+	mfspr	r5, SPRN_FSCR
-+	std	r5, STACK_SLOT_FSCR(r1)
- END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
- BEGIN_FTR_SECTION
- 	mfspr	r6, SPRN_DAWR1
-@@ -1663,6 +1666,10 @@ FTR_SECTION_ELSE
- 	ld	r7, STACK_SLOT_HFSCR(r1)
- 	mtspr	SPRN_HFSCR, r7
- ALT_FTR_SECTION_END_IFCLR(CPU_FTR_ARCH_300)
-+BEGIN_FTR_SECTION
-+	ld	r5, STACK_SLOT_FSCR(r1)
-+	mtspr	SPRN_FSCR, r5
-+END_FTR_SECTION_IFSET(CPU_FTR_ARCH_207S)
- 	/*
- 	 * Restore various registers to 0, where non-zero values
- 	 * set by the guest could disrupt the host.
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index b3be690d081a..444e068e6ad9 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -4221,7 +4221,15 @@ static inline u64 reserved_hpa_bits(void)
+ void
+ reset_shadow_zero_bits_mask(struct kvm_vcpu *vcpu, struct kvm_mmu *context)
+ {
+-	bool uses_nx = context->nx ||
++	/*
++	 * KVM uses NX when TDP is disabled to handle a variety of scenarios,
++	 * notably for huge SPTEs if iTLB multi-hit mitigation is enabled and
++	 * to generate correct permissions for CR0.WP=0/CR4.SMEP=1/EFER.NX=0.
++	 * The iTLB multi-hit workaround can be toggled at any time, so assume
++	 * NX can be used by any non-nested shadow MMU to avoid having to reset
++	 * MMU contexts.  Note, KVM forces EFER.NX=1 when TDP is disabled.
++	 */
++	bool uses_nx = context->nx || !tdp_enabled ||
+ 		context->mmu_role.base.smep_andnot_wp;
+ 	struct rsvd_bits_validate *shadow_zero_check;
+ 	int i;
 
