@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8DD63C3C64
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:37:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10A333C3C66
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232554AbhGKMkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:40:08 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:40491 "EHLO
+        id S232730AbhGKMkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:40:19 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:42071 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229688AbhGKMkI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:40:08 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 239871940790;
-        Sun, 11 Jul 2021 08:37:21 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 11 Jul 2021 08:37:21 -0400
+        by vger.kernel.org with ESMTP id S229688AbhGKMkS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:40:18 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 8E4C019407E4;
+        Sun, 11 Jul 2021 08:37:31 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Sun, 11 Jul 2021 08:37:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kxzan4
-        zQM27fLFkxqvxUfUvTUrW/FiCnFZgUao5MLyw=; b=wzQTUc+fPQH0wDQHc8WkZq
-        KkG270bBIDHrYaAuNOFoPJhCPxQG3SzWDsQ1580IOIaiBNuaENToPT7n1ZBHYRNX
-        sN+TKZc8DS/mQ2/9NOLbTQb4rrH1BzABiJvCq+SYbZt7Lcaof7Y+4i1eNuCdkiAr
-        Mb5CEz+QVj8X5Poo+8fdcPCEGQIVzGqMIJU8ALNyxlIAJeUR1MQAre8bJP+Ns0KZ
-        6HvciTayEEoP+4JzPauQInvodAL9Qy3UQ8EItK1FfBe6jvlXqiLE8/Q2PcYbxSPU
-        5QDQ+dpwf01rgbsZeD3MPi7IeWpPHVML16UzKw5e+O8ENLTSwqV9xFEyFwOuFDoQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=O8yA02
+        HlHwsLwzhUMOJIQaA+Arn7LsIvkYbm8cXiTF0=; b=dLGMj0FtY/5yRBm+DeJVef
+        +DG53WDic1RmG5YfnCQOAOf2qtAYMMHPMimHEKL70CGIA/wzQQK7d2KF9F1AYxM1
+        Oedb23TV3M6n+XYGCIXAm52CR/I6ih5twFM2b5q/5dfpw662TrrfLLSD/5kr1V0p
+        hYWVyvQaoz6LLCjnRYVG1P3pmFspHo+3RyiXAPNY1nW85DJZAAsk7hLRLMQmvhA5
+        olBJB+m/htNvZtA3asPYIZkSgmOYnmQvWlOMyc78eqaAT559AS9xzkpysMlMNiQh
+        0Iwo4j/qX/wjZhDCxosYopr5S0Gf8btmGy0jcgakwf9MhHFZCM3MSVFfzkKa2ElA
         ==
-X-ME-Sender: <xms:AebqYB_fU-9dR2s5iwZFosBnN6q1G80sl0d76-ZIKvFNjBKbTVYACA>
-    <xme:AebqYFv2tRuz0fazzByGWN0Pg0Jobem0uZKkZMG8nhwHQNmgNyV1eW3and-e07Itd
-    c8KHH6YlsMzEg>
-X-ME-Received: <xmr:AebqYPD-E0Xpi9flN3KJSO6pnB7e9iZM2VpypwLxTa0o9ef19Pt8fVHv-fhwYzRpjGh8BLC1gyEojKvupf0wgGrD_w>
+X-ME-Sender: <xms:C-bqYI3IRjhqhyVkCX-0cdw5hoP7KuDR-I-6O2Q3Jf_j8m5EijVU8g>
+    <xme:C-bqYDEuRP4q5G5Ybt3RqzpgB8NxAU5HKfbb38Wd63ztmrT6AVi3XE4h5fVQfhgZ_
+    2fzwwmdKoi6Eg>
+X-ME-Received: <xmr:C-bqYA4JFI9vpz1nIyyJ0UpwMuZ_nr-vnCAt43vHDVkBh0Pv-igLiN03qlhvtebI5KqxV55xv7_ZG8B36avG4S74yg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhs
-    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
     hhrdgtohhm
-X-ME-Proxy: <xmx:AebqYFeYsspgNFC1r84hKbyrCpGqZ-0vgVc-pkBuNim1fRkmRE81ng>
-    <xmx:AebqYGPLYOECg5nJSm1bJoGVFj3KOjf2VVsmzR61UO11s0CTVYGVYg>
-    <xmx:AebqYHknHMfvyf2fd_qfxiJ0diVzBVhMcOcicLfLpBy8_-yS3N_meA>
-    <xmx:AebqYFfNxSg0TtNrJ-4ZsXJ5q7B6dJ18pt0PEGvvQx8_bbXacxZVWA>
+X-ME-Proxy: <xmx:C-bqYB3bda23ZpHu24AraAq6rH8H6_5ig8duBChYRuCbzGj30Ib1zA>
+    <xmx:C-bqYLEdCh8mkhZCj14KTAqL4aP7wDs1YPCS6MZpZXKRfDaYMdMAJg>
+    <xmx:C-bqYK9GDqx3tKiH62C3v5uAemQ28A-6pNrlwEJbyIm8ZN3em5XqxA>
+    <xmx:C-bqYK2mSVipkejRNGkeNOlSZfwUwJkniNtcw8ieCF3gTTw85qLqpA>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:37:20 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/gup: fix try_grab_compound_head() race with" failed to apply to 4.9-stable tree
+ 11 Jul 2021 08:37:30 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/gup: fix try_grab_compound_head() race with" failed to apply to 4.14-stable tree
 To:     jannh@google.com, akpm@linux-foundation.org, jack@suse.cz,
         jhubbard@nvidia.com, kirill@shutemov.name, stable@vger.kernel.org,
         torvalds@linux-foundation.org, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:37:19 +0200
-Message-ID: <16260070395179@kroah.com>
+Date:   Sun, 11 Jul 2021 14:37:29 +0200
+Message-ID: <1626007049173207@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
