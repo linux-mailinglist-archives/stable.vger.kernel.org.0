@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 883AE3C3C63
-	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:37:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8DD63C3C64
+	for <lists+stable@lfdr.de>; Sun, 11 Jul 2021 14:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232679AbhGKMj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Jul 2021 08:39:58 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:33849 "EHLO
+        id S232554AbhGKMkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Jul 2021 08:40:08 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:40491 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229688AbhGKMj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:39:58 -0400
+        by vger.kernel.org with ESMTP id S229688AbhGKMkI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Jul 2021 08:40:08 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 36C6119407E4;
-        Sun, 11 Jul 2021 08:37:11 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 11 Jul 2021 08:37:11 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 239871940790;
+        Sun, 11 Jul 2021 08:37:21 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 11 Jul 2021 08:37:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+p0Wb7
-        Qa7bkDOOXCvdlyCOmPBgXMYYDIYSsC0b3zThE=; b=bMn99lcjxuyTVsl1qjWLts
-        fbJT/M1fbJhAd6Un/c1sL/Oese72GR233B8oAicZzmonAMTXEUv0gd69emPEQw2c
-        7N9x7W4IKZMC6fuDJqiAAd02N+jxaY8jzXPXsMWILAKtWBcHSiCKboq5dOyvEO3v
-        3CQSLmX0Hk/PYyube3mzCxOO1DI1NYtPosScCHwkwZHLX7myceZ73B9/M++MOj9V
-        3uzcnqTXznaVClxI5IzcMAkt6Alm3RPOSOx88npSo2ri8h0qFixjC+l5PnxcTROt
-        HzZB2t5oPz/i5Qg4pqekIPsCqwYlVzr6ICPB1sIBhh61PQ34EWMXZrkNOT0QXdcA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kxzan4
+        zQM27fLFkxqvxUfUvTUrW/FiCnFZgUao5MLyw=; b=wzQTUc+fPQH0wDQHc8WkZq
+        KkG270bBIDHrYaAuNOFoPJhCPxQG3SzWDsQ1580IOIaiBNuaENToPT7n1ZBHYRNX
+        sN+TKZc8DS/mQ2/9NOLbTQb4rrH1BzABiJvCq+SYbZt7Lcaof7Y+4i1eNuCdkiAr
+        Mb5CEz+QVj8X5Poo+8fdcPCEGQIVzGqMIJU8ALNyxlIAJeUR1MQAre8bJP+Ns0KZ
+        6HvciTayEEoP+4JzPauQInvodAL9Qy3UQ8EItK1FfBe6jvlXqiLE8/Q2PcYbxSPU
+        5QDQ+dpwf01rgbsZeD3MPi7IeWpPHVML16UzKw5e+O8ENLTSwqV9xFEyFwOuFDoQ
         ==
-X-ME-Sender: <xms:9uXqYOEzAvLUQDz0eSIuh7D84cneFRQbjsFYCKLS8n8DsBRhsbz7Fg>
-    <xme:9uXqYPVY7j5q6YPnl-qJRdCGUMFIXGy2H9F7xu41NfIVD-H709KZwOe97hjyK7c_1
-    nNci7TArTBRWw>
-X-ME-Received: <xmr:9uXqYIJWpF5PivjymEV2zuTe3_qBLaJFxUI6sEZAUXG6v669FVkLnH0yTKxIqdW1GQjx4VeSJCs2XA9JWEENaVJzBA>
+X-ME-Sender: <xms:AebqYB_fU-9dR2s5iwZFosBnN6q1G80sl0d76-ZIKvFNjBKbTVYACA>
+    <xme:AebqYFv2tRuz0fazzByGWN0Pg0Jobem0uZKkZMG8nhwHQNmgNyV1eW3and-e07Itd
+    c8KHH6YlsMzEg>
+X-ME-Received: <xmr:AebqYPD-E0Xpi9flN3KJSO6pnB7e9iZM2VpypwLxTa0o9ef19Pt8fVHv-fhwYzRpjGh8BLC1gyEojKvupf0wgGrD_w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddtgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
     hhrdgtohhm
-X-ME-Proxy: <xmx:9uXqYIENbbLebhp7Rq6x5ei56dW0_5c8vUga5LRd3_OwQjtFzU5SZg>
-    <xmx:9uXqYEVqwH8a_ZwW3BwALmVpA3MK2dFpe7-Bw2PgUwJFMBGeF_1aJQ>
-    <xmx:9uXqYLPZ6ZLvn71AtD7MZPOAIdylGlPgoaDCh7j7P7xNm5ugoRolxg>
-    <xmx:9-XqYHEKpPhbHqxPJJU5cSFifcWa3TjaZU5PPmXVsZAlwSSXIFQkEw>
+X-ME-Proxy: <xmx:AebqYFeYsspgNFC1r84hKbyrCpGqZ-0vgVc-pkBuNim1fRkmRE81ng>
+    <xmx:AebqYGPLYOECg5nJSm1bJoGVFj3KOjf2VVsmzR61UO11s0CTVYGVYg>
+    <xmx:AebqYHknHMfvyf2fd_qfxiJ0diVzBVhMcOcicLfLpBy8_-yS3N_meA>
+    <xmx:AebqYFfNxSg0TtNrJ-4ZsXJ5q7B6dJ18pt0PEGvvQx8_bbXacxZVWA>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 11 Jul 2021 08:37:10 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/gup: fix try_grab_compound_head() race with" failed to apply to 4.4-stable tree
+ 11 Jul 2021 08:37:20 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/gup: fix try_grab_compound_head() race with" failed to apply to 4.9-stable tree
 To:     jannh@google.com, akpm@linux-foundation.org, jack@suse.cz,
         jhubbard@nvidia.com, kirill@shutemov.name, stable@vger.kernel.org,
         torvalds@linux-foundation.org, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Jul 2021 14:37:09 +0200
-Message-ID: <1626007029225234@kroah.com>
+Date:   Sun, 11 Jul 2021 14:37:19 +0200
+Message-ID: <16260070395179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
