@@ -2,36 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E8E3C508A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 005DB3C4B14
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240612AbhGLHde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:33:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43856 "EHLO mail.kernel.org"
+        id S239692AbhGLGzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343683AbhGLH2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:28:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB99161370;
-        Mon, 12 Jul 2021 07:24:22 +0000 (UTC)
+        id S240694AbhGLGyD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:54:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA7DE610A6;
+        Mon, 12 Jul 2021 06:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074663;
-        bh=gmheCfvythPcp/bQS7LLZEaWytqmQPx21ikpAMv9Qrs=;
+        s=korg; t=1626072673;
+        bh=hHMXRUxcWcAG6C9Q/dJOF0deEznyyuh+SrM9U2OncYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mH7i9rGAKC72IW23oQLpPg6OiFjf5ruqLteBF7fzc+0aFScfrERToLyCKH1MBaJR8
-         rPRmsYEGl5+hUgenFQOfmOGVxzbCgYStZWeF+a5Z6kgeGKsH6zJbTPnaYCRqiweQcv
-         lRMGaT4luLI72RRXOxKeUiBEhlrlH4l4anSGl4gM=
+        b=rNTe76satJkgYcfs+G7KlRQoH4tHB/5mjZb37AJ+Ups6KVRjFQrRArN239R6v+Uiv
+         dmfvgk7Dm1NIyn/hCal2SiHvBIoxnBhoBijnp2oxzIj7yULNWVAn7h3oUGiU3n3Qjp
+         gdB1JxrVLlIAsqbpxWhVzPDOxgxAqYdNKK8tu1gI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Yu Kuai <yukuai3@huawei.com>,
+        clang-built-linux@googlegroups.com,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 654/700] powerpc: Offline CPU in stop_this_cpu()
+Subject: [PATCH 5.10 577/593] perf llvm: Return -ENOMEM when asprintf() fails
 Date:   Mon, 12 Jul 2021 08:12:17 +0200
-Message-Id: <20210712061045.434849846@linuxfoundation.org>
+Message-Id: <20210712060958.568339304@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit bab26238bbd44d5a4687c0a64fd2c7f2755ea937 ]
+[ Upstream commit c435c166dcf526ac827bc964d82cc0d5e7a1fd0b ]
 
-printk_safe_flush_on_panic() has special lock breaking code for the case
-where we panic()ed with the console lock held. It relies on panic IPI
-causing other CPUs to mark themselves offline.
+Zhihao sent a patch but it made llvm__compile_bpf() return what
+asprintf() returns on error, which is just -1, but since this function
+returns -errno, fix it by returning -ENOMEM for this case instead.
 
-Do as most other architectures do.
-
-This effectively reverts commit de6e5d38417e ("powerpc: smp_send_stop do
-not offline stopped CPUs"), unfortunately it may result in some false
-positive warnings, but the alternative is more situations where we can
-crash without getting messages out.
-
-Fixes: de6e5d38417e ("powerpc: smp_send_stop do not offline stopped CPUs")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210623041245.865134-1-npiggin@gmail.com
+Fixes: cb76371441d098 ("perf llvm: Allow passing options to llc ...")
+Fixes: 5eab5a7ee032ac ("perf llvm: Display eBPF compiling command ...")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reported-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Yu Kuai <yukuai3@huawei.com>
+Cc: clang-built-linux@googlegroups.com
+Link: http://lore.kernel.org/lkml/20210609115945.2193194-1-chengzhihao1@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/smp.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ tools/perf/util/llvm-utils.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 1d7daef1c3b6..216919de87d7 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -619,6 +619,8 @@ static void nmi_stop_this_cpu(struct pt_regs *regs)
- 	/*
- 	 * IRQs are already hard disabled by the smp_handle_nmi_ipi.
- 	 */
-+	set_cpu_online(smp_processor_id(), false);
-+
- 	spin_begin();
- 	while (1)
- 		spin_cpu_relax();
-@@ -634,6 +636,15 @@ void smp_send_stop(void)
- static void stop_this_cpu(void *dummy)
- {
- 	hard_irq_disable();
-+
-+	/*
-+	 * Offlining CPUs in stop_this_cpu can result in scheduler warnings,
-+	 * (see commit de6e5d38417e), but printk_safe_flush_on_panic() wants
-+	 * to know other CPUs are offline before it breaks locks to flush
-+	 * printk buffers, in case we panic()ed while holding the lock.
-+	 */
-+	set_cpu_online(smp_processor_id(), false);
-+
- 	spin_begin();
- 	while (1)
- 		spin_cpu_relax();
+diff --git a/tools/perf/util/llvm-utils.c b/tools/perf/util/llvm-utils.c
+index dbdffb6673fe..0bf6b4d4c90a 100644
+--- a/tools/perf/util/llvm-utils.c
++++ b/tools/perf/util/llvm-utils.c
+@@ -504,6 +504,7 @@ int llvm__compile_bpf(const char *path, void **p_obj_buf,
+ 			goto errout;
+ 		}
+ 
++		err = -ENOMEM;
+ 		if (asprintf(&pipe_template, "%s -emit-llvm | %s -march=bpf %s -filetype=obj -o -",
+ 			      template, llc_path, opts) < 0) {
+ 			pr_err("ERROR:\tnot enough memory to setup command line\n");
+@@ -524,6 +525,7 @@ int llvm__compile_bpf(const char *path, void **p_obj_buf,
+ 
+ 	pr_debug("llvm compiling command template: %s\n", template);
+ 
++	err = -ENOMEM;
+ 	if (asprintf(&command_echo, "echo -n \"%s\"", template) < 0)
+ 		goto errout;
+ 
 -- 
 2.30.2
 
