@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FADC3C4839
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F5C93C483B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236089AbhGLGhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:37:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55500 "EHLO mail.kernel.org"
+        id S235607AbhGLGhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:37:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236953AbhGLGfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:35:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA31761004;
-        Mon, 12 Jul 2021 06:32:43 +0000 (UTC)
+        id S236043AbhGLGfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:35:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2459860238;
+        Mon, 12 Jul 2021 06:32:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071564;
-        bh=UP4NVnaV6TahKYzkSvQfpMg9+VdQvMocKGAKxZKRlTA=;
+        s=korg; t=1626071566;
+        bh=nlOLuNtggwGJ3tkcVIGdx15wvGaENmzl1YWtE+KotX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XyXh2IJ12A5J3XQdDR8vsjkcL66JFHRZAos20xmKbH4uRPRYsMpnZd5BhBYKIS0TP
-         hrg7RwxH9icK5io3tYTZz7jV6Z6KQuKmzPU43AjuUklWeeHqZlwWzkWy6l4XdwAhnu
-         6tb5YudaQjTjrg5QWEe0VgGkmvAvzFPgiBQdryro=
+        b=wUnj8Hon6CSNEajin74pmYYEx1etHWUtbx3LAHuM7aGrcv4rJZbNH2wyxH2sbVQBf
+         GQYi5QXYQY5FtSgb8YdKoW3mkMBm70tQDT7APL3DcrRRQZnp2767ie21hrTh02BLEV
+         T4ZSLjc+rTKc+cvthAonHLvFvh4HOsJNgmliFVLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+e74a998ca8f1df9cc332@syzkaller.appspotmail.com,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 125/593] media: pvrusb2: fix warning in pvr2_i2c_core_done
-Date:   Mon, 12 Jul 2021 08:04:45 +0200
-Message-Id: <20210712060856.917148024@linuxfoundation.org>
+Subject: [PATCH 5.10 126/593] media: imx: imx7_mipi_csis: Fix logging of only error event counters
+Date:   Mon, 12 Jul 2021 08:04:46 +0200
+Message-Id: <20210712060857.018301742@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -43,58 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit f8194e5e63fdcb349e8da9eef9e574d5b1d687cb ]
+[ Upstream commit d2fcc9c2de1191ea80366e3658711753738dd10a ]
 
-syzbot has reported the following warning in pvr2_i2c_done:
+The mipi_csis_events array ends with 6 non-error events, not 4. Update
+mipi_csis_log_counters() accordingly. While at it, log event counters in
+forward order, as there's no reason to log them backward.
 
-	sysfs group 'power' not found for kobject '1-0043'
-
-When the device is disconnected (pvr_hdw_disconnect), the i2c adapter is
-not unregistered along with the USB and v4l2 teardown. As part of the USB
-device disconnect, the sysfs files of the subdevices are also deleted.
-So, by the time pvr_i2c_core_done is called by pvr_context_destroy, the
-sysfs files have been deleted.
-
-To fix this, unregister the i2c adapter too in pvr_hdw_disconnect. Make
-the device deregistration code shared by calling pvr_hdw_disconnect from
-pvr2_hdw_destroy.
-
-Reported-by: syzbot+e74a998ca8f1df9cc332@syzkaller.appspotmail.com
-Tested-by: syzbot+e74a998ca8f1df9cc332@syzkaller.appspotmail.com
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/media/imx/imx7-mipi-csis.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-index f4a727918e35..d38dee1792e4 100644
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -2676,9 +2676,8 @@ void pvr2_hdw_destroy(struct pvr2_hdw *hdw)
- 		pvr2_stream_destroy(hdw->vid_stream);
- 		hdw->vid_stream = NULL;
- 	}
--	pvr2_i2c_core_done(hdw);
- 	v4l2_device_unregister(&hdw->v4l2_dev);
--	pvr2_hdw_remove_usb_stuff(hdw);
-+	pvr2_hdw_disconnect(hdw);
- 	mutex_lock(&pvr2_unit_mtx);
- 	do {
- 		if ((hdw->unit_number >= 0) &&
-@@ -2705,6 +2704,7 @@ void pvr2_hdw_disconnect(struct pvr2_hdw *hdw)
+diff --git a/drivers/staging/media/imx/imx7-mipi-csis.c b/drivers/staging/media/imx/imx7-mipi-csis.c
+index 7612993cc1d6..c5a548976f1d 100644
+--- a/drivers/staging/media/imx/imx7-mipi-csis.c
++++ b/drivers/staging/media/imx/imx7-mipi-csis.c
+@@ -597,13 +597,15 @@ static void mipi_csis_clear_counters(struct csi_state *state)
+ 
+ static void mipi_csis_log_counters(struct csi_state *state, bool non_errors)
  {
- 	pvr2_trace(PVR2_TRACE_INIT,"pvr2_hdw_disconnect(hdw=%p)",hdw);
- 	LOCK_TAKE(hdw->big_lock);
-+	pvr2_i2c_core_done(hdw);
- 	LOCK_TAKE(hdw->ctl_lock);
- 	pvr2_hdw_remove_usb_stuff(hdw);
- 	LOCK_GIVE(hdw->ctl_lock);
+-	int i = non_errors ? MIPI_CSIS_NUM_EVENTS : MIPI_CSIS_NUM_EVENTS - 4;
++	unsigned int num_events = non_errors ? MIPI_CSIS_NUM_EVENTS
++				: MIPI_CSIS_NUM_EVENTS - 6;
+ 	struct device *dev = &state->pdev->dev;
+ 	unsigned long flags;
++	unsigned int i;
+ 
+ 	spin_lock_irqsave(&state->slock, flags);
+ 
+-	for (i--; i >= 0; i--) {
++	for (i = 0; i < num_events; ++i) {
+ 		if (state->events[i].counter > 0 || state->debug)
+ 			dev_info(dev, "%s events: %d\n", state->events[i].name,
+ 				 state->events[i].counter);
 -- 
 2.30.2
 
