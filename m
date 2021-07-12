@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BF143C541A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 351963C4F01
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345769AbhGLH5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41030 "EHLO mail.kernel.org"
+        id S239495AbhGLHWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240770AbhGLHwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:52:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B65F6112D;
-        Mon, 12 Jul 2021 07:49:50 +0000 (UTC)
+        id S244664AbhGLHSe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:18:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBAF961166;
+        Mon, 12 Jul 2021 07:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076191;
-        bh=EPQo4y4FBsZF11pglyr36rMy9zlzUYnKYJywUyH4blQ=;
+        s=korg; t=1626074140;
+        bh=LjQZrFx2p3kyZJSJE3DeZ4beMhOZcFL+ELNJqiA6KKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=roDNLliG1RJCKAUweZtRRZAzk+4SR+GtvIDlHqbv/a0nf9oC8QYNp+ZAPyHvimxzx
-         7ehNoE1WBXPew/o9tN299E3PcptOIEVv1QFuIlDYxRW3Gw9j1k8p8dn5cfQ3vLZyRn
-         CVYWwCbEkiGhOmEHbq4RmDtN+VaBI013D102Mmos=
+        b=WF3H912HMA6RX2p8/QuE+/pe2rs4bqyTSuz7lvsPVFW6P7whOzWj38Jj1g+PHmlml
+         dNtWyhFGiTyqXyldwhICOLdxZlY43OI2bKCmTs3eCLygoWekBHei8pb4vdZ+exZMbC
+         W/rXSj5hrmo3utCbEu1oACcMCIRn7WBPf23jwGmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dongseok Yi <dseok.yi@samsung.com>,
+        Willem de Bruijn <willemb@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 537/800] mptcp: avoid race on msk state changes
+Subject: [PATCH 5.12 477/700] bpf: Do not change gso_size during bpf_skb_change_proto()
 Date:   Mon, 12 Jul 2021 08:09:20 +0200
-Message-Id: <20210712061024.488418029@linuxfoundation.org>
+Message-Id: <20210712061027.340428243@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,153 +43,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Maciej Żenczykowski <maze@google.com>
 
-[ Upstream commit 490274b47468793e3e157c2df6b2da0e646cc4a9 ]
+[ Upstream commit 364745fbe981a4370f50274475da4675661104df ]
 
-The msk socket state is currently updated in a few spots without
-owning the msk socket lock itself.
+This is technically a backwards incompatible change in behaviour, but I'm
+going to argue that it is very unlikely to break things, and likely to fix
+*far* more then it breaks.
 
-Some of such operations are safe, as they happens before exposing
-the msk socket to user-space and can't race with other changes.
+In no particular order, various reasons follow:
 
-A couple of them, at connect time, can actually race with close()
-or shutdown(), leaving breaking the socket state machine.
+(a) I've long had a bug assigned to myself to debug a super rare kernel crash
+on Android Pixel phones which can (per stacktrace) be traced back to BPF clat
+IPv6 to IPv4 protocol conversion causing some sort of ugly failure much later
+on during transmit deep in the GSO engine, AFAICT precisely because of this
+change to gso_size, though I've never been able to manually reproduce it. I
+believe it may be related to the particular network offload support of attached
+USB ethernet dongle being used for tethering off of an IPv6-only cellular
+connection. The reason might be we end up with more segments than max permitted,
+or with a GSO packet with only one segment... (either way we break some
+assumption and hit a BUG_ON)
 
-This change addresses the issue moving such update under the msk
-socket lock with the usual:
+(b) There is no check that the gso_size is > 20 when reducing it by 20, so we
+might end up with a negative (or underflowing) gso_size or a gso_size of 0.
+This can't possibly be good. Indeed this is probably somehow exploitable (or
+at least can result in a kernel crash) by delivering crafted packets and perhaps
+triggering an infinite loop or a divide by zero... As a reminder: gso_size (MSS)
+is related to MTU, but not directly derived from it: gso_size/MSS may be
+significantly smaller then one would get by deriving from local MTU. And on
+some NICs (which do loose MTU checking on receive, it may even potentially be
+larger, for example my work pc with 1500 MTU can receive 1520 byte frames [and
+sometimes does due to bugs in a vendor plat46 implementation]). Indeed even just
+going from 21 to 1 is potentially problematic because it increases the number
+of segments by a factor of 21 (think DoS, or some other crash due to too many
+segments).
 
-<acquire spinlock>
-<check sk lock onwers>
-<ev defer to release_cb>
+(c) It's always safe to not increase the gso_size, because it doesn't result in
+the max packet size increasing.  So the skb_increase_gso_size() call was always
+unnecessary for correctness (and outright undesirable, see later). As such the
+only part which is potentially dangerous (ie. could cause backwards compatibility
+issues) is the removal of the skb_decrease_gso_size() call.
 
-scheme.
+(d) If the packets are ultimately destined to the local device, then there is
+absolutely no benefit to playing around with gso_size. It only matters if the
+packets will egress the device. ie. we're either forwarding, or transmitting
+from the device.
 
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/56
-Fixes: 8fd738049ac3 ("mptcp: fallback in case of simultaneous connect")
-Fixes: c3c123d16c0e ("net: mptcp: don't hang in mptcp_sendmsg() after TCP fallback")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+(e) This logic only triggers for packets which are GSO. It does not trigger for
+skbs which are not GSO. It will not convert a non-GSO MTU sized packet into a
+GSO packet (and you don't even know what the MTU is, so you can't even fix it).
+As such your transmit path must *already* be able to handle an MTU 20 bytes
+larger then your receive path (for IPv4 to IPv6 translation) - and indeed 28
+bytes larger due to IPv4 fragments. Thus removing the skb_decrease_gso_size()
+call doesn't actually increase the size of the packets your transmit side must
+be able to handle. ie. to handle non-GSO max-MTU packets, the IPv4/IPv6 device/
+route MTUs must already be set correctly. Since for example with an IPv4 egress
+MTU of 1500, IPv4 to IPv6 translation will already build 1520 byte IPv6 frames,
+so you need a 1520 byte device MTU. This means if your IPv6 device's egress
+MTU is 1280, your IPv4 route must be 1260 (and actually 1252, because of the
+need to handle fragments). This is to handle normal non-GSO packets. Thus the
+reduction is simply not needed for GSO packets, because when they're correctly
+built, they will already be the right size.
+
+(f) TSO/GSO should be able to exactly undo GRO: the number of packets (TCP
+segments) should not be modified, so that TCP's MSS counting works correctly
+(this matters for congestion control). If protocol conversion changes the
+gso_size, then the number of TCP segments may increase or decrease. Packet loss
+after protocol conversion can result in partial loss of MSS segments that the
+sender sent. How's the sending TCP stack going to react to receiving ACKs/SACKs
+in the middle of the segments it sent?
+
+(g) skb_{decrease,increase}_gso_size() are already no-ops for GSO_BY_FRAGS
+case (besides triggering WARN_ON_ONCE). This means you already cannot guarantee
+that gso_size (and thus resulting packet MTU) is changed. ie. you must assume
+it won't be changed.
+
+(h) changing gso_size is outright buggy for UDP GSO packets, where framing
+matters (I believe that's also the case for SCTP, but it's already excluded
+by [g]).  So the only remaining case is TCP, which also doesn't want it
+(see [f]).
+
+(i) see also the reasoning on the previous attempt at fixing this
+(commit fa7b83bf3b156c767f3e4a25bbf3817b08f3ff8e) which shows that the current
+behaviour causes TCP packet loss:
+
+  In the forwarding path GRO -> BPF 6 to 4 -> GSO for TCP traffic, the
+  coalesced packet payload can be > MSS, but < MSS + 20.
+
+  bpf_skb_proto_6_to_4() will upgrade the MSS and it can be > the payload
+  length. After then tcp_gso_segment checks for the payload length if it
+  is <= MSS. The condition is causing the packet to be dropped.
+
+  tcp_gso_segment():
+    [...]
+    mss = skb_shinfo(skb)->gso_size;
+    if (unlikely(skb->len <= mss)) goto out;
+    [...]
+
+Thus changing the gso_size is simply a very bad idea. Increasing is unnecessary
+and buggy, and decreasing can go negative.
+
+Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Dongseok Yi <dseok.yi@samsung.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/bpf/CANP3RGfjLikQ6dg=YpBU0OeHvyv7JOki7CyOUS9modaXAi-9vQ@mail.gmail.com
+Link: https://lore.kernel.org/bpf/20210617000953.2787453-2-zenczykowski@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c |  5 +++++
- net/mptcp/protocol.h |  2 ++
- net/mptcp/subflow.c  | 30 ++++++++++++++++++++++--------
- 3 files changed, 29 insertions(+), 8 deletions(-)
+ net/core/filter.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 632350018fb6..8ead550df8b1 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -2946,6 +2946,11 @@ static void mptcp_release_cb(struct sock *sk)
- 		spin_lock_bh(&sk->sk_lock.slock);
- 	}
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 52f4359efbd2..0d1273d40fcf 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -3266,8 +3266,6 @@ static int bpf_skb_proto_4_to_6(struct sk_buff *skb)
+ 			shinfo->gso_type |=  SKB_GSO_TCPV6;
+ 		}
  
-+	/* be sure to set the current sk state before tacking actions
-+	 * depending on sk_state
-+	 */
-+	if (test_and_clear_bit(MPTCP_CONNECTED, &mptcp_sk(sk)->flags))
-+		__mptcp_set_connected(sk);
- 	if (test_and_clear_bit(MPTCP_CLEAN_UNA, &mptcp_sk(sk)->flags))
- 		__mptcp_clean_una_wakeup(sk);
- 	if (test_and_clear_bit(MPTCP_ERROR_REPORT, &mptcp_sk(sk)->flags))
-diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index 5d7c44028e47..7b634568f49c 100644
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -109,6 +109,7 @@
- #define MPTCP_ERROR_REPORT	8
- #define MPTCP_RETRANSMIT	9
- #define MPTCP_WORK_SYNC_SETSOCKOPT 10
-+#define MPTCP_CONNECTED		11
+-		/* Due to IPv6 header, MSS needs to be downgraded. */
+-		skb_decrease_gso_size(shinfo, len_diff);
+ 		/* Header must be checked, and gso_segs recomputed. */
+ 		shinfo->gso_type |= SKB_GSO_DODGY;
+ 		shinfo->gso_segs = 0;
+@@ -3307,8 +3305,6 @@ static int bpf_skb_proto_6_to_4(struct sk_buff *skb)
+ 			shinfo->gso_type |=  SKB_GSO_TCPV4;
+ 		}
  
- static inline bool before64(__u64 seq1, __u64 seq2)
- {
-@@ -579,6 +580,7 @@ void mptcp_get_options(const struct sk_buff *skb,
- 		       struct mptcp_options_received *mp_opt);
- 
- void mptcp_finish_connect(struct sock *sk);
-+void __mptcp_set_connected(struct sock *sk);
- static inline bool mptcp_is_fully_established(struct sock *sk)
- {
- 	return inet_sk_state_load(sk) == TCP_ESTABLISHED &&
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index f5bb3a0e9975..cbc452d0901e 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -371,6 +371,24 @@ static bool subflow_use_different_dport(struct mptcp_sock *msk, const struct soc
- 	return inet_sk(sk)->inet_dport != inet_sk((struct sock *)msk)->inet_dport;
- }
- 
-+void __mptcp_set_connected(struct sock *sk)
-+{
-+	if (sk->sk_state == TCP_SYN_SENT) {
-+		inet_sk_state_store(sk, TCP_ESTABLISHED);
-+		sk->sk_state_change(sk);
-+	}
-+}
-+
-+static void mptcp_set_connected(struct sock *sk)
-+{
-+	mptcp_data_lock(sk);
-+	if (!sock_owned_by_user(sk))
-+		__mptcp_set_connected(sk);
-+	else
-+		set_bit(MPTCP_CONNECTED, &mptcp_sk(sk)->flags);
-+	mptcp_data_unlock(sk);
-+}
-+
- static void subflow_finish_connect(struct sock *sk, const struct sk_buff *skb)
- {
- 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
-@@ -379,10 +397,6 @@ static void subflow_finish_connect(struct sock *sk, const struct sk_buff *skb)
- 
- 	subflow->icsk_af_ops->sk_rx_dst_set(sk, skb);
- 
--	if (inet_sk_state_load(parent) == TCP_SYN_SENT) {
--		inet_sk_state_store(parent, TCP_ESTABLISHED);
--		parent->sk_state_change(parent);
--	}
- 
- 	/* be sure no special action on any packet other than syn-ack */
- 	if (subflow->conn_finished)
-@@ -411,6 +425,7 @@ static void subflow_finish_connect(struct sock *sk, const struct sk_buff *skb)
- 			 subflow->remote_key);
- 		MPTCP_INC_STATS(sock_net(sk), MPTCP_MIB_MPCAPABLEACTIVEACK);
- 		mptcp_finish_connect(sk);
-+		mptcp_set_connected(parent);
- 	} else if (subflow->request_join) {
- 		u8 hmac[SHA256_DIGEST_SIZE];
- 
-@@ -451,6 +466,7 @@ static void subflow_finish_connect(struct sock *sk, const struct sk_buff *skb)
- 	} else if (mptcp_check_fallback(sk)) {
- fallback:
- 		mptcp_rcv_space_init(mptcp_sk(parent), sk);
-+		mptcp_set_connected(parent);
- 	}
- 	return;
- 
-@@ -558,6 +574,7 @@ static void mptcp_sock_destruct(struct sock *sk)
- 
- static void mptcp_force_close(struct sock *sk)
- {
-+	/* the msk is not yet exposed to user-space */
- 	inet_sk_state_store(sk, TCP_CLOSE);
- 	sk_common_release(sk);
- }
-@@ -1474,10 +1491,7 @@ static void subflow_state_change(struct sock *sk)
- 		mptcp_rcv_space_init(mptcp_sk(parent), sk);
- 		pr_fallback(mptcp_sk(parent));
- 		subflow->conn_finished = 1;
--		if (inet_sk_state_load(parent) == TCP_SYN_SENT) {
--			inet_sk_state_store(parent, TCP_ESTABLISHED);
--			parent->sk_state_change(parent);
--		}
-+		mptcp_set_connected(parent);
- 	}
- 
- 	/* as recvmsg() does not acquire the subflow socket for ssk selection
+-		/* Due to IPv4 header, MSS can be upgraded. */
+-		skb_increase_gso_size(shinfo, len_diff);
+ 		/* Header must be checked, and gso_segs recomputed. */
+ 		shinfo->gso_type |= SKB_GSO_DODGY;
+ 		shinfo->gso_segs = 0;
 -- 
 2.30.2
 
