@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C9F3C4984
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 151DE3C4E23
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236195AbhGLGpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:45:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41756 "EHLO mail.kernel.org"
+        id S242462AbhGLHRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:17:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238902AbhGLGo2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CB1D6113A;
-        Mon, 12 Jul 2021 06:40:22 +0000 (UTC)
+        id S242484AbhGLHQ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:16:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3655061360;
+        Mon, 12 Jul 2021 07:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072023;
-        bh=JDCHfzRRxqFM3mlWflFPd2QT1nSKBO+3xo5gMnTWLMc=;
+        s=korg; t=1626073980;
+        bh=Teb3dnRvIWvnA7vSgfo+/9Y4c4Ws69bBcwaleKYUrnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q90Nj8L4tuxDFKHc+ZvZm/wuN2hZrVfMK6J534CcW9NSfv5Qr/fXboMxdMiZTuV8E
-         Bj7erytZWDQcDUcVYGuX5B+/qgEqm2e/nHiiLq85jb6cXJZWefms/PCT26QKveuqr7
-         pEzz74BwBnRkG/38Aax96QtvpRADcc8EafXtGNwA=
+        b=xDb4rpPUaIZgcU+U6orKk6hAcV2Nv6Hpk7XTe+TKeiwJ1mO/slISTGUS23QH0G3hF
+         6HhjSzNcecCkrEPa2LmupNANQIDrYd+v9GHzHpdak3GZglWiiphzTHQl/d2ymmDPuM
+         7xOYn3Wt662Wolw6dWK7Pt0ww71Udx6AfIuoCGK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 320/593] mptcp: generate subflow hmac after mptcp_finish_join()
+Subject: [PATCH 5.12 397/700] drm/vc4: hdmi: Fix error path of hpd-gpios
 Date:   Mon, 12 Jul 2021 08:08:00 +0200
-Message-Id: <20210712060920.786124903@linuxfoundation.org>
+Message-Id: <20210712061018.631366290@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianguo Wu <wujianguo@chinatelecom.cn>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 0a4d8e96e4fd687af92b961d5cdcea0fdbde05fe ]
+[ Upstream commit e075a7811977ff51c917a65ed1896e08231d2615 ]
 
-For outgoing subflow join, when recv SYNACK, in subflow_finish_connect(),
-the mptcp_finish_join() may return false in some cases, and send a RESET
-to remote, and no local hmac is required.
-So generate subflow hmac after mptcp_finish_join().
+If the of_get_named_gpio_flags call fails in vc4_hdmi_bind, we jump to
+the err_unprepare_hsm label. That label will then call
+pm_runtime_disable and put_device on the DDC device.
 
-Fixes: ec3edaa7ca6c ("mptcp: Add handling of outgoing MP_JOIN requests")
-Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+We just retrieved the DDC device, so the latter is definitely justified.
+However at that point we still haven't called pm_runtime_enable, so the
+call to pm_runtime_disable is not supposed to be there.
+
+Fixes: 10ee275cb12f ("drm/vc4: prepare for CEC support")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210524131852.263883-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/subflow.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 851fb3d8c791..bba5696fee36 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -338,15 +338,15 @@ static void subflow_finish_connect(struct sock *sk, const struct sk_buff *skb)
- 			goto do_reset;
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 8106b5634fe1..e94730beb15b 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -2000,7 +2000,7 @@ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
+ 							     &hpd_gpio_flags);
+ 		if (vc4_hdmi->hpd_gpio < 0) {
+ 			ret = vc4_hdmi->hpd_gpio;
+-			goto err_unprepare_hsm;
++			goto err_put_ddc;
  		}
  
-+		if (!mptcp_finish_join(sk))
-+			goto do_reset;
-+
- 		subflow_generate_hmac(subflow->local_key, subflow->remote_key,
- 				      subflow->local_nonce,
- 				      subflow->remote_nonce,
- 				      hmac);
- 		memcpy(subflow->hmac, hmac, MPTCPOPT_HMAC_LEN);
+ 		vc4_hdmi->hpd_active_low = hpd_gpio_flags & OF_GPIO_ACTIVE_LOW;
+@@ -2041,8 +2041,8 @@ err_destroy_conn:
+ 	vc4_hdmi_connector_destroy(&vc4_hdmi->connector);
+ err_destroy_encoder:
+ 	drm_encoder_cleanup(encoder);
+-err_unprepare_hsm:
+ 	pm_runtime_disable(dev);
++err_put_ddc:
+ 	put_device(&vc4_hdmi->ddc->dev);
  
--		if (!mptcp_finish_join(sk))
--			goto do_reset;
--
- 		subflow->mp_join = 1;
- 		MPTCP_INC_STATS(sock_net(sk), MPTCP_MIB_JOINSYNACKRX);
- 	} else if (mptcp_check_fallback(sk)) {
+ 	return ret;
 -- 
 2.30.2
 
