@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3088B3C4805
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA8653C480B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235981AbhGLGfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55302 "EHLO mail.kernel.org"
+        id S235952AbhGLGfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237836AbhGLGey (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:34:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A505E6113A;
-        Mon, 12 Jul 2021 06:31:45 +0000 (UTC)
+        id S237852AbhGLGez (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:34:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01E316112D;
+        Mon, 12 Jul 2021 06:31:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071506;
-        bh=cK8RGsdzqMM1KoPrczJlL3o8bR3oqky7KKjatgIB5Co=;
+        s=korg; t=1626071508;
+        bh=bzbaR6zHyOg6xGHCETQ8JeXmpT3Bz2gN55FB7i7Rvsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b9lTfYKNrMLoIUGWqydhagODvtb/Y2G2AF9Qp6Ww8BAFwCIPnAO3jplPJY3JuBgFi
-         XuHnOYOnx2DOkUYQaIA9EKRBE6UFsQ0jMZONMGE3KQnm9Yr7s6A74nGk8yHu25n+QC
-         8nh453eb26/zif+jf0GS1ek6mFNMGvy7pqkTmROU=
+        b=PqVxmR4SVx6/KHa+6U1YqF2Cplkj4Fuc1BoxDD/LOxBhKcEUKGVmfdiyJm8MFk2fu
+         SbiXwjPJeSrPfVw574ZHQ0yegqv99yVKTLiITmZ84QkeKVieRl7H3OjvpofepRdHqe
+         AB0LfCNwwKifpG6iC8WCZ3P5OR4Mj6kmstiyp5X4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 098/593] fuse: reject internal errno
-Date:   Mon, 12 Jul 2021 08:04:18 +0200
-Message-Id: <20210712060853.995798156@linuxfoundation.org>
+        stable@vger.kernel.org, Lukasz Luba <lukasz.luba@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 099/593] thermal/cpufreq_cooling: Update offline CPUs per-cpu thermal_pressure
+Date:   Mon, 12 Jul 2021 08:04:19 +0200
+Message-Id: <20210712060854.110003059@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,32 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Lukasz Luba <lukasz.luba@arm.com>
 
-commit 49221cf86d18bb66fe95d3338cb33bd4b9880ca5 upstream.
+[ Upstream commit 2ad8ccc17d1e4270cf65a3f2a07a7534aa23e3fb ]
 
-Don't allow userspace to report errors that could be kernel-internal.
+The thermal pressure signal gives information to the scheduler about
+reduced CPU capacity due to thermal. It is based on a value stored in
+a per-cpu 'thermal_pressure' variable. The online CPUs will get the
+new value there, while the offline won't. Unfortunately, when the CPU
+is back online, the value read from per-cpu variable might be wrong
+(stale data).  This might affect the scheduler decisions, since it
+sees the CPU capacity differently than what is actually available.
 
-Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
-Fixes: 334f485df85a ("[PATCH] FUSE - device functions")
-Cc: <stable@vger.kernel.org> # v2.6.14
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix it by making sure that all online+offline CPUs would get the
+proper value in their per-cpu variable when thermal framework sets
+capping.
 
+Fixes: f12e4f66ab6a3 ("thermal/cpu-cooling: Update thermal pressure in case of a maximum frequency capping")
+Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20210614191030.22241-1-lukasz.luba@arm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c |    2 +-
+ drivers/thermal/cpufreq_cooling.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -1871,7 +1871,7 @@ static ssize_t fuse_dev_do_write(struct
- 	}
- 
- 	err = -EINVAL;
--	if (oh.error <= -1000 || oh.error > 0)
-+	if (oh.error <= -512 || oh.error > 0)
- 		goto copy_finish;
- 
- 	spin_lock(&fpq->lock);
+diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
+index 3f6a69ccc173..6e1d6a31ee4f 100644
+--- a/drivers/thermal/cpufreq_cooling.c
++++ b/drivers/thermal/cpufreq_cooling.c
+@@ -443,7 +443,7 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
+ 	ret = freq_qos_update_request(&cpufreq_cdev->qos_req, frequency);
+ 	if (ret >= 0) {
+ 		cpufreq_cdev->cpufreq_state = state;
+-		cpus = cpufreq_cdev->policy->cpus;
++		cpus = cpufreq_cdev->policy->related_cpus;
+ 		max_capacity = arch_scale_cpu_capacity(cpumask_first(cpus));
+ 		capacity = frequency * max_capacity;
+ 		capacity /= cpufreq_cdev->policy->cpuinfo.max_freq;
+-- 
+2.30.2
+
 
 
