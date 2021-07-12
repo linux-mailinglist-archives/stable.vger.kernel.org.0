@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB9D3C4F46
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8747C3C4B45
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243170AbhGLHXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33682 "EHLO mail.kernel.org"
+        id S239685AbhGLG40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240644AbhGLHWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:22:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D692B611AD;
-        Mon, 12 Jul 2021 07:19:51 +0000 (UTC)
+        id S239318AbhGLGtk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28E5460FD8;
+        Mon, 12 Jul 2021 06:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074392;
-        bh=EZ5tHquhDDIWh2LLpef5ruXDlu1QwF92xNqpuXi0D38=;
+        s=korg; t=1626072411;
+        bh=Xy/OpXRxL8o1UuMoLqHsX5InLEBzzRccFAQ8JSrOGto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2N1Nj7fNAZ/Opmqh45hxkWtDmGPfKoZo7IXwlHaAf6NCbWCzAmzSuEAFwaTOgrDr
-         h0mcQbvaj30mEGR2ilo9NAafnx8YLNFUD5njOiAwrZs4SRPLbFckeFDYH3A+1f4gfI
-         0M9vmNvjAshp9453860uvgJpgSKDMqD2zRyxGfQY=
+        b=T3PprdzPhDrHg7xQ4YjhVe453rdRZEufwmfUR+YGQkO4+Vu7avyZCMeFOGRwgVA3g
+         tXP3TLs9g4nvHs5WwNaPqHMbX//5b8OyE9I0S6rHV8/5AWnucRm+bhg534M+14p+I6
+         hO/QdWTqdsiAluwi4IqljZYE1arpNUXZylXVM1WQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 564/700] staging: mmal-vchiq: Fix incorrect static vchiq_instance.
+Subject: [PATCH 5.10 487/593] mfd: mp2629: Select MFD_CORE to fix build error
 Date:   Mon, 12 Jul 2021 08:10:47 +0200
-Message-Id: <20210712061036.196461063@linuxfoundation.org>
+Message-Id: <20210712060944.693397503@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit afc023da53e46b88552822f2fe035c7129c505a2 ]
+[ Upstream commit a933272041d852a1ef1c85f0c18b93e9999a41fa ]
 
-For some reason lost in history function vchiq_mmal_init used
-a static variable for storing the vchiq_instance.
-This value is retrieved from vchiq per instance, so worked fine
-until you try to call vchiq_mmal_init multiple times concurrently
-when things then go wrong. This seemed to happen quite frequently
-if using the cutdown firmware (no MMAL or VCSM services running)
-as the vchiq_connect then failed, and one or other vchiq_shutdown
-was working on an invalid handle.
+MFD_MP2629 should select MFD_CORE to a prevent build error:
 
-Remove the static so that each caller gets a unique vchiq_instance.
+ERROR: modpost: "devm_mfd_add_devices" [drivers/mfd/mp2629.ko] undefined!
 
-Fixes: 7b3ad5abf027 ("staging: Import the BCM2835 MMAL-based V4L2 camera driver.")
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/1621979857-26754-1-git-send-email-stefan.wahren@i2se.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 06081646450e ("mfd: mp2629: Add support for mps battery charger")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mfd/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c b/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c
-index 9097bcbd67d8..d697ea55a0da 100644
---- a/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c
-+++ b/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c
-@@ -1862,7 +1862,7 @@ int vchiq_mmal_init(struct vchiq_mmal_instance **out_instance)
- 	int status;
- 	int err = -ENODEV;
- 	struct vchiq_mmal_instance *instance;
--	static struct vchiq_instance *vchiq_instance;
-+	struct vchiq_instance *vchiq_instance;
- 	struct vchiq_service_params_kernel params = {
- 		.version		= VC_MMAL_VER,
- 		.version_min		= VC_MMAL_MIN_VER,
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 4789507f325b..b8847ae04d93 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -465,6 +465,7 @@ config MFD_MP2629
+ 	tristate "Monolithic Power Systems MP2629 ADC and Battery charger"
+ 	depends on I2C
+ 	select REGMAP_I2C
++	select MFD_CORE
+ 	help
+ 	  Select this option to enable support for Monolithic Power Systems
+ 	  battery charger. This provides ADC, thermal and battery charger power
 -- 
 2.30.2
 
