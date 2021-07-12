@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBAC43C49BB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E81DC3C4E13
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237545AbhGLGqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41512 "EHLO mail.kernel.org"
+        id S243120AbhGLHQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:16:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239166AbhGLGov (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B551E610FA;
-        Mon, 12 Jul 2021 06:40:57 +0000 (UTC)
+        id S235533AbhGLHPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:15:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71E3D613F3;
+        Mon, 12 Jul 2021 07:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072058;
-        bh=mBgzwyj7ZM5WmEEeakFaGA+cOsdmdVf8D7zkY4u8UqE=;
+        s=korg; t=1626073939;
+        bh=+kn2t7F8N6gHn30c1y7H9Zqs2VZPF+DtrHblFRjYkQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWxQBHmRZ9dIVLx1zfWBkXf+Lo/amA8mgZKxosljbceGlKUfmerym9o+3Wbpj2TF1
-         2duawdf4BtTasGFj1w6EGDMPM4QhbJIXjdwuW7utb0a5YJiS0Owo8kVe/a1MZmzNlo
-         HHzcwqRF8/aYaRDg8QdqfnFve6afQEm3AH4IJVWs=
+        b=guJnGATWPouVLmc31mOZB/EjvMQ+5uHfjvOvQoePBgpEw04USiFCwiSg7XGWWAvod
+         Q7eOhSBOd2pz1K4X/cud5EJSibTGnx/PigEFEevIwJEgSlacI9beIX8heaJrMC/vnc
+         6AAGUK+GiwxqCSNgj025abRTnlGH51Av1gWfPUCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
-        Kamal Heib <kamalheib1@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Matthias Brugger <mbrugger@suse.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 334/593] RDMA/rxe: Fix failure during driver load
+Subject: [PATCH 5.12 411/700] brcmfmac: Delete second brcm folder hierarchy
 Date:   Mon, 12 Jul 2021 08:08:14 +0200
-Message-Id: <20210712060922.615631773@linuxfoundation.org>
+Message-Id: <20210712061020.108791535@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Matthias Brugger <mbrugger@suse.com>
 
-[ Upstream commit 32a25f2ea690dfaace19f7a3a916f5d7e1ddafe8 ]
+[ Upstream commit 4a26aafe4886a4ec9965171c280ce16df30dc362 ]
 
-To avoid the following failure when trying to load the rdma_rxe module
-while IPv6 is disabled, add a check for EAFNOSUPPORT and ignore the
-failure, also delete the needless debug print from rxe_setup_udp_tunnel().
+BRCMF_FW_DEFAULT_PATH already defines the brcm folder, delete the second
+folder to match with Linux firmware repository layout.
 
-$ modprobe rdma_rxe
-modprobe: ERROR: could not insert 'rdma_rxe': Operation not permitted
-
-Fixes: dfdd6158ca2c ("IB/rxe: Fix kernel panic in udp_setup_tunnel")
-Link: https://lore.kernel.org/r/20210603090112.36341-1-kamalheib1@gmail.com
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 75729e110e68 ("brcmfmac: expose firmware config files through modinfo")
+Signed-off-by: Matthias Brugger <mbrugger@suse.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210602144305.4481-1-matthias.bgg@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_net.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_net.c b/drivers/infiniband/sw/rxe/rxe_net.c
-index bce44502ab0e..c071d5b1b85a 100644
---- a/drivers/infiniband/sw/rxe/rxe_net.c
-+++ b/drivers/infiniband/sw/rxe/rxe_net.c
-@@ -212,10 +212,8 @@ static struct socket *rxe_setup_udp_tunnel(struct net *net, __be16 port,
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index 3a1c98a046f0..faf5f8e5eee3 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -626,8 +626,8 @@ BRCMF_FW_DEF(4373, "brcmfmac4373-sdio");
+ BRCMF_FW_DEF(43012, "brcmfmac43012-sdio");
  
- 	/* Create UDP socket */
- 	err = udp_sock_create(net, &udp_cfg, &sock);
--	if (err < 0) {
--		pr_err("failed to create udp socket. err = %d\n", err);
-+	if (err < 0)
- 		return ERR_PTR(err);
--	}
+ /* firmware config files */
+-MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcm/brcmfmac*-sdio.*.txt");
+-MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcm/brcmfmac*-pcie.*.txt");
++MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-sdio.*.txt");
++MODULE_FIRMWARE(BRCMF_FW_DEFAULT_PATH "brcmfmac*-pcie.*.txt");
  
- 	tnl_cfg.encap_type = 1;
- 	tnl_cfg.encap_rcv = rxe_udp_encap_recv;
-@@ -616,6 +614,12 @@ static int rxe_net_ipv6_init(void)
- 
- 	recv_sockets.sk6 = rxe_setup_udp_tunnel(&init_net,
- 						htons(ROCE_V2_UDP_DPORT), true);
-+	if (PTR_ERR(recv_sockets.sk6) == -EAFNOSUPPORT) {
-+		recv_sockets.sk6 = NULL;
-+		pr_warn("IPv6 is not supported, can not create a UDPv6 socket\n");
-+		return 0;
-+	}
-+
- 	if (IS_ERR(recv_sockets.sk6)) {
- 		recv_sockets.sk6 = NULL;
- 		pr_err("Failed to create IPv6 UDP tunnel\n");
+ static const struct brcmf_firmware_mapping brcmf_sdio_fwnames[] = {
+ 	BRCMF_FW_ENTRY(BRCM_CC_43143_CHIP_ID, 0xFFFFFFFF, 43143),
 -- 
 2.30.2
 
