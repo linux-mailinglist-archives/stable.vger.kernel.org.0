@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 626953C4D94
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5113C536E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241219AbhGLHNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46544 "EHLO mail.kernel.org"
+        id S1352403AbhGLHyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242315AbhGLHMH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:12:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38B67610CA;
-        Mon, 12 Jul 2021 07:09:10 +0000 (UTC)
+        id S1350323AbhGLHuw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:50:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F58261477;
+        Mon, 12 Jul 2021 07:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073750;
-        bh=pGyUPq/CcyxUrsdxtO71INuUHWTfk5AWyYSFZDYFbDA=;
+        s=korg; t=1626075883;
+        bh=pDyk1uapUfC1VI/MLwK/LFD3zhqN8+jdwKORnEjIEm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4FVxSJn0oHsyw0Gi1JwVK2Sp+E0majz5Pslq37gsluMCo8RewwJiYqoYonfoRT72
-         CvMjiE/qgX06/ZTNiwS+u8ScsCMYgrbnwJTxJ/JCqEFL6gVXv9wYhhTFiJDyYXkXK5
-         4ihXylrzvMhMiX1IS7puzz3gNDakxr7POyDXqpgo=
+        b=VCbABCTAZNlxHYtybL4hHaD8LCT94EmiPWbrksVUtIDv01AJSg7MCaL+OcdqjH7rb
+         n8aTAPCLMD/TueLYu+npd4FzZ0yfbhOOGD4cNR8TZGPuY1hQKmxZ++mS3Seab1p7hp
+         1aUTaspftLMTH5Ful/3XKx7ROAgWaOK39pItHi0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 345/700] mm/debug_vm_pgtable: ensure THP availability via has_transparent_hugepage()
+        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
+        Charmaine Lee <charmainel@vmware.com>,
+        Roland Scheidegger <sroland@vmware.com>,
+        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 405/800] drm/vmwgfx: Fix cpu updates of coherent multisample surfaces
 Date:   Mon, 12 Jul 2021 08:07:08 +0200
-Message-Id: <20210712061012.973374545@linuxfoundation.org>
+Message-Id: <20210712061010.265575895@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,236 +41,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Thomas Hellstrom <thellstrom@vmware.com>
 
-[ Upstream commit 65ac1a60a57e2c55f2ac37f27095f6b012295e81 ]
+[ Upstream commit 88509f698c4e38e287e016e86a0445547824135c ]
 
-On certain platforms, THP support could not just be validated via the
-build option CONFIG_TRANSPARENT_HUGEPAGE.  Instead
-has_transparent_hugepage() also needs to be called upon to verify THP
-runtime support.  Otherwise the debug test will just run into unusable THP
-helpers like in the case of a 4K hash config on powerpc platform [1].
-This just moves all pfn_pmd() and pfn_pud() after THP runtime validation
-with has_transparent_hugepage() which prevents the mentioned problem.
+In cases where the dirty linear memory range spans multiple sample sheets
+in a surface, the dirty surface region is incorrectly computed.
+To do this correctly and in an optimized fashion  we would have to compute
+the dirty region of each sample sheet and compute the union of those
+regions.
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=213069
+But assuming that cpu writing to a multisample surface is rather a corner
+case than a common case, just set the dirty region to the full surface.
 
-Link: https://lkml.kernel.org/r/1621397588-19211-1-git-send-email-anshuman.khandual@arm.com
-Fixes: 787d563b8642 ("mm/debug_vm_pgtable: fix kernel crash by checking for THP support")
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This fixes OpenGL piglit errors with SVGA_FORCE_COHERENT=1
+and the piglit test:
+
+fbo-depthstencil blit default_fb -samples=2 -auto
+
+Fixes: 9ca7d19ff8ba ("drm/vmwgfx: Add surface dirty-tracking callbacks")
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Charmaine Lee <charmainel@vmware.com>
+Reviewed-by: Roland Scheidegger <sroland@vmware.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210505035740.286923-4-zackr@vmware.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/debug_vm_pgtable.c | 63 ++++++++++++++++++++++++++++++++++---------
- 1 file changed, 51 insertions(+), 12 deletions(-)
+ .../drm/vmwgfx/device_include/svga3d_surfacedefs.h  |  8 ++++++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c             | 13 +++++++++++++
+ 2 files changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 726fd2030f64..12ebc97e8b43 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -146,13 +146,14 @@ static void __init pte_savedwrite_tests(unsigned long pfn, pgprot_t prot)
- static void __init pmd_basic_tests(unsigned long pfn, int idx)
+diff --git a/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h b/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h
+index 4db25bd9fa22..127eaf0a0a58 100644
+--- a/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h
++++ b/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h
+@@ -1467,6 +1467,7 @@ struct svga3dsurface_cache {
+ 
+ /**
+  * struct svga3dsurface_loc - Surface location
++ * @sheet: The multisample sheet.
+  * @sub_resource: Surface subresource. Defined as layer * num_mip_levels +
+  * mip_level.
+  * @x: X coordinate.
+@@ -1474,6 +1475,7 @@ struct svga3dsurface_cache {
+  * @z: Z coordinate.
+  */
+ struct svga3dsurface_loc {
++	u32 sheet;
+ 	u32 sub_resource;
+ 	u32 x, y, z;
+ };
+@@ -1566,8 +1568,8 @@ svga3dsurface_get_loc(const struct svga3dsurface_cache *cache,
+ 	u32 layer;
+ 	int i;
+ 
+-	if (offset >= cache->sheet_bytes)
+-		offset %= cache->sheet_bytes;
++	loc->sheet = offset / cache->sheet_bytes;
++	offset -= loc->sheet * cache->sheet_bytes;
+ 
+ 	layer = offset / cache->mip_chain_bytes;
+ 	offset -= layer * cache->mip_chain_bytes;
+@@ -1631,6 +1633,7 @@ svga3dsurface_min_loc(const struct svga3dsurface_cache *cache,
+ 		      u32 sub_resource,
+ 		      struct svga3dsurface_loc *loc)
  {
- 	pgprot_t prot = protection_map[idx];
--	pmd_t pmd = pfn_pmd(pfn, prot);
- 	unsigned long val = idx, *ptr = &val;
-+	pmd_t pmd;
- 
- 	if (!has_transparent_hugepage())
- 		return;
- 
- 	pr_debug("Validating PMD basic (%pGv)\n", ptr);
-+	pmd = pfn_pmd(pfn, prot);
- 
- 	/*
- 	 * This test needs to be executed after the given page table entry
-@@ -185,7 +186,7 @@ static void __init pmd_advanced_tests(struct mm_struct *mm,
- 				      unsigned long pfn, unsigned long vaddr,
- 				      pgprot_t prot, pgtable_t pgtable)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
- 
- 	if (!has_transparent_hugepage())
- 		return;
-@@ -232,9 +233,14 @@ static void __init pmd_advanced_tests(struct mm_struct *mm,
- 
- static void __init pmd_leaf_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
-+
-+	if (!has_transparent_hugepage())
-+		return;
- 
- 	pr_debug("Validating PMD leaf\n");
-+	pmd = pfn_pmd(pfn, prot);
-+
- 	/*
- 	 * PMD based THP is a leaf entry.
- 	 */
-@@ -267,12 +273,16 @@ static void __init pmd_huge_tests(pmd_t *pmdp, unsigned long pfn, pgprot_t prot)
- 
- static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
- 
- 	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
- 		return;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD saved write\n");
-+	pmd = pfn_pmd(pfn, prot);
- 	WARN_ON(!pmd_savedwrite(pmd_mk_savedwrite(pmd_clear_savedwrite(pmd))));
- 	WARN_ON(pmd_savedwrite(pmd_clear_savedwrite(pmd_mk_savedwrite(pmd))));
++	loc->sheet = 0;
+ 	loc->sub_resource = sub_resource;
+ 	loc->x = loc->y = loc->z = 0;
  }
-@@ -281,13 +291,14 @@ static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot)
- static void __init pud_basic_tests(struct mm_struct *mm, unsigned long pfn, int idx)
- {
- 	pgprot_t prot = protection_map[idx];
--	pud_t pud = pfn_pud(pfn, prot);
- 	unsigned long val = idx, *ptr = &val;
-+	pud_t pud;
+@@ -1652,6 +1655,7 @@ svga3dsurface_max_loc(const struct svga3dsurface_cache *cache,
+ 	const struct drm_vmw_size *size;
+ 	u32 mip;
  
- 	if (!has_transparent_hugepage())
- 		return;
++	loc->sheet = 0;
+ 	loc->sub_resource = sub_resource + 1;
+ 	mip = sub_resource % cache->num_mip_levels;
+ 	size = &cache->mip[mip].size;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+index c3e55c1376eb..beab3e19d8e2 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -1804,6 +1804,19 @@ static void vmw_surface_tex_dirty_range_add(struct vmw_resource *res,
+ 	svga3dsurface_get_loc(cache, &loc2, end - 1);
+ 	svga3dsurface_inc_loc(cache, &loc2);
  
- 	pr_debug("Validating PUD basic (%pGv)\n", ptr);
-+	pud = pfn_pud(pfn, prot);
- 
- 	/*
- 	 * This test needs to be executed after the given page table entry
-@@ -323,7 +334,7 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
- 				      unsigned long pfn, unsigned long vaddr,
- 				      pgprot_t prot)
- {
--	pud_t pud = pfn_pud(pfn, prot);
-+	pud_t pud;
- 
- 	if (!has_transparent_hugepage())
- 		return;
-@@ -332,6 +343,7 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
- 	/* Align the address wrt HPAGE_PUD_SIZE */
- 	vaddr &= HPAGE_PUD_MASK;
- 
-+	pud = pfn_pud(pfn, prot);
- 	set_pud_at(mm, vaddr, pudp, pud);
- 	pudp_set_wrprotect(mm, vaddr, pudp);
- 	pud = READ_ONCE(*pudp);
-@@ -370,9 +382,13 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
- 
- static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot)
- {
--	pud_t pud = pfn_pud(pfn, prot);
-+	pud_t pud;
++	if (loc1.sheet != loc2.sheet) {
++		u32 sub_res;
 +
-+	if (!has_transparent_hugepage())
++		/*
++		 * Multiple multisample sheets. To do this in an optimized
++		 * fashion, compute the dirty region for each sheet and the
++		 * resulting union. Since this is not a common case, just dirty
++		 * the whole surface.
++		 */
++		for (sub_res = 0; sub_res < dirty->num_subres; ++sub_res)
++			vmw_subres_dirty_full(dirty, sub_res);
 +		return;
- 
- 	pr_debug("Validating PUD leaf\n");
-+	pud = pfn_pud(pfn, prot);
- 	/*
- 	 * PUD based THP is a leaf entry.
- 	 */
-@@ -654,12 +670,16 @@ static void __init pte_protnone_tests(unsigned long pfn, pgprot_t prot)
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static void __init pmd_protnone_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pmd_mkhuge(pfn_pmd(pfn, prot));
-+	pmd_t pmd;
- 
- 	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
- 		return;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD protnone\n");
-+	pmd = pmd_mkhuge(pfn_pmd(pfn, prot));
- 	WARN_ON(!pmd_protnone(pmd));
- 	WARN_ON(!pmd_present(pmd));
- }
-@@ -679,18 +699,26 @@ static void __init pte_devmap_tests(unsigned long pfn, pgprot_t prot)
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static void __init pmd_devmap_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
-+
-+	if (!has_transparent_hugepage())
-+		return;
- 
- 	pr_debug("Validating PMD devmap\n");
-+	pmd = pfn_pmd(pfn, prot);
- 	WARN_ON(!pmd_devmap(pmd_mkdevmap(pmd)));
- }
- 
- #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
- static void __init pud_devmap_tests(unsigned long pfn, pgprot_t prot)
- {
--	pud_t pud = pfn_pud(pfn, prot);
-+	pud_t pud;
-+
-+	if (!has_transparent_hugepage())
-+		return;
- 
- 	pr_debug("Validating PUD devmap\n");
-+	pud = pfn_pud(pfn, prot);
- 	WARN_ON(!pud_devmap(pud_mkdevmap(pud)));
- }
- #else  /* !CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
-@@ -733,25 +761,33 @@ static void __init pte_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static void __init pmd_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
- 
- 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
- 		return;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD soft dirty\n");
-+	pmd = pfn_pmd(pfn, prot);
- 	WARN_ON(!pmd_soft_dirty(pmd_mksoft_dirty(pmd)));
- 	WARN_ON(pmd_soft_dirty(pmd_clear_soft_dirty(pmd)));
- }
- 
- static void __init pmd_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
- 
- 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) ||
- 		!IS_ENABLED(CONFIG_ARCH_ENABLE_THP_MIGRATION))
- 		return;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD swap soft dirty\n");
-+	pmd = pfn_pmd(pfn, prot);
- 	WARN_ON(!pmd_swp_soft_dirty(pmd_swp_mksoft_dirty(pmd)));
- 	WARN_ON(pmd_swp_soft_dirty(pmd_swp_clear_soft_dirty(pmd)));
- }
-@@ -780,6 +816,9 @@ static void __init pmd_swap_tests(unsigned long pfn, pgprot_t prot)
- 	swp_entry_t swp;
- 	pmd_t pmd;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD swap\n");
- 	pmd = pfn_pmd(pfn, prot);
- 	swp = __pmd_to_swp_entry(pmd);
++	}
+ 	if (loc1.sub_resource + 1 == loc2.sub_resource) {
+ 		/* Dirty range covers a single sub-resource */
+ 		vmw_subres_dirty_add(dirty, &loc1, &loc2);
 -- 
 2.30.2
 
