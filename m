@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C983B3C4E25
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E72333C49C3
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243254AbhGLHRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:17:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
+        id S237850AbhGLGqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:46:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242009AbhGLHQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:16:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01C17613BE;
-        Mon, 12 Jul 2021 07:13:02 +0000 (UTC)
+        id S236670AbhGLGpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:45:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F115611CE;
+        Mon, 12 Jul 2021 06:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073983;
-        bh=Z7Qs7WuPbiefhYwHh6FUL/C56yKfnvQpL9jl4ULb0Ug=;
+        s=korg; t=1626072083;
+        bh=I4Dj7defyCQxWAbupuplkhYKOyB8PIu3grMwGd6peSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkWQUNUXtk/M6oy5Kc6deEUn0FR2+yqmoqAMH5qK5jPRhltZISHs8ZACV7SYECEzc
-         7xe51s+PI03Hx5ztOaME7k8Ck9Tq9BArDcvwWgCzsh6WvXDRngjoSWfHf3x5rNVPAj
-         kN9sqxL63mOyW/dAbZnM7PK53LfRxRbEMSKb67Ck=
+        b=Ku6zxp19gptssEWMpP2Q/fUilduXb343uQ0kpe8d/Amvnzr+H76F2fMhHh9P2wrAA
+         92mB/i0g0ANrch4+xdf4ZWgNxOJkMAr4bp61pbB0ZuYzA50Pkciu1QQo/jWqGuprgj
+         RsoBsnBc+2bWWVUp54SVGiP2s132QwCfqxv5mrCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Xu <dxu@dxuuu.xyz>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 424/700] selftests/bpf: Whitelist test_progs.h from .gitignore
-Date:   Mon, 12 Jul 2021 08:08:27 +0200
-Message-Id: <20210712061021.495603078@linuxfoundation.org>
+Subject: [PATCH 5.10 348/593] brcmfmac: correctly report average RSSI in station info
+Date:   Mon, 12 Jul 2021 08:08:28 +0200
+Message-Id: <20210712060924.465136034@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Xu <dxu@dxuuu.xyz>
+From: Alvin Šipraga <ALSI@bang-olufsen.dk>
 
-[ Upstream commit 809ed84de8b3f2fd7b1d06efb94bf98fd318a7d7 ]
+[ Upstream commit 9a1590934d9a02e570636432b93052c0c035f31f ]
 
-Somehow test_progs.h was being included by the existing rule:
+The rx_lastpkt_rssi field provided by the firmware is suitable for
+NL80211_STA_INFO_{SIGNAL,CHAIN_SIGNAL}, while the rssi field is an
+average. Fix up the assignments and set the correct STA_INFO bits. This
+lets userspace know that the average RSSI is part of the station info.
 
-    /test_progs*
-
-This is bad because:
-
-    1) test_progs.h is a checked in file
-    2) grep-like tools like ripgrep[0] respect gitignore and
-       test_progs.h was being hidden from searches
-
-[0]: https://github.com/BurntSushi/ripgrep
-
-Fixes: 74b5a5968fe8 ("selftests/bpf: Replace test_progs and test_maps w/ general rule")
-Signed-off-by: Daniel Xu <dxu@dxuuu.xyz>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/a46f64944bf678bc652410ca6028d3450f4f7f4b.1623880296.git.dxu@dxuuu.xyz
+Fixes: cae355dc90db ("brcmfmac: Add RSSI information to get_station.")
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210506132010.3964484-2-alsi@bang-olufsen.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/.gitignore | 1 +
- 1 file changed, 1 insertion(+)
+ .../broadcom/brcm80211/brcmfmac/cfg80211.c    | 36 ++++++++++---------
+ 1 file changed, 20 insertions(+), 16 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/.gitignore b/tools/testing/selftests/bpf/.gitignore
-index c0c48fdb9ac1..76d495fe3a17 100644
---- a/tools/testing/selftests/bpf/.gitignore
-+++ b/tools/testing/selftests/bpf/.gitignore
-@@ -8,6 +8,7 @@ FEATURE-DUMP.libbpf
- fixdep
- test_dev_cgroup
- /test_progs*
-+!test_progs.h
- test_verifier_log
- feature
- test_sock
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index 8c3c7755e949..c2b6e5c966d0 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -2767,8 +2767,9 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
+ 	struct brcmf_sta_info_le sta_info_le;
+ 	u32 sta_flags;
+ 	u32 is_tdls_peer;
+-	s32 total_rssi;
+-	s32 count_rssi;
++	s32 total_rssi_avg = 0;
++	s32 total_rssi = 0;
++	s32 count_rssi = 0;
+ 	int rssi;
+ 	u32 i;
+ 
+@@ -2834,24 +2835,27 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
+ 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_RX_BYTES);
+ 			sinfo->rx_bytes = le64_to_cpu(sta_info_le.rx_tot_bytes);
+ 		}
+-		total_rssi = 0;
+-		count_rssi = 0;
+ 		for (i = 0; i < BRCMF_ANT_MAX; i++) {
+-			if (sta_info_le.rssi[i]) {
+-				sinfo->chains |= BIT(count_rssi);
+-				sinfo->chain_signal_avg[count_rssi] =
+-					sta_info_le.rssi[i];
+-				sinfo->chain_signal[count_rssi] =
+-					sta_info_le.rssi[i];
+-				total_rssi += sta_info_le.rssi[i];
+-				count_rssi++;
+-			}
++			if (sta_info_le.rssi[i] == 0 ||
++			    sta_info_le.rx_lastpkt_rssi[i] == 0)
++				continue;
++			sinfo->chains |= BIT(count_rssi);
++			sinfo->chain_signal[count_rssi] =
++				sta_info_le.rx_lastpkt_rssi[i];
++			sinfo->chain_signal_avg[count_rssi] =
++				sta_info_le.rssi[i];
++			total_rssi += sta_info_le.rx_lastpkt_rssi[i];
++			total_rssi_avg += sta_info_le.rssi[i];
++			count_rssi++;
+ 		}
+ 		if (count_rssi) {
+-			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL);
+ 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL);
+-			total_rssi /= count_rssi;
+-			sinfo->signal = total_rssi;
++			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL_AVG);
++			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL);
++			sinfo->filled |=
++				BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL_AVG);
++			sinfo->signal = total_rssi / count_rssi;
++			sinfo->signal_avg = total_rssi_avg / count_rssi;
+ 		} else if (test_bit(BRCMF_VIF_STATUS_CONNECTED,
+ 			&ifp->vif->sme_state)) {
+ 			memset(&scb_val, 0, sizeof(scb_val));
 -- 
 2.30.2
 
