@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B84CD3C50AC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D41C3C506B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344187AbhGLHeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:34:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47312 "EHLO mail.kernel.org"
+        id S241772AbhGLHct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:32:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345998AbhGLHa0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:30:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8D526052B;
-        Mon, 12 Jul 2021 07:27:37 +0000 (UTC)
+        id S1346545AbhGLHa6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:30:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13A9B6052B;
+        Mon, 12 Jul 2021 07:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074858;
-        bh=Vz50u5f+QUNRb54xtCI1mj64OpzoqGSsp8FtzMIJ4SU=;
+        s=korg; t=1626074889;
+        bh=ar5e5zpbJf8fh4I7Sj54pdqoH/Wigbw4HGKYYihAZ0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b+5LLUxJeHiuDvKikcfdrVfZnhNgnaJflSHBfalIIaZMUOBmr8ArfdKKLXZufHCsZ
-         O1mGmu9DL2l2gKyqnCOm6Dgliuj0vQgUjKEbhERvV4v2oCosz7dKrlL3NfprHLX0Nm
-         Gz5gpwZMkTFXR+l7NZ6DgXCTczFy5kj3qdgIxvNQ=
+        b=XP0IcIG/i1z2GL4m0OZRKRvpgGYbjskuxPFQNQeUb7BmhSws0gPyVZ7M9mteOYEQ0
+         fhpfrvKhMryZG9w8iLnA7rt79Pe4OTLN82lFqT97ruggZEHDa9yV0a+yAIACSLUPZz
+         4paiCH8bQy+2f7h2adCmSBLDA6zjI6qv0ZpuK+hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Szymon Janc <szymon.janc@codecoup.pl>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.13 003/800] Bluetooth: Remove spurious error message
-Date:   Mon, 12 Jul 2021 08:00:26 +0200
-Message-Id: <20210712060913.512540942@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.13 004/800] ALSA: bebob: fix rx packet format for Yamaha GO44/GO46, Terratec Phase 24/x24
+Date:   Mon, 12 Jul 2021 08:00:27 +0200
+Message-Id: <20210712060913.702954526@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -39,91 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Janc <szymon.janc@codecoup.pl>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 1c58e933aba23f68c0d3f192f7cc6eed8fabd694 upstream.
+commit 6b6c17fe6fa58900fa69dd000d5333b679e5e33e upstream.
 
-Even with rate limited reporting this is very spammy and since
-it is remote device that is providing bogus data there is no
-need to report this as error.
+Below devices reports zero as the number of channels for external output
+plug with MIDI type:
 
-Since real_len variable was used only to allow conditional error
-message it is now also removed.
+ * Yamaha GO44/GO46
+ * Terratec Phase 24/X24
 
-[72454.143336] bt_err_ratelimited: 10 callbacks suppressed
-[72454.143337] Bluetooth: hci0: advertising data len corrected
-[72454.296314] Bluetooth: hci0: advertising data len corrected
-[72454.892329] Bluetooth: hci0: advertising data len corrected
-[72455.051319] Bluetooth: hci0: advertising data len corrected
-[72455.357326] Bluetooth: hci0: advertising data len corrected
-[72455.663295] Bluetooth: hci0: advertising data len corrected
-[72455.787278] Bluetooth: hci0: advertising data len corrected
-[72455.942278] Bluetooth: hci0: advertising data len corrected
-[72456.094276] Bluetooth: hci0: advertising data len corrected
-[72456.249137] Bluetooth: hci0: advertising data len corrected
-[72459.416333] bt_err_ratelimited: 13 callbacks suppressed
-[72459.416334] Bluetooth: hci0: advertising data len corrected
-[72459.721334] Bluetooth: hci0: advertising data len corrected
-[72460.011317] Bluetooth: hci0: advertising data len corrected
-[72460.327171] Bluetooth: hci0: advertising data len corrected
-[72460.638294] Bluetooth: hci0: advertising data len corrected
-[72460.946350] Bluetooth: hci0: advertising data len corrected
-[72461.225320] Bluetooth: hci0: advertising data len corrected
-[72461.690322] Bluetooth: hci0: advertising data len corrected
-[72462.118318] Bluetooth: hci0: advertising data len corrected
-[72462.427319] Bluetooth: hci0: advertising data len corrected
-[72464.546319] bt_err_ratelimited: 7 callbacks suppressed
-[72464.546319] Bluetooth: hci0: advertising data len corrected
-[72464.857318] Bluetooth: hci0: advertising data len corrected
-[72465.163332] Bluetooth: hci0: advertising data len corrected
-[72465.278331] Bluetooth: hci0: advertising data len corrected
-[72465.432323] Bluetooth: hci0: advertising data len corrected
-[72465.891334] Bluetooth: hci0: advertising data len corrected
-[72466.045334] Bluetooth: hci0: advertising data len corrected
-[72466.197321] Bluetooth: hci0: advertising data len corrected
-[72466.340318] Bluetooth: hci0: advertising data len corrected
-[72466.498335] Bluetooth: hci0: advertising data len corrected
-[72469.803299] bt_err_ratelimited: 10 callbacks suppressed
+As a result, rx packet format is invalid and they generate silent sound.
+This is a regression added in v5.13.
 
-Signed-off-by: Szymon Janc <szymon.janc@codecoup.pl>
-Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=203753
-Cc: stable@vger.kernel.org
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+This commit fixes the bug, addressed at a commit 1bd1b3be8655 ("ALSA:
+bebob: perform sequence replay for media clock recovery").
+
+Cc: <stable@vger.kernel.org>
+Fixes: 5c6ea94f2b7c ("ALSA: bebob: detect the number of available MIDI ports")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210618040447.113306-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/hci_event.c |   14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ sound/firewire/bebob/bebob_stream.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5441,7 +5441,7 @@ static void process_adv_report(struct hc
- 	struct hci_conn *conn;
- 	bool match;
- 	u32 flags;
--	u8 *ptr, real_len;
-+	u8 *ptr;
- 
- 	switch (type) {
- 	case LE_ADV_IND:
-@@ -5472,14 +5472,10 @@ static void process_adv_report(struct hc
+--- a/sound/firewire/bebob/bebob_stream.c
++++ b/sound/firewire/bebob/bebob_stream.c
+@@ -883,6 +883,11 @@ static int detect_midi_ports(struct snd_
+ 		err = avc_bridgeco_get_plug_ch_count(bebob->unit, addr, &ch_count);
+ 		if (err < 0)
  			break;
++		// Yamaha GO44, GO46, Terratec Phase 24, Phase x24 reports 0 for the number of
++		// channels in external output plug 3 (MIDI type) even if it has a pair of physical
++		// MIDI jacks. As a workaround, assume it as one.
++		if (ch_count == 0)
++			ch_count = 1;
+ 		*midi_ports += ch_count;
  	}
  
--	real_len = ptr - data;
--
--	/* Adjust for actual length */
--	if (len != real_len) {
--		bt_dev_err_ratelimited(hdev, "advertising data len corrected %u -> %u",
--				       len, real_len);
--		len = real_len;
--	}
-+	/* Adjust for actual length. This handles the case when remote
-+	 * device is advertising with incorrect data length.
-+	 */
-+	len = ptr - data;
+@@ -961,12 +966,12 @@ int snd_bebob_stream_discover(struct snd
+ 	if (err < 0)
+ 		goto end;
  
- 	/* If the direct address is present, then this report is from
- 	 * a LE Direct Advertising Report event. In that case it is
+-	err = detect_midi_ports(bebob, bebob->rx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_IN,
++	err = detect_midi_ports(bebob, bebob->tx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_IN,
+ 				plugs[2], &bebob->midi_input_ports);
+ 	if (err < 0)
+ 		goto end;
+ 
+-	err = detect_midi_ports(bebob, bebob->tx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_OUT,
++	err = detect_midi_ports(bebob, bebob->rx_stream_formations, addr, AVC_BRIDGECO_PLUG_DIR_OUT,
+ 				plugs[3], &bebob->midi_output_ports);
+ 	if (err < 0)
+ 		goto end;
 
 
