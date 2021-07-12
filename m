@@ -2,31 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A263C444C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 192D83C4450
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233521AbhGLGSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:18:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
+        id S233593AbhGLGSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:18:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233533AbhGLGSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:18:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E88FE610D2;
-        Mon, 12 Jul 2021 06:15:26 +0000 (UTC)
+        id S232908AbhGLGSR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:18:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A65161042;
+        Mon, 12 Jul 2021 06:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070527;
-        bh=TsZ4KfOYZppvUAO2HBjn40McR1kiLgqYlZCEC97zxHk=;
+        s=korg; t=1626070529;
+        bh=ydy7+xysfvZ1qXCbIt/gjvZUlYRccPprm0xqIYsuhis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=voj52CKMRYE9ysaIVm3H9SeHfo+EagdWhx594VSONZ2QOPiP3oNGhsXdZ+U9eWw3I
-         ++g35oFEYRoZUyuzODGX9kOGzrkDIj22bDeGL7mANf6IW54p970uKibSKqE6A+5QZ3
-         H6iSeCuYMGyvI/TY35awhBkfklVBxsrLOL489D70=
+        b=y1xqtiOealRlqXCafuNelmrGKV03TUXYMk9ROdCxJ1ufEjKLlJbWZj5dU0ITHb6et
+         pKbSC2pIu/YTjYkDxzw1EZ3EyqL1zRDTvQOv3hYocjqwqMDXC3ofYc1ID5LqkZeoTq
+         +V8FOKfd2RMWAOz5LJlZ+Y0sObTPOfnDYx6EI7kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 008/348] ALSA: hda/realtek: Apply LED fixup for HP Dragonfly G1, too
-Date:   Mon, 12 Jul 2021 08:06:32 +0200
-Message-Id: <20210712060701.179799071@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 009/348] media: dvb-usb: fix wrong definition
+Date:   Mon, 12 Jul 2021 08:06:33 +0200
+Message-Id: <20210712060701.344347339@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -38,32 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 0ac05b25c3dd8299204ae9d50c1c2f7f05eef08f upstream.
+commit c680ed46e418e9c785d76cf44eb33bfd1e8cf3f6 upstream.
 
-HP Dragonfly G1 (SSID 103c:861f) also requires the same quirk for the
-mute and mic-mute LED just as Dragonfly G2 model.
+syzbot reported WARNING in vmalloc. The problem
+was in zero size passed to vmalloc.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213329
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210623122022.26179-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The root case was in wrong cxusb_bluebird_lgz201_properties
+definition. adapter array has only 1 entry, but num_adapters was
+2.
+
+Call Trace:
+ __vmalloc_node mm/vmalloc.c:2963 [inline]
+ vmalloc+0x67/0x80 mm/vmalloc.c:2996
+ dvb_dmx_init+0xe4/0xb90 drivers/media/dvb-core/dvb_demux.c:1251
+ dvb_usb_adapter_dvb_init+0x564/0x860 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:184
+ dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:86 [inline]
+ dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
+ dvb_usb_device_init.cold+0xc94/0x146e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
+ cxusb_probe+0x159/0x5e0 drivers/media/usb/dvb-usb/cxusb.c:1634
+
+Fixes: 4d43e13f723e ("V4L/DVB (4643): Multi-input patch for DVB-USB device")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/dvb-usb/cxusb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8093,6 +8093,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x84da, "HP OMEN dc0019-ur", ALC295_FIXUP_HP_OMEN),
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x8519, "HP Spectre x360 15-df0xxx", ALC285_FIXUP_HP_SPECTRE_X360),
-+	SND_PCI_QUIRK(0x103c, 0x861f, "HP Elite Dragonfly G1", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
+--- a/drivers/media/usb/dvb-usb/cxusb.c
++++ b/drivers/media/usb/dvb-usb/cxusb.c
+@@ -1950,7 +1950,7 @@ static struct dvb_usb_device_properties
+ 
+ 	.size_of_priv     = sizeof(struct cxusb_state),
+ 
+-	.num_adapters = 2,
++	.num_adapters = 1,
+ 	.adapter = {
+ 		{
+ 		.num_frontends = 1,
 
 
