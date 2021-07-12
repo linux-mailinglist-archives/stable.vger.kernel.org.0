@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A327C3C60C3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 18:46:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C08B53C613C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 18:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233869AbhGLQtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 12:49:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60018 "EHLO
+        id S233633AbhGLRAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 13:00:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233444AbhGLQtD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 12:49:03 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C63DCC0613DD;
-        Mon, 12 Jul 2021 09:46:14 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id z2so6614230plg.8;
-        Mon, 12 Jul 2021 09:46:14 -0700 (PDT)
+        with ESMTP id S232710AbhGLRAG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 13:00:06 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC0A2C0613DD;
+        Mon, 12 Jul 2021 09:57:17 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id x16so16940633pfa.13;
+        Mon, 12 Jul 2021 09:57:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=fYWxI1WPtqwGOfHD9uqZBoCANHh3/qp2c+wINGNSqdI=;
-        b=Goe/1eTboe5rFD1Fst141Gak9jWeD8HylFYefZLqgXNyIItNnwHm1IAWebmrT6kLvM
-         Z14g7M+SnjSVZjfQ58xps0dUemBkN1IJRyRu3EBps12Dgs17FLxZdNIM5tqIy2gl/G/U
-         W6mDPZxe6gL4sAgj/QbLxN6v6+ZPXKf4O+xH3+AsTFFTL1ecp5eeNyoygtTQ+5MjPPzk
-         t32YkZ6jiga0ODxs4VPfUfZ2QTLW4bDedrofI9oEmkuYWtRwqC7cUIN15fQvSWl+bwun
-         829QcxVzrQYqcKwzJCWHCwdHOM2YSAFb9OFC/+OoglLrZo+r54GvMvH0XuTkxKEbF948
-         xUHw==
+        bh=ZUBkGDbyG6OhDXoj6zhEbgo7RPjJvJwXYKKxiLP2N7k=;
+        b=SI/Gg0+aR8tJzuVkR6KrH+IFypdf5BdP4790ovR4ZBUVQu7qazMzCri4V0uo90wdeM
+         s9Ts0VGe8Mc6cqYxxoHG1oE7eMNH1vXIAaMqS8ti7oWmZFZ9zluT82oM4L62ADJAnrBb
+         6BhdzzQIbaU89j558JJ4b28lIQqOYuI03YnqwrZbKYnFsSlELZCTIlBAhetqHWUvv9lH
+         PBjDPo7jg7SfnEMkTGZbUNB+C6WQ1MwPJjcIiu0KcZvwKttxecV7z/0p3f192+bI6u2b
+         zenKqYlJelEE9Ht3e+lJpGOx3ZG/PEqeQXpaGyzAK3tDTufiOI4duKBf4qRoIHl1EuaF
+         /dpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=fYWxI1WPtqwGOfHD9uqZBoCANHh3/qp2c+wINGNSqdI=;
-        b=esu9k9lCcH5vPTrfy1+tVwW2SGKxtghOlgQD2n9Pi1U31RTX9MQp1Huk2YHl3wDc3y
-         QuMQgym3/BtwGhjpi5WKpTj3TGfF9KPP+0AE8He2I4ZIXPPX/DNW0zUpDWBIef6xkLX+
-         XM9fXHli6L08d15N/SO7ilrlopT935bMtd2xR9cIAjws4L1HJTVbpYmzonD7EbMdBRqy
-         MhsWnZpXorbeXWvNW/EA3w7GtTtPo+WQekej2fk6j8Rgq94cbadz+jPcsD2Y20YbQwJ5
-         z/1ichKJ8l+gdFGASStXRgkSXnyZseSDiiPjVm+/txFnkoqKsqN3WIikaKv2U9rJI2Xw
-         Xibw==
-X-Gm-Message-State: AOAM533vw86PwXYBkvoFROcfctRx3213Ee4vEHRDn2X8iHV4kKYdWDMe
-        JPR1WSx9Ov/rjaxst9fBCg+UVTnFxwX5bA==
-X-Google-Smtp-Source: ABdhPJz2Q2NI5F+OFXUZiDuo3nD/VsIaFrpQBY0768xnPueM0Kjr8GJNQEmsPxdVKMfPtvm8jpnpHQ==
-X-Received: by 2002:a17:902:9004:b029:f0:b40d:38d with SMTP id a4-20020a1709029004b02900f0b40d038dmr44313950plp.85.1626108373873;
-        Mon, 12 Jul 2021 09:46:13 -0700 (PDT)
+        bh=ZUBkGDbyG6OhDXoj6zhEbgo7RPjJvJwXYKKxiLP2N7k=;
+        b=U7+kiFu6aIzxYZ9Hw0GD/CW9lVJXNoReeBN4G7Mb0wMkJ3MGilDVF/efF62vkejuKr
+         BMOyHhZNSneOebFQXFzspLgy7MpvddI9nzHUTvkXcAuO+Sm856w+x4STy1afkooA2Hv9
+         +OqkhMoK6xQo9KkWIMCpzrobVx6R+0ZXHvW3nJR4/4WO3gcDFfFw+7eGeMm+WfhYjz3L
+         9U2GBdJkZvSFs8EEl3UBrVj8g3zBmKOu176xn0GPgr+/4oJWGLjipA7HOHU2NE7pd9wa
+         /uTzF1cl+4nDIHUhur2dRAb9qmlSdQ5Ce6OxPe0wkpABi03SUXSgSMqGxYwHO/HpZDAu
+         V5JQ==
+X-Gm-Message-State: AOAM532iZwcTFFZy8TonO+4k4EfLmKU2lD/U+GP4WCRcnsvcd3+QuZT3
+        Y84nF7aSEu5hYYQwuJbnyVLGzSTuiilNtQ==
+X-Google-Smtp-Source: ABdhPJz+yH97iAZ/yeG82jS6lSqWOTLu2vav0H4pC4pvQdiAWIskB8WwVFwrGNTHPVQpkMcyFwvx0w==
+X-Received: by 2002:a05:6a00:1390:b029:32a:e2a2:74de with SMTP id t16-20020a056a001390b029032ae2a274demr36179pfg.6.1626109036828;
+        Mon, 12 Jul 2021 09:57:16 -0700 (PDT)
 Received: from [10.67.49.104] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id i12sm7402479pjj.9.2021.07.12.09.46.08
+        by smtp.googlemail.com with ESMTPSA id a20sm6238pjh.46.2021.07.12.09.57.11
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 12 Jul 2021 09:46:13 -0700 (PDT)
-Subject: Re: [PATCH 4.9 0/9] 4.9.275-rc1 review
+        Mon, 12 Jul 2021 09:57:16 -0700 (PDT)
+Subject: Re: [PATCH 5.4 000/348] 5.4.132-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         stable@vger.kernel.org
-References: <20210709131542.410636747@linuxfoundation.org>
+References: <20210712060659.886176320@linuxfoundation.org>
 From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <8d53b5c9-b5d8-03df-6a38-1e1e5c3a62d1@gmail.com>
-Date:   Mon, 12 Jul 2021 09:46:05 -0700
+Message-ID: <e6314428-906a-a8c3-69b0-fa8561f69665@gmail.com>
+Date:   Mon, 12 Jul 2021 09:57:08 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210709131542.410636747@linuxfoundation.org>
+In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -70,19 +70,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/9/21 6:18 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.275 release.
-> There are 9 patches in this series, all will be posted as a response
+On 7/11/21 11:06 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.132 release.
+> There are 348 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
-> Responses should be made by Sun, 11 Jul 2021 13:14:09 +0000.
+> Responses should be made by Wed, 14 Jul 2021 06:02:46 +0000.
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.275-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.132-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 > and the diffstat can be found below.
 > 
 > thanks,
