@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97F593C52AE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C01973C4CC9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344630AbhGLHsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:48:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51248 "EHLO mail.kernel.org"
+        id S237047AbhGLHID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:08:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346521AbhGLHqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:46:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A2CC61130;
-        Mon, 12 Jul 2021 07:42:01 +0000 (UTC)
+        id S242187AbhGLHGY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:06:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A611613AE;
+        Mon, 12 Jul 2021 07:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075721;
-        bh=fAFp7n4aooMn7GCiWdWRmx63A8WDiJ7KNUKcD5gJuTY=;
+        s=korg; t=1626073414;
+        bh=XR77LswdWdzTUuNp1JmRiE979f+bTM2bdOLVaFBFXI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIGcaB/dD4xV01mPpLX2kZRSxl9hN7+tSrse257efc5ZlSfWDZgcbOWbhSMWb+jM8
-         yqmlcrEcYPGAB6T7FMPnuTQDI/s8b47fgkCFn9u6U+JZQqpYxcmjXFWQ6v7KsAD6cj
-         5iv1QtFX/t7Ad1D8KUzQmYrgsMDv6zUNN8yddwqo=
+        b=zdfuRzpzb0XQAjVaczllxmoobsdF3ewDz73xcu3wu/+AHDSBp9DfVdhjMxQCm+iyH
+         xgsAIWw4+eYEoZuGpyBZucCvhnlMOGswQrHAJ9oRropoWqcIAMUXOnxd8R53kov9Kj
+         BNVKF5aL4lRjhesl/HTD2hPPZwYGyvpKAgiuwxBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Waiman Long <longman@redhat.com>,
+        stable@vger.kernel.org, Chris Mason <clm@fb.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Feng Tang <feng.tang@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 294/800] locking/lockdep: Reduce LOCKDEP dependency list
+Subject: [PATCH 5.12 234/700] clocksource: Retry clock read if long delays detected
 Date:   Mon, 12 Jul 2021 08:05:17 +0200
-Message-Id: <20210712060956.372441660@linuxfoundation.org>
+Message-Id: <20210712061000.007586240@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +42,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit b8e00abe7d9fe21dd13609e2e3a707e38902b105 ]
+[ Upstream commit db3a34e17433de2390eb80d436970edcebd0ca3e ]
 
-Some arches (um, sparc64, riscv, xtensa) cause a Kconfig warning for
-LOCKDEP.
-These arch-es select LOCKDEP_SUPPORT but they are not listed as one
-of the arch-es that LOCKDEP depends on.
+When the clocksource watchdog marks a clock as unstable, this might be due
+to that clock being unstable or it might be due to delays that happen to
+occur between the reads of the two clocks.  Yes, interrupts are disabled
+across those two reads, but there are no shortage of things that can delay
+interrupts-disabled regions of code ranging from SMI handlers to vCPU
+preemption.  It would be good to have some indication as to why the clock
+was marked unstable.
 
-Since (16) arch-es define the Kconfig symbol LOCKDEP_SUPPORT if they
-intend to have LOCKDEP support, replace the awkward list of
-arch-es that LOCKDEP depends on with the LOCKDEP_SUPPORT symbol.
+Therefore, re-read the watchdog clock on either side of the read from the
+clock under test.  If the watchdog clock shows an excessive time delta
+between its pair of reads, the reads are retried.
 
-But wait. LOCKDEP_SUPPORT is included in LOCK_DEBUGGING_SUPPORT,
-which is already a dependency here, so LOCKDEP_SUPPORT is redundant
-and not needed.
-That leaves the FRAME_POINTER dependency, but it is part of an
-expression like this:
-	depends on (A && B) && (FRAME_POINTER || B')
-where B' is a dependency of B so if B is true then B' is true
-and the value of FRAME_POINTER does not matter.
-Thus we can also delete the FRAME_POINTER dependency.
+The maximum number of retries is specified by a new kernel boot parameter
+clocksource.max_cswd_read_retries, which defaults to three, that is, up to
+four reads, one initial and up to three retries.  If more than one retry
+was required, a message is printed on the console (the occasional single
+retry is expected behavior, especially in guest OSes).  If the maximum
+number of retries is exceeded, the clock under test will be marked
+unstable.  However, the probability of this happening due to various sorts
+of delays is quite small.  In addition, the reason (clock-read delays) for
+the unstable marking will be apparent.
 
-Fixes this kconfig warning: (for um, sparc64, riscv, xtensa)
-
-WARNING: unmet direct dependencies detected for LOCKDEP
-  Depends on [n]: DEBUG_KERNEL [=y] && LOCK_DEBUGGING_SUPPORT [=y] && (FRAME_POINTER [=n] || MIPS || PPC || S390 || MICROBLAZE || ARM || ARC || X86)
-  Selected by [y]:
-  - PROVE_LOCKING [=y] && DEBUG_KERNEL [=y] && LOCK_DEBUGGING_SUPPORT [=y]
-  - LOCK_STAT [=y] && DEBUG_KERNEL [=y] && LOCK_DEBUGGING_SUPPORT [=y]
-  - DEBUG_LOCK_ALLOC [=y] && DEBUG_KERNEL [=y] && LOCK_DEBUGGING_SUPPORT [=y]
-
-Fixes: 7d37cb2c912d ("lib: fix kconfig dependency on ARCH_WANT_FRAME_POINTERS")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Waiman Long <longman@redhat.com>
-Link: https://lkml.kernel.org/r/20210524224150.8009-1-rdunlap@infradead.org
+Reported-by: Chris Mason <clm@fb.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Feng Tang <feng.tang@intel.com>
+Link: https://lore.kernel.org/r/20210527190124.440372-1-paulmck@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug | 1 -
- 1 file changed, 1 deletion(-)
+ .../admin-guide/kernel-parameters.txt         |  6 +++
+ kernel/time/clocksource.c                     | 53 ++++++++++++++++---
+ 2 files changed, 53 insertions(+), 6 deletions(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 678c13967580..1e1bd6f4a13d 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1372,7 +1372,6 @@ config LOCKDEP
- 	bool
- 	depends on DEBUG_KERNEL && LOCK_DEBUGGING_SUPPORT
- 	select STACKTRACE
--	depends on FRAME_POINTER || MIPS || PPC || S390 || MICROBLAZE || ARM || ARC || X86
- 	select KALLSYMS
- 	select KALLSYMS_ALL
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 835f810f2f26..c08e174e6ff4 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -583,6 +583,12 @@
+ 			loops can be debugged more effectively on production
+ 			systems.
  
++	clocksource.max_cswd_read_retries= [KNL]
++			Number of clocksource_watchdog() retries due to
++			external delays before the clock will be marked
++			unstable.  Defaults to three retries, that is,
++			four attempts to read the clock under test.
++
+ 	clearcpuid=BITNUM[,BITNUM...] [X86]
+ 			Disable CPUID feature X for the kernel. See
+ 			arch/x86/include/asm/cpufeatures.h for the valid bit
+diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
+index cce484a2cc7c..49b25f1cc344 100644
+--- a/kernel/time/clocksource.c
++++ b/kernel/time/clocksource.c
+@@ -124,6 +124,13 @@ static void __clocksource_change_rating(struct clocksource *cs, int rating);
+ #define WATCHDOG_INTERVAL (HZ >> 1)
+ #define WATCHDOG_THRESHOLD (NSEC_PER_SEC >> 4)
+ 
++/*
++ * Maximum permissible delay between two readouts of the watchdog
++ * clocksource surrounding a read of the clocksource being validated.
++ * This delay could be due to SMIs, NMIs, or to VCPU preemptions.
++ */
++#define WATCHDOG_MAX_SKEW (100 * NSEC_PER_USEC)
++
+ static void clocksource_watchdog_work(struct work_struct *work)
+ {
+ 	/*
+@@ -184,12 +191,45 @@ void clocksource_mark_unstable(struct clocksource *cs)
+ 	spin_unlock_irqrestore(&watchdog_lock, flags);
+ }
+ 
++static ulong max_cswd_read_retries = 3;
++module_param(max_cswd_read_retries, ulong, 0644);
++
++static bool cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
++{
++	unsigned int nretries;
++	u64 wd_end, wd_delta;
++	int64_t wd_delay;
++
++	for (nretries = 0; nretries <= max_cswd_read_retries; nretries++) {
++		local_irq_disable();
++		*wdnow = watchdog->read(watchdog);
++		*csnow = cs->read(cs);
++		wd_end = watchdog->read(watchdog);
++		local_irq_enable();
++
++		wd_delta = clocksource_delta(wd_end, *wdnow, watchdog->mask);
++		wd_delay = clocksource_cyc2ns(wd_delta, watchdog->mult,
++					      watchdog->shift);
++		if (wd_delay <= WATCHDOG_MAX_SKEW) {
++			if (nretries > 1 || nretries >= max_cswd_read_retries) {
++				pr_warn("timekeeping watchdog on CPU%d: %s retried %d times before success\n",
++					smp_processor_id(), watchdog->name, nretries);
++			}
++			return true;
++		}
++	}
++
++	pr_warn("timekeeping watchdog on CPU%d: %s read-back delay of %lldns, attempt %d, marking unstable\n",
++		smp_processor_id(), watchdog->name, wd_delay, nretries);
++	return false;
++}
++
+ static void clocksource_watchdog(struct timer_list *unused)
+ {
+-	struct clocksource *cs;
+ 	u64 csnow, wdnow, cslast, wdlast, delta;
+-	int64_t wd_nsec, cs_nsec;
+ 	int next_cpu, reset_pending;
++	int64_t wd_nsec, cs_nsec;
++	struct clocksource *cs;
+ 
+ 	spin_lock(&watchdog_lock);
+ 	if (!watchdog_running)
+@@ -206,10 +246,11 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 			continue;
+ 		}
+ 
+-		local_irq_disable();
+-		csnow = cs->read(cs);
+-		wdnow = watchdog->read(watchdog);
+-		local_irq_enable();
++		if (!cs_watchdog_read(cs, &csnow, &wdnow)) {
++			/* Clock readout unreliable, so give it up. */
++			__clocksource_unstable(cs);
++			continue;
++		}
+ 
+ 		/* Clocksource initialized ? */
+ 		if (!(cs->flags & CLOCK_SOURCE_WATCHDOG) ||
 -- 
 2.30.2
 
