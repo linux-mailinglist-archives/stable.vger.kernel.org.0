@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FC7F3C53BA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1385D3C4E44
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348309AbhGLHzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
+        id S244532AbhGLHRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:17:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350652AbhGLHvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0926F61C18;
-        Mon, 12 Jul 2021 07:46:52 +0000 (UTC)
+        id S240075AbhGLHQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:16:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 859DE61153;
+        Mon, 12 Jul 2021 07:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076013;
-        bh=o8xlVjhMJBBCwP/TQymtLx3ehtXdvEdNbHav2xQT87s=;
+        s=korg; t=1626074037;
+        bh=PzEQanErQby50e1hChNgY74Y8p6+VUwcFMVmNlBaGz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CVE5nlQ7qVBTbHxDuVnPnKSUBzRFXWYAYSatgQ15pl58OBs3J5Rh/mK9IXhD4X9x+
-         vPaxqz0VqlUtF0Og3anCqvDPPicH2d4KECdLunqiHEPtI/rmIuJGuJrQU8pjNEP0Qy
-         JUITTM/YvZtQ0En7w3KNkEeuyBNpf/1gWvWE568c=
+        b=ZDJMNLHiCaRZG+5Y5pQZxuavS2F5nlIxNThPlCyhdX5hSeOUACmeo9ohzDqN5iIOi
+         KK2wfcaV8O3tSRg12Z1S5503fsHPfH0wllGXivr2ufvw7sCFFw48n10cuG+DXME5ZK
+         fdHmnQSk4WqBz7nK+snuw6p1DD0yIw7X8ff48Y6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Quentin Monnet <quentin@isovalent.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 460/800] drm/i915/selftests: Reorder tasklet_disable vs local_bh_disable
+Subject: [PATCH 5.12 400/700] tools/bpftool: Fix error return code in do_batch()
 Date:   Mon, 12 Jul 2021 08:08:03 +0200
-Message-Id: <20210712061016.095146529@linuxfoundation.org>
+Message-Id: <20210712061018.931757420@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,139 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 2328e1b35ac2bb003236c3268aabe456ffab8b56 ]
+[ Upstream commit ca16b429f39b4ce013bfa7e197f25681e65a2a42 ]
 
-Due to a change in requirements that disallows tasklet_disable() being
-called from atomic context, rearrange the selftest to avoid doing so.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-<3> [324.942939] BUG: sleeping function called from invalid context at kernel/softirq.c:888
-<3> [324.942952] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 5601, name: i915_selftest
-<4> [324.942960] 1 lock held by i915_selftest/5601:
-<4> [324.942963]  #0: ffff888101d19240 (&dev->mutex){....}-{3:3}, at: device_driver_attach+0x18/0x50
-<3> [324.942987] Preemption disabled at:
-<3> [324.942990] [<ffffffffa026fbd2>] live_hold_reset.part.65+0xc2/0x2f0 [i915]
-<4> [324.943255] CPU: 0 PID: 5601 Comm: i915_selftest Tainted: G     U            5.13.0-rc5-CI-CI_DRM_10197+ #1
-<4> [324.943259] Hardware name: Intel Corp. Geminilake/GLK RVP2 LP4SD (07), BIOS GELKRVPA.X64.0062.B30.1708222146 08/22/2017
-<4> [324.943263] Call Trace:
-<4> [324.943267]  dump_stack+0x7f/0xad
-<4> [324.943276]  ___might_sleep.cold.123+0xf2/0x106
-<4> [324.943286]  tasklet_unlock_wait+0x2e/0xb0
-<4> [324.943291]  ? ktime_get_raw+0x81/0x120
-<4> [324.943305]  live_hold_reset.part.65+0x1ab/0x2f0 [i915]
-<4> [324.943500]  __i915_subtests.cold.7+0x42/0x92 [i915]
-<4> [324.943723]  ? __i915_live_teardown+0x50/0x50 [i915]
-<4> [324.943922]  ? __intel_gt_live_setup+0x30/0x30 [i915]
-
-Fixes: da044747401fc ("tasklets: Replace spin wait in tasklet_unlock_wait()")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210611060838.647973-1-thomas.hellstrom@linux.intel.com
-(cherry picked from commit 35c6367f516090a3086d37e7023b08608d555aba)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: 668da745af3c2 ("tools: bpftool: add support for quotations ...")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: Quentin Monnet <quentin@isovalent.com>
+Link: https://lore.kernel.org/bpf/20210609115916.2186872-1-chengzhihao1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/selftest_execlists.c | 55 ++++++++++++--------
- 1 file changed, 32 insertions(+), 23 deletions(-)
+ tools/bpf/bpftool/main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/selftest_execlists.c b/drivers/gpu/drm/i915/gt/selftest_execlists.c
-index 1081cd36a2bd..1e5d59a776b8 100644
---- a/drivers/gpu/drm/i915/gt/selftest_execlists.c
-+++ b/drivers/gpu/drm/i915/gt/selftest_execlists.c
-@@ -551,6 +551,32 @@ static int live_pin_rewind(void *arg)
- 	return err;
- }
+diff --git a/tools/bpf/bpftool/main.c b/tools/bpf/bpftool/main.c
+index d9afb730136a..0f36b9edd3f5 100644
+--- a/tools/bpf/bpftool/main.c
++++ b/tools/bpf/bpftool/main.c
+@@ -340,8 +340,10 @@ static int do_batch(int argc, char **argv)
+ 		n_argc = make_args(buf, n_argv, BATCH_ARG_NB_MAX, lines);
+ 		if (!n_argc)
+ 			continue;
+-		if (n_argc < 0)
++		if (n_argc < 0) {
++			err = n_argc;
+ 			goto err_close;
++		}
  
-+static int engine_lock_reset_tasklet(struct intel_engine_cs *engine)
-+{
-+	tasklet_disable(&engine->execlists.tasklet);
-+	local_bh_disable();
-+
-+	if (test_and_set_bit(I915_RESET_ENGINE + engine->id,
-+			     &engine->gt->reset.flags)) {
-+		local_bh_enable();
-+		tasklet_enable(&engine->execlists.tasklet);
-+
-+		intel_gt_set_wedged(engine->gt);
-+		return -EBUSY;
-+	}
-+
-+	return 0;
-+}
-+
-+static void engine_unlock_reset_tasklet(struct intel_engine_cs *engine)
-+{
-+	clear_and_wake_up_bit(I915_RESET_ENGINE + engine->id,
-+			      &engine->gt->reset.flags);
-+
-+	local_bh_enable();
-+	tasklet_enable(&engine->execlists.tasklet);
-+}
-+
- static int live_hold_reset(void *arg)
- {
- 	struct intel_gt *gt = arg;
-@@ -598,15 +624,9 @@ static int live_hold_reset(void *arg)
- 
- 		/* We have our request executing, now remove it and reset */
- 
--		local_bh_disable();
--		if (test_and_set_bit(I915_RESET_ENGINE + id,
--				     &gt->reset.flags)) {
--			local_bh_enable();
--			intel_gt_set_wedged(gt);
--			err = -EBUSY;
-+		err = engine_lock_reset_tasklet(engine);
-+		if (err)
- 			goto out;
--		}
--		tasklet_disable(&engine->execlists.tasklet);
- 
- 		engine->execlists.tasklet.callback(&engine->execlists.tasklet);
- 		GEM_BUG_ON(execlists_active(&engine->execlists) != rq);
-@@ -618,10 +638,7 @@ static int live_hold_reset(void *arg)
- 		__intel_engine_reset_bh(engine, NULL);
- 		GEM_BUG_ON(rq->fence.error != -EIO);
- 
--		tasklet_enable(&engine->execlists.tasklet);
--		clear_and_wake_up_bit(I915_RESET_ENGINE + id,
--				      &gt->reset.flags);
--		local_bh_enable();
-+		engine_unlock_reset_tasklet(engine);
- 
- 		/* Check that we do not resubmit the held request */
- 		if (!i915_request_wait(rq, 0, HZ / 5)) {
-@@ -4585,15 +4602,9 @@ static int reset_virtual_engine(struct intel_gt *gt,
- 	GEM_BUG_ON(engine == ve->engine);
- 
- 	/* Take ownership of the reset and tasklet */
--	local_bh_disable();
--	if (test_and_set_bit(I915_RESET_ENGINE + engine->id,
--			     &gt->reset.flags)) {
--		local_bh_enable();
--		intel_gt_set_wedged(gt);
--		err = -EBUSY;
-+	err = engine_lock_reset_tasklet(engine);
-+	if (err)
- 		goto out_heartbeat;
--	}
--	tasklet_disable(&engine->execlists.tasklet);
- 
- 	engine->execlists.tasklet.callback(&engine->execlists.tasklet);
- 	GEM_BUG_ON(execlists_active(&engine->execlists) != rq);
-@@ -4612,9 +4623,7 @@ static int reset_virtual_engine(struct intel_gt *gt,
- 	GEM_BUG_ON(rq->fence.error != -EIO);
- 
- 	/* Release our grasp on the engine, letting CS flow again */
--	tasklet_enable(&engine->execlists.tasklet);
--	clear_and_wake_up_bit(I915_RESET_ENGINE + engine->id, &gt->reset.flags);
--	local_bh_enable();
-+	engine_unlock_reset_tasklet(engine);
- 
- 	/* Check that we do not resubmit the held request */
- 	i915_request_get(rq);
+ 		if (json_output) {
+ 			jsonw_start_object(json_wtr);
 -- 
 2.30.2
 
