@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B923C49EC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71F233C4E53
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235871AbhGLGre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:47:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41250 "EHLO mail.kernel.org"
+        id S244049AbhGLHSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:18:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238033AbhGLGqt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:46:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D9D9611AF;
-        Mon, 12 Jul 2021 06:42:31 +0000 (UTC)
+        id S243775AbhGLHRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBDBF61481;
+        Mon, 12 Jul 2021 07:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072151;
-        bh=3a+wzGLX9RpC5rgw6c3JCNr49YoAr/9qDC4YFexWgvU=;
+        s=korg; t=1626074060;
+        bh=o14vWb3+jRL2a3UchK2rerk2/7Px3pF4nwefLNn09nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BEFkYjejre8TlR80LukW9hkT414funlr3l2OD8v4KySgR5VjwEEOvo0sXsHOKJtND
-         7zmL1qp8S88AX/DlO6tUb6wZ3drmEUwDt8Ztx39Gt7aPDu5lATSTeyoZMhw4nbDPxY
-         MTVkg2437Nm/6xkR4qPGJmiBsB6Dg/2eaBrwY6nc=
+        b=K6LAY2h2ZrCs/aNH59/GvA575Jd+9DMq7gFerjnjpeGutsn0AyypkEi276vzHnoyx
+         uWq0pOfXNq9JmJYxBBQ/GzJkySbxyv7DQPaodKKz2XaGrLEL62ad95eQsFZnzJoeyA
+         cVP2KHyCkAhJd2AQMuTcb+mym087FppHOqkyroT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 375/593] tls: prevent oversized sendfile() hangs by ignoring MSG_MORE
+Subject: [PATCH 5.12 452/700] xfrm: Fix xfrm offload fallback fail case
 Date:   Mon, 12 Jul 2021 08:08:55 +0200
-Message-Id: <20210712060928.070795511@linuxfoundation.org>
+Message-Id: <20210712061024.660485666@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Ayush Sawal <ayush.sawal@chelsio.com>
 
-[ Upstream commit d452d48b9f8b1a7f8152d33ef52cfd7fe1735b0a ]
+[ Upstream commit dd72fadf2186fc8a6018f97fe72f4d5ca05df440 ]
 
-We got multiple reports that multi_chunk_sendfile test
-case from tls selftest fails. This was sort of expected,
-as the original fix was never applied (see it in the first
-Link:). The test in question uses sendfile() with count
-larger than the size of the underlying file. This will
-make splice set MSG_MORE on all sendpage calls, meaning
-TLS will never close and flush the last partial record.
+In case of xfrm offload, if xdo_dev_state_add() of driver returns
+-EOPNOTSUPP, xfrm offload fallback is failed.
+In xfrm state_add() both xso->dev and xso->real_dev are initialized to
+dev and when err(-EOPNOTSUPP) is returned only xso->dev is set to null.
 
-Eric seem to have addressed a similar problem in
-commit 35f9c09fe9c7 ("tcp: tcp_sendpages() should call tcp_push() once")
-by introducing MSG_SENDPAGE_NOTLAST. Unlike MSG_MORE
-MSG_SENDPAGE_NOTLAST is not set on the last call
-of a "pipefull" of data (PIPE_DEF_BUFFERS == 16,
-so every 16 pages or whenever we run out of data).
+So in this scenario the condition in func validate_xmit_xfrm(),
+if ((x->xso.dev != dev) && (x->xso.real_dev == dev))
+                return skb;
+returns true, due to which skb is returned without calling esp_xmit()
+below which has fallback code. Hence the CRYPTO_FALLBACK is failing.
 
-Having a break every 16 pages should be fine, TLS
-can pack exactly 4 pages into a record, so for
-aligned reads there should be no difference,
-unaligned may see one extra record per sendpage().
+So fixing this with by keeping x->xso.real_dev as NULL when err is
+returned in func xfrm_dev_state_add().
 
-Sticking to TCP semantics seems preferable to modifying
-splice, but we can revisit it if real life scenarios
-show a regression.
-
-Reported-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Reported-by: Seth Forshee <seth.forshee@canonical.com>
-Link: https://lore.kernel.org/netdev/1591392508-14592-1-git-send-email-pooja.trivedi@stackpath.com/
-Fixes: 3c4d7559159b ("tls: kernel TLS support")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Tested-by: Seth Forshee <seth.forshee@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: bdfd2d1fa79a ("bonding/xfrm: use real_dev instead of slave_dev")
+Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_sw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index 3abe5257f757..15395683b8e2 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1154,7 +1154,7 @@ static int tls_sw_do_sendpage(struct sock *sk, struct page *page,
- 	int ret = 0;
- 	bool eor;
+diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
+index 6d6917b68856..e843b0d9e2a6 100644
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -268,6 +268,7 @@ int xfrm_dev_state_add(struct net *net, struct xfrm_state *x,
+ 		xso->num_exthdrs = 0;
+ 		xso->flags = 0;
+ 		xso->dev = NULL;
++		xso->real_dev = NULL;
+ 		dev_put(dev);
  
--	eor = !(flags & (MSG_MORE | MSG_SENDPAGE_NOTLAST));
-+	eor = !(flags & MSG_SENDPAGE_NOTLAST);
- 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
- 
- 	/* Call the sk_stream functions to manage the sndbuf mem. */
+ 		if (err != -EOPNOTSUPP)
 -- 
 2.30.2
 
