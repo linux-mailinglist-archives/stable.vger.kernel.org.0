@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B0273C4D1B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E49E33C532B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242402AbhGLHL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:11:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
+        id S1347817AbhGLHxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244133AbhGLHK0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:10:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E64261186;
-        Mon, 12 Jul 2021 07:06:20 +0000 (UTC)
+        id S243127AbhGLHrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:47:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC0686141A;
+        Mon, 12 Jul 2021 07:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073580;
-        bh=BtWqfh2M0s3HQoGaomlcmC8sxmlBexek3yVLfsONMas=;
+        s=korg; t=1626075752;
+        bh=Z/fKlFhsiKi0Vy5JclMqoPQMDYnwv4uPFBWppAE+DAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3U5bpdF9Y5wyzL+CSP1UesvwWfIEnOEQPwTg7Ygk8rr8pE5qB8hNK/eBkv06lRMl
-         PtQ+9Z2xyETtQSzEwcMiDNULLr8d2UlvVUy6yd7WGsK8SC1TeyneWDDHhwM8b/Lynj
-         t4IbQ4mpxqR4TlcGfgHNvjsftpWYFM21xTUKI8Sw=
+        b=utnY/Fj+gcAmpn+u17azW22hfG+PASgZUD8xFpbeOy1xRFDTw1BhctFJJUWHXoXbV
+         fPukCioOnRyqTLtEa2V5EPkrwoOxX4VmmeA1t6KR3VtFkpBwfOP1Eg7M7aIeDSdOuA
+         pLbRZ+RJJ5GqUe3T+YeYN+OC/k9YUhLHfCf3PnUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+142888ffec98ab194028@syzkaller.appspotmail.com,
-        Arnd Bergmann <arnd@arndb.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Hou Wenlong <houwenlong93@linux.alibaba.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 289/700] media: v4l2-core: ignore native time32 ioctls on 64-bit
-Date:   Mon, 12 Jul 2021 08:06:12 +0200
-Message-Id: <20210712061006.977668145@linuxfoundation.org>
+Subject: [PATCH 5.13 350/800] KVM: selftests: fix triple fault if ept=0 in dirty_log_test
+Date:   Mon, 12 Jul 2021 08:06:13 +0200
+Message-Id: <20210712061004.292397871@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,126 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Hou Wenlong <houwenlong93@linux.alibaba.com>
 
-[ Upstream commit c344f07aa1b4ba38ca8fabe407a2afe2f436323c ]
+[ Upstream commit e5830fb13b8cad5e3bdf84f0f7a3dcb4f4d9bcbb ]
 
-Syzbot found that passing ioctl command 0xc0505609 into a 64-bit
-kernel from a 32-bit process causes uninitialized kernel memory to
-get passed to drivers instead of the user space data:
+Commit 22f232d134e1 ("KVM: selftests: x86: Set supported CPUIDs on
+default VM") moved vcpu_set_cpuid into vm_create_with_vcpus, but
+dirty_log_test doesn't use it to create vm. So vcpu's CPUIDs is
+not set, the guest's pa_bits in kvm would be smaller than the
+value queried by userspace.
 
-BUG: KMSAN: uninit-value in check_array_args drivers/media/v4l2-core/v4l2-ioctl.c:3041 [inline]
-BUG: KMSAN: uninit-value in video_usercopy+0x1631/0x3d30 drivers/media/v4l2-core/v4l2-ioctl.c:3315
-CPU: 0 PID: 19595 Comm: syz-executor.4 Not tainted 5.11.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x21c/0x280 lib/dump_stack.c:120
- kmsan_report+0xfb/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x5f/0xa0 mm/kmsan/kmsan_instr.c:197
- check_array_args drivers/media/v4l2-core/v4l2-ioctl.c:3041 [inline]
- video_usercopy+0x1631/0x3d30 drivers/media/v4l2-core/v4l2-ioctl.c:3315
- video_ioctl2+0x9f/0xb0 drivers/media/v4l2-core/v4l2-ioctl.c:3391
- v4l2_ioctl+0x255/0x290 drivers/media/v4l2-core/v4l2-dev.c:360
- v4l2_compat_ioctl32+0x2c6/0x370 drivers/media/v4l2-core/v4l2-compat-ioctl32.c:1248
- __do_compat_sys_ioctl fs/ioctl.c:842 [inline]
- __se_compat_sys_ioctl+0x53d/0x1100 fs/ioctl.c:793
- __ia32_compat_sys_ioctl+0x4a/0x70 fs/ioctl.c:793
- do_syscall_32_irqs_on arch/x86/entry/common.c:79 [inline]
- __do_fast_syscall_32+0x102/0x160 arch/x86/entry/common.c:141
- do_fast_syscall_32+0x6a/0xc0 arch/x86/entry/common.c:166
- do_SYSENTER_32+0x73/0x90 arch/x86/entry/common.c:209
- entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+However, the dirty track memory slot is in the highest GPA, the
+reserved bits in gpte would be set with wrong pa_bits.
+For shadow paging, page fault would fail in permission_fault and
+be injected into guest. Since guest doesn't have idt, it finally
+leads to vm_exit for triple fault.
 
-The time32 commands are defined but were never meant to be called on
-64-bit machines, as those have always used time64 interfaces.  I missed
-this in my patch that introduced the time64 handling on 32-bit platforms.
+Move vcpu_set_cpuid into vm_vcpu_add_default to set supported
+CPUIDs on default vcpu, since almost all tests need it.
 
-The problem in this case is the mismatch of one function checking for
-the numeric value of the command and another function checking for the
-type of process (native vs compat) instead, with the result being that
-for this combination, nothing gets copied into the buffer at all.
-
-Avoid this by only trying to convert the time32 commands when running
-on a 32-bit kernel where these are defined in a meaningful way.
-
-[hverkuil: fix 3 warnings: switch with no cases]
-
-Fixes: 577c89b0ce72 ("media: v4l2-core: fix v4l2_buffer handling for time64 ABI")
-Reported-by: syzbot+142888ffec98ab194028@syzkaller.appspotmail.com
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 22f232d134e1 ("KVM: selftests: x86: Set supported CPUIDs on default VM")
+Signed-off-by: Hou Wenlong <houwenlong93@linux.alibaba.com>
+Message-Id: <411ea2173f89abce56fc1fca5af913ed9c5a89c9.1624351343.git.houwenlong93@linux.alibaba.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ioctl.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/testing/selftests/kvm/lib/kvm_util.c           | 4 ----
+ tools/testing/selftests/kvm/lib/x86_64/processor.c   | 3 +++
+ tools/testing/selftests/kvm/steal_time.c             | 2 --
+ tools/testing/selftests/kvm/x86_64/set_boot_cpu_id.c | 2 --
+ 4 files changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index 31d1342e61e8..7e8bf4b1ab2e 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -3114,8 +3114,8 @@ static int check_array_args(unsigned int cmd, void *parg, size_t *array_size,
+diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
+index a2b732cf96ea..8ea854d7822d 100644
+--- a/tools/testing/selftests/kvm/lib/kvm_util.c
++++ b/tools/testing/selftests/kvm/lib/kvm_util.c
+@@ -375,10 +375,6 @@ struct kvm_vm *vm_create_with_vcpus(enum vm_guest_mode mode, uint32_t nr_vcpus,
+ 		uint32_t vcpuid = vcpuids ? vcpuids[i] : i;
  
- static unsigned int video_translate_cmd(unsigned int cmd)
- {
-+#if !defined(CONFIG_64BIT) && defined(CONFIG_COMPAT_32BIT_TIME)
- 	switch (cmd) {
--#ifdef CONFIG_COMPAT_32BIT_TIME
- 	case VIDIOC_DQEVENT_TIME32:
- 		return VIDIOC_DQEVENT;
- 	case VIDIOC_QUERYBUF_TIME32:
-@@ -3126,8 +3126,8 @@ static unsigned int video_translate_cmd(unsigned int cmd)
- 		return VIDIOC_DQBUF;
- 	case VIDIOC_PREPARE_BUF_TIME32:
- 		return VIDIOC_PREPARE_BUF;
+ 		vm_vcpu_add_default(vm, vcpuid, guest_code);
+-
+-#ifdef __x86_64__
+-		vcpu_set_cpuid(vm, vcpuid, kvm_get_supported_cpuid());
 -#endif
  	}
-+#endif
- 	if (in_compat_syscall())
- 		return v4l2_compat_translate_cmd(cmd);
  
-@@ -3168,8 +3168,8 @@ static int video_get_user(void __user *arg, void *parg,
- 	} else if (in_compat_syscall()) {
- 		err = v4l2_compat_get_user(arg, parg, cmd);
- 	} else {
-+#if !defined(CONFIG_64BIT) && defined(CONFIG_COMPAT_32BIT_TIME)
- 		switch (cmd) {
--#ifdef CONFIG_COMPAT_32BIT_TIME
- 		case VIDIOC_QUERYBUF_TIME32:
- 		case VIDIOC_QBUF_TIME32:
- 		case VIDIOC_DQBUF_TIME32:
-@@ -3197,8 +3197,8 @@ static int video_get_user(void __user *arg, void *parg,
- 			};
- 			break;
- 		}
--#endif
- 		}
-+#endif
- 	}
- 
- 	/* zero out anything we don't copy from userspace */
-@@ -3223,8 +3223,8 @@ static int video_put_user(void __user *arg, void *parg,
- 	if (in_compat_syscall())
- 		return v4l2_compat_put_user(arg, parg, cmd);
- 
-+#if !defined(CONFIG_64BIT) && defined(CONFIG_COMPAT_32BIT_TIME)
- 	switch (cmd) {
--#ifdef CONFIG_COMPAT_32BIT_TIME
- 	case VIDIOC_DQEVENT_TIME32: {
- 		struct v4l2_event *ev = parg;
- 		struct v4l2_event_time32 ev32;
-@@ -3272,8 +3272,8 @@ static int video_put_user(void __user *arg, void *parg,
- 			return -EFAULT;
- 		break;
- 	}
--#endif
- 	}
-+#endif
- 
- 	return 0;
+ 	return vm;
+diff --git a/tools/testing/selftests/kvm/lib/x86_64/processor.c b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+index efe235044421..595322b24e4c 100644
+--- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
++++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+@@ -600,6 +600,9 @@ void vm_vcpu_add_default(struct kvm_vm *vm, uint32_t vcpuid, void *guest_code)
+ 	/* Setup the MP state */
+ 	mp_state.mp_state = 0;
+ 	vcpu_set_mp_state(vm, vcpuid, &mp_state);
++
++	/* Setup supported CPUIDs */
++	vcpu_set_cpuid(vm, vcpuid, kvm_get_supported_cpuid());
  }
+ 
+ /*
+diff --git a/tools/testing/selftests/kvm/steal_time.c b/tools/testing/selftests/kvm/steal_time.c
+index fcc840088c91..a6fe75cb9a6e 100644
+--- a/tools/testing/selftests/kvm/steal_time.c
++++ b/tools/testing/selftests/kvm/steal_time.c
+@@ -73,8 +73,6 @@ static void steal_time_init(struct kvm_vm *vm)
+ 	for (i = 0; i < NR_VCPUS; ++i) {
+ 		int ret;
+ 
+-		vcpu_set_cpuid(vm, i, kvm_get_supported_cpuid());
+-
+ 		/* ST_GPA_BASE is identity mapped */
+ 		st_gva[i] = (void *)(ST_GPA_BASE + i * STEAL_TIME_SIZE);
+ 		sync_global_to_guest(vm, st_gva[i]);
+diff --git a/tools/testing/selftests/kvm/x86_64/set_boot_cpu_id.c b/tools/testing/selftests/kvm/x86_64/set_boot_cpu_id.c
+index 12c558fc8074..c8d2bbe202d0 100644
+--- a/tools/testing/selftests/kvm/x86_64/set_boot_cpu_id.c
++++ b/tools/testing/selftests/kvm/x86_64/set_boot_cpu_id.c
+@@ -106,8 +106,6 @@ static void add_x86_vcpu(struct kvm_vm *vm, uint32_t vcpuid, bool bsp_code)
+ 		vm_vcpu_add_default(vm, vcpuid, guest_bsp_vcpu);
+ 	else
+ 		vm_vcpu_add_default(vm, vcpuid, guest_not_bsp_vcpu);
+-
+-	vcpu_set_cpuid(vm, vcpuid, kvm_get_supported_cpuid());
+ }
+ 
+ static void run_vm_bsp(uint32_t bsp_vcpu)
 -- 
 2.30.2
 
