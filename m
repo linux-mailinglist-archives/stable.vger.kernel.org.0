@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C443C5522
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3D973C4F81
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353456AbhGLIJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55670 "EHLO mail.kernel.org"
+        id S241685AbhGLH0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:26:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352868AbhGLIAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:00:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AB2661A19;
-        Mon, 12 Jul 2021 07:53:40 +0000 (UTC)
+        id S239792AbhGLHXU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:23:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95B13613C7;
+        Mon, 12 Jul 2021 07:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076421;
-        bh=oWIVEfJisgjGA/Uk2e+BIdHRCJdQ8T7qzbJPpW+JC2E=;
+        s=korg; t=1626074432;
+        bh=/BCBtkl7NaXw4UWFMgInzPb/9KET5CMUWWPO3DFYbP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKMoqk/Mqjmxsocg19gxsd5WkKy2k4VijTBN/6GktDgPd/o2U6qobhMyUUC4WmHNL
-         KF0RDbm5M0VSdCXmJzzUs3ZRAzH2tsHTKbONSlrIcz2BNgxsnRKysuan+Y0pPx+wpV
-         KKPcfYxyd6r6sQYsUmwtxHuQnv9LIEz9wmfjaibI=
+        b=quREimK4EeDAulggVaC/KTQ4EGqQYZruanm2+a7TIDyeFqsoVgt2rNyD5RDXfvuVD
+         m2i+8Zz4kjh2ctb15NJ++IM19/SivUFpXtBRKST/Gnmzz2IZ4rQWBPtYbG5qmjNvEh
+         gXhtmkvZdEVPMlltTrri8xP5vqcIcdwBDAcaDnoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Hannes Reinecke <hare@suse.de>,
+        Khalid Aziz <khalid.aziz@oracle.com>,
+        Khalid Aziz <khalid@gonehiking.org>,
+        kernel test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 636/800] iio: cros_ec_sensors: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.12 576/700] scsi: FlashPoint: Rename si_flags field
 Date:   Mon, 12 Jul 2021 08:10:59 +0200
-Message-Id: <20210712061034.794414373@linuxfoundation.org>
+Message-Id: <20210712061037.320621053@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +47,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 8dea228b174ac9637b567e5ef54f4c40db4b3c41 ]
+[ Upstream commit 4d431153e751caa93f3b7e6f6313446974e92253 ]
 
-The samples buffer is passed to iio_push_to_buffers_with_timestamp()
-which requires a buffer aligned to 8 bytes as it is assumed that
-the timestamp will be naturally aligned if present.
+The BusLogic driver has build errors on ia64 due to a name collision (in
+the #included FlashPoint.c file). Rename the struct field in struct
+sccb_mgr_info from si_flags to si_mflags (manager flags) to mend the build.
 
-Fixes tag is inaccurate but prior to that likely manual backporting needed
-(for anything before 4.18) Earlier than that the include file to fix is
-drivers/iio/common/cros_ec_sensors/cros_ec_sensors_core.h:
-commit 974e6f02e27 ("iio: cros_ec_sensors_core: Add common functions
-for the ChromeOS EC Sensor Hub.") present since kernel stable 4.10.
-(Thanks to Gwendal for tracking this down)
+This is the first problem. There are 50+ others after this one:
 
-Fixes: 5a0b8cb46624c ("iio: cros_ec: Move cros_ec_sensors_core.h in /include")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Gwendal Grignou <gwendal@chromium.org
-Link: https://lore.kernel.org/r/20210501171352.512953-7-jic23@kernel.org
+In file included from ../include/uapi/linux/signal.h:6,
+                 from ../include/linux/signal_types.h:10,
+                 from ../include/linux/sched.h:29,
+                 from ../include/linux/hardirq.h:9,
+                 from ../include/linux/interrupt.h:11,
+                 from ../drivers/scsi/BusLogic.c:27:
+../arch/ia64/include/uapi/asm/siginfo.h:15:27: error: expected ':', ',', ';', '}' or '__attribute__' before '.' token
+   15 | #define si_flags _sifields._sigfault._flags
+      |                           ^
+../drivers/scsi/FlashPoint.c:43:6: note: in expansion of macro 'si_flags'
+   43 |  u16 si_flags;
+      |      ^~~~~~~~
+In file included from ../drivers/scsi/BusLogic.c:51:
+../drivers/scsi/FlashPoint.c: In function 'FlashPoint_ProbeHostAdapter':
+../drivers/scsi/FlashPoint.c:1076:11: error: 'struct sccb_mgr_info' has no member named '_sifields'
+ 1076 |  pCardInfo->si_flags = 0x0000;
+      |           ^~
+../drivers/scsi/FlashPoint.c:1079:12: error: 'struct sccb_mgr_info' has no member named '_sifields'
+
+Link: https://lore.kernel.org/r/20210529234857.6870-1-rdunlap@infradead.org
+Fixes: 391e2f25601e ("[SCSI] BusLogic: Port driver to 64-bit.")
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Khalid Aziz <khalid.aziz@oracle.com>
+Cc: Khalid Aziz <khalid@gonehiking.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/iio/common/cros_ec_sensors_core.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/FlashPoint.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/include/linux/iio/common/cros_ec_sensors_core.h b/include/linux/iio/common/cros_ec_sensors_core.h
-index 7ce8a8adad58..c582e1a14232 100644
---- a/include/linux/iio/common/cros_ec_sensors_core.h
-+++ b/include/linux/iio/common/cros_ec_sensors_core.h
-@@ -77,7 +77,7 @@ struct cros_ec_sensors_core_state {
- 		u16 scale;
- 	} calib[CROS_EC_SENSOR_MAX_AXIS];
- 	s8 sign[CROS_EC_SENSOR_MAX_AXIS];
--	u8 samples[CROS_EC_SAMPLE_SIZE];
-+	u8 samples[CROS_EC_SAMPLE_SIZE] __aligned(8);
+diff --git a/drivers/scsi/FlashPoint.c b/drivers/scsi/FlashPoint.c
+index 24ace1824048..ec8a621d232d 100644
+--- a/drivers/scsi/FlashPoint.c
++++ b/drivers/scsi/FlashPoint.c
+@@ -40,7 +40,7 @@ struct sccb_mgr_info {
+ 	u16 si_per_targ_ultra_nego;
+ 	u16 si_per_targ_no_disc;
+ 	u16 si_per_targ_wide_nego;
+-	u16 si_flags;
++	u16 si_mflags;
+ 	unsigned char si_card_family;
+ 	unsigned char si_bustype;
+ 	unsigned char si_card_model[3];
+@@ -1073,22 +1073,22 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
+ 		ScamFlg =
+ 		    (unsigned char)FPT_utilEERead(ioport, SCAM_CONFIG / 2);
  
- 	int (*read_ec_sensors_data)(struct iio_dev *indio_dev,
- 				    unsigned long scan_mask, s16 *data);
+-	pCardInfo->si_flags = 0x0000;
++	pCardInfo->si_mflags = 0x0000;
+ 
+ 	if (i & 0x01)
+-		pCardInfo->si_flags |= SCSI_PARITY_ENA;
++		pCardInfo->si_mflags |= SCSI_PARITY_ENA;
+ 
+ 	if (!(i & 0x02))
+-		pCardInfo->si_flags |= SOFT_RESET;
++		pCardInfo->si_mflags |= SOFT_RESET;
+ 
+ 	if (i & 0x10)
+-		pCardInfo->si_flags |= EXTENDED_TRANSLATION;
++		pCardInfo->si_mflags |= EXTENDED_TRANSLATION;
+ 
+ 	if (ScamFlg & SCAM_ENABLED)
+-		pCardInfo->si_flags |= FLAG_SCAM_ENABLED;
++		pCardInfo->si_mflags |= FLAG_SCAM_ENABLED;
+ 
+ 	if (ScamFlg & SCAM_LEVEL2)
+-		pCardInfo->si_flags |= FLAG_SCAM_LEVEL2;
++		pCardInfo->si_mflags |= FLAG_SCAM_LEVEL2;
+ 
+ 	j = (RD_HARPOON(ioport + hp_bm_ctrl) & ~SCSI_TERM_ENA_L);
+ 	if (i & 0x04) {
+@@ -1104,7 +1104,7 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
+ 
+ 	if (!(RD_HARPOON(ioport + hp_page_ctrl) & NARROW_SCSI_CARD))
+ 
+-		pCardInfo->si_flags |= SUPPORT_16TAR_32LUN;
++		pCardInfo->si_mflags |= SUPPORT_16TAR_32LUN;
+ 
+ 	pCardInfo->si_card_family = HARPOON_FAMILY;
+ 	pCardInfo->si_bustype = BUSTYPE_PCI;
+@@ -1140,15 +1140,15 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
+ 
+ 	if (pCardInfo->si_card_model[1] == '3') {
+ 		if (RD_HARPOON(ioport + hp_ee_ctrl) & BIT(7))
+-			pCardInfo->si_flags |= LOW_BYTE_TERM;
++			pCardInfo->si_mflags |= LOW_BYTE_TERM;
+ 	} else if (pCardInfo->si_card_model[2] == '0') {
+ 		temp = RD_HARPOON(ioport + hp_xfer_pad);
+ 		WR_HARPOON(ioport + hp_xfer_pad, (temp & ~BIT(4)));
+ 		if (RD_HARPOON(ioport + hp_ee_ctrl) & BIT(7))
+-			pCardInfo->si_flags |= LOW_BYTE_TERM;
++			pCardInfo->si_mflags |= LOW_BYTE_TERM;
+ 		WR_HARPOON(ioport + hp_xfer_pad, (temp | BIT(4)));
+ 		if (RD_HARPOON(ioport + hp_ee_ctrl) & BIT(7))
+-			pCardInfo->si_flags |= HIGH_BYTE_TERM;
++			pCardInfo->si_mflags |= HIGH_BYTE_TERM;
+ 		WR_HARPOON(ioport + hp_xfer_pad, temp);
+ 	} else {
+ 		temp = RD_HARPOON(ioport + hp_ee_ctrl);
+@@ -1166,9 +1166,9 @@ static int FlashPoint_ProbeHostAdapter(struct sccb_mgr_info *pCardInfo)
+ 		WR_HARPOON(ioport + hp_ee_ctrl, temp);
+ 		WR_HARPOON(ioport + hp_xfer_pad, temp2);
+ 		if (!(temp3 & BIT(7)))
+-			pCardInfo->si_flags |= LOW_BYTE_TERM;
++			pCardInfo->si_mflags |= LOW_BYTE_TERM;
+ 		if (!(temp3 & BIT(6)))
+-			pCardInfo->si_flags |= HIGH_BYTE_TERM;
++			pCardInfo->si_mflags |= HIGH_BYTE_TERM;
+ 	}
+ 
+ 	ARAM_ACCESS(ioport);
+@@ -1275,7 +1275,7 @@ static void *FlashPoint_HardwareResetHostAdapter(struct sccb_mgr_info
+ 	WR_HARPOON(ioport + hp_arb_id, pCardInfo->si_id);
+ 	CurrCard->ourId = pCardInfo->si_id;
+ 
+-	i = (unsigned char)pCardInfo->si_flags;
++	i = (unsigned char)pCardInfo->si_mflags;
+ 	if (i & SCSI_PARITY_ENA)
+ 		WR_HARPOON(ioport + hp_portctrl_1, (HOST_MODE8 | CHK_SCSI_P));
+ 
+@@ -1289,14 +1289,14 @@ static void *FlashPoint_HardwareResetHostAdapter(struct sccb_mgr_info
+ 		j |= SCSI_TERM_ENA_H;
+ 	WR_HARPOON(ioport + hp_ee_ctrl, j);
+ 
+-	if (!(pCardInfo->si_flags & SOFT_RESET)) {
++	if (!(pCardInfo->si_mflags & SOFT_RESET)) {
+ 
+ 		FPT_sresb(ioport, thisCard);
+ 
+ 		FPT_scini(thisCard, pCardInfo->si_id, 0);
+ 	}
+ 
+-	if (pCardInfo->si_flags & POST_ALL_UNDERRRUNS)
++	if (pCardInfo->si_mflags & POST_ALL_UNDERRRUNS)
+ 		CurrCard->globalFlags |= F_NO_FILTER;
+ 
+ 	if (pCurrNvRam) {
 -- 
 2.30.2
 
