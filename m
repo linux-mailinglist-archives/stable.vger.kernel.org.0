@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E293C5198
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 924513C4C0F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244226AbhGLHmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:42:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
+        id S242519AbhGLHBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243505AbhGLHhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:37:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B4C661950;
-        Mon, 12 Jul 2021 07:33:19 +0000 (UTC)
+        id S242900AbhGLHAy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:00:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFA1C613C3;
+        Mon, 12 Jul 2021 06:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075199;
-        bh=VvBNWVfKMUPM1hXDvZqcj89kC+byaY2wtn0l6MzVFvM=;
+        s=korg; t=1626073086;
+        bh=YH8FbVC9ZzzQ95sCWHs8HCUBibhQ/gYCxwml8BfXn8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTu8PB0ay3fqrdpIkEtu+Ftx9/jYbGuNOvH8pYyKjECyL6HlcdqgMECMmh+KwaDT9
-         MZBbsABWv0VzUc1jw5qoGZd8hXcwY/wlLP/qDMJp3mTPR0l0+8I27R5kFMRDcNhh3P
-         RHJkmjJhgsSZJCGpT6F0Bha0qoiHrcxWKY+KOwG0=
+        b=hjvVmiW2htpdbma9VL+JCjTjQDUreU65kRT4PgaHcPi2Rx1GpaL4ry+2cbUcOX889
+         ytA+W0r+hUpd/Wh4e1rBTDT8vn6JK1Da6QS0iZMNkbtlW4B21cs/E4M8PPoKtX9Bxd
+         Y8Srofw5ot1jtFea8K3XGFYahxhrPpgMyagqqx0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 138/800] media: sunxi: fix pm_runtime_get_sync() usage count
-Date:   Mon, 12 Jul 2021 08:02:41 +0200
-Message-Id: <20210712060932.443497392@linuxfoundation.org>
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.12 079/700] f2fs: Prevent swap file in LFS mode
+Date:   Mon, 12 Jul 2021 08:02:42 +0200
+Message-Id: <20210712060935.852615013@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-[ Upstream commit 9c298f82d8392f799a0595f50076afa1d91e9092 ]
+commit d927ccfccb009ede24448d69c08b12e7c8a6979b upstream.
 
-The pm_runtime_get_sync() internally increments the
-dev->power.usage_count without decrementing it, even on errors.
-Replace it by the new pm_runtime_resume_and_get(), introduced by:
-commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-in order to properly decrement the usage counter, avoiding
-a potential PM usage counter leak.
+The kernel writes to swap files on f2fs directly without the assistance
+of the filesystem. This direct write by kernel can be non-sequential
+even when the f2fs is in LFS mode. Such non-sequential write conflicts
+with the LFS semantics. Especially when f2fs is set up on zoned block
+devices, the non-sequential write causes unaligned write command errors.
 
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To avoid the non-sequential writes to swap files, prevent swap file
+activation when the filesystem is in LFS mode.
+
+Fixes: 4969c06a0d83 ("f2fs: support swap file w/ DIO")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: stable@vger.kernel.org # v5.10+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/sunxi/sun8i-rotate/sun8i_rotate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/data.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/platform/sunxi/sun8i-rotate/sun8i_rotate.c b/drivers/media/platform/sunxi/sun8i-rotate/sun8i_rotate.c
-index 3f81dd17755c..fbcca59a0517 100644
---- a/drivers/media/platform/sunxi/sun8i-rotate/sun8i_rotate.c
-+++ b/drivers/media/platform/sunxi/sun8i-rotate/sun8i_rotate.c
-@@ -494,7 +494,7 @@ static int rotate_start_streaming(struct vb2_queue *vq, unsigned int count)
- 		struct device *dev = ctx->dev->dev;
- 		int ret;
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -3971,6 +3971,12 @@ static int f2fs_swap_activate(struct swa
+ 	if (f2fs_readonly(F2FS_I_SB(inode)->sb))
+ 		return -EROFS;
  
--		ret = pm_runtime_get_sync(dev);
-+		ret = pm_runtime_resume_and_get(dev);
- 		if (ret < 0) {
- 			dev_err(dev, "Failed to enable module\n");
- 
--- 
-2.30.2
-
++	if (f2fs_lfs_mode(F2FS_I_SB(inode))) {
++		f2fs_err(F2FS_I_SB(inode),
++			"Swapfile not supported in LFS mode");
++		return -EINVAL;
++	}
++
+ 	ret = f2fs_convert_inline_inode(inode);
+ 	if (ret)
+ 		return ret;
 
 
