@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D29C3C4CCB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4C03C5237
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238718AbhGLHIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40194 "EHLO mail.kernel.org"
+        id S1349962AbhGLHpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243179AbhGLHEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:04:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2DEC611C2;
-        Mon, 12 Jul 2021 07:01:52 +0000 (UTC)
+        id S1349245AbhGLHls (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:41:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AFFC601FE;
+        Mon, 12 Jul 2021 07:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073313;
-        bh=F0ZOtPaLg7ZLUv7+BtbmeLGwPX6I3v75FrJSUcAv5ag=;
+        s=korg; t=1626075539;
+        bh=FYBXNPI5000GtCRWi1TdV8XyZSAiQkkynRDwbj0rBQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AvzXfex61AbWbuRjQ8oJ/dWt1eKNQJ/oWqoTGqsZ4y6xu41PHIJDUmy1XQY0nOp6d
-         FTZlcBe4AH7eIrnHhOsuZkEgNnZ0ch97A1916ZWcMYoxsKhmEb6mH+7v9vZVJXK0pu
-         7usnCnucJs1xLtUqtTYAAoqxRGs0jnbDfu+AxRJM=
+        b=lUFrEURdJEc2swqrlDBCHd8Af8bvpZNa4OsXTn3ni80HkMCGd1AT58iAiNadIx3x/
+         uzHCr4BPujYOzPLZIiyiLZvdsiBGDDNBdefPeXN8UuAzg88evwqc1bQP6VhLNcMfz3
+         NyGOU+G6ZPmV9WSlElCGFTeK+drBsgU71kushILY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 198/700] ACPI: PM: s2idle: Add missing LPS0 functions for AMD
+Subject: [PATCH 5.13 258/800] cifs: fix missing spinlock around update to ses->status
 Date:   Mon, 12 Jul 2021 08:04:41 +0200
-Message-Id: <20210712060954.856229429@linuxfoundation.org>
+Message-Id: <20210712060950.673704786@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit f59a905b962c34642e862b5edec35c0eda72d70d ]
+[ Upstream commit 0060a4f28a9ef45ae8163c0805e944a2b1546762 ]
 
-These are supposedly not required for AMD platforms,
-but at least some HP laptops seem to require it to
-properly turn off the keyboard backlight.
+In the other places where we update ses->status we protect the
+updates via GlobalMid_Lock. So to be consistent add the same
+locking around it in cifs_put_smb_ses where it was missing.
 
-Based on a patch from Marcin Bachry <hegel666@gmail.com>.
-
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1230
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Addresses-Coverity: 1268904 ("Data race condition")
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/s2idle.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/cifs/cifsglob.h | 3 ++-
+ fs/cifs/connect.c  | 5 ++++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
-index 2b69536cdccb..2d7ddb8a8cb6 100644
---- a/drivers/acpi/x86/s2idle.c
-+++ b/drivers/acpi/x86/s2idle.c
-@@ -42,6 +42,8 @@ static const struct acpi_device_id lps0_device_ids[] = {
- 
- /* AMD */
- #define ACPI_LPS0_DSM_UUID_AMD      "e3f32452-febc-43ce-9039-932122d37721"
-+#define ACPI_LPS0_ENTRY_AMD         2
-+#define ACPI_LPS0_EXIT_AMD          3
- #define ACPI_LPS0_SCREEN_OFF_AMD    4
- #define ACPI_LPS0_SCREEN_ON_AMD     5
- 
-@@ -408,6 +410,7 @@ int acpi_s2idle_prepare_late(void)
- 
- 	if (acpi_s2idle_vendor_amd()) {
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_OFF_AMD);
-+		acpi_sleep_run_lps0_dsm(ACPI_LPS0_ENTRY_AMD);
- 	} else {
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_OFF);
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_ENTRY);
-@@ -422,6 +425,7 @@ void acpi_s2idle_restore_early(void)
+diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+index 8488d7024462..706a2aeba1de 100644
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -896,7 +896,7 @@ struct cifs_ses {
+ 	struct mutex session_mutex;
+ 	struct TCP_Server_Info *server;	/* pointer to server info */
+ 	int ses_count;		/* reference counter */
+-	enum statusEnum status;
++	enum statusEnum status;  /* updates protected by GlobalMid_Lock */
+ 	unsigned overrideSecFlg;  /* if non-zero override global sec flags */
+ 	char *serverOS;		/* name of operating system underlying server */
+ 	char *serverNOS;	/* name of network operating system of server */
+@@ -1795,6 +1795,7 @@ require use of the stronger protocol */
+  *	list operations on pending_mid_q and oplockQ
+  *      updates to XID counters, multiplex id  and SMB sequence numbers
+  *      list operations on global DnotifyReqList
++ *      updates to ses->status
+  *  tcp_ses_lock protects:
+  *	list operations on tcp and SMB session lists
+  *  tcon->open_file_lock protects the list of open files hanging off the tcon
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 495c395f9def..eb6c10fa6741 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -1617,9 +1617,12 @@ void cifs_put_smb_ses(struct cifs_ses *ses)
+ 		spin_unlock(&cifs_tcp_ses_lock);
  		return;
+ 	}
++	spin_unlock(&cifs_tcp_ses_lock);
++
++	spin_lock(&GlobalMid_Lock);
+ 	if (ses->status == CifsGood)
+ 		ses->status = CifsExiting;
+-	spin_unlock(&cifs_tcp_ses_lock);
++	spin_unlock(&GlobalMid_Lock);
  
- 	if (acpi_s2idle_vendor_amd()) {
-+		acpi_sleep_run_lps0_dsm(ACPI_LPS0_EXIT_AMD);
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_ON_AMD);
- 	} else {
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_EXIT);
+ 	cifs_free_ipc(ses);
+ 
 -- 
 2.30.2
 
