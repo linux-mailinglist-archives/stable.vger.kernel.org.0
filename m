@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBD343C5292
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D982B3C5601
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242721AbhGLHrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:47:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51092 "EHLO mail.kernel.org"
+        id S1351106AbhGLIND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:13:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345946AbhGLHpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:45:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 638AF613DA;
-        Mon, 12 Jul 2021 07:41:45 +0000 (UTC)
+        id S1355721AbhGLIKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:10:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AD58613D6;
+        Mon, 12 Jul 2021 08:07:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075705;
-        bh=9woMd5Q1TJ4Br7c6mG+NyaMf0CefBOFGC093iL4zKWA=;
+        s=korg; t=1626077248;
+        bh=rHMgeEThFU7Asacvj0hdBeeV4VGoqioVnetuaFcfwyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J77W0TK1yTZXpcjMzoIKx1G9Qp8Qd6B45tceqnMOlzleZYUkTNsdMjVDBhajL8OY8
-         BJn/0EfOyANeGBUgKmgWaBwCv/glPTwVx8WscmJnhW+DzKL+b++WR2UDRHEgCS4pIb
-         qthysTw6w1ACaecY6fPA1/qGmxiFv6P63DCufB3s=
+        b=V98Qweob9sZq6JgESB5EfxjOuYuuicqzLw3UWZQl2RVY+MZEq25MeIWBYv2mAXvDr
+         m1mbuiE2txdtDRyIRmmZLJAk6giPMelx9fJ2ao6f8EZ/Fjv7msMx6NvjwOeD/rRV/O
+         M1TV8vDSylQZehzjQFKfWmBLFpnjTvf4UFlte7Ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 292/800] regulator: bd71815: add select to fix build
-Date:   Mon, 12 Jul 2021 08:05:15 +0200
-Message-Id: <20210712060956.092023386@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, Chen <leo881003@gmail.com>
+Subject: [PATCH 5.12 233/700] ACPI: EC: trust DSDT GPE for certain HP laptop
+Date:   Mon, 12 Jul 2021 08:05:16 +0200
+Message-Id: <20210712060959.833218364@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Zhang Rui <rui.zhang@intel.com>
 
-[ Upstream commit 5ba3747dbc9ade2d22a8f5bff3c928cb41d35030 ]
+[ Upstream commit 4370cbf350dbaca984dbda9f9ce3fac45d6949d5 ]
 
-Mend the Kconfig for REGULATOR_BD71815 to prevent build errors:
+On HP Pavilion Gaming Laptop 15-cx0xxx, the ECDT EC and DSDT EC share
+the same port addresses but different GPEs. And the DSDT GPE is the
+right one to use.
 
-riscv32-linux-ld: drivers/regulator/bd71815-regulator.o: in function `.L0 ':
-regulator.c:289: undefined reference to `rohm_regulator_set_dvs_levels'
-riscv32-linux-ld: drivers/regulator/bd71815-regulator.c:370: undefined reference to `rohm_regulator_set_dvs_levels'
+The current code duplicates DSDT EC with ECDT EC if the port addresses
+are the same, and uses ECDT GPE as a result, which breaks this machine.
 
-Fixes: 1aad39001e85 ("regulator: Support ROHM BD71815 regulators")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Link: https://lore.kernel.org/r/20210523001427.13500-1-rdunlap@infradead.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Introduce a new quirk for the HP laptop to trust the DSDT GPE,
+and avoid duplicating even if the port addresses are the same.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209989
+Reported-and-tested-by: Shao Fu, Chen <leo881003@gmail.com>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/ec.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index 3e7a38525cb3..fc9e8f589d16 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -207,6 +207,7 @@ config REGULATOR_BD70528
- config REGULATOR_BD71815
- 	tristate "ROHM BD71815 Power Regulator"
- 	depends on MFD_ROHM_BD71828
-+	select REGULATOR_ROHM
- 	help
- 	  This driver supports voltage regulators on ROHM BD71815 PMIC.
- 	  This will enable support for the software controllable buck
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index e8c5da2b964a..87c3b4a099b9 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -183,6 +183,7 @@ static struct workqueue_struct *ec_query_wq;
+ 
+ static int EC_FLAGS_CORRECT_ECDT; /* Needs ECDT port address correction */
+ static int EC_FLAGS_IGNORE_DSDT_GPE; /* Needs ECDT GPE as correction setting */
++static int EC_FLAGS_TRUST_DSDT_GPE; /* Needs DSDT GPE as correction setting */
+ static int EC_FLAGS_CLEAR_ON_RESUME; /* Needs acpi_ec_clear() on boot/resume */
+ 
+ /* --------------------------------------------------------------------------
+@@ -1593,7 +1594,8 @@ static int acpi_ec_add(struct acpi_device *device)
+ 		}
+ 
+ 		if (boot_ec && ec->command_addr == boot_ec->command_addr &&
+-		    ec->data_addr == boot_ec->data_addr) {
++		    ec->data_addr == boot_ec->data_addr &&
++		    !EC_FLAGS_TRUST_DSDT_GPE) {
+ 			/*
+ 			 * Trust PNP0C09 namespace location rather than
+ 			 * ECDT ID. But trust ECDT GPE rather than _GPE
+@@ -1816,6 +1818,18 @@ static int ec_correct_ecdt(const struct dmi_system_id *id)
+ 	return 0;
+ }
+ 
++/*
++ * Some ECDTs contain wrong GPE setting, but they share the same port addresses
++ * with DSDT EC, don't duplicate the DSDT EC with ECDT EC in this case.
++ * https://bugzilla.kernel.org/show_bug.cgi?id=209989
++ */
++static int ec_honor_dsdt_gpe(const struct dmi_system_id *id)
++{
++	pr_debug("Detected system needing DSDT GPE setting.\n");
++	EC_FLAGS_TRUST_DSDT_GPE = 1;
++	return 0;
++}
++
+ /*
+  * Some DSDTs contain wrong GPE setting.
+  * Asus FX502VD/VE, GL702VMK, X550VXK, X580VD
+@@ -1870,6 +1884,11 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 	DMI_MATCH(DMI_PRODUCT_NAME, "X580VD"),}, NULL},
+ 	{
++	/* https://bugzilla.kernel.org/show_bug.cgi?id=209989 */
++	ec_honor_dsdt_gpe, "HP Pavilion Gaming Laptop 15-cx0xxx", {
++	DMI_MATCH(DMI_SYS_VENDOR, "HP"),
++	DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion Gaming Laptop 15-cx0xxx"),}, NULL},
++	{
+ 	ec_clear_on_resume, "Samsung hardware", {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD.")}, NULL},
+ 	{},
 -- 
 2.30.2
 
