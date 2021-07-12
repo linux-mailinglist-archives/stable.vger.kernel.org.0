@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4BD3C49CF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8EF13C53D6
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238107AbhGLGqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39704 "EHLO mail.kernel.org"
+        id S1348807AbhGLH4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237165AbhGLGqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:46:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9246D60241;
-        Mon, 12 Jul 2021 06:41:39 +0000 (UTC)
+        id S1350734AbhGLHvO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93BBC61182;
+        Mon, 12 Jul 2021 07:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072100;
-        bh=5BwWrnZihWq2PjnqCkfMG+aa2kj/+m5UOLnqEL99zKU=;
+        s=korg; t=1626076086;
+        bh=dvXbd3fSMyubVxYgqTPS5gQVYHPba5rqS1s6OinuAA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAfCtzFAKkME24g/ROMLBLkGUGfilw9TlxFByyiZZMBjnUcNPXydW81O/hK7euzNB
-         SStLcim5NbxU0bPtziwqBxjUmxK69UmAJfFPs7fak97jYnugaCsO/zXatmaDMtCtNY
-         jhMHh8uHJ7LgFY7mgHtikJCW0GA7GfskPkhMZBWo=
+        b=dpYanlQGaG+3ZcnQI2ckFjWlQGom8mR3F6hkLrEBrXt0kb9vYdCnJfDPkOOstfRBQ
+         4mS+Na7c8fM3cYi7g1ehrDugps0pyi8ytFeb0mwQ9U23+t/R/ym1FfkAjyRLgPln55
+         VHjAOt+JHziYGD5CfbZzJbgn2KnrzAlMua2xC9sI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Liu Shixin <liushixin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 355/593] netlabel: Fix memory leak in netlbl_mgmt_add_common
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 492/800] mt76: mt7921: Dont alter Rx path classifier
 Date:   Mon, 12 Jul 2021 08:08:35 +0200
-Message-Id: <20210712060925.376783257@linuxfoundation.org>
+Message-Id: <20210712061019.504753375@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,112 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit b8f6b0522c298ae9267bd6584e19b942a0636910 ]
+[ Upstream commit 2c80c02a682aefc073df2cfbb48c77c74579cb4a ]
 
-Hulk Robot reported memory leak in netlbl_mgmt_add_common.
-The problem is non-freed map in case of netlbl_domhsh_add() failed.
+Keep Rx path classifier the mt7921 firmware prefers to allow frames pass
+through MCU.
 
-BUG: memory leak
-unreferenced object 0xffff888100ab7080 (size 96):
-  comm "syz-executor537", pid 360, jiffies 4294862456 (age 22.678s)
-  hex dump (first 32 bytes):
-    05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    fe 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01  ................
-  backtrace:
-    [<0000000008b40026>] netlbl_mgmt_add_common.isra.0+0xb2a/0x1b40
-    [<000000003be10950>] netlbl_mgmt_add+0x271/0x3c0
-    [<00000000c70487ed>] genl_family_rcv_msg_doit.isra.0+0x20e/0x320
-    [<000000001f2ff614>] genl_rcv_msg+0x2bf/0x4f0
-    [<0000000089045792>] netlink_rcv_skb+0x134/0x3d0
-    [<0000000020e96fdd>] genl_rcv+0x24/0x40
-    [<0000000042810c66>] netlink_unicast+0x4a0/0x6a0
-    [<000000002e1659f0>] netlink_sendmsg+0x789/0xc70
-    [<000000006e43415f>] sock_sendmsg+0x139/0x170
-    [<00000000680a73d7>] ____sys_sendmsg+0x658/0x7d0
-    [<0000000065cbb8af>] ___sys_sendmsg+0xf8/0x170
-    [<0000000019932b6c>] __sys_sendmsg+0xd3/0x190
-    [<00000000643ac172>] do_syscall_64+0x37/0x90
-    [<000000009b79d6dc>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 63c416887437 ("netlabel: Add network address selectors to the NetLabel/LSM domain mapping")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5c14a5f944b9 ("mt76: mt7921: introduce mt7921e support")
+Reviewed-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlabel/netlabel_mgmt.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ .../net/wireless/mediatek/mt76/mt7921/init.c   | 18 ------------------
+ 1 file changed, 18 deletions(-)
 
-diff --git a/net/netlabel/netlabel_mgmt.c b/net/netlabel/netlabel_mgmt.c
-index eb1d66d20afb..02a97bca1a1a 100644
---- a/net/netlabel/netlabel_mgmt.c
-+++ b/net/netlabel/netlabel_mgmt.c
-@@ -76,6 +76,7 @@ static const struct nla_policy netlbl_mgmt_genl_policy[NLBL_MGMT_A_MAX + 1] = {
- static int netlbl_mgmt_add_common(struct genl_info *info,
- 				  struct netlbl_audit *audit_info)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/init.c b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
+index 1763ea0614ce..b85e46f5820f 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
+@@ -116,30 +116,12 @@ mt7921_init_wiphy(struct ieee80211_hw *hw)
+ static void
+ mt7921_mac_init_band(struct mt7921_dev *dev, u8 band)
  {
-+	void *pmap = NULL;
- 	int ret_val = -EINVAL;
- 	struct netlbl_domaddr_map *addrmap = NULL;
- 	struct cipso_v4_doi *cipsov4 = NULL;
-@@ -175,6 +176,7 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 			ret_val = -ENOMEM;
- 			goto add_free_addrmap;
- 		}
-+		pmap = map;
- 		map->list.addr = addr->s_addr & mask->s_addr;
- 		map->list.mask = mask->s_addr;
- 		map->list.valid = 1;
-@@ -183,10 +185,8 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 			map->def.cipso = cipsov4;
+-	u32 mask, set;
+-
+ 	mt76_rmw_field(dev, MT_TMAC_CTCR0(band),
+ 		       MT_TMAC_CTCR0_INS_DDLMT_REFTIME, 0x3f);
+ 	mt76_set(dev, MT_TMAC_CTCR0(band),
+ 		 MT_TMAC_CTCR0_INS_DDLMT_VHT_SMPDU_EN |
+ 		 MT_TMAC_CTCR0_INS_DDLMT_EN);
  
- 		ret_val = netlbl_af4list_add(&map->list, &addrmap->list4);
--		if (ret_val != 0) {
--			kfree(map);
--			goto add_free_addrmap;
--		}
-+		if (ret_val != 0)
-+			goto add_free_map;
+-	mask = MT_MDP_RCFR0_MCU_RX_MGMT |
+-	       MT_MDP_RCFR0_MCU_RX_CTL_NON_BAR |
+-	       MT_MDP_RCFR0_MCU_RX_CTL_BAR;
+-	set = FIELD_PREP(MT_MDP_RCFR0_MCU_RX_MGMT, MT_MDP_TO_HIF) |
+-	      FIELD_PREP(MT_MDP_RCFR0_MCU_RX_CTL_NON_BAR, MT_MDP_TO_HIF) |
+-	      FIELD_PREP(MT_MDP_RCFR0_MCU_RX_CTL_BAR, MT_MDP_TO_HIF);
+-	mt76_rmw(dev, MT_MDP_BNRCFR0(band), mask, set);
+-
+-	mask = MT_MDP_RCFR1_MCU_RX_BYPASS |
+-	       MT_MDP_RCFR1_RX_DROPPED_UCAST |
+-	       MT_MDP_RCFR1_RX_DROPPED_MCAST;
+-	set = FIELD_PREP(MT_MDP_RCFR1_MCU_RX_BYPASS, MT_MDP_TO_HIF) |
+-	      FIELD_PREP(MT_MDP_RCFR1_RX_DROPPED_UCAST, MT_MDP_TO_HIF) |
+-	      FIELD_PREP(MT_MDP_RCFR1_RX_DROPPED_MCAST, MT_MDP_TO_HIF);
+-	mt76_rmw(dev, MT_MDP_BNRCFR1(band), mask, set);
+-
+ 	mt76_set(dev, MT_WF_RMAC_MIB_TIME0(band), MT_WF_RMAC_MIB_RXTIME_EN);
+ 	mt76_set(dev, MT_WF_RMAC_MIB_AIRTIME0(band), MT_WF_RMAC_MIB_RXTIME_EN);
  
- 		entry->family = AF_INET;
- 		entry->def.type = NETLBL_NLTYPE_ADDRSELECT;
-@@ -223,6 +223,7 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 			ret_val = -ENOMEM;
- 			goto add_free_addrmap;
- 		}
-+		pmap = map;
- 		map->list.addr = *addr;
- 		map->list.addr.s6_addr32[0] &= mask->s6_addr32[0];
- 		map->list.addr.s6_addr32[1] &= mask->s6_addr32[1];
-@@ -235,10 +236,8 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 			map->def.calipso = calipso;
- 
- 		ret_val = netlbl_af6list_add(&map->list, &addrmap->list6);
--		if (ret_val != 0) {
--			kfree(map);
--			goto add_free_addrmap;
--		}
-+		if (ret_val != 0)
-+			goto add_free_map;
- 
- 		entry->family = AF_INET6;
- 		entry->def.type = NETLBL_NLTYPE_ADDRSELECT;
-@@ -248,10 +247,12 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 
- 	ret_val = netlbl_domhsh_add(entry, audit_info);
- 	if (ret_val != 0)
--		goto add_free_addrmap;
-+		goto add_free_map;
- 
- 	return 0;
- 
-+add_free_map:
-+	kfree(pmap);
- add_free_addrmap:
- 	kfree(addrmap);
- add_doi_put_def:
 -- 
 2.30.2
 
