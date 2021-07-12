@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 517B83C48BF
+	by mail.lfdr.de (Postfix) with ESMTP id E2E173C48C1
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236241AbhGLGkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35158 "EHLO mail.kernel.org"
+        id S236335AbhGLGku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238285AbhGLGkE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7AFE610A7;
-        Mon, 12 Jul 2021 06:36:53 +0000 (UTC)
+        id S238329AbhGLGkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3392C610FB;
+        Mon, 12 Jul 2021 06:36:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071814;
-        bh=y5VGwTrzuQwT2plzHSrl2/5rCfn4r0bcXrI0UDrKkDk=;
+        s=korg; t=1626071816;
+        bh=eBswLedJYx/ZLEIT8tcmKoRHn3htzjnt1RXCAbktCrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SSD9y2eryhAnpyzsuCBbznUSftOfH++hycoSzc7WvtHeFjbI6Vu3hkMwTENFvYYBQ
-         uYXix81YGcEOARhVVV0BLKtrDFV+XhQ2XLjx4wf8zzTuHYmGva7cvbFVL++IvCLcB5
-         jlSK3AjpJR0AzYvQExQHmFIl+nbsyrT+azzka8Ac=
+        b=TIHq1u9Kxk8udv3McrRcP/j18VRv8WKwpuFIIQiQK9aP1AdMsp/ZL819dkjR2vl3+
+         DZ7RClSiSofg+n66DtnDgiH5t8Co1A/23q+qRE+mRx2+pehbROw4H9ieZqzDvAbeEy
+         XpzoOCahUATl75xxAEIRwoSPC5kSouJp3ISoLA+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 230/593] pata_ep93xx: fix deferred probing
-Date:   Mon, 12 Jul 2021 08:06:30 +0200
-Message-Id: <20210712060908.230036067@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Waiman Long <longman@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 231/593] locking/lockdep: Reduce LOCKDEP dependency list
+Date:   Mon, 12 Jul 2021 08:06:31 +0200
+Message-Id: <20210712060908.330626233@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -39,36 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 5c8121262484d99bffb598f39a0df445cecd8efb ]
+[ Upstream commit b8e00abe7d9fe21dd13609e2e3a707e38902b105 ]
 
-The driver overrides the error codes returned by platform_get_irq() to
--ENXIO, so if it returns -EPROBE_DEFER, the driver would fail the probe
-permanently instead of the deferred probing.  Propagate the error code
-upstream, as it should have been done from the start...
+Some arches (um, sparc64, riscv, xtensa) cause a Kconfig warning for
+LOCKDEP.
+These arch-es select LOCKDEP_SUPPORT but they are not listed as one
+of the arch-es that LOCKDEP depends on.
 
-Fixes: 2fff27512600 ("PATA host controller driver for ep93xx")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/509fda88-2e0d-2cc7-f411-695d7e94b136@omprussia.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Since (16) arch-es define the Kconfig symbol LOCKDEP_SUPPORT if they
+intend to have LOCKDEP support, replace the awkward list of
+arch-es that LOCKDEP depends on with the LOCKDEP_SUPPORT symbol.
+
+But wait. LOCKDEP_SUPPORT is included in LOCK_DEBUGGING_SUPPORT,
+which is already a dependency here, so LOCKDEP_SUPPORT is redundant
+and not needed.
+That leaves the FRAME_POINTER dependency, but it is part of an
+expression like this:
+	depends on (A && B) && (FRAME_POINTER || B')
+where B' is a dependency of B so if B is true then B' is true
+and the value of FRAME_POINTER does not matter.
+Thus we can also delete the FRAME_POINTER dependency.
+
+Fixes this kconfig warning: (for um, sparc64, riscv, xtensa)
+
+WARNING: unmet direct dependencies detected for LOCKDEP
+  Depends on [n]: DEBUG_KERNEL [=y] && LOCK_DEBUGGING_SUPPORT [=y] && (FRAME_POINTER [=n] || MIPS || PPC || S390 || MICROBLAZE || ARM || ARC || X86)
+  Selected by [y]:
+  - PROVE_LOCKING [=y] && DEBUG_KERNEL [=y] && LOCK_DEBUGGING_SUPPORT [=y]
+  - LOCK_STAT [=y] && DEBUG_KERNEL [=y] && LOCK_DEBUGGING_SUPPORT [=y]
+  - DEBUG_LOCK_ALLOC [=y] && DEBUG_KERNEL [=y] && LOCK_DEBUGGING_SUPPORT [=y]
+
+Fixes: 7d37cb2c912d ("lib: fix kconfig dependency on ARCH_WANT_FRAME_POINTERS")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Link: https://lkml.kernel.org/r/20210524224150.8009-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_ep93xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/Kconfig.debug | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
-index badab6708893..46208ececbb6 100644
---- a/drivers/ata/pata_ep93xx.c
-+++ b/drivers/ata/pata_ep93xx.c
-@@ -928,7 +928,7 @@ static int ep93xx_pata_probe(struct platform_device *pdev)
- 	/* INT[3] (IRQ_EP93XX_EXT3) line connected as pull down */
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
--		err = -ENXIO;
-+		err = irq;
- 		goto err_rel_gpio;
- 	}
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index dcf4a9028e16..5b7f88a2876d 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1302,7 +1302,6 @@ config LOCKDEP
+ 	bool
+ 	depends on DEBUG_KERNEL && LOCK_DEBUGGING_SUPPORT
+ 	select STACKTRACE
+-	depends on FRAME_POINTER || MIPS || PPC || S390 || MICROBLAZE || ARM || ARC || X86
+ 	select KALLSYMS
+ 	select KALLSYMS_ALL
  
 -- 
 2.30.2
