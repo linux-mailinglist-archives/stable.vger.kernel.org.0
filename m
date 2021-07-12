@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 922CB3C490A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3A53C5358
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237320AbhGLGlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
+        id S1352304AbhGLHyf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238504AbhGLGkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A6F86052B;
-        Mon, 12 Jul 2021 06:37:28 +0000 (UTC)
+        id S1350027AbhGLHu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:50:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8921D61167;
+        Mon, 12 Jul 2021 07:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071849;
-        bh=8sHLODwNgxAOO6mCyft9rWozkeNFZT2RKo4VMIWnhQM=;
+        s=korg; t=1626075834;
+        bh=DI85jrh6jI6rlWV6vSxhXIg/URZ7OpJlAAKIjgeZ6o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2m6Lnxv3EL0FWLu9sfPjMQ6ohW70oppqcJjTbr4K+4ckp5TNM9GKtvn/3bUqfSbEl
-         J6hoxBI1huQfCFe5CJH/T/otBvtpdcODGgHY3xiKzdMpbTOfMklpfOYJCx4D4F70pU
-         2OZlqY5wFaPyLcizPgPiMZHgac9dyq3dBd/5j4Es=
+        b=t5ecBDsuotNTNmxOc3jIcLyeMuS6pabYYxKzB4hUUPMu74u5HkwrAPPanEaBe09ix
+         wStk9bAYzmJ5MuZ0w+ufRu7QFWSTDximG5n2LMEyCt4LHTSxG64Mp9RXDwUreXFzl/
+         JsdznV/Le0br7upQ07rzHhk11YlPKL4tMG2/Ub3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Xuewen Yan <xuewen.yan94@gmail.com>,
+        Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 204/593] mailbox: qcom: Use PLATFORM_DEVID_AUTO to register platform device
+Subject: [PATCH 5.13 341/800] sched/uclamp: Fix uclamp_tg_restrict()
 Date:   Mon, 12 Jul 2021 08:06:04 +0200
-Message-Id: <20210712060905.449972659@linuxfoundation.org>
+Message-Id: <20210712061003.129315537@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Guo <shawn.guo@linaro.org>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 96e39e95c01283ff5695dafe659df88ada802159 ]
+[ Upstream commit 0213b7083e81f4acd69db32cb72eb4e5f220329a ]
 
-In adding APCS clock support for MSM8939, the second clock registration
-fails due to duplicate device name like below.
+Now cpu.uclamp.min acts as a protection, we need to make sure that the
+uclamp request of the task is within the allowed range of the cgroup,
+that is it is clamp()'ed correctly by tg->uclamp[UCLAMP_MIN] and
+tg->uclamp[UCLAMP_MAX].
 
-[    0.519657] sysfs: cannot create duplicate filename '/bus/platform/devices/qcom-apcs-msm8916-clk'
-...
-[    0.661158] qcom_apcs_ipc b111000.mailbox: failed to register APCS clk
+As reported by Xuewen [1] we can have some corner cases where there's
+inversion between uclamp requested by task (p) and the uclamp values of
+the taskgroup it's attached to (tg). Following table demonstrates
+2 corner cases:
 
-This is because MSM8939 has 3 APCS instances for Cluster0 (little cores),
-Cluster1 (big cores) and CCI (Cache Coherent Interconnect).  Although
-only APCS of Cluster0 and Cluster1 have IPC bits, each of 3 APCS has
-A53PLL clock control bits.  That said, 3 'qcom-apcs-msm8916-clk' devices
-need to be registered to instantiate all 3 clocks.  Use PLATFORM_DEVID_AUTO
-rather than PLATFORM_DEVID_NONE for platform_device_register_data() call
-to fix the issue above.
+	           |  p  |  tg  |  effective
+	-----------+-----+------+-----------
+	CASE 1
+	-----------+-----+------+-----------
+	uclamp_min | 60% | 0%   |  60%
+	-----------+-----+------+-----------
+	uclamp_max | 80% | 50%  |  50%
+	-----------+-----+------+-----------
+	CASE 2
+	-----------+-----+------+-----------
+	uclamp_min | 0%  | 30%  |  30%
+	-----------+-----+------+-----------
+	uclamp_max | 20% | 50%  |  20%
+	-----------+-----+------+-----------
 
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+With this fix we get:
+
+	           |  p  |  tg  |  effective
+	-----------+-----+------+-----------
+	CASE 1
+	-----------+-----+------+-----------
+	uclamp_min | 60% | 0%   |  50%
+	-----------+-----+------+-----------
+	uclamp_max | 80% | 50%  |  50%
+	-----------+-----+------+-----------
+	CASE 2
+	-----------+-----+------+-----------
+	uclamp_min | 0%  | 30%  |  30%
+	-----------+-----+------+-----------
+	uclamp_max | 20% | 50%  |  30%
+	-----------+-----+------+-----------
+
+Additionally uclamp_update_active_tasks() must now unconditionally
+update both UCLAMP_MIN/MAX because changing the tg's UCLAMP_MAX for
+instance could have an impact on the effective UCLAMP_MIN of the tasks.
+
+	           |  p  |  tg  |  effective
+	-----------+-----+------+-----------
+	old
+	-----------+-----+------+-----------
+	uclamp_min | 60% | 0%   |  50%
+	-----------+-----+------+-----------
+	uclamp_max | 80% | 50%  |  50%
+	-----------+-----+------+-----------
+	*new*
+	-----------+-----+------+-----------
+	uclamp_min | 60% | 0%   | *60%*
+	-----------+-----+------+-----------
+	uclamp_max | 80% |*70%* | *70%*
+	-----------+-----+------+-----------
+
+[1] https://lore.kernel.org/lkml/CAB8ipk_a6VFNjiEnHRHkUMBKbA+qzPQvhtNjJ_YNzQhqV_o8Zw@mail.gmail.com/
+
+Fixes: 0c18f2ecfcc2 ("sched/uclamp: Fix wrong implementation of cpu.uclamp.min")
+Reported-by: Xuewen Yan <xuewen.yan94@gmail.com>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210617165155.3774110-1-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/qcom-apcs-ipc-mailbox.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/core.c | 49 +++++++++++++++++----------------------------
+ 1 file changed, 18 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/mailbox/qcom-apcs-ipc-mailbox.c b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
-index 077e5c6a9ef7..3d100a004760 100644
---- a/drivers/mailbox/qcom-apcs-ipc-mailbox.c
-+++ b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
-@@ -128,7 +128,7 @@ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
- 	if (apcs_data->clk_name) {
- 		apcs->clk = platform_device_register_data(&pdev->dev,
- 							  apcs_data->clk_name,
--							  PLATFORM_DEVID_NONE,
-+							  PLATFORM_DEVID_AUTO,
- 							  NULL, 0);
- 		if (IS_ERR(apcs->clk))
- 			dev_err(&pdev->dev, "failed to register APCS clk\n");
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 6e0ebc0781d1..e5858999b54d 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1065,8 +1065,10 @@ static void uclamp_sync_util_min_rt_default(void)
+ static inline struct uclamp_se
+ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
+ {
++	/* Copy by value as we could modify it */
+ 	struct uclamp_se uc_req = p->uclamp_req[clamp_id];
+ #ifdef CONFIG_UCLAMP_TASK_GROUP
++	unsigned int tg_min, tg_max, value;
+ 
+ 	/*
+ 	 * Tasks in autogroups or root task group will be
+@@ -1077,23 +1079,11 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
+ 	if (task_group(p) == &root_task_group)
+ 		return uc_req;
+ 
+-	switch (clamp_id) {
+-	case UCLAMP_MIN: {
+-		struct uclamp_se uc_min = task_group(p)->uclamp[clamp_id];
+-		if (uc_req.value < uc_min.value)
+-			return uc_min;
+-		break;
+-	}
+-	case UCLAMP_MAX: {
+-		struct uclamp_se uc_max = task_group(p)->uclamp[clamp_id];
+-		if (uc_req.value > uc_max.value)
+-			return uc_max;
+-		break;
+-	}
+-	default:
+-		WARN_ON_ONCE(1);
+-		break;
+-	}
++	tg_min = task_group(p)->uclamp[UCLAMP_MIN].value;
++	tg_max = task_group(p)->uclamp[UCLAMP_MAX].value;
++	value = uc_req.value;
++	value = clamp(value, tg_min, tg_max);
++	uclamp_se_set(&uc_req, value, false);
+ #endif
+ 
+ 	return uc_req;
+@@ -1292,8 +1282,9 @@ static inline void uclamp_rq_dec(struct rq *rq, struct task_struct *p)
+ }
+ 
+ static inline void
+-uclamp_update_active(struct task_struct *p, enum uclamp_id clamp_id)
++uclamp_update_active(struct task_struct *p)
+ {
++	enum uclamp_id clamp_id;
+ 	struct rq_flags rf;
+ 	struct rq *rq;
+ 
+@@ -1313,9 +1304,11 @@ uclamp_update_active(struct task_struct *p, enum uclamp_id clamp_id)
+ 	 * affecting a valid clamp bucket, the next time it's enqueued,
+ 	 * it will already see the updated clamp bucket value.
+ 	 */
+-	if (p->uclamp[clamp_id].active) {
+-		uclamp_rq_dec_id(rq, p, clamp_id);
+-		uclamp_rq_inc_id(rq, p, clamp_id);
++	for_each_clamp_id(clamp_id) {
++		if (p->uclamp[clamp_id].active) {
++			uclamp_rq_dec_id(rq, p, clamp_id);
++			uclamp_rq_inc_id(rq, p, clamp_id);
++		}
+ 	}
+ 
+ 	task_rq_unlock(rq, p, &rf);
+@@ -1323,20 +1316,14 @@ uclamp_update_active(struct task_struct *p, enum uclamp_id clamp_id)
+ 
+ #ifdef CONFIG_UCLAMP_TASK_GROUP
+ static inline void
+-uclamp_update_active_tasks(struct cgroup_subsys_state *css,
+-			   unsigned int clamps)
++uclamp_update_active_tasks(struct cgroup_subsys_state *css)
+ {
+-	enum uclamp_id clamp_id;
+ 	struct css_task_iter it;
+ 	struct task_struct *p;
+ 
+ 	css_task_iter_start(css, 0, &it);
+-	while ((p = css_task_iter_next(&it))) {
+-		for_each_clamp_id(clamp_id) {
+-			if ((0x1 << clamp_id) & clamps)
+-				uclamp_update_active(p, clamp_id);
+-		}
+-	}
++	while ((p = css_task_iter_next(&it)))
++		uclamp_update_active(p);
+ 	css_task_iter_end(&it);
+ }
+ 
+@@ -8835,7 +8822,7 @@ static void cpu_util_update_eff(struct cgroup_subsys_state *css)
+ 		}
+ 
+ 		/* Immediately update descendants RUNNABLE tasks */
+-		uclamp_update_active_tasks(css, clamps);
++		uclamp_update_active_tasks(css);
+ 	}
+ }
+ 
 -- 
 2.30.2
 
