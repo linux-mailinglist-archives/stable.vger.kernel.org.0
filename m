@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7A143C4E30
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FAEF3C53B5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243830AbhGLHRL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:17:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49360 "EHLO mail.kernel.org"
+        id S1348463AbhGLHzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:55:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241809AbhGLHQf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:16:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 627386143D;
-        Mon, 12 Jul 2021 07:13:33 +0000 (UTC)
+        id S1350636AbhGLHvM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 579C761C1B;
+        Mon, 12 Jul 2021 07:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074014;
-        bh=0FprIICP4/Q+6zNTs8COhv4QIVgzEv6vhWyXc7wABuY=;
+        s=korg; t=1626076008;
+        bh=vxxzwghUPvKWL6mkxNTfK5I1Ix+Oc8iWfuFb8y6GI/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBijpt5bGkVKX7RFvrM5Ejkm9b3BTDF1X2srudHaT7WB6X9IpSLLppYgXNvuWsEsO
-         vbg3MTXXtqVdZBvhjrz4YRtdhtxPQdmnOY7KdI4TsD5kVM17dyonCKTKIE+uk8GvIW
-         kKzZ4d809NfjOV9RcTdOp+9aapGn4700Pn/moggE=
+        b=MBzJvBOOx6mGUU+WcezoAUyAjJQhcRA9zh5AJBPsL/i4Z7D38GYzpSM9Ex0nweQCR
+         PjG/lUeOWNtGDy8lQjPnf9qXBWzSAbvEzWMzpvaFsL0D0/8u9f0V7NzccCTzrrQQug
+         oBtliTo9QCvILdaQ4EnjVyORUUqbsMiIgxnNKSSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>,
-        Adam Ford <aford173@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 398/700] clk: vc5: fix output disabling when enabling a FOD
+Subject: [PATCH 5.13 458/800] wcn36xx: Move hal_buf allocation to devm_kmalloc in probe
 Date:   Mon, 12 Jul 2021 08:08:01 +0200
-Message-Id: <20210712061018.716402301@linuxfoundation.org>
+Message-Id: <20210712061015.891051522@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,107 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca@lucaceresoli.net>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit fc336ae622df0ec114dbe5551a4d2760c535ecd0 ]
+[ Upstream commit ef48667557c53d4b51a1ee3090eab7699324c9de ]
 
-On 5P49V6965, when an output is enabled we enable the corresponding
-FOD. When this happens for the first time, and specifically when writing
-register VC5_OUT_DIV_CONTROL in vc5_clk_out_prepare(), all other outputs
-are stopped for a short time and then restarted.
+Right now wcn->hal_buf is allocated in wcn36xx_start(). This is a problem
+since we should have setup all of the buffers we required by the time
+ieee80211_register_hw() is called.
 
-According to Renesas support this is intended: "The reason for that is VC6E
-has synced up all output function".
+struct ieee80211_ops callbacks may run prior to mac_start() and therefore
+wcn->hal_buf must be initialized.
 
-This behaviour can be disabled at least on VersaClock 6E devices, of which
-only the 5P49V6965 is currently implemented by this driver. This requires
-writing bit 7 (bypass_sync{1..4}) in register 0x20..0x50.  Those registers
-are named "Unused Factory Reserved Register", and the bits are documented
-as "Skip VDDO<N> verification", which does not clearly explain the relation
-to FOD sync. However according to Renesas support as well as my testing
-setting this bit does prevent disabling of all clock outputs when enabling
-a FOD.
+This is easily remediated by moving the allocation to probe() taking the
+opportunity to tidy up freeing memory by using devm_kmalloc().
 
-See "VersaClock ® 6E Family Register Descriptions and Programming Guide"
-(August 30, 2018), Table 116 "Power Up VDD check", page 58:
-https://www.renesas.com/us/en/document/mau/versaclock-6e-family-register-descriptions-and-programming-guide
-
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Reviewed-by: Adam Ford <aford173@gmail.com>
-Link: https://lore.kernel.org/r/20210527211647.1520720-1-luca@lucaceresoli.net
-Fixes: 2bda748e6ad8 ("clk: vc5: Add support for IDT VersaClock 5P49V6965")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210605173347.2266003-1-bryan.odonoghue@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-versaclock5.c | 27 ++++++++++++++++++++++++---
- 1 file changed, 24 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/wcn36xx/main.c | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/clk/clk-versaclock5.c b/drivers/clk/clk-versaclock5.c
-index 344cd6c61188..3c737742c2a9 100644
---- a/drivers/clk/clk-versaclock5.c
-+++ b/drivers/clk/clk-versaclock5.c
-@@ -69,7 +69,10 @@
- #define VC5_FEEDBACK_FRAC_DIV(n)		(0x19 + (n))
- #define VC5_RC_CONTROL0				0x1e
- #define VC5_RC_CONTROL1				0x1f
--/* Register 0x20 is factory reserved */
-+
-+/* These registers are named "Unused Factory Reserved Registers" */
-+#define VC5_RESERVED_X0(idx)		(0x20 + ((idx) * 0x10))
-+#define VC5_RESERVED_X0_BYPASS_SYNC	BIT(7) /* bypass_sync<idx> bit */
+diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
+index afb4877eaad8..dabed4e3ca45 100644
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -293,23 +293,16 @@ static int wcn36xx_start(struct ieee80211_hw *hw)
+ 		goto out_free_dxe_pool;
+ 	}
  
- /* Output divider control for divider 1,2,3,4 */
- #define VC5_OUT_DIV_CONTROL(idx)	(0x21 + ((idx) * 0x10))
-@@ -87,7 +90,6 @@
- #define VC5_OUT_DIV_SKEW_INT(idx, n)	(0x2b + ((idx) * 0x10) + (n))
- #define VC5_OUT_DIV_INT(idx, n)		(0x2d + ((idx) * 0x10) + (n))
- #define VC5_OUT_DIV_SKEW_FRAC(idx)	(0x2f + ((idx) * 0x10))
--/* Registers 0x30, 0x40, 0x50 are factory reserved */
+-	wcn->hal_buf = kmalloc(WCN36XX_HAL_BUF_SIZE, GFP_KERNEL);
+-	if (!wcn->hal_buf) {
+-		wcn36xx_err("Failed to allocate smd buf\n");
+-		ret = -ENOMEM;
+-		goto out_free_dxe_ctl;
+-	}
+-
+ 	ret = wcn36xx_smd_load_nv(wcn);
+ 	if (ret) {
+ 		wcn36xx_err("Failed to push NV to chip\n");
+-		goto out_free_smd_buf;
++		goto out_free_dxe_ctl;
+ 	}
  
- /* Clock control register for clock 1,2 */
- #define VC5_CLK_OUTPUT_CFG(idx, n)	(0x60 + ((idx) * 0x2) + (n))
-@@ -140,6 +142,8 @@
- #define VC5_HAS_INTERNAL_XTAL	BIT(0)
- /* chip has PFD requency doubler */
- #define VC5_HAS_PFD_FREQ_DBL	BIT(1)
-+/* chip has bits to disable FOD sync */
-+#define VC5_HAS_BYPASS_SYNC_BIT	BIT(2)
+ 	ret = wcn36xx_smd_start(wcn);
+ 	if (ret) {
+ 		wcn36xx_err("Failed to start chip\n");
+-		goto out_free_smd_buf;
++		goto out_free_dxe_ctl;
+ 	}
  
- /* Supported IDT VC5 models. */
- enum vc5_model {
-@@ -581,6 +585,23 @@ static int vc5_clk_out_prepare(struct clk_hw *hw)
- 	unsigned int src;
- 	int ret;
+ 	if (!wcn36xx_is_fw_version(wcn, 1, 2, 2, 24)) {
+@@ -336,8 +329,6 @@ static int wcn36xx_start(struct ieee80211_hw *hw)
  
-+	/*
-+	 * When enabling a FOD, all currently enabled FODs are briefly
-+	 * stopped in order to synchronize all of them. This causes a clock
-+	 * disruption to any unrelated chips that might be already using
-+	 * other clock outputs. Bypass the sync feature to avoid the issue,
-+	 * which is possible on the VersaClock 6E family via reserved
-+	 * registers.
-+	 */
-+	if (vc5->chip_info->flags & VC5_HAS_BYPASS_SYNC_BIT) {
-+		ret = regmap_update_bits(vc5->regmap,
-+					 VC5_RESERVED_X0(hwdata->num),
-+					 VC5_RESERVED_X0_BYPASS_SYNC,
-+					 VC5_RESERVED_X0_BYPASS_SYNC);
-+		if (ret)
-+			return ret;
+ out_smd_stop:
+ 	wcn36xx_smd_stop(wcn);
+-out_free_smd_buf:
+-	kfree(wcn->hal_buf);
+ out_free_dxe_ctl:
+ 	wcn36xx_dxe_free_ctl_blks(wcn);
+ out_free_dxe_pool:
+@@ -372,8 +363,6 @@ static void wcn36xx_stop(struct ieee80211_hw *hw)
+ 
+ 	wcn36xx_dxe_free_mem_pools(wcn);
+ 	wcn36xx_dxe_free_ctl_blks(wcn);
+-
+-	kfree(wcn->hal_buf);
+ }
+ 
+ static void wcn36xx_change_ps(struct wcn36xx *wcn, bool enable)
+@@ -1401,6 +1390,12 @@ static int wcn36xx_probe(struct platform_device *pdev)
+ 	mutex_init(&wcn->hal_mutex);
+ 	mutex_init(&wcn->scan_lock);
+ 
++	wcn->hal_buf = devm_kmalloc(wcn->dev, WCN36XX_HAL_BUF_SIZE, GFP_KERNEL);
++	if (!wcn->hal_buf) {
++		ret = -ENOMEM;
++		goto out_wq;
 +	}
 +
- 	/*
- 	 * If the input mux is disabled, enable it first and
- 	 * select source from matching FOD.
-@@ -1166,7 +1187,7 @@ static const struct vc5_chip_info idt_5p49v6965_info = {
- 	.model = IDT_VC6_5P49V6965,
- 	.clk_fod_cnt = 4,
- 	.clk_out_cnt = 5,
--	.flags = 0,
-+	.flags = VC5_HAS_BYPASS_SYNC_BIT,
- };
- 
- static const struct i2c_device_id vc5_id[] = {
+ 	ret = dma_set_mask_and_coherent(wcn->dev, DMA_BIT_MASK(32));
+ 	if (ret < 0) {
+ 		wcn36xx_err("failed to set DMA mask: %d\n", ret);
 -- 
 2.30.2
 
