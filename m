@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47B833C47FC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FEA63C4801
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236884AbhGLGfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55100 "EHLO mail.kernel.org"
+        id S236013AbhGLGfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237806AbhGLGex (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:34:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2B58610E6;
-        Mon, 12 Jul 2021 06:31:40 +0000 (UTC)
+        id S237827AbhGLGey (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:34:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C0B961108;
+        Mon, 12 Jul 2021 06:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071501;
-        bh=cDTbJhtT1KZywLOqfgUcrky/28iSPtnpqMoS9+aEOuk=;
+        s=korg; t=1626071503;
+        bh=QEY4HZx0PhNedxofWfACw2Z8kdb5dujA0Zr76nphuLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HuVxzixkzJQgUAoM5EebQhrv9A4MPCdXXBrhk/+gD9dnxlemN/E26VIL+qu0bXQF9
-         fKgx4gQHgaxKuv9tG7Bt6Is3Fr0/7dMvIqSqxkT8qjf9/jnHGnaHpBpg75TKxfnHqd
-         BpizP6nIlgiq2nwv4/VIe+1W0Ij+qeitqVUlxoPE=
+        b=YLhk1RnKy6T8ULmHIdWOixr6dyzo8b5mo5ZGGycne0H7V68VsGXuWcilIYnuKlb9l
+         Jmm1WITuIEI4DzSjr5xptX6S3TQXqJjTQutytajlY6UeGygmWHxd01NkPJWtxJl64B
+         RiqGmZ0jeNPjzIMHU+Ua3JxG0H7gotK/uXAQTAt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Lindroth <thomas.lindroth@gmail.com>,
+        stable@vger.kernel.org, Pradeep P V K <pragalla@codeaurora.org>,
         Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 096/593] fuse: ignore PG_workingset after stealing
-Date:   Mon, 12 Jul 2021 08:04:16 +0200
-Message-Id: <20210712060853.774648843@linuxfoundation.org>
+Subject: [PATCH 5.10 097/593] fuse: check connected before queueing on fpq->io
+Date:   Mon, 12 Jul 2021 08:04:17 +0200
+Message-Id: <20210712060853.884372276@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -42,39 +41,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit b89ecd60d38ec042d63bdb376c722a16f92bcb88 upstream.
+commit 80ef08670d4c28a06a3de954bd350368780bcfef upstream.
 
-Fix the "fuse: trying to steal weird page" warning.
+A request could end up on the fpq->io list after fuse_abort_conn() has
+reset fpq->connected and aborted requests on that list:
 
-Description from Johannes Weiner:
+Thread-1			  Thread-2
+========			  ========
+->fuse_simple_request()           ->shutdown
+  ->__fuse_request_send()
+    ->queue_request()		->fuse_abort_conn()
+->fuse_dev_do_read()                ->acquire(fpq->lock)
+  ->wait_for(fpq->lock) 	  ->set err to all req's in fpq->io
+				  ->release(fpq->lock)
+  ->acquire(fpq->lock)
+  ->add req to fpq->io
 
-  "Think of it as similar to PG_active. It's just another usage/heat
-   indicator of file and anon pages on the reclaim LRU that, unlike
-   PG_active, persists across deactivation and even reclaim (we store it in
-   the page cache / swapper cache tree until the page refaults).
+After the userspace copy is done the request will be ended, but
+req->out.h.error will remain uninitialized.  Also the copy might block
+despite being already aborted.
 
-   So if fuse accepts pages that can legally have PG_active set,
-   PG_workingset is fine too."
+Fix both issues by not allowing the request to be queued on the fpq->io
+list after fuse_abort_conn() has processed this list.
 
-Reported-by: Thomas Lindroth <thomas.lindroth@gmail.com>
-Fixes: 1899ad18c607 ("mm: workingset: tell cache transitions from workingset thrashing")
-Cc: <stable@vger.kernel.org> # v4.20
+Reported-by: Pradeep P V K <pragalla@codeaurora.org>
+Fixes: fd22d62ed0c3 ("fuse: no fc->lock for iqueue parts")
+Cc: <stable@vger.kernel.org> # v4.2
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/dev.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/fuse/dev.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 --- a/fs/fuse/dev.c
 +++ b/fs/fuse/dev.c
-@@ -783,6 +783,7 @@ static int fuse_check_page(struct page *
- 	       1 << PG_uptodate |
- 	       1 << PG_lru |
- 	       1 << PG_active |
-+	       1 << PG_workingset |
- 	       1 << PG_reclaim |
- 	       1 << PG_waiters))) {
- 		dump_page(page, "fuse: trying to steal weird page");
+@@ -1276,6 +1276,15 @@ static ssize_t fuse_dev_do_read(struct f
+ 		goto restart;
+ 	}
+ 	spin_lock(&fpq->lock);
++	/*
++	 *  Must not put request on fpq->io queue after having been shut down by
++	 *  fuse_abort_conn()
++	 */
++	if (!fpq->connected) {
++		req->out.h.error = err = -ECONNABORTED;
++		goto out_end;
++
++	}
+ 	list_add(&req->list, &fpq->io);
+ 	spin_unlock(&fpq->lock);
+ 	cs->req = req;
 
 
