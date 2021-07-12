@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 697903C499B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 670F33C4E45
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236740AbhGLGpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42444 "EHLO mail.kernel.org"
+        id S244543AbhGLHRj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:17:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239026AbhGLGoh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08FFF6113B;
-        Mon, 12 Jul 2021 06:40:31 +0000 (UTC)
+        id S243698AbhGLHRA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9728F61351;
+        Mon, 12 Jul 2021 07:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072032;
-        bh=HTPa+tqTgJpTUBYHBOUC2tUBOtux1s3nTFCGRX/lke4=;
+        s=korg; t=1626074040;
+        bh=xLYV4apqV4LLWjiyNx9glDFt4ET/31YO6roVMfISxW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lcnSyzMZFAG02V75g7HrfbHWv31svy56DyHaJcbgS60uK5iMdusSLF/RKhelcYvoj
-         G7CDRuXTHljnStruo6HhBmy6wW7JD6JMWZmYwpInhAEcyzdjSm0HCzJKceF2xZRt56
-         9UFHBuahgtNYRhOzWr3BQBhAcii4AETkG/jfBVVc=
+        b=X9nipJatXPEmTXWITQs5cOomWhWq6w1JVSdwvcxlkb8cDI90LkQ9bKb7yxm+Yp9sG
+         yWsREH9f78hf/5D3gyHYdJ1UYv0QZ/2OTdc47LYlDcw1ilWN2B/f5ptG15REj8Gu+0
+         yplqyzO0XSQABUa0/3unZBm9u2Tu6ND1LLJJCo8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
-        Md Haris Iqbal <haris.iqbal@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 324/593] RDMA/rtrs-srv: Fix memory leak of unfreed rtrs_srv_stats object
+Subject: [PATCH 5.12 401/700] ath10k: go to path err_unsupported when chip id is not supported
 Date:   Mon, 12 Jul 2021 08:08:04 +0200
-Message-Id: <20210712060921.308956335@linuxfoundation.org>
+Message-Id: <20210712061019.049808061@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 2371c40354509746e4a4dad09a752e027a30f148 ]
+[ Upstream commit 9e88dd431d2345acdb7a549f3e88aaf4c2a307a1 ]
 
-When closing a session, currently the rtrs_srv_stats object in the
-closing session is freed by kobject release. But if it failed
-to create a session by various reasons, it must free the rtrs_srv_stats
-object directly because kobject is not created yet.
+When chip id is not supported, it go to path err_unsupported
+to print the error message.
 
-This problem is found by kmemleak as below:
-
-1. One client machine maps /dev/nullb0 with session name 'bla':
-root@test1:~# echo "sessname=bla path=ip:192.168.122.190 \
-device_path=/dev/nullb0" > /sys/devices/virtual/rnbd-client/ctl/map_device
-
-2. Another machine failed to create a session with the same name 'bla':
-root@test2:~# echo "sessname=bla path=ip:192.168.122.190 \
-device_path=/dev/nullb1" > /sys/devices/virtual/rnbd-client/ctl/map_device
--bash: echo: write error: Connection reset by peer
-
-3. The kmemleak on server machine reported an error:
-unreferenced object 0xffff888033cdc800 (size 128):
-  comm "kworker/2:1", pid 83, jiffies 4295086585 (age 2508.680s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000a72903b2>] __alloc_sess+0x1d4/0x1250 [rtrs_server]
-    [<00000000d1e5321e>] rtrs_srv_rdma_cm_handler+0xc31/0xde0 [rtrs_server]
-    [<00000000bb2f6e7e>] cma_ib_req_handler+0xdc5/0x2b50 [rdma_cm]
-    [<00000000e896235d>] cm_process_work+0x2d/0x100 [ib_cm]
-    [<00000000b6866c5f>] cm_req_handler+0x11bc/0x1c40 [ib_cm]
-    [<000000005f5dd9aa>] cm_work_handler+0xe65/0x3cf2 [ib_cm]
-    [<00000000610151e7>] process_one_work+0x4bc/0x980
-    [<00000000541e0f77>] worker_thread+0x78/0x5c0
-    [<00000000423898ca>] kthread+0x191/0x1e0
-    [<000000005a24b239>] ret_from_fork+0x3a/0x50
-
-Fixes: 39c2d639ca183 ("RDMA/rtrs-srv: Set .release function for rtrs srv device during device init")
-Link: https://lore.kernel.org/r/20210528113018.52290-18-jinpu.wang@ionos.com
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: f8914a14623a ("ath10k: restore QCA9880-AR1A (v1) detection")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210522105822.1091848-2-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-srv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ath/ath10k/pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-index 43806180f85e..e1041023d143 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -1490,6 +1490,7 @@ static void free_sess(struct rtrs_srv_sess *sess)
- 		kobject_del(&sess->kobj);
- 		kobject_put(&sess->kobj);
- 	} else {
-+		kfree(sess->stats);
- 		kfree(sess);
- 	}
- }
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index e7fde635e0ee..463cf3f8f8a5 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -3701,7 +3701,7 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
+ 		goto err_unsupported;
+ 
+ 	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id))
+-		goto err_free_irq;
++		goto err_unsupported;
+ 
+ 	ret = ath10k_core_register(ar, &bus_params);
+ 	if (ret) {
 -- 
 2.30.2
 
