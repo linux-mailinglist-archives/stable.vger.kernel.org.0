@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F327A3C55D5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 984CB3C55E5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347111AbhGLIML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:12:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55666 "EHLO mail.kernel.org"
+        id S1350355AbhGLIMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:12:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353963AbhGLIDV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A91186145F;
-        Mon, 12 Jul 2021 07:59:05 +0000 (UTC)
+        id S1354033AbhGLIDY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AADC760FF4;
+        Mon, 12 Jul 2021 07:59:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076746;
-        bh=K4wRohg7cY/fwn6n+fzVhzRCpLnCNoam6p2AAXfp8ZM=;
+        s=korg; t=1626076771;
+        bh=kNiOrzvcKNrD+ip7sSBcajzs+GpzpFmKuppADWUHlJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkelOGapWnxDZUpdX52bYw8RL2PSK1na2+2kEFXbpzsKHN1SXh1v59jYF1G0m2Cx0
-         GEDrHHV5my8xcHBxKKTrUG3gl27QACQEi6JC77hrwGY97NtohRFU2O7u01wjRv7ZfI
-         q9/KMzUW8nHozXocJzSJ9MzJ1ww0wYyTa5QR0pB8=
+        b=CXS3/huOdM5U24B5T+V0mZ2nx9UrcWdsWdkpTUku/lOUr0VAzsHg7/6Q/gf7xM23p
+         63d7T/nc1FsCB+CNmvXB3WyjLLJA1ZIl80hCbRkAqAB8vSwOpI0OAFZFXi4GIxrY2v
+         pVecpkChUwKMDZacmo8s/tbDv7ToIUNgcx1DRm9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Gardner <tim.gardner@canonical.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Shuah Khan <shuah@kernel.org>, linux-sgx@vger.kernel.org,
-        linux-kselftest@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 749/800] selftests/sgx: remove checks for file execute permissions
-Date:   Mon, 12 Jul 2021 08:12:52 +0200
-Message-Id: <20210712061046.497212718@linuxfoundation.org>
+Subject: [PATCH 5.13 750/800] staging: rtl8723bs: Fix an error handling path
+Date:   Mon, 12 Jul 2021 08:12:53 +0200
+Message-Id: <20210712061046.592736888@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -45,78 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Hansen <dave.hansen@linux.intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 4896df9d53ae5521f3ce83751e828ad70bc65c80 ]
+[ Upstream commit eb64c6f60ed5406da496cf772fee4b29674bcbb1 ]
 
-The SGX selftests can fail for a bunch of non-obvious reasons
-like 'noexec' permissions on /dev (which is the default *EVERYWHERE*
-it seems).
+'ret' is known to be 0 at this point. It must be set to -ENOMEM if a
+memory allocation occurs.
 
-A new test mistakenly also looked for +x permission on the
-/dev/sgx_enclave.  File execute permissions really only apply to
-the ability of execve() to work on a file, *NOT* on the ability
-for an application to map the file with PROT_EXEC.  SGX needs to
-mmap(PROT_EXEC), but doesn't need to execve() the device file.
-
-Remove the check.
-
-Fixes: 4284f7acb78b ("selftests/sgx: Improve error detection and messages")
-Reported-by: Tim Gardner <tim.gardner@canonical.com>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Reinette Chatre <reinette.chatre@intel.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: linux-sgx@vger.kernel.org
-Cc: linux-kselftest@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Tested-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/a9533d1594900152e1e64e9f09e54240e3b7062a.1624177169.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/sgx/load.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ drivers/staging/rtl8723bs/os_dep/ioctl_linux.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/sgx/load.c b/tools/testing/selftests/sgx/load.c
-index f441ac34b4d4..bae78c3263d9 100644
---- a/tools/testing/selftests/sgx/load.c
-+++ b/tools/testing/selftests/sgx/load.c
-@@ -150,16 +150,6 @@ bool encl_load(const char *path, struct encl *encl)
- 		goto err;
- 	}
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+index 5088c3731b6d..6d0d0beed402 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -420,8 +420,10 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param,
+ 			wep_key_len = wep_key_len <= 5 ? 5 : 13;
+ 			wep_total_len = wep_key_len + FIELD_OFFSET(struct ndis_802_11_wep, KeyMaterial);
+ 			pwep = kzalloc(wep_total_len, GFP_KERNEL);
+-			if (!pwep)
++			if (!pwep) {
++				ret = -ENOMEM;
+ 				goto exit;
++			}
  
--	/*
--	 * This just checks if the /dev file has these permission
--	 * bits set.  It does not check that the current user is
--	 * the owner or in the owning group.
--	 */
--	if (!(sb.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
--		fprintf(stderr, "no execute permissions on device file %s\n", device_path);
--		goto err;
--	}
--
- 	ptr = mmap(NULL, PAGE_SIZE, PROT_READ, MAP_SHARED, fd, 0);
- 	if (ptr == (void *)-1) {
- 		perror("mmap for read");
-@@ -169,13 +159,13 @@ bool encl_load(const char *path, struct encl *encl)
- 
- #define ERR_MSG \
- "mmap() succeeded for PROT_READ, but failed for PROT_EXEC.\n" \
--" Check that current user has execute permissions on %s and \n" \
--" that /dev does not have noexec set: mount | grep \"/dev .*noexec\"\n" \
-+" Check that /dev does not have noexec set:\n" \
-+" \tmount | grep \"/dev .*noexec\"\n" \
- " If so, remount it executable: mount -o remount,exec /dev\n\n"
- 
- 	ptr = mmap(NULL, PAGE_SIZE, PROT_EXEC, MAP_SHARED, fd, 0);
- 	if (ptr == (void *)-1) {
--		fprintf(stderr, ERR_MSG, device_path);
-+		fprintf(stderr, ERR_MSG);
- 		goto err;
- 	}
- 	munmap(ptr, PAGE_SIZE);
+ 			pwep->KeyLength = wep_key_len;
+ 			pwep->Length = wep_total_len;
 -- 
 2.30.2
 
