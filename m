@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E01773C46CD
+	by mail.lfdr.de (Postfix) with ESMTP id 4FAA63C46CB
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234352AbhGLG2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:28:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46882 "EHLO mail.kernel.org"
+        id S235227AbhGLG2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:28:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235202AbhGLG1k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:27:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A1D761164;
-        Mon, 12 Jul 2021 06:24:08 +0000 (UTC)
+        id S235213AbhGLG1l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:27:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90C2B61130;
+        Mon, 12 Jul 2021 06:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071048;
-        bh=QLXHfgOV7qA2SeLRwkpIPdFum1k9PZZuDuX/jrTv4N4=;
+        s=korg; t=1626071051;
+        bh=sehZuNpqwsa08lZhJEPCg4czN5hgQbkcnXW3vbNGYCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MiNHsJdaGu5YnaRc+eD8ZwRwMaJXghttR6c1ZrG+c1J/WjSOV4sJEKj8QpMp4c2MU
-         Nn4zk2jZMiaDacy8m2ImbBdq7iG4FfFu5l4c+R1lvRk94ubMeQ1jpCtkzfM2KLWkqi
-         F/qaskzWoNPXA5FvMN2G0mI5gDEo8/OWrnuLLNRg=
+        b=gp1tTviGV6PRWf2GAxHJMNnktQiMMuLazEHefLIRam6W8Yc4ITKYnDhgRoP6x2Q2+
+         SPTN8dtlRlQeZpIGR+cY50o76mWbsFzCiocnjZw6Ix66eOOEOxaEFshbh9K/ZtINjl
+         /e6IxviNgE6uCsKpZ4ynmiUeOc0flza0deCEqcFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 250/348] net: lwtunnel: handle MTU calculation in forwading
-Date:   Mon, 12 Jul 2021 08:10:34 +0200
-Message-Id: <20210712060735.863063128@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+1071ad60cd7df39fdadb@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 251/348] net: sched: fix warning in tcindex_alloc_perfect_hash
+Date:   Mon, 12 Jul 2021 08:10:35 +0200
+Message-Id: <20210712060735.999201661@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,140 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vfedorenko@novek.ru>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit fade56410c22cacafb1be9f911a0afd3701d8366 ]
+[ Upstream commit 3f2db250099f46988088800052cdf2332c7aba61 ]
 
-Commit 14972cbd34ff ("net: lwtunnel: Handle fragmentation") moved
-fragmentation logic away from lwtunnel by carry encap headroom and
-use it in output MTU calculation. But the forwarding part was not
-covered and created difference in MTU for output and forwarding and
-further to silent drops on ipv4 forwarding path. Fix it by taking
-into account lwtunnel encap headroom.
+Syzbot reported warning in tcindex_alloc_perfect_hash. The problem
+was in too big cp->hash, which triggers warning in kmalloc. Since
+cp->hash comes from userspace, there is no need to warn if value
+is not correct
 
-The same commit also introduced difference in how to treat RTAX_MTU
-in IPv4 and IPv6 where latter explicitly removes lwtunnel encap
-headroom from route MTU. Make IPv4 version do the same.
-
-Fixes: 14972cbd34ff ("net: lwtunnel: Handle fragmentation")
-Suggested-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Reviewed-by: David Ahern <dsahern@kernel.org>
+Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
+Reported-and-tested-by: syzbot+1071ad60cd7df39fdadb@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Cong Wang <cong.wang@bytedance.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip.h        | 12 ++++++++----
- include/net/ip6_route.h | 16 ++++++++++++----
- net/ipv4/route.c        |  3 ++-
- 3 files changed, 22 insertions(+), 9 deletions(-)
+ net/sched/cls_tcindex.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/ip.h b/include/net/ip.h
-index 0278d63c1527..52abfc00b5e3 100644
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -30,6 +30,7 @@
- #include <net/flow.h>
- #include <net/flow_dissector.h>
- #include <net/netns/hash.h>
-+#include <net/lwtunnel.h>
+diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
+index c9399e81c505..3e81f87d0c89 100644
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -304,7 +304,7 @@ static int tcindex_alloc_perfect_hash(struct net *net, struct tcindex_data *cp)
+ 	int i, err = 0;
  
- #define IPV4_MAX_PMTU		65535U		/* RFC 2675, Section 5.1 */
- #define IPV4_MIN_MTU		68			/* RFC 791 */
-@@ -448,22 +449,25 @@ static inline unsigned int ip_dst_mtu_maybe_forward(const struct dst_entry *dst,
+ 	cp->perfect = kcalloc(cp->hash, sizeof(struct tcindex_filter_result),
+-			      GFP_KERNEL);
++			      GFP_KERNEL | __GFP_NOWARN);
+ 	if (!cp->perfect)
+ 		return -ENOMEM;
  
- 	/* 'forwarding = true' case should always honour route mtu */
- 	mtu = dst_metric_raw(dst, RTAX_MTU);
--	if (mtu)
--		return mtu;
-+	if (!mtu)
-+		mtu = min(READ_ONCE(dst->dev->mtu), IP_MAX_MTU);
- 
--	return min(READ_ONCE(dst->dev->mtu), IP_MAX_MTU);
-+	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
- }
- 
- static inline unsigned int ip_skb_dst_mtu(struct sock *sk,
- 					  const struct sk_buff *skb)
- {
-+	unsigned int mtu;
-+
- 	if (!sk || !sk_fullsock(sk) || ip_sk_use_pmtu(sk)) {
- 		bool forwarding = IPCB(skb)->flags & IPSKB_FORWARDED;
- 
- 		return ip_dst_mtu_maybe_forward(skb_dst(skb), forwarding);
- 	}
- 
--	return min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
-+	mtu = min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
-+	return mtu - lwtunnel_headroom(skb_dst(skb)->lwtstate, mtu);
- }
- 
- struct dst_metrics *ip_fib_metrics_init(struct net *net, struct nlattr *fc_mx,
-diff --git a/include/net/ip6_route.h b/include/net/ip6_route.h
-index 2d0d91070268..40602def3fe7 100644
---- a/include/net/ip6_route.h
-+++ b/include/net/ip6_route.h
-@@ -263,11 +263,18 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 
- static inline int ip6_skb_dst_mtu(struct sk_buff *skb)
- {
-+	int mtu;
-+
- 	struct ipv6_pinfo *np = skb->sk && !dev_recursion_level() ?
- 				inet6_sk(skb->sk) : NULL;
- 
--	return (np && np->pmtudisc >= IPV6_PMTUDISC_PROBE) ?
--	       skb_dst(skb)->dev->mtu : dst_mtu(skb_dst(skb));
-+	if (np && np->pmtudisc >= IPV6_PMTUDISC_PROBE) {
-+		mtu = READ_ONCE(skb_dst(skb)->dev->mtu);
-+		mtu -= lwtunnel_headroom(skb_dst(skb)->lwtstate, mtu);
-+	} else
-+		mtu = dst_mtu(skb_dst(skb));
-+
-+	return mtu;
- }
- 
- static inline bool ip6_sk_accept_pmtu(const struct sock *sk)
-@@ -315,7 +322,7 @@ static inline unsigned int ip6_dst_mtu_forward(const struct dst_entry *dst)
- 	if (dst_metric_locked(dst, RTAX_MTU)) {
- 		mtu = dst_metric_raw(dst, RTAX_MTU);
- 		if (mtu)
--			return mtu;
-+			goto out;
- 	}
- 
- 	mtu = IPV6_MIN_MTU;
-@@ -325,7 +332,8 @@ static inline unsigned int ip6_dst_mtu_forward(const struct dst_entry *dst)
- 		mtu = idev->cnf.mtu6;
- 	rcu_read_unlock();
- 
--	return mtu;
-+out:
-+	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
- }
- 
- u32 ip6_mtu_from_fib6(const struct fib6_result *res,
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 3ff702380b62..0e976848d4bb 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -1321,7 +1321,7 @@ static unsigned int ipv4_mtu(const struct dst_entry *dst)
- 		mtu = dst_metric_raw(dst, RTAX_MTU);
- 
- 	if (mtu)
--		return mtu;
-+		goto out;
- 
- 	mtu = READ_ONCE(dst->dev->mtu);
- 
-@@ -1330,6 +1330,7 @@ static unsigned int ipv4_mtu(const struct dst_entry *dst)
- 			mtu = 576;
- 	}
- 
-+out:
- 	mtu = min_t(unsigned int, mtu, IP_MAX_MTU);
- 
- 	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
 -- 
 2.30.2
 
