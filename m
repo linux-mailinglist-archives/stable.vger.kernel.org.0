@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6203C55D1
+	by mail.lfdr.de (Postfix) with ESMTP id EA4B13C55D2
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346687AbhGLIMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:12:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54124 "EHLO mail.kernel.org"
+        id S1346721AbhGLIMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:12:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353942AbhGLIDO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0359361D1F;
-        Mon, 12 Jul 2021 07:58:58 +0000 (UTC)
+        id S1353956AbhGLIDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51A7461D1E;
+        Mon, 12 Jul 2021 07:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076739;
-        bh=Xrfpi+7SF1c+hZ63W/OIRKOyZivlmR25Y3nJY5WsHIM=;
+        s=korg; t=1626076741;
+        bh=fob3s5mDsTJVZqnRf2jvmECc0ABXF+X68QEkJbejXo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdo4O3VsYDUk6sRF7SYsZoYTf8X0jytfyH3A7ZjGeZ8VWl6f7XFnTa5eaPPdCJspg
-         Tmz9nzN/CU/7G1vZwsm603uwjg/pwecD4YzIa8GQkxD1S82b54/yhqbbzbwtBnaP+1
-         MIw2nUOFenZAGP++IlzGy+ndMUS+HDjN5mV5/Rik=
+        b=pmQ4WBzZMxyJ9OP+MysmxhW7tz81bR0c2jrnW1pYBiCej/moZ03Crbew/Quj7y2jc
+         iW+mck0WyIzGZ6fkfJLe2HtxhsX4SvG93WTA8TNMjldBenGAgaB+LA7mc3pO1BoQqW
+         Dp8Cm3/oBVmHgZHn1xeB2JWVtdxMUjoGxATw9yRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
+        stable@vger.kernel.org, Trent Piepho <tpiepho@gmail.com>,
+        Yiyuan Guo <yguoaz@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Oskar Schirmer <oskar@scara.com>,
+        Daniel Latypov <dlatypov@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 773/800] kfence: unconditionally use unbound work queue
-Date:   Mon, 12 Jul 2021 08:13:16 +0200
-Message-Id: <20210712061049.088265047@linuxfoundation.org>
+Subject: [PATCH 5.13 774/800] lib/math/rational.c: fix divide by zero
+Date:   Mon, 12 Jul 2021 08:13:17 +0200
+Message-Id: <20210712061049.199457444@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -44,51 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Trent Piepho <tpiepho@gmail.com>
 
-[ Upstream commit ff06e45d3aace3f93d23956c1e655224f363ebe2 ]
+[ Upstream commit 65a0d3c14685663ba111038a35db70f559e39336 ]
 
-Unconditionally use unbound work queue, and not just if wq_power_efficient
-is true.  Because if the system is idle, KFENCE may wait, and by being run
-on the unbound work queue, we permit the scheduler to make better
-scheduling decisions and not require pinning KFENCE to the same CPU upon
-waking up.
+If the input is out of the range of the allowed values, either larger than
+the largest value or closer to zero than the smallest non-zero allowed
+value, then a division by zero would occur.
 
-Link: https://lkml.kernel.org/r/20210521111630.472579-1-elver@google.com
-Fixes: 36f0b35d0894 ("kfence: use power-efficient work queue to run delayed work")
-Signed-off-by: Marco Elver <elver@google.com>
-Reported-by: Hillf Danton <hdanton@sina.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
+In the case of input too large, the division by zero will occur on the
+first iteration.  The best result (largest allowed value) will be found by
+always choosing the semi-convergent and excluding the denominator based
+limit when finding it.
+
+In the case of the input too small, the division by zero will occur on the
+second iteration.  The numerator based semi-convergent should not be
+calculated to avoid the division by zero.  But the semi-convergent vs
+previous convergent test is still needed, which effectively chooses
+between 0 (the previous convergent) vs the smallest allowed fraction (best
+semi-convergent) as the result.
+
+Link: https://lkml.kernel.org/r/20210525144250.214670-1-tpiepho@gmail.com
+Fixes: 323dd2c3ed0 ("lib/math/rational.c: fix possible incorrect result from rational fractions helper")
+Signed-off-by: Trent Piepho <tpiepho@gmail.com>
+Reported-by: Yiyuan Guo <yguoaz@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Oskar Schirmer <oskar@scara.com>
+Cc: Daniel Latypov <dlatypov@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kfence/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/math/rational.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/mm/kfence/core.c b/mm/kfence/core.c
-index 4d21ac44d5d3..d7666ace9d2e 100644
---- a/mm/kfence/core.c
-+++ b/mm/kfence/core.c
-@@ -636,7 +636,7 @@ static void toggle_allocation_gate(struct work_struct *work)
- 	/* Disable static key and reset timer. */
- 	static_branch_disable(&kfence_allocation_key);
- #endif
--	queue_delayed_work(system_power_efficient_wq, &kfence_timer,
-+	queue_delayed_work(system_unbound_wq, &kfence_timer,
- 			   msecs_to_jiffies(kfence_sample_interval));
- }
- static DECLARE_DELAYED_WORK(kfence_timer, toggle_allocation_gate);
-@@ -666,7 +666,7 @@ void __init kfence_init(void)
- 	}
+diff --git a/lib/math/rational.c b/lib/math/rational.c
+index 9781d521963d..c0ab51d8fbb9 100644
+--- a/lib/math/rational.c
++++ b/lib/math/rational.c
+@@ -12,6 +12,7 @@
+ #include <linux/compiler.h>
+ #include <linux/export.h>
+ #include <linux/minmax.h>
++#include <linux/limits.h>
  
- 	WRITE_ONCE(kfence_enabled, true);
--	queue_delayed_work(system_power_efficient_wq, &kfence_timer, 0);
-+	queue_delayed_work(system_unbound_wq, &kfence_timer, 0);
- 	pr_info("initialized - using %lu bytes for %d objects at 0x%p-0x%p\n", KFENCE_POOL_SIZE,
- 		CONFIG_KFENCE_NUM_OBJECTS, (void *)__kfence_pool,
- 		(void *)(__kfence_pool + KFENCE_POOL_SIZE));
+ /*
+  * calculate best rational approximation for a given fraction
+@@ -78,13 +79,18 @@ void rational_best_approximation(
+ 		 * found below as 't'.
+ 		 */
+ 		if ((n2 > max_numerator) || (d2 > max_denominator)) {
+-			unsigned long t = min((max_numerator - n0) / n1,
+-					      (max_denominator - d0) / d1);
++			unsigned long t = ULONG_MAX;
+ 
+-			/* This tests if the semi-convergent is closer
+-			 * than the previous convergent.
++			if (d1)
++				t = (max_denominator - d0) / d1;
++			if (n1)
++				t = min(t, (max_numerator - n0) / n1);
++
++			/* This tests if the semi-convergent is closer than the previous
++			 * convergent.  If d1 is zero there is no previous convergent as this
++			 * is the 1st iteration, so always choose the semi-convergent.
+ 			 */
+-			if (2u * t > a || (2u * t == a && d0 * dp > d1 * d)) {
++			if (!d1 || 2u * t > a || (2u * t == a && d0 * dp > d1 * d)) {
+ 				n1 = n0 + t * n1;
+ 				d1 = d0 + t * d1;
+ 			}
 -- 
 2.30.2
 
