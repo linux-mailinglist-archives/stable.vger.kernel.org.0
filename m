@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD9973C467D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96ADF3C4678
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234336AbhGLG01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:26:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45560 "EHLO mail.kernel.org"
+        id S235260AbhGLG0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:26:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235050AbhGLGZW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:25:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C4E361130;
-        Mon, 12 Jul 2021 06:22:34 +0000 (UTC)
+        id S235454AbhGLGZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:25:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDCA46101E;
+        Mon, 12 Jul 2021 06:22:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070954;
-        bh=kZcZbSICOodmW+tw82VmlXzK9HEDFbTXPZk8P/dXstc=;
+        s=korg; t=1626070957;
+        bh=4E/qEcqkxsBjy7bRkVK+7jytHEax0ZB4VA7wk7np5Vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AIF/AKCHMBytqSTjTJzTVzsr8ZwGRW0IsdQ7mFVEfxJr8EmUIU4hH7rwBtNOo87Cx
-         ElI+DUyth5C2IJQm4F2LcJ1/pVRsEqltLapGV9KAI7q3M39981WE3mm5rMziE4MDp3
-         9pwqqWh434Hg51bwQ2GsREO3tH3fmPc/XEvA6H8U=
+        b=OSKvuTO0tP6xRlZs/eUxlrgFYIOU3BJ4QDhI21S6zhXb6IwFC9ORl8LJNmmDBiuHr
+         tau9LiHtgw2WYMeRSCv5AKlOOqlE/0Eu+DZU0zMzAmoSxvB/DtHlVqDIUtlgZbVCMR
+         IvQfUQ5irC/ugWvcIiKPc2a/GIzKZgBX90+u9WbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 169/348] btrfs: clear log tree recovering status if starting transaction fails
-Date:   Mon, 12 Jul 2021 08:09:13 +0200
-Message-Id: <20210712060723.298346730@linuxfoundation.org>
+Subject: [PATCH 5.4 170/348] sched/rt: Fix RT utilization tracking during policy change
+Date:   Mon, 12 Jul 2021 08:09:14 +0200
+Message-Id: <20210712060723.420192543@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,42 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit 1aeb6b563aea18cd55c73cf666d1d3245a00f08c ]
+[ Upstream commit fecfcbc288e9f4923f40fd23ca78a6acdc7fdf6c ]
 
-When a log recovery is in progress, lots of operations have to take that
-into account, so we keep this status per tree during the operation. Long
-time ago error handling revamp patch 79787eaab461 ("btrfs: replace many
-BUG_ONs with proper error handling") removed clearing of the status in
-an error branch. Add it back as was intended in e02119d5a7b4 ("Btrfs:
-Add a write ahead tree log to optimize synchronous operations").
+RT keeps track of the utilization on a per-rq basis with the structure
+avg_rt. This utilization is updated during task_tick_rt(),
+put_prev_task_rt() and set_next_task_rt(). However, when the current
+running task changes its policy, set_next_task_rt() which would usually
+take care of updating the utilization when the rq starts running RT tasks,
+will not see a such change, leaving the avg_rt structure outdated. When
+that very same task will be dequeued later, put_prev_task_rt() will then
+update the utilization, based on a wrong last_update_time, leading to a
+huge spike in the RT utilization signal.
 
-There are probably no visible effects, log replay is done only during
-mount and if it fails all structures are cleared so the stale status
-won't be kept.
+The signal would eventually recover from this issue after few ms. Even if
+no RT tasks are run, avg_rt is also updated in __update_blocked_others().
+But as the CPU capacity depends partly on the avg_rt, this issue has
+nonetheless a significant impact on the scheduler.
 
-Fixes: 79787eaab461 ("btrfs: replace many BUG_ONs with proper error handling")
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fix this issue by ensuring a load update when a running task changes
+its policy to RT.
+
+Fixes: 371bf427 ("sched/rt: Add rt_rq utilization tracking")
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/1624271872-211872-2-git-send-email-vincent.donnefort@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/sched/rt.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 4ff381c23cef..afc6731bb692 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -6327,6 +6327,7 @@ next:
- error:
- 	if (wc.trans)
- 		btrfs_end_transaction(wc.trans);
-+	clear_bit(BTRFS_FS_LOG_RECOVERING, &fs_info->flags);
- 	btrfs_free_path(path);
- 	return ret;
- }
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 5b04bba4500d..2dffb8762e16 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -2221,13 +2221,20 @@ void __init init_sched_rt_class(void)
+ static void switched_to_rt(struct rq *rq, struct task_struct *p)
+ {
+ 	/*
+-	 * If we are already running, then there's nothing
+-	 * that needs to be done. But if we are not running
+-	 * we may need to preempt the current running task.
+-	 * If that current running task is also an RT task
++	 * If we are running, update the avg_rt tracking, as the running time
++	 * will now on be accounted into the latter.
++	 */
++	if (task_current(rq, p)) {
++		update_rt_rq_load_avg(rq_clock_pelt(rq), rq, 0);
++		return;
++	}
++
++	/*
++	 * If we are not running we may need to preempt the current
++	 * running task. If that current running task is also an RT task
+ 	 * then see if we can move to another run queue.
+ 	 */
+-	if (task_on_rq_queued(p) && rq->curr != p) {
++	if (task_on_rq_queued(p)) {
+ #ifdef CONFIG_SMP
+ 		if (p->nr_cpus_allowed > 1 && rq->rt.overloaded)
+ 			rt_queue_push_tasks(rq);
 -- 
 2.30.2
 
