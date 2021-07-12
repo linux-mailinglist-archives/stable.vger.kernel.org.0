@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E78403C4A62
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B3F93C4E6C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240768AbhGLGwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48056 "EHLO mail.kernel.org"
+        id S244778AbhGLHSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:18:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238133AbhGLGsZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:48:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0D1F611AD;
-        Mon, 12 Jul 2021 06:43:55 +0000 (UTC)
+        id S244551AbhGLHRk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C42A61153;
+        Mon, 12 Jul 2021 07:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072236;
-        bh=bRID1WUDRBSGxPTH2JaoPg+8jnffbPLQFx/rjbCmz2c=;
+        s=korg; t=1626074092;
+        bh=+KYDax4teL/bh8Ep/BFT1j9CoyAUqHmQulhR5ZHRf/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kix9YIhH0vP/KSMNd4osM5PY4WAmcM8OHhaffHtd49XvyH42+0cqkVYSOWHXrSVBA
-         CJiTxuyCA3ryXW3WpX/yp+XtN3AkuD+dygJrQmsYH3NcdaG92CmaD+EmjJAWW01COq
-         ObRC9kNpzxSjZx5KnjdOurGnr9MVOMMZDkA6ulpg=
+        b=o9eFJbIyWoVTnrZApDM3Mwa1QCdQzdkC6sqXtvvFDa6TuO+4vw57IKrCx8+6MT2XA
+         51ioljEOiZQIgG1hCIecX2I+T+YvkjX3WBD4Uv9tts3gT1TfTLStcbcS82yT/uaoQf
+         0mYJMKEFXyYuTB0z4v4MLI46bddIGYNYOb0z1mRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 385/593] tc-testing: fix list handling
+Subject: [PATCH 5.12 462/700] net: broadcom: bcm4908_enet: reset DMA rings sw indexes properly
 Date:   Mon, 12 Jul 2021 08:09:05 +0200
-Message-Id: <20210712060929.425326985@linuxfoundation.org>
+Message-Id: <20210712061025.736638577@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit b4fd096cbb871340be837491fa1795864a48b2d9 ]
+[ Upstream commit ddeacc4f6494e07cbb6f033627926623f3e7a9d0 ]
 
-python lists don't have an 'add' method, but 'append'.
+Resetting software indexes in bcm4908_dma_alloc_buf_descs() is not
+enough as it's called during device probe only. Driver resets DMA on
+every .ndo_open callback and it's required to reset indexes then.
 
-Fixes: 14e5175e9e04 ("tc-testing: introduce scapyPlugin for basic traffic")
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+This fixes inconsistent rings state and stalled traffic after interface
+down & up sequence.
+
+Fixes: 4feffeadbcb2 ("net: broadcom: bcm4908enet: add BCM4908 controller driver")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/tc-testing/plugin-lib/scapyPlugin.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bcm4908_enet.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/tc-testing/plugin-lib/scapyPlugin.py b/tools/testing/selftests/tc-testing/plugin-lib/scapyPlugin.py
-index 229ee185b27e..a7b21658af9b 100644
---- a/tools/testing/selftests/tc-testing/plugin-lib/scapyPlugin.py
-+++ b/tools/testing/selftests/tc-testing/plugin-lib/scapyPlugin.py
-@@ -36,7 +36,7 @@ class SubPlugin(TdcPlugin):
-         for k in scapy_keys:
-             if k not in scapyinfo:
-                 keyfail = True
--                missing_keys.add(k)
-+                missing_keys.append(k)
-         if keyfail:
-             print('{}: Scapy block present in the test, but is missing info:'
-                 .format(self.sub_class))
+diff --git a/drivers/net/ethernet/broadcom/bcm4908_enet.c b/drivers/net/ethernet/broadcom/bcm4908_enet.c
+index 65981931a798..a31984cd0fb7 100644
+--- a/drivers/net/ethernet/broadcom/bcm4908_enet.c
++++ b/drivers/net/ethernet/broadcom/bcm4908_enet.c
+@@ -165,9 +165,6 @@ static int bcm4908_dma_alloc_buf_descs(struct bcm4908_enet *enet,
+ 	if (!ring->slots)
+ 		goto err_free_buf_descs;
+ 
+-	ring->read_idx = 0;
+-	ring->write_idx = 0;
+-
+ 	return 0;
+ 
+ err_free_buf_descs:
+@@ -295,6 +292,9 @@ static void bcm4908_enet_dma_ring_init(struct bcm4908_enet *enet,
+ 
+ 	enet_write(enet, ring->st_ram_block + ENET_DMA_CH_STATE_RAM_BASE_DESC_PTR,
+ 		   (uint32_t)ring->dma_addr);
++
++	ring->read_idx = 0;
++	ring->write_idx = 0;
+ }
+ 
+ static void bcm4908_enet_dma_uninit(struct bcm4908_enet *enet)
 -- 
 2.30.2
 
