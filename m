@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6EEC3C50F9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 050083C5113
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343958AbhGLHfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:35:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56948 "EHLO mail.kernel.org"
+        id S243681AbhGLHgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:36:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245390AbhGLHdi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:33:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 169D661436;
-        Mon, 12 Jul 2021 07:30:49 +0000 (UTC)
+        id S1347187AbhGLHeg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:34:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A83461427;
+        Mon, 12 Jul 2021 07:31:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075050;
-        bh=/2BtdF8/XA6MOb8mLNBXedhNMM9rq+4hL5hTGmF9pFI=;
+        s=korg; t=1626075081;
+        bh=Moj7XFDKb+kqWN293CWhL1akLMoTR6+9lH8NtmXU3fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVUuOJ9ElHWIPvTr6/jTXBRePK34NTWtnipLzi8Yf9o4PaLYRsEEcsN96Bjbnxe/O
-         7Qs1hDx77b6XQLJMO4lOgb18VlAh/A9gd39CP3Z/qknmEi7nCqBoA1qO/AJCt1LgyQ
-         GwgeRmI1es+GCW9Q72c+C4Aeqg59JKK9+Id7KW+4=
+        b=MYUP41iX9SzYmv7xyxYi0HNDdBWbFz3odSlpTB15VsyQYZtlmriBlv1lj7sNGsGkT
+         L124338EDsmvh9HJQ+7IUuL06ZHuv0vT28GTQ29oTs17qbWi0/mOFe8fDT6hi+1Thj
+         U0/af7fYNepsD2aDXWyRuHBVEcmsoOM87H6QgvAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Zhang <yu.c.zhang@linux.intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.13 080/800] KVM: x86: Force all MMUs to reinitialize if guest CPUID is modified
-Date:   Mon, 12 Jul 2021 08:01:43 +0200
-Message-Id: <20210712060924.396778441@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.13 081/800] s390/cio: dont call css_wait_for_slow_path() inside a lock
+Date:   Mon, 12 Jul 2021 08:01:44 +0200
+Message-Id: <20210712060924.526818429@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -40,106 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-commit 49c6f8756cdffeb9af1fbcb86bacacced26465d7 upstream.
+commit c749d8c018daf5fba6dfac7b6c5c78b27efd7d65 upstream.
 
-Invalidate all MMUs' roles after a CPUID update to force reinitizliation
-of the MMU context/helpers.  Despite the efforts of commit de3ccd26fafc
-("KVM: MMU: record maximum physical address width in kvm_mmu_extended_role"),
-there are still a handful of CPUID-based properties that affect MMU
-behavior but are not incorporated into mmu_role.  E.g. 1gb hugepage
-support, AMD vs. Intel handling of bit 8, and SEV's C-Bit location all
-factor into the guest's reserved PTE bits.
+Currently css_wait_for_slow_path() gets called inside the chp->lock.
+The path-verification-loop of slowpath inside this lock could lead to
+deadlock as reported by the lockdep validator.
 
-The obvious alternative would be to add all such properties to mmu_role,
-but doing so provides no benefit over simply forcing a reinitialization
-on every CPUID update, as setting guest CPUID is a rare operation.
+The ccw_device_get_chp_desc() during the instance of a device-set-online
+would try to acquire the same 'chp->lock' to read the chp->desc.
+The instance of this function can get called from multiple scenario,
+like probing or setting-device online manually. This could, in some
+corner-cases lead to the deadlock.
 
-Note, reinitializing all MMUs after a CPUID update does not fix all of
-KVM's woes.  Specifically, kvm_mmu_page_role doesn't track the CPUID
-properties, which means that a vCPU can reuse shadow pages that should
-not exist for the new vCPU model, e.g. that map GPAs that are now illegal
-(due to MAXPHYADDR changes) or that set bits that are now reserved
-(PAGE_SIZE for 1gb pages), etc...
+lockdep validator reported this as,
 
-Tracking the relevant CPUID properties in kvm_mmu_page_role would address
-the majority of problems, but fully tracking that much state in the
-shadow page role comes with an unpalatable cost as it would require a
-non-trivial increase in KVM's memory footprint.  The GBPAGES case is even
-worse, as neither Intel nor AMD provides a way to disable 1gb hugepage
-support in the hardware page walker, i.e. it's a virtualization hole that
-can't be closed when using TDP.
+        CPU0                    CPU1
+        ----                    ----
+   lock(&chp->lock);
+                                lock(kn->active#43);
+                                lock(&chp->lock);
+   lock((wq_completion)cio);
 
-In other words, resetting the MMU after a CPUID update is largely a
-superficial fix.  But, it will allow reverting the tracking of MAXPHYADDR
-in the mmu_role, and that case in particular needs to mostly work because
-KVM's shadow_root_level depends on guest MAXPHYADDR when 5-level paging
-is supported.  For cases where KVM botches guest behavior, the damage is
-limited to that guest.  But for the shadow_root_level, a misconfigured
-MMU can cause KVM to incorrectly access memory, e.g. due to walking off
-the end of its shadow page tables.
+The chp->lock was introduced to serialize the access of struct
+channel_path. This lock is not needed for the css_wait_for_slow_path()
+function, so invoke the slow-path function outside this lock.
 
-Fixes: 7dcd57552008 ("x86/kvm/mmu: check if tdp/shadow MMU reconfiguration is needed")
-Cc: Yu Zhang <yu.c.zhang@linux.intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210622175739.3610207-7-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: b730f3a93395 ("[S390] cio: add lock to struct channel_path")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/kvm_host.h |    1 +
- arch/x86/kvm/cpuid.c            |    6 +++---
- arch/x86/kvm/mmu/mmu.c          |   12 ++++++++++++
- 3 files changed, 16 insertions(+), 3 deletions(-)
+ drivers/s390/cio/chp.c  |    3 +++
+ drivers/s390/cio/chsc.c |    2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1464,6 +1464,7 @@ int kvm_mmu_create(struct kvm_vcpu *vcpu
- void kvm_mmu_init_vm(struct kvm *kvm);
- void kvm_mmu_uninit_vm(struct kvm *kvm);
+--- a/drivers/s390/cio/chp.c
++++ b/drivers/s390/cio/chp.c
+@@ -255,6 +255,9 @@ static ssize_t chp_status_write(struct d
+ 	if (!num_args)
+ 		return count;
  
-+void kvm_mmu_after_set_cpuid(struct kvm_vcpu *vcpu);
- void kvm_mmu_reset_context(struct kvm_vcpu *vcpu);
- void kvm_mmu_slot_remove_write_access(struct kvm *kvm,
- 				      struct kvm_memory_slot *memslot,
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -202,10 +202,10 @@ static void kvm_vcpu_after_set_cpuid(str
- 	static_call(kvm_x86_vcpu_after_set_cpuid)(vcpu);
- 
- 	/*
--	 * Except for the MMU, which needs to be reset after any vendor
--	 * specific adjustments to the reserved GPA bits.
-+	 * Except for the MMU, which needs to do its thing any vendor specific
-+	 * adjustments to the reserved GPA bits.
- 	 */
--	kvm_mmu_reset_context(vcpu);
-+	kvm_mmu_after_set_cpuid(vcpu);
- }
- 
- static int is_efer_nx(void)
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4859,6 +4859,18 @@ kvm_mmu_calc_root_page_role(struct kvm_v
- 	return role.base;
- }
- 
-+void kvm_mmu_after_set_cpuid(struct kvm_vcpu *vcpu)
-+{
-+	/*
-+	 * Invalidate all MMU roles to force them to reinitialize as CPUID
-+	 * information is factored into reserved bit calculations.
-+	 */
-+	vcpu->arch.root_mmu.mmu_role.ext.valid = 0;
-+	vcpu->arch.guest_mmu.mmu_role.ext.valid = 0;
-+	vcpu->arch.nested_mmu.mmu_role.ext.valid = 0;
-+	kvm_mmu_reset_context(vcpu);
-+}
++	/* Wait until previous actions have settled. */
++	css_wait_for_slow_path();
 +
- void kvm_mmu_reset_context(struct kvm_vcpu *vcpu)
+ 	if (!strncasecmp(cmd, "on", 2) || !strcmp(cmd, "1")) {
+ 		mutex_lock(&cp->lock);
+ 		error = s390_vary_chpid(cp->chpid, 1);
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -801,8 +801,6 @@ int chsc_chp_vary(struct chp_id chpid, i
  {
- 	kvm_mmu_unload(vcpu);
+ 	struct channel_path *chp = chpid_to_chp(chpid);
+ 
+-	/* Wait until previous actions have settled. */
+-	css_wait_for_slow_path();
+ 	/*
+ 	 * Redo PathVerification on the devices the chpid connects to
+ 	 */
 
 
