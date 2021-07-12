@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4311E3C49C1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAB7E3C53D8
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237086AbhGLGqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44284 "EHLO mail.kernel.org"
+        id S1345462AbhGLH4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236718AbhGLGpe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:45:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C357C610E5;
-        Mon, 12 Jul 2021 06:41:27 +0000 (UTC)
+        id S1350735AbhGLHvP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C25961973;
+        Mon, 12 Jul 2021 07:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072088;
-        bh=t3FbjbFZbWzRy89GAwGeEQ1h60F9IqS9PTmnvha/PGQ=;
+        s=korg; t=1626076072;
+        bh=3IQJ1W7w6EW+2OxO216yswM0KdnNnj2phzYTOeIckKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lSCYuuRBMsUHoalkQVgneUuZ8fS2rq0FmgpoRzJvGDylphVP2DCDYGjwwdYnkE7hj
-         rgKaIMBqEa5VDJWz0/YDGvh+ismLXWpEGb38ymLZJcxq3RdK+cIkAIsHtOg8i+KIrR
-         Tm7oQo40WE29PRb41fCp2rNj/HLCEoqnSQVQUCuw=
+        b=pQiV9B9YKvJD2nxSB2Pyd7k3bOVvXCszRmUKh8bqDPVhzViEttt9ru7xvLptQiE+i
+         BsPikMWqjwDrgImK9l43vnXHk7U+YplSHvaH2fALEeTytV2Jo6Z9kzdc2/Gcmn59uk
+         SnJ4ta+MBi+FmJE3I7Px2VNVFUlE8mT4DDwscq9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 350/593] brcmsmac: mac80211_if: Fix a resource leak in an error handling path
+Subject: [PATCH 5.13 487/800] net: pxa168_eth: Fix a potential data race in pxa168_eth_remove
 Date:   Mon, 12 Jul 2021 08:08:30 +0200
-Message-Id: <20210712060924.708096228@linuxfoundation.org>
+Message-Id: <20210712061018.985227812@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Pavel Machek <pavel@denx.de>
 
-[ Upstream commit 9a25344d5177c2b9285532236dc3d10a091f39a8 ]
+[ Upstream commit bd70957438f0cc4879cbdff8bbc8614bc1cddf49 ]
 
-If 'brcms_attach()' fails, we must undo the previous 'ieee80211_alloc_hw()'
-as already done in the remove function.
+Commit 0571a753cb07 cancelled delayed work too late, keeping small
+race. Cancel work sooner to close it completely.
 
-Fixes: 5b435de0d786 ("net: wireless: add brcm80211 drivers")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/8fbc171a1a493b38db5a6f0873c6021fca026a6c.1620852921.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+Fixes: 0571a753cb07 ("net: pxa168_eth: Fix a potential data race in pxa168_eth_remove")
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c    | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/pxa168_eth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
-index 818e523f6025..fb76b4a69a05 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
-@@ -1221,6 +1221,7 @@ static int brcms_bcma_probe(struct bcma_device *pdev)
- {
- 	struct brcms_info *wl;
- 	struct ieee80211_hw *hw;
-+	int ret;
+diff --git a/drivers/net/ethernet/marvell/pxa168_eth.c b/drivers/net/ethernet/marvell/pxa168_eth.c
+index e967867828d8..9b48ae4bac39 100644
+--- a/drivers/net/ethernet/marvell/pxa168_eth.c
++++ b/drivers/net/ethernet/marvell/pxa168_eth.c
+@@ -1528,6 +1528,7 @@ static int pxa168_eth_remove(struct platform_device *pdev)
+ 	struct net_device *dev = platform_get_drvdata(pdev);
+ 	struct pxa168_eth_private *pep = netdev_priv(dev);
  
- 	dev_info(&pdev->dev, "mfg %x core %x rev %d class %d irq %d\n",
- 		 pdev->id.manuf, pdev->id.id, pdev->id.rev, pdev->id.class,
-@@ -1245,11 +1246,16 @@ static int brcms_bcma_probe(struct bcma_device *pdev)
- 	wl = brcms_attach(pdev);
- 	if (!wl) {
- 		pr_err("%s: brcms_attach failed!\n", __func__);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_free_ieee80211;
- 	}
- 	brcms_led_register(wl);
- 
++	cancel_work_sync(&pep->tx_timeout_task);
+ 	if (pep->htpr) {
+ 		dma_free_coherent(pep->dev->dev.parent, HASH_ADDR_TABLE_SIZE,
+ 				  pep->htpr, pep->htpr_dma);
+@@ -1539,7 +1540,6 @@ static int pxa168_eth_remove(struct platform_device *pdev)
+ 	clk_disable_unprepare(pep->clk);
+ 	mdiobus_unregister(pep->smi_bus);
+ 	mdiobus_free(pep->smi_bus);
+-	cancel_work_sync(&pep->tx_timeout_task);
+ 	unregister_netdev(dev);
+ 	free_netdev(dev);
  	return 0;
-+
-+err_free_ieee80211:
-+	ieee80211_free_hw(hw);
-+	return ret;
- }
- 
- static int brcms_suspend(struct bcma_device *pdev)
 -- 
 2.30.2
 
