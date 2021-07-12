@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B4373C4B66
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FD013C5135
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240767AbhGLG46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:56:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57648 "EHLO mail.kernel.org"
+        id S1345466AbhGLHiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240506AbhGLG4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:56:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80026613BE;
-        Mon, 12 Jul 2021 06:53:10 +0000 (UTC)
+        id S1347401AbhGLHex (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:34:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 324BD60FF1;
+        Mon, 12 Jul 2021 07:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072791;
-        bh=nucrAFs0kQP9IRBcjH0nakZVfYgdC/gs8SR+BZz4lzw=;
+        s=korg; t=1626075112;
+        bh=3kdgafn+reZMBn18jSyt0suucMQpi0s0hWsQnMXn0yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jbc+8Xh5vf1ds1MwYWNkug95duNf+ucs9jbqjVLQ7hjxZnnnkeJM+5wvTVkI2G1mz
-         rN/9pymYYyUQlfQtwtMeFovjV8hGnmgScSQlX/s30Ir3+y+4uvryhH/qsF4UC1qK37
-         MG4RTh8XlIk97HFAACzx+KCwH/dzmDvI76otkRXg=
+        b=andnalTtGEWDcbBzZf6SKGUoxirNUXoDF+pcnRlKtctJ10tCPu4OZ3T/1UZ9t5E8k
+         rmHni0dnihXj2vyK7C7KgPONqRZjlHnyaO7iM0/CLb+FsdZz4VpAqHg2PduzDaqvn4
+         U01kGX6E0DObyVov9LQmgAGupl2GZCJICjWxBLtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathias Nyman <mathias.nyman@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Moritz Fischer <mdf@kernel.org>
-Subject: [PATCH 5.12 022/700] usb: renesas-xhci: Fix handling of unknown ROM state
+        stable@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.13 082/800] s390: mm: Fix secure storage access exception handling
 Date:   Mon, 12 Jul 2021 08:01:45 +0200
-Message-Id: <20210712060927.843195856@linuxfoundation.org>
+Message-Id: <20210712060924.650158422@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +40,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moritz Fischer <mdf@kernel.org>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-commit d143825baf15f204dac60acdf95e428182aa3374 upstream.
+commit 85b18d7b5e7ffefb2f076186511d39c4990aa005 upstream.
 
-The ROM load sometimes seems to return an unknown status
-(RENESAS_ROM_STATUS_NO_RESULT) instead of success / fail.
+Turns out that the bit 61 in the TEID is not always 1 and if that's
+the case the address space ID and the address are
+unpredictable. Without an address and its address space ID we can't
+export memory and hence we can only send a SIGSEGV to the process or
+panic the kernel depending on who caused the exception.
 
-If the ROM load indeed failed this leads to failures when trying to
-communicate with the controller later on.
+Unfortunately bit 61 is only reliable if we have the "misc" UV feature
+bit.
 
-Attempt to load firmware using RAM load in those cases.
-
-Fixes: 2478be82de44 ("usb: renesas-xhci: Add ROM loader for uPD720201")
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: 084ea4d611a3d ("s390/mm: add (non)secure page access exceptions handlers")
 Cc: stable@vger.kernel.org
-Cc: Mathias Nyman <mathias.nyman@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Vinod Koul <vkoul@kernel.org>
-Tested-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
-Link: https://lore.kernel.org/r/20210615153758.253572-1-mdf@kernel.org
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-pci-renesas.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/s390/boot/uv.c        |    1 +
+ arch/s390/include/asm/uv.h |    8 +++++++-
+ arch/s390/kernel/uv.c      |   10 ++++++++++
+ arch/s390/mm/fault.c       |   26 ++++++++++++++++++++++++++
+ 4 files changed, 44 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci-renesas.c
-+++ b/drivers/usb/host/xhci-pci-renesas.c
-@@ -207,7 +207,8 @@ static int renesas_check_rom_state(struc
- 			return 0;
+--- a/arch/s390/boot/uv.c
++++ b/arch/s390/boot/uv.c
+@@ -36,6 +36,7 @@ void uv_query_info(void)
+ 		uv_info.max_sec_stor_addr = ALIGN(uvcb.max_guest_stor_addr, PAGE_SIZE);
+ 		uv_info.max_num_sec_conf = uvcb.max_num_sec_conf;
+ 		uv_info.max_guest_cpu_id = uvcb.max_guest_cpu_id;
++		uv_info.uv_feature_indications = uvcb.uv_feature_indications;
+ 	}
  
- 		case RENESAS_ROM_STATUS_NO_RESULT: /* No result yet */
--			return 0;
-+			dev_dbg(&pdev->dev, "Unknown ROM status ...\n");
-+			break;
+ #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -73,6 +73,10 @@ enum uv_cmds_inst {
+ 	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
+ };
  
- 		case RENESAS_ROM_STATUS_ERROR: /* Error State */
- 		default: /* All other states are marked as "Reserved states" */
-@@ -224,13 +225,12 @@ static int renesas_fw_check_running(stru
- 	u8 fw_state;
- 	int err;
++enum uv_feat_ind {
++	BIT_UV_FEAT_MISC = 0,
++};
++
+ struct uv_cb_header {
+ 	u16 len;
+ 	u16 cmd;	/* Command Code */
+@@ -97,7 +101,8 @@ struct uv_cb_qui {
+ 	u64 max_guest_stor_addr;
+ 	u8  reserved88[158 - 136];
+ 	u16 max_guest_cpu_id;
+-	u8  reserveda0[200 - 160];
++	u64 uv_feature_indications;
++	u8  reserveda0[200 - 168];
+ } __packed __aligned(8);
  
--	/* Check if device has ROM and loaded, if so skip everything */
--	err = renesas_check_rom(pdev);
--	if (err) { /* we have rom */
--		err = renesas_check_rom_state(pdev);
--		if (!err)
--			return err;
--	}
+ /* Initialize Ultravisor */
+@@ -274,6 +279,7 @@ struct uv_info {
+ 	unsigned long max_sec_stor_addr;
+ 	unsigned int max_num_sec_conf;
+ 	unsigned short max_guest_cpu_id;
++	unsigned long uv_feature_indications;
+ };
+ 
+ extern struct uv_info uv_info;
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -364,6 +364,15 @@ static ssize_t uv_query_facilities(struc
+ static struct kobj_attribute uv_query_facilities_attr =
+ 	__ATTR(facilities, 0444, uv_query_facilities, NULL);
+ 
++static ssize_t uv_query_feature_indications(struct kobject *kobj,
++					    struct kobj_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%lx\n", uv_info.uv_feature_indications);
++}
++
++static struct kobj_attribute uv_query_feature_indications_attr =
++	__ATTR(feature_indications, 0444, uv_query_feature_indications, NULL);
++
+ static ssize_t uv_query_max_guest_cpus(struct kobject *kobj,
+ 				       struct kobj_attribute *attr, char *page)
+ {
+@@ -396,6 +405,7 @@ static struct kobj_attribute uv_query_ma
+ 
+ static struct attribute *uv_query_attrs[] = {
+ 	&uv_query_facilities_attr.attr,
++	&uv_query_feature_indications_attr.attr,
+ 	&uv_query_max_guest_cpus_attr.attr,
+ 	&uv_query_max_guest_vms_attr.attr,
+ 	&uv_query_max_guest_addr_attr.attr,
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -792,6 +792,32 @@ void do_secure_storage_access(struct pt_
+ 	struct page *page;
+ 	int rc;
+ 
 +	/*
-+	 * Only if device has ROM and loaded FW we can skip loading and
-+	 * return success. Otherwise (even unknown state), attempt to load FW.
++	 * bit 61 tells us if the address is valid, if it's not we
++	 * have a major problem and should stop the kernel or send a
++	 * SIGSEGV to the process. Unfortunately bit 61 is not
++	 * reliable without the misc UV feature so we need to check
++	 * for that as well.
 +	 */
-+	if (renesas_check_rom(pdev) && !renesas_check_rom_state(pdev))
-+		return 0;
- 
- 	/*
- 	 * Test if the device is actually needing the firmware. As most
++	if (test_bit_inv(BIT_UV_FEAT_MISC, &uv_info.uv_feature_indications) &&
++	    !test_bit_inv(61, &regs->int_parm_long)) {
++		/*
++		 * When this happens, userspace did something that it
++		 * was not supposed to do, e.g. branching into secure
++		 * memory. Trigger a segmentation fault.
++		 */
++		if (user_mode(regs)) {
++			send_sig(SIGSEGV, current, 0);
++			return;
++		}
++
++		/*
++		 * The kernel should never run into this case and we
++		 * have no way out of this situation.
++		 */
++		panic("Unexpected PGM 0x3d with TEID bit 61=0");
++	}
++
+ 	switch (get_fault_type(regs)) {
+ 	case USER_FAULT:
+ 		mm = current->mm;
 
 
