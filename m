@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BA7F3C4550
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 402613C4539
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbhGLGZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38730 "EHLO mail.kernel.org"
+        id S235306AbhGLGYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:24:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234873AbhGLGYO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:24:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A165561181;
-        Mon, 12 Jul 2021 06:20:33 +0000 (UTC)
+        id S234892AbhGLGYP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:24:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F058461183;
+        Mon, 12 Jul 2021 06:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070834;
-        bh=6L+9g9mSvqjtqi5SzJRUvbToaBGWsA3fKjNP2XSxAS0=;
+        s=korg; t=1626070836;
+        bh=2CQbUng5Nsn7B0NMNpN5W0OkZdM60MMhMInGhtGeFOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AzJlyJg4b9w04OlF0kP7XSkTMX3c6JN/vjZTxhKYHIv2Li7khk9jtWHMYVWxJWQLO
-         c5Ksp+30Nc40ZsKyoRme0/ujePcd2mXO9ettic5ZvL8ZjFOBI2hxQ7vzp3rAd2ttF9
-         jQjf+iXyzhXSmBkun6ZVfqOFZyRqxZNjK+itaoBg=
+        b=Goi38VDKXIAxi50boOBfPTZTEnt93yGcXGDiotZd5Iw1i+nVMSTZaOcrmAWWh4ftQ
+         La2BrXBEUWpwrwHd5+ms5aI8ikRAS4jQEfrtsO5UUZs9SRqs2p2f5EFzs4o/olCr7N
+         Ybzfx+vlogObNT7p+KDF8vA0iq9+lXTqODHZ/iXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        stable@vger.kernel.org, Tong Tiangen <tongtiangen@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 158/348] media: siano: Fix out-of-bounds warnings in smscore_load_firmware_family2()
-Date:   Mon, 12 Jul 2021 08:09:02 +0200
-Message-Id: <20210712060721.983154584@linuxfoundation.org>
+Subject: [PATCH 5.4 159/348] crypto: nitrox - fix unchecked variable in nitrox_register_interrupts
+Date:   Mon, 12 Jul 2021 08:09:03 +0200
+Message-Id: <20210712060722.091648900@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -40,161 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Tong Tiangen <tongtiangen@huawei.com>
 
-[ Upstream commit 13dfead49db07225335d4f587a560a2210391a1a ]
+[ Upstream commit 57c126661f50b884d3812e7db6e00f2e778eccfb ]
 
-Rename struct sms_msg_data4 to sms_msg_data5 and increase the size of
-its msg_data array from 4 to 5 elements. Notice that at some point
-the 5th element of msg_data is being accessed in function
-smscore_load_firmware_family2():
+Function nitrox_register_interrupts leaves variable 'nr_vecs' unchecked, which
+would be use as kcalloc parameter later.
 
-1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
-
-Also, there is no need for the object _trigger_msg_ of type struct
-sms_msg_data *, when _msg_ can be used, directly. Notice that msg_data
-in struct sms_msg_data is a one-element array, which causes multiple
-out-of-bounds warnings when accessing beyond its first element
-in function smscore_load_firmware_family2():
-
- 992                 struct sms_msg_data *trigger_msg =
- 993                         (struct sms_msg_data *) msg;
- 994
- 995                 pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
- 996                 SMS_INIT_MSG(&msg->x_msg_header,
- 997                                 MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
- 998                                 sizeof(struct sms_msg_hdr) +
- 999                                 sizeof(u32) * 5);
-1000
-1001                 trigger_msg->msg_data[0] = firmware->start_address;
-1002                                         /* Entry point */
-1003                 trigger_msg->msg_data[1] = 6; /* Priority */
-1004                 trigger_msg->msg_data[2] = 0x200; /* Stack size */
-1005                 trigger_msg->msg_data[3] = 0; /* Parameter */
-1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
-
-even when enough dynamic memory is allocated for _msg_:
-
- 929         /* PAGE_SIZE buffer shall be enough and dma aligned */
- 930         msg = kmalloc(PAGE_SIZE, GFP_KERNEL | coredev->gfp_buf_flags);
-
-but as _msg_ is casted to (struct sms_msg_data *):
-
- 992                 struct sms_msg_data *trigger_msg =
- 993                         (struct sms_msg_data *) msg;
-
-the out-of-bounds warnings are actually valid and should be addressed.
-
-Fix this by declaring object _msg_ of type struct sms_msg_data5 *,
-which contains a 5-elements array, instead of just 4. And use
-_msg_ directly, instead of creating object trigger_msg.
-
-This helps with the ongoing efforts to enable -Warray-bounds by fixing
-the following warnings:
-
-  CC [M]  drivers/media/common/siano/smscoreapi.o
-drivers/media/common/siano/smscoreapi.c: In function ‘smscore_load_firmware_family2’:
-drivers/media/common/siano/smscoreapi.c:1003:24: warning: array subscript 1 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1003 |   trigger_msg->msg_data[1] = 6; /* Priority */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-drivers/media/common/siano/smscoreapi.c:1004:24: warning: array subscript 2 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1004 |   trigger_msg->msg_data[2] = 0x200; /* Stack size */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-drivers/media/common/siano/smscoreapi.c:1005:24: warning: array subscript 3 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1005 |   trigger_msg->msg_data[3] = 0; /* Parameter */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-drivers/media/common/siano/smscoreapi.c:1006:24: warning: array subscript 4 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1006 |   trigger_msg->msg_data[4] = 4; /* Task ID */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-
-Fixes: 018b0c6f8acb ("[media] siano: make load firmware logic to work with newer firmwares")
-Co-developed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Fixes: 5155e118dda9 ("crypto: cavium/nitrox - use pci_alloc_irq_vectors() while enabling MSI-X.")
+Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/common/siano/smscoreapi.c | 22 +++++++++-------------
- drivers/media/common/siano/smscoreapi.h |  4 ++--
- 2 files changed, 11 insertions(+), 15 deletions(-)
+ drivers/crypto/cavium/nitrox/nitrox_isr.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/common/siano/smscoreapi.c b/drivers/media/common/siano/smscoreapi.c
-index 0ba51dacc580..ce94b5205fd6 100644
---- a/drivers/media/common/siano/smscoreapi.c
-+++ b/drivers/media/common/siano/smscoreapi.c
-@@ -908,7 +908,7 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
- 					 void *buffer, size_t size)
- {
- 	struct sms_firmware *firmware = (struct sms_firmware *) buffer;
--	struct sms_msg_data4 *msg;
-+	struct sms_msg_data5 *msg;
- 	u32 mem_address,  calc_checksum = 0;
- 	u32 i, *ptr;
- 	u8 *payload = firmware->payload;
-@@ -989,24 +989,20 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
- 		goto exit_fw_download;
+diff --git a/drivers/crypto/cavium/nitrox/nitrox_isr.c b/drivers/crypto/cavium/nitrox/nitrox_isr.c
+index 3dec570a190a..10e3408bf704 100644
+--- a/drivers/crypto/cavium/nitrox/nitrox_isr.c
++++ b/drivers/crypto/cavium/nitrox/nitrox_isr.c
+@@ -306,6 +306,10 @@ int nitrox_register_interrupts(struct nitrox_device *ndev)
+ 	 * Entry 192: NPS_CORE_INT_ACTIVE
+ 	 */
+ 	nr_vecs = pci_msix_vec_count(pdev);
++	if (nr_vecs < 0) {
++		dev_err(DEV(ndev), "Error in getting vec count %d\n", nr_vecs);
++		return nr_vecs;
++	}
  
- 	if (coredev->mode == DEVICE_MODE_NONE) {
--		struct sms_msg_data *trigger_msg =
--			(struct sms_msg_data *) msg;
--
- 		pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
- 		SMS_INIT_MSG(&msg->x_msg_header,
- 				MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
--				sizeof(struct sms_msg_hdr) +
--				sizeof(u32) * 5);
-+				sizeof(*msg));
- 
--		trigger_msg->msg_data[0] = firmware->start_address;
-+		msg->msg_data[0] = firmware->start_address;
- 					/* Entry point */
--		trigger_msg->msg_data[1] = 6; /* Priority */
--		trigger_msg->msg_data[2] = 0x200; /* Stack size */
--		trigger_msg->msg_data[3] = 0; /* Parameter */
--		trigger_msg->msg_data[4] = 4; /* Task ID */
-+		msg->msg_data[1] = 6; /* Priority */
-+		msg->msg_data[2] = 0x200; /* Stack size */
-+		msg->msg_data[3] = 0; /* Parameter */
-+		msg->msg_data[4] = 4; /* Task ID */
- 
--		rc = smscore_sendrequest_and_wait(coredev, trigger_msg,
--					trigger_msg->x_msg_header.msg_length,
-+		rc = smscore_sendrequest_and_wait(coredev, msg,
-+					msg->x_msg_header.msg_length,
- 					&coredev->trigger_done);
- 	} else {
- 		SMS_INIT_MSG(&msg->x_msg_header, MSG_SW_RELOAD_EXEC_REQ,
-diff --git a/drivers/media/common/siano/smscoreapi.h b/drivers/media/common/siano/smscoreapi.h
-index a2f95f4899c2..cd6c981eb1f9 100644
---- a/drivers/media/common/siano/smscoreapi.h
-+++ b/drivers/media/common/siano/smscoreapi.h
-@@ -629,9 +629,9 @@ struct sms_msg_data2 {
- 	u32 msg_data[2];
- };
- 
--struct sms_msg_data4 {
-+struct sms_msg_data5 {
- 	struct sms_msg_hdr x_msg_header;
--	u32 msg_data[4];
-+	u32 msg_data[5];
- };
- 
- struct sms_data_download {
+ 	/* Enable MSI-X */
+ 	ret = pci_alloc_irq_vectors(pdev, nr_vecs, nr_vecs, PCI_IRQ_MSIX);
 -- 
 2.30.2
 
