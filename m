@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 689A73C48D0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89FC93C4D9C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238559AbhGLGlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34338 "EHLO mail.kernel.org"
+        id S238818AbhGLHNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238371AbhGLGkJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C130860FD8;
-        Mon, 12 Jul 2021 06:37:00 +0000 (UTC)
+        id S245383AbhGLHMR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:12:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE2EC60C40;
+        Mon, 12 Jul 2021 07:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071821;
-        bh=E5BnYOzIC2rS0Shxh1oJ1QRMJjd/fLnsEcaEPllvfao=;
+        s=korg; t=1626073768;
+        bh=ZEf5bbSSXo3CDVXgfzGXaIxQqQTFuxtf50ZzYxxmL6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aAYebhG2xBI2zPDtYySHXjItBbmF6JDH1H6z+v7lYgBRK7uHv5ebWLQ5n9fpo15hw
-         jaZhLKVG4dWzmoQw7gs/dY3Z8DnAOxrKXW8wq1ZnmhqazFUTSQkCfAJtVaLSuhQI52
-         NhaoyXWxRyURjc8hZPDkY18mAcncqrryxGXj8eAI=
+        b=oGZ5zQmiJ4sVarWUonuWVndiIvY50yUMdjTY+HtxGEE2C0pBwW0n9joiYDgmuofJs
+         uC6lCcqurYaeIPxOx0T8D6eBGqC0B/rSRz9WHBg5yk4830Z84DpWCFdcfqJpsh/OBS
+         ELwbDJ70AH32JJx3HSWXT2KlFOKKUFlpM4a/FkmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 233/593] media: exynos4-is: Fix a use after free in isp_video_release
+Subject: [PATCH 5.12 310/700] sched/rt: Fix RT utilization tracking during policy change
 Date:   Mon, 12 Jul 2021 08:06:33 +0200
-Message-Id: <20210712060908.540696907@linuxfoundation.org>
+Message-Id: <20210712061009.353140419@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit 01fe904c9afd26e79c1f73aa0ca2e3d785e5e319 ]
+[ Upstream commit fecfcbc288e9f4923f40fd23ca78a6acdc7fdf6c ]
 
-In isp_video_release, file->private_data is freed via
-_vb2_fop_release()->v4l2_fh_release(). But the freed
-file->private_data is still used in v4l2_fh_is_singular_file()
-->v4l2_fh_is_singular(file->private_data), which is a use
-after free bug.
+RT keeps track of the utilization on a per-rq basis with the structure
+avg_rt. This utilization is updated during task_tick_rt(),
+put_prev_task_rt() and set_next_task_rt(). However, when the current
+running task changes its policy, set_next_task_rt() which would usually
+take care of updating the utilization when the rq starts running RT tasks,
+will not see a such change, leaving the avg_rt structure outdated. When
+that very same task will be dequeued later, put_prev_task_rt() will then
+update the utilization, based on a wrong last_update_time, leading to a
+huge spike in the RT utilization signal.
 
-My patch uses a variable 'is_singular_file' to avoid the uaf.
-v3: https://lore.kernel.org/patchwork/patch/1419058/
+The signal would eventually recover from this issue after few ms. Even if
+no RT tasks are run, avg_rt is also updated in __update_blocked_others().
+But as the CPU capacity depends partly on the avg_rt, this issue has
+nonetheless a significant impact on the scheduler.
 
-Fixes: 34947b8aebe3f ("[media] exynos4-is: Add the FIMC-IS ISP capture DMA driver")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fix this issue by ensuring a load update when a running task changes
+its policy to RT.
+
+Fixes: 371bf427 ("sched/rt: Add rt_rq utilization tracking")
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/1624271872-211872-2-git-send-email-vincent.donnefort@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-isp-video.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ kernel/sched/rt.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-isp-video.c b/drivers/media/platform/exynos4-is/fimc-isp-video.c
-index 8d9dc597deaa..83688a7982f7 100644
---- a/drivers/media/platform/exynos4-is/fimc-isp-video.c
-+++ b/drivers/media/platform/exynos4-is/fimc-isp-video.c
-@@ -305,17 +305,20 @@ static int isp_video_release(struct file *file)
- 	struct fimc_is_video *ivc = &isp->video_capture;
- 	struct media_entity *entity = &ivc->ve.vdev.entity;
- 	struct media_device *mdev = entity->graph_obj.mdev;
-+	bool is_singular_file;
- 
- 	mutex_lock(&isp->video_lock);
- 
--	if (v4l2_fh_is_singular_file(file) && ivc->streaming) {
-+	is_singular_file = v4l2_fh_is_singular_file(file);
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 8f720b71d13d..e617287052d5 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -2331,13 +2331,20 @@ void __init init_sched_rt_class(void)
+ static void switched_to_rt(struct rq *rq, struct task_struct *p)
+ {
+ 	/*
+-	 * If we are already running, then there's nothing
+-	 * that needs to be done. But if we are not running
+-	 * we may need to preempt the current running task.
+-	 * If that current running task is also an RT task
++	 * If we are running, update the avg_rt tracking, as the running time
++	 * will now on be accounted into the latter.
++	 */
++	if (task_current(rq, p)) {
++		update_rt_rq_load_avg(rq_clock_pelt(rq), rq, 0);
++		return;
++	}
 +
-+	if (is_singular_file && ivc->streaming) {
- 		media_pipeline_stop(entity);
- 		ivc->streaming = 0;
- 	}
- 
- 	_vb2_fop_release(file, NULL);
- 
--	if (v4l2_fh_is_singular_file(file)) {
-+	if (is_singular_file) {
- 		fimc_pipeline_call(&ivc->ve, close);
- 
- 		mutex_lock(&mdev->graph_mutex);
++	/*
++	 * If we are not running we may need to preempt the current
++	 * running task. If that current running task is also an RT task
+ 	 * then see if we can move to another run queue.
+ 	 */
+-	if (task_on_rq_queued(p) && rq->curr != p) {
++	if (task_on_rq_queued(p)) {
+ #ifdef CONFIG_SMP
+ 		if (p->nr_cpus_allowed > 1 && rq->rt.overloaded)
+ 			rt_queue_push_tasks(rq);
 -- 
 2.30.2
 
