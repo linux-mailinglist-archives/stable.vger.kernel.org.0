@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D22A3C4D61
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD983C4D29
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241838AbhGLHM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:12:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42946 "EHLO mail.kernel.org"
+        id S242431AbhGLHMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244224AbhGLHKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244215AbhGLHKb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 03:10:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D68956052B;
-        Mon, 12 Jul 2021 07:07:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B684260FF0;
+        Mon, 12 Jul 2021 07:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073633;
-        bh=rLva9fMDKvriGK2gKoaPkMiCSro8/+SWf590MWO1T18=;
+        s=korg; t=1626073636;
+        bh=LzbG7fXZjrsaRA8HcC06b775tF3WKW6YxniWQfninkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QeVFkgg7NZoY7VCodjkxd544EcNi9wAYtce9qZ9/0h3u71irQm2aj8CHZyDlsySi0
-         bg/viGq21SjumlZLHNoptb95U8ZSQhTHrh2M5v+8+ZlvR37Q7ubm5/RITsDB2uQJds
-         yBj9eElcbRfLlexoXJolHmaUYJ9PigxmzvO/As7M=
+        b=1dnIBISt+bfjClGyLkSC2szk8vA/lCsbTrbSDrAcWFJp1Ktieufj6sxz8oiEL+Vxt
+         CqfcGrCC871kkkoYR4FNff8IkynXceqGY/bI7anDO/IAu6abUU29+J2FqrQvVu4zin
+         vHJ//s09O1PHOqUtMKrjYHDh8Q245A7eUiv3wmnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 264/700] evm: fix writing <securityfs>/evm overflow
-Date:   Mon, 12 Jul 2021 08:05:47 +0200
-Message-Id: <20210712061004.287297169@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Richey <joerichey@google.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 265/700] x86/elf: Use _BITUL() macro in UAPI headers
+Date:   Mon, 12 Jul 2021 08:05:48 +0200
+Message-Id: <20210712061004.408945447@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -39,42 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mimi Zohar <zohar@linux.ibm.com>
+From: Joe Richey <joerichey@google.com>
 
-[ Upstream commit 49219d9b8785ba712575c40e48ce0f7461254626 ]
+[ Upstream commit d06aca989c243dd9e5d3e20aa4e5c2ecfdd07050 ]
 
-EVM_SETUP_COMPLETE is defined as 0x80000000, which is larger than INT_MAX.
-The "-fno-strict-overflow" compiler option properly prevents signaling
-EVM that the EVM policy setup is complete.  Define and read an unsigned
-int.
+Replace BIT() in x86's UAPI header with _BITUL(). BIT() is not defined
+in the UAPI headers and its usage may cause userspace build errors.
 
-Fixes: f00d79750712 ("EVM: Allow userspace to signal an RSA key has been loaded")
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 742c45c3ecc9 ("x86/elf: Enumerate kernel FSGSBASE capability in AT_HWCAP2")
+Signed-off-by: Joe Richey <joerichey@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210521085849.37676-2-joerichey94@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/evm/evm_secfs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/include/uapi/asm/hwcap2.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
-index c175e2b659e4..5f0da41bccd0 100644
---- a/security/integrity/evm/evm_secfs.c
-+++ b/security/integrity/evm/evm_secfs.c
-@@ -66,12 +66,13 @@ static ssize_t evm_read_key(struct file *filp, char __user *buf,
- static ssize_t evm_write_key(struct file *file, const char __user *buf,
- 			     size_t count, loff_t *ppos)
- {
--	int i, ret;
-+	unsigned int i;
-+	int ret;
+diff --git a/arch/x86/include/uapi/asm/hwcap2.h b/arch/x86/include/uapi/asm/hwcap2.h
+index 5fdfcb47000f..054604aba9f0 100644
+--- a/arch/x86/include/uapi/asm/hwcap2.h
++++ b/arch/x86/include/uapi/asm/hwcap2.h
+@@ -2,10 +2,12 @@
+ #ifndef _ASM_X86_HWCAP2_H
+ #define _ASM_X86_HWCAP2_H
  
- 	if (!capable(CAP_SYS_ADMIN) || (evm_initialized & EVM_SETUP_COMPLETE))
- 		return -EPERM;
++#include <linux/const.h>
++
+ /* MONITOR/MWAIT enabled in Ring 3 */
+-#define HWCAP2_RING3MWAIT		(1 << 0)
++#define HWCAP2_RING3MWAIT		_BITUL(0)
  
--	ret = kstrtoint_from_user(buf, count, 0, &i);
-+	ret = kstrtouint_from_user(buf, count, 0, &i);
+ /* Kernel allows FSGSBASE instructions available in Ring 3 */
+-#define HWCAP2_FSGSBASE			BIT(1)
++#define HWCAP2_FSGSBASE			_BITUL(1)
  
- 	if (ret)
- 		return ret;
+ #endif
 -- 
 2.30.2
 
