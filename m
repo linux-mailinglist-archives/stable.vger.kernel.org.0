@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8C5B3C468A
+	by mail.lfdr.de (Postfix) with ESMTP id F11823C468B
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235374AbhGLG0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:26:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46026 "EHLO mail.kernel.org"
+        id S234752AbhGLG0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:26:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234795AbhGLGZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234801AbhGLGZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:25:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CB666115C;
-        Mon, 12 Jul 2021 06:22:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9063361175;
+        Mon, 12 Jul 2021 06:22:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070973;
-        bh=UmSGOiZVN2BZcaFMNMeQp4ABHSZA4Qxowtk2Jfxqxjs=;
+        s=korg; t=1626070976;
+        bh=+jnQwEwgY+JBGAUVJ2F9CXKCTXjX1MPPK7IxvWL91BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2EQcPAU+g2vkDYLHbAHfssl5ZIYrZCyT4EqFIUvRDzlIHS7eEyfSvh3AoRJmeWcp6
-         EY0HoXFNuLh1aBWLoTTRecr1kzRE7ObakYO/nLpYfvBCYZdeagVIVNehe09eXWLzd4
-         OOLmYvQr9kRUdQi7+h1mfIi9DINoitoFPSQk9ads=
+        b=KOTwvbyzfrQw+vrwUDRBLfNWeH6OOxLGxGdLqr/gSbq7jy3XonoIyYp3Y0htNnwfW
+         XsZEEZbW3By78IgVZgN0OKl7bfblskESH5u/A2eV82Uj49GBAsTz33i4+JpySh+5yJ
+         x1JI0nne3wmGw78aQ9Dy+BdV9gSbRChkMfJXc7u0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
+        Seth Forshee <seth.forshee@canonical.com>,
         Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 221/348] net: sched: add barrier to ensure correct ordering for lockless qdisc
-Date:   Mon, 12 Jul 2021 08:10:05 +0200
-Message-Id: <20210712060731.018723515@linuxfoundation.org>
+Subject: [PATCH 5.4 222/348] tls: prevent oversized sendfile() hangs by ignoring MSG_MORE
+Date:   Mon, 12 Jul 2021 08:10:06 +0200
+Message-Id: <20210712060731.131670855@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,66 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 89837eb4b2463c556a123437f242d6c2bc62ce81 ]
+[ Upstream commit d452d48b9f8b1a7f8152d33ef52cfd7fe1735b0a ]
 
-The spin_trylock() was assumed to contain the implicit
-barrier needed to ensure the correct ordering between
-STATE_MISSED setting/clearing and STATE_MISSED checking
-in commit a90c57f2cedd ("net: sched: fix packet stuck
-problem for lockless qdisc").
+We got multiple reports that multi_chunk_sendfile test
+case from tls selftest fails. This was sort of expected,
+as the original fix was never applied (see it in the first
+Link:). The test in question uses sendfile() with count
+larger than the size of the underlying file. This will
+make splice set MSG_MORE on all sendpage calls, meaning
+TLS will never close and flush the last partial record.
 
-But it turns out that spin_trylock() only has load-acquire
-semantic, for strongly-ordered system(like x86), the compiler
-barrier implicitly contained in spin_trylock() seems enough
-to ensure the correct ordering. But for weakly-orderly system
-(like arm64), the store-release semantic is needed to ensure
-the correct ordering as clear_bit() and test_bit() is store
-operation, see queued_spin_lock().
+Eric seem to have addressed a similar problem in
+commit 35f9c09fe9c7 ("tcp: tcp_sendpages() should call tcp_push() once")
+by introducing MSG_SENDPAGE_NOTLAST. Unlike MSG_MORE
+MSG_SENDPAGE_NOTLAST is not set on the last call
+of a "pipefull" of data (PIPE_DEF_BUFFERS == 16,
+so every 16 pages or whenever we run out of data).
 
-So add the explicit barrier to ensure the correct ordering
-for the above case.
+Having a break every 16 pages should be fine, TLS
+can pack exactly 4 pages into a record, so for
+aligned reads there should be no difference,
+unaligned may see one extra record per sendpage().
 
-Fixes: a90c57f2cedd ("net: sched: fix packet stuck problem for lockless qdisc")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Acked-by: Jakub Kicinski <kuba@kernel.org>
+Sticking to TCP semantics seems preferable to modifying
+splice, but we can revisit it if real life scenarios
+show a regression.
+
+Reported-by: Vadim Fedorenko <vfedorenko@novek.ru>
+Reported-by: Seth Forshee <seth.forshee@canonical.com>
+Link: https://lore.kernel.org/netdev/1591392508-14592-1-git-send-email-pooja.trivedi@stackpath.com/
+Fixes: 3c4d7559159b ("tls: kernel TLS support")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Tested-by: Seth Forshee <seth.forshee@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sch_generic.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/tls/tls_sw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index 0852f3e51360..0cb0a4bcb544 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -160,6 +160,12 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
- 		if (spin_trylock(&qdisc->seqlock))
- 			goto nolock_empty;
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index cdb65aa54be7..7fb5c067f429 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1150,7 +1150,7 @@ static int tls_sw_do_sendpage(struct sock *sk, struct page *page,
+ 	int ret = 0;
+ 	bool eor;
  
-+		/* Paired with smp_mb__after_atomic() to make sure
-+		 * STATE_MISSED checking is synchronized with clearing
-+		 * in pfifo_fast_dequeue().
-+		 */
-+		smp_mb__before_atomic();
-+
- 		/* If the MISSED flag is set, it means other thread has
- 		 * set the MISSED flag before second spin_trylock(), so
- 		 * we can return false here to avoid multi cpus doing
-@@ -177,6 +183,12 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
- 		 */
- 		set_bit(__QDISC_STATE_MISSED, &qdisc->state);
+-	eor = !(flags & (MSG_MORE | MSG_SENDPAGE_NOTLAST));
++	eor = !(flags & MSG_SENDPAGE_NOTLAST);
+ 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
  
-+		/* spin_trylock() only has load-acquire semantic, so use
-+		 * smp_mb__after_atomic() to ensure STATE_MISSED is set
-+		 * before doing the second spin_trylock().
-+		 */
-+		smp_mb__after_atomic();
-+
- 		/* Retry again in case other CPU may not see the new flag
- 		 * after it releases the lock at the end of qdisc_run_end().
- 		 */
+ 	/* Call the sk_stream functions to manage the sndbuf mem. */
 -- 
 2.30.2
 
