@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E273C4823
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB6A83C47F9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234994AbhGLGgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
+        id S236169AbhGLGfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235741AbhGLGfV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:35:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EE3061106;
-        Mon, 12 Jul 2021 06:32:18 +0000 (UTC)
+        id S237252AbhGLGeO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:34:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3768D61178;
+        Mon, 12 Jul 2021 06:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071538;
-        bh=5o7mChQOhAcXX0gJmZ5pdyx0Oi6xni6Jpc6iEBQqxGU=;
+        s=korg; t=1626071438;
+        bh=I+m9Xmztvswkqnx/OgxmcxrQUD42OS7yHXFVcRfIjro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cndqG3lTFGp7JGuZcUf8XKOWSdEqpeqbQlw3c5YaggJKQo+ANw+vk7vMH/u4ucuk3
-         2/xikWB8x6nDVmeU/Bc1oBOpgkuv39AV9q2ax3ajU697esVYNQVxSplf/NL50FNUgD
-         nKBzT+qgLyY45FnGRmGbmkAEqcMulBh7VVcLdMro=
+        b=16tgekHrFKqd5sP9KzTsTumUWF554fsi7gg+hqTLfrWE2GwH+VL2ZHMXZzJB49SIB
+         fqugzryy8jJF/A+Js27vlKophbSFH5UdBGMCq3qYYtTcPOPK01PD9uEgoKZ8G2Rfw/
+         3CDRRUQpzMJA6pdOKeWvolN7df5ta6/qpVN5ci8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.10 070/593] clk: agilex/stratix10: fix bypass representation
-Date:   Mon, 12 Jul 2021 08:03:50 +0200
-Message-Id: <20210712060850.863459956@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.10 071/593] rtc: stm32: Fix unbalanced clk_disable_unprepare() on probe error path
+Date:   Mon, 12 Jul 2021 08:03:51 +0200
+Message-Id: <20210712060850.958809290@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -39,178 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-commit 6855ee839699bdabb4b16cf942557fd763bcb1fa upstream.
+commit 950ac33dbe6ff656a623d862022f0762ec061ba7 upstream.
 
-Each of these clocks(s2f_usr0/1, sdmmc_clk, gpio_db, emac_ptp,
-emac0/1/2) have a bypass setting that can use the boot_clk. The
-previous representation was not correct.
+The STM32MP1 RTC may have 2 clocks, the pclk and the rtc_ck.
 
-Fix the representation.
+If clk_prepare_enable() fails for the second clock (rtc_ck) we must only
+call clk_disable_unprepare() for the first clock (pclk) but currently we
+call it on both leading to a WARN:
 
-Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
+[   15.629568] WARNING: CPU: 0 PID: 146 at drivers/clk/clk.c:958 clk_core_disable+0xb0/0xc8
+[   15.637620] ck_rtc already disabled
+[   15.663322] CPU: 0 PID: 146 Comm: systemd-udevd Not tainted 5.4.77-pknbsp-svn5759-atag-v5.4.77-204-gea4235203137-dirty #2413
+[   15.674510] Hardware name: STM32 (Device Tree Support)
+[   15.679658] [<c0111148>] (unwind_backtrace) from [<c010c0b8>] (show_stack+0x10/0x14)
+[   15.687371] [<c010c0b8>] (show_stack) from [<c0ab3d28>] (dump_stack+0xc0/0xe0)
+[   15.694574] [<c0ab3d28>] (dump_stack) from [<c012360c>] (__warn+0xc8/0xf0)
+[   15.701428] [<c012360c>] (__warn) from [<c0123694>] (warn_slowpath_fmt+0x60/0x94)
+[   15.708894] [<c0123694>] (warn_slowpath_fmt) from [<c053b518>] (clk_core_disable+0xb0/0xc8)
+[   15.717230] [<c053b518>] (clk_core_disable) from [<c053c190>] (clk_core_disable_lock+0x18/0x24)
+[   15.725924] [<c053c190>] (clk_core_disable_lock) from [<bf0adc44>] (stm32_rtc_probe+0x124/0x5e4 [rtc_stm32])
+[   15.735739] [<bf0adc44>] (stm32_rtc_probe [rtc_stm32]) from [<c05f7d4c>] (platform_drv_probe+0x48/0x98)
+[   15.745095] [<c05f7d4c>] (platform_drv_probe) from [<c05f5cec>] (really_probe+0x1f0/0x458)
+[   15.753338] [<c05f5cec>] (really_probe) from [<c05f61c4>] (driver_probe_device+0x70/0x1c4)
+[   15.761584] [<c05f61c4>] (driver_probe_device) from [<c05f6580>] (device_driver_attach+0x58/0x60)
+[   15.770439] [<c05f6580>] (device_driver_attach) from [<c05f6654>] (__driver_attach+0xcc/0x170)
+[   15.779032] [<c05f6654>] (__driver_attach) from [<c05f40d8>] (bus_for_each_dev+0x58/0x7c)
+[   15.787191] [<c05f40d8>] (bus_for_each_dev) from [<c05f4ffc>] (bus_add_driver+0xdc/0x1f8)
+[   15.795352] [<c05f4ffc>] (bus_add_driver) from [<c05f6ed8>] (driver_register+0x7c/0x110)
+[   15.803425] [<c05f6ed8>] (driver_register) from [<c01027bc>] (do_one_initcall+0x70/0x1b8)
+[   15.811588] [<c01027bc>] (do_one_initcall) from [<c01a1094>] (do_init_module+0x58/0x1f8)
+[   15.819660] [<c01a1094>] (do_init_module) from [<c01a0074>] (load_module+0x1e58/0x23c8)
+[   15.827646] [<c01a0074>] (load_module) from [<c01a0860>] (sys_finit_module+0xa0/0xd4)
+[   15.835459] [<c01a0860>] (sys_finit_module) from [<c01011e0>] (__sys_trace_return+0x0/0x20)
+
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
 Cc: stable@vger.kernel.org
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20210611025201.118799-2-dinguyen@kernel.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1623087421-19722-1-git-send-email-martin.fuzzey@flowbird.group
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/socfpga/clk-agilex.c |   57 +++++++++++++++++++++++++++++++--------
- drivers/clk/socfpga/clk-s10.c    |   55 ++++++++++++++++++++++++++++++-------
- 2 files changed, 91 insertions(+), 21 deletions(-)
+ drivers/rtc/rtc-stm32.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/socfpga/clk-agilex.c
-+++ b/drivers/clk/socfpga/clk-agilex.c
-@@ -186,6 +186,41 @@ static const struct clk_parent_data noc_
- 	  .name = "boot_clk", },
- };
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -754,7 +754,7 @@ static int stm32_rtc_probe(struct platfo
  
-+static const struct clk_parent_data sdmmc_mux[] = {
-+	{ .fw_name = "sdmmc_free_clk",
-+	  .name = "sdmmc_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
-+
-+static const struct clk_parent_data s2f_user1_mux[] = {
-+	{ .fw_name = "s2f_user1_free_clk",
-+	  .name = "s2f_user1_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
-+
-+static const struct clk_parent_data psi_mux[] = {
-+	{ .fw_name = "psi_ref_free_clk",
-+	  .name = "psi_ref_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
-+
-+static const struct clk_parent_data gpio_db_mux[] = {
-+	{ .fw_name = "gpio_db_free_clk",
-+	  .name = "gpio_db_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
-+
-+static const struct clk_parent_data emac_ptp_mux[] = {
-+	{ .fw_name = "emac_ptp_free_clk",
-+	  .name = "emac_ptp_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
-+
- /* clocks in AO (always on) controller */
- static const struct stratix10_pll_clock agilex_pll_clks[] = {
- 	{ AGILEX_BOOT_CLK, "boot_clk", boot_mux, ARRAY_SIZE(boot_mux), 0,
-@@ -223,7 +258,7 @@ static const struct stratix10_perip_cnt_
- 	{ AGILEX_GPIO_DB_FREE_CLK, "gpio_db_free_clk", NULL, gpio_db_free_mux,
- 	  ARRAY_SIZE(gpio_db_free_mux), 0, 0xE0, 0, 0x88, 3},
- 	{ AGILEX_SDMMC_FREE_CLK, "sdmmc_free_clk", NULL, sdmmc_free_mux,
--	  ARRAY_SIZE(sdmmc_free_mux), 0, 0xE4, 0, 0x88, 4},
-+	  ARRAY_SIZE(sdmmc_free_mux), 0, 0xE4, 0, 0, 0},
- 	{ AGILEX_S2F_USER0_FREE_CLK, "s2f_user0_free_clk", NULL, s2f_usr0_free_mux,
- 	  ARRAY_SIZE(s2f_usr0_free_mux), 0, 0xE8, 0, 0, 0},
- 	{ AGILEX_S2F_USER1_FREE_CLK, "s2f_user1_free_clk", NULL, s2f_usr1_free_mux,
-@@ -265,16 +300,16 @@ static const struct stratix10_gate_clock
- 	  1, 0, 0, 0, 0x94, 27, 0},
- 	{ AGILEX_EMAC2_CLK, "emac2_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0x7C,
- 	  2, 0, 0, 0, 0x94, 28, 0},
--	{ AGILEX_EMAC_PTP_CLK, "emac_ptp_clk", "emac_ptp_free_clk", NULL, 1, 0, 0x7C,
--	  3, 0, 0, 0, 0, 0, 0},
--	{ AGILEX_GPIO_DB_CLK, "gpio_db_clk", "gpio_db_free_clk", NULL, 1, 0, 0x7C,
--	  4, 0x98, 0, 16, 0, 0, 0},
--	{ AGILEX_SDMMC_CLK, "sdmmc_clk", "sdmmc_free_clk", NULL, 1, 0, 0x7C,
--	  5, 0, 0, 0, 0, 0, 4},
--	{ AGILEX_S2F_USER1_CLK, "s2f_user1_clk", "s2f_user1_free_clk", NULL, 1, 0, 0x7C,
--	  6, 0, 0, 0, 0, 0, 0},
--	{ AGILEX_PSI_REF_CLK, "psi_ref_clk", "psi_ref_free_clk", NULL, 1, 0, 0x7C,
--	  7, 0, 0, 0, 0, 0, 0},
-+	{ AGILEX_EMAC_PTP_CLK, "emac_ptp_clk", NULL, emac_ptp_mux, ARRAY_SIZE(emac_ptp_mux), 0, 0x7C,
-+	  3, 0, 0, 0, 0x88, 2, 0},
-+	{ AGILEX_GPIO_DB_CLK, "gpio_db_clk", NULL, gpio_db_mux, ARRAY_SIZE(gpio_db_mux), 0, 0x7C,
-+	  4, 0x98, 0, 16, 0x88, 3, 0},
-+	{ AGILEX_SDMMC_CLK, "sdmmc_clk", NULL, sdmmc_mux, ARRAY_SIZE(sdmmc_mux), 0, 0x7C,
-+	  5, 0, 0, 0, 0x88, 4, 4},
-+	{ AGILEX_S2F_USER1_CLK, "s2f_user1_clk", NULL, s2f_user1_mux, ARRAY_SIZE(s2f_user1_mux), 0, 0x7C,
-+	  6, 0, 0, 0, 0x88, 5, 0},
-+	{ AGILEX_PSI_REF_CLK, "psi_ref_clk", NULL, psi_mux, ARRAY_SIZE(psi_mux), 0, 0x7C,
-+	  7, 0, 0, 0, 0x88, 6, 0},
- 	{ AGILEX_USB_CLK, "usb_clk", "l4_mp_clk", NULL, 1, 0, 0x7C,
- 	  8, 0, 0, 0, 0, 0, 0},
- 	{ AGILEX_SPI_M_CLK, "spi_m_clk", "l4_mp_clk", NULL, 1, 0, 0x7C,
---- a/drivers/clk/socfpga/clk-s10.c
-+++ b/drivers/clk/socfpga/clk-s10.c
-@@ -144,6 +144,41 @@ static const struct clk_parent_data mpu_
- 	  .name = "f2s-free-clk", },
- };
+ 	ret = clk_prepare_enable(rtc->rtc_ck);
+ 	if (ret)
+-		goto err;
++		goto err_no_rtc_ck;
  
-+static const struct clk_parent_data sdmmc_mux[] = {
-+	{ .fw_name = "sdmmc_free_clk",
-+	  .name = "sdmmc_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
+ 	if (rtc->data->need_dbp)
+ 		regmap_update_bits(rtc->dbp, rtc->dbp_reg,
+@@ -830,10 +830,12 @@ static int stm32_rtc_probe(struct platfo
+ 	}
+ 
+ 	return 0;
 +
-+static const struct clk_parent_data s2f_user1_mux[] = {
-+	{ .fw_name = "s2f_user1_free_clk",
-+	  .name = "s2f_user1_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
-+
-+static const struct clk_parent_data psi_mux[] = {
-+	{ .fw_name = "psi_ref_free_clk",
-+	  .name = "psi_ref_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
-+
-+static const struct clk_parent_data gpio_db_mux[] = {
-+	{ .fw_name = "gpio_db_free_clk",
-+	  .name = "gpio_db_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
-+
-+static const struct clk_parent_data emac_ptp_mux[] = {
-+	{ .fw_name = "emac_ptp_free_clk",
-+	  .name = "emac_ptp_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
-+};
-+
- /* clocks in AO (always on) controller */
- static const struct stratix10_pll_clock s10_pll_clks[] = {
- 	{ STRATIX10_BOOT_CLK, "boot_clk", boot_mux, ARRAY_SIZE(boot_mux), 0,
-@@ -247,16 +282,16 @@ static const struct stratix10_gate_clock
- 	  1, 0, 0, 0, 0xDC, 27, 0},
- 	{ STRATIX10_EMAC2_CLK, "emac2_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0xA4,
- 	  2, 0, 0, 0, 0xDC, 28, 0},
--	{ STRATIX10_EMAC_PTP_CLK, "emac_ptp_clk", "emac_ptp_free_clk", NULL, 1, 0, 0xA4,
--	  3, 0, 0, 0, 0, 0, 0},
--	{ STRATIX10_GPIO_DB_CLK, "gpio_db_clk", "gpio_db_free_clk", NULL, 1, 0, 0xA4,
--	  4, 0xE0, 0, 16, 0, 0, 0},
--	{ STRATIX10_SDMMC_CLK, "sdmmc_clk", "sdmmc_free_clk", NULL, 1, 0, 0xA4,
--	  5, 0, 0, 0, 0, 0, 4},
--	{ STRATIX10_S2F_USER1_CLK, "s2f_user1_clk", "s2f_user1_free_clk", NULL, 1, 0, 0xA4,
--	  6, 0, 0, 0, 0, 0, 0},
--	{ STRATIX10_PSI_REF_CLK, "psi_ref_clk", "psi_ref_free_clk", NULL, 1, 0, 0xA4,
--	  7, 0, 0, 0, 0, 0, 0},
-+	{ STRATIX10_EMAC_PTP_CLK, "emac_ptp_clk", NULL, emac_ptp_mux, ARRAY_SIZE(emac_ptp_mux), 0, 0xA4,
-+	  3, 0, 0, 0, 0xB0, 2, 0},
-+	{ STRATIX10_GPIO_DB_CLK, "gpio_db_clk", NULL, gpio_db_mux, ARRAY_SIZE(gpio_db_mux), 0, 0xA4,
-+	  4, 0xE0, 0, 16, 0xB0, 3, 0},
-+	{ STRATIX10_SDMMC_CLK, "sdmmc_clk", NULL, sdmmc_mux, ARRAY_SIZE(sdmmc_mux), 0, 0xA4,
-+	  5, 0, 0, 0, 0xB0, 4, 4},
-+	{ STRATIX10_S2F_USER1_CLK, "s2f_user1_clk", NULL, s2f_user1_mux, ARRAY_SIZE(s2f_user1_mux), 0, 0xA4,
-+	  6, 0, 0, 0, 0xB0, 5, 0},
-+	{ STRATIX10_PSI_REF_CLK, "psi_ref_clk", NULL, psi_mux, ARRAY_SIZE(psi_mux), 0, 0xA4,
-+	  7, 0, 0, 0, 0xB0, 6, 0},
- 	{ STRATIX10_USB_CLK, "usb_clk", "l4_mp_clk", NULL, 1, 0, 0xA4,
- 	  8, 0, 0, 0, 0, 0, 0},
- 	{ STRATIX10_SPI_M_CLK, "spi_m_clk", "l4_mp_clk", NULL, 1, 0, 0xA4,
+ err:
++	clk_disable_unprepare(rtc->rtc_ck);
++err_no_rtc_ck:
+ 	if (rtc->data->has_pclk)
+ 		clk_disable_unprepare(rtc->pclk);
+-	clk_disable_unprepare(rtc->rtc_ck);
+ 
+ 	if (rtc->data->need_dbp)
+ 		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
 
 
