@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4503C527E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7AB03C4D7D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346566AbhGLHqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:46:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51356 "EHLO mail.kernel.org"
+        id S242609AbhGLHNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349800AbhGLHoq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:44:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32C4C61370;
-        Mon, 12 Jul 2021 07:41:10 +0000 (UTC)
+        id S243783AbhGLHIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:08:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C64B610CA;
+        Mon, 12 Jul 2021 07:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075670;
-        bh=mVXKZSbt6sNXN4b9AvYG+zVYC6YHgMGjeAw7EmFRtnU=;
+        s=korg; t=1626073480;
+        bh=3QfwCBcj+yOjmfhAXvWnFApagzbAw4npL+OpFY5r9N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1AFik0bvi1JPpFi6rnRzN+2VLxoU8ALYayipITU6uS6ZkARYexcAlr6GgEhuBLY/
-         8/J1v1Db4n8dXTPUL1S3Lo+efiRkMNF0RcOeA8wj94HpcLXV8tDht0qZsMqX7s5vxh
-         GLVac/pSFzDT0MU8LRTSA48HNTcTySSMwYkDOpqI=
+        b=dH7cQ1b6mFmWbMNsPK12B/w6sX3u6WaId1kqKm3XbYEKz0LIcH296nL30s3euGQyU
+         xYnx/rYm6CqK2+L+hnoTHaLY/DLmXbvj3UbI+arIz0PLrj07fnC+L2SQ7+mpG37QWV
+         K2kedAV6konKi20iYA0Ri9Tilujld5Sire8RrpO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        James Morse <james.morse@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 314/800] arm64/mm: Fix ttbr0 values stored in struct thread_info for software-pan
+Subject: [PATCH 5.12 254/700] crypto: ixp4xx - dma_unmap the correct address
 Date:   Mon, 12 Jul 2021 08:05:37 +0200
-Message-Id: <20210712060959.041008091@linuxfoundation.org>
+Message-Id: <20210712061002.950068789@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 9163f01130304fab1f74683d7d44632da7bda637 ]
+[ Upstream commit 9395c58fdddd79cdd3882132cdd04e8ac7ad525f ]
 
-When using CONFIG_ARM64_SW_TTBR0_PAN, a task's thread_info::ttbr0 must be
-the TTBR0_EL1 value used to run userspace. With 52-bit PAs, the PA must be
-packed into the TTBR using phys_to_ttbr(), but we forget to do this in some
-of the SW PAN code. Thus, if the value is installed into TTBR0_EL1 (as may
-happen in the uaccess routines), this could result in UNPREDICTABLE
-behaviour.
+Testing ixp4xx_crypto with CONFIG_DMA_API_DEBUG lead to the following error:
+DMA-API: platform ixp4xx_crypto.0: device driver tries to free DMA memory it has not allocated [device address=0x0000000000000000] [size=24 bytes]
 
-Since hardware with 52-bit PA support almost certainly has HW PAN, which
-will be used in preference, this shouldn't be a practical issue, but let's
-fix this for consistency.
+This is due to dma_unmap using the wrong address.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Fixes: 529c4b05a3cb ("arm64: handle 52-bit addresses in TTBR")
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/1623749578-11231-1-git-send-email-anshuman.khandual@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 0d44dc59b2b4 ("crypto: ixp4xx - Fix handling of chained sg buffers")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/mmu_context.h | 4 ++--
- arch/arm64/kernel/setup.c            | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/crypto/ixp4xx_crypto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/mmu_context.h b/arch/arm64/include/asm/mmu_context.h
-index d3cef9133539..eeb210997149 100644
---- a/arch/arm64/include/asm/mmu_context.h
-+++ b/arch/arm64/include/asm/mmu_context.h
-@@ -177,9 +177,9 @@ static inline void update_saved_ttbr0(struct task_struct *tsk,
- 		return;
+diff --git a/drivers/crypto/ixp4xx_crypto.c b/drivers/crypto/ixp4xx_crypto.c
+index 8b0f17fc09fb..9e330e93e340 100644
+--- a/drivers/crypto/ixp4xx_crypto.c
++++ b/drivers/crypto/ixp4xx_crypto.c
+@@ -330,7 +330,7 @@ static void free_buf_chain(struct device *dev, struct buffer_desc *buf,
  
- 	if (mm == &init_mm)
--		ttbr = __pa_symbol(reserved_pg_dir);
-+		ttbr = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
- 	else
--		ttbr = virt_to_phys(mm->pgd) | ASID(mm) << 48;
-+		ttbr = phys_to_ttbr(virt_to_phys(mm->pgd)) | ASID(mm) << 48;
- 
- 	WRITE_ONCE(task_thread_info(tsk)->ttbr0, ttbr);
- }
-diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index 61845c0821d9..68b30e8c22db 100644
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -381,7 +381,7 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
- 	 * faults in case uaccess_enable() is inadvertently called by the init
- 	 * thread.
- 	 */
--	init_task.thread_info.ttbr0 = __pa_symbol(reserved_pg_dir);
-+	init_task.thread_info.ttbr0 = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
- #endif
- 
- 	if (boot_args[1] || boot_args[2] || boot_args[3]) {
+ 		buf1 = buf->next;
+ 		phys1 = buf->phys_next;
+-		dma_unmap_single(dev, buf->phys_next, buf->buf_len, buf->dir);
++		dma_unmap_single(dev, buf->phys_addr, buf->buf_len, buf->dir);
+ 		dma_pool_free(buffer_pool, buf, phys);
+ 		buf = buf1;
+ 		phys = phys1;
 -- 
 2.30.2
 
