@@ -2,150 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E345F3C5BE7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 14:21:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E7F3C5BF7
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 14:21:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233391AbhGLMPX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 08:15:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53348 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230074AbhGLMPX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 08:15:23 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CF82C0613DD
-        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 05:12:35 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id b12so16182470pfv.6
-        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 05:12:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QVWl705krAkirsGehqQfF/VZuSWBNNzwTxyyvTBmFI0=;
-        b=bDAZ1oCWo2snOfD4ve285oOxg+Ip3WBlz/i6WdlzCkvLzJ5TnqZzOxXqTXd+jER4W1
-         47zG+VfqXiWv1kiETY4gxLrEWOyPYJwAvOz8p+9BwEs/n8Fwhcg4y3W+MKCloxj9vBGw
-         NTi6bGMSrgSKoZ/tjXIwJkU0dZL6vnggAFFZqEXJQEjKfZr4JM/PEfOynphS5zPKdqNv
-         wfB6vwWP6vBRSaUWn59mkcwLHTjN80d+6bvbt1YeIg2BaQ6BcG6R8+Ry6u1TEaRpAF2I
-         y6GSRcFZtX/BWQllfnA3NmQckYU+wx041qlsTie09qhO6u4gYESgD489md3XnZwrtaUk
-         p9QQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QVWl705krAkirsGehqQfF/VZuSWBNNzwTxyyvTBmFI0=;
-        b=mTUyKxT4YcEDsbDs85Cg+uNEsjpNaCNdd465boQ5/RlLzHqXJlr365HmWnHs5qYbEb
-         1je7cqaZqVIq9axnrn6rrDoImi5r+l2/MxiAzTePHe48TSOck1Lkz6kHxXVzKzABbtqD
-         4qJ1/WpcGWBecZqT2GlOuhYVYjJQT4sB4n9JObl8Vx8vi3DevpE5LdgARhH86w0lpWMg
-         6shQ0GYURkaBqPvgVtMSIJvpqhfH4mSG16Rvjrw8CNxvNH3ZmoYucd1I2ASjbNbeEJ4I
-         Y/vCf7ue+yu2PAnWow9sqxl/XCkRagLC08S4k2W8o+wE3MAecEgdPFTHrYie35hahCDb
-         AutA==
-X-Gm-Message-State: AOAM5336bPQuI4sAaLC8pAXLuzBaThiaaji3Fi3YWzFvNqCtgy5PAXPe
-        kN9FjhMoBeZbH4NMl79O33eN48Fg+3rJulVE
-X-Google-Smtp-Source: ABdhPJw17OunmQGaVFwR4PXC0HeR3I5LVDPMp7m98X6NP/d8fN3jCZI8PmT/KPAua+Y7fPpned2YNA==
-X-Received: by 2002:a05:6a00:8c5:b029:312:c824:c54c with SMTP id s5-20020a056a0008c5b0290312c824c54cmr51929498pfu.76.1626091954818;
-        Mon, 12 Jul 2021 05:12:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a15sm15456251pff.128.2021.07.12.05.12.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jul 2021 05:12:34 -0700 (PDT)
-Message-ID: <60ec31b2.1c69fb81.a3cc9.c9e8@mx.google.com>
-Date:   Mon, 12 Jul 2021 05:12:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S233712AbhGLMSu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 08:18:50 -0400
+Received: from 8bytes.org ([81.169.241.247]:36222 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233885AbhGLMSs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 08:18:48 -0400
+Received: from cap.home.8bytes.org (p4ff2b1ea.dip0.t-ipconnect.de [79.242.177.234])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by theia.8bytes.org (Postfix) with ESMTPSA id E5ABB259;
+        Mon, 12 Jul 2021 14:15:58 +0200 (CEST)
+From:   Joerg Roedel <joro@8bytes.org>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, herbert@gondor.apana.org.au,
+        thomas.lendacky@amd.com, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH stable-5.4] crypto: ccp - Annotate SEV Firmware file names
+Date:   Mon, 12 Jul 2021 14:12:50 +0200
+Message-Id: <20210712121250.23392-1-joro@8bytes.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <1626005849185115@kroah.com>
+References: <1626005849185115@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.12.16-706-ge2aabcece18e
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.12
-Subject: stable-rc/queue/5.12 baseline: 161 runs,
- 2 regressions (v5.12.16-706-ge2aabcece18e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.12 baseline: 161 runs, 2 regressions (v5.12.16-706-ge2aab=
-cece18e)
+From: Joerg Roedel <jroedel@suse.de>
 
-Regressions Summary
--------------------
+[ Upstream commit c8671c7dc7d51125ab9f651697866bf4a9132277 ]
 
-platform   | arch  | lab           | compiler | defconfig | regressions
------------+-------+---------------+----------+-----------+------------
-hip07-d05  | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
+Annotate the firmware files CCP might need using MODULE_FIRMWARE().
+This will get them included into an initrd when CCP is also included
+there. Otherwise the CCP module will not find its firmware when loaded
+before the root-fs is mounted.
+This can cause problems when the pre-loaded SEV firmware is too old to
+support current SEV and SEV-ES virtualization features.
 
-imx8mp-evk | arm64 | lab-nxp       | gcc-8    | defconfig | 1          =
+Fixes: e93720606efd ("crypto: ccp - Allow SEV firmware to be chosen based on Family and Model")
+Cc: stable@vger.kernel.org # v4.20+
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+---
+ drivers/crypto/ccp/psp-dev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
+diff --git a/drivers/crypto/ccp/psp-dev.c b/drivers/crypto/ccp/psp-dev.c
+index 6b17d179ef8a..5acf6ae5af66 100644
+--- a/drivers/crypto/ccp/psp-dev.c
++++ b/drivers/crypto/ccp/psp-dev.c
+@@ -40,6 +40,10 @@ static int psp_probe_timeout = 5;
+ module_param(psp_probe_timeout, int, 0644);
+ MODULE_PARM_DESC(psp_probe_timeout, " default timeout value, in seconds, during PSP device probe");
+ 
++MODULE_FIRMWARE("amd/amd_sev_fam17h_model0xh.sbin"); /* 1st gen EPYC */
++MODULE_FIRMWARE("amd/amd_sev_fam17h_model3xh.sbin"); /* 2nd gen EPYC */
++MODULE_FIRMWARE("amd/amd_sev_fam19h_model0xh.sbin"); /* 3rd gen EPYC */
++
+ static bool psp_dead;
+ static int psp_timeout;
+ 
+-- 
+2.31.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
-nel/v5.12.16-706-ge2aabcece18e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.12
-  Describe: v5.12.16-706-ge2aabcece18e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e2aabcece18e176e2e0eca6da06c46dee874e145 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab           | compiler | defconfig | regressions
------------+-------+---------------+----------+-----------+------------
-hip07-d05  | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ec0421ed4947bc5b11796a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
-706-ge2aabcece18e/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
-706-ge2aabcece18e/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ec0421ed4947bc5b117=
-96b
-        failing since 10 days (last pass: v5.12.13-109-g5add6842f3ea, first=
- fail: v5.12.13-109-g47e1fda87919) =
-
- =
-
-
-
-platform   | arch  | lab           | compiler | defconfig | regressions
------------+-------+---------------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp       | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ec036277eb39e5b711796c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
-706-ge2aabcece18e/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
-706-ge2aabcece18e/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ec036277eb39e5b7117=
-96d
-        new failure (last pass: v5.12.16-701-g5072f01b4ddd) =
-
- =20
