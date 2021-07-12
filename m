@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B29543C4EE0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C68923C4A69
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242143AbhGLHWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58450 "EHLO mail.kernel.org"
+        id S237053AbhGLGwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344547AbhGLHUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7D5E613EE;
-        Mon, 12 Jul 2021 07:17:49 +0000 (UTC)
+        id S238720AbhGLGtP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADF0561208;
+        Mon, 12 Jul 2021 06:45:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074270;
-        bh=eX4oCGx2MCHjUvDY1DlMOq6WjNHKlId38b/8R0XyqrU=;
+        s=korg; t=1626072312;
+        bh=DUaKgKu5pIGNyRSdMOAvwoAjyDMFvJrYVonQ4ehYsm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3+4zU/shzsOq7w9uQE2CvtCOF5jCf8f1o4TaaT3XL3TC8bls95YLoJdtC1w3B77J
-         SHrM2AOMEGaXNnbdYmKjeFYXRvraE8UoVqmjimDSWxxjHDaxXYJ6pjIjNHjYuNI52h
-         TMaAjsYeHa2q/vT6Ui/1Hi/Rp/FZoWj8CM4lXxbc=
+        b=kWzXL3zK19Yk8qj8Z5FtgakQ519a+9H9H8P5rxwR9xW8Q3/C+wC5dKqVybtP+LdiK
+         34Ai8SHlLnoF1As1Jz0RpKFj8CJAVGTyv7gE1DODBgJFRDeVz+lK3iak/cNfU3uCT+
+         BE/S37yCMJwwvrKkdAjRovX/n4yrKnS9WV3dRsAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Peter Meerwald <pmeerw@pmeerw.net>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 522/700] rcu: Invoke rcu_spawn_core_kthreads() from rcu_spawn_gp_kthread()
+Subject: [PATCH 5.10 445/593] iio: accel: bma180: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:10:05 +0200
-Message-Id: <20210712061031.995908101@linuxfoundation.org>
+Message-Id: <20210712060937.972502398@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,55 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 8e4b1d2bc198e34b48fc7cc3a3c5a2fcb269e271 ]
+[ Upstream commit fc36da3131a747a9367a05caf06de19be1bcc972 ]
 
-Currently, rcu_spawn_core_kthreads() is invoked via an early_initcall(),
-which works, except that rcu_spawn_gp_kthread() is also invoked via an
-early_initcall() and rcu_spawn_core_kthreads() relies on adjustments to
-kthread_prio that are carried out by rcu_spawn_gp_kthread().  There is
-no guaranttee of ordering among early_initcall() handlers, and thus no
-guarantee that kthread_prio will be properly checked and range-limited
-at the time that rcu_spawn_core_kthreads() needs it.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-In most cases, this bug is harmless.  After all, the only reason that
-rcu_spawn_gp_kthread() adjusts the value of kthread_prio is if the user
-specified a nonsensical value for this boot parameter, which experience
-indicates is rare.
+Found during an audit of all calls of this function.
 
-Nevertheless, a bug is a bug.  This commit therefore causes the
-rcu_spawn_core_kthreads() function to be invoked directly from
-rcu_spawn_gp_kthread() after any needed adjustments to kthread_prio have
-been carried out.
-
-Fixes: 48d07c04b4cc ("rcu: Enable elimination of Tree-RCU softirq processing")
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: b9a6a237ffc9 ("iio:bma180: Drop _update_scan_mode()")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-2-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/accel/bma180.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 7356764e49a0..a274622ed6fa 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -2911,7 +2911,6 @@ static int __init rcu_spawn_core_kthreads(void)
- 		  "%s: Could not start rcuc kthread, OOM is now expected behavior\n", __func__);
- 	return 0;
- }
--early_initcall(rcu_spawn_core_kthreads);
+diff --git a/drivers/iio/accel/bma180.c b/drivers/iio/accel/bma180.c
+index 2309bdd00a31..da56488182d0 100644
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -164,7 +164,11 @@ struct bma180_data {
+ 	int scale;
+ 	int bw;
+ 	bool pmode;
+-	u8 buff[16]; /* 3x 16-bit + 8-bit + padding + timestamp */
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		s16 chan[4];
++		s64 timestamp __aligned(8);
++	} scan;
+ };
  
- /*
-  * Handle any core-RCU processing required by a call_rcu() invocation.
-@@ -4392,6 +4391,7 @@ static int __init rcu_spawn_gp_kthread(void)
- 	wake_up_process(t);
- 	rcu_spawn_nocb_kthreads();
- 	rcu_spawn_boost_kthreads();
-+	rcu_spawn_core_kthreads();
- 	return 0;
- }
- early_initcall(rcu_spawn_gp_kthread);
+ enum bma180_chan {
+@@ -943,12 +947,12 @@ static irqreturn_t bma180_trigger_handler(int irq, void *p)
+ 			mutex_unlock(&data->mutex);
+ 			goto err;
+ 		}
+-		((s16 *)data->buff)[i++] = ret;
++		data->scan.chan[i++] = ret;
+ 	}
+ 
+ 	mutex_unlock(&data->mutex);
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buff, time_ns);
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan, time_ns);
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
 -- 
 2.30.2
 
