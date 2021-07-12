@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F603C50F1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F20FD3C4B41
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242476AbhGLHfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:35:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55094 "EHLO mail.kernel.org"
+        id S239873AbhGLG4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243294AbhGLHdI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:33:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E165E6128E;
-        Mon, 12 Jul 2021 07:30:18 +0000 (UTC)
+        id S239717AbhGLGzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:55:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19E036115C;
+        Mon, 12 Jul 2021 06:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075019;
-        bh=AxcmgYa9PuUqlaY7RkQckBsHZSN9iuSIopyYGxQKJgw=;
+        s=korg; t=1626072764;
+        bh=9eg694XLKpvRDaXwvpcVUzljX/dmzemI9GuS2cW6vdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BzxrUO5GZRfI6AaXjRITzVM3W+uGe3DQo7bVaM3kG7CfjYxZ7v8Y7xxV0QPayWsoY
-         H/lWF4d+M2eS2qJarJn7At2OyFvmXrb5h3h0XJk4SYAf+o/MFNw286d60hZOFGGy4Z
-         0MSym9CtIheOvD3JRLneNQXnGqEz5WRxMkUB00iA=
+        b=XrY4GPigXn3nUUtNsAvsXs2/MbPLiub6mR4jIMFhaQ6/WwaoCW1qXCApj8CYrDnuG
+         rSDR9jwgzWIGkJGokIaF8i5QuTlg1vYVciURapTEsTk478AzMWUmgmWz1LfKujTmE5
+         koytmgWJ+Cduvt4BbK62HlfizLKozZobUZP5BDTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoyao Li <xiaoyao.li@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.13 074/800] KVM: nVMX: Handle split-lock #AC exceptions that happen in L2
+        stable@vger.kernel.org, Elia Devito <eliadevito@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 014/700] ALSA: hda/realtek: Improve fixup for HP Spectre x360 15-df0xxx
 Date:   Mon, 12 Jul 2021 08:01:37 +0200
-Message-Id: <20210712060923.573448085@linuxfoundation.org>
+Message-Id: <20210712060926.791421612@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Elia Devito <eliadevito@gmail.com>
 
-commit b33bb78a1fada6445c265c585ee0dd0fc6279102 upstream.
+commit 434591b2a77def0e78abfa38e5d7c4bca954e68a upstream.
 
-Mark #ACs that won't be reinjected to the guest as wanted by L0 so that
-KVM handles split-lock #AC from L2 instead of forwarding the exception to
-L1.  Split-lock #AC isn't yet virtualized, i.e. L1 will treat it like a
-regular #AC and do the wrong thing, e.g. reinject it into L2.
+On HP Spectre x360 15-df0xxx, after system boot with plugged headset, the
+headset mic are not detected.
+Moving pincfg and DAC's config to single fixup function fix this.
 
-Fixes: e6f8b6c12f03 ("KVM: VMX: Extend VMXs #AC interceptor to handle split lock #AC in guest")
-Cc: Xiaoyao Li <xiaoyao.li@intel.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210622172244.3561540-1-seanjc@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[ The actual bug in the original code was that it used a chain to
+  ALC286_FIXUP_SPEAKER2_TO_DAC1, and it contains not only the DAC1
+  route fix but also another chain to ALC269_FIXUP_THINKPAD_ACPI.
+  I thought the latter one is harmless for non-Thinkpad, but it
+  doesn't seem so; it contains again yet another chain to
+  ALC269_FIXUP_SKI_IGNORE, and this might be bad for some machines,
+  including this HP machine.  -- tiwai ]
+
+Signed-off-by: Elia Devito <eliadevito@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210619204105.5682-1-eliadevito@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/nested.c |    3 +++
- arch/x86/kvm/vmx/vmcs.h   |    5 +++++
- arch/x86/kvm/vmx/vmx.c    |    4 ++--
- arch/x86/kvm/vmx/vmx.h    |    1 +
- 4 files changed, 11 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |   27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -5806,6 +5806,9 @@ static bool nested_vmx_l0_wants_exit(str
- 		else if (is_breakpoint(intr_info) &&
- 			 vcpu->guest_debug & KVM_GUESTDBG_USE_SW_BP)
- 			return true;
-+		else if (is_alignment_check(intr_info) &&
-+			 !vmx_guest_inject_ac(vcpu))
-+			return true;
- 		return false;
- 	case EXIT_REASON_EXTERNAL_INTERRUPT:
- 		return true;
---- a/arch/x86/kvm/vmx/vmcs.h
-+++ b/arch/x86/kvm/vmx/vmcs.h
-@@ -117,6 +117,11 @@ static inline bool is_gp_fault(u32 intr_
- 	return is_exception_n(intr_info, GP_VECTOR);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6347,6 +6347,24 @@ static void alc_fixup_no_int_mic(struct
+ 	}
  }
  
-+static inline bool is_alignment_check(u32 intr_info)
++static void alc285_fixup_hp_spectre_x360(struct hda_codec *codec,
++					  const struct hda_fixup *fix, int action)
 +{
-+	return is_exception_n(intr_info, AC_VECTOR);
++	static const hda_nid_t conn[] = { 0x02 };
++	static const struct hda_pintbl pincfgs[] = {
++		{ 0x14, 0x90170110 },  /* rear speaker */
++		{ }
++	};
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		snd_hda_apply_pincfgs(codec, pincfgs);
++		/* force front speaker to DAC1 */
++		snd_hda_override_conn_list(codec, 0x17, ARRAY_SIZE(conn), conn);
++		break;
++	}
 +}
 +
- static inline bool is_machine_check(u32 intr_info)
- {
- 	return is_exception_n(intr_info, MC_VECTOR);
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -4829,7 +4829,7 @@ static int handle_machine_check(struct k
-  *  - Guest has #AC detection enabled in CR0
-  *  - Guest EFLAGS has AC bit set
-  */
--static inline bool guest_inject_ac(struct kvm_vcpu *vcpu)
-+bool vmx_guest_inject_ac(struct kvm_vcpu *vcpu)
- {
- 	if (!boot_cpu_has(X86_FEATURE_SPLIT_LOCK_DETECT))
- 		return true;
-@@ -4937,7 +4937,7 @@ static int handle_exception_nmi(struct k
- 		kvm_run->debug.arch.exception = ex_no;
- 		break;
- 	case AC_VECTOR:
--		if (guest_inject_ac(vcpu)) {
-+		if (vmx_guest_inject_ac(vcpu)) {
- 			kvm_queue_exception_e(vcpu, AC_VECTOR, error_code);
- 			return 1;
- 		}
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -387,6 +387,7 @@ void vmx_get_segment(struct kvm_vcpu *vc
- void vmx_set_segment(struct kvm_vcpu *vcpu, struct kvm_segment *var, int seg);
- u64 construct_eptp(struct kvm_vcpu *vcpu, hpa_t root_hpa, int root_level);
+ /* for hda_fixup_thinkpad_acpi() */
+ #include "thinkpad_helper.c"
  
-+bool vmx_guest_inject_ac(struct kvm_vcpu *vcpu);
- void vmx_update_exception_bitmap(struct kvm_vcpu *vcpu);
- void vmx_update_msr_bitmap(struct kvm_vcpu *vcpu);
- bool vmx_nmi_blocked(struct kvm_vcpu *vcpu);
+@@ -8124,13 +8142,8 @@ static const struct hda_fixup alc269_fix
+ 		.chain_id = ALC269_FIXUP_HP_LINE1_MIC1_LED,
+ 	},
+ 	[ALC285_FIXUP_HP_SPECTRE_X360] = {
+-		.type = HDA_FIXUP_PINS,
+-		.v.pins = (const struct hda_pintbl[]) {
+-			{ 0x14, 0x90170110 }, /* enable top speaker */
+-			{}
+-		},
+-		.chained = true,
+-		.chain_id = ALC285_FIXUP_SPEAKER2_TO_DAC1,
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_hp_spectre_x360,
+ 	},
+ 	[ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP] = {
+ 		.type = HDA_FIXUP_FUNC,
 
 
