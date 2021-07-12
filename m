@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB1A33C48BC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 517B83C48BF
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236077AbhGLGks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34936 "EHLO mail.kernel.org"
+        id S236241AbhGLGkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238268AbhGLGkD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9254261004;
-        Mon, 12 Jul 2021 06:36:44 +0000 (UTC)
+        id S238285AbhGLGkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7AFE610A7;
+        Mon, 12 Jul 2021 06:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071805;
-        bh=NAktyUN9j26p8yi015dYrs/ZVMHrynn/pCaN5d/a0kM=;
+        s=korg; t=1626071814;
+        bh=y5VGwTrzuQwT2plzHSrl2/5rCfn4r0bcXrI0UDrKkDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2LgHXztm6Px7GBj1Ip7hFszc6p60Z+zlu9jvSSUvT3HofxNCcWM0z3MMasYL5L23+
-         rDKF9QPc8GC1Jg7K1w+B2BB/lkN6hhA3V00dFBoXTMgPyf3vmYC8beYo1E/63B6k/f
-         zPNn93sOGE0JQws2F92ro+YOcFkfi36cHtd7kSfo=
+        b=SSD9y2eryhAnpyzsuCBbznUSftOfH++hycoSzc7WvtHeFjbI6Vu3hkMwTENFvYYBQ
+         uYXix81YGcEOARhVVV0BLKtrDFV+XhQ2XLjx4wf8zzTuHYmGva7cvbFVL++IvCLcB5
+         jlSK3AjpJR0AzYvQExQHmFIl+nbsyrT+azzka8Ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        Tero Kristo <kristo@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 227/593] crypto: sa2ul - Fix pm_runtime enable in sa_ul_probe()
-Date:   Mon, 12 Jul 2021 08:06:27 +0200
-Message-Id: <20210712060907.915227931@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 230/593] pata_ep93xx: fix deferred probing
+Date:   Mon, 12 Jul 2021 08:06:30 +0200
+Message-Id: <20210712060908.230036067@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,35 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suman Anna <s-anna@ti.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit 5c8552325e013cbdabc443cd1f1b4d03c4a2e64e ]
+[ Upstream commit 5c8121262484d99bffb598f39a0df445cecd8efb ]
 
-The pm_runtime APIs added first in commit 7694b6ca649f ("crypto: sa2ul -
-Add crypto driver") are not unwound properly and was fixed up partially
-in commit 13343badae09 ("crypto: sa2ul - Fix PM reference leak in
-sa_ul_probe()"). This fixed up the pm_runtime usage count but not the
-state. Fix this properly.
+The driver overrides the error codes returned by platform_get_irq() to
+-ENXIO, so if it returns -EPROBE_DEFER, the driver would fail the probe
+permanently instead of the deferred probing.  Propagate the error code
+upstream, as it should have been done from the start...
 
-Fixes: 13343badae09 ("crypto: sa2ul - Fix PM reference leak in sa_ul_probe()")
-Signed-off-by: Suman Anna <s-anna@ti.com>
-Reviewed-by: Tero Kristo <kristo@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 2fff27512600 ("PATA host controller driver for ep93xx")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Link: https://lore.kernel.org/r/509fda88-2e0d-2cc7-f411-695d7e94b136@omprussia.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sa2ul.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/ata/pata_ep93xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/sa2ul.c b/drivers/crypto/sa2ul.c
-index fdc844363f02..f15fc1fb3707 100644
---- a/drivers/crypto/sa2ul.c
-+++ b/drivers/crypto/sa2ul.c
-@@ -2356,6 +2356,7 @@ static int sa_ul_probe(struct platform_device *pdev)
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "%s: failed to get sync: %d\n", __func__,
- 			ret);
-+		pm_runtime_disable(dev);
- 		return ret;
+diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
+index badab6708893..46208ececbb6 100644
+--- a/drivers/ata/pata_ep93xx.c
++++ b/drivers/ata/pata_ep93xx.c
+@@ -928,7 +928,7 @@ static int ep93xx_pata_probe(struct platform_device *pdev)
+ 	/* INT[3] (IRQ_EP93XX_EXT3) line connected as pull down */
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+-		err = -ENXIO;
++		err = irq;
+ 		goto err_rel_gpio;
  	}
  
 -- 
