@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D963D3C520C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7E253C4BEF
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349736AbhGLHof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:44:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
+        id S242525AbhGLHAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346551AbhGLHjh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:39:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA48D601FE;
-        Mon, 12 Jul 2021 07:34:33 +0000 (UTC)
+        id S242485AbhGLHAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:00:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95A8461156;
+        Mon, 12 Jul 2021 06:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075274;
-        bh=RMOrC1frwt1UylxJ7TKcgEozTKZQbIES9glVwdgUp2U=;
+        s=korg; t=1626073042;
+        bh=8VWhnlooXYMQHdbWzrlpCM6p2aSc25q8pmPyeBK0T2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YdmbJKNVE/DPj/ULriFwjmy9JDwtgeErieivFtm8HHEmkQyb9FN8UFnPvH4Qal+s0
-         3Xuqb8kHJLvXqYTB1Ez3e4CTMMyrulQyA7NTLF9eFfaK9FFaYPrUB9pg71T8O3cQ7L
-         FdMACBOZNF5+9NinlAC3dSADffoKPuJchbuB2o2I=
+        b=UGhQMGi9IP36K7FyKNOvrU65YgCAvGDPlFbnXFgg4n+UT0K3SzdTDkxpJEbB8fzbV
+         1Mo4Kv1jNaAB+/CtI6Ct5/+7hEOFEoUuC03rUGeEJE9XThEYsOIQhcgsDB3htMF3OX
+         YBKbtUfB/DPD7pqrXrS9LL0Sd9jBGoKrGt/m8eiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 165/800] media: bt878: do not schedule tasklet when it is not setup
-Date:   Mon, 12 Jul 2021 08:03:08 +0200
-Message-Id: <20210712060936.195415144@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: [PATCH 5.12 106/700] x86/gpu: add JasperLake to gen11 early quirks
+Date:   Mon, 12 Jul 2021 08:03:09 +0200
+Message-Id: <20210712060939.810011284@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>
 
-[ Upstream commit a3a54bf4bddaecda8b5767209cfc703f0be2841d ]
+commit 31b77c70d9bc04d3b024ea56c129523f9edc1328 upstream.
 
-There is a problem with the tasklet in bt878. bt->tasklet is set by
-dvb-bt8xx.ko, and bt878.ko can be loaded independently.
-In this case if interrupt comes it may cause null-ptr-dereference.
-To solve this issue, we check if the tasklet is actually set before
-calling tasklet_schedule.
+Let's reserve JSL stolen memory for graphics.
 
-[    1.750438] bt878(0): irq FDSR FBUS risc_pc=
-[    1.750728] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[    1.752969] RIP: 0010:0x0
-[    1.757526] Call Trace:
-[    1.757659]  <IRQ>
-[    1.757770]  tasklet_action_common.isra.0+0x107/0x110
-[    1.758041]  tasklet_action+0x22/0x30
-[    1.758237]  __do_softirq+0xe0/0x29b
-[    1.758430]  irq_exit_rcu+0xa4/0xb0
-[    1.758618]  common_interrupt+0x8d/0xa0
-[    1.758824]  </IRQ>
+JasperLake is a gen11 platform which is compatible with
+ICL/EHL changes.
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This was missed in commit 24ea098b7c0d ("drm/i915/jsl: Split
+EHL/JSL platform info and PCI ids")
+
+V2:
+    - Added maintainer list in cc
+    - Added patch ref in commit message
+V1:
+    - Added Cc: x86@kernel.org
+
+Fixes: 24ea098b7c0d ("drm/i915/jsl: Split EHL/JSL platform info and PCI ids")
+Cc: <stable@vger.kernel.org> # v5.11+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Signed-off-by: Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210608053411.394166-1-tejaskumarx.surendrakumar.upadhyay@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/pci/bt8xx/bt878.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/early-quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/pci/bt8xx/bt878.c b/drivers/media/pci/bt8xx/bt878.c
-index 78dd35c9b65d..7ca309121fb5 100644
---- a/drivers/media/pci/bt8xx/bt878.c
-+++ b/drivers/media/pci/bt8xx/bt878.c
-@@ -300,7 +300,8 @@ static irqreturn_t bt878_irq(int irq, void *dev_id)
- 		}
- 		if (astat & BT878_ARISCI) {
- 			bt->finished_block = (stat & BT878_ARISCS) >> 28;
--			tasklet_schedule(&bt->tasklet);
-+			if (bt->tasklet.callback)
-+				tasklet_schedule(&bt->tasklet);
- 			break;
- 		}
- 		count++;
--- 
-2.30.2
-
+--- a/arch/x86/kernel/early-quirks.c
++++ b/arch/x86/kernel/early-quirks.c
+@@ -549,6 +549,7 @@ static const struct pci_device_id intel_
+ 	INTEL_CNL_IDS(&gen9_early_ops),
+ 	INTEL_ICL_11_IDS(&gen11_early_ops),
+ 	INTEL_EHL_IDS(&gen11_early_ops),
++	INTEL_JSL_IDS(&gen11_early_ops),
+ 	INTEL_TGL_12_IDS(&gen11_early_ops),
+ 	INTEL_RKL_IDS(&gen11_early_ops),
+ };
 
 
