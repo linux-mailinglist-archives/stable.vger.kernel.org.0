@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E213C4F77
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E33043C4B51
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243255AbhGLH0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32988 "EHLO mail.kernel.org"
+        id S239059AbhGLG4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244849AbhGLHXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:23:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D998610D0;
-        Mon, 12 Jul 2021 07:20:13 +0000 (UTC)
+        id S239054AbhGLGt2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC5EB60FD8;
+        Mon, 12 Jul 2021 06:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074413;
-        bh=VXHNpa0DIna+CtM2nDV4dIAglrYxx4J4Gk0eC6pCLhw=;
+        s=korg; t=1626072347;
+        bh=mwf9hJLWPNOdLFUEIsrdC1GGvFET8eaxuSIu33tcvkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JA/OHgZjIASMoLGtOWq6aOGlwhyerY40N/3czMzLnr8pFDy8ZI6whbgLYcGl9PNn2
-         i7tnvdCzjAA4uxZunES98AXWvI/EKcAye1FrgubYY19v+BumqFErcor1elskEvR2yx
-         Idgl4T1TzyZOjES3V/sqk69bkVxbx6muqHqeiQnw=
+        b=Mb9jnr2Qry6f5sMCZ+N8/wiu68mS2WRcUZOajOf5/J75Qqug0yP8kuLBdx2WcAkVJ
+         bC/J6U+BuneOkL9TZI+ZYXW2wVGpLBDSn9pcBpbtNDP944SfS5iNJBmk/9233/qBBt
+         4LY5MyggR1S968aGGi2BEwvMveFA+FVAmfgX5Q00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Matt Ranostay <matt.ranostay@konsulko.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 535/700] iio: accel: kxcjk-1013: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.10 458/593] iio: prox: as3935: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:10:18 +0200
-Message-Id: <20210712061033.360891218@linuxfoundation.org>
+Message-Id: <20210712060939.837630603@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +44,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 3ab3aa2e7bd57497f9a7c6275c00dce237d2c9ba ]
+[ Upstream commit 37eb8d8c64f2ecb3a5521ba1cc1fad973adfae41 ]
 
 To make code more readable, use a structure to express the channel
 layout and ensure the timestamp is 8 byte aligned.
 
-Found during an audit of all calls of this function.
+Found during an audit of all calls of uses of
+iio_push_to_buffers_with_timestamp()
 
-Fixes: 1a4fbf6a9286 ("iio: accel: kxcjk1013 3-axis accelerometer driver")
+Fixes: 37b1ba2c68cf ("iio: proximity: as3935: fix buffer stack trashing")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Matt Ranostay <matt.ranostay@konsulko.com>
+Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-5-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210501170121.512209-15-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/kxcjk-1013.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ drivers/iio/proximity/as3935.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-index 2fadafc860fd..5a19b5041e28 100644
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -133,6 +133,13 @@ enum kx_acpi_type {
- 	ACPI_KIOX010A,
- };
- 
-+enum kxcjk1013_axis {
-+	AXIS_X,
-+	AXIS_Y,
-+	AXIS_Z,
-+	AXIS_MAX
-+};
-+
- struct kxcjk1013_data {
- 	struct regulator_bulk_data regulators[2];
- 	struct i2c_client *client;
-@@ -140,7 +147,11 @@ struct kxcjk1013_data {
- 	struct iio_trigger *motion_trig;
- 	struct iio_mount_matrix orientation;
- 	struct mutex mutex;
--	s16 buffer[8];
-+	/* Ensure timestamp naturally aligned */
+diff --git a/drivers/iio/proximity/as3935.c b/drivers/iio/proximity/as3935.c
+index b79ada839e01..98330e26ac3b 100644
+--- a/drivers/iio/proximity/as3935.c
++++ b/drivers/iio/proximity/as3935.c
+@@ -59,7 +59,11 @@ struct as3935_state {
+ 	unsigned long noise_tripped;
+ 	u32 tune_cap;
+ 	u32 nflwdth_reg;
+-	u8 buffer[16]; /* 8-bit data + 56-bit padding + 64-bit timestamp */
++	/* Ensure timestamp is naturally aligned */
 +	struct {
-+		s16 chans[AXIS_MAX];
++		u8 chan;
 +		s64 timestamp __aligned(8);
 +	} scan;
- 	u8 odr_bits;
- 	u8 range;
- 	int wake_thres;
-@@ -154,13 +165,6 @@ struct kxcjk1013_data {
- 	enum kx_acpi_type acpi_type;
+ 	u8 buf[2] ____cacheline_aligned;
  };
  
--enum kxcjk1013_axis {
--	AXIS_X,
--	AXIS_Y,
--	AXIS_Z,
--	AXIS_MAX,
--};
--
- enum kxcjk1013_mode {
- 	STANDBY,
- 	OPERATION,
-@@ -1094,12 +1098,12 @@ static irqreturn_t kxcjk1013_trigger_handler(int irq, void *p)
- 	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
- 							KXCJK1013_REG_XOUT_L,
- 							AXIS_MAX * 2,
--							(u8 *)data->buffer);
-+							(u8 *)data->scan.chans);
- 	mutex_unlock(&data->mutex);
- 	if (ret < 0)
- 		goto err;
+@@ -225,8 +229,8 @@ static irqreturn_t as3935_trigger_handler(int irq, void *private)
+ 	if (ret)
+ 		goto err_read;
  
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   data->timestamp);
- err:
+-	st->buffer[0] = val & AS3935_DATA_MASK;
+-	iio_push_to_buffers_with_timestamp(indio_dev, &st->buffer,
++	st->scan.chan = val & AS3935_DATA_MASK;
++	iio_push_to_buffers_with_timestamp(indio_dev, &st->scan,
+ 					   iio_get_time_ns(indio_dev));
+ err_read:
  	iio_trigger_notify_done(indio_dev->trig);
 -- 
 2.30.2
