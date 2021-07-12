@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 022EA3C522E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 583083C4CA2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349932AbhGLHpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49074 "EHLO mail.kernel.org"
+        id S242196AbhGLHGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:06:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348668AbhGLHlP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:41:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0870A610D1;
-        Mon, 12 Jul 2021 07:38:26 +0000 (UTC)
+        id S241043AbhGLHDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:03:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FAD46120F;
+        Mon, 12 Jul 2021 07:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075507;
-        bh=YjqY58vLbJulwVN1zKTvM6mUZHaqMT+0DFI+1p8t4Bs=;
+        s=korg; t=1626073261;
+        bh=TeS1jW1j4sQ5G8Qr8eFp7lgoNjFKRAYDAzBbtGLfIXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AoOSAtLjbI5EjTD7Gpdj9Ue6SA5anwCYz/nL4sBPa+cEzWADG/buVGGzqJ/30pYT2
-         L8VEXvYa7xm9svrX+K0TOz0wgZdiVhgmHrSAa9oHlsF9sfgjU2DGDljZXt2O22oYoQ
-         tmFf0lRmAz6l+vmfQKf/OHWIdJhfSw0SniYAmRTc=
+        b=foGLLMsBKFce9U6fIlfc8vrIE95zjqzwl3gMUHUUjiUvwzvHCEpGfRO82zi1Zzg3I
+         HHGVIFU0Hy4kXhKAGRlucVAq0BvxQj6h4TnBSXubMmHoP0AlHLC8j/muWZCZJmuOfE
+         cJoG07fLs81eKM3aXtsMYHfypAY8l2fgPHTP+kcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 242/800] EDAC/Intel: Do not load EDAC driver when running as a guest
+Subject: [PATCH 5.12 182/700] KVM: PPC: Book3S HV: Fix TLB management on SMT8 POWER9 and POWER10 processors
 Date:   Mon, 12 Jul 2021 08:04:25 +0200
-Message-Id: <20210712060947.832557988@linuxfoundation.org>
+Message-Id: <20210712060952.342742197@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +42,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luck, Tony <tony.luck@intel.com>
+From: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
 
-[ Upstream commit f0a029fff4a50eb01648810a77ba1873e829fdd4 ]
+[ Upstream commit 77bbbc0cf84834ed130838f7ac1988567f4d0288 ]
 
-There's little to no point in loading an EDAC driver running in a guest:
-1) The CPU model reported by CPUID may not represent actual h/w
-2) The hypervisor likely does not pass in access to memory controller devices
-3) Hypervisors generally do not pass corrected error details to guests
+The POWER9 vCPU TLB management code assumes all threads in a core share
+a TLB, and that TLBIEL execued by one thread will invalidate TLBs for
+all threads. This is not the case for SMT8 capable POWER9 and POWER10
+(big core) processors, where the TLB is split between groups of threads.
+This results in TLB multi-hits, random data corruption, etc.
 
-Add a check in each of the Intel EDAC drivers for X86_FEATURE_HYPERVISOR
-and simply return -ENODEV in the init routine.
+Fix this by introducing cpu_first_tlb_thread_sibling etc., to determine
+which siblings share TLBs, and use that in the guest TLB flushing code.
 
-Acked-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/20210615174419.GA1087688@agluck-desk2.amr.corp.intel.com
+[npiggin@gmail.com: add changelog and comment]
+
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210602040441.3984352-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/i10nm_base.c | 3 +++
- drivers/edac/pnd2_edac.c  | 3 +++
- drivers/edac/sb_edac.c    | 3 +++
- drivers/edac/skx_base.c   | 3 +++
- 4 files changed, 12 insertions(+)
+ arch/powerpc/include/asm/cputhreads.h | 30 +++++++++++++++++++++++++++
+ arch/powerpc/kvm/book3s_hv.c          | 13 ++++++------
+ arch/powerpc/kvm/book3s_hv_builtin.c  |  2 +-
+ arch/powerpc/kvm/book3s_hv_rm_mmu.c   |  2 +-
+ 4 files changed, 39 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/edac/i10nm_base.c b/drivers/edac/i10nm_base.c
-index 238a4ad1e526..37b4e875420e 100644
---- a/drivers/edac/i10nm_base.c
-+++ b/drivers/edac/i10nm_base.c
-@@ -278,6 +278,9 @@ static int __init i10nm_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
+diff --git a/arch/powerpc/include/asm/cputhreads.h b/arch/powerpc/include/asm/cputhreads.h
+index 98c8bd155bf9..b167186aaee4 100644
+--- a/arch/powerpc/include/asm/cputhreads.h
++++ b/arch/powerpc/include/asm/cputhreads.h
+@@ -98,6 +98,36 @@ static inline int cpu_last_thread_sibling(int cpu)
+ 	return cpu | (threads_per_core - 1);
+ }
  
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
++/*
++ * tlb_thread_siblings are siblings which share a TLB. This is not
++ * architected, is not something a hypervisor could emulate and a future
++ * CPU may change behaviour even in compat mode, so this should only be
++ * used on PowerNV, and only with care.
++ */
++static inline int cpu_first_tlb_thread_sibling(int cpu)
++{
++	if (cpu_has_feature(CPU_FTR_ARCH_300) && (threads_per_core == 8))
++		return cpu & ~0x6;	/* Big Core */
++	else
++		return cpu_first_thread_sibling(cpu);
++}
 +
- 	id = x86_match_cpu(i10nm_cpuids);
- 	if (!id)
- 		return -ENODEV;
-diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
-index 928f63a374c7..c94ca1f790c4 100644
---- a/drivers/edac/pnd2_edac.c
-+++ b/drivers/edac/pnd2_edac.c
-@@ -1554,6 +1554,9 @@ static int __init pnd2_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
++static inline int cpu_last_tlb_thread_sibling(int cpu)
++{
++	if (cpu_has_feature(CPU_FTR_ARCH_300) && (threads_per_core == 8))
++		return cpu | 0x6;	/* Big Core */
++	else
++		return cpu_last_thread_sibling(cpu);
++}
++
++static inline int cpu_tlb_thread_sibling_step(void)
++{
++	if (cpu_has_feature(CPU_FTR_ARCH_300) && (threads_per_core == 8))
++		return 2;		/* Big Core */
++	else
++		return 1;
++}
++
+ static inline u32 get_tensr(void)
+ {
+ #ifdef	CONFIG_BOOKE
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 60c5bc0c130c..1c6e0a52fb53 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -2619,7 +2619,7 @@ static void radix_flush_cpu(struct kvm *kvm, int cpu, struct kvm_vcpu *vcpu)
+ 	cpumask_t *cpu_in_guest;
+ 	int i;
  
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
-+
- 	id = x86_match_cpu(pnd2_cpuids);
- 	if (!id)
- 		return -ENODEV;
-diff --git a/drivers/edac/sb_edac.c b/drivers/edac/sb_edac.c
-index 93daa4297f2e..4c626fcd4dcb 100644
---- a/drivers/edac/sb_edac.c
-+++ b/drivers/edac/sb_edac.c
-@@ -3510,6 +3510,9 @@ static int __init sbridge_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
+-	cpu = cpu_first_thread_sibling(cpu);
++	cpu = cpu_first_tlb_thread_sibling(cpu);
+ 	if (nested) {
+ 		cpumask_set_cpu(cpu, &nested->need_tlb_flush);
+ 		cpu_in_guest = &nested->cpu_in_guest;
+@@ -2633,9 +2633,10 @@ static void radix_flush_cpu(struct kvm *kvm, int cpu, struct kvm_vcpu *vcpu)
+ 	 * the other side is the first smp_mb() in kvmppc_run_core().
+ 	 */
+ 	smp_mb();
+-	for (i = 0; i < threads_per_core; ++i)
+-		if (cpumask_test_cpu(cpu + i, cpu_in_guest))
+-			smp_call_function_single(cpu + i, do_nothing, NULL, 1);
++	for (i = cpu; i <= cpu_last_tlb_thread_sibling(cpu);
++					i += cpu_tlb_thread_sibling_step())
++		if (cpumask_test_cpu(i, cpu_in_guest))
++			smp_call_function_single(i, do_nothing, NULL, 1);
+ }
  
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
-+
- 	id = x86_match_cpu(sbridge_cpuids);
- 	if (!id)
- 		return -ENODEV;
-diff --git a/drivers/edac/skx_base.c b/drivers/edac/skx_base.c
-index 6a4f0b27c654..4dbd46575bfb 100644
---- a/drivers/edac/skx_base.c
-+++ b/drivers/edac/skx_base.c
-@@ -656,6 +656,9 @@ static int __init skx_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
+ static void kvmppc_prepare_radix_vcpu(struct kvm_vcpu *vcpu, int pcpu)
+@@ -2666,8 +2667,8 @@ static void kvmppc_prepare_radix_vcpu(struct kvm_vcpu *vcpu, int pcpu)
+ 	 */
+ 	if (prev_cpu != pcpu) {
+ 		if (prev_cpu >= 0 &&
+-		    cpu_first_thread_sibling(prev_cpu) !=
+-		    cpu_first_thread_sibling(pcpu))
++		    cpu_first_tlb_thread_sibling(prev_cpu) !=
++		    cpu_first_tlb_thread_sibling(pcpu))
+ 			radix_flush_cpu(kvm, prev_cpu, vcpu);
+ 		if (nested)
+ 			nested->prev_cpu[vcpu->arch.nested_vcpu_id] = pcpu;
+diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
+index 158d309b42a3..b5e5d07cb40f 100644
+--- a/arch/powerpc/kvm/book3s_hv_builtin.c
++++ b/arch/powerpc/kvm/book3s_hv_builtin.c
+@@ -797,7 +797,7 @@ void kvmppc_check_need_tlb_flush(struct kvm *kvm, int pcpu,
+ 	 * Thus we make all 4 threads use the same bit.
+ 	 */
+ 	if (cpu_has_feature(CPU_FTR_ARCH_300))
+-		pcpu = cpu_first_thread_sibling(pcpu);
++		pcpu = cpu_first_tlb_thread_sibling(pcpu);
  
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
-+
- 	id = x86_match_cpu(skx_cpuids);
- 	if (!id)
- 		return -ENODEV;
+ 	if (nested)
+ 		need_tlb_flush = &nested->need_tlb_flush;
+diff --git a/arch/powerpc/kvm/book3s_hv_rm_mmu.c b/arch/powerpc/kvm/book3s_hv_rm_mmu.c
+index 88da2764c1bb..3ddc83d2e849 100644
+--- a/arch/powerpc/kvm/book3s_hv_rm_mmu.c
++++ b/arch/powerpc/kvm/book3s_hv_rm_mmu.c
+@@ -67,7 +67,7 @@ static int global_invalidates(struct kvm *kvm)
+ 		 * so use the bit for the first thread to represent the core.
+ 		 */
+ 		if (cpu_has_feature(CPU_FTR_ARCH_300))
+-			cpu = cpu_first_thread_sibling(cpu);
++			cpu = cpu_first_tlb_thread_sibling(cpu);
+ 		cpumask_clear_cpu(cpu, &kvm->arch.need_tlb_flush);
+ 	}
+ 
 -- 
 2.30.2
 
