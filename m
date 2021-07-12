@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 419223C4CCD
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B8503C5234
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243779AbhGLHIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:08:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40100 "EHLO mail.kernel.org"
+        id S1349953AbhGLHpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243096AbhGLHEa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:04:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E051161107;
-        Mon, 12 Jul 2021 07:01:41 +0000 (UTC)
+        id S1349197AbhGLHln (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:41:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B6A4610D1;
+        Mon, 12 Jul 2021 07:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073302;
-        bh=YVJukNQFMmciva0G0vYcP3V0SxYJ+N3HSDg3G7Zy4bA=;
+        s=korg; t=1626075534;
+        bh=yZ4l5Fiz8Q2jhqFawudcOpO7DnpOWy1/I8cMjkE1W5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1FXuosl5sF4/cgfPeWWEZuG+B7wmezQEgQ4xW/x3GcMlcHcZqocstBe4h0VzR56T
-         kYyelmyxLS7uFx/xeF9N7MynO66tADqZEhFq7CA7ysD+T5HNdgNFd//Zk6fH+WhBv8
-         E6ptEoe69khXc0hrFHqyTKWWhx0MbR676x1GJtKA=
+        b=ywohz9SYwIAhtHeNqnNnV1NTi+YrBqM+wRs7Mw8hcCCQOgO61ronP1wACLR309OIE
+         ZKtH1MTjleLkAwHdmrefpkyhZ85VZOlw3qPZbMtz6Ni3u1kjBFtddVTX9UicesVr01
+         fkPYJIKES1IVKX4t2q9zjQfkdshAnq77BE+V0R20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 195/700] ACPI: video: use native backlight for GA401/GA502/GA503
-Date:   Mon, 12 Jul 2021 08:04:38 +0200
-Message-Id: <20210712060954.435018217@linuxfoundation.org>
+Subject: [PATCH 5.13 256/800] smb3: fix possible access to uninitialized pointer to DACL
+Date:   Mon, 12 Jul 2021 08:04:39 +0200
+Message-Id: <20210712060950.259509464@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D Jones <luke@ljones.dev>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 2dfbacc65d1d2eae587ccb6b93f6280542641858 ]
+[ Upstream commit a5628263a9f8d47d9a1548fe9d5d75ba4423a735 ]
 
-Force backlight control in these models to use the native interface
-at /sys/class/backlight/amdgpu_bl0.
+dacl_ptr can be null so we must check for it everywhere it is
+used in build_sec_desc.
 
-Signed-off-by: Luke D. Jones <luke@ljones.dev>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Addresses-Coverity: 1475598 ("Explicit null dereference")
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/video_detect.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ fs/cifs/cifsacl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-index 83cd4c95faf0..33474fd96991 100644
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -385,6 +385,30 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
- 		DMI_MATCH(DMI_BOARD_NAME, "BA51_MV"),
- 		},
- 	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "ASUSTeK COMPUTER INC. GA401",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "GA401"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "ASUSTeK COMPUTER INC. GA502",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "GA502"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "ASUSTeK COMPUTER INC. GA503",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "GA503"),
-+		},
-+	},
+diff --git a/fs/cifs/cifsacl.c b/fs/cifs/cifsacl.c
+index 784407f9280f..a18dee071fcd 100644
+--- a/fs/cifs/cifsacl.c
++++ b/fs/cifs/cifsacl.c
+@@ -1308,7 +1308,7 @@ static int build_sec_desc(struct cifs_ntsd *pntsd, struct cifs_ntsd *pnntsd,
+ 		ndacl_ptr = (struct cifs_acl *)((char *)pnntsd + ndacloffset);
+ 		ndacl_ptr->revision =
+ 			dacloffset ? dacl_ptr->revision : cpu_to_le16(ACL_REVISION);
+-		ndacl_ptr->num_aces = dacl_ptr->num_aces;
++		ndacl_ptr->num_aces = dacl_ptr ? dacl_ptr->num_aces : 0;
  
- 	/*
- 	 * Desktops which falsely report a backlight and which our heuristics
+ 		if (uid_valid(uid)) { /* chown */
+ 			uid_t id;
 -- 
 2.30.2
 
