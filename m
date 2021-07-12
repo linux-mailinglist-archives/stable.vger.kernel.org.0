@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 735DF3C4EFC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D6313C4B54
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242813AbhGLHWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59406 "EHLO mail.kernel.org"
+        id S237499AbhGLG4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344873AbhGLHVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:21:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B359611ED;
-        Mon, 12 Jul 2021 07:18:36 +0000 (UTC)
+        id S239028AbhGLGt1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7635F6127C;
+        Mon, 12 Jul 2021 06:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074316;
-        bh=AkeRhEPYY+dMYHxvwsgAA8C77PGZ0KaeohoCJz8hJGs=;
+        s=korg; t=1626072337;
+        bh=ObxN3PxQho9jLulRk2KNDCkooGZl0fwjand2/1+2IHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MuFw9lJ1NBZDMcVSl4CfDOihfR44tWq7PLcsb4PbVPTGOsjF7pavSS3VvgQnrFsni
-         LwyxlAeTNhwF/GuI3QkkzsmjB6uTsh284V5EG4WRDtImAzVcYfeDH5j5Obz4FR7878
-         tPuTYxQoYH8OUTVzwg7FHmcofvnzrcmQJ46Yo2jA=
+        b=GWDu7gDDtJvI+cU9Jex9CPRI3ZNjF0/TDPNJJtRg9xdiqOEZmQIUj/GUGYwH+TdZ2
+         Fe4liExl58pDmxrQfFKuMYw+SNkDVBHa4II5C4YFKTXVL7OhEwlsNCA9cSZ+cSczKs
+         bKbJjnJh9hE+RVYwwrM3u9nNJb8trBux0/iou54Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Peter Meerwald <pmeerw@pmeerw.net>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 532/700] iio: accel: bma180: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.10 455/593] iio: humidity: am2315: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:10:15 +0200
-Message-Id: <20210712061033.078231312@linuxfoundation.org>
+Message-Id: <20210712060939.442322210@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +43,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit fc36da3131a747a9367a05caf06de19be1bcc972 ]
+[ Upstream commit f4ca2e2595d9fee65d5ce0d218b22ce00e5b2915 ]
 
 To make code more readable, use a structure to express the channel
 layout and ensure the timestamp is 8 byte aligned.
 
-Found during an audit of all calls of this function.
+Found during an audit of all calls of uses of
+iio_push_to_buffers_with_timestamp()
 
-Fixes: b9a6a237ffc9 ("iio:bma180: Drop _update_scan_mode()")
+Fixes: 0d96d5ead3f7 ("iio: humidity: Add triggered buffer support for AM2315")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-2-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210501170121.512209-12-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/bma180.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/iio/humidity/am2315.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iio/accel/bma180.c b/drivers/iio/accel/bma180.c
-index 2a6d73cc7333..9b0018874eec 100644
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -164,7 +164,11 @@ struct bma180_data {
- 	int scale;
- 	int bw;
- 	bool pmode;
--	u8 buff[16]; /* 3x 16-bit + 8-bit + padding + timestamp */
+diff --git a/drivers/iio/humidity/am2315.c b/drivers/iio/humidity/am2315.c
+index 02ad1767c845..3398fa413ec5 100644
+--- a/drivers/iio/humidity/am2315.c
++++ b/drivers/iio/humidity/am2315.c
+@@ -33,7 +33,11 @@
+ struct am2315_data {
+ 	struct i2c_client *client;
+ 	struct mutex lock;
+-	s16 buffer[8]; /* 2x16-bit channels + 2x16 padding + 4x16 timestamp */
 +	/* Ensure timestamp is naturally aligned */
 +	struct {
-+		s16 chan[4];
++		s16 chans[2];
 +		s64 timestamp __aligned(8);
 +	} scan;
  };
  
- enum bma180_chan {
-@@ -943,12 +947,12 @@ static irqreturn_t bma180_trigger_handler(int irq, void *p)
- 			mutex_unlock(&data->mutex);
- 			goto err;
+ struct am2315_sensor_data {
+@@ -167,20 +171,20 @@ static irqreturn_t am2315_trigger_handler(int irq, void *p)
+ 
+ 	mutex_lock(&data->lock);
+ 	if (*(indio_dev->active_scan_mask) == AM2315_ALL_CHANNEL_MASK) {
+-		data->buffer[0] = sensor_data.hum_data;
+-		data->buffer[1] = sensor_data.temp_data;
++		data->scan.chans[0] = sensor_data.hum_data;
++		data->scan.chans[1] = sensor_data.temp_data;
+ 	} else {
+ 		i = 0;
+ 		for_each_set_bit(bit, indio_dev->active_scan_mask,
+ 				 indio_dev->masklength) {
+-			data->buffer[i] = (bit ? sensor_data.temp_data :
+-						 sensor_data.hum_data);
++			data->scan.chans[i] = (bit ? sensor_data.temp_data :
++					       sensor_data.hum_data);
+ 			i++;
  		}
--		((s16 *)data->buff)[i++] = ret;
-+		data->scan.chan[i++] = ret;
  	}
+ 	mutex_unlock(&data->lock);
  
- 	mutex_unlock(&data->mutex);
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buff, time_ns);
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan, time_ns);
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   pf->timestamp);
  err:
  	iio_trigger_notify_done(indio_dev->trig);
- 
 -- 
 2.30.2
 
