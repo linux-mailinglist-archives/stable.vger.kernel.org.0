@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 114D73C4AA9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50AD33C5537
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239962AbhGLGxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50530 "EHLO mail.kernel.org"
+        id S1355415AbhGLIJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240327AbhGLGu4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:50:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D8F160FD8;
-        Mon, 12 Jul 2021 06:48:08 +0000 (UTC)
+        id S1353302AbhGLIBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:01:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A5C7611AB;
+        Mon, 12 Jul 2021 07:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072488;
-        bh=kuRrX1MUViblMIKwP9n3Eom3QwTmuiW3slBjQxbYPpk=;
+        s=korg; t=1626076473;
+        bh=zwTDJUCRaaO70KfVw4yQixagA5gSHB7Xx4+fbRnnHUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FEr3hi5ZaCv34UNwDi2Z4iE2sLcV7wi/mEInEdSZtW3c4Acb/ql+K1EiDNraxXr9F
-         0vT1Rs4QLVLMixbXx8blDnIkuDyhl2t+SiG8V253INl887V/BYHiLPmgimZdoJTyIJ
-         dZZ9bZI/ZTDSAB2+Me1ovmwg7ND1yzHV4G5s8wIQ=
+        b=hcKJTVVVAUSs7uuYRXsp+RiNBfL2ZjnNdohXzrFfM6LK75VaYrymXOzcm6RGz4NKU
+         m/fvGFGar5Wi0QDFvwdlJ5skyd6uVOK4akJ0Rs75JvjL4RJPT6NNs4YwT5t8g5+eTB
+         YS00Ap0exkKtsmY0x44Qg0J3bHAPGNHHJPXuwDRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Alexandru Ardelean <ardeleanalex@gmail.com>,
+        Nuno Sa <nuno.sa@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 477/593] firmware: stratix10-svc: Fix a resource leak in an error handling path
-Date:   Mon, 12 Jul 2021 08:10:37 +0200
-Message-Id: <20210712060942.862821131@linuxfoundation.org>
+Subject: [PATCH 5.13 615/800] iio: adis16475: do not return ints in irq handlers
+Date:   Mon, 12 Jul 2021 08:10:38 +0200
+Message-Id: <20210712061032.794885642@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Nuno Sa <nuno.sa@analog.com>
 
-[ Upstream commit d99247f9b542533ddbf87a3481a05473b8e48194 ]
+[ Upstream commit 00a72db718fa198da3946286dcad222399ccd4fb ]
 
-If an error occurs after a successful 'kfifo_alloc()' call, it must be
-undone by a corresponding 'kfifo_free()' call, as already done in the
-remove function.
+On an IRQ handler we should not return normal error codes as 'irqreturn_t'
+is expected.
 
-While at it, move the 'platform_device_put()' call to this new error
-handling path and explicitly return 0 in the success path.
+This is done by jumping to the 'check_burst32' label where we return
+'IRQ_HANDLED'. Note that it is fine to do the burst32 check in this
+error path. If we have proper settings to apply burst32, we might just
+do the setup now so that the next sample already uses it.
 
-Fixes: b5dc75c915cd ("firmware: stratix10-svc: extend svc to support new RSU features")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/0ca3f3ab139c53e846804455a1e7599ee8ae896a.1621621271.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fff7352bf7a3c ("iio: imu: Add support for adis16475")
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Signed-off-by: Nuno Sa <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210427085454.30616-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/stratix10-svc.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/iio/imu/adis16475.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
-index 3aa489dba30a..2a7687911c09 100644
---- a/drivers/firmware/stratix10-svc.c
-+++ b/drivers/firmware/stratix10-svc.c
-@@ -1034,24 +1034,32 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/imu/adis16475.c b/drivers/iio/imu/adis16475.c
+index 1de62fc79e0f..51b76444db0b 100644
+--- a/drivers/iio/imu/adis16475.c
++++ b/drivers/iio/imu/adis16475.c
+@@ -1068,7 +1068,7 @@ static irqreturn_t adis16475_trigger_handler(int irq, void *p)
  
- 	/* add svc client device(s) */
- 	svc = devm_kzalloc(dev, sizeof(*svc), GFP_KERNEL);
--	if (!svc)
--		return -ENOMEM;
-+	if (!svc) {
-+		ret = -ENOMEM;
-+		goto err_free_kfifo;
-+	}
- 
- 	svc->stratix10_svc_rsu = platform_device_alloc(STRATIX10_RSU, 0);
- 	if (!svc->stratix10_svc_rsu) {
- 		dev_err(dev, "failed to allocate %s device\n", STRATIX10_RSU);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_free_kfifo;
- 	}
- 
- 	ret = platform_device_add(svc->stratix10_svc_rsu);
--	if (ret) {
--		platform_device_put(svc->stratix10_svc_rsu);
+ 	ret = spi_sync(adis->spi, &adis->msg);
+ 	if (ret)
 -		return ret;
--	}
-+	if (ret)
-+		goto err_put_device;
-+
- 	dev_set_drvdata(dev, svc);
++		goto check_burst32;
  
- 	pr_info("Intel Service Layer Driver Initialized\n");
- 
-+	return 0;
-+
-+err_put_device:
-+	platform_device_put(svc->stratix10_svc_rsu);
-+err_free_kfifo:
-+	kfifo_free(&controller->svc_fifo);
- 	return ret;
- }
- 
+ 	adis->spi->max_speed_hz = cached_spi_speed_hz;
+ 	buffer = adis->buffer;
 -- 
 2.30.2
 
