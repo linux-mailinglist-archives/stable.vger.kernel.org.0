@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F5A3C5333
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EDD3C533B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347952AbhGLHyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53510 "EHLO mail.kernel.org"
+        id S1352156AbhGLHyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244817AbhGLHsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:48:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5942861955;
-        Mon, 12 Jul 2021 07:42:50 +0000 (UTC)
+        id S244398AbhGLHsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:48:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8F756194F;
+        Mon, 12 Jul 2021 07:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075770;
-        bh=gXplEzUOyCMiNyG6N2ZSavNxAt8N4u+N6We5ranqKsA=;
+        s=korg; t=1626075773;
+        bh=+i3+4hrDKdKfcpUgVB4gwBBcbk7Iyuv/9hrJvYtkh6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vbALuFmga9/vfgDwTO8K8/rsf5gQTRmb+b9GUm3q5+cAcUz5XQkNKW/uIBSQStVbG
-         urXgJB8SX9DGpdMZVuHQ9muFnN2CWlO55GbJuwaAlAA62QQAsAIKhEsdLvgI5ZaXGG
-         YxctwAkLFnSsnObk7f6GcfreRLRYosq+JOAn1/4k=
+        b=HbhwFnRZP0y3nuPix/PI0sngeWmszDiA1LUaet3FZ1tclmLMhHTeZ1WDkjd4EUN0c
+         Zli17mjYX9hfZM4ALhTaGruEhzk5cPCc58rPDnmviyf4EUOmEwbEVSj/gEsmt8+njv
+         zCXcHCEv97Y/cD8HxdLWYX7gX1CdcnKu2enMnCsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Christoph Hellwig <hch@lst.de>,
+        John Garry <john.garry@huawei.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 357/800] ACPI: PM / fan: Put fan device IDs into separate header file
-Date:   Mon, 12 Jul 2021 08:06:20 +0200
-Message-Id: <20210712061005.077238128@linuxfoundation.org>
+Subject: [PATCH 5.13 358/800] block: avoid double io accounting for flush request
+Date:   Mon, 12 Jul 2021 08:06:21 +0200
+Message-Id: <20210712061005.186043769@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -40,100 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit b9370dceabb7841c5e65ce4ee4405b9db5231fc4 ]
+[ Upstream commit 84da7acc3ba53af26f15c4b0ada446127b7a7836 ]
 
-The ACPI fan device IDs are shared between the fan driver and the
-device power management code.  The former is modular, so it needs
-to include the table of device IDs for module autoloading and the
-latter needs that list to avoid attaching the generic ACPI PM domain
-to fan devices (which doesn't make sense) possibly before the fan
-driver module is loaded.
+For flush request, rq->end_io() may be called two times, one is from
+timeout handling(blk_mq_check_expired()), another is from normal
+completion(__blk_mq_end_request()).
 
-Unfortunately, that requires the list of fan device IDs to be
-updated in two places which is prone to mistakes, so put it into
-a symbol definition in a separate header file so there is only one
-copy of it in case it needs to be updated again in the future.
+Move blk_account_io_flush() after flush_rq->ref drops to zero, so
+io accounting can be done just once for flush request.
 
-Fixes: b9ea0bae260f ("ACPI: PM: Avoid attaching ACPI PM domain to certain devices")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: b68663186577 ("block: add iostat counters for flush requests")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210511152236.763464-2-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/device_pm.c |  6 ++----
- drivers/acpi/fan.c       |  7 +++----
- drivers/acpi/fan.h       | 13 +++++++++++++
- 3 files changed, 18 insertions(+), 8 deletions(-)
- create mode 100644 drivers/acpi/fan.h
+ block/blk-flush.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
-index d260bc1f3e6e..9d2d3b9bb8b5 100644
---- a/drivers/acpi/device_pm.c
-+++ b/drivers/acpi/device_pm.c
-@@ -20,6 +20,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/suspend.h>
+diff --git a/block/blk-flush.c b/block/blk-flush.c
+index 7942ca6ed321..1002f6c58181 100644
+--- a/block/blk-flush.c
++++ b/block/blk-flush.c
+@@ -219,8 +219,6 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
+ 	unsigned long flags = 0;
+ 	struct blk_flush_queue *fq = blk_get_flush_queue(q, flush_rq->mq_ctx);
  
-+#include "fan.h"
- #include "internal.h"
+-	blk_account_io_flush(flush_rq);
+-
+ 	/* release the tag's ownership to the req cloned from */
+ 	spin_lock_irqsave(&fq->mq_flush_lock, flags);
  
- /**
-@@ -1310,10 +1311,7 @@ int acpi_dev_pm_attach(struct device *dev, bool power_on)
- 	 * with the generic ACPI PM domain.
- 	 */
- 	static const struct acpi_device_id special_pm_ids[] = {
--		{"PNP0C0B", }, /* Generic ACPI fan */
--		{"INT3404", }, /* Fan */
--		{"INTC1044", }, /* Fan for Tiger Lake generation */
--		{"INTC1048", }, /* Fan for Alder Lake generation */
-+		ACPI_FAN_DEVICE_IDS,
- 		{}
- 	};
- 	struct acpi_device *adev = ACPI_COMPANION(dev);
-diff --git a/drivers/acpi/fan.c b/drivers/acpi/fan.c
-index 66c3983f0ccc..5cd0ceb50bc8 100644
---- a/drivers/acpi/fan.c
-+++ b/drivers/acpi/fan.c
-@@ -16,6 +16,8 @@
- #include <linux/platform_device.h>
- #include <linux/sort.h>
+@@ -230,6 +228,7 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
+ 		return;
+ 	}
  
-+#include "fan.h"
-+
- MODULE_AUTHOR("Paul Diefenbaugh");
- MODULE_DESCRIPTION("ACPI Fan Driver");
- MODULE_LICENSE("GPL");
-@@ -24,10 +26,7 @@ static int acpi_fan_probe(struct platform_device *pdev);
- static int acpi_fan_remove(struct platform_device *pdev);
- 
- static const struct acpi_device_id fan_device_ids[] = {
--	{"PNP0C0B", 0},
--	{"INT3404", 0},
--	{"INTC1044", 0},
--	{"INTC1048", 0},
-+	ACPI_FAN_DEVICE_IDS,
- 	{"", 0},
- };
- MODULE_DEVICE_TABLE(acpi, fan_device_ids);
-diff --git a/drivers/acpi/fan.h b/drivers/acpi/fan.h
-new file mode 100644
-index 000000000000..dc9a6efa514b
---- /dev/null
-+++ b/drivers/acpi/fan.h
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+/*
-+ * ACPI fan device IDs are shared between the fan driver and the device power
-+ * management code.
-+ *
-+ * Add new device IDs before the generic ACPI fan one.
-+ */
-+#define ACPI_FAN_DEVICE_IDS	\
-+	{"INT3404", }, /* Fan */ \
-+	{"INTC1044", }, /* Fan for Tiger Lake generation */ \
-+	{"INTC1048", }, /* Fan for Alder Lake generation */ \
-+	{"PNP0C0B", } /* Generic ACPI fan */
++	blk_account_io_flush(flush_rq);
+ 	/*
+ 	 * Flush request has to be marked as IDLE when it is really ended
+ 	 * because its .end_io() is called from timeout code path too for
 -- 
 2.30.2
 
