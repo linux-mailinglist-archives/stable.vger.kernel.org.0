@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8BF93C451A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 031C83C4520
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233712AbhGLGXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:23:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41280 "EHLO mail.kernel.org"
+        id S234690AbhGLGXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:23:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234395AbhGLGWc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:22:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B4176113A;
-        Mon, 12 Jul 2021 06:19:28 +0000 (UTC)
+        id S234590AbhGLGWh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:22:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6F4C6115C;
+        Mon, 12 Jul 2021 06:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070769;
-        bh=lSfJF6GAWok9ndKgaHe/W5GtGfCcKUVUStrb5YyW1GE=;
+        s=korg; t=1626070771;
+        bh=GoeJ6QtsonK8GSez6muOYu6J939okEtS/8qcrZYi8OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIbyGa2ElLGt/pcSQ4FM0I6HbIPO6CQzaW3Rr6zmVSRzH7s9aJeWzAEYgkbbx7405
-         zXzxQoaRlHXSLxqIlHJ3SVEtxtB1YtW7mwP0I3afD6BfiocBjqXRD132589r2iRAqM
-         HQjk5RTIdePfXUoy+VbmWXfl4P1v9Qf2lx1zirmM=
+        b=tblD9MRs26cF2UNPqRy1QY8ap0z0BbeK8gmds4kpxhgQrH6VEfFRUerq2pJt5iS18
+         RS9tuSDPHKmkKuHAz0eIoh2o4eQTRCfTFNoz0unQoWa9I+XadOn6XKB58a2d2IrXMG
+         XLUzuLFxOWwf6eW1ODgiyKE6gWnCXtAGoSydgGzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Wang Shanker <shankerwangmiao@gmail.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 133/348] cifs: fix missing spinlock around update to ses->status
-Date:   Mon, 12 Jul 2021 08:08:37 +0200
-Message-Id: <20210712060718.921117721@linuxfoundation.org>
+Subject: [PATCH 5.4 134/348] block: fix discard request merge
+Date:   Mon, 12 Jul 2021 08:08:38 +0200
+Message-Id: <20210712060719.040905592@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -39,61 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 0060a4f28a9ef45ae8163c0805e944a2b1546762 ]
+[ Upstream commit 2705dfb2094777e405e065105e307074af8965c1 ]
 
-In the other places where we update ses->status we protect the
-updates via GlobalMid_Lock. So to be consistent add the same
-locking around it in cifs_put_smb_ses where it was missing.
+ll_new_hw_segment() is reached only in case of single range discard
+merge, and we don't have max discard segment size limit actually, so
+it is wrong to run the following check:
 
-Addresses-Coverity: 1268904 ("Data race condition")
-Signed-off-by: Steve French <stfrench@microsoft.com>
+if (req->nr_phys_segments + nr_phys_segs > blk_rq_get_max_segments(req))
+
+it may be always false since req->nr_phys_segments is initialized as
+one, and bio's segment count is still 1, blk_rq_get_max_segments(reg)
+is 1 too.
+
+Fix the issue by not doing the check and bypassing the calculation of
+discard request's nr_phys_segments.
+
+Based on analysis from Wang Shanker.
+
+Cc: Christoph Hellwig <hch@lst.de>
+Reported-by: Wang Shanker <shankerwangmiao@gmail.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210628023312.1903255-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsglob.h | 3 ++-
- fs/cifs/connect.c  | 5 ++++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ block/blk-merge.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
-index b16c994414ab..9c0e348cb00f 100644
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -964,7 +964,7 @@ struct cifs_ses {
- 	struct mutex session_mutex;
- 	struct TCP_Server_Info *server;	/* pointer to server info */
- 	int ses_count;		/* reference counter */
--	enum statusEnum status;
-+	enum statusEnum status;  /* updates protected by GlobalMid_Lock */
- 	unsigned overrideSecFlg;  /* if non-zero override global sec flags */
- 	char *serverOS;		/* name of operating system underlying server */
- 	char *serverNOS;	/* name of network operating system of server */
-@@ -1814,6 +1814,7 @@ require use of the stronger protocol */
-  *	list operations on pending_mid_q and oplockQ
-  *      updates to XID counters, multiplex id  and SMB sequence numbers
-  *      list operations on global DnotifyReqList
-+ *      updates to ses->status
-  *  tcp_ses_lock protects:
-  *	list operations on tcp and SMB session lists
-  *  tcon->open_file_lock protects the list of open files hanging off the tcon
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index ab9eeb5ff8e5..da0720f41ebc 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3049,9 +3049,12 @@ void cifs_put_smb_ses(struct cifs_ses *ses)
- 		spin_unlock(&cifs_tcp_ses_lock);
- 		return;
- 	}
-+	spin_unlock(&cifs_tcp_ses_lock);
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index 03959bfe961c..4b022f0c49d2 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -571,10 +571,14 @@ static inline unsigned int blk_rq_get_max_segments(struct request *rq)
+ static inline int ll_new_hw_segment(struct request *req, struct bio *bio,
+ 		unsigned int nr_phys_segs)
+ {
+-	if (req->nr_phys_segments + nr_phys_segs > blk_rq_get_max_segments(req))
++	if (blk_integrity_merge_bio(req->q, req, bio) == false)
+ 		goto no_merge;
+ 
+-	if (blk_integrity_merge_bio(req->q, req, bio) == false)
++	/* discard request merge won't add new segment */
++	if (req_op(req) == REQ_OP_DISCARD)
++		return 1;
 +
-+	spin_lock(&GlobalMid_Lock);
- 	if (ses->status == CifsGood)
- 		ses->status = CifsExiting;
--	spin_unlock(&cifs_tcp_ses_lock);
-+	spin_unlock(&GlobalMid_Lock);
++	if (req->nr_phys_segments + nr_phys_segs > blk_rq_get_max_segments(req))
+ 		goto no_merge;
  
- 	cifs_free_ipc(ses);
- 
+ 	/*
 -- 
 2.30.2
 
