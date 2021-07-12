@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4762A3C457F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 124B83C4581
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233660AbhGLGZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45894 "EHLO mail.kernel.org"
+        id S234043AbhGLGZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234284AbhGLGYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:24:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B917361152;
-        Mon, 12 Jul 2021 06:22:01 +0000 (UTC)
+        id S235381AbhGLGY6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:24:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24B3361154;
+        Mon, 12 Jul 2021 06:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070922;
-        bh=5L114nuX5pDGZiuXmUZDK+THtw/7XC7EHIaeveTwe8M=;
+        s=korg; t=1626070924;
+        bh=xnH8dkJJBeDRfywE3Q7NvOhijeeOz6hNxMWBcyvOCoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPxaV/9pwLDOWIkZWnDEDa2r3Pq6BwykY7wqaSC3afQmCPpXfeGBhLTp+BOW19pIb
-         3ziiV6YBhJVQsEEzKVK1oYeG1YFMY1xQDldzBC4BKiXuAhKXLfzqQSOE+H2xjC1uvr
-         4PPekZkp1xOOkGT8f1UlPJaPwNkvy0bCxCH6s6mc=
+        b=uK2hU1p/+S6A/5cAZLCycHRXbUUhuvEpbPGJja6XglxPtgHRDXpCtRuOPn1iYhSqd
+         bmHHLd7DkhAKyFI0icRt0DFFeuln8o7G1ni12ZI8JyglF8IfZEjo/UJgckq+v9glwq
+         TYB2l6eLMfHggcaDAjWfv054toh/AWDZWupvqCzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
-        Kamal Heib <kamalheib1@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 197/348] RDMA/rxe: Fix failure during driver load
-Date:   Mon, 12 Jul 2021 08:09:41 +0200
-Message-Id: <20210712060727.367939841@linuxfoundation.org>
+Subject: [PATCH 5.4 198/348] drm: qxl: ensure surf.data is ininitialized
+Date:   Mon, 12 Jul 2021 08:09:42 +0200
+Message-Id: <20210712060727.477979608@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,56 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 32a25f2ea690dfaace19f7a3a916f5d7e1ddafe8 ]
+[ Upstream commit fbbf23ddb2a1cc0c12c9f78237d1561c24006f50 ]
 
-To avoid the following failure when trying to load the rdma_rxe module
-while IPv6 is disabled, add a check for EAFNOSUPPORT and ignore the
-failure, also delete the needless debug print from rxe_setup_udp_tunnel().
+The object surf is not fully initialized and the uninitialized
+field surf.data is being copied by the call to qxl_bo_create
+via the call to qxl_gem_object_create. Set surf.data to zero
+to ensure garbage data from the stack is not being copied.
 
-$ modprobe rdma_rxe
-modprobe: ERROR: could not insert 'rdma_rxe': Operation not permitted
-
-Fixes: dfdd6158ca2c ("IB/rxe: Fix kernel panic in udp_setup_tunnel")
-Link: https://lore.kernel.org/r/20210603090112.36341-1-kamalheib1@gmail.com
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210608161313.161922-1-colin.king@canonical.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_net.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/qxl/qxl_dumb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_net.c b/drivers/infiniband/sw/rxe/rxe_net.c
-index d41135682891..7d1df737c655 100644
---- a/drivers/infiniband/sw/rxe/rxe_net.c
-+++ b/drivers/infiniband/sw/rxe/rxe_net.c
-@@ -251,10 +251,8 @@ static struct socket *rxe_setup_udp_tunnel(struct net *net, __be16 port,
- 
- 	/* Create UDP socket */
- 	err = udp_sock_create(net, &udp_cfg, &sock);
--	if (err < 0) {
--		pr_err("failed to create udp socket. err = %d\n", err);
-+	if (err < 0)
- 		return ERR_PTR(err);
--	}
- 
- 	tnl_cfg.encap_type = 1;
- 	tnl_cfg.encap_rcv = rxe_udp_encap_recv;
-@@ -660,6 +658,12 @@ static int rxe_net_ipv6_init(void)
- 
- 	recv_sockets.sk6 = rxe_setup_udp_tunnel(&init_net,
- 						htons(ROCE_V2_UDP_DPORT), true);
-+	if (PTR_ERR(recv_sockets.sk6) == -EAFNOSUPPORT) {
-+		recv_sockets.sk6 = NULL;
-+		pr_warn("IPv6 is not supported, can not create a UDPv6 socket\n");
-+		return 0;
-+	}
+diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
+index 272d19b677d8..4a0dc1348097 100644
+--- a/drivers/gpu/drm/qxl/qxl_dumb.c
++++ b/drivers/gpu/drm/qxl/qxl_dumb.c
+@@ -58,6 +58,8 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
+ 	surf.height = args->height;
+ 	surf.stride = pitch;
+ 	surf.format = format;
++	surf.data = 0;
 +
- 	if (IS_ERR(recv_sockets.sk6)) {
- 		recv_sockets.sk6 = NULL;
- 		pr_err("Failed to create IPv6 UDP tunnel\n");
+ 	r = qxl_gem_object_create_with_handle(qdev, file_priv,
+ 					      QXL_GEM_DOMAIN_SURFACE,
+ 					      args->size, &surf, &qobj,
 -- 
 2.30.2
 
