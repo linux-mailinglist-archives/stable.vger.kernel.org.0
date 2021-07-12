@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 175D03C5087
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E92A3C4B1A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245440AbhGLHd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:33:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35402 "EHLO mail.kernel.org"
+        id S239788AbhGLGzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244408AbhGLH1r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:27:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2D9561455;
-        Mon, 12 Jul 2021 07:23:49 +0000 (UTC)
+        id S241250AbhGLGyy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:54:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3521D6052B;
+        Mon, 12 Jul 2021 06:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074630;
-        bh=phhEe4LlJNVR/lyIkm8IPZzQOPz+dXcOTY6kbqYAFzE=;
+        s=korg; t=1626072726;
+        bh=/KB2HVSEKge8Oz0Nfy1ixHdkOgdhPbMJFgCvpGda5NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HuEpqfZt9o4wVdIBKK+0TuLtOd6bJsU78XXgW1gM/3dzuGR/0k+uEHRuKN8Xg3g98
-         MxGdPXawtOi4olMNkRkSoojCL6HBRTym452FPfz8SzmLeAVC7x6YzEwoYbqKuzQe4L
-         T/sRDJPF0XUjXagNdue1pd0SmKj68myz5dVoiOng=
+        b=tAIOFo0HRK35ycO7hVMqoLlWqgya8mkv8T+098Km059V8Zn6wrPnwhFnQYtInWMfQ
+         hFWrPc88Qk+O/nRwxXYDDySqr1LgpiVwlujr41lQmaa90fLtP3lQ8mfe7EwKGwWobY
+         GSGss4FOldTBe3mTfrANLIV5UAECPNbz+Z4cLwpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Jan Kara <jack@suse.cz>, Jann Horn <jannh@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "Kirill A . Shutemov" <kirill@shutemov.name>,
+        Matthew Wilcox <willy@infradead.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Youquan Song <youquan.song@intel.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 644/700] ASoC: fsl_xcvr: disable all interrupts when suspend happens
-Date:   Mon, 12 Jul 2021 08:12:07 +0200
-Message-Id: <20210712061044.393621462@linuxfoundation.org>
+Subject: [PATCH 5.10 568/593] hugetlb: remove prep_compound_huge_page cleanup
+Date:   Mon, 12 Jul 2021 08:12:08 +0200
+Message-Id: <20210712060957.326799278@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +49,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit ea837090b388245744988083313f6e9c7c9b9699 ]
+[ Upstream commit 48b8d744ea841b8adf8d07bfe7a2d55f22e4d179 ]
 
-There is an unhandled interrupt after suspend, which cause endless
-interrupt when system resume, so system may hang.
+Patch series "Fix prep_compound_gigantic_page ref count adjustment".
 
-Disable all interrupts in runtime suspend callback to avoid above
-issue.
+These patches address the possible race between
+prep_compound_gigantic_page and __page_cache_add_speculative as described
+by Jann Horn in [1].
 
-Fixes: 28564486866f ("ASoC: fsl_xcvr: Add XCVR ASoC CPU DAI driver")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/1624019913-3380-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The first patch simply removes the unnecessary/obsolete helper routine
+prep_compound_huge_page to make the actual fix a little simpler.
+
+The second patch is the actual fix and has a detailed explanation in the
+commit message.
+
+This potential issue has existed for almost 10 years and I am unaware of
+anyone actually hitting the race.  I did not cc stable, but would be happy
+to squash the patches and send to stable if anyone thinks that is a good
+idea.
+
+[1] https://lore.kernel.org/linux-mm/CAG48ez23q0Jy9cuVnwAe7t_fdhMk2S7N5Hdi-GLcCeq5bsfLxw@mail.gmail.com/
+
+This patch (of 2):
+
+I could not think of a reliable way to recreate the issue for testing.
+Rather, I 'simulated errors' to exercise all the error paths.
+
+The routine prep_compound_huge_page is a simple wrapper to call either
+prep_compound_gigantic_page or prep_compound_page.  However, it is only
+called from gather_bootmem_prealloc which only processes gigantic pages.
+Eliminate the routine and call prep_compound_gigantic_page directly.
+
+Link: https://lkml.kernel.org/r/20210622021423.154662-1-mike.kravetz@oracle.com
+Link: https://lkml.kernel.org/r/20210622021423.154662-2-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Jann Horn <jannh@google.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: "Kirill A . Shutemov" <kirill@shutemov.name>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Youquan Song <youquan.song@intel.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_xcvr.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ mm/hugetlb.c | 29 ++++++++++-------------------
+ 1 file changed, 10 insertions(+), 19 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_xcvr.c b/sound/soc/fsl/fsl_xcvr.c
-index 6dd0a5fcd455..070e3f32859f 100644
---- a/sound/soc/fsl/fsl_xcvr.c
-+++ b/sound/soc/fsl/fsl_xcvr.c
-@@ -1236,6 +1236,16 @@ static __maybe_unused int fsl_xcvr_runtime_suspend(struct device *dev)
- 	struct fsl_xcvr *xcvr = dev_get_drvdata(dev);
- 	int ret;
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index f90dd909d017..fa6b0ac6c280 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1315,8 +1315,6 @@ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
+ 	return alloc_contig_pages(nr_pages, gfp_mask, nid, nodemask);
+ }
  
-+	/*
-+	 * Clear interrupts, when streams starts or resumes after
-+	 * suspend, interrupts are enabled in prepare(), so no need
-+	 * to enable interrupts in resume().
-+	 */
-+	ret = regmap_update_bits(xcvr->regmap, FSL_XCVR_EXT_IER0,
-+				 FSL_XCVR_IRQ_EARC_ALL, 0);
-+	if (ret < 0)
-+		dev_err(dev, "Failed to clear IER0: %d\n", ret);
-+
- 	/* Assert M0+ reset */
- 	ret = regmap_update_bits(xcvr->regmap, FSL_XCVR_EXT_CTRL,
- 				 FSL_XCVR_EXT_CTRL_CORE_RESET,
+-static void prep_new_huge_page(struct hstate *h, struct page *page, int nid);
+-static void prep_compound_gigantic_page(struct page *page, unsigned int order);
+ #else /* !CONFIG_CONTIG_ALLOC */
+ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
+ 					int nid, nodemask_t *nodemask)
+@@ -2478,16 +2476,10 @@ found:
+ 	return 1;
+ }
+ 
+-static void __init prep_compound_huge_page(struct page *page,
+-		unsigned int order)
+-{
+-	if (unlikely(order > (MAX_ORDER - 1)))
+-		prep_compound_gigantic_page(page, order);
+-	else
+-		prep_compound_page(page, order);
+-}
+-
+-/* Put bootmem huge pages into the standard lists after mem_map is up */
++/*
++ * Put bootmem huge pages into the standard lists after mem_map is up.
++ * Note: This only applies to gigantic (order > MAX_ORDER) pages.
++ */
+ static void __init gather_bootmem_prealloc(void)
+ {
+ 	struct huge_bootmem_page *m;
+@@ -2496,20 +2488,19 @@ static void __init gather_bootmem_prealloc(void)
+ 		struct page *page = virt_to_page(m);
+ 		struct hstate *h = m->hstate;
+ 
++		VM_BUG_ON(!hstate_is_gigantic(h));
+ 		WARN_ON(page_count(page) != 1);
+-		prep_compound_huge_page(page, huge_page_order(h));
++		prep_compound_gigantic_page(page, huge_page_order(h));
+ 		WARN_ON(PageReserved(page));
+ 		prep_new_huge_page(h, page, page_to_nid(page));
+ 		put_page(page); /* free it into the hugepage allocator */
+ 
+ 		/*
+-		 * If we had gigantic hugepages allocated at boot time, we need
+-		 * to restore the 'stolen' pages to totalram_pages in order to
+-		 * fix confusing memory reports from free(1) and another
+-		 * side-effects, like CommitLimit going negative.
++		 * We need to restore the 'stolen' pages to totalram_pages
++		 * in order to fix confusing memory reports from free(1) and
++		 * other side-effects, like CommitLimit going negative.
+ 		 */
+-		if (hstate_is_gigantic(h))
+-			adjust_managed_page_count(page, pages_per_huge_page(h));
++		adjust_managed_page_count(page, pages_per_huge_page(h));
+ 		cond_resched();
+ 	}
+ }
 -- 
 2.30.2
 
