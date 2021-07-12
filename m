@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15D573C48CF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F4D3C48CE
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238552AbhGLGlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33544 "EHLO mail.kernel.org"
+        id S237851AbhGLGlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237097AbhGLGiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:38:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0658561181;
-        Mon, 12 Jul 2021 06:34:20 +0000 (UTC)
+        id S237131AbhGLGiL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:38:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 573A560238;
+        Mon, 12 Jul 2021 06:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071661;
-        bh=xX8VyNOodZXaJbZ6Zo8s39DpvovzD6FKkh4MDY9d7wE=;
+        s=korg; t=1626071663;
+        bh=YVJukNQFMmciva0G0vYcP3V0SxYJ+N3HSDg3G7Zy4bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVsV9QCaDXJ6BmAgC19bnBym0h7ireNR0c//r/hWXh9PSA8x9BuMr/nC/NpsElLBW
-         l/HmPdu5h5grhUuu24rSmh/pD8psHBNEYX/fpdpKLW5iJARJKlbW+ZhATF5K6IkhkE
-         lq1sLoXKiOwvPhM6hPtzkmRpMkJXkg7t41EdLHBE=
+        b=iJFAXwo301txe58nDHZ6vEnprypo99erTwuZi14rczY91WqnMumXtzQrS3J/18Hbs
+         8ILjoYhpz35OFa52glm7HyGw6lGxzCBrebCnT2OMy768OrDw+e//w/n/Rj/5J+b5mg
+         lS1AtxJEmpyhTKxHhdxfMRXQT+dAxkdlxr8mu/fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 166/593] media: Fix Media Controller API config checks
-Date:   Mon, 12 Jul 2021 08:05:26 +0200
-Message-Id: <20210712060901.304566884@linuxfoundation.org>
+Subject: [PATCH 5.10 167/593] ACPI: video: use native backlight for GA401/GA502/GA503
+Date:   Mon, 12 Jul 2021 08:05:27 +0200
+Message-Id: <20210712060901.407044131@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -42,86 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Luke D Jones <luke@ljones.dev>
 
-[ Upstream commit 50e7a31d30e8221632675abed3be306382324ca2 ]
+[ Upstream commit 2dfbacc65d1d2eae587ccb6b93f6280542641858 ]
 
-Smatch static checker warns that "mdev" can be null:
+Force backlight control in these models to use the native interface
+at /sys/class/backlight/amdgpu_bl0.
 
-sound/usb/media.c:287 snd_media_device_create()
-    warn: 'mdev' can also be NULL
-
-If CONFIG_MEDIA_CONTROLLER is disabled, this file should not be included
-in the build.
-
-The below conditions in the sound/usb/Makefile are in place to ensure that
-media.c isn't included in the build.
-
-sound/usb/Makefile:
-snd-usb-audio-$(CONFIG_SND_USB_AUDIO_USE_MEDIA_CONTROLLER) += media.o
-
-select SND_USB_AUDIO_USE_MEDIA_CONTROLLER if MEDIA_CONTROLLER &&
-       (MEDIA_SUPPORT=y || MEDIA_SUPPORT=SND_USB_AUDIO)
-
-The following config check in include/media/media-dev-allocator.h is
-in place to enable the API only when CONFIG_MEDIA_CONTROLLER and
-CONFIG_USB are enabled.
-
- #if defined(CONFIG_MEDIA_CONTROLLER) && defined(CONFIG_USB)
-
-This check doesn't work as intended when CONFIG_USB=m. When CONFIG_USB=m,
-CONFIG_USB_MODULE is defined and CONFIG_USB is not. The above config check
-doesn't catch that CONFIG_USB is defined as a module and disables the API.
-This results in sound/usb enabling Media Controller specific ALSA driver
-code, while Media disables the Media Controller API.
-
-Fix the problem requires two changes:
-
-1. Change the check to use IS_ENABLED to detect when CONFIG_USB is enabled
-   as a module or static. Since CONFIG_MEDIA_CONTROLLER is a bool, leave
-   the check unchanged to be consistent with drivers/media/Makefile.
-
-2. Change the drivers/media/mc/Makefile to include mc-dev-allocator.o
-   in mc-objs when CONFIG_USB is enabled.
-
-Link: https://lore.kernel.org/alsa-devel/YLeAvT+R22FQ%2FEyw@mwanda/
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/mc/Makefile           | 2 +-
- include/media/media-dev-allocator.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/video_detect.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/media/mc/Makefile b/drivers/media/mc/Makefile
-index 119037f0e686..2b7af42ba59c 100644
---- a/drivers/media/mc/Makefile
-+++ b/drivers/media/mc/Makefile
-@@ -3,7 +3,7 @@
- mc-objs	:= mc-device.o mc-devnode.o mc-entity.o \
- 	   mc-request.o
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index 83cd4c95faf0..33474fd96991 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -385,6 +385,30 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 		DMI_MATCH(DMI_BOARD_NAME, "BA51_MV"),
+ 		},
+ 	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "ASUSTeK COMPUTER INC. GA401",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "GA401"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "ASUSTeK COMPUTER INC. GA502",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "GA502"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "ASUSTeK COMPUTER INC. GA503",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "GA503"),
++		},
++	},
  
--ifeq ($(CONFIG_USB),y)
-+ifneq ($(CONFIG_USB),)
- 	mc-objs += mc-dev-allocator.o
- endif
- 
-diff --git a/include/media/media-dev-allocator.h b/include/media/media-dev-allocator.h
-index b35ea6062596..2ab54d426c64 100644
---- a/include/media/media-dev-allocator.h
-+++ b/include/media/media-dev-allocator.h
-@@ -19,7 +19,7 @@
- 
- struct usb_device;
- 
--#if defined(CONFIG_MEDIA_CONTROLLER) && defined(CONFIG_USB)
-+#if defined(CONFIG_MEDIA_CONTROLLER) && IS_ENABLED(CONFIG_USB)
- /**
-  * media_device_usb_allocate() - Allocate and return struct &media device
-  *
+ 	/*
+ 	 * Desktops which falsely report a backlight and which our heuristics
 -- 
 2.30.2
 
