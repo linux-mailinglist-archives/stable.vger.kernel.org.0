@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEA503C523B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 852E63C4D78
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349971AbhGLHpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50614 "EHLO mail.kernel.org"
+        id S241698AbhGLHNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244140AbhGLHmS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:42:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC42861158;
-        Mon, 12 Jul 2021 07:39:28 +0000 (UTC)
+        id S238858AbhGLHIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:08:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B285611C0;
+        Mon, 12 Jul 2021 07:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075569;
-        bh=U0O14NrXACBSK7rFxbwEOy4mIvgVCNB8sB5mzb6xcBg=;
+        s=korg; t=1626073501;
+        bh=GsM7kTT8tLZRHnd8pH8qOql2SjIfQ9+HXrYJLfJFeGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jP2iZ26k5yPQmhGVq0NFi3Gvql3EspcTrYjaUS5fybOoqEiSsLkzUCm7A3MbWBcKZ
-         s4ahUSISY5zVZHLB3Pd/z0ypkOwAk303VFoza7cjWO2MjNyes2ZK0+Lmyd34QfIsP8
-         nNbg0xghBpvzK8AzZaki9a5V/yGi0pR1xcgIfNvg=
+        b=gojLOUWsGg7rtWk5XaRSEfz2kPNJFZlWtkqXAH7uhW3DlOM+nSzBmfgwMycSevRYr
+         oqdnHp+6Cu/sKQwid9GznbLSMehJw40wX2qh6razyQcNMTrKDvenhCAXZDAXs/CMRz
+         WJVSp50vJ5xr+X32w5Gp+tzYiWI257DXco8czwG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 270/800] media: s5p_cec: decrement usage count if disabled
-Date:   Mon, 12 Jul 2021 08:04:53 +0200
-Message-Id: <20210712060952.814942309@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 211/700] random32: Fix implicit truncation warning in prandom_seed_state()
+Date:   Mon, 12 Jul 2021 08:04:54 +0200
+Message-Id: <20210712060956.682156506@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 747bad54a677d8633ec14b39dfbeb859c821d7f2 ]
+[ Upstream commit d327ea15a305024ef0085252fa3657bbb1ce25f5 ]
 
-There's a bug at s5p_cec_adap_enable(): if called to
-disable the device, it should call pm_runtime_put()
-instead of pm_runtime_disable(), as the goal here is to
-decrement the usage_count and not to disable PM runtime.
+sparse generates the following warning:
 
-Reported-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Fixes: 1bcbf6f4b6b0 ("[media] cec: s5p-cec: Add s5p-cec driver")
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+ include/linux/prandom.h:114:45: sparse: sparse: cast truncates bits from
+ constant value
+
+This is because the 64-bit seed value is manipulated and then placed in a
+u32, causing an implicit cast and truncation. A forced cast to u32 doesn't
+prevent this warning, which is reasonable because a typecast doesn't prove
+that truncation was expected.
+
+Logical-AND the value with 0xffffffff to make explicit that truncation to
+32-bit is intended.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20210525122012.6336-3-rf@opensource.cirrus.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/platform/s5p/s5p_cec.c | 2 +-
+ include/linux/prandom.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
-index 2250c1cbc64e..028a09a7531e 100644
---- a/drivers/media/cec/platform/s5p/s5p_cec.c
-+++ b/drivers/media/cec/platform/s5p/s5p_cec.c
-@@ -54,7 +54,7 @@ static int s5p_cec_adap_enable(struct cec_adapter *adap, bool enable)
- 	} else {
- 		s5p_cec_mask_tx_interrupts(cec);
- 		s5p_cec_mask_rx_interrupts(cec);
--		pm_runtime_disable(cec->dev);
-+		pm_runtime_put(cec->dev);
- 	}
+diff --git a/include/linux/prandom.h b/include/linux/prandom.h
+index bbf4b4ad61df..056d31317e49 100644
+--- a/include/linux/prandom.h
++++ b/include/linux/prandom.h
+@@ -111,7 +111,7 @@ static inline u32 __seed(u32 x, u32 m)
+  */
+ static inline void prandom_seed_state(struct rnd_state *state, u64 seed)
+ {
+-	u32 i = (seed >> 32) ^ (seed << 10) ^ seed;
++	u32 i = ((seed >> 32) ^ (seed << 10) ^ seed) & 0xffffffffUL;
  
- 	return 0;
+ 	state->s1 = __seed(i,   2U);
+ 	state->s2 = __seed(i,   8U);
 -- 
 2.30.2
 
