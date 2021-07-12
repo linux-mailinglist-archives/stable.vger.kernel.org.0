@@ -2,34 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86DB73C5051
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F327A3C55D5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347049AbhGLHcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43510 "EHLO mail.kernel.org"
+        id S1347111AbhGLIML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:12:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345274AbhGLH3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3D7F61613;
-        Mon, 12 Jul 2021 07:26:03 +0000 (UTC)
+        id S1353963AbhGLIDV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A91186145F;
+        Mon, 12 Jul 2021 07:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074764;
-        bh=RtWuVmcFlAjsPSFFHOaPn9GmQSPNvNq00+3sAYldAJE=;
+        s=korg; t=1626076746;
+        bh=K4wRohg7cY/fwn6n+fzVhzRCpLnCNoam6p2AAXfp8ZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VXZS1Bjg06NA28hBLTcF5ZR99+B0dhU8Ge6tnrdPU2qyjpkupfNTWeCK0cM+qoslA
-         ewAOpiuHwUosUIFu3EXJT0X6cJpEDzFR/yKHfGlSAAYdQ0FQDbc5nnMLr3YFYP/jEC
-         1CGZoQbJQOC9pFsTXOGPl8iSZNRbU+OGr6uUodOo=
+        b=bkelOGapWnxDZUpdX52bYw8RL2PSK1na2+2kEFXbpzsKHN1SXh1v59jYF1G0m2Cx0
+         GEDrHHV5my8xcHBxKKTrUG3gl27QACQEi6JC77hrwGY97NtohRFU2O7u01wjRv7ZfI
+         q9/KMzUW8nHozXocJzSJ9MzJ1ww0wYyTa5QR0pB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.12 689/700] fscrypt: dont ignore minor_hash when hash is 0
+        stable@vger.kernel.org, Tim Gardner <tim.gardner@canonical.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Shuah Khan <shuah@kernel.org>, linux-sgx@vger.kernel.org,
+        linux-kselftest@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 749/800] selftests/sgx: remove checks for file execute permissions
 Date:   Mon, 12 Jul 2021 08:12:52 +0200
-Message-Id: <20210712061049.257161805@linuxfoundation.org>
+Message-Id: <20210712061046.497212718@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,60 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-commit 77f30bfcfcf484da7208affd6a9e63406420bf91 upstream.
+[ Upstream commit 4896df9d53ae5521f3ce83751e828ad70bc65c80 ]
 
-When initializing a no-key name, fscrypt_fname_disk_to_usr() sets the
-minor_hash to 0 if the (major) hash is 0.
+The SGX selftests can fail for a bunch of non-obvious reasons
+like 'noexec' permissions on /dev (which is the default *EVERYWHERE*
+it seems).
 
-This doesn't make sense because 0 is a valid hash code, so we shouldn't
-ignore the filesystem-provided minor_hash in that case.  Fix this by
-removing the special case for 'hash == 0'.
+A new test mistakenly also looked for +x permission on the
+/dev/sgx_enclave.  File execute permissions really only apply to
+the ability of execve() to work on a file, *NOT* on the ability
+for an application to map the file with PROT_EXEC.  SGX needs to
+mmap(PROT_EXEC), but doesn't need to execve() the device file.
 
-This is an old bug that appears to have originated when the encryption
-code in ext4 and f2fs was moved into fs/crypto/.  The original ext4 and
-f2fs code passed the hash by pointer instead of by value.  So
-'if (hash)' actually made sense then, as it was checking whether a
-pointer was NULL.  But now the hashes are passed by value, and
-filesystems just pass 0 for any hashes they don't have.  There is no
-need to handle this any differently from the hashes actually being 0.
+Remove the check.
 
-It is difficult to reproduce this bug, as it only made a difference in
-the case where a filename's 32-bit major hash happened to be 0.
-However, it probably had the largest chance of causing problems on
-ubifs, since ubifs uses minor_hash to do lookups of no-key names, in
-addition to using it as a readdir cookie.  ext4 only uses minor_hash as
-a readdir cookie, and f2fs doesn't use minor_hash at all.
-
-Fixes: 0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
-Cc: <stable@vger.kernel.org> # v4.6+
-Link: https://lore.kernel.org/r/20210527235236.2376556-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4284f7acb78b ("selftests/sgx: Improve error detection and messages")
+Reported-by: Tim Gardner <tim.gardner@canonical.com>
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: Reinette Chatre <reinette.chatre@intel.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: linux-sgx@vger.kernel.org
+Cc: linux-kselftest@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Tested-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/crypto/fname.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ tools/testing/selftests/sgx/load.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
---- a/fs/crypto/fname.c
-+++ b/fs/crypto/fname.c
-@@ -344,13 +344,9 @@ int fscrypt_fname_disk_to_usr(const stru
- 		     offsetof(struct fscrypt_nokey_name, sha256));
- 	BUILD_BUG_ON(BASE64_CHARS(FSCRYPT_NOKEY_NAME_MAX) > NAME_MAX);
+diff --git a/tools/testing/selftests/sgx/load.c b/tools/testing/selftests/sgx/load.c
+index f441ac34b4d4..bae78c3263d9 100644
+--- a/tools/testing/selftests/sgx/load.c
++++ b/tools/testing/selftests/sgx/load.c
+@@ -150,16 +150,6 @@ bool encl_load(const char *path, struct encl *encl)
+ 		goto err;
+ 	}
  
--	if (hash) {
--		nokey_name.dirhash[0] = hash;
--		nokey_name.dirhash[1] = minor_hash;
--	} else {
--		nokey_name.dirhash[0] = 0;
--		nokey_name.dirhash[1] = 0;
+-	/*
+-	 * This just checks if the /dev file has these permission
+-	 * bits set.  It does not check that the current user is
+-	 * the owner or in the owning group.
+-	 */
+-	if (!(sb.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
+-		fprintf(stderr, "no execute permissions on device file %s\n", device_path);
+-		goto err;
 -	}
-+	nokey_name.dirhash[0] = hash;
-+	nokey_name.dirhash[1] = minor_hash;
-+
- 	if (iname->len <= sizeof(nokey_name.bytes)) {
- 		memcpy(nokey_name.bytes, iname->name, iname->len);
- 		size = offsetof(struct fscrypt_nokey_name, bytes[iname->len]);
+-
+ 	ptr = mmap(NULL, PAGE_SIZE, PROT_READ, MAP_SHARED, fd, 0);
+ 	if (ptr == (void *)-1) {
+ 		perror("mmap for read");
+@@ -169,13 +159,13 @@ bool encl_load(const char *path, struct encl *encl)
+ 
+ #define ERR_MSG \
+ "mmap() succeeded for PROT_READ, but failed for PROT_EXEC.\n" \
+-" Check that current user has execute permissions on %s and \n" \
+-" that /dev does not have noexec set: mount | grep \"/dev .*noexec\"\n" \
++" Check that /dev does not have noexec set:\n" \
++" \tmount | grep \"/dev .*noexec\"\n" \
+ " If so, remount it executable: mount -o remount,exec /dev\n\n"
+ 
+ 	ptr = mmap(NULL, PAGE_SIZE, PROT_EXEC, MAP_SHARED, fd, 0);
+ 	if (ptr == (void *)-1) {
+-		fprintf(stderr, ERR_MSG, device_path);
++		fprintf(stderr, ERR_MSG);
+ 		goto err;
+ 	}
+ 	munmap(ptr, PAGE_SIZE);
+-- 
+2.30.2
+
 
 
