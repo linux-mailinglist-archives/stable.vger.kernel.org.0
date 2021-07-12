@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD8DA3C5374
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49FF93C4938
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352426AbhGLHyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36652 "EHLO mail.kernel.org"
+        id S236505AbhGLGnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:43:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350381AbhGLHu6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85E7E6157E;
-        Mon, 12 Jul 2021 07:44:49 +0000 (UTC)
+        id S238625AbhGLGlX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:41:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 512336101E;
+        Mon, 12 Jul 2021 06:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075890;
-        bh=lgB1aLp/U5w0sgPxn7QfTi2IakF2fw+bqWvJFuxef+s=;
+        s=korg; t=1626071906;
+        bh=G8AU0m0yqo4371zcdR+GugWcnl5LAl1GfyHckj4CfRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TrTQkItvZmWgCqii2Yj9VM4B+UHET+hxvS08neuY/Fh5FF6V8pXej2h7An1dhjgBA
-         3w9NZ5ix0AUK22lH27jmcEMIA2u3y0iIqUqdkuT8aJktQg4AV66cGwdowu5xhGit5C
-         /N1glmLcsEJq1za2aVVdCUCFJRu3sQlUxb5Yvnac=
+        b=nM1wraaes1VaBjlzvFDJS/cRLvJFYSJsQbktC05Pq/yqffNkqWqVh5XHOgZjJ2KGI
+         G5aNyvXtKOl+mmbSDSI//Uc3FdGRwEHD4lHEFxBFWMk6l/A+JvkxvA4a9mNqa6sjUV
+         vexqiTjXxs/Fb+3K7SnqoJ7sBwKKPf9HxYlzSSaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "ziwei.dai" <ziwei.dai@unisoc.com>,
+        "ke.wang" <ke.wang@unisoc.com>,
+        Zhaoyang Huang <zhaoyang.huang@unisoc.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 408/800] net: qrtr: ns: Fix error return code in qrtr_ns_init()
+Subject: [PATCH 5.10 271/593] psi: Fix race between psi_trigger_create/destroy
 Date:   Mon, 12 Jul 2021 08:07:11 +0200
-Message-Id: <20210712061010.577639981@linuxfoundation.org>
+Message-Id: <20210712060913.448341561@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Zhaoyang Huang <zhaoyang.huang@unisoc.com>
 
-[ Upstream commit a49e72b3bda73d36664a084e47da9727a31b8095 ]
+[ Upstream commit 8f91efd870ea5d8bc10b0fcc9740db51cd4c0c83 ]
 
-Fix to return a negative error code -ENOMEM from the error handling
-case instead of 0, as done elsewhere in this function.
+Race detected between psi_trigger_destroy/create as shown below, which
+cause panic by accessing invalid psi_system->poll_wait->wait_queue_entry
+and psi_system->poll_timer->entry->next. Under this modification, the
+race window is removed by initialising poll_wait and poll_timer in
+group_init which are executed only once at beginning.
 
-Fixes: c6e08d6251f3 ("net: qrtr: Allocate workqueue before kernel_bind")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  psi_trigger_destroy()                   psi_trigger_create()
+
+  mutex_lock(trigger_lock);
+  rcu_assign_pointer(poll_task, NULL);
+  mutex_unlock(trigger_lock);
+					  mutex_lock(trigger_lock);
+					  if (!rcu_access_pointer(group->poll_task)) {
+					    timer_setup(poll_timer, poll_timer_fn, 0);
+					    rcu_assign_pointer(poll_task, task);
+					  }
+					  mutex_unlock(trigger_lock);
+
+  synchronize_rcu();
+  del_timer_sync(poll_timer); <-- poll_timer has been reinitialized by
+                                  psi_trigger_create()
+
+So, trigger_lock/RCU correctly protects destruction of
+group->poll_task but misses this race affecting poll_timer and
+poll_wait.
+
+Fixes: 461daba06bdc ("psi: eliminate kthread_worker from psi trigger scheduling mechanism")
+Co-developed-by: ziwei.dai <ziwei.dai@unisoc.com>
+Signed-off-by: ziwei.dai <ziwei.dai@unisoc.com>
+Co-developed-by: ke.wang <ke.wang@unisoc.com>
+Signed-off-by: ke.wang <ke.wang@unisoc.com>
+Signed-off-by: Zhaoyang Huang <zhaoyang.huang@unisoc.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Suren Baghdasaryan <surenb@google.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Link: https://lkml.kernel.org/r/1623371374-15664-1-git-send-email-huangzhaoyang@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/qrtr/ns.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/sched/psi.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/qrtr/ns.c b/net/qrtr/ns.c
-index 8d00dfe8139e..1990d496fcfc 100644
---- a/net/qrtr/ns.c
-+++ b/net/qrtr/ns.c
-@@ -775,8 +775,10 @@ int qrtr_ns_init(void)
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 651218ded981..d50a31ecedee 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -179,6 +179,8 @@ struct psi_group psi_system = {
+ 
+ static void psi_avgs_work(struct work_struct *work);
+ 
++static void poll_timer_fn(struct timer_list *t);
++
+ static void group_init(struct psi_group *group)
+ {
+ 	int cpu;
+@@ -198,6 +200,8 @@ static void group_init(struct psi_group *group)
+ 	memset(group->polling_total, 0, sizeof(group->polling_total));
+ 	group->polling_next_update = ULLONG_MAX;
+ 	group->polling_until = 0;
++	init_waitqueue_head(&group->poll_wait);
++	timer_setup(&group->poll_timer, poll_timer_fn, 0);
+ 	rcu_assign_pointer(group->poll_task, NULL);
+ }
+ 
+@@ -1126,9 +1130,7 @@ struct psi_trigger *psi_trigger_create(struct psi_group *group,
+ 			return ERR_CAST(task);
+ 		}
+ 		atomic_set(&group->poll_wakeup, 0);
+-		init_waitqueue_head(&group->poll_wait);
+ 		wake_up_process(task);
+-		timer_setup(&group->poll_timer, poll_timer_fn, 0);
+ 		rcu_assign_pointer(group->poll_task, task);
  	}
  
- 	qrtr_ns.workqueue = alloc_workqueue("qrtr_ns_handler", WQ_UNBOUND, 1);
--	if (!qrtr_ns.workqueue)
-+	if (!qrtr_ns.workqueue) {
-+		ret = -ENOMEM;
- 		goto err_sock;
-+	}
+@@ -1180,6 +1182,7 @@ static void psi_trigger_destroy(struct kref *ref)
+ 					group->poll_task,
+ 					lockdep_is_held(&group->trigger_lock));
+ 			rcu_assign_pointer(group->poll_task, NULL);
++			del_timer(&group->poll_timer);
+ 		}
+ 	}
  
- 	qrtr_ns.sock->sk->sk_data_ready = qrtr_ns_data_ready;
- 
+@@ -1192,17 +1195,14 @@ static void psi_trigger_destroy(struct kref *ref)
+ 	 */
+ 	synchronize_rcu();
+ 	/*
+-	 * Destroy the kworker after releasing trigger_lock to prevent a
++	 * Stop kthread 'psimon' after releasing trigger_lock to prevent a
+ 	 * deadlock while waiting for psi_poll_work to acquire trigger_lock
+ 	 */
+ 	if (task_to_destroy) {
+ 		/*
+ 		 * After the RCU grace period has expired, the worker
+ 		 * can no longer be found through group->poll_task.
+-		 * But it might have been already scheduled before
+-		 * that - deschedule it cleanly before destroying it.
+ 		 */
+-		del_timer_sync(&group->poll_timer);
+ 		kthread_stop(task_to_destroy);
+ 	}
+ 	kfree(t);
 -- 
 2.30.2
 
