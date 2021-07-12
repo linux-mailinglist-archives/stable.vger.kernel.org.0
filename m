@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E715D3C4BE7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E33F3C51BE
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241397AbhGLHAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:00:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34254 "EHLO mail.kernel.org"
+        id S1345528AbhGLHnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:43:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241931AbhGLG7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:59:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CA7661156;
-        Mon, 12 Jul 2021 06:56:46 +0000 (UTC)
+        id S1347719AbhGLHkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 792B761450;
+        Mon, 12 Jul 2021 07:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073007;
-        bh=kzoBpMvH71XQksTVF+1uH1vBiclO6ISlhy/JSuOLpDY=;
+        s=korg; t=1626075354;
+        bh=ycmPIHPt6luVzIP71dxQy1C3huelF0s4SRfcO/QPdpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pPI1FzDi516JLxmat4GeXuiHWUkldydbD+nIVK9WxwV3aDDofniQBLCfGyp9zMo04
-         L+fYiXnKagd1Kx0u7skQRTeBwspA78DSfivUgvygC2ehgjzSRIsZlXTC90G9Tc8DGc
-         jTCjj0UDuXW0MBpbzRVzxGH1ucbIgZDsnGSgw4Zg=
+        b=QZwcqIHAYdhTLok6uNiN5YaRQbi1jV9ZAof/3Kq5cw5FMtf4/nn71nEarcY6lmw3+
+         MbscKZKAo6wADEgaqeq1ejgqnRtS99la+/QqEoPCKX8kw1nSP9CUUilTdmIuGnEHS9
+         9Sr9/lCYSmhAlrRBWdAauPUnlQuGYdgLNjF25vV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 5.12 095/700] serial: sh-sci: Stop dmaengine transfer in sci_stop_tx()
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 155/800] media: imx: imx7_mipi_csis: Fix logging of only error event counters
 Date:   Mon, 12 Jul 2021 08:02:58 +0200
-Message-Id: <20210712060938.215565118@linuxfoundation.org>
+Message-Id: <20210712060934.804711221@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-commit 08a84410a04f05c7c1b8e833f552416d8eb9f6fe upstream.
+[ Upstream commit d2fcc9c2de1191ea80366e3658711753738dd10a ]
 
-Stop dmaengine transfer in sci_stop_tx(). Otherwise, the following
-message is possible output when system enters suspend and while
-transferring data, because clearing TIE bit in SCSCR is not able to
-stop any dmaengine transfer.
+The mipi_csis_events array ends with 6 non-error events, not 4. Update
+mipi_csis_log_counters() accordingly. While at it, log event counters in
+forward order, as there's no reason to log them backward.
 
-    sh-sci e6550000.serial: ttySC1: Unable to drain transmitter
-
-Note that this driver has already used some #ifdef in the .c file
-so that this patch also uses #ifdef to fix the issue. Otherwise,
-build errors happens if the CONFIG_SERIAL_SH_SCI_DMA is disabled.
-
-Fixes: 73a19e4c0301 ("serial: sh-sci: Add DMA support.")
-Cc: <stable@vger.kernel.org> # v4.9+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210610110806.277932-1-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sh-sci.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/staging/media/imx/imx7-mipi-csis.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -610,6 +610,14 @@ static void sci_stop_tx(struct uart_port
- 	ctrl &= ~SCSCR_TIE;
+diff --git a/drivers/staging/media/imx/imx7-mipi-csis.c b/drivers/staging/media/imx/imx7-mipi-csis.c
+index 025fdc488bd6..25d0f89b2e53 100644
+--- a/drivers/staging/media/imx/imx7-mipi-csis.c
++++ b/drivers/staging/media/imx/imx7-mipi-csis.c
+@@ -666,13 +666,15 @@ static void mipi_csis_clear_counters(struct csi_state *state)
  
- 	serial_port_out(port, SCSCR, ctrl);
-+
-+#ifdef CONFIG_SERIAL_SH_SCI_DMA
-+	if (to_sci_port(port)->chan_tx &&
-+	    !dma_submit_error(to_sci_port(port)->cookie_tx)) {
-+		dmaengine_terminate_async(to_sci_port(port)->chan_tx);
-+		to_sci_port(port)->cookie_tx = -EINVAL;
-+	}
-+#endif
- }
+ static void mipi_csis_log_counters(struct csi_state *state, bool non_errors)
+ {
+-	int i = non_errors ? MIPI_CSIS_NUM_EVENTS : MIPI_CSIS_NUM_EVENTS - 4;
++	unsigned int num_events = non_errors ? MIPI_CSIS_NUM_EVENTS
++				: MIPI_CSIS_NUM_EVENTS - 6;
+ 	struct device *dev = &state->pdev->dev;
+ 	unsigned long flags;
++	unsigned int i;
  
- static void sci_start_rx(struct uart_port *port)
+ 	spin_lock_irqsave(&state->slock, flags);
+ 
+-	for (i--; i >= 0; i--) {
++	for (i = 0; i < num_events; ++i) {
+ 		if (state->events[i].counter > 0 || state->debug)
+ 			dev_info(dev, "%s events: %d\n", state->events[i].name,
+ 				 state->events[i].counter);
+-- 
+2.30.2
+
 
 
