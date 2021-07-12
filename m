@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A01763C46CF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 876A43C46F9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:26:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235349AbhGLG2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:28:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47330 "EHLO mail.kernel.org"
+        id S233873AbhGLGau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:30:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235290AbhGLG1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230455AbhGLG1r (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:27:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A354610A6;
-        Mon, 12 Jul 2021 06:24:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA0FB6117A;
+        Mon, 12 Jul 2021 06:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071058;
-        bh=4FgGnHLGWv6c+QoAfpkwC56+idl2AStnXPeyueqzeoE=;
+        s=korg; t=1626071060;
+        bh=5MKF9ghdCm53P2i9jAYJVmLiAUJx29b33TKlIav/K7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MO6PIsYaRshe75W0EZApu/H5qBbiiNGYLwlRwnME6W2TKpkiNwAWJmDHFmmGwMo8/
-         SBtX+YKwwTU4cwGhNcgj9i3V3wUGTXVYOF+qyPezFt4wsSuOJj6gJ08SaK9gvxoZuA
-         TxXinRqbkSVSsXyc17KnhT0Y2+i52MpAQ+chCC1U=
+        b=XE4+W0L4hUV29a7Q6k++LU3ImDObPPcdn0e68HbnRdJZY4n43F7kY4hBHY0dQfPud
+         ZADCi94//GwYdxpDT05cixju7bqqUGbRaW5WGbg1YqTSnD4+3OTHkL45laVWe+4t15
+         Z8Oika5Ze1K5t8KIHW6u4mBVYqEl5sOhfCSN+/sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        kernel test robot <lkp@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 213/348] netfilter: nft_osf: check for TCP packet before further processing
-Date:   Mon, 12 Jul 2021 08:09:57 +0200
-Message-Id: <20210712060729.822166307@linuxfoundation.org>
+Subject: [PATCH 5.4 214/348] netfilter: nft_tproxy: restrict support to TCP and UDP transport protocols
+Date:   Mon, 12 Jul 2021 08:09:58 +0200
+Message-Id: <20210712060729.957877385@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,36 +41,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 8f518d43f89ae00b9cf5460e10b91694944ca1a8 ]
+[ Upstream commit 52f0f4e178c757b3d356087376aad8bd77271828 ]
 
-The osf expression only supports for TCP packets, add a upfront sanity
-check to skip packet parsing if this is not a TCP packet.
+Add unfront check for TCP and UDP packets before performing further
+processing.
 
-Fixes: b96af92d6eaf ("netfilter: nf_tables: implement Passive OS fingerprint module in nft_osf")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_osf.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/netfilter/nft_tproxy.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_osf.c b/net/netfilter/nft_osf.c
-index b42247aa48a9..4911f8eb394f 100644
---- a/net/netfilter/nft_osf.c
-+++ b/net/netfilter/nft_osf.c
-@@ -28,6 +28,11 @@ static void nft_osf_eval(const struct nft_expr *expr, struct nft_regs *regs,
- 	struct nf_osf_data data;
- 	struct tcphdr _tcph;
+diff --git a/net/netfilter/nft_tproxy.c b/net/netfilter/nft_tproxy.c
+index 95980154ef02..b97ab1198b03 100644
+--- a/net/netfilter/nft_tproxy.c
++++ b/net/netfilter/nft_tproxy.c
+@@ -30,6 +30,12 @@ static void nft_tproxy_eval_v4(const struct nft_expr *expr,
+ 	__be16 tport = 0;
+ 	struct sock *sk;
  
-+	if (pkt->tprot != IPPROTO_TCP) {
++	if (pkt->tprot != IPPROTO_TCP &&
++	    pkt->tprot != IPPROTO_UDP) {
 +		regs->verdict.code = NFT_BREAK;
 +		return;
 +	}
 +
- 	tcp = skb_header_pointer(skb, ip_hdrlen(skb),
- 				 sizeof(struct tcphdr), &_tcph);
- 	if (!tcp) {
+ 	hp = skb_header_pointer(skb, ip_hdrlen(skb), sizeof(_hdr), &_hdr);
+ 	if (!hp) {
+ 		regs->verdict.code = NFT_BREAK;
+@@ -91,7 +97,8 @@ static void nft_tproxy_eval_v6(const struct nft_expr *expr,
+ 
+ 	memset(&taddr, 0, sizeof(taddr));
+ 
+-	if (!pkt->tprot_set) {
++	if (pkt->tprot != IPPROTO_TCP &&
++	    pkt->tprot != IPPROTO_UDP) {
+ 		regs->verdict.code = NFT_BREAK;
+ 		return;
+ 	}
 -- 
 2.30.2
 
