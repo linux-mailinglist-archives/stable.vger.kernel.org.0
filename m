@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6292A3C559E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61B3E3C5094
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232040AbhGLILS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:11:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56498 "EHLO mail.kernel.org"
+        id S243424AbhGLHdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353826AbhGLIDB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3426961D0A;
-        Mon, 12 Jul 2021 07:57:43 +0000 (UTC)
+        id S1344499AbhGLH3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A7F261419;
+        Mon, 12 Jul 2021 07:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076663;
-        bh=ODSX4AsV71GYIEJkrpectteUS/7MNtoeUiO8xhs3kWs=;
+        s=korg; t=1626074731;
+        bh=0Mhtj2ALqFzzEzlMYegUNK373szXjXHWvZKnVqs60so=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BAtXPISIH0ce+Gd4Scr+C2fdL6F5bii2BYPGg2DBYK9CHKs2HwEZ6iwIyhm6V8A5K
-         LWeo7Rwaha31JY97A+0C2qxJ5rpTrVgu7h+8Ph2iiDzvfyXhUycn33oP4FpWC00h3U
-         uAVwovZMShFGUgT5Y6qyhwv+jDGkcys9WzluTMP0=
+        b=ypWljUF782jr0MS2nHPK7malTi+hXRgMnG+R3xaf8SL9DYmfmKtViFqE2HqH4lxTJ
+         sPsz4YUzxRhywMK12P+RVx2dueiUb7JAeQ/ZiQUJg9k09mv729dqQ9IxMJsFNtFjKP
+         1sKrPlbFM3QXS66Cmq9yf+oX/v+ZBI1KVOt99/JI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 739/800] ASoC: atmel-i2s: Fix usage of capture and playback at the same time
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 679/700] csky: fix syscache.c fallthrough warning
 Date:   Mon, 12 Jul 2021 08:12:42 +0200
-Message-Id: <20210712061045.378019679@linuxfoundation.org>
+Message-Id: <20210712061048.132835607@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,98 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 3b7961a326f8a7e03f54a19f02fedae8d488b80f ]
+[ Upstream commit 0679d29d3e2351a1c3049c26a63ce1959cad5447 ]
 
-For both capture and playback streams to work at the same time, only the
-needed values from a register need to be updated. Also, clocks should be
-enabled only when the first stream is started and stopped when there is no
-running stream.
+This case of the switch statement falls through to the following case.
+This appears to be on purpose, so declare it as OK.
 
-Fixes: b543e467d1a9 ("ASoC: atmel-i2s: add driver for the new Atmel I2S controller")
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20210618150741.401739-2-codrin.ciubotariu@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+../arch/csky/mm/syscache.c: In function '__do_sys_cacheflush':
+../arch/csky/mm/syscache.c:17:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+   17 |   flush_icache_mm_range(current->mm,
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   18 |     (unsigned long)addr,
+      |     ~~~~~~~~~~~~~~~~~~~~
+   19 |     (unsigned long)addr + bytes);
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../arch/csky/mm/syscache.c:20:2: note: here
+   20 |  case DCACHE:
+      |  ^~~~
+
+Fixes: 997153b9a75c ("csky: Add flush_icache_mm to defer flush icache all")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Cc: linux-csky@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/atmel-i2s.c | 34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ arch/csky/mm/syscache.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/atmel/atmel-i2s.c b/sound/soc/atmel/atmel-i2s.c
-index 48c158535ff6..e5c4625b7771 100644
---- a/sound/soc/atmel/atmel-i2s.c
-+++ b/sound/soc/atmel/atmel-i2s.c
-@@ -200,6 +200,7 @@ struct atmel_i2s_dev {
- 	unsigned int				fmt;
- 	const struct atmel_i2s_gck_param	*gck_param;
- 	const struct atmel_i2s_caps		*caps;
-+	int					clk_use_no;
- };
- 
- static irqreturn_t atmel_i2s_interrupt(int irq, void *dev_id)
-@@ -321,9 +322,16 @@ static int atmel_i2s_hw_params(struct snd_pcm_substream *substream,
- {
- 	struct atmel_i2s_dev *dev = snd_soc_dai_get_drvdata(dai);
- 	bool is_playback = (substream->stream == SNDRV_PCM_STREAM_PLAYBACK);
--	unsigned int mr = 0;
-+	unsigned int mr = 0, mr_mask;
- 	int ret;
- 
-+	mr_mask = ATMEL_I2SC_MR_FORMAT_MASK | ATMEL_I2SC_MR_MODE_MASK |
-+		ATMEL_I2SC_MR_DATALENGTH_MASK;
-+	if (is_playback)
-+		mr_mask |= ATMEL_I2SC_MR_TXMONO;
-+	else
-+		mr_mask |= ATMEL_I2SC_MR_RXMONO;
-+
- 	switch (dev->fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
- 		mr |= ATMEL_I2SC_MR_FORMAT_I2S;
-@@ -402,7 +410,7 @@ static int atmel_i2s_hw_params(struct snd_pcm_substream *substream,
- 		return -EINVAL;
- 	}
- 
--	return regmap_write(dev->regmap, ATMEL_I2SC_MR, mr);
-+	return regmap_update_bits(dev->regmap, ATMEL_I2SC_MR, mr_mask, mr);
- }
- 
- static int atmel_i2s_switch_mck_generator(struct atmel_i2s_dev *dev,
-@@ -495,18 +503,28 @@ static int atmel_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
- 	is_master = (mr & ATMEL_I2SC_MR_MODE_MASK) == ATMEL_I2SC_MR_MODE_MASTER;
- 
- 	/* If master starts, enable the audio clock. */
--	if (is_master && mck_enabled)
--		err = atmel_i2s_switch_mck_generator(dev, true);
--	if (err)
--		return err;
-+	if (is_master && mck_enabled) {
-+		if (!dev->clk_use_no) {
-+			err = atmel_i2s_switch_mck_generator(dev, true);
-+			if (err)
-+				return err;
-+		}
-+		dev->clk_use_no++;
-+	}
- 
- 	err = regmap_write(dev->regmap, ATMEL_I2SC_CR, cr);
- 	if (err)
- 		return err;
- 
- 	/* If master stops, disable the audio clock. */
--	if (is_master && !mck_enabled)
--		err = atmel_i2s_switch_mck_generator(dev, false);
-+	if (is_master && !mck_enabled) {
-+		if (dev->clk_use_no == 1) {
-+			err = atmel_i2s_switch_mck_generator(dev, false);
-+			if (err)
-+				return err;
-+		}
-+		dev->clk_use_no--;
-+	}
- 
- 	return err;
- }
+diff --git a/arch/csky/mm/syscache.c b/arch/csky/mm/syscache.c
+index ffade2f9a4c8..4e51d63850c4 100644
+--- a/arch/csky/mm/syscache.c
++++ b/arch/csky/mm/syscache.c
+@@ -17,6 +17,7 @@ SYSCALL_DEFINE3(cacheflush,
+ 		flush_icache_mm_range(current->mm,
+ 				(unsigned long)addr,
+ 				(unsigned long)addr + bytes);
++		fallthrough;
+ 	case DCACHE:
+ 		dcache_wb_range((unsigned long)addr,
+ 				(unsigned long)addr + bytes);
 -- 
 2.30.2
 
