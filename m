@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBAD43C4A8D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCEF03C550C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239534AbhGLGwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51172 "EHLO mail.kernel.org"
+        id S243904AbhGLIJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240411AbhGLGvw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:51:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53610610D1;
-        Mon, 12 Jul 2021 06:48:38 +0000 (UTC)
+        id S1348756AbhGLH6I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:58:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1A6B6194D;
+        Mon, 12 Jul 2021 07:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072518;
-        bh=+aKlfOpXTWW0aBttBOjoTHH8sdSifCqeNs0g4GNCclc=;
+        s=korg; t=1626076379;
+        bh=bm1pnfmDPDJnVPwrSCwKjgo8fbbJlg/tOCZ0bstIWe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWQrGytQ6+oj2FWHMJN6775gd8YU+JojGylIX0LxWhRiIg6DLj568xS4ZEjFaK/sR
-         NEFtVDjtC2MQJJGH79JOOtLRiYRBo7SEzmNCIvQiYoi2Z6VrbcPD4M16v0GQ1yaCQ7
-         EYS+vlXvGsiZLNVWU6LkBoXCvr5U4c4noXlI1tNE=
+        b=R4sa9+RT7FzC6UB1rsk9DOo8VxYkHXOT1XD2kXIx9zSdur08jrhIn87aNi1/FRber
+         jtVUa0+9xhGm0mkq6n0QAjAlq8oVoMjg2d35eklBPiDXv6M1cW7pocZSevZ/jrJQDY
+         CNliYLVeYJ6maR0HP6wQ7GnVLp1uK9qQDK7H+Pzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 481/593] leds: lm36274: Put fwnode in error case during ->probe()
-Date:   Mon, 12 Jul 2021 08:10:41 +0200
-Message-Id: <20210712060943.614183845@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 619/800] iio: accel: kxcjk-1013: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 12 Jul 2021 08:10:42 +0200
+Message-Id: <20210712061033.149720112@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 3c5f655c44bb65cb7e3c219d08c130ce5fa45d7f ]
+[ Upstream commit 3ab3aa2e7bd57497f9a7c6275c00dce237d2c9ba ]
 
-device_get_next_child_node() bumps a reference counting of a returned variable.
-We have to balance it whenever we return to the caller.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-In the older code the same is implied with device_for_each_child_node().
+Found during an audit of all calls of this function.
 
-Fixes: 11e1bbc116a7 ("leds: lm36274: Introduce the TI LM36274 LED driver")
-Fixes: a448fcf19c9c ("leds: lm36274: don't iterate through children since there is only one")
-Cc: Dan Murphy <dmurphy@ti.com>
-Cc: Marek Behún <marek.behun@nic.cz>
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: 1a4fbf6a9286 ("iio: accel: kxcjk1013 3-axis accelerometer driver")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-5-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/leds-lm36274.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/kxcjk-1013.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/leds/leds-lm36274.c b/drivers/leds/leds-lm36274.c
-index aadb03468a40..a23a9424c2f3 100644
---- a/drivers/leds/leds-lm36274.c
-+++ b/drivers/leds/leds-lm36274.c
-@@ -127,6 +127,7 @@ static int lm36274_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
+index ff724bc17a45..f6720dbba0aa 100644
+--- a/drivers/iio/accel/kxcjk-1013.c
++++ b/drivers/iio/accel/kxcjk-1013.c
+@@ -133,6 +133,13 @@ enum kx_acpi_type {
+ 	ACPI_KIOX010A,
+ };
  
- 	ret = lm36274_init(chip);
- 	if (ret) {
-+		fwnode_handle_put(init_data.fwnode);
- 		dev_err(chip->dev, "Failed to init the device\n");
- 		return ret;
- 	}
++enum kxcjk1013_axis {
++	AXIS_X,
++	AXIS_Y,
++	AXIS_Z,
++	AXIS_MAX
++};
++
+ struct kxcjk1013_data {
+ 	struct regulator_bulk_data regulators[2];
+ 	struct i2c_client *client;
+@@ -140,7 +147,11 @@ struct kxcjk1013_data {
+ 	struct iio_trigger *motion_trig;
+ 	struct iio_mount_matrix orientation;
+ 	struct mutex mutex;
+-	s16 buffer[8];
++	/* Ensure timestamp naturally aligned */
++	struct {
++		s16 chans[AXIS_MAX];
++		s64 timestamp __aligned(8);
++	} scan;
+ 	u8 odr_bits;
+ 	u8 range;
+ 	int wake_thres;
+@@ -154,13 +165,6 @@ struct kxcjk1013_data {
+ 	enum kx_acpi_type acpi_type;
+ };
+ 
+-enum kxcjk1013_axis {
+-	AXIS_X,
+-	AXIS_Y,
+-	AXIS_Z,
+-	AXIS_MAX,
+-};
+-
+ enum kxcjk1013_mode {
+ 	STANDBY,
+ 	OPERATION,
+@@ -1094,12 +1098,12 @@ static irqreturn_t kxcjk1013_trigger_handler(int irq, void *p)
+ 	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
+ 							KXCJK1013_REG_XOUT_L,
+ 							AXIS_MAX * 2,
+-							(u8 *)data->buffer);
++							(u8 *)data->scan.chans);
+ 	mutex_unlock(&data->mutex);
+ 	if (ret < 0)
+ 		goto err;
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   data->timestamp);
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
 -- 
 2.30.2
 
