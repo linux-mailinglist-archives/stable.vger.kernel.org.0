@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFBCC3C51BC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EDEC3C4C04
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344192AbhGLHnE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:43:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
+        id S240684AbhGLHBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:01:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347638AbhGLHjy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:39:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ABE66141D;
-        Mon, 12 Jul 2021 07:35:13 +0000 (UTC)
+        id S241958AbhGLHAs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:00:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD1D5611C2;
+        Mon, 12 Jul 2021 06:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075314;
-        bh=ocxCzDxU7miCXxFIv+iyGiLbrfy0amC5PBvkCZHg8UI=;
+        s=korg; t=1626073080;
+        bh=G3HkHgxYvSNq/jgCvcqsDicGxcTj7bqjdex/ftaUcKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVelIgej3rV65zZvCMWJeOmhvcAt9TjQbrYm7r24xiXrPI85inr1jz8XJDzKP+fHl
-         6coRRZbXUcX3orMUov367ADToS2mCKVCvRgjDMlJ8XAlCX7fsuWC/LarDRLCmNyBjz
-         2g1LiJXmcPTkOoEfeR9gWTfkha5vrkfnQlLhqlDA=
+        b=VuLEvR2q/WVm8ntIH3jST4ONcIyEKrSDIqX+41PRa6e8J285u399dlv5nRj12YZZx
+         +4pb2OOtE7lGw2wJfEqkYYZefbIetk96AtwyJtN2cljT48tMm9BcQWxIpIl0h+s8Wc
+         /3FVCQxnMvYMFQ51Cle/djy2JUZcxExsRekbVOAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Lukasz Luba <lukasz.luba@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 178/800] mmc: via-sdmmc: add a check against NULL pointer dereference
+Subject: [PATCH 5.12 118/700] thermal/cpufreq_cooling: Update offline CPUs per-cpu thermal_pressure
 Date:   Mon, 12 Jul 2021 08:03:21 +0200
-Message-Id: <20210712060938.027154665@linuxfoundation.org>
+Message-Id: <20210712060941.622648144@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,138 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Lukasz Luba <lukasz.luba@arm.com>
 
-[ Upstream commit 45c8ddd06c4b729c56a6083ab311bfbd9643f4a6 ]
+[ Upstream commit 2ad8ccc17d1e4270cf65a3f2a07a7534aa23e3fb ]
 
-Before referencing 'host->data', the driver needs to check whether it is
-null pointer, otherwise it will cause a null pointer reference.
+The thermal pressure signal gives information to the scheduler about
+reduced CPU capacity due to thermal. It is based on a value stored in
+a per-cpu 'thermal_pressure' variable. The online CPUs will get the
+new value there, while the offline won't. Unfortunately, when the CPU
+is back online, the value read from per-cpu variable might be wrong
+(stale data).  This might affect the scheduler decisions, since it
+sees the CPU capacity differently than what is actually available.
 
-This log reveals it:
+Fix it by making sure that all online+offline CPUs would get the
+proper value in their per-cpu variable when thermal framework sets
+capping.
 
-[   29.355199] BUG: kernel NULL pointer dereference, address:
-0000000000000014
-[   29.357323] #PF: supervisor write access in kernel mode
-[   29.357706] #PF: error_code(0x0002) - not-present page
-[   29.358088] PGD 0 P4D 0
-[   29.358280] Oops: 0002 [#1] PREEMPT SMP PTI
-[   29.358595] CPU: 2 PID: 0 Comm: swapper/2 Not tainted 5.12.4-
-g70e7f0549188-dirty #102
-[   29.359164] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[   29.359978] RIP: 0010:via_sdc_isr+0x21f/0x410
-[   29.360314] Code: ff ff e8 84 aa d0 fd 66 45 89 7e 28 66 41 f7 c4 00
-10 75 56 e8 72 aa d0 fd 66 41 f7 c4 00 c0 74 10 e8 65 aa d0 fd 48 8b 43
-18 <c7> 40 14 ac ff ff ff e8 55 aa d0 fd 48 89 df e8 ad fb ff ff e9 77
-[   29.361661] RSP: 0018:ffffc90000118e98 EFLAGS: 00010046
-[   29.362042] RAX: 0000000000000000 RBX: ffff888107d77880
-RCX: 0000000000000000
-[   29.362564] RDX: 0000000000000000 RSI: ffffffff835d20bb
-RDI: 00000000ffffffff
-[   29.363085] RBP: ffffc90000118ed8 R08: 0000000000000001
-R09: 0000000000000001
-[   29.363604] R10: 0000000000000000 R11: 0000000000000001
-R12: 0000000000008600
-[   29.364128] R13: ffff888107d779c8 R14: ffffc90009c00200
-R15: 0000000000008000
-[   29.364651] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000)
-knlGS:0000000000000000
-[   29.365235] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   29.365655] CR2: 0000000000000014 CR3: 0000000005a2e000
-CR4: 00000000000006e0
-[   29.366170] DR0: 0000000000000000 DR1: 0000000000000000
-DR2: 0000000000000000
-[   29.366683] DR3: 0000000000000000 DR6: 00000000fffe0ff0
-DR7: 0000000000000400
-[   29.367197] Call Trace:
-[   29.367381]  <IRQ>
-[   29.367537]  __handle_irq_event_percpu+0x53/0x3e0
-[   29.367916]  handle_irq_event_percpu+0x35/0x90
-[   29.368247]  handle_irq_event+0x39/0x60
-[   29.368632]  handle_fasteoi_irq+0xc2/0x1d0
-[   29.368950]  __common_interrupt+0x7f/0x150
-[   29.369254]  common_interrupt+0xb4/0xd0
-[   29.369547]  </IRQ>
-[   29.369708]  asm_common_interrupt+0x1e/0x40
-[   29.370016] RIP: 0010:native_safe_halt+0x17/0x20
-[   29.370360] Code: 07 0f 00 2d db 80 43 00 f4 5d c3 0f 1f 84 00 00 00
-00 00 8b 05 c2 37 e5 01 55 48 89 e5 85 c0 7e 07 0f 00 2d bb 80 43 00 fb
-f4 <5d> c3 cc cc cc cc cc cc cc 55 48 89 e5 e8 67 53 ff ff 8b 0d f9 91
-[   29.371696] RSP: 0018:ffffc9000008fe90 EFLAGS: 00000246
-[   29.372079] RAX: 0000000000000000 RBX: 0000000000000002
-RCX: 0000000000000000
-[   29.372595] RDX: 0000000000000000 RSI: ffffffff854f67a4
-RDI: ffffffff85403406
-[   29.373122] RBP: ffffc9000008fe90 R08: 0000000000000001
-R09: 0000000000000001
-[   29.373646] R10: 0000000000000000 R11: 0000000000000001
-R12: ffffffff86009188
-[   29.374160] R13: 0000000000000000 R14: 0000000000000000
-R15: ffff888100258000
-[   29.374690]  default_idle+0x9/0x10
-[   29.374944]  arch_cpu_idle+0xa/0x10
-[   29.375198]  default_idle_call+0x6e/0x250
-[   29.375491]  do_idle+0x1f0/0x2d0
-[   29.375740]  cpu_startup_entry+0x18/0x20
-[   29.376034]  start_secondary+0x11f/0x160
-[   29.376328]  secondary_startup_64_no_verify+0xb0/0xbb
-[   29.376705] Modules linked in:
-[   29.376939] Dumping ftrace buffer:
-[   29.377187]    (ftrace buffer empty)
-[   29.377460] CR2: 0000000000000014
-[   29.377712] ---[ end trace 51a473dffb618c47 ]---
-[   29.378056] RIP: 0010:via_sdc_isr+0x21f/0x410
-[   29.378380] Code: ff ff e8 84 aa d0 fd 66 45 89 7e 28 66 41 f7 c4 00
-10 75 56 e8 72 aa d0 fd 66 41 f7 c4 00 c0 74 10 e8 65 aa d0 fd 48 8b 43
-18 <c7> 40 14 ac ff ff ff e8 55 aa d0 fd 48 89 df e8 ad fb ff ff e9 77
-[   29.379714] RSP: 0018:ffffc90000118e98 EFLAGS: 00010046
-[   29.380098] RAX: 0000000000000000 RBX: ffff888107d77880
-RCX: 0000000000000000
-[   29.380614] RDX: 0000000000000000 RSI: ffffffff835d20bb
-RDI: 00000000ffffffff
-[   29.381134] RBP: ffffc90000118ed8 R08: 0000000000000001
-R09: 0000000000000001
-[   29.381653] R10: 0000000000000000 R11: 0000000000000001
-R12: 0000000000008600
-[   29.382176] R13: ffff888107d779c8 R14: ffffc90009c00200
-R15: 0000000000008000
-[   29.382697] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000)
-knlGS:0000000000000000
-[   29.383277] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   29.383697] CR2: 0000000000000014 CR3: 0000000005a2e000
-CR4: 00000000000006e0
-[   29.384223] DR0: 0000000000000000 DR1: 0000000000000000
-DR2: 0000000000000000
-[   29.384736] DR3: 0000000000000000 DR6: 00000000fffe0ff0
-DR7: 0000000000000400
-[   29.385260] Kernel panic - not syncing: Fatal exception in interrupt
-[   29.385882] Dumping ftrace buffer:
-[   29.386135]    (ftrace buffer empty)
-[   29.386401] Kernel Offset: disabled
-[   29.386656] Rebooting in 1 seconds..
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1622727200-15808-1-git-send-email-zheyuma97@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: f12e4f66ab6a3 ("thermal/cpu-cooling: Update thermal pressure in case of a maximum frequency capping")
+Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20210614191030.22241-1-lukasz.luba@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/via-sdmmc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/thermal/cpufreq_cooling.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
-index a1d098560099..c32df5530b94 100644
---- a/drivers/mmc/host/via-sdmmc.c
-+++ b/drivers/mmc/host/via-sdmmc.c
-@@ -857,6 +857,9 @@ static void via_sdc_data_isr(struct via_crdr_mmc_host *host, u16 intmask)
- {
- 	BUG_ON(intmask == 0);
- 
-+	if (!host->data)
-+		return;
-+
- 	if (intmask & VIA_CRDR_SDSTS_DT)
- 		host->data->error = -ETIMEDOUT;
- 	else if (intmask & (VIA_CRDR_SDSTS_RC | VIA_CRDR_SDSTS_WC))
+diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
+index 6956581ed7a4..b8ded3aef371 100644
+--- a/drivers/thermal/cpufreq_cooling.c
++++ b/drivers/thermal/cpufreq_cooling.c
+@@ -487,7 +487,7 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
+ 	ret = freq_qos_update_request(&cpufreq_cdev->qos_req, frequency);
+ 	if (ret >= 0) {
+ 		cpufreq_cdev->cpufreq_state = state;
+-		cpus = cpufreq_cdev->policy->cpus;
++		cpus = cpufreq_cdev->policy->related_cpus;
+ 		max_capacity = arch_scale_cpu_capacity(cpumask_first(cpus));
+ 		capacity = frequency * max_capacity;
+ 		capacity /= cpufreq_cdev->policy->cpuinfo.max_freq;
 -- 
 2.30.2
 
