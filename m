@@ -2,141 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42C943C5D0A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 15:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D243C5D61
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 15:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233172AbhGLNSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 09:18:10 -0400
-Received: from mail-mw2nam08on2086.outbound.protection.outlook.com ([40.107.101.86]:61751
-        "EHLO NAM04-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232274AbhGLNSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 09:18:10 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OCDSEFrgDQ0nisE/Y1gg7gtpBE6JgsSxxESGLD9FMc0UEEIM5bTlVaKs9zKM4ask9AQnlCFFjyiGTFW+eDpYYqvFd9ZuAlfdmsIBoBcIxAfS0OkCHtYTlaZcMH2AwkQo6CQdWVEfarGmUG8YVoOQ27XXK+gutYyj5NlUBwHS759thdsGh2Brj62dtwwwaMVjDiawrcdbCOkuX/aIkF5PN00E6evPnibzp/f8jLfrKwCJhrKT6UmBJ5EJyHf2YihVbMSEO/3cyumeva3+ciYBzQbHyclWn81ExbAjl1VhJQUWUjKc/DiaJxJGkpS7V0OXuRLaQ2CYfbGSk7LnLaDrxg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hijCJoC/msYH3Tk+tub3GsvPzTJPEEQsXqiHDJCldpk=;
- b=NB9ri5+KpqrAwyH4rflkkVZK2GGCXSD25yPmTwKTHDRwaqyo0gyq/Zh7f2m4xdFj0iUDTb4VnF2r1sXMep3QpJJ4uu0P006nwl/M7DZUxwwbdaBg1xDWfCi0VBnAHjL3ixnv5f7DDoT7yKt2nAQD2HfCpjsK0G2m/T83EgVvxrWgYE2Baszl1z5ZPDUPhj9ErCJBOzmjVio4pQZiYRfr8M5PF37wL8K1c+TRBMajJilgLLjvEhykk0/pKmSaVkE4S3ZAQFPf/MWd/0mre3xRRorO0wZCgAwtv0rbgpRxcS710x1VY7cfYrwa0JBsIHnpMDjtAAGKumZ0x6iYAwCh8g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.34) smtp.rcpttodomain=linux-foundation.org
- smtp.mailfrom=nvidia.com; dmarc=pass (p=none sp=none pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hijCJoC/msYH3Tk+tub3GsvPzTJPEEQsXqiHDJCldpk=;
- b=j1cmj5Mqp2Hpg7eZmbFGLTxBvl5Ed7NPIrNB/wPfyhJ/UzoSQIPgcsuZGc24PZEEMTt1jsulNE6ehn6rB0CGHqWr5xHJP2gZMDJJ6fPRLrcTZtNyQY7TBzrG/x24pQNGB7t9K2/0gI6q0Y1zV4WbiZrRRJsHiQ6R7oWYBixNz+m/1vcQWC/wOMFHLrncMNNfiGh5pK4VXmcbV/dxVEsgDmMTViZ7hVEGmTuvABdzfDuheoOmZrE3UrKL/Wr+6OQNFtKHAMOcb7OWlFa9raK86sgu5/EoBNxmCdSkAUV3zRFb6qZrr+t8z+C4uJsxesVZ6M/J1ZvbA0Ns3664AZRgoQ==
-Received: from MW4PR04CA0072.namprd04.prod.outlook.com (2603:10b6:303:6b::17)
- by CH2PR12MB4262.namprd12.prod.outlook.com (2603:10b6:610:af::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.22; Mon, 12 Jul
- 2021 13:15:20 +0000
-Received: from CO1NAM11FT029.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:6b:cafe::10) by MW4PR04CA0072.outlook.office365.com
- (2603:10b6:303:6b::17) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.21 via Frontend
- Transport; Mon, 12 Jul 2021 13:15:20 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
- smtp.mailfrom=nvidia.com; linux-foundation.org; dkim=none (message not
- signed) header.d=none;linux-foundation.org; dmarc=pass action=none
- header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.34; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.34) by
- CO1NAM11FT029.mail.protection.outlook.com (10.13.174.214) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4308.20 via Frontend Transport; Mon, 12 Jul 2021 13:15:20 +0000
-Received: from [10.21.180.219] (172.20.187.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 12 Jul
- 2021 13:15:15 +0000
-Subject: Re: [PATCH 5.10 000/593] 5.10.50-rc1 review
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Pavel Machek <pavel@denx.de>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-References: <20210712060843.180606720@linuxfoundation.org>
- <dfcae9165b814757b9853c28cc11e820@HQMAIL111.nvidia.com>
- <20210712093526.GA23916@duo.ucw.cz>
- <028eb5b4-c0bb-d4a6-5e06-ad508cebd0cf@nvidia.com>
-Message-ID: <e926a04f-78d5-3737-a1d6-b052f6b405d3@nvidia.com>
-Date:   Mon, 12 Jul 2021 14:15:12 +0100
+        id S231696AbhGLNjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 09:39:19 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:47952 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231351AbhGLNjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 09:39:19 -0400
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 36E7B1FF97;
+        Mon, 12 Jul 2021 13:36:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1626096990; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=c121DcGcsc7I9RCEYhP5bdY8+eTj/ROF7fShMNIZZOw=;
+        b=F2WicKGd4kvT5ApSt4QnaUweC5Js8lkeQMDvW3C9MCs7OjisOlCBBuZrEJ6Azqk3vt/s1+
+        XafktJT8Ah+L/0LCUoDdPz9dVOxNeWh6G9gTvq9saRc8t7E4uc2B2fyRsMKyMe8NbNmIuH
+        xgD0kvEC9Y7rRkZVDpIEBg5f8z5IkRM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1626096990;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=c121DcGcsc7I9RCEYhP5bdY8+eTj/ROF7fShMNIZZOw=;
+        b=pE+eCNXdqyTIy1eF6+2M6gTjuHCX3QxTelbDWgjSLplsSMG/VOBpbEtQhPWBP9X4WN75KD
+        qPLrEAOKjyrfhUAQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id EA11613BAE;
+        Mon, 12 Jul 2021 13:36:29 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id /1chOF1F7GDragAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Mon, 12 Jul 2021 13:36:29 +0000
+Subject: Re: [PATCH 01/12] drm/mgag200: Select clock in PLL update functions
+To:     Sam Ravnborg <sam@ravnborg.org>
+Cc:     daniel@ffwll.ch, airlied@redhat.com,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        emil.velikov@collabora.com, John.p.donnelly@oracle.com,
+        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+References: <20210705124515.27253-1-tzimmermann@suse.de>
+ <20210705124515.27253-2-tzimmermann@suse.de> <YOiaX7UJ9Ka5xTM2@ravnborg.org>
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <31e6618d-9048-84c6-b933-79ce2de11e81@suse.de>
+Date:   Mon, 12 Jul 2021 15:36:29 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <028eb5b4-c0bb-d4a6-5e06-ad508cebd0cf@nvidia.com>
-Content-Type: text/plain; charset="windows-1252"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [172.20.187.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d521b86a-5e3f-4ae9-6815-08d94537197f
-X-MS-TrafficTypeDiagnostic: CH2PR12MB4262:
-X-Microsoft-Antispam-PRVS: <CH2PR12MB42620269CEA777D02855FDF8D9159@CH2PR12MB4262.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: vMZfs0P93/jHg7XeLOpMuYrzA1tYvzw8NvdGLHKjIhxfIne9Qtd5P+VscERV0q3VdhsbOwG+Ow8UgwyC1a+uky0n+kipwoue1Fgvh/sNgtyl43N00Dl2RpuT61l60Y5psWbyEadJ8Ex6KBYJSu+MjnfM2FN3VZGgfr+zbBryeMWCim5f55kIjlCe4xf37YLArLLa9Z91UKov9LzjHU8eRypZW4cRIV0umm4Ph2khSrEWqrjUqIJVYMAOUS0olriaixAU6PC1G5jtTnmKuAjij2kkKRtrdI7enN1aGwuvLuMSkuMmz1KKe2My4yfMbGigU+eWAPCk/3hVc4dK90Tm1mm66wTB4NZcg8k/dVGdPDhf1/twZDkJqvAd7Gms2a1CkxS7VmMrhRmJJPUPpz4qQCc+e0yg6tNWnQX27HwfSvPGNeW7szqOnuprvsE3il1j+X726FxYbN902Pf+xjvMeQQdHFMvp5AQ5QQDd0g8j2rHGsMyhgcGk3GW83MYPbYi/z9hINvKoiwsBTy0OLB/ep8gdZ18A/JkyQPk1mDJubBE0X3aH9bmSqhLjE1xXpW4Glx0K8kJ4KV+dmVKc5jRFwnCT2QwmUFrbPtLE2mMb6P3Du3WYpxxsiVMf3ceHKsfKRitFtGBS74o6+M1AmcoJuH8O6UGHKOL4vVM46k9pYaSHovofHvO0AVGNHBEcN56tYUC3HlRFGAp3zYoG6RxhO7VlJlyzFbHJnKR+gBrjsTHchfa/XDhjzA+BMklYmmN9Mivn6Zejp1c/wrN6pONZA==
-X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(376002)(136003)(39860400002)(396003)(346002)(36840700001)(46966006)(36860700001)(5660300002)(8676002)(47076005)(8936002)(34020700004)(70206006)(70586007)(26005)(82740400003)(356005)(7416002)(83380400001)(82310400003)(6916009)(2906002)(478600001)(6666004)(31696002)(2616005)(426003)(4326008)(36756003)(186003)(336012)(86362001)(54906003)(316002)(16526019)(31686004)(16576012)(36906005)(7636003)(53546011)(43740500002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jul 2021 13:15:20.1404
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: d521b86a-5e3f-4ae9-6815-08d94537197f
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT029.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4262
+In-Reply-To: <YOiaX7UJ9Ka5xTM2@ravnborg.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="KF6OmBbEdqcvAb3vTfkgpEi58GLVWUPxR"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--KF6OmBbEdqcvAb3vTfkgpEi58GLVWUPxR
+Content-Type: multipart/mixed; boundary="H0WR0MKrgkiFmk1UZM3cZ6d0twLQ7IxnI";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: daniel@ffwll.ch, airlied@redhat.com, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org, emil.velikov@collabora.com, John.p.donnelly@oracle.com,
+ dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+Message-ID: <31e6618d-9048-84c6-b933-79ce2de11e81@suse.de>
+Subject: Re: [PATCH 01/12] drm/mgag200: Select clock in PLL update functions
+References: <20210705124515.27253-1-tzimmermann@suse.de>
+ <20210705124515.27253-2-tzimmermann@suse.de> <YOiaX7UJ9Ka5xTM2@ravnborg.org>
+In-Reply-To: <YOiaX7UJ9Ka5xTM2@ravnborg.org>
 
-On 12/07/2021 10:42, Jon Hunter wrote:
-> 
-> On 12/07/2021 10:35, Pavel Machek wrote:
->> Hi!
->>
->> (2000 lines trimmed)
->>
->>>>  tools/testing/selftests/vm/protection_keys.c       |  12 +-
->>>>  638 files changed, 5205 insertions(+), 2782 deletions(-)
->>
->>> All tests passing for Tegra ...
->>>
->>> Test results for stable-v5.10:
->>>     10 builds:	10 pass, 0 fail
->>>     28 boots:	28 pass, 0 fail
->>>     70 tests:	70 pass, 0 fail
->>>
->>> Linux version:	5.10.50-rc1-g3e2628c73ba0
->>> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->>>                 tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
->>>                 tegra20-ventana, tegra210-p2371-2180,
->>>                 tegra210-p3450-0000, tegra30-cardhu-a04
->>>
->>> Tested-by: Jon Hunter <jonathanh@nvidia.com>
->>
->> Thanks for testing... but could we get you to snip the parts of email
->> not important for the reply?
-> 
-> Yes I have noticed that too! The script we have use to trim that, so I
-> need to see why it no longer is. I have recently made some modifications
-> and so clearly have broken that. Anyway, I will get that fixed.
+--H0WR0MKrgkiFmk1UZM3cZ6d0twLQ7IxnI
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-OK, I have fixed this and resent the reports.
+Hi
 
-Cheers!
-Jon
+Am 09.07.21 um 20:50 schrieb Sam Ravnborg:
+> Hi Thomas,
+>=20
+> On Mon, Jul 05, 2021 at 02:45:04PM +0200, Thomas Zimmermann wrote:
+>> Put the clock-selection code into each of the PLL-update functions to
+>> make them select the correct pixel clock.
+>>
+>> The pixel clock for video output was not actually set before programmi=
+ng
+>> the clock's values. It worked because the device had the correct clock=
 
--- 
-nvpublic
+>> pre-set.
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> Fixes: db05f8d3dc87 ("drm/mgag200: Split MISC register update into PLL=
+ selection, SYNC and I/O")
+>> Cc: Sam Ravnborg <sam@ravnborg.org>
+>> Cc: Emil Velikov <emil.velikov@collabora.com>
+>> Cc: Dave Airlie <airlied@redhat.com>
+>> Cc: dri-devel@lists.freedesktop.org
+>> Cc: <stable@vger.kernel.org> # v5.9+
+>> ---
+>>   drivers/gpu/drm/mgag200/mgag200_mode.c | 47 ++++++++++++++++++++----=
+--
+>>   1 file changed, 37 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/=
+mgag200/mgag200_mode.c
+>> index 3b3059f471c2..482843ebb69f 100644
+>> --- a/drivers/gpu/drm/mgag200/mgag200_mode.c
+>> +++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+>> @@ -130,6 +130,7 @@ static int mgag200_g200_set_plls(struct mga_device=
+ *mdev, long clock)
+>>   	long ref_clk =3D mdev->model.g200.ref_clk;
+>>   	long p_clk_min =3D mdev->model.g200.pclk_min;
+>>   	long p_clk_max =3D  mdev->model.g200.pclk_max;
+>> +	u8 misc;
+>>  =20
+>>   	if (clock > p_clk_max) {
+>>   		drm_err(dev, "Pixel Clock %ld too high\n", clock);
+>> @@ -174,6 +175,11 @@ static int mgag200_g200_set_plls(struct mga_devic=
+e *mdev, long clock)
+>>   	drm_dbg_kms(dev, "clock: %ld vco: %ld m: %d n: %d p: %d s: %d\n",
+>>   		    clock, f_vco, m, n, p, s);
+>>  =20
+>> +	misc =3D RREG8(MGA_MISC_IN);
+>> +	misc &=3D ~MGAREG_MISC_CLK_SEL_MASK;
+>> +	misc |=3D MGAREG_MISC_CLK_SEL_MGA_MSK;
+>> +	WREG8(MGA_MISC_OUT, misc);
+>=20
+> This chunk is repeated a number of times.
+> Any good reason why this is not a small helper?
+
+Good point. I'll make a helper from this.
+
+Best regards
+Thomas
+
+>=20
+> 	Sam
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--H0WR0MKrgkiFmk1UZM3cZ6d0twLQ7IxnI--
+
+--KF6OmBbEdqcvAb3vTfkgpEi58GLVWUPxR
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmDsRV0FAwAAAAAACgkQlh/E3EQov+D3
+pg//WPPjCIdR6R8QaZZheflZVwPVLfIobUGa9f96S9SVzXJnpPdpgeOV9I8RjXZ6cVBa2PTVyC10
+UppiAgq+6gjwCoPBjQqNIDtusNmTM8LlyICRfi+xQMreUqdFMME5WVJiuBQ25MVTvDs/j3hEjYTA
+Qj4myqrIGV2/LryyZihn/f6Zl4y6gG1LY95lYQSWNknP4yIjmqfC0DqPqt9mjQ7NZTjuLqS9ecL6
+q5r/8MgoXu2FD753ElMvnWZ7IAa6CSFEvC8G8NKm7vs6JH1QkPfRzxYIARxrM7dTO4Q0VmE8quVM
+isZc+WvLZr5NrzhY7PMYuIaWIdwI0ZgcKTW4dp6YEzHAzb3nsa9kk0+CHufuBEBI5FoFyFOoZ1HR
+De/UBwcSVWixlYFafF+mIX8ddKl35tuOLGovKtr/SnFIsasBt9pxIQjwJqoYdHpyX5+0bvXCjkDv
+UN6G5/xxNp7GhGYFptePmS1fTSc6Lb4QircML0hSCDTeHehojtRI5xZwBuyPk3MqQkp+cqeubQ1o
+X8jx0wBedlJeDW9BiE6oe2np2SNILjrL7aREBAyDbpj531OJuz+xGIjvTmsh48RdLemX3jkM4Azv
+L8FfV/PZQ3ovPLkeD1Hh6lAWBlOmtDy5jm4abbIfjrZJkW0ajydPlxsq97Eu7ZtkurBadSRh4bET
+jsA=
+=vlp8
+-----END PGP SIGNATURE-----
+
+--KF6OmBbEdqcvAb3vTfkgpEi58GLVWUPxR--
