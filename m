@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C3063C48F0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AF6F3C4D47
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237163AbhGLGl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
+        id S241915AbhGLHMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237881AbhGLGjm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75D4061159;
-        Mon, 12 Jul 2021 06:35:35 +0000 (UTC)
+        id S243943AbhGLHKO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C15D261361;
+        Mon, 12 Jul 2021 07:05:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071736;
-        bh=GUW79aP2PvGnzJTv2//4THrimRDUW5SMUdWtG7K274E=;
+        s=korg; t=1626073527;
+        bh=rqr4Q5JyxKUXHRrZVbxg8KfSVyoWl63NLom30Shk1Ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FfYXId5Ru0MwPromg8plS3vFzS81l6jVd4E5/9hl9wNPylH/1RUXwsRfigrsX8ykQ
-         Dezs3NeOqgM/VKczZbBkv1Nsr7IjxF/5ApB1qVccjeFn0EH7n9/rTnQgn9jKiwRoX4
-         z39BYw9+BIMXDCEt1Lqzlq2FgD5wb18IHeSpkv8I=
+        b=RfGS3rsfNyOLfwuPF03TDX9P+ep7G+SK5ENWrQ4kzACHr/MFFQ/jp1TTvaFf0W9Dp
+         uJiWcHn5JXl9FgDLgdG05ksVM4LmW2M8A5H1GQD0d0WGH9o5ws58wid5tY/L37VOnS
+         gbYPbTAEx2oaMeYVDuUrcg9n4XeywdiZxvRttmI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Mohammad Alqayeem <mohammad.alqyeem@nutanix.com>
-Subject: [PATCH 5.10 195/593] PCI: hv: Add check for hyperv_initialized in init_hv_pci_drv()
-Date:   Mon, 12 Jul 2021 08:05:55 +0200
-Message-Id: <20210712060904.463599567@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Daniel Scally <djrscally@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 273/700] media: ipu3-cio2: Fix reference counting when looping over ACPI devices
+Date:   Mon, 12 Jul 2021 08:05:56 +0200
+Message-Id: <20210712061005.310254682@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 7d815f4afa87f2032b650ae1bba7534b550a6b8b ]
+[ Upstream commit 2cb2705cf7ffe41dc5bd81290e4241bfb7f031cc ]
 
-Add check for hv_is_hyperv_initialized() at the top of
-init_hv_pci_drv(), so if the pci-hyperv driver is force-loaded on non
-Hyper-V platforms, the init_hv_pci_drv() will exit immediately, without
-any side effects, like assignments to hvpci_block_ops, etc.
+When we continue, due to device is disabled, loop we have to drop
+reference count. When we have an array full of devices we have to also
+drop the reference count. Note, in this case the
+cio2_bridge_unregister_sensors() is called by the caller.
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Reported-and-tested-by: Mohammad Alqayeem <mohammad.alqyeem@nutanix.com>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
-Link: https://lore.kernel.org/r/1621984653-1210-1-git-send-email-haiyangz@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 803abec64ef9 ("media: ipu3-cio2: Add cio2-bridge to ipu3-cio2 driver")
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Daniel Scally <djrscally@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/pci/intel/ipu3/cio2-bridge.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index 03ed5cb1c4b2..d57c538bbb2d 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -3480,6 +3480,9 @@ static void __exit exit_hv_pci_drv(void)
+diff --git a/drivers/media/pci/intel/ipu3/cio2-bridge.c b/drivers/media/pci/intel/ipu3/cio2-bridge.c
+index c2199042d3db..85f8b587405e 100644
+--- a/drivers/media/pci/intel/ipu3/cio2-bridge.c
++++ b/drivers/media/pci/intel/ipu3/cio2-bridge.c
+@@ -173,14 +173,15 @@ static int cio2_bridge_connect_sensor(const struct cio2_sensor_config *cfg,
+ 	int ret;
  
- static int __init init_hv_pci_drv(void)
- {
-+	if (!hv_is_hyperv_initialized())
-+		return -ENODEV;
-+
- 	/* Set the invalid domain number's bit, so it will not be used */
- 	set_bit(HVPCI_DOM_INVALID, hvpci_dom_map);
+ 	for_each_acpi_dev_match(adev, cfg->hid, NULL, -1) {
+-		if (!adev->status.enabled)
++		if (!adev->status.enabled) {
++			acpi_dev_put(adev);
+ 			continue;
++		}
+ 
+ 		if (bridge->n_sensors >= CIO2_NUM_PORTS) {
++			acpi_dev_put(adev);
+ 			dev_err(&cio2->dev, "Exceeded available CIO2 ports\n");
+-			cio2_bridge_unregister_sensors(bridge);
+-			ret = -EINVAL;
+-			goto err_out;
++			return -EINVAL;
+ 		}
+ 
+ 		sensor = &bridge->sensors[bridge->n_sensors];
+@@ -228,7 +229,6 @@ err_free_swnodes:
+ 	software_node_unregister_nodes(sensor->swnodes);
+ err_put_adev:
+ 	acpi_dev_put(sensor->adev);
+-err_out:
+ 	return ret;
+ }
  
 -- 
 2.30.2
