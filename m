@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F3333C5510
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EB9D3C4F46
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230004AbhGLIJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45368 "EHLO mail.kernel.org"
+        id S243170AbhGLHXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344930AbhGLH6p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:58:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 633E86199C;
-        Mon, 12 Jul 2021 07:53:10 +0000 (UTC)
+        id S240644AbhGLHWk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:22:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D692B611AD;
+        Mon, 12 Jul 2021 07:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076390;
-        bh=0vtx1rzit57snHuBv4JPMsOTKelZthfIUK7q67ljMk8=;
+        s=korg; t=1626074392;
+        bh=EZ5tHquhDDIWh2LLpef5ruXDlu1QwF92xNqpuXi0D38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o51gpmwR1yrM4IC2jNhmxclmbcpztpkeFq1cQ+/WnhEzsaWcJ8K6ONxsqXnbZs6+e
-         CffePcofb1pbOEVqW0xXkbdi0b+/fR0uRzfnLa+atwVv3znSeB7iQnfrx/jTPbAEgU
-         B4UxRyY0r66js++xmLqZ1tgr/ddOjSi5lu6Cd+R8=
+        b=P2N1Nj7fNAZ/Opmqh45hxkWtDmGPfKoZo7IXwlHaAf6NCbWCzAmzSuEAFwaTOgrDr
+         h0mcQbvaj30mEGR2ilo9NAafnx8YLNFUD5njOiAwrZs4SRPLbFckeFDYH3A+1f4gfI
+         0M9vmNvjAshp9453860uvgJpgSKDMqD2zRyxGfQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stefan-Gabriel Mirea <stefan-gabriel.mirea@nxp.com>,
-        Sanchayan Maity <maitysanchayan@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 624/800] iio: adc: vf610: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.12 564/700] staging: mmal-vchiq: Fix incorrect static vchiq_instance.
 Date:   Mon, 12 Jul 2021 08:10:47 +0200
-Message-Id: <20210712061033.646880123@linuxfoundation.org>
+Message-Id: <20210712061036.196461063@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 7765dfaa22ea08abf0c175e7553826ba2a939632 ]
+[ Upstream commit afc023da53e46b88552822f2fe035c7129c505a2 ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+For some reason lost in history function vchiq_mmal_init used
+a static variable for storing the vchiq_instance.
+This value is retrieved from vchiq per instance, so worked fine
+until you try to call vchiq_mmal_init multiple times concurrently
+when things then go wrong. This seemed to happen quite frequently
+if using the cutdown firmware (no MMAL or VCSM services running)
+as the vchiq_connect then failed, and one or other vchiq_shutdown
+was working on an invalid handle.
 
-Found during an audit of all calls of uses of
-iio_push_to_buffers_with_timestamp()
+Remove the static so that each caller gets a unique vchiq_instance.
 
-Fixes: 0010d6b44406 ("iio: adc: vf610: Add IIO buffer support for Vybrid ADC")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Stefan-Gabriel Mirea <stefan-gabriel.mirea@nxp.com>
-Cc: Sanchayan Maity <maitysanchayan@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-10-jic23@kernel.org
+Fixes: 7b3ad5abf027 ("staging: Import the BCM2835 MMAL-based V4L2 camera driver.")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/1621979857-26754-1-git-send-email-stefan.wahren@i2se.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/vf610_adc.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/vf610_adc.c b/drivers/iio/adc/vf610_adc.c
-index 1d794cf3e3f1..fd57fc43e8e5 100644
---- a/drivers/iio/adc/vf610_adc.c
-+++ b/drivers/iio/adc/vf610_adc.c
-@@ -167,7 +167,11 @@ struct vf610_adc {
- 	u32 sample_freq_avail[5];
- 
- 	struct completion completion;
--	u16 buffer[8];
-+	/* Ensure the timestamp is naturally aligned */
-+	struct {
-+		u16 chan;
-+		s64 timestamp __aligned(8);
-+	} scan;
- };
- 
- static const u32 vf610_hw_avgs[] = { 1, 4, 8, 16, 32 };
-@@ -579,9 +583,9 @@ static irqreturn_t vf610_adc_isr(int irq, void *dev_id)
- 	if (coco & VF610_ADC_HS_COCO0) {
- 		info->value = vf610_adc_read_data(info);
- 		if (iio_buffer_enabled(indio_dev)) {
--			info->buffer[0] = info->value;
-+			info->scan.chan = info->value;
- 			iio_push_to_buffers_with_timestamp(indio_dev,
--					info->buffer,
-+					&info->scan,
- 					iio_get_time_ns(indio_dev));
- 			iio_trigger_notify_done(indio_dev->trig);
- 		} else
+diff --git a/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c b/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c
+index 9097bcbd67d8..d697ea55a0da 100644
+--- a/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c
++++ b/drivers/staging/vc04_services/vchiq-mmal/mmal-vchiq.c
+@@ -1862,7 +1862,7 @@ int vchiq_mmal_init(struct vchiq_mmal_instance **out_instance)
+ 	int status;
+ 	int err = -ENODEV;
+ 	struct vchiq_mmal_instance *instance;
+-	static struct vchiq_instance *vchiq_instance;
++	struct vchiq_instance *vchiq_instance;
+ 	struct vchiq_service_params_kernel params = {
+ 		.version		= VC_MMAL_VER,
+ 		.version_min		= VC_MMAL_MIN_VER,
 -- 
 2.30.2
 
