@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF16F3C5471
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A18273C4B4E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343820AbhGLH6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45108 "EHLO mail.kernel.org"
+        id S240611AbhGLG4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349193AbhGLH4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:56:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D138613E4;
-        Mon, 12 Jul 2021 07:52:19 +0000 (UTC)
+        id S239061AbhGLGt2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83F2A61183;
+        Mon, 12 Jul 2021 06:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076339;
-        bh=iEvtYpsaHqh5Cn96sSfMZTS2D/n1Pw29uI5uAlAXdCg=;
+        s=korg; t=1626072359;
+        bh=4v+nseQdWKDdrAUHjCL5B0ijZTrXt6zOPA7+ThEi7D4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gtLoAgFzKiDMyCTrerHAyiU6TS52sCDPrhuJbJseDLkqqpnJ+YbSR1bGn/aET3D2F
-         3+tUI/M7UMHIj2NiFksKfSHNUdl+2AIdBYfRu/fwdWnBnpTL6JqlD5Ra+6tnb48VH/
-         hHYEUsfUf09jhNKIBzCTekkkB1MqQVF0j5qWsfKE=
+        b=lDnhD8ksyuDLQ6g72L/BGC11lN8YWkt4uO0AqQ0VLbicumiMtbaPHYxtqoLrJVF43
+         WNOtltguqB4iIZ7s4YyTTo4k7v5Y/5U2l02Y2hGxQpbh390f5sVVEuFGgbSqeKi6cT
+         DAzrerWa3l5aRwKs2KDjcy/13QRblAzcA69LTqMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 600/800] RDMA/core: Always release restrack object
+Subject: [PATCH 5.10 463/593] iio: light: tcs3472: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:10:23 +0200
-Message-Id: <20210712061031.182595458@linuxfoundation.org>
+Message-Id: <20210712060940.599173194@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 3d8287544223a3d2f37981c1f9ffd94d0b5e9ffc ]
+[ Upstream commit df2f37cffd6ed486d613e7ee22aadc8e49ae2dd3 ]
 
-Change location of rdma_restrack_del() to fix the bug where
-task_struct was acquired but not released, causing to resource leak.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-  ucma_create_id() {
-    ucma_alloc_ctx();
-    rdma_create_user_id() {
-      rdma_restrack_new();
-      rdma_restrack_set_name() {
-        rdma_restrack_attach_task.part.0(); <--- task_struct was gotten
-      }
-    }
-    ucma_destroy_private_ctx() {
-      ucma_put_ctx();
-      rdma_destroy_id() {
-        _destroy_id()                       <--- id_priv was freed
-      }
-    }
-  }
+Found during an audit of all calls of uses of
+iio_push_to_buffers_with_timestamp().
 
-Fixes: 889d916b6f8a ("RDMA/core: Don't access cm_id after its destruction")
-Link: https://lore.kernel.org/r/073ec27acb943ca8b6961663c47c5abe78a5c8cc.1624948948.git.leonro@nvidia.com
-Reported-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes tag is not strictly accurate as prior to that patch there was
+potentially an unaligned write.  However, any backport past there will
+need to be done manually.
+
+Fixes: 0624bf847dd0 ("iio:tcs3472: Use iio_push_to_buffers_with_timestamp()")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-20-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/light/tcs3472.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 8bbffa04fb48..ad9a9ba5f00d 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -1852,6 +1852,7 @@ static void _destroy_id(struct rdma_id_private *id_priv,
- {
- 	cma_cancel_operation(id_priv, state);
+diff --git a/drivers/iio/light/tcs3472.c b/drivers/iio/light/tcs3472.c
+index b41068492338..371c6a39a165 100644
+--- a/drivers/iio/light/tcs3472.c
++++ b/drivers/iio/light/tcs3472.c
+@@ -64,7 +64,11 @@ struct tcs3472_data {
+ 	u8 control;
+ 	u8 atime;
+ 	u8 apers;
+-	u16 buffer[8]; /* 4 16-bit channels + 64-bit timestamp */
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		u16 chans[4];
++		s64 timestamp __aligned(8);
++	} scan;
+ };
  
-+	rdma_restrack_del(&id_priv->res);
- 	if (id_priv->cma_dev) {
- 		if (rdma_cap_ib_cm(id_priv->id.device, 1)) {
- 			if (id_priv->cm_id.ib)
-@@ -1861,7 +1862,6 @@ static void _destroy_id(struct rdma_id_private *id_priv,
- 				iw_destroy_cm_id(id_priv->cm_id.iw);
- 		}
- 		cma_leave_mc_groups(id_priv);
--		rdma_restrack_del(&id_priv->res);
- 		cma_release_dev(id_priv);
+ static const struct iio_event_spec tcs3472_events[] = {
+@@ -386,10 +390,10 @@ static irqreturn_t tcs3472_trigger_handler(int irq, void *p)
+ 		if (ret < 0)
+ 			goto done;
+ 
+-		data->buffer[j++] = ret;
++		data->scan.chans[j++] = ret;
  	}
  
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 		iio_get_time_ns(indio_dev));
+ 
+ done:
 -- 
 2.30.2
 
