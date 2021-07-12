@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9F743C5362
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 044AA3C4D3E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352354AbhGLHyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
+        id S241469AbhGLHMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350308AbhGLHut (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E14A6198B;
-        Mon, 12 Jul 2021 07:44:21 +0000 (UTC)
+        id S245255AbhGLHLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:11:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3663C6052B;
+        Mon, 12 Jul 2021 07:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075861;
-        bh=/7Aazw9y9rIjsnZ1DU2aSYlJczfHRqMOr7MkK05i3xk=;
+        s=korg; t=1626073724;
+        bh=mhfIjdyyEKu1F94mOcMqOS9kKuWphU9Cs+1XKnA2PeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+qofZr2za9dcRWU/76pLgzSJjM8yuc5egMrGMpsYRNqSZGsR9N6RPv9yw7wJtuUY
-         93Snv32n4DU3LV3rRXVeAAxetHRZ8rSrqUWDphaU068HHxgIo5GZ5Y89aIonvS2r1M
-         hNpiQJaMFtZyf6HJA9bKEOYTNdHWKLfbQVOtXIec=
+        b=EDo0peE1XEOyL891sncoF7DrMWJxzIc50H++5ZxQK8S32zeO/e7LjpxUGZKK1RIJh
+         ytt9Bbfl46p2ThR77m28Dm4B2WCd30pF48vF76k5qTK2C06LY8i+PPh8VyXONqgzSn
+         oQJypkY6yRCsrikGVoHr2iLSwjoHp/pmEEuG3hFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 397/800] drm/imx: ipuv3-plane: fix PRG modifiers after drm managed resource conversion
+        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 337/700] blk-wbt: make sure throttle is enabled properly
 Date:   Mon, 12 Jul 2021 08:07:00 +0200
-Message-Id: <20210712061009.399934792@linuxfoundation.org>
+Message-Id: <20210712061012.185636822@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 17b9a94656fe19aef3647c4f93d93be51697ceb1 ]
+[ Upstream commit 76a8040817b4b9c69b53f9b326987fa891b4082a ]
 
-The conversion to drm managed resources introduced two bugs: the plane is now
-always initialized with the linear-only list, while the list with the Vivante
-GPU modifiers should have been used when the PRG/PRE engines are present. This
-masked another issue, as ipu_plane_format_mod_supported() is now called before
-the private plane data is set up, so if a non-linear modifier is supplied in
-the plane modifier list, we run into a NULL pointer dereference checking for
-the PRG presence. To fix this just remove the check from this function, as we
-know that it will only be called with a non-linear modifier, if the plane init
-code has already determined that the PRG/PRE is present.
+After commit a79050434b45 ("blk-rq-qos: refactor out common elements of
+blk-wbt"), if throttle was disabled by wbt_disable_default(), we could
+not enable again, fix this by set enable_state back to
+WBT_STATE_ON_DEFAULT.
 
-Fixes: 699e7e543f1a ("drm/imx: ipuv3-plane: use drm managed resources")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Link: https://lore.kernel.org/r/20210510145927.988661-1-l.stach@pengutronix.de
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Fixes: a79050434b45 ("blk-rq-qos: refactor out common elements of blk-wbt")
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210619093700.920393-3-yi.zhang@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/ipuv3-plane.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ block/blk-wbt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
-index fc8f4834ed7b..233310712deb 100644
---- a/drivers/gpu/drm/imx/ipuv3-plane.c
-+++ b/drivers/gpu/drm/imx/ipuv3-plane.c
-@@ -345,10 +345,11 @@ static bool ipu_plane_format_mod_supported(struct drm_plane *plane,
- 	if (modifier == DRM_FORMAT_MOD_LINEAR)
- 		return true;
- 
--	/* without a PRG there are no supported modifiers */
--	if (!ipu_prg_present(ipu))
--		return false;
--
-+	/*
-+	 * Without a PRG the possible modifiers list only includes the linear
-+	 * modifier, so we always take the early return from this function and
-+	 * only end up here if the PRG is present.
-+	 */
- 	return ipu_prg_format_supported(ipu, format, modifier);
- }
- 
-@@ -869,6 +870,10 @@ struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
- 		formats = ipu_plane_rgb_formats;
- 		format_count = ARRAY_SIZE(ipu_plane_rgb_formats);
- 	}
+diff --git a/block/blk-wbt.c b/block/blk-wbt.c
+index b098ac6a84f0..f5e5ac915bf7 100644
+--- a/block/blk-wbt.c
++++ b/block/blk-wbt.c
+@@ -637,9 +637,13 @@ void wbt_set_write_cache(struct request_queue *q, bool write_cache_on)
+ void wbt_enable_default(struct request_queue *q)
+ {
+ 	struct rq_qos *rqos = wbt_rq_qos(q);
 +
-+	if (ipu_prg_present(ipu))
-+		modifiers = pre_format_modifiers;
-+
- 	ipu_plane = drmm_universal_plane_alloc(dev, struct ipu_plane, base,
- 					       possible_crtcs, &ipu_plane_funcs,
- 					       formats, format_count, modifiers,
-@@ -883,9 +888,6 @@ struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
- 	ipu_plane->dma = dma;
- 	ipu_plane->dp_flow = dp;
+ 	/* Throttling already enabled? */
+-	if (rqos)
++	if (rqos) {
++		if (RQWB(rqos)->enable_state == WBT_STATE_OFF_DEFAULT)
++			RQWB(rqos)->enable_state = WBT_STATE_ON_DEFAULT;
+ 		return;
++	}
  
--	if (ipu_prg_present(ipu))
--		modifiers = pre_format_modifiers;
--
- 	drm_plane_helper_add(&ipu_plane->base, &ipu_plane_helper_funcs);
- 
- 	if (dp == IPU_DP_FLOW_SYNC_BG || dp == IPU_DP_FLOW_SYNC_FG)
+ 	/* Queue not registered? Maybe shutting down... */
+ 	if (!blk_queue_registered(q))
 -- 
 2.30.2
 
