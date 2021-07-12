@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B881E3C498D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F009B3C538F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236332AbhGLGpX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:45:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41192 "EHLO mail.kernel.org"
+        id S1348076AbhGLHzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:55:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236234AbhGLGm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:42:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 568A361152;
-        Mon, 12 Jul 2021 06:39:17 +0000 (UTC)
+        id S1350475AbhGLHvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8A2061A14;
+        Mon, 12 Jul 2021 07:45:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071957;
-        bh=7/pLmnF+YKhsWzr6da5C8DpZEqIIGHYTU3pVCkbcCSw=;
+        s=korg; t=1626075943;
+        bh=CoN0J2MBEvya6ERUicUPdv/1mYF0XNCuj4gKEwDkavI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lrdSp4TwaSP4Y1HVgTJoMBdeQlCZ7K9zY61twBKYj0LDSzTHg4ddtpalQ0Fpbngss
-         e/EhCCZU8Khuwcb7RdHlEGUWoc26yYE7zF3SGBD5QxZ7wgK5EfS7vb8qT87qdCOToq
-         zVn6IiPEqPrvX1KHgvXo9JdSeZNvZ7+x/3vpb3A4=
+        b=Jhoyx3lIyr6f23W4VGGAwHEj8W2H6K8M71cglgRXt0+Lpgx3gb5H1VZHt35btQwdh
+         nnz6F2LtbPpq91Tk64AGFYmhFEc1rzvD5H5Nw0yjzNlcnDVuj4MqwATvzkqtcrym3h
+         1AFSFr++m0EZ2sXDBsooqCnhppJhTQzlmEmYJ33Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        linux-hwmon@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        stable@vger.kernel.org, Jianwen Ji <jiji@redhat.com>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 250/593] hwmon: (lm70) Use device_get_match_data()
-Date:   Mon, 12 Jul 2021 08:06:50 +0200
-Message-Id: <20210712060910.433390433@linuxfoundation.org>
+Subject: [PATCH 5.13 388/800] xfrm: xfrm_state_mtu should return at least 1280 for ipv6
+Date:   Mon, 12 Jul 2021 08:06:51 +0200
+Message-Id: <20210712061008.512189505@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 6e09d75513d2670b7ab91ab3584fc5bcf2675a75 ]
+[ Upstream commit b515d2637276a3810d6595e10ab02c13bfd0b63a ]
 
-Use the more modern API to get the match data out of the of match table.
-This saves some code, lines, and nicely avoids referencing the match
-table when it is undefined with configurations where CONFIG_OF=n.
+Jianwen reported that IPv6 Interoperability tests are failing in an
+IPsec case where one of the links between the IPsec peers has an MTU
+of 1280. The peer generates a packet larger than this MTU, the router
+replies with a "Packet too big" message indicating an MTU of 1280.
+When the peer tries to send another large packet, xfrm_state_mtu
+returns 1280 - ipsec_overhead, which causes ip6_setup_cork to fail
+with EINVAL.
 
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Frank Rowand <frowand.list@gmail.com>
-Cc: <linux-hwmon@vger.kernel.org>
-[robh: rework to use device_get_match_data()]
-Signed-off-by: Rob Herring <robh@kernel.org>
+We can fix this by forcing xfrm_state_mtu to return IPV6_MIN_MTU when
+IPv6 is used. After going through IPsec, the packet will then be
+fragmented to obey the actual network's PMTU, just before leaving the
+host.
+
+Currently, TFC padding is capped to PMTU - overhead to avoid
+fragementation: after padding and encapsulation, we still fit within
+the PMTU. That behavior is preserved in this patch.
+
+Fixes: 91657eafb64b ("xfrm: take net hdr len into account for esp payload size calculation")
+Reported-by: Jianwen Ji <jiji@redhat.com>
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/lm70.c | 20 +++++---------------
- 1 file changed, 5 insertions(+), 15 deletions(-)
+ include/net/xfrm.h    |  1 +
+ net/ipv4/esp4.c       |  2 +-
+ net/ipv6/esp6.c       |  2 +-
+ net/xfrm/xfrm_state.c | 14 ++++++++++++--
+ 4 files changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hwmon/lm70.c b/drivers/hwmon/lm70.c
-index ae2b84263a44..40eab3349904 100644
---- a/drivers/hwmon/lm70.c
-+++ b/drivers/hwmon/lm70.c
-@@ -22,9 +22,9 @@
- #include <linux/hwmon.h>
- #include <linux/mutex.h>
- #include <linux/mod_devicetable.h>
-+#include <linux/property.h>
- #include <linux/spi/spi.h>
- #include <linux/slab.h>
--#include <linux/of_device.h>
- #include <linux/acpi.h>
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index c58a6d4eb610..6232a5f048bd 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1546,6 +1546,7 @@ void xfrm_sad_getinfo(struct net *net, struct xfrmk_sadinfo *si);
+ void xfrm_spd_getinfo(struct net *net, struct xfrmk_spdinfo *si);
+ u32 xfrm_replay_seqhi(struct xfrm_state *x, __be32 net_seq);
+ int xfrm_init_replay(struct xfrm_state *x);
++u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu);
+ u32 xfrm_state_mtu(struct xfrm_state *x, int mtu);
+ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload);
+ int xfrm_init_state(struct xfrm_state *x);
+diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
+index 35803ab7ac80..26171dec08c4 100644
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -673,7 +673,7 @@ static int esp_output(struct xfrm_state *x, struct sk_buff *skb)
+ 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
+ 		u32 padto;
  
- #define DRVNAME		"lm70"
-@@ -173,25 +173,15 @@ MODULE_DEVICE_TABLE(acpi, lm70_acpi_ids);
+-		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
++		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
+ 		if (skb->len < padto)
+ 			esp.tfclen = padto - skb->len;
+ 	}
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index 393ae2b78e7d..1654e4ce094f 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -708,7 +708,7 @@ static int esp6_output(struct xfrm_state *x, struct sk_buff *skb)
+ 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
+ 		u32 padto;
  
- static int lm70_probe(struct spi_device *spi)
+-		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
++		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
+ 		if (skb->len < padto)
+ 			esp.tfclen = padto - skb->len;
+ 	}
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 4496f7efa220..c25586156c6a 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2518,7 +2518,7 @@ void xfrm_state_delete_tunnel(struct xfrm_state *x)
+ }
+ EXPORT_SYMBOL(xfrm_state_delete_tunnel);
+ 
+-u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
++u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu)
  {
--	const struct of_device_id *of_match;
- 	struct device *hwmon_dev;
- 	struct lm70 *p_lm70;
- 	int chip;
+ 	const struct xfrm_type *type = READ_ONCE(x->type);
+ 	struct crypto_aead *aead;
+@@ -2549,7 +2549,17 @@ u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
+ 	return ((mtu - x->props.header_len - crypto_aead_authsize(aead) -
+ 		 net_adj) & ~(blksize - 1)) + net_adj - 2;
+ }
+-EXPORT_SYMBOL_GPL(xfrm_state_mtu);
++EXPORT_SYMBOL_GPL(__xfrm_state_mtu);
++
++u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
++{
++	mtu = __xfrm_state_mtu(x, mtu);
++
++	if (x->props.family == AF_INET6 && mtu < IPV6_MIN_MTU)
++		return IPV6_MIN_MTU;
++
++	return mtu;
++}
  
--	of_match = of_match_device(lm70_of_ids, &spi->dev);
--	if (of_match)
--		chip = (int)(uintptr_t)of_match->data;
--	else {
--#ifdef CONFIG_ACPI
--		const struct acpi_device_id *acpi_match;
-+	if (dev_fwnode(&spi->dev))
-+		chip = (int)(uintptr_t)device_get_match_data(&spi->dev);
-+	else
-+		chip = spi_get_device_id(spi)->driver_data;
- 
--		acpi_match = acpi_match_device(lm70_acpi_ids, &spi->dev);
--		if (acpi_match)
--			chip = (int)(uintptr_t)acpi_match->driver_data;
--		else
--#endif
--			chip = spi_get_device_id(spi)->driver_data;
--	}
- 
- 	/* signaling is SPI_MODE_0 */
- 	if (spi->mode & (SPI_CPOL | SPI_CPHA))
+ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
+ {
 -- 
 2.30.2
 
