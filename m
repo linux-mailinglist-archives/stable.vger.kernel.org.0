@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CAE3C4568
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1922D3C4573
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234937AbhGLGZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
+        id S234482AbhGLGZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235207AbhGLGYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235210AbhGLGYg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:24:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6764961042;
-        Mon, 12 Jul 2021 06:21:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B720761106;
+        Mon, 12 Jul 2021 06:21:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070891;
-        bh=+i+JjS0igmSbeCT/aK+og3osw3HjiTLwGF/j6rzBuCc=;
+        s=korg; t=1626070894;
+        bh=JcwY3/oIqgIip/aJX0J43I4N2OLBHbiH4eQkdiJ9ufM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAQQ1G4+qFi6uCc4YUoPYIcDJf6luv6HZkTxZ4/sPgmhZ0paNXBbUuy4PXX1wpAEU
-         5Ev47Se2ivKBM5FQEFteBYKT7uNjCQxJB8VBaUqVXYoTWVKCCuO2bocCl3EHZyUz3O
-         In8PFa2/HwdwRzBfQvYej7hKD8a29qIS/6E8kAvE=
+        b=MfkWcDxA95naebwA6H9dv44H9+Gt+3dYNIUpfExaoLqPvL/9mTHiG1q6cNBuDJ3RX
+         yYpdCmj+QGjAw9rf9n6lSLImygwl0538apqwvHtOFVAqY0IbLMiIXAXd1r6B2Rqwg2
+         q0YorS72QU9epCFYoqhllPVII2gZjf7dVZY/Z8NA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 185/348] video: fbdev: imxfb: Fix an error message
-Date:   Mon, 12 Jul 2021 08:09:29 +0200
-Message-Id: <20210712060725.493300070@linuxfoundation.org>
+Subject: [PATCH 5.4 186/348] net: mvpp2: Put fwnode in error case during ->probe()
+Date:   Mon, 12 Jul 2021 08:09:30 +0200
+Message-Id: <20210712060725.653070613@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -43,36 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 767d724a160eb1cd00c86fb8c2e21fa1ab3c37ac ]
+[ Upstream commit 71f0891c84dfdc448736082ab0a00acd29853896 ]
 
-'ret' is known to be 0 here.
-No error code is available, so just remove it from the error message.
+In each iteration fwnode_for_each_available_child_node() bumps a reference
+counting of a loop variable followed by dropping in on a next iteration,
 
-Fixes: 72330b0eeefc ("i.MX Framebuffer: Use readl/writel instead of direct pointer deref")
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/d7b25026f82659da3c6f7159eea480faa9d738be.1620327302.git.christophe.jaillet@wanadoo.fr
+Since in error case the loop is broken, we have to drop a reference count
+by ourselves. Do it for port_fwnode in error case during ->probe().
+
+Fixes: 248122212f68 ("net: mvpp2: use device_*/fwnode_* APIs instead of of_*")
+Cc: Marcin Wojtas <mw@semihalf.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/imxfb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/video/fbdev/imxfb.c b/drivers/video/fbdev/imxfb.c
-index b3286d1fa543..ffde3107104b 100644
---- a/drivers/video/fbdev/imxfb.c
-+++ b/drivers/video/fbdev/imxfb.c
-@@ -977,7 +977,7 @@ static int imxfb_probe(struct platform_device *pdev)
- 	info->screen_buffer = dma_alloc_wc(&pdev->dev, fbi->map_size,
- 					   &fbi->map_dma, GFP_KERNEL);
- 	if (!info->screen_buffer) {
--		dev_err(&pdev->dev, "Failed to allocate video RAM: %d\n", ret);
-+		dev_err(&pdev->dev, "Failed to allocate video RAM\n");
- 		ret = -ENOMEM;
- 		goto failed_map;
- 	}
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index 491bcfd36ac2..7857ebff92e8 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -5910,6 +5910,8 @@ static int mvpp2_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ err_port_probe:
++	fwnode_handle_put(port_fwnode);
++
+ 	i = 0;
+ 	fwnode_for_each_available_child_node(fwnode, port_fwnode) {
+ 		if (priv->port_list[i])
 -- 
 2.30.2
 
