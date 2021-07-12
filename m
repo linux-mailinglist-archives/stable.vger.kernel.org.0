@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B02D03C5442
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8D9E3C4A5F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348226AbhGLH5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43404 "EHLO mail.kernel.org"
+        id S240756AbhGLGwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347753AbhGLHxr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:53:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10C2861165;
-        Mon, 12 Jul 2021 07:50:57 +0000 (UTC)
+        id S238192AbhGLGsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:48:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF4ED61241;
+        Mon, 12 Jul 2021 06:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076258;
-        bh=0pgFFY4YwPzXxt3fiezSRoApU9VxQQaa5LghRmiDmCo=;
+        s=korg; t=1626072262;
+        bh=8eDjzXcloaE/8l5tgHAKTWdZoA2jNyk7sZYlVDT92Hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTUxOqaofsGIHrERWuaNr3AmXxOmJd7XDQe2OensaEgLju6O1IIiotFORXxzeRzWC
-         6YCz1LGy36Q3Vr/K1gkHu82wGWGyKJyIiLw8+4WaDNWxQSg6bvgMbSM/PwQYPLOUur
-         dfhFYpgneiQcWaww0TvSNoCZsO5ANv8JjEovu9oE=
+        b=Ngr7tvFGWorLfZlSiuTPfbpPXI/pVfH6YhaVyWjxsMa8pbA+OdNT8q3TQVYmDI4h7
+         jqVkcdeaYlMBhbfcDQxOV8yxNN3qFjD32B194eJtkkTwPq2ug2zbGsoMG6nFGDXot6
+         zi7C0sx+aNhSIJf9CF5V3iUTLPTwrjr6mP5WGBxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        syzbot+b80c9959009a9325cdff@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 523/800] netfilter: nf_tables_offload: check FLOW_DISSECTOR_KEY_BASIC in VLAN transfer logic
+Subject: [PATCH 5.10 386/593] ieee802154: hwsim: Fix memory leak in hwsim_add_one
 Date:   Mon, 12 Jul 2021 08:09:06 +0200
-Message-Id: <20210712061022.891120286@linuxfoundation.org>
+Message-Id: <20210712060929.560586863@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit ea45fdf82cc90430bb7c280e5e53821e833782c5 ]
+[ Upstream commit 28a5501c3383f0e6643012c187b7c2027ef42aea ]
 
-The VLAN transfer logic should actually check for
-FLOW_DISSECTOR_KEY_BASIC, not FLOW_DISSECTOR_KEY_CONTROL. Moreover, do
-not fallback to case 2) .n_proto is set to 802.1q or 802.1ad, if
-FLOW_DISSECTOR_KEY_BASIC is unset.
+No matter from hwsim_remove or hwsim_del_radio_nl, hwsim_del fails to
+remove the entry in the edges list. Take the example below, phy0, phy1
+and e0 will be deleted, resulting in e1 not freed and accessed in the
+future.
 
-Fixes: 783003f3bb8a ("netfilter: nftables_offload: special ethertype handling for VLAN")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+              hwsim_phys
+                  |
+    ------------------------------
+    |                            |
+phy0 (edges)                 phy1 (edges)
+   ----> e1 (idx = 1)             ----> e0 (idx = 0)
+
+Fix this by deleting and freeing all the entries in the edges list
+between hwsim_edge_unsubscribe_me and list_del(&phy->list).
+
+Reported-by: syzbot+b80c9959009a9325cdff@syzkaller.appspotmail.com
+Fixes: 1c9f4a3fce77 ("ieee802154: hwsim: fix rcu handling")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210616020901.2759466-1-mudongliangabcd@gmail.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_offload.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/net/ieee802154/mac802154_hwsim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
-index ec701b84844f..b58d73a96523 100644
---- a/net/netfilter/nf_tables_offload.c
-+++ b/net/netfilter/nf_tables_offload.c
-@@ -54,15 +54,10 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
- 					struct nft_flow_rule *flow)
+diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
+index 7a168170224a..6d479df2d9e5 100644
+--- a/drivers/net/ieee802154/mac802154_hwsim.c
++++ b/drivers/net/ieee802154/mac802154_hwsim.c
+@@ -824,12 +824,17 @@ err_pib:
+ static void hwsim_del(struct hwsim_phy *phy)
  {
- 	struct nft_flow_match *match = &flow->match;
--	struct nft_offload_ethertype ethertype;
--
--	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_CONTROL) &&
--	    match->key.basic.n_proto != htons(ETH_P_8021Q) &&
--	    match->key.basic.n_proto != htons(ETH_P_8021AD))
--		return;
--
--	ethertype.value = match->key.basic.n_proto;
--	ethertype.mask = match->mask.basic.n_proto;
-+	struct nft_offload_ethertype ethertype = {
-+		.value	= match->key.basic.n_proto,
-+		.mask	= match->mask.basic.n_proto,
-+	};
+ 	struct hwsim_pib *pib;
++	struct hwsim_edge *e;
  
- 	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_VLAN) &&
- 	    (match->key.vlan.vlan_tpid == htons(ETH_P_8021Q) ||
-@@ -76,7 +71,9 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
- 		match->dissector.offset[FLOW_DISSECTOR_KEY_CVLAN] =
- 			offsetof(struct nft_flow_key, cvlan);
- 		match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_CVLAN);
--	} else {
-+	} else if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_BASIC) &&
-+		   (match->key.basic.n_proto == htons(ETH_P_8021Q) ||
-+		    match->key.basic.n_proto == htons(ETH_P_8021AD))) {
- 		match->key.basic.n_proto = match->key.vlan.vlan_tpid;
- 		match->mask.basic.n_proto = match->mask.vlan.vlan_tpid;
- 		match->key.vlan.vlan_tpid = ethertype.value;
+ 	hwsim_edge_unsubscribe_me(phy);
+ 
+ 	list_del(&phy->list);
+ 
+ 	rcu_read_lock();
++	list_for_each_entry_rcu(e, &phy->edges, list) {
++		list_del_rcu(&e->list);
++		hwsim_free_edge(e);
++	}
+ 	pib = rcu_dereference(phy->pib);
+ 	rcu_read_unlock();
+ 
 -- 
 2.30.2
 
