@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C10B3C4AD0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C312F3C555C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240346AbhGLGxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52600 "EHLO mail.kernel.org"
+        id S1355609AbhGLIJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239238AbhGLGwn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:52:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2624460FE3;
-        Mon, 12 Jul 2021 06:49:46 +0000 (UTC)
+        id S1353555AbhGLICe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:02:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E37B761CCA;
+        Mon, 12 Jul 2021 07:55:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072587;
-        bh=GEzXEb4iym0w8gcOkgV5/q9aP2vIib41XYLb0FYQru4=;
+        s=korg; t=1626076538;
+        bh=FnvRDjWdHqXKilpbFTReWHP+mb+zE0shfipgN28g0/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3IIDgsjahp4PHzr2Wni+T01/teofGw0Hjq37mwlONO0aUe0bAveRBJQnKZ4oAXgu
-         hoE6JYG/1SNzq58nVp5uwwxmPwepsPsFwbcdD8vx8B1RdHB2+VwzGB2c+EgnphVVFt
-         4G/n8oCUQYKhu7gCfmcnBL2MypzFY0x/D61Iw3rk=
+        b=o6nnP3QE8r5mYYspC3HtL7Y/VJiVP3z9wExFziE6iPZx39xRLM7UlFxyRq7giPwYo
+         z9c8U32giiXgbWzsxrcGq78GOeOqoS8NAnlReeb6NFFIE+6VGakySzp3B7yMuxLqY5
+         UoZ3hjbMe1EMf3Ta+WYjkNIVbBBXnZyP7HJ+X92E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Bard Liao <bard.liao@intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 547/593] ASoC: fsl_spdif: Fix unexpected interrupt after suspend
-Date:   Mon, 12 Jul 2021 08:11:47 +0200
-Message-Id: <20210712060954.361606045@linuxfoundation.org>
+Subject: [PATCH 5.13 685/800] ASoC: rt1308-sdw: use first_hw_init flag on resume
+Date:   Mon, 12 Jul 2021 08:11:48 +0200
+Message-Id: <20210712061039.707356807@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit a7a0a2feb957e446b2bcf732f245ba04fc8b6314 ]
+[ Upstream commit 30e102dab5fad1db71684f8ac5e1ac74e49da06d ]
 
-When system enter suspend, the machine driver suspend callback
-function will be called, then the cpu driver trigger callback
-(SNDRV_PCM_TRIGGER_SUSPEND) be called, it would disable the
-interrupt.
+The intent of the status check on resume was to verify if a SoundWire
+peripheral reported ATTACHED before waiting for the initialization to
+complete. This is required to avoid timeouts that will happen with
+'ghost' devices that are exposed in the platform firmware but are not
+populated in hardware.
 
-But the machine driver suspend and cpu dai driver suspend order
-maybe changed, the cpu dai driver's suspend callback is called before
-machine driver's suppend callback, then the interrupt is not cleared
-successfully in trigger callback.
+Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
+another error, the resume operation never timed out, but the volume
+settings were not properly restored.
 
-So need to clear interrupts in cpu dai driver's suspend callback
-to avoid such issue.
-
-Fixes: 9cb2b3796e08 ("ASoC: fsl_spdif: Add pm runtime function")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/1624365084-7934-1-git-send-email-shengjiu.wang@nxp.com
+BugLink: https://github.com/thesofproject/linux/issues/2908
+BugLink: https://github.com/thesofproject/linux/issues/2637
+Fixes: a87a6653a28c0 ('ASoC: rt1308-sdw: add rt1308 SdW amplifier driver')
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Reviewed-by: Bard Liao <bard.liao@intel.com>
+Link: https://lore.kernel.org/r/20210607222239.582139-4-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_spdif.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/rt1308-sdw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/fsl_spdif.c b/sound/soc/fsl/fsl_spdif.c
-index 1fbc6d780700..15bcb0f38ec9 100644
---- a/sound/soc/fsl/fsl_spdif.c
-+++ b/sound/soc/fsl/fsl_spdif.c
-@@ -1387,6 +1387,9 @@ static int fsl_spdif_runtime_suspend(struct device *dev)
- 	struct fsl_spdif_priv *spdif_priv = dev_get_drvdata(dev);
- 	int i;
+diff --git a/sound/soc/codecs/rt1308-sdw.c b/sound/soc/codecs/rt1308-sdw.c
+index 1c226994aebd..f716668de640 100644
+--- a/sound/soc/codecs/rt1308-sdw.c
++++ b/sound/soc/codecs/rt1308-sdw.c
+@@ -709,7 +709,7 @@ static int __maybe_unused rt1308_dev_resume(struct device *dev)
+ 	struct rt1308_sdw_priv *rt1308 = dev_get_drvdata(dev);
+ 	unsigned long time;
  
-+	/* Disable all the interrupts */
-+	regmap_update_bits(spdif_priv->regmap, REG_SPDIF_SIE, 0xffffff, 0);
-+
- 	regmap_read(spdif_priv->regmap, REG_SPDIF_SRPC,
- 			&spdif_priv->regcache_srpc);
- 	regcache_cache_only(spdif_priv->regmap, true);
+-	if (!rt1308->hw_init)
++	if (!rt1308->first_hw_init)
+ 		return 0;
+ 
+ 	if (!slave->unattach_request)
 -- 
 2.30.2
 
