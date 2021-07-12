@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B37973C51FC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46703C4C26
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349644AbhGLHo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:44:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        id S242673AbhGLHB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:01:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243941AbhGLHhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:37:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DF2461939;
-        Mon, 12 Jul 2021 07:33:06 +0000 (UTC)
+        id S239655AbhGLG64 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:58:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D554611C2;
+        Mon, 12 Jul 2021 06:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075187;
-        bh=WoXSq2ICM3efq+BWozC2CMUcabEJzzaMVOvVVaY7IjM=;
+        s=korg; t=1626072969;
+        bh=7HmrN5tN4VMxSuLZoByndgYAtP2ImpnstlzNDv+oe5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oNzRDO3Wf4n1hJ9gu4bKYrwEgosUiUuGj7A+JiZKCRCi6m17+ed5UHBO+Q+lZfvGF
-         J+RgvaaIkubWpjpYrkxXZXSGx7XWfCBVLg409cLSrVQ/mbx9xZjq3McoGdJnuWG6rP
-         opktQs/kbqqblPzMxWiIs26dfWK2tO1v3gPTyOpc=
+        b=UaD4YViPb/GWHrfvEhfq98ry26bZDr81fxsPVl2VcILKwKWlvQjFAkShYFoO5KZPW
+         YmlM5i94qQMFdpJLBbjjTaBfeoIBb6jOpit5Dl6PaYauh8AjeYDzViHHUKQxvv41e/
+         AZL3HT+nmghqFxfpzweZugxMbK7038P3Y7B2uXo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 134/800] media: am437x: fix pm_runtime_get_sync() usage count
-Date:   Mon, 12 Jul 2021 08:02:37 +0200
-Message-Id: <20210712060931.895738602@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Zhang <yu.c.zhang@linux.intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.12 075/700] KVM: x86: Force all MMUs to reinitialize if guest CPUID is modified
+Date:   Mon, 12 Jul 2021 08:02:38 +0200
+Message-Id: <20210712060935.311122049@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit c41e02493334985cca1a22efd5ca962ce3abb061 ]
+commit 49c6f8756cdffeb9af1fbcb86bacacced26465d7 upstream.
 
-The pm_runtime_get_sync() internally increments the
-dev->power.usage_count without decrementing it, even on errors.
-Replace it by the new pm_runtime_resume_and_get(), introduced by:
-commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-in order to properly decrement the usage counter, avoiding
-a potential PM usage counter leak.
+Invalidate all MMUs' roles after a CPUID update to force reinitizliation
+of the MMU context/helpers.  Despite the efforts of commit de3ccd26fafc
+("KVM: MMU: record maximum physical address width in kvm_mmu_extended_role"),
+there are still a handful of CPUID-based properties that affect MMU
+behavior but are not incorporated into mmu_role.  E.g. 1gb hugepage
+support, AMD vs. Intel handling of bit 8, and SEV's C-Bit location all
+factor into the guest's reserved PTE bits.
 
-While here, ensure that the driver will check if PM runtime
-resumed at vpfe_initialize_device().
+The obvious alternative would be to add all such properties to mmu_role,
+but doing so provides no benefit over simply forcing a reinitialization
+on every CPUID update, as setting guest CPUID is a rare operation.
 
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note, reinitializing all MMUs after a CPUID update does not fix all of
+KVM's woes.  Specifically, kvm_mmu_page_role doesn't track the CPUID
+properties, which means that a vCPU can reuse shadow pages that should
+not exist for the new vCPU model, e.g. that map GPAs that are now illegal
+(due to MAXPHYADDR changes) or that set bits that are now reserved
+(PAGE_SIZE for 1gb pages), etc...
+
+Tracking the relevant CPUID properties in kvm_mmu_page_role would address
+the majority of problems, but fully tracking that much state in the
+shadow page role comes with an unpalatable cost as it would require a
+non-trivial increase in KVM's memory footprint.  The GBPAGES case is even
+worse, as neither Intel nor AMD provides a way to disable 1gb hugepage
+support in the hardware page walker, i.e. it's a virtualization hole that
+can't be closed when using TDP.
+
+In other words, resetting the MMU after a CPUID update is largely a
+superficial fix.  But, it will allow reverting the tracking of MAXPHYADDR
+in the mmu_role, and that case in particular needs to mostly work because
+KVM's shadow_root_level depends on guest MAXPHYADDR when 5-level paging
+is supported.  For cases where KVM botches guest behavior, the damage is
+limited to that guest.  But for the shadow_root_level, a misconfigured
+MMU can cause KVM to incorrectly access memory, e.g. due to walking off
+the end of its shadow page tables.
+
+Fixes: 7dcd57552008 ("x86/kvm/mmu: check if tdp/shadow MMU reconfiguration is needed")
+Cc: Yu Zhang <yu.c.zhang@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210622175739.3610207-7-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/am437x/am437x-vpfe.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/kvm_host.h |    1 +
+ arch/x86/kvm/cpuid.c            |    6 +++---
+ arch/x86/kvm/mmu/mmu.c          |   12 ++++++++++++
+ 3 files changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/am437x/am437x-vpfe.c b/drivers/media/platform/am437x/am437x-vpfe.c
-index 6cdc77dda0e4..1c9cb9e05fdf 100644
---- a/drivers/media/platform/am437x/am437x-vpfe.c
-+++ b/drivers/media/platform/am437x/am437x-vpfe.c
-@@ -1021,7 +1021,9 @@ static int vpfe_initialize_device(struct vpfe_device *vpfe)
- 	if (ret)
- 		return ret;
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1433,6 +1433,7 @@ void kvm_mmu_set_mask_ptes(u64 user_mask
+ 		u64 dirty_mask, u64 nx_mask, u64 x_mask, u64 p_mask,
+ 		u64 acc_track_mask, u64 me_mask);
  
--	pm_runtime_get_sync(vpfe->pdev);
-+	ret = pm_runtime_resume_and_get(vpfe->pdev);
-+	if (ret < 0)
-+		return ret;
++void kvm_mmu_after_set_cpuid(struct kvm_vcpu *vcpu);
+ void kvm_mmu_reset_context(struct kvm_vcpu *vcpu);
+ void kvm_mmu_slot_remove_write_access(struct kvm *kvm,
+ 				      struct kvm_memory_slot *memslot,
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -185,10 +185,10 @@ static void kvm_vcpu_after_set_cpuid(str
+ 	static_call(kvm_x86_vcpu_after_set_cpuid)(vcpu);
  
- 	vpfe_config_enable(&vpfe->ccdc, 1);
+ 	/*
+-	 * Except for the MMU, which needs to be reset after any vendor
+-	 * specific adjustments to the reserved GPA bits.
++	 * Except for the MMU, which needs to do its thing any vendor specific
++	 * adjustments to the reserved GPA bits.
+ 	 */
+-	kvm_mmu_reset_context(vcpu);
++	kvm_mmu_after_set_cpuid(vcpu);
+ }
  
-@@ -2443,7 +2445,11 @@ static int vpfe_probe(struct platform_device *pdev)
- 	pm_runtime_enable(&pdev->dev);
+ static int is_efer_nx(void)
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -4846,6 +4846,18 @@ kvm_mmu_calc_root_page_role(struct kvm_v
+ 	return role.base;
+ }
  
- 	/* for now just enable it here instead of waiting for the open */
--	pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
-+	if (ret < 0) {
-+		vpfe_err(vpfe, "Unable to resume device.\n");
-+		goto probe_out_v4l2_unregister;
-+	}
- 
- 	vpfe_ccdc_config_defaults(ccdc);
- 
-@@ -2530,6 +2536,11 @@ static int vpfe_suspend(struct device *dev)
- 
- 	/* only do full suspend if streaming has started */
- 	if (vb2_start_streaming_called(&vpfe->buffer_queue)) {
-+		/*
-+		 * ignore RPM resume errors here, as it is already too late.
-+		 * A check like that should happen earlier, either at
-+		 * open() or just before start streaming.
-+		 */
- 		pm_runtime_get_sync(dev);
- 		vpfe_config_enable(ccdc, 1);
- 
--- 
-2.30.2
-
++void kvm_mmu_after_set_cpuid(struct kvm_vcpu *vcpu)
++{
++	/*
++	 * Invalidate all MMU roles to force them to reinitialize as CPUID
++	 * information is factored into reserved bit calculations.
++	 */
++	vcpu->arch.root_mmu.mmu_role.ext.valid = 0;
++	vcpu->arch.guest_mmu.mmu_role.ext.valid = 0;
++	vcpu->arch.nested_mmu.mmu_role.ext.valid = 0;
++	kvm_mmu_reset_context(vcpu);
++}
++
+ void kvm_mmu_reset_context(struct kvm_vcpu *vcpu)
+ {
+ 	kvm_mmu_unload(vcpu);
 
 
