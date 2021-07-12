@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D0C63C44FD
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 377EF3C4503
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234598AbhGLGWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:22:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37526 "EHLO mail.kernel.org"
+        id S234444AbhGLGXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:23:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234426AbhGLGVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:21:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D75D261107;
-        Mon, 12 Jul 2021 06:18:48 +0000 (UTC)
+        id S234457AbhGLGVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:21:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3897A610A7;
+        Mon, 12 Jul 2021 06:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070729;
-        bh=qhTj9uSII5ZOyscOWtIA1ByZou17aKyjeerJ5d4Q/6c=;
+        s=korg; t=1626070731;
+        bh=aQ5vHJkxuc0ZwJIL/ivo28JrPYFcDVA2PP2Pc061mZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rsFjT7JXS8L7WP/uK/Kgb4fruDEhm2I+vW1/ga3X0xMfo2WZcdXPHV7oKwROvkf/m
-         S8uQqheaboscGZ5FqF/PqZYq9nl/u9WdwlZKy6lFM7U5Un8zOS4/4fHYWN9/Aj697u
-         SnV14zpEPmgi+o5FG8Wvgl940P0B0NXNlBG7/F5Y=
+        b=nyD5mmi+KqRg/GOU6tmJead5s5/wSVIG+IPDpXBJaetHboDE128Vv9IScK+CgTi3U
+         Z5UB9sGbpDG+AbtXkkmE4i1SQA0JS94dBaf3IGR2J3wWbtZbXin47K9bSH1C9197Z1
+         USE+78UXpA1S1KjjAAk39CtUP01WeemWlVbXRgXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Bixuan Cui <cuibixuan@huawei.com>,
-        Borislav Petkov <bp@suse.de>, Tero Kristo <kristo@kernel.org>,
+        stable@vger.kernel.org, Prike Liang <Prike.Liang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 113/348] EDAC/ti: Add missing MODULE_DEVICE_TABLE
-Date:   Mon, 12 Jul 2021 08:08:17 +0200
-Message-Id: <20210712060716.495648023@linuxfoundation.org>
+Subject: [PATCH 5.4 114/348] ACPI: processor idle: Fix up C-state latency if not ordered
+Date:   Mon, 12 Jul 2021 08:08:18 +0200
+Message-Id: <20210712060716.630308563@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,37 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 0a37f32ba5272b2d4ec8c8d0f6b212b81b578f7e ]
+[ Upstream commit 65ea8f2c6e230bdf71fed0137cf9e9d1b307db32 ]
 
-The module misses MODULE_DEVICE_TABLE() for of_device_id tables and thus
-never autoloads on ID matches.
+Generally, the C-state latency is provided by the _CST method or
+FADT, but some OEM platforms using AMD Picasso, Renoir, Van Gogh,
+and Cezanne set the C2 latency greater than C3's which causes the
+C2 state to be skipped.
 
-Add the missing declaration.
+That will block the core entering PC6, which prevents S0ix working
+properly on Linux systems.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Tero Kristo <kristo@kernel.org>
-Link: https://lkml.kernel.org/r/20210512033727.26701-1-cuibixuan@huawei.com
+In other operating systems, the latency values are not validated and
+this does not cause problems by skipping states.
+
+To avoid this issue on Linux, detect when latencies are not an
+arithmetic progression and sort them.
+
+Link: https://gitlab.freedesktop.org/agd5f/linux/-/commit/026d186e4592c1ee9c1cb44295912d0294508725
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1230#note_712174
+Suggested-by: Prike Liang <Prike.Liang@amd.com>
+Suggested-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ti_edac.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/processor_idle.c | 40 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/drivers/edac/ti_edac.c b/drivers/edac/ti_edac.c
-index 324768946743..9ab9fa0a911b 100644
---- a/drivers/edac/ti_edac.c
-+++ b/drivers/edac/ti_edac.c
-@@ -197,6 +197,7 @@ static const struct of_device_id ti_edac_of_match[] = {
- 	{ .compatible = "ti,emif-dra7xx", .data = (void *)EMIF_TYPE_DRA7 },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, ti_edac_of_match);
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index ed56c6d20b08..53ae679c00f0 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -16,6 +16,7 @@
+ #include <linux/acpi.h>
+ #include <linux/dmi.h>
+ #include <linux/sched.h>       /* need_resched() */
++#include <linux/sort.h>
+ #include <linux/tick.h>
+ #include <linux/cpuidle.h>
+ #include <linux/cpu.h>
+@@ -540,10 +541,37 @@ static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
+ 	return;
+ }
  
- static int _emif_get_id(struct device_node *node)
++static int acpi_cst_latency_cmp(const void *a, const void *b)
++{
++	const struct acpi_processor_cx *x = a, *y = b;
++
++	if (!(x->valid && y->valid))
++		return 0;
++	if (x->latency > y->latency)
++		return 1;
++	if (x->latency < y->latency)
++		return -1;
++	return 0;
++}
++static void acpi_cst_latency_swap(void *a, void *b, int n)
++{
++	struct acpi_processor_cx *x = a, *y = b;
++	u32 tmp;
++
++	if (!(x->valid && y->valid))
++		return;
++	tmp = x->latency;
++	x->latency = y->latency;
++	y->latency = tmp;
++}
++
+ static int acpi_processor_power_verify(struct acpi_processor *pr)
  {
+ 	unsigned int i;
+ 	unsigned int working = 0;
++	unsigned int last_latency = 0;
++	unsigned int last_type = 0;
++	bool buggy_latency = false;
+ 
+ 	pr->power.timer_broadcast_on_state = INT_MAX;
+ 
+@@ -567,12 +595,24 @@ static int acpi_processor_power_verify(struct acpi_processor *pr)
+ 		}
+ 		if (!cx->valid)
+ 			continue;
++		if (cx->type >= last_type && cx->latency < last_latency)
++			buggy_latency = true;
++		last_latency = cx->latency;
++		last_type = cx->type;
+ 
+ 		lapic_timer_check_state(i, pr, cx);
+ 		tsc_check_state(cx->type);
+ 		working++;
+ 	}
+ 
++	if (buggy_latency) {
++		pr_notice("FW issue: working around C-state latencies out of order\n");
++		sort(&pr->power.states[1], max_cstate,
++		     sizeof(struct acpi_processor_cx),
++		     acpi_cst_latency_cmp,
++		     acpi_cst_latency_swap);
++	}
++
+ 	lapic_timer_propagate_broadcast(pr);
+ 
+ 	return (working);
 -- 
 2.30.2
 
