@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84BA43C536A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 496343C4920
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352387AbhGLHyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35482 "EHLO mail.kernel.org"
+        id S235444AbhGLGmA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:42:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350313AbhGLHuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24855613F2;
-        Mon, 12 Jul 2021 07:44:32 +0000 (UTC)
+        id S235347AbhGLGk7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16106610CD;
+        Mon, 12 Jul 2021 06:38:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075873;
-        bh=5OUihi6DdvLFbfJGUrpRrfypEQP5im49uLubXF1/wrY=;
+        s=korg; t=1626071890;
+        bh=0lw/VCqilOT3QZ8ippwrN+frmOq3y3LU6Q6oQyYOvTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l99GFnYs7uljH5TJdSE12XoYd7ve7+In/fxKyvRD/nTdMJeHnXLRQdxjG/qCdcpMX
-         Q1W56geyfR8lZ2x0YVQls3dC64kYDzMf2loygwA39lkovXCEunD4RnEoMn6T7rfi+7
-         NwiPzsFrwbQMjy3gdSBMjw2NSitg3GjRDC2V0pRo=
+        b=s6Y3weYhCIE+sk5AIZJCdKJ+wvsZIumC/F65oRTRcY2AdUK5RwQhd9Oi2ifyf3kqO
+         EzAuuLoTxND/EiJx94SHlvh7ZAtdaC2bqg2CsX51AE4wP71XDb3jaA3t7H2pRxJonz
+         W8WqFcMV+UXVCVO2z2lLp0BJ77LgniGrkKVbVcgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 401/800] pinctrl: renesas: r8a7796: Add missing bias for PRESET# pin
+Subject: [PATCH 5.10 264/593] sched/rt: Fix RT utilization tracking during policy change
 Date:   Mon, 12 Jul 2021 08:07:04 +0200
-Message-Id: <20210712061009.809508375@linuxfoundation.org>
+Message-Id: <20210712060912.414201952@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit 2cee31cd49733e89dfedf4f68a56839fc2e42040 ]
+[ Upstream commit fecfcbc288e9f4923f40fd23ca78a6acdc7fdf6c ]
 
-R-Car Gen3 Hardware Manual Errata for Rev. 0.52 of Nov 30, 2016, added
-the configuration bit for bias pull-down control for the PRESET# pin on
-R-Car M3-W.  Add driver support for controlling pull-down on this pin.
+RT keeps track of the utilization on a per-rq basis with the structure
+avg_rt. This utilization is updated during task_tick_rt(),
+put_prev_task_rt() and set_next_task_rt(). However, when the current
+running task changes its policy, set_next_task_rt() which would usually
+take care of updating the utilization when the rq starts running RT tasks,
+will not see a such change, leaving the avg_rt structure outdated. When
+that very same task will be dequeued later, put_prev_task_rt() will then
+update the utilization, based on a wrong last_update_time, leading to a
+huge spike in the RT utilization signal.
 
-Fixes: 2d40bd24274d2577 ("pinctrl: sh-pfc: r8a7796: Add bias pinconf support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Link: https://lore.kernel.org/r/c479de5b3f235c2f7d5faea9e7e08e6fccb135df.1619785375.git.geert+renesas@glider.be
+The signal would eventually recover from this issue after few ms. Even if
+no RT tasks are run, avg_rt is also updated in __update_blocked_others().
+But as the CPU capacity depends partly on the avg_rt, this issue has
+nonetheless a significant impact on the scheduler.
+
+Fix this issue by ensuring a load update when a running task changes
+its policy to RT.
+
+Fixes: 371bf427 ("sched/rt: Add rt_rq utilization tracking")
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/1624271872-211872-2-git-send-email-vincent.donnefort@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/renesas/pfc-r8a7796.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/sched/rt.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pinctrl/renesas/pfc-r8a7796.c b/drivers/pinctrl/renesas/pfc-r8a7796.c
-index 44e9d2eea484..bbb1b436ded3 100644
---- a/drivers/pinctrl/renesas/pfc-r8a7796.c
-+++ b/drivers/pinctrl/renesas/pfc-r8a7796.c
-@@ -67,6 +67,7 @@
- 	PIN_NOGP_CFG(QSPI1_MOSI_IO0, "QSPI1_MOSI_IO0", fn, CFG_FLAGS),	\
- 	PIN_NOGP_CFG(QSPI1_SPCLK, "QSPI1_SPCLK", fn, CFG_FLAGS),	\
- 	PIN_NOGP_CFG(QSPI1_SSL, "QSPI1_SSL", fn, CFG_FLAGS),		\
-+	PIN_NOGP_CFG(PRESET_N, "PRESET#", fn, SH_PFC_PIN_CFG_PULL_DOWN),\
- 	PIN_NOGP_CFG(RPC_INT_N, "RPC_INT#", fn, CFG_FLAGS),		\
- 	PIN_NOGP_CFG(RPC_RESET_N, "RPC_RESET#", fn, CFG_FLAGS),		\
- 	PIN_NOGP_CFG(RPC_WP_N, "RPC_WP#", fn, CFG_FLAGS),		\
-@@ -6218,7 +6219,7 @@ static const struct pinmux_bias_reg pinmux_bias_regs[] = {
- 		[ 4] = RCAR_GP_PIN(6, 29),	/* USB30_OVC */
- 		[ 5] = RCAR_GP_PIN(6, 30),	/* GP6_30 */
- 		[ 6] = RCAR_GP_PIN(6, 31),	/* GP6_31 */
--		[ 7] = SH_PFC_PIN_NONE,
-+		[ 7] = PIN_PRESET_N,		/* PRESET# */
- 		[ 8] = SH_PFC_PIN_NONE,
- 		[ 9] = SH_PFC_PIN_NONE,
- 		[10] = SH_PFC_PIN_NONE,
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 49ec096a8aa1..b5cf418e2e3f 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -2291,13 +2291,20 @@ void __init init_sched_rt_class(void)
+ static void switched_to_rt(struct rq *rq, struct task_struct *p)
+ {
+ 	/*
+-	 * If we are already running, then there's nothing
+-	 * that needs to be done. But if we are not running
+-	 * we may need to preempt the current running task.
+-	 * If that current running task is also an RT task
++	 * If we are running, update the avg_rt tracking, as the running time
++	 * will now on be accounted into the latter.
++	 */
++	if (task_current(rq, p)) {
++		update_rt_rq_load_avg(rq_clock_pelt(rq), rq, 0);
++		return;
++	}
++
++	/*
++	 * If we are not running we may need to preempt the current
++	 * running task. If that current running task is also an RT task
+ 	 * then see if we can move to another run queue.
+ 	 */
+-	if (task_on_rq_queued(p) && rq->curr != p) {
++	if (task_on_rq_queued(p)) {
+ #ifdef CONFIG_SMP
+ 		if (p->nr_cpus_allowed > 1 && rq->rt.overloaded)
+ 			rt_queue_push_tasks(rq);
 -- 
 2.30.2
 
