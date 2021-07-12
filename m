@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE8F3C4EDE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F073C544C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241640AbhGLHWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58152 "EHLO mail.kernel.org"
+        id S1348287AbhGLH5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343967AbhGLHUO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F20261166;
-        Mon, 12 Jul 2021 07:17:25 +0000 (UTC)
+        id S1350779AbhGLHyF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:54:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2FD0611AF;
+        Mon, 12 Jul 2021 07:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074246;
-        bh=Q24hn74DSG3DcYlvrFfEOEIsZ208c90wgAIS+AXHEcI=;
+        s=korg; t=1626076277;
+        bh=SqgqjwXJJX6J2I5vegfmJ0u8E68kgN5L3j4QWGbwvZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dehXqkpfER3ywkRLYJlvtxPSojZmRXpp/Fr+4mWNocH5FqESBMQ8fX3E1PEcTeFnv
-         O9ibsGRA5jxseT9JYEoVnY+dAdcN2mmeKKyG7sQ0jIc4PWd/R785Gx0xhMXr5sTiI+
-         xlT0b5/XmCJEkN+QCFw8KHR2kyaDeYifGma3laOc=
+        b=OXiEKrUMDQvJka6jCYtZgtSt+sUxpem0QmBoxFb6U+W+/KNxu79ziuQWd1rtfTDwT
+         MA+FiY0NiCqW43gWTNxizJFawI/9TVbDxGbhjkyLqot1KD9Y0NmB4ELx6C3TrdzhYv
+         DZLjCb4ftallVgtcXBwLliKyvfEYiX6+JwbEALLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+1071ad60cd7df39fdadb@syzkaller.appspotmail.com
-Subject: [PATCH 5.12 514/700] net: sched: fix warning in tcindex_alloc_perfect_hash
-Date:   Mon, 12 Jul 2021 08:09:57 +0200
-Message-Id: <20210712061031.219924821@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Loviska <mloviska@suse.com>,
+        Gary Lin <glin@suse.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dmitrii Banshchikov <me@ubique.spb.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 575/800] bpfilter: Specify the log level for the kmsg message
+Date:   Mon, 12 Jul 2021 08:09:58 +0200
+Message-Id: <20210712061028.544350514@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Gary Lin <glin@suse.com>
 
-[ Upstream commit 3f2db250099f46988088800052cdf2332c7aba61 ]
+[ Upstream commit a196fa78a26571359740f701cf30d774eb8a72cb ]
 
-Syzbot reported warning in tcindex_alloc_perfect_hash. The problem
-was in too big cp->hash, which triggers warning in kmalloc. Since
-cp->hash comes from userspace, there is no need to warn if value
-is not correct
+Per the kmsg document [0], if we don't specify the log level with a
+prefix "<N>" in the message string, the default log level will be
+applied to the message. Since the default level could be warning(4),
+this would make the log utility such as journalctl treat the message,
+"Started bpfilter", as a warning. To avoid confusion, this commit
+adds the prefix "<5>" to make the message always a notice.
 
-Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
-Reported-and-tested-by: syzbot+1071ad60cd7df39fdadb@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  [0] https://www.kernel.org/doc/Documentation/ABI/testing/dev-kmsg
+
+Fixes: 36c4357c63f3 ("net: bpfilter: print umh messages to /dev/kmsg")
+Reported-by: Martin Loviska <mloviska@suse.com>
+Signed-off-by: Gary Lin <glin@suse.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Dmitrii Banshchikov <me@ubique.spb.ru>
+Link: https://lore.kernel.org/bpf/20210623040918.8683-1-glin@suse.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_tcindex.c | 2 +-
+ net/bpfilter/main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index c4007b9cd16d..5b274534264c 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -304,7 +304,7 @@ static int tcindex_alloc_perfect_hash(struct net *net, struct tcindex_data *cp)
- 	int i, err = 0;
- 
- 	cp->perfect = kcalloc(cp->hash, sizeof(struct tcindex_filter_result),
--			      GFP_KERNEL);
-+			      GFP_KERNEL | __GFP_NOWARN);
- 	if (!cp->perfect)
- 		return -ENOMEM;
- 
+diff --git a/net/bpfilter/main.c b/net/bpfilter/main.c
+index 05e1cfc1e5cd..291a92546246 100644
+--- a/net/bpfilter/main.c
++++ b/net/bpfilter/main.c
+@@ -57,7 +57,7 @@ int main(void)
+ {
+ 	debug_f = fopen("/dev/kmsg", "w");
+ 	setvbuf(debug_f, 0, _IOLBF, 0);
+-	fprintf(debug_f, "Started bpfilter\n");
++	fprintf(debug_f, "<5>Started bpfilter\n");
+ 	loop();
+ 	fclose(debug_f);
+ 	return 0;
 -- 
 2.30.2
 
