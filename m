@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B0BE3C4D9E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D19D73C4D8B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242411AbhGLHNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45872 "EHLO mail.kernel.org"
+        id S244230AbhGLHN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238026AbhGLHLl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:11:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06D9E6108B;
-        Mon, 12 Jul 2021 07:08:52 +0000 (UTC)
+        id S239110AbhGLHLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:11:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA93160FE7;
+        Mon, 12 Jul 2021 07:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073733;
-        bh=CX6JOYgwpzBOcibnmxjTZabMLkdrNt4ga5d351AtVfw=;
+        s=korg; t=1626073736;
+        bh=+/JFy+slToYPRalqVJJOi9ffJwiRSsiakNYtXkNAREA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aeQbFZK/Xvx3oJMTSN3UJnNDtWWhXFS7ZyyoSzzB6Jdznw1FT3p4/rJkiInKxjuHK
-         FgjHz+lNiAIZuuffxPQ3Q+jTpibQ/g4wg50Ky+ZASVd9xstUKEWoaeh2RE4NqyvotM
-         +iBcJVojAcfHOBJetOVbcK2MpI7N4EvRPHgSzSGI=
+        b=bXkZAFIgRCjX7/ChKDECsO4m8t6F8hxabXv0PlKQingxWkukruf72EzZg8drn5odP
+         8X7+jchA0OFKa1c4KcppTXRaobfBFjswh26mJib9ko1DRIzlIdIKLe5wogY75eiVPp
+         Xy+AloDC2TEDz4cwpmE5rag0rj4f+DZXG6xJRRyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Wade Liang <wadel@synology.com>,
+        BingJing Chang <bingjingc@synology.com>,
+        Edward Hsieh <edwardh@synology.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 340/700] PM / devfreq: passive: Fix get_target_freq when not using required-opp
-Date:   Mon, 12 Jul 2021 08:07:03 +0200
-Message-Id: <20210712061012.481169146@linuxfoundation.org>
+Subject: [PATCH 5.12 341/700] block: fix trace completion for chained bio
+Date:   Mon, 12 Jul 2021 08:07:04 +0200
+Message-Id: <20210712061012.579182430@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -39,45 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanwoo Choi <cw00.choi@samsung.com>
+From: Edward Hsieh <edwardh@synology.com>
 
-[ Upstream commit 8c37d01e1a86073d15ea7084390fba58d9a1665f ]
+[ Upstream commit 60b6a7e6a0f4382cd689f9afdac816964fec2921 ]
 
-The 86ad9a24f21e ("PM / devfreq: Add required OPPs support to passive governor")
-supported the required-opp property for using devfreq passive governor.
-But, 86ad9a24f21e has caused the problem on use-case when required-opp
-is not used such as exynos-bus.c devfreq driver. So that fix the
-get_target_freq of passive governor for supporting the case of when
-required-opp is not used.
+For chained bio, trace_block_bio_complete in bio_endio is currently called
+only by the parent bio once upon all chained bio completed.
+However, the sector and size for the parent bio are modified in bio_split.
+Therefore, the size and sector of the complete events might not match the
+queue events in blktrace.
 
-Fixes: 86ad9a24f21e ("PM / devfreq: Add required OPPs support to passive governor")
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+The original fix of bio completion trace <fbbaf700e7b1> ("block: trace
+completion of all bios.") wants multiple complete events to correspond
+to one queue event but missed this.
+
+The issue can be reproduced by md/raid5 read with bio cross chunks.
+
+To fix, move trace completion into the loop for every chained bio to call.
+
+Fixes: fbbaf700e7b1 ("block: trace completion of all bios.")
+Reviewed-by: Wade Liang <wadel@synology.com>
+Reviewed-by: BingJing Chang <bingjingc@synology.com>
+Signed-off-by: Edward Hsieh <edwardh@synology.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210624123030.27014-1-edwardh@synology.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/governor_passive.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ block/bio.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/devfreq/governor_passive.c b/drivers/devfreq/governor_passive.c
-index b094132bd20b..fc09324a03e0 100644
---- a/drivers/devfreq/governor_passive.c
-+++ b/drivers/devfreq/governor_passive.c
-@@ -65,7 +65,7 @@ static int devfreq_passive_get_target_freq(struct devfreq *devfreq,
- 		dev_pm_opp_put(p_opp);
+diff --git a/block/bio.c b/block/bio.c
+index 50e579088aca..b00c5a88a743 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1412,8 +1412,7 @@ static inline bool bio_remaining_done(struct bio *bio)
+  *
+  *   bio_endio() can be called several times on a bio that has been chained
+  *   using bio_chain().  The ->bi_end_io() function will only be called the
+- *   last time.  At this point the BLK_TA_COMPLETE tracing event will be
+- *   generated if BIO_TRACE_COMPLETION is set.
++ *   last time.
+  **/
+ void bio_endio(struct bio *bio)
+ {
+@@ -1426,6 +1425,11 @@ again:
+ 	if (bio->bi_bdev)
+ 		rq_qos_done_bio(bio->bi_bdev->bd_disk->queue, bio);
  
- 		if (IS_ERR(opp))
--			return PTR_ERR(opp);
-+			goto no_required_opp;
- 
- 		*freq = dev_pm_opp_get_freq(opp);
- 		dev_pm_opp_put(opp);
-@@ -73,6 +73,7 @@ static int devfreq_passive_get_target_freq(struct devfreq *devfreq,
- 		return 0;
++	if (bio->bi_bdev && bio_flagged(bio, BIO_TRACE_COMPLETION)) {
++		trace_block_bio_complete(bio->bi_bdev->bd_disk->queue, bio);
++		bio_clear_flag(bio, BIO_TRACE_COMPLETION);
++	}
++
+ 	/*
+ 	 * Need to have a real endio function for chained bios, otherwise
+ 	 * various corner cases will break (like stacking block devices that
+@@ -1439,11 +1443,6 @@ again:
+ 		goto again;
  	}
  
-+no_required_opp:
- 	/*
- 	 * Get the OPP table's index of decided frequency by governor
- 	 * of parent device.
+-	if (bio->bi_bdev && bio_flagged(bio, BIO_TRACE_COMPLETION)) {
+-		trace_block_bio_complete(bio->bi_bdev->bd_disk->queue, bio);
+-		bio_clear_flag(bio, BIO_TRACE_COMPLETION);
+-	}
+-
+ 	blk_throtl_bio_endio(bio);
+ 	/* release cgroup info */
+ 	bio_uninit(bio);
 -- 
 2.30.2
 
