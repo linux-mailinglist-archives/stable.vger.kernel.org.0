@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E32183C4E42
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BBD33C49D7
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244487AbhGLHRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:17:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46544 "EHLO mail.kernel.org"
+        id S236769AbhGLGq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:46:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240077AbhGLHQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:16:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 484F6613EE;
-        Mon, 12 Jul 2021 07:13:45 +0000 (UTC)
+        id S237321AbhGLGqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:46:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BFBA610A6;
+        Mon, 12 Jul 2021 06:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074025;
-        bh=zpDaxQf98VqPDv6c/Fj7pPDmQNEEYxGEpe1S3mMl9ms=;
+        s=korg; t=1626072114;
+        bh=6ffR9pWe5ZhUI/fbXsRaNlGSmTXT1y3+3FtlNi8qfp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NwbfJlit/VV2J8gF34d67wRw4ZDH4Te7gaHBpuJYxOBh9z4tTpNXIImWsFJdXbxvZ
-         FkTpFjMqnxkm40dxM7og6CH5jYwMltMN8Jwx4+STdSJ2Lsd/cKyVA/eFsN5BRylXLY
-         j2crtNEfgI4Gcdf7IAh0x9OGkEsuPZ7Ye7o1O9rM=
+        b=BMinQAlYL6+dqhmGycMjKe3Cs5NcQ4J7bfLa/la7d0oNvXIzLsR5VvMmuKQ82o5i9
+         f93VnwxPeX66CNgizCNojjIppfqhL1OJNQX38YVQx0iHpxfatCFRdLMVkuPJMsp10/
+         Y45HTjbUujTPKxJuwgwVq9d5KoohU+66J7mE9bTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 437/700] mt76: connac: alaways wake the device before scanning
+        stable@vger.kernel.org, Zhu Yanjun <zyjzyj2000@gmail.com>,
+        Bob Pearson <rpearsonhpe@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 360/593] RDMA/rxe: Fix qp reference counting for atomic ops
 Date:   Mon, 12 Jul 2021 08:08:40 +0200
-Message-Id: <20210712061022.938945820@linuxfoundation.org>
+Message-Id: <20210712060926.061006511@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit a61826203ba8806b4cdffd36bafdce3e9ad35c24 ]
+[ Upstream commit 15ae1375ea91ae2dee6f12d71a79d8c0a10a30bf ]
 
-move scanning check from mt76_connac_power_save_sched routine
-to mt7921_pm_power_save_work/mt7615_pm_power_save_work ones
+Currently the rdma_rxe driver attempts to protect atomic responder
+resources by taking a reference to the qp which is only freed when the
+resource is recycled for a new read or atomic operation. This means that
+in normal circumstances there is almost always an extra qp reference once
+an atomic operation has been executed which prevents cleaning up the qp
+and associated pd and cqs when the qp is destroyed.
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+This patch removes the call to rxe_add_ref() in send_atomic_ack() and the
+call to rxe_drop_ref() in free_rd_atomic_resource(). If the qp is
+destroyed while a peer is retrying an atomic op it will cause the
+operation to fail which is acceptable.
+
+Link: https://lore.kernel.org/r/20210604230558.4812-1-rpearsonhpe@gmail.com
+Reported-by: Zhu Yanjun <zyjzyj2000@gmail.com>
+Fixes: 86af61764151 ("IB/rxe: remove unnecessary skb_clone")
+Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mac.c      | 4 ++++
- drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c | 8 --------
- drivers/net/wireless/mediatek/mt76/mt7921/mac.c      | 4 ++++
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c   | 1 -
+ drivers/infiniband/sw/rxe/rxe_resp.c | 2 --
+ 2 files changed, 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-index 8dccb589b756..d06e61cadc41 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -1890,6 +1890,10 @@ void mt7615_pm_power_save_work(struct work_struct *work)
- 						pm.ps_work.work);
- 
- 	delta = dev->pm.idle_timeout;
-+	if (test_bit(MT76_HW_SCANNING, &dev->mphy.state) ||
-+	    test_bit(MT76_HW_SCHED_SCANNING, &dev->mphy.state))
-+		goto out;
-+
- 	if (time_is_after_jiffies(dev->pm.last_activity + delta)) {
- 		delta = dev->pm.last_activity + delta - jiffies;
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 1e716fe7014c..a1b79015e6f2 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -125,7 +125,6 @@ static void free_rd_atomic_resources(struct rxe_qp *qp)
+ void free_rd_atomic_resource(struct rxe_qp *qp, struct resp_res *res)
+ {
+ 	if (res->type == RXE_ATOMIC_MASK) {
+-		rxe_drop_ref(qp);
+ 		kfree_skb(res->atomic.skb);
+ 	} else if (res->type == RXE_READ_MASK) {
+ 		if (res->read.mr)
+diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
+index c7e3b6a4af38..83c03212099a 100644
+--- a/drivers/infiniband/sw/rxe/rxe_resp.c
++++ b/drivers/infiniband/sw/rxe/rxe_resp.c
+@@ -966,8 +966,6 @@ static int send_atomic_ack(struct rxe_qp *qp, struct rxe_pkt_info *pkt,
  		goto out;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
-index c5f5037f5757..cff60b699e31 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
-@@ -16,10 +16,6 @@ int mt76_connac_pm_wake(struct mt76_phy *phy, struct mt76_connac_pm *pm)
- 	if (!test_bit(MT76_STATE_PM, &phy->state))
- 		return 0;
+ 	}
  
--	if (test_bit(MT76_HW_SCANNING, &phy->state) ||
--	    test_bit(MT76_HW_SCHED_SCANNING, &phy->state))
--		return 0;
+-	rxe_add_ref(qp);
 -
- 	if (queue_work(dev->wq, &pm->wake_work))
- 		reinit_completion(&pm->wake_cmpl);
- 
-@@ -45,10 +41,6 @@ void mt76_connac_power_save_sched(struct mt76_phy *phy,
- 
- 	pm->last_activity = jiffies;
- 
--	if (test_bit(MT76_HW_SCANNING, &phy->state) ||
--	    test_bit(MT76_HW_SCHED_SCANNING, &phy->state))
--		return;
--
- 	if (!test_bit(MT76_STATE_PM, &phy->state))
- 		queue_delayed_work(dev->wq, &pm->ps_work, pm->idle_timeout);
- }
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index 39be2e396269..c4b144391a8e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -1524,6 +1524,10 @@ void mt7921_pm_power_save_work(struct work_struct *work)
- 						pm.ps_work.work);
- 
- 	delta = dev->pm.idle_timeout;
-+	if (test_bit(MT76_HW_SCANNING, &dev->mphy.state) ||
-+	    test_bit(MT76_HW_SCHED_SCANNING, &dev->mphy.state))
-+		goto out;
-+
- 	if (time_is_after_jiffies(dev->pm.last_activity + delta)) {
- 		delta = dev->pm.last_activity + delta - jiffies;
- 		goto out;
+ 	res = &qp->resp.resources[qp->resp.res_head];
+ 	free_rd_atomic_resource(qp, res);
+ 	rxe_advance_resp_resource(qp);
 -- 
 2.30.2
 
