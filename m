@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 676B43C4B5E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0264E3C544E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238371AbhGLG4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:56:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48258 "EHLO mail.kernel.org"
+        id S1348276AbhGLH5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238665AbhGLGtJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02B65610D0;
-        Mon, 12 Jul 2021 06:44:56 +0000 (UTC)
+        id S1352136AbhGLHyK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:54:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65AFF61412;
+        Mon, 12 Jul 2021 07:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072297;
-        bh=B4modiCHNILEbjx7vHdMmuC7bKCSL9wWF9zJsy2tG9s=;
+        s=korg; t=1626076281;
+        bh=mnc3HnjhywSJDp5rW3/0SkA46lf//5+ozcBkRiPDFUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0vGvSaZmU9J4Mb3gXB5+XAO2Kxa+Iqktv0PDJs7pe52k8w6qEOTzC21MmDdvdW/AM
-         IHJYCNSvfe+JMQ9KulBmhfCxxkx/ocQcm514zpF5ESS+H6JZnlW6kEe5hXitlkPM4C
-         V8EAgtOAFjHDOPOAkTg2/5qP7EDyDPdzQAyUrj48=
+        b=sUyfucS5lrcF5mwaqWPXybyksDoY216FCzTl6POH0DlAZRpXnAWFOO6SP1Xe1tDtd
+         3wt7NoqdSd5Yr4hf1n31T12WxbDA1D5CvUVIKZPI+sUe37gXPAObAEGW/jiKG+I9ku
+         upbTAkXWqUTS2mSAwqwwk9amXnpvxLk4AmviEkFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Bailey Forrest <bcf@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 439/593] serial: 8250_omap: fix a timeout loop condition
-Date:   Mon, 12 Jul 2021 08:09:59 +0200
-Message-Id: <20210712060937.076064465@linuxfoundation.org>
+Subject: [PATCH 5.13 577/800] gve: Fix swapped vars when fetching max queues
+Date:   Mon, 12 Jul 2021 08:10:00 +0200
+Message-Id: <20210712061028.743242861@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Bailey Forrest <bcf@google.com>
 
-[ Upstream commit d7e325aaa8c3593b5a572b583ecad79e95f32e7f ]
+[ Upstream commit 1db1a862a08f85edc36aad091236ac9b818e949e ]
 
-This loop ends on -1 so the error message will never be printed.
-
-Fixes: 4bcf59a5dea0 ("serial: 8250: 8250_omap: Account for data in flight during DMA teardown")
-Reviewed-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YIpd+kOpXKMpEXPf@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 893ce44df565 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
+Signed-off-by: Bailey Forrest <bcf@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/google/gve/gve_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 0cc6d35a0815..f284c6f77a6c 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -784,7 +784,7 @@ static void __dma_rx_do_complete(struct uart_8250_port *p)
- 			       poll_count--)
- 				cpu_relax();
+diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
+index bbc423e93122..79cefe85a799 100644
+--- a/drivers/net/ethernet/google/gve/gve_main.c
++++ b/drivers/net/ethernet/google/gve/gve_main.c
+@@ -1295,8 +1295,8 @@ static int gve_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
  
--			if (!poll_count)
-+			if (poll_count == -1)
- 				dev_err(p->port.dev, "teardown incomplete\n");
- 		}
- 	}
+ 	gve_write_version(&reg_bar->driver_version);
+ 	/* Get max queues to alloc etherdev */
+-	max_rx_queues = ioread32be(&reg_bar->max_tx_queues);
+-	max_tx_queues = ioread32be(&reg_bar->max_rx_queues);
++	max_tx_queues = ioread32be(&reg_bar->max_tx_queues);
++	max_rx_queues = ioread32be(&reg_bar->max_rx_queues);
+ 	/* Alloc and setup the netdev and priv */
+ 	dev = alloc_etherdev_mqs(sizeof(*priv), max_tx_queues, max_rx_queues);
+ 	if (!dev) {
 -- 
 2.30.2
 
