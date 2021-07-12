@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3F93C4E6C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B02D03C5442
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244778AbhGLHSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:18:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48022 "EHLO mail.kernel.org"
+        id S1348226AbhGLH5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244551AbhGLHRk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:17:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C42A61153;
-        Mon, 12 Jul 2021 07:14:51 +0000 (UTC)
+        id S1347753AbhGLHxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:53:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10C2861165;
+        Mon, 12 Jul 2021 07:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074092;
-        bh=+KYDax4teL/bh8Ep/BFT1j9CoyAUqHmQulhR5ZHRf/E=;
+        s=korg; t=1626076258;
+        bh=0pgFFY4YwPzXxt3fiezSRoApU9VxQQaa5LghRmiDmCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9eFJbIyWoVTnrZApDM3Mwa1QCdQzdkC6sqXtvvFDa6TuO+4vw57IKrCx8+6MT2XA
-         51ioljEOiZQIgG1hCIecX2I+T+YvkjX3WBD4Uv9tts3gT1TfTLStcbcS82yT/uaoQf
-         0mYJMKEFXyYuTB0z4v4MLI46bddIGYNYOb0z1mRM=
+        b=bTUxOqaofsGIHrERWuaNr3AmXxOmJd7XDQe2OensaEgLju6O1IIiotFORXxzeRzWC
+         6YCz1LGy36Q3Vr/K1gkHu82wGWGyKJyIiLw8+4WaDNWxQSg6bvgMbSM/PwQYPLOUur
+         dfhFYpgneiQcWaww0TvSNoCZsO5ANv8JjEovu9oE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 462/700] net: broadcom: bcm4908_enet: reset DMA rings sw indexes properly
-Date:   Mon, 12 Jul 2021 08:09:05 +0200
-Message-Id: <20210712061025.736638577@linuxfoundation.org>
+Subject: [PATCH 5.13 523/800] netfilter: nf_tables_offload: check FLOW_DISSECTOR_KEY_BASIC in VLAN transfer logic
+Date:   Mon, 12 Jul 2021 08:09:06 +0200
+Message-Id: <20210712061022.891120286@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit ddeacc4f6494e07cbb6f033627926623f3e7a9d0 ]
+[ Upstream commit ea45fdf82cc90430bb7c280e5e53821e833782c5 ]
 
-Resetting software indexes in bcm4908_dma_alloc_buf_descs() is not
-enough as it's called during device probe only. Driver resets DMA on
-every .ndo_open callback and it's required to reset indexes then.
+The VLAN transfer logic should actually check for
+FLOW_DISSECTOR_KEY_BASIC, not FLOW_DISSECTOR_KEY_CONTROL. Moreover, do
+not fallback to case 2) .n_proto is set to 802.1q or 802.1ad, if
+FLOW_DISSECTOR_KEY_BASIC is unset.
 
-This fixes inconsistent rings state and stalled traffic after interface
-down & up sequence.
-
-Fixes: 4feffeadbcb2 ("net: broadcom: bcm4908enet: add BCM4908 controller driver")
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 783003f3bb8a ("netfilter: nftables_offload: special ethertype handling for VLAN")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcm4908_enet.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/netfilter/nf_tables_offload.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bcm4908_enet.c b/drivers/net/ethernet/broadcom/bcm4908_enet.c
-index 65981931a798..a31984cd0fb7 100644
---- a/drivers/net/ethernet/broadcom/bcm4908_enet.c
-+++ b/drivers/net/ethernet/broadcom/bcm4908_enet.c
-@@ -165,9 +165,6 @@ static int bcm4908_dma_alloc_buf_descs(struct bcm4908_enet *enet,
- 	if (!ring->slots)
- 		goto err_free_buf_descs;
- 
--	ring->read_idx = 0;
--	ring->write_idx = 0;
+diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
+index ec701b84844f..b58d73a96523 100644
+--- a/net/netfilter/nf_tables_offload.c
++++ b/net/netfilter/nf_tables_offload.c
+@@ -54,15 +54,10 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
+ 					struct nft_flow_rule *flow)
+ {
+ 	struct nft_flow_match *match = &flow->match;
+-	struct nft_offload_ethertype ethertype;
 -
- 	return 0;
+-	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_CONTROL) &&
+-	    match->key.basic.n_proto != htons(ETH_P_8021Q) &&
+-	    match->key.basic.n_proto != htons(ETH_P_8021AD))
+-		return;
+-
+-	ethertype.value = match->key.basic.n_proto;
+-	ethertype.mask = match->mask.basic.n_proto;
++	struct nft_offload_ethertype ethertype = {
++		.value	= match->key.basic.n_proto,
++		.mask	= match->mask.basic.n_proto,
++	};
  
- err_free_buf_descs:
-@@ -295,6 +292,9 @@ static void bcm4908_enet_dma_ring_init(struct bcm4908_enet *enet,
- 
- 	enet_write(enet, ring->st_ram_block + ENET_DMA_CH_STATE_RAM_BASE_DESC_PTR,
- 		   (uint32_t)ring->dma_addr);
-+
-+	ring->read_idx = 0;
-+	ring->write_idx = 0;
- }
- 
- static void bcm4908_enet_dma_uninit(struct bcm4908_enet *enet)
+ 	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_VLAN) &&
+ 	    (match->key.vlan.vlan_tpid == htons(ETH_P_8021Q) ||
+@@ -76,7 +71,9 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
+ 		match->dissector.offset[FLOW_DISSECTOR_KEY_CVLAN] =
+ 			offsetof(struct nft_flow_key, cvlan);
+ 		match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_CVLAN);
+-	} else {
++	} else if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_BASIC) &&
++		   (match->key.basic.n_proto == htons(ETH_P_8021Q) ||
++		    match->key.basic.n_proto == htons(ETH_P_8021AD))) {
+ 		match->key.basic.n_proto = match->key.vlan.vlan_tpid;
+ 		match->mask.basic.n_proto = match->mask.vlan.vlan_tpid;
+ 		match->key.vlan.vlan_tpid = ethertype.value;
 -- 
 2.30.2
 
