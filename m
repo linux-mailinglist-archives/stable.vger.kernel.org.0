@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB22B3C47CA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 131123C47C5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235806AbhGLGfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55500 "EHLO mail.kernel.org"
+        id S235809AbhGLGfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236598AbhGLGcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:32:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E203610D1;
-        Mon, 12 Jul 2021 06:29:35 +0000 (UTC)
+        id S236998AbhGLGc0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:32:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96B2E60551;
+        Mon, 12 Jul 2021 06:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071375;
-        bh=s0hSDXPGZNPiMQhMeECJGareszJcyKYanf7R9VEQUoI=;
+        s=korg; t=1626071378;
+        bh=wmqnq9Vp+80gBd6WB5AOLCgk5SyK0FIL3EKx9C//Qxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4uBCulZhcBdSeBHPNIB9P89tV00ipAcPnYvPq59Daju59cVKn3zFnGE0Glb6Atn+
-         wECpUJoTifjkPGQBYnjLVzam0HBFeq8rCndlmvPbi/G+7NVC1Qty6ksKIrGNsvALur
-         SVkb1hNmhe3vL7XR8GsM4Gz355kp5h2Wk8ltrkBQ=
+        b=JdaZMs6xDGqQNno0ij0W4Jt1TlZyZyJJ4w943TZsBN18F7HobhWPlQFtRvBGGbq6B
+         xclqTZ0LiRIKSI2ka5yQzNyXEe4CUG/ElbCS8mUMSNW9EvG5GZsyeVRbG6LQy/mcOy
+         v2xg/axOFRztQAV4qbbfHZRJ4sDDRxRzvJlT6sL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        syzbot+2dcfeaf8cb49b05e8f1a@syzkaller.appspotmail.com,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
+        stable@vger.kernel.org, stable@kernel.org, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 043/593] ext4: fix kernel infoleak via ext4_extent_header
-Date:   Mon, 12 Jul 2021 08:03:23 +0200
-Message-Id: <20210712060847.901755689@linuxfoundation.org>
+Subject: [PATCH 5.10 044/593] ext4: fix overflow in ext4_iomap_alloc()
+Date:   Mon, 12 Jul 2021 08:03:24 +0200
+Message-Id: <20210712060847.998655270@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,51 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Jan Kara <jack@suse.cz>
 
-commit ce3aba43599f0b50adbebff133df8d08a3d5fffe upstream.
+commit d0b040f5f2557b2f507c01e88ad8cff424fdc6a9 upstream.
 
-Initialize eh_generation of struct ext4_extent_header to prevent leaking
-info to userspace. Fixes KMSAN kernel-infoleak bug reported by syzbot at:
-http://syzkaller.appspot.com/bug?id=78e9ad0e6952a3ca16e8234724b2fa92d041b9b8
+A code in iomap alloc may overflow block number when converting it to
+byte offset. Luckily this is mostly harmless as we will just use more
+expensive method of writing using unwritten extents even though we are
+writing beyond i_size.
 
 Cc: stable@kernel.org
-Reported-by: syzbot+2dcfeaf8cb49b05e8f1a@syzkaller.appspotmail.com
-Fixes: a86c61812637 ("[PATCH] ext3: add extent map support")
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20210506185655.7118-1-mail@anirudhrb.com
+Fixes: 378f32bab371 ("ext4: introduce direct I/O write using iomap infrastructure")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210412102333.2676-4-jack@suse.cz
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/extents.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -825,6 +825,7 @@ void ext4_ext_tree_init(handle_t *handle
- 	eh->eh_entries = 0;
- 	eh->eh_magic = EXT4_EXT_MAGIC;
- 	eh->eh_max = cpu_to_le16(ext4_ext_space_root(inode, 0));
-+	eh->eh_generation = 0;
- 	ext4_mark_inode_dirty(handle, inode);
- }
- 
-@@ -1090,6 +1091,7 @@ static int ext4_ext_split(handle_t *hand
- 	neh->eh_max = cpu_to_le16(ext4_ext_space_block(inode, 0));
- 	neh->eh_magic = EXT4_EXT_MAGIC;
- 	neh->eh_depth = 0;
-+	neh->eh_generation = 0;
- 
- 	/* move remainder of path[depth] to the new leaf */
- 	if (unlikely(path[depth].p_hdr->eh_entries !=
-@@ -1167,6 +1169,7 @@ static int ext4_ext_split(handle_t *hand
- 		neh->eh_magic = EXT4_EXT_MAGIC;
- 		neh->eh_max = cpu_to_le16(ext4_ext_space_block_idx(inode, 0));
- 		neh->eh_depth = cpu_to_le16(depth - i);
-+		neh->eh_generation = 0;
- 		fidx = EXT_FIRST_INDEX(neh);
- 		fidx->ei_block = border;
- 		ext4_idx_store_pblock(fidx, oldblock);
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -3419,7 +3419,7 @@ retry:
+ 	 * i_disksize out to i_size. This could be beyond where direct I/O is
+ 	 * happening and thus expose allocated blocks to direct I/O reads.
+ 	 */
+-	else if ((map->m_lblk * (1 << blkbits)) >= i_size_read(inode))
++	else if (((loff_t)map->m_lblk << blkbits) >= i_size_read(inode))
+ 		m_flags = EXT4_GET_BLOCKS_CREATE;
+ 	else if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
+ 		m_flags = EXT4_GET_BLOCKS_IO_CREATE_EXT;
 
 
