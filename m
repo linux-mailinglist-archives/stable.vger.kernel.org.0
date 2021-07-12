@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95ACC3C4B29
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66B33C50E1
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240115AbhGLGzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:55:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56198 "EHLO mail.kernel.org"
+        id S237223AbhGLHfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:35:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238523AbhGLGzS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:55:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2593A6102A;
-        Mon, 12 Jul 2021 06:52:28 +0000 (UTC)
+        id S241000AbhGLHcq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:32:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96D5760FF3;
+        Mon, 12 Jul 2021 07:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072749;
-        bh=Si0aqkRlcpt/5vIXevP3KMlH3OOfkInen91brP6T8Ik=;
+        s=korg; t=1626074978;
+        bh=/rBBF4qMlCt4NrqwlKdNtuol+V1/VqI44xAxJt0pufk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tqx3DMwAE8QagvVCqhwgLjQlbtGPVGTWdKf90jm3fYQbqHTYR9/HiQ4catNtfi+ul
-         HRhusJvLqhmLh+UWiYnFjZYTbUdwm917F6GITTXtASp7ta6qiyhFgrm4OwjiBOIE6V
-         OPKkH3U/KS162uD3Qo5J4FT3OH0/nmGBL1/o7C3A=
+        b=liPEssjt5mvq2/lzouX85dmGlK11rp0sMi2drsfd6kNXt+OI6vTcsXfIvMhZ9ibKt
+         f5Lh6MShEO1fwn7zyU7HqbjOlFVs1gke21hYfKuaHVrDPAJCZzl2G/xbOf9YNlYll6
+         yWnIEMXm1tbQoMn7eXujBRlYHFFjSpLIgEI9C1gQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rocky Liao <rjliao@codeaurora.org>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.12 001/700] Bluetooth: hci_qca: fix potential GPF
-Date:   Mon, 12 Jul 2021 08:01:24 +0200
-Message-Id: <20210712060925.004978662@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.13 062/800] can: isotp: isotp_release(): omit unintended hrtimer restart on socket release
+Date:   Mon, 12 Jul 2021 08:01:25 +0200
+Message-Id: <20210712060922.070459204@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,53 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 59f90f1351282ea2dbd0c59098fd9bb2634e920e upstream.
+commit 14a4696bc3118ba49da28f79280e1d55603aa737 upstream.
 
-In qca_power_shutdown() qcadev local variable is
-initialized by hu->serdev.dev private data, but
-hu->serdev can be NULL and there is a check for it.
+When closing the isotp socket, the potentially running hrtimers are
+canceled before removing the subscription for CAN identifiers via
+can_rx_unregister().
 
-Since, qcadev is not used before
+This may lead to an unintended (re)start of a hrtimer in
+isotp_rcv_cf() and isotp_rcv_fc() in the case that a CAN frame is
+received by isotp_rcv() while the subscription removal is processed.
 
-	if (!hu->serdev)
-		return;
+However, isotp_rcv() is called under RCU protection, so after calling
+can_rx_unregister, we may call synchronize_rcu in order to wait for
+any RCU read-side critical sections to finish. This prevents the
+reception of CAN frames after hrtimer_cancel() and therefore the
+unintended (re)start of the hrtimers.
 
-we can move its initialization after this "if" to
-prevent GPF.
-
-Fixes: 5559904ccc08 ("Bluetooth: hci_qca: Add QCA Rome power off support to the qca_power_shutdown()")
-Cc: stable@vger.kernel.org # v5.6+
-Cc: Rocky Liao <rjliao@codeaurora.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Link: https://lore.kernel.org/r/20210618173713.2296-1-socketcan@hartkopp.net
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bluetooth/hci_qca.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/can/isotp.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -1820,8 +1820,6 @@ static void qca_power_shutdown(struct hc
- 	unsigned long flags;
- 	enum qca_btsoc_type soc_type = qca_soc_type(hu);
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1028,9 +1028,6 @@ static int isotp_release(struct socket *
  
--	qcadev = serdev_device_get_drvdata(hu->serdev);
+ 	lock_sock(sk);
+ 
+-	hrtimer_cancel(&so->txtimer);
+-	hrtimer_cancel(&so->rxtimer);
 -
- 	/* From this point we go into power off state. But serial port is
- 	 * still open, stop queueing the IBS data and flush all the buffered
- 	 * data in skb's.
-@@ -1837,6 +1835,8 @@ static void qca_power_shutdown(struct hc
- 	if (!hu->serdev)
- 		return;
+ 	/* remove current filters & unregister */
+ 	if (so->bound && (!(so->opt.flags & CAN_ISOTP_SF_BROADCAST))) {
+ 		if (so->ifindex) {
+@@ -1042,10 +1039,14 @@ static int isotp_release(struct socket *
+ 						  SINGLE_MASK(so->rxid),
+ 						  isotp_rcv, sk);
+ 				dev_put(dev);
++				synchronize_rcu();
+ 			}
+ 		}
+ 	}
  
-+	qcadev = serdev_device_get_drvdata(hu->serdev);
++	hrtimer_cancel(&so->txtimer);
++	hrtimer_cancel(&so->rxtimer);
 +
- 	if (qca_is_wcn399x(soc_type)) {
- 		host_set_baudrate(hu, 2400);
- 		qca_send_power_pulse(hu, false);
+ 	so->ifindex = 0;
+ 	so->bound = 0;
+ 
 
 
