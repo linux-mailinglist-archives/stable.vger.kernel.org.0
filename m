@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1492C3C4810
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE803C480F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235949AbhGLGfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55054 "EHLO mail.kernel.org"
+        id S237101AbhGLGfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237036AbhGLGdn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:33:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61AE66113C;
-        Mon, 12 Jul 2021 06:30:03 +0000 (UTC)
+        id S231904AbhGLGdq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:33:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7AB261132;
+        Mon, 12 Jul 2021 06:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071403;
-        bh=isnSSOi9t/7E3k0sfD83D9sSb2OIubB7DPFcAezP1fU=;
+        s=korg; t=1626071406;
+        bh=z5VRbbWNybw2ttXzklqy2Sxj+2945EHm6KYK4IhX+Fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJ5FHjOnYTcvDdcCEcrFSJTL0m0vClR+OyaghBM+RrJ11xEPE6SPUfFbG9hWUYvSR
-         bfH82c79WS4i+oGqn3xaCPQgEowAV4V88SPraVF21Z42x3n7HXBUVVEmaYQy2QrtDP
-         IV1n8w6GdrPo1Gk+Z0sNJSmVy2AWmGiTyoLdnl3Q=
+        b=Hzj40Oni0MOsogwddqfinCxBrsqZLkv/GWivPG2SGBaojUgyvJCi/yHfAhK1QGGDi
+         ra/mE/JRdow+A+IeOvOUQFjQH5IGpBhe26SGDljrAYUTDxKPrNEf328Dy0HFC/fKSH
+         uESDcPgNdremRx6ddxG4NHO8pQjSpf9whOqOLeZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 054/593] can: peak_pciefd: pucan_handle_status(): fix a potential starvation issue in TX path
-Date:   Mon, 12 Jul 2021 08:03:34 +0200
-Message-Id: <20210712060849.059650419@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 055/593] mac80211: remove iwlwifi specific workaround that broke sta NDP tx
+Date:   Mon, 12 Jul 2021 08:03:35 +0200
+Message-Id: <20210712060849.158307734@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,41 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit b17233d385d0b6b43ecf81d43008cb1bbb008166 upstream.
+commit e41eb3e408de27982a5f8f50b2dd8002bed96908 upstream.
 
-Rather than just indicating that transmission can start, this patch
-requires the explicit flushing of the network TX queue when the driver
-is informed by the device that it can transmit, next to its
-configuration.
+Sending nulldata packets is important for sw AP link probing and detecting
+4-address mode links. The checks that dropped these packets were apparently
+added to work around an iwlwifi firmware bug with multi-TID aggregation.
 
-In this way, if frames have already been written by the application,
-they will actually be transmitted.
-
-Fixes: ffd137f7043c ("can: peak/pcie_fd: remove useless code when interface starts")
-Link: https://lore.kernel.org/r/20210623142600.149904-1-s.grosjean@peak-system.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
+Cc: stable@vger.kernel.org
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20210619101517.90806-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/peak_canfd/peak_canfd.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/tx.c |    3 +++
+ net/mac80211/mlme.c                         |    9 ---------
+ 2 files changed, 3 insertions(+), 9 deletions(-)
 
---- a/drivers/net/can/peak_canfd/peak_canfd.c
-+++ b/drivers/net/can/peak_canfd/peak_canfd.c
-@@ -351,8 +351,8 @@ static int pucan_handle_status(struct pe
- 				return err;
- 		}
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+@@ -1085,6 +1085,9 @@ static int iwl_mvm_tx_mpdu(struct iwl_mv
+ 	if (WARN_ON_ONCE(mvmsta->sta_id == IWL_MVM_INVALID_STA))
+ 		return -1;
  
--		/* start network queue (echo_skb array is empty) */
--		netif_start_queue(ndev);
-+		/* wake network queue up (echo_skb array is empty) */
-+		netif_wake_queue(ndev);
++	if (unlikely(ieee80211_is_any_nullfunc(fc)) && sta->he_cap.has_he)
++		return -1;
++
+ 	if (unlikely(ieee80211_is_probe_resp(fc)))
+ 		iwl_mvm_probe_resp_set_noa(mvm, skb);
  
- 		return 0;
- 	}
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -1094,11 +1094,6 @@ void ieee80211_send_nullfunc(struct ieee
+ 	struct ieee80211_hdr_3addr *nullfunc;
+ 	struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
+ 
+-	/* Don't send NDPs when STA is connected HE */
+-	if (sdata->vif.type == NL80211_IFTYPE_STATION &&
+-	    !(ifmgd->flags & IEEE80211_STA_DISABLE_HE))
+-		return;
+-
+ 	skb = ieee80211_nullfunc_get(&local->hw, &sdata->vif,
+ 		!ieee80211_hw_check(&local->hw, DOESNT_SUPPORT_QOS_NDP));
+ 	if (!skb)
+@@ -1130,10 +1125,6 @@ static void ieee80211_send_4addr_nullfun
+ 	if (WARN_ON(sdata->vif.type != NL80211_IFTYPE_STATION))
+ 		return;
+ 
+-	/* Don't send NDPs when connected HE */
+-	if (!(sdata->u.mgd.flags & IEEE80211_STA_DISABLE_HE))
+-		return;
+-
+ 	skb = dev_alloc_skb(local->hw.extra_tx_headroom + 30);
+ 	if (!skb)
+ 		return;
 
 
