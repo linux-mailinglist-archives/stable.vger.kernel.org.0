@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 878983C55B5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAD953C55BF
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242451AbhGLILo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:11:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55672 "EHLO mail.kernel.org"
+        id S1344546AbhGLILv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:11:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353887AbhGLIDG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82C4961D14;
-        Mon, 12 Jul 2021 07:58:27 +0000 (UTC)
+        id S1353905AbhGLIDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1EFF619C6;
+        Mon, 12 Jul 2021 07:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076708;
-        bh=h+uCLY5WebMdysL7D+A/LBInEOS1C7l8yD+elfE7Fug=;
+        s=korg; t=1626076710;
+        bh=dMg6KAf+oT4T/aAm9bAjPnt6VcNj+RntmRJ1eJwzwLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1nWubm3PDA5kUafRVajrYeKv9H2Ql4Ick9GKrrjYbf2ykpuajuQkbQLmiUhpP4Ss
-         ZjUPh5XBUYq8MGULO/tAzfLjy8Q5uiP2ntb5TzxAdTWud6ObHzPmq2xPGFyI/UPXxI
-         6S0QRREMW0lpHFYxhmiGigKr+OBhYiQtrW3EJkLk=
+        b=LLXj36bqFEXM4R/+Zp3UcrlhQMwJmoaIOSRjNEaWlBWb3HqsuJb8NNonB8oKATGf/
+         RQZZG4D6bOv2B+s9eJrQF+zXTBAdhodQhuH2tyKjGlXx+pFs5EzVQ11bJxK8kcVD8e
+         56Ex3YcrvW0Pi+wH43QhRnbsRt9xM+zeB3oLgrnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 760/800] arm64: dts: marvell: armada-37xx: Fix reg for standard variant of UART
-Date:   Mon, 12 Jul 2021 08:13:03 +0200
-Message-Id: <20210712061047.652650037@linuxfoundation.org>
+Subject: [PATCH 5.13 761/800] powerpc/64s: fix hash page fault interrupt handler
+Date:   Mon, 12 Jul 2021 08:13:04 +0200
+Message-Id: <20210712061047.766762337@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -40,35 +41,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 2cbfdedef39fb5994b8f1e1df068eb8440165975 ]
+[ Upstream commit 5567b1ee29b7a83e8c01d99d34b5bbd306ce0bcf ]
 
-UART1 (standard variant with DT node name 'uart0') has register space
-0x12000-0x12018 and not whole size 0x200. So fix also this in example.
+The early bad fault or key fault test in do_hash_fault() ends up calling
+into ___do_page_fault without having gone through an interrupt handler
+wrapper (except the initial _RAW one). This can end up calling local irq
+functions while the interrupt has not been reconciled, which will likely
+cause crashes and it trips up on a later patch that adds more assertions.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: c737abc193d1 ("arm64: dts: marvell: Fix A37xx UART0 register size")
-Link: https://lore.kernel.org/r/20210624224909.6350-6-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+pkey_exec_prot from selftests causes this path to be executed.
+
+There is no real reason to run the in_nmi() test should be performed
+before the key fault check. In fact if a perf interrupt in the hash
+fault code did a stack walk that was made to take a key fault somehow
+then running ___do_page_fault could possibly cause another hash fault
+causing problems. Move the in_nmi() test first, and then do everything
+else inside the regular interrupt handler function.
+
+Fixes: 3a96570ffceb ("powerpc: convert interrupt handlers to use wrappers")
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210630074621.2109197-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/mm/book3s64/hash_utils.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-index 456dcd4a7793..6ffbb099fcac 100644
---- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-+++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-@@ -134,7 +134,7 @@
+diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
+index 96d9aa164007..ac5720371c0d 100644
+--- a/arch/powerpc/mm/book3s64/hash_utils.c
++++ b/arch/powerpc/mm/book3s64/hash_utils.c
+@@ -1522,8 +1522,8 @@ int hash_page(unsigned long ea, unsigned long access, unsigned long trap,
+ }
+ EXPORT_SYMBOL_GPL(hash_page);
  
- 			uart0: serial@12000 {
- 				compatible = "marvell,armada-3700-uart";
--				reg = <0x12000 0x200>;
-+				reg = <0x12000 0x18>;
- 				clocks = <&xtalclk>;
- 				interrupts =
- 				<GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
+-DECLARE_INTERRUPT_HANDLER_RET(__do_hash_fault);
+-DEFINE_INTERRUPT_HANDLER_RET(__do_hash_fault)
++DECLARE_INTERRUPT_HANDLER(__do_hash_fault);
++DEFINE_INTERRUPT_HANDLER(__do_hash_fault)
+ {
+ 	unsigned long ea = regs->dar;
+ 	unsigned long dsisr = regs->dsisr;
+@@ -1533,6 +1533,11 @@ DEFINE_INTERRUPT_HANDLER_RET(__do_hash_fault)
+ 	unsigned int region_id;
+ 	long err;
+ 
++	if (unlikely(dsisr & (DSISR_BAD_FAULT_64S | DSISR_KEYFAULT))) {
++		hash__do_page_fault(regs);
++		return;
++	}
++
+ 	region_id = get_region_id(ea);
+ 	if ((region_id == VMALLOC_REGION_ID) || (region_id == IO_REGION_ID))
+ 		mm = &init_mm;
+@@ -1571,9 +1576,10 @@ DEFINE_INTERRUPT_HANDLER_RET(__do_hash_fault)
+ 			bad_page_fault(regs, SIGBUS);
+ 		}
+ 		err = 0;
+-	}
+ 
+-	return err;
++	} else if (err) {
++		hash__do_page_fault(regs);
++	}
+ }
+ 
+ /*
+@@ -1582,13 +1588,6 @@ DEFINE_INTERRUPT_HANDLER_RET(__do_hash_fault)
+  */
+ DEFINE_INTERRUPT_HANDLER_RAW(do_hash_fault)
+ {
+-	unsigned long dsisr = regs->dsisr;
+-
+-	if (unlikely(dsisr & (DSISR_BAD_FAULT_64S | DSISR_KEYFAULT))) {
+-		hash__do_page_fault(regs);
+-		return 0;
+-	}
+-
+ 	/*
+ 	 * If we are in an "NMI" (e.g., an interrupt when soft-disabled), then
+ 	 * don't call hash_page, just fail the fault. This is required to
+@@ -1607,8 +1606,7 @@ DEFINE_INTERRUPT_HANDLER_RAW(do_hash_fault)
+ 		return 0;
+ 	}
+ 
+-	if (__do_hash_fault(regs))
+-		hash__do_page_fault(regs);
++	__do_hash_fault(regs);
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
