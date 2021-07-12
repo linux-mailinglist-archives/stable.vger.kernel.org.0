@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F19C3C4A0F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47A523C4EC9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238189AbhGLGsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:48:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41508 "EHLO mail.kernel.org"
+        id S1344939AbhGLHVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:21:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234748AbhGLGre (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:47:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92E0461175;
-        Mon, 12 Jul 2021 06:43:13 +0000 (UTC)
+        id S244298AbhGLHSN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:18:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95BA3613C7;
+        Mon, 12 Jul 2021 07:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072194;
-        bh=vagD6VlWnbi9AAq3p0iwpkxFwoEuXgOZiXFHErDLWPk=;
+        s=korg; t=1626074125;
+        bh=U8qX7rLZG5FeDrJEnL+vbRTenG7k4myYULFhxlSmmtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2V+TwUizIGTCqwYSZvri3jsXg1MazhaI8rnDe3xMq2OkHw4gQc0bHWa80NqVP69V6
-         6NX/w44y64jdBctxJXKo+H0klHtEBEIJxHJcoXKLhl2HYsG5p510TD6YgHFFedAQ19
-         SP4udPI2XtkEHoFMXztUeeqi0E0cBy82JNrn2ngQ=
+        b=SWhwrgJZdQP7JsIeE/YyIAKXk3HfEl1hRCRmlXl1vLGYCoDqtGqNWf8Jgf1IzmiUY
+         K0585R7phJPRKa2j84NTu9ChYKzZxmTcvHjbBHbYExQGAkzIVll28rvNlgvuHpz+ro
+         WG9GoBj9Dzdiapx9kaOFhYvmN6dN9uDUrehLXhi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Dongseok Yi <dseok.yi@samsung.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 395/593] bpf: Do not change gso_size during bpf_skb_change_proto()
+Subject: [PATCH 5.12 472/700] drm/msm/dpu: Fix error return code in dpu_mdss_init()
 Date:   Mon, 12 Jul 2021 08:09:15 +0200
-Message-Id: <20210712060930.893941357@linuxfoundation.org>
+Message-Id: <20210712061026.804661130@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,140 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 364745fbe981a4370f50274475da4675661104df ]
+[ Upstream commit e020ac961ce5d038de66dc7f6ffca98899e9a3f3 ]
 
-This is technically a backwards incompatible change in behaviour, but I'm
-going to argue that it is very unlikely to break things, and likely to fix
-*far* more then it breaks.
+The error code returned by platform_get_irq() is stored in 'irq', it's
+forgotten to be copied to 'ret' before being returned. As a result, the
+value 0 of 'ret' is returned incorrectly.
 
-In no particular order, various reasons follow:
+After the above fix is completed, initializing the local variable 'ret'
+to 0 is no longer needed, remove it.
 
-(a) I've long had a bug assigned to myself to debug a super rare kernel crash
-on Android Pixel phones which can (per stacktrace) be traced back to BPF clat
-IPv6 to IPv4 protocol conversion causing some sort of ugly failure much later
-on during transmit deep in the GSO engine, AFAICT precisely because of this
-change to gso_size, though I've never been able to manually reproduce it. I
-believe it may be related to the particular network offload support of attached
-USB ethernet dongle being used for tethering off of an IPv6-only cellular
-connection. The reason might be we end up with more segments than max permitted,
-or with a GSO packet with only one segment... (either way we break some
-assumption and hit a BUG_ON)
+In addition, when dpu_mdss_init() is successfully returned, the value of
+'ret' is always 0. Therefore, replace "return ret" with "return 0" to make
+the code clearer.
 
-(b) There is no check that the gso_size is > 20 when reducing it by 20, so we
-might end up with a negative (or underflowing) gso_size or a gso_size of 0.
-This can't possibly be good. Indeed this is probably somehow exploitable (or
-at least can result in a kernel crash) by delivering crafted packets and perhaps
-triggering an infinite loop or a divide by zero... As a reminder: gso_size (MSS)
-is related to MTU, but not directly derived from it: gso_size/MSS may be
-significantly smaller then one would get by deriving from local MTU. And on
-some NICs (which do loose MTU checking on receive, it may even potentially be
-larger, for example my work pc with 1500 MTU can receive 1520 byte frames [and
-sometimes does due to bugs in a vendor plat46 implementation]). Indeed even just
-going from 21 to 1 is potentially problematic because it increases the number
-of segments by a factor of 21 (think DoS, or some other crash due to too many
-segments).
-
-(c) It's always safe to not increase the gso_size, because it doesn't result in
-the max packet size increasing.  So the skb_increase_gso_size() call was always
-unnecessary for correctness (and outright undesirable, see later). As such the
-only part which is potentially dangerous (ie. could cause backwards compatibility
-issues) is the removal of the skb_decrease_gso_size() call.
-
-(d) If the packets are ultimately destined to the local device, then there is
-absolutely no benefit to playing around with gso_size. It only matters if the
-packets will egress the device. ie. we're either forwarding, or transmitting
-from the device.
-
-(e) This logic only triggers for packets which are GSO. It does not trigger for
-skbs which are not GSO. It will not convert a non-GSO MTU sized packet into a
-GSO packet (and you don't even know what the MTU is, so you can't even fix it).
-As such your transmit path must *already* be able to handle an MTU 20 bytes
-larger then your receive path (for IPv4 to IPv6 translation) - and indeed 28
-bytes larger due to IPv4 fragments. Thus removing the skb_decrease_gso_size()
-call doesn't actually increase the size of the packets your transmit side must
-be able to handle. ie. to handle non-GSO max-MTU packets, the IPv4/IPv6 device/
-route MTUs must already be set correctly. Since for example with an IPv4 egress
-MTU of 1500, IPv4 to IPv6 translation will already build 1520 byte IPv6 frames,
-so you need a 1520 byte device MTU. This means if your IPv6 device's egress
-MTU is 1280, your IPv4 route must be 1260 (and actually 1252, because of the
-need to handle fragments). This is to handle normal non-GSO packets. Thus the
-reduction is simply not needed for GSO packets, because when they're correctly
-built, they will already be the right size.
-
-(f) TSO/GSO should be able to exactly undo GRO: the number of packets (TCP
-segments) should not be modified, so that TCP's MSS counting works correctly
-(this matters for congestion control). If protocol conversion changes the
-gso_size, then the number of TCP segments may increase or decrease. Packet loss
-after protocol conversion can result in partial loss of MSS segments that the
-sender sent. How's the sending TCP stack going to react to receiving ACKs/SACKs
-in the middle of the segments it sent?
-
-(g) skb_{decrease,increase}_gso_size() are already no-ops for GSO_BY_FRAGS
-case (besides triggering WARN_ON_ONCE). This means you already cannot guarantee
-that gso_size (and thus resulting packet MTU) is changed. ie. you must assume
-it won't be changed.
-
-(h) changing gso_size is outright buggy for UDP GSO packets, where framing
-matters (I believe that's also the case for SCTP, but it's already excluded
-by [g]).  So the only remaining case is TCP, which also doesn't want it
-(see [f]).
-
-(i) see also the reasoning on the previous attempt at fixing this
-(commit fa7b83bf3b156c767f3e4a25bbf3817b08f3ff8e) which shows that the current
-behaviour causes TCP packet loss:
-
-  In the forwarding path GRO -> BPF 6 to 4 -> GSO for TCP traffic, the
-  coalesced packet payload can be > MSS, but < MSS + 20.
-
-  bpf_skb_proto_6_to_4() will upgrade the MSS and it can be > the payload
-  length. After then tcp_gso_segment checks for the payload length if it
-  is <= MSS. The condition is causing the packet to be dropped.
-
-  tcp_gso_segment():
-    [...]
-    mss = skb_shinfo(skb)->gso_size;
-    if (unlikely(skb->len <= mss)) goto out;
-    [...]
-
-Thus changing the gso_size is simply a very bad idea. Increasing is unnecessary
-and buggy, and decreasing can go negative.
-
-Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Dongseok Yi <dseok.yi@samsung.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/bpf/CANP3RGfjLikQ6dg=YpBU0OeHvyv7JOki7CyOUS9modaXAi-9vQ@mail.gmail.com
-Link: https://lore.kernel.org/bpf/20210617000953.2787453-2-zenczykowski@gmail.com
+Fixes: 070e64dc1bbc ("drm/msm/dpu: Convert to a chained irq chip")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210510063805.3262-2-thunder.leizhen@huawei.com
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_mdss.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index ef6bdbb63ecb..7ea752af7894 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -3266,8 +3266,6 @@ static int bpf_skb_proto_4_to_6(struct sk_buff *skb)
- 			shinfo->gso_type |=  SKB_GSO_TCPV6;
- 		}
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_mdss.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_mdss.c
+index 3416e9617ee9..96f3908e4c5b 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_mdss.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_mdss.c
+@@ -222,7 +222,7 @@ int dpu_mdss_init(struct drm_device *dev)
+ 	struct msm_drm_private *priv = dev->dev_private;
+ 	struct dpu_mdss *dpu_mdss;
+ 	struct dss_module_power *mp;
+-	int ret = 0;
++	int ret;
+ 	int irq;
  
--		/* Due to IPv6 header, MSS needs to be downgraded. */
--		skb_decrease_gso_size(shinfo, len_diff);
- 		/* Header must be checked, and gso_segs recomputed. */
- 		shinfo->gso_type |= SKB_GSO_DODGY;
- 		shinfo->gso_segs = 0;
-@@ -3307,8 +3305,6 @@ static int bpf_skb_proto_6_to_4(struct sk_buff *skb)
- 			shinfo->gso_type |=  SKB_GSO_TCPV4;
- 		}
+ 	dpu_mdss = devm_kzalloc(dev->dev, sizeof(*dpu_mdss), GFP_KERNEL);
+@@ -250,8 +250,10 @@ int dpu_mdss_init(struct drm_device *dev)
+ 		goto irq_domain_error;
  
--		/* Due to IPv4 header, MSS can be upgraded. */
--		skb_increase_gso_size(shinfo, len_diff);
- 		/* Header must be checked, and gso_segs recomputed. */
- 		shinfo->gso_type |= SKB_GSO_DODGY;
- 		shinfo->gso_segs = 0;
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
++	if (irq < 0) {
++		ret = irq;
+ 		goto irq_error;
++	}
+ 
+ 	irq_set_chained_handler_and_data(irq, dpu_mdss_irq,
+ 					 dpu_mdss);
+@@ -260,7 +262,7 @@ int dpu_mdss_init(struct drm_device *dev)
+ 
+ 	pm_runtime_enable(dev->dev);
+ 
+-	return ret;
++	return 0;
+ 
+ irq_error:
+ 	_dpu_mdss_irq_domain_fini(dpu_mdss);
 -- 
 2.30.2
 
