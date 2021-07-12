@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 396603C479B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ECDD3C4799
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235377AbhGLGdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
+        id S236970AbhGLGdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:33:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235509AbhGLG2m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:28:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D4B261151;
-        Mon, 12 Jul 2021 06:24:57 +0000 (UTC)
+        id S235367AbhGLG2n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:28:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82103601FC;
+        Mon, 12 Jul 2021 06:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071097;
-        bh=I6uD/zlwTea7JWHWedfC3b4Q9Pi/wr274i0zLaQlVwk=;
+        s=korg; t=1626071100;
+        bh=SnMFXj708obsDsyCdyO7TOw96NPoKd3zUkDoQrGOARo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G2FZeZd3lov3uSSltouxJIraW+AjmAnQr7nPWaOOQdQiumTEK7Ez7WWxfJ19qdLKz
-         1aVmDD11T4kwtidoR6HFKKjkWxfCRbiDYWqI6/l3TDHfCd/ugTLRw14OXQqSl8KgoE
-         +LSsstVRcnQEXXkDmPLKe6TUx5pD+vHxAiRd/MSs=
+        b=d3LyN821PAve2jddl8HhbQxMyhaGQ+nWZBQ2ZxBA8p+S6cj7/kI71rLwodCaECnSZ
+         n/h5HWYvqw3jTp9Z2GEBd2Uy92K3/VND9H6NFHHeoeAAKBoKQLCJIAQslbu2daKwbl
+         PV9JZgn/Gb/WR9hUp2nXByt4RoQ3muBr6Bh/dmcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Matt Ranostay <matt.ranostay@konsulko.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 273/348] iio: prox: pulsed-light: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 12 Jul 2021 08:10:57 +0200
-Message-Id: <20210712060739.926393435@linuxfoundation.org>
+Subject: [PATCH 5.4 274/348] iio: prox: as3935: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 12 Jul 2021 08:10:58 +0200
+Message-Id: <20210712060740.069337802@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 679cc377a03ff1944491eafc7355c1eb1fad4109 ]
+[ Upstream commit 37eb8d8c64f2ecb3a5521ba1cc1fad973adfae41 ]
 
 To make code more readable, use a structure to express the channel
 layout and ensure the timestamp is 8 byte aligned.
@@ -52,46 +52,45 @@ layout and ensure the timestamp is 8 byte aligned.
 Found during an audit of all calls of uses of
 iio_push_to_buffers_with_timestamp()
 
-Fixes: cb119d535083 ("iio: proximity: add support for PulsedLight LIDAR")
+Fixes: 37b1ba2c68cf ("iio: proximity: as3935: fix buffer stack trashing")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Cc: Matt Ranostay <matt.ranostay@konsulko.com>
 Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-14-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210501170121.512209-15-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/proximity/pulsedlight-lidar-lite-v2.c | 10 +++++++---
+ drivers/iio/proximity/as3935.c | 10 +++++++---
  1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c b/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c
-index 67f85268b63d..0c7617022407 100644
---- a/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c
-+++ b/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c
-@@ -43,7 +43,11 @@ struct lidar_data {
- 	int (*xfer)(struct lidar_data *data, u8 reg, u8 *val, int len);
- 	int i2c_enabled;
- 
--	u16 buffer[8]; /* 2 byte distance + 8 byte timestamp */
+diff --git a/drivers/iio/proximity/as3935.c b/drivers/iio/proximity/as3935.c
+index b591c63bd6c4..718150a93133 100644
+--- a/drivers/iio/proximity/as3935.c
++++ b/drivers/iio/proximity/as3935.c
+@@ -61,7 +61,11 @@ struct as3935_state {
+ 	unsigned long noise_tripped;
+ 	u32 tune_cap;
+ 	u32 nflwdth_reg;
+-	u8 buffer[16]; /* 8-bit data + 56-bit padding + 64-bit timestamp */
 +	/* Ensure timestamp is naturally aligned */
 +	struct {
-+		u16 chan;
++		u8 chan;
 +		s64 timestamp __aligned(8);
 +	} scan;
+ 	u8 buf[2] ____cacheline_aligned;
  };
  
- static const struct iio_chan_spec lidar_channels[] = {
-@@ -228,9 +232,9 @@ static irqreturn_t lidar_trigger_handler(int irq, void *private)
- 	struct lidar_data *data = iio_priv(indio_dev);
- 	int ret;
+@@ -227,8 +231,8 @@ static irqreturn_t as3935_trigger_handler(int irq, void *private)
+ 	if (ret)
+ 		goto err_read;
  
--	ret = lidar_get_measurement(data, data->buffer);
-+	ret = lidar_get_measurement(data, &data->scan.chan);
- 	if (!ret) {
--		iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+		iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 						   iio_get_time_ns(indio_dev));
- 	} else if (ret != -EINVAL) {
- 		dev_err(&data->client->dev, "cannot read LIDAR measurement");
+-	st->buffer[0] = val & AS3935_DATA_MASK;
+-	iio_push_to_buffers_with_timestamp(indio_dev, &st->buffer,
++	st->scan.chan = val & AS3935_DATA_MASK;
++	iio_push_to_buffers_with_timestamp(indio_dev, &st->scan,
+ 					   iio_get_time_ns(indio_dev));
+ err_read:
+ 	iio_trigger_notify_done(indio_dev->trig);
 -- 
 2.30.2
 
