@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 932BE3C4B90
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ED4C3C513D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239597AbhGLG6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:58:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59236 "EHLO mail.kernel.org"
+        id S1345661AbhGLHif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239833AbhGLG5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:57:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F40261369;
-        Mon, 12 Jul 2021 06:54:15 +0000 (UTC)
+        id S1347325AbhGLHer (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:34:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42DC861242;
+        Mon, 12 Jul 2021 07:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072856;
-        bh=n9NQNEswot1+OtOvwfwGuh3AXQ6ynqzP0lbpSJpb0eA=;
+        s=korg; t=1626075101;
+        bh=WZZT5w4Bkeo+YwtsfIDG7WBHhky+Y/drB2kLyflO1ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pobSIlmtcFhogGC2CnJaSQBAbCFPuDVRwZXi1+H+WlZgU+uaI7tGu/71qi4BAZVN/
-         Q9jDIZTJ3FZqyMyUKEU7z0ZqtVNuVs9U3GcTrHg1mwwAYuQL8kWpr1erBC8b/RhMpr
-         rPIXEbdp6S7w+lAPlIju8kYhzYaB7goXVI6c1fqk=
+        b=q1zvTdWGfsFWsvZqbotlyZg6wUVPAtDgYKKwUOhTw5oiHnUyhcntTgMk6lqzQi/6w
+         L/hOGO2qQjWLuHGB5PSGpLpYBCipUw/yWI9K+CnEF1mIcV5rRZ8A2mcnNCgHb6txWy
+         qf7lnHewskbhVnq1z88g2zul+CJwW21PEDjowsjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.12 045/700] btrfs: send: fix invalid path for unlink operations after parent orphanization
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.13 105/800] ssb: sdio: Dont overwrite const buffer if block_write fails
 Date:   Mon, 12 Jul 2021 08:02:08 +0200
-Message-Id: <20210712060931.069705035@linuxfoundation.org>
+Message-Id: <20210712060927.817061258@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,172 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Michael Buesch <m@bues.ch>
 
-commit d8ac76cdd1755b21e8c008c28d0b7251c0b14986 upstream.
+commit 47ec636f7a25aa2549e198c48ecb6b1c25d05456 upstream.
 
-During an incremental send operation, when processing the new references
-for the current inode, we might send an unlink operation for another inode
-that has a conflicting path and has more than one hard link. However this
-path was computed and cached before we processed previous new references
-for the current inode. We may have orphanized a directory of that path
-while processing a previous new reference, in which case the path will
-be invalid and cause the receiver process to fail.
+It doesn't make sense to clobber the const driver-side buffer, if a
+write-to-device attempt failed. All other SSB variants (PCI, PCMCIA and SoC)
+also don't corrupt the buffer on any failure in block_write.
+Therefore, remove this memset from the SDIO variant.
 
-The following reproducer triggers the problem and explains how/why it
-happens in its comments:
-
-  $ cat test-send-unlink.sh
-  #!/bin/bash
-
-  DEV=/dev/sdi
-  MNT=/mnt/sdi
-
-  mkfs.btrfs -f $DEV >/dev/null
-  mount $DEV $MNT
-
-  # Create our test files and directory. Inode 259 (file3) has two hard
-  # links.
-  touch $MNT/file1
-  touch $MNT/file2
-  touch $MNT/file3
-
-  mkdir $MNT/A
-  ln $MNT/file3 $MNT/A/hard_link
-
-  # Filesystem looks like:
-  #
-  # .                                     (ino 256)
-  # |----- file1                          (ino 257)
-  # |----- file2                          (ino 258)
-  # |----- file3                          (ino 259)
-  # |----- A/                             (ino 260)
-  #        |---- hard_link                (ino 259)
-  #
-
-  # Now create the base snapshot, which is going to be the parent snapshot
-  # for a later incremental send.
-  btrfs subvolume snapshot -r $MNT $MNT/snap1
-  btrfs send -f /tmp/snap1.send $MNT/snap1
-
-  # Move inode 257 into directory inode 260. This results in computing the
-  # path for inode 260 as "/A" and caching it.
-  mv $MNT/file1 $MNT/A/file1
-
-  # Move inode 258 (file2) into directory inode 260, with a name of
-  # "hard_link", moving first inode 259 away since it currently has that
-  # location and name.
-  mv $MNT/A/hard_link $MNT/tmp
-  mv $MNT/file2 $MNT/A/hard_link
-
-  # Now rename inode 260 to something else (B for example) and then create
-  # a hard link for inode 258 that has the old name and location of inode
-  # 260 ("/A").
-  mv $MNT/A $MNT/B
-  ln $MNT/B/hard_link $MNT/A
-
-  # Filesystem now looks like:
-  #
-  # .                                     (ino 256)
-  # |----- tmp                            (ino 259)
-  # |----- file3                          (ino 259)
-  # |----- B/                             (ino 260)
-  # |      |---- file1                    (ino 257)
-  # |      |---- hard_link                (ino 258)
-  # |
-  # |----- A                              (ino 258)
-
-  # Create another snapshot of our subvolume and use it for an incremental
-  # send.
-  btrfs subvolume snapshot -r $MNT $MNT/snap2
-  btrfs send -f /tmp/snap2.send -p $MNT/snap1 $MNT/snap2
-
-  # Now unmount the filesystem, create a new one, mount it and try to
-  # apply both send streams to recreate both snapshots.
-  umount $DEV
-
-  mkfs.btrfs -f $DEV >/dev/null
-
-  mount $DEV $MNT
-
-  # First add the first snapshot to the new filesystem by applying the
-  # first send stream.
-  btrfs receive -f /tmp/snap1.send $MNT
-
-  # The incremental receive operation below used to fail with the
-  # following error:
-  #
-  #    ERROR: unlink A/hard_link failed: No such file or directory
-  #
-  # This is because when send is processing inode 257, it generates the
-  # path for inode 260 as "/A", since that inode is its parent in the send
-  # snapshot, and caches that path.
-  #
-  # Later when processing inode 258, it first processes its new reference
-  # that has the path of "/A", which results in orphanizing inode 260
-  # because there is a a path collision. This results in issuing a rename
-  # operation from "/A" to "/o260-6-0".
-  #
-  # Finally when processing the new reference "B/hard_link" for inode 258,
-  # it notices that it collides with inode 259 (not yet processed, because
-  # it has a higher inode number), since that inode has the name
-  # "hard_link" under the directory inode 260. It also checks that inode
-  # 259 has two hardlinks, so it decides to issue a unlink operation for
-  # the name "hard_link" for inode 259. However the path passed to the
-  # unlink operation is "/A/hard_link", which is incorrect since currently
-  # "/A" does not exists, due to the orphanization of inode 260 mentioned
-  # before. The path is incorrect because it was computed and cached
-  # before the orphanization. This results in the receiver to fail with
-  # the above error.
-  btrfs receive -f /tmp/snap2.send $MNT
-
-  umount $MNT
-
-When running the test, it fails like this:
-
-  $ ./test-send-unlink.sh
-  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap1'
-  At subvol /mnt/sdi/snap1
-  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap2'
-  At subvol /mnt/sdi/snap2
-  At subvol snap1
-  At snapshot snap2
-  ERROR: unlink A/hard_link failed: No such file or directory
-
-Fix this by recomputing a path before issuing an unlink operation when
-processing the new references for the current inode if we previously
-have orphanized a directory.
-
-A test case for fstests will follow soon.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Michael Büsch <m@bues.ch>
+Cc: stable@vger.kernel.org
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210515210252.318be2ba@wiggum
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/send.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/ssb/sdio.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -4064,6 +4064,17 @@ static int process_recorded_refs(struct
- 				if (ret < 0)
- 					goto out;
- 			} else {
-+				/*
-+				 * If we previously orphanized a directory that
-+				 * collided with a new reference that we already
-+				 * processed, recompute the current path because
-+				 * that directory may be part of the path.
-+				 */
-+				if (orphanized_dir) {
-+					ret = refresh_ref_path(sctx, cur);
-+					if (ret < 0)
-+						goto out;
-+				}
- 				ret = send_unlink(sctx, cur->full_path);
- 				if (ret < 0)
- 					goto out;
+--- a/drivers/ssb/sdio.c
++++ b/drivers/ssb/sdio.c
+@@ -411,7 +411,6 @@ static void ssb_sdio_block_write(struct
+ 	sdio_claim_host(bus->host_sdio);
+ 	if (unlikely(ssb_sdio_switch_core(bus, dev))) {
+ 		error = -EIO;
+-		memset((void *)buffer, 0xff, count);
+ 		goto err_out;
+ 	}
+ 	offset |= bus->sdio_sbaddr & 0xffff;
 
 
