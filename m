@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E305F3C4514
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 379813C4515
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232813AbhGLGX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234368AbhGLGX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 02:23:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39904 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234549AbhGLGW2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234551AbhGLGW2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:22:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDA0161159;
-        Mon, 12 Jul 2021 06:19:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F9A2610A6;
+        Mon, 12 Jul 2021 06:19:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070757;
-        bh=cxO9V95kqkRubE+r1N44NYOZAwJe2Fu08WNbnIwdhSo=;
+        s=korg; t=1626070759;
+        bh=lih3W99nVGZKyW4Zkbj1v+KnbsdkmMAQa/vyFDAV83o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gIMJ05A0JDkOjVldCHQckfHH22MJOYTFIhMEsUFlnuYzjpRS89xFP1NpCB+ibH9ry
-         kAjMq/ontgqFUb5vefdhvamqeZ7vYlcU6JsmJ3uSMJbwuf9IUwroSc1ZwbZV0JChdL
-         DfmxEJTz9funzeL+/Zl+fiv+dvhqh5YbeqSlj/IE=
+        b=sfIEyahmW6m3p+e+NdU7lj7On60qNz9RCh5AmjvOPSdayY6qgKD42Evnl2eT45syU
+         JmQF6V0En/tCTAsTwukwtmicgSisTMMCKRmagPH1X/tkVX9hrWDdc22hwlASaf+Gw5
+         4esIswUdrkSIW9dIo+We7RQZluxDNYltbpw+O6FA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 128/348] EDAC/Intel: Do not load EDAC driver when running as a guest
-Date:   Mon, 12 Jul 2021 08:08:32 +0200
-Message-Id: <20210712060718.331362970@linuxfoundation.org>
+        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Mohammad Alqayeem <mohammad.alqyeem@nutanix.com>
+Subject: [PATCH 5.4 129/348] PCI: hv: Add check for hyperv_initialized in init_hv_pci_drv()
+Date:   Mon, 12 Jul 2021 08:08:33 +0200
+Message-Id: <20210712060718.451702902@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -40,85 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luck, Tony <tony.luck@intel.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-[ Upstream commit f0a029fff4a50eb01648810a77ba1873e829fdd4 ]
+[ Upstream commit 7d815f4afa87f2032b650ae1bba7534b550a6b8b ]
 
-There's little to no point in loading an EDAC driver running in a guest:
-1) The CPU model reported by CPUID may not represent actual h/w
-2) The hypervisor likely does not pass in access to memory controller devices
-3) Hypervisors generally do not pass corrected error details to guests
+Add check for hv_is_hyperv_initialized() at the top of
+init_hv_pci_drv(), so if the pci-hyperv driver is force-loaded on non
+Hyper-V platforms, the init_hv_pci_drv() will exit immediately, without
+any side effects, like assignments to hvpci_block_ops, etc.
 
-Add a check in each of the Intel EDAC drivers for X86_FEATURE_HYPERVISOR
-and simply return -ENODEV in the init routine.
-
-Acked-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/20210615174419.GA1087688@agluck-desk2.amr.corp.intel.com
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Reported-and-tested-by: Mohammad Alqayeem <mohammad.alqyeem@nutanix.com>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Link: https://lore.kernel.org/r/1621984653-1210-1-git-send-email-haiyangz@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/i10nm_base.c | 3 +++
- drivers/edac/pnd2_edac.c  | 3 +++
- drivers/edac/sb_edac.c    | 3 +++
- drivers/edac/skx_base.c   | 3 +++
- 4 files changed, 12 insertions(+)
+ drivers/pci/controller/pci-hyperv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/edac/i10nm_base.c b/drivers/edac/i10nm_base.c
-index dfcde7ed9500..f72be5f94e6f 100644
---- a/drivers/edac/i10nm_base.c
-+++ b/drivers/edac/i10nm_base.c
-@@ -249,6 +249,9 @@ static int __init i10nm_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
+diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
+index f1f300218fab..8c45d6c32c30 100644
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -3121,6 +3121,9 @@ static void __exit exit_hv_pci_drv(void)
  
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
+ static int __init init_hv_pci_drv(void)
+ {
++	if (!hv_is_hyperv_initialized())
 +		return -ENODEV;
 +
- 	id = x86_match_cpu(i10nm_cpuids);
- 	if (!id)
- 		return -ENODEV;
-diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
-index dac45e2071b3..e054eb038903 100644
---- a/drivers/edac/pnd2_edac.c
-+++ b/drivers/edac/pnd2_edac.c
-@@ -1555,6 +1555,9 @@ static int __init pnd2_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
+ 	/* Set the invalid domain number's bit, so it will not be used */
+ 	set_bit(HVPCI_DOM_INVALID, hvpci_dom_map);
  
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
-+
- 	id = x86_match_cpu(pnd2_cpuids);
- 	if (!id)
- 		return -ENODEV;
-diff --git a/drivers/edac/sb_edac.c b/drivers/edac/sb_edac.c
-index b557a53c75c4..d39f5bfb8bd9 100644
---- a/drivers/edac/sb_edac.c
-+++ b/drivers/edac/sb_edac.c
-@@ -3512,6 +3512,9 @@ static int __init sbridge_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
-+
- 	id = x86_match_cpu(sbridge_cpuids);
- 	if (!id)
- 		return -ENODEV;
-diff --git a/drivers/edac/skx_base.c b/drivers/edac/skx_base.c
-index 77cd370bd62f..b1d717cb8df9 100644
---- a/drivers/edac/skx_base.c
-+++ b/drivers/edac/skx_base.c
-@@ -605,6 +605,9 @@ static int __init skx_init(void)
- 	if (owner && strncmp(owner, EDAC_MOD_STR, sizeof(EDAC_MOD_STR)))
- 		return -EBUSY;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
-+		return -ENODEV;
-+
- 	id = x86_match_cpu(skx_cpuids);
- 	if (!id)
- 		return -ENODEV;
 -- 
 2.30.2
 
