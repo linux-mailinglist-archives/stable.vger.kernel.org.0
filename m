@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C9CD3C5196
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A32C43C4C15
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244180AbhGLHmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:42:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52186 "EHLO mail.kernel.org"
+        id S241335AbhGLHBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:01:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245479AbhGLHhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:37:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F160861932;
-        Mon, 12 Jul 2021 07:33:00 +0000 (UTC)
+        id S240485AbhGLHBJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:01:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01D366124B;
+        Mon, 12 Jul 2021 06:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075181;
-        bh=Lz+/JlLUf0y6vdpM5zzN5Pg+5vyv1ERRqgWrhzFUI5w=;
+        s=korg; t=1626073101;
+        bh=QUgga7brYU40lC3MbubC2EZH/yb5HkkfDUa9r27aY6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0DHEWYBlgA6AJeuWkytBLNLs30FclmZNFBr5fLaS7cZe1muCWhe5NXyAkcAATzcr
-         fVKF5c1iNRogRSe7XrPI5fRQOox6s3Pdxb0sAsRGkUGAJRptOl5VhGB9Ukbk2Zf0rF
-         kUsVi2SL9uqupHVVpUaBkdnvoDCj+gLmYUm2TVnc=
+        b=wRmEc5rOOkgvFSDIPyM94X7qaG8yK6vyVXK87jMVEk9CcrYVPH4uecmJ6f+BDS9Hi
+         qZW3WhlX7tiSmPhaiJ2lJKD4YTy/U4Utsaj4Cx8Qs8cV7oG0S9AcQvP4RZNoRDt+VC
+         UT2mP5fuAf90xZKU66lWroxIpRutiifJKsS+zZA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 133/800] media: s5p: fix pm_runtime_get_sync() usage count
-Date:   Mon, 12 Jul 2021 08:02:36 +0200
-Message-Id: <20210712060931.730683454@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.12 074/700] KVM: x86: Properly reset MMU context at vCPU RESET/INIT
+Date:   Mon, 12 Jul 2021 08:02:37 +0200
+Message-Id: <20210712060935.157740716@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit fdc34e82c0f968ac4c157bd3d8c299ebc24c9c63 ]
+commit 0aa1837533e5f4be8cc21bbc06314c23ba2c5447 upstream.
 
-The pm_runtime_get_sync() internally increments the
-dev->power.usage_count without decrementing it, even on errors.
-Replace it by the new pm_runtime_resume_and_get(), introduced by:
-commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-in order to properly decrement the usage counter, avoiding
-a potential PM usage counter leak.
+Reset the MMU context at vCPU INIT (and RESET for good measure) if CR0.PG
+was set prior to INIT.  Simply re-initializing the current MMU is not
+sufficient as the current root HPA may not be usable in the new context.
+E.g. if TDP is disabled and INIT arrives while the vCPU is in long mode,
+KVM will fail to switch to the 32-bit pae_root and bomb on the next
+VM-Enter due to running with a 64-bit CR3 in 32-bit mode.
 
-While here, check if the PM runtime error was caught at
-s5p_cec_adap_enable().
+This bug was papered over in both VMX and SVM, but still managed to rear
+its head in the MMU role on VMX.  Because EFER.LMA=1 requires CR0.PG=1,
+kvm_calc_shadow_mmu_root_page_role() checks for EFER.LMA without first
+checking CR0.PG.  VMX's RESET/INIT flow writes CR0 before EFER, and so
+an INIT with the vCPU in 64-bit mode will cause the hack-a-fix to
+generate the wrong MMU role.
 
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In VMX, the INIT issue is specific to running without unrestricted guest
+since unrestricted guest is available if and only if EPT is enabled.
+Commit 8668a3c468ed ("KVM: VMX: Reset mmu context when entering real
+mode") resolved the issue by forcing a reset when entering emulated real
+mode.
+
+In SVM, commit ebae871a509d ("kvm: svm: reset mmu on VCPU reset") forced
+a MMU reset on every INIT to workaround the flaw in common x86.  Note, at
+the time the bug was fixed, the SVM problem was exacerbated by a complete
+lack of a CR4 update.
+
+The vendor resets will be reverted in future patches, primarily to aid
+bisection in case there are non-INIT flows that rely on the existing VMX
+logic.
+
+Because CR0.PG is unconditionally cleared on INIT, and because CR0.WP and
+all CR4/EFER paging bits are ignored if CR0.PG=0, simply checking that
+CR0.PG was '1' prior to INIT/RESET is sufficient to detect a required MMU
+context reset.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210622175739.3610207-4-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/cec/platform/s5p/s5p_cec.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
-index 2a3e7ffefe0a..2250c1cbc64e 100644
---- a/drivers/media/cec/platform/s5p/s5p_cec.c
-+++ b/drivers/media/cec/platform/s5p/s5p_cec.c
-@@ -35,10 +35,13 @@ MODULE_PARM_DESC(debug, "debug level (0-2)");
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -10302,6 +10302,8 @@ void kvm_arch_vcpu_destroy(struct kvm_vc
  
- static int s5p_cec_adap_enable(struct cec_adapter *adap, bool enable)
+ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
  {
-+	int ret;
- 	struct s5p_cec_dev *cec = cec_get_drvdata(adap);
++	unsigned long old_cr0 = kvm_read_cr0(vcpu);
++
+ 	kvm_lapic_reset(vcpu, init_event);
  
- 	if (enable) {
--		pm_runtime_get_sync(cec->dev);
-+		ret = pm_runtime_resume_and_get(cec->dev);
-+		if (ret < 0)
-+			return ret;
+ 	vcpu->arch.hflags = 0;
+@@ -10370,6 +10372,17 @@ void kvm_vcpu_reset(struct kvm_vcpu *vcp
+ 	vcpu->arch.ia32_xss = 0;
  
- 		s5p_cec_reset(cec);
+ 	static_call(kvm_x86_vcpu_reset)(vcpu, init_event);
++
++	/*
++	 * Reset the MMU context if paging was enabled prior to INIT (which is
++	 * implied if CR0.PG=1 as CR0 will be '0' prior to RESET).  Unlike the
++	 * standard CR0/CR4/EFER modification paths, only CR0.PG needs to be
++	 * checked because it is unconditionally cleared on INIT and all other
++	 * paging related bits are ignored if paging is disabled, i.e. CR0.WP,
++	 * CR4, and EFER changes are all irrelevant if CR0.PG was '0'.
++	 */
++	if (old_cr0 & X86_CR0_PG)
++		kvm_mmu_reset_context(vcpu);
+ }
  
--- 
-2.30.2
-
+ void kvm_vcpu_deliver_sipi_vector(struct kvm_vcpu *vcpu, u8 vector)
 
 
