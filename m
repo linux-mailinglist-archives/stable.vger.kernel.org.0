@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE85B3C4980
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7522E3C4E00
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236024AbhGLGpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:45:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41506 "EHLO mail.kernel.org"
+        id S240400AbhGLHQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:16:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238858AbhGLGoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 539626101E;
-        Mon, 12 Jul 2021 06:40:13 +0000 (UTC)
+        id S241729AbhGLHPY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:15:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BAD2610D1;
+        Mon, 12 Jul 2021 07:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072013;
-        bh=JpTXsiQQ9JH2gK0bxZG6EvoQAV5Q+UX4WjpJvVL3vfw=;
+        s=korg; t=1626073915;
+        bh=JaEEkSWd8TPseL/G8wxu4i/rEARwjJTc5tQFmUBi95Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V94qmf0uRA6Sc1dg0n/yYMKYYrm+FaFwXvsPjWrfVIwGi8YM5cyOXz75uexXO5U82
-         cEFBmUAHkHdBzpl9GyumFv0+9jeCfdKIG8lPdOgA6ge7Kbngz/KVteu6phqwY/gF3L
-         6K868w/aOgWNGe5WDSXFnNeqXui7xTdrqDfBOq5I=
+        b=S7QcCzlLzaASTKMosxbWJl/rjGrcIjkhy54qCibk2EMjtFFuhE041M5SM3tuGxUYG
+         sr2uPfLuDGwcg9j8IrGFgrKzpC5cqXKXlcAijnHRp02t+wKkZL+c7wj4y173Be2HDD
+         nVCsvApovIdK366K+h350qJgZWa6ZcwVRD1WDOAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
+        Kamal Heib <kamalheib1@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 317/593] drm/rockchip: lvds: Fix an error handling path
-Date:   Mon, 12 Jul 2021 08:07:57 +0200
-Message-Id: <20210712060920.314791372@linuxfoundation.org>
+Subject: [PATCH 5.12 395/700] RDMA/rxe: Fix failure during driver load
+Date:   Mon, 12 Jul 2021 08:07:58 +0200
+Message-Id: <20210712061018.416076474@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit 3dfa159f6b0c054eb63673fbf643a5f2cc862e63 ]
+[ Upstream commit 32a25f2ea690dfaace19f7a3a916f5d7e1ddafe8 ]
 
-'ret' is know to be 0 a this point. Checking the return value of
-'phy_init()' and 'phy_set_mode()' was intended instead.
+To avoid the following failure when trying to load the rdma_rxe module
+while IPv6 is disabled, add a check for EAFNOSUPPORT and ignore the
+failure, also delete the needless debug print from rxe_setup_udp_tunnel().
 
-So add the missing assignments.
+$ modprobe rdma_rxe
+modprobe: ERROR: could not insert 'rdma_rxe': Operation not permitted
 
-Fixes: cca1705c3d89 ("drm/rockchip: lvds: Add PX30 support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/248220d4815dc8c8088cebfab7d6df5f70518438.1619881852.git.christophe.jaillet@wanadoo.fr
+Fixes: dfdd6158ca2c ("IB/rxe: Fix kernel panic in udp_setup_tunnel")
+Link: https://lore.kernel.org/r/20210603090112.36341-1-kamalheib1@gmail.com
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_lvds.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_net.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_lvds.c b/drivers/gpu/drm/rockchip/rockchip_lvds.c
-index 41edd0a421b2..7c20b4a24a7e 100644
---- a/drivers/gpu/drm/rockchip/rockchip_lvds.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_lvds.c
-@@ -499,11 +499,11 @@ static int px30_lvds_probe(struct platform_device *pdev,
- 	if (IS_ERR(lvds->dphy))
- 		return PTR_ERR(lvds->dphy);
+diff --git a/drivers/infiniband/sw/rxe/rxe_net.c b/drivers/infiniband/sw/rxe/rxe_net.c
+index 01662727dca0..fc1ba4904279 100644
+--- a/drivers/infiniband/sw/rxe/rxe_net.c
++++ b/drivers/infiniband/sw/rxe/rxe_net.c
+@@ -207,10 +207,8 @@ static struct socket *rxe_setup_udp_tunnel(struct net *net, __be16 port,
  
--	phy_init(lvds->dphy);
-+	ret = phy_init(lvds->dphy);
- 	if (ret)
- 		return ret;
+ 	/* Create UDP socket */
+ 	err = udp_sock_create(net, &udp_cfg, &sock);
+-	if (err < 0) {
+-		pr_err("failed to create udp socket. err = %d\n", err);
++	if (err < 0)
+ 		return ERR_PTR(err);
+-	}
  
--	phy_set_mode(lvds->dphy, PHY_MODE_LVDS);
-+	ret = phy_set_mode(lvds->dphy, PHY_MODE_LVDS);
- 	if (ret)
- 		return ret;
+ 	tnl_cfg.encap_type = 1;
+ 	tnl_cfg.encap_rcv = rxe_udp_encap_recv;
+@@ -619,6 +617,12 @@ static int rxe_net_ipv6_init(void)
  
+ 	recv_sockets.sk6 = rxe_setup_udp_tunnel(&init_net,
+ 						htons(ROCE_V2_UDP_DPORT), true);
++	if (PTR_ERR(recv_sockets.sk6) == -EAFNOSUPPORT) {
++		recv_sockets.sk6 = NULL;
++		pr_warn("IPv6 is not supported, can not create a UDPv6 socket\n");
++		return 0;
++	}
++
+ 	if (IS_ERR(recv_sockets.sk6)) {
+ 		recv_sockets.sk6 = NULL;
+ 		pr_err("Failed to create IPv6 UDP tunnel\n");
 -- 
 2.30.2
 
