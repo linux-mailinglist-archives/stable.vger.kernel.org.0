@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9796B3C4BD9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B5E3C5192
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235973AbhGLHAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:00:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32916 "EHLO mail.kernel.org"
+        id S243485AbhGLHmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239452AbhGLG6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:58:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 803FD610CA;
-        Mon, 12 Jul 2021 06:55:35 +0000 (UTC)
+        id S245047AbhGLHgx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:36:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDF1761920;
+        Mon, 12 Jul 2021 07:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072936;
-        bh=7mIAPfZFWlrtSMP2nEPWi0DYh6syXH1MzLV13mn0kAo=;
+        s=korg; t=1626075172;
+        bh=+kWkDaGTsPPxJT4uqZ2LrjFWemhGoRnIa21NCqiEzNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oaQrTqaTvsoWbjB1GpoJKgaYwZnlUhS1uMu+BWXaNw0xcuTR6dYs9rcv019+OHTAT
-         VlW7bjHFRVJxyrL8Fzq1eiwBhnaPaemQovkar2CiQ9GHUJwd0NTkHD19qv5KGgPWHT
-         UGqSk/FD2gwUZfW2FNmGswxOHheek/UFeC8SfnLw=
+        b=bulauw7eGZWwEGtMYf4s4W8QABshbp0Jen9Tjmba6mVrcCdYr4HDSfpN6GyVuNkwX
+         P8aAZdbA88qnC0xDowOTCl94az+dq897lhbrPxCIFtHJB8EcPfmHJF9FLHlllo0OLw
+         YqqqYvXYUqrylJ8owy5CtTLtfsm8ITN1BYClqxOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.12 069/700] perf/smmuv3: Dont trample existing events with global filter
-Date:   Mon, 12 Jul 2021 08:02:32 +0200
-Message-Id: <20210712060934.463166294@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 130/800] media: i2c: imx334: fix the pm runtime get logic
+Date:   Mon, 12 Jul 2021 08:02:33 +0200
+Message-Id: <20210712060931.290952540@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-commit 4c1daba15c209b99d192f147fea3dade30f72ed2 upstream.
+[ Upstream commit 62c90446868b439929cb04395f04a709a64ae04b ]
 
-With global filtering, we only allow an event to be scheduled if its
-filter settings exactly match those of any existing events, therefore
-it is pointless to reapply the filter in that case. Much worse, though,
-is that in doing that we trample the event type of counter 0 if it's
-already active, and never touch the appropriate PMEVTYPERn so the new
-event is likely not counting the right thing either. Don't do that.
+The PM runtime get logic is currently broken, as it checks if
+ret is zero instead of checking if it is an error code,
+as reported by Dan Carpenter.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/32c80c0e46237f49ad8da0c9f8864e13c4a803aa.1623153312.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While here, use the pm_runtime_resume_and_get() as added by:
+commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
+added pm_runtime_resume_and_get() in order to automatically handle
+dev->power.usage_count decrement on errors. As a bonus, such function
+always return zero on success.
 
+It should also be noticed that a fail of pm_runtime_get_sync() would
+potentially result in a spurious runtime_suspend(), instead of
+using pm_runtime_put_noidle().
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm_smmuv3_pmu.c |   18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/media/i2c/imx334.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/perf/arm_smmuv3_pmu.c
-+++ b/drivers/perf/arm_smmuv3_pmu.c
-@@ -277,7 +277,7 @@ static int smmu_pmu_apply_event_filter(s
- 				       struct perf_event *event, int idx)
- {
- 	u32 span, sid;
--	unsigned int num_ctrs = smmu_pmu->num_counters;
-+	unsigned int cur_idx, num_ctrs = smmu_pmu->num_counters;
- 	bool filter_en = !!get_filter_enable(event);
- 
- 	span = filter_en ? get_filter_span(event) :
-@@ -285,17 +285,19 @@ static int smmu_pmu_apply_event_filter(s
- 	sid = filter_en ? get_filter_stream_id(event) :
- 			   SMMU_PMCG_DEFAULT_FILTER_SID;
- 
--	/* Support individual filter settings */
--	if (!smmu_pmu->global_filter) {
-+	cur_idx = find_first_bit(smmu_pmu->used_counters, num_ctrs);
-+	/*
-+	 * Per-counter filtering, or scheduling the first globally-filtered
-+	 * event into an empty PMU so idx == 0 and it works out equivalent.
-+	 */
-+	if (!smmu_pmu->global_filter || cur_idx == num_ctrs) {
- 		smmu_pmu_set_event_filter(event, idx, span, sid);
- 		return 0;
+diff --git a/drivers/media/i2c/imx334.c b/drivers/media/i2c/imx334.c
+index 047aa7658d21..23f28606e570 100644
+--- a/drivers/media/i2c/imx334.c
++++ b/drivers/media/i2c/imx334.c
+@@ -717,9 +717,9 @@ static int imx334_set_stream(struct v4l2_subdev *sd, int enable)
  	}
  
--	/* Requested settings same as current global settings*/
--	idx = find_first_bit(smmu_pmu->used_counters, num_ctrs);
--	if (idx == num_ctrs ||
--	    smmu_pmu_check_global_filter(smmu_pmu->events[idx], event)) {
--		smmu_pmu_set_event_filter(event, 0, span, sid);
-+	/* Otherwise, must match whatever's currently scheduled */
-+	if (smmu_pmu_check_global_filter(smmu_pmu->events[cur_idx], event)) {
-+		smmu_pmu_set_evtyper(smmu_pmu, idx, get_event(event));
- 		return 0;
- 	}
+ 	if (enable) {
+-		ret = pm_runtime_get_sync(imx334->dev);
+-		if (ret)
+-			goto error_power_off;
++		ret = pm_runtime_resume_and_get(imx334->dev);
++		if (ret < 0)
++			goto error_unlock;
  
+ 		ret = imx334_start_streaming(imx334);
+ 		if (ret)
+@@ -737,6 +737,7 @@ static int imx334_set_stream(struct v4l2_subdev *sd, int enable)
+ 
+ error_power_off:
+ 	pm_runtime_put(imx334->dev);
++error_unlock:
+ 	mutex_unlock(&imx334->mutex);
+ 
+ 	return ret;
+-- 
+2.30.2
+
 
 
