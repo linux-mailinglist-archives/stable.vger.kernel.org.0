@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F4653C5417
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBDA83C4ECD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345204AbhGLH47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40634 "EHLO mail.kernel.org"
+        id S239610AbhGLHVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:21:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235533AbhGLHwc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:52:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85ABD6108B;
-        Mon, 12 Jul 2021 07:49:43 +0000 (UTC)
+        id S244199AbhGLHS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:18:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FA3261442;
+        Mon, 12 Jul 2021 07:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076184;
-        bh=5V5ZYc64tamDWVHtTXEeHG+EnyZmD0GICskiUSo9kY0=;
+        s=korg; t=1626074134;
+        bh=QPJpTckAorXEJTBysmv29wSwQfq/KTpv4uOFTC6J5HQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lgRUdr1anTYlyg0DLiRtJ4cs+1YmeGFmUbRDBjAqMqB9Zg0SztmrrJywiXheqwtnL
-         d0Ld9+Y2oI1hJAtz7KvjawCDqdnTzEBI+Ultvf6t7/rtj18Fei/xE6alN2waxqE71n
-         i/J/qPU9gGUvRFe/4pkm57Q2hl1uKCerIygl9YnE=
+        b=IbgepoHLZJ+7VCwHdVU0rWeyrnW/lhWRFGShAYMrcjHy/rwOMnXPWOOVtA5pyV1kX
+         QiwVrtZybxwyzd9x64+EWd9cE7DCYwZmqB+3a0cTMMrvXRbH/LUO6WL+Q9e39660LH
+         jhEhY5rU9jrJHM8rwZNWhKUWRwCEQuE0Hj+SvXsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        Tom Herbert <tom@quantonium.net>,
+        Coco Li <lixiaoyan@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 535/800] vxlan: add missing rcu_read_lock() in neigh_reduce()
+Subject: [PATCH 5.12 475/700] ipv6: exthdrs: do not blindly use init_net
 Date:   Mon, 12 Jul 2021 08:09:18 +0200
-Message-Id: <20210712061024.254211165@linuxfoundation.org>
+Message-Id: <20210712061027.128129802@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +44,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 85e8b032d6ebb0f698a34dd22c2f13443d905888 ]
+[ Upstream commit bcc3f2a829b9edbe3da5fb117ee5a63686d31834 ]
 
-syzbot complained in neigh_reduce(), because rcu_read_lock_bh()
-is treated differently than rcu_read_lock()
+I see no reason why max_dst_opts_cnt and max_hbh_opts_cnt
+are fetched from the initial net namespace.
 
-WARNING: suspicious RCU usage
-5.13.0-rc6-syzkaller #0 Not tainted
------------------------------
-include/net/addrconf.h:313 suspicious rcu_dereference_check() usage!
+The other sysctls (max_dst_opts_len & max_hbh_opts_len)
+are in fact already using the current ns.
 
-other info that might help us debug this:
+Note: it is not clear why ipv6_destopt_rcv() use two ways to
+get to the netns :
 
-rcu_scheduler_active = 2, debug_locks = 1
-3 locks held by kworker/0:0/5:
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic64_set include/asm-generic/atomic-instrumented.h:856 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic_long_set include/asm-generic/atomic-long.h:41 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_data kernel/workqueue.c:617 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_pool_and_clear_pending kernel/workqueue.c:644 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x871/0x1600 kernel/workqueue.c:2247
- #1: ffffc90000ca7da8 ((work_completion)(&port->wq)){+.+.}-{0:0}, at: process_one_work+0x8a5/0x1600 kernel/workqueue.c:2251
- #2: ffffffff8bf795c0 (rcu_read_lock_bh){....}-{1:2}, at: __dev_queue_xmit+0x1da/0x3130 net/core/dev.c:4180
+ 1) dev_net(dst->dev)
+    Originally used to increment IPSTATS_MIB_INHDRERRORS
 
-stack backtrace:
-CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.13.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events ipvlan_process_multicast
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- __in6_dev_get include/net/addrconf.h:313 [inline]
- __in6_dev_get include/net/addrconf.h:311 [inline]
- neigh_reduce drivers/net/vxlan.c:2167 [inline]
- vxlan_xmit+0x34d5/0x4c30 drivers/net/vxlan.c:2919
- __netdev_start_xmit include/linux/netdevice.h:4944 [inline]
- netdev_start_xmit include/linux/netdevice.h:4958 [inline]
- xmit_one net/core/dev.c:3654 [inline]
- dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3670
- __dev_queue_xmit+0x2133/0x3130 net/core/dev.c:4246
- ipvlan_process_multicast+0xa99/0xd70 drivers/net/ipvlan/ipvlan_core.c:287
- process_one_work+0x98d/0x1600 kernel/workqueue.c:2276
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2422
- kthread+0x3b1/0x4a0 kernel/kthread.c:313
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+ 2) dev_net(skb->dev)
+     Tom used this variant in his patch.
 
-Fixes: f564f45c4518 ("vxlan: add ipv6 proxy support")
+Maybe this calls to use ipv6_skb_net() instead ?
+
+Fixes: 47d3d7ac656a ("ipv6: Implement limits on Hop-by-Hop and Destination options")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Tom Herbert <tom@quantonium.net>
+Cc: Coco Li <lixiaoyan@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv6/exthdrs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 02a14f1b938a..5a8df5a195cb 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -2164,6 +2164,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 	struct neighbour *n;
- 	struct nd_msg *msg;
+diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
+index 6126f8bf94b3..a9e1d7918d14 100644
+--- a/net/ipv6/exthdrs.c
++++ b/net/ipv6/exthdrs.c
+@@ -306,7 +306,7 @@ fail_and_free:
+ #endif
  
-+	rcu_read_lock();
- 	in6_dev = __in6_dev_get(dev);
- 	if (!in6_dev)
- 		goto out;
-@@ -2215,6 +2216,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 	}
+ 	if (ip6_parse_tlv(tlvprocdestopt_lst, skb,
+-			  init_net.ipv6.sysctl.max_dst_opts_cnt)) {
++			  net->ipv6.sysctl.max_dst_opts_cnt)) {
+ 		skb->transport_header += extlen;
+ 		opt = IP6CB(skb);
+ #if IS_ENABLED(CONFIG_IPV6_MIP6)
+@@ -1036,7 +1036,7 @@ fail_and_free:
  
- out:
-+	rcu_read_unlock();
- 	consume_skb(skb);
- 	return NETDEV_TX_OK;
- }
+ 	opt->flags |= IP6SKB_HOPBYHOP;
+ 	if (ip6_parse_tlv(tlvprochopopt_lst, skb,
+-			  init_net.ipv6.sysctl.max_hbh_opts_cnt)) {
++			  net->ipv6.sysctl.max_hbh_opts_cnt)) {
+ 		skb->transport_header += extlen;
+ 		opt = IP6CB(skb);
+ 		opt->nhoff = sizeof(struct ipv6hdr);
 -- 
 2.30.2
 
