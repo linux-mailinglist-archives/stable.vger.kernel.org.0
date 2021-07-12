@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BE933C4A63
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E68233C4F0D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240772AbhGLGwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44286 "EHLO mail.kernel.org"
+        id S242674AbhGLHW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:22:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238622AbhGLGs5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:48:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCF5C60FE3;
-        Mon, 12 Jul 2021 06:44:35 +0000 (UTC)
+        id S245647AbhGLHTn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:19:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB58160FF1;
+        Mon, 12 Jul 2021 07:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072276;
-        bh=x4JNba6xjjfVLQxm/JV0FfLpvnEaE+SAqmEXK4EIb5Q=;
+        s=korg; t=1626074214;
+        bh=pXn31TkCyFWQq5xPePd9IsCjXV2Uf7TMp52YGIPBvuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vz8agWNXFRVVcPGc3iAMcx9PbdhBb+fNTiB4HbCZH5Z1qHLcDN1aoGmfCuj/+EzSV
-         fYfGBai9JPz/oF3MrgKBvKiVTCiJHXfuaoUNEkLLZdIA9JPzo3qpe1tJT2eRf7lgRh
-         S2c3/hS3I49EtZFSQm2k+03ke0kMfD7yy46WXg/Y=
+        b=Pr3CXFue481F1DuSTAffECKFLxxtZEeKDA36u1COBfH+0lZoOzg/KLyau4DzqO11h
+         3saIhJZWWxX2CnHLt3kGmD0U2z2kJ8i1SGZ24lKvkCUigeHAVX0kLJPjGTqgAqc8vg
+         BKEg5xC+J25mFMF1etchfzqBxfZzTQnOitoFPMrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 427/593] net: lwtunnel: handle MTU calculation in forwading
+Subject: [PATCH 5.12 504/700] clk: actions: Fix bisp_factor_table based clocks on Owl S500 SoC
 Date:   Mon, 12 Jul 2021 08:09:47 +0200
-Message-Id: <20210712060935.386975841@linuxfoundation.org>
+Message-Id: <20210712061030.116594401@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,140 +42,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vfedorenko@novek.ru>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-[ Upstream commit fade56410c22cacafb1be9f911a0afd3701d8366 ]
+[ Upstream commit a8f1f03caa51aa7a69c671aa87c475034db7d368 ]
 
-Commit 14972cbd34ff ("net: lwtunnel: Handle fragmentation") moved
-fragmentation logic away from lwtunnel by carry encap headroom and
-use it in output MTU calculation. But the forwarding part was not
-covered and created difference in MTU for output and forwarding and
-further to silent drops on ipv4 forwarding path. Fix it by taking
-into account lwtunnel encap headroom.
+The following clocks of the Actions Semi Owl S500 SoC have been defined
+to use a shared clock factor table 'bisp_factor_table[]': DE[1-2], VCE,
+VDE, BISP, SENSOR[0-1]
 
-The same commit also introduced difference in how to treat RTAX_MTU
-in IPv4 and IPv6 where latter explicitly removes lwtunnel encap
-headroom from route MTU. Make IPv4 version do the same.
+There are several issues involved in this approach:
 
-Fixes: 14972cbd34ff ("net: lwtunnel: Handle fragmentation")
-Suggested-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+* 'bisp_factor_table[]' describes the configuration of a regular 8-rates
+  divider, so its usage is redundant. Additionally, judging by the BISP
+  clock context, it is incomplete since it maps only 8 out of 12
+  possible entries.
+
+* The clocks mentioned above are not identical in terms of the available
+  rates, therefore cannot rely on the same factor table. Specifically,
+  BISP and SENSOR* are standard 12-rate dividers so their configuration
+  should rely on a proper clock div table, while VCE and VDE require a
+  factor table that is a actually a subset of the one needed for DE[1-2]
+  clocks.
+
+Let's fix this by implementing the following:
+
+* Add new factor tables 'de_factor_table' and 'hde_factor_table' to
+  properly handle DE[1-2], VCE and VDE clocks.
+
+* Add a common div table 'std12rate_div_table' for BISP and SENSOR[0-1]
+  clocks converted to OWL_COMP_DIV.
+
+* Drop the now unused 'bisp_factor_table[]'.
+
+Additionally, drop the CLK_IGNORE_UNUSED flag for SENSOR[0-1] since
+there is no reason to always keep ON those clocks.
+
+Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/e675820a46cd9930d8d576c6cae61d41c1a8416f.1623354574.git.cristian.ciocaltea@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip.h        | 12 ++++++++----
- include/net/ip6_route.h | 16 ++++++++++++----
- net/ipv4/route.c        |  3 ++-
- 3 files changed, 22 insertions(+), 9 deletions(-)
+ drivers/clk/actions/owl-s500.c | 44 ++++++++++++++++++++++------------
+ 1 file changed, 29 insertions(+), 15 deletions(-)
 
-diff --git a/include/net/ip.h b/include/net/ip.h
-index 2d6b985d11cc..5538e54d4620 100644
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -31,6 +31,7 @@
- #include <net/flow.h>
- #include <net/flow_dissector.h>
- #include <net/netns/hash.h>
-+#include <net/lwtunnel.h>
+diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
+index 42abdf964044..42d6899755e6 100644
+--- a/drivers/clk/actions/owl-s500.c
++++ b/drivers/clk/actions/owl-s500.c
+@@ -140,9 +140,16 @@ static struct clk_factor_table sd_factor_table[] = {
+ 	{ 0, 0, 0 },
+ };
  
- #define IPV4_MAX_PMTU		65535U		/* RFC 2675, Section 5.1 */
- #define IPV4_MIN_MTU		68			/* RFC 791 */
-@@ -445,22 +446,25 @@ static inline unsigned int ip_dst_mtu_maybe_forward(const struct dst_entry *dst,
- 
- 	/* 'forwarding = true' case should always honour route mtu */
- 	mtu = dst_metric_raw(dst, RTAX_MTU);
--	if (mtu)
--		return mtu;
-+	if (!mtu)
-+		mtu = min(READ_ONCE(dst->dev->mtu), IP_MAX_MTU);
- 
--	return min(READ_ONCE(dst->dev->mtu), IP_MAX_MTU);
-+	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
- }
- 
- static inline unsigned int ip_skb_dst_mtu(struct sock *sk,
- 					  const struct sk_buff *skb)
- {
-+	unsigned int mtu;
+-static struct clk_factor_table bisp_factor_table[] = {
+-	{ 0, 1, 1 }, { 1, 1, 2 }, { 2, 1, 3 }, { 3, 1, 4 },
+-	{ 4, 1, 5 }, { 5, 1, 6 }, { 6, 1, 7 }, { 7, 1, 8 },
++static struct clk_factor_table de_factor_table[] = {
++	{ 0, 1, 1 }, { 1, 2, 3 }, { 2, 1, 2 }, { 3, 2, 5 },
++	{ 4, 1, 3 }, { 5, 1, 4 }, { 6, 1, 6 }, { 7, 1, 8 },
++	{ 8, 1, 12 },
++	{ 0, 0, 0 },
++};
 +
- 	if (!sk || !sk_fullsock(sk) || ip_sk_use_pmtu(sk)) {
- 		bool forwarding = IPCB(skb)->flags & IPSKB_FORWARDED;
++static struct clk_factor_table hde_factor_table[] = {
++	{ 0, 1, 1 }, { 1, 2, 3 }, { 2, 1, 2 }, { 3, 2, 5 },
++	{ 4, 1, 3 }, { 5, 1, 4 }, { 6, 1, 6 }, { 7, 1, 8 },
+ 	{ 0, 0, 0 },
+ };
  
- 		return ip_dst_mtu_maybe_forward(skb_dst(skb), forwarding);
- 	}
+@@ -156,6 +163,13 @@ static struct clk_div_table rmii_ref_div_table[] = {
+ 	{ 0, 0 },
+ };
  
--	return min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
-+	mtu = min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
-+	return mtu - lwtunnel_headroom(skb_dst(skb)->lwtstate, mtu);
- }
- 
- struct dst_metrics *ip_fib_metrics_init(struct net *net, struct nlattr *fc_mx,
-diff --git a/include/net/ip6_route.h b/include/net/ip6_route.h
-index 2a5277758379..37a7fb1969d6 100644
---- a/include/net/ip6_route.h
-+++ b/include/net/ip6_route.h
-@@ -264,11 +264,18 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 
- static inline int ip6_skb_dst_mtu(struct sk_buff *skb)
- {
-+	int mtu;
++static struct clk_div_table std12rate_div_table[] = {
++	{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 },
++	{ 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 8 },
++	{ 8, 9 }, { 9, 10 }, { 10, 11 }, { 11, 12 },
++	{ 0, 0 },
++};
 +
- 	struct ipv6_pinfo *np = skb->sk && !dev_recursion_level() ?
- 				inet6_sk(skb->sk) : NULL;
+ static struct clk_div_table i2s_div_table[] = {
+ 	{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 },
+ 	{ 4, 6 }, { 5, 8 }, { 6, 12 }, { 7, 16 },
+@@ -191,39 +205,39 @@ static OWL_DIVIDER(rmii_ref_clk, "rmii_ref_clk", "ethernet_pll_clk", CMU_ETHERNE
  
--	return (np && np->pmtudisc >= IPV6_PMTUDISC_PROBE) ?
--	       skb_dst(skb)->dev->mtu : dst_mtu(skb_dst(skb));
-+	if (np && np->pmtudisc >= IPV6_PMTUDISC_PROBE) {
-+		mtu = READ_ONCE(skb_dst(skb)->dev->mtu);
-+		mtu -= lwtunnel_headroom(skb_dst(skb)->lwtstate, mtu);
-+	} else
-+		mtu = dst_mtu(skb_dst(skb));
-+
-+	return mtu;
- }
+ /* factor clocks */
+ static OWL_FACTOR(ahb_clk, "ahb_clk", "h_clk", CMU_BUSCLK1, 2, 2, ahb_factor_table, 0, 0);
+-static OWL_FACTOR(de1_clk, "de_clk1", "de_clk", CMU_DECLK, 0, 3, bisp_factor_table, 0, 0);
+-static OWL_FACTOR(de2_clk, "de_clk2", "de_clk", CMU_DECLK, 4, 3, bisp_factor_table, 0, 0);
++static OWL_FACTOR(de1_clk, "de_clk1", "de_clk", CMU_DECLK, 0, 4, de_factor_table, 0, 0);
++static OWL_FACTOR(de2_clk, "de_clk2", "de_clk", CMU_DECLK, 4, 4, de_factor_table, 0, 0);
  
- static inline bool ip6_sk_accept_pmtu(const struct sock *sk)
-@@ -316,7 +323,7 @@ static inline unsigned int ip6_dst_mtu_forward(const struct dst_entry *dst)
- 	if (dst_metric_locked(dst, RTAX_MTU)) {
- 		mtu = dst_metric_raw(dst, RTAX_MTU);
- 		if (mtu)
--			return mtu;
-+			goto out;
- 	}
+ /* composite clocks */
+ static OWL_COMP_FACTOR(vce_clk, "vce_clk", hde_clk_mux_p,
+ 			OWL_MUX_HW(CMU_VCECLK, 4, 2),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 26, 0),
+-			OWL_FACTOR_HW(CMU_VCECLK, 0, 3, 0, bisp_factor_table),
++			OWL_FACTOR_HW(CMU_VCECLK, 0, 3, 0, hde_factor_table),
+ 			0);
  
- 	mtu = IPV6_MIN_MTU;
-@@ -326,7 +333,8 @@ static inline unsigned int ip6_dst_mtu_forward(const struct dst_entry *dst)
- 		mtu = idev->cnf.mtu6;
- 	rcu_read_unlock();
+ static OWL_COMP_FACTOR(vde_clk, "vde_clk", hde_clk_mux_p,
+ 			OWL_MUX_HW(CMU_VDECLK, 4, 2),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 25, 0),
+-			OWL_FACTOR_HW(CMU_VDECLK, 0, 3, 0, bisp_factor_table),
++			OWL_FACTOR_HW(CMU_VDECLK, 0, 3, 0, hde_factor_table),
+ 			0);
  
--	return mtu;
-+out:
-+	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
- }
+-static OWL_COMP_FACTOR(bisp_clk, "bisp_clk", bisp_clk_mux_p,
++static OWL_COMP_DIV(bisp_clk, "bisp_clk", bisp_clk_mux_p,
+ 			OWL_MUX_HW(CMU_BISPCLK, 4, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 14, 0),
+-			OWL_FACTOR_HW(CMU_BISPCLK, 0, 3, 0, bisp_factor_table),
++			OWL_DIVIDER_HW(CMU_BISPCLK, 0, 4, 0, std12rate_div_table),
+ 			0);
  
- u32 ip6_mtu_from_fib6(const struct fib6_result *res,
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index e968bb47d5bd..e15c1d8b7c8d 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -1327,7 +1327,7 @@ static unsigned int ipv4_mtu(const struct dst_entry *dst)
- 		mtu = dst_metric_raw(dst, RTAX_MTU);
+-static OWL_COMP_FACTOR(sensor0_clk, "sensor0_clk", sensor_clk_mux_p,
++static OWL_COMP_DIV(sensor0_clk, "sensor0_clk", sensor_clk_mux_p,
+ 			OWL_MUX_HW(CMU_SENSORCLK, 4, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 14, 0),
+-			OWL_FACTOR_HW(CMU_SENSORCLK, 0, 3, 0, bisp_factor_table),
+-			CLK_IGNORE_UNUSED);
++			OWL_DIVIDER_HW(CMU_SENSORCLK, 0, 4, 0, std12rate_div_table),
++			0);
  
- 	if (mtu)
--		return mtu;
-+		goto out;
+-static OWL_COMP_FACTOR(sensor1_clk, "sensor1_clk", sensor_clk_mux_p,
++static OWL_COMP_DIV(sensor1_clk, "sensor1_clk", sensor_clk_mux_p,
+ 			OWL_MUX_HW(CMU_SENSORCLK, 4, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 14, 0),
+-			OWL_FACTOR_HW(CMU_SENSORCLK, 8, 3, 0, bisp_factor_table),
+-			CLK_IGNORE_UNUSED);
++			OWL_DIVIDER_HW(CMU_SENSORCLK, 8, 4, 0, std12rate_div_table),
++			0);
  
- 	mtu = READ_ONCE(dst->dev->mtu);
- 
-@@ -1336,6 +1336,7 @@ static unsigned int ipv4_mtu(const struct dst_entry *dst)
- 			mtu = 576;
- 	}
- 
-+out:
- 	mtu = min_t(unsigned int, mtu, IP_MAX_MTU);
- 
- 	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
+ static OWL_COMP_FACTOR(sd0_clk, "sd0_clk", sd_clk_mux_p,
+ 			OWL_MUX_HW(CMU_SD0CLK, 9, 1),
 -- 
 2.30.2
 
