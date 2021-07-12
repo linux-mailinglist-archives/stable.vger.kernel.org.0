@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C60B53C4C5D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09633C51D4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240722AbhGLHDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:03:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38598 "EHLO mail.kernel.org"
+        id S1344182AbhGLHnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:43:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239207AbhGLHDB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:03:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDABF610E5;
-        Mon, 12 Jul 2021 07:00:04 +0000 (UTC)
+        id S1347988AbhGLHka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DD8A601FE;
+        Mon, 12 Jul 2021 07:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073205;
-        bh=gwnCwie+LU+Razt7Cq/sOgDreUV8VUwsRqswjxRYppU=;
+        s=korg; t=1626075437;
+        bh=EjbbdsphNaBY7zK3O0JjVNY2MvwcLT3oI7pQ/TJbDWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWgRNL/nAuG8AHWSDzzMWgr1tCv0lu5QR+xmK993zEdfXboF3gzCyfvLjB+gdAfp7
-         6dU8zcOIBjln0Ijqsn7QOBPaExV3Na+hcj1P/JfyLiJK+L1mhdrVFCCQlNvUPe4l++
-         1p1Dre6Ob/XcR/cVgQBOQJovN8LukCi6TEcfbFRM=
+        b=l5Jxz4teUVvk6vOLUC+AxAGJlSHtdvBEjsycWlxywuz0JrHK5NJKeLndpAsjwdGPo
+         bFjtHMbA+Bz/3GOEHl3ThgLlnzvs2K9hD3scpyWK81OAO/BLHJWcTVHxL4IFOXYiyi
+         3GAdGnQmMq9cNNyVKT7xCmqtr7f/yEypBarIJgmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 160/700] media: bt8xx: Fix a missing check bug in bt878_probe
+Subject: [PATCH 5.13 220/800] blk-mq: grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter
 Date:   Mon, 12 Jul 2021 08:04:03 +0200
-Message-Id: <20210712060948.255788903@linuxfoundation.org>
+Message-Id: <20210712060944.797391523@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,120 +42,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 1a4520090681853e6b850cbe54b27247a013e0e5 ]
+[ Upstream commit 2e315dc07df009c3e29d6926871f62a30cfae394 ]
 
-In 'bt878_irq', the driver calls 'tasklet_schedule', but this tasklet is
-set in 'dvb_bt8xx_load_card' of another driver 'dvb-bt8xx'.
-However, this two drivers are separate. The user may not load the
-'dvb-bt8xx' driver when loading the 'bt8xx' driver, that is, the tasklet
-has not been initialized when 'tasklet_schedule' is called, so it is
-necessary to check whether the tasklet is initialized in 'bt878_probe'.
+Grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter(), and
+this way will prevent the request from being re-used when ->fn is
+running. The approach is same as what we do during handling timeout.
 
-Fix this by adding a check at the end of bt878_probe.
+Fix request use-after-free(UAF) related with completion race or queue
+releasing:
 
-The KASAN's report reveals it:
+- If one rq is referred before rq->q is frozen, then queue won't be
+frozen before the request is released during iteration.
 
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
-PGD 800000006aab2067 P4D 800000006aab2067 PUD 6b2ea067 PMD 0
-Oops: 0010 [#1] PREEMPT SMP KASAN PTI
-CPU: 2 PID: 8724 Comm: syz-executor.0 Not tainted 4.19.177-
-gdba4159c14ef-dirty #40
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-
-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-RIP: 0010:          (null)
-Code: Bad RIP value.
-RSP: 0018:ffff88806c287ea0 EFLAGS: 00010246
-RAX: fffffbfff1b01774 RBX: dffffc0000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 1ffffffff1b01775 RDI: 0000000000000000
-RBP: ffff88806c287f00 R08: fffffbfff1b01774 R09: fffffbfff1b01774
-R10: 0000000000000001 R11: fffffbfff1b01773 R12: 0000000000000000
-R13: ffff88806c29f530 R14: ffffffff8d80bb88 R15: ffffffff8d80bb90
-FS:  00007f6b550e6700(0000) GS:ffff88806c280000(0000) knlGS:
-0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 000000005ec98000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <IRQ>
- tasklet_action_common.isra.17+0x141/0x420 kernel/softirq.c:522
- tasklet_action+0x50/0x70 kernel/softirq.c:540
- __do_softirq+0x224/0x92c kernel/softirq.c:292
- invoke_softirq kernel/softirq.c:372 [inline]
- irq_exit+0x15a/0x180 kernel/softirq.c:412
- exiting_irq arch/x86/include/asm/apic.h:535 [inline]
- do_IRQ+0x123/0x1e0 arch/x86/kernel/irq.c:260
- common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
- </IRQ>
-RIP: 0010:__do_sys_interrupt kernel/sys.c:2593 [inline]
-RIP: 0010:__se_sys_interrupt kernel/sys.c:2584 [inline]
-RIP: 0010:__x64_sys_interrupt+0x5b/0x80 kernel/sys.c:2584
-Code: ba 00 04 00 00 48 c7 c7 c0 99 31 8c e8 ae 76 5e 01 48 85 c0 75 21 e8
-14 ae 24 00 48 c7 c3 c0 99 31 8c b8 0c 00 00 00 0f 01 c1 <31> db e8 fe ad
-24 00 48 89 d8 5b 5d c3 48 c7 c3 ea ff ff ff eb ec
-RSP: 0018:ffff888054167f10 EFLAGS: 00000212 ORIG_RAX: ffffffffffffffde
-RAX: 000000000000000c RBX: ffffffff8c3199c0 RCX: ffffc90001ca6000
-RDX: 000000000000001a RSI: ffffffff813478fc RDI: ffffffff8c319dc0
-RBP: ffff888054167f18 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000080 R11: fffffbfff18633b7 R12: ffff888054167f58
-R13: ffff88805f638000 R14: 0000000000000000 R15: 0000000000000000
- do_syscall_64+0xb0/0x4e0 arch/x86/entry/common.c:293
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x4692a9
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7
-48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
-ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f6b550e5c48 EFLAGS: 00000246 ORIG_RAX: 000000000000014f
-RAX: ffffffffffffffda RBX: 000000000077bf60 RCX: 00000000004692a9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000020000140
-RBP: 00000000004cf7eb R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000077bf60
-R13: 0000000000000000 R14: 000000000077bf60 R15: 00007fff55a1dca0
-Modules linked in:
-Dumping ftrace buffer:
-   (ftrace buffer empty)
-CR2: 0000000000000000
----[ end trace 68e5849c3f77cbb6 ]---
-RIP: 0010:          (null)
-Code: Bad RIP value.
-RSP: 0018:ffff88806c287ea0 EFLAGS: 00010246
-RAX: fffffbfff1b01774 RBX: dffffc0000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 1ffffffff1b01775 RDI: 0000000000000000
-RBP: ffff88806c287f00 R08: fffffbfff1b01774 R09: fffffbfff1b01774
-R10: 0000000000000001 R11: fffffbfff1b01773 R12: 0000000000000000
-R13: ffff88806c29f530 R14: ffffffff8d80bb88 R15: ffffffff8d80bb90
-FS:  00007f6b550e6700(0000) GS:ffff88806c280000(0000) knlGS:
-0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 000000005ec98000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+- If one rq is referred after rq->q is frozen, refcount_inc_not_zero()
+will return false, and we won't iterate over this request.
 
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+However, still one request UAF not covered: refcount_inc_not_zero() may
+read one freed request, and it will be handled in next patch.
+
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210511152236.763464-3-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/bt8xx/bt878.c | 3 +++
- 1 file changed, 3 insertions(+)
+ block/blk-mq-tag.c | 44 +++++++++++++++++++++++++++++++++-----------
+ block/blk-mq.c     | 14 +++++++++-----
+ block/blk-mq.h     |  1 +
+ 3 files changed, 43 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/media/pci/bt8xx/bt878.c b/drivers/media/pci/bt8xx/bt878.c
-index 7ca309121fb5..90972d6952f1 100644
---- a/drivers/media/pci/bt8xx/bt878.c
-+++ b/drivers/media/pci/bt8xx/bt878.c
-@@ -478,6 +478,9 @@ static int bt878_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
- 	btwrite(0, BT878_AINT_MASK);
- 	bt878_num++;
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index 2a37731e8244..544edf2c56a5 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -199,6 +199,16 @@ struct bt_iter_data {
+ 	bool reserved;
+ };
  
-+	if (!bt->tasklet.func)
-+		tasklet_disable(&bt->tasklet);
++static struct request *blk_mq_find_and_get_req(struct blk_mq_tags *tags,
++		unsigned int bitnr)
++{
++	struct request *rq = tags->rqs[bitnr];
 +
- 	return 0;
++	if (!rq || !refcount_inc_not_zero(&rq->ref))
++		return NULL;
++	return rq;
++}
++
+ static bool bt_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
+ {
+ 	struct bt_iter_data *iter_data = data;
+@@ -206,18 +216,22 @@ static bool bt_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
+ 	struct blk_mq_tags *tags = hctx->tags;
+ 	bool reserved = iter_data->reserved;
+ 	struct request *rq;
++	bool ret = true;
  
-       fail2:
+ 	if (!reserved)
+ 		bitnr += tags->nr_reserved_tags;
+-	rq = tags->rqs[bitnr];
+-
+ 	/*
+ 	 * We can hit rq == NULL here, because the tagging functions
+ 	 * test and set the bit before assigning ->rqs[].
+ 	 */
+-	if (rq && rq->q == hctx->queue && rq->mq_hctx == hctx)
+-		return iter_data->fn(hctx, rq, iter_data->data, reserved);
+-	return true;
++	rq = blk_mq_find_and_get_req(tags, bitnr);
++	if (!rq)
++		return true;
++
++	if (rq->q == hctx->queue && rq->mq_hctx == hctx)
++		ret = iter_data->fn(hctx, rq, iter_data->data, reserved);
++	blk_mq_put_rq_ref(rq);
++	return ret;
+ }
+ 
+ /**
+@@ -264,6 +278,8 @@ static bool bt_tags_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
+ 	struct blk_mq_tags *tags = iter_data->tags;
+ 	bool reserved = iter_data->flags & BT_TAG_ITER_RESERVED;
+ 	struct request *rq;
++	bool ret = true;
++	bool iter_static_rqs = !!(iter_data->flags & BT_TAG_ITER_STATIC_RQS);
+ 
+ 	if (!reserved)
+ 		bitnr += tags->nr_reserved_tags;
+@@ -272,16 +288,19 @@ static bool bt_tags_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
+ 	 * We can hit rq == NULL here, because the tagging functions
+ 	 * test and set the bit before assigning ->rqs[].
+ 	 */
+-	if (iter_data->flags & BT_TAG_ITER_STATIC_RQS)
++	if (iter_static_rqs)
+ 		rq = tags->static_rqs[bitnr];
+ 	else
+-		rq = tags->rqs[bitnr];
++		rq = blk_mq_find_and_get_req(tags, bitnr);
+ 	if (!rq)
+ 		return true;
+-	if ((iter_data->flags & BT_TAG_ITER_STARTED) &&
+-	    !blk_mq_request_started(rq))
+-		return true;
+-	return iter_data->fn(rq, iter_data->data, reserved);
++
++	if (!(iter_data->flags & BT_TAG_ITER_STARTED) ||
++	    blk_mq_request_started(rq))
++		ret = iter_data->fn(rq, iter_data->data, reserved);
++	if (!iter_static_rqs)
++		blk_mq_put_rq_ref(rq);
++	return ret;
+ }
+ 
+ /**
+@@ -348,6 +367,9 @@ void blk_mq_all_tag_iter(struct blk_mq_tags *tags, busy_tag_iter_fn *fn,
+  *		indicates whether or not @rq is a reserved request. Return
+  *		true to continue iterating tags, false to stop.
+  * @priv:	Will be passed as second argument to @fn.
++ *
++ * We grab one request reference before calling @fn and release it after
++ * @fn returns.
+  */
+ void blk_mq_tagset_busy_iter(struct blk_mq_tag_set *tagset,
+ 		busy_tag_iter_fn *fn, void *priv)
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index c86c01bfecdb..debfa5cd8025 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -909,6 +909,14 @@ static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
+ 	return false;
+ }
+ 
++void blk_mq_put_rq_ref(struct request *rq)
++{
++	if (is_flush_rq(rq, rq->mq_hctx))
++		rq->end_io(rq, 0);
++	else if (refcount_dec_and_test(&rq->ref))
++		__blk_mq_free_request(rq);
++}
++
+ static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
+ 		struct request *rq, void *priv, bool reserved)
+ {
+@@ -942,11 +950,7 @@ static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
+ 	if (blk_mq_req_expired(rq, next))
+ 		blk_mq_rq_timed_out(rq, reserved);
+ 
+-	if (is_flush_rq(rq, hctx))
+-		rq->end_io(rq, 0);
+-	else if (refcount_dec_and_test(&rq->ref))
+-		__blk_mq_free_request(rq);
+-
++	blk_mq_put_rq_ref(rq);
+ 	return true;
+ }
+ 
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 9ce64bc4a6c8..556368d2c5b6 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -47,6 +47,7 @@ void blk_mq_add_to_requeue_list(struct request *rq, bool at_head,
+ void blk_mq_flush_busy_ctxs(struct blk_mq_hw_ctx *hctx, struct list_head *list);
+ struct request *blk_mq_dequeue_from_ctx(struct blk_mq_hw_ctx *hctx,
+ 					struct blk_mq_ctx *start);
++void blk_mq_put_rq_ref(struct request *rq);
+ 
+ /*
+  * Internal helpers for allocating/freeing the request map
 -- 
 2.30.2
 
