@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C9B3C5598
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE2713C504C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230120AbhGLILK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:11:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S1344645AbhGLHb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:31:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353785AbhGLIC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E87761958;
-        Mon, 12 Jul 2021 07:57:31 +0000 (UTC)
+        id S1345439AbhGLH3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D49B611AD;
+        Mon, 12 Jul 2021 07:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076652;
-        bh=LKyRcNWlFavaMgK+ergxadt35UXMZPV1wl7Y6RSbYsk=;
+        s=korg; t=1626074804;
+        bh=fob3s5mDsTJVZqnRf2jvmECc0ABXF+X68QEkJbejXo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PPwxvabh/roUz4NDqrkUHjnrIdU7jNISWRaVk6HMsPi8TjHHTW37BeMyuDe5gKQ0k
-         SUWec8x2jxNRCJ+lz4/vklkoyMTnlnFeyKgCB865qsh2q8LFSEICpquux11nsgNynl
-         jhg5Q5odl+n/at4D+d8Q+yd56Z/5BE6ri4RwCChw=
+        b=x/6qpiCBczaaNX47V8JXOCWx5k9FI3qiEqrdbFS74pMNLiDZCy3wJgPQqnTIBS6PA
+         DEkcfxpF4ijuTsKVm5yD2qQIT4nZZRUYelaKONQk5FVtB1yUSuITLpLgiCjAoTkRIT
+         uwNBYRYPvZsjL9J7deQUAPlHwVB+CJo4zArSEs3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 734/800] phy: ti: dm816x: Fix the error handling path in dm816x_usb_phy_probe()
+        stable@vger.kernel.org, Trent Piepho <tpiepho@gmail.com>,
+        Yiyuan Guo <yguoaz@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Oskar Schirmer <oskar@scara.com>,
+        Daniel Latypov <dlatypov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 674/700] lib/math/rational.c: fix divide by zero
 Date:   Mon, 12 Jul 2021 08:12:37 +0200
-Message-Id: <20210712061044.868488680@linuxfoundation.org>
+Message-Id: <20210712061047.590680388@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Trent Piepho <tpiepho@gmail.com>
 
-[ Upstream commit f7eedcb8539ddcbb6fe7791f1b4ccf43f905c72f ]
+[ Upstream commit 65a0d3c14685663ba111038a35db70f559e39336 ]
 
-Add an error handling path in the probe to release some resources, as
-already done in the remove function.
+If the input is out of the range of the allowed values, either larger than
+the largest value or closer to zero than the smallest non-zero allowed
+value, then a division by zero would occur.
 
-Fixes: 609adde838f4 ("phy: Add a driver for dm816x USB PHY")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/ac5136881f6bdec50be19b3bf73b3bc1b15ef1f1.1622898974.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+In the case of input too large, the division by zero will occur on the
+first iteration.  The best result (largest allowed value) will be found by
+always choosing the semi-convergent and excluding the denominator based
+limit when finding it.
+
+In the case of the input too small, the division by zero will occur on the
+second iteration.  The numerator based semi-convergent should not be
+calculated to avoid the division by zero.  But the semi-convergent vs
+previous convergent test is still needed, which effectively chooses
+between 0 (the previous convergent) vs the smallest allowed fraction (best
+semi-convergent) as the result.
+
+Link: https://lkml.kernel.org/r/20210525144250.214670-1-tpiepho@gmail.com
+Fixes: 323dd2c3ed0 ("lib/math/rational.c: fix possible incorrect result from rational fractions helper")
+Signed-off-by: Trent Piepho <tpiepho@gmail.com>
+Reported-by: Yiyuan Guo <yguoaz@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Oskar Schirmer <oskar@scara.com>
+Cc: Daniel Latypov <dlatypov@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/ti/phy-dm816x-usb.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ lib/math/rational.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/phy/ti/phy-dm816x-usb.c b/drivers/phy/ti/phy-dm816x-usb.c
-index 57adc08a89b2..9fe6ea6fdae5 100644
---- a/drivers/phy/ti/phy-dm816x-usb.c
-+++ b/drivers/phy/ti/phy-dm816x-usb.c
-@@ -242,19 +242,28 @@ static int dm816x_usb_phy_probe(struct platform_device *pdev)
+diff --git a/lib/math/rational.c b/lib/math/rational.c
+index 9781d521963d..c0ab51d8fbb9 100644
+--- a/lib/math/rational.c
++++ b/lib/math/rational.c
+@@ -12,6 +12,7 @@
+ #include <linux/compiler.h>
+ #include <linux/export.h>
+ #include <linux/minmax.h>
++#include <linux/limits.h>
  
- 	pm_runtime_enable(phy->dev);
- 	generic_phy = devm_phy_create(phy->dev, NULL, &ops);
--	if (IS_ERR(generic_phy))
--		return PTR_ERR(generic_phy);
-+	if (IS_ERR(generic_phy)) {
-+		error = PTR_ERR(generic_phy);
-+		goto clk_unprepare;
-+	}
+ /*
+  * calculate best rational approximation for a given fraction
+@@ -78,13 +79,18 @@ void rational_best_approximation(
+ 		 * found below as 't'.
+ 		 */
+ 		if ((n2 > max_numerator) || (d2 > max_denominator)) {
+-			unsigned long t = min((max_numerator - n0) / n1,
+-					      (max_denominator - d0) / d1);
++			unsigned long t = ULONG_MAX;
  
- 	phy_set_drvdata(generic_phy, phy);
- 
- 	phy_provider = devm_of_phy_provider_register(phy->dev,
- 						     of_phy_simple_xlate);
--	if (IS_ERR(phy_provider))
--		return PTR_ERR(phy_provider);
-+	if (IS_ERR(phy_provider)) {
-+		error = PTR_ERR(phy_provider);
-+		goto clk_unprepare;
-+	}
- 
- 	usb_add_phy_dev(&phy->phy);
- 
- 	return 0;
+-			/* This tests if the semi-convergent is closer
+-			 * than the previous convergent.
++			if (d1)
++				t = (max_denominator - d0) / d1;
++			if (n1)
++				t = min(t, (max_numerator - n0) / n1);
 +
-+clk_unprepare:
-+	pm_runtime_disable(phy->dev);
-+	clk_unprepare(phy->refclk);
-+	return error;
- }
- 
- static int dm816x_usb_phy_remove(struct platform_device *pdev)
++			/* This tests if the semi-convergent is closer than the previous
++			 * convergent.  If d1 is zero there is no previous convergent as this
++			 * is the 1st iteration, so always choose the semi-convergent.
+ 			 */
+-			if (2u * t > a || (2u * t == a && d0 * dp > d1 * d)) {
++			if (!d1 || 2u * t > a || (2u * t == a && d0 * dp > d1 * d)) {
+ 				n1 = n0 + t * n1;
+ 				d1 = d0 + t * d1;
+ 			}
 -- 
 2.30.2
 
