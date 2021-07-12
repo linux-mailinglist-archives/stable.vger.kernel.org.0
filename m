@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BA83C4A85
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3567B3C5524
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239293AbhGLGwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50056 "EHLO mail.kernel.org"
+        id S1353542AbhGLIJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239998AbhGLGub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:50:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DE8961008;
-        Mon, 12 Jul 2021 06:47:32 +0000 (UTC)
+        id S1352890AbhGLIAa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:00:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57F2961629;
+        Mon, 12 Jul 2021 07:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072453;
-        bh=HSZTzq3dV3bOqItXQlTIA3So6cBuND1xxjyZMqB3z7o=;
+        s=korg; t=1626076430;
+        bh=bwRteTtT9gexEzgA33yurM3tSPxiHhwE1Fg4A9bl0uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=riCwUe+KDfUoNt7W7UlWOO+aWR2YjbH2mSramXM5roXKvStgfUVPudLQjo2tS2r8X
-         5GiLaW1S2lIDNqEHpHSvmeU7Xs3NnkQrJQWTuRBwJORWrFuL8CIRNJONCu6i1DCme0
-         5+RyBIhlDlrRAjeGXEjO1+W2bqfES/8+I/BKQsyU=
+        b=CxApHAkOUOlhy0UOAOhBx9LQaJWIyhEvRLqTZ6E6nkocEM1SWQ/O9bWbaRqI7OR0w
+         4aNxxD5wylZ+D47gqyfJJi12wI9c1/z+J8NDwfIW1Fqcxp3dwzBYDNXC+s8bQOWRIp
+         wH9ASvzewiRiH+JhiRGVS7tti7l4Abw/+BNBq9JY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Bard Liao <bard.liao@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 502/593] ASoC: rt1308-sdw: use first_hw_init flag on resume
+Subject: [PATCH 5.13 639/800] ASoC: hisilicon: fix missing clk_disable_unprepare() on error in hi6210_i2s_startup()
 Date:   Mon, 12 Jul 2021 08:11:02 +0200
-Message-Id: <20210712060946.848183464@linuxfoundation.org>
+Message-Id: <20210712061035.085335299@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 30e102dab5fad1db71684f8ac5e1ac74e49da06d ]
+[ Upstream commit 375904e3931955fcf0a847f029b2492a117efc43 ]
 
-The intent of the status check on resume was to verify if a SoundWire
-peripheral reported ATTACHED before waiting for the initialization to
-complete. This is required to avoid timeouts that will happen with
-'ghost' devices that are exposed in the platform firmware but are not
-populated in hardware.
+After calling clk_prepare_enable(), clk_disable_unprepare() need
+be called when calling clk_set_rate() failed.
 
-Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
-another error, the resume operation never timed out, but the volume
-settings were not properly restored.
-
-BugLink: https://github.com/thesofproject/linux/issues/2908
-BugLink: https://github.com/thesofproject/linux/issues/2637
-Fixes: a87a6653a28c0 ('ASoC: rt1308-sdw: add rt1308 SdW amplifier driver')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-4-pierre-louis.bossart@linux.intel.com
+Fixes: 0bf750f4cbe1 ("ASoC: hisilicon: Add hi6210 i2s audio driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210518044514.607010-1-yangyingliang@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt1308-sdw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/hisilicon/hi6210-i2s.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/codecs/rt1308-sdw.c b/sound/soc/codecs/rt1308-sdw.c
-index c2621b0afe6c..31daa749c3db 100644
---- a/sound/soc/codecs/rt1308-sdw.c
-+++ b/sound/soc/codecs/rt1308-sdw.c
-@@ -709,7 +709,7 @@ static int __maybe_unused rt1308_dev_resume(struct device *dev)
- 	struct rt1308_sdw_priv *rt1308 = dev_get_drvdata(dev);
- 	unsigned long time;
+diff --git a/sound/soc/hisilicon/hi6210-i2s.c b/sound/soc/hisilicon/hi6210-i2s.c
+index 907f5f1f7b44..ff05b9779e4b 100644
+--- a/sound/soc/hisilicon/hi6210-i2s.c
++++ b/sound/soc/hisilicon/hi6210-i2s.c
+@@ -102,18 +102,15 @@ static int hi6210_i2s_startup(struct snd_pcm_substream *substream,
  
--	if (!rt1308->hw_init)
-+	if (!rt1308->first_hw_init)
- 		return 0;
+ 	for (n = 0; n < i2s->clocks; n++) {
+ 		ret = clk_prepare_enable(i2s->clk[n]);
+-		if (ret) {
+-			while (n--)
+-				clk_disable_unprepare(i2s->clk[n]);
+-			return ret;
+-		}
++		if (ret)
++			goto err_unprepare_clk;
+ 	}
  
- 	if (!slave->unattach_request)
+ 	ret = clk_set_rate(i2s->clk[CLK_I2S_BASE], 49152000);
+ 	if (ret) {
+ 		dev_err(i2s->dev, "%s: setting 49.152MHz base rate failed %d\n",
+ 			__func__, ret);
+-		return ret;
++		goto err_unprepare_clk;
+ 	}
+ 
+ 	/* enable clock before frequency division */
+@@ -165,6 +162,11 @@ static int hi6210_i2s_startup(struct snd_pcm_substream *substream,
+ 	hi6210_write_reg(i2s, HII2S_SW_RST_N, val);
+ 
+ 	return 0;
++
++err_unprepare_clk:
++	while (n--)
++		clk_disable_unprepare(i2s->clk[n]);
++	return ret;
+ }
+ 
+ static void hi6210_i2s_shutdown(struct snd_pcm_substream *substream,
 -- 
 2.30.2
 
