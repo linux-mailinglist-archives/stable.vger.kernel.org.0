@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE863C4A19
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24FE13C541F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238476AbhGLGsk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:48:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41756 "EHLO mail.kernel.org"
+        id S1345817AbhGLH5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236581AbhGLGrj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:47:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B925E611CD;
-        Mon, 12 Jul 2021 06:43:34 +0000 (UTC)
+        id S243006AbhGLHwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:52:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8732960200;
+        Mon, 12 Jul 2021 07:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072215;
-        bh=0XxLR067xjdj3N3B0PBqMxIOrZIeoZWBRiaOTylEpz4=;
+        s=korg; t=1626076198;
+        bh=LSsML+qzbF1/RX6SUZAS8YjF4K/KOhywRNIJuKiEklo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HwtmcFWtEy/y+zPa5rXct1OtDDLIRtHMaHX1yMLt4meYPLNnSDhUrLRkKOUJp5ndl
-         HN1eA9EdHqKrIe8d2oYKZhDs4S3/OTUYCTpQTRAgcejMoaKqq0veZDUHrBkOBVWQVH
-         T1arXoD/RyTBdxG3Qs900rriMzlsA375Q6Tfevy4=
+        b=V+drDrvmsONBzUANwQpYqXRan5AYEy/6vhXEvFdwm1C7rmqNxUQTcAhc9fcV9yTxk
+         LCLhHf/gA4uYlqrO5DYzUbXBEkPHFWR4fgFssiNk3gzBaeb9gAKn/IynEji7w7rkAZ
+         1BPMw9POU7XGb5DWTwMLMeCJrDKV0+s9aCF9Rsc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lior Nahmanson <liorna@nvidia.com>,
-        Antoine Tenart <atenart@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 403/593] net: macsec: fix the length used to copy the key for offloading
+Subject: [PATCH 5.13 540/800] net: broadcom: bcm4908_enet: reset DMA rings sw indexes properly
 Date:   Mon, 12 Jul 2021 08:09:23 +0200
-Message-Id: <20210712060932.012759405@linuxfoundation.org>
+Message-Id: <20210712061024.824400895@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 1f7fe5121127e037b86592ba42ce36515ea0e3f7 ]
+[ Upstream commit ddeacc4f6494e07cbb6f033627926623f3e7a9d0 ]
 
-The key length used when offloading macsec to Ethernet or PHY drivers
-was set to MACSEC_KEYID_LEN (16), which is an issue as:
-- This was never meant to be the key length.
-- The key length can be > 16.
+Resetting software indexes in bcm4908_dma_alloc_buf_descs() is not
+enough as it's called during device probe only. Driver resets DMA on
+every .ndo_open callback and it's required to reset indexes then.
 
-Fix this by using MACSEC_MAX_KEY_LEN to store the key (the max length
-accepted in uAPI) and secy->key_len to copy it.
+This fixes inconsistent rings state and stalled traffic after interface
+down & up sequence.
 
-Fixes: 3cf3227a21d1 ("net: macsec: hardware offloading infrastructure")
-Reported-by: Lior Nahmanson <liorna@nvidia.com>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Fixes: 4feffeadbcb2 ("net: broadcom: bcm4908enet: add BCM4908 controller driver")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 4 ++--
- include/net/macsec.h | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bcm4908_enet.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 11ca5fa902a1..c601d3df2722 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1818,7 +1818,7 @@ static int macsec_add_rxsa(struct sk_buff *skb, struct genl_info *info)
- 		ctx.sa.rx_sa = rx_sa;
- 		ctx.secy = secy;
- 		memcpy(ctx.sa.key, nla_data(tb_sa[MACSEC_SA_ATTR_KEY]),
--		       MACSEC_KEYID_LEN);
-+		       secy->key_len);
+diff --git a/drivers/net/ethernet/broadcom/bcm4908_enet.c b/drivers/net/ethernet/broadcom/bcm4908_enet.c
+index 60d908507f51..02a569500234 100644
+--- a/drivers/net/ethernet/broadcom/bcm4908_enet.c
++++ b/drivers/net/ethernet/broadcom/bcm4908_enet.c
+@@ -174,9 +174,6 @@ static int bcm4908_dma_alloc_buf_descs(struct bcm4908_enet *enet,
+ 	if (!ring->slots)
+ 		goto err_free_buf_descs;
  
- 		err = macsec_offload(ops->mdo_add_rxsa, &ctx);
- 		if (err)
-@@ -2060,7 +2060,7 @@ static int macsec_add_txsa(struct sk_buff *skb, struct genl_info *info)
- 		ctx.sa.tx_sa = tx_sa;
- 		ctx.secy = secy;
- 		memcpy(ctx.sa.key, nla_data(tb_sa[MACSEC_SA_ATTR_KEY]),
--		       MACSEC_KEYID_LEN);
-+		       secy->key_len);
+-	ring->read_idx = 0;
+-	ring->write_idx = 0;
+-
+ 	return 0;
  
- 		err = macsec_offload(ops->mdo_add_txsa, &ctx);
- 		if (err)
-diff --git a/include/net/macsec.h b/include/net/macsec.h
-index 52874cdfe226..d6fa6b97f6ef 100644
---- a/include/net/macsec.h
-+++ b/include/net/macsec.h
-@@ -241,7 +241,7 @@ struct macsec_context {
- 	struct macsec_rx_sc *rx_sc;
- 	struct {
- 		unsigned char assoc_num;
--		u8 key[MACSEC_KEYID_LEN];
-+		u8 key[MACSEC_MAX_KEY_LEN];
- 		union {
- 			struct macsec_rx_sa *rx_sa;
- 			struct macsec_tx_sa *tx_sa;
+ err_free_buf_descs:
+@@ -304,6 +301,9 @@ static void bcm4908_enet_dma_ring_init(struct bcm4908_enet *enet,
+ 
+ 	enet_write(enet, ring->st_ram_block + ENET_DMA_CH_STATE_RAM_BASE_DESC_PTR,
+ 		   (uint32_t)ring->dma_addr);
++
++	ring->read_idx = 0;
++	ring->write_idx = 0;
+ }
+ 
+ static void bcm4908_enet_dma_uninit(struct bcm4908_enet *enet)
 -- 
 2.30.2
 
