@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 711653C496C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980353C4D35
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235172AbhGLGo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:44:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37274 "EHLO mail.kernel.org"
+        id S245371AbhGLHMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236432AbhGLGm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:42:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2427861156;
-        Mon, 12 Jul 2021 06:39:14 +0000 (UTC)
+        id S244541AbhGLHK4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5086960FE7;
+        Mon, 12 Jul 2021 07:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071955;
-        bh=kWOfd1N3ui5svEipl7oe2E1XKOu/gCzc/HLJLKwaHe4=;
+        s=korg; t=1626073688;
+        bh=we2D75WmFEcQ++fhRR6kDIkOvwt4QaL3qwlHB6+6MO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pj4FMzN6YBmv71dASA0hC9aHMgXCCWX+m1bto/cpm68rdiI3Y7NnN9Up9EkElqzXR
-         VgloXemUsQVSR1sCYTo9vZ+yBQEJ+RQY+lTU4mUVAjzLu+hWhg42v9+XGlhhHtZx2W
-         oR8VJKg9xX3JdlW1JCeNzGQd0jp19hbtlsXW3T2M=
+        b=vOXLYLcKeKL+c3bqq5IgpjUvBIL5ePSsuYYtOVi6voeoOXFgn7uH8Ia8dmlFFNrVJ
+         EhBZ3S19X9fSTJTgiPZI4Fz1urIBsDPmIebsZ5dcbK55v3+HWpymgptEkvQ1bNzZy+
+         9/K/cSaOYh4o6Fdit6GODyCLx78fHcRCRnB78IXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 249/593] media: s5p-g2d: Fix a memory leak on ctx->fh.m2m_ctx
+        stable@vger.kernel.org,
+        Praveen Kumar <kumarpraveen@linux.microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 326/700] x86/hyperv: fix logical processor creation
 Date:   Mon, 12 Jul 2021 08:06:49 +0200
-Message-Id: <20210712060910.316402495@linuxfoundation.org>
+Message-Id: <20210712061011.054825762@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Min <dillon.minfei@gmail.com>
+From: Praveen Kumar <kumarpraveen@linux.microsoft.com>
 
-[ Upstream commit 5d11e6aad1811ea293ee2996cec9124f7fccb661 ]
+[ Upstream commit 450605c28d571eddca39a65fdbc1338add44c6d9 ]
 
-The m2m_ctx resources was allocated by v4l2_m2m_ctx_init() in g2d_open()
-should be freed from g2d_release() when it's not used.
+Microsoft Hypervisor expects the logical processor index to be the same
+as CPU's index during logical processor creation. Using cpu_physical_id
+confuses hypervisor's scheduler. That causes the root partition not boot
+when core scheduler is used.
 
-Fix it
+This patch removes the call to cpu_physical_id and uses the CPU index
+directly for bringing up logical processor. This scheme works for both
+classic scheduler and core scheduler.
 
-Fixes: 918847341af0 ("[media] v4l: add G2D driver for s5p device family")
-Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 333abaf5abb3 (x86/hyperv: implement and use hv_smp_prepare_cpus)
+Signed-off-by: Praveen Kumar <kumarpraveen@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20210531074046.113452-1-kumarpraveen@linux.microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-g2d/g2d.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/cpu/mshyperv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/s5p-g2d/g2d.c b/drivers/media/platform/s5p-g2d/g2d.c
-index 15bcb7f6e113..1cb5eaabf340 100644
---- a/drivers/media/platform/s5p-g2d/g2d.c
-+++ b/drivers/media/platform/s5p-g2d/g2d.c
-@@ -276,6 +276,9 @@ static int g2d_release(struct file *file)
- 	struct g2d_dev *dev = video_drvdata(file);
- 	struct g2d_ctx *ctx = fh2ctx(file->private_data);
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index e88bc296afca..a803fc423cb7 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -245,7 +245,7 @@ static void __init hv_smp_prepare_cpus(unsigned int max_cpus)
+ 	for_each_present_cpu(i) {
+ 		if (i == 0)
+ 			continue;
+-		ret = hv_call_add_logical_proc(numa_cpu_node(i), i, cpu_physical_id(i));
++		ret = hv_call_add_logical_proc(numa_cpu_node(i), i, i);
+ 		BUG_ON(ret);
+ 	}
  
-+	mutex_lock(&dev->mutex);
-+	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
-+	mutex_unlock(&dev->mutex);
- 	v4l2_ctrl_handler_free(&ctx->ctrl_handler);
- 	v4l2_fh_del(&ctx->fh);
- 	v4l2_fh_exit(&ctx->fh);
 -- 
 2.30.2
 
