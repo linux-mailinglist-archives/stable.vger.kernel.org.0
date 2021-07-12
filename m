@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4CC3C4DF0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBC363C4985
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243548AbhGLHPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:15:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49268 "EHLO mail.kernel.org"
+        id S236207AbhGLGpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:45:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241897AbhGLHOm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:14:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4773A613D6;
-        Mon, 12 Jul 2021 07:11:33 +0000 (UTC)
+        id S238855AbhGLGoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:44:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF2F661183;
+        Mon, 12 Jul 2021 06:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073893;
-        bh=4+7dtKjnZGuQ5I0aGaI5q+Rxqi9G/g7QWNd0uDr75do=;
+        s=korg; t=1626072011;
+        bh=1xeprRQiwe/9SDuL2qAEwqAei/mcKQ+uM6X/ZtvFOY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Za425rP+JdsKmNpQGk+hc47j2mBgOaQEPjgB9q5B+0MPXXw03N2cuUGzb2yImfqR8
-         wY7qClhU2Mstp1UDE6lfv2W4LU4hX6JHtCqst7nONcFIeqm4wGagbDLH0RU0OfowIi
-         fneep8YROKP1kRKlrGMryeGgOWWNEsYRgUE0zyhk=
+        b=y7f+DtQi2/ZQ/MWlAnJ0GQMq7qVow1WpMn5yEXto3mpOy5hJC0DHxVsEZ8UdZfYDm
+         vqCFHE6NKJ9xuLEepzX04USYzipzTjRfgX7KMYtbyzT+DEA/BdIUV6WtJC53XQ9inH
+         EFGPH2tN/w7Zjgx3CN1Yn8jvbP4h8zkqlxZ4LXNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Jonathan Liu <net147@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 393/700] RDMA/core: Sanitize WQ state received from the userspace
+Subject: [PATCH 5.10 316/593] drm/rockchip: dsi: move all lane config except LCDC mux to bind()
 Date:   Mon, 12 Jul 2021 08:07:56 +0200
-Message-Id: <20210712061018.209802241@linuxfoundation.org>
+Message-Id: <20210712060920.174499671@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,102 +41,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-[ Upstream commit f97442887275d11c88c2899e720fe945c1f61488 ]
+[ Upstream commit 43c2de1002d2b70fb5941fa14e97a34e3dc214d4 ]
 
-The mlx4 and mlx5 implemented differently the WQ input checks.  Instead of
-duplicating mlx4 logic in the mlx5, let's prepare the input in the central
-place.
+When we first enable the DSI encoder, we currently program some per-chip
+configuration that we look up in rk3399_chip_data based on the device
+tree compatible we match. This data configures various parameters of the
+MIPI lanes, including on RK3399 whether DSI1 is slaved to DSI0 in a
+dual-mode configuration. It also selects which LCDC (i.e. VOP) to scan
+out from.
 
-The mlx5 implementation didn't check for validity of state input.  It is
-not real bug because our FW checked that, but still worth to fix.
+This causes a problem in RK3399 dual-mode configurations, though: panel
+prepare() callbacks run before the encoder gets enabled and expect to be
+able to write commands to the DSI bus, but the bus isn't fully
+functional until the lane and master/slave configuration have been
+programmed. As a result, dual-mode panels (and possibly others too) fail
+to turn on when the rockchipdrm driver is initially loaded.
 
-Fixes: f213c0527210 ("IB/uverbs: Add WQ support")
-Link: https://lore.kernel.org/r/ac41ad6a81b095b1a8ad453dcf62cf8d3c5da779.1621413310.git.leonro@nvidia.com
-Reported-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Because the LCDC mux is the only thing we don't know until enable time
+(and is the only thing that can ever change), we can actually move most
+of the initialization to bind() and get it out of the way early. That's
+what this change does. (Rockchip's 4.4 BSP kernel does it in mode_set(),
+which also avoids the issue, but bind() seems like the more correct
+place to me.)
+
+Tested on a Google Scarlet board (Acer Chromebook Tab 10), which has a
+Kingdisplay KD097D04 dual-mode panel. Prior to this change, the panel's
+backlight would turn on but no image would appear when initially loading
+rockchipdrm. If I kept rockchipdrm loaded and reloaded the panel driver,
+it would come on. With this change, the panel successfully turns on
+during initial rockchipdrm load as expected.
+
+Fixes: 2d4f7bdafd70 ("drm/rockchip: dsi: migrate to use dw-mipi-dsi bridge driver")
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Tested-by: Jonathan Liu <net147@gmail.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/55fe7f3454d8c91dc3837ba5aa741d4a0e67378f.1618797813.git.tommyhebb@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/uverbs_cmd.c | 21 +++++++++++++++++++--
- drivers/infiniband/hw/mlx4/qp.c      |  9 ++-------
- drivers/infiniband/hw/mlx5/qp.c      |  6 ++----
- 3 files changed, 23 insertions(+), 13 deletions(-)
+ .../gpu/drm/rockchip/dw-mipi-dsi-rockchip.c   | 36 ++++++++++++++-----
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
-index ab55f8b3190e..92ae454d500a 100644
---- a/drivers/infiniband/core/uverbs_cmd.c
-+++ b/drivers/infiniband/core/uverbs_cmd.c
-@@ -3033,12 +3033,29 @@ static int ib_uverbs_ex_modify_wq(struct uverbs_attr_bundle *attrs)
- 	if (!wq)
- 		return -EINVAL;
+diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+index 542dcf7eddd6..75a76408cb29 100644
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+@@ -692,13 +692,8 @@ static const struct dw_mipi_dsi_phy_ops dw_mipi_dsi_rockchip_phy_ops = {
+ 	.get_timing = dw_mipi_dsi_phy_get_timing,
+ };
  
--	wq_attr.curr_wq_state = cmd.curr_wq_state;
--	wq_attr.wq_state = cmd.wq_state;
- 	if (cmd.attr_mask & IB_WQ_FLAGS) {
- 		wq_attr.flags = cmd.flags;
- 		wq_attr.flags_mask = cmd.flags_mask;
- 	}
-+
-+	if (cmd.attr_mask & IB_WQ_CUR_STATE) {
-+		if (cmd.curr_wq_state > IB_WQS_ERR)
-+			return -EINVAL;
-+
-+		wq_attr.curr_wq_state = cmd.curr_wq_state;
-+	} else {
-+		wq_attr.curr_wq_state = wq->state;
-+	}
-+
-+	if (cmd.attr_mask & IB_WQ_STATE) {
-+		if (cmd.wq_state > IB_WQS_ERR)
-+			return -EINVAL;
-+
-+		wq_attr.wq_state = cmd.wq_state;
-+	} else {
-+		wq_attr.wq_state = wq_attr.curr_wq_state;
-+	}
-+
- 	ret = wq->device->ops.modify_wq(wq, &wq_attr, cmd.attr_mask,
- 					&attrs->driver_udata);
- 	rdma_lookup_put_uobject(&wq->uobject->uevent.uobject,
-diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
-index 651785bd57f2..18a47248e444 100644
---- a/drivers/infiniband/hw/mlx4/qp.c
-+++ b/drivers/infiniband/hw/mlx4/qp.c
-@@ -4254,13 +4254,8 @@ int mlx4_ib_modify_wq(struct ib_wq *ibwq, struct ib_wq_attr *wq_attr,
- 	if (wq_attr_mask & IB_WQ_FLAGS)
- 		return -EOPNOTSUPP;
- 
--	cur_state = wq_attr_mask & IB_WQ_CUR_STATE ? wq_attr->curr_wq_state :
--						     ibwq->state;
--	new_state = wq_attr_mask & IB_WQ_STATE ? wq_attr->wq_state : cur_state;
+-static void dw_mipi_dsi_rockchip_config(struct dw_mipi_dsi_rockchip *dsi,
+-					int mux)
++static void dw_mipi_dsi_rockchip_config(struct dw_mipi_dsi_rockchip *dsi)
+ {
+-	if (dsi->cdata->lcdsel_grf_reg)
+-		regmap_write(dsi->grf_regmap, dsi->cdata->lcdsel_grf_reg,
+-			mux ? dsi->cdata->lcdsel_lit : dsi->cdata->lcdsel_big);
 -
--	if (cur_state  < IB_WQS_RESET || cur_state  > IB_WQS_ERR ||
--	    new_state < IB_WQS_RESET || new_state > IB_WQS_ERR)
--		return -EINVAL;
-+	cur_state = wq_attr->curr_wq_state;
-+	new_state = wq_attr->wq_state;
+ 	if (dsi->cdata->lanecfg1_grf_reg)
+ 		regmap_write(dsi->grf_regmap, dsi->cdata->lanecfg1_grf_reg,
+ 					      dsi->cdata->lanecfg1);
+@@ -712,6 +707,13 @@ static void dw_mipi_dsi_rockchip_config(struct dw_mipi_dsi_rockchip *dsi,
+ 					      dsi->cdata->enable);
+ }
  
- 	if ((new_state == IB_WQS_RDY) && (cur_state == IB_WQS_ERR))
- 		return -EINVAL;
-diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
-index 843f9e7fe96f..bcaaf238b364 100644
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -5309,10 +5309,8 @@ int mlx5_ib_modify_wq(struct ib_wq *wq, struct ib_wq_attr *wq_attr,
++static void dw_mipi_dsi_rockchip_set_lcdsel(struct dw_mipi_dsi_rockchip *dsi,
++					    int mux)
++{
++	regmap_write(dsi->grf_regmap, dsi->cdata->lcdsel_grf_reg,
++		mux ? dsi->cdata->lcdsel_lit : dsi->cdata->lcdsel_big);
++}
++
+ static int
+ dw_mipi_dsi_encoder_atomic_check(struct drm_encoder *encoder,
+ 				 struct drm_crtc_state *crtc_state,
+@@ -767,9 +769,9 @@ static void dw_mipi_dsi_encoder_enable(struct drm_encoder *encoder)
+ 		return;
+ 	}
  
- 	rqc = MLX5_ADDR_OF(modify_rq_in, in, ctx);
+-	dw_mipi_dsi_rockchip_config(dsi, mux);
++	dw_mipi_dsi_rockchip_set_lcdsel(dsi, mux);
+ 	if (dsi->slave)
+-		dw_mipi_dsi_rockchip_config(dsi->slave, mux);
++		dw_mipi_dsi_rockchip_set_lcdsel(dsi->slave, mux);
  
--	curr_wq_state = (wq_attr_mask & IB_WQ_CUR_STATE) ?
--		wq_attr->curr_wq_state : wq->state;
--	wq_state = (wq_attr_mask & IB_WQ_STATE) ?
--		wq_attr->wq_state : curr_wq_state;
-+	curr_wq_state = wq_attr->curr_wq_state;
-+	wq_state = wq_attr->wq_state;
- 	if (curr_wq_state == IB_WQS_ERR)
- 		curr_wq_state = MLX5_RQC_STATE_ERR;
- 	if (wq_state == IB_WQS_ERR)
+ 	clk_disable_unprepare(dsi->grf_clk);
+ }
+@@ -923,6 +925,24 @@ static int dw_mipi_dsi_rockchip_bind(struct device *dev,
+ 		return ret;
+ 	}
+ 
++	/*
++	 * With the GRF clock running, write lane and dual-mode configurations
++	 * that won't change immediately. If we waited until enable() to do
++	 * this, things like panel preparation would not be able to send
++	 * commands over DSI.
++	 */
++	ret = clk_prepare_enable(dsi->grf_clk);
++	if (ret) {
++		DRM_DEV_ERROR(dsi->dev, "Failed to enable grf_clk: %d\n", ret);
++		return ret;
++	}
++
++	dw_mipi_dsi_rockchip_config(dsi);
++	if (dsi->slave)
++		dw_mipi_dsi_rockchip_config(dsi->slave);
++
++	clk_disable_unprepare(dsi->grf_clk);
++
+ 	ret = rockchip_dsi_drm_create_encoder(dsi, drm_dev);
+ 	if (ret) {
+ 		DRM_DEV_ERROR(dev, "Failed to create drm encoder\n");
 -- 
 2.30.2
 
