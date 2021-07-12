@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B8833C48D4
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB053C4D5E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236258AbhGLGlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
+        id S242370AbhGLHMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238388AbhGLGkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48F93610D1;
-        Mon, 12 Jul 2021 06:37:12 +0000 (UTC)
+        id S244239AbhGLHKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 098BC610D1;
+        Mon, 12 Jul 2021 07:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071832;
-        bh=Ch82OYIDsRo81Cuja4H7oydcuVXT7gxqIowUZ+MzaI8=;
+        s=korg; t=1626073653;
+        bh=8Yp9lNsy+iOakIq3cbwUDGisQWV9MqX/9kzDmE0CePE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSn+NRsE7m/VShbxiExcaTpZ41XJQjG3G5fLN6BGcI0c57GJVOjEbX95jSf86Vb8K
-         F+Q0TL62tBgW8zLrURK1u7Tfr7XYjzZwbKCmFCZv8sJZkRf+9LpBydmyJD3pUx1DQT
-         qMcLCGrq/5RpsFaXM0jfcvHcCtZKlhD/sv7Z8C7A=
+        b=i4X7e7Nah8tnrslFDTvOrVZWL0lRIZV8UOIzHL6tcS+DPPu4bAhwRtFB2bemwA33e
+         F2svJXeJfC6swAktlEoHAUpxPxw+QXkzqrxlyT8FtImVHnA9iY3TtsgZj3xLLCzx+7
+         CRCS10/WoFf3/qmFJZJ/sLOXt+QSSedjq22FpkbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        stable@vger.kernel.org, Mirko Vogt <mirko-dev|linux@nanl.de>,
+        Ralf Schlatterbeck <rsc@runtux.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 238/593] media: siano: Fix out-of-bounds warnings in smscore_load_firmware_family2()
+Subject: [PATCH 5.12 315/700] spi: spi-sun6i: Fix chipselect/clock bug
 Date:   Mon, 12 Jul 2021 08:06:38 +0200
-Message-Id: <20210712060909.072554786@linuxfoundation.org>
+Message-Id: <20210712061009.864386497@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,161 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Mirko Vogt <mirko-dev|linux@nanl.de>
 
-[ Upstream commit 13dfead49db07225335d4f587a560a2210391a1a ]
+[ Upstream commit 0d7993b234c9fad8cb6bec6adfaa74694ba85ecb ]
 
-Rename struct sms_msg_data4 to sms_msg_data5 and increase the size of
-its msg_data array from 4 to 5 elements. Notice that at some point
-the 5th element of msg_data is being accessed in function
-smscore_load_firmware_family2():
+The current sun6i SPI implementation initializes the transfer too early,
+resulting in SCK going high before the transfer. When using an additional
+(gpio) chipselect with sun6i, the chipselect is asserted at a time when
+clock is high, making the SPI transfer fail.
 
-1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
+This is due to SUN6I_GBL_CTL_BUS_ENABLE being written into
+SUN6I_GBL_CTL_REG at an early stage. Moving that to the transfer
+function, hence, right before the transfer starts, mitigates that
+problem.
 
-Also, there is no need for the object _trigger_msg_ of type struct
-sms_msg_data *, when _msg_ can be used, directly. Notice that msg_data
-in struct sms_msg_data is a one-element array, which causes multiple
-out-of-bounds warnings when accessing beyond its first element
-in function smscore_load_firmware_family2():
-
- 992                 struct sms_msg_data *trigger_msg =
- 993                         (struct sms_msg_data *) msg;
- 994
- 995                 pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
- 996                 SMS_INIT_MSG(&msg->x_msg_header,
- 997                                 MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
- 998                                 sizeof(struct sms_msg_hdr) +
- 999                                 sizeof(u32) * 5);
-1000
-1001                 trigger_msg->msg_data[0] = firmware->start_address;
-1002                                         /* Entry point */
-1003                 trigger_msg->msg_data[1] = 6; /* Priority */
-1004                 trigger_msg->msg_data[2] = 0x200; /* Stack size */
-1005                 trigger_msg->msg_data[3] = 0; /* Parameter */
-1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
-
-even when enough dynamic memory is allocated for _msg_:
-
- 929         /* PAGE_SIZE buffer shall be enough and dma aligned */
- 930         msg = kmalloc(PAGE_SIZE, GFP_KERNEL | coredev->gfp_buf_flags);
-
-but as _msg_ is casted to (struct sms_msg_data *):
-
- 992                 struct sms_msg_data *trigger_msg =
- 993                         (struct sms_msg_data *) msg;
-
-the out-of-bounds warnings are actually valid and should be addressed.
-
-Fix this by declaring object _msg_ of type struct sms_msg_data5 *,
-which contains a 5-elements array, instead of just 4. And use
-_msg_ directly, instead of creating object trigger_msg.
-
-This helps with the ongoing efforts to enable -Warray-bounds by fixing
-the following warnings:
-
-  CC [M]  drivers/media/common/siano/smscoreapi.o
-drivers/media/common/siano/smscoreapi.c: In function ‘smscore_load_firmware_family2’:
-drivers/media/common/siano/smscoreapi.c:1003:24: warning: array subscript 1 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1003 |   trigger_msg->msg_data[1] = 6; /* Priority */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-drivers/media/common/siano/smscoreapi.c:1004:24: warning: array subscript 2 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1004 |   trigger_msg->msg_data[2] = 0x200; /* Stack size */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-drivers/media/common/siano/smscoreapi.c:1005:24: warning: array subscript 3 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1005 |   trigger_msg->msg_data[3] = 0; /* Parameter */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-drivers/media/common/siano/smscoreapi.c:1006:24: warning: array subscript 4 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1006 |   trigger_msg->msg_data[4] = 4; /* Task ID */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-
-Fixes: 018b0c6f8acb ("[media] siano: make load firmware logic to work with newer firmwares")
-Co-developed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Fixes: 3558fe900e8af (spi: sunxi: Add Allwinner A31 SPI controller driver)
+Signed-off-by: Mirko Vogt <mirko-dev|linux@nanl.de>
+Signed-off-by: Ralf Schlatterbeck <rsc@runtux.com>
+Link: https://lore.kernel.org/r/20210614144507.y3udezjfbko7eavv@runtux.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/common/siano/smscoreapi.c | 22 +++++++++-------------
- drivers/media/common/siano/smscoreapi.h |  4 ++--
- 2 files changed, 11 insertions(+), 15 deletions(-)
+ drivers/spi/spi-sun6i.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/common/siano/smscoreapi.c b/drivers/media/common/siano/smscoreapi.c
-index c1511094fdc7..b735e2370137 100644
---- a/drivers/media/common/siano/smscoreapi.c
-+++ b/drivers/media/common/siano/smscoreapi.c
-@@ -908,7 +908,7 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
- 					 void *buffer, size_t size)
- {
- 	struct sms_firmware *firmware = (struct sms_firmware *) buffer;
--	struct sms_msg_data4 *msg;
-+	struct sms_msg_data5 *msg;
- 	u32 mem_address,  calc_checksum = 0;
- 	u32 i, *ptr;
- 	u8 *payload = firmware->payload;
-@@ -989,24 +989,20 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
- 		goto exit_fw_download;
+diff --git a/drivers/spi/spi-sun6i.c b/drivers/spi/spi-sun6i.c
+index cc8401980125..23ad052528db 100644
+--- a/drivers/spi/spi-sun6i.c
++++ b/drivers/spi/spi-sun6i.c
+@@ -379,6 +379,10 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
+ 	}
  
- 	if (coredev->mode == DEVICE_MODE_NONE) {
--		struct sms_msg_data *trigger_msg =
--			(struct sms_msg_data *) msg;
--
- 		pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
- 		SMS_INIT_MSG(&msg->x_msg_header,
- 				MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
--				sizeof(struct sms_msg_hdr) +
--				sizeof(u32) * 5);
-+				sizeof(*msg));
+ 	sun6i_spi_write(sspi, SUN6I_CLK_CTL_REG, reg);
++	/* Finally enable the bus - doing so before might raise SCK to HIGH */
++	reg = sun6i_spi_read(sspi, SUN6I_GBL_CTL_REG);
++	reg |= SUN6I_GBL_CTL_BUS_ENABLE;
++	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG, reg);
  
--		trigger_msg->msg_data[0] = firmware->start_address;
-+		msg->msg_data[0] = firmware->start_address;
- 					/* Entry point */
--		trigger_msg->msg_data[1] = 6; /* Priority */
--		trigger_msg->msg_data[2] = 0x200; /* Stack size */
--		trigger_msg->msg_data[3] = 0; /* Parameter */
--		trigger_msg->msg_data[4] = 4; /* Task ID */
-+		msg->msg_data[1] = 6; /* Priority */
-+		msg->msg_data[2] = 0x200; /* Stack size */
-+		msg->msg_data[3] = 0; /* Parameter */
-+		msg->msg_data[4] = 4; /* Task ID */
+ 	/* Setup the transfer now... */
+ 	if (sspi->tx_buf)
+@@ -504,7 +508,7 @@ static int sun6i_spi_runtime_resume(struct device *dev)
+ 	}
  
--		rc = smscore_sendrequest_and_wait(coredev, trigger_msg,
--					trigger_msg->x_msg_header.msg_length,
-+		rc = smscore_sendrequest_and_wait(coredev, msg,
-+					msg->x_msg_header.msg_length,
- 					&coredev->trigger_done);
- 	} else {
- 		SMS_INIT_MSG(&msg->x_msg_header, MSG_SW_RELOAD_EXEC_REQ,
-diff --git a/drivers/media/common/siano/smscoreapi.h b/drivers/media/common/siano/smscoreapi.h
-index b3b793b5caf3..16c45afabc53 100644
---- a/drivers/media/common/siano/smscoreapi.h
-+++ b/drivers/media/common/siano/smscoreapi.h
-@@ -629,9 +629,9 @@ struct sms_msg_data2 {
- 	u32 msg_data[2];
- };
+ 	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG,
+-			SUN6I_GBL_CTL_BUS_ENABLE | SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
++			SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
  
--struct sms_msg_data4 {
-+struct sms_msg_data5 {
- 	struct sms_msg_hdr x_msg_header;
--	u32 msg_data[4];
-+	u32 msg_data[5];
- };
+ 	return 0;
  
- struct sms_data_download {
 -- 
 2.30.2
 
