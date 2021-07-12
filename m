@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73AB13C4FE5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9851E3C55B0
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245618AbhGLH2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:28:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36830 "EHLO mail.kernel.org"
+        id S235848AbhGLILl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:11:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245589AbhGLH1Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:27:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1939B61926;
-        Mon, 12 Jul 2021 07:23:34 +0000 (UTC)
+        id S1353857AbhGLIDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8184D613D6;
+        Mon, 12 Jul 2021 07:58:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074615;
-        bh=PgTNhqs4cDl1YnDE64xUwNsF4Jh814qj7KiMW9vhU/c=;
+        s=korg; t=1626076694;
+        bh=gXNdXMIH1XxL4LwUSyVZ1h8qyBOGWRDxmUUvh+K0A8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJv+JKosuXO5Q6lYB08od2SXFItxQEvGRghjIPWDurYBTe9d/gactR1/uDZaeS4+d
-         DLvhOneL/NWNtLS3VnBKW3UDb0lOyPHnS5VyY+bngWI9wI+TSDMOGZVFH9/YQcbgFX
-         Vw84vWyiCYK+zaeLA92va+Ze9DHeLHsKgLDUZyWk=
+        b=VOjyGMygTtqwkF1nJMqBSngZyZ9sJLbgXHx8CtbLxOonHlHBiehWKA1x5O2HavpEV
+         kvKMv/pzIVOhX56xndIiepeoKQqswW/pbkBbYN3FLz2uycetdKhCTflXKskulBhlAW
+         RlCBoW2xBKhwjiECF7ZsaRnRV3OQ0J0/RKTzxStQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        =?UTF-8?q?Cl=C3=A9ment=20Lassieur?= <clement@lassieur.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 640/700] extcon: max8997: Add missing modalias string
+Subject: [PATCH 5.13 700/800] usb: dwc2: Dont reset the core after setting turnaround time
 Date:   Mon, 12 Jul 2021 08:12:03 +0200
-Message-Id: <20210712061043.957773464@linuxfoundation.org>
+Message-Id: <20210712061041.280062211@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,31 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Clément Lassieur <clement@lassieur.org>
 
-[ Upstream commit dc11fc2991e9efbceef93912b83e333d2835fb19 ]
+[ Upstream commit aafe93516b8567ab5864e1f4cd3eeabc54fb0e5a ]
 
-The platform device driver name is "max8997-muic", so advertise it
-properly in the modalias string. This fixes automated module loading when
-this driver is compiled as a module.
+Every time the hub signals a reset while we (device) are hsotg->connected,
+dwc2_hsotg_core_init_disconnected() is called, which in turn calls
+dwc2_hs_phy_init().
 
-Fixes: b76668ba8a77 ("Extcon: add MAX8997 extcon driver")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+GUSBCFG.USBTrdTim is cleared upon Core Soft Reset, so if
+hsotg->params.phy_utmi_width is 8-bit, the value of GUSBCFG.USBTrdTim (the
+default one: 0x5, corresponding to 16-bit) is always different from
+hsotg->params.phy_utmi_width, thus dwc2_core_reset() is called every
+time (usbcfg != usbcfg_old), which causes 2 issues:
+
+1) The call to dwc2_core_reset() does another reset 300us after the initial
+Chirp K of the first reset (which should last at least Tuch = 1ms), and
+messes up the High-speed Detection Handshake: both hub and device drive
+current into the D+ and D- lines at the same time.
+
+2) GUSBCFG.USBTrdTim is cleared by the second reset, so its value is always
+the default one (0x5).
+
+Setting GUSBCFG.USBTrdTim after the potential call to dwc2_core_reset()
+fixes both issues.  It is now set even when select_phy is false because the
+cost of the Core Soft Reset is removed.
+
+Fixes: 1e868545f2bb ("usb: dwc2: gadget: Move gadget phy init into core phy init")
+Signed-off-by: Clément Lassieur <clement@lassieur.org>
+Link: https://lore.kernel.org/r/20210603155921.940651-1-clement@lassieur.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-max8997.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc2/core.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
-index 5c4f7746cbee..64008808675e 100644
---- a/drivers/extcon/extcon-max8997.c
-+++ b/drivers/extcon/extcon-max8997.c
-@@ -784,3 +784,4 @@ module_platform_driver(max8997_muic_driver);
- MODULE_DESCRIPTION("Maxim MAX8997 Extcon driver");
- MODULE_AUTHOR("Donggeun Kim <dg77.kim@samsung.com>");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:max8997-muic");
+diff --git a/drivers/usb/dwc2/core.c b/drivers/usb/dwc2/core.c
+index 6f70ab9577b4..272ae5722c86 100644
+--- a/drivers/usb/dwc2/core.c
++++ b/drivers/usb/dwc2/core.c
+@@ -1111,15 +1111,6 @@ static int dwc2_hs_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+ 		usbcfg &= ~(GUSBCFG_ULPI_UTMI_SEL | GUSBCFG_PHYIF16);
+ 		if (hsotg->params.phy_utmi_width == 16)
+ 			usbcfg |= GUSBCFG_PHYIF16;
+-
+-		/* Set turnaround time */
+-		if (dwc2_is_device_mode(hsotg)) {
+-			usbcfg &= ~GUSBCFG_USBTRDTIM_MASK;
+-			if (hsotg->params.phy_utmi_width == 16)
+-				usbcfg |= 5 << GUSBCFG_USBTRDTIM_SHIFT;
+-			else
+-				usbcfg |= 9 << GUSBCFG_USBTRDTIM_SHIFT;
+-		}
+ 		break;
+ 	default:
+ 		dev_err(hsotg->dev, "FS PHY selected at HS!\n");
+@@ -1141,6 +1132,24 @@ static int dwc2_hs_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+ 	return retval;
+ }
+ 
++static void dwc2_set_turnaround_time(struct dwc2_hsotg *hsotg)
++{
++	u32 usbcfg;
++
++	if (hsotg->params.phy_type != DWC2_PHY_TYPE_PARAM_UTMI)
++		return;
++
++	usbcfg = dwc2_readl(hsotg, GUSBCFG);
++
++	usbcfg &= ~GUSBCFG_USBTRDTIM_MASK;
++	if (hsotg->params.phy_utmi_width == 16)
++		usbcfg |= 5 << GUSBCFG_USBTRDTIM_SHIFT;
++	else
++		usbcfg |= 9 << GUSBCFG_USBTRDTIM_SHIFT;
++
++	dwc2_writel(hsotg, usbcfg, GUSBCFG);
++}
++
+ int dwc2_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+ {
+ 	u32 usbcfg;
+@@ -1158,6 +1167,9 @@ int dwc2_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+ 		retval = dwc2_hs_phy_init(hsotg, select_phy);
+ 		if (retval)
+ 			return retval;
++
++		if (dwc2_is_device_mode(hsotg))
++			dwc2_set_turnaround_time(hsotg);
+ 	}
+ 
+ 	if (hsotg->hw_params.hs_phy_type == GHWCFG2_HS_PHY_TYPE_ULPI &&
 -- 
 2.30.2
 
