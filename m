@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 731383C4A74
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51DF23C54FD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235528AbhGLGw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45554 "EHLO mail.kernel.org"
+        id S240337AbhGLIIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239117AbhGLGt3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D547561006;
-        Mon, 12 Jul 2021 06:46:12 +0000 (UTC)
+        id S1348167AbhGLH5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:57:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34C6F61607;
+        Mon, 12 Jul 2021 07:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072373;
-        bh=bwRteTtT9gexEzgA33yurM3tSPxiHhwE1Fg4A9bl0uI=;
+        s=korg; t=1626076353;
+        bh=Tm/Kr15OKNH1TWq7wpEgEYaVrXjfqE72GlYD6OmU2E8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbeKWZzBRzv9Q6bgOr7VYOUsN2zz+unelUfnK2cFYy57U+QOEpPoQMyHt48aZv7Js
-         wg4PqNlVFjOcTaBKFXIjaAFHUPEYcq3YWkq+Ue2YWlm46e+U4Hs9qefHC1qDuzk+2+
-         KzMhK1l37UEvwITGbQ015X2eAagScXnYf+hT6Kgw=
+        b=ve+aVV+8Ee6VBxw7vYztUi86KqFTXAScCybRS8OjCFXh81/b9G0ZEO1hbl7WV7+IJ
+         /YJNcS3c105L5MOde3M9m74m2A5a9iLsUJpWJP5jHkjeISTN8TG6WkacR56jyTpM32
+         ezgRY50zts6f3awDqIGxdwxkwaymwS5uCCT+LgeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org, Jairaj Arava <jairaj.arava@intel.com>,
+        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@intel.com>,
+        Shuming Fan <shumingf@realtek.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Stephen Boyd <swboyd@chromium.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 468/593] ASoC: hisilicon: fix missing clk_disable_unprepare() on error in hi6210_i2s_startup()
+Subject: [PATCH 5.13 605/800] ASoC: rt5682: Disable irq on shutdown
 Date:   Mon, 12 Jul 2021 08:10:28 +0200
-Message-Id: <20210712060941.421191520@linuxfoundation.org>
+Message-Id: <20210712061031.675610639@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit 375904e3931955fcf0a847f029b2492a117efc43 ]
+[ Upstream commit 47bcb1c7108363418cd578283333d72e310dfeaa ]
 
-After calling clk_prepare_enable(), clk_disable_unprepare() need
-be called when calling clk_set_rate() failed.
+We cancel the work queues, and reset the device on shutdown, but the irq
+isn't disabled so the work queues could be queued again. Let's disable
+the irq during shutdown so that we don't have to worry about this device
+trying to do anything anymore. This fixes a problem seen where the i2c
+bus is shutdown at reboot but this device irq still comes in and tries
+to make another i2c transaction when the bus doesn't work.
 
-Fixes: 0bf750f4cbe1 ("ASoC: hisilicon: Add hi6210 i2s audio driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210518044514.607010-1-yangyingliang@huawei.com
+Cc: Jairaj Arava <jairaj.arava@intel.com>
+Cc: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+Cc: Pierre-Louis Bossart <pierre-louis.bossart@intel.com>
+Cc: Shuming Fan <shumingf@realtek.com>
+Cc: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Fixes: 45a2702ce109 ("ASoC: rt5682: Fix panic in rt5682_jack_detect_handler happening during system shutdown")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210508075151.1626903-1-swboyd@chromium.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/hisilicon/hi6210-i2s.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ sound/soc/codecs/rt5682-i2c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/hisilicon/hi6210-i2s.c b/sound/soc/hisilicon/hi6210-i2s.c
-index 907f5f1f7b44..ff05b9779e4b 100644
---- a/sound/soc/hisilicon/hi6210-i2s.c
-+++ b/sound/soc/hisilicon/hi6210-i2s.c
-@@ -102,18 +102,15 @@ static int hi6210_i2s_startup(struct snd_pcm_substream *substream,
+diff --git a/sound/soc/codecs/rt5682-i2c.c b/sound/soc/codecs/rt5682-i2c.c
+index 8ea9f1d9fec0..cd964e023d96 100644
+--- a/sound/soc/codecs/rt5682-i2c.c
++++ b/sound/soc/codecs/rt5682-i2c.c
+@@ -273,6 +273,7 @@ static void rt5682_i2c_shutdown(struct i2c_client *client)
+ {
+ 	struct rt5682_priv *rt5682 = i2c_get_clientdata(client);
  
- 	for (n = 0; n < i2s->clocks; n++) {
- 		ret = clk_prepare_enable(i2s->clk[n]);
--		if (ret) {
--			while (n--)
--				clk_disable_unprepare(i2s->clk[n]);
--			return ret;
--		}
-+		if (ret)
-+			goto err_unprepare_clk;
- 	}
++	disable_irq(client->irq);
+ 	cancel_delayed_work_sync(&rt5682->jack_detect_work);
+ 	cancel_delayed_work_sync(&rt5682->jd_check_work);
  
- 	ret = clk_set_rate(i2s->clk[CLK_I2S_BASE], 49152000);
- 	if (ret) {
- 		dev_err(i2s->dev, "%s: setting 49.152MHz base rate failed %d\n",
- 			__func__, ret);
--		return ret;
-+		goto err_unprepare_clk;
- 	}
- 
- 	/* enable clock before frequency division */
-@@ -165,6 +162,11 @@ static int hi6210_i2s_startup(struct snd_pcm_substream *substream,
- 	hi6210_write_reg(i2s, HII2S_SW_RST_N, val);
- 
- 	return 0;
-+
-+err_unprepare_clk:
-+	while (n--)
-+		clk_disable_unprepare(i2s->clk[n]);
-+	return ret;
- }
- 
- static void hi6210_i2s_shutdown(struct snd_pcm_substream *substream,
 -- 
 2.30.2
 
