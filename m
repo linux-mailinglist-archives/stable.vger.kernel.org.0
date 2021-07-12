@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0D3B3C4BA3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEDD03C512B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239889AbhGLG6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:58:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58520 "EHLO mail.kernel.org"
+        id S1345141AbhGLHiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239410AbhGLG5g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:57:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7FF66102A;
-        Mon, 12 Jul 2021 06:54:47 +0000 (UTC)
+        id S244182AbhGLHgn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:36:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6DFB61457;
+        Mon, 12 Jul 2021 07:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072888;
-        bh=+sZEZrHmHmdqH8UCcxerHUyNuFkWGKJIk6DG+Yq6UfM=;
+        s=korg; t=1626075151;
+        bh=qUmrSzCzwDef4DosGbT/vJixNaSG9wC+PfqjEDmmArg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMmCedhM7WYO/8V4sw+WLtgd8lTIMImbR5dwXgTluCIb4vCjYwvyaJPxJbf52G3KM
-         m4DZDGZjfbH4YkFk+SK3Xkw3qVZA98NGroovvpeyq7rBZUdmmHdQOdVyCxGBN0T+sI
-         SO66uQCNPyBick9CSrjdXt9s2dYuQ0PUx9N58gK4=
+        b=lITbu8oaT/eq5FqbhPmp9ufCkTMtq5fh777pujpupAXc+IHw0MI1nTrxnm0TtT86w
+         DMq9F2D+s2g3Y7uH4bgEZlrFVj9M0Z9cWv5rYA8PXdkibNZcxHo8bqKc5jFKK0xN7C
+         1nvCInsOnYILFqZKvlR7DDM7aD/0El7AQIynBEsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Pan Dong <pandong.peter@bytedance.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.12 055/700] ext4: fix avefreec in find_group_orlov
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.13 115/800] perf/x86/intel: Add more events requires FRONTEND MSR on Sapphire Rapids
 Date:   Mon, 12 Jul 2021 08:02:18 +0200
-Message-Id: <20210712060932.481444040@linuxfoundation.org>
+Message-Id: <20210712060929.152471523@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Dong <pandong.peter@bytedance.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit c89849cc0259f3d33624cc3bd127685c3c0fa25d upstream.
+commit d18216fafecf2a3a7c2b97086892269d6ab3cd5e upstream.
 
-The avefreec should be average free clusters instead
-of average free blocks, otherwize Orlov's allocator
-will not work properly when bigalloc enabled.
+On Sapphire Rapids, there are two more events 0x40ad and 0x04c2 which
+rely on the FRONTEND MSR. If the FRONTEND MSR is not set correctly, the
+count value is not correct.
 
-Cc: stable@kernel.org
-Signed-off-by: Pan Dong <pandong.peter@bytedance.com>
-Link: https://lore.kernel.org/r/20210525073656.31594-1-pandong.peter@bytedance.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Update intel_spr_extra_regs[] to support them.
+
+Fixes: 61b985e3e775 ("perf/x86/intel: Add perf core PMU support for Sapphire Rapids")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1624029174-122219-3-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ialloc.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ arch/x86/events/intel/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -402,7 +402,7 @@ static void get_orlov_stats(struct super
-  *
-  * We always try to spread first-level directories.
-  *
-- * If there are blockgroups with both free inodes and free blocks counts
-+ * If there are blockgroups with both free inodes and free clusters counts
-  * not worse than average we return one with smallest directory count.
-  * Otherwise we simply return a random group.
-  *
-@@ -411,7 +411,7 @@ static void get_orlov_stats(struct super
-  * It's OK to put directory into a group unless
-  * it has too many directories already (max_dirs) or
-  * it has too few free inodes left (min_inodes) or
-- * it has too few free blocks left (min_blocks) or
-+ * it has too few free clusters left (min_clusters) or
-  * Parent's group is preferred, if it doesn't satisfy these
-  * conditions we search cyclically through the rest. If none
-  * of the groups look good we just look for a group with more
-@@ -427,7 +427,7 @@ static int find_group_orlov(struct super
- 	ext4_group_t real_ngroups = ext4_get_groups_count(sb);
- 	int inodes_per_group = EXT4_INODES_PER_GROUP(sb);
- 	unsigned int freei, avefreei, grp_free;
--	ext4_fsblk_t freeb, avefreec;
-+	ext4_fsblk_t freec, avefreec;
- 	unsigned int ndirs;
- 	int max_dirs, min_inodes;
- 	ext4_grpblk_t min_clusters;
-@@ -446,9 +446,8 @@ static int find_group_orlov(struct super
- 
- 	freei = percpu_counter_read_positive(&sbi->s_freeinodes_counter);
- 	avefreei = freei / ngroups;
--	freeb = EXT4_C2B(sbi,
--		percpu_counter_read_positive(&sbi->s_freeclusters_counter));
--	avefreec = freeb;
-+	freec = percpu_counter_read_positive(&sbi->s_freeclusters_counter);
-+	avefreec = freec;
- 	do_div(avefreec, ngroups);
- 	ndirs = percpu_counter_read_positive(&sbi->s_dirs_counter);
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -280,6 +280,8 @@ static struct extra_reg intel_spr_extra_
+ 	INTEL_UEVENT_EXTRA_REG(0x012b, MSR_OFFCORE_RSP_1, 0x3fffffffffull, RSP_1),
+ 	INTEL_UEVENT_PEBS_LDLAT_EXTRA_REG(0x01cd),
+ 	INTEL_UEVENT_EXTRA_REG(0x01c6, MSR_PEBS_FRONTEND, 0x7fff17, FE),
++	INTEL_UEVENT_EXTRA_REG(0x40ad, MSR_PEBS_FRONTEND, 0x7, FE),
++	INTEL_UEVENT_EXTRA_REG(0x04c2, MSR_PEBS_FRONTEND, 0x8, FE),
+ 	EVENT_EXTRA_END
+ };
  
 
 
