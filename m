@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9224B3C4D8D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8FF3C51E4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244868AbhGLHNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39472 "EHLO mail.kernel.org"
+        id S1349550AbhGLHn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:43:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238072AbhGLHDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:03:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F1AE611CE;
-        Mon, 12 Jul 2021 07:00:51 +0000 (UTC)
+        id S1348587AbhGLHlH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:41:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AA9360FF3;
+        Mon, 12 Jul 2021 07:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073252;
-        bh=jGefM4KX59krCZI0Jsx9eGT5A89qWv1VfSStZg28we0=;
+        s=korg; t=1626075498;
+        bh=6ZrR1ymv8LTmt10RCYBoPgMQIITczbUgsWc1rlMEc7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plBy4HJ/MOUVLqoOkbpge03o8xfc5pLMoOW6ZAHcYaGUm98HxSOZRofLVYO9Kefsf
-         yYZSGsDGQ2M65B1UP9v/e6jqFm2MSJF0loUsBVp4HO/vUhARzz/sL+8hsYYOLqoVM1
-         3x9utryhSpvuO4mSzuSq9yJLuqubMDe/KF3XZELU=
+        b=vfoY6UQ+tjw7dSjwYcYZoAYtNAkJkTrXlfMhA7va+jp/s3637cGu7DrC1omM03yIV
+         Re8JX3GCTlX8b4rn7kqjXi6ScpdLsd+g06kUqkEon0nuM8/wArI/1NDUxhJ/UpgbGr
+         FCbGKgjr5XGoGe+z08+paYgcJR8wJMgv0L+IdTNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Luba <lukasz.luba@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 179/700] sched/fair: Take thermal pressure into account while estimating energy
+Subject: [PATCH 5.13 239/800] platform/x86: toshiba_acpi: Fix missing error code in toshiba_acpi_setup_keyboard()
 Date:   Mon, 12 Jul 2021 08:04:22 +0200
-Message-Id: <20210712060951.886875131@linuxfoundation.org>
+Message-Id: <20210712060947.389083663@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,90 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Luba <lukasz.luba@arm.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 489f16459e0008c7a5c4c5af34bd80898aa82c2d ]
+[ Upstream commit 28e367127718a9cb85d615a71e152f7acee41bfc ]
 
-Energy Aware Scheduling (EAS) needs to be able to predict the frequency
-requests made by the SchedUtil governor to properly estimate energy used
-in the future. It has to take into account CPUs utilization and forecast
-Performance Domain (PD) frequency. There is a corner case when the max
-allowed frequency might be reduced due to thermal. SchedUtil is aware of
-that reduced frequency, so it should be taken into account also in EAS
-estimations.
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'error'.
 
-SchedUtil, as a CPUFreq governor, knows the maximum allowed frequency of
-a CPU, thanks to cpufreq_driver_resolve_freq() and internal clamping
-to 'policy::max'. SchedUtil is responsible to respect that upper limit
-while setting the frequency through CPUFreq drivers. This effective
-frequency is stored internally in 'sugov_policy::next_freq' and EAS has
-to predict that value.
+Eliminate the follow smatch warning:
 
-In the existing code the raw value of arch_scale_cpu_capacity() is used
-for clamping the returned CPU utilization from effective_cpu_util().
-This patch fixes issue with too big single CPU utilization, by introducing
-clamping to the allowed CPU capacity. The allowed CPU capacity is a CPU
-capacity reduced by thermal pressure raw value.
+drivers/platform/x86/toshiba_acpi.c:2834 toshiba_acpi_setup_keyboard()
+warn: missing error code 'error'.
 
-Thanks to knowledge about allowed CPU capacity, we don't get too big value
-for a single CPU utilization, which is then added to the util sum. The
-util sum is used as a source of information for estimating whole PD energy.
-To avoid wrong energy estimation in EAS (due to capped frequency), make
-sure that the calculation of util sum is aware of allowed CPU capacity.
-
-This thermal pressure might be visible in scenarios where the CPUs are not
-heavily loaded, but some other component (like GPU) drastically reduced
-available power budget and increased the SoC temperature. Thus, we still
-use EAS for task placement and CPUs are not over-utilized.
-
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Link: https://lore.kernel.org/r/20210614191128.22735-1-lukasz.luba@arm.com
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1622628348-87035-1-git-send-email-jiapeng.chong@linux.alibaba.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/platform/x86/toshiba_acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 272c583fc167..20ac5dff9a0c 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6564,8 +6564,11 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
- 	struct cpumask *pd_mask = perf_domain_span(pd);
- 	unsigned long cpu_cap = arch_scale_cpu_capacity(cpumask_first(pd_mask));
- 	unsigned long max_util = 0, sum_util = 0;
-+	unsigned long _cpu_cap = cpu_cap;
- 	int cpu;
+diff --git a/drivers/platform/x86/toshiba_acpi.c b/drivers/platform/x86/toshiba_acpi.c
+index fa7232ad8c39..352508d30467 100644
+--- a/drivers/platform/x86/toshiba_acpi.c
++++ b/drivers/platform/x86/toshiba_acpi.c
+@@ -2831,6 +2831,7 @@ static int toshiba_acpi_setup_keyboard(struct toshiba_acpi_dev *dev)
  
-+	_cpu_cap -= arch_scale_thermal_pressure(cpumask_first(pd_mask));
-+
- 	/*
- 	 * The capacity state of CPUs of the current rd can be driven by CPUs
- 	 * of another rd if they belong to the same pd. So, account for the
-@@ -6601,8 +6604,10 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
- 		 * is already enough to scale the EM reported power
- 		 * consumption at the (eventually clamped) cpu_capacity.
- 		 */
--		sum_util += effective_cpu_util(cpu, util_running, cpu_cap,
--					       ENERGY_UTIL, NULL);
-+		cpu_util = effective_cpu_util(cpu, util_running, cpu_cap,
-+					      ENERGY_UTIL, NULL);
-+
-+		sum_util += min(cpu_util, _cpu_cap);
- 
- 		/*
- 		 * Performance domain frequency: utilization clamping
-@@ -6613,7 +6618,7 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
- 		 */
- 		cpu_util = effective_cpu_util(cpu, util_freq, cpu_cap,
- 					      FREQUENCY_UTIL, tsk);
--		max_util = max(max_util, cpu_util);
-+		max_util = max(max_util, min(cpu_util, _cpu_cap));
+ 	if (!dev->info_supported && !dev->system_event_supported) {
+ 		pr_warn("No hotkey query interface found\n");
++		error = -EINVAL;
+ 		goto err_remove_filter;
  	}
  
- 	return em_cpu_energy(pd->em_pd, max_util, sum_util);
 -- 
 2.30.2
 
