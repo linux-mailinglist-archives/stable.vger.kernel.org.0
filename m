@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C31213C53A1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7E7D3C497D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348262AbhGLHz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37842 "EHLO mail.kernel.org"
+        id S235937AbhGLGpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:45:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350558AbhGLHvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93C1E61205;
-        Mon, 12 Jul 2021 07:46:15 +0000 (UTC)
+        id S238718AbhGLGoN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:44:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BCCC61004;
+        Mon, 12 Jul 2021 06:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075976;
-        bh=JaEEkSWd8TPseL/G8wxu4i/rEARwjJTc5tQFmUBi95Y=;
+        s=korg; t=1626071992;
+        bh=a2tIk9dXJdPFxZOQLyb/5pEBKjRb+ibBT0yX6tiqtj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vr6cJ+Rsv3eMoq/OMyDxuyOVcBBqnEJPl53eNjOyyHOT19BT3qJcqfw30YU1WLlZd
-         Li2Jt9vxJ/Ovv6hkIityoZbd53Sgnl7LIXgHqPQ6oMpJ7Jvn3fyw2n6JKLje5NvSS+
-         1F+mpZH5jgpnuxJvH7g8sprYexZQlAJIYSgCgKRQ=
+        b=MOTP2Sp3HXFLIwmIjdWwDKwLlNzVtHV+uYEP7Re9NpQc75ZKCm7DmkiyO9t44wLN7
+         9Tizi1whVJcOxJEtw9MABvACUgIpjAJgf2dbdThvHP+s9HoWElT9Hg/r+9i6tm2C4I
+         5bBchHGT38pMYFyTC29ynUI7+rf92khc2BFeOob0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
-        Kamal Heib <kamalheib1@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 445/800] RDMA/rxe: Fix failure during driver load
-Date:   Mon, 12 Jul 2021 08:07:48 +0200
-Message-Id: <20210712061014.467472154@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
+        Charmaine Lee <charmainel@vmware.com>,
+        Roland Scheidegger <sroland@vmware.com>,
+        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 309/593] drm/vmwgfx: Mark a surface gpu-dirty after the SVGA3dCmdDXGenMips command
+Date:   Mon, 12 Jul 2021 08:07:49 +0200
+Message-Id: <20210712060919.179443722@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Thomas Hellstrom <thellstrom@vmware.com>
 
-[ Upstream commit 32a25f2ea690dfaace19f7a3a916f5d7e1ddafe8 ]
+[ Upstream commit 75156a887b6cea6e09d83ec19f4ebfd7c86265f0 ]
 
-To avoid the following failure when trying to load the rdma_rxe module
-while IPv6 is disabled, add a check for EAFNOSUPPORT and ignore the
-failure, also delete the needless debug print from rxe_setup_udp_tunnel().
+The SVGA3dCmdDXGenMips command uses a shader-resource view to access
+the underlying surface. Normally accesses using that view-type are not
+dirtying the underlying surface, but that particular command is an
+exception.
+Mark the surface gpu-dirty after a SVGA3dCmdDXGenMips command has been
+submitted.
 
-$ modprobe rdma_rxe
-modprobe: ERROR: could not insert 'rdma_rxe': Operation not permitted
+This fixes the piglit getteximage-formats test run with
+SVGA_FORCE_COHERENT=1
 
-Fixes: dfdd6158ca2c ("IB/rxe: Fix kernel panic in udp_setup_tunnel")
-Link: https://lore.kernel.org/r/20210603090112.36341-1-kamalheib1@gmail.com
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: a9f58c456e9d ("drm/vmwgfx: Be more restrictive when dirtying resources")
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Charmaine Lee <charmainel@vmware.com>
+Reviewed-by: Roland Scheidegger <sroland@vmware.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210505035740.286923-3-zackr@vmware.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_net.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_net.c b/drivers/infiniband/sw/rxe/rxe_net.c
-index 01662727dca0..fc1ba4904279 100644
---- a/drivers/infiniband/sw/rxe/rxe_net.c
-+++ b/drivers/infiniband/sw/rxe/rxe_net.c
-@@ -207,10 +207,8 @@ static struct socket *rxe_setup_udp_tunnel(struct net *net, __be16 port,
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+index e67e2e8f6e6f..83e1b54eb864 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+@@ -2759,12 +2759,24 @@ static int vmw_cmd_dx_genmips(struct vmw_private *dev_priv,
+ {
+ 	VMW_DECLARE_CMD_VAR(*cmd, SVGA3dCmdDXGenMips) =
+ 		container_of(header, typeof(*cmd), header);
+-	struct vmw_resource *ret;
++	struct vmw_resource *view;
++	struct vmw_res_cache_entry *rcache;
  
- 	/* Create UDP socket */
- 	err = udp_sock_create(net, &udp_cfg, &sock);
--	if (err < 0) {
--		pr_err("failed to create udp socket. err = %d\n", err);
-+	if (err < 0)
- 		return ERR_PTR(err);
--	}
+-	ret = vmw_view_id_val_add(sw_context, vmw_view_sr,
+-				  cmd->body.shaderResourceViewId);
++	view = vmw_view_id_val_add(sw_context, vmw_view_sr,
++				   cmd->body.shaderResourceViewId);
++	if (IS_ERR(view))
++		return PTR_ERR(view);
  
- 	tnl_cfg.encap_type = 1;
- 	tnl_cfg.encap_rcv = rxe_udp_encap_recv;
-@@ -619,6 +617,12 @@ static int rxe_net_ipv6_init(void)
+-	return PTR_ERR_OR_ZERO(ret);
++	/*
++	 * Normally the shader-resource view is not gpu-dirtying, but for
++	 * this particular command it is...
++	 * So mark the last looked-up surface, which is the surface
++	 * the view points to, gpu-dirty.
++	 */
++	rcache = &sw_context->res_cache[vmw_res_surface];
++	vmw_validation_res_set_dirty(sw_context->ctx, rcache->private,
++				     VMW_RES_DIRTY_SET);
++	return 0;
+ }
  
- 	recv_sockets.sk6 = rxe_setup_udp_tunnel(&init_net,
- 						htons(ROCE_V2_UDP_DPORT), true);
-+	if (PTR_ERR(recv_sockets.sk6) == -EAFNOSUPPORT) {
-+		recv_sockets.sk6 = NULL;
-+		pr_warn("IPv6 is not supported, can not create a UDPv6 socket\n");
-+		return 0;
-+	}
-+
- 	if (IS_ERR(recv_sockets.sk6)) {
- 		recv_sockets.sk6 = NULL;
- 		pr_err("Failed to create IPv6 UDP tunnel\n");
+ /**
 -- 
 2.30.2
 
