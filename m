@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C86A13C48F9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 179F13C4D52
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236050AbhGLGld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34338 "EHLO mail.kernel.org"
+        id S241886AbhGLHMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238113AbhGLGjz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AB10611C1;
-        Mon, 12 Jul 2021 06:36:14 +0000 (UTC)
+        id S244140AbhGLHK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A53AF613B6;
+        Mon, 12 Jul 2021 07:06:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071775;
-        bh=8lpbkFkp2uAXf6kGjU5dT/KWl7qDzireS2yA1s9yq8s=;
+        s=korg; t=1626073591;
+        bh=vdtF+omV7OLYAa/FCSoY7v45LfrG1AYg+8i89VthYI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=md8uNG7pHmLvO7vGs4yOoxHX93N+Q4EZaxGB8shTSk3F4S6FNssgFiPIDJx70vMoa
-         qYfjBrozoMJCYqm/uhA1ilFoONTgigIvK50NeT7bycVySaTXEdFVFrcBhpaYhr5nrD
-         p3gPmmiIceKYMOzhbcJ0vBONyBmItF0Z+FzwgWPI=
+        b=BmQBCa8JGFczB9oqelTmT6zkVt1X6pAjIwfk2Q0pfNqXuwwu/EpANScpwuOZUJ3I3
+         zwp+R4OjmLdq/zky60mS+ejWEo4uttpNLI/U6Dd/Hx/HjRc/FynbvJwS5wAreGGePU
+         VENpFe/7J3UUqIz1T51d3imUP4YjniyhenQkKmQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 215/593] crypto: ixp4xx - update IV after requests
+Subject: [PATCH 5.12 292/700] media: i2c: rdacm21: Fix OV10640 powerup
 Date:   Mon, 12 Jul 2021 08:06:15 +0200
-Message-Id: <20210712060906.574307514@linuxfoundation.org>
+Message-Id: <20210712061007.313438248@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-[ Upstream commit e8acf011f2e7e21a7e2fae47cbaa06598e533d40 ]
+[ Upstream commit ff75332b260cd33cc19000fdb5d256d9db4470d1 ]
 
-Crypto selftests fail on ixp4xx since it do not update IV after skcipher
-requests.
+The OV10640 image sensor powerdown signal is controlled by the first
+line of the OV490 GPIO pad #1, but the pad #0 identifier
+OV490_GPIO_OUTPUT_VALUE0 was erroneously used. As a result the image
+sensor powerdown signal was never asserted but was left floating and
+kept high by an internal pull-up resistor, causing sporadic failures
+during the image sensor startup phase.
 
-Fixes: 81bef0150074 ("crypto: ixp4xx - Hardware crypto support for IXP4xx CPUs")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fix this by using the correct GPIO pad identifier and wait the mandatory
+1.5 millisecond delay after the powerup lane is asserted. The reset
+delay is not characterized in the chip manual if not as "255 XVCLK +
+initialization". Wait for at least 3 milliseconds to guarantee the SCCB
+bus is available.
+
+While at it also fix the reset sequence, as the reset line was released
+before the powerdown one, and the line was not cycled.
+
+This commit fixes a sporadic start-up error triggered by a failure to
+read the OV10640 chip ID:
+rdacm21 8-0054: OV10640 ID mismatch: (0x01)
+
+Fixes: a59f853b3b4b ("media: i2c: Add driver for RDACM21 camera module")
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ixp4xx_crypto.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/media/i2c/rdacm21.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/ixp4xx_crypto.c b/drivers/crypto/ixp4xx_crypto.c
-index cbb1fda299a8..5e474a7a1912 100644
---- a/drivers/crypto/ixp4xx_crypto.c
-+++ b/drivers/crypto/ixp4xx_crypto.c
-@@ -149,6 +149,8 @@ struct crypt_ctl {
- struct ablk_ctx {
- 	struct buffer_desc *src;
- 	struct buffer_desc *dst;
-+	u8 iv[MAX_IVLEN];
-+	bool encrypt;
- };
+diff --git a/drivers/media/i2c/rdacm21.c b/drivers/media/i2c/rdacm21.c
+index 179d107f494c..4b0dfd0a75e1 100644
+--- a/drivers/media/i2c/rdacm21.c
++++ b/drivers/media/i2c/rdacm21.c
+@@ -333,13 +333,19 @@ static int ov10640_initialize(struct rdacm21_device *dev)
+ {
+ 	u8 val;
  
- struct aead_ctx {
-@@ -381,6 +383,20 @@ static void one_packet(dma_addr_t phys)
- 	case CTL_FLAG_PERFORM_ABLK: {
- 		struct skcipher_request *req = crypt->data.ablk_req;
- 		struct ablk_ctx *req_ctx = skcipher_request_ctx(req);
-+		struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
-+		unsigned int ivsize = crypto_skcipher_ivsize(tfm);
-+		unsigned int offset;
+-	/* Power-up OV10640 by setting RESETB and PWDNB pins high. */
++	/* Enable GPIO0#0 (reset) and GPIO1#0 (pwdn) as output lines. */
+ 	ov490_write_reg(dev, OV490_GPIO_SEL0, OV490_GPIO0);
+ 	ov490_write_reg(dev, OV490_GPIO_SEL1, OV490_SPWDN0);
+ 	ov490_write_reg(dev, OV490_GPIO_DIRECTION0, OV490_GPIO0);
+ 	ov490_write_reg(dev, OV490_GPIO_DIRECTION1, OV490_SPWDN0);
 +
-+		if (ivsize > 0) {
-+			offset = req->cryptlen - ivsize;
-+			if (req_ctx->encrypt) {
-+				scatterwalk_map_and_copy(req->iv, req->dst,
-+							 offset, ivsize, 0);
-+			} else {
-+				memcpy(req->iv, req_ctx->iv, ivsize);
-+				memzero_explicit(req_ctx->iv, ivsize);
-+			}
-+		}
++	/* Power up OV10640 and then reset it. */
++	ov490_write_reg(dev, OV490_GPIO_OUTPUT_VALUE1, OV490_SPWDN0);
++	usleep_range(1500, 3000);
++
++	ov490_write_reg(dev, OV490_GPIO_OUTPUT_VALUE0, 0x00);
++	usleep_range(1500, 3000);
+ 	ov490_write_reg(dev, OV490_GPIO_OUTPUT_VALUE0, OV490_GPIO0);
+-	ov490_write_reg(dev, OV490_GPIO_OUTPUT_VALUE0, OV490_SPWDN0);
+ 	usleep_range(3000, 5000);
  
- 		if (req_ctx->dst) {
- 			free_buf_chain(dev, req_ctx->dst, crypt->dst_buf);
-@@ -876,6 +892,7 @@ static int ablk_perform(struct skcipher_request *req, int encrypt)
- 	struct ablk_ctx *req_ctx = skcipher_request_ctx(req);
- 	struct buffer_desc src_hook;
- 	struct device *dev = &pdev->dev;
-+	unsigned int offset;
- 	gfp_t flags = req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP ?
- 				GFP_KERNEL : GFP_ATOMIC;
- 
-@@ -885,6 +902,7 @@ static int ablk_perform(struct skcipher_request *req, int encrypt)
- 		return -EAGAIN;
- 
- 	dir = encrypt ? &ctx->encrypt : &ctx->decrypt;
-+	req_ctx->encrypt = encrypt;
- 
- 	crypt = get_crypt_desc();
- 	if (!crypt)
-@@ -900,6 +918,10 @@ static int ablk_perform(struct skcipher_request *req, int encrypt)
- 
- 	BUG_ON(ivsize && !req->iv);
- 	memcpy(crypt->iv, req->iv, ivsize);
-+	if (ivsize > 0 && !encrypt) {
-+		offset = req->cryptlen - ivsize;
-+		scatterwalk_map_and_copy(req_ctx->iv, req->src, offset, ivsize, 0);
-+	}
- 	if (req->src != req->dst) {
- 		struct buffer_desc dst_hook;
- 		crypt->mode |= NPE_OP_NOT_IN_PLACE;
+ 	/* Read OV10640 ID to test communications. */
 -- 
 2.30.2
 
