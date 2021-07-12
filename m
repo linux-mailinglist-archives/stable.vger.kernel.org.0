@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7EB3C5369
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49F73C4D76
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352391AbhGLHyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35484 "EHLO mail.kernel.org"
+        id S241015AbhGLHNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350312AbhGLHuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C06B1619B9;
-        Mon, 12 Jul 2021 07:44:23 +0000 (UTC)
+        id S245307AbhGLHLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:11:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C169760FF0;
+        Mon, 12 Jul 2021 07:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075864;
-        bh=4dzgCyh8BYXAmzhq/UXO6qhbFFREt8XwUHGT9V8zmVo=;
+        s=korg; t=1626073727;
+        bh=rNG5DcWA9KDHMgAglAzkWJWc5snz95lOb8j/k4helOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHg3jPbTv1caFLCxOk4GpyhvBNgVxyYonxcTrVV5lrKlCZeTgaOtyXO5b0aCMHAIC
-         bYF1LQw6V/bUDuDDvSAUqUByeHupFi6Ock2HY56a48YP+3tvtnaAtbLQlIAiR5LmYo
-         Hdex2ZtQB5s2Z8gX981xQKXlmzlH/0av29b8FmfY=
+        b=fPDHvCAbzSd09Yu0qFZtFklqCIDgA9ngSBrOg0qsh+teG9PpN5ef4GhnJpn6k6rUE
+         bw0Bu/KyDrMYnFkP640vqClkXWN+/aRNRDqksZDTlf1+OwLb67lFTs2eUzQPorHDvs
+         kOIZcxAqJkDtMzmhlJHkgVvuzrBqLqKQLhURe7mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+7d941e89dd48bcf42573@syzkaller.appspotmail.com
-Subject: [PATCH 5.13 398/800] rtnetlink: avoid RCU read lock when holding RTNL
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 338/700] ACPI: bgrt: Fix CFI violation
 Date:   Mon, 12 Jul 2021 08:07:01 +0200
-Message-Id: <20210712061009.507557079@linuxfoundation.org>
+Message-Id: <20210712061012.281177073@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,118 +41,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit a100243d95a60d74ae9bb9df1f5f2192e9aed6a7 ]
+[ Upstream commit f37ccf8fce155d08ae2a4fb3db677911ced0c21a ]
 
-When we call af_ops->set_link_af() we hold a RCU read lock
-as we retrieve af_ops from the RCU protected list, but this
-is unnecessary because we already hold RTNL lock, which is
-the writer lock for protecting rtnl_af_ops, so it is safer
-than RCU read lock. Similar for af_ops->validate_link_af().
+clang's Control Flow Integrity requires that every indirect call has a
+valid target, which is based on the type of the function pointer. The
+*_show() functions in this file are written as if they will be called
+from dev_attr_show(); however, they will be called from
+sysfs_kf_seq_show() because the files were created by
+sysfs_create_group() and the sysfs ops are based on kobj_sysfs_ops
+because of kobject_add_and_create(). Because the *_show() functions do
+not match the type of the show() member in struct kobj_attribute, there
+is a CFI violation.
 
-This was not a problem until we begin to take mutex lock
-down the path of ->set_link_af() in __ipv6_dev_mc_dec()
-recently. We can just drop the RCU read lock there and
-assert RTNL lock.
+$ cat /sys/firmware/acpi/bgrt/{status,type,version,{x,y}offset}}
+1
+0
+1
+522
+307
 
-Reported-and-tested-by: syzbot+7d941e89dd48bcf42573@syzkaller.appspotmail.com
-Fixes: 63ed8de4be81 ("mld: add mc_lock for protecting per-interface mld data")
-Tested-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+$ dmesg | grep "CFI failure"
+[  267.761825] CFI failure (target: type_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+[  267.762246] CFI failure (target: xoffset_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+[  267.762584] CFI failure (target: status_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+[  267.762973] CFI failure (target: yoffset_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+[  267.763330] CFI failure (target: version_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+
+Convert these functions to the type of the show() member in struct
+kobj_attribute so that there is no more CFI violation. Because these
+functions are all so similar, combine them into a macro.
+
+Fixes: d1ff4b1cdbab ("ACPI: Add support for exposing BGRT data")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1406
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 26 +++++++-------------------
- net/ipv4/devinet.c   |  4 ++--
- 2 files changed, 9 insertions(+), 21 deletions(-)
+ drivers/acpi/bgrt.c | 57 ++++++++++++++-------------------------------
+ 1 file changed, 18 insertions(+), 39 deletions(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index ec931b080156..c6e75bd0035d 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -543,7 +543,9 @@ static const struct rtnl_af_ops *rtnl_af_lookup(const int family)
- {
- 	const struct rtnl_af_ops *ops;
+diff --git a/drivers/acpi/bgrt.c b/drivers/acpi/bgrt.c
+index 19bb7f870204..e0d14017706e 100644
+--- a/drivers/acpi/bgrt.c
++++ b/drivers/acpi/bgrt.c
+@@ -15,40 +15,19 @@
+ static void *bgrt_image;
+ static struct kobject *bgrt_kobj;
  
--	list_for_each_entry_rcu(ops, &rtnl_af_ops, list) {
-+	ASSERT_RTNL();
+-static ssize_t version_show(struct device *dev,
+-			    struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.version);
+-}
+-static DEVICE_ATTR_RO(version);
+-
+-static ssize_t status_show(struct device *dev,
+-			   struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.status);
+-}
+-static DEVICE_ATTR_RO(status);
+-
+-static ssize_t type_show(struct device *dev,
+-			 struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_type);
+-}
+-static DEVICE_ATTR_RO(type);
+-
+-static ssize_t xoffset_show(struct device *dev,
+-			    struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_x);
+-}
+-static DEVICE_ATTR_RO(xoffset);
+-
+-static ssize_t yoffset_show(struct device *dev,
+-			    struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_y);
+-}
+-static DEVICE_ATTR_RO(yoffset);
++#define BGRT_SHOW(_name, _member) \
++	static ssize_t _name##_show(struct kobject *kobj,			\
++				    struct kobj_attribute *attr, char *buf)	\
++	{									\
++		return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab._member);	\
++	}									\
++	struct kobj_attribute bgrt_attr_##_name = __ATTR_RO(_name)
 +
-+	list_for_each_entry(ops, &rtnl_af_ops, list) {
- 		if (ops->family == family)
- 			return ops;
- 	}
-@@ -2274,27 +2276,18 @@ static int validate_linkmsg(struct net_device *dev, struct nlattr *tb[])
- 		nla_for_each_nested(af, tb[IFLA_AF_SPEC], rem) {
- 			const struct rtnl_af_ops *af_ops;
++BGRT_SHOW(version, version);
++BGRT_SHOW(status, status);
++BGRT_SHOW(type, image_type);
++BGRT_SHOW(xoffset, image_offset_x);
++BGRT_SHOW(yoffset, image_offset_y);
  
--			rcu_read_lock();
- 			af_ops = rtnl_af_lookup(nla_type(af));
--			if (!af_ops) {
--				rcu_read_unlock();
-+			if (!af_ops)
- 				return -EAFNOSUPPORT;
--			}
+ static ssize_t image_read(struct file *file, struct kobject *kobj,
+ 	       struct bin_attribute *attr, char *buf, loff_t off, size_t count)
+@@ -60,11 +39,11 @@ static ssize_t image_read(struct file *file, struct kobject *kobj,
+ static BIN_ATTR_RO(image, 0);	/* size gets filled in later */
  
--			if (!af_ops->set_link_af) {
--				rcu_read_unlock();
-+			if (!af_ops->set_link_af)
- 				return -EOPNOTSUPP;
--			}
- 
- 			if (af_ops->validate_link_af) {
- 				err = af_ops->validate_link_af(dev, af);
--				if (err < 0) {
--					rcu_read_unlock();
-+				if (err < 0)
- 					return err;
--				}
- 			}
--
--			rcu_read_unlock();
- 		}
- 	}
- 
-@@ -2868,17 +2861,12 @@ static int do_setlink(const struct sk_buff *skb,
- 		nla_for_each_nested(af, tb[IFLA_AF_SPEC], rem) {
- 			const struct rtnl_af_ops *af_ops;
- 
--			rcu_read_lock();
--
- 			BUG_ON(!(af_ops = rtnl_af_lookup(nla_type(af))));
- 
- 			err = af_ops->set_link_af(dev, af, extack);
--			if (err < 0) {
--				rcu_read_unlock();
-+			if (err < 0)
- 				goto errout;
--			}
- 
--			rcu_read_unlock();
- 			status |= DO_SETLINK_NOTIFY;
- 		}
- 	}
-diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
-index 1c6429c353a9..73721a4448bd 100644
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -1955,7 +1955,7 @@ static int inet_validate_link_af(const struct net_device *dev,
- 	struct nlattr *a, *tb[IFLA_INET_MAX+1];
- 	int err, rem;
- 
--	if (dev && !__in_dev_get_rcu(dev))
-+	if (dev && !__in_dev_get_rtnl(dev))
- 		return -EAFNOSUPPORT;
- 
- 	err = nla_parse_nested_deprecated(tb, IFLA_INET_MAX, nla,
-@@ -1981,7 +1981,7 @@ static int inet_validate_link_af(const struct net_device *dev,
- static int inet_set_link_af(struct net_device *dev, const struct nlattr *nla,
- 			    struct netlink_ext_ack *extack)
- {
--	struct in_device *in_dev = __in_dev_get_rcu(dev);
-+	struct in_device *in_dev = __in_dev_get_rtnl(dev);
- 	struct nlattr *a, *tb[IFLA_INET_MAX+1];
- 	int rem;
+ static struct attribute *bgrt_attributes[] = {
+-	&dev_attr_version.attr,
+-	&dev_attr_status.attr,
+-	&dev_attr_type.attr,
+-	&dev_attr_xoffset.attr,
+-	&dev_attr_yoffset.attr,
++	&bgrt_attr_version.attr,
++	&bgrt_attr_status.attr,
++	&bgrt_attr_type.attr,
++	&bgrt_attr_xoffset.attr,
++	&bgrt_attr_yoffset.attr,
+ 	NULL,
+ };
  
 -- 
 2.30.2
