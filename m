@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 185353C49D1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E56573C4ED5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238144AbhGLGqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41894 "EHLO mail.kernel.org"
+        id S240520AbhGLHVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:21:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237239AbhGLGqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:46:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DCE561004;
-        Mon, 12 Jul 2021 06:42:00 +0000 (UTC)
+        id S244885AbhGLHTO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:19:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85A0361606;
+        Mon, 12 Jul 2021 07:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072121;
-        bh=Y5BeouvsHyV2BTcopdaBpsoIlKZw4mEHsCOW3L5bBFg=;
+        s=korg; t=1626074182;
+        bh=jZ7LmBtZuC2O1Icj63BSXYgdEweJ4ls3X1wJugyalUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b9XQeOggh+GDQjRGT5q3afXjukJAIRgPavCe1ccAelmwqj9c+oBr9bairuDccygCI
-         YwBCdKmZJAvw+p4EbaTVlvSEhxnzxz949rtu6WTdPecCqQ9s8ECLFNy/2NquhQlqkw
-         SCMsuEW1PNbG7DZLoBaJt3r07Z+lYFFvOTktL/Xw=
+        b=Yvq1+XYI0yqUPvnBUQ6hkC2ryoOQqgSAT/uMWbjpEfqvasHA+YxLkWpJgFqMmmz35
+         RRL96yn2GClsqpCotSLoU/MLs+phr0s66o3aaO3GHkYAQRVZyhT/UCn8kuormL5gVl
+         ItTg3iX/b7SImpfWL+fxiXnod9lyuE/v0z0GbHbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 363/593] xsk: Fix broken Tx ring validation
+        stable@vger.kernel.org, Shayne Chen <shayne.chen@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 440/700] mt76: mt7915: fix rx fcs error count in testmode
 Date:   Mon, 12 Jul 2021 08:08:43 +0200
-Message-Id: <20210712060926.433409450@linuxfoundation.org>
+Message-Id: <20210712061023.300534842@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Shayne Chen <shayne.chen@mediatek.com>
 
-[ Upstream commit f654fae47e83e56b454fbbfd0af0a4f232e356d6 ]
+[ Upstream commit 89043529c8b833d87391f1844e9d1cc1643393eb ]
 
-Fix broken Tx ring validation for AF_XDP. The commit under the Fixes
-tag, fixed an off-by-one error in the validation but introduced
-another error. Descriptors are now let through even if they straddle a
-chunk boundary which they are not allowed to do in aligned mode. Worse
-is that they are let through even if they straddle the end of the umem
-itself, tricking the kernel to read data outside the allowed umem
-region which might or might not be mapped at all.
+FCS error packets are filtered by default and won't be reported to
+driver, so that RX fcs error and PER in testmode always show zero.
+Fix this issue by reading fcs error count from hw counter.
 
-Fix this by reintroducing the old code, but subtract the length by one
-to fix the off-by-one error that the original patch was
-addressing. The test chunk != chunk_end makes sure packets do not
-straddle chunk boundraries. Note that packets of zero length are
-allowed in the interface, therefore the test if the length is
-non-zero.
+We did't fix this issue by disabling fcs error rx filter since it may
+let HW suffer some SER errors.
 
-Fixes: ac31565c2193 ("xsk: Fix for xp_aligned_validate_desc() when len == chunk_size")
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Björn Töpel <bjorn@kernel.org>
-Link: https://lore.kernel.org/bpf/20210618075805.14412-1-magnus.karlsson@gmail.com
+Fixes: 5d8a83f09941 ("mt76: mt7915: implement testmode rx support")
+Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk_queue.h | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ .../wireless/mediatek/mt76/mt7915/testmode.c  | 21 +++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
-index be9fd5a72011..3c7ce60fe9a5 100644
---- a/net/xdp/xsk_queue.h
-+++ b/net/xdp/xsk_queue.h
-@@ -126,12 +126,15 @@ static inline bool xskq_cons_read_addr_unchecked(struct xsk_queue *q, u64 *addr)
- static inline bool xp_aligned_validate_desc(struct xsk_buff_pool *pool,
- 					    struct xdp_desc *desc)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/testmode.c b/drivers/net/wireless/mediatek/mt76/mt7915/testmode.c
+index bd798df748ba..8eb90722c532 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/testmode.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/testmode.c
+@@ -476,10 +476,17 @@ mt7915_tm_set_tx_frames(struct mt7915_phy *phy, bool en)
+ static void
+ mt7915_tm_set_rx_frames(struct mt7915_phy *phy, bool en)
  {
--	u64 chunk;
--
--	if (desc->len > pool->chunk_size)
--		return false;
-+	u64 chunk, chunk_end;
- 
- 	chunk = xp_aligned_extract_addr(pool, desc->addr);
-+	if (likely(desc->len)) {
-+		chunk_end = xp_aligned_extract_addr(pool, desc->addr + desc->len - 1);
-+		if (chunk != chunk_end)
-+			return false;
-+	}
+-	if (en)
++	mt7915_tm_set_trx(phy, TM_MAC_RX_RXV, false);
 +
- 	if (chunk >= pool->addrs_cnt)
- 		return false;
++	if (en) {
++		struct mt7915_dev *dev = phy->dev;
++
+ 		mt7915_tm_update_channel(phy);
+ 
+-	mt7915_tm_set_trx(phy, TM_MAC_RX_RXV, en);
++		/* read-clear */
++		mt76_rr(dev, MT_MIB_SDR3(phy != &dev->phy));
++		mt7915_tm_set_trx(phy, TM_MAC_RX_RXV, en);
++	}
+ }
+ 
+ static int
+@@ -702,7 +709,11 @@ static int
+ mt7915_tm_dump_stats(struct mt76_phy *mphy, struct sk_buff *msg)
+ {
+ 	struct mt7915_phy *phy = mphy->priv;
++	struct mt7915_dev *dev = phy->dev;
++	bool ext_phy = phy != &dev->phy;
++	enum mt76_rxq_id q;
+ 	void *rx, *rssi;
++	u16 fcs_err;
+ 	int i;
+ 
+ 	rx = nla_nest_start(msg, MT76_TM_STATS_ATTR_LAST_RX);
+@@ -747,6 +758,12 @@ mt7915_tm_dump_stats(struct mt76_phy *mphy, struct sk_buff *msg)
+ 
+ 	nla_nest_end(msg, rx);
+ 
++	fcs_err = mt76_get_field(dev, MT_MIB_SDR3(ext_phy),
++				 MT_MIB_SDR3_FCS_ERR_MASK);
++	q = ext_phy ? MT_RXQ_EXT : MT_RXQ_MAIN;
++	mphy->test.rx_stats.packets[q] += fcs_err;
++	mphy->test.rx_stats.fcs_error[q] += fcs_err;
++
+ 	return 0;
+ }
  
 -- 
 2.30.2
