@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9053C5380
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 213083C4948
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352477AbhGLHyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35406 "EHLO mail.kernel.org"
+        id S237992AbhGLGna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:43:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350423AbhGLHvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9A1B619AB;
-        Mon, 12 Jul 2021 07:45:10 +0000 (UTC)
+        id S237523AbhGLGlt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:41:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FAF2610D0;
+        Mon, 12 Jul 2021 06:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075911;
-        bh=vfJURHXqwHTklvHCDt5n4DjF0AE+lKj9S291HEWTRnE=;
+        s=korg; t=1626071930;
+        bh=5zlbmlvk1VlahUaiaHBzlrBgUx3osJ++wGdNjSq0qWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+RuvlPh43kUhSIVEkFuSbkzJ1OVkDqCxVLMK/NiV4tsO7ftesrR5BxY0iIfnE1FL
-         VNDo/7dkHjqLwnGtVUuYtqhgyRmzoQFs4p1CrUHNtFS3hxFGxyXdKJDaYrONJ0DJJb
-         unrP3Q+GjeugOCb+SJr55k3ByJnfSZ3xQpRaCw2g=
+        b=n3WSlQHvCkVhnBHt9hSAr3F1TttGrY/Qpyv3FDgI99ZKwmkNTg3cb3rdPcbxx0mK+
+         mGfET/X0kECUfF9Bku0QZQLL/1eBlpKJhICyJPyZYwYxps8Pj9LtjvfT6oeBaBudxk
+         vfAg3M9gz/fihD0IXGd+qGkCHu55PvpleFNoU8tA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Adam Ford <aford173@gmail.com>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Lokesh Vutla <lokeshvutla@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 416/800] drm/vc4: crtc: Pass the drm_atomic_state to config_pv
-Date:   Mon, 12 Jul 2021 08:07:19 +0200
-Message-Id: <20210712061011.459315574@linuxfoundation.org>
+Subject: [PATCH 5.10 280/593] clocksource/drivers/timer-ti-dm: Save and restore timer TIOCP_CFG
+Date:   Mon, 12 Jul 2021 08:07:20 +0200
+Message-Id: <20210712060914.882762279@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit c6883985d46319e0d4f159de8932b09ff93e877d ]
+[ Upstream commit 9517c577f9f722270584cfb1a7b4e1354e408658 ]
 
-The vc4_crtc_config_pv will need to access the drm_atomic_state
-structure and its only parent function, vc4_crtc_atomic_enable already
-has access to it. Let's pass it as a parameter.
+As we are using cpu_pm to save and restore context, we must also save and
+restore the timer sysconfig register TIOCP_CFG. This is needed because
+we are not calling PM runtime functions at all with cpu_pm.
 
-Fixes: 792c3132bc1b ("drm/vc4: encoder: Add finer-grained encoder callbacks")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210507150515.257424-4-maxime@cerno.tech
+Fixes: b34677b0999a ("clocksource/drivers/timer-ti-dm: Implement cpu_pm notifier for context save and restore")
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Adam Ford <aford173@gmail.com>
+Cc: Andreas Kemnade <andreas@kemnade.info>
+Cc: Lokesh Vutla <lokeshvutla@ti.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210415085506.56828-1-tony@atomide.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/clocksource/timer-ti-dm.c | 6 ++++++
+ include/clocksource/timer-ti-dm.h | 1 +
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
-index 76657dcdf9b0..d079303cc426 100644
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -305,7 +305,7 @@ static void vc4_crtc_pixelvalve_reset(struct drm_crtc *crtc)
- 	CRTC_WRITE(PV_CONTROL, CRTC_READ(PV_CONTROL) | PV_CONTROL_FIFO_CLR);
- }
+diff --git a/drivers/clocksource/timer-ti-dm.c b/drivers/clocksource/timer-ti-dm.c
+index 33eeabf9c3d1..e5c631f1b5cb 100644
+--- a/drivers/clocksource/timer-ti-dm.c
++++ b/drivers/clocksource/timer-ti-dm.c
+@@ -78,6 +78,9 @@ static void omap_dm_timer_write_reg(struct omap_dm_timer *timer, u32 reg,
  
--static void vc4_crtc_config_pv(struct drm_crtc *crtc)
-+static void vc4_crtc_config_pv(struct drm_crtc *crtc, struct drm_atomic_state *state)
+ static void omap_timer_restore_context(struct omap_dm_timer *timer)
  {
- 	struct drm_device *dev = crtc->dev;
- 	struct vc4_dev *vc4 = to_vc4_dev(dev);
-@@ -313,8 +313,8 @@ static void vc4_crtc_config_pv(struct drm_crtc *crtc)
- 	struct vc4_encoder *vc4_encoder = to_vc4_encoder(encoder);
- 	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
- 	const struct vc4_pv_data *pv_data = vc4_crtc_to_vc4_pv_data(vc4_crtc);
--	struct drm_crtc_state *state = crtc->state;
--	struct drm_display_mode *mode = &state->adjusted_mode;
-+	struct drm_crtc_state *crtc_state = crtc->state;
-+	struct drm_display_mode *mode = &crtc_state->adjusted_mode;
- 	bool interlace = mode->flags & DRM_MODE_FLAG_INTERLACE;
- 	u32 pixel_rep = (mode->flags & DRM_MODE_FLAG_DBLCLK) ? 2 : 1;
- 	bool is_dsi = (vc4_encoder->type == VC4_ENCODER_TYPE_DSI0 ||
-@@ -539,7 +539,7 @@ static void vc4_crtc_atomic_enable(struct drm_crtc *crtc,
- 	if (vc4_encoder->pre_crtc_configure)
- 		vc4_encoder->pre_crtc_configure(encoder, state);
++	__omap_dm_timer_write(timer, OMAP_TIMER_OCP_CFG_OFFSET,
++			      timer->context.ocp_cfg, 0);
++
+ 	omap_dm_timer_write_reg(timer, OMAP_TIMER_WAKEUP_EN_REG,
+ 				timer->context.twer);
+ 	omap_dm_timer_write_reg(timer, OMAP_TIMER_COUNTER_REG,
+@@ -95,6 +98,9 @@ static void omap_timer_restore_context(struct omap_dm_timer *timer)
  
--	vc4_crtc_config_pv(crtc);
-+	vc4_crtc_config_pv(crtc, state);
+ static void omap_timer_save_context(struct omap_dm_timer *timer)
+ {
++	timer->context.ocp_cfg =
++		__omap_dm_timer_read(timer, OMAP_TIMER_OCP_CFG_OFFSET, 0);
++
+ 	timer->context.tclr =
+ 			omap_dm_timer_read_reg(timer, OMAP_TIMER_CTRL_REG);
+ 	timer->context.twer =
+diff --git a/include/clocksource/timer-ti-dm.h b/include/clocksource/timer-ti-dm.h
+index 4c61dade8835..f6da8a132639 100644
+--- a/include/clocksource/timer-ti-dm.h
++++ b/include/clocksource/timer-ti-dm.h
+@@ -74,6 +74,7 @@
+ #define OMAP_TIMER_ERRATA_I103_I767			0x80000000
  
- 	CRTC_WRITE(PV_CONTROL, CRTC_READ(PV_CONTROL) | PV_CONTROL_EN);
- 
+ struct timer_regs {
++	u32 ocp_cfg;
+ 	u32 tidr;
+ 	u32 tier;
+ 	u32 twer;
 -- 
 2.30.2
 
