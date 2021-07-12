@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E8C03C4D17
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FC4C3C532E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242354AbhGLHLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:11:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41690 "EHLO mail.kernel.org"
+        id S1350631AbhGLHx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:53:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244139AbhGLHK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:10:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35814613BE;
-        Mon, 12 Jul 2021 07:06:36 +0000 (UTC)
+        id S1347102AbhGLHsk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:48:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CBB26191A;
+        Mon, 12 Jul 2021 07:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073596;
-        bh=WF1o1BNDVfyRUhkdNwe1t1ceJv4yBBYYlDm+gtp63fY=;
+        s=korg; t=1626075763;
+        bh=JAue6/l+GnZ/MYG41KHG3rj4ORAVQYOpyTfW0SriCYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFCW7wv8ABMDji7OQ6rp7dX3+I1xIprJMWESCSW1jemyL1k+V05VOIUlbCz0YWBfZ
-         JSzBJP3Ht2hrhcgitIC5QkVKJf1FLeJqvP811n0RdarAZzRjWlVKqwjbdDfAkOZ/2V
-         70G5cmRR0JURUBhOxiYmsFpmWxkNNVz9n8IvQRsw=
+        b=wAq9wrI0qHDjaLSafF8jnHFHyIPXd4K9ZfU5vt1c3++qujH8Sf7EnntobU/WdZZ/H
+         /4XKqO80C6+9UNLtYJzx0YWtf2tZfjRJbXYot711FXvBT66IJTt+qNm95SstcmkE3K
+         yMjbh5yLsh4mIzpVmKP42IVZk+aNxcvsqgUKeiJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrej Picej <andpicej@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 294/700] hwmon: (lm70) Revert "hwmon: (lm70) Add support for ACPI"
+Subject: [PATCH 5.13 354/800] media: s5p-mfc: Fix display delay control creation
 Date:   Mon, 12 Jul 2021 08:06:17 +0200
-Message-Id: <20210712061007.554077283@linuxfoundation.org>
+Message-Id: <20210712061004.752903180@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit ac61c8aae446b9c0fe18981fe721d4a43e283ad6 ]
+[ Upstream commit 61c6f04a988e420a1fc5e8e81cf9aebf142a7bd6 ]
 
-This reverts commit b58bd4c6dfe709646ed9efcbba2a70643f9bc873.
+v4l2_ctrl_new_std() fails if the caller provides no 'step' parameter for
+integer control, so define it to fix following error:
 
-None of the ACPI IDs introduced with the reverted patch is a valid ACPI
-device ID. Any ACPI users of this driver are advised to use PRP0001 and
-a devicetree-compatible device identification.
+s5p_mfc_dec_ctrls_setup:1166: Adding control (1) failed
 
-Fixes: b58bd4c6dfe7 ("hwmon: (lm70) Add support for ACPI")
-Cc: Andrej Picej <andpicej@gmail.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: c3042bff918a ("media: s5p-mfc: Use display delay and display enable std controls")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/lm70.c | 26 +-------------------------
- 1 file changed, 1 insertion(+), 25 deletions(-)
+ drivers/media/platform/s5p-mfc/s5p_mfc_dec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwmon/lm70.c b/drivers/hwmon/lm70.c
-index 40eab3349904..6b884ea00987 100644
---- a/drivers/hwmon/lm70.c
-+++ b/drivers/hwmon/lm70.c
-@@ -22,10 +22,10 @@
- #include <linux/hwmon.h>
- #include <linux/mutex.h>
- #include <linux/mod_devicetable.h>
-+#include <linux/of.h>
- #include <linux/property.h>
- #include <linux/spi/spi.h>
- #include <linux/slab.h>
--#include <linux/acpi.h>
- 
- #define DRVNAME		"lm70"
- 
-@@ -148,29 +148,6 @@ static const struct of_device_id lm70_of_ids[] = {
- MODULE_DEVICE_TABLE(of, lm70_of_ids);
- #endif
- 
--#ifdef CONFIG_ACPI
--static const struct acpi_device_id lm70_acpi_ids[] = {
--	{
--		.id = "LM000070",
--		.driver_data = LM70_CHIP_LM70,
--	},
--	{
--		.id = "TMP00121",
--		.driver_data = LM70_CHIP_TMP121,
--	},
--	{
--		.id = "LM000071",
--		.driver_data = LM70_CHIP_LM71,
--	},
--	{
--		.id = "LM000074",
--		.driver_data = LM70_CHIP_LM74,
--	},
--	{},
--};
--MODULE_DEVICE_TABLE(acpi, lm70_acpi_ids);
--#endif
--
- static int lm70_probe(struct spi_device *spi)
- {
- 	struct device *hwmon_dev;
-@@ -217,7 +194,6 @@ static struct spi_driver lm70_driver = {
- 	.driver = {
- 		.name	= "lm70",
- 		.of_match_table	= of_match_ptr(lm70_of_ids),
--		.acpi_match_table = ACPI_PTR(lm70_acpi_ids),
+diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_dec.c b/drivers/media/platform/s5p-mfc/s5p_mfc_dec.c
+index a92a9ca6e87e..c1d3bda8385b 100644
+--- a/drivers/media/platform/s5p-mfc/s5p_mfc_dec.c
++++ b/drivers/media/platform/s5p-mfc/s5p_mfc_dec.c
+@@ -172,6 +172,7 @@ static struct mfc_control controls[] = {
+ 		.type = V4L2_CTRL_TYPE_INTEGER,
+ 		.minimum = 0,
+ 		.maximum = 16383,
++		.step = 1,
+ 		.default_value = 0,
  	},
- 	.id_table = lm70_ids,
- 	.probe	= lm70_probe,
+ 	{
 -- 
 2.30.2
 
