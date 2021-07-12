@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F196D3C481B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 900F73C481E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234590AbhGLGfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58304 "EHLO mail.kernel.org"
+        id S236233AbhGLGgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:36:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236064AbhGLGfA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:35:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5390A60FD8;
-        Mon, 12 Jul 2021 06:32:11 +0000 (UTC)
+        id S236436AbhGLGfO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:35:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D6D260FE3;
+        Mon, 12 Jul 2021 06:32:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071531;
-        bh=Mh1xYXqDgxwjQsgpEKT7aCHD9SmgnJVg0RLjNmFRuR4=;
+        s=korg; t=1626071534;
+        bh=dV9evPm4c2ZbaBBpgB8FzfTBMxhDUnAlW3rio1MYS8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9avDCV2ChJ5M7E3Mg4T/YLcpeM9FT89AF4vyH+geo6SzKc3OsFYNZWq7/AFx43vr
-         yprgwiZZCWSw9LVt/vCX90NBQbWUjm28bJV/UNQ41PJlo/zZ/K0UE9a26nXAwPcHYa
-         wqBhuWJFzPyROmVtdzKSLLQepkR4rupuW4t0gJJI=
+        b=BdGI3jb2TZ+9mRuNMwARZw7UazRfJ5acR+TZqPzU0ZrxY43gfQckuHgnsLNXp0hCd
+         wj7Np+DAWeZNg+GMaxzsB5Xh9hfODKd2FlpX6BWU+KMH3TjwrSHW0flei3SVVRT0Qo
+         LjYyr5/m3XiwXqSwdx3Z9HsL5mxdJC+WGkom8NrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 067/593] f2fs: Prevent swap file in LFS mode
-Date:   Mon, 12 Jul 2021 08:03:47 +0200
-Message-Id: <20210712060850.544487731@linuxfoundation.org>
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.10 068/593] clk: agilex/stratix10/n5x: fix how the bypass_reg is handled
+Date:   Mon, 12 Jul 2021 08:03:48 +0200
+Message-Id: <20210712060850.646680444@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,44 +39,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-commit d927ccfccb009ede24448d69c08b12e7c8a6979b upstream.
+commit dfd1427c3769ba51297777dbb296f1802d72dbf6 upstream.
 
-The kernel writes to swap files on f2fs directly without the assistance
-of the filesystem. This direct write by kernel can be non-sequential
-even when the f2fs is in LFS mode. Such non-sequential write conflicts
-with the LFS semantics. Especially when f2fs is set up on zoned block
-devices, the non-sequential write causes unaligned write command errors.
+If the bypass_reg is set, then we can return the bypass parent, however,
+if there is not a bypass_reg, we need to figure what the correct parent
+mux is.
 
-To avoid the non-sequential writes to swap files, prevent swap file
-activation when the filesystem is in LFS mode.
+The previous code never handled the parent mux if there was a
+bypass_reg.
 
-Fixes: 4969c06a0d83 ("f2fs: support swap file w/ DIO")
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: stable@vger.kernel.org # v5.10+
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Link: https://lore.kernel.org/r/20210611025201.118799-4-dinguyen@kernel.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/f2fs/data.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/clk/socfpga/clk-periph-s10.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -4112,6 +4112,12 @@ static int f2fs_swap_activate(struct swa
- 	if (f2fs_readonly(F2FS_I_SB(inode)->sb))
- 		return -EROFS;
+--- a/drivers/clk/socfpga/clk-periph-s10.c
++++ b/drivers/clk/socfpga/clk-periph-s10.c
+@@ -49,16 +49,21 @@ static u8 clk_periclk_get_parent(struct
+ {
+ 	struct socfpga_periph_clk *socfpgaclk = to_periph_clk(hwclk);
+ 	u32 clk_src, mask;
+-	u8 parent;
++	u8 parent = 0;
  
-+	if (f2fs_lfs_mode(F2FS_I_SB(inode))) {
-+		f2fs_err(F2FS_I_SB(inode),
-+			"Swapfile not supported in LFS mode");
-+		return -EINVAL;
++	/* handle the bypass first */
+ 	if (socfpgaclk->bypass_reg) {
+ 		mask = (0x1 << socfpgaclk->bypass_shift);
+ 		parent = ((readl(socfpgaclk->bypass_reg) & mask) >>
+ 			   socfpgaclk->bypass_shift);
+-	} else {
++		if (parent)
++			return parent;
 +	}
 +
- 	ret = f2fs_convert_inline_inode(inode);
- 	if (ret)
- 		return ret;
++	if (socfpgaclk->hw.reg) {
+ 		clk_src = readl(socfpgaclk->hw.reg);
+ 		parent = (clk_src >> CLK_MGR_FREE_SHIFT) &
+-			CLK_MGR_FREE_MASK;
++			  CLK_MGR_FREE_MASK;
+ 	}
+ 	return parent;
+ }
 
 
