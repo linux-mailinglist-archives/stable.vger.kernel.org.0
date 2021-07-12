@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 581563C4ED0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 754483C4A1D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241066AbhGLHVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55466 "EHLO mail.kernel.org"
+        id S238555AbhGLGsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:48:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244812AbhGLHSt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:18:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A99961153;
-        Mon, 12 Jul 2021 07:15:54 +0000 (UTC)
+        id S236538AbhGLGrj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:47:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20A16611F1;
+        Mon, 12 Jul 2021 06:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074154;
-        bh=nnbaz8Yfi3PCtZtlmiSX2StMsnPRe/+TSWMllL/PZpU=;
+        s=korg; t=1626072217;
+        bh=LJbD7DrUYPmRZAMlDFkz4WBP7lE88JkaDf4HFPrxDdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b+UnCEX2qnlBlPrg9BlZzHUPpPQFYf3NibLLWMWD7d8S+ZuEPKFMU2m+YojYVHdM8
-         pQJr+d5iaqXjWb55OxehQCN4ho2ysHA4MJM+5BifUcAcgX2ZXHZBsfEi0PV8Xnwdzd
-         iYZFATP7aoaGCElYRnG/kK5/osoJd7U3weWqBUuE=
+        b=sNMXDPf52N79YsKJIRkVlfkqvAPpTsgcPRESiLx3xIMY+xNd84U8xutDGzkmUQusI
+         2+rshdkA0aqQLbHDAIIONaV1xX8DpXIcZd3jq23JPEW5eOeIcCTugyrI+imA/rj175
+         ewUnO0st2NWvnY17Uw3tgpT9Vam6BTY0Fkz5F8rY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        stable@vger.kernel.org, Lior Nahmanson <liorna@nvidia.com>,
+        Antoine Tenart <atenart@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 481/700] Revert "ibmvnic: simplify reset_long_term_buff function"
+Subject: [PATCH 5.10 404/593] net: phy: mscc: fix macsec key length
 Date:   Mon, 12 Jul 2021 08:09:24 +0200
-Message-Id: <20210712061027.789641483@linuxfoundation.org>
+Message-Id: <20210712060932.145829882@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,118 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit 0ec13aff058a82426c8d44b688c804cc4a5a0a3d ]
+[ Upstream commit c309217f91f2d2097c2a0a832d9bff50b88c81dc ]
 
-This reverts commit 1c7d45e7b2c29080bf6c8cd0e213cc3cbb62a054.
+The key length used to store the macsec key was set to MACSEC_KEYID_LEN
+(16), which is an issue as:
+- This was never meant to be the key length.
+- The key length can be > 16.
 
-We tried to optimize the number of hcalls we send and skipped sending
-the REQUEST_MAP calls for some maps. However during resets, we need to
-resend all the maps to the VIOS since the VIOS does not remember the
-old values. In fact we may have failed over to a new VIOS which will
-not have any of the mappings.
+Fix this by using MACSEC_MAX_KEY_LEN instead (the max length accepted in
+uAPI).
 
-When we send packets with map ids the VIOS does not know about, it
-triggers a FATAL reset. While the client does recover from the FATAL
-error reset, we are seeing a large number of such resets. Handling
-FATAL resets is lot more unnecessary work than issuing a few more
-hcalls so revert the commit and resend the maps to the VIOS.
-
-Fixes: 1c7d45e7b2c ("ibmvnic: simplify reset_long_term_buff function")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Fixes: 28c5107aa904 ("net: phy: mscc: macsec support")
+Reported-by: Lior Nahmanson <liorna@nvidia.com>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 46 ++++++++++++++++++++++++------
- 1 file changed, 38 insertions(+), 8 deletions(-)
+ drivers/net/phy/mscc/mscc_macsec.c | 2 +-
+ drivers/net/phy/mscc/mscc_macsec.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index ffb2a91750c7..b920132d4940 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -257,12 +257,40 @@ static void free_long_term_buff(struct ibmvnic_adapter *adapter,
- 	dma_free_coherent(dev, ltb->size, ltb->buff, ltb->addr);
+diff --git a/drivers/net/phy/mscc/mscc_macsec.c b/drivers/net/phy/mscc/mscc_macsec.c
+index 10be266e48e8..b7b2521c73fb 100644
+--- a/drivers/net/phy/mscc/mscc_macsec.c
++++ b/drivers/net/phy/mscc/mscc_macsec.c
+@@ -501,7 +501,7 @@ static u32 vsc8584_macsec_flow_context_id(struct macsec_flow *flow)
  }
  
--static int reset_long_term_buff(struct ibmvnic_long_term_buff *ltb)
-+static int reset_long_term_buff(struct ibmvnic_adapter *adapter,
-+				struct ibmvnic_long_term_buff *ltb)
+ /* Derive the AES key to get a key for the hash autentication */
+-static int vsc8584_macsec_derive_key(const u8 key[MACSEC_KEYID_LEN],
++static int vsc8584_macsec_derive_key(const u8 key[MACSEC_MAX_KEY_LEN],
+ 				     u16 key_len, u8 hkey[16])
  {
--	if (!ltb->buff)
--		return -EINVAL;
-+	struct device *dev = &adapter->vdev->dev;
-+	int rc;
+ 	const u8 input[AES_BLOCK_SIZE] = {0};
+diff --git a/drivers/net/phy/mscc/mscc_macsec.h b/drivers/net/phy/mscc/mscc_macsec.h
+index 9c6d25e36de2..453304bae778 100644
+--- a/drivers/net/phy/mscc/mscc_macsec.h
++++ b/drivers/net/phy/mscc/mscc_macsec.h
+@@ -81,7 +81,7 @@ struct macsec_flow {
+ 	/* Highest takes precedence [0..15] */
+ 	u8 priority;
  
- 	memset(ltb->buff, 0, ltb->size);
-+
-+	mutex_lock(&adapter->fw_lock);
-+	adapter->fw_done_rc = 0;
-+
-+	reinit_completion(&adapter->fw_done);
-+	rc = send_request_map(adapter, ltb->addr, ltb->size, ltb->map_id);
-+	if (rc) {
-+		mutex_unlock(&adapter->fw_lock);
-+		return rc;
-+	}
-+
-+	rc = ibmvnic_wait_for_completion(adapter, &adapter->fw_done, 10000);
-+	if (rc) {
-+		dev_info(dev,
-+			 "Reset failed, long term map request timed out or aborted\n");
-+		mutex_unlock(&adapter->fw_lock);
-+		return rc;
-+	}
-+
-+	if (adapter->fw_done_rc) {
-+		dev_info(dev,
-+			 "Reset failed, attempting to free and reallocate buffer\n");
-+		free_long_term_buff(adapter, ltb);
-+		mutex_unlock(&adapter->fw_lock);
-+		return alloc_long_term_buff(adapter, ltb, ltb->size);
-+	}
-+	mutex_unlock(&adapter->fw_lock);
- 	return 0;
- }
+-	u8 key[MACSEC_KEYID_LEN];
++	u8 key[MACSEC_MAX_KEY_LEN];
  
-@@ -484,7 +512,8 @@ static int reset_rx_pools(struct ibmvnic_adapter *adapter)
- 						  rx_pool->size *
- 						  rx_pool->buff_size);
- 		} else {
--			rc = reset_long_term_buff(&rx_pool->long_term_buff);
-+			rc = reset_long_term_buff(adapter,
-+						  &rx_pool->long_term_buff);
- 		}
- 
- 		if (rc)
-@@ -607,11 +636,12 @@ static int init_rx_pools(struct net_device *netdev)
- 	return 0;
- }
- 
--static int reset_one_tx_pool(struct ibmvnic_tx_pool *tx_pool)
-+static int reset_one_tx_pool(struct ibmvnic_adapter *adapter,
-+			     struct ibmvnic_tx_pool *tx_pool)
- {
- 	int rc, i;
- 
--	rc = reset_long_term_buff(&tx_pool->long_term_buff);
-+	rc = reset_long_term_buff(adapter, &tx_pool->long_term_buff);
- 	if (rc)
- 		return rc;
- 
-@@ -638,10 +668,10 @@ static int reset_tx_pools(struct ibmvnic_adapter *adapter)
- 
- 	tx_scrqs = adapter->num_active_tx_pools;
- 	for (i = 0; i < tx_scrqs; i++) {
--		rc = reset_one_tx_pool(&adapter->tso_pool[i]);
-+		rc = reset_one_tx_pool(adapter, &adapter->tso_pool[i]);
- 		if (rc)
- 			return rc;
--		rc = reset_one_tx_pool(&adapter->tx_pool[i]);
-+		rc = reset_one_tx_pool(adapter, &adapter->tx_pool[i]);
- 		if (rc)
- 			return rc;
- 	}
+ 	union {
+ 		struct macsec_rx_sa *rx_sa;
 -- 
 2.30.2
 
