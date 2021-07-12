@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 732913C4E1B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 063993C5406
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243586AbhGLHQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:16:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47502 "EHLO mail.kernel.org"
+        id S1349414AbhGLH4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240784AbhGLHQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:16:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05D8E61351;
-        Mon, 12 Jul 2021 07:12:42 +0000 (UTC)
+        id S1351689AbhGLHwC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:52:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D2BC610D1;
+        Mon, 12 Jul 2021 07:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073963;
-        bh=6YrRdAiwJ+gQaa4rzjM8wT10Q1pjcEc1AyD8+QQUGDQ=;
+        s=korg; t=1626076153;
+        bh=oIpkgF5zKPuWySBMSL7DEgixamOeY1hF/x7WHWlEGXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cR4DGL8UdjC5hjJkD6nv8XlG9+Q/zbPe3Gwfktev+Fd9q8NjSJeG4OoG9JMAlD1NR
-         sJP49k3OPs9r98QRiVtnfcEg0EqGkyYa5ng2rCxyB+aMcmBItgJK22dS5YBjsCVQmL
-         So/+4zJUzdOTrMl3Vmm7gW0U8QR+RBxw5gRPf9qA=
+        b=EABdFiu6LEQhepglqpHIrwVPZJKPST5Op8c0JnPWle12uQwI7cE61fRK8qgFicaaI
+         ZvXikHIa9qy4sBnbaBws7CasNTGDlFcbJuG98ksxa8jgxSRi1TOduitmmpqT1wI11M
+         h+4VjSbeNOFkLVJ9jSG/LAYSpcZQMxgSAW+u6JNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Liu Shixin <liushixin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Daniel Xu <dxu@dxuuu.xyz>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 418/700] netlabel: Fix memory leak in netlbl_mgmt_add_common
+Subject: [PATCH 5.13 478/800] selftests/bpf: Whitelist test_progs.h from .gitignore
 Date:   Mon, 12 Jul 2021 08:08:21 +0200
-Message-Id: <20210712061020.846639729@linuxfoundation.org>
+Message-Id: <20210712061018.038069655@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,112 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Daniel Xu <dxu@dxuuu.xyz>
 
-[ Upstream commit b8f6b0522c298ae9267bd6584e19b942a0636910 ]
+[ Upstream commit 809ed84de8b3f2fd7b1d06efb94bf98fd318a7d7 ]
 
-Hulk Robot reported memory leak in netlbl_mgmt_add_common.
-The problem is non-freed map in case of netlbl_domhsh_add() failed.
+Somehow test_progs.h was being included by the existing rule:
 
-BUG: memory leak
-unreferenced object 0xffff888100ab7080 (size 96):
-  comm "syz-executor537", pid 360, jiffies 4294862456 (age 22.678s)
-  hex dump (first 32 bytes):
-    05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    fe 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01  ................
-  backtrace:
-    [<0000000008b40026>] netlbl_mgmt_add_common.isra.0+0xb2a/0x1b40
-    [<000000003be10950>] netlbl_mgmt_add+0x271/0x3c0
-    [<00000000c70487ed>] genl_family_rcv_msg_doit.isra.0+0x20e/0x320
-    [<000000001f2ff614>] genl_rcv_msg+0x2bf/0x4f0
-    [<0000000089045792>] netlink_rcv_skb+0x134/0x3d0
-    [<0000000020e96fdd>] genl_rcv+0x24/0x40
-    [<0000000042810c66>] netlink_unicast+0x4a0/0x6a0
-    [<000000002e1659f0>] netlink_sendmsg+0x789/0xc70
-    [<000000006e43415f>] sock_sendmsg+0x139/0x170
-    [<00000000680a73d7>] ____sys_sendmsg+0x658/0x7d0
-    [<0000000065cbb8af>] ___sys_sendmsg+0xf8/0x170
-    [<0000000019932b6c>] __sys_sendmsg+0xd3/0x190
-    [<00000000643ac172>] do_syscall_64+0x37/0x90
-    [<000000009b79d6dc>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+    /test_progs*
 
-Fixes: 63c416887437 ("netlabel: Add network address selectors to the NetLabel/LSM domain mapping")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is bad because:
+
+    1) test_progs.h is a checked in file
+    2) grep-like tools like ripgrep[0] respect gitignore and
+       test_progs.h was being hidden from searches
+
+[0]: https://github.com/BurntSushi/ripgrep
+
+Fixes: 74b5a5968fe8 ("selftests/bpf: Replace test_progs and test_maps w/ general rule")
+Signed-off-by: Daniel Xu <dxu@dxuuu.xyz>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/a46f64944bf678bc652410ca6028d3450f4f7f4b.1623880296.git.dxu@dxuuu.xyz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlabel/netlabel_mgmt.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ tools/testing/selftests/bpf/.gitignore | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netlabel/netlabel_mgmt.c b/net/netlabel/netlabel_mgmt.c
-index df1b41ed73fd..19e4fffccf78 100644
---- a/net/netlabel/netlabel_mgmt.c
-+++ b/net/netlabel/netlabel_mgmt.c
-@@ -76,6 +76,7 @@ static const struct nla_policy netlbl_mgmt_genl_policy[NLBL_MGMT_A_MAX + 1] = {
- static int netlbl_mgmt_add_common(struct genl_info *info,
- 				  struct netlbl_audit *audit_info)
- {
-+	void *pmap = NULL;
- 	int ret_val = -EINVAL;
- 	struct netlbl_domaddr_map *addrmap = NULL;
- 	struct cipso_v4_doi *cipsov4 = NULL;
-@@ -175,6 +176,7 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 			ret_val = -ENOMEM;
- 			goto add_free_addrmap;
- 		}
-+		pmap = map;
- 		map->list.addr = addr->s_addr & mask->s_addr;
- 		map->list.mask = mask->s_addr;
- 		map->list.valid = 1;
-@@ -183,10 +185,8 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 			map->def.cipso = cipsov4;
- 
- 		ret_val = netlbl_af4list_add(&map->list, &addrmap->list4);
--		if (ret_val != 0) {
--			kfree(map);
--			goto add_free_addrmap;
--		}
-+		if (ret_val != 0)
-+			goto add_free_map;
- 
- 		entry->family = AF_INET;
- 		entry->def.type = NETLBL_NLTYPE_ADDRSELECT;
-@@ -223,6 +223,7 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 			ret_val = -ENOMEM;
- 			goto add_free_addrmap;
- 		}
-+		pmap = map;
- 		map->list.addr = *addr;
- 		map->list.addr.s6_addr32[0] &= mask->s6_addr32[0];
- 		map->list.addr.s6_addr32[1] &= mask->s6_addr32[1];
-@@ -235,10 +236,8 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 			map->def.calipso = calipso;
- 
- 		ret_val = netlbl_af6list_add(&map->list, &addrmap->list6);
--		if (ret_val != 0) {
--			kfree(map);
--			goto add_free_addrmap;
--		}
-+		if (ret_val != 0)
-+			goto add_free_map;
- 
- 		entry->family = AF_INET6;
- 		entry->def.type = NETLBL_NLTYPE_ADDRSELECT;
-@@ -248,10 +247,12 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
- 
- 	ret_val = netlbl_domhsh_add(entry, audit_info);
- 	if (ret_val != 0)
--		goto add_free_addrmap;
-+		goto add_free_map;
- 
- 	return 0;
- 
-+add_free_map:
-+	kfree(pmap);
- add_free_addrmap:
- 	kfree(addrmap);
- add_doi_put_def:
+diff --git a/tools/testing/selftests/bpf/.gitignore b/tools/testing/selftests/bpf/.gitignore
+index 4866f6a21901..d89efd9785d8 100644
+--- a/tools/testing/selftests/bpf/.gitignore
++++ b/tools/testing/selftests/bpf/.gitignore
+@@ -10,6 +10,7 @@ FEATURE-DUMP.libbpf
+ fixdep
+ test_dev_cgroup
+ /test_progs*
++!test_progs.h
+ test_verifier_log
+ feature
+ test_sock
 -- 
 2.30.2
 
