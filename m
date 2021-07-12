@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 768773C4E64
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C5A3C49F5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244630AbhGLHSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:18:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
+        id S235579AbhGLGrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:47:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244284AbhGLHR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:17:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5147B60FF1;
-        Mon, 12 Jul 2021 07:14:37 +0000 (UTC)
+        id S238090AbhGLGqx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:46:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF348610D0;
+        Mon, 12 Jul 2021 06:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074077;
-        bh=qPRrfG24hPBmZCc9nBR426HAh1SjSbrJ3pbGfqxvprI=;
+        s=korg; t=1626072168;
+        bh=zvhFL83RE0xo+7bPMo0qIzV/DPNi7+mchRQV0jprd1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJs4Ni2fAcmzO9ewLTYlrKfoS+fOlnIu/XfaIq/q1N40ZxUhbLc3t0lhH7tlTZPs0
-         Xh/1ECEoqogMG0GZfk4bsJP4nGiWuxemlItYAak/f/oDv9rcWp55x6ayJAc7YBATBy
-         xhtc/lWqSUxUipDLoUlnyBOdcllT6ei/zEDCEbIk=
+        b=djkI3khsolrRBbqfn0xkCcDxsYEjmkfK+EBihvKkE0zx86Jd8UvEhHBtc35uCvI/T
+         EgVN84hNP2XHbmRX1AVNnEuwBxhhopKP77I6bskE0P6ixfXPk/ta8cC70FgX3t4iVT
+         LHZ8TrGoM/D4iQRGSzgZHdIQ9HBlwV8xGkIvABy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 458/700] vxlan: add missing rcu_read_lock() in neigh_reduce()
+Subject: [PATCH 5.10 381/593] vxlan: add missing rcu_read_lock() in neigh_reduce()
 Date:   Mon, 12 Jul 2021 08:09:01 +0200
-Message-Id: <20210712061025.272679681@linuxfoundation.org>
+Message-Id: <20210712060928.891937621@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -98,10 +98,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 53dbc67e8a34..a3ec03ce3343 100644
+index d3b698d9e2e6..48fbdce6a70e 100644
 --- a/drivers/net/vxlan.c
 +++ b/drivers/net/vxlan.c
-@@ -2164,6 +2164,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
+@@ -2163,6 +2163,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
  	struct neighbour *n;
  	struct nd_msg *msg;
  
@@ -109,7 +109,7 @@ index 53dbc67e8a34..a3ec03ce3343 100644
  	in6_dev = __in6_dev_get(dev);
  	if (!in6_dev)
  		goto out;
-@@ -2215,6 +2216,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
+@@ -2214,6 +2215,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
  	}
  
  out:
