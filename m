@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC8FC3C48C6
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 549AE3C48B2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236855AbhGLGk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
+        id S235722AbhGLGkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237935AbhGLGjq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B467611AD;
-        Mon, 12 Jul 2021 06:35:46 +0000 (UTC)
+        id S237954AbhGLGjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1D20611BF;
+        Mon, 12 Jul 2021 06:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071747;
-        bh=GlfDKcO4IErOnM+8k+Luy7qZxQgsMyBm+JYjVL2R3Gc=;
+        s=korg; t=1626071749;
+        bh=9brvtHm5P1xX4on/zdIiSZ+3b4pLzhJ4IaEBj2zRwds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nFbj2870BV0P8i+xoKbXh81fuFR8kd0XHlrNtVWcvXuRzcHjHjIy73qU1/H885Xp
-         F68ecbUDic1kPcy3BG5IP4Cpo65Q5j4NB0GzUUG1ijW5eAh1FggwXHmMVA7xLAuBXM
-         GhDUu/lvE1AZxK1oh5GTpp5xwarYE4HXImWwzllM=
+        b=LqMxBbd4CBGB1IG2MoIMTrlWv/0xeum1Rhbhf4aibHEcDsjwKz+5dIGAuyU/P39e2
+         lE/ba8Z0hcnI1Gm3HYvnwm16M1OM2a4jThkkBBac9RAdtQCIUWT22GjwOoXTSrMzwH
+         9+JmMYG6StY6MP42OKcpsEw35hwnwTzF5ddyWtys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 5.10 159/593] btrfs: dont clear page extent mapped if were not invalidating the full page
-Date:   Mon, 12 Jul 2021 08:05:19 +0200
-Message-Id: <20210712060900.537539015@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 160/593] btrfs: disable build on platforms having page size 256K
+Date:   Mon, 12 Jul 2021 08:05:20 +0200
+Message-Id: <20210712060900.656471260@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -42,80 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit bcd77455d590eaa0422a5e84ae852007cfce574a ]
+[ Upstream commit b05fbcc36be1f8597a1febef4892053a0b2f3f60 ]
 
-[BUG]
-With current btrfs subpage rw support, the following script can lead to
-fs hang:
+With a config having PAGE_SIZE set to 256K, BTRFS build fails
+with the following message
 
-  $ mkfs.btrfs -f -s 4k $dev
-  $ mount $dev -o nospace_cache $mnt
-  $ fsstress -w -n 100 -p 1 -s 1608140256 -v -d $mnt
+  include/linux/compiler_types.h:326:38: error: call to
+  '__compiletime_assert_791' declared with attribute error:
+  BUILD_BUG_ON failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0
 
-The fs will hang at btrfs_start_ordered_extent().
+BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms with
+256K pages at the time being.
 
-[CAUSE]
-In above test case, btrfs_invalidate() will be called with the following
-parameters:
+There are two platforms that can select 256K pages:
+ - hexagon
+ - powerpc
 
-  offset = 0 length = 53248 page dirty = 1 subpage dirty bitmap = 0x2000
+Disable BTRFS when 256K page size is selected. Supporting this would
+require changes to the subpage mode that's currently being developed.
+Given that 256K is many times larger than page sizes commonly used and
+for what the algorithms and structures have been tuned, it's out of
+scope and disabling build is a reasonable option.
 
-Since @offset is 0, btrfs_invalidate() will try to invalidate the full
-page, and finally call clear_page_extent_mapped() which will detach
-subpage structure from the page.
-
-And since the page no longer has subpage structure, the subpage dirty
-bitmap will be cleared, preventing the dirty range from being written
-back, thus no way to wake up the ordered extent.
-
-[FIX]
-Just follow other filesystems, only to invalidate the page if the range
-covers the full page.
-
-There are cases like truncate_setsize() which can call
-btrfs_invalidatepage() with offset == 0 and length != 0 for the last
-page of an inode.
-
-Although the old code will still try to invalidate the full page, we are
-still safe to just wait for ordered extent to finish.
-So it shouldn't cause extra problems.
-
-Tested-by: Ritesh Harjani <riteshh@linux.ibm.com> # [ppc64]
-Tested-by: Anand Jain <anand.jain@oracle.com> # [aarch64]
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[ update changelog ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ fs/btrfs/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index a03d3bad2139..4f21b8fbfd4b 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -8213,7 +8213,19 @@ static void btrfs_invalidatepage(struct page *page, unsigned int offset,
- 	 */
- 	wait_on_page_writeback(page);
+diff --git a/fs/btrfs/Kconfig b/fs/btrfs/Kconfig
+index 68b95ad82126..520a0f6a7d9e 100644
+--- a/fs/btrfs/Kconfig
++++ b/fs/btrfs/Kconfig
+@@ -18,6 +18,8 @@ config BTRFS_FS
+ 	select RAID6_PQ
+ 	select XOR_BLOCKS
+ 	select SRCU
++	depends on !PPC_256K_PAGES	# powerpc
++	depends on !PAGE_SIZE_256KB	# hexagon
  
--	if (offset) {
-+	/*
-+	 * For subpage case, we have call sites like
-+	 * btrfs_punch_hole_lock_range() which passes range not aligned to
-+	 * sectorsize.
-+	 * If the range doesn't cover the full page, we don't need to and
-+	 * shouldn't clear page extent mapped, as page->private can still
-+	 * record subpage dirty bits for other part of the range.
-+	 *
-+	 * For cases that can invalidate the full even the range doesn't
-+	 * cover the full page, like invalidating the last page, we're
-+	 * still safe to wait for ordered extent to finish.
-+	 */
-+	if (!(offset == 0 && length == PAGE_SIZE)) {
- 		btrfs_releasepage(page, GFP_NOFS);
- 		return;
- 	}
+ 	help
+ 	  Btrfs is a general purpose copy-on-write filesystem with extents,
 -- 
 2.30.2
 
