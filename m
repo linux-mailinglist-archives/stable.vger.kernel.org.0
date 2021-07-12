@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C6A3C5043
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F2663C55A7
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344506AbhGLHbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:31:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
+        id S232724AbhGLIL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:11:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344700AbhGLH3j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D780B61436;
-        Mon, 12 Jul 2021 07:25:45 +0000 (UTC)
+        id S1353839AbhGLIDC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 323CE61D0C;
+        Mon, 12 Jul 2021 07:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074746;
-        bh=VrPXUm0PKzWrgMxxobE5j99PE4NAJHQyapS/YeWsxBM=;
+        s=korg; t=1626076677;
+        bh=ISme6h0r/FtyvzCUzDjV9rmS4uc2dDEySDlIAW33QY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNAyh/gDC6wFG7OJIi1ysWykDogcvmyvpYibXE6slWozpwmQlZtLDMvnSTT9PlY9y
-         hxv8EQOZ7dT/EoyRfhCSv0KF1fWLyednPmWDNKfp2kLuMgxkfuGmdsqA2WWEMix0+b
-         Nf8qIfVPCtlrYwt3up5Q/bG+/KWeO4zTtI/OG1Xs=
+        b=eju+i3KCZ0fMr/YhkleL8WK36i+hqJwO3iAVHWU7eZDIsjidbCmdyS4TOv/aGQdQk
+         3PqoDhqWYI1Dy3K2uF0u7usbOSVZMAHs3sGP8NVoZp8bzlF4RAp39lkYEUtm+GMWR/
+         shGdyb3x6Z2QlbpFnHDRsThe8Gt6wG2qaYDW9xDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.12 684/700] scsi: target: cxgbit: Unmap DMA buffer before calling target_execute_cmd()
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 744/800] ASoC: Intel: sof_sdw: use mach data for ADL RVP DMIC count
 Date:   Mon, 12 Jul 2021 08:12:47 +0200
-Message-Id: <20210712061048.690862722@linuxfoundation.org>
+Message-Id: <20210712061045.935169155@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,116 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit 6ecdafaec79d4b3388a5b017245f23a0ff9d852d upstream.
+[ Upstream commit 505351329d26e684588a6919c0407b8a0f5c3813 ]
 
-Instead of calling dma_unmap_sg() after completing WRITE I/O, call
-dma_unmap_sg() before calling target_execute_cmd() to sync the DMA buffer.
+On the reference boards, number of PCH dmics may vary and the number
+should be taken from driver machine data. Remove the SOF_SDW_PCH_DMIC
+quirk to make DMIC number configurable.
 
-Link: https://lore.kernel.org/r/1618403949-3443-1-git-send-email-varun@chelsio.com
-Cc: <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes:d25bbe80485f8 ("ASoC: Intel: sof_sdw: add quirk for new ADL-P Rvp")
 
+BugLink: https://github.com/thesofproject/sof/issues/4185
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210621194057.21711-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/cxgbit/cxgbit_ddp.c    |   19 ++++++++++---------
- drivers/target/iscsi/cxgbit/cxgbit_target.c |   21 ++++++++++++++++++---
- 2 files changed, 28 insertions(+), 12 deletions(-)
+ sound/soc/intel/boards/sof_sdw.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/target/iscsi/cxgbit/cxgbit_ddp.c
-+++ b/drivers/target/iscsi/cxgbit/cxgbit_ddp.c
-@@ -265,12 +265,13 @@ void cxgbit_unmap_cmd(struct iscsi_conn
- 	struct cxgbit_cmd *ccmd = iscsit_priv_cmd(cmd);
- 
- 	if (ccmd->release) {
--		struct cxgbi_task_tag_info *ttinfo = &ccmd->ttinfo;
--
--		if (ttinfo->sgl) {
-+		if (cmd->se_cmd.se_cmd_flags & SCF_PASSTHROUGH_SG_TO_MEM_NOALLOC) {
-+			put_page(sg_page(&ccmd->sg));
-+		} else {
- 			struct cxgbit_sock *csk = conn->context;
- 			struct cxgbit_device *cdev = csk->com.cdev;
- 			struct cxgbi_ppm *ppm = cdev2ppm(cdev);
-+			struct cxgbi_task_tag_info *ttinfo = &ccmd->ttinfo;
- 
- 			/* Abort the TCP conn if DDP is not complete to
- 			 * avoid any possibility of DDP after freeing
-@@ -280,14 +281,14 @@ void cxgbit_unmap_cmd(struct iscsi_conn
- 				     cmd->se_cmd.data_length))
- 				cxgbit_abort_conn(csk);
- 
-+			if (unlikely(ttinfo->sgl)) {
-+				dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl,
-+					     ttinfo->nents, DMA_FROM_DEVICE);
-+				ttinfo->nents = 0;
-+				ttinfo->sgl = NULL;
-+			}
- 			cxgbi_ppm_ppod_release(ppm, ttinfo->idx);
--
--			dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl,
--				     ttinfo->nents, DMA_FROM_DEVICE);
--		} else {
--			put_page(sg_page(&ccmd->sg));
- 		}
--
- 		ccmd->release = false;
- 	}
- }
---- a/drivers/target/iscsi/cxgbit/cxgbit_target.c
-+++ b/drivers/target/iscsi/cxgbit/cxgbit_target.c
-@@ -997,17 +997,18 @@ static int cxgbit_handle_iscsi_dataout(s
- 	struct scatterlist *sg_start;
- 	struct iscsi_conn *conn = csk->conn;
- 	struct iscsi_cmd *cmd = NULL;
-+	struct cxgbit_cmd *ccmd;
-+	struct cxgbi_task_tag_info *ttinfo;
- 	struct cxgbit_lro_pdu_cb *pdu_cb = cxgbit_rx_pdu_cb(csk->skb);
- 	struct iscsi_data *hdr = (struct iscsi_data *)pdu_cb->hdr;
- 	u32 data_offset = be32_to_cpu(hdr->offset);
--	u32 data_len = pdu_cb->dlen;
-+	u32 data_len = ntoh24(hdr->dlength);
- 	int rc, sg_nents, sg_off;
- 	bool dcrc_err = false;
- 
- 	if (pdu_cb->flags & PDUCBF_RX_DDP_CMP) {
- 		u32 offset = be32_to_cpu(hdr->offset);
- 		u32 ddp_data_len;
--		u32 payload_length = ntoh24(hdr->dlength);
- 		bool success = false;
- 
- 		cmd = iscsit_find_cmd_from_itt_or_dump(conn, hdr->itt, 0);
-@@ -1022,7 +1023,7 @@ static int cxgbit_handle_iscsi_dataout(s
- 		cmd->data_sn = be32_to_cpu(hdr->datasn);
- 
- 		rc = __iscsit_check_dataout_hdr(conn, (unsigned char *)hdr,
--						cmd, payload_length, &success);
-+						cmd, data_len, &success);
- 		if (rc < 0)
- 			return rc;
- 		else if (!success)
-@@ -1060,6 +1061,20 @@ static int cxgbit_handle_iscsi_dataout(s
- 		cxgbit_skb_copy_to_sg(csk->skb, sg_start, sg_nents, skip);
- 	}
- 
-+	ccmd = iscsit_priv_cmd(cmd);
-+	ttinfo = &ccmd->ttinfo;
-+
-+	if (ccmd->release && ttinfo->sgl &&
-+	    (cmd->se_cmd.data_length ==	(cmd->write_data_done + data_len))) {
-+		struct cxgbit_device *cdev = csk->com.cdev;
-+		struct cxgbi_ppm *ppm = cdev2ppm(cdev);
-+
-+		dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl, ttinfo->nents,
-+			     DMA_FROM_DEVICE);
-+		ttinfo->nents = 0;
-+		ttinfo->sgl = NULL;
-+	}
-+
- check_payload:
- 
- 	rc = iscsit_check_dataout_payload(cmd, hdr, dcrc_err);
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 35ad448902c7..dd93f663803b 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -197,7 +197,6 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 		.driver_data = (void *)(SOF_RT711_JD_SRC_JD1 |
+ 					SOF_SDW_TGL_HDMI |
+ 					SOF_RT715_DAI_ID_FIX |
+-					SOF_SDW_PCH_DMIC |
+ 					SOF_BT_OFFLOAD_SSP(2) |
+ 					SOF_SSP_BT_OFFLOAD_PRESENT),
+ 	},
+-- 
+2.30.2
+
 
 
