@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48DFA3C5138
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD3A23C4BB6
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345565AbhGLHi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:38:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
+        id S240858AbhGLG64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:58:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244737AbhGLHgu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:36:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 341796188B;
-        Mon, 12 Jul 2021 07:32:40 +0000 (UTC)
+        id S239628AbhGLG6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:58:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 329ED613C2;
+        Mon, 12 Jul 2021 06:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075160;
-        bh=VAUDQmWqKl03XyulJnYkcoecICMM98H8Np4J3dOx6jQ=;
+        s=korg; t=1626072926;
+        bh=ColcVunOEivafELs8vpM14A7pTRl7GBX15wcEfwa6gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaA8rRbn228PyxaxwTbslMN05El/TyJHm9KNWgLc9lHTb+z6uBgd0N6ISaawPbjdm
-         qcZdWbHjAEorRYqWptEwRjQ0/fnWXFAqpOWInhoMqO1jmUWJ53DcgAvaVPVCBywBvs
-         rzBHyH/eu/8Z6XOasb5bpW43SP0V7aJEITd8wJMM=
+        b=thcNHfc9eFkAHn2i4apUwhd8bMITUZQSzPW+FeEpKUXYrhpVCF9fvOdD+/5q6IDWH
+         +37lEAE1as/sMIm41IzB0IhBIAKWaMT3j8lU5DvqWnQRwiVr1E7ZtHecS3s57tILZe
+         46xUYcr/vx4N6pXUrC89SwWbKVyTqi1BvS4D1Xes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Luba <lukasz.luba@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 126/800] thermal/cpufreq_cooling: Update offline CPUs per-cpu thermal_pressure
-Date:   Mon, 12 Jul 2021 08:02:29 +0200
-Message-Id: <20210712060930.713374590@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 5.12 067/700] bus: mhi: pci-generic: Add missing pci_disable_pcie_error_reporting() calls
+Date:   Mon, 12 Jul 2021 08:02:30 +0200
+Message-Id: <20210712060934.178689634@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Luba <lukasz.luba@arm.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 2ad8ccc17d1e4270cf65a3f2a07a7534aa23e3fb ]
+commit a25d144fb883c73506ba384de476bbaff8220a95 upstream.
 
-The thermal pressure signal gives information to the scheduler about
-reduced CPU capacity due to thermal. It is based on a value stored in
-a per-cpu 'thermal_pressure' variable. The online CPUs will get the
-new value there, while the offline won't. Unfortunately, when the CPU
-is back online, the value read from per-cpu variable might be wrong
-(stale data).  This might affect the scheduler decisions, since it
-sees the CPU capacity differently than what is actually available.
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call
 
-Fix it by making sure that all online+offline CPUs would get the
-proper value in their per-cpu variable when thermal framework sets
-capping.
+Add the missing call in the error handling path of the probe and in the
+remove function.
 
-Fixes: f12e4f66ab6a3 ("thermal/cpu-cooling: Update thermal pressure in case of a maximum frequency capping")
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Link: https://lore.kernel.org/r/20210614191030.22241-1-lukasz.luba@arm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: b012ee6bfe2a ("mhi: pci_generic: Add PCI error handlers")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/f70c14701f4922d67e717633c91b6c481b59f298.1623445348.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20210621161616.77524-6-manivannan.sadhasivam@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/thermal/cpufreq_cooling.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/mhi/pci_generic.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
-index eeb4e4b76c0b..43b1ae8a7789 100644
---- a/drivers/thermal/cpufreq_cooling.c
-+++ b/drivers/thermal/cpufreq_cooling.c
-@@ -478,7 +478,7 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
- 	ret = freq_qos_update_request(&cpufreq_cdev->qos_req, frequency);
- 	if (ret >= 0) {
- 		cpufreq_cdev->cpufreq_state = state;
--		cpus = cpufreq_cdev->policy->cpus;
-+		cpus = cpufreq_cdev->policy->related_cpus;
- 		max_capacity = arch_scale_cpu_capacity(cpumask_first(cpus));
- 		capacity = frequency * max_capacity;
- 		capacity /= cpufreq_cdev->policy->cpuinfo.max_freq;
--- 
-2.30.2
-
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -470,7 +470,7 @@ static int mhi_pci_probe(struct pci_dev
+ 
+ 	err = mhi_register_controller(mhi_cntrl, mhi_cntrl_config);
+ 	if (err)
+-		return err;
++		goto err_disable_reporting;
+ 
+ 	/* MHI bus does not power up the controller by default */
+ 	err = mhi_prepare_for_power_up(mhi_cntrl);
+@@ -496,6 +496,8 @@ err_unprepare:
+ 	mhi_unprepare_after_power_down(mhi_cntrl);
+ err_unregister:
+ 	mhi_unregister_controller(mhi_cntrl);
++err_disable_reporting:
++	pci_disable_pcie_error_reporting(pdev);
+ 
+ 	return err;
+ }
+@@ -514,6 +516,7 @@ static void mhi_pci_remove(struct pci_de
+ 	}
+ 
+ 	mhi_unregister_controller(mhi_cntrl);
++	pci_disable_pcie_error_reporting(pdev);
+ }
+ 
+ static void mhi_pci_shutdown(struct pci_dev *pdev)
 
 
