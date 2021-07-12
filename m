@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 747BC3C4534
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6578D3C4542
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234514AbhGLGYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:24:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39102 "EHLO mail.kernel.org"
+        id S235325AbhGLGYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:24:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234656AbhGLGX1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234207AbhGLGX1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:23:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 672B56117A;
-        Mon, 12 Jul 2021 06:20:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6F0A61178;
+        Mon, 12 Jul 2021 06:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070810;
-        bh=wi0EcMbnM3uyKZWwaFkY54a1kRnPNYpOToAkHcV9b6k=;
+        s=korg; t=1626070813;
+        bh=dzBRkxMhPCWStOI860unHBjMU1EL1uyOTDxzHOD9dEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S1MF3zBmHQf9C7zQsvfC2cxLbe02Tuu8hnqUbjD7fK3rZmzRcyQ1hpeuPYOrGWcj7
-         tTIi4TByizDo1gVOK6XDMNrH6wIQJkvRN98XQC9Ly64PqndiBBDu2zxE2sZviRejbR
-         y42+rWaE58E5pgCq9F23Zv31/2Mwq5OGH4J9WK9k=
+        b=W1AtoBxxffAqpnLYyBS2myYRoMeBFHyrwh5DFGBgQeJ2OY67GIrIjkp9kY+LTYFRA
+         gXOSKm9PmonoM5qT/4Q5RnGDGz0MRlrTbcNBIWemiQgIVepjJcR78xsIbdPxKF5w0w
+         0tvWUnDyVsvBBfXFUPCC4NyX80amlBOH8QbnX9iU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 149/348] evm: fix writing <securityfs>/evm overflow
-Date:   Mon, 12 Jul 2021 08:08:53 +0200
-Message-Id: <20210712060720.889114260@linuxfoundation.org>
+Subject: [PATCH 5.4 150/348] crypto: ccp - Fix a resource leak in an error handling path
+Date:   Mon, 12 Jul 2021 08:08:54 +0200
+Message-Id: <20210712060721.015174589@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -39,42 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mimi Zohar <zohar@linux.ibm.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 49219d9b8785ba712575c40e48ce0f7461254626 ]
+[ Upstream commit a6f8e68e238a15bb15f1726b35c695136c64eaba ]
 
-EVM_SETUP_COMPLETE is defined as 0x80000000, which is larger than INT_MAX.
-The "-fno-strict-overflow" compiler option properly prevents signaling
-EVM that the EVM policy setup is complete.  Define and read an unsigned
-int.
+If an error occurs after calling 'sp_get_irqs()', 'sp_free_irqs()' must be
+called as already done in the error handling path.
 
-Fixes: f00d79750712 ("EVM: Allow userspace to signal an RSA key has been loaded")
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: f4d18d656f88 ("crypto: ccp - Abstract interrupt registeration")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: John Allen <john.allen@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/evm/evm_secfs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/crypto/ccp/sp-pci.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
-index f93b688037b1..d7f12ed19183 100644
---- a/security/integrity/evm/evm_secfs.c
-+++ b/security/integrity/evm/evm_secfs.c
-@@ -68,12 +68,13 @@ static ssize_t evm_read_key(struct file *filp, char __user *buf,
- static ssize_t evm_write_key(struct file *file, const char __user *buf,
- 			     size_t count, loff_t *ppos)
- {
--	int i, ret;
-+	unsigned int i;
-+	int ret;
+diff --git a/drivers/crypto/ccp/sp-pci.c b/drivers/crypto/ccp/sp-pci.c
+index b29d2e663e10..f607b19ff4d2 100644
+--- a/drivers/crypto/ccp/sp-pci.c
++++ b/drivers/crypto/ccp/sp-pci.c
+@@ -213,7 +213,7 @@ static int sp_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		if (ret) {
+ 			dev_err(dev, "dma_set_mask_and_coherent failed (%d)\n",
+ 				ret);
+-			goto e_err;
++			goto free_irqs;
+ 		}
+ 	}
  
- 	if (!capable(CAP_SYS_ADMIN) || (evm_initialized & EVM_SETUP_COMPLETE))
- 		return -EPERM;
+@@ -221,10 +221,12 @@ static int sp_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  
--	ret = kstrtoint_from_user(buf, count, 0, &i);
-+	ret = kstrtouint_from_user(buf, count, 0, &i);
- 
+ 	ret = sp_init(sp);
  	if (ret)
- 		return ret;
+-		goto e_err;
++		goto free_irqs;
+ 
+ 	return 0;
+ 
++free_irqs:
++	sp_free_irqs(sp);
+ e_err:
+ 	dev_notice(dev, "initialization failed\n");
+ 	return ret;
 -- 
 2.30.2
 
