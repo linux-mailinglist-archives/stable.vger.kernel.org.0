@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7556B3C55BB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 915533C55C4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245596AbhGLILt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:11:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55946 "EHLO mail.kernel.org"
+        id S1344833AbhGLIL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353893AbhGLIDG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E77961D15;
-        Mon, 12 Jul 2021 07:58:32 +0000 (UTC)
+        id S1353906AbhGLIDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7827761D16;
+        Mon, 12 Jul 2021 07:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076712;
-        bh=LHEj45y8sV3DOsoSKt9HvnE/fEOlNGrz/bkuCvnvqNk=;
+        s=korg; t=1626076714;
+        bh=GIyXflxJp6TC+5ZZ1GIE532hLKZYcLVKPssqc0wh0j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DEYZx465sNMmlCD5vuVx2RWkDL3AU0DtfbxORwTgSqkJNtdmynINLS5liHUyBxOWM
-         4sCU2eNeXmTFsvhYzbm7HK9mlZkHZHXc8PDN+WGaIfxF7DCIaKNE4OtW+W5pYT2HCV
-         xRWu3gB39BMp3/Skf4H+O9jabYwLYEyztiiDTeok=
+        b=ck/Mvkov0o/qffkQndLmUhQ4TevhLNy7+XXR3QjV6ZMB1/C/5PceWHoR6tRW5udbr
+         k0cmmebwuD6m75e1keynMErsuJWisXwpZ0jZ7MPHkvkqlkaizg50ZD9c07QJLG1lFr
+         EW5llZLD6BRBfKKTp2qDphBb3Euhnbe7HGZ0FQtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zeng Tao <prime.zeng@hisilicon.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 762/800] powerpc/64s/interrupt: preserve regs->softe for NMI interrupts
-Date:   Mon, 12 Jul 2021 08:13:05 +0200
-Message-Id: <20210712061047.854868957@linuxfoundation.org>
+Subject: [PATCH 5.13 763/800] vfio/pci: Handle concurrent vma faults
+Date:   Mon, 12 Jul 2021 08:13:06 +0200
+Message-Id: <20210712061047.959261414@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -40,54 +40,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 1b0482229c302a3c6afd00d6b3bf0169cf279b44 ]
+[ Upstream commit 6a45ece4c9af473555f01f0f8b97eba56e3c7d0d ]
 
-If an NMI interrupt hits in an implicit soft-masked region, regs->softe
-is modified to reflect that. This may not be necessary for correctness
-at the moment, but it is less surprising and it's unhelpful when
-debugging or adding checks.
+io_remap_pfn_range() will trigger a BUG_ON if it encounters a
+populated pte within the mapping range.  This can occur because we map
+the entire vma on fault and multiple faults can be blocked behind the
+vma_lock.  This leads to traces like the one reported below.
 
-Make sure this is changed back to how it was found before returning.
+We can use our vma_list to test whether a given vma is mapped to avoid
+this issue.
 
-Fixes: 4ec5feec1ad0 ("powerpc/64s: Make NMI record implicitly soft-masked code as irqs disabled")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210630074621.2109197-6-npiggin@gmail.com
+[ 1591.733256] kernel BUG at mm/memory.c:2177!
+[ 1591.739515] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[ 1591.747381] Modules linked in: vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O)
+[ 1591.760536] CPU: 2 PID: 227 Comm: lcore-worker-2 Tainted: G O 5.11.0-rc3+ #1
+[ 1591.770735] Hardware name:  , BIOS HixxxxFPGA 1P B600 V121-1
+[ 1591.778872] pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
+[ 1591.786134] pc : remap_pfn_range+0x214/0x340
+[ 1591.793564] lr : remap_pfn_range+0x1b8/0x340
+[ 1591.799117] sp : ffff80001068bbd0
+[ 1591.803476] x29: ffff80001068bbd0 x28: 0000042eff6f0000
+[ 1591.810404] x27: 0000001100910000 x26: 0000001300910000
+[ 1591.817457] x25: 0068000000000fd3 x24: ffffa92f1338e358
+[ 1591.825144] x23: 0000001140000000 x22: 0000000000000041
+[ 1591.832506] x21: 0000001300910000 x20: ffffa92f141a4000
+[ 1591.839520] x19: 0000001100a00000 x18: 0000000000000000
+[ 1591.846108] x17: 0000000000000000 x16: ffffa92f11844540
+[ 1591.853570] x15: 0000000000000000 x14: 0000000000000000
+[ 1591.860768] x13: fffffc0000000000 x12: 0000000000000880
+[ 1591.868053] x11: ffff0821bf3d01d0 x10: ffff5ef2abd89000
+[ 1591.875932] x9 : ffffa92f12ab0064 x8 : ffffa92f136471c0
+[ 1591.883208] x7 : 0000001140910000 x6 : 0000000200000000
+[ 1591.890177] x5 : 0000000000000001 x4 : 0000000000000001
+[ 1591.896656] x3 : 0000000000000000 x2 : 0168044000000fd3
+[ 1591.903215] x1 : ffff082126261880 x0 : fffffc2084989868
+[ 1591.910234] Call trace:
+[ 1591.914837]  remap_pfn_range+0x214/0x340
+[ 1591.921765]  vfio_pci_mmap_fault+0xac/0x130 [vfio_pci]
+[ 1591.931200]  __do_fault+0x44/0x12c
+[ 1591.937031]  handle_mm_fault+0xcc8/0x1230
+[ 1591.942475]  do_page_fault+0x16c/0x484
+[ 1591.948635]  do_translation_fault+0xbc/0xd8
+[ 1591.954171]  do_mem_abort+0x4c/0xc0
+[ 1591.960316]  el0_da+0x40/0x80
+[ 1591.965585]  el0_sync_handler+0x168/0x1b0
+[ 1591.971608]  el0_sync+0x174/0x180
+[ 1591.978312] Code: eb1b027f 540000c0 f9400022 b4fffe02 (d4210000)
+
+Fixes: 11c4cd07ba11 ("vfio-pci: Fault mmaps to enable vma tracking")
+Reported-by: Zeng Tao <prime.zeng@hisilicon.com>
+Suggested-by: Zeng Tao <prime.zeng@hisilicon.com>
+Link: https://lore.kernel.org/r/162497742783.3883260.3282953006487785034.stgit@omen
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/interrupt.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/vfio/pci/vfio_pci.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/interrupt.h b/arch/powerpc/include/asm/interrupt.h
-index 59f704408d65..a26aad41ef3e 100644
---- a/arch/powerpc/include/asm/interrupt.h
-+++ b/arch/powerpc/include/asm/interrupt.h
-@@ -186,6 +186,7 @@ struct interrupt_nmi_state {
- 	u8 irq_soft_mask;
- 	u8 irq_happened;
- 	u8 ftrace_enabled;
-+	u64 softe;
- #endif
- };
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index bd7c482c948a..b94958552eb8 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -1594,6 +1594,7 @@ static vm_fault_t vfio_pci_mmap_fault(struct vm_fault *vmf)
+ {
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct vfio_pci_device *vdev = vma->vm_private_data;
++	struct vfio_pci_mmap_vma *mmap_vma;
+ 	vm_fault_t ret = VM_FAULT_NOPAGE;
  
-@@ -211,6 +212,7 @@ static inline void interrupt_nmi_enter_prepare(struct pt_regs *regs, struct inte
- #ifdef CONFIG_PPC64
- 	state->irq_soft_mask = local_paca->irq_soft_mask;
- 	state->irq_happened = local_paca->irq_happened;
-+	state->softe = regs->softe;
+ 	mutex_lock(&vdev->vma_lock);
+@@ -1601,24 +1602,36 @@ static vm_fault_t vfio_pci_mmap_fault(struct vm_fault *vmf)
  
- 	/*
- 	 * Set IRQS_ALL_DISABLED unconditionally so irqs_disabled() does
-@@ -263,6 +265,7 @@ static inline void interrupt_nmi_exit_prepare(struct pt_regs *regs, struct inter
+ 	if (!__vfio_pci_memory_enabled(vdev)) {
+ 		ret = VM_FAULT_SIGBUS;
+-		mutex_unlock(&vdev->vma_lock);
+ 		goto up_out;
+ 	}
  
- 	/* Check we didn't change the pending interrupt mask. */
- 	WARN_ON_ONCE((state->irq_happened | PACA_IRQ_HARD_DIS) != local_paca->irq_happened);
-+	regs->softe = state->softe;
- 	local_paca->irq_happened = state->irq_happened;
- 	local_paca->irq_soft_mask = state->irq_soft_mask;
- #endif
+-	if (__vfio_pci_add_vma(vdev, vma)) {
+-		ret = VM_FAULT_OOM;
+-		mutex_unlock(&vdev->vma_lock);
+-		goto up_out;
++	/*
++	 * We populate the whole vma on fault, so we need to test whether
++	 * the vma has already been mapped, such as for concurrent faults
++	 * to the same vma.  io_remap_pfn_range() will trigger a BUG_ON if
++	 * we ask it to fill the same range again.
++	 */
++	list_for_each_entry(mmap_vma, &vdev->vma_list, vma_next) {
++		if (mmap_vma->vma == vma)
++			goto up_out;
+ 	}
+ 
+-	mutex_unlock(&vdev->vma_lock);
+-
+ 	if (io_remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
+-			       vma->vm_end - vma->vm_start, vma->vm_page_prot))
++			       vma->vm_end - vma->vm_start,
++			       vma->vm_page_prot)) {
+ 		ret = VM_FAULT_SIGBUS;
++		zap_vma_ptes(vma, vma->vm_start, vma->vm_end - vma->vm_start);
++		goto up_out;
++	}
++
++	if (__vfio_pci_add_vma(vdev, vma)) {
++		ret = VM_FAULT_OOM;
++		zap_vma_ptes(vma, vma->vm_start, vma->vm_end - vma->vm_start);
++	}
+ 
+ up_out:
+ 	up_read(&vdev->memory_lock);
++	mutex_unlock(&vdev->vma_lock);
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
