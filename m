@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1B83C46AB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AF923C46AF
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234930AbhGLG1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:27:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47330 "EHLO mail.kernel.org"
+        id S234283AbhGLG1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234931AbhGLG02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:26:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACA6D610CA;
-        Mon, 12 Jul 2021 06:23:30 +0000 (UTC)
+        id S235355AbhGLG0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:26:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E2F061132;
+        Mon, 12 Jul 2021 06:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071011;
-        bh=PeLSUvw9UGAbSxAoyAVjzp6r6b8iTmqDoxAA0x/tM9I=;
+        s=korg; t=1626071015;
+        bh=QOypwI2tdb1XBizQqAP7iQuPeCEQDYS57RqmUcBuQRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XyEuVdczndROkSNkV39BhZwwzsdbIz0pD9hgbLOPBaXb7CiGlOYyQ5FjNESVkF6dX
-         zzPRcnJR9NXCITRx4qcCgEPXpmjPk4oCsuTtKKVvM4hTWz9cBeIUgd033NvZinN1TL
-         MyBg+GQcmUvgWLwhUI0EhjQUsD5EL1EUVwKX4Zro=
+        b=b11mIp23pFvaJt4YfEA4D0YE641IgHHByKcICAFkFg/wdvw0ZjjaRHWQznlu2KFvI
+         HIRDNf4ozyIOlc2VL7XgN/OZV/pCY9JYvttMlwPdCXrAXkf4a1pnhZJUQ5LD1ARWkX
+         wBdud/9vVVqEGZTkb2rGLXwAIpus+fiY86wGbP60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Tom Herbert <tom@herbertland.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 236/348] ibmvnic: free tx_pool if tso_pool alloc fails
-Date:   Mon, 12 Jul 2021 08:10:20 +0200
-Message-Id: <20210712060733.601263356@linuxfoundation.org>
+Subject: [PATCH 5.4 237/348] ipv6: fix out-of-bound access in ip6_parse_tlv()
+Date:   Mon, 12 Jul 2021 08:10:21 +0200
+Message-Id: <20210712060733.938738330@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,42 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit f6ebca8efa52e4ae770f0325d618e7bcf08ada0c ]
+[ Upstream commit 624085a31c1ad6a80b1e53f686bf6ee92abbf6e8 ]
 
-Free tx_pool and clear it, if allocation of tso_pool fails.
+First problem is that optlen is fetched without checking
+there is more than one byte to parse.
 
-release_tx_pools() assumes we have both tx and tso_pools if ->tx_pool is
-non-NULL. If allocation of tso_pool fails in init_tx_pools(), the assumption
-will not be true and we would end up dereferencing ->tx_buff, ->free_map
-fields from a NULL pointer.
+Fix this by taking care of IPV6_TLV_PAD1 before
+fetching optlen (under appropriate sanity checks against len)
 
-Fixes: 3205306c6b8d ("ibmvnic: Update TX pool initialization routine")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Second problem is that IPV6_TLV_PADN checks of zero
+padding are performed before the check of remaining length.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: c1412fce7ecc ("net/ipv6/exthdrs.c: Strict PadN option checking")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Tom Herbert <tom@herbertland.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ipv6/exthdrs.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index a3d64e61035e..ecfe588f330e 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -694,8 +694,11 @@ static int init_tx_pools(struct net_device *netdev)
+diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
+index 413a47ca43e9..69128000bc31 100644
+--- a/net/ipv6/exthdrs.c
++++ b/net/ipv6/exthdrs.c
+@@ -134,18 +134,23 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
+ 	len -= 2;
  
- 	adapter->tso_pool = kcalloc(tx_subcrqs,
- 				    sizeof(struct ibmvnic_tx_pool), GFP_KERNEL);
--	if (!adapter->tso_pool)
-+	if (!adapter->tso_pool) {
-+		kfree(adapter->tx_pool);
-+		adapter->tx_pool = NULL;
- 		return -1;
-+	}
+ 	while (len > 0) {
+-		int optlen = nh[off + 1] + 2;
+-		int i;
++		int optlen, i;
  
- 	adapter->num_active_tx_pools = tx_subcrqs;
+-		switch (nh[off]) {
+-		case IPV6_TLV_PAD1:
+-			optlen = 1;
++		if (nh[off] == IPV6_TLV_PAD1) {
+ 			padlen++;
+ 			if (padlen > 7)
+ 				goto bad;
+-			break;
++			off++;
++			len--;
++			continue;
++		}
++		if (len < 2)
++			goto bad;
++		optlen = nh[off + 1] + 2;
++		if (optlen > len)
++			goto bad;
  
+-		case IPV6_TLV_PADN:
++		if (nh[off] == IPV6_TLV_PADN) {
+ 			/* RFC 2460 states that the purpose of PadN is
+ 			 * to align the containing header to multiples
+ 			 * of 8. 7 is therefore the highest valid value.
+@@ -162,12 +167,7 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
+ 				if (nh[off + i] != 0)
+ 					goto bad;
+ 			}
+-			break;
+-
+-		default: /* Other TLV code so scan list */
+-			if (optlen > len)
+-				goto bad;
+-
++		} else {
+ 			tlv_count++;
+ 			if (tlv_count > max_count)
+ 				goto bad;
+@@ -187,7 +187,6 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
+ 				return false;
+ 
+ 			padlen = 0;
+-			break;
+ 		}
+ 		off += optlen;
+ 		len -= optlen;
 -- 
 2.30.2
 
