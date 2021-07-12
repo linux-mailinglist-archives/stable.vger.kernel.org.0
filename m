@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30A133C454E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BA7F3C4550
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234665AbhGLGZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38866 "EHLO mail.kernel.org"
+        id S232344AbhGLGZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234874AbhGLGYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234873AbhGLGYO (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:24:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 532A661179;
-        Mon, 12 Jul 2021 06:20:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A165561181;
+        Mon, 12 Jul 2021 06:20:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070831;
-        bh=KGv6zYHQWRjhWrUuCL2HdlRhrCRqjGtaSEImkPAzrWM=;
+        s=korg; t=1626070834;
+        bh=6L+9g9mSvqjtqi5SzJRUvbToaBGWsA3fKjNP2XSxAS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acMc7o6wiWibh1Eb8qGtvdDCcIZPhDR/PnfDD4mgf9Ll4qZFoqV+7c0z3PD9AwXtC
-         csiGQKb4jhHM6zg/ZG2Gu/GkPPrWgb6QIutS9LxowX+7KWnMZCbW7hyz+Huvck8N3a
-         zULREqO03GSntHwXExzYtwWY44s+D9Bsh5euardQ=
+        b=AzJlyJg4b9w04OlF0kP7XSkTMX3c6JN/vjZTxhKYHIv2Li7khk9jtWHMYVWxJWQLO
+         c5Ksp+30Nc40ZsKyoRme0/ujePcd2mXO9ettic5ZvL8ZjFOBI2hxQ7vzp3rAd2ttF9
+         jQjf+iXyzhXSmBkun6ZVfqOFZyRqxZNjK+itaoBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/348] m68k: atari: Fix ATARI_KBD_CORE kconfig unmet dependency warning
-Date:   Mon, 12 Jul 2021 08:09:01 +0200
-Message-Id: <20210712060721.862315384@linuxfoundation.org>
+Subject: [PATCH 5.4 158/348] media: siano: Fix out-of-bounds warnings in smscore_load_firmware_family2()
+Date:   Mon, 12 Jul 2021 08:09:02 +0200
+Message-Id: <20210712060721.983154584@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,62 +40,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit c1367ee016e3550745315fb9a2dd1e4ce02cdcf6 ]
+[ Upstream commit 13dfead49db07225335d4f587a560a2210391a1a ]
 
-Since the code for ATARI_KBD_CORE does not use drivers/input/keyboard/
-code, just move ATARI_KBD_CORE to arch/m68k/Kconfig.machine to remove
-the dependency on INPUT_KEYBOARD.
+Rename struct sms_msg_data4 to sms_msg_data5 and increase the size of
+its msg_data array from 4 to 5 elements. Notice that at some point
+the 5th element of msg_data is being accessed in function
+smscore_load_firmware_family2():
 
-Removes this kconfig warning:
+1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
 
-    WARNING: unmet direct dependencies detected for ATARI_KBD_CORE
-      Depends on [n]: !UML && INPUT [=y] && INPUT_KEYBOARD [=n]
-      Selected by [y]:
-      - MOUSE_ATARI [=y] && !UML && INPUT [=y] && INPUT_MOUSE [=y] && ATARI [=y]
+Also, there is no need for the object _trigger_msg_ of type struct
+sms_msg_data *, when _msg_ can be used, directly. Notice that msg_data
+in struct sms_msg_data is a one-element array, which causes multiple
+out-of-bounds warnings when accessing beyond its first element
+in function smscore_load_firmware_family2():
 
-Fixes: c04cb856e20a ("m68k: Atari keyboard and mouse support.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Suggested-by: Michael Schmitz <schmitzmic@gmail.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Link: https://lore.kernel.org/r/20210527001251.8529-1-rdunlap@infradead.org
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+ 992                 struct sms_msg_data *trigger_msg =
+ 993                         (struct sms_msg_data *) msg;
+ 994
+ 995                 pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
+ 996                 SMS_INIT_MSG(&msg->x_msg_header,
+ 997                                 MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
+ 998                                 sizeof(struct sms_msg_hdr) +
+ 999                                 sizeof(u32) * 5);
+1000
+1001                 trigger_msg->msg_data[0] = firmware->start_address;
+1002                                         /* Entry point */
+1003                 trigger_msg->msg_data[1] = 6; /* Priority */
+1004                 trigger_msg->msg_data[2] = 0x200; /* Stack size */
+1005                 trigger_msg->msg_data[3] = 0; /* Parameter */
+1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
+
+even when enough dynamic memory is allocated for _msg_:
+
+ 929         /* PAGE_SIZE buffer shall be enough and dma aligned */
+ 930         msg = kmalloc(PAGE_SIZE, GFP_KERNEL | coredev->gfp_buf_flags);
+
+but as _msg_ is casted to (struct sms_msg_data *):
+
+ 992                 struct sms_msg_data *trigger_msg =
+ 993                         (struct sms_msg_data *) msg;
+
+the out-of-bounds warnings are actually valid and should be addressed.
+
+Fix this by declaring object _msg_ of type struct sms_msg_data5 *,
+which contains a 5-elements array, instead of just 4. And use
+_msg_ directly, instead of creating object trigger_msg.
+
+This helps with the ongoing efforts to enable -Warray-bounds by fixing
+the following warnings:
+
+  CC [M]  drivers/media/common/siano/smscoreapi.o
+drivers/media/common/siano/smscoreapi.c: In function ‘smscore_load_firmware_family2’:
+drivers/media/common/siano/smscoreapi.c:1003:24: warning: array subscript 1 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1003 |   trigger_msg->msg_data[1] = 6; /* Priority */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+drivers/media/common/siano/smscoreapi.c:1004:24: warning: array subscript 2 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1004 |   trigger_msg->msg_data[2] = 0x200; /* Stack size */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+drivers/media/common/siano/smscoreapi.c:1005:24: warning: array subscript 3 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1005 |   trigger_msg->msg_data[3] = 0; /* Parameter */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+drivers/media/common/siano/smscoreapi.c:1006:24: warning: array subscript 4 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1006 |   trigger_msg->msg_data[4] = 4; /* Task ID */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+
+Fixes: 018b0c6f8acb ("[media] siano: make load firmware logic to work with newer firmwares")
+Co-developed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.machine      | 3 +++
- drivers/input/keyboard/Kconfig | 3 ---
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/common/siano/smscoreapi.c | 22 +++++++++-------------
+ drivers/media/common/siano/smscoreapi.h |  4 ++--
+ 2 files changed, 11 insertions(+), 15 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
-index c01e103492fd..1bbe0dd0c4fe 100644
---- a/arch/m68k/Kconfig.machine
-+++ b/arch/m68k/Kconfig.machine
-@@ -23,6 +23,9 @@ config ATARI
- 	  this kernel on an Atari, say Y here and browse the material
- 	  available in <file:Documentation/m68k>; otherwise say N.
+diff --git a/drivers/media/common/siano/smscoreapi.c b/drivers/media/common/siano/smscoreapi.c
+index 0ba51dacc580..ce94b5205fd6 100644
+--- a/drivers/media/common/siano/smscoreapi.c
++++ b/drivers/media/common/siano/smscoreapi.c
+@@ -908,7 +908,7 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
+ 					 void *buffer, size_t size)
+ {
+ 	struct sms_firmware *firmware = (struct sms_firmware *) buffer;
+-	struct sms_msg_data4 *msg;
++	struct sms_msg_data5 *msg;
+ 	u32 mem_address,  calc_checksum = 0;
+ 	u32 i, *ptr;
+ 	u8 *payload = firmware->payload;
+@@ -989,24 +989,20 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
+ 		goto exit_fw_download;
  
-+config ATARI_KBD_CORE
-+	bool
-+
- config MAC
- 	bool "Macintosh support"
- 	depends on MMU
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 8911bc2ec42a..ae0bdc439105 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -68,9 +68,6 @@ config KEYBOARD_AMIGA
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called amikbd.
- 
--config ATARI_KBD_CORE
--	bool
+ 	if (coredev->mode == DEVICE_MODE_NONE) {
+-		struct sms_msg_data *trigger_msg =
+-			(struct sms_msg_data *) msg;
 -
- config KEYBOARD_APPLESPI
- 	tristate "Apple SPI keyboard and trackpad"
- 	depends on ACPI && EFI
+ 		pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
+ 		SMS_INIT_MSG(&msg->x_msg_header,
+ 				MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
+-				sizeof(struct sms_msg_hdr) +
+-				sizeof(u32) * 5);
++				sizeof(*msg));
+ 
+-		trigger_msg->msg_data[0] = firmware->start_address;
++		msg->msg_data[0] = firmware->start_address;
+ 					/* Entry point */
+-		trigger_msg->msg_data[1] = 6; /* Priority */
+-		trigger_msg->msg_data[2] = 0x200; /* Stack size */
+-		trigger_msg->msg_data[3] = 0; /* Parameter */
+-		trigger_msg->msg_data[4] = 4; /* Task ID */
++		msg->msg_data[1] = 6; /* Priority */
++		msg->msg_data[2] = 0x200; /* Stack size */
++		msg->msg_data[3] = 0; /* Parameter */
++		msg->msg_data[4] = 4; /* Task ID */
+ 
+-		rc = smscore_sendrequest_and_wait(coredev, trigger_msg,
+-					trigger_msg->x_msg_header.msg_length,
++		rc = smscore_sendrequest_and_wait(coredev, msg,
++					msg->x_msg_header.msg_length,
+ 					&coredev->trigger_done);
+ 	} else {
+ 		SMS_INIT_MSG(&msg->x_msg_header, MSG_SW_RELOAD_EXEC_REQ,
+diff --git a/drivers/media/common/siano/smscoreapi.h b/drivers/media/common/siano/smscoreapi.h
+index a2f95f4899c2..cd6c981eb1f9 100644
+--- a/drivers/media/common/siano/smscoreapi.h
++++ b/drivers/media/common/siano/smscoreapi.h
+@@ -629,9 +629,9 @@ struct sms_msg_data2 {
+ 	u32 msg_data[2];
+ };
+ 
+-struct sms_msg_data4 {
++struct sms_msg_data5 {
+ 	struct sms_msg_hdr x_msg_header;
+-	u32 msg_data[4];
++	u32 msg_data[5];
+ };
+ 
+ struct sms_data_download {
 -- 
 2.30.2
 
