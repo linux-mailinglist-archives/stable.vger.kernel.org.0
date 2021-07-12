@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6686A3C53E8
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BC883C49D5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348693AbhGLH4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37894 "EHLO mail.kernel.org"
+        id S237653AbhGLGq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:46:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350771AbhGLHvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96ABE610D1;
-        Mon, 12 Jul 2021 07:48:19 +0000 (UTC)
+        id S237322AbhGLGqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:46:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3A0061153;
+        Mon, 12 Jul 2021 06:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076099;
-        bh=x0cdFLM6btp/DkvpniaMVFk7KhpZaD8zo7VU4um/eF8=;
+        s=korg; t=1626072116;
+        bh=MpOHLmu9O94BZxYx8gRPUM9KVkgIO8BnigbsNjk/yLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zay5wGYZBy83h/bsd4bWSeg2oMWa6SwAD780ibkH3ucaI2aVGElvM3NpU54Oj+Kqr
-         iDpNCMpqBn+wGIMpzKzWTWhtB8ontWvUEm2y0P2FtlLCvb6cS5PNMlScr+0Ds+OSNW
-         R0sD3mV/OyAbxAyhWfbJY1/WbEWlX2O8paMgwCeg=
+        b=FpKhn4cgQP4nhXw3lGrP3hDdQ9jBR0VRnvE0Pt1kJSHLKTq3JCQ4VBGHZetQWivjY
+         3+6ujK+dUJLVChS/DtBeJXNxZpYt2zvk3yihXdmf0omyNHGPLgHehqxOvoouJDQj7f
+         VmmUYpxRMYNldE+SmkME/r3vSEXHrf+U4au5PqoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Deren Wu <deren.wu@mediatek.com>,
-        YN Chen <yn.chen@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 498/800] mt76: mt7921: fix OMAC idx usage
+        stable@vger.kernel.org, Daniel Xu <dxu@dxuuu.xyz>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 361/593] selftests/bpf: Whitelist test_progs.h from .gitignore
 Date:   Mon, 12 Jul 2021 08:08:41 +0200
-Message-Id: <20210712061020.168465648@linuxfoundation.org>
+Message-Id: <20210712060926.177717981@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,96 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Daniel Xu <dxu@dxuuu.xyz>
 
-[ Upstream commit 213f87289ea01514acdbfeed9f65bcb5f12aef70 ]
+[ Upstream commit 809ed84de8b3f2fd7b1d06efb94bf98fd318a7d7 ]
 
-OMAC idx have to be same with BSS idx according to firmware usage.
+Somehow test_progs.h was being included by the existing rule:
 
-Fixes: e0f9fdda81bd ("mt76: mt7921: add ieee80211_ops")
-Reviewed-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Signed-off-by: YN Chen <yn.chen@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+    /test_progs*
+
+This is bad because:
+
+    1) test_progs.h is a checked in file
+    2) grep-like tools like ripgrep[0] respect gitignore and
+       test_progs.h was being hidden from searches
+
+[0]: https://github.com/BurntSushi/ripgrep
+
+Fixes: 74b5a5968fe8 ("selftests/bpf: Replace test_progs and test_maps w/ general rule")
+Signed-off-by: Daniel Xu <dxu@dxuuu.xyz>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/a46f64944bf678bc652410ca6028d3450f4f7f4b.1623880296.git.dxu@dxuuu.xyz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7921/main.c  | 55 +------------------
- 1 file changed, 1 insertion(+), 54 deletions(-)
+ tools/testing/selftests/bpf/.gitignore | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-index 97a0ef331ac3..bd77a04a15fb 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-@@ -223,54 +223,6 @@ static void mt7921_stop(struct ieee80211_hw *hw)
- 	mt7921_mutex_release(dev);
- }
- 
--static inline int get_free_idx(u32 mask, u8 start, u8 end)
--{
--	return ffs(~mask & GENMASK(end, start));
--}
--
--static int get_omac_idx(enum nl80211_iftype type, u64 mask)
--{
--	int i;
--
--	switch (type) {
--	case NL80211_IFTYPE_STATION:
--		/* prefer hw bssid slot 1-3 */
--		i = get_free_idx(mask, HW_BSSID_1, HW_BSSID_3);
--		if (i)
--			return i - 1;
--
--		/* next, try to find a free repeater entry for the sta */
--		i = get_free_idx(mask >> REPEATER_BSSID_START, 0,
--				 REPEATER_BSSID_MAX - REPEATER_BSSID_START);
--		if (i)
--			return i + 32 - 1;
--
--		i = get_free_idx(mask, EXT_BSSID_1, EXT_BSSID_MAX);
--		if (i)
--			return i - 1;
--
--		if (~mask & BIT(HW_BSSID_0))
--			return HW_BSSID_0;
--
--		break;
--	case NL80211_IFTYPE_MONITOR:
--		/* ap uses hw bssid 0 and ext bssid */
--		if (~mask & BIT(HW_BSSID_0))
--			return HW_BSSID_0;
--
--		i = get_free_idx(mask, EXT_BSSID_1, EXT_BSSID_MAX);
--		if (i)
--			return i - 1;
--
--		break;
--	default:
--		WARN_ON(1);
--		break;
--	}
--
--	return -1;
--}
--
- static int mt7921_add_interface(struct ieee80211_hw *hw,
- 				struct ieee80211_vif *vif)
- {
-@@ -292,12 +244,7 @@ static int mt7921_add_interface(struct ieee80211_hw *hw,
- 		goto out;
- 	}
- 
--	idx = get_omac_idx(vif->type, phy->omac_mask);
--	if (idx < 0) {
--		ret = -ENOSPC;
--		goto out;
--	}
--	mvif->mt76.omac_idx = idx;
-+	mvif->mt76.omac_idx = mvif->mt76.idx;
- 	mvif->phy = phy;
- 	mvif->mt76.band_idx = 0;
- 	mvif->mt76.wmm_idx = mvif->mt76.idx % MT7921_MAX_WMM_SETS;
+diff --git a/tools/testing/selftests/bpf/.gitignore b/tools/testing/selftests/bpf/.gitignore
+index 3ab1200e172f..b1b37dcade9f 100644
+--- a/tools/testing/selftests/bpf/.gitignore
++++ b/tools/testing/selftests/bpf/.gitignore
+@@ -9,6 +9,7 @@ fixdep
+ test_dev_cgroup
+ /test_progs*
+ test_tcpbpf_user
++!test_progs.h
+ test_verifier_log
+ feature
+ test_sock
 -- 
 2.30.2
 
