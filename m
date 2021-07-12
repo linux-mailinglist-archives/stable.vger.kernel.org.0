@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD803C4ABC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99D0C3C5553
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240464AbhGLGxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51864 "EHLO mail.kernel.org"
+        id S1355551AbhGLIJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236765AbhGLGwU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:52:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32502608FE;
-        Mon, 12 Jul 2021 06:49:32 +0000 (UTC)
+        id S1353493AbhGLIC1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:02:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0671613C8;
+        Mon, 12 Jul 2021 07:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072572;
-        bh=4zb0nI70uBJmnk/z8cLE1PcSxMDTyoA7mh/iJBg4bb8=;
+        s=korg; t=1626076522;
+        bh=GZc5QVdPl7a9qD96XshCqXjerR4gdZP2yFYtXNr4CiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6XZ6kgVVNYxDAKPNdnGAEyn+A5WdS3mT3BJH8svtVG7KvCJ9rqsExzmqsRqzzr5H
-         vvgXhNUOZSo5lAP0Kwh5Ju4PTezXkClOZ3k9PwL8nEOFNiY/IGlNdPY2EwdZMd8Qcu
-         iPU+CwvbxWyzUrbqCTdQX5blnnPeDH11cpAjlJSU=
+        b=O14/oZPgNp8HEpf0/mpEzoW2SfCwI+Baw3tU6R46mXR5L/F/yjt/2MfTXc0BUR9zT
+         uiN5WPkGPFJGV+WesAhKMjJ5bWNbotyi8xjJGwo3T/ylV1icYpukHbCoInu5urzLAf
+         UKn0Qd+h05U2bZ/2NK44aP88vvgZSh7mlRyU4/4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 542/593] ASoC: atmel-i2s: Fix usage of capture and playback at the same time
+Subject: [PATCH 5.13 679/800] s390: enable HAVE_IOREMAP_PROT
 Date:   Mon, 12 Jul 2021 08:11:42 +0200
-Message-Id: <20210712060953.609760044@linuxfoundation.org>
+Message-Id: <20210712061039.119245019@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,98 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 3b7961a326f8a7e03f54a19f02fedae8d488b80f ]
+[ Upstream commit d460bb6c6417588dd8b0907d34f69b237918812a ]
 
-For both capture and playback streams to work at the same time, only the
-needed values from a register need to be updated. Also, clocks should be
-enabled only when the first stream is started and stopped when there is no
-running stream.
+In commit b02002cc4c0f ("s390/pci: Implement ioremap_wc/prot() with
+MIO") we implemented both ioremap_wc() and ioremap_prot() however until
+now we had not set HAVE_IOREMAP_PROT in Kconfig, do so now.
 
-Fixes: b543e467d1a9 ("ASoC: atmel-i2s: add driver for the new Atmel I2S controller")
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20210618150741.401739-2-codrin.ciubotariu@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This also requires implementing pte_pgprot() as this is used in the
+generic_access_phys() code enabled by CONFIG_HAVE_IOREMAP_PROT. As with
+ioremap_wc() we need to take the MMIO Write Back bit index into account.
+
+Moreover since the pgprot value returned from pte_pgprot() is to be used
+for mappings into kernel address space we must make sure that it uses
+appropriate kernel page table protection bits. In particular a pgprot
+value originally coming from userspace could have the _PAGE_PROTECT
+bit set to enable fault based dirty bit accounting which would then make
+the mapping inaccessible when used in kernel address space.
+
+Fixes: b02002cc4c0f ("s390/pci: Implement ioremap_wc/prot() with MIO")
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/atmel-i2s.c | 34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ arch/s390/Kconfig               |  1 +
+ arch/s390/include/asm/pgtable.h | 19 +++++++++++++++++++
+ 2 files changed, 20 insertions(+)
 
-diff --git a/sound/soc/atmel/atmel-i2s.c b/sound/soc/atmel/atmel-i2s.c
-index bbe2b638abb5..d870f56c44cf 100644
---- a/sound/soc/atmel/atmel-i2s.c
-+++ b/sound/soc/atmel/atmel-i2s.c
-@@ -200,6 +200,7 @@ struct atmel_i2s_dev {
- 	unsigned int				fmt;
- 	const struct atmel_i2s_gck_param	*gck_param;
- 	const struct atmel_i2s_caps		*caps;
-+	int					clk_use_no;
- };
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index b4c7c34069f8..d6582f57e0a1 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -164,6 +164,7 @@ config S390
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_GCC_PLUGINS
+ 	select HAVE_GENERIC_VDSO
++	select HAVE_IOREMAP_PROT if PCI
+ 	select HAVE_IRQ_EXIT_ON_IRQ_STACK
+ 	select HAVE_KERNEL_BZIP2
+ 	select HAVE_KERNEL_GZIP
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index b38f7b781564..adea53f69bfd 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -863,6 +863,25 @@ static inline int pte_unused(pte_t pte)
+ 	return pte_val(pte) & _PAGE_UNUSED;
+ }
  
- static irqreturn_t atmel_i2s_interrupt(int irq, void *dev_id)
-@@ -321,9 +322,16 @@ static int atmel_i2s_hw_params(struct snd_pcm_substream *substream,
- {
- 	struct atmel_i2s_dev *dev = snd_soc_dai_get_drvdata(dai);
- 	bool is_playback = (substream->stream == SNDRV_PCM_STREAM_PLAYBACK);
--	unsigned int mr = 0;
-+	unsigned int mr = 0, mr_mask;
- 	int ret;
- 
-+	mr_mask = ATMEL_I2SC_MR_FORMAT_MASK | ATMEL_I2SC_MR_MODE_MASK |
-+		ATMEL_I2SC_MR_DATALENGTH_MASK;
-+	if (is_playback)
-+		mr_mask |= ATMEL_I2SC_MR_TXMONO;
-+	else
-+		mr_mask |= ATMEL_I2SC_MR_RXMONO;
++/*
++ * Extract the pgprot value from the given pte while at the same time making it
++ * usable for kernel address space mappings where fault driven dirty and
++ * young/old accounting is not supported, i.e _PAGE_PROTECT and _PAGE_INVALID
++ * must not be set.
++ */
++static inline pgprot_t pte_pgprot(pte_t pte)
++{
++	unsigned long pte_flags = pte_val(pte) & _PAGE_CHG_MASK;
 +
- 	switch (dev->fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
- 		mr |= ATMEL_I2SC_MR_FORMAT_I2S;
-@@ -402,7 +410,7 @@ static int atmel_i2s_hw_params(struct snd_pcm_substream *substream,
- 		return -EINVAL;
- 	}
- 
--	return regmap_write(dev->regmap, ATMEL_I2SC_MR, mr);
-+	return regmap_update_bits(dev->regmap, ATMEL_I2SC_MR, mr_mask, mr);
- }
- 
- static int atmel_i2s_switch_mck_generator(struct atmel_i2s_dev *dev,
-@@ -495,18 +503,28 @@ static int atmel_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
- 	is_master = (mr & ATMEL_I2SC_MR_MODE_MASK) == ATMEL_I2SC_MR_MODE_MASTER;
- 
- 	/* If master starts, enable the audio clock. */
--	if (is_master && mck_enabled)
--		err = atmel_i2s_switch_mck_generator(dev, true);
--	if (err)
--		return err;
-+	if (is_master && mck_enabled) {
-+		if (!dev->clk_use_no) {
-+			err = atmel_i2s_switch_mck_generator(dev, true);
-+			if (err)
-+				return err;
-+		}
-+		dev->clk_use_no++;
-+	}
- 
- 	err = regmap_write(dev->regmap, ATMEL_I2SC_CR, cr);
- 	if (err)
- 		return err;
- 
- 	/* If master stops, disable the audio clock. */
--	if (is_master && !mck_enabled)
--		err = atmel_i2s_switch_mck_generator(dev, false);
-+	if (is_master && !mck_enabled) {
-+		if (dev->clk_use_no == 1) {
-+			err = atmel_i2s_switch_mck_generator(dev, false);
-+			if (err)
-+				return err;
-+		}
-+		dev->clk_use_no--;
-+	}
- 
- 	return err;
- }
++	if (pte_write(pte))
++		pte_flags |= pgprot_val(PAGE_KERNEL);
++	else
++		pte_flags |= pgprot_val(PAGE_KERNEL_RO);
++	pte_flags |= pte_val(pte) & mio_wb_bit_mask;
++
++	return __pgprot(pte_flags);
++}
++
+ /*
+  * pgd/pmd/pte modification functions
+  */
 -- 
 2.30.2
 
