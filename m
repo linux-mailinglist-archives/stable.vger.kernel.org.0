@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97FF93C502B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88FE93C4B13
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238713AbhGLHbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:31:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
+        id S239688AbhGLGza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244787AbhGLH1s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:27:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0E5C61411;
-        Mon, 12 Jul 2021 07:23:46 +0000 (UTC)
+        id S240468AbhGLGxz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:53:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5964E61132;
+        Mon, 12 Jul 2021 06:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074627;
-        bh=Loxla5q5ABx2HMqOgYi7c64d+1Uun0MVEcKSJtP7/Ks=;
+        s=korg; t=1626072664;
+        bh=DpnsFo1fJOdU/+vDl7CWEJqYMAoi5zUg+uU01kTWEAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDFaFF+RQ8cieF0bfe8XcSDdA1yEld2x5BxF9SrW4xzwtjxS7miK/iEc8vcDTgd3i
-         VMZtAGMxK4sqNypODV4sZoOBS7TkATIEpergAk8dn8P8pOwbiDLZ+7YWtnuR3ui5xL
-         RjYKh4Bl9o8j1YbRNedxSUvlpeao8iEpxoKYFFWw=
+        b=v+0QgC+bSvA1kYjflcb2ygAWjzGMIucPKW8xhaEo9FaOnlEhrl+IwnzOtJ6g7NWup
+         Fyqw1FefMdst1vCKSN79fikUVB3mBw2T1haJTkV+taERIo0CYHeUrOlC+h5a57fCn3
+         CWT4LaSEhuI4jGbItYDUo3ob/EvTPEilFOn5fhSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 643/700] ASoC: atmel-i2s: Fix usage of capture and playback at the same time
+Subject: [PATCH 5.10 566/593] mm/hugetlb: use helper huge_page_order and pages_per_huge_page
 Date:   Mon, 12 Jul 2021 08:12:06 +0200
-Message-Id: <20210712061044.306152493@linuxfoundation.org>
+Message-Id: <20210712060957.055904365@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,97 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 3b7961a326f8a7e03f54a19f02fedae8d488b80f ]
+[ Upstream commit c78a7f3639932c48b4e1d329fc80fd26aa1a2fa3 ]
 
-For both capture and playback streams to work at the same time, only the
-needed values from a register need to be updated. Also, clocks should be
-enabled only when the first stream is started and stopped when there is no
-running stream.
+Since commit a5516438959d ("hugetlb: modular state for hugetlb page
+size"), we can use huge_page_order to access hstate->order and
+pages_per_huge_page to fetch the pages per huge page.  But
+gather_bootmem_prealloc() forgot to use it.
 
-Fixes: b543e467d1a9 ("ASoC: atmel-i2s: add driver for the new Atmel I2S controller")
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20210618150741.401739-2-codrin.ciubotariu@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lkml.kernel.org/r/20210114114435.40075-1-linmiaohe@huawei.com
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/atmel-i2s.c | 34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ mm/hugetlb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/atmel/atmel-i2s.c b/sound/soc/atmel/atmel-i2s.c
-index e43acb54296b..a383c6bef8e0 100644
---- a/sound/soc/atmel/atmel-i2s.c
-+++ b/sound/soc/atmel/atmel-i2s.c
-@@ -200,6 +200,7 @@ struct atmel_i2s_dev {
- 	unsigned int				fmt;
- 	const struct atmel_i2s_gck_param	*gck_param;
- 	const struct atmel_i2s_caps		*caps;
-+	int					clk_use_no;
- };
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index d4f89c2f9544..991b5cd40267 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -2500,7 +2500,7 @@ static void __init gather_bootmem_prealloc(void)
+ 		struct hstate *h = m->hstate;
  
- static irqreturn_t atmel_i2s_interrupt(int irq, void *dev_id)
-@@ -321,9 +322,16 @@ static int atmel_i2s_hw_params(struct snd_pcm_substream *substream,
- {
- 	struct atmel_i2s_dev *dev = snd_soc_dai_get_drvdata(dai);
- 	bool is_playback = (substream->stream == SNDRV_PCM_STREAM_PLAYBACK);
--	unsigned int mr = 0;
-+	unsigned int mr = 0, mr_mask;
- 	int ret;
- 
-+	mr_mask = ATMEL_I2SC_MR_FORMAT_MASK | ATMEL_I2SC_MR_MODE_MASK |
-+		ATMEL_I2SC_MR_DATALENGTH_MASK;
-+	if (is_playback)
-+		mr_mask |= ATMEL_I2SC_MR_TXMONO;
-+	else
-+		mr_mask |= ATMEL_I2SC_MR_RXMONO;
-+
- 	switch (dev->fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
- 		mr |= ATMEL_I2SC_MR_FORMAT_I2S;
-@@ -402,7 +410,7 @@ static int atmel_i2s_hw_params(struct snd_pcm_substream *substream,
- 		return -EINVAL;
+ 		WARN_ON(page_count(page) != 1);
+-		prep_compound_huge_page(page, h->order);
++		prep_compound_huge_page(page, huge_page_order(h));
+ 		WARN_ON(PageReserved(page));
+ 		prep_new_huge_page(h, page, page_to_nid(page));
+ 		put_page(page); /* free it into the hugepage allocator */
+@@ -2512,7 +2512,7 @@ static void __init gather_bootmem_prealloc(void)
+ 		 * side-effects, like CommitLimit going negative.
+ 		 */
+ 		if (hstate_is_gigantic(h))
+-			adjust_managed_page_count(page, 1 << h->order);
++			adjust_managed_page_count(page, pages_per_huge_page(h));
+ 		cond_resched();
  	}
- 
--	return regmap_write(dev->regmap, ATMEL_I2SC_MR, mr);
-+	return regmap_update_bits(dev->regmap, ATMEL_I2SC_MR, mr_mask, mr);
- }
- 
- static int atmel_i2s_switch_mck_generator(struct atmel_i2s_dev *dev,
-@@ -495,18 +503,28 @@ static int atmel_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
- 	is_master = (mr & ATMEL_I2SC_MR_MODE_MASK) == ATMEL_I2SC_MR_MODE_MASTER;
- 
- 	/* If master starts, enable the audio clock. */
--	if (is_master && mck_enabled)
--		err = atmel_i2s_switch_mck_generator(dev, true);
--	if (err)
--		return err;
-+	if (is_master && mck_enabled) {
-+		if (!dev->clk_use_no) {
-+			err = atmel_i2s_switch_mck_generator(dev, true);
-+			if (err)
-+				return err;
-+		}
-+		dev->clk_use_no++;
-+	}
- 
- 	err = regmap_write(dev->regmap, ATMEL_I2SC_CR, cr);
- 	if (err)
- 		return err;
- 
- 	/* If master stops, disable the audio clock. */
--	if (is_master && !mck_enabled)
--		err = atmel_i2s_switch_mck_generator(dev, false);
-+	if (is_master && !mck_enabled) {
-+		if (dev->clk_use_no == 1) {
-+			err = atmel_i2s_switch_mck_generator(dev, false);
-+			if (err)
-+				return err;
-+		}
-+		dev->clk_use_no--;
-+	}
- 
- 	return err;
  }
 -- 
 2.30.2
