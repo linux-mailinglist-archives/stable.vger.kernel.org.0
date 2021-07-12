@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B6923C53F7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E48BA3C4EF5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349142AbhGLH4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39340 "EHLO mail.kernel.org"
+        id S242638AbhGLHWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:22:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351271AbhGLHvg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A30661152;
-        Mon, 12 Jul 2021 07:48:47 +0000 (UTC)
+        id S242039AbhGLHTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:19:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73F6E61574;
+        Mon, 12 Jul 2021 07:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076128;
-        bh=fWvKp9VGq6LKIxOtIqwGBuRaqkWpKiGSVQ9HLQyhkqk=;
+        s=korg; t=1626074179;
+        bh=5RBP4naidKyQUpt3TyGxsn7mo6o5fz5Qv0pQJM67Sd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6XKT7dnlitkj6go9UWUVmHibnpvV+QhxSS1G/N46TQdYeBuUNzvbvBqjlWkmUVtF
-         wnDq3QqyiJyRQENxci84mw5WwWDQtjurDFcpUv5Np03DlA8sUJfEGTLgGszBQ1Ql/p
-         nxesmmFo+pSPcQnc8nwiUwdyRaMGS+lqkViRaj8M=
+        b=PirWSvgePRzOz07r+L6zcn9CnCOn5ZihSvPNAf045VhsBLCEJOrjQ/JNXLohtpWKD
+         9ymXAx0PYadueZitONQ4UDAahmZlaPb+kgvpLmyupsN35ZXjrEOmW2KMf2Xfemq6SE
+         p6XtYQOgD/Fe61lZpFMNg6W2xXinaU4G3AhAblLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 509/800] net: ethernet: aeroflex: fix UAF in greth_of_remove
+Subject: [PATCH 5.12 449/700] netfilter: nf_tables_offload: check FLOW_DISSECTOR_KEY_BASIC in VLAN transfer logic
 Date:   Mon, 12 Jul 2021 08:08:52 +0200
-Message-Id: <20210712061021.352591029@linuxfoundation.org>
+Message-Id: <20210712061024.308249984@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit e3a5de6d81d8b2199935c7eb3f7d17a50a7075b7 ]
+[ Upstream commit ea45fdf82cc90430bb7c280e5e53821e833782c5 ]
 
-static int greth_of_remove(struct platform_device *of_dev)
-{
-...
-	struct greth_private *greth = netdev_priv(ndev);
-...
-	unregister_netdev(ndev);
-	free_netdev(ndev);
+The VLAN transfer logic should actually check for
+FLOW_DISSECTOR_KEY_BASIC, not FLOW_DISSECTOR_KEY_CONTROL. Moreover, do
+not fallback to case 2) .n_proto is set to 802.1q or 802.1ad, if
+FLOW_DISSECTOR_KEY_BASIC is unset.
 
-	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
-...
-}
-
-greth is netdev private data, but it is used
-after free_netdev(). It can cause use-after-free when accessing greth
-pointer. So, fix it by moving free_netdev() after of_iounmap()
-call.
-
-Fixes: d4c41139df6e ("net: Add Aeroflex Gaisler 10/100/1G Ethernet MAC driver")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 783003f3bb8a ("netfilter: nftables_offload: special ethertype handling for VLAN")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aeroflex/greth.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_offload.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/aeroflex/greth.c b/drivers/net/ethernet/aeroflex/greth.c
-index d77fafbc1530..c560ad06f0be 100644
---- a/drivers/net/ethernet/aeroflex/greth.c
-+++ b/drivers/net/ethernet/aeroflex/greth.c
-@@ -1539,10 +1539,11 @@ static int greth_of_remove(struct platform_device *of_dev)
- 	mdiobus_unregister(greth->mdio);
+diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
+index 2b00f7f47693..9ce776175214 100644
+--- a/net/netfilter/nf_tables_offload.c
++++ b/net/netfilter/nf_tables_offload.c
+@@ -54,15 +54,10 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
+ 					struct nft_flow_rule *flow)
+ {
+ 	struct nft_flow_match *match = &flow->match;
+-	struct nft_offload_ethertype ethertype;
+-
+-	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_CONTROL) &&
+-	    match->key.basic.n_proto != htons(ETH_P_8021Q) &&
+-	    match->key.basic.n_proto != htons(ETH_P_8021AD))
+-		return;
+-
+-	ethertype.value = match->key.basic.n_proto;
+-	ethertype.mask = match->mask.basic.n_proto;
++	struct nft_offload_ethertype ethertype = {
++		.value	= match->key.basic.n_proto,
++		.mask	= match->mask.basic.n_proto,
++	};
  
- 	unregister_netdev(ndev);
--	free_netdev(ndev);
- 
- 	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
- 
-+	free_netdev(ndev);
-+
- 	return 0;
- }
- 
+ 	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_VLAN) &&
+ 	    (match->key.vlan.vlan_tpid == htons(ETH_P_8021Q) ||
+@@ -76,7 +71,9 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
+ 		match->dissector.offset[FLOW_DISSECTOR_KEY_CVLAN] =
+ 			offsetof(struct nft_flow_key, cvlan);
+ 		match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_CVLAN);
+-	} else {
++	} else if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_BASIC) &&
++		   (match->key.basic.n_proto == htons(ETH_P_8021Q) ||
++		    match->key.basic.n_proto == htons(ETH_P_8021AD))) {
+ 		match->key.basic.n_proto = match->key.vlan.vlan_tpid;
+ 		match->mask.basic.n_proto = match->mask.vlan.vlan_tpid;
+ 		match->key.vlan.vlan_tpid = ethertype.value;
 -- 
 2.30.2
 
