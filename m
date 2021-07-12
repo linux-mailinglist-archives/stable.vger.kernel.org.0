@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE5493C445A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D32183C445C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233616AbhGLGSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:18:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37084 "EHLO mail.kernel.org"
+        id S233015AbhGLGSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:18:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231968AbhGLGSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:18:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4E666113E;
-        Mon, 12 Jul 2021 06:15:43 +0000 (UTC)
+        id S232878AbhGLGSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:18:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1F0F610CC;
+        Mon, 12 Jul 2021 06:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070544;
-        bh=HDUSXSB5WC/Bx9Qf+vAbnBDp48mIUWZDcQ0YsrPzNI8=;
+        s=korg; t=1626070546;
+        bh=8Np9wGWurrJFva4Zv2RuZfENKAV4leL+wRycjHuDhGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RH1eQP1X7DIW4QKTQN8vKEkbAHiGTv5NUiKKJL2NPrl+acKlXsuxczAjLpG8ODmpA
-         2St39fBoxTNzZYrkmvnwCfrM9+zIia7qQGE/mXF/oJ1PXAfsbdVJ4inQLK0T4A5Poo
-         jZqYTTXnCZlpjVktHa7uGmAdbseiw9OeBev3gfUc=
+        b=frJeWGhOxWvYGiLhMLepc86b/bnF5hu1W5BwKj7u1uEDzJv8S9vwcafKTxoLrpXF/
+         amUP7rv8l3QbvevywFZEs0oBa09idxgGC+NDJUVHDU/XhLFkuIksjCm5TT0zORVHJ3
+         I2iu8WKnJHec9PPeZYplxcdDi2/ZX4YDaZoceMaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 036/348] mac80211: remove iwlwifi specific workaround that broke sta NDP tx
-Date:   Mon, 12 Jul 2021 08:07:00 +0200
-Message-Id: <20210712060705.838770980@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.4 037/348] SUNRPC: Fix the batch tasks count wraparound.
+Date:   Mon, 12 Jul 2021 08:07:01 +0200
+Message-Id: <20210712060705.926294933@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -39,62 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit e41eb3e408de27982a5f8f50b2dd8002bed96908 upstream.
+commit fcb170a9d825d7db4a3fb870b0300f5a40a8d096 upstream.
 
-Sending nulldata packets is important for sw AP link probing and detecting
-4-address mode links. The checks that dropped these packets were apparently
-added to work around an iwlwifi firmware bug with multi-TID aggregation.
+The 'queue->nr' will wraparound from 0 to 255 when only current
+priority queue has tasks. This maybe lead a deadlock same as commit
+dfe1fe75e00e ("NFSv4: Fix deadlock between nfs4_evict_inode()
+and nfs4_opendata_get_inode()"):
 
-Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
+Privileged delegreturn task is queued to privileged list because all
+the slots are assigned. When non-privileged task complete and release
+the slot, a non-privileged maybe picked out. It maybe allocate slot
+failed when the session on draining.
+
+If the 'queue->nr' has wraparound to 255, and no enough slot to
+service it, then the privileged delegreturn will lost to wake up.
+
+So we should avoid the wraparound on 'queue->nr'.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 5fcdfacc01f3 ("NFSv4: Return delegations synchronously in evict_inode")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20210619101517.90806-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/tx.c |    3 +++
- net/mac80211/mlme.c                         |    9 ---------
- 2 files changed, 3 insertions(+), 9 deletions(-)
+ net/sunrpc/sched.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-@@ -1091,6 +1091,9 @@ static int iwl_mvm_tx_mpdu(struct iwl_mv
- 	if (WARN_ON_ONCE(mvmsta->sta_id == IWL_MVM_INVALID_STA))
- 		return -1;
- 
-+	if (unlikely(ieee80211_is_any_nullfunc(fc)) && sta->he_cap.has_he)
-+		return -1;
-+
- 	if (unlikely(ieee80211_is_probe_resp(fc)))
- 		iwl_mvm_probe_resp_set_noa(mvm, skb);
- 
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1014,11 +1014,6 @@ void ieee80211_send_nullfunc(struct ieee
- 	struct ieee80211_hdr_3addr *nullfunc;
- 	struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
- 
--	/* Don't send NDPs when STA is connected HE */
--	if (sdata->vif.type == NL80211_IFTYPE_STATION &&
--	    !(ifmgd->flags & IEEE80211_STA_DISABLE_HE))
--		return;
--
- 	skb = ieee80211_nullfunc_get(&local->hw, &sdata->vif,
- 		!ieee80211_hw_check(&local->hw, DOESNT_SUPPORT_QOS_NDP));
- 	if (!skb)
-@@ -1050,10 +1045,6 @@ static void ieee80211_send_4addr_nullfun
- 	if (WARN_ON(sdata->vif.type != NL80211_IFTYPE_STATION))
- 		return;
- 
--	/* Don't send NDPs when connected HE */
--	if (!(sdata->u.mgd.flags & IEEE80211_STA_DISABLE_HE))
--		return;
--
- 	skb = dev_alloc_skb(local->hw.extra_tx_headroom + 30);
- 	if (!skb)
- 		return;
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -617,7 +617,8 @@ static struct rpc_task *__rpc_find_next_
+ 	 * Service a batch of tasks from a single owner.
+ 	 */
+ 	q = &queue->tasks[queue->priority];
+-	if (!list_empty(q) && --queue->nr) {
++	if (!list_empty(q) && queue->nr) {
++		queue->nr--;
+ 		task = list_first_entry(q, struct rpc_task, u.tk_wait.list);
+ 		goto out;
+ 	}
 
 
