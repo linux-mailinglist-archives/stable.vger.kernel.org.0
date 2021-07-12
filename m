@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A94853C5381
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 425443C537B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352481AbhGLHyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35488 "EHLO mail.kernel.org"
+        id S1352466AbhGLHyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350416AbhGLHvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1350446AbhGLHvA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 03:51:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D40961941;
-        Mon, 12 Jul 2021 07:45:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B02561883;
+        Mon, 12 Jul 2021 07:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075927;
-        bh=QPB8KCYMZDRMMMPSSXNzfcjoZgv1Mg6qpKTkh8Adais=;
+        s=korg; t=1626075929;
+        bh=wyMWFanJk4V0p8E7UCLTYW9/FtAYpGWdH2tr4Hp7hEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHF95SRErutO5mI+qyxyk9VI+iag4zvVd+JBm/NkdQv/cgxF8fDbJKQEu2sghO0G9
-         q48gp74g7lsdRmlG0Mc6v4LjdzbtMvXyb0jBGAcFVW3DP528c6U619YHm1vqsU9JfE
-         Jmx2F7GJEnz94gKyaLyv3ZFrbyeNN/3/SdDWmVcw=
+        b=jaNOq0OgrnR4df2ZG7G7SdLEa+TzoENsrcuOkwT952p8MYu+Vrl3+ln5vPRT8jGOC
+         P+B8/H5Slwp7trHd3S9u/39k2Nb0P3unEEcSvyHuX+TUxn9GOZDi9fwiVEbglx1Zyz
+         TJLWqzSuAl5OtSOijGy23wLSENuRZUFqt1ZJZPq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Guenter Roeck <groeck@chromium.org>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 422/800] drm/rockchip: lvds: Fix an error handling path
-Date:   Mon, 12 Jul 2021 08:07:25 +0200
-Message-Id: <20210712061012.069510683@linuxfoundation.org>
+Subject: [PATCH 5.13 423/800] drm/rockchip: cdn-dp: fix sign extension on an int multiply for a u64 result
+Date:   Mon, 12 Jul 2021 08:07:26 +0200
+Message-Id: <20210712061012.162101376@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -41,42 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 3dfa159f6b0c054eb63673fbf643a5f2cc862e63 ]
+[ Upstream commit ce0cb93a5adb283f577cd4661f511047b5e39028 ]
 
-'ret' is know to be 0 a this point. Checking the return value of
-'phy_init()' and 'phy_set_mode()' was intended instead.
+The variable bit_per_pix is a u8 and is promoted in the multiplication
+to an int type and then sign extended to a u64. If the result of the
+int multiplication is greater than 0x7fffffff then the upper 32 bits will
+be set to 1 as a result of the sign extension. Avoid this by casting
+tu_size_reg to u64 to avoid sign extension and also a potential overflow.
 
-So add the missing assignments.
-
-Fixes: cca1705c3d89 ("drm/rockchip: lvds: Add PX30 support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: 1a0f7ed3abe2 ("drm/rockchip: cdn-dp: add cdn DP support for rk3399")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/248220d4815dc8c8088cebfab7d6df5f70518438.1619881852.git.christophe.jaillet@wanadoo.fr
+Link: https://patchwork.freedesktop.org/patch/msgid/20200915162049.36434-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_lvds.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/rockchip/cdn-dp-reg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_lvds.c b/drivers/gpu/drm/rockchip/rockchip_lvds.c
-index bd5ba10822c2..489d63c05c0d 100644
---- a/drivers/gpu/drm/rockchip/rockchip_lvds.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_lvds.c
-@@ -499,11 +499,11 @@ static int px30_lvds_probe(struct platform_device *pdev,
- 	if (IS_ERR(lvds->dphy))
- 		return PTR_ERR(lvds->dphy);
- 
--	phy_init(lvds->dphy);
-+	ret = phy_init(lvds->dphy);
- 	if (ret)
- 		return ret;
- 
--	phy_set_mode(lvds->dphy, PHY_MODE_LVDS);
-+	ret = phy_set_mode(lvds->dphy, PHY_MODE_LVDS);
- 	if (ret)
- 		return ret;
- 
+diff --git a/drivers/gpu/drm/rockchip/cdn-dp-reg.c b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
+index 9d2163ef4d6e..33fb4d05c506 100644
+--- a/drivers/gpu/drm/rockchip/cdn-dp-reg.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
+@@ -658,7 +658,7 @@ int cdn_dp_config_video(struct cdn_dp_device *dp)
+ 	 */
+ 	do {
+ 		tu_size_reg += 2;
+-		symbol = tu_size_reg * mode->clock * bit_per_pix;
++		symbol = (u64)tu_size_reg * mode->clock * bit_per_pix;
+ 		do_div(symbol, dp->max_lanes * link_rate * 8);
+ 		rem = do_div(symbol, 1000);
+ 		if (tu_size_reg > 64) {
 -- 
 2.30.2
 
