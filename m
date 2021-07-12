@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF10A3C4906
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 984003C4D2A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238649AbhGLGlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34842 "EHLO mail.kernel.org"
+        id S242498AbhGLHMI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238451AbhGLGkN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7F106113A;
-        Mon, 12 Jul 2021 06:37:23 +0000 (UTC)
+        id S244274AbhGLHKe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0EBE610A6;
+        Mon, 12 Jul 2021 07:07:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071844;
-        bh=PwLa1igOKSV8BZprhQw0f1RZYwQaR324yKmmiYBmM44=;
+        s=korg; t=1626073665;
+        bh=QEU95OBl1wa7Ix8cCNHen/j2cLQYlv1H8ToXGIkwAFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfoF/a1tRtBPMU+4N+HsyyakI/jR27nKwXa87PLPAJuCkZ0SYTqhFY6+VvDX/vyMq
-         NPYAyZ1SQwd0PUmJ/0o6hQU1RPyCbzA3y1ohRIMM9+yEnKY4lNUXh7604TicXM2J+m
-         0qw5BRTRblqxmi8A2ToPxTff8s/3j6jf5fcVeX/w=
+        b=tNc6aBIqYUkxscB7fr3ur3NxFSVfo+I3zlR3TAxfrzohfnAKOv7GE8CsnA5ab5VW9
+         iAzq/NbUzxqrMEJFpSK/5hH4Rk3At/qNAVG4LDbcCgLm/CelYR8R3slIuJrWaoOIN8
+         bBVRRg7neY/vDguXFVNy27xPPkAlLnuARC+PWbYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 242/593] crypto: x86/curve25519 - fix cpu feature checking logic in mod_exit
+Subject: [PATCH 5.12 319/700] KVM: selftests: Remove errant asm/barrier.h include to fix arm64 build
 Date:   Mon, 12 Jul 2021 08:06:42 +0200
-Message-Id: <20210712060909.519906289@linuxfoundation.org>
+Message-Id: <20210712061010.316573731@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 1b82435d17774f3eaab35dce239d354548aa9da2 ]
+[ Upstream commit ecc3a92c6f4953c134a9590c762755e6593f507c ]
 
-In curve25519_mod_init() the curve25519_alg will be registered only when
-(X86_FEATURE_BMI2 && X86_FEATURE_ADX). But in curve25519_mod_exit()
-it still checks (X86_FEATURE_BMI2 || X86_FEATURE_ADX) when do crypto
-unregister. This will trigger a BUG_ON in crypto_unregister_alg() as
-alg->cra_refcnt is 0 if the cpu only supports one of X86_FEATURE_BMI2
-and X86_FEATURE_ADX.
+Drop an unnecessary include of asm/barrier.h from dirty_log_test.c to
+allow the test to build on arm64.  arm64, s390, and x86 all build cleanly
+without the include (PPC and MIPS aren't supported in KVM's selftests).
 
-Fixes: 07b586fe0662 ("crypto: x86/curve25519 - replace with formally verified implementation")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+arm64's barrier.h includes linux/kasan-checks.h, which is not copied
+into tools/.
+
+  In file included from ../../../../tools/include/asm/barrier.h:8,
+                   from dirty_log_test.c:19:
+     .../arm64/include/asm/barrier.h:12:10: fatal error: linux/kasan-checks.h: No such file or directory
+     12 | #include <linux/kasan-checks.h>
+        |          ^~~~~~~~~~~~~~~~~~~~~~
+  compilation terminated.
+
+Fixes: 84292e565951 ("KVM: selftests: Add dirty ring buffer test")
+Cc: Peter Xu <peterx@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210622200529.3650424-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/crypto/curve25519-x86_64.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/kvm/dirty_log_test.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/x86/crypto/curve25519-x86_64.c b/arch/x86/crypto/curve25519-x86_64.c
-index 5af8021b98ce..11b4c83c715e 100644
---- a/arch/x86/crypto/curve25519-x86_64.c
-+++ b/arch/x86/crypto/curve25519-x86_64.c
-@@ -1500,7 +1500,7 @@ static int __init curve25519_mod_init(void)
- static void __exit curve25519_mod_exit(void)
- {
- 	if (IS_REACHABLE(CONFIG_CRYPTO_KPP) &&
--	    (boot_cpu_has(X86_FEATURE_BMI2) || boot_cpu_has(X86_FEATURE_ADX)))
-+	    static_branch_likely(&curve25519_use_bmi2_adx))
- 		crypto_unregister_kpp(&curve25519_alg);
- }
+diff --git a/tools/testing/selftests/kvm/dirty_log_test.c b/tools/testing/selftests/kvm/dirty_log_test.c
+index 81edbd23d371..b4d24f50aca6 100644
+--- a/tools/testing/selftests/kvm/dirty_log_test.c
++++ b/tools/testing/selftests/kvm/dirty_log_test.c
+@@ -16,7 +16,6 @@
+ #include <errno.h>
+ #include <linux/bitmap.h>
+ #include <linux/bitops.h>
+-#include <asm/barrier.h>
+ #include <linux/atomic.h>
  
+ #include "kvm_util.h"
 -- 
 2.30.2
 
