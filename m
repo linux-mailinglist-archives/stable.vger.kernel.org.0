@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BAB13C4A02
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D483C53D5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236460AbhGLGsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:48:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
+        id S1348839AbhGLH4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238305AbhGLGrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:47:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77AD161222;
-        Mon, 12 Jul 2021 06:42:59 +0000 (UTC)
+        id S1350724AbhGLHvO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFD5461432;
+        Mon, 12 Jul 2021 07:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072179;
-        bh=N8/33mR8ZNLEt5zuXLYaFUE+geiMIYi5B0boD7dJbEw=;
+        s=korg; t=1626076060;
+        bh=+aM4i4J7M0YxZ389qnDW7KEGrT3myv5TtXd0q2clvaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q8hV9rObyPOglcGLVl99oThVG6abUXIB2sL3ySKPYZKgThESq1rMVDNSPV+gSYCWx
-         rvnX6Nj1oBucRMMWQILa3UhHObkiCTV0LMHwTqpBlPlA2SWWSAeGhiOGt2R9MDl6Ie
-         wOlg38zYiXXd01gRPVUZpmENIaCIcpbLGjQOKgB4=
+        b=mbPcw+y8bisP/fTi4uj/3QVylwIhIbSFBVobzfCsk1wSDaSLQGqgWEjzDKggM8NMI
+         KsJq+whUTGYoSOsfb0MKN2xHtZzmoqel2QKmVCDocVSg2OzasgkDBZBnoVAK6r9hD/
+         0010ZiOYb4iqjl36zb9+gsc/S374pretUHBDZq7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 345/593] wcn36xx: Move hal_buf allocation to devm_kmalloc in probe
+        stable@vger.kernel.org, Tony Ambardar <Tony.Ambardar@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>, Frank Eigler <fche@redhat.com>,
+        Mark Wielaard <mark@klomp.org>, Jiri Olsa <jolsa@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 482/800] bpf: Fix libelf endian handling in resolv_btfids
 Date:   Mon, 12 Jul 2021 08:08:25 +0200
-Message-Id: <20210712060924.033741450@linuxfoundation.org>
+Message-Id: <20210712061018.469169346@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Tony Ambardar <tony.ambardar@gmail.com>
 
-[ Upstream commit ef48667557c53d4b51a1ee3090eab7699324c9de ]
+[ Upstream commit 61e8aeda9398925f8c6fc290585bdd9727d154c4 ]
 
-Right now wcn->hal_buf is allocated in wcn36xx_start(). This is a problem
-since we should have setup all of the buffers we required by the time
-ieee80211_register_hw() is called.
+The vmlinux ".BTF_ids" ELF section is declared in btf_ids.h to hold a list
+of zero-filled BTF IDs, which is then patched at link-time with correct
+values by resolv_btfids. The section is flagged as "allocable" to preclude
+compression, but notably the section contents (BTF IDs) are untyped.
 
-struct ieee80211_ops callbacks may run prior to mac_start() and therefore
-wcn->hal_buf must be initialized.
+When patching the BTF IDs, resolve_btfids writes in host-native endianness
+and relies on libelf for any required translation on reading and updating
+vmlinux. However, since the type of the .BTF_ids section content defaults
+to ELF_T_BYTE (i.e. unsigned char), no translation occurs. This results in
+incorrect patched values when cross-compiling to non-native endianness,
+and can manifest as kernel Oops and test failures which are difficult to
+troubleshoot [1].
 
-This is easily remediated by moving the allocation to probe() taking the
-opportunity to tidy up freeing memory by using devm_kmalloc().
+Explicitly set the type of patched data to ELF_T_WORD, the architecture-
+neutral ELF type corresponding to the u32 BTF IDs. This enables libelf to
+transparently perform any needed endian conversions.
 
-Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210605173347.2266003-1-bryan.odonoghue@linaro.org
+Fixes: fbbb68de80a4 ("bpf: Add resolve_btfids tool to resolve BTF IDs in ELF object")
+Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Frank Eigler <fche@redhat.com>
+Cc: Mark Wielaard <mark@klomp.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/CAPGftE_eY-Zdi3wBcgDfkz_iOr1KF10n=9mJHm1_a_PykcsoeA@mail.gmail.com [1]
+Link: https://lore.kernel.org/bpf/20210618061404.818569-1-Tony.Ambardar@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wcn36xx/main.c | 21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ tools/bpf/resolve_btfids/main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
-index 706728fba72d..9f8e44210e89 100644
---- a/drivers/net/wireless/ath/wcn36xx/main.c
-+++ b/drivers/net/wireless/ath/wcn36xx/main.c
-@@ -293,23 +293,16 @@ static int wcn36xx_start(struct ieee80211_hw *hw)
- 		goto out_free_dxe_pool;
- 	}
+diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
+index 7550fd9c3188..3ad9301b0f00 100644
+--- a/tools/bpf/resolve_btfids/main.c
++++ b/tools/bpf/resolve_btfids/main.c
+@@ -655,6 +655,9 @@ static int symbols_patch(struct object *obj)
+ 	if (sets_patch(obj))
+ 		return -1;
  
--	wcn->hal_buf = kmalloc(WCN36XX_HAL_BUF_SIZE, GFP_KERNEL);
--	if (!wcn->hal_buf) {
--		wcn36xx_err("Failed to allocate smd buf\n");
--		ret = -ENOMEM;
--		goto out_free_dxe_ctl;
--	}
--
- 	ret = wcn36xx_smd_load_nv(wcn);
- 	if (ret) {
- 		wcn36xx_err("Failed to push NV to chip\n");
--		goto out_free_smd_buf;
-+		goto out_free_dxe_ctl;
- 	}
- 
- 	ret = wcn36xx_smd_start(wcn);
- 	if (ret) {
- 		wcn36xx_err("Failed to start chip\n");
--		goto out_free_smd_buf;
-+		goto out_free_dxe_ctl;
- 	}
- 
- 	if (!wcn36xx_is_fw_version(wcn, 1, 2, 2, 24)) {
-@@ -336,8 +329,6 @@ static int wcn36xx_start(struct ieee80211_hw *hw)
- 
- out_smd_stop:
- 	wcn36xx_smd_stop(wcn);
--out_free_smd_buf:
--	kfree(wcn->hal_buf);
- out_free_dxe_ctl:
- 	wcn36xx_dxe_free_ctl_blks(wcn);
- out_free_dxe_pool:
-@@ -372,8 +363,6 @@ static void wcn36xx_stop(struct ieee80211_hw *hw)
- 
- 	wcn36xx_dxe_free_mem_pools(wcn);
- 	wcn36xx_dxe_free_ctl_blks(wcn);
--
--	kfree(wcn->hal_buf);
- }
- 
- static void wcn36xx_change_ps(struct wcn36xx *wcn, bool enable)
-@@ -1398,6 +1387,12 @@ static int wcn36xx_probe(struct platform_device *pdev)
- 	mutex_init(&wcn->hal_mutex);
- 	mutex_init(&wcn->scan_lock);
- 
-+	wcn->hal_buf = devm_kmalloc(wcn->dev, WCN36XX_HAL_BUF_SIZE, GFP_KERNEL);
-+	if (!wcn->hal_buf) {
-+		ret = -ENOMEM;
-+		goto out_wq;
-+	}
++	/* Set type to ensure endian translation occurs. */
++	obj->efile.idlist->d_type = ELF_T_WORD;
 +
- 	ret = dma_set_mask_and_coherent(wcn->dev, DMA_BIT_MASK(32));
- 	if (ret < 0) {
- 		wcn36xx_err("failed to set DMA mask: %d\n", ret);
+ 	elf_flagdata(obj->efile.idlist, ELF_C_SET, ELF_F_DIRTY);
+ 
+ 	err = elf_update(obj->efile.elf, ELF_C_WRITE);
 -- 
 2.30.2
 
