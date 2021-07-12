@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33A783C550F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6293C4A7F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbhGLIJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54124 "EHLO mail.kernel.org"
+        id S239235AbhGLGwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245456AbhGLH6o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:58:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16F856197B;
-        Mon, 12 Jul 2021 07:53:07 +0000 (UTC)
+        id S239276AbhGLGth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C364F60233;
+        Mon, 12 Jul 2021 06:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076388;
-        bh=PGPwFByimew3NOMYXmeazQrzDVNi1cBMz0s3ADpp2Go=;
+        s=korg; t=1626072409;
+        bh=bhJ+XzWt5t7FiSN0ldQi4tcQ6qcwYXp9t/NbSHH2QEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YkQtL2EdGblwjDR4/jJKqKqOX8cCxu1L/3u5HK8U3DsauxgWPljW43gohOUgb2xhw
-         ltwE/DMt8E2jW0hnkoFwnomgi/NJTYv7egl+8SSgWhoQvXrLCQCngXOg2BmyVicVWh
-         7ZETcLJASrx8XYlcEwufKethVjLpS0efN4Y4K3OA=
+        b=sC2D12tICxpeJ3ky+xMKToRYagHDE+57945rH5yj/9Iumb8Wj8p+I7f8uTPx2Di1T
+         63uwC8FjB7VF6j0C9IQUgkigWnf/M5uVPdQVLBiHMvS9FZhRUAH0naSiU7tC7vPnVH
+         4BwQkA82jOCoOKeDZt4MZ5MyrmtKo05iGKvSRq30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 623/800] iio: adc: ti-ads1015: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.10 486/593] scsi: iscsi: Flush block work before unblock
 Date:   Mon, 12 Jul 2021 08:10:46 +0200
-Message-Id: <20210712061033.550408128@linuxfoundation.org>
+Message-Id: <20210712060944.513395231@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit d85d71dd1ab67eaa7351f69fec512d8f09d164e1 ]
+[ Upstream commit 7ce9fc5ecde0d8bd64c29baee6c5e3ce7074ec9a ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+We set the max_active iSCSI EH works to 1, so all work is going to execute
+in order by default. However, userspace can now override this in sysfs. If
+max_active > 1, we can end up with the block_work on CPU1 and
+iscsi_unblock_session running the unblock_work on CPU2 and the session and
+target/device state will end up out of sync with each other.
 
-Found during an audit of all calls of this function.
+This adds a flush of the block_work in iscsi_unblock_session.
 
-Fixes: ecc24e72f437 ("iio: adc: Add TI ADS1015 ADC driver support")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Daniel Baluta <daniel.baluta@nxp.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-9-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210525181821.7617-17-michael.christie@oracle.com
+Fixes: 1d726aa6ef57 ("scsi: iscsi: Optimize work queue flush use")
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ti-ads1015.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/adc/ti-ads1015.c b/drivers/iio/adc/ti-ads1015.c
-index 9fef39bcf997..5b828428be77 100644
---- a/drivers/iio/adc/ti-ads1015.c
-+++ b/drivers/iio/adc/ti-ads1015.c
-@@ -395,10 +395,14 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct ads1015_data *data = iio_priv(indio_dev);
--	s16 buf[8]; /* 1x s16 ADC val + 3x s16 padding +  4x s16 timestamp */
-+	/* Ensure natural alignment of timestamp */
-+	struct {
-+		s16 chan;
-+		s64 timestamp __aligned(8);
-+	} scan;
- 	int chan, ret, res;
- 
--	memset(buf, 0, sizeof(buf));
-+	memset(&scan, 0, sizeof(scan));
- 
- 	mutex_lock(&data->lock);
- 	chan = find_first_bit(indio_dev->active_scan_mask,
-@@ -409,10 +413,10 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
- 		goto err;
- 	}
- 
--	buf[0] = res;
-+	scan.chan = res;
- 	mutex_unlock(&data->lock);
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &scan,
- 					   iio_get_time_ns(indio_dev));
- 
- err:
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index c53c3f9fa526..c520239082fc 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -1979,6 +1979,8 @@ static void __iscsi_unblock_session(struct work_struct *work)
+  */
+ void iscsi_unblock_session(struct iscsi_cls_session *session)
+ {
++	flush_work(&session->block_work);
++
+ 	queue_work(iscsi_eh_timer_workq, &session->unblock_work);
+ 	/*
+ 	 * Blocking the session can be done from any context so we only
 -- 
 2.30.2
 
