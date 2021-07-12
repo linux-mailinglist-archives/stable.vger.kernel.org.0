@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34D0E3C4567
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B575F3C456B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234904AbhGLGZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38964 "EHLO mail.kernel.org"
+        id S235437AbhGLGZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235192AbhGLGYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:24:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70101611B0;
-        Mon, 12 Jul 2021 06:21:24 +0000 (UTC)
+        id S235222AbhGLGYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:24:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C39E4611C0;
+        Mon, 12 Jul 2021 06:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070884;
-        bh=xnWYHfObpQ+5Ip/l/lNmui/q8vAGzemHgguL1UMezNc=;
+        s=korg; t=1626070887;
+        bh=0ZgqDbap0sN27fyUlPAxtjKydY5/6ishADhKBLSLIpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSNuKw7edjApF9zyhE/bh1LCwngAwxsh5IT4kawMKLnwEoZq8uXkxdzf5/40gTbhF
-         AmTko0ydEhbNHbWYFA4ZxK1DGqnyBDQ0oWZK9Da2t9ldYVQf0hR1/tWhn56TvjVDu/
-         h6C7vlLIWOOKMOHf+Ta/0Tuqk8fKJw7ixmysxGIc=
+        b=O4DCVfxmwTUPq1Zi+PBFXa2SLPpClQukI9hCIohPtU/yRcHlncCFH31Sz1lMV62n2
+         TsjN3l68mdpq0bFf50/1dJP34Szd8n6aERei0cZy4y/zmCSGOK4wYh9uupqSGUd1fW
+         iO6DytPbJYxW0jw0kf12DY1rHyAfxhCCk7uAcdp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 182/348] ocfs2: fix snprintf() checking
-Date:   Mon, 12 Jul 2021 08:09:26 +0200
-Message-Id: <20210712060725.071516538@linuxfoundation.org>
+Subject: [PATCH 5.4 183/348] dax: fix ENOMEM handling in grab_mapping_entry()
+Date:   Mon, 12 Jul 2021 08:09:27 +0200
+Message-Id: <20210712060725.204331095@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -47,83 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 54e948c60cc843b6e84dc44496edc91f51d2a28e ]
+[ Upstream commit 1a14e3779dd58c16b30e56558146e5cc850ba8b0 ]
 
-The snprintf() function returns the number of bytes which would have been
-printed if the buffer was large enough.  In other words it can return ">=
-remain" but this code assumes it returns "== remain".
+grab_mapping_entry() has a bug in handling of ENOMEM condition.  Suppose
+we have a PMD entry at index i which we are downgrading to a PTE entry.
+grab_mapping_entry() will set pmd_downgrade to true, lock the entry, clear
+the entry in xarray, and decrement mapping->nrpages.  The it will call:
 
-The run time impact of this bug is not very severe.  The next iteration
-through the loop would trigger a WARN() when we pass a negative limit to
-snprintf().  We would then return success instead of -E2BIG.
+	entry = dax_make_entry(pfn_to_pfn_t(0), flags);
+	dax_lock_entry(xas, entry);
 
-The kernel implementation of snprintf() will never return negatives so
-there is no need to check and I have deleted that dead code.
+which inserts new PTE entry into xarray.  However this may fail allocating
+the new node.  We handle this by:
 
-Link: https://lkml.kernel.org/r/20210511135350.GV1955@kadam
-Fixes: a860f6eb4c6a ("ocfs2: sysfile interfaces for online file check")
-Fixes: 74ae4e104dfc ("ocfs2: Create stack glue sysfs files.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+	if (xas_nomem(xas, mapping_gfp_mask(mapping) & ~__GFP_HIGHMEM))
+		goto retry;
+
+however pmd_downgrade stays set to true even though 'entry' returned from
+get_unlocked_entry() will be NULL now.  And we will go again through the
+downgrade branch.  This is mostly harmless except that mapping->nrpages is
+decremented again and we temporarily have an invalid entry stored in
+xarray.  Fix the problem by setting pmd_downgrade to false each time we
+lookup the entry we work with so that it matches the entry we found.
+
+Link: https://lkml.kernel.org/r/20210622160015.18004-1-jack@suse.cz
+Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/filecheck.c | 6 +-----
- fs/ocfs2/stackglue.c | 8 ++------
- 2 files changed, 3 insertions(+), 11 deletions(-)
+ fs/dax.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/filecheck.c b/fs/ocfs2/filecheck.c
-index 50f11bfdc8c2..82a3edc4aea4 100644
---- a/fs/ocfs2/filecheck.c
-+++ b/fs/ocfs2/filecheck.c
-@@ -328,11 +328,7 @@ static ssize_t ocfs2_filecheck_attr_show(struct kobject *kobj,
- 		ret = snprintf(buf + total, remain, "%lu\t\t%u\t%s\n",
- 			       p->fe_ino, p->fe_done,
- 			       ocfs2_filecheck_error(p->fe_status));
--		if (ret < 0) {
--			total = ret;
--			break;
--		}
--		if (ret == remain) {
-+		if (ret >= remain) {
- 			/* snprintf() didn't fit */
- 			total = -E2BIG;
- 			break;
-diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
-index 8aa6a667860c..188038760136 100644
---- a/fs/ocfs2/stackglue.c
-+++ b/fs/ocfs2/stackglue.c
-@@ -502,11 +502,7 @@ static ssize_t ocfs2_loaded_cluster_plugins_show(struct kobject *kobj,
- 	list_for_each_entry(p, &ocfs2_stack_list, sp_list) {
- 		ret = snprintf(buf, remain, "%s\n",
- 			       p->sp_name);
--		if (ret < 0) {
--			total = ret;
--			break;
--		}
--		if (ret == remain) {
-+		if (ret >= remain) {
- 			/* snprintf() didn't fit */
- 			total = -E2BIG;
- 			break;
-@@ -533,7 +529,7 @@ static ssize_t ocfs2_active_cluster_plugin_show(struct kobject *kobj,
- 	if (active_stack) {
- 		ret = snprintf(buf, PAGE_SIZE, "%s\n",
- 			       active_stack->sp_name);
--		if (ret == PAGE_SIZE)
-+		if (ret >= PAGE_SIZE)
- 			ret = -E2BIG;
- 	}
- 	spin_unlock(&ocfs2_stack_lock);
+diff --git a/fs/dax.c b/fs/dax.c
+index 3b0e5da96d54..12953e892bb2 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -477,10 +477,11 @@ static void *grab_mapping_entry(struct xa_state *xas,
+ 		struct address_space *mapping, unsigned int order)
+ {
+ 	unsigned long index = xas->xa_index;
+-	bool pmd_downgrade = false; /* splitting PMD entry into PTE entries? */
++	bool pmd_downgrade;	/* splitting PMD entry into PTE entries? */
+ 	void *entry;
+ 
+ retry:
++	pmd_downgrade = false;
+ 	xas_lock_irq(xas);
+ 	entry = get_unlocked_entry(xas, order);
+ 
 -- 
 2.30.2
 
