@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3613C48C2
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E67BB3C48B4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236457AbhGLGkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33552 "EHLO mail.kernel.org"
+        id S235758AbhGLGkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237997AbhGLGjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01243611F1;
-        Mon, 12 Jul 2021 06:36:02 +0000 (UTC)
+        id S238018AbhGLGju (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A03C361206;
+        Mon, 12 Jul 2021 06:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071763;
-        bh=CE/WAWc0p896qmORqkpfmtTh5+bSqWQBq/cJKattkkA=;
+        s=korg; t=1626071768;
+        bh=U0O14NrXACBSK7rFxbwEOy4mIvgVCNB8sB5mzb6xcBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgAkUPa/eBxftNhVtO4u+LK+aOyDi5INChJoy14IVsecCrU13xX4Jr5G1BtA5nRYN
-         Lsw9QHtUhUb7Xj3T3i094Wca/9vNojSYeHQi/5oer9CtYfgzFBCLDYWyp1uXqbNbvz
-         DclZ9G35S8LXIB1S96+pFjOKdeGqG5nNWyToUwLM=
+        b=iH4s6nH2wZqp8E652EDNX3IbskIxxZmeSvvD/IrbeezTnrdwfZsBUpDYRMr0M1WyP
+         JPFZMWQwZwxLF0HcS6Tolfvb+GKEDBYUybwIWYzUrN79PZFWse+UzRUCUSjpx+/gS4
+         LP2KMd2B9a6nKo/Q+uZPKLXCkeoPJ8fDLK7TSs98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 210/593] spi: Avoid undefined behaviour when counting unused native CSs
-Date:   Mon, 12 Jul 2021 08:06:10 +0200
-Message-Id: <20210712060906.041255997@linuxfoundation.org>
+Subject: [PATCH 5.10 212/593] media: s5p_cec: decrement usage count if disabled
+Date:   Mon, 12 Jul 2021 08:06:12 +0200
+Message-Id: <20210712060906.242341141@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,36 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit f60d7270c8a3d2beb1c23ae0da42497afa3584c2 ]
+[ Upstream commit 747bad54a677d8633ec14b39dfbeb859c821d7f2 ]
 
-ffz(), that has been used to count unused native CSs,
-might cause undefined behaviour when called against ~0U.
-To fix that, open code it with ffs(~value) - 1.
+There's a bug at s5p_cec_adap_enable(): if called to
+disable the device, it should call pm_runtime_put()
+instead of pm_runtime_disable(), as the goal here is to
+decrement the usage_count and not to disable PM runtime.
 
-Fixes: 7d93aecdb58d ("spi: Add generic support for unused native cs with cs-gpios")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210420164425.40287-2-andriy.shevchenko@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 1bcbf6f4b6b0 ("[media] cec: s5p-cec: Add s5p-cec driver")
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 2 +-
+ drivers/media/cec/platform/s5p/s5p_cec.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index a1a85f0baf7c..8c261eac2cee 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2614,7 +2614,7 @@ static int spi_get_gpio_descs(struct spi_controller *ctlr)
- 		native_cs_mask |= BIT(i);
+diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
+index 2250c1cbc64e..028a09a7531e 100644
+--- a/drivers/media/cec/platform/s5p/s5p_cec.c
++++ b/drivers/media/cec/platform/s5p/s5p_cec.c
+@@ -54,7 +54,7 @@ static int s5p_cec_adap_enable(struct cec_adapter *adap, bool enable)
+ 	} else {
+ 		s5p_cec_mask_tx_interrupts(cec);
+ 		s5p_cec_mask_rx_interrupts(cec);
+-		pm_runtime_disable(cec->dev);
++		pm_runtime_put(cec->dev);
  	}
  
--	ctlr->unused_native_cs = ffz(native_cs_mask);
-+	ctlr->unused_native_cs = ffs(~native_cs_mask) - 1;
- 
- 	if ((ctlr->flags & SPI_MASTER_GPIO_SS) && num_cs_gpios &&
- 	    ctlr->max_native_cs && ctlr->unused_native_cs >= ctlr->max_native_cs) {
+ 	return 0;
 -- 
 2.30.2
 
