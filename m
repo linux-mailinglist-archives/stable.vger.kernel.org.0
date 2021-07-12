@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7B73C4BDB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D0AC3C5194
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238855AbhGLHAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:00:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33058 "EHLO mail.kernel.org"
+        id S244024AbhGLHmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239832AbhGLG6a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:58:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A39B7611C1;
-        Mon, 12 Jul 2021 06:55:41 +0000 (UTC)
+        id S242468AbhGLHhR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:37:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C96E361469;
+        Mon, 12 Jul 2021 07:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072942;
-        bh=jkvrJ9JJB+8IeYJsAfh6cOEFd8g4QNfThvYQZ3Jxse8=;
+        s=korg; t=1626075178;
+        bh=/FSnNNOCk5OXokZXqDDrrMtWOMQjuygAvziNQZGw/TY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xwn8A6l195SU5j1SCn6gvdor10J6wwLAF0kRHHeOf7vRT/9JkNZg/RB0xdbIaDpl2
-         3TlckaNyLJBIUXus+UCWhTEJAkvDnxwfvfi4gtoF90XqzO3DET9Grm/pUVndzzdPcZ
-         4uY87LYRwfWz3y2AF0/ojgnUdTSnr3plcsBHH7XI=
+        b=qpq2k3fvT/LNIKS7x2HP+v8M+moczmgtz0J5jM8nWPzi8i4CAUnuEGvru3aF2RpxI
+         m3e2S5Z6XN2HCn/CDSsd5loVo8IAH7B80TIrkUHbh6Zx48Nz1+IigbRvDxQ9u59ETU
+         s/lAftuoVpRFml/0FE/G0tug64yBsYv4CD2C9grQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.12 071/700] KVM: PPC: Book3S HV: Workaround high stack usage with clang
-Date:   Mon, 12 Jul 2021 08:02:34 +0200
-Message-Id: <20210712060934.745734647@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 132/800] media: mdk-mdp: fix pm_runtime_get_sync() usage count
+Date:   Mon, 12 Jul 2021 08:02:35 +0200
+Message-Id: <20210712060931.569526764@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-commit 51696f39cbee5bb684e7959c0c98b5f54548aa34 upstream.
+[ Upstream commit d07bb9702cf5f5ccf3fb661e6cab54bbc33cd23f ]
 
-LLVM does not emit optimal byteswap assembly, which results in high
-stack usage in kvmhv_enter_nested_guest() due to the inlining of
-byteswap_pt_regs(). With LLVM 12.0.0:
+The pm_runtime_get_sync() internally increments the
+dev->power.usage_count without decrementing it, even on errors.
+Replace it by the new pm_runtime_resume_and_get(), introduced by:
+commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
+in order to properly decrement the usage counter, avoiding
+a potential PM usage counter leak.
 
-arch/powerpc/kvm/book3s_hv_nested.c:289:6: error: stack frame size of
-2512 bytes in function 'kvmhv_enter_nested_guest' [-Werror,-Wframe-larger-than=]
-long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
-     ^
-1 error generated.
+While here, fix the return contition of mtk_mdp_m2m_start_streaming(),
+as it doesn't make any sense to return 0 if the PM runtime failed
+to resume.
 
-While this gets fixed in LLVM, mark byteswap_pt_regs() as
-noinline_for_stack so that it does not get inlined and break the build
-due to -Werror by default in arch/powerpc/. Not inlining saves
-approximately 800 bytes with LLVM 12.0.0:
-
-arch/powerpc/kvm/book3s_hv_nested.c:290:6: warning: stack frame size of
-1728 bytes in function 'kvmhv_enter_nested_guest' [-Wframe-larger-than=]
-long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
-     ^
-1 warning generated.
-
-Cc: stable@vger.kernel.org # v4.20+
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1292
-Link: https://bugs.llvm.org/show_bug.cgi?id=49610
-Link: https://lore.kernel.org/r/202104031853.vDT0Qjqj-lkp@intel.com/
-Link: https://gist.github.com/ba710e3703bf45043a31e2806c843ffd
-Link: https://lore.kernel.org/r/20210621182440.990242-1-nathan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv_nested.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -53,7 +53,8 @@ void kvmhv_save_hv_regs(struct kvm_vcpu
- 	hr->dawrx1 = vcpu->arch.dawrx1;
+diff --git a/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c b/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c
+index ace4528cdc5e..f14779e7596e 100644
+--- a/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c
++++ b/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c
+@@ -391,12 +391,12 @@ static int mtk_mdp_m2m_start_streaming(struct vb2_queue *q, unsigned int count)
+ 	struct mtk_mdp_ctx *ctx = q->drv_priv;
+ 	int ret;
+ 
+-	ret = pm_runtime_get_sync(&ctx->mdp_dev->pdev->dev);
++	ret = pm_runtime_resume_and_get(&ctx->mdp_dev->pdev->dev);
+ 	if (ret < 0)
+-		mtk_mdp_dbg(1, "[%d] pm_runtime_get_sync failed:%d",
++		mtk_mdp_dbg(1, "[%d] pm_runtime_resume_and_get failed:%d",
+ 			    ctx->id, ret);
+ 
+-	return 0;
++	return ret;
  }
  
--static void byteswap_pt_regs(struct pt_regs *regs)
-+/* Use noinline_for_stack due to https://bugs.llvm.org/show_bug.cgi?id=49610 */
-+static noinline_for_stack void byteswap_pt_regs(struct pt_regs *regs)
- {
- 	unsigned long *addr = (unsigned long *) regs;
- 
+ static void *mtk_mdp_m2m_buf_remove(struct mtk_mdp_ctx *ctx,
+-- 
+2.30.2
+
 
 
