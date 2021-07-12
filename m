@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6163C4F8A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A223C552F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243697AbhGLH0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60628 "EHLO mail.kernel.org"
+        id S1355376AbhGLIJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243343AbhGLHX5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:23:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE0D6613E6;
-        Mon, 12 Jul 2021 07:20:55 +0000 (UTC)
+        id S1353066AbhGLIBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:01:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B075E61C2C;
+        Mon, 12 Jul 2021 07:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074456;
-        bh=e33QCnnL0z5RpCbJkLykSisptElZJRtiiKx0O3dBusw=;
+        s=korg; t=1626076450;
+        bh=sPibL6mmZB96dURXwzcDpgE9/GwXMbOuMLhYsqDbWvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BT+pYFLT6VQsYGzhBMq4x5AIURP9xoKl0Wln4V7ID7XkExueCSBprYYj8DtE2FGoo
-         N87pP1nqJUqUuEsTKTywEzZuC+L/bzH7+sjzeyXxuLY1r3YIbtjX9B0D5hDws8bZ6R
-         wIhF+F7lKpjxOLvLavPoY7rxMcICgR0Mxbh1AlFk=
+        b=RiWFpnMvfflkyMHA4qRS6YaixQzlasA9LOmSaunQ0N5uwCiYZvEY0utLMr1NcqRqP
+         8gANbKSfOGQ/bR3XOxo5ALtRER0H53Gnop7EvsahqVsOgJVlP/YLDTul61E87Gdk9P
+         BFWRIksDpqQdIi7Z2ucJDP1efFaq1wdUgd5bEiUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 587/700] fsi: occ: Dont accept response from un-initialized OCC
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 647/800] mtd: rawnand: arasan: Ensure proper configuration for the asserted target
 Date:   Mon, 12 Jul 2021 08:11:10 +0200
-Message-Id: <20210712061038.470782043@linuxfoundation.org>
+Message-Id: <20210712061035.895810975@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +39,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 8a4659be08576141f47d47d94130eb148cb5f0df ]
+[ Upstream commit b5437c7b682c9a505065b4ab4716cdc951dc3c7c ]
 
-If the OCC is not initialized and responds as such, the driver
-should continue waiting for a valid response until the timeout
-expires.
+The controller being always asserting one CS or the other, there is no
+need to actually select the right target before doing a page read/write.
+However, the anfc_select_target() helper actually also changes the
+timing configuration and clock in the case were two different NAND chips
+with different timing requirements would be used. In this situation, we
+must ensure proper configuration of the controller by calling it.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Fixes: 7ed98dddb764 ("fsi: Add On-Chip Controller (OCC) driver")
-Link: https://lore.kernel.org/r/20210209171235.20624-2-eajames@linux.ibm.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+As a consequence of this change, the anfc_select_target() helper is
+being moved earlier in the driver.
+
+Fixes: 88ffef1b65cf ("mtd: rawnand: arasan: Support the hardware BCH ECC engine")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210526093242.183847-4-miquel.raynal@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-occ.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/raw/arasan-nand-controller.c | 90 ++++++++++++-------
+ 1 file changed, 57 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/fsi/fsi-occ.c b/drivers/fsi/fsi-occ.c
-index 10ca2e290655..cb05b6dacc9d 100644
---- a/drivers/fsi/fsi-occ.c
-+++ b/drivers/fsi/fsi-occ.c
-@@ -495,6 +495,7 @@ int fsi_occ_submit(struct device *dev, const void *request, size_t req_len,
- 			goto done;
+diff --git a/drivers/mtd/nand/raw/arasan-nand-controller.c b/drivers/mtd/nand/raw/arasan-nand-controller.c
+index 549aac00228e..390f8d719c25 100644
+--- a/drivers/mtd/nand/raw/arasan-nand-controller.c
++++ b/drivers/mtd/nand/raw/arasan-nand-controller.c
+@@ -273,6 +273,37 @@ static int anfc_pkt_len_config(unsigned int len, unsigned int *steps,
+ 	return 0;
+ }
  
- 		if (resp->return_status == OCC_RESP_CMD_IN_PRG ||
-+		    resp->return_status == OCC_RESP_CRIT_INIT ||
- 		    resp->seq_no != seq_no) {
- 			rc = -ETIMEDOUT;
++static int anfc_select_target(struct nand_chip *chip, int target)
++{
++	struct anand *anand = to_anand(chip);
++	struct arasan_nfc *nfc = to_anfc(chip->controller);
++	int ret;
++
++	/* Update the controller timings and the potential ECC configuration */
++	writel_relaxed(anand->timings, nfc->base + DATA_INTERFACE_REG);
++
++	/* Update clock frequency */
++	if (nfc->cur_clk != anand->clk) {
++		clk_disable_unprepare(nfc->controller_clk);
++		ret = clk_set_rate(nfc->controller_clk, anand->clk);
++		if (ret) {
++			dev_err(nfc->dev, "Failed to change clock rate\n");
++			return ret;
++		}
++
++		ret = clk_prepare_enable(nfc->controller_clk);
++		if (ret) {
++			dev_err(nfc->dev,
++				"Failed to re-enable the controller clock\n");
++			return ret;
++		}
++
++		nfc->cur_clk = anand->clk;
++	}
++
++	return 0;
++}
++
+ /*
+  * When using the embedded hardware ECC engine, the controller is in charge of
+  * feeding the engine with, first, the ECC residue present in the data array.
+@@ -401,6 +432,18 @@ static int anfc_read_page_hw_ecc(struct nand_chip *chip, u8 *buf,
+ 	return 0;
+ }
  
++static int anfc_sel_read_page_hw_ecc(struct nand_chip *chip, u8 *buf,
++				     int oob_required, int page)
++{
++	int ret;
++
++	ret = anfc_select_target(chip, chip->cur_cs);
++	if (ret)
++		return ret;
++
++	return anfc_read_page_hw_ecc(chip, buf, oob_required, page);
++};
++
+ static int anfc_write_page_hw_ecc(struct nand_chip *chip, const u8 *buf,
+ 				  int oob_required, int page)
+ {
+@@ -461,6 +504,18 @@ static int anfc_write_page_hw_ecc(struct nand_chip *chip, const u8 *buf,
+ 	return ret;
+ }
+ 
++static int anfc_sel_write_page_hw_ecc(struct nand_chip *chip, const u8 *buf,
++				      int oob_required, int page)
++{
++	int ret;
++
++	ret = anfc_select_target(chip, chip->cur_cs);
++	if (ret)
++		return ret;
++
++	return anfc_write_page_hw_ecc(chip, buf, oob_required, page);
++};
++
+ /* NAND framework ->exec_op() hooks and related helpers */
+ static int anfc_parse_instructions(struct nand_chip *chip,
+ 				   const struct nand_subop *subop,
+@@ -753,37 +808,6 @@ static const struct nand_op_parser anfc_op_parser = NAND_OP_PARSER(
+ 		NAND_OP_PARSER_PAT_WAITRDY_ELEM(false)),
+ 	);
+ 
+-static int anfc_select_target(struct nand_chip *chip, int target)
+-{
+-	struct anand *anand = to_anand(chip);
+-	struct arasan_nfc *nfc = to_anfc(chip->controller);
+-	int ret;
+-
+-	/* Update the controller timings and the potential ECC configuration */
+-	writel_relaxed(anand->timings, nfc->base + DATA_INTERFACE_REG);
+-
+-	/* Update clock frequency */
+-	if (nfc->cur_clk != anand->clk) {
+-		clk_disable_unprepare(nfc->controller_clk);
+-		ret = clk_set_rate(nfc->controller_clk, anand->clk);
+-		if (ret) {
+-			dev_err(nfc->dev, "Failed to change clock rate\n");
+-			return ret;
+-		}
+-
+-		ret = clk_prepare_enable(nfc->controller_clk);
+-		if (ret) {
+-			dev_err(nfc->dev,
+-				"Failed to re-enable the controller clock\n");
+-			return ret;
+-		}
+-
+-		nfc->cur_clk = anand->clk;
+-	}
+-
+-	return 0;
+-}
+-
+ static int anfc_check_op(struct nand_chip *chip,
+ 			 const struct nand_operation *op)
+ {
+@@ -1007,8 +1031,8 @@ static int anfc_init_hw_ecc_controller(struct arasan_nfc *nfc,
+ 	if (!anand->bch)
+ 		return -EINVAL;
+ 
+-	ecc->read_page = anfc_read_page_hw_ecc;
+-	ecc->write_page = anfc_write_page_hw_ecc;
++	ecc->read_page = anfc_sel_read_page_hw_ecc;
++	ecc->write_page = anfc_sel_write_page_hw_ecc;
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
