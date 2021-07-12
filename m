@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0713C458C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4463C4590
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234998AbhGLG0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:26:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39640 "EHLO mail.kernel.org"
+        id S235135AbhGLG0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:26:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235412AbhGLGZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:25:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA8226117A;
-        Mon, 12 Jul 2021 06:22:15 +0000 (UTC)
+        id S234772AbhGLGZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:25:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25EE1610CA;
+        Mon, 12 Jul 2021 06:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070936;
-        bh=CQiuQRQbtR9ipjwup4FD2tLm/MqTnUmimXQWIqG7hWQ=;
+        s=korg; t=1626070938;
+        bh=3xeLkk7AmzSuJje8CbAEMbrmGk76fQlN+SSSr6O2ro0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y12S1o9hDxKx1fY668YjM/ZgDbRWcTh+AitpuJCQfuSs4bz8WquKeb/5KXJONtYV8
-         5tMNx0qyEsApGr8MH/jEiUaqseWmja+n4gKP9dcfH7BBNNQ3oXKUJxX8IbKO/UQYUM
-         aLBmiTlcVjvu+U1o1Xo6EGHtSCoxtzGyVvzRBsLI=
+        b=gCzGQnYo9PMIDQnGMg8spd7Dl8Wf0iikxXMnT+36Oaol2+elpf8i5sg0FkCpiO4G8
+         u4iyLPxvOCmVsFF5laU9NPLpNiJRLLo90iibhCKR9RB4iZO1jv8MLIq96qxC9/8mu2
+         MPM0pMzQqb9TZv+4wPlkfWmMFlt662SFz+XTRQ/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Christian Lamparter <chunkeey@googlemail.com>,
-        linux-wireless@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Christian Lamparter <chunkeey@gmail.com>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 202/348] wireless: carl9170: fix LEDS build errors & warnings
-Date:   Mon, 12 Jul 2021 08:09:46 +0200
-Message-Id: <20210712060728.250148474@linuxfoundation.org>
+Subject: [PATCH 5.4 203/348] ieee802154: hwsim: Fix possible memory leak in hwsim_subscribe_all_others
+Date:   Mon, 12 Jul 2021 08:09:47 +0200
+Message-Id: <20210712060728.443434482@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -44,63 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 272fdc0c4542fad173b44965be02a16d6db95499 ]
+[ Upstream commit ab372c2293f5d0b279f31c8d768566ea37602dc9 ]
 
-kernel test robot reports over 200 build errors and warnings
-that are due to this Kconfig problem when CARL9170=m,
-MAC80211=y, and LEDS_CLASS=m.
+In hwsim_subscribe_all_others, the error handling code performs
+incorrectly if the second hwsim_alloc_edge fails. When this issue occurs,
+it goes to sub_fail, without cleaning the edges allocated before.
 
-WARNING: unmet direct dependencies detected for MAC80211_LEDS
-  Depends on [n]: NET [=y] && WIRELESS [=y] && MAC80211 [=y] && (LEDS_CLASS [=m]=y || LEDS_CLASS [=m]=MAC80211 [=y])
-  Selected by [m]:
-  - CARL9170_LEDS [=y] && NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_ATH [=y] && CARL9170 [=m]
-
-CARL9170_LEDS selects MAC80211_LEDS even though its kconfig
-dependencies are not met. This happens because 'select' does not follow
-any Kconfig dependency chains.
-
-Fix this by making CARL9170_LEDS depend on MAC80211_LEDS, where
-the latter supplies any needed dependencies on LEDS_CLASS.
-
-Fixes: 1d7e1e6b1b8ed ("carl9170: Makefile, Kconfig files and MAINTAINERS")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Christian Lamparter <chunkeey@googlemail.com>
-Cc: linux-wireless@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Christian Lamparter <chunkeey@googlemail.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210530031134.23274-1-rdunlap@infradead.org
+Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210611015812.1626999-1-mudongliangabcd@gmail.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/carl9170/Kconfig | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/ieee802154/mac802154_hwsim.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/carl9170/Kconfig b/drivers/net/wireless/ath/carl9170/Kconfig
-index b1bce7aad399..c2641edab0bc 100644
---- a/drivers/net/wireless/ath/carl9170/Kconfig
-+++ b/drivers/net/wireless/ath/carl9170/Kconfig
-@@ -16,13 +16,11 @@ config CARL9170
+diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
+index c20e7ef18bc9..bf5ddd12a6f0 100644
+--- a/drivers/net/ieee802154/mac802154_hwsim.c
++++ b/drivers/net/ieee802154/mac802154_hwsim.c
+@@ -715,6 +715,8 @@ static int hwsim_subscribe_all_others(struct hwsim_phy *phy)
  
- config CARL9170_LEDS
- 	bool "SoftLED Support"
--	depends on CARL9170
--	select MAC80211_LEDS
--	select LEDS_CLASS
--	select NEW_LEDS
- 	default y
-+	depends on CARL9170
-+	depends on MAC80211_LEDS
- 	help
--	  This option is necessary, if you want your device' LEDs to blink
-+	  This option is necessary, if you want your device's LEDs to blink.
+ 	return 0;
  
- 	  Say Y, unless you need the LEDs for firmware debugging.
++sub_fail:
++	hwsim_edge_unsubscribe_me(phy);
+ me_fail:
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(e, &phy->edges, list) {
+@@ -722,8 +724,6 @@ me_fail:
+ 		hwsim_free_edge(e);
+ 	}
+ 	rcu_read_unlock();
+-sub_fail:
+-	hwsim_edge_unsubscribe_me(phy);
+ 	return -ENOMEM;
+ }
  
 -- 
 2.30.2
