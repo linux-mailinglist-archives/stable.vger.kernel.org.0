@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A69A3C555D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8893C4ADD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355621AbhGLIKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55048 "EHLO mail.kernel.org"
+        id S240559AbhGLGyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:54:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353564AbhGLICf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32AB461CCC;
-        Mon, 12 Jul 2021 07:55:47 +0000 (UTC)
+        id S239411AbhGLGwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:52:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 896D660233;
+        Mon, 12 Jul 2021 06:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076547;
-        bh=2ErkJLIiNk2qdrHgC/jJnIOL/wV7qHzY19vtnaeCp3w=;
+        s=korg; t=1626072605;
+        bh=/ZRmFy01HHtJoHDURx0VJGOB/SWfUK+HH2AVAniL8+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/jgSVxfcy7cHLwXKouBY8k5hwEK/SwmDXOvWtMkzUC7ICPjww4vcw/ybBT4SP+rJ
-         dESKw45r71nSeobOkY4wUp3+ph3zfRed4s6rDL/vlCRav/Bpla+hrdMrk9V7wQWAi0
-         h5nT2Sru/BpFiJDsroE472KK1ytNk0A9Yg8h9DcA=
+        b=zxLcXgPzQKlqCIpln4bSQdQO2snbuCiXITGyo66b9Vv/zrDDRZpgdVIBUpm2fCJUX
+         AsaSjwBCw93XARGzWp7G8PtNnj4mO9QDwCiNGXV9nFo6eisjB3OBVVyEo96KdHxLxE
+         OfTuYQm6mHGiRuS+oYrnZyxgHz2S4U1EcZEdjrsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 689/800] ASoC: rt711-sdca-sdw: use first_hw_init flag on resume
+Subject: [PATCH 5.10 552/593] serial: 8250: 8250_omap: Fix possible interrupt storm on K3 SoCs
 Date:   Mon, 12 Jul 2021 08:11:52 +0200
-Message-Id: <20210712061040.120139639@linuxfoundation.org>
+Message-Id: <20210712060955.115377110@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-[ Upstream commit b32cab09707bb7fd851128633157c92716df6781 ]
+[ Upstream commit b67e830d38fa9335d927fe67e812e3ed81b4689c ]
 
-The intent of the status check on resume was to verify if a SoundWire
-peripheral reported ATTACHED before waiting for the initialization to
-complete. This is required to avoid timeouts that will happen with
-'ghost' devices that are exposed in the platform firmware but are not
-populated in hardware.
+On K3 family of SoCs (which includes AM654 SoC), it is observed that RX
+TIMEOUT is signalled after RX FIFO has been drained, in which case a
+dummy read of RX FIFO is required to clear RX TIMEOUT condition.
+Otherwise, this would lead to an interrupt storm.
 
-Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
-another error, the resume operation never timed out, but the volume
-settings were not properly restored.
+Fix this by introducing UART_RX_TIMEOUT_QUIRK flag and doing a dummy
+read in IRQ handler when RX TIMEOUT is reported with no data in RX FIFO.
 
-BugLink: https://github.com/thesofproject/linux/issues/2908
-BugLink: https://github.com/thesofproject/linux/issues/2637
-Fixes: 7ad4d237e7c4a ('ASoC: rt711-sdca: Add RT711 SDCA vendor-specific driver')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-8-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: be70874498f3 ("serial: 8250_omap: Add support for AM654 UART controller")
+Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
+Tested-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20210622145704.11168-1-vigneshr@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt711-sdca-sdw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_omap.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt711-sdca-sdw.c b/sound/soc/codecs/rt711-sdca-sdw.c
-index 9685c8905468..b84e64233d96 100644
---- a/sound/soc/codecs/rt711-sdca-sdw.c
-+++ b/sound/soc/codecs/rt711-sdca-sdw.c
-@@ -380,7 +380,7 @@ static int __maybe_unused rt711_sdca_dev_resume(struct device *dev)
- 	struct rt711_sdca_priv *rt711 = dev_get_drvdata(dev);
- 	unsigned long time;
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index a9cfe1c57642..95e2d6de4f21 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -43,6 +43,7 @@
+ #define UART_ERRATA_CLOCK_DISABLE	(1 << 3)
+ #define	UART_HAS_EFR2			BIT(4)
+ #define UART_HAS_RHR_IT_DIS		BIT(5)
++#define UART_RX_TIMEOUT_QUIRK		BIT(6)
  
--	if (!rt711->hw_init)
-+	if (!rt711->first_hw_init)
- 		return 0;
+ #define OMAP_UART_FCR_RX_TRIG		6
+ #define OMAP_UART_FCR_TX_TRIG		4
+@@ -104,6 +105,9 @@
+ #define UART_OMAP_EFR2			0x23
+ #define UART_OMAP_EFR2_TIMEOUT_BEHAVE	BIT(6)
  
- 	if (!slave->unattach_request)
++/* RX FIFO occupancy indicator */
++#define UART_OMAP_RX_LVL		0x64
++
+ struct omap8250_priv {
+ 	int line;
+ 	u8 habit;
+@@ -598,6 +602,7 @@ static int omap_8250_dma_handle_irq(struct uart_port *port);
+ static irqreturn_t omap8250_irq(int irq, void *dev_id)
+ {
+ 	struct uart_port *port = dev_id;
++	struct omap8250_priv *priv = port->private_data;
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 	unsigned int iir;
+ 	int ret;
+@@ -612,6 +617,18 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
+ 	serial8250_rpm_get(up);
+ 	iir = serial_port_in(port, UART_IIR);
+ 	ret = serial8250_handle_irq(port, iir);
++
++	/*
++	 * On K3 SoCs, it is observed that RX TIMEOUT is signalled after
++	 * FIFO has been drained, in which case a dummy read of RX FIFO
++	 * is required to clear RX TIMEOUT condition.
++	 */
++	if (priv->habit & UART_RX_TIMEOUT_QUIRK &&
++	    (iir & UART_IIR_RX_TIMEOUT) == UART_IIR_RX_TIMEOUT &&
++	    serial_port_in(port, UART_OMAP_RX_LVL) == 0) {
++		serial_port_in(port, UART_RX);
++	}
++
+ 	serial8250_rpm_put(up);
+ 
+ 	return IRQ_RETVAL(ret);
+@@ -1210,7 +1227,8 @@ static struct omap8250_dma_params am33xx_dma = {
+ 
+ static struct omap8250_platdata am654_platdata = {
+ 	.dma_params	= &am654_dma,
+-	.habit		= UART_HAS_EFR2 | UART_HAS_RHR_IT_DIS,
++	.habit		= UART_HAS_EFR2 | UART_HAS_RHR_IT_DIS |
++			  UART_RX_TIMEOUT_QUIRK,
+ };
+ 
+ static struct omap8250_platdata am33xx_platdata = {
 -- 
 2.30.2
 
