@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 114163C4FE7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD2B33C5570
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343831AbhGLH2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:28:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35096 "EHLO mail.kernel.org"
+        id S1355718AbhGLIKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:10:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245636AbhGLH1T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:27:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D9BE6192A;
-        Mon, 12 Jul 2021 07:23:37 +0000 (UTC)
+        id S1353650AbhGLICo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:02:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0665E61437;
+        Mon, 12 Jul 2021 07:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074618;
-        bh=A7AgJxwX7sbP8mUwlIqfPATdBVFwKm82LCNlPcLGtqw=;
+        s=korg; t=1626076589;
+        bh=AoS07RgjTi3ijqRjXt5Qt0J7M7/4IUlk3SGXWrQDLEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdZwt8AE1Me/ylh6MptIALszWaCa3yvtGCic27INmHaXr+IaOp/xS5Ux0pDcmAZj8
-         y2PRvhlS6TmXXLP5MkB8AN2XWIVFGRy1vZvhHSBvB/5NF25jGyc4cRSlRQewBQVX7l
-         ZZ5TP/qVuq/3gJtd4UDu134momTOKIU8SFOIymMU=
+        b=kngUmtsTiVXZQKMiDo6bRKezY5R7r32WT0Pov1d8PjPOwD1u6zHzmhQWz63TuVc5t
+         Hk0M0xGkLQRF0Umls0muSZogNbSO2f8oH7lTQKAAlvxvx3TJc8UAtNAS6Hl8g6mP77
+         84bO+n+xPpYoL0ZXrt6eLCQuyRG8rIvIr4wBnp2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Huy Duong <qhuyduong@hotmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 641/700] powerpc/powernv: Fix machine check reporting of async store errors
+Subject: [PATCH 5.13 701/800] eeprom: idt_89hpesx: Put fwnode in matching case during ->probe()
 Date:   Mon, 12 Jul 2021 08:12:04 +0200
-Message-Id: <20210712061044.079755901@linuxfoundation.org>
+Message-Id: <20210712061041.372473654@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,131 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 3729e0ec59a20825bd4c8c70996b2df63915e1dd ]
+[ Upstream commit 3f6ee1c095156a74ab2df605af13020f1ce3e600 ]
 
-POWER9 and POWER10 asynchronous machine checks due to stores have their
-cause reported in SRR1 but SRR1[42] is set, which in other cases
-indicates DSISR cause.
+device_get_next_child_node() bumps a reference counting of a returned variable.
+We have to balance it whenever we return to the caller.
 
-Check for these cases and clear SRR1[42], so the cause matching uses
-the i-side (SRR1) table.
-
-Fixes: 7b9f71f974a1 ("powerpc/64s: POWER9 machine check handler")
-Fixes: 201220bb0e8c ("powerpc/powernv: Machine check handler for POWER10")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210517140355.2325406-1-npiggin@gmail.com
+Fixes: db15d73e5f0e ("eeprom: idt_89hpesx: Support both ACPI and OF probing")
+Cc: Huy Duong <qhuyduong@hotmail.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210607221757.81465-1-andy.shevchenko@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/mce_power.c | 48 +++++++++++++++++++++++++++------
- 1 file changed, 40 insertions(+), 8 deletions(-)
+ drivers/misc/eeprom/idt_89hpesx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kernel/mce_power.c b/arch/powerpc/kernel/mce_power.c
-index 667104d4c455..2fff886c549d 100644
---- a/arch/powerpc/kernel/mce_power.c
-+++ b/arch/powerpc/kernel/mce_power.c
-@@ -481,12 +481,11 @@ static int mce_find_instr_ea_and_phys(struct pt_regs *regs, uint64_t *addr,
- 	return -1;
- }
+diff --git a/drivers/misc/eeprom/idt_89hpesx.c b/drivers/misc/eeprom/idt_89hpesx.c
+index 81c70e5bc168..45a61a1f9e98 100644
+--- a/drivers/misc/eeprom/idt_89hpesx.c
++++ b/drivers/misc/eeprom/idt_89hpesx.c
+@@ -1161,6 +1161,7 @@ static void idt_get_fw_data(struct idt_89hpesx_dev *pdev)
+ 	else /* if (!fwnode_property_read_bool(node, "read-only")) */
+ 		pdev->eero = false;
  
--static int mce_handle_ierror(struct pt_regs *regs,
-+static int mce_handle_ierror(struct pt_regs *regs, unsigned long srr1,
- 		const struct mce_ierror_table table[],
- 		struct mce_error_info *mce_err, uint64_t *addr,
- 		uint64_t *phys_addr)
- {
--	uint64_t srr1 = regs->msr;
- 	int handled = 0;
- 	int i;
- 
-@@ -695,19 +694,19 @@ static long mce_handle_ue_error(struct pt_regs *regs,
- }
- 
- static long mce_handle_error(struct pt_regs *regs,
-+		unsigned long srr1,
- 		const struct mce_derror_table dtable[],
- 		const struct mce_ierror_table itable[])
- {
- 	struct mce_error_info mce_err = { 0 };
- 	uint64_t addr, phys_addr = ULONG_MAX;
--	uint64_t srr1 = regs->msr;
- 	long handled;
- 
- 	if (SRR1_MC_LOADSTORE(srr1))
- 		handled = mce_handle_derror(regs, dtable, &mce_err, &addr,
- 				&phys_addr);
- 	else
--		handled = mce_handle_ierror(regs, itable, &mce_err, &addr,
-+		handled = mce_handle_ierror(regs, srr1, itable, &mce_err, &addr,
- 				&phys_addr);
- 
- 	if (!handled && mce_err.error_type == MCE_ERROR_TYPE_UE)
-@@ -723,16 +722,20 @@ long __machine_check_early_realmode_p7(struct pt_regs *regs)
- 	/* P7 DD1 leaves top bits of DSISR undefined */
- 	regs->dsisr &= 0x0000ffff;
- 
--	return mce_handle_error(regs, mce_p7_derror_table, mce_p7_ierror_table);
-+	return mce_handle_error(regs, regs->msr,
-+			mce_p7_derror_table, mce_p7_ierror_table);
- }
- 
- long __machine_check_early_realmode_p8(struct pt_regs *regs)
- {
--	return mce_handle_error(regs, mce_p8_derror_table, mce_p8_ierror_table);
-+	return mce_handle_error(regs, regs->msr,
-+			mce_p8_derror_table, mce_p8_ierror_table);
- }
- 
- long __machine_check_early_realmode_p9(struct pt_regs *regs)
- {
-+	unsigned long srr1 = regs->msr;
-+
- 	/*
- 	 * On POWER9 DD2.1 and below, it's possible to get a machine check
- 	 * caused by a paste instruction where only DSISR bit 25 is set. This
-@@ -746,10 +749,39 @@ long __machine_check_early_realmode_p9(struct pt_regs *regs)
- 	if (SRR1_MC_LOADSTORE(regs->msr) && regs->dsisr == 0x02000000)
- 		return 1;
- 
--	return mce_handle_error(regs, mce_p9_derror_table, mce_p9_ierror_table);
-+	/*
-+	 * Async machine check due to bad real address from store or foreign
-+	 * link time out comes with the load/store bit (PPC bit 42) set in
-+	 * SRR1, but the cause comes in SRR1 not DSISR. Clear bit 42 so we're
-+	 * directed to the ierror table so it will find the cause (which
-+	 * describes it correctly as a store error).
-+	 */
-+	if (SRR1_MC_LOADSTORE(srr1) &&
-+			((srr1 & 0x081c0000) == 0x08140000 ||
-+			 (srr1 & 0x081c0000) == 0x08180000)) {
-+		srr1 &= ~PPC_BIT(42);
-+	}
-+
-+	return mce_handle_error(regs, srr1,
-+			mce_p9_derror_table, mce_p9_ierror_table);
- }
- 
- long __machine_check_early_realmode_p10(struct pt_regs *regs)
- {
--	return mce_handle_error(regs, mce_p10_derror_table, mce_p10_ierror_table);
-+	unsigned long srr1 = regs->msr;
-+
-+	/*
-+	 * Async machine check due to bad real address from store comes with
-+	 * the load/store bit (PPC bit 42) set in SRR1, but the cause comes in
-+	 * SRR1 not DSISR. Clear bit 42 so we're directed to the ierror table
-+	 * so it will find the cause (which describes it correctly as a store
-+	 * error).
-+	 */
-+	if (SRR1_MC_LOADSTORE(srr1) &&
-+			(srr1 & 0x081c0000) == 0x08140000) {
-+		srr1 &= ~PPC_BIT(42);
-+	}
-+
-+	return mce_handle_error(regs, srr1,
-+			mce_p10_derror_table, mce_p10_ierror_table);
++	fwnode_handle_put(fwnode);
+ 	dev_info(dev, "EEPROM of %d bytes found by 0x%x",
+ 		pdev->eesize, pdev->eeaddr);
  }
 -- 
 2.30.2
