@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F06133C536B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3043C491D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352397AbhGLHyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37842 "EHLO mail.kernel.org"
+        id S237279AbhGLGl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350314AbhGLHuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C533E60FF1;
-        Mon, 12 Jul 2021 07:44:30 +0000 (UTC)
+        id S236721AbhGLGkz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 687F1610A6;
+        Mon, 12 Jul 2021 06:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075871;
-        bh=06sgNDBcHMCKmxqOBly1tCbE/iQJfbG3MTHYHOOOnlU=;
+        s=korg; t=1626071885;
+        bh=hX0wkgWMUnlXqPHnwVbKhvtU6RcSgHv9fqBXQg55zLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7x80WpuWnDVak6vrJIX1SeAsVzZVgmlwAkNrkkVimdU/qJJ9gviWnB6HUdn/2Ztj
-         upNERF/B+uttDiOXv5FBNwn6IedWZxUVocapuprm5T0HRwjbkIA8mEJTfb4QVIGWr/
-         aGh2h/i2141h6xCSWtvEC3w3SRvYPaWwICBkrjSE=
+        b=d/+znkkFrzJ9h0SKt+8t14Te8K6fRfnglA7FjQkAE7MPxDV+3IC3MEebw8h9TIed3
+         d9wKzqWJOoDnF2l+KEEwa+f6/D/z3I+nHRu4h99ryp3N6ZgUgVVnWvKwqVzHyZnGyB
+         yUhTB4g78VmirknbKd5ySqF8rX5fqPu4GVWUrrYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Flavio Suligoi <f.suligoi@asem.it>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 400/800] net: pch_gbe: Propagate error from devm_gpio_request_one()
+Subject: [PATCH 5.10 263/593] x86/sev: Split up runtime #VC handler for correct state tracking
 Date:   Mon, 12 Jul 2021 08:07:03 +0200
-Message-Id: <20210712061009.700994746@linuxfoundation.org>
+Message-Id: <20210712060912.279271729@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +40,320 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit 9e3617a7b84512bf96c04f9cf82d1a7257d33794 ]
+[ Upstream commit be1a5408868af341f61f93c191b5e346ee88c82a ]
 
-If GPIO controller is not available yet we need to defer
-the probe of GBE until provider will become available.
+Split up the #VC handler code into a from-user and a from-kernel part.
+This allows clean and correct state tracking, as the #VC handler needs
+to enter NMI-state when raised from kernel mode and plain IRQ state when
+raised from user-mode.
 
-While here, drop GPIOF_EXPORT because it's deprecated and
-may not be available.
-
-Fixes: f1a26fdf5944 ("pch_gbe: Add MinnowBoard support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Flavio Suligoi <f.suligoi@asem.it>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 62441a1fb532 ("x86/sev-es: Correctly track IRQ states in runtime #VC handler")
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210618115409.22735-3-joro@8bytes.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/x86/entry/entry_64.S       |   4 +-
+ arch/x86/include/asm/idtentry.h |  29 +++----
+ arch/x86/kernel/sev-es.c        | 148 +++++++++++++++++---------------
+ 3 files changed, 91 insertions(+), 90 deletions(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 334af49e5add..3dc29b282a88 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -2532,9 +2532,13 @@ static int pch_gbe_probe(struct pci_dev *pdev,
- 	adapter->pdev = pdev;
- 	adapter->hw.back = adapter;
- 	adapter->hw.reg = pcim_iomap_table(pdev)[PCH_GBE_PCI_BAR];
-+
- 	adapter->pdata = (struct pch_gbe_privdata *)pci_id->driver_data;
--	if (adapter->pdata && adapter->pdata->platform_init)
--		adapter->pdata->platform_init(pdev);
-+	if (adapter->pdata && adapter->pdata->platform_init) {
-+		ret = adapter->pdata->platform_init(pdev);
-+		if (ret)
-+			goto err_free_netdev;
-+	}
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index cad08703c4ad..f18f3932e971 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -508,7 +508,7 @@ SYM_CODE_START(\asmsym)
  
- 	adapter->ptp_pdev =
- 		pci_get_domain_bus_and_slot(pci_domain_nr(adapter->pdev->bus),
-@@ -2629,7 +2633,7 @@ err_free_netdev:
+ 	movq	%rsp, %rdi		/* pt_regs pointer */
+ 
+-	call	\cfunc
++	call	kernel_\cfunc
+ 
+ 	/*
+ 	 * No need to switch back to the IST stack. The current stack is either
+@@ -519,7 +519,7 @@ SYM_CODE_START(\asmsym)
+ 
+ 	/* Switch to the regular task stack */
+ .Lfrom_usermode_switch_stack_\@:
+-	idtentry_body safe_stack_\cfunc, has_error_code=1
++	idtentry_body user_\cfunc, has_error_code=1
+ 
+ _ASM_NOKPROBE(\asmsym)
+ SYM_CODE_END(\asmsym)
+diff --git a/arch/x86/include/asm/idtentry.h b/arch/x86/include/asm/idtentry.h
+index 0e3325790f3a..dc2a8b1657f4 100644
+--- a/arch/x86/include/asm/idtentry.h
++++ b/arch/x86/include/asm/idtentry.h
+@@ -315,8 +315,8 @@ static __always_inline void __##func(struct pt_regs *regs)
   */
- static int pch_gbe_minnow_platform_init(struct pci_dev *pdev)
- {
--	unsigned long flags = GPIOF_DIR_OUT | GPIOF_INIT_HIGH | GPIOF_EXPORT;
-+	unsigned long flags = GPIOF_OUT_INIT_HIGH;
- 	unsigned gpio = MINNOW_PHY_RESET_GPIO;
- 	int ret;
+ #define DECLARE_IDTENTRY_VC(vector, func)				\
+ 	DECLARE_IDTENTRY_RAW_ERRORCODE(vector, func);			\
+-	__visible noinstr void ist_##func(struct pt_regs *regs, unsigned long error_code);	\
+-	__visible noinstr void safe_stack_##func(struct pt_regs *regs, unsigned long error_code)
++	__visible noinstr void kernel_##func(struct pt_regs *regs, unsigned long error_code);	\
++	__visible noinstr void   user_##func(struct pt_regs *regs, unsigned long error_code)
  
+ /**
+  * DEFINE_IDTENTRY_IST - Emit code for IST entry points
+@@ -358,33 +358,24 @@ static __always_inline void __##func(struct pt_regs *regs)
+ 	DEFINE_IDTENTRY_RAW_ERRORCODE(func)
+ 
+ /**
+- * DEFINE_IDTENTRY_VC_SAFE_STACK - Emit code for VMM communication handler
+-				   which runs on a safe stack.
++ * DEFINE_IDTENTRY_VC_KERNEL - Emit code for VMM communication handler
++			       when raised from kernel mode
+  * @func:	Function name of the entry point
+  *
+  * Maps to DEFINE_IDTENTRY_RAW_ERRORCODE
+  */
+-#define DEFINE_IDTENTRY_VC_SAFE_STACK(func)				\
+-	DEFINE_IDTENTRY_RAW_ERRORCODE(safe_stack_##func)
++#define DEFINE_IDTENTRY_VC_KERNEL(func)				\
++	DEFINE_IDTENTRY_RAW_ERRORCODE(kernel_##func)
+ 
+ /**
+- * DEFINE_IDTENTRY_VC_IST - Emit code for VMM communication handler
+-			    which runs on the VC fall-back stack
++ * DEFINE_IDTENTRY_VC_USER - Emit code for VMM communication handler
++			     when raised from user mode
+  * @func:	Function name of the entry point
+  *
+  * Maps to DEFINE_IDTENTRY_RAW_ERRORCODE
+  */
+-#define DEFINE_IDTENTRY_VC_IST(func)				\
+-	DEFINE_IDTENTRY_RAW_ERRORCODE(ist_##func)
+-
+-/**
+- * DEFINE_IDTENTRY_VC - Emit code for VMM communication handler
+- * @func:	Function name of the entry point
+- *
+- * Maps to DEFINE_IDTENTRY_RAW_ERRORCODE
+- */
+-#define DEFINE_IDTENTRY_VC(func)					\
+-	DEFINE_IDTENTRY_RAW_ERRORCODE(func)
++#define DEFINE_IDTENTRY_VC_USER(func)				\
++	DEFINE_IDTENTRY_RAW_ERRORCODE(user_##func)
+ 
+ #else	/* CONFIG_X86_64 */
+ 
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 0b5e35a51804..f3202b2e3c15 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -759,7 +759,7 @@ void __init sev_es_init_vc_handling(void)
+ 	sev_es_setup_play_dead();
+ 
+ 	/* Secondary CPUs use the runtime #VC handler */
+-	initial_vc_handler = (unsigned long)safe_stack_exc_vmm_communication;
++	initial_vc_handler = (unsigned long)kernel_exc_vmm_communication;
+ }
+ 
+ static void __init vc_early_forward_exception(struct es_em_ctxt *ctxt)
+@@ -1197,14 +1197,6 @@ static enum es_result vc_handle_trap_ac(struct ghcb *ghcb,
+ 	return ES_EXCEPTION;
+ }
+ 
+-static __always_inline void vc_handle_trap_db(struct pt_regs *regs)
+-{
+-	if (user_mode(regs))
+-		noist_exc_debug(regs);
+-	else
+-		exc_debug(regs);
+-}
+-
+ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 					 struct ghcb *ghcb,
+ 					 unsigned long exit_code)
+@@ -1300,41 +1292,13 @@ static __always_inline bool on_vc_fallback_stack(struct pt_regs *regs)
+ 	return (sp >= __this_cpu_ist_bottom_va(VC2) && sp < __this_cpu_ist_top_va(VC2));
+ }
+ 
+-/*
+- * Main #VC exception handler. It is called when the entry code was able to
+- * switch off the IST to a safe kernel stack.
+- *
+- * With the current implementation it is always possible to switch to a safe
+- * stack because #VC exceptions only happen at known places, like intercepted
+- * instructions or accesses to MMIO areas/IO ports. They can also happen with
+- * code instrumentation when the hypervisor intercepts #DB, but the critical
+- * paths are forbidden to be instrumented, so #DB exceptions currently also
+- * only happen in safe places.
+- */
+-DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
++static bool vc_raw_handle_exception(struct pt_regs *regs, unsigned long error_code)
+ {
+-	irqentry_state_t irq_state;
+ 	struct ghcb_state state;
+ 	struct es_em_ctxt ctxt;
+ 	enum es_result result;
+ 	struct ghcb *ghcb;
+-
+-	/*
+-	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
+-	 */
+-	if (error_code == SVM_EXIT_EXCP_BASE + X86_TRAP_DB) {
+-		vc_handle_trap_db(regs);
+-		return;
+-	}
+-
+-	irq_state = irqentry_nmi_enter(regs);
+-	instrumentation_begin();
+-
+-	/*
+-	 * This is invoked through an interrupt gate, so IRQs are disabled. The
+-	 * code below might walk page-tables for user or kernel addresses, so
+-	 * keep the IRQs disabled to protect us against concurrent TLB flushes.
+-	 */
++	bool ret = true;
+ 
+ 	ghcb = __sev_get_ghcb(&state);
+ 
+@@ -1354,15 +1318,18 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	case ES_UNSUPPORTED:
+ 		pr_err_ratelimited("Unsupported exit-code 0x%02lx in early #VC exception (IP: 0x%lx)\n",
+ 				   error_code, regs->ip);
+-		goto fail;
++		ret = false;
++		break;
+ 	case ES_VMM_ERROR:
+ 		pr_err_ratelimited("Failure in communication with VMM (exit-code 0x%02lx IP: 0x%lx)\n",
+ 				   error_code, regs->ip);
+-		goto fail;
++		ret = false;
++		break;
+ 	case ES_DECODE_FAILED:
+ 		pr_err_ratelimited("Failed to decode instruction (exit-code 0x%02lx IP: 0x%lx)\n",
+ 				   error_code, regs->ip);
+-		goto fail;
++		ret = false;
++		break;
+ 	case ES_EXCEPTION:
+ 		vc_forward_exception(&ctxt);
+ 		break;
+@@ -1378,24 +1345,52 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 		BUG();
+ 	}
+ 
+-out:
+-	instrumentation_end();
+-	irqentry_nmi_exit(regs, irq_state);
++	return ret;
++}
+ 
+-	return;
++static __always_inline bool vc_is_db(unsigned long error_code)
++{
++	return error_code == SVM_EXIT_EXCP_BASE + X86_TRAP_DB;
++}
+ 
+-fail:
+-	if (user_mode(regs)) {
+-		/*
+-		 * Do not kill the machine if user-space triggered the
+-		 * exception. Send SIGBUS instead and let user-space deal with
+-		 * it.
+-		 */
+-		force_sig_fault(SIGBUS, BUS_OBJERR, (void __user *)0);
+-	} else {
+-		pr_emerg("PANIC: Unhandled #VC exception in kernel space (result=%d)\n",
+-			 result);
++/*
++ * Runtime #VC exception handler when raised from kernel mode. Runs in NMI mode
++ * and will panic when an error happens.
++ */
++DEFINE_IDTENTRY_VC_KERNEL(exc_vmm_communication)
++{
++	irqentry_state_t irq_state;
++
++	/*
++	 * With the current implementation it is always possible to switch to a
++	 * safe stack because #VC exceptions only happen at known places, like
++	 * intercepted instructions or accesses to MMIO areas/IO ports. They can
++	 * also happen with code instrumentation when the hypervisor intercepts
++	 * #DB, but the critical paths are forbidden to be instrumented, so #DB
++	 * exceptions currently also only happen in safe places.
++	 *
++	 * But keep this here in case the noinstr annotations are violated due
++	 * to bug elsewhere.
++	 */
++	if (unlikely(on_vc_fallback_stack(regs))) {
++		instrumentation_begin();
++		panic("Can't handle #VC exception from unsupported context\n");
++		instrumentation_end();
++	}
++
++	/*
++	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
++	 */
++	if (vc_is_db(error_code)) {
++		exc_debug(regs);
++		return;
++	}
++
++	irq_state = irqentry_nmi_enter(regs);
+ 
++	instrumentation_begin();
++
++	if (!vc_raw_handle_exception(regs, error_code)) {
+ 		/* Show some debug info */
+ 		show_regs(regs);
+ 
+@@ -1406,23 +1401,38 @@ fail:
+ 		panic("Returned from Terminate-Request to Hypervisor\n");
+ 	}
+ 
+-	goto out;
++	instrumentation_end();
++	irqentry_nmi_exit(regs, irq_state);
+ }
+ 
+-/* This handler runs on the #VC fall-back stack. It can cause further #VC exceptions */
+-DEFINE_IDTENTRY_VC_IST(exc_vmm_communication)
++/*
++ * Runtime #VC exception handler when raised from user mode. Runs in IRQ mode
++ * and will kill the current task with SIGBUS when an error happens.
++ */
++DEFINE_IDTENTRY_VC_USER(exc_vmm_communication)
+ {
++	/*
++	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
++	 */
++	if (vc_is_db(error_code)) {
++		noist_exc_debug(regs);
++		return;
++	}
++
++	irqentry_enter_from_user_mode(regs);
+ 	instrumentation_begin();
+-	panic("Can't handle #VC exception from unsupported context\n");
+-	instrumentation_end();
+-}
+ 
+-DEFINE_IDTENTRY_VC(exc_vmm_communication)
+-{
+-	if (likely(!on_vc_fallback_stack(regs)))
+-		safe_stack_exc_vmm_communication(regs, error_code);
+-	else
+-		ist_exc_vmm_communication(regs, error_code);
++	if (!vc_raw_handle_exception(regs, error_code)) {
++		/*
++		 * Do not kill the machine if user-space triggered the
++		 * exception. Send SIGBUS instead and let user-space deal with
++		 * it.
++		 */
++		force_sig_fault(SIGBUS, BUS_OBJERR, (void __user *)0);
++	}
++
++	instrumentation_end();
++	irqentry_exit_to_user_mode(regs);
+ }
+ 
+ bool __init handle_vc_boot_ghcb(struct pt_regs *regs)
 -- 
 2.30.2
 
