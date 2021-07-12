@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C5273C5280
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D4E33C48EA
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346531AbhGLHqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:46:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51582 "EHLO mail.kernel.org"
+        id S233808AbhGLGlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349849AbhGLHot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:44:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E98C3613D9;
-        Mon, 12 Jul 2021 07:41:33 +0000 (UTC)
+        id S237445AbhGLGj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12B9E60FD8;
+        Mon, 12 Jul 2021 06:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075694;
-        bh=sUDcBnWAoNpaVZalSL2yTvcf7M8ILQVPIhuBIBrn36w=;
+        s=korg; t=1626071712;
+        bh=gD4mp4a9Q6gxyCGTWtos+XvRDZiiDOibuXhFg6BVkpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpUUaN+Z8Qci1G9VUfCijg2pLHsnyEYZjxBOyUNWZej8zZKRIjLiMjcuvpeoaqkAC
-         rG8SanTdXluV0e6y3oVujokEXjM2JZIWYUlikkxnyytZL8y8eQgGcrWhwBnoYmsubq
-         48x9bDI2vK7lRYMg45XBUo9gCop2RswFpvd0Equs=
+        b=xBkabBYFI5XOROY/Eln9Aj2E7gaBx+02abb+GkeDpEmavyeWlb31xUIDvsdz9WesI
+         pk1OzoIECZOn6IcatAh7JftW8TbNJyuJxEqSNBpqqCjGqM43xVtPhRRGh6y0COokRf
+         8iMgDrYxTwiSNPmsGYa3EnJem24uW3j3C+lxirDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jan=20Kundr=C3=A1t?= <jan.kundrat@cesnet.cz>,
-        =?UTF-8?q?V=C3=A1clav=20Kubern=C3=A1t?= <kubernat@cesnet.cz>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 323/800] hwmon: (max31790) Fix fan speed reporting for fan7..12
+Subject: [PATCH 5.10 186/593] ACPI: bus: Call kobject_put() in acpi_init() error path
 Date:   Mon, 12 Jul 2021 08:05:46 +0200
-Message-Id: <20210712061000.478574783@linuxfoundation.org>
+Message-Id: <20210712060903.457722118@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-[ Upstream commit cbbf244f0515af3472084f22b6213121b4a63835 ]
+[ Upstream commit 4ac7a817f1992103d4e68e9837304f860b5e7300 ]
 
-Fans 7..12 do not have their own set of configuration registers.
-So far the code ignored that and read beyond the end of the configuration
-register range to get the tachometer period. This resulted in more or less
-random fan speed values for those fans.
+Although the system will not be in a good condition or it will not
+boot if acpi_bus_init() fails, it is still necessary to put the
+kobject in the error path before returning to avoid leaking memory.
 
-The datasheet is quite vague when it comes to defining the tachometer
-period for fans 7..12. Experiments confirm that the period is the same
-for both fans associated with a given set of configuration registers.
-
-Fixes: 54187ff9d766 ("hwmon: (max31790) Convert to use new hwmon registration API")
-Fixes: 195a4b4298a7 ("hwmon: Driver for Maxim MAX31790")
-Cc: Jan Kundrát <jan.kundrat@cesnet.cz>
-Reviewed-by: Jan Kundrát <jan.kundrat@cesnet.cz>
-Cc: Václav Kubernát <kubernat@cesnet.cz>
-Reviewed-by: Jan Kundrát <jan.kundrat@cesnet.cz>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210526154022.3223012-2-linux@roeck-us.net
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/max31790.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/bus.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwmon/max31790.c b/drivers/hwmon/max31790.c
-index 76aa96f5b984..67677c437768 100644
---- a/drivers/hwmon/max31790.c
-+++ b/drivers/hwmon/max31790.c
-@@ -171,7 +171,7 @@ static int max31790_read_fan(struct device *dev, u32 attr, int channel,
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index 1682f8b454a2..e317214aabec 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -1245,6 +1245,7 @@ static int __init acpi_init(void)
  
- 	switch (attr) {
- 	case hwmon_fan_input:
--		sr = get_tach_period(data->fan_dynamics[channel]);
-+		sr = get_tach_period(data->fan_dynamics[channel % NR_CHANNEL]);
- 		rpm = RPM_FROM_REG(data->tach[channel], sr);
- 		*val = rpm;
- 		return 0;
+ 	result = acpi_bus_init();
+ 	if (result) {
++		kobject_put(acpi_kobj);
+ 		disable_acpi();
+ 		return result;
+ 	}
 -- 
 2.30.2
 
