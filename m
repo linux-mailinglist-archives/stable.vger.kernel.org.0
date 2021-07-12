@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1913C5028
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E45C53C4AD1
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347026AbhGLHb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:31:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35324 "EHLO mail.kernel.org"
+        id S240369AbhGLGxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:53:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245313AbhGLH1d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:27:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F15F61448;
-        Mon, 12 Jul 2021 07:23:43 +0000 (UTC)
+        id S239227AbhGLGwn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:52:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 375CD61153;
+        Mon, 12 Jul 2021 06:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074624;
-        bh=qZiNGP+AMC6egr3+ZmuyOZ15n5CTrUNkffsUcYWELfk=;
+        s=korg; t=1626072590;
+        bh=wpxCS1/3GvN2YASU2eStpfTsM2QfVP03V9ChL91BU10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rltY8B3FQmbrb538BOJhK46py0N+ya82ThZduur2KUlMWXVYnkFu8e1qS9kH8JkFP
-         UEBgH7A8FE/CcbRVD9oh+ytiQmVbvhLqLoMFOLuIO7GBtO0dmebBlGRPebkFoJaeRa
-         yJ0A+KJ18yDyghVbP2h24TV/gGfm4F1A7KSkpkYA=
+        b=u6o1I6lm1kVdKBhapV3tDtqBvH7d2yfFZ+740+2IUVs7gcUXtCQmqbZYnDIxaOOp5
+         ylvgAaCMQWMB415gEs+c1XhWSjDZgmmgxhEqayWdNXu1oU4th/TscIK8sc56BKMd4G
+         clcmDMyQWYrmQiqZSs8FIJE+RfbHcqcSKtiX2X/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 625/700] staging: mt7621-dts: fix pci address for PCI memory range
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 548/593] leds: as3645a: Fix error return code in as3645a_parse_node()
 Date:   Mon, 12 Jul 2021 08:11:48 +0200
-Message-Id: <20210712061042.310176478@linuxfoundation.org>
+Message-Id: <20210712060954.506272789@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 5b4f167ef3555ec4c334a8dc89c1b44bb2c6bff5 ]
+[ Upstream commit 96a30960a2c5246c8ffebe8a3c9031f9df094d97 ]
 
-Driver code call 'devm_of_pci_get_host_bridge_resources'
-to get resources and properly fill 'bridge->windows' and
-'bridge->dma_ranges'. After parsing the ranges and store
-as resources, at the end it makes a call to pci function
-'pci_add_resource_offset' to set the offset for the
-memory resource. To calculate offset, resource start address
-subtracts pci address of the range. MT7621 does not need
-any offset for the memory resource. Moreover, setting an
-offset got into 'WARN_ON' calls from pci devices driver code.
-Until now memory range pci_addr was being '0x00000000' and
-res->start is '0x60000000' but becase pci controller driver
-was manually setting resources and adding them using pci function
-'pci_add_resource' where a zero is passed as offset, things
-was properly working. Since PCI_IOBASE is defined now for
-ralink we don't set nothing manually anymore so we have to
-properly fix PCI address for this range to make things work
-and the new pci address must be set to '0x60000000'. Doing
-in this way the subtract result obtain zero as offset
-and pci device driver code properly works.
+Return error code -ENODEV rather than '0' when the indicator node can not
+be found.
 
-Fixes: d59578da2bb8 ("staging: mt7621-dts: add dts files")
-Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Link: https://lore.kernel.org/r/20210614100617.28753-4-sergio.paracuellos@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a56ba8fbcb55 ("media: leds: as3645a: Add LED flash class driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/mt7621-dts/mt7621.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/leds/leds-as3645a.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/mt7621-dts/mt7621.dtsi b/drivers/staging/mt7621-dts/mt7621.dtsi
-index 16fc94f65486..b3d08459acc8 100644
---- a/drivers/staging/mt7621-dts/mt7621.dtsi
-+++ b/drivers/staging/mt7621-dts/mt7621.dtsi
-@@ -508,7 +508,7 @@
- 
- 		bus-range = <0 255>;
- 		ranges = <
--			0x02000000 0 0x00000000 0x60000000 0 0x10000000 /* pci memory */
-+			0x02000000 0 0x60000000 0x60000000 0 0x10000000 /* pci memory */
- 			0x01000000 0 0x00000000 0x1e160000 0 0x00010000 /* io space */
- 		>;
+diff --git a/drivers/leds/leds-as3645a.c b/drivers/leds/leds-as3645a.c
+index e8922fa03379..80411d41e802 100644
+--- a/drivers/leds/leds-as3645a.c
++++ b/drivers/leds/leds-as3645a.c
+@@ -545,6 +545,7 @@ static int as3645a_parse_node(struct as3645a *flash,
+ 	if (!flash->indicator_node) {
+ 		dev_warn(&flash->client->dev,
+ 			 "can't find indicator node\n");
++		rval = -ENODEV;
+ 		goto out_err;
+ 	}
  
 -- 
 2.30.2
