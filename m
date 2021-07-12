@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 927B33C4FAC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D4B93C4A8F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245447AbhGLH1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:27:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34180 "EHLO mail.kernel.org"
+        id S239583AbhGLGwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345288AbhGLHZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:25:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4445F6136D;
-        Mon, 12 Jul 2021 07:22:08 +0000 (UTC)
+        id S240444AbhGLGvy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:51:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 083676113A;
+        Mon, 12 Jul 2021 06:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074528;
-        bh=p8bNnxJwgHMycf5P+nl2Gg916UtFZkNQDNpHCCG8iMQ=;
+        s=korg; t=1626072539;
+        bh=PVnqED1eEOTFAcudvDNTJAz/D6GzzUGCPDDJ4+d573w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQq0GXc2DiAOjDp9e9ej+kIyoG7QgGiD9hotgTHWs/2FoxVcd3dk4GFJEzlrwEzUT
-         8Z8uOORNIejAh64wF0Uq5ePzorQXHM5SjwCmmtb1MiXUn3V893yLMAv9j+UktW2Yry
-         ZzFy/V+c0qT6hTMd3WXqGmlTGQSWN14l8vGtA+wg=
+        b=NvNYU6edEhOhKGs8oHMq4rQr65b1S3vmslCAzQ7A1uBCM9usw+pKuKeMnq3lvOdEL
+         P5kPj+KFQ36rXTYPtGfIY5kw4sRb4SG8LlnMPoVV6RSEUgiSezEMOJo+h5PRYhw0gW
+         6uO++JMm2+NCFr5uAgTdO31zFgz3V+fzrPmkYo6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huy Duong <qhuyduong@hotmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 609/700] eeprom: idt_89hpesx: Restore printing the unsupported fwnode name
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 532/593] of: Fix truncation of memory sizes on 32-bit platforms
 Date:   Mon, 12 Jul 2021 08:11:32 +0200
-Message-Id: <20210712061040.744655002@linuxfoundation.org>
+Message-Id: <20210712060952.053026444@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit e0db3deea73ba418bf5dc21f5a4e32ca87d16dde ]
+[ Upstream commit 2892d8a00d23d511a0591ac4b2ff3f050ae1f004 ]
 
-When iterating over child firmware nodes restore printing the name of ones
-that are not supported.
+Variable "size" has type "phys_addr_t", which can be either 32-bit or
+64-bit on 32-bit systems, while "unsigned long" is always 32-bit on
+32-bit systems.  Hence the cast in
 
-While at it, refactor loop body to clearly show that we stop at the first match.
+    (unsigned long)size / SZ_1M
 
-Fixes: db15d73e5f0e ("eeprom: idt_89hpesx: Support both ACPI and OF probing")
-Cc: Huy Duong <qhuyduong@hotmail.com>
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210607221757.81465-2-andy.shevchenko@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+may truncate a 64-bit size to 32-bit, as casts have a higher operator
+precedence than divisions.
+
+Fix this by inverting the order of the cast and division, which should
+be safe for memory blocks smaller than 4 PiB.  Note that the division is
+actually a shift, as SZ_1M is a power-of-two constant, hence there is no
+need to use div_u64().
+
+While at it, use "%lu" to format "unsigned long".
+
+Fixes: e8d9d1f5485b52ec ("drivers: of: add initialization code for static reserved memory")
+Fixes: 3f0c8206644836e4 ("drivers: of: add initialization code for dynamic reserved memory")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/4a1117e72d13d26126f57be034c20dac02f1e915.1623835273.git.geert+renesas@glider.be
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/idt_89hpesx.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/of/fdt.c             | 8 ++++----
+ drivers/of/of_reserved_mem.c | 8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/misc/eeprom/idt_89hpesx.c b/drivers/misc/eeprom/idt_89hpesx.c
-index 45a61a1f9e98..3e4a594c110b 100644
---- a/drivers/misc/eeprom/idt_89hpesx.c
-+++ b/drivers/misc/eeprom/idt_89hpesx.c
-@@ -1126,11 +1126,10 @@ static void idt_get_fw_data(struct idt_89hpesx_dev *pdev)
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index f2e697000b96..57ff31b6b1e4 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -501,11 +501,11 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
  
- 	device_for_each_child_node(dev, fwnode) {
- 		ee_id = idt_ee_match_id(fwnode);
--		if (!ee_id) {
--			dev_warn(dev, "Skip unsupported EEPROM device");
--			continue;
--		} else
-+		if (ee_id)
- 			break;
-+
-+		dev_warn(dev, "Skip unsupported EEPROM device %pfw\n", fwnode);
+ 		if (size &&
+ 		    early_init_dt_reserve_memory_arch(base, size, nomap) == 0)
+-			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %ld MiB\n",
+-				uname, &base, (unsigned long)size / SZ_1M);
++			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %lu MiB\n",
++				uname, &base, (unsigned long)(size / SZ_1M));
+ 		else
+-			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %ld MiB\n",
+-				uname, &base, (unsigned long)size / SZ_1M);
++			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %lu MiB\n",
++				uname, &base, (unsigned long)(size / SZ_1M));
+ 
+ 		len -= t_len;
+ 		if (first) {
+diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
+index a7fbc5e37e19..6c95bbdf9265 100644
+--- a/drivers/of/of_reserved_mem.c
++++ b/drivers/of/of_reserved_mem.c
+@@ -134,9 +134,9 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
+ 			ret = early_init_dt_alloc_reserved_memory_arch(size,
+ 					align, start, end, nomap, &base);
+ 			if (ret == 0) {
+-				pr_debug("allocated memory for '%s' node: base %pa, size %ld MiB\n",
++				pr_debug("allocated memory for '%s' node: base %pa, size %lu MiB\n",
+ 					uname, &base,
+-					(unsigned long)size / SZ_1M);
++					(unsigned long)(size / SZ_1M));
+ 				break;
+ 			}
+ 			len -= t_len;
+@@ -146,8 +146,8 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
+ 		ret = early_init_dt_alloc_reserved_memory_arch(size, align,
+ 							0, 0, nomap, &base);
+ 		if (ret == 0)
+-			pr_debug("allocated memory for '%s' node: base %pa, size %ld MiB\n",
+-				uname, &base, (unsigned long)size / SZ_1M);
++			pr_debug("allocated memory for '%s' node: base %pa, size %lu MiB\n",
++				uname, &base, (unsigned long)(size / SZ_1M));
  	}
  
- 	/* If there is no fwnode EEPROM device, then set zero size */
+ 	if (base == 0) {
 -- 
 2.30.2
 
