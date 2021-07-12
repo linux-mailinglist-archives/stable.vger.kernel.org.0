@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4CA3C4F39
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 832DB3C4A8C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245270AbhGLHXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32772 "EHLO mail.kernel.org"
+        id S239388AbhGLGwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240671AbhGLHWP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:22:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4470161003;
-        Mon, 12 Jul 2021 07:19:25 +0000 (UTC)
+        id S240418AbhGLGvw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:51:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62B4F6101E;
+        Mon, 12 Jul 2021 06:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074366;
-        bh=/XH8VHetpeGGKDyF4zoCyzPHBVjcwLilhPt4VCDmUkI=;
+        s=korg; t=1626072513;
+        bh=d5bkbVdHx/ooL3Ak9tPp8dI1TFEGE/j/dFpXQNbY4GQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DudJjlADWqfGBvYRKQsnbQsSCDsl826gWbCj0jvwh5Um+chOmNA+2FXWExwvHrl76
-         N0pSu+FqAmN7KG68NZo7TjF78uDAZMhKTMQrsgw5Kq94zgtSkFqrYFtejkC3J9pOWy
-         aL8ikBm9r87/zkg6xBkwEmEElkZuGDKEe7b7GfhI=
+        b=KN1mk6aVZno9nh6hARr4Q0O12Fc/zR6OcoVkG624VsrVpVLYwwCO1b4YKm8Twna2P
+         yesQDZ4GYU7CT5nayr0BhBn3Raz+Lk6t+QkO/oK0u7b2CeZebbZp9lnhlS7yfW5n1N
+         0ZlKVvtwz4fG6ezKZiQjaM4jX8Waw/V93hOSUVfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
-        Dan Murphy <dmurphy@ti.com>,
+        stable@vger.kernel.org, Jean-Jacques Hiblot <jjhiblot@ti.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 556/700] backlight: lm3630a_bl: Put fwnode in error case during ->probe()
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 479/593] leds: class: The -ENOTSUPP should never be seen by user space
 Date:   Mon, 12 Jul 2021 08:10:39 +0200
-Message-Id: <20210712061035.387429981@linuxfoundation.org>
+Message-Id: <20210712060943.223327461@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +42,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 6d1c32dbedd7d7e7372aa38033ec8782c39f6379 ]
+[ Upstream commit 0ac40af86077982a5346dbc9655172d2775d6b08 ]
 
-device_for_each_child_node() bumps a reference counting of a returned variable.
-We have to balance it whenever we return to the caller.
+Drop the bogus error code and let of_led_get() to take care about absent
+of_node.
 
-Cc: Brian Masney <masneyb@onstation.org>
-Cc: Dan Murphy <dmurphy@ti.com>
-Fixes: 8fbce8efe15cd ("backlight: lm3630a: Add firmware node support")
+Fixes: e389240ad992 ("leds: Add managed API to get a LED from a device driver")
+Cc: Jean-Jacques Hiblot <jjhiblot@ti.com>
 Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Brian Masney <masneyb@onstation.org>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/lm3630a_bl.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/leds/led-class.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
-index e88a2b0e5904..662029d6a3dc 100644
---- a/drivers/video/backlight/lm3630a_bl.c
-+++ b/drivers/video/backlight/lm3630a_bl.c
-@@ -482,8 +482,10 @@ static int lm3630a_parse_node(struct lm3630a_chip *pchip,
+diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
+index 131ca83f5fb3..4365c1cc4505 100644
+--- a/drivers/leds/led-class.c
++++ b/drivers/leds/led-class.c
+@@ -286,10 +286,6 @@ struct led_classdev *__must_check devm_of_led_get(struct device *dev,
+ 	if (!dev)
+ 		return ERR_PTR(-EINVAL);
  
- 	device_for_each_child_node(pchip->dev, node) {
- 		ret = lm3630a_parse_bank(pdata, node, &seen_led_sources);
--		if (ret)
-+		if (ret) {
-+			fwnode_handle_put(node);
- 			return ret;
-+		}
- 	}
- 
- 	return ret;
+-	/* Not using device tree? */
+-	if (!IS_ENABLED(CONFIG_OF) || !dev->of_node)
+-		return ERR_PTR(-ENOTSUPP);
+-
+ 	led = of_led_get(dev->of_node, index);
+ 	if (IS_ERR(led))
+ 		return led;
 -- 
 2.30.2
 
