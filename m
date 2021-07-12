@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A14933C4A20
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6981B3C5423
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238569AbhGLGss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:48:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42444 "EHLO mail.kernel.org"
+        id S1346047AbhGLH5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236692AbhGLGrl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:47:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1FB5611CC;
-        Mon, 12 Jul 2021 06:43:41 +0000 (UTC)
+        id S243646AbhGLHwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:52:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92409610D1;
+        Mon, 12 Jul 2021 07:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072222;
-        bh=CHa9FJSGkbGGKMI1u2TuMSfKAUXIddxcye+fd2miGj8=;
+        s=korg; t=1626076205;
+        bh=W9SW9avm6OY+iHOrKSW14XtxKTuwVqXvw221uAUCfqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09Su2qaYsLnMXAWgUQzQncO5F1d6/eNCxFH+zaVaiesOSBiLjgz3+ZaeTfVw7lOZt
-         1f20eCQyFScdjFLzM3oD7FdgRD9PHKEEuVSgkK32n6xZKZ7OsTb0Ky3YHvLOarpKeM
-         Kzt3yNrX3RIDM8v3mR6wph+nTUG5OcEwgYUpMazU=
+        b=aHSjhPaiEB/4tfpgSSIojpUGAqmql6FmDDCHWkuVqHg9/PvwVCfLpQwGhkBl7h1aZ
+         g3WbGfW4XLWX1H6N5GNqu9SMAOR+5itOI/AoEjKfa3BiqH/NBdYoJZwgO0BjHXqOwi
+         IEk9M4EaruNaux9Sh82UsgyKdZEXIifbUGGnM7O4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Tom Herbert <tom@herbertland.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 406/593] ipv6: fix out-of-bound access in ip6_parse_tlv()
+Subject: [PATCH 5.13 543/800] RDMA/hns: Force rewrite inline flag of WQE
 Date:   Mon, 12 Jul 2021 08:09:26 +0200
-Message-Id: <20210712060932.424981437@linuxfoundation.org>
+Message-Id: <20210712061025.115634267@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Lang Cheng <chenglang@huawei.com>
 
-[ Upstream commit 624085a31c1ad6a80b1e53f686bf6ee92abbf6e8 ]
+[ Upstream commit e13026578b727becf2614f34a4f35e7f0ed21be1 ]
 
-First problem is that optlen is fetched without checking
-there is more than one byte to parse.
+When a non-inline WR reuses a WQE that was used for inline last time, the
+remaining inline flag should be cleared.
 
-Fix this by taking care of IPV6_TLV_PAD1 before
-fetching optlen (under appropriate sanity checks against len)
-
-Second problem is that IPV6_TLV_PADN checks of zero
-padding are performed before the check of remaining length.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: c1412fce7ecc ("net/ipv6/exthdrs.c: Strict PadN option checking")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Tom Herbert <tom@herbertland.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 62490fd5a865 ("RDMA/hns: Avoid unnecessary memset on WQEs in post_send")
+Link: https://lore.kernel.org/r/1624011020-16992-2-git-send-email-liweihang@huawei.com
+Signed-off-by: Lang Cheng <chenglang@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/exthdrs.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
-index 15223451cd7f..4932dea9820b 100644
---- a/net/ipv6/exthdrs.c
-+++ b/net/ipv6/exthdrs.c
-@@ -135,18 +135,23 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
- 	len -= 2;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 78f3e05cc1f5..cd58becf1baf 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -274,8 +274,6 @@ static int set_rc_inl(struct hns_roce_qp *qp, const struct ib_send_wr *wr,
  
- 	while (len > 0) {
--		int optlen = nh[off + 1] + 2;
--		int i;
-+		int optlen, i;
+ 	dseg += sizeof(struct hns_roce_v2_rc_send_wqe);
  
--		switch (nh[off]) {
--		case IPV6_TLV_PAD1:
--			optlen = 1;
-+		if (nh[off] == IPV6_TLV_PAD1) {
- 			padlen++;
- 			if (padlen > 7)
- 				goto bad;
--			break;
-+			off++;
-+			len--;
-+			continue;
-+		}
-+		if (len < 2)
-+			goto bad;
-+		optlen = nh[off + 1] + 2;
-+		if (optlen > len)
-+			goto bad;
- 
--		case IPV6_TLV_PADN:
-+		if (nh[off] == IPV6_TLV_PADN) {
- 			/* RFC 2460 states that the purpose of PadN is
- 			 * to align the containing header to multiples
- 			 * of 8. 7 is therefore the highest valid value.
-@@ -163,12 +168,7 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
- 				if (nh[off + i] != 0)
- 					goto bad;
- 			}
--			break;
+-	roce_set_bit(rc_sq_wqe->byte_4, V2_RC_SEND_WQE_BYTE_4_INLINE_S, 1);
 -
--		default: /* Other TLV code so scan list */
--			if (optlen > len)
--				goto bad;
--
-+		} else {
- 			tlv_count++;
- 			if (tlv_count > max_count)
- 				goto bad;
-@@ -188,7 +188,6 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
- 				return false;
+ 	if (msg_len <= HNS_ROCE_V2_MAX_RC_INL_INN_SZ) {
+ 		roce_set_bit(rc_sq_wqe->byte_20,
+ 			     V2_RC_SEND_WQE_BYTE_20_INL_TYPE_S, 0);
+@@ -320,6 +318,8 @@ static int set_rwqe_data_seg(struct ib_qp *ibqp, const struct ib_send_wr *wr,
+ 		       V2_RC_SEND_WQE_BYTE_20_MSG_START_SGE_IDX_S,
+ 		       (*sge_ind) & (qp->sge.sge_cnt - 1));
  
- 			padlen = 0;
--			break;
- 		}
- 		off += optlen;
- 		len -= optlen;
++	roce_set_bit(rc_sq_wqe->byte_4, V2_RC_SEND_WQE_BYTE_4_INLINE_S,
++		     !!(wr->send_flags & IB_SEND_INLINE));
+ 	if (wr->send_flags & IB_SEND_INLINE)
+ 		return set_rc_inl(qp, wr, rc_sq_wqe, sge_ind);
+ 
 -- 
 2.30.2
 
