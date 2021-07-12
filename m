@@ -2,125 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 592CF3C5F58
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 17:34:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 089343C60C1
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 18:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235529AbhGLPhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 11:37:12 -0400
-Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.52]:32593 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232203AbhGLPhM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 11:37:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1626103880;
-    s=strato-dkim-0002; d=hartkopp.net;
-    h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Cc:Date:
-    From:Subject:Sender;
-    bh=B70DVUwqAql7xbJnbxtjSYSaBgGKgUW0tV9cVXDNBxs=;
-    b=flhkqRqjfUr25vF/Kg/TUWuXoKy/vRIXiCfc/0KeOtm/p7n/N5DUiGBHwCLZylv71o
-    MOlIhNpH5pcEMOO5lzFs4yX1HwbIl13DpemYlhy+i7XqkIrCAk8+GgJWBRXhOBuj6tq2
-    7HIs51FoKL7G9Cgb3YnqdUislTpfj6FZUvhpr/rNxyvfQPNnYhjMje2vkJOxzC4/IJxh
-    sLss3OK0gifpmXerEg7aPbNH53AsgW5j54I0kfmE4D6+0txZrHpfEqpdjKFp8W7exzWu
-    ZtLN0GQviwFXzpKzy+9atoaC++xr8oQDPq/WgYuoEb8UgJ2OMNJsj3cJK3oD7POOOjja
-    Iccg==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjGrp7owjzFK3JbFk1mS/xvEBL7X5sbo3UIh+JyKAeyWJabqMyH2G"
-X-RZG-CLASS-ID: mo00
-Received: from silver.lan
-    by smtp.strato.de (RZmta 47.28.1 AUTH)
-    with ESMTPSA id h0143fx6CFVJUqT
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Mon, 12 Jul 2021 17:31:19 +0200 (CEST)
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-To:     gregkh@linuxfoundation.org
-Cc:     Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        linux-stable <stable@vger.kernel.org>,
-        syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH stable 4.4 4.9] can: bcm: delay release of struct bcm_op after synchronize_rcu()
-Date:   Mon, 12 Jul 2021 17:30:36 +0200
-Message-Id: <20210712153036.5937-2-socketcan@hartkopp.net>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210712153036.5937-1-socketcan@hartkopp.net>
-References: <20210712153036.5937-1-socketcan@hartkopp.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S233620AbhGLQsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 12:48:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59922 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233444AbhGLQsl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 12:48:41 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E747C0613DD;
+        Mon, 12 Jul 2021 09:45:52 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id s18so3556306pgq.3;
+        Mon, 12 Jul 2021 09:45:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=7pq8R6jRwoZPf2bIjitckxvVEVRXcdFqf06sAGGo4XY=;
+        b=GnfptJYNzvvv8z4T7dwkBoDY0+CwmkwYvVvtTvzfaXJWPph3neX0/RinotcGljQ4LB
+         LDsw3xZJ5ZY6ZYsyvVmdozDlfMGoeNn8YVIlH17gKlBVXAVSrdfIGJG8HGbb5RaSq7eJ
+         MOCaKTYOBQrXcjm+LdqoH2BH/LO+DGnqCdM+RuR17C+QsVgVknrbs0ATj99cCG/oNhOl
+         pY1yTsT56qHPFFHTGgsTUi1TysZGw2o5SYxkZImZmx69iuqqOBe5FPqtkNcrUvBAuqK7
+         eqAIq4aRXt0AX6dE5FpJr4MF3y+LBm+upRP0jy9WUCPxRRklAlEKrQSerU3Bf+xhuPRl
+         t+vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=7pq8R6jRwoZPf2bIjitckxvVEVRXcdFqf06sAGGo4XY=;
+        b=hanzWjp5fue0eCndAEJwlLVkcX6PYdjOfy81xj2+hfccy1cY+aSGPOQ8Ci5UqsBxuX
+         kbl8iaifvy46pva4+YqCLlx8bvHvgGOVe47qhRdZaGGE+jmDsBwFvU8rnvf8F6vHsbpj
+         OVKBEhZGkwM2UhEpfdRu8+u4/dZvn+IRNyFZSWxgMuvgg5U833+dUvw4Vad+EV0L/Y9l
+         WQcZTUWAH5IeK8BUAxn7U4TDR8dXZHMu/uxjvDimpCGVxQRiyBYXO4SiABbdyhDIyAxD
+         8k6xGwMdVcvQsnxf71HtymDOrluSK7Fxc9OJkhDQNIKvUwadiG3GAaLm6mMO1v0CHOBK
+         dq6g==
+X-Gm-Message-State: AOAM5307iqTcc05PiEYZ6/7rF7+kgUw22GF+o8NrAaG/+YKNw13Trjux
+        XW17yCoH0/zFj5/HXh1JGPBVWkOcAx6tBSIg3KMFvQ==
+X-Google-Smtp-Source: ABdhPJz2h8XNjHUN2/WOX5r876bCIaF6ybvj6TCwY7kk0O7inb5xWZSxphYxkQ0pwugrd1uwL75dlg==
+X-Received: by 2002:aa7:8d5a:0:b029:302:e2cb:6d79 with SMTP id s26-20020aa78d5a0000b0290302e2cb6d79mr53490837pfe.71.1626108351527;
+        Mon, 12 Jul 2021 09:45:51 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
+        by smtp.gmail.com with ESMTPSA id j13sm386550pjl.1.2021.07.12.09.45.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jul 2021 09:45:51 -0700 (PDT)
+Message-ID: <60ec71bf.1c69fb81.8aba0.1865@mx.google.com>
+Date:   Mon, 12 Jul 2021 09:45:51 -0700 (PDT)
+X-Google-Original-Date: Mon, 12 Jul 2021 16:45:44 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+Subject: RE: [PATCH 5.13 000/800] 5.13.2-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+On Mon, 12 Jul 2021 08:00:23 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.13.2 release.
+> There are 800 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 14 Jul 2021 06:02:46 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.2-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-
-commit d5f9023fa61ee8b94f37a93f08e94b136cf1e463 upstream.
-
-can_rx_register() callbacks may be called concurrently to the call to
-can_rx_unregister(). The callbacks and callback data, though, are
-protected by RCU and the struct sock reference count.
-
-So the callback data is really attached to the life of sk, meaning
-that it should be released on sk_destruct. However, bcm_remove_op()
-calls tasklet_kill(), and RCU callbacks may be called under RCU
-softirq, so that cannot be used on kernels before the introduction of
-HRTIMER_MODE_SOFT.
-
-However, bcm_rx_handler() is called under RCU protection, so after
-calling can_rx_unregister(), we may call synchronize_rcu() in order to
-wait for any RCU read-side critical sections to finish. That is,
-bcm_rx_handler() won't be called anymore for those ops. So, we only
-free them, after we do that synchronize_rcu().
-
-Fixes: ffd980f976e7 ("[CAN]: Add broadcast manager (bcm) protocol")
-Link: https://lore.kernel.org/r/20210619161813.2098382-1-cascardo@canonical.com
-Cc: linux-stable <stable@vger.kernel.org>
-Reported-by: syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com
-Reported-by: Norbert Slusarek <nslusarek@gmx.net>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- net/can/bcm.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index c6fee58baac4..3e131dc5f0e5 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -811,10 +811,11 @@ static int bcm_delete_rx_op(struct list_head *ops, canid_t can_id, int ifindex)
- 				can_rx_unregister(NULL, op->can_id,
- 						  REGMASK(op->can_id),
- 						  bcm_rx_handler, op);
- 
- 			list_del(&op->list);
-+			synchronize_rcu();
- 			bcm_remove_op(op);
- 			return 1; /* done */
- 		}
- 	}
- 
-@@ -1536,13 +1537,17 @@ static int bcm_release(struct socket *sock)
- 		} else
- 			can_rx_unregister(NULL, op->can_id,
- 					  REGMASK(op->can_id),
- 					  bcm_rx_handler, op);
- 
--		bcm_remove_op(op);
- 	}
- 
-+	synchronize_rcu();
-+
-+	list_for_each_entry_safe(op, next, &bo->rx_ops, list)
-+		bcm_remove_op(op);
-+
- 	/* remove procfs entry */
- 	if (proc_dir && bo->bcm_proc_read)
- 		remove_proc_entry(bo->procname, proc_dir);
- 
- 	/* remove device reference */
--- 
-2.30.2
+5.13.2-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
