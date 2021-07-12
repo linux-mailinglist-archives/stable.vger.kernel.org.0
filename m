@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2013C4EDB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E78553C4A78
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241831AbhGLHV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:21:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57982 "EHLO mail.kernel.org"
+        id S236651AbhGLGwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343605AbhGLHT4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:19:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D5E661153;
-        Mon, 12 Jul 2021 07:17:08 +0000 (UTC)
+        id S239110AbhGLGt3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EA706135A;
+        Mon, 12 Jul 2021 06:46:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074229;
-        bh=MGEh1O1qKzCFtLhgi4S3slEZspl1zlmNDy1nhzEn1FY=;
+        s=korg; t=1626072370;
+        bh=H5IQftju5cGa30NnkXqHQYG7EtwtubGFsmC8LChrN8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aLPEvcJU+P7u1oSYgFdh2m0ARJAX/MevGu7Ddfs/c4zmTk7kUJ1qtqnbXjku3o+H0
-         TEjTc1H2iVVgtYxucXwrdFG8Xtidxdlaa+SpPUTKuugUwIRL8ZjQtVKrx59iJYv4eP
-         ro/L3mEhoNLw37T0lXZjYhxyL1Qpz0VcAenp20tE=
+        b=ZYSiwQ+oINDxE4Xr9QyxvQ6FPHW0mCaVyGIhvIdwFqNUCsEvMyPEikgzWRIRQs9EP
+         lzsTORabQrI3vLh7gNnRYXeHK9T4wtryY+lENcw4NuFwo+CxhD/MDqA5j0eBWn+kQh
+         E0WjSoZM1bzyX25WRJAsYLmCaGPDRA7QIeVwxKBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 508/700] clk: si5341: Avoid divide errors due to bogus register contents
-Date:   Mon, 12 Jul 2021 08:09:51 +0200
-Message-Id: <20210712061030.563279073@linuxfoundation.org>
+Subject: [PATCH 5.10 432/593] MIPS: Fix PKMAP with 32-bit MIPS huge page support
+Date:   Mon, 12 Jul 2021 08:09:52 +0200
+Message-Id: <20210712060936.071706254@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Wei Li <liwei391@huawei.com>
 
-[ Upstream commit 78f6f406026d688868223d5dbeb197a4f7e9a9fd ]
+[ Upstream commit cf02ce742f09188272bcc8b0e62d789eb671fc4c ]
 
-If the Si5341 is being initially programmed and has no stored NVM
-configuration, some of the register contents may contain unexpected
-values, such as zeros, which could cause divide by zero errors during
-driver initialization. Trap errors caused by zero registers or zero clock
-rates which could result in divide errors later in the code.
+When 32-bit MIPS huge page support is enabled, we halve the number of
+pointers a PTE page holds, making its last half go to waste.
+Correspondingly, we should halve the number of kmap entries, as we just
+initialized only a single pte table for that in pagetable_init().
 
-Fixes: 3044a860fd ("clk: Add Si5341/Si5340 driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20210325192643.2190069-4-robert.hancock@calian.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 35476311e529 ("MIPS: Add partial 32-bit huge page support")
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-si5341.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/highmem.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
-index b8a960e927bc..ac1ccec2b681 100644
---- a/drivers/clk/clk-si5341.c
-+++ b/drivers/clk/clk-si5341.c
-@@ -624,6 +624,9 @@ static unsigned long si5341_synth_clk_recalc_rate(struct clk_hw *hw,
- 			SI5341_SYNTH_N_NUM(synth->index), &n_num, &n_den);
- 	if (err < 0)
- 		return err;
-+	/* Check for bogus/uninitialized settings */
-+	if (!n_num || !n_den)
-+		return 0;
- 
- 	/*
- 	 * n_num and n_den are shifted left as much as possible, so to prevent
-@@ -807,6 +810,9 @@ static long si5341_output_clk_round_rate(struct clk_hw *hw, unsigned long rate,
- {
- 	unsigned long r;
- 
-+	if (!rate)
-+		return 0;
-+
- 	r = *parent_rate >> 1;
- 
- 	/* If rate is an even divisor, no changes to parent required */
-@@ -835,11 +841,16 @@ static int si5341_output_clk_set_rate(struct clk_hw *hw, unsigned long rate,
- 		unsigned long parent_rate)
- {
- 	struct clk_si5341_output *output = to_clk_si5341_output(hw);
--	/* Frequency divider is (r_div + 1) * 2 */
--	u32 r_div = (parent_rate / rate) >> 1;
-+	u32 r_div;
- 	int err;
- 	u8 r[3];
- 
-+	if (!rate)
-+		return -EINVAL;
-+
-+	/* Frequency divider is (r_div + 1) * 2 */
-+	r_div = (parent_rate / rate) >> 1;
-+
- 	if (r_div <= 1)
- 		r_div = 0;
- 	else if (r_div >= BIT(24))
+diff --git a/arch/mips/include/asm/highmem.h b/arch/mips/include/asm/highmem.h
+index f1f788b57166..9f021cf51aa7 100644
+--- a/arch/mips/include/asm/highmem.h
++++ b/arch/mips/include/asm/highmem.h
+@@ -36,7 +36,7 @@ extern pte_t *pkmap_page_table;
+  * easily, subsequent pte tables have to be allocated in one physical
+  * chunk of RAM.
+  */
+-#ifdef CONFIG_PHYS_ADDR_T_64BIT
++#if defined(CONFIG_PHYS_ADDR_T_64BIT) || defined(CONFIG_MIPS_HUGE_TLB_SUPPORT)
+ #define LAST_PKMAP 512
+ #else
+ #define LAST_PKMAP 1024
 -- 
 2.30.2
 
