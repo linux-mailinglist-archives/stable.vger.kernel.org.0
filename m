@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 219273C4D84
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E54493C5261
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242621AbhGLHNU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41984 "EHLO mail.kernel.org"
+        id S1346021AbhGLHpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242341AbhGLHGf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:06:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53DB961182;
-        Mon, 12 Jul 2021 07:03:46 +0000 (UTC)
+        id S1343880AbhGLHnk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:43:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 416A7611AC;
+        Mon, 12 Jul 2021 07:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073427;
-        bh=JUU/J6hxCQLqqZUB6VdJNrCq1pm1bQZDPZFxWYJzass=;
+        s=korg; t=1626075633;
+        bh=E5BnYOzIC2rS0Shxh1oJ1QRMJjd/fLnsEcaEPllvfao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOkNkIN7R4PMwoky8rZ+eZ48M/XCu8OLTKQ9z90R2YGIj/4QYu6tLg9mvjaeKnamI
-         3+DWbyJdfWOcAx+wgpcRWM90BfwMHuDKw+xn6aCKzKGv7HqF5zPWYfYFV5LJjlDgZf
-         oW37XnJoyxhaJ9uRBD0+gfKPyxfNrKxX+XUnu5qk=
+        b=saqePracgl3VEX4cPtZOypdlCz9OpbiZS796t3TG7Z9MGKkNW6ERdDp2ei1bHLYvy
+         Cmit/Zd0IbAD0YmEVezhl1Ex8zlBWsCZud9F/MaEPHBrPI0hSmNIAoZMHy2FDtMQRX
+         G5X20uGb8vZIN1PTWEEtlzTWy2VvhjGqLfVniNDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 238/700] smb3: fix possible access to uninitialized pointer to DACL
-Date:   Mon, 12 Jul 2021 08:05:21 +0200
-Message-Id: <20210712061000.604523470@linuxfoundation.org>
+Subject: [PATCH 5.13 299/800] media: exynos4-is: Fix a use after free in isp_video_release
+Date:   Mon, 12 Jul 2021 08:05:22 +0200
+Message-Id: <20210712060957.026481325@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit a5628263a9f8d47d9a1548fe9d5d75ba4423a735 ]
+[ Upstream commit 01fe904c9afd26e79c1f73aa0ca2e3d785e5e319 ]
 
-dacl_ptr can be null so we must check for it everywhere it is
-used in build_sec_desc.
+In isp_video_release, file->private_data is freed via
+_vb2_fop_release()->v4l2_fh_release(). But the freed
+file->private_data is still used in v4l2_fh_is_singular_file()
+->v4l2_fh_is_singular(file->private_data), which is a use
+after free bug.
 
-Addresses-Coverity: 1475598 ("Explicit null dereference")
-Signed-off-by: Steve French <stfrench@microsoft.com>
+My patch uses a variable 'is_singular_file' to avoid the uaf.
+v3: https://lore.kernel.org/patchwork/patch/1419058/
+
+Fixes: 34947b8aebe3f ("[media] exynos4-is: Add the FIMC-IS ISP capture DMA driver")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsacl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/exynos4-is/fimc-isp-video.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/cifsacl.c b/fs/cifs/cifsacl.c
-index d178cf85e926..b80b6ba232aa 100644
---- a/fs/cifs/cifsacl.c
-+++ b/fs/cifs/cifsacl.c
-@@ -1310,7 +1310,7 @@ static int build_sec_desc(struct cifs_ntsd *pntsd, struct cifs_ntsd *pnntsd,
- 		ndacl_ptr = (struct cifs_acl *)((char *)pnntsd + ndacloffset);
- 		ndacl_ptr->revision =
- 			dacloffset ? dacl_ptr->revision : cpu_to_le16(ACL_REVISION);
--		ndacl_ptr->num_aces = dacl_ptr->num_aces;
-+		ndacl_ptr->num_aces = dacl_ptr ? dacl_ptr->num_aces : 0;
+diff --git a/drivers/media/platform/exynos4-is/fimc-isp-video.c b/drivers/media/platform/exynos4-is/fimc-isp-video.c
+index 8d9dc597deaa..83688a7982f7 100644
+--- a/drivers/media/platform/exynos4-is/fimc-isp-video.c
++++ b/drivers/media/platform/exynos4-is/fimc-isp-video.c
+@@ -305,17 +305,20 @@ static int isp_video_release(struct file *file)
+ 	struct fimc_is_video *ivc = &isp->video_capture;
+ 	struct media_entity *entity = &ivc->ve.vdev.entity;
+ 	struct media_device *mdev = entity->graph_obj.mdev;
++	bool is_singular_file;
  
- 		if (uid_valid(uid)) { /* chown */
- 			uid_t id;
+ 	mutex_lock(&isp->video_lock);
+ 
+-	if (v4l2_fh_is_singular_file(file) && ivc->streaming) {
++	is_singular_file = v4l2_fh_is_singular_file(file);
++
++	if (is_singular_file && ivc->streaming) {
+ 		media_pipeline_stop(entity);
+ 		ivc->streaming = 0;
+ 	}
+ 
+ 	_vb2_fop_release(file, NULL);
+ 
+-	if (v4l2_fh_is_singular_file(file)) {
++	if (is_singular_file) {
+ 		fimc_pipeline_call(&ivc->ve, close);
+ 
+ 		mutex_lock(&mdev->graph_mutex);
 -- 
 2.30.2
 
