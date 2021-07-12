@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 183B53C5502
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF15A3C4F2D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230074AbhGLIIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:08:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44020 "EHLO mail.kernel.org"
+        id S242959AbhGLHX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348257AbhGLH5f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:57:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FF0F6162D;
-        Mon, 12 Jul 2021 07:52:40 +0000 (UTC)
+        id S241324AbhGLHVt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:21:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FBEB60FF1;
+        Mon, 12 Jul 2021 07:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076360;
-        bh=zlCbgnpyDeBSQsLOPKs0LGmUdYmEeL/3/jJvNrZIKw8=;
+        s=korg; t=1626074340;
+        bh=q0kgSQ+nvfk1kPn0gHqgc8Mtyw07CI6RK73Q2udLmDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxl3bMsT3lsA0jo3OzROaE47Vx0NsfhbJFeKYLyhmgavPRx3QiWs733nhFXVxWINe
-         ayK47qp5VLDvBaMDx5OpJnkAKKybpNmHJfFTzVHjrPtL5i23+lhnznEQ5EC6hPl2uA
-         5BlALByfkJadhEqK+//6nQQJlHJ2erGLttjll3gA=
+        b=n/qRzNiQi9AoYdq/z0mrMTLBejLkWEcY0ubWExFJ7zkzVRjmh0yKzYXsPy+/Gtsgj
+         Je4OkS6Bsost4x2T6IoHDpP5DZTthzG/TRgZRXs4pBNihUy1PfnjGLsZDub+eVp7Gi
+         JrTAJ2/PUbIGnrlsITMclyGTOgUq4foECiOnOamk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 608/800] serial: fsl_lpuart: remove RTSCTS handling from get_mctrl()
+Subject: [PATCH 5.12 548/700] iio: light: isl29125: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:10:31 +0200
-Message-Id: <20210712061031.964396520@linuxfoundation.org>
+Message-Id: <20210712061034.615065196@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit e60c2991f18bf221fa9908ff10cb24eaedaa9bae ]
+[ Upstream commit 3d4725194de6935dba2ad7c9cc075c885008f747 ]
 
-The wrong code in set_mctrl() was already removed in commit 2b30efe2e88a
-("tty: serial: lpuart: Remove unnecessary code from set_mctrl"), but the
-code in get_mctrl() wasn't removed. It will not return the state of the
-RTS or CTS line but whether automatic flow control is enabled, which is
-wrong for the get_mctrl(). Thus remove it.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-Fixes: 2b30efe2e88a ("tty: serial: lpuart: Remove unnecessary code from set_mctrl")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20210512141255.18277-7-michael@walle.cc
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found during an audit of all calls of uses of
+iio_push_to_buffers_with_timestamp()
+
+Fixes: 6c25539cbc46 ("iio: Add Intersil isl29125 digital color light sensor driver")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-18-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/iio/light/isl29125.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index fbf2e4d2d22b..9c78e43e669d 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1408,17 +1408,7 @@ static unsigned int lpuart_get_mctrl(struct uart_port *port)
+diff --git a/drivers/iio/light/isl29125.c b/drivers/iio/light/isl29125.c
+index b93b85dbc3a6..ba53b50d711a 100644
+--- a/drivers/iio/light/isl29125.c
++++ b/drivers/iio/light/isl29125.c
+@@ -51,7 +51,11 @@
+ struct isl29125_data {
+ 	struct i2c_client *client;
+ 	u8 conf1;
+-	u16 buffer[8]; /* 3x 16-bit, padding, 8 bytes timestamp */
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		u16 chans[3];
++		s64 timestamp __aligned(8);
++	} scan;
+ };
  
- static unsigned int lpuart32_get_mctrl(struct uart_port *port)
- {
--	unsigned int temp = 0;
--	unsigned long reg;
--
--	reg = lpuart32_read(port, UARTMODIR);
--	if (reg & UARTMODIR_TXCTSE)
--		temp |= TIOCM_CTS;
--
--	if (reg & UARTMODIR_RXRTSE)
--		temp |= TIOCM_RTS;
--
--	return temp;
-+	return 0;
- }
+ #define ISL29125_CHANNEL(_color, _si) { \
+@@ -184,10 +188,10 @@ static irqreturn_t isl29125_trigger_handler(int irq, void *p)
+ 		if (ret < 0)
+ 			goto done;
  
- static void lpuart_set_mctrl(struct uart_port *port, unsigned int mctrl)
+-		data->buffer[j++] = ret;
++		data->scan.chans[j++] = ret;
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 		iio_get_time_ns(indio_dev));
+ 
+ done:
 -- 
 2.30.2
 
