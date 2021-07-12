@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 491C13C5562
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6160C3C5046
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355637AbhGLIKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:10:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
+        id S1344523AbhGLHby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:31:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353582AbhGLICg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCE1561CD1;
-        Mon, 12 Jul 2021 07:55:44 +0000 (UTC)
+        id S1344383AbhGLH3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5545D613EE;
+        Mon, 12 Jul 2021 07:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076545;
-        bh=41AxLvkOm9TRN3+yhjI16yCYcoCNm0OkB6tVeG+rG18=;
+        s=korg; t=1626074710;
+        bh=JQwM40WNdPqzcQ7fMsFA9WLHrmw7Mf8lh8qEUkgf8Y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1zi6c3aihDLaCsS0ysa49Y7K5qhkUmC8b6tBD+4ACqAzvP38awpmBfLwhCBcx8u5
-         uY2o+eYuuw+Tlyw+EA7z2OS7qzDslOx1XYz8sQ7VxFivPJlVxUF5w4JpNIS4zBhYie
-         OhMnEDmKDT+IXk0TnSSvwYJxfRPolVhQHsoLkNBA=
+        b=nq+lXD67V4EKYZ5mbIHmUBhAHkB0mTGrdCGRyjdqWjsjZShwco8ry3h4cHDEJZBaI
+         JFXdzc7XtLiP2M/4l1+px90shWfdT8Q1gG9C3bp9RSOpIfh3aBD8/DI+qXVMiQ9GIV
+         IWTIF5CaEgGoe9w+WvrQfe9L5zg65jemVXhzny4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 688/800] ASoC: rt700-sdw: use first_hw_init flag on resume
+Subject: [PATCH 5.12 628/700] serial: 8250: Actually allow UPF_MAGIC_MULTIPLIER baud rates
 Date:   Mon, 12 Jul 2021 08:11:51 +0200
-Message-Id: <20210712061040.020454955@linuxfoundation.org>
+Message-Id: <20210712061042.659574334@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +39,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit a9e54e5fbe396b546771cf77b43ce7c75e212278 ]
+[ Upstream commit 78bcae8616ac277d6cb7f38e211493948ed73e30 ]
 
-The intent of the status check on resume was to verify if a SoundWire
-peripheral reported ATTACHED before waiting for the initialization to
-complete. This is required to avoid timeouts that will happen with
-'ghost' devices that are exposed in the platform firmware but are not
-populated in hardware.
+Support for magic baud rate divisors of 32770 and 32769 used with SMSC
+Super I/O chips for extra baud rates of 230400 and 460800 respectively
+where base rate is 115200[1] has been added around Linux 2.5.64, which
+predates our repo history, but the origin could be identified as commit
+2a717aad772f ("Merge with Linux 2.5.64.") with the old MIPS/Linux repo
+also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>.
 
-Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
-another error, the resume operation never timed out, but the volume
-settings were not properly restored.
+Code that is now in `serial8250_do_get_divisor' was added back then to
+`serial8250_get_divisor', but that code would only ever trigger if one
+of the higher baud rates was actually requested, and that cannot ever
+happen, because the earlier call to `serial8250_get_baud_rate' never
+returns them.  This is because it calls `uart_get_baud_rate' with the
+maximum requested being the base rate, that is clk/16 or 115200 for SMSC
+chips at their nominal clock rate.
 
-BugLink: https://github.com/thesofproject/linux/issues/2908
-BugLink: https://github.com/thesofproject/linux/issues/2637
-Fixes: 7d2a5f9ae41e3 ('ASoC: rt700: add rt700 codec driver')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-7-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix it then and allow UPF_MAGIC_MULTIPLIER baud rates to be selected, by
+requesting the maximum baud rate of clk/4 rather than clk/16 if the flag
+has been set.  Also correct the minimum baud rate, observing that these
+ports only support actual (non-magic) divisors of up to 32767 only.
+
+
+[1] "FDC37M81x, PC98/99 Compliant Enhanced Super I/O Controller with
+    Keyboard/Mouse Wake-Up", Standard Microsystems Corporation, Rev.
+    03/27/2000, Table 31 - "Baud Rates", p. 77
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2105190412280.29169@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt700-sdw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_port.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/rt700-sdw.c b/sound/soc/codecs/rt700-sdw.c
-index ff9c081fd52a..d1d9c0f455b4 100644
---- a/sound/soc/codecs/rt700-sdw.c
-+++ b/sound/soc/codecs/rt700-sdw.c
-@@ -498,7 +498,7 @@ static int __maybe_unused rt700_dev_resume(struct device *dev)
- 	struct rt700_priv *rt700 = dev_get_drvdata(dev);
- 	unsigned long time;
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 6e141429c980..6d9c494bed7d 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2635,6 +2635,21 @@ static unsigned int serial8250_get_baud_rate(struct uart_port *port,
+ 					     struct ktermios *old)
+ {
+ 	unsigned int tolerance = port->uartclk / 100;
++	unsigned int min;
++	unsigned int max;
++
++	/*
++	 * Handle magic divisors for baud rates above baud_base on SMSC
++	 * Super I/O chips.  Enable custom rates of clk/4 and clk/8, but
++	 * disable divisor values beyond 32767, which are unavailable.
++	 */
++	if (port->flags & UPF_MAGIC_MULTIPLIER) {
++		min = port->uartclk / 16 / UART_DIV_MAX >> 1;
++		max = (port->uartclk + tolerance) / 4;
++	} else {
++		min = port->uartclk / 16 / UART_DIV_MAX;
++		max = (port->uartclk + tolerance) / 16;
++	}
  
--	if (!rt700->hw_init)
-+	if (!rt700->first_hw_init)
- 		return 0;
+ 	/*
+ 	 * Ask the core to calculate the divisor for us.
+@@ -2642,9 +2657,7 @@ static unsigned int serial8250_get_baud_rate(struct uart_port *port,
+ 	 * slower than nominal still match standard baud rates without
+ 	 * causing transmission errors.
+ 	 */
+-	return uart_get_baud_rate(port, termios, old,
+-				  port->uartclk / 16 / UART_DIV_MAX,
+-				  (port->uartclk + tolerance) / 16);
++	return uart_get_baud_rate(port, termios, old, min, max);
+ }
  
- 	if (!slave->unattach_request)
+ /*
 -- 
 2.30.2
 
