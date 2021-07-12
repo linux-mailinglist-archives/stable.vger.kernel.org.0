@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFC463C4ED2
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB8563C49E6
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241374AbhGLHVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55898 "EHLO mail.kernel.org"
+        id S238485AbhGLGrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:47:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239190AbhGLHTJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:19:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 511B461621;
-        Mon, 12 Jul 2021 07:16:12 +0000 (UTC)
+        id S237943AbhGLGqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:46:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 680326113A;
+        Mon, 12 Jul 2021 06:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074172;
-        bh=dUnfEYdCnzav6JuAymT1HVAkcNz9jqlKCpblGKHx1hA=;
+        s=korg; t=1626072139;
+        bh=easLhoSpdHPweHz9NCe+8HiANKFsHD4QA0BvtHtT0VM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4YNYuA/FRg3ktBOvC290MgAOYPqlTszIAxZ7B091nABKQzCNhUapLoEQZeHyAL2B
-         hnGu31EgdS/NGD3mRFRPxMnUGadNXop8GU4avU1U22IASQk5NiH9UUq++qnXW3c7rm
-         WBVkkEX9utlQJwuyn0DMYIN5S1CoPXgWDLLz3x9E=
+        b=t1sXGgT0Ahx4WvUdMmnTgjbkvlWGbTmhheAuqGji4siE/DEFBZTEV9Y7fzRvnp8eW
+         jkwIhL9aUThNTafihmf1A8ZP/eZGF/Vb6XY5Gbs5jLDw2MP7ISK5X7b9tiF62yABv2
+         Hxwe+rtFRL3i5limj8yJBMWVxdOtd2cWNDLF+Y0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 447/700] selftests: tls: fix chacha+bidir tests
+Subject: [PATCH 5.10 370/593] net: ethernet: aeroflex: fix UAF in greth_of_remove
 Date:   Mon, 12 Jul 2021 08:08:50 +0200
-Message-Id: <20210712061024.092009687@linuxfoundation.org>
+Message-Id: <20210712060927.391496588@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,144 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 291c53e4dacd3a2cc3152d8af37f07f8496c594a ]
+[ Upstream commit e3a5de6d81d8b2199935c7eb3f7d17a50a7075b7 ]
 
-ChaCha support did not adjust the bidirectional test.
-We need to set up KTLS in reverse direction correctly,
-otherwise these two cases will fail:
+static int greth_of_remove(struct platform_device *of_dev)
+{
+...
+	struct greth_private *greth = netdev_priv(ndev);
+...
+	unregister_netdev(ndev);
+	free_netdev(ndev);
 
-  tls.12_chacha.bidir
-  tls.13_chacha.bidir
+	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
+...
+}
 
-Fixes: 4f336e88a870 ("selftests/tls: add CHACHA20-POLY1305 to tls selftests")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Vadim Fedorenko <vfedorenko@novek.ru>
+greth is netdev private data, but it is used
+after free_netdev(). It can cause use-after-free when accessing greth
+pointer. So, fix it by moving free_netdev() after of_iounmap()
+call.
+
+Fixes: d4c41139df6e ("net: Add Aeroflex Gaisler 10/100/1G Ethernet MAC driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/tls.c | 67 ++++++++++++++++++-------------
- 1 file changed, 39 insertions(+), 28 deletions(-)
+ drivers/net/ethernet/aeroflex/greth.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/tls.c b/tools/testing/selftests/net/tls.c
-index 58fea6eb588d..112d41d01b12 100644
---- a/tools/testing/selftests/net/tls.c
-+++ b/tools/testing/selftests/net/tls.c
-@@ -25,6 +25,35 @@
- #define TLS_PAYLOAD_MAX_LEN 16384
- #define SOL_TLS 282
+diff --git a/drivers/net/ethernet/aeroflex/greth.c b/drivers/net/ethernet/aeroflex/greth.c
+index 9c5891bbfe61..f4f50b3a472e 100644
+--- a/drivers/net/ethernet/aeroflex/greth.c
++++ b/drivers/net/ethernet/aeroflex/greth.c
+@@ -1539,10 +1539,11 @@ static int greth_of_remove(struct platform_device *of_dev)
+ 	mdiobus_unregister(greth->mdio);
  
-+struct tls_crypto_info_keys {
-+	union {
-+		struct tls12_crypto_info_aes_gcm_128 aes128;
-+		struct tls12_crypto_info_chacha20_poly1305 chacha20;
-+	};
-+	size_t len;
-+};
+ 	unregister_netdev(ndev);
+-	free_netdev(ndev);
+ 
+ 	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
+ 
++	free_netdev(ndev);
 +
-+static void tls_crypto_info_init(uint16_t tls_version, uint16_t cipher_type,
-+				 struct tls_crypto_info_keys *tls12)
-+{
-+	memset(tls12, 0, sizeof(*tls12));
-+
-+	switch (cipher_type) {
-+	case TLS_CIPHER_CHACHA20_POLY1305:
-+		tls12->len = sizeof(struct tls12_crypto_info_chacha20_poly1305);
-+		tls12->chacha20.info.version = tls_version;
-+		tls12->chacha20.info.cipher_type = cipher_type;
-+		break;
-+	case TLS_CIPHER_AES_GCM_128:
-+		tls12->len = sizeof(struct tls12_crypto_info_aes_gcm_128);
-+		tls12->aes128.info.version = tls_version;
-+		tls12->aes128.info.cipher_type = cipher_type;
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
- static void memrnd(void *s, size_t n)
- {
- 	int *dword = s;
-@@ -145,33 +174,16 @@ FIXTURE_VARIANT_ADD(tls, 13_chacha)
- 
- FIXTURE_SETUP(tls)
- {
--	union {
--		struct tls12_crypto_info_aes_gcm_128 aes128;
--		struct tls12_crypto_info_chacha20_poly1305 chacha20;
--	} tls12;
-+	struct tls_crypto_info_keys tls12;
- 	struct sockaddr_in addr;
- 	socklen_t len;
- 	int sfd, ret;
--	size_t tls12_sz;
- 
- 	self->notls = false;
- 	len = sizeof(addr);
- 
--	memset(&tls12, 0, sizeof(tls12));
--	switch (variant->cipher_type) {
--	case TLS_CIPHER_CHACHA20_POLY1305:
--		tls12_sz = sizeof(struct tls12_crypto_info_chacha20_poly1305);
--		tls12.chacha20.info.version = variant->tls_version;
--		tls12.chacha20.info.cipher_type = variant->cipher_type;
--		break;
--	case TLS_CIPHER_AES_GCM_128:
--		tls12_sz = sizeof(struct tls12_crypto_info_aes_gcm_128);
--		tls12.aes128.info.version = variant->tls_version;
--		tls12.aes128.info.cipher_type = variant->cipher_type;
--		break;
--	default:
--		tls12_sz = 0;
--	}
-+	tls_crypto_info_init(variant->tls_version, variant->cipher_type,
-+			     &tls12);
- 
- 	addr.sin_family = AF_INET;
- 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-@@ -199,7 +211,7 @@ FIXTURE_SETUP(tls)
- 
- 	if (!self->notls) {
- 		ret = setsockopt(self->fd, SOL_TLS, TLS_TX, &tls12,
--				 tls12_sz);
-+				 tls12.len);
- 		ASSERT_EQ(ret, 0);
- 	}
- 
-@@ -212,7 +224,7 @@ FIXTURE_SETUP(tls)
- 		ASSERT_EQ(ret, 0);
- 
- 		ret = setsockopt(self->cfd, SOL_TLS, TLS_RX, &tls12,
--				 tls12_sz);
-+				 tls12.len);
- 		ASSERT_EQ(ret, 0);
- 	}
- 
-@@ -854,18 +866,17 @@ TEST_F(tls, bidir)
- 	int ret;
- 
- 	if (!self->notls) {
--		struct tls12_crypto_info_aes_gcm_128 tls12;
-+		struct tls_crypto_info_keys tls12;
- 
--		memset(&tls12, 0, sizeof(tls12));
--		tls12.info.version = variant->tls_version;
--		tls12.info.cipher_type = TLS_CIPHER_AES_GCM_128;
-+		tls_crypto_info_init(variant->tls_version, variant->cipher_type,
-+				     &tls12);
- 
- 		ret = setsockopt(self->fd, SOL_TLS, TLS_RX, &tls12,
--				 sizeof(tls12));
-+				 tls12.len);
- 		ASSERT_EQ(ret, 0);
- 
- 		ret = setsockopt(self->cfd, SOL_TLS, TLS_TX, &tls12,
--				 sizeof(tls12));
-+				 tls12.len);
- 		ASSERT_EQ(ret, 0);
- 	}
+ 	return 0;
+ }
  
 -- 
 2.30.2
