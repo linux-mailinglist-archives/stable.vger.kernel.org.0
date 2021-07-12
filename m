@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EC313C4B48
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0003A3C4F33
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239214AbhGLG4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:56:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49170 "EHLO mail.kernel.org"
+        id S244878AbhGLHXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239205AbhGLGtb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64BA861106;
-        Mon, 12 Jul 2021 06:46:39 +0000 (UTC)
+        id S242138AbhGLHWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:22:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9410960FF1;
+        Mon, 12 Jul 2021 07:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072399;
-        bh=sEwMg+eoMcrVaD1eHQgAKL9veI66PO3MnXlMlxX3Mew=;
+        s=korg; t=1626074355;
+        bh=s5UggJJEWOO+8gC4srYh9VAdDV8ssDPtUY6Bb8+qKZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kou9tyfyAlWIXQ9Av0+hzJXcFzUsOHdqUV5OMvp07Zns33YNZ9oNnB9r3PU7l/f35
-         Ifj+U8Y6TWjoK8DHv2OaLJGYgyll6+skEQd9XZuGx/Phaaac2V4cOURXJpcUZK2D5a
-         HnyP+EUOUBEQ6B6xgAws/NH4tb1vqllpBdQUE2rE=
+        b=YTjl1FJTkAuDndja0NcVR3tG7UN3QICXbx89lvcjYdxJVB6uHs1KEDz7i5OXu2hqm
+         dMaZEgbmhKKhtNzYAU4bzytqaI/GW8C4jvWzO/oNtLO/KrVH73cXBWRHR6s2mHXY2Y
+         M1KQPYhBMRc9A88S0bD9BP2OO8V0H4wfTymeAjCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 474/593] mtd: rawnand: arasan: Ensure proper configuration for the asserted target
-Date:   Mon, 12 Jul 2021 08:10:34 +0200
-Message-Id: <20210712060942.263932704@linuxfoundation.org>
+Subject: [PATCH 5.12 552/700] iio: cros_ec_sensors: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 12 Jul 2021 08:10:35 +0200
+Message-Id: <20210712061034.994361335@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,157 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit b5437c7b682c9a505065b4ab4716cdc951dc3c7c ]
+[ Upstream commit 8dea228b174ac9637b567e5ef54f4c40db4b3c41 ]
 
-The controller being always asserting one CS or the other, there is no
-need to actually select the right target before doing a page read/write.
-However, the anfc_select_target() helper actually also changes the
-timing configuration and clock in the case were two different NAND chips
-with different timing requirements would be used. In this situation, we
-must ensure proper configuration of the controller by calling it.
+The samples buffer is passed to iio_push_to_buffers_with_timestamp()
+which requires a buffer aligned to 8 bytes as it is assumed that
+the timestamp will be naturally aligned if present.
 
-As a consequence of this change, the anfc_select_target() helper is
-being moved earlier in the driver.
+Fixes tag is inaccurate but prior to that likely manual backporting needed
+(for anything before 4.18) Earlier than that the include file to fix is
+drivers/iio/common/cros_ec_sensors/cros_ec_sensors_core.h:
+commit 974e6f02e27 ("iio: cros_ec_sensors_core: Add common functions
+for the ChromeOS EC Sensor Hub.") present since kernel stable 4.10.
+(Thanks to Gwendal for tracking this down)
 
-Fixes: 88ffef1b65cf ("mtd: rawnand: arasan: Support the hardware BCH ECC engine")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210526093242.183847-4-miquel.raynal@bootlin.com
+Fixes: 5a0b8cb46624c ("iio: cros_ec: Move cros_ec_sensors_core.h in /include")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Gwendal Grignou <gwendal@chromium.org
+Link: https://lore.kernel.org/r/20210501171352.512953-7-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/arasan-nand-controller.c | 90 ++++++++++++-------
- 1 file changed, 57 insertions(+), 33 deletions(-)
+ include/linux/iio/common/cros_ec_sensors_core.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/arasan-nand-controller.c b/drivers/mtd/nand/raw/arasan-nand-controller.c
-index fbb4ea751be8..0ee3192916d9 100644
---- a/drivers/mtd/nand/raw/arasan-nand-controller.c
-+++ b/drivers/mtd/nand/raw/arasan-nand-controller.c
-@@ -272,6 +272,37 @@ static int anfc_pkt_len_config(unsigned int len, unsigned int *steps,
- 	return 0;
- }
+diff --git a/include/linux/iio/common/cros_ec_sensors_core.h b/include/linux/iio/common/cros_ec_sensors_core.h
+index c9b80be82440..f82857bd693f 100644
+--- a/include/linux/iio/common/cros_ec_sensors_core.h
++++ b/include/linux/iio/common/cros_ec_sensors_core.h
+@@ -77,7 +77,7 @@ struct cros_ec_sensors_core_state {
+ 		u16 scale;
+ 	} calib[CROS_EC_SENSOR_MAX_AXIS];
+ 	s8 sign[CROS_EC_SENSOR_MAX_AXIS];
+-	u8 samples[CROS_EC_SAMPLE_SIZE];
++	u8 samples[CROS_EC_SAMPLE_SIZE] __aligned(8);
  
-+static int anfc_select_target(struct nand_chip *chip, int target)
-+{
-+	struct anand *anand = to_anand(chip);
-+	struct arasan_nfc *nfc = to_anfc(chip->controller);
-+	int ret;
-+
-+	/* Update the controller timings and the potential ECC configuration */
-+	writel_relaxed(anand->timings, nfc->base + DATA_INTERFACE_REG);
-+
-+	/* Update clock frequency */
-+	if (nfc->cur_clk != anand->clk) {
-+		clk_disable_unprepare(nfc->controller_clk);
-+		ret = clk_set_rate(nfc->controller_clk, anand->clk);
-+		if (ret) {
-+			dev_err(nfc->dev, "Failed to change clock rate\n");
-+			return ret;
-+		}
-+
-+		ret = clk_prepare_enable(nfc->controller_clk);
-+		if (ret) {
-+			dev_err(nfc->dev,
-+				"Failed to re-enable the controller clock\n");
-+			return ret;
-+		}
-+
-+		nfc->cur_clk = anand->clk;
-+	}
-+
-+	return 0;
-+}
-+
- /*
-  * When using the embedded hardware ECC engine, the controller is in charge of
-  * feeding the engine with, first, the ECC residue present in the data array.
-@@ -400,6 +431,18 @@ static int anfc_read_page_hw_ecc(struct nand_chip *chip, u8 *buf,
- 	return 0;
- }
- 
-+static int anfc_sel_read_page_hw_ecc(struct nand_chip *chip, u8 *buf,
-+				     int oob_required, int page)
-+{
-+	int ret;
-+
-+	ret = anfc_select_target(chip, chip->cur_cs);
-+	if (ret)
-+		return ret;
-+
-+	return anfc_read_page_hw_ecc(chip, buf, oob_required, page);
-+};
-+
- static int anfc_write_page_hw_ecc(struct nand_chip *chip, const u8 *buf,
- 				  int oob_required, int page)
- {
-@@ -460,6 +503,18 @@ static int anfc_write_page_hw_ecc(struct nand_chip *chip, const u8 *buf,
- 	return ret;
- }
- 
-+static int anfc_sel_write_page_hw_ecc(struct nand_chip *chip, const u8 *buf,
-+				      int oob_required, int page)
-+{
-+	int ret;
-+
-+	ret = anfc_select_target(chip, chip->cur_cs);
-+	if (ret)
-+		return ret;
-+
-+	return anfc_write_page_hw_ecc(chip, buf, oob_required, page);
-+};
-+
- /* NAND framework ->exec_op() hooks and related helpers */
- static int anfc_parse_instructions(struct nand_chip *chip,
- 				   const struct nand_subop *subop,
-@@ -752,37 +807,6 @@ static const struct nand_op_parser anfc_op_parser = NAND_OP_PARSER(
- 		NAND_OP_PARSER_PAT_WAITRDY_ELEM(false)),
- 	);
- 
--static int anfc_select_target(struct nand_chip *chip, int target)
--{
--	struct anand *anand = to_anand(chip);
--	struct arasan_nfc *nfc = to_anfc(chip->controller);
--	int ret;
--
--	/* Update the controller timings and the potential ECC configuration */
--	writel_relaxed(anand->timings, nfc->base + DATA_INTERFACE_REG);
--
--	/* Update clock frequency */
--	if (nfc->cur_clk != anand->clk) {
--		clk_disable_unprepare(nfc->controller_clk);
--		ret = clk_set_rate(nfc->controller_clk, anand->clk);
--		if (ret) {
--			dev_err(nfc->dev, "Failed to change clock rate\n");
--			return ret;
--		}
--
--		ret = clk_prepare_enable(nfc->controller_clk);
--		if (ret) {
--			dev_err(nfc->dev,
--				"Failed to re-enable the controller clock\n");
--			return ret;
--		}
--
--		nfc->cur_clk = anand->clk;
--	}
--
--	return 0;
--}
--
- static int anfc_check_op(struct nand_chip *chip,
- 			 const struct nand_operation *op)
- {
-@@ -1006,8 +1030,8 @@ static int anfc_init_hw_ecc_controller(struct arasan_nfc *nfc,
- 	if (!anand->bch)
- 		return -EINVAL;
- 
--	ecc->read_page = anfc_read_page_hw_ecc;
--	ecc->write_page = anfc_write_page_hw_ecc;
-+	ecc->read_page = anfc_sel_read_page_hw_ecc;
-+	ecc->write_page = anfc_sel_write_page_hw_ecc;
- 
- 	return 0;
- }
+ 	int (*read_ec_sensors_data)(struct iio_dev *indio_dev,
+ 				    unsigned long scan_mask, s16 *data);
 -- 
 2.30.2
 
