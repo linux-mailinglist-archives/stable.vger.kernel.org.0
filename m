@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 321F73C51C1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48A7F3C4C1F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346533AbhGLHnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:43:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46386 "EHLO mail.kernel.org"
+        id S241985AbhGLHBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:01:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347782AbhGLHkJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:40:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27FD86193A;
-        Mon, 12 Jul 2021 07:36:07 +0000 (UTC)
+        id S241338AbhGLHBb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:01:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19C7F6145A;
+        Mon, 12 Jul 2021 06:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075368;
-        bh=v9NfhrdmT/yY3Jyhz3QV5NgnWhv//Ot5pm9nThVIXMo=;
+        s=korg; t=1626073122;
+        bh=XfvWU0UloXk9czUVI1GErEJUmqIoEjk1o7MmrbHOmdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGEr6bxZm5cBa8VKd6SOWEzFlxseng3leZz2SHawj7aR6hl3pgfhwGYnpw5GncUJp
-         Rp8EGv/eKRIpNWKJOojtb6NJcE8M4uTLkLEqfO+FTsZozVpMWKVCCl4wI6UCGP1ayb
-         zZmaucPgrf8EAenMSPsEKlXauaMOOBrzhYVQAcrM=
+        b=vfpCg88MKQXzu96Hs1/mRZI+BV2xSykjEVCSxKDc0wwulgfjqmZz11a/O8gcOJNBZ
+         OhKJFKzyNt9FNb4ST18vNCQeQhrjyOWxPhhFUx4z0eskZ7s/D3HIw/Mq22CG3UaMNE
+         80gy99oX/138WYJ6deSY926HI7JfVGvNuej5FBPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Jay Fang <f.fangjian@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 195/800] btrfs: fix error handling in __btrfs_update_delayed_inode
+Subject: [PATCH 5.12 135/700] spi: spi-topcliff-pch: Fix potential double free in pch_spi_process_messages()
 Date:   Mon, 12 Jul 2021 08:03:38 +0200
-Message-Id: <20210712060940.534636589@linuxfoundation.org>
+Message-Id: <20210712060944.566160788@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Jay Fang <f.fangjian@huawei.com>
 
-[ Upstream commit bb385bedded3ccbd794559600de4a09448810f4a ]
+[ Upstream commit 026a1dc1af52742c5897e64a3431445371a71871 ]
 
-If we get an error while looking up the inode item we'll simply bail
-without cleaning up the delayed node.  This results in this style of
-warning happening on commit:
+pch_spi_set_tx() frees data->pkt_tx_buff on failure of kzalloc() for
+data->pkt_rx_buff, but its caller, pch_spi_process_messages(), will
+free data->pkt_tx_buff again. Set data->pkt_tx_buff to NULL after
+kfree() to avoid double free.
 
-  WARNING: CPU: 0 PID: 76403 at fs/btrfs/delayed-inode.c:1365 btrfs_assert_delayed_root_empty+0x5b/0x90
-  CPU: 0 PID: 76403 Comm: fsstress Tainted: G        W         5.13.0-rc1+ #373
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  RIP: 0010:btrfs_assert_delayed_root_empty+0x5b/0x90
-  RSP: 0018:ffffb8bb815a7e50 EFLAGS: 00010286
-  RAX: 0000000000000000 RBX: ffff95d6d07e1888 RCX: ffff95d6c0fa3000
-  RDX: 0000000000000002 RSI: 000000000029e91c RDI: ffff95d6c0fc8060
-  RBP: ffff95d6c0fc8060 R08: 00008d6d701a2c1d R09: 0000000000000000
-  R10: ffff95d6d1760ea0 R11: 0000000000000001 R12: ffff95d6c15a4d00
-  R13: ffff95d6c0fa3000 R14: 0000000000000000 R15: ffffb8bb815a7e90
-  FS:  00007f490e8dbb80(0000) GS:ffff95d73bc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f6e75555cb0 CR3: 00000001101ce001 CR4: 0000000000370ef0
-  Call Trace:
-   btrfs_commit_transaction+0x43c/0xb00
-   ? finish_wait+0x80/0x80
-   ? vfs_fsync_range+0x90/0x90
-   iterate_supers+0x8c/0x100
-   ksys_sync+0x50/0x90
-   __do_sys_sync+0xa/0x10
-   do_syscall_64+0x3d/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Because the iref isn't dropped and this leaves an elevated node->count,
-so any release just re-queues it onto the delayed inodes list.  Fix this
-by going to the out label to handle the proper cleanup of the delayed
-node.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Jay Fang <f.fangjian@huawei.com>
+Link: https://lore.kernel.org/r/1620284888-65215-1-git-send-email-f.fangjian@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/delayed-inode.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/spi/spi-topcliff-pch.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
-index 1a88f6214ebc..3091540fc22a 100644
---- a/fs/btrfs/delayed-inode.c
-+++ b/fs/btrfs/delayed-inode.c
-@@ -1009,12 +1009,10 @@ static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
- 	nofs_flag = memalloc_nofs_save();
- 	ret = btrfs_lookup_inode(trans, root, path, &key, mod);
- 	memalloc_nofs_restore(nofs_flag);
--	if (ret > 0) {
--		btrfs_release_path(path);
--		return -ENOENT;
--	} else if (ret < 0) {
--		return ret;
--	}
-+	if (ret > 0)
-+		ret = -ENOENT;
-+	if (ret < 0)
-+		goto out;
+diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
+index b459e369079f..7fb020a1d66a 100644
+--- a/drivers/spi/spi-topcliff-pch.c
++++ b/drivers/spi/spi-topcliff-pch.c
+@@ -580,8 +580,10 @@ static void pch_spi_set_tx(struct pch_spi_data *data, int *bpw)
+ 	data->pkt_tx_buff = kzalloc(size, GFP_KERNEL);
+ 	if (data->pkt_tx_buff != NULL) {
+ 		data->pkt_rx_buff = kzalloc(size, GFP_KERNEL);
+-		if (!data->pkt_rx_buff)
++		if (!data->pkt_rx_buff) {
+ 			kfree(data->pkt_tx_buff);
++			data->pkt_tx_buff = NULL;
++		}
+ 	}
  
- 	leaf = path->nodes[0];
- 	inode_item = btrfs_item_ptr(leaf, path->slots[0],
+ 	if (!data->pkt_rx_buff) {
 -- 
 2.30.2
 
