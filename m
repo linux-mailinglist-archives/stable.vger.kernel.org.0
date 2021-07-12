@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E233C53FA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7923C4E0E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349300AbhGLH4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39340 "EHLO mail.kernel.org"
+        id S243186AbhGLHQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:16:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351322AbhGLHvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C39A60241;
-        Mon, 12 Jul 2021 07:48:52 +0000 (UTC)
+        id S238080AbhGLHPv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:15:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 609B66140F;
+        Mon, 12 Jul 2021 07:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076132;
-        bh=fX0+pF6/xUT7JJk46iILP4k0cW++awh9AH5CNWzFG4w=;
+        s=korg; t=1626073953;
+        bh=l+L/5yP3+BxOgABFQ/+tCuHTQVC9oPdDF//wXq+d+eM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGuPS9BKUqwgCmaiWpIpxsIJ6mfWP9Gx3u1W3J7LvFkS3xzTo85a5HYb6EQPTKWqw
-         GkioufyialHUs2oTGI81F2QRFIvPfmCYsVkjb0PLRrWC1oCUJIOP/s0oNFsC+5ahP3
-         3OMbzALBcIaqCW5fjmwuGh9VFndQqacysRcf0qOk=
+        b=emv3EURK2DyApsOePCG0UfOhbUpiOHHMsvuOnQzT2JoojGQty4oyUqb7a0IO8KNfz
+         qZyo4xNmBsTRH4XYeyWv71JoN8YhZHeqRLnO30Qe4mDMSYgXx3RO0OWSzqXpnSmIAs
+         h/4N/h1RQ0QXf69WKMkQ0oh0KOCJFvQCK4HT3C94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 475/800] netfilter: nft_osf: check for TCP packet before further processing
+Subject: [PATCH 5.12 415/700] ath10k: Fix an error code in ath10k_add_interface()
 Date:   Mon, 12 Jul 2021 08:08:18 +0200
-Message-Id: <20210712061017.730398670@linuxfoundation.org>
+Message-Id: <20210712061020.523403949@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit 8f518d43f89ae00b9cf5460e10b91694944ca1a8 ]
+[ Upstream commit e9ca70c735ce66fc6a0e02c8b6958434f74ef8de ]
 
-The osf expression only supports for TCP packets, add a upfront sanity
-check to skip packet parsing if this is not a TCP packet.
+When the code execute this if statement, the value of ret is 0.
+However, we can see from the ath10k_warn() log that the value of
+ret should be -EINVAL.
 
-Fixes: b96af92d6eaf ("netfilter: nf_tables: implement Passive OS fingerprint module in nft_osf")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Clean up smatch warning:
+
+drivers/net/wireless/ath/ath10k/mac.c:5596 ath10k_add_interface() warn:
+missing error code 'ret'
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Fixes: ccec9038c721 ("ath10k: enable raw encap mode and software crypto engine")
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1621939577-62218-1-git-send-email-yang.lee@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_osf.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/ath/ath10k/mac.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/nft_osf.c b/net/netfilter/nft_osf.c
-index ac61f708b82d..d82677e83400 100644
---- a/net/netfilter/nft_osf.c
-+++ b/net/netfilter/nft_osf.c
-@@ -28,6 +28,11 @@ static void nft_osf_eval(const struct nft_expr *expr, struct nft_regs *regs,
- 	struct nf_osf_data data;
- 	struct tcphdr _tcph;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index bb6c5ee43ac0..def52df829d4 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -5590,6 +5590,7 @@ static int ath10k_add_interface(struct ieee80211_hw *hw,
  
-+	if (pkt->tprot != IPPROTO_TCP) {
-+		regs->verdict.code = NFT_BREAK;
-+		return;
-+	}
-+
- 	tcp = skb_header_pointer(skb, ip_hdrlen(skb),
- 				 sizeof(struct tcphdr), &_tcph);
- 	if (!tcp) {
+ 	if (arvif->nohwcrypt &&
+ 	    !test_bit(ATH10K_FLAG_RAW_MODE, &ar->dev_flags)) {
++		ret = -EINVAL;
+ 		ath10k_warn(ar, "cryptmode module param needed for sw crypto\n");
+ 		goto err;
+ 	}
 -- 
 2.30.2
 
