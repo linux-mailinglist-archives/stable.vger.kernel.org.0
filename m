@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48ACA3C5103
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E96F3C5105
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243585AbhGLHgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:36:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56274 "EHLO mail.kernel.org"
+        id S1345110AbhGLHgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:36:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245333AbhGLHd2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:33:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9772B613B7;
-        Mon, 12 Jul 2021 07:30:39 +0000 (UTC)
+        id S243268AbhGLHdc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:33:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91D586101D;
+        Mon, 12 Jul 2021 07:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075040;
-        bh=T514FKVQHpdtGynVP9Rb6yceVV44jJ/7xXUG8NIatSg=;
+        s=korg; t=1626075043;
+        bh=jq02SAOIshS9r+b5SR6M5x8Y/3UeorKN3cAKHfcWtm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vBa0yudRFhLGsg/Mg7AyywHzaP4IBvG4U3Yy7ioZadBzEavX9LwzooPwH4Kj7TYLb
-         eZ/hIyKrnwJHh8kNlVGrOgA6bJ/jTyqvEbWYYJTq5QzzjlSjiIWztGGRKSApjOdUV7
-         Gp7YkTVYjR14d0XtnKrEwSE2Za1I4Fm9AbOx2iJo=
+        b=euFhFvRQJcHwBhYg4vnbpqMrB2m3qGBSqMj4FWrTUcVZ0THfqjNIRzKt9Bqu62qPn
+         2IF5FGPn0VClL56CaHll+CHdOG035hFFuZ9tzfIId4SKUMAsO2aFN4gcIB2ydDAw5e
+         7/TdhAro0ttKRczIuYoU+iQkbABUApU+IaVlSRiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.13 041/800] crypto: nx - Fix memcpy() over-reading in nonce
-Date:   Mon, 12 Jul 2021 08:01:04 +0200
-Message-Id: <20210712060919.124012592@linuxfoundation.org>
+Subject: [PATCH 5.13 042/800] crypto: ccp - Annotate SEV Firmware file names
+Date:   Mon, 12 Jul 2021 08:01:05 +0200
+Message-Id: <20210712060919.259236620@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -39,32 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit 74c66120fda6596ad57f41e1607b3a5d51ca143d upstream.
+commit c8671c7dc7d51125ab9f651697866bf4a9132277 upstream.
 
-Fix typo in memcpy() where size should be CTR_RFC3686_NONCE_SIZE.
+Annotate the firmware files CCP might need using MODULE_FIRMWARE().
+This will get them included into an initrd when CCP is also included
+there. Otherwise the CCP module will not find its firmware when loaded
+before the root-fs is mounted.
+This can cause problems when the pre-loaded SEV firmware is too old to
+support current SEV and SEV-ES virtualization features.
 
-Fixes: 030f4e968741 ("crypto: nx - Fix reentrancy bugs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: e93720606efd ("crypto: ccp - Allow SEV firmware to be chosen based on Family and Model")
+Cc: stable@vger.kernel.org # v4.20+
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/nx/nx-aes-ctr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/ccp/sev-dev.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/crypto/nx/nx-aes-ctr.c
-+++ b/drivers/crypto/nx/nx-aes-ctr.c
-@@ -118,7 +118,7 @@ static int ctr3686_aes_nx_crypt(struct s
- 	struct nx_crypto_ctx *nx_ctx = crypto_skcipher_ctx(tfm);
- 	u8 iv[16];
+--- a/drivers/crypto/ccp/sev-dev.c
++++ b/drivers/crypto/ccp/sev-dev.c
+@@ -43,6 +43,10 @@ static int psp_probe_timeout = 5;
+ module_param(psp_probe_timeout, int, 0644);
+ MODULE_PARM_DESC(psp_probe_timeout, " default timeout value, in seconds, during PSP device probe");
  
--	memcpy(iv, nx_ctx->priv.ctr.nonce, CTR_RFC3686_IV_SIZE);
-+	memcpy(iv, nx_ctx->priv.ctr.nonce, CTR_RFC3686_NONCE_SIZE);
- 	memcpy(iv + CTR_RFC3686_NONCE_SIZE, req->iv, CTR_RFC3686_IV_SIZE);
- 	iv[12] = iv[13] = iv[14] = 0;
- 	iv[15] = 1;
++MODULE_FIRMWARE("amd/amd_sev_fam17h_model0xh.sbin"); /* 1st gen EPYC */
++MODULE_FIRMWARE("amd/amd_sev_fam17h_model3xh.sbin"); /* 2nd gen EPYC */
++MODULE_FIRMWARE("amd/amd_sev_fam19h_model0xh.sbin"); /* 3rd gen EPYC */
++
+ static bool psp_dead;
+ static int psp_timeout;
+ 
 
 
