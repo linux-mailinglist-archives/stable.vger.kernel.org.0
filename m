@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8D9E3C4A5F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97CB83C4E6E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240756AbhGLGwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
+        id S244815AbhGLHSt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:18:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238192AbhGLGsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:48:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF4ED61241;
-        Mon, 12 Jul 2021 06:44:21 +0000 (UTC)
+        id S243582AbhGLHRo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A48E6611ED;
+        Mon, 12 Jul 2021 07:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072262;
-        bh=8eDjzXcloaE/8l5tgHAKTWdZoA2jNyk7sZYlVDT92Hw=;
+        s=korg; t=1626074095;
+        bh=XKqbOAf8faM+Ie/RiraBNzC5aOntABgO/iL79yGUqx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ngr7tvFGWorLfZlSiuTPfbpPXI/pVfH6YhaVyWjxsMa8pbA+OdNT8q3TQVYmDI4h7
-         jqVkcdeaYlMBhbfcDQxOV8yxNN3qFjD32B194eJtkkTwPq2ug2zbGsoMG6nFGDXot6
-         zi7C0sx+aNhSIJf9CF5V3iUTLPTwrjr6mP5WGBxI=
+        b=zfCiIXYN3qATAtnaa3l05IgGni8n5Tz6HWkiQGt2pCCXSthAjzLzHkbYFuSMHQ0aG
+         5HqGu3imZ4Ftzreke1deR/iDmO7s9Y0WiLLguDaAAX4J30Yc6JpzSexbO3yXvAkp9I
+         UdXDLkZZsopp6L1hwNHiuJTIb49kVOuubeYT20Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b80c9959009a9325cdff@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 386/593] ieee802154: hwsim: Fix memory leak in hwsim_add_one
+Subject: [PATCH 5.12 463/700] net: ti: am65-cpsw-nuss: Fix crash when changing number of TX queues
 Date:   Mon, 12 Jul 2021 08:09:06 +0200
-Message-Id: <20210712060929.560586863@linuxfoundation.org>
+Message-Id: <20210712061025.832380327@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +40,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-[ Upstream commit 28a5501c3383f0e6643012c187b7c2027ef42aea ]
+[ Upstream commit ce8eb4c728ef40b554b4f3d8963f11ed44502e00 ]
 
-No matter from hwsim_remove or hwsim_del_radio_nl, hwsim_del fails to
-remove the entry in the edges list. Take the example below, phy0, phy1
-and e0 will be deleted, resulting in e1 not freed and accessed in the
-future.
+When changing number of TX queues using ethtool:
 
-              hwsim_phys
-                  |
-    ------------------------------
-    |                            |
-phy0 (edges)                 phy1 (edges)
-   ----> e1 (idx = 1)             ----> e0 (idx = 0)
+	# ethtool -L eth0 tx 1
+	[  135.301047] Unable to handle kernel paging request at virtual address 00000000af5d0000
+	[...]
+	[  135.525128] Call trace:
+	[  135.525142]  dma_release_from_dev_coherent+0x2c/0xb0
+	[  135.525148]  dma_free_attrs+0x54/0xe0
+	[  135.525156]  k3_cppi_desc_pool_destroy+0x50/0xa0
+	[  135.525164]  am65_cpsw_nuss_remove_tx_chns+0x88/0xdc
+	[  135.525171]  am65_cpsw_set_channels+0x3c/0x70
+	[...]
 
-Fix this by deleting and freeing all the entries in the edges list
-between hwsim_edge_unsubscribe_me and list_del(&phy->list).
+This is because k3_cppi_desc_pool_destroy() which is called after
+k3_udma_glue_release_tx_chn() in am65_cpsw_nuss_remove_tx_chns()
+references struct device that is unregistered at the end of
+k3_udma_glue_release_tx_chn()
 
-Reported-by: syzbot+b80c9959009a9325cdff@syzkaller.appspotmail.com
-Fixes: 1c9f4a3fce77 ("ieee802154: hwsim: fix rcu handling")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210616020901.2759466-1-mudongliangabcd@gmail.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Therefore the right order is to call k3_cppi_desc_pool_destroy() and
+destroy desc pool before calling k3_udma_glue_release_tx_chn().
+Fix this throughout the driver.
+
+Fixes: 93a76530316a ("net: ethernet: ti: introduce am65x/j721e gigabit eth subsystem driver")
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/mac802154_hwsim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
-index 7a168170224a..6d479df2d9e5 100644
---- a/drivers/net/ieee802154/mac802154_hwsim.c
-+++ b/drivers/net/ieee802154/mac802154_hwsim.c
-@@ -824,12 +824,17 @@ err_pib:
- static void hwsim_del(struct hwsim_phy *phy)
- {
- 	struct hwsim_pib *pib;
-+	struct hwsim_edge *e;
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index 638d7b03be4b..a98182b2d19b 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -1506,12 +1506,12 @@ static void am65_cpsw_nuss_free_tx_chns(void *data)
+ 	for (i = 0; i < common->tx_ch_num; i++) {
+ 		struct am65_cpsw_tx_chn *tx_chn = &common->tx_chns[i];
  
- 	hwsim_edge_unsubscribe_me(phy);
+-		if (!IS_ERR_OR_NULL(tx_chn->tx_chn))
+-			k3_udma_glue_release_tx_chn(tx_chn->tx_chn);
+-
+ 		if (!IS_ERR_OR_NULL(tx_chn->desc_pool))
+ 			k3_cppi_desc_pool_destroy(tx_chn->desc_pool);
  
- 	list_del(&phy->list);
++		if (!IS_ERR_OR_NULL(tx_chn->tx_chn))
++			k3_udma_glue_release_tx_chn(tx_chn->tx_chn);
++
+ 		memset(tx_chn, 0, sizeof(*tx_chn));
+ 	}
+ }
+@@ -1531,12 +1531,12 @@ void am65_cpsw_nuss_remove_tx_chns(struct am65_cpsw_common *common)
  
- 	rcu_read_lock();
-+	list_for_each_entry_rcu(e, &phy->edges, list) {
-+		list_del_rcu(&e->list);
-+		hwsim_free_edge(e);
-+	}
- 	pib = rcu_dereference(phy->pib);
- 	rcu_read_unlock();
+ 		netif_napi_del(&tx_chn->napi_tx);
  
+-		if (!IS_ERR_OR_NULL(tx_chn->tx_chn))
+-			k3_udma_glue_release_tx_chn(tx_chn->tx_chn);
+-
+ 		if (!IS_ERR_OR_NULL(tx_chn->desc_pool))
+ 			k3_cppi_desc_pool_destroy(tx_chn->desc_pool);
+ 
++		if (!IS_ERR_OR_NULL(tx_chn->tx_chn))
++			k3_udma_glue_release_tx_chn(tx_chn->tx_chn);
++
+ 		memset(tx_chn, 0, sizeof(*tx_chn));
+ 	}
+ }
+@@ -1624,11 +1624,11 @@ static void am65_cpsw_nuss_free_rx_chns(void *data)
+ 
+ 	rx_chn = &common->rx_chns;
+ 
+-	if (!IS_ERR_OR_NULL(rx_chn->rx_chn))
+-		k3_udma_glue_release_rx_chn(rx_chn->rx_chn);
+-
+ 	if (!IS_ERR_OR_NULL(rx_chn->desc_pool))
+ 		k3_cppi_desc_pool_destroy(rx_chn->desc_pool);
++
++	if (!IS_ERR_OR_NULL(rx_chn->rx_chn))
++		k3_udma_glue_release_rx_chn(rx_chn->rx_chn);
+ }
+ 
+ static int am65_cpsw_nuss_init_rx_chns(struct am65_cpsw_common *common)
 -- 
 2.30.2
 
