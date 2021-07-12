@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C53DB3C50FF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB5F3C4B80
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345037AbhGLHgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:36:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55094 "EHLO mail.kernel.org"
+        id S240012AbhGLG5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:57:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346762AbhGLHeY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:34:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 777906141E;
-        Mon, 12 Jul 2021 07:31:14 +0000 (UTC)
+        id S238138AbhGLG4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:56:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C6F9613D8;
+        Mon, 12 Jul 2021 06:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075075;
-        bh=bPapsC3ZIxS0AF4EYQz7RRzD8iWHeA91Ise1jgqYUKU=;
+        s=korg; t=1626072835;
+        bh=T514FKVQHpdtGynVP9Rb6yceVV44jJ/7xXUG8NIatSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D8AcBMgTRy6i7Et1srprnvesSE7vhPQbGiZUwQRqvl/iXIYRPbQm8dDbdYasn781b
-         TnQEhOPbUye9ysNbWE2ol2b4nJm514IsKFwXwmrxKPsAn5LFKhMNpDf7jyxU5750xR
-         zwS6TIJVLEs0nmmRU5So8U4L9aIPtzU1wpu5TfJY=
+        b=Jww5lTLunfCRJZ+7zSa3du19gtgwUpcAY/+TuGpN2pVUZUwNL6iGlZQBw9KLB2oXB
+         uf8V/Q+AsvTmfsIeDfOGjEaVExT51AFK/qdWdvPNLIcSS0Wzjo8dz2HifdzJxIp6X4
+         eeyqOdOZOEcB2BSrdUtihguygjKxAAE3d6oHTh7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.13 097/800] iio: accel: bmc150: Fix bma222 scale unit
-Date:   Mon, 12 Jul 2021 08:02:00 +0200
-Message-Id: <20210712060926.704352504@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.12 038/700] crypto: nx - Fix memcpy() over-reading in nonce
+Date:   Mon, 12 Jul 2021 08:02:01 +0200
+Message-Id: <20210712060930.019694796@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Kees Cook <keescook@chromium.org>
 
-commit 6e2a90af0b8d757e850cc023d761ee9a9492e2fe upstream.
+commit 74c66120fda6596ad57f41e1607b3a5d51ca143d upstream.
 
-According to sysfs-bus-iio documentation the unit for accelerometer
-values after applying scale/offset should be m/s^2, not g, which explains
-why the scale values for the other variants in bmc150-accel do not match
-exactly the values given in the datasheet.
+Fix typo in memcpy() where size should be CTR_RFC3686_NONCE_SIZE.
 
-To get the correct values, we need to multiply the BMA222 scale values
-by g = 9.80665 m/s^2.
-
-Fixes: a1a210bf29a1 ("iio: accel: bmc150-accel: Add support for BMA222")
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20210611080903.14384-2-stephan@gerhold.net
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 030f4e968741 ("crypto: nx - Fix reentrancy bugs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/accel/bmc150-accel-core.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/crypto/nx/nx-aes-ctr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/accel/bmc150-accel-core.c
-+++ b/drivers/iio/accel/bmc150-accel-core.c
-@@ -1177,11 +1177,12 @@ static const struct bmc150_accel_chip_in
- 		/*
- 		 * The datasheet page 17 says:
- 		 * 15.6, 31.3, 62.5 and 125 mg per LSB.
-+		 * IIO unit is m/s^2 so multiply by g = 9.80665 m/s^2.
- 		 */
--		.scale_table = { {156000, BMC150_ACCEL_DEF_RANGE_2G},
--				 {313000, BMC150_ACCEL_DEF_RANGE_4G},
--				 {625000, BMC150_ACCEL_DEF_RANGE_8G},
--				 {1250000, BMC150_ACCEL_DEF_RANGE_16G} },
-+		.scale_table = { {152984, BMC150_ACCEL_DEF_RANGE_2G},
-+				 {306948, BMC150_ACCEL_DEF_RANGE_4G},
-+				 {612916, BMC150_ACCEL_DEF_RANGE_8G},
-+				 {1225831, BMC150_ACCEL_DEF_RANGE_16G} },
- 	},
- 	[bma222e] = {
- 		.name = "BMA222E",
+--- a/drivers/crypto/nx/nx-aes-ctr.c
++++ b/drivers/crypto/nx/nx-aes-ctr.c
+@@ -118,7 +118,7 @@ static int ctr3686_aes_nx_crypt(struct s
+ 	struct nx_crypto_ctx *nx_ctx = crypto_skcipher_ctx(tfm);
+ 	u8 iv[16];
+ 
+-	memcpy(iv, nx_ctx->priv.ctr.nonce, CTR_RFC3686_IV_SIZE);
++	memcpy(iv, nx_ctx->priv.ctr.nonce, CTR_RFC3686_NONCE_SIZE);
+ 	memcpy(iv + CTR_RFC3686_NONCE_SIZE, req->iv, CTR_RFC3686_IV_SIZE);
+ 	iv[12] = iv[13] = iv[14] = 0;
+ 	iv[15] = 1;
 
 
