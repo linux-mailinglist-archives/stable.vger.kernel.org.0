@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C2913C5506
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F81C3C4EDC
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242478AbhGLIIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:08:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44536 "EHLO mail.kernel.org"
+        id S241964AbhGLHV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:21:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348205AbhGLH6B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:58:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E85BF61930;
-        Mon, 12 Jul 2021 07:52:51 +0000 (UTC)
+        id S1343860AbhGLHUI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:20:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8557610A6;
+        Mon, 12 Jul 2021 07:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076372;
-        bh=SkCYObAqlcGKq2DCKDL/YCNETKaIEPO8MDjwMW+p5gg=;
+        s=korg; t=1626074240;
+        bh=B3lNGwo/ZF03czrP9NfGoOasizPshcsUrs8LiKSeI9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s91m5OKTFJmeaHdwnDieVNNBTWGIBYLfY+mKomiQC0BfPY08jJP144TAcOAMtls3A
-         01sgg8Ii9onyuDvglgBcyXP4vLKwTkBKUPWcvPQu77ryScFESON1REdojNbq+NecP9
-         xDpXE8eTQx2hl08KuJ8jGNxMtdLgMNKeVrLeLam8=
+        b=Z4sN9UnvbwQcB0SxUR6yfWkDbK5aQj7cCHgPg6qaQpY1cJLE5Sk1KXrspmwLoeFV7
+         FBiBnq5ihl/RZpSiiUvlnddJ9h7O6XGZBbXdqk81jSkGTZ2oKXcRR+1AcEyH6QU/WV
+         GWgNBjqmzbgSnyiUt03jYeXFfSwDzw3GZOltPNu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Tom Herbert <tom@herbertland.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 572/800] ipv6: fix out-of-bound access in ip6_parse_tlv()
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Michal Hocko <mhocko@suse.com>, Tejun Heo <tj@kernel.org>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 512/700] writeback: fix obtain a reference to a freeing memcg css
 Date:   Mon, 12 Jul 2021 08:09:55 +0200
-Message-Id: <20210712061028.250938486@linuxfoundation.org>
+Message-Id: <20210712061031.014533520@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 624085a31c1ad6a80b1e53f686bf6ee92abbf6e8 ]
+[ Upstream commit 8b0ed8443ae6458786580d36b7d5f8125535c5d4 ]
 
-First problem is that optlen is fetched without checking
-there is more than one byte to parse.
+The caller of wb_get_create() should pin the memcg, because
+wb_get_create() relies on this guarantee. The rcu read lock
+only can guarantee that the memcg css returned by css_from_id()
+cannot be released, but the reference of the memcg can be zero.
 
-Fix this by taking care of IPV6_TLV_PAD1 before
-fetching optlen (under appropriate sanity checks against len)
+  rcu_read_lock()
+  memcg_css = css_from_id()
+  wb_get_create(memcg_css)
+      cgwb_create(memcg_css)
+          // css_get can change the ref counter from 0 back to 1
+          css_get(memcg_css)
+  rcu_read_unlock()
 
-Second problem is that IPV6_TLV_PADN checks of zero
-padding are performed before the check of remaining length.
+Fix it by holding a reference to the css before calling
+wb_get_create(). This is not a problem I encountered in the
+real world. Just the result of a code review.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: c1412fce7ecc ("net/ipv6/exthdrs.c: Strict PadN option checking")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Tom Herbert <tom@herbertland.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 682aa8e1a6a1 ("writeback: implement unlocked_inode_to_wb transaction and use it for stat updates")
+Link: https://lore.kernel.org/r/20210402091145.80635-1-songmuchun@bytedance.com
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/exthdrs.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ fs/fs-writeback.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
-index 6f7da8f3e2e5..26882e165c9e 100644
---- a/net/ipv6/exthdrs.c
-+++ b/net/ipv6/exthdrs.c
-@@ -135,18 +135,23 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
- 	len -= 2;
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index d684f541af48..8d4130b01423 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -510,9 +510,14 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
+ 	/* find and pin the new wb */
+ 	rcu_read_lock();
+ 	memcg_css = css_from_id(new_wb_id, &memory_cgrp_subsys);
+-	if (memcg_css)
+-		isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
++	if (memcg_css && !css_tryget(memcg_css))
++		memcg_css = NULL;
+ 	rcu_read_unlock();
++	if (!memcg_css)
++		goto out_free;
++
++	isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
++	css_put(memcg_css);
+ 	if (!isw->new_wb)
+ 		goto out_free;
  
- 	while (len > 0) {
--		int optlen = nh[off + 1] + 2;
--		int i;
-+		int optlen, i;
- 
--		switch (nh[off]) {
--		case IPV6_TLV_PAD1:
--			optlen = 1;
-+		if (nh[off] == IPV6_TLV_PAD1) {
- 			padlen++;
- 			if (padlen > 7)
- 				goto bad;
--			break;
-+			off++;
-+			len--;
-+			continue;
-+		}
-+		if (len < 2)
-+			goto bad;
-+		optlen = nh[off + 1] + 2;
-+		if (optlen > len)
-+			goto bad;
- 
--		case IPV6_TLV_PADN:
-+		if (nh[off] == IPV6_TLV_PADN) {
- 			/* RFC 2460 states that the purpose of PadN is
- 			 * to align the containing header to multiples
- 			 * of 8. 7 is therefore the highest valid value.
-@@ -163,12 +168,7 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
- 				if (nh[off + i] != 0)
- 					goto bad;
- 			}
--			break;
--
--		default: /* Other TLV code so scan list */
--			if (optlen > len)
--				goto bad;
--
-+		} else {
- 			tlv_count++;
- 			if (tlv_count > max_count)
- 				goto bad;
-@@ -188,7 +188,6 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
- 				return false;
- 
- 			padlen = 0;
--			break;
- 		}
- 		off += optlen;
- 		len -= optlen;
 -- 
 2.30.2
 
