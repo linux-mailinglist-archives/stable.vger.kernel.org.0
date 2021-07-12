@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B673B3C5104
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EF803C507C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345107AbhGLHgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:36:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56588 "EHLO mail.kernel.org"
+        id S244048AbhGLHdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:33:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243302AbhGLHde (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:33:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FE0561132;
-        Mon, 12 Jul 2021 07:30:45 +0000 (UTC)
+        id S1347044AbhGLHba (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:31:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4886C60230;
+        Mon, 12 Jul 2021 07:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075045;
-        bh=rcMWKjnOz5x+MWZvUufn6ZR0qZGG4sgmNJRoQX0w/vA=;
+        s=korg; t=1626074921;
+        bh=LE0ggWALqFHZTFF2fwQS3K77C4N1qrd6O5zo/TNfuH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gj5U1tEPUdeZmZBsCX6TdTz05nPHVdSuCxJkL44aZetDh03ShIFqsaOXX5linIhjw
-         24Lo/WD+2xgzNIcoL+oHYYhQFQ5q7QtX2rIrNFy6t8e3VLwDZAPoUK91IPyuVHTCQz
-         I4kcOVAi5Qp8gv+YXTFBsDMpt1EMzExehfnrSlJc=
+        b=S/42YymwPqdscJgaUk+uLQGRWOG45nXCsdIZUDdE39ADf3U8hJhxarQ38CVuTxmS2
+         xCL0fPrplQgWYCio7gVAezadvUln784BPpiqAJIJBLsMXonytRnzxMzN2eYIgro2eV
+         A2JNzJt+lXRjX7DlYx+37J/4uV0K+vUwknaOdLY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.13 043/800] arm_pmu: Fix write counter incorrect in ARMv7 big-endian mode
-Date:   Mon, 12 Jul 2021 08:01:06 +0200
-Message-Id: <20210712060919.411632040@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Olof Johansson <olof@lixom.net>
+Subject: [PATCH 5.13 044/800] ARM: dts: ux500: Fix LED probing
+Date:   Mon, 12 Jul 2021 08:01:07 +0200
+Message-Id: <20210712060919.565657039@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -40,73 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit fdbef8c4e68ad423416aa6cc93d1616d6f8ac5b3 upstream.
+commit 7749510c459c10c431d746a4749e7c9cf2899156 upstream.
 
-Commit 3a95200d3f89 ("arm_pmu: Change API to support 64bit counter values")
-changes the input "value" type from 32-bit to 64-bit, which introduces the
-following problem: ARMv7 PMU counters is 32-bit width, in big-endian mode,
-write counter uses high 32-bit, which writes an incorrect value.
+The Ux500 HREF LEDs have not been probing properly for a
+while as this was introduce:
 
-Before:
+     ret = of_property_read_u32(np, "color", &led_color);
+     if (ret)
+             return ret;
 
- Performance counter stats for 'ls':
+Since the device tree did not define the new invented color
+attribute, probe was failing.
 
-              2.22 msec task-clock                #    0.675 CPUs utilized
-                 0      context-switches          #    0.000 K/sec
-                 0      cpu-migrations            #    0.000 K/sec
-                49      page-faults               #    0.022 M/sec
-        2150476593      cycles                    #  966.663 GHz
-        2148588788      instructions              #    1.00  insn per cycle
-        2147745484      branches                  # 965435.074 M/sec
-        2147508540      branch-misses             #   99.99% of all branches
+Define color attributes for the LEDs so they work again.
 
-None of the above hw event counters are correct.
-
-Solution:
-
-"value" forcibly converted to 32-bit type before being written to PMU register.
-
-After:
-
- Performance counter stats for 'ls':
-
-              2.09 msec task-clock                #    0.681 CPUs utilized
-                 0      context-switches          #    0.000 K/sec
-                 0      cpu-migrations            #    0.000 K/sec
-                46      page-faults               #    0.022 M/sec
-           2807301      cycles                    #    1.344 GHz
-           1060159      instructions              #    0.38  insn per cycle
-            250496      branches                  #  119.914 M/sec
-             23192      branch-misses             #    9.26% of all branches
-
-Fixes: 3a95200d3f89 ("arm_pmu: Change API to support 64bit counter values")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/20210430012659.232110-1-yangjihong1@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20210613123356.880933-1-linus.walleij@linaro.org
+Fixes: 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
+Cc: stable@vger.kernel.org
+Cc: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/kernel/perf_event_v7.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/ste-href.dtsi |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/arm/kernel/perf_event_v7.c
-+++ b/arch/arm/kernel/perf_event_v7.c
-@@ -773,10 +773,10 @@ static inline void armv7pmu_write_counte
- 		pr_err("CPU%u writing wrong counter %d\n",
- 			smp_processor_id(), idx);
- 	} else if (idx == ARMV7_IDX_CYCLE_COUNTER) {
--		asm volatile("mcr p15, 0, %0, c9, c13, 0" : : "r" (value));
-+		asm volatile("mcr p15, 0, %0, c9, c13, 0" : : "r" ((u32)value));
- 	} else {
- 		armv7_pmnc_select_counter(idx);
--		asm volatile("mcr p15, 0, %0, c9, c13, 2" : : "r" (value));
-+		asm volatile("mcr p15, 0, %0, c9, c13, 2" : : "r" ((u32)value));
- 	}
- }
+--- a/arch/arm/boot/dts/ste-href.dtsi
++++ b/arch/arm/boot/dts/ste-href.dtsi
+@@ -4,6 +4,7 @@
+  */
  
+ #include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/leds/common.h>
+ #include "ste-href-family-pinctrl.dtsi"
+ 
+ / {
+@@ -64,17 +65,20 @@
+ 					reg = <0>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 					linux,default-trigger = "heartbeat";
+ 				};
+ 				chan@1 {
+ 					reg = <1>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 				chan@2 {
+ 					reg = <2>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 			};
+ 			lp5521@34 {
+@@ -88,16 +92,19 @@
+ 					reg = <0>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 				chan@1 {
+ 					reg = <1>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 				chan@2 {
+ 					reg = <2>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 			};
+ 			bh1780@29 {
 
 
