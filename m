@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C42C3C4F0F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77E893C4B64
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241497AbhGLHW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57896 "EHLO mail.kernel.org"
+        id S240750AbhGLG4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245709AbhGLHTs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:19:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4E4260FF1;
-        Mon, 12 Jul 2021 07:16:59 +0000 (UTC)
+        id S238653AbhGLGtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 468FC61008;
+        Mon, 12 Jul 2021 06:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074220;
-        bh=ZivRLk3vTNtAwKZL3S42TJm2A9EcTEfHPTEK+8QwizA=;
+        s=korg; t=1626072292;
+        bh=neavG15BLwfPaBn5OwNoS42sRWmGXpZ+MSJBn8JFT18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmr0GDiSxRY3x0rg3ZteuIRuAFbtSDvmk1uTp5z+zzQUkxJgpJUigEpuFZAmY/Qo9
-         ptH5g7h2NH2Q27F1SlRMipSPZe6O7si1CoBDMhyjLC07ZM7wLiYAS3O7HT39CfKaxN
-         6sog2Xqoue6i/+FZyEwUGmNjJ35g8dIb4QyLfdKQ=
+        b=atKnho6Jl7IYj7G8ZdeLElN2fEhKhUkb2lA11jkLOFP/xrOi7yfvFpFnJAHX0mUlb
+         OlsA1IoByb+lkbyoK9UZGpsQmNHBjalfckmSBmf/iRlTEgzQL/3Qj0zm1guhEc9EHK
+         DEO3P97i+TIAtTPXgGEo7oZmyKY3i8LtsCjShc8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
+        Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 505/700] clk: actions: Fix AHPPREDIV-H-AHB clock chain on Owl S500 SoC
-Date:   Mon, 12 Jul 2021 08:09:48 +0200
-Message-Id: <20210712061030.227880294@linuxfoundation.org>
+Subject: [PATCH 5.10 429/593] net: tipc: fix FB_MTU eat two pages
+Date:   Mon, 12 Jul 2021 08:09:49 +0200
+Message-Id: <20210712060935.656649752@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +41,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+From: Menglong Dong <dong.menglong@zte.com.cn>
 
-[ Upstream commit fd90b5b9045274360b12cea0f2ce50f3bcfb25cc ]
+[ Upstream commit 0c6de0c943dbb42831bf7502eb5c007f71e752d2 ]
 
-There are a few issues with the setup of the Actions Semi Owl S500 SoC's
-clock chain involving AHPPREDIV, H and AHB clocks:
+FB_MTU is used in 'tipc_msg_build()' to alloc smaller skb when memory
+allocation fails, which can avoid unnecessary sending failures.
 
-* AHBPREDIV clock is defined as a muxer only, although it also acts as
-  a divider.
-* H clock is using a wrong divider register offset
-* AHB is defined as a multi-rate factor clock, but it is actually just
-  a fixed pass clock.
+The value of FB_MTU now is 3744, and the data size will be:
 
-Let's provide the following fixes:
+  (3744 + SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) + \
+    SKB_DATA_ALIGN(BUF_HEADROOM + BUF_TAILROOM + 3))
 
-* Change AHBPREDIV clock to an ungated OWL_COMP_DIV definition.
-* Use the correct register shift value in the OWL_DIVIDER definition
-  for H clock
-* Drop the unneeded 'ahb_factor_table[]' and change AHB clock to an
-  ungated OWL_COMP_FIXED_FACTOR definition.
+which is larger than one page(4096), and two pages will be allocated.
 
-Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Link: https://lore.kernel.org/r/21c1abd19a7089b65a34852ac6513961be88cbe1.1623354574.git.cristian.ciocaltea@gmail.com
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+To avoid it, replace '3744' with a calculation:
+
+  (PAGE_SIZE - SKB_DATA_ALIGN(BUF_OVERHEAD) - \
+    SKB_DATA_ALIGN(sizeof(struct skb_shared_info)))
+
+What's more, alloc_skb_fclone() will call SKB_DATA_ALIGN for data size,
+and it's not necessary to make alignment for buf_size in
+tipc_buf_acquire(). So, just remove it.
+
+Fixes: 4c94cc2d3d57 ("tipc: fall back to smaller MTU if allocation of local send skb fails")
+Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/actions/owl-s500.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ net/tipc/bcast.c |  2 +-
+ net/tipc/msg.c   | 17 ++++++++---------
+ net/tipc/msg.h   |  3 ++-
+ 3 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
-index 42d6899755e6..cbeb51c804eb 100644
---- a/drivers/clk/actions/owl-s500.c
-+++ b/drivers/clk/actions/owl-s500.c
-@@ -153,11 +153,6 @@ static struct clk_factor_table hde_factor_table[] = {
- 	{ 0, 0, 0 },
- };
+diff --git a/net/tipc/bcast.c b/net/tipc/bcast.c
+index d4beca895992..593846d25214 100644
+--- a/net/tipc/bcast.c
++++ b/net/tipc/bcast.c
+@@ -699,7 +699,7 @@ int tipc_bcast_init(struct net *net)
+ 	spin_lock_init(&tipc_net(net)->bclock);
  
--static struct clk_factor_table ahb_factor_table[] = {
--	{ 1, 1, 2 }, { 2, 1, 3 },
--	{ 0, 0, 0 },
--};
--
- static struct clk_div_table rmii_ref_div_table[] = {
- 	{ 0, 4 }, { 1, 10 },
- 	{ 0, 0 },
-@@ -186,7 +181,6 @@ static struct clk_div_table nand_div_table[] = {
+ 	if (!tipc_link_bc_create(net, 0, 0, NULL,
+-				 FB_MTU,
++				 one_page_mtu,
+ 				 BCLINK_WIN_DEFAULT,
+ 				 BCLINK_WIN_DEFAULT,
+ 				 0,
+diff --git a/net/tipc/msg.c b/net/tipc/msg.c
+index 88a3ed80094c..91dcf648d32b 100644
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -44,12 +44,15 @@
+ #define MAX_FORWARD_SIZE 1024
+ #ifdef CONFIG_TIPC_CRYPTO
+ #define BUF_HEADROOM ALIGN(((LL_MAX_HEADER + 48) + EHDR_MAX_SIZE), 16)
+-#define BUF_TAILROOM (TIPC_AES_GCM_TAG_SIZE)
++#define BUF_OVERHEAD (BUF_HEADROOM + TIPC_AES_GCM_TAG_SIZE)
+ #else
+ #define BUF_HEADROOM (LL_MAX_HEADER + 48)
+-#define BUF_TAILROOM 16
++#define BUF_OVERHEAD BUF_HEADROOM
+ #endif
  
- /* mux clock */
- static OWL_MUX(dev_clk, "dev_clk", dev_clk_mux_p, CMU_DEVPLL, 12, 1, CLK_SET_RATE_PARENT);
--static OWL_MUX(ahbprediv_clk, "ahbprediv_clk", ahbprediv_clk_mux_p, CMU_BUSCLK1, 8, 3, CLK_SET_RATE_PARENT);
- 
- /* gate clocks */
- static OWL_GATE(gpio_clk, "gpio_clk", "apb_clk", CMU_DEVCLKEN0, 18, 0, 0);
-@@ -199,16 +193,25 @@ static OWL_GATE(timer_clk, "timer_clk", "hosc", CMU_DEVCLKEN1, 27, 0, 0);
- static OWL_GATE(hdmi_clk, "hdmi_clk", "hosc", CMU_DEVCLKEN1, 3, 0, 0);
- 
- /* divider clocks */
--static OWL_DIVIDER(h_clk, "h_clk", "ahbprediv_clk", CMU_BUSCLK1, 12, 2, NULL, 0, 0);
-+static OWL_DIVIDER(h_clk, "h_clk", "ahbprediv_clk", CMU_BUSCLK1, 2, 2, NULL, 0, 0);
- static OWL_DIVIDER(apb_clk, "apb_clk", "ahb_clk", CMU_BUSCLK1, 14, 2, NULL, 0, 0);
- static OWL_DIVIDER(rmii_ref_clk, "rmii_ref_clk", "ethernet_pll_clk", CMU_ETHERNETPLL, 1, 1, rmii_ref_div_table, 0, 0);
- 
- /* factor clocks */
--static OWL_FACTOR(ahb_clk, "ahb_clk", "h_clk", CMU_BUSCLK1, 2, 2, ahb_factor_table, 0, 0);
- static OWL_FACTOR(de1_clk, "de_clk1", "de_clk", CMU_DECLK, 0, 4, de_factor_table, 0, 0);
- static OWL_FACTOR(de2_clk, "de_clk2", "de_clk", CMU_DECLK, 4, 4, de_factor_table, 0, 0);
- 
- /* composite clocks */
-+static OWL_COMP_DIV(ahbprediv_clk, "ahbprediv_clk", ahbprediv_clk_mux_p,
-+			OWL_MUX_HW(CMU_BUSCLK1, 8, 3),
-+			{ 0 },
-+			OWL_DIVIDER_HW(CMU_BUSCLK1, 12, 2, 0, NULL),
-+			CLK_SET_RATE_PARENT);
++const int one_page_mtu = PAGE_SIZE - SKB_DATA_ALIGN(BUF_OVERHEAD) -
++			 SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
 +
-+static OWL_COMP_FIXED_FACTOR(ahb_clk, "ahb_clk", "h_clk",
-+			{ 0 },
-+			1, 1, 0);
+ static unsigned int align(unsigned int i)
+ {
+ 	return (i + 3) & ~3u;
+@@ -67,13 +70,8 @@ static unsigned int align(unsigned int i)
+ struct sk_buff *tipc_buf_acquire(u32 size, gfp_t gfp)
+ {
+ 	struct sk_buff *skb;
+-#ifdef CONFIG_TIPC_CRYPTO
+-	unsigned int buf_size = (BUF_HEADROOM + size + BUF_TAILROOM + 3) & ~3u;
+-#else
+-	unsigned int buf_size = (BUF_HEADROOM + size + 3) & ~3u;
+-#endif
+ 
+-	skb = alloc_skb_fclone(buf_size, gfp);
++	skb = alloc_skb_fclone(BUF_OVERHEAD + size, gfp);
+ 	if (skb) {
+ 		skb_reserve(skb, BUF_HEADROOM);
+ 		skb_put(skb, size);
+@@ -395,7 +393,8 @@ int tipc_msg_build(struct tipc_msg *mhdr, struct msghdr *m, int offset,
+ 		if (unlikely(!skb)) {
+ 			if (pktmax != MAX_MSG_SIZE)
+ 				return -ENOMEM;
+-			rc = tipc_msg_build(mhdr, m, offset, dsz, FB_MTU, list);
++			rc = tipc_msg_build(mhdr, m, offset, dsz,
++					    one_page_mtu, list);
+ 			if (rc != dsz)
+ 				return rc;
+ 			if (tipc_msg_assemble(list))
+diff --git a/net/tipc/msg.h b/net/tipc/msg.h
+index 5d64596ba987..64ae4c4c44f8 100644
+--- a/net/tipc/msg.h
++++ b/net/tipc/msg.h
+@@ -99,9 +99,10 @@ struct plist;
+ #define MAX_H_SIZE                60	/* Largest possible TIPC header size */
+ 
+ #define MAX_MSG_SIZE (MAX_H_SIZE + TIPC_MAX_USER_MSG_SIZE)
+-#define FB_MTU                  3744
+ #define TIPC_MEDIA_INFO_OFFSET	5
+ 
++extern const int one_page_mtu;
 +
- static OWL_COMP_FACTOR(vce_clk, "vce_clk", hde_clk_mux_p,
- 			OWL_MUX_HW(CMU_VCECLK, 4, 2),
- 			OWL_GATE_HW(CMU_DEVCLKEN0, 26, 0),
+ struct tipc_skb_cb {
+ 	union {
+ 		struct {
 -- 
 2.30.2
 
