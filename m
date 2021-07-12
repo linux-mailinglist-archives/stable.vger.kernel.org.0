@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C6E73C532C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C86A13C48F9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347807AbhGLHx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:53:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51190 "EHLO mail.kernel.org"
+        id S236050AbhGLGld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241718AbhGLHrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:47:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CCAC61427;
-        Mon, 12 Jul 2021 07:42:36 +0000 (UTC)
+        id S238113AbhGLGjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AB10611C1;
+        Mon, 12 Jul 2021 06:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075757;
-        bh=XoYj5fhINhNpIdEDgjtheWTTZEuJBpJiCzs98xY8jtw=;
+        s=korg; t=1626071775;
+        bh=8lpbkFkp2uAXf6kGjU5dT/KWl7qDzireS2yA1s9yq8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U59YQfSPGNdBTFlH9zOXhCgoyNHfLuCaji7lj2eIXWQl4RIJI3mW9F5aBKZ2TM2hB
-         wrYEmjxWK8x6mQOWWkuyT6b7TX0BYv+ym6llGXrMo7lkFl01t1DT4uBtXsOeW2uMmC
-         g7AMFcM6z5rcHIfLzBDqtkMR9k+D4YC9NDrD4xzk=
+        b=md8uNG7pHmLvO7vGs4yOoxHX93N+Q4EZaxGB8shTSk3F4S6FNssgFiPIDJx70vMoa
+         qYfjBrozoMJCYqm/uhA1ilFoONTgigIvK50NeT7bycVySaTXEdFVFrcBhpaYhr5nrD
+         p3gPmmiIceKYMOzhbcJ0vBONyBmItF0Z+FzwgWPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 352/800] media: video-mux: Skip dangling endpoints
+Subject: [PATCH 5.10 215/593] crypto: ixp4xx - update IV after requests
 Date:   Mon, 12 Jul 2021 08:06:15 +0200
-Message-Id: <20210712061004.532551945@linuxfoundation.org>
+Message-Id: <20210712060906.574307514@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 95778c2d0979618e3349b1d2324ec282a5a6adbf ]
+[ Upstream commit e8acf011f2e7e21a7e2fae47cbaa06598e533d40 ]
 
-i.MX6 device tree include files contain dangling endpoints for the
-board device tree writers' convenience. These are still included in
-many existing device trees.
-Treat dangling endpoints as non-existent to support them.
+Crypto selftests fail on ixp4xx since it do not update IV after skcipher
+requests.
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 612b385efb1e ("media: video-mux: Create media links in bound notifier")
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 81bef0150074 ("crypto: ixp4xx - Hardware crypto support for IXP4xx CPUs")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/video-mux.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/crypto/ixp4xx_crypto.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/media/platform/video-mux.c b/drivers/media/platform/video-mux.c
-index 133122e38515..9bc0b4d8de09 100644
---- a/drivers/media/platform/video-mux.c
-+++ b/drivers/media/platform/video-mux.c
-@@ -362,7 +362,7 @@ static int video_mux_async_register(struct video_mux *vmux,
+diff --git a/drivers/crypto/ixp4xx_crypto.c b/drivers/crypto/ixp4xx_crypto.c
+index cbb1fda299a8..5e474a7a1912 100644
+--- a/drivers/crypto/ixp4xx_crypto.c
++++ b/drivers/crypto/ixp4xx_crypto.c
+@@ -149,6 +149,8 @@ struct crypt_ctl {
+ struct ablk_ctx {
+ 	struct buffer_desc *src;
+ 	struct buffer_desc *dst;
++	u8 iv[MAX_IVLEN];
++	bool encrypt;
+ };
  
- 	for (i = 0; i < num_input_pads; i++) {
- 		struct v4l2_async_subdev *asd;
--		struct fwnode_handle *ep;
-+		struct fwnode_handle *ep, *remote_ep;
- 
- 		ep = fwnode_graph_get_endpoint_by_id(
- 			dev_fwnode(vmux->subdev.dev), i, 0,
-@@ -370,6 +370,14 @@ static int video_mux_async_register(struct video_mux *vmux,
- 		if (!ep)
- 			continue;
- 
-+		/* Skip dangling endpoints for backwards compatibility */
-+		remote_ep = fwnode_graph_get_remote_endpoint(ep);
-+		if (!remote_ep) {
-+			fwnode_handle_put(ep);
-+			continue;
-+		}
-+		fwnode_handle_put(remote_ep);
+ struct aead_ctx {
+@@ -381,6 +383,20 @@ static void one_packet(dma_addr_t phys)
+ 	case CTL_FLAG_PERFORM_ABLK: {
+ 		struct skcipher_request *req = crypt->data.ablk_req;
+ 		struct ablk_ctx *req_ctx = skcipher_request_ctx(req);
++		struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
++		unsigned int ivsize = crypto_skcipher_ivsize(tfm);
++		unsigned int offset;
 +
- 		asd = v4l2_async_notifier_add_fwnode_remote_subdev(
- 			&vmux->notifier, ep, struct v4l2_async_subdev);
++		if (ivsize > 0) {
++			offset = req->cryptlen - ivsize;
++			if (req_ctx->encrypt) {
++				scatterwalk_map_and_copy(req->iv, req->dst,
++							 offset, ivsize, 0);
++			} else {
++				memcpy(req->iv, req_ctx->iv, ivsize);
++				memzero_explicit(req_ctx->iv, ivsize);
++			}
++		}
  
+ 		if (req_ctx->dst) {
+ 			free_buf_chain(dev, req_ctx->dst, crypt->dst_buf);
+@@ -876,6 +892,7 @@ static int ablk_perform(struct skcipher_request *req, int encrypt)
+ 	struct ablk_ctx *req_ctx = skcipher_request_ctx(req);
+ 	struct buffer_desc src_hook;
+ 	struct device *dev = &pdev->dev;
++	unsigned int offset;
+ 	gfp_t flags = req->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP ?
+ 				GFP_KERNEL : GFP_ATOMIC;
+ 
+@@ -885,6 +902,7 @@ static int ablk_perform(struct skcipher_request *req, int encrypt)
+ 		return -EAGAIN;
+ 
+ 	dir = encrypt ? &ctx->encrypt : &ctx->decrypt;
++	req_ctx->encrypt = encrypt;
+ 
+ 	crypt = get_crypt_desc();
+ 	if (!crypt)
+@@ -900,6 +918,10 @@ static int ablk_perform(struct skcipher_request *req, int encrypt)
+ 
+ 	BUG_ON(ivsize && !req->iv);
+ 	memcpy(crypt->iv, req->iv, ivsize);
++	if (ivsize > 0 && !encrypt) {
++		offset = req->cryptlen - ivsize;
++		scatterwalk_map_and_copy(req_ctx->iv, req->src, offset, ivsize, 0);
++	}
+ 	if (req->src != req->dst) {
+ 		struct buffer_desc dst_hook;
+ 		crypt->mode |= NPE_OP_NOT_IN_PLACE;
 -- 
 2.30.2
 
