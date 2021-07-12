@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B793C4549
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4644A3C4536
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234651AbhGLGY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:24:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
+        id S235071AbhGLGYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:24:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234648AbhGLGX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:23:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C779D61175;
-        Mon, 12 Jul 2021 06:20:05 +0000 (UTC)
+        id S234653AbhGLGX1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:23:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2026661107;
+        Mon, 12 Jul 2021 06:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070806;
-        bh=p8gdKnwAA5I9CFiD6Qv9vYVinuMxNRyp6lsxSoRm4y0=;
+        s=korg; t=1626070808;
+        bh=fAySR2GxltjBMCs0mwVQzIM8EBH+3hm24OaJlIaGlVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gih58o5RByS3kTC0I4Tuina18SK1O43LkDId66CiSasqAIGTZcHxx3lGfOiwVNtVP
-         KfryYHAtlqTb6gdBFsV3IofRIQJzRIr5Qcrh3wbDKQjfQrhblEsCUhuxoAxUXxFCtD
-         r1qmtJmeYxzuUFSwopimh4spqBXPtFMLudytdsfg=
+        b=BJyDZxLLOofz2zNVIOzTylqDStEHwSLKfdKbe2dtu2UZFbfBb+Kee6vUnF5LavxXd
+         om/06qKn646iZkKvYmK3MCUA14nrvKKKNe3hyJ9gxmhWce5gHTPKTQpWU7RA725TwO
+         +IfdO/yd++Ed3aAnwuC6NsTILOsMMS8w0xgBfYHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 147/348] kbuild: Fix objtool dependency for OBJECT_FILES_NON_STANDARD_<obj> := n
-Date:   Mon, 12 Jul 2021 08:08:51 +0200
-Message-Id: <20210712060720.578975421@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 148/348] pata_octeon_cf: avoid WARN_ON() in ata_host_activate()
+Date:   Mon, 12 Jul 2021 08:08:52 +0200
+Message-Id: <20210712060720.733179035@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -40,58 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 8852c552402979508fdc395ae07aa8761aa46045 ]
+[ Upstream commit bfc1f378c8953e68ccdbfe0a8c20748427488b80 ]
 
-"OBJECT_FILES_NON_STANDARD_vma.o := n" has a dependency bug.  When
-objtool source is updated, the affected object doesn't get re-analyzed
-by objtool.
+Iff platform_get_irq() fails (or returns IRQ0) and thus the polling mode
+has to be used, ata_host_activate() hits the WARN_ON() due to 'irq_handler'
+parameter being non-NULL if the polling mode is selected.  Let's only set
+the pointer to the driver's IRQ handler if platform_get_irq() returns a
+valid IRQ # -- this should avoid the unnecessary WARN_ON()...
 
-Peter's new variable-sized jump label feature relies on objtool
-rewriting the object file.  Otherwise the system can fail to boot.  That
-effectively upgrades this minor dependency issue to a major bug.
-
-The problem is that variables in prerequisites are expanded early,
-during the read-in phase.  The '$(objtool_dep)' variable indirectly uses
-'$@', which isn't yet available when the target prerequisites are
-evaluated.
-
-Use '.SECONDEXPANSION:' which causes '$(objtool_dep)' to be expanded in
-a later phase, after the target-specific '$@' variable has been defined.
-
-Fixes: b9ab5ebb14ec ("objtool: Add CONFIG_STACK_VALIDATION option")
-Fixes: ab3257042c26 ("jump_label, x86: Allow short NOPs")
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/3a241167-f84d-1d25-5b9b-be910afbe666@omp.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile.build | 5 +++--
+ drivers/ata/pata_octeon_cf.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index 03df22412f86..1261f75cb4e7 100644
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -257,7 +257,8 @@ define rule_as_o_S
- endef
+diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
+index d3d851b014a3..ac3b1fda820f 100644
+--- a/drivers/ata/pata_octeon_cf.c
++++ b/drivers/ata/pata_octeon_cf.c
+@@ -898,10 +898,11 @@ static int octeon_cf_probe(struct platform_device *pdev)
+ 					return -EINVAL;
+ 				}
  
- # Built-in and composite module parts
--$(obj)/%.o: $(src)/%.c $(recordmcount_source) $(objtool_dep) FORCE
-+.SECONDEXPANSION:
-+$(obj)/%.o: $(src)/%.c $(recordmcount_source) $$(objtool_dep) FORCE
- 	$(call if_changed_rule,cc_o_c)
- 	$(call cmd,force_checksrc)
- 
-@@ -340,7 +341,7 @@ cmd_modversions_S =								\
- 	fi
- endif
- 
--$(obj)/%.o: $(src)/%.S $(objtool_dep) FORCE
-+$(obj)/%.o: $(src)/%.S $$(objtool_dep) FORCE
- 	$(call if_changed_rule,as_o_S)
- 
- targets += $(filter-out $(subdir-obj-y), $(real-obj-y)) $(real-obj-m) $(lib-y)
+-				irq_handler = octeon_cf_interrupt;
+ 				i = platform_get_irq(dma_dev, 0);
+-				if (i > 0)
++				if (i > 0) {
+ 					irq = i;
++					irq_handler = octeon_cf_interrupt;
++				}
+ 			}
+ 			of_node_put(dma_node);
+ 		}
 -- 
 2.30.2
 
