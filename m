@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A773C4F14
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AFCA3C4B4A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240116AbhGLHXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
+        id S240640AbhGLG4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343909AbhGLHUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF8ED61153;
-        Mon, 12 Jul 2021 07:17:22 +0000 (UTC)
+        id S239188AbhGLGta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F989610FA;
+        Mon, 12 Jul 2021 06:46:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074243;
-        bh=PE8xFI6WzVQ7/79bXIRloO3MbpWYU7O2UOJVNT41eak=;
+        s=korg; t=1626072392;
+        bh=Iq+o5OeMMpRVe3gVKnWsaNnrPxGYSR9SQp7q+a1GDsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWM1JhE2XZaMej/G48elAoydVH4D8aZki28aOW0vATaxTHRzHwey9/Z2FPVR3rTt3
-         eXkUY5/jnPBsm/Hku4HwxDtKrd2lfkst9lzL+ALnZE15CzLNj//E8uB9E4bOKysvvB
-         5m22UeFARzhaSC7x7TkD3X3xHbl5ta6lpxZMf8R0=
+        b=VNK/Nb5fwxviO3eA4gaAFQyjVfHY1MHJOqbJFn85uKbKhzB+rxvZWDf0tb33VnC1g
+         scW6KqfzWYXFjwaYfU/c3ucXtVeFbDDQzDXOqZrBVouOlQV3Ho2rh7Ieqlk80X0JcZ
+         cipxwRaW7uHESxGMI2Rsr8LPkHLIS37Xj0ORzWVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 513/700] net: lwtunnel: handle MTU calculation in forwading
+Subject: [PATCH 5.10 436/593] rcu: Invoke rcu_spawn_core_kthreads() from rcu_spawn_gp_kthread()
 Date:   Mon, 12 Jul 2021 08:09:56 +0200
-Message-Id: <20210712061031.126154253@linuxfoundation.org>
+Message-Id: <20210712060936.633734952@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,140 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vfedorenko@novek.ru>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit fade56410c22cacafb1be9f911a0afd3701d8366 ]
+[ Upstream commit 8e4b1d2bc198e34b48fc7cc3a3c5a2fcb269e271 ]
 
-Commit 14972cbd34ff ("net: lwtunnel: Handle fragmentation") moved
-fragmentation logic away from lwtunnel by carry encap headroom and
-use it in output MTU calculation. But the forwarding part was not
-covered and created difference in MTU for output and forwarding and
-further to silent drops on ipv4 forwarding path. Fix it by taking
-into account lwtunnel encap headroom.
+Currently, rcu_spawn_core_kthreads() is invoked via an early_initcall(),
+which works, except that rcu_spawn_gp_kthread() is also invoked via an
+early_initcall() and rcu_spawn_core_kthreads() relies on adjustments to
+kthread_prio that are carried out by rcu_spawn_gp_kthread().  There is
+no guaranttee of ordering among early_initcall() handlers, and thus no
+guarantee that kthread_prio will be properly checked and range-limited
+at the time that rcu_spawn_core_kthreads() needs it.
 
-The same commit also introduced difference in how to treat RTAX_MTU
-in IPv4 and IPv6 where latter explicitly removes lwtunnel encap
-headroom from route MTU. Make IPv4 version do the same.
+In most cases, this bug is harmless.  After all, the only reason that
+rcu_spawn_gp_kthread() adjusts the value of kthread_prio is if the user
+specified a nonsensical value for this boot parameter, which experience
+indicates is rare.
 
-Fixes: 14972cbd34ff ("net: lwtunnel: Handle fragmentation")
-Suggested-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Nevertheless, a bug is a bug.  This commit therefore causes the
+rcu_spawn_core_kthreads() function to be invoked directly from
+rcu_spawn_gp_kthread() after any needed adjustments to kthread_prio have
+been carried out.
+
+Fixes: 48d07c04b4cc ("rcu: Enable elimination of Tree-RCU softirq processing")
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip.h        | 12 ++++++++----
- include/net/ip6_route.h | 16 ++++++++++++----
- net/ipv4/route.c        |  3 ++-
- 3 files changed, 22 insertions(+), 9 deletions(-)
+ kernel/rcu/tree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/ip.h b/include/net/ip.h
-index e20874059f82..d9683bef8684 100644
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -31,6 +31,7 @@
- #include <net/flow.h>
- #include <net/flow_dissector.h>
- #include <net/netns/hash.h>
-+#include <net/lwtunnel.h>
- 
- #define IPV4_MAX_PMTU		65535U		/* RFC 2675, Section 5.1 */
- #define IPV4_MIN_MTU		68			/* RFC 791 */
-@@ -445,22 +446,25 @@ static inline unsigned int ip_dst_mtu_maybe_forward(const struct dst_entry *dst,
- 
- 	/* 'forwarding = true' case should always honour route mtu */
- 	mtu = dst_metric_raw(dst, RTAX_MTU);
--	if (mtu)
--		return mtu;
-+	if (!mtu)
-+		mtu = min(READ_ONCE(dst->dev->mtu), IP_MAX_MTU);
- 
--	return min(READ_ONCE(dst->dev->mtu), IP_MAX_MTU);
-+	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 61e250cdd7c9..45b60e997461 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -2837,7 +2837,6 @@ static int __init rcu_spawn_core_kthreads(void)
+ 		  "%s: Could not start rcuc kthread, OOM is now expected behavior\n", __func__);
+ 	return 0;
  }
+-early_initcall(rcu_spawn_core_kthreads);
  
- static inline unsigned int ip_skb_dst_mtu(struct sock *sk,
- 					  const struct sk_buff *skb)
- {
-+	unsigned int mtu;
-+
- 	if (!sk || !sk_fullsock(sk) || ip_sk_use_pmtu(sk)) {
- 		bool forwarding = IPCB(skb)->flags & IPSKB_FORWARDED;
- 
- 		return ip_dst_mtu_maybe_forward(skb_dst(skb), forwarding);
- 	}
- 
--	return min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
-+	mtu = min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
-+	return mtu - lwtunnel_headroom(skb_dst(skb)->lwtstate, mtu);
+ /*
+  * Handle any core-RCU processing required by a call_rcu() invocation.
+@@ -4273,6 +4272,7 @@ static int __init rcu_spawn_gp_kthread(void)
+ 	wake_up_process(t);
+ 	rcu_spawn_nocb_kthreads();
+ 	rcu_spawn_boost_kthreads();
++	rcu_spawn_core_kthreads();
+ 	return 0;
  }
- 
- struct dst_metrics *ip_fib_metrics_init(struct net *net, struct nlattr *fc_mx,
-diff --git a/include/net/ip6_route.h b/include/net/ip6_route.h
-index f51a118bfce8..f14149df5a65 100644
---- a/include/net/ip6_route.h
-+++ b/include/net/ip6_route.h
-@@ -265,11 +265,18 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 
- static inline int ip6_skb_dst_mtu(struct sk_buff *skb)
- {
-+	int mtu;
-+
- 	struct ipv6_pinfo *np = skb->sk && !dev_recursion_level() ?
- 				inet6_sk(skb->sk) : NULL;
- 
--	return (np && np->pmtudisc >= IPV6_PMTUDISC_PROBE) ?
--	       skb_dst(skb)->dev->mtu : dst_mtu(skb_dst(skb));
-+	if (np && np->pmtudisc >= IPV6_PMTUDISC_PROBE) {
-+		mtu = READ_ONCE(skb_dst(skb)->dev->mtu);
-+		mtu -= lwtunnel_headroom(skb_dst(skb)->lwtstate, mtu);
-+	} else
-+		mtu = dst_mtu(skb_dst(skb));
-+
-+	return mtu;
- }
- 
- static inline bool ip6_sk_accept_pmtu(const struct sock *sk)
-@@ -317,7 +324,7 @@ static inline unsigned int ip6_dst_mtu_forward(const struct dst_entry *dst)
- 	if (dst_metric_locked(dst, RTAX_MTU)) {
- 		mtu = dst_metric_raw(dst, RTAX_MTU);
- 		if (mtu)
--			return mtu;
-+			goto out;
- 	}
- 
- 	mtu = IPV6_MIN_MTU;
-@@ -327,7 +334,8 @@ static inline unsigned int ip6_dst_mtu_forward(const struct dst_entry *dst)
- 		mtu = idev->cnf.mtu6;
- 	rcu_read_unlock();
- 
--	return mtu;
-+out:
-+	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
- }
- 
- u32 ip6_mtu_from_fib6(const struct fib6_result *res,
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 09506203156d..484064daa95a 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -1331,7 +1331,7 @@ INDIRECT_CALLABLE_SCOPE unsigned int ipv4_mtu(const struct dst_entry *dst)
- 		mtu = dst_metric_raw(dst, RTAX_MTU);
- 
- 	if (mtu)
--		return mtu;
-+		goto out;
- 
- 	mtu = READ_ONCE(dst->dev->mtu);
- 
-@@ -1340,6 +1340,7 @@ INDIRECT_CALLABLE_SCOPE unsigned int ipv4_mtu(const struct dst_entry *dst)
- 			mtu = 576;
- 	}
- 
-+out:
- 	mtu = min_t(unsigned int, mtu, IP_MAX_MTU);
- 
- 	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
+ early_initcall(rcu_spawn_gp_kthread);
 -- 
 2.30.2
 
