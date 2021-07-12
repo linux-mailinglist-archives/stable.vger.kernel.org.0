@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C81133C532D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5BE3C48FA
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350612AbhGLHx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:53:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35410 "EHLO mail.kernel.org"
+        id S238640AbhGLGle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343578AbhGLHsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:48:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4915616E9;
-        Mon, 12 Jul 2021 07:42:45 +0000 (UTC)
+        id S238154AbhGLGj7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 936206120A;
+        Mon, 12 Jul 2021 06:36:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075766;
-        bh=e84PWtKvoCNX6p7L4TdyopFXQ0wsnRv0+CAu2wwhLbQ=;
+        s=korg; t=1626071782;
+        bh=ZXY77PLvDVu3MEhWCd9R7fCDGiXD1+satb3QJr4c/vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLoECTivsYdg9BRbsfH+39gx1uk4PRUDo/z6bElc0u3TcLgYYzWzvsf2pU9GFVTPY
-         a5aX2w2BgDAPTa5WVzeQaBz/0/22w2vXygH4z1M4QSaZtHjiAx6ZkjCdF4G0SbUQ2U
-         XraiP/K9u02EnZhfdx1swkUZEEhKpmqfDHLouDoM=
+        b=SGDd1yJrXa4rG9LGoQIKPgEZCgpQ6+n/ZnQjyoej7yrdR3KWLrILTgdEIOm3LjPgK
+         YD20TTvHteVkvY21vzErgno/p7icnEgsMrsfDASmu1iakZ0MiBBA3OEEEIoj0j6KHK
+         q4OvhiEpBG2mEeWZeLu5hALH36B0fKMPWyrZ5DbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Borislav Petkov <bp@suse.de>, Andrew Jeffery <andrew@aj.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 355/800] EDAC/aspeed: Use proper format string for printing resource
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 218/593] pata_rb532_cf: fix deferred probing
 Date:   Mon, 12 Jul 2021 08:06:18 +0200
-Message-Id: <20210712061004.859553627@linuxfoundation.org>
+Message-Id: <20210712060906.899732987@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit 2e2f16d5cdb33e5f6fc53b7ad66c9f456d5f2950 ]
+[ Upstream commit 2d3a62fbae8e5badc2342388f65ab2191c209cc0 ]
 
-On ARMv7, resource_size_t can be 64-bit, which breaks printing
-it as %x:
+The driver overrides the error codes returned by platform_get_irq() to
+-ENOENT, so if it returns -EPROBE_DEFER, the driver would fail the probe
+permanently instead of the deferred probing. Switch to propagating the
+error code upstream, still checking/overriding IRQ0 as libata regards it
+as "no IRQ" (thus polling) anyway...
 
-  drivers/edac/aspeed_edac.c: In function 'init_csrows':
-  drivers/edac/aspeed_edac.c:257:28: error: format '%x' expects argument of \
-    type 'unsigned int', but argument 4 has type 'resource_size_t' {aka 'long \
-    long unsigned int'} [-Werror=format=]
-  257 |         dev_dbg(mci->pdev, "dt: /memory node resources: first page \
-    r.start=0x%x, resource_size=0x%x, PAGE_SHIFT macro=0x%x\n",
-
-Use the special %pR format string to pretty-print the entire resource
-instead.
-
-Fixes: edfc2d73ca45 ("EDAC/aspeed: Add support for AST2400 and AST2600")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lkml.kernel.org/r/20210421135500.3518661-1-arnd@kernel.org
+Fixes: 9ec36cafe43b ("of/irq: do irq resolution in platform_get_irq")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Link: https://lore.kernel.org/r/771ced55-3efb-21f5-f21c-b99920aae611@omprussia.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/aspeed_edac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ata/pata_rb532_cf.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/edac/aspeed_edac.c b/drivers/edac/aspeed_edac.c
-index a46da56d6d54..6bd5f8815919 100644
---- a/drivers/edac/aspeed_edac.c
-+++ b/drivers/edac/aspeed_edac.c
-@@ -254,8 +254,8 @@ static int init_csrows(struct mem_ctl_info *mci)
- 		return rc;
+diff --git a/drivers/ata/pata_rb532_cf.c b/drivers/ata/pata_rb532_cf.c
+index 479c4b29b856..303f8c375b3a 100644
+--- a/drivers/ata/pata_rb532_cf.c
++++ b/drivers/ata/pata_rb532_cf.c
+@@ -115,10 +115,12 @@ static int rb532_pata_driver_probe(struct platform_device *pdev)
  	}
  
--	dev_dbg(mci->pdev, "dt: /memory node resources: first page r.start=0x%x, resource_size=0x%x, PAGE_SHIFT macro=0x%x\n",
--		r.start, resource_size(&r), PAGE_SHIFT);
-+	dev_dbg(mci->pdev, "dt: /memory node resources: first page %pR, PAGE_SHIFT macro=0x%x\n",
-+		&r, PAGE_SHIFT);
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq <= 0) {
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no IRQ resource found\n");
+-		return -ENOENT;
++		return irq;
+ 	}
++	if (!irq)
++		return -EINVAL;
  
- 	csrow->first_page = r.start >> PAGE_SHIFT;
- 	nr_pages = resource_size(&r) >> PAGE_SHIFT;
+ 	gpiod = devm_gpiod_get(&pdev->dev, NULL, GPIOD_IN);
+ 	if (IS_ERR(gpiod)) {
 -- 
 2.30.2
 
