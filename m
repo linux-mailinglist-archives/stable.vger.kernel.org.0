@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C3043C4FB7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E451E3C4ABB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245580AbhGLH1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:27:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36830 "EHLO mail.kernel.org"
+        id S237240AbhGLGxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:53:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345383AbhGLHZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:25:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E9296052B;
-        Mon, 12 Jul 2021 07:22:35 +0000 (UTC)
+        id S240784AbhGLGwS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:52:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13EEF6052B;
+        Mon, 12 Jul 2021 06:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074556;
-        bh=jRKv6eYizbrlcsTnp5IQn5e22UGVdEp1u8WKoEe1Yw0=;
+        s=korg; t=1626072569;
+        bh=qISd2itnW+T43mWHy0PPBAJvHQVpaZ22zjwLMsS+v7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEZNmnHGUNcYroavZnm8ej0uM7SCwelCKAXE6WjoEBzM/jsA3O20e3NT5Unyc76oY
-         t5dXZyxretvztHlplzyt6dIYWVQjiFvdQH4q+V3OXZF9hgHRaUP2ZmJTu+uJskMdc2
-         HAKsYG5l94Uwsjt/Pwm2MnQbgza3016SMsif1HwU=
+        b=WD9Vw7wFMPww7MFaSloKYbZxyXDEpJvCgsh8ISVyEvrufcO4Ad0RzNl1QG7zsCcZe
+         ClSXV35MSOA/iyQSFw/5bwb1TZoWk7XEqE/YwWyRKWrcLzyshoiXXThD60uE56AjPG
+         E6kT+d/g3XMLeb+WtRyquRSkPhT+NSpNEVOZyRtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Song Qiang <songqiang1304521@gmail.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 617/700] iio: magn: rm3100: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 12 Jul 2021 08:11:40 +0200
-Message-Id: <20210712061041.513525795@linuxfoundation.org>
+Subject: [PATCH 5.10 541/593] powerpc/powernv: Fix machine check reporting of async store errors
+Date:   Mon, 12 Jul 2021 08:11:41 +0200
+Message-Id: <20210712060953.467094121@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit b8f939fd20690623cb24845a563e7bc1e4a21482 ]
+[ Upstream commit 3729e0ec59a20825bd4c8c70996b2df63915e1dd ]
 
-Add __aligned(8) to ensure the buffer passed to
-iio_push_to_buffers_with_timestamp() is suitable for the naturally
-aligned timestamp that will be inserted.
+POWER9 and POWER10 asynchronous machine checks due to stores have their
+cause reported in SRR1 but SRR1[42] is set, which in other cases
+indicates DSISR cause.
 
-Here an explicit structure is not used, because this buffer is used in
-a non-trivial way for data repacking.
+Check for these cases and clear SRR1[42], so the cause matching uses
+the i-side (SRR1) table.
 
-Fixes: 121354b2eceb ("iio: magnetometer: Add driver support for PNI RM3100")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Song Qiang <songqiang1304521@gmail.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210613152301.571002-6-jic23@kernel.org
+Fixes: 7b9f71f974a1 ("powerpc/64s: POWER9 machine check handler")
+Fixes: 201220bb0e8c ("powerpc/powernv: Machine check handler for POWER10")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210517140355.2325406-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/magnetometer/rm3100-core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/mce_power.c | 48 +++++++++++++++++++++++++++------
+ 1 file changed, 40 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/rm3100-core.c b/drivers/iio/magnetometer/rm3100-core.c
-index 7242897a05e9..720234a91db1 100644
---- a/drivers/iio/magnetometer/rm3100-core.c
-+++ b/drivers/iio/magnetometer/rm3100-core.c
-@@ -78,7 +78,8 @@ struct rm3100_data {
- 	bool use_interrupt;
- 	int conversion_time;
- 	int scale;
--	u8 buffer[RM3100_SCAN_BYTES];
-+	/* Ensure naturally aligned timestamp */
-+	u8 buffer[RM3100_SCAN_BYTES] __aligned(8);
- 	struct iio_trigger *drdy_trig;
+diff --git a/arch/powerpc/kernel/mce_power.c b/arch/powerpc/kernel/mce_power.c
+index b7e173754a2e..ea8b002820ce 100644
+--- a/arch/powerpc/kernel/mce_power.c
++++ b/arch/powerpc/kernel/mce_power.c
+@@ -475,12 +475,11 @@ static int mce_find_instr_ea_and_phys(struct pt_regs *regs, uint64_t *addr,
+ 	return -1;
+ }
  
+-static int mce_handle_ierror(struct pt_regs *regs,
++static int mce_handle_ierror(struct pt_regs *regs, unsigned long srr1,
+ 		const struct mce_ierror_table table[],
+ 		struct mce_error_info *mce_err, uint64_t *addr,
+ 		uint64_t *phys_addr)
+ {
+-	uint64_t srr1 = regs->msr;
+ 	int handled = 0;
+ 	int i;
+ 
+@@ -683,19 +682,19 @@ static long mce_handle_ue_error(struct pt_regs *regs,
+ }
+ 
+ static long mce_handle_error(struct pt_regs *regs,
++		unsigned long srr1,
+ 		const struct mce_derror_table dtable[],
+ 		const struct mce_ierror_table itable[])
+ {
+ 	struct mce_error_info mce_err = { 0 };
+ 	uint64_t addr, phys_addr = ULONG_MAX;
+-	uint64_t srr1 = regs->msr;
+ 	long handled;
+ 
+ 	if (SRR1_MC_LOADSTORE(srr1))
+ 		handled = mce_handle_derror(regs, dtable, &mce_err, &addr,
+ 				&phys_addr);
+ 	else
+-		handled = mce_handle_ierror(regs, itable, &mce_err, &addr,
++		handled = mce_handle_ierror(regs, srr1, itable, &mce_err, &addr,
+ 				&phys_addr);
+ 
+ 	if (!handled && mce_err.error_type == MCE_ERROR_TYPE_UE)
+@@ -711,16 +710,20 @@ long __machine_check_early_realmode_p7(struct pt_regs *regs)
+ 	/* P7 DD1 leaves top bits of DSISR undefined */
+ 	regs->dsisr &= 0x0000ffff;
+ 
+-	return mce_handle_error(regs, mce_p7_derror_table, mce_p7_ierror_table);
++	return mce_handle_error(regs, regs->msr,
++			mce_p7_derror_table, mce_p7_ierror_table);
+ }
+ 
+ long __machine_check_early_realmode_p8(struct pt_regs *regs)
+ {
+-	return mce_handle_error(regs, mce_p8_derror_table, mce_p8_ierror_table);
++	return mce_handle_error(regs, regs->msr,
++			mce_p8_derror_table, mce_p8_ierror_table);
+ }
+ 
+ long __machine_check_early_realmode_p9(struct pt_regs *regs)
+ {
++	unsigned long srr1 = regs->msr;
++
  	/*
+ 	 * On POWER9 DD2.1 and below, it's possible to get a machine check
+ 	 * caused by a paste instruction where only DSISR bit 25 is set. This
+@@ -734,10 +737,39 @@ long __machine_check_early_realmode_p9(struct pt_regs *regs)
+ 	if (SRR1_MC_LOADSTORE(regs->msr) && regs->dsisr == 0x02000000)
+ 		return 1;
+ 
+-	return mce_handle_error(regs, mce_p9_derror_table, mce_p9_ierror_table);
++	/*
++	 * Async machine check due to bad real address from store or foreign
++	 * link time out comes with the load/store bit (PPC bit 42) set in
++	 * SRR1, but the cause comes in SRR1 not DSISR. Clear bit 42 so we're
++	 * directed to the ierror table so it will find the cause (which
++	 * describes it correctly as a store error).
++	 */
++	if (SRR1_MC_LOADSTORE(srr1) &&
++			((srr1 & 0x081c0000) == 0x08140000 ||
++			 (srr1 & 0x081c0000) == 0x08180000)) {
++		srr1 &= ~PPC_BIT(42);
++	}
++
++	return mce_handle_error(regs, srr1,
++			mce_p9_derror_table, mce_p9_ierror_table);
+ }
+ 
+ long __machine_check_early_realmode_p10(struct pt_regs *regs)
+ {
+-	return mce_handle_error(regs, mce_p10_derror_table, mce_p10_ierror_table);
++	unsigned long srr1 = regs->msr;
++
++	/*
++	 * Async machine check due to bad real address from store comes with
++	 * the load/store bit (PPC bit 42) set in SRR1, but the cause comes in
++	 * SRR1 not DSISR. Clear bit 42 so we're directed to the ierror table
++	 * so it will find the cause (which describes it correctly as a store
++	 * error).
++	 */
++	if (SRR1_MC_LOADSTORE(srr1) &&
++			(srr1 & 0x081c0000) == 0x08140000) {
++		srr1 &= ~PPC_BIT(42);
++	}
++
++	return mce_handle_error(regs, srr1,
++			mce_p10_derror_table, mce_p10_ierror_table);
+ }
 -- 
 2.30.2
 
