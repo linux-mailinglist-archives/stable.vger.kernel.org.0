@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B575F3C456B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDFCB3C4569
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235437AbhGLGZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39756 "EHLO mail.kernel.org"
+        id S234933AbhGLGZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235222AbhGLGYh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:24:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C39E4611C0;
-        Mon, 12 Jul 2021 06:21:26 +0000 (UTC)
+        id S235205AbhGLGYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:24:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E15A610D0;
+        Mon, 12 Jul 2021 06:21:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070887;
-        bh=0ZgqDbap0sN27fyUlPAxtjKydY5/6ishADhKBLSLIpU=;
+        s=korg; t=1626070889;
+        bh=MNKhjbCd5K9MGkTirMUzSO0hIWNOa+5yg5kAFh7U/kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4DCVfxmwTUPq1Zi+PBFXa2SLPpClQukI9hCIohPtU/yRcHlncCFH31Sz1lMV62n2
-         TsjN3l68mdpq0bFf50/1dJP34Szd8n6aERei0cZy4y/zmCSGOK4wYh9uupqSGUd1fW
-         iO6DytPbJYxW0jw0kf12DY1rHyAfxhCCk7uAcdp8=
+        b=ez062MFzoVOV1UUUh0LMTX4Zmfi22fv2qDyzM8OCasplJB3n/KxFWjW81CbEhybmu
+         wBrE53Ji18yVwSP5hYcsVGE70X+STrAIKm4++9hwpUFJC18tiSHxnsyfzRGa3VUO87
+         ozUrFXJjiKjN+GmIMdp1EKWHxjEhMxnCEq35VKU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jianwen Ji <jiji@redhat.com>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 183/348] dax: fix ENOMEM handling in grab_mapping_entry()
-Date:   Mon, 12 Jul 2021 08:09:27 +0200
-Message-Id: <20210712060725.204331095@linuxfoundation.org>
+Subject: [PATCH 5.4 184/348] xfrm: xfrm_state_mtu should return at least 1280 for ipv6
+Date:   Mon, 12 Jul 2021 08:09:28 +0200
+Message-Id: <20210712060725.358751650@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -44,61 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 1a14e3779dd58c16b30e56558146e5cc850ba8b0 ]
+[ Upstream commit b515d2637276a3810d6595e10ab02c13bfd0b63a ]
 
-grab_mapping_entry() has a bug in handling of ENOMEM condition.  Suppose
-we have a PMD entry at index i which we are downgrading to a PTE entry.
-grab_mapping_entry() will set pmd_downgrade to true, lock the entry, clear
-the entry in xarray, and decrement mapping->nrpages.  The it will call:
+Jianwen reported that IPv6 Interoperability tests are failing in an
+IPsec case where one of the links between the IPsec peers has an MTU
+of 1280. The peer generates a packet larger than this MTU, the router
+replies with a "Packet too big" message indicating an MTU of 1280.
+When the peer tries to send another large packet, xfrm_state_mtu
+returns 1280 - ipsec_overhead, which causes ip6_setup_cork to fail
+with EINVAL.
 
-	entry = dax_make_entry(pfn_to_pfn_t(0), flags);
-	dax_lock_entry(xas, entry);
+We can fix this by forcing xfrm_state_mtu to return IPV6_MIN_MTU when
+IPv6 is used. After going through IPsec, the packet will then be
+fragmented to obey the actual network's PMTU, just before leaving the
+host.
 
-which inserts new PTE entry into xarray.  However this may fail allocating
-the new node.  We handle this by:
+Currently, TFC padding is capped to PMTU - overhead to avoid
+fragementation: after padding and encapsulation, we still fit within
+the PMTU. That behavior is preserved in this patch.
 
-	if (xas_nomem(xas, mapping_gfp_mask(mapping) & ~__GFP_HIGHMEM))
-		goto retry;
-
-however pmd_downgrade stays set to true even though 'entry' returned from
-get_unlocked_entry() will be NULL now.  And we will go again through the
-downgrade branch.  This is mostly harmless except that mapping->nrpages is
-decremented again and we temporarily have an invalid entry stored in
-xarray.  Fix the problem by setting pmd_downgrade to false each time we
-lookup the entry we work with so that it matches the entry we found.
-
-Link: https://lkml.kernel.org/r/20210622160015.18004-1-jack@suse.cz
-Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 91657eafb64b ("xfrm: take net hdr len into account for esp payload size calculation")
+Reported-by: Jianwen Ji <jiji@redhat.com>
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dax.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/xfrm.h    |  1 +
+ net/ipv4/esp4.c       |  2 +-
+ net/ipv6/esp6.c       |  2 +-
+ net/xfrm/xfrm_state.c | 14 ++++++++++++--
+ 4 files changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index 3b0e5da96d54..12953e892bb2 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -477,10 +477,11 @@ static void *grab_mapping_entry(struct xa_state *xas,
- 		struct address_space *mapping, unsigned int order)
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 614f19bbad74..8ce63850d6d0 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1543,6 +1543,7 @@ void xfrm_sad_getinfo(struct net *net, struct xfrmk_sadinfo *si);
+ void xfrm_spd_getinfo(struct net *net, struct xfrmk_spdinfo *si);
+ u32 xfrm_replay_seqhi(struct xfrm_state *x, __be32 net_seq);
+ int xfrm_init_replay(struct xfrm_state *x);
++u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu);
+ u32 xfrm_state_mtu(struct xfrm_state *x, int mtu);
+ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload);
+ int xfrm_init_state(struct xfrm_state *x);
+diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
+index 00210e55b4cd..86c836fa2145 100644
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -499,7 +499,7 @@ static int esp_output(struct xfrm_state *x, struct sk_buff *skb)
+ 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
+ 		u32 padto;
+ 
+-		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
++		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
+ 		if (skb->len < padto)
+ 			esp.tfclen = padto - skb->len;
+ 	}
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index 7a739f16d82b..12570a73def8 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -440,7 +440,7 @@ static int esp6_output(struct xfrm_state *x, struct sk_buff *skb)
+ 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
+ 		u32 padto;
+ 
+-		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
++		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
+ 		if (skb->len < padto)
+ 			esp.tfclen = padto - skb->len;
+ 	}
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 1423e2b7cb42..c6b2c99b501b 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2440,7 +2440,7 @@ void xfrm_state_delete_tunnel(struct xfrm_state *x)
+ }
+ EXPORT_SYMBOL(xfrm_state_delete_tunnel);
+ 
+-u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
++u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu)
  {
- 	unsigned long index = xas->xa_index;
--	bool pmd_downgrade = false; /* splitting PMD entry into PTE entries? */
-+	bool pmd_downgrade;	/* splitting PMD entry into PTE entries? */
- 	void *entry;
+ 	const struct xfrm_type *type = READ_ONCE(x->type);
+ 	struct crypto_aead *aead;
+@@ -2471,7 +2471,17 @@ u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
+ 	return ((mtu - x->props.header_len - crypto_aead_authsize(aead) -
+ 		 net_adj) & ~(blksize - 1)) + net_adj - 2;
+ }
+-EXPORT_SYMBOL_GPL(xfrm_state_mtu);
++EXPORT_SYMBOL_GPL(__xfrm_state_mtu);
++
++u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
++{
++	mtu = __xfrm_state_mtu(x, mtu);
++
++	if (x->props.family == AF_INET6 && mtu < IPV6_MIN_MTU)
++		return IPV6_MIN_MTU;
++
++	return mtu;
++}
  
- retry:
-+	pmd_downgrade = false;
- 	xas_lock_irq(xas);
- 	entry = get_unlocked_entry(xas, order);
- 
+ int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
+ {
 -- 
 2.30.2
 
