@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 643CC3C47AC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3C73C47C4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236726AbhGLGeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:34:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54420 "EHLO mail.kernel.org"
+        id S234710AbhGLGe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:34:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236807AbhGLGcN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:32:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83932610FB;
-        Mon, 12 Jul 2021 06:29:23 +0000 (UTC)
+        id S236938AbhGLGcR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:32:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 303526052B;
+        Mon, 12 Jul 2021 06:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071364;
-        bh=tyfHyiHsLENurj9i2lXHoInM47VZxNCqxt1cgwrTlgo=;
+        s=korg; t=1626071368;
+        bh=otGD2ARCskogymtuvkdl2jSshSk8OnBkPnOGZOfKfI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smiQ0Qwbp0AItUzq6yKalrIperdrIXUpkR+pCudyNSQq2g70hGUnLI0Ix76b0A6V9
-         sYplpI2QAUZDwGa4ARrMhrsS+zOTKlOTehbkhvgQ+W/0B9I7JIk3kwkXTe4vyYwBJV
-         VxJlWbzWgEyVY0QCEkIKPJ+ipPgSOsKF19eWgptg=
+        b=hUSjHPY8B8GLvLq/3da87mb8Zr++ViEHdNkt1XAru/HDiZdptjUe5YKT4ajYVAERm
+         hmja2/SBM7mHHH0kf2D9i1i6ZiMFuRKU5RLC1Jugo6BSU2E0RJabTYtO6jFmuRBtfN
+         3KObjLH/GUcEWjel7/kAnro3xstxe1TVjs451+G8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 039/593] btrfs: send: fix invalid path for unlink operations after parent orphanization
-Date:   Mon, 12 Jul 2021 08:03:19 +0200
-Message-Id: <20210712060847.486918082@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 040/593] btrfs: compression: dont try to compress if we dont have enough pages
+Date:   Mon, 12 Jul 2021 08:03:20 +0200
+Message-Id: <20210712060847.591981655@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -39,172 +38,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: David Sterba <dsterba@suse.com>
 
-commit d8ac76cdd1755b21e8c008c28d0b7251c0b14986 upstream.
+commit f2165627319ffd33a6217275e5690b1ab5c45763 upstream.
 
-During an incremental send operation, when processing the new references
-for the current inode, we might send an unlink operation for another inode
-that has a conflicting path and has more than one hard link. However this
-path was computed and cached before we processed previous new references
-for the current inode. We may have orphanized a directory of that path
-while processing a previous new reference, in which case the path will
-be invalid and cause the receiver process to fail.
+The early check if we should attempt compression does not take into
+account the number of input pages. It can happen that there's only one
+page, eg. a tail page after some ranges of the BTRFS_MAX_UNCOMPRESSED
+have been processed, or an isolated page that won't be converted to an
+inline extent.
 
-The following reproducer triggers the problem and explains how/why it
-happens in its comments:
-
-  $ cat test-send-unlink.sh
-  #!/bin/bash
-
-  DEV=/dev/sdi
-  MNT=/mnt/sdi
-
-  mkfs.btrfs -f $DEV >/dev/null
-  mount $DEV $MNT
-
-  # Create our test files and directory. Inode 259 (file3) has two hard
-  # links.
-  touch $MNT/file1
-  touch $MNT/file2
-  touch $MNT/file3
-
-  mkdir $MNT/A
-  ln $MNT/file3 $MNT/A/hard_link
-
-  # Filesystem looks like:
-  #
-  # .                                     (ino 256)
-  # |----- file1                          (ino 257)
-  # |----- file2                          (ino 258)
-  # |----- file3                          (ino 259)
-  # |----- A/                             (ino 260)
-  #        |---- hard_link                (ino 259)
-  #
-
-  # Now create the base snapshot, which is going to be the parent snapshot
-  # for a later incremental send.
-  btrfs subvolume snapshot -r $MNT $MNT/snap1
-  btrfs send -f /tmp/snap1.send $MNT/snap1
-
-  # Move inode 257 into directory inode 260. This results in computing the
-  # path for inode 260 as "/A" and caching it.
-  mv $MNT/file1 $MNT/A/file1
-
-  # Move inode 258 (file2) into directory inode 260, with a name of
-  # "hard_link", moving first inode 259 away since it currently has that
-  # location and name.
-  mv $MNT/A/hard_link $MNT/tmp
-  mv $MNT/file2 $MNT/A/hard_link
-
-  # Now rename inode 260 to something else (B for example) and then create
-  # a hard link for inode 258 that has the old name and location of inode
-  # 260 ("/A").
-  mv $MNT/A $MNT/B
-  ln $MNT/B/hard_link $MNT/A
-
-  # Filesystem now looks like:
-  #
-  # .                                     (ino 256)
-  # |----- tmp                            (ino 259)
-  # |----- file3                          (ino 259)
-  # |----- B/                             (ino 260)
-  # |      |---- file1                    (ino 257)
-  # |      |---- hard_link                (ino 258)
-  # |
-  # |----- A                              (ino 258)
-
-  # Create another snapshot of our subvolume and use it for an incremental
-  # send.
-  btrfs subvolume snapshot -r $MNT $MNT/snap2
-  btrfs send -f /tmp/snap2.send -p $MNT/snap1 $MNT/snap2
-
-  # Now unmount the filesystem, create a new one, mount it and try to
-  # apply both send streams to recreate both snapshots.
-  umount $DEV
-
-  mkfs.btrfs -f $DEV >/dev/null
-
-  mount $DEV $MNT
-
-  # First add the first snapshot to the new filesystem by applying the
-  # first send stream.
-  btrfs receive -f /tmp/snap1.send $MNT
-
-  # The incremental receive operation below used to fail with the
-  # following error:
-  #
-  #    ERROR: unlink A/hard_link failed: No such file or directory
-  #
-  # This is because when send is processing inode 257, it generates the
-  # path for inode 260 as "/A", since that inode is its parent in the send
-  # snapshot, and caches that path.
-  #
-  # Later when processing inode 258, it first processes its new reference
-  # that has the path of "/A", which results in orphanizing inode 260
-  # because there is a a path collision. This results in issuing a rename
-  # operation from "/A" to "/o260-6-0".
-  #
-  # Finally when processing the new reference "B/hard_link" for inode 258,
-  # it notices that it collides with inode 259 (not yet processed, because
-  # it has a higher inode number), since that inode has the name
-  # "hard_link" under the directory inode 260. It also checks that inode
-  # 259 has two hardlinks, so it decides to issue a unlink operation for
-  # the name "hard_link" for inode 259. However the path passed to the
-  # unlink operation is "/A/hard_link", which is incorrect since currently
-  # "/A" does not exists, due to the orphanization of inode 260 mentioned
-  # before. The path is incorrect because it was computed and cached
-  # before the orphanization. This results in the receiver to fail with
-  # the above error.
-  btrfs receive -f /tmp/snap2.send $MNT
-
-  umount $MNT
-
-When running the test, it fails like this:
-
-  $ ./test-send-unlink.sh
-  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap1'
-  At subvol /mnt/sdi/snap1
-  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap2'
-  At subvol /mnt/sdi/snap2
-  At subvol snap1
-  At snapshot snap2
-  ERROR: unlink A/hard_link failed: No such file or directory
-
-Fix this by recomputing a path before issuing an unlink operation when
-processing the new references for the current inode if we previously
-have orphanized a directory.
-
-A test case for fstests will follow soon.
+The single page would be compressed but a later check would drop it
+again because the result size must be at least one block shorter than
+the input. That can never work with just one page.
 
 CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/send.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/btrfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -4080,6 +4080,17 @@ static int process_recorded_refs(struct
- 				if (ret < 0)
- 					goto out;
- 			} else {
-+				/*
-+				 * If we previously orphanized a directory that
-+				 * collided with a new reference that we already
-+				 * processed, recompute the current path because
-+				 * that directory may be part of the path.
-+				 */
-+				if (orphanized_dir) {
-+					ret = refresh_ref_path(sctx, cur);
-+					if (ret < 0)
-+						goto out;
-+				}
- 				ret = send_unlink(sctx, cur->full_path);
- 				if (ret < 0)
- 					goto out;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -547,7 +547,7 @@ again:
+ 	 * inode has not been flagged as nocompress.  This flag can
+ 	 * change at any time if we discover bad compression ratios.
+ 	 */
+-	if (inode_need_compress(BTRFS_I(inode), start, end)) {
++	if (nr_pages > 1 && inode_need_compress(BTRFS_I(inode), start, end)) {
+ 		WARN_ON(pages);
+ 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
+ 		if (!pages) {
 
 
