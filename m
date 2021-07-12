@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F09C3C553C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADB583C4F3B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355429AbhGLIJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55674 "EHLO mail.kernel.org"
+        id S242927AbhGLHXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353315AbhGLIBu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:01:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54C006142B;
-        Mon, 12 Jul 2021 07:54:35 +0000 (UTC)
+        id S242446AbhGLHWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:22:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 183B660C40;
+        Mon, 12 Jul 2021 07:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076475;
-        bh=YwYcErRYGUObJLPpG9M4aFOsMEa9Ui78nMJ2u9STex8=;
+        s=korg; t=1626074369;
+        bh=+YGAxHpyvw/k/kJdOcc4VCHCnFA4RS2PxkSKHExu8cM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xyxy45DCfmsUHv3+OZtwg9EZ8gfKQj2PoJA50js2o3FUjWPd7gpP7XwdaXmlcAnWf
-         eo+ltzblACqIug2N7C251PctdoA0Ur+r7bSK7lsACaWeY4M2svQ2cr1yCZJ06Wkb1S
-         ngeDHUyzxclgTBscs3JiBSWbazuzcN0rqz9FNRkI=
+        b=AP97KsHZSd1IwdGqLdV8T30k81BC5XOErrJJHF1ely25QhEIng5DW6qGC9rHUCemO
+         +abPISbNLyBe6iFK+2wveL6nhMfeYtYMcPkiN1xLPp0KZHfOXmNKBvwTgumC+dh72O
+         tPFHIQnxRQR0VmG17mIItBwoI0qRSvVIQ9Tjjs18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Peter Meerwald <pmeerw@pmeerw.net>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Badhri Jagan Sridharan <badhri@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 616/800] iio: accel: bma180: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 12 Jul 2021 08:10:39 +0200
-Message-Id: <20210712061032.882473115@linuxfoundation.org>
+Subject: [PATCH 5.12 557/700] usb: typec: tcpm: Fix up PR_SWAP when vsafe0v is signalled
+Date:   Mon, 12 Jul 2021 08:10:40 +0200
+Message-Id: <20210712061035.477249093@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Badhri Jagan Sridharan <badhri@google.com>
 
-[ Upstream commit fc36da3131a747a9367a05caf06de19be1bcc972 ]
+[ Upstream commit d112efbe6dbf7d4c482e2a3f381fa315aabfe63b ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+During PR_SWAP, When TCPM is in PR_SWAP_SNK_SRC_SINK_OFF, vbus is
+expected to reach VSAFE0V when source turns off vbus. Do not move
+to SNK_UNATTACHED state when this happens.
 
-Found during an audit of all calls of this function.
-
-Fixes: b9a6a237ffc9 ("iio:bma180: Drop _update_scan_mode()")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-2-jic23@kernel.org
+Fixes: 28b43d3d746b ("usb: typec: tcpm: Introduce vsafe0v for vbus")
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Link: https://lore.kernel.org/r/20210517192112.40934-1-badhri@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/bma180.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/usb/typec/tcpm/tcpm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iio/accel/bma180.c b/drivers/iio/accel/bma180.c
-index a4456ab4fb9d..b8cea42fca1a 100644
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -164,7 +164,11 @@ struct bma180_data {
- 	int scale;
- 	int bw;
- 	bool pmode;
--	u8 buff[16]; /* 3x 16-bit + 8-bit + padding + timestamp */
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		s16 chan[4];
-+		s64 timestamp __aligned(8);
-+	} scan;
- };
- 
- enum bma180_chan {
-@@ -943,12 +947,12 @@ static irqreturn_t bma180_trigger_handler(int irq, void *p)
- 			mutex_unlock(&data->mutex);
- 			goto err;
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index a57047d7fac8..07dee0118c27 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -5187,6 +5187,9 @@ static void _tcpm_pd_vbus_vsafe0v(struct tcpm_port *port)
+ 				tcpm_set_state(port, SNK_UNATTACHED, 0);
  		}
--		((s16 *)data->buff)[i++] = ret;
-+		data->scan.chan[i++] = ret;
- 	}
- 
- 	mutex_unlock(&data->mutex);
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buff, time_ns);
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan, time_ns);
- err:
- 	iio_trigger_notify_done(indio_dev->trig);
- 
+ 		break;
++	case PR_SWAP_SNK_SRC_SINK_OFF:
++		/* Do nothing, vsafe0v is expected during transition */
++		break;
+ 	default:
+ 		if (port->pwr_role == TYPEC_SINK && port->auto_vbus_discharge_enabled)
+ 			tcpm_set_state(port, SNK_UNATTACHED, 0);
 -- 
 2.30.2
 
