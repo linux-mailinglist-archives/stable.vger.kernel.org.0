@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A26183C4B18
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 077363C508D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239737AbhGLGze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53698 "EHLO mail.kernel.org"
+        id S241138AbhGLHdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:33:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240973AbhGLGyX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:54:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6367611B0;
-        Mon, 12 Jul 2021 06:51:27 +0000 (UTC)
+        id S1343804AbhGLH2w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:28:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DF90611AF;
+        Mon, 12 Jul 2021 07:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072688;
-        bh=VrPXUm0PKzWrgMxxobE5j99PE4NAJHQyapS/YeWsxBM=;
+        s=korg; t=1626074678;
+        bh=RUgYJU9lVBC2ICShtr/4xi1A1kUmM72HxXtGzTEXXgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NtBIOc23Z4byUamIv2j+DVSRwkXEVm9vo44q6/3epHGq5vKj0Hwjl5P6K9AEXaYlX
-         Fnj16znaD1qh2xCtoHiM9WIE/v2GTYAGnnMnABNGTuUh8BTp3QAWoTtmWpuPyQcOis
-         6+W1FNMd9aHgLVB0q/GlnJXU8AsSEkaQThxCrW4Y=
+        b=feBALrnxGYeW2O2NroimBUhopRl5ibLUCKhPexbEbPQTEnTOzwQoDssA96aMNa770
+         EvTFqQL+ksJ59B8SxEEbRiEj1/QVtDyHoJJSM1Noythwd/om8BveCUEw21WHhUII1h
+         LZIsjr90a3G8TDJETgT7qRPwkJy2uDKwF4d5/jKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 582/593] scsi: target: cxgbit: Unmap DMA buffer before calling target_execute_cmd()
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 659/700] ALSA: firewire-lib: Fix amdtp_domain_start() when no AMDTP_OUT_STREAM stream is found
 Date:   Mon, 12 Jul 2021 08:12:22 +0200
-Message-Id: <20210712060959.242606314@linuxfoundation.org>
+Message-Id: <20210712061045.990568925@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,116 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 6ecdafaec79d4b3388a5b017245f23a0ff9d852d upstream.
+[ Upstream commit 0cbbeaf370221fc469c95945dd3c1198865c5fe4 ]
 
-Instead of calling dma_unmap_sg() after completing WRITE I/O, call
-dma_unmap_sg() before calling target_execute_cmd() to sync the DMA buffer.
+The intent here is to return an error code if we don't find what we are
+looking for in the 'list_for_each_entry()' loop.
 
-Link: https://lore.kernel.org/r/1618403949-3443-1-git-send-email-varun@chelsio.com
-Cc: <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+'s' is not NULL if the list is empty or if we scan the complete list.
+Introduce a new 'found' variable to handle such cases.
 
+Fixes: 60dd49298ec5 ("ALSA: firewire-lib: handle several AMDTP streams in callback handler of IRQ target")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/9c9a53a4905984a570ba5672cbab84f2027dedc1.1624560484.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/cxgbit/cxgbit_ddp.c    |   19 ++++++++++---------
- drivers/target/iscsi/cxgbit/cxgbit_target.c |   21 ++++++++++++++++++---
- 2 files changed, 28 insertions(+), 12 deletions(-)
+ sound/firewire/amdtp-stream.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/target/iscsi/cxgbit/cxgbit_ddp.c
-+++ b/drivers/target/iscsi/cxgbit/cxgbit_ddp.c
-@@ -265,12 +265,13 @@ void cxgbit_unmap_cmd(struct iscsi_conn
- 	struct cxgbit_cmd *ccmd = iscsit_priv_cmd(cmd);
+diff --git a/sound/firewire/amdtp-stream.c b/sound/firewire/amdtp-stream.c
+index 5805c5de39fb..7a282d8e7148 100644
+--- a/sound/firewire/amdtp-stream.c
++++ b/sound/firewire/amdtp-stream.c
+@@ -1404,14 +1404,17 @@ int amdtp_domain_start(struct amdtp_domain *d, unsigned int ir_delay_cycle)
+ 	unsigned int queue_size;
+ 	struct amdtp_stream *s;
+ 	int cycle;
++	bool found = false;
+ 	int err;
  
- 	if (ccmd->release) {
--		struct cxgbi_task_tag_info *ttinfo = &ccmd->ttinfo;
--
--		if (ttinfo->sgl) {
-+		if (cmd->se_cmd.se_cmd_flags & SCF_PASSTHROUGH_SG_TO_MEM_NOALLOC) {
-+			put_page(sg_page(&ccmd->sg));
-+		} else {
- 			struct cxgbit_sock *csk = conn->context;
- 			struct cxgbit_device *cdev = csk->com.cdev;
- 			struct cxgbi_ppm *ppm = cdev2ppm(cdev);
-+			struct cxgbi_task_tag_info *ttinfo = &ccmd->ttinfo;
- 
- 			/* Abort the TCP conn if DDP is not complete to
- 			 * avoid any possibility of DDP after freeing
-@@ -280,14 +281,14 @@ void cxgbit_unmap_cmd(struct iscsi_conn
- 				     cmd->se_cmd.data_length))
- 				cxgbit_abort_conn(csk);
- 
-+			if (unlikely(ttinfo->sgl)) {
-+				dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl,
-+					     ttinfo->nents, DMA_FROM_DEVICE);
-+				ttinfo->nents = 0;
-+				ttinfo->sgl = NULL;
-+			}
- 			cxgbi_ppm_ppod_release(ppm, ttinfo->idx);
--
--			dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl,
--				     ttinfo->nents, DMA_FROM_DEVICE);
--		} else {
--			put_page(sg_page(&ccmd->sg));
- 		}
--
- 		ccmd->release = false;
+ 	// Select an IT context as IRQ target.
+ 	list_for_each_entry(s, &d->streams, list) {
+-		if (s->direction == AMDTP_OUT_STREAM)
++		if (s->direction == AMDTP_OUT_STREAM) {
++			found = true;
+ 			break;
++		}
  	}
- }
---- a/drivers/target/iscsi/cxgbit/cxgbit_target.c
-+++ b/drivers/target/iscsi/cxgbit/cxgbit_target.c
-@@ -997,17 +997,18 @@ static int cxgbit_handle_iscsi_dataout(s
- 	struct scatterlist *sg_start;
- 	struct iscsi_conn *conn = csk->conn;
- 	struct iscsi_cmd *cmd = NULL;
-+	struct cxgbit_cmd *ccmd;
-+	struct cxgbi_task_tag_info *ttinfo;
- 	struct cxgbit_lro_pdu_cb *pdu_cb = cxgbit_rx_pdu_cb(csk->skb);
- 	struct iscsi_data *hdr = (struct iscsi_data *)pdu_cb->hdr;
- 	u32 data_offset = be32_to_cpu(hdr->offset);
--	u32 data_len = pdu_cb->dlen;
-+	u32 data_len = ntoh24(hdr->dlength);
- 	int rc, sg_nents, sg_off;
- 	bool dcrc_err = false;
+-	if (!s)
++	if (!found)
+ 		return -ENXIO;
+ 	d->irq_target = s;
  
- 	if (pdu_cb->flags & PDUCBF_RX_DDP_CMP) {
- 		u32 offset = be32_to_cpu(hdr->offset);
- 		u32 ddp_data_len;
--		u32 payload_length = ntoh24(hdr->dlength);
- 		bool success = false;
- 
- 		cmd = iscsit_find_cmd_from_itt_or_dump(conn, hdr->itt, 0);
-@@ -1022,7 +1023,7 @@ static int cxgbit_handle_iscsi_dataout(s
- 		cmd->data_sn = be32_to_cpu(hdr->datasn);
- 
- 		rc = __iscsit_check_dataout_hdr(conn, (unsigned char *)hdr,
--						cmd, payload_length, &success);
-+						cmd, data_len, &success);
- 		if (rc < 0)
- 			return rc;
- 		else if (!success)
-@@ -1060,6 +1061,20 @@ static int cxgbit_handle_iscsi_dataout(s
- 		cxgbit_skb_copy_to_sg(csk->skb, sg_start, sg_nents, skip);
- 	}
- 
-+	ccmd = iscsit_priv_cmd(cmd);
-+	ttinfo = &ccmd->ttinfo;
-+
-+	if (ccmd->release && ttinfo->sgl &&
-+	    (cmd->se_cmd.data_length ==	(cmd->write_data_done + data_len))) {
-+		struct cxgbit_device *cdev = csk->com.cdev;
-+		struct cxgbi_ppm *ppm = cdev2ppm(cdev);
-+
-+		dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl, ttinfo->nents,
-+			     DMA_FROM_DEVICE);
-+		ttinfo->nents = 0;
-+		ttinfo->sgl = NULL;
-+	}
-+
- check_payload:
- 
- 	rc = iscsit_check_dataout_payload(cmd, hdr, dcrc_err);
+-- 
+2.30.2
+
 
 
