@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E123C5230
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E25EE3C4C3D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349937AbhGLHpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49180 "EHLO mail.kernel.org"
+        id S237160AbhGLHCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:02:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348753AbhGLHlV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:41:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB8BB60724;
-        Mon, 12 Jul 2021 07:38:32 +0000 (UTC)
+        id S242727AbhGLHB5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:01:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D62961403;
+        Mon, 12 Jul 2021 06:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075513;
-        bh=mqd9n6vs1xgm7ByR8C/nW5XpQdznqzFjhFlNcwkIRYM=;
+        s=korg; t=1626073148;
+        bh=nP61IyDwMKPULtKhpyhNvfOHA4ogTEHHQM3vW2uT22k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNiPqysGwarFWOjPYw6/RbetPpBz+cVbnElM3KK4szN1NMA7qtOcFg8ICJcfby1Nv
-         ikPEwHMaJ/LZXh+JB1FWzBCpcofBPkJHzocQsf5T+mQzv2WwnfmmL9VtGW3SgXfoBV
-         AsVPhROBpeBQNecKs9XXPvgrYSgcuuUhcaZYb7oU=
+        b=F9vkmZRmaFg7pOMAV/ESjcxHmYLwW+rMENdaTbDm+XHqou6zKh3lJCrsOh7iRO+bf
+         Wpd0I5b9D0JRv6ty3vyJSMb3FpIdGR+l63RbyjMWqQOKdwHwGySY7EECKmiV1LqPC9
+         g2pufM4vMT9r9vcXyHcquwsIlR5qESir+H94bhyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        stable@vger.kernel.org,
+        syzbot+d1e69c888f0d3866ead4@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 203/800] KVM: s390: get rid of register asm usage
+Subject: [PATCH 5.12 143/700] media: cpia2: fix memory leak in cpia2_usb_probe
 Date:   Mon, 12 Jul 2021 08:03:46 +0200
-Message-Id: <20210712060941.778494085@linuxfoundation.org>
+Message-Id: <20210712060945.766723254@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,76 +43,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 4fa3b91bdee1b08348c82660668ca0ca34e271ad ]
+[ Upstream commit be8656e62e9e791837b606a027802b504a945c97 ]
 
-Using register asm statements has been proven to be very error prone,
-especially when using code instrumentation where gcc may add function
-calls, which clobbers register contents in an unexpected way.
+syzbot reported leak in cpia2 usb driver. The problem was
+in invalid error handling.
 
-Therefore get rid of register asm statements in kvm code, even though
-there is currently nothing wrong with them. This way we know for sure
-that this bug class won't be introduced here.
+v4l2_device_register() is called in cpia2_init_camera_struct(), but
+all error cases after cpia2_init_camera_struct() did not call the
+v4l2_device_unregister()
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210621140356.1210771-1-hca@linux.ibm.com
-[borntraeger@de.ibm.com: checkpatch strict fix]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reported-by: syzbot+d1e69c888f0d3866ead4@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/media/usb/cpia2/cpia2.h      |  1 +
+ drivers/media/usb/cpia2/cpia2_core.c | 12 ++++++++++++
+ drivers/media/usb/cpia2/cpia2_usb.c  | 13 +++++++------
+ 3 files changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 1296fc10f80c..876fc1f7282a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -329,31 +329,31 @@ static void allow_cpu_feat(unsigned long nr)
- 
- static inline int plo_test_bit(unsigned char nr)
- {
--	register unsigned long r0 asm("0") = (unsigned long) nr | 0x100;
-+	unsigned long function = (unsigned long)nr | 0x100;
- 	int cc;
- 
- 	asm volatile(
-+		"	lgr	0,%[function]\n"
- 		/* Parameter registers are ignored for "test bit" */
- 		"	plo	0,0,0,0(0)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28\n"
- 		: "=d" (cc)
--		: "d" (r0)
--		: "cc");
-+		: [function] "d" (function)
-+		: "cc", "0");
- 	return cc == 0;
+diff --git a/drivers/media/usb/cpia2/cpia2.h b/drivers/media/usb/cpia2/cpia2.h
+index 50835f5f7512..57b7f1ea68da 100644
+--- a/drivers/media/usb/cpia2/cpia2.h
++++ b/drivers/media/usb/cpia2/cpia2.h
+@@ -429,6 +429,7 @@ int cpia2_send_command(struct camera_data *cam, struct cpia2_command *cmd);
+ int cpia2_do_command(struct camera_data *cam,
+ 		     unsigned int command,
+ 		     unsigned char direction, unsigned char param);
++void cpia2_deinit_camera_struct(struct camera_data *cam, struct usb_interface *intf);
+ struct camera_data *cpia2_init_camera_struct(struct usb_interface *intf);
+ int cpia2_init_camera(struct camera_data *cam);
+ int cpia2_allocate_buffers(struct camera_data *cam);
+diff --git a/drivers/media/usb/cpia2/cpia2_core.c b/drivers/media/usb/cpia2/cpia2_core.c
+index e747548ab286..b5a2d06fb356 100644
+--- a/drivers/media/usb/cpia2/cpia2_core.c
++++ b/drivers/media/usb/cpia2/cpia2_core.c
+@@ -2163,6 +2163,18 @@ static void reset_camera_struct(struct camera_data *cam)
+ 	cam->height = cam->params.roi.height;
  }
  
- static __always_inline void __insn32_query(unsigned int opcode, u8 *query)
- {
--	register unsigned long r0 asm("0") = 0;	/* query function */
--	register unsigned long r1 asm("1") = (unsigned long) query;
--
- 	asm volatile(
--		/* Parameter regs are ignored */
-+		"	lghi	0,0\n"
-+		"	lgr	1,%[query]\n"
-+		/* Parameter registers are ignored */
- 		"	.insn	rrf,%[opc] << 16,2,4,6,0\n"
- 		:
--		: "d" (r0), "a" (r1), [opc] "i" (opcode)
--		: "cc", "memory");
-+		: [query] "d" ((unsigned long)query), [opc] "i" (opcode)
-+		: "cc", "memory", "0", "1");
++/******************************************************************************
++ *
++ *  cpia2_init_camera_struct
++ *
++ *  Deinitialize camera struct
++ *****************************************************************************/
++void cpia2_deinit_camera_struct(struct camera_data *cam, struct usb_interface *intf)
++{
++	v4l2_device_unregister(&cam->v4l2_dev);
++	kfree(cam);
++}
++
+ /******************************************************************************
+  *
+  *  cpia2_init_camera_struct
+diff --git a/drivers/media/usb/cpia2/cpia2_usb.c b/drivers/media/usb/cpia2/cpia2_usb.c
+index 3ab80a7b4498..76aac06f9fb8 100644
+--- a/drivers/media/usb/cpia2/cpia2_usb.c
++++ b/drivers/media/usb/cpia2/cpia2_usb.c
+@@ -844,15 +844,13 @@ static int cpia2_usb_probe(struct usb_interface *intf,
+ 	ret = set_alternate(cam, USBIF_CMDONLY);
+ 	if (ret < 0) {
+ 		ERR("%s: usb_set_interface error (ret = %d)\n", __func__, ret);
+-		kfree(cam);
+-		return ret;
++		goto alt_err;
+ 	}
+ 
+ 
+ 	if((ret = cpia2_init_camera(cam)) < 0) {
+ 		ERR("%s: failed to initialize cpia2 camera (ret = %d)\n", __func__, ret);
+-		kfree(cam);
+-		return ret;
++		goto alt_err;
+ 	}
+ 	LOG("  CPiA Version: %d.%02d (%d.%d)\n",
+ 	       cam->params.version.firmware_revision_hi,
+@@ -872,11 +870,14 @@ static int cpia2_usb_probe(struct usb_interface *intf,
+ 	ret = cpia2_register_camera(cam);
+ 	if (ret < 0) {
+ 		ERR("%s: Failed to register cpia2 camera (ret = %d)\n", __func__, ret);
+-		kfree(cam);
+-		return ret;
++		goto alt_err;
+ 	}
+ 
+ 	return 0;
++
++alt_err:
++	cpia2_deinit_camera_struct(cam, intf);
++	return ret;
  }
  
- #define INSN_SORTL 0xb938
+ /******************************************************************************
 -- 
 2.30.2
 
