@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06FAA3C4456
+	by mail.lfdr.de (Postfix) with ESMTP id B54F23C4457
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233654AbhGLGSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:18:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
+        id S233686AbhGLGSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:18:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233598AbhGLGSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:18:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98255610CD;
-        Mon, 12 Jul 2021 06:15:36 +0000 (UTC)
+        id S233483AbhGLGS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:18:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9154610CB;
+        Mon, 12 Jul 2021 06:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070537;
-        bh=olzKqJDoXQW6XcEzjbAgamXKpMz+0dELovJoN8l7BH0=;
+        s=korg; t=1626070539;
+        bh=ObtccxhA6maFkNuGS8SVMVX4ToKpiiF2Cefv679MDRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Omso5qXHsl1LS5nYMCHY6FwF9k6Hc7+SdB3C52Igfi1daRJd0JvcYxMBmakE8je8K
-         Ij19rQ1SzYJh+Ijw3ShmvMNtZqCHzk+sbb+kM9Oa7f4g/z3T/Cv2MA2BeQsU5un1a5
-         MP+ru0ucLNq8kquTsFiqbCdDX78PVu0HO/nYA3IA=
+        b=tWKLR706AkHf9oK6M9dPJqMicnpBCiZnblL0/Lbk5tIvT8cE5RRkBCf8FlEBhNyU/
+         YXXwq0s9vcUHzJsCStezprenZTgr9/j41gRrrBfRwERHIB4RRTmeQXtgq3TI+4ttkb
+         wtu4auP9CeKQ6iO0PzYXEfmB23rr5+xohCooW8B8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        syzbot+bdf710cfc41c186fdff3@syzkaller.appspotmail.com,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 033/348] can: gw: synchronize rcu operations before removing gw job entry
-Date:   Mon, 12 Jul 2021 08:06:57 +0200
-Message-Id: <20210712060705.417695724@linuxfoundation.org>
+Subject: [PATCH 5.4 034/348] can: j1939: j1939_sk_init(): set SOCK_RCU_FREE to call sk_destruct() after RCU is done
+Date:   Mon, 12 Jul 2021 08:06:58 +0200
+Message-Id: <20210712060705.526532175@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -39,51 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit fb8696ab14adadb2e3f6c17c18ed26b3ecd96691 upstream.
+commit 22c696fed25c63c7f67508309820358b94a96b6d upstream.
 
-can_can_gw_rcv() is called under RCU protection, so after calling
-can_rx_unregister(), we have to call synchronize_rcu in order to wait
-for any RCU read-side critical sections to finish before removing the
-kmem_cache entry with the referenced gw job entry.
+Set SOCK_RCU_FREE to let RCU to call sk_destruct() on completion.
+Without this patch, we will run in to j1939_can_recv() after priv was
+freed by j1939_sk_release()->j1939_sk_sock_destruct()
 
-Link: https://lore.kernel.org/r/20210618173645.2238-1-socketcan@hartkopp.net
-Fixes: c1aabdf379bc ("can-gw: add netlink based CAN routing")
+Fixes: 25fe97cb7620 ("can: j1939: move j1939_priv_put() into sk_destruct callback")
+Link: https://lore.kernel.org/r/20210617130623.12705-1-o.rempel@pengutronix.de
 Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Reported-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Reported-by: syzbot+bdf710cfc41c186fdff3@syzkaller.appspotmail.com
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/can/gw.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/can/j1939/main.c   |    4 ++++
+ net/can/j1939/socket.c |    3 +++
+ 2 files changed, 7 insertions(+)
 
---- a/net/can/gw.c
-+++ b/net/can/gw.c
-@@ -535,6 +535,7 @@ static int cgw_notifier(struct notifier_
- 			if (gwj->src.dev == dev || gwj->dst.dev == dev) {
- 				hlist_del(&gwj->list);
- 				cgw_unregister_filter(net, gwj);
-+				synchronize_rcu();
- 				kmem_cache_free(cgw_cache, gwj);
- 			}
- 		}
-@@ -1093,6 +1094,7 @@ static void cgw_remove_all_jobs(struct n
- 	hlist_for_each_entry_safe(gwj, nx, &net->can.cgw_list, list) {
- 		hlist_del(&gwj->list);
- 		cgw_unregister_filter(net, gwj);
-+		synchronize_rcu();
- 		kmem_cache_free(cgw_cache, gwj);
- 	}
- }
-@@ -1161,6 +1163,7 @@ static int cgw_remove_job(struct sk_buff
+--- a/net/can/j1939/main.c
++++ b/net/can/j1939/main.c
+@@ -193,6 +193,10 @@ static void j1939_can_rx_unregister(stru
+ 	can_rx_unregister(dev_net(ndev), ndev, J1939_CAN_ID, J1939_CAN_MASK,
+ 			  j1939_can_recv, priv);
  
- 		hlist_del(&gwj->list);
- 		cgw_unregister_filter(net, gwj);
-+		synchronize_rcu();
- 		kmem_cache_free(cgw_cache, gwj);
- 		err = 0;
- 		break;
++	/* The last reference of priv is dropped by the RCU deferred
++	 * j1939_sk_sock_destruct() of the last socket, so we can
++	 * safely drop this reference here.
++	 */
+ 	j1939_priv_put(priv);
+ }
+ 
+--- a/net/can/j1939/socket.c
++++ b/net/can/j1939/socket.c
+@@ -398,6 +398,9 @@ static int j1939_sk_init(struct sock *sk
+ 	atomic_set(&jsk->skb_pending, 0);
+ 	spin_lock_init(&jsk->sk_session_queue_lock);
+ 	INIT_LIST_HEAD(&jsk->sk_session_queue);
++
++	/* j1939_sk_sock_destruct() depends on SOCK_RCU_FREE flag */
++	sock_set_flag(sk, SOCK_RCU_FREE);
+ 	sk->sk_destruct = j1939_sk_sock_destruct;
+ 	sk->sk_protocol = CAN_J1939;
+ 
 
 
