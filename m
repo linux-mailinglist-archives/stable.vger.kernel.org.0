@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52DE43C4DE4
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4974C3C4995
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243404AbhGLHPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:15:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46988 "EHLO mail.kernel.org"
+        id S236072AbhGLGp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:45:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238322AbhGLHOd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:14:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6878361360;
-        Mon, 12 Jul 2021 07:11:09 +0000 (UTC)
+        id S238733AbhGLGoO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:44:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC445611AF;
+        Mon, 12 Jul 2021 06:39:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073870;
-        bh=5b0iAY5F7Q91YLfIK4i8Qn7hc8U7Yr6r9gRXIEuwfiU=;
+        s=korg; t=1626071997;
+        bh=zyfh1XtR0ONsG//v+CK6t5EH1+y76L+PvkwBHzOQGGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hlHNyi7LPrrbfw28GQzpsFGzmuiIkEILpRb10wokoM89erQr3/6Uv+WH6FSSFpDD0
-         6N1LXtoBypxmqw/XI2wVs+SEAGDl86ieHvSdwNSJPV+bEmeEfhpCCGsx0qPQDQYT47
-         jVmMP5dODTYPhTcMsm36XuU+soat/zKQhFgbx8w4=
+        b=GFiBxvghssPPNr0yiqAchJx7sMTNtL2SouTEO1leY4VurCbJserJmOHXVGOPWoNhT
+         jkb8x9hATz1o0xJxTSZekDnxUVQ06rcfzm9F7mgVamebk8v81FCfEMxLbPeymA3xk1
+         6uJTCgMxs7pjLQa40vGlaBXqffn6Ihy8yuFYMlHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 386/700] RDMA/rtrs-srv: Fix memory leak when having multiple sessions
-Date:   Mon, 12 Jul 2021 08:07:49 +0200
-Message-Id: <20210712061017.450108785@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
+        Charmaine Lee <charmainel@vmware.com>,
+        Roland Scheidegger <sroland@vmware.com>,
+        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 310/593] drm/vmwgfx: Fix cpu updates of coherent multisample surfaces
+Date:   Mon, 12 Jul 2021 08:07:50 +0200
+Message-Id: <20210712060919.316415192@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,86 +41,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@cloud.ionos.com>
+From: Thomas Hellstrom <thellstrom@vmware.com>
 
-[ Upstream commit 6bb97a2c1aa5278a30d49abb6186d50c34c207e2 ]
+[ Upstream commit 88509f698c4e38e287e016e86a0445547824135c ]
 
-Gioh notice memory leak below
-unreferenced object 0xffff8880acda2000 (size 2048):
-  comm "kworker/4:1", pid 77, jiffies 4295062871 (age 1270.730s)
-  hex dump (first 32 bytes):
-    00 20 da ac 80 88 ff ff 00 20 da ac 80 88 ff ff  . ....... ......
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000e85d85b5>] rtrs_srv_rdma_cm_handler+0x8e5/0xa90 [rtrs_server]
-    [<00000000e31a988a>] cma_ib_req_handler+0xdc5/0x2b50 [rdma_cm]
-    [<000000000eb02c5b>] cm_process_work+0x2d/0x100 [ib_cm]
-    [<00000000e1650ca9>] cm_req_handler+0x11bc/0x1c40 [ib_cm]
-    [<000000009c28818b>] cm_work_handler+0xe65/0x3cf2 [ib_cm]
-    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
-    [<00000000da3499fb>] worker_thread+0x78/0x5c0
-    [<00000000167127a4>] kthread+0x191/0x1e0
-    [<0000000060802104>] ret_from_fork+0x3a/0x50
-unreferenced object 0xffff88806d595d90 (size 8):
-  comm "kworker/4:1H", pid 131, jiffies 4295062972 (age 1269.720s)
-  hex dump (first 8 bytes):
-    62 6c 61 00 6b 6b 6b a5                          bla.kkk.
-  backtrace:
-    [<000000004447d253>] kstrdup+0x2e/0x60
-    [<0000000047259793>] kobject_set_name_vargs+0x2f/0xb0
-    [<00000000c2ee3bc8>] dev_set_name+0xab/0xe0
-    [<000000002b6bdfb1>] rtrs_srv_create_sess_files+0x260/0x290 [rtrs_server]
-    [<0000000075d87bd7>] rtrs_srv_info_req_done+0x71b/0x960 [rtrs_server]
-    [<00000000ccdf1bb5>] __ib_process_cq+0x94/0x100 [ib_core]
-    [<00000000cbcb60cb>] ib_cq_poll_work+0x32/0xc0 [ib_core]
-    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
-    [<00000000da3499fb>] worker_thread+0x78/0x5c0
-    [<00000000167127a4>] kthread+0x191/0x1e0
-    [<0000000060802104>] ret_from_fork+0x3a/0x50
-unreferenced object 0xffff88806d6bb100 (size 256):
-  comm "kworker/4:1H", pid 131, jiffies 4295062972 (age 1269.720s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff 00 59 4d 86 ff ff ff ff  .........YM.....
-  backtrace:
-    [<00000000a18a11e4>] device_add+0x74d/0xa00
-    [<00000000a915b95f>] rtrs_srv_create_sess_files.cold+0x49/0x1fe [rtrs_server]
-    [<0000000075d87bd7>] rtrs_srv_info_req_done+0x71b/0x960 [rtrs_server]
-    [<00000000ccdf1bb5>] __ib_process_cq+0x94/0x100 [ib_core]
-    [<00000000cbcb60cb>] ib_cq_poll_work+0x32/0xc0 [ib_core]
-    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
-    [<00000000da3499fb>] worker_thread+0x78/0x5c0
-    [<00000000167127a4>] kthread+0x191/0x1e0
-    [<0000000060802104>] ret_from_fork+0x3a/0x50
+In cases where the dirty linear memory range spans multiple sample sheets
+in a surface, the dirty surface region is incorrectly computed.
+To do this correctly and in an optimized fashion  we would have to compute
+the dirty region of each sample sheet and compute the union of those
+regions.
 
-The problem is we increase device refcount by get_device in process_info_req
-for each path, but only does put_deice for last path, which lead to
-memory leak.
+But assuming that cpu writing to a multisample surface is rather a corner
+case than a common case, just set the dirty region to the full surface.
 
-To fix it, it also calls put_device when dev_ref is not 0.
+This fixes OpenGL piglit errors with SVGA_FORCE_COHERENT=1
+and the piglit test:
 
-Fixes: e2853c49477d1 ("RDMA/rtrs-srv-sysfs: fix missing put_device")
-Link: https://lore.kernel.org/r/20210528113018.52290-19-jinpu.wang@ionos.com
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+fbo-depthstencil blit default_fb -samples=2 -auto
+
+Fixes: 9ca7d19ff8ba ("drm/vmwgfx: Add surface dirty-tracking callbacks")
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Charmaine Lee <charmainel@vmware.com>
+Reviewed-by: Roland Scheidegger <sroland@vmware.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210505035740.286923-4-zackr@vmware.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../drm/vmwgfx/device_include/svga3d_surfacedefs.h  |  8 ++++++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c             | 13 +++++++++++++
+ 2 files changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
-index 126a96e75c62..e499f64ae608 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
-@@ -211,6 +211,7 @@ rtrs_srv_destroy_once_sysfs_root_folders(struct rtrs_srv_sess *sess)
- 		device_del(&srv->dev);
- 		put_device(&srv->dev);
- 	} else {
-+		put_device(&srv->dev);
- 		mutex_unlock(&srv->paths_mutex);
- 	}
+diff --git a/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h b/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h
+index 4db25bd9fa22..127eaf0a0a58 100644
+--- a/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h
++++ b/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h
+@@ -1467,6 +1467,7 @@ struct svga3dsurface_cache {
+ 
+ /**
+  * struct svga3dsurface_loc - Surface location
++ * @sheet: The multisample sheet.
+  * @sub_resource: Surface subresource. Defined as layer * num_mip_levels +
+  * mip_level.
+  * @x: X coordinate.
+@@ -1474,6 +1475,7 @@ struct svga3dsurface_cache {
+  * @z: Z coordinate.
+  */
+ struct svga3dsurface_loc {
++	u32 sheet;
+ 	u32 sub_resource;
+ 	u32 x, y, z;
+ };
+@@ -1566,8 +1568,8 @@ svga3dsurface_get_loc(const struct svga3dsurface_cache *cache,
+ 	u32 layer;
+ 	int i;
+ 
+-	if (offset >= cache->sheet_bytes)
+-		offset %= cache->sheet_bytes;
++	loc->sheet = offset / cache->sheet_bytes;
++	offset -= loc->sheet * cache->sheet_bytes;
+ 
+ 	layer = offset / cache->mip_chain_bytes;
+ 	offset -= layer * cache->mip_chain_bytes;
+@@ -1631,6 +1633,7 @@ svga3dsurface_min_loc(const struct svga3dsurface_cache *cache,
+ 		      u32 sub_resource,
+ 		      struct svga3dsurface_loc *loc)
+ {
++	loc->sheet = 0;
+ 	loc->sub_resource = sub_resource;
+ 	loc->x = loc->y = loc->z = 0;
  }
+@@ -1652,6 +1655,7 @@ svga3dsurface_max_loc(const struct svga3dsurface_cache *cache,
+ 	const struct drm_vmw_size *size;
+ 	u32 mip;
+ 
++	loc->sheet = 0;
+ 	loc->sub_resource = sub_resource + 1;
+ 	mip = sub_resource % cache->num_mip_levels;
+ 	size = &cache->mip[mip].size;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+index 3914bfee0533..f493b20c7a38 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -1802,6 +1802,19 @@ static void vmw_surface_tex_dirty_range_add(struct vmw_resource *res,
+ 	svga3dsurface_get_loc(cache, &loc2, end - 1);
+ 	svga3dsurface_inc_loc(cache, &loc2);
+ 
++	if (loc1.sheet != loc2.sheet) {
++		u32 sub_res;
++
++		/*
++		 * Multiple multisample sheets. To do this in an optimized
++		 * fashion, compute the dirty region for each sheet and the
++		 * resulting union. Since this is not a common case, just dirty
++		 * the whole surface.
++		 */
++		for (sub_res = 0; sub_res < dirty->num_subres; ++sub_res)
++			vmw_subres_dirty_full(dirty, sub_res);
++		return;
++	}
+ 	if (loc1.sub_resource + 1 == loc2.sub_resource) {
+ 		/* Dirty range covers a single sub-resource */
+ 		vmw_subres_dirty_add(dirty, &loc1, &loc2);
 -- 
 2.30.2
 
