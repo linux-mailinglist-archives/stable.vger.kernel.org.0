@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C00593C4D1F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D4233C4D23
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245350AbhGLHMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:12:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42086 "EHLO mail.kernel.org"
+        id S245356AbhGLHMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244159AbhGLHK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:10:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 591DB613CA;
-        Mon, 12 Jul 2021 07:06:42 +0000 (UTC)
+        id S244185AbhGLHK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1060613D4;
+        Mon, 12 Jul 2021 07:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073602;
-        bh=euOi7siJ/ayk1/8dY5MN8MN8sdkfhzc8bSkdEUPYp+k=;
+        s=korg; t=1626073624;
+        bh=h/Ohe38gD02ghfKe08hLeUHUHkf5p7Y1xWoRa6HSz6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eB0rS2HejCaOAOJx/q76U/j5mroP0fHAiG6lhahqs5Df2WksKjmAqOIcvM82nuTJJ
-         X517toxX3IFQ5D/YbfgXrpGI+5FiJQpFQtemPVzFQeF651ADMyzWhKfhewDRfJuWqO
-         B0xEVsclDel5He+Y9v0wYa/dFceT6LEDZOlkYWcE=
+        b=WUivJgfgzyA7qC7AeAoOMysz8119fFSmzeQZ8oTOxTpVFlZiJonB23ffDqPfidUBn
+         0/PXTXONFdV3Q9VG74OgW2UCCV97E1BedoHnDRLFFDaw3iwqEdyAdX0h8fWglDkv4z
+         w9gEabKw2KhLV+t/rA3RuTydXKX70o41bLxkxbjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
+        stable@vger.kernel.org, Quentin Perret <qperret@google.com>,
+        Qais Yousef <qais.yousef@arm.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 260/700] sched/uclamp: Fix wrong implementation of cpu.uclamp.min
-Date:   Mon, 12 Jul 2021 08:05:43 +0200
-Message-Id: <20210712061003.805408556@linuxfoundation.org>
+Subject: [PATCH 5.12 261/700] sched/uclamp: Fix locking around cpu_util_update_eff()
+Date:   Mon, 12 Jul 2021 08:05:44 +0200
+Message-Id: <20210712061003.930651224@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -42,112 +43,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 0c18f2ecfcc274a4bcc1d122f79ebd4001c3b445 ]
+[ Upstream commit 93b73858701fd01de26a4a874eb95f9b7156fd4b ]
 
-cpu.uclamp.min is a protection as described in cgroup-v2 Resource
-Distribution Model
+cpu_cgroup_css_online() calls cpu_util_update_eff() without holding the
+uclamp_mutex or rcu_read_lock() like other call sites, which is
+a mistake.
 
-	Documentation/admin-guide/cgroup-v2.rst
+The uclamp_mutex is required to protect against concurrent reads and
+writes that could update the cgroup hierarchy.
 
-which means we try our best to preserve the minimum performance point of
-tasks in this group. See full description of cpu.uclamp.min in the
-cgroup-v2.rst.
+The rcu_read_lock() is required to traverse the cgroup data structures
+in cpu_util_update_eff().
 
-But the current implementation makes it a limit, which is not what was
-intended.
+Surround the caller with the required locks and add some asserts to
+better document the dependency in cpu_util_update_eff().
 
-For example:
-
-	tg->cpu.uclamp.min = 20%
-
-	p0->uclamp[UCLAMP_MIN] = 0
-	p1->uclamp[UCLAMP_MIN] = 50%
-
-	Previous Behavior (limit):
-
-		p0->effective_uclamp = 0
-		p1->effective_uclamp = 20%
-
-	New Behavior (Protection):
-
-		p0->effective_uclamp = 20%
-		p1->effective_uclamp = 50%
-
-Which is inline with how protections should work.
-
-With this change the cgroup and per-task behaviors are the same, as
-expected.
-
-Additionally, we remove the confusing relationship between cgroup and
-!user_defined flag.
-
-We don't want for example RT tasks that are boosted by default to max to
-change their boost value when they attach to a cgroup. If a cgroup wants
-to limit the max performance point of tasks attached to it, then
-cpu.uclamp.max must be set accordingly.
-
-Or if they want to set different boost value based on cgroup, then
-sysctl_sched_util_clamp_min_rt_default must be used to NOT boost to max
-and set the right cpu.uclamp.min for each group to let the RT tasks
-obtain the desired boost value when attached to that group.
-
-As it stands the dependency on !user_defined flag adds an extra layer of
-complexity that is not required now cpu.uclamp.min behaves properly as
-a protection.
-
-The propagation model of effective cpu.uclamp.min in child cgroups as
-implemented by cpu_util_update_eff() is still correct. The parent
-protection sets an upper limit of what the child cgroups will
-effectively get.
-
-Fixes: 3eac870a3247 (sched/uclamp: Use TG's clamps to restrict TASK's clamps)
+Fixes: 7226017ad37a ("sched/uclamp: Fix a bug in propagating uclamp value in new cgroups")
+Reported-by: Quentin Perret <qperret@google.com>
 Signed-off-by: Qais Yousef <qais.yousef@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210510145032.1934078-2-qais.yousef@arm.com
+Link: https://lkml.kernel.org/r/20210510145032.1934078-3-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ kernel/sched/core.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 17f612045271..3fe7daf9d31d 100644
+index 3fe7daf9d31d..f59166fe499a 100644
 --- a/kernel/sched/core.c
 +++ b/kernel/sched/core.c
-@@ -1057,7 +1057,6 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
- {
- 	struct uclamp_se uc_req = p->uclamp_req[clamp_id];
+@@ -8693,7 +8693,11 @@ static int cpu_cgroup_css_online(struct cgroup_subsys_state *css)
+ 
  #ifdef CONFIG_UCLAMP_TASK_GROUP
--	struct uclamp_se uc_max;
- 
- 	/*
- 	 * Tasks in autogroups or root task group will be
-@@ -1068,9 +1067,23 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
- 	if (task_group(p) == &root_task_group)
- 		return uc_req;
- 
--	uc_max = task_group(p)->uclamp[clamp_id];
--	if (uc_req.value > uc_max.value || !uc_req.user_defined)
--		return uc_max;
-+	switch (clamp_id) {
-+	case UCLAMP_MIN: {
-+		struct uclamp_se uc_min = task_group(p)->uclamp[clamp_id];
-+		if (uc_req.value < uc_min.value)
-+			return uc_min;
-+		break;
-+	}
-+	case UCLAMP_MAX: {
-+		struct uclamp_se uc_max = task_group(p)->uclamp[clamp_id];
-+		if (uc_req.value > uc_max.value)
-+			return uc_max;
-+		break;
-+	}
-+	default:
-+		WARN_ON_ONCE(1);
-+		break;
-+	}
+ 	/* Propagate the effective uclamp value for the new group */
++	mutex_lock(&uclamp_mutex);
++	rcu_read_lock();
+ 	cpu_util_update_eff(css);
++	rcu_read_unlock();
++	mutex_unlock(&uclamp_mutex);
  #endif
  
- 	return uc_req;
+ 	return 0;
+@@ -8783,6 +8787,9 @@ static void cpu_util_update_eff(struct cgroup_subsys_state *css)
+ 	enum uclamp_id clamp_id;
+ 	unsigned int clamps;
+ 
++	lockdep_assert_held(&uclamp_mutex);
++	SCHED_WARN_ON(!rcu_read_lock_held());
++
+ 	css_for_each_descendant_pre(css, top_css) {
+ 		uc_parent = css_tg(css)->parent
+ 			? css_tg(css)->parent->uclamp : NULL;
 -- 
 2.30.2
 
