@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71E8C3C509A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D956C3C55C5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239457AbhGLHdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:33:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43826 "EHLO mail.kernel.org"
+        id S1344973AbhGLIL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:11:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345420AbhGLH3o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 883B461625;
-        Mon, 12 Jul 2021 07:26:29 +0000 (UTC)
+        id S1353895AbhGLIDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36F6F6121E;
+        Mon, 12 Jul 2021 07:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074790;
-        bh=pffLqUl9c1SzSJ7B3p5MOSsGhWDdYhzGMjJe6NGf8J0=;
+        s=korg; t=1626076705;
+        bh=/4WK8nKUvEkJpigdG4z2qQ+j88Y6mH6qhSyZT5i4Rt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YuTxl70pDcnyjA9x4S6lPpGkI4kaFHNeQthOYStLtv4f+HeD7W0llLiEgd5QjqkjL
-         Ty3INFVGysaZLOFxQRgfJOTWRaTHolR0Q6oqJl65cFwJztB4xYtFn5bBjgAo+673oT
-         DYzCgrWdJPCy0GUzzCr4bJk85v6Lxf5s7IHQxBv0=
+        b=vtOHPti811D5PUZFuLxXg4/aRq18jhQcbS/GNBqzANVybK99QK2TkiyNEayqbhlw8
+         tm+JzZgP6aS2V6KWZCOwDH1Q0o5u/xWeCXILLrwv8pebhhwt32KJcFi5KN+7nS0x8a
+         AHLaGLifPmCVauhNLRv6smSPo42UF9aWoJ2VNTEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.12 698/700] mmc: vub3000: fix control-request direction
-Date:   Mon, 12 Jul 2021 08:13:01 +0200
-Message-Id: <20210712061050.190760029@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 759/800] serial: mvebu-uart: correctly calculate minimal possible baudrate
+Date:   Mon, 12 Jul 2021 08:13:02 +0200
+Message-Id: <20210712061047.546860982@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Pali Rohár <pali@kernel.org>
 
-commit 3c0bb3107703d2c58f7a0a7a2060bb57bc120326 upstream.
+[ Upstream commit deeaf963569a0d9d1b08babb771f61bb501a5704 ]
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+For default (x16) scheme which is currently used by mvebu-uart.c driver,
+maximal divisor of UART base clock is 1023*16. Therefore there is limit for
+minimal supported baudrate. This change calculate it correctly and prevents
+setting invalid divisor 0 into hardware registers.
 
-Fix the SET_ROM_WAIT_STATES request which erroneously used
-usb_rcvctrlpipe().
-
-Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
-Cc: stable@vger.kernel.org      # 3.0
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210521133026.17296-1-johan@kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
+Link: https://lore.kernel.org/r/20210624224909.6350-4-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/vub300.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/mvebu-uart.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/vub300.c
-+++ b/drivers/mmc/host/vub300.c
-@@ -2279,7 +2279,7 @@ static int vub300_probe(struct usb_inter
- 	if (retval < 0)
- 		goto error5;
- 	retval =
--		usb_control_msg(vub300->udev, usb_rcvctrlpipe(vub300->udev, 0),
-+		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_ROM_WAIT_STATES,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				firmware_rom_wait_states, 0x0000, NULL, 0, HZ);
+diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
+index 9638ae6aae79..1e26220c7852 100644
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -481,7 +481,7 @@ static void mvebu_uart_set_termios(struct uart_port *port,
+ 				   struct ktermios *old)
+ {
+ 	unsigned long flags;
+-	unsigned int baud;
++	unsigned int baud, min_baud, max_baud;
+ 
+ 	spin_lock_irqsave(&port->lock, flags);
+ 
+@@ -500,16 +500,21 @@ static void mvebu_uart_set_termios(struct uart_port *port,
+ 		port->ignore_status_mask |= STAT_RX_RDY(port) | STAT_BRK_ERR;
+ 
+ 	/*
++	 * Maximal divisor is 1023 * 16 when using default (x16) scheme.
+ 	 * Maximum achievable frequency with simple baudrate divisor is 230400.
+ 	 * Since the error per bit frame would be of more than 15%, achieving
+ 	 * higher frequencies would require to implement the fractional divisor
+ 	 * feature.
+ 	 */
+-	baud = uart_get_baud_rate(port, termios, old, 0, 230400);
++	min_baud = DIV_ROUND_UP(port->uartclk, 1023 * 16);
++	max_baud = 230400;
++
++	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
+ 	if (mvebu_uart_baud_rate_set(port, baud)) {
+ 		/* No clock available, baudrate cannot be changed */
+ 		if (old)
+-			baud = uart_get_baud_rate(port, old, NULL, 0, 230400);
++			baud = uart_get_baud_rate(port, old, NULL,
++						  min_baud, max_baud);
+ 	} else {
+ 		tty_termios_encode_baud_rate(termios, baud, baud);
+ 		uart_update_timeout(port, termios->c_cflag, baud);
+-- 
+2.30.2
+
 
 
