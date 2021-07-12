@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D22E3C4E2D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2667F3C53DC
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243789AbhGLHRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:17:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47058 "EHLO mail.kernel.org"
+        id S1348860AbhGLH4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243089AbhGLHQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:16:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AC196142F;
-        Mon, 12 Jul 2021 07:13:17 +0000 (UTC)
+        id S1350742AbhGLHvP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98A5C61993;
+        Mon, 12 Jul 2021 07:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073998;
-        bh=zpmlP8jBOI/3XJMSmYUQUg/+DOSOOVgo9OAB8w9mgdY=;
+        s=korg; t=1626076079;
+        bh=WTEvsIAmrpllBbfXHPbAVYkA9Jbt/USLULqXoBvrepQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uWb+ah8LItjh457e1SNZ/dLGNgJdgovQrPNZUHhePzpHqy6LIdG7P/ZPpGYFfzcQo
-         W3Rc5csXBfRHdTUjH45UExDM5KNbzD1HRMGH6TJmt7fc2gICXXypm2bT6P1yG5dHJO
-         luq8C2Ka4LgaQF+2n/h5uo1cJZxeLufIOp22ZXgQ=
+        b=z0AMqbEPZQ73ggYytoW3fmti7CyV4SgNESpF8sg0kBoVjbhmH5UYFyS+aFfXnjVp8
+         rMAikdWMs269sMAreOJVAbzQuFIjSn4ldIcTQa6iD76MjN9OdxzIWVt6Cb6Ppxqe3g
+         dFqKEGlY/4S974/PQO22K7DKnQV8HDLrjX6w6z0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 429/700] samples/bpf: Fix Segmentation fault for xdp_redirect command
-Date:   Mon, 12 Jul 2021 08:08:32 +0200
-Message-Id: <20210712061022.074705071@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 490/800] mt76: mt7615: fix NULL pointer dereference in tx_prepare_skb()
+Date:   Mon, 12 Jul 2021 08:08:33 +0200
+Message-Id: <20210712061019.277449146@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 85102ba58b4125ebad941d7555c3c248b23efd16 ]
+[ Upstream commit 8d3cdc1bbb1d355f0ebef973175ae5fd74286feb ]
 
-A Segmentation fault error is caused when the following command
-is executed.
+Fix theoretical NULL pointer dereference in mt7615_tx_prepare_skb and
+mt7663_usb_sdio_tx_prepare_skb routines. This issue has been identified
+by code analysis.
 
-$ sudo ./samples/bpf/xdp_redirect lo
-Segmentation fault
-
-This command is missing a device <IFNAME|IFINDEX> as an argument, resulting
-in out-of-bounds access from argv.
-
-If the number of devices for the xdp_redirect parameter is not 2,
-we should report an error and exit.
-
-Fixes: 24251c264798 ("samples/bpf: add option for native and skb mode for redirect apps")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210616042324.314832-1-wanghai38@huawei.com
+Fixes: 6aa4ed7927f11 ("mt76: mt7615: implement DMA support for MT7622")
+Fixes: 4bb586bc33b98 ("mt76: mt7663u: sync probe sampling with rate configuration")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp_redirect_user.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/pci_mac.c  | 5 +++--
+ drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/samples/bpf/xdp_redirect_user.c b/samples/bpf/xdp_redirect_user.c
-index 41d705c3a1f7..eb876629109a 100644
---- a/samples/bpf/xdp_redirect_user.c
-+++ b/samples/bpf/xdp_redirect_user.c
-@@ -130,7 +130,7 @@ int main(int argc, char **argv)
- 	if (!(xdp_flags & XDP_FLAGS_SKB_MODE))
- 		xdp_flags |= XDP_FLAGS_DRV_MODE;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/pci_mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/pci_mac.c
+index d7cbef752f9f..cc278d8cb888 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/pci_mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/pci_mac.c
+@@ -131,20 +131,21 @@ int mt7615_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
+ 			  struct mt76_tx_info *tx_info)
+ {
+ 	struct mt7615_dev *dev = container_of(mdev, struct mt7615_dev, mt76);
+-	struct mt7615_sta *msta = container_of(wcid, struct mt7615_sta, wcid);
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx_info->skb);
+ 	struct ieee80211_key_conf *key = info->control.hw_key;
+ 	int pid, id;
+ 	u8 *txwi = (u8 *)txwi_ptr;
+ 	struct mt76_txwi_cache *t;
++	struct mt7615_sta *msta;
+ 	void *txp;
  
--	if (optind == argc) {
-+	if (optind + 2 != argc) {
- 		printf("usage: %s <IFNAME|IFINDEX>_IN <IFNAME|IFINDEX>_OUT\n", argv[0]);
- 		return 1;
- 	}
++	msta = wcid ? container_of(wcid, struct mt7615_sta, wcid) : NULL;
+ 	if (!wcid)
+ 		wcid = &dev->mt76.global_wcid;
+ 
+ 	pid = mt76_tx_status_skb_add(mdev, wcid, tx_info->skb);
+ 
+-	if (info->flags & IEEE80211_TX_CTL_RATE_CTRL_PROBE) {
++	if ((info->flags & IEEE80211_TX_CTL_RATE_CTRL_PROBE) && msta) {
+ 		struct mt7615_phy *phy = &dev->phy;
+ 
+ 		if ((info->hw_queue & MT_TX_HW_QUEUE_EXT_PHY) && mdev->phy2)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c b/drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c
+index f8d3673c2cae..7010101f6b14 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c
+@@ -191,14 +191,15 @@ int mt7663_usb_sdio_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
+ 				   struct ieee80211_sta *sta,
+ 				   struct mt76_tx_info *tx_info)
+ {
+-	struct mt7615_sta *msta = container_of(wcid, struct mt7615_sta, wcid);
+ 	struct mt7615_dev *dev = container_of(mdev, struct mt7615_dev, mt76);
+ 	struct sk_buff *skb = tx_info->skb;
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
++	struct mt7615_sta *msta;
+ 	int pad;
+ 
++	msta = wcid ? container_of(wcid, struct mt7615_sta, wcid) : NULL;
+ 	if ((info->flags & IEEE80211_TX_CTL_RATE_CTRL_PROBE) &&
+-	    !msta->rate_probe) {
++	    msta && !msta->rate_probe) {
+ 		/* request to configure sampling rate */
+ 		spin_lock_bh(&dev->mt76.lock);
+ 		mt7615_mac_set_rates(&dev->phy, msta, &info->control.rates[0],
 -- 
 2.30.2
 
