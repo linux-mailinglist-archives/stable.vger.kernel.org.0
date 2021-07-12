@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE5A3C55D3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB0B03C55DD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346834AbhGLIMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:12:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55670 "EHLO mail.kernel.org"
+        id S1350022AbhGLIMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:12:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353960AbhGLIDV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7ABA0611AC;
-        Mon, 12 Jul 2021 07:59:03 +0000 (UTC)
+        id S1354015AbhGLIDX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE4F36191E;
+        Mon, 12 Jul 2021 07:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076744;
-        bh=BKSmCAPJJnJ6CPF5gE5xkJss2QAFBPNPP4U/ycNb9sI=;
+        s=korg; t=1626076748;
+        bh=ESszSOxaOd3Rx8/NyECZ4eFeISMx95sBA1oNVh5cRAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vQ6I0brB50pKCHpl+qhgaAOMwlNFcrobdAedVsG4fvo960f+QIQ1jWG+mG19m05i
-         CNr192LGfy5dTt2SYgqiPjakMPuk0+lbtB8LWrNuxJ8UgGRDG2VVIgcdaNZTdtwNWy
-         pKhN60r6QmzC8QeW4rJbChUu3W6/EiwD7PqixNIg=
+        b=KWgoM3ViI01YDe8YoA18stjkA8NBA9oWEC8055Qr3VK0HPAWhqq6DhDVYbbxXwEck
+         UKFLOd5M4QTceVUtus/tcRZz9DsvnUWRzXuNtlMHcuAHiwg3VMjHdAGEQdCWBoo7dL
+         IlpFuu7r3V1mV/99iX2oVuAOUMeNjKiT9bfelz3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Ram Pai <linuxram@us.ibm.com>,
         Sandipan Das <sandipan@linux.ibm.com>,
@@ -39,9 +39,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 775/800] selftests/vm/pkeys: fix alloc_random_pkey() to make it really, really random
-Date:   Mon, 12 Jul 2021 08:13:18 +0200
-Message-Id: <20210712061049.316910958@linuxfoundation.org>
+Subject: [PATCH 5.13 776/800] selftests/vm/pkeys: handle negative sys_pkey_alloc() return code
+Date:   Mon, 12 Jul 2021 08:13:19 +0200
+Message-Id: <20210712061049.427728367@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -55,58 +55,22 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Hansen <dave.hansen@linux.intel.com>
 
-[ Upstream commit f36ef407628835a7d7fb3d235b1f1aac7022d9a3 ]
+[ Upstream commit bf68294a2ec39ed7fec6a5b45d52034e6983157a ]
 
-Patch series "selftests/vm/pkeys: Bug fixes and a new test".
+The alloc_pkey() sefltest function wraps the sys_pkey_alloc() system call.
+On success, it updates its "shadow" register value because
+sys_pkey_alloc() updates the real register.
 
-There has been a lot of activity on the x86 front around the XSAVE
-architecture which is used to context-switch processor state (among other
-things).  In addition, AMD has recently joined the protection keys club by
-adding processor support for PKU.
+But, the success check is wrong.  pkey_alloc() considers any non-zero
+return code to indicate success where the pkey register will be modified.
+This fails to take negative return codes into account.
 
-The AMD implementation helped uncover a kernel bug around the PKRU "init
-state", which actually applied to Intel's implementation but was just
-harder to hit.  This series adds a test which is expected to help find
-this class of bug both on AMD and Intel.  All the work around pkeys on x86
-also uncovered a few bugs in the selftest.
+Consider only a positive return value as a successful call.
 
-This patch (of 4):
-
-The "random" pkey allocation code currently does the good old:
-
-	srand((unsigned int)time(NULL));
-
-*But*, it unfortunately does this on every random pkey allocation.
-
-There may be thousands of these a second.  time() has a one second
-resolution.  So, each time alloc_random_pkey() is called, the PRNG is
-*RESET* to time().  This is nasty.  Normally, if you do:
-
-	srand(<ANYTHING>);
-	foo = rand();
-	bar = rand();
-
-You'll be quite guaranteed that 'foo' and 'bar' are different.  But, if
-you do:
-
-	srand(1);
-	foo = rand();
-	srand(1);
-	bar = rand();
-
-You are quite guaranteed that 'foo' and 'bar' are the *SAME*.  The recent
-"fix" effectively forced the test case to use the same "random" pkey for
-the whole test, unless the test run crossed a second boundary.
-
-Only run srand() once at program startup.
-
-This explains some very odd and persistent test failures I've been seeing.
-
-Link: https://lkml.kernel.org/r/20210611164153.91B76FB8@viggo.jf.intel.com
-Link: https://lkml.kernel.org/r/20210611164155.192D00FF@viggo.jf.intel.com
-Fixes: 6e373263ce07 ("selftests/vm/pkeys: fix alloc_random_pkey() to make it really random")
+Link: https://lkml.kernel.org/r/20210611164157.87AB4246@viggo.jf.intel.com
+Fixes: 5f23f6d082a9 ("x86/pkeys: Add self-tests")
+Reported-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 Cc: Ram Pai <linuxram@us.ibm.com>
 Cc: Sandipan Das <sandipan@linux.ibm.com>
@@ -122,30 +86,22 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/protection_keys.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/vm/protection_keys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/testing/selftests/vm/protection_keys.c b/tools/testing/selftests/vm/protection_keys.c
-index fdbb602ecf32..9ee0ae5d3e06 100644
+index 9ee0ae5d3e06..356d62fca27f 100644
 --- a/tools/testing/selftests/vm/protection_keys.c
 +++ b/tools/testing/selftests/vm/protection_keys.c
-@@ -561,7 +561,6 @@ int alloc_random_pkey(void)
- 	int nr_alloced = 0;
- 	int random_index;
- 	memset(alloced_pkeys, 0, sizeof(alloced_pkeys));
--	srand((unsigned int)time(NULL));
- 
- 	/* allocate every possible key and make a note of which ones we got */
- 	max_nr_pkey_allocs = NR_PKEYS;
-@@ -1552,6 +1551,8 @@ int main(void)
- 	int nr_iterations = 22;
- 	int pkeys_supported = is_pkeys_supported();
- 
-+	srand((unsigned int)time(NULL));
-+
- 	setup_handlers();
- 
- 	printf("has pkeys: %d\n", pkeys_supported);
+@@ -510,7 +510,7 @@ int alloc_pkey(void)
+ 			" shadow: 0x%016llx\n",
+ 			__func__, __LINE__, ret, __read_pkey_reg(),
+ 			shadow_pkey_reg);
+-	if (ret) {
++	if (ret > 0) {
+ 		/* clear both the bits: */
+ 		shadow_pkey_reg = set_pkey_bits(shadow_pkey_reg, ret,
+ 						~PKEY_MASK);
 -- 
 2.30.2
 
