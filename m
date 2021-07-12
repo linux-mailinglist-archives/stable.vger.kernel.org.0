@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C49F73C4D76
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D391E3C4D9D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241015AbhGLHNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45794 "EHLO mail.kernel.org"
+        id S241013AbhGLHNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245307AbhGLHLg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:11:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C169760FF0;
-        Mon, 12 Jul 2021 07:08:46 +0000 (UTC)
+        id S245337AbhGLHLj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:11:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD61D6052B;
+        Mon, 12 Jul 2021 07:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073727;
-        bh=rNG5DcWA9KDHMgAglAzkWJWc5snz95lOb8j/k4helOw=;
+        s=korg; t=1626073730;
+        bh=3AiVv/LfwI91vjTakuEn/rOtlxcUxuqn2PImj3a9zB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPDHvCAbzSd09Yu0qFZtFklqCIDgA9ngSBrOg0qsh+teG9PpN5ef4GhnJpn6k6rUE
-         bw0Bu/KyDrMYnFkP640vqClkXWN+/aRNRDqksZDTlf1+OwLb67lFTs2eUzQPorHDvs
-         kOIZcxAqJkDtMzmhlJHkgVvuzrBqLqKQLhURe7mw=
+        b=necXCugzKcBblZwbus6wNWAxnrLqqhFI1nxrYN+d8H2+SYvaPRC/x53/w5k726jo2
+         c9Cp1q3yicvFI/S2y/pX7wSXHXqh6G9FmgmQWzMpNpkdztQyx5I8kA9/kcD0dgTxIu
+         czxw7kwPjIWICb8CzLmIvC7mhTgyvMSCDJ88pi/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 338/700] ACPI: bgrt: Fix CFI violation
-Date:   Mon, 12 Jul 2021 08:07:01 +0200
-Message-Id: <20210712061012.281177073@linuxfoundation.org>
+Subject: [PATCH 5.12 339/700] cpufreq: Make cpufreq_online() call driver->offline() on errors
+Date:   Mon, 12 Jul 2021 08:07:02 +0200
+Message-Id: <20210712061012.378170982@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -41,123 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit f37ccf8fce155d08ae2a4fb3db677911ced0c21a ]
+[ Upstream commit 3b7180573c250eb6e2a7eec54ae91f27472332ea ]
 
-clang's Control Flow Integrity requires that every indirect call has a
-valid target, which is based on the type of the function pointer. The
-*_show() functions in this file are written as if they will be called
-from dev_attr_show(); however, they will be called from
-sysfs_kf_seq_show() because the files were created by
-sysfs_create_group() and the sysfs ops are based on kobj_sysfs_ops
-because of kobject_add_and_create(). Because the *_show() functions do
-not match the type of the show() member in struct kobj_attribute, there
-is a CFI violation.
+In the CPU removal path the ->offline() callback provided by the
+driver is always invoked before ->exit(), but in the cpufreq_online()
+error path it is not, so ->exit() is expected to somehow know the
+context in which it has been called and act accordingly.
 
-$ cat /sys/firmware/acpi/bgrt/{status,type,version,{x,y}offset}}
-1
-0
-1
-522
-307
+That is less than straightforward, so make cpufreq_online() invoke
+the driver's ->offline() callback, if present, on errors before
+->exit() too.
 
-$ dmesg | grep "CFI failure"
-[  267.761825] CFI failure (target: type_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
-[  267.762246] CFI failure (target: xoffset_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
-[  267.762584] CFI failure (target: status_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
-[  267.762973] CFI failure (target: yoffset_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
-[  267.763330] CFI failure (target: version_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+This only potentially affects intel_pstate.
 
-Convert these functions to the type of the show() member in struct
-kobj_attribute so that there is no more CFI violation. Because these
-functions are all so similar, combine them into a macro.
-
-Fixes: d1ff4b1cdbab ("ACPI: Add support for exposing BGRT data")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1406
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
+Fixes: 91a12e91dc39 ("cpufreq: Allow light-weight tear down and bring up of CPUs")
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/bgrt.c | 57 ++++++++++++++-------------------------------
- 1 file changed, 18 insertions(+), 39 deletions(-)
+ drivers/cpufreq/cpufreq.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/bgrt.c b/drivers/acpi/bgrt.c
-index 19bb7f870204..e0d14017706e 100644
---- a/drivers/acpi/bgrt.c
-+++ b/drivers/acpi/bgrt.c
-@@ -15,40 +15,19 @@
- static void *bgrt_image;
- static struct kobject *bgrt_kobj;
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 1d1b563cea4b..1bc1293deae9 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -1370,9 +1370,14 @@ static int cpufreq_online(unsigned int cpu)
+ 			goto out_free_policy;
+ 		}
  
--static ssize_t version_show(struct device *dev,
--			    struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.version);
--}
--static DEVICE_ATTR_RO(version);
--
--static ssize_t status_show(struct device *dev,
--			   struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.status);
--}
--static DEVICE_ATTR_RO(status);
--
--static ssize_t type_show(struct device *dev,
--			 struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_type);
--}
--static DEVICE_ATTR_RO(type);
--
--static ssize_t xoffset_show(struct device *dev,
--			    struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_x);
--}
--static DEVICE_ATTR_RO(xoffset);
--
--static ssize_t yoffset_show(struct device *dev,
--			    struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_y);
--}
--static DEVICE_ATTR_RO(yoffset);
-+#define BGRT_SHOW(_name, _member) \
-+	static ssize_t _name##_show(struct kobject *kobj,			\
-+				    struct kobj_attribute *attr, char *buf)	\
-+	{									\
-+		return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab._member);	\
-+	}									\
-+	struct kobj_attribute bgrt_attr_##_name = __ATTR_RO(_name)
++		/*
++		 * The initialization has succeeded and the policy is online.
++		 * If there is a problem with its frequency table, take it
++		 * offline and drop it.
++		 */
+ 		ret = cpufreq_table_validate_and_sort(policy);
+ 		if (ret)
+-			goto out_exit_policy;
++			goto out_offline_policy;
+ 
+ 		/* related_cpus should at least include policy->cpus. */
+ 		cpumask_copy(policy->related_cpus, policy->cpus);
+@@ -1518,6 +1523,10 @@ out_destroy_policy:
+ 
+ 	up_write(&policy->rwsem);
+ 
++out_offline_policy:
++	if (cpufreq_driver->offline)
++		cpufreq_driver->offline(policy);
 +
-+BGRT_SHOW(version, version);
-+BGRT_SHOW(status, status);
-+BGRT_SHOW(type, image_type);
-+BGRT_SHOW(xoffset, image_offset_x);
-+BGRT_SHOW(yoffset, image_offset_y);
- 
- static ssize_t image_read(struct file *file, struct kobject *kobj,
- 	       struct bin_attribute *attr, char *buf, loff_t off, size_t count)
-@@ -60,11 +39,11 @@ static ssize_t image_read(struct file *file, struct kobject *kobj,
- static BIN_ATTR_RO(image, 0);	/* size gets filled in later */
- 
- static struct attribute *bgrt_attributes[] = {
--	&dev_attr_version.attr,
--	&dev_attr_status.attr,
--	&dev_attr_type.attr,
--	&dev_attr_xoffset.attr,
--	&dev_attr_yoffset.attr,
-+	&bgrt_attr_version.attr,
-+	&bgrt_attr_status.attr,
-+	&bgrt_attr_type.attr,
-+	&bgrt_attr_xoffset.attr,
-+	&bgrt_attr_yoffset.attr,
- 	NULL,
- };
- 
+ out_exit_policy:
+ 	if (cpufreq_driver->exit)
+ 		cpufreq_driver->exit(policy);
 -- 
 2.30.2
 
