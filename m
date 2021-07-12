@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69ED3C454B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 425413C455C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235406AbhGLGZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40254 "EHLO mail.kernel.org"
+        id S234751AbhGLGZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233946AbhGLGXc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:23:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60E37610CD;
-        Mon, 12 Jul 2021 06:20:17 +0000 (UTC)
+        id S233375AbhGLGXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:23:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3C5861182;
+        Mon, 12 Jul 2021 06:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070817;
-        bh=y5VGwTrzuQwT2plzHSrl2/5rCfn4r0bcXrI0UDrKkDk=;
+        s=korg; t=1626070820;
+        bh=ec0DTRDZZoP7Xk1QIlbZvNssTM/fA4eBhV6oX6O5bR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPUnDxz+XA3LUa+2oUjF5kZfoQuO5mW+dAeVLbnioM7lk788CNih+Mn7TS9NWH5nQ
-         8Tw+pLwdZCAyvFBPUmwr0a0GjJ0mG5a3rifhVJgQ1GEpyoiPyLGQnD1oxTeM8zWCXX
-         UlaU9efIgEpr7L/ViF1SbebmfxrdBqHxjubgQE/o=
+        b=Nw0BFCLF1o9N6wwrtk4wX15MCrHjyYeIBKVx+7iYZYYn1AFKApcEhGedH/9EKceZ/
+         a2r0/1UKM0PIm+6K7jXSBX26126L4yvOENtfMQvIbPkLN8JJ6bNqe7yv7OzCgXISgc
+         xC36PvuBqGtuXv39UH0SM9Kotlqjong+E/yHpPn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 152/348] pata_ep93xx: fix deferred probing
-Date:   Mon, 12 Jul 2021 08:08:56 +0200
-Message-Id: <20210712060721.250916595@linuxfoundation.org>
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 153/348] media: exynos4-is: Fix a use after free in isp_video_release
+Date:   Mon, 12 Jul 2021 08:08:57 +0200
+Message-Id: <20210712060721.375488725@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -39,37 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 5c8121262484d99bffb598f39a0df445cecd8efb ]
+[ Upstream commit 01fe904c9afd26e79c1f73aa0ca2e3d785e5e319 ]
 
-The driver overrides the error codes returned by platform_get_irq() to
--ENXIO, so if it returns -EPROBE_DEFER, the driver would fail the probe
-permanently instead of the deferred probing.  Propagate the error code
-upstream, as it should have been done from the start...
+In isp_video_release, file->private_data is freed via
+_vb2_fop_release()->v4l2_fh_release(). But the freed
+file->private_data is still used in v4l2_fh_is_singular_file()
+->v4l2_fh_is_singular(file->private_data), which is a use
+after free bug.
 
-Fixes: 2fff27512600 ("PATA host controller driver for ep93xx")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/509fda88-2e0d-2cc7-f411-695d7e94b136@omprussia.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+My patch uses a variable 'is_singular_file' to avoid the uaf.
+v3: https://lore.kernel.org/patchwork/patch/1419058/
+
+Fixes: 34947b8aebe3f ("[media] exynos4-is: Add the FIMC-IS ISP capture DMA driver")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_ep93xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/exynos4-is/fimc-isp-video.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
-index badab6708893..46208ececbb6 100644
---- a/drivers/ata/pata_ep93xx.c
-+++ b/drivers/ata/pata_ep93xx.c
-@@ -928,7 +928,7 @@ static int ep93xx_pata_probe(struct platform_device *pdev)
- 	/* INT[3] (IRQ_EP93XX_EXT3) line connected as pull down */
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
--		err = -ENXIO;
-+		err = irq;
- 		goto err_rel_gpio;
+diff --git a/drivers/media/platform/exynos4-is/fimc-isp-video.c b/drivers/media/platform/exynos4-is/fimc-isp-video.c
+index d2cbcdca0463..370cdf007012 100644
+--- a/drivers/media/platform/exynos4-is/fimc-isp-video.c
++++ b/drivers/media/platform/exynos4-is/fimc-isp-video.c
+@@ -305,17 +305,20 @@ static int isp_video_release(struct file *file)
+ 	struct fimc_is_video *ivc = &isp->video_capture;
+ 	struct media_entity *entity = &ivc->ve.vdev.entity;
+ 	struct media_device *mdev = entity->graph_obj.mdev;
++	bool is_singular_file;
+ 
+ 	mutex_lock(&isp->video_lock);
+ 
+-	if (v4l2_fh_is_singular_file(file) && ivc->streaming) {
++	is_singular_file = v4l2_fh_is_singular_file(file);
++
++	if (is_singular_file && ivc->streaming) {
+ 		media_pipeline_stop(entity);
+ 		ivc->streaming = 0;
  	}
  
+ 	_vb2_fop_release(file, NULL);
+ 
+-	if (v4l2_fh_is_singular_file(file)) {
++	if (is_singular_file) {
+ 		fimc_pipeline_call(&ivc->ve, close);
+ 
+ 		mutex_lock(&mdev->graph_mutex);
 -- 
 2.30.2
 
