@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B3E13C4BF4
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A1F3C4BE3
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239150AbhGLHA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:00:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33880 "EHLO mail.kernel.org"
+        id S241347AbhGLHAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:00:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241611AbhGLG7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:59:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A4256102A;
-        Mon, 12 Jul 2021 06:56:14 +0000 (UTC)
+        id S241005AbhGLG7H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:59:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A6E061221;
+        Mon, 12 Jul 2021 06:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072975;
-        bh=DUfuHFIan7YikCK757QFEnJSWizcpjwTGGA6kphbrOg=;
+        s=korg; t=1626072977;
+        bh=0G7WDUneSnvB3wdCJmnVPCLfW7xqQoNe83QOSnntyTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3PoXPWJ5YENvHBnUDgoSDq+ttK53n8mbXgrYDh6uG2YlNgas5+RQsLNi/+kNnL+K
-         RSFVjN143GyiwBrrdCiC35DGaPHD+y3/fs1YXKSTzS1aZrKxgntd9kFkbpB2ihz/nj
-         oukCZzckwFDc5qDABa1Wdhv5N6bKfMZfcdoJhcA8=
+        b=ka349gm7qR3IX+rijqeGLt7T7iqwhsGNsZ7YsZyj0Ppti5ya/LAq5GaaMKmrXU2KA
+         DKTVGnfLaTCQIgvG9rU5oAvMZ34x8QWDy3pE/1WJ7tuGZmUMYB8qeoLTF4/BoT+F4E
+         hG2cnrGN05MLM5sYQF8PMIuQ247htxj38ibTMOPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, frank zago <frank@zago.net>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.12 085/700] iio: frequency: adf4350: disable reg and clk on error in adf4350_probe()
-Date:   Mon, 12 Jul 2021 08:02:48 +0200
-Message-Id: <20210712060936.705272543@linuxfoundation.org>
+Subject: [PATCH 5.12 086/700] iio: light: tcs3472: do not free unallocated IRQ
+Date:   Mon, 12 Jul 2021 08:02:49 +0200
+Message-Id: <20210712060936.841173705@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -42,39 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: frank zago <frank@zago.net>
 
-commit c8cc4cf60b000fb9f4b29bed131fb6cf1fe42d67 upstream.
+commit 7cd04c863f9e1655d607705455e7714f24451984 upstream.
 
-Disable reg and clk when devm_gpiod_get_optional() fails in adf4350_probe().
+Allocating an IRQ is conditional to the IRQ existence, but freeing it
+was not. If no IRQ was allocate, the driver would still try to free
+IRQ 0. Add the missing checks.
 
-Fixes:4a89d2f47ccd ("iio: adf4350: Convert to use GPIO descriptor")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210601142605.3613605-1-yangyingliang@huawei.com
+This fixes the following trace when the driver is removed:
+
+[  100.667788] Trying to free already-free IRQ 0
+[  100.667793] WARNING: CPU: 0 PID: 2315 at kernel/irq/manage.c:1826 free_irq+0x1fd/0x370
+...
+[  100.667914] Call Trace:
+[  100.667920]  tcs3472_remove+0x3a/0x90 [tcs3472]
+[  100.667927]  i2c_device_remove+0x2b/0xa0
+
+Signed-off-by: frank zago <frank@zago.net>
+Link: https://lore.kernel.org/r/20210427022017.19314-2-frank@zago.net
+Fixes: 9d2f715d592e ("iio: light: tcs3472: support out-of-threshold events")
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/frequency/adf4350.c |    6 ++++--
+ drivers/iio/light/tcs3472.c |    6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/frequency/adf4350.c
-+++ b/drivers/iio/frequency/adf4350.c
-@@ -563,8 +563,10 @@ static int adf4350_probe(struct spi_devi
+--- a/drivers/iio/light/tcs3472.c
++++ b/drivers/iio/light/tcs3472.c
+@@ -531,7 +531,8 @@ static int tcs3472_probe(struct i2c_clie
+ 	return 0;
  
- 	st->lock_detect_gpiod = devm_gpiod_get_optional(&spi->dev, NULL,
- 							GPIOD_IN);
--	if (IS_ERR(st->lock_detect_gpiod))
--		return PTR_ERR(st->lock_detect_gpiod);
-+	if (IS_ERR(st->lock_detect_gpiod)) {
-+		ret = PTR_ERR(st->lock_detect_gpiod);
-+		goto error_disable_reg;
-+	}
+ free_irq:
+-	free_irq(client->irq, indio_dev);
++	if (client->irq)
++		free_irq(client->irq, indio_dev);
+ buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	return ret;
+@@ -559,7 +560,8 @@ static int tcs3472_remove(struct i2c_cli
+ 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
  
- 	if (pdata->power_up_frequency) {
- 		ret = adf4350_set_freq(st, pdata->power_up_frequency);
+ 	iio_device_unregister(indio_dev);
+-	free_irq(client->irq, indio_dev);
++	if (client->irq)
++		free_irq(client->irq, indio_dev);
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	tcs3472_powerdown(iio_priv(indio_dev));
+ 
 
 
