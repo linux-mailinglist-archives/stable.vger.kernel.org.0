@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 050CC3C4902
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1743C4D1D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236671AbhGLGli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34676 "EHLO mail.kernel.org"
+        id S242474AbhGLHL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238211AbhGLGkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62528610E6;
-        Mon, 12 Jul 2021 06:36:28 +0000 (UTC)
+        id S244172AbhGLHK2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 114C9613C8;
+        Mon, 12 Jul 2021 07:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071788;
-        bh=ePXeI3KnSjXsPum+/3rVz3QuM1R2/mGc7U6nF5hIO/k=;
+        s=korg; t=1626073609;
+        bh=h0Cn5GhxLzXOPtw4B1Llgz6v+xAvLX5jaF4saKaAz1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hDCW5DrjWssuCcyHaxAOKJHw5hFf6SRGHnvGjNlxNwuE9blPfxajqkIvJCRC08QDN
-         trUYJtjJbl1i9xJhjp/mfQMY2jmpd22gFgCrru//hMGyb7VWxJNMVGLlmVgvxViQnB
-         K8WFRf2SG0k7qMqdiMwTiXm8umFjvyNQxpXVo7ZQ=
+        b=1v7G3cWYm4kuj7wTyT3FQOl1O9TNQ2rZBRDvZv/2ehMjvuarLua8ULIVuGmpYc8Yo
+         6TJGlMQquPOdxfH0/JgQ0dBlFgN7yRmU46EPkI7tZ0qP68moXI13yGBC1A7ZwyWadd
+         O0+eaMnJVXxkkARIGWRNAEV08fPKbpyYP0jUYnQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 220/593] sched/uclamp: Fix wrong implementation of cpu.uclamp.min
+Subject: [PATCH 5.12 297/700] KVM: nVMX: Sync all PGDs on nested transition with shadow paging
 Date:   Mon, 12 Jul 2021 08:06:20 +0200
-Message-Id: <20210712060907.113109095@linuxfoundation.org>
+Message-Id: <20210712061007.920187076@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,114 +40,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 0c18f2ecfcc274a4bcc1d122f79ebd4001c3b445 ]
+[ Upstream commit 07ffaf343e34b555c9e7ea39a9c81c439a706f13 ]
 
-cpu.uclamp.min is a protection as described in cgroup-v2 Resource
-Distribution Model
+Trigger a full TLB flush on behalf of the guest on nested VM-Enter and
+VM-Exit when VPID is disabled for L2.  kvm_mmu_new_pgd() syncs only the
+current PGD, which can theoretically leave stale, unsync'd entries in a
+previous guest PGD, which could be consumed if L2 is allowed to load CR3
+with PCID_NOFLUSH=1.
 
-	Documentation/admin-guide/cgroup-v2.rst
+Rename KVM_REQ_HV_TLB_FLUSH to KVM_REQ_TLB_FLUSH_GUEST so that it can
+be utilized for its obvious purpose of emulating a guest TLB flush.
 
-which means we try our best to preserve the minimum performance point of
-tasks in this group. See full description of cpu.uclamp.min in the
-cgroup-v2.rst.
+Note, there is no change the actual TLB flush executed by KVM, even
+though the fast PGD switch uses KVM_REQ_TLB_FLUSH_CURRENT.  When VPID is
+disabled for L2, vpid02 is guaranteed to be '0', and thus
+nested_get_vpid02() will return the VPID that is shared by L1 and L2.
 
-But the current implementation makes it a limit, which is not what was
-intended.
+Generate the request outside of kvm_mmu_new_pgd(), as getting the common
+helper to correctly identify which requested is needed is quite painful.
+E.g. using KVM_REQ_TLB_FLUSH_GUEST when nested EPT is in play is wrong as
+a TLB flush from the L1 kernel's perspective does not invalidate EPT
+mappings.  And, by using KVM_REQ_TLB_FLUSH_GUEST, nVMX can do future
+simplification by moving the logic into nested_vmx_transition_tlb_flush().
 
-For example:
-
-	tg->cpu.uclamp.min = 20%
-
-	p0->uclamp[UCLAMP_MIN] = 0
-	p1->uclamp[UCLAMP_MIN] = 50%
-
-	Previous Behavior (limit):
-
-		p0->effective_uclamp = 0
-		p1->effective_uclamp = 20%
-
-	New Behavior (Protection):
-
-		p0->effective_uclamp = 20%
-		p1->effective_uclamp = 50%
-
-Which is inline with how protections should work.
-
-With this change the cgroup and per-task behaviors are the same, as
-expected.
-
-Additionally, we remove the confusing relationship between cgroup and
-!user_defined flag.
-
-We don't want for example RT tasks that are boosted by default to max to
-change their boost value when they attach to a cgroup. If a cgroup wants
-to limit the max performance point of tasks attached to it, then
-cpu.uclamp.max must be set accordingly.
-
-Or if they want to set different boost value based on cgroup, then
-sysctl_sched_util_clamp_min_rt_default must be used to NOT boost to max
-and set the right cpu.uclamp.min for each group to let the RT tasks
-obtain the desired boost value when attached to that group.
-
-As it stands the dependency on !user_defined flag adds an extra layer of
-complexity that is not required now cpu.uclamp.min behaves properly as
-a protection.
-
-The propagation model of effective cpu.uclamp.min in child cgroups as
-implemented by cpu_util_update_eff() is still correct. The parent
-protection sets an upper limit of what the child cgroups will
-effectively get.
-
-Fixes: 3eac870a3247 (sched/uclamp: Use TG's clamps to restrict TASK's clamps)
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210510145032.1934078-2-qais.yousef@arm.com
+Fixes: 41fab65e7c44 ("KVM: nVMX: Skip MMU sync on nested VMX transition when possible")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210609234235.1244004-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/kvm_host.h |  2 +-
+ arch/x86/kvm/hyperv.c           |  2 +-
+ arch/x86/kvm/vmx/nested.c       | 17 ++++++++++++-----
+ arch/x86/kvm/x86.c              |  2 +-
+ 4 files changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index bd3fa14fda1f..c561c3b993b5 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1065,7 +1065,6 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
- {
- 	struct uclamp_se uc_req = p->uclamp_req[clamp_id];
- #ifdef CONFIG_UCLAMP_TASK_GROUP
--	struct uclamp_se uc_max;
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 0702adf2460b..0758ff3008c6 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -85,7 +85,7 @@
+ #define KVM_REQ_APICV_UPDATE \
+ 	KVM_ARCH_REQ_FLAGS(25, KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
+ #define KVM_REQ_TLB_FLUSH_CURRENT	KVM_ARCH_REQ(26)
+-#define KVM_REQ_HV_TLB_FLUSH \
++#define KVM_REQ_TLB_FLUSH_GUEST \
+ 	KVM_ARCH_REQ_FLAGS(27, KVM_REQUEST_NO_WAKEUP)
+ #define KVM_REQ_APF_READY		KVM_ARCH_REQ(28)
+ #define KVM_REQ_MSR_FILTER_CHANGED	KVM_ARCH_REQ(29)
+diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
+index f00830e5202f..fdd1eca717fd 100644
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -1704,7 +1704,7 @@ static u64 kvm_hv_flush_tlb(struct kvm_vcpu *vcpu, u64 ingpa, u16 rep_cnt, bool
+ 	 * vcpu->arch.cr3 may not be up-to-date for running vCPUs so we can't
+ 	 * analyze it here, flush TLB regardless of the specified address space.
+ 	 */
+-	kvm_make_vcpus_request_mask(kvm, KVM_REQ_HV_TLB_FLUSH,
++	kvm_make_vcpus_request_mask(kvm, KVM_REQ_TLB_FLUSH_GUEST,
+ 				    NULL, vcpu_mask, &hv_vcpu->tlb_flush);
+ 
+ ret_success:
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 8cb5a95e0c54..eca3db08d183 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -1132,12 +1132,19 @@ static int nested_vmx_load_cr3(struct kvm_vcpu *vcpu, unsigned long cr3, bool ne
  
  	/*
- 	 * Tasks in autogroups or root task group will be
-@@ -1076,9 +1075,23 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
- 	if (task_group(p) == &root_task_group)
- 		return uc_req;
+ 	 * Unconditionally skip the TLB flush on fast CR3 switch, all TLB
+-	 * flushes are handled by nested_vmx_transition_tlb_flush().  See
+-	 * nested_vmx_transition_mmu_sync for details on skipping the MMU sync.
++	 * flushes are handled by nested_vmx_transition_tlb_flush().
+ 	 */
+-	if (!nested_ept)
+-		kvm_mmu_new_pgd(vcpu, cr3, true,
+-				!nested_vmx_transition_mmu_sync(vcpu));
++	if (!nested_ept) {
++		kvm_mmu_new_pgd(vcpu, cr3, true, true);
++
++		/*
++		 * A TLB flush on VM-Enter/VM-Exit flushes all linear mappings
++		 * across all PCIDs, i.e. all PGDs need to be synchronized.
++		 * See nested_vmx_transition_mmu_sync() for more details.
++		 */
++		if (nested_vmx_transition_mmu_sync(vcpu))
++			kvm_make_request(KVM_REQ_TLB_FLUSH_GUEST, vcpu);
++	}
  
--	uc_max = task_group(p)->uclamp[clamp_id];
--	if (uc_req.value > uc_max.value || !uc_req.user_defined)
--		return uc_max;
-+	switch (clamp_id) {
-+	case UCLAMP_MIN: {
-+		struct uclamp_se uc_min = task_group(p)->uclamp[clamp_id];
-+		if (uc_req.value < uc_min.value)
-+			return uc_min;
-+		break;
-+	}
-+	case UCLAMP_MAX: {
-+		struct uclamp_se uc_max = task_group(p)->uclamp[clamp_id];
-+		if (uc_req.value > uc_max.value)
-+			return uc_max;
-+		break;
-+	}
-+	default:
-+		WARN_ON_ONCE(1);
-+		break;
-+	}
- #endif
+ 	vcpu->arch.cr3 = cr3;
+ 	kvm_register_mark_available(vcpu, VCPU_EXREG_CR3);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index d46a6182d0e9..615dd236e842 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9022,7 +9022,7 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+ 		}
+ 		if (kvm_check_request(KVM_REQ_TLB_FLUSH_CURRENT, vcpu))
+ 			kvm_vcpu_flush_tlb_current(vcpu);
+-		if (kvm_check_request(KVM_REQ_HV_TLB_FLUSH, vcpu))
++		if (kvm_check_request(KVM_REQ_TLB_FLUSH_GUEST, vcpu))
+ 			kvm_vcpu_flush_tlb_guest(vcpu);
  
- 	return uc_req;
+ 		if (kvm_check_request(KVM_REQ_REPORT_TPR_ACCESS, vcpu)) {
 -- 
 2.30.2
 
