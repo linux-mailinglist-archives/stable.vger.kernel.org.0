@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA053C51D8
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B843C4C37
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344342AbhGLHns (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:43:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45458 "EHLO mail.kernel.org"
+        id S239473AbhGLHCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:02:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348015AbhGLHkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:40:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40F37611AC;
-        Mon, 12 Jul 2021 07:37:37 +0000 (UTC)
+        id S241981AbhGLHBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:01:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E05F961156;
+        Mon, 12 Jul 2021 06:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075457;
-        bh=9brvtHm5P1xX4on/zdIiSZ+3b4pLzhJ4IaEBj2zRwds=;
+        s=korg; t=1626073140;
+        bh=vKftHj88RLYECuwHY64g8MmF5WQxGF4qF+Dprtnl6OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AzW+7xzR61Nru2UVHTaLtijEgtH6lYwBCI0adCQgAjjaHDYhgusrM9NBqo5TTd2xt
-         tFMTGD6bVsE0bd1xfskH0fLGpE41k/iG5bWjmyIq5qwuX/2t0xxbJmLd5r2yBYhm2j
-         1QgId4NDLQP0mETh984pADh3T269YVKNnXIUWJVg=
+        b=uiNjf9CagppZJhDLbbSYvlpdvycKNOoN+shdmIICN9LEe820k0ooPngKrdlUv52VH
+         sfDKXlBIQ4D1JBoKhQ1Xl9Leu69eUbeHoFQlRExFnM43dn1rOzv/4S1TWEY4bK1yLW
+         tq5Kgj2yuJurI/PD3Q0u2G32AhyU2A6+6UDzk25w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 200/800] btrfs: disable build on platforms having page size 256K
+Subject: [PATCH 5.12 140/700] crypto: nx - add missing MODULE_DEVICE_TABLE
 Date:   Mon, 12 Jul 2021 08:03:43 +0200
-Message-Id: <20210712060941.350402508@linuxfoundation.org>
+Message-Id: <20210712060945.333965703@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit b05fbcc36be1f8597a1febef4892053a0b2f3f60 ]
+[ Upstream commit 06676aa1f455c74e3ad1624cea3acb9ed2ef71ae ]
 
-With a config having PAGE_SIZE set to 256K, BTRFS build fails
-with the following message
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-  include/linux/compiler_types.h:326:38: error: call to
-  '__compiletime_assert_791' declared with attribute error:
-  BUILD_BUG_ON failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0
-
-BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms with
-256K pages at the time being.
-
-There are two platforms that can select 256K pages:
- - hexagon
- - powerpc
-
-Disable BTRFS when 256K page size is selected. Supporting this would
-require changes to the subpage mode that's currently being developed.
-Given that 256K is many times larger than page sizes commonly used and
-for what the algorithms and structures have been tuned, it's out of
-scope and disabling build is a reasonable option.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[ update changelog ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/nx/nx-842-pseries.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/Kconfig b/fs/btrfs/Kconfig
-index 68b95ad82126..520a0f6a7d9e 100644
---- a/fs/btrfs/Kconfig
-+++ b/fs/btrfs/Kconfig
-@@ -18,6 +18,8 @@ config BTRFS_FS
- 	select RAID6_PQ
- 	select XOR_BLOCKS
- 	select SRCU
-+	depends on !PPC_256K_PAGES	# powerpc
-+	depends on !PAGE_SIZE_256KB	# hexagon
+diff --git a/drivers/crypto/nx/nx-842-pseries.c b/drivers/crypto/nx/nx-842-pseries.c
+index cc8dd3072b8b..8ee547ee378e 100644
+--- a/drivers/crypto/nx/nx-842-pseries.c
++++ b/drivers/crypto/nx/nx-842-pseries.c
+@@ -1069,6 +1069,7 @@ static const struct vio_device_id nx842_vio_driver_ids[] = {
+ 	{"ibm,compression-v1", "ibm,compression"},
+ 	{"", ""},
+ };
++MODULE_DEVICE_TABLE(vio, nx842_vio_driver_ids);
  
- 	help
- 	  Btrfs is a general purpose copy-on-write filesystem with extents,
+ static struct vio_driver nx842_vio_driver = {
+ 	.name = KBUILD_MODNAME,
 -- 
 2.30.2
 
