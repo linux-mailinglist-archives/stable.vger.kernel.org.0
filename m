@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5070A3C4AFA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FB3C3C557C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238467AbhGLGzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53800 "EHLO mail.kernel.org"
+        id S230058AbhGLIKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:10:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240112AbhGLGxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:53:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A429B61158;
-        Mon, 12 Jul 2021 06:50:34 +0000 (UTC)
+        id S1353646AbhGLICo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:02:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CF7561CF6;
+        Mon, 12 Jul 2021 07:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072635;
-        bh=o7s62n9HrCeFDDAWJbAoTNF7Qb5uKu2QhJh/lNQxKWc=;
+        s=korg; t=1626076571;
+        bh=xAqVfHI4k+NexhEUpXCrdsKR6P8/b714RynLcTm7cdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcDr4pwJQAKuuvFa+j7pZRAYn97qHGrY/fTqqrzYWunQ9lim1se9BVBKsY4XZOyKq
-         UvTEOt1dmSuylsepM4T0eW9khl6Gvd2Kk30l0CuHly00syIxIb1bAgbsMetiZ8gWbh
-         v/KYDds7SULrnOrRWfpexBLOM/ihbNA2ojv1dluM=
+        b=kW4lloyARqcZvYOfBlvN1ljbvFFvRDdssjZkp1wliPHa9kFPg4ZeI4tL+zTBsLy++
+         5CMdrHNzG+xenO2qgElmr0n019Tm7UuoEVh3owk7Y6TqtS/WuSTr/bwvhymrEjYfv1
+         PU460nNMdWGZ417I6VVg+lerIS+x01MnL+PU8i0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeng Tao <prime.zeng@hisilicon.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 561/593] vfio/pci: Handle concurrent vma faults
+Subject: [PATCH 5.13 698/800] ASoC: mediatek: mtk-btcvsd: Fix an error handling path in mtk_btcvsd_snd_probe()
 Date:   Mon, 12 Jul 2021 08:12:01 +0200
-Message-Id: <20210712060956.357991572@linuxfoundation.org>
+Message-Id: <20210712061041.092797929@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,122 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 6a45ece4c9af473555f01f0f8b97eba56e3c7d0d ]
+[ Upstream commit b6052c3c7a78f5e2b9756c92ef77c0b56435f107 ]
 
-io_remap_pfn_range() will trigger a BUG_ON if it encounters a
-populated pte within the mapping range.  This can occur because we map
-the entire vma on fault and multiple faults can be blocked behind the
-vma_lock.  This leads to traces like the one reported below.
+If an error occurs after a successful 'of_iomap()' call, it must be undone
+by a corresponding 'iounmap()' call, as already done in the remove
+function.
 
-We can use our vma_list to test whether a given vma is mapped to avoid
-this issue.
+While at it, remove the useless initialization of 'ret' at the beginning of
+the function.
 
-[ 1591.733256] kernel BUG at mm/memory.c:2177!
-[ 1591.739515] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[ 1591.747381] Modules linked in: vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O)
-[ 1591.760536] CPU: 2 PID: 227 Comm: lcore-worker-2 Tainted: G O 5.11.0-rc3+ #1
-[ 1591.770735] Hardware name:  , BIOS HixxxxFPGA 1P B600 V121-1
-[ 1591.778872] pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-[ 1591.786134] pc : remap_pfn_range+0x214/0x340
-[ 1591.793564] lr : remap_pfn_range+0x1b8/0x340
-[ 1591.799117] sp : ffff80001068bbd0
-[ 1591.803476] x29: ffff80001068bbd0 x28: 0000042eff6f0000
-[ 1591.810404] x27: 0000001100910000 x26: 0000001300910000
-[ 1591.817457] x25: 0068000000000fd3 x24: ffffa92f1338e358
-[ 1591.825144] x23: 0000001140000000 x22: 0000000000000041
-[ 1591.832506] x21: 0000001300910000 x20: ffffa92f141a4000
-[ 1591.839520] x19: 0000001100a00000 x18: 0000000000000000
-[ 1591.846108] x17: 0000000000000000 x16: ffffa92f11844540
-[ 1591.853570] x15: 0000000000000000 x14: 0000000000000000
-[ 1591.860768] x13: fffffc0000000000 x12: 0000000000000880
-[ 1591.868053] x11: ffff0821bf3d01d0 x10: ffff5ef2abd89000
-[ 1591.875932] x9 : ffffa92f12ab0064 x8 : ffffa92f136471c0
-[ 1591.883208] x7 : 0000001140910000 x6 : 0000000200000000
-[ 1591.890177] x5 : 0000000000000001 x4 : 0000000000000001
-[ 1591.896656] x3 : 0000000000000000 x2 : 0168044000000fd3
-[ 1591.903215] x1 : ffff082126261880 x0 : fffffc2084989868
-[ 1591.910234] Call trace:
-[ 1591.914837]  remap_pfn_range+0x214/0x340
-[ 1591.921765]  vfio_pci_mmap_fault+0xac/0x130 [vfio_pci]
-[ 1591.931200]  __do_fault+0x44/0x12c
-[ 1591.937031]  handle_mm_fault+0xcc8/0x1230
-[ 1591.942475]  do_page_fault+0x16c/0x484
-[ 1591.948635]  do_translation_fault+0xbc/0xd8
-[ 1591.954171]  do_mem_abort+0x4c/0xc0
-[ 1591.960316]  el0_da+0x40/0x80
-[ 1591.965585]  el0_sync_handler+0x168/0x1b0
-[ 1591.971608]  el0_sync+0x174/0x180
-[ 1591.978312] Code: eb1b027f 540000c0 f9400022 b4fffe02 (d4210000)
-
-Fixes: 11c4cd07ba11 ("vfio-pci: Fault mmaps to enable vma tracking")
-Reported-by: Zeng Tao <prime.zeng@hisilicon.com>
-Suggested-by: Zeng Tao <prime.zeng@hisilicon.com>
-Link: https://lore.kernel.org/r/162497742783.3883260.3282953006487785034.stgit@omen
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 4bd8597dc36c ("ASoC: mediatek: add btcvsd driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/0c2ba562c3364e61bfbd5b3013a99dfa0d9045d7.1622989685.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ sound/soc/mediatek/common/mtk-btcvsd.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 48b048edf1ee..57ae8b46b836 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -1614,6 +1614,7 @@ static vm_fault_t vfio_pci_mmap_fault(struct vm_fault *vmf)
+diff --git a/sound/soc/mediatek/common/mtk-btcvsd.c b/sound/soc/mediatek/common/mtk-btcvsd.c
+index f85b5ea180ec..d884bb7c0fc7 100644
+--- a/sound/soc/mediatek/common/mtk-btcvsd.c
++++ b/sound/soc/mediatek/common/mtk-btcvsd.c
+@@ -1281,7 +1281,7 @@ static const struct snd_soc_component_driver mtk_btcvsd_snd_platform = {
+ 
+ static int mtk_btcvsd_snd_probe(struct platform_device *pdev)
  {
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct vfio_pci_device *vdev = vma->vm_private_data;
-+	struct vfio_pci_mmap_vma *mmap_vma;
- 	vm_fault_t ret = VM_FAULT_NOPAGE;
- 
- 	mutex_lock(&vdev->vma_lock);
-@@ -1621,24 +1622,36 @@ static vm_fault_t vfio_pci_mmap_fault(struct vm_fault *vmf)
- 
- 	if (!__vfio_pci_memory_enabled(vdev)) {
- 		ret = VM_FAULT_SIGBUS;
--		mutex_unlock(&vdev->vma_lock);
- 		goto up_out;
+-	int ret = 0;
++	int ret;
+ 	int irq_id;
+ 	u32 offset[5] = {0, 0, 0, 0, 0};
+ 	struct mtk_btcvsd_snd *btcvsd;
+@@ -1337,7 +1337,8 @@ static int mtk_btcvsd_snd_probe(struct platform_device *pdev)
+ 	btcvsd->bt_sram_bank2_base = of_iomap(dev->of_node, 1);
+ 	if (!btcvsd->bt_sram_bank2_base) {
+ 		dev_err(dev, "iomap bt_sram_bank2_base fail\n");
+-		return -EIO;
++		ret = -EIO;
++		goto unmap_pkv_err;
  	}
  
--	if (__vfio_pci_add_vma(vdev, vma)) {
--		ret = VM_FAULT_OOM;
--		mutex_unlock(&vdev->vma_lock);
--		goto up_out;
-+	/*
-+	 * We populate the whole vma on fault, so we need to test whether
-+	 * the vma has already been mapped, such as for concurrent faults
-+	 * to the same vma.  io_remap_pfn_range() will trigger a BUG_ON if
-+	 * we ask it to fill the same range again.
-+	 */
-+	list_for_each_entry(mmap_vma, &vdev->vma_list, vma_next) {
-+		if (mmap_vma->vma == vma)
-+			goto up_out;
+ 	btcvsd->infra = syscon_regmap_lookup_by_phandle(dev->of_node,
+@@ -1345,7 +1346,8 @@ static int mtk_btcvsd_snd_probe(struct platform_device *pdev)
+ 	if (IS_ERR(btcvsd->infra)) {
+ 		dev_err(dev, "cannot find infra controller: %ld\n",
+ 			PTR_ERR(btcvsd->infra));
+-		return PTR_ERR(btcvsd->infra);
++		ret = PTR_ERR(btcvsd->infra);
++		goto unmap_bank2_err;
  	}
  
--	mutex_unlock(&vdev->vma_lock);
--
- 	if (io_remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
--			       vma->vm_end - vma->vm_start, vma->vm_page_prot))
-+			       vma->vm_end - vma->vm_start,
-+			       vma->vm_page_prot)) {
- 		ret = VM_FAULT_SIGBUS;
-+		zap_vma_ptes(vma, vma->vm_start, vma->vm_end - vma->vm_start);
-+		goto up_out;
-+	}
+ 	/* get offset */
+@@ -1354,7 +1356,7 @@ static int mtk_btcvsd_snd_probe(struct platform_device *pdev)
+ 					 ARRAY_SIZE(offset));
+ 	if (ret) {
+ 		dev_warn(dev, "%s(), get offset fail, ret %d\n", __func__, ret);
+-		return ret;
++		goto unmap_bank2_err;
+ 	}
+ 	btcvsd->infra_misc_offset = offset[0];
+ 	btcvsd->conn_bt_cvsd_mask = offset[1];
+@@ -1373,8 +1375,18 @@ static int mtk_btcvsd_snd_probe(struct platform_device *pdev)
+ 	mtk_btcvsd_snd_set_state(btcvsd, btcvsd->tx, BT_SCO_STATE_IDLE);
+ 	mtk_btcvsd_snd_set_state(btcvsd, btcvsd->rx, BT_SCO_STATE_IDLE);
+ 
+-	return devm_snd_soc_register_component(dev, &mtk_btcvsd_snd_platform,
+-					       NULL, 0);
++	ret = devm_snd_soc_register_component(dev, &mtk_btcvsd_snd_platform,
++					      NULL, 0);
++	if (ret)
++		goto unmap_bank2_err;
 +
-+	if (__vfio_pci_add_vma(vdev, vma)) {
-+		ret = VM_FAULT_OOM;
-+		zap_vma_ptes(vma, vma->vm_start, vma->vm_end - vma->vm_start);
-+	}
- 
- up_out:
- 	up_read(&vdev->memory_lock);
-+	mutex_unlock(&vdev->vma_lock);
- 	return ret;
++	return 0;
++
++unmap_bank2_err:
++	iounmap(btcvsd->bt_sram_bank2_base);
++unmap_pkv_err:
++	iounmap(btcvsd->bt_pkv_base);
++	return ret;
  }
  
+ static int mtk_btcvsd_snd_remove(struct platform_device *pdev)
 -- 
 2.30.2
 
