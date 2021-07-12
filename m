@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 583083C4CA2
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 001DC3C526D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242196AbhGLHGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39618 "EHLO mail.kernel.org"
+        id S1345768AbhGLHqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:46:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241043AbhGLHDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:03:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FAD46120F;
-        Mon, 12 Jul 2021 07:01:00 +0000 (UTC)
+        id S1343532AbhGLHne (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:43:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6580961185;
+        Mon, 12 Jul 2021 07:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073261;
-        bh=TeS1jW1j4sQ5G8Qr8eFp7lgoNjFKRAYDAzBbtGLfIXc=;
+        s=korg; t=1626075626;
+        bh=UjwFXX3T+Hb0fCkcc/G0mlQuGqcAz2UCHejWJTH1wFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foGLLMsBKFce9U6fIlfc8vrIE95zjqzwl3gMUHUUjiUvwzvHCEpGfRO82zi1Zzg3I
-         HHGVIFU0Hy4kXhKAGRlucVAq0BvxQj6h4TnBSXubMmHoP0AlHLC8j/muWZCZJmuOfE
-         cJoG07fLs81eKM3aXtsMYHfypAY8l2fgPHTP+kcI=
+        b=qjx5ZSdHSau6ucIO4AwVbjl+WwmalUb6UjAFK89SrqnjOh1qaX8cy96/xWr5N70U3
+         PRw87EyUHkPpPkxx3GdZ1Dz0wiFTIw1ApBerW+euWfIVDYB1CK1puDwsFqd9M/L20f
+         3AdM4Kp+iJSFhoGpCCWYb2IXqdrim6kTpHPPjXK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 182/700] KVM: PPC: Book3S HV: Fix TLB management on SMT8 POWER9 and POWER10 processors
-Date:   Mon, 12 Jul 2021 08:04:25 +0200
-Message-Id: <20210712060952.342742197@linuxfoundation.org>
+Subject: [PATCH 5.13 243/800] tools/power/x86/intel-speed-select: Fix uncore memory frequency display
+Date:   Mon, 12 Jul 2021 08:04:26 +0200
+Message-Id: <20210712060947.971866161@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,139 +41,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 77bbbc0cf84834ed130838f7ac1988567f4d0288 ]
+[ Upstream commit 159f130f60f402273b235801d1fde3fc115c6795 ]
 
-The POWER9 vCPU TLB management code assumes all threads in a core share
-a TLB, and that TLBIEL execued by one thread will invalidate TLBs for
-all threads. This is not the case for SMT8 capable POWER9 and POWER10
-(big core) processors, where the TLB is split between groups of threads.
-This results in TLB multi-hits, random data corruption, etc.
+The uncore memory frequency value from the mailbox command
+CONFIG_TDP_GET_MEM_FREQ needs to be scaled based on the platform for
+display. There is no single constant multiplier.
 
-Fix this by introducing cpu_first_tlb_thread_sibling etc., to determine
-which siblings share TLBs, and use that in the guest TLB flushing code.
+This change introduces CPU model specific memory frequency multiplier.
 
-[npiggin@gmail.com: add changelog and comment]
-
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210602040441.3984352-1-npiggin@gmail.com
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/cputhreads.h | 30 +++++++++++++++++++++++++++
- arch/powerpc/kvm/book3s_hv.c          | 13 ++++++------
- arch/powerpc/kvm/book3s_hv_builtin.c  |  2 +-
- arch/powerpc/kvm/book3s_hv_rm_mmu.c   |  2 +-
- 4 files changed, 39 insertions(+), 8 deletions(-)
+ tools/power/x86/intel-speed-select/isst-config.c | 16 ++++++++++++++++
+ tools/power/x86/intel-speed-select/isst-core.c   | 15 +++++++++++++++
+ .../power/x86/intel-speed-select/isst-display.c  |  2 +-
+ tools/power/x86/intel-speed-select/isst.h        |  2 ++
+ 4 files changed, 34 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/cputhreads.h b/arch/powerpc/include/asm/cputhreads.h
-index 98c8bd155bf9..b167186aaee4 100644
---- a/arch/powerpc/include/asm/cputhreads.h
-+++ b/arch/powerpc/include/asm/cputhreads.h
-@@ -98,6 +98,36 @@ static inline int cpu_last_thread_sibling(int cpu)
- 	return cpu | (threads_per_core - 1);
+diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
+index ab940c508ef0..d4f0a7872e49 100644
+--- a/tools/power/x86/intel-speed-select/isst-config.c
++++ b/tools/power/x86/intel-speed-select/isst-config.c
+@@ -106,6 +106,22 @@ int is_skx_based_platform(void)
+ 	return 0;
  }
  
-+/*
-+ * tlb_thread_siblings are siblings which share a TLB. This is not
-+ * architected, is not something a hypervisor could emulate and a future
-+ * CPU may change behaviour even in compat mode, so this should only be
-+ * used on PowerNV, and only with care.
-+ */
-+static inline int cpu_first_tlb_thread_sibling(int cpu)
++int is_spr_platform(void)
 +{
-+	if (cpu_has_feature(CPU_FTR_ARCH_300) && (threads_per_core == 8))
-+		return cpu & ~0x6;	/* Big Core */
-+	else
-+		return cpu_first_thread_sibling(cpu);
-+}
-+
-+static inline int cpu_last_tlb_thread_sibling(int cpu)
-+{
-+	if (cpu_has_feature(CPU_FTR_ARCH_300) && (threads_per_core == 8))
-+		return cpu | 0x6;	/* Big Core */
-+	else
-+		return cpu_last_thread_sibling(cpu);
-+}
-+
-+static inline int cpu_tlb_thread_sibling_step(void)
-+{
-+	if (cpu_has_feature(CPU_FTR_ARCH_300) && (threads_per_core == 8))
-+		return 2;		/* Big Core */
-+	else
++	if (cpu_model == 0x8F)
 +		return 1;
++
++	return 0;
 +}
 +
- static inline u32 get_tensr(void)
++int is_icx_platform(void)
++{
++	if (cpu_model == 0x6A || cpu_model == 0x6C)
++		return 1;
++
++	return 0;
++}
++
+ static int update_cpu_model(void)
  {
- #ifdef	CONFIG_BOOKE
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 60c5bc0c130c..1c6e0a52fb53 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2619,7 +2619,7 @@ static void radix_flush_cpu(struct kvm *kvm, int cpu, struct kvm_vcpu *vcpu)
- 	cpumask_t *cpu_in_guest;
- 	int i;
- 
--	cpu = cpu_first_thread_sibling(cpu);
-+	cpu = cpu_first_tlb_thread_sibling(cpu);
- 	if (nested) {
- 		cpumask_set_cpu(cpu, &nested->need_tlb_flush);
- 		cpu_in_guest = &nested->cpu_in_guest;
-@@ -2633,9 +2633,10 @@ static void radix_flush_cpu(struct kvm *kvm, int cpu, struct kvm_vcpu *vcpu)
- 	 * the other side is the first smp_mb() in kvmppc_run_core().
- 	 */
- 	smp_mb();
--	for (i = 0; i < threads_per_core; ++i)
--		if (cpumask_test_cpu(cpu + i, cpu_in_guest))
--			smp_call_function_single(cpu + i, do_nothing, NULL, 1);
-+	for (i = cpu; i <= cpu_last_tlb_thread_sibling(cpu);
-+					i += cpu_tlb_thread_sibling_step())
-+		if (cpumask_test_cpu(i, cpu_in_guest))
-+			smp_call_function_single(i, do_nothing, NULL, 1);
- }
- 
- static void kvmppc_prepare_radix_vcpu(struct kvm_vcpu *vcpu, int pcpu)
-@@ -2666,8 +2667,8 @@ static void kvmppc_prepare_radix_vcpu(struct kvm_vcpu *vcpu, int pcpu)
- 	 */
- 	if (prev_cpu != pcpu) {
- 		if (prev_cpu >= 0 &&
--		    cpu_first_thread_sibling(prev_cpu) !=
--		    cpu_first_thread_sibling(pcpu))
-+		    cpu_first_tlb_thread_sibling(prev_cpu) !=
-+		    cpu_first_tlb_thread_sibling(pcpu))
- 			radix_flush_cpu(kvm, prev_cpu, vcpu);
- 		if (nested)
- 			nested->prev_cpu[vcpu->arch.nested_vcpu_id] = pcpu;
-diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
-index 158d309b42a3..b5e5d07cb40f 100644
---- a/arch/powerpc/kvm/book3s_hv_builtin.c
-+++ b/arch/powerpc/kvm/book3s_hv_builtin.c
-@@ -797,7 +797,7 @@ void kvmppc_check_need_tlb_flush(struct kvm *kvm, int pcpu,
- 	 * Thus we make all 4 threads use the same bit.
- 	 */
- 	if (cpu_has_feature(CPU_FTR_ARCH_300))
--		pcpu = cpu_first_thread_sibling(pcpu);
-+		pcpu = cpu_first_tlb_thread_sibling(pcpu);
- 
- 	if (nested)
- 		need_tlb_flush = &nested->need_tlb_flush;
-diff --git a/arch/powerpc/kvm/book3s_hv_rm_mmu.c b/arch/powerpc/kvm/book3s_hv_rm_mmu.c
-index 88da2764c1bb..3ddc83d2e849 100644
---- a/arch/powerpc/kvm/book3s_hv_rm_mmu.c
-+++ b/arch/powerpc/kvm/book3s_hv_rm_mmu.c
-@@ -67,7 +67,7 @@ static int global_invalidates(struct kvm *kvm)
- 		 * so use the bit for the first thread to represent the core.
- 		 */
- 		if (cpu_has_feature(CPU_FTR_ARCH_300))
--			cpu = cpu_first_thread_sibling(cpu);
-+			cpu = cpu_first_tlb_thread_sibling(cpu);
- 		cpumask_clear_cpu(cpu, &kvm->arch.need_tlb_flush);
+ 	unsigned int ebx, ecx, edx;
+diff --git a/tools/power/x86/intel-speed-select/isst-core.c b/tools/power/x86/intel-speed-select/isst-core.c
+index 6a26d5769984..4431c8a0d40a 100644
+--- a/tools/power/x86/intel-speed-select/isst-core.c
++++ b/tools/power/x86/intel-speed-select/isst-core.c
+@@ -201,6 +201,7 @@ void isst_get_uncore_mem_freq(int cpu, int config_index,
+ {
+ 	unsigned int resp;
+ 	int ret;
++
+ 	ret = isst_send_mbox_command(cpu, CONFIG_TDP, CONFIG_TDP_GET_MEM_FREQ,
+ 				     0, config_index, &resp);
+ 	if (ret) {
+@@ -209,6 +210,20 @@ void isst_get_uncore_mem_freq(int cpu, int config_index,
  	}
  
+ 	ctdp_level->mem_freq = resp & GENMASK(7, 0);
++	if (is_spr_platform()) {
++		ctdp_level->mem_freq *= 200;
++	} else if (is_icx_platform()) {
++		if (ctdp_level->mem_freq < 7) {
++			ctdp_level->mem_freq = (12 - ctdp_level->mem_freq) * 133.33 * 2 * 10;
++			ctdp_level->mem_freq /= 10;
++			if (ctdp_level->mem_freq % 10 > 5)
++				ctdp_level->mem_freq++;
++		} else {
++			ctdp_level->mem_freq = 0;
++		}
++	} else {
++		ctdp_level->mem_freq = 0;
++	}
+ 	debug_printf(
+ 		"cpu:%d ctdp:%d CONFIG_TDP_GET_MEM_FREQ resp:%x uncore mem_freq:%d\n",
+ 		cpu, config_index, resp, ctdp_level->mem_freq);
+diff --git a/tools/power/x86/intel-speed-select/isst-display.c b/tools/power/x86/intel-speed-select/isst-display.c
+index 3bf1820c0da1..f97d8859ada7 100644
+--- a/tools/power/x86/intel-speed-select/isst-display.c
++++ b/tools/power/x86/intel-speed-select/isst-display.c
+@@ -446,7 +446,7 @@ void isst_ctdp_display_information(int cpu, FILE *outf, int tdp_level,
+ 		if (ctdp_level->mem_freq) {
+ 			snprintf(header, sizeof(header), "mem-frequency(MHz)");
+ 			snprintf(value, sizeof(value), "%d",
+-				 ctdp_level->mem_freq * DISP_FREQ_MULTIPLIER);
++				 ctdp_level->mem_freq);
+ 			format_and_print(outf, level + 2, header, value);
+ 		}
+ 
+diff --git a/tools/power/x86/intel-speed-select/isst.h b/tools/power/x86/intel-speed-select/isst.h
+index 0cac6c54be87..1aa15d5ea57c 100644
+--- a/tools/power/x86/intel-speed-select/isst.h
++++ b/tools/power/x86/intel-speed-select/isst.h
+@@ -257,5 +257,7 @@ extern int get_cpufreq_base_freq(int cpu);
+ extern int isst_read_pm_config(int cpu, int *cp_state, int *cp_cap);
+ extern void isst_display_error_info_message(int error, char *msg, int arg_valid, int arg);
+ extern int is_skx_based_platform(void);
++extern int is_spr_platform(void);
++extern int is_icx_platform(void);
+ extern void isst_trl_display_information(int cpu, FILE *outf, unsigned long long trl);
+ #endif
 -- 
 2.30.2
 
