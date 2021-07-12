@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E942F3C47E8
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 381123C4836
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236666AbhGLGfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54238 "EHLO mail.kernel.org"
+        id S235715AbhGLGhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:37:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237497AbhGLGec (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:34:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF0D9610CA;
-        Mon, 12 Jul 2021 06:30:42 +0000 (UTC)
+        id S237548AbhGLGeg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:34:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44A6961156;
+        Mon, 12 Jul 2021 06:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071443;
-        bh=0G7WDUneSnvB3wdCJmnVPCLfW7xqQoNe83QOSnntyTs=;
+        s=korg; t=1626071445;
+        bh=oy3KLG7O4RGLwE+4QEYQG92pZCKMBsd6z1Ea1INhmY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAdUoluhBtltGfpUXCCbmolgsYv1CB8gAvsQUpJVb74IENIbt1g/tQv1iA/Mc6tEm
-         iS0N+vCyDr/1WPZbSnznqEzjPB5SOSElKNIOxNnejZIU61lCOuk0sT0EY6wIE0ZPJm
-         JiKpJEPj9Yhv1YyUs453fFp/Pb2mEN20rm5QFe2E=
+        b=WclbI/L5MwFAzJn0H07EKbQw6S1znMrKJakMGIJtmr0r7zbeLFjBUoKGO5JJyELEy
+         irk5m5s0KwYHvdVra7xUhOIldnZQ0mt/vHa8NMqZQR9pEaGD0xhmNOTm2tMoxDY7xI
+         YWusJfWIJjEWO46fZICs16ik6SqsnJWCvnXM+K0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, frank zago <frank@zago.net>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 073/593] iio: light: tcs3472: do not free unallocated IRQ
-Date:   Mon, 12 Jul 2021 08:03:53 +0200
-Message-Id: <20210712060851.173417192@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Nikita Travkin <nikita@trvn.ru>
+Subject: [PATCH 5.10 074/593] iio: ltr501: mark register holding upper 8 bits of ALS_DATA{0,1} and PS_DATA as volatile, too
+Date:   Mon, 12 Jul 2021 08:03:54 +0200
+Message-Id: <20210712060851.277965899@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,55 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: frank zago <frank@zago.net>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 7cd04c863f9e1655d607705455e7714f24451984 upstream.
+commit 2ac0b029a04b673ce83b5089368f467c5dca720c upstream.
 
-Allocating an IRQ is conditional to the IRQ existence, but freeing it
-was not. If no IRQ was allocate, the driver would still try to free
-IRQ 0. Add the missing checks.
+The regmap is configured for 8 bit registers, uses a RB-Tree cache and
+marks several registers as volatile (i.e. do not cache).
 
-This fixes the following trace when the driver is removed:
+The ALS and PS data registers in the chip are 16 bit wide and spans
+two regmap registers. In the current driver only the base register is
+marked as volatile, resulting in the upper register only read once.
 
-[  100.667788] Trying to free already-free IRQ 0
-[  100.667793] WARNING: CPU: 0 PID: 2315 at kernel/irq/manage.c:1826 free_irq+0x1fd/0x370
-...
-[  100.667914] Call Trace:
-[  100.667920]  tcs3472_remove+0x3a/0x90 [tcs3472]
-[  100.667927]  i2c_device_remove+0x2b/0xa0
+Further the data sheet notes:
 
-Signed-off-by: frank zago <frank@zago.net>
-Link: https://lore.kernel.org/r/20210427022017.19314-2-frank@zago.net
-Fixes: 9d2f715d592e ("iio: light: tcs3472: support out-of-threshold events")
+| When the I2C read operation starts, all four ALS data registers are
+| locked until the I2C read operation of register 0x8B is completed.
+
+Which results in the registers never update after the 2nd read.
+
+This patch fixes the problem by marking the upper 8 bits of the ALS
+and PS registers as volatile, too.
+
+Fixes: 2f2c96338afc ("iio: ltr501: Add regmap support.")
+Reported-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
+Link: https://lore.kernel.org/r/20210610134619.2101372-2-mkl@pengutronix.de
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/tcs3472.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/light/ltr501.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/iio/light/tcs3472.c
-+++ b/drivers/iio/light/tcs3472.c
-@@ -531,7 +531,8 @@ static int tcs3472_probe(struct i2c_clie
- 	return 0;
- 
- free_irq:
--	free_irq(client->irq, indio_dev);
-+	if (client->irq)
-+		free_irq(client->irq, indio_dev);
- buffer_cleanup:
- 	iio_triggered_buffer_cleanup(indio_dev);
- 	return ret;
-@@ -559,7 +560,8 @@ static int tcs3472_remove(struct i2c_cli
- 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
- 
- 	iio_device_unregister(indio_dev);
--	free_irq(client->irq, indio_dev);
-+	if (client->irq)
-+		free_irq(client->irq, indio_dev);
- 	iio_triggered_buffer_cleanup(indio_dev);
- 	tcs3472_powerdown(iio_priv(indio_dev));
- 
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -32,9 +32,12 @@
+ #define LTR501_PART_ID 0x86
+ #define LTR501_MANUFAC_ID 0x87
+ #define LTR501_ALS_DATA1 0x88 /* 16-bit, little endian */
++#define LTR501_ALS_DATA1_UPPER 0x89 /* upper 8 bits of LTR501_ALS_DATA1 */
+ #define LTR501_ALS_DATA0 0x8a /* 16-bit, little endian */
++#define LTR501_ALS_DATA0_UPPER 0x8b /* upper 8 bits of LTR501_ALS_DATA0 */
+ #define LTR501_ALS_PS_STATUS 0x8c
+ #define LTR501_PS_DATA 0x8d /* 16-bit, little endian */
++#define LTR501_PS_DATA_UPPER 0x8e /* upper 8 bits of LTR501_PS_DATA */
+ #define LTR501_INTR 0x8f /* output mode, polarity, mode */
+ #define LTR501_PS_THRESH_UP 0x90 /* 11 bit, ps upper threshold */
+ #define LTR501_PS_THRESH_LOW 0x92 /* 11 bit, ps lower threshold */
+@@ -1354,9 +1357,12 @@ static bool ltr501_is_volatile_reg(struc
+ {
+ 	switch (reg) {
+ 	case LTR501_ALS_DATA1:
++	case LTR501_ALS_DATA1_UPPER:
+ 	case LTR501_ALS_DATA0:
++	case LTR501_ALS_DATA0_UPPER:
+ 	case LTR501_ALS_PS_STATUS:
+ 	case LTR501_PS_DATA:
++	case LTR501_PS_DATA_UPPER:
+ 		return true;
+ 	default:
+ 		return false;
 
 
