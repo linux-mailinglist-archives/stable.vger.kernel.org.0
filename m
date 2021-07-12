@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 990263C4C65
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B4EF3C5215
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240492AbhGLHDq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:03:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38850 "EHLO mail.kernel.org"
+        id S1349794AbhGLHoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238740AbhGLHDP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:03:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 807F261179;
-        Mon, 12 Jul 2021 07:00:25 +0000 (UTC)
+        id S1347686AbhGLHkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D20961585;
+        Mon, 12 Jul 2021 07:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073226;
-        bh=WoXSq2ICM3efq+BWozC2CMUcabEJzzaMVOvVVaY7IjM=;
+        s=korg; t=1626075340;
+        bh=zlRAvS0RDgjJ2LkGWY/QXBDscxE3qswqEy1ILegPTAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f7OWhYsolup26BykEvAQaEm32zt65pTK+6XxrEuYJcm3X/zDyxxEnbDnywuzjwn3V
-         IuJiDBfc+ezVNwki1vzLbAmnsOFzmGB0W2esAk1fxWCltSFLEiWUtZmi0S/lIqepEh
-         oe4Rso5AbBj5tj6bvgS//RaTuLbS83qLs3OA0/ZE=
+        b=d19YU0ANXATekxPNjVva8oRSAz4sZ34Uq31RkgjXTk4tYy6wsHPrjyg/R+C96opvr
+         U1N6oMC+xgOwzflupvFP+dsEc7tq6E6735fGZP1TE6m5wLujpEOUO20k7SekkQ71Ci
+         E2S1tTeF9CowOFRtal6TsnsLiLETXeACl/NEunm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 126/700] media: am437x: fix pm_runtime_get_sync() usage count
+Subject: [PATCH 5.13 186/800] media: siano: fix device register error path
 Date:   Mon, 12 Jul 2021 08:03:29 +0200
-Message-Id: <20210712060942.896282067@linuxfoundation.org>
+Message-Id: <20210712060939.198018210@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +42,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit c41e02493334985cca1a22efd5ca962ce3abb061 ]
+[ Upstream commit 5368b1ee2939961a16e74972b69088433fc52195 ]
 
-The pm_runtime_get_sync() internally increments the
-dev->power.usage_count without decrementing it, even on errors.
-Replace it by the new pm_runtime_resume_and_get(), introduced by:
-commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-in order to properly decrement the usage counter, avoiding
-a potential PM usage counter leak.
+As reported by smatch:
+	drivers/media/common/siano/smsdvb-main.c:1231 smsdvb_hotplug() warn: '&client->entry' not removed from list
 
-While here, ensure that the driver will check if PM runtime
-resumed at vpfe_initialize_device().
+If an error occur at the end of the registration logic, it won't
+drop the device from the list.
 
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/am437x/am437x-vpfe.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/media/common/siano/smsdvb-main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/platform/am437x/am437x-vpfe.c b/drivers/media/platform/am437x/am437x-vpfe.c
-index 6cdc77dda0e4..1c9cb9e05fdf 100644
---- a/drivers/media/platform/am437x/am437x-vpfe.c
-+++ b/drivers/media/platform/am437x/am437x-vpfe.c
-@@ -1021,7 +1021,9 @@ static int vpfe_initialize_device(struct vpfe_device *vpfe)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/media/common/siano/smsdvb-main.c b/drivers/media/common/siano/smsdvb-main.c
+index cd5bafe9a3ac..7e4100263381 100644
+--- a/drivers/media/common/siano/smsdvb-main.c
++++ b/drivers/media/common/siano/smsdvb-main.c
+@@ -1212,6 +1212,10 @@ static int smsdvb_hotplug(struct smscore_device_t *coredev,
+ 	return 0;
  
--	pm_runtime_get_sync(vpfe->pdev);
-+	ret = pm_runtime_resume_and_get(vpfe->pdev);
-+	if (ret < 0)
-+		return ret;
+ media_graph_error:
++	mutex_lock(&g_smsdvb_clientslock);
++	list_del(&client->entry);
++	mutex_unlock(&g_smsdvb_clientslock);
++
+ 	smsdvb_debugfs_release(client);
  
- 	vpfe_config_enable(&vpfe->ccdc, 1);
- 
-@@ -2443,7 +2445,11 @@ static int vpfe_probe(struct platform_device *pdev)
- 	pm_runtime_enable(&pdev->dev);
- 
- 	/* for now just enable it here instead of waiting for the open */
--	pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
-+	if (ret < 0) {
-+		vpfe_err(vpfe, "Unable to resume device.\n");
-+		goto probe_out_v4l2_unregister;
-+	}
- 
- 	vpfe_ccdc_config_defaults(ccdc);
- 
-@@ -2530,6 +2536,11 @@ static int vpfe_suspend(struct device *dev)
- 
- 	/* only do full suspend if streaming has started */
- 	if (vb2_start_streaming_called(&vpfe->buffer_queue)) {
-+		/*
-+		 * ignore RPM resume errors here, as it is already too late.
-+		 * A check like that should happen earlier, either at
-+		 * open() or just before start streaming.
-+		 */
- 		pm_runtime_get_sync(dev);
- 		vpfe_config_enable(ccdc, 1);
- 
+ client_error:
 -- 
 2.30.2
 
