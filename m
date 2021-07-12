@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89FC93C4D9C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 074EC3C5344
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238818AbhGLHNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46854 "EHLO mail.kernel.org"
+        id S1352210AbhGLHyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245383AbhGLHMR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:12:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE2EC60C40;
-        Mon, 12 Jul 2021 07:09:27 +0000 (UTC)
+        id S1343491AbhGLHtX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:49:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CBAE619A2;
+        Mon, 12 Jul 2021 07:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073768;
-        bh=ZEf5bbSSXo3CDVXgfzGXaIxQqQTFuxtf50ZzYxxmL6c=;
+        s=korg; t=1626075803;
+        bh=h203D9ggF30OzZ/Sw/HtKRuHHn+P2MJqvACM7Zx9IO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGZ5zQmiJ4sVarWUonuWVndiIvY50yUMdjTY+HtxGEE2C0pBwW0n9joiYDgmuofJs
-         uC6lCcqurYaeIPxOx0T8D6eBGqC0B/rSRz9WHBg5yk4830Z84DpWCFdcfqJpsh/OBS
-         ELwbDJ70AH32JJx3HSWXT2KlFOKKUFlpM4a/FkmY=
+        b=0c6VmZK7DF39KeMhWoPKAlOKgT9ILUmHGqwpzKHfILtFgqTNb0GDQnc+7UEyVNLf9
+         vC537geY0Bpn4A0R9QUqBBIF64qU1eZsyyOz5wb5z88Ve08vxLHFAimzm2Wv8v/s4W
+         k0YkfpQm2fzrwAKzIwdza9ZgYN/L11WbA5KgNvB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Donnefort <vincent.donnefort@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 310/700] sched/rt: Fix RT utilization tracking during policy change
+Subject: [PATCH 5.13 370/800] EDAC/igen6: fix core dependency
 Date:   Mon, 12 Jul 2021 08:06:33 +0200
-Message-Id: <20210712061009.353140419@linuxfoundation.org>
+Message-Id: <20210712061006.417035354@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Donnefort <vincent.donnefort@arm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit fecfcbc288e9f4923f40fd23ca78a6acdc7fdf6c ]
+[ Upstream commit 0a9ece9ba154dd6205709108180952c55e630833 ]
 
-RT keeps track of the utilization on a per-rq basis with the structure
-avg_rt. This utilization is updated during task_tick_rt(),
-put_prev_task_rt() and set_next_task_rt(). However, when the current
-running task changes its policy, set_next_task_rt() which would usually
-take care of updating the utilization when the rq starts running RT tasks,
-will not see a such change, leaving the avg_rt structure outdated. When
-that very same task will be dequeued later, put_prev_task_rt() will then
-update the utilization, based on a wrong last_update_time, leading to a
-huge spike in the RT utilization signal.
+igen6_edac needs mce_register()/unregister() functions,
+so it should depend on X86_MCE (or X86_MCE_INTEL).
 
-The signal would eventually recover from this issue after few ms. Even if
-no RT tasks are run, avg_rt is also updated in __update_blocked_others().
-But as the CPU capacity depends partly on the avg_rt, this issue has
-nonetheless a significant impact on the scheduler.
+That change prevents these build errors:
 
-Fix this issue by ensuring a load update when a running task changes
-its policy to RT.
+ld: drivers/edac/igen6_edac.o: in function `igen6_remove':
+igen6_edac.c:(.text+0x494): undefined reference to `mce_unregister_decode_chain'
+ld: drivers/edac/igen6_edac.o: in function `igen6_probe':
+igen6_edac.c:(.text+0xf5b): undefined reference to `mce_register_decode_chain'
 
-Fixes: 371bf427 ("sched/rt: Add rt_rq utilization tracking")
-Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/1624271872-211872-2-git-send-email-vincent.donnefort@arm.com
+Fixes: 10590a9d4f23e ("EDAC/igen6: Add EDAC driver for Intel client SoCs using IBECC")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/r/20210619160203.2026-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/edac/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index 8f720b71d13d..e617287052d5 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -2331,13 +2331,20 @@ void __init init_sched_rt_class(void)
- static void switched_to_rt(struct rq *rq, struct task_struct *p)
- {
- 	/*
--	 * If we are already running, then there's nothing
--	 * that needs to be done. But if we are not running
--	 * we may need to preempt the current running task.
--	 * If that current running task is also an RT task
-+	 * If we are running, update the avg_rt tracking, as the running time
-+	 * will now on be accounted into the latter.
-+	 */
-+	if (task_current(rq, p)) {
-+		update_rt_rq_load_avg(rq_clock_pelt(rq), rq, 0);
-+		return;
-+	}
-+
-+	/*
-+	 * If we are not running we may need to preempt the current
-+	 * running task. If that current running task is also an RT task
- 	 * then see if we can move to another run queue.
- 	 */
--	if (task_on_rq_queued(p) && rq->curr != p) {
-+	if (task_on_rq_queued(p)) {
- #ifdef CONFIG_SMP
- 		if (p->nr_cpus_allowed > 1 && rq->rt.overloaded)
- 			rt_queue_push_tasks(rq);
+diff --git a/drivers/edac/Kconfig b/drivers/edac/Kconfig
+index 1e836e320edd..91164c5f0757 100644
+--- a/drivers/edac/Kconfig
++++ b/drivers/edac/Kconfig
+@@ -270,7 +270,8 @@ config EDAC_PND2
+ 
+ config EDAC_IGEN6
+ 	tristate "Intel client SoC Integrated MC"
+-	depends on PCI && X86_64 && PCI_MMCONFIG && ARCH_HAVE_NMI_SAFE_CMPXCHG
++	depends on PCI && PCI_MMCONFIG && ARCH_HAVE_NMI_SAFE_CMPXCHG
++	depends on X64_64 && X86_MCE_INTEL
+ 	help
+ 	  Support for error detection and correction on the Intel
+ 	  client SoC Integrated Memory Controller using In-Band ECC IP.
 -- 
 2.30.2
 
