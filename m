@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 502D53C4C9F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E12A3C4CAB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242194AbhGLHGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40474 "EHLO mail.kernel.org"
+        id S242396AbhGLHGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:06:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243778AbhGLHFQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:05:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2553361179;
-        Mon, 12 Jul 2021 07:02:27 +0000 (UTC)
+        id S243837AbhGLHFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:05:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2845261152;
+        Mon, 12 Jul 2021 07:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073348;
-        bh=JqkrJDMf7jKdd8GQxNi/zCMWht0exrc2kPqvbvGPzcI=;
+        s=korg; t=1626073351;
+        bh=+7mU4Z0yAsxln+wq4nJ1jQzGwlMOiI8KrVghTM5I2dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I0DZGJQ2wCH2JQD9eTpLDJcPGySgew1Pxj7je/TZJTtvGQ8VKCYSfFpaNGeN2BQYG
-         NZ5/QAnuQ21bVrdJQUG0Dk+Fb3PuYOL6whgQla3pnvn4eSAoLrAuOpZ1/CV7mSCFXm
-         sWmeb7TjP74q6vCF/i9kuvCpGTOWsVZRlKyxHJI8=
+        b=GYrjHKAaAH3Lj5FVS8avD7fJ87PoWMizQyQCq1zp+cp1IxUUD8+MNP9PGNkPiqyb1
+         k3u8BPL3RFe+pHeNUPUnvZ2Pl3O337V9j6f7VQoMebNqkdS7ETnLBaVEzWQ8avqKWW
+         i+y98Vi1vYYWbiDxGAjHz6FEkHqU1Ti6UdXPVV6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
         David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 209/700] fs: dlm: reconnect if socket error report occurs
-Date:   Mon, 12 Jul 2021 08:04:52 +0200
-Message-Id: <20210712060956.416004628@linuxfoundation.org>
+Subject: [PATCH 5.12 210/700] fs: dlm: cancel work sync othercon
+Date:   Mon, 12 Jul 2021 08:04:53 +0200
+Message-Id: <20210712060956.559252972@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -42,149 +42,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit ba868d9deaab2bb1c09e50650127823925154802 ]
+[ Upstream commit c6aa00e3d20c2767ba3f57b64eb862572b9744b3 ]
 
-This patch will change the reconnect handling that if an error occurs
-if a socket error callback is occurred. This will also handle reconnects
-in a non blocking connecting case which is currently missing. If error
-ECONNREFUSED is reported we delay the reconnect by one second.
+These rx tx flags arguments are for signaling close_connection() from
+which worker they are called. Obviously the receive worker cannot cancel
+itself and vice versa for swork. For the othercon the receive worker
+should only be used, however to avoid deadlocks we should pass the same
+flags as the original close_connection() was called.
 
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
 Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lowcomms.c | 60 ++++++++++++++++++++++++++++++-----------------
- 1 file changed, 39 insertions(+), 21 deletions(-)
+ fs/dlm/lowcomms.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 45c2fdaf34c4..01b672cee783 100644
+index 01b672cee783..7e6736c70e11 100644
 --- a/fs/dlm/lowcomms.c
 +++ b/fs/dlm/lowcomms.c
-@@ -79,6 +79,8 @@ struct connection {
- #define CF_CLOSING 8
- #define CF_SHUTDOWN 9
- #define CF_CONNECTED 10
-+#define CF_RECONNECT 11
-+#define CF_DELAY_CONNECT 12
- 	struct list_head writequeue;  /* List of outgoing writequeue_entries */
- 	spinlock_t writequeue_lock;
- 	void (*connect_action) (struct connection *);	/* What to do to connect */
-@@ -87,6 +89,7 @@ struct connection {
- #define MAX_CONNECT_RETRIES 3
- 	struct hlist_node list;
- 	struct connection *othercon;
-+	struct connection *sendcon;
- 	struct work_struct rwork; /* Receive workqueue */
- 	struct work_struct swork; /* Send workqueue */
- 	wait_queue_head_t shutdown_wait; /* wait for graceful shutdown */
-@@ -584,6 +587,22 @@ static void lowcomms_error_report(struct sock *sk)
- 				   dlm_config.ci_tcp_port, sk->sk_err,
- 				   sk->sk_err_soft);
+@@ -714,7 +714,7 @@ static void close_connection(struct connection *con, bool and_other,
+ 
+ 	if (con->othercon && and_other) {
+ 		/* Will only re-enter once. */
+-		close_connection(con->othercon, false, true, true);
++		close_connection(con->othercon, false, tx, rx);
  	}
-+
-+	/* below sendcon only handling */
-+	if (test_bit(CF_IS_OTHERCON, &con->flags))
-+		con = con->sendcon;
-+
-+	switch (sk->sk_err) {
-+	case ECONNREFUSED:
-+		set_bit(CF_DELAY_CONNECT, &con->flags);
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	if (!test_and_set_bit(CF_RECONNECT, &con->flags))
-+		queue_work(send_workqueue, &con->swork);
-+
- out:
- 	read_unlock_bh(&sk->sk_callback_lock);
- 	if (orig_report)
-@@ -701,6 +720,8 @@ static void close_connection(struct connection *con, bool and_other,
+ 
  	con->rx_leftover = 0;
- 	con->retries = 0;
- 	clear_bit(CF_CONNECTED, &con->flags);
-+	clear_bit(CF_DELAY_CONNECT, &con->flags);
-+	clear_bit(CF_RECONNECT, &con->flags);
- 	mutex_unlock(&con->sock_mutex);
- 	clear_bit(CF_CLOSING, &con->flags);
- }
-@@ -839,18 +860,15 @@ out_resched:
- 
- out_close:
- 	mutex_unlock(&con->sock_mutex);
--	if (ret != -EAGAIN) {
--		/* Reconnect when there is something to send */
-+	if (ret == 0) {
- 		close_connection(con, false, true, false);
--		if (ret == 0) {
--			log_print("connection %p got EOF from %d",
--				  con, con->nodeid);
--			/* handling for tcp shutdown */
--			clear_bit(CF_SHUTDOWN, &con->flags);
--			wake_up(&con->shutdown_wait);
--			/* signal to breaking receive worker */
--			ret = -1;
--		}
-+		log_print("connection %p got EOF from %d",
-+			  con, con->nodeid);
-+		/* handling for tcp shutdown */
-+		clear_bit(CF_SHUTDOWN, &con->flags);
-+		wake_up(&con->shutdown_wait);
-+		/* signal to breaking receive worker */
-+		ret = -1;
- 	}
- 	return ret;
- }
-@@ -933,6 +951,7 @@ static int accept_from_sock(struct listen_connection *con)
- 			}
- 
- 			newcon->othercon = othercon;
-+			othercon->sendcon = newcon;
- 		} else {
- 			/* close other sock con if we have something new */
- 			close_connection(othercon, false, true, false);
-@@ -1478,7 +1497,7 @@ static void send_to_sock(struct connection *con)
- 				cond_resched();
- 				goto out;
- 			} else if (ret < 0)
--				goto send_error;
-+				goto out;
- 		}
- 
- 		/* Don't starve people filling buffers */
-@@ -1495,14 +1514,6 @@ out:
- 	mutex_unlock(&con->sock_mutex);
- 	return;
- 
--send_error:
--	mutex_unlock(&con->sock_mutex);
--	close_connection(con, false, false, true);
--	/* Requeue the send work. When the work daemon runs again, it will try
--	   a new connection, then call this function again. */
--	queue_work(send_workqueue, &con->swork);
--	return;
--
- out_connect:
- 	mutex_unlock(&con->sock_mutex);
- 	queue_work(send_workqueue, &con->swork);
-@@ -1574,8 +1585,15 @@ static void process_send_sockets(struct work_struct *work)
- 	struct connection *con = container_of(work, struct connection, swork);
- 
- 	clear_bit(CF_WRITE_PENDING, &con->flags);
--	if (con->sock == NULL) /* not mutex protected so check it inside too */
-+
-+	if (test_and_clear_bit(CF_RECONNECT, &con->flags))
-+		close_connection(con, false, false, true);
-+
-+	if (con->sock == NULL) { /* not mutex protected so check it inside too */
-+		if (test_and_clear_bit(CF_DELAY_CONNECT, &con->flags))
-+			msleep(1000);
- 		con->connect_action(con);
-+	}
- 	if (!list_empty(&con->writequeue))
- 		send_to_sock(con);
- }
 -- 
 2.30.2
 
