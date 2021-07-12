@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A59B93C44F0
+	by mail.lfdr.de (Postfix) with ESMTP id 4BDA23C44EF
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234388AbhGLGW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234561AbhGLGW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 02:22:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233893AbhGLGVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234210AbhGLGVX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:21:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2866D61153;
-        Mon, 12 Jul 2021 06:18:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86AFF610E5;
+        Mon, 12 Jul 2021 06:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070710;
-        bh=yxV1JSp0byzG2cM2gN6t7X7YxV+FNspdBcRPK549JUU=;
+        s=korg; t=1626070713;
+        bh=dAnvGLufU6Ejd9Nv5NgVmc7qe7BYvQ/94+7Rvi8+U/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGIcSksnnQI4gzCLs0xvnvEEaOLe7ILCZWwjX+1f4tDUyB1lsJNMgL5EFBkjWZ4wp
-         8D3ElxHRVvDX4vKl/0PEII4RbQZOyiTTtvvTm5lCOqapQF28TjVuDmxJSjvq3xw0UV
-         tDygmcfnLlIcmJxcSlcKqxM7zzGJ6dYEK68/boDE=
+        b=RM4kECN+1BX7/XlRjoMLrb73Qau8rwju1fZG1qdJlj7fRRwg6G7bIMy88KbXIjmkG
+         l1gXDwyy8ybfRNDmqAoXdcUtiLNdDApGV+NpaISs2lGYq6EK3ndLLIOZcdEBQ5GO7n
+         C7z2lLrfi2MCtyDT4u15Qt3iaUULmqexkfbCPpsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Boqun Feng <boqun.feng@gmail.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/348] locking/lockdep: Fix the dep path printing for backwards BFS
-Date:   Mon, 12 Jul 2021 08:08:10 +0200
-Message-Id: <20210712060715.647697458@linuxfoundation.org>
+Subject: [PATCH 5.4 107/348] lockding/lockdep: Avoid to find wrong lock dep path in check_irq_usage()
+Date:   Mon, 12 Jul 2021 08:08:11 +0200
+Message-Id: <20210712060715.767577496@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -43,159 +43,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit 69c7a5fb2482636f525f016c8333fdb9111ecb9d ]
+[ Upstream commit 7b1f8c6179769af6ffa055e1169610b51d71edd5 ]
 
-We use the same code to print backwards lock dependency path as the
-forwards lock dependency path, and this could result into incorrect
-printing because for a backwards lock_list ->trace is not the call trace
-where the lock of ->class is acquired.
+In the step #3 of check_irq_usage(), we seach backwards to find a lock
+whose usage conflicts the usage of @target_entry1 on safe/unsafe.
+However, we should only keep the irq-unsafe usage of @target_entry1 into
+consideration, because it could be a case where a lock is hardirq-unsafe
+but soft-safe, and in check_irq_usage() we find it because its
+hardirq-unsafe could result into a hardirq-safe-unsafe deadlock, but
+currently since we don't filter out the other usage bits, so we may find
+a lock dependency path softirq-unsafe -> softirq-safe, which in fact
+doesn't cause a deadlock. And this may cause misleading lockdep splats.
 
-Fix this by introducing a separate function on printing the backwards
-dependency path. Also add a few comments about the printing while we are
-at it.
+Fix this by only keeping LOCKF_ENABLED_IRQ_ALL bits when we try the
+backwards search.
 
 Reported-by: Johannes Berg <johannes@sipsolutions.net>
 Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20210618170110.3699115-2-boqun.feng@gmail.com
+Link: https://lore.kernel.org/r/20210618170110.3699115-4-boqun.feng@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 108 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 106 insertions(+), 2 deletions(-)
+ kernel/locking/lockdep.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 7429f1571755..df43bf53e7c5 100644
+index df43bf53e7c5..3ec8fd2e80e5 100644
 --- a/kernel/locking/lockdep.c
 +++ b/kernel/locking/lockdep.c
-@@ -1941,7 +1941,56 @@ static void print_lock_class_header(struct lock_class *class, int depth)
- }
+@@ -2377,8 +2377,18 @@ static int check_irq_usage(struct task_struct *curr, struct held_lock *prev,
+ 	 * Step 3: we found a bad match! Now retrieve a lock from the backward
+ 	 * list whose usage mask matches the exclusive usage mask from the
+ 	 * lock found on the forward list.
++	 *
++	 * Note, we should only keep the LOCKF_ENABLED_IRQ_ALL bits, considering
++	 * the follow case:
++	 *
++	 * When trying to add A -> B to the graph, we find that there is a
++	 * hardirq-safe L, that L -> ... -> A, and another hardirq-unsafe M,
++	 * that B -> ... -> M. However M is **softirq-safe**, if we use exact
++	 * invert bits of M's usage_mask, we will find another lock N that is
++	 * **softirq-unsafe** and N -> ... -> A, however N -> .. -> M will not
++	 * cause a inversion deadlock.
+ 	 */
+-	backward_mask = original_mask(target_entry1->class->usage_mask);
++	backward_mask = original_mask(target_entry1->class->usage_mask & LOCKF_ENABLED_IRQ_ALL);
  
- /*
-- * printk the shortest lock dependencies from @start to @end in reverse order:
-+ * Dependency path printing:
-+ *
-+ * After BFS we get a lock dependency path (linked via ->parent of lock_list),
-+ * printing out each lock in the dependency path will help on understanding how
-+ * the deadlock could happen. Here are some details about dependency path
-+ * printing:
-+ *
-+ * 1)	A lock_list can be either forwards or backwards for a lock dependency,
-+ * 	for a lock dependency A -> B, there are two lock_lists:
-+ *
-+ * 	a)	lock_list in the ->locks_after list of A, whose ->class is B and
-+ * 		->links_to is A. In this case, we can say the lock_list is
-+ * 		"A -> B" (forwards case).
-+ *
-+ * 	b)	lock_list in the ->locks_before list of B, whose ->class is A
-+ * 		and ->links_to is B. In this case, we can say the lock_list is
-+ * 		"B <- A" (bacwards case).
-+ *
-+ * 	The ->trace of both a) and b) point to the call trace where B was
-+ * 	acquired with A held.
-+ *
-+ * 2)	A "helper" lock_list is introduced during BFS, this lock_list doesn't
-+ * 	represent a certain lock dependency, it only provides an initial entry
-+ * 	for BFS. For example, BFS may introduce a "helper" lock_list whose
-+ * 	->class is A, as a result BFS will search all dependencies starting with
-+ * 	A, e.g. A -> B or A -> C.
-+ *
-+ * 	The notation of a forwards helper lock_list is like "-> A", which means
-+ * 	we should search the forwards dependencies starting with "A", e.g A -> B
-+ * 	or A -> C.
-+ *
-+ * 	The notation of a bacwards helper lock_list is like "<- B", which means
-+ * 	we should search the backwards dependencies ending with "B", e.g.
-+ * 	B <- A or B <- C.
-+ */
-+
-+/*
-+ * printk the shortest lock dependencies from @root to @leaf in reverse order.
-+ *
-+ * We have a lock dependency path as follow:
-+ *
-+ *    @root                                                                 @leaf
-+ *      |                                                                     |
-+ *      V                                                                     V
-+ *	          ->parent                                   ->parent
-+ * | lock_list | <--------- | lock_list | ... | lock_list  | <--------- | lock_list |
-+ * |    -> L1  |            | L1 -> L2  | ... |Ln-2 -> Ln-1|            | Ln-1 -> Ln|
-+ *
-+ * , so it's natural that we start from @leaf and print every ->class and
-+ * ->trace until we reach the @root.
-  */
- static void __used
- print_shortest_lock_dependencies(struct lock_list *leaf,
-@@ -1969,6 +2018,61 @@ print_shortest_lock_dependencies(struct lock_list *leaf,
- 	} while (entry && (depth >= 0));
- }
- 
-+/*
-+ * printk the shortest lock dependencies from @leaf to @root.
-+ *
-+ * We have a lock dependency path (from a backwards search) as follow:
-+ *
-+ *    @leaf                                                                 @root
-+ *      |                                                                     |
-+ *      V                                                                     V
-+ *	          ->parent                                   ->parent
-+ * | lock_list | ---------> | lock_list | ... | lock_list  | ---------> | lock_list |
-+ * | L2 <- L1  |            | L3 <- L2  | ... | Ln <- Ln-1 |            |    <- Ln  |
-+ *
-+ * , so when we iterate from @leaf to @root, we actually print the lock
-+ * dependency path L1 -> L2 -> .. -> Ln in the non-reverse order.
-+ *
-+ * Another thing to notice here is that ->class of L2 <- L1 is L1, while the
-+ * ->trace of L2 <- L1 is the call trace of L2, in fact we don't have the call
-+ * trace of L1 in the dependency path, which is alright, because most of the
-+ * time we can figure out where L1 is held from the call trace of L2.
-+ */
-+static void __used
-+print_shortest_lock_dependencies_backwards(struct lock_list *leaf,
-+					   struct lock_list *root)
-+{
-+	struct lock_list *entry = leaf;
-+	const struct lock_trace *trace = NULL;
-+	int depth;
-+
-+	/*compute depth from generated tree by BFS*/
-+	depth = get_lock_depth(leaf);
-+
-+	do {
-+		print_lock_class_header(entry->class, depth);
-+		if (trace) {
-+			printk("%*s ... acquired at:\n", depth, "");
-+			print_lock_trace(trace, 2);
-+			printk("\n");
-+		}
-+
-+		/*
-+		 * Record the pointer to the trace for the next lock_list
-+		 * entry, see the comments for the function.
-+		 */
-+		trace = entry->trace;
-+
-+		if (depth == 0 && (entry != root)) {
-+			printk("lockdep:%s bad path found in chain graph\n", __func__);
-+			break;
-+		}
-+
-+		entry = get_lock_parent(entry);
-+		depth--;
-+	} while (entry && (depth >= 0));
-+}
-+
- static void
- print_irq_lock_scenario(struct lock_list *safe_entry,
- 			struct lock_list *unsafe_entry,
-@@ -2086,7 +2190,7 @@ print_bad_irq_dependency(struct task_struct *curr,
- 	prev_root->trace = save_trace();
- 	if (!prev_root->trace)
- 		return;
--	print_shortest_lock_dependencies(backwards_entry, prev_root);
-+	print_shortest_lock_dependencies_backwards(backwards_entry, prev_root);
- 
- 	pr_warn("\nthe dependencies between the lock to be acquired");
- 	pr_warn(" and %s-irq-unsafe lock:\n", irqclass);
+ 	ret = find_usage_backwards(&this, backward_mask, &target_entry);
+ 	if (ret < 0) {
 -- 
 2.30.2
 
