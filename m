@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 256413C53C1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 708CC3C4E49
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348578AbhGLHzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
+        id S241912AbhGLHRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:17:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350655AbhGLHvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF3FC61C2C;
-        Mon, 12 Jul 2021 07:46:59 +0000 (UTC)
+        id S243746AbhGLHRG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 568B961453;
+        Mon, 12 Jul 2021 07:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076020;
-        bh=yEFcNEXpnicFUGlpyGK9hl4vpdiXNqemBYdU9G+Xx14=;
+        s=korg; t=1626074045;
+        bh=/d4Hy8kizaJtXGR5xC0HJdptpyoelwRmcH753Jp9+Jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3sPtSJHX47a6aaZ8+Txsdn6YrtvtLmeBYBJ9FezcTXba+z86/ZAquQPUHSgwsiRU
-         Pj9WajtI6bRwmzodqKXCZJkZkqgVVOb43JthIwecXXA6gldegSddMsVigyTD8TvnZ2
-         6e01pmLKK3GQGhl6twZFtOihaPyGhyLihEJQvN5k=
+        b=1NTq+N5V2xk/rmktmnKyfeEkDZDz3Vdps6bb2g+rbFtiw+SbddAYa+o/HhYK+dqh3
+         NJB5rlN4DljaVYmaOPkKleHxpSzzygtMJaPmptVkYMTO7RcBH5YKfp23wQYkG3qtPb
+         YYA1dyD9IO/WJJLt9LsWGC/V7u1ykX/5pRg+VlAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
         Kalle Valo <kvalo@codeaurora.org>,
+        Christian Lamparter <chunkeey@googlemail.com>,
+        linux-wireless@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Christian Lamparter <chunkeey@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 463/800] brcmfmac: correctly report average RSSI in station info
+Subject: [PATCH 5.12 403/700] wireless: carl9170: fix LEDS build errors & warnings
 Date:   Mon, 12 Jul 2021 08:08:06 +0200
-Message-Id: <20210712061016.394165453@linuxfoundation.org>
+Message-Id: <20210712061019.221697974@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Šipraga <ALSI@bang-olufsen.dk>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 9a1590934d9a02e570636432b93052c0c035f31f ]
+[ Upstream commit 272fdc0c4542fad173b44965be02a16d6db95499 ]
 
-The rx_lastpkt_rssi field provided by the firmware is suitable for
-NL80211_STA_INFO_{SIGNAL,CHAIN_SIGNAL}, while the rssi field is an
-average. Fix up the assignments and set the correct STA_INFO bits. This
-lets userspace know that the average RSSI is part of the station info.
+kernel test robot reports over 200 build errors and warnings
+that are due to this Kconfig problem when CARL9170=m,
+MAC80211=y, and LEDS_CLASS=m.
 
-Fixes: cae355dc90db ("brcmfmac: Add RSSI information to get_station.")
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+WARNING: unmet direct dependencies detected for MAC80211_LEDS
+  Depends on [n]: NET [=y] && WIRELESS [=y] && MAC80211 [=y] && (LEDS_CLASS [=m]=y || LEDS_CLASS [=m]=MAC80211 [=y])
+  Selected by [m]:
+  - CARL9170_LEDS [=y] && NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_ATH [=y] && CARL9170 [=m]
+
+CARL9170_LEDS selects MAC80211_LEDS even though its kconfig
+dependencies are not met. This happens because 'select' does not follow
+any Kconfig dependency chains.
+
+Fix this by making CARL9170_LEDS depend on MAC80211_LEDS, where
+the latter supplies any needed dependencies on LEDS_CLASS.
+
+Fixes: 1d7e1e6b1b8ed ("carl9170: Makefile, Kconfig files and MAINTAINERS")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Christian Lamparter <chunkeey@googlemail.com>
+Cc: linux-wireless@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: Christian Lamparter <chunkeey@googlemail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Christian Lamparter <chunkeey@gmail.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210506132010.3964484-2-alsi@bang-olufsen.dk
+Link: https://lore.kernel.org/r/20210530031134.23274-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../broadcom/brcm80211/brcmfmac/cfg80211.c    | 36 ++++++++++---------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ drivers/net/wireless/ath/carl9170/Kconfig | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-index afa75cb83221..d8822a01d277 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-@@ -2767,8 +2767,9 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
- 	struct brcmf_sta_info_le sta_info_le;
- 	u32 sta_flags;
- 	u32 is_tdls_peer;
--	s32 total_rssi;
--	s32 count_rssi;
-+	s32 total_rssi_avg = 0;
-+	s32 total_rssi = 0;
-+	s32 count_rssi = 0;
- 	int rssi;
- 	u32 i;
+diff --git a/drivers/net/wireless/ath/carl9170/Kconfig b/drivers/net/wireless/ath/carl9170/Kconfig
+index b2d760873992..ba9bea79381c 100644
+--- a/drivers/net/wireless/ath/carl9170/Kconfig
++++ b/drivers/net/wireless/ath/carl9170/Kconfig
+@@ -16,13 +16,11 @@ config CARL9170
  
-@@ -2834,24 +2835,27 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
- 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_RX_BYTES);
- 			sinfo->rx_bytes = le64_to_cpu(sta_info_le.rx_tot_bytes);
- 		}
--		total_rssi = 0;
--		count_rssi = 0;
- 		for (i = 0; i < BRCMF_ANT_MAX; i++) {
--			if (sta_info_le.rssi[i]) {
--				sinfo->chains |= BIT(count_rssi);
--				sinfo->chain_signal_avg[count_rssi] =
--					sta_info_le.rssi[i];
--				sinfo->chain_signal[count_rssi] =
--					sta_info_le.rssi[i];
--				total_rssi += sta_info_le.rssi[i];
--				count_rssi++;
--			}
-+			if (sta_info_le.rssi[i] == 0 ||
-+			    sta_info_le.rx_lastpkt_rssi[i] == 0)
-+				continue;
-+			sinfo->chains |= BIT(count_rssi);
-+			sinfo->chain_signal[count_rssi] =
-+				sta_info_le.rx_lastpkt_rssi[i];
-+			sinfo->chain_signal_avg[count_rssi] =
-+				sta_info_le.rssi[i];
-+			total_rssi += sta_info_le.rx_lastpkt_rssi[i];
-+			total_rssi_avg += sta_info_le.rssi[i];
-+			count_rssi++;
- 		}
- 		if (count_rssi) {
--			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL);
- 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL);
--			total_rssi /= count_rssi;
--			sinfo->signal = total_rssi;
-+			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL_AVG);
-+			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL);
-+			sinfo->filled |=
-+				BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL_AVG);
-+			sinfo->signal = total_rssi / count_rssi;
-+			sinfo->signal_avg = total_rssi_avg / count_rssi;
- 		} else if (test_bit(BRCMF_VIF_STATUS_CONNECTED,
- 			&ifp->vif->sme_state)) {
- 			memset(&scb_val, 0, sizeof(scb_val));
+ config CARL9170_LEDS
+ 	bool "SoftLED Support"
+-	depends on CARL9170
+-	select MAC80211_LEDS
+-	select LEDS_CLASS
+-	select NEW_LEDS
+ 	default y
++	depends on CARL9170
++	depends on MAC80211_LEDS
+ 	help
+-	  This option is necessary, if you want your device' LEDs to blink
++	  This option is necessary, if you want your device's LEDs to blink.
+ 
+ 	  Say Y, unless you need the LEDs for firmware debugging.
+ 
 -- 
 2.30.2
 
