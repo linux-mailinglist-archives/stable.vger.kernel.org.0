@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BACB53C4B9E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ED353C51A2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239458AbhGLG6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:58:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58816 "EHLO mail.kernel.org"
+        id S1346592AbhGLHme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:42:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239849AbhGLG5y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:57:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93983613D9;
-        Mon, 12 Jul 2021 06:54:59 +0000 (UTC)
+        id S1345926AbhGLHjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:39:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56FCE6142C;
+        Mon, 12 Jul 2021 07:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072900;
-        bh=0aE05FEyTHLwX7nNashTmQdzwBxZWWMVD/FG57n+2nE=;
+        s=korg; t=1626075239;
+        bh=qS50egKAp8vEr3qpIuMYt0weiZiMDCcr9XlfK1nfdTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pqqgi37nGjunK3HTzU8nsr8uDtjmvvvxJmSFi+Wsctm0eS3MXXnQe6RH++IJJTBUu
-         W24UTxYViSLfYS/7IdiIsHHVvvZqHV7PRY1dSR6KLtqDAVrX0WRSM87KnlUv1DkIom
-         SKj9glFo7bTXBBvuSXOeK5VCdBBSqgw/guovF1ks=
+        b=bqLhnxV3KGZ5GulKgVhId0H8gsuf92OjuJXQqiJF2kkpg++iK8e4REr3S05XAJ0AQ
+         4SJdMAkQAcQN9+eEIIEKCaY5NbzeN/K0ju3CEFRF9+SG6Y2PRqePs7L7aiLarW9v2A
+         v62kI0AS9T47goe6uqtMe+DG0dhs9K4P4qGHF5FM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.12 058/700] can: gw: synchronize rcu operations before removing gw job entry
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.13 118/800] evm: Execute evm_inode_init_security() only when an HMAC key is loaded
 Date:   Mon, 12 Jul 2021 08:02:21 +0200
-Message-Id: <20210712060932.919495351@linuxfoundation.org>
+Message-Id: <20210712060929.545673932@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit fb8696ab14adadb2e3f6c17c18ed26b3ecd96691 upstream.
+commit 9eea2904292c2d8fa98df141d3bf7c41ec9dc1b5 upstream.
 
-can_can_gw_rcv() is called under RCU protection, so after calling
-can_rx_unregister(), we have to call synchronize_rcu in order to wait
-for any RCU read-side critical sections to finish before removing the
-kmem_cache entry with the referenced gw job entry.
+evm_inode_init_security() requires an HMAC key to calculate the HMAC on
+initial xattrs provided by LSMs. However, it checks generically whether a
+key has been loaded, including also public keys, which is not correct as
+public keys are not suitable to calculate the HMAC.
 
-Link: https://lore.kernel.org/r/20210618173645.2238-1-socketcan@hartkopp.net
-Fixes: c1aabdf379bc ("can-gw: add netlink based CAN routing")
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Originally, support for signature verification was introduced to verify a
+possibly immutable initial ram disk, when no new files are created, and to
+switch to HMAC for the root filesystem. By that time, an HMAC key should
+have been loaded and usable to calculate HMACs for new files.
+
+More recently support for requiring an HMAC key was removed from the
+kernel, so that signature verification can be used alone. Since this is a
+legitimate use case, evm_inode_init_security() should not return an error
+when no HMAC key has been loaded.
+
+This patch fixes this problem by replacing the evm_key_loaded() check with
+a check of the EVM_INIT_HMAC flag in evm_initialized.
+
+Fixes: 26ddabfe96b ("evm: enable EVM when X509 certificate is loaded")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Cc: stable@vger.kernel.org # 4.5.x
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/can/gw.c |    3 +++
- 1 file changed, 3 insertions(+)
+ security/integrity/evm/evm_main.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/can/gw.c
-+++ b/net/can/gw.c
-@@ -596,6 +596,7 @@ static int cgw_notifier(struct notifier_
- 			if (gwj->src.dev == dev || gwj->dst.dev == dev) {
- 				hlist_del(&gwj->list);
- 				cgw_unregister_filter(net, gwj);
-+				synchronize_rcu();
- 				kmem_cache_free(cgw_cache, gwj);
- 			}
- 		}
-@@ -1154,6 +1155,7 @@ static void cgw_remove_all_jobs(struct n
- 	hlist_for_each_entry_safe(gwj, nx, &net->can.cgw_list, list) {
- 		hlist_del(&gwj->list);
- 		cgw_unregister_filter(net, gwj);
-+		synchronize_rcu();
- 		kmem_cache_free(cgw_cache, gwj);
- 	}
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -521,7 +521,7 @@ void evm_inode_post_setattr(struct dentr
  }
-@@ -1222,6 +1224,7 @@ static int cgw_remove_job(struct sk_buff
  
- 		hlist_del(&gwj->list);
- 		cgw_unregister_filter(net, gwj);
-+		synchronize_rcu();
- 		kmem_cache_free(cgw_cache, gwj);
- 		err = 0;
- 		break;
+ /*
+- * evm_inode_init_security - initializes security.evm
++ * evm_inode_init_security - initializes security.evm HMAC value
+  */
+ int evm_inode_init_security(struct inode *inode,
+ 				 const struct xattr *lsm_xattr,
+@@ -530,7 +530,8 @@ int evm_inode_init_security(struct inode
+ 	struct evm_xattr *xattr_data;
+ 	int rc;
+ 
+-	if (!evm_key_loaded() || !evm_protected_xattr(lsm_xattr->name))
++	if (!(evm_initialized & EVM_INIT_HMAC) ||
++	    !evm_protected_xattr(lsm_xattr->name))
+ 		return 0;
+ 
+ 	xattr_data = kzalloc(sizeof(*xattr_data), GFP_NOFS);
 
 
