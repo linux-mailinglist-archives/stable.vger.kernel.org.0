@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A293C4D88
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A11B03C5238
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239618AbhGLHNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39774 "EHLO mail.kernel.org"
+        id S1349965AbhGLHpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241573AbhGLHD6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:03:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88B2B61108;
-        Mon, 12 Jul 2021 07:01:09 +0000 (UTC)
+        id S1349397AbhGLHl7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:41:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC9E8601FE;
+        Mon, 12 Jul 2021 07:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073270;
-        bh=yvnssoRNj50o8HlLNWdJRDPNBXFzZfArB601HcT8yqc=;
+        s=korg; t=1626075551;
+        bh=YiVkQDLRAapwLNvBwX9UK9D5pXW8BaYdNU8onEnEyeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEv0rb1f8rGEA/ojRFsJ2EioxhY8IvQba7BJq6vrbgjwi2B03v51NejXSpFdBrgm7
-         N/Q6A/PgCFwiThPcI+mLUNhBw58CmpnCQ5fWU2WTBerSpnaS1s6qJbcq09bXXnEqd8
-         2RrYXsjwA2Lmakder6MmSB7cllmFXpWESw3K3CeY=
+        b=VUcJ8YF+5rDnv4mIlH13ivon25XETuR2fqDt+Q5vDnWhDLJb9vXPrAJmbHTUZab0x
+         SQlqPQwK86ZFRv0Eq93o5O8RjY/cZzIEUj1wnWVRfO7MDmnZZrfegwUIe7f8j6egOn
+         mJNhnNg3mlGDihNIHFE6AJhOXGP+Prg16kDFEM1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Aurelien Aptel <aaptel@suse.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 185/700] btrfs: always abort the transaction if we abort a trans handle
+Subject: [PATCH 5.13 245/800] cifs: improve fallocate emulation
 Date:   Mon, 12 Jul 2021 08:04:28 +0200
-Message-Id: <20210712060952.901774478@linuxfoundation.org>
+Message-Id: <20210712060948.254167108@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,140 +43,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 5963ffcaf383134985a5a2d8a4baa582d3999e0a ]
+[ Upstream commit 966a3cb7c7db786452a87afdc3b48858fc4d4d6b ]
 
-While stress testing our error handling I noticed that sometimes we
-would still commit the transaction even though we had aborted the
-transaction.
+RHBZ: 1866684
 
-Currently we track if a trans handle has dirtied any metadata, and if it
-hasn't we mark the filesystem as having an error (so no new transactions
-can be started), but we will allow the current transaction to complete
-as we do not mark the transaction itself as having been aborted.
+We don't have a real fallocate in the SMB2 protocol so we used to emulate fallocate
+by simply switching the file to become non-sparse. But as that could potantially consume
+a lot more data than we intended to fallocate (large sparse file and fallocating a thin
+slice in the middle) we would only do this IFF the fallocate request was for virtually
+the entire file.
 
-This sounds good in theory, but we were not properly tracking IO errors
-in btrfs_finish_ordered_io, and thus committing the transaction with
-bogus free space data.  This isn't necessarily a problem per-se with the
-free space cache, as the other guards in place would have kept us from
-accepting the free space cache as valid, but highlights a real world
-case where we had a bug and could have corrupted the filesystem because
-of it.
+This patch improves this and starts allowing us to fallocate smaller chunks of a file by
+overwriting the region with 0, for the parts that are unallocated.
 
-This "skip abort on empty trans handle" is nice in theory, but assumes
-we have perfect error handling everywhere, which we clearly do not.
-Also we do not allow further transactions to be started, so all this
-does is save the last transaction that was happening, which doesn't
-necessarily gain us anything other than the potential for real
-corruption.
+The method used is to first query the server for FSCTL_QUERY_ALLOCATED_RANGES to find what
+is unallocated in the fallocate range and then to only overwrite-with-zero the unallocated
+ranges to fill in the holes.
 
-Remove this particular bit of code, if we decide we need to abort the
-transaction then abort the current one and keep us from doing real harm
-to the file system, regardless of whether this specific trans handle
-dirtied anything or not.
+As overwriting-with-zero is different from just allocating blocks, and potentially much
+more expensive, we limit this to only allow fallocate ranges up to 1Mb in size.
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Acked-by: Aurelien Aptel <aaptel@suse.com>
+Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.c       |  5 +----
- fs/btrfs/extent-tree.c |  1 -
- fs/btrfs/super.c       | 11 -----------
- fs/btrfs/transaction.c |  8 --------
- fs/btrfs/transaction.h |  1 -
- 5 files changed, 1 insertion(+), 25 deletions(-)
+ fs/cifs/smb2ops.c | 133 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 133 insertions(+)
 
-diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
-index f43ce82a6aed..8f48553d861e 100644
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1498,7 +1498,6 @@ noinline int btrfs_cow_block(struct btrfs_trans_handle *trans,
- 		       trans->transid, fs_info->generation);
- 
- 	if (!should_cow_block(trans, root, buf)) {
--		trans->dirty = true;
- 		*cow_ret = buf;
- 		return 0;
- 	}
-@@ -2670,10 +2669,8 @@ again:
- 			 * then we don't want to set the path blocking,
- 			 * so we test it here
- 			 */
--			if (!should_cow_block(trans, root, b)) {
--				trans->dirty = true;
-+			if (!should_cow_block(trans, root, b))
- 				goto cow_done;
--			}
- 
- 			/*
- 			 * must have write locks on this node and the
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index 27c368007481..1cde6f84f145 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -4799,7 +4799,6 @@ btrfs_init_new_buffer(struct btrfs_trans_handle *trans, struct btrfs_root *root,
- 		set_extent_dirty(&trans->transaction->dirty_pages, buf->start,
- 			 buf->start + buf->len - 1, GFP_NOFS);
- 	}
--	trans->dirty = true;
- 	/* this returns a buffer locked for blocking */
- 	return buf;
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 21ef51d338e0..b68ba92893b6 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -3601,6 +3601,119 @@ static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
+ 	return rc;
  }
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index f7a4ad86adee..b3b7f3066cfa 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -273,17 +273,6 @@ void __btrfs_abort_transaction(struct btrfs_trans_handle *trans,
- 	struct btrfs_fs_info *fs_info = trans->fs_info;
  
- 	WRITE_ONCE(trans->aborted, errno);
--	/* Nothing used. The other threads that have joined this
--	 * transaction may be able to continue. */
--	if (!trans->dirty && list_empty(&trans->new_bgs)) {
--		const char *errstr;
--
--		errstr = btrfs_decode_error(errno);
--		btrfs_warn(fs_info,
--		           "%s:%d: Aborting unused transaction(%s).",
--		           function, line, errstr);
--		return;
--	}
- 	WRITE_ONCE(trans->transaction->aborted, errno);
- 	/* Wake up anybody who may be waiting on this transaction */
- 	wake_up(&fs_info->transaction_wait);
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index d678c24250a4..81c8567dffee 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -2056,14 +2056,6 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
++static int smb3_simple_fallocate_write_range(unsigned int xid,
++					     struct cifs_tcon *tcon,
++					     struct cifsFileInfo *cfile,
++					     loff_t off, loff_t len,
++					     char *buf)
++{
++	struct cifs_io_parms io_parms = {0};
++	int nbytes;
++	struct kvec iov[2];
++
++	io_parms.netfid = cfile->fid.netfid;
++	io_parms.pid = current->tgid;
++	io_parms.tcon = tcon;
++	io_parms.persistent_fid = cfile->fid.persistent_fid;
++	io_parms.volatile_fid = cfile->fid.volatile_fid;
++	io_parms.offset = off;
++	io_parms.length = len;
++
++	/* iov[0] is reserved for smb header */
++	iov[1].iov_base = buf;
++	iov[1].iov_len = io_parms.length;
++	return SMB2_write(xid, &io_parms, &nbytes, iov, 1);
++}
++
++static int smb3_simple_fallocate_range(unsigned int xid,
++				       struct cifs_tcon *tcon,
++				       struct cifsFileInfo *cfile,
++				       loff_t off, loff_t len)
++{
++	struct file_allocated_range_buffer in_data, *out_data = NULL, *tmp_data;
++	u32 out_data_len;
++	char *buf = NULL;
++	loff_t l;
++	int rc;
++
++	in_data.file_offset = cpu_to_le64(off);
++	in_data.length = cpu_to_le64(len);
++	rc = SMB2_ioctl(xid, tcon, cfile->fid.persistent_fid,
++			cfile->fid.volatile_fid,
++			FSCTL_QUERY_ALLOCATED_RANGES, true,
++			(char *)&in_data, sizeof(in_data),
++			1024 * sizeof(struct file_allocated_range_buffer),
++			(char **)&out_data, &out_data_len);
++	if (rc)
++		goto out;
++	/*
++	 * It is already all allocated
++	 */
++	if (out_data_len == 0)
++		goto out;
++
++	buf = kzalloc(1024 * 1024, GFP_KERNEL);
++	if (buf == NULL) {
++		rc = -ENOMEM;
++		goto out;
++	}
++
++	tmp_data = out_data;
++	while (len) {
++		/*
++		 * The rest of the region is unmapped so write it all.
++		 */
++		if (out_data_len == 0) {
++			rc = smb3_simple_fallocate_write_range(xid, tcon,
++					       cfile, off, len, buf);
++			goto out;
++		}
++
++		if (out_data_len < sizeof(struct file_allocated_range_buffer)) {
++			rc = -EINVAL;
++			goto out;
++		}
++
++		if (off < le64_to_cpu(tmp_data->file_offset)) {
++			/*
++			 * We are at a hole. Write until the end of the region
++			 * or until the next allocated data,
++			 * whichever comes next.
++			 */
++			l = le64_to_cpu(tmp_data->file_offset) - off;
++			if (len < l)
++				l = len;
++			rc = smb3_simple_fallocate_write_range(xid, tcon,
++					       cfile, off, l, buf);
++			if (rc)
++				goto out;
++			off = off + l;
++			len = len - l;
++			if (len == 0)
++				goto out;
++		}
++		/*
++		 * We are at a section of allocated data, just skip forward
++		 * until the end of the data or the end of the region
++		 * we are supposed to fallocate, whichever comes first.
++		 */
++		l = le64_to_cpu(tmp_data->length);
++		if (len < l)
++			l = len;
++		off += l;
++		len -= l;
++
++		tmp_data = &tmp_data[1];
++		out_data_len -= sizeof(struct file_allocated_range_buffer);
++	}
++
++ out:
++	kfree(out_data);
++	kfree(buf);
++	return rc;
++}
++
++
+ static long smb3_simple_falloc(struct file *file, struct cifs_tcon *tcon,
+ 			    loff_t off, loff_t len, bool keep_size)
+ {
+@@ -3661,6 +3774,26 @@ static long smb3_simple_falloc(struct file *file, struct cifs_tcon *tcon,
+ 	}
  
- 	ASSERT(refcount_read(&trans->use_count) == 1);
- 
--	/*
--	 * Some places just start a transaction to commit it.  We need to make
--	 * sure that if this commit fails that the abort code actually marks the
--	 * transaction as failed, so set trans->dirty to make the abort code do
--	 * the right thing.
--	 */
--	trans->dirty = true;
--
- 	/* Stop the commit early if ->aborted is set */
- 	if (TRANS_ABORTED(cur_trans)) {
- 		ret = cur_trans->aborted;
-diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
-index 364cfbb4c5c5..c49e2266b28b 100644
---- a/fs/btrfs/transaction.h
-+++ b/fs/btrfs/transaction.h
-@@ -143,7 +143,6 @@ struct btrfs_trans_handle {
- 	bool allocating_chunk;
- 	bool can_flush_pending_bgs;
- 	bool reloc_reserved;
--	bool dirty;
- 	bool in_fsync;
- 	struct btrfs_root *root;
- 	struct btrfs_fs_info *fs_info;
+ 	if ((keep_size == true) || (i_size_read(inode) >= off + len)) {
++		/*
++		 * At this point, we are trying to fallocate an internal
++		 * regions of a sparse file. Since smb2 does not have a
++		 * fallocate command we have two otions on how to emulate this.
++		 * We can either turn the entire file to become non-sparse
++		 * which we only do if the fallocate is for virtually
++		 * the whole file,  or we can overwrite the region with zeroes
++		 * using SMB2_write, which could be prohibitevly expensive
++		 * if len is large.
++		 */
++		/*
++		 * We are only trying to fallocate a small region so
++		 * just write it with zero.
++		 */
++		if (len <= 1024 * 1024) {
++			rc = smb3_simple_fallocate_range(xid, tcon, cfile,
++							 off, len);
++			goto out;
++		}
++
+ 		/*
+ 		 * Check if falloc starts within first few pages of file
+ 		 * and ends within a few pages of the end of file to
 -- 
 2.30.2
 
