@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D19D73C4D8B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84BA43C536A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244230AbhGLHN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46008 "EHLO mail.kernel.org"
+        id S1352387AbhGLHyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239110AbhGLHLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:11:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA93160FE7;
-        Mon, 12 Jul 2021 07:08:55 +0000 (UTC)
+        id S1350313AbhGLHuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:50:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24855613F2;
+        Mon, 12 Jul 2021 07:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073736;
-        bh=+/JFy+slToYPRalqVJJOi9ffJwiRSsiakNYtXkNAREA=;
+        s=korg; t=1626075873;
+        bh=5OUihi6DdvLFbfJGUrpRrfypEQP5im49uLubXF1/wrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXkZAFIgRCjX7/ChKDECsO4m8t6F8hxabXv0PlKQingxWkukruf72EzZg8drn5odP
-         8X7+jchA0OFKa1c4KcppTXRaobfBFjswh26mJib9ko1DRIzlIdIKLe5wogY75eiVPp
-         Xy+AloDC2TEDz4cwpmE5rag0rj4f+DZXG6xJRRyA=
+        b=l99GFnYs7uljH5TJdSE12XoYd7ve7+In/fxKyvRD/nTdMJeHnXLRQdxjG/qCdcpMX
+         Q1W56geyfR8lZ2x0YVQls3dC64kYDzMf2loygwA39lkovXCEunD4RnEoMn6T7rfi+7
+         NwiPzsFrwbQMjy3gdSBMjw2NSitg3GjRDC2V0pRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wade Liang <wadel@synology.com>,
-        BingJing Chang <bingjingc@synology.com>,
-        Edward Hsieh <edwardh@synology.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 341/700] block: fix trace completion for chained bio
+Subject: [PATCH 5.13 401/800] pinctrl: renesas: r8a7796: Add missing bias for PRESET# pin
 Date:   Mon, 12 Jul 2021 08:07:04 +0200
-Message-Id: <20210712061012.579182430@linuxfoundation.org>
+Message-Id: <20210712061009.809508375@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Hsieh <edwardh@synology.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 60b6a7e6a0f4382cd689f9afdac816964fec2921 ]
+[ Upstream commit 2cee31cd49733e89dfedf4f68a56839fc2e42040 ]
 
-For chained bio, trace_block_bio_complete in bio_endio is currently called
-only by the parent bio once upon all chained bio completed.
-However, the sector and size for the parent bio are modified in bio_split.
-Therefore, the size and sector of the complete events might not match the
-queue events in blktrace.
+R-Car Gen3 Hardware Manual Errata for Rev. 0.52 of Nov 30, 2016, added
+the configuration bit for bias pull-down control for the PRESET# pin on
+R-Car M3-W.  Add driver support for controlling pull-down on this pin.
 
-The original fix of bio completion trace <fbbaf700e7b1> ("block: trace
-completion of all bios.") wants multiple complete events to correspond
-to one queue event but missed this.
-
-The issue can be reproduced by md/raid5 read with bio cross chunks.
-
-To fix, move trace completion into the loop for every chained bio to call.
-
-Fixes: fbbaf700e7b1 ("block: trace completion of all bios.")
-Reviewed-by: Wade Liang <wadel@synology.com>
-Reviewed-by: BingJing Chang <bingjingc@synology.com>
-Signed-off-by: Edward Hsieh <edwardh@synology.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210624123030.27014-1-edwardh@synology.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 2d40bd24274d2577 ("pinctrl: sh-pfc: r8a7796: Add bias pinconf support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Link: https://lore.kernel.org/r/c479de5b3f235c2f7d5faea9e7e08e6fccb135df.1619785375.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/pinctrl/renesas/pfc-r8a7796.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 50e579088aca..b00c5a88a743 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -1412,8 +1412,7 @@ static inline bool bio_remaining_done(struct bio *bio)
-  *
-  *   bio_endio() can be called several times on a bio that has been chained
-  *   using bio_chain().  The ->bi_end_io() function will only be called the
-- *   last time.  At this point the BLK_TA_COMPLETE tracing event will be
-- *   generated if BIO_TRACE_COMPLETION is set.
-+ *   last time.
-  **/
- void bio_endio(struct bio *bio)
- {
-@@ -1426,6 +1425,11 @@ again:
- 	if (bio->bi_bdev)
- 		rq_qos_done_bio(bio->bi_bdev->bd_disk->queue, bio);
- 
-+	if (bio->bi_bdev && bio_flagged(bio, BIO_TRACE_COMPLETION)) {
-+		trace_block_bio_complete(bio->bi_bdev->bd_disk->queue, bio);
-+		bio_clear_flag(bio, BIO_TRACE_COMPLETION);
-+	}
-+
- 	/*
- 	 * Need to have a real endio function for chained bios, otherwise
- 	 * various corner cases will break (like stacking block devices that
-@@ -1439,11 +1443,6 @@ again:
- 		goto again;
- 	}
- 
--	if (bio->bi_bdev && bio_flagged(bio, BIO_TRACE_COMPLETION)) {
--		trace_block_bio_complete(bio->bi_bdev->bd_disk->queue, bio);
--		bio_clear_flag(bio, BIO_TRACE_COMPLETION);
--	}
--
- 	blk_throtl_bio_endio(bio);
- 	/* release cgroup info */
- 	bio_uninit(bio);
+diff --git a/drivers/pinctrl/renesas/pfc-r8a7796.c b/drivers/pinctrl/renesas/pfc-r8a7796.c
+index 44e9d2eea484..bbb1b436ded3 100644
+--- a/drivers/pinctrl/renesas/pfc-r8a7796.c
++++ b/drivers/pinctrl/renesas/pfc-r8a7796.c
+@@ -67,6 +67,7 @@
+ 	PIN_NOGP_CFG(QSPI1_MOSI_IO0, "QSPI1_MOSI_IO0", fn, CFG_FLAGS),	\
+ 	PIN_NOGP_CFG(QSPI1_SPCLK, "QSPI1_SPCLK", fn, CFG_FLAGS),	\
+ 	PIN_NOGP_CFG(QSPI1_SSL, "QSPI1_SSL", fn, CFG_FLAGS),		\
++	PIN_NOGP_CFG(PRESET_N, "PRESET#", fn, SH_PFC_PIN_CFG_PULL_DOWN),\
+ 	PIN_NOGP_CFG(RPC_INT_N, "RPC_INT#", fn, CFG_FLAGS),		\
+ 	PIN_NOGP_CFG(RPC_RESET_N, "RPC_RESET#", fn, CFG_FLAGS),		\
+ 	PIN_NOGP_CFG(RPC_WP_N, "RPC_WP#", fn, CFG_FLAGS),		\
+@@ -6218,7 +6219,7 @@ static const struct pinmux_bias_reg pinmux_bias_regs[] = {
+ 		[ 4] = RCAR_GP_PIN(6, 29),	/* USB30_OVC */
+ 		[ 5] = RCAR_GP_PIN(6, 30),	/* GP6_30 */
+ 		[ 6] = RCAR_GP_PIN(6, 31),	/* GP6_31 */
+-		[ 7] = SH_PFC_PIN_NONE,
++		[ 7] = PIN_PRESET_N,		/* PRESET# */
+ 		[ 8] = SH_PFC_PIN_NONE,
+ 		[ 9] = SH_PFC_PIN_NONE,
+ 		[10] = SH_PFC_PIN_NONE,
 -- 
 2.30.2
 
