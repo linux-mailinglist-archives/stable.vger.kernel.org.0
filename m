@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA0E3C48A6
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DB63C48AA
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235411AbhGLGka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34598 "EHLO mail.kernel.org"
+        id S234395AbhGLGkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237223AbhGLGjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E0D461184;
-        Mon, 12 Jul 2021 06:34:51 +0000 (UTC)
+        id S237370AbhGLGjZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2135761179;
+        Mon, 12 Jul 2021 06:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071691;
-        bh=+GLCrOlqm+ecTRN01ebH+RNaYpzSgm+wgO5kZtnb/hY=;
+        s=korg; t=1626071705;
+        bh=m3zx+ceVEdckWgNJJueuh3O9BRsErHXlMTL9Bs9H3U8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFtSpdcLnethd2WRByppd+XKZGyCb1uTm52lnmjcZJMLiklz4TrzsWEjylqHVqQn+
-         H+NnEaNIyV0GlASn0nykHHnUWM533bCSHhYSKHBlLDKwZ7sxuqGRLCxSsTsJoJFX7T
-         5v9Xi6a4N2A815dpyJccrC5ieTVkXHuYdFqqA5gE=
+        b=fp9dSWiNL0fSDteD4eKjRzggOd+Wlp22Ycwg/3q9vxh3ShxAMpx7pV6WSa4vxykr0
+         n+PfG8Fb5zUro6kgxksvS2LwRHtSn8QEx5c2n88od3nihrZQqZIhBL2xwDoisiqHmN
+         6kymeAtYgDQ1W8CZ1whvY0NBfifkwpb3KdavofM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 178/593] blk-mq: grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter
-Date:   Mon, 12 Jul 2021 08:05:38 +0200
-Message-Id: <20210712060902.600525746@linuxfoundation.org>
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 183/593] drivers: hv: Fix missing error code in vmbus_connect()
+Date:   Mon, 12 Jul 2021 08:05:43 +0200
+Message-Id: <20210712060903.155930625@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -42,177 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 2e315dc07df009c3e29d6926871f62a30cfae394 ]
+[ Upstream commit 9de6655cc5a6a1febc514465c87c24a0e96d8dba ]
 
-Grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter(), and
-this way will prevent the request from being re-used when ->fn is
-running. The approach is same as what we do during handling timeout.
+Eliminate the follow smatch warning:
 
-Fix request use-after-free(UAF) related with completion race or queue
-releasing:
+drivers/hv/connection.c:236 vmbus_connect() warn: missing error code
+'ret'.
 
-- If one rq is referred before rq->q is frozen, then queue won't be
-frozen before the request is released during iteration.
-
-- If one rq is referred after rq->q is frozen, refcount_inc_not_zero()
-will return false, and we won't iterate over this request.
-
-However, still one request UAF not covered: refcount_inc_not_zero() may
-read one freed request, and it will be handled in next patch.
-
-Tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20210511152236.763464-3-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/1621940321-72353-1-git-send-email-jiapeng.chong@linux.alibaba.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-tag.c | 44 +++++++++++++++++++++++++++++++++-----------
- block/blk-mq.c     | 14 +++++++++-----
- block/blk-mq.h     |  1 +
- 3 files changed, 43 insertions(+), 16 deletions(-)
+ drivers/hv/connection.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
-index 9c92053e704d..6772c3728865 100644
---- a/block/blk-mq-tag.c
-+++ b/block/blk-mq-tag.c
-@@ -199,6 +199,16 @@ struct bt_iter_data {
- 	bool reserved;
- };
- 
-+static struct request *blk_mq_find_and_get_req(struct blk_mq_tags *tags,
-+		unsigned int bitnr)
-+{
-+	struct request *rq = tags->rqs[bitnr];
-+
-+	if (!rq || !refcount_inc_not_zero(&rq->ref))
-+		return NULL;
-+	return rq;
-+}
-+
- static bool bt_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
- {
- 	struct bt_iter_data *iter_data = data;
-@@ -206,18 +216,22 @@ static bool bt_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
- 	struct blk_mq_tags *tags = hctx->tags;
- 	bool reserved = iter_data->reserved;
- 	struct request *rq;
-+	bool ret = true;
- 
- 	if (!reserved)
- 		bitnr += tags->nr_reserved_tags;
--	rq = tags->rqs[bitnr];
--
- 	/*
- 	 * We can hit rq == NULL here, because the tagging functions
- 	 * test and set the bit before assigning ->rqs[].
+diff --git a/drivers/hv/connection.c b/drivers/hv/connection.c
+index 11170d9a2e1a..bfd7f00a59ec 100644
+--- a/drivers/hv/connection.c
++++ b/drivers/hv/connection.c
+@@ -229,8 +229,10 @@ int vmbus_connect(void)
  	 */
--	if (rq && rq->q == hctx->queue && rq->mq_hctx == hctx)
--		return iter_data->fn(hctx, rq, iter_data->data, reserved);
--	return true;
-+	rq = blk_mq_find_and_get_req(tags, bitnr);
-+	if (!rq)
-+		return true;
-+
-+	if (rq->q == hctx->queue && rq->mq_hctx == hctx)
-+		ret = iter_data->fn(hctx, rq, iter_data->data, reserved);
-+	blk_mq_put_rq_ref(rq);
-+	return ret;
- }
  
- /**
-@@ -264,6 +278,8 @@ static bool bt_tags_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
- 	struct blk_mq_tags *tags = iter_data->tags;
- 	bool reserved = iter_data->flags & BT_TAG_ITER_RESERVED;
- 	struct request *rq;
-+	bool ret = true;
-+	bool iter_static_rqs = !!(iter_data->flags & BT_TAG_ITER_STATIC_RQS);
+ 	for (i = 0; ; i++) {
+-		if (i == ARRAY_SIZE(vmbus_versions))
++		if (i == ARRAY_SIZE(vmbus_versions)) {
++			ret = -EDOM;
+ 			goto cleanup;
++		}
  
- 	if (!reserved)
- 		bitnr += tags->nr_reserved_tags;
-@@ -272,16 +288,19 @@ static bool bt_tags_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
- 	 * We can hit rq == NULL here, because the tagging functions
- 	 * test and set the bit before assigning ->rqs[].
- 	 */
--	if (iter_data->flags & BT_TAG_ITER_STATIC_RQS)
-+	if (iter_static_rqs)
- 		rq = tags->static_rqs[bitnr];
- 	else
--		rq = tags->rqs[bitnr];
-+		rq = blk_mq_find_and_get_req(tags, bitnr);
- 	if (!rq)
- 		return true;
--	if ((iter_data->flags & BT_TAG_ITER_STARTED) &&
--	    !blk_mq_request_started(rq))
--		return true;
--	return iter_data->fn(rq, iter_data->data, reserved);
-+
-+	if (!(iter_data->flags & BT_TAG_ITER_STARTED) ||
-+	    blk_mq_request_started(rq))
-+		ret = iter_data->fn(rq, iter_data->data, reserved);
-+	if (!iter_static_rqs)
-+		blk_mq_put_rq_ref(rq);
-+	return ret;
- }
- 
- /**
-@@ -348,6 +367,9 @@ void blk_mq_all_tag_iter(struct blk_mq_tags *tags, busy_tag_iter_fn *fn,
-  *		indicates whether or not @rq is a reserved request. Return
-  *		true to continue iterating tags, false to stop.
-  * @priv:	Will be passed as second argument to @fn.
-+ *
-+ * We grab one request reference before calling @fn and release it after
-+ * @fn returns.
-  */
- void blk_mq_tagset_busy_iter(struct blk_mq_tag_set *tagset,
- 		busy_tag_iter_fn *fn, void *priv)
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 4bf9449b4586..50d3527a5d97 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -927,6 +927,14 @@ static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
- 	return false;
- }
- 
-+void blk_mq_put_rq_ref(struct request *rq)
-+{
-+	if (is_flush_rq(rq, rq->mq_hctx))
-+		rq->end_io(rq, 0);
-+	else if (refcount_dec_and_test(&rq->ref))
-+		__blk_mq_free_request(rq);
-+}
-+
- static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
- 		struct request *rq, void *priv, bool reserved)
- {
-@@ -960,11 +968,7 @@ static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
- 	if (blk_mq_req_expired(rq, next))
- 		blk_mq_rq_timed_out(rq, reserved);
- 
--	if (is_flush_rq(rq, hctx))
--		rq->end_io(rq, 0);
--	else if (refcount_dec_and_test(&rq->ref))
--		__blk_mq_free_request(rq);
--
-+	blk_mq_put_rq_ref(rq);
- 	return true;
- }
- 
-diff --git a/block/blk-mq.h b/block/blk-mq.h
-index d2359f7cfd5f..f792a0920ebb 100644
---- a/block/blk-mq.h
-+++ b/block/blk-mq.h
-@@ -47,6 +47,7 @@ void blk_mq_add_to_requeue_list(struct request *rq, bool at_head,
- void blk_mq_flush_busy_ctxs(struct blk_mq_hw_ctx *hctx, struct list_head *list);
- struct request *blk_mq_dequeue_from_ctx(struct blk_mq_hw_ctx *hctx,
- 					struct blk_mq_ctx *start);
-+void blk_mq_put_rq_ref(struct request *rq);
- 
- /*
-  * Internal helpers for allocating/freeing the request map
+ 		version = vmbus_versions[i];
+ 		if (version > max_version)
 -- 
 2.30.2
 
