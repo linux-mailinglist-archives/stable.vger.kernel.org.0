@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC1833C4BAE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 308F13C4BB1
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240300AbhGLG6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:58:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59236 "EHLO mail.kernel.org"
+        id S240529AbhGLG6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:58:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239586AbhGLG6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:58:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37585613EC;
-        Mon, 12 Jul 2021 06:55:14 +0000 (UTC)
+        id S239651AbhGLG6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:58:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48FFE6124C;
+        Mon, 12 Jul 2021 06:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072914;
-        bh=Kuh6woRRTHxGDo2eMaqmBi9aEAcP8QHgJop9o5uz9Ak=;
+        s=korg; t=1626072917;
+        bh=H7K8QcNfcYG76IHBiBB1NtHUrfWLWgRNm3vfLuoBcwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqi0PD5NpMyiAyt+y+tIxlVnTvg3xZmAN467J03kqOxHHxRdEdDR3xaO7x2iyYfhB
-         jgPxNUOcA9G2vI4LPHVO+NJavtXbDAcamnjqD4T5N5uQPC30jJ4VzVh5sb9PUO9wyq
-         IVowiGWfMO4IwIaRwFAnJmy2aIziRE0B3z/hGU4w=
+        b=a9AgjXSuQM3o2J3U3ausWSQxzrI9N+Z9ZmrvGKnmrvKrDm3bs/NLiHQ7J7lXDZ8f8
+         vhUl6ZvMlJlP2f8VATqS823IJYM5K99xVXIQf+sz7o0AAjXe0xvjqfY0AQs74gCR0v
+         q4SO5RkIhGOU2IqUFLUL7d02OYWMy2Y1i5s+AzkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Abinaya Kalaiselvan <akalaise@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 063/700] mac80211: fix NULL ptr dereference during mesh peer connection for non HE devices
-Date:   Mon, 12 Jul 2021 08:02:26 +0200
-Message-Id: <20210712060933.646898965@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.12 064/700] SUNRPC: Fix the batch tasks count wraparound.
+Date:   Mon, 12 Jul 2021 08:02:27 +0200
+Message-Id: <20210712060933.774601582@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -40,45 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abinaya Kalaiselvan <akalaise@codeaurora.org>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 95f83ee8d857f006813755e89a126f1048b001e8 upstream.
+commit fcb170a9d825d7db4a3fb870b0300f5a40a8d096 upstream.
 
-"sband->iftype_data" is not assigned with any value for non HE supported
-devices, which causes NULL pointer access during mesh peer connection
-in those devices. Fix this by accessing the pointer after HE
-capabilities condition check.
+The 'queue->nr' will wraparound from 0 to 255 when only current
+priority queue has tasks. This maybe lead a deadlock same as commit
+dfe1fe75e00e ("NFSv4: Fix deadlock between nfs4_evict_inode()
+and nfs4_opendata_get_inode()"):
 
+Privileged delegreturn task is queued to privileged list because all
+the slots are assigned. When non-privileged task complete and release
+the slot, a non-privileged maybe picked out. It maybe allocate slot
+failed when the session on draining.
+
+If the 'queue->nr' has wraparound to 255, and no enough slot to
+service it, then the privileged delegreturn will lost to wake up.
+
+So we should avoid the wraparound on 'queue->nr'.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 5fcdfacc01f3 ("NFSv4: Return delegations synchronously in evict_inode")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Fixes: 7f7aa94bcaf0 (mac80211: reduce peer HE MCS/NSS to own capabilities)
-Signed-off-by: Abinaya Kalaiselvan <akalaise@codeaurora.org>
-Link: https://lore.kernel.org/r/1624459244-4497-1-git-send-email-akalaise@codeaurora.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/he.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sunrpc/sched.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/he.c
-+++ b/net/mac80211/he.c
-@@ -111,7 +111,7 @@ ieee80211_he_cap_ie_to_sta_he_cap(struct
- 				  struct sta_info *sta)
- {
- 	struct ieee80211_sta_he_cap *he_cap = &sta->sta.he_cap;
--	struct ieee80211_sta_he_cap own_he_cap = sband->iftype_data->he_cap;
-+	struct ieee80211_sta_he_cap own_he_cap;
- 	struct ieee80211_he_cap_elem *he_cap_ie_elem = (void *)he_cap_ie;
- 	u8 he_ppe_size;
- 	u8 mcs_nss_size;
-@@ -123,6 +123,8 @@ ieee80211_he_cap_ie_to_sta_he_cap(struct
- 	if (!he_cap_ie || !ieee80211_get_he_sta_cap(sband))
- 		return;
- 
-+	own_he_cap = sband->iftype_data->he_cap;
-+
- 	/* Make sure size is OK */
- 	mcs_nss_size = ieee80211_he_mcs_nss_size(he_cap_ie_elem);
- 	he_ppe_size =
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -595,7 +595,8 @@ static struct rpc_task *__rpc_find_next_
+ 	 * Service a batch of tasks from a single owner.
+ 	 */
+ 	q = &queue->tasks[queue->priority];
+-	if (!list_empty(q) && --queue->nr) {
++	if (!list_empty(q) && queue->nr) {
++		queue->nr--;
+ 		task = list_first_entry(q, struct rpc_task, u.tk_wait.list);
+ 		goto out;
+ 	}
 
 
