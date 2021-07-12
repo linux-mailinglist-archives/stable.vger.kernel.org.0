@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE0BC3C4812
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC813C4817
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235396AbhGLGft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55500 "EHLO mail.kernel.org"
+        id S235914AbhGLGfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237858AbhGLGez (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:34:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF7EC6101E;
-        Mon, 12 Jul 2021 06:31:52 +0000 (UTC)
+        id S237899AbhGLGe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:34:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A8EC60551;
+        Mon, 12 Jul 2021 06:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071513;
-        bh=pxm+5E2MzlZ76Kf7O9bboxW2zMBSR9F8JFSKdSTSUxg=;
+        s=korg; t=1626071529;
+        bh=wWJRJTiR/yYrM97bNtwEoMlpAdV7hfKPseOeLbgd8po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZzJSbSScLPPPBkGUaV1550b6Go+sGzqVjUPzYGRSmSvjqJrxlZawQwM37xMFEWVbS
-         XS2PF7EcV6Bfl0uBEqKPaX0oma19bGn2HO8Y7+1wfO4rw+lmrBXj8VV3hexuZORHTJ
-         Io187bSYvop44JOgsol92HRi8ojdHRXH8Kc81tJE=
+        b=mG1XH5pMQWQa+pouSHEaEaD1UGdBszkS2GtEX6ctOYDTZh3T5QAiy9seYkHFlqFU5
+         +ZOrD/cyLF9ZNxknkGZ6v5Ww9KzV9f4sSab40OY2mPYum3Is/pigYYZobb/1+fhGox
+         bxY1yXvDTiG3ShPDrW2OywLkAZlLv0VXSWKqAQjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        stable@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.10 065/593] s390/cio: dont call css_wait_for_slow_path() inside a lock
-Date:   Mon, 12 Jul 2021 08:03:45 +0200
-Message-Id: <20210712060850.334335106@linuxfoundation.org>
+Subject: [PATCH 5.10 066/593] s390: mm: Fix secure storage access exception handling
+Date:   Mon, 12 Jul 2021 08:03:46 +0200
+Message-Id: <20210712060850.429885157@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,67 +40,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-commit c749d8c018daf5fba6dfac7b6c5c78b27efd7d65 upstream.
+commit 85b18d7b5e7ffefb2f076186511d39c4990aa005 upstream.
 
-Currently css_wait_for_slow_path() gets called inside the chp->lock.
-The path-verification-loop of slowpath inside this lock could lead to
-deadlock as reported by the lockdep validator.
+Turns out that the bit 61 in the TEID is not always 1 and if that's
+the case the address space ID and the address are
+unpredictable. Without an address and its address space ID we can't
+export memory and hence we can only send a SIGSEGV to the process or
+panic the kernel depending on who caused the exception.
 
-The ccw_device_get_chp_desc() during the instance of a device-set-online
-would try to acquire the same 'chp->lock' to read the chp->desc.
-The instance of this function can get called from multiple scenario,
-like probing or setting-device online manually. This could, in some
-corner-cases lead to the deadlock.
+Unfortunately bit 61 is only reliable if we have the "misc" UV feature
+bit.
 
-lockdep validator reported this as,
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(&chp->lock);
-                                lock(kn->active#43);
-                                lock(&chp->lock);
-   lock((wq_completion)cio);
-
-The chp->lock was introduced to serialize the access of struct
-channel_path. This lock is not needed for the css_wait_for_slow_path()
-function, so invoke the slow-path function outside this lock.
-
-Fixes: b730f3a93395 ("[S390] cio: add lock to struct channel_path")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: 084ea4d611a3d ("s390/mm: add (non)secure page access exceptions handlers")
+Cc: stable@vger.kernel.org
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/cio/chp.c  |    3 +++
- drivers/s390/cio/chsc.c |    2 --
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/boot/uv.c        |    1 +
+ arch/s390/include/asm/uv.h |    8 +++++++-
+ arch/s390/kernel/uv.c      |   10 ++++++++++
+ arch/s390/mm/fault.c       |   26 ++++++++++++++++++++++++++
+ 4 files changed, 44 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/cio/chp.c
-+++ b/drivers/s390/cio/chp.c
-@@ -255,6 +255,9 @@ static ssize_t chp_status_write(struct d
- 	if (!num_args)
- 		return count;
+--- a/arch/s390/boot/uv.c
++++ b/arch/s390/boot/uv.c
+@@ -36,6 +36,7 @@ void uv_query_info(void)
+ 		uv_info.max_sec_stor_addr = ALIGN(uvcb.max_guest_stor_addr, PAGE_SIZE);
+ 		uv_info.max_num_sec_conf = uvcb.max_num_sec_conf;
+ 		uv_info.max_guest_cpu_id = uvcb.max_guest_cpu_id;
++		uv_info.uv_feature_indications = uvcb.uv_feature_indications;
+ 	}
  
-+	/* Wait until previous actions have settled. */
-+	css_wait_for_slow_path();
+ #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -73,6 +73,10 @@ enum uv_cmds_inst {
+ 	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
+ };
+ 
++enum uv_feat_ind {
++	BIT_UV_FEAT_MISC = 0,
++};
 +
- 	if (!strncasecmp(cmd, "on", 2) || !strcmp(cmd, "1")) {
- 		mutex_lock(&cp->lock);
- 		error = s390_vary_chpid(cp->chpid, 1);
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -757,8 +757,6 @@ int chsc_chp_vary(struct chp_id chpid, i
- {
- 	struct channel_path *chp = chpid_to_chp(chpid);
+ struct uv_cb_header {
+ 	u16 len;
+ 	u16 cmd;	/* Command Code */
+@@ -97,7 +101,8 @@ struct uv_cb_qui {
+ 	u64 max_guest_stor_addr;
+ 	u8  reserved88[158 - 136];
+ 	u16 max_guest_cpu_id;
+-	u8  reserveda0[200 - 160];
++	u64 uv_feature_indications;
++	u8  reserveda0[200 - 168];
+ } __packed __aligned(8);
  
--	/* Wait until previous actions have settled. */
--	css_wait_for_slow_path();
- 	/*
- 	 * Redo PathVerification on the devices the chpid connects to
- 	 */
+ /* Initialize Ultravisor */
+@@ -274,6 +279,7 @@ struct uv_info {
+ 	unsigned long max_sec_stor_addr;
+ 	unsigned int max_num_sec_conf;
+ 	unsigned short max_guest_cpu_id;
++	unsigned long uv_feature_indications;
+ };
+ 
+ extern struct uv_info uv_info;
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -364,6 +364,15 @@ static ssize_t uv_query_facilities(struc
+ static struct kobj_attribute uv_query_facilities_attr =
+ 	__ATTR(facilities, 0444, uv_query_facilities, NULL);
+ 
++static ssize_t uv_query_feature_indications(struct kobject *kobj,
++					    struct kobj_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "%lx\n", uv_info.uv_feature_indications);
++}
++
++static struct kobj_attribute uv_query_feature_indications_attr =
++	__ATTR(feature_indications, 0444, uv_query_feature_indications, NULL);
++
+ static ssize_t uv_query_max_guest_cpus(struct kobject *kobj,
+ 				       struct kobj_attribute *attr, char *page)
+ {
+@@ -396,6 +405,7 @@ static struct kobj_attribute uv_query_ma
+ 
+ static struct attribute *uv_query_attrs[] = {
+ 	&uv_query_facilities_attr.attr,
++	&uv_query_feature_indications_attr.attr,
+ 	&uv_query_max_guest_cpus_attr.attr,
+ 	&uv_query_max_guest_vms_attr.attr,
+ 	&uv_query_max_guest_addr_attr.attr,
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -805,6 +805,32 @@ void do_secure_storage_access(struct pt_
+ 	struct page *page;
+ 	int rc;
+ 
++	/*
++	 * bit 61 tells us if the address is valid, if it's not we
++	 * have a major problem and should stop the kernel or send a
++	 * SIGSEGV to the process. Unfortunately bit 61 is not
++	 * reliable without the misc UV feature so we need to check
++	 * for that as well.
++	 */
++	if (test_bit_inv(BIT_UV_FEAT_MISC, &uv_info.uv_feature_indications) &&
++	    !test_bit_inv(61, &regs->int_parm_long)) {
++		/*
++		 * When this happens, userspace did something that it
++		 * was not supposed to do, e.g. branching into secure
++		 * memory. Trigger a segmentation fault.
++		 */
++		if (user_mode(regs)) {
++			send_sig(SIGSEGV, current, 0);
++			return;
++		}
++
++		/*
++		 * The kernel should never run into this case and we
++		 * have no way out of this situation.
++		 */
++		panic("Unexpected PGM 0x3d with TEID bit 61=0");
++	}
++
+ 	switch (get_fault_type(regs)) {
+ 	case USER_FAULT:
+ 		mm = current->mm;
 
 
