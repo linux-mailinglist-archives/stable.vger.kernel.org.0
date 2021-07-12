@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FCD43C48FF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1673C4D59
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236224AbhGLGlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
+        id S242276AbhGLHMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238230AbhGLGkC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C27610CC;
-        Mon, 12 Jul 2021 06:36:32 +0000 (UTC)
+        id S244188AbhGLHK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F536613D0;
+        Mon, 12 Jul 2021 07:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071793;
-        bh=RCHGY0c7RhcBv2l7xAuERXhf02mGxCiIEyM9qidHIqY=;
+        s=korg; t=1626073615;
+        bh=T6NX1U575lJXClTcLuQEFii2Y/SyCBgpuluINec1QjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJ2Fi94dSKnMXNLMATLFXhywrCcWrccBGIQFTBLRYU28puJVailE9eLXM0lN9Cth8
-         V42INkbHpuB4tInYHI+257azvbTS0feQNKP+q9q6UjC6hv+vfQW+5kbsvSj8YQPuc7
-         xLX+v2sKrKTdIIcffLm65ADVMiATp2x6v/0KdN1A=
+        b=x2mLG8PzSIINJyZ0mGC0qQBQJOlXnn0OKnniB/70Y+WrhEBG6d9QiCuGzN7mbA1I3
+         9ImEEn9CfNJJqlj8azlmsA846pGTp4Kq2OARovaocbaZ2HJhYgPyUDIxUhdtjqsmmZ
+         EThHspo93UwrC9NRX5WQJeK1Q8hz/1nxGHzdrKoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 222/593] kbuild: Fix objtool dependency for OBJECT_FILES_NON_STANDARD_<obj> := n
+Subject: [PATCH 5.12 299/700] KVM: nVMX: Dont clobber nested MMUs A/D status on EPTP switch
 Date:   Mon, 12 Jul 2021 08:06:22 +0200
-Message-Id: <20210712060907.352266759@linuxfoundation.org>
+Message-Id: <20210712061008.175289683@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 8852c552402979508fdc395ae07aa8761aa46045 ]
+[ Upstream commit 272b0a998d084e7667284bdd2d0c675c6a2d11de ]
 
-"OBJECT_FILES_NON_STANDARD_vma.o := n" has a dependency bug.  When
-objtool source is updated, the affected object doesn't get re-analyzed
-by objtool.
+Drop bogus logic that incorrectly clobbers the accessed/dirty enabling
+status of the nested MMU on an EPTP switch.  When nested EPT is enabled,
+walk_mmu points at L2's _legacy_ page tables, not L1's EPT for L2.
 
-Peter's new variable-sized jump label feature relies on objtool
-rewriting the object file.  Otherwise the system can fail to boot.  That
-effectively upgrades this minor dependency issue to a major bug.
+This is likely a benign bug, as mmu->ept_ad is never consumed (since the
+MMU is not a nested EPT MMU), and stuffing mmu_role.base.ad_disabled will
+never propagate into future shadow pages since the nested MMU isn't used
+to map anything, just to walk L2's page tables.
 
-The problem is that variables in prerequisites are expanded early,
-during the read-in phase.  The '$(objtool_dep)' variable indirectly uses
-'$@', which isn't yet available when the target prerequisites are
-evaluated.
+Note, KVM also does a full MMU reload, i.e. the guest_mmu will be
+recreated using the new EPTP, and thus any change in A/D enabling will be
+properly recognized in the relevant MMU.
 
-Use '.SECONDEXPANSION:' which causes '$(objtool_dep)' to be expanded in
-a later phase, after the target-specific '$@' variable has been defined.
-
-Fixes: b9ab5ebb14ec ("objtool: Add CONFIG_STACK_VALIDATION option")
-Fixes: ab3257042c26 ("jump_label, x86: Allow short NOPs")
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Fixes: 41ab93727467 ("KVM: nVMX: Emulate EPTP switching for the L1 hypervisor")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210609234235.1244004-4-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile.build | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index 4c058f12dd73..8bd4e673383f 100644
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -275,7 +275,8 @@ define rule_as_o_S
- endef
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index d3774d79916d..618dcf11d688 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -5472,8 +5472,6 @@ static int nested_vmx_eptp_switching(struct kvm_vcpu *vcpu,
+ {
+ 	u32 index = kvm_rcx_read(vcpu);
+ 	u64 new_eptp;
+-	bool accessed_dirty;
+-	struct kvm_mmu *mmu = vcpu->arch.walk_mmu;
  
- # Built-in and composite module parts
--$(obj)/%.o: $(src)/%.c $(recordmcount_source) $(objtool_dep) FORCE
-+.SECONDEXPANSION:
-+$(obj)/%.o: $(src)/%.c $(recordmcount_source) $$(objtool_dep) FORCE
- 	$(call if_changed_rule,cc_o_c)
- 	$(call cmd,force_checksrc)
+ 	if (!nested_cpu_has_eptp_switching(vmcs12) ||
+ 	    !nested_cpu_has_ept(vmcs12))
+@@ -5482,13 +5480,10 @@ static int nested_vmx_eptp_switching(struct kvm_vcpu *vcpu,
+ 	if (index >= VMFUNC_EPTP_ENTRIES)
+ 		return 1;
  
-@@ -356,7 +357,7 @@ cmd_modversions_S =								\
- 	fi
- endif
+-
+ 	if (kvm_vcpu_read_guest_page(vcpu, vmcs12->eptp_list_address >> PAGE_SHIFT,
+ 				     &new_eptp, index * 8, 8))
+ 		return 1;
  
--$(obj)/%.o: $(src)/%.S $(objtool_dep) FORCE
-+$(obj)/%.o: $(src)/%.S $$(objtool_dep) FORCE
- 	$(call if_changed_rule,as_o_S)
+-	accessed_dirty = !!(new_eptp & VMX_EPTP_AD_ENABLE_BIT);
+-
+ 	/*
+ 	 * If the (L2) guest does a vmfunc to the currently
+ 	 * active ept pointer, we don't have to do anything else
+@@ -5497,8 +5492,6 @@ static int nested_vmx_eptp_switching(struct kvm_vcpu *vcpu,
+ 		if (!nested_vmx_check_eptp(vcpu, new_eptp))
+ 			return 1;
  
- targets += $(filter-out $(subdir-builtin), $(real-obj-y))
+-		mmu->ept_ad = accessed_dirty;
+-		mmu->mmu_role.base.ad_disabled = !accessed_dirty;
+ 		vmcs12->ept_pointer = new_eptp;
+ 
+ 		kvm_make_request(KVM_REQ_MMU_RELOAD, vcpu);
 -- 
 2.30.2
 
