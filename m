@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85C733C4E1E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3DAC3C49F7
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243665AbhGLHQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46544 "EHLO mail.kernel.org"
+        id S236771AbhGLGrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:47:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243256AbhGLHQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:16:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54A2F61413;
-        Mon, 12 Jul 2021 07:12:48 +0000 (UTC)
+        id S238219AbhGLGrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:47:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6DF4611C0;
+        Mon, 12 Jul 2021 06:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073968;
-        bh=1GtE4ZKpkeus+16F+eP9GUcpUAgKB2vZGTTwj9UUmR0=;
+        s=korg; t=1626072175;
+        bh=vlj4DZ8UXho2XR4TAWSFisRLYxoBrQ5SoICUSbkZ6TI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gWrzhUfTvv/bn3SyGSiPmupCzUuHS4R0IPP+95zwmSfT2XTXO2Q4uXWkI7Kolm5U5
-         N94uK2Bzr+Ke1u9Qz9FuFN5jfc/z/gJQBwvOIkqkar8f/CyRPo+tCSxTn0fSc6qOAf
-         C60eqR3zsCeDqHgAYkMhp445B6G0BkCYxJf7Q7K4=
+        b=SuWsiUjrU9+qvw7cr3ZDWKYcc9QBWfm0shoKU4ntLsf5xFvL9tRN2Mn734+yGhrld
+         3X5jSiRxXJddznfRcQ8NTMdcsIM8IOZ6gvK43VA7wuF/NdLgoPxRAmhwDFrnx+CEwA
+         3RLUNQ+49vK+2tI0pRSXRqhqGvQ7syczM79ZL81Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 420/700] netfilter: nft_exthdr: check for IPv6 packet before further processing
+Subject: [PATCH 5.10 343/593] ieee802154: hwsim: Fix possible memory leak in hwsim_subscribe_all_others
 Date:   Mon, 12 Jul 2021 08:08:23 +0200
-Message-Id: <20210712061021.078143307@linuxfoundation.org>
+Message-Id: <20210712060923.776029625@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit cdd73cc545c0fb9b1a1f7b209f4f536e7990cff4 ]
+[ Upstream commit ab372c2293f5d0b279f31c8d768566ea37602dc9 ]
 
-ipv6_find_hdr() does not validate that this is an IPv6 packet. Add a
-sanity check for calling ipv6_find_hdr() to make sure an IPv6 packet
-is passed for parsing.
+In hwsim_subscribe_all_others, the error handling code performs
+incorrectly if the second hwsim_alloc_edge fails. When this issue occurs,
+it goes to sub_fail, without cleaning the edges allocated before.
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210611015812.1626999-1-mudongliangabcd@gmail.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_exthdr.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ieee802154/mac802154_hwsim.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
-index f64f0017e9a5..670dd146fb2b 100644
---- a/net/netfilter/nft_exthdr.c
-+++ b/net/netfilter/nft_exthdr.c
-@@ -42,6 +42,9 @@ static void nft_exthdr_ipv6_eval(const struct nft_expr *expr,
- 	unsigned int offset = 0;
- 	int err;
+diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
+index c0bf7d78276e..7a168170224a 100644
+--- a/drivers/net/ieee802154/mac802154_hwsim.c
++++ b/drivers/net/ieee802154/mac802154_hwsim.c
+@@ -715,6 +715,8 @@ static int hwsim_subscribe_all_others(struct hwsim_phy *phy)
  
-+	if (pkt->skb->protocol != htons(ETH_P_IPV6))
-+		goto err;
-+
- 	err = ipv6_find_hdr(pkt->skb, &offset, priv->type, NULL, NULL);
- 	if (priv->flags & NFT_EXTHDR_F_PRESENT) {
- 		nft_reg_store8(dest, err >= 0);
+ 	return 0;
+ 
++sub_fail:
++	hwsim_edge_unsubscribe_me(phy);
+ me_fail:
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(e, &phy->edges, list) {
+@@ -722,8 +724,6 @@ me_fail:
+ 		hwsim_free_edge(e);
+ 	}
+ 	rcu_read_unlock();
+-sub_fail:
+-	hwsim_edge_unsubscribe_me(phy);
+ 	return -ENOMEM;
+ }
+ 
 -- 
 2.30.2
 
