@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F583C50C5
+	by mail.lfdr.de (Postfix) with ESMTP id 5CE183C50C4
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242157AbhGLHfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:35:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
+        id S241898AbhGLHfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:35:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346479AbhGLHax (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:30:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35EA460C40;
-        Mon, 12 Jul 2021 07:28:04 +0000 (UTC)
+        id S1346485AbhGLHaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:30:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1E5660230;
+        Mon, 12 Jul 2021 07:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074884;
-        bh=2gJdWG34sVHly9K4T1FlunIV5xh4SEEBSjdSy41zD1I=;
+        s=korg; t=1626074887;
+        bh=q29eO9xaPvOhKMBtvwHVHi2Na9hq7HJD6NGYxtzWhw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWfefvHuLBKLpQXVXXZ1x3iWEJPwJ9mpfju/1AYG1mbbTLxt2D3EwknA1sGY8kSUv
-         yjE9ko5iE0BpelI3TdBdTfdFByirzvc655S6wrW59URn0frvE90CP53SdNMv82eW/F
-         SCogI2uIhq2j1ZcqUC0jJhvYVP/uz5/5F7LPFuRk=
+        b=ZuYMxXSRtAgwCQe8jzesZYOFGH4wVqNPBhwiqcpNHRw0nDmlUzSLSvdcvb93BZZeg
+         x2Zy728rZcptjOV6xHVyKyrcgs2fzGtrUzJfWtv4UxP48655PR/DwDCAtMJleBiXMF
+         qFb4IvK7lZXM3fT35D2fzwbgnz/d4vuQlr51oMxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>
-Subject: [PATCH 5.13 029/800] usb: typec: Add the missed altmode_id_remove() in typec_register_altmode()
-Date:   Mon, 12 Jul 2021 08:00:52 +0200
-Message-Id: <20210712060917.312178642@linuxfoundation.org>
+        Jiantao Zhang <water.zhangjiantao@huawei.com>,
+        Tao Xue <xuetao09@huawei.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.13 030/800] xhci: solve a double free problem while doing s4
+Date:   Mon, 12 Jul 2021 08:00:53 +0200
+Message-Id: <20210712060917.456413466@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -40,37 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Zhangjiantao (Kirin, nanjing) <water.zhangjiantao@huawei.com>
 
-commit 03026197bb657d784220b040c6173267a0375741 upstream.
+commit b31d9d6d7abbf6483b871b6370bc31c930d53f54 upstream.
 
-typec_register_altmode() misses to call altmode_id_remove() in an error
-path. Add the missed function call to fix it.
+when system is doing s4, the process of xhci_resume may be as below:
+1、xhci_mem_cleanup
+2、xhci_init->xhci_mem_init->xhci_mem_cleanup(when memory is not enough).
+xhci_mem_cleanup will be executed twice when system is out of memory.
+xhci->port_caps is freed in xhci_mem_cleanup,but it isn't set to NULL.
+It will be freed twice when xhci_mem_cleanup is called the second time.
 
-Fixes: 8a37d87d72f0 ("usb: typec: Bus type for alternate modes")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Link: https://lore.kernel.org/r/20210617073226.47599-1-jingxiangfeng@huawei.com
+We got following bug when system resumes from s4:
+
+kernel BUG at mm/slub.c:309!
+Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+CPU: 0 PID: 5929 Tainted: G S   W   5.4.96-arm64-desktop #1
+pc : __slab_free+0x5c/0x424
+lr : kfree+0x30c/0x32c
+
+Call trace:
+ __slab_free+0x5c/0x424
+ kfree+0x30c/0x32c
+ xhci_mem_cleanup+0x394/0x3cc
+ xhci_mem_init+0x9ac/0x1070
+ xhci_init+0x8c/0x1d0
+ xhci_resume+0x1cc/0x5fc
+ xhci_plat_resume+0x64/0x70
+ platform_pm_thaw+0x28/0x60
+ dpm_run_callback+0x54/0x24c
+ device_resume+0xd0/0x200
+ async_resume+0x24/0x60
+ async_run_entry_fn+0x44/0x110
+ process_one_work+0x1f0/0x490
+ worker_thread+0x5c/0x450
+ kthread+0x158/0x160
+ ret_from_fork+0x10/0x24
+
+Original patch that caused this issue was backported to 4.4 stable,
+so this should be backported to 4.4 stabe as well.
+
+Fixes: cf0ee7c60c89 ("xhci: Fix memory leak when caching protocol extended capability PSI tables - take 2")
+Cc: stable@vger.kernel.org # v4.4+
+Signed-off-by: Jiantao Zhang <water.zhangjiantao@huawei.com>
+Signed-off-by: Tao Xue <xuetao09@huawei.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210617150354.1512157-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/typec/class.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-mem.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/typec/class.c
-+++ b/drivers/usb/typec/class.c
-@@ -517,8 +517,10 @@ typec_register_altmode(struct device *pa
- 	int ret;
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -1924,6 +1924,7 @@ no_bw:
+ 	xhci->hw_ports = NULL;
+ 	xhci->rh_bw = NULL;
+ 	xhci->ext_caps = NULL;
++	xhci->port_caps = NULL;
  
- 	alt = kzalloc(sizeof(*alt), GFP_KERNEL);
--	if (!alt)
-+	if (!alt) {
-+		altmode_id_remove(parent, id);
- 		return ERR_PTR(-ENOMEM);
-+	}
- 
- 	alt->adev.svid = desc->svid;
- 	alt->adev.mode = desc->mode;
+ 	xhci->page_size = 0;
+ 	xhci->page_shift = 0;
 
 
