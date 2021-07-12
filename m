@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CE983C4EE3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 191203C4A95
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241327AbhGLHWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58506 "EHLO mail.kernel.org"
+        id S239488AbhGLGw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344655AbhGLHUn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54FFC613D2;
-        Mon, 12 Jul 2021 07:17:55 +0000 (UTC)
+        id S238817AbhGLGtS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B3B06120D;
+        Mon, 12 Jul 2021 06:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074275;
-        bh=zlCbgnpyDeBSQsLOPKs0LGmUdYmEeL/3/jJvNrZIKw8=;
+        s=korg; t=1626072316;
+        bh=COx7KGEwyBUGakUkzfRySLpuKRMns13vFF5+zf6Cogc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBDu8BtgfPbEetZqj16rjN6iDHwhvVEtR/PLWzEa96jIA+LU+VmKXtzBE1KFZDR7f
-         bgoheRXT413SmgDip/dUp7zziaN2sLTgf2HewipdinsIRiwiry3J1d9PNsx+nnrCsA
-         BELuwNSuMGTWs1caIEvY52pfjvMP/b3MI6x8BPSk=
+        b=nuLr4rpKfK/pIAfCNk3qbrGTFqi4I0kMsfe3B1xF3yx0FGbsifO3XnbX3UQoFtgVd
+         Mw1Q6OOALF1jFUWxOcH+HDr5y6dvhmmfq9qlr/1e4dPqowh4+DIu3bTH59yR00kBHn
+         0hEZODFH4KGoCDD4gaYwB4vM+faStWxMHiIVHCEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 524/700] serial: fsl_lpuart: remove RTSCTS handling from get_mctrl()
+Subject: [PATCH 5.10 447/593] iio: accel: hid: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:10:07 +0200
-Message-Id: <20210712061032.186037389@linuxfoundation.org>
+Message-Id: <20210712060938.272326983@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit e60c2991f18bf221fa9908ff10cb24eaedaa9bae ]
+[ Upstream commit c6559bf796ccdb3a0c79db846af96c8f7046880b ]
 
-The wrong code in set_mctrl() was already removed in commit 2b30efe2e88a
-("tty: serial: lpuart: Remove unnecessary code from set_mctrl"), but the
-code in get_mctrl() wasn't removed. It will not return the state of the
-RTS or CTS line but whether automatic flow control is enabled, which is
-wrong for the get_mctrl(). Thus remove it.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
+Note this matches what was done in all the other hid sensor drivers.
+This one was missed previously due to an extra level of indirection.
 
-Fixes: 2b30efe2e88a ("tty: serial: lpuart: Remove unnecessary code from set_mctrl")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20210512141255.18277-7-michael@walle.cc
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found during an audit of all calls of this function.
+
+Fixes: a96cd0f901ee ("iio: accel: hid-sensor-accel-3d: Add timestamp")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-4-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/iio/accel/hid-sensor-accel-3d.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index fbf2e4d2d22b..9c78e43e669d 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1408,17 +1408,7 @@ static unsigned int lpuart_get_mctrl(struct uart_port *port)
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index 4c5e594024f8..f05840d17fb7 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -27,8 +27,11 @@ struct accel_3d_state {
+ 	struct hid_sensor_hub_callbacks callbacks;
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info accel[ACCEL_3D_CHANNEL_MAX];
+-	/* Reserve for 3 channels + padding + timestamp */
+-	u32 accel_val[ACCEL_3D_CHANNEL_MAX + 3];
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		u32 accel_val[3];
++		s64 timestamp __aligned(8);
++	} scan;
+ 	int scale_pre_decml;
+ 	int scale_post_decml;
+ 	int scale_precision;
+@@ -239,8 +242,8 @@ static int accel_3d_proc_event(struct hid_sensor_hub_device *hsdev,
+ 			accel_state->timestamp = iio_get_time_ns(indio_dev);
  
- static unsigned int lpuart32_get_mctrl(struct uart_port *port)
- {
--	unsigned int temp = 0;
--	unsigned long reg;
--
--	reg = lpuart32_read(port, UARTMODIR);
--	if (reg & UARTMODIR_TXCTSE)
--		temp |= TIOCM_CTS;
--
--	if (reg & UARTMODIR_RXRTSE)
--		temp |= TIOCM_RTS;
--
--	return temp;
-+	return 0;
- }
+ 		hid_sensor_push_data(indio_dev,
+-				     accel_state->accel_val,
+-				     sizeof(accel_state->accel_val),
++				     &accel_state->scan,
++				     sizeof(accel_state->scan),
+ 				     accel_state->timestamp);
  
- static void lpuart_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ 		accel_state->timestamp = 0;
+@@ -265,7 +268,7 @@ static int accel_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
+ 	case HID_USAGE_SENSOR_ACCEL_Y_AXIS:
+ 	case HID_USAGE_SENSOR_ACCEL_Z_AXIS:
+ 		offset = usage_id - HID_USAGE_SENSOR_ACCEL_X_AXIS;
+-		accel_state->accel_val[CHANNEL_SCAN_INDEX_X + offset] =
++		accel_state->scan.accel_val[CHANNEL_SCAN_INDEX_X + offset] =
+ 						*(u32 *)raw_data;
+ 		ret = 0;
+ 	break;
 -- 
 2.30.2
 
