@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB9AB3C4F20
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D67EE3C4A72
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244561AbhGLHXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58070 "EHLO mail.kernel.org"
+        id S238597AbhGLGw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343820AbhGLHUG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24E9560FF1;
-        Mon, 12 Jul 2021 07:17:16 +0000 (UTC)
+        id S239130AbhGLGta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB5EC61004;
+        Mon, 12 Jul 2021 06:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074237;
-        bh=W6uaE6vxPrWtGg+NtqdHifByku4uvN/UnoZ1wx5msu0=;
+        s=korg; t=1626072388;
+        bh=4e+JVFy4guMVI0ZXAniUTbQQ+amjAC/XsZ6KqLr9Jh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OjG4yET1Q80zy8Km8Ff47lNPc8z5nGqgQuuoMU86XW7r5OWc3ChRxeATFfbwQObiS
-         RxwUVBDYbCHub6nXpjTwjXw59gJTo8I+6M3TRB5mBujEMhB7VLvbLTMCADK5fIGSv1
-         9i6Gfiauf4XXK8jaSMw+R1+2F6tqVvEydh7NveCA=
+        b=GvSIfIobi3zNUMMfMw3oeY6P/pjmGk6sEHF7sIP/8BDn1OpbqHsDrHSHhg43FCRyA
+         3hu6ItMr4Y6rbDBHXm+WCti6TeCgCjQdPT/Cgv/BPl63FVWVz8N71y1xBXZTXAM7zm
+         RZ+051+ktyzkxFICUKF2bO9/F85iLVuSM/L6E8A8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Nishad Kamdar <nishadkamdar@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 511/700] bpf, x86: Fix extable offset calculation
+Subject: [PATCH 5.10 434/593] staging: fbtft: Dont spam logs when probe is deferred
 Date:   Mon, 12 Jul 2021 08:09:54 +0200
-Message-Id: <20210712061030.898396985@linuxfoundation.org>
+Message-Id: <20210712060936.347500821@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 328aac5ecd119ede3633f7d17969b1ff34ccc784 ]
+[ Upstream commit 37667f6e57712cef5652fa67f1cbd1299e204d94 ]
 
-Commit 4c5de127598e1 ("bpf: Emit explicit NULL pointer checks for PROBE_LDX
-instructions.") is emitting a couple of instructions before the actual load.
-Consider those additional instructions while calculating extable offset.
+When requesting GPIO line the probe can be deferred.
+In such case don't spam logs with an error message.
+This can be achieved by switching to dev_err_probe().
 
-Fixes: 4c5de127598e1 ("bpf: Emit explicit NULL pointer checks for PROBE_LDX instructions.")
-Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210622110026.1157847-1-ravi.bangoria@linux.ibm.com
+Fixes: c440eee1a7a1 ("Staging: fbtft: Switch to the gpio descriptor interface")
+Cc: Nishad Kamdar <nishadkamdar@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210503172114.27891-3-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/net/bpf_jit_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/fbtft/fbtft-core.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 7f1b3a862e14..1fb0c37e48cb 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -1297,7 +1297,7 @@ st:			if (is_imm8(insn->off))
- 			emit_ldx(&prog, BPF_SIZE(insn->code), dst_reg, src_reg, insn->off);
- 			if (BPF_MODE(insn->code) == BPF_PROBE_MEM) {
- 				struct exception_table_entry *ex;
--				u8 *_insn = image + proglen;
-+				u8 *_insn = image + proglen + (start_of_ldx - temp);
- 				s64 delta;
+diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c
+index 67c3b1975a4d..3723269890d5 100644
+--- a/drivers/staging/fbtft/fbtft-core.c
++++ b/drivers/staging/fbtft/fbtft-core.c
+@@ -75,20 +75,16 @@ static int fbtft_request_one_gpio(struct fbtft_par *par,
+ 				  struct gpio_desc **gpiop)
+ {
+ 	struct device *dev = par->info->device;
+-	int ret = 0;
  
- 				/* populate jmp_offset for JMP above */
+ 	*gpiop = devm_gpiod_get_index_optional(dev, name, index,
+ 					       GPIOD_OUT_LOW);
+-	if (IS_ERR(*gpiop)) {
+-		ret = PTR_ERR(*gpiop);
+-		dev_err(dev,
+-			"Failed to request %s GPIO: %d\n", name, ret);
+-		return ret;
+-	}
++	if (IS_ERR(*gpiop))
++		return dev_err_probe(dev, PTR_ERR(*gpiop), "Failed to request %s GPIO\n", name);
++
+ 	fbtft_par_dbg(DEBUG_REQUEST_GPIOS, par, "%s: '%s' GPIO\n",
+ 		      __func__, name);
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int fbtft_request_gpios(struct fbtft_par *par)
 -- 
 2.30.2
 
