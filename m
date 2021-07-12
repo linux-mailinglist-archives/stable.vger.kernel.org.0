@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 062933C52BF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 700403C4D53
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244656AbhGLHtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:49:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
+        id S242269AbhGLHMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241414AbhGLHrB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:47:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5F7261205;
-        Mon, 12 Jul 2021 07:42:24 +0000 (UTC)
+        id S244132AbhGLHK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B0CA61107;
+        Mon, 12 Jul 2021 07:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075745;
-        bh=P9AkBdQ8p8sHUudNS7LV+tOVvL1HEI/xAjFO/AxkeJY=;
+        s=korg; t=1626073577;
+        bh=e6MK2jsGWoD0XBWHwwKu4MHpih1TgeMFmpbHGInaer0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ttoTrYys0bh8S9fdMuN5lZcKM4M5KysDybLaIHWhe0C/GvKYDARBGCm8gpIvPmg9n
-         LYAhgeaxeANCotfAC/1JHs+AjakQFQErsdmR4ZJ/HQimSq1Milykj+fQ1TOq3dKUnz
-         71BDQjFhFqzyJS1gDTak68L86IRL+gDI4vbd6ksI=
+        b=gD7zSXKYlvOIXKNlH2BZaT7jPzGtm06lRV72658jsOu3HjyJpWYYlL4pvxAj7qFDB
+         bsfZjBTvdjLXGaFnhFSbHfpuWPKb6rMrpv7z5Vy2dXYleuNV/35eXLmZ9p9Z0ncpO8
+         6Q2hxg6qow7KMhDDqKp4bXeNqEP82QPKrXymyqFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        James Morse <james.morse@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 347/800] crypto: nx - Fix RCU warning in nx842_OF_upd_status
-Date:   Mon, 12 Jul 2021 08:06:10 +0200
-Message-Id: <20210712061003.951961803@linuxfoundation.org>
+Subject: [PATCH 5.12 288/700] arm64/mm: Fix ttbr0 values stored in struct thread_info for software-pan
+Date:   Mon, 12 Jul 2021 08:06:11 +0200
+Message-Id: <20210712061006.862869089@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit 2a96726bd0ccde4f12b9b9a9f61f7b1ac5af7e10 ]
+[ Upstream commit 9163f01130304fab1f74683d7d44632da7bda637 ]
 
-The function nx842_OF_upd_status triggers a sparse RCU warning when
-it directly dereferences the RCU-protected devdata.  This appears
-to be an accident as there was another variable of the same name
-that was passed in from the caller.
+When using CONFIG_ARM64_SW_TTBR0_PAN, a task's thread_info::ttbr0 must be
+the TTBR0_EL1 value used to run userspace. With 52-bit PAs, the PA must be
+packed into the TTBR using phys_to_ttbr(), but we forget to do this in some
+of the SW PAN code. Thus, if the value is installed into TTBR0_EL1 (as may
+happen in the uaccess routines), this could result in UNPREDICTABLE
+behaviour.
 
-After it was removed (because the main purpose of using it, to
-update the status member was itself removed) the global variable
-unintenionally stood in as its replacement.
+Since hardware with 52-bit PA support almost certainly has HW PAN, which
+will be used in preference, this shouldn't be a practical issue, but let's
+fix this for consistency.
 
-This patch restores the devdata parameter.
-
-Fixes: 90fd73f912f0 ("crypto: nx - remove pSeries NX 'status' field")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Fixes: 529c4b05a3cb ("arm64: handle 52-bit addresses in TTBR")
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/1623749578-11231-1-git-send-email-anshuman.khandual@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/nx/nx-842-pseries.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm64/include/asm/mmu_context.h | 4 ++--
+ arch/arm64/kernel/setup.c            | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/nx/nx-842-pseries.c b/drivers/crypto/nx/nx-842-pseries.c
-index 8ee547ee378e..9b2417ebc95a 100644
---- a/drivers/crypto/nx/nx-842-pseries.c
-+++ b/drivers/crypto/nx/nx-842-pseries.c
-@@ -538,13 +538,15 @@ static int nx842_OF_set_defaults(struct nx842_devdata *devdata)
-  * The status field indicates if the device is enabled when the status
-  * is 'okay'.  Otherwise the device driver will be disabled.
-  *
-- * @prop - struct property point containing the maxsyncop for the update
-+ * @devdata: struct nx842_devdata to use for dev_info
-+ * @prop: struct property point containing the maxsyncop for the update
-  *
-  * Returns:
-  *  0 - Device is available
-  *  -ENODEV - Device is not available
-  */
--static int nx842_OF_upd_status(struct property *prop)
-+static int nx842_OF_upd_status(struct nx842_devdata *devdata,
-+			       struct property *prop)
- {
- 	const char *status = (const char *)prop->value;
+diff --git a/arch/arm64/include/asm/mmu_context.h b/arch/arm64/include/asm/mmu_context.h
+index bd02e99b1a4c..44dceac442fc 100644
+--- a/arch/arm64/include/asm/mmu_context.h
++++ b/arch/arm64/include/asm/mmu_context.h
+@@ -177,9 +177,9 @@ static inline void update_saved_ttbr0(struct task_struct *tsk,
+ 		return;
  
-@@ -758,7 +760,7 @@ static int nx842_OF_upd(struct property *new_prop)
- 		goto out;
+ 	if (mm == &init_mm)
+-		ttbr = __pa_symbol(reserved_pg_dir);
++		ttbr = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
+ 	else
+-		ttbr = virt_to_phys(mm->pgd) | ASID(mm) << 48;
++		ttbr = phys_to_ttbr(virt_to_phys(mm->pgd)) | ASID(mm) << 48;
  
- 	/* Perform property updates */
--	ret = nx842_OF_upd_status(status);
-+	ret = nx842_OF_upd_status(new_devdata, status);
- 	if (ret)
- 		goto error_out;
+ 	WRITE_ONCE(task_thread_info(tsk)->ttbr0, ttbr);
+ }
+diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
+index 61845c0821d9..68b30e8c22db 100644
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -381,7 +381,7 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
+ 	 * faults in case uaccess_enable() is inadvertently called by the init
+ 	 * thread.
+ 	 */
+-	init_task.thread_info.ttbr0 = __pa_symbol(reserved_pg_dir);
++	init_task.thread_info.ttbr0 = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
+ #endif
  
+ 	if (boot_args[1] || boot_args[2] || boot_args[3]) {
 -- 
 2.30.2
 
