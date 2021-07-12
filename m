@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EEA53C4A77
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D293C5456
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238660AbhGLGw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
+        id S1348382AbhGLH5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239134AbhGLGta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C14860FE3;
-        Mon, 12 Jul 2021 06:46:36 +0000 (UTC)
+        id S1352427AbhGLHyq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:54:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E27C611AD;
+        Mon, 12 Jul 2021 07:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072397;
-        bh=Q24hn74DSG3DcYlvrFfEOEIsZ208c90wgAIS+AXHEcI=;
+        s=korg; t=1626076295;
+        bh=c/5O6VMFqRkdIb4xZ3AOpLOa8tC8c0b/yN8bNbwlByQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHFIZ7nGzCpXkv0Vsya7gbVSDq2mr6v9zdXpOAIVkTXYX+YgQma9idU5s3tHk5pgF
-         cqy4SDTDHvuu0FCwcN8Dn9tkNKKpRtmTIWVG3Kzs6tdM1Ske4z0ef8lFlEWFQb5bH4
-         YtFjIuBO0DYIYdwZkJR2d8cX9hcBoIgOtJAQLEXw=
+        b=XOUI4MSVlYlnvHl4Ja5pkrXLHWfBjDHWbO5VZ4u5o3s+7fC2g6KgPpIP8Byt+MTxE
+         C8cR77y+qTM08G7wn6z3bNlw9+ahhZeTbSnFUFmtISRHyc5S/qu/KZiHOrA7luCLQh
+         QnYrElowUP4Y7kSTrU8F+RUY1dDlfQZENoAnqU8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Cong Wang <cong.wang@bytedance.com>,
+        stable@vger.kernel.org,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+1071ad60cd7df39fdadb@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 428/593] net: sched: fix warning in tcindex_alloc_perfect_hash
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 565/800] ibmvnic: account for bufs already saved in indir_buf
 Date:   Mon, 12 Jul 2021 08:09:48 +0200
-Message-Id: <20210712060935.530971253@linuxfoundation.org>
+Message-Id: <20210712061027.567141165@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-[ Upstream commit 3f2db250099f46988088800052cdf2332c7aba61 ]
+[ Upstream commit 72368f8b2b9e4106072a2728bed3367d54641c22 ]
 
-Syzbot reported warning in tcindex_alloc_perfect_hash. The problem
-was in too big cp->hash, which triggers warning in kmalloc. Since
-cp->hash comes from userspace, there is no need to warn if value
-is not correct
+This fixes a crash in replenish_rx_pool() when called from ibmvnic_poll()
+after a previous call to replenish_rx_pool() encountered an error when
+allocating a socket buffer.
 
-Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
-Reported-and-tested-by: syzbot+1071ad60cd7df39fdadb@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Cong Wang <cong.wang@bytedance.com>
+Thanks to Rick Lindsley and Dany Madden for helping debug the crash.
+
+Fixes: 4f0b6812e9b9 ("ibmvnic: Introduce batched RX buffer descriptor transmission")
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_tcindex.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index c4007b9cd16d..5b274534264c 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -304,7 +304,7 @@ static int tcindex_alloc_perfect_hash(struct net *net, struct tcindex_data *cp)
- 	int i, err = 0;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 2d15b446ceb3..779de81a54a6 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -328,7 +328,14 @@ static void replenish_rx_pool(struct ibmvnic_adapter *adapter,
  
- 	cp->perfect = kcalloc(cp->hash, sizeof(struct tcindex_filter_result),
--			      GFP_KERNEL);
-+			      GFP_KERNEL | __GFP_NOWARN);
- 	if (!cp->perfect)
- 		return -ENOMEM;
- 
+ 	rx_scrq = adapter->rx_scrq[pool->index];
+ 	ind_bufp = &rx_scrq->ind_buf;
+-	for (i = 0; i < count; ++i) {
++
++	/* netdev_skb_alloc() could have failed after we saved a few skbs
++	 * in the indir_buf and we would not have sent them to VIOS yet.
++	 * To account for them, start the loop at ind_bufp->index rather
++	 * than 0. If we pushed all the skbs to VIOS, ind_bufp->index will
++	 * be 0.
++	 */
++	for (i = ind_bufp->index; i < count; ++i) {
+ 		skb = netdev_alloc_skb(adapter->netdev, pool->buff_size);
+ 		if (!skb) {
+ 			dev_err(dev, "Couldn't replenish rx buff\n");
 -- 
 2.30.2
 
