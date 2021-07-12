@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D41363C49D6
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A3CF3C49DB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235938AbhGLGq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
+        id S238261AbhGLGrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:47:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237353AbhGLGqK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:46:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F021A6052B;
-        Mon, 12 Jul 2021 06:42:02 +0000 (UTC)
+        id S237585AbhGLGq3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:46:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C188610CA;
+        Mon, 12 Jul 2021 06:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072123;
-        bh=ZdHYDiM4CBsddFR3O9SZ3RVMggxlOK7IXi8dyjDYJe0=;
+        s=korg; t=1626072125;
+        bh=Ol69Wz7c1pJRaqSzjdYyZvKqATdKAoFkljnjkHWq3rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfEbmyZ6cW1b6UMfI/xZBaH56qB5zhaIH9T+2XW5/dbMyxfaJzipc4HbogNo2FKND
-         xEdlBup4txJ0QJtQCIYizqaNwScGAFz197WrxVGo328BCMPjsKjf+88kvM1Posp+xo
-         rH/T2mGrEB7qm5xh+a+Kk+WQuIAtTx4BrA5HdfCU=
+        b=lyGBZLwwAihosT1xHyprVKWtgYj5X+T2sfrc7J1X/6N0qzD78s9SoW9XwZd9lXR/5
+         ne4P2dwP0D4SFfse47cEnKfi0ztcrCmSaaSFCi62nk5tnpZFHiHYJ4zaGH5RDU/rO4
+         MG2ahYm44e+IflGoK9OrgHpbAEUKvpM6VjXQMAcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Ambardar <Tony.Ambardar@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@redhat.com>, Frank Eigler <fche@redhat.com>,
-        Mark Wielaard <mark@klomp.org>, Jiri Olsa <jolsa@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 364/593] bpf: Fix libelf endian handling in resolv_btfids
-Date:   Mon, 12 Jul 2021 08:08:44 +0200
-Message-Id: <20210712060926.573059514@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
+        Gioh Kim <gi-oh.kim@ionos.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 365/593] RDMA/rtrs-srv: Set minimal max_send_wr and max_recv_wr
+Date:   Mon, 12 Jul 2021 08:08:45 +0200
+Message-Id: <20210712060926.708182193@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -42,56 +43,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Ambardar <tony.ambardar@gmail.com>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-[ Upstream commit 61e8aeda9398925f8c6fc290585bdd9727d154c4 ]
+[ Upstream commit 5e91eabf66c854f16ca2e954e5c68939bc81601e ]
 
-The vmlinux ".BTF_ids" ELF section is declared in btf_ids.h to hold a list
-of zero-filled BTF IDs, which is then patched at link-time with correct
-values by resolv_btfids. The section is flagged as "allocable" to preclude
-compression, but notably the section contents (BTF IDs) are untyped.
+Currently rtrs when create_qp use a coarse numbers (bigger in general),
+which leads to hardware create more resources which only waste memory with
+no benefits.
 
-When patching the BTF IDs, resolve_btfids writes in host-native endianness
-and relies on libelf for any required translation on reading and updating
-vmlinux. However, since the type of the .BTF_ids section content defaults
-to ELF_T_BYTE (i.e. unsigned char), no translation occurs. This results in
-incorrect patched values when cross-compiling to non-native endianness,
-and can manifest as kernel Oops and test failures which are difficult to
-troubleshoot [1].
+For max_send_wr, we don't really need alway max_qp_wr size when creating
+qp, reduce it to cq_size.
 
-Explicitly set the type of patched data to ELF_T_WORD, the architecture-
-neutral ELF type corresponding to the u32 BTF IDs. This enables libelf to
-transparently perform any needed endian conversions.
+For max_recv_wr,  cq_size is enough.
 
-Fixes: fbbb68de80a4 ("bpf: Add resolve_btfids tool to resolve BTF IDs in ELF object")
-Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Frank Eigler <fche@redhat.com>
-Cc: Mark Wielaard <mark@klomp.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/CAPGftE_eY-Zdi3wBcgDfkz_iOr1KF10n=9mJHm1_a_PykcsoeA@mail.gmail.com [1]
-Link: https://lore.kernel.org/bpf/20210618061404.818569-1-Tony.Ambardar@gmail.com
+With the patch when sess_queue_depth=128, per session (2 paths) memory
+consumption reduced from 188 MB to 65MB
+
+When always_invalidate is enabled, we need send more wr, so treat it
+special.
+
+Fixes: 9cb837480424e ("RDMA/rtrs: server: main functionality")
+Link: https://lore.kernel.org/r/20210614090337.29557-2-jinpu.wang@ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Reviewed-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/resolve_btfids/main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c | 38 +++++++++++++++++---------
+ 1 file changed, 25 insertions(+), 13 deletions(-)
 
-diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
-index d636643ddd35..f32c059fbfb4 100644
---- a/tools/bpf/resolve_btfids/main.c
-+++ b/tools/bpf/resolve_btfids/main.c
-@@ -649,6 +649,9 @@ static int symbols_patch(struct object *obj)
- 	if (sets_patch(obj))
- 		return -1;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+index e1041023d143..b033bfa9f383 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -1614,7 +1614,7 @@ static int create_con(struct rtrs_srv_sess *sess,
+ 	struct rtrs_sess *s = &sess->s;
+ 	struct rtrs_srv_con *con;
  
-+	/* Set type to ensure endian translation occurs. */
-+	obj->efile.idlist->d_type = ELF_T_WORD;
+-	u32 cq_size, wr_queue_size;
++	u32 cq_size, max_send_wr, max_recv_wr, wr_limit;
+ 	int err, cq_vector;
+ 
+ 	con = kzalloc(sizeof(*con), GFP_KERNEL);
+@@ -1635,30 +1635,42 @@ static int create_con(struct rtrs_srv_sess *sess,
+ 		 * All receive and all send (each requiring invalidate)
+ 		 * + 2 for drain and heartbeat
+ 		 */
+-		wr_queue_size = SERVICE_CON_QUEUE_DEPTH * 3 + 2;
+-		cq_size = wr_queue_size;
++		max_send_wr = SERVICE_CON_QUEUE_DEPTH * 2 + 2;
++		max_recv_wr = SERVICE_CON_QUEUE_DEPTH + 2;
++		cq_size = max_send_wr + max_recv_wr;
+ 	} else {
+-		/*
+-		 * If we have all receive requests posted and
+-		 * all write requests posted and each read request
+-		 * requires an invalidate request + drain
+-		 * and qp gets into error state.
+-		 */
+-		cq_size = srv->queue_depth * 3 + 1;
+ 		/*
+ 		 * In theory we might have queue_depth * 32
+ 		 * outstanding requests if an unsafe global key is used
+ 		 * and we have queue_depth read requests each consisting
+ 		 * of 32 different addresses. div 3 for mlx5.
+ 		 */
+-		wr_queue_size = sess->s.dev->ib_dev->attrs.max_qp_wr / 3;
++		wr_limit = sess->s.dev->ib_dev->attrs.max_qp_wr / 3;
++		/* when always_invlaidate enalbed, we need linv+rinv+mr+imm */
++		if (always_invalidate)
++			max_send_wr =
++				min_t(int, wr_limit,
++				      srv->queue_depth * (1 + 4) + 1);
++		else
++			max_send_wr =
++				min_t(int, wr_limit,
++				      srv->queue_depth * (1 + 2) + 1);
 +
- 	elf_flagdata(obj->efile.idlist, ELF_C_SET, ELF_F_DIRTY);
++		max_recv_wr = srv->queue_depth + 1;
++		/*
++		 * If we have all receive requests posted and
++		 * all write requests posted and each read request
++		 * requires an invalidate request + drain
++		 * and qp gets into error state.
++		 */
++		cq_size = max_send_wr + max_recv_wr;
+ 	}
+-	atomic_set(&con->sq_wr_avail, wr_queue_size);
++	atomic_set(&con->sq_wr_avail, max_send_wr);
+ 	cq_vector = rtrs_srv_get_next_cq_vector(sess);
  
- 	err = elf_update(obj->efile.elf, ELF_C_WRITE);
+ 	/* TODO: SOFTIRQ can be faster, but be careful with softirq context */
+ 	err = rtrs_cq_qp_create(&sess->s, &con->c, 1, cq_vector, cq_size,
+-				 wr_queue_size, wr_queue_size,
++				 max_send_wr, max_recv_wr,
+ 				 IB_POLL_WORKQUEUE);
+ 	if (err) {
+ 		rtrs_err(s, "rtrs_cq_qp_create(), err: %d\n", err);
 -- 
 2.30.2
 
