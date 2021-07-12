@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8119F3C469A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16BAA3C469D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234912AbhGLG1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:27:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48084 "EHLO mail.kernel.org"
+        id S233312AbhGLG11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:27:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235101AbhGLG0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:26:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1F6B61184;
-        Mon, 12 Jul 2021 06:23:09 +0000 (UTC)
+        id S235128AbhGLG0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:26:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB63F61186;
+        Mon, 12 Jul 2021 06:23:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070990;
-        bh=uLIQO4r1Imz3Mj2RbRP7EBzlMUkrXuWN8f6ZFLvmRN0=;
+        s=korg; t=1626070992;
+        bh=hSNHSpQjSimSCiYBoyQ1DWAJyfdwLMrOjF1o2zmleeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6lp50PbaV8gWV4L/Pxwb4JzWzqMj4Z6huYmIF+MHlGz4xEQm3q5b00NR9Wq6w0tK
-         3xOBjldVyuZNGdL/dC9Hw3cOP+GrmMHrVAO8vnClxyth3w9rpfKXGmuM/KpD97Gft7
-         rBz87GAv/vn5eC2uOfHwRkYz0IPnv1+kYGRLfTaU=
+        b=X5a5IQMuvP5hqZ3ZwLga9mljB6QMwMPApZHF3aPkgcstjDUtJr3lGT3MDAQXVcb/A
+         MxsswsIOxljnQ/zRRrgEBz1hvoeG4J/HoT/mM11poW7OEZEpT0rJg8o8zNotwy49cB
+         +t3vKfnEO2b5OKqb6jz8b94Tu3IGjKwsOEE/vMLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b80c9959009a9325cdff@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Alexander Aring <aahringo@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Alexander Aring <alex.aring@gmail.com>,
         Stefan Schmidt <stefan@datenfreihafen.org>,
+        syzbot <syzkaller@googlegroups.com>,
+        Alexander Aring <aahringo@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 227/348] ieee802154: hwsim: Fix memory leak in hwsim_add_one
-Date:   Mon, 12 Jul 2021 08:10:11 +0200
-Message-Id: <20210712060732.212207951@linuxfoundation.org>
+Subject: [PATCH 5.4 228/348] ieee802154: hwsim: avoid possible crash in hwsim_del_edge_nl()
+Date:   Mon, 12 Jul 2021 08:10:12 +0200
+Message-Id: <20210712060732.337914423@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -43,57 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 28a5501c3383f0e6643012c187b7c2027ef42aea ]
+[ Upstream commit 0303b30375dff5351a79cc2c3c87dfa4fda29bed ]
 
-No matter from hwsim_remove or hwsim_del_radio_nl, hwsim_del fails to
-remove the entry in the edges list. Take the example below, phy0, phy1
-and e0 will be deleted, resulting in e1 not freed and accessed in the
-future.
+Both MAC802154_HWSIM_ATTR_RADIO_ID and MAC802154_HWSIM_ATTR_RADIO_EDGE
+must be present to avoid a crash.
 
-              hwsim_phys
-                  |
-    ------------------------------
-    |                            |
-phy0 (edges)                 phy1 (edges)
-   ----> e1 (idx = 1)             ----> e0 (idx = 0)
-
-Fix this by deleting and freeing all the entries in the edges list
-between hwsim_edge_unsubscribe_me and list_del(&phy->list).
-
-Reported-by: syzbot+b80c9959009a9325cdff@syzkaller.appspotmail.com
-Fixes: 1c9f4a3fce77 ("ieee802154: hwsim: fix rcu handling")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Alexander Aring <alex.aring@gmail.com>
+Cc: Stefan Schmidt <stefan@datenfreihafen.org>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210616020901.2759466-1-mudongliangabcd@gmail.com
+Link: https://lore.kernel.org/r/20210621180244.882076-1-eric.dumazet@gmail.com
 Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/mac802154_hwsim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ieee802154/mac802154_hwsim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
-index bf5ddd12a6f0..b6d967ae6b41 100644
+index b6d967ae6b41..79d74763cf24 100644
 --- a/drivers/net/ieee802154/mac802154_hwsim.c
 +++ b/drivers/net/ieee802154/mac802154_hwsim.c
-@@ -824,12 +824,17 @@ err_pib:
- static void hwsim_del(struct hwsim_phy *phy)
- {
- 	struct hwsim_pib *pib;
-+	struct hwsim_edge *e;
+@@ -480,7 +480,7 @@ static int hwsim_del_edge_nl(struct sk_buff *msg, struct genl_info *info)
+ 	struct hwsim_edge *e;
+ 	u32 v0, v1;
  
- 	hwsim_edge_unsubscribe_me(phy);
- 
- 	list_del(&phy->list);
- 
- 	rcu_read_lock();
-+	list_for_each_entry_rcu(e, &phy->edges, list) {
-+		list_del_rcu(&e->list);
-+		hwsim_free_edge(e);
-+	}
- 	pib = rcu_dereference(phy->pib);
- 	rcu_read_unlock();
+-	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] &&
++	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
+ 	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
+ 		return -EINVAL;
  
 -- 
 2.30.2
