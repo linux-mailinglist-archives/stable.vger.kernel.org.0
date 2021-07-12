@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7E253C4BEF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 506023C51AD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242525AbhGLHAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:00:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
+        id S1349512AbhGLHmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:42:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242485AbhGLHAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:00:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95A8461156;
-        Mon, 12 Jul 2021 06:57:21 +0000 (UTC)
+        id S1346620AbhGLHjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:39:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBBAE61132;
+        Mon, 12 Jul 2021 07:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073042;
-        bh=8VWhnlooXYMQHdbWzrlpCM6p2aSc25q8pmPyeBK0T2E=;
+        s=korg; t=1626075277;
+        bh=pm0P6MIYFV4UwASFGjmsJVkEZD7UJkVgOjZ807PFSkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGhQMGi9IP36K7FyKNOvrU65YgCAvGDPlFbnXFgg4n+UT0K3SzdTDkxpJEbB8fzbV
-         1Mo4Kv1jNaAB+/CtI6Ct5/+7hEOFEoUuC03rUGeEJE9XThEYsOIQhcgsDB3htMF3OX
-         YBKbtUfB/DPD7pqrXrS9LL0Sd9jBGoKrGt/m8eiw=
+        b=soaZQe+HEsVZvmyvVJUzDVpynaBvNApKehF+F1PucBxJOcpqW2634qlgEitz0ZBIc
+         DQiWaTNPyYYWyQxnjw8a/kSfN41aYxcrbaq1xD/nZeN8Fx9mjk4AeWFspFNYxCHAXm
+         XPU4wGaLhsCNSbl5Fi7XzzFyXLUrHeqSCHZV3gx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: [PATCH 5.12 106/700] x86/gpu: add JasperLake to gen11 early quirks
+        stable@vger.kernel.org,
+        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 166/800] media: em28xx: Fix possible memory leak of em28xx struct
 Date:   Mon, 12 Jul 2021 08:03:09 +0200
-Message-Id: <20210712060939.810011284@linuxfoundation.org>
+Message-Id: <20210712060936.330599003@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-commit 31b77c70d9bc04d3b024ea56c129523f9edc1328 upstream.
+[ Upstream commit ac5688637144644f06ed1f3c6d4dd8bb7db96020 ]
 
-Let's reserve JSL stolen memory for graphics.
+The em28xx struct kref isn't being decreased after an error in the
+em28xx_ir_init, leading to a possible memory leak.
 
-JasperLake is a gen11 platform which is compatible with
-ICL/EHL changes.
+A kref_put and em28xx_shutdown_buttons is added to the error handler code.
 
-This was missed in commit 24ea098b7c0d ("drm/i915/jsl: Split
-EHL/JSL platform info and PCI ids")
-
-V2:
-    - Added maintainer list in cc
-    - Added patch ref in commit message
-V1:
-    - Added Cc: x86@kernel.org
-
-Fixes: 24ea098b7c0d ("drm/i915/jsl: Split EHL/JSL platform info and PCI ids")
-Cc: <stable@vger.kernel.org> # v5.11+
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: x86@kernel.org
-Cc: José Roberto de Souza <jose.souza@intel.com>
-Signed-off-by: Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210608053411.394166-1-tejaskumarx.surendrakumar.upadhyay@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/early-quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/em28xx/em28xx-input.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/early-quirks.c
-+++ b/arch/x86/kernel/early-quirks.c
-@@ -549,6 +549,7 @@ static const struct pci_device_id intel_
- 	INTEL_CNL_IDS(&gen9_early_ops),
- 	INTEL_ICL_11_IDS(&gen11_early_ops),
- 	INTEL_EHL_IDS(&gen11_early_ops),
-+	INTEL_JSL_IDS(&gen11_early_ops),
- 	INTEL_TGL_12_IDS(&gen11_early_ops),
- 	INTEL_RKL_IDS(&gen11_early_ops),
- };
+diff --git a/drivers/media/usb/em28xx/em28xx-input.c b/drivers/media/usb/em28xx/em28xx-input.c
+index 5aa15a7a49de..59529cbf9cd0 100644
+--- a/drivers/media/usb/em28xx/em28xx-input.c
++++ b/drivers/media/usb/em28xx/em28xx-input.c
+@@ -720,7 +720,8 @@ static int em28xx_ir_init(struct em28xx *dev)
+ 			dev->board.has_ir_i2c = 0;
+ 			dev_warn(&dev->intf->dev,
+ 				 "No i2c IR remote control device found.\n");
+-			return -ENODEV;
++			err = -ENODEV;
++			goto ref_put;
+ 		}
+ 	}
+ 
+@@ -735,7 +736,7 @@ static int em28xx_ir_init(struct em28xx *dev)
+ 
+ 	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
+ 	if (!ir)
+-		return -ENOMEM;
++		goto ref_put;
+ 	rc = rc_allocate_device(RC_DRIVER_SCANCODE);
+ 	if (!rc)
+ 		goto error;
+@@ -839,6 +840,9 @@ error:
+ 	dev->ir = NULL;
+ 	rc_free_device(rc);
+ 	kfree(ir);
++ref_put:
++	em28xx_shutdown_buttons(dev);
++	kref_put(&dev->ref, em28xx_free_device);
+ 	return err;
+ }
+ 
+-- 
+2.30.2
+
 
 
