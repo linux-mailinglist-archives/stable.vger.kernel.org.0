@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 667623C510C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D9E23C4BDD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239415AbhGLHgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:36:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52186 "EHLO mail.kernel.org"
+        id S238954AbhGLHAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:00:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346669AbhGLHeQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:34:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 174DD61414;
-        Mon, 12 Jul 2021 07:31:05 +0000 (UTC)
+        id S233473AbhGLG6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:58:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 863F0613CA;
+        Mon, 12 Jul 2021 06:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075066;
-        bh=0vXiCCGKha8Szv4tzj3R5QQyQHxtYdN2ywsMQMebipY=;
+        s=korg; t=1626072954;
+        bh=Oy13UB0ME+Nb4/IQRgeCJ2zrfoqR/8cCRtL+p4W3lEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKdIpV3Y/whmDfQEVK+OWWjANFMIoiOb6Q21UmSgvDlZIbZm9YAv3Tj3RXQH9sYxW
-         C+SyyKJ5GpeTGKRR2Z1hSVuXndYC7x88MhZNkfaEJjdHGwIbr165M+LrN+pgM55Mnl
-         ZyhI8oWinFj90Z+ym6XA6bfEhFHMTP97E3xbN+Lc=
+        b=UyZqqZoabB5VNCapgJdVhm122bb56GmgMVE6GttH+h55UsANXpf/fY3yCxAzZ7tDB
+         9xPudMLamTi/EAhPUV54Io3VG0JE786BC6vwJpfsMkyw7dXCv1h/kTBf7KKF55XplU
+         X7rXNpcou/FhQsFsWNbV1A+a1/BSq3Eyl7bmOXK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Nikita Travkin <nikita@trvn.ru>
-Subject: [PATCH 5.13 094/800] iio: ltr501: ltr559: fix initialization of LTR501_ALS_CONTR
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.12 034/700] copy_page_to_iter(): fix ITER_DISCARD case
 Date:   Mon, 12 Jul 2021 08:01:57 +0200
-Message-Id: <20210712060926.276420824@linuxfoundation.org>
+Message-Id: <20210712060929.437420872@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +38,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 421a26f3d7a7c3ca43f3a9dc0f3cb0f562d5bd95 upstream.
+commit a506abc7b644d71966a75337d5a534f531b3cdc4 upstream.
 
-The ltr559 chip uses only the lowest bit of the ALS_CONTR register to
-configure between active and stand-by mode. In the original driver
-BIT(1) is used, which does a software reset instead.
+we need to advance the iterator...
 
-This patch fixes the problem by using BIT(0) as als_mode_active for
-the ltr559 chip.
-
-Fixes: 8592a7eefa54 ("iio: ltr501: Add support for ltr559 chip")
-Signed-off-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
-Link: https://lore.kernel.org/r/20210610134619.2101372-3-mkl@pengutronix.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/ltr501.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/iov_iter.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/light/ltr501.c
-+++ b/drivers/iio/light/ltr501.c
-@@ -1208,7 +1208,7 @@ static struct ltr501_chip_info ltr501_ch
- 		.als_gain_tbl_size = ARRAY_SIZE(ltr559_als_gain_tbl),
- 		.ps_gain = ltr559_ps_gain_tbl,
- 		.ps_gain_tbl_size = ARRAY_SIZE(ltr559_ps_gain_tbl),
--		.als_mode_active = BIT(1),
-+		.als_mode_active = BIT(0),
- 		.als_gain_mask = BIT(2) | BIT(3) | BIT(4),
- 		.als_gain_shift = 2,
- 		.info = &ltr501_info,
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -906,9 +906,12 @@ size_t copy_page_to_iter(struct page *pa
+ 		size_t wanted = copy_to_iter(kaddr + offset, bytes, i);
+ 		kunmap_atomic(kaddr);
+ 		return wanted;
+-	} else if (unlikely(iov_iter_is_discard(i)))
++	} else if (unlikely(iov_iter_is_discard(i))) {
++		if (unlikely(i->count < bytes))
++			bytes = i->count;
++		i->count -= bytes;
+ 		return bytes;
+-	else if (likely(!iov_iter_is_pipe(i)))
++	} else if (likely(!iov_iter_is_pipe(i)))
+ 		return copy_page_to_iter_iovec(page, offset, bytes, i);
+ 	else
+ 		return copy_page_to_iter_pipe(page, offset, bytes, i);
 
 
