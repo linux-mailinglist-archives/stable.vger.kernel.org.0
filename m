@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC2A3C48FE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09ED3C4D49
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235316AbhGLGlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33552 "EHLO mail.kernel.org"
+        id S242007AbhGLHMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238272AbhGLGkE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39F0861008;
-        Mon, 12 Jul 2021 06:36:49 +0000 (UTC)
+        id S244026AbhGLHKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21DDF61364;
+        Mon, 12 Jul 2021 07:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071809;
-        bh=IH4lhPDpvxmWg2bAKUCN01/Ju1RnAolEGFYrWtFY018=;
+        s=korg; t=1626073550;
+        bh=cPpVpS6dsP0jzT29/RcnOppK5dDvUL+nBE4EfowLhxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3O65j943J0R5jYaWI3r88hk1oHF8wXYbDPKplx8eHURtOThsV2i0Q0R7V2w0/ddc
-         6MpCb3mjaeq0VrgOPZbgXHJS7fS9hJj4E4FYBdMrZ24TugRVMxDBWvZH+nuV/V2yHQ
-         CtGJa/VwZgfS5qc9KVPhTx9xu6jqpOBv5sbUcASE=
+        b=Gz2WmGRGmIjooD8glps6S/1ZcGhBWT2ueAFrINuAHoQvkU1dqklPefQHx6awS/jRu
+         kT9VGVObJqWdembCrgFnPwN4j9LmhmsisbirUPTJnM6vhca1hJvYQ2MRCKGCsnlcSz
+         obu+CkHn0H8xTTdqtOOmAUf5gTzOhy5QSx5pG0yY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 202/593] HID: wacom: Correct base usage for capacitive ExpressKey status bits
-Date:   Mon, 12 Jul 2021 08:06:02 +0200
-Message-Id: <20210712060905.243514305@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 280/700] m68k: atari: Fix ATARI_KBD_CORE kconfig unmet dependency warning
+Date:   Mon, 12 Jul 2021 08:06:03 +0200
+Message-Id: <20210712061006.031743048@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 424d8237945c6c448c8b3f23885d464fb5685c97 ]
+[ Upstream commit c1367ee016e3550745315fb9a2dd1e4ce02cdcf6 ]
 
-The capacitive status of ExpressKeys is reported with usages beginning
-at 0x940, not 0x950. Bring our driver into alignment with reality.
+Since the code for ATARI_KBD_CORE does not use drivers/input/keyboard/
+code, just move ATARI_KBD_CORE to arch/m68k/Kconfig.machine to remove
+the dependency on INPUT_KEYBOARD.
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Removes this kconfig warning:
+
+    WARNING: unmet direct dependencies detected for ATARI_KBD_CORE
+      Depends on [n]: !UML && INPUT [=y] && INPUT_KEYBOARD [=n]
+      Selected by [y]:
+      - MOUSE_ATARI [=y] && !UML && INPUT [=y] && INPUT_MOUSE [=y] && ATARI [=y]
+
+Fixes: c04cb856e20a ("m68k: Atari keyboard and mouse support.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Suggested-by: Michael Schmitz <schmitzmic@gmail.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20210527001251.8529-1-rdunlap@infradead.org
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/m68k/Kconfig.machine      | 3 +++
+ drivers/input/keyboard/Kconfig | 3 ---
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 195910dd2154..e3835407e8d2 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -122,7 +122,7 @@
- #define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0454)
- #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
- #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
--#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
-+#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0940)
- #define WACOM_HID_WD_MODE_CHANGE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0980)
- #define WACOM_HID_WD_MUTE_DEVICE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0981)
- #define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER | 0x0982)
+diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
+index 4d59ec2f5b8d..d964c1f27399 100644
+--- a/arch/m68k/Kconfig.machine
++++ b/arch/m68k/Kconfig.machine
+@@ -25,6 +25,9 @@ config ATARI
+ 	  this kernel on an Atari, say Y here and browse the material
+ 	  available in <file:Documentation/m68k>; otherwise say N.
+ 
++config ATARI_KBD_CORE
++	bool
++
+ config MAC
+ 	bool "Macintosh support"
+ 	depends on MMU
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 32d15809ae58..40a070a2e7f5 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -67,9 +67,6 @@ config KEYBOARD_AMIGA
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called amikbd.
+ 
+-config ATARI_KBD_CORE
+-	bool
+-
+ config KEYBOARD_APPLESPI
+ 	tristate "Apple SPI keyboard and trackpad"
+ 	depends on ACPI && EFI
 -- 
 2.30.2
 
