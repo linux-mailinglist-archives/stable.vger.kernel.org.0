@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DBB3C526A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0353C4D80
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345794AbhGLHpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53656 "EHLO mail.kernel.org"
+        id S241211AbhGLHNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344209AbhGLHnq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:43:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A24E61130;
-        Mon, 12 Jul 2021 07:40:49 +0000 (UTC)
+        id S243468AbhGLHHE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:07:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 209C461205;
+        Mon, 12 Jul 2021 07:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075650;
-        bh=cPpVpS6dsP0jzT29/RcnOppK5dDvUL+nBE4EfowLhxg=;
+        s=korg; t=1626073455;
+        bh=3f3u6T+bP+AeEqMQ/JnNwWybEKphYprOQArMPLXdZAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufDi/LOeShdkq2x1IMf3OvIioz5ZFzhM3cxh4CmVXt5BhdSgqJJwD2XendB/eMnIa
-         65g9uilfsx1i7xL0CgeXFnAket5kwSrhkBbnsGzsE2LDT3+BpO0HJjUV8Sj6SCpb22
-         Nd0XX4mmAThoxKxLi9gLldvEEc18NM7Ik1doiWwY=
+        b=fFRC7YpqRxeGyPL9gEphAYIG9yjnSueEgPi2HQg6FvD/f42NVx5+rxYsIpMohgX0M
+         m7mhXkNOei7BBxnzeWf188yPgnKWCvBL5ZYyFRLvBFRSb1bmqJR1qBm2bj1TzdVkmi
+         iHK+mfS+oZU3z/INPnkCU7hjY/7hr/vz82oZP58g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Marco Elver <elver@google.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 306/800] m68k: atari: Fix ATARI_KBD_CORE kconfig unmet dependency warning
-Date:   Mon, 12 Jul 2021 08:05:29 +0200
-Message-Id: <20210712060957.988900887@linuxfoundation.org>
+Subject: [PATCH 5.12 247/700] mm: define default MAX_PTRS_PER_* in include/pgtable.h
+Date:   Mon, 12 Jul 2021 08:05:30 +0200
+Message-Id: <20210712061001.910745111@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +49,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Daniel Axtens <dja@axtens.net>
 
-[ Upstream commit c1367ee016e3550745315fb9a2dd1e4ce02cdcf6 ]
+[ Upstream commit c0f8aa4fa815daacb6eca52cae04820d6aecb7c2 ]
 
-Since the code for ATARI_KBD_CORE does not use drivers/input/keyboard/
-code, just move ATARI_KBD_CORE to arch/m68k/Kconfig.machine to remove
-the dependency on INPUT_KEYBOARD.
+Commit c65e774fb3f6 ("x86/mm: Make PGDIR_SHIFT and PTRS_PER_P4D variable")
+made PTRS_PER_P4D variable on x86 and introduced MAX_PTRS_PER_P4D as a
+constant for cases which need a compile-time constant (e.g.  fixed-size
+arrays).
 
-Removes this kconfig warning:
+powerpc likewise has boot-time selectable MMU features which can cause
+other mm "constants" to vary.  For KASAN, we have some static
+PTE/PMD/PUD/P4D arrays so we need compile-time maximums for all these
+constants.  Extend the MAX_PTRS_PER_ idiom, and place default definitions
+in include/pgtable.h.  These define MAX_PTRS_PER_x to be PTRS_PER_x unless
+an architecture has defined MAX_PTRS_PER_x in its arch headers.
 
-    WARNING: unmet direct dependencies detected for ATARI_KBD_CORE
-      Depends on [n]: !UML && INPUT [=y] && INPUT_KEYBOARD [=n]
-      Selected by [y]:
-      - MOUSE_ATARI [=y] && !UML && INPUT [=y] && INPUT_MOUSE [=y] && ATARI [=y]
+Clean up pgtable-nop4d.h and s390's MAX_PTRS_PER_P4D definitions while
+we're at it: both can just pick up the default now.
 
-Fixes: c04cb856e20a ("m68k: Atari keyboard and mouse support.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Suggested-by: Michael Schmitz <schmitzmic@gmail.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Link: https://lore.kernel.org/r/20210527001251.8529-1-rdunlap@infradead.org
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lkml.kernel.org/r/20210624034050.511391-4-dja@axtens.net
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Acked-by: Andrey Konovalov <andreyknvl@gmail.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Balbir Singh <bsingharora@gmail.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.machine      | 3 +++
- drivers/input/keyboard/Kconfig | 3 ---
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/pgtable.h     |  2 --
+ include/asm-generic/pgtable-nop4d.h |  1 -
+ include/linux/pgtable.h             | 22 ++++++++++++++++++++++
+ 3 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
-index 4d59ec2f5b8d..d964c1f27399 100644
---- a/arch/m68k/Kconfig.machine
-+++ b/arch/m68k/Kconfig.machine
-@@ -25,6 +25,9 @@ config ATARI
- 	  this kernel on an Atari, say Y here and browse the material
- 	  available in <file:Documentation/m68k>; otherwise say N.
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 29c7ecd5ad1d..b38f7b781564 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -344,8 +344,6 @@ static inline int is_module_addr(void *addr)
+ #define PTRS_PER_P4D	_CRST_ENTRIES
+ #define PTRS_PER_PGD	_CRST_ENTRIES
  
-+config ATARI_KBD_CORE
-+	bool
-+
- config MAC
- 	bool "Macintosh support"
- 	depends on MMU
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 32d15809ae58..40a070a2e7f5 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -67,9 +67,6 @@ config KEYBOARD_AMIGA
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called amikbd.
- 
--config ATARI_KBD_CORE
--	bool
+-#define MAX_PTRS_PER_P4D	PTRS_PER_P4D
 -
- config KEYBOARD_APPLESPI
- 	tristate "Apple SPI keyboard and trackpad"
- 	depends on ACPI && EFI
+ /*
+  * Segment table and region3 table entry encoding
+  * (R = read-only, I = invalid, y = young bit):
+diff --git a/include/asm-generic/pgtable-nop4d.h b/include/asm-generic/pgtable-nop4d.h
+index ce2cbb3c380f..2f6b1befb129 100644
+--- a/include/asm-generic/pgtable-nop4d.h
++++ b/include/asm-generic/pgtable-nop4d.h
+@@ -9,7 +9,6 @@
+ typedef struct { pgd_t pgd; } p4d_t;
+ 
+ #define P4D_SHIFT		PGDIR_SHIFT
+-#define MAX_PTRS_PER_P4D	1
+ #define PTRS_PER_P4D		1
+ #define P4D_SIZE		(1UL << P4D_SHIFT)
+ #define P4D_MASK		(~(P4D_SIZE-1))
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index 136b1d996075..6fbbd620f6db 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -1580,4 +1580,26 @@ typedef unsigned int pgtbl_mod_mask;
+ #define pte_leaf_size(x) PAGE_SIZE
+ #endif
+ 
++/*
++ * Some architectures have MMUs that are configurable or selectable at boot
++ * time. These lead to variable PTRS_PER_x. For statically allocated arrays it
++ * helps to have a static maximum value.
++ */
++
++#ifndef MAX_PTRS_PER_PTE
++#define MAX_PTRS_PER_PTE PTRS_PER_PTE
++#endif
++
++#ifndef MAX_PTRS_PER_PMD
++#define MAX_PTRS_PER_PMD PTRS_PER_PMD
++#endif
++
++#ifndef MAX_PTRS_PER_PUD
++#define MAX_PTRS_PER_PUD PTRS_PER_PUD
++#endif
++
++#ifndef MAX_PTRS_PER_P4D
++#define MAX_PTRS_PER_P4D PTRS_PER_P4D
++#endif
++
+ #endif /* _LINUX_PGTABLE_H */
 -- 
 2.30.2
 
