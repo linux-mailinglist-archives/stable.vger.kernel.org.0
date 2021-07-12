@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B28673C55EB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A67AF3C50A5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350447AbhGLIMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:12:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S1343920AbhGLHeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:34:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354058AbhGLID1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6C5861209;
-        Mon, 12 Jul 2021 07:59:46 +0000 (UTC)
+        id S1345315AbhGLH3n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1CD761574;
+        Mon, 12 Jul 2021 07:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076787;
-        bh=SzXXGwELldSFDVJ8fOhuI8+fI6lsfYhNSsFaUkVuMy0=;
+        s=korg; t=1626074770;
+        bh=vbIdOpqykdVZ+lcvBjxFFpJ7AefLJLkRFPmxWAZWWuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PUZqPlwiDiRpPU4SUiqWzXvgHAoLluI21owqG0ABl6ctzo7gIdKledj0tOJ5brtU
-         I0t5FjrQxMuQt2ZLEwdIHZLYB476pzM6A/J/CRAAPnQUfnfdnr5+gNXH+Zh3UmFiwA
-         KD6vRxp0QoR0KK+RTSLFaTU9pK+NIrf/dPzMnBb8=
+        b=XxzcQOFNiUEE+LHRXxiRb0/GWcIOBxF7OAtBVvam2toUAaTIvP4GcXk8llFE7TYfP
+         tuFoqRR4I+PTjm7znTXgMPM2LY8e5qTmrfs6eywvgwsxvi/qGP6+nzmTaE4G3We9iX
+         VcGU1S6fM6rGqDYHTKu2Th4L1Df/zbC8wNKzKhBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 751/800] serial: 8250: 8250_omap: Fix possible interrupt storm on K3 SoCs
+        stable@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.12 691/700] tpm: Replace WARN_ONCE() with dev_err_once() in tpm_tis_status()
 Date:   Mon, 12 Jul 2021 08:12:54 +0200
-Message-Id: <20210712061046.701821354@linuxfoundation.org>
+Message-Id: <20210712061049.483671717@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +38,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: Jarkko Sakkinen <jarkko@kernel.org>
 
-[ Upstream commit b67e830d38fa9335d927fe67e812e3ed81b4689c ]
+commit 0178f9d0f60ba07e09bab57381a3ef18e2c1fd7f upstream.
 
-On K3 family of SoCs (which includes AM654 SoC), it is observed that RX
-TIMEOUT is signalled after RX FIFO has been drained, in which case a
-dummy read of RX FIFO is required to clear RX TIMEOUT condition.
-Otherwise, this would lead to an interrupt storm.
+Do not tear down the system when getting invalid status from a TPM chip.
+This can happen when panic-on-warn is used.
 
-Fix this by introducing UART_RX_TIMEOUT_QUIRK flag and doing a dummy
-read in IRQ handler when RX TIMEOUT is reported with no data in RX FIFO.
+Instead, introduce TPM_TIS_INVALID_STATUS bitflag and use it to trigger
+once the error reporting per chip. In addition, print out the value of
+TPM_STS for improved forensics.
 
-Fixes: be70874498f3 ("serial: 8250_omap: Add support for AM654 UART controller")
-Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
-Tested-by: Jan Kiszka <jan.kiszka@siemens.com>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20210622145704.11168-1-vigneshr@ti.com
+Link: https://lore.kernel.org/keyrings/YKzlTR1AzUigShtZ@kroah.com/
+Fixes: 55707d531af6 ("tpm_tis: Add a check for invalid status")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/tty/serial/8250/8250_omap.c | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index c06631ced414..79418d4beb48 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -43,6 +43,7 @@
- #define UART_ERRATA_CLOCK_DISABLE	(1 << 3)
- #define	UART_HAS_EFR2			BIT(4)
- #define UART_HAS_RHR_IT_DIS		BIT(5)
-+#define UART_RX_TIMEOUT_QUIRK		BIT(6)
+---
+ drivers/char/tpm/tpm_tis_core.c |   25 ++++++++++++++++++-------
+ drivers/char/tpm/tpm_tis_core.h |    3 ++-
+ 2 files changed, 20 insertions(+), 8 deletions(-)
+
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -196,13 +196,24 @@ static u8 tpm_tis_status(struct tpm_chip
+ 		return 0;
  
- #define OMAP_UART_FCR_RX_TRIG		6
- #define OMAP_UART_FCR_TX_TRIG		4
-@@ -104,6 +105,9 @@
- #define UART_OMAP_EFR2			0x23
- #define UART_OMAP_EFR2_TIMEOUT_BEHAVE	BIT(6)
- 
-+/* RX FIFO occupancy indicator */
-+#define UART_OMAP_RX_LVL		0x64
+ 	if (unlikely((status & TPM_STS_READ_ZERO) != 0)) {
+-		/*
+-		 * If this trips, the chances are the read is
+-		 * returning 0xff because the locality hasn't been
+-		 * acquired.  Usually because tpm_try_get_ops() hasn't
+-		 * been called before doing a TPM operation.
+-		 */
+-		WARN_ONCE(1, "TPM returned invalid status\n");
++		if  (!test_and_set_bit(TPM_TIS_INVALID_STATUS, &priv->flags)) {
++			/*
++			 * If this trips, the chances are the read is
++			 * returning 0xff because the locality hasn't been
++			 * acquired.  Usually because tpm_try_get_ops() hasn't
++			 * been called before doing a TPM operation.
++			 */
++			dev_err(&chip->dev, "invalid TPM_STS.x 0x%02x, dumping stack for forensics\n",
++				status);
 +
- struct omap8250_priv {
- 	int line;
- 	u8 habit;
-@@ -611,6 +615,7 @@ static int omap_8250_dma_handle_irq(struct uart_port *port);
- static irqreturn_t omap8250_irq(int irq, void *dev_id)
- {
- 	struct uart_port *port = dev_id;
-+	struct omap8250_priv *priv = port->private_data;
- 	struct uart_8250_port *up = up_to_u8250p(port);
- 	unsigned int iir;
- 	int ret;
-@@ -625,6 +630,18 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- 	serial8250_rpm_get(up);
- 	iir = serial_port_in(port, UART_IIR);
- 	ret = serial8250_handle_irq(port, iir);
++			/*
++			 * Dump stack for forensics, as invalid TPM_STS.x could be
++			 * potentially triggered by impaired tpm_try_get_ops() or
++			 * tpm_find_get_ops().
++			 */
++			dump_stack();
++		}
 +
-+	/*
-+	 * On K3 SoCs, it is observed that RX TIMEOUT is signalled after
-+	 * FIFO has been drained, in which case a dummy read of RX FIFO
-+	 * is required to clear RX TIMEOUT condition.
-+	 */
-+	if (priv->habit & UART_RX_TIMEOUT_QUIRK &&
-+	    (iir & UART_IIR_RX_TIMEOUT) == UART_IIR_RX_TIMEOUT &&
-+	    serial_port_in(port, UART_OMAP_RX_LVL) == 0) {
-+		serial_port_in(port, UART_RX);
-+	}
-+
- 	serial8250_rpm_put(up);
+ 		return 0;
+ 	}
  
- 	return IRQ_RETVAL(ret);
-@@ -1218,7 +1235,8 @@ static struct omap8250_dma_params am33xx_dma = {
+--- a/drivers/char/tpm/tpm_tis_core.h
++++ b/drivers/char/tpm/tpm_tis_core.h
+@@ -83,6 +83,7 @@ enum tis_defaults {
  
- static struct omap8250_platdata am654_platdata = {
- 	.dma_params	= &am654_dma,
--	.habit		= UART_HAS_EFR2 | UART_HAS_RHR_IT_DIS,
-+	.habit		= UART_HAS_EFR2 | UART_HAS_RHR_IT_DIS |
-+			  UART_RX_TIMEOUT_QUIRK,
+ enum tpm_tis_flags {
+ 	TPM_TIS_ITPM_WORKAROUND		= BIT(0),
++	TPM_TIS_INVALID_STATUS		= BIT(1),
  };
  
- static struct omap8250_platdata am33xx_platdata = {
--- 
-2.30.2
-
+ struct tpm_tis_data {
+@@ -90,7 +91,7 @@ struct tpm_tis_data {
+ 	int locality;
+ 	int irq;
+ 	bool irq_tested;
+-	unsigned int flags;
++	unsigned long flags;
+ 	void __iomem *ilb_base_addr;
+ 	u16 clkrun_enabled;
+ 	wait_queue_head_t int_queue;
 
 
