@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB933C5092
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C643C55A2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344457AbhGLHdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:33:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36898 "EHLO mail.kernel.org"
+        id S232430AbhGLILZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:11:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344552AbhGLH3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BB9361627;
-        Mon, 12 Jul 2021 07:25:34 +0000 (UTC)
+        id S1353828AbhGLIDB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFEAC61D0D;
+        Mon, 12 Jul 2021 07:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074734;
-        bh=/s/Wi3g9RFrPpOho4vGcaAawlTYvpho1ws/v91kSbRA=;
+        s=korg; t=1626076668;
+        bh=dvT+46BeYcIweLUBtLz0tP8R4ak/r69IrFhf05nTBFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AXSkxh/WQW7+H4a/r+u0Q+66Dy2/gxrndFMwICF9rn+De6r2TdLH+9uQDAUdKy7nq
-         ppTkTf1ju92SxnYvaCS3xaZyVrVT/A7AyrsiFwEXKLVMzRVvy9rS2l9bBVTxWrXwf/
-         aG3w3rOjxsv+7lq1hosuf4b+//9o+6Bv5s9oIlFc=
+        b=B+v4ySPOJUFim32kUAZf0RV2mERaOiD5wplyBtXZVC8Z2Js3hbXf2V1x2PMjeNOg4
+         TLdK0S6pru3ZJGhhud15Fhh0IfVnKo+ORvfLMoxPQyqSFi4cNSoIpGhmgxKDgpBlo1
+         mDq8fplJy5tdblOT+TyQOcZ8I1LjRMmBbNozcw3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 680/700] csky: syscache: Fixup duplicate cache flush
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 740/800] ASoC: fsl_xcvr: disable all interrupts when suspend happens
 Date:   Mon, 12 Jul 2021 08:12:43 +0200
-Message-Id: <20210712061048.245674502@linuxfoundation.org>
+Message-Id: <20210712061045.508332979@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 6ea42c84f33368eb3fe1ec1bff8d7cb1a5c7b07a ]
+[ Upstream commit ea837090b388245744988083313f6e9c7c9b9699 ]
 
-The current csky logic of sys_cacheflush is wrong, it'll cause
-icache flush call dcache flush again. Now fixup it with a
-conditional "break & fallthrough".
+There is an unhandled interrupt after suspend, which cause endless
+interrupt when system resume, so system may hang.
 
-Fixes: 997153b9a75c ("csky: Add flush_icache_mm to defer flush icache all")
-Fixes: 0679d29d3e23 ("csky: fix syscache.c fallthrough warning")
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Co-Developed-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
+Disable all interrupts in runtime suspend callback to avoid above
+issue.
+
+Fixes: 28564486866f ("ASoC: fsl_xcvr: Add XCVR ASoC CPU DAI driver")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/1624019913-3380-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/mm/syscache.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ sound/soc/fsl/fsl_xcvr.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/csky/mm/syscache.c b/arch/csky/mm/syscache.c
-index 4e51d63850c4..cd847ad62c7e 100644
---- a/arch/csky/mm/syscache.c
-+++ b/arch/csky/mm/syscache.c
-@@ -12,15 +12,17 @@ SYSCALL_DEFINE3(cacheflush,
- 		int, cache)
- {
- 	switch (cache) {
--	case ICACHE:
- 	case BCACHE:
--		flush_icache_mm_range(current->mm,
--				(unsigned long)addr,
--				(unsigned long)addr + bytes);
--		fallthrough;
- 	case DCACHE:
- 		dcache_wb_range((unsigned long)addr,
- 				(unsigned long)addr + bytes);
-+		if (cache != BCACHE)
-+			break;
-+		fallthrough;
-+	case ICACHE:
-+		flush_icache_mm_range(current->mm,
-+				(unsigned long)addr,
-+				(unsigned long)addr + bytes);
- 		break;
- 	default:
- 		return -EINVAL;
+diff --git a/sound/soc/fsl/fsl_xcvr.c b/sound/soc/fsl/fsl_xcvr.c
+index 6cb558165848..46f3f2c68756 100644
+--- a/sound/soc/fsl/fsl_xcvr.c
++++ b/sound/soc/fsl/fsl_xcvr.c
+@@ -1233,6 +1233,16 @@ static __maybe_unused int fsl_xcvr_runtime_suspend(struct device *dev)
+ 	struct fsl_xcvr *xcvr = dev_get_drvdata(dev);
+ 	int ret;
+ 
++	/*
++	 * Clear interrupts, when streams starts or resumes after
++	 * suspend, interrupts are enabled in prepare(), so no need
++	 * to enable interrupts in resume().
++	 */
++	ret = regmap_update_bits(xcvr->regmap, FSL_XCVR_EXT_IER0,
++				 FSL_XCVR_IRQ_EARC_ALL, 0);
++	if (ret < 0)
++		dev_err(dev, "Failed to clear IER0: %d\n", ret);
++
+ 	/* Assert M0+ reset */
+ 	ret = regmap_update_bits(xcvr->regmap, FSL_XCVR_EXT_CTRL,
+ 				 FSL_XCVR_EXT_CTRL_CORE_RESET,
 -- 
 2.30.2
 
