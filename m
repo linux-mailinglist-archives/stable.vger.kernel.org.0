@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64E743C5532
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6683C4F8E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355396AbhGLIJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
+        id S243719AbhGLH0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:26:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353133AbhGLIBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:01:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37C6E61C50;
-        Mon, 12 Jul 2021 07:54:19 +0000 (UTC)
+        id S1343564AbhGLHYM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:24:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4AAF61403;
+        Mon, 12 Jul 2021 07:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076459;
-        bh=Q2FOvnjICuD6VGslWPL85LRcJm03rb1WO9PQ2VacMHA=;
+        s=korg; t=1626074465;
+        bh=YS150Zw3EMrfbg7HTU/kACgheRdPjXylbhg3QzhH4fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUq/zmCJJkTZCrwGiP+sQn+8mdaz2a6deBwjFAJaK+V/k9FMNZrSPBVQv+C0fRVWU
-         j39h4rFrSE87waIFtbZ0RZ02Bcq4y9OUGhb9REyMkbWnBaFqRiTkkmRDbO/WHpTnrL
-         z8VXaYsRDw8R0Jd55C5NlMfgZs85H8rxOC0ZTarg=
+        b=yK9UTL+yIly9PSATQ95P+UkH7dq/qNGXMvy2aHeFSFQJKd+mQdPRKUTlu079UtOWK
+         odjkwC/ra9XULEiy4dl5mn+njZR9fFakValcX7RbOIYeLpYb0oH2W/ogVeSm/5T3lD
+         UhVTyk0CZfE2YXiLAb/UB5gCehga1UtRxcK8HKVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 650/800] misc/pvpanic-pci: Fix error handling in pvpanic_pci_probe()
+Subject: [PATCH 5.12 590/700] visorbus: fix error return code in visorchipset_init()
 Date:   Mon, 12 Jul 2021 08:11:13 +0200
-Message-Id: <20210712061036.174665211@linuxfoundation.org>
+Message-Id: <20210712061038.757820471@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 372dae89972594393b57f29ec44e351fa7eedbbe ]
+[ Upstream commit ce52ec5beecc1079c251f60e3973b3758f60eb59 ]
 
-There is no error handling path in the probe function.
-Switch to managed resource so that errors in the probe are handled easily
-and simplify the remove function accordingly.
+Commit 1366a3db3dcf ("staging: unisys: visorbus: visorchipset_init clean
+up gotos") assigns the initial value -ENODEV to the local variable 'err',
+and the first several error branches will return this value after "goto
+error". But commit f1f537c2e7f5 ("staging: unisys: visorbus: Consolidate
+controlvm channel creation.") overwrites 'err' in the middle of the way.
+As a result, some error branches do not successfully return the initial
+value -ENODEV of 'err', but return 0.
 
-Fixes: db3a4f0abefd ("misc/pvpanic: add PCI driver")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/ab071b1f4ed6e1174f9199095fb16a58bb406090.1621665058.git.christophe.jaillet@wanadoo.fr
+In addition, when kzalloc() fails, -ENOMEM should be returned instead of
+-ENODEV.
+
+Fixes: f1f537c2e7f5 ("staging: unisys: visorbus: Consolidate controlvm channel creation.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210528082614.9337-1-thunder.leizhen@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/pvpanic/pvpanic-pci.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/visorbus/visorchipset.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/pvpanic/pvpanic-pci.c b/drivers/misc/pvpanic/pvpanic-pci.c
-index 9ecc4e8559d5..046ce4ecc195 100644
---- a/drivers/misc/pvpanic/pvpanic-pci.c
-+++ b/drivers/misc/pvpanic/pvpanic-pci.c
-@@ -78,15 +78,15 @@ static int pvpanic_pci_probe(struct pci_dev *pdev,
- 	void __iomem *base;
- 	int ret;
+diff --git a/drivers/visorbus/visorchipset.c b/drivers/visorbus/visorchipset.c
+index cb1eb7e05f87..5668cad86e37 100644
+--- a/drivers/visorbus/visorchipset.c
++++ b/drivers/visorbus/visorchipset.c
+@@ -1561,7 +1561,7 @@ schedule_out:
  
--	ret = pci_enable_device(pdev);
-+	ret = pcim_enable_device(pdev);
- 	if (ret < 0)
- 		return ret;
+ static int visorchipset_init(struct acpi_device *acpi_device)
+ {
+-	int err = -ENODEV;
++	int err = -ENOMEM;
+ 	struct visorchannel *controlvm_channel;
  
--	base = pci_iomap(pdev, 0, 0);
-+	base = pcim_iomap(pdev, 0, 0);
- 	if (!base)
- 		return -ENOMEM;
- 
--	pi = kmalloc(sizeof(*pi), GFP_ATOMIC);
-+	pi = devm_kmalloc(&pdev->dev, sizeof(*pi), GFP_ATOMIC);
- 	if (!pi)
- 		return -ENOMEM;
- 
-@@ -107,9 +107,6 @@ static void pvpanic_pci_remove(struct pci_dev *pdev)
- 	struct pvpanic_instance *pi = dev_get_drvdata(&pdev->dev);
- 
- 	pvpanic_remove(pi);
--	iounmap(pi->base);
--	kfree(pi);
--	pci_disable_device(pdev);
- }
- 
- static struct pci_driver pvpanic_pci_driver = {
+ 	chipset_dev = kzalloc(sizeof(*chipset_dev), GFP_KERNEL);
+@@ -1584,8 +1584,10 @@ static int visorchipset_init(struct acpi_device *acpi_device)
+ 				 "controlvm",
+ 				 sizeof(struct visor_controlvm_channel),
+ 				 VISOR_CONTROLVM_CHANNEL_VERSIONID,
+-				 VISOR_CHANNEL_SIGNATURE))
++				 VISOR_CHANNEL_SIGNATURE)) {
++		err = -ENODEV;
+ 		goto error_delete_groups;
++	}
+ 	/* if booting in a crash kernel */
+ 	if (is_kdump_kernel())
+ 		INIT_DELAYED_WORK(&chipset_dev->periodic_controlvm_work,
 -- 
 2.30.2
 
